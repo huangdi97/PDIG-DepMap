@@ -1,0 +1,17 @@
+请开始执行当前 Workspace 的 DepMap MVP。
+
+先完整读取并遵守：
+AGENTS.md
+CANONICAL_DESIGN.md
+PLATFORM_DECISION.md
+GOAL_MVP01.md
+WORK_STATUS.md
+BLOCKERS.md
+
+当前目录在业务代码层面是空的。不要再给我架构建议，也不要问我要不要继续。
+
+按 GOAL_MVP01 从 PHASE 0 开始实际创建文件、写代码、写 failing tests、运行测试、修复错误并持续推进。除开发者账号、签名、macOS/Xcode、真实账单等真正外部依赖外，不要停止。
+
+任何时候都遵守：宁可漏报，不可把“不确定”伪装成“必须处理”。
+
+现在开始执行，并持续更新 WORK_STATUS.md。

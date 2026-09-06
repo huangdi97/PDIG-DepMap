@@ -1,0 +1,74 @@
+# Dependencies / build
+node_modules/
+dist/
+build/
+coverage/
+.unpackage/
+unpackage/
+.hbuilderx/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.secret
+*.secrets
+secrets/
+credentials/
+
+# Signing / certificates
+*.keystore
+*.jks
+*.p12
+*.p8
+*.cer
+*.mobileprovision
+*.provisionprofile
+*.der
+*.pem
+*.key
+signing/
+certificates/
+
+# IDE / OS
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+
+# User/private data
+local_private/*
+!local_private/README.md
+private/
+real_bills/
+real-data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+
+# Backups / decrypted data
+*.depmap.decrypted
+*.depmap.json
+decrypted/
+tmp_private/
+
+# Generated platform artifacts
+*.apk
+*.aab
+*.ipa
+*.app
+*.hap
+*.app.zip
+
+# Test temp
+tmp/
+.temp/
+.cache/
