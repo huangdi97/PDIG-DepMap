@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
+    "iconv-lite": "^0.7.3",
     "typescript": "^5.8.0",
     "vitest": "^3.1.0"
   }
