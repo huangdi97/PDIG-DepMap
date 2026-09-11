@@ -1,80 +1,80 @@
-# QUALITY_GATES.md
+# QUALITY_GATES.md — Gate 状态（2026-09-12 RC 收口）
 
 ## Q0 Repo
-- [ ] git diff --check PASS
-- [ ] no accidental binaries
-- [ ] no real data
-- [ ] no signing materials
-- [ ] line endings sane
+- [x] git diff --check PASS
+- [x] no accidental binaries
+- [x] no real data（local_private 仅 README）
+- [x] no signing materials
+- [x] line endings sane（.gitattributes：源码 LF、fixtures 保字节）
 
 ## Q1 Static
-- [ ] format:check PASS
-- [ ] lint errors = 0
-- [ ] typecheck PASS
-- [ ] architecture check PASS
-- [ ] release-blocking TODO = 0
+- [x] format:check PASS（prettier，TS/JS/JSON/MD/YAML；.uvue/.uts 明确排除）
+- [x] lint errors = 0（eslint typed，0 warnings）
+- [x] typecheck PASS（strict 全开）
+- [x] architecture check PASS（check:architecture，27 files）
+- [x] release-blocking TODO = 0
 
-## Q2 Tests
-- [ ] unit PASS
-- [ ] integration PASS
-- [ ] parser PASS
-- [ ] crypto PASS
-- [ ] impact PASS
-- [ ] migration PASS
-- [ ] proposal lifecycle PASS
-- [ ] synthetic E2E PASS
-- [ ] determinism PASS
-- [ ] idempotency PASS
-- [ ] negative tests PASS
-- [ ] fuzz/property smoke PASS
+## Q2 Tests（166/166）
+- [x] unit PASS
+- [x] integration PASS
+- [x] parser PASS
+- [x] crypto PASS
+- [x] impact PASS
+- [x] migration PASS
+- [x] proposal lifecycle PASS
+- [x] synthetic E2E PASS
+- [x] determinism PASS
+- [x] idempotency PASS
+- [x] negative tests PASS
+- [x] fuzz/property smoke PASS
 
 ## Q3 Security/Privacy
-- [ ] production secret findings = 0
-- [ ] sensitive log findings = 0
-- [ ] raw bill persistence = 0
-- [ ] fail-closed audit PASS
-- [ ] business network calls = 0
-- [ ] encrypted export remains default
+- [x] production secret findings = 0
+- [x] sensitive log findings = 0
+- [x] raw bill persistence = 0
+- [x] fail-closed audit PASS
+- [x] business network calls = 0
+- [x] encrypted export remains default
 
 ## Q4 Dependencies
-- [ ] npm/package tree valid
-- [ ] lockfile consistent
-- [ ] dependency audit generated
-- [ ] license audit generated
+- [x] npm/package tree valid
+- [x] lockfile consistent（npm ci）
+- [x] dependency audit generated（3 moderate，dev-only，已评估）
+- [x] license audit generated（THIRD_PARTY_NOTICES.md）
 
 ## Q5 Clean Environment
-- [ ] clean install PASS
-- [ ] npm run check PASS
-- [ ] clean clone simulation PASS
+- [x] clean install PASS
+- [x] npm run check PASS
+- [x] clean clone simulation PASS
 
 ## Q6 UI Source
-- [ ] no mock production data
-- [ ] loading/empty/error reviewed
-- [ ] Proposal != Reality
-- [ ] destructive final action last
-- [ ] Chinese default
-- [ ] accessibility source audit
+- [x] no mock production data
+- [x] loading/empty/error reviewed
+- [x] Proposal != Reality
+- [x] destructive final action last
+- [x] Chinese default
+- [x] accessibility source audit（SOURCE_AUDITED）
 
 ## Q7 Platform
 ### Android
-- [ ] STATIC_AUDITED
-- [ ] COMPILED if toolchain available
-- [ ] TESTED if toolchain available
+- [x] STATIC_AUDITED
+- [ ] COMPILED if toolchain available（不可用：B1）
+- [ ] TESTED if toolchain available（不可用：B1）
 ### HarmonyOS
-- [ ] STATIC_AUDITED
-- [ ] COMPILED if toolchain available
-- [ ] TESTED if toolchain available
+- [x] STATIC_AUDITED
+- [ ] COMPILED if toolchain available（不可用：B2）
+- [ ] TESTED if toolchain available（不可用：B2）
 ### iOS
-- [ ] STATIC_AUDITED
-- [ ] Mac handoff complete
-- [ ] COMPILED only if Xcode available
+- [x] STATIC_AUDITED
+- [x] Mac handoff complete
+- [ ] COMPILED only if Xcode available（不可用：B3）
 
 ## Q8 Docs/Release
-- [ ] README commands verified
-- [ ] version matrix
-- [ ] permission audit
-- [ ] network audit
-- [ ] crypto audit
-- [ ] privacy dataflow audit
-- [ ] clean clone report
-- [ ] RC report
+- [x] README commands verified（npm install/test/typecheck + validate-real-bill CLI 实跑）
+- [x] version matrix（docs/VERSION_MATRIX.md）
+- [x] permission audit（docs/PERMISSION_AUDIT.md）
+- [x] network audit（docs/NETWORK_AUDIT.md）
+- [x] crypto audit（docs/CRYPTO_RC_AUDIT.md）
+- [x] privacy dataflow audit（docs/PRIVACY_DATAFLOW_AUDIT.md）
+- [x] clean clone report（docs/CLEAN_CLONE_REPORT.md）
+- [x] RC report（MVP01_RC_AUDIT_REPORT.md）

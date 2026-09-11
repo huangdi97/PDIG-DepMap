@@ -1,7 +1,7 @@
 # TEST_MATRIX.md — 测试矩阵
 
 > 运行：`cd core && npm test`（vitest）+ `npm run typecheck`
-> 当前：**106 tests / 106 PASS**，typecheck 0 error（Node v22.15.0）
+> 当前：**166 tests / 166 PASS**，typecheck 0 error（Node v22.15.0；RC 收口后含 determinism/idempotency/negative/fuzz/perf/db-integrity 套件，见 docs/TEST_REPORT_RC.md）
 
 ## Core（全部 PASS）
 
