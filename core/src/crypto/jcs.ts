@@ -12,7 +12,8 @@ export class JcsError extends Error {}
 function escapeString(s: string): string {
   let out = '"'
   for (const ch of s) {
-    const code = ch.codePointAt(0)!
+    const code = ch.codePointAt(0)
+    if (code === undefined) continue
     if (ch === '"') out += '\\"'
     else if (ch === '\\') out += '\\\\'
     else if (code === 0x08) out += '\\b'
@@ -49,7 +50,7 @@ function serialize(value: unknown): string {
   if (t === 'object') {
     const obj = value as Record<string, unknown>
     const keys = Object.keys(obj).sort()
-    return '{' + keys.map(k => `${escapeString(k)}:${serialize(obj[k])}`).join(',') + '}'
+    return '{' + keys.map((k) => `${escapeString(k)}:${serialize(obj[k])}`).join(',') + '}'
   }
   throw new JcsError(`JCS restricted domain: unsupported type ${t}`)
 }

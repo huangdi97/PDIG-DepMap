@@ -8,7 +8,7 @@ import {
   computeAad,
   DepmapError,
   DEPMAP_V1_DEFAULTS,
-  fromBase64
+  fromBase64,
 } from '../../src/crypto/depmap.ts'
 import {
   createGoldenContainer,
@@ -16,7 +16,7 @@ import {
   GOLDEN_PASSWORD,
   GOLDEN_PLAINTEXT,
   GOLDEN_SALT_HEX,
-  GOLDEN_NONCE_HEX
+  GOLDEN_NONCE_HEX,
 } from '../../src/crypto/golden.ts'
 
 // --------------------------------------------------------------------- JCS
@@ -50,11 +50,18 @@ describe('DEPMAP V1 bounds validation (before Argon2)', () => {
       JSON.stringify({
         format: 'depmap',
         formatVersion: 1,
-        kdf: { algorithm: 'argon2id', version: 19, salt: 'ABEiM0RVZneImaq7zN3u/w==', memoryKiB: 65536, iterations: 3, parallelism: 1 },
+        kdf: {
+          algorithm: 'argon2id',
+          version: 19,
+          salt: 'ABEiM0RVZneImaq7zN3u/w==',
+          memoryKiB: 65536,
+          iterations: 3,
+          parallelism: 1,
+        },
         cipher: { algorithm: 'AES-256-GCM', nonce: 'obLD1OX2BxgpOktc' },
         ciphertext: 'AAAA',
-        tag: '5qpABhovPbNet1q2GNEhkg=='
-      })
+        tag: '5qpABhovPbNet1q2GNEhkg==',
+      }),
     )
     for (const [k, v] of Object.entries(over)) {
       if (k.includes('.')) {
@@ -80,7 +87,7 @@ describe('DEPMAP V1 bounds validation (before Argon2)', () => {
     ['kdf.parallelism', 0],
     ['kdf.parallelism', 5],
     ['formatVersion', 2],
-    ['kdf.version', 16]
+    ['kdf.version', 16],
   ])('rejects %s = %s', (field, value) => {
     try {
       validateDepmapBounds(parseDepmapHeader(headerWith({ [field]: value })))
@@ -95,17 +102,19 @@ describe('DEPMAP V1 bounds validation (before Argon2)', () => {
     for (const [field, v] of [
       ['kdf.salt', 'AAAA'],
       ['cipher.nonce', 'AAAA'],
-      ['tag', 'AAAA']
+      ['tag', 'AAAA'],
     ] as const) {
-      expect(() => validateDepmapBounds(parseDepmapHeader(headerWith({ [field]: v })))).toThrowError(DepmapError)
+      expect(() =>
+        validateDepmapBounds(parseDepmapHeader(headerWith({ [field]: v }))),
+      ).toThrowError(DepmapError)
     }
   })
 
   it('malicious container with huge memoryKiB is rejected BEFORE KDF (fast)', () => {
     const t0 = Date.now()
-    expect(() => validateDepmapBounds(parseDepmapHeader(headerWith({ 'kdf.memoryKiB': 1_000_000_000 })))).toThrowError(
-      /memoryKiB/
-    )
+    expect(() =>
+      validateDepmapBounds(parseDepmapHeader(headerWith({ 'kdf.memoryKiB': 1_000_000_000 }))),
+    ).toThrowError(/memoryKiB/)
     // 边界检查是纯同步校验，不应花费明显时间（KDF 至少数百毫秒）
     expect(Date.now() - t0).toBeLessThan(200)
   })
@@ -124,7 +133,9 @@ describe('DEPMAP container create/open', () => {
   it('wrong password fails with auth_failed', async () => {
     const pt = new TextEncoder().encode('secret')
     const { json } = await createDepmapContainer(pt, 'right-password')
-    await expect(openDepmapContainer(json, 'wrong-password')).rejects.toMatchObject({ code: 'auth_failed' })
+    await expect(openDepmapContainer(json, 'wrong-password')).rejects.toMatchObject({
+      code: 'auth_failed',
+    })
   })
 
   it('tag tamper fails authentication', async () => {
@@ -134,7 +145,9 @@ describe('DEPMAP container create/open', () => {
     const tagBytes = fromBase64(header.tag)
     tagBytes[0] = (tagBytes[0]! + 1) % 256
     header.tag = Buffer.from(tagBytes).toString('base64')
-    await expect(openDepmapContainer(JSON.stringify(header), 'pwd')).rejects.toMatchObject({ code: 'auth_failed' })
+    await expect(openDepmapContainer(JSON.stringify(header), 'pwd')).rejects.toMatchObject({
+      code: 'auth_failed',
+    })
   })
 
   it('ciphertext tamper fails authentication (AAD + GCM)', async () => {
@@ -144,7 +157,9 @@ describe('DEPMAP container create/open', () => {
     const ct = fromBase64(header.ciphertext)
     ct[0] = (ct[0]! + 1) % 256
     header.ciphertext = Buffer.from(ct).toString('base64')
-    await expect(openDepmapContainer(JSON.stringify(header), 'pwd')).rejects.toMatchObject({ code: 'auth_failed' })
+    await expect(openDepmapContainer(JSON.stringify(header), 'pwd')).rejects.toMatchObject({
+      code: 'auth_failed',
+    })
   })
 
   it('header tamper (in-bounds kdf change) fails via AAD mismatch', async () => {
@@ -152,7 +167,9 @@ describe('DEPMAP container create/open', () => {
     const { json } = await createDepmapContainer(pt, 'pwd')
     const header = JSON.parse(json)
     header.kdf.iterations = 4 // 仍在合法边界内，但 AAD 改变
-    await expect(openDepmapContainer(JSON.stringify(header), 'pwd')).rejects.toMatchObject({ code: 'auth_failed' })
+    await expect(openDepmapContainer(JSON.stringify(header), 'pwd')).rejects.toMatchObject({
+      code: 'auth_failed',
+    })
   })
 
   it('AAD excludes ciphertext/tag and is stable JCS', async () => {
@@ -167,8 +184,14 @@ describe('DEPMAP container create/open', () => {
   it('uses exact UTF-8 bytes of password (no unicode normalization)', async () => {
     // 'é' 的 NFC/NFD 字节不同；两个口令必须产生不同密文
     const pt = new TextEncoder().encode('x')
-    const a = await createDepmapContainer(pt, 'café', { salt: fromBase64('ABEiM0RVZneImaq7zN3u/w=='), nonce: fromBase64('obLD1OX2BxgpOktc') })
-    const b = await createDepmapContainer(pt, 'cafe\u0301', { salt: fromBase64('ABEiM0RVZneImaq7zN3u/w=='), nonce: fromBase64('obLD1OX2BxgpOktc') })
+    const a = await createDepmapContainer(pt, 'café', {
+      salt: fromBase64('ABEiM0RVZneImaq7zN3u/w=='),
+      nonce: fromBase64('obLD1OX2BxgpOktc'),
+    })
+    const b = await createDepmapContainer(pt, 'cafe\u0301', {
+      salt: fromBase64('ABEiM0RVZneImaq7zN3u/w=='),
+      nonce: fromBase64('obLD1OX2BxgpOktc'),
+    })
     expect(a.header.ciphertext).not.toBe(b.header.ciphertext)
   })
 
@@ -200,7 +223,9 @@ describe('Golden Test Vector (frozen)', () => {
 
   it('golden password wrong byte fails', async () => {
     const { json } = await createGoldenContainer()
-    await expect(openDepmapContainer(json, 'depmap-tesT')).rejects.toMatchObject({ code: 'auth_failed' })
+    await expect(openDepmapContainer(json, 'depmap-tesT')).rejects.toMatchObject({
+      code: 'auth_failed',
+    })
   })
 
   it('salt/nonce fixture lengths', () => {

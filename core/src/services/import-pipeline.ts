@@ -8,13 +8,17 @@ import { FingerprintRepository } from '../repositories/fingerprint-repository.ts
 import { ImportSessionRepository } from '../repositories/import-session-repository.ts'
 import { MetaRepository } from '../repositories/meta-repository.ts'
 import { assignFingerprints, FINGERPRINT_VERSION } from '../fingerprint/fingerprint.ts'
-import { WECHAT_PARSER_ID, WECHAT_PARSER_VERSION, parseWechatBill } from '../parser/wechat/parser.ts'
+import {
+  WECHAT_PARSER_ID,
+  WECHAT_PARSER_VERSION,
+  parseWechatBill,
+} from '../parser/wechat/parser.ts'
 import { detectRecurrence } from '../parser/wechat/recurring.ts'
 import {
   findBankCardNode,
   parsePaymentMethod,
   resolveMerchant,
-  type ResolvableEntity
+  type ResolvableEntity,
 } from '../resolver/resolver.ts'
 
 /**
@@ -104,7 +108,7 @@ export class ImportFlow {
     const session = this.sessions.start({
       sourceType: 'wechat_bill',
       parserId: WECHAT_PARSER_ID,
-      parserVersion: WECHAT_PARSER_VERSION
+      parserVersion: WECHAT_PARSER_VERSION,
     })
     this.session = session
     this.observations = parsed.observations
@@ -123,24 +127,34 @@ export class ImportFlow {
     const entities = this.resolvableEntities()
     for (const [merchantRaw, obsList] of groups) {
       const result = resolveMerchant(merchantRaw, entities)
-      const methods = [...new Set(obsList.map(o => o.paymentMethodRaw).filter(m => m !== ''))].sort()
-      const times = obsList.map(o => o.occurredAt).sort()
+      const methods = [
+        ...new Set(obsList.map((o) => o.paymentMethodRaw).filter((m) => m !== '')),
+      ].sort()
+      const times = obsList.map((o) => o.occurredAt).sort()
+      const firstAt = times[0]
+      const lastAt = times[times.length - 1]
+      if (firstAt === undefined || lastAt === undefined) {
+        throw new Error(`empty observation group for merchant: ${merchantRaw}`)
+      }
       this.candidates.set(merchantRaw, {
         merchantRaw,
         resolvedNodeId: result.status === 'resolved' ? result.nodeId : null,
         resolution: result.status === 'resolved' ? 'auto' : 'pending',
         observationCount: obsList.length,
         paymentMethods: methods,
-        firstObservedAt: times[0]!,
-        lastObservedAt: times[times.length - 1]!
+        firstObservedAt: firstAt,
+        lastObservedAt: lastAt,
       })
     }
 
     return {
       session,
       rawCount: this.observations.length,
-      candidates: [...this.candidates.values()].sort((a, b) => b.observationCount - a.observationCount || (a.merchantRaw < b.merchantRaw ? -1 : 1)),
-      errors: this.parseErrors
+      candidates: [...this.candidates.values()].sort(
+        (a, b) =>
+          b.observationCount - a.observationCount || (a.merchantRaw < b.merchantRaw ? -1 : 1),
+      ),
+      errors: this.parseErrors,
     }
   }
 
@@ -157,19 +171,31 @@ export class ImportFlow {
 
   /** 阶段 3：指纹落库 + recurrence + proposal + session 完成。 */
   finalize(): ImportOutcome {
-    if (!this.session) throw new Error('begin() must be called first')
+    const session = this.session
+    if (!session) throw new Error('begin() must be called first')
 
     // 指纹批量入库（finalize 时机，用户中途放弃不烧指纹）
-    const batch = this.fingerprints.map((f, i) => ({
-      fingerprint: f.fingerprint,
-      source: this.observations[i]!.source,
-      fingerprintVersion: FINGERPRINT_VERSION,
-      importSessionId: this.session!.id,
-      firstSeenAt: this.observations[i]!.occurredAt
-    }))
+    if (this.fingerprints.length !== this.observations.length) {
+      throw new Error('fingerprint/observation length mismatch')
+    }
+    const batch = this.observations.map((obs, i) => {
+      const fp = this.fingerprints[i]
+      if (!fp) throw new Error('fingerprint/observation length mismatch')
+      return {
+        fingerprint: fp.fingerprint,
+        source: obs.source,
+        fingerprintVersion: FINGERPRINT_VERSION,
+        importSessionId: session.id,
+        firstSeenAt: obs.occurredAt,
+      }
+    })
     const { fresh, duplicates } = this.fingerprintsRepo.insertBatch(batch)
     const freshSet = new Set(fresh)
-    const freshObservations = this.observations.filter((_, i) => freshSet.has(this.fingerprints[i]!.fingerprint))
+    const freshObservations = this.observations.filter((_, i) => {
+      const fp = this.fingerprints[i]
+      if (!fp) throw new Error('fingerprint/observation length mismatch')
+      return freshSet.has(fp.fingerprint)
+    })
 
     // 用 fresh 观测重建商户分组（与 begin 的分组一致，只是过滤重复）
     const groups = new Map<string, Observation[]>()
@@ -186,7 +212,8 @@ export class ImportFlow {
     const wechatNode = this.ensureWechatAccount()
 
     for (const [merchantRaw, obsList] of groups) {
-      const candidate = this.candidates.get(merchantRaw)!
+      const candidate = this.candidates.get(merchantRaw)
+      if (!candidate) throw new Error(`merchant group missing candidate: ${merchantRaw}`)
       const serviceNodeId = candidate.resolvedNodeId ?? this.manualResolutions.get(merchantRaw)
       if (!serviceNodeId) {
         unresolved.push(merchantRaw)
@@ -199,11 +226,16 @@ export class ImportFlow {
         period: rec.period,
         confidence: rec.confidence,
         occurrences: rec.occurrences,
-        typicalAmount: rec.typicalAmount
+        typicalAmount: rec.typicalAmount,
       })
 
       // merchant_agreement: wechat → service
-      const merchantKey = dependencyLogicalKey({ from: wechatNode.id, relation: 'merchant_agreement', to: serviceNodeId, capability: 'payment' })
+      const merchantKey = dependencyLogicalKey({
+        from: wechatNode.id,
+        relation: 'merchant_agreement',
+        to: serviceNodeId,
+        capability: 'payment',
+      })
       this.proposals.upsert({
         from: wechatNode.id,
         relation: 'merchant_agreement',
@@ -215,17 +247,17 @@ export class ImportFlow {
         parserVersion: WECHAT_PARSER_VERSION,
         confidenceScore: rec.confidence,
         path: [merchantRaw],
-        newObservations: obsList.length
+        newObservations: obsList.length,
       })
       this.evidence.accumulate({
         proposalKey: merchantKey,
         sourceType: 'wechat_bill',
         parserId: WECHAT_PARSER_ID,
         parserVersion: WECHAT_PARSER_VERSION,
-        importSessionId: this.session!.id,
+        importSessionId: session.id,
         firstObservedAt: rec.firstObservedAt,
         lastObservedAt: rec.lastObservedAt,
-        newObservations: obsList.length
+        newObservations: obsList.length,
       })
       proposalKeys.push(merchantKey)
 
@@ -242,8 +274,15 @@ export class ImportFlow {
       }
       for (const cardId of cardIds) {
         if (cardId === wechatNode.id) continue
-        const cardObs = obsList.filter(o => parsePaymentMethod(o.paymentMethodRaw).kind === 'bank_card')
-        const fundingKey = dependencyLogicalKey({ from: cardId, relation: 'funding_source', to: wechatNode.id, capability: 'payment' })
+        const cardObs = obsList.filter(
+          (o) => parsePaymentMethod(o.paymentMethodRaw).kind === 'bank_card',
+        )
+        const fundingKey = dependencyLogicalKey({
+          from: cardId,
+          relation: 'funding_source',
+          to: wechatNode.id,
+          capability: 'payment',
+        })
         this.proposals.upsert({
           from: cardId,
           relation: 'funding_source',
@@ -255,29 +294,29 @@ export class ImportFlow {
           parserVersion: WECHAT_PARSER_VERSION,
           confidenceScore: rec.confidence,
           path: [cardId, wechatNode.id, merchantRaw],
-          newObservations: Math.max(cardObs.length, 1)
+          newObservations: Math.max(cardObs.length, 1),
         })
         this.evidence.accumulate({
           proposalKey: fundingKey,
           sourceType: 'wechat_bill',
           parserId: WECHAT_PARSER_ID,
           parserVersion: WECHAT_PARSER_VERSION,
-          importSessionId: this.session!.id,
+          importSessionId: session.id,
           firstObservedAt: rec.firstObservedAt,
           lastObservedAt: rec.lastObservedAt,
-          newObservations: Math.max(cardObs.length, 1)
+          newObservations: Math.max(cardObs.length, 1),
         })
         proposalKeys.push(fundingKey)
       }
     }
 
-    const completed = this.sessions.update(this.session!.id, {
+    const completed = this.sessions.update(session.id, {
       completedAt: new Date().toISOString(),
       rawCount: this.observations.length,
       newUniqueCount: fresh.length,
       duplicateCount: duplicates,
       proposalCount: new Set(proposalKeys).size,
-      errorCount: this.parseErrors.length
+      errorCount: this.parseErrors.length,
     })
 
     return {
@@ -287,25 +326,28 @@ export class ImportFlow {
       errorCount: this.parseErrors.length,
       proposalKeys: [...new Set(proposalKeys)],
       unresolvedMerchants: unresolved,
-      recurrences
+      recurrences,
     }
   }
 
   private resolvableEntities(): ResolvableEntity[] {
-    return this.nodes.list({ archived: false }).map(n => ({
+    return this.nodes.list({ archived: false }).map((n) => ({
       nodeId: n.id,
       name: n.name,
-      aliases: (n.fields['aliases'] as string[] | undefined) ?? []
+      aliases: (n.fields['aliases'] as string[] | undefined) ?? [],
     }))
   }
 
   private ensureWechatAccount() {
-    const existing = this.nodes.list({ archived: false }).filter(n => n.kind === 'account' && n.templateId === 'builtin.account.wechat')
-    if (existing.length === 1) return existing[0]!
+    const existing = this.nodes
+      .list({ archived: false })
+      .filter((n) => n.kind === 'account' && n.templateId === 'builtin.account.wechat')
+    const found = existing[0]
+    if (existing.length === 1 && found) return found
     return this.nodes.create({
       kind: 'account',
       templateId: 'builtin.account.wechat',
-      name: '微信支付'
+      name: '微信支付',
     })
   }
 }
@@ -314,6 +356,6 @@ function randomHex32(): string {
   const bytes = new Uint8Array(32)
   crypto.getRandomValues(bytes)
   return Array.from(bytes)
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
 }

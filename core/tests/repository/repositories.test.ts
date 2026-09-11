@@ -45,7 +45,13 @@ describe('Repositories (Schema v1)', () => {
 
   // --------------------------------------------------------------- nodes
   it('node create/get/update roundtrip', () => {
-    const n = nodes.create({ kind: 'payment_instrument', templateId: 'builtin.bank_card.credit', name: '招行经典白', issuer: '招商银行', last4: '4417' })
+    const n = nodes.create({
+      kind: 'payment_instrument',
+      templateId: 'builtin.bank_card.credit',
+      name: '招行经典白',
+      issuer: '招商银行',
+      last4: '4417',
+    })
     expect(n.owner).toBe('self')
     const u = nodes.update(n.id, { fields: { billDay: 5 } })
     expect(u.fields['billDay']).toBe(5)
@@ -56,7 +62,12 @@ describe('Repositories (Schema v1)', () => {
 
   // --------------------------------------------------- dependency UPSERT
   it('同一 logical key：首次 INSERT，再次 confirm 是 verify 更新（不重复建边）', () => {
-    const first = deps.confirm({ from: 'card1', relation: 'funding_source', to: 'wechat', capability: 'payment' })
+    const first = deps.confirm({
+      from: 'card1',
+      relation: 'funding_source',
+      to: 'wechat',
+      capability: 'payment',
+    })
     expect(first.reactivated).toBe(false)
     expect(first.verified).toBe(false)
     expect(deps.countAll()).toBe(1)
@@ -66,7 +77,7 @@ describe('Repositories (Schema v1)', () => {
       relation: 'funding_source',
       to: 'wechat',
       capability: 'payment',
-      evidenceRefs: ['ev1']
+      evidenceRefs: ['ev1'],
     })
     expect(second.verified).toBe(true)
     expect(second.reactivated).toBe(false)
@@ -77,12 +88,22 @@ describe('Repositories (Schema v1)', () => {
   })
 
   it('retired Dependency 重新确认 → re-activate 同一 id，不生成第二条逻辑边', () => {
-    const first = deps.confirm({ from: 'card1', relation: 'funding_source', to: 'wechat', capability: 'payment' })
+    const first = deps.confirm({
+      from: 'card1',
+      relation: 'funding_source',
+      to: 'wechat',
+      capability: 'payment',
+    })
     const retired = deps.retire(first.dependency.id)
     expect(retired.state).toBe('retired')
     expect(retired.retiredAt).not.toBeNull()
 
-    const again = deps.confirm({ from: 'card1', relation: 'funding_source', to: 'wechat', capability: 'payment' })
+    const again = deps.confirm({
+      from: 'card1',
+      relation: 'funding_source',
+      to: 'wechat',
+      capability: 'payment',
+    })
     expect(again.reactivated).toBe(true)
     expect(again.dependency.id).toBe(first.dependency.id)
     expect(again.dependency.state).toBe('active')
@@ -91,15 +112,31 @@ describe('Repositories (Schema v1)', () => {
   })
 
   it('criticality 默认 unknown；显式 required 才生效', () => {
-    const d = deps.confirm({ from: 'a', relation: 'funding_source', to: 'b', capability: 'payment' })
+    const d = deps.confirm({
+      from: 'a',
+      relation: 'funding_source',
+      to: 'b',
+      capability: 'payment',
+    })
     expect(d.dependency.criticality).toBe('unknown')
-    const d2 = deps.confirm({ from: 'a', relation: 'funding_source', to: 'b', capability: 'payment', criticality: 'required' })
+    const d2 = deps.confirm({
+      from: 'a',
+      relation: 'funding_source',
+      to: 'b',
+      capability: 'payment',
+      criticality: 'required',
+    })
     expect(d2.dependency.criticality).toBe('required')
   })
 
   it('listActiveIncomingTo / listActiveOutgoingFrom 过滤 state 与 capability', () => {
     deps.confirm({ from: 'a', relation: 'funding_source', to: 'c', capability: 'payment' })
-    const b = deps.confirm({ from: 'b', relation: 'funding_source', to: 'c', capability: 'payment' })
+    const b = deps.confirm({
+      from: 'b',
+      relation: 'funding_source',
+      to: 'c',
+      capability: 'payment',
+    })
     deps.confirm({ from: 'z', relation: 'recovers', to: 'c', capability: 'recovery' })
     deps.retire(b.dependency.id)
 
@@ -111,33 +148,67 @@ describe('Repositories (Schema v1)', () => {
 
   // --------------------------------------------------------------- groups
   it('groupKey canonical：[A,B] 与 [B,A] 是同一组（UNIQUE 去重）', () => {
-    const d1 = deps.confirm({ from: 'a', relation: 'funding_source', to: 'wechat', capability: 'payment' })
-    const d2 = deps.confirm({ from: 'b', relation: 'funding_source', to: 'wechat', capability: 'payment' })
+    const d1 = deps.confirm({
+      from: 'a',
+      relation: 'funding_source',
+      to: 'wechat',
+      capability: 'payment',
+    })
+    const d2 = deps.confirm({
+      from: 'b',
+      relation: 'funding_source',
+      to: 'wechat',
+      capability: 'payment',
+    })
 
     const g1 = groups.confirm(
-      { targetNodeId: 'wechat', capability: 'payment', mode: 'ANY', memberEdgeIds: [d1.dependency.id] },
-      [dependencyKeyOf(d1.dependency.id), dependencyKeyOf(d2.dependency.id)]
+      {
+        targetNodeId: 'wechat',
+        capability: 'payment',
+        mode: 'ANY',
+        memberEdgeIds: [d1.dependency.id],
+      },
+      [dependencyKeyOf(d1.dependency.id), dependencyKeyOf(d2.dependency.id)],
     )
     expect(g1.reactivated).toBe(false)
 
     // 相同成员（乱序）再确认 → 同一 group，不新建
     const g2 = groups.confirm(
-      { targetNodeId: 'wechat', capability: 'payment', mode: 'ANY', memberEdgeIds: [d2.dependency.id] },
-      [dependencyKeyOf(d2.dependency.id), dependencyKeyOf(d1.dependency.id)]
+      {
+        targetNodeId: 'wechat',
+        capability: 'payment',
+        mode: 'ANY',
+        memberEdgeIds: [d2.dependency.id],
+      },
+      [dependencyKeyOf(d2.dependency.id), dependencyKeyOf(d1.dependency.id)],
     )
     expect(g2.group.id).toBe(g1.group.id)
     expect(g2.reactivated).toBe(false)
 
     // canonicalGroupKey 顺序无关
-    expect(canonicalGroupKey('wechat', 'payment', 'ANY', ['a|funding_source|wechat|payment', 'b|funding_source|wechat|payment'])).toBe(
-      canonicalGroupKey('wechat', 'payment', 'ANY', ['b|funding_source|wechat|payment', 'a|funding_source|wechat|payment'])
+    expect(
+      canonicalGroupKey('wechat', 'payment', 'ANY', [
+        'a|funding_source|wechat|payment',
+        'b|funding_source|wechat|payment',
+      ]),
+    ).toBe(
+      canonicalGroupKey('wechat', 'payment', 'ANY', [
+        'b|funding_source|wechat|payment',
+        'a|funding_source|wechat|payment',
+      ]),
     )
   })
 
   it('retired group 可 re-activate', () => {
-    const g = groups.confirm({ targetNodeId: 't', capability: 'payment', mode: 'ANY', memberEdgeIds: ['e1'] }, ['x|funding_source|t|payment'])
+    const g = groups.confirm(
+      { targetNodeId: 't', capability: 'payment', mode: 'ANY', memberEdgeIds: ['e1'] },
+      ['x|funding_source|t|payment'],
+    )
     groups.retire(g.group.id)
-    const again = groups.confirm({ targetNodeId: 't', capability: 'payment', mode: 'ANY', memberEdgeIds: ['e1'] }, ['x|funding_source|t|payment'])
+    const again = groups.confirm(
+      { targetNodeId: 't', capability: 'payment', mode: 'ANY', memberEdgeIds: ['e1'] },
+      ['x|funding_source|t|payment'],
+    )
     expect(again.group.id).toBe(g.group.id)
     expect(again.group.state).toBe('active')
   })

@@ -6,6 +6,6 @@ export default defineConfig({
     pool: 'forks',
     environment: 'node',
     // node:sqlite is experimental in Node 22; silence its warning noise in test output
-    env: { NODE_NO_WARNINGS: '1' }
-  }
+    env: { NODE_NO_WARNINGS: '1' },
+  },
 })

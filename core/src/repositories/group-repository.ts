@@ -2,7 +2,6 @@ import type { Capability, DependencyGroup, GroupMode } from '../domain/types.ts'
 import { canonicalGroupKey } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
-import { optionalString } from './meta-repository.ts'
 
 function rowToGroup(row: Record<string, unknown>): DependencyGroup {
   return {
@@ -16,7 +15,7 @@ function rowToGroup(row: Record<string, unknown>): DependencyGroup {
     confirmedAt: String(row.confirmed_at),
     lastVerifiedAt: String(row.last_verified_at),
     createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at)
+    updatedAt: String(row.updated_at),
   }
 }
 
@@ -37,7 +36,9 @@ export class DependencyGroupRepository {
 
   /** 按 groupKey 查找；同一成员组合不重复建组。 */
   findByKey(groupKey: string): DependencyGroup | null {
-    const row = this.driver.prepare(`SELECT * FROM dependency_groups WHERE group_key = ?`).get(groupKey)
+    const row = this.driver
+      .prepare(`SELECT * FROM dependency_groups WHERE group_key = ?`)
+      .get(groupKey)
     return row ? rowToGroup(row) : null
   }
 
@@ -49,7 +50,7 @@ export class DependencyGroupRepository {
   listActiveByTarget(targetNodeId: string, capability: Capability): DependencyGroup[] {
     return this.driver
       .prepare(
-        `SELECT * FROM dependency_groups WHERE target_node_id = ? AND capability = ? AND state = 'active' ORDER BY id`
+        `SELECT * FROM dependency_groups WHERE target_node_id = ? AND capability = ? AND state = 'active' ORDER BY id`,
       )
       .all(targetNodeId, capability)
       .map(rowToGroup)
@@ -68,22 +69,29 @@ export class DependencyGroupRepository {
    */
   confirm(
     input: CreateGroupInput,
-    memberLogicalKeys: string[]
+    memberLogicalKeys: string[],
   ): { group: DependencyGroup; reactivated: boolean } {
     return this.driver.transaction(() => {
-      const key = canonicalGroupKey(input.targetNodeId, input.capability, input.mode, memberLogicalKeys)
+      const key = canonicalGroupKey(
+        input.targetNodeId,
+        input.capability,
+        input.mode,
+        memberLogicalKeys,
+      )
       const existing = this.findByKey(key)
       const now = nowIso()
       if (existing) {
         if (existing.state === 'active') {
           this.driver
-            .prepare(`UPDATE dependency_groups SET last_verified_at = ?, updated_at = ? WHERE id = ?`)
+            .prepare(
+              `UPDATE dependency_groups SET last_verified_at = ?, updated_at = ? WHERE id = ?`,
+            )
             .run(now, now, existing.id)
           return { group: this.getById(existing.id) as DependencyGroup, reactivated: false }
         }
         this.driver
           .prepare(
-            `UPDATE dependency_groups SET state = 'active', confirmed_at = ?, last_verified_at = ?, updated_at = ? WHERE id = ?`
+            `UPDATE dependency_groups SET state = 'active', confirmed_at = ?, last_verified_at = ?, updated_at = ? WHERE id = ?`,
           )
           .run(now, now, now, existing.id)
         return { group: this.getById(existing.id) as DependencyGroup, reactivated: true }
@@ -92,7 +100,7 @@ export class DependencyGroupRepository {
       this.driver
         .prepare(
           `INSERT INTO dependency_groups (id, group_key, target_node_id, capability, mode, member_edge_ids_json, state, confirmed_at, last_verified_at, created_at, updated_at)
-           VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)`
+           VALUES (?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, ?)`,
         )
         .run(
           id,
@@ -104,7 +112,7 @@ export class DependencyGroupRepository {
           now,
           now,
           now,
-          now
+          now,
         )
       return { group: this.getById(id) as DependencyGroup, reactivated: false }
     })

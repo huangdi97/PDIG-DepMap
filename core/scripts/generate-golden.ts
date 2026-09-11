@@ -6,7 +6,9 @@ import { createDepmapContainer } from '../src/crypto/depmap.ts'
 
 const salt = Uint8Array.from(Buffer.from('00112233445566778899aabbccddeeff', 'hex'))
 const nonce = Uint8Array.from(Buffer.from('a1b2c3d4e5f60718293a4b5c', 'hex'))
-const plaintext = new TextEncoder().encode('{"app":"depmap","schemaVersion":1,"nodes":[],"dependencies":[]}')
+const plaintext = new TextEncoder().encode(
+  '{"app":"depmap","schemaVersion":1,"nodes":[],"dependencies":[]}',
+)
 
 const r = await createDepmapContainer(plaintext, 'depmap-test', { salt, nonce })
 console.log(
@@ -15,9 +17,9 @@ console.log(
       derivedKeyHex: r.derivedKeyHex,
       ciphertextBase64: r.header.ciphertext,
       tagBase64: r.header.tag,
-      containerJson: r.json
+      containerJson: r.json,
     },
     null,
-    2
-  )
+    2,
+  ),
 )

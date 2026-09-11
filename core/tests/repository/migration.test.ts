@@ -54,7 +54,7 @@ describe('Schema v1 migration', () => {
         driver.exec(`CREATE TABLE temp_x (a)`)
         driver.exec(`INSERT INTO temp_x VALUES (1)`)
         throw new Error('boom')
-      })
+      }),
     ).toThrowError(/boom/)
     const row = driver.prepare(`SELECT name FROM sqlite_master WHERE name='temp_x'`).get()
     expect(row).toBeUndefined()
@@ -69,15 +69,15 @@ describe('Schema v1 migration', () => {
   it('dependencies logical key UNIQUE constraint is enforced', () => {
     migrate(driver)
     const insert = driver.prepare(
-      `INSERT INTO dependencies (id, from_node, relation, to_node, capability, origin, confirmed_at, last_verified_at, created_at, updated_at) VALUES ('d1','a','funding_source','b','payment','manual','t','t','t','t')`
+      `INSERT INTO dependencies (id, from_node, relation, to_node, capability, origin, confirmed_at, last_verified_at, created_at, updated_at) VALUES ('d1','a','funding_source','b','payment','manual','t','t','t','t')`,
     )
     insert.run()
     expect(() =>
       driver
         .prepare(
-          `INSERT INTO dependencies (id, from_node, relation, to_node, capability, origin, confirmed_at, last_verified_at, created_at, updated_at) VALUES ('d2','a','funding_source','b','payment','manual','t','t','t','t')`
+          `INSERT INTO dependencies (id, from_node, relation, to_node, capability, origin, confirmed_at, last_verified_at, created_at, updated_at) VALUES ('d2','a','funding_source','b','payment','manual','t','t','t','t')`,
         )
-        .run()
+        .run(),
     ).toThrowError(/UNIQUE/)
   })
 
@@ -85,15 +85,15 @@ describe('Schema v1 migration', () => {
     migrate(driver)
     driver
       .prepare(
-        `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at) VALUES ('fp1','wechat',1,'s1','t')`
+        `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at) VALUES ('fp1','wechat',1,'s1','t')`,
       )
       .run()
     expect(() =>
       driver
         .prepare(
-          `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at) VALUES ('fp1','wechat',1,'s1','t')`
+          `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at) VALUES ('fp1','wechat',1,'s1','t')`,
         )
-        .run()
+        .run(),
     ).toThrowError(/UNIQUE/)
   })
 
@@ -102,9 +102,9 @@ describe('Schema v1 migration', () => {
     expect(() =>
       driver
         .prepare(
-          `INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, origin, confirmed_at, last_verified_at, created_at, updated_at) VALUES ('d9','a','funding_source','b','payment','preferred','manual','t','t','t','t')`
+          `INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, origin, confirmed_at, last_verified_at, created_at, updated_at) VALUES ('d9','a','funding_source','b','payment','preferred','manual','t','t','t','t')`,
         )
-        .run()
+        .run(),
     ).toThrowError(/CHECK/)
   })
 })

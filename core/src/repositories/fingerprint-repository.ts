@@ -36,9 +36,15 @@ export class FingerprintRepository {
         this.driver
           .prepare(
             `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at)
-             VALUES (?, ?, ?, ?, ?)`
+             VALUES (?, ?, ?, ?, ?)`,
           )
-          .run(rec.fingerprint, rec.source, rec.fingerprintVersion, rec.importSessionId, rec.firstSeenAt ?? nowIso())
+          .run(
+            rec.fingerprint,
+            rec.source,
+            rec.fingerprintVersion,
+            rec.importSessionId,
+            rec.firstSeenAt ?? nowIso(),
+          )
         fresh.push(rec.fingerprint)
       }
       return { fresh, duplicates }

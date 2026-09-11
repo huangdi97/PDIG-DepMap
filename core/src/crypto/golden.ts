@@ -22,8 +22,9 @@ export const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"d
 
 export const GOLDEN_EXPECTED = {
   derivedKeyHex: '66c4bec7f5e98856747d7b41d0a021bdc092d5e12d492852bd80647bd0ff0c86',
-  ciphertextBase64: 'KNSpbKK6waj4En3ADgeBB74H96Q7GCoBmNffeOG5QSQ9XJwx4LoJCQ0j8lEinA7GN85U6JwaVMqhAkqWDdG7',
-  tagBase64: '5qpABhovPbNet1q2GNEhkg=='
+  ciphertextBase64:
+    'KNSpbKK6waj4En3ADgeBB74H96Q7GCoBmNffeOG5QSQ9XJwx4LoJCQ0j8lEinA7GN85U6JwaVMqhAkqWDdG7',
+  tagBase64: '5qpABhovPbNet1q2GNEhkg==',
 } as const
 
 export function goldenSalt(): Uint8Array {
@@ -37,7 +38,7 @@ export function goldenNonce(): Uint8Array {
 export async function createGoldenContainer(): Promise<DepmapContainerResult> {
   return createDepmapContainer(new TextEncoder().encode(GOLDEN_PLAINTEXT), GOLDEN_PASSWORD, {
     salt: goldenSalt(),
-    nonce: goldenNonce()
+    nonce: goldenNonce(),
   })
 }
 

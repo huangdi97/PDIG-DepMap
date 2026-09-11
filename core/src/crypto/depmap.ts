@@ -25,7 +25,7 @@ export const DEPMAP_V1_DEFAULTS = {
   keyLen: 32,
   saltLen: 16,
   nonceLen: 12,
-  tagLen: 16
+  tagLen: 16,
 } as const
 
 export const DEPMAP_V1_BOUNDS = {
@@ -38,10 +38,11 @@ export const DEPMAP_V1_BOUNDS = {
   saltLen: 16,
   nonceLen: 12,
   tagLen: 16,
-  ciphertextMaxBytes: 64 * 1024 * 1024
+  ciphertextMaxBytes: 64 * 1024 * 1024,
 } as const
 
-export type DepmapErrorCode = 'invalid_json' | 'invalid_structure' | 'bounds' | 'kdf' | 'auth_failed'
+export type DepmapErrorCode =
+  'invalid_json' | 'invalid_structure' | 'bounds' | 'kdf' | 'auth_failed'
 
 export class DepmapError extends Error {
   readonly code: DepmapErrorCode
@@ -91,7 +92,9 @@ export function toHex(bytes: Uint8Array): string {
 // AAD
 // ---------------------------------------------------------------------------
 
-export function computeAad(header: Pick<DepmapHeader, 'format' | 'formatVersion' | 'kdf' | 'cipher'>): Uint8Array {
+export function computeAad(
+  header: Pick<DepmapHeader, 'format' | 'formatVersion' | 'kdf' | 'cipher'>,
+): Uint8Array {
   const aadSource = {
     format: header.format,
     formatVersion: header.formatVersion,
@@ -101,12 +104,12 @@ export function computeAad(header: Pick<DepmapHeader, 'format' | 'formatVersion'
       salt: header.kdf.salt,
       memoryKiB: header.kdf.memoryKiB,
       iterations: header.kdf.iterations,
-      parallelism: header.kdf.parallelism
+      parallelism: header.kdf.parallelism,
     },
     cipher: {
       algorithm: header.cipher.algorithm,
-      nonce: header.cipher.nonce
-    }
+      nonce: header.cipher.nonce,
+    },
   }
   return new TextEncoder().encode(jcsStringify(aadSource))
 }
@@ -141,8 +144,9 @@ export function parseDepmapHeader(json: string): DepmapHeader {
   } catch {
     throw new DepmapError('invalid_json', 'container is not valid JSON')
   }
-  if (!isPlainObject(raw)) throw new DepmapError('invalid_structure', 'container must be a JSON object')
-  const obj = raw as Record<string, unknown>
+  if (!isPlainObject(raw))
+    throw new DepmapError('invalid_structure', 'container must be a JSON object')
+  const obj: Record<string, unknown> = raw
   const kdf = obj.kdf
   const cipher = obj.cipher
   if (!isPlainObject(kdf) || !isPlainObject(cipher)) {
@@ -157,14 +161,14 @@ export function parseDepmapHeader(json: string): DepmapHeader {
       salt: assertString(kdf.salt, 'kdf.salt'),
       memoryKiB: assertInt(kdf.memoryKiB, 'kdf.memoryKiB'),
       iterations: assertInt(kdf.iterations, 'kdf.iterations'),
-      parallelism: assertInt(kdf.parallelism, 'kdf.parallelism')
+      parallelism: assertInt(kdf.parallelism, 'kdf.parallelism'),
     },
     cipher: {
       algorithm: assertString(cipher.algorithm, 'cipher.algorithm'),
-      nonce: assertString(cipher.nonce, 'cipher.nonce')
+      nonce: assertString(cipher.nonce, 'cipher.nonce'),
     },
     ciphertext: assertString(obj.ciphertext, 'ciphertext'),
-    tag: assertString(obj.tag, 'tag')
+    tag: assertString(obj.tag, 'tag'),
   }
 }
 
@@ -189,7 +193,8 @@ export function validateDepmapBounds(header: DepmapHeader): void {
     fail(`kdf.parallelism out of bounds [${B.parallelismMin},${B.parallelismMax}]`)
   }
   if (fromBase64(header.kdf.salt).length !== B.saltLen) fail('kdf.salt must decode to 16 bytes')
-  if (fromBase64(header.cipher.nonce).length !== B.nonceLen) fail('cipher.nonce must decode to 12 bytes')
+  if (fromBase64(header.cipher.nonce).length !== B.nonceLen)
+    fail('cipher.nonce must decode to 12 bytes')
   if (fromBase64(header.tag).length !== B.tagLen) fail('tag must decode to 16 bytes')
   const ct = fromBase64(header.ciphertext)
   if (ct.length === 0) fail('ciphertext must not be empty')
@@ -206,7 +211,7 @@ export async function deriveFileEncryptionKey(
   salt: Uint8Array,
   memoryKiB: number,
   iterations: number,
-  parallelism: number
+  parallelism: number,
 ): Promise<Uint8Array> {
   // password 使用精确 UTF-8 字节，不做 Unicode 归一化
   return argon2id({
@@ -216,7 +221,7 @@ export async function deriveFileEncryptionKey(
     iterations,
     memorySize: memoryKiB,
     hashLength: DEPMAP_V1_DEFAULTS.keyLen,
-    outputType: 'binary'
+    outputType: 'binary',
   })
 }
 
@@ -241,7 +246,7 @@ export interface DepmapContainerResult {
 export async function createDepmapContainer(
   plaintext: Uint8Array,
   password: string,
-  opts: CreateDepmapOptions = {}
+  opts: CreateDepmapOptions = {},
 ): Promise<DepmapContainerResult> {
   const salt = opts.salt ?? randomBytes(DEPMAP_V1_DEFAULTS.saltLen)
   const nonce = opts.nonce ?? randomBytes(DEPMAP_V1_DEFAULTS.nonceLen)
@@ -249,8 +254,10 @@ export async function createDepmapContainer(
   const iterations = opts.iterations ?? DEPMAP_V1_DEFAULTS.iterations
   const parallelism = opts.parallelism ?? DEPMAP_V1_DEFAULTS.parallelism
 
-  if (salt.length !== DEPMAP_V1_BOUNDS.saltLen) throw new DepmapError('bounds', 'salt must be 16 bytes')
-  if (nonce.length !== DEPMAP_V1_BOUNDS.nonceLen) throw new DepmapError('bounds', 'nonce must be 12 bytes')
+  if (salt.length !== DEPMAP_V1_BOUNDS.saltLen)
+    throw new DepmapError('bounds', 'salt must be 16 bytes')
+  if (nonce.length !== DEPMAP_V1_BOUNDS.nonceLen)
+    throw new DepmapError('bounds', 'nonce must be 12 bytes')
 
   const key = await deriveFileEncryptionKey(password, salt, memoryKiB, iterations, parallelism)
   const header: DepmapHeader = {
@@ -262,11 +269,11 @@ export async function createDepmapContainer(
       salt: toBase64(salt),
       memoryKiB,
       iterations,
-      parallelism
+      parallelism,
     },
     cipher: { algorithm: 'AES-256-GCM', nonce: toBase64(nonce) },
     ciphertext: '',
-    tag: ''
+    tag: '',
   }
   const aad = computeAad(header)
   const cipher = createCipheriv('aes-256-gcm', key, nonce, { authTagLength: 16 })
@@ -284,7 +291,10 @@ export interface OpenDepmapResult {
   header: DepmapHeader
 }
 
-export async function openDepmapContainer(json: string, password: string): Promise<OpenDepmapResult> {
+export async function openDepmapContainer(
+  json: string,
+  password: string,
+): Promise<OpenDepmapResult> {
   const header = parseDepmapHeader(json)
   validateDepmapBounds(header) // KDF 之前完成全部边界检查
   const key = await deriveFileEncryptionKey(
@@ -292,19 +302,22 @@ export async function openDepmapContainer(json: string, password: string): Promi
     fromBase64(header.kdf.salt),
     header.kdf.memoryKiB,
     header.kdf.iterations,
-    header.kdf.parallelism
+    header.kdf.parallelism,
   )
   const aad = computeAad(header)
   let plaintext: Buffer
   try {
     const decipher = createDecipheriv('aes-256-gcm', key, fromBase64(header.cipher.nonce), {
-      authTagLength: 16
+      authTagLength: 16,
     })
     decipher.setAAD(aad)
     decipher.setAuthTag(fromBase64(header.tag))
     plaintext = Buffer.concat([decipher.update(fromBase64(header.ciphertext)), decipher.final()])
   } catch {
-    throw new DepmapError('auth_failed', 'decryption authentication failed (wrong password or tampered container)')
+    throw new DepmapError(
+      'auth_failed',
+      'decryption authentication failed (wrong password or tampered container)',
+    )
   }
   return { plaintext: new Uint8Array(plaintext), header }
 }

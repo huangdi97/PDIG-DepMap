@@ -5,12 +5,16 @@ import {
   parseWechatBill,
   decodeBill,
   detect,
-  parseCsvLine
+  parseCsvLine,
 } from '../../src/parser/wechat/parser.ts'
 import { detectRecurrence } from '../../src/parser/wechat/recurring.ts'
-import { assignFingerprints, computeFingerprintWithTxnId } from '../../src/fingerprint/fingerprint.ts'
+import {
+  assignFingerprints,
+  computeFingerprintWithTxnId,
+} from '../../src/fingerprint/fingerprint.ts'
 
-const FX = (name: string) => new Uint8Array(readFileSync(join(import.meta.dirname, '..', 'fixtures', name)))
+const FX = (name: string) =>
+  new Uint8Array(readFileSync(join(import.meta.dirname, '..', 'fixtures', name)))
 
 describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
   it('normal fixture：11 列、金额、方向、卡尾号解析', () => {
@@ -24,7 +28,7 @@ describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
     expect(first.paymentMethodRaw).toBe('招商银行信用卡(4417)')
     expect(first.sourceTxnId).toMatch(/^4200001978/)
     expect(first.occurredAt).toBe('2026-06-03T10:23:00+08:00')
-    const redPacket = r.observations.find(o => o.merchantRaw === '张三')!
+    const redPacket = r.observations.find((o) => o.merchantRaw === '张三')!
     expect(redPacket.direction).toBe('in')
     expect(redPacket.amount).toBe(200)
   })
@@ -32,7 +36,7 @@ describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
   it('BOM fixture：UTF-8 BOM 正确剥离', () => {
     const raw = FX('utf8-bom.csv')
     expect(raw[0]).toBe(0xef)
-    const { text, encoding } = decodeBill(raw)
+    const { encoding } = decodeBill(raw)
     expect(encoding).toBe('utf-8')
     const r = parseWechatBill(raw)
     expect(r.errors).toHaveLength(0)
@@ -61,24 +65,24 @@ describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
     const r = parseWechatBill(FX('refund.csv'))
     expect(r.errors).toHaveLength(0)
     expect(r.observations).toHaveLength(3)
-    const refunded = r.observations.find(o => o.status === '已全额退款')!
+    const refunded = r.observations.find((o) => o.status === '已全额退款')!
     expect(refunded.amount).toBe(90)
-    const refundBack = r.observations.find(o => o.status === '退款成功')!
+    const refundBack = r.observations.find((o) => o.status === '退款成功')!
     expect(refundBack.direction).toBe('in')
   })
 
   it('malformed fixture：坏行计入 errors，不抛出、不影响好行', () => {
     const r = parseWechatBill(FX('malformed.csv'))
     expect(r.observations).toHaveLength(2)
-    expect(r.observations.map(o => o.merchantRaw).sort()).toEqual(['正常行', '腾讯视频'])
+    expect(r.observations.map((o) => o.merchantRaw).sort()).toEqual(['正常行', '腾讯视频'])
     expect(r.errors.length).toBe(4)
-    expect(r.errors.every(e => e.line > 0)).toBe(true)
+    expect(r.errors.every((e) => e.line > 0)).toBe(true)
   })
 
   it('same-amount-twice fixture：同金额两行都保留', () => {
     const r = parseWechatBill(FX('same-amount-twice.csv'))
     expect(r.observations).toHaveLength(2)
-    expect(r.observations.every(o => o.amount === 25)).toBe(true)
+    expect(r.observations.every((o) => o.amount === 25)).toBe(true)
   })
 
   it('duplicate-import fixture：文件内完全重复行（无单号）产生 ordinal 指纹，不互相吞并', () => {
@@ -86,7 +90,7 @@ describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
     expect(r.observations).toHaveLength(2)
     const fps = assignFingerprints('secret', r.observations)
     expect(fps[0]!.fingerprint).not.toBe(fps[1]!.fingerprint)
-    expect(fps.every(f => !f.stable)).toBe(true)
+    expect(fps.every((f) => !f.stable)).toBe(true)
   })
 
   it('detect：微信账单特征识别', () => {
@@ -115,13 +119,13 @@ describe('Fingerprint (GOAL §12 / MVP_ACCEPTANCE A)', () => {
 
     const fpSecret = 'test-fp-secret'
     const firstSession = assignFingerprints(fpSecret, janJun)
-    expect(firstSession.every(f => f.stable)).toBe(true)
+    expect(firstSession.every((f) => f.stable)).toBe(true)
 
     // 模拟第二次导入：逐条检查指纹是否已存在
-    const known = new Set(firstSession.map(f => f.fingerprint))
+    const known = new Set(firstSession.map((f) => f.fingerprint))
     const secondSession = assignFingerprints(fpSecret, janAug)
-    const fresh = secondSession.filter(f => !known.has(f.fingerprint))
-    const duplicates = secondSession.filter(f => known.has(f.fingerprint))
+    const fresh = secondSession.filter((f) => !known.has(f.fingerprint))
+    const duplicates = secondSession.filter((f) => known.has(f.fingerprint))
     expect(duplicates).toHaveLength(6)
     expect(fresh).toHaveLength(2)
   })
@@ -153,7 +157,7 @@ describe('Fingerprint (GOAL §12 / MVP_ACCEPTANCE A)', () => {
 describe('Recurrence detection (GOAL §15)', () => {
   it('recurring-monthly：腾讯视频 6 次月付 → monthly + 高置信度', () => {
     const r = parseWechatBill(FX('recurring-monthly.csv'))
-    const tencent = r.observations.filter(o => o.merchantRaw === '腾讯视频')
+    const tencent = r.observations.filter((o) => o.merchantRaw === '腾讯视频')
     const rec = detectRecurrence('腾讯视频', tencent)
     expect(rec).not.toBeNull()
     expect(rec!.period).toBe('monthly')

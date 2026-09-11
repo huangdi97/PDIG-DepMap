@@ -13,7 +13,7 @@ export class MetaRepository {
     this.driver
       .prepare(
         `INSERT INTO meta (key, value) VALUES (?, ?)
-         ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
       )
       .run(key, value)
   }

@@ -3,7 +3,7 @@ import type {
   Criticality,
   DependencyProposal,
   ProposalDecision,
-  Relation
+  Relation,
 } from '../domain/types.ts'
 import { dependencyLogicalKey } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
@@ -42,12 +42,22 @@ export const REPROPOSAL_MIN_NEW_OBSERVATIONS = 3
 export function canRepropose(
   proposal: DependencyProposal,
   currentObservationCount: number,
-  cyclesCovered: number
+  cyclesCovered: number,
 ): boolean {
   if (proposal.decision !== 'rejected') return false
   const rejectedAtCount = proposal.rejectedAtObservationCount ?? 0
   const newOnes = currentObservationCount - rejectedAtCount
   return newOnes >= REPROPOSAL_MIN_NEW_OBSERVATIONS && cyclesCovered >= 1
+}
+
+function parseStringArray(v: unknown): string[] {
+  const raw = typeof v === 'string' ? v : '[]'
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
+  }
 }
 
 function rowToProposal(row: Record<string, unknown>): DependencyProposal {
@@ -63,16 +73,17 @@ function rowToProposal(row: Record<string, unknown>): DependencyProposal {
     parserId: String(row.parser_id),
     parserVersion: Number(row.parser_version),
     confidenceScore: Number(row.confidence_score),
-    path: JSON.parse(String(row.path_json ?? '[]')) as string[],
+    path: parseStringArray(row.path_json),
     evidenceId: optionalString(row.evidence_id as never),
     decision: String(row.decision) as ProposalDecision,
     decidedAt: optionalString(row.decided_at as never),
-    criticalityDecision: (optionalString(row.criticality_decision as never) ?? null) as Criticality | null,
+    criticalityDecision: (optionalString(row.criticality_decision as never) ??
+      null) as Criticality | null,
     observationCount: Number(row.observation_count ?? 0),
     rejectedAt: optionalString(row.rejected_at as never),
     rejectedAtObservationCount: optionalNumber(row.rejected_at_observation_count as never),
     createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at)
+    updatedAt: String(row.updated_at),
   }
 }
 
@@ -106,12 +117,15 @@ export class DependencyProposalRepository {
   }
 
   listAll(): DependencyProposal[] {
-    return this.driver.prepare(`SELECT * FROM dependency_proposals ORDER BY key`).all().map(rowToProposal)
+    return this.driver
+      .prepare(`SELECT * FROM dependency_proposals ORDER BY key`)
+      .all()
+      .map(rowToProposal)
   }
 
   upsert(
     input: UpsertProposalInput,
-    opts: { cyclesCovered?: number; id?: string } = {}
+    opts: { cyclesCovered?: number; id?: string } = {},
   ): UpsertProposalResult {
     const key = dependencyLogicalKey(input)
     return this.driver.transaction(() => {
@@ -124,7 +138,7 @@ export class DependencyProposalRepository {
         this.driver
           .prepare(
             `INSERT INTO dependency_proposals (id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, evidence_id, decision, decided_at, criticality_decision, observation_count, rejected_at, rejected_at_observation_count, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NULL, NULL, ?, NULL, NULL, ?, ?)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NULL, NULL, ?, NULL, NULL, ?, ?)`,
           )
           .run(
             id,
@@ -142,9 +156,14 @@ export class DependencyProposalRepository {
             input.evidenceId ?? null,
             addObs,
             now,
-            now
+            now,
           )
-        return { proposal: this.getById(id) as DependencyProposal, changed: true, suppressed: false, alreadyAccepted: false }
+        return {
+          proposal: this.getById(id) as DependencyProposal,
+          changed: true,
+          suppressed: false,
+          alreadyAccepted: false,
+        }
       }
 
       if (existing.decision === 'accepted') {
@@ -159,9 +178,16 @@ export class DependencyProposalRepository {
           if (addObs > 0) {
             // 仅累计 observationCount（evidence 真实增长），但不改 decision
             this.driver
-              .prepare(`UPDATE dependency_proposals SET observation_count = ?, updated_at = ? WHERE id = ?`)
+              .prepare(
+                `UPDATE dependency_proposals SET observation_count = ?, updated_at = ? WHERE id = ?`,
+              )
               .run(currentCount, now, existing.id)
-            return { proposal: this.getById(existing.id) as DependencyProposal, changed: true, suppressed: true, alreadyAccepted: false }
+            return {
+              proposal: this.getById(existing.id) as DependencyProposal,
+              changed: true,
+              suppressed: true,
+              alreadyAccepted: false,
+            }
           }
           return { proposal: existing, changed: false, suppressed: true, alreadyAccepted: false }
         }
@@ -169,7 +195,7 @@ export class DependencyProposalRepository {
         this.driver
           .prepare(
             `UPDATE dependency_proposals SET decision = 'pending', decided_at = NULL, confidence_score = ?, path_json = ?, evidence_id = COALESCE(?, evidence_id), observation_count = ?, rejected_at = NULL, rejected_at_observation_count = NULL, updated_at = ?
-             WHERE id = ?`
+             WHERE id = ?`,
           )
           .run(
             input.confidenceScore,
@@ -177,16 +203,21 @@ export class DependencyProposalRepository {
             input.evidenceId ?? null,
             currentCount,
             now,
-            existing.id
+            existing.id,
           )
-        return { proposal: this.getById(existing.id) as DependencyProposal, changed: true, suppressed: false, alreadyAccepted: false }
+        return {
+          proposal: this.getById(existing.id) as DependencyProposal,
+          changed: true,
+          suppressed: false,
+          alreadyAccepted: false,
+        }
       }
 
       // pending → 继续累计 evidence
       this.driver
         .prepare(
           `UPDATE dependency_proposals SET confidence_score = MAX(confidence_score, ?), path_json = ?, evidence_id = COALESCE(?, evidence_id), observation_count = observation_count + ?, updated_at = ?
-           WHERE id = ?`
+           WHERE id = ?`,
         )
         .run(
           input.confidenceScore,
@@ -194,16 +225,21 @@ export class DependencyProposalRepository {
           input.evidenceId ?? null,
           addObs,
           now,
-          existing.id
+          existing.id,
         )
-      return { proposal: this.getById(existing.id) as DependencyProposal, changed: true, suppressed: false, alreadyAccepted: false }
+      return {
+        proposal: this.getById(existing.id) as DependencyProposal,
+        changed: true,
+        suppressed: false,
+        alreadyAccepted: false,
+      }
     })
   }
 
   decide(
     key: string,
     decision: Exclude<ProposalDecision, 'pending'>,
-    criticalityDecision?: Criticality | null
+    criticalityDecision?: Criticality | null,
   ): DependencyProposal {
     return this.driver.transaction(() => {
       const existing = this.getByKey(key)
@@ -213,13 +249,13 @@ export class DependencyProposalRepository {
         this.driver
           .prepare(
             `UPDATE dependency_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ?, rejected_at_observation_count = observation_count, criticality_decision = COALESCE(?, criticality_decision), updated_at = ?
-             WHERE id = ?`
+             WHERE id = ?`,
           )
           .run(now, now, criticalityDecision ?? null, now, existing.id)
       } else {
         this.driver
           .prepare(
-            `UPDATE dependency_proposals SET decision = 'accepted', decided_at = ?, criticality_decision = COALESCE(?, criticality_decision), updated_at = ? WHERE id = ?`
+            `UPDATE dependency_proposals SET decision = 'accepted', decided_at = ?, criticality_decision = COALESCE(?, criticality_decision), updated_at = ? WHERE id = ?`,
           )
           .run(now, criticalityDecision ?? null, now, existing.id)
       }

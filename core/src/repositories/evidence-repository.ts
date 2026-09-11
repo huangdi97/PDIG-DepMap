@@ -14,7 +14,7 @@ function rowToEvidence(row: Record<string, unknown>): Evidence {
     lastObservedAt: String(row.last_observed_at),
     observationCount: Number(row.observation_count),
     createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at)
+    updatedAt: String(row.updated_at),
   }
 }
 
@@ -40,7 +40,9 @@ export class EvidenceRepository {
   constructor(private readonly driver: SqliteDriver) {}
 
   getByProposalKey(proposalKey: string): Evidence | null {
-    const row = this.driver.prepare(`SELECT * FROM evidence WHERE proposal_key = ?`).get(proposalKey)
+    const row = this.driver
+      .prepare(`SELECT * FROM evidence WHERE proposal_key = ?`)
+      .get(proposalKey)
     return row ? rowToEvidence(row) : null
   }
 
@@ -58,7 +60,7 @@ export class EvidenceRepository {
         this.driver
           .prepare(
             `INSERT INTO evidence (id, proposal_key, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           )
           .run(
             id,
@@ -71,19 +73,32 @@ export class EvidenceRepository {
             input.lastObservedAt,
             input.newObservations,
             now,
-            now
+            now,
           )
         return { evidence: this.getById(id) as Evidence, created: true }
       }
       const first =
-        input.firstObservedAt < existing.firstObservedAt ? input.firstObservedAt : existing.firstObservedAt
-      const last = input.lastObservedAt > existing.lastObservedAt ? input.lastObservedAt : existing.lastObservedAt
+        input.firstObservedAt < existing.firstObservedAt
+          ? input.firstObservedAt
+          : existing.firstObservedAt
+      const last =
+        input.lastObservedAt > existing.lastObservedAt
+          ? input.lastObservedAt
+          : existing.lastObservedAt
       this.driver
         .prepare(
           `UPDATE evidence SET last_import_session_id = ?, first_observed_at = ?, last_observed_at = ?, observation_count = observation_count + ?, parser_version = ?, updated_at = ?
-           WHERE id = ?`
+           WHERE id = ?`,
         )
-        .run(input.importSessionId, first, last, input.newObservations, input.parserVersion, now, existing.id)
+        .run(
+          input.importSessionId,
+          first,
+          last,
+          input.newObservations,
+          input.parserVersion,
+          now,
+          existing.id,
+        )
       return { evidence: this.getById(existing.id) as Evidence, created: false }
     })
   }

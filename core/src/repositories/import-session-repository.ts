@@ -15,18 +15,23 @@ function rowToSession(row: Record<string, unknown>): ImportSession {
     newUniqueCount: Number(row.new_unique_count ?? 0),
     duplicateCount: Number(row.duplicate_count ?? 0),
     proposalCount: Number(row.proposal_count ?? 0),
-    errorCount: Number(row.error_count ?? 0)
+    errorCount: Number(row.error_count ?? 0),
   }
 }
 
 export class ImportSessionRepository {
   constructor(private readonly driver: SqliteDriver) {}
 
-  start(input: { sourceType: string; parserId: string; parserVersion: number; id?: string }): ImportSession {
+  start(input: {
+    sourceType: string
+    parserId: string
+    parserVersion: number
+    id?: string
+  }): ImportSession {
     const id = input.id ?? newId()
     this.driver
       .prepare(
-        `INSERT INTO import_sessions (id, source_type, parser_id, parser_version, started_at) VALUES (?, ?, ?, ?, ?)`
+        `INSERT INTO import_sessions (id, source_type, parser_id, parser_version, started_at) VALUES (?, ?, ?, ?, ?)`,
       )
       .run(id, input.sourceType, input.parserId, input.parserVersion, nowIso())
     return this.getById(id) as ImportSession
@@ -43,7 +48,7 @@ export class ImportSessionRepository {
     const merged = { ...existing, ...patch }
     this.driver
       .prepare(
-        `UPDATE import_sessions SET completed_at = ?, raw_count = ?, new_unique_count = ?, duplicate_count = ?, proposal_count = ?, error_count = ? WHERE id = ?`
+        `UPDATE import_sessions SET completed_at = ?, raw_count = ?, new_unique_count = ?, duplicate_count = ?, proposal_count = ?, error_count = ? WHERE id = ?`,
       )
       .run(
         merged.completedAt ?? null,
@@ -52,7 +57,7 @@ export class ImportSessionRepository {
         merged.duplicateCount,
         merged.proposalCount,
         merged.errorCount,
-        id
+        id,
       )
     return this.getById(id) as ImportSession
   }

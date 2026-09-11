@@ -42,11 +42,7 @@ export interface DepNode {
 // ---------------------------------------------------------------------------
 
 export type Relation =
-  | 'funding_source'
-  | 'merchant_agreement'
-  | 'verifies'
-  | 'recovers'
-  | 'bound_to'
+  'funding_source' | 'merchant_agreement' | 'verifies' | 'recovers' | 'bound_to'
 
 /** MVP Impact domain 只支持 payment；其他 capability 仅允许存边、不参与传播。 */
 export type Capability = 'payment' | 'access' | 'recovery' | 'identity'
@@ -116,7 +112,7 @@ export function canonicalGroupKey(
   targetNodeId: string,
   capability: Capability,
   mode: GroupMode,
-  memberLogicalKeys: string[]
+  memberLogicalKeys: string[],
 ): string {
   const sorted = [...new Set(memberLogicalKeys)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
   return [targetNodeId, capability, mode, ...sorted].join('|')
@@ -178,7 +174,7 @@ export function groupProposalKey(
   targetNodeId: string,
   capability: Capability,
   mode: GroupMode,
-  memberLogicalKeys: string[]
+  memberLogicalKeys: string[],
 ): string {
   return `group|${canonicalGroupKey(targetNodeId, capability, mode, memberLogicalKeys)}`
 }

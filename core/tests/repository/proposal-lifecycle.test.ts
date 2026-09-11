@@ -4,7 +4,10 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { NodeSqliteDriver } from '../../src/db/node-driver.ts'
 import { migrate } from '../../src/schema/migrations.ts'
-import { DependencyProposalRepository, REPROPOSAL_MIN_NEW_OBSERVATIONS } from '../../src/repositories/proposal-repository.ts'
+import {
+  DependencyProposalRepository,
+  REPROPOSAL_MIN_NEW_OBSERVATIONS,
+} from '../../src/repositories/proposal-repository.ts'
 import { DependencyGroupProposalRepository } from '../../src/repositories/group-proposal-repository.ts'
 import { EvidenceRepository } from '../../src/repositories/evidence-repository.ts'
 
@@ -17,7 +20,7 @@ const BASE = {
   source: 'statement',
   parserId: 'wechat',
   parserVersion: 1,
-  confidenceScore: 0.9
+  confidenceScore: 0.9,
 }
 
 describe('Proposal lifecycle (Schema v1)', () => {
@@ -83,7 +86,10 @@ describe('Proposal lifecycle (Schema v1)', () => {
   it('rejected 后：新观测 ≥3 且覆盖 ≥1 完整周期 → 软性重提回 pending', () => {
     const r1 = proposals.upsert({ ...BASE, newObservations: 4 })
     proposals.decide(r1.proposal.key, 'rejected')
-    const r2 = proposals.upsert({ ...BASE, newObservations: REPROPOSAL_MIN_NEW_OBSERVATIONS }, { cyclesCovered: 1 })
+    const r2 = proposals.upsert(
+      { ...BASE, newObservations: REPROPOSAL_MIN_NEW_OBSERVATIONS },
+      { cyclesCovered: 1 },
+    )
     expect(r2.suppressed).toBe(false)
     expect(r2.changed).toBe(true)
     expect(r2.proposal.decision).toBe('pending')
@@ -100,7 +106,7 @@ describe('Proposal lifecycle (Schema v1)', () => {
       importSessionId: 's1',
       firstObservedAt: '2026-04-15',
       lastObservedAt: '2026-04-15',
-      newObservations: 2
+      newObservations: 2,
     })
     expect(a.created).toBe(true)
     const b = evidence.accumulate({
@@ -111,7 +117,7 @@ describe('Proposal lifecycle (Schema v1)', () => {
       importSessionId: 's2',
       firstObservedAt: '2026-03-01',
       lastObservedAt: '2026-03-20',
-      newObservations: 1
+      newObservations: 1,
     })
     expect(b.created).toBe(false)
     const e = evidence.getByProposalKey('card1|funding_source|wechat|payment')!
@@ -123,12 +129,17 @@ describe('Proposal lifecycle (Schema v1)', () => {
 
   it('GroupProposal：canonical key 去重（成员乱序同组）', () => {
     const members = ['b|funding_source|wechat|payment', 'a|funding_source|wechat|payment']
-    const r1 = groupProposals.upsert({ targetNodeId: 'wechat', capability: 'payment', mode: 'ANY', memberDependencyKeys: members })
+    const r1 = groupProposals.upsert({
+      targetNodeId: 'wechat',
+      capability: 'payment',
+      mode: 'ANY',
+      memberDependencyKeys: members,
+    })
     const r2 = groupProposals.upsert({
       targetNodeId: 'wechat',
       capability: 'payment',
       mode: 'ANY',
-      memberDependencyKeys: [...members].reverse()
+      memberDependencyKeys: [...members].reverse(),
     })
     expect(r2.proposal.id).toBe(r1.proposal.id)
     expect(groupProposals.listAll()).toHaveLength(1)
@@ -140,19 +151,31 @@ describe('Proposal lifecycle (Schema v1)', () => {
       capability: 'payment',
       mode: 'ANY',
       memberDependencyKeys: ['a|funding_source|wechat|payment', 'b|funding_source|wechat|payment'],
-      newObservations: 2
+      newObservations: 2,
     })
     groupProposals.decide(r1.proposal.key, 'rejected')
     const r2 = groupProposals.upsert(
-      { targetNodeId: 'wechat', capability: 'payment', mode: 'ANY', memberDependencyKeys: r1.proposal.memberDependencyKeys, newObservations: 2 },
-      { cyclesCovered: 1 }
+      {
+        targetNodeId: 'wechat',
+        capability: 'payment',
+        mode: 'ANY',
+        memberDependencyKeys: r1.proposal.memberDependencyKeys,
+        newObservations: 2,
+      },
+      { cyclesCovered: 1 },
     )
     expect(r2.suppressed).toBe(true)
     expect(r2.proposal.decision).toBe('rejected')
 
     const r3 = groupProposals.upsert(
-      { targetNodeId: 'wechat', capability: 'payment', mode: 'ANY', memberDependencyKeys: r1.proposal.memberDependencyKeys, newObservations: 3 },
-      { cyclesCovered: 1 }
+      {
+        targetNodeId: 'wechat',
+        capability: 'payment',
+        mode: 'ANY',
+        memberDependencyKeys: r1.proposal.memberDependencyKeys,
+        newObservations: 3,
+      },
+      { cyclesCovered: 1 },
     )
     expect(r3.suppressed).toBe(false)
     expect(r3.proposal.decision).toBe('pending')

@@ -67,7 +67,9 @@ const outcome = flow.finalize()
 console.log(`新观测 ${outcome.newUniqueCount}，重复 ${outcome.duplicateCount}`)
 console.log(`识别周期项：${outcome.recurrences.length}`)
 for (const r of outcome.recurrences) {
-  console.log(`  - ${r.merchantRaw} ${r.period} confidence=${r.confidence} occurrences=${r.occurrences} typicalAmount=${r.typicalAmount}`)
+  console.log(
+    `  - ${r.merchantRaw} ${r.period} confidence=${r.confidence} occurrences=${r.occurrences} typicalAmount=${r.typicalAmount}`,
+  )
 }
 console.log(`生成/更新建议：${outcome.proposalKeys.length}`)
 
@@ -79,7 +81,7 @@ for (const g of gpKeys) confirm.acceptGroupProposal(g)
 const graph = {
   dependencies: deps.listActive(),
   groups: groups.listAllActive(),
-  nodeNames: Object.fromEntries(nodes.list().map(n => [n.id, n.name]))
+  nodeNames: Object.fromEntries(nodes.list().map((n) => [n.id, n.name])),
 }
 
 // 对每张已确认卡做模拟注销
@@ -93,5 +95,7 @@ for (const card of cards) {
     console.log(`      ${item.detail}`)
   }
 }
-console.log('\nCorrectness Gate：请逐条人工核实上方 must_change 是否为真实依赖（目标 false positive = 0）。')
+console.log(
+  '\nCorrectness Gate：请逐条人工核实上方 must_change 是否为真实依赖（目标 false positive = 0）。',
+)
 driver.close()

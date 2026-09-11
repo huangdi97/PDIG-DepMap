@@ -5,14 +5,14 @@ import {
   parsePaymentMethod,
   findBankCardNode,
   similarity,
-  type ResolvableEntity
+  type ResolvableEntity,
 } from '../../src/resolver/resolver.ts'
 import type { DepNode } from '../../src/domain/types.ts'
 
 const ENTITIES: ResolvableEntity[] = [
   { nodeId: 'n_tencent', name: '腾讯视频' },
   { nodeId: 'n_netease', name: '网易云音乐', aliases: ['网易云'] },
-  { nodeId: 'n_card_cmb', name: '招行经典白', aliases: ['招商银行经典白'] }
+  { nodeId: 'n_card_cmb', name: '招行经典白', aliases: ['招商银行经典白'] },
 ]
 
 describe('Node Resolver (GOAL §14)', () => {
@@ -37,7 +37,6 @@ describe('Node Resolver (GOAL §14)', () => {
   })
 
   it('顺序 3：conservative fuzzy —— 唯一候选且 ≥0.9', () => {
-    const r = resolveMerchant('腾讯视频VIP会员连续包月', ENTITIES)
     // alias 表已包含完整别名 → alias_exact；用非别名但高相似度验证 fuzzy
     const fuzzy = resolveMerchant('腾讯视頻', ENTITIES) // 一个字不同（繁体頻 vs 简）
     expect(['resolved', 'ambiguous', 'unresolved']).toContain(fuzzy.status)
@@ -54,7 +53,7 @@ describe('Node Resolver (GOAL §14)', () => {
   it('多候选 → ambiguous（等待用户选择）', () => {
     const ents: ResolvableEntity[] = [
       { nodeId: 'a', name: '测试视频' },
-      { nodeId: 'b', name: '测试视频VIP' }
+      { nodeId: 'b', name: '测试视频VIP' },
     ]
     const r = resolveMerchant('测试视频', ents)
     expect(r.status === 'resolved' || r.status === 'ambiguous').toBe(true)
@@ -101,7 +100,7 @@ describe('Payment method parsing', () => {
       vaultRef: null,
       walletRef: null,
       createdAt: 't',
-      updatedAt: 't'
+      updatedAt: 't',
     }
     expect(findBankCardNode(parsePaymentMethod('招商银行信用卡(4417)'), [card])?.id).toBe('card1')
     expect(findBankCardNode(parsePaymentMethod('招商银行信用卡(9999)'), [card])).toBeNull()

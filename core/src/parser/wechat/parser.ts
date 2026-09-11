@@ -94,7 +94,7 @@ const EXPECTED_COLUMNS = [
   '当前状态',
   '交易单号',
   '商户单号',
-  '备注'
+  '备注',
 ]
 
 function findHeaderRowIndex(lines: string[]): number {
@@ -145,7 +145,11 @@ export function parseWechatBill(raw: Uint8Array): WechatParseResult {
 
   const headerIdx = findHeaderRowIndex(lines)
   if (headerIdx === -1) {
-    return { observations, errors: [{ line: 0, reason: 'missing column header row (交易时间...)' }], sourceLabel: 'wechat' }
+    return {
+      observations,
+      errors: [{ line: 0, reason: 'missing column header row (交易时间...)' }],
+      sourceLabel: 'wechat',
+    }
   }
   // 列头行本身校验（列漂移容错：只要求首列匹配）
   const headerCells = parseCsvLine(lines[headerIdx] ?? '')
@@ -192,7 +196,7 @@ export function parseWechatBill(raw: Uint8Array): WechatParseResult {
       direction,
       paymentMethodRaw: (cells[6] ?? '').trim(),
       status,
-      note: (cells[10] ?? '').trim()
+      note: (cells[10] ?? '').trim(),
     })
   }
 

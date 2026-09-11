@@ -3,9 +3,8 @@ import type {
   Criticality,
   Dependency,
   DependencyOrigin,
-  Relation
+  Relation,
 } from '../domain/types.ts'
-import { dependencyLogicalKey } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
 import { optionalString } from './meta-repository.ts'
@@ -45,9 +44,9 @@ function rowToDependency(row: Record<string, unknown>): Dependency {
     confirmedAt: String(row.confirmed_at),
     lastVerifiedAt: String(row.last_verified_at),
     retiredAt: optionalString(row.retired_at as never),
-    evidenceRefs: JSON.parse(String(row.evidence_refs_json ?? '[]')) as string[],
+    evidenceRefs: parseJsonArray(row.evidence_refs_json),
     createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at)
+    updatedAt: String(row.updated_at),
   }
 }
 
@@ -62,10 +61,15 @@ function rowToDependency(row: Record<string, unknown>): Dependency {
 export class DependencyRepository {
   constructor(private readonly driver: SqliteDriver) {}
 
-  findByLogicalKey(from: string, relation: string, to: string, capability: string): Dependency | null {
+  findByLogicalKey(
+    from: string,
+    relation: string,
+    to: string,
+    capability: string,
+  ): Dependency | null {
     const row = this.driver
       .prepare(
-        `SELECT * FROM dependencies WHERE from_node = ? AND relation = ? AND to_node = ? AND capability = ?`
+        `SELECT * FROM dependencies WHERE from_node = ? AND relation = ? AND to_node = ? AND capability = ?`,
       )
       .get(from, relation, to, capability)
     return row ? rowToDependency(row) : null
@@ -91,7 +95,7 @@ export class DependencyRepository {
   listActiveIncomingTo(to: string, capability: Capability): Dependency[] {
     return this.driver
       .prepare(
-        `SELECT * FROM dependencies WHERE to_node = ? AND capability = ? AND state = 'active' ORDER BY id`
+        `SELECT * FROM dependencies WHERE to_node = ? AND capability = ? AND state = 'active' ORDER BY id`,
       )
       .all(to, capability)
       .map(rowToDependency)
@@ -101,7 +105,7 @@ export class DependencyRepository {
   listActiveOutgoingFrom(from: string, capability: Capability): Dependency[] {
     return this.driver
       .prepare(
-        `SELECT * FROM dependencies WHERE from_node = ? AND capability = ? AND state = 'active' ORDER BY id`
+        `SELECT * FROM dependencies WHERE from_node = ? AND capability = ? AND state = 'active' ORDER BY id`,
       )
       .all(from, capability)
       .map(rowToDependency)
@@ -110,18 +114,13 @@ export class DependencyRepository {
   confirm(input: ConfirmDependencyInput): ConfirmDependencyResult {
     return this.driver.transaction(() => {
       const now = nowIso()
-      const existing = this.findByLogicalKey(
-        input.from,
-        input.relation,
-        input.to,
-        input.capability
-      )
+      const existing = this.findByLogicalKey(input.from, input.relation, input.to, input.capability)
       if (!existing) {
         const id = input.id ?? newId()
         this.driver
           .prepare(
             `INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, NULL, ?, ?, ?)`
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, NULL, ?, ?, ?)`,
           )
           .run(
             id,
@@ -136,7 +135,7 @@ export class DependencyRepository {
             now,
             JSON.stringify(input.evidenceRefs ?? []),
             now,
-            now
+            now,
           )
         return { dependency: this.getById(id) as Dependency, reactivated: false, verified: false }
       }
@@ -148,10 +147,21 @@ export class DependencyRepository {
         this.driver
           .prepare(
             `UPDATE dependencies SET last_verified_at = ?, evidence_refs_json = ?, criticality = ?, group_id = COALESCE(?, group_id), updated_at = ?
-             WHERE id = ?`
+             WHERE id = ?`,
           )
-          .run(now, JSON.stringify(mergedRefs), criticality, input.groupId ?? null, now, existing.id)
-        return { dependency: this.getById(existing.id) as Dependency, reactivated: false, verified: true }
+          .run(
+            now,
+            JSON.stringify(mergedRefs),
+            criticality,
+            input.groupId ?? null,
+            now,
+            existing.id,
+          )
+        return {
+          dependency: this.getById(existing.id) as Dependency,
+          reactivated: false,
+          verified: true,
+        }
       }
 
       // retired → re-activate 同一 id
@@ -159,7 +169,7 @@ export class DependencyRepository {
       this.driver
         .prepare(
           `UPDATE dependencies SET state = 'active', retired_at = NULL, confirmed_at = ?, last_verified_at = ?, evidence_refs_json = ?, criticality = ?, origin = ?, updated_at = ?
-           WHERE id = ?`
+           WHERE id = ?`,
         )
         .run(
           now,
@@ -168,9 +178,13 @@ export class DependencyRepository {
           input.criticality ?? existing.criticality,
           input.origin ?? existing.origin,
           now,
-          existing.id
+          existing.id,
         )
-      return { dependency: this.getById(existing.id) as Dependency, reactivated: true, verified: false }
+      return {
+        dependency: this.getById(existing.id) as Dependency,
+        reactivated: true,
+        verified: false,
+      }
     })
   }
 
@@ -180,7 +194,9 @@ export class DependencyRepository {
     if (existing.state === 'retired') return existing
     const now = nowIso()
     this.driver
-      .prepare(`UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?`)
+      .prepare(
+        `UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?`,
+      )
       .run(now, now, id)
     return this.getById(id) as Dependency
   }
@@ -204,6 +220,16 @@ export class DependencyRepository {
   countAll(): number {
     const row = this.driver.prepare(`SELECT COUNT(*) AS c FROM dependencies`).get()
     return Number(row?.c ?? 0)
+  }
+}
+
+function parseJsonArray(v: unknown): string[] {
+  const raw = typeof v === 'string' ? v : '[]'
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed.map(String) : []
+  } catch {
+    return []
   }
 }
 

@@ -9,16 +9,30 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:perf": "vitest run tests/perf",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:architecture": "node scripts/check-architecture.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run check:architecture && npm run check:secrets",
+    "check:full": "npm run check && npm run test:coverage && npm run test:perf"
   },
   "dependencies": {
     "hash-wasm": "^4.12.0"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
+    "@vitest/coverage-v8": "^3.2.7",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
     "iconv-lite": "^0.7.3",
+    "prettier": "^3.9.6",
     "typescript": "^5.8.0",
+    "typescript-eslint": "^8.70.0",
     "vitest": "^3.1.0"
   }
 }

@@ -1,7 +1,7 @@
 import type { DepNode, NodeKind } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
-import { optionalString, requireString } from './meta-repository.ts'
+import { optionalString } from './meta-repository.ts'
 
 export interface CreateNodeInput {
   id?: string
@@ -21,6 +21,16 @@ export interface NodeQuery {
   archived?: boolean
 }
 
+function parseJsonObject(v: unknown): Record<string, unknown> {
+  const raw = typeof v === 'string' ? v : '{}'
+  try {
+    const parsed: unknown = JSON.parse(raw)
+    return parsed !== null && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {}
+  } catch {
+    return {}
+  }
+}
+
 function rowToNode(row: Record<string, unknown>): DepNode {
   return {
     id: String(row.id),
@@ -31,11 +41,11 @@ function rowToNode(row: Record<string, unknown>): DepNode {
     last4: optionalString(row.last4 as never),
     owner: String(row.owner),
     archived: Number(row.archived) === 1,
-    fields: JSON.parse(String(row.fields_json ?? '{}')) as Record<string, unknown>,
+    fields: parseJsonObject(row.fields_json),
     vaultRef: optionalString(row.vault_ref as never),
     walletRef: optionalString(row.wallet_ref as never),
     createdAt: String(row.created_at),
-    updatedAt: String(row.updated_at)
+    updatedAt: String(row.updated_at),
   }
 }
 
@@ -48,7 +58,7 @@ export class NodeRepository {
     this.driver
       .prepare(
         `INSERT INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, vault_ref, wallet_ref, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)`
+         VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?)`,
       )
       .run(
         id,
@@ -62,7 +72,7 @@ export class NodeRepository {
         input.vaultRef ?? null,
         input.walletRef ?? null,
         now,
-        now
+        now,
       )
     return this.getById(id) as DepNode
   }
@@ -115,7 +125,7 @@ export class NodeRepository {
     this.driver
       .prepare(
         `UPDATE nodes SET kind = ?, template_id = ?, name = ?, issuer = ?, last4 = ?, owner = ?, archived = ?, fields_json = ?, vault_ref = ?, wallet_ref = ?, updated_at = ?
-         WHERE id = ?`
+         WHERE id = ?`,
       )
       .run(
         kind,
@@ -129,7 +139,7 @@ export class NodeRepository {
         vaultRef,
         walletRef,
         nowIso(),
-        id
+        id,
       )
     return this.getById(id) as DepNode
   }

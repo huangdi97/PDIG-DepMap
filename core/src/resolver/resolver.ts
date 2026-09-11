@@ -16,7 +16,10 @@ export type ResolutionMatchType = 'alias_exact' | 'normalized_exact' | 'fuzzy'
 
 export type ResolutionResult =
   | { status: 'resolved'; nodeId: string; matchType: ResolutionMatchType }
-  | { status: 'ambiguous'; candidates: Array<{ nodeId: string; matchType: ResolutionMatchType; score: number }> }
+  | {
+      status: 'ambiguous'
+      candidates: Array<{ nodeId: string; matchType: ResolutionMatchType; score: number }>
+    }
   | { status: 'unresolved' }
 
 /** 内置 alias 表：商户原始名 → 规范名（只做保守映射，可扩展）。 */
@@ -30,7 +33,7 @@ export const BUILTIN_ALIASES: Record<string, string[]> = {
   滴滴出行: ['滴滴出行科技有限公司'],
   京东: ['京东平台商户', '北京京东世纪贸易有限公司'],
   淘宝: ['淘宝平台商户', '支付宝(中国)网络技术有限公司'],
-  Apple: ['Apple Distribut', 'APPLE.COM/BILL']
+  Apple: ['Apple Distribut', 'APPLE.COM/BILL'],
 }
 
 export interface ResolvableEntity {
@@ -63,11 +66,17 @@ export function similarity(a: string, b: string): number {
     cur[0] = i
     for (let j = 1; j <= n; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1
-      cur[j] = Math.min(prev[j]! + 1, cur[j - 1]! + 1, prev[j - 1]! + cost)
+      const up = prev[j]
+      const left = cur[j - 1]
+      const diag = prev[j - 1]
+      if (up === undefined || left === undefined || diag === undefined) return 0
+      cur[j] = Math.min(up + 1, left + 1, diag + cost)
     }
     ;[prev, cur] = [cur, prev]
   }
-  return 1 - prev[n]! / Math.max(m, n)
+  const dist = prev[n]
+  if (dist === undefined) return 0
+  return 1 - dist / Math.max(m, n)
 }
 
 const FUZZY_THRESHOLD = 0.9
@@ -76,7 +85,10 @@ const FUZZY_THRESHOLD = 0.9
  * 解析商户原始名到已有节点。
  * 结果为 ambiguous / unresolved 时不得生成 Proposal（等待用户确认）。
  */
-export function resolveMerchant(merchantRaw: string, entities: ResolvableEntity[]): ResolutionResult {
+export function resolveMerchant(
+  merchantRaw: string,
+  entities: ResolvableEntity[],
+): ResolutionResult {
   const raw = merchantRaw.trim()
   if (raw === '') return { status: 'unresolved' }
   const normalized = normalizeMerchantName(raw)
@@ -84,7 +96,12 @@ export function resolveMerchant(merchantRaw: string, entities: ResolvableEntity[
   // 1. builtin alias exact：merchantRaw 命中 alias 表 → 规范名，再与节点名/别名精确匹配
   const canonicalNames = new Set<string>()
   for (const [canonical, aliases] of Object.entries(BUILTIN_ALIASES)) {
-    if (canonical === raw || aliases.includes(raw) || normalizeMerchantName(canonical) === normalized || aliases.some(a => normalizeMerchantName(a) === normalized)) {
+    if (
+      canonical === raw ||
+      aliases.includes(raw) ||
+      normalizeMerchantName(canonical) === normalized ||
+      aliases.some((a) => normalizeMerchantName(a) === normalized)
+    ) {
       canonicalNames.add(canonical)
     }
   }
@@ -100,13 +117,18 @@ export function resolveMerchant(merchantRaw: string, entities: ResolvableEntity[
       exactMatches.push({ nodeId: e.nodeId, matchType: 'alias_exact' })
     }
   }
-  if (exactMatches.length === 1) {
-    return { status: 'resolved', nodeId: exactMatches[0]!.nodeId, matchType: exactMatches[0]!.matchType }
+  const exact = exactMatches[0]
+  if (exactMatches.length === 1 && exact) {
+    return {
+      status: 'resolved',
+      nodeId: exact.nodeId,
+      matchType: exact.matchType,
+    }
   }
   if (exactMatches.length > 1) {
     return {
       status: 'ambiguous',
-      candidates: exactMatches.map(m => ({ ...m, score: 1 }))
+      candidates: exactMatches.map((m) => ({ ...m, score: 1 })),
     }
   }
 
@@ -114,15 +136,20 @@ export function resolveMerchant(merchantRaw: string, entities: ResolvableEntity[
   const fuzzy: Array<{ nodeId: string; score: number }> = []
   for (const e of entities) {
     const names = [e.name, ...(e.aliases ?? [])].map(normalizeMerchantName)
-    const best = Math.max(...names.map(n => similarity(normalized, n)))
-    if (best >= FUZZY_THRESHOLD) fuzzy.push({ nodeId: e.nodeId, score: Math.round(best * 1000) / 1000 })
+    const best = Math.max(...names.map((n) => similarity(normalized, n)))
+    if (best >= FUZZY_THRESHOLD)
+      fuzzy.push({ nodeId: e.nodeId, score: Math.round(best * 1000) / 1000 })
   }
   fuzzy.sort((a, b) => b.score - a.score || (a.nodeId < b.nodeId ? -1 : 1))
-  if (fuzzy.length === 1 && fuzzy[0]!.score >= FUZZY_THRESHOLD) {
-    return { status: 'resolved', nodeId: fuzzy[0]!.nodeId, matchType: 'fuzzy' }
+  const bestFuzzy = fuzzy[0]
+  if (fuzzy.length === 1 && bestFuzzy && bestFuzzy.score >= FUZZY_THRESHOLD) {
+    return { status: 'resolved', nodeId: bestFuzzy.nodeId, matchType: 'fuzzy' }
   }
   if (fuzzy.length > 1) {
-    return { status: 'ambiguous', candidates: fuzzy.map(f => ({ ...f, matchType: 'fuzzy' as const })) }
+    return {
+      status: 'ambiguous',
+      candidates: fuzzy.map((f) => ({ ...f, matchType: 'fuzzy' as const })),
+    }
   }
 
   // 4. 用户确认
@@ -146,31 +173,45 @@ export function parsePaymentMethod(raw: string): PaymentMethodInfo {
   // 形如 '招商银行信用卡(4417)' / '工商银行储蓄卡(1234)'
   const m = /^(.+?)(信用卡|储蓄卡)[（(](\d{4})[）)]$/.exec(s)
   if (m) {
+    const bank = m[1]
+    const cardKind = m[2]
+    const last4 = m[3]
+    if (!bank || !cardKind || !last4) {
+      return { kind: 'other', bankName: null, cardType: null, last4: null, raw: s }
+    }
     return {
       kind: 'bank_card',
-      bankName: m[1]!,
-      cardType: m[2] === '信用卡' ? 'credit' : 'debit',
-      last4: m[3]!,
-      raw: s
+      bankName: bank,
+      cardType: cardKind === '信用卡' ? 'credit' : 'debit',
+      last4,
+      raw: s,
     }
   }
-  if (s === '零钱') return { kind: 'wechat_balance', bankName: null, cardType: null, last4: null, raw: s }
-  if (s === '零钱通') return { kind: 'wechat_change_pocket', bankName: null, cardType: null, last4: null, raw: s }
+  if (s === '零钱')
+    return { kind: 'wechat_balance', bankName: null, cardType: null, last4: null, raw: s }
+  if (s === '零钱通')
+    return { kind: 'wechat_change_pocket', bankName: null, cardType: null, last4: null, raw: s }
   return { kind: 'other', bankName: null, cardType: null, last4: null, raw: s }
 }
 
 /** 在已有节点中按 bank + last4 精确找银行卡节点（ Resolver 顺序的 normalized exact 应用）。 */
 export function findBankCardNode(info: PaymentMethodInfo, nodes: DepNode[]): DepNode | null {
   if (info.kind !== 'bank_card' || info.last4 === null) return null
-  const matches = nodes.filter(n => {
+  const matches = nodes.filter((n) => {
     if (n.kind !== 'payment_instrument') return false
     if (n.last4 !== info.last4) return false
     // 银行名放宽：节点 issuer 或 name 包含银行名（招行/招商银行）
     const bank = info.bankName ?? ''
     const haystack = `${n.issuer ?? ''}${n.name}`
-    return bank === '' || haystack.includes(bank) || bank.includes(haystack) || aliasBankMatch(bank, haystack)
+    return (
+      bank === '' ||
+      haystack.includes(bank) ||
+      bank.includes(haystack) ||
+      aliasBankMatch(bank, haystack)
+    )
   })
-  return matches.length === 1 ? matches[0]! : null
+  const found = matches[0]
+  return matches.length === 1 && found ? found : null
 }
 
 function aliasBankMatch(bank: string, haystack: string): boolean {
@@ -179,10 +220,13 @@ function aliasBankMatch(bank: string, haystack: string): boolean {
     工行: ['工商银行', '工商'],
     建行: ['建设银行', '建设'],
     中行: ['中国银行'],
-    农行: ['农业银行']
+    农行: ['农业银行'],
   }
   for (const [alias, fulls] of Object.entries(table)) {
-    if ((bank.startsWith(alias) || fulls.some(f => bank.startsWith(f))) && fulls.some(f => haystack.includes(f) || haystack.includes(alias))) {
+    if (
+      (bank.startsWith(alias) || fulls.some((f) => bank.startsWith(f))) &&
+      fulls.some((f) => haystack.includes(f) || haystack.includes(alias))
+    ) {
       return true
     }
   }

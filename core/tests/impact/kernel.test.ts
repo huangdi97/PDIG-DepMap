@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import type { Capability, Criticality, Dependency, DependencyGroup, Relation } from '../../src/domain/types.ts'
+import type {
+  Capability,
+  Criticality,
+  Dependency,
+  DependencyGroup,
+  Relation,
+} from '../../src/domain/types.ts'
 import { canonicalGroupKey } from '../../src/domain/types.ts'
-import {
-  simulateScenario,
-  simulateDisable
-} from '../../src/impact/kernel.ts'
+import { simulateScenario, simulateDisable } from '../../src/impact/kernel.ts'
 
 // ---------------------------------------------------------------------------
 // helpers — 构造纯内存图输入（kernel 只接收 confirmed Dependency / Group）
@@ -14,7 +17,12 @@ let seq = 0
 function dep(
   from: string,
   to: string,
-  opts: { capability?: Capability; criticality?: Criticality; relation?: Relation; state?: 'active' | 'retired' } = {}
+  opts: {
+    capability?: Capability
+    criticality?: Criticality
+    relation?: Relation
+    state?: 'active' | 'retired'
+  } = {},
 ): Dependency {
   seq += 1
   const rel = opts.relation ?? 'funding_source'
@@ -34,7 +42,7 @@ function dep(
     retiredAt: opts.state === 'retired' ? '2026-02-01T00:00:00.000Z' : null,
     evidenceRefs: [],
     createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z'
+    updatedAt: '2026-01-01T00:00:00.000Z',
   }
 }
 
@@ -47,19 +55,19 @@ function allGroup(target: string, members: Dependency[]): DependencyGroup {
 }
 
 function group(target: string, mode: 'ANY' | 'ALL', members: Dependency[]): DependencyGroup {
-  const memberKeys = members.map(m => `${m.from}|${m.relation}|${m.to}|${m.capability}`)
+  const memberKeys = members.map((m) => `${m.from}|${m.relation}|${m.to}|${m.capability}`)
   return {
     id: `g-${target}-${mode}`,
     groupKey: canonicalGroupKey(target, 'payment', mode, memberKeys),
     targetNodeId: target,
     capability: 'payment',
     mode,
-    memberEdgeIds: members.map(m => m.id),
+    memberEdgeIds: members.map((m) => m.id),
     state: 'active',
     confirmedAt: '2026-01-01T00:00:00.000Z',
     lastVerifiedAt: '2026-01-01T00:00:00.000Z',
     createdAt: '2026-01-01T00:00:00.000Z',
-    updatedAt: '2026-01-01T00:00:00.000Z'
+    updatedAt: '2026-01-01T00:00:00.000Z',
   }
 }
 
@@ -72,11 +80,11 @@ const NODE_NAMES: Record<string, string> = {
   CMB4417: '招行4417',
   CCB8821: '建行8821',
   WeChat: '微信',
-  TencentVideo: '腾讯视频'
+  TencentVideo: '腾讯视频',
 }
 
 function statusOf(result: ReturnType<typeof simulateScenario>, nodeId: string) {
-  const t = result.targets.find(x => x.nodeId === nodeId)
+  const t = result.targets.find((x) => x.nodeId === nodeId)
   expect(t, `target ${nodeId} should be evaluated`).toBeDefined()
   return t!
 }
@@ -124,10 +132,18 @@ describe('Impact Kernel — payment domain (T1–T12)', () => {
       {
         dependencies: [],
         groups: [],
-        proposals: [{ key: 'A|funding_source|B|payment', from: 'A', to: 'B', capability: 'payment', confidenceScore: 0.999 }],
-        nodeNames: NODE_NAMES
+        proposals: [
+          {
+            key: 'A|funding_source|B|payment',
+            from: 'A',
+            to: 'B',
+            capability: 'payment',
+            confidenceScore: 0.999,
+          },
+        ],
+        nodeNames: NODE_NAMES,
       },
-      'A'
+      'A',
     )
     const b = statusOf(r, 'B')
     expect(b.status).toBe('needs_review')
@@ -151,13 +167,16 @@ describe('Impact Kernel — payment domain (T1–T12)', () => {
     const e1 = dep('A', 'B', { criticality: 'required' })
     const e2 = dep('B', 'C', { criticality: 'required' })
     const e3 = dep('C', 'A', { criticality: 'required' })
-    const r = simulateDisable({ dependencies: [e1, e2, e3], groups: [], nodeNames: NODE_NAMES }, 'A')
+    const r = simulateDisable(
+      { dependencies: [e1, e2, e3], groups: [], nodeNames: NODE_NAMES },
+      'A',
+    )
     // 终止
     expect(r.lostKeys).toHaveLength(3)
-    const lostNodeIds = r.lostKeys.map(k => k.nodeId).sort()
+    const lostNodeIds = r.lostKeys.map((k) => k.nodeId).sort()
     expect(lostNodeIds).toEqual(['A', 'B', 'C'])
     // 每个 key 只出现一次
-    const seen = new Set(r.lostKeys.map(k => `${k.nodeId}|${k.capability}`))
+    const seen = new Set(r.lostKeys.map((k) => `${k.nodeId}|${k.capability}`))
     expect(seen.size).toBe(r.lostKeys.length)
     // processedKeys 无重复
     expect(new Set(r.processedKeys).size).toBe(r.processedKeys.length)
@@ -192,7 +211,7 @@ describe('Impact Kernel — payment domain (T1–T12)', () => {
     const e1 = dep('A', 'B', { criticality: 'required', state: 'retired' })
     const r = simulateDisable({ dependencies: [e1], groups: [], nodeNames: NODE_NAMES }, 'A')
     expect(r.targets).toHaveLength(0)
-    expect(r.lostKeys.map(k => k.nodeId)).toEqual(['A'])
+    expect(r.lostKeys.map((k) => k.nodeId)).toEqual(['A'])
   })
 
   it('T10: retired dependency reactivated 后重新参与传播', () => {
@@ -200,7 +219,10 @@ describe('Impact Kernel — payment domain (T1–T12)', () => {
     const before = simulateDisable({ dependencies: [e1], groups: [], nodeNames: NODE_NAMES }, 'A')
     expect(before.targets).toHaveLength(0)
     const reactivated: Dependency = { ...e1, state: 'active', retiredAt: null }
-    const after = simulateDisable({ dependencies: [reactivated], groups: [], nodeNames: NODE_NAMES }, 'A')
+    const after = simulateDisable(
+      { dependencies: [reactivated], groups: [], nodeNames: NODE_NAMES },
+      'A',
+    )
     expect(statusOf(after, 'B').status).toBe('must_change')
   })
 
@@ -210,7 +232,7 @@ describe('Impact Kernel — payment domain (T1–T12)', () => {
     const g = anyGroup('C', [e1, e2])
     const r = simulateScenario(
       { dependencies: [e1, e2], groups: [g], nodeNames: NODE_NAMES },
-      new Set([key('A'), key('B')])
+      new Set([key('A'), key('B')]),
     )
     const c = statusOf(r, 'C')
     expect(c.status).toBe('must_change')
@@ -222,10 +244,13 @@ describe('Impact Kernel — payment domain (T1–T12)', () => {
     const e1 = dep('A', 'B', { criticality: 'required' })
     const e2 = dep('B', 'D', { capability: 'recovery', criticality: 'required' })
     const e3 = dep('B', 'E', { capability: 'access', criticality: 'required' })
-    const r = simulateDisable({ dependencies: [e1, e2, e3], groups: [], nodeNames: NODE_NAMES }, 'A')
+    const r = simulateDisable(
+      { dependencies: [e1, e2, e3], groups: [], nodeNames: NODE_NAMES },
+      'A',
+    )
     // 只有 B.payment 受影响
-    expect(r.targets.map(t => `${t.nodeId}:${t.capability}`)).toEqual(['B:payment'])
-    expect(r.lostKeys.map(k => `${k.nodeId}:${k.capability}`)).toEqual(['A:payment', 'B:payment'])
+    expect(r.targets.map((t) => `${t.nodeId}:${t.capability}`)).toEqual(['B:payment'])
+    expect(r.lostKeys.map((k) => `${k.nodeId}:${k.capability}`)).toEqual(['A:payment', 'B:payment'])
   })
 })
 
@@ -237,9 +262,9 @@ describe('Impact Kernel — 输出确定性 (GOAL §7.2 附加)', () => {
     const graph = { dependencies: [e1, e2], groups: [], nodeNames: NODE_NAMES }
     const r1 = simulateDisable(graph, 'CMB4417')
     const r2 = simulateDisable(graph, 'CMB4417')
-    expect(r1.targets.map(t => t.nodeId)).toEqual(['WeChat', 'TencentVideo'])
-    expect(r1.targets.map(t => t.nodeId)).toEqual(r2.targets.map(t => t.nodeId))
-    expect(r1.checklist.map(i => i.title)).toEqual(r2.checklist.map(i => i.title))
+    expect(r1.targets.map((t) => t.nodeId)).toEqual(['WeChat', 'TencentVideo'])
+    expect(r1.targets.map((t) => t.nodeId)).toEqual(r2.targets.map((t) => t.nodeId))
+    expect(r1.checklist.map((i) => i.title)).toEqual(r2.checklist.map((i) => i.title))
   })
 
   it('target operation always last in Action Checklist', () => {
@@ -250,7 +275,7 @@ describe('Impact Kernel — 输出确定性 (GOAL §7.2 附加)', () => {
     expect(last.level).toBe('target_operation')
     expect(last.nodeId).toBe('CMB4417')
     // 其余 item 都不是 target_operation
-    expect(r.checklist.slice(0, -1).every(i => i.level !== 'target_operation')).toBe(true)
+    expect(r.checklist.slice(0, -1).every((i) => i.level !== 'target_operation')).toBe(true)
   })
 })
 
@@ -268,7 +293,10 @@ describe('Impact Kernel — Canonical fixture (CANONICAL_DESIGN §7.9)', () => {
 
   it('场景 A：Group 未确认 — disable CMB4417 => WeChat needs_review, TencentVideo needs_review', () => {
     const { e1, e2, e3 } = fixture()
-    const r = simulateDisable({ dependencies: [e1, e2, e3], groups: [], nodeNames: NODE_NAMES }, 'CMB4417')
+    const r = simulateDisable(
+      { dependencies: [e1, e2, e3], groups: [], nodeNames: NODE_NAMES },
+      'CMB4417',
+    )
     expect(statusOf(r, 'WeChat').status).toBe('needs_review')
     expect(statusOf(r, 'TencentVideo').status).toBe('needs_review')
   })
@@ -276,12 +304,15 @@ describe('Impact Kernel — Canonical fixture (CANONICAL_DESIGN §7.9)', () => {
   it('场景 B：confirmed ANY Group — disable CMB4417 => WeChat available/degraded；TencentVideo 不受影响', () => {
     const { e1, e2, e3 } = fixture()
     const g = anyGroup('WeChat', [e1, e2])
-    const r = simulateDisable({ dependencies: [e1, e2, e3], groups: [g], nodeNames: NODE_NAMES }, 'CMB4417')
+    const r = simulateDisable(
+      { dependencies: [e1, e2, e3], groups: [g], nodeNames: NODE_NAMES },
+      'CMB4417',
+    )
     const wechat = statusOf(r, 'WeChat')
     expect(wechat.available).toBe(true)
     expect(wechat.redundancyDegraded).toBe(true)
     // TencentVideo 的入边 from=WeChat 未失效 → 不受影响，不在结果里
-    expect(r.targets.find(t => t.nodeId === 'TencentVideo')).toBeUndefined()
+    expect(r.targets.find((t) => t.nodeId === 'TencentVideo')).toBeUndefined()
   })
 
   it('场景 B2：confirmed ANY Group — 同时 disable 双卡 => WeChat lost => TencentVideo must_change', () => {
@@ -291,7 +322,7 @@ describe('Impact Kernel — Canonical fixture (CANONICAL_DESIGN §7.9)', () => {
     const g = anyGroup('WeChat', [e1, e2])
     const r = simulateScenario(
       { dependencies: [e1, e2, e3req], groups: [g], nodeNames: NODE_NAMES },
-      new Set([key('CMB4417'), key('CCB8821')])
+      new Set([key('CMB4417'), key('CCB8821')]),
     )
     expect(statusOf(r, 'WeChat').status).toBe('must_change')
     const tv = statusOf(r, 'TencentVideo')

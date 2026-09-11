@@ -13,7 +13,11 @@ import type { Observation } from '../domain/types.ts'
 
 export const FINGERPRINT_VERSION = 1
 
-export function computeFingerprintWithTxnId(fpSecret: string, source: string, sourceTxnId: string): string {
+export function computeFingerprintWithTxnId(
+  fpSecret: string,
+  source: string,
+  sourceTxnId: string,
+): string {
   return createHmac('sha256', fpSecret).update(`${source}:${sourceTxnId}`).digest('hex')
 }
 
@@ -32,7 +36,7 @@ function canonicalRowOf(obs: Observation, signedAmount: number): string {
     signedAmount.toFixed(2),
     normalizeDescription(obs.description),
     normalizeDescription(obs.merchantRaw),
-    obs.direction
+    obs.direction,
   ].join('|')
 }
 
@@ -47,11 +51,17 @@ export interface FingerprintAssignment {
  * 同一文件内 canonicalRow 完全相同的行：#1、#2 递增 ordinal，保证不互相吞掉，
  * 但跨会话仍可被 UNIQUE(source, fingerprint) 去重（同 ordinal 同指纹）。
  */
-export function assignFingerprints(fpSecret: string, observations: Observation[]): FingerprintAssignment[] {
+export function assignFingerprints(
+  fpSecret: string,
+  observations: Observation[],
+): FingerprintAssignment[] {
   const ordinalCounters = new Map<string, number>()
-  return observations.map(obs => {
+  return observations.map((obs) => {
     if (obs.sourceTxnId !== null && obs.sourceTxnId !== '') {
-      return { fingerprint: computeFingerprintWithTxnId(fpSecret, obs.source, obs.sourceTxnId), stable: true }
+      return {
+        fingerprint: computeFingerprintWithTxnId(fpSecret, obs.source, obs.sourceTxnId),
+        stable: true,
+      }
     }
     const signedAmount = obs.direction === 'out' ? -obs.amount : obs.amount
     const base = canonicalRowOf(obs, signedAmount)
@@ -60,7 +70,7 @@ export function assignFingerprints(fpSecret: string, observations: Observation[]
     const canonical = n === 1 ? base : `${base}#${n}`
     return {
       fingerprint: createHash('sha256').update(`${obs.source}|${canonical}`).digest('hex'),
-      stable: false
+      stable: false,
     }
   })
 }

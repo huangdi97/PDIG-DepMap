@@ -169,13 +169,13 @@ function setSchemaVersion(driver: SqliteDriver, version: number, nowIso: string)
   driver
     .prepare(
       `INSERT INTO meta (key, value) VALUES ('schema_version', ?)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
     )
     .run(String(version))
   driver
     .prepare(
       `INSERT INTO meta (key, value) VALUES ('schema_version_updated_at', ?)
-       ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+       ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
     )
     .run(nowIso)
 }
@@ -189,7 +189,7 @@ export function migrate(driver: SqliteDriver, nowIso: string = new Date().toISOS
   let current = getSchemaVersion(driver)
   if (current > SCHEMA_VERSION) {
     throw new Error(
-      `database schema_version (${current}) is newer than supported (${SCHEMA_VERSION})`
+      `database schema_version (${current}) is newer than supported (${SCHEMA_VERSION})`,
     )
   }
   for (const migration of MIGRATIONS) {

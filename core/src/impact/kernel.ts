@@ -36,12 +36,7 @@ export interface ImpactGraph {
 }
 
 export type ImpactLevel =
-  | 'must_change'
-  | 'backup_path'
-  | 'degraded'
-  | 'needs_review'
-  | 'unaffected'
-  | 'target_operation'
+  'must_change' | 'backup_path' | 'degraded' | 'needs_review' | 'unaffected' | 'target_operation'
 
 export interface ImpactTargetResult {
   nodeId: string
@@ -94,29 +89,40 @@ function keyStr(k: ImpactStateKey): string {
 
 function sortKeys(keys: ImpactStateKey[]): ImpactStateKey[] {
   return [...keys].sort((a, b) =>
-    a.nodeId < b.nodeId ? -1 : a.nodeId > b.nodeId ? 1 : a.capability < b.capability ? -1 : a.capability > b.capability ? 1 : 0
+    a.nodeId < b.nodeId
+      ? -1
+      : a.nodeId > b.nodeId
+        ? 1
+        : a.capability < b.capability
+          ? -1
+          : a.capability > b.capability
+            ? 1
+            : 0,
   )
 }
 
 export function simulateDisable(
   graph: ImpactGraph,
   nodeId: string,
-  capability: Capability = PAYMENT
+  capability: Capability = PAYMENT,
 ): ImpactResult {
   return simulateScenario(graph, new Set([{ nodeId, capability }]))
 }
 
-export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStateKey>): ImpactResult {
+export function simulateScenario(
+  graph: ImpactGraph,
+  unavailable: Set<ImpactStateKey>,
+): ImpactResult {
   // MVP 只支持 payment domain：非 payment 初始键忽略（记录在文档）
-  const initial = sortKeys([...unavailable].filter(k => k.capability === PAYMENT))
+  const initial = sortKeys([...unavailable].filter((k) => k.capability === PAYMENT))
 
   const activePaymentDeps = graph.dependencies
-    .filter(d => d.state === 'active' && d.capability === PAYMENT)
+    .filter((d) => d.state === 'active' && d.capability === PAYMENT)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
   const activePaymentGroups = graph.groups
-    .filter(g => g.state === 'active' && g.capability === PAYMENT)
+    .filter((g) => g.state === 'active' && g.capability === PAYMENT)
     .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
-  const paymentProposals = (graph.proposals ?? []).filter(p => p.capability === PAYMENT)
+  const paymentProposals = (graph.proposals ?? []).filter((p) => p.capability === PAYMENT)
 
   const nodeName = (id: string): string => graph.nodeNames?.[id] ?? id
 
@@ -127,25 +133,25 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
 
   /** 评估目标节点 T 的 payment 状态（基于当前 unavailableSet 快照）。 */
   function evaluateTarget(T: string, depth: number): ImpactTargetResult {
-    const incoming = activePaymentDeps.filter(d => d.to === T)
-    const lostEdges = incoming.filter(d => unavailableSet.has(`${d.from}|${d.capability}`))
+    const incoming = activePaymentDeps.filter((d) => d.to === T)
+    const lostEdges = incoming.filter((d) => unavailableSet.has(`${d.from}|${d.capability}`))
     const uncertainEdges = incoming.filter(
-      d => !unavailableSet.has(`${d.from}|${d.capability}`) && uncertainSet.has(d.from)
+      (d) => !unavailableSet.has(`${d.from}|${d.capability}`) && uncertainSet.has(d.from),
     )
-    const edgeKeysOf = (ds: Dependency[]) => ds.map(d => dependencyLogicalKey(d))
+    const edgeKeysOf = (ds: Dependency[]) => ds.map((d) => dependencyLogicalKey(d))
 
     const base = {
       nodeId: T,
       nodeName: nodeName(T),
-      capability: PAYMENT as Capability,
-      depth
+      capability: PAYMENT,
+      depth,
     }
 
     if (lostEdges.length === 0) {
       // 无 confirmed 入边失效；检查上游不确定性与 proposal
       const propKeys = paymentProposals
-        .filter(p => p.to === T && unavailableSet.has(`${p.from}|${p.capability}`))
-        .map(p => p.key)
+        .filter((p) => p.to === T && unavailableSet.has(`${p.from}|${p.capability}`))
+        .map((p) => p.key)
         .sort()
       if (uncertainEdges.length > 0) {
         return {
@@ -157,7 +163,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
           reasonText: `上游支付能力存在未确认风险，${nodeName(T)} 的支付是否受影响需人工核实`,
           edgeKeys: edgeKeysOf(uncertainEdges),
           groupKeys: [],
-          proposalKeys: []
+          proposalKeys: [],
         }
       }
       if (propKeys.length > 0) {
@@ -170,7 +176,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
           reasonText: `检测到未确认的支付关系建议（置信度不改变结论），需人工核实 ${nodeName(T)} 的支付是否受影响`,
           edgeKeys: [],
           groupKeys: [],
-          proposalKeys: propKeys
+          proposalKeys: propKeys,
         }
       }
       // 与场景无关（不应被调用）
@@ -183,24 +189,33 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         reasonText: '未发现受影响的已确认支付关系',
         edgeKeys: [],
         groupKeys: [],
-        proposalKeys: []
+        proposalKeys: [],
       }
     }
 
-    const lostEdgeIds = new Set(lostEdges.map(d => d.id))
+    const lostEdgeIds = new Set(lostEdges.map((d) => d.id))
     const coveringGroups = activePaymentGroups.filter(
-      g => g.targetNodeId === T && g.memberEdgeIds.some(id => lostEdgeIds.has(id))
+      (g) => g.targetNodeId === T && g.memberEdgeIds.some((id) => lostEdgeIds.has(id)),
     )
 
     if (coveringGroups.length > 0) {
-      const groupResults = coveringGroups.map(g => {
-        const memberEdges = activePaymentDeps.filter(d => g.memberEdgeIds.includes(d.id))
-        const availableMembers = memberEdges.filter(d => !unavailableSet.has(`${d.from}|${d.capability}`))
+      const groupResults = coveringGroups.map((g) => {
+        const memberEdges = activePaymentDeps.filter((d) => g.memberEdgeIds.includes(d.id))
+        const availableMembers = memberEdges.filter(
+          (d) => !unavailableSet.has(`${d.from}|${d.capability}`),
+        )
         const satisfied =
-          g.mode === 'ANY' ? availableMembers.length > 0 : availableMembers.length === memberEdges.length
-        return { g, satisfied, availableCount: availableMembers.length, memberCount: memberEdges.length }
+          g.mode === 'ANY'
+            ? availableMembers.length > 0
+            : availableMembers.length === memberEdges.length
+        return {
+          g,
+          satisfied,
+          availableCount: availableMembers.length,
+          memberCount: memberEdges.length,
+        }
       })
-      const allFailed = groupResults.every(r => !r.satisfied)
+      const allFailed = groupResults.every((r) => !r.satisfied)
       if (allFailed) {
         return {
           ...base,
@@ -208,10 +223,10 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
           available: false,
           redundancyDegraded: false,
           reasonCode: 'confirmed_group_failed',
-          reasonText: `已确认的支付来源组合（${coveringGroups.map(g => g.mode).join('/')}）全部失效，${nodeName(T)} 的支付能力将失效`,
+          reasonText: `已确认的支付来源组合（${coveringGroups.map((g) => g.mode).join('/')}）全部失效，${nodeName(T)} 的支付能力将失效`,
           edgeKeys: edgeKeysOf(lostEdges),
-          groupKeys: coveringGroups.map(g => g.groupKey).sort(),
-          proposalKeys: []
+          groupKeys: coveringGroups.map((g) => g.groupKey).sort(),
+          proposalKeys: [],
         }
       }
       return {
@@ -222,12 +237,12 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         reasonCode: 'confirmed_group_covered',
         reasonText: `已确认存在替代支付来源，${nodeName(T)} 的支付可继续，但冗余度下降（能力降级）`,
         edgeKeys: edgeKeysOf(lostEdges),
-        groupKeys: coveringGroups.map(g => g.groupKey).sort(),
-        proposalKeys: []
+        groupKeys: coveringGroups.map((g) => g.groupKey).sort(),
+        proposalKeys: [],
       }
     }
 
-    const otherEdges = incoming.filter(d => !lostEdgeIds.has(d.id))
+    const otherEdges = incoming.filter((d) => !lostEdgeIds.has(d.id))
     if (otherEdges.length > 0) {
       return {
         ...base,
@@ -238,11 +253,11 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         reasonText: `检测到其他支付来源，但未确认备用组合可自动接管，需人工核实 ${nodeName(T)} 的支付路径`,
         edgeKeys: edgeKeysOf(incoming),
         groupKeys: [],
-        proposalKeys: []
+        proposalKeys: [],
       }
     }
 
-    if (lostEdges.some(d => d.criticality === 'required')) {
+    if (lostEdges.some((d) => d.criticality === 'required')) {
       return {
         ...base,
         status: 'must_change',
@@ -252,7 +267,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         reasonText: `已确认 ${nodeName(T)} 的支付能力依赖此关系（required），且无其他已记录来源`,
         edgeKeys: edgeKeysOf(lostEdges),
         groupKeys: [],
-        proposalKeys: []
+        proposalKeys: [],
       }
     }
 
@@ -265,7 +280,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
       reasonText: `该支付关系未确认是否必需（criticality=unknown），需人工核实 ${nodeName(T)} 是否受影响`,
       edgeKeys: edgeKeysOf(lostEdges),
       groupKeys: [],
-      proposalKeys: []
+      proposalKeys: [],
     }
   }
 
@@ -273,8 +288,8 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
   // lost 传播确定性失效；needs_review（不确定）也向下游传播“不确定性”，
   // 但永不产生 must_change（CANONICAL §7 场景 A：WeChat needs_review → TencentVideo needs_review）
   const uncertainSet = new Set<string>()
-  const initialNodeIds = new Set(initial.map(k => k.nodeId))
-  let frontier: string[] = initial.map(k => k.nodeId)
+  const initialNodeIds = new Set(initial.map((k) => k.nodeId))
+  let frontier: string[] = initial.map((k) => k.nodeId)
   let depth = 0
   let guard = 0
   const maxGuard = activePaymentDeps.length * 2 + initial.length + 8
@@ -353,7 +368,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
           ? 1
           : a.capability < b.capability
             ? -1
-            : 1
+            : 1,
   )
 
   const checklist: ImpactChecklistItem[] = []
@@ -365,7 +380,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         nodeId: t.nodeId,
         capability: t.capability,
         title: `必须处理：${t.nodeName} 的支付能力将失效`,
-        detail: t.reasonText
+        detail: t.reasonText,
       })
     } else if (t.status === 'backup_path') {
       checklist.push({
@@ -373,7 +388,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         nodeId: t.nodeId,
         capability: t.capability,
         title: `有备用路径：${t.nodeName} 可切换（能力降级）`,
-        detail: t.reasonText
+        detail: t.reasonText,
       })
     } else {
       checklist.push({
@@ -381,7 +396,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
         nodeId: t.nodeId,
         capability: t.capability,
         title: `建议检查：${t.nodeName}`,
-        detail: t.reasonText
+        detail: t.reasonText,
       })
     }
   }
@@ -392,7 +407,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
       nodeId: k.nodeId,
       capability: k.capability,
       title: `最后一步：注销/停用 ${nodeName(k.nodeId)}（原始操作）`,
-      detail: '以上事项处理完成后再执行原始操作。'
+      detail: '以上事项处理完成后再执行原始操作。',
     })
   }
 
@@ -401,7 +416,7 @@ export function simulateScenario(graph: ImpactGraph, unavailable: Set<ImpactStat
     lostKeys,
     targets,
     checklist,
-    processedKeys
+    processedKeys,
   }
 }
 

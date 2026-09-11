@@ -37,7 +37,7 @@ export class ConfirmationService {
   /** 用户确认一条 Dependency（不存在/active/retired 由 repository UPSERT 处理）。 */
   acceptProposal(
     proposalKey: string,
-    criticalityDecision?: Criticality
+    criticalityDecision?: Criticality,
   ): { dependency: Dependency; created: boolean } {
     const proposal = this.proposals.getByKey(proposalKey)
     if (!proposal) throw new Error(`proposal not found: ${proposalKey}`)
@@ -56,7 +56,7 @@ export class ConfirmationService {
       capability: proposal.capability,
       criticality: criticalityDecision ?? 'unknown',
       origin: 'proposal',
-      evidenceRefs: proposal.evidenceId ? [proposal.evidenceId] : []
+      evidenceRefs: proposal.evidenceId ? [proposal.evidenceId] : [],
     })
     return { dependency: result.dependency, created: !result.verified && !result.reactivated }
   }
@@ -89,7 +89,7 @@ export class ConfirmationService {
    */
   detectGroupProposals(): string[] {
     const keys: string[] = []
-    const activeDeps = this.deps.listActive().filter(d => d.capability === 'payment')
+    const activeDeps = this.deps.listActive().filter((d) => d.capability === 'payment')
     const byTarget = new Map<string, typeof activeDeps>()
     for (const d of activeDeps) {
       const list = byTarget.get(d.to) ?? []
@@ -99,9 +99,12 @@ export class ConfirmationService {
     const activeGroups = this.groups.listAllActive()
     for (const [target, edges] of byTarget) {
       if (edges.length < 2) continue
-      const memberKeys = edges.map(e => dependencyLogicalKey(e))
+      const memberKeys = edges.map((e) => dependencyLogicalKey(e))
       const covered = activeGroups.some(
-        g => g.targetNodeId === target && g.capability === 'payment' && g.memberEdgeIds.some(id => edges.some(e => e.id === id))
+        (g) =>
+          g.targetNodeId === target &&
+          g.capability === 'payment' &&
+          g.memberEdgeIds.some((id) => edges.some((e) => e.id === id)),
       )
       if (covered) continue
       const key = groupProposalKey(target, 'payment', 'ANY', memberKeys)
@@ -109,7 +112,7 @@ export class ConfirmationService {
         targetNodeId: target,
         capability: 'payment',
         mode: 'ANY',
-        memberDependencyKeys: memberKeys
+        memberDependencyKeys: memberKeys,
       })
       if (!r.alreadyAccepted) keys.push(key)
     }
@@ -126,9 +129,19 @@ export class ConfirmationService {
     this.groupProposals.decide(groupProposalKeyStr, 'accepted')
 
     const memberEdges = gp.memberDependencyKeys
-      .map(k => {
-        const [from, relation, to, capability] = k.split('|')
-        return this.deps.findByLogicalKey(from!, relation!, to!, capability as Capability)
+      .map((k) => {
+        const parts = k.split('|')
+        if (parts.length !== 4) {
+          throw new Error(`malformed member dependency key: ${k}`)
+        }
+        const from = parts[0]
+        const relation = parts[1]
+        const to = parts[2]
+        const capability = parts[3]
+        if (!from || !relation || !to || !capability) {
+          throw new Error(`malformed member dependency key: ${k}`)
+        }
+        return this.deps.findByLogicalKey(from, relation, to, capability)
       })
       .filter((d): d is Dependency => d !== null && d.state === 'active')
 
@@ -137,9 +150,9 @@ export class ConfirmationService {
         targetNodeId: gp.targetNodeId,
         capability: gp.capability,
         mode: gp.mode,
-        memberEdgeIds: memberEdges.map(e => e.id)
+        memberEdgeIds: memberEdges.map((e) => e.id),
       },
-      gp.memberDependencyKeys
+      gp.memberDependencyKeys,
     )
     for (const edge of memberEdges) {
       this.deps.setGroupId(edge.id, group.id)

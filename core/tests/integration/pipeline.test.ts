@@ -16,7 +16,9 @@ import { simulateDisable, simulateScenario } from '../../src/impact/kernel.ts'
 import { FINGERPRINT_VERSION } from '../../src/fingerprint/fingerprint.ts'
 
 const FX = (name: string) =>
-  new Uint8Array(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', name)))
+  new Uint8Array(
+    readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'fixtures', name)),
+  )
 
 describe('Integration — synthetic import flow (PHASE 9)', () => {
   let dir: string
@@ -47,8 +49,18 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
   })
 
   function seedCards() {
-    const card = nodes.create({ kind: 'payment_instrument', name: '招行经典白', issuer: '招商银行', last4: '4417' })
-    nodes.create({ kind: 'payment_instrument', name: '工行储蓄卡', issuer: '工商银行', last4: '1234' })
+    const card = nodes.create({
+      kind: 'payment_instrument',
+      name: '招行经典白',
+      issuer: '招商银行',
+      last4: '4417',
+    })
+    nodes.create({
+      kind: 'payment_instrument',
+      name: '工行储蓄卡',
+      issuer: '工商银行',
+      last4: '1234',
+    })
     return card
   }
 
@@ -61,25 +73,31 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(begin.errors).toHaveLength(0)
     expect(begin.rawCount).toBe(8)
     // 腾讯视频/美团/滴滴都无对应节点 → pending；招行卡节点不参与商户解析
-    const tencentCandidate = begin.candidates.find(c => c.merchantRaw === '腾讯视频')!
+    const tencentCandidate = begin.candidates.find((c) => c.merchantRaw === '腾讯视频')!
     expect(tencentCandidate.resolution).toBe('pending')
     expect(tencentCandidate.observationCount).toBe(6)
 
     // 2. 用户在 Node Resolution 界面创建腾讯视频服务节点并确认映射
-    const tencent = nodes.create({ kind: 'service', templateId: 'builtin.service.subscription', name: '腾讯视频' })
+    const tencent = nodes.create({
+      kind: 'service',
+      templateId: 'builtin.service.subscription',
+      name: '腾讯视频',
+    })
     flow.resolveMerchant('腾讯视频', tencent.id)
 
     // 3. finalize：指纹入库 + recurrence + proposals
     const outcome = flow.finalize()
     expect(outcome.newUniqueCount).toBe(8)
     expect(outcome.duplicateCount).toBe(0)
-    expect(outcome.recurrences.some(x => x.merchantRaw === '腾讯视频' && x.period === 'monthly')).toBe(true)
+    expect(
+      outcome.recurrences.some((x) => x.merchantRaw === '腾讯视频' && x.period === 'monthly'),
+    ).toBe(true)
     expect(outcome.unresolvedMerchants.sort()).toEqual(['滴滴出行', '美团平台商户'])
     // merchant_agreement(wechat→腾讯视频) + funding_source(招行4417→wechat)
     expect(outcome.proposalKeys).toHaveLength(2)
     const keys = [...outcome.proposalKeys].sort()
-    expect(keys.filter(k => k.includes('|funding_source|'))).toHaveLength(1)
-    expect(keys.filter(k => k.includes('|merchant_agreement|'))).toHaveLength(1)
+    expect(keys.filter((k) => k.includes('|funding_source|'))).toHaveLength(1)
+    expect(keys.filter((k) => k.includes('|merchant_agreement|'))).toHaveLength(1)
 
     // session 统计
     expect(outcome.session.rawCount).toBe(8)
@@ -92,9 +110,21 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(deps.countAll()).toBe(2)
 
     // 5. 第二条 funding 边 + GroupProposal 检测 + 确认
-    const ccb = nodes.create({ kind: 'payment_instrument', name: '建行龙卡', issuer: '建设银行', last4: '8821' })
-    const wechat = nodes.list({ kind: 'account' }).find(n => n.templateId === 'builtin.account.wechat')!
-    confirm.addManualDependency({ from: ccb.id, relation: 'funding_source', to: wechat.id, capability: 'payment' })
+    const ccb = nodes.create({
+      kind: 'payment_instrument',
+      name: '建行龙卡',
+      issuer: '建设银行',
+      last4: '8821',
+    })
+    const wechat = nodes
+      .list({ kind: 'account' })
+      .find((n) => n.templateId === 'builtin.account.wechat')!
+    confirm.addManualDependency({
+      from: ccb.id,
+      relation: 'funding_source',
+      to: wechat.id,
+      capability: 'payment',
+    })
     const gpKeys = confirm.detectGroupProposals()
     expect(gpKeys).toHaveLength(1)
     const group = confirm.acceptGroupProposal(gpKeys[0]!)
@@ -105,10 +135,10 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     const graph = {
       dependencies: deps.listActive(),
       groups: groups.listAllActive(),
-      nodeNames: Object.fromEntries(nodes.list().map(n => [n.id, n.name]))
+      nodeNames: Object.fromEntries(nodes.list().map((n) => [n.id, n.name])),
     }
     const r = simulateDisable(graph, card.id)
-    const wechatResult = r.targets.find(t => t.nodeId === wechat.id)!
+    const wechatResult = r.targets.find((t) => t.nodeId === wechat.id)!
     expect(wechatResult.status).toBe('backup_path')
     expect(wechatResult.redundancyDegraded).toBe(true)
     // checklist 原始操作最后
@@ -116,11 +146,14 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(r.checklist[r.checklist.length - 1]!.nodeId).toBe(card.id)
 
     // 7. 双卡同时失效 → 微信 lost
-    const r2 = simulateScenario(graph, new Set([
-      { nodeId: card.id, capability: 'payment' as const },
-      { nodeId: ccb.id, capability: 'payment' as const }
-    ]))
-    expect(r2.targets.find(t => t.nodeId === wechat.id)!.status).toBe('must_change')
+    const r2 = simulateScenario(
+      graph,
+      new Set([
+        { nodeId: card.id, capability: 'payment' as const },
+        { nodeId: ccb.id, capability: 'payment' as const },
+      ]),
+    )
+    expect(r2.targets.find((t) => t.nodeId === wechat.id)!.status).toBe('must_change')
   })
 
   it('重复导入同一账单：指纹去重，不产生新观测/新 proposal', () => {
@@ -166,7 +199,7 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     // evidence 汇总：merchant proposal 的 observationCount = 6 + 2 = 8
     const ev = driver
       .prepare(
-        `SELECT observation_count, first_observed_at, last_observed_at FROM evidence WHERE proposal_key LIKE '%merchant_agreement%'`
+        `SELECT observation_count, first_observed_at, last_observed_at FROM evidence WHERE proposal_key LIKE '%merchant_agreement%'`,
       )
       .get()
     expect(Number(ev!.observation_count)).toBe(8)
@@ -183,7 +216,9 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(outcome.proposalKeys).toHaveLength(0)
     expect(outcome.unresolvedMerchants.length).toBeGreaterThan(0)
     // 指纹已入库（本次会话已消费——因为 finalize 执行了）
-    expect(driver.prepare(`SELECT COUNT(*) AS c FROM observation_fingerprints`).get()).toMatchObject({ c: 8 })
+    expect(
+      driver.prepare(`SELECT COUNT(*) AS c FROM observation_fingerprints`).get(),
+    ).toMatchObject({ c: 8 })
   })
 
   it('retired dependency 复活：同一 logical key 同一 id', () => {
@@ -193,19 +228,25 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     flow.begin(FX('recurring-monthly.csv'))
     flow.resolveMerchant('腾讯视频', tencent.id)
     const o = flow.finalize()
-    const merchantKey = o.proposalKeys.find(k => k.includes('merchant_agreement'))!
+    const merchantKey = o.proposalKeys.find((k) => k.includes('merchant_agreement'))!
     confirm.acceptProposal(merchantKey)
 
-    const [from, relation, to, capability] = merchantKey.split('|') as [string, string, string, string]
-    const dep = deps.findByLogicalKey(from!, relation!, to!, capability)!
+    const [from, relation, to, capability] = merchantKey.split('|') as [
+      string,
+      string,
+      string,
+      string,
+    ]
+    const dep = deps.findByLogicalKey(from, relation, to, capability)
+    if (!dep) throw new Error('confirmed dependency should exist')
     deps.retire(dep.id)
     expect(deps.getById(dep.id)!.state).toBe('retired')
 
     const again = deps.confirm({
-      from: from!,
+      from,
       relation: relation as 'merchant_agreement',
-      to: to!,
-      capability: capability as import('../../src/domain/types.ts').Capability
+      to,
+      capability: capability as import('../../src/domain/types.ts').Capability,
     })
     expect(again.reactivated).toBe(true)
     expect(again.dependency.id).toBe(dep.id)
@@ -219,7 +260,7 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     flow.begin(FX('recurring-monthly.csv'))
     flow.resolveMerchant('腾讯视频', tencent.id)
     const o = flow.finalize()
-    const merchantKey = o.proposalKeys.find(k => k.includes('merchant_agreement'))!
+    const merchantKey = o.proposalKeys.find((k) => k.includes('merchant_agreement'))!
     confirm.rejectProposal(merchantKey)
     expect(proposals.getByKey(merchantKey)!.decision).toBe('rejected')
 
