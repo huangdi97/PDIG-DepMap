@@ -125,21 +125,32 @@ function parseDirection(raw: string): ObservationDirection | null {
 export function parseWechatTime(raw: string): string | null {
   const m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/.exec(raw.trim())
   if (!m) return null
-  const [, y, mo, d, h, mi, s] = m
-  const month = Number(mo)
-  const day = Number(d)
-  const hour = Number(h)
-  const minute = Number(mi)
-  const second = Number(s)
-  if (month < 1 || month > 12) return null
-  if (day < 1 || day > 31) return null
-  if (hour > 23 || minute > 59 || second > 59) return null
-  return `${y}-${mo}-${d}T${h}:${mi}:${s}+08:00`
+  const y = Number(m[1])
+  const mo = Number(m[2])
+  const d = Number(m[3])
+  const h = Number(m[4])
+  const mi = Number(m[5])
+  const s2 = Number(m[6])
+  if (mo < 1 || mo > 12) return null
+  if (h > 23 || mi > 59 || s2 > 59) return null
+  // 完整日历校验：构造 UTC 日期并验证分量往返一致（自动拒绝 2 月 30 日等）
+  const utc = new Date(Date.UTC(y, mo - 1, d, h, mi, s2))
+  if (
+    utc.getUTCFullYear() !== y ||
+    utc.getUTCMonth() !== mo - 1 ||
+    utc.getUTCDate() !== d ||
+    utc.getUTCHours() !== h ||
+    utc.getUTCMinutes() !== mi ||
+    utc.getUTCSeconds() !== s2
+  ) {
+    return null
+  }
+  return `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}+08:00`
 }
 
 export function parseWechatBill(raw: Uint8Array): WechatParseResult {
   const { text } = decodeBill(raw)
-  const lines = text.split(/\r?\n/)
+  const lines = text.split(/\r\n|\r|\n/)
   const observations: Observation[] = []
   const errors: ParseError[] = []
 

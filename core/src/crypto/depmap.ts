@@ -213,16 +213,22 @@ export async function deriveFileEncryptionKey(
   iterations: number,
   parallelism: number,
 ): Promise<Uint8Array> {
-  // password 使用精确 UTF-8 字节，不做 Unicode 归一化
-  return argon2id({
-    password: new TextEncoder().encode(password),
-    salt,
-    parallelism,
-    iterations,
-    memorySize: memoryKiB,
-    hashLength: DEPMAP_V1_DEFAULTS.keyLen,
-    outputType: 'binary',
-  })
+  // password 使用精确 UTF-8 字节，不做 Unicode 归一化；
+  // KDF 层错误（含空口令等实现约束）统一包装为 DepmapError，fail closed
+  try {
+    return await argon2id({
+      password: new TextEncoder().encode(password),
+      salt,
+      parallelism,
+      iterations,
+      memorySize: memoryKiB,
+      hashLength: DEPMAP_V1_DEFAULTS.keyLen,
+      outputType: 'binary',
+    })
+  } catch (e) {
+    const detail = e instanceof Error ? e.message : String(e)
+    throw new DepmapError('kdf', `argon2id key derivation failed: ${detail}`)
+  }
 }
 
 // ---------------------------------------------------------------------------

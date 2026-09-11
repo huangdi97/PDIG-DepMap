@@ -169,11 +169,17 @@ export class ImportFlow {
     this.manualResolutions.set(merchantRaw, nodeId)
   }
 
-  /** 阶段 3：指纹落库 + recurrence + proposal + session 完成。 */
+  /** 阶段 3：指纹落库 + recurrence + proposal + session 完成。
+   * 全部持久化变更在单一事务内（RC PHASE AE 导入事务性）：任何中途失败整体回滚，
+   * 不留半成品指纹/建议/evidence；session 行在 begin 时已存在，回滚后保持未完成态。
+   */
   finalize(): ImportOutcome {
     const session = this.session
     if (!session) throw new Error('begin() must be called first')
+    return this.driver.transaction(() => this.finalizeInner(session))
+  }
 
+  private finalizeInner(session: ImportSession): ImportOutcome {
     // 指纹批量入库（finalize 时机，用户中途放弃不烧指纹）
     if (this.fingerprints.length !== this.observations.length) {
       throw new Error('fingerprint/observation length mismatch')
