@@ -1,0 +1,3 @@
+/** Android 实现：FLAG_SECURE。IMPLEMENTED；COMPILED=NO。 */
+import { FlagSecurePrivacyAdapter } from 'com.depmap.core.security.FlagSecurePrivacyAdapter'
+import { getCurrentActivity } from 'android.uts.sdk.modules.dep

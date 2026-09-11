@@ -1,0 +1,9 @@
+/** HarmonyOS 实现：桥接 UserAuthGateAdapter。IMPLEMENTED；COMPILED=NO。 */
+import { UserAuthGateAdapter } from 'com.depmap.core.security.UserAuthGateAdapter'
+const gate = new UserAuthGateAdapter()
+export function canAuthenticate(): Promise<boolean> {
+  return gate.canAuthenticate()
+}
+export function authenticate(reason: string): Promise<AuthResult> {
+  return gate.authenticate(reason)
+}

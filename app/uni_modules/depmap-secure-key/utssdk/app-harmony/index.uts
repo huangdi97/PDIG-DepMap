@@ -1,0 +1,15 @@
+/** HarmonyOS 实现：桥接 HuksSecureKeyAdapter。IMPLEMENTED；COMPILED=NO（无 DevEco）。 */
+import { HuksSecureKeyAdapter } from 'com.depmap.core.security.HuksSecureKeyAdapter'
+const adapter = new HuksSecureKeyAdapter(UTSHarmony.getContext())
+export function getOrCreateDatabaseKey(alias: string): Promise<Uint8Array> {
+  return adapter.getOrCreateDatabaseKey(alias)
+}
+export function getOrCreateFpSecret(): Promise<string> {
+  return adapter.getOrCreateFpSecret()
+}
+export function hasKey(alias: string): Promise<boolean> {
+  return adapter.hasKey(alias)
+}
+export function deleteKey(alias: string): Promise<void> {
+  return adapter.deleteKey(alias)
+}

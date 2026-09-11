@@ -1,0 +1,12 @@
+/** Android 实现：桥接 DepmapContainerV1（BouncyCastle Argon2id）。IMPLEMENTED；COMPILED=NO。 */
+import { DepmapContainerV1 } from 'com.depmap.core.crypto.DepmapContainerV1'
+export function encryptToDepmap(plaintext: Uint8Array, password: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    try { resolve(DepmapContainerV1.encrypt(plaintext, password)) } catch (e) { reject(new Error((e as Error).message)) }
+  })
+}
+export function decryptDepmap(json: string, password: string): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    try { resolve(DepmapContainerV1.decrypt(json, password)) } catch (e) { reject(new Error((e as Error).message)) }
+  })
+}

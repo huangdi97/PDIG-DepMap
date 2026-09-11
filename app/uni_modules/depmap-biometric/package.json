@@ -1,0 +1,18 @@
+{
+  "id": "depmap-biometric",
+  "displayName": "depmap-biometric",
+  "version": "0.1.0",
+  "description": "DepMap platform security plugin (UTS)",
+  "uni_modules": {
+    "dependencies": [],
+    "platforms": {
+      "client": {
+        "App": {
+          "app-android": { "minVersion": "26" },
+          "app-ios": { "minVersion": "14" },
+          "app-harmony": { "minVersion": "12" }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+/** Android 实现：桥接 BiometricGateAdapter。IMPLEMENTED；COMPILED=NO。 */
+import { BiometricGateAdapter } from 'com.depmap.core.security.BiometricGateAdapter'
+import { getBiometricGate } from './gate-holder'
+export function canAuthenticate(): Promise<boolean> {
+  return getBiometricGate().canAuthenticate()
+}
+export function authenticate(reason: string): Promise<AuthResult> {
+  return getBiometricGate().authenticate(reason)
+}
+function getBiometricGate(): BiometricGateAdapter {
+  return BiometricHolder.gate
+}

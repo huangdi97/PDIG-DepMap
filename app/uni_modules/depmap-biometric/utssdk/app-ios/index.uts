@@ -1,0 +1,12 @@
+/** iOS 实现：桥接 LocalAuthenticationGate。IMPLEMENTED；COMPILED=NO。 */
+import { LocalAuthenticationGate } from 'com.depmap.core.security.LocalAuthenticationGate'
+export function canAuthenticate(): Promise<boolean> {
+  return Promise.resolve(LocalAuthenticationGate.canAuthenticate())
+}
+export function authenticate(reason: string): Promise<AuthResult> {
+  return new Promise((resolve) => {
+    LocalAuthenticationGate.authenticate(reason, (ok, failReason) => {
+      resolve({ ok: ok, reason: failReason } as AuthResult)
+    })
+  })
+}

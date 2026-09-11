@@ -1,0 +1,15 @@
+/** Android 实现：桥接 KeystoreSecureKeyAdapter。IMPLEMENTED；COMPILED=NO。 */
+import { KeystoreSecureKeyAdapter } from 'com.depmap.core.security.KeystoreSecureKeyAdapter'
+const adapter = new KeystoreSecureKeyAdapter(UTSAndroid.getAppContext()!)
+export function getOrCreateDatabaseKey(alias: string): Promise<Uint8Array> {
+  return adapter.getOrCreateDatabaseKey(alias)
+}
+export function getOrCreateFpSecret(): Promise<string> {
+  return adapter.getOrCreateFpSecret()
+}
+export function hasKey(alias: string): Promise<boolean> {
+  return adapter.hasKey(alias)
+}
+export function deleteKey(alias: string): Promise<void> {
+  return adapter.deleteKey(alias)
+}

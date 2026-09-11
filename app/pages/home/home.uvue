@@ -1,0 +1,126 @@
+<template>
+  <scroll-view class="home-root" scroll-y>
+    <!-- 变更（answer-oriented 首页，GOAL §17 / CANONICAL §9.1） -->
+    <view class="card">
+      <text class="card-title">变更</text>
+      <view class="action-row" @click="goSimulate">
+        <text class="action-main">换银行卡（模拟注销）</text>
+        <text class="action-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 风险 / 待核对 -->
+    <view class="card">
+      <text class="card-title">风险 / 待核对</text>
+      <view class="risk-row">
+        <text class="level-review">待确认关系</text>
+        <text>{{ proposalCount }} 条</text>
+      </view>
+      <view class="risk-row" @click="goGroupProposals">
+        <text class="level-review">备用路径未确认</text>
+        <text>{{ groupProposalCount }} 个</text>
+      </view>
+      <view class="risk-row" @click="goProposals">
+        <text>去确认 ›</text>
+      </view>
+    </view>
+
+    <!-- 快捷入口 -->
+    <view class="card">
+      <text class="card-title">数据</text>
+      <view class="action-row" @click="goImport">
+        <text class="action-main">导入微信账单</text>
+        <text class="action-arrow">›</text>
+      </view>
+      <view class="action-row" @click="goNodes">
+        <text class="action-main">节点列表</text>
+        <text class="action-arrow">›</text>
+      </view>
+      <view class="action-row" @click="goSettings">
+        <text class="action-main">设置 / 备份 / 隐私</text>
+        <text class="action-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 最近备份 -->
+    <view class="card">
+      <text class="hint">最近一次主动导出备份：{{ lastBackupText }}</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { appState } from '../../stores/app-state'
+
+export default {
+  data() {
+    return {
+      proposalCount: 0,
+      groupProposalCount: 0,
+      lastBackupText: '从未导出'
+    }
+  },
+  onShow() {
+    this.refresh()
+  },
+  methods: {
+    refresh() {
+      const db = getSecureDb()
+      db.query("SELECT COUNT(*) AS c FROM dependency_proposals WHERE decision = 'pending'", []).then((rows) => {
+        this.proposalCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
+      })
+      db.query("SELECT COUNT(*) AS c FROM dependency_group_proposals WHERE decision = 'pending'", []).then((rows) => {
+        this.groupProposalCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
+      })
+      db.query("SELECT value FROM meta WHERE key = 'last_export_at'", []).then((rows) => {
+        if (rows.length > 0) {
+          this.lastBackupText = String((rows[0] as Map<string, any | null>).get('value') ?? '从未导出')
+        }
+      })
+    },
+    goSimulate() {
+      uni.navigateTo({ url: '/pages/simulate/simulate' })
+    },
+    goProposals() {
+      uni.navigateTo({ url: '/pages/proposals/proposals' })
+    },
+    goGroupProposals() {
+      uni.navigateTo({ url: '/pages/proposals/group-proposals' })
+    },
+    goImport() {
+      uni.navigateTo({ url: '/pages/import/import-wechat' })
+    },
+    goNodes() {
+      uni.navigateTo({ url: '/pages/nodes/nodes' })
+    },
+    goSettings() {
+      uni.navigateTo({ url: '/pages/settings/settings' })
+    }
+  }
+}
+</script>
+
+<style>
+.home-root {
+  flex: 1;
+}
+.action-row {
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom-width: 1px;
+  border-bottom-color: #f0f0f0;
+}
+.action-main {
+  font-size: 16px;
+}
+.action-arrow {
+  color: #86909c;
+}
+.risk-row {
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+</style>

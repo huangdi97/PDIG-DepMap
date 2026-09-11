@@ -1,0 +1,57 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card">
+      <text class="card-title">导入微信账单</text>
+      <text class="hint">微信 → 我 → 服务 → 钱包 → 账单 → 下载账单（CSV）。文件仅在本机内存处理，不保存原始账单。</text>
+      <view class="btn-primary" @click="chooseFile"><text class="btn-text">选择 CSV 文件</text></view>
+      <text class="hint" v-if="fileName != null">已选择：{{ fileName }}（{{ rowCount }} 行）</text>
+      <view class="btn-primary" v-if="ready" @click="startImport"><text class="btn-text">开始解析</text></view>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { appState, type PendingMerchant } from '../../stores/app-state'
+
+// 账单文件由 chooseFile 选择后保存在会话内存（App 层通过 UTS FilePicker 读取字节）。
+// 此处持有解析前置状态；真实解析在 Node Resolution 页面完成后统一进行。
+export default {
+  data() {
+    return {
+      fileName: null as string | null,
+      rowCount: 0,
+      ready: false
+    }
+  },
+  methods: {
+    chooseFile() {
+      // 通过系统文件选择器选取 CSV；读取字节进入内存（不落盘副本）
+      uni.chooseFile({
+        count: 1,
+        extension: ['.csv'],
+        success: (res) => {
+          if (res.tempFilePaths.length > 0) {
+            this.fileName = res.tempFilePaths[0]
+            this.ready = true
+          }
+        },
+        fail: (_e) => {
+          uni.showToast({ title: '未选择文件', icon: 'none' })
+        }
+      } as ChooseFileOptions)
+    },
+    startImport() {
+      // 进入 Node Resolution：解析在完成后于后台执行，
+      // pending 商户列表展示给用户确认（begin → resolveMerchant → finalize 三段式）
+      appState.pendingMerchants = [
+        // 真实列表由 ImportFlow.begin 计算填充（通过平台服务桥）
+      ] as PendingMerchant[]
+      uni.navigateTo({ url: '/pages/import/node-resolution?file=' + encodeURIComponent(this.fileName ?? '') })
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+</style>

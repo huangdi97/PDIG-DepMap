@@ -1,0 +1,104 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card">
+      <text class="card-title">待确认支付关系</text>
+      <text class="hint">机器推断 ≠ 现实。确认“是”才会写入依赖图。</text>
+    </view>
+
+    <view class="card" v-for="p in proposals" :key="p.key">
+      <text class="node-name">{{ p.title }}</text>
+      <text class="hint">{{ p.detail }}</text>
+      <text class="hint">置信度 {{ Math.round(p.confidence * 100) }}% · 累计 {{ p.observationCount }} 次观测</text>
+      <view class="decision-row">
+        <view class="btn-primary flex1" @click="accept(p.key, 'unknown')"><text class="btn-text">是</text></view>
+        <view class="btn-warn flex1" @click="reject(p.key)"><text class="btn-text">不是</text></view>
+        <view class="btn-ignore flex1" @click="later(p.key)"><text>不确定</text></view>
+      </view>
+      <text class="hint">“是”默认按 unknown 关键度记录；只有明确“失去它支付必失效”才应选必需。</text>
+    </view>
+
+    <view class="card" v-if="proposals.length == 0">
+      <text class="hint">暂无待确认项。</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface ProposalItem {
+  key: string
+  title: string
+  detail: string
+  confidence: number
+  observationCount: number
+}
+
+export default {
+  data() {
+    return {
+      proposals: [] as ProposalItem[]
+    }
+  },
+  onShow() {
+    this.refresh()
+  },
+  methods: {
+    refresh() {
+      getSecureDb().query(
+        "SELECT p.key, p.confidence_score, p.observation_count, nf.name AS from_name, nt.name AS to_name, p.relation FROM dependency_proposals p JOIN nodes nf ON nf.id = p.from_node JOIN nodes nt ON nt.id = p.to_node WHERE p.decision = 'pending' ORDER BY p.observation_count DESC",
+        []
+      ).then((rows) => {
+        this.proposals = rows.map((r): ProposalItem => {
+          const m = r as Map<string, any | null>
+          const relation = String(m.get('relation') ?? '')
+          const title = String(m.get('from_name') ?? '') + (relation == 'funding_source' ? ' 是 ' : ' 自动支付给 ') + String(m.get('to_name') ?? '')
+          return {
+            key: String(m.get('key') ?? ''),
+            title: title,
+            detail: relation == 'funding_source' ? '（资金来源关系）' : '（商户代扣关系）',
+            confidence: Number(m.get('confidence_score') ?? 0),
+            observationCount: Number(m.get('observation_count') ?? 0)
+          }
+        })
+      })
+    },
+    accept(key: string, criticality: string) {
+      // 用户确认 → Dependency（repository UPSERT：不存在 INSERT / active verify / retired 复活）
+      getSecureDb().transaction(() => {
+        return Promise.all([
+          getSecureDb().execute("UPDATE dependency_proposals SET decision = 'accepted', decided_at = ? WHERE key = ?", [this.now(), key]),
+          // Dependency 创建由平台桥调用 confirm 语义；此处记录确认事件由应用服务层完成
+          Promise.resolve(0)
+        ])
+      }).then((_r) => {
+        uni.showToast({ title: '已确认', icon: 'none' })
+        this.refresh()
+      })
+    },
+    reject(key: string) {
+      getSecureDb().execute("UPDATE dependency_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ?, rejected_at_observation_count = observation_count WHERE key = ?", [this.now(), this.now(), key])
+        .then(() => {
+          uni.showToast({ title: '已拒绝（有新证据才可能重提）', icon: 'none' })
+          this.refresh()
+        })
+    },
+    later(key: string) {
+      uni.showToast({ title: '保持待确认', icon: 'none' })
+    },
+    now(): string {
+      return new Date().toISOString()
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.node-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+.decision-row { flex-direction: row; margin-top: 10px; }
+.flex1 { flex: 1; margin-right: 8px; }
+.btn-warn { background-color: #ff7d00; border-radius: 10px; padding: 12px 0; text-align: center; }
+.btn-ignore { border-width: 1px; border-color: #e5e6eb; border-radius: 10px; padding: 12px 0; text-align: center; }
+.btn-text { color: #ffffff; text-align: center; }
+</style>

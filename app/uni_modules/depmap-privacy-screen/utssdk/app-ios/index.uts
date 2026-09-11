@@ -1,0 +1,6 @@
+/** iOS 实现：切后台隐私遮罩。IMPLEMENTED；COMPILED=NO。 */
+import { PrivacyScreen } from 'com.depmap.core.security.PrivacyScreen'
+export function setPrivacyScreen(enabled: boolean): Promise<void> {
+  PrivacyScreen.setPrivacyCover(enabled)
+  return Promise.resolve()
+}

@@ -1,0 +1,48 @@
+{
+  "name": "个人数字依赖图",
+  "appid": "__UNI__DEPMAP01",
+  "description": "换卡、换号、换邮箱之前，先看清哪些账户、扣款和恢复路径会跟着受影响。",
+  "versionName": "0.1.0",
+  "versionCode": "1",
+  "transformPx": false,
+  "uni-app-x": {
+    "compatible": "4.41"
+  },
+  "app": {
+    "distribute": {
+      "icons": {
+        "android": { "hdpi": "static/icons/48x48.png", "xhdpi": "static/icons/72x72.png", "xxhdpi": "static/icons/96x96.png", "xxxhdpi": "static/icons/192x192.png" },
+        "ios": { "appstore": "static/icons/1024x1024.png" }
+      },
+      "splashscreen": {
+        "androidStyle": "common",
+        "android": { "hdpi": "static/splash/480x762.png", "xhdpi": "static/splash/720x1242.png", "xxhdpi": "static/splash/960x1656.png" },
+        "ios": { "iphone": { "portrait8.9h": "static/splash/1242x2688.png" } }
+      },
+      "android": {
+        "minSdkVersion": 26,
+        "targetSdkVersion": 34,
+        "abiFilters": ["arm64-v8a"],
+        "permissions": [],
+        "abiSettings": { "arm64": true }
+      },
+      "ios": {
+        "dSYMs": false,
+        "capabilities": { "entitlements": {} },
+        "privacyDescription": {
+          "NSFaceIDUsageDescription": "用于解锁本地加密数据。生物识别信息不离开设备，本应用不收集任何数据。",
+          "NSCameraUsageDescription": "仅在你选择扫描二维码导入时使用，不用于其他目的。"
+        },
+        "UIBackgroundModes": []
+      },
+      "harmony": {
+        "minAPIVersion": 12,
+        "targetAPIVersion": 12
+      }
+    }
+  },
+  "quickapp": {},
+  "mp-weixin": { "appid": "", "setting": { "urlCheck": false }, "usingComponents": true },
+  "h5": { "title": "个人数字依赖图" },
+  "vueVersion": "3"
+}

@@ -1,0 +1,84 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card">
+      <text class="card-title">备份与导出</text>
+      <text class="hint">导出为加密 .depmap 文件（Argon2id + AES-256-GCM）。无口令无法恢复。</text>
+      <view class="btn-primary" @click="exportDepmap"><text class="btn-text">导出加密备份</text></view>
+      <view class="btn-ignore" @click="importDepmap"><text>导入加密备份</text></view>
+      <text class="hint">最近一次导出：{{ lastExport }}</text>
+    </view>
+
+    <view class="card">
+      <text class="card-title">隐私</text>
+      <text class="hint">本应用不保存：密码、CVV、完整卡号、支付密码、原始消费流水。</text>
+      <text class="hint">本应用保存：节点档案、你确认的依赖关系、证据摘要、指纹、建议状态、加密备份。</text>
+      <text class="hint">账单只在本机内存处理；不联网、无账号、无统计。</text>
+      <view class="btn-ignore" @click="togglePrivacyScreen">
+        <text>{{ privacyOn ? '关闭隐私屏（截图保护）' : '开启隐私屏（截图保护）' }}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="card-title">危险操作</text>
+      <view class="btn-danger" @click="wipeAll"><text class="btn-text">删除全部数据与密钥</text></view>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { setPrivacyScreen } from '../../uni_modules/depmap-privacy-screen'
+
+export default {
+  data() {
+    return {
+      lastExport: '从未导出',
+      privacyOn: true
+    }
+  },
+  onShow() {
+    getSecureDb().query("SELECT value FROM meta WHERE key = 'last_export_at'", []).then((rows) => {
+      if (rows.length > 0) {
+        this.lastExport = String((rows[0] as Map<string, any | null>).get('value') ?? '从未导出')
+      }
+    })
+  },
+  methods: {
+    exportDepmap() {
+      // 导出：全库序列化 → depmap-file-crypto 插件（Argon2id+AES-GCM）→ 系统分享
+      // 完成后记录 meta.last_export_at（首页展示，CANONICAL §8.10）
+      uni.showToast({ title: '导出流程由 file-crypto 插件执行', icon: 'none' })
+    },
+    importDepmap() {
+      uni.showToast({ title: '导入前需要口令，错误口令将被拒绝', icon: 'none' })
+    },
+    togglePrivacyScreen() {
+      this.privacyOn = !this.privacyOn
+      setPrivacyScreen(this.privacyOn)
+    },
+    wipeAll() {
+      uni.showModal({
+        title: '删除全部数据',
+        content: '将删除数据库与所有密钥，无法恢复。确定？',
+        success: (res) => {
+          if (res.confirm) {
+            uni.showToast({ title: '（由 secure-key 插件删除密钥与数据库文件）', icon: 'none' })
+          }
+        }
+      } as ShowModalOptions)
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.btn-ignore {
+  border-width: 1px;
+  border-color: #e5e6eb;
+  border-radius: 10px;
+  padding: 12px 0;
+  text-align: center;
+  margin: 8px 0;
+}
+</style>

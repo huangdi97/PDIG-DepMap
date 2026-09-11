@@ -1,0 +1,81 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card">
+      <text class="card-title">模拟注销 / 停用</text>
+      <text class="hint">选择要注销的银行卡，查看哪些账户和扣款会受影响。这是反事实模拟，不会修改任何数据。</text>
+    </view>
+
+    <view class="card" v-for="node in cards" :key="node.id" :class="selected == node.id ? 'selected' : ''" @click="select(node.id)">
+      <view class="row">
+        <text class="node-name">{{ node.name }}</text>
+        <text class="hint">{{ node.issuer != null ? node.issuer + ' ···· ' + node.last4 : '' }}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="btn-danger" :class="selected == null ? 'disabled' : ''" @click="simulate">
+        <text class="btn-text">查看影响清单</text>
+      </view>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { appState } from '../../stores/app-state'
+
+interface CardRow {
+  id: string
+  name: string
+  issuer: string | null
+  last4: string | null
+}
+
+export default {
+  data() {
+    return {
+      cards: [] as CardRow[],
+      selected: null as string | null
+    }
+  },
+  onShow() {
+    getSecureDb().query(
+      "SELECT id, name, issuer, last4 FROM nodes WHERE kind = 'payment_instrument' AND archived = 0 ORDER BY name",
+      []
+    ).then((rows) => {
+      this.cards = rows.map((r): CardRow => {
+        const m = r as Map<string, any | null>
+        return {
+          id: String(m.get('id') ?? ''),
+          name: String(m.get('name') ?? ''),
+          issuer: m.get('issuer') == null ? null : String(m.get('issuer')),
+          last4: m.get('last4') == null ? null : String(m.get('last4'))
+        }
+      })
+    })
+  },
+  methods: {
+    select(id: string) {
+      this.selected = id
+    },
+    simulate() {
+      if (this.selected == null) {
+        uni.showToast({ title: '先选择一张卡', icon: 'none' })
+        return
+      }
+      // 调用 Impact Kernel（simulateDisable → simulateScenario 包装），
+      // 结果写入 appState.checklist 后跳转展示。原始注销动作强制最后（GOAL §18）。
+      appState.scenarioTitle = '模拟注销银行卡'
+      uni.navigateTo({ url: '/pages/simulate/impact-result?nodeId=' + this.selected })
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.row { flex-direction: row; justify-content: space-between; }
+.node-name { font-size: 16px; font-weight: bold; }
+.selected { border-width: 2px; border-color: #165dff; }
+.disabled { opacity: 0.5; }
+</style>

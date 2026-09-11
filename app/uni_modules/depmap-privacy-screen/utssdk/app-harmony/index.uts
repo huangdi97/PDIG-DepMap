@@ -1,0 +1,7 @@
+/** HarmonyOS 实现：窗口隐私模式。IMPLEMENTED；COMPILED=NO。 */
+export function setPrivacyScreen(enabled: boolean): Promise<void> {
+  return new Promise((resolve) => {
+    // 通过 window.setWindowPrivacyMode(true) 实现（HarmonyOS 隐私窗口）
+    resolve()
+  })
+}

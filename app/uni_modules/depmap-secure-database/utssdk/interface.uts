@@ -1,0 +1,19 @@
+/**
+ * depmap-secure-database — 平台加密数据库插件接口。
+ * Android: SQLCipher + Keystore；iOS: SQLCipher + Keychain；HarmonyOS: ArkData 加密 + HUKS。
+ * SQL 与 Core schema/migrations.ts 的 DDL 完全一致（三端逻辑 Schema 一致）。
+ */
+export type SqlRow = Map<string, any | null>
+
+export interface SecureDb {
+  open(dbName: string): Promise<void>
+  close(): Promise<void>
+  migrate(): Promise<number>
+  query(sql: string, params: Array<any | null>): Promise<Array<SqlRow>>
+  execute(sql: string, params: Array<any | null>): Promise<number>
+  transaction<T>(fn: () => Promise<T>): Promise<T>
+}
+
+export function getSecureDb(): SecureDb {
+  throw new Error('interface only')
+}

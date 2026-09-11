@@ -1,0 +1,85 @@
+/**
+ * depmap-secure-database — iOS 实现（UTS → Swift）。
+ * 桥接 platforms/ios/swift 的 SQLCipherSecureDatabaseAdapter。
+ * 状态：源码完成。COMPILED = NO（需 macOS/Xcode，见 BLOCKERS.md）。
+ */
+import { SQLCipherSecureDatabaseAdapter } from 'com.depmap.core.security.SQLCipherSecureDatabaseAdapter'
+import { KeychainSecureKeyAdapter } from 'com.depmap.core.security.KeychainSecureKeyAdapter'
+
+export type SqlRow = Map<string, any | null>
+
+export class SecureDbIos implements SecureDb {
+  private adapter: SQLCipherSecureDatabaseAdapter
+
+  constructor() {
+    this.adapter = new SQLCipherSecureDatabaseAdapter(new KeychainSecureKeyAdapter())
+  }
+
+  open(dbName: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      do {
+        try this.adapter.open()
+        resolve()
+      } catch (e) {
+        reject(new Error(e.localizedDescription))
+      }
+    })
+  }
+
+  close(): Promise<void> {
+    this.adapter.close()
+    return Promise.resolve()
+  }
+
+  migrate(): Promise<number> {
+    return new Promise((resolve, reject) => {
+      do {
+        try resolve(this.adapter.migrate(migrations: DepmapSchemaV1.shared.migrations()))
+      } catch (e) {
+        reject(new Error(e.localizedDescription))
+      }
+    })
+  }
+
+  query(sql: string, params: Array<any | null>): Promise<Array<SqlRow>> {
+    return new Promise((resolve, reject) => {
+      do {
+        try resolve(this.adapter.query(sql, params))
+      } catch (e) {
+        reject(new Error(e.localizedDescription))
+      }
+    })
+  }
+
+  execute(sql: string, params: Array<any | null>): Promise<number> {
+    return new Promise((resolve, reject) => {
+      do {
+        try {
+          this.adapter.execute(sql, params)
+          resolve(1)
+        } catch (e) {
+          reject(new Error(e.localizedDescription))
+        }
+      }
+    })
+  }
+
+  transaction<T>(fn: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      do {
+        try resolve(this.adapter.transaction(fn))
+      } catch (e) {
+        reject(new Error(e.localizedDescription))
+      }
+    })
+  }
+}
+
+let instance: SecureDbIos | null = null
+
+export function getSecureDb(): SecureDb {
+  if (instance == null) {
+    instance = new SecureDbIos()
+  }
+  return instance!
+}

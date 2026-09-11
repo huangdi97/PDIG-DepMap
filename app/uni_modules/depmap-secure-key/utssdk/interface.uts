@@ -1,0 +1,9 @@
+/**
+ * depmap-secure-key — 平台安全密钥插件接口。
+ * Android Keystore / iOS Keychain / HarmonyOS HUKS。
+ * 数据库密钥与 fpSecret 不以明文常量存在（AGENTS §7）。
+ */
+export function getOrCreateDatabaseKey(alias: string): Promise<Uint8Array> { throw new Error('interface only') }
+export function getOrCreateFpSecret(): Promise<string> { throw new Error('interface only') }
+export function hasKey(alias: string): Promise<boolean> { throw new Error('interface only') }
+export function deleteKey(alias: string): Promise<void> { throw new Error('interface only') }

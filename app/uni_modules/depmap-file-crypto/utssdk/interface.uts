@@ -1,0 +1,6 @@
+/**
+ * depmap-file-crypto — .depmap V1 文件加解密插件接口。
+ * Argon2id v19 + AES-256-GCM + RFC8785 JCS AAD；必须通过 Golden Test Vector 互操作。
+ */
+export function encryptToDepmap(plaintext: Uint8Array, password: string): Promise<string> { throw new Error('interface only') }
+export function decryptDepmap(json: string, password: string): Promise<Uint8Array> { throw new Error('interface only') }

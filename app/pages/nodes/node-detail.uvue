@@ -1,0 +1,108 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card">
+      <text class="card-title">{{ name }}</text>
+      <text class="hint">{{ kindLabel }}{{ issuerText }}</text>
+      <text class="hint">确认的支付关系：{{ dependencies.length }} 条</text>
+    </view>
+
+    <view class="card" v-for="dep in dependencies" :key="dep.id">
+      <view class="row">
+        <text>{{ dep.criticality == 'required' ? '必需' : '未知' }} · {{ dep.relation }}</text>
+        <text class="hint">{{ dep.peerName }}</text>
+      </view>
+      <text class="hint">状态：{{ dep.state == 'active' ? '生效中' : '已退役' }} · 确认于 {{ dep.confirmedAt.slice(0, 10) }}</text>
+      <view v-if="dep.state == 'active'" class="btn-danger small-btn" @click="retire(dep.id)">
+        <text class="btn-text">退役此关系</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="hint">本页只展示用户确认过的事实（Dependency 存在即确认）。Proposal 不在此显示。</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface DepRow {
+  id: string
+  relation: string
+  criticality: string
+  state: string
+  peerName: string
+  confirmedAt: string
+}
+
+export default {
+  data() {
+    return {
+      nodeId: '',
+      name: '',
+      kind: '',
+      issuerText: '',
+      kindLabel: '',
+      dependencies: [] as DepRow[]
+    }
+  },
+  onLoad(options: OnLoadOptions) {
+    this.nodeId = options['id'] ?? ''
+  },
+  onShow() {
+    this.refresh()
+  },
+  methods: {
+    refresh() {
+      const db = getSecureDb()
+      db.query('SELECT id, name, kind, issuer, last4 FROM nodes WHERE id = ?', [this.nodeId]).then((rows) => {
+        if (rows.length == 0) return
+        const m = rows[0] as Map<string, any | null>
+        this.name = String(m.get('name') ?? '')
+        this.kind = String(m.get('kind') ?? '')
+        this.kindLabel = this.kind == 'payment_instrument' ? '银行卡' : this.kind
+        const issuer = m.get('issuer')
+        const last4 = m.get('last4')
+        this.issuerText = issuer == null ? '' : ' · ' + String(issuer) + (last4 == null ? '' : ' ···· ' + String(last4))
+      })
+      // 出边：本节点是依赖来源（from）
+      db.query(
+        "SELECT d.id, d.relation, d.criticality, d.state, d.confirmed_at, n.name AS peer_name FROM dependencies d JOIN nodes n ON n.id = d.to_node WHERE d.from_node = ? ORDER BY d.state, d.confirmed_at",
+        [this.nodeId]
+      ).then((rows) => {
+        this.dependencies = rows.map((r): DepRow => {
+          const m = r as Map<string, any | null>
+          return {
+            id: String(m.get('id') ?? ''),
+            relation: String(m.get('relation') ?? ''),
+            criticality: String(m.get('criticality') ?? ''),
+            state: String(m.get('state') ?? ''),
+            peerName: String(m.get('peer_name') ?? ''),
+            confirmedAt: String(m.get('confirmed_at') ?? '')
+          }
+        })
+      })
+    },
+    retire(id: string) {
+      uni.showModal({
+        title: '退役关系',
+        content: '退役后此关系不再参与影响传播。确定？',
+        success: (res) => {
+          if (!res.confirm) return
+          getSecureDb().execute("UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?", [this.now(), this.now(), id])
+            .then(() => this.refresh())
+        }
+      } as ShowModalOptions)
+    },
+    now(): string {
+      return new Date().toISOString()
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.row { flex-direction: row; justify-content: space-between; }
+.small-btn { margin-top: 8px; padding: 8px 0; }
+</style>

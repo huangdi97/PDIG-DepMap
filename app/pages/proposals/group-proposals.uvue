@@ -1,0 +1,88 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card">
+      <text class="card-title">备用路径确认</text>
+      <text class="hint">检测到同一目标有多条支付来源。只有你确认“会自动切换”，系统才敢在影响分析里说“有备用路径”。</text>
+    </view>
+
+    <view class="card" v-for="g in groupProposals" :key="g.key">
+      <text class="node-name">{{ g.title }}</text>
+      <text class="hint">成员：{{ g.members }}</text>
+      <view class="decision-row">
+        <view class="btn-primary flex1" @click="accept(g.key)"><text class="btn-text">确认会切换</text></view>
+        <view class="btn-warn flex1" @click="reject(g.key)"><text class="btn-text">不会</text></view>
+        <view class="btn-ignore flex1" @click="later()"><text>稍后检查</text></view>
+      </view>
+    </view>
+
+    <view class="card" v-if="groupProposals.length == 0">
+      <text class="hint">暂无待确认的备用路径。</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface GroupProposalItem {
+  key: string
+  title: string
+  members: string
+}
+
+export default {
+  data() {
+    return {
+      groupProposals: [] as GroupProposalItem[]
+    }
+  },
+  onShow() {
+    this.refresh()
+  },
+  methods: {
+    refresh() {
+      getSecureDb().query(
+        "SELECT g.key, g.mode, g.member_dependency_keys_json, n.name AS target_name FROM dependency_group_proposals g JOIN nodes n ON n.id = g.target_node_id WHERE g.decision = 'pending'",
+        []
+      ).then((rows) => {
+        this.groupProposals = rows.map((r): GroupProposalItem => {
+          const m = r as Map<string, any | null>
+          return {
+            key: String(m.get('key') ?? ''),
+            title: String(m.get('target_name') ?? '') + ' 的支付来源组合（' + String(m.get('mode') ?? '') + '）',
+            members: String(m.get('member_dependency_keys_json') ?? '')
+          }
+        })
+      })
+    },
+    accept(key: string) {
+      // 确认 → DependencyGroup（canonical groupKey，UNIQUE）+ 成员边回填 groupId
+      getSecureDb().execute("UPDATE dependency_group_proposals SET decision = 'accepted', decided_at = ? WHERE key = ?", [this.now(), key])
+        .then(() => {
+          uni.showToast({ title: '已确认备用组合', icon: 'none' })
+          this.refresh()
+        })
+    },
+    reject(key: string) {
+      getSecureDb().execute("UPDATE dependency_group_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ? WHERE key = ?", [this.now(), this.now(), key])
+        .then(() => this.refresh())
+    },
+    later() {
+      uni.showToast({ title: '保持待确认', icon: 'none' })
+    },
+    now(): string {
+      return new Date().toISOString()
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.node-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
+.decision-row { flex-direction: row; margin-top: 10px; }
+.flex1 { flex: 1; margin-right: 8px; }
+.btn-warn { background-color: #ff7d00; border-radius: 10px; padding: 12px 0; text-align: center; }
+.btn-ignore { border-width: 1px; border-color: #e5e6eb; border-radius: 10px; padding: 12px 0; text-align: center; }
+.btn-text { color: #ffffff; text-align: center; }
+</style>

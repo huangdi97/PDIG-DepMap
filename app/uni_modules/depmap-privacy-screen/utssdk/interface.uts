@@ -1,0 +1,2 @@
+/** depmap-privacy-screen — 截屏保护 / 后台遮罩插件接口。 */
+export function setPrivacyScreen(enabled: boolean): Promise<void> { throw new Error('interface only') }

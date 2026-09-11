@@ -1,0 +1,116 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <view class="card" v-for="node in nodes" :key="node.id" @click="openDetail(node.id)">
+      <view class="row">
+        <text class="node-name">{{ node.name }}</text>
+        <text class="hint">{{ kindLabel(node.kind) }}</text>
+      </view>
+      <text class="hint" v-if="node.issuer != null">{{ node.issuer }}{{ node.last4 != null ? ' ···· ' + node.last4 : '' }}</text>
+    </view>
+    <view class="card">
+      <text class="card-title">新增节点</text>
+      <input class="input" v-model="newName" placeholder="名称（如：招行经典白）" />
+      <picker :range="kindOptions" @change="onKindChange">
+        <text class="hint">类型：{{ kindLabel(newKind) }}（点击切换）</text>
+      </picker>
+      <input class="input" v-model="newLast4" placeholder="卡后四位（可选）" />
+      <view class="btn-primary" @click="createNode"><text class="btn-text">创建</text></view>
+      <text class="hint">渐进式录入：先类型+名称，其余字段之后在详情补充</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface NodeRow {
+  id: string
+  name: string
+  kind: string
+  issuer: string | null
+  last4: string | null
+}
+
+export default {
+  data() {
+    return {
+      nodes: [] as NodeRow[],
+      newName: '',
+      newKind: 'payment_instrument',
+      kindOptions: ['银行卡', '支付账户', '服务/订阅', '手机号', '邮箱']
+    }
+  },
+  onShow() {
+    this.refresh()
+  },
+  methods: {
+    kindLabel(kind: string): string {
+      if (kind == 'payment_instrument') return '银行卡'
+      if (kind == 'account') return '支付账户'
+      if (kind == 'service') return '服务/订阅'
+      if (kind == 'identity_anchor') return '手机号/邮箱'
+      return kind
+    },
+    refresh() {
+      getSecureDb().query('SELECT id, name, kind, issuer, last4 FROM nodes WHERE archived = 0 ORDER BY kind, name', [])
+        .then((rows) => {
+          this.nodes = rows.map((r): NodeRow => {
+            const m = r as Map<string, any | null>
+            return {
+              id: String(m.get('id') ?? ''),
+              name: String(m.get('name') ?? ''),
+              kind: String(m.get('kind') ?? ''),
+              issuer: m.get('issuer') == null ? null : String(m.get('issuer')),
+              last4: m.get('last4') == null ? null : String(m.get('last4'))
+            }
+          })
+        })
+    },
+    onKindChange(e: PickerChangeEvent) {
+      const idx = Number(e.newValue)
+      const kinds = ['payment_instrument', 'account', 'service', 'identity_anchor']
+      if (idx >= 0 && idx < kinds.length) {
+        this.newKind = kinds[idx]!
+      }
+    },
+    createNode() {
+      const name = this.newName.trim()
+      if (name.length == 0) {
+        uni.showToast({ title: '请输入名称', icon: 'none' })
+        return
+      }
+      const last4 = this.newLast4.trim()
+      getSecureDb().execute(
+        'INSERT INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, created_at, updated_at) VALUES (?, ?, NULL, ?, NULL, ?, ?, 0, ?, ?, ?)',
+        [this.uuid(), this.newKind, name, last4.length == 4 ? last4 : null, 'self', '{}', this.now(), this.now()]
+      ).then(() => {
+        this.newName = ''
+        this.newLast4 = ''
+        this.refresh()
+      })
+    },
+    openDetail(id: string) {
+      uni.navigateTo({ url: '/pages/nodes/node-detail?id=' + id })
+    },
+    uuid(): string {
+      return crypto.randomUUID()
+    },
+    now(): string {
+      return new Date().toISOString()
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.row { flex-direction: row; justify-content: space-between; }
+.node-name { font-size: 16px; font-weight: bold; }
+.input {
+  border-width: 1px;
+  border-color: #e5e6eb;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 8px 0;
+}
+</style>

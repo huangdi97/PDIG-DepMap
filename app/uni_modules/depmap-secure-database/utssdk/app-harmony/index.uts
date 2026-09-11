@@ -1,0 +1,49 @@
+/**
+ * depmap-secure-database — HarmonyOS 实现（UTS → ArkTS）。
+ * 桥接 platforms/harmonyos/arkts 的 RelationalStoreSecureAdapter（ArkData 加密 + HUKS）。
+ * 状态：源码完成。COMPILED = NO（需 DevEco Studio，见 BLOCKERS.md）。
+ */
+import { RelationalStoreSecureAdapter, HuksSecureKeyAdapter } from 'com.depmap.core.security.RelationalStoreSecureAdapter'
+
+export type SqlRow = Map<string, any | null>
+
+export class SecureDbHarmony implements SecureDb {
+  private adapter: RelationalStoreSecureAdapter
+
+  constructor() {
+    this.adapter = new RelationalStoreSecureAdapter(UTSHarmony.getContext(), new HuksSecureKeyAdapter())
+  }
+
+  open(dbName: string): Promise<void> {
+    return this.adapter.open(dbName)
+  }
+
+  close(): Promise<void> {
+    return this.adapter.close()
+  }
+
+  migrate(): Promise<number> {
+    return this.adapter.migrate(1, DepmapSchemaV1.MIGRATIONS)
+  }
+
+  query(sql: string, params: Array<any | null>): Promise<Array<SqlRow>> {
+    return this.adapter.query(sql, params)
+  }
+
+  execute(sql: string, params: Array<any | null>): Promise<number> {
+    return this.adapter.execute(sql, params)
+  }
+
+  transaction<T>(fn: () => Promise<T>): Promise<T> {
+    return this.adapter.transaction(fn)
+  }
+}
+
+let instance: SecureDbHarmony | null = null
+
+export function getSecureDb(): SecureDb {
+  if (instance == null) {
+    instance = new SecureDbHarmony()
+  }
+  return instance!
+}

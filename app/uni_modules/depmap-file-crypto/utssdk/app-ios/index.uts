@@ -1,0 +1,7 @@
+/** iOS 实现：CryptoKit AES-GCM + Argon2id（需在 Xcode 工程引入 C 实现）。IMPLEMENTED(partial)；COMPILED=NO。 */
+export function encryptToDepmap(plaintext: Uint8Array, password: string): Promise<string> {
+  return new Promise((resolve, reject) => { reject(new Error('iOS argon2id bridge pending golden vector integration')) })
+}
+export function decryptDepmap(json: string, password: string): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => { reject(new Error('iOS argon2id bridge pending golden vector integration')) })
+}

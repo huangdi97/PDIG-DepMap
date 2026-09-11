@@ -1,0 +1,66 @@
+<template>
+  <view class="unlock-root">
+    <text class="app-title">个人数字依赖图</text>
+    <text class="app-sub">换卡之前，先看清影响</text>
+    <view class="btn-primary unlock-btn" @click="unlock">
+      <text class="btn-text">使用生物识别 / 设备密码解锁</text>
+    </view>
+    <text class="hint">本地加密存储 · 无账号 · 无云端同步</text>
+  </view>
+</template>
+
+<script lang="uts">
+import { authenticate } from '../../uni_modules/depmap-biometric'
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { appState } from '../../stores/app-state'
+
+export default {
+  data() {
+    return {}
+  },
+  methods: {
+    unlock() {
+      // 系统认证（Android BiometricPrompt / iOS LocalAuthentication / HarmonyOS 用户认证）。
+      // 取消或失败不得进入数据层（CANONICAL §8.3）。
+      authenticate('解锁个人数字依赖图').then((res) => {
+        if (!res.ok) {
+          uni.showToast({ title: '未通过验证，无法进入', icon: 'none' })
+          return
+        }
+        getSecureDb().open('depmap.db').then(() => {
+          return getSecureDb().migrate()
+        }).then((_version) => {
+          appState.unlocked = true
+          uni.reLaunch({ url: '/pages/home/home' })
+        }).catch((_e) => {
+          uni.showToast({ title: '数据库打开失败', icon: 'none' })
+        })
+      })
+    }
+  }
+}
+</script>
+
+<style>
+.unlock-root {
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+.app-title {
+  font-size: 26px;
+  font-weight: bold;
+}
+.app-sub {
+  margin-top: 8px;
+  color: #86909c;
+}
+.unlock-btn {
+  margin-top: 48px;
+  width: 280px;
+}
+.btn-text {
+  color: #ffffff;
+}
+</style>

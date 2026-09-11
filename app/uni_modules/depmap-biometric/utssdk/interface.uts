@@ -1,0 +1,7 @@
+/**
+ * depmap-biometric — 启动锁插件接口。
+ * 系统生物识别 / 设备凭证；取消/失败不得进入数据层。
+ */
+export interface AuthResult { ok: boolean; reason: string | null }
+export function canAuthenticate(): Promise<boolean> { throw new Error('interface only') }
+export function authenticate(reason: string): Promise<AuthResult> { throw new Error('interface only') }

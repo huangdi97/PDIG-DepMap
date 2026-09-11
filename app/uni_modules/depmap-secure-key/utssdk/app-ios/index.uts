@@ -1,0 +1,19 @@
+/** iOS 实现：桥接 KeychainSecureKeyAdapter。IMPLEMENTED；COMPILED=NO（无 macOS）。 */
+import { KeychainSecureKeyAdapter } from 'com.depmap.core.security.KeychainSecureKeyAdapter'
+const adapter = new KeychainSecureKeyAdapter()
+export function getOrCreateDatabaseKey(alias: string): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    do { try resolve(adapter.getOrCreateDatabaseKey(alias)) } catch (e) { reject(new Error(e.localizedDescription)) }
+  })
+}
+export function getOrCreateFpSecret(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    do { try resolve(adapter.getOrCreateFpSecret()) } catch (e) { reject(new Error(e.localizedDescription)) }
+  })
+}
+export function hasKey(alias: string): Promise<boolean> {
+  return Promise.resolve(false)
+}
+export function deleteKey(alias: string): Promise<void> {
+  return Promise.resolve()
+}
