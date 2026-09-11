@@ -1,0 +1,30 @@
+{
+  "module": {
+    "name": "entry",
+    "type": "entry",
+    "description": "个人数字依赖图 — 本地加密、无账号、无云端",
+    "mainElement": "EntryAbility",
+    "deviceTypes": ["phone"],
+    "deliveryWithInstall": true,
+    "installationFree": false,
+    "pages": "$profile:main_pages",
+    "requestPermissions": [
+      // 最小权限：仅本地生物识别/设备凭据（system 不需要额外权限声明）
+    ],
+    "abilities": [
+      {
+        "name": "EntryAbility",
+        "srcEntry": "./src/main/ets/entryability/EntryAbility.ets",
+        "description": "DepMap main ability",
+        "icon": "$media:app_icon",
+        "label": "个人数字依赖图",
+        "startWindowIcon": "$media:app_icon",
+        "startWindowBackground": "$color:start_window_background",
+        "exported": true,
+        "skills": [
+          { "entities": ["entity.system.home"], "actions": ["action.system.home"] }
+        ]
+      }
+    ]
+  }
+}
