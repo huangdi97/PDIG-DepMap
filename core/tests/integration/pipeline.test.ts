@@ -78,8 +78,8 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     // merchant_agreement(wechat→腾讯视频) + funding_source(招行4417→wechat)
     expect(outcome.proposalKeys).toHaveLength(2)
     const keys = [...outcome.proposalKeys].sort()
-    expect(keys[0]).toMatch(/\|funding_source\|/)
-    expect(keys[1]).toMatch(/\|merchant_agreement\|/)
+    expect(keys.filter(k => k.includes('|funding_source|'))).toHaveLength(1)
+    expect(keys.filter(k => k.includes('|merchant_agreement|'))).toHaveLength(1)
 
     // session 统计
     expect(outcome.session.rawCount).toBe(8)
