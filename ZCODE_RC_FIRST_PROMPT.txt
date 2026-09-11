@@ -1,0 +1,24 @@
+请执行当前 Workspace 的 MVP01 工程收口与 RC-AUDIT。
+
+先完整读取并遵守：
+AGENTS.md
+CANONICAL_DESIGN.md
+MVP_ACCEPTANCE.md
+WORK_STATUS.md
+BLOCKERS.md
+RC_AUDIT_RULES.md
+QUALITY_GATES.md
+RC_ACCEPTANCE.md
+GOAL_MVP01_RC_AUDIT.md
+
+本轮明确不跑真实账单，Real Data Correctness Gate / Value Gate 保持 NOT_RUN。
+
+不要进入 MVP02 / PDIG v1.1，不要新增业务功能。目标是把当前代码从“已实现”推进到：format、lint、typecheck、全部测试、determinism、idempotency、negative tests、security/privacy audit、secret scan、dependency/license audit、architecture check、clean install、clean clone、平台源码审计，以及当前环境允许的真实编译全部完成。
+
+不要每个步骤停下来问我。实际修改代码、运行命令、修复错误、重新测试并持续更新 WORK_STATUS.md。
+
+只有 GUI 工具链、管理员权限、SDK license、macOS/Xcode、设备、开发者账号、签名等真正外部事项可记录 BLOCKER，但不能因此停止其他可执行工作。
+
+最终必须生成 MVP01_RC_AUDIT_REPORT.md，并严格区分 IMPLEMENTED / STATIC_AUDITED / COMPILED / TESTED / DEVICE_VERIFIED / STORE_READY。
+
+现在从 RC_PRE_AUDIT 开始连续执行。
