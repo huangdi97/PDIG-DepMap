@@ -26,7 +26,7 @@ export class ConfirmationService {
   private proposals: DependencyProposalRepository
   private groupProposals: DependencyGroupProposalRepository
 
-  constructor(private readonly driver: SqliteDriver) {
+  constructor(driver: SqliteDriver) {
     this.nodes = new NodeRepository(driver)
     this.deps = new DependencyRepository(driver)
     this.groups = new DependencyGroupRepository(driver)

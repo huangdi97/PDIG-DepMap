@@ -32,7 +32,11 @@ export interface CreateGroupInput {
  * groupKey deterministic + UNIQUE，[A,B] 与 [B,A] 同组。
  */
 export class DependencyGroupRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   /** 按 groupKey 查找；同一成员组合不重复建组。 */
   findByKey(groupKey: string): DependencyGroup | null {

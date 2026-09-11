@@ -7,7 +7,11 @@ import type { SqlRow, SqlValue, SqliteDriver, SqliteStatement } from './driver.t
  */
 
 class NodeStatement implements SqliteStatement {
-  constructor(private readonly stmt: ReturnType<DatabaseSync['prepare']>) {}
+  private readonly stmt: ReturnType<DatabaseSync['prepare']>
+
+  constructor(stmt: ReturnType<DatabaseSync['prepare']>) {
+    this.stmt = stmt
+  }
 
   run(...params: SqlValue[]): { changes: number | bigint } {
     const res = this.stmt.run(...(params as never[]))
@@ -27,7 +31,11 @@ export class NodeSqliteDriver implements SqliteDriver {
   private db: DatabaseSync | null = null
   private txDepth = 0
 
-  constructor(readonly path: string) {}
+  private readonly path: string
+
+  constructor(path: string) {
+    this.path = path
+  }
 
   open(): void {
     this.db = new DatabaseSync(this.path)

@@ -97,7 +97,11 @@ function rowToProposal(row: Record<string, unknown>): DependencyProposal {
  * - rejected → 仅当新 evidence 达标（≥3 新观测 + ≥1 完整周期）才软性重提（回到 pending）
  */
 export class DependencyProposalRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   getByKey(key: string): DependencyProposal | null {
     const row = this.driver.prepare(`SELECT * FROM dependency_proposals WHERE key = ?`).get(key)

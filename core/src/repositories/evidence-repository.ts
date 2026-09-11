@@ -37,7 +37,11 @@ export interface AccumulateEvidenceInput {
  * - firstObservedAt = min(old,new)，lastObservedAt = max(old,new)
  */
 export class EvidenceRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   getByProposalKey(proposalKey: string): Evidence | null {
     const row = this.driver

@@ -39,10 +39,13 @@ function rowToGroupProposal(row: Record<string, unknown>): DependencyGroupPropos
  * 同 key（canonical，[A,B]=[B,A]）UPSERT；拒绝后有显著新 evidence 才重提。
  */
 export class DependencyGroupProposalRepository {
-  constructor(
-    private readonly driver: SqliteDriver,
-    private readonly minNewObservationsForReproposal = 3,
-  ) {}
+  private readonly driver: SqliteDriver
+  private readonly minNewObservationsForReproposal: number
+
+  constructor(driver: SqliteDriver, minNewObservationsForReproposal = 3) {
+    this.driver = driver
+    this.minNewObservationsForReproposal = minNewObservationsForReproposal
+  }
 
   getByKey(key: string): DependencyGroupProposal | null {
     const row = this.driver

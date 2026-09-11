@@ -91,7 +91,10 @@ export class ImportFlow {
   private sessions: ImportSessionRepository
   private meta: MetaRepository
 
-  constructor(private readonly driver: SqliteDriver) {
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
     this.nodes = new NodeRepository(driver)
     this.proposals = new DependencyProposalRepository(driver)
     this.evidence = new EvidenceRepository(driver)

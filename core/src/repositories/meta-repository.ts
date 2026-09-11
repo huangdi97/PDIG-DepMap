@@ -2,7 +2,11 @@ import type { SqliteDriver, SqlValue } from '../db/driver.ts'
 
 /** meta 表访问：schema_version、fpSecret、app 元数据。 */
 export class MetaRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   get(key: string): string | null {
     const row = this.driver.prepare(`SELECT value FROM meta WHERE key = ?`).get(key)

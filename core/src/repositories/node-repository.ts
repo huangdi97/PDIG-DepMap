@@ -50,7 +50,11 @@ function rowToNode(row: Record<string, unknown>): DepNode {
 }
 
 export class NodeRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   create(input: CreateNodeInput): DepNode {
     const id = input.id ?? newId()

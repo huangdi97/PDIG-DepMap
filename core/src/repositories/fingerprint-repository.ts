@@ -14,7 +14,11 @@ export interface InsertFingerprintsResult {
  * UNIQUE(source, fingerprint)；不保存 raw transaction id / merchant / amount。
  */
 export class FingerprintRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   exists(source: string, fingerprint: string): boolean {
     const row = this.driver

@@ -20,7 +20,11 @@ function rowToSession(row: Record<string, unknown>): ImportSession {
 }
 
 export class ImportSessionRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   start(input: {
     sourceType: string

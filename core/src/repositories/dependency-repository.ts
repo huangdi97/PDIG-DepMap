@@ -59,7 +59,11 @@ function rowToDependency(row: Record<string, unknown>): Dependency {
  * - retired  → re-activate 同一 id（清 retiredAt，更新 confirmedAt/lastVerifiedAt）
  */
 export class DependencyRepository {
-  constructor(private readonly driver: SqliteDriver) {}
+  private readonly driver: SqliteDriver
+
+  constructor(driver: SqliteDriver) {
+    this.driver = driver
+  }
 
   findByLogicalKey(
     from: string,
