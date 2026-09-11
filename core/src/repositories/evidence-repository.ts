@@ -24,8 +24,10 @@ export interface AccumulateEvidenceInput {
   parserId: string
   parserVersion: number
   importSessionId: string
-  /** 本批新 unique observations 的最早/最晚 observedAt */
-  observedAt: string
+  /** 本批新 unique observations 的最早 observedAt */
+  firstObservedAt: string
+  /** 本批新 unique observations 的最晚 observedAt */
+  lastObservedAt: string
   newObservations: number
 }
 
@@ -65,16 +67,17 @@ export class EvidenceRepository {
             input.parserId,
             input.parserVersion,
             input.importSessionId,
-            input.observedAt,
-            input.observedAt,
+            input.firstObservedAt,
+            input.lastObservedAt,
             input.newObservations,
             now,
             now
           )
         return { evidence: this.getById(id) as Evidence, created: true }
       }
-      const first = input.observedAt < existing.firstObservedAt ? input.observedAt : existing.firstObservedAt
-      const last = input.observedAt > existing.lastObservedAt ? input.observedAt : existing.lastObservedAt
+      const first =
+        input.firstObservedAt < existing.firstObservedAt ? input.firstObservedAt : existing.firstObservedAt
+      const last = input.lastObservedAt > existing.lastObservedAt ? input.lastObservedAt : existing.lastObservedAt
       this.driver
         .prepare(
           `UPDATE evidence SET last_import_session_id = ?, first_observed_at = ?, last_observed_at = ?, observation_count = observation_count + ?, parser_version = ?, updated_at = ?

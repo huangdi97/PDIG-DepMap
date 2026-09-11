@@ -99,7 +99,7 @@ const EXPECTED_COLUMNS = [
 
 function findHeaderRowIndex(lines: string[]): number {
   for (let i = 0; i < lines.length; i++) {
-    const cells = parseCsvLine(lines[i])
+    const cells = parseCsvLine(lines[i] ?? '')
     if (cells[0]?.trim() === '交易时间') return i
   }
   return -1
@@ -148,13 +148,13 @@ export function parseWechatBill(raw: Uint8Array): WechatParseResult {
     return { observations, errors: [{ line: 0, reason: 'missing column header row (交易时间...)' }], sourceLabel: 'wechat' }
   }
   // 列头行本身校验（列漂移容错：只要求首列匹配）
-  const headerCells = parseCsvLine(lines[headerIdx])
+  const headerCells = parseCsvLine(lines[headerIdx] ?? '')
   if (headerCells[0]?.trim() !== '交易时间' || headerCells.length < EXPECTED_COLUMNS.length - 3) {
     errors.push({ line: headerIdx + 1, reason: 'unexpected column header layout' })
   }
 
   for (let i = headerIdx + 1; i < lines.length; i++) {
-    const line = lines[i]
+    const line = lines[i] ?? ''
     if (line.trim() === '') continue
     const cells = parseCsvLine(line)
     if (cells.length < 9) {

@@ -59,7 +59,7 @@ describe('DEPMAP V1 bounds validation (before Argon2)', () => {
     for (const [k, v] of Object.entries(over)) {
       if (k.includes('.')) {
         const [parent, child] = k.split('.')
-        ;(base[parent] as Record<string, unknown>)[child!] = v
+        ;(base[parent!] as Record<string, unknown>)[child!] = v
       } else {
         ;(base as Record<string, unknown>)[k] = v
       }

@@ -98,7 +98,8 @@ describe('Proposal lifecycle (Schema v1)', () => {
       parserId: 'wechat',
       parserVersion: 1,
       importSessionId: 's1',
-      observedAt: '2026-04-15',
+      firstObservedAt: '2026-04-15',
+      lastObservedAt: '2026-04-15',
       newObservations: 2
     })
     expect(a.created).toBe(true)
@@ -108,7 +109,8 @@ describe('Proposal lifecycle (Schema v1)', () => {
       parserId: 'wechat',
       parserVersion: 1,
       importSessionId: 's2',
-      observedAt: '2026-03-01',
+      firstObservedAt: '2026-03-01',
+      lastObservedAt: '2026-03-20',
       newObservations: 1
     })
     expect(b.created).toBe(false)
