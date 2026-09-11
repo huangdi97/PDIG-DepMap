@@ -10,12 +10,12 @@
 ```text
 IMPLEMENTED      = YES（domain/schema/repositories/impact/parser/fingerprint/resolver/services/crypto/adapters）
 COMPILED         = YES（tsc --noEmit 0 error）
-TESTED           = YES（106/106 PASS，vitest）
+TESTED           = YES（166/166 PASS，vitest；RC 收口后含 determinism/idempotency/负向/fuzz/perf/db-integrity 套件）
 DEVICE_VERIFIED  = N/A（纯 TS，Node 环境即目标运行时）
 STORE_READY      = N/A
 ```
 
-证据：`core/tests/**`（8 个测试文件）；`npm test` 输出 106 passed；`npm run typecheck` 0 error。
+证据：`core/tests/**`（15 个测试文件）；`npm test` 输出 166 passed；`npm run typecheck` 0 error。RC 收口后的最新判定见 `MVP01_RC_AUDIT_REPORT.md`。
 
 ### Android
 

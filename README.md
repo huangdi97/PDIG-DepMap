@@ -8,7 +8,7 @@
 
 | 部分 | 状态 |
 |---|---|
-| 共享 Core（schema/repositories/migration/impact/parser/resolver/proposal/crypto） | **TESTED — 106 tests PASS，typecheck 干净**（Node 22） |
+| 共享 Core（schema/repositories/migration/impact/parser/resolver/proposal/crypto） | **TESTED — 166 tests PASS，typecheck 干净**（Node 22） |
 | `.depmap` V1 加密容器 + Golden Vector | **TESTED（Node 侧）**；Android/iOS 侧测试代码就绪未运行 |
 | uni-app x 中文 UI（11 页 + 5 个 UTS 安全插件） | IMPLEMENTED（源码完成）；未编译（无 HBuilderX） |
 | Android Kotlin 安全层 + Gradle 工程 | IMPLEMENTED；未编译（无 JDK17/SDK） |
@@ -33,7 +33,7 @@
 ```bash
 cd core
 npm install
-npm test        # 106 tests
+npm test        # 166 tests
 npm run typecheck
 ```
 
