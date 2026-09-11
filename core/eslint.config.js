@@ -10,7 +10,14 @@ import globals from 'globals'
  */
 export default tseslint.config(
   {
-    ignores: ['node_modules', 'coverage', 'dist', 'tests/fixtures/**', 'eslint.config.js', 'scripts/**/*.mjs'],
+    ignores: [
+      'node_modules',
+      'coverage',
+      'dist',
+      'tests/fixtures/**',
+      'eslint.config.js',
+      'scripts/**/*.mjs',
+    ],
   },
   ...tseslint.configs.recommendedTypeChecked,
   {
