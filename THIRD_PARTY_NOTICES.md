@@ -1,7 +1,7 @@
 # THIRD_PARTY_NOTICES.md — 第三方组件声明
 
-> 本项目 MVP 运行时与开发工具链使用的第三方开源组件（2026-09-12 生成，版本见
-> docs/DEPENDENCY_AUDIT.md 与 core/package-lock.json）。
+> 本项目 MVP 运行时与开发工具链使用的第三方开源组件（2026-09-13 Engineering Baseline V1
+> 轮刷新，版本见 core/package-lock.json；许可证快照由 `npm run check:deps` 自动生成核对）。
 
 ## 共享 Core 运行时
 
@@ -19,6 +19,7 @@
 | Prettier | MIT |
 | @types/node | MIT |
 | iconv-lite（fixture 生成脚本） | MIT |
+| fast-check（property-based 测试，4.x） | MIT |
 
 ## 平台原生（进入对应平台发布产物，待工具链编译时复核版本）
 

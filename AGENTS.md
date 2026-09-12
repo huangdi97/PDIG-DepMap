@@ -377,3 +377,24 @@ MVP 默认：
 7. 明确写出测试证据和平台状态
 
 不要只说“完成了”。
+
+## 25. Engineering Baseline V1（2026-09-13 起长期生效）
+
+任何 Agent 结束任务前必须：
+
+- `npm run check`（core/ 下）：format:check + lint + typecheck + 全部测试 +
+  architecture（含 circular deps = 0）+ network gate + secret scan 全绿。
+- 重大 milestone（新 MVP 轮收口 / Schema 变更 / 平台收口）前必须 `npm run check:full`。
+
+必须遵守并引用：
+
+- `docs/ENGINEERING_STANDARDS.md`（命名/格式/lint/类型/错误模型总纲）
+- `docs/DEFINITION_OF_DONE.md`（完成定义：不满足不得宣称完成）
+- `QUALITY_GATES_V1.md`（Q0–Q19 Gate 清单与状态）
+- `docs/AGENT_DEVELOPMENT_PROTOCOL.md`（会话开始顺序、协作纪律、禁止项）
+- `docs/CHANGE_RISK_POLICY.md`（修改前先定风险级别）
+
+统一命令（core/）：
+`npm run check` / `check:full` / `check:invariants` / `check:contract` /
+`check:property` / `check:db-integrity` / `check:architecture` / `check:network` /
+`check:secrets` / `check:deps` / `test:perf` / `test:stability`。

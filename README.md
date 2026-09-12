@@ -8,7 +8,8 @@
 
 | 部分 | 状态 |
 |---|---|
-| 共享 Core（schema v2/repositories/migration/impact/parser/resolver/proposal/crypto/sources） | **TESTED — 259 tests PASS，typecheck 干净**（Node 22） |
+| 共享 Core（schema v2/repositories/migration/impact/parser/resolver/proposal/crypto/sources） | **TESTED — 324 tests PASS，typecheck 干净，coverage src≈93%（Node 22）** |
+| 工程基线 Engineering Baseline V1 | **PASS**（format/lint/typecheck/architecture+circular=0/network=0/secrets/invariants/contract/property/mutation baseline/clean install/clean clone，见 `QUALITY_GATES_V1.md`） |
 | `.depmap` V1 加密容器 + Golden Vector | **TESTED（Node 侧）**；Android/iOS 侧测试代码就绪未运行 |
 | uni-app x 中文 UI（11 页 + 5 个 UTS 安全插件） | IMPLEMENTED（源码完成）；未编译（无 HBuilderX） |
 | Android Kotlin 安全层 + Gradle 工程 | IMPLEMENTED；未编译（无 JDK17/SDK） |
@@ -32,10 +33,15 @@
 
 ```bash
 cd core
-npm install
-npm test        # 259 tests
+npm ci              # 受支持唯一安装方式（lockfile 锁定；engines: node >= 22.5）
+npm test            # 324 tests（unit/contract/invariant/property/migration/crypto/perf smoke）
 npm run typecheck
+npm run check       # 快速 Gate：format+lint+typecheck+tests+architecture(circular=0)+network+secrets
+npm run check:full  # 完整 Gate：check + db-integrity + coverage + perf + deps/license
 ```
+
+工程规范：`docs/ENGINEERING_STANDARDS.md`；完成定义：`docs/DEFINITION_OF_DONE.md`；
+Agent 开发协议：`docs/AGENT_DEVELOPMENT_PROTOCOL.md`；变更风险分级：`docs/CHANGE_RISK_POLICY.md`。
 
 真实账单验证（账单放 `local_private/`，不入库、不联网）：
 
@@ -49,7 +55,7 @@ node --experimental-strip-types scripts/validate-real-bill.ts --file ../local_pr
 - `core/` — 纯 TypeScript 共享核心 + vitest（domain/schema/impact/parser/resolver/proposal/crypto）
 - `app/` — uni-app x（pages + uni_modules UTS 插件 + manifest/pages.json）
 - `platforms/` — Android Gradle / HarmonyOS / iOS SPM 原生工程与安全源码
-- `docs/` — ARCHITECTURE / SCHEMA_V1 / SCHEMA_V2 / MIGRATION_V1_V2 / SOURCE_ARCHITECTURE / SOURCE_INSTANCE / GENERIC_CSV_ADAPTER / OFX_QFX_ADAPTER / MULTISOURCE_EVIDENCE / TEST_MATRIX_MVP02 / IMPACT_ENGINE / PARSER_WECHAT / CRYPTO_PROTOCOL / SECURITY_MODEL / PLATFORM_ADAPTERS / TEST_MATRIX / REAL_DATA_VALIDATION / STORE_RELEASE_CHECKLIST
+- `docs/` — 工程基线：ENGINEERING_STANDARDS / ARCHITECTURE_RULES / TEST_STRATEGY / COVERAGE_POLICY / FAIL_CLOSED_MATRIX / SECURITY_PRIVACY_REGRESSION_MATRIX / DEFINITION_OF_DONE / AGENT_DEVELOPMENT_PROTOCOL / COMMIT_CONVENTION / CHANGE_RISK_POLICY / FIXTURE_POLICY / LOGGING_POLICY / MONEY_CURRENCY_RULES / DATE_TIME_RULES / MEMORY_DATA_LIFETIME / PERFORMANCE_BASELINE / DEPENDENCY_POLICY / TYPE_SAFETY_BASELINE / DEAD_CODE_AUDIT；设计：ARCHITECTURE / SCHEMA_V1 / SCHEMA_V2 / MIGRATION_V1_V2 / SOURCE_ARCHITECTURE / SOURCE_INSTANCE / GENERIC_CSV_ADAPTER / OFX_QFX_ADAPTER / MULTISOURCE_EVIDENCE / TEST_MATRIX_MVP02 / IMPACT_ENGINE / PARSER_WECHAT / CRYPTO_PROTOCOL / SECURITY_MODEL / PLATFORM_ADAPTERS / REAL_DATA_VALIDATION / STORE_RELEASE_CHECKLIST
 
 ## 设计与目标（控制文件）
 
