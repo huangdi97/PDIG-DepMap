@@ -1,4 +1,4 @@
-# QUALITY_GATES.md — Gate 状态（2026-09-12 RC 收口）
+# QUALITY_GATES.md — Gate 状态（2026-09-13 MVP02 收口轮更新；RC 基线 2026-09-12）
 
 ## Q0 Repo
 - [x] git diff --check PASS
@@ -11,22 +11,25 @@
 - [x] format:check PASS（prettier，TS/JS/JSON/MD/YAML；.uvue/.uts 明确排除）
 - [x] lint errors = 0（eslint typed，0 warnings）
 - [x] typecheck PASS（strict 全开）
-- [x] architecture check PASS（check:architecture，27 files）
+- [x] architecture check PASS（check:architecture，35 files）
 - [x] release-blocking TODO = 0
 
-## Q2 Tests（166/166）
+## Q2 Tests（273/273，0 skip）
 - [x] unit PASS
 - [x] integration PASS
 - [x] parser PASS
 - [x] crypto PASS
 - [x] impact PASS
-- [x] migration PASS
+- [x] migration PASS（MVP02 Schema v2：T1–T6/T4b + payload v2/v1 17 用例）
 - [x] proposal lifecycle PASS
-- [x] synthetic E2E PASS
+- [x] synthetic E2E PASS（+ multi-source E2E 9 用例）
 - [x] determinism PASS
 - [x] idempotency PASS
 - [x] negative tests PASS
 - [x] fuzz/property smoke PASS
+- [x] MVP02 增量 PASS：sources（generic-csv 20 / ofx-qfx 15）、relation-registry 14、
+      source-instance-scope 12、coverage-semantics 7、性能 smoke（含 MVP02 三项）
+- [x] clean install PASS（npm ci → npm run check 全绿）；clean clone 模拟 PASS
 
 ## Q3 Security/Privacy
 - [x] production secret findings = 0

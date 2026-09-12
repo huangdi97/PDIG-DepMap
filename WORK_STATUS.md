@@ -15,12 +15,14 @@
 - format:check PASS（prettier 3.9.6）
 - lint PASS（eslint 10 typed，0 errors/0 warnings）
 - typecheck PASS（strict 全开，0 errors）
-- tests：**259/259 PASS，0 skip**（21 文件）
-  - 253 基线 → +3（migration T4/T4b/T5 A 段补测）→ +3（MVP02 性能 smoke：
-    10k CSV parse 64ms / 10k OFX parse 67ms / 3 SourceInstance 并发 2k×3 ≈4.6s，
-    指纹命名空间隔离断言）
-- architecture check PASS（35 files）；secret scan PASS（238 files，0 production secrets）
-- coverage（RC 轮基线）：crypto 98.7% / impact 92.4% / parser 96.9% / repos 93.3% / services 93.6% / schema 100%
+- tests：**273/273 PASS，0 skip**（22 文件）
+  - 253 基线 → +3（migration T4/T4b/T5 A 段补测）→ +3（MVP02 性能 smoke）
+    → +14（relation-registry 直接测试：正/负路径 + Group 模式 + 写路径集成，
+    覆盖 62.9%→100%，续轮补齐 PHASE 6 直接测试缺口）
+- architecture check PASS（35 files）；secret scan PASS（249 files，0 production secrets）
+- coverage（MVP02 收口轮实测，src 口径 90.6%）：crypto 98.7 / schema 100 /
+  domain 100（registry 直接测试后）/ parser 96.9 / services 95.4 /
+  fingerprint 94.2 / impact 92.4 / repos 91.5 / sources 84.6（新增模块）
 
 ## MVP02 进度（Gate 级）
 
@@ -98,6 +100,12 @@
   user_confirmed + migration.test.ts:265 列默认值），无需新增
 - `MVP02_ACCEPTANCE.md` 按测试证据勾选；`MVP02_FINAL_REPORT.md` 生成；
   docs/ 八份 MVP02 文档落地
+- 续轮补强（同日）：README 更新至 MVP02 现状（解析器矩阵 + 测试计数 + 文档清单）；
+  PHASE 22 安全/隐私重审以 grep 实证归档（docs/PRIVACY_DATAFLOW_AUDIT.md
+  「MVP02 Re-audit」节：src 零网络调用、零 console、无 observations 表、
+  指纹表无 sourceTxnId 明文列）；relation-registry 直接测试 14 例补齐
+  （PHASE 6 负向路径此前仅被 K 测试间接覆盖）；COVERAGE_REPORT /
+  TEST_MATRIX / QUALITY_GATES 三份存活文档刷新至 273 tests 实测口径
 
 ## Last completed（MVP02 接力轮 WorkBuddy）
 

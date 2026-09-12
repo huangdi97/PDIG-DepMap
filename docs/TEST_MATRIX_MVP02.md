@@ -1,6 +1,6 @@
 # TEST_MATRIX_MVP02.md（MVP02 测试矩阵 → 实测映射）
 
-> 状态：2026-09-13 ZCode 接力轮实跑。**259/259 PASS，0 skip（21 文件）**；
+> 状态：2026-09-13 ZCode 接力轮实跑。**273/273 PASS，0 skip（22 文件）**；
 > quality gates 全绿（format / lint / typecheck / architecture / secret scan /
 > clean install / clean clone）。Real Data 双 Gate = NOT_RUN。
 
@@ -31,6 +31,14 @@ lastIngestedAt / 无 secret 字段 —— 全覆盖（12 用例）。
 
 MVP01 全部 parser（18 fixtures）/ fingerprint / pipeline 用例继续 PASS；
 domain 无 `source==wechat` 业务分支。
+
+## D+ RelationDefinitionRegistry → tests/domain/relation-registry.test.ts（14）
+
+runtime 词表只有 funding_source/merchant_agreement（future 词表拦截）/
+capability/fromKind/toKind 越界拒绝/Group 仅 funding_source+ANY（ALL 与
+merchant_agreement Group 拒绝）/defaultCriticality=unknown + user_only/
+ConfirmationService 写路径集成（非法 relation confirm 抛 registry rejected）。
+registry 覆盖 100%。
 
 ## E Generic CSV → tests/sources/generic-csv.test.ts（20）
 

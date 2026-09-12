@@ -1,7 +1,8 @@
 # MVP02_ACCEPTANCE.md
 
 > `[x]` 只能在有测试/证据时勾选。Real Data 本轮允许保持 NOT_RUN。
-> 勾选基线：ZCode 接力轮 2026-09-13 实跑（commit `7a68887` 后，259/259 PASS）。
+> 勾选基线：ZCode 接力轮 2026-09-13 实跑（commit `7a68887` 后，259/259 PASS；
+> 同日续轮补 relation-registry 直接测试 14 例后 **273/273 PASS**）。
 
 ## A Architecture
 - [x] EvidenceSourceAdapter 正式化 — `core/src/sources/types.ts` 契约 + H0/H0b 契约测试；三实现 wechat_statement / generic_csv / ofx_qfx
@@ -9,7 +10,7 @@
 - [x] SourceInstance implemented — `src/repositories/source-instance-repository.ts`（create/retire/touchIngested）+ `tests/repository/source-instance-scope.test.ts`
 - [x] coverageMode implemented — `types.ts:66`；文件 Adapter 强制 `event_stream`（`types.ts:92` 抛错）
 - [x] authoritativeFor implemented — `types.ts:67`；三个文件 Adapter 均为 `[]`
-- [x] RelationDefinitionRegistry implemented — `src/domain/relation-registry.ts`；confirmation-service 写前 `validateRelationUse` 校验
+- [x] RelationDefinitionRegistry implemented — `src/domain/relation-registry.ts`；confirmation-service 写前 `validateRelationUse` 校验；**直接测试 14 例**（tests/domain/relation-registry.test.ts：正/负路径、Group 模式、future 词表拦截、写路径集成，registry 覆盖 100%）
 
 ## B Schema v2
 - [x] schemaVersion = 2 — migration.test.ts
@@ -71,10 +72,10 @@
 - [x] format PASS — prettier 3.9.6 全绿
 - [x] lint PASS — eslint 10 typed 0 errors/0 warnings
 - [x] typecheck PASS — tsc strict 0 errors
-- [x] all tests PASS — 259/259（21 文件，0 skip）
+- [x] all tests PASS — 273/273（22 文件，0 skip）
 - [x] architecture PASS — check:architecture（35 files）
-- [x] secret scan PASS — check:secrets（239 files，0 production secrets）
-- [x] privacy audit PASS — RC 轮 LOGGING_AUDIT/PRIVACY_DATAFLOW_AUDIT 基础 + 本轮复核：raw CSV/OFX 不持久化、sourceTxnId 不明文、日志无 raw 行、SourceInstance 无 secret、`.depmap` 加密不变、业务网络调用 0
+- [x] secret scan PASS — check:secrets（249 files，0 production secrets）
+- [x] privacy audit PASS — RC 轮 LOGGING_AUDIT/PRIVACY_DATAFLOW_AUDIT 基础 + **PHASE 22 MVP02 重审 grep 实证**（docs/PRIVACY_DATAFLOW_AUDIT.md「MVP02 Re-audit」节）：src 零网络调用、零 console 输出、无 observations 表、指纹表无 sourceTxnId 明文列、SourceInstance/ImportSession 无 secret 与 raw 列、`.depmap` 加密不变
 - [x] clean install PASS — 本轮 `npm ci` + `npm run check` 全绿复验（MVP02 增量后）
 - [x] clean clone PASS — 本轮 temp clone 模拟：clone → npm ci → npm run check 全绿
 

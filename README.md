@@ -8,7 +8,7 @@
 
 | 部分 | 状态 |
 |---|---|
-| 共享 Core（schema/repositories/migration/impact/parser/resolver/proposal/crypto） | **TESTED — 166 tests PASS，typecheck 干净**（Node 22） |
+| 共享 Core（schema v2/repositories/migration/impact/parser/resolver/proposal/crypto/sources） | **TESTED — 259 tests PASS，typecheck 干净**（Node 22） |
 | `.depmap` V1 加密容器 + Golden Vector | **TESTED（Node 侧）**；Android/iOS 侧测试代码就绪未运行 |
 | uni-app x 中文 UI（11 页 + 5 个 UTS 安全插件） | IMPLEMENTED（源码完成）；未编译（无 HBuilderX） |
 | Android Kotlin 安全层 + Gradle 工程 | IMPLEMENTED；未编译（无 JDK17/SDK） |
@@ -33,7 +33,7 @@
 ```bash
 cd core
 npm install
-npm test        # 166 tests
+npm test        # 259 tests
 npm run typecheck
 ```
 
@@ -49,20 +49,24 @@ node --experimental-strip-types scripts/validate-real-bill.ts --file ../local_pr
 - `core/` — 纯 TypeScript 共享核心 + vitest（domain/schema/impact/parser/resolver/proposal/crypto）
 - `app/` — uni-app x（pages + uni_modules UTS 插件 + manifest/pages.json）
 - `platforms/` — Android Gradle / HarmonyOS / iOS SPM 原生工程与安全源码
-- `docs/` — ARCHITECTURE / SCHEMA_V1 / IMPACT_ENGINE / PARSER_WECHAT / CRYPTO_PROTOCOL / SECURITY_MODEL / PLATFORM_ADAPTERS / TEST_MATRIX / REAL_DATA_VALIDATION / STORE_RELEASE_CHECKLIST
+- `docs/` — ARCHITECTURE / SCHEMA_V1 / SCHEMA_V2 / MIGRATION_V1_V2 / SOURCE_ARCHITECTURE / SOURCE_INSTANCE / GENERIC_CSV_ADAPTER / OFX_QFX_ADAPTER / MULTISOURCE_EVIDENCE / TEST_MATRIX_MVP02 / IMPACT_ENGINE / PARSER_WECHAT / CRYPTO_PROTOCOL / SECURITY_MODEL / PLATFORM_ADAPTERS / TEST_MATRIX / REAL_DATA_VALIDATION / STORE_RELEASE_CHECKLIST
 
 ## 设计与目标（控制文件）
 
 - `CANONICAL_DESIGN.md` — 唯一产品/Schema/Impact 母版
-- `GOAL_MVP01.md` — 本轮执行目标（PHASE 0–15）
-- `WORK_STATUS.md` / `BLOCKERS.md` / `MVP_ACCEPTANCE.md` — 状态与验收
+- `GOAL_MVP01.md` — MVP01 执行目标（PHASE 0–15）
+- `GOAL_MVP02_GLOBAL_SOURCE.md` — MVP02 执行目标（Global Source Abstraction，PHASE 0–25）
+- `WORK_STATUS.md` / `BLOCKERS.md` / `MVP_ACCEPTANCE.md` / `MVP02_ACCEPTANCE.md` — 状态与验收
+- `FINAL_REPORT.md` / `MVP02_FINAL_REPORT.md` — 轮次结论
 
 ## 解析器覆盖矩阵
 
 | 来源 | 状态 |
 |---|---|
 | 微信支付账单（UTF-8/BOM/GB18030/说明行/退款/坏行） | 已实现并测试（synthetic） |
-| 支付宝 / 银行 CSV | 未实现（FUTURE.md） |
+| 通用 CSV 导入（Generic CSV Adapter；用户显式列映射：US/EU/debit-credit/BOM/CRLF 等；不预设特定银行） | 已实现并测试（synthetic） |
+| OFX / QFX 银行对账单（FITID/DTPOSTED/TRNAMT/NAME/MEMO） | 已实现并测试（synthetic） |
+| 支付宝专属解析器 | 未实现（FUTURE.md；可先用 Generic CSV 显式映射导入） |
 
 ## 已知限制
 

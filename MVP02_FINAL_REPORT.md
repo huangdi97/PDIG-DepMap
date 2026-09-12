@@ -25,12 +25,12 @@ Real Data 与三端编译按既定口径保持 NOT_RUN/BLOCKED，不影响本判
 | WECHAT_REGRESSION | **PASS** | WeChat 为普通 Adapter（src/sources/wechat/adapter.ts）；domain/impact/schema 无 source==wechat 业务分支；MVP01 WeChat 全部用例 PASS |
 | GENERIC_CSV | **PASS** | 20 用例/10 fixtures（US/EU/debit-credit/BOM/quoted/CRLF/CR-only/bad rows/missing mapping/multi-currency/×50）；显式 mapping，无 LLM；10k rows 64ms |
 | OFX_QFX | **PASS** | 15 用例/8 fixtures（FITID/fallback/invalid date/malformed/QFX/同 FITID 跨实例/×50）；10k 67ms |
-| RELATION_REGISTRY | **PASS** | src/domain/relation-registry.ts：runtime 仅 funding_source/merchant_agreement；fromKinds/toKinds/capability/group 模式/default criticality=unknown/verificationPolicy=user_only；Proposal/Dependency 写前校验 |
+| RELATION_REGISTRY | **PASS** | src/domain/relation-registry.ts：runtime 仅 funding_source/merchant_agreement；fromKinds/toKinds/capability/group 模式/default criticality=unknown/verificationPolicy=user_only；**直接测试 14 例（tests/domain/relation-registry.test.ts，registry 覆盖 100%）**：future 词表拦截、capability/fromKind/toKind 越界拒绝、Group 仅 funding_source+ANY、ConfirmationService 写路径集成（非法 relation confirm 抛 registry rejected 且 Proposal 保持 pending） |
 | MULTISOURCE_E2E | **PASS** | multi-source-e2e.test.ts 9 用例：CSV+OFX → 1 Proposal/2 refs → 确认一次 → 1 Dependency（verificationBasis=user_confirmed 回读）→ Impact → 清单；Group/backup 仅用户确认；×20 确定性 |
 | DEPMAP_CONTAINER_V1_COMPAT | **PASS** | 容器协议不变（golden/负向/tamper 全 PASS）；payload v2 往返/幂等/原子失败；v1 payload in-memory migrate（J2）；不支持版本 fail-closed |
-| MVP01_REGRESSION | **PASS** | 全量 259/259（MVP01 存量 166 全部在内）：Schema/Impact/WeChat Parser/Fingerprint/Proposal/Group/Synthetic E2E/Crypto |
-| QUALITY_GATES | **PASS** | format:check / lint（0 err）/ typecheck（strict 0 err）/ test 259/259 / architecture（35 files）/ secret scan（239 files, 0 secrets）/ clean install（npm ci→check 全绿）/ clean clone（temp clone→npm ci→check 全绿） |
-| SECURITY_PRIVACY | **PASS** | raw CSV/OFX 不持久化；sourceTxnId 不明文（仅 HMAC 指纹）；日志无 raw 行；Evidence 仅聚合；SourceInstance 无 secret；`.depmap` 加密不变；业务网络调用 0 |
+| MVP01_REGRESSION | **PASS** | 全量 273/273（MVP01 存量 166 全部在内）：Schema/Impact/WeChat Parser/Fingerprint/Proposal/Group/Synthetic E2E/Crypto |
+| QUALITY_GATES | **PASS** | format:check / lint（0 err）/ typecheck（strict 0 err）/ test 273/273 / architecture（35 files）/ secret scan（249 files, 0 secrets）/ clean install（npm ci→check 全绿）/ clean clone（temp clone→npm ci→check 全绿） |
+| SECURITY_PRIVACY | **PASS** | PHASE 22 重审（docs/PRIVACY_DATAFLOW_AUDIT.md「MVP02 Re-audit」节，grep 实证）：src 零网络调用、零 console 输出、无 observations 表、指纹表无 sourceTxnId 明文列、SourceInstance/ImportSession 无 secret 与 raw 列、`.depmap` 容器 V1 未变；secret scan 249 files 0 secrets |
 | REAL_DATA | **NOT_RUN** | 等真实账单（B13）；core/scripts/validate-real-bill.ts 就绪 |
 
 ## 本轮（ZCode 接力）完成
@@ -45,12 +45,16 @@ Real Data 与三端编译按既定口径保持 NOT_RUN/BLOCKED，不影响本判
 5. docs/ 八份 MVP02 文档（SOURCE_ARCHITECTURE / SOURCE_INSTANCE / SCHEMA_V2 /
    MIGRATION_V1_V2 / GENERIC_CSV_ADAPTER / OFX_QFX_ADAPTER /
    MULTISOURCE_EVIDENCE / TEST_MATRIX_MVP02）
+6. 同日续轮补强：README 更新至 MVP02 现状；PHASE 22 安全/隐私重审 grep 实证归档；
+   relation-registry 直接测试 14 例（registry 覆盖 62.9%→100%，总测试 259→273）；
+   COVERAGE_REPORT / TEST_MATRIX / QUALITY_GATES 刷新至实测口径（src 覆盖 90.6%）
 
 ## 累计测试资产
 
-259/259 PASS（21 文件，0 skip）= MVP01 存量 166 → SourceInstance 12 →
+273/273 PASS（22 文件，0 skip）= MVP01 存量 166 → SourceInstance 12 →
 Coverage 7 → Generic CSV 20 → OFX/QFX 15 → payload v2/v1 17 →
-multi-source E2E 9 → A 段补测 3 → MVP02 perf 3 → （perf/迁移既有用例含其中）。
+multi-source E2E 9 → A 段补测 3 → MVP02 perf 3 → relation-registry 14 →
+（perf/迁移既有用例含其中）。
 另：4 个生产缺陷修复均带回归测试（matchFormat 转义、positiveDirection、
 parseOfxAmount('')→0、批内重复指纹假冲突）。
 
