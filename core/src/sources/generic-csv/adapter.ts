@@ -97,21 +97,53 @@ export function parseDate(raw: string, formats: string[]): string | null {
   return null
 }
 
+/** 支持的 token → 捕获组（顺序即捕获组顺序，用于建索引）。 */
+const DATE_TOKENS: ReadonlyArray<{ token: string; pattern: string }> = [
+  { token: 'YYYY', pattern: '(\\d{4})' },
+  { token: 'MM', pattern: '(\\d{1,2})' },
+  { token: 'DD', pattern: '(\\d{1,2})' },
+  { token: 'HH', pattern: '(\\d{1,2})' },
+  { token: 'mm', pattern: '(\\d{1,2})' },
+  { token: 'ss', pattern: '(\\d{1,2})' },
+]
+
+/**
+ * 把 format 字符串编译为正则 + 捕获组顺序。
+ *
+ * 实现要点（不得回退）：**先按 token 切分并逐段转义，再拼装捕获组**。
+ * 若像早期实现那样先把 token 替换成 `(\d{4})`、再对整体做正则元字符转义，
+ * 会连捕获组自身的 `(` `)` `{` `}` 一起转义，得到 `\(\d\{4\}\)`，
+ * 导致任何含日期 token 的格式都永远匹配失败（静默把所有行判为 bad date）。
+ */
+function compileFormat(fmt: string): { source: string; order: string[] } {
+  const order: string[] = []
+  let source = ''
+  let i = 0
+  while (i < fmt.length) {
+    const hit = DATE_TOKENS.find((t) => fmt.startsWith(t.token, i))
+    if (hit) {
+      order.push(hit.token)
+      source += hit.pattern
+      i += hit.token.length
+    } else {
+      // i < fmt.length 由 while 条件保证；charAt 返回 '' 时追加空串亦无副作用
+      source += fmt.charAt(i).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      i += 1
+    }
+  }
+  return { source, order }
+}
+
 function matchFormat(s: string, fmt: string): string | null {
-  // 支持的 tokens：YYYY MM DD HH mm ss；分隔符任意
-  const pattern = fmt
-    .replace('YYYY', '(\\d{4})')
-    .replace('MM', '(\\d{1,2})')
-    .replace('DD', '(\\d{1,2})')
-    .replace('HH', '(\\d{1,2})')
-    .replace('mm', '(\\d{1,2})')
-    .replace('ss', '(\\d{1,2})')
-    .replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const m = new RegExp(`^${pattern}$`).exec(s)
+  const { source, order } = compileFormat(fmt)
+  if (order.length === 0) return null
+  const m = new RegExp(`^${source}$`).exec(s)
   if (!m) return null
   const values = m.slice(1).map(Number)
-  const order = ['YYYY', 'MM', 'DD', 'HH', 'mm', 'ss'].filter((t) => fmt.includes(t))
-  const get = (t: string): number => values[order.indexOf(t)] ?? 0
+  const get = (t: string): number => {
+    const idx = order.indexOf(t)
+    return idx === -1 ? 0 : (values[idx] ?? 0)
+  }
   const y = get('YYYY')
   const mo = get('MM')
   const d = get('DD')
@@ -245,7 +277,19 @@ export class GenericCsvAdapter implements EvidenceSourceAdapter {
           return
         }
         if (signMode === 'signed') {
-          direction = amount < 0 ? 'out' : 'in'
+          // signed：金额自带符号。negativeDirection 默认 out（银行/卡组织惯例：
+          // 负数=支出）。但部分发卡行导出把消费记为正数、还款记为负数，此时
+          // mapping 必须显式声明 positiveDirection='out' —— 声明后正数即支出，
+          // 负数反向为 in。绝不根据数据分布自动猜测方向。
+          const positiveDirection = mapping.options.positiveDirection ?? 'in'
+          if (amount < 0) {
+            direction = positiveDirection === 'in' ? 'out' : 'in'
+          } else if (amount > 0) {
+            direction = positiveDirection
+          } else {
+            // 金额为 0：方向无法从符号判定 → 明确记为 neutral，不猜
+            direction = 'neutral'
+          }
           amount = Math.abs(amount)
         } else {
           direction = mapping.options.positiveDirection ?? 'out'

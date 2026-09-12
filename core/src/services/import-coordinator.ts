@@ -218,24 +218,41 @@ export class ImportCoordinator {
       }
     })
 
-    // fresh 判定：先只读探测（不写入），供事务内分组使用
+    // fresh 判定：先只读探测（不写入），供事务内分组使用。
+    //
+    // 必须与 FingerprintRepository.insertBatch 的语义**逐字对齐**：insertBatch 是
+    // 「先在内存/DB 去重，再逐条插入」，即同一批次内的重复指纹只算第一条 fresh，
+    // 后续同批重复计入 duplicates。若此处只查 DB 而不查批内已见集合，
+    // 批内重复（真实账单常见的重复 FITID）会让 preview 与事务结果不一致，
+    // 触发下方 guard 抛「fingerprint state changed」——这是假冲突，会让
+    // 含重复行的合法账单整体导入失败。
     const fresh: string[] = []
     let duplicates = 0
+    const seenInBatch = new Set<string>()
     for (const rec of batch) {
+      const scoped = `${rec.sourceInstanceId}\u0000${rec.fingerprintVersion}\u0000${rec.fingerprint}`
       if (
+        seenInBatch.has(scoped) ||
         this.fingerprintsRepo.exists(rec.sourceInstanceId, rec.fingerprint, rec.fingerprintVersion)
       ) {
         duplicates += 1
       } else {
+        seenInBatch.add(scoped)
         fresh.push(rec.fingerprint)
       }
     }
+    // 只保留每个 fresh 指纹的**首次**出现（批内重复行不再参与 proposal 生成，
+    // 与 insertBatch 只插入一次的行为一致）。
     const freshSet = new Set(fresh)
+    const usedFresh = new Set<string>()
     const freshIdx = normalized
       .map((_, i) => i)
       .filter((i) => {
         const fp = fps[i]
-        return fp !== undefined && freshSet.has(fp.fingerprint)
+        if (fp === undefined || !freshSet.has(fp.fingerprint)) return false
+        if (usedFresh.has(fp.fingerprint)) return false
+        usedFresh.add(fp.fingerprint)
+        return true
       })
 
     // 2. 商户分组（fresh only）+ recurrence + 路由建议 → proposals（单事务）

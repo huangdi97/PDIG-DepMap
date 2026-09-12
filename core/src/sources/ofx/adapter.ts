@@ -74,7 +74,11 @@ export function parseOfxDate(raw: string): string | null {
 }
 
 export function parseOfxAmount(raw: string): number | null {
-  const n = Number(raw.trim())
+  const s = raw.trim()
+  // 必须显式拒绝空串：Number('') === 0，若只用 Number.isFinite 会把
+  // 「缺失金额」静默变成一笔 0 元交易 —— 那是被伪造出来的财务事实。
+  if (s === '') return null
+  const n = Number(s)
   if (!Number.isFinite(n)) return null
   return Math.round(n * 100) / 100
 }
