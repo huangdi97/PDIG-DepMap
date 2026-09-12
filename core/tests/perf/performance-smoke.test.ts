@@ -18,6 +18,12 @@ import { NodeRepository } from '../../src/repositories/node-repository.ts'
 import { NodeSqliteDriver } from '../../src/db/node-driver.ts'
 import { migrate } from '../../src/schema/migrations.ts'
 import { exportGraph } from '../../src/services/graph-serialize.ts'
+import { GenericCsvAdapter } from '../../src/sources/generic-csv/adapter.ts'
+import { OfxQfxAdapter } from '../../src/sources/ofx/adapter.ts'
+import { ImportCoordinator } from '../../src/services/import-coordinator.ts'
+import { SourceInstanceRepository } from '../../src/repositories/source-instance-repository.ts'
+import { FingerprintRepository } from '../../src/repositories/fingerprint-repository.ts'
+import type { MappingProfile, SourceContext } from '../../src/sources/types.ts'
 
 /**
  * PHASE L — Performance Smoke（只防异常退化，阈值宽松）+ PHASE AF — Large Synthetic Smoke。
@@ -42,6 +48,71 @@ function buildBillCsv(rows: number): Uint8Array {
   }
   return enc.encode(lines.join('\r\n'))
 }
+
+/**
+ * MVP02 性能 smoke 数据构造器。
+ * 目标：为 10k 行 CSV / 10k 笔 OFX / 3 个 SourceInstance 提供结构性规模压测，
+ * 不引入新的语义断言（语义正确性由 E/F 段用例负责）。
+ */
+
+/** 构造 10k 级 US 信用卡风格 CSV（RFC4180 表头 + 唯一 txnId）。 */
+function buildCsvStatement(rows: number): Uint8Array {
+  const lines = ['Transaction Date,Posting Date,Description,Amount,Type']
+  for (let i = 0; i < rows; i++) {
+    const mo = String(1 + (i % 12)).padStart(2, '0')
+    const d = String(1 + (i % 28)).padStart(2, '0')
+    lines.push(`${mo}/${d}/2026,${mo}/${d}/2026,商户${i % 500},${(1 + (i % 900)).toFixed(2)},Debit`)
+  }
+  return enc.encode(lines.join('\r\n'))
+}
+
+/** 构造 10k 笔 STMTTRN 的 OFX v1 文本。 */
+function buildOfxStatement(rows: number): Uint8Array {
+  const parts: string[] = [
+    'OFXHEADER:100',
+    'DATA:OFXSGML',
+    'VERSION:102',
+    '',
+    '<OFX><BANKMSGSRSV1><STMTTRNRS><STMTRS><CURDEF>USD',
+    '<BANKTRANLIST>',
+  ]
+  for (let i = 0; i < rows; i++) {
+    const mo = String(1 + (i % 12)).padStart(2, '0')
+    const d = String(1 + (i % 28)).padStart(2, '0')
+    parts.push(
+      '<STMTTRN>',
+      `<TRNTYPE>DEBIT`,
+      `<DTPOSTED>2026${mo}${d}120000`,
+      `<TRNAMT>-${(1 + (i % 900)).toFixed(2)}`,
+      `<FITID>PERF${i}`,
+      `<NAME>MERCHANT ${i % 500}`,
+      '</STMTTRN>',
+    )
+  }
+  parts.push('</BANKTRANLIST></STMTRS></STMTTRNRS></BANKMSGSRSV1></OFX>')
+  return enc.encode(parts.join('\n'))
+}
+
+function usPerfProfile(): MappingProfile {
+  return {
+    columns: {
+      dateTime: 'Transaction Date',
+      amount: 'Amount',
+      counterparty: 'Description',
+    },
+    options: {
+      delimiter: ',',
+      encoding: 'utf-8',
+      dateFormats: ['MM/DD/YYYY'],
+      decimalSeparator: '.',
+      amountSignMode: 'signed',
+      hasHeaderRow: true,
+    },
+  }
+}
+
+const perfCtx = (id: string): SourceContext =>
+  ({ sourceInstance: { id } }) as unknown as SourceContext
 
 function chainGraph(n: number): Dependency[] {
   return [...Array(n).keys()].map((i) => ({
@@ -252,6 +323,127 @@ describe('Performance Smoke (RC PHASE L/AF)', () => {
     expect(new TextDecoder().decode(plaintext)).toBe('perf-payload')
     expect(ms).toBeLessThan(10000)
   })
+
+  // -------------------------------------------------------------------------
+  // MVP02 — Global Source Abstraction 性能 smoke
+  // -------------------------------------------------------------------------
+
+  it('MVP02: GenericCsvAdapter 10k rows 解析 < 10s', async () => {
+    const adapter = new GenericCsvAdapter()
+    const raw = buildCsvStatement(10000)
+    const t0 = performance.now()
+    const observations = await adapter.parse(
+      { data: raw, fileName: 'perf-10k.csv', mapping: usPerfProfile() },
+      perfCtx('si-csv-perf'),
+    )
+    const ms = performance.now() - t0
+    results.push({ name: 'MVP02 CSV parse 10k rows', ms })
+    expect(observations).toHaveLength(10000)
+    expect(adapter.lastParseErrors?.() ?? []).toHaveLength(0)
+    expect(ms).toBeLessThan(10000)
+  }, 30000)
+
+  it('MVP02: OfxQfxAdapter 10k transactions 解析 < 10s', async () => {
+    const adapter = new OfxQfxAdapter()
+    const raw = buildOfxStatement(10000)
+    const t0 = performance.now()
+    const observations = await adapter.parse({ data: raw }, perfCtx('si-ofx-perf'))
+    const ms = performance.now() - t0
+    results.push({ name: 'MVP02 OFX parse 10k txns', ms })
+    expect(observations).toHaveLength(10000)
+    expect(adapter.lastParseErrors?.() ?? []).toHaveLength(0)
+    expect(ms).toBeLessThan(10000)
+  }, 30000)
+
+  it('MVP02: 3 个 SourceInstance 并发导入（各 2k 行）< 30s；指纹命名空间互不串扰', async () => {
+    const dir = mkdtemp()
+    const driver = new NodeSqliteDriver(join(dir, 'multi.db'))
+    driver.open()
+    migrate(driver)
+    try {
+      const instances = new SourceInstanceRepository(driver)
+      instances.create({
+        id: 'si-csv-1',
+        adapterId: 'generic_csv',
+        adapterVersion: 1,
+        sourceKind: 'statement_file',
+        label: 'CSV 信用卡',
+      })
+      instances.create({
+        id: 'si-ofx-1',
+        adapterId: 'ofx_qfx',
+        adapterVersion: 1,
+        sourceKind: 'statement_file',
+        label: 'OFX 银行对账单',
+      })
+      instances.create({
+        id: 'si-csv-2',
+        adapterId: 'generic_csv',
+        adapterVersion: 1,
+        sourceKind: 'statement_file',
+        label: 'CSV 第二张卡',
+      })
+
+      const jobs = [
+        { si: 'si-csv-1', raw: buildCsvStatement(2000) },
+        { si: 'si-csv-2', raw: buildCsvStatement(2000) },
+        { si: 'si-ofx-1', raw: buildOfxStatement(2000) },
+      ]
+
+      // BEGIN_STATE 是 WeakMap<ImportCoordinator, PendingImport> —— 一个 coordinator
+      // 同时只能承载一个未 finalize 的 import（begin → finalize 三段式契约）。
+      // 因此「3 实例并发」用 3 个独立 coordinator 表达真实并发；
+      // 每个 coordinator 内部仍严格走 begin → resolveMerchant → finalize。
+      const csvAdapterFor = (): GenericCsvAdapter => new GenericCsvAdapter()
+      const ofxAdapterFor = (): OfxQfxAdapter => new OfxQfxAdapter()
+
+      const t0 = performance.now()
+      const outcomes = await Promise.all(
+        jobs.map(async (j) => {
+          const coordinator = new ImportCoordinator(driver)
+          const adapter = j.si === 'si-ofx-1' ? ofxAdapterFor() : csvAdapterFor()
+          const input =
+            j.si === 'si-ofx-1'
+              ? { data: j.raw, fileName: `${j.si}.ofx` }
+              : { data: j.raw, fileName: `${j.si}.csv`, mapping: usPerfProfile() }
+          const begun = await coordinator.begin(j.si, adapter, input)
+          const nodes = new NodeRepository(driver)
+          for (const c of begun.candidates) {
+            const node = nodes.create({ kind: 'service', name: c.merchantRaw })
+            coordinator.resolveMerchant(c.merchantRaw, node.id)
+          }
+          return coordinator.finalize()
+        }),
+      )
+      const ms = performance.now() - t0
+      results.push({ name: 'MVP02 3-instance concurrent import (2k×3)', ms })
+
+      expect(ms).toBeLessThan(30000)
+      const totalRaw = outcomes.reduce((n, o) => n + o.newUniqueCount + o.duplicateCount, 0)
+      expect(totalRaw).toBe(6000)
+
+      // 指纹命名空间互不串扰（结构性断言，独立于哈希 seed 实现）：
+      // 每个 SourceInstance 必须在 observation_fingerprints 中拥有**自己**的
+      // 2000 条记录。若某实现把 DB 去重键退化为全局 fingerprint（丢掉
+      // source_instance_id），两个内容完全一致的 CSV 实例会互相吞掉对方的行，
+      // 导致 si-csv-2 的持久化计数为 0。
+      const fps = new FingerprintRepository(driver)
+      expect(fps.countByInstance('si-csv-1')).toBe(2000)
+      expect(fps.countByInstance('si-csv-2')).toBe(2000)
+      expect(fps.countByInstance('si-ofx-1')).toBe(2000)
+      expect(fps.countAll()).toBe(6000)
+
+      const csvOut = outcomes.slice(0, 2)
+      for (const o of csvOut) {
+        expect(o.duplicateCount).toBe(0)
+        expect(o.newUniqueCount).toBe(2000)
+      }
+      expect(outcomes[2]?.newUniqueCount).toBe(2000)
+    } finally {
+      driver.close()
+      rmSync(dir, { recursive: true, force: true })
+    }
+  }, 60000)
 
   it('汇总输出（供 docs/PERFORMANCE_SMOKE.md 记录）', () => {
     // eslint 例外：测试文件允许输出（见 eslint.config.js tests 块）

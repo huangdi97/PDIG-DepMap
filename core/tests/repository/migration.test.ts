@@ -289,4 +289,158 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
   it('MIGRATIONS 顺序完整（1,2）', () => {
     expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2])
   })
+
+  // -------------------------------------------------------------------------
+  // T4 —— ×50 幂等在**已迁移且已装载数据**的库上成立
+  //
+  // T3 只覆盖「v1 空库 → v2 → ×50」。真实风险是：库已迁移完成、且含
+  // legacy 数据与多实例 provenance 时，重复 migrate 仍须严格 no-op。
+  // -------------------------------------------------------------------------
+  it('T4: 已迁移且有数据的库上 ×50 —— 数据零漂移、legacy 实例不重复', () => {
+    // 建 v1 并装载 legacy 数据
+    driver.transaction(() => {
+      for (const sql of SCHEMA_V1_STATEMENTS) driver.exec(sql)
+      driver.prepare(`INSERT INTO meta (key, value) VALUES ('schema_version', '1')`).run()
+    })
+    driver
+      .prepare(
+        `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at)
+         VALUES ('fp-t4-a', 'wechat', 1, 's1', '2026-01-01'),
+                ('fp-t4-b', 'wechat', 1, 's1', '2026-02-01')`,
+      )
+      .run()
+    driver
+      .prepare(
+        `INSERT INTO evidence (id, proposal_key, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
+         VALUES ('ev-t4', 'a|funding_source|b|payment', 'wechat_bill', 'wechat', 1, 's1', '2026-01-01', '2026-06-01', 6, 't', 't')`,
+      )
+      .run()
+    driver
+      .prepare(
+        `INSERT INTO dependency_proposals (id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, evidence_id, observation_count, created_at, updated_at)
+         VALUES ('p-t4', 'a|funding_source|b|payment', 'a', 'funding_source', 'b', 'payment', 'recurring_payment_route', 'statement', 'wechat', 1, 0.9, '[]', 'ev-t4', 6, 't', 't')`,
+      )
+      .run()
+
+    migrate(driver)
+    expect(currentSchemaVersion(driver)).toBe(2)
+
+    const snapshot = () => ({
+      fps: driver
+        .prepare(
+          `SELECT fingerprint, source_instance_id FROM observation_fingerprints ORDER BY fingerprint`,
+        )
+        .all(),
+      evidence: driver.prepare(`SELECT * FROM evidence ORDER BY id`).all(),
+      proposals: driver
+        .prepare(`SELECT id, key, decision FROM dependency_proposals ORDER BY id`)
+        .all(),
+      refs: driver
+        .prepare(
+          `SELECT proposal_key, evidence_id, position FROM proposal_evidence_refs ORDER BY proposal_key, position`,
+        )
+        .all(),
+      instances: driver.prepare(`SELECT id, adapter_id FROM source_instances ORDER BY id`).all(),
+      version: currentSchemaVersion(driver),
+    })
+    const before = JSON.stringify(snapshot())
+
+    for (let i = 0; i < 50; i++) migrate(driver)
+
+    // 严格 no-op：连续 50 次迁移后状态逐字段不变
+    expect(JSON.stringify(snapshot())).toBe(before)
+    // legacy 实例唯一
+    const legacyCount = driver
+      .prepare(`SELECT COUNT(*) AS c FROM source_instances WHERE id = ?`)
+      .get(LEGACY_WECHAT_SOURCE_INSTANCE_ID)
+    expect(Number((legacyCount as Record<string, unknown>)['c'])).toBe(1)
+  })
+
+  it('T4b: 已迁移库在进程重启后 ×50 —— 仍严格 no-op', () => {
+    migrate(driver)
+    const dbPath = join(dir, 'test.db')
+    driver.close()
+    driver = new NodeSqliteDriver(dbPath)
+    driver.open()
+
+    const before = JSON.stringify({
+      instances: driver.prepare(`SELECT id FROM source_instances ORDER BY id`).all(),
+      version: currentSchemaVersion(driver),
+    })
+    for (let i = 0; i < 50; i++) migrate(driver)
+    const after = JSON.stringify({
+      instances: driver.prepare(`SELECT id FROM source_instances ORDER BY id`).all(),
+      version: currentSchemaVersion(driver),
+    })
+    expect(after).toBe(before)
+  })
+
+  // -------------------------------------------------------------------------
+  // T5 —— legacy 去重语义在迁移与后续写入中保持
+  //
+  // T2 只断言「再插同 fingerprint 会 UNIQUE 失败」。真实要求更强：
+  // 迁移后的去重仍按 (source_instance_id, fingerprint_version, fingerprint)
+  // 作用域生效，且 legacy 行的 fingerprint_version / source 展示字段未被改写。
+  // -------------------------------------------------------------------------
+  it('T5: legacy 去重语义保持 —— 同实例同版本重复拒绝、不同版本/不同实例放行', () => {
+    driver.transaction(() => {
+      for (const sql of SCHEMA_V1_STATEMENTS) driver.exec(sql)
+      driver.prepare(`INSERT INTO meta (key, value) VALUES ('schema_version', '1')`).run()
+    })
+    driver
+      .prepare(
+        `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at)
+         VALUES ('fp-t5', 'wechat', 1, 's1', '2026-01-01')`,
+      )
+      .run()
+
+    migrate(driver)
+
+    // legacy 行的非作用域字段未被迁移改写（展示字段 source 保留）
+    const row = driver
+      .prepare(
+        `SELECT source, fingerprint_version, source_instance_id FROM observation_fingerprints WHERE fingerprint = 'fp-t5'`,
+      )
+      .get() as Record<string, unknown>
+    expect(row['source']).toBe('wechat')
+    expect(Number(row['fingerprint_version'])).toBe(1)
+    expect(row['source_instance_id']).toBe(LEGACY_WECHAT_SOURCE_INSTANCE_ID)
+
+    const insert = (fp: string, inst: string, ver: number) =>
+      driver
+        .prepare(
+          `INSERT INTO observation_fingerprints (fingerprint, source_instance_id, source, fingerprint_version, import_session_id, first_seen_at)
+           VALUES (?, ?, 'wechat', ?, 's2', '2026-03-01')`,
+        )
+        .run(fp, inst, ver)
+
+    // 同实例 + 同版本 + 同 fingerprint → 拒绝（legacy 去重仍在生效）
+    expect(() => insert('fp-t5', LEGACY_WECHAT_SOURCE_INSTANCE_ID, 1)).toThrowError(/UNIQUE/)
+
+    // 同实例但 fingerprint_version 不同 → 放行（版本属于作用域的一部分）
+    expect(() => insert('fp-t5', LEGACY_WECHAT_SOURCE_INSTANCE_ID, 2)).not.toThrow()
+
+    // 不同 SourceInstance → 放行（命名空间隔离）
+    const other = driver
+      .prepare(
+        `INSERT INTO source_instances (id, adapter_id, adapter_version, source_kind, label, currencies_json, state, created_at, updated_at)
+         VALUES ('si-t5-other', 'generic_csv', 1, 'statement_file', 'other', '[]', 'active', 't', 't')`,
+      )
+      .run()
+    expect(other.changes).toBe(1)
+    expect(() => insert('fp-t5', 'si-t5-other', 1)).not.toThrow()
+
+    // 唯一性由表级 UNIQUE 约束定义（非独立索引）→ 检查重建后的表 DDL 列顺序
+    const ddl = driver
+      .prepare(
+        `SELECT sql FROM sqlite_master WHERE type='table' AND name='observation_fingerprints'`,
+      )
+      .get() as Record<string, unknown>
+    const tableSql = typeof ddl['sql'] === 'string' ? ddl['sql'] : ''
+    expect(tableSql).toMatch(
+      /UNIQUE\s*\(\s*source_instance_id\s*,\s*fingerprint_version\s*,\s*fingerprint\s*\)/,
+    )
+    // v1 的 UNIQUE(source, fingerprint) 必须已被移除（否则去重口径错误）
+    expect(tableSql).not.toMatch(/UNIQUE\s*\(\s*source\s*,\s*fingerprint\s*\)/)
+  })
 })
