@@ -65,9 +65,62 @@ for (const file of files) {
   }
 }
 
+// ---- 5. 循环依赖检查（Engineering Baseline V1）----
+// 构建 src 内部相对导入图，DFS 三色标记；发现环即 FAIL（目标：circular = 0）。
+{
+  const graph = new Map()
+  for (const file of files) {
+    const rel = relative(SRC, file).replaceAll(sep, '/')
+    const text = readFileSync(file, 'utf8')
+    const deps = []
+    for (const m of text.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+      const spec = m[1]
+      if (!spec.startsWith('.')) continue
+      const resolved = relative(SRC, resolve(dirname(file), spec)).replaceAll(sep, '/')
+      if (resolved.startsWith('..')) continue
+      deps.push(resolved)
+    }
+    graph.set(rel, deps)
+  }
+
+  const WHITE = 0
+  const GRAY = 1
+  const BLACK = 2
+  const color = new Map()
+  for (const n of graph.keys()) color.set(n, WHITE)
+  const cycles = []
+
+  const visit = (node, stack) => {
+    color.set(node, GRAY)
+    stack.push(node)
+    for (const dep of graph.get(node) ?? []) {
+      const c = color.get(dep)
+      if (c === GRAY) {
+        const from = stack.indexOf(dep)
+        cycles.push([...stack.slice(from), dep].join(' -> '))
+      } else if (c === WHITE) {
+        visit(dep, stack)
+      }
+    }
+    stack.pop()
+    color.set(node, BLACK)
+  }
+
+  for (const n of graph.keys()) {
+    if (color.get(n) === WHITE) visit(n, [])
+    if (cycles.length > 0) break
+  }
+
+  if (cycles.length > 0) {
+    console.error(`CIRCULAR DEPENDENCIES (${cycles.length}):`)
+    for (const c of cycles) console.error('  ' + c)
+    process.exit(1)
+  }
+}
+
 if (violations.length > 0) {
   console.error(`ARCHITECTURE VIOLATIONS (${violations.length}):`)
   for (const v of violations) console.error('  ' + v)
   process.exit(1)
 }
-console.log(`architecture check PASS (${files.length} files scanned)`)
+console.log(`architecture check PASS (${files.length} files scanned, circular dependencies = 0)`)

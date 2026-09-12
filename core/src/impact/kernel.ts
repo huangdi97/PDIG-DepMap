@@ -113,8 +113,19 @@ export function simulateScenario(
   graph: ImpactGraph,
   unavailable: Set<ImpactStateKey>,
 ): ImpactResult {
-  // MVP 只支持 payment domain：非 payment 初始键忽略（记录在文档）
-  const initial = sortKeys([...unavailable].filter((k) => k.capability === PAYMENT))
+  // MVP 只支持 payment domain：非 payment 初始键忽略（记录在文档）。
+  // Set 内值相等的不同对象引用不会去重，这里按 keyStr 值级去重，
+  // 保证 unavailable/lostKeys/processedKeys 输出无重复（invariant：processedKeys 唯一）。
+  const initialSeen = new Set<string>()
+  const initial = sortKeys(
+    [...unavailable].filter((k) => {
+      if (k.capability !== PAYMENT) return false
+      const s = keyStr(k)
+      if (initialSeen.has(s)) return false
+      initialSeen.add(s)
+      return true
+    }),
+  )
 
   const activePaymentDeps = graph.dependencies
     .filter((d) => d.state === 'active' && d.capability === PAYMENT)

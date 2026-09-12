@@ -6,11 +6,16 @@
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "packageManager": "npm@11.3.0",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:perf": "vitest run tests/perf",
+    "test:stability": "vitest run --repeat 3",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -18,8 +23,14 @@
     "format:check": "prettier --check .",
     "check:architecture": "node scripts/check-architecture.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run check:architecture && npm run check:secrets",
-    "check:full": "npm run check && npm run test:coverage && npm run test:perf"
+    "check:network": "node scripts/check-network.mjs",
+    "check:invariants": "vitest run tests/invariants",
+    "check:contract": "vitest run tests/contract",
+    "check:property": "vitest run tests/property",
+    "check:db-integrity": "vitest run tests/unit/db-integrity.test.ts",
+    "check:deps": "node scripts/check-deps.mjs",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run check:architecture && npm run check:network && npm run check:secrets",
+    "check:full": "npm run check && npm run check:db-integrity && npm run test:coverage && npm run test:perf && npm run check:deps"
   },
   "dependencies": {
     "hash-wasm": "^4.12.0"
@@ -28,6 +39,7 @@
     "@types/node": "^22.15.0",
     "@vitest/coverage-v8": "^3.2.7",
     "eslint": "^10.10.0",
+    "fast-check": "^4.10.0",
     "globals": "^17.12.0",
     "iconv-lite": "^0.7.3",
     "prettier": "^3.9.6",
