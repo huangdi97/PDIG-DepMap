@@ -1,23 +1,67 @@
 # WORK_STATUS.md
 
 > 本文件由 ZCode/GLM 在执行过程中持续更新。不要删除历史关键结论。
+> 2026-09-12 起由 WorkBuddy 接力（ZCode → WorkBuddy handoff），分支 `feat/mvp02-global-source`。
 
 ## Current
 
-- Phase: RC AUDIT（GOAL_MVP01_RC_AUDIT.md PHASE A–AM 全部执行完毕）
-- Status: **MVP01_DEV_CLOSEOUT = PASS**（当前环境可执行 Gate 全部完成）
+- Phase: **MVP02 Global Source Abstraction**（ZCode→WorkBuddy 接力）
+- Status: Core 部分持续推进中；MVP01_DEV_CLOSEOUT = PASS 保持
 - Real Data Gate: NOT_RUN（固定）
-- 详细报告：MVP01_RC_AUDIT_REPORT.md
+- 详细报告：MVP01_RC_AUDIT_REPORT.md / WORKBUDDY_HANDOFF_AUDIT.md
 
 ## Current quality state
 
 - format:check PASS（prettier 3.9.6）
 - lint PASS（eslint 10 typed，0 errors/0 warnings）
 - typecheck PASS（strict 全开，0 errors）
-- tests：**166/166 PASS，0 skip**（15 文件；determinism/idempotency/负向/fuzz/perf 均已补齐）
-- architecture check PASS；secret scan PASS（0 production secrets）
+- tests：**253/253 PASS，0 skip**（21 文件）
+  - MVP01 存量 166 → +12（SourceInstance 隔离 B/C）→ +6（Coverage Semantics H）
+  - → +20（Generic CSV E）→ +15（OFX/QFX F）→ +17（payload v2/v1 J）→ +9（multi-source E2E K）
+- architecture check PASS（35 files）；secret scan PASS（233 files，0 production secrets）
 - coverage：crypto 98.7% / impact 92.4% / parser 96.9% / repos 93.3% / services 93.6% / schema 100%
 - clean install + clean clone 模拟：npm ci → npm run check 全绿复现
+
+## MVP02 进度（Gate 级）
+
+| 段 | 内容 | 状态 |
+|---|---|---|
+| A/B/C | Schema v2 迁移 + SourceInstance 隔离 | PASS（14 + 12 用例） |
+| D | EvidenceSourceAdapter 契约 | PASS（H0/H0b） |
+| E | Generic CSV Adapter（10 fixture） | PASS（20 用例） |
+| F | OFX/QFX Adapter（8 fixture） | PASS（15 用例） |
+| G | Multi-source Evidence provenance | PASS（K1b/K1c/K2） |
+| H | Coverage Semantics（absence 不否定现实） | PASS（6 用例） |
+| J | `.depmap` payload v2 + v1 in-memory migrate | PASS（17 用例） |
+| K | multi-source synthetic E2E 全链路 | PASS（9 用例） |
+| L | quality gates 全绿 | PASS |
+| — | `MVP02_FINAL_REPORT.md` | 未开始 |
+| — | docs/ 八份 MVP02 文档 | 未开始 |
+| — | A 段补测 T4/T5/T6/T10 | 部分未开始 |
+
+## 本轮修复的生产缺陷（均有回归测试）
+
+1. `generic-csv/adapter.ts` — `matchFormat()` 永远无法匹配任何日期格式。
+   token 替换成 `(\d{4})` 后又对整个字符串做正则转义，捕获组被破坏为
+   `\(\d\{4\}\)`。所有映射 CSV 的每一行都静默变成 bad date，产出 0 条观测。
+   改为先切分字面量/token、只转义字面量、再拼装。
+2. `generic-csv/adapter.ts` — `positiveDirection` 声明了但从未生效。
+   `signed` 模式硬编码符号判定，导致"消费记为正数"的发卡行导出一律方向反转。
+   现按显式声明判定；零金额记为 `neutral`，绝不猜。
+3. `ofx/adapter.ts` — `parseOfxAmount('')` 返回 0。
+   `Number('') === 0` 且通过 `Number.isFinite`，缺失金额被伪造为 0 元交易。
+4. `services/import-coordinator.ts` — 批内重复指纹触发假冲突。
+   `insertBatch` 在批内去重，但 preview 只查 DB；含重复 FITID 的真实账单
+   会整体导入失败。preview 现严格对齐 insertBatch 语义。
+
+## 仓库运维注意（重要）
+
+`feat/mvp02-global-source` 分支的 loose ref 文件（`.git/refs/heads/feat/`）
+在本工作区会被外部进程反复删除，导致 git 把已有提交误判为 root commit、
+分支看似"无提交"。所有 commit 对象本身始终完好。
+**规避方式：分支 ref 固化在 `.git/packed-refs`（单文件，不受影响）。**
+若再次出现"branch has no commits"，从 reflog 找回哈希后重写 packed-refs 即可，
+**不要**执行任何 `git reset --hard` / `git clean`。
 
 ## Platform Matrix
 
@@ -40,6 +84,13 @@
 - Synthetic E2E: TESTED（9 用例）+ 导入事务性（AE 注入失败用例）
 - Correctness Gate: **NOT_RUN**；Value Gate: **NOT_RUN**
 
+## Last completed（MVP02 接力轮）
+
+- K 段：multi-source synthetic E2E（9 用例，含 ×20 确定性、单流重提阈值、多源不产生 must_change）
+- J 段：payload v2 往返/幂等/原子失败 + v1 in-memory migrate（17 用例，变异测试验证非空断言）
+- 修复 4 个生产缺陷（见上）；E 段 20 + F 段 15 用例；新增 18 份 fixture
+- 变异测试验证：J/K 用例在人为破坏实现后全部变红，证明非空测试
+
 ## Last completed（RC 轮）
 
 - PHASE AM：MVP01_RC_AUDIT_REPORT.md + RC_ACCEPTANCE/QUALITY_GATES/MVP_ACCEPTANCE 更新
@@ -59,7 +110,14 @@
 
 ## Next
 
-1. B1 → Android golden 测试 + 编译（docs/ANDROID_TOOLCHAIN_SETUP.md）
-2. B10 → HBuilderX 基座 → UI 编译 + 真机 spike
-3. B3 → docs/IOS_MAC_HANDOFF.md
-4. B13 → 真实账单双 Gate（core/scripts/validate-real-bill.ts 已验证可用）
+1. 生成 `MVP02_FINAL_REPORT.md`（Core 侧已具备全部证据）
+2. docs/ 八份 MVP02 文档：SOURCE_ARCHITECTURE / SOURCE_INSTANCE / GENERIC_CSV_ADAPTER /
+   OFX_QFX_ADAPTER / SCHEMA_V2 / MIGRATION_V1_V2 / MULTISOURCE_EVIDENCE / TEST_MATRIX_MVP02
+3. A 段补测：T4（已迁移且有数据的库上 ×50）、T5（legacy dedupe retained）、
+   T6（evidenceId→evidenceRefs）、T10（old payload v1 migration path）
+4. 性能 smoke 扩展：10k CSV rows / 10k OFX / 3 SourceInstances
+5. 调查：`verificationBasis` 写入回读断言补充
+6. B1 → Android golden 测试 + 编译（docs/ANDROID_TOOLCHAIN_SETUP.md）
+7. B10 → HBuilderX 基座 → UI 编译 + 真机 spike
+8. B3 → docs/IOS_MAC_HANDOFF.md
+9. B13 → 真实账单双 Gate（core/scripts/validate-real-bill.ts 已验证可用）
