@@ -13,9 +13,6 @@ import type { Observation, ObservationDirection } from '../../domain/types.ts'
  * - 不持久化：Observation 仅存在于导入会话内存
  */
 
-export const WECHAT_PARSER_ID = 'wechat'
-export const WECHAT_PARSER_VERSION = 1
-
 export interface ParseError {
   line: number
   reason: string

@@ -1,5 +1,4 @@
 import { createDepmapContainer, type DepmapContainerResult } from './depmap.ts'
-import { toBase64 } from './depmap.ts'
 
 /**
  * DEPMAP_CONTAINER_V1 Golden Test Vector (GOAL_MVP01 §8.2)
@@ -41,17 +40,3 @@ export async function createGoldenContainer(): Promise<DepmapContainerResult> {
     nonce: goldenNonce(),
   })
 }
-
-/** 供文档/跨端测试导出的固定容器 JSON（canonical JCS 序列化）。 */
-export const GOLDEN_CONTAINER_JSON =
-  '{"cipher":{"algorithm":"AES-256-GCM","nonce":"' +
-  toBase64(goldenNonce()) +
-  '","ciphertext":"' +
-  GOLDEN_EXPECTED.ciphertextBase64 +
-  '","format":"depmap","formatVersion":1,"kdf":{"algorithm":"argon2id","iterations":3,"memoryKiB":65536,"parallelism":1,"salt":"' +
-  toBase64(goldenSalt()) +
-  '","version":19},"tag":"' +
-  GOLDEN_EXPECTED.tagBase64 +
-  '"}'
-
-void GOLDEN_CONTAINER_JSON

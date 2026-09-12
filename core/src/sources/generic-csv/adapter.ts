@@ -10,37 +10,6 @@ import type { EvidenceSourceAdapter, SourceContext, SourceInput } from '../types
 
 export class MissingMappingError extends Error {}
 
-/** RFC4180 风格单行解析（引号内分隔符/换行由上层按完整文件处理）。 */
-export function parseCsvCells(line: string, delimiter: string): string[] {
-  const cells: string[] = []
-  let cur = ''
-  let inQuotes = false
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i]
-    if (inQuotes) {
-      if (ch === '"') {
-        if (line[i + 1] === '"') {
-          cur += '"'
-          i++
-        } else {
-          inQuotes = false
-        }
-      } else {
-        cur += ch
-      }
-    } else if (ch === '"') {
-      inQuotes = true
-    } else if (ch === delimiter) {
-      cells.push(cur)
-      cur = ''
-    } else {
-      cur += ch
-    }
-  }
-  cells.push(cur)
-  return cells
-}
-
 /** 解析完整 CSV（支持引号内换行）。 */
 export function parseCsv(text: string, delimiter: string): string[][] {
   const rows: string[][] = []

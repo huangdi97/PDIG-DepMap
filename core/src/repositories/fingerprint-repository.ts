@@ -1,4 +1,3 @@
-import type { ObservationFingerprintRecord } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { nowIso } from '../utils/ids.ts'
 
@@ -80,19 +79,4 @@ export class FingerprintRepository {
       .get(sourceInstanceId)
     return Number(row?.c ?? 0)
   }
-}
-
-/** legacy 形状兼容（MVP01 调用点）。 */
-export function toScopedRecords(
-  records: ObservationFingerprintRecord[],
-  sourceInstanceId: string,
-): ScopedFingerprintRecord[] {
-  return records.map((r) => ({
-    fingerprint: r.fingerprint,
-    sourceInstanceId,
-    source: r.source,
-    fingerprintVersion: r.fingerprintVersion,
-    importSessionId: r.importSessionId,
-    firstSeenAt: r.firstSeenAt,
-  }))
 }

@@ -1,6 +1,5 @@
 import { createHmac, createHash } from 'node:crypto'
 import type { Observation } from '../domain/types.ts'
-import type { NormalizedPaymentObservation } from '../domain/source.ts'
 
 /**
  * ObservationFingerprint v2 —— source-scoped（GOAL MVP02 §8）。
@@ -119,10 +118,3 @@ export function assignFingerprints(
   )
 }
 
-/** Normalized 观测便捷入口。 */
-export function assignFingerprintsFromNormalized(
-  fpSecret: string,
-  observations: readonly NormalizedPaymentObservation[],
-): FingerprintAssignment[] {
-  return assignFingerprintsV2(fpSecret, observations)
-}
