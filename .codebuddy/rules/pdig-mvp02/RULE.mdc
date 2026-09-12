@@ -1,0 +1,29 @@
+---
+description: PDIG MVP02 handoff correctness and execution rules
+alwaysApply: true
+enabled: true
+---
+
+# PDIG MVP02 WorkBuddy Rule
+
+Resume-first:
+先读 WORK_STATUS、Git 状态和测试结果。禁止从零重建，禁止覆盖 ZCode 已完成且正确的实现。
+
+Correctness:
+- Proposal cannot become Reality without allowed verification.
+- File adapters are event_stream.
+- Missing observations cannot retire confirmed Reality.
+- Different SourceInstances must not share fingerprint namespace.
+- Multi-source evidence adds provenance, not certainty.
+- No machine inference may set criticality=required.
+- DEPMAP_CONTAINER_V1 must remain compatible.
+
+Development:
+- never delete/skip tests to make green
+- preserve strict TypeScript
+- focused test then full regression
+- update WORK_STATUS before ending a run
+
+Scope:
+Only MVP02 Global Source Abstraction.
+Do not implement RealityDrift, IncidentPlan, Browser Discovery, Open Banking, AI/LLM, cloud sync or other backlog work.
