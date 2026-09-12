@@ -1,0 +1,13 @@
+继续执行 GOAL_MVP02_GLOBAL_SOURCE.md。
+
+先读取：
+- WORK_STATUS.md
+- MVP02_ACCEPTANCE.md
+- BLOCKERS.md
+- MVP02_FINAL_REPORT.md（若存在）
+
+从第一个未完成 Gate 继续，不重复已完成工作，不进入 NEXT_BACKLOG.md 的功能。
+
+优先保证：Schema v2 migration、SourceInstance、fingerprint scope、multi-source Evidence、Generic CSV、OFX/QFX、MVP01 regression、DEPMAP_CONTAINER_V1 compatibility 和全套 quality gates。
+
+继续实际修改、测试、修复，直到 MVP02_FINAL_REPORT.md 给出最终 verdict。

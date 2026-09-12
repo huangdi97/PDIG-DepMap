@@ -1,0 +1,42 @@
+请开始执行当前 Workspace 的 MVP02：Global Source Abstraction Validation。
+
+先完整读取：
+AGENTS.md
+CANONICAL_DESIGN.md
+MVP_ACCEPTANCE.md
+MVP01_RC_AUDIT_REPORT.md
+WORK_STATUS.md
+BLOCKERS.md
+MVP02_ARCHITECTURE_FREEZE.md
+SCHEMA_V2_MIGRATION_SPEC.md
+SOURCE_ADAPTER_CONTRACT.md
+MVP02_TEST_MATRIX.md
+MVP02_ACCEPTANCE.md
+GOAL_MVP02_GLOBAL_SOURCE.md
+
+本轮不要重复做上一轮 RC-AUDIT，也不要进入 RealityDrift/Incident/Discovery 等后续功能。
+
+核心目标：
+1. Schema v1→v2；
+2. SourceInstance；
+3. EvidenceSourceAdapter；
+4. Fingerprint source scope；
+5. multi-source evidenceRefs；
+6. RelationDefinitionRegistry；
+7. WeChat Adapter 化；
+8. Generic CSV；
+9. OFX/QFX；
+10. 三个 Source Adapter 共用同一 pipeline；
+11. MVP01 regression 全绿；
+12. DEPMAP_CONTAINER_V1 不改变。
+
+Real Data 本轮仍保持 NOT_RUN，禁止 synthetic 冒充真实数据。
+
+按 failing test → implementation → regression → quality gates → docs 连续执行，不要每步停下来问我。
+
+普通 migration/test/type/build bug 不是 Blocker，自己解决。平台 SDK/设备/签名等外部条件可记录，但不得停止 Core MVP02。
+
+最终必须生成 MVP02_FINAL_REPORT.md，并明确：
+MVP02_GLOBAL_SOURCE_ABSTRACTION = PASS/FAIL
+
+现在从 MVP02_PRE_AUDIT 和 Schema v2 failing tests 开始。
