@@ -24,8 +24,10 @@
 ## 自动化保障
 
 - eslint `no-explicit-any` / `no-unsafe-*` / `no-non-null-assertion` 全部 error 级（见 `core/eslint.config.js`）。
-- tsc strict 全开 + `noUncheckedIndexedAccess`（`core/tsconfig.json`）。
-- `exactOptionalPropertyTypes`：评估为 false（uni-app/UTS 周边类型定义未按该模式维护，开启收益不抵迁移成本；Core 内部未依赖 optional property 赋值语义）。保留为已知决策，非疏漏。
+- tsc strict 全开 + `noUncheckedIndexedAccess` + **`exactOptionalPropertyTypes`（本轮实测开启）**：
+  开启暴露 8 处真实问题（数据记录类型的 optional 字段被显式 `undefined` 赋值），已全部修复
+  （domain/source.ts、fingerprint.ts 输入类型、ofx OfxTransaction、evidence 输入），修复后 324 tests 全绿。
+  `useUnknownInCatchVariables` 由 strict 蕴含已开启。
 
 ## 关键路径 type-safe 声明
 

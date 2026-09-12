@@ -9,13 +9,13 @@ import type { EvidenceSourceAdapter, SourceContext, SourceInput } from '../types
  */
 
 interface OfxTransaction {
-  fitid?: string
-  dtposted?: string
-  trnamt?: string
-  trntype?: string
-  name?: string
-  memo?: string
-  currency?: string
+  fitid?: string | undefined
+  dtposted?: string | undefined
+  trnamt?: string | undefined
+  trntype?: string | undefined
+  name?: string | undefined
+  memo?: string | undefined
+  currency?: string | undefined
 }
 
 /** OFX v1 是 SGML 风格：<TAG>VALUE 成对出现，可能带 </TAG>。 */

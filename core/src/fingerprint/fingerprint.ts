@@ -37,14 +37,14 @@ export function normalizeDescription(description: string): string {
 interface FingerprintObservationInput {
   adapterId: string
   sourceInstanceId: string
-  sourceTxnId?: string | null
+  sourceTxnId?: string | null | undefined
   occurredAt: string
   amount: number
   direction: string
-  description?: string
-  counterparty?: string
-  currency?: string
-  transactionType?: string
+  description?: string | undefined
+  counterparty?: string | undefined
+  currency?: string | undefined
+  transactionType?: string | undefined
 }
 
 function canonicalRowOf(obs: FingerprintObservationInput, signedAmount: number): string {

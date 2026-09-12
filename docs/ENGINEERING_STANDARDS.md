@@ -31,8 +31,8 @@
   unused / floating promises / misused promises / unsafe any 全家 / non-null assertion /
   no-empty-catch / switch fallthrough / eqeqeq / no-console。
 - 整文件 eslint-disable 禁止（无生成代码；无文件级豁免）。
-- tsc：strict 全开 + `noUncheckedIndexedAccess` + `noImplicitReturns` + `noFallthroughCasesInSwitch`。
-  `exactOptionalPropertyTypes` 评估结论：false（见 TYPE_SAFETY_BASELINE）。
+- tsc：strict 全开 + `noUncheckedIndexedAccess` + `noImplicitReturns` + `noFallthroughCasesInSwitch`
+  + `exactOptionalPropertyTypes`（2026-09-13 实测开启，8 处真实问题已修复）。
 - 测试代码允许非空断言与部分 unsafe 规则（断言构造场景），其余同标准。
 
 ## 5. 错误模型

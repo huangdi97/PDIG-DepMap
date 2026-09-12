@@ -32,18 +32,18 @@ export interface SourceInstance {
   adapterVersion: number
   sourceKind: SourceKind
 
-  providerId?: string
-  accountNodeId?: string
+  providerId?: string | undefined
+  accountNodeId?: string | undefined
   label: string
 
-  country?: string
-  jurisdiction?: string
-  currencies?: string[]
+  country?: string | undefined
+  jurisdiction?: string | undefined
+  currencies?: string[] | undefined
 
   state: 'active' | 'retired'
   createdAt: string
   updatedAt: string
-  lastIngestedAt?: string
+  lastIngestedAt?: string | undefined
 }
 
 /** MVP02 的三个文件 Adapter 共用的 deterministic legacy/默认实例工厂参数。 */
@@ -52,12 +52,12 @@ export interface CreateSourceInstanceInput {
   adapterId: string
   adapterVersion: number
   sourceKind: SourceKind
-  providerId?: string
-  accountNodeId?: string
+  providerId?: string | undefined
+  accountNodeId?: string | undefined
   label: string
-  country?: string
-  jurisdiction?: string
-  currencies?: string[]
+  country?: string | undefined
+  jurisdiction?: string | undefined
+  currencies?: string[] | undefined
 }
 
 // ---------------------------------------------------------------------------
@@ -70,21 +70,21 @@ export interface NormalizedPaymentObservation {
   sourceInstanceId: string
   adapterId: string
   /** 仅存在于会话内存/指纹输入，绝不持久化明文 */
-  sourceTxnId?: string
+  sourceTxnId?: string | undefined
   occurredAt: string
   amount: number
-  currency?: string
+  currency?: string | undefined
   direction: ObservationDirectionV2
-  description?: string
-  counterparty?: string
-  balance?: number
-  transactionType?: string
+  description?: string | undefined
+  counterparty?: string | undefined
+  balance?: number | undefined
+  transactionType?: string | undefined
   /** 如“招商银行信用卡(4417)”——仅作为 Node Resolution 提示 */
-  paymentMethodHint?: string
+  paymentMethodHint?: string | undefined
   /** 商户/交易对方原始描述（Node Resolution 输入） */
-  merchantRaw?: string
-  status?: string
-  note?: string
+  merchantRaw?: string | undefined
+  status?: string | undefined
+  note?: string | undefined
 }
 
 // ---------------------------------------------------------------------------

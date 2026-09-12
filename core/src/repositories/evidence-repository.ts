@@ -29,7 +29,7 @@ export interface AccumulateEvidenceInput {
   sourceInstanceId: string
   adapterId: string
   adapterVersion: number
-  evidenceKind?: string
+  evidenceKind?: string | undefined
   sourceType: string
   parserId: string
   parserVersion: number

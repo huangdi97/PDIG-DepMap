@@ -15,7 +15,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:perf": "vitest run tests/perf",
-    "test:stability": "vitest run --repeat 3",
+    "test:stability": "node scripts/test-stability.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

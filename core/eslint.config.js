@@ -15,6 +15,7 @@ export default tseslint.config(
       'coverage',
       'dist',
       'reports',
+      '.stryker-tmp/**',
       'tests/fixtures/**',
       'eslint.config.js',
       'stryker.conf.mjs',
