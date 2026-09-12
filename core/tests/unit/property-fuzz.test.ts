@@ -71,6 +71,7 @@ function buildRandomGraph(
       lastVerifiedAt: 't',
       retiredAt: state === 'retired' ? 't' : null,
       evidenceRefs: [],
+      verificationBasis: null,
       createdAt: 't',
       updatedAt: 't',
     })
@@ -94,6 +95,7 @@ function buildRandomGraph(
         state: 'active',
         confirmedAt: 't',
         lastVerifiedAt: 't',
+        verificationBasis: null,
         createdAt: 't',
         updatedAt: 't',
       })
@@ -193,7 +195,10 @@ describe('Property/Fuzz Smoke (RC PHASE K)', () => {
         status: '支付成功',
         note: '',
       }))
-      const fps = assignFingerprints('fuzz-secret', obs)
+      const fps = assignFingerprints('fuzz-secret', obs, {
+        adapterId: 'wechat_statement',
+        sourceInstanceId: 'inst-fuzz',
+      })
       // 同一 merchant/time 的重复 canonical 行获得 ordinal → 30 条观测 30 个指纹
       const unique = new Set(fps.map((f) => f.fingerprint))
       expect(unique.size).toBe(30)
@@ -250,9 +255,21 @@ describe('Property/Fuzz Smoke (RC PHASE K)', () => {
         '2026-02-15 08:30:00,商户消费,腾讯视频,VIP,支出,¥25.00,招商银行信用卡(4417),支付成功,T2',
       ].join('\r\n'),
     )
-    const expected = JSON.stringify(assignFingerprints('s', parseBill(raw).observations))
+    const expected = JSON.stringify(
+      assignFingerprints('s', parseBill(raw).observations, {
+        adapterId: 'wechat_statement',
+        sourceInstanceId: 'inst-fuzz',
+      }),
+    )
     for (let i = 0; i < 10; i++) {
-      expect(JSON.stringify(assignFingerprints('s', parseBill(raw).observations))).toBe(expected)
+      expect(
+        JSON.stringify(
+          assignFingerprints('s', parseBill(raw).observations, {
+            adapterId: 'wechat_statement',
+            sourceInstanceId: 'inst-fuzz',
+          }),
+        ),
+      ).toBe(expected)
     }
   })
 

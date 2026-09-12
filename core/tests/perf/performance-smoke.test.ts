@@ -58,6 +58,7 @@ function chainGraph(n: number): Dependency[] {
     lastVerifiedAt: 't',
     retiredAt: null,
     evidenceRefs: [],
+    verificationBasis: null,
     createdAt: 't',
     updatedAt: 't',
   }))
@@ -78,6 +79,7 @@ function ringGraph(n: number): Dependency[] {
     lastVerifiedAt: 't',
     retiredAt: null,
     evidenceRefs: [],
+    verificationBasis: null,
     createdAt: 't',
     updatedAt: 't',
   }))
@@ -99,14 +101,17 @@ describe('Performance Smoke (RC PHASE L/AF)', () => {
   it('10k fingerprints < 10s', () => {
     const parsed = parseWechatBill(buildBillCsv(10000))
     const t0 = performance.now()
-    const fps = assignFingerprints('perf-secret', parsed.observations)
+    const fps = assignFingerprints('perf-secret', parsed.observations, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'perf-instance',
+    })
     const ms = performance.now() - t0
     results.push({ name: 'fingerprint 10k', ms })
     expect(fps).toHaveLength(10000)
     expect(ms).toBeLessThan(10000)
   })
 
-  it('proposal generation（1k merchant × 10k 观测级数据流）< 15s', () => {
+  it('proposal generation（1k merchant × 10k 观测级数据流）< 15s', async () => {
     const dir = mkdtemp()
     const driver = new NodeSqliteDriver(join(dir, 'p.db'))
     driver.open()
@@ -116,10 +121,10 @@ describe('Performance Smoke (RC PHASE L/AF)', () => {
       const service = nodes.create({ kind: 'service', name: '批量商户500' })
       const flow = new ImportFlow(driver)
       const raw = buildBillCsv(2000)
-      flow.begin(raw)
+      await flow.begin(raw)
       flow.resolveMerchant('商户499', service.id)
       const t0 = performance.now()
-      flow.finalize()
+      await flow.finalize()
       const ms = performance.now() - t0
       results.push({ name: 'import+proposal finalize (2000 rows)', ms })
       expect(ms).toBeLessThan(15000)
@@ -209,6 +214,7 @@ describe('Performance Smoke (RC PHASE L/AF)', () => {
           lastVerifiedAt: 't',
           retiredAt: null,
           evidenceRefs: [],
+          verificationBasis: null,
           createdAt: 't',
           updatedAt: 't',
         })),

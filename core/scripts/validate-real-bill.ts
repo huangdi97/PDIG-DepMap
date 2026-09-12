@@ -1,29 +1,34 @@
 /**
- * 真实账单本地验证 CLI（GOAL §23 REAL DATA 流程）
+ * 真实账单本地验证 CLI（GOAL §23 REAL DATA 流程；MVP02 支持 WeChat/Generic CSV/OFX-QFX）
  *
  * 用法：
  *   cd core
  *   node --experimental-strip-types scripts/validate-real-bill.ts --file ../local_private/bill.csv
  *
  * 只读本地文件，不联网。真实账单文件必须放在 local_private/（已 gitignore）。
- * 真实账单内容绝不打印到日志；输出只含商户名/统计/影响清单（ Correctness Gate 人工审计用）。
+ * 真实账单内容绝不打印到日志；输出只含商户名/统计/影响清单（Correctness Gate 人工审计用）。
  */
 import { readFileSync, existsSync, mkdirSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { join, dirname, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { NodeSqliteDriver } from '../src/db/node-driver.ts'
 import { migrate } from '../src/schema/migrations.ts'
 import { NodeRepository } from '../src/repositories/node-repository.ts'
+import { SourceInstanceRepository } from '../src/repositories/source-instance-repository.ts'
 import { DependencyRepository } from '../src/repositories/dependency-repository.ts'
 import { DependencyGroupRepository } from '../src/repositories/group-repository.ts'
-import { ImportFlow } from '../src/services/import-pipeline.ts'
+import { ImportCoordinator } from '../src/services/import-coordinator.ts'
 import { ConfirmationService } from '../src/services/confirmation-service.ts'
 import { simulateDisable } from '../src/impact/kernel.ts'
+import { WeChatStatementAdapter } from '../src/sources/wechat/adapter.ts'
+import { GenericCsvAdapter } from '../src/sources/generic-csv/adapter.ts'
+import { OfxQfxAdapter } from '../src/sources/ofx/adapter.ts'
+import type { EvidenceSourceAdapter } from '../src/sources/types.ts'
 
 const args = process.argv.slice(2)
 const fileIdx = args.indexOf('--file')
 if (fileIdx === -1 || !args[fileIdx + 1]) {
-  console.error('usage: --file <path-to-csv>')
+  console.error('usage: --file <path-to-statement>')
   process.exit(1)
 }
 const billPath = args[fileIdx + 1]!
@@ -44,26 +49,57 @@ const nodes = new NodeRepository(driver)
 const deps = new DependencyRepository(driver)
 const groups = new DependencyGroupRepository(driver)
 const confirm = new ConfirmationService(driver)
-const flow = new ImportFlow(driver)
+const sourceInstances = new SourceInstanceRepository(driver)
+const coordinator = new ImportCoordinator(driver)
 
-const begin = flow.begin(raw)
-console.log(`解析完成：${begin.rawCount} 行，${begin.errors.length} 个坏行`)
+// Adapter 选择：按扩展名/canHandle deterministic 判定
+const wechat = new WeChatStatementAdapter(driver)
+const csv = new GenericCsvAdapter()
+const ofx = new OfxQfxAdapter()
+
+async function pickAdapter(): Promise<EvidenceSourceAdapter> {
+  const ext = extname(billPath).toLowerCase()
+  if (ext === '.ofx' || ext === '.qfx') return ofx
+  const input = { data: raw }
+  const scores = await Promise.all([
+    wechat.canHandle(input),
+    csv.canHandle(input),
+    ofx.canHandle(input),
+  ])
+  const best = Math.max(...scores)
+  if (best === scores[0] && best > 0.5) return wechat
+  if (best === scores[2] && best > 0.5) return ofx
+  if (best === scores[1] && best > 0.5) return csv
+  console.error('无法识别账单格式（也未提供 --mapping）；退出。')
+  process.exit(1)
+}
+
+const adapter = await pickAdapter()
+const instance = sourceInstances.create({
+  adapterId: adapter.id,
+  adapterVersion: adapter.version,
+  sourceKind: 'statement_file',
+  label: billPath.split(/[\\/]/).pop() ?? 'CLI Statement',
+})
+
+const begin = await coordinator.begin(instance.id, adapter, { data: raw })
+console.log(
+  `解析完成：${begin.rawCount} 行，${begin.errors.length} 个坏行（adapter=${adapter.id}）`,
+)
 
 // CLI 简化：无候选商户自动创建 service 节点（等效“用户确认创建”，人工审计时复核）
-const serviceNameToId = new Map<string, string>()
 for (const c of begin.candidates) {
   if (c.resolution === 'auto' && c.resolvedNodeId) continue
   const existing = nodes.findByName(c.merchantRaw)
   if (existing.length === 1) {
-    flow.resolveMerchant(c.merchantRaw, existing[0]!.id)
+    coordinator.resolveMerchant(c.merchantRaw, existing[0]!.id)
   } else {
     const n = nodes.create({ kind: 'service', name: c.merchantRaw })
-    serviceNameToId.set(c.merchantRaw, n.id)
-    flow.resolveMerchant(c.merchantRaw, n.id)
+    coordinator.resolveMerchant(c.merchantRaw, n.id)
   }
 }
 
-const outcome = flow.finalize()
+const outcome = await coordinator.finalize()
 console.log(`新观测 ${outcome.newUniqueCount}，重复 ${outcome.duplicateCount}`)
 console.log(`识别周期项：${outcome.recurrences.length}`)
 for (const r of outcome.recurrences) {

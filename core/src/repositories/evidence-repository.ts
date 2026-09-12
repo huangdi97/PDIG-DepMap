@@ -1,11 +1,16 @@
 import type { Evidence } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
+import { unknownToString } from './meta-repository.ts'
 
 function rowToEvidence(row: Record<string, unknown>): Evidence {
   return {
     id: String(row.id),
     proposalKey: String(row.proposal_key),
+    sourceInstanceId: String(row.source_instance_id),
+    adapterId: String(row.adapter_id),
+    adapterVersion: Number(row.adapter_version),
+    evidenceKind: unknownToString(row.evidence_kind ?? 'transaction_stream', 'transaction_stream'),
     sourceType: String(row.source_type),
     parserId: String(row.parser_id),
     parserVersion: Number(row.parser_version),
@@ -20,6 +25,11 @@ function rowToEvidence(row: Record<string, unknown>): Evidence {
 
 export interface AccumulateEvidenceInput {
   proposalKey: string
+  /** Schema v2：Evidence 按 SourceInstance 分流（同一 proposal 多 provenance） */
+  sourceInstanceId: string
+  adapterId: string
+  adapterVersion: number
+  evidenceKind?: string
   sourceType: string
   parserId: string
   parserVersion: number
@@ -32,9 +42,9 @@ export interface AccumulateEvidenceInput {
 }
 
 /**
- * Evidence 是累计摘要，不是账本 (AGENTS §12 / CANONICAL §5.7)：
- * - 只累计新 unique observations
- * - firstObservedAt = min(old,new)，lastObservedAt = max(old,new)
+ * Evidence v2 —— 每个 (proposalKey, sourceInstanceId) 一条累计摘要流。
+ * 同一现实候选的不同数据源保持独立计数，禁止粗暴相加驱动决策（GOAL MVP02 §9/§24）。
+ * 仍是累计摘要而非账本：first=min / last=max / count 只加不减。
  */
 export class EvidenceRepository {
   private readonly driver: SqliteDriver
@@ -50,6 +60,21 @@ export class EvidenceRepository {
     return row ? rowToEvidence(row) : null
   }
 
+  /** 指定 proposal 的全部证据流（多源 provenance）。 */
+  listByProposalKey(proposalKey: string): Evidence[] {
+    return this.driver
+      .prepare(`SELECT * FROM evidence WHERE proposal_key = ? ORDER BY created_at, id`)
+      .all(proposalKey)
+      .map(rowToEvidence)
+  }
+
+  getByProposalKeyAndInstance(proposalKey: string, sourceInstanceId: string): Evidence | null {
+    const row = this.driver
+      .prepare(`SELECT * FROM evidence WHERE proposal_key = ? AND source_instance_id = ?`)
+      .get(proposalKey, sourceInstanceId)
+    return row ? rowToEvidence(row) : null
+  }
+
   getById(id: string): Evidence | null {
     const row = this.driver.prepare(`SELECT * FROM evidence WHERE id = ?`).get(id)
     return row ? rowToEvidence(row) : null
@@ -58,17 +83,21 @@ export class EvidenceRepository {
   accumulate(input: AccumulateEvidenceInput): { evidence: Evidence; created: boolean } {
     return this.driver.transaction(() => {
       const now = nowIso()
-      const existing = this.getByProposalKey(input.proposalKey)
+      const existing = this.getByProposalKeyAndInstance(input.proposalKey, input.sourceInstanceId)
       if (!existing) {
         const id = newId()
         this.driver
           .prepare(
-            `INSERT INTO evidence (id, proposal_key, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO evidence (id, proposal_key, source_instance_id, adapter_id, adapter_version, evidence_kind, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           )
           .run(
             id,
             input.proposalKey,
+            input.sourceInstanceId,
+            input.adapterId,
+            input.adapterVersion,
+            input.evidenceKind ?? 'transaction_stream',
             input.sourceType,
             input.parserId,
             input.parserVersion,
@@ -91,7 +120,7 @@ export class EvidenceRepository {
           : existing.lastObservedAt
       this.driver
         .prepare(
-          `UPDATE evidence SET last_import_session_id = ?, first_observed_at = ?, last_observed_at = ?, observation_count = observation_count + ?, parser_version = ?, updated_at = ?
+          `UPDATE evidence SET last_import_session_id = ?, first_observed_at = ?, last_observed_at = ?, observation_count = observation_count + ?, parser_version = ?, adapter_version = ?, updated_at = ?
            WHERE id = ?`,
         )
         .run(
@@ -100,6 +129,7 @@ export class EvidenceRepository {
           last,
           input.newObservations,
           input.parserVersion,
+          input.adapterVersion,
           now,
           existing.id,
         )

@@ -7,7 +7,8 @@ import type {
 } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
-import { optionalString } from './meta-repository.ts'
+import { optionalString, unknownToString } from './meta-repository.ts'
+import type { VerificationBasis } from '../domain/source.ts'
 
 export interface ConfirmDependencyInput {
   from: string
@@ -19,6 +20,12 @@ export interface ConfirmDependencyInput {
   origin?: DependencyOrigin
   groupId?: string | null
   evidenceRefs?: string[]
+  /**
+   * MVP02 §11：Reality 是如何被验证的。
+   * 省略时默认 `user_confirmed`（手工添加/用户确认路径）；
+   * `authoritative_source` 仅在适配器声明 authoritativeFor 后才允许使用。
+   */
+  verificationBasis?: VerificationBasis
   id?: string
 }
 
@@ -45,6 +52,10 @@ function rowToDependency(row: Record<string, unknown>): Dependency {
     lastVerifiedAt: String(row.last_verified_at),
     retiredAt: optionalString(row.retired_at as never),
     evidenceRefs: parseJsonArray(row.evidence_refs_json),
+    verificationBasis: parseVerificationBasis(
+      row.verification_basis_type,
+      row.verification_basis_json,
+    ),
     createdAt: String(row.created_at),
     updatedAt: String(row.updated_at),
   }
@@ -118,13 +129,18 @@ export class DependencyRepository {
   confirm(input: ConfirmDependencyInput): ConfirmDependencyResult {
     return this.driver.transaction(() => {
       const now = nowIso()
+      // MVP02 §11：Dependency 存在即已确认。省略 basis 时按 user_confirmed 处理；
+      // authoritative_source 只有在适配器显式声明 authoritativeFor 后才允许出现。
+      const basis = input.verificationBasis ?? { type: 'user_confirmed', verifiedAt: now }
+      const basisType = basis.type
+      const basisJson = JSON.stringify(basis)
       const existing = this.findByLogicalKey(input.from, input.relation, input.to, input.capability)
       if (!existing) {
         const id = input.id ?? newId()
         this.driver
           .prepare(
-            `INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, NULL, ?, ?, ?)`,
+            `INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, verification_basis_type, verification_basis_json, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?, ?, ?, NULL, ?, ?, ?, ?, ?)`,
           )
           .run(
             id,
@@ -138,6 +154,8 @@ export class DependencyRepository {
             now,
             now,
             JSON.stringify(input.evidenceRefs ?? []),
+            basisType,
+            basisJson,
             now,
             now,
           )
@@ -150,7 +168,7 @@ export class DependencyRepository {
         const criticality = input.criticality ?? existing.criticality
         this.driver
           .prepare(
-            `UPDATE dependencies SET last_verified_at = ?, evidence_refs_json = ?, criticality = ?, group_id = COALESCE(?, group_id), updated_at = ?
+            `UPDATE dependencies SET last_verified_at = ?, evidence_refs_json = ?, criticality = ?, group_id = COALESCE(?, group_id), verification_basis_type = ?, verification_basis_json = ?, updated_at = ?
              WHERE id = ?`,
           )
           .run(
@@ -158,6 +176,8 @@ export class DependencyRepository {
             JSON.stringify(mergedRefs),
             criticality,
             input.groupId ?? null,
+            basisType,
+            basisJson,
             now,
             existing.id,
           )
@@ -172,7 +192,7 @@ export class DependencyRepository {
       const mergedRefs = mergeUnique(existing.evidenceRefs, input.evidenceRefs ?? [])
       this.driver
         .prepare(
-          `UPDATE dependencies SET state = 'active', retired_at = NULL, confirmed_at = ?, last_verified_at = ?, evidence_refs_json = ?, criticality = ?, origin = ?, updated_at = ?
+          `UPDATE dependencies SET state = 'active', retired_at = NULL, confirmed_at = ?, last_verified_at = ?, evidence_refs_json = ?, criticality = ?, origin = ?, verification_basis_type = ?, verification_basis_json = ?, updated_at = ?
            WHERE id = ?`,
         )
         .run(
@@ -181,6 +201,8 @@ export class DependencyRepository {
           JSON.stringify(mergedRefs),
           input.criticality ?? existing.criticality,
           input.origin ?? existing.origin,
+          basisType,
+          basisJson,
           now,
           existing.id,
         )
@@ -224,6 +246,28 @@ export class DependencyRepository {
   countAll(): number {
     const row = this.driver.prepare(`SELECT COUNT(*) AS c FROM dependencies`).get()
     return Number(row?.c ?? 0)
+  }
+}
+
+function parseVerificationBasis(type: unknown, json: unknown): VerificationBasis | null {
+  if (type !== 'user_confirmed' && type !== 'authoritative_source') return null
+  if (type === 'user_confirmed') {
+    return { type: 'user_confirmed', verifiedAt: typeof json === 'string' ? json : '' }
+  }
+  try {
+    const parsed: unknown = JSON.parse(typeof json === 'string' ? json : '{}')
+    if (parsed !== null && typeof parsed === 'object') {
+      const obj = parsed as Record<string, unknown>
+      return {
+        type: 'authoritative_source',
+        sourceInstanceId: unknownToString(obj['sourceInstanceId']),
+        factType: unknownToString(obj['factType']),
+        verifiedAt: unknownToString(obj['verifiedAt']),
+      }
+    }
+    return null
+  } catch {
+    return null
   }
 }
 

@@ -1,353 +1,102 @@
-import type { ImportSession, Observation } from '../domain/types.ts'
-import { dependencyLogicalKey } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { NodeRepository } from '../repositories/node-repository.ts'
-import { DependencyProposalRepository } from '../repositories/proposal-repository.ts'
-import { EvidenceRepository } from '../repositories/evidence-repository.ts'
-import { FingerprintRepository } from '../repositories/fingerprint-repository.ts'
-import { ImportSessionRepository } from '../repositories/import-session-repository.ts'
-import { MetaRepository } from '../repositories/meta-repository.ts'
-import { assignFingerprints, FINGERPRINT_VERSION } from '../fingerprint/fingerprint.ts'
+import { SourceInstanceRepository } from '../repositories/source-instance-repository.ts'
 import {
-  WECHAT_PARSER_ID,
-  WECHAT_PARSER_VERSION,
-  parseWechatBill,
-} from '../parser/wechat/parser.ts'
-import { detectRecurrence } from '../parser/wechat/recurring.ts'
+  LEGACY_WECHAT_ADAPTER_ID,
+  LEGACY_WECHAT_ADAPTER_VERSION,
+  LEGACY_WECHAT_SOURCE_INSTANCE_ID,
+} from '../schema/migrations.ts'
+import { WeChatStatementAdapter } from '../sources/wechat/adapter.ts'
 import {
-  findBankCardNode,
-  parsePaymentMethod,
-  resolveMerchant,
-  type ResolvableEntity,
-} from '../resolver/resolver.ts'
+  ImportCoordinator,
+  type CoordinatorBeginResult,
+  type CoordinatorOutcome,
+} from './import-coordinator.ts'
 
-/**
- * 导入流程 — 三段式（匹配 CANONICAL §5.6：Resolution 完成才允许 Proposal）
- *
- *   begin(raw)
- *     → parse + fingerprint 计算 + 按商户分组 + 首次 Resolution 尝试
- *     → 返回 pendingResolutions（未解析商户等待用户创建/选择节点）
- *   resolveMerchant(merchantRaw, nodeId)   （用户确认，可多次）
- *   finalize()
- *     → 指纹批量入库（UNIQUE 去重）→ recurrence → Proposal upsert → evidence → session 完成
- *
- * 铁律：
- * - 原始账单只在内存；Observation 会话结束销毁，不持久化
- * - 指纹在 finalize 时落库：用户中途放弃不会丢失未来重提机会
- * - 未完成 Node Resolution 的商户不产生 Proposal
- * - 只持久化 Fingerprint / Evidence Summary / Proposal 状态 / ImportSession
- */
-
-export interface MerchantCandidate {
-  merchantRaw: string
-  /** begin 时已唯一解析到的节点（null = 需要用户确认） */
-  resolvedNodeId: string | null
-  /** begin 时已解析方式：'auto' | 'pending' */
-  resolution: 'auto' | 'pending'
-  observationCount: number
-  paymentMethods: string[]
-  firstObservedAt: string
-  lastObservedAt: string
-}
+export type { MerchantCandidate } from './import-coordinator.ts'
+export type { CoordinatorOutcome as ImportOutcome }
 
 export interface BeginImportResult {
-  session: ImportSession
+  session: CoordinatorBeginResult['session']
   rawCount: number
-  candidates: MerchantCandidate[]
-  errors: Array<{ line: number; reason: string }>
+  candidates: CoordinatorBeginResult['candidates']
+  errors: import('../parser/wechat/parser.ts').ParseError[]
 }
 
-export interface ImportOutcome {
-  session: ImportSession
-  newUniqueCount: number
-  duplicateCount: number
-  errorCount: number
-  /** 本次新创建/更新的 proposal keys */
-  proposalKeys: string[]
-  /** 仍未 resolution 的商户（finalize 时跳过） */
-  unresolvedMerchants: string[]
-  recurrences: Array<{
-    merchantRaw: string
-    period: string
-    confidence: number
-    occurrences: number
-    typicalAmount: number
-  }>
-}
-
+/**
+ * ImportFlow —— MVP01 兼容 facade（GOAL MVP02 §19：WeChat 只是其中一个 Adapter）。
+ * 内部委托 ImportCoordinator + WeChatStatementAdapter + deterministic legacy SourceInstance。
+ * Domain / coordinator 层不包含任何 wechat 特例。
+ */
 export class ImportFlow {
-  private session: ImportSession | null = null
-  private observations: Observation[] = []
-  private fingerprints: Array<{ fingerprint: string; stable: boolean }> = []
-  private candidates = new Map<string, MerchantCandidate>()
-  private manualResolutions = new Map<string, string>()
-  private parseErrors: Array<{ line: number; reason: string }> = []
-  private fpSecret: string
-
-  private nodes: NodeRepository
-  private proposals: DependencyProposalRepository
-  private evidence: EvidenceRepository
-  private fingerprintsRepo: FingerprintRepository
-  private sessions: ImportSessionRepository
-  private meta: MetaRepository
-
-  private readonly driver: SqliteDriver
+  private readonly coordinator: ImportCoordinator
+  private readonly nodes: NodeRepository
+  private readonly sourceInstances: SourceInstanceRepository
+  private readonly adapter: WeChatStatementAdapter
+  private begun = false
 
   constructor(driver: SqliteDriver) {
-    this.driver = driver
+    this.coordinator = new ImportCoordinator(driver)
     this.nodes = new NodeRepository(driver)
-    this.proposals = new DependencyProposalRepository(driver)
-    this.evidence = new EvidenceRepository(driver)
-    this.fingerprintsRepo = new FingerprintRepository(driver)
-    this.sessions = new ImportSessionRepository(driver)
-    this.meta = new MetaRepository(driver)
-    this.fpSecret = this.meta.getOrCreateFpSecret(() => randomHex32()).secret
+    this.sourceInstances = new SourceInstanceRepository(driver)
+    this.adapter = new WeChatStatementAdapter(driver)
   }
 
-  /** 阶段 1：解析 + 分组 + 首次 resolution 尝试。 */
-  begin(raw: Uint8Array): BeginImportResult {
-    if (this.session) throw new Error('flow already begun')
-    const parsed = parseWechatBill(raw)
-    const session = this.sessions.start({
-      sourceType: 'wechat_bill',
-      parserId: WECHAT_PARSER_ID,
-      parserVersion: WECHAT_PARSER_VERSION,
-    })
-    this.session = session
-    this.observations = parsed.observations
-    this.parseErrors = parsed.errors
-    this.fingerprints = assignFingerprints(this.fpSecret, parsed.observations)
-
-    // 按 merchantRaw 分组（只统计 non-empty）
-    const groups = new Map<string, Observation[]>()
-    for (const obs of this.observations) {
-      if (obs.merchantRaw === '') continue
-      const list = groups.get(obs.merchantRaw) ?? []
-      list.push(obs)
-      groups.set(obs.merchantRaw, list)
-    }
-
-    const entities = this.resolvableEntities()
-    for (const [merchantRaw, obsList] of groups) {
-      const result = resolveMerchant(merchantRaw, entities)
-      const methods = [
-        ...new Set(obsList.map((o) => o.paymentMethodRaw).filter((m) => m !== '')),
-      ].sort()
-      const times = obsList.map((o) => o.occurredAt).sort()
-      const firstAt = times[0]
-      const lastAt = times[times.length - 1]
-      if (firstAt === undefined || lastAt === undefined) {
-        throw new Error(`empty observation group for merchant: ${merchantRaw}`)
-      }
-      this.candidates.set(merchantRaw, {
-        merchantRaw,
-        resolvedNodeId: result.status === 'resolved' ? result.nodeId : null,
-        resolution: result.status === 'resolved' ? 'auto' : 'pending',
-        observationCount: obsList.length,
-        paymentMethods: methods,
-        firstObservedAt: firstAt,
-        lastObservedAt: lastAt,
-      })
-    }
-
+  /** 阶段 1（MVP01 兼容签名；现返回 Promise）。 */
+  async begin(raw: Uint8Array): Promise<BeginImportResult> {
+    if (this.begun) throw new Error('flow already begun')
+    this.begun = true
+    const instanceId = this.ensureLegacyInstanceWithAccount()
+    const result = await this.coordinator.begin(instanceId, this.adapter, { data: raw })
     return {
-      session,
-      rawCount: this.observations.length,
-      candidates: [...this.candidates.values()].sort(
-        (a, b) =>
-          b.observationCount - a.observationCount || (a.merchantRaw < b.merchantRaw ? -1 : 1),
-      ),
-      errors: this.parseErrors,
+      session: result.session,
+      rawCount: result.rawCount,
+      candidates: result.candidates,
+      errors: result.errors,
     }
   }
 
-  /** 阶段 2：用户确认某商户 → 节点。 */
+  /** 阶段 2：用户确认商户描述符 → 节点。 */
   resolveMerchant(merchantRaw: string, nodeId: string): void {
-    if (!this.session) throw new Error('begin() must be called first')
-    this.nodes.getExisting(nodeId) // 节点必须存在
-    const candidate = this.candidates.get(merchantRaw)
-    if (!candidate) throw new Error(`merchant not in this import: ${merchantRaw}`)
-    candidate.resolvedNodeId = nodeId
-    candidate.resolution = 'pending' // 保持标记为“曾待确认”，由 UI 显示来源
-    this.manualResolutions.set(merchantRaw, nodeId)
+    this.coordinator.resolveMerchant(merchantRaw, nodeId)
   }
 
-  /** 阶段 3：指纹落库 + recurrence + proposal + session 完成。
-   * 全部持久化变更在单一事务内（RC PHASE AE 导入事务性）：任何中途失败整体回滚，
-   * 不留半成品指纹/建议/evidence；session 行在 begin 时已存在，回滚后保持未完成态。
+  /** 阶段 3：指纹落库（legacy 实例 scope）→ recurrence → proposals。 */
+  async finalize(): Promise<CoordinatorOutcome> {
+    return this.coordinator.finalize()
+  }
+
+  /**
+   * legacy WeChat SourceInstance：不存在则创建（deterministic id），并**始终**确保
+   * 绑定微信账户节点。
+   *
+   * 注意：migration 插入 legacy 实例时 account_node_id 为空（迁移时微信节点可能还不存在），
+   * 因此这里不能只依赖 "不存在则创建" —— 已存在但未绑定账号时必须补绑，
+   * 否则 WeChatStatementAdapter 无法产出 funding_source 路由。
    */
-  finalize(): ImportOutcome {
-    const session = this.session
-    if (!session) throw new Error('begin() must be called first')
-    return this.driver.transaction(() => this.finalizeInner(session))
+  private ensureLegacyInstanceWithAccount(): string {
+    const wechatAccount = this.ensureWechatAccount()
+    const existing = this.sourceInstances.getById(LEGACY_WECHAT_SOURCE_INSTANCE_ID)
+    if (!existing) {
+      this.sourceInstances.create({
+        id: LEGACY_WECHAT_SOURCE_INSTANCE_ID,
+        adapterId: LEGACY_WECHAT_ADAPTER_ID,
+        adapterVersion: LEGACY_WECHAT_ADAPTER_VERSION,
+        sourceKind: 'statement_file',
+        label: 'Legacy WeChat Statement Source',
+        currencies: ['CNY'],
+        accountNodeId: wechatAccount.id,
+      })
+      return LEGACY_WECHAT_SOURCE_INSTANCE_ID
+    }
+    if (existing.accountNodeId !== wechatAccount.id) {
+      this.sourceInstances.bindAccountNode(LEGACY_WECHAT_SOURCE_INSTANCE_ID, wechatAccount.id)
+    }
+    return LEGACY_WECHAT_SOURCE_INSTANCE_ID
   }
 
-  private finalizeInner(session: ImportSession): ImportOutcome {
-    // 指纹批量入库（finalize 时机，用户中途放弃不烧指纹）
-    if (this.fingerprints.length !== this.observations.length) {
-      throw new Error('fingerprint/observation length mismatch')
-    }
-    const batch = this.observations.map((obs, i) => {
-      const fp = this.fingerprints[i]
-      if (!fp) throw new Error('fingerprint/observation length mismatch')
-      return {
-        fingerprint: fp.fingerprint,
-        source: obs.source,
-        fingerprintVersion: FINGERPRINT_VERSION,
-        importSessionId: session.id,
-        firstSeenAt: obs.occurredAt,
-      }
-    })
-    const { fresh, duplicates } = this.fingerprintsRepo.insertBatch(batch)
-    const freshSet = new Set(fresh)
-    const freshObservations = this.observations.filter((_, i) => {
-      const fp = this.fingerprints[i]
-      if (!fp) throw new Error('fingerprint/observation length mismatch')
-      return freshSet.has(fp.fingerprint)
-    })
-
-    // 用 fresh 观测重建商户分组（与 begin 的分组一致，只是过滤重复）
-    const groups = new Map<string, Observation[]>()
-    for (const obs of freshObservations) {
-      if (obs.merchantRaw === '') continue
-      const list = groups.get(obs.merchantRaw) ?? []
-      list.push(obs)
-      groups.set(obs.merchantRaw, list)
-    }
-
-    const proposalKeys: string[] = []
-    const recurrences: ImportOutcome['recurrences'] = []
-    const unresolved: string[] = []
-    const wechatNode = this.ensureWechatAccount()
-
-    for (const [merchantRaw, obsList] of groups) {
-      const candidate = this.candidates.get(merchantRaw)
-      if (!candidate) throw new Error(`merchant group missing candidate: ${merchantRaw}`)
-      const serviceNodeId = candidate.resolvedNodeId ?? this.manualResolutions.get(merchantRaw)
-      if (!serviceNodeId) {
-        unresolved.push(merchantRaw)
-        continue // 未 resolution → 不产生 Proposal（GOAL §14）
-      }
-      const rec = detectRecurrence(merchantRaw, obsList)
-      if (!rec) continue // 周期不成立 → 无 recurring_payment_route proposal
-      recurrences.push({
-        merchantRaw,
-        period: rec.period,
-        confidence: rec.confidence,
-        occurrences: rec.occurrences,
-        typicalAmount: rec.typicalAmount,
-      })
-
-      // merchant_agreement: wechat → service
-      const merchantKey = dependencyLogicalKey({
-        from: wechatNode.id,
-        relation: 'merchant_agreement',
-        to: serviceNodeId,
-        capability: 'payment',
-      })
-      this.proposals.upsert({
-        from: wechatNode.id,
-        relation: 'merchant_agreement',
-        to: serviceNodeId,
-        capability: 'payment',
-        proposalType: 'recurring_payment_route',
-        source: 'statement',
-        parserId: WECHAT_PARSER_ID,
-        parserVersion: WECHAT_PARSER_VERSION,
-        confidenceScore: rec.confidence,
-        path: [merchantRaw],
-        newObservations: obsList.length,
-      })
-      this.evidence.accumulate({
-        proposalKey: merchantKey,
-        sourceType: 'wechat_bill',
-        parserId: WECHAT_PARSER_ID,
-        parserVersion: WECHAT_PARSER_VERSION,
-        importSessionId: session.id,
-        firstObservedAt: rec.firstObservedAt,
-        lastObservedAt: rec.lastObservedAt,
-        newObservations: obsList.length,
-      })
-      proposalKeys.push(merchantKey)
-
-      // funding_source: card → wechat（银行卡按 bank+last4 精确匹配；零钱 → wechat 自身）
-      const cardIds = new Set<string>()
-      for (const method of rec.paymentMethods) {
-        const info = parsePaymentMethod(method)
-        if (info.kind === 'bank_card') {
-          const cardNode = findBankCardNode(info, this.nodes.list({ archived: false }))
-          if (cardNode) cardIds.add(cardNode.id)
-        } else if (info.kind === 'wechat_balance' || info.kind === 'wechat_change_pocket') {
-          cardIds.add(wechatNode.id)
-        }
-      }
-      for (const cardId of cardIds) {
-        if (cardId === wechatNode.id) continue
-        const cardObs = obsList.filter(
-          (o) => parsePaymentMethod(o.paymentMethodRaw).kind === 'bank_card',
-        )
-        const fundingKey = dependencyLogicalKey({
-          from: cardId,
-          relation: 'funding_source',
-          to: wechatNode.id,
-          capability: 'payment',
-        })
-        this.proposals.upsert({
-          from: cardId,
-          relation: 'funding_source',
-          to: wechatNode.id,
-          capability: 'payment',
-          proposalType: 'recurring_payment_route',
-          source: 'statement',
-          parserId: WECHAT_PARSER_ID,
-          parserVersion: WECHAT_PARSER_VERSION,
-          confidenceScore: rec.confidence,
-          path: [cardId, wechatNode.id, merchantRaw],
-          newObservations: Math.max(cardObs.length, 1),
-        })
-        this.evidence.accumulate({
-          proposalKey: fundingKey,
-          sourceType: 'wechat_bill',
-          parserId: WECHAT_PARSER_ID,
-          parserVersion: WECHAT_PARSER_VERSION,
-          importSessionId: session.id,
-          firstObservedAt: rec.firstObservedAt,
-          lastObservedAt: rec.lastObservedAt,
-          newObservations: Math.max(cardObs.length, 1),
-        })
-        proposalKeys.push(fundingKey)
-      }
-    }
-
-    const completed = this.sessions.update(session.id, {
-      completedAt: new Date().toISOString(),
-      rawCount: this.observations.length,
-      newUniqueCount: fresh.length,
-      duplicateCount: duplicates,
-      proposalCount: new Set(proposalKeys).size,
-      errorCount: this.parseErrors.length,
-    })
-
-    return {
-      session: completed,
-      newUniqueCount: fresh.length,
-      duplicateCount: duplicates,
-      errorCount: this.parseErrors.length,
-      proposalKeys: [...new Set(proposalKeys)],
-      unresolvedMerchants: unresolved,
-      recurrences,
-    }
-  }
-
-  private resolvableEntities(): ResolvableEntity[] {
-    return this.nodes.list({ archived: false }).map((n) => ({
-      nodeId: n.id,
-      name: n.name,
-      aliases: (n.fields['aliases'] as string[] | undefined) ?? [],
-    }))
-  }
-
-  private ensureWechatAccount() {
+  /** 复用已有微信账户节点；缺失则创建（幂等，不产生重复 account 节点）。 */
+  private ensureWechatAccount(): { id: string } {
     const existing = this.nodes
       .list({ archived: false })
       .filter((n) => n.kind === 'account' && n.templateId === 'builtin.account.wechat')
@@ -359,12 +108,4 @@ export class ImportFlow {
       name: '微信支付',
     })
   }
-}
-
-function randomHex32(): string {
-  const bytes = new Uint8Array(32)
-  crypto.getRandomValues(bytes)
-  return Array.from(bytes)
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('')
 }

@@ -13,17 +13,26 @@ class NodeStatement implements SqliteStatement {
     this.stmt = stmt
   }
 
+  /**
+   * node:sqlite 只接受 null / number / bigint / string / Uint8Array；
+   * JS boolean 必须在驱动边界归一化为 0/1，否则抛
+   * “Provided value cannot be bound to SQLite parameter”。
+   */
+  private static bind(params: SqlValue[]): Array<null | number | bigint | string | Uint8Array> {
+    return params.map((p) => (typeof p === 'boolean' ? (p ? 1 : 0) : p))
+  }
+
   run(...params: SqlValue[]): { changes: number | bigint } {
-    const res = this.stmt.run(...(params as never[]))
+    const res = this.stmt.run(...(NodeStatement.bind(params) as never[]))
     return { changes: res.changes }
   }
 
   get(...params: SqlValue[]): SqlRow | undefined {
-    return this.stmt.get(...(params as never[])) as SqlRow | undefined
+    return this.stmt.get(...(NodeStatement.bind(params) as never[])) as SqlRow | undefined
   }
 
   all(...params: SqlValue[]): SqlRow[] {
-    return this.stmt.all(...(params as never[])) as SqlRow[]
+    return this.stmt.all(...(NodeStatement.bind(params) as never[])) as SqlRow[]
   }
 }
 

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { NodeSqliteDriver } from '../../src/db/node-driver.ts'
-import { migrate, currentSchemaVersion } from '../../src/schema/migrations.ts'
+import { migrate, currentSchemaVersion, SCHEMA_VERSION } from '../../src/schema/migrations.ts'
 import { NodeRepository } from '../../src/repositories/node-repository.ts'
 import { DependencyRepository } from '../../src/repositories/dependency-repository.ts'
 import { ImportFlow } from '../../src/services/import-pipeline.ts'
@@ -43,7 +43,7 @@ describe('DB Integrity + Import Transactionality (RC PHASE S/AE)', () => {
   it('foreign_keys pragma 开启（驱动层），migration 版本正确', () => {
     const row = driver.prepare('PRAGMA foreign_keys').get() as Record<string, unknown>
     expect(Number(row['foreign_keys'])).toBe(1)
-    expect(currentSchemaVersion(driver)).toBe(1)
+    expect(currentSchemaVersion(driver)).toBe(SCHEMA_VERSION)
   })
 
   it('正常流：无孤儿依赖/孤儿组/悬空组成员', () => {
@@ -101,7 +101,7 @@ describe('DB Integrity + Import Transactionality (RC PHASE S/AE)', () => {
     expect(row).toBeUndefined()
   })
 
-  it('PHASE AE：finalize 中途失败（注入 evidence 冲突）→ 无半成品指纹/建议/evidence', () => {
+  it('PHASE AE：finalize 中途失败（注入 evidence 冲突）→ 无半成品指纹/建议/evidence', async () => {
     const nodes = new NodeRepository(driver)
     const tencent = nodes.create({ kind: 'service', name: '腾讯视频' })
     nodes.create({
@@ -119,15 +119,15 @@ describe('DB Integrity + Import Transactionality (RC PHASE S/AE)', () => {
     })
     driver
       .prepare(
-        `INSERT INTO evidence (id, proposal_key, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
-         VALUES ('pre', 'X', 'x', 'x', 1, 'x', 'x', 'x', 0, 'x', 'x')`,
+        `INSERT INTO evidence (id, proposal_key, source_instance_id, adapter_id, adapter_version, evidence_kind, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
+         VALUES ('pre', 'X', 'legacy-wechat-statement', 'wechat_statement', 1, 'transaction_stream', 'x', 'x', 1, 'x', 'x', 'x', 0, 'x', 'x')`,
       )
       .run()
     void wechatNode
 
     // 修补 merchant proposal key 使其冲突：直接向 evidence 表插入与将要生成的相同 key
     const flow = new ImportFlow(driver)
-    flow.begin(FX('recurring-monthly.csv'))
+    await flow.begin(FX('recurring-monthly.csv'))
     flow.resolveMerchant('腾讯视频', tencent.id)
 
     // 计算将生成的 merchant key 并预插入 evidence（触发 UNIQUE 冲突）
@@ -139,7 +139,7 @@ describe('DB Integrity + Import Transactionality (RC PHASE S/AE)', () => {
        WHEN (SELECT COUNT(*) FROM evidence) > 0
        BEGIN SELECT RAISE(ABORT, 'injected failure'); END`,
     )
-    expect(() => flow.finalize()).toThrowError(/injected failure/)
+    await expect(flow.finalize()).rejects.toThrowError(/injected failure/)
 
     // 回滚验证：指纹/建议/证据均无写入
     expect(
@@ -184,7 +184,7 @@ describe('DB Integrity + Import Transactionality (RC PHASE S/AE)', () => {
 
     // 移除触发器后重试：导入成功且 fingerprint 只在成功后入库（retry 安全）
     driver.exec('DROP TRIGGER fail_evidence')
-    const outcome = flow.finalize()
+    const outcome = await flow.finalize()
     expect(outcome.newUniqueCount).toBe(8)
     expect(
       Number(

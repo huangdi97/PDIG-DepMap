@@ -46,6 +46,7 @@ function dep(
     lastVerifiedAt: 't',
     retiredAt: null,
     evidenceRefs: [],
+    verificationBasis: null,
     createdAt: 't',
     updatedAt: 't',
   }

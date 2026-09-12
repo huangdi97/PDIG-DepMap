@@ -1,12 +1,14 @@
 import { createHmac, createHash } from 'node:crypto'
 import type { Observation } from '../domain/types.ts'
+import type { NormalizedPaymentObservation } from '../domain/source.ts'
 
 /**
- * ObservationFingerprint — 只回答“这条原始记录以前处理过没有” (GOAL §12 / CANONICAL §5.5)
+ * ObservationFingerprint v2 —— source-scoped（GOAL MVP02 §8）。
  *
- * - 优先稳定交易号：HMAC-SHA256(fpSecret, source + ":" + sourceTxnId)
- * - 无稳定交易号：canonicalRow（dateTime + signedAmount + normalizedDescription +
- *   counterparty + transactionType），同文件内完全重复行追加 occurrence ordinal #N
+ * - 优先稳定交易号：HMAC-SHA256(fpSecret, adapterId:sourceInstanceId:sourceTxnId)
+ * - 无稳定 ID：canonicalRow fallback（按 SourceInstance 隔离，同文件完全重复行追加 ordinal #N）
+ * - UNIQUE(source_instance_id, fingerprint_version, fingerprint)：
+ *   同 txn id 跨 SourceInstance 不冲突；不同 fingerprintVersion 可并存
  * - 不保存 raw transaction id / merchant / amount / description
  * - 策略偏 precision：允许 false negative，尽量避免 false positive
  */
@@ -15,10 +17,13 @@ export const FINGERPRINT_VERSION = 1
 
 export function computeFingerprintWithTxnId(
   fpSecret: string,
-  source: string,
+  adapterId: string,
+  sourceInstanceId: string,
   sourceTxnId: string,
 ): string {
-  return createHmac('sha256', fpSecret).update(`${source}:${sourceTxnId}`).digest('hex')
+  return createHmac('sha256', fpSecret)
+    .update(`${adapterId}:${sourceInstanceId}:${sourceTxnId}`)
+    .digest('hex')
 }
 
 export function normalizeDescription(description: string): string {
@@ -30,13 +35,27 @@ export function normalizeDescription(description: string): string {
     .toLowerCase()
 }
 
-function canonicalRowOf(obs: Observation, signedAmount: number): string {
+interface FingerprintObservationInput {
+  adapterId: string
+  sourceInstanceId: string
+  sourceTxnId?: string | null
+  occurredAt: string
+  amount: number
+  direction: string
+  description?: string
+  counterparty?: string
+  currency?: string
+  transactionType?: string
+}
+
+function canonicalRowOf(obs: FingerprintObservationInput, signedAmount: number): string {
   return [
     obs.occurredAt,
     signedAmount.toFixed(2),
-    normalizeDescription(obs.description),
-    normalizeDescription(obs.merchantRaw),
-    obs.direction,
+    obs.currency ?? '',
+    normalizeDescription(obs.description ?? ''),
+    normalizeDescription(obs.counterparty ?? ''),
+    obs.transactionType ?? '',
   ].join('|')
 }
 
@@ -46,31 +65,64 @@ export interface FingerprintAssignment {
   stable: boolean
 }
 
-/**
- * 为一批同会话观测计算指纹。
- * 同一文件内 canonicalRow 完全相同的行：#1、#2 递增 ordinal，保证不互相吞掉，
- * 但跨会话仍可被 UNIQUE(source, fingerprint) 去重（同 ordinal 同指纹）。
- */
-export function assignFingerprints(
+/** 统一入口：接受 v2 Normalized 观测或 legacy Observation 形状。 */
+export function assignFingerprintsV2(
   fpSecret: string,
-  observations: Observation[],
+  observations: readonly FingerprintObservationInput[],
 ): FingerprintAssignment[] {
   const ordinalCounters = new Map<string, number>()
   return observations.map((obs) => {
-    if (obs.sourceTxnId !== null && obs.sourceTxnId !== '') {
+    if (obs.sourceTxnId !== null && obs.sourceTxnId !== undefined && obs.sourceTxnId !== '') {
       return {
-        fingerprint: computeFingerprintWithTxnId(fpSecret, obs.source, obs.sourceTxnId),
+        fingerprint: computeFingerprintWithTxnId(
+          fpSecret,
+          obs.adapterId,
+          obs.sourceInstanceId,
+          obs.sourceTxnId,
+        ),
         stable: true,
       }
     }
     const signedAmount = obs.direction === 'out' ? -obs.amount : obs.amount
     const base = canonicalRowOf(obs, signedAmount)
-    const n = (ordinalCounters.get(base) ?? 0) + 1
-    ordinalCounters.set(base, n)
-    const canonical = n === 1 ? base : `${base}#${n}`
+    const scoped = `${obs.adapterId}:${obs.sourceInstanceId}:${base}`
+    const n = (ordinalCounters.get(scoped) ?? 0) + 1
+    ordinalCounters.set(scoped, n)
+    const canonical = n === 1 ? scoped : `${scoped}#${n}`
     return {
-      fingerprint: createHash('sha256').update(`${obs.source}|${canonical}`).digest('hex'),
+      fingerprint: createHash('sha256').update(canonical).digest('hex'),
       stable: false,
     }
   })
+}
+
+/** legacy 兼容入口：MVP01 Observation 形状（scope 由调用方给出）。 */
+export function assignFingerprints(
+  fpSecret: string,
+  observations: readonly Observation[],
+  scope: { adapterId: string; sourceInstanceId: string },
+): FingerprintAssignment[] {
+  return assignFingerprintsV2(
+    fpSecret,
+    observations.map((o) => ({
+      adapterId: scope.adapterId,
+      sourceInstanceId: scope.sourceInstanceId,
+      sourceTxnId: o.sourceTxnId,
+      occurredAt: o.occurredAt,
+      amount: o.amount,
+      direction: o.direction,
+      description: o.description,
+      counterparty: o.merchantRaw,
+      currency: o.currency,
+      transactionType: o.status,
+    })),
+  )
+}
+
+/** Normalized 观测便捷入口。 */
+export function assignFingerprintsFromNormalized(
+  fpSecret: string,
+  observations: readonly NormalizedPaymentObservation[],
+): FingerprintAssignment[] {
+  return assignFingerprintsV2(fpSecret, observations)
 }

@@ -9,9 +9,20 @@ export interface InsertFingerprintsResult {
   duplicates: number
 }
 
+export interface ScopedFingerprintRecord {
+  fingerprint: string
+  sourceInstanceId: string
+  /** legacy 展示字段（v1 的 source 列保留） */
+  source?: string
+  fingerprintVersion: number
+  importSessionId: string
+  firstSeenAt?: string
+}
+
 /**
- * ObservationFingerprint —— 只回答“这条原始记录以前处理过没有”。
- * UNIQUE(source, fingerprint)；不保存 raw transaction id / merchant / amount。
+ * ObservationFingerprint v2 —— 按 SourceInstance 隔离。
+ * UNIQUE(source_instance_id, fingerprint_version, fingerprint)。
+ * 不保存 raw transaction id / merchant / amount。
  */
 export class FingerprintRepository {
   private readonly driver: SqliteDriver
@@ -20,31 +31,34 @@ export class FingerprintRepository {
     this.driver = driver
   }
 
-  exists(source: string, fingerprint: string): boolean {
+  exists(sourceInstanceId: string, fingerprint: string, fingerprintVersion = 1): boolean {
     const row = this.driver
-      .prepare(`SELECT 1 AS x FROM observation_fingerprints WHERE source = ? AND fingerprint = ?`)
-      .get(source, fingerprint)
+      .prepare(
+        `SELECT 1 AS x FROM observation_fingerprints WHERE source_instance_id = ? AND fingerprint_version = ? AND fingerprint = ?`,
+      )
+      .get(sourceInstanceId, fingerprintVersion, fingerprint)
     return row !== undefined
   }
 
-  /** 会话批量插入：先在内存去重，再逐个 INSERT OR IGNORE。 */
-  insertBatch(records: ObservationFingerprintRecord[]): InsertFingerprintsResult {
+  /** 会话批量插入：先在内存去重，再逐个插入（UNIQUE 兜底）。 */
+  insertBatch(records: ScopedFingerprintRecord[]): InsertFingerprintsResult {
     return this.driver.transaction(() => {
       const fresh: string[] = []
       let duplicates = 0
       for (const rec of records) {
-        if (this.exists(rec.source, rec.fingerprint)) {
+        if (this.exists(rec.sourceInstanceId, rec.fingerprint, rec.fingerprintVersion)) {
           duplicates += 1
           continue
         }
         this.driver
           .prepare(
-            `INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at)
-             VALUES (?, ?, ?, ?, ?)`,
+            `INSERT INTO observation_fingerprints (fingerprint, source_instance_id, source, fingerprint_version, import_session_id, first_seen_at)
+             VALUES (?, ?, ?, ?, ?, ?)`,
           )
           .run(
             rec.fingerprint,
-            rec.source,
+            rec.sourceInstanceId,
+            rec.source ?? '',
             rec.fingerprintVersion,
             rec.importSessionId,
             rec.firstSeenAt ?? nowIso(),
@@ -59,4 +73,26 @@ export class FingerprintRepository {
     const row = this.driver.prepare(`SELECT COUNT(*) AS c FROM observation_fingerprints`).get()
     return Number(row?.c ?? 0)
   }
+
+  countByInstance(sourceInstanceId: string): number {
+    const row = this.driver
+      .prepare(`SELECT COUNT(*) AS c FROM observation_fingerprints WHERE source_instance_id = ?`)
+      .get(sourceInstanceId)
+    return Number(row?.c ?? 0)
+  }
+}
+
+/** legacy 形状兼容（MVP01 调用点）。 */
+export function toScopedRecords(
+  records: ObservationFingerprintRecord[],
+  sourceInstanceId: string,
+): ScopedFingerprintRecord[] {
+  return records.map((r) => ({
+    fingerprint: r.fingerprint,
+    sourceInstanceId,
+    source: r.source,
+    fingerprintVersion: r.fingerprintVersion,
+    importSessionId: r.importSessionId,
+    firstSeenAt: r.firstSeenAt,
+  }))
 }

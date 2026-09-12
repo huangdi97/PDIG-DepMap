@@ -88,7 +88,10 @@ describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
   it('duplicate-import fixture：文件内完全重复行（无单号）产生 ordinal 指纹，不互相吞并', () => {
     const r = parseWechatBill(FX('duplicate-import.csv'))
     expect(r.observations).toHaveLength(2)
-    const fps = assignFingerprints('secret', r.observations)
+    const fps = assignFingerprints('secret', r.observations, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'inst-wechat-test',
+    })
     expect(fps[0]!.fingerprint).not.toBe(fps[1]!.fingerprint)
     expect(fps.every((f) => !f.stable)).toBe(true)
   })
@@ -104,11 +107,19 @@ describe('WeChat Parser — fixtures (MVP_ACCEPTANCE D)', () => {
 })
 
 describe('Fingerprint (GOAL §12 / MVP_ACCEPTANCE A)', () => {
-  it('优先稳定交易号：HMAC-SHA256(fpSecret, source:sourceTxnId)', () => {
-    const fp = computeFingerprintWithTxnId('secret', 'wechat', 'TXN1')
+  it('优先稳定交易号：HMAC-SHA256(fpSecret, adapterId:sourceInstanceId:sourceTxnId)', () => {
+    const fp = computeFingerprintWithTxnId('secret', 'wechat_statement', 'inst-wechat-test', 'TXN1')
     expect(fp).toMatch(/^[0-9a-f]{64}$/)
-    expect(computeFingerprintWithTxnId('secret', 'wechat', 'TXN1')).toBe(fp)
-    expect(computeFingerprintWithTxnId('other-secret', 'wechat', 'TXN1')).not.toBe(fp)
+    expect(
+      computeFingerprintWithTxnId('secret', 'wechat_statement', 'inst-wechat-test', 'TXN1'),
+    ).toBe(fp)
+    expect(
+      computeFingerprintWithTxnId('other-secret', 'wechat_statement', 'inst-wechat-test', 'TXN1'),
+    ).not.toBe(fp)
+    // v2 隔离：同 txn id 跨 SourceInstance 不冲突
+    expect(
+      computeFingerprintWithTxnId('secret', 'wechat_statement', 'inst-other', 'TXN1'),
+    ).not.toBe(fp)
   })
 
   it('重复导入测试：1–6 月导入后导入 1–8 月，只累计 7–8 月新记录', () => {
@@ -118,12 +129,18 @@ describe('Fingerprint (GOAL §12 / MVP_ACCEPTANCE A)', () => {
     expect(janAug).toHaveLength(8)
 
     const fpSecret = 'test-fp-secret'
-    const firstSession = assignFingerprints(fpSecret, janJun)
+    const firstSession = assignFingerprints(fpSecret, janJun, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'inst-wechat-test',
+    })
     expect(firstSession.every((f) => f.stable)).toBe(true)
 
     // 模拟第二次导入：逐条检查指纹是否已存在
     const known = new Set(firstSession.map((f) => f.fingerprint))
-    const secondSession = assignFingerprints(fpSecret, janAug)
+    const secondSession = assignFingerprints(fpSecret, janAug, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'inst-wechat-test',
+    })
     const fresh = secondSession.filter((f) => !known.has(f.fingerprint))
     const duplicates = secondSession.filter((f) => known.has(f.fingerprint))
     expect(duplicates).toHaveLength(6)
@@ -133,8 +150,14 @@ describe('Fingerprint (GOAL §12 / MVP_ACCEPTANCE A)', () => {
   it('无稳定交易号：canonical row 回退，不同金额/时间产生不同指纹', () => {
     const obs = parseWechatBill(FX('duplicate-import.csv')).observations
     const other = parseWechatBill(FX('same-amount-twice.csv')).observations
-    const fps1 = assignFingerprints('secret', obs)
-    const fps2 = assignFingerprints('secret', other)
+    const fps1 = assignFingerprints('secret', obs, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'inst-wechat-test',
+    })
+    const fps2 = assignFingerprints('secret', other, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'inst-wechat-test',
+    })
     // duplicate-import 两行（同 canonical）→ #1/#2 不同
     expect(fps1[0]!.fingerprint).not.toBe(fps1[1]!.fingerprint)
     // same-amount-twice 两行时间不同 → 指纹不同
@@ -143,7 +166,10 @@ describe('Fingerprint (GOAL §12 / MVP_ACCEPTANCE A)', () => {
 
   it('不泄漏：指纹输出与原始交易号/商户/金额字符串无直接包含关系', () => {
     const obs = parseWechatBill(FX('normal-wechat.csv')).observations
-    const fps = assignFingerprints('secret', obs)
+    const fps = assignFingerprints('secret', obs, {
+      adapterId: 'wechat_statement',
+      sourceInstanceId: 'inst-wechat-test',
+    })
     for (let i = 0; i < obs.length; i++) {
       const o = obs[i]!
       const fp = fps[i]!.fingerprint

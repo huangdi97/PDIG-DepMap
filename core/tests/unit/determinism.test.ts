@@ -33,6 +33,7 @@ function dep(from: string, to: string, criticality: Criticality = 'unknown'): De
     lastVerifiedAt: '2026-01-01T00:00:00.000Z',
     retiredAt: null,
     evidenceRefs: [],
+    verificationBasis: null,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   }
@@ -50,6 +51,7 @@ function anyGroup(target: string, members: Dependency[]): DependencyGroup {
     state: 'active',
     confirmedAt: '2026-01-01T00:00:00.000Z',
     lastVerifiedAt: '2026-01-01T00:00:00.000Z',
+    verificationBasis: null,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   }

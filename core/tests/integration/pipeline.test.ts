@@ -64,12 +64,26 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     return card
   }
 
-  it('完整流程：begin → Node Resolution → finalize → 确认 → Group → Impact', () => {
+  /**
+   * 帮助函数：import 前必须存在微信账户节点。
+   * funding_source 路由来自 WeChatStatementAdapter（adapter 级逻辑），
+   * 其 from 端点是 sourceInstance.accountNodeId —— 即此处的微信账户节点。
+   */
+  function seedWechatAccount(): string {
+    return nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
+  }
+
+  it('完整流程：begin → Node Resolution → finalize → 确认 → Group → Impact', async () => {
     const card = seedCards()
+    seedWechatAccount()
 
     // 1. begin：解析 + 预解析
     const flow = new ImportFlow(driver)
-    const begin = flow.begin(FX('recurring-monthly.csv'))
+    const begin = await flow.begin(FX('recurring-monthly.csv'))
     expect(begin.errors).toHaveLength(0)
     expect(begin.rawCount).toBe(8)
     // 腾讯视频/美团/滴滴都无对应节点 → pending；招行卡节点不参与商户解析
@@ -86,7 +100,7 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     flow.resolveMerchant('腾讯视频', tencent.id)
 
     // 3. finalize：指纹入库 + recurrence + proposals
-    const outcome = flow.finalize()
+    const outcome = await flow.finalize()
     expect(outcome.newUniqueCount).toBe(8)
     expect(outcome.duplicateCount).toBe(0)
     expect(
@@ -156,14 +170,15 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(r2.targets.find((t) => t.nodeId === wechat.id)!.status).toBe('must_change')
   })
 
-  it('重复导入同一账单：指纹去重，不产生新观测/新 proposal', () => {
+  it('重复导入同一账单：指纹去重，不产生新观测/新 proposal', async () => {
     seedCards()
+    seedWechatAccount()
     const tencent = nodes.create({ kind: 'service', name: '腾讯视频' })
 
     const flow1 = new ImportFlow(driver)
-    flow1.begin(FX('recurring-monthly.csv'))
+    await flow1.begin(FX('recurring-monthly.csv'))
     flow1.resolveMerchant('腾讯视频', tencent.id)
-    const o1 = flow1.finalize()
+    const o1 = await flow1.finalize()
     expect(o1.newUniqueCount).toBe(8)
 
     // 确认所有 proposal（accepted → 不重复问）
@@ -171,8 +186,8 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
 
     const flow2 = new ImportFlow(driver)
     // 腾讯视频现在可 auto-resolve（normalized exact），无需手动确认
-    flow2.begin(FX('recurring-monthly.csv'))
-    const o2 = flow2.finalize()
+    await flow2.begin(FX('recurring-monthly.csv'))
+    const o2 = await flow2.finalize()
     expect(o2.newUniqueCount).toBe(0)
     expect(o2.duplicateCount).toBe(8)
     expect(o2.proposalKeys).toHaveLength(0)
@@ -181,20 +196,21 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(proposals.listAll()).toHaveLength(2)
   })
 
-  it('duplicate import 1–6 / 1–8 月：只累计 7–8 月并更新 evidence（GOAL §12 测试重点）', () => {
+  it('duplicate import 1–6 / 1–8 月：只累计 7–8 月并更新 evidence（GOAL §12 测试重点）', async () => {
     seedCards()
+    seedWechatAccount()
     const tencent = nodes.create({ kind: 'service', name: '腾讯视频' })
 
     const flow1 = new ImportFlow(driver)
-    flow1.begin(FX('dup-jan-jun.csv'))
+    await flow1.begin(FX('dup-jan-jun.csv'))
     flow1.resolveMerchant('腾讯视频', tencent.id)
-    const o1 = flow1.finalize()
+    const o1 = await flow1.finalize()
     expect(o1.newUniqueCount).toBe(6)
     expect(o1.proposalKeys).toHaveLength(2)
 
     const flow2 = new ImportFlow(driver)
-    flow2.begin(FX('dup-jan-aug.csv'))
-    flow2.finalize() // 腾讯视频 auto-resolve，无需手动
+    await flow2.begin(FX('dup-jan-aug.csv'))
+    await flow2.finalize() // 腾讯视频 auto-resolve，无需手动
 
     // evidence 汇总：merchant proposal 的 observationCount = 6 + 2 = 8
     const ev = driver
@@ -207,12 +223,13 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(String(ev!.last_observed_at)).toContain('2026-08-15')
   })
 
-  it('未 resolution 商户不产生 Proposal；finalize 后放弃不会烧指纹', () => {
+  it('未 resolution 商户不产生 Proposal；finalize 后放弃不会烧指纹', async () => {
     seedCards()
+    seedWechatAccount()
     const flow = new ImportFlow(driver)
-    flow.begin(FX('recurring-monthly.csv'))
+    await flow.begin(FX('recurring-monthly.csv'))
     // 不做任何 resolveMerchant，直接 finalize
-    const outcome = flow.finalize()
+    const outcome = await flow.finalize()
     expect(outcome.proposalKeys).toHaveLength(0)
     expect(outcome.unresolvedMerchants.length).toBeGreaterThan(0)
     // 指纹已入库（本次会话已消费——因为 finalize 执行了）
@@ -221,13 +238,14 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     ).toMatchObject({ c: 8 })
   })
 
-  it('retired dependency 复活：同一 logical key 同一 id', () => {
+  it('retired dependency 复活：同一 logical key 同一 id', async () => {
     seedCards()
+    seedWechatAccount()
     const tencent = nodes.create({ kind: 'service', name: '腾讯视频' })
     const flow = new ImportFlow(driver)
-    flow.begin(FX('recurring-monthly.csv'))
+    await flow.begin(FX('recurring-monthly.csv'))
     flow.resolveMerchant('腾讯视频', tencent.id)
-    const o = flow.finalize()
+    const o = await flow.finalize()
     const merchantKey = o.proposalKeys.find((k) => k.includes('merchant_agreement'))!
     confirm.acceptProposal(merchantKey)
 
@@ -253,41 +271,44 @@ describe('Integration — synthetic import flow (PHASE 9)', () => {
     expect(again.dependency.state).toBe('active')
   })
 
-  it('rejected proposal：新 evidence 不足不重提；足够则软性重提', () => {
+  it('rejected proposal：新 evidence 不足不重提；足够则软性重提', async () => {
     seedCards()
+    seedWechatAccount()
     const tencent = nodes.create({ kind: 'service', name: '腾讯视频' })
     const flow = new ImportFlow(driver)
-    flow.begin(FX('recurring-monthly.csv'))
+    await flow.begin(FX('recurring-monthly.csv'))
     flow.resolveMerchant('腾讯视频', tencent.id)
-    const o = flow.finalize()
+    const o = await flow.finalize()
     const merchantKey = o.proposalKeys.find((k) => k.includes('merchant_agreement'))!
     confirm.rejectProposal(merchantKey)
     expect(proposals.getByKey(merchantKey)!.decision).toBe('rejected')
 
     // 重复导入 1–8 月（+2 新观测）→ 不足 3 → 保持 rejected
     const flow2 = new ImportFlow(driver)
-    flow2.begin(FX('dup-jan-aug.csv'))
-    flow2.finalize()
+    await flow2.begin(FX('dup-jan-aug.csv'))
+    await flow2.finalize()
     expect(proposals.getByKey(merchantKey)!.decision).toBe('rejected')
   })
 
-  it('malformed 账单：errors 计入 session，好行继续处理', () => {
+  it('malformed 账单：errors 计入 session，好行继续处理', async () => {
     seedCards()
+    seedWechatAccount()
     const flow = new ImportFlow(driver)
-    const begin = flow.begin(FX('malformed.csv'))
+    const begin = await flow.begin(FX('malformed.csv'))
     expect(begin.errors).toHaveLength(4)
-    const outcome = flow.finalize()
+    const outcome = await flow.finalize()
     expect(outcome.errorCount).toBe(4)
     expect(outcome.newUniqueCount).toBe(2)
     // 只有 1 次腾讯视频观测 → 无 recurrence → 无 proposal
     expect(outcome.proposalKeys).toHaveLength(0)
   })
 
-  it('refund 观测不参与 recurrence', () => {
+  it('refund 观测不参与 recurrence', async () => {
     seedCards()
+    seedWechatAccount()
     const flow = new ImportFlow(driver)
-    flow.begin(FX('refund.csv'))
-    const outcome = flow.finalize()
+    await flow.begin(FX('refund.csv'))
+    const outcome = await flow.finalize()
     expect(outcome.recurrences).toHaveLength(0)
     expect(outcome.proposalKeys).toHaveLength(0)
   })

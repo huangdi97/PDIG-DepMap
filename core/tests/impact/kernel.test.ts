@@ -41,6 +41,7 @@ function dep(
     lastVerifiedAt: '2026-01-01T00:00:00.000Z',
     retiredAt: opts.state === 'retired' ? '2026-02-01T00:00:00.000Z' : null,
     evidenceRefs: [],
+    verificationBasis: null,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   }
@@ -66,6 +67,7 @@ function group(target: string, mode: 'ANY' | 'ALL', members: Dependency[]): Depe
     state: 'active',
     confirmedAt: '2026-01-01T00:00:00.000Z',
     lastVerifiedAt: '2026-01-01T00:00:00.000Z',
+    verificationBasis: null,
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   }

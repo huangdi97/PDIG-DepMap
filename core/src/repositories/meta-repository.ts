@@ -43,6 +43,21 @@ export function optionalString(v: SqlValue | undefined): string | null {
   return v === null || v === undefined ? null : String(v)
 }
 
+/**
+ * 把来自 JSON.parse 等 unknown 来源的值安全收敛为 string。
+ *
+ * 与 String(v) 的区别：只接受 string / number / bigint / boolean 标量；
+ * 对象与数组一律返回 fallback，避免把 `[object Object]` 静默写进数据库
+ * （@typescript-eslint/no-base-to-string 所防护的正是这类缺陷）。
+ */
+export function unknownToString(v: unknown, fallback = ''): string {
+  if (typeof v === 'string') return v
+  if (typeof v === 'number' || typeof v === 'bigint' || typeof v === 'boolean') {
+    return String(v)
+  }
+  return fallback
+}
+
 export function optionalNumber(v: SqlValue | undefined): number | null {
   return v === null || v === undefined ? null : Number(v)
 }

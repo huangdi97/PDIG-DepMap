@@ -1,7 +1,7 @@
 import type { ImportSession } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
-import { optionalString } from './meta-repository.ts'
+import { optionalNumber, optionalString } from './meta-repository.ts'
 
 function rowToSession(row: Record<string, unknown>): ImportSession {
   return {
@@ -9,6 +9,9 @@ function rowToSession(row: Record<string, unknown>): ImportSession {
     sourceType: String(row.source_type),
     parserId: String(row.parser_id),
     parserVersion: Number(row.parser_version),
+    sourceInstanceId: optionalString(row.source_instance_id as never),
+    adapterId: optionalString(row.adapter_id as never),
+    adapterVersion: optionalNumber(row.adapter_version as never),
     startedAt: String(row.started_at),
     completedAt: optionalString(row.completed_at as never),
     rawCount: Number(row.raw_count ?? 0),
@@ -30,14 +33,26 @@ export class ImportSessionRepository {
     sourceType: string
     parserId: string
     parserVersion: number
+    sourceInstanceId?: string
+    adapterId?: string
+    adapterVersion?: number
     id?: string
   }): ImportSession {
     const id = input.id ?? newId()
     this.driver
       .prepare(
-        `INSERT INTO import_sessions (id, source_type, parser_id, parser_version, started_at) VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO import_sessions (id, source_type, parser_id, parser_version, source_instance_id, adapter_id, adapter_version, started_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(id, input.sourceType, input.parserId, input.parserVersion, nowIso())
+      .run(
+        id,
+        input.sourceType,
+        input.parserId,
+        input.parserVersion,
+        input.sourceInstanceId ?? null,
+        input.adapterId ?? null,
+        input.adapterVersion ?? null,
+        nowIso(),
+      )
     return this.getById(id) as ImportSession
   }
 

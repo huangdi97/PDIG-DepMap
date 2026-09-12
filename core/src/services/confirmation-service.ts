@@ -7,6 +7,9 @@ import { DependencyGroupRepository } from '../repositories/group-repository.ts'
 import { DependencyProposalRepository } from '../repositories/proposal-repository.ts'
 import { DependencyGroupProposalRepository } from '../repositories/group-proposal-repository.ts'
 import { groupProposalKey } from '../domain/types.ts'
+import { validateRelationUse, validateRelationGroupUse } from '../domain/relation-registry.ts'
+import { userConfirmedBasis } from '../domain/source.ts'
+import { nowIso } from '../utils/ids.ts'
 
 /**
  * 确认服务 — “机器提出、用户确认现实”的唯一入口 (AGENTS §9-§11)
@@ -45,8 +48,16 @@ export class ConfirmationService {
       throw new Error('proposal is rejected; reproposal flow required before acceptance')
     }
     // 节点必须已存在（Node Resolution 是 Proposal 前置条件）
-    this.nodes.getExisting(proposal.from)
-    this.nodes.getExisting(proposal.to)
+    const fromNode = this.nodes.getExisting(proposal.from)
+    const toNode = this.nodes.getExisting(proposal.to)
+    // RelationDefinitionRegistry 校验（GOAL MVP02 §12）
+    const relationCheck = validateRelationUse(
+      fromNode.kind,
+      proposal.relation,
+      toNode.kind,
+      proposal.capability,
+    )
+    if (!relationCheck.ok) throw new Error(`relation registry rejected: ${relationCheck.reason}`)
 
     this.proposals.decide(proposalKey, 'accepted', criticalityDecision ?? null)
     const result = this.deps.confirm({
@@ -56,7 +67,10 @@ export class ConfirmationService {
       capability: proposal.capability,
       criticality: criticalityDecision ?? 'unknown',
       origin: 'proposal',
-      evidenceRefs: proposal.evidenceId ? [proposal.evidenceId] : [],
+      evidenceRefs: proposal.evidenceRefs,
+      // MVP02：三个文件 Adapter 全为 event_stream / authoritativeFor=[]，
+      // 因此正式 Dependency 只能以 user_confirmed 为依据（禁止 CSV/OFX 自动确认 Reality）。
+      verificationBasis: userConfirmedBasis(nowIso()),
     })
     return { dependency: result.dependency, created: !result.verified && !result.reactivated }
   }
@@ -73,8 +87,10 @@ export class ConfirmationService {
     capability: Capability
     criticality?: Criticality
   }): Dependency {
-    this.nodes.getExisting(input.from)
-    this.nodes.getExisting(input.to)
+    const fromNode = this.nodes.getExisting(input.from)
+    const toNode = this.nodes.getExisting(input.to)
+    const check = validateRelationUse(fromNode.kind, input.relation, toNode.kind, input.capability)
+    if (!check.ok) throw new Error(`relation registry rejected: ${check.reason}`)
     return this.deps.confirm({ ...input, origin: 'manual' }).dependency
   }
 
@@ -126,6 +142,20 @@ export class ConfirmationService {
     if (gp.decision === 'rejected') {
       throw new Error('group proposal is rejected; reproposal flow required')
     }
+
+    // RelationDefinitionRegistry 校验（GOAL MVP02 §12）：
+    // Group 必须 capability-scoped，且其成员关系必须在 runtime registry 中声明允许成组。
+    // 缺失此校验会让“不支持成组的 relation”被静默提升为 ANY/ALL 语义，属正确性缺陷。
+    for (const memberKey of gp.memberDependencyKeys) {
+      const parts = memberKey.split('|')
+      const relation = parts[1]
+      if (!relation) throw new Error(`malformed member dependency key: ${memberKey}`)
+      const relationCheck = validateRelationGroupUse(relation, gp.mode)
+      if (!relationCheck.ok) {
+        throw new Error(`relation registry rejected group: ${relationCheck.reason}`)
+      }
+    }
+
     this.groupProposals.decide(groupProposalKeyStr, 'accepted')
 
     const memberEdges = gp.memberDependencyKeys

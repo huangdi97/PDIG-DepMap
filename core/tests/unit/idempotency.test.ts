@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { NodeSqliteDriver } from '../../src/db/node-driver.ts'
-import { migrate, currentSchemaVersion } from '../../src/schema/migrations.ts'
+import { migrate, currentSchemaVersion, SCHEMA_VERSION } from '../../src/schema/migrations.ts'
 import { NodeRepository } from '../../src/repositories/node-repository.ts'
 import { DependencyRepository } from '../../src/repositories/dependency-repository.ts'
 import { DependencyGroupRepository } from '../../src/repositories/group-repository.ts'
@@ -41,7 +41,7 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
   it('migration 重复执行 50 次安全（版本稳定、无重复）', () => {
     for (let i = 0; i < 50; i++) {
       migrate(driver)
-      expect(currentSchemaVersion(driver)).toBe(1)
+      expect(currentSchemaVersion(driver)).toBe(SCHEMA_VERSION)
     }
     const tableCount = driver
       .prepare(`SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='dependencies'`)
@@ -49,7 +49,7 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
     expect(Number((tableRow(tableCount) as Record<string, unknown>)['c'])).toBe(1)
   })
 
-  it('相同账单重复导入：Evidence/Proposal/Dependency/Group 均不重复', () => {
+  it('相同账单重复导入：Evidence/Proposal/Dependency/Group 均不重复', async () => {
     const nodes = new NodeRepository(driver)
     const deps = new DependencyRepository(driver)
     const proposals = new DependencyProposalRepository(driver)
@@ -67,9 +67,9 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
 
     for (let round = 0; round < 3; round++) {
       const flow = new ImportFlow(driver)
-      flow.begin(FX('recurring-monthly.csv'))
+      await flow.begin(FX('recurring-monthly.csv'))
       if (round === 0) flow.resolveMerchant('腾讯视频', tencent.id)
-      flow.finalize()
+      await flow.finalize()
     }
 
     // 三个 round 只产生 2 条 proposal（merchant + funding），evidence 不重复翻倍
@@ -82,8 +82,8 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
 
     // 再次导入（已确认）→ 不新建 proposal、不新建 dependency
     const flow2 = new ImportFlow(driver)
-    flow2.begin(FX('recurring-monthly.csv'))
-    flow2.finalize()
+    await flow2.begin(FX('recurring-monthly.csv'))
+    await flow2.finalize()
     expect(proposals.listAll()).toHaveLength(2)
     expect(deps.countAll()).toBe(2)
     expect(groups.listAllActive()).toHaveLength(0)
@@ -138,7 +138,7 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
     }
   })
 
-  it('export → import → export：逻辑图深度等价；unsupported payloadVersion 拒绝', () => {
+  it('export → import → export：逻辑图深度等价；unsupported payloadVersion 拒绝', async () => {
     const nodes = new NodeRepository(driver)
     const confirm = new ConfirmationService(driver)
     const flow = new ImportFlow(driver)
@@ -151,9 +151,9 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
       last4: '4417',
     })
     const tencent = nodes.create({ kind: 'service', name: '腾讯视频' })
-    flow.begin(FX('recurring-monthly.csv'))
+    await flow.begin(FX('recurring-monthly.csv'))
     flow.resolveMerchant('腾讯视频', tencent.id)
-    const outcome = flow.finalize()
+    const outcome = await flow.finalize()
     for (const k of outcome.proposalKeys) confirm.acceptProposal(k)
     const ccb = nodes.create({ kind: 'payment_instrument', name: '建行龙卡', last4: '8821' })
     const wechat = nodes.list({ kind: 'account' })[0]

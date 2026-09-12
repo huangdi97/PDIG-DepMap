@@ -1,3 +1,5 @@
+import type { VerificationBasis } from './source.ts'
+
 /**
  * DepMap domain types — Schema v1 (CANONICAL_DESIGN.md §5)
  *
@@ -67,6 +69,8 @@ export interface Dependency {
   lastVerifiedAt: string
   retiredAt: string | null
   evidenceRefs: string[]
+  /** Schema v2：Reality 如何被验证。MVP02 恒为 user_confirmed（三个 Adapter 均为 event_stream）。 */
+  verificationBasis: VerificationBasis | null
   createdAt: string
   updatedAt: string
 }
@@ -100,6 +104,8 @@ export interface DependencyGroup {
   state: GroupState
   confirmedAt: string
   lastVerifiedAt: string
+  /** Schema v2：Group 也必须记录验证基础（MVP02 恒 user_confirmed）。 */
+  verificationBasis: VerificationBasis | null
   createdAt: string
   updatedAt: string
 }
@@ -141,15 +147,17 @@ export interface DependencyProposal {
   confidenceScore: number
   /** UI 上下文路径，如 [card, wechat, service] */
   path: string[]
-  evidenceId: string | null
+  /** Schema v2：多源 provenance（EvidenceSummary id 集合，跨 SourceInstance 可多个） */
+  evidenceRefs: string[]
   decision: ProposalDecision
   decidedAt: string | null
   /** 用户确认关系时可同时决定 criticality；null = 未明确决定（默认按 unknown 处理） */
   criticalityDecision: Criticality | null
-  /** 该 key 当前累计 evidence observationCount（冗余存储，便于重提判断） */
+  /** 全源累计 observationCount（仅展示；重提判断禁止跨流相加） */
   observationCount: number
   rejectedAt: string | null
-  rejectedAtObservationCount: number | null
+  /** Schema v2：拒绝时每个 Evidence stream 的计数快照（单流阈值判定用） */
+  rejectedAtStreamCounts: Record<string, number> | null
   createdAt: string
   updatedAt: string
 }
@@ -188,13 +196,20 @@ export interface Evidence {
   id: string
   /** 对应 DependencyProposal.key */
   proposalKey: string
+  /** Schema v2：Evidence 按 SourceInstance 分流（同一 proposal 多个 provenance） */
+  sourceInstanceId: string
+  adapterId: string
+  adapterVersion: number
+  /** MVP02: 'transaction_stream' */
+  evidenceKind: string
+  /** 展示用来源类型（legacy: 'wechat_bill'） */
   sourceType: string
   parserId: string
   parserVersion: number
   lastImportSessionId: string
   firstObservedAt: string
   lastObservedAt: string
-  /** 只累计新 unique observations */
+  /** 本 stream 内累计的 unique observation 数（禁止跨 stream 相加驱动决策） */
   observationCount: number
   createdAt: string
   updatedAt: string
@@ -213,6 +228,10 @@ export interface ImportSession {
   sourceType: string
   parserId: string
   parserVersion: number
+  /** Schema v2：来源实例与 Adapter provenance */
+  sourceInstanceId: string | null
+  adapterId: string | null
+  adapterVersion: number | null
   startedAt: string
   completedAt: string | null
   rawCount: number

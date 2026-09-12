@@ -6,7 +6,7 @@
  * 保证三端 Repository 行为一致（CANONICAL_DESIGN §8.2）。
  */
 
-export type SqlValue = null | number | string | Uint8Array
+export type SqlValue = null | number | string | boolean | Uint8Array
 
 export interface SqlRow {
   [column: string]: SqlValue | undefined

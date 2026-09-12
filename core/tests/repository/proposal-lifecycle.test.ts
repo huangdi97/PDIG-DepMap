@@ -50,7 +50,9 @@ describe('Proposal lifecycle (Schema v1)', () => {
     expect(r1.changed).toBe(true)
     expect(r1.proposal.observationCount).toBe(2)
     const r2 = proposals.upsert({ ...BASE, newObservations: 4, confidenceScore: 0.96 })
-    expect(r2.changed).toBe(true)
+    // changed 语义 = “会再次向用户提问”的决策变化；pending 继续累计不算 changed
+    expect(r2.changed).toBe(false)
+    expect(r2.suppressed).toBe(false)
     expect(r2.proposal.observationCount).toBe(6)
     expect(r2.proposal.confidenceScore).toBe(0.96)
     expect(proposals.listAll()).toHaveLength(1)
@@ -65,41 +67,169 @@ describe('Proposal lifecycle (Schema v1)', () => {
     expect(r2.proposal.decision).toBe('accepted')
   })
 
+  it('accepted 后新来源 evidence：只增加 provenance，不重复提问（GOAL MVP02 §22）', () => {
+    const r1 = proposals.upsert({
+      ...BASE,
+      evidence: {
+        sourceInstanceId: 'inst-src-a',
+        adapterId: 'wechat_statement',
+        adapterVersion: 1,
+        newObservations: 3,
+      },
+    })
+    proposals.decide(r1.proposal.key, 'accepted')
+    const refsAfterAccept = r1.proposal.evidenceRefs.length
+
+    // 第二个 SourceInstance 观察到同一现实候选 → 仍只有一条 Proposal
+    const r2 = proposals.upsert({
+      ...BASE,
+      evidence: {
+        sourceInstanceId: 'inst-src-b',
+        adapterId: 'ofx_qfx',
+        adapterVersion: 1,
+        newObservations: 5,
+      },
+    })
+    expect(r2.alreadyAccepted).toBe(true)
+    expect(r2.changed).toBe(false) // 不会再次提问
+    expect(r2.proposal.decision).toBe('accepted')
+    expect(proposals.listAll()).toHaveLength(1)
+    expect(r2.proposal.evidenceRefs.length).toBe(refsAfterAccept + 1)
+  })
+
   it('rejected 后：新观测不足（<3 或 <1 完整周期）不得重提', () => {
     const r1 = proposals.upsert({ ...BASE, newObservations: 4 })
     proposals.decide(r1.proposal.key, 'rejected')
     const rejected = proposals.getByKey(r1.proposal.key)!
-    expect(rejected.rejectedAtObservationCount).toBe(4)
     expect(rejected.rejectedAt).not.toBeNull()
+    // v2：拒绝时快照每个 Evidence stream 计数（此处无流 → 空快照）
 
-    // +2 新观测（< 3）→ 不重提
-    const r2 = proposals.upsert({ ...BASE, newObservations: 2 }, { cyclesCovered: 1 })
+    // +2 新观测（< 3，单流内）→ 不重提
+    const r2 = proposals.upsert(
+      {
+        ...BASE,
+        evidence: {
+          sourceInstanceId: 'inst-lifecycle',
+          adapterId: 'wechat_statement',
+          adapterVersion: 1,
+          newObservations: 2,
+        },
+      },
+      { cyclesCovered: 1 },
+    )
     expect(r2.suppressed).toBe(true)
     expect(r2.proposal.decision).toBe('rejected')
 
     // +3 新观测但没有覆盖完整周期 → 不重提
-    const r3 = proposals.upsert({ ...BASE, newObservations: 3 }, { cyclesCovered: 0 })
+    const r3 = proposals.upsert(
+      {
+        ...BASE,
+        evidence: {
+          sourceInstanceId: 'inst-lifecycle',
+          adapterId: 'wechat_statement',
+          adapterVersion: 1,
+          newObservations: 3,
+        },
+      },
+      { cyclesCovered: 0 },
+    )
     expect(r3.suppressed).toBe(true)
     expect(r3.proposal.decision).toBe('rejected')
   })
 
-  it('rejected 后：新观测 ≥3 且覆盖 ≥1 完整周期 → 软性重提回 pending', () => {
-    const r1 = proposals.upsert({ ...BASE, newObservations: 4 })
+  it('rejected 后：新观测 ≥3 且覆盖 ≥1 完整周期（单流内）→ 软性重提回 pending', () => {
+    const r1 = proposals.upsert({
+      ...BASE,
+      evidence: {
+        sourceInstanceId: 'inst-lifecycle',
+        adapterId: 'wechat_statement',
+        adapterVersion: 1,
+        newObservations: 4,
+      },
+    })
     proposals.decide(r1.proposal.key, 'rejected')
     const r2 = proposals.upsert(
-      { ...BASE, newObservations: REPROPOSAL_MIN_NEW_OBSERVATIONS },
+      {
+        ...BASE,
+        evidence: {
+          sourceInstanceId: 'inst-lifecycle',
+          adapterId: 'wechat_statement',
+          adapterVersion: 1,
+          newObservations: REPROPOSAL_MIN_NEW_OBSERVATIONS,
+        },
+      },
       { cyclesCovered: 1 },
     )
     expect(r2.suppressed).toBe(false)
     expect(r2.changed).toBe(true)
     expect(r2.proposal.decision).toBe('pending')
     expect(r2.proposal.rejectedAt).toBeNull()
+    // 同流累计 4+3=7；拒绝快照 4 → 单流新增 3 ≥ 3 → 重提
     expect(r2.proposal.observationCount).toBe(7)
+  })
+
+  it('多源证据：同 key 两流独立计数，重提必须单流满足（禁止 2+2 跨流相加）', () => {
+    const r1 = proposals.upsert({
+      ...BASE,
+      evidence: {
+        sourceInstanceId: 'inst-wechat',
+        adapterId: 'wechat_statement',
+        adapterVersion: 1,
+        newObservations: 4,
+      },
+    })
+    // 第二个来源发现同一现实候选 → 仍只有一条 Proposal，evidenceRefs 两流
+    const r2 = proposals.upsert({
+      ...BASE,
+      evidence: {
+        sourceInstanceId: 'inst-bankcsv',
+        adapterId: 'generic_csv',
+        adapterVersion: 1,
+        newObservations: 2,
+      },
+    })
+    expect(r2.proposal.id).toBe(r1.proposal.id)
+    expect(r2.proposal.evidenceRefs).toHaveLength(2)
+    const streams = evidence.listByProposalKey(r1.proposal.key)
+    expect(streams).toHaveLength(2)
+    expect(streams.map((x) => x.observationCount).sort()).toEqual([2, 4])
+
+    proposals.decide(r1.proposal.key, 'rejected')
+    // 跨流相加：wechat +2 / csv +2 → 任一单流 < 3 → 不重提
+    proposals.upsert(
+      {
+        ...BASE,
+        evidence: {
+          sourceInstanceId: 'inst-wechat',
+          adapterId: 'wechat_statement',
+          adapterVersion: 1,
+          newObservations: 2,
+        },
+      },
+      { cyclesCovered: 1 },
+    )
+    const after = proposals.upsert(
+      {
+        ...BASE,
+        evidence: {
+          sourceInstanceId: 'inst-bankcsv',
+          adapterId: 'generic_csv',
+          adapterVersion: 1,
+          newObservations: 2,
+        },
+      },
+      { cyclesCovered: 1 },
+    )
+    expect(after.suppressed).toBe(true)
+    expect(after.proposal.decision).toBe('rejected')
   })
 
   it('evidence 只累计新 unique observations 且 min/max 正确', () => {
     const a = evidence.accumulate({
       proposalKey: 'card1|funding_source|wechat|payment',
+      sourceInstanceId: 'inst-ev',
+      adapterId: 'wechat_statement',
+      adapterVersion: 1,
       sourceType: 'wechat_bill',
       parserId: 'wechat',
       parserVersion: 1,
@@ -111,6 +241,9 @@ describe('Proposal lifecycle (Schema v1)', () => {
     expect(a.created).toBe(true)
     const b = evidence.accumulate({
       proposalKey: 'card1|funding_source|wechat|payment',
+      sourceInstanceId: 'inst-ev',
+      adapterId: 'wechat_statement',
+      adapterVersion: 1,
       sourceType: 'wechat_bill',
       parserId: 'wechat',
       parserVersion: 1,
@@ -120,7 +253,10 @@ describe('Proposal lifecycle (Schema v1)', () => {
       newObservations: 1,
     })
     expect(b.created).toBe(false)
-    const e = evidence.getByProposalKey('card1|funding_source|wechat|payment')!
+    const e = evidence.getByProposalKeyAndInstance(
+      'card1|funding_source|wechat|payment',
+      'inst-ev',
+    )!
     expect(e.observationCount).toBe(3)
     expect(e.firstObservedAt).toBe('2026-03-01')
     expect(e.lastObservedAt).toBe('2026-04-15')
