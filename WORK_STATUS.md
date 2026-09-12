@@ -5,22 +5,22 @@
 
 ## Current
 
-- Phase: **MVP02 Global Source Abstraction**（ZCode→WorkBuddy 接力）
-- Status: Core 部分持续推进中；MVP01_DEV_CLOSEOUT = PASS 保持
+- Phase: **MVP02 Global Source Abstraction**（WorkBuddy→ZCode 接力收口轮）
+- Status: Core 全部技术 Gate PASS（259/259）；进行中文档收口；MVP01_DEV_CLOSEOUT = PASS 保持
 - Real Data Gate: NOT_RUN（固定）
-- 详细报告：MVP01_RC_AUDIT_REPORT.md / WORKBUDDY_HANDOFF_AUDIT.md
+- 详细报告：MVP01_RC_AUDIT_REPORT.md / WORKBUDDY_HANDOFF_AUDIT.md / **ZCODE_REHANDOFF_AUDIT.md** / MVP02_FINAL_REPORT.md
 
-## Current quality state
+## Current quality state（ZCode 接力轮 2026-09-13 实跑）
 
 - format:check PASS（prettier 3.9.6）
 - lint PASS（eslint 10 typed，0 errors/0 warnings）
 - typecheck PASS（strict 全开，0 errors）
-- tests：**253/253 PASS，0 skip**（21 文件）
-  - MVP01 存量 166 → +12（SourceInstance 隔离 B/C）→ +6（Coverage Semantics H）
-  - → +20（Generic CSV E）→ +15（OFX/QFX F）→ +17（payload v2/v1 J）→ +9（multi-source E2E K）
-- architecture check PASS（35 files）；secret scan PASS（233 files，0 production secrets）
-- coverage：crypto 98.7% / impact 92.4% / parser 96.9% / repos 93.3% / services 93.6% / schema 100%
-- clean install + clean clone 模拟：npm ci → npm run check 全绿复现
+- tests：**259/259 PASS，0 skip**（21 文件）
+  - 253 基线 → +3（migration T4/T4b/T5 A 段补测）→ +3（MVP02 性能 smoke：
+    10k CSV parse 64ms / 10k OFX parse 67ms / 3 SourceInstance 并发 2k×3 ≈4.6s，
+    指纹命名空间隔离断言）
+- architecture check PASS（35 files）；secret scan PASS（238 files，0 production secrets）
+- coverage（RC 轮基线）：crypto 98.7% / impact 92.4% / parser 96.9% / repos 93.3% / services 93.6% / schema 100%
 
 ## MVP02 进度（Gate 级）
 
@@ -35,9 +35,11 @@
 | J | `.depmap` payload v2 + v1 in-memory migrate | PASS（17 用例） |
 | K | multi-source synthetic E2E 全链路 | PASS（9 用例） |
 | L | quality gates 全绿 | PASS |
-| — | `MVP02_FINAL_REPORT.md` | 未开始 |
-| — | docs/ 八份 MVP02 文档 | 未开始 |
-| — | A 段补测 T4/T5/T6/T10 | 部分未开始 |
+| A 段补测 | T4（有数据库 ×50）/T4b（重启后 ×50）/T5（legacy dedupe 语义） | PASS（本轮，7a68887） |
+| 性能 smoke | 10k CSV / 10k OFX / 3 SourceInstance 并发 | PASS（本轮，7a68887） |
+| — | `MVP02_ACCEPTANCE.md` 按证据勾选 | 本轮完成 |
+| — | `MVP02_FINAL_REPORT.md` | 本轮完成 |
+| — | docs/ 八份 MVP02 文档 | 本轮完成 |
 
 ## 本轮修复的生产缺陷（均有回归测试）
 
@@ -84,7 +86,20 @@
 - Synthetic E2E: TESTED（9 用例）+ 导入事务性（AE 注入失败用例）
 - Correctness Gate: **NOT_RUN**；Value Gate: **NOT_RUN**
 
-## Last completed（MVP02 接力轮）
+## Last completed（ZCode 接力收口轮 2026-09-13）
+
+- 恢复 WorkBuddy 现场并生成 `ZCODE_REHANDOFF_AUDIT.md`（A–G 分节，含实跑证据）
+- 验证并修复两个未提交测试文件中的 3 个质量门错误（prettier ×2、eslint no-unused-vars ×2、
+  no-base-to-string ×1、tsc `kind:'merchant'`→`'service'` ×1），随 `7a68887` 提交
+- A 段补测闭环：T4（已迁移且有数据的库 ×50 零漂移）/ T4b（重启后 ×50）/ T5
+  （legacy 去重作用域语义 + 表级 UNIQUE DDL 断言）；T6 原已在 migration.test.ts:102、
+  T10 即 J 段 J2（v1 payload in-memory migrate），无缺口
+- verificationBasis 调查闭环：写入回读断言已存在（multi-source-e2e.test.ts:287
+  user_confirmed + migration.test.ts:265 列默认值），无需新增
+- `MVP02_ACCEPTANCE.md` 按测试证据勾选；`MVP02_FINAL_REPORT.md` 生成；
+  docs/ 八份 MVP02 文档落地
+
+## Last completed（MVP02 接力轮 WorkBuddy）
 
 - K 段：multi-source synthetic E2E（9 用例，含 ×20 确定性、单流重提阈值、多源不产生 must_change）
 - J 段：payload v2 往返/幂等/原子失败 + v1 in-memory migrate（17 用例，变异测试验证非空断言）
@@ -110,14 +125,9 @@
 
 ## Next
 
-1. 生成 `MVP02_FINAL_REPORT.md`（Core 侧已具备全部证据）
-2. docs/ 八份 MVP02 文档：SOURCE_ARCHITECTURE / SOURCE_INSTANCE / GENERIC_CSV_ADAPTER /
-   OFX_QFX_ADAPTER / SCHEMA_V2 / MIGRATION_V1_V2 / MULTISOURCE_EVIDENCE / TEST_MATRIX_MVP02
-3. A 段补测：T4（已迁移且有数据的库上 ×50）、T5（legacy dedupe retained）、
-   T6（evidenceId→evidenceRefs）、T10（old payload v1 migration path）
-4. 性能 smoke 扩展：10k CSV rows / 10k OFX / 3 SourceInstances
-5. 调查：`verificationBasis` 写入回读断言补充
-6. B1 → Android golden 测试 + 编译（docs/ANDROID_TOOLCHAIN_SETUP.md）
-7. B10 → HBuilderX 基座 → UI 编译 + 真机 spike
-8. B3 → docs/IOS_MAC_HANDOFF.md
-9. B13 → 真实账单双 Gate（core/scripts/validate-real-bill.ts 已验证可用）
+1. **Core MVP02 已收口**。剩余全部为外部 Blocker 项或 Real Data：
+2. B1 → Android golden 测试 + 编译（docs/ANDROID_TOOLCHAIN_SETUP.md）
+3. B10 → HBuilderX 基座 → UI 编译 + 真机 spike
+4. B3 → docs/IOS_MAC_HANDOFF.md
+5. B13 → 真实账单双 Gate（core/scripts/validate-real-bill.ts 已验证可用；Real Data 保持 NOT_RUN 直到用户提供）
+6. NEXT_BACKLOG（MVP03/PDIG v1.1）不在本轮范围

@@ -1,0 +1,41 @@
+继续当前 PDIG / DepMap 仓库的 MVP02，不要从头开始。
+
+你正在从 ZCode 接手一个已经做了一部分的工作区。
+
+先完整读取：
+@AGENTS.md
+@CODEBUDDY.md
+@CANONICAL_DESIGN.md
+@GOAL_MVP02_GLOBAL_SOURCE.md
+@WORKBUDDY_MVP02_CONTINUE_GOAL.md
+@MVP02_ACCEPTANCE.md
+@WORK_STATUS.md
+@BLOCKERS.md
+
+然后检查：
+- git status
+- git diff
+- git log --oneline -20
+- package.json / core/package.json
+- migrations
+- source adapters
+- tests
+- 已存在的 MVP02_PRE_AUDIT / MVP02_FINAL_REPORT
+
+第一步生成 WORKBUDDY_HANDOFF_AUDIT.md，准确区分：
+1. 已完成且已验证
+2. 已实现但未验证
+3. 部分完成
+4. 未开始
+5. 当前 regression/failure
+6. 未提交修改
+
+然后从 MVP02_ACCEPTANCE.md 第一个真实未完成 Gate 继续。
+
+不要重新初始化项目，不要重做已经有测试证据 PASS 的模块，不要进入 NEXT_BACKLOG。
+
+持续修改、运行测试、修复、回归并更新 WORK_STATUS.md，尽可能执行到 MVP02_FINAL_REPORT.md。
+
+真实数据本轮保持 NOT_RUN；Android/Harmony/iOS 工具链 blocker 不得阻塞 Core。
+
+现在直接执行，不要只给计划。

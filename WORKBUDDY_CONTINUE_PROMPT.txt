@@ -1,0 +1,20 @@
+继续上一轮 MVP02 WorkBuddy 任务。
+
+先读取：
+@CODEBUDDY.md
+@WORK_STATUS.md
+@MVP02_ACCEPTANCE.md
+@BLOCKERS.md
+@WORKBUDDY_HANDOFF_AUDIT.md
+
+检查当前 git status 和最新测试结果。
+
+从 WORK_STATUS 的 Next 指向的第一个未完成 Gate 继续，不重复已经验证 PASS 的工作。
+
+持续：
+inspect → test → fix → focused test → full regression → update status → next
+
+不要进入 NEXT_BACKLOG，不跑真实数据，不伪造平台编译。
+
+目标仍然是生成真实的 MVP02_FINAL_REPORT.md，并让：
+MVP02_GLOBAL_SOURCE_ABSTRACTION = PASS

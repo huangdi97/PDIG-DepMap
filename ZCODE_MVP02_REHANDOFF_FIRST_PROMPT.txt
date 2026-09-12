@@ -1,0 +1,49 @@
+继续当前 PDIG / DepMap 的 MVP02。
+
+你现在正在从 WorkBuddy + DeepSeek-V4-Flash 接手一个已经继续开发过的仓库。
+
+不要从头开始，不要重写已经完成的模块。
+
+先完整读取：
+AGENTS.md
+CANONICAL_DESIGN.md
+GOAL_MVP02_GLOBAL_SOURCE.md
+MVP02_ACCEPTANCE.md
+WORK_STATUS.md
+BLOCKERS.md
+CODEBUDDY.md（若存在）
+WORKBUDDY_MVP02_CONTINUE_GOAL.md（若存在）
+WORKBUDDY_HANDOFF_AUDIT.md（若存在）
+MVP02_PRE_AUDIT.md（若存在）
+MVP02_FINAL_REPORT.md（若存在）
+ZCODE_MVP02_REHANDOFF_GOAL.md
+
+然后立即检查：
+git status
+git diff
+git diff --staged
+git log --oneline -30
+package.json / core/package.json
+migrations
+source adapters
+tests
+
+第一步生成 ZCODE_REHANDOFF_AUDIT.md，准确区分：
+1. WorkBuddy 已完成且已验证
+2. 已实现但未验证
+3. 部分完成
+4. 未开始
+5. 当前失败/regression
+6. 未提交修改
+7. 第一个应继续的 Gate
+
+然后更新 WORK_STATUS.md，并从 MVP02_ACCEPTANCE.md 第一个真实未完成 Gate 开始继续。
+
+禁止 git reset --hard / git clean -fd / checkout 或 restore 覆盖工作区。
+禁止重复实现已经有测试证据 PASS 的内容。
+禁止进入 NEXT_BACKLOG。
+Real Data 继续 NOT_RUN。
+
+持续执行代码、测试、回归和质量门禁，尽可能直接做到 MVP02_FINAL_REPORT.md。
+
+现在实际执行，不要只给计划。

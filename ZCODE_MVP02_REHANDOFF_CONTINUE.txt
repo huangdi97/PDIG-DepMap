@@ -1,0 +1,26 @@
+继续当前 MVP02 ZCode 接力任务。
+
+先读取：
+AGENTS.md
+ZCODE_MVP02_REHANDOFF_GOAL.md
+WORK_STATUS.md
+MVP02_ACCEPTANCE.md
+BLOCKERS.md
+ZCODE_REHANDOFF_AUDIT.md
+MVP02_FINAL_REPORT.md（若存在）
+
+然后检查 git status / git diff / 最新测试结果。
+
+从 WORK_STATUS.md 的 Current gate / Next 指向的第一个未完成 Gate 继续。
+
+不要重复 Verified PASS 的工作。
+不要进入 NEXT_BACKLOG。
+不要跑真实数据。
+不要伪造平台编译。
+
+继续：
+inspect → focused test → fix → regression → update status → next
+
+最终目标：
+MVP02_FINAL_REPORT.md
+MVP02_GLOBAL_SOURCE_ABSTRACTION = PASS
