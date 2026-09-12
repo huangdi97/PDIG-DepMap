@@ -72,3 +72,8 @@ tmp_private/
 tmp/
 .temp/
 .cache/
+
+# Mutation testing artifacts
+.stryker-tmp/
+reports/
+*.mutbak
