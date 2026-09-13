@@ -95,13 +95,7 @@ export function diffImpactSnapshots(
     if (!newByKey.has(key)) removedImpacts.push(prev)
   }
   const byImpact = (a: ImpactDiffItem, b: ImpactDiffItem): number =>
-    a.nodeId !== b.nodeId
-      ? a.nodeId < b.nodeId
-        ? -1
-        : 1
-      : a.capability < b.capability
-        ? -1
-        : 1
+    a.nodeId !== b.nodeId ? (a.nodeId < b.nodeId ? -1 : 1) : a.capability < b.capability ? -1 : 1
   return {
     addedImpacts: [...addedImpacts].sort(byImpact),
     removedImpacts: [...removedImpacts].sort(byImpact),
@@ -155,7 +149,12 @@ export function rebasePlan(
   // addedActions 恒为空（新增动作由模板/用户显式添加），removedActions 恒为空。
   const preservedActions: PlanAction[] = plan.actions.map((a) => ({ ...a }))
 
-  const updated = repos.plans.updateAnalysis(plan.id, newSnapshot, currentRevision, preservedActions)
+  const updated = repos.plans.updateAnalysis(
+    plan.id,
+    newSnapshot,
+    currentRevision,
+    preservedActions,
+  )
 
   const diff: PlanRebaseDiff = {
     ...impacts,

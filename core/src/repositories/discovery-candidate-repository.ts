@@ -63,7 +63,8 @@ function rowToCandidate(row: Record<string, unknown>): DiscoveryCandidate {
     firstSeenAt: String(row.first_seen_at),
     lastSeenAt: String(row.last_seen_at),
     dismissedAtObservationCount:
-      row.dismissed_at_observation_count === null || row.dismissed_at_observation_count === undefined
+      row.dismissed_at_observation_count === null ||
+      row.dismissed_at_observation_count === undefined
         ? null
         : Number(row.dismissed_at_observation_count),
     acceptedNodeId: (row.accepted_node_id as string | null) ?? null,
@@ -95,7 +96,10 @@ export class DiscoveryCandidateRepository {
    * - accepted / superseded → 不变（幂等；不重复打扰）
    * - dismissed → 仅当 dismiss 后新增观测 ≥ CANDIDATE_REOPEN_MIN_NEW_OBSERVATIONS 才回到 pending
    */
-  upsert(input: UpsertDiscoveryCandidateInput): { candidate: DiscoveryCandidate; changed: boolean } {
+  upsert(input: UpsertDiscoveryCandidateInput): {
+    candidate: DiscoveryCandidate
+    changed: boolean
+  } {
     return this.driver.transaction(() => {
       const now = nowIso()
       const existing = this.findByNormalizedKey(input.normalizedKey)
@@ -175,7 +179,13 @@ export class DiscoveryCandidateRepository {
         .prepare(
           `UPDATE discovery_candidates SET observation_count = ?, last_seen_at = ?, evidence_refs_json = ?, updated_at = ? WHERE id = ?`,
         )
-        .run(existing.observationCount + 1, input.occurredAt ?? now, JSON.stringify(refs), now, existing.id)
+        .run(
+          existing.observationCount + 1,
+          input.occurredAt ?? now,
+          JSON.stringify(refs),
+          now,
+          existing.id,
+        )
       return { candidate: this.getById(existing.id) as DiscoveryCandidate, changed: true }
     })
   }

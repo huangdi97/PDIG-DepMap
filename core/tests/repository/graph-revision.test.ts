@@ -41,7 +41,10 @@ describe('GraphRevision（MVP03 GR）', () => {
 
   it('GR-002: confirm Dependency（新建）→ +1', () => {
     const deps = new DependencyRepository(driver)
-    expect(deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-b', capability: 'payment' }).reactivated).toBe(false)
+    expect(
+      deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-b', capability: 'payment' })
+        .reactivated,
+    ).toBe(false)
     expect(getGraphRevision(driver)).toBe(1)
   })
 
@@ -90,24 +93,32 @@ describe('GraphRevision（MVP03 GR）', () => {
       parserVersion: 1,
       confidenceScore: 0.99,
     })
-    proposals.upsert({ ...{
-      from: 'n-a',
-      relation: 'merchant_agreement',
-      to: 'n-svc',
-      capability: 'payment',
-      proposalType: 'merchant_agreement',
-      source: 'test',
-      parserId: 'test',
-      parserVersion: 1,
-      confidenceScore: 0.99,
-    }, newObservations: 5 })
+    proposals.upsert({
+      ...{
+        from: 'n-a',
+        relation: 'merchant_agreement',
+        to: 'n-svc',
+        capability: 'payment',
+        proposalType: 'merchant_agreement',
+        source: 'test',
+        parserId: 'test',
+        parserVersion: 1,
+        confidenceScore: 0.99,
+      },
+      newObservations: 5,
+    })
     proposals.decide(up.proposal.key, 'accepted', 'required')
     expect(getGraphRevision(driver)).toBe(before)
   })
 
   it('GR-005: retire Dependency → +1；重复 retire 幂等不加', () => {
     const deps = new DependencyRepository(driver)
-    const { dependency } = deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-b', capability: 'payment' })
+    const { dependency } = deps.confirm({
+      from: 'n-a',
+      relation: 'funding_source',
+      to: 'n-b',
+      capability: 'payment',
+    })
     const base = getGraphRevision(driver) // =1（confirm）
     deps.retire(dependency.id)
     expect(getGraphRevision(driver)).toBe(base + 1)
@@ -117,7 +128,12 @@ describe('GraphRevision（MVP03 GR）', () => {
 
   it('GR-006: reactivate Dependency → +1', () => {
     const deps = new DependencyRepository(driver)
-    const first = deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-b', capability: 'payment' })
+    const first = deps.confirm({
+      from: 'n-a',
+      relation: 'funding_source',
+      to: 'n-b',
+      capability: 'payment',
+    })
     deps.retire(first.dependency.id)
     const base = getGraphRevision(driver)
     deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-b', capability: 'payment' })
@@ -127,8 +143,18 @@ describe('GraphRevision（MVP03 GR）', () => {
   it('GR-007: confirm Group → +1；retire → +1；active 重确认幂等不加', () => {
     const deps = new DependencyRepository(driver)
     const groups = new DependencyGroupRepository(driver)
-    const d1 = deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-t', capability: 'payment' })
-    const d2 = deps.confirm({ from: 'n-b', relation: 'funding_source', to: 'n-t', capability: 'payment' })
+    const d1 = deps.confirm({
+      from: 'n-a',
+      relation: 'funding_source',
+      to: 'n-t',
+      capability: 'payment',
+    })
+    const d2 = deps.confirm({
+      from: 'n-b',
+      relation: 'funding_source',
+      to: 'n-t',
+      capability: 'payment',
+    })
     const base = getGraphRevision(driver) // 2
     const mk = () => ({
       targetNodeId: 'n-t',
@@ -173,8 +199,18 @@ describe('GraphRevision（MVP03 GR）', () => {
   it('GR-010: 顺序事务不丢 revision', () => {
     const deps = new DependencyRepository(driver)
     const groups = new DependencyGroupRepository(driver)
-    const d1 = deps.confirm({ from: 'n-a', relation: 'funding_source', to: 'n-t', capability: 'payment' })
-    const d2 = deps.confirm({ from: 'n-b', relation: 'funding_source', to: 'n-t', capability: 'payment' })
+    const d1 = deps.confirm({
+      from: 'n-a',
+      relation: 'funding_source',
+      to: 'n-t',
+      capability: 'payment',
+    })
+    const d2 = deps.confirm({
+      from: 'n-b',
+      relation: 'funding_source',
+      to: 'n-t',
+      capability: 'payment',
+    })
     groups.confirm(
       {
         targetNodeId: 'n-t',
@@ -192,15 +228,26 @@ describe('GraphRevision（MVP03 GR）', () => {
 
   it('GR-011: duplicate accepted replay / verify 重放 / criticality 不变 → 不重复增加', () => {
     const deps = new DependencyRepository(driver)
-    const key = { from: 'n-a', relation: 'funding_source', to: 'n-b', capability: 'payment' } as const
+    const key = {
+      from: 'n-a',
+      relation: 'funding_source',
+      to: 'n-b',
+      capability: 'payment',
+    } as const
     deps.confirm(key) // +1
     const base = getGraphRevision(driver)
     deps.confirm(key) // active verify 重放
     deps.confirm(key) // 再重放
     expect(getGraphRevision(driver)).toBe(base)
-    deps.updateCriticality(deps.findByLogicalKey(key.from, key.relation, key.to, key.capability)!.id, 'required')
+    deps.updateCriticality(
+      deps.findByLogicalKey(key.from, key.relation, key.to, key.capability)!.id,
+      'required',
+    )
     expect(getGraphRevision(driver)).toBe(base + 1)
-    deps.updateCriticality(deps.findByLogicalKey(key.from, key.relation, key.to, key.capability)!.id, 'required')
+    deps.updateCriticality(
+      deps.findByLogicalKey(key.from, key.relation, key.to, key.capability)!.id,
+      'required',
+    )
     expect(getGraphRevision(driver)).toBe(base + 1) // 值未变不 bump
   })
 

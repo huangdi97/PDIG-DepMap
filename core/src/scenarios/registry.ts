@@ -26,7 +26,8 @@ export interface ScenarioTemplate {
   category: 'payment' | 'identity' | 'device' | 'work' | 'international' | 'digital_assets'
   title: string
   description: string
-  supportedCapabilities: readonly ['payment'] | readonly ('payment' | 'access' | 'recovery' | 'identity')[]
+  supportedCapabilities:
+    readonly ['payment'] | readonly ('payment' | 'access' | 'recovery' | 'identity')[]
   requiredInputs: ScenarioTemplateInputSpec[]
   optionalInputs: ScenarioTemplateInputSpec[]
   /** 产品建议提前量（天）；非法律/金融保证，用户可调整。 */
@@ -100,7 +101,11 @@ function makePaymentTemplate(spec: {
       { key: 'targetPaymentInstrumentId', required: true, description: '要变更的支付工具节点 id' },
     ],
     optionalInputs: [
-      { key: 'replacementPaymentInstrumentId', required: false, description: '替代支付工具节点 id（可选）' },
+      {
+        key: 'replacementPaymentInstrumentId',
+        required: false,
+        description: '替代支付工具节点 id（可选）',
+      },
       { key: 'effectiveDate', required: false, description: '计划生效日期（ISO 8601）' },
     ],
     recommendedLeadTimeDays: spec.leadTimeDays,
@@ -114,7 +119,10 @@ function makePaymentTemplate(spec: {
       const plan = service.plans.create({
         templateId: spec.id,
         scenario: spec.id,
-        title: `${spec.title}（${inputs['effectiveDate'] ?? '未定日期'}）`.replace('（未定日期）', ''),
+        title: `${spec.title}（${inputs['effectiveDate'] ?? '未定日期'}）`.replace(
+          '（未定日期）',
+          '',
+        ),
         targetNodeId: target,
         effectiveDate: inputs['effectiveDate'] ?? null,
         params: { ...inputs },
@@ -159,7 +167,9 @@ export const PLANNED_TEMPLATES: ScenarioTemplate[] = [
     title: '更换手机号',
     description: '设计稿（未实现）：手机号关联的验证与恢复路径检查。',
     supportedCapabilities: ['access', 'recovery', 'identity'] as const,
-    requiredInputs: [{ key: 'targetPhoneAnchorId', required: true, description: '手机号锚点节点 id' }],
+    requiredInputs: [
+      { key: 'targetPhoneAnchorId', required: true, description: '手机号锚点节点 id' },
+    ],
     optionalInputs: [],
     recommendedLeadTimeDays: 30,
     availability: 'planned',
@@ -188,7 +198,9 @@ export function instantiateScenario(
   const template = getScenarioTemplate(templateId)
   if (!template) throw new Error(`scenario template not found: ${templateId}`)
   if (template.availability !== 'active' || template.scenarioFactory === null) {
-    throw new Error(`scenario template ${templateId} is not executable (availability=${template.availability})`)
+    throw new Error(
+      `scenario template ${templateId} is not executable (availability=${template.availability})`,
+    )
   }
   for (const req of template.requiredInputs) {
     if (!inputs[req.key]) {

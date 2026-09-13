@@ -24,11 +24,7 @@ export type TimelineKind =
 export type TimelineBucket = 'attention' | 'overdue' | 'today' | '7d' | '30d' | '90d' | 'later'
 
 export type TimelineSourceType =
-  | 'change_plan'
-  | 'reality_drift'
-  | 'action_verification'
-  | 'node_expiry'
-  | 'source_freshness'
+  'change_plan' | 'reality_drift' | 'action_verification' | 'node_expiry' | 'source_freshness'
 
 export interface TimelineItem {
   id: string
@@ -49,7 +45,15 @@ export interface TimelineOptions {
   freshnessThresholdDays?: number
 }
 
-const BUCKET_ORDER: TimelineBucket[] = ['attention', 'overdue', 'today', '7d', '30d', '90d', 'later']
+const BUCKET_ORDER: TimelineBucket[] = [
+  'attention',
+  'overdue',
+  'today',
+  '7d',
+  '30d',
+  '90d',
+  'later',
+]
 
 const DAY_MS = 86_400_000
 
@@ -74,7 +78,11 @@ function nodeExpiryDate(fields: Record<string, unknown> | undefined): string | n
 }
 
 /** 构建 Timeline 投影（只读；对同一 DB 状态与同一 now 恒定）。 */
-export function buildTimeline(driver: SqliteDriver, nowIso: string, options: TimelineOptions = {}): TimelineItem[] {
+export function buildTimeline(
+  driver: SqliteDriver,
+  nowIso: string,
+  options: TimelineOptions = {},
+): TimelineItem[] {
   const now = Date.parse(nowIso)
   const items: TimelineItem[] = []
   const freshnessDays = options.freshnessThresholdDays ?? 45
@@ -118,14 +126,22 @@ export function buildTimeline(driver: SqliteDriver, nowIso: string, options: Tim
     }
     // 2. Verification pending（verify 阶段动作）
     for (const action of plan.actions) {
-      if (action.phase === 'verify' && action.verification && action.verification.status !== 'verified' && action.verification.status !== 'not_required') {
+      if (
+        action.phase === 'verify' &&
+        action.verification &&
+        action.verification.status !== 'verified' &&
+        action.verification.status !== 'not_required'
+      ) {
         items.push({
           id: `tl-verif-${plan.id}-${action.id}`,
           kind: 'verification_pending',
           title: `待验证：${action.title}`,
           subtitle: `属于计划「${plan.title}」`,
           scheduledAt: plan.effectiveDate,
-          bucket: bucketOf(plan.effectiveDate, now) === 'attention' ? 'later' : bucketOf(plan.effectiveDate, now),
+          bucket:
+            bucketOf(plan.effectiveDate, now) === 'attention'
+              ? 'later'
+              : bucketOf(plan.effectiveDate, now),
           priority: 2,
           sourceType: 'action_verification',
           sourceId: `${plan.id}/${action.id}`,

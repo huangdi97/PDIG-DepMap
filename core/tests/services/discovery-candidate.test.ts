@@ -105,15 +105,21 @@ describe('DiscoveryCandidate（MVP03 PC）', () => {
     expect(nodes.list().length).toBe(0)
 
     const r1 = discovery.upsertCandidate({
-      candidateKind: 'service', displayLabel: 'Spotify', normalizedKey: 'svc:spotify',
-      sourceInstanceId: 's1', evidenceRef: 's1#9',
+      candidateKind: 'service',
+      displayLabel: 'Spotify',
+      normalizedKey: 'svc:spotify',
+      sourceInstanceId: 's1',
+      evidenceRef: 's1#9',
     })
     expect(r1.changed).toBe(false)
     expect(r1.candidate.status).toBe('dismissed')
 
     const r2 = discovery.upsertCandidate({
-      candidateKind: 'service', displayLabel: 'Spotify', normalizedKey: 'svc:spotify',
-      sourceInstanceId: 's1', evidenceRef: 's1#10',
+      candidateKind: 'service',
+      displayLabel: 'Spotify',
+      normalizedKey: 'svc:spotify',
+      sourceInstanceId: 's1',
+      evidenceRef: 's1#10',
     })
     expect(r2.changed).toBe(true)
     expect(r2.candidate.status).toBe('pending')
@@ -131,7 +137,10 @@ describe('DiscoveryCandidate（MVP03 PC）', () => {
     expect(getGraphRevision(driver)).toBe(before)
     // superseded 同样不 bump（accept 的 Node 创建也不 bump；Reality 关系才 bump）
     const { candidate: c2 } = discovery.upsertCandidate({
-      candidateKind: 'service', displayLabel: 'X', normalizedKey: 'svc:x', sourceInstanceId: 's1',
+      candidateKind: 'service',
+      displayLabel: 'X',
+      normalizedKey: 'svc:x',
+      sourceInstanceId: 's1',
     })
     discovery.accept(c2.id)
     expect(getGraphRevision(driver)).toBe(before)
@@ -152,11 +161,18 @@ describe('DiscoveryCandidate（MVP03 PC）', () => {
 
   it('accepted 的候选 superseded：同名新信号不再打扰', () => {
     const { candidate } = discovery.upsertCandidate({
-      candidateKind: 'service', displayLabel: 'X', normalizedKey: 'svc:x', sourceInstanceId: 's1',
+      candidateKind: 'service',
+      displayLabel: 'X',
+      normalizedKey: 'svc:x',
+      sourceInstanceId: 's1',
     })
     discovery.accept(candidate.id)
     const r = discovery.upsertCandidate({
-      candidateKind: 'service', displayLabel: 'X', normalizedKey: 'svc:x', sourceInstanceId: 's2', evidenceRef: 's2#1',
+      candidateKind: 'service',
+      displayLabel: 'X',
+      normalizedKey: 'svc:x',
+      sourceInstanceId: 's2',
+      evidenceRef: 's2#1',
     })
     expect(r.changed).toBe(false)
     expect(r.candidate.status).toBe('accepted')

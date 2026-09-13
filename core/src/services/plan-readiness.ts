@@ -102,7 +102,9 @@ export function computeScenarioCoverage(input: ScenarioCoverageInput): ScenarioC
     partial = true
   }
   if (input.unknownCriticalityCount > 0) {
-    explanations.push(`${input.unknownCriticalityCount} 条依赖 criticality=unknown（是否必需未确认）。`)
+    explanations.push(
+      `${input.unknownCriticalityCount} 条依赖 criticality=unknown（是否必需未确认）。`,
+    )
     partial = true
   }
   if (input.unverifiedActions > 0) {

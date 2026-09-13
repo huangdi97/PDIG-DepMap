@@ -12,9 +12,7 @@ import { newId, nowIso } from '../utils/ids.ts'
  */
 
 export type RealityDriftKind =
-  | 'possible_replacement'
-  | 'possible_additional_path'
-  | 'relation_reappeared'
+  'possible_replacement' | 'possible_additional_path' | 'relation_reappeared'
 
 export type RealityDriftStatus = 'open' | 'confirmed_change' | 'dismissed' | 'superseded'
 
@@ -92,7 +90,11 @@ export class RealityDriftRepository {
    * - 无 open drift 且该 evidenceRef 未出现在历史同 key drift → 新建 open drift
    * - confirmed/dismissed/superseded 的历史 drift 不复活（新证据必须是未见过的 ref）
    */
-  upsertSignal(input: UpsertDriftSignalInput): { drift: RealityDrift; created: boolean; changed: boolean } {
+  upsertSignal(input: UpsertDriftSignalInput): {
+    drift: RealityDrift
+    created: boolean
+    changed: boolean
+  } {
     return this.driver.transaction(() => {
       const prefix = driftKeyPrefix(input)
       const all = this.driver
@@ -108,15 +110,21 @@ export class RealityDriftRepository {
           input.evidenceRef && !open.evidenceRefs.includes(input.evidenceRef)
             ? [...open.evidenceRefs, input.evidenceRef]
             : open.evidenceRefs
-        const alreadyCounted = input.evidenceRef !== undefined && open.evidenceRefs.includes(input.evidenceRef)
+        const alreadyCounted =
+          input.evidenceRef !== undefined && open.evidenceRefs.includes(input.evidenceRef)
         const keys =
           input.proposalKey && !open.proposalKeys.includes(input.proposalKey)
             ? [...open.proposalKeys, input.proposalKey]
             : open.proposalKeys
         const relatedChanged =
-          JSON.stringify(mergeUnique(open.relatedDependencyIds, input.relatedDependencyIds ?? [])) !==
-          JSON.stringify([...open.relatedDependencyIds].sort())
-        const changed = !alreadyCounted || refs.length !== open.evidenceRefs.length || keys.length !== open.proposalKeys.length || relatedChanged
+          JSON.stringify(
+            mergeUnique(open.relatedDependencyIds, input.relatedDependencyIds ?? []),
+          ) !== JSON.stringify([...open.relatedDependencyIds].sort())
+        const changed =
+          !alreadyCounted ||
+          refs.length !== open.evidenceRefs.length ||
+          keys.length !== open.proposalKeys.length ||
+          relatedChanged
         this.driver
           .prepare(
             `UPDATE reality_drifts SET evidence_refs_json = ?, proposal_keys_json = ?, related_dependency_ids_json = ?, observation_count = ?, updated_at = ? WHERE id = ?`,

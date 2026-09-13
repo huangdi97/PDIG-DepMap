@@ -108,14 +108,26 @@ describe('Action Verification（MVP03 VF）', () => {
 
   it('VF-004: evidence suggestion 不修改 Reality（revision / deps 不变）', () => {
     const before = getGraphRevision(driver)
-    service.applyEvidenceSignal(planId, { fromNodeId: newCard, toNodeId: spotify, evidenceRef: 'i#1' })
+    service.applyEvidenceSignal(planId, {
+      fromNodeId: newCard,
+      toNodeId: spotify,
+      evidenceRef: 'i#1',
+    })
     expect(getGraphRevision(driver)).toBe(before)
     expect(new DependencyRepository(driver).countAll()).toBe(0)
   })
 
   it('VF-005: duplicate evidence 不重复 verification 记录', () => {
-    service.applyEvidenceSignal(planId, { fromNodeId: newCard, toNodeId: spotify, evidenceRef: 'i#1' })
-    service.applyEvidenceSignal(planId, { fromNodeId: newCard, toNodeId: spotify, evidenceRef: 'i#1' })
+    service.applyEvidenceSignal(planId, {
+      fromNodeId: newCard,
+      toNodeId: spotify,
+      evidenceRef: 'i#1',
+    })
+    service.applyEvidenceSignal(planId, {
+      fromNodeId: newCard,
+      toNodeId: spotify,
+      evidenceRef: 'i#1',
+    })
     const action = service.plans.getExisting(planId).actions.find((a) => a.id === 'act-move')!
     expect(action.verification?.evidenceRefs).toEqual(['i#1'])
   })
@@ -143,7 +155,11 @@ describe('Action Verification（MVP03 VF）', () => {
   })
 
   it('evidence_suggested 后用户确认 → verified（两段式，禁止自动 verified）', () => {
-    service.applyEvidenceSignal(planId, { fromNodeId: newCard, toNodeId: spotify, evidenceRef: 'i#1' })
+    service.applyEvidenceSignal(planId, {
+      fromNodeId: newCard,
+      toNodeId: spotify,
+      evidenceRef: 'i#1',
+    })
     // 模拟 UI：用户看到「新数据表明这项变更可能已经生效，请确认」后确认
     const plan = service.plans.getExisting(planId)
     void plan

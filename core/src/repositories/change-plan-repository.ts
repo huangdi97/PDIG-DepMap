@@ -147,7 +147,13 @@ export class ChangePlanRepository {
       .prepare(
         `UPDATE change_plans SET impact_snapshot_json = ?, last_analyzed_graph_revision = ?, action_items_json = ?, updated_at = ? WHERE id = ?`,
       )
-      .run(JSON.stringify(snapshot), lastAnalyzedGraphRevision, JSON.stringify(actions), nowIso(), id)
+      .run(
+        JSON.stringify(snapshot),
+        lastAnalyzedGraphRevision,
+        JSON.stringify(actions),
+        nowIso(),
+        id,
+      )
     return this.getExisting(id)
   }
 

@@ -64,13 +64,14 @@ export class RealityDriftService {
     const result: DetectDriftsResult = { created: [], updated: [], ignored: [] }
 
     const confirmedFrom = new Set(
-      this.deps
-        .listActiveIncomingTo(input.targetNodeId, input.capability)
-        .map((d) => d.from),
+      this.deps.listActiveIncomingTo(input.targetNodeId, input.capability).map((d) => d.from),
     )
     const retiredIncoming = this.deps
       .listAll()
-      .filter((d) => d.to === input.targetNodeId && d.capability === input.capability && d.state === 'retired')
+      .filter(
+        (d) =>
+          d.to === input.targetNodeId && d.capability === input.capability && d.state === 'retired',
+      )
 
     for (const signal of input.signals) {
       if (confirmedFrom.has(signal.fromNodeId)) {
@@ -80,7 +81,12 @@ export class RealityDriftService {
       // 阈值只挡 drift 的「新建」；已 open 的 drift 后续正向证据无论大小都累计
       const hasOpenForSignal = this.drifts
         .listByStatus('open')
-        .some((d) => d.targetNodeId === input.targetNodeId && d.capability === input.capability && d.candidateFrom === signal.fromNodeId)
+        .some(
+          (d) =>
+            d.targetNodeId === input.targetNodeId &&
+            d.capability === input.capability &&
+            d.candidateFrom === signal.fromNodeId,
+        )
       if (!hasOpenForSignal && signal.observations < min) {
         result.ignored.push({ fromNodeId: signal.fromNodeId, reason: 'below_threshold' })
         continue
@@ -126,7 +132,10 @@ export class RealityDriftService {
   }
 
   /** 「已经换成新来源」：确认新边 + retire 旧相关边（均为 user_confirmed Reality mutation）。 */
-  resolveAsReplacement(driftId: string, criticality: 'required' | 'unknown' = 'unknown'): {
+  resolveAsReplacement(
+    driftId: string,
+    criticality: 'required' | 'unknown' = 'unknown',
+  ): {
     drift: RealityDrift
     newDependencyId: string
     retiredDependencyIds: string[]

@@ -80,12 +80,23 @@ describe('ScenarioTemplate（MVP03 ST）', () => {
   })
 
   it('ST-004: 缺 required input → 明确报错；未知模板 → 报错', () => {
-    expect(() => instantiateScenario(driver, 'replace_payment_card', {})).toThrowError(/missing required input/)
+    expect(() => instantiateScenario(driver, 'replace_payment_card', {})).toThrowError(
+      /missing required input/,
+    )
     expect(() => instantiateScenario(driver, 'nonexistent', {})).toThrowError(/not found/)
   })
 
   it('ST-005: 政策 gate —— 注册表中不存在日常生活提醒类模板', () => {
-    const forbidden = ['water', 'birthday', 'plant', 'meeting', 'exercise', 'exam', 'anniversary', 'holiday']
+    const forbidden = [
+      'water',
+      'birthday',
+      'plant',
+      'meeting',
+      'exercise',
+      'exam',
+      'anniversary',
+      'holiday',
+    ]
     for (const t of [...SCENARIO_TEMPLATES, ...PLANNED_TEMPLATES]) {
       for (const word of forbidden) {
         expect(t.id).not.toContain(word)
@@ -123,7 +134,6 @@ describe('Timeline（MVP03 TL）', () => {
   it('TL-002: 计划 effectiveDate 进桶（7d/overdue）+ stale 计划进 attention', () => {
     const nodes = new NodeRepository(driver)
     const card = nodes.create({ kind: 'payment_instrument', name: '招行 4417' })
-    const service = new ChangePlanService(driver)
     const soon = instantiateScenario(driver, 'replace_payment_card', {
       targetPaymentInstrumentId: card.id,
       effectiveDate: '2026-09-18', // NOW +5d → 7d 桶
@@ -141,7 +151,12 @@ describe('Timeline（MVP03 TL）', () => {
     // 制造 stale：新 Reality mutation（confirm 依赖）后 revision > lastAnalyzed
     const deps = new DependencyRepository(driver)
     const target = nodes.create({ kind: 'account', name: '微信支付' })
-    deps.confirm({ from: card.id, relation: 'funding_source', to: target.id, capability: 'payment' })
+    deps.confirm({
+      from: card.id,
+      relation: 'funding_source',
+      to: target.id,
+      capability: 'payment',
+    })
     const items2 = buildTimeline(driver, NOW)
     const staleItems = items2.filter((i) => i.status === 'needs_revalidation')
     expect(staleItems.length).toBe(2) // 两个未完成计划都 stale
@@ -152,9 +167,19 @@ describe('Timeline（MVP03 TL）', () => {
     const nodes = new NodeRepository(driver)
     const cardA = nodes.create({ kind: 'payment_instrument', name: '招行 4417' }).id
     const cardB = nodes.create({ kind: 'payment_instrument', name: '建行 8821' }).id
-    const wechat = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' }).id
+    const wechat = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
     const deps = new DependencyRepository(driver)
-    deps.confirm({ from: cardA, relation: 'funding_source', to: wechat, capability: 'payment', criticality: 'required' })
+    deps.confirm({
+      from: cardA,
+      relation: 'funding_source',
+      to: wechat,
+      capability: 'payment',
+      criticality: 'required',
+    })
     const driftService = new RealityDriftService(driver)
     const { created } = driftService.detectFromEvidence({
       targetNodeId: wechat,
@@ -168,7 +193,9 @@ describe('Timeline（MVP03 TL）', () => {
     expect(driftItem?.actionTarget).toBe(wechat)
 
     // verify 阶段动作（未 verified）→ verification_pending
-    const plan = instantiateScenario(driver, 'replace_payment_card', { targetPaymentInstrumentId: cardA })
+    const plan = instantiateScenario(driver, 'replace_payment_card', {
+      targetPaymentInstrumentId: cardA,
+    })
     void plan
     const items2 = buildTimeline(driver, NOW)
     const verif = items2.filter((i) => i.kind === 'verification_pending')
@@ -204,7 +231,14 @@ describe('Timeline（MVP03 TL）', () => {
     const card = nodes.create({ kind: 'payment_instrument', name: '招行 4417' })
     const service = new ChangePlanService(driver)
     void service
-    for (const d of ['2026-01-01', '2026-09-13', '2026-09-15', '2026-09-25', '2026-10-20', '2027-06-01']) {
+    for (const d of [
+      '2026-01-01',
+      '2026-09-13',
+      '2026-09-15',
+      '2026-09-25',
+      '2026-10-20',
+      '2027-06-01',
+    ]) {
       instantiateScenario(driver, 'replace_payment_card', {
         targetPaymentInstrumentId: card.id,
         effectiveDate: d,
@@ -225,7 +259,13 @@ describe('Timeline（MVP03 TL）', () => {
     const items = buildTimeline(driver, NOW)
     for (const item of items) {
       expect(item.sourceId).toBeTruthy()
-      expect(['change_plan', 'reality_drift', 'action_verification', 'node_expiry', 'source_freshness']).toContain(item.sourceType)
+      expect([
+        'change_plan',
+        'reality_drift',
+        'action_verification',
+        'node_expiry',
+        'source_freshness',
+      ]).toContain(item.sourceType)
     }
     // 重建前后的 DB 无变化：再跑一次结果一致且 countAll 不变
     const plans = new ChangePlanService(driver)

@@ -10,15 +10,15 @@ import { unknownToString } from '../repositories/meta-repository.ts'
 /**
  * 逻辑图序列化 —— `.depmap` 备份 payload 层（GOAL MVP02 §15）。
  *
- * 关键分离：**crypto 容器 formatVersion（V1）与 payload schemaVersion（2）互相独立**。
- * - export：读取全部持久化实体（含 meta/source_instances）→ payload JSON (schemaVersion=2)
+ * 关键分离：**crypto 容器 formatVersion（V1）与 payload schemaVersion（3）互相独立**。
+ * - export：读取全部持久化实体（含 meta/source_instances；graph_revision 随 meta 行）→ payload JSON (schemaVersion=3)
  * - import：decrypt（容器层不变）→ payload schemaVersion 校验 →
  *   v1 payload 先 in-memory migrate 到 v2 → 完整校验 → 单事务原子替换；失败回滚
  * - 等价性：export → import → export 深度一致（idempotency 测试）
  */
 
 export const GRAPH_PAYLOAD_KIND = 'depmap-logical-graph'
-export const GRAPH_PAYLOAD_VERSION = 2
+export const GRAPH_PAYLOAD_VERSION = 3
 
 interface PayloadTable {
   table: string
@@ -362,8 +362,8 @@ export function migratePayloadV1toV2(payloadJson: string): string {
 
   const v2: Record<string, unknown> = {
     ...v1,
-    payloadVersion: GRAPH_PAYLOAD_VERSION,
-    schemaVersion: SCHEMA_VERSION,
+    payloadVersion: 2, // v1→v2 迁移器固定输出 v2 形状（后续由 migratePayloadV2toV3 升 v3）
+    schemaVersion: 2,
   }
   v2['source_instances'] = sourceInstances
   v2['observation_fingerprints'] = fingerprints
@@ -378,6 +378,40 @@ export function migratePayloadV1toV2(payloadJson: string): string {
 
 export interface GraphImportResult {
   imported: Record<string, number>
+}
+
+/**
+ * v2 payload → v3 payload（in-memory migrate，MVP03 §57）：
+ * - payloadVersion 2 → 3；schemaVersion → 3
+ * - graph_revision 随 meta 行传递；v2 快照无 revision 概念 → 显式置 0
+ * 纯函数：不触碰 DB。
+ */
+export function migratePayloadV2toV3(payloadJson: string): string {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(payloadJson)
+  } catch {
+    throw new GraphImportError('payload is not valid JSON')
+  }
+  if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new GraphImportError('payload must be an object')
+  }
+  const v2 = parsed as Record<string, unknown>
+  if (v2['payloadVersion'] !== 2) {
+    throw new GraphImportError(
+      `migratePayloadV2toV3 expects payloadVersion 2, got ${String(v2['payloadVersion'])}`,
+    )
+  }
+  const v3: Record<string, unknown> = {
+    ...v2,
+    payloadVersion: GRAPH_PAYLOAD_VERSION,
+    schemaVersion: SCHEMA_VERSION,
+  }
+  const meta = Array.isArray(v2['meta']) ? (v2['meta'] as Array<Record<string, unknown>>) : []
+  if (!meta.some((row) => row['key'] === 'graph_revision')) {
+    v3['meta'] = [...meta, { key: 'graph_revision', value: '0' }]
+  }
+  return JSON.stringify(v3)
 }
 
 /** import 前完整校验（kind/version/表集合/schemaVersion），失败绝不触碰 DB。 */
@@ -454,7 +488,8 @@ function migrateIfNeeded(payloadJson: string): string {
   }
   if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
     const v = (parsed as Record<string, unknown>)['payloadVersion']
-    if (v === 1) return migratePayloadV1toV2(payloadJson)
+    if (v === 1) return migratePayloadV2toV3(migratePayloadV1toV2(payloadJson))
+    if (v === 2) return migratePayloadV2toV3(payloadJson)
   }
   return payloadJson
 }

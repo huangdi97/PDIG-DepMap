@@ -34,8 +34,18 @@ describe('RealityDrift（MVP03 RD）', () => {
     const nodes = new NodeRepository(driver)
     cardA = nodes.create({ kind: 'payment_instrument', name: '招行 4417', last4: '4417' }).id
     cardB = nodes.create({ kind: 'payment_instrument', name: '建行 8821', last4: '8821' }).id
-    wechat = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' }).id
-    deps.confirm({ from: cardA, relation: 'funding_source', to: wechat, capability: 'payment', criticality: 'required' })
+    wechat = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
+    deps.confirm({
+      from: cardA,
+      relation: 'funding_source',
+      to: wechat,
+      capability: 'payment',
+      criticality: 'required',
+    })
   })
 
   afterEach(() => {
@@ -62,10 +72,18 @@ describe('RealityDrift（MVP03 RD）', () => {
   })
 
   it('RD-002: 仅 absence（无正向证据）→ 永不产生 drift（入口不存在 absence 通道）', () => {
-    const result = drifts.detectFromEvidence({ targetNodeId: wechat, capability: 'payment', signals: [] })
+    const result = drifts.detectFromEvidence({
+      targetNodeId: wechat,
+      capability: 'payment',
+      signals: [],
+    })
     expect(result.created).toEqual([])
     // 且 API 输入类型中没有 absence 类字段
-    const input: Record<string, unknown> = { targetNodeId: wechat, capability: 'payment', signals: [] }
+    const input: Record<string, unknown> = {
+      targetNodeId: wechat,
+      capability: 'payment',
+      signals: [],
+    }
     expect(Object.keys(input).some((k) => k.toLowerCase().includes('absen'))).toBe(false)
   })
 
@@ -121,7 +139,11 @@ describe('RealityDrift（MVP03 RD）', () => {
 
   it('RD-008: 同 key 多次信号 → 单一 open drift 累计（upsert 语义）', () => {
     drifts.detectFromEvidence(signal(2, 'inst-B#1'))
-    drifts.detectFromEvidence({ targetNodeId: wechat, capability: 'payment', signals: [{ fromNodeId: cardB, observations: 3, evidenceRef: 'inst-B#2' }] })
+    drifts.detectFromEvidence({
+      targetNodeId: wechat,
+      capability: 'payment',
+      signals: [{ fromNodeId: cardB, observations: 3, evidenceRef: 'inst-B#2' }],
+    })
     const open = drifts.listOpen()
     expect(open.length).toBe(1)
     expect(open[0]?.observationCount).toBe(5)
@@ -129,10 +151,14 @@ describe('RealityDrift（MVP03 RD）', () => {
   })
 
   it('RD-009: 跨源 provenance 保留在 evidenceRefs（不同实例引用共存）', () => {
-    drifts.detectFromEvidence({ targetNodeId: wechat, capability: 'payment', signals: [
-      { fromNodeId: cardB, observations: 2, evidenceRef: 'inst-A#3' },
-      { fromNodeId: cardB, observations: 1, evidenceRef: 'inst-B#7' },
-    ] })
+    drifts.detectFromEvidence({
+      targetNodeId: wechat,
+      capability: 'payment',
+      signals: [
+        { fromNodeId: cardB, observations: 2, evidenceRef: 'inst-A#3' },
+        { fromNodeId: cardB, observations: 1, evidenceRef: 'inst-B#7' },
+      ],
+    })
     const open = drifts.listOpen()
     expect(open.length).toBe(1)
     expect(open[0]?.evidenceRefs).toEqual(['inst-A#3', 'inst-B#7'])

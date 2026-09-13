@@ -31,16 +31,10 @@ export type PlanEffectiveStatus = ChangePlanWorkflowState | 'needs_revalidation'
 export type PlanActionPhase = 'prepare' | 'change' | 'verify'
 
 export type ActionVerificationMethod =
-  | 'manual_confirmation'
-  | 'future_observation'
-  | 'authoritative_source'
+  'manual_confirmation' | 'future_observation' | 'authoritative_source'
 
 export type ActionVerificationStatus =
-  | 'not_required'
-  | 'pending'
-  | 'evidence_suggested'
-  | 'verified'
-  | 'failed'
+  'not_required' | 'pending' | 'evidence_suggested' | 'verified' | 'failed'
 
 export interface ActionVerification {
   method: ActionVerificationMethod

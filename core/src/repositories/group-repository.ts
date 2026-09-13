@@ -161,9 +161,7 @@ export class DependencyGroupRepository {
       if (existing.state === 'retired') return existing
       const now = nowIso()
       this.driver
-        .prepare(
-          `UPDATE dependency_groups SET state = 'retired', updated_at = ? WHERE id = ?`,
-        )
+        .prepare(`UPDATE dependency_groups SET state = 'retired', updated_at = ? WHERE id = ?`)
         .run(now, id)
       bumpGraphRevision(this.driver) // §9：Group retired → revision +1（同事务；幂等重放不加）
       return this.getById(id) as DependencyGroup

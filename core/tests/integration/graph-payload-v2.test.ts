@@ -10,6 +10,8 @@ import {
   SCHEMA_VERSION,
 } from '../../src/schema/migrations.ts'
 import { NodeRepository } from '../../src/repositories/node-repository.ts'
+import { DependencyRepository } from '../../src/repositories/dependency-repository.ts'
+import { getGraphRevision } from '../../src/repositories/graph-revision.ts'
 import { ImportFlow } from '../../src/services/import-pipeline.ts'
 import { ConfirmationService } from '../../src/services/confirmation-service.ts'
 import {
@@ -20,6 +22,7 @@ import {
   GraphImportError,
   GRAPH_PAYLOAD_KIND,
   GRAPH_PAYLOAD_VERSION,
+  migratePayloadV2toV3,
 } from '../../src/services/graph-serialize.ts'
 
 /**
@@ -176,15 +179,15 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
   // J0 —— payload 头字段
   // -------------------------------------------------------------------------
 
-  it('J0: export payload 含 payloadKind / payloadVersion=2 / schemaVersion=SCHEMA_VERSION', () => {
+  it('J0: export payload 含 payloadKind / payloadVersion=3 / schemaVersion=SCHEMA_VERSION', () => {
     const out = exportGraph(driver)
     const p = JSON.parse(out.payloadJson) as Record<string, unknown>
     expect(p['payloadKind']).toBe(GRAPH_PAYLOAD_KIND)
-    expect(p['payloadVersion']).toBe(2)
+    expect(p['payloadVersion']).toBe(3)
     expect(p['schemaVersion']).toBe(SCHEMA_VERSION)
     expect(p['schemaVersion']).toBe(3)
     // 容器 formatVersion 与 payload schemaVersion 是两套独立版本号
-    expect(GRAPH_PAYLOAD_VERSION).toBe(2)
+    expect(GRAPH_PAYLOAD_VERSION).toBe(3)
   })
 
   it('J0b: payload 包含全部 v2 表集合（含 source_instances / proposal_evidence_refs）', () => {
@@ -279,7 +282,7 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     const migrated = migratePayloadV1toV2(v1Json)
     const m = JSON.parse(migrated) as Record<string, unknown>
     expect(m['payloadVersion']).toBe(2)
-    expect(m['schemaVersion']).toBe(SCHEMA_VERSION)
+    expect(m['schemaVersion']).toBe(2) // v1→v2 迁移器输出 v2 形状
 
     // legacy 实例被生成
     const instances = m['source_instances'] as Array<Record<string, unknown>>
@@ -345,7 +348,7 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
       // 迁移结果落到 v2 形状
       const e2 = exportGraph(d2)
       const p2 = JSON.parse(e2.payloadJson) as Record<string, unknown>
-      expect(p2['payloadVersion']).toBe(2)
+      expect(p2['payloadVersion']).toBe(3)
       expect(p2['schemaVersion']).toBe(SCHEMA_VERSION)
 
       // legacy 实例存在且被引用
@@ -391,7 +394,7 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     const good = exportGraph(driver)
     const before = good.payloadJson
 
-    for (const bad of [0, 3, 99]) {
+    for (const bad of [0, 4, 99]) {
       const json = JSON.stringify({ ...JSON.parse(good.payloadJson), payloadVersion: bad })
       expect(() => importGraph(driver, json)).toThrow(GraphImportError)
       // DB 未被触碰
@@ -476,5 +479,73 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     delete v1['nodes']
     expect(() => importGraph(driver, JSON.stringify(v1))).toThrow(/must be an array/)
     expect(exportGraph(driver).payloadJson).toBe(before)
+  })
+
+  // -------------------------------------------------------------------------
+  // J5 —— payload v3（MVP03 §57）
+  // -------------------------------------------------------------------------
+
+  it('J5: v2 payload → v3 in-memory migrate（版本提升 + graph_revision 置 0）', async () => {
+    await seedRealGraph(driver)
+    const v3 = JSON.parse(exportGraph(driver).payloadJson) as Record<string, unknown>
+    const v2: Record<string, unknown> = { ...v3, payloadVersion: 2, schemaVersion: 2 }
+    const meta = (v3['meta'] as Array<Record<string, unknown>>).filter(
+      (r) => r['key'] !== 'graph_revision',
+    )
+    v2['meta'] = meta
+    const migrated = JSON.parse(migratePayloadV2toV3(JSON.stringify(v2))) as Record<string, unknown>
+    expect(migrated['payloadVersion']).toBe(3)
+    expect(migrated['schemaVersion']).toBe(SCHEMA_VERSION)
+    const mMeta = migrated['meta'] as Array<Record<string, unknown>>
+    expect(mMeta.some((r) => r['key'] === 'graph_revision')).toBe(true)
+  })
+
+  it('J5b: v2→v3 非法输入拒绝（payloadVersion≠2 / 非 JSON）', () => {
+    expect(() => migratePayloadV2toV3(JSON.stringify({ payloadVersion: 3 }))).toThrow(
+      /expects payloadVersion 2/,
+    )
+    expect(() => migratePayloadV2toV3('{bad')).toThrow(/not valid JSON/)
+  })
+
+  it('J5c: v1 payload → v1toV2 → v2toV3 组合迁移可被 importGraph 消费', async () => {
+    await seedRealGraph(driver)
+    const v1Json = downgradeToV1(exportGraph(driver).payloadJson)
+    const composed = migratePayloadV2toV3(migratePayloadV1toV2(v1Json))
+    expect((JSON.parse(composed) as Record<string, unknown>)['payloadVersion']).toBe(3)
+    const d2 = new NodeSqliteDriver(join(dir, 'j5c.db'))
+    d2.open()
+    migrate(d2)
+    try {
+      const result = importGraph(d2, composed)
+      expect(result.imported['nodes']).toBeGreaterThan(0)
+      expect(
+        (JSON.parse(exportGraph(d2).payloadJson) as Record<string, unknown>)['payloadVersion'],
+      ).toBe(3)
+    } finally {
+      d2.close()
+    }
+  })
+
+  it('J5d: graph_revision 随 meta 行导出/导入往返（revision 保持）', async () => {
+    await seedRealGraph(driver)
+    // 产生 Reality mutation → revision 增加
+    const depsRepo = new DependencyRepository(driver)
+    const nodesRepo = new NodeRepository(driver)
+    const n = nodesRepo.create({ kind: 'payment_instrument', name: 'J5d 卡' })
+    const a = nodesRepo.create({ kind: 'account', name: 'J5d 账户' })
+    depsRepo.confirm({ from: n.id, relation: 'funding_source', to: a.id, capability: 'payment' })
+    const revBefore = getGraphRevision(driver)
+    expect(revBefore).toBeGreaterThan(0)
+
+    const payload = exportGraph(driver).payloadJson
+    const d2 = new NodeSqliteDriver(join(dir, 'j5d.db'))
+    d2.open()
+    migrate(d2)
+    try {
+      importGraph(d2, payload)
+      expect(getGraphRevision(d2)).toBe(revBefore)
+    } finally {
+      d2.close()
+    }
   })
 })

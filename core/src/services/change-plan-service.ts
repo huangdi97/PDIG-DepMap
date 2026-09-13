@@ -86,8 +86,9 @@ export class ChangePlanService {
                 now - Date.parse(d.lastVerifiedAt) > thresholdMs,
             ).length
 
-    const unfinishedChangeActions = plan.actions.filter((a) => a.phase === 'change' && !a.done)
-      .length
+    const unfinishedChangeActions = plan.actions.filter(
+      (a) => a.phase === 'change' && !a.done,
+    ).length
 
     return {
       plan,
@@ -187,7 +188,9 @@ export class ChangePlanService {
         verification: {
           ...verification,
           method:
-            verification.method === 'manual_confirmation' ? verification.method : 'future_observation',
+            verification.method === 'manual_confirmation'
+              ? verification.method
+              : 'future_observation',
           status: 'evidence_suggested',
           evidenceRefs: refs,
         },

@@ -1,4 +1,7 @@
-import type { DiscoveryCandidate, DiscoveryCandidateKind } from '../repositories/discovery-candidate-repository.ts'
+import type {
+  DiscoveryCandidate,
+  DiscoveryCandidateKind,
+} from '../repositories/discovery-candidate-repository.ts'
 import { DiscoveryCandidateRepository } from '../repositories/discovery-candidate-repository.ts'
 import { NodeRepository, type CreateNodeInput } from '../repositories/node-repository.ts'
 import type { NodeKind } from '../domain/types.ts'
@@ -38,9 +41,10 @@ export class DiscoveryService {
     this.nodes = new NodeRepository(driver)
   }
 
-  upsertCandidate(
-    input: Parameters<DiscoveryCandidateRepository['upsert']>[0],
-  ): { candidate: DiscoveryCandidate; changed: boolean } {
+  upsertCandidate(input: Parameters<DiscoveryCandidateRepository['upsert']>[0]): {
+    candidate: DiscoveryCandidate
+    changed: boolean
+  } {
     return this.candidates.upsert(input)
   }
 
@@ -62,7 +66,9 @@ export class DiscoveryService {
       return { nodeId: candidate.acceptedNodeId, created: false }
     }
     if (candidate.status !== 'pending') {
-      throw new Error(`candidate ${id} is ${candidate.status}; only pending candidates can be accepted`)
+      throw new Error(
+        `candidate ${id} is ${candidate.status}; only pending candidates can be accepted`,
+      )
     }
     const node = this.nodes.create({
       ...nodeInput,

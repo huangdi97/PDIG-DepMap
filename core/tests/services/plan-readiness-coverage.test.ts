@@ -60,7 +60,9 @@ describe('PlanReadiness（纯规则）', () => {
   })
 
   it('unresolved candidate → review_required', () => {
-    expect(computePlanReadiness(readinessInput({ unresolvedCandidates: 1 }))).toBe('review_required')
+    expect(computePlanReadiness(readinessInput({ unresolvedCandidates: 1 }))).toBe(
+      'review_required',
+    )
   })
 
   it('revision mismatch（needs_revalidation）→ review_required', () => {
@@ -74,7 +76,9 @@ describe('PlanReadiness（纯规则）', () => {
   })
 
   it('unfinished change action → review_required', () => {
-    expect(computePlanReadiness(readinessInput({ unfinishedChangeActions: 1 }))).toBe('review_required')
+    expect(computePlanReadiness(readinessInput({ unfinishedChangeActions: 1 }))).toBe(
+      'review_required',
+    )
   })
 
   it('Proposal confidence .999 也不得绕过 review（输入通道不存在 confidence）', () => {
@@ -93,7 +97,9 @@ describe('PlanReadiness（纯规则）', () => {
   })
 
   it('stale relevant dependency → review_required', () => {
-    expect(computePlanReadiness(readinessInput({ staleRelevantDependencies: 1 }))).toBe('review_required')
+    expect(computePlanReadiness(readinessInput({ staleRelevantDependencies: 1 }))).toBe(
+      'review_required',
+    )
   })
 })
 
@@ -124,7 +130,9 @@ describe('ScenarioCoverage（信息覆盖，不是安全评分）', () => {
 
   it('只有旧来源 → limited', () => {
     const c = computeScenarioCoverage(
-      covInput({ sources: [{ id: 's1', label: 'Generic CSV', lastIngestedAt: '2026-01-01T00:00:00Z' }] }),
+      covInput({
+        sources: [{ id: 's1', label: 'Generic CSV', lastIngestedAt: '2026-01-01T00:00:00Z' }],
+      }),
     )
     expect(c.coverageLevel).toBe('limited')
     expect(c.explanations.join(' ')).toContain('新鲜度')
