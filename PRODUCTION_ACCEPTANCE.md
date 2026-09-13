@@ -77,7 +77,7 @@
 - [x] 无业务网络调用（`check:network`：118 文件，0 网络原语）
 - [x] analytics / telemetry / ads = 0（无 SDK、无网络）
 - [x] Release 日志无 raw transaction / merchant / password / key / full Graph（`check:secrets` + 源码复核）
-- [x] secret scan PASS（390 文件，0 production secrets）；无 keystore / p12 / 真实账单入库
+- [x] secret scan PASS（391 文件，0 production secrets）；无 keystore / p12 / 真实账单入库
 - [x] Crypto Golden Vector 回归 PASS
 - [x] Wrong password / tamper / 不支持版本 行为正确（`crypto-negative` + `container-mutation`）
 - [ ] SQLCipher 真实加密路径未退化 —— **NOT_RUN**（需 B1/B2/B3 真机）

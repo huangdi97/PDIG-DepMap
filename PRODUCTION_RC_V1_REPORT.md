@@ -34,7 +34,7 @@ PRODUCTION_RC_V1 = PARTIAL_WITH_REPORT
 | **能不能安装？** | **当前环境：不能**（没有可产出的安装包）。<br>**解除 B10 后：Android 可以**（HBuilderX 出基座/APK 即可安装试用）；iOS 需 Mac + 账号；Harmony 需 DevEco。 |
 | **哪些平台已经验证？** | **Core（Node 22）：COMPILED + TESTED（453 测试）。**<br>**Android / HarmonyOS / iOS / UI：均未 COMPILED、未 TESTED、未 DEVICE_VERIFIED。**<br>UI 仅有 9 类静态门禁（`check:ui`）通过，**不等价于编译通过**。 |
 | **UI 是否完成？** | **源码层面：完成（PASS）。** 24 页 + 5 组件 + 设计 token + tabBar 一级导航 + 全页空/错/加载态；`check:ui` 0 命中。<br>**编译/真机层面：未验证（BLOCKED）。** 且已修复一批真实缺陷（直连 SQL、未声明标识符、`crypto.randomUUID`、模板字段名错误、4 处依赖方向错误、3 个假开关）。 |
-| **安全是否完成？** | **源码与配置层面：PASS。** secret scan 390 文件 0 命中；network gate 118 业务文件 0 网络原语；architecture 48 文件 0 循环依赖；crypto 容器 golden + 变异 fail-closed；数据访问边界单一；无日志泄漏。<br>**真机层面：NOT_RUN**（无设备）。权限清单仅静态审计。 |
+| **安全是否完成？** | **源码与配置层面：PASS。** secret scan 391 文件 0 命中；network gate 118 业务文件 0 网络原语；architecture 48 文件 0 循环依赖；crypto 容器 golden + 变异 fail-closed；数据访问边界单一；无日志泄漏。<br>**真机层面：NOT_RUN**（无设备）。权限清单仅静态审计。 |
 | **商店还缺什么？** | **缺 5 类**：① 正式应用标识（现占位 `com.example.depmap`，B11）② 品牌名（B14）③ 隐私政策 URL 与支持 URL（B12/B12b）④ 图标 / 启动图 / 商店截图（B15–B17，截图依赖 B10 或 B1）⑤ 三端开发者账号与签名（B4–B9）。<br>文案 / listing / 隐私披露矩阵**已就绪**（`store/`）。 |
 | **距离真实提交还有几步？** | **7 步**（详见 §8）。其中 **第 1 步（装 HBuilderX 过编译）是唯一的硬闸门**——不通过它，后面 6 步都无法开始。 |
 
