@@ -71,6 +71,18 @@ describe('RealityDrift（MVP03 RD）', () => {
     ])
   })
 
+  it('FREEZE: 已确认来源的新信号 → already_confirmed 忽略，绝不新建 drift', () => {
+    // cardA 是 wechat 的已确认来源；它的「新证据」不得产生以 cardA 为候选的 drift
+    const result = drifts.detectFromEvidence({
+      targetNodeId: wechat, capability: 'payment',
+      signals: [{ fromNodeId: cardA, observations: 5, evidenceRef: 'inst-A#99' }],
+    })
+    expect(result.created).toEqual([])
+    expect(result.ignored).toEqual([{ fromNodeId: cardA, reason: 'already_confirmed' }])
+    expect(drifts.listOpen().length).toBe(0)
+    expect(getGraphRevision(driver)).toBe(1) // confirm(cardA) 的 +1，无新增
+  })
+
   it('RD-002: 仅 absence（无正向证据）→ 永不产生 drift（入口不存在 absence 通道）', () => {
     const result = drifts.detectFromEvidence({
       targetNodeId: wechat,

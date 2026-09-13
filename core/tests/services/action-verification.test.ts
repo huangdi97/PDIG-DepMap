@@ -154,6 +154,29 @@ describe('Action Verification（MVP03 VF）', () => {
     expect(reloaded.actions.find((a) => a.id === 'act-move')?.verification?.status).toBe('verified')
   })
 
+  it('FREEZE: verified/failed 状态不可被 evidence suggestion 覆盖（watch 匹配也不行）', () => {
+    // 构造带 watch 字段且已 verified 的动作
+    const service2 = new ChangePlanService(driver)
+    const actions: PlanAction[] = [
+      { id: 'done-v', title: '已验证动作', detail: '', phase: 'verify', done: true, doneAt: null,
+        verification: { method: 'future_observation', status: 'verified', verifiedAt: '2026-01-01T00:00:00Z',
+          evidenceRefs: [], expectedFromNodeId: newCard, expectedToNodeId: spotify } },
+      { id: 'fail-v', title: '失败动作', detail: '', phase: 'verify', done: false, doneAt: null,
+        verification: { method: 'future_observation', status: 'failed', verifiedAt: null,
+          evidenceRefs: [], expectedFromNodeId: newCard, expectedToNodeId: spotify } },
+    ]
+    const p2 = service2.plans.create({
+      scenario: 'replace_payment_card', title: 't2', targetNodeId: 'x', actions, graphRevision: getGraphRevision(driver),
+    })
+    const { matchedActionIds } = service2.applyEvidenceSignal(p2.id, {
+      fromNodeId: newCard, toNodeId: spotify, evidenceRef: 'e#9',
+    })
+    expect(matchedActionIds).toEqual([])
+    const stored = service2.plans.getExisting(p2.id).actions
+    expect(stored.find((a) => a.id === 'done-v')?.verification?.status).toBe('verified')
+    expect(stored.find((a) => a.id === 'fail-v')?.verification?.status).toBe('failed')
+  })
+
   it('evidence_suggested 后用户确认 → verified（两段式，禁止自动 verified）', () => {
     service.applyEvidenceSignal(planId, {
       fromNodeId: newCard,
