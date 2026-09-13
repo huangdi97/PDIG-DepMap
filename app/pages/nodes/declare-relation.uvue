@@ -1,0 +1,219 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <dp-state v-if="errorText !== ''" kind="error" title="读取失败" :description="errorText" action-label="重试" @action="load" />
+
+    <dp-card :title="'为「' + nodeName + '」声明一条支付关系'">
+      <text class="p">{{ directionText }}</text>
+      <text class="quiet">只有你亲自确认的关系才会进入影响分析。系统不会替你猜。</text>
+    </dp-card>
+
+    <dp-card title="第 1 步：这是什么关系">
+      <view v-for="(r, i) in relations" :key="r.value" @click="pickRelation(r.value)">
+        <dp-row
+          :title="r.label"
+          :description="r.hint"
+          :value="relation === r.value ? '已选择' : ''"
+          :value-tone="relation === r.value ? 'success' : 'neutral'"
+          :show-arrow="false"
+          :last="i === relations.length - 1"
+        />
+      </view>
+    </dp-card>
+
+    <dp-card title="第 2 步：与谁">
+      <dp-state
+        v-if="peers.length === 0"
+        kind="empty"
+        title="还没有可选的另一端"
+        description="先到「对象」页添加一个对应类型的对象，再回来声明。"
+      />
+      <view v-else>
+        <view v-for="(p, i) in peers" :key="p.id" @click="pickPeer(p.id)">
+          <dp-row
+            :title="p.name"
+            :description="peerSubtitle(p)"
+            :value="peerId === p.id ? '已选择' : ''"
+            :value-tone="peerId === p.id ? 'success' : 'neutral'"
+            :show-arrow="false"
+            :last="i === peers.length - 1"
+          />
+        </view>
+      </view>
+    </dp-card>
+
+    <dp-card title="第 3 步：是否必须处理">
+      <view v-for="(c, i) in criticalities" :key="c.value" @click="pickCriticality(c.value)">
+        <dp-row
+          :title="c.label"
+          :description="c.hint"
+          :value="criticality === c.value ? '已选择' : ''"
+          :value-tone="criticality === c.value ? 'success' : 'neutral'"
+          :show-arrow="false"
+          :last="i === criticalities.length - 1"
+        />
+      </view>
+      <text class="quiet">选「必须使用」会让它在换卡计划里被列为必须处理项。如果不确定，请选「还不确定」。</text>
+    </dp-card>
+
+    <view class="actions">
+      <dp-button label="确认这条关系" :loading="busy" @tap="submit" block />
+    </view>
+
+    <dp-card title="说明">
+      <text class="quiet">声明即确认：这条关系会被当作现实事实参与影响分析，可以随时在对象详情里停用。</text>
+    </dp-card>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getNodeDetail, listNodes, declareDependency } from '../../services/depmap-service'
+import {
+  DECLARABLE_RELATIONS,
+  DECLARABLE_CAPABILITY,
+  CRITICALITY_OPTIONS,
+  declarationRoleOf,
+  peerKindsFor,
+  isPaymentSourceKind,
+} from '../../services/rules'
+
+interface NodeRow {
+  id: string
+  name: string
+  kind: string
+  issuer: string
+  last4: string
+}
+
+interface RelationRow {
+  value: string
+  label: string
+  hint: string
+}
+
+export default {
+  data() {
+    return {
+      nodeId: '',
+      nodeName: '',
+      nodeKind: '',
+      busy: false,
+      errorText: '',
+      relation: '',
+      peerId: '',
+      criticality: '',
+      peers: [] as NodeRow[],
+      relations: DECLARABLE_RELATIONS as RelationRow[],
+      criticalities: CRITICALITY_OPTIONS as RelationRow[]
+    }
+  },
+  computed: {
+    role(): string {
+      return declarationRoleOf(this.nodeKind)
+    },
+    directionText(): string {
+      if (isPaymentSourceKind(this.nodeKind)) {
+        return '方向：这张卡 / 账户是付款方，被你选中的服务是收款方。当这张卡失效时，该服务的支付会受影响。'
+      }
+      return '方向：被你选中的卡 / 账户是付款方，本对象是收款方。当那张卡失效时，本对象的支付会受影响。'
+    }
+  },
+  onLoad(options: OnLoadOptions) {
+    this.nodeId = options['id'] ?? ''
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    peerSubtitle(p: NodeRow): string {
+      if (p.issuer === '' && p.last4 === '') return this.kindLabel(p.kind)
+      if (p.last4 === '') return this.kindLabel(p.kind) + ' · ' + p.issuer
+      return this.kindLabel(p.kind) + ' · ' + p.issuer + ' ···· ' + p.last4
+    },
+    kindLabel(kind: string): string {
+      if (kind === 'payment_instrument') return '银行卡'
+      if (kind === 'account') return '支付账户'
+      if (kind === 'service') return '服务 / 订阅'
+      if (kind === 'identity_anchor') return '手机号 / 邮箱'
+      return ''
+    },
+    load() {
+      this.errorText = ''
+      getNodeDetail(this.nodeId)
+        .then((d) => {
+          if (d === null) {
+            this.errorText = '这个对象已经不存在了。'
+            return
+          }
+          const n = d as NodeRow
+          this.nodeName = n.name
+          this.nodeKind = n.kind
+          return this.loadPeers(n.kind)
+        })
+        .catch((_e) => {
+          this.errorText = '本地数据暂时无法读取。'
+        })
+    },
+    loadPeers(kind: string) {
+      const wanted = peerKindsFor(kind)
+      const collected: NodeRow[] = []
+      const steps: Array<Promise<NodeRow[]>> = []
+      for (let i = 0; i < wanted.length; i++) {
+        steps.push(listNodes(wanted[i]) as Promise<NodeRow[]>)
+      }
+      return Promise.all(steps).then((groups) => {
+        for (let g = 0; g < groups.length; g++) {
+          const rows = groups[g]
+          for (let i = 0; i < rows.length; i++) {
+            if (rows[i].id !== this.nodeId) collected.push(rows[i])
+          }
+        }
+        this.peers = collected
+        return undefined
+      })
+    },
+    pickRelation(value: string) {
+      this.relation = value
+    },
+    pickPeer(id: string) {
+      this.peerId = id
+    },
+    pickCriticality(value: string) {
+      this.criticality = value
+    },
+    submit() {
+      if (this.relation === '') {
+        uni.showToast({ title: '请先选择关系类型', icon: 'none' })
+        return
+      }
+      if (this.peerId === '') {
+        uni.showToast({ title: '请先选择另一端对象', icon: 'none' })
+        return
+      }
+      if (this.criticality === '') {
+        uni.showToast({ title: '请先选择是否必须处理', icon: 'none' })
+        return
+      }
+      const from = this.role === 'payer' ? this.nodeId : this.peerId
+      const to = this.role === 'payer' ? this.peerId : this.nodeId
+      this.busy = true
+      declareDependency(from, to, this.relation, DECLARABLE_CAPABILITY, this.criticality)
+        .then(() => {
+          this.busy = false
+          uni.showToast({ title: '已记录这条关系', icon: 'none' })
+          uni.navigateBack({})
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.p { margin-top: 4px; font-size: 14px; color: #5A5F73; }
+.quiet { margin-top: 8px; font-size: 13px; color: #8A90A6; }
+.actions { padding: 4px 16px 16px 16px; }
+</style>

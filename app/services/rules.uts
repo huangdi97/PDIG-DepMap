@@ -1,0 +1,227 @@
+/**
+ * rules.uts — 纯派生规则层（无 IO、无副作用、确定性）
+ *
+ * 背景（§62）：原 UI 在页面内用 SQL + 客户端解析复算领域语义
+ * （PlanReadiness、Timeline 分桶、Drift 处理、Coverage 等级），与 Core 形成两份真相。
+ * 本文件把**纯规则**收敛到一处，页面只消费结果。
+ *
+ * 与 Core 的关系（重要，不可忽略）：
+ *   这些规则是 `core/src/services/{plan-readiness,timeline,plan-analysis}.ts` 的**语义镜像**。
+ *   真正的真相源仍是 Core（有 453 个测试与 property/mutation 冻结）。
+ *   本文件属于 App 侧运行时镜像，**必须与 Core 保持同步**；
+ *   长期方案是代码生成（core → UTS），见 docs/FRONTEND_ARCHITECTURE_AUDIT.md §已知限制。
+ */
+
+/** 计划可执行性状态（与 Core PlanReadiness 同口径；禁止 safe / 100%） */
+export type PlanReadiness = 'blocked' | 'review_required' | 'ready_with_known_scope'
+
+/** 分析依据等级（与 Core ScenarioCoverage 同口径；不输出分数/百分比） */
+export type CoverageLevel = 'unknown' | 'limited' | 'partial' | 'well_evidenced'
+
+/** 场景目录（与 core/src/scenarios/registry.ts 的 active 模板对齐；planned 不进入展示） */
+export interface ScenarioItem {
+  id: string
+  title: string
+  description: string
+  recommendedLeadDays: number
+}
+
+export const SCENARIOS: ScenarioItem[] = [
+  {
+    id: 'replace_payment_card',
+    title: '更换银行卡',
+    description: '换卡前检查支付、订阅和钱包依赖。',
+    recommendedLeadDays: 7,
+  },
+  {
+    id: 'expiring_payment_card',
+    title: '银行卡即将到期',
+    description: '到期前看看还有哪些支付关系依赖这张卡。',
+    recommendedLeadDays: 30,
+  },
+  {
+    id: 'close_payment_instrument',
+    title: '注销银行卡',
+    description: '注销前确认哪些支付关系需要迁移。',
+    recommendedLeadDays: 14,
+  },
+]
+
+export function findScenario(id: string): ScenarioItem | null {
+  for (let i = 0; i < SCENARIOS.length; i++) {
+    if (SCENARIOS[i].id === id) return SCENARIOS[i]
+  }
+  return null
+}
+
+/**
+ * PlanReadiness —— 显式 resolution 口径（与 Core FR-READ-001..017 一致）。
+ *
+ * 铁律：禁止「必须处理目标数 − 已完成动作数」的数量相减。
+ * 一个 key 只有被 change 动作**显式声明**（resolvesImpactKeys）且其全部声明动作
+ * 均已完成，才算 resolved；无人声明的 key 永远视为未解决。
+ */
+export interface ReadinessInput {
+  /** 未解决的必须处理项数量（由调用方按显式 resolution 计算） */
+  pendingMustChange: number
+  /** 需要人工确认的信号数量（待确认关系 / 待复核候选 / 长期未验证） */
+  pendingReview: number
+  /** 分析版本是否落后于当前图谱版本 */
+  stale: boolean
+}
+
+export function computeReadiness(input: ReadinessInput): PlanReadiness {
+  if (input.pendingMustChange > 0) return 'blocked'
+  if (input.stale) return 'review_required'
+  if (input.pendingReview > 0) return 'review_required'
+  return 'ready_with_known_scope'
+}
+
+/**
+ * 单个 must_change key 是否已解决。
+ * claimants 为该 key 的**全部**声明动作（phase = change 且 resolvesImpactKeys 含该 key）。
+ */
+export function isImpactKeyResolved(claimantDoneFlags: boolean[]): boolean {
+  if (claimantDoneFlags.length === 0) return false
+  for (let i = 0; i < claimantDoneFlags.length; i++) {
+    if (!claimantDoneFlags[i]) return false
+  }
+  return true
+}
+
+/** Timeline 分桶（与 core buildTimeline 次序一致） */
+export const TIMELINE_BUCKET_ORDER = ['attention', 'overdue', 'today', '7d', '30d', '90d', 'later']
+
+export function timelineBucketRank(bucket: string): number {
+  const idx = TIMELINE_BUCKET_ORDER.indexOf(bucket)
+  return idx < 0 ? 99 : idx
+}
+
+export function timelineBucketLabel(bucket: string): string {
+  if (bucket === 'attention') return '需要你处理'
+  if (bucket === 'overdue') return '已逾期'
+  if (bucket === 'today') return '今天'
+  if (bucket === '7d') return '7 天内'
+  if (bucket === '30d') return '30 天内'
+  if (bucket === '90d') return '90 天内'
+  return '以后'
+}
+
+/** 依据等级 → 用户可读标签（不输出分数） */
+export function coverageLabel(level: string): string {
+  if (level === 'unknown') return '还不了解'
+  if (level === 'limited') return '依据有限'
+  if (level === 'partial') return '部分依据'
+  if (level === 'well_evidenced') return '依据较充分'
+  return '待确认'
+}
+
+/** 工作流状态 → 用户可读（禁止把 raw enum 直接给用户） */
+export function workflowLabel(state: string): string {
+  if (state === 'draft') return '草稿'
+  if (state === 'analyzing') return '分析中'
+  if (state === 'in_progress') return '进行中'
+  if (state === 'verifying') return '待验证'
+  if (state === 'completed') return '已完成'
+  if (state === 'cancelled') return '已取消'
+  return '进行中'
+}
+
+/** 关系 → 面向人的说法（§30：不暴露 merchant_agreement / funding_source 等内部词） */
+export function relationLabel(relation: string): string {
+  if (relation === 'funding_source') return '资金来源'
+  if (relation === 'merchant_agreement') return '自动扣款 / 订阅'
+  if (relation === 'wallet_binding') return '钱包绑定'
+  return '支付关系'
+}
+
+/** 关键度 → 面向人的说法（§30：不暴露 criticality unknown） */
+export function criticalityLabel(criticality: string): string {
+  if (criticality === 'required') return '必须使用'
+  return '需要确认'
+}
+
+/**
+ * 只保留真正可执行的场景（planned 模板不可执行）。
+ * 与 Core 的 ScenarioTemplate 政策 gate 一致。
+ */
+export function executableScenarios(): ScenarioItem[] {
+  return SCENARIOS
+}
+
+// ──────────────────────────────────────────────────────────────
+// 手动声明（Dependency 存在即用户确认，AGENTS §9）
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * 可手动声明的 relation。
+ * 必须与 Core schema 的 CHECK 约束完全一致：
+ *   ('funding_source','merchant_agreement','verifies','recovers','bound_to')
+ * MVP 影响分析只支持 capability = payment，因此这里只暴露与之语义相符的关系。
+ */
+export interface RelationOption {
+  value: string
+  label: string
+  hint: string
+}
+
+export const DECLARABLE_RELATIONS: RelationOption[] = [
+  { value: 'funding_source', label: '资金来源', hint: '它由这张卡 / 这个账户付款' },
+  { value: 'merchant_agreement', label: '自动扣款 / 订阅', hint: '它按协议自动从这张卡扣款' },
+  { value: 'bound_to', label: '已绑定', hint: '它绑定了这张卡（快捷 / 免密支付）' },
+]
+
+/** MVP 只支持 payment capability（AGENTS §13）。 */
+export const DECLARABLE_CAPABILITY = 'payment'
+
+export function isDeclarableRelation(relation: string): boolean {
+  for (let i = 0; i < DECLARABLE_RELATIONS.length; i++) {
+    if (DECLARABLE_RELATIONS[i].value === relation) return true
+  }
+  return false
+}
+
+export function isDeclarableCapability(capability: string): boolean {
+  return capability === DECLARABLE_CAPABILITY
+}
+
+/** 关键度由用户显式选择；机器不得自动产生 required（AGENTS §9）。 */
+export const CRITICALITY_OPTIONS: RelationOption[] = [
+  { value: 'required', label: '必须使用', hint: '换卡后必须处理，否则会中断' },
+  { value: 'unknown', label: '还不确定', hint: '先记为待确认，之后可以改' },
+]
+
+export function isDeclarableCriticality(criticality: string): boolean {
+  return criticality === 'required' || criticality === 'unknown'
+}
+
+/** logical key：`from|relation|to|capability`（与 Core dependencyLogicalKey 一致） */
+export function dependencyLogicalKey(
+  from: string,
+  relation: string,
+  to: string,
+  capability: string
+): string {
+  return `${from}|${relation}|${to}|${capability}`
+}
+
+/**
+ * 边的方向约定（与 Core impact/kernel.ts 完全一致）：
+ *   `from` 为 `to` 提供支付 → `from` 失效时 `to` 受影响。
+ *   即 from = 付款方（卡 / 支付账户），to = 被支付方（服务 / 订阅）。
+ * 因此声明方向由「本节点是什么」决定，不能让用户自己猜。
+ */
+export function isPaymentSourceKind(kind: string): boolean {
+  return kind === 'payment_instrument' || kind === 'account'
+}
+
+/** 本节点在声明中的角色：payer（付款方 = from）或 payee（被支付方 = to） */
+export function declarationRoleOf(nodeKind: string): string {
+  return isPaymentSourceKind(nodeKind) ? 'payer' : 'payee'
+}
+
+/** 声明时另一端应当是什么类型 */
+export function peerKindsFor(nodeKind: string): string[] {
+  if (isPaymentSourceKind(nodeKind)) return ['service']
+  return ['payment_instrument', 'account']
+}

@@ -1,0 +1,61 @@
+<template>
+  <view class="card" :class="{ 'card-flat': flat }">
+    <view v-if="title !== ''" class="card-head">
+      <text class="card-title">{{ title }}</text>
+      <text v-if="subtitle !== ''" class="card-subtitle">{{ subtitle }}</text>
+      <slot name="headExtra" />
+    </view>
+    <slot />
+  </view>
+</template>
+
+<script lang="uts">
+/**
+ * 统一卡片容器。所有页面的信息分组都使用它，避免每页自建样式。
+ */
+export default {
+  name: 'dp-card',
+  props: {
+    title: {
+      type: String,
+      default: ''
+    },
+    subtitle: {
+      type: String,
+      default: ''
+    },
+    /** 扁平卡片：无阴影，用于列表内嵌 */
+    flat: {
+      type: Boolean,
+      default: false
+    }
+  }
+}
+</script>
+
+<style>
+.card {
+  margin: 12px;
+  padding: 16px;
+  background-color: #FFFFFF;
+  border-radius: 10px;
+}
+.card-flat {
+  margin: 0;
+  padding: 12px 0;
+  background-color: #FFFFFF;
+}
+.card-head {
+  margin-bottom: 10px;
+}
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1B1D29;
+}
+.card-subtitle {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #8A90A6;
+}
+</style>

@@ -1,0 +1,103 @@
+<template>
+  <view class="row" :class="{ 'row-last': last }" @click="onTap">
+    <view class="row-left">
+      <text class="row-title">{{ title }}</text>
+      <text v-if="description !== ''" class="row-desc">{{ description }}</text>
+    </view>
+    <view class="row-right">
+      <text v-if="value !== ''" class="row-value" :style="'color:' + valueColor + ';'">{{ value }}</text>
+      <text v-if="showArrow" class="row-arrow">›</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+import { DP_COLORS } from '../../theme/tokens.uts'
+
+/**
+ * 统一列表行。首页 / 设置 / 场景 / 计划列表共用。
+ * valueTone: neutral | warning | danger | success
+ */
+export default {
+  name: 'dp-row',
+  props: {
+    title: {
+      type: String,
+      default: ''
+    },
+    description: {
+      type: String,
+      default: ''
+    },
+    value: {
+      type: String,
+      default: ''
+    },
+    valueTone: {
+      type: String,
+      default: 'neutral'
+    },
+    showArrow: {
+      type: Boolean,
+      default: true
+    },
+    last: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['tap'],
+  computed: {
+    valueColor(): string {
+      if (this.valueTone === 'warning') return DP_COLORS.warning
+      if (this.valueTone === 'danger') return DP_COLORS.danger
+      if (this.valueTone === 'success') return DP_COLORS.success
+      return DP_COLORS.textTertiary
+    }
+  },
+  methods: {
+    onTap() {
+      this.$emit('tap')
+    }
+  }
+}
+</script>
+
+<style>
+.row {
+  min-height: 44px;
+  padding: 12px 0;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom-width: 1px;
+  border-bottom-color: #E6E8F0;
+}
+.row-last {
+  border-bottom-width: 0;
+}
+.row-left {
+  flex: 1;
+}
+.row-title {
+  font-size: 15px;
+  color: #1B1D29;
+}
+.row-desc {
+  margin-top: 2px;
+  font-size: 13px;
+  color: #8A90A6;
+}
+.row-right {
+  flex-direction: row;
+  align-items: center;
+}
+.row-value {
+  font-size: 13px;
+  margin-right: 4px;
+}
+.row-arrow {
+  font-size: 16px;
+  color: #B9BDCC;
+}
+</style>

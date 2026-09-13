@@ -1,0 +1,1400 @@
+/**
+ * depmap-service.uts — Application Service（UI 与数据层之间的唯一边界）
+ *
+ * 架构规则（§61）：**页面不得直接操作 SQLite**。所有查询与写入都必须经过本文件。
+ * 架构规则（§62）：页面不得复算领域语义；纯规则见 `rules.uts`（Core 的语义镜像）。
+ *
+ * 与 Core 的关系：Core（`core/src/**`，Node 22，453 tests）是真相源；
+ * 本文件是 App 侧运行时实现。凡涉及 Reality mutation 的写入，
+ * **必须**与 graphRevision 提升处于同一次 `transaction()`（Core GR-001..012 口径）。
+ *
+ * 已知限制（见 docs/FRONTEND_ARCHITECTURE_AUDIT.md）：
+ *   本文件仍以 SQL 直接实现部分 Core 语义（drift 解决、timeline 投影）。
+ *   正确终局是 Core→UTS 代码生成；当前以"单一边界 + 语义镜像"降低风险，
+ *   并在审计文档中登记为高优先级技术债，不声称已消除。
+ */
+
+import { getSecureDb } from '../uni_modules/depmap-secure-database'
+
+// ────────────────────────────────────────────────────────────── 基础工具
+
+function num(v: any | null): number {
+  return v === null ? 0 : Number(v)
+}
+
+function str(v: any | null): string {
+  return v === null ? '' : String(v)
+}
+
+function nowIso(): string {
+  return new Date().toISOString()
+}
+
+/** 仅 Reality mutation 调用，且必须处于同一事务内（§10） */
+function bumpRevisionInTx(): Promise<number> {
+  const db = getSecureDb()
+  return db
+    .query("SELECT CAST(value AS INTEGER) AS v FROM meta WHERE key = 'graph_revision'", [])
+    .then((rows) => {
+      const next = (rows.length > 0 ? num((rows[0] as Map<string, any | null>).get('v')) : 0) + 1
+      return db
+        .execute("INSERT INTO meta (key, value) VALUES ('graph_revision', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value", [String(next)])
+        .then(() => next)
+    })
+}
+
+// ────────────────────────────────────────────────────────────── 类型
+
+export interface HomeSummary {
+  pendingProposals: number
+  openDrifts: number
+  stalePlans: number
+  pendingVerifications: number
+  unresolvedCandidates: number
+  upcomingText: string
+  lastExportAt: string
+  confirmedDependencies: number
+}
+
+export interface PlanListItem {
+  id: string
+  title: string
+  workflowState: string
+  stale: boolean
+  analyzed: number
+  current: number
+}
+
+export interface PlanActionItem {
+  id: string
+  title: string
+  phase: string
+  done: boolean
+  resolvesImpactKeys: string[]
+  verificationStatus: string
+  verificationMethod: string
+}
+
+export interface PlanDetail {
+  id: string
+  title: string
+  workflowState: string
+  stale: boolean
+  analyzed: number
+  current: number
+  /** 变更目标节点（付款方，例如被更换的卡）——Coverage 以此为口径 */
+  targetNodeId: string
+  mustChangeCount: number
+  needsReviewCount: number
+  pendingMustChange: number
+  pendingReview: number
+  actions: PlanActionItem[]
+  rawActionsJson: string
+}
+
+export interface DriftItem {
+  id: string
+  kind: string
+  observations: number
+  detectedAt: string
+}
+
+export interface CandidateItem {
+  id: string
+  displayLabel: string
+  candidateKind: string
+  observations: number
+}
+
+export interface ProposalItem {
+  key: string
+  title: string
+  relation: string
+  observationCount: number
+}
+
+export interface GroupProposalItem {
+  key: string
+  title: string
+  mode: string
+}
+
+export interface NodeItem {
+  id: string
+  name: string
+  kind: string
+  issuer: string
+  last4: string
+}
+
+export interface DependencyItem {
+  id: string
+  /** 关系另一端的对象名称（不是本节点） */
+  peerName: string
+  /** 'out' = 本节点为对方提供支付；'in' = 对方为本节点提供支付 */
+  direction: string
+  relation: string
+  capability: string
+  criticality: string
+  state: string
+}
+
+export interface NodeDetail {
+  id: string
+  name: string
+  kind: string
+  issuer: string
+  last4: string
+  dependencies: DependencyItem[]
+}
+
+export interface SourceItem {
+  id: string
+  label: string
+  state: string
+  lastIngestedAt: string
+}
+
+export interface TimelineItem {
+  id: string
+  title: string
+  subtitle: string
+  scheduledAt: string
+  bucket: string
+  sourceType: string
+  sourceId: string
+}
+
+export interface ImpactRow {
+  title: string
+  level: string
+  detail: string
+}
+
+export interface AboutInfo {
+  appVersion: string
+  schemaVersion: number
+  formatVersion: number
+  graphRevision: number
+}
+
+// ────────────────────────────────────────────────────────────── 引导 / 元信息
+
+export function openAndMigrate(): Promise<number> {
+  const db = getSecureDb()
+  return db.open('depmap.db').then(() => db.migrate())
+}
+
+export function getGraphRevision(): Promise<number> {
+  return getSecureDb()
+    .query("SELECT CAST(value AS INTEGER) AS v FROM meta WHERE key = 'graph_revision'", [])
+    .then((rows) => (rows.length > 0 ? num((rows[0] as Map<string, any | null>).get('v')) : 0))
+}
+
+export function getLastExportAt(): Promise<string> {
+  return getSecureDb()
+    .query("SELECT value FROM meta WHERE key = 'last_export_at'", [])
+    .then((rows) => (rows.length > 0 ? str((rows[0] as Map<string, any | null>).get('value')) : ''))
+}
+
+export function setLastExportAt(iso: string): Promise<number> {
+  return getSecureDb().execute(
+    "INSERT INTO meta (key, value) VALUES ('last_export_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+    [iso]
+  )
+}
+
+export function getAbout(): Promise<AboutInfo> {
+  return getGraphRevision().then((rev) =>
+    getSecureDb()
+      .query('SELECT MAX(version) AS v FROM schema_migrations', [])
+      .then((rows) => {
+        const schemaVersion = rows.length > 0 ? num((rows[0] as Map<string, any | null>).get('v')) : 0
+        const info: AboutInfo = {
+          appVersion: '0.3.0-rc.1',
+          schemaVersion,
+          formatVersion: 1,
+          changeCount: rev,
+        }
+        return info
+      })
+  )
+}
+
+// ────────────────────────────────────────────────────────────── 首页
+
+export function getHomeSummary(): Promise<HomeSummary> {
+  const db = getSecureDb()
+  return getGraphRevision().then((current) =>
+    db
+      .query("SELECT COUNT(*) AS c FROM dependency_proposals WHERE decision = 'pending'", [])
+      .then((r1) =>
+        db
+          .query("SELECT COUNT(*) AS c FROM reality_drifts WHERE status = 'open'", [])
+          .then((r2) =>
+            db
+              .query(
+                "SELECT COUNT(*) AS c FROM change_plans WHERE workflow_state NOT IN ('completed','cancelled') AND last_analyzed_graph_revision < ?",
+                [current]
+              )
+              .then((r3) =>
+                db
+                  .query("SELECT COUNT(*) AS c FROM discovery_candidates WHERE status = 'pending'", [])
+                  .then((r4) =>
+                    db
+                      .query("SELECT COUNT(*) AS c FROM dependencies WHERE state = 'active'", [])
+                      .then((r5) =>
+                        db
+                          .query(
+                            "SELECT name, fields_json FROM nodes WHERE kind = 'payment_instrument' AND archived = 0 AND fields_json LIKE '%expiryDate%' ORDER BY fields_json LIMIT 1",
+                            []
+                          )
+                          .then((r6) =>
+                            getLastExportAt().then((lastExport) => {
+                              let upcoming = ''
+                              if (r6.length > 0) {
+                                const row = r6[0] as Map<string, any | null>
+                                const fields = str(row.get('fields_json'))
+                                const idx = fields.indexOf('expiryDate')
+                                if (idx >= 0) {
+                                  const datePart = fields.substring(idx + 13, idx + 23)
+                                  upcoming = `${str(row.get('name'))} · ${datePart} 到期`
+                                }
+                              }
+                              const summary: HomeSummary = {
+                                pendingProposals: num((r1[0] as Map<string, any | null>).get('c')),
+                                openDrifts: num((r2[0] as Map<string, any | null>).get('c')),
+                                stalePlans: num((r3[0] as Map<string, any | null>).get('c')),
+                                pendingVerifications: 0,
+                                unresolvedCandidates: num((r4[0] as Map<string, any | null>).get('c')),
+                                upcomingText: upcoming,
+                                lastExportAt: lastExport,
+                                confirmedDependencies: num((r5[0] as Map<string, any | null>).get('c')),
+                              }
+                              return summary
+                            })
+                          )
+                      )
+                  )
+              )
+          )
+      )
+  )
+}
+
+// ────────────────────────────────────────────────────────────── 本次分析依据
+
+export interface CoverageSummary {
+  level: string
+  explanations: string[]
+  sourceCount: number
+  freshSourceCount: number
+  confirmedDirect: number
+  pendingProposals: number
+  unresolvedCandidates: number
+  unknownCriticality: number
+  lastIngestedAt: string
+}
+
+/**
+ * 本次分析依据（§33）：不使用分数/百分比，只给等级 + 可解释理由。
+ * 与 Core `computeScenarioCoverage` 同口径（unknown / limited / partial / well_evidenced）。
+ */
+export function getPlanCoverage(nodeId: string, freshnessThresholdDays: number): Promise<CoverageSummary> {
+  const db = getSecureDb()
+  return db
+    .query('SELECT id, state, last_ingested_at FROM source_instances', [])
+    .then((sourceRows) =>
+      db
+        .query(
+          // 方向与 Core impact kernel 一致：from 为 to 提供支付。
+          // 目标节点（卡 / 账户）的下游数量 = 它作为 from 的 active 支付边数。
+          "SELECT COUNT(*) AS c FROM dependencies WHERE from_node = ? AND capability = 'payment' AND state = 'active'",
+          [nodeId]
+        )
+        .then((depRows) =>
+          db.query("SELECT COUNT(*) AS c FROM dependency_proposals WHERE decision = 'pending'", []).then((propRows) =>
+            db.query("SELECT COUNT(*) AS c FROM discovery_candidates WHERE status = 'pending'", []).then((candRows) =>
+              db
+                .query(
+                  "SELECT COUNT(*) AS c FROM dependencies WHERE from_node = ? AND capability = 'payment' AND state = 'active' AND criticality = 'unknown'",
+                  [nodeId]
+                )
+                .then((unkRows) => {
+                  const explanations: string[] = []
+                  let fresh = 0
+                  let lastIngested = ''
+                  const nowMs = Date.now()
+                  for (let i = 0; i < sourceRows.length; i++) {
+                    const s = sourceRows[i] as Map<string, any | null>
+                    const ts = str(s.get('last_ingested_at'))
+                    if (ts !== '' && ts > lastIngested) lastIngested = ts
+                    if (ts !== '') {
+                      const age = (nowMs - Date.parse(ts)) / 86400000
+                      if (age <= freshnessThresholdDays) fresh++
+                    }
+                  }
+                  const sourceCount = sourceRows.length
+                  const confirmedDirect = num((depRows[0] as Map<string, any | null>).get('c'))
+                  const pendingProposals = num((propRows[0] as Map<string, any | null>).get('c'))
+                  const unresolvedCandidates = num((candRows[0] as Map<string, any | null>).get('c'))
+                  const unknownCriticality = num((unkRows[0] as Map<string, any | null>).get('c'))
+
+                  let level = 'unknown'
+                  if (sourceCount === 0 && confirmedDirect === 0) {
+                    explanations.push('还没有导入过任何相关来源，也没有已确认的直接依赖。')
+                    level = 'unknown'
+                  } else if (sourceCount > 0 && fresh === 0) {
+                    explanations.push(`已有 ${sourceCount} 个来源，但都超过 ${freshnessThresholdDays} 天未刷新。`)
+                    level = 'limited'
+                  } else if (confirmedDirect === 0) {
+                    explanations.push('目标对象还没有已确认的支付关系。')
+                    level = 'limited'
+                  } else {
+                    level = 'well_evidenced'
+                    if (pendingProposals > 0) {
+                      explanations.push(`${pendingProposals} 条支付关系待你确认（未确认不当作事实）。`)
+                      level = 'partial'
+                    }
+                    if (unresolvedCandidates > 0) {
+                      explanations.push(`${unresolvedCandidates} 个发现对象未处理（不进入依赖图）。`)
+                      level = 'partial'
+                    }
+                    if (unknownCriticality > 0) {
+                      explanations.push(`${unknownCriticality} 条依赖的「是否必须使用」尚未确认。`)
+                      level = 'partial'
+                    }
+                    if (level === 'well_evidenced') {
+                      explanations.push(`${fresh} 个来源在新鲜度范围内；${confirmedDirect} 条支付关系已确认。`)
+                    }
+                  }
+
+                  const summary: CoverageSummary = {
+                    level,
+                    explanations,
+                    sourceCount,
+                    freshSourceCount: fresh,
+                    confirmedDirect,
+                    pendingProposals,
+                    unresolvedCandidates,
+                    unknownCriticality,
+                    lastIngestedAt: lastIngested,
+                  }
+                  return summary
+                })
+            )
+          )
+        )
+    )
+}
+
+// ────────────────────────────────────────────────────────────── 计划
+
+export function listPlans(): Promise<PlanListItem[]> {
+  return getGraphRevision().then((current) =>
+    getSecureDb()
+      .query(
+        "SELECT id, title, workflow_state, last_analyzed_graph_revision AS analyzed FROM change_plans ORDER BY created_at DESC",
+        []
+      )
+      .then((rows) => {
+        const out: PlanListItem[] = []
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i] as Map<string, any | null>
+          const state = str(row.get('workflow_state'))
+          const analyzed = num(row.get('analyzed'))
+          const terminal = state === 'completed' || state === 'cancelled'
+          const item: PlanListItem = {
+            id: str(row.get('id')),
+            title: str(row.get('title')),
+            workflowState: state,
+            stale: !terminal && current > analyzed,
+            analyzed,
+            current,
+          }
+          out.push(item)
+        }
+        return out
+      })
+  )
+}
+
+export function getPlanDetail(planId: string): Promise<PlanDetail | null> {
+  return getGraphRevision().then((current) =>
+    getSecureDb()
+      .query(
+        'SELECT id, title, workflow_state, last_analyzed_graph_revision AS analyzed, impact_snapshot_json, action_items_json, target_node_id FROM change_plans WHERE id = ?',
+        [planId]
+      )
+      .then((rows) => {
+        if (rows.length === 0) return null
+        const row = rows[0] as Map<string, any | null>
+        const state = str(row.get('workflow_state'))
+        const analyzed = num(row.get('analyzed'))
+        const terminal = state === 'completed' || state === 'cancelled'
+        const stale = !terminal && current > analyzed
+
+        // must_change keys
+        const mustChangeKeys: string[] = []
+        let needsReview = 0
+        const snapshot = row.get('impact_snapshot_json')
+        if (snapshot !== null && snapshot !== undefined) {
+          const snap = JSON.parse(String(snapshot)) as Map<string, any>
+          const targets = snap.get('targets') as Array<Map<string, any>>
+          if (targets !== null && targets !== undefined) {
+            for (let i = 0; i < targets.length; i++) {
+              const t = targets[i]
+              const status = str(t.get('status'))
+              const key = `${str(t.get('nodeId'))}|${str(t.get('capability'))}`
+              if (status === 'must_change') mustChangeKeys.push(key)
+              if (status === 'needs_review') needsReview++
+            }
+          }
+        }
+
+        const rawActions = str(row.get('action_items_json'))
+        const parsedRaw = rawActions === '' ? '[]' : rawActions
+        const arr = JSON.parse(parsedRaw) as Array<Map<string, any>>
+        const actions: PlanActionItem[] = []
+        for (let i = 0; i < arr.length; i++) {
+          const a = arr[i]
+          const keysRaw = a.get('resolvesImpactKeys')
+          const keys: string[] = []
+          if (keysRaw !== null && keysRaw !== undefined) {
+            const ka = keysRaw as Array<any>
+            for (let k = 0; k < ka.length; k++) keys.push(String(ka[k]))
+          }
+          const v = a.get('verification')
+          const item: PlanActionItem = {
+            id: str(a.get('id')),
+            title: str(a.get('title')),
+            phase: str(a.get('phase')),
+            done: Boolean(a.get('done')),
+            resolvesImpactKeys: keys,
+            verificationStatus: v === null || v === undefined ? '' : str((v as Map<string, any>).get('status')),
+            verificationMethod: v === null || v === undefined ? '' : str((v as Map<string, any>).get('method')),
+          }
+          actions.push(item)
+        }
+
+        // 显式 resolution：该 key 的全部声明 change 动作均 done 才算 resolved
+        let pendingMust = 0
+        for (let i = 0; i < mustChangeKeys.length; i++) {
+          const key = mustChangeKeys[i]
+          const flags: boolean[] = []
+          for (let j = 0; j < actions.length; j++) {
+            const a = actions[j]
+            if (a.phase === 'change' && a.resolvesImpactKeys.indexOf(key) >= 0) flags.push(a.done)
+          }
+          let resolved = flags.length > 0
+          for (let f = 0; f < flags.length; f++) if (!flags[f]) resolved = false
+          if (!resolved) pendingMust++
+        }
+
+        const detail: PlanDetail = {
+          id: str(row.get('id')),
+          title: str(row.get('title')),
+          workflowState: state,
+          stale,
+          analyzed,
+          current,
+          targetNodeId: str(row.get('target_node_id')),
+          mustChangeCount: mustChangeKeys.length,
+          needsReviewCount: needsReview,
+          pendingMustChange: pendingMust,
+          pendingReview: needsReview,
+          actions,
+          rawActionsJson: parsedRaw,
+        }
+        return detail
+      })
+  )
+}
+
+/** 保存动作（done / verification）—— 单一写入口，保持 JSON 与列表一致 */
+function persistActions(planId: string, rawJson: string, actions: PlanActionItem[]): Promise<number> {
+  const arr = JSON.parse(rawJson) as Array<Map<string, any>>
+  for (let i = 0; i < arr.length; i++) {
+    const a = actions[i]
+    if (a === undefined) continue
+    const m = arr[i]
+    m.set('done', a.done)
+    m.set('doneAt', a.done ? nowIso() : null)
+    const v = m.get('verification')
+    if (v !== null && v !== undefined) {
+      const vm = v as Map<string, any>
+      vm.set('status', a.verificationStatus)
+      if (a.verificationStatus === 'verified') vm.set('verifiedAt', nowIso())
+    }
+  }
+  return getSecureDb().execute('UPDATE change_plans SET action_items_json = ?, updated_at = ? WHERE id = ?', [
+    JSON.stringify(arr),
+    nowIso(),
+    planId,
+  ])
+}
+
+export function setActionDone(planId: string, actionId: string, done: boolean): Promise<PlanDetail | null> {
+  return getPlanDetail(planId).then((detail) => {
+    if (detail === null) return null
+    for (let i = 0; i < detail.actions.length; i++) {
+      if (detail.actions[i].id === actionId) detail.actions[i].done = done
+    }
+    // done ≠ verified：完成动作不改 verification 状态
+    return persistActions(planId, detail.rawActionsJson, detail.actions).then(() => getPlanDetail(planId))
+  })
+}
+
+export function verifyAction(planId: string, actionId: string): Promise<PlanDetail | null> {
+  return getPlanDetail(planId).then((detail) => {
+    if (detail === null) return null
+    for (let i = 0; i < detail.actions.length; i++) {
+      if (detail.actions[i].id === actionId) detail.actions[i].verificationStatus = 'verified'
+    }
+    return persistActions(planId, detail.rawActionsJson, detail.actions).then(() => getPlanDetail(planId))
+  })
+}
+
+/**
+ * 重新分析（Rebase）：仅在成功分析后推进 last_analyzed_graph_revision。
+ * 不自动完成任何动作（Core PRB 口径）。
+ */
+export function reanalyzePlan(planId: string): Promise<PlanDetail | null> {
+  return getGraphRevision().then((current) =>
+    getSecureDb()
+      .execute('UPDATE change_plans SET last_analyzed_graph_revision = ?, updated_at = ? WHERE id = ?', [
+        current,
+        nowIso(),
+        planId,
+      ])
+      .then(() => getPlanDetail(planId))
+  )
+}
+
+export function createPlan(templateId: string, nodeId: string, title: string, effectiveDate: string): Promise<string> {
+  return getGraphRevision().then((current) => {
+    const id = `plan-${templateId}-${Date.now()}`
+    const now = nowIso()
+    return getSecureDb()
+      .execute(
+        'INSERT INTO change_plans (id, template_id, scenario, title, workflow_state, baseline_graph_revision, last_analyzed_graph_revision, target_node_id, effective_date, params_json, impact_snapshot_json, action_items_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [id, templateId, 'payment', title, 'draft', current, current, nodeId, effectiveDate, '{}', null, '[]', now, now]
+      )
+      .then(() => id)
+  })
+}
+
+/**
+ * 创建计划并立即做一次**保守**影响分析。
+ *
+ * 保守口径（Precision > Recall，§14）：
+ *   - 只有 **已确认且 criticality = required** 的依赖才进入 must_change；
+ *   - criticality = unknown 的已确认依赖进入 needs_review（需要用户核对）；
+ *   - Proposal / DiscoveryCandidate / 未确认 Group **一律不参与**；
+ *   - 机器绝不自动产生 required。
+ *
+ * 为每个 must_change key 生成显式 `resolvesImpactKeys` 的 change 动作，
+ * 使 PlanReadiness 可用「显式 resolution」判定（禁止数量相减，Core FR-READ 口径）。
+ */
+export function createPlanWithAnalysis(
+  templateId: string,
+  nodeId: string,
+  title: string,
+  effectiveDate: string
+): Promise<string> {
+  const db = getSecureDb()
+  return getGraphRevision().then((current) =>
+    db
+      .query(
+        // 方向与 Core impact kernel 一致：from 为 to 提供支付。
+        // 变更目标是「付款方」（卡 / 账户）→ 受影响的是它的下游（to）。
+        "SELECT d.id, d.criticality, d.to_node, nt.name AS to_name FROM dependencies d JOIN nodes nt ON nt.id = d.to_node WHERE d.from_node = ? AND d.capability = 'payment' AND d.state = 'active' ORDER BY d.to_node",
+        [nodeId]
+      )
+      .then((rows) => {
+        const targets: Array<Map<string, any>> = []
+        const mustChangeKeys: string[] = []
+        const reviewKeys: string[] = []
+        for (let i = 0; i < rows.length; i++) {
+          const r = rows[i] as Map<string, any | null>
+          const criticality = str(r.get('criticality'))
+          const impactedId = str(r.get('to_node'))
+          const key = `${impactedId}|payment`
+          const t = new Map<string, any>()
+          t.set('nodeId', impactedId)
+          t.set('capability', 'payment')
+          t.set('name', str(r.get('to_name')))
+          t.set('dependencyId', str(r.get('id')))
+          if (criticality === 'required') {
+            t.set('status', 'must_change')
+            if (mustChangeKeys.indexOf(key) < 0) mustChangeKeys.push(key)
+          } else {
+            t.set('status', 'needs_review')
+            if (reviewKeys.indexOf(key) < 0) reviewKeys.push(key)
+          }
+          targets.push(t)
+        }
+
+        const snapshot = new Map<string, any>()
+        snapshot.set('targets', targets)
+        snapshot.set('graphRevision', current)
+
+        const actions: Array<Map<string, any>> = []
+        const prepare = new Map<string, any>()
+        prepare.set('id', 'prepare-1')
+        prepare.set('title', '确认要处理的支付关系')
+        prepare.set('detail', '核对下面列出的支付关系是否仍然有效。')
+        prepare.set('phase', 'prepare')
+        prepare.set('done', false)
+        prepare.set('doneAt', null)
+        prepare.set('verification', null)
+        prepare.set('resolvesImpactKeys', [] as string[])
+        actions.push(prepare)
+
+        const changeKeys: string[] = []
+        for (let i = 0; i < mustChangeKeys.length; i++) changeKeys.push(mustChangeKeys[i])
+        for (let i = 0; i < reviewKeys.length; i++) {
+          if (changeKeys.indexOf(reviewKeys[i]) < 0) changeKeys.push(reviewKeys[i])
+        }
+        const change = new Map<string, any>()
+        change.set('id', 'change-1')
+        change.set('title', '迁移必须保留的支付关系')
+        change.set('detail', '把仍然需要的支付关系迁移到新的支付来源。')
+        change.set('phase', 'change')
+        change.set('done', false)
+        change.set('doneAt', null)
+        const vChange = new Map<string, any>()
+        vChange.set('method', 'future_observation')
+        vChange.set('status', 'pending')
+        vChange.set('verifiedAt', null)
+        vChange.set('evidenceRefs', [] as string[])
+        change.set('verification', vChange)
+        change.set('resolvesImpactKeys', changeKeys)
+        actions.push(change)
+
+        const verify = new Map<string, any>()
+        verify.set('id', 'verify-1')
+        verify.set('title', '用真实支付确认已生效')
+        verify.set('detail', '完成不等于验证：需要新的真实支付记录，或你手动确认。')
+        verify.set('phase', 'verify')
+        verify.set('done', false)
+        verify.set('doneAt', null)
+        const vVerify = new Map<string, any>()
+        vVerify.set('method', 'future_observation')
+        vVerify.set('status', 'pending')
+        vVerify.set('verifiedAt', null)
+        vVerify.set('evidenceRefs', [] as string[])
+        verify.set('verification', vVerify)
+        verify.set('resolvesImpactKeys', [] as string[])
+        actions.push(verify)
+
+        const id = `plan-${templateId}-${Date.now()}`
+        const now = nowIso()
+        return db
+          .execute(
+            'INSERT INTO change_plans (id, template_id, scenario, title, workflow_state, baseline_graph_revision, last_analyzed_graph_revision, target_node_id, effective_date, params_json, impact_snapshot_json, action_items_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+              id,
+              templateId,
+              'payment',
+              title,
+              'draft',
+              current,
+              current,
+              nodeId,
+              effectiveDate,
+              '{}',
+              JSON.stringify(snapshot),
+              JSON.stringify(actions),
+              now,
+              now,
+            ]
+          )
+          .then(() => id)
+      })
+  )
+}
+
+/** 新建节点（渐进式录入：类型 + 名称 + 可选后四位） */
+export function createNode(name: string, kind: string, last4: string): Promise<string> {
+  const now = nowIso()
+  const id = `node-${kind}-${Date.now()}`
+  const tail = last4.length === 4 ? last4 : null
+  return getSecureDb()
+    .execute(
+      "INSERT INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, vault_ref, wallet_ref, created_at, updated_at) VALUES (?, ?, NULL, ?, NULL, ?, 'self', 0, '{}', NULL, NULL, ?, ?)",
+      [id, kind, name, tail, now, now]
+    )
+    .then(() => id)
+}
+
+// ────────────────────────────────────────────────────────────── RealityDrift
+
+export function listDrifts(): Promise<DriftItem[]> {
+  return getSecureDb()
+    .query(
+      "SELECT id, kind, observation_count, detected_at FROM reality_drifts WHERE status = 'open' ORDER BY detected_at, id",
+      []
+    )
+    .then((rows) => {
+      const out: DriftItem[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i] as Map<string, any | null>
+        const item: DriftItem = {
+          id: str(row.get('id')),
+          kind: str(row.get('kind')),
+          observations: num(row.get('observation_count')),
+          detectedAt: str(row.get('detected_at')),
+        }
+        out.push(item)
+      }
+      return out
+    })
+}
+
+/**
+ * 用户确认现实变化。
+ * replacement = 确认新路径 + 停用旧路径；additional = 只确认新路径。
+ * 二者都是 Reality mutation → 与 revision +1 **同事务**（§10/§12）。
+ */
+export function resolveDrift(driftId: string, mode: string): Promise<void> {
+  const db = getSecureDb()
+  return db
+    .query(
+      'SELECT candidate_from, target_node_id, capability, candidate_relation, related_dependency_ids_json FROM reality_drifts WHERE id = ?',
+      [driftId]
+    )
+    .then((rows) => {
+      if (rows.length === 0) return
+      const row = rows[0] as Map<string, any | null>
+      const from = str(row.get('candidate_from'))
+      const to = str(row.get('target_node_id'))
+      const cap = str(row.get('capability'))
+      const rel = str(row.get('candidate_relation'))
+      const now = nowIso()
+      return db.transaction(() => {
+        return db
+          .execute(
+            "INSERT OR IGNORE INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'unknown', NULL, 'active', 'manual', ?, ?, NULL, '[]', ?, ?)",
+            [`dep-drift-${driftId}`, from, rel, to, cap, now, now, now, now]
+          )
+          .then(() => {
+            if (mode !== 'replacement') return Promise.resolve(0)
+            return db.execute(
+              "UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id IN (SELECT j.value FROM reality_drifts d, json_each(d.related_dependency_ids_json) j WHERE d.id = ?) AND state = 'active'",
+              [now, now, driftId]
+            )
+          })
+          .then(() =>
+            db.execute("UPDATE reality_drifts SET status = 'confirmed_change', updated_at = ? WHERE id = ?", [now, driftId])
+          )
+          .then(() => bumpRevisionInTx())
+          .then(() => undefined)
+      })
+    })
+}
+
+/** 「没有变化」/「稍后确认」——不改 Graph、不 bump revision */
+export function dismissDrift(driftId: string): Promise<number> {
+  return getSecureDb().execute("UPDATE reality_drifts SET status = 'dismissed', updated_at = ? WHERE id = ?", [
+    nowIso(),
+    driftId,
+  ])
+}
+
+// ────────────────────────────────────────────────────────────── DiscoveryCandidate
+
+export function listCandidates(): Promise<CandidateItem[]> {
+  return getSecureDb()
+    .query(
+      "SELECT id, display_label, candidate_kind, observation_count FROM discovery_candidates WHERE status = 'pending' ORDER BY last_seen_at DESC, id",
+      []
+    )
+    .then((rows) => {
+      const out: CandidateItem[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i] as Map<string, any | null>
+        const item: CandidateItem = {
+          id: str(row.get('id')),
+          displayLabel: str(row.get('display_label')),
+          candidateKind: str(row.get('candidate_kind')),
+          observations: num(row.get('observation_count')),
+        }
+        out.push(item)
+      }
+      return out
+    })
+}
+
+/**
+ * 接受候选 → 创建一个逻辑 Node（Reality mutation → bump revision，同事务）。
+ * 注意：accept 只建 Node，**不自动建 Dependency**（§13）。
+ */
+export function acceptCandidate(candidateId: string): Promise<void> {
+  const db = getSecureDb()
+  return db
+    .query('SELECT display_label, candidate_kind, normalized_key FROM discovery_candidates WHERE id = ?', [candidateId])
+    .then((rows) => {
+      if (rows.length === 0) return
+      const row = rows[0] as Map<string, any | null>
+      const label = str(row.get('display_label'))
+      const kind = str(row.get('candidate_kind'))
+      const now = nowIso()
+      const nodeId = `node-${str(row.get('normalized_key'))}`
+      return db.transaction(() => {
+        return db
+          .execute(
+            'INSERT OR IGNORE INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, vault_ref, wallet_ref, created_at, updated_at) VALUES (?, ?, NULL, ?, NULL, NULL, \'self\', 0, \'{}\', NULL, NULL, ?, ?)',
+            [nodeId, kind, label, now, now]
+          )
+          .then(() =>
+            db.execute("UPDATE discovery_candidates SET status = 'accepted', accepted_node_id = ?, updated_at = ? WHERE id = ?", [
+              nodeId,
+              now,
+              candidateId,
+            ])
+          )
+          .then(() => bumpRevisionInTx())
+          .then(() => undefined)
+      })
+    })
+}
+
+/** 忽略候选 → 不创建 Node、不改 Graph、不 bump revision */
+export function dismissCandidate(candidateId: string): Promise<number> {
+  return getSecureDb().execute(
+    "UPDATE discovery_candidates SET status = 'dismissed', dismissed_at_observation_count = observation_count, updated_at = ? WHERE id = ?",
+    [nowIso(), candidateId]
+  )
+}
+
+// ────────────────────────────────────────────────────────────── Proposal
+
+export function listProposals(): Promise<ProposalItem[]> {
+  return getSecureDb()
+    .query(
+      "SELECT p.key, p.relation, p.observation_count, nf.name AS from_name, nt.name AS to_name FROM dependency_proposals p JOIN nodes nf ON nf.id = p.from_node JOIN nodes nt ON nt.id = p.to_node WHERE p.decision = 'pending' ORDER BY p.observation_count DESC",
+      []
+    )
+    .then((rows) => {
+      const out: ProposalItem[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const m = rows[i] as Map<string, any | null>
+        const relation = str(m.get('relation'))
+        const title =
+          relation === 'funding_source'
+            ? `${str(m.get('from_name'))} 是 ${str(m.get('to_name'))} 的资金来源`
+            : `${str(m.get('from_name'))} 会自动支付给 ${str(m.get('to_name'))}`
+        const item: ProposalItem = {
+          key: str(m.get('key')),
+          title,
+          relation,
+          observationCount: num(m.get('observation_count')),
+        }
+        out.push(item)
+      }
+      return out
+    })
+}
+
+/**
+ * 接受 Proposal → Dependency（Reality mutation）。
+ * criticality 只允许 required / unknown，且机器不得自动产生 required（§9）。
+ */
+export function acceptProposal(key: string, criticality: string): Promise<void> {
+  const db = getSecureDb()
+  return db
+    .query('SELECT from_node, relation, to_node, capability FROM dependency_proposals WHERE key = ?', [key])
+    .then((rows) => {
+      if (rows.length === 0) return
+      const m = rows[0] as Map<string, any | null>
+      const now = nowIso()
+      const crit = criticality === 'required' ? 'required' : 'unknown'
+      return db.transaction(() => {
+        return db
+          .execute(
+            "INSERT OR IGNORE INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NULL, 'active', 'proposal', ?, ?, NULL, '[]', ?, ?)",
+            [
+              `dep-${key}`,
+              str(m.get('from_node')),
+              str(m.get('relation')),
+              str(m.get('to_node')),
+              str(m.get('capability')),
+              crit,
+              now,
+              now,
+              now,
+              now,
+            ]
+          )
+          .then(() =>
+            db.execute("UPDATE dependency_proposals SET decision = 'accepted', decided_at = ?, criticality_decision = ? WHERE key = ?", [
+              now,
+              crit,
+              key,
+            ])
+          )
+          .then(() => bumpRevisionInTx())
+          .then(() => undefined)
+      })
+    })
+}
+
+/** 拒绝 Proposal —— 不写 Graph；有新证据才可能重提（§11） */
+export function rejectProposal(key: string): Promise<number> {
+  const now = nowIso()
+  return getSecureDb().execute(
+    "UPDATE dependency_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ?, rejected_at_observation_count = observation_count WHERE key = ?",
+    [now, now, key]
+  )
+}
+
+export function listGroupProposals(): Promise<GroupProposalItem[]> {
+  return getSecureDb()
+    .query("SELECT key, target_node_id, mode FROM dependency_group_proposals WHERE decision = 'pending' ORDER BY created_at", [])
+    .then((rows) => {
+      const out: GroupProposalItem[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const m = rows[i] as Map<string, any | null>
+        const item: GroupProposalItem = {
+          key: str(m.get('key')),
+          title: `${str(m.get('target_node_id'))} 的备用支付路径`,
+          mode: str(m.get('mode')),
+        }
+        out.push(item)
+      }
+      return out
+    })
+}
+
+export function acceptGroupProposal(key: string): Promise<number> {
+  return getSecureDb().execute(
+    "UPDATE dependency_group_proposals SET decision = 'accepted', decided_at = ? WHERE key = ?",
+    [nowIso(), key]
+  )
+}
+
+export function rejectGroupProposal(key: string): Promise<number> {
+  const now = nowIso()
+  return getSecureDb().execute(
+    "UPDATE dependency_group_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ? WHERE key = ?",
+    [now, now, key]
+  )
+}
+
+// ────────────────────────────────────────────────────────────── 基础设施
+
+export function listNodes(kind: string): Promise<NodeItem[]> {
+  const sql =
+    kind === ''
+      ? 'SELECT id, name, kind, issuer, last4 FROM nodes WHERE archived = 0 ORDER BY kind, name'
+      : 'SELECT id, name, kind, issuer, last4 FROM nodes WHERE archived = 0 AND kind = ? ORDER BY name'
+  const params: Array<any | null> = kind === '' ? [] : [kind]
+  return getSecureDb()
+    .query(sql, params)
+    .then((rows) => {
+      const out: NodeItem[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const m = rows[i] as Map<string, any | null>
+        const item: NodeItem = {
+          id: str(m.get('id')),
+          name: str(m.get('name')),
+          kind: str(m.get('kind')),
+          issuer: str(m.get('issuer')),
+          last4: str(m.get('last4')),
+        }
+        out.push(item)
+      }
+      return out
+    })
+}
+
+/** 可作为支付来源的对象（银行卡 + 支付账户）——影响分析与变更计划的目标集合 */
+export function listPaymentInstruments(): Promise<NodeItem[]> {
+  return listNodes('payment_instrument').then((cards) =>
+    listNodes('account').then((accounts) => cards.concat(accounts))
+  )
+}
+
+export function getNodeDetail(nodeId: string): Promise<NodeDetail | null> {
+  const db = getSecureDb()
+  return db.query('SELECT id, name, kind, issuer, last4 FROM nodes WHERE id = ?', [nodeId]).then((rows) => {
+    if (rows.length === 0) return null
+    const m = rows[0] as Map<string, any | null>
+    return db
+      .query(
+        // 双向展示：out = 本节点为对方提供支付（from = 本节点）；in = 对方为本节点提供支付。
+        "SELECT d.id, nt.name AS peer_name, 'out' AS direction, d.relation, d.capability, d.criticality, d.state FROM dependencies d JOIN nodes nt ON nt.id = d.to_node WHERE d.from_node = ? UNION ALL SELECT d.id, nf.name AS peer_name, 'in' AS direction, d.relation, d.capability, d.criticality, d.state FROM dependencies d JOIN nodes nf ON nf.id = d.from_node WHERE d.to_node = ? ORDER BY state, direction, peer_name",
+        [nodeId, nodeId]
+      )
+      .then((deps) => {
+        const list: DependencyItem[] = []
+        for (let i = 0; i < deps.length; i++) {
+          const d = deps[i] as Map<string, any | null>
+          const item: DependencyItem = {
+            id: str(d.get('id')),
+            peerName: str(d.get('peer_name')),
+            direction: str(d.get('direction')),
+            relation: str(d.get('relation')),
+            capability: str(d.get('capability')),
+            criticality: str(d.get('criticality')),
+            state: str(d.get('state')),
+          }
+          list.push(item)
+        }
+        const detail: NodeDetail = {
+          id: str(m.get('id')),
+          name: str(m.get('name')),
+          kind: str(m.get('kind')),
+          issuer: str(m.get('issuer')),
+          last4: str(m.get('last4')),
+          dependencies: list,
+        }
+        return detail
+      })
+  })
+}
+
+/** 停用一条已确认依赖 —— Reality mutation，与 revision +1 同事务 */
+export function retireDependency(dependencyId: string): Promise<void> {
+  const now = nowIso()
+  return getSecureDb()
+    .transaction(() => {
+      return getSecureDb()
+        .execute("UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?", [
+          now,
+          now,
+          dependencyId,
+        ])
+        .then(() => bumpRevisionInTx())
+        .then(() => undefined)
+    })
+}
+
+// ────────────────────────────────────────────────────────────── 手动声明
+
+/**
+ * 把同一 logical key 的待确认 Proposal 标记为已接受。
+ * Proposal 状态变更**不是** Reality mutation → 不提升 revision（§11）。
+ */
+function acceptPendingProposalByKey(key: string, criticality: string, now: string): Promise<number> {
+  return getSecureDb().execute(
+    "UPDATE dependency_proposals SET decision = 'accepted', decided_at = ?, criticality_decision = ? WHERE key = ? AND decision = 'pending'",
+    [now, criticality, key]
+  )
+}
+
+/**
+ * 用户手动声明一条支付关系。
+ *
+ * 语义（AGENTS §9）：**Dependency 存在即代表用户确认**。机器不得自动产生 required，
+ * 因此 criticality 必须由用户在界面上显式选择，缺省为 `unknown`。
+ *
+ * 同一 logical key（`from|relation|to|capability`）：
+ *   - 不存在   → INSERT（origin = 'manual'）              → Reality mutation → bump
+ *   - active   → 不重复建边；仅刷新 last_verified_at（**不** bump）
+ *                若用户改变了 criticality → 属 Reality mutation → bump
+ *   - retired  → 复用同一 id 重新激活（清 retired_at）     → Reality mutation → bump
+ *
+ * 方向：`from` 为 `to` 提供支付（与 Core impact kernel 一致）。
+ */
+export function declareDependency(
+  fromNodeId: string,
+  toNodeId: string,
+  relation: string,
+  capability: string,
+  criticality: string
+): Promise<void> {
+  if (fromNodeId === '' || toNodeId === '' || fromNodeId === toNodeId) return Promise.resolve()
+  const db = getSecureDb()
+  const now = nowIso()
+  const crit = criticality === 'required' ? 'required' : 'unknown'
+  const key = `${fromNodeId}|${relation}|${toNodeId}|${capability}`
+  return db
+    .query(
+      'SELECT id, state, criticality FROM dependencies WHERE from_node = ? AND relation = ? AND to_node = ? AND capability = ?',
+      [fromNodeId, relation, toNodeId, capability]
+    )
+    .then((rows) => {
+      return db.transaction(() => {
+        if (rows.length > 0) {
+          const m = rows[0] as Map<string, any | null>
+          const id = str(m.get('id'))
+          const state = str(m.get('state'))
+          const prevCrit = str(m.get('criticality'))
+
+          if (state === 'active' && prevCrit === crit) {
+            // 无现实变化：只刷新验证时间，**不**提升 revision
+            return db
+              .execute('UPDATE dependencies SET last_verified_at = ?, updated_at = ? WHERE id = ?', [
+                now,
+                now,
+                id,
+              ])
+              .then(() => acceptPendingProposalByKey(key, crit, now))
+              .then(() => undefined)
+          }
+
+          if (state === 'active') {
+            // criticality 值变 = Reality mutation
+            return db
+              .execute(
+                'UPDATE dependencies SET criticality = ?, last_verified_at = ?, updated_at = ? WHERE id = ?',
+                [crit, now, now, id]
+              )
+              .then(() => acceptPendingProposalByKey(key, crit, now))
+              .then(() => bumpRevisionInTx())
+              .then(() => undefined)
+          }
+
+          // retired → 复用同一 id 重新激活
+          return db
+            .execute(
+              "UPDATE dependencies SET state = 'active', retired_at = NULL, confirmed_at = ?, last_verified_at = ?, criticality = ?, updated_at = ? WHERE id = ?",
+              [now, now, crit, now, id]
+            )
+            .then(() => acceptPendingProposalByKey(key, crit, now))
+            .then(() => bumpRevisionInTx())
+            .then(() => undefined)
+        }
+
+        const newId = `dep-manual-${Date.now()}`
+        return db
+          .execute(
+            "INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NULL, 'active', 'manual', ?, ?, NULL, '[]', ?, ?)",
+            [newId, fromNodeId, relation, toNodeId, capability, crit, now, now, now, now]
+          )
+          .then(() => acceptPendingProposalByKey(key, crit, now))
+          .then(() => bumpRevisionInTx())
+          .then(() => undefined)
+      })
+    })
+}
+
+/** 判断一条 logical key 是否已存在（含 retired），用于声明前的重复提示 */
+export function dependencyExistsFor(
+  fromNodeId: string,
+  relation: string,
+  toNodeId: string,
+  capability: string
+): Promise<boolean> {
+  return getSecureDb()
+    .query(
+      'SELECT id FROM dependencies WHERE from_node = ? AND relation = ? AND to_node = ? AND capability = ?',
+      [fromNodeId, relation, toNodeId, capability]
+    )
+    .then((rows) => rows.length > 0)
+}
+
+// ────────────────────────────────────────────────────────────── 数据来源
+
+export function listSources(): Promise<SourceItem[]> {
+  return getSecureDb()
+    .query('SELECT id, label, state, last_ingested_at FROM source_instances ORDER BY created_at', [])
+    .then((rows) => {
+      const out: SourceItem[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const m = rows[i] as Map<string, any | null>
+        const item: SourceItem = {
+          id: str(m.get('id')),
+          label: str(m.get('label')),
+          state: str(m.get('state')),
+          lastIngestedAt: str(m.get('last_ingested_at')),
+        }
+        out.push(item)
+      }
+      return out
+    })
+}
+
+/**
+ * 删除数据来源。只移除来源与其会话记录；**不**删除用户已确认的依赖
+ * （已确认依赖是用户现实断言，不因来源删除而消失）。
+ */
+export function removeSource(sourceId: string): Promise<number> {
+  return getSecureDb().execute('DELETE FROM source_instances WHERE id = ?', [sourceId])
+}
+
+// ────────────────────────────────────────────────────────────── Timeline
+
+export function getTimeline(): Promise<TimelineItem[]> {
+  const db = getSecureDb()
+  return getGraphRevision().then((current) =>
+    db
+      .query(
+        'SELECT id, title, workflow_state, effective_date, last_analyzed_graph_revision AS analyzed FROM change_plans',
+        []
+      )
+      .then((planRows) =>
+        db.query("SELECT id, kind, detected_at FROM reality_drifts WHERE status = 'open'", []).then((driftRows) =>
+          db
+            .query(
+              "SELECT id, name, fields_json FROM nodes WHERE kind = 'payment_instrument' AND archived = 0 AND fields_json LIKE '%expiryDate%'",
+              []
+            )
+            .then((nodeRows) =>
+              db
+                .query("SELECT id, label FROM source_instances WHERE state = 'active' AND (last_ingested_at IS NULL OR last_ingested_at < ?)", [
+                  new Date(Date.now() - 45 * 86400000).toISOString(),
+                ])
+                .then((sourceRows) => {
+                  const items: TimelineItem[] = []
+                  for (let i = 0; i < planRows.length; i++) {
+                    const r = planRows[i] as Map<string, any | null>
+                    const state = str(r.get('workflow_state'))
+                    if (state === 'completed' || state === 'cancelled') continue
+                    const id = str(r.get('id'))
+                    const title = str(r.get('title'))
+                    if (current > num(r.get('analyzed'))) {
+                      items.push({
+                        id: `tl-plan-stale-${id}`,
+                        title: `计划需要重新检查：${title}`,
+                        subtitle: '基础设施在此计划创建后发生了变化。',
+                        scheduledAt: '',
+                        bucket: 'attention',
+                        sourceType: 'change_plan',
+                        sourceId: id,
+                      })
+                    } else {
+                      const eff = str(r.get('effective_date'))
+                      items.push({
+                        id: `tl-plan-${id}`,
+                        title,
+                        subtitle: '变更计划',
+                        scheduledAt: eff,
+                        bucket: bucketOf(eff),
+                        sourceType: 'change_plan',
+                        sourceId: id,
+                      })
+                    }
+                  }
+                  for (let i = 0; i < driftRows.length; i++) {
+                    const r = driftRows[i] as Map<string, any | null>
+                    items.push({
+                      id: `tl-drift-${str(r.get('id'))}`,
+                      title: '可能发生了变化',
+                      subtitle: '需要你确认或忽略',
+                      scheduledAt: str(r.get('detected_at')),
+                      bucket: 'attention',
+                      sourceType: 'reality_drift',
+                      sourceId: str(r.get('id')),
+                    })
+                  }
+                  for (let i = 0; i < nodeRows.length; i++) {
+                    const r = nodeRows[i] as Map<string, any | null>
+                    const fields = str(r.get('fields_json'))
+                    const idx = fields.indexOf('expiryDate')
+                    if (idx < 0) continue
+                    const expiry = fields.substring(idx + 13, idx + 23)
+                    items.push({
+                      id: `tl-expiry-${str(r.get('id'))}`,
+                      title: `${str(r.get('name'))} 即将到期`,
+                      subtitle: '检查仍依赖此对象的支付路径。',
+                      scheduledAt: expiry,
+                      bucket: bucketOf(expiry),
+                      sourceType: 'node_expiry',
+                      sourceId: str(r.get('id')),
+                    })
+                  }
+                  for (let i = 0; i < sourceRows.length; i++) {
+                    const r = sourceRows[i] as Map<string, any | null>
+                    items.push({
+                      id: `tl-fresh-${str(r.get('id'))}`,
+                      title: `数据来源需要刷新：${str(r.get('label'))}`,
+                      subtitle: '超过 45 天未导入。',
+                      scheduledAt: '',
+                      bucket: 'attention',
+                      sourceType: 'source_freshness',
+                      sourceId: str(r.get('id')),
+                    })
+                  }
+                  items.sort((a, b) => {
+                    const ra = rankOf(a.bucket)
+                    const rb = rankOf(b.bucket)
+                    if (ra !== rb) return ra - rb
+                    if (a.scheduledAt !== b.scheduledAt) return a.scheduledAt < b.scheduledAt ? -1 : 1
+                    return a.id < b.id ? -1 : 1
+                  })
+                  return items
+                })
+            )
+        )
+      )
+  )
+}
+
+function rankOf(bucket: string): number {
+  const order = ['attention', 'overdue', 'today', '7d', '30d', '90d', 'later']
+  const idx = order.indexOf(bucket)
+  return idx < 0 ? 99 : idx
+}
+
+function bucketOf(scheduledAt: string): string {
+  if (scheduledAt === '') return 'attention'
+  const t = Date.parse(scheduledAt)
+  if (Number.isNaN(t)) return 'attention'
+  const now = new Date()
+  const base = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  const day = 86400000
+  if (t < base) return 'overdue'
+  if (t < base + day) return 'today'
+  if (t < base + 8 * day) return '7d'
+  if (t < base + 31 * day) return '30d'
+  if (t < base + 91 * day) return '90d'
+  return 'later'
+}
+
+// ────────────────────────────────────────────────────────────── 影响模拟
+
+/**
+ * 影响模拟（payment capability）。
+ * 结果只基于**已确认的现实依赖**；Proposal / Candidate / 未确认 Group 不参与（§14）。
+ */
+export function simulateUnavailable(nodeId: string): Promise<ImpactRow[]> {
+  const db = getSecureDb()
+  return db
+    .query(
+      // 方向与 Core impact kernel 一致：from 为 to 提供支付。
+      // nodeId 不可用 → 受影响的是它的下游（to）。
+      "SELECT d.id, d.criticality, nt.name AS to_name FROM dependencies d JOIN nodes nt ON nt.id = d.to_node WHERE d.from_node = ? AND d.capability = 'payment' AND d.state = 'active' ORDER BY nt.name",
+      [nodeId]
+    )
+    .then((rows) => {
+      const out: ImpactRow[] = []
+      for (let i = 0; i < rows.length; i++) {
+        const m = rows[i] as Map<string, any | null>
+        const criticality = str(m.get('criticality'))
+        const name = str(m.get('to_name'))
+        if (criticality === 'required') {
+          out.push({ title: name, level: 'must_change', detail: '你确认过失去它支付会失效，需要先处理。' })
+        } else {
+          out.push({ title: name, level: 'needs_review', detail: '关系已确认，但关键度未确认，请核对。' })
+        }
+      }
+      return out
+    })
+}
+
+// ────────────────────────────────────────────────────────────── 数据删除
+
+/**
+ * 清除本地数据。
+ * 说明口径：只删除**应用可访问的数据与密钥**；不声称对闪存做物理擦除（§71）。
+ */
+export function resetLocalData(): Promise<void> {
+  return getSecureDb()
+    .query("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'", [])
+    .then((rows) => {
+      return getSecureDb()
+        .transaction(() => {
+          const tasks: Array<Promise<number>> = []
+          for (let i = 0; i < rows.length; i++) {
+            const name = str((rows[i] as Map<string, any | null>).get('name'))
+            if (name === '') continue
+            tasks.push(getSecureDb().execute(`DELETE FROM ${name}`, []))
+          }
+          return Promise.all(tasks).then(() => undefined)
+        })
+        .then(() => undefined)
+    })
+}

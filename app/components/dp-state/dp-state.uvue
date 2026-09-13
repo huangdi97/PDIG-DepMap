@@ -1,0 +1,91 @@
+<template>
+  <view class="state">
+    <text class="state-icon">{{ iconText }}</text>
+    <text class="state-title">{{ title }}</text>
+    <text v-if="description !== ''" class="state-desc">{{ description }}</text>
+    <view v-if="actionLabel !== ''" class="state-action" @click="onAction">
+      <text class="state-action-text">{{ actionLabel }}</text>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+/**
+ * 统一空态 / 错误态 / 加载态。
+ * kind: empty | error | loading
+ *
+ * 强制要求：任何页面不得以 console.error 代替用户可见错误（§41）。
+ */
+export default {
+  name: 'dp-state',
+  props: {
+    kind: {
+      type: String,
+      default: 'empty'
+    },
+    title: {
+      type: String,
+      default: ''
+    },
+    description: {
+      type: String,
+      default: ''
+    },
+    actionLabel: {
+      type: String,
+      default: ''
+    }
+  },
+  emits: ['action'],
+  computed: {
+    iconText(): string {
+      if (this.kind === 'error') return '!'
+      if (this.kind === 'loading') return '…'
+      return '·'
+    }
+  },
+  methods: {
+    onAction() {
+      this.$emit('action')
+    }
+  }
+}
+</script>
+
+<style>
+.state {
+  padding: 32px 20px;
+  align-items: center;
+  justify-content: center;
+}
+.state-icon {
+  font-size: 24px;
+  color: #B9BDCC;
+  margin-bottom: 8px;
+}
+.state-title {
+  font-size: 15px;
+  color: #1B1D29;
+  text-align: center;
+}
+.state-desc {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #8A90A6;
+  text-align: center;
+}
+.state-action {
+  margin-top: 14px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  background-color: #4C4FD8;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.state-action-text {
+  color: #FFFFFF;
+  font-size: 15px;
+}
+</style>

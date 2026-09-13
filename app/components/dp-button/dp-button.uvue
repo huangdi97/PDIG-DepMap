@@ -1,0 +1,93 @@
+<template>
+  <view
+    class="btn"
+    :class="{ 'btn-block': block, 'btn-disabled': disabled || loading }"
+    :style="'background-color:' + bg + ';border-color:' + border + ';'"
+    @click="onTap"
+  >
+    <text class="btn-text" :style="'color:' + fg + ';'">{{ loading ? loadingText : label }}</text>
+  </view>
+</template>
+
+<script lang="uts">
+import { DP_COLORS } from '../../theme/tokens.uts'
+
+/**
+ * 统一按钮。variant: primary | secondary | danger
+ * 交互保障：loading / disabled 时点击被吞掉（防止重复提交）。
+ */
+export default {
+  name: 'dp-button',
+  props: {
+    label: {
+      type: String,
+      default: ''
+    },
+    variant: {
+      type: String,
+      default: 'primary'
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    loadingText: {
+      type: String,
+      default: '处理中…'
+    },
+    block: {
+      type: Boolean,
+      default: false
+    }
+  },
+  emits: ['tap'],
+  computed: {
+    bg(): string {
+      if (this.disabled || this.loading) return DP_COLORS.disabled
+      if (this.variant === 'secondary') return DP_COLORS.surface
+      if (this.variant === 'danger') return DP_COLORS.danger
+      return DP_COLORS.primary
+    },
+    fg(): string {
+      if (this.disabled || this.loading) return '#FFFFFF'
+      if (this.variant === 'secondary') return DP_COLORS.primary
+      return '#FFFFFF'
+    },
+    border(): string {
+      if (this.variant === 'secondary') return DP_COLORS.primary
+      return this.bg
+    }
+  },
+  methods: {
+    onTap() {
+      if (this.disabled || this.loading) return
+      this.$emit('tap')
+    }
+  }
+}
+</script>
+
+<style>
+.btn {
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border-width: 1px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.btn-block {
+  flex: 1;
+}
+.btn-disabled {
+  opacity: 0.7;
+}
+.btn-text {
+  font-size: 15px;
+}
+</style>

@@ -1,0 +1,51 @@
+<template>
+  <view class="chip" :style="'background-color:' + bg + ';'">
+    <text class="chip-text" :style="'color:' + fg + ';'">{{ label }}</text>
+  </view>
+</template>
+
+<script lang="uts">
+import { statusColor, statusSoftColor, statusLabel } from '../../theme/tokens.uts'
+
+/**
+ * 状态标签。用于计划状态 / 分析依据等级。
+ * 可访问性：始终显示文字，不单独依赖颜色表达状态。
+ */
+export default {
+  name: 'dp-chip',
+  props: {
+    status: {
+      type: String,
+      default: 'unknown'
+    },
+    /** 覆盖默认中文标签；留空则使用 statusLabel(status) */
+    text: {
+      type: String,
+      default: ''
+    }
+  },
+  computed: {
+    fg(): string {
+      return statusColor(this.status)
+    },
+    bg(): string {
+      return statusSoftColor(this.status)
+    },
+    label(): string {
+      return this.text === '' ? statusLabel(this.status) : this.text
+    }
+  }
+}
+</script>
+
+<style>
+.chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-direction: row;
+  align-items: center;
+}
+.chip-text {
+  font-size: 12px;
+}
+</style>

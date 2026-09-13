@@ -1,0 +1,157 @@
+/**
+ * PDIG Design Tokens（唯一视觉真相源）
+ *
+ * 用途：
+ *  1. 供 `.uvue` 的 `<script>` / 内联 `:style` 使用（跨平台一致）。
+ *  2. 作为 `core/scripts/check-ui.mjs` 的校验基准：页面 `<style>` 中出现的颜色
+ *     必须属于本调色板，禁止散落硬编码色值。
+ *
+ * 约束：
+ *  - 不使用远程字体 / 远程图标 CDN。
+ *  - 中文使用系统字体。
+ *  - 深色模式：本文件提供 dark 覆盖表（见 DARK_OVERRIDES），当前 App 以 light 为默认，
+ *    但所有语义色均已命名，未来切换主题只需替换本文件取值，无需改页面。
+ */
+
+export interface DpPalette {
+  primary: string
+  primaryActive: string
+  primarySoft: string
+  background: string
+  surface: string
+  surfaceElevated: string
+  textPrimary: string
+  textSecondary: string
+  textTertiary: string
+  border: string
+  success: string
+  warning: string
+  danger: string
+  info: string
+  disabled: string
+}
+
+/** 浅色（默认） */
+export const DP_COLORS: DpPalette = {
+  primary: '#4C4FD8',
+  primaryActive: '#3B3EB8',
+  primarySoft: '#EEEEFB',
+  background: '#F5F6FA',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFFFF',
+  textPrimary: '#1B1D29',
+  textSecondary: '#5A5F73',
+  textTertiary: '#8A90A6',
+  border: '#E6E8F0',
+  success: '#2BA471',
+  warning: '#D98E04',
+  danger: '#D54941',
+  info: '#3B6FD8',
+  disabled: '#B9BDCC'
+}
+
+/**
+ * 深色覆盖（未启用；token 层已就绪）。
+ * 启用方式：App 启动时按系统主题选择本表，页面代码零改动。
+ */
+export const DP_DARK_OVERRIDES: DpPalette = {
+  primary: '#8B8EF5',
+  primaryActive: '#A5A7F8',
+  primarySoft: '#242541',
+  background: '#12131A',
+  surface: '#1C1E28',
+  surfaceElevated: '#232633',
+  textPrimary: '#F2F3F7',
+  textSecondary: '#B4B9C9',
+  textTertiary: '#828799',
+  border: '#2C2F3D',
+  success: '#3FBF87',
+  warning: '#E0A63A',
+  danger: '#E4695F',
+  info: '#5B8CE8',
+  disabled: '#4A4E5E'
+}
+
+/** 间距 scale（px） */
+export const DP_SPACE = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32
+}
+
+/** 圆角 */
+export const DP_RADIUS = {
+  sm: 6,
+  md: 10,
+  lg: 14,
+  pill: 999
+}
+
+/** 字号（px）；中文使用系统字体 */
+export const DP_FONT = {
+  display: 26,
+  h1: 22,
+  h2: 18,
+  section: 16,
+  body: 15,
+  secondary: 13,
+  caption: 12,
+  button: 15
+}
+
+/** 触控最小高度（可访问性） */
+export const DP_TOUCH_MIN = 44
+
+/**
+ * 状态 → 前景色（供 StatusChip 使用）。
+ * 使用显式 switch 而非对象索引：UTS 对任意字符串索引对象有类型限制。
+ */
+export function statusColor(status: string): string {
+  if (status === 'blocked') return DP_COLORS.danger
+  if (status === 'review_required') return DP_COLORS.warning
+  if (status === 'needs_revalidation') return DP_COLORS.warning
+  if (status === 'ready_with_known_scope') return DP_COLORS.success
+  if (status === 'verifying') return DP_COLORS.info
+  if (status === 'completed') return DP_COLORS.textSecondary
+  if (status === 'cancelled') return DP_COLORS.textTertiary
+  if (status === 'limited') return DP_COLORS.warning
+  if (status === 'partial') return DP_COLORS.info
+  if (status === 'well_evidenced') return DP_COLORS.success
+  return DP_COLORS.textTertiary
+}
+
+/**
+ * 状态 → 浅底色。显式枚举而非 hex+alpha 拼接（原生端不保证支持 8 位 hex）。
+ */
+export function statusSoftColor(status: string): string {
+  if (status === 'blocked') return '#FCEDEC'
+  if (status === 'review_required') return '#FCF4E3'
+  if (status === 'needs_revalidation') return '#FCF4E3'
+  if (status === 'ready_with_known_scope') return '#E8F6F0'
+  if (status === 'verifying') return '#EAF1FC'
+  if (status === 'completed') return '#F0F1F5'
+  if (status === 'cancelled') return '#F0F1F5'
+  if (status === 'limited') return '#FCF4E3'
+  if (status === 'partial') return '#EAF1FC'
+  if (status === 'well_evidenced') return '#E8F6F0'
+  return '#F0F1F5'
+}
+
+/** 状态 → 用户可读中文（禁止工程词直接暴露给用户） */
+export function statusLabel(status: string): string {
+  if (status === 'blocked') return '还有必须处理的事项'
+  if (status === 'review_required') return '还有信息需要确认'
+  if (status === 'needs_revalidation') return '需要重新检查'
+  if (status === 'ready_with_known_scope') return '可以继续'
+  if (status === 'verifying') return '待验证'
+  if (status === 'completed') return '已完成'
+  if (status === 'cancelled') return '已取消'
+  if (status === 'limited') return '依据有限'
+  if (status === 'partial') return '部分依据'
+  if (status === 'well_evidenced') return '依据充分'
+  return '待确认'
+}
