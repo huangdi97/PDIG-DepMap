@@ -1,72 +1,60 @@
 # WORK_STATUS.md
 
 > 本文件由执行 Agent 持续更新。不要删除历史关键结论。
-> 2026-09-12 起由 WorkBuddy 接力（ZCode → WorkBuddy handoff），分支 `feat/mvp02-global-source`；
-> 2026-09-13 Engineering Baseline V1 在新分支 `engineering/baseline-v1` 执行（自 MVP02 终态切出，
-> tag `v0.2.0-mvp02`）。
+> 分支历史：`feat/mvp02-global-source`（MVP02，tag v0.2.0-mvp02）→ `engineering/baseline-v1`
+> （Engineering Baseline V1 PASS，2026-09-13）→ **`feat/mvp03-living-graph`（当前）**。
 
 ## Current
 
-- Phase: **ENGINEERING BASELINE V1 — 代码侧 PASS**（本轮）
-- Status: 324/324 tests PASS（28 文件，0 skip）；format/lint/typecheck/architecture(circular=0)/
-  network/secrets/deps 全绿；clean install + clean clone PASS；stability ×3 PASS
-- Real Data Gate: **NOT_RUN**（固定）；平台编译 **BLOCKED**（B1–B3）
-- 详细报告：**ENGINEERING_BASELINE_V1_REPORT.md** / **QUALITY_GATES_V1.md** /
-  MVP01_RC_AUDIT_REPORT.md / MVP02_FINAL_REPORT.md
+- Phase: **MVP03 — Living Graph & Change Safety：Core 代码侧 PASS**（2026-09-13 收口）
+- Status: 427/427 tests PASS（39 文件，0 skip）；check / check:full / stability ×3 全绿；
+  Real Data **NOT_RUN**；平台编译 **BLOCKED**（B1–B3/B10）
+- 详细报告：**MVP03_FINAL_REPORT.md** / MVP03_ACCEPTANCE.md（全 Gate 勾选）/
+  docs/MVP03_TEST_MATRIX.md / docs/LIVING_GRAPH.md
 
-## Current quality state（Engineering Baseline V1 收口轮 2026-09-13 实跑）
+## Current quality state（MVP03 收口轮实跑）
 
-- format:check PASS（prettier 3.9.6）；lint PASS（0 errors/0 warnings，无文件级豁免）
-- typecheck PASS（strict + noUncheckedIndexedAccess + **exactOptionalPropertyTypes 已开启**）
-- tests：**324/324 PASS，0 skip**（28 文件）= MVP02 基线 273 + 51（invariants 11 / contract 26 /
-  property 6 / crypto container-mutation 5 / kernel mutation-baseline 3）
-- architecture PASS（35 files，**circular dependencies = 0**）；network gate PASS（84 files 0 原语）；
-  secret scan PASS（283 files，0 production secrets）
-- coverage（src 口径，纯类型文件已排除）：**line 94.67% / branch 81.59%**
-  （crypto 99.3 / schema 100 / domain 100 / fingerprint 100 / parser 96.9 / services 95.4 /
-  repos 92.5 / impact 92.6 / sources 84.6 / resolver 82.5；双层 Gate 见 docs/COVERAGE_POLICY.md）
-- 变异基线：Stryker 532 mutants（kernel 55.96% / registry 96.88%）+ 人工变异 3/3 KILLED
-  （proposal 阈值 / fingerprint 作用域 / groupKey 排序）→ **PARTIAL_WITH_REPORT**
-  （docs/MUTATION_TEST_REPORT.md；下一里程碑 kernel covered score ≥ 70%）
-- 稳定性：`npm run test:stability` 3 连跑全绿，0 flaky，0 retry（docs/FLAKY_TEST_REPORT.md）
-- 依赖：check:deps PASS（树健康 + lockfile 同步 + 许可证全 MIT/Apache-2.0）；
-  npm audit 3 moderate（dev-only vitest 链，已登记 DEPENDENCY_POLICY，不阻塞）
+- format / lint（0 errors 0 warnings）/ typecheck（strict + noUncheckedIndexedAccess +
+  exactOptionalPropertyTypes）PASS
+- architecture PASS（48 files，circular = 0）；network gate PASS（103 files，0 原语）；
+  secret scan PASS（331 files，0 production secrets）
+- coverage：src line 93.45% / branch 81.4%（scenarios 98.7 / repositories 92.15；
+  Baseline Gate 已更新 COVERAGE_POLICY.md）
+- stability：3 连跑全绿（0 flaky / 0 retry）
+- 人工变异 M-R1..M-R5（revision bump / blocked 规则 / drift 阈值 / rebase no-op /
+  candidate 重提）**5/5 KILLED**；fast-check PI-1..3（seed=20260913）
+- perf（§63）：100 plans 0.9s / 1k timeline 14ms / 500 drifts ~4.5s / 500 candidates ~2.3s /
+  1k-node rebase 76ms
 
-## 本轮生产代码变更（均有回归）
+## MVP03 交付（Gate 级）
 
-1. `src/impact/kernel.ts` — 初始 unavailable 键**值级去重**（`Set<ImpactStateKey>` 值相等对象
-   不去重 → processedKeys 可能重复；fast-check P1 发现，修复 + 324 回归）
-2. `exactOptionalPropertyTypes` 开启 — 修复 8 处真实类型问题（domain/source.ts、
-   fingerprint.ts 输入类型、OfxTransaction、evidence 输入）
-3. 死代码删除 6 处（零引用逐一验证；docs/DEAD_CODE_AUDIT.md）
+| Gate | 结果 |
+|---|---|
+| A Graph Revision（GR-001..012，同事务 bump） | PASS |
+| B ChangePlan Rebase（PRB-001..011） | PASS |
+| C PlanReadiness（三值纯规则，无 confidence/absence 通道） | PASS |
+| D ScenarioCoverage（四级 + 可解释） | PASS |
+| E RealityDrift（RD-001..010，absence 永不触发） | PASS |
+| F DiscoveryCandidate（不进 Impact / 不 bump revision） | PASS |
+| G ScenarioTemplate（3 active + planned gate + 政策） | PASS |
+| H Timeline（确定性投影，可溯源） | PASS |
+| I Verification（done ≠ verified，两段式） | PASS |
+| J Migration v2→v3（MIG3-001..006） | PASS |
+| K depmap compat（golden 不变；payload v3 + v1/v2 migrate） | PASS |
+| L/M/N 回归（MVP01/MVP02/Baseline） | PASS |
+| O Security/Privacy（新对象只存引用/ID） | PASS |
+| P UI（16 页源码级，编译 BLOCKED B10） | PASS（静态） |
+| Q Documentation（13 份 + README + CANONICAL 附录） | PASS |
 
-## 本轮新增自动化（统一命令，core/）
+## MVP03 生产代码变更
 
-- `check` = format + lint + typecheck + test + architecture(circular) + **network gate** + secrets
-- `check:full` = check + db-integrity + coverage + perf + **deps/license gate**
-- 定向：`check:invariants` / `check:contract` / `check:property` / `check:db-integrity` /
-  `check:deps` / `test:stability`；scripts：check-network.mjs / check-deps.mjs /
-  test-stability.mjs / check-architecture.mjs(+循环依赖)
-- package.json：`engines.node >= 22.5.0` + `packageManager: npm@11.3.0`
-
-## 本轮文档落地（docs/）
-
-ENGINEERING_STANDARDS / ARCHITECTURE_RULES / TEST_STRATEGY / COVERAGE_POLICY /
-FAIL_CLOSED_MATRIX（F-01–F-20）/ SECURITY_PRIVACY_REGRESSION_MATRIX（S-01–S-15）/
-DEFINITION_OF_DONE / AGENT_DEVELOPMENT_PROTOCOL / COMMIT_CONVENTION / CHANGE_RISK_POLICY /
-FIXTURE_POLICY / LOGGING_POLICY / MONEY_CURRENCY_RULES / DATE_TIME_RULES /
-MEMORY_DATA_LIFETIME / PERFORMANCE_BASELINE / DEPENDENCY_POLICY / TYPE_SAFETY_BASELINE /
-DEAD_CODE_AUDIT / MUTATION_TEST_REPORT / FLAKY_TEST_REPORT；
-根目录：QUALITY_GATES_V1.md / ENGINEERING_BASELINE_V1_REPORT.md / ENGINEERING_PRE_AUDIT.md；
-流程：.github/pull_request_template.md；AGENTS.md §25（长期生效）；README 同步。
-
-## Git
-
-- 分支 `engineering/baseline-v1`；tag `v0.2.0-mvp02`（MVP02 终态 + .codebuddy 规则入库）
-- 本轮 commits：1d0d1f6（.codebuddy）→ 150f63e（测试套件+脚本）→ ddffe74（死代码）→
-  0c9eef9（mutation 补测+coverage 口径+deps gate）→ 36f5d35（工程文档群）→
-  e75e7e2（exactOptionalPropertyTypes）→ a9d6243（stability+报告）→ 49feeba（终版报告）
-- 未 push（禁止自动 push）
+- Schema v3：change_plans / reality_drifts / discovery_candidates 三张新表 + 索引；
+  SCHEMA_VERSION = 3；DEPMAP_CONTAINER_V1 不变
+- graphRevision：meta.graph_revision，仅 Reality mutation 同事务 +1
+  （dependency confirm-insert/reactivate/retire/updateCriticality 值变、group confirm/retire/reactivate）
+- payload v3：graph_revision 随 meta 行；migratePayloadV2toV3 + v1→v2→v3 组合（in-memory）
+- 并发协作说明：reality-drift-service 的阈值语义（「阈值只挡新建；open drift 恒累计」）
+  与 upsertSignal 的 `changed` 返回值为协作编辑成果，已被 RD 测试覆盖
 
 ## Platform Matrix
 
@@ -75,14 +63,14 @@ DEAD_CODE_AUDIT / MUTATION_TEST_REPORT / FLAKY_TEST_REPORT；
 | Android | YES | YES | NO（B1） | NO（B1） | NO | NO |
 | HarmonyOS | YES | YES | NO（B2） | NO（B2） | NO | NO |
 | iOS | YES | YES | NO（B3） | NO（B3） | NO | NO |
-| Core（Node） | YES | YES | YES | YES | N/A | N/A |
+| UI（uni-app x 16 页） | YES | YES | NO（B10） | — | NO | NO |
+| Core（Node） | YES | YES | YES | YES（427） | N/A | N/A |
 
 ## 仓库运维注意（重要）
 
-`feat/mvp02-global-source` 分支的 loose ref 文件（`.git/refs/heads/feat/`）在本工作区会被
-外部进程反复删除。**规避方式：分支 ref 固化在 `.git/packed-refs`。**
-若再次出现"branch has no commits"，从 reflog 找回哈希后重写 packed-refs 即可，
-**不要**执行任何 `git reset --hard` / `git clean`。
+分支 loose ref（`.git/refs/heads/<branch>/`）在本工作区会被外部进程反复删除。
+**规避：分支 ref 固化在 `.git/packed-refs`。** 若出现"branch has no commits"，
+从 reflog 找回哈希后重写 packed-refs；**不要**执行 `git reset --hard` / `git clean`。
 
 ## Current failures
 
@@ -94,9 +82,9 @@ DEAD_CODE_AUDIT / MUTATION_TEST_REPORT / FLAKY_TEST_REPORT；
 
 ## Next
 
-1. **MVP03：GOAL_MVP03_LIVING_GRAPH_CHANGE_SAFETY**（未启动；等用户发起）
-2. B1 → Android golden 测试 + 编译（docs/ANDROID_TOOLCHAIN_SETUP.md）
-3. B10 → HBuilderX 基座 → UI 编译 + 真机 spike
-4. B3 → docs/IOS_MAC_HANDOFF.md
-5. B13 → 真实账单双 Gate（validate-real-bill.ts 就绪；Real Data 保持 NOT_RUN 直到用户提供）
-6. 下一里程碑变异目标：kernel covered score ≥ 70%（docs/MUTATION_TEST_REPORT.md）
+1. **MVP04 — International Payment Infrastructure**（未启动；候选：PayPal / card_on_file /
+   direct_debit_mandate / payout_destination / card updater semantics；等用户发起）
+2. B1 → Android 编译 + golden（docs/ANDROID_TOOLCHAIN_SETUP.md）
+3. B10 → HBuilderX 基座 → UI 编译 + 真机 spike（16 页 MVP03 UI 待编译验证）
+4. B13 → 真实账单双 Gate（validate-real-bill.ts 就绪；Real Data 保持 NOT_RUN）
+5. 变异：下轮可选对 drift/readiness 仓库层跑 Stryker 定向基线
