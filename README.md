@@ -8,10 +8,11 @@
 
 | 部分 | 状态 |
 |---|---|
-| 共享 Core（schema v2/repositories/migration/impact/parser/resolver/proposal/crypto/sources） | **TESTED — 324 tests PASS，typecheck 干净，coverage src≈93%（Node 22）** |
+| 共享 Core（schema v3/repositories/migration/impact/parser/resolver/proposal/crypto/sources/**living graph**） | **TESTED — 407+ tests PASS，typecheck 干净（Node 22）** |
+| Living Graph（graphRevision / ChangePlan+Rebase / PlanReadiness / ScenarioCoverage / RealityDrift / DiscoveryCandidate / ScenarioTemplate / Timeline / Verification） | **TESTED**（docs/LIVING_GRAPH.md；MVP03_FINAL_REPORT.md） |
 | 工程基线 Engineering Baseline V1 | **PASS**（format/lint/typecheck/architecture+circular=0/network=0/secrets/invariants/contract/property/mutation baseline/clean install/clean clone，见 `QUALITY_GATES_V1.md`） |
 | `.depmap` V1 加密容器 + Golden Vector | **TESTED（Node 侧）**；Android/iOS 侧测试代码就绪未运行 |
-| uni-app x 中文 UI（11 页 + 5 个 UTS 安全插件） | IMPLEMENTED（源码完成）；未编译（无 HBuilderX） |
+| uni-app x 中文 UI（16 页 + 5 个 UTS 安全插件；含场景库/计划/Timeline/Drift） | IMPLEMENTED（源码完成）；未编译（无 HBuilderX） |
 | Android Kotlin 安全层 + Gradle 工程 | IMPLEMENTED；未编译（无 JDK17/SDK） |
 | HarmonyOS ArkTS 适配 + 工程文件 | IMPLEMENTED；未编译（无 DevEco） |
 | iOS Swift 适配 + SPM | IMPLEMENTED；未编译（无 macOS/Xcode） |
@@ -25,6 +26,15 @@
 - **不是什么**：密码管理器 / 支付钱包 / 记账软件 / 订阅管理器 / 云服务。
 - **第一原则**：宁可漏报，不可把“不确定”伪装成“必须处理”。机器提出，用户确认现实。
 
+### 已支持（MVP03）
+
+- 多源 payment evidence（微信账单 / 通用 CSV / OFX-QFX）与 confirmed dependency graph
+- graphRevision 活图谱维护 + Reality Drift 复盘（仅正向证据触发）
+- 支付场景模板（更换银行卡 / 即将到期 / 注销银行卡）→ ChangePlan → 影响分析 → Rebase → PlanReadiness
+- Upcoming Timeline（到期 / 计划 / 验证 / 来源刷新）与 Action Verification（done ≠ verified）
+
+未支持（不虚报）：手机号/邮箱 capability、GitHub/Domain/Cloud 图、Open Banking、AI 自动管理。
+
 ## 第一次启动（ZCode）
 
 先读 `START_HERE.md`，然后把 `ZCODE_FIRST_PROMPT.txt` 内容发给 ZCode。
@@ -34,7 +44,7 @@
 ```bash
 cd core
 npm ci              # 受支持唯一安装方式（lockfile 锁定；engines: node >= 22.5）
-npm test            # 324 tests（unit/contract/invariant/property/migration/crypto/perf smoke）
+npm test            # 407+ tests（unit/contract/invariant/property/migration/crypto/living-graph/perf smoke）
 npm run typecheck
 npm run check       # 快速 Gate：format+lint+typecheck+tests+architecture(circular=0)+network+secrets
 npm run check:full  # 完整 Gate：check + db-integrity + coverage + perf + deps/license
@@ -62,7 +72,7 @@ node --experimental-strip-types scripts/validate-real-bill.ts --file ../local_pr
 - `CANONICAL_DESIGN.md` — 唯一产品/Schema/Impact 母版
 - `GOAL_MVP01.md` — MVP01 执行目标（PHASE 0–15）
 - `GOAL_MVP02_GLOBAL_SOURCE.md` — MVP02 执行目标（Global Source Abstraction，PHASE 0–25）
-- `WORK_STATUS.md` / `BLOCKERS.md` / `MVP_ACCEPTANCE.md` / `MVP02_ACCEPTANCE.md` — 状态与验收
+- `WORK_STATUS.md` / `BLOCKERS.md` / `MVP_ACCEPTANCE.md` / `MVP02_ACCEPTANCE.md` / `MVP03_ACCEPTANCE.md` — 状态与验收
 - `FINAL_REPORT.md` / `MVP02_FINAL_REPORT.md` — 轮次结论
 
 ## 解析器覆盖矩阵

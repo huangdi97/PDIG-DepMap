@@ -1571,3 +1571,33 @@ README 维护解析器覆盖矩阵与已知限制，既展示能力，也作为�
 ---
 
 **最终状态：本母版已足够开工。下一步是 Schema v1、migration 和 failing tests，不再进行非 Correctness / Security / Interoperability 类型的纸面扩展。**
+
+
+---
+
+## 附录：MVP03 整合（Living Graph & Change Safety，2026-09-13）
+
+本附录为 MVP03 实现后的准确整合，不修改上文任何既有语义。
+
+- **graphRevision**：Confirmed Reality Graph 语义版本（meta.graph_revision，初始 0）。
+  仅 Reality mutation（Dependency/Group 的 create/retire/reactivate/criticality 用户修改/
+  group 确认变化）在同事务内 +1；Observation/Evidence/Proposal/Drift/Candidate/Timeline/UI 一律不提升。
+- **ChangePlan**：draft/analyzed/review_required/ready/in_progress/verifying/completed/cancelled
+  八态 + 派生 effectiveStatus（stale → needs_revalidation，不批量回写）；
+  baseline/lastAnalyzedGraphRevision 记录分析版本；Rebase 产确定性影响 diff 且不自动完成动作。
+- **PlanReadiness**：blocked / review_required / ready_with_known_scope 三值纯规则；
+  禁止 safe/100%/all-clear；confidence 与 absence 在输入通道上不存在。
+- **ScenarioCoverage**：unknown/limited/partial/well_evidenced 信息覆盖（非安全概率），必须可解释。
+- **RealityDrift**：possible_replacement / possible_additional_path / relation_reappeared；
+  仅正向证据触发（absence 永不触发）；处理四选项中前两项映射为 user_confirmed Reality mutation。
+- **DiscoveryCandidate**：Observation→Candidate→(用户确认)→Node，与 Proposal→Dependency 链严格分开；
+  不进 Impact、不 bump revision。
+- **ScenarioTemplate**：静态产品配置（只含数字基础设施变更场景；通用提醒永久禁止）；
+  MVP03 active 仅支付三模板；planned 无 factory 不可执行。
+- **Timeline**：derived projection，可溯源（sourceType/sourceId），确定性排序，不是 Reality。
+- **Verification**：Action done ≠ verified；future_observation 只能 evidence_suggested，
+  用户确认后才 verified；authoritative_source 仅定义。
+- **DEPMAP_CONTAINER_V1 不变**；应用 Schema v3（change_plans / reality_drifts /
+  discovery_candidates 三张新表）；payload v3（graph_revision 随 meta 行，v1/v2 in-memory migrate 保留）。
+
+实现与证据：docs/LIVING_GRAPH.md、docs/MVP03_TEST_MATRIX.md、MVP03_FINAL_REPORT.md。
