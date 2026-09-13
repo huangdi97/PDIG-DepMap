@@ -32,3 +32,17 @@
 3. Baseline Gate 建议由 CI/本地 `check:full` 的 coverage 步骤人工比对本表执行；
    数值调整必须同步更新本文件并在 commit message 注明理由。
 4. UI（app/）不适用本表（未编译，无法产出可信运行时覆盖率）。
+
+## MVP03 增量（2026-09-13 收口轮实测，427 tests）
+
+src 整体：**line 93.45% / branch 81.4%**（新增 5 个模块后口径；新模块行见下）。
+新增模块 Baseline Gate（禁止回归）：
+
+| 模块 | line / branch | Baseline | Target | 说明 |
+|---|---|---|---|---|
+| scenarios（registry） | 98.69 / 95.23 | 98/95 | 100/95 | planned gate 类型级 |
+| domain/change-plan | 53.84* | — | — | *纯类型+2 个派生函数；未覆盖行为 PlanRebase diff 类型的兜底分支，随 rebase 扩展补 |
+| repositories（新增 3 表仓库） | 92.15 / 75.48（模块合计） | 92/75 | 95/85 | change-plan/drift/candidate 仓库分支随 UI 联动扩展补 |
+| services（新增 5 个服务） | 见 check:full | — | — | rebase/readiness/drift/timeline 主路径全测 |
+
+既有模块 Baseline 不变（见上表）；impact/crypto/fingerprint/schema 维持原值。
