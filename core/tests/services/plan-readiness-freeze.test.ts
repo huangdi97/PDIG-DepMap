@@ -80,14 +80,18 @@ describe('PlanReadiness freeze（FR-READ）', () => {
       changeAction('a2', ['spotify|payment']),
     ]
     // 两个动作都未完成 → blocked
-    expect(
-      computePlanReadiness(input(actions, { pendingMustChange: 1 })),
-    ).toBe('blocked')
+    expect(computePlanReadiness(input(actions, { pendingMustChange: 1 }))).toBe('blocked')
     // 只完成一个 → 仍 blocked（另一声明动作未完成）
-    const half = [changeAction('a1', ['spotify|payment'], true), changeAction('a2', ['spotify|payment'])]
+    const half = [
+      changeAction('a1', ['spotify|payment'], true),
+      changeAction('a2', ['spotify|payment']),
+    ]
     expect(computePlanReadiness(input(half, { pendingMustChange: 1 }))).toBe('blocked')
     // 全部完成 → 不再 blocked
-    const all = [changeAction('a1', ['spotify|payment'], true), changeAction('a2', ['spotify|payment'], true)]
+    const all = [
+      changeAction('a1', ['spotify|payment'], true),
+      changeAction('a2', ['spotify|payment'], true),
+    ]
     expect(computePlanReadiness(input(all, { pendingMustChange: 0 }))).not.toBe('blocked')
   })
 
@@ -107,21 +111,15 @@ describe('PlanReadiness freeze（FR-READ）', () => {
   })
 
   it('FR-READ-005: unknown criticality（needs_review）→ review_required', () => {
-    expect(
-      computePlanReadiness(input([], { pendingNeedsReview: 1 })),
-    ).toBe('review_required')
+    expect(computePlanReadiness(input([], { pendingNeedsReview: 1 }))).toBe('review_required')
   })
 
   it('FR-READ-006: pending Proposal → review_required', () => {
-    expect(
-      computePlanReadiness(input([], { pendingRelevantProposals: 1 })),
-    ).toBe('review_required')
+    expect(computePlanReadiness(input([], { pendingRelevantProposals: 1 }))).toBe('review_required')
   })
 
   it('FR-READ-007: unresolved Candidate → review_required', () => {
-    expect(
-      computePlanReadiness(input([], { unresolvedCandidates: 1 })),
-    ).toBe('review_required')
+    expect(computePlanReadiness(input([], { unresolvedCandidates: 1 }))).toBe('review_required')
   })
 
   it('FR-READ-008: revision mismatch → review_required', () => {
@@ -130,9 +128,9 @@ describe('PlanReadiness freeze（FR-READ）', () => {
 
   it('FR-READ-009: all known requirements resolved → ready_with_known_scope', () => {
     const actions = [changeAction('a1', ['wechat|payment'], true)]
-    expect(
-      computePlanReadiness(input(actions, { pendingMustChange: 0 })),
-    ).toBe('ready_with_known_scope')
+    expect(computePlanReadiness(input(actions, { pendingMustChange: 0 }))).toBe(
+      'ready_with_known_scope',
+    )
   })
 
   it('FR-READ-010: confidenceScore .999 不能绕过 review（输入无 confidence 通道）', () => {
@@ -168,7 +166,12 @@ describe('PlanReadiness freeze（FR-READ）', () => {
     const actions = [
       {
         ...changeAction('a1', ['x|payment']),
-        verification: { method: 'future_observation' as const, status: 'pending' as const, verifiedAt: null, evidenceRefs: [] },
+        verification: {
+          method: 'future_observation' as const,
+          status: 'pending' as const,
+          verifiedAt: null,
+          evidenceRefs: [],
+        },
       },
     ]
     // 动作未完成 → unfinishedChangeActions > 0 → review_required（且 must_change 未 resolved → blocked 优先）
@@ -177,7 +180,12 @@ describe('PlanReadiness freeze（FR-READ）', () => {
     ).toBe('blocked')
     // 完成动作但 verification pending：must_change resolved，但未完成验证 → 不给 ready（review_required）
     expect(
-      computePlanReadiness(input([changeAction('a1', ['x|payment'], true)], { pendingMustChange: 0, pendingNeedsReview: 1 })),
+      computePlanReadiness(
+        input([changeAction('a1', ['x|payment'], true)], {
+          pendingMustChange: 0,
+          pendingNeedsReview: 1,
+        }),
+      ),
     ).toBe('review_required')
   })
 })
@@ -208,28 +216,57 @@ describe('PlanReadiness freeze（FR-READ 集成：claiming + DB）', () => {
 
   it('FR-READ-015: rebase 后 claiming 显式分配 must_change keys；完成该动作 → 不再 blocked', () => {
     const card = nodes.create({ kind: 'payment_instrument', name: '招行 4417' })
-    const wechat = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' }).id
-    deps.confirm({ from: card.id, relation: 'funding_source', to: wechat, capability: 'payment', criticality: 'required' })
-    const plan = instantiateScenario(driver, 'replace_payment_card', { targetPaymentInstrumentId: card.id })
+    const wechat = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
+    deps.confirm({
+      from: card.id,
+      relation: 'funding_source',
+      to: wechat,
+      capability: 'payment',
+      criticality: 'required',
+    })
+    const plan = instantiateScenario(driver, 'replace_payment_card', {
+      targetPaymentInstrumentId: card.id,
+    })
     const service = new ChangePlanService(driver)
     // 基线分析（直接 updateAnalysis 不经 claiming）
     const rev = getGraphRevision(driver)
     const snapshot = analyzePlanImpact(
       driver,
-      { deps, groups: new DependencyGroupRepository(driver), proposals: new DependencyProposalRepository(driver) },
+      {
+        deps,
+        groups: new DependencyGroupRepository(driver),
+        proposals: new DependencyProposalRepository(driver),
+      },
       plan,
     )
     service.plans.updateAnalysis(plan.id, snapshot, rev, plan.actions)
 
     // revision 推进 → rebase → claiming 分配
-    deps.confirm({ from: card.id, relation: 'funding_source', to: nodes.create({ kind: 'account', name: 'X' }).id, capability: 'payment', criticality: 'required' })
+    deps.confirm({
+      from: card.id,
+      relation: 'funding_source',
+      to: nodes.create({ kind: 'account', name: 'X' }).id,
+      capability: 'payment',
+      criticality: 'required',
+    })
     const result = rebasePlan(
       driver,
-      { deps, groups: new DependencyGroupRepository(driver), proposals: new DependencyProposalRepository(driver), plans: service.plans },
+      {
+        deps,
+        groups: new DependencyGroupRepository(driver),
+        proposals: new DependencyProposalRepository(driver),
+        plans: service.plans,
+      },
       plan.id,
     )
     expect(result.revisionChanged).toBe(true)
-    const changeActions = service.plans.getExisting(plan.id).actions.filter((a) => a.phase === 'change')
+    const changeActions = service.plans
+      .getExisting(plan.id)
+      .actions.filter((a) => a.phase === 'change')
     const claimed = changeActions.flatMap((a) => a.resolvesImpactKeys ?? [])
     expect(claimed.length).toBeGreaterThan(0)
 
@@ -244,23 +281,66 @@ describe('PlanReadiness freeze（FR-READ 集成：claiming + DB）', () => {
 
   it('FR-READ-016: 一个 target 多个 required actions（真实 DB）—— 只完成其一仍 blocked', () => {
     const card = nodes.create({ kind: 'payment_instrument', name: '招行 4417' })
-    const wechat = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' }).id
-    deps.confirm({ from: card.id, relation: 'funding_source', to: wechat, capability: 'payment', criticality: 'required' })
-    const plan = instantiateScenario(driver, 'replace_payment_card', { targetPaymentInstrumentId: card.id })
+    const wechat = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
+    deps.confirm({
+      from: card.id,
+      relation: 'funding_source',
+      to: wechat,
+      capability: 'payment',
+      criticality: 'required',
+    })
+    const plan = instantiateScenario(driver, 'replace_payment_card', {
+      targetPaymentInstrumentId: card.id,
+    })
     const service = new ChangePlanService(driver)
 
     // 手工构造：同一 key 声明在两个 change 动作上（用户显式拆分）
     const key = `${wechat}|payment`
     const actions: PlanAction[] = [
-      { id: 'c1', title: '切换默认卡', detail: '', phase: 'change', done: false, doneAt: null, verification: null, resolvesImpactKeys: [key] },
-      { id: 'c2', title: '迁移自动扣款', detail: '', phase: 'change', done: false, doneAt: null, verification: null, resolvesImpactKeys: [key] },
-      { id: 'p1', title: '检查依赖', detail: '', phase: 'prepare', done: false, doneAt: null, verification: null, resolvesImpactKeys: [] },
+      {
+        id: 'c1',
+        title: '切换默认卡',
+        detail: '',
+        phase: 'change',
+        done: false,
+        doneAt: null,
+        verification: null,
+        resolvesImpactKeys: [key],
+      },
+      {
+        id: 'c2',
+        title: '迁移自动扣款',
+        detail: '',
+        phase: 'change',
+        done: false,
+        doneAt: null,
+        verification: null,
+        resolvesImpactKeys: [key],
+      },
+      {
+        id: 'p1',
+        title: '检查依赖',
+        detail: '',
+        phase: 'prepare',
+        done: false,
+        doneAt: null,
+        verification: null,
+        resolvesImpactKeys: [],
+      },
     ]
     service.plans.updateAnalysis(
       plan.id,
       analyzePlanImpact(
         driver,
-        { deps, groups: new DependencyGroupRepository(driver), proposals: new DependencyProposalRepository(driver) },
+        {
+          deps,
+          groups: new DependencyGroupRepository(driver),
+          proposals: new DependencyProposalRepository(driver),
+        },
         plan,
       ),
       getGraphRevision(driver),

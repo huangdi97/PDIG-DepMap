@@ -247,7 +247,10 @@ export class ChangePlanService {
  * - 被声明但存在未完成的声明动作 → unresolved
  * - 声明它的全部 change 动作都 done → resolved
  */
-export function countUnresolvedMustChange(actions: readonly PlanAction[], keys: readonly string[]): number {
+export function countUnresolvedMustChange(
+  actions: readonly PlanAction[],
+  keys: readonly string[],
+): number {
   let unresolved = 0
   for (const key of keys) {
     const claimants = actions.filter(
