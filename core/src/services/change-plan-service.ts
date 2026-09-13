@@ -198,6 +198,37 @@ export class ChangePlanService {
     }
     return this.plans.updateActions(planId, actions)
   }
+
+  /**
+   * future_observation 证据信号批量匹配：仅命中
+   * (expectedFromNodeId, expectedToNodeId) 的未验证动作 → evidence_suggested。
+   * 错误来源不产生任何 suggestion（VF-006）；不修改 Reality（VF-004）。
+   */
+  applyEvidenceSignal(
+    planId: string,
+    signal: { fromNodeId: string; toNodeId: string; evidenceRef: string },
+  ): { plan: ChangePlan; matchedActionIds: string[] } {
+    const plan = this.plans.getExisting(planId)
+    const matched: string[] = []
+    const actions = plan.actions.map((a): PlanAction => {
+      const v = a.verification
+      if (!v || v.method !== 'future_observation') return a
+      if (v.status === 'verified' || v.status === 'failed' || v.status === 'not_required') return a
+      if (v.expectedFromNodeId !== signal.fromNodeId || v.expectedToNodeId !== signal.toNodeId) {
+        return a
+      }
+      matched.push(a.id)
+      const refs = v.evidenceRefs.includes(signal.evidenceRef)
+        ? v.evidenceRefs
+        : [...v.evidenceRefs, signal.evidenceRef]
+      return {
+        ...a,
+        verification: { ...v, status: 'evidence_suggested', evidenceRefs: refs },
+      }
+    })
+    if (matched.length === 0) return { plan, matchedActionIds: matched }
+    return { plan: this.plans.updateActions(planId, actions), matchedActionIds: matched }
+  }
 }
 
 export { computePlanReadiness }

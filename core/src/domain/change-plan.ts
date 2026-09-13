@@ -48,6 +48,12 @@ export interface ActionVerification {
   verifiedAt: string | null
   /** 支撑 verification 的 evidence 引用（只存引用，不复制 Evidence 内容）。 */
   evidenceRefs: string[]
+  /**
+   * future_observation 的匹配目标（可选）：证据路径 `expectedFrom → expectedTo`
+   * 命中才允许 evidence_suggested（错误来源绝不产生 suggestion，VF-006）。
+   */
+  expectedFromNodeId?: string | undefined
+  expectedToNodeId?: string | undefined
 }
 
 export interface PlanAction {
