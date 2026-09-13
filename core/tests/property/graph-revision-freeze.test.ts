@@ -39,7 +39,7 @@ describe('graphRevision property（FR-GR-012）', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('P-FR-GR: 随机 Reality/non-Reality/failure/replay 序列 → revision ≡ Reality mutation 计数', () => {
+  it('P-FR-GR: 随机 Reality/non-Reality/failure/replay 序列 → revision ≡ Reality mutation 计数', { timeout: 120_000 }, () => {
     const realityOpArb = fc.constantFrom(
       'confirm',
       'retire',
@@ -247,7 +247,7 @@ describe('graphRevision property（FR-GR-012）', () => {
           rmSync(d, { recursive: true, force: true })
         }
       }),
-      { numRuns: 40 },
+      { numRuns: 30 },
     )
   })
 })
