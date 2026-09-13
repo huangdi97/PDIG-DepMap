@@ -51,6 +51,7 @@ interface PlanActionRow {
   phase: string
   done: boolean
   verification: { method: string, status: string, verifiedAt: string | null, evidenceRefs: string[] } | null
+  resolvesImpactKeys: string[]
 }
 
 export default {
@@ -91,40 +92,55 @@ export default {
         const terminal = this.workflowState === 'completed' || this.workflowState === 'cancelled'
         this.stale = !terminal && this.current > this.analyzed
         this.statusText = this.stale ? 'needs_revalidation（需要重新检查）' : this.workflowState
-        // PlanReadiness 派生（与 core 规则同口径；blocked 优先）
+        // PlanReadiness 派生（与 core Freeze 语义同口径：显式 resolution，禁止数量相减）
         const snapshot = row.get('impact_snapshot_json')
-        let mustChange = 0
         let needsReview = 0
+        const mustChangeKeys: string[] = []
         if (snapshot !== null) {
-          const text = String(snapshot)
-          mustChange = this.countOccurrences(text, '"status":"must_change"')
-          needsReview = this.countOccurrences(text, '"status":"needs_review"')
+          const snap = JSON.parse(String(snapshot)) as Map<string, any>
+          const targets = snap.get('targets') as Array<Map<string, any>>
+          for (let i = 0; i < targets.length; i++) {
+            const t = targets[i]
+            const status = String(t.get('status'))
+            const key = `${String(t.get('nodeId'))}|${String(t.get('capability'))}`
+            if (status === 'must_change') mustChangeKeys.push(key)
+            if (status === 'needs_review') needsReview++
+          }
         }
         const actions = JSON.parse(String(row.get('action_items_json') ?? '[]')) as Array<Map<string, any>>
         this.rawActionsJson = String(row.get('action_items_json') ?? '[]')
-        let doneChange = 0
         const parsed: PlanActionRow[] = []
         for (let i = 0; i < actions.length; i++) {
           const a = actions[i]
-          const done = Boolean(a.get('done'))
-          const phase = String(a.get('phase') ?? 'prepare')
-          if (phase === 'change' && done) doneChange++
           const v = a.get('verification')
+          const rawKeys = a.get('resolvesImpactKeys')
+          const keys: string[] = []
+          if (rawKeys !== null && rawKeys !== undefined) {
+            const arr = rawKeys as Array<any>
+            for (let k = 0; k < arr.length; k++) keys.push(String(arr[k]))
+          }
           parsed.push({
             id: String(a.get('id')),
             title: String(a.get('title')),
-            phase,
-            done,
+            phase: String(a.get('phase') ?? 'prepare'),
+            done: Boolean(a.get('done')),
             verification: v === null ? null : {
               method: String(v.get('method') ?? 'manual_confirmation'),
               status: String(v.get('status') ?? 'pending'),
               verifiedAt: v.get('verifiedAt') === null ? null : String(v.get('verifiedAt')),
               evidenceRefs: []
-            }
+            },
+            resolvesImpactKeys: keys
           })
         }
         this.actions = parsed
-        const pendingMust = mustChange > doneChange ? mustChange - doneChange : 0
+        // 每个 must_change key：被 change 动作显式声明且全部声明动作 done 才 resolved
+        let pendingMust = 0
+        for (let k = 0; k < mustChangeKeys.length; k++) {
+          const key = mustChangeKeys[k]
+          const claimants = parsed.filter((a) => a.phase === 'change' && a.resolvesImpactKeys.indexOf(key) >= 0)
+          if (claimants.length === 0 || claimants.some((a) => !a.done)) pendingMust++
+        }
         if (pendingMust > 0) {
           this.readiness = 'blocked（还有必须处理的事项）'
         } else if (this.stale || needsReview > 0) {

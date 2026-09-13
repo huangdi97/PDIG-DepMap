@@ -52,6 +52,7 @@ function defaultActions(scenario: string): PlanAction[] {
     done: false,
     doneAt: null,
     verification: null,
+    resolvesImpactKeys: [],
   }
   const change: PlanAction = {
     id: `${scenario}-change-1`,
@@ -66,6 +67,8 @@ function defaultActions(scenario: string): PlanAction[] {
       verifiedAt: null,
       evidenceRefs: [],
     },
+    // 分析（rebase）时由 claimUnassignedImpacts 显式分配 must_change keys
+    resolvesImpactKeys: [],
   }
   const verify: PlanAction = {
     id: `${scenario}-verify-1`,
@@ -80,6 +83,7 @@ function defaultActions(scenario: string): PlanAction[] {
       verifiedAt: null,
       evidenceRefs: [],
     },
+    resolvesImpactKeys: [],
   }
   return [prepare, change, verify]
 }

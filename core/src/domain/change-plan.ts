@@ -58,6 +58,12 @@ export interface PlanAction {
   done: boolean
   doneAt: string | null
   verification: ActionVerification | null
+  /**
+   * 该动作显式解决的影响 key（`nodeId|capability`，与 ImpactSnapshot.targets 对应）。
+   * Freeze 语义（GOAL §5–§7）：must_change requirement 只有被「声明的全部 change 动作
+   * 都完成」才 resolved；禁止用 target 数量 − 动作数量的减法近似。
+   */
+  resolvesImpactKeys?: string[] | undefined
 }
 
 /** 影响快照（创建/每次 rebase 时固定；用于 old vs new 差异）。 */

@@ -59,13 +59,14 @@ export class ChangePlanService {
   assembleReadinessInput(plan: ChangePlan, staleDependencyDays = 90): PlanReadinessInput {
     const currentRevision = getGraphRevision(this.driver)
     const snapshot = analyzePlanImpact(this.driver, this.graphRepos(), plan)
-    // must_change 的「未处理」口径：影响目标数 − 已完成的 change 阶段动作数
-    // （影响告诉你必须改什么；完成对应动作即视为已处理，VF/PRB-008 语义一致）
-    const doneChangeActions = plan.actions.filter((a) => a.phase === 'change' && a.done).length
-    const pendingMustChange = Math.max(
-      0,
-      snapshot.targets.filter((t) => t.status === 'must_change').length - doneChangeActions,
-    )
+    // must_change 的「未处理」口径（Freeze §5–§7）：显式 resolution——
+    // 每个 must_change key 必须被 change 动作显式声明（resolvesImpactKeys），
+    // 且声明它的全部 change 动作都 done 才算 resolved。
+    // 禁止「target 数量 − 完成动作数量」的减法近似（1 target ↔ N actions / 1 action ↔ N targets）。
+    const mustChangeKeys = snapshot.targets
+      .filter((t) => t.status === 'must_change')
+      .map((t) => `${t.nodeId}|${t.capability}`)
+    const pendingMustChange = countUnresolvedMustChange(plan.actions, mustChangeKeys)
     const pendingNeedsReview = snapshot.targets.filter((t) => t.status === 'needs_review').length
 
     const target = plan.targetNodeId
@@ -238,6 +239,25 @@ export class ChangePlanService {
     if (matched.length === 0) return { plan, matchedActionIds: matched }
     return { plan: this.plans.updateActions(planId, actions), matchedActionIds: matched }
   }
+}
+
+/**
+ * Freeze §7：must_change requirement 的显式 resolution 判定（纯函数）。
+ * - 未被任何 change 动作声明 → unresolved
+ * - 被声明但存在未完成的声明动作 → unresolved
+ * - 声明它的全部 change 动作都 done → resolved
+ */
+export function countUnresolvedMustChange(actions: readonly PlanAction[], keys: readonly string[]): number {
+  let unresolved = 0
+  for (const key of keys) {
+    const claimants = actions.filter(
+      (a) => a.phase === 'change' && (a.resolvesImpactKeys ?? []).includes(key),
+    )
+    if (claimants.length === 0 || claimants.some((a) => !a.done)) {
+      unresolved += 1
+    }
+  }
+  return unresolved
 }
 
 export { computePlanReadiness }

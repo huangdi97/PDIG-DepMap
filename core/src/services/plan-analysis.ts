@@ -147,7 +147,9 @@ export function rebasePlan(
 
   // 动作合并（PRB-008）：rebase 不新增/不完成任何动作，已有动作原样保留；
   // addedActions 恒为空（新增动作由模板/用户显式添加），removedActions 恒为空。
-  const preservedActions: PlanAction[] = plan.actions.map((a) => ({ ...a }))
+  // Freeze §7：对未被任何 change 动作声明的 must_change key，确定性分配给第一个
+  // 尚未声明任何 key 的 change 动作（显式映射声明，不是完成动作）。
+  const preservedActions: PlanAction[] = claimUnassignedImpacts(plan.actions, newSnapshot)
 
   const updated = repos.plans.updateAnalysis(
     plan.id,
@@ -174,6 +176,34 @@ function emptyDiff(): PlanRebaseDiff {
     removedActions: [],
     changedActions: [],
   }
+}
+
+/**
+ * Freeze §7 claiming：把未被任何 change 动作声明的 must_change key 分配给
+ * 第一个 resolvesImpactKeys 为空的 change 动作（确定性；多个空动作时只填第一个，
+ * 其余留给用户显式拆分）。已完成（done）的动作不参与自动声明。
+ */
+export function claimUnassignedImpacts(
+  actions: readonly PlanAction[],
+  snapshot: ImpactSnapshot,
+): PlanAction[] {
+  const mustChangeKeys = snapshot.targets
+    .filter((t) => t.status === 'must_change')
+    .map((t) => `${t.nodeId}|${t.capability}`)
+  const claimed = new Set<string>()
+  for (const a of actions) {
+    for (const k of a.resolvesImpactKeys ?? []) claimed.add(k)
+  }
+  const unassigned = mustChangeKeys.filter((k) => !claimed.has(k))
+  if (unassigned.length === 0) return actions.map((a) => ({ ...a }))
+  const out = actions.map((a) => ({ ...a }))
+  const target = out.find(
+    (a) => a.phase === 'change' && !a.done && (a.resolvesImpactKeys ?? []).length === 0,
+  )
+  if (target) {
+    target.resolvesImpactKeys = [...unassigned].sort()
+  }
+  return out
 }
 
 /** effectiveStatus 便捷转发（UI / readiness 共用口径）。 */
