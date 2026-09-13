@@ -72,6 +72,7 @@ tmp_private/
 tmp/
 .temp/
 .cache/
+.coverage-tmp/
 
 # Mutation testing artifacts
 .stryker-tmp/
