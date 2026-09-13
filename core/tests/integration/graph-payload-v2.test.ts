@@ -182,7 +182,7 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     expect(p['payloadKind']).toBe(GRAPH_PAYLOAD_KIND)
     expect(p['payloadVersion']).toBe(2)
     expect(p['schemaVersion']).toBe(SCHEMA_VERSION)
-    expect(p['schemaVersion']).toBe(2)
+    expect(p['schemaVersion']).toBe(3)
     // 容器 formatVersion 与 payload schemaVersion 是两套独立版本号
     expect(GRAPH_PAYLOAD_VERSION).toBe(2)
   })

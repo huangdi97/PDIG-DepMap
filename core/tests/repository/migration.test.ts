@@ -31,7 +31,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
   it('T1: fresh v2 —— migrate() 一次到 schemaVersion=2 且含 source_instances 表', () => {
     const v = migrate(driver, '2026-09-12T00:00:00.000Z')
     expect(v).toBe(SCHEMA_VERSION)
-    expect(currentSchemaVersion(driver)).toBe(2)
+    expect(currentSchemaVersion(driver)).toBe(3)
     const tables = driver
       .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name='source_instances'`)
       .all()
@@ -45,7 +45,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
 
   it('幂等 —— 重复执行 no-op（fresh v2 上 ×50）', () => {
     for (let i = 0; i < 50; i++) migrate(driver)
-    expect(currentSchemaVersion(driver)).toBe(2)
+    expect(currentSchemaVersion(driver)).toBe(3)
     const legacy = driver
       .prepare(`SELECT COUNT(*) AS c FROM source_instances WHERE id = ?`)
       .get(LEGACY_WECHAT_SOURCE_INSTANCE_ID)
@@ -78,7 +78,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
       .run()
 
     migrate(driver)
-    expect(currentSchemaVersion(driver)).toBe(2)
+    expect(currentSchemaVersion(driver)).toBe(3)
 
     // fingerprint 归属 legacy 实例且 dedupe 保持
     const fp = driver
@@ -134,7 +134,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
     driver = new NodeSqliteDriver(dbPath)
     driver.open()
     for (let i = 0; i < 50; i++) migrate(driver)
-    expect(currentSchemaVersion(driver)).toBe(2)
+    expect(currentSchemaVersion(driver)).toBe(3)
     const legacy = driver
       .prepare(`SELECT COUNT(*) AS c FROM source_instances WHERE id = ?`)
       .get(LEGACY_WECHAT_SOURCE_INSTANCE_ID)
@@ -163,7 +163,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
     expect(table).toBeDefined()
     // 正常 migrate 仍可完成
     migrate(driver)
-    expect(currentSchemaVersion(driver)).toBe(2)
+    expect(currentSchemaVersion(driver)).toBe(3)
   })
 
   it('rolls back completely when a transaction fails mid-way', () => {
@@ -287,7 +287,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
   })
 
   it('MIGRATIONS 顺序完整（1,2）', () => {
-    expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2])
+    expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2, 3])
   })
 
   // -------------------------------------------------------------------------
@@ -323,7 +323,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
       .run()
 
     migrate(driver)
-    expect(currentSchemaVersion(driver)).toBe(2)
+    expect(currentSchemaVersion(driver)).toBe(3)
 
     const snapshot = () => ({
       fps: driver

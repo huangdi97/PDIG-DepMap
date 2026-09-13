@@ -7,7 +7,7 @@ import type { SqliteDriver } from '../db/driver.ts'
  * 失败不得留下半迁移 DB。
  */
 
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 /** deterministic legacy WeChat SourceInstance（重复 migration 不得创建第二个）。 */
 export const LEGACY_WECHAT_SOURCE_INSTANCE_ID = 'legacy-wechat-statement'
@@ -271,9 +271,71 @@ export const SCHEMA_V2_STATEMENTS: string[] = [
    WHERE NOT EXISTS (SELECT 1 FROM source_instances WHERE id = '${LEGACY_WECHAT_SOURCE_INSTANCE_ID}')`,
 ]
 
+// ---------------------------------------------------------------------------
+// Schema v3 — MVP03 Living Graph & Change Safety
+// 新增持久化实体：change_plans / reality_drifts / discovery_candidates。
+// graphRevision 不建新表：存 meta.graph_revision（初始 0，见 repositories/graph-revision.ts）。
+// DEPMAP_CONTAINER_V1（crypto 协议）不受应用 Schema 版本影响。
+// ---------------------------------------------------------------------------
+
+export const SCHEMA_V3_STATEMENTS: string[] = [
+  `CREATE TABLE IF NOT EXISTS change_plans (
+    id TEXT PRIMARY KEY,
+    template_id TEXT,
+    scenario TEXT NOT NULL,
+    title TEXT NOT NULL,
+    workflow_state TEXT NOT NULL CHECK (workflow_state IN ('draft','analyzed','review_required','ready','in_progress','verifying','completed','cancelled')),
+    baseline_graph_revision INTEGER NOT NULL,
+    last_analyzed_graph_revision INTEGER NOT NULL,
+    target_node_id TEXT,
+    effective_date TEXT,
+    params_json TEXT NOT NULL DEFAULT '{}',
+    impact_snapshot_json TEXT,
+    action_items_json TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
+  `CREATE TABLE IF NOT EXISTS reality_drifts (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL CHECK (kind IN ('possible_replacement','possible_additional_path','relation_reappeared')),
+    target_node_id TEXT NOT NULL,
+    capability TEXT NOT NULL CHECK (capability IN ('payment','access','recovery','identity')),
+    candidate_from TEXT,
+    candidate_relation TEXT NOT NULL DEFAULT 'funding_source',
+    related_dependency_ids_json TEXT NOT NULL DEFAULT '[]',
+    evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+    proposal_keys_json TEXT NOT NULL DEFAULT '[]',
+    observation_count INTEGER NOT NULL DEFAULT 0,
+    detected_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('open','confirmed_change','dismissed','superseded'))
+  )`,
+  `CREATE TABLE IF NOT EXISTS discovery_candidates (
+    id TEXT PRIMARY KEY,
+    candidate_kind TEXT NOT NULL,
+    display_label TEXT NOT NULL,
+    normalized_key TEXT NOT NULL,
+    source_instance_id TEXT NOT NULL,
+    evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+    observation_count INTEGER NOT NULL DEFAULT 0,
+    first_seen_at TEXT NOT NULL,
+    last_seen_at TEXT NOT NULL,
+    dismissed_at_observation_count INTEGER,
+    accepted_node_id TEXT,
+    status TEXT NOT NULL CHECK (status IN ('pending','accepted','dismissed','superseded')),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_discovery_candidates_normalized_key
+   ON discovery_candidates (normalized_key)`,
+  `CREATE INDEX IF NOT EXISTS idx_change_plans_state ON change_plans (workflow_state)`,
+  `CREATE INDEX IF NOT EXISTS idx_reality_drifts_status ON reality_drifts (status)`,
+]
+
 export const MIGRATIONS: Migration[] = [
   { version: 1, statements: SCHEMA_V1_STATEMENTS },
   { version: 2, statements: SCHEMA_V2_STATEMENTS },
+  { version: 3, statements: SCHEMA_V3_STATEMENTS },
 ]
 
 function ensureMetaTable(driver: SqliteDriver): void {

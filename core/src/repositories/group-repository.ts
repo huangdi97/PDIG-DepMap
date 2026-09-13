@@ -1,4 +1,5 @@
 import type { Capability, DependencyGroup, GroupMode } from '../domain/types.ts'
+import { bumpGraphRevision } from './graph-revision.ts'
 import { canonicalGroupKey } from '../domain/types.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
@@ -127,6 +128,7 @@ export class DependencyGroupRepository {
             `UPDATE dependency_groups SET state = 'active', confirmed_at = ?, last_verified_at = ?, updated_at = ? WHERE id = ?`,
           )
           .run(now, now, now, existing.id)
+        bumpGraphRevision(this.driver) // §9：Group re-activate → revision +1
         return { group: this.getById(existing.id) as DependencyGroup, reactivated: true }
       }
       const id = input.id ?? newId()
@@ -147,18 +149,24 @@ export class DependencyGroupRepository {
           now,
           now,
         )
+      bumpGraphRevision(this.driver) // §9：DependencyGroup confirmed → revision +1（同事务）
       return { group: this.getById(id) as DependencyGroup, reactivated: false }
     })
   }
 
   retire(id: string): DependencyGroup {
-    const existing = this.getById(id)
-    if (!existing) throw new Error(`group not found: ${id}`)
-    if (existing.state === 'retired') return existing
-    const now = nowIso()
-    this.driver
-      .prepare(`UPDATE dependency_groups SET state = 'retired', updated_at = ? WHERE id = ?`)
-      .run(now, id)
-    return this.getById(id) as DependencyGroup
+    return this.driver.transaction(() => {
+      const existing = this.getById(id)
+      if (!existing) throw new Error(`group not found: ${id}`)
+      if (existing.state === 'retired') return existing
+      const now = nowIso()
+      this.driver
+        .prepare(
+          `UPDATE dependency_groups SET state = 'retired', updated_at = ? WHERE id = ?`,
+        )
+        .run(now, id)
+      bumpGraphRevision(this.driver) // §9：Group retired → revision +1（同事务；幂等重放不加）
+      return this.getById(id) as DependencyGroup
+    })
   }
 }

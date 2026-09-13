@@ -397,8 +397,8 @@ describe('Invariants（集中不变量套件，Engineering Baseline V1）', () =
     expect(report.orphanFingerprints).toEqual([])
   })
 
-  it('INV14: Schema 版本一致 —— currentSchemaVersion === SCHEMA_VERSION === 2', () => {
-    expect(SCHEMA_VERSION).toBe(2)
+  it('INV14: Schema 版本一致 —— currentSchemaVersion === SCHEMA_VERSION === 3', () => {
+    expect(SCHEMA_VERSION).toBe(3)
     expect(currentSchemaVersion(world.driver)).toBe(SCHEMA_VERSION)
   })
 })

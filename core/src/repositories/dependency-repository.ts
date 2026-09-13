@@ -8,6 +8,7 @@ import type {
 import type { SqliteDriver } from '../db/driver.ts'
 import { newId, nowIso } from '../utils/ids.ts'
 import { optionalString, unknownToString } from './meta-repository.ts'
+import { bumpGraphRevision } from './graph-revision.ts'
 import type { VerificationBasis } from '../domain/source.ts'
 
 export interface ConfirmDependencyInput {
@@ -159,6 +160,7 @@ export class DependencyRepository {
             now,
             now,
           )
+        bumpGraphRevision(this.driver) // GR-002：Dependency created → revision +1（同事务）
         return { dependency: this.getById(id) as Dependency, reactivated: false, verified: false }
       }
 
@@ -206,6 +208,7 @@ export class DependencyRepository {
           now,
           existing.id,
         )
+      bumpGraphRevision(this.driver) // GR-006：retired → re-activate → revision +1（同事务）
       return {
         dependency: this.getById(existing.id) as Dependency,
         reactivated: true,
@@ -215,25 +218,35 @@ export class DependencyRepository {
   }
 
   retire(id: string): Dependency {
-    const existing = this.getById(id)
-    if (!existing) throw new Error(`dependency not found: ${id}`)
-    if (existing.state === 'retired') return existing
-    const now = nowIso()
-    this.driver
-      .prepare(
-        `UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?`,
-      )
-      .run(now, now, id)
-    return this.getById(id) as Dependency
+    return this.driver.transaction(() => {
+      const existing = this.getById(id)
+      if (!existing) throw new Error(`dependency not found: ${id}`)
+      if (existing.state === 'retired') return existing
+      const now = nowIso()
+      this.driver
+        .prepare(
+          `UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?`,
+        )
+        .run(now, now, id)
+      bumpGraphRevision(this.driver) // GR-005：retired → revision +1（同事务；幂等重放不重复加）
+      return this.getById(id) as Dependency
+    })
   }
 
   updateCriticality(id: string, criticality: Criticality): Dependency {
     // 只能由用户确认流程调用（service 层控制）；repository 不做 required 自动生成
-    const now = nowIso()
-    this.driver
-      .prepare(`UPDATE dependencies SET criticality = ?, updated_at = ? WHERE id = ?`)
-      .run(criticality, now, id)
-    return this.getById(id) as Dependency
+    return this.driver.transaction(() => {
+      const existing = this.getById(id)
+      if (!existing) throw new Error(`dependency not found: ${id}`)
+      const now = nowIso()
+      this.driver
+        .prepare(`UPDATE dependencies SET criticality = ?, updated_at = ? WHERE id = ?`)
+        .run(criticality, now, id)
+      if (existing.criticality !== criticality) {
+        bumpGraphRevision(this.driver) // §9：criticality 被用户修改 → revision +1
+      }
+      return this.getById(id) as Dependency
+    })
   }
 
   /** 设置 groupId（Group 确认后回填成员边）。 */
