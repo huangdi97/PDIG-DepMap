@@ -74,7 +74,8 @@ describe('RealityDrift（MVP03 RD）', () => {
   it('FREEZE: 已确认来源的新信号 → already_confirmed 忽略，绝不新建 drift', () => {
     // cardA 是 wechat 的已确认来源；它的「新证据」不得产生以 cardA 为候选的 drift
     const result = drifts.detectFromEvidence({
-      targetNodeId: wechat, capability: 'payment',
+      targetNodeId: wechat,
+      capability: 'payment',
       signals: [{ fromNodeId: cardA, observations: 5, evidenceRef: 'inst-A#99' }],
     })
     expect(result.created).toEqual([])

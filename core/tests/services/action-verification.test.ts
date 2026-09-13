@@ -158,18 +158,50 @@ describe('Action Verification（MVP03 VF）', () => {
     // 构造带 watch 字段且已 verified 的动作
     const service2 = new ChangePlanService(driver)
     const actions: PlanAction[] = [
-      { id: 'done-v', title: '已验证动作', detail: '', phase: 'verify', done: true, doneAt: null,
-        verification: { method: 'future_observation', status: 'verified', verifiedAt: '2026-01-01T00:00:00Z',
-          evidenceRefs: [], expectedFromNodeId: newCard, expectedToNodeId: spotify } },
-      { id: 'fail-v', title: '失败动作', detail: '', phase: 'verify', done: false, doneAt: null,
-        verification: { method: 'future_observation', status: 'failed', verifiedAt: null,
-          evidenceRefs: [], expectedFromNodeId: newCard, expectedToNodeId: spotify } },
+      {
+        id: 'done-v',
+        title: '已验证动作',
+        detail: '',
+        phase: 'verify',
+        done: true,
+        doneAt: null,
+        verification: {
+          method: 'future_observation',
+          status: 'verified',
+          verifiedAt: '2026-01-01T00:00:00Z',
+          evidenceRefs: [],
+          expectedFromNodeId: newCard,
+          expectedToNodeId: spotify,
+        },
+      },
+      {
+        id: 'fail-v',
+        title: '失败动作',
+        detail: '',
+        phase: 'verify',
+        done: false,
+        doneAt: null,
+        verification: {
+          method: 'future_observation',
+          status: 'failed',
+          verifiedAt: null,
+          evidenceRefs: [],
+          expectedFromNodeId: newCard,
+          expectedToNodeId: spotify,
+        },
+      },
     ]
     const p2 = service2.plans.create({
-      scenario: 'replace_payment_card', title: 't2', targetNodeId: 'x', actions, graphRevision: getGraphRevision(driver),
+      scenario: 'replace_payment_card',
+      title: 't2',
+      targetNodeId: 'x',
+      actions,
+      graphRevision: getGraphRevision(driver),
     })
     const { matchedActionIds } = service2.applyEvidenceSignal(p2.id, {
-      fromNodeId: newCard, toNodeId: spotify, evidenceRef: 'e#9',
+      fromNodeId: newCard,
+      toNodeId: spotify,
+      evidenceRef: 'e#9',
     })
     expect(matchedActionIds).toEqual([])
     const stored = service2.plans.getExisting(p2.id).actions

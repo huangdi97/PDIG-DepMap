@@ -281,27 +281,76 @@ describe('PlanReadiness freeze（FR-READ 集成：claiming + DB）', () => {
 
   it('FR-READ-017: claiming 不把 key 分配给已完成的空声明动作（防事后追认）', () => {
     const card = nodes.create({ kind: 'payment_instrument', name: '招行 4417' })
-    const wechat = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' }).id
-    deps.confirm({ from: card.id, relation: 'funding_source', to: wechat, capability: 'payment', criticality: 'required' })
-    const plan = instantiateScenario(driver, 'replace_payment_card', { targetPaymentInstrumentId: card.id })
+    const wechat = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
+    deps.confirm({
+      from: card.id,
+      relation: 'funding_source',
+      to: wechat,
+      capability: 'payment',
+      criticality: 'required',
+    })
+    const plan = instantiateScenario(driver, 'replace_payment_card', {
+      targetPaymentInstrumentId: card.id,
+    })
     const service = new ChangePlanService(driver)
 
     // a1：已完成但未声明任何 key；a2：未完成也未声明 —— rebase claiming 只能选 a2
     const actions: PlanAction[] = [
-      { id: 'a1', title: '已完成动作', detail: '', phase: 'change', done: true, doneAt: '2026-01-02T00:00:00Z', verification: null, resolvesImpactKeys: [] },
-      { id: 'a2', title: '待完成动作', detail: '', phase: 'change', done: false, doneAt: null, verification: null, resolvesImpactKeys: [] },
+      {
+        id: 'a1',
+        title: '已完成动作',
+        detail: '',
+        phase: 'change',
+        done: true,
+        doneAt: '2026-01-02T00:00:00Z',
+        verification: null,
+        resolvesImpactKeys: [],
+      },
+      {
+        id: 'a2',
+        title: '待完成动作',
+        detail: '',
+        phase: 'change',
+        done: false,
+        doneAt: null,
+        verification: null,
+        resolvesImpactKeys: [],
+      },
     ]
     service.plans.updateAnalysis(
       plan.id,
-      analyzePlanImpact(driver, { deps, groups: new DependencyGroupRepository(driver), proposals: new DependencyProposalRepository(driver) }, plan),
+      analyzePlanImpact(
+        driver,
+        {
+          deps,
+          groups: new DependencyGroupRepository(driver),
+          proposals: new DependencyProposalRepository(driver),
+        },
+        plan,
+      ),
       getGraphRevision(driver),
       actions,
     )
     // revision 推进 → rebase claiming
-    deps.confirm({ from: card.id, relation: 'funding_source', to: nodes.create({ kind: 'account', name: 'X' }).id, capability: 'payment', criticality: 'required' })
+    deps.confirm({
+      from: card.id,
+      relation: 'funding_source',
+      to: nodes.create({ kind: 'account', name: 'X' }).id,
+      capability: 'payment',
+      criticality: 'required',
+    })
     rebasePlan(
       driver,
-      { deps, groups: new DependencyGroupRepository(driver), proposals: new DependencyProposalRepository(driver), plans: service.plans },
+      {
+        deps,
+        groups: new DependencyGroupRepository(driver),
+        proposals: new DependencyProposalRepository(driver),
+        plans: service.plans,
+      },
       plan.id,
     )
     const after = service.plans.getExisting(plan.id).actions
