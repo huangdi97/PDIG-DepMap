@@ -42,6 +42,9 @@ certificates/
 !.vscode/extensions.json
 !.vscode/settings.example.json
 
+# Agent workspace state（本地工作记录，不进产品仓库）
+.workbuddy-ai/
+
 # User/private data
 local_private/*
 !local_private/README.md
