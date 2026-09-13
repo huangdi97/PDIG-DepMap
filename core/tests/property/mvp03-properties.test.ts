@@ -33,7 +33,11 @@ function plan(lastAnalyzed: number): ChangePlan {
   }
 }
 
-function input(lastAnalyzed: number, current: number, rest: Partial<PlanReadinessInput> = {}): PlanReadinessInput {
+function input(
+  lastAnalyzed: number,
+  current: number,
+  rest: Partial<PlanReadinessInput> = {},
+): PlanReadinessInput {
   return {
     plan: plan(lastAnalyzed),
     currentGraphRevision: current,
@@ -53,7 +57,14 @@ describe('MVP03 property invariants（fast-check）', () => {
       fc.property(
         fc.nat({ max: 50 }),
         fc.nat({ max: 50 }),
-        fc.constantFrom('draft', 'analyzed', 'review_required', 'ready', 'in_progress', 'verifying'),
+        fc.constantFrom(
+          'draft',
+          'analyzed',
+          'review_required',
+          'ready',
+          'in_progress',
+          'verifying',
+        ),
         (analyzed, delta, state) => {
           const current = analyzed + delta + 1 // 恒 mismatch
           const p = { ...plan(analyzed), workflowState: state as ChangePlan['workflowState'] }
@@ -80,11 +91,18 @@ describe('MVP03 property invariants（fast-check）', () => {
         fc.nat({ max: 50 }),
         fc.nat({ max: 50 }),
         fc.constantFrom(
-          'draft', 'analyzed', 'review_required', 'ready', 'in_progress', 'verifying', 'completed', 'cancelled',
+          'draft',
+          'analyzed',
+          'review_required',
+          'ready',
+          'in_progress',
+          'verifying',
+          'completed',
+          'cancelled',
         ),
         (analyzed, delta, state) => {
           const current = analyzed + delta
-          const p = { ...plan(analyzed), workflowState: state as ChangePlan['workflowState'] }
+          const p = { ...plan(analyzed), workflowState: state }
           const terminal = state === 'completed' || state === 'cancelled'
           expect(isPlanStale(p, current)).toBe(!terminal && delta > 0)
         },

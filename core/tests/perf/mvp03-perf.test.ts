@@ -61,12 +61,16 @@ describe('MVP03 Performance Smoke', () => {
       capability: 'payment',
     })
     for (const plan of plans.listAll()) {
-      rebasePlan(driver, {
-        deps,
-        groups: new DependencyGroupRepository(driver),
-        proposals: new DependencyProposalRepository(driver),
-        plans,
-      }, plan.id)
+      rebasePlan(
+        driver,
+        {
+          deps,
+          groups: new DependencyGroupRepository(driver),
+          proposals: new DependencyProposalRepository(driver),
+          plans,
+        },
+        plan.id,
+      )
     }
     const elapsed = Date.now() - start
     expect(plans.countAll()).toBe(100)
@@ -105,7 +109,12 @@ describe('MVP03 Performance Smoke', () => {
             phase: 'verify',
             done: false,
             doneAt: null,
-            verification: { method: 'future_observation', status: 'pending', verifiedAt: null, evidenceRefs: [] },
+            verification: {
+              method: 'future_observation',
+              status: 'pending',
+              verifiedAt: null,
+              evidenceRefs: [],
+            },
           },
         ],
       })
@@ -121,7 +130,11 @@ describe('MVP03 Performance Smoke', () => {
 
   it('500 open Drifts 检测+列举 < 5s；500 Candidates upsert < 5s', { timeout: 60_000 }, () => {
     const nodes = new NodeRepository(driver)
-    const wechat = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' }).id
+    const wechat = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    }).id
     const drifts = new RealityDriftService(driver)
     const start = Date.now()
     for (let i = 0; i < 500; i++) {
@@ -163,9 +176,21 @@ describe('MVP03 Performance Smoke', () => {
     }
     const account = nodes.create({ kind: 'account', name: '终端账户' }).id
     for (let i = 0; i < 999; i++) {
-      deps.confirm({ from: ids[i]!, relation: 'funding_source', to: ids[i + 1]!, capability: 'payment', criticality: 'required' })
+      deps.confirm({
+        from: ids[i]!,
+        relation: 'funding_source',
+        to: ids[i + 1]!,
+        capability: 'payment',
+        criticality: 'required',
+      })
     }
-    deps.confirm({ from: ids[999]!, relation: 'funding_source', to: account, capability: 'payment', criticality: 'required' })
+    deps.confirm({
+      from: ids[999]!,
+      relation: 'funding_source',
+      to: account,
+      capability: 'payment',
+      criticality: 'required',
+    })
 
     const plans = new ChangePlanRepository(driver)
     const plan = plans.create({
@@ -175,12 +200,16 @@ describe('MVP03 Performance Smoke', () => {
       graphRevision: getGraphRevision(driver),
     })
     const start = Date.now()
-    const result = rebasePlan(driver, {
-      deps,
-      groups: new DependencyGroupRepository(driver),
-      proposals: new DependencyProposalRepository(driver),
-      plans,
-    }, plan.id)
+    const result = rebasePlan(
+      driver,
+      {
+        deps,
+        groups: new DependencyGroupRepository(driver),
+        proposals: new DependencyProposalRepository(driver),
+        plans,
+      },
+      plan.id,
+    )
     const elapsed = Date.now() - start
     expect(result.revisionChanged).toBe(false) // 基线刚建，无变化
     // 真正的重分析：revision 推进后 rebase
@@ -191,12 +220,16 @@ describe('MVP03 Performance Smoke', () => {
       capability: 'payment',
     })
     const start2 = Date.now()
-    const result2 = rebasePlan(driver, {
-      deps,
-      groups: new DependencyGroupRepository(driver),
-      proposals: new DependencyProposalRepository(driver),
-      plans,
-    }, plan.id)
+    const result2 = rebasePlan(
+      driver,
+      {
+        deps,
+        groups: new DependencyGroupRepository(driver),
+        proposals: new DependencyProposalRepository(driver),
+        plans,
+      },
+      plan.id,
+    )
     const elapsed2 = Date.now() - start2
     expect(result2.revisionChanged).toBe(true)
     expect(elapsed).toBeLessThan(5_000)

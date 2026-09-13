@@ -98,7 +98,12 @@ export class RealityDriftRepository {
     return this.driver.transaction(() => {
       const prefix = driftKeyPrefix(input)
       // SQL 过滤等价于 driftKeyPrefix 匹配（candidate_from 用 IS 比较 NULL-safe）
-      const [kind, target, capability, candidateFrom, relation] = prefix.split('|')
+      const parts = prefix.split('|')
+      const kind = parts[0] ?? ''
+      const target = parts[1] ?? ''
+      const capability = parts[2] ?? ''
+      const candidateFrom = parts[3] ?? ''
+      const relation = parts[4] ?? ''
       const openRows = this.driver
         .prepare(
           `SELECT * FROM reality_drifts WHERE status = 'open' AND kind = ? AND target_node_id = ? AND capability = ? AND candidate_from IS ? AND candidate_relation = ?`,
@@ -218,10 +223,6 @@ export class RealityDriftRepository {
     const row = this.driver.prepare(`SELECT COUNT(*) AS c FROM reality_drifts`).get()
     return Number(row?.c ?? 0)
   }
-}
-
-function driftKeyPrefixOf(d: RealityDrift): string {
-  return `${d.kind}|${d.targetNodeId}|${d.capability}|${d.candidateFrom ?? '-'}|${d.candidateRelation}`
 }
 
 function mergeUnique(a: string[], b: string[]): string[] {

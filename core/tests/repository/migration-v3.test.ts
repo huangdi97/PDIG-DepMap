@@ -25,9 +25,7 @@ function makeV2Database(driver: NodeSqliteDriver): void {
   for (const stmt of [...SCHEMA_V1_STATEMENTS, ...SCHEMA_V2_STATEMENTS]) {
     driver.exec(stmt)
   }
-  driver
-    .prepare(`INSERT INTO meta (key, value) VALUES ('schema_version', '2')`)
-    .run()
+  driver.prepare(`INSERT INTO meta (key, value) VALUES ('schema_version', '2')`).run()
 }
 
 describe('Schema migration v2 → v3 (MVP03 MIG3)', () => {
@@ -50,7 +48,11 @@ describe('Schema migration v2 → v3 (MVP03 MIG3)', () => {
     const nodes = new NodeRepository(driver)
     const deps = new DependencyRepository(driver)
     const node = nodes.create({ kind: 'payment_instrument', name: '招行 4417', last4: '4417' })
-    const account = nodes.create({ kind: 'account', templateId: 'builtin.account.wechat', name: '微信支付' })
+    const account = nodes.create({
+      kind: 'account',
+      templateId: 'builtin.account.wechat',
+      name: '微信支付',
+    })
     const { dependency } = deps.confirm({
       from: node.id,
       relation: 'funding_source',
@@ -79,8 +81,12 @@ describe('Schema migration v2 → v3 (MVP03 MIG3)', () => {
     expect(deps.getById(depId)?.state).toBe('active')
     expect(nodes.getById(nodeId)?.name).toBe('招行 4417')
     // 新表可写入（由各 repository 的常规路径验证；此处直接证明表存在）
-    driver.prepare(`INSERT INTO change_plans (id, scenario, title, workflow_state, baseline_graph_revision, last_analyzed_graph_revision, params_json, action_items_json, created_at, updated_at)
-      VALUES ('p1', 's', 't', 'draft', 0, 0, '{}', '[]', '2026-01-01', '2026-01-01')`).run()
+    driver
+      .prepare(
+        `INSERT INTO change_plans (id, scenario, title, workflow_state, baseline_graph_revision, last_analyzed_graph_revision, params_json, action_items_json, created_at, updated_at)
+      VALUES ('p1', 's', 't', 'draft', 0, 0, '{}', '[]', '2026-01-01', '2026-01-01')`,
+      )
+      .run()
     expect(driver.prepare(`SELECT COUNT(*) AS c FROM change_plans`).get()).toBeTruthy()
   })
 
