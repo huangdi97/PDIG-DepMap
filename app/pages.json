@@ -10,7 +10,13 @@
     { "path": "pages/proposals/group-proposals", "style": { "navigationBarTitleText": "备用路径确认" } },
     { "path": "pages/simulate/simulate", "style": { "navigationBarTitleText": "模拟变更" } },
     { "path": "pages/simulate/impact-result", "style": { "navigationBarTitleText": "影响清单" } },
-    { "path": "pages/settings/settings", "style": { "navigationBarTitleText": "设置" } }
+    { "path": "pages/settings/settings", "style": { "navigationBarTitleText": "设置" } },
+    { "path": "pages/scenarios/scenarios", "style": { "navigationBarTitleText": "场景库" } },
+    { "path": "pages/plans/plan-create", "style": { "navigationBarTitleText": "创建变更计划" } },
+    { "path": "pages/plans/plans", "style": { "navigationBarTitleText": "变更计划" } },
+    { "path": "pages/plans/plan-detail", "style": { "navigationBarTitleText": "计划详情" } },
+    { "path": "pages/timeline/timeline", "style": { "navigationBarTitleText": "即将到来" } },
+    { "path": "pages/drift/drift", "style": { "navigationBarTitleText": "可能发生了变化" } }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",

@@ -1,39 +1,71 @@
 <template>
   <scroll-view class="home-root" scroll-y>
-    <!-- 变更（answer-oriented 首页，GOAL §17 / CANONICAL §9.1） -->
+    <!-- 需要你处理（answer-oriented，MVP03 §46） -->
     <view class="card">
-      <text class="card-title">变更</text>
-      <view class="action-row" @click="goSimulate">
-        <text class="action-main">换银行卡（模拟注销）</text>
+      <text class="card-title">需要你处理</text>
+      <view class="risk-row" @click="goProposals">
+        <text class="level-review">待确认关系</text>
+        <text>{{ proposalCount }} 条 ›</text>
+      </view>
+      <view class="risk-row" @click="goDrift">
+        <text class="level-review">可能发生了变化</text>
+        <text>{{ driftCount }} 项 ›</text>
+      </view>
+      <view class="risk-row" @click="goPlans">
+        <text class="level-review">计划需要重新检查</text>
+        <text>{{ stalePlanCount }} 个 ›</text>
+      </view>
+      <view class="risk-row" @click="goTimeline">
+        <text class="level-review">待验证 / 其他待办</text>
+        <text>查看 ›</text>
+      </view>
+    </view>
+
+    <!-- 即将到来 -->
+    <view class="card">
+      <text class="card-title">即将到来</text>
+      <view v-if="upcomingText !== ''" class="risk-row" @click="goTimeline">
+        <text>{{ upcomingText }}</text>
         <text class="action-arrow">›</text>
       </view>
-    </view>
-
-    <!-- 风险 / 待核对 -->
-    <view class="card">
-      <text class="card-title">风险 / 待核对</text>
-      <view class="risk-row">
-        <text class="level-review">待确认关系</text>
-        <text>{{ proposalCount }} 条</text>
-      </view>
-      <view class="risk-row" @click="goGroupProposals">
-        <text class="level-review">备用路径未确认</text>
-        <text>{{ groupProposalCount }} 个</text>
-      </view>
-      <view class="risk-row" @click="goProposals">
-        <text>去确认 ›</text>
+      <view v-else class="risk-row">
+        <text class="hint">暂无临近事项</text>
       </view>
     </view>
 
-    <!-- 快捷入口 -->
+    <!-- 常用场景 -->
     <view class="card">
-      <text class="card-title">数据</text>
+      <text class="card-title">常用场景</text>
+      <view class="action-row" @click="goScenarios">
+        <text class="action-main">更换银行卡</text>
+        <text class="action-arrow">›</text>
+      </view>
+      <view class="action-row" @click="goScenarios">
+        <text class="action-main">银行卡即将到期</text>
+        <text class="action-arrow">›</text>
+      </view>
+      <view class="action-row" @click="goScenarios">
+        <text class="action-main">注销银行卡</text>
+        <text class="action-arrow">›</text>
+      </view>
+      <view class="action-row" @click="goScenarios">
+        <text class="hint">场景库 ›</text>
+      </view>
+    </view>
+
+    <!-- 我的基础设施 -->
+    <view class="card">
+      <text class="card-title">我的基础设施</text>
       <view class="action-row" @click="goImport">
-        <text class="action-main">导入微信账单</text>
+        <text class="action-main">数据导入</text>
         <text class="action-arrow">›</text>
       </view>
       <view class="action-row" @click="goNodes">
-        <text class="action-main">节点列表</text>
+        <text class="action-main">支付 / 账户 / 服务</text>
+        <text class="action-arrow">›</text>
+      </view>
+      <view class="action-row" @click="goSimulate">
+        <text class="action-main">影响模拟</text>
         <text class="action-arrow">›</text>
       </view>
       <view class="action-row" @click="goSettings">
@@ -42,7 +74,6 @@
       </view>
     </view>
 
-    <!-- 最近备份 -->
     <view class="card">
       <text class="hint">最近一次主动导出备份：{{ lastBackupText }}</text>
     </view>
@@ -51,13 +82,14 @@
 
 <script lang="uts">
 import { getSecureDb } from '../../uni_modules/depmap-secure-database'
-import { appState } from '../../stores/app-state'
 
 export default {
   data() {
     return {
       proposalCount: 0,
-      groupProposalCount: 0,
+      driftCount: 0,
+      stalePlanCount: 0,
+      upcomingText: '',
       lastBackupText: '从未导出'
     }
   },
@@ -70,8 +102,32 @@ export default {
       db.query("SELECT COUNT(*) AS c FROM dependency_proposals WHERE decision = 'pending'", []).then((rows) => {
         this.proposalCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
       })
-      db.query("SELECT COUNT(*) AS c FROM dependency_group_proposals WHERE decision = 'pending'", []).then((rows) => {
-        this.groupProposalCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
+      db.query("SELECT COUNT(*) AS c FROM reality_drifts WHERE status = 'open'", []).then((rows) => {
+        this.driftCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
+      })
+      // effective status 派生：未终态 且 last_analyzed < 当前 revision → needs_revalidation
+      db.query(
+        "SELECT COUNT(*) AS c FROM change_plans WHERE workflow_state NOT IN ('completed','cancelled') AND last_analyzed_graph_revision < (SELECT CAST(value AS INTEGER) FROM meta WHERE key = 'graph_revision')",
+        []
+      ).then((rows) => {
+        this.stalePlanCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
+      })
+      // 最近到期卡（fields_json 内 expiryDate；客户端解析，只取最早一条展示）
+      db.query(
+        "SELECT name, fields_json FROM nodes WHERE kind = 'payment_instrument' AND fields_json LIKE '%expiryDate%' ORDER BY fields_json LIMIT 1",
+        []
+      ).then((rows) => {
+        if (rows.length > 0) {
+          const row = rows[0] as Map<string, any | null>
+          const fields = String(row.get('fields_json') ?? '')
+          const idx = fields.indexOf('expiryDate')
+          if (idx >= 0) {
+            const datePart = fields.substring(idx + 13, idx + 23)
+            this.upcomingText = `${String(row.get('name'))} · ${datePart} 到期`
+          }
+        } else {
+          this.upcomingText = ''
+        }
       })
       db.query("SELECT value FROM meta WHERE key = 'last_export_at'", []).then((rows) => {
         if (rows.length > 0) {
@@ -79,14 +135,23 @@ export default {
         }
       })
     },
+    goScenarios() {
+      uni.navigateTo({ url: '/pages/scenarios/scenarios' })
+    },
+    goDrift() {
+      uni.navigateTo({ url: '/pages/drift/drift' })
+    },
+    goPlans() {
+      uni.navigateTo({ url: '/pages/plans/plans' })
+    },
+    goTimeline() {
+      uni.navigateTo({ url: '/pages/timeline/timeline' })
+    },
     goSimulate() {
       uni.navigateTo({ url: '/pages/simulate/simulate' })
     },
     goProposals() {
       uni.navigateTo({ url: '/pages/proposals/proposals' })
-    },
-    goGroupProposals() {
-      uni.navigateTo({ url: '/pages/proposals/group-proposals' })
     },
     goImport() {
       uni.navigateTo({ url: '/pages/import/import-wechat' })
@@ -105,6 +170,17 @@ export default {
 .home-root {
   flex: 1;
 }
+.card {
+  margin: 10px;
+  padding: 12px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+.card-title {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
 .action-row {
   flex-direction: row;
   justify-content: space-between;
@@ -122,5 +198,12 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   padding: 10px 0;
+}
+.level-review {
+  color: #d48806;
+}
+.hint {
+  color: #86909c;
+  font-size: 13px;
 }
 </style>

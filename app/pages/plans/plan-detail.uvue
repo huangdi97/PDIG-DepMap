@@ -1,0 +1,272 @@
+<template>
+  <scroll-view class="root" scroll-y>
+    <view v-if="stale" class="banner">
+      <text class="banner-text">基础设施在此计划创建后发生变化，需要重新检查。</text>
+      <view class="banner-btn" @click="reanalyze">
+        <text class="banner-btn-text">重新分析</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="title">{{ title }}</text>
+      <view class="meta-row"><text class="hint">工作流状态：{{ statusText }}</text></view>
+      <view class="meta-row"><text class="hint">PlanReadiness：{{ readiness }}</text></view>
+      <view class="meta-row"><text class="hint">分析版本 {{ analyzed }} / 当前版本 {{ current }}</text></view>
+    </view>
+
+    <view class="card">
+      <text class="section">影响（上次分析）</text>
+      <view v-for="(line, i) in impactLines" :key="'i' + i">
+        <text class="impact-line">{{ line }}</text>
+      </view>
+      <text v-if="impactLines.length === 0" class="hint">尚未分析或无影响记录。</text>
+    </view>
+
+    <view class="card">
+      <text class="section">动作</text>
+      <view class="action-block" v-for="(a, i) in actions" :key="'a' + i">
+        <view class="action-row" @click="toggleDone(a)">
+          <text :class="a.done ? 'done' : ''">{{ a.done ? '✓' : '○' }} {{ a.title }}</text>
+          <text class="hint">{{ a.phase }}</text>
+        </view>
+        <view v-if="a.verification !== null && a.verification.status !== 'verified'" class="verify-row" @click="verify(a)">
+          <text class="verify-btn">{{ a.verification.status === 'evidence_suggested' ? '确认已生效（新数据支持）' : '手动标记已验证' }}</text>
+        </view>
+        <text v-if="a.verification !== null && a.verification.status === 'verified'" class="hint">已验证 ✓（{{ a.verification.method }}）</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="hint">完成 ≠ 验证。动作完成后仍需真实证据（future_observation）或你的手动确认。</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface PlanActionRow {
+  id: string
+  title: string
+  phase: string
+  done: boolean
+  verification: { method: string, status: string, verifiedAt: string | null, evidenceRefs: string[] } | null
+}
+
+export default {
+  data() {
+    return {
+      planId: '',
+      title: '',
+      workflowState: 'draft',
+      statusText: 'draft',
+      readiness: 'review_required',
+      analyzed: 0,
+      current: 0,
+      stale: false,
+      impactLines: [] as string[],
+      actions: [] as PlanActionRow[],
+      rawActionsJson: '[]'
+    }
+  },
+  onLoad(options: Map<string, string>) {
+    this.planId = options.get('id') ?? ''
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    load() {
+      const db = getSecureDb()
+      db.query(
+        "SELECT p.*, (SELECT CAST(value AS INTEGER) FROM meta WHERE key = 'graph_revision') AS current FROM change_plans p WHERE p.id = ?",
+        [this.planId]
+      ).then((rows) => {
+        if (rows.length === 0) return
+        const row = rows[0] as Map<string, any | null>
+        this.title = String(row.get('title'))
+        this.workflowState = String(row.get('workflow_state'))
+        this.analyzed = Number(row.get('last_analyzed_graph_revision') ?? 0)
+        this.current = Number(row.get('current') ?? 0)
+        const terminal = this.workflowState === 'completed' || this.workflowState === 'cancelled'
+        this.stale = !terminal && this.current > this.analyzed
+        this.statusText = this.stale ? 'needs_revalidation（需要重新检查）' : this.workflowState
+        // PlanReadiness 派生（与 core 规则同口径；blocked 优先）
+        const snapshot = row.get('impact_snapshot_json')
+        let mustChange = 0
+        let needsReview = 0
+        if (snapshot !== null) {
+          const text = String(snapshot)
+          mustChange = this.countOccurrences(text, '"status":"must_change"')
+          needsReview = this.countOccurrences(text, '"status":"needs_review"')
+        }
+        const actions = JSON.parse(String(row.get('action_items_json') ?? '[]')) as Array<Map<string, any>>
+        this.rawActionsJson = String(row.get('action_items_json') ?? '[]')
+        let doneChange = 0
+        const parsed: PlanActionRow[] = []
+        for (let i = 0; i < actions.length; i++) {
+          const a = actions[i]
+          const done = Boolean(a.get('done'))
+          const phase = String(a.get('phase') ?? 'prepare')
+          if (phase === 'change' && done) doneChange++
+          const v = a.get('verification')
+          parsed.push({
+            id: String(a.get('id')),
+            title: String(a.get('title')),
+            phase,
+            done,
+            verification: v === null ? null : {
+              method: String(v.get('method') ?? 'manual_confirmation'),
+              status: String(v.get('status') ?? 'pending'),
+              verifiedAt: v.get('verifiedAt') === null ? null : String(v.get('verifiedAt')),
+              evidenceRefs: []
+            }
+          })
+        }
+        this.actions = parsed
+        const pendingMust = mustChange > doneChange ? mustChange - doneChange : 0
+        if (pendingMust > 0) {
+          this.readiness = 'blocked（还有必须处理的事项）'
+        } else if (this.stale || needsReview > 0) {
+          this.readiness = 'review_required（还有信息需要确认）'
+        } else {
+          this.readiness = 'ready_with_known_scope（基于当前已知并确认的信息，可以继续下一步）'
+        }
+        // 影响行展示
+        const lines: string[] = []
+        if (snapshot !== null) {
+          const text = String(snapshot)
+          if (mustChange > 0) lines.push(`必须处理：${mustChange} 项`)
+          if (needsReview > 0) lines.push(`建议检查：${needsReview} 项`)
+        }
+        this.impactLines = lines
+      })
+    },
+    countOccurrences(text: string, needle: string): number {
+      let count = 0
+      let idx = text.indexOf(needle)
+      while (idx >= 0) {
+        count++
+        idx = text.indexOf(needle, idx + needle.length)
+      }
+      return count
+    },
+    reanalyze() {
+      // 重新分析 = 把 last_analyzed_graph_revision 推进到当前版本并刷新状态（轻端实现）
+      const db = getSecureDb()
+      db.exec(
+        'UPDATE change_plans SET last_analyzed_graph_revision = (SELECT CAST(value AS INTEGER) FROM meta WHERE key = \'graph_revision\'), updated_at = ? WHERE id = ?',
+        [new Date().toISOString(), this.planId]
+      ).then(() => this.load())
+    },
+    persistActions() {
+      const db = getSecureDb()
+      const arr = JSON.parse(this.rawActionsJson) as Array<Map<string, any>>
+      for (let i = 0; i < arr.length; i++) {
+        const a = this.actions[i]
+        if (a === undefined) continue
+        const m = arr[i] as Map<string, any>
+        m.set('done', a.done)
+        m.set('doneAt', a.done ? new Date().toISOString() : null)
+        if (a.verification !== null && m.get('verification') !== null) {
+          const v = m.get('verification') as Map<string, any>
+          v.set('status', a.verification.status)
+          v.set('verifiedAt', a.verification.verifiedAt)
+        }
+      }
+      const json = JSON.stringify(arr)
+      db.exec('UPDATE change_plans SET action_items_json = ?, updated_at = ? WHERE id = ?', [json, new Date().toISOString(), this.planId]).then(() => this.load())
+    },
+    toggleDone(a: PlanActionRow) {
+      // done ≠ verified：完成动作不改 verification 状态
+      const target = this.actions.find((x) => x.id === a.id)
+      if (target !== null) {
+        target.done = !target.done
+        this.persistActions()
+      }
+    },
+    verify(a: PlanActionRow) {
+      const target = this.actions.find((x) => x.id === a.id)
+      if (target !== null && target.verification !== null) {
+        target.verification.status = 'verified'
+        target.verification.verifiedAt = new Date().toISOString()
+        this.persistActions()
+      }
+    }
+  }
+}
+</script>
+
+<style>
+.root {
+  flex: 1;
+}
+.banner {
+  margin: 10px;
+  padding: 12px;
+  background-color: #fff7e8;
+  border-radius: 8px;
+}
+.banner-text {
+  color: #d48806;
+  font-size: 14px;
+}
+.banner-btn {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #d48806;
+  border-radius: 6px;
+  justify-content: center;
+}
+.banner-btn-text {
+  color: #ffffff;
+}
+.card {
+  margin: 10px;
+  padding: 12px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+.title {
+  font-size: 17px;
+  font-weight: bold;
+}
+.section {
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+.meta-row {
+  margin-top: 4px;
+}
+.impact-line {
+  font-size: 14px;
+  padding: 4px 0;
+}
+.action-block {
+  margin-bottom: 10px;
+}
+.action-row {
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+.done {
+  color: #00b42a;
+}
+.verify-row {
+  margin-top: 4px;
+  padding: 8px;
+  background-color: #f2f3f5;
+  border-radius: 6px;
+  justify-content: center;
+}
+.verify-btn {
+  font-size: 13px;
+  color: #165dff;
+}
+.hint {
+  color: #86909c;
+  font-size: 13px;
+}
+</style>

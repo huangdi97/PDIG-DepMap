@@ -1,0 +1,100 @@
+<template>
+  <scroll-view class="root" scroll-y>
+    <view class="card" v-for="(plan, index) in plans" :key="index" @click="open(plan.id)">
+      <text class="plan-title">{{ plan.title }}</text>
+      <view class="status-row">
+        <text :class="plan.stale ? 'status-stale' : 'status-ok'">{{ plan.statusText }}</text>
+        <text class="hint">分析版本 {{ plan.analyzed }} / 当前 {{ plan.current }}</text>
+      </view>
+    </view>
+    <view v-if="plans.length === 0" class="card">
+      <text class="hint">还没有变更计划。从「场景库」开始一个场景。</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface PlanRow {
+  id: string
+  title: string
+  analyzed: number
+  current: number
+  stale: boolean
+  statusText: string
+}
+
+export default {
+  data() {
+    return {
+      plans: [] as PlanRow[]
+    }
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    load() {
+      const db = getSecureDb()
+      db.query(
+        "SELECT p.id, p.title, p.last_analyzed_graph_revision AS analyzed, p.workflow_state, (SELECT CAST(value AS INTEGER) FROM meta WHERE key = 'graph_revision') AS current FROM change_plans p ORDER BY p.created_at DESC",
+        []
+      ).then((rows) => {
+        const list: PlanRow[] = []
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i] as Map<string, any | null>
+          const state = String(row.get('workflow_state'))
+          const analyzed = Number(row.get('analyzed') ?? 0)
+          const current = Number(row.get('current') ?? 0)
+          const terminal = state === 'completed' || state === 'cancelled'
+          const stale = !terminal && current > analyzed
+          list.push({
+            id: String(row.get('id')),
+            title: String(row.get('title')),
+            analyzed,
+            current,
+            stale,
+            statusText: stale ? '需要重新检查' : state
+          })
+        }
+        this.plans = list
+      })
+    },
+    open(id: string) {
+      uni.navigateTo({ url: `/pages/plans/plan-detail?id=${id}` })
+    }
+  }
+}
+</script>
+
+<style>
+.root {
+  flex: 1;
+}
+.card {
+  margin: 10px;
+  padding: 14px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+.plan-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+.status-row {
+  margin-top: 6px;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.status-stale {
+  color: #d48806;
+}
+.status-ok {
+  color: #00b42a;
+}
+.hint {
+  color: #86909c;
+  font-size: 12px;
+}
+</style>

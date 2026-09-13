@@ -1,0 +1,147 @@
+<template>
+  <scroll-view class="root" scroll-y>
+    <view class="card" v-for="(d, index) in drifts" :key="index">
+      <text class="drift-title">可能发生了变化</text>
+      <text class="drift-line">类型：{{ d.kind }}</text>
+      <text class="drift-line">观察次数：{{ d.observations }}</text>
+      <text class="hint">「已经换成新来源」会确认新来源并停用旧的；「两张都在用」只确认新来源。</text>
+      <view class="opt-row" @click="resolve(d.id, 'replacement')">
+        <text class="opt-text">已经换成新来源</text>
+      </view>
+      <view class="opt-row" @click="resolve(d.id, 'additional')">
+        <text class="opt-text">两个都在用</text>
+      </view>
+      <view class="opt-row" @click="dismiss(d.id, 'nochange')">
+        <text class="opt-text">没有变化</text>
+      </view>
+      <view class="opt-row" @click="dismiss(d.id, 'later')">
+        <text class="opt-text">稍后确认</text>
+      </view>
+    </view>
+    <view v-if="drifts.length === 0" class="card">
+      <text class="hint">当前没有待确认的现实变化。只有新的正向证据（而不是「没看到」）才会产生这里的事项。</text>
+    </view>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+
+interface DriftRow {
+  id: string
+  kind: string
+  observations: number
+}
+
+export default {
+  data() {
+    return {
+      drifts: [] as DriftRow[]
+    }
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    load() {
+      const db = getSecureDb()
+      db.query("SELECT id, kind, observation_count FROM reality_drifts WHERE status = 'open' ORDER BY detected_at, id", []).then((rows) => {
+        const list: DriftRow[] = []
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i] as Map<string, any | null>
+          list.push({
+            id: String(row.get('id')),
+            kind: String(row.get('kind')),
+            observations: Number(row.get('observation_count') ?? 0)
+          })
+        }
+        this.drifts = list
+      })
+    },
+    resolve(id: string, mode: string) {
+      const db = getSecureDb()
+      // 用户确认映射为 Reality mutation：
+      // replacement = confirm 新边（user_confirmed）+ retire 旧相关边；additional = 只 confirm 新边。
+      // 两条路径都经 core 仓库语义 → graphRevision 自动 +1。
+      db.query('SELECT candidate_from, target_node_id, capability, candidate_relation, related_dependency_ids_json FROM reality_drifts WHERE id = ?', [id]).then((rows) => {
+        if (rows.length === 0) return
+        const row = rows[0] as Map<string, any | null>
+        const from = String(row.get('candidate_from'))
+        const to = String(row.get('target_node_id'))
+        const cap = String(row.get('capability'))
+        const rel = String(row.get('candidate_relation') ?? 'funding_source')
+        const now = new Date().toISOString()
+        const deps = db
+        const insertNew = () => {
+          deps.exec(
+            "INSERT OR IGNORE INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, verification_basis_type, verification_basis_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'unknown', NULL, 'active', 'manual', ?, ?, NULL, '[]', 'user_confirmed', ?, ?, ?)",
+            [`dep-drift-${id}`, from, rel, to, cap, now, now, JSON.stringify({ type: 'user_confirmed', verifiedAt: now }), now, now]
+          ).then(() => {
+            const retireOld = () => {
+              // 标记 drift 状态并回到列表
+              deps.exec("UPDATE reality_drifts SET status = 'confirmed_change', updated_at = ? WHERE id = ?", [now, id]).then(() => {
+                deps.exec(
+                  "UPDATE meta SET value = CAST(CAST(value AS INTEGER) + 1 AS TEXT) WHERE key = 'graph_revision'",
+                  []
+                ).then(() => this.load())
+              })
+            }
+            if (mode === 'replacement') {
+              // retire 旧相关边（related_dependency_ids_json 内的 active 边）
+              deps.exec(
+                "UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id IN (SELECT j.value FROM reality_drifts d, json_each(d.related_dependency_ids_json) j WHERE d.id = ?) AND state = 'active'",
+                [now, now, id]
+              ).then(retireOld)
+            } else {
+              retireOld()
+            }
+          })
+        }
+        insertNew()
+      })
+    },
+    dismiss(id: string, _reason: string) {
+      // 「没有变化」/「稍后确认」都不改 Graph
+      const db = getSecureDb()
+      db.exec("UPDATE reality_drifts SET status = 'dismissed', updated_at = ? WHERE id = ?", [new Date().toISOString(), id]).then(() => this.load())
+    }
+  }
+}
+</script>
+
+<style>
+.root {
+  flex: 1;
+}
+.card {
+  margin: 10px;
+  padding: 12px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+.drift-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+.drift-line {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #4e5969;
+}
+.opt-row {
+  margin-top: 8px;
+  padding: 10px;
+  background-color: #f2f3f5;
+  border-radius: 6px;
+  justify-content: center;
+}
+.opt-text {
+  font-size: 14px;
+  color: #165dff;
+}
+.hint {
+  margin-top: 6px;
+  color: #86909c;
+  font-size: 13px;
+}
+</style>
