@@ -19,7 +19,7 @@ const KEY = 'graph_revision'
 export function getGraphRevision(driver: SqliteDriver): number {
   const row = driver.prepare(`SELECT value FROM meta WHERE key = ?`).get(KEY)
   if (!row) return 0
-  const value = Number(row.value as unknown)
+  const value = Number(row.value)
   return Number.isFinite(value) ? value : 0
 }
 
