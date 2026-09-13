@@ -1,101 +1,70 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">影响清单（{{ scenarioTitle }}）</text>
-      <text class="hint">必须处理 = 已确认现实依赖且无确认备用。任何 must_change 都可追溯到确认过的事实。</text>
-    </view>
+    <dp-card title="影响清单">
+      <text class="lead">结果只基于你已经确认过的支付关系。系统推断出的关系不参与这里。</text>
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在推演…"
+      />
+      <dp-state
+        v-else-if="items.length === 0"
+        kind="empty"
+        title="没有找到已确认的受影响关系"
+        description="可能还没有确认过相关的支付关系，或这张卡没有被确认的依赖。"
+      />
+    </dp-card>
 
-    <view class="card" v-for="(item, idx) in items" :key="idx">
-      <text :class="levelClass(item.level)">{{ levelLabel(item.level) }}</text>
-      <text class="node-name">{{ item.title }}</text>
-      <text class="hint">{{ item.detail }}</text>
-    </view>
+    <dp-card v-for="(item, idx) in items" :key="idx" :title="levelLabel(item.level)">
+      <text class="line">{{ item.title }}</text>
+      <text class="quiet">{{ item.detail }}</text>
+    </dp-card>
 
-    <view class="card">
-      <text class="hint">处理完以上事项后，再执行最后的原始操作。系统不会替你执行任何真实操作。</text>
-    </view>
+    <dp-card title="最后一步">
+      <text class="quiet">处理完以上事项后，再执行真实的注销或停用操作。本应用不会替你执行任何真实操作。</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
-import { appState, type ChecklistItem } from '../../stores/app-state'
+import { simulateUnavailable } from '../../services/depmap-service'
+
+interface ImpactRow {
+  title: string
+  level: string
+  detail: string
+}
 
 export default {
   data() {
     return {
+      loading: true,
       nodeId: '',
-      scenarioTitle: '',
-      items: [] as ChecklistItem[]
+      items: [] as ImpactRow[]
     }
   },
   onLoad(options: OnLoadOptions) {
     this.nodeId = options['nodeId'] ?? ''
-    this.scenarioTitle = appState.scenarioTitle
   },
   onShow() {
-    this.runSimulate()
+    this.load()
   },
   methods: {
-    // 影响传播由共享 Core Impact Kernel 提供（wave-BFS，(nodeId,capability) 状态键，
-    // cycle-safe；Proposal 任何置信度都不参与确定性失效传播）。
-    // 平台桥调用 simulateDisable 后回填此列表；此处展示 DB 中确认图的状态查询结果。
-    runSimulate() {
-      const db = getSecureDb()
-      db.query(
-        "SELECT nf.name AS from_name, nt.name AS to_name, d.criticality, g.mode IS NOT NULL AS has_group FROM dependencies d JOIN nodes nf ON nf.id = d.from_node JOIN nodes nt ON nt.id = d.to_node LEFT JOIN dependency_groups g ON g.id = d.group_id WHERE d.state = 'active' AND d.capability = 'payment' AND d.from_node = ?",
-        [this.nodeId]
-      ).then((rows) => {
-        const list: ChecklistItem[] = []
-        let targetName = ''
-        db.query('SELECT name FROM nodes WHERE id = ?', [this.nodeId]).then((selfRows) => {
-          targetName = selfRows.length > 0 ? String((selfRows[0] as Map<string, any | null>).get('name') ?? '') : ''
-          for (let i = 0; i < rows.length; i++) {
-            const m = rows[i] as Map<string, any | null>
-            const hasGroup = Number(m.get('has_group') ?? 0) == 1
-            const criticality = String(m.get('criticality') ?? 'unknown')
-            if (hasGroup) {
-              list.push({
-                level: 'backup_path',
-                title: String(m.get('to_name') ?? '') + ' 有已确认的备用来源',
-                detail: '支付可继续，但冗余度下降（能力降级）。'
-              })
-            } else if (criticality == 'required') {
-              list.push({
-                level: 'must_change',
-                title: String(m.get('to_name') ?? '') + ' 的支付能力将失效',
-                detail: '已确认该支付能力依赖此关系，且无其他已记录来源。请先到该服务更换支付方式。'
-              })
-            } else {
-              list.push({
-                level: 'needs_review',
-                title: String(m.get('to_name') ?? '') + ' 需要人工检查',
-                detail: '该关系未确认是否必需（criticality=unknown），无法断言影响。'
-              })
-            }
-          }
-          list.push({
-            level: 'target_operation',
-            title: '最后一步：注销/停用 ' + targetName,
-            detail: '以上事项处理完成后再执行原始操作。'
-          })
-          this.items = list
-          appState.checklist = list
-        })
-      })
-    },
     levelLabel(level: string): string {
-      if (level == 'must_change') return '必须处理'
-      if (level == 'backup_path') return '有备用路径'
-      if (level == 'degraded') return '能力降级'
-      if (level == 'needs_review') return '建议检查'
-      if (level == 'unaffected') return '不受影响'
-      return '原始操作（最后执行）'
+      if (level === 'must_change') return '必须处理'
+      if (level === 'needs_review') return '建议检查'
+      return '不受影响'
     },
-    levelClass(level: string): string {
-      if (level == 'must_change') return 'level-must'
-      if (level == 'needs_review') return 'level-review'
-      return 'level-ok'
+    load() {
+      this.loading = true
+      simulateUnavailable(this.nodeId)
+        .then((rows) => {
+          this.items = rows as ImpactRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+        })
     }
   }
 }
@@ -103,5 +72,7 @@ export default {
 
 <style>
 .page { flex: 1; }
-.node-name { font-size: 16px; font-weight: bold; margin: 4px 0; }
+.lead { font-size: 13px; color: #8A90A6; }
+.line { font-size: 15px; color: #1B1D29; }
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
 </style>

@@ -1,41 +1,64 @@
 <template>
-  <scroll-view class="root" scroll-y>
-    <view class="card" v-for="(d, index) in drifts" :key="index">
-      <text class="drift-title">可能发生了变化</text>
-      <text class="drift-line">类型：{{ d.kind }}</text>
-      <text class="drift-line">观察次数：{{ d.observations }}</text>
-      <text class="hint">「已经换成新来源」会确认新来源并停用旧的；「两张都在用」只确认新来源。</text>
-      <view class="opt-row" @click="resolve(d.id, 'replacement')">
+  <scroll-view class="page" scroll-y>
+    <dp-card title="可能发生了变化">
+      <text class="lead">只有观察到新的正向证据（而不是「没看到」）才会出现在这里。</text>
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="errorText !== ''"
+        kind="error"
+        title="读取失败"
+        :description="errorText"
+        action-label="重试"
+        @action="load"
+      />
+      <dp-state
+        v-else-if="drifts.length === 0"
+        kind="empty"
+        title="当前没有待确认的变化"
+        description="你的已确认关系与最近观察到的数据一致。"
+      />
+    </dp-card>
+
+    <dp-card v-for="d in drifts" :key="d.id" :title="driftTitle(d.kind)">
+      <text class="line">当前已确认：{{ confirmedText }}</text>
+      <text class="line">最近观察到：{{ observedText(d) }}</text>
+      <view class="opt" @click="resolve(d.id, 'replacement')">
         <text class="opt-text">已经换成新来源</text>
       </view>
-      <view class="opt-row" @click="resolve(d.id, 'additional')">
-        <text class="opt-text">两个都在用</text>
+      <view class="opt" @click="resolve(d.id, 'additional')">
+        <text class="opt-text">两个都在使用</text>
       </view>
-      <view class="opt-row" @click="dismiss(d.id, 'nochange')">
+      <view class="opt" @click="dismiss(d.id)">
         <text class="opt-text">没有变化</text>
       </view>
-      <view class="opt-row" @click="dismiss(d.id, 'later')">
+      <view class="opt" @click="later(d.id)">
         <text class="opt-text">稍后确认</text>
       </view>
-    </view>
-    <view v-if="drifts.length === 0" class="card">
-      <text class="hint">当前没有待确认的现实变化。只有新的正向证据（而不是「没看到」）才会产生这里的事项。</text>
-    </view>
+      <text class="quiet">「已经换成新来源」会确认新来源并停用旧路径；「两个都在使用」只确认新来源。</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { listDrifts, resolveDrift, dismissDrift } from '../../services/depmap-service'
 
 interface DriftRow {
   id: string
   kind: string
   observations: number
+  detectedAt: string
 }
 
 export default {
   data() {
     return {
+      loading: true,
+      errorText: '',
+      confirmedText: '你此前确认的支付路径',
       drifts: [] as DriftRow[]
     }
   },
@@ -43,105 +66,76 @@ export default {
     this.load()
   },
   methods: {
+    driftTitle(kind: string): string {
+      if (kind === 'possible_replacement') return '可能换了支付来源'
+      if (kind === 'possible_additional_path') return '可能新增了一条支付路径'
+      return '可能发生了变化'
+    },
+    observedText(d: DriftRow): string {
+      return `在最近的数据里出现了 ${d.observations} 次`
+    },
     load() {
-      const db = getSecureDb()
-      db.query("SELECT id, kind, observation_count FROM reality_drifts WHERE status = 'open' ORDER BY detected_at, id", []).then((rows) => {
-        const list: DriftRow[] = []
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i] as Map<string, any | null>
-          list.push({
-            id: String(row.get('id')),
-            kind: String(row.get('kind')),
-            observations: Number(row.get('observation_count') ?? 0)
-          })
-        }
-        this.drifts = list
-      })
+      this.loading = true
+      this.errorText = ''
+      listDrifts()
+        .then((rows) => {
+          this.drifts = rows as DriftRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+          this.errorText = '本地数据暂时无法读取。'
+        })
     },
     resolve(id: string, mode: string) {
-      const db = getSecureDb()
-      // 用户确认映射为 Reality mutation：
-      // replacement = confirm 新边（user_confirmed）+ retire 旧相关边；additional = 只 confirm 新边。
-      // 两条路径都经 core 仓库语义 → graphRevision 自动 +1。
-      db.query('SELECT candidate_from, target_node_id, capability, candidate_relation, related_dependency_ids_json FROM reality_drifts WHERE id = ?', [id]).then((rows) => {
-        if (rows.length === 0) return
-        const row = rows[0] as Map<string, any | null>
-        const from = String(row.get('candidate_from'))
-        const to = String(row.get('target_node_id'))
-        const cap = String(row.get('capability'))
-        const rel = String(row.get('candidate_relation') ?? 'funding_source')
-        const now = new Date().toISOString()
-        const deps = db
-        const insertNew = () => {
-          deps.exec(
-            "INSERT OR IGNORE INTO dependencies (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, verification_basis_type, verification_basis_json, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 'unknown', NULL, 'active', 'manual', ?, ?, NULL, '[]', 'user_confirmed', ?, ?, ?)",
-            [`dep-drift-${id}`, from, rel, to, cap, now, now, JSON.stringify({ type: 'user_confirmed', verifiedAt: now }), now, now]
-          ).then(() => {
-            const retireOld = () => {
-              // 标记 drift 状态并回到列表
-              deps.exec("UPDATE reality_drifts SET status = 'confirmed_change', updated_at = ? WHERE id = ?", [now, id]).then(() => {
-                deps.exec(
-                  "UPDATE meta SET value = CAST(CAST(value AS INTEGER) + 1 AS TEXT) WHERE key = 'graph_revision'",
-                  []
-                ).then(() => this.load())
-              })
-            }
-            if (mode === 'replacement') {
-              // retire 旧相关边（related_dependency_ids_json 内的 active 边）
-              deps.exec(
-                "UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id IN (SELECT j.value FROM reality_drifts d, json_each(d.related_dependency_ids_json) j WHERE d.id = ?) AND state = 'active'",
-                [now, now, id]
-              ).then(retireOld)
-            } else {
-              retireOld()
-            }
-          })
-        }
-        insertNew()
-      })
+      resolveDrift(id, mode)
+        .then(() => this.load())
+        .catch((_e) => {
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
     },
-    dismiss(id: string, _reason: string) {
-      // 「没有变化」/「稍后确认」都不改 Graph
-      const db = getSecureDb()
-      db.exec("UPDATE reality_drifts SET status = 'dismissed', updated_at = ? WHERE id = ?", [new Date().toISOString(), id]).then(() => this.load())
+    dismiss(id: string) {
+      dismissDrift(id)
+        .then(() => this.load())
+        .catch((_e) => {
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
+    },
+    later(_id: string) {
+      uni.showToast({ title: '已保留，稍后可再处理', icon: 'none' })
     }
   }
 }
 </script>
 
 <style>
-.root {
-  flex: 1;
+.page { flex: 1; }
+.lead {
+  font-size: 13px;
+  color: #8A90A6;
 }
-.card {
-  margin: 10px;
-  padding: 12px;
-  background-color: #ffffff;
-  border-radius: 8px;
-}
-.drift-title {
-  font-size: 16px;
-  font-weight: bold;
-}
-.drift-line {
+.line {
   margin-top: 4px;
   font-size: 14px;
-  color: #4e5969;
+  color: #5A5F73;
 }
-.opt-row {
+.opt {
   margin-top: 8px;
-  padding: 10px;
-  background-color: #f2f3f5;
-  border-radius: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  background-color: #F0F1F5;
+  border-radius: 10px;
+  align-items: center;
   justify-content: center;
+  flex-direction: row;
 }
 .opt-text {
-  font-size: 14px;
-  color: #165dff;
+  font-size: 15px;
+  color: #4C4FD8;
 }
-.hint {
-  margin-top: 6px;
-  color: #86909c;
+.quiet {
+  margin-top: 8px;
   font-size: 13px;
+  color: #8A90A6;
 }
 </style>

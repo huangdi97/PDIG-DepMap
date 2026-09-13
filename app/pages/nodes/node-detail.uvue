@@ -1,101 +1,136 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">{{ name }}</text>
-      <text class="hint">{{ kindLabel }}{{ issuerText }}</text>
-      <text class="hint">确认的支付关系：{{ dependencies.length }} 条</text>
-    </view>
+    <dp-card :title="detail.name">
+      <text class="meta">{{ kindText }}{{ issuerText }}</text>
+      <text class="meta">已确认的支付关系：{{ detail.dependencies.length }} 条</text>
+      <text class="quiet">{{ directionSummary }}</text>
+    </dp-card>
 
-    <view class="card" v-for="dep in dependencies" :key="dep.id">
-      <view class="row">
-        <text>{{ dep.criticality == 'required' ? '必需' : '未知' }} · {{ dep.relation }}</text>
-        <text class="hint">{{ dep.peerName }}</text>
+    <dp-card title="已确认的关系">
+      <dp-state
+        v-if="detail.dependencies.length === 0"
+        kind="empty"
+        title="还没有已确认的关系"
+        description="只有你确认过的关系才会显示在这里。系统推断出的关系不会出现在这里。"
+      />
+      <view v-else>
+        <view class="dep" v-for="dep in detail.dependencies" :key="dep.id">
+          <dp-row :title="dep.peerName" :description="describe(dep)" :show-arrow="false" :last="true" />
+          <view v-if="dep.state === 'active'" class="retire" @click="retire(dep.id)">
+            <text class="retire-text">这条关系不再成立</text>
+          </view>
+        </view>
       </view>
-      <text class="hint">状态：{{ dep.state == 'active' ? '生效中' : '已退役' }} · 确认于 {{ dep.confirmedAt.slice(0, 10) }}</text>
-      <view v-if="dep.state == 'active'" class="btn-danger small-btn" @click="retire(dep.id)">
-        <text class="btn-text">退役此关系</text>
-      </view>
-    </view>
+    </dp-card>
 
-    <view class="card">
-      <text class="hint">本页只展示用户确认过的事实（Dependency 存在即确认）。Proposal 不在此显示。</text>
-    </view>
+    <dp-card title="补充一条关系">
+      <text class="p">如果你已经知道它与某个对象之间的支付关系，可以直接声明。声明即确认，可随时停用。</text>
+      <view class="gap" />
+      <dp-button label="声明一条支付关系" variant="secondary" @tap="goDeclare" block />
+    </dp-card>
+
+    <dp-card title="关于本页">
+      <text class="quiet">这里只展示你确认过的事实。系统推断出的关系不会出现在这里。</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { getNodeDetail, retireDependency } from '../../services/depmap-service'
+import { relationLabel, criticalityLabel } from '../../services/rules'
 
 interface DepRow {
   id: string
+  peerName: string
+  direction: string
   relation: string
+  capability: string
   criticality: string
   state: string
-  peerName: string
-  confirmedAt: string
+}
+
+interface NodeRow {
+  id: string
+  name: string
+  kind: string
+  issuer: string
+  last4: string
+  dependencies: DepRow[]
 }
 
 export default {
   data() {
     return {
       nodeId: '',
-      name: '',
-      kind: '',
-      issuerText: '',
-      kindLabel: '',
-      dependencies: [] as DepRow[]
+      detail: {
+        id: '',
+        name: '',
+        kind: '',
+        issuer: '',
+        last4: '',
+        dependencies: [] as DepRow[]
+      } as NodeRow
+    }
+  },
+  computed: {
+    kindText(): string {
+      if (this.detail.kind === 'payment_instrument') return '银行卡'
+      if (this.detail.kind === 'account') return '支付账户'
+      if (this.detail.kind === 'service') return '服务 / 订阅'
+      if (this.detail.kind === 'identity_anchor') return '手机号 / 邮箱'
+      return ''
+    },
+    issuerText(): string {
+      if (this.detail.issuer === '' && this.detail.last4 === '') return ''
+      if (this.detail.last4 === '') return ` · ${this.detail.issuer}`
+      return ` · ${this.detail.issuer} ···· ${this.detail.last4}`
+    },
+    directionSummary(): string {
+      let out = 0
+      let incoming = 0
+      for (let i = 0; i < this.detail.dependencies.length; i++) {
+        if (this.detail.dependencies[i].direction === 'out') out++
+        else incoming++
+      }
+      if (out === 0 && incoming === 0) return ''
+      return `本对象为 ${out} 个对象付款；有 ${incoming} 个对象为本对象付款。`
     }
   },
   onLoad(options: OnLoadOptions) {
     this.nodeId = options['id'] ?? ''
   },
   onShow() {
-    this.refresh()
+    this.load()
   },
   methods: {
-    refresh() {
-      const db = getSecureDb()
-      db.query('SELECT id, name, kind, issuer, last4 FROM nodes WHERE id = ?', [this.nodeId]).then((rows) => {
-        if (rows.length == 0) return
-        const m = rows[0] as Map<string, any | null>
-        this.name = String(m.get('name') ?? '')
-        this.kind = String(m.get('kind') ?? '')
-        this.kindLabel = this.kind == 'payment_instrument' ? '银行卡' : this.kind
-        const issuer = m.get('issuer')
-        const last4 = m.get('last4')
-        this.issuerText = issuer == null ? '' : ' · ' + String(issuer) + (last4 == null ? '' : ' ···· ' + String(last4))
+    describe(dep: DepRow): string {
+      const dir = dep.direction === 'out' ? '本对象为它付款' : '它为本对象付款'
+      return `${dir} · ${relationLabel(dep.relation)} · ${criticalityLabel(dep.criticality)} · ${this.stateLabel(dep.state)}`
+    },
+    stateLabel(state: string): string {
+      return state === 'active' ? '生效中' : '已停用'
+    },
+    load() {
+      getNodeDetail(this.nodeId).then((d) => {
+        if (d !== null) this.detail = d as NodeRow
       })
-      // 出边：本节点是依赖来源（from）
-      db.query(
-        "SELECT d.id, d.relation, d.criticality, d.state, d.confirmed_at, n.name AS peer_name FROM dependencies d JOIN nodes n ON n.id = d.to_node WHERE d.from_node = ? ORDER BY d.state, d.confirmed_at",
-        [this.nodeId]
-      ).then((rows) => {
-        this.dependencies = rows.map((r): DepRow => {
-          const m = r as Map<string, any | null>
-          return {
-            id: String(m.get('id') ?? ''),
-            relation: String(m.get('relation') ?? ''),
-            criticality: String(m.get('criticality') ?? ''),
-            state: String(m.get('state') ?? ''),
-            peerName: String(m.get('peer_name') ?? ''),
-            confirmedAt: String(m.get('confirmed_at') ?? '')
-          }
-        })
-      })
+    },
+    goDeclare() {
+      uni.navigateTo({ url: `/pages/nodes/declare-relation?id=${this.nodeId}` })
     },
     retire(id: string) {
       uni.showModal({
-        title: '退役关系',
-        content: '退役后此关系不再参与影响传播。确定？',
+        title: '确认这条关系不再成立',
+        content: '停用后，它不再参与影响分析。已完成的计划记录不会被改写。',
         success: (res) => {
           if (!res.confirm) return
-          getSecureDb().execute("UPDATE dependencies SET state = 'retired', retired_at = ?, updated_at = ? WHERE id = ?", [this.now(), this.now(), id])
-            .then(() => this.refresh())
+          retireDependency(id)
+            .then(() => this.load())
+            .catch((_e) => {
+              uni.showToast({ title: '操作失败，请重试', icon: 'none' })
+            })
         }
       } as ShowModalOptions)
-    },
-    now(): string {
-      return new Date().toISOString()
     }
   }
 }
@@ -103,6 +138,19 @@ export default {
 
 <style>
 .page { flex: 1; }
-.row { flex-direction: row; justify-content: space-between; }
-.small-btn { margin-top: 8px; padding: 8px 0; }
+.meta { margin-top: 4px; font-size: 13px; color: #5A5F73; }
+.p { margin-top: 4px; font-size: 14px; color: #5A5F73; }
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
+.gap { height: 8px; }
+.dep { margin-bottom: 12px; }
+.retire {
+  min-height: 44px;
+  padding: 0 12px;
+  background-color: #FCEDEC;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+.retire-text { font-size: 13px; color: #D54941; }
 </style>

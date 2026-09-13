@@ -1,47 +1,59 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">识别到的商户</text>
-      <text class="hint">以下商户需要你确认对应哪个服务节点。未确认的商户不会生成任何关系建议。</text>
-    </view>
+    <dp-card title="识别到的商户">
+      <text class="p">下面这些商户需要你确认对应哪个服务。没有确认过的商户不会生成任何关系建议。</text>
+      <dp-state
+        v-if="merchants.length === 0"
+        kind="empty"
+        title="没有待识别的商户"
+        description="导入账单后，识别到的商户会显示在这里。"
+      />
+    </dp-card>
 
-    <view class="card" v-for="(m, idx) in merchants" :key="m.merchantRaw">
+    <dp-card v-for="(m, idx) in merchants" :key="m.merchantRaw" :title="m.merchantRaw">
+      <text class="quiet">{{ m.observationCount }} 次观测 · 支付方式：{{ methodsText(m) }}</text>
       <view class="row">
-        <text class="node-name">{{ m.merchantRaw }}</text>
-        <text class="hint">{{ m.observationCount }} 次观测</text>
+        <view class="cell">
+          <dp-button label="创建为服务" @tap="createService(idx)" />
+        </view>
+        <view class="cell">
+          <dp-button label="忽略" variant="secondary" @tap="ignore(idx)" />
+        </view>
       </view>
-      <text class="hint">支付方式：{{ m.paymentMethods.join('、') }}</text>
-      <view class="resolve-row">
-        <view class="btn-primary flex1" @click="createService(idx)"><text class="btn-text">创建为服务节点</text></view>
-        <view class="btn-ignore" @click="ignore(idx)"><text>忽略</text></view>
-      </view>
-    </view>
+    </dp-card>
 
-    <view class="card">
-      <view class="btn-primary" @click="finish"><text class="btn-text">完成并生成建议</text></view>
-      <text class="hint">完成 = finalize：指纹入库 → 周期识别 → 生成待确认关系</text>
-    </view>
+    <dp-card v-if="merchants.length > 0" title="下一步">
+      <dp-button label="完成并查看建议" @tap="finish" block />
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { appState, type PendingMerchant } from '../../stores/app-state'
+import { appState } from '../../stores/app-state'
+
+interface MerchantRow {
+  merchantRaw: string
+  observationCount: number
+  paymentMethods: string[]
+}
 
 export default {
   data() {
     return {
-      merchants: [] as PendingMerchant[]
+      merchants: [] as MerchantRow[]
     }
   },
   onLoad(_options: OnLoadOptions) {
-    this.merchants = appState.pendingMerchants
+    this.merchants = appState.pendingMerchants as MerchantRow[]
   },
   methods: {
+    methodsText(m: MerchantRow): string {
+      return m.paymentMethods.length === 0 ? '未知' : m.paymentMethods.join('、')
+    },
     createService(idx: number) {
       const m = this.merchants[idx]
-      if (m == null) return
-      // 用户确认创建 service 节点（Resolution 顺序 4：用户确认）
-      uni.showToast({ title: '已创建：' + m.merchantRaw, icon: 'none' })
+      if (m === undefined) return
+      uni.showToast({ title: `已创建：${m.merchantRaw}`, icon: 'none' })
       this.merchants.splice(idx, 1)
     },
     ignore(idx: number) {
@@ -56,14 +68,8 @@ export default {
 
 <style>
 .page { flex: 1; }
-.row { flex-direction: row; justify-content: space-between; }
-.node-name { font-size: 16px; font-weight: bold; }
-.resolve-row { flex-direction: row; margin-top: 8px; }
-.flex1 { flex: 1; margin-right: 8px; }
-.btn-ignore {
-  border-width: 1px;
-  border-color: #e5e6eb;
-  border-radius: 10px;
-  padding: 12px 16px;
-}
+.p { margin-top: 4px; font-size: 14px; color: #5A5F73; }
+.quiet { font-size: 13px; color: #8A90A6; }
+.row { flex-direction: row; margin-top: 12px; }
+.cell { flex: 1; margin-right: 8px; }
 </style>

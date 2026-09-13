@@ -1,27 +1,46 @@
 {
   "pages": [
+    { "path": "pages/onboarding/onboarding", "style": { "navigationStyle": "custom" } },
     { "path": "pages/unlock/unlock", "style": { "navigationBarTitleText": "解锁", "navigationStyle": "custom" } },
     { "path": "pages/home/home", "style": { "navigationBarTitleText": "个人数字依赖图" } },
-    { "path": "pages/nodes/nodes", "style": { "navigationBarTitleText": "节点" } },
-    { "path": "pages/nodes/node-detail", "style": { "navigationBarTitleText": "节点详情" } },
-    { "path": "pages/import/import-wechat", "style": { "navigationBarTitleText": "导入微信账单" } },
-    { "path": "pages/import/node-resolution", "style": { "navigationBarTitleText": "识别商户" } },
-    { "path": "pages/proposals/proposals", "style": { "navigationBarTitleText": "待确认关系" } },
-    { "path": "pages/proposals/group-proposals", "style": { "navigationBarTitleText": "备用路径确认" } },
-    { "path": "pages/simulate/simulate", "style": { "navigationBarTitleText": "模拟变更" } },
-    { "path": "pages/simulate/impact-result", "style": { "navigationBarTitleText": "影响清单" } },
-    { "path": "pages/settings/settings", "style": { "navigationBarTitleText": "设置" } },
-    { "path": "pages/scenarios/scenarios", "style": { "navigationBarTitleText": "场景库" } },
-    { "path": "pages/plans/plan-create", "style": { "navigationBarTitleText": "创建变更计划" } },
+    { "path": "pages/scenarios/scenarios", "style": { "navigationBarTitleText": "场景中心" } },
     { "path": "pages/plans/plans", "style": { "navigationBarTitleText": "变更计划" } },
+    { "path": "pages/settings/settings", "style": { "navigationBarTitleText": "我的" } },
+    { "path": "pages/plans/plan-create", "style": { "navigationBarTitleText": "创建变更计划" } },
     { "path": "pages/plans/plan-detail", "style": { "navigationBarTitleText": "计划详情" } },
     { "path": "pages/timeline/timeline", "style": { "navigationBarTitleText": "即将到来" } },
-    { "path": "pages/drift/drift", "style": { "navigationBarTitleText": "可能发生了变化" } }
+    { "path": "pages/drift/drift", "style": { "navigationBarTitleText": "可能发生了变化" } },
+    { "path": "pages/candidates/candidates", "style": { "navigationBarTitleText": "待确认服务" } },
+    { "path": "pages/proposals/proposals", "style": { "navigationBarTitleText": "待确认关系" } },
+    { "path": "pages/proposals/group-proposals", "style": { "navigationBarTitleText": "备用路径确认" } },
+    { "path": "pages/nodes/nodes", "style": { "navigationBarTitleText": "支付 · 账户 · 服务" } },
+    { "path": "pages/nodes/node-detail", "style": { "navigationBarTitleText": "详情" } },
+    { "path": "pages/nodes/declare-relation", "style": { "navigationBarTitleText": "声明支付关系" } },
+    { "path": "pages/import/import-wechat", "style": { "navigationBarTitleText": "导入账单" } },
+    { "path": "pages/import/node-resolution", "style": { "navigationBarTitleText": "识别商户" } },
+    { "path": "pages/sources/sources", "style": { "navigationBarTitleText": "数据来源" } },
+    { "path": "pages/backup/backup", "style": { "navigationBarTitleText": "备份与恢复" } },
+    { "path": "pages/simulate/simulate", "style": { "navigationBarTitleText": "影响模拟" } },
+    { "path": "pages/simulate/impact-result", "style": { "navigationBarTitleText": "影响清单" } },
+    { "path": "pages/privacy/privacy", "style": { "navigationBarTitleText": "数据与隐私" } },
+    { "path": "pages/about/about", "style": { "navigationBarTitleText": "关于" } }
   ],
+  "tabBar": {
+    "color": "#8A90A6",
+    "selectedColor": "#4C4FD8",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/home/home", "text": "首页" },
+      { "pagePath": "pages/scenarios/scenarios", "text": "场景" },
+      { "pagePath": "pages/plans/plans", "text": "计划" },
+      { "pagePath": "pages/settings/settings", "text": "我的" }
+    ]
+  },
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "个人数字依赖图",
-    "navigationBarBackgroundColor": "#F7F8FA",
-    "backgroundColor": "#F7F8FA"
+    "navigationBarBackgroundColor": "#F5F6FA",
+    "backgroundColor": "#F5F6FA"
   }
 }

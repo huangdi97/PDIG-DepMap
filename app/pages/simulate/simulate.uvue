@@ -1,72 +1,90 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">模拟注销 / 停用</text>
-      <text class="hint">选择要注销的银行卡，查看哪些账户和扣款会受影响。这是反事实模拟，不会修改任何数据。</text>
+    <view class="intro">
+      <text class="intro-title">影响模拟</text>
+      <text class="intro-sub">假设一张卡不能用了，看看哪些服务会受影响。这只是推演，不会修改任何数据。</text>
     </view>
 
-    <view class="card" v-for="node in cards" :key="node.id" :class="selected == node.id ? 'selected' : ''" @click="select(node.id)">
-      <view class="row">
-        <text class="node-name">{{ node.name }}</text>
-        <text class="hint">{{ node.issuer != null ? node.issuer + ' ···· ' + node.last4 : '' }}</text>
+    <dp-card title="选择要停用的支付工具">
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="cards.length === 0"
+        kind="empty"
+        title="还没有支付工具"
+        description="先到「支付 · 账户 · 服务」里添加一张银行卡或支付账户。"
+        action-label="去添加"
+        @action="goNodes"
+      />
+      <view v-else>
+        <dp-row
+          v-for="(n, i) in cards"
+          :key="n.id"
+          :title="n.name"
+          :description="n.id === selected ? '已选择' : '点击选择'"
+          :value="n.id === selected ? '✓' : ''"
+          value-tone="success"
+          :last="i === cards.length - 1"
+          @tap="select(n.id)"
+        />
       </view>
-    </view>
+    </dp-card>
 
-    <view class="card">
-      <view class="btn-danger" :class="selected == null ? 'disabled' : ''" @click="simulate">
-        <text class="btn-text">查看影响清单</text>
-      </view>
-    </view>
+    <dp-card title="下一步">
+      <dp-button label="查看影响清单" :disabled="selected === ''" @tap="run" block />
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
-import { appState } from '../../stores/app-state'
+import { listPaymentInstruments } from '../../services/depmap-service'
 
-interface CardRow {
+interface NodeRow {
   id: string
   name: string
-  issuer: string | null
-  last4: string | null
+  kind: string
+  issuer: string
+  last4: string
 }
 
 export default {
   data() {
     return {
-      cards: [] as CardRow[],
-      selected: null as string | null
+      loading: true,
+      selected: '',
+      cards: [] as NodeRow[]
     }
   },
   onShow() {
-    getSecureDb().query(
-      "SELECT id, name, issuer, last4 FROM nodes WHERE kind = 'payment_instrument' AND archived = 0 ORDER BY name",
-      []
-    ).then((rows) => {
-      this.cards = rows.map((r): CardRow => {
-        const m = r as Map<string, any | null>
-        return {
-          id: String(m.get('id') ?? ''),
-          name: String(m.get('name') ?? ''),
-          issuer: m.get('issuer') == null ? null : String(m.get('issuer')),
-          last4: m.get('last4') == null ? null : String(m.get('last4'))
-        }
-      })
-    })
+    this.load()
   },
   methods: {
+    load() {
+      this.loading = true
+      listPaymentInstruments()
+        .then((rows) => {
+          this.cards = rows as NodeRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+        })
+    },
+    goNodes() {
+      uni.navigateTo({ url: '/pages/nodes/nodes' })
+    },
     select(id: string) {
       this.selected = id
     },
-    simulate() {
-      if (this.selected == null) {
+    run() {
+      if (this.selected === '') {
         uni.showToast({ title: '先选择一张卡', icon: 'none' })
         return
       }
-      // 调用 Impact Kernel（simulateDisable → simulateScenario 包装），
-      // 结果写入 appState.checklist 后跳转展示。原始注销动作强制最后（GOAL §18）。
-      appState.scenarioTitle = '模拟注销银行卡'
-      uni.navigateTo({ url: '/pages/simulate/impact-result?nodeId=' + this.selected })
+      uni.navigateTo({ url: `/pages/simulate/impact-result?nodeId=${this.selected}` })
     }
   }
 }
@@ -74,8 +92,7 @@ export default {
 
 <style>
 .page { flex: 1; }
-.row { flex-direction: row; justify-content: space-between; }
-.node-name { font-size: 16px; font-weight: bold; }
-.selected { border-width: 2px; border-color: #165dff; }
-.disabled { opacity: 0.5; }
+.intro { padding: 20px 16px 0 16px; }
+.intro-title { font-size: 22px; font-weight: bold; color: #1B1D29; }
+.intro-sub { margin-top: 6px; font-size: 13px; color: #8A90A6; }
 </style>

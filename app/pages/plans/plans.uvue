@@ -1,33 +1,61 @@
 <template>
-  <scroll-view class="root" scroll-y>
-    <view class="card" v-for="(plan, index) in plans" :key="index" @click="open(plan.id)">
-      <text class="plan-title">{{ plan.title }}</text>
-      <view class="status-row">
-        <text :class="plan.stale ? 'status-stale' : 'status-ok'">{{ plan.statusText }}</text>
-        <text class="hint">分析版本 {{ plan.analyzed }} / 当前 {{ plan.current }}</text>
+  <scroll-view class="page" scroll-y>
+    <dp-card title="变更计划">
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取计划…"
+      />
+      <dp-state
+        v-else-if="errorText !== ''"
+        kind="error"
+        title="读取失败"
+        :description="errorText"
+        action-label="重试"
+        @action="load"
+      />
+      <dp-state
+        v-else-if="plans.length === 0"
+        kind="empty"
+        title="还没有变更计划"
+        description="从一个实际场景开始，例如「更换银行卡」。"
+        action-label="去场景中心"
+        @action="goScenarios"
+      />
+      <view v-else>
+        <dp-row
+          v-for="(p, i) in plans"
+          :key="p.id"
+          :title="p.title"
+          :description="p.stale ? '需要重新检查（基础设施已变化）' : '分析版本 ' + p.analyzed + ' / 当前 ' + p.current"
+          :value="p.stale ? '需重新检查' : workflowLabel(p.workflowState)"
+          :value-tone="p.stale ? 'warning' : 'neutral'"
+          :last="i === plans.length - 1"
+          @tap="open(p.id)"
+        />
       </view>
-    </view>
-    <view v-if="plans.length === 0" class="card">
-      <text class="hint">还没有变更计划。从「场景库」开始一个场景。</text>
-    </view>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { listPlans } from '../../services/depmap-service'
+import { workflowLabel } from '../../services/rules'
 
 interface PlanRow {
   id: string
   title: string
+  workflowState: string
+  stale: boolean
   analyzed: number
   current: number
-  stale: boolean
-  statusText: string
 }
 
 export default {
   data() {
     return {
+      loading: true,
+      errorText: '',
       plans: [] as PlanRow[]
     }
   },
@@ -35,31 +63,24 @@ export default {
     this.load()
   },
   methods: {
+    workflowLabel(state: string): string {
+      return workflowLabel(state)
+    },
     load() {
-      const db = getSecureDb()
-      db.query(
-        "SELECT p.id, p.title, p.last_analyzed_graph_revision AS analyzed, p.workflow_state, (SELECT CAST(value AS INTEGER) FROM meta WHERE key = 'graph_revision') AS current FROM change_plans p ORDER BY p.created_at DESC",
-        []
-      ).then((rows) => {
-        const list: PlanRow[] = []
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i] as Map<string, any | null>
-          const state = String(row.get('workflow_state'))
-          const analyzed = Number(row.get('analyzed') ?? 0)
-          const current = Number(row.get('current') ?? 0)
-          const terminal = state === 'completed' || state === 'cancelled'
-          const stale = !terminal && current > analyzed
-          list.push({
-            id: String(row.get('id')),
-            title: String(row.get('title')),
-            analyzed,
-            current,
-            stale,
-            statusText: stale ? '需要重新检查' : state
-          })
-        }
-        this.plans = list
-      })
+      this.loading = true
+      this.errorText = ''
+      listPlans()
+        .then((rows) => {
+          this.plans = rows as PlanRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+          this.errorText = '本地数据暂时无法读取。'
+        })
+    },
+    goScenarios() {
+      uni.navigateTo({ url: '/pages/scenarios/scenarios' })
     },
     open(id: string) {
       uni.navigateTo({ url: `/pages/plans/plan-detail?id=${id}` })
@@ -69,32 +90,5 @@ export default {
 </script>
 
 <style>
-.root {
-  flex: 1;
-}
-.card {
-  margin: 10px;
-  padding: 14px;
-  background-color: #ffffff;
-  border-radius: 8px;
-}
-.plan-title {
-  font-size: 16px;
-  font-weight: bold;
-}
-.status-row {
-  margin-top: 6px;
-  flex-direction: row;
-  justify-content: space-between;
-}
-.status-stale {
-  color: #d48806;
-}
-.status-ok {
-  color: #00b42a;
-}
-.hint {
-  color: #86909c;
-  font-size: 12px;
-}
+.page { flex: 1; }
 </style>

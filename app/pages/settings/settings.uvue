@@ -1,69 +1,144 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">备份与导出</text>
-      <text class="hint">导出为加密 .depmap 文件（Argon2id + AES-256-GCM）。无口令无法恢复。</text>
-      <view class="btn-primary" @click="exportDepmap"><text class="btn-text">导出加密备份</text></view>
-      <view class="btn-ignore" @click="importDepmap"><text>导入加密备份</text></view>
-      <text class="hint">最近一次导出：{{ lastExport }}</text>
-    </view>
+    <dp-state
+      v-if="errorText !== ''"
+      kind="error"
+      title="读取失败"
+      :description="errorText"
+      action-label="重试"
+      @action="load"
+    />
 
-    <view class="card">
-      <text class="card-title">隐私</text>
-      <text class="hint">本应用不保存：密码、CVV、完整卡号、支付密码、原始消费流水。</text>
-      <text class="hint">本应用保存：节点档案、你确认的依赖关系、证据摘要、指纹、建议状态、加密备份。</text>
-      <text class="hint">账单只在本机内存处理；不联网、无账号、无统计。</text>
-      <view class="btn-ignore" @click="togglePrivacyScreen">
-        <text>{{ privacyOn ? '关闭隐私屏（截图保护）' : '开启隐私屏（截图保护）' }}</text>
-      </view>
-    </view>
+    <dp-card title="安全">
+      <dp-row title="启动验证" description="进入应用需要系统生物识别 / 设备密码" value="始终开启" :show-arrow="false" />
+      <dp-row
+        title="隐私屏（截图保护）"
+        description="在系统允许时阻止截屏与后台快照"
+        :value="privacyText"
+        @tap="togglePrivacy"
+        :last="true"
+      />
+    </dp-card>
 
-    <view class="card">
-      <text class="card-title">危险操作</text>
-      <view class="btn-danger" @click="wipeAll"><text class="btn-text">删除全部数据与密钥</text></view>
-    </view>
+    <dp-card title="备份与恢复">
+      <dp-row title="导出加密备份" description="生成需要口令的 .depmap 文件" :value="lastExportText" @tap="go('/pages/backup/backup')" />
+      <dp-row title="导入加密备份" description="用口令恢复数据" @tap="go('/pages/backup/backup')" :last="true" />
+    </dp-card>
+
+    <dp-card title="数据与隐私">
+      <dp-row title="数据说明" description="保存什么、不保存什么" @tap="go('/pages/privacy/privacy')" />
+      <dp-row title="关于与版本" :value="versionText" @tap="go('/pages/about/about')" :last="true" />
+    </dp-card>
+
+    <dp-card title="危险操作">
+      <text class="quiet">清空后需要重新导入数据。建议先导出一份加密备份。</text>
+      <view class="gap" />
+      <dp-button label="删除全部本地数据" variant="danger" :loading="busy" @tap="confirmReset" block />
+      <text class="quiet">会清空本应用已保存的服务、关系、计划、来源与待确认记录。不会删除数据库文件本身，也不会删除系统安全存储中的密钥，不做存储级物理擦除；如需彻底移除，请卸载应用。</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
 import { setPrivacyScreen } from '../../uni_modules/depmap-privacy-screen'
+import { getLastExportAt, getAbout, resetLocalData } from '../../services/depmap-service'
+
+interface AboutRow {
+  appVersion: string
+  schemaVersion: number
+  formatVersion: number
+  graphRevision: number
+}
+
+const PRIVACY_KEY = 'dp_privacy_screen'
 
 export default {
   data() {
     return {
-      lastExport: '从未导出',
-      privacyOn: true
+      busy: false,
+      privacyOn: true,
+      lastExportAt: '',
+      version: '0.3.0-rc.1',
+      errorText: ''
+    }
+  },
+  computed: {
+    privacyText(): string {
+      return this.privacyOn ? '已开启' : '已关闭'
+    },
+    lastExportText(): string {
+      return this.lastExportAt === '' ? '从未导出' : this.lastExportAt.slice(0, 10)
+    },
+    versionText(): string {
+      return this.version
     }
   },
   onShow() {
-    getSecureDb().query("SELECT value FROM meta WHERE key = 'last_export_at'", []).then((rows) => {
-      if (rows.length > 0) {
-        this.lastExport = String((rows[0] as Map<string, any | null>).get('value') ?? '从未导出')
-      }
-    })
+    this.load()
   },
   methods: {
-    exportDepmap() {
-      // 导出：全库序列化 → depmap-file-crypto 插件（Argon2id+AES-GCM）→ 系统分享
-      // 完成后记录 meta.last_export_at（首页展示，CANONICAL §8.10）
-      uni.showToast({ title: '导出流程由 file-crypto 插件执行', icon: 'none' })
-    },
-    importDepmap() {
-      uni.showToast({ title: '导入前需要口令，错误口令将被拒绝', icon: 'none' })
-    },
-    togglePrivacyScreen() {
-      this.privacyOn = !this.privacyOn
+    load() {
+      this.errorText = ''
+      const stored = uni.getStorageSync(PRIVACY_KEY) as string
+      this.privacyOn = stored === '0' ? false : true
       setPrivacyScreen(this.privacyOn)
+      getLastExportAt()
+        .then((v) => {
+          this.lastExportAt = v
+        })
+        .catch((_e) => {
+          this.errorText = '本地数据暂时无法读取。'
+        })
+      getAbout()
+        .then((a) => {
+          this.version = (a as AboutRow).appVersion
+        })
+        .catch((_e) => {
+          this.errorText = '本地数据暂时无法读取。'
+        })
     },
-    wipeAll() {
+    go(url: string) {
+      uni.navigateTo({ url })
+    },
+    togglePrivacy() {
+      const next = !this.privacyOn
+      setPrivacyScreen(next)
+        .then((_v) => {
+          this.privacyOn = next
+          uni.setStorageSync(PRIVACY_KEY, next ? '1' : '0')
+          uni.showToast({ title: next ? '已开启' : '已关闭', icon: 'none' })
+        })
+        .catch((_e) => {
+          uni.showToast({ title: '设置未生效，请重试', icon: 'none' })
+        })
+    },
+    confirmReset() {
       uni.showModal({
-        title: '删除全部数据',
-        content: '将删除数据库与所有密钥，无法恢复。确定？',
+        title: '删除全部本地数据',
+        content:
+          '这会清空本应用保存的全部业务数据，无法恢复。数据库文件与密钥不会被删除。建议先导出加密备份。确定继续？',
+        confirmText: '继续',
         success: (res) => {
-          if (res.confirm) {
-            uni.showToast({ title: '（由 secure-key 插件删除密钥与数据库文件）', icon: 'none' })
-          }
+          if (!res.confirm) return
+          uni.showModal({
+            title: '再次确认',
+            content: '清空后需要重新导入数据。真的要清空吗？',
+            confirmText: '清空',
+            success: (res2) => {
+              if (!res2.confirm) return
+              this.busy = true
+              resetLocalData()
+                .then(() => {
+                  this.busy = false
+                  uni.showToast({ title: '已清空本地数据', icon: 'none' })
+                  uni.reLaunch({ url: '/pages/unlock/unlock' })
+                })
+                .catch((_e) => {
+                  this.busy = false
+                  uni.showToast({ title: '清空失败，请重试', icon: 'none' })
+                })
+            }
+          } as ShowModalOptions)
         }
       } as ShowModalOptions)
     }
@@ -73,12 +148,6 @@ export default {
 
 <style>
 .page { flex: 1; }
-.btn-ignore {
-  border-width: 1px;
-  border-color: #e5e6eb;
-  border-radius: 10px;
-  padding: 12px 0;
-  text-align: center;
-  margin: 8px 0;
-}
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
+.gap { height: 8px; }
 </style>

@@ -1,104 +1,116 @@
 <template>
-  <scroll-view class="root" scroll-y>
+  <scroll-view class="page" scroll-y>
     <view class="intro">
-      <text class="title">{{ title }}</text>
-      <text class="hint">选择要变更的支付工具（目标对象）。计划创建后先做影响分析。</text>
+      <text class="intro-title">{{ title }}</text>
+      <text class="intro-sub">选择要变更的支付工具。计划创建后会立即做一次基于已确认关系的分析。</text>
     </view>
 
-    <view class="card" v-for="(node, index) in instruments" :key="index" @click="create(node.id)">
-      <text class="node-name">{{ node.name }}</text>
-    </view>
+    <dp-card title="选择支付工具">
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="instruments.length === 0"
+        kind="empty"
+        title="还没有支付工具"
+        description="先到「支付 · 账户 · 服务」里添加一张银行卡或支付账户。"
+        action-label="去添加"
+        @action="goNodes"
+      />
+      <view v-else>
+        <dp-row
+          v-for="(n, i) in instruments"
+          :key="n.id"
+          :title="n.name"
+          description="选择它作为本次变更的目标"
+          :last="i === instruments.length - 1"
+          @tap="create(n.id, n.name)"
+        />
+      </view>
+    </dp-card>
 
-    <view v-if="instruments.length === 0" class="card">
-      <text class="hint">还没有支付工具。先在「数据导入 / 节点」中添加。</text>
-    </view>
+    <dp-card title="提前量建议">
+      <text class="quiet">{{ leadText }}</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { listPaymentInstruments, createPlanWithAnalysis } from '../../services/depmap-service'
+import { findScenario } from '../../services/rules'
+
+interface NodeRow {
+  id: string
+  name: string
+  kind: string
+  issuer: string
+  last4: string
+}
 
 export default {
   data() {
     return {
-      title: '',
+      loading: true,
+      busy: false,
       templateId: 'replace_payment_card',
-      instruments: [] as Array<{ id: string, name: string }>
+      title: '',
+      leadText: '',
+      instruments: [] as NodeRow[]
     }
   },
   onLoad(options: Map<string, string>) {
     this.templateId = options.get('templateId') ?? 'replace_payment_card'
-    this.title = this.templateId === 'expiring_payment_card'
-      ? '银行卡即将到期'
-      : this.templateId === 'close_payment_instrument'
-        ? '注销银行卡'
-        : '更换银行卡'
+    const sc = findScenario(this.templateId)
+    if (sc !== null) {
+      this.title = sc.title
+      this.leadText = sc.recommendedLeadDays > 0 ? `建议提前 ${sc.recommendedLeadDays} 天开始处理。` : ''
+    } else {
+      this.title = '更换银行卡'
+      this.leadText = ''
+    }
   },
   onShow() {
     this.load()
   },
   methods: {
     load() {
-      const db = getSecureDb()
-      db.query("SELECT id, name FROM nodes WHERE kind = 'payment_instrument' ORDER BY name", []).then((rows) => {
-        const list: Array<{ id: string, name: string }> = []
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i] as Map<string, any | null>
-          list.push({ id: String(row.get('id')), name: String(row.get('name')) })
-        }
-        this.instruments = list
-      })
-    },
-    create(targetNodeId: string) {
-      const db = getSecureDb()
-      db.query("SELECT CAST(value AS INTEGER) AS c FROM meta WHERE key = 'graph_revision'", []).then((rows) => {
-        const revision = rows.length > 0 ? Number((rows[0] as Map<string, any | null>).get('c') ?? 0) : 0
-        const now = new Date().toISOString()
-        db.exec(
-          'INSERT INTO change_plans (id, template_id, scenario, title, workflow_state, baseline_graph_revision, last_analyzed_graph_revision, target_node_id, effective_date, params_json, impact_snapshot_json, action_items_json, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
-          [
-            `plan-${now}`, this.templateId, this.templateId, `${this.title}`, 'draft',
-            revision, revision, targetNodeId, null, '{}', null,
-            JSON.stringify([
-              { id: 'prepare-1', title: '检查依赖', detail: '确认哪些支付关系依赖此对象。', phase: 'prepare', done: false, doneAt: null, verification: null },
-              { id: 'change-1', title: '迁移必要支付关系', detail: '把必须保留的支付关系迁移到新来源。', phase: 'change', done: false, doneAt: null,
-                verification: { method: 'future_observation', status: 'pending', verifiedAt: null, evidenceRefs: [] } },
-              { id: 'verify-1', title: '验证关键支付路径', detail: '变更后用真实支付证据确认。', phase: 'verify', done: false, doneAt: null,
-                verification: { method: 'future_observation', status: 'pending', verifiedAt: null, evidenceRefs: [] } }
-            ]),
-            now, now
-          ]
-        ).then(() => {
-          uni.redirectTo({ url: '/pages/plans/plans' })
+      this.loading = true
+      listPaymentInstruments()
+        .then((rows) => {
+          this.instruments = rows as NodeRow[]
+          this.loading = false
         })
-      })
+        .catch((_e) => {
+          this.loading = false
+        })
+    },
+    goNodes() {
+      uni.navigateTo({ url: '/pages/nodes/nodes' })
+    },
+    create(nodeId: string, nodeName: string) {
+      if (this.busy) return
+      this.busy = true
+      const planTitle = `${this.title}：${nodeName}`
+      createPlanWithAnalysis(this.templateId, nodeId, planTitle, '')
+        .then((planId) => {
+          this.busy = false
+          uni.redirectTo({ url: `/pages/plans/plan-detail?id=${planId}` })
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '创建失败，请重试', icon: 'none' })
+        })
     }
   }
 }
 </script>
 
 <style>
-.root {
-  flex: 1;
-}
-.intro {
-  margin: 10px;
-}
-.title {
-  font-size: 18px;
-  font-weight: bold;
-}
-.card {
-  margin: 10px;
-  padding: 14px;
-  background-color: #ffffff;
-  border-radius: 8px;
-}
-.node-name {
-  font-size: 16px;
-}
-.hint {
-  color: #86909c;
-  font-size: 13px;
-}
+.page { flex: 1; }
+.intro { padding: 20px 16px 0 16px; }
+.intro-title { font-size: 22px; font-weight: bold; color: #1B1D29; }
+.intro-sub { margin-top: 6px; font-size: 13px; color: #8A90A6; }
+.quiet { font-size: 13px; color: #5A5F73; }
 </style>

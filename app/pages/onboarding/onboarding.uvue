@@ -1,0 +1,132 @@
+<template>
+  <view class="root">
+    <view class="art">
+      <text class="art-mark">{{ mark }}</text>
+    </view>
+    <text class="title">{{ title }}</text>
+    <text class="body">{{ body }}</text>
+
+    <view class="dots">
+      <view class="dot" :class="{ 'dot-on': step === 0 }" />
+      <view class="dot" :class="{ 'dot-on': step === 1 }" />
+      <view class="dot" :class="{ 'dot-on': step === 2 }" />
+    </view>
+
+    <view class="actions">
+      <dp-button :label="step < 2 ? '继续' : '开始建立我的基础设施'" @tap="next" block />
+      <view class="skip" @click="finish">
+        <text class="skip-text">跳过</text>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script lang="uts">
+/**
+ * 首次启动引导（≤3 屏，§39）。
+ * 不写入正式 Graph：本页只记录一个引导完成标记，不产生任何业务数据。
+ */
+export default {
+  data() {
+    return {
+      step: 0,
+      titles: ['看清你的数字依赖', '换卡前先知道哪些服务会受影响', '数据默认在本机处理'],
+      bodies: [
+        '把银行卡、支付账户和订阅服务之间的关系，整理成一张你自己确认过的图。',
+        '更换、到期或注销一张卡之前，先看看有哪些支付关系和自动扣款依赖它。',
+        '账单只在本机内存处理，不上传、不联网、不需要账号。'
+      ]
+    }
+  },
+  computed: {
+    title(): string {
+      return this.titles[this.step]
+    },
+    body(): string {
+      return this.bodies[this.step]
+    },
+    mark(): string {
+      if (this.step === 0) return '①'
+      if (this.step === 1) return '②'
+      return '③'
+    }
+  },
+  onLoad() {
+    if (uni.getStorageSync('dp_onboarded') === '1') {
+      uni.reLaunch({ url: '/pages/unlock/unlock' })
+    }
+  },
+  methods: {
+    next() {
+      if (this.step < 2) {
+        this.step = this.step + 1
+        return
+      }
+      this.finish()
+    },
+    finish() {
+      uni.setStorageSync('dp_onboarded', '1')
+      uni.reLaunch({ url: '/pages/unlock/unlock' })
+    }
+  }
+}
+</script>
+
+<style>
+.root {
+  flex: 1;
+  padding: 48px 24px 32px 24px;
+  background-color: #F5F6FA;
+}
+.art {
+  height: 120px;
+  align-items: center;
+  justify-content: center;
+}
+.art-mark {
+  font-size: 48px;
+  color: #4C4FD8;
+}
+.title {
+  margin-top: 16px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #1B1D29;
+  text-align: center;
+}
+.body {
+  margin-top: 12px;
+  font-size: 15px;
+  color: #5A5F73;
+  text-align: center;
+}
+.dots {
+  margin-top: 24px;
+  flex-direction: row;
+  justify-content: center;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: #E6E8F0;
+  margin: 0 4px;
+}
+.dot-on {
+  background-color: #4C4FD8;
+}
+.actions {
+  margin-top: 32px;
+}
+.skip {
+  margin-top: 12px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+.skip-text {
+  font-size: 14px;
+  color: #8A90A6;
+}
+</style>

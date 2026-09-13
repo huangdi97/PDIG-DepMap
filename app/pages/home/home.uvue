@@ -1,209 +1,220 @@
 <template>
-  <scroll-view class="home-root" scroll-y>
-    <!-- 需要你处理（answer-oriented，MVP03 §46） -->
-    <view class="card">
-      <text class="card-title">需要你处理</text>
-      <view class="risk-row" @click="goProposals">
-        <text class="level-review">待确认关系</text>
-        <text>{{ proposalCount }} 条 ›</text>
-      </view>
-      <view class="risk-row" @click="goDrift">
-        <text class="level-review">可能发生了变化</text>
-        <text>{{ driftCount }} 项 ›</text>
-      </view>
-      <view class="risk-row" @click="goPlans">
-        <text class="level-review">计划需要重新检查</text>
-        <text>{{ stalePlanCount }} 个 ›</text>
-      </view>
-      <view class="risk-row" @click="goTimeline">
-        <text class="level-review">待验证 / 其他待办</text>
-        <text>查看 ›</text>
-      </view>
+  <scroll-view class="page" scroll-y>
+    <view class="hero">
+      <text class="hero-title">今天有需要你处理的事吗</text>
+      <text class="hero-sub">换卡、换号、注销账户之前，先看清会影响哪些服务。</text>
     </view>
 
-    <!-- 即将到来 -->
-    <view class="card">
-      <text class="card-title">即将到来</text>
-      <view v-if="upcomingText !== ''" class="risk-row" @click="goTimeline">
-        <text>{{ upcomingText }}</text>
-        <text class="action-arrow">›</text>
+    <dp-card title="需要你处理">
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取本地数据…"
+      />
+      <dp-state
+        v-else-if="errorText !== ''"
+        kind="error"
+        title="读取失败"
+        :description="errorText"
+        action-label="重试"
+        @action="load"
+      />
+      <view v-else-if="todoTotal === 0">
+        <text class="quiet">还没有需要处理的事项。</text>
+        <text class="quiet-sub">先把你常用的卡、账户和服务添加进来，再声明它们之间的支付关系。</text>
+        <view class="gap" />
+        <dp-button label="添加第一个对象" variant="secondary" @tap="go('/pages/nodes/nodes')" block />
       </view>
-      <view v-else class="risk-row">
-        <text class="hint">暂无临近事项</text>
+      <view v-else>
+        <dp-row
+          v-if="s.pendingProposals > 0"
+          title="待确认关系"
+          description="机器推断出的支付关系，需要你确认或拒绝"
+          :value="s.pendingProposals + ' 条'"
+          value-tone="warning"
+          @tap="go('/pages/proposals/proposals')"
+        />
+        <dp-row
+          v-if="s.openDrifts > 0"
+          title="可能发生了变化"
+          description="观察到新的正向证据"
+          :value="s.openDrifts + ' 项'"
+          value-tone="warning"
+          @tap="go('/pages/drift/drift')"
+        />
+        <dp-row
+          v-if="s.unresolvedCandidates > 0"
+          title="待确认服务"
+          description="发现可能属于你的服务"
+          :value="s.unresolvedCandidates + ' 个'"
+          value-tone="warning"
+          @tap="go('/pages/candidates/candidates')"
+        />
+        <dp-row
+          v-if="s.stalePlans > 0"
+          title="计划需要重新检查"
+          description="基础设施在此计划创建后发生了变化"
+          :value="s.stalePlans + ' 个'"
+          value-tone="warning"
+          @tap="go('/pages/plans/plans')"
+          :last="true"
+        />
       </view>
-    </view>
+    </dp-card>
 
-    <!-- 常用场景 -->
-    <view class="card">
-      <text class="card-title">常用场景</text>
-      <view class="action-row" @click="goScenarios">
-        <text class="action-main">更换银行卡</text>
-        <text class="action-arrow">›</text>
-      </view>
-      <view class="action-row" @click="goScenarios">
-        <text class="action-main">银行卡即将到期</text>
-        <text class="action-arrow">›</text>
-      </view>
-      <view class="action-row" @click="goScenarios">
-        <text class="action-main">注销银行卡</text>
-        <text class="action-arrow">›</text>
-      </view>
-      <view class="action-row" @click="goScenarios">
-        <text class="hint">场景库 ›</text>
-      </view>
-    </view>
+    <dp-card title="即将到来">
+      <dp-row
+        v-if="s.upcomingText !== ''"
+        :title="s.upcomingText"
+        description="查看还有哪些支付关系依赖它"
+        value="查看"
+        @tap="go('/pages/timeline/timeline')"
+        :last="true"
+      />
+      <text v-else class="quiet">近期没有需要处理的数字基础设施事项。</text>
+    </dp-card>
 
-    <!-- 我的基础设施 -->
-    <view class="card">
-      <text class="card-title">我的基础设施</text>
-      <view class="action-row" @click="goImport">
-        <text class="action-main">数据导入</text>
-        <text class="action-arrow">›</text>
-      </view>
-      <view class="action-row" @click="goNodes">
-        <text class="action-main">支付 / 账户 / 服务</text>
-        <text class="action-arrow">›</text>
-      </view>
-      <view class="action-row" @click="goSimulate">
-        <text class="action-main">影响模拟</text>
-        <text class="action-arrow">›</text>
-      </view>
-      <view class="action-row" @click="goSettings">
-        <text class="action-main">设置 / 备份 / 隐私</text>
-        <text class="action-arrow">›</text>
-      </view>
-    </view>
+    <dp-card title="常用场景">
+      <dp-row
+        v-for="(sc, i) in scenarios"
+        :key="sc.id"
+        :title="sc.title"
+        :description="sc.description"
+        @tap="startScenario(sc.id)"
+        :last="i === scenarios.length - 1"
+      />
+    </dp-card>
 
-    <view class="card">
-      <text class="hint">最近一次主动导出备份：{{ lastBackupText }}</text>
+    <dp-card title="我的基础设施">
+      <dp-row
+        title="支付 · 账户 · 服务"
+        :description="'已确认依赖 ' + s.confirmedDependencies + ' 条'"
+        @tap="go('/pages/nodes/nodes')"
+      />
+      <dp-row title="影响模拟" description="假设某张卡不能用了" @tap="go('/pages/simulate/simulate')" />
+      <dp-row title="数据导入" description="微信账单 / CSV / OFX" value="暂未开放" value-tone="warning" @tap="go('/pages/import/import-wechat')" />
+      <dp-row title="数据来源" description="管理已导入的来源" @tap="go('/pages/sources/sources')" />
+      <dp-row title="备份与恢复" :description="'加密备份 · 最近导出：' + backupText" @tap="go('/pages/backup/backup')" />
+      <dp-row title="设置与隐私" @tap="go('/pages/settings/settings')" :last="true" />
+    </dp-card>
+
+    <dp-card title="当前版本说明">
+      <text class="p">已支持：手动建立支付关系、影响模拟、变更计划、时间轴与验证记录。</text>
+      <text class="p">账单导入与加密备份的文件处理模块仍在接入中，因此这两项目前不会写入或覆盖任何数据。</text>
+    </dp-card>
+
+    <view class="foot">
+      <text class="quiet-sub">数据默认在本机处理 · 无账号 · 无云端同步</text>
     </view>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { getHomeSummary } from '../../services/depmap-service'
+import { executableScenarios } from '../../services/rules'
+
+interface Summary {
+  pendingProposals: number
+  openDrifts: number
+  stalePlans: number
+  pendingVerifications: number
+  unresolvedCandidates: number
+  upcomingText: string
+  lastExportAt: string
+  confirmedDependencies: number
+}
+
+interface Scenario {
+  id: string
+  title: string
+  description: string
+  recommendedLeadDays: number
+}
 
 export default {
   data() {
     return {
-      proposalCount: 0,
-      driftCount: 0,
-      stalePlanCount: 0,
-      upcomingText: '',
-      lastBackupText: '从未导出'
+      loading: true,
+      errorText: '',
+      backupText: '从未导出',
+      scenarios: executableScenarios() as Scenario[],
+      s: {
+        pendingProposals: 0,
+        openDrifts: 0,
+        stalePlans: 0,
+        pendingVerifications: 0,
+        unresolvedCandidates: 0,
+        upcomingText: '',
+        lastExportAt: '',
+        confirmedDependencies: 0
+      } as Summary
+    }
+  },
+  computed: {
+    todoTotal(): number {
+      return this.s.pendingProposals + this.s.openDrifts + this.s.stalePlans + this.s.unresolvedCandidates
     }
   },
   onShow() {
-    this.refresh()
+    this.load()
   },
   methods: {
-    refresh() {
-      const db = getSecureDb()
-      db.query("SELECT COUNT(*) AS c FROM dependency_proposals WHERE decision = 'pending'", []).then((rows) => {
-        this.proposalCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
-      })
-      db.query("SELECT COUNT(*) AS c FROM reality_drifts WHERE status = 'open'", []).then((rows) => {
-        this.driftCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
-      })
-      // effective status 派生：未终态 且 last_analyzed < 当前 revision → needs_revalidation
-      db.query(
-        "SELECT COUNT(*) AS c FROM change_plans WHERE workflow_state NOT IN ('completed','cancelled') AND last_analyzed_graph_revision < (SELECT CAST(value AS INTEGER) FROM meta WHERE key = 'graph_revision')",
-        []
-      ).then((rows) => {
-        this.stalePlanCount = Number((rows[0] as Map<string, any | null>).get('c') ?? 0)
-      })
-      // 最近到期卡（fields_json 内 expiryDate；客户端解析，只取最早一条展示）
-      db.query(
-        "SELECT name, fields_json FROM nodes WHERE kind = 'payment_instrument' AND fields_json LIKE '%expiryDate%' ORDER BY fields_json LIMIT 1",
-        []
-      ).then((rows) => {
-        if (rows.length > 0) {
-          const row = rows[0] as Map<string, any | null>
-          const fields = String(row.get('fields_json') ?? '')
-          const idx = fields.indexOf('expiryDate')
-          if (idx >= 0) {
-            const datePart = fields.substring(idx + 13, idx + 23)
-            this.upcomingText = `${String(row.get('name'))} · ${datePart} 到期`
-          }
-        } else {
-          this.upcomingText = ''
-        }
-      })
-      db.query("SELECT value FROM meta WHERE key = 'last_export_at'", []).then((rows) => {
-        if (rows.length > 0) {
-          this.lastBackupText = String((rows[0] as Map<string, any | null>).get('value') ?? '从未导出')
-        }
-      })
+    load() {
+      this.loading = true
+      this.errorText = ''
+      getHomeSummary()
+        .then((summary) => {
+          this.s = summary as Summary
+          this.backupText = summary.lastExportAt === '' ? '从未导出' : summary.lastExportAt.slice(0, 10)
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+          this.errorText = '本地数据暂时无法读取。请重试；若持续失败，请到「备份与恢复」检查数据文件。'
+        })
     },
-    goScenarios() {
-      uni.navigateTo({ url: '/pages/scenarios/scenarios' })
+    go(url: string) {
+      uni.navigateTo({ url })
     },
-    goDrift() {
-      uni.navigateTo({ url: '/pages/drift/drift' })
-    },
-    goPlans() {
-      uni.navigateTo({ url: '/pages/plans/plans' })
-    },
-    goTimeline() {
-      uni.navigateTo({ url: '/pages/timeline/timeline' })
-    },
-    goSimulate() {
-      uni.navigateTo({ url: '/pages/simulate/simulate' })
-    },
-    goProposals() {
-      uni.navigateTo({ url: '/pages/proposals/proposals' })
-    },
-    goImport() {
-      uni.navigateTo({ url: '/pages/import/import-wechat' })
-    },
-    goNodes() {
-      uni.navigateTo({ url: '/pages/nodes/nodes' })
-    },
-    goSettings() {
-      uni.navigateTo({ url: '/pages/settings/settings' })
+    startScenario(id: string) {
+      uni.navigateTo({ url: `/pages/plans/plan-create?templateId=${id}` })
     }
   }
 }
 </script>
 
 <style>
-.home-root {
-  flex: 1;
+.page { flex: 1; }
+.hero {
+  padding: 20px 16px 4px 16px;
 }
-.card {
-  margin: 10px;
-  padding: 12px;
-  background-color: #ffffff;
-  border-radius: 8px;
-}
-.card-title {
-  font-size: 15px;
+.hero-title {
+  font-size: 22px;
   font-weight: bold;
-  margin-bottom: 6px;
+  color: #1B1D29;
 }
-.action-row {
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom-width: 1px;
-  border-bottom-color: #f0f0f0;
-}
-.action-main {
-  font-size: 16px;
-}
-.action-arrow {
-  color: #86909c;
-}
-.risk-row {
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 10px 0;
-}
-.level-review {
-  color: #d48806;
-}
-.hint {
-  color: #86909c;
+.hero-sub {
+  margin-top: 6px;
   font-size: 13px;
+  color: #8A90A6;
+}
+.quiet {
+  font-size: 15px;
+  color: #5A5F73;
+}
+.quiet-sub {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #8A90A6;
+}
+.p {
+  margin-top: 4px;
+  font-size: 14px;
+  color: #5A5F73;
+}
+.gap { height: 8px; }
+.foot {
+  padding: 4px 16px 24px 16px;
+  align-items: center;
 }
 </style>

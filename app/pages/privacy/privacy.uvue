@@ -1,0 +1,48 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <dp-card title="我们保存什么">
+      <text class="p">· 你添加的对象档案（例如"招行经典白"）。</text>
+      <text class="p">· 你确认过的支付关系。</text>
+      <text class="p">· 关系证据的摘要（不是原始流水）。</text>
+      <text class="p">· 你设置的备份记录时间。</text>
+    </dp-card>
+
+    <dp-card title="我们不保存什么">
+      <text class="p">· 密码、支付密码、CVV、完整卡号。</text>
+      <text class="p">· 原始账单流水不会作为长期账本保存。</text>
+      <text class="p">· 没有任何账号、统计、广告或云端同步。</text>
+    </dp-card>
+
+    <dp-card title="账单文件怎么处理">
+      <text class="p">账单文件只在本机处理。原始交易记录不会长期保存，系统只保留必要的关系证据摘要和你确认的结果。</text>
+    </dp-card>
+
+    <dp-card title="关于联网">
+      <text class="p">当前版本不向本应用服务器上传任何业务数据。应用本身不包含业务网络请求。</text>
+      <text class="quiet">我们不会声称"绝对不会泄露"或"100% 安全"。安全依赖你的设备锁屏与备份口令。</text>
+    </dp-card>
+
+    <dp-card title="备份">
+      <text class="p">备份文件使用你设置的口令加密。口令不会以明文形式保存，也无法找回。</text>
+    </dp-card>
+
+    <dp-card title="删除数据">
+      <text class="p">你可以在「设置」里清空本应用保存的全部业务数据（服务、关系、计划、来源与待确认记录）。</text>
+      <text class="p">数据库文件本身与系统安全存储中的密钥不会被删除；我们也不会声称这能对设备存储做物理擦除。如需彻底移除，请卸载应用。</text>
+    </dp-card>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+export default {
+  data() {
+    return {}
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.p { margin-top: 4px; font-size: 14px; color: #5A5F73; }
+.quiet { margin-top: 8px; font-size: 13px; color: #8A90A6; }
+</style>

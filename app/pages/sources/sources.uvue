@@ -1,0 +1,105 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <dp-card title="数据来源">
+      <text class="lead">删除一个来源只会移除这个来源本身，不会删除你已经确认过的支付关系。</text>
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="sources.length === 0"
+        kind="empty"
+        title="还没有数据来源"
+        description="账单导入暂未开放，因此这里通常是空的。手动声明的支付关系不依赖数据来源。"
+      />
+      <view v-else>
+        <view class="src" v-for="s in sources" :key="s.id">
+          <dp-row
+            :title="s.label"
+            :description="'最近导入：' + lastText(s)"
+            :show-arrow="false"
+            :last="true"
+          />
+          <view class="remove" @click="confirmRemove(s.id, s.label)">
+            <text class="remove-text">删除这个来源</text>
+          </view>
+        </view>
+      </view>
+    </dp-card>
+
+    <dp-card title="关于来源新鲜度">
+      <text class="quiet">超过 45 天没有更新的来源，会在「即将到来」里提醒你刷新。</text>
+    </dp-card>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { listSources, removeSource } from '../../services/depmap-service'
+
+interface SourceRow {
+  id: string
+  label: string
+  state: string
+  lastIngestedAt: string
+}
+
+export default {
+  data() {
+    return {
+      loading: true,
+      sources: [] as SourceRow[]
+    }
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    lastText(s: SourceRow): string {
+      return s.lastIngestedAt === '' ? '未知' : s.lastIngestedAt.slice(0, 10)
+    },
+    load() {
+      this.loading = true
+      listSources()
+        .then((rows) => {
+          this.sources = rows as SourceRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+        })
+    },
+    confirmRemove(id: string, label: string) {
+      uni.showModal({
+        title: '删除数据来源',
+        content: `将移除「${label}」。已确认的支付关系不会被删除。确定？`,
+        success: (res) => {
+          if (!res.confirm) return
+          removeSource(id)
+            .then(() => this.load())
+            .catch((_e) => {
+              uni.showToast({ title: '删除失败，请重试', icon: 'none' })
+            })
+        }
+      } as ShowModalOptions)
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.lead { font-size: 13px; color: #8A90A6; }
+.quiet { font-size: 13px; color: #8A90A6; }
+.src { margin-bottom: 12px; }
+.remove {
+  min-height: 44px;
+  padding: 0 12px;
+  background-color: #FCEDEC;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+}
+.remove-text { font-size: 13px; color: #D54941; }
+</style>

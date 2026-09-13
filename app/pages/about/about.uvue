@@ -1,0 +1,78 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <dp-state
+      v-if="errorText !== ''"
+      kind="error"
+      title="读取失败"
+      :description="errorText"
+      action-label="重试"
+      @action="load"
+    />
+
+    <dp-card title="个人数字依赖图">
+      <dp-row title="应用版本" :value="about.appVersion" :show-arrow="false" />
+      <dp-row title="数据格式版本" :value="'v' + about.formatVersion" :show-arrow="false" />
+      <dp-row title="数据结构版本" :value="'v' + about.schemaVersion" :show-arrow="false" />
+      <dp-row title="已确认变更次数" :value="'' + about.changeCount" :show-arrow="false" :last="true" />
+      <text class="quiet">「已确认变更次数」只在你确认或停用现实关系时增加。</text>
+    </dp-card>
+
+    <dp-card title="说明">
+      <text class="p">本应用不是银行，不是财务顾问，也不会替你执行任何支付或注销操作。</text>
+      <text class="p">影响分析基于你已经导入并确认的信息，无法保证发现现实中的全部关系。</text>
+    </dp-card>
+
+    <dp-card title="链接">
+      <dp-row title="数据与隐私说明" @tap="go('/pages/privacy/privacy')" :last="true" />
+    </dp-card>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getAbout } from '../../services/depmap-service'
+
+interface AboutRow {
+  appVersion: string
+  schemaVersion: number
+  formatVersion: number
+  changeCount: number
+}
+
+export default {
+  data() {
+    return {
+      errorText: '',
+      about: {
+        appVersion: '0.3.0-rc.1',
+        schemaVersion: 3,
+        formatVersion: 1,
+        changeCount: 0
+      } as AboutRow
+    }
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    load() {
+      this.errorText = ''
+      getAbout()
+        .then((a) => {
+          this.about = a as AboutRow
+        })
+        .catch((_e) => {
+          this.errorText = '本地数据暂时无法读取。'
+        })
+    },
+    go(url: string) {
+      uni.navigateTo({ url })
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.p { margin-top: 4px; font-size: 14px; color: #5A5F73; }
+.quiet { margin-top: 8px; font-size: 13px; color: #8A90A6; }
+</style>

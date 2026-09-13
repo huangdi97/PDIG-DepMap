@@ -1,93 +1,109 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">待确认支付关系</text>
-      <text class="hint">机器推断 ≠ 现实。确认“是”才会写入依赖图。</text>
-    </view>
+    <dp-card title="待确认关系">
+      <text class="lead">机器推断不等于现实。只有你确认，才会写入依赖图。</text>
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="errorText !== ''"
+        kind="error"
+        title="读取失败"
+        :description="errorText"
+        action-label="重试"
+        @action="load"
+      />
+      <dp-state
+        v-else-if="proposals.length === 0"
+        kind="empty"
+        title="暂时没有待确认关系"
+        description="导入新的账单后，这里会出现需要你确认的支付关系。"
+      />
+    </dp-card>
 
-    <view class="card" v-for="p in proposals" :key="p.key">
-      <text class="node-name">{{ p.title }}</text>
-      <text class="hint">{{ p.detail }}</text>
-      <text class="hint">置信度 {{ Math.round(p.confidence * 100) }}% · 累计 {{ p.observationCount }} 次观测</text>
-      <view class="decision-row">
-        <view class="btn-primary flex1" @click="accept(p.key, 'unknown')"><text class="btn-text">是</text></view>
-        <view class="btn-warn flex1" @click="reject(p.key)"><text class="btn-text">不是</text></view>
-        <view class="btn-ignore flex1" @click="later(p.key)"><text>不确定</text></view>
+    <dp-card v-for="p in proposals" :key="p.key" :title="relationLabel(p.relation)">
+      <text class="line">{{ p.title }}</text>
+      <text class="quiet">累计观测 {{ p.observationCount }} 次</text>
+      <view class="row">
+        <view class="cell">
+          <dp-button label="是" variant="primary" :loading="busy" @tap="accept(p.key)" />
+        </view>
+        <view class="cell">
+          <dp-button label="不是" variant="secondary" :loading="busy" @tap="reject(p.key)" />
+        </view>
       </view>
-      <text class="hint">“是”默认按 unknown 关键度记录；只有明确“失去它支付必失效”才应选必需。</text>
-    </view>
-
-    <view class="card" v-if="proposals.length == 0">
-      <text class="hint">暂无待确认项。</text>
-    </view>
+      <text class="quiet">确认后按「需要确认」记录；只有你明确知道失去它支付会失效，才应标为必须使用。</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { listProposals, acceptProposal, rejectProposal } from '../../services/depmap-service'
+import { relationLabel } from '../../services/rules'
 
-interface ProposalItem {
+interface ProposalRow {
   key: string
   title: string
-  detail: string
-  confidence: number
+  relation: string
   observationCount: number
 }
 
 export default {
   data() {
     return {
-      proposals: [] as ProposalItem[]
+      loading: true,
+      errorText: '',
+      busy: false,
+      proposals: [] as ProposalRow[]
     }
   },
   onShow() {
-    this.refresh()
+    this.load()
   },
   methods: {
-    refresh() {
-      getSecureDb().query(
-        "SELECT p.key, p.confidence_score, p.observation_count, nf.name AS from_name, nt.name AS to_name, p.relation FROM dependency_proposals p JOIN nodes nf ON nf.id = p.from_node JOIN nodes nt ON nt.id = p.to_node WHERE p.decision = 'pending' ORDER BY p.observation_count DESC",
-        []
-      ).then((rows) => {
-        this.proposals = rows.map((r): ProposalItem => {
-          const m = r as Map<string, any | null>
-          const relation = String(m.get('relation') ?? '')
-          const title = String(m.get('from_name') ?? '') + (relation == 'funding_source' ? ' 是 ' : ' 自动支付给 ') + String(m.get('to_name') ?? '')
-          return {
-            key: String(m.get('key') ?? ''),
-            title: title,
-            detail: relation == 'funding_source' ? '（资金来源关系）' : '（商户代扣关系）',
-            confidence: Number(m.get('confidence_score') ?? 0),
-            observationCount: Number(m.get('observation_count') ?? 0)
-          }
-        })
-      })
+    relationLabel(relation: string): string {
+      return relationLabel(relation)
     },
-    accept(key: string, criticality: string) {
-      // 用户确认 → Dependency（repository UPSERT：不存在 INSERT / active verify / retired 复活）
-      getSecureDb().transaction(() => {
-        return Promise.all([
-          getSecureDb().execute("UPDATE dependency_proposals SET decision = 'accepted', decided_at = ? WHERE key = ?", [this.now(), key]),
-          // Dependency 创建由平台桥调用 confirm 语义；此处记录确认事件由应用服务层完成
-          Promise.resolve(0)
-        ])
-      }).then((_r) => {
-        uni.showToast({ title: '已确认', icon: 'none' })
-        this.refresh()
-      })
+    load() {
+      this.loading = true
+      this.errorText = ''
+      listProposals()
+        .then((rows) => {
+          this.proposals = rows as ProposalRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+          this.errorText = '本地数据暂时无法读取。'
+        })
+    },
+    accept(key: string) {
+      this.busy = true
+      acceptProposal(key, 'unknown')
+        .then(() => {
+          this.busy = false
+          uni.showToast({ title: '已确认', icon: 'none' })
+          this.load()
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
     },
     reject(key: string) {
-      getSecureDb().execute("UPDATE dependency_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ?, rejected_at_observation_count = observation_count WHERE key = ?", [this.now(), this.now(), key])
+      this.busy = true
+      rejectProposal(key)
         .then(() => {
-          uni.showToast({ title: '已拒绝（有新证据才可能重提）', icon: 'none' })
-          this.refresh()
+          this.busy = false
+          uni.showToast({ title: '已拒绝（有新的证据才可能再次出现）', icon: 'none' })
+          this.load()
         })
-    },
-    later(key: string) {
-      uni.showToast({ title: '保持待确认', icon: 'none' })
-    },
-    now(): string {
-      return new Date().toISOString()
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
     }
   }
 }
@@ -95,10 +111,9 @@ export default {
 
 <style>
 .page { flex: 1; }
-.node-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
-.decision-row { flex-direction: row; margin-top: 10px; }
-.flex1 { flex: 1; margin-right: 8px; }
-.btn-warn { background-color: #ff7d00; border-radius: 10px; padding: 12px 0; text-align: center; }
-.btn-ignore { border-width: 1px; border-color: #e5e6eb; border-radius: 10px; padding: 12px 0; text-align: center; }
-.btn-text { color: #ffffff; text-align: center; }
+.lead { font-size: 13px; color: #8A90A6; }
+.line { font-size: 15px; color: #1B1D29; }
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
+.row { flex-direction: row; margin-top: 12px; }
+.cell { flex: 1; margin-right: 8px; }
 </style>

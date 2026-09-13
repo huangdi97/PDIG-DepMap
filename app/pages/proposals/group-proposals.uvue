@@ -1,77 +1,93 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card">
-      <text class="card-title">备用路径确认</text>
-      <text class="hint">检测到同一目标有多条支付来源。只有你确认“会自动切换”，系统才敢在影响分析里说“有备用路径”。</text>
-    </view>
+    <dp-card title="备用路径确认">
+      <text class="lead">检测到同一目标有多条支付来源。只有你确认"会自动切换"，系统才会在影响分析里认为存在备用路径。</text>
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="groupProposals.length === 0"
+        kind="empty"
+        title="暂无待确认的备用路径"
+      />
+    </dp-card>
 
-    <view class="card" v-for="g in groupProposals" :key="g.key">
-      <text class="node-name">{{ g.title }}</text>
-      <text class="hint">成员：{{ g.members }}</text>
-      <view class="decision-row">
-        <view class="btn-primary flex1" @click="accept(g.key)"><text class="btn-text">确认会切换</text></view>
-        <view class="btn-warn flex1" @click="reject(g.key)"><text class="btn-text">不会</text></view>
-        <view class="btn-ignore flex1" @click="later()"><text>稍后检查</text></view>
+    <dp-card v-for="g in groupProposals" :key="g.key" :title="g.title">
+      <text class="quiet">组合方式：{{ modeText(g.mode) }}</text>
+      <view class="row">
+        <view class="cell">
+          <dp-button label="确认会切换" :loading="busy" @tap="accept(g.key)" />
+        </view>
+        <view class="cell">
+          <dp-button label="不会" variant="secondary" :loading="busy" @tap="reject(g.key)" />
+        </view>
       </view>
-    </view>
-
-    <view class="card" v-if="groupProposals.length == 0">
-      <text class="hint">暂无待确认的备用路径。</text>
-    </view>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { listGroupProposals, acceptGroupProposal, rejectGroupProposal } from '../../services/depmap-service'
 
-interface GroupProposalItem {
+interface GroupRow {
   key: string
   title: string
-  members: string
+  mode: string
 }
 
 export default {
   data() {
     return {
-      groupProposals: [] as GroupProposalItem[]
+      loading: true,
+      busy: false,
+      groupProposals: [] as GroupRow[]
     }
   },
   onShow() {
-    this.refresh()
+    this.load()
   },
   methods: {
-    refresh() {
-      getSecureDb().query(
-        "SELECT g.key, g.mode, g.member_dependency_keys_json, n.name AS target_name FROM dependency_group_proposals g JOIN nodes n ON n.id = g.target_node_id WHERE g.decision = 'pending'",
-        []
-      ).then((rows) => {
-        this.groupProposals = rows.map((r): GroupProposalItem => {
-          const m = r as Map<string, any | null>
-          return {
-            key: String(m.get('key') ?? ''),
-            title: String(m.get('target_name') ?? '') + ' 的支付来源组合（' + String(m.get('mode') ?? '') + '）',
-            members: String(m.get('member_dependency_keys_json') ?? '')
-          }
+    modeText(mode: string): string {
+      if (mode === 'ANY') return '任意一个可用即可'
+      return '必须全部可用'
+    },
+    load() {
+      this.loading = true
+      listGroupProposals()
+        .then((rows) => {
+          this.groupProposals = rows as GroupRow[]
+          this.loading = false
         })
-      })
+        .catch((_e) => {
+          this.loading = false
+        })
     },
     accept(key: string) {
-      // 确认 → DependencyGroup（canonical groupKey，UNIQUE）+ 成员边回填 groupId
-      getSecureDb().execute("UPDATE dependency_group_proposals SET decision = 'accepted', decided_at = ? WHERE key = ?", [this.now(), key])
+      this.busy = true
+      acceptGroupProposal(key)
         .then(() => {
-          uni.showToast({ title: '已确认备用组合', icon: 'none' })
-          this.refresh()
+          this.busy = false
+          uni.showToast({ title: '已确认', icon: 'none' })
+          this.load()
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
         })
     },
     reject(key: string) {
-      getSecureDb().execute("UPDATE dependency_group_proposals SET decision = 'rejected', decided_at = ?, rejected_at = ? WHERE key = ?", [this.now(), this.now(), key])
-        .then(() => this.refresh())
-    },
-    later() {
-      uni.showToast({ title: '保持待确认', icon: 'none' })
-    },
-    now(): string {
-      return new Date().toISOString()
+      this.busy = true
+      rejectGroupProposal(key)
+        .then(() => {
+          this.busy = false
+          this.load()
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
     }
   }
 }
@@ -79,10 +95,8 @@ export default {
 
 <style>
 .page { flex: 1; }
-.node-name { font-size: 16px; font-weight: bold; margin-bottom: 4px; }
-.decision-row { flex-direction: row; margin-top: 10px; }
-.flex1 { flex: 1; margin-right: 8px; }
-.btn-warn { background-color: #ff7d00; border-radius: 10px; padding: 12px 0; text-align: center; }
-.btn-ignore { border-width: 1px; border-color: #e5e6eb; border-radius: 10px; padding: 12px 0; text-align: center; }
-.btn-text { color: #ffffff; text-align: center; }
+.lead { font-size: 13px; color: #8A90A6; }
+.quiet { font-size: 13px; color: #8A90A6; }
+.row { flex-direction: row; margin-top: 12px; }
+.cell { flex: 1; margin-right: 8px; }
 </style>

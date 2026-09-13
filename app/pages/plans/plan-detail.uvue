@@ -1,73 +1,167 @@
 <template>
-  <scroll-view class="root" scroll-y>
-    <view v-if="stale" class="banner">
-      <text class="banner-text">基础设施在此计划创建后发生变化，需要重新检查。</text>
-      <view class="banner-btn" @click="reanalyze">
-        <text class="banner-btn-text">重新分析</text>
+  <scroll-view class="page" scroll-y>
+    <dp-card :title="detail.title">
+      <view class="chip-row">
+        <dp-chip :status="readiness" />
       </view>
-    </view>
+      <text class="meta">分析版本 {{ detail.analyzed }} / 当前 {{ detail.current }}</text>
+      <text class="meta">工作流状态：{{ workflowText }}</text>
+    </dp-card>
 
-    <view class="card">
-      <text class="title">{{ title }}</text>
-      <view class="meta-row"><text class="hint">工作流状态：{{ statusText }}</text></view>
-      <view class="meta-row"><text class="hint">PlanReadiness：{{ readiness }}</text></view>
-      <view class="meta-row"><text class="hint">分析版本 {{ analyzed }} / 当前版本 {{ current }}</text></view>
-    </view>
+    <dp-card v-if="detail.stale" title="需要重新检查">
+      <text class="meta">基础设施在这个计划创建之后发生了变化。重新分析后，已完成的动作不会被改动。</text>
+      <view class="gap" />
+      <dp-button label="重新分析" :loading="busy" @tap="reanalyze" />
+    </dp-card>
 
-    <view class="card">
-      <text class="section">影响（上次分析）</text>
-      <view v-for="(line, i) in impactLines" :key="'i' + i">
-        <text class="impact-line">{{ line }}</text>
+    <dp-card title="本次分析依据">
+      <view class="chip-row">
+        <dp-chip :status="coverage.level" :text="coverageText" />
       </view>
-      <text v-if="impactLines.length === 0" class="hint">尚未分析或无影响记录。</text>
-    </view>
+      <text class="expl" v-for="(e, i) in coverage.explanations" :key="'c' + i">· {{ e }}</text>
+      <text class="quiet">最近一次导入：{{ lastIngestedText }}</text>
+      <text class="quiet">依据等级只反映"我们了解多少"，不代表安全程度。</text>
+    </dp-card>
 
-    <view class="card">
-      <text class="section">动作</text>
-      <view class="action-block" v-for="(a, i) in actions" :key="'a' + i">
-        <view class="action-row" @click="toggleDone(a)">
-          <text :class="a.done ? 'done' : ''">{{ a.done ? '✓' : '○' }} {{ a.title }}</text>
-          <text class="hint">{{ a.phase }}</text>
+    <dp-card title="影响">
+      <dp-row title="必须处理" description="你确认过失去它会失效" :value="detail.mustChangeCount + ' 项'" value-tone="danger" />
+      <dp-row title="需要确认" description="关系已确认，但"是否必须使用"未确认" :value="detail.needsReviewCount + ' 项'" value-tone="warning" :last="true" />
+      <text class="quiet" v-if="detail.mustChangeCount === 0 && detail.needsReviewCount === 0">本次分析未发现受影响且已确认的支付关系。</text>
+    </dp-card>
+
+    <dp-card title="要做的事">
+      <view class="act" v-for="a in detail.actions" :key="a.id">
+        <view class="act-row" @click="toggle(a)">
+          <text :class="a.done ? 'act-done' : 'act-todo'">{{ a.done ? '✓' : '○' }}</text>
+          <view class="act-body">
+            <text :class="a.done ? 'act-title-done' : 'act-title'">{{ a.title }}</text>
+            <text class="quiet">{{ phaseText(a.phase) }}</text>
+          </view>
         </view>
-        <view v-if="a.verification !== null && a.verification.status !== 'verified'" class="verify-row" @click="verify(a)">
-          <text class="verify-btn">{{ a.verification.status === 'evidence_suggested' ? '确认已生效（新数据支持）' : '手动标记已验证' }}</text>
+        <view v-if="a.verificationStatus !== ''" class="verify">
+          <text v-if="a.verificationStatus === 'verified'" class="verified">已验证</text>
+          <view v-else class="verify-btn" @click="verify(a)">
+            <text class="verify-text">{{ a.verificationStatus === 'evidence_suggested' ? '确认已生效（有新数据支持）' : '手动标记已验证' }}</text>
+          </view>
         </view>
-        <text v-if="a.verification !== null && a.verification.status === 'verified'" class="hint">已验证 ✓（{{ a.verification.method }}）</text>
       </view>
-    </view>
+      <text class="quiet">完成不等于验证。动作完成后，仍需要新的真实证据或你的手动确认。</text>
+    </dp-card>
 
-    <view class="card">
-      <text class="hint">完成 ≠ 验证。动作完成后仍需真实证据（future_observation）或你的手动确认。</text>
-    </view>
+    <dp-card title="下一步">
+      <dp-button :label="ctaLabel" :loading="busy" @tap="onCta" block />
+      <text class="quiet">{{ ctaHint }}</text>
+    </dp-card>
+
+    <view class="foot" />
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { getPlanDetail, setActionDone, verifyAction, reanalyzePlan, getPlanCoverage } from '../../services/depmap-service'
+import { computeReadiness, coverageLabel, workflowLabel } from '../../services/rules'
 
-interface PlanActionRow {
+interface ActionRow {
   id: string
   title: string
   phase: string
   done: boolean
-  verification: { method: string, status: string, verifiedAt: string | null, evidenceRefs: string[] } | null
   resolvesImpactKeys: string[]
+  verificationStatus: string
+  verificationMethod: string
+}
+
+interface PlanRow {
+  id: string
+  title: string
+  workflowState: string
+  stale: boolean
+  analyzed: number
+  current: number
+  targetNodeId: string
+  mustChangeCount: number
+  needsReviewCount: number
+  pendingMustChange: number
+  pendingReview: number
+  actions: ActionRow[]
+  rawActionsJson: string
+}
+
+interface CoverageRow {
+  level: string
+  explanations: string[]
+  sourceCount: number
+  freshSourceCount: number
+  confirmedDirect: number
+  pendingProposals: number
+  unresolvedCandidates: number
+  unknownCriticality: number
+  lastIngestedAt: string
 }
 
 export default {
   data() {
     return {
       planId: '',
-      title: '',
-      workflowState: 'draft',
-      statusText: 'draft',
-      readiness: 'review_required',
-      analyzed: 0,
-      current: 0,
-      stale: false,
-      impactLines: [] as string[],
-      actions: [] as PlanActionRow[],
-      rawActionsJson: '[]'
+      busy: false,
+      detail: {
+        id: '',
+        title: '',
+        workflowState: 'draft',
+        stale: false,
+        analyzed: 0,
+        current: 0,
+        targetNodeId: '',
+        mustChangeCount: 0,
+        needsReviewCount: 0,
+        pendingMustChange: 0,
+        pendingReview: 0,
+        actions: [] as ActionRow[],
+        rawActionsJson: '[]'
+      } as PlanRow,
+      coverage: {
+        level: 'unknown',
+        explanations: [] as string[],
+        sourceCount: 0,
+        freshSourceCount: 0,
+        confirmedDirect: 0,
+        pendingProposals: 0,
+        unresolvedCandidates: 0,
+        unknownCriticality: 0,
+        lastIngestedAt: ''
+      } as CoverageRow
+    }
+  },
+  computed: {
+    readiness(): string {
+      return computeReadiness({
+        pendingMustChange: this.detail.pendingMustChange,
+        pendingReview: this.detail.pendingReview,
+        stale: this.detail.stale
+      })
+    },
+    workflowText(): string {
+      return workflowLabel(this.detail.workflowState)
+    },
+    coverageText(): string {
+      return coverageLabel(this.coverage.level)
+    },
+    lastIngestedText(): string {
+      if (this.coverage.sourceCount === 0) return '还没有导入任何数据来源'
+      return this.coverage.lastIngestedAt === '' ? '未知' : this.coverage.lastIngestedAt.slice(0, 10)
+    },
+    ctaLabel(): string {
+      if (this.readiness === 'blocked') return '处理必须事项'
+      if (this.detail.stale) return '重新分析'
+      if (this.readiness === 'review_required') return '继续确认'
+      if (this.detail.workflowState === 'completed') return '查看结果'
+      return '继续下一步'
+    },
+    ctaHint(): string {
+      if (this.readiness === 'blocked') return '上面还有必须处理的支付关系，处理完才能继续。'
+      if (this.detail.stale) return '基础设施已变化，先重新分析再继续。'
+      if (this.readiness === 'review_required') return '还有信息需要确认。'
+      return '基于当前已知并确认的信息，可以继续下一步。'
     }
   },
   onLoad(options: Map<string, string>) {
@@ -77,212 +171,100 @@ export default {
     this.load()
   },
   methods: {
+    phaseText(phase: string): string {
+      if (phase === 'prepare') return '准备'
+      if (phase === 'change') return '执行变更'
+      if (phase === 'verify') return '验证'
+      return '步骤'
+    },
     load() {
-      const db = getSecureDb()
-      db.query(
-        "SELECT p.*, (SELECT CAST(value AS INTEGER) FROM meta WHERE key = 'graph_revision') AS current FROM change_plans p WHERE p.id = ?",
-        [this.planId]
-      ).then((rows) => {
-        if (rows.length === 0) return
-        const row = rows[0] as Map<string, any | null>
-        this.title = String(row.get('title'))
-        this.workflowState = String(row.get('workflow_state'))
-        this.analyzed = Number(row.get('last_analyzed_graph_revision') ?? 0)
-        this.current = Number(row.get('current') ?? 0)
-        const terminal = this.workflowState === 'completed' || this.workflowState === 'cancelled'
-        this.stale = !terminal && this.current > this.analyzed
-        this.statusText = this.stale ? 'needs_revalidation（需要重新检查）' : this.workflowState
-        // PlanReadiness 派生（与 core Freeze 语义同口径：显式 resolution，禁止数量相减）
-        const snapshot = row.get('impact_snapshot_json')
-        let needsReview = 0
-        const mustChangeKeys: string[] = []
-        if (snapshot !== null) {
-          const snap = JSON.parse(String(snapshot)) as Map<string, any>
-          const targets = snap.get('targets') as Array<Map<string, any>>
-          for (let i = 0; i < targets.length; i++) {
-            const t = targets[i]
-            const status = String(t.get('status'))
-            const key = `${String(t.get('nodeId'))}|${String(t.get('capability'))}`
-            if (status === 'must_change') mustChangeKeys.push(key)
-            if (status === 'needs_review') needsReview++
-          }
-        }
-        const actions = JSON.parse(String(row.get('action_items_json') ?? '[]')) as Array<Map<string, any>>
-        this.rawActionsJson = String(row.get('action_items_json') ?? '[]')
-        const parsed: PlanActionRow[] = []
-        for (let i = 0; i < actions.length; i++) {
-          const a = actions[i]
-          const v = a.get('verification')
-          const rawKeys = a.get('resolvesImpactKeys')
-          const keys: string[] = []
-          if (rawKeys !== null && rawKeys !== undefined) {
-            const arr = rawKeys as Array<any>
-            for (let k = 0; k < arr.length; k++) keys.push(String(arr[k]))
-          }
-          parsed.push({
-            id: String(a.get('id')),
-            title: String(a.get('title')),
-            phase: String(a.get('phase') ?? 'prepare'),
-            done: Boolean(a.get('done')),
-            verification: v === null ? null : {
-              method: String(v.get('method') ?? 'manual_confirmation'),
-              status: String(v.get('status') ?? 'pending'),
-              verifiedAt: v.get('verifiedAt') === null ? null : String(v.get('verifiedAt')),
-              evidenceRefs: []
-            },
-            resolvesImpactKeys: keys
-          })
-        }
-        this.actions = parsed
-        // 每个 must_change key：被 change 动作显式声明且全部声明动作 done 才 resolved
-        let pendingMust = 0
-        for (let k = 0; k < mustChangeKeys.length; k++) {
-          const key = mustChangeKeys[k]
-          const claimants = parsed.filter((a) => a.phase === 'change' && a.resolvesImpactKeys.indexOf(key) >= 0)
-          if (claimants.length === 0 || claimants.some((a) => !a.done)) pendingMust++
-        }
-        if (pendingMust > 0) {
-          this.readiness = 'blocked（还有必须处理的事项）'
-        } else if (this.stale || needsReview > 0) {
-          this.readiness = 'review_required（还有信息需要确认）'
-        } else {
-          this.readiness = 'ready_with_known_scope（基于当前已知并确认的信息，可以继续下一步）'
-        }
-        // 影响行展示
-        const lines: string[] = []
-        if (snapshot !== null) {
-          const text = String(snapshot)
-          if (mustChange > 0) lines.push(`必须处理：${mustChange} 项`)
-          if (needsReview > 0) lines.push(`建议检查：${needsReview} 项`)
-        }
-        this.impactLines = lines
+      getPlanDetail(this.planId).then((d) => {
+        if (d === null) return
+        const row = d as PlanRow
+        this.detail = row
+        // Coverage 以「变更目标节点」为口径（此前误传 planId，导致口径恒为空）
+        getPlanCoverage(row.targetNodeId, 45).then((c) => {
+          this.coverage = c as CoverageRow
+        })
       })
     },
-    countOccurrences(text: string, needle: string): number {
-      let count = 0
-      let idx = text.indexOf(needle)
-      while (idx >= 0) {
-        count++
-        idx = text.indexOf(needle, idx + needle.length)
-      }
-      return count
+    toggle(a: ActionRow) {
+      this.busy = true
+      setActionDone(this.planId, a.id, !a.done)
+        .then((d) => {
+          if (d !== null) this.detail = d as PlanRow
+          this.busy = false
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
+    },
+    verify(a: ActionRow) {
+      this.busy = true
+      verifyAction(this.planId, a.id)
+        .then((d) => {
+          if (d !== null) this.detail = d as PlanRow
+          this.busy = false
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '保存失败，请重试', icon: 'none' })
+        })
     },
     reanalyze() {
-      // 重新分析 = 把 last_analyzed_graph_revision 推进到当前版本并刷新状态（轻端实现）
-      const db = getSecureDb()
-      db.exec(
-        'UPDATE change_plans SET last_analyzed_graph_revision = (SELECT CAST(value AS INTEGER) FROM meta WHERE key = \'graph_revision\'), updated_at = ? WHERE id = ?',
-        [new Date().toISOString(), this.planId]
-      ).then(() => this.load())
+      this.busy = true
+      reanalyzePlan(this.planId)
+        .then((d) => {
+          if (d !== null) this.detail = d as PlanRow
+          this.busy = false
+          uni.showToast({ title: '已重新分析', icon: 'none' })
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '重新分析失败', icon: 'none' })
+        })
     },
-    persistActions() {
-      const db = getSecureDb()
-      const arr = JSON.parse(this.rawActionsJson) as Array<Map<string, any>>
-      for (let i = 0; i < arr.length; i++) {
-        const a = this.actions[i]
-        if (a === undefined) continue
-        const m = arr[i] as Map<string, any>
-        m.set('done', a.done)
-        m.set('doneAt', a.done ? new Date().toISOString() : null)
-        if (a.verification !== null && m.get('verification') !== null) {
-          const v = m.get('verification') as Map<string, any>
-          v.set('status', a.verification.status)
-          v.set('verifiedAt', a.verification.verifiedAt)
-        }
+    onCta() {
+      if (this.readiness === 'blocked' || this.readiness === 'review_required') {
+        uni.showToast({ title: '请先处理上面的事项', icon: 'none' })
+        return
       }
-      const json = JSON.stringify(arr)
-      db.exec('UPDATE change_plans SET action_items_json = ?, updated_at = ? WHERE id = ?', [json, new Date().toISOString(), this.planId]).then(() => this.load())
-    },
-    toggleDone(a: PlanActionRow) {
-      // done ≠ verified：完成动作不改 verification 状态
-      const target = this.actions.find((x) => x.id === a.id)
-      if (target !== null) {
-        target.done = !target.done
-        this.persistActions()
+      if (this.detail.stale) {
+        this.reanalyze()
+        return
       }
-    },
-    verify(a: PlanActionRow) {
-      const target = this.actions.find((x) => x.id === a.id)
-      if (target !== null && target.verification !== null) {
-        target.verification.status = 'verified'
-        target.verification.verifiedAt = new Date().toISOString()
-        this.persistActions()
-      }
+      uni.showToast({ title: '可以继续下一步', icon: 'none' })
     }
   }
 }
 </script>
 
 <style>
-.root {
-  flex: 1;
-}
-.banner {
-  margin: 10px;
-  padding: 12px;
-  background-color: #fff7e8;
-  border-radius: 8px;
-}
-.banner-text {
-  color: #d48806;
-  font-size: 14px;
-}
-.banner-btn {
-  margin-top: 8px;
-  padding: 8px;
-  background-color: #d48806;
-  border-radius: 6px;
-  justify-content: center;
-}
-.banner-btn-text {
-  color: #ffffff;
-}
-.card {
-  margin: 10px;
-  padding: 12px;
-  background-color: #ffffff;
-  border-radius: 8px;
-}
-.title {
-  font-size: 17px;
-  font-weight: bold;
-}
-.section {
-  font-size: 15px;
-  font-weight: bold;
-  margin-bottom: 6px;
-}
-.meta-row {
-  margin-top: 4px;
-}
-.impact-line {
-  font-size: 14px;
-  padding: 4px 0;
-}
-.action-block {
-  margin-bottom: 10px;
-}
-.action-row {
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 8px 0;
-}
-.done {
-  color: #00b42a;
-}
-.verify-row {
-  margin-top: 4px;
-  padding: 8px;
-  background-color: #f2f3f5;
-  border-radius: 6px;
-  justify-content: center;
-}
+.page { flex: 1; }
+.chip-row { flex-direction: row; margin-bottom: 8px; }
+.meta { margin-top: 4px; font-size: 13px; color: #5A5F73; }
+.expl { margin-top: 4px; font-size: 13px; color: #5A5F73; }
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
+.gap { height: 8px; }
+.act { margin-bottom: 10px; }
+.act-row { flex-direction: row; min-height: 44px; align-items: center; }
+.act-body { flex: 1; margin-left: 8px; }
+.act-todo { font-size: 16px; color: #B9BDCC; }
+.act-done { font-size: 16px; color: #2BA471; }
+.act-title { font-size: 15px; color: #1B1D29; }
+.act-title-done { font-size: 15px; color: #8A90A6; }
+.verify { margin-top: 4px; }
+.verified { font-size: 13px; color: #2BA471; }
 .verify-btn {
-  font-size: 13px;
-  color: #165dff;
+  min-height: 44px;
+  padding: 0 12px;
+  background-color: #F0F1F5;
+  border-radius: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 }
-.hint {
-  color: #86909c;
-  font-size: 13px;
-}
+.verify-text { font-size: 13px; color: #4C4FD8; }
+.foot { height: 24px; }
 </style>

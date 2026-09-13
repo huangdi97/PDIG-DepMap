@@ -1,0 +1,101 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <dp-card title="待确认服务">
+      <text class="lead">这些是可能属于你的服务。确认后会建立一个服务对象；忽略则不会建立任何东西。</text>
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="items.length === 0"
+        kind="empty"
+        title="没有待确认的服务"
+        description="导入新的账单后，这里会出现可能属于你的服务。"
+      />
+    </dp-card>
+
+    <dp-card v-for="c in items" :key="c.id" :title="c.displayLabel">
+      <text class="quiet">在最近的数据中出现 {{ c.observations }} 次</text>
+      <view class="row">
+        <view class="cell">
+          <dp-button label="是我的" :loading="busy" @tap="accept(c.id)" />
+        </view>
+        <view class="cell">
+          <dp-button label="不是" variant="secondary" :loading="busy" @tap="dismiss(c.id)" />
+        </view>
+      </view>
+      <text class="quiet">确认只会建立一个服务对象，不会自动建立任何支付关系。</text>
+    </dp-card>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { listCandidates, acceptCandidate, dismissCandidate } from '../../services/depmap-service'
+
+interface CandidateRow {
+  id: string
+  displayLabel: string
+  candidateKind: string
+  observations: number
+}
+
+export default {
+  data() {
+    return {
+      loading: true,
+      busy: false,
+      items: [] as CandidateRow[]
+    }
+  },
+  onShow() {
+    this.load()
+  },
+  methods: {
+    load() {
+      this.loading = true
+      listCandidates()
+        .then((rows) => {
+          this.items = rows as CandidateRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
+        })
+    },
+    accept(id: string) {
+      this.busy = true
+      acceptCandidate(id)
+        .then(() => {
+          this.busy = false
+          uni.showToast({ title: '已添加', icon: 'none' })
+          this.load()
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '操作失败，请重试', icon: 'none' })
+        })
+    },
+    dismiss(id: string) {
+      this.busy = true
+      dismissCandidate(id)
+        .then(() => {
+          this.busy = false
+          this.load()
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '操作失败，请重试', icon: 'none' })
+        })
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.lead { font-size: 13px; color: #8A90A6; }
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
+.row { flex-direction: row; margin-top: 12px; }
+.cell { flex: 1; margin-right: 8px; }
+</style>

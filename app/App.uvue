@@ -1,66 +1,30 @@
 <script lang="uts">
-import { checkUnlocked } from './stores/app-state'
+import { setPrivacyScreen } from './uni_modules/depmap-privacy-screen'
+
+const PRIVACY_KEY = 'dp_privacy_screen'
 
 export default {
   onLaunch: function () {
-    // 首页显示最近一次用户主动导出备份时间（CANONICAL §8.10）
-    console.log('DepMap launched')
+    // 启动：不做任何网络请求、不写业务数据。
+    // 数据库打开与迁移在 unlock 页经应用服务层完成。
+    // 隐私屏（截图保护）为用户设置，默认开启，在此恢复上次选择。
+    const stored = uni.getStorageSync(PRIVACY_KEY) as string
+    setPrivacyScreen(stored === '0' ? false : true)
   },
   onShow: function () {
-    // 切后台隐私策略由 PrivacyScreenAdapter 处理
+    // 切回前台：隐私遮罩由 PrivacyScreenAdapter 处理
   },
   onHide: function () {
-    // 后台遮罩（iOS）/ FLAG_SECURE（Android）已由插件接管
+    // 切后台：iOS 遮罩 / Android FLAG_SECURE 由插件接管
   }
 }
 </script>
 
 <style>
-/* 全局基础样式 */
+/* 全局基础样式（颜色与 app/theme/tokens.uts 保持一致） */
 page {
-  background-color: #f7f8fa;
+  background-color: #F5F6FA;
   font-size: 15px;
-  color: #1f2329;
-}
-.card {
-  background-color: #ffffff;
-  border-radius: 12px;
-  padding: 16px;
-  margin: 12px;
-}
-.card-title {
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-.hint {
-  color: #86909c;
-  font-size: 13px;
-}
-.btn-primary {
-  background-color: #165dff;
-  color: #ffffff;
-  border-radius: 10px;
-  padding: 12px 0;
-  text-align: center;
-  font-size: 16px;
-}
-.btn-danger {
-  background-color: #f53f3f;
-  color: #ffffff;
-  border-radius: 10px;
-  padding: 12px 0;
-  text-align: center;
-  font-size: 16px;
-}
-.level-must {
-  color: #f53f3f;
-  font-weight: bold;
-}
-.level-review {
-  color: #ff7d00;
-}
-.level-ok {
-  color: #00b42a;
+  color: #1B1D29;
 }
 </style>

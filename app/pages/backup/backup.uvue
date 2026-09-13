@@ -1,0 +1,92 @@
+<template>
+  <scroll-view class="page" scroll-y>
+    <dp-state
+      v-if="errorText !== ''"
+      kind="error"
+      title="操作未完成"
+      :description="errorText"
+    />
+
+    <dp-card title="导出加密备份">
+      <text class="p">导出的文件是加密的，需要你设置的备份口令才能恢复。</text>
+      <text class="p">请务必记住这个口令：口令丢失后无法找回，也无法解密。</text>
+      <input class="input" v-model="password" password placeholder="设置备份口令" />
+      <input class="input" v-model="password2" password placeholder="再次输入口令" />
+      <dp-button label="导出加密备份" :loading="busy" @tap="exportBackup" block />
+      <text class="quiet">最近一次导出：{{ lastExportText }}</text>
+    </dp-card>
+
+    <dp-card title="导入加密备份">
+      <text class="p">选择之前导出的 .depmap 文件，输入当时的备份口令。</text>
+      <input class="input" v-model="restorePassword" password placeholder="备份口令" />
+      <dp-button label="选择文件并恢复" variant="secondary" :loading="busy" @tap="restoreBackup" block />
+      <text class="quiet">恢复过程是整体进行的：任何失败都不会留下半份数据。</text>
+    </dp-card>
+
+    <dp-card title="当前构建说明">
+      <text class="p">文件加解密模块仍在接入中。在接入完成前，导出与恢复不会写入或覆盖任何数据。</text>
+      <text class="quiet">已登记为发布阻塞项（App 端加解密桥接）。</text>
+    </dp-card>
+  </scroll-view>
+</template>
+
+<script lang="uts">
+import { getLastExportAt } from '../../services/depmap-service'
+
+export default {
+  data() {
+    return {
+      busy: false,
+      errorText: '',
+      password: '',
+      password2: '',
+      restorePassword: '',
+      lastExportAt: ''
+    }
+  },
+  computed: {
+    lastExportText(): string {
+      return this.lastExportAt === '' ? '从未导出' : this.lastExportAt.slice(0, 10)
+    }
+  },
+  onShow() {
+    getLastExportAt().then((v) => {
+      this.lastExportAt = v
+    })
+  },
+  methods: {
+    exportBackup() {
+      if (this.password.length < 8) {
+        uni.showToast({ title: '口令至少 8 位', icon: 'none' })
+        return
+      }
+      if (this.password !== this.password2) {
+        uni.showToast({ title: '两次输入的口令不一致', icon: 'none' })
+        return
+      }
+      // 本机加解密桥接尚未接入：不生成任何文件，明确告知（禁止假功能）。
+      uni.showToast({ title: '加解密模块尚未接入，暂未生成文件', icon: 'none' })
+    },
+    restoreBackup() {
+      if (this.restorePassword === '') {
+        uni.showToast({ title: '请输入备份口令', icon: 'none' })
+        return
+      }
+      uni.showToast({ title: '加解密模块尚未接入，暂不可恢复', icon: 'none' })
+    }
+  }
+}
+</script>
+
+<style>
+.page { flex: 1; }
+.p { margin-top: 4px; font-size: 14px; color: #5A5F73; }
+.quiet { margin-top: 8px; font-size: 13px; color: #8A90A6; }
+.input {
+  border-width: 1px;
+  border-color: #E6E8F0;
+  border-radius: 10px;
+  padding: 12px;
+  margin: 8px 0;
+}
+</style>

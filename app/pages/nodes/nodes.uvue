@@ -1,102 +1,123 @@
 <template>
   <scroll-view class="page" scroll-y>
-    <view class="card" v-for="node in nodes" :key="node.id" @click="openDetail(node.id)">
-      <view class="row">
-        <text class="node-name">{{ node.name }}</text>
-        <text class="hint">{{ kindLabel(node.kind) }}</text>
+    <dp-card title="支付 · 账户 · 服务">
+      <dp-state
+        v-if="loading"
+        kind="loading"
+        title="正在读取…"
+      />
+      <dp-state
+        v-else-if="nodes.length === 0"
+        kind="empty"
+        title="还没有建立依赖关系"
+        description="在下面添加一个对象（银行卡 / 服务），再到它的详情页声明支付关系。"
+      />
+      <view v-else>
+        <dp-row
+          v-for="(node, i) in nodes"
+          :key="node.id"
+          :title="node.name"
+          :description="subtitleOf(node)"
+          :value="kindLabel(node.kind)"
+          :last="i === nodes.length - 1"
+          @tap="openDetail(node.id)"
+        />
       </view>
-      <text class="hint" v-if="node.issuer != null">{{ node.issuer }}{{ node.last4 != null ? ' ···· ' + node.last4 : '' }}</text>
-    </view>
-    <view class="card">
-      <text class="card-title">新增节点</text>
-      <input class="input" v-model="newName" placeholder="名称（如：招行经典白）" />
+    </dp-card>
+
+    <dp-card title="添加对象">
+      <input class="input" v-model="newName" placeholder="名称（例如：招行经典白）" />
       <picker :range="kindOptions" @change="onKindChange">
-        <text class="hint">类型：{{ kindLabel(newKind) }}（点击切换）</text>
+        <view class="picker-row">
+          <text class="picker-text">类型：{{ kindLabel(newKind) }}</text>
+          <text class="quiet">点击切换</text>
+        </view>
       </picker>
       <input class="input" v-model="newLast4" placeholder="卡后四位（可选）" />
-      <view class="btn-primary" @click="createNode"><text class="btn-text">创建</text></view>
-      <text class="hint">渐进式录入：先类型+名称，其余字段之后在详情补充</text>
-    </view>
+      <dp-button label="添加" :loading="busy" @tap="createNode" block />
+      <text class="quiet">渐进式录入：先填类型和名称，其余信息之后在详情里补充。</text>
+    </dp-card>
   </scroll-view>
 </template>
 
 <script lang="uts">
-import { getSecureDb } from '../../uni_modules/depmap-secure-database'
+import { listNodes, createNode } from '../../services/depmap-service'
 
 interface NodeRow {
   id: string
   name: string
   kind: string
-  issuer: string | null
-  last4: string | null
+  issuer: string
+  last4: string
 }
 
 export default {
   data() {
     return {
+      loading: true,
+      busy: false,
       nodes: [] as NodeRow[],
       newName: '',
       newKind: 'payment_instrument',
-      kindOptions: ['银行卡', '支付账户', '服务/订阅', '手机号', '邮箱']
+      newLast4: '',
+      kindOptions: ['银行卡', '支付账户', '服务 / 订阅', '手机号 / 邮箱']
     }
   },
   onShow() {
-    this.refresh()
+    this.load()
   },
   methods: {
     kindLabel(kind: string): string {
-      if (kind == 'payment_instrument') return '银行卡'
-      if (kind == 'account') return '支付账户'
-      if (kind == 'service') return '服务/订阅'
-      if (kind == 'identity_anchor') return '手机号/邮箱'
+      if (kind === 'payment_instrument') return '银行卡'
+      if (kind === 'account') return '支付账户'
+      if (kind === 'service') return '服务 / 订阅'
+      if (kind === 'identity_anchor') return '手机号 / 邮箱'
       return kind
     },
-    refresh() {
-      getSecureDb().query('SELECT id, name, kind, issuer, last4 FROM nodes WHERE archived = 0 ORDER BY kind, name', [])
+    subtitleOf(node: NodeRow): string {
+      if (node.issuer === '' && node.last4 === '') return ''
+      if (node.last4 === '') return node.issuer
+      return node.issuer === '' ? `尾号 ${node.last4}` : `${node.issuer} · 尾号 ${node.last4}`
+    },
+    load() {
+      this.loading = true
+      listNodes('')
         .then((rows) => {
-          this.nodes = rows.map((r): NodeRow => {
-            const m = r as Map<string, any | null>
-            return {
-              id: String(m.get('id') ?? ''),
-              name: String(m.get('name') ?? ''),
-              kind: String(m.get('kind') ?? ''),
-              issuer: m.get('issuer') == null ? null : String(m.get('issuer')),
-              last4: m.get('last4') == null ? null : String(m.get('last4'))
-            }
-          })
+          this.nodes = rows as NodeRow[]
+          this.loading = false
+        })
+        .catch((_e) => {
+          this.loading = false
         })
     },
     onKindChange(e: PickerChangeEvent) {
       const idx = Number(e.newValue)
       const kinds = ['payment_instrument', 'account', 'service', 'identity_anchor']
       if (idx >= 0 && idx < kinds.length) {
-        this.newKind = kinds[idx]!
+        this.newKind = kinds[idx]
       }
     },
     createNode() {
       const name = this.newName.trim()
-      if (name.length == 0) {
+      if (name.length === 0) {
         uni.showToast({ title: '请输入名称', icon: 'none' })
         return
       }
-      const last4 = this.newLast4.trim()
-      getSecureDb().execute(
-        'INSERT INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, created_at, updated_at) VALUES (?, ?, NULL, ?, NULL, ?, ?, 0, ?, ?, ?)',
-        [this.uuid(), this.newKind, name, last4.length == 4 ? last4 : null, 'self', '{}', this.now(), this.now()]
-      ).then(() => {
-        this.newName = ''
-        this.newLast4 = ''
-        this.refresh()
-      })
+      this.busy = true
+      createNode(name, this.newKind, this.newLast4.trim())
+        .then(() => {
+          this.busy = false
+          this.newName = ''
+          this.newLast4 = ''
+          this.load()
+        })
+        .catch((_e) => {
+          this.busy = false
+          uni.showToast({ title: '添加失败，请重试', icon: 'none' })
+        })
     },
     openDetail(id: string) {
-      uni.navigateTo({ url: '/pages/nodes/node-detail?id=' + id })
-    },
-    uuid(): string {
-      return crypto.randomUUID()
-    },
-    now(): string {
-      return new Date().toISOString()
+      uni.navigateTo({ url: `/pages/nodes/node-detail?id=${id}` })
     }
   }
 }
@@ -104,13 +125,19 @@ export default {
 
 <style>
 .page { flex: 1; }
-.row { flex-direction: row; justify-content: space-between; }
-.node-name { font-size: 16px; font-weight: bold; }
 .input {
   border-width: 1px;
-  border-color: #e5e6eb;
-  border-radius: 8px;
-  padding: 10px;
+  border-color: #E6E8F0;
+  border-radius: 10px;
+  padding: 12px;
   margin: 8px 0;
 }
+.picker-row {
+  flex-direction: row;
+  justify-content: space-between;
+  min-height: 44px;
+  align-items: center;
+}
+.picker-text { font-size: 15px; color: #1B1D29; }
+.quiet { margin-top: 6px; font-size: 13px; color: #8A90A6; }
 </style>
