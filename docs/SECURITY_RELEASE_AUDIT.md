@@ -56,7 +56,7 @@ npm run check:architecture
 
 | 项 | 状态 | 说明 |
 |---|---|---|
-| UI 不直接操作 SQLite | PASS | `check:ui` U4：23 页 0 命中 |
+| UI 不直接操作 SQLite | PASS | `check:ui` U4：24 页 0 命中 |
 | Reality mutation 与 revision 同事务 | PASS（源码级） | `resolveDrift` / `acceptProposal` / `acceptCandidate` / `retireDependency` 均在 `transaction()` 内 |
 | 非 Reality 写入不 bump revision | PASS（源码级） | `dismissDrift` / `dismissCandidate` / `rejectProposal` 不触碰 revision |
 | 机器不得产生 required | PASS（源码级） | `acceptProposal` 只接受 `required` / `unknown` 且由用户选择；`createPlanWithAnalysis` 只把**已确认且 required** 的依赖标为 must_change |

@@ -58,10 +58,10 @@
 
 | 层 | 状态 | 原因 |
 |---|---|---|
-| SOURCE_READY | PASS | 17 页 `.uvue` + 5 UTS 插件 |
+| SOURCE_READY | PASS | 24 页 `.uvue` + 5 个 `dp-*` 组件 + 5 UTS 安全插件 + 设计 token |
 | BUILD_READY | **BLOCKED** | 无 HBuilderX / uni-app x 工具链（**B10**） |
 | DEVICE_VERIFIED | **BLOCKED** | B10 |
-| STATIC_GATE | PASS | `check-ui.mjs` 机械校验 |
+| STATIC_GATE | PASS | `check-ui.mjs` 9 类机械校验（U1–U9），0 命中 |
 
 ---
 
@@ -73,7 +73,11 @@ HARMONY_SOURCE_READY   = PASS      HARMONY_BUILD_READY   = BLOCKED (B2)
 IOS_SOURCE_READY       = PASS      IOS_BUILD_READY       = BLOCKED (B3, non-macOS)
 CORE_SOURCE_READY      = PASS      CORE_BUILD_READY      = PASS
 UI_SOURCE_READY        = PASS      UI_BUILD_READY        = BLOCKED (B10)
+
+STORE_METADATA_READY   = PASS      STORE_SUBMITTED       = NO
+REAL_DATA_VALIDATED    = NOT_RUN
+PRODUCTION_RC_V1       = PARTIAL_WITH_REPORT
 ```
 
 **至少一个可实际运行目标平台 build PASS = YES（Core / Node 22）** —— 满足 §136 该条要求。
-**但 Android / HarmonyOS / iOS 的 BUILD_READY 均 BLOCKED，故不能声明三端上线。**
+**但 Android / HarmonyOS / iOS 的 BUILD_READY 均 BLOCKED，且 UI 从未编译，故不能声明三端上线。**

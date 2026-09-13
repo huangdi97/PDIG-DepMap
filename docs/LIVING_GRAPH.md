@@ -39,5 +39,6 @@ Action → Verification → Reality Update（user_confirmed）
 
 ## 测试证据
 
-407+ tests：GR 12 / PRB 11 / Readiness+Coverage 17 / RD 12 / PC 7 / ST 5 / TL 7 / VF 8 /
-MIG3 6 / INV-15..21 7 / PI 3 / perf 4 + 既有 336。详见 docs/MVP03_TEST_MATRIX.md。
+453 tests / 43 文件（Production RC V1 实测；0 skip）。MVP03 Living Graph 增量：
+GR 12 / PRB 11 / Readiness+Coverage 17 / RD 12 / PC 7 / ST 5 / TL 7 / VF 8 /
+MIG3 6 / INV-15..21 7 / PI 3 / perf 4。详见 docs/MVP03_TEST_MATRIX.md 与 PRODUCTION_TEST_MATRIX.md。
