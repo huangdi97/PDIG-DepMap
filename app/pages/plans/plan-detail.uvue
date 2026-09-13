@@ -32,7 +32,7 @@
     <dp-card title="要做的事">
       <view class="act" v-for="a in detail.actions" :key="a.id">
         <view class="act-row" @click="toggle(a)">
-          <text :class="a.done ? 'act-done' : 'act-todo'">{{ a.done ? '✓' : '○' }}</text>
+          <text :class="a.done ? 'act-done' : 'act-todo'">{{ a.done ? '已完成' : '待完成' }}</text>
           <view class="act-body">
             <text :class="a.done ? 'act-title-done' : 'act-title'">{{ a.title }}</text>
             <text class="quiet">{{ phaseText(a.phase) }}</text>
@@ -250,8 +250,8 @@ export default {
 .act { margin-bottom: 10px; }
 .act-row { flex-direction: row; min-height: 44px; align-items: center; }
 .act-body { flex: 1; margin-left: 8px; }
-.act-todo { font-size: 16px; color: #B9BDCC; }
-.act-done { font-size: 16px; color: #2BA471; }
+.act-todo { font-size: 13px; color: #B9BDCC; }
+.act-done { font-size: 13px; color: #2BA471; }
 .act-title { font-size: 15px; color: #1B1D29; }
 .act-title-done { font-size: 15px; color: #8A90A6; }
 .verify { margin-top: 4px; }

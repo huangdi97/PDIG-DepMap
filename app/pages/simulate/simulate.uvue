@@ -24,9 +24,9 @@
           v-for="(n, i) in cards"
           :key="n.id"
           :title="n.name"
-          :description="n.id === selected ? '已选择' : '点击选择'"
-          :value="n.id === selected ? '✓' : ''"
-          value-tone="success"
+          description="点击选择要停用的支付工具"
+          :value="n.id === selected ? '已选择' : ''"
+          :value-tone="n.id === selected ? 'success' : 'neutral'"
           :last="i === cards.length - 1"
           @tap="select(n.id)"
         />
