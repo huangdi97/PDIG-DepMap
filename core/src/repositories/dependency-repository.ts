@@ -117,6 +117,16 @@ export class DependencyRepository {
       .map(rowToDependency)
   }
 
+  /** 目标节点为 to、capability 匹配的全部入边（含 retired；Drift 检测用）。 */
+  listAllIncomingTo(to: string, capability: Capability): Dependency[] {
+    return this.driver
+      .prepare(
+        `SELECT * FROM dependencies WHERE to_node = ? AND capability = ? ORDER BY id`,
+      )
+      .all(to, capability)
+      .map(rowToDependency)
+  }
+
   /** from 节点的 active 出边（Impact 传播用）。 */
   listActiveOutgoingFrom(from: string, capability: Capability): Dependency[] {
     return this.driver

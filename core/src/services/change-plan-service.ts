@@ -59,7 +59,13 @@ export class ChangePlanService {
   assembleReadinessInput(plan: ChangePlan, staleDependencyDays = 90): PlanReadinessInput {
     const currentRevision = getGraphRevision(this.driver)
     const snapshot = analyzePlanImpact(this.driver, this.graphRepos(), plan)
-    const pendingMustChange = snapshot.targets.filter((t) => t.status === 'must_change').length
+    // must_change 的「未处理」口径：影响目标数 − 已完成的 change 阶段动作数
+    // （影响告诉你必须改什么；完成对应动作即视为已处理，VF/PRB-008 语义一致）
+    const doneChangeActions = plan.actions.filter((a) => a.phase === 'change' && a.done).length
+    const pendingMustChange = Math.max(
+      0,
+      snapshot.targets.filter((t) => t.status === 'must_change').length - doneChangeActions,
+    )
     const pendingNeedsReview = snapshot.targets.filter((t) => t.status === 'needs_review').length
 
     const target = plan.targetNodeId

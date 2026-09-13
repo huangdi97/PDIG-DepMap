@@ -97,11 +97,14 @@ export class RealityDriftRepository {
   } {
     return this.driver.transaction(() => {
       const prefix = driftKeyPrefix(input)
-      const all = this.driver
-        .prepare(`SELECT * FROM reality_drifts WHERE status = 'open'`)
-        .all()
-        .map(rowToDrift)
-      const open = all.find((d) => driftKeyPrefixOf(d) === prefix)
+      // SQL 过滤等价于 driftKeyPrefix 匹配（candidate_from 用 IS 比较 NULL-safe）
+      const [kind, target, capability, candidateFrom, relation] = prefix.split('|')
+      const openRows = this.driver
+        .prepare(
+          `SELECT * FROM reality_drifts WHERE status = 'open' AND kind = ? AND target_node_id = ? AND capability = ? AND candidate_from IS ? AND candidate_relation = ?`,
+        )
+        .all(kind, target, capability, candidateFrom === '-' ? null : candidateFrom, relation)
+      const open = openRows.map(rowToDrift)[0]
       const now = nowIso()
       const observations = Math.max(1, input.observations ?? 1)
 
@@ -144,7 +147,12 @@ export class RealityDriftRepository {
 
       // 无 open drift：同一 evidenceRef 已出现在历史 drift（同 key）→ 幂等不重复（RD-007）
       const signalRef = input.evidenceRef
-      const history = this.listAll().filter((d) => driftKeyPrefixOf(d) === prefix)
+      const history = this.driver
+        .prepare(
+          `SELECT * FROM reality_drifts WHERE kind = ? AND target_node_id = ? AND capability = ? AND candidate_from IS ? AND candidate_relation = ?`,
+        )
+        .all(kind, target, capability, candidateFrom === '-' ? null : candidateFrom, relation)
+        .map(rowToDrift)
       if (signalRef && history.some((d) => d.evidenceRefs.includes(signalRef))) {
         const latest = [...history].sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1))[0]
         if (latest) return { drift: latest, created: false, changed: false }
