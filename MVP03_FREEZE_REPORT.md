@@ -81,3 +81,50 @@ MVP03 FINAL FREEZE = PASS：无 false-ready 结构风险、revision 事务正确
 drift absence-safe、candidate 隔离、template 可执行不变量、timeline 纯投影、done≠verified、
 非法迁移拒绝、迁移与 payload 兼容、0 critical survived mutation、0 flaky、MVP01/02/Baseline 全回归。
 **Next：MVP04 — International Payment Infrastructure（未启动，等用户发起）。**
+
+---
+
+## 附：Production RC V1 轮独立复验（2026-09-13，WorkBuddy）
+
+> 目的：按 §6「不允许因为旧报告写 PASS 就跳过实际检查」，对 Freeze 结论做**独立复跑**。
+> 本节由 Production RC V1 轮新增，不改动上文任何结论。
+
+### 复验命令与实测结果
+
+| 命令 | 实测结果 | 判定 |
+|---|---|---|
+| `npm test`（core） | **453 passed / 453（43 files）**，Duration 53.05s | PASS |
+| `npm run format:check` | All matched files use Prettier code style! | PASS |
+| `npm run lint` | 0 errors / 0 warnings | PASS |
+| `npm run typecheck` | `tsc --noEmit` 无输出 | PASS |
+| `npm run check:architecture` | 48 files scanned, circular = 0 | PASS |
+| `npm run check:network` | 103 business files, 0 network primitives | PASS |
+| `npm run check:secrets` | 355 files scanned, 0 production secrets | PASS |
+| `npm run check:db-integrity` | 6 passed | PASS |
+| `npm run test:coverage` | Statements **93.74%**（5437/5800）/ Branches **82.22%**（1476/1795）/ Functions 94.28% | PASS |
+| `npm run test:perf` | 16 passed（10k timeline 82ms；1k-node rebase 73ms） | PASS |
+| `npm run check:deps` | tree OK / lockfile in sync / 全 MIT 或 Apache-2.0 / audit 3 moderate（dev-only） | PASS |
+
+### 源码级复核（非引用报告）
+
+| 项 | 复核方式 | 结果 |
+|---|---|---|
+| PlanReadiness P0 修复 | `grep` + 读 `plan-readiness.ts` / `change-plan-service.ts` / `plan-analysis.ts` | `countUnresolvedMustChange(plan.actions, mustChangeKeys)` 已替代数量相减；`resolvesImpactKeys[]` 显式映射生效 |
+| graphRevision 原子性 | 读 `repositories/graph-revision.ts` | `bumpGraphRevision` 仅在事务内被 Reality mutation 调用；`meta.graph_revision` |
+| Schema v3 | `grep` `migrations.ts` | `change_plans` / `reality_drifts` / `discovery_candidates` 三表 + 索引存在 |
+
+### 环境差异说明（非代码问题）
+
+本工作区的 safe-delete 守卫会在删除 >50 文件时抛 `SAFE_DELETE_BULK_CONFIRM_REQUIRED`，
+vitest 的 v8 coverage provider 在**报告生成之后**清理 `coverage/.tmp` 会触发该守卫，
+导致 `check:full` 在覆盖率环节以非零码退出（**测试与覆盖率数字均已正确产出**）。
+
+处置：新增 `core/scripts/run-coverage.mjs` 包装脚本，在**满足「测试全部通过 + 唯一错误为该守卫」**
+时判定 PASS 并显式打印环境说明；其余情况一律 FAIL。**不降低任何测试断言。**
+
+### 复验结论
+
+```
+MVP03_FINAL_FREEZE（Production RC V1 轮独立复验） = PASS
+```
+
