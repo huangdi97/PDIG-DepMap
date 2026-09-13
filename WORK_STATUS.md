@@ -6,11 +6,12 @@
 
 ## Current
 
-- Phase: **MVP03 — Living Graph & Change Safety：Core 代码侧 PASS**（2026-09-13 收口）
-- Status: 427/427 tests PASS（39 文件，0 skip）；check / check:full / stability ×3 全绿；
-  Real Data **NOT_RUN**；平台编译 **BLOCKED**（B1–B3/B10）
-- 详细报告：**MVP03_FINAL_REPORT.md** / MVP03_ACCEPTANCE.md（全 Gate 勾选）/
-  docs/MVP03_TEST_MATRIX.md / docs/LIVING_GRAPH.md
+- Phase: **MVP03 FINAL FREEZE / RC-AUDIT：PASS**（2026-09-13 Freeze 轮）
+- Status: 453/453 tests PASS（43 文件，0 skip）；check / check:full / stability ×3 / clean install /
+  clean clone 全绿；Real Data **NOT_RUN**；平台编译 **BLOCKED**（B1–B3/B10）
+- 详细报告：**MVP03_FREEZE_REPORT.md** / MVP03_FREEZE_ACCEPTANCE.md（80 Gate 全勾选）/
+  docs/{MVP03_MIGRATION_MATRIX,MVP03_MUTATION_FREEZE_REPORT,MVP03_STABILITY_REPORT,
+  MVP03_FREEZE_PERFORMANCE,MVP03_UI_FREEZE_AUDIT}.md
 
 ## Current quality state（MVP03 收口轮实跑）
 
@@ -88,3 +89,18 @@
 3. B10 → HBuilderX 基座 → UI 编译 + 真机 spike（16 页 MVP03 UI 待编译验证）
 4. B13 → 真实账单双 Gate（validate-real-bill.ts 就绪；Real Data 保持 NOT_RUN）
 5. 变异：下轮可选对 drift/readiness 仓库层跑 Stryker 定向基线
+
+## MVP03 FINAL FREEZE（2026-09-13，tag v0.3.0-mvp03）
+
+- **P0 修复**：PlanReadiness 废除「must_change 数量 − 完成动作数量」减法 →
+  `PlanAction.resolvesImpactKeys[]` 显式 resolution（该 key 的全部声明 change 动作 done 才 resolved）
+  + rebase claiming（确定性分配未声明 key，不自动完成动作）；UI plan-detail 同步
+  （commit f692183，FR-READ-001..017 冻结）
+- 冻结补测：FR-GR-012 revision property（随机 Reality/non-Reality/failure/replay → revision ≡ 成功
+  Reality mutation 计数）、4 状态机非法迁移负向、rebase 原子性（lastAnalyzed 仅成功分析后推进）、
+  10k Timeline heavy smoke（83ms）
+- Targeted mutation **10/10 KILLED**（M-R1..5 + FM-1..5），0 critical survived（PARTIAL_WITH_REPORT）
+- 实测：453/453（43 文件）；coverage src 93.74/82.24；stability ×3 + focused ×10 全绿；
+  check / check:full / clean install / clean clone PASS；secret scan 348 files 0；network 0
+- Freeze 轮 commits：f692183 → df966f4 → 253cdd5 → f72b322 → fdde863 → d41e12c → f65eca2 →
+  7f7077b → 21945e6（tag v0.3.0-mvp03）
