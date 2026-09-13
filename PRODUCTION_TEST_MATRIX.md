@@ -25,7 +25,7 @@
 | Performance | `core/tests/perf/**` | PASS | perf smoke + mvp03-perf + timeline-10k-freeze |
 | Mutation (targeted) | `core/reports/mutation/` + `docs/MVP03_MUTATION_FREEZE_REPORT.md` | PARTIAL_WITH_REPORT | 10/10 targeted KILLED，0 critical survived |
 | Coverage | 本轮实测（`local_private/check-full-rc1-committed.log`） | PASS | Statements **93.74%**（5437/5800）/ Branches **约 82.2%**（3 次实测 82.21–82.24）/ Functions **94.28%** |
-| 质量套件（`npm run check:full`） | 本轮实测（提交树） | **PASS（FINAL_EXIT=0）** | format / lint / typecheck / test 453 / architecture 48 文件 circular 0 / network 118 文件 0 原语 / secrets 392 文件 0 / ui / db-integrity 6 / coverage / perf 16 / deps |
+| 质量套件（`npm run check:full`） | 本轮实测（提交树） | **PASS（FINAL_EXIT=0）** | format / lint / typecheck / test 453 / architecture 48 文件 circular 0 / network 118 文件 0 原语 / secrets 391 文件 0 / ui / db-integrity 6 / coverage / perf 16 / deps |
 | 稳定性（`npm run test:stability`） | 本轮实测 | **PASS** | 全量 suite ×3 连续全绿，exit 0 |
 
 ## 2. UI 层（uni-app x，无编译器）

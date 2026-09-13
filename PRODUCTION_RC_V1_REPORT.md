@@ -126,7 +126,7 @@ FINAL_EXIT=0
 | `test` | **453 passed / 453**（43 文件，0 skip） |
 | `check:architecture` | PASS — 48 files scanned，circular dependencies = 0 |
 | `check:network` | PASS — 118 business source files，0 network primitives |
-| `check:secrets` | PASS — 392 files scanned，0 production secrets |
+| `check:secrets` | PASS — 391 files scanned，0 production secrets（扫描集含未跟踪文件，计数随工作区状态浮动；0 secrets 结论不变） |
 | `check:ui` | PASS — 30 `.uvue`（24 pages，5 components），token 34 色，0 命中 |
 | `check:db-integrity` | **6 passed** |
 | `test:coverage` | **453 passed**；Statements **93.74%**（5437/5800）/ Branches **82.2%** / Functions **94.28%** |
