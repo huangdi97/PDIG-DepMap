@@ -112,7 +112,7 @@ PRODUCTION_RC_V1 = PARTIAL_WITH_REPORT
 
 ## 4. 质量证据（本轮实测，非引用历史报告）
 
-命令：`cd core && npm run check:full`（日志：`local_private/check-full-rc1-final.log`）
+命令：`cd core && npm run check:full`（日志：`local_private/check-full-rc1-committed.log`）
 
 ```
 FINAL_EXIT=0
@@ -126,13 +126,18 @@ FINAL_EXIT=0
 | `test` | **453 passed / 453**（43 文件，0 skip） |
 | `check:architecture` | PASS — 48 files scanned，circular dependencies = 0 |
 | `check:network` | PASS — 118 business source files，0 network primitives |
-| `check:secrets` | PASS — 390 files scanned，0 production secrets |
+| `check:secrets` | PASS — 392 files scanned，0 production secrets |
 | `check:ui` | PASS — 30 `.uvue`（24 pages，5 components），token 34 色，0 命中 |
 | `check:db-integrity` | **6 passed** |
-| `test:coverage` | **453 passed**；Statements **93.74%**（5437/5800）/ Branches **82.21%** / Functions **94.28%** |
+| `test:coverage` | **453 passed**；Statements **93.74%**（5437/5800）/ Branches **82.2%** / Functions **94.28%** |
 | `test:perf` | **16 passed**（10k timeline 142ms；1k-node rebase 44ms；100 plans create+rebase 1.6s） |
-| `check:deps` | PASS（全 MIT 或 Apache-2.0） |
-| `test:stability` | 见 `local_private/stability-rc1.log`（3 连跑） |
+| `check:deps` | PASS（全 MIT 或 Apache-2.0；audit 3 moderate，dev-only） |
+| `test:stability` | 3 连跑全绿，exit 0（`local_private/stability-rc1.log`） |
+
+> **数值抖动说明（如实记录）**：本轮共跑 3 次覆盖率，Statements 恒为 **93.74%**、Functions 恒为
+> **94.28%**，Branches 出现 **82.21 / 82.22 / 82.24** 的极小抖动。这是 v8 coverage provider 的
+> 已知非严格确定性表现（异步分支命中时序），**不影响任何门槛判定**，也不影响测试通过状态。
+> 报告采用"约 82.2%"的表述而非伪精确的单一数字。
 
 **环境差异说明（诚实记录）**：本工作区的 safe-delete 守卫会拦截 vitest 对 `coverage/` 临时目录的
 批量清理（>50 文件）。`core/scripts/run-coverage.mjs` 在检测到该守卫时把覆盖率输出目录指向系统

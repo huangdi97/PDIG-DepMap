@@ -61,18 +61,19 @@
 
 ## Current quality state（Production RC V1 轮实跑）
 
-- `npm run check:full` → **FINAL_EXIT=0**（日志：`local_private/check-full-rc1-final.log`）
+- `npm run check:full` → **FINAL_EXIT=0**（日志：`local_private/check-full-rc1-committed.log`）
   - format:check PASS；lint PASS；typecheck PASS（strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes）
   - test **453 passed / 453**（43 文件）
   - check:architecture PASS（48 files，circular = 0）
   - check:network PASS（118 business source files，0 网络原语）
-  - check:secrets PASS（390 files，0 production secrets）
+  - check:secrets PASS（392 files，0 production secrets）
   - check:ui PASS（30 `.uvue`，24 pages，5 components，token 34 色）
   - check:db-integrity **6 passed**
-  - test:coverage **453 passed**；Statements **93.74%**（5437/5800）/ Branches **82.22%**（1476/1795）/
-    Functions **94.28%**
+  - test:coverage **453 passed**；Statements **93.74%**（5437/5800）/ Branches **约 82.2%** /
+    Functions **94.28%**（3 次实测 Branches 82.21–82.24，v8 provider 极小幅抖动，不影响门槛）
   - test:perf **16 passed**
-  - check:deps PASS
+  - check:deps PASS（audit 3 moderate，dev-only）
+- `npm run test:stability` → **3 连跑全绿，exit 0**（`local_private/stability-rc1.log`）
 - 环境差异说明：本工作区 safe-delete 守卫拦截 vitest 对 `coverage/` 的批量清理。
   `core/scripts/run-coverage.mjs` 在检测到该守卫时把覆盖率输出目录改到系统临时目录
   （守卫自身放行），**退出码仍为 vitest 真实退出码，不做任何改写**。普通环境行为不变。

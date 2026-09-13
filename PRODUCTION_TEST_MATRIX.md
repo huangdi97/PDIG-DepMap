@@ -24,8 +24,9 @@
 | Integration | `core/tests/integration/**` | PASS | pipeline / multi-source-e2e / coverage-semantics / graph-payload-v2 |
 | Performance | `core/tests/perf/**` | PASS | perf smoke + mvp03-perf + timeline-10k-freeze |
 | Mutation (targeted) | `core/reports/mutation/` + `docs/MVP03_MUTATION_FREEZE_REPORT.md` | PARTIAL_WITH_REPORT | 10/10 targeted KILLED，0 critical survived |
-| Coverage | 本轮实测（`local_private/check-full-rc1-final.log`） | PASS | Statements **93.74%**（5437/5800）/ Branches **82.22%**（1476/1795）/ Functions **94.28%** |
-| 质量套件（`npm run check:full`） | 本轮实测 | **PASS（FINAL_EXIT=0）** | format / lint / typecheck / test 453 / architecture 48 文件 circular 0 / network 118 文件 0 原语 / secrets 390 文件 0 / ui / db-integrity 6 / coverage / perf 16 / deps |
+| Coverage | 本轮实测（`local_private/check-full-rc1-committed.log`） | PASS | Statements **93.74%**（5437/5800）/ Branches **约 82.2%**（3 次实测 82.21–82.24）/ Functions **94.28%** |
+| 质量套件（`npm run check:full`） | 本轮实测（提交树） | **PASS（FINAL_EXIT=0）** | format / lint / typecheck / test 453 / architecture 48 文件 circular 0 / network 118 文件 0 原语 / secrets 392 文件 0 / ui / db-integrity 6 / coverage / perf 16 / deps |
+| 稳定性（`npm run test:stability`） | 本轮实测 | **PASS** | 全量 suite ×3 连续全绿，exit 0 |
 
 ## 2. UI 层（uni-app x，无编译器）
 
@@ -84,8 +85,9 @@
 
 ## 7. 稳定性
 
-| 项 | 状态 |
-|---|---|
-| 全量 suite ×3 | PASS（0 flaky） |
-| focused 关键套件 ×10 | PASS（0 flaky） |
-| Import / PlanReadiness / Rebase / Drift / Timeline / Backup-Restore focused | PASS |
+| 项 | 状态 | 证据 |
+|---|---|---|
+| 全量 suite ×3 | **PASS（本轮实测）** | `npm run test:stability` → 3 连跑全绿，exit 0（`local_private/stability-rc1.log`） |
+| focused 关键套件 ×10 | PASS（**上一轮**证据） | MVP03 Freeze 轮已跑，0 flaky；**本轮未重跑**，故不作为本轮 PASS 依据 |
+| Import / PlanReadiness / Rebase / Drift / Timeline / Backup-Restore focused | PASS（**上一轮**证据） | 同上 |
+| clean install / clean clone | **本轮未重跑** | 上一轮 PASS；本轮 Core 依赖树未变（仅新增 2 个 scripts、调整 `package.json` scripts），**不作为本轮 PASS 依据** |
