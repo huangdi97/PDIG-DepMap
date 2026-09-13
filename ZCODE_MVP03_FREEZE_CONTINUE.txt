@@ -1,0 +1,35 @@
+继续 MVP03 FINAL FREEZE / RC-AUDIT。
+
+先读取：
+AGENTS.md
+WORK_STATUS.md
+MVP03_FREEZE_ACCEPTANCE.md
+GOAL_MVP03_FINAL_FREEZE_RC_AUDIT.md
+MVP03_FREEZE_PRE_AUDIT.md
+MVP03_FREEZE_REPORT.md（若存在）
+
+检查 git status 和最新测试结果。
+
+从 MVP03_FREEZE_ACCEPTANCE.md 第一个未完成 Gate 继续。
+不要重复 Verified PASS 的工作。
+不要进入 MVP04。
+Real Data 保持 NOT_RUN。
+
+优先级：
+PlanReadiness correctness
+→ graphRevision atomicity
+→ Rebase
+→ Drift
+→ Candidate
+→ Template invariant
+→ Timeline
+→ Verification
+→ migration/depmap
+→ invariants/property/mutation
+→ full regressions
+→ check/check:full
+→ final report
+
+最终目标：
+MVP03_FREEZE_REPORT.md
+MVP03_FINAL_FREEZE = PASS

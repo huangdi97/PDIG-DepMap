@@ -1,0 +1,47 @@
+现在执行 MVP03 FINAL FREEZE / RC-AUDIT。
+
+先完整读取：
+AGENTS.md
+CANONICAL_DESIGN.md
+WORK_STATUS.md
+BLOCKERS.md
+ENGINEERING_BASELINE_V1_REPORT.md
+QUALITY_GATES_V1.md
+MVP03_ACCEPTANCE.md
+MVP03_FINAL_REPORT.md
+GOAL_MVP03_LIVING_GRAPH_CHANGE_SAFETY.md
+GOAL_MVP03_FINAL_FREEZE_RC_AUDIT.md
+MVP03_FREEZE_ACCEPTANCE.md
+MVP03_FREEZE_TEST_MATRIX.md
+
+然后检查 git status / git diff / git log。
+
+第一步生成 MVP03_FREEZE_PRE_AUDIT.md。
+
+最高优先级先审计 PlanReadiness：确认实现不是简单的“must_change 目标数 - 已完成 change action 数”。如果存在这种结构，改成显式 requirement/impact resolution mapping，并补 one-target-multi-action / multi-target-shared-action / unrelated-action 等测试，防 false-ready。
+
+然后依次完成：
+graphRevision 原子性
+Plan Rebase
+ScenarioCoverage
+RealityDrift absence-safe
+DiscoveryCandidate isolation
+ScenarioTemplate active/factory invariant
+Timeline projection invariant
+Verification done!=verified
+state-machine invalid transition
+Schema v3 / payload migration
+property/invariant/mutation
+stability/performance
+security/privacy
+UI semantics
+MVP01/MVP02 regression
+npm run check
+npm run check:full
+
+不要进入 MVP04，不增加新功能，不跑真实数据。
+
+最终生成 MVP03_FREEZE_REPORT.md。只有真实满足时才能写：
+MVP03_FINAL_FREEZE = PASS
+
+现在直接执行，不要只给计划。
