@@ -108,7 +108,7 @@ Timeout 2 处：`kernel.ts:309`（BlockStatement → `{}`）、`kernel.ts:356`�
 
 ## 重跑确认（FINAL PRODUCTION CLOSURE V1，2026-09-14）
 
-在最终提交树 `b0ed6b5` 上**真实重跑** Stryker（同一配置 `core/stryker.conf.mjs`，
+在**重跑执行树** `b0ed6b5` 上**真实重跑** Stryker（同一配置 `core/stryker.conf.mjs`，
 Stryker **10.0.0**，`--no-save` 安装；dry run 294 tests 通过；耗时 **35 分 03 秒**；`STRYKER_EXIT=0`）：
 
 | 文件                        | mutants | killed  | timeout | survived | no cov | errors | score      | covered    |

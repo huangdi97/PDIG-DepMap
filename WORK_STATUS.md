@@ -33,7 +33,7 @@
 
 - HEAD 进入时 `4af5b69`，branch `feat/mvp03-living-graph`，**工作区 clean**，无未提交工作需保全。
 - `npm run check` → **EXIT=0**；`npm run check:full` → **EXIT=0**；**453 passed / 453**（43 文件）。
-- 覆盖率 Stmts **93.82%** / Branch **82.24%** / Funcs **94.55%** / Lines **93.82%**（最终提交树复跑；Branch 抖动区间 82.21–82.24）。
+- 覆盖率 Stmts **93.82%** / Branch **82.24%** / Funcs **94.55%** / Lines **93.82%**（重跑执行树复跑；Branch 抖动区间 82.21–82.24）。
 - 全量 ×3 全绿；critical（impact+invariants+contract+property）**×10 全绿**（74 tests/run）；**0 flaky**。
 - architecture 48 files circular 0；network 118 files 0 原语；secrets **404 files** 0；UI 30 `.uvue`/24 pages/5 components。
 
@@ -71,7 +71,7 @@
 - `npm run check:full` → **EXIT=0**
 - 测试 **453 passed / 453**（43 文件）；覆盖率 93.82 / 82.24 / 94.55 / 93.82
 - `test:stability` → 3 连跑全绿；critical ×10 → 全绿
-- **最终提交树 milestone 重跑（第 144 节）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
+- **milestone 重跑（第 144 节，执行树 `b0ed6b5`）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
   全量 ×3 **EXIT=0**（各 43 files）、critical focused ×10 **10/10 EXIT=0**（9 files / 74 tests 每轮）
   - 执行树 = `b0ed6b5`；**最终 HEAD 独立复核**：HEAD `35d940e` 上 `npm run check` **EXIT=0**
     （43 files / 453 passed；architecture 48/circular 0；network 118/0 原语；secrets 404/0；UI 30 `.uvue`/24 pages），耗时 2 分 05 秒

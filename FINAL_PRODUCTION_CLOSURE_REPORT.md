@@ -82,7 +82,7 @@
 | 依赖          | `npm run check:deps`                                         | PASS（audit 3 moderate dev-only；license MIT/Apache-2.0）                  |
 | docs 格式     | `npm run format:docs:check`                                  | **EXIT=0**（幂等）                                                         |
 
-### 2.0.1 第 144 节 milestone 命令 —— 在最终提交树上全部重跑
+### 2.0.1 第 144 节 milestone 命令 —— 在收口提交树上全部重跑
 
 第 144 节要求「最终 milestone 命令仍须重跑」。工作区 `git status --untracked-files=all` = **0 行**
 ⇒ **磁盘树 ≡ 提交树**，故下列结果即**提交树自身**的结果。
@@ -107,7 +107,7 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 ⇒ **推论**：任何 Gate 结果在 `878ce00` 之后**不可能改变**。故下表的 milestone 结论
 对 `878ce00` 之后的**所有**提交（含最终 HEAD）同样成立，无需逐次重跑。
 
-| 命令                                        | 最终树实测                                                                                                               | 退出码 |
+| 命令                                        | 执行树实测                                                                                                               | 退出码 |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------ |
 | `npm run check`                             | 453/453（43 files）                                                                                                      | **0**  |
 | `npm run check:full`                        | + coverage + db-integrity 6 + perf 16 + deps PASS                                                                        | **0**  |
@@ -129,7 +129,7 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 报告 §1 状态矩阵、`FINAL_TEST_REPORT.md`、`docs/FINAL_FLAKY_REPORT.md` 的数字与本表一致。
 
 > Branch 覆盖率在 82.21–82.24 之间抖动（v8 provider 特性，非测试不稳定；见 `docs/FINAL_FLAKY_REPORT.md`）。
-> 本轮 PHASE A 基线复跑为 **82.22**，最终提交树复跑为 **82.24**；两者均落在历史抖动区间内。
+> 本轮 PHASE A 基线复跑为 **82.22**，重跑执行树复跑为 **82.24**；两者均落在历史抖动区间内。
 
 **最终 HEAD 独立复核（本报告落盘后追加实测）**
 
@@ -366,7 +366,7 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 | `cfa4bf3` | `docs(closure)`  | PHASE P 结论（clean install PASS / clean clone BLOCKED）+ Git 收口 + B23（3 files，+137/−17） |
 | `0ea803d` | `docs(closure)`  | 固定第五个提交、移除本文的 HEAD 自引用（1 file，+20/−17）                                     |
 | `b0ed6b5` | `docs(closure)`  | 提交数行自引用安全化（1 file，+3/−1）                                                         |
-| `ef2cb18` | `docs(closure)`  | 记录第 144 节 milestone 重跑（最终树）+ Stryker 重跑（5 files，+123/−19）                     |
+| `ef2cb18` | `docs(closure)`  | 记录第 144 节 milestone 重跑（执行树 `b0ed6b5`）+ Stryker 重跑（5 files，+123/−19）           |
 | `c235bed` | `docs(closure)`  | 新增 `MUTATION_RERUN` gate 行 + 收口措辞定稿（1 file，+49/−45）                               |
 | `35d940e` | `docs(mutation)` | 幸存者分类由**约数**改为**精确值**（2 files，+77/−15）                                        |
 
@@ -439,7 +439,7 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 
 - 所有**当前可执行的**代码 / 产品 / 工程 / 测试 / 安全 / UI 源码 / 文档 Gate 已完成并通过
   （`npm run check` 与 `check:full` 均 **EXIT=0**，453/453，0 flaky，0 类型逃逸，0 规则禁用，
-  0 生产密钥，0 网络原语），且是在**最终提交树**上复跑确认的（milestone 重跑的**执行树为 `b0ed6b5`**；
+  0 生产密钥，0 网络原语），且是在**收口提交树**上复跑确认的（milestone 重跑的**执行树为 `b0ed6b5`**；
   `npm run check` 另于最终 HEAD `35d940e` 独立复核 **EXIT=0**；按**不变量 D**，`878ce00` 之后无任何非文档改动，
   故该结论对最终 HEAD 同样成立 —— 见 §2.0.1）。
 - **clean install = PASS**（非破坏性验证：`npm ci --dry-run` EXIT=0 + lockfile 同步 + deps gate）；
@@ -447,7 +447,7 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
   「工作区零未跟踪 ⇒ 磁盘树 ≡ 提交树 + 全门禁通过 ⇒ 提交树自足」作等价论证，**未硬写 PASS**。
 - 所有**外部平台 / 账号 Gate** 已被明确收敛为 `BLOCKED` 或 `NOT_RUN`，并给出精确解除动作。
 - 其中两条既有 Blocker（B1 / B2）的**事实前提经实测被推翻**，记录已修正 —— 这是本轮最实质的现场纠正。
-- **第 144 节 milestone 命令已在最终提交树上全部重跑**：`check` / `check:full` / 全量 ×3 / critical ×10 /
+- **第 144 节 milestone 命令已在收口提交树上全部重跑**（执行树 `b0ed6b5`）：`check` / `check:full` / 全量 ×3 / critical ×10 /
   secret / network / architecture / ui / db-integrity / perf / deps / clean install 全部 **EXIT=0**；
   **Stryker 变异测试真实重跑 PASS**（532 mutants，与冻结基线逐项一致）。
 - Git 收口完成：**4 个收口提交 + 若干报告补录提交**、工作区干净、`git diff --check` PASS、**未 push**、**未创建 RC / 1.0 tag**

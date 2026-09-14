@@ -19,9 +19,11 @@
 | flaky                | **0**                                   |
 | **TEST_SUITE_READY** | **PASS**                                |
 
-> **最终提交树 `b0ed6b5` 复跑（第 144 节）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
+> **重跑执行树 `b0ed6b5` 复跑（第 144 节）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
 > 453/453（43 files）、全量 ×3 **EXIT=0**、critical focused ×10 **10/10 EXIT=0**。
 > 工作区 `git status --untracked-files=all` = **0 行** ⇒ 磁盘树 ≡ 提交树，故上述结果即提交树的结果。
+> （`b0ed6b5` 是**执行树**，**不是**最终 HEAD；其后提交均为纯文档 —— 见
+> `FINAL_PRODUCTION_CLOSURE_REPORT.md` §2.0.1 **不变量 D**。）
 
 ---
 
@@ -164,7 +166,7 @@ node node_modules/@stryker-mutator/core/bin/stryker.js run
 | **All files**               | **532** | **335** | **2**   | **167**  | **28** | **0**  | **63.35%** | **66.87%** |
 
 **与 Engineering Baseline V1 冻结基线（2026-09-13）逐项完全一致** —— 无回归、无漂移，
-说明冻结的 mutation baseline 在最终提交树上**可精确复现**（532 mutants / 436 / 96 / 242 / 93 全部相同）。
+说明冻结的 mutation baseline 在**重跑执行树**上**可精确复现**（532 mutants / 436 / 96 / 242 / 93 全部相同）。
 
 - 报告产物：`core/reports/mutation/mutation.{json,html}`（已 gitignore）。
 - survived 变异的分类见 `docs/MUTATION_TEST_REPORT.md` —— 已用本次生成的 `mutation.json`
@@ -210,7 +212,7 @@ node node_modules/@stryker-mutator/core/bin/stryker.js run
 
 全量 ×3、高风险 focused ×10 → **0 flaky**，未使用 retry。详见 `docs/FINAL_FLAKY_REPORT.md`。
 
-**最终提交树复跑（第 144 节）**：在 `b0ed6b5`（工作区 `git status -uall` = 0 行）上重跑 ——
+**重跑执行树复跑（第 144 节）**：在 `b0ed6b5`（工作区 `git status -uall` = 0 行）上重跑 ——
 `npm run test:stability` **3/3 全绿（各 43 files）EXIT=0**；
 critical focused ×10 **10/10 全绿（9 files / 74 tests 每轮，累计 740 用例实例）**，0 失败 0 抖动。
 
@@ -267,7 +269,7 @@ npm run check:full     # EXIT=0
 npm run test:stability # 全量 ×3
 ```
 
-最终提交树（`b0ed6b5`）复跑命令与结果：
+重跑执行树（`b0ed6b5`）复跑命令与结果：
 
 ```
 cd core
