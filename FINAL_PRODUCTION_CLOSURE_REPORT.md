@@ -287,7 +287,7 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 | 收口后追加提交                             | `cfa4bf34e4a36fb3af62818bc29463c63233023a`                   |
 | **最终 HEAD**                              | 以 `git log --oneline -1` 为准（报告无法写入自身提交的 SHA） |
 | 进入时基线                                 | `4af5b69`                                                    |
-| 本轮提交数                                 | **5**（4 收口 + 1 报告补录）                                 |
+| 本轮提交数                                 | **4** 个收口提交 + 若干**报告补录提交**（见下方注）          |
 | `git status --short --untracked-files=all` | **0 行**（干净）                                             |
 | `git diff --check`                         | **PASS**（exit 0）                                           |
 | secret scan                                | **PASS**（404 files，0 production secrets）                  |
@@ -303,6 +303,8 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 | `878ce00` | `refactor(core)` | 删除 3 个死导出 + 18 处 `obj` → `record`                                                      |
 | `941966a` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）                 |
 | `cfa4bf3` | `docs(closure)`  | PHASE P 结论（clean install PASS / clean clone BLOCKED）+ Git 收口 + B23（3 files，+137/−17） |
+
+> **关于报告补录提交**：`941966a` 之后存在若干**仅修改本报告文字**的补录提交（如 `cfa4bf3` 记录 PHASE P 与 Git 收口、`0ea803d` 修正本文的 HEAD 自引用）。它们**不改变任何 Gate 结论**，只是把证据写准；完整列表以 `git log --oneline 4af5b69..HEAD` 为准。本报告**无法写入自身提交的 SHA**，故最终 HEAD 一律以 `git log --oneline -1` 为准。
 
 **过程中处置的环境故障（如实登记）**
 
