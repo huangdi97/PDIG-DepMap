@@ -25,10 +25,6 @@ export interface WechatParseResult {
   sourceLabel: string
 }
 
-export interface ParsedCsvCell {
-  text: string
-}
-
 /** 解析单行 CSV（支持引号转义与引号内逗号/换行）。 */
 export function parseCsvLine(line: string): string[] {
   const cells: string[] = []

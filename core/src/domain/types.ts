@@ -215,14 +215,6 @@ export interface Evidence {
   updatedAt: string
 }
 
-export interface ObservationFingerprintRecord {
-  fingerprint: string
-  source: string
-  fingerprintVersion: number
-  importSessionId: string
-  firstSeenAt: string
-}
-
 export interface ImportSession {
   id: string
   sourceType: string

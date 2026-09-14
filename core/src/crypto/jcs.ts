@@ -48,9 +48,9 @@ function serialize(value: unknown): string {
     return '[' + value.map(serialize).join(',') + ']'
   }
   if (t === 'object') {
-    const obj = value as Record<string, unknown>
-    const keys = Object.keys(obj).sort()
-    return '{' + keys.map((k) => `${escapeString(k)}:${serialize(obj[k])}`).join(',') + '}'
+    const record = value as Record<string, unknown>
+    const keys = Object.keys(record).sort()
+    return '{' + keys.map((k) => `${escapeString(k)}:${serialize(record[k])}`).join(',') + '}'
   }
   throw new JcsError(`JCS restricted domain: unsupported type ${t}`)
 }

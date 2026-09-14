@@ -146,15 +146,15 @@ export function parseDepmapHeader(json: string): DepmapHeader {
   }
   if (!isPlainObject(raw))
     throw new DepmapError('invalid_structure', 'container must be a JSON object')
-  const obj: Record<string, unknown> = raw
-  const kdf = obj.kdf
-  const cipher = obj.cipher
+  const record: Record<string, unknown> = raw
+  const kdf = record.kdf
+  const cipher = record.cipher
   if (!isPlainObject(kdf) || !isPlainObject(cipher)) {
     throw new DepmapError('invalid_structure', 'kdf/cipher must be objects')
   }
   return {
-    format: assertString(obj.format, 'format'),
-    formatVersion: assertInt(obj.formatVersion, 'formatVersion'),
+    format: assertString(record.format, 'format'),
+    formatVersion: assertInt(record.formatVersion, 'formatVersion'),
     kdf: {
       algorithm: assertString(kdf.algorithm, 'kdf.algorithm'),
       version: assertInt(kdf.version, 'kdf.version'),
@@ -167,8 +167,8 @@ export function parseDepmapHeader(json: string): DepmapHeader {
       algorithm: assertString(cipher.algorithm, 'cipher.algorithm'),
       nonce: assertString(cipher.nonce, 'cipher.nonce'),
     },
-    ciphertext: assertString(obj.ciphertext, 'ciphertext'),
-    tag: assertString(obj.tag, 'tag'),
+    ciphertext: assertString(record.ciphertext, 'ciphertext'),
+    tag: assertString(record.tag, 'tag'),
   }
 }
 

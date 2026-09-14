@@ -1,5 +1,4 @@
 import {
-  effectiveStatus,
   isPlanStale,
   type ChangePlan,
   type ImpactDiffItem,
@@ -204,12 +203,4 @@ export function claimUnassignedImpacts(
     target.resolvesImpactKeys = [...unassigned].sort()
   }
   return out
-}
-
-/** effectiveStatus 便捷转发（UI / readiness 共用口径）。 */
-export function planEffectiveStatus(
-  plan: ChangePlan,
-  currentGraphRevision: number,
-): ReturnType<typeof effectiveStatus> {
-  return effectiveStatus(plan, currentGraphRevision)
 }

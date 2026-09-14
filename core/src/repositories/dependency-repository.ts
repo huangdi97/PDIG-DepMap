@@ -278,12 +278,12 @@ function parseVerificationBasis(type: unknown, json: unknown): VerificationBasis
   try {
     const parsed: unknown = JSON.parse(typeof json === 'string' ? json : '{}')
     if (parsed !== null && typeof parsed === 'object') {
-      const obj = parsed as Record<string, unknown>
+      const record = parsed as Record<string, unknown>
       return {
         type: 'authoritative_source',
-        sourceInstanceId: unknownToString(obj['sourceInstanceId']),
-        factType: unknownToString(obj['factType']),
-        verifiedAt: unknownToString(obj['verifiedAt']),
+        sourceInstanceId: unknownToString(record['sourceInstanceId']),
+        factType: unknownToString(record['factType']),
+        verifiedAt: unknownToString(record['verifiedAt']),
       }
     }
     return null
