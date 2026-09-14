@@ -280,26 +280,29 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 
 **最终状态（复验）**
 
-| 项                                         | 值                                          |
-| ------------------------------------------ | ------------------------------------------- |
-| branch                                     | `feat/mvp03-living-graph`                   |
-| HEAD                                       | `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`  |
-| 进入时基线                                 | `4af5b69`                                   |
-| 本轮提交数                                 | **4**                                       |
-| `git status --short --untracked-files=all` | **0 行**（干净）                            |
-| `git diff --check`                         | **PASS**（exit 0）                          |
-| secret scan                                | **PASS**（404 files，0 production secrets） |
-| push                                       | **未执行**（用户未授权）                    |
-| tag                                        | **未创建**（见下）                          |
+| 项                                         | 值                                                           |
+| ------------------------------------------ | ------------------------------------------------------------ |
+| branch                                     | `feat/mvp03-living-graph`                                    |
+| HEAD（收口基线 / 正文首次落盘提交）        | `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`                   |
+| 收口后追加提交                             | `cfa4bf34e4a36fb3af62818bc29463c63233023a`                   |
+| **最终 HEAD**                              | 以 `git log --oneline -1` 为准（报告无法写入自身提交的 SHA） |
+| 进入时基线                                 | `4af5b69`                                                    |
+| 本轮提交数                                 | **5**（4 收口 + 1 报告补录）                                 |
+| `git status --short --untracked-files=all` | **0 行**（干净）                                             |
+| `git diff --check`                         | **PASS**（exit 0）                                           |
+| secret scan                                | **PASS**（404 files，0 production secrets）                  |
+| push                                       | **未执行**（用户未授权）                                     |
+| tag                                        | **未创建**（见下）                                           |
 
 **提交明细**
 
-| SHA       | 类型             | 内容                                                                              |
-| --------- | ---------------- | --------------------------------------------------------------------------------- |
-| `161d168` | `chore(style)`   | docs 格式门禁（`.prettierrc.json` + `format:docs*`）+ Gradle/Android 本地状态忽略 |
-| `6652950` | `style(docs)`    | 134 个 `.md` / `.mdc` 在新门禁下规范化                                            |
-| `878ce00` | `refactor(core)` | 删除 3 个死导出 + 18 处 `obj` → `record`                                          |
-| `941966a` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）     |
+| SHA       | 类型             | 内容                                                                                          |
+| --------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| `161d168` | `chore(style)`   | docs 格式门禁（`.prettierrc.json` + `format:docs*`）+ Gradle/Android 本地状态忽略             |
+| `6652950` | `style(docs)`    | 134 个 `.md` / `.mdc` 在新门禁下规范化                                                        |
+| `878ce00` | `refactor(core)` | 删除 3 个死导出 + 18 处 `obj` → `record`                                                      |
+| `941966a` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）                 |
+| `cfa4bf3` | `docs(closure)`  | PHASE P 结论（clean install PASS / clean clone BLOCKED）+ Git 收口 + B23（3 files，+137/−17） |
 
 **过程中处置的环境故障（如实登记）**
 
