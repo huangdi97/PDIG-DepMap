@@ -321,6 +321,31 @@ Solution: 1.Go to File > Settings > OpenHarmony SDK, download the components, an
 
 > 修正后的 Blocker 记录已写入 `BLOCKERS.md` 与 `FINAL_PLATFORM_MATRIX.md`。
 
+### 4.3 本轮新发现：`invariants.test.ts` 泄漏临时目录（**登记，未擅改**）
+
+**事实**（本轮实测）：`%TEMP%` 下存在 **2454 个** `depmap-inv-*` 目录（另有 4 个 `depmap-payload-*`）。
+
+**根因**：
+
+- `core/tests/invariants/invariants.test.ts:93` —— `buildWorld()` 在**每个用例**调用
+  `mkdtempSync(join(tmpdir(), 'depmap-inv-'))` 建一个临时目录；
+- 但 `afterEach`（同文件 `:180`）只执行 `world.driver.close()`，**从不删除该目录**；
+  且该文件**未导入** `rmSync`（`:2` 仅导入 `mkdtempSync, readFileSync`）。
+- **对照**：`core/tests/integration/graph-payload-v2.test.ts:141` 的 `afterEach` **有**
+  `rmSync(dir, { recursive: true, force: true })` —— 说明仓库既有约定是**要清理的**，
+  `invariants.test.ts` 属**遗漏**。（其残留的 4 个 `depmap-payload-*` 则是沙箱 safe-delete 守卫
+  拦截递归删除所致，属环境因素，非代码缺陷。）
+
+**影响**：**不影响任何 Gate**（453/453 全绿；纯资源卫生问题）。但每次全量运行会新增约百个目录，
+长期累积占用磁盘空间。
+
+**为何本轮不修**：修改测试文件属**非文档改动**，会使 §2.0.1 **不变量 D 失效**，
+并**作废本轮刚完成的第 144 节全部 milestone 复跑证据**。按收口纪律 ——
+**登记而不擅改**，交由下一轮连同全门禁重跑一并处理。
+
+**建议修法（下一轮，须重跑全门禁）**：让 `World` 类型携带 `dir` 字段，
+并在 `afterEach` 中执行 `rmSync(world.dir, { recursive: true, force: true })`。
+
 ---
 
 ## 5. 仍然成立的 Blocker
@@ -482,6 +507,9 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 5. **iOS**：按 `docs/IOS_RELEASE_HANDOFF.md` 在 Mac 上 `swift test` → archive → TestFlight。
 6. **B13**：Real Data 双 Gate（`validate-real-bill.ts` 已就绪）。
 7. **B11/B12/B14–B17**：包标识 / URL / 品牌名 / 图标启动图 / 商店截图。
+8. **T-1（测试卫生，见 §4.3）**：修 `invariants.test.ts` 的临时目录泄漏。该改动属**非文档改动**，
+   会使**不变量 D 失效**，故须与**全门禁重跑**一并执行 —— 建议放在 B10 环境就绪后的首个提交批次，
+   避免在收口冻结态上单独改动而作废既有证据。
 
 **进入 MVP04 的前提（第 136 节）**：至少一台真实设备完整 E2E PASS + Build artifact PASS + Backup/Restore PASS + UI device QA PASS + Release blockers 清晰。**当前均未满足。**
 

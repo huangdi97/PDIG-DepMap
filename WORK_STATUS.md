@@ -64,6 +64,12 @@
 - **U-2**：iOS `NSCameraUsageDescription` 声明了尚未实现的二维码扫描用途 → 提交前需与实现对齐。
 - **F-3**：`packageManager: npm@11.3.0` 与实际 `npm 10.9.7` 不一致（未擅自修改）。
 - **U-3**：Accessibility / Responsive 未经工具化验证 → 标 `PARTIAL_WITH_REPORT`，不写 PASS。
+- **T-1（新，本轮实测）**：`core/tests/invariants/invariants.test.ts` **泄漏临时目录** —— `buildWorld()`
+  （`:93`）每个用例 `mkdtempSync(tmpdir(), 'depmap-inv-')`，但 `afterEach`（`:180`）只 `driver.close()`，
+  **从不删除**（该文件未导入 `rmSync`）。实测 `%TEMP%` 残留 **2454 个** `depmap-inv-*`。
+  对照 `graph-payload-v2.test.ts:141` 有 `rmSync` → 属**遗漏**，非约定。
+  **不影响任何 Gate**（453/453 全绿）；因修改测试会使**不变量 D 失效并作废本轮 milestone 复跑证据**，
+  按收口纪律**登记不擅改**。建议下一轮修：`World` 携带 `dir` + `afterEach` 内 `rmSync(recursive, force)`（须重跑全门禁）。
 
 ## 本轮 quality state（FINAL PRODUCTION CLOSURE V1 实跑）
 
