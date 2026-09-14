@@ -61,6 +61,26 @@
 | CLEAN_INSTALL                | **PASS**（非破坏性验证）           | `npm ci --dry-run` EXIT=0 + lockfile in sync + deps gate；见 §2.1                                               |
 | CLEAN_CLONE                  | **BLOCKED（环境）**                | 工作区外批量写入被截断/终止；committed-tree 自足性已等价证明；见 §2.1                                           |
 
+### 1.1 总指令状态名映射（防「合并成一句已上线」）
+
+总指令（第 122 节）要求**严格区分**下列 10 个状态名，禁止合并表述。本表给出它们与上表细分 Gate 的
+**显式映射**，与 `FINAL_ACCEPTANCE.md` §S 逐项一致：
+
+| 总指令状态名          | 状态               | 由上表中的哪些细分 Gate 支撑                                                                                                              |
+| --------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `CORE_READY`          | **PASS**           | CORE_READY                                                                                                                                |
+| `ENGINEERING_READY`   | **PASS**           | CODE_STYLE_READY + TYPE_SAFETY_READY + ARCHITECTURE_READY + TEST_SUITE_READY + MIGRATION_READY + PERFORMANCE_READY + ENGINEERING_BASELINE |
+| `UI_SOURCE_READY`     | **PASS**           | UI_UX_READY（源码级）+ FRONTEND_READY（源码级）                                                                                           |
+| `UI_BUILD_READY`      | **BLOCKED（B10）** | 无 HBuilderX / uni-app x 工具链（`COMPILED = BLOCKED`）                                                                                   |
+| `ANDROID_READY`       | **BLOCKED**        | ANDROID_BUILD_READY + ANDROID_DEVICE_VERIFIED + ANDROID_SIGNING_READY + ANDROID_STORE_READY 全 BLOCKED                                    |
+| `HARMONY_READY`       | **BLOCKED**        | HARMONY_BUILD_READY + HARMONY_DEVICE_VERIFIED + HARMONY_SIGNING_READY + HARMONY_STORE_READY 全 BLOCKED                                    |
+| `IOS_SOURCE_READY`    | **PASS**           | IOS_SOURCE_READY                                                                                                                          |
+| `STORE_READY`         | **BLOCKED**        | STORE_ASSETS_READY + 各平台 `*_STORE_READY` + B11–B19                                                                                     |
+| `REAL_DATA_VALIDATED` | **NOT_RUN**        | REAL_DATA_CORRECTNESS + REAL_DATA_VALUE 均 `NOT_RUN`（无真实账单）                                                                        |
+| `STORE_SUBMITTED`     | **NO**             | 用户未授权提审                                                                                                                            |
+
+> **禁止把上述合并为一句「已经上线」。** 本报告不代表三端商店已上架，也不代表已产出任何可安装的平台构建产物。
+
 ---
 
 ## 2. 本轮实测证据（可复现）

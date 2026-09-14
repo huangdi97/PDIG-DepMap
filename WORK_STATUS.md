@@ -22,6 +22,11 @@
     `STORE_SUBMISSION_READY = REQUIRES_USER_RELEASE_DECISION` / `STORE_SUBMITTED = NO`
   - `REAL_DATA_CORRECTNESS = NOT_RUN` / `REAL_DATA_VALUE = NOT_RUN`
   - `CLEAN_INSTALL = PASS`（非破坏性等价验证）/ `CLEAN_CLONE = BLOCKED（环境约束）`
+  - **总指令 10 状态名（第 122 节，禁止合并成一句「已经上线」）**：`CORE_READY = PASS` /
+    `ENGINEERING_READY = PASS` / `UI_SOURCE_READY = PASS` / `UI_BUILD_READY = BLOCKED（B10）` /
+    `ANDROID_READY = BLOCKED` / `HARMONY_READY = BLOCKED` / `IOS_SOURCE_READY = PASS` /
+    `STORE_READY = BLOCKED` / `REAL_DATA_VALIDATED = NOT_RUN` / `STORE_SUBMITTED = NO`
+    （映射表见 `FINAL_PRODUCTION_CLOSURE_REPORT.md` §1.1 / `FINAL_ACCEPTANCE.md` §S）
   - Git：HEAD 以 `git log --oneline -1` 为准（`4af5b69..35d940e` 共 **10** 个提交）、工作区 clean、`git diff --check` PASS、**未 push**、**未打 tag**
 - Next Gate: `UI_BUILD_READY` —— 根因 **B10（HBuilderX / uni-app x）**；不得直接进入 MVP04
 - 详细报告：**FINAL_PRODUCTION_CLOSURE_REPORT.md**（本轮）/ **FINAL_ACCEPTANCE.md** /
