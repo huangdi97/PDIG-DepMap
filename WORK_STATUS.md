@@ -73,6 +73,8 @@
 - `test:stability` → 3 连跑全绿；critical ×10 → 全绿
 - **最终提交树 milestone 重跑（第 144 节）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
   全量 ×3 **EXIT=0**（各 43 files）、critical focused ×10 **10/10 EXIT=0**（9 files / 74 tests 每轮）
+  - 执行树 = `b0ed6b5`；**最终 HEAD 独立复核**：HEAD `35d940e` 上 `npm run check` **EXIT=0**
+    （43 files / 453 passed；architecture 48/circular 0；network 118/0 原语；secrets 404/0；UI 30 `.uvue`/24 pages），耗时 2 分 05 秒
 - **Stryker 变异测试本轮真实重跑 → `MUTATION_STRYKER_RERUN = PASS`**：
   Stryker 10.0.0，532 mutants（335 killed / 2 timeout / 167 survived / 28 no-cov / 0 errors，
   score 63.35% / covered 66.87%），耗时 35 分 03 秒，**与 Engineering Baseline V1 冻结基线逐项完全一致**
@@ -86,8 +88,12 @@
 
 ## Git 收口（第 130–133 节）
 
-- branch `feat/mvp03-living-graph`；**HEAD = `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`**；进入基线 `4af5b69`
-- 本轮 **4 个提交**：`161d168`（chore style / docs 门禁）→ `6652950`（style docs）→ `878ce00`（refactor core）→ `941966a`（docs release，14 files +2706/−55）
+- branch `feat/mvp03-living-graph`；进入基线 `4af5b69`；**本轮共 10 个提交**（4 收口 + 6 纯文档补录）；
+  **HEAD 以 `git log --oneline -1` 为准**（报告无法写入自身提交的 SHA，故不以字面量声明）
+- 收口提交：`161d168`（chore style / docs 门禁）→ `6652950`（style docs）→ `878ce00`（refactor core）→ `941966a`（docs release，14 files +2706/−55）
+- 纯文档补录：`cfa4bf3`（PHASE P + Git 收口）→ `0ea803d` → `b0ed6b5` → `ef2cb18`（第 144 节 milestone 重跑 + Stryker 重跑）→ `c235bed` → `35d940e`（变异幸存者精确化）
+- **不变量 D**（可机器复核）：`git diff --name-only 878ce00..HEAD | grep -vE '\.(md|mdc)$'` = **0 行**
+  ⇒ `878ce00` 之后无任何非文档改动 ⇒ 所有 Gate 结论对最终 HEAD 同样成立
 - `git status --short -uall` = **0 行**；`git diff --check` = **PASS**；secret scan = **404 files / 0**
 - **未 push**（用户未授权）；**未创建 RC tag / 1.0 tag**（平台侧无任何真实构建产物，打 RC 标会造成误读；理由见报告 §8.2）
 - 环境故障已处置：外部进程删除分支 loose ref → 从 reflog 取完整 SHA 重写 `packed-refs` + 重建 loose ref；
