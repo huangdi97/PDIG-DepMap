@@ -88,7 +88,7 @@
 
 ## Git 收口（第 130–133 节）
 
-- branch `feat/mvp03-living-graph`；进入基线 `4af5b69`；**本轮共 10 个提交**（4 收口 + 6 纯文档补录）；
+- branch `feat/mvp03-living-graph`；进入基线 `4af5b69`；**`4af5b69..35d940e` 共 10 个提交**（4 收口 + 6 纯文档补录）；
   **HEAD 以 `git log --oneline -1` 为准**（报告无法写入自身提交的 SHA，故不以字面量声明）
 - 收口提交：`161d168`（chore style / docs 门禁）→ `6652950`（style docs）→ `878ce00`（refactor core）→ `941966a`（docs release，14 files +2706/−55）
 - 纯文档补录：`cfa4bf3`（PHASE P + Git 收口）→ `0ea803d` → `b0ed6b5` → `ef2cb18`（第 144 节 milestone 重跑 + Stryker 重跑）→ `c235bed` → `35d940e`（变异幸存者精确化）
