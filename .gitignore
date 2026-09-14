@@ -77,6 +77,13 @@ tmp/
 .cache/
 .coverage-tmp/
 
+# Gradle / Android local build state（机器相关，禁止提交）
+.gradle/
+local.properties
+.kotlin/
+*.hprof
+captures/
+
 # Mutation testing artifacts
 .stryker-tmp/
 reports/

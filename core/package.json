@@ -21,6 +21,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "format:docs": "prettier --write \"../*.md\" \"../docs/**/*.md\" \"../store/**/*.md\" \"../assets/**/*.md\" \"../.codebuddy/**/*.mdc\"",
+    "format:docs:check": "prettier --check \"../*.md\" \"../docs/**/*.md\" \"../store/**/*.md\" \"../assets/**/*.md\" \"../.codebuddy/**/*.mdc\"",
     "check:architecture": "node scripts/check-architecture.mjs",
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:network": "node scripts/check-network.mjs",
@@ -30,7 +32,7 @@
     "check:property": "vitest run tests/property",
     "check:db-integrity": "vitest run tests/unit/db-integrity.test.ts",
     "check:deps": "node scripts/check-deps.mjs",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run check:architecture && npm run check:network && npm run check:secrets && npm run check:ui",
+    "check": "npm run format:check && npm run format:docs:check && npm run lint && npm run typecheck && npm run test && npm run check:architecture && npm run check:network && npm run check:secrets && npm run check:ui",
     "check:full": "npm run check && npm run check:db-integrity && npm run test:coverage && npm run test:perf && npm run check:deps"
   },
   "dependencies": {
