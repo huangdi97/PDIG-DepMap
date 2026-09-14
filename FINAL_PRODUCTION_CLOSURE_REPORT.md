@@ -81,9 +81,31 @@
 | 依赖          | `npm run check:deps`                                         | PASS（audit 3 moderate dev-only；license MIT/Apache-2.0）                  |
 | docs 格式     | `npm run format:docs:check`                                  | **EXIT=0**（幂等）                                                         |
 
-**最终提交树复跑（PHASE Q 之后，`941966a`）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
-453/453（43 文件）、coverage **93.82 / 82.24 / 94.55 / 93.82**、db-integrity **6 passed**、perf **16 passed**、
-architecture 48 files / circular 0、network 118 files / 0、secrets **404 files / 0**、UI **30 `.uvue` / 24 pages / 5 components**、deps gate PASS。
+### 2.0.1 第 144 节 milestone 命令 —— 在最终提交树上全部重跑
+
+第 144 节要求「最终 milestone 命令仍须重跑」。工作区 `git status --untracked-files=all` = **0 行**
+⇒ **磁盘树 ≡ 提交树**，故下列结果即**提交树自身**的结果。
+
+| 命令                                        | 最终树实测                                                                                                               | 退出码 |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------ |
+| `npm run check`                             | 453/453（43 files）                                                                                                      | **0**  |
+| `npm run check:full`                        | + coverage + db-integrity 6 + perf 16 + deps PASS                                                                        | **0**  |
+| `npm run test:stability`（全量 ×3）         | run 1/3、2/3、3/3 **各 43 files passed**                                                                                 | **0**  |
+| critical focused ×10                        | **10/10 全绿**（9 files / 74 tests 每轮，累计 740 实例）                                                                 | **0**  |
+| `npm run check:secrets`                     | **404 files / 0 production secrets**                                                                                     | **0**  |
+| `npm run check:network`                     | **118 files / 0 原语**                                                                                                   | **0**  |
+| `npm run check:architecture`                | **48 files / circular 0**                                                                                                | **0**  |
+| `npm run check:ui`                          | **30 `.uvue` / 24 pages / 5 components**                                                                                 | **0**  |
+| `npm run check:db-integrity`                | **6 passed**                                                                                                             | **0**  |
+| `npm run test:perf`                         | **16 passed**                                                                                                            | **0**  |
+| `npm run check:deps`                        | tree OK / lockfile in sync OK / audit 3 moderate dev-only                                                                | **0**  |
+| `npm ci --dry-run`（clean install）         | lockfile 一致、可解析完整依赖树                                                                                          | **0**  |
+| Stryker 变异测试重跑                        | **532 mutants**：335 killed / 2 timeout / 167 survived / 28 no-cov / 0 errors（63.35% / 66.87%），**与冻结基线逐项一致** | **0**  |
+| clean clone（真实 clone → install → check） | 见 §2.1（环境受限）                                                                                                      | —      |
+| 平台真实构建                                | 见 `FINAL_PLATFORM_MATRIX.md`（全 BLOCKED）                                                                              | —      |
+
+覆盖率：Stmts **93.82** / Branch **82.24** / Funcs **94.55** / Lines **93.82**。
+报告 §1 状态矩阵、`FINAL_TEST_REPORT.md`、`docs/FINAL_FLAKY_REPORT.md` 的数字与本表一致。
 
 > Branch 覆盖率在 82.21–82.24 之间抖动（v8 provider 特性，非测试不稳定；见 `docs/FINAL_FLAKY_REPORT.md`）。
 > 本轮 PHASE A 基线复跑为 **82.22**，最终提交树复跑为 **82.24**；两者均落在历史抖动区间内。

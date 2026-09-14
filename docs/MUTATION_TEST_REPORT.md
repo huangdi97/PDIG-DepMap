@@ -45,3 +45,19 @@
 3. 任何 HIGH 风险变更（CHANGE_RISK_POLICY）涉及 kernel/registry 语义时，重跑本基线并确认
    无新增 survived。
 4. 禁止为杀变异写「断言实现细节」的测试；只补语义级断言。
+
+---
+
+## 重跑确认（FINAL PRODUCTION CLOSURE V1，2026-09-14）
+
+在最终提交树 `b0ed6b5` 上**真实重跑** Stryker（同一配置 `core/stryker.conf.mjs`，
+Stryker **10.0.0**，`--no-save` 安装；dry run 294 tests 通过；耗时 **35 分 03 秒**；`STRYKER_EXIT=0`）：
+
+| 文件                        | mutants | killed  | timeout | survived | no cov | errors | score      | covered    |
+| --------------------------- | ------- | ------- | ------- | -------- | ------ | ------ | ---------- | ---------- |
+| impact/kernel.ts            | 436     | 242     | 2       | 164      | 28     | 0      | 55.96%     | 59.80%     |
+| domain/relation-registry.ts | 96      | 93      | 0       | 3        | 0      | 0      | 96.88%     | 96.88%     |
+| **All files**               | **532** | **335** | **2**   | **167**  | **28** | **0**  | **63.35%** | **66.87%** |
+
+**与本文档首轮基线（2026-09-13）逐项完全相同** —— 无回归、无漂移。
+`MUTATION_STRYKER_RERUN = PASS`。报告产物 `core/reports/mutation/mutation.{json,html}`（已 gitignore）。

@@ -71,9 +71,15 @@
 - `npm run check:full` → **EXIT=0**
 - 测试 **453 passed / 453**（43 文件）；覆盖率 93.82 / 82.24 / 94.55 / 93.82
 - `test:stability` → 3 连跑全绿；critical ×10 → 全绿
+- **最终提交树 milestone 重跑（第 144 节）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
+  全量 ×3 **EXIT=0**（各 43 files）、critical focused ×10 **10/10 EXIT=0**（9 files / 74 tests 每轮）
+- **Stryker 变异测试本轮真实重跑 → `MUTATION_STRYKER_RERUN = PASS`**：
+  Stryker 10.0.0，532 mutants（335 killed / 2 timeout / 167 survived / 28 no-cov / 0 errors，
+  score 63.35% / covered 66.87%），耗时 35 分 03 秒，**与 Engineering Baseline V1 冻结基线逐项完全一致**
+  （kernel 436/242/2/164/28、registry 96/93/0/3/0）→ 无回归、无漂移
 - architecture PASS（48 files，circular 0）；network PASS（118 files，0 原语）；secrets PASS（**404 files**，0）
 - UI static PASS（30 `.uvue`，24 pages，5 components）；db-integrity 6 passed；perf 16 passed
-- deps PASS（audit 3 moderate dev-only；license MIT / Apache-2.0）
+- deps PASS（audit 3 moderate dev-only；license MIT / Apache-2.0）——Stryker 卸载后依赖树已还原为 lockfile 状态
 - **clean install = PASS**（非破坏性：`npm ci --dry-run` EXIT=0 + lockfile↔manifest 同步 + `check:deps` tree/lockfile OK）
 - **clean clone = BLOCKED（环境）**：工作区外批量写入被沙箱截断/终止；已用
   「`git status -uall` 0 行 ⇒ 磁盘树 ≡ 提交树；全门禁在该树 EXIT=0 ⇒ 提交树自足」作等价论证，**不写 PASS**

@@ -96,3 +96,19 @@ cd core
 npm run test:stability                                        # 全量 ×3
 npx vitest run tests/impact tests/invariants tests/contract tests/property   # 需重复 10 次
 ```
+
+---
+
+## 7. 最终提交树复跑（第 144 节 milestone 重跑）
+
+第 144 节要求「最终 milestone 命令仍须重跑」。以下为在**最终提交树**
+（`b0ed6b5`，工作区 `git status -uall` = 0 行 ⇒ 磁盘树 ≡ 提交树）上的**复跑**结果：
+
+| 命令                                         | 最终树实测                                                | 退出码 |
+| -------------------------------------------- | --------------------------------------------------------- | ------ |
+| `npm run test:stability`（全量 ×3）          | run 1/3、2/3、3/3 **各 43 files passed**                  | **0**  |
+| critical focused ×10（9 文件 / 74 用例每轮） | **10/10 全绿**（累计 740 个用例实例，0 失败、0 抖动）     | **0**  |
+| `npm run check`                              | 453/453（43 files）                                       | **0**  |
+| `npm run check:full`                         | 453/453 + coverage + db-integrity 6 + perf 16 + deps PASS | **0**  |
+
+**结论不变：`FLAKY_RESULT = PASS（0 flaky）`**，且该结论在最终提交树上复验成立。

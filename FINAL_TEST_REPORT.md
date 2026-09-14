@@ -19,6 +19,10 @@
 | flaky                | **0**                                   |
 | **TEST_SUITE_READY** | **PASS**                                |
 
+> **最终提交树 `b0ed6b5` 复跑（第 144 节）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
+> 453/453（43 files）、全量 ×3 **EXIT=0**、critical focused ×10 **10/10 EXIT=0**。
+> 工作区 `git status --untracked-files=all` = **0 行** ⇒ 磁盘树 ≡ 提交树，故上述结果即提交树的结果。
+
 ---
 
 ## 2. UNIT
@@ -133,16 +137,41 @@ fixtures：30 个（`csv-*` / `ofx-*` / `gbk.csv` / `dup-*` / `malformed.csv` / 
 
 ## 8. MUTATION
 
-**方式一：定向人工变异（已冻结）** —— `tests/impact/kernel-mutation-baseline.test.ts` + MVP03 冻结补测：
+### 8.1 方式一：定向人工变异（已冻结）
+
+`tests/impact/kernel-mutation-baseline.test.ts` + MVP03 冻结补测：
 
 - Targeted mutation **10/10 KILLED**（M-R1..R5 + FM-1..FM-5），**0 critical survived**。
 - 详见 `docs/MUTATION_TEST_REPORT.md`、`docs/MVP03_MUTATION_FREEZE_REPORT.md`。
 
-**方式二：Stryker**（`core/stryker.conf.mjs`，mutate = `src/impact/kernel.ts` + `src/domain/relation-registry.ts`）：
+### 8.2 方式二：Stryker —— 本轮已真实重跑（第 144 节）
 
-- 工具**未列入 devDependencies**（配置注释标注为 `--no-save` 一次性安装）。
-- 本轮**未重新执行** Stryker（需联网安装 `@stryker-mutator/*`，沙箱内包管理器可达性受限）。
-- **状态：`MUTATION_STRYKER_RERUN = NOT_RUN`**，不虚报。定向人工变异结果仍有效并已冻结。
+工具：**Stryker 10.0.0**（`@stryker-mutator/core` + `@stryker-mutator/vitest-runner`，`--no-save` 一次性安装）。
+配置：`core/stryker.conf.mjs`（`mutate` = `src/impact/kernel.ts` + `src/domain/relation-registry.ts`；
+`coverageAnalysis: 'perTest'`；`concurrency: 2`）。
+
+```
+npm i --no-save @stryker-mutator/core @stryker-mutator/vitest-runner
+node node_modules/@stryker-mutator/core/bin/stryker.js run
+```
+
+结果（**`STRYKER_EXIT=0`**，耗时 35 分 03 秒；dry run 294 tests 通过；平均 14.01 tests/mutant）：
+
+| 文件                        | mutants | killed  | timeout | survived | no cov | errors | score      | covered    |
+| --------------------------- | ------- | ------- | ------- | -------- | ------ | ------ | ---------- | ---------- |
+| impact/kernel.ts            | 436     | 242     | 2       | 164      | 28     | 0      | 55.96%     | 59.80%     |
+| domain/relation-registry.ts | 96      | 93      | 0       | 3        | 0      | 0      | 96.88%     | 96.88%     |
+| **All files**               | **532** | **335** | **2**   | **167**  | **28** | **0**  | **63.35%** | **66.87%** |
+
+**与 Engineering Baseline V1 冻结基线（2026-09-13）逐项完全一致** —— 无回归、无漂移，
+说明冻结的 mutation baseline 在最终提交树上**可精确复现**（532 mutants / 436 / 96 / 242 / 93 全部相同）。
+
+- 报告产物：`core/reports/mutation/mutation.{json,html}`（已 gitignore）。
+- survived 变异的分类与判定见 `docs/MUTATION_TEST_REPORT.md`（StringLiteral 文案模板、capability tie 等价变异等）。
+- **状态：`MUTATION_STRYKER_RERUN = PASS`**（本轮真实执行）。
+- 工具**未列入 devDependencies**（`--no-save` 一次性安装）；运行完成后已卸载，依赖树还原为 lockfile 状态。
+- 说明：Stryker 结束时自动清理 `.stryker-tmp` 被本环境守卫拦截（`Failed to delete stryker temp directory`），
+  但**不影响退出码与结果**；该目录已由本轮手动清理。
 
 ---
 
@@ -177,6 +206,10 @@ fixtures：30 个（`csv-*` / `ofx-*` / `gbk.csv` / `dup-*` / `malformed.csv` / 
 
 全量 ×3、高风险 focused ×10 → **0 flaky**，未使用 retry。详见 `docs/FINAL_FLAKY_REPORT.md`。
 
+**最终提交树复跑（第 144 节）**：在 `b0ed6b5`（工作区 `git status -uall` = 0 行）上重跑 ——
+`npm run test:stability` **3/3 全绿（各 43 files）EXIT=0**；
+critical focused ×10 **10/10 全绿（9 files / 74 tests 每轮，累计 740 用例实例）**，0 失败 0 抖动。
+
 ---
 
 ## 12. PERFORMANCE
@@ -208,16 +241,16 @@ fixtures：30 个（`csv-*` / `ofx-*` / `gbk.csv` / `dup-*` / `malformed.csv` / 
 
 ## 13. 受阻与未运行（明确登记）
 
-| 项                                      | 状态        |
-| --------------------------------------- | ----------- |
-| Android Kotlin 单元测试 + golden 互操作 | **BLOCKED** |
-| HarmonyOS ArkTS 编译与运行验证          | **BLOCKED** |
-| iOS `swift test`                        | **BLOCKED** |
-| UI 组件 / 导航测试                      | **BLOCKED** |
-| 真机 E2E                                | **BLOCKED** |
-| Stryker 重跑                            | **NOT_RUN** |
-| Real Data 双 Gate                       | **NOT_RUN** |
-| 商店提审                                | **NO**      |
+| 项                                      | 状态                                |
+| --------------------------------------- | ----------------------------------- |
+| Android Kotlin 单元测试 + golden 互操作 | **BLOCKED**                         |
+| HarmonyOS ArkTS 编译与运行验证          | **BLOCKED**                         |
+| iOS `swift test`                        | **BLOCKED**                         |
+| UI 组件 / 导航测试                      | **BLOCKED**                         |
+| 真机 E2E                                | **BLOCKED**                         |
+| Stryker 重跑                            | **PASS**（本轮已真实重跑，见 §8.2） |
+| Real Data 双 Gate                       | **NOT_RUN**                         |
+| 商店提审                                | **NO**                              |
 
 ---
 
@@ -228,4 +261,15 @@ cd core
 npm run check          # EXIT=0
 npm run check:full     # EXIT=0
 npm run test:stability # 全量 ×3
+```
+
+最终提交树（`b0ed6b5`）复跑命令与结果：
+
+```
+cd core
+npm run check          # EXIT=0（453/453，43 files）
+npm run check:full     # EXIT=0（+ coverage 93.82/82.24/94.55/93.82 + db-integrity 6 + perf 16 + deps PASS）
+npm run test:stability # EXIT=0（3/3 全绿，各 43 files）
+# critical focused ×10：npx vitest run tests/impact tests/invariants tests/contract tests/property
+#   → 10/10 EXIT=0（9 files / 74 tests 每轮）
 ```
