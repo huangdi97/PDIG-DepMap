@@ -16,49 +16,50 @@
 
 ## 1. 最终状态矩阵（第 122 节）
 
-| Gate                         | 状态                               | 依据                                                                       |
-| ---------------------------- | ---------------------------------- | -------------------------------------------------------------------------- |
-| **FINAL_PRODUCTION_CLOSURE** | **PARTIAL_WITH_REPORT**            | 见本文                                                                     |
-| CORE_READY                   | **PASS**                           | `npm run check:full` EXIT=0；453/453                                       |
-| CODE_STYLE_READY             | **PASS**                           | format（core+docs）/ lint 0/0 / 规则禁用 0                                 |
-| TYPE_SAFETY_READY            | **PASS**                           | strict 全开；`any`/`as any`/`unknown as`/非空断言 = 0                      |
-| ARCHITECTURE_READY           | **PASS**                           | 48 files，circular = 0                                                     |
-| TEST_SUITE_READY             | **PASS**                           | 43 文件 / 453 用例；全量 ×3 + focused ×10 全绿                             |
-| MIGRATION_READY              | **PASS**                           | v2→v3 + payload v1/v2/v3 + 未来拒绝 + 幂等 ×50 + 回滚                      |
-| SECURITY_READY               | **PASS（代码侧）**                 | secrets 0 / network 0 / logging 0 / permissions 最小 / crypto fail-closed  |
-| PRIVACY_READY                | **PASS（代码侧）**                 | 本地数据原则与代码一致；**隐私 URL = BLOCKED**                             |
-| PERFORMANCE_READY            | **PASS**                           | 16 perf tests；只防退化                                                    |
-| UI_UX_READY                  | **PASS（源码级）**                 | 24 页；U1–U9 PASS；Visual QA = NOT_RUN                                     |
-| FRONTEND_READY               | **PASS（源码级）**                 | 单一服务边界 + 纯规则层；编译 = BLOCKED                                    |
-| BACKUP_RESTORE_READY         | **PASS（Core）/ BLOCKED（设备）**  | 容器 + golden；设备端 B21                                                  |
-| MVP01_REGRESSION             | **PASS**                           | 见 `FINAL_TEST_REPORT.md` §9                                               |
-| MVP02_REGRESSION             | **PASS**                           | 同上                                                                       |
-| MVP03_REGRESSION             | **PASS**                           | 同上                                                                       |
-| ENGINEERING_BASELINE         | **PASS**                           | invariants / property / crypto-mutation 全绿                               |
-| ANDROID_SOURCE_READY         | **PASS**                           | 工程 + Kotlin 核心 + golden 测试源码齐备                                   |
-| ANDROID_BUILD_READY          | **BLOCKED**                        | 无可用 Gradle 发行版 + 构建依赖 CDN 不可达 + `compileSdk 34` 未安装        |
-| ANDROID_DEVICE_VERIFIED      | **BLOCKED**                        | `adb devices` 空                                                           |
-| ANDROID_SIGNING_READY        | **BLOCKED**                        | 无 release keystore                                                        |
-| ANDROID_STORE_READY          | **BLOCKED**                        | 依赖上述 + B11 + B5                                                        |
-| HARMONY_SOURCE_READY         | **PASS**                           | ArkTS 适配器源码齐备                                                       |
-| HARMONY_BUILD_READY          | **BLOCKED**                        | hvigor 已真实运行，卡在 SDK 组件（API 13）解析，需 DevEco SDK Manager 同步 |
-| HARMONY_DEVICE_VERIFIED      | **BLOCKED**                        | 无设备                                                                     |
-| HARMONY_SIGNING_READY        | **BLOCKED**                        | 无 HarmonyOS 签名（B7）                                                    |
-| HARMONY_STORE_READY          | **BLOCKED**                        | 依赖上述 + B6 + B11                                                        |
-| IOS_SOURCE_READY             | **PASS**                           | SPM + Swift 核心 + XCTest golden                                           |
-| IOS_BUILD_READY              | **BLOCKED**                        | 无 macOS / Xcode（B3）                                                     |
-| IOS_DEVICE_VERIFIED          | **BLOCKED**                        | 同上                                                                       |
-| IOS_SIGNING_READY            | **BLOCKED**                        | 无 Apple Developer Account（B8/B9）                                        |
-| IOS_TESTFLIGHT_READY         | **BLOCKED**                        | 同上                                                                       |
-| IOS_APPSTORE_READY           | **BLOCKED**                        | 同上                                                                       |
-| STORE_METADATA_READY         | **PARTIAL_WITH_REPORT**            | 文案就绪；品牌名 / URL / 包标识缺失                                        |
-| STORE_ASSETS_READY           | **BLOCKED**                        | 图标 / 启动图 / 截图全部缺失（B15/B16/B17）                                |
-| REAL_DATA_CORRECTNESS        | **NOT_RUN**                        | 无真实账单                                                                 |
-| REAL_DATA_VALUE              | **NOT_RUN**                        | 同上                                                                       |
-| STORE_SUBMISSION_READY       | **REQUIRES_USER_RELEASE_DECISION** | 见 §6                                                                      |
-| STORE_SUBMITTED              | **NO**                             | 用户未授权提审                                                             |
-| CLEAN_INSTALL                | **PASS**（非破坏性验证）           | `npm ci --dry-run` EXIT=0 + lockfile in sync + deps gate；见 §2.1          |
-| CLEAN_CLONE                  | **BLOCKED（环境）**                | 工作区外批量写入被截断/终止；committed-tree 自足性已等价证明；见 §2.1      |
+| Gate                         | 状态                               | 依据                                                                                                            |
+| ---------------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **FINAL_PRODUCTION_CLOSURE** | **PARTIAL_WITH_REPORT**            | 见本文                                                                                                          |
+| CORE_READY                   | **PASS**                           | `npm run check:full` EXIT=0；453/453                                                                            |
+| CODE_STYLE_READY             | **PASS**                           | format（core+docs）/ lint 0/0 / 规则禁用 0                                                                      |
+| TYPE_SAFETY_READY            | **PASS**                           | strict 全开；`any`/`as any`/`unknown as`/非空断言 = 0                                                           |
+| ARCHITECTURE_READY           | **PASS**                           | 48 files，circular = 0                                                                                          |
+| TEST_SUITE_READY             | **PASS**                           | 43 文件 / 453 用例；全量 ×3 + focused ×10 全绿                                                                  |
+| MUTATION_RERUN               | **PASS**                           | Stryker 10.0.0 真实重跑：532 mutants / 335 killed / 167 survived / 28 no-cov / 0 errors；**与冻结基线逐项一致** |
+| MIGRATION_READY              | **PASS**                           | v2→v3 + payload v1/v2/v3 + 未来拒绝 + 幂等 ×50 + 回滚                                                           |
+| SECURITY_READY               | **PASS（代码侧）**                 | secrets 0 / network 0 / logging 0 / permissions 最小 / crypto fail-closed                                       |
+| PRIVACY_READY                | **PASS（代码侧）**                 | 本地数据原则与代码一致；**隐私 URL = BLOCKED**                                                                  |
+| PERFORMANCE_READY            | **PASS**                           | 16 perf tests；只防退化                                                                                         |
+| UI_UX_READY                  | **PASS（源码级）**                 | 24 页；U1–U9 PASS；Visual QA = NOT_RUN                                                                          |
+| FRONTEND_READY               | **PASS（源码级）**                 | 单一服务边界 + 纯规则层；编译 = BLOCKED                                                                         |
+| BACKUP_RESTORE_READY         | **PASS（Core）/ BLOCKED（设备）**  | 容器 + golden；设备端 B21                                                                                       |
+| MVP01_REGRESSION             | **PASS**                           | 见 `FINAL_TEST_REPORT.md` §9                                                                                    |
+| MVP02_REGRESSION             | **PASS**                           | 同上                                                                                                            |
+| MVP03_REGRESSION             | **PASS**                           | 同上                                                                                                            |
+| ENGINEERING_BASELINE         | **PASS**                           | invariants / property / crypto-mutation 全绿                                                                    |
+| ANDROID_SOURCE_READY         | **PASS**                           | 工程 + Kotlin 核心 + golden 测试源码齐备                                                                        |
+| ANDROID_BUILD_READY          | **BLOCKED**                        | 无可用 Gradle 发行版 + 构建依赖 CDN 不可达 + `compileSdk 34` 未安装                                             |
+| ANDROID_DEVICE_VERIFIED      | **BLOCKED**                        | `adb devices` 空                                                                                                |
+| ANDROID_SIGNING_READY        | **BLOCKED**                        | 无 release keystore                                                                                             |
+| ANDROID_STORE_READY          | **BLOCKED**                        | 依赖上述 + B11 + B5                                                                                             |
+| HARMONY_SOURCE_READY         | **PASS**                           | ArkTS 适配器源码齐备                                                                                            |
+| HARMONY_BUILD_READY          | **BLOCKED**                        | hvigor 已真实运行，卡在 SDK 组件（API 13）解析，需 DevEco SDK Manager 同步                                      |
+| HARMONY_DEVICE_VERIFIED      | **BLOCKED**                        | 无设备                                                                                                          |
+| HARMONY_SIGNING_READY        | **BLOCKED**                        | 无 HarmonyOS 签名（B7）                                                                                         |
+| HARMONY_STORE_READY          | **BLOCKED**                        | 依赖上述 + B6 + B11                                                                                             |
+| IOS_SOURCE_READY             | **PASS**                           | SPM + Swift 核心 + XCTest golden                                                                                |
+| IOS_BUILD_READY              | **BLOCKED**                        | 无 macOS / Xcode（B3）                                                                                          |
+| IOS_DEVICE_VERIFIED          | **BLOCKED**                        | 同上                                                                                                            |
+| IOS_SIGNING_READY            | **BLOCKED**                        | 无 Apple Developer Account（B8/B9）                                                                             |
+| IOS_TESTFLIGHT_READY         | **BLOCKED**                        | 同上                                                                                                            |
+| IOS_APPSTORE_READY           | **BLOCKED**                        | 同上                                                                                                            |
+| STORE_METADATA_READY         | **PARTIAL_WITH_REPORT**            | 文案就绪；品牌名 / URL / 包标识缺失                                                                             |
+| STORE_ASSETS_READY           | **BLOCKED**                        | 图标 / 启动图 / 截图全部缺失（B15/B16/B17）                                                                     |
+| REAL_DATA_CORRECTNESS        | **NOT_RUN**                        | 无真实账单                                                                                                      |
+| REAL_DATA_VALUE              | **NOT_RUN**                        | 同上                                                                                                            |
+| STORE_SUBMISSION_READY       | **REQUIRES_USER_RELEASE_DECISION** | 见 §6                                                                                                           |
+| STORE_SUBMITTED              | **NO**                             | 用户未授权提审                                                                                                  |
+| CLEAN_INSTALL                | **PASS**（非破坏性验证）           | `npm ci --dry-run` EXIT=0 + lockfile in sync + deps gate；见 §2.1                                               |
+| CLEAN_CLONE                  | **BLOCKED（环境）**                | 工作区外批量写入被截断/终止；committed-tree 自足性已等价证明；见 §2.1                                           |
 
 ---
 
@@ -326,7 +327,7 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 | `941966a` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）                 |
 | `cfa4bf3` | `docs(closure)`  | PHASE P 结论（clean install PASS / clean clone BLOCKED）+ Git 收口 + B23（3 files，+137/−17） |
 
-> **关于报告补录提交**：`941966a` 之后存在若干**仅修改本报告文字**的补录提交（如 `cfa4bf3` 记录 PHASE P 与 Git 收口、`0ea803d` 修正本文的 HEAD 自引用）。它们**不改变任何 Gate 结论**，只是把证据写准；完整列表以 `git log --oneline 4af5b69..HEAD` 为准。本报告**无法写入自身提交的 SHA**，故最终 HEAD 一律以 `git log --oneline -1` 为准。
+> **关于报告补录提交**：`941966a` 之后存在若干**仅修改报告 / 控制文档文字（不改代码、不改测试、不改 Gate 配置）**的补录提交（如 `cfa4bf3` 记录 PHASE P 与 Git 收口、`0ea803d` 修正本文的 HEAD 自引用、`ef2cb18` 记录第 144 节 milestone 重跑与 Stryker 重跑）。它们**不改变任何 Gate 结论**，只是把证据写准；完整列表以 `git log --oneline 4af5b69..HEAD` 为准。本报告**无法写入自身提交的 SHA**，故最终 HEAD 一律以 `git log --oneline -1` 为准。
 
 **过程中处置的环境故障（如实登记）**
 
@@ -396,6 +397,9 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
   「工作区零未跟踪 ⇒ 磁盘树 ≡ 提交树 + 全门禁通过 ⇒ 提交树自足」作等价论证，**未硬写 PASS**。
 - 所有**外部平台 / 账号 Gate** 已被明确收敛为 `BLOCKED` 或 `NOT_RUN`，并给出精确解除动作。
 - 其中两条既有 Blocker（B1 / B2）的**事实前提经实测被推翻**，记录已修正 —— 这是本轮最实质的现场纠正。
-- Git 收口完成：**4 个提交**、工作区干净、`git diff --check` PASS、**未 push**、**未创建 RC / 1.0 tag**
+- **第 144 节 milestone 命令已在最终提交树上全部重跑**：`check` / `check:full` / 全量 ×3 / critical ×10 /
+  secret / network / architecture / ui / db-integrity / perf / deps / clean install 全部 **EXIT=0**；
+  **Stryker 变异测试真实重跑 PASS**（532 mutants，与冻结基线逐项一致）。
+- Git 收口完成：**4 个收口提交 + 若干报告补录提交**、工作区干净、`git diff --check` PASS、**未 push**、**未创建 RC / 1.0 tag**
   （无平台产物时不打 RC 标，理由见 §8.2）。
 - **本报告不代表三端商店已经上架，也不代表已产出任何可安装的平台构建产物。**
