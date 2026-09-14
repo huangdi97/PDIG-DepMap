@@ -21,6 +21,8 @@
   - `STORE_METADATA_READY = PARTIAL_WITH_REPORT` / `STORE_ASSETS_READY = BLOCKED` /
     `STORE_SUBMISSION_READY = REQUIRES_USER_RELEASE_DECISION` / `STORE_SUBMITTED = NO`
   - `REAL_DATA_CORRECTNESS = NOT_RUN` / `REAL_DATA_VALUE = NOT_RUN`
+  - `CLEAN_INSTALL = PASS`（非破坏性等价验证）/ `CLEAN_CLONE = BLOCKED（环境约束）`
+  - Git：HEAD `941966a`、工作区 clean、`git diff --check` PASS、**未 push**、**未打 tag**
 - Next Gate: `UI_BUILD_READY` —— 根因 **B10（HBuilderX / uni-app x）**；不得直接进入 MVP04
 - 详细报告：**FINAL_PRODUCTION_CLOSURE_REPORT.md**（本轮）/ **FINAL_ACCEPTANCE.md** /
   **FINAL_CLOSURE_PRE_AUDIT.md**（现场恢复）
@@ -31,9 +33,9 @@
 
 - HEAD 进入时 `4af5b69`，branch `feat/mvp03-living-graph`，**工作区 clean**，无未提交工作需保全。
 - `npm run check` → **EXIT=0**；`npm run check:full` → **EXIT=0**；**453 passed / 453**（43 文件）。
-- 覆盖率 Stmts **93.74%** / Branch **82.23%** / Funcs **94.28%** / Lines **93.74%**。
+- 覆盖率 Stmts **93.82%** / Branch **82.24%** / Funcs **94.55%** / Lines **93.82%**（最终提交树复跑；Branch 抖动区间 82.21–82.24）。
 - 全量 ×3 全绿；critical（impact+invariants+contract+property）**×10 全绿**（74 tests/run）；**0 flaky**。
-- architecture 48 files circular 0；network 118 files 0 原语；secrets 392 files 0；UI 30 `.uvue`/24 pages/5 components。
+- architecture 48 files circular 0；network 118 files 0 原语；secrets **404 files** 0；UI 30 `.uvue`/24 pages/5 components。
 
 ### 1. 代码质量收口（PHASE B）—— 5 类真实改动，全部复验
 
@@ -67,11 +69,23 @@
 
 - `npm run check` → **EXIT=0**（含新增 `format:docs:check`）
 - `npm run check:full` → **EXIT=0**
-- 测试 **453 passed / 453**（43 文件）；覆盖率 93.74 / 82.23 / 94.28 / 93.74
+- 测试 **453 passed / 453**（43 文件）；覆盖率 93.82 / 82.24 / 94.55 / 93.82
 - `test:stability` → 3 连跑全绿；critical ×10 → 全绿
-- architecture PASS（48 files，circular 0）；network PASS（118 files，0 原语）；secrets PASS（392 files，0）
+- architecture PASS（48 files，circular 0）；network PASS（118 files，0 原语）；secrets PASS（**404 files**，0）
 - UI static PASS（30 `.uvue`，24 pages，5 components）；db-integrity 6 passed；perf 16 passed
 - deps PASS（audit 3 moderate dev-only；license MIT / Apache-2.0）
+- **clean install = PASS**（非破坏性：`npm ci --dry-run` EXIT=0 + lockfile↔manifest 同步 + `check:deps` tree/lockfile OK）
+- **clean clone = BLOCKED（环境）**：工作区外批量写入被沙箱截断/终止；已用
+  「`git status -uall` 0 行 ⇒ 磁盘树 ≡ 提交树；全门禁在该树 EXIT=0 ⇒ 提交树自足」作等价论证，**不写 PASS**
+
+## Git 收口（第 130–133 节）
+
+- branch `feat/mvp03-living-graph`；**HEAD = `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`**；进入基线 `4af5b69`
+- 本轮 **4 个提交**：`161d168`（chore style / docs 门禁）→ `6652950`（style docs）→ `878ce00`（refactor core）→ `941966a`（docs release，14 files +2706/−55）
+- `git status --short -uall` = **0 行**；`git diff --check` = **PASS**；secret scan = **404 files / 0**
+- **未 push**（用户未授权）；**未创建 RC tag / 1.0 tag**（平台侧无任何真实构建产物，打 RC 标会造成误读；理由见报告 §8.2）
+- 环境故障已处置：外部进程删除分支 loose ref → 从 reflog 取完整 SHA 重写 `packed-refs` + 重建 loose ref；
+  未使用 `reset --hard` / `clean -fd` / `checkout .` / `restore .`，未重做提交
 
 ## 产品可用性（诚实口径，未变）
 

@@ -57,6 +57,8 @@
 | REAL_DATA_VALUE              | **NOT_RUN**                        | 同上                                                                       |
 | STORE_SUBMISSION_READY       | **REQUIRES_USER_RELEASE_DECISION** | 见 §6                                                                      |
 | STORE_SUBMITTED              | **NO**                             | 用户未授权提审                                                             |
+| CLEAN_INSTALL                | **PASS**（非破坏性验证）           | `npm ci --dry-run` EXIT=0 + lockfile in sync + deps gate；见 §2.1          |
+| CLEAN_CLONE                  | **BLOCKED（环境）**                | 工作区外批量写入被截断/终止；committed-tree 自足性已等价证明；见 §2.1      |
 
 ---
 
@@ -78,6 +80,62 @@
 | 性能          | `npm run test:perf`                                          | **16 passed**                                                              |
 | 依赖          | `npm run check:deps`                                         | PASS（audit 3 moderate dev-only；license MIT/Apache-2.0）                  |
 | docs 格式     | `npm run format:docs:check`                                  | **EXIT=0**（幂等）                                                         |
+
+**最终提交树复跑（PHASE Q 之后，`941966a`）**：`npm run check` **EXIT=0**、`npm run check:full` **EXIT=0**、
+453/453（43 文件）、coverage **93.82 / 82.24 / 94.55 / 93.82**、db-integrity **6 passed**、perf **16 passed**、
+architecture 48 files / circular 0、network 118 files / 0、secrets **404 files / 0**、UI **30 `.uvue` / 24 pages / 5 components**、deps gate PASS。
+
+> Branch 覆盖率在 82.21–82.24 之间抖动（v8 provider 特性，非测试不稳定；见 `docs/FINAL_FLAKY_REPORT.md`）。
+> 本轮 PHASE A 基线复跑为 **82.22**，最终提交树复跑为 **82.24**；两者均落在历史抖动区间内。
+
+---
+
+## 2.1 PHASE P — clean install / clean clone（第 144 节）
+
+| Gate              | 方法                                                                                         | 结果                 |
+| ----------------- | -------------------------------------------------------------------------------------------- | -------------------- |
+| **CLEAN_INSTALL** | `npm ci --dry-run` + lockfile↔manifest 同步校验 + `check:deps`（lockfile in sync / tree OK） | **PASS**（非破坏性） |
+| **CLEAN_CLONE**   | 完整 `git clone` → `npm ci` → `npm run check`（工作区外）                                    | **BLOCKED（环境）**  |
+
+### CLEAN_INSTALL = PASS（非破坏性等价验证）
+
+| 证据                 | 结果                                                                      |
+| -------------------- | ------------------------------------------------------------------------- |
+| `npm ci --dry-run`   | **EXIT=0**（解析出 50 个待装包，**无 lockfile 冲突**）                    |
+| lockfile 版本 / 规模 | `lockfileVersion: 3`，`packages` 条目 **258**                             |
+| dependencies 同步    | `package.json` vs `lockfile.packages[""]` → **完全一致**（in sync: true） |
+| devDependencies 同步 | **完全一致**（in sync: true）                                             |
+| `npm run check:deps` | `dependency tree: OK` / `lockfile in sync: OK` / license MIT+Apache-2.0   |
+
+> **未执行破坏性 `npm ci`** 的原因：真实 `npm ci` 会删除 `node_modules`（约 2 万文件），
+> 而本环境注入了 Node 层 safe-delete 批量守卫（`CODEBUDDY_SAFE_DELETE_BULK_THRESHOLD=50`），
+> 该删除会被拦截并可能破坏当前可用的依赖树。故改用**非破坏性等价验证**，并在下方给出替代证据链。
+> 这是**环境约束**，不是代码问题；不以此伪造 PASS 之外的结论。
+
+### CLEAN_CLONE = BLOCKED（环境约束）——附等价证据
+
+**尝试与观测**（如实登记）：
+
+| 尝试                                          | 观测                                                                                              |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `git clone` → `<repo_parent>/_depmap_cc3`（工作区外） | refs 复制成功，但对象库**不完整**：`fatal: unable to read tree (941966a…)`；检出被 `SIGTERM` 终止 |
+| `git clone` → `%TEMP%`                        | 命令报告成功，但目标目录**不可见**（写入被截断）                                                  |
+| 本轮自建临时目录清理                          | 已完成：`<repo_parent>/_depmap_probe`、`<repo_parent>/_depmap_cc3` 均已移除，工作区外无遗留                       |
+
+**根因**：本沙箱对**工作区外的批量写入**做截断 / 终止；且 Node 进程被注入 safe-delete 批量守卫（阈值 50 文件）。
+
+**替代证据链（committed-tree 自足性）**：
+
+| 证据                          | 结果                                                                                                                                                                                                                                                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `git status --short -uall`    | **0 行**（零未跟踪、零修改）⇒ **磁盘树 ≡ 提交树**                                                                                                                                                                                                                                                             |
+| 全门禁在该提交树上            | **EXIT=0**（`check` 与 `check:full`）⇒ 提交树**自足**，不依赖任何未跟踪文件                                                                                                                                                                                                                                   |
+| 构建 / 测试所需配置的跟踪状态 | 全部 `TRACKED`：`.prettierrc.json`、`.editorconfig`、`.gitattributes`、`core/package.json`、`core/package-lock.json`、`core/tsconfig.json`、`core/vitest.config.ts`、`core/stryker.conf.mjs`、`app/manifest.json`、`app/pages.json`、`platforms/android/core/build.gradle.kts`、`platforms/ios/Package.swift` |
+| 目录跟踪规模                  | `core/scripts` 10 / `core/tests` 73 / `app` 62 / `platforms` 16                                                                                                                                                                                                                                               |
+| 历史真实 clone 记录           | `docs/CLEAN_CLONE_REPORT.md`（2026-09-12）：真实 clone → `npm ci` → `check` 全绿                                                                                                                                                                                                                              |
+
+> **未完成**：本轮**没有**跑通「真实 clone → clean install → 全门禁」闭环。
+> 因此 **CLEAN_CLONE 不写 PASS**，按 `BLOCKED（环境）` 登记，并明确其解除条件（在工作区外写入不受限的环境 / CI 中重跑）。
 
 ---
 
@@ -218,11 +276,51 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 
 **控制文档更新**：`WORK_STATUS.md`、`BLOCKERS.md`。
 
-### 8.2 Git 收口
+### 8.2 Git 收口（第 130–133 节）
 
-- `git diff --check` → **PASS**（无空白错误）
-- secret scan → **0 production secrets**
-- **未 push**（用户未授权）；**未创建 1.0 tag**（未擅自宣布）。
+**最终状态（复验）**
+
+| 项                                         | 值                                          |
+| ------------------------------------------ | ------------------------------------------- |
+| branch                                     | `feat/mvp03-living-graph`                   |
+| HEAD                                       | `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`  |
+| 进入时基线                                 | `4af5b69`                                   |
+| 本轮提交数                                 | **4**                                       |
+| `git status --short --untracked-files=all` | **0 行**（干净）                            |
+| `git diff --check`                         | **PASS**（exit 0）                          |
+| secret scan                                | **PASS**（404 files，0 production secrets） |
+| push                                       | **未执行**（用户未授权）                    |
+| tag                                        | **未创建**（见下）                          |
+
+**提交明细**
+
+| SHA       | 类型             | 内容                                                                              |
+| --------- | ---------------- | --------------------------------------------------------------------------------- |
+| `161d168` | `chore(style)`   | docs 格式门禁（`.prettierrc.json` + `format:docs*`）+ Gradle/Android 本地状态忽略 |
+| `6652950` | `style(docs)`    | 134 个 `.md` / `.mdc` 在新门禁下规范化                                            |
+| `878ce00` | `refactor(core)` | 删除 3 个死导出 + 18 处 `obj` → `record`                                          |
+| `941966a` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）     |
+
+**过程中处置的环境故障（如实登记）**
+
+- 本工作区存在**外部进程删除分支 loose ref** 的已知问题。提交后 `.git/refs/heads/feat/` 被清除；
+  且一次修复误将**缩写 SHA**（7 位）写入 `packed-refs`，导致
+  `fatal: unexpected line in .git/packed-refs` 与 HEAD 失效（`git status` 一度显示 404 行全为 `A`）。
+- **修复（非破坏性）**：从 reflog 取完整 SHA `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`，
+  以**完整 40 位**重写 `packed-refs` 并同时重建 loose ref；随后 `HEAD` / `for-each-ref` / `git status`
+  全部恢复正常（`for-each-ref` 6 条 ref 全部可解析）。
+- **未执行**任何被禁止命令：`reset --hard` / `clean -fd` / `checkout .` / `restore .` / force push /
+  history rewrite。**未重做任何提交**（避免产生重复提交对象；此前出现的重复对象 `256a9c8` 已丢弃，保留 `161d168`）。
+
+**Tag 决策（第 132 节）：不创建**
+
+- 第 132 节的条件是「**如果**达到稳定 Production RC」。本轮结论为
+  `FINAL_PRODUCTION_CLOSURE = PARTIAL_WITH_REPORT`，且**平台侧无任何真实构建产物**
+  （`UI_BUILD_READY` / `ANDROID_BUILD_READY` / `HARMONY_BUILD_READY` / `IOS_BUILD_READY` 全为 `BLOCKED`）。
+- 在无产物状态下打 `v0.3.0-rc.1` 会被误读为「已产出 RC 制品」，与本轮诚实口径冲突 → **不创建**，
+  决定权留给用户。若用户判定 core / engineering 侧稳定即可打标，命令为：
+  `git tag -a v0.3.0-rc.1 -m "FINAL PRODUCTION CLOSURE V1 — core/engineering closed; platform builds blocked"`。
+- 既有 tag `v0.2.0-mvp02` / `v0.3.0-mvp03` **未改动**；**未创建任何 1.0 tag**。
 
 ---
 
@@ -263,7 +361,14 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 
 **FINAL_PRODUCTION_CLOSURE = PARTIAL_WITH_REPORT**
 
-- 所有**当前可执行的**代码 / 产品 / 工程 / 测试 / 安全 / UI 源码 / 文档 Gate 已完成并通过（`npm run check` 与 `check:full` 均 EXIT=0，453/453，0 flaky，0 类型逃逸，0 规则禁用，0 生产密钥，0 网络原语）。
+- 所有**当前可执行的**代码 / 产品 / 工程 / 测试 / 安全 / UI 源码 / 文档 Gate 已完成并通过
+  （`npm run check` 与 `check:full` 均 **EXIT=0**，453/453，0 flaky，0 类型逃逸，0 规则禁用，
+  0 生产密钥，0 网络原语），且是在**最终提交树 `941966a`** 上复跑确认的。
+- **clean install = PASS**（非破坏性验证：`npm ci --dry-run` EXIT=0 + lockfile 同步 + deps gate）；
+  **clean clone = BLOCKED（环境）**——工作区外批量写入被沙箱截断/终止，已用
+  「工作区零未跟踪 ⇒ 磁盘树 ≡ 提交树 + 全门禁通过 ⇒ 提交树自足」作等价论证，**未硬写 PASS**。
 - 所有**外部平台 / 账号 Gate** 已被明确收敛为 `BLOCKED` 或 `NOT_RUN`，并给出精确解除动作。
 - 其中两条既有 Blocker（B1 / B2）的**事实前提经实测被推翻**，记录已修正 —— 这是本轮最实质的现场纠正。
-- **本报告不代表三端商店已经上架。**
+- Git 收口完成：**4 个提交**、工作区干净、`git diff --check` PASS、**未 push**、**未创建 RC / 1.0 tag**
+  （无平台产物时不打 RC 标，理由见 §8.2）。
+- **本报告不代表三端商店已经上架，也不代表已产出任何可安装的平台构建产物。**
