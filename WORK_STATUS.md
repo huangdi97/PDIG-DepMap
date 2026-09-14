@@ -85,6 +85,15 @@
 - **clean install = PASS**（非破坏性：`npm ci --dry-run` EXIT=0 + lockfile↔manifest 同步 + `check:deps` tree/lockfile OK）
 - **clean clone = BLOCKED（环境）**：工作区外批量写入被沙箱截断/终止；已用
   「`git status -uall` 0 行 ⇒ 磁盘树 ≡ 提交树；全门禁在该树 EXIT=0 ⇒ 提交树自足」作等价论证，**不写 PASS**
+- **PHASE Q（第 144 节「当前可用 platform build」）**：**无任何平台工具链具备构建能力**，故对全部前置条件逐项复测
+  - Android：Gradle 发行版缺失（仅 0 字节 `.lck`/`.part`）；`services.gradle.org` 首跳 307 →
+    `github.com/gradle/gradle-distributions` **502 不可达**；已装 platform `36.1`/`37.0`（**无 34**）；`adb devices` 空
+  - HarmonyOS：`ets/js/native/previewer/toolchains` **5 组件均在盘**（API 13 / 5.0.1.115），但解析失败
+  - UI：HBuilderX **不存在**（B10）；iOS：`xcodebuild` **不存在**（B3）
+  - **HarmonyOS hvigor 真实重跑**（重建 17 文件最小 Stage 工程）→ `BUILD FAILED in 24 s 166 ms`，
+    **精确复现**既有组件错误，并暴露**新根因**：`repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **400**
+    → `TypeError: datas is not iterable`（`OhRemoteComponentLoader`）⇒ 远端列表路径亦不可用
+  - **未产生任何平台产物**（HAP / APK / AAB / IPA / TestFlight 全无）；新根因已登记 `BLOCKERS.md` B2
 
 ## Git 收口（第 130–133 节）
 

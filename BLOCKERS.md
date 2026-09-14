@@ -58,12 +58,32 @@ hvigor ERROR: Unable to find the following components:
 Solution: 1.Go to File > Settings > OpenHarmony SDK, download the components, and sync the project.
 ```
 
+**本轮重跑（FINAL PRODUCTION CLOSURE V1，2026-09-14，第 144 节）** —— 在 OS 临时目录重建最小 Stage 工程
+（17 文件，`modelVersion 5.0.2`）后**再次执行同一命令**，**精确复现**上述错误，并暴露出一个**此前未记录的根因**：
+
+```
+> hvigor WARN: Request failed with status code 400
+> hvigor WARN: url=https://repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList, statusCode=undefined
+> hvigor WARN: TypeError: datas is not iterable
+    at OhRemoteComponentLoader.configComponent (.../@ohos/sdkmanager-common/.../oh-remote-component-loader.js:74:28)
+> hvigor ERROR: Cause: Unable to find the following components:
+        toolchains:13 / ArkTS:13 / js:13 / native:13 / previewer:13
+> hvigor ERROR: BUILD FAILED in 24 s 166 ms
+```
+
+无 HAP 产物。**关键新证据**：`OhRemoteComponentLoader` 请求
+`https://repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **400**（`statusCode=undefined`，
+响应体不含 `datas`）→ **远端组件列表接口亦不可用**。故「组件在磁盘上存在却无法被解析」的原因
+**不只是本地加载器问题**：本地组件清单与远端列表**两条解析路径当前都取不到 API 13 组件**。
+
 **实际阻塞**：
 
 1. SDK 组件（API 13）未被 hvigor 本地组件加载器识别 → 需 DevEco **SDK Manager 图形化同步**（人工步骤）
-2. `platforms/harmonyos/` 是**适配器片段**（仅 `app.json5` + 1 个 `.ets` + `module.json5`），非可构建 Stage 工程
-3. **产品级 HarmonyOS 产物由 HBuilderX（uni-app x）产出，非 DevEco 直接产出** → 仍受 B10 约束
-4. 无 HarmonyOS 签名材料与正式 bundleName
+2. **（本轮新增）** hvigor 依赖的远端接口 `repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **400**，
+   CLI 侧无法自动解析组件 → **必须**走 DevEco 图形化 SDK Manager，CLI 兜底路径不存在
+3. `platforms/harmonyos/` 是**适配器片段**（仅 `app.json5` + 1 个 `.ets` + `module.json5`），非可构建 Stage 工程
+4. **产品级 HarmonyOS 产物由 HBuilderX（uni-app x）产出，非 DevEco 直接产出** → 仍受 B10 约束
+5. 无 HarmonyOS 签名材料与正式 bundleName
 
 **解除动作**：DevEco 中执行 SDK Manager 同步 → （如需独立验证适配器）补全可构建 Stage 工程 → 解除 B10 以获得产品级产物 → 提供签名材料与正式 bundleName。
 

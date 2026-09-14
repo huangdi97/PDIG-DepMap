@@ -50,7 +50,10 @@
 
 ### 2.3 解除动作（精确）
 
-1. 获取可用 Gradle 发行版（`gradle-8.9-bin.zip` 或项目内新增 gradle wrapper），或允许 `~/.gradle` 缓存完成下载；
+1. 获取可用 Gradle 发行版（`gradle-8.9-bin.zip` 或项目内新增 gradle wrapper）——
+   注意 `services.gradle.org` 首跳 **307** 至 `github.com/gradle/gradle-distributions`，
+   而**该最终地址当前 `curl: (7) CONNECT tunnel failed, 502` 不可达**（2026-09-14 复测），
+   故需**离线投放**发行包，或放开该域名；
 2. 允许 `google()` / `mavenCentral()` 制品下载；
 3. `compileSdk` 对齐已安装 platform（34 未装；可装 34 或升至 36）→ **改动前需评审**；
 4. 连接真机或启动 emulator；
@@ -82,12 +85,13 @@ node ".../tools/hvigor/bin/hvigorw.js" assembleHap --mode module -p product=defa
 
 实测演进：
 
-| 轮次 | hvigor 输出                                                                                                                                                       |
-| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1    | `hvigor ERROR: Please configure compileSdkVersion in the product.`                                                                                                |
-| 2    | `hvigor ERROR: Unsupported modelVersion of Hvigor 5.0.5. Detail: The supported Hvigor modelVersion is 5.0.2`                                                      |
-| 3    | `Pnpm install success.` → 工程模型解析成功 → `hvigor ERROR: Unable to find the following components: toolchains:13 / ArkTS:13 / js:13 / native:13 / previewer:13` |
-| 4    | 调整 `sdk.dir` 至 `sdk\default` 后仍为同一组件解析错误                                                                                                            |
+| 轮次  | hvigor 输出                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | `hvigor ERROR: Please configure compileSdkVersion in the product.`                                                                                                                                                                                                                                                                                                                                                                  |
+| 2     | `hvigor ERROR: Unsupported modelVersion of Hvigor 5.0.5. Detail: The supported Hvigor modelVersion is 5.0.2`                                                                                                                                                                                                                                                                                                                        |
+| 3     | `Pnpm install success.` → 工程模型解析成功 → `hvigor ERROR: Unable to find the following components: toolchains:13 / ArkTS:13 / js:13 / native:13 / previewer:13`                                                                                                                                                                                                                                                                   |
+| 4     | 调整 `sdk.dir` 至 `sdk\default` 后仍为同一组件解析错误                                                                                                                                                                                                                                                                                                                                                                              |
+| **5** | **FINAL PRODUCTION CLOSURE V1 重跑（2026-09-14，第 144 节）**：在 OS 临时目录重建最小 Stage 工程（17 文件）后重跑 → **精确复现**组件错误，并暴露**新根因**：`OhRemoteComponentLoader` 请求 `https://repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **HTTP 400**（`statusCode=undefined`）→ `TypeError: datas is not iterable`，即**远端组件列表路径亦不可用**；`hvigor ERROR: BUILD FAILED in 24 s 166 ms`，**无 HAP 产物** |
 
 hvigor 自带修复建议：_Go to File > Settings > OpenHarmony SDK, download the components, and sync the project. Open SDK Manager._
 

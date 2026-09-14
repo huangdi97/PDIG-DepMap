@@ -195,6 +195,51 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 
 ---
 
+## 2.2 PHASE Q — 「当前可用 platform build」复测（第 144 节）
+
+第 144 节要求重跑「当前可用 platform build」。**结论：当前无任何平台工具链具备构建能力**，
+故对**全部前置条件**逐项复测（下表），并如实区分「本轮真实重跑」与「仅复测前置条件」。
+
+| 平台      | 复测项                   | 方法                                                                      | 本轮实测                                                                                                           | 与既有记录 |
+| --------- | ------------------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------- |
+| Android   | Gradle 发行版            | `ls ~/.gradle/wrapper/dists/gradle-9.3.1-bin/*/`                          | 仅 `gradle-9.3.1-bin.zip.lck`、`.part`（**均 0 字节**，目录总大小 0）                                              | **一致**   |
+| Android   | 工程内 wrapper           | `find . -name 'gradlew*' -o -name 'gradle-wrapper.properties'`            | **无**                                                                                                             | **一致**   |
+| Android   | 发行包 CDN               | `curl -I -L https://services.gradle.org/distributions/gradle-8.9-bin.zip` | 首跳 **307** → `github.com/gradle/gradle-distributions/...`；跟随后 **`curl: (7) CONNECT tunnel failed, 502`**     | **一致**   |
+| Android   | 对照：Maven Central      | `curl -I https://repo1.maven.org/maven2/`                                 | **HTTP 200**（证明差异来自 Gradle 发行包 CDN，而非整体断网）                                                       | 一致       |
+| Android   | 已装 platform            | `ls SDK/platforms` / `build-tools`                                        | `android-36.1`、`android-37.0` / `36.1.0`、`37.0.0`（**无 34**）                                                   | **一致**   |
+| Android   | 设备                     | `adb devices`                                                             | **空**                                                                                                             | **一致**   |
+| HarmonyOS | SDK 组件                 | 读 5 个 `oh-uni-package.json`                                             | `ets`/`js`/`native`/`previewer`/`toolchains` **均存在**，`apiVersion 13`、`version 5.0.1.115`、`metaVersion 3.0.0` | **一致**   |
+| HarmonyOS | hvigor 入口              | `ls tools/hvigor/bin`                                                     | `hvigorw`、`hvigorw.bat`、`hvigorw.js`                                                                             | 一致       |
+| HarmonyOS | **实际构建（真实重跑）** | 见下                                                                      | **BUILD FAILED**，精确复现既有错误 + **新增根因**                                                                  | 见下       |
+| UI        | HBuilderX                | `ls <TOOLS_ROOT>/HBuilderX`、`where HBuilderX`                                 | **不存在**                                                                                                         | **一致**   |
+| iOS       | macOS / Xcode            | `command -v xcodebuild`                                                   | **不存在**                                                                                                         | **一致**   |
+
+### HarmonyOS hvigor 重跑（唯一被实际执行的 platform build）
+
+在 OS 临时目录重建最小 Stage 工程（**17 个文件**：`build-profile.json5` / `hvigorfile.ts` /
+`oh-package.json5` / `hvigor/hvigor-config.json5`（`modelVersion 5.0.2`）/ `AppScope/*` /
+`entry/*`（含 `EntryAbility.ets`、`Index.ets`、`module.json5`、resources）），执行：
+
+```
+DEVECO_SDK_HOME=".../DevEco Studio/sdk" \
+node ".../tools/hvigor/bin/hvigorw.js" assembleHap \
+  --mode module -p product=default -p buildMode=debug --no-daemon
+```
+
+| 项         | 结果                                                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| 输出       | `hvigor ERROR: BUILD FAILED in 24 s 166 ms`                                                                                              |
+| 组件错误   | `Unable to find the following components: toolchains:13 / ArkTS:13 / js:13 / native:13 / previewer:13`                                   |
+| **新根因** | `OhRemoteComponentLoader` 请求 `repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` → **HTTP 400** → `TypeError: datas is not iterable`    |
+| 产物       | **无 HAP**（`find -name '*.hap'` = 空）                                                                                                  |
+| 结论       | **与既有记录一致**：组件在磁盘上存在但两条解析路径（本地清单 / 远端列表）**当前都取不到 API 13 组件** → 必须走 DevEco 图形化 SDK Manager |
+
+> **重要诚实声明**：本轮**未**重跑 Android / iOS / UI 的构建（其前置工具链缺失，无可执行对象），
+> 仅复测前置条件；**未伪造任何平台 PASS**；本轮**未产生任何 HAP / APK / AAB / IPA / TestFlight 产物**。
+> 新增的 400 根因已同步登记到 `BLOCKERS.md` B2。
+
+---
+
 ## 3. 本轮实际改动（全部经复验）
 
 | #   | 改动                                                                                                                                                                                      | 文件                                                                                                             | 复验                                                                                                   |
