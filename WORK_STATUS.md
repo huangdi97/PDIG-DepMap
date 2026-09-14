@@ -94,6 +94,11 @@
     **精确复现**既有组件错误，并暴露**新根因**：`repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **400**
     → `TypeError: datas is not iterable`（`OhRemoteComponentLoader`）⇒ 远端列表路径亦不可用
   - **未产生任何平台产物**（HAP / APK / AAB / IPA / TestFlight 全无）；新根因已登记 `BLOCKERS.md` B2
+- **第 144 节剩余 milestone 命令已在最终 HEAD（`bc8f631`）逐条重跑**：`check:full` **EXIT=0**
+  （453/453；coverage **93.82 / 82.22 / 94.55 / 93.82**；db-integrity 6 passed；perf 16 passed；deps gate PASS）、
+  全量 ×3 **EXIT=0**（run 1/3、2/3、3/3 各 43 files）、critical ×10 **10/10 EXIT=0**（每轮 9 files / 74 tests）、
+  secrets 404 files/0、network 118 files/0、architecture 48 files/circular 0、ui 30 `.uvue`/24 pages
+  → **第 144 节全部命令已重跑完毕**（唯一非 0 退出码者为 platform build，其失败即 B1/B2 事实）
 
 ## Git 收口（第 130–133 节）
 

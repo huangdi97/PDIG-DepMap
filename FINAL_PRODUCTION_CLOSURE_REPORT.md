@@ -144,6 +144,30 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 > 这是一次**独立复核**，结论与上表一致。按**不变量 D**，其后若再产生补录提交，结论不变；
 > 仅需在下一轮按第 144 节重跑。
 
+**最终 HEAD 全量 milestone 复跑（第 144 节剩余命令）**
+
+除上表的 `npm run check` 外，第 144 节列出的其余命令亦已在**同一最终 HEAD** 上逐条真实重跑：
+
+- 执行时 HEAD = `bc8f631dc235d8019488c22007eb5a3a8be480fc`
+  （`docs(platform): re-run the available platform build and record the new hvigor root cause`）
+- 前置条件：`git status --short -uall` = **0 行**
+
+| 第 144 节命令                       | 最终 HEAD 实测                                                                                                                                              | 退出码 |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ |
+| `npm run check:full`                | 453/453（43 files）；coverage **93.82 / 82.22 / 94.55 / 93.82**；db-integrity **6 passed**；perf **16 passed**；deps gate PASS（audit 3 moderate dev-only） | **0**  |
+| `npm run test:stability`（全量 ×3） | run 1/3、2/3、3/3 **各 43 files passed**                                                                                                                    | **0**  |
+| critical focused ×10                | **10/10 全绿**（每轮 **9 files / 74 tests**，累计 740 实例，0 失败 0 抖动）                                                                                 | **0**  |
+| `npm run check:secrets`             | **404 files / 0 production secrets**                                                                                                                        | **0**  |
+| `npm run check:network`             | **118 files / 0 原语**                                                                                                                                      | **0**  |
+| `npm run check:architecture`        | **48 files / circular 0**                                                                                                                                   | **0**  |
+| `npm run check:ui`                  | **30 `.uvue` / 24 pages / 5 components**                                                                                                                    | **0**  |
+| clean install                       | `npm ci --dry-run`（非破坏性等价验证，见 §2.1）                                                                                                             | **0**  |
+| clean clone                         | **BLOCKED（环境）**，见 §2.1                                                                                                                                | —      |
+| 当前可用 platform build             | **BUILD FAILED**（hvigor，精确复现 + 新根因），见 §2.2                                                                                                      | ≠0     |
+
+> 至此，**第 144 节列出的全部 milestone 命令均已在最终 HEAD 上重跑完毕**；唯一非 0 退出码者为
+> platform build，其失败本身即 B1 / B2 的既有事实。覆盖率 Branch 本轮为 **82.22**，仍落在 82.21–82.24 抖动区间内。
+
 ---
 
 ## 2.1 PHASE P — clean install / clean clone（第 144 节）
