@@ -167,7 +167,11 @@ node node_modules/@stryker-mutator/core/bin/stryker.js run
 说明冻结的 mutation baseline 在最终提交树上**可精确复现**（532 mutants / 436 / 96 / 242 / 93 全部相同）。
 
 - 报告产物：`core/reports/mutation/mutation.{json,html}`（已 gitignore）。
-- survived 变异的分类与判定见 `docs/MUTATION_TEST_REPORT.md`（StringLiteral 文案模板、capability tie 等价变异等）。
+- survived 变异的分类见 `docs/MUTATION_TEST_REPORT.md` —— 已用本次生成的 `mutation.json`
+  升级为**精确版**：按 mutator 的完整分布（Conditional 44 / String 23 / Equality 22 / Array 19 / Method 17 …，合计 164）、
+  按语义位置的 **16 簇**精确行段（最大单簇 `317–361` = 42 处，wave-BFS 主循环），
+  以及 NoCoverage 28 处的精确构成。该文档明确区分「机器可核实的事实」与「人工语义评估」，
+  **不给出**无法机械判定的「等价变异总数」。
 - **状态：`MUTATION_STRYKER_RERUN = PASS`**（本轮真实执行）。
 - 工具**未列入 devDependencies**（`--no-save` 一次性安装）；运行完成后已卸载，依赖树还原为 lockfile 状态。
 - 说明：Stryker 结束时自动清理 `.stryker-tmp` 被本环境守卫拦截（`Failed to delete stryker temp directory`），
