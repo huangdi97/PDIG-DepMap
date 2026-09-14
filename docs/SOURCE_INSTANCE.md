@@ -1,7 +1,8 @@
 # SOURCE_INSTANCE.md（MVP02）
 
 > 状态：IMPLEMENTED + TESTED。实现：`core/src/repositories/source-instance-repository.ts`
-> + `core/src/domain/source.ts`；schema：`core/src/schema/migrations.ts`（v2 表 1）。
+>
+> - `core/src/domain/source.ts`；schema：`core/src/schema/migrations.ts`（v2 表 1）。
 
 ## 1. 概念
 
@@ -13,15 +14,15 @@
 
 ## 2. 表结构（schema v2 `source_instances`）
 
-| 列 | 说明 |
-|---|---|
-| id | PK（可显式指定或 UUID） |
-| adapter_id / adapter_version | 产出自该实例的 Adapter 及版本 |
-| source_kind | CHECK：statement_file / platform_export / open_banking / manual / discovery |
-| provider_id / account_node_id | 可选机构 / 绑定的账户节点 |
-| label / country / jurisdiction / currencies_json | 展示与元数据 |
-| state | CHECK：active / retired |
-| created_at / updated_at / last_ingested_at | 时间戳 |
+| 列                                               | 说明                                                                        |
+| ------------------------------------------------ | --------------------------------------------------------------------------- |
+| id                                               | PK（可显式指定或 UUID）                                                     |
+| adapter_id / adapter_version                     | 产出自该实例的 Adapter 及版本                                               |
+| source_kind                                      | CHECK：statement_file / platform_export / open_banking / manual / discovery |
+| provider_id / account_node_id                    | 可选机构 / 绑定的账户节点                                                   |
+| label / country / jurisdiction / currencies_json | 展示与元数据                                                                |
+| state                                            | CHECK：active / retired                                                     |
+| created_at / updated_at / last_ingested_at       | 时间戳                                                                      |
 
 **无任何秘密字段**（无账号 number / credential / token）。
 
@@ -31,6 +32,7 @@
 touchIngested / bindAccountNode / countAll`
 
 关键语义：
+
 - `retire`：只改 state；**保留全部 provenance**（该实例的 fingerprint /
   evidence 不迁移、不删除，供审计与历史解释）。
 - `touchIngested`：每次 finalize 更新 `last_ingested_at`。

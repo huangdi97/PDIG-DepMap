@@ -5,28 +5,28 @@
 
 ## 总判定
 
-| 项 | 值 |
-|---|---|
-| **MVP03_LIVING_GRAPH_CHANGE_SAFETY** | **PASS** |
-| GRAPH_REVISION | PASS（GR-001..012；同事务 bump；M-R1 KILLED） |
-| CHANGEPLAN_REBASE | PASS（PRB-001..011；M-R4 KILLED） |
-| PLAN_READINESS | PASS（三值纯规则；confidence/absence 通道结构性不存在；PI-1/PI-3；M-R2 KILLED） |
-| SCENARIO_COVERAGE | PASS（unknown/limited/partial/well_evidenced + 可解释；§24 七条） |
-| REALITY_DRIFT | PASS（RD-001..010；absence 无通道；M-R3 KILLED） |
-| DISCOVERY_CANDIDATE | PASS（PC 七条；不进 Impact、不 bump revision；M-R5 KILLED） |
-| SCENARIO_TEMPLATE | PASS（3 active 支付模板 + planned gate + 政策 ST-005） |
-| TIMELINE_UPCOMING | PASS（TL-001..007；确定性排序；投影不写库） |
-| ACTION_VERIFICATION | PASS（VF-001..007；done ≠ verified；future_observation 只到 evidence_suggested） |
-| SCHEMA_V3 | PASS（MIG3-001..006；change_plans/reality_drifts/discovery_candidates） |
-| V2_TO_V3_MIGRATION | PASS（fresh/restart/×50/rollback/未来版本拒绝；v2 payload→v3） |
-| DEPMAP_CONTAINER_V1_COMPAT | PASS（golden 不变；formatVersion=1 与 Schema v3 独立） |
-| MVP01_REGRESSION | PASS |
-| MVP02_REGRESSION | PASS |
-| ENGINEERING_BASELINE_V1 | PASS（check + check:full + stability ×3 全绿） |
-| QUALITY_GATES | PASS（Q0–Q19 维持 + MVP03 增量） |
-| SECURITY_PRIVACY | PASS（S-01..S-15 维持；新对象只存引用/ID；secret scan 331 files 0） |
-| NETWORK_ZERO | PASS（103 业务文件 0 网络原语） |
-| REAL_DATA | **NOT_RUN** |
+| 项                                   | 值                                                                               |
+| ------------------------------------ | -------------------------------------------------------------------------------- |
+| **MVP03_LIVING_GRAPH_CHANGE_SAFETY** | **PASS**                                                                         |
+| GRAPH_REVISION                       | PASS（GR-001..012；同事务 bump；M-R1 KILLED）                                    |
+| CHANGEPLAN_REBASE                    | PASS（PRB-001..011；M-R4 KILLED）                                                |
+| PLAN_READINESS                       | PASS（三值纯规则；confidence/absence 通道结构性不存在；PI-1/PI-3；M-R2 KILLED）  |
+| SCENARIO_COVERAGE                    | PASS（unknown/limited/partial/well_evidenced + 可解释；§24 七条）                |
+| REALITY_DRIFT                        | PASS（RD-001..010；absence 无通道；M-R3 KILLED）                                 |
+| DISCOVERY_CANDIDATE                  | PASS（PC 七条；不进 Impact、不 bump revision；M-R5 KILLED）                      |
+| SCENARIO_TEMPLATE                    | PASS（3 active 支付模板 + planned gate + 政策 ST-005）                           |
+| TIMELINE_UPCOMING                    | PASS（TL-001..007；确定性排序；投影不写库）                                      |
+| ACTION_VERIFICATION                  | PASS（VF-001..007；done ≠ verified；future_observation 只到 evidence_suggested） |
+| SCHEMA_V3                            | PASS（MIG3-001..006；change_plans/reality_drifts/discovery_candidates）          |
+| V2_TO_V3_MIGRATION                   | PASS（fresh/restart/×50/rollback/未来版本拒绝；v2 payload→v3）                   |
+| DEPMAP_CONTAINER_V1_COMPAT           | PASS（golden 不变；formatVersion=1 与 Schema v3 独立）                           |
+| MVP01_REGRESSION                     | PASS                                                                             |
+| MVP02_REGRESSION                     | PASS                                                                             |
+| ENGINEERING_BASELINE_V1              | PASS（check + check:full + stability ×3 全绿）                                   |
+| QUALITY_GATES                        | PASS（Q0–Q19 维持 + MVP03 增量）                                                 |
+| SECURITY_PRIVACY                     | PASS（S-01..S-15 维持；新对象只存引用/ID；secret scan 331 files 0）              |
+| NETWORK_ZERO                         | PASS（103 业务文件 0 网络原语）                                                  |
+| REAL_DATA                            | **NOT_RUN**                                                                      |
 
 ## 实测证据（收口轮）
 
@@ -47,6 +47,7 @@
 ## 交付物
 
 **Core**（`core/src/`）：
+
 - `repositories/graph-revision.ts`（revision 同事务 bump）
 - `domain/change-plan.ts` + `repositories/{change-plan,reality-drift,discovery-candidate}-repository.ts`
 - `services/{graph-view,plan-analysis,plan-readiness,change-plan-service,reality-drift-service,discovery-service,timeline}.ts`
@@ -66,13 +67,13 @@ README 更新（如实：无手机号/邮箱/Open Banking/AI 能力宣传）；C
 
 ## 平台状态（分别声明）
 
-| 平台 | IMPLEMENTED | STATIC_AUDITED | COMPILED | TESTED | DEVICE_VERIFIED |
-|---|---|---|---|---|---|
-| Android | YES | YES | BLOCKED（B1） | BLOCKED（B1） | NO |
-| HarmonyOS | YES | YES | BLOCKED（B2） | BLOCKED（B2） | NO |
-| iOS | YES | YES | BLOCKED（B3） | BLOCKED（B3） | NO |
-| UI（uni-app x） | YES | YES（静态审计） | BLOCKED（B10） | — | NO |
-| Core（Node 22） | YES | YES | YES | YES（427 tests） | N/A |
+| 平台            | IMPLEMENTED | STATIC_AUDITED  | COMPILED       | TESTED           | DEVICE_VERIFIED |
+| --------------- | ----------- | --------------- | -------------- | ---------------- | --------------- |
+| Android         | YES         | YES             | BLOCKED（B1）  | BLOCKED（B1）    | NO              |
+| HarmonyOS       | YES         | YES             | BLOCKED（B2）  | BLOCKED（B2）    | NO              |
+| iOS             | YES         | YES             | BLOCKED（B3）  | BLOCKED（B3）    | NO              |
+| UI（uni-app x） | YES         | YES（静态审计） | BLOCKED（B10） | —                | NO              |
+| Core（Node 22） | YES         | YES             | YES            | YES（427 tests） | N/A             |
 
 ## Real Data Gate
 

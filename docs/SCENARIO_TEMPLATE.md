@@ -12,11 +12,11 @@ Template → 用户选择目标对象 → 少量参数 → ChangePlan（draft）
 
 ## Active 模板（MVP03，payment-domain only）
 
-| id | 标题 | 说明 | 建议提前量 |
-|---|---|---|---|
-| `replace_payment_card` | 更换银行卡 | 换卡前检查支付钱包、自动扣款和订阅关系 | — |
-| `expiring_payment_card` | 银行卡即将到期 | 到期前检查仍依赖这张卡的支付路径 | 30 天 |
-| `close_payment_instrument` | 注销银行卡 | 注销前确认哪些支付关系需要迁移 | 14 天 |
+| id                         | 标题           | 说明                                   | 建议提前量 |
+| -------------------------- | -------------- | -------------------------------------- | ---------- |
+| `replace_payment_card`     | 更换银行卡     | 换卡前检查支付钱包、自动扣款和订阅关系 | —          |
+| `expiring_payment_card`    | 银行卡即将到期 | 到期前检查仍依赖这张卡的支付路径       | 30 天      |
+| `close_payment_instrument` | 注销银行卡     | 注销前确认哪些支付关系需要迁移         | 14 天      |
 
 requiredInputs：`targetPaymentInstrumentId`；optional：`replacementPaymentInstrumentId` /
 `effectiveDate`。`recommendedLeadTimeDays` 只是产品建议，不是法律/金融保证，用户可调整。

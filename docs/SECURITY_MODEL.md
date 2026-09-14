@@ -7,11 +7,11 @@
 
 ## 静态数据
 
-| 平台 | 数据库 | 密钥保护 | 启动锁 |
-|---|---|---|---|
-| Android | SQLCipher 全库加密 | AndroidKeyStore AES-GCM 包裹 DB key | BiometricPrompt + DEVICE_CREDENTIAL |
-| iOS | SQLCipher 全库加密 | Keychain（ThisDeviceOnly） | LocalAuthentication |
-| HarmonyOS | ArkData relationalStore 加密(S4) | HUKS | 官方用户认证（FACE/FINGERPRINT/PIN） |
+| 平台      | 数据库                           | 密钥保护                            | 启动锁                               |
+| --------- | -------------------------------- | ----------------------------------- | ------------------------------------ |
+| Android   | SQLCipher 全库加密               | AndroidKeyStore AES-GCM 包裹 DB key | BiometricPrompt + DEVICE_CREDENTIAL  |
+| iOS       | SQLCipher 全库加密               | Keychain（ThisDeviceOnly）          | LocalAuthentication                  |
+| HarmonyOS | ArkData relationalStore 加密(S4) | HUKS                                | 官方用户认证（FACE/FINGERPRINT/PIN） |
 
 - 禁止：明文库、明文备份、自制 6 位 PIN 作为密钥根、密钥进源码/日志/普通配置。
 - 错误密钥/认证取消 → 打开失败，绝不降级明文。

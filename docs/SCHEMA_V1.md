@@ -6,17 +6,17 @@
 
 ## 表
 
-| 表 | 说明 | 关键约束 |
-|---|---|---|
-| `meta` | schema_version / fpSecret / app 元数据 | key PK |
-| `nodes` | 节点（kind 稳定 + templateId 扩展） | id PK |
-| `dependencies` | 用户确认的依赖（存在即确认） | `UNIQUE(from_node, relation, to_node, capability)`；criticality CHECK(required,unknown)；state CHECK(active,retired)；origin CHECK(manual,proposal) |
-| `dependency_groups` | 用户确认的来源组合 | `UNIQUE(group_key)`；mode CHECK(ANY,ALL) |
-| `dependency_proposals` | 机器推断队列（非图实体） | `UNIQUE(key)`；decision CHECK |
-| `dependency_group_proposals` | 备用路径提议 | `UNIQUE(key)` |
-| `evidence` | Proposal key 级累计摘要 | `UNIQUE(proposal_key)` |
-| `observation_fingerprints` | “以前处理过没有” | `UNIQUE(source, fingerprint)`；不存原文 |
-| `import_sessions` | 导入会话统计 | id PK |
+| 表                           | 说明                                   | 关键约束                                                                                                                                            |
+| ---------------------------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `meta`                       | schema_version / fpSecret / app 元数据 | key PK                                                                                                                                              |
+| `nodes`                      | 节点（kind 稳定 + templateId 扩展）    | id PK                                                                                                                                               |
+| `dependencies`               | 用户确认的依赖（存在即确认）           | `UNIQUE(from_node, relation, to_node, capability)`；criticality CHECK(required,unknown)；state CHECK(active,retired)；origin CHECK(manual,proposal) |
+| `dependency_groups`          | 用户确认的来源组合                     | `UNIQUE(group_key)`；mode CHECK(ANY,ALL)                                                                                                            |
+| `dependency_proposals`       | 机器推断队列（非图实体）               | `UNIQUE(key)`；decision CHECK                                                                                                                       |
+| `dependency_group_proposals` | 备用路径提议                           | `UNIQUE(key)`                                                                                                                                       |
+| `evidence`                   | Proposal key 级累计摘要                | `UNIQUE(proposal_key)`                                                                                                                              |
+| `observation_fingerprints`   | “以前处理过没有”                       | `UNIQUE(source, fingerprint)`；不存原文                                                                                                             |
+| `import_sessions`            | 导入会话统计                           | id PK                                                                                                                                               |
 
 ## 核心键
 

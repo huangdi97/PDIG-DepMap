@@ -61,18 +61,21 @@
 ## H. Platform
 
 ### Android
+
 - [x] STATIC_AUDITED（manifest/permission/crypto 常量/DDL 逐项）
 - [ ] COMPILED（Blocker B1：无 JDK17/javac/SDK/Gradle）
 - [ ] TESTED（golden 测试 TEST READY 未运行）
 - [ ] DEVICE_VERIFIED（需设备）
 
 ### HarmonyOS
+
 - [x] STATIC_AUDITED
 - [ ] COMPILED（Blocker B2：无 DevEco/hvigor/SDK）
 - [ ] TESTED
 - [ ] DEVICE_VERIFIED
 
 ### iOS
+
 - [x] STATIC_AUDITED
 - [x] Mac handoff complete（docs/IOS_MAC_HANDOFF.md）
 - [ ] COMPILED（Blocker B3：无 macOS/Xcode）

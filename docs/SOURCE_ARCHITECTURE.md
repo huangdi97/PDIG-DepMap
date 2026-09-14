@@ -50,6 +50,7 @@ interface EvidenceSourceAdapter {
 ```
 
 不变量：
+
 - 相同 adapter version + input + mapping ⇒ deterministic 输出（×50 测试）。
 - Parsing/Fingerprint 语义变化必须升级 `adapterVersion`。
 - MVP02 文件 Adapter 强制 `coverageMode='event_stream'`、

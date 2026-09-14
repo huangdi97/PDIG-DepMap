@@ -10,6 +10,7 @@
 ## 0. 启动时必须读取
 
 按顺序完整读取：
+
 1. `AGENTS.md`
 2. `CANONICAL_DESIGN.md`
 3. `PLATFORM_DECISION.md`
@@ -27,6 +28,7 @@
 从当前空目录建立 DepMap MVP。
 
 你承担：
+
 - 软件架构
 - TypeScript/Vue 工程
 - Android 工程
@@ -45,6 +47,7 @@
 不要只输出设计建议。
 
 实际执行：
+
 - mkdir / 初始化 repo
 - 创建工程
 - 写代码
@@ -61,11 +64,13 @@
 ## 2. 空目录初始化
 
 若 `.git` 不存在：
+
 - `git init`
 - 创建合理 `.gitignore`
 - 创建首个 baseline commit（若工具允许）
 
 首先生成：
+
 - `PRE_IMPLEMENTATION_AUDIT.md`
 - `WORK_STATUS.md` 更新
 - `docs/ARCHITECTURE.md`
@@ -73,6 +78,7 @@
 - `docs/TEST_MATRIX.md`
 
 审计必须确认：
+
 - Workspace 原本无业务代码
 - Canonical Design 已读取
 - 当前主栈为 uni-app x + Vue3 + TypeScript/UTS
@@ -153,6 +159,7 @@
 即使 HBuilderX / DevEco / Xcode 暂时不可用，也必须能先运行共享 Core 测试。
 
 为纯 TypeScript Core 建立：
+
 - package.json
 - TypeScript
 - test runner（优先 Vitest，若与当前环境冲突可选择等价方案）
@@ -160,6 +167,7 @@
 - typecheck
 
 核心：
+
 - domain
 - impact
 - parser
@@ -178,6 +186,7 @@ UI / 平台 SDK 不得阻塞 Core。
 严格按 Canonical Design 实现。
 
 至少持久化：
+
 - Node
 - Dependency
 - DependencyGroup
@@ -194,6 +203,7 @@ UI / 平台 SDK 不得阻塞 Core。
 Dependency 存在即用户确认。
 
 MVP：
+
 - capability = payment
 - criticality = required | unknown
 - state = active | retired
@@ -211,6 +221,7 @@ logical key：
 ### 5.2 Reactivation / UPSERT
 
 同一 logical dependency：
+
 - 不存在 → INSERT
 - active → UPDATE lastVerifiedAt/evidence
 - retired → re-activate 同一 id
@@ -222,6 +233,7 @@ logical key：
 只允许用户确认产生。
 
 字段至少：
+
 - id
 - targetNodeId
 - capability
@@ -242,6 +254,7 @@ UNIQUE(groupKey)
 Proposal 非图实体。
 
 每条 suggestion 独立：
+
 - key
 - from
 - to
@@ -258,6 +271,7 @@ Proposal.status 仅 UI 过滤，不参与业务判断。
 必须有独立生命周期。
 
 至少：
+
 - id
 - key
 - targetNodeId
@@ -276,6 +290,7 @@ Proposal.status 仅 UI 过滤，不参与业务判断。
 实现 SchemaVersion = 1。
 
 要求：
+
 - transaction
 - rollback
 - idempotent
@@ -351,6 +366,7 @@ T11 scenario 同时 disable A,B；confirmed ANY group => C lost
 T12 payment lost 不得错误传播到 recovery/access
 
 再补：
+
 - deterministic output order
 - target operation always last in Action Checklist
 
@@ -363,6 +379,7 @@ T12 payment lost 不得错误传播到 recovery/access
 按 Canonical Design 完整实现。
 
 容器：
+
 - format depmap
 - formatVersion 1
 - Argon2id v19
@@ -383,6 +400,7 @@ AAD：
 ### 8.1 不可信 header
 
 Argon2 前校验：
+
 - exact algorithms/version
 - memoryKiB 16384..262144
 - iterations 1..10
@@ -397,12 +415,14 @@ Argon2 前校验：
 ### 8.2 Golden Vector
 
 固定：
+
 - password = depmap-test
 - 固定 salt
 - 固定 nonce
 - 固定 plaintext
 
 冻结：
+
 - derived key hex
 - ciphertext base64
 - tag base64
@@ -431,6 +451,7 @@ Repository 行为必须平台一致。
 ### Android
 
 实现/验证：
+
 - SQLCipher
 - Keystore / 经验证安全密钥方案
 - biometric / system credential
@@ -442,6 +463,7 @@ Repository 行为必须平台一致。
 ### HarmonyOS
 
 实现/验证：
+
 - ArkData relationalStore encryption
 - HUKS
 - 官方用户认证
@@ -454,12 +476,14 @@ Repository 行为必须平台一致。
 ### iOS
 
 实现：
+
 - SQLCipher
 - Keychain
 - LocalAuthentication
 - privacy screen
 
 如果当前开发机无 macOS/Xcode：
+
 - 完成代码、接口、工程配置与测试可做部分
 - `COMPILED/DEVICE_VERIFIED` 明确标 no
 - 记录 BLOCKER
@@ -472,6 +496,7 @@ Repository 行为必须平台一致。
 尽早做，不等 UI。
 
 每个平台状态必须写：
+
 - IMPLEMENTED
 - COMPILED
 - TESTED
@@ -488,6 +513,7 @@ MVP 只做微信。
 Parser 必须 pure/deterministic。
 
 处理：
+
 - UTF-8
 - UTF-8 BOM
 - GBK/GB18030（按实际格式）
@@ -506,6 +532,7 @@ Parser 必须 pure/deterministic。
 禁止保存原始交易到 DB。
 
 合成 fixtures：
+
 - normal-wechat.csv
 - utf8-bom.csv
 - gbk.csv
@@ -531,6 +558,7 @@ Parser 必须 pure/deterministic。
 canonical row。
 
 字段：
+
 - fingerprint
 - source
 - fingerprintVersion
@@ -552,6 +580,7 @@ UNIQUE(source, fingerprint)
 Evidence 是累计摘要，不是账本。
 
 Evidence：
+
 - sourceType
 - parserId
 - parserVersion
@@ -563,6 +592,7 @@ Evidence：
 只累计新 unique observations。
 
 ImportSession：
+
 - sourceType
 - parserId/version
 - startedAt/completedAt
@@ -579,6 +609,7 @@ ImportSession：
 ## 14. Node Resolver
 
 顺序：
+
 1. builtin alias exact
 2. normalized exact
 3. conservative fuzzy
@@ -600,6 +631,7 @@ ImportSession：
 ## 15. Recurrence / Path Proposal
 
 简单 MVP recurrence 即可：
+
 - monthly
 - quarterly
 - yearly
@@ -608,6 +640,7 @@ ImportSession：
 机器只产生 Proposal。
 
 不得直接产生：
+
 - Dependency
 - DependencyGroup
 - required criticality
@@ -626,6 +659,7 @@ rejected：
 保存拒绝状态。
 
 重新提议必须基于新 evidence：
+
 - new observations >= 3
 - 覆盖至少一个完整 recurrence cycle
 
@@ -656,6 +690,7 @@ GroupProposal 同理。
 11. 设置 / 导入导出 / 隐私
 
 首页 answer-oriented：
+
 - 换银行卡
 - 待确认
 - 必须处理
@@ -672,6 +707,7 @@ Graph 只做二级视图，MVP 可不做。
 必须把原始注销动作放最后。
 
 输出等级：
+
 - must_change / 必须处理
 - backup_path / 有备用路径
 - degraded / 能力降级
@@ -685,6 +721,7 @@ Graph 只做二级视图，MVP 可不做。
 ## 19. 应用隐私
 
 本 App 不保存：
+
 - 密码
 - CVV
 - 完整银行卡号
@@ -692,6 +729,7 @@ Graph 只做二级视图，MVP 可不做。
 - 原始长期消费流水
 
 本 App 保存：
+
 - 节点档案
 - 用户确认 Dependency/Group
 - Evidence Summary
@@ -707,6 +745,7 @@ Graph 只做二级视图，MVP 可不做。
 ## 20. 日志与 Git 安全
 
 禁止日志：
+
 - raw CSV
 - secrets
 - crypto keys
@@ -714,6 +753,7 @@ Graph 只做二级视图，MVP 可不做。
 - decrypted depmap
 
 `.gitignore` 必须覆盖：
+
 - local_private
 - real bills
 - signing files
@@ -730,7 +770,9 @@ Graph 只做二级视图，MVP 可不做。
 ## 21. 三端工程与上架准备
 
 ### Android
+
 完成：
+
 - applicationId 可配置
 - versionCode/name
 - minimal permissions
@@ -742,7 +784,9 @@ Graph 只做二级视图，MVP 可不做。
 - store description draft
 
 ### HarmonyOS
+
 完成：
+
 - bundleName 可配置
 - module 配置
 - minimal permissions
@@ -753,7 +797,9 @@ Graph 只做二级视图，MVP 可不做。
 - privacy draft
 
 ### iOS
+
 完成：
+
 - bundle identifier 可配置
 - version/build
 - minimal entitlements
@@ -771,6 +817,7 @@ Graph 只做二级视图，MVP 可不做。
 ## 22. 文档输出
 
 最终至少生成：
+
 - README.md
 - PRE_IMPLEMENTATION_AUDIT.md
 - docs/ARCHITECTURE.md
@@ -792,6 +839,7 @@ Graph 只做二级视图，MVP 可不做。
 ## 23. REAL DATA Gate
 
 没有真实账单时：
+
 - synthetic tests 全部完成
 - 生成本地验证命令/流程
 - 不得写 REAL_DATA PASS
@@ -802,10 +850,12 @@ Graph 只做二级视图，MVP 可不做。
 账单 → parse → fingerprint → resolver → proposal → confirmation → graph → simulate
 
 ### Correctness Gate
+
 所有“必须处理”人工审计必须为真。
 false positive = 0
 
 ### Value Gate
+
 至少发现一个原本易漏依赖，或明显减少排查时间。
 
 失败就如实 FAIL。
@@ -815,12 +865,14 @@ false positive = 0
 ## 24. 工作阶段
 
 ### PHASE 0 — Bootstrap
+
 读取全部控制文件
 审计空目录
 初始化 git / Node core tests / uni-app x 工程
 更新 WORK_STATUS
 
 ### PHASE 1 — Schema
+
 Domain types
 Schema v1
 repositories
@@ -828,11 +880,13 @@ migration
 tests
 
 ### PHASE 2 — Impact
+
 先写 failing tests
 实现 payment-domain kernel
 全部 PASS
 
 ### PHASE 3 — Crypto
+
 depmap V1
 JCS
 Argon2id
@@ -842,58 +896,70 @@ golden vectors
 reference tests
 
 ### PHASE 4 — Platform Security
+
 Android secure DB
 Harmony secure DB
 iOS adapter
 早期 security spikes
 
 ### PHASE 5 — Parser
+
 Wechat parser
 fixtures
 fingerprint
 evidence/import sessions
 
 ### PHASE 6 — Resolver
+
 Node Resolver
 alias/fuzzy/manual resolution
 
 ### PHASE 7 — Proposal
+
 DependencyProposal
 UPSERT
 rejected/reproposal
 confirmation
 
 ### PHASE 8 — Group Proposal
+
 DependencyGroupProposal
 confirmation
 groupKey
 lifecycle
 
 ### PHASE 9 — Integration
+
 完整 synthetic import pipeline
 duplicate import
 reactivation
 scenario tests
 
 ### PHASE 10 — UI
+
 中文 MVP UI
 全流程
 
 ### PHASE 11 — Android
+
 build/run/security evidence
 
 ### PHASE 12 — HarmonyOS
+
 build/run/security evidence
 
 ### PHASE 13 — iOS
+
 工程/代码/build（视 macOS 环境）
 
 ### PHASE 14 — Store readiness
+
 三端 checklist
 privacy text
 release config
 
 ### PHASE 15 — Final audit
+
 所有测试
 secret scan
 git diff
@@ -904,6 +970,7 @@ FINAL_REPORT
 ## 25. 执行节奏
 
 每个 Phase：
+
 1. 写/更新测试
 2. 实现
 3. 运行测试
@@ -939,6 +1006,7 @@ STORE_READY =
 外部 blocker 可以记录，但必须继续其他工作。
 
 可接受：
+
 - 缺 Xcode/macOS
 - 缺开发者账号
 - 缺签名
@@ -946,6 +1014,7 @@ STORE_READY =
 - 缺最终 bundle id / privacy URL
 
 不可接受：
+
 - TypeScript error
 - test failure
 - dependency conflict
@@ -967,6 +1036,7 @@ Neo4j、GraphRAG、LLM、Agent、embedding、vector DB、GNN、概率图、Bayes
 ## 29. 完成标准
 
 ### Core
+
 - schema tests PASS
 - migration PASS
 - impact PASS
@@ -978,29 +1048,36 @@ Neo4j、GraphRAG、LLM、Agent、embedding、vector DB、GNN、概率图、Bayes
 - crypto golden vector PASS
 
 ### Android
+
 尽可能：
+
 - build PASS
 - encrypted DB verified
 - lock verified
 
 ### HarmonyOS
+
 尽可能：
+
 - build PASS
 - ArkData encryption verified
 - HUKS/auth verified
 
 ### iOS
+
 - code/config complete
 - 若 macOS 可用则 build/test
 - 否则明确 blocker
 
 ### Product
+
 - synthetic end-to-end PASS
 - real-data pipeline ready
 - UI complete
 - simulate card removal → Action Checklist
 
 ### Docs
+
 完整且真实。
 
 ---

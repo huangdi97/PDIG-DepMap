@@ -7,14 +7,14 @@ Timeline 是 **derived read model / projection**（`buildTimeline(driver, now)`�
 
 ## 数据来源（全部可溯源 sourceType/sourceId）
 
-| 来源 | kind | 桶 |
-|---|---|---|
-| ChangePlan stale | needs_attention | attention |
-| ChangePlan effectiveDate | upcoming_change | 按日期 |
-| verify 动作未验证 | verification_pending | 按计划日期 |
-| open RealityDrift | drift_review | attention |
-| Node fields.expiryDate | expiration | 按日期 |
-| SourceInstance 超 45 天未刷新 | freshness_review | attention |
+| 来源                          | kind                 | 桶         |
+| ----------------------------- | -------------------- | ---------- |
+| ChangePlan stale              | needs_attention      | attention  |
+| ChangePlan effectiveDate      | upcoming_change      | 按日期     |
+| verify 动作未验证             | verification_pending | 按计划日期 |
+| open RealityDrift             | drift_review         | attention  |
+| Node fields.expiryDate        | expiration           | 按日期     |
+| SourceInstance 超 45 天未刷新 | freshness_review     | attention  |
 
 ## 类别边界（§43）
 

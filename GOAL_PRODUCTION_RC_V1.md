@@ -52,14 +52,14 @@ Future observation != 自动 verified  confidence != confirmation
 
 ## 4. 执行顺序（§160 优先级）
 
-| 优先级 | 内容 |
-|---|---|
-| **P0** | MVP03 correctness / final freeze |
+| 优先级 | 内容                                                            |
+| ------ | --------------------------------------------------------------- |
+| **P0** | MVP03 correctness / final freeze                                |
 | **P1** | 产品核心 UX（IA / 首页 / 场景 / ChangePlan / Timeline / Drift） |
-| **P2** | UI / Design System / 前端架构分层 |
-| **P3** | Backup / Security / Migration / Release 审计 |
-| **P4** | 平台实际构建（工具链存在时） |
-| **P5** | Store metadata / assets / 外部 Blocker 收敛 |
+| **P2** | UI / Design System / 前端架构分层                               |
+| **P3** | Backup / Security / Migration / Release 审计                    |
+| **P4** | 平台实际构建（工具链存在时）                                    |
+| **P5** | Store metadata / assets / 外部 Blocker 收敛                     |
 
 **不得**先调圆角而后 Core correctness 未冻结。
 

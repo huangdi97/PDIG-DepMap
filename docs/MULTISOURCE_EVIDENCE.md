@@ -11,6 +11,7 @@
 `proposal_evidence_refs` 持有 `evidenceRefs[]`（position 稳定）。
 
 每条流独立记录：
+
 - provenance：source_instance_id / adapter_id / adapter_version / evidence_kind
 - 计数：observation_count（**不跨流相加**）
 - 时间范围：first_observed_at / last_observed_at
@@ -18,6 +19,7 @@
 ## 2. 禁止的自动决策（Precision > Recall）
 
 多个来源都看到同一逻辑关系，也**不得**自动：
+
 - 设 `required`
 - confirm Proposal（确认只能来自用户）
 - 生成 Group / backup 断言
@@ -36,6 +38,7 @@
 
 三个文件 Adapter 均为 `event_stream`：**absence 无否定语义**。
 已验证行为（tests/integration/coverage-semantics.test.ts）：
+
 - 旧确认 Dependency 存在 + 新导入不提及 → Dependency 保持 active；
 - absence 不 retire Dependency / 不 reject Proposal / 不 fail Group /
   不产生 must_change。

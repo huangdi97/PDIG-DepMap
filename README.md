@@ -6,17 +6,17 @@
 
 ## 当前状态（真实，不虚报）
 
-| 部分 | 状态 |
-|---|---|
-| 共享 Core（schema v3/repositories/migration/impact/parser/resolver/proposal/crypto/sources/**living graph**） | **TESTED — 453 tests PASS，typecheck 干净（Node 22）** |
-| Living Graph（graphRevision / ChangePlan+Rebase / PlanReadiness / ScenarioCoverage / RealityDrift / DiscoveryCandidate / ScenarioTemplate / Timeline / Verification） | **TESTED**（docs/LIVING_GRAPH.md；MVP03_FINAL_REPORT.md） |
-| 工程基线 Engineering Baseline V1 | **PASS**（format/lint/typecheck/architecture+circular=0/network=0/secrets/invariants/contract/property/mutation baseline/clean install/clean clone，见 `QUALITY_GATES_V1.md`） |
-| `.depmap` V1 加密容器 + Golden Vector | **TESTED（Node 侧）**；Android/iOS 侧测试代码就绪未运行 |
-| uni-app x 中文 UI（24 页 + 5 个 `dp-*` 组件 + 5 个 UTS 安全插件 + 设计 token；含场景库/计划/Timeline/Drift） | IMPLEMENTED（源码完成，静态 Gate `check:ui` U1–U9 PASS）；未编译（无 HBuilderX） |
-| Android Kotlin 安全层 + Gradle 工程 | IMPLEMENTED；未编译（无 JDK17/SDK） |
-| HarmonyOS ArkTS 适配 + 工程文件 | IMPLEMENTED；未编译（无 DevEco） |
-| iOS Swift 适配 + SPM | IMPLEMENTED；未编译（无 macOS/Xcode） |
-| 真实数据双 Gate | **NOT_RUN**（无真实账单） |
+| 部分                                                                                                                                                                  | 状态                                                                                                                                                                           |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 共享 Core（schema v3/repositories/migration/impact/parser/resolver/proposal/crypto/sources/**living graph**）                                                         | **TESTED — 453 tests PASS，typecheck 干净（Node 22）**                                                                                                                         |
+| Living Graph（graphRevision / ChangePlan+Rebase / PlanReadiness / ScenarioCoverage / RealityDrift / DiscoveryCandidate / ScenarioTemplate / Timeline / Verification） | **TESTED**（docs/LIVING_GRAPH.md；MVP03_FINAL_REPORT.md）                                                                                                                      |
+| 工程基线 Engineering Baseline V1                                                                                                                                      | **PASS**（format/lint/typecheck/architecture+circular=0/network=0/secrets/invariants/contract/property/mutation baseline/clean install/clean clone，见 `QUALITY_GATES_V1.md`） |
+| `.depmap` V1 加密容器 + Golden Vector                                                                                                                                 | **TESTED（Node 侧）**；Android/iOS 侧测试代码就绪未运行                                                                                                                        |
+| uni-app x 中文 UI（24 页 + 5 个 `dp-*` 组件 + 5 个 UTS 安全插件 + 设计 token；含场景库/计划/Timeline/Drift）                                                          | IMPLEMENTED（源码完成，静态 Gate `check:ui` U1–U9 PASS）；未编译（无 HBuilderX）                                                                                               |
+| Android Kotlin 安全层 + Gradle 工程                                                                                                                                   | IMPLEMENTED；未编译（无 JDK17/SDK）                                                                                                                                            |
+| HarmonyOS ArkTS 适配 + 工程文件                                                                                                                                       | IMPLEMENTED；未编译（无 DevEco）                                                                                                                                               |
+| iOS Swift 适配 + SPM                                                                                                                                                  | IMPLEMENTED；未编译（无 macOS/Xcode）                                                                                                                                          |
+| 真实数据双 Gate                                                                                                                                                       | **NOT_RUN**（无真实账单）                                                                                                                                                      |
 
 平台矩阵与证据：`WORK_STATUS.md` / `FINAL_REPORT.md`；外部依赖：`BLOCKERS.md`。
 
@@ -77,12 +77,12 @@ node --experimental-strip-types scripts/validate-real-bill.ts --file ../local_pr
 
 ## 解析器覆盖矩阵
 
-| 来源 | 状态 |
-|---|---|
-| 微信支付账单（UTF-8/BOM/GB18030/说明行/退款/坏行） | 已实现并测试（synthetic） |
-| 通用 CSV 导入（Generic CSV Adapter；用户显式列映射：US/EU/debit-credit/BOM/CRLF 等；不预设特定银行） | 已实现并测试（synthetic） |
-| OFX / QFX 银行对账单（FITID/DTPOSTED/TRNAMT/NAME/MEMO） | 已实现并测试（synthetic） |
-| 支付宝专属解析器 | 未实现（FUTURE.md；可先用 Generic CSV 显式映射导入） |
+| 来源                                                                                                 | 状态                                                 |
+| ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 微信支付账单（UTF-8/BOM/GB18030/说明行/退款/坏行）                                                   | 已实现并测试（synthetic）                            |
+| 通用 CSV 导入（Generic CSV Adapter；用户显式列映射：US/EU/debit-credit/BOM/CRLF 等；不预设特定银行） | 已实现并测试（synthetic）                            |
+| OFX / QFX 银行对账单（FITID/DTPOSTED/TRNAMT/NAME/MEMO）                                              | 已实现并测试（synthetic）                            |
+| 支付宝专属解析器                                                                                     | 未实现（FUTURE.md；可先用 Generic CSV 显式映射导入） |
 
 ## 已知限制
 

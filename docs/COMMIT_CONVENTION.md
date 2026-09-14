@@ -8,17 +8,17 @@
 
 type ∈：
 
-| type | 用途 |
-|---|---|
-| feat | 新功能（如 `feat(source):`） |
-| fix | 缺陷修复（如 `fix(impact):`） |
-| test | 测试（如 `test(crypto):`） |
-| refactor | 重构不改行为（如 `refactor(core):`） |
-| docs | 文档（如 `docs(schema):`） |
-| chore | 工程/构建/依赖（如 `chore(release):`） |
-| perf | 性能 |
-| security | 安全/隐私加固 |
-| chore(engineering) | 工程基线类收口 |
+| type               | 用途                                   |
+| ------------------ | -------------------------------------- |
+| feat               | 新功能（如 `feat(source):`）           |
+| fix                | 缺陷修复（如 `fix(impact):`）          |
+| test               | 测试（如 `test(crypto):`）             |
+| refactor           | 重构不改行为（如 `refactor(core):`）   |
+| docs               | 文档（如 `docs(schema):`）             |
+| chore              | 工程/构建/依赖（如 `chore(release):`） |
+| perf               | 性能                                   |
+| security           | 安全/隐私加固                          |
+| chore(engineering) | 工程基线类收口                         |
 
 scope 建议值：core / impact / crypto / parser / source / repository / migration / schema /
 docs / engineering / release。

@@ -6,15 +6,15 @@
 
 ## 1. v2 变更总览
 
-| # | 变更 | 目的 |
-|---|---|---|
-| 1 | 新表 `source_instances` | 数据源实例一等实体（active/retired） |
-| 2 | 重建 `observation_fingerprints` | 去重键升级为 `UNIQUE(source_instance_id, fingerprint_version, fingerprint)`；移除 v1 `UNIQUE(source, fingerprint)` |
-| 3 | 重建 `evidence` | 按 `(proposal_key, source_instance_id)` 一流一行；新增 adapter_id/adapter_version/evidence_kind |
-| 4 | 重建 `dependency_proposals` + 新表 `proposal_evidence_refs` | 单条 `evidence_id` → 多条 evidenceRefs join；rejected 计数 → `rejected_at_stream_counts_json`（per-stream） |
-| 5 | `dependencies` / `dependency_groups` 增列 | `verification_basis_type`（既有数据默认 `user_confirmed`）+ `verification_basis_json` |
-| 6 | `import_sessions` 增列 | source_instance_id / adapter_id / adapter_version（legacy 行归属 legacy 实例） |
-| 7 | 确定性 legacy WeChat 实例 | `legacy-wechat-statement` 条件插入 |
+| #   | 变更                                                        | 目的                                                                                                               |
+| --- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 1   | 新表 `source_instances`                                     | 数据源实例一等实体（active/retired）                                                                               |
+| 2   | 重建 `observation_fingerprints`                             | 去重键升级为 `UNIQUE(source_instance_id, fingerprint_version, fingerprint)`；移除 v1 `UNIQUE(source, fingerprint)` |
+| 3   | 重建 `evidence`                                             | 按 `(proposal_key, source_instance_id)` 一流一行；新增 adapter_id/adapter_version/evidence_kind                    |
+| 4   | 重建 `dependency_proposals` + 新表 `proposal_evidence_refs` | 单条 `evidence_id` → 多条 evidenceRefs join；rejected 计数 → `rejected_at_stream_counts_json`（per-stream）        |
+| 5   | `dependencies` / `dependency_groups` 增列                   | `verification_basis_type`（既有数据默认 `user_confirmed`）+ `verification_basis_json`                              |
+| 6   | `import_sessions` 增列                                      | source_instance_id / adapter_id / adapter_version（legacy 行归属 legacy 实例）                                     |
+| 7   | 确定性 legacy WeChat 实例                                   | `legacy-wechat-statement` 条件插入                                                                                 |
 
 ## 2. Fingerprint 作用域（唯一口径）
 

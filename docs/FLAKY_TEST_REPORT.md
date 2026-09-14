@@ -10,11 +10,11 @@
 
 ## 结果
 
-| 轮 | Test Files | 结果 |
-|---|---|---|
-| 1 | 28 passed | 绿 |
-| 2 | 28 passed | 绿 |
-| 3 | 28 passed | 绿 |
+| 轮  | Test Files | 结果 |
+| --- | ---------- | ---- |
+| 1   | 28 passed  | 绿   |
+| 2   | 28 passed  | 绿   |
+| 3   | 28 passed  | 绿   |
 
 **stability gate PASS（3 consecutive green runs），0 flaky，0 retry。**
 

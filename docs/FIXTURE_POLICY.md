@@ -2,10 +2,10 @@
 
 ## 分类
 
-| 类别 | 位置 | 规则 |
-|---|---|---|
-| synthetic fixtures | `core/tests/fixtures/`（29 文件） | 必须可公开、不得含真实个人信息、命名自描述 |
-| real-private | **禁止入库** | 真实账单只放 `local_private/`（gitignore），仅 `validate-real-bill.ts` 本地消费 |
+| 类别               | 位置                              | 规则                                                                            |
+| ------------------ | --------------------------------- | ------------------------------------------------------------------------------- |
+| synthetic fixtures | `core/tests/fixtures/`（29 文件） | 必须可公开、不得含真实个人信息、命名自描述                                      |
+| real-private       | **禁止入库**                      | 真实账单只放 `local_private/`（gitignore），仅 `validate-real-bill.ts` 本地消费 |
 
 ## 命名
 

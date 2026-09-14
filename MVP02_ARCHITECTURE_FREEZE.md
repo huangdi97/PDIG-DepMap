@@ -1,10 +1,12 @@
 # MVP02_ARCHITECTURE_FREEZE.md
 
 ## 1. 冻结目标
+
 MVP02 只解决 **Global Source Abstraction**。
 用户 Job 仍是“换银行卡前判断 payment 影响”，Impact 仍 payment-only。
 
 ## 2. 核心结构
+
 ```text
 Source File / Export
 → EvidenceSourceAdapter
@@ -22,6 +24,7 @@ Source File / Export
 ```
 
 ## 3. 新增概念
+
 - `SourceInstance`：用户具体的数据源实例。
 - `EvidenceSummary[]`：同一 Proposal 可由多个 SourceInstance 提供证据。
 - `CoverageMode`：Source 的 absence 是否有语义。
@@ -29,6 +32,7 @@ Source File / Export
 - `RelationDefinitionRegistry`：治理 relation 的方向、kind、capability 与验证政策。
 
 ## 4. 永久不变
+
 - Observation ≠ Reality
 - Proposal ≠ Reality
 - Two edges ≠ fallback
@@ -41,13 +45,17 @@ Source File / Export
 - `DEPMAP_CONTAINER_V1` 不变
 
 ## 5. Cross-source 去重边界
+
 MVP02 不实现完整全球 CanonicalEvent 去重。因此：
+
 - 不跨 SourceInstance 粗暴相加 observationCount
 - re-proposal threshold 在单 Evidence stream 内满足
 - 多源证据只增加 provenance，不自动增加 certainty class
 
 ## 6. Adapter 范围
+
 本轮：
+
 - WeChatStatementAdapter
 - GenericCsvAdapter
 - OfxQfxAdapter
@@ -55,4 +63,5 @@ MVP02 不实现完整全球 CanonicalEvent 去重。因此：
 Future：PayPal/Open Banking/OAuth/Browser Discovery。
 
 ## 7. Schema
+
 应用 payload `schemaVersion=2`；Crypto 外层 `formatVersion=1` 保持不变。

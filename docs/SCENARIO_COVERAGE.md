@@ -16,12 +16,12 @@ ScenarioCoverage 回答「这一次变更，系统知道多少？」——是**�
 
 ## Level 判定
 
-| Level | 条件 |
-|---|---|
-| `unknown` | 无来源且无已确认直接依赖 |
-| `limited` | 有来源但全部超过新鲜度阈值，或没有任何已确认直接依赖 |
-| `partial` | 有新鲜来源 + 有确认依赖，但存在 pending proposal / 未解析候选 / stale 依赖 / unknown criticality / 未验证动作 |
-| `well_evidenced` | 新鲜相关来源 + 关键关系已确认 + 无任何未决信号 |
+| Level            | 条件                                                                                                          |
+| ---------------- | ------------------------------------------------------------------------------------------------------------- |
+| `unknown`        | 无来源且无已确认直接依赖                                                                                      |
+| `limited`        | 有来源但全部超过新鲜度阈值，或没有任何已确认直接依赖                                                          |
+| `partial`        | 有新鲜来源 + 有确认依赖，但存在 pending proposal / 未解析候选 / stale 依赖 / unknown criticality / 未验证动作 |
+| `well_evidenced` | 新鲜相关来源 + 关键关系已确认 + 无任何未决信号                                                                |
 
 禁止 `safe` / `complete` / `100%`。**absence 不可能提高 coverage**（输入通道不存在）。
 coverage 永远不等于 ready（与 PlanReadiness 是两个独立维度）。

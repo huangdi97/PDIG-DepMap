@@ -16,13 +16,13 @@
 
 ## 平台源码（人工审查）
 
-| 文件 | 日志调用 | 评估 |
-|---|---|---|
-| Kotlin ×4（SqlCipher/Keystore/Biometric/Crypto） | 无 Log.d/i/w 调用 | PASS |
-| Swift（SQLCipher adapter） | 无 print/os_log | PASS |
-| ArkTS（RelationalStore/HUKS/UserAuth） | 无 hilog 输出 | PASS |
-| app/App.uvue | `console.log('DepMap launched')` 1 处 | 常量字符串，无敏感数据；保留（启动标记） |
-| app/pages/*.uvue | 无 console | PASS |
+| 文件                                             | 日志调用                              | 评估                                     |
+| ------------------------------------------------ | ------------------------------------- | ---------------------------------------- |
+| Kotlin ×4（SqlCipher/Keystore/Biometric/Crypto） | 无 Log.d/i/w 调用                     | PASS                                     |
+| Swift（SQLCipher adapter）                       | 无 print/os_log                       | PASS                                     |
+| ArkTS（RelationalStore/HUKS/UserAuth）           | 无 hilog 输出                         | PASS                                     |
+| app/App.uvue                                     | `console.log('DepMap launched')` 1 处 | 常量字符串，无敏感数据；保留（启动标记） |
+| app/pages/*.uvue                                 | 无 console                            | PASS                                     |
 
 ## 红线核对（AGENTS §17）
 

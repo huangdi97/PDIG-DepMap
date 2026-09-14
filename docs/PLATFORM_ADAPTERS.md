@@ -5,11 +5,11 @@
 
 ## SecureDatabaseAdapter
 
-| 平台 | 实现 | 状态 |
-|---|---|---|
-| Android | `SqlCipherSecureDatabaseAdapter.kt`（net.zetetic sqlcipher-android） | IMPLEMENTED；COMPILED/TESTED/DEVICE_VERIFIED = NO |
-| iOS | `SQLCipherSecureDatabaseAdapter.swift` | IMPLEMENTED；COMPILED/TESTED/DEVICE_VERIFIED = NO（无 macOS） |
-| HarmonyOS | `RelationalStoreSecureAdapter.ets`（ArkData encrypt=true, S4） | IMPLEMENTED；COMPILED/TESTED/DEVICE_VERIFIED = NO（无 DevEco） |
+| 平台      | 实现                                                                 | 状态                                                           |
+| --------- | -------------------------------------------------------------------- | -------------------------------------------------------------- |
+| Android   | `SqlCipherSecureDatabaseAdapter.kt`（net.zetetic sqlcipher-android） | IMPLEMENTED；COMPILED/TESTED/DEVICE_VERIFIED = NO              |
+| iOS       | `SQLCipherSecureDatabaseAdapter.swift`                               | IMPLEMENTED；COMPILED/TESTED/DEVICE_VERIFIED = NO（无 macOS）  |
+| HarmonyOS | `RelationalStoreSecureAdapter.ets`（ArkData encrypt=true, S4）       | IMPLEMENTED；COMPILED/TESTED/DEVICE_VERIFIED = NO（无 DevEco） |
 
 三端执行同一份 Schema v1 DDL；迁移幂等 + 事务 + 回滚语义一致（`docs/SCHEMA_V1.md`）。
 

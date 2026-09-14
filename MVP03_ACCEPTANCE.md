@@ -4,6 +4,7 @@
 > 勾选依据：MVP03_FINAL_REPORT.md 收口轮实跑（427 tests / check PASS / check:full PASS / stability ×3 PASS）。
 
 ## A Graph Revision
+
 - [x] GR-001 fresh graph revision = 0
 - [x] GR-002 confirm Dependency → +1
 - [x] GR-003 update Evidence → 不变
@@ -18,6 +19,7 @@
 - [x] GR-012 deterministic
 
 ## B ChangePlan Rebase
+
 - [x] PRB-001 revision unchanged → no rebase
 - [x] PRB-002 revision changed → needs_revalidation
 - [x] PRB-003 new Dependency creates new impact
@@ -31,6 +33,7 @@
 - [x] PRB-011 deterministic diff ordering
 
 ## C PlanReadiness
+
 - [x] must_change pending → blocked
 - [x] must_change done + needs_review → review_required
 - [x] unknown criticality → review_required
@@ -41,6 +44,7 @@
 - [x] absence 不得提高 readiness（PI-3 结构性断言）
 
 ## D ScenarioCoverage
+
 - [x] 无来源 → unknown
 - [x] 只有旧来源 → limited
 - [x] 部分确认 → partial
@@ -50,6 +54,7 @@
 - [x] event_stream absence 不得提高 coverage
 
 ## E RealityDrift
+
 - [x] RD-001 confirmed A + new positive B → drift
 - [x] RD-002 absence of A alone → no drift（入口无 absence 通道）
 - [x] RD-003 drift does not mutate Graph
@@ -62,6 +67,7 @@
 - [x] RD-010 rejected Proposal 不产生 confirmed drift
 
 ## F DiscoveryCandidate
+
 - [x] 同 normalized key upsert
 - [x] 不同 SourceInstance provenance
 - [x] accept → one Node
@@ -72,18 +78,21 @@
 - [x] Candidate 不 bump graphRevision
 
 ## G ScenarioTemplate
+
 - [x] 3 个 active 支付模板（replace/expiring/close）
 - [x] planned 模板不进可执行注册（factory=null，instantiate 拒绝）
 - [x] scenarioFactory 产出 ChangePlan（含 templateId）
 - [x] 通用提醒类模板被政策禁止（ST-005 + SCENARIO_TEMPLATE_POLICY.md）
 
 ## H Timeline
+
 - [x] bucket 排序（attention/overdue→today→7d→30d→90d→later）+ priority + tie-break
 - [x] 只含数字基础设施类别
 - [x] TimelineItem 可溯源（sourceType/sourceId）
 - [x] Timeline 不是 Reality（投影不写库）
 
 ## I Verification
+
 - [x] Action done ≠ verified
 - [x] manual confirm → verified
 - [x] future evidence → evidence_suggested
@@ -93,6 +102,7 @@
 - [x] verified 状态 restart 后稳定
 
 ## J Migration（Schema v2 → v3）
+
 - [x] fresh v3（MIG3-001）
 - [x] v2 → v3（MIG3-002；既有数据与 ID 不变）
 - [x] v2 → v3 → restart（MIG3-003）
@@ -103,22 +113,26 @@
 - [x] DEPMAP container / golden 不变（crypto 套件全绿）
 
 ## K depmap compatibility
+
 - [x] golden vector 回归通过
 - [x] payload v3 export/import 往返（J0/J1）
 - [x] v1/v2 payload in-memory migrate → v3（J2c/J5/J5c）
 
 ## L/M/N 回归与基线
+
 - [x] MVP01 regression PASS（既有用例全绿）
 - [x] MVP02 regression PASS（273 基线全绿）
 - [x] Engineering Baseline v1 PASS（check PASS 427 tests；check:full PASS；stability ×3 PASS）
 
 ## O Security/Privacy
+
 - [x] 新对象零 raw statement / transaction history / token / full card number
       （Drift/Candidate/Timeline 只存引用与 ID；SCHEMA V3 DDL 复核）
 - [x] network/analytics/ads/telemetry = 0（check:network 103 files PASS）
 - [x] secret scan PASS（331 files，0 production secrets）
 
 ## P UI
+
 - [x] 首页 answer-oriented（需要你处理 / 即将到来 / 常用场景 / 我的基础设施）
 - [x] 场景库（active 显示、planned 不显示）
 - [x] Plan Detail（readiness / rebase 提示 / verification）
@@ -127,5 +141,6 @@
 - [x] 静态审计刷新（未编译 B10 如实声明，见 docs/UI_SOURCE_AUDIT.md 口径）
 
 ## Q Documentation
+
 - [x] 13 份 MVP03 docs + README + CANONICAL 附录整合
 - [x] MVP03_FINAL_REPORT.md（真实 verdict）

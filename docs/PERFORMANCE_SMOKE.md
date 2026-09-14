@@ -4,17 +4,17 @@
 > 复现：`cd core && npm run test:perf`（阈值在测试内断言；数值随机器浮动）
 > 实测（2026-09-12，Node v22.15.0 / win32-x64）：
 
-| 项目 | 实测 | 阈值 | 结果 |
-|---|---|---|---|
-| parse 10k rows（微信 CSV） | ~89 ms | < 10s | PASS |
-| fingerprint 10k（HMAC-SHA256） | ~84–135 ms | < 10s | PASS |
-| import+proposal finalize（2000 rows 全管道） | ~90 ms | < 15s | PASS |
-| impact 1k-node chain 传播 | ~72–122 ms | < 5s | PASS |
-| impact 100-node cycle | ~1.9 ms | < 2s | PASS |
-| malicious KDF bounds rejection ×100 | ~1.4 ms | < 0.5s | PASS（先于 KDF，纯校验） |
-| large synthetic build+simulate（500 节点 / 1k 边） | ~4.5 s | < 10s | PASS |
-| export 500-node graph | ~8 ms | < 10s | PASS |
-| `.depmap` create+open（65536/3/1 golden 参数） | ~555 ms | < 10s | PASS |
+| 项目                                               | 实测       | 阈值   | 结果                     |
+| -------------------------------------------------- | ---------- | ------ | ------------------------ |
+| parse 10k rows（微信 CSV）                         | ~89 ms     | < 10s  | PASS                     |
+| fingerprint 10k（HMAC-SHA256）                     | ~84–135 ms | < 10s  | PASS                     |
+| import+proposal finalize（2000 rows 全管道）       | ~90 ms     | < 15s  | PASS                     |
+| impact 1k-node chain 传播                          | ~72–122 ms | < 5s   | PASS                     |
+| impact 100-node cycle                              | ~1.9 ms    | < 2s   | PASS                     |
+| malicious KDF bounds rejection ×100                | ~1.4 ms    | < 0.5s | PASS（先于 KDF，纯校验） |
+| large synthetic build+simulate（500 节点 / 1k 边） | ~4.5 s     | < 10s  | PASS                     |
+| export 500-node graph                              | ~8 ms      | < 10s  | PASS                     |
+| `.depmap` create+open（65536/3/1 golden 参数）     | ~555 ms    | < 10s  | PASS                     |
 
 ## PHASE AF — Large Synthetic Smoke
 

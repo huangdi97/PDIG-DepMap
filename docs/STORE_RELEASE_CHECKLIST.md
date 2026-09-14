@@ -17,6 +17,7 @@
 - [x] store description draft（见下）
 
 ### Data Safety 回答草稿
+
 - 是否收集用户数据：否。数据仅存于设备本地加密数据库。
 - 是否共享数据：否。应用无 INTERNET 权限。
 
@@ -41,6 +42,7 @@
 - [x] App Privacy draft（见下）
 
 ### App Privacy 回答草稿
+
 - 不收集任何数据（无标识符、无使用数据、无位置）。所有数据仅本地存储，不传输。
 
 ## 三端通用隐私文案草稿

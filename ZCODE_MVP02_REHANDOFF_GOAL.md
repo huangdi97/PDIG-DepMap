@@ -7,9 +7,11 @@
 > Real Data: NOT_RUN
 
 ## 1. 接力原则
+
 这是 handoff / continuation task。先恢复现场，再继续开发。
 
 禁止：
+
 - 重新初始化项目
 - 从头重做 MVP02
 - 覆盖 WorkBuddy 未提交修改
@@ -22,7 +24,9 @@
 - 进入 NEXT_BACKLOG / MVP03 / PDIG v1.1
 
 ## 2. 启动必读
+
 按顺序读取：
+
 1. AGENTS.md
 2. CANONICAL_DESIGN.md
 3. GOAL_MVP02_GLOBAL_SOURCE.md
@@ -42,7 +46,9 @@
 17. 本文件
 
 ## 3. 第一件事：恢复 WorkBuddy 现场
+
 先执行并记录：
+
 - git status
 - git diff
 - git diff --staged
@@ -65,6 +71,7 @@ fingerprintVersion
 如果有未提交修改，必须保护，不清理、不覆盖。
 
 ## 4. 生成 ZCODE_REHANDOFF_AUDIT.md
+
 严格分为：
 A. WorkBuddy 已完成且已验证
 B. 已实现但未验证
@@ -80,7 +87,9 @@ G. NEXT_GATE
 Current phase / Current gate / Completed / Verified / Implemented but unverified / Failures / External blockers / Next
 
 ## 5. 恢复顺序
+
 从 MVP02_ACCEPTANCE.md 第一个真实未完成 Gate 开始，顺序：
+
 1. Schema v2 migration
 2. SourceInstance
 3. Fingerprint source scoping
@@ -98,6 +107,7 @@ Current phase / Current gate / Completed / Verified / Implemented but unverified
 已通过的不要重做。
 
 ## 6. 每个 Gate 的执行循环
+
 inspect existing implementation
 → inspect existing tests
 → run focused tests
@@ -110,6 +120,7 @@ inspect existing implementation
 → next gate
 
 ## 7. Schema v2
+
 如未完全 PASS，验证：
 schemaVersion=2
 v1→v2 migration
@@ -124,6 +135,7 @@ restart after migration
 若已有 migration，先测后修，不重写。
 
 ## 8. SourceInstance
+
 必须是真实持久化实体，验证：
 same adapter multiple instances
 same txn id across instances != duplicate
@@ -133,6 +145,7 @@ provider/account metadata
 no secret/raw statement fields
 
 ## 9. Fingerprint
+
 唯一 scope：
 sourceInstanceId + fingerprintVersion + fingerprint
 
@@ -145,6 +158,7 @@ different instance/same txn != duplicate
 legacy WeChat dedupe unchanged
 
 ## 10. Multi-source Evidence
+
 Proposal 使用 evidenceRefs[]。
 不同 SourceInstance 的 evidence provenance/count/time-range 分开。
 
@@ -154,6 +168,7 @@ required / confirm / backup / re-proposal。
 Reproposal threshold 由至少一个独立 evidence stream 自己满足。
 
 ## 11. EvidenceSourceAdapter
+
 三个实现：
 wechat_statement
 generic_csv
@@ -172,11 +187,13 @@ coverageMode=event_stream
 authoritativeFor=[]
 
 ## 12. WeChat Regression
+
 WeChat 必须是普通 Adapter。
 Domain 不得新增 if source==wechat 业务分支。
 全部 MVP01 WeChat tests 继续 PASS。
 
 ## 13. RelationDefinitionRegistry
+
 runtime 本轮只支持：
 funding_source
 merchant_agreement
@@ -185,6 +202,7 @@ merchant_agreement
 所有 Proposal/Dependency writes 必须校验。
 
 ## 14. Generic CSV
+
 继续 WorkBuddy 已有实现，不另写第二套。
 至少支持：
 transactionId
@@ -215,6 +233,7 @@ deterministic ×50
 禁止 LLM 自动 mapping。
 
 ## 15. OFX/QFX
+
 至少支持：
 FITID / DTPOSTED / TRNAMT / TRNTYPE / NAME / MEMO
 
@@ -232,22 +251,26 @@ deterministic ×50
 不得自动创建 Reality。
 
 ## 16. Source-neutral ImportCoordinator
+
 最终仅一条业务 pipeline：
 SourceInstance → Adapter → parse → normalize → fingerprint → resolver → evidence → proposal
 
 允许 adapter 内 source-specific parsing；Domain semantics 只能一套。
 
 ## 17. Coverage correctness
+
 三个 Adapter 都是 event_stream。
 
 必须验证：
 old confirmed Dependency exists
-+ new import does not mention it
-→ Dependency remains active
+
+- new import does not mention it
+  → Dependency remains active
 
 Absence 不得 retire Dependency / reject Proposal / fail Group / produce must_change。
 
 ## 18. Multi-source E2E
+
 至少：
 Source A=Generic CSV
 Source B=OFX/QFX
@@ -262,6 +285,7 @@ same logical relationship
 两个来源都看到也不能自动 required/group/backup。
 
 ## 19. DEPMAP compatibility
+
 DEPMAP_CONTAINER_V1 不变。
 允许 payload schemaVersion=2。
 
@@ -273,6 +297,7 @@ unsupported payload schema fail
 wrong password/tamper regressions
 
 ## 20. MVP01 regression
+
 重跑：
 Schema/Core
 Impact
@@ -287,6 +312,7 @@ RC quality gates
 任何 regression 先修再继续。
 
 ## 21. Quality
+
 复用已有脚本：
 npm run format:check
 npm run lint
@@ -298,6 +324,7 @@ npm run check:full
 WorkBuddy 已创建同类 script 则复用，不重复造。
 
 ## 22. Security / Privacy
+
 新增 Source 后重新检查：
 raw CSV/OFX not persisted
 sourceTxnId not persisted plaintext
@@ -308,11 +335,13 @@ SourceInstance has no secrets
 business network calls=0
 
 ## 23. 外部 Blockers
+
 Android/JDK/SDK、HBuilderX、DevEco、macOS/Xcode、设备、签名、开发者账号、真实账单允许继续 BLOCKED。
 不得阻塞 Core MVP02。
 Real Data Correctness/Value 均保持 NOT_RUN。
 
 ## 24. Git 安全
+
 禁止：
 git reset --hard
 git clean -fd
@@ -324,12 +353,14 @@ git restore .
 完成稳定 Gate 后可小步 commit，但不要自动 push。
 
 ## 25. 如果一次没有跑完
+
 结束前更新 WORK_STATUS.md：
 Current gate / Completed / Verified / Failures / Next
 
 下一次用 ZCODE_MVP02_REHANDOFF_CONTINUE.txt。
 
 ## 26. Final Report
+
 最终生成/完成 MVP02_FINAL_REPORT.md，包括：
 MVP02_GLOBAL_SOURCE_ABSTRACTION
 SCHEMA_V2
@@ -352,11 +383,14 @@ REAL_DATA=NOT_RUN
 只能 PASS/FAIL/BLOCKED/NOT_RUN。
 
 ## 27. 成功条件
+
 只有 Schema v2、migration、SourceInstance、fingerprint isolation、multi-source Evidence、3 adapters、relation registry、multi-source E2E、DEPMAP V1 compatibility、MVP01 regression、quality/security gates 全 PASS，才允许：
 MVP02_GLOBAL_SOURCE_ABSTRACTION=PASS
 
 ## 28. 现在开始
+
 立即：
+
 1. 读取接力文件
 2. 检查 Git 现场
 3. 生成 ZCODE_REHANDOFF_AUDIT.md

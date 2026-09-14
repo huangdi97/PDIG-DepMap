@@ -10,15 +10,15 @@
 
 ## 工具链
 
-| 工具 | 版本 |
-|---|---|
-| Node.js | v22.15.0 |
-| npm | 11.3.0 |
-| TypeScript | 5.9.3（local） |
-| Vitest | 3.2.7（local） |
-| eslint / prettier | 未安装（本轮安装） |
-| git | 2.55.0.windows.5 |
-| lockfile | core/package-lock.json（npm） |
+| 工具              | 版本                          |
+| ----------------- | ----------------------------- |
+| Node.js           | v22.15.0                      |
+| npm               | 11.3.0                        |
+| TypeScript        | 5.9.3（local）                |
+| Vitest            | 3.2.7（local）                |
+| eslint / prettier | 未安装（本轮安装）            |
+| git               | 2.55.0.windows.5              |
+| lockfile          | core/package-lock.json（npm） |
 
 ## 结构
 

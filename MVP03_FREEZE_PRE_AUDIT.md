@@ -4,12 +4,12 @@
 
 ## 1. Git / 环境
 
-| 项 | 值 |
-|---|---|
-| HEAD | `cb3fe15` docs(mvp03): final report PASS + acceptance all-gates checked by evidence |
-| branch | `feat/mvp03-living-graph`（干净，0 dirty；6 个 Freeze 控制文件 untracked，为用户提供的任务输入） |
-| tags | `v0.2.0-mvp02`（v0.3.0-mvp03 待 Freeze PASS 后创建） |
-| Node / npm | v22.15.0 / 11.3.0 |
+| 项         | 值                                                                                               |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| HEAD       | `cb3fe15` docs(mvp03): final report PASS + acceptance all-gates checked by evidence              |
+| branch     | `feat/mvp03-living-graph`（干净，0 dirty；6 个 Freeze 控制文件 untracked，为用户提供的任务输入） |
+| tags       | `v0.2.0-mvp02`（v0.3.0-mvp03 待 Freeze PASS 后创建）                                             |
+| Node / npm | v22.15.0 / 11.3.0                                                                                |
 
 ## 2. 基线状态（实跑）
 
@@ -21,18 +21,18 @@
 
 ## 3. MVP03 九模块实现文件（实际核验）
 
-| 模块 | 文件 |
-|---|---|
-| graphRevision | `core/src/repositories/graph-revision.ts`（+ dependency/group 仓库挂钩） |
-| ChangePlan + Rebase | `core/src/domain/change-plan.ts`、`core/src/repositories/change-plan-repository.ts`、`core/src/services/plan-analysis.ts` |
-| PlanReadiness / ScenarioCoverage | `core/src/services/plan-readiness.ts`（纯函数）+ `core/src/services/change-plan-service.ts`（输入装配） |
-| RealityDrift | `core/src/repositories/reality-drift-repository.ts`、`core/src/services/reality-drift-service.ts` |
-| DiscoveryCandidate | `core/src/repositories/discovery-candidate-repository.ts`、`core/src/services/discovery-service.ts` |
-| ScenarioTemplate | `core/src/scenarios/registry.ts` |
-| Timeline | `core/src/services/timeline.ts` |
-| Verification | `core/src/services/change-plan-service.ts`（Action.verification 状态机） |
-| Migration v2→v3 | `core/src/schema/migrations.ts`（SCHEMA_V3_STATEMENTS）+ `core/tests/repository/migration-v3.test.ts` |
-| payload migration | `core/src/services/graph-serialize.ts`（migratePayloadV2toV3 + v1 组合） |
+| 模块                             | 文件                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| graphRevision                    | `core/src/repositories/graph-revision.ts`（+ dependency/group 仓库挂钩）                                                  |
+| ChangePlan + Rebase              | `core/src/domain/change-plan.ts`、`core/src/repositories/change-plan-repository.ts`、`core/src/services/plan-analysis.ts` |
+| PlanReadiness / ScenarioCoverage | `core/src/services/plan-readiness.ts`（纯函数）+ `core/src/services/change-plan-service.ts`（输入装配）                   |
+| RealityDrift                     | `core/src/repositories/reality-drift-repository.ts`、`core/src/services/reality-drift-service.ts`                         |
+| DiscoveryCandidate               | `core/src/repositories/discovery-candidate-repository.ts`、`core/src/services/discovery-service.ts`                       |
+| ScenarioTemplate                 | `core/src/scenarios/registry.ts`                                                                                          |
+| Timeline                         | `core/src/services/timeline.ts`                                                                                           |
+| Verification                     | `core/src/services/change-plan-service.ts`（Action.verification 状态机）                                                  |
+| Migration v2→v3                  | `core/src/schema/migrations.ts`（SCHEMA_V3_STATEMENTS）+ `core/tests/repository/migration-v3.test.ts`                     |
+| payload migration                | `core/src/services/graph-serialize.ts`（migratePayloadV2toV3 + v1 组合）                                                  |
 
 UI：`app/pages/` 16 页（home/scenarios/plans×3/timeline/drift + 既有 11）。
 

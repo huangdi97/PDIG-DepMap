@@ -16,17 +16,17 @@ Action → Verification → Reality Update（user_confirmed）
 
 ## 九个闭环模块与落位
 
-| 模块 | 代码 | 文档 |
-|---|---|---|
-| graphRevision | `src/repositories/graph-revision.ts`（bump 与 Reality mutation 同事务） | GRAPH_REVISION.md |
-| ChangePlan + Rebase | `src/domain/change-plan.ts` + `repositories/change-plan-repository.ts` + `services/plan-analysis.ts` | CHANGEPLAN_STATE_MACHINE.md / PLAN_REBASE.md |
-| PlanReadiness | `src/services/plan-readiness.ts`（纯规则） | PLAN_READINESS.md |
-| ScenarioCoverage | 同上 | SCENARIO_COVERAGE.md |
-| RealityDrift | `repositories/reality-drift-repository.ts` + `services/reality-drift-service.ts` | REALITY_DRIFT.md |
-| DiscoveryCandidate | `repositories/discovery-candidate-repository.ts` + `services/discovery-service.ts` | DISCOVERY_CANDIDATE.md |
-| ScenarioTemplate | `src/scenarios/registry.ts` | SCENARIO_TEMPLATE.md / SCENARIO_TEMPLATE_POLICY.md |
-| Timeline | `src/services/timeline.ts`（纯投影） | TIMELINE_UPCOMING.md |
-| Verification | ChangePlan actions 内嵌状态机（`services/change-plan-service.ts`） | ACTION_VERIFICATION.md |
+| 模块                | 代码                                                                                                 | 文档                                               |
+| ------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| graphRevision       | `src/repositories/graph-revision.ts`（bump 与 Reality mutation 同事务）                              | GRAPH_REVISION.md                                  |
+| ChangePlan + Rebase | `src/domain/change-plan.ts` + `repositories/change-plan-repository.ts` + `services/plan-analysis.ts` | CHANGEPLAN_STATE_MACHINE.md / PLAN_REBASE.md       |
+| PlanReadiness       | `src/services/plan-readiness.ts`（纯规则）                                                           | PLAN_READINESS.md                                  |
+| ScenarioCoverage    | 同上                                                                                                 | SCENARIO_COVERAGE.md                               |
+| RealityDrift        | `repositories/reality-drift-repository.ts` + `services/reality-drift-service.ts`                     | REALITY_DRIFT.md                                   |
+| DiscoveryCandidate  | `repositories/discovery-candidate-repository.ts` + `services/discovery-service.ts`                   | DISCOVERY_CANDIDATE.md                             |
+| ScenarioTemplate    | `src/scenarios/registry.ts`                                                                          | SCENARIO_TEMPLATE.md / SCENARIO_TEMPLATE_POLICY.md |
+| Timeline            | `src/services/timeline.ts`（纯投影）                                                                 | TIMELINE_UPCOMING.md                               |
+| Verification        | ChangePlan actions 内嵌状态机（`services/change-plan-service.ts`）                                   | ACTION_VERIFICATION.md                             |
 
 ## 语义铁律（继承 + 新增）
 

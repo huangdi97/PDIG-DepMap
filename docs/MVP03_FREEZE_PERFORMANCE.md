@@ -5,15 +5,15 @@
 
 ## Freeze 轮实测
 
-| 场景 | Freeze 实测 | 收口轮基线 | 判定 |
-|---|---|---|---|
-| 100 ChangePlans create+rebase | ~0.9 s | 0.9 s | 无退化 |
-| 1k+ TimelineItems 投影（确定性两次一致） | 14 ms | 14 ms | 无退化 |
-| **10k TimelineItems 投影 + 排序确定性**（Freeze 新增） | **83 ms** | —（新增 heavy smoke） | 通过（<10s 预算） |
-| 500 open Drifts 检测+列举 | ~4.5 s（宽预算 10s，Windows fsync 波动） | 4.5 s | 无退化 |
-| 500 DiscoveryCandidates upsert | ~2.3 s | 2.3 s | 无退化 |
-| 1k-node Graph rebase 分析 | 76 ms | 66–87 ms | 波动内 |
-| 既有 perf smoke（parse/fingerprint/impact/crypto/10k 导入） | 全部在预算内（check:full 实跑） | 见 docs/PERFORMANCE_BASELINE.md | 无退化 |
+| 场景                                                        | Freeze 实测                              | 收口轮基线                      | 判定              |
+| ----------------------------------------------------------- | ---------------------------------------- | ------------------------------- | ----------------- |
+| 100 ChangePlans create+rebase                               | ~0.9 s                                   | 0.9 s                           | 无退化            |
+| 1k+ TimelineItems 投影（确定性两次一致）                    | 14 ms                                    | 14 ms                           | 无退化            |
+| **10k TimelineItems 投影 + 排序确定性**（Freeze 新增）      | **83 ms**                                | —（新增 heavy smoke）           | 通过（<10s 预算） |
+| 500 open Drifts 检测+列举                                   | ~4.5 s（宽预算 10s，Windows fsync 波动） | 4.5 s                           | 无退化            |
+| 500 DiscoveryCandidates upsert                              | ~2.3 s                                   | 2.3 s                           | 无退化            |
+| 1k-node Graph rebase 分析                                   | 76 ms                                    | 66–87 ms                        | 波动内            |
+| 既有 perf smoke（parse/fingerprint/impact/crypto/10k 导入） | 全部在预算内（check:full 实跑）          | 见 docs/PERFORMANCE_BASELINE.md | 无退化            |
 
 ## 结论
 

@@ -6,16 +6,16 @@
 
 ## A Schema/Migration → tests/repository/migration.test.ts（17）
 
-| 矩阵项 | 用例 |
-|---|---|
-| fresh v2 | T1 |
-| v1→v2 | T2 |
-| restart after migration | T4b + restart 用例 |
-| migrate ×50 idempotent | T3（空库）/ T4（有数据，零漂移）/ T4b（重启后） |
-| injected failure rollback | 回滚用例 |
-| no orphan SourceInstance | legacy 回填用例 |
-| legacy WeChat dedupe retained | T5（作用域 + DDL 断言） |
-| evidenceId→evidenceRefs | T6 |
+| 矩阵项                        | 用例                                            |
+| ----------------------------- | ----------------------------------------------- |
+| fresh v2                      | T1                                              |
+| v1→v2                         | T2                                              |
+| restart after migration       | T4b + restart 用例                              |
+| migrate ×50 idempotent        | T3（空库）/ T4（有数据，零漂移）/ T4b（重启后） |
+| injected failure rollback     | 回滚用例                                        |
+| no orphan SourceInstance      | legacy 回填用例                                 |
+| legacy WeChat dedupe retained | T5（作用域 + DDL 断言）                         |
+| evidenceId→evidenceRefs       | T6                                              |
 
 ## B SourceInstance → tests/repository/source-instance-scope.test.ts
 

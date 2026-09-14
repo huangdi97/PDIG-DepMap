@@ -192,14 +192,17 @@ TypeScript。
 需要原生能力时：
 
 Android：
+
 - UTS
 - Kotlin
 
 iOS：
+
 - UTS
 - Swift
 
 HarmonyOS：
+
 - UTS
 - ArkTS
 
@@ -345,7 +348,7 @@ SQLCipher + Keychain。
 
 ArkData relationalStore 加密能力
 
-+
+-
 
 HUKS 密钥管理。
 

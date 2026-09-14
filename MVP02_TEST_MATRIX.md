@@ -1,6 +1,7 @@
 # MVP02_TEST_MATRIX.md
 
 ## A Schema/Migration
+
 - fresh v2
 - v1→v2
 - restart after migration
@@ -11,6 +12,7 @@
 - evidenceId→evidenceRefs
 
 ## B SourceInstance
+
 - two instances same adapter
 - same txn ID across instances no collision
 - retired source keeps provenance
@@ -18,6 +20,7 @@
 - no secret fields
 
 ## C Fingerprint
+
 - same instance/same txn duplicate
 - different instance/same txn independent
 - fingerprintVersion isolation
@@ -25,9 +28,11 @@
 - fpSecret export/import continuity
 
 ## D WeChat Regression
+
 全部 MVP01 parser/fingerprint/pipeline tests 继续 PASS。
 
 ## E Generic CSV
+
 - US signed amount
 - EU semicolon
 - debit/credit columns
@@ -42,6 +47,7 @@
 - deterministic ×50
 
 ## F OFX/QFX
+
 - basic/multiple
 - FITID fingerprint
 - missing FITID fallback
@@ -53,6 +59,7 @@
 - deterministic ×50
 
 ## G Multi-source Evidence
+
 - one Proposal, two evidenceRefs
 - evidence counts separate
 - accepted not re-asked
@@ -61,18 +68,21 @@
 - multi-source does not create Group
 
 ## H Coverage Semantics
+
 - event_stream absence does not retire Dependency
 - does not reject Proposal
 - does not confirm fallback
 - Freshness may update independently
 
 ## I Relation Registry
+
 - funding_source valid
 - merchant_agreement valid
 - invalid fromKind/toKind rejected
 - unsupported relation/capability rejected
 
 ## J `.depmap`
+
 - container golden unchanged
 - payload schema v2 export/import
 - payload v1 migrate
@@ -80,6 +90,7 @@
 - wrong password/tamper regression
 
 ## K E2E
+
 - WeChat
 - Generic CSV
 - OFX
@@ -89,4 +100,5 @@
 - ChangePlan ordering unchanged
 
 ## L RC Regression
+
 format/lint/typecheck/architecture/secret/privacy/clean install/clean clone 全部继续 PASS。

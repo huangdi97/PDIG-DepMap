@@ -21,6 +21,7 @@ MVP03 当前已落地：
 9. Verification
 
 同时已有：
+
 - Schema v3
 - v2→v3 migration
 - payload v3
@@ -122,6 +123,7 @@ known blockers
 remainingMustChange =
 mustChangeTargetCount
 -
+
 completedChangeActionCount
 
 如果存在，必须修。

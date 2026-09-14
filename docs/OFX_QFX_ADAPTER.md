@@ -1,7 +1,7 @@
 # OFX_QFX_ADAPTER.md（MVP02）
 
 > 状态：IMPLEMENTED + TESTED。实现：`core/src/sources/ofx/adapter.ts`
->（adapterId=`ofx_qfx`，version=1，sourceKind=`statement_file`，
+> （adapterId=`ofx_qfx`，version=1，sourceKind=`statement_file`，
 > coverageMode=`event_stream`，authoritativeFor=`[]`）。
 
 ## 1. 定位

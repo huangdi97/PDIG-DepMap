@@ -25,41 +25,41 @@ REAL_DATA          = NOT_RUN     （Correctness Gate=NOT_RUN，Value Gate=NOT_RU
 
 ## 精确计数
 
-| 项 | 数值 |
-|---|---|
-| 涉及文件（secrets 扫描） | 181 |
-| 架构扫描文件 | 27（core/src） |
-| 测试文件 / 测试用例 | 15 / **166**（pass 166 / fail 0 / skip 0） |
-| lint errors / warnings | 0 / 0 |
-| type errors | 0 |
-| TODO release blockers | 0 |
-| production secrets | 0 |
-| 直接依赖 | 10（runtime 1：hash-wasm；dev 9） |
-| 本轮 commits（RC 轮） | 7（2e4c512…7896a61 区间内 7 个 RC 提交；仓库总计 18） |
-| 敏感日志命中 | 0 |
-| 网络调用（业务） | 0 |
+| 项                       | 数值                                                  |
+| ------------------------ | ----------------------------------------------------- |
+| 涉及文件（secrets 扫描） | 181                                                   |
+| 架构扫描文件             | 27（core/src）                                        |
+| 测试文件 / 测试用例      | 15 / **166**（pass 166 / fail 0 / skip 0）            |
+| lint errors / warnings   | 0 / 0                                                 |
+| type errors              | 0                                                     |
+| TODO release blockers    | 0                                                     |
+| production secrets       | 0                                                     |
+| 直接依赖                 | 10（runtime 1：hash-wasm；dev 9）                     |
+| 本轮 commits（RC 轮）    | 7（2e4c512…7896a61 区间内 7 个 RC 提交；仓库总计 18） |
+| 敏感日志命中             | 0                                                     |
+| 网络调用（业务）         | 0                                                     |
 
 ## 逐 Gate 证据索引
 
-| Gate | 证据 |
-|---|---|
-| repo audit | RC_PRE_AUDIT.md + git diff --check PASS |
-| format/lint/typecheck | `npm run check` 全链路（prettier/eslint/tsc 输出 0 issue） |
-| 全部测试 | docs/TEST_REPORT_RC.md（15 文件 ×166 用例明细） |
-| determinism | tests/unit/determinism.test.ts（4×50 次重复） |
-| idempotency/replay | tests/unit/idempotency.test.ts（migration×50 等 5 组） |
-| negative/error paths | tests/unit/negative.test.ts + crypto-negative.test.ts |
-| security/privacy | LOGGING/PRIVACY_DATAFLOW/FAIL_CLOSED/NETWORK/CRYPTO_RC 五份审计 |
-| secret scan | docs/SECRET_SCAN_REPORT.md（脚本 check:secrets） |
-| dependency/license | docs/DEPENDENCY_AUDIT.md + THIRD_PARTY_NOTICES.md（npm outdated/audit/ls 实跑） |
-| architecture | core/scripts/check-architecture.mjs（domain 纯净/无 app-平台依赖/node:sqlite 隔离） |
-| TODO/dead-code | docs/TODO_AUDIT.md（0 blocking） |
-| clean install / clone | docs/CLEAN_CLONE_REPORT.md（两者均 166/166 复现） |
-| docs verification | README 全部命令实跑（含 validate-real-bill CLI 合成账单） |
-| UI/platform source | docs/UI_SOURCE_AUDIT.md（T+U）、PERMISSION_AUDIT、NETWORK_AUDIT、CROSS_PLATFORM_CONTRACT_AUDIT |
-| 平台编译尝试 | docs/ANDROID_TOOLCHAIN_SETUP.md、HARMONY_TOOLCHAIN_SETUP.md、IOS_MAC_HANDOFF.md |
-| 性能 | docs/PERFORMANCE_SMOKE.md（L+AF，9 项） |
-| 覆盖率 | docs/COVERAGE_REPORT.md（crypto 98.7% / impact 92.4% / parser 96.9% / repos 93.3% / services 93.6% / schema 100% / fingerprint 100%） |
+| Gate                  | 证据                                                                                                                                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| repo audit            | RC_PRE_AUDIT.md + git diff --check PASS                                                                                               |
+| format/lint/typecheck | `npm run check` 全链路（prettier/eslint/tsc 输出 0 issue）                                                                            |
+| 全部测试              | docs/TEST_REPORT_RC.md（15 文件 ×166 用例明细）                                                                                       |
+| determinism           | tests/unit/determinism.test.ts（4×50 次重复）                                                                                         |
+| idempotency/replay    | tests/unit/idempotency.test.ts（migration×50 等 5 组）                                                                                |
+| negative/error paths  | tests/unit/negative.test.ts + crypto-negative.test.ts                                                                                 |
+| security/privacy      | LOGGING/PRIVACY_DATAFLOW/FAIL_CLOSED/NETWORK/CRYPTO_RC 五份审计                                                                       |
+| secret scan           | docs/SECRET_SCAN_REPORT.md（脚本 check:secrets）                                                                                      |
+| dependency/license    | docs/DEPENDENCY_AUDIT.md + THIRD_PARTY_NOTICES.md（npm outdated/audit/ls 实跑）                                                       |
+| architecture          | core/scripts/check-architecture.mjs（domain 纯净/无 app-平台依赖/node:sqlite 隔离）                                                   |
+| TODO/dead-code        | docs/TODO_AUDIT.md（0 blocking）                                                                                                      |
+| clean install / clone | docs/CLEAN_CLONE_REPORT.md（两者均 166/166 复现）                                                                                     |
+| docs verification     | README 全部命令实跑（含 validate-real-bill CLI 合成账单）                                                                             |
+| UI/platform source    | docs/UI_SOURCE_AUDIT.md（T+U）、PERMISSION_AUDIT、NETWORK_AUDIT、CROSS_PLATFORM_CONTRACT_AUDIT                                        |
+| 平台编译尝试          | docs/ANDROID_TOOLCHAIN_SETUP.md、HARMONY_TOOLCHAIN_SETUP.md、IOS_MAC_HANDOFF.md                                                       |
+| 性能                  | docs/PERFORMANCE_SMOKE.md（L+AF，9 项）                                                                                               |
+| 覆盖率                | docs/COVERAGE_REPORT.md（crypto 98.7% / impact 92.4% / parser 96.9% / repos 93.3% / services 93.6% / schema 100% / fingerprint 100%） |
 
 ## 本轮发现并修复（correctness/security/interoperability，RC 规则允许）
 
@@ -77,12 +77,12 @@ REAL_DATA          = NOT_RUN     （Correctness Gate=NOT_RUN，Value Gate=NOT_RU
 
 ## 平台矩阵（分别声明）
 
-| 平台 | IMPLEMENTED | STATIC_AUDITED | COMPILED | TESTED | DEVICE_VERIFIED | STORE_READY |
-|---|---|---|---|---|---|---|
-| Android | YES | YES | **NO**（B1） | **NO**（B1） | NO | NO |
-| HarmonyOS | YES | YES | **NO**（B2） | **NO**（B2） | NO | NO |
-| iOS | YES | YES | **NO**（B3） | **NO**（B3） | NO | NO |
-| Core（Node） | YES | YES | YES | **YES** | N/A | N/A |
+| 平台         | IMPLEMENTED | STATIC_AUDITED | COMPILED     | TESTED       | DEVICE_VERIFIED | STORE_READY |
+| ------------ | ----------- | -------------- | ------------ | ------------ | --------------- | ----------- |
+| Android      | YES         | YES            | **NO**（B1） | **NO**（B1） | NO              | NO          |
+| HarmonyOS    | YES         | YES            | **NO**（B2） | **NO**（B2） | NO              | NO          |
+| iOS          | YES         | YES            | **NO**（B3） | **NO**（B3） | NO              | NO          |
+| Core（Node） | YES         | YES            | YES          | **YES**      | N/A             | N/A         |
 
 ## 阻断项（exact blockers，均在 BLOCKERS.md）
 

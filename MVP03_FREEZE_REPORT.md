@@ -5,36 +5,36 @@
 
 ## 总判定
 
-| 项 | 值 |
-|---|---|
-| **MVP03_FINAL_FREEZE** | **PASS** |
-| PLAN_READINESS_CORRECTNESS | PASS（P0 修复：显式 resolvesImpactKeys resolution，废除数量相减；FR-READ-001..017；FM-1/FM-2 KILLED） |
-| GRAPH_REVISION_ATOMICITY | PASS（GR-001..012 + FR-GR-012 property：随机 Reality/non-Reality/failure/replay 40 序列，revision ≡ 成功 Reality mutation 计数，monotonic/rollback-safe；M-R1 KILLED） |
-| PLAN_REBASE | PASS（PRB-001..011 + rebase 原子性：lastAnalyzed 仅成功分析后推进；M-R4 KILLED） |
-| SCENARIO_COVERAGE | PASS（四级 + 可解释；与 readiness 解耦；absence/confidence 无通道；§24 七条） |
-| REALITY_DRIFT | PASS（RD-001..010 + absence-only 无通道 + already_confirmed 忽略新信号（FM-4 KILLED）；M-R3 KILLED） |
-| DISCOVERY_CANDIDATE | PASS（PC 七条；不进 Impact / 不 bump revision；M-R5 KILLED） |
-| SCENARIO_TEMPLATE | PASS（3 active 可执行 + planned factory=null 不可执行；ST-001..005；政策 gate） |
-| TIMELINE_PROJECTION | PASS（TL-001..007；纯投影不写库；确定性排序；10k items 83ms） |
-| ACTION_VERIFICATION | PASS（VF-001..007；done ≠ verified；verified/failed 不可被 suggestion 覆盖（FM-3 KILLED）；两段式） |
-| STATE_MACHINES | PASS（4 套状态机非法迁移 Domain 层 reject；state-machine-freeze 5 套负向；FM-5 KILLED） |
-| SCHEMA_V3 | PASS（MIG3-001..006） |
-| V2_TO_V3_MIGRATION | PASS（fresh/restart/×50/rollback/数据 ID 零漂移；MVP03_MIGRATION_MATRIX.md） |
-| PAYLOAD_V1_V2_TO_V3 | PASS（J5/J5c/J2c；graph_revision 随 meta 往返 J5d） |
-| DEPMAP_CONTAINER_V1_COMPAT | PASS（golden 不变；crypto 零 diff；formatVersion=1 ≠ schemaVersion=3） |
-| INVARIANTS | PASS（INV-15..21 + 既有 INV1..14 + db-integrity） |
-| PROPERTY_TESTS | PASS（FR-GR-012 + PI-1..3 + 既有 fast-check；seed 固定可 replay） |
-| MUTATION_TESTS | **PARTIAL_WITH_REPORT（0 critical survived）**：10/10 targeted KILLED（M-R1..5 + FM-1..5）；Stryker 范围外沿用 |
-| COVERAGE | PASS（src line 93.74% / branch 82.24%；关键模块：scenarios 98.7 / registry 100 口径；COVERAGE_POLICY 双层 Gate 维持） |
-| FLAKY | PASS（全量 ×3 + focused ×10，0 flaky，0 retry） |
-| PERFORMANCE | PASS（10k timeline 83ms；其余链路无退化；MVP03_FREEZE_PERFORMANCE.md） |
-| UI_SEMANTICS | PASS（16 页静态审计：answer-oriented 首页、无禁词、drift「可能发生变化」、done≠verified 分离；MVP03_UI_FREEZE_AUDIT.md；编译 BLOCKED B10） |
-| SECURITY_PRIVACY | PASS（新对象只存引用/ID；secret scan 348 files 0；network 0；logging 0 console） |
-| NETWORK_ZERO | PASS（103 业务文件 0 网络原语） |
-| MVP01_REGRESSION | PASS（既有用例全绿，453 内含） |
-| MVP02_REGRESSION | PASS（273 基线全绿） |
-| ENGINEERING_BASELINE_V1 | PASS（check + check:full + clean install + clean clone 全绿） |
-| REAL_DATA | **NOT_RUN** |
+| 项                         | 值                                                                                                                                                                     |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MVP03_FINAL_FREEZE**     | **PASS**                                                                                                                                                               |
+| PLAN_READINESS_CORRECTNESS | PASS（P0 修复：显式 resolvesImpactKeys resolution，废除数量相减；FR-READ-001..017；FM-1/FM-2 KILLED）                                                                  |
+| GRAPH_REVISION_ATOMICITY   | PASS（GR-001..012 + FR-GR-012 property：随机 Reality/non-Reality/failure/replay 40 序列，revision ≡ 成功 Reality mutation 计数，monotonic/rollback-safe；M-R1 KILLED） |
+| PLAN_REBASE                | PASS（PRB-001..011 + rebase 原子性：lastAnalyzed 仅成功分析后推进；M-R4 KILLED）                                                                                       |
+| SCENARIO_COVERAGE          | PASS（四级 + 可解释；与 readiness 解耦；absence/confidence 无通道；§24 七条）                                                                                          |
+| REALITY_DRIFT              | PASS（RD-001..010 + absence-only 无通道 + already_confirmed 忽略新信号（FM-4 KILLED）；M-R3 KILLED）                                                                   |
+| DISCOVERY_CANDIDATE        | PASS（PC 七条；不进 Impact / 不 bump revision；M-R5 KILLED）                                                                                                           |
+| SCENARIO_TEMPLATE          | PASS（3 active 可执行 + planned factory=null 不可执行；ST-001..005；政策 gate）                                                                                        |
+| TIMELINE_PROJECTION        | PASS（TL-001..007；纯投影不写库；确定性排序；10k items 83ms）                                                                                                          |
+| ACTION_VERIFICATION        | PASS（VF-001..007；done ≠ verified；verified/failed 不可被 suggestion 覆盖（FM-3 KILLED）；两段式）                                                                    |
+| STATE_MACHINES             | PASS（4 套状态机非法迁移 Domain 层 reject；state-machine-freeze 5 套负向；FM-5 KILLED）                                                                                |
+| SCHEMA_V3                  | PASS（MIG3-001..006）                                                                                                                                                  |
+| V2_TO_V3_MIGRATION         | PASS（fresh/restart/×50/rollback/数据 ID 零漂移；MVP03_MIGRATION_MATRIX.md）                                                                                           |
+| PAYLOAD_V1_V2_TO_V3        | PASS（J5/J5c/J2c；graph_revision 随 meta 往返 J5d）                                                                                                                    |
+| DEPMAP_CONTAINER_V1_COMPAT | PASS（golden 不变；crypto 零 diff；formatVersion=1 ≠ schemaVersion=3）                                                                                                 |
+| INVARIANTS                 | PASS（INV-15..21 + 既有 INV1..14 + db-integrity）                                                                                                                      |
+| PROPERTY_TESTS             | PASS（FR-GR-012 + PI-1..3 + 既有 fast-check；seed 固定可 replay）                                                                                                      |
+| MUTATION_TESTS             | **PARTIAL_WITH_REPORT（0 critical survived）**：10/10 targeted KILLED（M-R1..5 + FM-1..5）；Stryker 范围外沿用                                                         |
+| COVERAGE                   | PASS（src line 93.74% / branch 82.24%；关键模块：scenarios 98.7 / registry 100 口径；COVERAGE_POLICY 双层 Gate 维持）                                                  |
+| FLAKY                      | PASS（全量 ×3 + focused ×10，0 flaky，0 retry）                                                                                                                        |
+| PERFORMANCE                | PASS（10k timeline 83ms；其余链路无退化；MVP03_FREEZE_PERFORMANCE.md）                                                                                                 |
+| UI_SEMANTICS               | PASS（16 页静态审计：answer-oriented 首页、无禁词、drift「可能发生变化」、done≠verified 分离；MVP03_UI_FREEZE_AUDIT.md；编译 BLOCKED B10）                             |
+| SECURITY_PRIVACY           | PASS（新对象只存引用/ID；secret scan 348 files 0；network 0；logging 0 console）                                                                                       |
+| NETWORK_ZERO               | PASS（103 业务文件 0 网络原语）                                                                                                                                        |
+| MVP01_REGRESSION           | PASS（既有用例全绿，453 内含）                                                                                                                                         |
+| MVP02_REGRESSION           | PASS（273 基线全绿）                                                                                                                                                   |
+| ENGINEERING_BASELINE_V1    | PASS（check + check:full + clean install + clean clone 全绿）                                                                                                          |
+| REAL_DATA                  | **NOT_RUN**                                                                                                                                                            |
 
 ## 本轮修复（Freeze 发现并修复）
 
@@ -59,11 +59,11 @@
 
 ## 平台状态（分别声明）
 
-| 平台 | IMPLEMENTED | STATIC_AUDITED | COMPILED | TESTED | DEVICE_VERIFIED |
-|---|---|---|---|---|---|
-| Android / HarmonyOS / iOS | YES | YES | BLOCKED（B1/B2/B3） | BLOCKED | NO |
-| UI（16 页） | YES | YES | BLOCKED（B10） | — | NO |
-| Core（Node 22） | YES | YES | YES | YES（453） | N/A |
+| 平台                      | IMPLEMENTED | STATIC_AUDITED | COMPILED            | TESTED     | DEVICE_VERIFIED |
+| ------------------------- | ----------- | -------------- | ------------------- | ---------- | --------------- |
+| Android / HarmonyOS / iOS | YES         | YES            | BLOCKED（B1/B2/B3） | BLOCKED    | NO              |
+| UI（16 页）               | YES         | YES            | BLOCKED（B10）      | —          | NO              |
+| Core（Node 22）           | YES         | YES            | YES                 | YES（453） | N/A             |
 
 ## Real Data
 
@@ -91,27 +91,27 @@ drift absence-safe、candidate 隔离、template 可执行不变量、timeline �
 
 ### 复验命令与实测结果
 
-| 命令 | 实测结果 | 判定 |
-|---|---|---|
-| `npm test`（core） | **453 passed / 453（43 files）**，Duration 53.05s | PASS |
-| `npm run format:check` | All matched files use Prettier code style! | PASS |
-| `npm run lint` | 0 errors / 0 warnings | PASS |
-| `npm run typecheck` | `tsc --noEmit` 无输出 | PASS |
-| `npm run check:architecture` | 48 files scanned, circular = 0 | PASS |
-| `npm run check:network` | 103 business files, 0 network primitives | PASS |
-| `npm run check:secrets` | 355 files scanned, 0 production secrets | PASS |
-| `npm run check:db-integrity` | 6 passed | PASS |
-| `npm run test:coverage` | Statements **93.74%**（5437/5800）/ Branches **82.22%**（1476/1795）/ Functions 94.28% | PASS |
-| `npm run test:perf` | 16 passed（10k timeline 82ms；1k-node rebase 73ms） | PASS |
-| `npm run check:deps` | tree OK / lockfile in sync / 全 MIT 或 Apache-2.0 / audit 3 moderate（dev-only） | PASS |
+| 命令                         | 实测结果                                                                               | 判定 |
+| ---------------------------- | -------------------------------------------------------------------------------------- | ---- |
+| `npm test`（core）           | **453 passed / 453（43 files）**，Duration 53.05s                                      | PASS |
+| `npm run format:check`       | All matched files use Prettier code style!                                             | PASS |
+| `npm run lint`               | 0 errors / 0 warnings                                                                  | PASS |
+| `npm run typecheck`          | `tsc --noEmit` 无输出                                                                  | PASS |
+| `npm run check:architecture` | 48 files scanned, circular = 0                                                         | PASS |
+| `npm run check:network`      | 103 business files, 0 network primitives                                               | PASS |
+| `npm run check:secrets`      | 355 files scanned, 0 production secrets                                                | PASS |
+| `npm run check:db-integrity` | 6 passed                                                                               | PASS |
+| `npm run test:coverage`      | Statements **93.74%**（5437/5800）/ Branches **82.22%**（1476/1795）/ Functions 94.28% | PASS |
+| `npm run test:perf`          | 16 passed（10k timeline 82ms；1k-node rebase 73ms）                                    | PASS |
+| `npm run check:deps`         | tree OK / lockfile in sync / 全 MIT 或 Apache-2.0 / audit 3 moderate（dev-only）       | PASS |
 
 ### 源码级复核（非引用报告）
 
-| 项 | 复核方式 | 结果 |
-|---|---|---|
+| 项                    | 复核方式                                                                        | 结果                                                                                                          |
+| --------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | PlanReadiness P0 修复 | `grep` + 读 `plan-readiness.ts` / `change-plan-service.ts` / `plan-analysis.ts` | `countUnresolvedMustChange(plan.actions, mustChangeKeys)` 已替代数量相减；`resolvesImpactKeys[]` 显式映射生效 |
-| graphRevision 原子性 | 读 `repositories/graph-revision.ts` | `bumpGraphRevision` 仅在事务内被 Reality mutation 调用；`meta.graph_revision` |
-| Schema v3 | `grep` `migrations.ts` | `change_plans` / `reality_drifts` / `discovery_candidates` 三表 + 索引存在 |
+| graphRevision 原子性  | 读 `repositories/graph-revision.ts`                                             | `bumpGraphRevision` 仅在事务内被 Reality mutation 调用；`meta.graph_revision`                                 |
+| Schema v3             | `grep` `migrations.ts`                                                          | `change_plans` / `reality_drifts` / `discovery_candidates` 三表 + 索引存在                                    |
 
 ### 环境差异说明（非代码问题）
 
@@ -127,4 +127,3 @@ vitest 的 v8 coverage provider 在**报告生成之后**清理 `coverage/.tmp` 
 ```
 MVP03_FINAL_FREEZE（Production RC V1 轮独立复验） = PASS
 ```
-

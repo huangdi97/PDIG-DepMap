@@ -19,8 +19,8 @@ Verification → Reality Update**。
    且与 Reality 写入**同事务**。Observation/ImportSession/Fingerprint/Evidence/Proposal/
    Drift/Candidate/Timeline/UI 状态一律不提升。存 `meta.graph_revision`（初始 0）。
 2. **ChangePlan**：`{id, templateId?, scenario, title, baselineGraphRevision,
-   lastAnalyzedGraphRevision, workflowState(draft|analyzed|review_required|ready|in_progress|
-   verifying|completed|cancelled), scenarioInputs, impactSnapshot, actionItems(含 verification)}`。
+lastAnalyzedGraphRevision, workflowState(draft|analyzed|review_required|ready|in_progress|
+verifying|completed|cancelled), scenarioInputs, impactSnapshot, actionItems(含 verification)}`。
    `needs_revalidation` 为 **derived effective state**（currentRevision > lastAnalyzed →
    needs_revalidation），不批量回写存储。
 3. **Plan Rebase**：revision 不一致且计划未 completed/cancelled → 重新 simulateScenario，

@@ -1,6 +1,7 @@
 # CODEBUDDY.md — PDIG WorkBuddy Project Context
 
 每次新会话先读：
+
 - AGENTS.md
 - CANONICAL_DESIGN.md
 - WORK_STATUS.md
@@ -15,6 +16,7 @@ WORKBUDDY_MVP02_CONTINUE_GOAL.md
 先检查 Git、测试和实际文件，再继续。
 
 永久原则：
+
 - 宁可漏报，不可把不确定伪装成必须处理
 - Observation ≠ Dependency
 - Proposal ≠ Reality
@@ -32,6 +34,7 @@ Generic CSV / OFX-QFX / regression / quality gates
 不要实现 NEXT_BACKLOG。
 
 禁止：
+
 - git reset --hard
 - git clean -fd
 - 覆盖未提交 ZCode 修改

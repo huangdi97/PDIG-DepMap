@@ -36,6 +36,7 @@
 ## 规则
 
 如果 uni-app x / UTS / HarmonyOS API 存在版本差异：
+
 1. 优先查当前官方文档 / 本地 SDK typings。
 2. 通过真实编译结果验证。
 3. 不允许凭记忆猜 API。

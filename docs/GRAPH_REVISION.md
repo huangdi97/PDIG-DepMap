@@ -9,15 +9,15 @@
 
 只有以下 Reality mutation 提升 revision，**且与 Reality 写入在同一次 DB 事务内**：
 
-| 操作 | 位置 |
-|---|---|
-| Dependency created（confirm INSERT） | `dependency-repository.confirm` |
-| Dependency retired（幂等重放不加） | `dependency-repository.retire` |
-| Dependency reactivated | `dependency-repository.confirm`（retired 分支） |
-| Dependency criticality 被用户修改（值变化才加） | `dependency-repository.updateCriticality` |
-| DependencyGroup confirmed（INSERT） | `group-repository.confirm` |
-| DependencyGroup retired / reactivated | `group-repository` |
-| （未来）其它 confirmed Reality mutation | 必须走同事务 bump |
+| 操作                                            | 位置                                            |
+| ----------------------------------------------- | ----------------------------------------------- |
+| Dependency created（confirm INSERT）            | `dependency-repository.confirm`                 |
+| Dependency retired（幂等重放不加）              | `dependency-repository.retire`                  |
+| Dependency reactivated                          | `dependency-repository.confirm`（retired 分支） |
+| Dependency criticality 被用户修改（值变化才加） | `dependency-repository.updateCriticality`       |
+| DependencyGroup confirmed（INSERT）             | `group-repository.confirm`                      |
+| DependencyGroup retired / reactivated           | `group-repository`                              |
+| （未来）其它 confirmed Reality mutation         | 必须走同事务 bump                               |
 
 ## 明确不提升
 

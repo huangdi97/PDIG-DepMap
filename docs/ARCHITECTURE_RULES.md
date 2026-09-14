@@ -6,6 +6,7 @@
 ## R1 Core ↔ 外部
 
 `core/src/**` 不得 import：
+
 - UI（app/、uni-app、Vue）
 - 平台 SDK（Android / iOS / HarmonyOS 任何符号）
 - `core/` 之外的相对路径
@@ -31,13 +32,13 @@
 
 ## R6 语义职责边界（测试与评审强制）
 
-| 层 | 禁止 |
-|---|---|
+| 层                      | 禁止                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------ |
 | parser / source adapter | 创建 Dependency / DependencyGroup；设置 `required`；执行 Impact；写任何 Reality 表（contract C5 强制） |
-| Impact kernel | import UI / parser / 平台 API / repositories；把 Proposal、unknown criticality 升级为 must_change |
-| crypto 协议层 | 依赖 Repository / 业务层实现 |
-| UI（app/） | 自行实现 Impact 语义；自行判定 required；自行确认 Proposal（只能调用确认服务） |
-| repositories | 跨层处理业务判定（UPSERT/复活等存储语义除外） |
+| Impact kernel           | import UI / parser / 平台 API / repositories；把 Proposal、unknown criticality 升级为 must_change      |
+| crypto 协议层           | 依赖 Repository / 业务层实现                                                                           |
+| UI（app/）              | 自行实现 Impact 语义；自行判定 required；自行确认 Proposal（只能调用确认服务）                         |
+| repositories            | 跨层处理业务判定（UPSERT/复活等存储语义除外）                                                          |
 
 ## R7 平台适配（AGENTS.md §6 重申）
 

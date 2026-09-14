@@ -35,12 +35,12 @@ pending Proposal 以只读方式传入，仅用于产生 needs_review 报告，*
 
 ## 状态标签（UI 等级）
 
-| 内部 status | UI 等级 | 含义 |
-|---|---|---|
-| must_change | 必须处理 | 已确认失效且无确认替代 |
-| backup_path (+redundancyDegraded) | 有备用路径 / 能力降级 | confirmed Group 仍满足 |
-| needs_review | 建议检查 | 未确认组合 / unknown / proposal |
-| unaffected | 不受影响 | 与场景无确认关系 |
+| 内部 status                       | UI 等级               | 含义                            |
+| --------------------------------- | --------------------- | ------------------------------- |
+| must_change                       | 必须处理              | 已确认失效且无确认替代          |
+| backup_path (+redundancyDegraded) | 有备用路径 / 能力降级 | confirmed Group 仍满足          |
+| needs_review                      | 建议检查              | 未确认组合 / unknown / proposal |
+| unaffected                        | 不受影响              | 与场景无确认关系                |
 
 ## 正确性目标
 

@@ -2,15 +2,15 @@
 
 ## 生命周期分层（CANONICAL_DESIGN §12 的工程落地）
 
-| 数据 | 生命周期 | 存储位置 |
-|---|---|---|
-| raw bill bytes（`SourceInput.data`） | 仅导入会话内存，finalize 后由调用方释放引用 | 不持久化、不缓存 |
-| Observation / NormalizedPaymentObservation | 仅导入会话内存 | 不持久化 |
-| Fingerprint | 持久化（作用域唯一键） | `observation_fingerprints` |
-| Evidence Summary | 持久化（每流一条：计数/时间边界/引用） | `evidence` |
-| Proposal 状态 | 持久化 | `dependency_proposals(_v2)` |
-| 用户确认后的图实体 | 持久化（全库加密） | nodes/dependencies/groups |
-| ImportSession Summary | 持久化（计数/错误数） | `import_sessions` |
+| 数据                                       | 生命周期                                    | 存储位置                    |
+| ------------------------------------------ | ------------------------------------------- | --------------------------- |
+| raw bill bytes（`SourceInput.data`）       | 仅导入会话内存，finalize 后由调用方释放引用 | 不持久化、不缓存            |
+| Observation / NormalizedPaymentObservation | 仅导入会话内存                              | 不持久化                    |
+| Fingerprint                                | 持久化（作用域唯一键）                      | `observation_fingerprints`  |
+| Evidence Summary                           | 持久化（每流一条：计数/时间边界/引用）      | `evidence`                  |
+| Proposal 状态                              | 持久化                                      | `dependency_proposals(_v2)` |
+| 用户确认后的图实体                         | 持久化（全库加密）                          | nodes/dependencies/groups   |
+| ImportSession Summary                      | 持久化（计数/错误数）                       | `import_sessions`           |
 
 ## 内存纪律（代码评审 + 审计项）
 

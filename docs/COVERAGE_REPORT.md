@@ -12,22 +12,22 @@ All files (src, 不含 scripts 探针与 index barrel) ≈ 90.6% lines
 
 ## 按目录（v8 实测，2026-09-13）
 
-| 目录 | Lines | 说明 |
-|---|---|---|
-| src/crypto | 98.7% | golden/负向/fuzz 全覆盖 |
-| src/schema | 100% | migration 幂等/回滚 + v2 迁移 |
-| src/domain | 100% | 含 relation-registry（新增 14 个直接测试后 62.9%→100%） |
-| src/utils | 100% | |
-| src/parser/wechat | 96.9% | |
-| src/services | 95.4% | 含 import-coordinator 98.1%、AE 事务性注入 |
-| src/fingerprint | 94.2% | source-scoped HMAC v2 |
-| src/impact | 92.4% | T1–T12+fuzz |
-| src/repositories | 91.5% | 含 SourceInstance/fingerprint scope/proposal evidenceRefs |
-| src/resolver | 82.5% | |
-| src/sources | 84.6% | generic-csv 87.9% / ofx 93.7% / wechat 93.1%（MVP02 新增模块） |
-| src/db | 71.8% | SAVEPOINT 嵌套/异常路径部分覆盖 |
-| src/adapters | 0% | **纯 interface 声明**，无运行时代码（非排除产生） |
-| src/index.ts | 0% | re-export barrel |
+| 目录              | Lines | 说明                                                           |
+| ----------------- | ----- | -------------------------------------------------------------- |
+| src/crypto        | 98.7% | golden/负向/fuzz 全覆盖                                        |
+| src/schema        | 100%  | migration 幂等/回滚 + v2 迁移                                  |
+| src/domain        | 100%  | 含 relation-registry（新增 14 个直接测试后 62.9%→100%）        |
+| src/utils         | 100%  |                                                                |
+| src/parser/wechat | 96.9% |                                                                |
+| src/services      | 95.4% | 含 import-coordinator 98.1%、AE 事务性注入                     |
+| src/fingerprint   | 94.2% | source-scoped HMAC v2                                          |
+| src/impact        | 92.4% | T1–T12+fuzz                                                    |
+| src/repositories  | 91.5% | 含 SourceInstance/fingerprint scope/proposal evidenceRefs      |
+| src/resolver      | 82.5% |                                                                |
+| src/sources       | 84.6% | generic-csv 87.9% / ofx 93.7% / wechat 93.1%（MVP02 新增模块） |
+| src/db            | 71.8% | SAVEPOINT 嵌套/异常路径部分覆盖                                |
+| src/adapters      | 0%    | **纯 interface 声明**，无运行时代码（非排除产生）              |
+| src/index.ts      | 0%    | re-export barrel                                               |
 
 ## 诚实性说明
 

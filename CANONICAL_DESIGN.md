@@ -51,13 +51,13 @@
 
 ### 1.2 核心 Job-to-be-Done
 
-| 既有产品回答 | 本产品回答 |
-|---|---|
-| 卡包：我有什么卡？ | |
-| 密码管理器：我怎么登录？ | |
-| 订阅工具：我在付什么钱？ | |
-| 到期提醒：什么快过期？ | |
-| | **如果我把这张卡、这个手机号、这个邮箱换掉，会发生什么？我该先处理哪几件事？** |
+| 既有产品回答             | 本产品回答                                                                     |
+| ------------------------ | ------------------------------------------------------------------------------ |
+| 卡包：我有什么卡？       |                                                                                |
+| 密码管理器：我怎么登录？ |                                                                                |
+| 订阅工具：我在付什么钱？ |                                                                                |
+| 到期提醒：什么快过期？   |                                                                                |
+|                          | **如果我把这张卡、这个手机号、这个邮箱换掉，会发生什么？我该先处理哪几件事？** |
 
 第一阶段只验证一个垂直 Job：
 
@@ -65,11 +65,11 @@
 
 ### 1.3 三层分工：秘密 / 出示 / 档案依赖
 
-| 层 | 归谁 | 本 App 的做法 |
-|---|---|---|
-| **秘密**：完整卡号、CVV、密码、PUK、私钥 | 密码管理器 | 仅存 `vaultRef` 指向条目 |
-| **出示**：条码、NFC、支付凭证 | 系统钱包 | 仅存 `walletRef` 标注位置 |
-| **档案、依赖、时钟、影响分析** | 本 App | 自己管理 |
+| 层                                       | 归谁       | 本 App 的做法             |
+| ---------------------------------------- | ---------- | ------------------------- |
+| **秘密**：完整卡号、CVV、密码、PUK、私钥 | 密码管理器 | 仅存 `vaultRef` 指向条目  |
+| **出示**：条码、NFC、支付凭证            | 系统钱包   | 仅存 `walletRef` 标注位置 |
+| **档案、依赖、时钟、影响分析**           | 本 App     | 自己管理                  |
 
 核心原则是**指针而不是复制**。本产品不保存完整卡号、CVV、支付密码、助记词等真正秘密，也不重造 Apple Wallet / Google Wallet 的系统级出示能力。
 
@@ -83,12 +83,12 @@ Apple 已提供 NFC & SE Platform，但其使用需要 entitlement、商业协�
 
 #### 四个成熟品类
 
-| 品类 | 代表 | 与本项目边界 |
-|---|---|---|
-| 卡包 / 钱包 | Apple Wallet、Google Wallet、微信卡包、Catima | 管“要出示的凭证”，不理解跨账户依赖 |
-| 密码管理器 | Bitwarden、1Password、KeePassXC | 管秘密和登录，不管时间、支付路径和变更影响 |
-| 到期提醒 | 有期、到期清单等 | 管日期，不管关系 |
-| 订阅追踪 | Rocket Money、Bobby、SubTracker、Monarch 等 | 管订阅与支出，不理解“哪张卡—哪个支付账户—哪个服务”的依赖链 |
+| 品类        | 代表                                          | 与本项目边界                                               |
+| ----------- | --------------------------------------------- | ---------------------------------------------------------- |
+| 卡包 / 钱包 | Apple Wallet、Google Wallet、微信卡包、Catima | 管“要出示的凭证”，不理解跨账户依赖                         |
+| 密码管理器  | Bitwarden、1Password、KeePassXC               | 管秘密和登录，不管时间、支付路径和变更影响                 |
+| 到期提醒    | 有期、到期清单等                              | 管日期，不管关系                                           |
+| 订阅追踪    | Rocket Money、Bobby、SubTracker、Monarch 等   | 管订阅与支出，不理解“哪张卡—哪个支付账户—哪个服务”的依赖链 |
 
 #### 直接相邻产品
 
@@ -216,15 +216,15 @@ MVP Impact Domain = payment
 
 ### 3.2 稳定 `kind` + 可扩展 `templateId`
 
-| `kind` | 示例 |
-|---|---|
-| `identity_anchor` | 手机号、邮箱、身份证 |
-| `payment_instrument` | 银行卡 |
-| `account` | 微信、支付宝、银行账户、Apple ID |
-| `service` | 腾讯视频、Netflix、iCloud |
-| `membership` | 酒店、航空、健身、储值卡 |
-| `device` | 手机、U 盾 |
-| `custom` | 其他 |
+| `kind`               | 示例                             |
+| -------------------- | -------------------------------- |
+| `identity_anchor`    | 手机号、邮箱、身份证             |
+| `payment_instrument` | 银行卡                           |
+| `account`            | 微信、支付宝、银行账户、Apple ID |
+| `service`            | 腾讯视频、Netflix、iCloud        |
+| `membership`         | 酒店、航空、健身、储值卡         |
+| `device`             | 手机、U 盾                       |
+| `custom`             | 其他                             |
 
 信用卡 / 储蓄卡等具体差异放在 `templateId`，例如 `builtin.bank_card.credit`，不继续膨胀 `kind`。
 
@@ -250,34 +250,34 @@ MVP Impact Domain = payment
 
 ### 3.5 会员卡筛选闸门
 
-| 类型 | 时钟 | 边 | 结论 |
-|---|---|---|---|
-| 健身年卡 | 到期 | 可能自动续费 | 可做 |
-| 储值卡 | 余额 / 有效期 | 可能自动充值 | 可做 |
-| 航空里程 | 过期 | 边弱 | 后续 |
-| 酒店会员等级 | 保级周期 | 边弱 | 后续 |
-| 超市积分卡 | 过期 | 无明显边 | 待定 |
-| 优惠券 | 到期 | 无 | 不做 |
-| 门票 / 登机牌 | 一次性 | 无 | 不做 |
+| 类型          | 时钟          | 边           | 结论 |
+| ------------- | ------------- | ------------ | ---- |
+| 健身年卡      | 到期          | 可能自动续费 | 可做 |
+| 储值卡        | 余额 / 有效期 | 可能自动充值 | 可做 |
+| 航空里程      | 过期          | 边弱         | 后续 |
+| 酒店会员等级  | 保级周期      | 边弱         | 后续 |
+| 超市积分卡    | 过期          | 无明显边     | 待定 |
+| 优惠券        | 到期          | 无           | 不做 |
+| 门票 / 登机牌 | 一次性        | 无           | 不做 |
 
 ### 3.6 明确不做
 
-| 不做 | 原因 |
-|---|---|
-| 助记词、私钥、支付密码、U 盾 PIN | 属于密码管理器 / 密钥管理范围 |
-| 完整卡号、CVV | 只存后四位 |
-| NFC / 刷卡支付 / 主卡包入口 / `.pkpass` | 资质、地域和场景不适合 |
-| 记账与长期流水 | 会把产品拉成第二个记账 App |
-| 自动读短信 | 权限和商店风险高 |
-| 银行卡 OCR | 只录后四位时价值低 |
-| 账号体系 | 与 local-first / 无云账户定位冲突 |
-| 支付、代扣、支付 SDK | 会进入金融资质和安全责任域 |
-| 实时优惠活动数据库 | 维护成本和责任过高 |
-| “该刷哪张卡”推荐 | 需要大规模实时活动库 |
-| 没有边的纯到期物 | 到期提醒红海 |
-| Neo4j / GraphRAG / LLM / Agent / GNN | MVP 属于过度工程 |
-| N-of-M Group、跨 capability 推理、SPOF、dominator | v0.5 以后再讨论 |
-| Event sourcing、CRDT | MVP 不需要 |
+| 不做                                              | 原因                              |
+| ------------------------------------------------- | --------------------------------- |
+| 助记词、私钥、支付密码、U 盾 PIN                  | 属于密码管理器 / 密钥管理范围     |
+| 完整卡号、CVV                                     | 只存后四位                        |
+| NFC / 刷卡支付 / 主卡包入口 / `.pkpass`           | 资质、地域和场景不适合            |
+| 记账与长期流水                                    | 会把产品拉成第二个记账 App        |
+| 自动读短信                                        | 权限和商店风险高                  |
+| 银行卡 OCR                                        | 只录后四位时价值低                |
+| 账号体系                                          | 与 local-first / 无云账户定位冲突 |
+| 支付、代扣、支付 SDK                              | 会进入金融资质和安全责任域        |
+| 实时优惠活动数据库                                | 维护成本和责任过高                |
+| “该刷哪张卡”推荐                                  | 需要大规模实时活动库              |
+| 没有边的纯到期物                                  | 到期提醒红海                      |
+| Neo4j / GraphRAG / LLM / Agent / GNN              | MVP 属于过度工程                  |
+| N-of-M Group、跨 capability 推理、SPOF、dominator | v0.5 以后再讨论                   |
+| Event sourcing、CRDT                              | MVP 不需要                        |
 
 ---
 
@@ -287,21 +287,21 @@ MVP Impact Domain = payment
 
 本项目要求最终可在 **Android、iOS、HarmonyOS** 三个平台独立打包和上架。主业务代码保持一套，原生安全能力通过平台适配器隔离。
 
-| 层 | 方案 |
-|---|---|
-| 主业务语言 | **TypeScript** |
-| UI / 应用壳 | **uni-app x Vapor + Vue 3 + Composition API** |
-| 跨端原生桥接 | **UTS 插件** |
-| Android 原生实现 | Kotlin |
-| iOS 原生实现 | Swift |
-| HarmonyOS 原生实现 | ArkTS |
-| Domain / Impact / Parser | 尽可能使用纯 TypeScript，保持 deterministic / testable / platform-independent |
-| Android / iOS 本地数据库 | SQLite + SQLCipher，密钥进入系统安全区 |
-| HarmonyOS 本地数据库 | ArkData relationalStore 加密能力 + HUKS；通过同一 Repository / SecureDatabaseAdapter 暴露逻辑 Schema |
-| 原生身份验证 | Android 系统 biometric/device credential；iOS LocalAuthentication / Keychain；HarmonyOS 官方用户认证能力 |
-| `.depmap` 文件加密 | Argon2id + AES-256-GCM + RFC 8785 JCS AAD |
-| 解析器 | 本地纯解析，账单仅在导入会话内存处理 |
-| Web 工作台 | 后续可做无状态工作台，不作为三端 App MVP 的阻塞项 |
+| 层                       | 方案                                                                                                     |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| 主业务语言               | **TypeScript**                                                                                           |
+| UI / 应用壳              | **uni-app x Vapor + Vue 3 + Composition API**                                                            |
+| 跨端原生桥接             | **UTS 插件**                                                                                             |
+| Android 原生实现         | Kotlin                                                                                                   |
+| iOS 原生实现             | Swift                                                                                                    |
+| HarmonyOS 原生实现       | ArkTS                                                                                                    |
+| Domain / Impact / Parser | 尽可能使用纯 TypeScript，保持 deterministic / testable / platform-independent                            |
+| Android / iOS 本地数据库 | SQLite + SQLCipher，密钥进入系统安全区                                                                   |
+| HarmonyOS 本地数据库     | ArkData relationalStore 加密能力 + HUKS；通过同一 Repository / SecureDatabaseAdapter 暴露逻辑 Schema     |
+| 原生身份验证             | Android 系统 biometric/device credential；iOS LocalAuthentication / Keychain；HarmonyOS 官方用户认证能力 |
+| `.depmap` 文件加密       | Argon2id + AES-256-GCM + RFC 8785 JCS AAD                                                                |
+| 解析器                   | 本地纯解析，账单仅在导入会话内存处理                                                                     |
+| Web 工作台               | 后续可做无状态工作台，不作为三端 App MVP 的阻塞项                                                        |
 
 **禁止使用 跨端应用层 作为三端统一底座。** 不写三套完全独立 App；业务代码不得散落大量 platform conditional，平台差异必须通过 Adapter / UTS 插件隔离。
 
@@ -954,12 +954,12 @@ simulateScenario(unavailable):
 
 ### 7.7 输出语言
 
-| 状态 | 标签 | 示例 |
-|---|---|---|
-| 高确定性 | **必须处理** | 已确认该支付能力依赖此关系，且无确认备用路径 |
-| 确认 Group 仍满足 | **有备用路径 / 能力降级** | 已确认另一资金来源可接管，但冗余度下降 |
-| Group 未确认 / criticality unknown / Proposal | **建议检查** | 检测到可能替代路径，但未确认会自动切换 |
-| 只有旧观测 | **历史观察** | 曾观察到该路径，目前可能变化 |
+| 状态                                          | 标签                      | 示例                                         |
+| --------------------------------------------- | ------------------------- | -------------------------------------------- |
+| 高确定性                                      | **必须处理**              | 已确认该支付能力依赖此关系，且无确认备用路径 |
+| 确认 Group 仍满足                             | **有备用路径 / 能力降级** | 已确认另一资金来源可接管，但冗余度下降       |
+| Group 未确认 / criticality unknown / Proposal | **建议检查**              | 检测到可能替代路径，但未确认会自动切换       |
+| 只有旧观测                                    | **历史观察**              | 曾观察到该路径，目前可能变化                 |
 
 ### 7.8 必跑测试
 
@@ -1054,6 +1054,7 @@ ArkData relationalStore 加密数据库
 工程早期必须验证可获得的平台：
 
 **Android**
+
 - 数据库文件离线打开不可读；
 - App 重启可正常解锁；
 - 生物识别取消不能进入数据层；
@@ -1062,12 +1063,14 @@ ArkData relationalStore 加密数据库
 - 升级、重启、进程杀死后不会丢 key。
 
 **HarmonyOS**
+
 - ArkData 加密库落盘不可直接读取；
 - HUKS 密钥生命周期与失败路径正确；
 - 用户认证取消后不得进入数据层；
 - 重启、升级和进程杀死后数据可恢复且密钥不明文落盘。
 
 **iOS**
+
 - 在 macOS / Xcode 可用时验证 SQLCipher、Keychain、LocalAuthentication 与后台隐私遮罩；
 - 若当前机器无法运行 Xcode，只能标记为 `IMPLEMENTED/CONFIGURED`，不得写成 `DEVICE_VERIFIED`。
 
@@ -1354,18 +1357,18 @@ iOS 待处理本地通知有数量上限，因此采用滚动调度：每次 App
 
 ### 11.4 Schema v1 数据库不变量
 
-| 对象 | 不变量 / 约束 |
-|---|---|
-| Dependency | `UNIQUE(from, relation, to, capability)` |
-| Dependency | 只有用户确认后才能存在；`criticality` 默认 `unknown` |
-| Dependency | retired 后重新确认必须 re-activate 同一行 |
-| DependencyGroup | 只有用户确认后产生 |
-| DependencyGroup | `groupKey` canonical + UNIQUE |
-| Proposal item | `key=from|relation|to|capability` 唯一，重复观测 UPSERT |
-| Group Proposal | canonical key 唯一，拒绝可被新 Evidence 重提 |
-| ObservationFingerprint | `UNIQUE(source,fingerprint)` + `fingerprintVersion` |
-| Evidence | `parserId/parserVersion` 必须存在；只聚合新 fingerprint |
-| Node | `kind` 稳定、`templateId` 扩展 |
+| 对象                   | 不变量 / 约束                                           |
+| ---------------------- | ------------------------------------------------------- |
+| Dependency             | `UNIQUE(from, relation, to, capability)`                |
+| Dependency             | 只有用户确认后才能存在；`criticality` 默认 `unknown`    |
+| Dependency             | retired 后重新确认必须 re-activate 同一行               |
+| DependencyGroup        | 只有用户确认后产生                                      |
+| DependencyGroup        | `groupKey` canonical + UNIQUE                           |
+| Proposal item          | `key=from                                               | relation | to  | capability` 唯一，重复观测 UPSERT |
+| Group Proposal         | canonical key 唯一，拒绝可被新 Evidence 重提            |
+| ObservationFingerprint | `UNIQUE(source,fingerprint)` + `fingerprintVersion`     |
+| Evidence               | `parserId/parserVersion` 必须存在；只聚合新 fingerprint |
+| Node                   | `kind` 稳定、`templateId` 扩展                          |
 
 ### 11.5 双 Gate
 
@@ -1432,13 +1435,13 @@ iOS 待处理本地通知有数量上限，因此采用滚动调度：每次 App
 
 ### 13.2 渠道优先级
 
-| 渠道 | 策略 |
-|---|---|
-| GitHub Releases | MVP 首发 APK |
-| F-Droid | 后续，保持依赖可开源审计 |
-| App Store | iOS 功能稳定后 |
-| Google Play | 满足测试与账号要求后 |
-| 国内安卓商店 | MVP 不优先 |
+| 渠道            | 策略                     |
+| --------------- | ------------------------ |
+| GitHub Releases | MVP 首发 APK             |
+| F-Droid         | 后续，保持依赖可开源审计 |
+| App Store       | iOS 功能稳定后           |
+| Google Play     | 满足测试与账号要求后     |
+| 国内安卓商店    | MVP 不优先               |
 
 README 维护解析器覆盖矩阵与已知限制，既展示能力，也作为开源贡献入口。
 
@@ -1527,32 +1530,32 @@ README 维护解析器覆盖矩阵与已知限制，既展示能力，也作为�
 
 ## 附录 B：v0.3 → 当前母版的关键修正
 
-| 旧设计 | 当前最终设计 |
-|---|---|
-| C 端没有产品管“线” | 已有相邻产品；差异聚焦“账单 → 支付依赖 → 确认 → Impact”完整链路 |
-| 壁垒 = 关系图 + 中国账单解析 | 技术复利在整个 pipeline，不把 CSV parser 当壁垒 |
-| 国内没有 Open Banking | 改为“没有面向独立 C 端的统一跨银行消费者数据聚合能力” |
-| iOS SE 只给 Apple Pay | API 已开放但大陆 / 资质不适用，结论仍是不做 |
-| Edge 一条边就算影响 | Dependency + capability + confirmed Group |
-| confidence=confirmed/inferred | Proposal confidence 与 Reality confirmation 完全分离 |
-| Parser 直接建边 | Parser 只生成 Proposal |
-| recurring route 可升级 merchant agreement | 路径与边分离，逐条 suggestion 确认 |
-| 两张卡自动等于备用路径 | Group 必须用户确认 |
-| Dependency 有 proposed/rejected | proposed/rejected 全归 Proposal；Dependency 存在即已确认 |
-| preferred/backup 直接参与 MVP | MVP criticality 只用 required / unknown；备用由 Group 表达 |
-| node-level Impact | `(node, capability)`，MVP 限 payment |
-| 普通拓扑序 | BFS + visited 防环；Scenario API |
-| 相似交易物理合并 | Observation / CanonicalEvent 会话内关联，不物理去重 |
-| 原账单持久化 | 原账单 / 单笔 Observation 全不落盘 |
-| merchantHash | 删除；低熵裸 hash 无隐私价值 |
-| Evidence 每次导入一份明细 | Evidence 聚合新 Fingerprint 的摘要 |
-| seqInDay fingerprint | stable txn id 优先；fallback canonical row + duplicate ordinal |
-| 明文 JSON 导出 | `.depmap` Argon2id + AES-256-GCM |
-| Envelope Encryption | 正名为 Password-Based File Encryption |
-| “canonical header”模糊 | RFC 8785 JCS AAD + golden vectors |
-| Web IndexedDB 持久化 | Web 无状态工作台 |
-| SQLCipher 按数据量判断 | 整图按敏感数据威胁建模 |
-| MVP 卡片档案 | MVP = “换掉一张真实银行卡”的完整 vertical slice |
+| 旧设计                                    | 当前最终设计                                                    |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| C 端没有产品管“线”                        | 已有相邻产品；差异聚焦“账单 → 支付依赖 → 确认 → Impact”完整链路 |
+| 壁垒 = 关系图 + 中国账单解析              | 技术复利在整个 pipeline，不把 CSV parser 当壁垒                 |
+| 国内没有 Open Banking                     | 改为“没有面向独立 C 端的统一跨银行消费者数据聚合能力”           |
+| iOS SE 只给 Apple Pay                     | API 已开放但大陆 / 资质不适用，结论仍是不做                     |
+| Edge 一条边就算影响                       | Dependency + capability + confirmed Group                       |
+| confidence=confirmed/inferred             | Proposal confidence 与 Reality confirmation 完全分离            |
+| Parser 直接建边                           | Parser 只生成 Proposal                                          |
+| recurring route 可升级 merchant agreement | 路径与边分离，逐条 suggestion 确认                              |
+| 两张卡自动等于备用路径                    | Group 必须用户确认                                              |
+| Dependency 有 proposed/rejected           | proposed/rejected 全归 Proposal；Dependency 存在即已确认        |
+| preferred/backup 直接参与 MVP             | MVP criticality 只用 required / unknown；备用由 Group 表达      |
+| node-level Impact                         | `(node, capability)`，MVP 限 payment                            |
+| 普通拓扑序                                | BFS + visited 防环；Scenario API                                |
+| 相似交易物理合并                          | Observation / CanonicalEvent 会话内关联，不物理去重             |
+| 原账单持久化                              | 原账单 / 单笔 Observation 全不落盘                              |
+| merchantHash                              | 删除；低熵裸 hash 无隐私价值                                    |
+| Evidence 每次导入一份明细                 | Evidence 聚合新 Fingerprint 的摘要                              |
+| seqInDay fingerprint                      | stable txn id 优先；fallback canonical row + duplicate ordinal  |
+| 明文 JSON 导出                            | `.depmap` Argon2id + AES-256-GCM                                |
+| Envelope Encryption                       | 正名为 Password-Based File Encryption                           |
+| “canonical header”模糊                    | RFC 8785 JCS AAD + golden vectors                               |
+| Web IndexedDB 持久化                      | Web 无状态工作台                                                |
+| SQLCipher 按数据量判断                    | 整图按敏感数据威胁建模                                          |
+| MVP 卡片档案                              | MVP = “换掉一张真实银行卡”的完整 vertical slice                 |
 
 ---
 
@@ -1571,7 +1574,6 @@ README 维护解析器覆盖矩阵与已知限制，既展示能力，也作为�
 ---
 
 **最终状态：本母版已足够开工。下一步是 Schema v1、migration 和 failing tests，不再进行非 Correctness / Security / Interoperability 类型的纸面扩展。**
-
 
 ---
 

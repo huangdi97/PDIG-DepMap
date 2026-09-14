@@ -19,6 +19,7 @@ keystore/jks/p12/p8/mobileprovision、real-bill 数据文件（csv/ofx/pdf/xlsx�
 api key 赋值字面量、云凭据字段、带口令的 DB 连接串。
 
 Allowlist（可复现的已知非秘密）：
+
 - `depmap-test` —— Golden Test Vector 口令，公开测试向量（docs/CRYPTO_PROTOCOL.md），非生产秘密
 - 测试内 fpSecret 字面量（'secret' / 'fuzz-secret' / 'perf-secret' 等测试夹具）
 

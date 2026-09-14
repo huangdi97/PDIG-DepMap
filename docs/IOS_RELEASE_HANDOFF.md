@@ -11,13 +11,13 @@
 
 ## 0. 前置条件（用户提供）
 
-| 项 | 说明 | Blocker |
-|---|---|---|
-| macOS + Xcode（≥ 15） | 构建与签名 | B3 |
-| Apple Developer Program 账号 | 证书 / Provisioning / TestFlight | B8 |
-| 正式 Bundle ID | 当前占位 `com.example.depmap` | B11 |
-| 正式 App 名 | 当前"个人数字依赖图" | B14 |
-| SQLCipher 依赖可达性 | 见 §2 | — |
+| 项                           | 说明                             | Blocker |
+| ---------------------------- | -------------------------------- | ------- |
+| macOS + Xcode（≥ 15）        | 构建与签名                       | B3      |
+| Apple Developer Program 账号 | 证书 / Provisioning / TestFlight | B8      |
+| 正式 Bundle ID               | 当前占位 `com.example.depmap`    | B11     |
+| 正式 App 名                  | 当前"个人数字依赖图"             | B14     |
+| SQLCipher 依赖可达性         | 见 §2                            | —       |
 
 ---
 
@@ -73,16 +73,16 @@ App 工程由 HBuilderX 生成 iOS 工程（依赖 B10）：
 
 在真机上执行并逐项记录结果：
 
-| # | 步骤 | 预期 |
-|---|---|---|
-| 1 | 首次启动 | 显示 Onboarding（3 屏） |
-| 2 | 完成引导 | 进入解锁页 |
-| 3 | 生物识别 / 设备密码 | 通过后进入首页 |
-| 4 | 首页 | 显示"还没有需要处理的事项"空态 |
-| 5 | 进入「我的 → 关于」 | 显示 App 版本 / 数据结构版本 |
-| 6 | 切后台再回前台 | 隐私遮罩（iOS 后台遮罩）生效 |
-| 7 | 设置 → 隐私屏开关 | 截屏被阻止（或按系统策略降级） |
-| 8 | 数据来源 / 备份页 | 空态正常，无崩溃 |
+| #   | 步骤                | 预期                           |
+| --- | ------------------- | ------------------------------ |
+| 1   | 首次启动            | 显示 Onboarding（3 屏）        |
+| 2   | 完成引导            | 进入解锁页                     |
+| 3   | 生物识别 / 设备密码 | 通过后进入首页                 |
+| 4   | 首页                | 显示"还没有需要处理的事项"空态 |
+| 5   | 进入「我的 → 关于」 | 显示 App 版本 / 数据结构版本   |
+| 6   | 切后台再回前台      | 隐私遮罩（iOS 后台遮罩）生效   |
+| 7   | 设置 → 隐私屏开关   | 截屏被阻止（或按系统策略降级） |
+| 8   | 数据来源 / 备份页   | 空态正常，无崩溃               |
 
 > **注意**：导入与备份在设备上尚不可用（B20/B21，Core 桥接未接入）。真机冒烟**不覆盖**这两项，
 > 需在 B20/B21 解除后补测。
@@ -126,12 +126,12 @@ xcodebuild -exportArchive \
 
 ## 8. 完成后需要回填的状态
 
-| 字段 | 更新为 |
-|---|---|
-| `IOS_BUILD_READY` | PASS |
-| `IOS_DEVICE_VERIFIED` | PASS（并记录设备型号 / 系统版本） |
-| `IOS_SIGNING_READY` | PASS |
-| `IOS_TESTFLIGHT_READY` | PASS |
-| `IOS_APPSTORE_READY` | 视 §7 检查结果 |
+| 字段                   | 更新为                            |
+| ---------------------- | --------------------------------- |
+| `IOS_BUILD_READY`      | PASS                              |
+| `IOS_DEVICE_VERIFIED`  | PASS（并记录设备型号 / 系统版本） |
+| `IOS_SIGNING_READY`    | PASS                              |
+| `IOS_TESTFLIGHT_READY` | PASS                              |
+| `IOS_APPSTORE_READY`   | 视 §7 检查结果                    |
 
 > 请把实际命令与输出回填到 `PRODUCTION_RC_V1_REPORT.md`，**不要只写"已验证"**。

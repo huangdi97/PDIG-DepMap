@@ -5,18 +5,18 @@
 
 ## 定向变异结果（10/10 KILLED）
 
-| 变异 | 目标语义 | 测试集 | 结果 |
-|---|---|---|---|
-| M-R1 | bumpGraphRevision 去 +1（revision 不再推进） | graph-revision GR | KILLED（8 红） |
-| M-R2 | readiness blocked 规则失效 | plan-readiness-coverage + invariants | KILLED（2 红） |
-| M-R3 | drift 新建阈值失效 | reality-drift RD | KILLED（1 红） |
-| M-R4 | revision 未变也 rebase | change-plan-rebase PRB | KILLED（3 红） |
-| M-R5 | dismissed 无门槛重提 | discovery-candidate PC | KILLED（1 红） |
-| FM-1 | **声明即 resolved（忽略 done 检查）** | plan-readiness-freeze | KILLED（FR-READ-001） |
-| FM-2 | **claiming 分配给已完成动作（事后追认）** | plan-readiness-freeze | KILLED（FR-READ-017，本轮补） |
-| FM-3 | **verified/failed 可被 evidence suggestion 覆盖** | action-verification + state-machine | KILLED（FREEZE 用例，本轮补） |
-| FM-4 | **已确认来源也产生 drift（already_confirmed guard 失效）** | reality-drift | KILLED（FREEZE 用例，本轮补） |
-| FM-5 | **ChangePlan 状态迁移表失效** | state-machine-freeze | KILLED（illegal transition） |
+| 变异 | 目标语义                                                   | 测试集                               | 结果                          |
+| ---- | ---------------------------------------------------------- | ------------------------------------ | ----------------------------- |
+| M-R1 | bumpGraphRevision 去 +1（revision 不再推进）               | graph-revision GR                    | KILLED（8 红）                |
+| M-R2 | readiness blocked 规则失效                                 | plan-readiness-coverage + invariants | KILLED（2 红）                |
+| M-R3 | drift 新建阈值失效                                         | reality-drift RD                     | KILLED（1 红）                |
+| M-R4 | revision 未变也 rebase                                     | change-plan-rebase PRB               | KILLED（3 红）                |
+| M-R5 | dismissed 无门槛重提                                       | discovery-candidate PC               | KILLED（1 红）                |
+| FM-1 | **声明即 resolved（忽略 done 检查）**                      | plan-readiness-freeze                | KILLED（FR-READ-001）         |
+| FM-2 | **claiming 分配给已完成动作（事后追认）**                  | plan-readiness-freeze                | KILLED（FR-READ-017，本轮补） |
+| FM-3 | **verified/failed 可被 evidence suggestion 覆盖**          | action-verification + state-machine  | KILLED（FREEZE 用例，本轮补） |
+| FM-4 | **已确认来源也产生 drift（already_confirmed guard 失效）** | reality-drift                        | KILLED（FREEZE 用例，本轮补） |
+| FM-5 | **ChangePlan 状态迁移表失效**                              | state-machine-freeze                 | KILLED（illegal transition）  |
 
 重点命中 Freeze §66 高风险点：`===↔!==`（FM-1 done 检查）、blocked↔review（M-R2/FM-1）、
 absence guard（M-R3）、confirmation guard（FM-4）、verified guard（FM-3）、

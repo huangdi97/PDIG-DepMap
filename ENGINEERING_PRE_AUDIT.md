@@ -5,30 +5,30 @@
 
 ## 1. Git 状态
 
-| 项 | 值 |
-|---|---|
-| HEAD（审计时） | `1d0d1f6` chore(engineering): track .codebuddy WorkBuddy relay rules |
+| 项                | 值                                                                                  |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| HEAD（审计时）    | `1d0d1f6` chore(engineering): track .codebuddy WorkBuddy relay rules                |
 | MVP02 收口 commit | `d294ad3`（tag `v0.2.0-mvp02` 指向 `1d0d1f6`，即 MVP02 终态 + .codebuddy 规则入库） |
-| branch | `engineering/baseline-v1`（自 `feat/mvp02-global-source` 切出） |
-| dirty files | 0（仅 `.codebuddy/` 曾未跟踪，已审计：纯项目规则，无 secret，已入库） |
-| `.workbuddy-ai/` | 已跟踪（agent memory 记录，无 secret） |
+| branch            | `engineering/baseline-v1`（自 `feat/mvp02-global-source` 切出）                     |
+| dirty files       | 0（仅 `.codebuddy/` 曾未跟踪，已审计：纯项目规则，无 secret，已入库）               |
+| `.workbuddy-ai/`  | 已跟踪（agent memory 记录，无 secret）                                              |
 
 未跟踪处理结论：`.codebuddy/rules/pdig-mvp02/RULE.mdc` 内容为 WorkBuddy 接力规则（correctness/development/scope 约束），无任何 secret，WorkBuddy 后续会话仍会使用 → **加入 Git**（commit `1d0d1f6`）。
 
 ## 2. 工具链版本（实跑）
 
-| 项 | 值 |
-|---|---|
-| Node | v22.15.0（x64, Windows 10.0.26200） |
-| npm | 11.3.0 |
-| package manager 字段 | **未声明**（本轮补：`engines` + `packageManager`） |
-| lockfile | `core/package-lock.json` 已提交（256 packages） |
-| TypeScript | 5.9.3（dev） |
-| ESLint | 10.10.0 + typescript-eslint 8.70.0（dev，flat config + typed rules） |
-| Prettier | 3.9.6（dev） |
-| Vitest | 3.2.7 + @vitest/coverage-v8 3.2.7（dev） |
-| 运行时依赖 | hash-wasm 4.12.0（唯一 runtime dep） |
-| devDependencies | @types/node 22.20.1, globals 17.12.0, iconv-lite 0.7.3（仅 fixture 生成脚本用） |
+| 项                   | 值                                                                              |
+| -------------------- | ------------------------------------------------------------------------------- |
+| Node                 | v22.15.0（x64, Windows 10.0.26200）                                             |
+| npm                  | 11.3.0                                                                          |
+| package manager 字段 | **未声明**（本轮补：`engines` + `packageManager`）                              |
+| lockfile             | `core/package-lock.json` 已提交（256 packages）                                 |
+| TypeScript           | 5.9.3（dev）                                                                    |
+| ESLint               | 10.10.0 + typescript-eslint 8.70.0（dev，flat config + typed rules）            |
+| Prettier             | 3.9.6（dev）                                                                    |
+| Vitest               | 3.2.7 + @vitest/coverage-v8 3.2.7（dev）                                        |
+| 运行时依赖           | hash-wasm 4.12.0（唯一 runtime dep）                                            |
+| devDependencies      | @types/node 22.20.1, globals 17.12.0, iconv-lite 0.7.3（仅 fixture 生成脚本用） |
 
 ## 3. 现有 scripts 清单（core/package.json）
 
@@ -58,18 +58,18 @@ check:full = check && test:coverage && test:perf
 
 ## 5. 源码标记扫描（src/，实跑 grep）
 
-| 扫描项 | 结果 |
-|---|---|
-| TODO / FIXME / HACK / XXX / TEMP / PLACEHOLDER | **0 处真命中**（`XXX` 命中 6 处均为 ISO-4217「未知货币」合法码 `'XXX'`，非占位符） |
-| `: any` / `as any` | **0**（src） |
-| `unknown as X` | **0**（src） |
-| `@ts-ignore` / `@ts-expect-error` | **0**（src + tests） |
-| 非空断言 `!`（critical path） | 0（RC 轮已清零，eslint 禁止） |
-| `console.*` | **0**（src；仅 scripts/ CLI 工具允许） |
-| `Date.now` / `Math.random` | **0**（src） |
-| 硬编码绝对路径（`E:\` / `C:\` 等） | 0（scripts 以 `import.meta.url` 解析根） |
-| 网络调用（fetch/axios/uni.request/XMLHttpRequest/URLSession/OkHttp） | **0**（src） |
-| eslint-disable 整文件豁免 | **0**（eslint.config.js 注释明确：无生成代码，无文件级豁免） |
+| 扫描项                                                               | 结果                                                                               |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| TODO / FIXME / HACK / XXX / TEMP / PLACEHOLDER                       | **0 处真命中**（`XXX` 命中 6 处均为 ISO-4217「未知货币」合法码 `'XXX'`，非占位符） |
+| `: any` / `as any`                                                   | **0**（src）                                                                       |
+| `unknown as X`                                                       | **0**（src）                                                                       |
+| `@ts-ignore` / `@ts-expect-error`                                    | **0**（src + tests）                                                               |
+| 非空断言 `!`（critical path）                                        | 0（RC 轮已清零，eslint 禁止）                                                      |
+| `console.*`                                                          | **0**（src；仅 scripts/ CLI 工具允许）                                             |
+| `Date.now` / `Math.random`                                           | **0**（src）                                                                       |
+| 硬编码绝对路径（`E:\` / `C:\` 等）                                   | 0（scripts 以 `import.meta.url` 解析根）                                           |
+| 网络调用（fetch/axios/uni.request/XMLHttpRequest/URLSession/OkHttp） | **0**（src）                                                                       |
+| eslint-disable 整文件豁免                                            | **0**（eslint.config.js 注释明确：无生成代码，无文件级豁免）                       |
 
 ## 6. TypeScript strict 现状（tsconfig.json）
 

@@ -26,11 +26,11 @@
 
 ## 审计清单
 
-| 项 | 状态 |
-|---|---|
-| CSPRNG | `crypto.getRandomValues`（Node/WebCrypto CSPRNG）；Android SecureRandom；iOS SecRandomCopyBytes |
-| nonce 唯一性 | 每次 encrypt `getRandomValues(12B)`；golden 用固定 nonce（测试向量专用） |
-| secret logging | 无（LOGGING_AUDIT.md） |
-| authenticate-before-trust | 结构→边界→Argon2→GCM 顺序（代码顺序即校验顺序，openDepmapContainer） |
-| decrypt 后 payload 校验 | payload 层（graph-serialize import）在触碰 DB 前完整结构校验 + schemaVersion 检查；不支持版本明确拒绝 |
-| 协议冻结 | V1 参数未改动；仅错误类型包装（correctness 修订，RC_RULES 允许） |
+| 项                        | 状态                                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- |
+| CSPRNG                    | `crypto.getRandomValues`（Node/WebCrypto CSPRNG）；Android SecureRandom；iOS SecRandomCopyBytes       |
+| nonce 唯一性              | 每次 encrypt `getRandomValues(12B)`；golden 用固定 nonce（测试向量专用）                              |
+| secret logging            | 无（LOGGING_AUDIT.md）                                                                                |
+| authenticate-before-trust | 结构→边界→Argon2→GCM 顺序（代码顺序即校验顺序，openDepmapContainer）                                  |
+| decrypt 后 payload 校验   | payload 层（graph-serialize import）在触碰 DB 前完整结构校验 + schemaVersion 检查；不支持版本明确拒绝 |
+| 协议冻结                  | V1 参数未改动；仅错误类型包装（correctness 修订，RC_RULES 允许）                                      |

@@ -10,6 +10,7 @@ Resume-first:
 先读 WORK_STATUS、Git 状态和测试结果。禁止从零重建，禁止覆盖 ZCode 已完成且正确的实现。
 
 Correctness:
+
 - Proposal cannot become Reality without allowed verification.
 - File adapters are event_stream.
 - Missing observations cannot retire confirmed Reality.
@@ -19,6 +20,7 @@ Correctness:
 - DEPMAP_CONTAINER_V1 must remain compatible.
 
 Development:
+
 - never delete/skip tests to make green
 - preserve strict TypeScript
 - focused test then full regression

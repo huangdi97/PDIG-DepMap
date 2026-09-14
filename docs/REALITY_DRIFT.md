@@ -5,6 +5,7 @@
 RealityDrift = 「已确认的 Reality **可能**发生变化」的信号。绝不自动修改 Graph。
 
 与 Proposal 的职责边界（§29）：
+
 - Proposal：「一个 Dependency 是否存在？」
 - RealityDrift：「**已经确认的** Reality 是否可能变了？」
 
@@ -28,11 +29,11 @@ updatedAt / status（open → confirmed_change | dismissed | superseded）。
 
 ## 用户处理（四选项，无一键自动改图）
 
-| 选择 | 映射 |
-|---|---|
-| 已经换成新来源 | confirm 新边（user_confirmed）+ retire 旧相关边 → graphRevision +N |
-| 两个都在用 | 只 confirm 新边，旧边保持 active |
-| 没有变化 / 稍后确认 | 仅 drift 状态 → dismissed，Graph 不变 |
+| 选择                | 映射                                                               |
+| ------------------- | ------------------------------------------------------------------ |
+| 已经换成新来源      | confirm 新边（user_confirmed）+ retire 旧相关边 → graphRevision +N |
+| 两个都在用          | 只 confirm 新边，旧边保持 active                                   |
+| 没有变化 / 稍后确认 | 仅 drift 状态 → dismissed，Graph 不变                              |
 
 同 key 的其他 open drift 在 resolution 后 superseded（防重复打扰）。
 

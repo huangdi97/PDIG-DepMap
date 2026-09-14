@@ -1,9 +1,11 @@
 # ZCODE_REHANDOFF_README.md
 
 ## 用途
+
 WorkBuddy 没额度以后切回 ZCode 的接力包。不是新的 MVP02 启动包。
 
 ## 复制
+
 把本包 4 个文件复制到当前已有项目根目录。
 不要新建仓库。
 
@@ -18,6 +20,7 @@ CODEBUDDY.md
 WorkBuddy 已修改源码
 
 ## ZCode 第一次
+
 推荐新建一个 ZCode Task。
 
 如果支持 `/goal`，Goal 设置为：
@@ -28,10 +31,12 @@ WorkBuddy 已修改源码
 ZCODE_MVP02_REHANDOFF_FIRST_PROMPT.txt
 
 ## 中途又断
+
 新开 Task，发送：
 ZCODE_MVP02_REHANDOFF_CONTINUE.txt
 
 ## 最终完成标志
+
 根目录存在 MVP02_FINAL_REPORT.md，且真实：
 MVP02_GLOBAL_SOURCE_ABSTRACTION = PASS
 

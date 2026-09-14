@@ -1,4 +1,5 @@
 # GOAL_MVP02_GLOBAL_SOURCE.md
+
 # PDIG / DepMap — MVP02 Global Source Abstraction Validation
 
 > 执行模型：ZCode + GLM-5.3-Flash  

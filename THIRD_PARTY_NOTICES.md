@@ -5,31 +5,31 @@
 
 ## 共享 Core 运行时
 
-| 组件 | 版本 | License | 来源 |
-|---|---|---|---|
-| hash-wasm | 4.12.0 | MIT | https://github.com/Daninet/hash-wasm |
+| 组件      | 版本   | License | 来源                                 |
+| --------- | ------ | ------- | ------------------------------------ |
+| hash-wasm | 4.12.0 | MIT     | https://github.com/Daninet/hash-wasm |
 
 ## 开发工具链（不进入发布产物）
 
-| 组件 | License |
-|---|---|
-| TypeScript | Apache-2.0 |
-| Vitest / @vitest/coverage-v8 | MIT |
-| ESLint / typescript-eslint / globals | MIT |
-| Prettier | MIT |
-| @types/node | MIT |
-| iconv-lite（fixture 生成脚本） | MIT |
-| fast-check（property-based 测试，4.x） | MIT |
+| 组件                                   | License    |
+| -------------------------------------- | ---------- |
+| TypeScript                             | Apache-2.0 |
+| Vitest / @vitest/coverage-v8           | MIT        |
+| ESLint / typescript-eslint / globals   | MIT        |
+| Prettier                               | MIT        |
+| @types/node                            | MIT        |
+| iconv-lite（fixture 生成脚本）         | MIT        |
+| fast-check（property-based 测试，4.x） | MIT        |
 
 ## 平台原生（进入对应平台发布产物，待工具链编译时复核版本）
 
-| 平台 | 组件 | License |
-|---|---|---|
-| Android | SQLCipher Community Edition | BSD-style |
-| Android | BouncyCastle (bcprov-jdk18on) | MIT（Bouncy Castle License） |
-| Android | AndroidX core/biometric/fragment/sqlite | Apache-2.0 |
-| iOS | SQLCipher | BSD |
-| HarmonyOS | ArkData / HUKS / cryptoFramework | 华为系统组件（随 SDK 分发） |
+| 平台      | 组件                                    | License                      |
+| --------- | --------------------------------------- | ---------------------------- |
+| Android   | SQLCipher Community Edition             | BSD-style                    |
+| Android   | BouncyCastle (bcprov-jdk18on)           | MIT（Bouncy Castle License） |
+| Android   | AndroidX core/biometric/fragment/sqlite | Apache-2.0                   |
+| iOS       | SQLCipher                               | BSD                          |
+| HarmonyOS | ArkData / HUKS / cryptoFramework        | 华为系统组件（随 SDK 分发）  |
 
 ## 说明
 

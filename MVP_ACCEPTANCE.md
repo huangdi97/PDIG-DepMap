@@ -64,6 +64,7 @@
 ## E. Platform — 源码完成，编译验证被外部环境阻塞
 
 ### Android
+
 - [x] IMPLEMENTED
 - [ ] COMPILED（需 B1：JDK17 + Android SDK）
 - [ ] TESTED（golden 测试 TEST READY 未运行）
@@ -72,6 +73,7 @@
 - [x] release config（工程级；signing 材料属 B4）
 
 ### HarmonyOS
+
 - [x] IMPLEMENTED
 - [ ] COMPILED（需 B2：DevEco）
 - [ ] TESTED
@@ -80,6 +82,7 @@
 - [x] release config（工程级）
 
 ### iOS
+
 - [x] IMPLEMENTED
 - [ ] COMPILED（需 B3：macOS/Xcode）
 - [ ] TESTED（XCTest 就绪，XCTSkip 占位）

@@ -22,11 +22,11 @@ WORK_STATUS 记录语义论证）。
 
 ## 变更落位速查
 
-| 要动的东西 | 级别 | 必读 |
-|---|---|---|
-| `src/impact/kernel.ts` | HIGH | CANONICAL §7、TEST_STRATEGY（P1–P6/T1–T12）、FAIL_CLOSED F-11~F-15 |
-| `src/crypto/depmap.ts` | HIGH | CRYPTO_PROTOCOL、golden 冻结、FAIL_CLOSED F-01~F-04 |
-| `src/schema/migrations.ts` | HIGH | SCHEMA_V1/V2、MIGRATION_V1_V2、长期规则（TEST_STRATEGY Migration Gate） |
-| `src/sources/*/adapter.ts` | MEDIUM | SOURCE_ADAPTER_CONTRACT、adapter-contract C0–C6 |
-| `src/domain/relation-registry.ts` | HIGH | CANONICAL 语义铁律、INV5/INV6 |
-| `vitest.config.ts` / lint 配置 | MEDIUM | COVERAGE_POLICY（exclude 白名单）、ENGINEERING_STANDARDS |
+| 要动的东西                        | 级别   | 必读                                                                    |
+| --------------------------------- | ------ | ----------------------------------------------------------------------- |
+| `src/impact/kernel.ts`            | HIGH   | CANONICAL §7、TEST_STRATEGY（P1–P6/T1–T12）、FAIL_CLOSED F-11~F-15      |
+| `src/crypto/depmap.ts`            | HIGH   | CRYPTO_PROTOCOL、golden 冻结、FAIL_CLOSED F-01~F-04                     |
+| `src/schema/migrations.ts`        | HIGH   | SCHEMA_V1/V2、MIGRATION_V1_V2、长期规则（TEST_STRATEGY Migration Gate） |
+| `src/sources/*/adapter.ts`        | MEDIUM | SOURCE_ADAPTER_CONTRACT、adapter-contract C0–C6                         |
+| `src/domain/relation-registry.ts` | HIGH   | CANONICAL 语义铁律、INV5/INV6                                           |
+| `vitest.config.ts` / lint 配置    | MEDIUM | COVERAGE_POLICY（exclude 白名单）、ENGINEERING_STANDARDS                |

@@ -10,19 +10,19 @@
 - **BASELINE Gate（强制，禁止回归）**：任何模块不得低于下表 Baseline；整体 src line 不得低于 94%。
 - **TARGET Gate（目标，缺口需说明理由）**：下表 Target 列。
 
-| 模块 | line / branch（实测） | Baseline line | Baseline branch | Target | 缺口说明 |
-|---|---|---|---|---|---|
-| crypto（depmap/golden/jcs） | 99.34 / 89.18 | 99 | 89 | 95/95 | jcs 负向分支已测主路径 |
-| schema / migrations | 100 / 100 | 100 | 100 | 100/100 | — |
-| domain（types/registry/source） | 100 / 96.42 | 100 | 96 | 100/100 | — |
-| fingerprint | 100 / 95.23 | 100 | 95 | 100/95 | — |
-| impact / kernel | 92.63 / 88.88 | 92 | 88 | 95/95 | 缺口为**单 capability 下构造性不可达分支**（排序 capability tie、severity 表 `degraded` case）；随 MVP03 多 capability 收紧或删除防御分支；不为数字写无意义测试 |
-| services（coordinator/confirmation/serialize） | 95.41 / 78.02 | 95 | 78 | 95/85 | branch 缺口为 mapping/路由边缘组合 |
-| repositories | 92.52 / 78.35 | 92 | 78 | 95/85 | — |
-| parser/wechat | 96.9 / 79.83 | 96 | 79 | 95/90 | — |
-| resolver | 82.53 / 84.14 | 82 | 84 | 90/90 | fuzzy 边缘组合（209–234 行区间） |
-| sources（generic-csv/ofx） | 84.61 / 83.33 | 84 | 83 | 90/90 | MVP02 新模块；坏行/编码边缘组合 |
-| **src 整体** | **94.67 / 81.59** | **94** | 81 | 95/90 | — |
+| 模块                                           | line / branch（实测） | Baseline line | Baseline branch | Target  | 缺口说明                                                                                                                                                        |
+| ---------------------------------------------- | --------------------- | ------------- | --------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| crypto（depmap/golden/jcs）                    | 99.34 / 89.18         | 99            | 89              | 95/95   | jcs 负向分支已测主路径                                                                                                                                          |
+| schema / migrations                            | 100 / 100             | 100           | 100             | 100/100 | —                                                                                                                                                               |
+| domain（types/registry/source）                | 100 / 96.42           | 100           | 96              | 100/100 | —                                                                                                                                                               |
+| fingerprint                                    | 100 / 95.23           | 100           | 95              | 100/95  | —                                                                                                                                                               |
+| impact / kernel                                | 92.63 / 88.88         | 92            | 88              | 95/95   | 缺口为**单 capability 下构造性不可达分支**（排序 capability tie、severity 表 `degraded` case）；随 MVP03 多 capability 收紧或删除防御分支；不为数字写无意义测试 |
+| services（coordinator/confirmation/serialize） | 95.41 / 78.02         | 95            | 78              | 95/85   | branch 缺口为 mapping/路由边缘组合                                                                                                                              |
+| repositories                                   | 92.52 / 78.35         | 92            | 78              | 95/85   | —                                                                                                                                                               |
+| parser/wechat                                  | 96.9 / 79.83          | 96            | 79              | 95/90   | —                                                                                                                                                               |
+| resolver                                       | 82.53 / 84.14         | 82            | 84              | 90/90   | fuzzy 边缘组合（209–234 行区间）                                                                                                                                |
+| sources（generic-csv/ofx）                     | 84.61 / 83.33         | 84            | 83              | 90/90   | MVP02 新模块；坏行/编码边缘组合                                                                                                                                 |
+| **src 整体**                                   | **94.67 / 81.59**     | **94**        | 81              | 95/90   | —                                                                                                                                                               |
 
 ## 规则
 
@@ -38,11 +38,11 @@
 src 整体：**line 93.45% / branch 81.4%**（新增 5 个模块后口径；新模块行见下）。
 新增模块 Baseline Gate（禁止回归）：
 
-| 模块 | line / branch | Baseline | Target | 说明 |
-|---|---|---|---|---|
-| scenarios（registry） | 98.69 / 95.23 | 98/95 | 100/95 | planned gate 类型级 |
-| domain/change-plan | 53.84* | — | — | *纯类型+2 个派生函数；未覆盖行为 PlanRebase diff 类型的兜底分支，随 rebase 扩展补 |
-| repositories（新增 3 表仓库） | 92.15 / 75.48（模块合计） | 92/75 | 95/85 | change-plan/drift/candidate 仓库分支随 UI 联动扩展补 |
-| services（新增 5 个服务） | 见 check:full | — | — | rebase/readiness/drift/timeline 主路径全测 |
+| 模块                          | line / branch             | Baseline | Target | 说明                                                                              |
+| ----------------------------- | ------------------------- | -------- | ------ | --------------------------------------------------------------------------------- |
+| scenarios（registry）         | 98.69 / 95.23             | 98/95    | 100/95 | planned gate 类型级                                                               |
+| domain/change-plan            | 53.84*                    | —        | —      | *纯类型+2 个派生函数；未覆盖行为 PlanRebase diff 类型的兜底分支，随 rebase 扩展补 |
+| repositories（新增 3 表仓库） | 92.15 / 75.48（模块合计） | 92/75    | 95/85  | change-plan/drift/candidate 仓库分支随 UI 联动扩展补                              |
+| services（新增 5 个服务）     | 见 check:full             | —        | —      | rebase/readiness/drift/timeline 主路径全测                                        |
 
 既有模块 Baseline 不变（见上表）；impact/crypto/fingerprint/schema 维持原值。

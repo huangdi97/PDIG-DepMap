@@ -10,19 +10,19 @@
 
 ## 技术现状
 
-| 项 | 当前值 | 位置 |
-|---|---|---|
-| application payload schemaVersion | **1** | core/src/schema/migrations.ts（SCHEMA_VERSION=1；graph-serialize payload schemaVersion=1） |
-| DEPMAP container formatVersion | **1**（本轮不得改变） | core/src/crypto/depmap.ts |
-| WeChat import 结构 | `ImportFlow`（begin/resolveMerchant/finalize 三段式）+ `parseWechatBill` 直连；parserId=`wechat`，session sourceType=`wechat_bill` | core/src/services/import-pipeline.ts、core/src/parser/wechat/parser.ts |
-| Fingerprint unique key | `UNIQUE(source, fingerprint)`；HMAC(fpSecret, `source:sourceTxnId`) | core/src/schema/migrations.ts、core/src/fingerprint/fingerprint.ts |
-| Proposal evidence 字段 | 单 `evidence_id` 列 | dependency_proposals 表 |
-| Evidence provenance | 仅 proposal_key + source_type + parser_id/version + session + first/last/count（**无 sourceInstanceId**） | evidence 表 |
-| verificationBasis | 无（Dependency 存在即确认，隐式 user） | — |
-| migrations | 仅 version 1 | core/src/schema/migrations.ts |
-| tests | 166/166 PASS（15 文件） | docs/TEST_REPORT_RC.md |
-| quality gates | format/lint/typecheck/architecture/secret 全绿；clean install/clone PASS | MVP01_RC_AUDIT_REPORT.md |
-| 平台 blockers | B1（Android SDK/JDK17）/ B2（DevEco）/ B3（macOS）/ B10（HBuilderX） | BLOCKERS.md |
+| 项                                | 当前值                                                                                                                             | 位置                                                                                       |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| application payload schemaVersion | **1**                                                                                                                              | core/src/schema/migrations.ts（SCHEMA_VERSION=1；graph-serialize payload schemaVersion=1） |
+| DEPMAP container formatVersion    | **1**（本轮不得改变）                                                                                                              | core/src/crypto/depmap.ts                                                                  |
+| WeChat import 结构                | `ImportFlow`（begin/resolveMerchant/finalize 三段式）+ `parseWechatBill` 直连；parserId=`wechat`，session sourceType=`wechat_bill` | core/src/services/import-pipeline.ts、core/src/parser/wechat/parser.ts                     |
+| Fingerprint unique key            | `UNIQUE(source, fingerprint)`；HMAC(fpSecret, `source:sourceTxnId`)                                                                | core/src/schema/migrations.ts、core/src/fingerprint/fingerprint.ts                         |
+| Proposal evidence 字段            | 单 `evidence_id` 列                                                                                                                | dependency_proposals 表                                                                    |
+| Evidence provenance               | 仅 proposal_key + source_type + parser_id/version + session + first/last/count（**无 sourceInstanceId**）                          | evidence 表                                                                                |
+| verificationBasis                 | 无（Dependency 存在即确认，隐式 user）                                                                                             | —                                                                                          |
+| migrations                        | 仅 version 1                                                                                                                       | core/src/schema/migrations.ts                                                              |
+| tests                             | 166/166 PASS（15 文件）                                                                                                            | docs/TEST_REPORT_RC.md                                                                     |
+| quality gates                     | format/lint/typecheck/architecture/secret 全绿；clean install/clone PASS                                                           | MVP01_RC_AUDIT_REPORT.md                                                                   |
+| 平台 blockers                     | B1（Android SDK/JDK17）/ B2（DevEco）/ B3（macOS）/ B10（HBuilderX）                                                               | BLOCKERS.md                                                                                |
 
 ## ChangePlan 说明
 

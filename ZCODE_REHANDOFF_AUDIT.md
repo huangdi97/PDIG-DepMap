@@ -15,16 +15,16 @@ Real Data 双 Gate 维持 NOT_RUN。
 
 ## A. WorkBuddy 已完成且已验证（代码存在 + 测试证据，本轮实跑复核）
 
-| 段 | 内容 | 证据（本轮实跑） |
-|---|---|---|
+| 段    | 内容                                                            | 证据（本轮实跑）                                                                                                             |
+| ----- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | A/B/C | Schema v2 迁移、SourceInstance 隔离、fingerprint source-scoping | `tests/repository/migration.test.ts`（17 用例，含 T1–T6 + 本轮 T4/T4b/T5）、`tests/repository/source-instance-scope.test.ts` |
-| D | EvidenceSourceAdapter 契约 + WeChat 普通 Adapter 化 | `tests/sources/*` + 全部 WeChat MVP01 回归 PASS |
-| E | Generic CSV Adapter | 20 用例（US/EU/debit-credit/BOM/quoted delim/CRLF/CR-only/bad date/bad amount/multi-currency/×50 确定性） |
-| F | OFX/QFX Adapter | 15 用例（FITID/fallback/invalid date/malformed/QFX/同 FITID 不同实例） |
-| G/H | Multi-source Evidence provenance + Coverage Semantics | `tests/integration/multi-source-e2e.test.ts` 等（absence 不否定 Reality） |
-| J | `.depmap` payload v2 + v1 in-memory migrate（含 T10 路径） | `tests/integration/graph-payload-v2.test.ts`（17 用例，J2 即 v1→v2 migrate） |
-| K | multi-source synthetic E2E（含 ×20 确定性、单流重提阈值） | 9 用例，含 verificationBasis=user_confirmed 写入回读断言（:287） |
-| L | quality gates | 本轮全绿：format/lint/typecheck/test(259)/architecture(35 files)/secret scan(238 files) |
+| D     | EvidenceSourceAdapter 契约 + WeChat 普通 Adapter 化             | `tests/sources/*` + 全部 WeChat MVP01 回归 PASS                                                                              |
+| E     | Generic CSV Adapter                                             | 20 用例（US/EU/debit-credit/BOM/quoted delim/CRLF/CR-only/bad date/bad amount/multi-currency/×50 确定性）                    |
+| F     | OFX/QFX Adapter                                                 | 15 用例（FITID/fallback/invalid date/malformed/QFX/同 FITID 不同实例）                                                       |
+| G/H   | Multi-source Evidence provenance + Coverage Semantics           | `tests/integration/multi-source-e2e.test.ts` 等（absence 不否定 Reality）                                                    |
+| J     | `.depmap` payload v2 + v1 in-memory migrate（含 T10 路径）      | `tests/integration/graph-payload-v2.test.ts`（17 用例，J2 即 v1→v2 migrate）                                                 |
+| K     | multi-source synthetic E2E（含 ×20 确定性、单流重提阈值）       | 9 用例，含 verificationBasis=user_confirmed 写入回读断言（:287）                                                             |
+| L     | quality gates                                                   | 本轮全绿：format/lint/typecheck/test(259)/architecture(35 files)/secret scan(238 files)                                      |
 
 四个生产缺陷修复（均带回归测试）：generic-csv `matchFormat` 正则转义破坏、
 `positiveDirection` 未生效、ofx `parseOfxAmount('')`→0、import-coordinator 批内

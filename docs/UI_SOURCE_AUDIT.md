@@ -4,19 +4,19 @@
 
 ## 逐页结论
 
-| 页面 | 中文 | loading/empty/error | 破坏性确认 | 备注 |
-|---|---|---|---|---|
-| unlock | ✅ | 认证失败 toast ✅ | — | 认证取消不进入数据层（biometric 插件契约） |
-| home | ✅ | 计数 0 时显示「0 条/0 个」✅；空态无崩溃 | — | answer-oriented：变更/风险/待核对分区 ✅；最近备份时间展示 ✅ |
-| nodes | ✅ | 列表空态可见；创建校验（空名 toast）✅ | — | 渐进式录入（先名称+类型）✅ |
-| node-detail | ✅ | 节点缺失时无渲染崩溃（rows.length==0 return）✅ | 退役关系 showModal 确认 ✅ | 只展示 confirmed Dependency，Proposal 不在此显示 ✅ |
-| import-wechat | ✅ | 未选文件 toast ✅ | — | 明示「文件仅内存处理，不保存原始账单」✅ |
-| node-resolution | ✅ | 空列表可跳过 ✅ | — | 未确认商户不产生建议的文案说明 ✅ |
-| proposals | ✅ | 空态「暂无待确认项」✅ | — | 「是/不是/不确定」三态；「是」默认 unknown 关键度，required 需明确选择 ✅；accepted 不重复问（repository 层） |
-| group-proposals | ✅ | 空态 ✅ | — | 「确认会切换/不会/稍后」✅；拒绝后需新证据重提（repository 层） |
-| simulate | ✅ | 未选卡 toast + 按钮置灰 ✅ | — | 明示反事实模拟、不改数据 ✅ |
-| impact-result | ✅ | 空结果仅显示原始操作项 ✅ | — | must_change/backup_path/needs_review 中文等级 ✅；**原始操作强制最后** ✅；「系统不替你执行真实操作」✅ |
-| settings | ✅ | 备份时间读取 ✅ | 删除全部数据 showModal 确认 ✅ | 隐私声明（不保存密码/CVV/完整卡号/流水）✅ |
+| 页面            | 中文 | loading/empty/error                             | 破坏性确认                     | 备注                                                                                                          |
+| --------------- | ---- | ----------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| unlock          | ✅   | 认证失败 toast ✅                               | —                              | 认证取消不进入数据层（biometric 插件契约）                                                                    |
+| home            | ✅   | 计数 0 时显示「0 条/0 个」✅；空态无崩溃        | —                              | answer-oriented：变更/风险/待核对分区 ✅；最近备份时间展示 ✅                                                 |
+| nodes           | ✅   | 列表空态可见；创建校验（空名 toast）✅          | —                              | 渐进式录入（先名称+类型）✅                                                                                   |
+| node-detail     | ✅   | 节点缺失时无渲染崩溃（rows.length==0 return）✅ | 退役关系 showModal 确认 ✅     | 只展示 confirmed Dependency，Proposal 不在此显示 ✅                                                           |
+| import-wechat   | ✅   | 未选文件 toast ✅                               | —                              | 明示「文件仅内存处理，不保存原始账单」✅                                                                      |
+| node-resolution | ✅   | 空列表可跳过 ✅                                 | —                              | 未确认商户不产生建议的文案说明 ✅                                                                             |
+| proposals       | ✅   | 空态「暂无待确认项」✅                          | —                              | 「是/不是/不确定」三态；「是」默认 unknown 关键度，required 需明确选择 ✅；accepted 不重复问（repository 层） |
+| group-proposals | ✅   | 空态 ✅                                         | —                              | 「确认会切换/不会/稍后」✅；拒绝后需新证据重提（repository 层）                                               |
+| simulate        | ✅   | 未选卡 toast + 按钮置灰 ✅                      | —                              | 明示反事实模拟、不改数据 ✅                                                                                   |
+| impact-result   | ✅   | 空结果仅显示原始操作项 ✅                       | —                              | must_change/backup_path/needs_review 中文等级 ✅；**原始操作强制最后** ✅；「系统不替你执行真实操作」✅       |
+| settings        | ✅   | 备份时间读取 ✅                                 | 删除全部数据 showModal 确认 ✅ | 隐私声明（不保存密码/CVV/完整卡号/流水）✅                                                                    |
 
 ## 严禁事项核对
 

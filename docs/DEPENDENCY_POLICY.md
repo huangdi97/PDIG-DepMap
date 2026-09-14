@@ -5,16 +5,16 @@
 
 ## 直接依赖清单（2026-09-13）
 
-| 包 | 版本 | runtime/dev | 用途 | 接触敏感数据 | 替代方案 | 许可证 |
-|---|---|---|---|---|---|---|
-| hash-wasm | 4.12.0 | **runtime** | Argon2id（KDF）+ 哈希 | 不接触（纯计算） | 无（必须 v19 Argon2id） | MIT |
-| typescript | 5.9.3 | dev | 编译 | 否 | — | Apache-2.0 |
-| vitest / @vitest/coverage-v8 | 3.2.7 | dev | 测试/覆盖 | 否（dev-only） | — | MIT |
-| eslint + typescript-eslint + globals | 10.10.0 / 8.70.0 / 17.12.0 | dev | 静态检查 | 否 | — | MIT |
-| prettier | 3.9.6 | dev | 格式化 | 否 | — | MIT |
-| @types/node | 22.20.1 | dev | 类型 | 否 | — | MIT |
-| iconv-lite | 0.7.3 | dev | GB18030 fixture 生成脚本 | 否 | — | MIT |
-| fast-check | 4.x | dev | property-based testing（本轮新增） | 否（测试种子固定） | 自写 PRNG（已有 mulberry32 后备） | MIT |
+| 包                                   | 版本                       | runtime/dev | 用途                               | 接触敏感数据       | 替代方案                          | 许可证     |
+| ------------------------------------ | -------------------------- | ----------- | ---------------------------------- | ------------------ | --------------------------------- | ---------- |
+| hash-wasm                            | 4.12.0                     | **runtime** | Argon2id（KDF）+ 哈希              | 不接触（纯计算）   | 无（必须 v19 Argon2id）           | MIT        |
+| typescript                           | 5.9.3                      | dev         | 编译                               | 否                 | —                                 | Apache-2.0 |
+| vitest / @vitest/coverage-v8         | 3.2.7                      | dev         | 测试/覆盖                          | 否（dev-only）     | —                                 | MIT        |
+| eslint + typescript-eslint + globals | 10.10.0 / 8.70.0 / 17.12.0 | dev         | 静态检查                           | 否                 | —                                 | MIT        |
+| prettier                             | 3.9.6                      | dev         | 格式化                             | 否                 | —                                 | MIT        |
+| @types/node                          | 22.20.1                    | dev         | 类型                               | 否                 | —                                 | MIT        |
+| iconv-lite                           | 0.7.3                      | dev         | GB18030 fixture 生成脚本           | 否                 | —                                 | MIT        |
+| fast-check                           | 4.x                        | dev         | property-based testing（本轮新增） | 否（测试种子固定） | 自写 PRNG（已有 mulberry32 后备） | MIT        |
 
 ## 规则
 

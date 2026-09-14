@@ -1,7 +1,7 @@
 # GENERIC_CSV_ADAPTER.md（MVP02）
 
 > 状态：IMPLEMENTED + TESTED。实现：`core/src/sources/generic-csv/adapter.ts`
->（adapterId=`generic_csv`，version=1，sourceKind=`statement_file`，
+> （adapterId=`generic_csv`，version=1，sourceKind=`statement_file`，
 > coverageMode=`event_stream`，authoritativeFor=`[]`）。
 
 ## 1. 定位
@@ -16,6 +16,7 @@ description? / counterparty? / currency? / balance? / transactionType? /
 paymentMethod?`
 
 options：
+
 - `delimiter`：`,` `;` `\t` `|`（支持 quoted delimiter、RFC4180 引号）
 - `encoding`：utf-8（BOM 自动剥离）/ gb18030
 - `dateFormats`：如 `MM/DD/YYYY`、`DD.MM.YYYY`（错误日期 → bad row，不猜）

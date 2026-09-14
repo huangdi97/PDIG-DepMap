@@ -4,12 +4,12 @@
 
 ## 1. Git / 环境
 
-| 项 | 值 |
-|---|---|
-| HEAD（启动时） | `def9389` docs(status): WORK_STATUS — Engineering Baseline V1 代码侧 PASS |
-| branch | `engineering/baseline-v1`（干净，0 dirty）→ 本轮新分支 `feat/mvp03-living-graph` |
-| tag | `v0.2.0-mvp02`（MVP02 终态锚点） |
-| Node | v22.15.0 / npm 11.3.0 |
+| 项             | 值                                                                               |
+| -------------- | -------------------------------------------------------------------------------- |
+| HEAD（启动时） | `def9389` docs(status): WORK_STATUS — Engineering Baseline V1 代码侧 PASS        |
+| branch         | `engineering/baseline-v1`（干净，0 dirty）→ 本轮新分支 `feat/mvp03-living-graph` |
+| tag            | `v0.2.0-mvp02`（MVP02 终态锚点）                                                 |
+| Node           | v22.15.0 / npm 11.3.0                                                            |
 
 ## 2. 工程基线状态（Engineering Baseline V1 = PASS）
 
@@ -24,41 +24,41 @@
 
 ## 3. Schema / 协议现状
 
-| 项 | 值 | MVP03 处置 |
-|---|---|---|
-| 应用 Schema 版本 | `SCHEMA_VERSION = 2`（v1→v2 迁移 + ×50 幂等 + 回滚已测） | 新增持久化实体 → **升 v3**（v2→v3 增量迁移，test-first） |
-| DEPMAP_CONTAINER_V1 | formatVersion=1，golden vector 冻结 | **不变**（container version ≠ app schema version） |
-| graph payload | `GRAPH_PAYLOAD_VERSION = 2`，v1 in-memory migrate | 升 **v3**（增加 graphRevision；v1/v2 in-memory migrate 保留） |
-| meta 表 | key-value（schema_version / fpSecret 等） | **复用**：graphRevision 存 `meta.graph_revision`（无新表） |
-| revision 元数据 | 不存在 | 新建 GraphRevision API（bump 与 Reality mutation 同事务） |
+| 项                  | 值                                                       | MVP03 处置                                                    |
+| ------------------- | -------------------------------------------------------- | ------------------------------------------------------------- |
+| 应用 Schema 版本    | `SCHEMA_VERSION = 2`（v1→v2 迁移 + ×50 幂等 + 回滚已测） | 新增持久化实体 → **升 v3**（v2→v3 增量迁移，test-first）      |
+| DEPMAP_CONTAINER_V1 | formatVersion=1，golden vector 冻结                      | **不变**（container version ≠ app schema version）            |
+| graph payload       | `GRAPH_PAYLOAD_VERSION = 2`，v1 in-memory migrate        | 升 **v3**（增加 graphRevision；v1/v2 in-memory migrate 保留） |
+| meta 表             | key-value（schema_version / fpSecret 等）                | **复用**：graphRevision 存 `meta.graph_revision`（无新表）    |
+| revision 元数据     | 不存在                                                   | 新建 GraphRevision API（bump 与 Reality mutation 同事务）     |
 
 ## 4. 现有可复用模型（MVP03 不重复造）
 
-| 现有 | 位置 | MVP03 用途 |
-|---|---|---|
-| `ImpactResult / simulateScenario / simulateDisable` | `src/impact/kernel.ts` | Scenario 执行 + Plan baseline/rebase 的 impact 快照 |
-| `ImpactGraph` 组装（deps/groups/proposals） | invariants 测试内联 → 本轮提升为 `services/graph-view.ts` | ChangePlan / Coverage / Drift 共用 |
-| `DependencyRepository`（confirm/retire/updateCriticality） | `src/repositories/dependency-repository.ts` | Reality mutation 挂 revision bump |
-| `DependencyGroupRepository`（confirm/retire） | `src/repositories/group-repository.ts` | 同上 |
-| `Proposal repos + canRepropose(REPROPOSAL_MIN_NEW_OBSERVATIONS=3)` | `src/repositories/proposal-repository.ts` | Drift/Candidate 的保守重提阈值复用同口径 |
-| `EvidenceRepository`（per-stream 累计） | `src/repositories/evidence-repository.ts` | Drift evidence 引用（不复制 Evidence） |
-| `ImportCoordinator`（begin/resolve/finalize 单事务） | `src/services/import-coordinator.ts` | Drift 检测挂接点（finalize 后正向 evidence 信号） |
-| `checkGraphIntegrity` / graph-serialize | `src/services/graph-serialize.ts` | payload v3 迁移与完整性复用 |
-| `NodeRepository.fields_json` | `src/repositories/node-repository.ts` | 卡片到期元数据（timeline expiration 来源） |
+| 现有                                                               | 位置                                                      | MVP03 用途                                          |
+| ------------------------------------------------------------------ | --------------------------------------------------------- | --------------------------------------------------- |
+| `ImpactResult / simulateScenario / simulateDisable`                | `src/impact/kernel.ts`                                    | Scenario 执行 + Plan baseline/rebase 的 impact 快照 |
+| `ImpactGraph` 组装（deps/groups/proposals）                        | invariants 测试内联 → 本轮提升为 `services/graph-view.ts` | ChangePlan / Coverage / Drift 共用                  |
+| `DependencyRepository`（confirm/retire/updateCriticality）         | `src/repositories/dependency-repository.ts`               | Reality mutation 挂 revision bump                   |
+| `DependencyGroupRepository`（confirm/retire）                      | `src/repositories/group-repository.ts`                    | 同上                                                |
+| `Proposal repos + canRepropose(REPROPOSAL_MIN_NEW_OBSERVATIONS=3)` | `src/repositories/proposal-repository.ts`                 | Drift/Candidate 的保守重提阈值复用同口径            |
+| `EvidenceRepository`（per-stream 累计）                            | `src/repositories/evidence-repository.ts`                 | Drift evidence 引用（不复制 Evidence）              |
+| `ImportCoordinator`（begin/resolve/finalize 单事务）               | `src/services/import-coordinator.ts`                      | Drift 检测挂接点（finalize 后正向 evidence 信号）   |
+| `checkGraphIntegrity` / graph-serialize                            | `src/services/graph-serialize.ts`                         | payload v3 迁移与完整性复用                         |
+| `NodeRepository.fields_json`                                       | `src/repositories/node-repository.ts`                     | 卡片到期元数据（timeline expiration 来源）          |
 
 ## 5. 不存在、需要新建的实体（本轮范围）
 
-| 实体 | 形态 | 持久化 |
-|---|---|---|
-| graphRevision | meta 键 `graph_revision`（初始 0） | meta 表（无新表） |
-| ChangePlan + workflowState + Rebase | domain 类型 + `change_plans` 表 + service | **新表** |
-| PlanReadiness | 纯函数规则引擎 | 无持久化（由 plan + graph 派生） |
-| ScenarioCoverage | 纯函数 + 解释列表 | 无持久化（派生 read model） |
-| RealityDrift | `reality_drifts` 表 + service | **新表** |
-| DiscoveryCandidate | `discovery_candidates` 表 + service | **新表** |
-| ScenarioTemplate | 静态代码注册表（`src/scenarios/registry.ts`） | 无表（产品配置，非 Graph Reality） |
-| Timeline / Upcoming | 纯投影函数 | 无表（derived read model） |
-| Action Verification | ChangePlan action_items_json 内嵌状态机 | 随 plan 持久化 |
+| 实体                                | 形态                                          | 持久化                             |
+| ----------------------------------- | --------------------------------------------- | ---------------------------------- |
+| graphRevision                       | meta 键 `graph_revision`（初始 0）            | meta 表（无新表）                  |
+| ChangePlan + workflowState + Rebase | domain 类型 + `change_plans` 表 + service     | **新表**                           |
+| PlanReadiness                       | 纯函数规则引擎                                | 无持久化（由 plan + graph 派生）   |
+| ScenarioCoverage                    | 纯函数 + 解释列表                             | 无持久化（派生 read model）        |
+| RealityDrift                        | `reality_drifts` 表 + service                 | **新表**                           |
+| DiscoveryCandidate                  | `discovery_candidates` 表 + service           | **新表**                           |
+| ScenarioTemplate                    | 静态代码注册表（`src/scenarios/registry.ts`） | 无表（产品配置，非 Graph Reality） |
+| Timeline / Upcoming                 | 纯投影函数                                    | 无表（derived read model）         |
+| Action Verification                 | ChangePlan action_items_json 内嵌状态机       | 随 plan 持久化                     |
 
 ## 6. 现有测试盘点（MVP03 继承）
 

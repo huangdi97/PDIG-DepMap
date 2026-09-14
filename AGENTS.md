@@ -3,6 +3,7 @@
 ## 0. 文件优先级
 
 每次任务开始先读取：
+
 1. `AGENTS.md`
 2. `CANONICAL_DESIGN.md`
 3. `GOAL_MVP01.md`
@@ -10,6 +11,7 @@
 5. `BLOCKERS.md`
 
 冲突处理：
+
 - Correctness / Security / Privacy：以 `AGENTS.md` 与 `CANONICAL_DESIGN.md` 的更严格约束为准。
 - 产品、Schema、Impact 语义：以 `CANONICAL_DESIGN.md` 为准。
 - 当前交付范围与执行顺序：以 `GOAL_MVP01.md` 为准。
@@ -21,9 +23,11 @@
 中文工作名：`个人数字依赖图`
 
 核心问题：
+
 > 在换卡、换号、换邮箱、注销账户之前，告诉用户哪些账户、支付路径和依赖会受到影响，以及应该先处理什么。
 
 当前 MVP 唯一核心 Job：
+
 > 模拟更换 / 注销一张银行卡。
 
 ## 2. 第一原则
@@ -33,6 +37,7 @@
 Precision > Recall。
 
 机器推断不能直接变成现实事实：
+
 - Observation = 发生过什么
 - Proposal = 机器认为可能意味着什么
 - Dependency = 用户确认的当前现实依赖
@@ -51,6 +56,7 @@ Precision > Recall。
 ## 4. 产品边界
 
 本项目不是：
+
 - 密码管理器
 - NFC / 支付钱包
 - 记账软件
@@ -68,6 +74,7 @@ MVP 未通过双 Gate 前，不增加新业务能力。
 主业务语言：**TypeScript**
 
 应用层：
+
 - uni-app x
 - Vapor
 - Vue 3
@@ -75,9 +82,11 @@ MVP 未通过双 Gate 前，不增加新业务能力。
 - TypeScript
 
 原生桥接：
+
 - UTS
 
 平台：
+
 - Android → Kotlin
 - iOS → Swift
 - HarmonyOS → ArkTS
@@ -85,6 +94,7 @@ MVP 未通过双 Gate 前，不增加新业务能力。
 Domain / Impact / Parser / Proposal 尽可能保持纯 TypeScript、deterministic、testable、platform-independent。
 
 禁止未经明确批准切换到：
+
 - Flutter
 - React Native
 - Capacitor 作为三端统一底座
@@ -95,6 +105,7 @@ Domain / Impact / Parser / Proposal 尽可能保持纯 TypeScript、deterministi
 业务核心不得直接依赖平台 API。
 
 必须通过统一 Adapter 隔离：
+
 - SecureDatabaseAdapter
 - SecureKeyAdapter
 - BiometricAdapter
@@ -107,11 +118,13 @@ Domain / Impact / Parser / Proposal 尽可能保持纯 TypeScript、deterministi
 ## 7. 存储与密钥
 
 Android / iOS：
+
 - SQLite + SQLCipher
 - Android Keystore / iOS Keychain
 - 系统 biometric / device credential
 
 HarmonyOS：
+
 - ArkData relationalStore 加密能力
 - HUKS
 - 官方用户认证能力
@@ -119,6 +132,7 @@ HarmonyOS：
 三端逻辑 Schema 必须一致，底层数据库引擎可以不同。
 
 不得：
+
 - 明文数据库
 - 明文备份
 - 自制 6 位 PIN 作为数据库密钥根
@@ -127,6 +141,7 @@ HarmonyOS：
 ## 8. `.depmap`
 
 必须兼容 `DEPMAP_CONTAINER_V1`：
+
 - Argon2id v19
 - 32-byte derived key
 - AES-256-GCM
@@ -142,6 +157,7 @@ V1 不得静默改变。协议变化必须升级 formatVersion。
 Dependency 存在即代表用户确认。
 
 MVP criticality：
+
 - required
 - unknown
 
@@ -151,6 +167,7 @@ logical key：
 `from|relation|to|capability`
 
 同一 logical dependency：
+
 - 首次 → INSERT
 - 已 active → UPSERT / verify
 - retired 后重新成立 → re-activate 原记录
@@ -163,6 +180,7 @@ Group 也是现实断言，只能由用户确认。
 机器只能生成 `DependencyGroupProposal`。
 
 MVP mode：
+
 - ANY
 - ALL
 
@@ -177,6 +195,7 @@ Parser 不创建 Dependency / DependencyGroup。
 Parser 只能产生 Proposal。
 
 同 key Proposal 必须 UPSERT：
+
 - pending → 继续累计 evidence
 - accepted → 不重复问
 - rejected → 有足够新 evidence 才允许重提
@@ -186,11 +205,13 @@ rejected 不是永久为假。
 ## 12. Observation / Evidence
 
 Observation / CanonicalEvent：
+
 - 仅导入会话内存
 - 会话结束销毁
 - 不持久化单笔交易
 
 持久化只允许：
+
 - Fingerprint
 - Evidence Summary
 - Proposal 状态
@@ -213,6 +234,7 @@ MVP 只支持：
 `simulateScenario(unavailable: Set<ImpactStateKey>)`
 
 图允许有环：
+
 - BFS/queue
 - visited
 - cycle-safe
@@ -224,6 +246,7 @@ MVP 只支持：
 任何 `必须处理` 必须来自已确认现实状态。
 
 不得由以下直接产生：
+
 - Proposal
 - confidenceScore
 - fuzzy merchant match
@@ -239,6 +262,7 @@ MVP 只支持：
 Parser 不得直接假设商户对应哪个服务节点。
 
 顺序：
+
 1. builtin alias exact
 2. normalized exact
 3. conservative fuzzy
@@ -252,6 +276,7 @@ Parser 不得直接假设商户对应哪个服务节点。
 ## 16. 网络与隐私
 
 MVP 默认：
+
 - NO BACKEND
 - NO ACCOUNT
 - NO ANALYTICS
@@ -264,6 +289,7 @@ MVP 默认：
 ## 17. 日志
 
 禁止日志输出：
+
 - raw CSV row
 - full user object dump
 - source transaction id
@@ -284,6 +310,7 @@ MVP 默认：
 核心模块未绿之前不做 UI。
 
 不得通过以下方式制造 PASS：
+
 - 删除测试
 - 降低断言
 - skip 失败测试
@@ -293,6 +320,7 @@ MVP 默认：
 ## 19. 状态声明
 
 任何平台能力必须区分：
+
 - IMPLEMENTED
 - COMPILED
 - TESTED
@@ -304,6 +332,7 @@ MVP 默认：
 ## 20. 外部 Blocker
 
 只有无法由代码解决的事项才进入 BLOCKERS，例如：
+
 - Apple Developer / signing / macOS Xcode
 - Google Play developer account
 - Huawei developer identity / AppGallery signing
@@ -316,6 +345,7 @@ MVP 默认：
 ## 21. Git
 
 禁止提交：
+
 - `.env` secrets
 - keystore
 - p12/p8
@@ -330,6 +360,7 @@ MVP 默认：
 ## 22. 禁止的 MVP 扩展
 
 当前不实现：
+
 - Neo4j
 - GraphRAG
 - LLM
@@ -368,6 +399,7 @@ MVP 默认：
 ## 24. 每次任务结束前
 
 必须：
+
 1. 运行适用测试
 2. 检查 git diff
 3. 检查 secret / real data
