@@ -8,13 +8,13 @@
 
 ## 1. 先读这段：本手册能做什么、不能做什么
 
-| 目标                          | 状态                              |
-| ----------------------------- | --------------------------------- |
-| 原生验证工程构建（HAP）        | **可执行**（本手册 §3 已验证）    |
-| 产品级 HAP（含 24 页 `.uvue`） | **BLOCKED（B10）** —— 由 HBuilderX 产出 |
-| 签名                          | **BLOCKED（B7）** —— 需 AGC 证书 / Profile |
-| 安装与真机验证                 | **BLOCKED（B18）** —— 无设备      |
-| 上架 AppGallery               | **BLOCKED（B6 + B7 + B11）**      |
+| 目标                           | 状态                                       |
+| ------------------------------ | ------------------------------------------ |
+| 原生验证工程构建（HAP）        | **可执行**（本手册 §3 已验证）             |
+| 产品级 HAP（含 24 页 `.uvue`） | **BLOCKED（B10）** —— 由 HBuilderX 产出    |
+| 签名                           | **BLOCKED（B7）** —— 需 AGC 证书 / Profile |
+| 安装与真机验证                 | **BLOCKED（B18）** —— 无设备               |
+| 上架 AppGallery                | **BLOCKED（B6 + B7 + B11）**               |
 
 **当前 HAP 是「原生验证工程」产物，不是产品包**：它只含最小 `EntryAbility` + `Index.ets` +
 `RelationalStoreSecureAdapter.ets`，**不含** 24 个 `.uvue` 页面与 uni-app x 运行时。
@@ -24,13 +24,13 @@
 
 ## 2. 环境前置
 
-| 项                | 值                                                        |
-| ----------------- | --------------------------------------------------------- |
-| DevEco Studio     | `<DEVECO_HOME>`（5.0.5.310）               |
-| HarmonyOS SDK     | `<DEVECO_HOME>\sdk`（API 13 / 5.0.1.115）  |
-| Node（hvigor 用） | DevEco 内置 `tools\node`（v18.20.1），由 `build.sh` 自动注入 `PATH` |
+| 项                | 值                                                                   |
+| ----------------- | -------------------------------------------------------------------- |
+| DevEco Studio     | `<DEVECO_HOME>`（5.0.5.310）                         |
+| HarmonyOS SDK     | `<DEVECO_HOME>\sdk`（API 13 / 5.0.1.115）            |
+| Node（hvigor 用） | DevEco 内置 `tools\node`（v18.20.1），由 `build.sh` 自动注入 `PATH`  |
 | npmrc             | `C:\Users\<user>\.npmrc` 必须存在，否则报 `No npmrc file is matched` |
-| hvigor 依赖       | 由 `hvigor/hvigor-config.json5` 以 `file:` 协议引用 DevEco 内置包 |
+| hvigor 依赖       | 由 `hvigor/hvigor-config.json5` 以 `file:` 协议引用 DevEco 内置包    |
 
 ### 2.1 三个「踩过的坑」（改配置前必读）
 
@@ -147,16 +147,16 @@ hdc shell aa start -a EntryAbility -b <bundleName>
 
 ## 8. 故障排除
 
-| 现象                                                  | 根因                                     | 处置                                                          |
-| ----------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------- |
-| `ERROR: Invalid project path`                          | 工程路径含非 ASCII 字符                   | 用 `build.sh` 镜像到 ASCII 目录（hvigor 无豁免开关）           |
-| `ENOENT ... @ohos/hvigor/bin/hvigor.js`                | 5.13.2 未在公共 registry                  | `hvigor-config.json5` 用 `file:` 协议指向 DevEco 内置包        |
-| `Error: The hvigor depends on the npmrc file`          | 用户目录无 `.npmrc`                       | 创建 `C:\Users\<user>\.npmrc`（`registry=https://registry.npmjs.org/`） |
-| `Schema validate failed` @ `abilities[0].label`        | `label` 必须是 `$string:` 引用            | 改 `$string:xxx` 并在 `element/string.json` 补齐               |
-| `Schema validate failed` @ `hvigor-config.json5`       | 出现非法字段（如 `hvigorVersion`）        | 删除非法字段                                                  |
-| `srcEntry ... not found` @ `CompileArkTS`              | `srcEntry` 多写了 `src/main/` 一层        | 改为 `./ets/entryability/EntryAbility.ets`                    |
-| `NODE_HOME is not set ...`                             | `.bat` 由 cmd 解析，需 Windows 路径       | `NODE_HOME='<DEVECO_HOME>\tools\node'`        |
-| safe-delete 守卫拒绝清理镜像目录                       | 单次批量删除超阈值                        | 用覆盖式 `tar xf - --overwrite`，只单独清理 `entry/build` 等   |
+| 现象                                             | 根因                                | 处置                                                                    |
+| ------------------------------------------------ | ----------------------------------- | ----------------------------------------------------------------------- |
+| `ERROR: Invalid project path`                    | 工程路径含非 ASCII 字符             | 用 `build.sh` 镜像到 ASCII 目录（hvigor 无豁免开关）                    |
+| `ENOENT ... @ohos/hvigor/bin/hvigor.js`          | 5.13.2 未在公共 registry            | `hvigor-config.json5` 用 `file:` 协议指向 DevEco 内置包                 |
+| `Error: The hvigor depends on the npmrc file`    | 用户目录无 `.npmrc`                 | 创建 `C:\Users\<user>\.npmrc`（`registry=https://registry.npmjs.org/`） |
+| `Schema validate failed` @ `abilities[0].label`  | `label` 必须是 `$string:` 引用      | 改 `$string:xxx` 并在 `element/string.json` 补齐                        |
+| `Schema validate failed` @ `hvigor-config.json5` | 出现非法字段（如 `hvigorVersion`）  | 删除非法字段                                                            |
+| `srcEntry ... not found` @ `CompileArkTS`        | `srcEntry` 多写了 `src/main/` 一层  | 改为 `./ets/entryability/EntryAbility.ets`                              |
+| `NODE_HOME is not set ...`                       | `.bat` 由 cmd 解析，需 Windows 路径 | `NODE_HOME='<DEVECO_HOME>\tools\node'`                  |
+| safe-delete 守卫拒绝清理镜像目录                 | 单次批量删除超阈值                  | 用覆盖式 `tar xf - --overwrite`，只单独清理 `entry/build` 等            |
 
 ---
 

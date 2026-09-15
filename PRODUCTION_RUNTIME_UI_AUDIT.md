@@ -18,12 +18,12 @@
 
 ## 1. 为什么 `UI_RUNTIME_VERIFIED` 只能是 BLOCKED
 
-| 前提                     | 实测                                                                                     |
-| ------------------------ | ---------------------------------------------------------------------------------------- |
-| HBuilderX 是否安装       | **是**，5.24.2026081301（便携版在 `<DEPMAP_TOOLS_HOME>\HBuilderX`）                      |
-| 是否可无头触发打包       | **否**。`cli.exe` 无可用 build 子命令；云端/本地打包需 GUI 交互与开发者账号登录           |
+| 前提                          | 实测                                                                                         |
+| ----------------------------- | -------------------------------------------------------------------------------------------- |
+| HBuilderX 是否安装            | **是**，5.24.2026081301（便携版在 `<DEPMAP_TOOLS_HOME>\HBuilderX`）                         |
+| 是否可无头触发打包            | **否**。`cli.exe` 无可用 build 子命令；云端/本地打包需 GUI 交互与开发者账号登录              |
 | HBuilderX 是否内置 UTS 编译器 | **否**。全盘检索无 `uts-compiler` 包、无 `build.gradle` 模板、无离线打包 SDK（均需联网下载） |
-| 是否有真实设备           | **否**。`adb devices` 空、0 AVD、无 system-image；无 HarmonyOS 设备                       |
+| 是否有真实设备                | **否**。`adb devices` 空、0 AVD、无 system-image；无 HarmonyOS 设备                          |
 
 因此：**没有编译器 ⇒ 没有运行时**。`check:ui` 的 PASS 是**静态门**（9 类机械校验 U1–U9），
 它只能证明「代码里没有命中已知反模式」，**不能证明代码能编译，更不能证明能运行**。
@@ -32,16 +32,16 @@
 
 ## 2. （A）静态可判定项 —— 已实跑
 
-| #    | 检查项                            | 方法                                                            | 结果                                     |
-| ---- | --------------------------------- | --------------------------------------------------------------- | ---------------------------------------- |
-| A-1  | `pages.json` 声明页面是否都存在   | 解析 24 条 `pages[]`，逐一 `fs.exists(app/<path>.uvue)`          | **24/24 解析成功，0 缺失**               |
-| A-2  | tabBar 入口是否存在               | 4 条 `tabBar.list[]` 逐一校验                                    | **4/4 存在，0 缺失**                     |
-| A-3  | 运行时跳转目标是否可解析          | 正则抽取 16 个 `'/pages/...'` 硬编码跳转目标                     | **16/16 解析成功，0 死链**               |
-| A-4  | 导航 API 使用分布                 | 统计 `uni.navigateTo/redirectTo/reLaunch/navigateBack/switchTab` | navigateTo 17、reLaunch 4、redirectTo 1、navigateBack 1 |
-| A-5  | Promise 拒绝是否被处理            | 逐页统计 `.then(` / `.catch(`                                    | 22 页使用 Promise；**1 页未处理拒绝**（见 R-5） |
-| A-6  | `console.*` 残留                  | 扫描 `app/pages`、`app/components`、`app/services`               | **0 处**（仅 `dp-state.uvue:17` 注释中提及） |
-| A-7  | 页面是否残留 `async`              | 逐页统计                                                        | 0 页使用 `async`；统一走 `.then/.catch` 风格，一致 |
-| A-8  | 设计 token 一致性                 | `check:ui`（U1–U9）                                             | PASS（30 `.uvue`，24 pages，5 components，34 色） |
+| #   | 检查项                          | 方法                                                             | 结果                                                    |
+| --- | ------------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------- |
+| A-1 | `pages.json` 声明页面是否都存在 | 解析 24 条 `pages[]`，逐一 `fs.exists(app/<path>.uvue)`          | **24/24 解析成功，0 缺失**                              |
+| A-2 | tabBar 入口是否存在             | 4 条 `tabBar.list[]` 逐一校验                                    | **4/4 存在，0 缺失**                                    |
+| A-3 | 运行时跳转目标是否可解析        | 正则抽取 16 个 `'/pages/...'` 硬编码跳转目标                     | **16/16 解析成功，0 死链**                              |
+| A-4 | 导航 API 使用分布               | 统计 `uni.navigateTo/redirectTo/reLaunch/navigateBack/switchTab` | navigateTo 17、reLaunch 4、redirectTo 1、navigateBack 1 |
+| A-5 | Promise 拒绝是否被处理          | 逐页统计 `.then(` / `.catch(`                                    | 22 页使用 Promise；**1 页未处理拒绝**（见 R-5）         |
+| A-6 | `console.*` 残留                | 扫描 `app/pages`、`app/components`、`app/services`               | **0 处**（仅 `dp-state.uvue:17` 注释中提及）            |
+| A-7 | 页面是否残留 `async`            | 逐页统计                                                         | 0 页使用 `async`；统一走 `.then/.catch` 风格，一致      |
+| A-8 | 设计 token 一致性               | `check:ui`（U1–U9）                                              | PASS（30 `.uvue`，24 pages，5 components，34 色）       |
 
 > A-3 的意义：导航死链是 uni-app x 上最常见的**运行时白屏**原因之一，静态可查，本项为零。
 
@@ -78,11 +78,11 @@
   suspend 方法在 JVM 上还会多出一个 `Continuation` 参数。
 - 受影响调用点（全部为 `app/uni_modules/*/utssdk/app-android/index.uts`）：
 
-| 插件               | 原写法                                                          | Kotlin 真实签名                                        | 问题                       |
-| ------------------ | --------------------------------------------------------------- | ------------------------------------------------------ | -------------------------- |
-| `depmap-biometric` | `gate.canAuthenticate()` / `gate.authenticate(reason)` 当 Promise | `suspend fun`（`BiometricGateAdapter.kt:23/28`）        | 不可调用                   |
-| `depmap-secure-key`| `adapter.getOrCreateDatabaseKey(alias)` 等 4 处当 Promise       | `suspend fun`（`KeystoreSecureKeyAdapter.kt:43/51/59/61`） | 不可调用               |
-| `depmap-secure-database` | `open(options, onSuccess, onError)` 等 6 处按回调式调用   | `suspend fun open(options)`（`:36/44/50/71/93/114`）    | **参数个数都不匹配**       |
+| 插件                     | 原写法                                                            | Kotlin 真实签名                                            | 问题                 |
+| ------------------------ | ----------------------------------------------------------------- | ---------------------------------------------------------- | -------------------- |
+| `depmap-biometric`       | `gate.canAuthenticate()` / `gate.authenticate(reason)` 当 Promise | `suspend fun`（`BiometricGateAdapter.kt:23/28`）           | 不可调用             |
+| `depmap-secure-key`      | `adapter.getOrCreateDatabaseKey(alias)` 等 4 处当 Promise         | `suspend fun`（`KeystoreSecureKeyAdapter.kt:43/51/59/61`） | 不可调用             |
+| `depmap-secure-database` | `open(options, onSuccess, onError)` 等 6 处按回调式调用           | `suspend fun open(options)`（`:36/44/50/71/93/114`）       | **参数个数都不匹配** |
 
 - 修复：新增 Kotlin 侧回调式桥接
   **`platforms/android/kotlin/com/depmap/core/security/UtsSecurityBridge.kt`**
@@ -116,16 +116,16 @@
 
 ## 4. （C）必须真机才能判定项 —— NOT_RUN
 
-| #    | 项目                                       | 状态                                    |
-| ---- | ------------------------------------------ | --------------------------------------- |
-| C-1  | 冷启动 → 解锁 → 首页（启动耗时、白屏）     | **NOT_RUN**（无设备）                   |
-| C-2  | 24 页逐个打开 / 返回 / 横竖屏              | **NOT_RUN**                             |
-| C-3  | SQLite / SQLCipher 在设备上的真实读写与迁移 | **NOT_RUN**（依赖 R-4 先解决）          |
-| C-4  | BiometricPrompt 真实弹窗与取消路径          | **NOT_RUN**（依赖 R-4 + 设备）          |
-| C-5  | 隐私屏 FLAG_SECURE 真实生效                | **NOT_RUN**                             |
-| C-6  | 深色模式对比度 / 触控目标 44dp 实测         | **NOT_RUN**（静态 token 已 PASS）       |
-| C-7  | 内存 / 帧率 / 10k 节点列表滚动             | **NOT_RUN**（Core 侧 perf 16 passed，不等于设备表现） |
-| C-8  | 无障碍（字体缩放、屏幕阅读）               | **NOT_RUN**                             |
+| #   | 项目                                        | 状态                                                  |
+| --- | ------------------------------------------- | ----------------------------------------------------- |
+| C-1 | 冷启动 → 解锁 → 首页（启动耗时、白屏）      | **NOT_RUN**（无设备）                                 |
+| C-2 | 24 页逐个打开 / 返回 / 横竖屏               | **NOT_RUN**                                           |
+| C-3 | SQLite / SQLCipher 在设备上的真实读写与迁移 | **NOT_RUN**（依赖 R-4 先解决）                        |
+| C-4 | BiometricPrompt 真实弹窗与取消路径          | **NOT_RUN**（依赖 R-4 + 设备）                        |
+| C-5 | 隐私屏 FLAG_SECURE 真实生效                 | **NOT_RUN**                                           |
+| C-6 | 深色模式对比度 / 触控目标 44dp 实测         | **NOT_RUN**（静态 token 已 PASS）                     |
+| C-7 | 内存 / 帧率 / 10k 节点列表滚动              | **NOT_RUN**（Core 侧 perf 16 passed，不等于设备表现） |
+| C-8 | 无障碍（字体缩放、屏幕阅读）                | **NOT_RUN**                                           |
 
 ---
 
