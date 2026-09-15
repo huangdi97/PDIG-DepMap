@@ -67,13 +67,30 @@
 
 ## 7. 工具链版本（本机实测）
 
-| 工具                   | 本机实测    | 要求                         | 状态                  |
-| ---------------------- | ----------- | ---------------------------- | --------------------- |
-| Node                   | `v22.22.2`  | ≥ 22.5.0                     | PASS                  |
-| npm                    | `10.9.7`    | `packageManager: npm@11.3.0` | 可用（`npm ci` 成功） |
-| JDK                    | `1.8.0_441` | 17+                          | **BLOCKED（B1）**     |
-| adb                    | `1.0.32`    | —                            | 过旧                  |
-| Android SDK / Gradle   | 无          | —                            | **BLOCKED（B1）**     |
-| DevEco / HarmonyOS SDK | 无          | —                            | **BLOCKED（B2）**     |
-| Xcode / macOS          | 无（win32） | —                            | **BLOCKED（B3）**     |
-| HBuilderX              | 无          | —                            | **BLOCKED（B10）**    |
+> **2026-09-15 重写**：旧表（JDK 1.8 / 无 Android SDK / 无 DevEco / 无 HBuilderX）经实测
+> **与事实不符**，已按本轮实测整体更新。
+
+| 工具                   | 本机实测                                          | 要求                         | 状态                                              |
+| ---------------------- | ------------------------------------------------- | ---------------------------- | ------------------------------------------------- |
+| Node                   | `v22.22.2`                                        | ≥ 22.5.0                     | PASS                                              |
+| npm                    | `10.9.7`                                          | `packageManager: npm@11.3.0` | 可用（`npm ci` 成功）                             |
+| JDK（Android 构建）    | **21.0.10**（Android Studio JBR）                 | 17+                          | **PASS**（旧记 1.8.0_441 已被推翻）               |
+| JDK（DevEco JBR）      | 17.0.12                                           | —                            | 可用                                              |
+| Android SDK            | `<ANDROID_SDK_ROOT>`（platforms 34 / 36.1 / 37.0） | —                          | **PASS**（旧记「无」已被推翻）                    |
+| Gradle                 | 8.9                                               | —                            | **PASS**（已获取可用发行版）                      |
+| adb                    | 可用                                              | —                            | 可用；但 `adb devices` 为空、0 AVD（**B18**）     |
+| DevEco Studio          | **5.0.5.310**                                     | —                            | **PASS**（旧记「无」已被推翻）                    |
+| HarmonyOS SDK          | **5.0.1.115（API 13）**                           | —                            | **PASS**                                          |
+| hvigor                 | 5.13.2 + ohpm 5.0.10                              | —                            | **PASS**（已真实产出 HAP）                        |
+| Xcode / macOS          | 无（win32）                                       | —                            | **BLOCKED（B3）**                                 |
+| HBuilderX              | **5.24.2026081301**                               | —                            | 已安装；**CLI 无 build 命令** ⇒ 无头打包 BLOCKED（**B10**） |
+
+## 8. 本轮真实产物（2026-09-15）
+
+| 产物                                                    | 字节   | SHA-256                                                          |
+| ------------------------------------------------------- | ------ | ---------------------------------------------------------------- |
+| `platforms/android/artifacts/core-debug.aar`            | 72,376 | `dd7d8c04b23041354b401b1f0e347b9fedf586131dae975c8df70520ef850a0d` |
+| `platforms/android/artifacts/core-release.aar`          | 68,731 | `4ac2e7f4c5d407d6b6a2d2232913f343ff7b7ef0f27891d67c60a190bf43c32b` |
+| `platforms/harmonyos/artifacts/entry-default-unsigned.hap` | 18,986 | `4f10d0597aaaac2aab4af8e27ec7138709e07e5ea81aaed705d249ed55bd0663` |
+
+> `AAR ≠ APK`；该 HAP 为**原生验证工程产物，不是产品包**。详见 `PLATFORM_RELEASE_MATRIX.md` §0。
