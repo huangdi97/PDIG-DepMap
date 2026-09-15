@@ -1,10 +1,15 @@
 # PRODUCTION_RUNTIME_UI_AUDIT.md — UI / 前端运行时审计（PHASE 16）
 
-> 日期：2026-09-15
+> 日期：2026-09-15（接力轮更新）
 > 范围：`app/**`（24 页 `.uvue`、5 个 `dp-*` 组件、2 个 UTS service、1 个 theme、5 个 uni_modules 插件）
-> 结论：**`UI_RUNTIME_VERIFIED = BLOCKED（B10 + B18）`**。本文件区分三类内容：
-> **（A）静态可判定项**（已实跑，结论可用）；**（B）编译器可判定但本机无编译器项**（已定位并修复，但标注未编译验证）；
+> 结论：**`UI_RUNTIME_VERIFIED = BLOCKED（B10 + B24）`**。本文件区分三类内容：
+> **（A）静态可判定项**（已实跑，结论可用）；**（B）编译器可判定项**（R-1/R-2/R-3 已修复，
+> 且 UTS 侧**本轮已用真实 UTS 编译器验证 15/15 通过** —— 见 §3 与 `docs/UTS_COMPILE_VERIFICATION.md`）；
 > **（C）必须真机才能判定项**（NOT_RUN，不虚报）。
+>
+> **2026-09-15 接力轮修正**：本文件旧版称「HBuilderX 无 CLI build 命令」「全盘无 UTS 编译器」。
+> 两条**都不准确**：`cli pack` 是官方文档定义、支持 uni-app x 的云打包命令（闸门是**账号**而不是命令缺失）；
+> UTS 编译器**公开在 npm 上**（`@dcloudio/uts`），已在无头环境跑通。已按实测改写 §1/§3。
 
 ---
 
@@ -18,12 +23,12 @@
 
 ## 1. 为什么 `UI_RUNTIME_VERIFIED` 只能是 BLOCKED
 
-| 前提                          | 实测                                                                                         |
-| ----------------------------- | -------------------------------------------------------------------------------------------- |
-| HBuilderX 是否安装            | **是**，5.24.2026081301（便携版在 `<DEPMAP_TOOLS_HOME>\HBuilderX`）                         |
-| 是否可无头触发打包            | **否**。`cli.exe` 无可用 build 子命令；云端/本地打包需 GUI 交互与开发者账号登录              |
-| HBuilderX 是否内置 UTS 编译器 | **否**。全盘检索无 `uts-compiler` 包、无 `build.gradle` 模板、无离线打包 SDK（均需联网下载） |
-| 是否有真实设备                | **否**。`adb devices` 空、0 AVD、无 system-image；无 HarmonyOS 设备                          |
+| 前提                          | 实测                                                                                                                                                                                                                                                        |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HBuilderX 是否安装            | **是**，5.24.2026081301（路径 `<DEPMAP_TOOLS_HOME>\HBuilderX`）                                                                                                                                                                                            |
+| 是否可无头触发打包            | **命令存在，但闸门是账号**。`cli pack` 是官方文档定义、**明确支持 uni-app x** 的云打包命令（`hx.dcloud.net.cn/cli/pack`），并有 `cli user login` 无头登录入口。本机 `cli pack --help` 报「命令不存在」是因**打包插件未安装**。**无 DCloud 账号 ⇒ 不可解**。 |
+| HBuilderX 是否内置 UTS 编译器 | **HBuilderX 本身没有，但不需要它**：UTS 编译器公开在 npm 上（`@dcloudio/uts` + `@dcloudio/uts-win32-x64-msvc`），**本轮已用它把 5 个插件的三端实现全部编译通过（15/15）**。                                                                                 |
+| 是否有真实设备                | **否**。`adb devices -l` 为空；存在 1 个 AVD（`Medium_Phone_API_35`）但**缺 system image 不可启动**；无 HarmonyOS 设备。                                                                                                                                    |
 
 因此：**没有编译器 ⇒ 没有运行时**。`check:ui` 的 PASS 是**静态门**（9 类机械校验 U1–U9），
 它只能证明「代码里没有命中已知反模式」，**不能证明代码能编译，更不能证明能运行**。
@@ -47,7 +52,38 @@
 
 ---
 
-## 3. （B）编译器可判定项 —— 已定位并修复（**但 UTS 侧未编译验证**）
+## 3. （B）编译器可判定项
+
+### 3.0 UTS 三端编译验证（**2026-09-15 接力轮新增，15/15 PASS**）
+
+上一轮把 R-1/R-2/R-3 修好了，但无法验证 —— 因为当时判断「本机没有 UTS 编译器」。
+**该判断不成立**：DCloud 把 UTS 编译器（Rust + napi）公开发布在 npm 上，
+可在 Windows 无头调用（`@dcloudio/uts` + `@dcloudio/uts-win32-x64-msvc`，
+API 导出 `toKotlin` / `toSwift` / `toArkTS`）。本轮据此建立了门禁：
+
+```bash
+cd core && npm run check:uts      # 15/15 compiled, PASS
+```
+
+| 插件                     | app-android → Kotlin | app-ios → Swift | app-harmony → ArkTS |
+| ------------------------ | -------------------- | --------------- | ------------------- |
+| `depmap-biometric`       | PASS                 | PASS            | PASS                |
+| `depmap-file-crypto`     | PASS                 | PASS            | PASS                |
+| `depmap-privacy-screen`  | PASS                 | PASS            | PASS                |
+| `depmap-secure-database` | PASS                 | PASS            | PASS                |
+| `depmap-secure-key`      | PASS                 | PASS            | PASS                |
+
+**由此新查出的缺陷（此前从未检查 `app-ios/`）**：
+
+- **IOS-UTS-1** `depmap-secure-key/app-ios/index.uts`：`do { try ... } catch` 非法
+  → 编译器报 `x Expected '{', got 'resolve'`。
+- **IOS-UTS-2** `depmap-secure-database/app-ios/index.uts`：同类错误
+  （`x Expected '{', got 'this'`），另引用不存在的 `DepmapSchemaV1.shared.migrations()`
+  并使用了 UTS 不合法的 Swift 实参标签 `migrations:`。
+
+两处均已修复并经编译器验证。**边界**：该门禁运行在 `removeImports: true` 下，
+证明的是「UTS 语法与降级」，**不证明**调用点与宿主语言（Kotlin/Swift/ArkTS）签名匹配，
+也**不覆盖** `.uvue` 页面。详见 `docs/UTS_COMPILE_VERIFICATION.md`。
 
 ### R-1（P1，已修复）`depmap-privacy-screen` 的 Android 实现**文件被截断**
 

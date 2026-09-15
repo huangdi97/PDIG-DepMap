@@ -10,39 +10,74 @@
 > 已真实编译并产出 AAR（`docs/ANDROID_BUILD_REPORT.md`），HarmonyOS 已真实产出 HAP
 > （`docs/HARMONY_BUILD_REPORT.md`）。两者的**残留阻塞已改写为「产品级产物 + 签名 + 设备」**，
 > 不再是「工具链不存在」。详见下方明细。
+>
+> **2026-09-15 接力轮第三次修正（本轮）**：上一轮对 B10 的定性**是错的**。
+> 实测 `cli pack` 是 DCloud **官方文档定义的、明确支持 uni-app x 的打包命令**
+> （`https://hx.dcloud.net.cn/cli/pack`），并不是「CLI 无 build 命令」。真正的闸门是
+> **DCloud 账号登录 + 云打包配额**（`cli user login` 即官方提供的无头登录入口）。
+> 同时本轮发现 UTS 编译器**公开发布在 npm 上**，已据此对 UTS 层做完三端真实编译验证，
+> B10 现在**只**覆盖 `.uvue` 页面编译与产品级打包。详见下方「B10 实测明细」。
 
 ## Active blockers — 阻断构建/真机
 
-| #   | Blocker                                                                                  | 影响                                                                                                             | 解除动作                                                                                                    |
-| --- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| B1  | **Android 产品级 APK/AAB 不可产出**（原生核心已 PASS，见下方明细）                       | 无法安装到设备、无法做真机 E2E 与 UI 运行时 QA                                                                   | 见下方「B1 实测明细」                                                                                       |
-| B2  | **HarmonyOS 产品级 HAP 不可产出 + 签名缺失**（原生验证工程已 PASS，见下方明细）          | 当前 HAP 为原生验证工程产物，**不是产品包**；无法安装/真机验证                                                   | 见下方「B2 实测明细」                                                                                       |
-| B3  | 无 macOS / Xcode（本机 Windows）                                                         | iOS 编译/签名/真机验证不可行（预期内）                                                                           | 在 macOS 环境执行 `swift test` 与 Xcode 工程                                                                |
-| B10 | **HBuilderX 已安装但无头环境无法触发打包**（2026-09-15 实测重写）                        | `.uvue`/UTS 从未被真实编译器验证；**Android APK / HarmonyOS 产品级 HAP 均无法产出** —— **产品级关键阻塞**        | 见下方「B10 实测明细」                                                                                      |
-| B23 | **本机沙箱限制：clean clone 闭环与破坏性 clean install 无法执行**（2026-09-14 实测登记） | 无法在本环境跑通「真实 clone → `npm ci` → 全门禁」；`npm ci` 的批量删除会被 safe-delete 守卫（阈值 50 文件）拦截 | 在不受限环境 / CI 中重跑；本机替代证据（committed-tree 自足性）见 `FINAL_PRODUCTION_CLOSURE_REPORT.md` §2.1 |
+| #   | Blocker                                                                                      | 影响                                                                                                                                         | 解除动作                                                                                                                                                                              |
+| --- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1  | **Android 产品级 APK/AAB 不可产出**（原生核心已 PASS，见下方明细）                           | 无法安装到设备、无法做真机 E2E 与 UI 运行时 QA                                                                                               | 见下方「B1 实测明细」                                                                                                                                                                 |
+| B2  | **HarmonyOS 产品级 HAP 不可产出 + 签名缺失**（原生验证工程已 PASS，见下方明细）              | 当前 HAP 为原生验证工程产物，**不是产品包**；无法安装/真机验证                                                                               | 见下方「B2 实测明细」                                                                                                                                                                 |
+| B3  | 无 macOS / Xcode（本机 Windows）                                                             | iOS 编译/签名/真机验证不可行（预期内）                                                                                                       | 在 macOS 环境执行 `swift test` 与 Xcode 工程                                                                                                                                          |
+| B10 | **uni-app x App 打包需 DCloud 账号（非「CLI 无 build 命令」）**（2026-09-15 接力轮实测重写） | `.uvue` 从未被真实编译器验证；**Android APK / HarmonyOS 产品级 HAP 均无法产出** —— **产品级关键阻塞**                                        | 见下方「B10 实测明细」                                                                                                                                                                |
+| B23 | **本机沙箱限制：clean clone 闭环与破坏性 clean install 无法执行**（2026-09-14 实测登记）     | 无法在本环境跑通「真实 clone → `npm ci` → 全门禁」；批量删除会被 safe-delete 守卫 fail-closed 拦截（`SHFileOperationW 失败: 0x2`，本轮复现） | 在不受限环境 / CI 中重跑；本机替代证据（committed-tree 自足性）见 `FINAL_PRODUCTION_CLOSURE_REPORT.md` §2.1                                                                           |
+| B24 | **无可用 Android 设备**（2026-09-15 接力轮修正）                                             | `adb devices -l` 为空；存在 1 个 AVD（`Medium_Phone_API_35`）但**缺 system image，不可启动**，故 `DEVICE_VERIFIED` 无法达成                  | 提供真实设备，或在 SDK Manager 安装 `system-images;android-35;google_apis_playstore;x86_64` 让现有 AVD 可启动（**该动作不需要账号，本轮未执行因为它会下载约 1.5 GB 且仍未解决 B10**） |
 
 以上阻塞编译/真机验证，**不阻塞**其他可执行工作（Core 已全绿，UI 静态 Gate 已全绿）。
 
 ### B10 实测明细（HBuilderX / uni-app x）
 
-**状态（2026-09-15 实测）**：
+**状态（2026-09-15 接力轮实测重写 —— 上一轮定性被推翻）**：
 
-- HBuilderX **5.24.2026081301** 已安装在 `<TOOLS_ROOT>\HBuilderX`（旧记录「全盘搜索无命中」已被推翻）。
-- 工程可导入、可被 HBuilderX 识别。
-- **但 CLI 无 build 命令**：`cli.exe` 仅提供 `open` / `pack` 等有限子命令，无可用于无头环境
-  触发 Android/HarmonyOS 打包的入口（云端打包需登录开发者账号并走 GUI 交互）。
+- HBuilderX **5.24.2026081301**，实际路径是 **`<DEPMAP_TOOLS_HOME>\HBuilderX`**
+  （上一轮写的 `<TOOLS_ROOT>\HBuilderX` **是错的**，实测该路径不存在）。
+- `cli open` 可启动；启动后 `cli version` 返回 `5.24.2026081301`；`cli` 命令**必须依附正在运行的 GUI**
+  （未运行时任何子命令都返回「未检测到已打开的HBuilderX」）。
+- **`cli pack` 存在**：官方文档 `https://hx.dcloud.net.cn/cli/pack` 明确
+  「通过 CLI 对 **uni-app** 或 **uni-app x** 项目进行 Android/iOS 云打包」，
+  并给出 `cli logcat pack` / `cli pack status` / `cli pack cancel` 的完整 CI 用法，
+  以及 `cli user login --username --password` 的无头登录入口。
+  → 上一轮「CLI 无 build 命令 ⇒ 只能靠 GUI」的结论**不成立**。
+- 本机实测 `cli pack --help` 返回「命令'pack'不存在或缺少参数」。**已定位解释**：
+  HBuilderX 的打包能力由插件提供，而本机 **33 个已装插件中不含**
+  `launcher` / `launcher-tools` / `uniappx-launcher` / `uniapp-cli` / `uniapp-uts-v1`
+  / `uts-development-android`（这些在 DCloud 官方 plugin index 里都有 `npmName`，
+  且对应版本 `hbuilderx-plugin-launcher@5.24.2026081015-1930`、
+  `hbuilderx-plugin-uniappx-launcher@5.24.2026081019-1441` **在公共 npm 上确实存在**）。
+- **因此 B10 的准确分类是 `AUTH`（账号），不是 `CONFIG/VERSION`**：
+  云打包要求 DCloud 账号登录，本地打包的「生成本地打包App资源」是 GUI 步骤、
+  且离线 AppKey 亦需账号。**无凭据则不可解**。
 
-**因此**：UI（24 个 `.uvue` + 5 个 UTS 插件）**至今从未被真实编译器验证过**，
-`check:ui` 的 PASS 仅为**静态门**（9 类机械校验），不能等价为「编译通过」。
-这是本轮唯一同时阻塞 Android 与 HarmonyOS 产品级产物的根因。
+**本轮已从 B10 中移出、并已完成的部分**：
 
-**解除动作（三选一）**：
+- **UTS 层不再是未验证状态**。UTS 编译器（Rust + napi）公开发布在 npm
+  （`@dcloudio/uts` + `@dcloudio/uts-win32-x64-msvc`），可在 Windows 无头调用。
+  实测 **15/15** 个 UTS 实现编译通过（5 插件 × Android→Kotlin / iOS→Swift / HarmonyOS→ArkTS），
+  并借此查出并修复 2 个 iOS UTS 语法错误。门禁：`cd core && npm run check:uts`。
+  详见 `docs/UTS_COMPILE_VERIFICATION.md`。
+  → **B10 现在只覆盖 `.uvue` 页面编译与产品级打包**，不再覆盖 UTS。
 
-1. 在 HBuilderX GUI 中执行「发行 → 原生App-云打包 / 本地打包」（需 DCloud 开发者账号登录）；
-2. 接入 `uni-app x` 官方 CI 打包通道（需账号凭据）；
-3. 提供可用的 `cli` build 子命令或本地打包 Gradle 工程模板。
+**B10 现在阻塞什么**：`UI_BUILD_READY`、`ANDROID_BUILD_READY`（产品 APK/AAB）、
+`HARMONY_BUILD_READY`（产品级 HAP），以及它们下游的 `INSTALL_READY` / `DEVICE_VERIFIED`。
 
-**不得**：伪造编译结果、以静态门 PASS 冒充 `UI_COMPILED`。
+**解除动作（任选其一，都需要用户交互）**：
+
+1. **推荐**：GUI 里「发行 → 原生App-云打包」（登录一次即可；首次还需在 DCloud 后台
+   为 `app/manifest.json` 换取正式 appid —— 当前是离线占位 `__UNI__DEPMAP01`）。
+2. 无头 CI：`cli open` → `cli user login --username <账号> --password <密码>` →
+   `cli project open --path "<repo>\app"` →
+   `cli pack --project app --platform android --android.packagename <正式包名> --android.androidpacktype 1`。
+3. 本地离线打包：补装 pack 插件 → GUI「发行 → 原生App-本地打包 → 生成本地打包App资源」→
+   Android Studio 打开 `uniappxnativepackage` → 配 AppKey / keystore → Build。
+   （资源生成仍是 GUI 步骤，AppKey 仍需账号。）
+
+**不得**：伪造编译结果、以静态门 PASS 冒充 `UI_COMPILED`、把 `cli pack` 的云端产物描述为已本地验证。
 
 ### B1 实测明细（Android）
 

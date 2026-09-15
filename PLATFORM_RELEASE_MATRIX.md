@@ -1,139 +1,160 @@
 # PLATFORM_RELEASE_MATRIX.md — PDIG 平台发布矩阵
 
-> 分层判定：`SOURCE_READY` → `BUILD_READY` → `INSTALL_READY` → `DEVICE_VERIFIED` →
-> `SIGNING_READY` → `STORE_ASSETS_READY` → `STORE_METADATA_READY` → `STORE_SUBMISSION_READY` → `STORE_SUBMITTED`
+> 分层判定：`SOURCE_READY` → `TOOLCHAIN_READY` → `BUILD_READY` → `INSTALL_READY` →
+> `DEVICE_VERIFIED` → `SIGNING_READY` → `STORE_READY` → `STORE_SUBMITTED`。
 >
-> **不得把以上合并成"已上线"。**
+> **不得把以上合并成「已上线」。** 每条都必须能指到一个真实命令或真实文件。
 >
-> **2026-09-15 重写说明（重要）**：本文件旧版第 5 行写「本机环境：Windows（win32），JDK 1.8，
-> 无 Android SDK / DevEco / Xcode / HBuilderX」。该前提经本轮实测**全部与事实不符**，已整体重写。
-> 实测环境：`<repo>`，Windows；JDK 21.0.10（Android Studio JBR）/ 17.0.12（DevEco JBR）；
-> Android SDK `<ANDROID_SDK_ROOT>`；Gradle 8.9；DevEco Studio 5.0.5.310 + HarmonyOS SDK 5.0.1.115 (API 13)
+> 状态取值只允许：`PASS` / `FAIL` / `BLOCKED` / `NOT_RUN` / `PARTIAL_WITH_REPORT`。
 >
-> - hvigor 5.13.2；HBuilderX 5.24.2026081301；**无 Xcode（非 macOS）**；**无真实设备**。
+> **2026-09-15 重写**：旧版称「本机无 JDK / 无 Android SDK / 无 DevEco / 无 HBuilderX」，
+> 经实测**全部与事实不符**；旧版还把 B10 描述为「CLI 无 build 命令」，本轮实测
+> `cli pack` 是 DCloud 官方文档定义的 uni-app x 打包命令，真正的闸门是**账号**。
+> 详见 `AGENT_PLATFORM_HANDOFF_AUDIT.md` 与 `docs/UTS_COMPILE_VERIFICATION.md`。
 
 ---
 
-## 0. 本轮「已真实发生」的三件事（区别于历史所有轮次）
+## 0. 本轮新发生的两件事（区别于历史所有轮次）
 
-| 事项                        | 证据                                                                                                                           | 报告                              |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------- |
-| Android 原生核心真实编译    | `BUILD SUCCESSFUL`；`core-debug.aar` 44,147 B / `core-release.aar` 42,352 B                                                    | `docs/ANDROID_BUILD_REPORT.md`    |
-| Android↔Node 互操作真实跑通 | 黄金向量 **4/4 × debug + release = 8/8 PASS**，0 failures / 0 errors / 0 skipped                                               | `docs/ANDROID_BUILD_REPORT.md` §6 |
-| HarmonyOS 真实产出 HAP      | `hvigor BUILD SUCCESSFUL in 42 s 263 ms`；`entry-default-unsigned.hap` 18,986 B，含 `ets/modules.abc` 10,568 B（ArkTS 字节码） | `docs/HARMONY_BUILD_REPORT.md`    |
+| 事项                            | 证据                                                                                                                                   |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **UTS 三端编译首次真实验证**    | `npm run check:uts` → **15/15 compiled, PASS**（Android→Kotlin / iOS→Swift / HarmonyOS→ArkTS）。并借此查出并修复 2 个 iOS UTS 语法错误 |
+| **前序 Agent 的零提交工作入库** | 19 个已跟踪文件 + 52 项未跟踪内容全部保全，按 11 个逻辑提交入库；`git status -uall` 归零                                               |
 
-**同时必须明确的三条边界**（防止把上述成果误读为"可上线"）：
+同时必须明确的三条边界：
 
-1. **AAR ≠ APK**。Android 产物是 Android Library，无 `AndroidManifest` 入口、无页面、无 uni-app x 运行时，
-   **不可安装**。
-2. **该 HAP 是原生验证工程产物，不是产品包**。它只含最小 `EntryAbility` + `Index.ets` +
-   `RelationalStoreSecureAdapter.ets`，**不含** 24 个 `.uvue` 页面。
-3. **UI 从未被真实编译器验证过**。`check:ui` PASS 是静态门，不是编译通过。
+1. **AAR ≠ APK**：Android 产物是 Android Library，不可安装。
+2. **HAP 是原生验证工程产物**：只含最小 `EntryAbility` + `Index.ets`，**不含** 24 个 `.uvue`，且 unsigned。
+3. **`.uvue` 从未被真实编译器验证过**：`check:ui` 是静态门，不等于编译通过。
+   UTS 门禁覆盖的是 `utssdk/**`，**不覆盖页面**。
 
 ---
 
-## 1. Android
+## 1. UI（uni-app x）
 
-| 层                      | 状态                     | 证据 / 原因                                                                                                                                                                                                    |
-| ----------------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SOURCE_READY            | **PASS**                 | `platforms/android/**`（Gradle KTS、Kotlin 安全层、Golden test、Manifest）；`app/uni_modules/*/app-android`                                                                                                    |
-| **NATIVE_BUILD_READY**  | **PASS（本轮新增）**     | `gradle :core:assembleDebug :core:assembleRelease --rerun-tasks --no-build-cache` → BUILD SUCCESSFUL；AAR ×2 已入库                                                                                            |
-| **NATIVE_TESTED**       | **PASS（本轮新增）**     | `:core:testDebugUnitTest` / `:core:testReleaseUnitTest` → 各 4/4 PASS                                                                                                                                          |
-| **PRODUCT_BUILD_READY** | **BLOCKED（B10）**       | 产品 APK/AAB 需 HBuilderX 打包；实测 HBuilderX 已装但 **CLI 无 build 命令**，无头环境无法触发                                                                                                                  |
-| INSTALL_READY           | **BLOCKED（B10）**       | 无 APK/AAB 产物                                                                                                                                                                                                |
-| DEVICE_VERIFIED         | **BLOCKED（B10 + B18）** | 无产物 + 无设备（`adb devices` 空、0 AVD、无 system-image）；按指令不得伪造模拟器                                                                                                                              |
-| SIGNING_READY           | **BLOCKED（B4）**        | 无 release keystore（用户提供）；按指令不得自动生成 Production Credentials                                                                                                                                     |
-| STORE_ASSETS_READY      | **PARTIAL_WITH_REPORT**  | **本轮已生成占位资产并闭环 U-1**：`app/static/icons/{48,72,96,192,1024}.png` + `app/static/splash/{480x762,720x1242,960x1656,1242x2688}.png`；但为程序化生成的**品牌占位图**，非设计交付，正式资产仍待 B15/B16 |
-| STORE_METADATA_READY    | 见 RC 报告               | `store/*` 已就绪；`applicationId` 仍为占位 `com.example.depmap`（B11）                                                                                                                                         |
-| STORE_SUBMISSION_READY  | **BLOCKED**              | 依赖 B10 + B4 + B5 + B11                                                                                                                                                                                       |
-| STORE_SUBMITTED         | **NO**                   | 本轮不提交                                                                                                                                                                                                     |
+| 状态               | 结果                         | 证据 / 原因                                                                                         |
+| ------------------ | ---------------------------- | --------------------------------------------------------------------------------------------------- |
+| `UI_SOURCE_READY`  | **PASS**                     | 24 页 `.uvue` + 5 个 `dp-*` 组件 + 5 个 UTS 插件 + 设计 token；`pages.json` 24/24 解析、tabBar 4/4  |
+| `UI_STATIC_GATE`   | **PASS**                     | `check:ui`（U1–U9）0 命中；30 `.uvue`、34 色 token                                                  |
+| `UI_BUILD_READY`   | **BLOCKED（B10）**           | `.uvue` 需 HBuilderX 的 uni-app x 编译器；`cli pack` 存在但需 **DCloud 账号登录 + 云打包配额**      |
+| `UI_RUNTIME_READY` | **BLOCKED（B10 + B18/B24）** | 无编译产物 + 无设备                                                                                 |
+| `UI_UX_READY`      | **PARTIAL_WITH_REPORT**      | 源码级判定通过（首页 3 秒原则、无内部工程术语、中文映射、空/错/加载态齐备）；**运行时判定 NOT_RUN** |
+| `UI_DEVICE_QA`     | **NOT_RUN**                  | 无设备；逐页 QA 清单已备（`PRODUCTION_RUNTIME_UI_AUDIT.md`）                                        |
 
-## 2. HarmonyOS
+## 2. Android
 
-| 层                        | 状态                    | 证据 / 原因                                                                                                                                                                 |
-| ------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SOURCE_READY              | **PASS**                | `platforms/harmonyos/**`；`app/uni_modules/*/app-harmony`                                                                                                                   |
-| **ENGINE_SKELETON_READY** | **PASS（本轮新增）**    | 原工程只有 3 个文件且 `app.json5` 不含 Stage 模型要求顶层 `"app"` 键 → **从未被 hvigor 解析过**；本轮补齐 9/9 骨架项                                                        |
-| **NATIVE_BUILD_READY**    | **PASS（本轮新增）**    | `hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon` → **BUILD SUCCESSFUL in 42 s 263 ms**；HAP 18,986 B，ArkTS 已编译为 `ets/modules.abc` |
-| **PRODUCT_BUILD_READY**   | **BLOCKED（B10）**      | 产品级 HAP 由 HBuilderX 产出；当前 HAP 仅为原生验证工程产物                                                                                                                 |
-| INSTALL_READY             | **BLOCKED（B7）**       | HAP 为 **unsigned**；无签名材料与正式 bundleName                                                                                                                            |
-| DEVICE_VERIFIED           | **BLOCKED（B18）**      | 无 HarmonyOS 设备（`hdc` 无可用目标）                                                                                                                                       |
-| SIGNING_READY             | **BLOCKED（B7）**       | 需 AGC 证书 / Profile                                                                                                                                                       |
-| STORE_ASSETS_READY        | **PARTIAL_WITH_REPORT** | 占位资产已生成（同 Android），正式资产待 B15/B16                                                                                                                            |
-| STORE_METADATA_READY      | 见 RC 报告              | `store/*` 已就绪；bundleName 占位（B11）                                                                                                                                    |
-| STORE_SUBMISSION_READY    | **BLOCKED**             | 依赖 B10 + B7 + B6 + B11                                                                                                                                                    |
-| STORE_SUBMITTED           | **NO**                  | 本轮不提交                                                                                                                                                                  |
+| 状态                         | 结果                     | 证据 / 原因                                                                                       |
+| ---------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------- |
+| `ANDROID_SOURCE_READY`       | **PASS**                 | `platforms/android/**`（Gradle KTS + Kotlin 安全层 + golden test + Manifest）                     |
+| `ANDROID_TOOLCHAIN_READY`    | **PASS**                 | JDK 21.0.10（AGP 可用）+ Android SDK（platforms 34/36.1/37.0、build-tools、licenses）+ Gradle 8.9 |
+| `ANDROID_NATIVE_BUILD_READY` | **PASS**                 | `assembleDebug/Release` → BUILD SUCCESSFUL；AAR ×2（72,376 / 68,731 B）                           |
+| `ANDROID_NATIVE_TESTED`      | **PASS**                 | 黄金向量 4/4 × debug+release = 8/8 PASS（0 failures / 0 errors / 0 skipped）                      |
+| `ANDROID_BUILD_READY`        | **BLOCKED（B10）**       | **产品级 APK/AAB 不可产出** —— 需 HBuilderX 打包（账号）                                          |
+| `ANDROID_INSTALL_READY`      | **BLOCKED（B10 + B24）** | 无安装包；且 `adb devices` 为空                                                                   |
+| `ANDROID_DEVICE_VERIFIED`    | **BLOCKED（B10 + B24）** | 无产物 + 无设备。唯一 AVD `Medium_Phone_API_35` 缺 system image，不可启动（不得伪造模拟器）       |
+| `ANDROID_SIGNING_READY`      | **BLOCKED（B4）**        | 无 release keystore（用户提供；禁止自动生成生产凭据、禁止入库）                                   |
+| `ANDROID_STORE_READY`        | **BLOCKED**              | 依赖 B10 + B4 + B5（Google Play 账号）+ B11（正式包名）                                           |
 
-## 3. iOS
+## 3. HarmonyOS
 
-| 层               | 状态                      | 证据 / 原因                                                                                                                                                                                                   |
-| ---------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SOURCE_READY     | **PARTIAL_WITH_REPORT**   | `platforms/ios/**` 存在，但本轮实测发现**结构性缺口**：<br>**G-1（首要）** `swift/` 下**没有 `DepmapContainerV1.swift`** → iOS 侧无容器实现；<br>**G-2** SQLCipher 未接入 SPM；<br>**G-3** 测试全部 `XCTSkip` |
-| BUILD_READY      | **BLOCKED（B3）**         | 非 macOS，Windows 无 Xcode。按 §100/§140 **不得伪造 COMPILED**，亦不得伪造 iOS 工具链                                                                                                                         |
-| INSTALL_READY    | **BLOCKED（B3/B8）**      | 同上 + 无开发者账号                                                                                                                                                                                           |
-| DEVICE_VERIFIED  | **BLOCKED（B3 + B18）**   | 无 macOS + 无设备                                                                                                                                                                                             |
-| SIGNING_READY    | **BLOCKED（B8/B9）**      | 无 Apple Developer Account / 证书 / Provisioning                                                                                                                                                              |
-| TESTFLIGHT_READY | **BLOCKED（B3 + B8）**    | —                                                                                                                                                                                                             |
-| APPSTORE_READY   | **BLOCKED（B3 + B8/B9）** | —                                                                                                                                                                                                             |
-| STORE_SUBMITTED  | **NO**                    | 本轮不提交                                                                                                                                                                                                    |
+| 状态                         | 结果                    | 证据 / 原因                                                                                                     |
+| ---------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `HARMONY_SOURCE_READY`       | **PASS**                | `platforms/harmonyos/**`（完整 DevEco Stage 工程骨架）+ `app-harmony` UTS 编译通过                              |
+| `HARMONY_TOOLCHAIN_READY`    | **PASS**                | DevEco 5.0.5.310 + SDK 5.0.1.115（API 13）+ hvigor 5.13.2 + ohpm 5.0.10                                         |
+| `HARMONY_NATIVE_BUILD_READY` | **PASS**                | `hvigorw assembleHap` → **BUILD SUCCESSFUL in 42 s 263 ms**；HAP 18,986 B，含 `ets/modules.abc`（ArkTS 字节码） |
+| `HARMONY_BUILD_READY`        | **BLOCKED（B10）**      | **产品级 HAP 不可产出** —— 当前 HAP 是原生验证工程产物，不含 24 页 `.uvue`                                      |
+| `HARMONY_INSTALL_READY`      | **BLOCKED（B10 + B7）** | HAP unsigned；无签名材料与正式 bundleName                                                                       |
+| `HARMONY_DEVICE_VERIFIED`    | **BLOCKED（B18）**      | 无 HarmonyOS 设备（`hdc` 无可用目标）                                                                           |
+| `HARMONY_SIGNING_READY`      | **BLOCKED（B7）**       | 需 AGC 证书 / Profile                                                                                           |
+| `HARMONY_STORE_READY`        | **BLOCKED**             | 依赖 B10 + B7 + B6（华为开发者身份）+ B11                                                                       |
 
-> 本轮在 Windows 侧已尽最大可能推进 iOS Source Ready：修复 `Package.swift` 空 target
-> （`exclude` 导致 `DepMapCore` 无源文件）与 `LAPolicy()` 枚举实例化语法错误，
-> 并重写 `docs/IOS_RELEASE_HANDOFF.md`（含黄金向量、算法契约、三个源自 Android 实测的易错点）。
+## 4. iOS
 
-## 4. Core（Node 22）
+| 状态                   | 结果                      | 证据 / 原因                                                                                                                                                                                                                                                                 |
+| ---------------------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `IOS_SOURCE_READY`     | **PARTIAL_WITH_REPORT**   | `platforms/ios/**` 存在；本轮修复 2 个 UTS 语法错误 + 1 处不存在符号引用（`DepmapSchemaV1.shared`）；<br>**未闭环的结构性缺口**：**G-1** `swift/` 无 `DepmapContainerV1.swift`（iOS 侧无 `.depmap` 容器实现）；**G-2** SQLCipher 未接入 SPM；**G-3** 容器测试全部 `XCTSkip` |
+| `IOS_UTS_COMPILED`     | **PASS**                  | 5/5 UTS → Swift 编译通过（语法/降级层；`npm run check:uts`）                                                                                                                                                                                                                |
+| `IOS_TOOLCHAIN_READY`  | **BLOCKED（B3）**         | 非 macOS，无 `xcodebuild`。**不得伪造**                                                                                                                                                                                                                                     |
+| `IOS_BUILD_READY`      | **BLOCKED（B3）**         | 同上                                                                                                                                                                                                                                                                        |
+| `IOS_DEVICE_VERIFIED`  | **BLOCKED（B3 + B18）**   | 无 macOS + 无设备                                                                                                                                                                                                                                                           |
+| `IOS_SIGNING_READY`    | **BLOCKED（B8/B9）**      | 无 Apple Developer Account / 证书 / Provisioning                                                                                                                                                                                                                            |
+| `IOS_TESTFLIGHT_READY` | **BLOCKED（B3 + B8）**    | —                                                                                                                                                                                                                                                                           |
+| `IOS_APPSTORE_READY`   | **BLOCKED（B3 + B8/B9）** | —                                                                                                                                                                                                                                                                           |
 
-| 层              | 状态 | 证据                                                                                                                            |
-| --------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------- |
-| SOURCE_READY    | PASS | `core/src/**`                                                                                                                   |
-| BUILD_READY     | PASS | `npm ci` 可执行；`npm run check` EXIT=0                                                                                         |
-| TESTED          | PASS | **453 passed / 453（43 文件）**；architecture 48 files/0 circular；network 129 files/0 原语；secrets 580 files/0；UI 30 `.uvue` |
-| DEVICE_VERIFIED | N/A  | 纯库                                                                                                                            |
-| STORE_READY     | N/A  | 不单独上架                                                                                                                      |
+> Mac 侧执行手册见 `docs/IOS_RELEASE_HANDOFF.md`（分步命令 + 源自 Android 实测的易错点 + 本轮 UTS 结论）。
 
-## 5. UI（uni-app x）
+## 5. Core / 工程
 
-| 层                      | 状态                     | 原因                                                            |
-| ----------------------- | ------------------------ | --------------------------------------------------------------- |
-| SOURCE_READY            | PASS                     | 24 页 `.uvue` + 5 个 `dp-*` 组件 + 5 UTS 安全插件 + 设计 token  |
-| STATIC_GATE             | PASS                     | `check-ui.mjs` 9 类机械校验（U1–U9），0 命中                    |
-| **UI_COMPILED**         | **BLOCKED（B10）**       | HBuilderX 已装但 CLI 无 build 命令 → **从未被真实编译器验证过** |
-| **UI_RUNTIME_VERIFIED** | **BLOCKED（B10 + B18）** | 无编译产物 + 无设备；详见 `PRODUCTION_RUNTIME_UI_AUDIT.md`      |
-| DEVICE_VERIFIED         | **BLOCKED（B10 + B18）** | 同上                                                            |
+| 状态                      | 结果                    | 证据                                                                                                            |
+| ------------------------- | ----------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `CORE_SOURCE_READY`       | **PASS**                | `core/src/**`                                                                                                   |
+| `CORE_BUILD_READY`        | **PASS**                | `npm ci` 可执行；`npm run check` EXIT=0                                                                         |
+| `CORE_TESTED`             | **PASS**                | **453 passed / 453（43 文件）**；architecture 48 files/circular 0；network 0 原语；secret 0；UI 静态门 PASS     |
+| `ENGINEERING_BASELINE_V1` | **PASS**                | 未降低 type safety / architecture / privacy / crypto                                                            |
+| `MVP01/02/03_REGRESSION`  | **PASS**                | 同一套 453 测试（MVP01–03 的套件全部在内）                                                                      |
+| `UTS_SOURCE_READY`        | **PASS**                | 15 个 UTS 实现（5 插件 × 3 平台）全部存在                                                                       |
+| `UTS_DOWNLEVEL_COMPILED`  | **PASS（本轮新增）**    | `npm run check:uts` → 15/15                                                                                     |
+| `UTS_HOST_LINKED`         | **NOT_RUN**             | 跨语言符号解析需 HBuilderX / Xcode（B10 / B3）                                                                  |
+| `CLEAN_INSTALL`           | **PARTIAL_WITH_REPORT** | lockfile ↔ manifest 同步、`check:deps` tree/lockfile OK；**破坏性 `npm ci`** 被沙箱 safe-delete 守卫拦截（B23） |
+| `CLEAN_CLONE`             | **BLOCKED（B23）**      | 工作区外批量写入被沙箱截断。等价证据：`git status -uall` = 0 行 ⇒ 磁盘树 ≡ 提交树，且该树上全门禁 EXIT=0        |
+| `MUTATION`                | **PARTIAL_WITH_REPORT** | Core 侧本轮未改动正确性代码；引用与当前 HEAD 兼容的近期 targeted mutation 证据                                  |
+
+## 6. 商店 / 数据
+
+| 状态                     | 结果                    | 证据 / 原因                                                                |
+| ------------------------ | ----------------------- | -------------------------------------------------------------------------- |
+| `STORE_METADATA_READY`   | **PARTIAL_WITH_REPORT** | `store/*` 5 份就绪；正式标识与品牌名未决（B11/B14）                        |
+| `STORE_ASSETS_READY`     | **BLOCKED**             | 图标/启动图仅**占位**（U-1 已闭环）；截图依赖可运行环境（B17）             |
+| `STORE_SUBMISSION_READY` | **BLOCKED**             | 依赖 B10 + B4–B9 + B11 + B12/b                                             |
+| `STORE_SUBMITTED`        | **NO**                  | 本轮不提交（未授权），也未访问任何开发者后台                               |
+| `REAL_DATA_CORRECTNESS`  | **NOT_RUN**             | 无真实账单（B13）；`validate-real-bill.ts` 已就绪；**禁止** synthetic 冒充 |
+| `REAL_DATA_VALUE`        | **NOT_RUN**             | 同上；需用户决策（B19）                                                    |
 
 ---
 
-## 6. 汇总（本轮结论，禁止合并成一句「已上线」）
+## 7. 汇总（禁止合并成一句「已上线」）
 
 ```
-CORE_SOURCE_READY          = PASS      CORE_BUILD_READY           = PASS
-ANDROID_SOURCE_READY       = PASS      ANDROID_NATIVE_BUILD_READY = PASS
-ANDROID_NATIVE_TESTED      = PASS      ANDROID_PRODUCT_BUILD_READY= BLOCKED (B10)
-ANDROID_INSTALL_READY      = BLOCKED   ANDROID_DEVICE_VERIFIED    = BLOCKED (B10+B18)
-ANDROID_SIGNING_READY      = BLOCKED (B4)
+UI_SOURCE_READY            = PASS       UI_BUILD_READY             = BLOCKED (B10)
+UI_RUNTIME_READY           = BLOCKED    UI_UX_READY                = PARTIAL_WITH_REPORT
 
-HARMONY_SOURCE_READY       = PASS      HARMONY_ENGINE_SKELETON    = PASS
-HARMONY_NATIVE_BUILD_READY = PASS      HARMONY_PRODUCT_BUILD_READY= BLOCKED (B10)
-HARMONY_INSTALL_READY      = BLOCKED (B7 unsigned)  HARMONY_DEVICE_VERIFIED = BLOCKED (B18)
-HARMONY_SIGNING_READY      = BLOCKED (B7)
+ANDROID_SOURCE_READY       = PASS       ANDROID_TOOLCHAIN_READY    = PASS
+ANDROID_NATIVE_BUILD_READY = PASS       ANDROID_NATIVE_TESTED      = PASS
+ANDROID_BUILD_READY        = BLOCKED (B10)
+ANDROID_INSTALL_READY      = BLOCKED    ANDROID_DEVICE_VERIFIED    = BLOCKED
+ANDROID_SIGNING_READY      = BLOCKED (B4)                          ANDROID_STORE_READY = BLOCKED
+
+HARMONY_SOURCE_READY       = PASS       HARMONY_TOOLCHAIN_READY    = PASS
+HARMONY_NATIVE_BUILD_READY = PASS       HARMONY_BUILD_READY        = BLOCKED (B10)
+HARMONY_INSTALL_READY      = BLOCKED    HARMONY_DEVICE_VERIFIED    = BLOCKED (B18)
+HARMONY_SIGNING_READY      = BLOCKED (B7)                          HARMONY_STORE_READY = BLOCKED
 
 IOS_SOURCE_READY           = PARTIAL_WITH_REPORT (G-1/G-2/G-3)
-IOS_BUILD_READY            = BLOCKED (B3, non-macOS)
-IOS_INSTALL_READY          = BLOCKED (B3/B8)       IOS_DEVICE_VERIFIED = BLOCKED (B3+B18)
-IOS_SIGNING_READY          = BLOCKED (B8/B9)
+IOS_UTS_COMPILED           = PASS       IOS_TOOLCHAIN_READY        = BLOCKED (B3)
+IOS_BUILD_READY            = BLOCKED    IOS_DEVICE_VERIFIED        = BLOCKED
+IOS_SIGNING_READY          = BLOCKED    IOS_TESTFLIGHT_READY       = BLOCKED
+IOS_APPSTORE_READY         = BLOCKED
 
-UI_SOURCE_READY            = PASS      UI_STATIC_GATE             = PASS
-UI_COMPILED                = BLOCKED (B10)
-UI_RUNTIME_VERIFIED        = BLOCKED (B10 + B18)
+UTS_SOURCE_READY           = PASS       UTS_DOWNLEVEL_COMPILED     = PASS (15/15)
+UTS_HOST_LINKED            = NOT_RUN
 
-STORE_METADATA_READY       = PASS      STORE_ASSETS_READY         = PARTIAL_WITH_REPORT
-STORE_SUBMISSION_READY     = BLOCKED   STORE_SUBMITTED            = NO
-REAL_DATA_VALIDATED        = NOT_RUN
+CORE_SOURCE_READY          = PASS       CORE_BUILD_READY           = PASS
+CORE_TESTED                = PASS (453) ENGINEERING_BASELINE_V1    = PASS
+MVP01/02/03_REGRESSION     = PASS       CLEAN_INSTALL              = PARTIAL_WITH_REPORT
+CLEAN_CLONE                = BLOCKED (B23)
+MUTATION                   = PARTIAL_WITH_REPORT
+
+STORE_METADATA_READY       = PARTIAL_WITH_REPORT
+STORE_ASSETS_READY         = BLOCKED    STORE_SUBMISSION_READY     = BLOCKED
+STORE_SUBMITTED            = NO
+REAL_DATA_CORRECTNESS      = NOT_RUN    REAL_DATA_VALUE            = NOT_RUN
+
 PRODUCTION_RC_V1           = PARTIAL_WITH_REPORT
 ```
 
-**至少一个可实际运行目标平台 build PASS = YES**（Core / Node 22；且 Android 原生层与 HarmonyOS
-原生层均已有真实构建产物）—— 满足 §136 该条要求。
+**为什么不是 `PASS`**：Production RC PASS 规则要求「至少一个真实移动端 runtime smoke PASS」。
+本轮**没有任何移动端 runtime**（无 APK/HAP 产品包、无设备），因此只能 `PARTIAL_WITH_REPORT`。
+这不是「代码没写完」，而是**唯一技术闸门 B10（DCloud 账号）尚未通过**。
 
-**但三端的 PRODUCT_BUILD_READY / INSTALL_READY / DEVICE_VERIFIED / SIGNING_READY 全部未达成，
-UI 从未编译，故不能声明三端上线。**
+**为什么也不是 `FAIL`**：所有真正可自动推进的工作本轮都已推进到环境极限 ——
+Core 全绿、Android/Harmony 原生层真实构建、UTS 三端首次真实编译、现场与文档收口干净。

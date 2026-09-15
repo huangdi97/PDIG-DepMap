@@ -165,14 +165,34 @@ export ANDROID_HOME="<ANDROID_SDK_ROOT>"
 
 ### 6.2 产物清单
 
+> **2026-09-15 修正（接力轮）**：本节原记录的 `44,147 / 42,352` 与「23 个 class」是
+> **修复 `UtsSecurityBridge` 之前的第一次构建**，属过期数据。下表为**当前**实测值，
+> 由本轮 `--rerun-tasks` 重新执行 49/49 任务后逐字节复算得出。
+
 | 产物        | 路径                                           | 字节   | SHA-256                                                            |
 | ----------- | ---------------------------------------------- | ------ | ------------------------------------------------------------------ |
-| Debug AAR   | `platforms/android/artifacts/core-debug.aar`   | 44,147 | `ae2c11a47a86d2657facb6f149f5e83c6739a12f9b961886a2a3fcd51a0edd6a` |
-| Release AAR | `platforms/android/artifacts/core-release.aar` | 42,352 | `d82b4a2f3005deedcd73fcc05e6d866bffa7103485da7de02b42476e86c93d67` |
+| Debug AAR   | `platforms/android/artifacts/core-debug.aar`   | 72,376 | `dd7d8c04b23041354b401b1f0e347b9fedf586131dae975c8df70520ef850a0d` |
+| Release AAR | `platforms/android/artifacts/core-release.aar` | 68,731 | `4ac2e7f4c5d407d6b6a2d2232913f343ff7b7ef0f27891d67c60a190bf43c32b` |
 
-`core-release.aar` 结构（实测解包）：`AndroidManifest.xml`(573B) / `R.txt`(0B) / `classes.jar`(44,687B)，
-`classes.jar` 内含 **23 个 Kotlin class**，覆盖
-`crypto/DepmapContainerV1`、`schema/DepmapSchemaV1`、`security/{SecureDatabaseAdapter, SqlCipherSecureDatabaseAdapter, KeystoreSecureKeyAdapter, KeystoreSecureKeyAdapterExtensionsKt, BiometricGateAdapter, FlagSecurePrivacyAdapter}`。
+`core-release.aar` 结构（实测解包）：`R.txt` / `AndroidManifest.xml` / `classes.jar` /
+`proguard.txt` / `META-INF/com/android/build/gradle/aar-metadata.properties`；
+`classes.jar` 内含 **37 个 `.class`**，覆盖
+`crypto/DepmapContainerV1`（含 `B64` / `JsonHeader` / `DepmapContainerException`）、
+`schema/DepmapSchemaV1`、
+`security/{SecureDatabaseAdapter, SecureDatabaseOpenOptions, SqlCipherSecureDatabaseAdapter, DepmapSqlCipherHelper, SecureKeyAdapter, KeystoreSecureKeyAdapter, KeystoreSecureKeyAdapterExtensionsKt, BiometricGate, BiometricGateAdapter, BiometricGateResult, FlagSecurePrivacyAdapter}`、
+以及 **`security/UtsSecurityBridge`**（13 个回调方法，把 UTS 无法调用的 `suspend fun` 包成回调式入口）。
+
+#### 6.2.1 可复现性验证（2026-09-15 接力轮）
+
+```bash
+cd <repo>/platforms/android
+JAVA_HOME="<ANDROID_STUDIO_HOME>/jbr" ANDROID_HOME="<ANDROID_SDK_ROOT>" \
+  "<GRADLE_HOME>/bin/gradle.bat" --no-daemon \
+  assembleDebug assembleRelease collectArtifacts --rerun-tasks --console=plain
+```
+
+结果：`BUILD SUCCESSFUL in 7m 50s`，`49 actionable tasks: 49 executed`（**无 FROM-CACHE**），
+两个 AAR 的字节数与 SHA-256 与上表**完全一致** ⇒ 构建可复现。
 
 ### 6.3 测试结果
 

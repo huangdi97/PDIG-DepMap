@@ -31,12 +31,27 @@
 
 > **G-1 是本阶段最重要的未完成项。** 在此项完成前，不得声称 iOS 容器互操作已实现或已测试。
 
-### 0.2 本轮已修复的 iOS 缺陷
+### 0.2 已修复的 iOS 缺陷
 
-| #   | 缺陷                                                                                                                                                 | 处置                                                                                                   |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| D-1 | `Package.swift` 的 `exclude: ["SQLCipherSecureDatabaseAdapter.swift"]` 使 `DepMapCore` target **无任何源文件**，SPM 无法构建                         | 已移除该 `exclude`。依赖缺失现在会以明确的 `no such module 'SQLCipher'` 暴露，而非隐式的空 target 错误 |
-| D-2 | `LocalAuthenticationGate.canAuthenticate()` 中 `let policy = LAPolicy().deviceOwnerAuthentication` —— `LAPolicy` 是 **enum**，不可实例化，属编译错误 | 已改为 `let policy: LAPolicy = .deviceOwnerAuthentication`                                             |
+| #             | 缺陷                                                                                                                                                               | 处置                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| D-1           | `Package.swift` 的 `exclude: ["SQLCipherSecureDatabaseAdapter.swift"]` 使 `DepMapCore` target **无任何源文件**，SPM 无法构建                                       | 已移除该 `exclude`。依赖缺失现在会以明确的 `no such module 'SQLCipher'` 暴露，而非隐式的空 target 错误 |
+| D-2           | `LocalAuthenticationGate.canAuthenticate()` 中 `let policy = LAPolicy().deviceOwnerAuthentication` —— `LAPolicy` 是 **enum**，不可实例化，属编译错误               | 已改为 `let policy: LAPolicy = .deviceOwnerAuthentication`                                             |
+| **IOS-UTS-1** | `app/uni_modules/depmap-secure-key/utssdk/app-ios/index.uts` 使用了非法的 `do { try ... } catch`（TS/UTS 无 `do` 块语句）                                          | 已改为 `try { } catch (e) { }`；**由真实 UTS 编译器验证通过**                                          |
+| **IOS-UTS-2** | `depmap-secure-database/.../app-ios/index.uts` 同类语法错误，且引用不存在的 `DepmapSchemaV1.shared.migrations()`，并用了 UTS 不合法的 Swift 实参标签 `migrations:` | 同上；`migrate()` 改为注入 `migrations` 参数；**编译器验证通过**                                       |
+
+### 0.3 UTS → Swift 编译验证（2026-09-15，可在 Windows 上做，不需要 Mac）
+
+DCloud 把 UTS 编译器公开在 npm 上，因此 iOS 侧 UTS 实现**已经真实编译验证过**，
+Mac 侧不必再从「一堆语法错误」开始：
+
+```bash
+cd core && npm run check:uts      # 15/15 compiled, PASS（含 app-ios 5/5 → Swift）
+```
+
+这**只**证明 UTS 侧的语法与降级正确（`removeImports: true`），**不**证明
+`KeychainSecureKeyAdapter` / `SQLCipherSecureDatabaseAdapter` 的 Swift 签名与 UTS 调用点匹配 ——
+后者仍需在 Mac 上 `swift test` 才能确认。详见 `docs/UTS_COMPILE_VERIFICATION.md`。
 
 ---
 
