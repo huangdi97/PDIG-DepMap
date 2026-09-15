@@ -27,6 +27,7 @@
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:network": "node scripts/check-network.mjs",
     "check:ui": "node scripts/check-ui.mjs",
+    "check:uts": "node scripts/check-uts.mjs",
     "check:invariants": "vitest run tests/invariants",
     "check:contract": "vitest run tests/contract",
     "check:property": "vitest run tests/property",
