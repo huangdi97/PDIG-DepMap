@@ -77,12 +77,23 @@ tmp/
 .cache/
 .coverage-tmp/
 
+# Agent scratch / toolchain probes（临时工具与探测输出，禁止提交）
+.tmp_audit/
+
 # Gradle / Android local build state（机器相关，禁止提交）
 .gradle/
 local.properties
 .kotlin/
 *.hprof
 captures/
+
+# HarmonyOS / DevEco local build state（机器相关，禁止提交）
+.hvigor/
+oh_modules/
+.hvigorw/
+entry/build/
+entry/.preview/
+.hvigor-cache/
 
 # Mutation testing artifacts
 .stryker-tmp/
