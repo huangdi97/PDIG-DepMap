@@ -1,3 +1,31 @@
-/** Android 实现：FLAG_SECURE。IMPLEMENTED；COMPILED=NO。 */
+/**
+ * depmap-privacy-screen — Android 实现（FLAG_SECURE 截屏保护）。
+ *
+ * 2026-09-15 修复 R-1（见 PRODUCTION_RUNTIME_UI_AUDIT.md）：
+ * 本文件此前**被截断**在 224 字节 / 第 3 行 —— 第 3 行的 import 语句未完成
+ * （`from 'android.uts.sdk.modules.dep`），且**没有导出 setPrivacyScreen**。
+ * 而 `app/App.uvue` 在 `onLaunch` 中 import 并调用 `setPrivacyScreen`，
+ * 因此这既是一个必然的编译错误，也会让启动路径不可用。
+ *
+ * Activity 获取方式的依据来自 HBuilderX 内置 UTS 类型定义（**权威，非推断**）：
+ * `plugins/hbuilderx-language-services/builtin-dts/uts-types/app-android/UTSAndroid.d.ts:407`
+ *   `getUniActivity() : Activity | null`
+ *
+ * 状态：IMPLEMENTED；COMPILED = NO（B10 —— 本机无 UTS 编译器，无法验证 UTS 侧编译）。
+ */
 import { FlagSecurePrivacyAdapter } from 'com.depmap.core.security.FlagSecurePrivacyAdapter'
-import { getCurrentActivity } from 'android.uts.sdk.modules.dep
+
+export function setPrivacyScreen(enabled: boolean): Promise<void> {
+  return new Promise<void>((resolve) => {
+    const activity = UTSAndroid.getUniActivity()
+    if (activity == null) {
+      // 冷启动早期（App.onLaunch）页面尚未与 Activity 建立绑定，这是**预期行为**。
+      // 此处不抛异常 —— 抛异常会打断启动流程；用户的选择已由 App.uvue 用
+      // uni.setStorageSync 持久化，页面进入前台时会被重新应用。
+      resolve()
+      return
+    }
+    FlagSecurePrivacyAdapter.setPrivacyScreen(activity, enabled)
+    resolve()
+  })
+}

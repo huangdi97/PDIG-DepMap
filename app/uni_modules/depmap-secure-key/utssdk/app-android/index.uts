@@ -1,15 +1,74 @@
-/** Android 实现：桥接 KeystoreSecureKeyAdapter。IMPLEMENTED；COMPILED=NO。 */
-import { KeystoreSecureKeyAdapter } from 'com.depmap.core.security.KeystoreSecureKeyAdapter'
-const adapter = new KeystoreSecureKeyAdapter(UTSAndroid.getAppContext()!)
+/**
+ * depmap-secure-key — Android 实现（Keystore 密钥与 fpSecret）。
+ *
+ * 2026-09-15 修复 R-3（见 `PRODUCTION_RUNTIME_UI_AUDIT.md`）：
+ * 原实现对 `KeystoreSecureKeyAdapter` 的四个 `suspend fun` 直接调用并把返回值当作
+ * `Promise`（`KeystoreSecureKeyAdapter.kt:43/51/59/61`）。UTS 没有协程概念，
+ * 不能调用 suspend 方法，且 suspend 方法在 JVM 上的真实签名还多一个 `Continuation` 参数，
+ * 因此这四行在首次真实编译时必然失败。
+ *
+ * 现改经 `UtsSecurityBridge`（Kotlin 侧新增的回调式桥接，已由 Gradle 真实编译验证）调用。
+ *
+ * 状态：IMPLEMENTED；COMPILED = NO（B10 —— 本机无 UTS 编译器，无法验证 UTS 侧编译）。
+ */
+import { UtsSecurityBridge } from 'com.depmap.core.security.UtsSecurityBridge'
+
+const adapter = UtsSecurityBridge.createSecureKeyAdapter(UTSAndroid.getAppContext()!)
+
 export function getOrCreateDatabaseKey(alias: string): Promise<Uint8Array> {
-  return adapter.getOrCreateDatabaseKey(alias)
+  return new Promise<Uint8Array>((resolve, reject) => {
+    UtsSecurityBridge.getOrCreateDatabaseKey(
+      adapter,
+      alias,
+      (key: any) => {
+        resolve(key as Uint8Array)
+      },
+      (err: string) => {
+        reject(new Error(err))
+      }
+    )
+  })
 }
+
 export function getOrCreateFpSecret(): Promise<string> {
-  return adapter.getOrCreateFpSecret()
+  return new Promise<string>((resolve, reject) => {
+    UtsSecurityBridge.getOrCreateFpSecret(
+      adapter,
+      (secret: string) => {
+        resolve(secret)
+      },
+      (err: string) => {
+        reject(new Error(err))
+      }
+    )
+  })
 }
+
 export function hasKey(alias: string): Promise<boolean> {
-  return adapter.hasKey(alias)
+  return new Promise<boolean>((resolve, reject) => {
+    UtsSecurityBridge.hasKey(
+      adapter,
+      alias,
+      (exists: boolean) => {
+        resolve(exists)
+      },
+      (err: string) => {
+        reject(new Error(err))
+      }
+    )
+  })
 }
+
 export function deleteKey(alias: string): Promise<void> {
-  return adapter.deleteKey(alias)
+  return new Promise<void>((resolve, reject) => {
+    UtsSecurityBridge.deleteKey(
+      adapter,
+      () => {
+        resolve()
+      },
+      (err: string) => {
+        reject(new Error(err))
+      }
+    )
+  })
 }

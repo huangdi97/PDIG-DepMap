@@ -1,12 +1,52 @@
-/** Android 实现：桥接 BiometricGateAdapter。IMPLEMENTED；COMPILED=NO。 */
+/**
+ * depmap-biometric — Android 实现（BiometricPrompt，含 DEVICE_CREDENTIAL fallback）。
+ *
+ * 2026-09-15 修复 R-2 / R-3（见 `PRODUCTION_RUNTIME_UI_AUDIT.md`）：
+ *
+ * - **R-2**：原文件 `import { getBiometricGate } from './gate-holder'`，
+ *   而 `gate-holder.uts` **从未存在**；同时又引用了从未定义的 `BiometricHolder`。
+ *   这两点都会让本插件在首次真实编译时直接失败。
+ * - **R-3**：Kotlin 侧 `BiometricGateAdapter` 的两个能力都是 `suspend fun`
+ *   （`BiometricGateAdapter.kt:23` / `:28`）。UTS 没有协程概念，不能调用 suspend 方法，
+ *   否则报 “Suspension functions can only be called within coroutine body”。
+ *   现改经 `UtsSecurityBridge`（Kotlin 侧新增的回调式桥接，已由 Gradle 真实编译验证）调用。
+ *
+ * Activity 获取依据（**权威，非推断**）：HBuilderX 内置类型定义
+ * `builtin-dts/uts-types/app-android/UTSAndroid.d.ts:407` → `getUniActivity(): Activity | null`。
+ *
+ * 失败语义：gate 不可用（宿主非 FragmentActivity / 未录入凭据）时一律 `ok=false`，
+ * 与项目 fail-closed 原则一致 —— **绝不返回「看起来通过」的结果**。
+ *
+ * 状态：IMPLEMENTED；COMPILED = NO（B10 —— 本机无 UTS 编译器，无法验证 UTS 侧编译）。
+ */
 import { BiometricGateAdapter } from 'com.depmap.core.security.BiometricGateAdapter'
-import { getBiometricGate } from './gate-holder'
+import { UtsSecurityBridge } from 'com.depmap.core.security.UtsSecurityBridge'
+
+/**
+ * 每次调用都重新取栈顶 Activity：**不做缓存**。
+ * 冷启动早期 `getUniActivity()` 可能返回 null，若把 null 缓存下来，
+ * 启动锁将永久不可用；重新取值可在页面与 Activity 绑定完成后自动恢复。
+ */
+function currentGate(): BiometricGateAdapter | null {
+  return UtsSecurityBridge.createBiometricGate(UTSAndroid.getUniActivity())
+}
+
 export function canAuthenticate(): Promise<boolean> {
-  return getBiometricGate().canAuthenticate()
+  return new Promise<boolean>((resolve) => {
+    UtsSecurityBridge.biometricCanAuthenticate(currentGate(), (ok: boolean) => {
+      resolve(ok)
+    })
+  })
 }
+
 export function authenticate(reason: string): Promise<AuthResult> {
-  return getBiometricGate().authenticate(reason)
-}
-function getBiometricGate(): BiometricGateAdapter {
-  return BiometricHolder.gate
+  return new Promise<AuthResult>((resolve) => {
+    UtsSecurityBridge.biometricAuthenticate(
+      currentGate(),
+      reason,
+      (ok: boolean, failReason: string | null) => {
+        resolve({ ok: ok, reason: failReason } as AuthResult)
+      }
+    )
+  })
 }
