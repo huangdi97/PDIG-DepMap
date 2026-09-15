@@ -24,20 +24,31 @@ class SqlCipherSecureDatabaseAdapter(
 
     private var helper: DepmapSqlCipherHelper? = null
 
+    /**
+     * open() 时以口令解开的数据库句柄。
+     *
+     * SQLCipher 的 `getWritableDatabase` **必须**带口令（String/char[]/byte[] 三种重载），
+     * 不存在无参版本；因此句柄在 open() 中取得并缓存，其余方法一律复用该句柄，
+     * 避免在无口令上下文中重新打开数据库。
+     */
+    private var db: SQLiteDatabase? = null
+
     override suspend fun open(options: SecureDatabaseOpenOptions) {
         val passphrase = keyAdapter.getOrCreateDatabaseKeyBytes()
         helper = DepmapSqlCipherHelper(context, options.dbName, passphrase)
         // 强制校验密钥：错误密钥在首次查询时失败，主动触发一次读
-        helper!!.writableDatabase.query("SELECT count(*) FROM sqlite_master").use { it.moveToFirst() }
+        db = helper!!.getWritableDatabase(passphrase)
+        db!!.query("SELECT count(*) FROM sqlite_master").use { it.moveToFirst() }
     }
 
     override suspend fun close() {
         helper?.close()
         helper = null
+        db = null
     }
 
     override suspend fun migrate(): Int {
-        val db = helper?.writableDatabase ?: error("open() must be called before migrate()")
+        val db = checkNotNull(db) { "open() must be called before use" } ?: error("open() must be called before migrate()")
         var version = readSchemaVersion(db)
         if (version > DepmapSchemaV1.VERSION) {
             error("database schema_version ($version) newer than supported ${DepmapSchemaV1.VERSION}")
@@ -58,7 +69,7 @@ class SqlCipherSecureDatabaseAdapter(
     }
 
     override suspend fun query(sql: String, params: List<Any?>): List<Map<String, Any?>> {
-        val db = helper?.writableDatabase ?: error("not open")
+        val db = checkNotNull(db) { "open() must be called before use" } ?: error("not open")
         val args = params.map { it?.toString() }.toTypedArray()
         val out = mutableListOf<Map<String, Any?>>()
         db.rawQuery(sql, args).use { cursor ->
@@ -80,7 +91,7 @@ class SqlCipherSecureDatabaseAdapter(
     }
 
     override suspend fun execute(sql: String, params: List<Any?>): Int {
-        val db = helper?.writableDatabase ?: error("not open")
+        val db = checkNotNull(db) { "open() must be called before use" } ?: error("not open")
         val stmt = db.compileStatement(sql)
         params.forEachIndexed { i, v ->
             when (v) {
@@ -101,7 +112,7 @@ class SqlCipherSecureDatabaseAdapter(
     }
 
     override suspend fun <T> transaction(fn: suspend () -> T): T {
-        val db = helper?.writableDatabase ?: error("not open")
+        val db = checkNotNull(db) { "open() must be called before use" } ?: error("not open")
         db.beginTransaction()
         try {
             val result = fn()

@@ -1,9 +1,9 @@
 package com.depmap.core.crypto
 
-import android.util.Base64
 import org.bouncycastle.crypto.params.Argon2Parameters
 import org.bouncycastle.crypto.generators.Argon2BytesGenerator
 import java.security.SecureRandom
+import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
@@ -44,6 +44,28 @@ object DepmapContainerV1 {
 
     class DepmapContainerException(val code: String, message: String) : Exception(message)
 
+    /**
+     * RFC 4648 标准 Base64（**带填充**，无换行）。
+     *
+     * 为何不用 `android.util.Base64`：
+     * 1. 互操作正确性 —— Core Node reference 使用 `Buffer.toString('base64')`
+     *    （core/src/crypto/depmap.ts 明确标注 "base64 (RFC 4648 standard with padding)"），
+     *    黄金向量 `tagBase64 = "5qpABhovPbNet1q2GNEhkg=="` 亦带 `==` 填充；
+     *    而 `android.util.Base64` 原先使用的 `NO_PADDING` 会产出无填充串，
+     *    导致 Android 产出的容器与冻结向量不一致（跨端互操作契约破裂）。
+     * 2. 可测试性 —— `android.util.Base64` 是 Android 框架 API，在 JVM 单元测试
+     *    （testDebugUnitTest）中会抛 `RuntimeException: not mocked`；
+     *    `java.util.Base64` 是 JDK API，单测可直接执行。
+     *
+     * `java.util.Base64` 自 API 26 起可用，本模块 minSdk = 26，满足要求。
+     */
+    private object B64 {
+        private val encoder = Base64.getEncoder()
+        private val decoder = Base64.getDecoder()
+        fun encode(bytes: ByteArray): String = encoder.encodeToString(bytes)
+        fun decode(s: String): ByteArray = decoder.decode(s)
+    }
+
     /** Argon2id v19 派生 32 字节 fileEncryptionKey。password 为精确 UTF-8 字节。 */
     fun deriveFileEncryptionKey(
         passwordBytes: ByteArray,
@@ -79,8 +101,9 @@ object DepmapContainerV1 {
         parallelism: Int = PARALLELISM_DEFAULT
     ): String {
         val key = deriveFileEncryptionKey(password.toByteArray(Charsets.UTF_8), salt, memoryKiB, iterations, parallelism)
-        val saltB64 = Base64.encodeToString(salt, Base64.NO_WRAP or Base64.NO_PADDING)
-        val nonceB64 = Base64.encodeToString(nonce, Base64.NO_WRAP or Base64.NO_PADDING)        val aad = buildAad(saltB64, nonceB64, memoryKiB, iterations, parallelism).toByteArray(Charsets.UTF_8)
+        val saltB64 = B64.encode(salt)
+        val nonceB64 = B64.encode(nonce)
+        val aad = buildAad(saltB64, nonceB64, memoryKiB, iterations, parallelism).toByteArray(Charsets.UTF_8)
 
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, SecretKeySpec(key, "AES"), GCMParameterSpec(128, nonce))
@@ -92,7 +115,7 @@ object DepmapContainerV1 {
         // JSON 按 JCS 键序输出（与 RFC 8785 一致）
         return buildString {
             append("{\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"").append(nonceB64)
-            append("\"},\"ciphertext\":\"").append(Base64.encodeToString(ciphertext, Base64.NO_WRAP or Base64.NO_PADDING))
+            append("\"},\"ciphertext\":\"").append(B64.encode(ciphertext))
             append("\",\"format\":\"").append(FORMAT)
             append("\",\"formatVersion\":").append(FORMAT_VERSION)
             append(",\"kdf\":{\"algorithm\":\"argon2id\",\"iterations\":").append(iterations)
@@ -100,7 +123,7 @@ object DepmapContainerV1 {
             append(",\"parallelism\":").append(parallelism)
             append(",\"salt\":\"").append(saltB64)
             append("\",\"version\":").append(ARGON2_VERSION_19)
-            append("},\"tag\":\"").append(Base64.encodeToString(tag, Base64.NO_WRAP or Base64.NO_PADDING))
+            append("},\"tag\":\"").append(B64.encode(tag))
             append("\"}")
         }
     }
@@ -111,7 +134,7 @@ object DepmapContainerV1 {
         validateBounds(header)
         val key = deriveFileEncryptionKey(
             password.toByteArray(Charsets.UTF_8),
-            Base64.decode(header.salt, Base64.DEFAULT),
+            B64.decode(header.salt),
             header.memoryKiB, header.iterations, header.parallelism
         )
         val aad = buildAad(header.salt, header.nonce, header.memoryKiB, header.iterations, header.parallelism)
@@ -120,11 +143,11 @@ object DepmapContainerV1 {
         cipher.init(
             Cipher.DECRYPT_MODE,
             SecretKeySpec(key, "AES"),
-            GCMParameterSpec(128, Base64.decode(header.nonce, Base64.DEFAULT))
+            GCMParameterSpec(128, B64.decode(header.nonce))
         )
         cipher.updateAAD(aad)
-        val ct = Base64.decode(header.ciphertext, Base64.DEFAULT)
-        val tag = Base64.decode(header.tag, Base64.DEFAULT)
+        val ct = B64.decode(header.ciphertext)
+        val tag = B64.decode(header.tag)
         return try {
             cipher.doFinal(ct + tag)
         } catch (e: Exception) {
@@ -141,10 +164,10 @@ object DepmapContainerV1 {
         if (h.memoryKiB !in MEMORY_KIB_MIN..MEMORY_KIB_MAX) fail("kdf.memoryKiB out of bounds")
         if (h.iterations !in ITERATIONS_MIN..ITERATIONS_MAX) fail("kdf.iterations out of bounds")
         if (h.parallelism !in PARALLELISM_MIN..PARALLELISM_MAX) fail("kdf.parallelism out of bounds")
-        if (Base64.decode(h.salt, Base64.DEFAULT).size != SALT_LEN) fail("salt must be 16 bytes")
-        if (Base64.decode(h.nonce, Base64.DEFAULT).size != NONCE_LEN) fail("nonce must be 12 bytes")
-        if (Base64.decode(h.tag, Base64.DEFAULT).size != TAG_LEN) fail("tag must be 16 bytes")
-        val ctLen = Base64.decode(h.ciphertext, Base64.DEFAULT).size
+        if (B64.decode(h.salt).size != SALT_LEN) fail("salt must be 16 bytes")
+        if (B64.decode(h.nonce).size != NONCE_LEN) fail("nonce must be 12 bytes")
+        if (B64.decode(h.tag).size != TAG_LEN) fail("tag must be 16 bytes")
+        val ctLen = B64.decode(h.ciphertext).size
         if (ctLen <= 0) fail("ciphertext must not be empty")
         if (ctLen > CIPHERTEXT_MAX) fail("ciphertext exceeds 64 MiB limit")
     }
@@ -164,27 +187,37 @@ object DepmapContainerV1 {
         val nonce: String, val ciphertext: String, val tag: String
     ) {
         companion object {
+            /** 取 `"kdf":{...}` 子串；kdf 内无嵌套对象，非贪婪匹配到首个 `}` 即为完整块。 */
+            private fun kdfBlock(json: String): String =
+                Regex("\"kdf\":\\{(.*?)\\}").find(json)?.groupValues?.get(1)
+                    ?: error("missing kdf")
+
             fun parse(json: String): JsonHeader {
-                fun num(key: String): Int {
-                    val m = Regex("\"$key\":(-?\\d+)").find(json) ?: error("missing $key")
+                val kdf = kdfBlock(json)
+                fun numIn(scope: String, key: String): Int {
+                    val m = Regex("\"$key\":(-?\\d+)").find(scope) ?: error("missing $key")
                     return m.groupValues[1].toInt()
                 }
-                fun str(key: String): String {
-                    val m = Regex("\"$key\":\"((?:[^\"\\\\]|\\\\.)*)\"").find(json) ?: error("missing $key")
+                fun strIn(scope: String, key: String): String {
+                    val m = Regex("\"$key\":\"((?:[^\"\\\\]|\\\\.)*)\"").find(scope) ?: error("missing $key")
                     return m.groupValues[1]
                 }
                 return JsonHeader(
-                    format = str("format"),
-                    formatVersion = num("formatVersion"),
-                    algorithm = str("algorithm"),
-                    argonVersion = num("version"),
-                    salt = str("salt"),
-                    memoryKiB = num("memoryKiB"),
-                    iterations = num("iterations"),
-                    parallelism = num("parallelism"),
-                    nonce = str("nonce"),
-                    ciphertext = str("ciphertext"),
-                    tag = str("tag")
+                    format = strIn(json, "format"),
+                    formatVersion = numIn(json, "formatVersion"),
+                    // kdf.algorithm 必须限定在 kdf 块内解析：
+                    // JCS 键序中 cipher.algorithm 位于最前，全局正则会把
+                    // "AES-256-GCM" 当作 kdf.algorithm，使 validateBounds 恒定失败
+                    // （表现为 Android 端无法解密任何容器）。
+                    algorithm = strIn(kdf, "algorithm"),
+                    argonVersion = numIn(kdf, "version"),
+                    salt = strIn(kdf, "salt"),
+                    memoryKiB = numIn(kdf, "memoryKiB"),
+                    iterations = numIn(kdf, "iterations"),
+                    parallelism = numIn(kdf, "parallelism"),
+                    nonce = strIn(json, "nonce"),
+                    ciphertext = strIn(json, "ciphertext"),
+                    tag = strIn(json, "tag")
                 )
             }
         }

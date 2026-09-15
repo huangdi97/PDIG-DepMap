@@ -4,7 +4,7 @@ import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Base64
+import java.util.Base64
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -50,10 +50,10 @@ class KeystoreSecureKeyAdapter(private val context: Context) : SecureKeyAdapter 
 
     override suspend fun getOrCreateFpSecret(): String {
         val stored = readWrapped(FP_SECRET_ALIAS)
-        if (stored != null) return Base64.encodeToString(unwrap(stored), Base64.NO_WRAP)
+        if (stored != null) return Base64.getEncoder().encodeToString(unwrap(stored))
         val fresh = ByteArray(32).also { java.security.SecureRandom().nextBytes(it) }
         writeWrapped(FP_SECRET_ALIAS, wrap(fresh))
-        return Base64.encodeToString(fresh, Base64.NO_WRAP)
+        return Base64.getEncoder().encodeToString(fresh)
     }
 
     override suspend fun hasKey(alias: String): Boolean = readWrapped(alias) != null
