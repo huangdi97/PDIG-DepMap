@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import { mkdtempSync, readFileSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -76,6 +76,8 @@ const PAYROLL_ONLY_CSV = `Transaction Date,Posting Date,Description,Amount,Type
 `
 
 interface World {
+  /** 本次用例的临时目录；`afterEach` 必须删除，否则 %TEMP% 会被 `depmap-inv-*` 填满。 */
+  dir: string
   driver: NodeSqliteDriver
   nodes: NodeRepository
   deps: DependencyRepository
@@ -116,6 +118,7 @@ function buildWorld(): World {
   const spotify = nodes.create({ kind: 'service', name: 'SPOTIFY AB' })
 
   return {
+    dir,
     driver,
     nodes,
     deps,
@@ -179,6 +182,11 @@ describe('Invariants（集中不变量套件，Engineering Baseline V1）', () =
 
   afterEach(() => {
     world.driver.close()
+    // T-1（2026-09-15 修复）：buildWorld() 每个用例都 mkdtempSync 一个 depmap-inv-*，
+    // 原 afterEach 只 close() 不删目录 —— 实测 %TEMP% 残留 2454 个。对照
+    // graph-payload-v2.test.ts:141 有 rmSync，属遗漏而非约定。DB 关闭后连同
+    // -wal / -shm 一起递归删除。
+    rmSync(world.dir, { recursive: true, force: true })
   })
 
   it('INV1/INV8: 逻辑键唯一 —— accept 重放 ×3 + retire→reactivate 后重复逻辑键 = 0', async () => {
