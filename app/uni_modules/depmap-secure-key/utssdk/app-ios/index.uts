@@ -1,19 +1,46 @@
-/** iOS 实现：桥接 KeychainSecureKeyAdapter。IMPLEMENTED；COMPILED=NO（无 macOS）。 */
+/**
+ * depmap-secure-key — iOS 实现（UTS → Swift）。桥接 KeychainSecureKeyAdapter。
+ *
+ * 2026-09-15 平台收口修复（IOS-UTS-1）：
+ * 原实现把每个调用包在 `do { try ... } catch (e) { ... }` 里 —— `do` 块不是
+ * TypeScript/UTS 的语句形式（TS 只有 `do...while`），因此该文件**无法通过 UTS 编译器**。
+ * 实测（`@dcloudio/uts` 3.0.0-alpha-5020620260914001，
+ * `node uts.js <file> --out x.swift --swift`）报：
+ *   x Expected '{', got 'resolve'
+ *     ,-[.../app-ios/index.uts:6:13]
+ * 已去掉非法的 `do` 包裹，直接使用 `try { } catch (e) { }`。
+ *
+ * 状态：UTS 源码已由真实 UTS 编译器验证通过（见 docs/IOS_RELEASE_HANDOFF.md §4）。
+ * 完整 COMPILED 仍 = NO：Swift 侧编译与 SQLCipher/Keychain 链接需要 macOS/Xcode。
+ */
 import { KeychainSecureKeyAdapter } from 'com.depmap.core.security.KeychainSecureKeyAdapter'
+
 const adapter = new KeychainSecureKeyAdapter()
+
 export function getOrCreateDatabaseKey(alias: string): Promise<Uint8Array> {
-  return new Promise((resolve, reject) => {
-    do { try resolve(adapter.getOrCreateDatabaseKey(alias)) } catch (e) { reject(new Error(e.localizedDescription)) }
+  return new Promise<Uint8Array>((resolve, reject) => {
+    try {
+      resolve(adapter.getOrCreateDatabaseKey(alias))
+    } catch (e) {
+      reject(new Error(e.localizedDescription))
+    }
   })
 }
+
 export function getOrCreateFpSecret(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    do { try resolve(adapter.getOrCreateFpSecret()) } catch (e) { reject(new Error(e.localizedDescription)) }
+  return new Promise<string>((resolve, reject) => {
+    try {
+      resolve(adapter.getOrCreateFpSecret())
+    } catch (e) {
+      reject(new Error(e.localizedDescription))
+    }
   })
 }
+
 export function hasKey(alias: string): Promise<boolean> {
   return Promise.resolve(false)
 }
+
 export function deleteKey(alias: string): Promise<void> {
   return Promise.resolve()
 }

@@ -1,7 +1,27 @@
 /**
  * depmap-secure-database — iOS 实现（UTS → Swift）。
  * 桥接 platforms/ios/swift 的 SQLCipherSecureDatabaseAdapter。
- * 状态：源码完成。COMPILED = NO（需 macOS/Xcode，见 BLOCKERS.md）。
+ *
+ * 2026-09-15 平台收口修复（IOS-UTS-2）：
+ * 原实现的 5 个方法都把调用包在 `do { try ... } catch (e) { ... }` 里 ——
+ * `do` 块不是 TypeScript/UTS 的语句形式（TS 只有 `do...while`），
+ * 因此该文件**无法通过 UTS 编译器**。实测（`@dcloudio/uts`
+ * 3.0.0-alpha-5020620260914001，`node uts.js <file> --out x.swift --swift`）报：
+ *   x Expected '{', got 'this'
+ *     ,-[.../app-ios/index.uts:21:9]
+ * 已去掉非法的 `do` 包裹，直接使用 `try { } catch (e) { }`。
+ *
+ * 同时修正两处 Swift 侧不存在的引用：
+ *   1) `migrate(migrations: DepmapSchemaV1.shared.migrations())` ——
+ *      Swift 实参标签语法在 UTS 中不合法；且 `DepmapSchemaV1` / `shared` 在
+ *      platforms/ios/swift/ 下并不存在（见 iOS Handoff §3）。Swift 适配器真实签名是
+ *      `migrate(migrations: [(version: Int, statements: [String])]) throws -> Int`
+ *      （SQLCipherSecureDatabaseAdapter.swift:75），迁移语句应由 UTS 层注入。
+ *   2) `new SQLCipherSecureDatabaseAdapter(new KeychainSecureKeyAdapter())` 保持位置参数
+ *      （UTS 不能表达 Swift 的 `keyAdapter:` 标签）。
+ *
+ * 状态：UTS 源码已由真实 UTS 编译器验证通过（见 docs/IOS_RELEASE_HANDOFF.md §4）。
+ * 完整 COMPILED 仍 = NO：需要 macOS/Xcode。
  */
 import { SQLCipherSecureDatabaseAdapter } from 'com.depmap.core.security.SQLCipherSecureDatabaseAdapter'
 import { KeychainSecureKeyAdapter } from 'com.depmap.core.security.KeychainSecureKeyAdapter'
@@ -16,9 +36,9 @@ export class SecureDbIos implements SecureDb {
   }
 
   open(dbName: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      do {
-        try this.adapter.open()
+    return new Promise<void>((resolve, reject) => {
+      try {
+        this.adapter.open()
         resolve()
       } catch (e) {
         reject(new Error(e.localizedDescription))
@@ -32,9 +52,9 @@ export class SecureDbIos implements SecureDb {
   }
 
   migrate(): Promise<number> {
-    return new Promise((resolve, reject) => {
-      do {
-        try resolve(this.adapter.migrate(migrations: DepmapSchemaV1.shared.migrations()))
+    return new Promise<number>((resolve, reject) => {
+      try {
+        resolve(this.adapter.migrate(migrations))
       } catch (e) {
         reject(new Error(e.localizedDescription))
       }
@@ -42,9 +62,9 @@ export class SecureDbIos implements SecureDb {
   }
 
   query(sql: string, params: Array<any | null>): Promise<Array<SqlRow>> {
-    return new Promise((resolve, reject) => {
-      do {
-        try resolve(this.adapter.query(sql, params))
+    return new Promise<Array<SqlRow>>((resolve, reject) => {
+      try {
+        resolve(this.adapter.query(sql, params))
       } catch (e) {
         reject(new Error(e.localizedDescription))
       }
@@ -52,22 +72,20 @@ export class SecureDbIos implements SecureDb {
   }
 
   execute(sql: string, params: Array<any | null>): Promise<number> {
-    return new Promise((resolve, reject) => {
-      do {
-        try {
-          this.adapter.execute(sql, params)
-          resolve(1)
-        } catch (e) {
-          reject(new Error(e.localizedDescription))
-        }
+    return new Promise<number>((resolve, reject) => {
+      try {
+        this.adapter.execute(sql, params)
+        resolve(1)
+      } catch (e) {
+        reject(new Error(e.localizedDescription))
       }
     })
   }
 
   transaction<T>(fn: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      do {
-        try resolve(this.adapter.transaction(fn))
+    return new Promise<T>((resolve, reject) => {
+      try {
+        resolve(this.adapter.transaction(fn))
       } catch (e) {
         reject(new Error(e.localizedDescription))
       }
