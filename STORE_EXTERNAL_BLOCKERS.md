@@ -7,12 +7,16 @@
 
 ## 一、编译与工具链（阻断平台构建）
 
-| #       | Blocker          | 现状（实测）                                                                | 谁来提供     | 提供后执行                                                                                                                                                                                                           | 影响 Gate                                            |
-| ------- | ---------------- | --------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| **B1**  | Android 工具链   | `java 1.8.0_441`（需 17+）；无 Android SDK / cmdline-tools / Gradle wrapper | 用户安装     | 按 `docs/ANDROID_TOOLCHAIN_SETUP.md`：装 JDK17 → cmdline-tools → `sdkmanager "platforms;android-35" "build-tools;35.0.0"` → `cd platforms/android && gradle :core:test`（含 Golden 互操作）→ `assembleDebug/Release` | ANDROID_BUILD_READY / DEVICE_VERIFIED / STORE_READY  |
-| **B2**  | HarmonyOS 工具链 | 无 DevEco Studio / HarmonyOS SDK / hvigor                                   | 用户安装     | 按 `docs/HARMONY_TOOLCHAIN_SETUP.md`：装 DevEco → 导入 `platforms/harmonyos` → `hvigorw assembleHap`                                                                                                                 | HARMONY_BUILD_READY / DEVICE_VERIFIED / STORE_READY  |
-| **B3**  | macOS / Xcode    | 本机 win32，无 Xcode                                                        | 用户提供 Mac | 按 `docs/IOS_RELEASE_HANDOFF.md`：`swift package resolve` → `swift test` → `xcodebuild archive` → 真机 → TestFlight                                                                                                  | IOS_BUILD_READY / DEVICE_VERIFIED / TESTFLIGHT_READY |
-| **B10** | uni-app x 工具链 | 无 HBuilderX                                                                | 用户安装     | 装 HBuilderX → 导入 `app/` → 运行到手机基座 / 自定义基座 → 编译 Android 基座                                                                                                                                         | UI_BUILD_READY / UI 真机验收 / Visual Regression     |
+> **2026-09-15 重写**：下表中 B1 / B2 / B10 的旧前提（「无 JDK17 / 无 Android SDK / 无 DevEco /
+> 无 HBuilderX」）经实测**全部与事实不符**，已按实测重写。三者的残留阻塞均已改写为
+> 「**产品级产物 + 签名 + 设备**」，不再是「工具链不存在」。
+
+| #       | Blocker                    | 现状（2026-09-15 实测）                                                                                                                                                | 谁来提供     | 提供后执行                                                                                                                                         | 影响 Gate                                                      |
+| ------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **B1**  | Android **产品级**构建     | **原生层已 PASS**：JDK 21 + Android SDK + Gradle 8.9 齐备；AAR ×2 已产出，黄金向量 8/8 PASS。**残留**：无 APK/AAB（需 HBuilderX）、无 keystore、无设备 | 用户 / CI    | 按 `docs/ANDROID_RELEASE_RUNBOOK.md`：HBuilderX 打包出 APK → 提供 keystore → 真机 `adb install` → 冒烟 → 上传 AAB                                | ANDROID_PRODUCT_BUILD_READY / INSTALL_READY / DEVICE_VERIFIED  |
+| **B2**  | HarmonyOS **产品级**构建   | **原生验证层已 PASS**：DevEco 5.0.5.310 + SDK API 13 + hvigor 5.13.2 齐备；`BUILD SUCCESSFUL`，HAP 已产出（unsigned）。**残留**：非产品包、无签名、无设备 | 用户 / CI    | 按 `docs/HARMONY_RELEASE_RUNBOOK.md`：HBuilderX 产出产品级 HAP → AGC 签名材料 → `hdc install` → 冒烟 → 上架 AGC                                  | HARMONY_PRODUCT_BUILD_READY / INSTALL_READY / DEVICE_VERIFIED  |
+| **B3**  | macOS / Xcode              | 本机 win32，无 Xcode（未变）                                                                                                                                            | 用户提供 Mac | 按 `docs/IOS_RELEASE_HANDOFF.md`：`swift package resolve` → `swift test` → `xcodebuild archive` → 真机 → TestFlight                              | IOS_BUILD_READY / DEVICE_VERIFIED / TESTFLIGHT_READY           |
+| **B10** | uni-app x **无头打包**     | **HBuilderX 5.24.2026081301 已安装**，工程可导入；但 **CLI 无 build 命令**，云端/本地打包需 GUI 交互与开发者账号登录。UI 至今未被真实编译器验证 | 用户 / CI    | HBuilderX GUI「发行 → 原生App-云打包/本地打包」，或接入官方 CI 打包通道 → 产出 Android APK 与 HarmonyOS 产品级 HAP                               | UI_COMPILED / UI_RUNTIME_VERIFIED / 三端产品级产物              |
 
 ---
 
@@ -42,11 +46,11 @@
 
 ## 四、资产
 
-| #       | Blocker           | 现状                                                 | 谁来提供            | 影响 Gate          |
-| ------- | ----------------- | ---------------------------------------------------- | ------------------- | ------------------ |
-| **B15** | App Icon（三端）  | 无正式 asset（规格见 `docs/APP_ICON_ASSET_SPEC.md`） | 设计/用户           | STORE_ASSETS_READY |
-| **B16** | Splash / 启动图   | 无                                                   | 设计/用户           | STORE_ASSETS_READY |
-| **B17** | Store Screenshots | 无法生成（无运行环境 B10/B1）                        | 依赖 B10 或 B1 解除 | STORE_ASSETS_READY |
+| #       | Blocker           | 现状                                                                                                                                                                                                     | 谁来提供            | 影响 Gate          |
+| ------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------- | ------------------ |
+| **B15** | App Icon（三端）  | **U-1 已闭环（占位）**：`app/static/icons/{48x48,72x72,96x96,192x1024,1024x1024}.png` 已生成（品牌色 `#4C4FD8`，背景 `#F5F6FA`，PNG 结构校验通过）。**仍非设计交付**，正式资产待定（规格见 `docs/APP_ICON_ASSET_SPEC.md`） | 设计/用户           | STORE_ASSETS_READY |
+| **B16** | Splash / 启动图   | **U-1 已闭环（占位）**：`app/static/splash/{480x762,720x1242,960x1656,1242x2688}.png` 已生成。正式资产待定                                                                                          | 设计/用户           | STORE_ASSETS_READY |
+| **B17** | Store Screenshots | 无法生成（无运行环境 B10）                                                                                                                                                                              | 依赖 B10 解除       | STORE_ASSETS_READY |
 
 ---
 

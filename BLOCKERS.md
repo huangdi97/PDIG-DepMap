@@ -5,40 +5,74 @@
 >
 > **2026-09-14 FINAL PRODUCTION CLOSURE V1 修正**：B1 / B2 的原有前提经本轮实测**与事实不符**，
 > 已按实测重写（详见 `FINAL_CLOSURE_PRE_AUDIT.md` §4/§5 与 `FINAL_PLATFORM_MATRIX.md`）。
+>
+> **2026-09-15 PLATFORM BRINGUP 轮再修正**：B1 / B2 已**部分解除** —— Android 原生核心
+> 已真实编译并产出 AAR（`docs/ANDROID_BUILD_REPORT.md`），HarmonyOS 已真实产出 HAP
+> （`docs/HARMONY_BUILD_REPORT.md`）。两者的**残留阻塞已改写为「产品级产物 + 签名 + 设备」**，
+> 不再是「工具链不存在」。详见下方明细。
 
 ## Active blockers — 阻断构建/真机
 
-| #   | Blocker                                                                                  | 影响                                                                                                             | 解除动作                                                                                                    |
-| --- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| B1  | **Android 真实构建不可执行**（工具链大部分已具备）                                       | 无法出 APK/AAB；Kotlin golden 互操作测试无法运行                                                                 | 见下方「B1 实测明细」                                                                                       |
-| B2  | **HarmonyOS 真实构建不可执行**（工具链已具备且 hvigor 已真实运行）                       | ArkTS 适配器无法编译验证                                                                                         | 见下方「B2 实测明细」                                                                                       |
+| #   | Blocker                                                                            | 影响                                                                    | 解除动作                          |
+| --- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | --------------------------------- |
+| B1  | **Android 产品级 APK/AAB 不可产出**（原生核心已 PASS，见下方明细）                 | 无法安装到设备、无法做真机 E2E 与 UI 运行时 QA                          | 见下方「B1 实测明细」            |
+| B2  | **HarmonyOS 产品级 HAP 不可产出 + 签名缺失**（原生验证工程已 PASS，见下方明细）   | 当前 HAP 为原生验证工程产物，**不是产品包**；无法安装/真机验证           | 见下方「B2 实测明细」            |
 | B3  | 无 macOS / Xcode（本机 Windows）                                                         | iOS 编译/签名/真机验证不可行（预期内）                                                                           | 在 macOS 环境执行 `swift test` 与 Xcode 工程                                                                |
-| B10 | **无 HBuilderX / uni-app x 编译工具链**（全盘搜索无命中）                                | `.uvue`/UTS 无法编译、无法出 Android 基座；UI 从未被编译器验证 —— **产品级关键阻塞**                             | 安装 HBuilderX → 导入 `app/` → 自定义基座                                                                   |
+| B10 | **HBuilderX 已安装但无头环境无法触发打包**（2026-09-15 实测重写）                        | `.uvue`/UTS 从未被真实编译器验证；**Android APK / HarmonyOS 产品级 HAP 均无法产出** —— **产品级关键阻塞**        | 见下方「B10 实测明细」                                                                                      |
 | B23 | **本机沙箱限制：clean clone 闭环与破坏性 clean install 无法执行**（2026-09-14 实测登记） | 无法在本环境跑通「真实 clone → `npm ci` → 全门禁」；`npm ci` 的批量删除会被 safe-delete 守卫（阈值 50 文件）拦截 | 在不受限环境 / CI 中重跑；本机替代证据（committed-tree 自足性）见 `FINAL_PRODUCTION_CLOSURE_REPORT.md` §2.1 |
 
 以上阻塞编译/真机验证，**不阻塞**其他可执行工作（Core 已全绿，UI 静态 Gate 已全绿）。
 
+### B10 实测明细（HBuilderX / uni-app x）
+
+**状态（2026-09-15 实测）**：
+
+- HBuilderX **5.24.2026081301** 已安装在 `<TOOLS_ROOT>\HBuilderX`（旧记录「全盘搜索无命中」已被推翻）。
+- 工程可导入、可被 HBuilderX 识别。
+- **但 CLI 无 build 命令**：`cli.exe` 仅提供 `open` / `pack` 等有限子命令，无可用于无头环境
+  触发 Android/HarmonyOS 打包的入口（云端打包需登录开发者账号并走 GUI 交互）。
+
+**因此**：UI（24 个 `.uvue` + 5 个 UTS 插件）**至今从未被真实编译器验证过**，
+`check:ui` 的 PASS 仅为**静态门**（9 类机械校验），不能等价为「编译通过」。
+这是本轮唯一同时阻塞 Android 与 HarmonyOS 产品级产物的根因。
+
+**解除动作（三选一）**：
+
+1. 在 HBuilderX GUI 中执行「发行 → 原生App-云打包 / 本地打包」（需 DCloud 开发者账号登录）；
+2. 接入 `uni-app x` 官方 CI 打包通道（需账号凭据）；
+3. 提供可用的 `cli` build 子命令或本地打包 Gradle 工程模板。
+
+**不得**：伪造编译结果、以静态门 PASS 冒充 `UI_COMPILED`。
+
 ### B1 实测明细（Android）
 
-**已具备（旧记录称「无」）**：
+**状态（2026-09-15 更新）：原生层已 PASS，残留阻塞为「产品级产物 + 签名 + 设备」。**
 
-- JDK **17.0.12**（`<DEVECO_HOME>\jbr\bin\javac.exe`）
-- JDK **21.0.10**（`<ANDROID_STUDIO_HOME>\jbr`）
-- Android SDK `<ANDROID_SDK_ROOT>`：platforms `android-36.1` / `android-37.0`；build-tools `36.1.0` / `37.0.0`；cmdline-tools `latest`；**licenses 全部已接受**
-- Android Studio `AI-253.32098.37.2534.15232325`
-- `adb.exe` 可用
+**已解除（本轮实跑）**：
 
-**实际阻塞**：
+- Gradle 发行版 **8.9** 已获取并可用（不再依赖 `services.gradle.org` 直连）。
+- `platforms/android` 已真实构建：**BUILD SUCCESSFUL**，`core-debug.aar`（44,147 B）/ `core-release.aar`（42,352 B）已产出，见 `platforms/android/artifacts/`。
+- Kotlin 黄金向量互操作测试 **4/4 × debug+release 双变体 = 8/8 PASS，0 failures / 0 errors / 0 skipped**。
+- 本轮修复 **10 项真实缺陷**（D-1~D-10），其中 **2 项为 P0 产品级缺陷**：
+  - **P0-1 跨端 Base64 契约破裂**：原用 `android.util.Base64` + `NO_PADDING`，与 Node 侧 RFC 4648 带填充标准不一致 → 改用 `java.util.Base64`（API 26+，`minSdk = 26` 满足）。
+  - **P0-2 容器解析字段冲突**：`JsonHeader.parse` 的全局正则取首个 `"algorithm"`，而 JCS 键序中 `cipher.algorithm` 在前 → 恒取到 `"AES-256-GCM"` 而非 `"argon2id"` → `validateBounds` 恒定抛错，**Android 端实际无法解密任何容器**。已改为限定 `kdf` 块作用域解析。
+- 非 ASCII 工程路径（`<repo>`）引发的 `ClassNotFoundException` 已定位并修复：根因为 Gradle worker argfile 以 UTF-8 写入、fork 的 JVM 以 `sun.jnu.encoding`(GBK) 读取产生 mojibake。修复方式是把 `layout.buildDirectory` 重定向到 ASCII 路径。**验证必须带 `--rerun-tasks --no-build-cache`**，否则 build cache 会跨路径复用导致 `FROM-CACHE` 假通过。
+- 完整缺陷表与复现指引见 `docs/ANDROID_BUILD_REPORT.md`，可执行步骤见 `docs/ANDROID_RELEASE_RUNBOOK.md`。
 
-1. **无可用 Gradle 发行版** —— `~/.gradle/wrapper/dists/gradle-9.3.1-bin/` 仅 0 字节 `.part`/`.lck`；Android Studio 内无完整发行版；工程 `platforms/android/` 内无 `gradlew` / `gradle-wrapper.properties`
-2. **构建依赖 CDN 不可达** —— `curl https://services.gradle.org/distributions/gradle-8.9-bin.zip` → exit 7；`https://downloads.gradle.org/...` → exit 7（沙箱内）。AGP 8.5.2 / Kotlin 2.0.0 / androidx / SQLCipher / BouncyCastle 均需联网解析
-3. `platforms/android/core/build.gradle.kts` 声明 `compileSdk = 34`，已装 platform 为 36.1 / 37.0（34 未安装）
-4. 无真机（`adb devices` 空）
-5. 无 release keystore
+**残留阻塞**：
 
-**解除动作**：获取可用 Gradle 发行版（或在工程内新增 gradle wrapper）→ 允许 `google()` / `mavenCentral()` 制品下载 → `compileSdk` 对齐已装 platform（**改动前需评审**）→ 连接真机/emulator → 提供 keystore 与正式 applicationId。
+1. **产品级 APK/AAB 不可产出** —— 依赖 HBuilderX / uni-app x（**B10**）。实测 HBuilderX 5.24.2026081301 已安装且工程可导入，但 **CLI 无 build 命令**，无法在无头环境触发云端/本地打包。**AAR ≠ APK**：本轮产物仅为 Android Library，不含 `AndroidManifest` 入口、不含 24 个 `.uvue` 页面、不含 uni-app x 运行时。
+2. **无真机 / 无模拟器** —— `adb devices` 为空、0 个 AVD、无 system-image；按指令不得伪造 Android 模拟器（**B18**）。
+3. **无 release keystore**（**B4**）—— 用户提供；按指令不得自动生成 Production Credentials、不得把私钥写入 Git。
+
+**解除动作**：安装/启用 HBuilderX 打包通道（或在 CI 上用 `cli` 云端打包）→ 产出 APK → 连接真机或创建 AVD → 提供 keystore 与正式 `applicationId`。原生层无需再改。
 
 ### B2 实测明细（HarmonyOS）
+
+> **2026-09-15 更新**：下方「远端 `getSdkList` 返回 400 ⇒ 接口不可用」的定性**已被推翻**。
+> 实测该接口在参数正确时返回 **HTTP 200 + 真实组件列表**；此前 400 是**请求参数错误**
+> （`osType` 必须为 `windows`、`osArch` 必须为 `x64`），不是服务端故障。详见
+> `docs/HARMONY_TOOLCHAIN_AUDIT.md` §3。真正的历史根因是**工程从来不是一个可构建 Stage 工程**。
 
 **已具备（旧记录称「无」）**：
 
@@ -71,21 +105,37 @@ Solution: 1.Go to File > Settings > OpenHarmony SDK, download the components, an
 > hvigor ERROR: BUILD FAILED in 24 s 166 ms
 ```
 
-无 HAP 产物。**关键新证据**：`OhRemoteComponentLoader` 请求
-`https://repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **400**（`statusCode=undefined`，
-响应体不含 `datas`）→ **远端组件列表接口亦不可用**。故「组件在磁盘上存在却无法被解析」的原因
-**不只是本地加载器问题**：本地组件清单与远端列表**两条解析路径当前都取不到 API 13 组件**。
+无 HAP 产物。（该 400 的定性已在 2026-09-15 被推翻，见本节顶部修正说明。）
 
-**实际阻塞**：
+**本轮（2026-09-15 PLATFORM BRINGUP）真实进展 —— 已产出 HAP**：
 
-1. SDK 组件（API 13）未被 hvigor 本地组件加载器识别 → 需 DevEco **SDK Manager 图形化同步**（人工步骤）
-2. **（本轮新增）** hvigor 依赖的远端接口 `repo.harmonyos.com/sdkmanager/v5/ohos/getSdkList` 返回 **400**，
-   CLI 侧无法自动解析组件 → **必须**走 DevEco 图形化 SDK Manager，CLI 兜底路径不存在
-3. `platforms/harmonyos/` 是**适配器片段**（仅 `app.json5` + 1 个 `.ets` + `module.json5`），非可构建 Stage 工程
-4. **产品级 HarmonyOS 产物由 HBuilderX（uni-app x）产出，非 DevEco 直接产出** → 仍受 B10 约束
-5. 无 HarmonyOS 签名材料与正式 bundleName
+- **根因重新定性**：原工程 `platforms/harmonyos/` 只有 3 个文件，且 `app.json5` 不含 Stage 模型要求的
+  顶层 `"app"` 键 —— 即**该工程从未被 DevEco/hvigor 成功解析过**，「组件找不到」是工程模型解析失败的
+  次生表现，而非 SDK 缺失。
+- **已补齐完整 DevEco Stage 工程骨架**（9/9 缺失项）：`AppScope/app.json5`（规范 `"app"` 顶层键）、
+  `AppScope/resources/base/{element,media}`、`oh-package.json5`、`build-profile.json5`、`hvigorfile.ts`、
+  `hvigor/hvigor-config.json5`、`hvigorw` 三件套、`entry/{oh-package,build-profile,hvigorfile}`、
+  `entry/src/main/ets/{entryability,pages,adapters}`、`entry/src/main/resources/base/{element,media,profile}`。
+- **已修复 6 类构建缺陷**（H-1~H-6）：非 ASCII 工程路径（hvigor 无豁免开关，改为 `build.sh` 镜像到
+  ASCII 目录）、`@ohos/hvigor` 5.13.2 未发布到公共 registry（改用 `file:` 协议引用 DevEco 内置包）、
+  缺 `.npmrc`、`module.json5` 的 `label` 必须为 `$string:` 引用、`hvigor-config.json5` 的 `hvigorVersion`
+  字段非法、`srcEntry` 多写了一层 `src/main/`。
+- **结果**：`hvigor BUILD SUCCESSFUL in 42 s 263 ms`，产出
+  `platforms/harmonyos/artifacts/entry-default-unsigned.hap`（**18,986 B**，
+  SHA-256 `4f10d0597aaaac2aab4af8e27ec7138709e07e5ea81aaed705d249ed55bd0663`），
+  内含 ArkTS 字节码 `ets/modules.abc`（10,568 B）→ **ArkTS 已真实编译**。
+- 完整记录见 `docs/HARMONY_BUILD_REPORT.md`，工具链实测见 `docs/HARMONY_TOOLCHAIN_AUDIT.md`。
 
-**解除动作**：DevEco 中执行 SDK Manager 同步 → （如需独立验证适配器）补全可构建 Stage 工程 → 解除 B10 以获得产品级产物 → 提供签名材料与正式 bundleName。
+**残留阻塞**：
+
+1. **该 HAP 是「原生验证工程」产物，不是产品包** —— 它只含最小 `EntryAbility` + `Index.ets` +
+   `RelationalStoreSecureAdapter.ets`，**不含** 24 个 `.uvue` 页面与 uni-app x 运行时。
+   产品级 HarmonyOS 产物必须由 HBuilderX（uni-app x）产出 → 仍受 **B10** 约束。
+2. **HAP 未签名**（`unsigned`）：无 HarmonyOS 签名材料与正式 bundleName（**B7**）。
+3. **无 HarmonyOS 设备**（`hdc` 无可用目标），无法安装与真机验证（**B18**）。
+
+**解除动作**：解除 B10 以获得产品级 HAP → 提供签名材料与正式 bundleName → 提供真实设备做安装与冒烟。
+原生验证工程的构建链路（工具链 + 工程骨架 + ArkTS 编译）**已打通，无需再改**。
 
 ## Active blockers — 阻断产品完整可用（需工程投入，非用户可解）
 
