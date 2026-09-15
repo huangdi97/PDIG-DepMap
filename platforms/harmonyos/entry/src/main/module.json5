@@ -2,22 +2,23 @@
   "module": {
     "name": "entry",
     "type": "entry",
-    "description": "个人数字依赖图 — 本地加密、无账号、无云端",
+    "description": "$string:module_desc",
     "mainElement": "EntryAbility",
     "deviceTypes": ["phone"],
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
-    "requestPermissions": [
-      // 最小权限：仅本地生物识别/设备凭据（system 不需要额外权限声明）
-    ],
+    "requestPermissions": [],
     "abilities": [
       {
         "name": "EntryAbility",
-        "srcEntry": "./src/main/ets/entryability/EntryAbility.ets",
-        "description": "DepMap main ability",
+        // srcEntry 相对于本文件所在目录（entry/src/main/），不是相对于 entry/。
+        // 原写法 "./src/main/ets/entryability/EntryAbility.ets" 多了一层，
+        // 会导致 hvigor 在 CompileArkTS 阶段报 srcEntry not found。
+        "srcEntry": "./ets/entryability/EntryAbility.ets",
+        "description": "$string:EntryAbility_desc",
         "icon": "$media:app_icon",
-        "label": "个人数字依赖图",
+        "label": "$string:EntryAbility_label",
         "startWindowIcon": "$media:app_icon",
         "startWindowBackground": "$color:start_window_background",
         "exported": true,

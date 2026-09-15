@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "个人数字依赖图 — 本地加密、无账号、无云端"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "DepMap main ability"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "个人数字依赖图"
+    }
+  ]
+}

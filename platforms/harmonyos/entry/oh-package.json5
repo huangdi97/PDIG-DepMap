@@ -1,0 +1,9 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "DepMap entry module — 原生适配器编译验证",
+  "main": "",
+  "author": "",
+  "license": "",
+  "dependencies": {}
+}
