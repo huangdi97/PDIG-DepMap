@@ -1,7 +1,18 @@
 // swift-tools-version:5.9
-// DepMap iOS native core — Swift Package（无第三方依赖；SQLCipher 由 app target 链接）。
-// 在 macOS/Xcode 环境执行：swift test（golden vector 互操作测试见 DepmapContainerV1Tests.swift）
+// DepMap iOS native core — Swift Package。
+//
 // 状态：工程文件 IMPLEMENTED。构建验证 = NO（本机 Windows，无 macOS/Xcode —— BLOCKERS.md）。
+//
+// 重要（2026-09-15 审计修正）：
+//   1) 原先 `exclude: ["SQLCipherSecureDatabaseAdapter.swift"]` 使 DepMapCore target
+//      **没有任何源文件**，SPM 无法构建。该 exclude 已移除 —— 现在依赖缺失会在 Mac 上
+//      以明确错误 `no such module 'SQLCipher'` 暴露，而不是隐式的空 target 错误。
+//   2) 本 target 需要外部提供 SQLCipher 模块（XCFramework / CocoaPods / vendored），
+//      接入步骤见 docs/IOS_RELEASE_HANDOFF.md §2。
+//   3) swift/ 目录当前**不含** DepmapContainerV1.swift —— iOS 容器实现尚未编写，
+//      Tests/DepMapCoreTests/DepmapContainerV1Tests.swift 的三个用例均为 XCTSkip。
+//      这是 Mac 侧的首要待办，见 docs/IOS_RELEASE_HANDOFF.md §3。
+//   4) 在 macOS/Xcode 环境执行：swift package resolve && swift test
 
 import PackageDescription
 
@@ -15,7 +26,6 @@ let package = Package(
         .target(
             name: "DepMapCore",
             path: "swift",
-            exclude: ["SQLCipherSecureDatabaseAdapter.swift"], // 需要 SQLCipher 的部分由 app target 编译
             swiftSettings: [.define("DEPMAP_SPM")]
         ),
         .testTarget(

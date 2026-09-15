@@ -254,7 +254,8 @@ final class KeychainSecureKeyAdapter {
 enum LocalAuthenticationGate {
     static func canAuthenticate() -> Bool {
         var error: NSError?
-        let policy = LAPolicy().deviceOwnerAuthentication // biometric + device credential fallback
+        // LAPolicy 是枚举，不可实例化（原写法 `LAPolicy().deviceOwnerAuthentication` 为编译错误）。
+        let policy: LAPolicy = .deviceOwnerAuthentication // biometric + device credential fallback
         return LAContext().canEvaluatePolicy(policy, error: &error)
     }
 
