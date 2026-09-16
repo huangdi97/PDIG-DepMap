@@ -100,3 +100,11 @@ entry/.preview/
 .stryker-tmp/
 reports/
 *.mutbak
+
+# Android 截图 / adb 取证输出（可能含真实界面内容，禁止入库）
+# 注意：不全局忽略 *.png —— app/src/main/res/drawable/ 里的图标资产必须入库。
+*.png.tmp
+*/screenshots/evidence/
+
+# Gradle 配置缓存与本地镜像
+.gradle-cache/
