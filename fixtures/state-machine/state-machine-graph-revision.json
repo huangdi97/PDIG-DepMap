@@ -1,0 +1,48 @@
+{
+  "id": "state-machine-graph-revision",
+  "category": "state-machine",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "GraphRevision：只有 Confirmed Reality Mutation 才 bump；与 mutation 同事务",
+  "input": {
+    "fields": [
+      "meta.graph_revision"
+    ]
+  },
+  "expected": {
+    "initial": 0,
+    "monotonic": true,
+    "atomicity": "the Reality mutation and the revision increment MUST happen inside one database transaction on every platform",
+    "bumpsOn": [
+      "node_create",
+      "node_update",
+      "node_archive",
+      "dependency_confirm_create",
+      "dependency_confirm_update",
+      "dependency_retire",
+      "dependency_reactivate",
+      "group_confirm",
+      "group_retire",
+      "drift_resolve_replacement",
+      "drift_resolve_additional_path"
+    ],
+    "neverBumpsOn": [
+      "evidence_record",
+      "proposal_upsert",
+      "proposal_decision",
+      "candidate_upsert",
+      "candidate_dismiss",
+      "candidate_accept",
+      "drift_detect",
+      "drift_dismiss",
+      "timeline_build",
+      "import_session_record",
+      "plan_create",
+      "plan_rebase",
+      "plan_transition",
+      "action_complete",
+      "action_verify"
+    ]
+  }
+}

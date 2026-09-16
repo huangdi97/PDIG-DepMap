@@ -1,0 +1,100 @@
+{
+  "id": "jcs-rfc8785-restricted-domain",
+  "category": "jcs",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "RFC 8785 JCS（受限值域）：对象键排序、转义、整数最短形式；浮点必须拒绝而非静默序列化",
+  "input": {
+    "cases": [
+      {
+        "id": "key-order",
+        "input": {
+          "b": 1,
+          "a": 2
+        }
+      },
+      {
+        "id": "nested",
+        "input": {
+          "z": {
+            "b": true,
+            "a": false
+          },
+          "a": [
+            1,
+            2
+          ]
+        }
+      },
+      {
+        "id": "escape",
+        "input": {
+          "k": "a\"b\\c\nd"
+        }
+      },
+      {
+        "id": "control-char",
+        "input": {
+          "k": "\u0001"
+        }
+      },
+      {
+        "id": "empty-object",
+        "input": {}
+      },
+      {
+        "id": "unicode-pass-through",
+        "input": {
+          "k": "银行"
+        }
+      },
+      {
+        "id": "numbers",
+        "input": {
+          "i": 0,
+          "j": 1234567890
+        }
+      },
+      {
+        "id": "null-bool",
+        "input": {
+          "n": null,
+          "t": true,
+          "f": false
+        }
+      },
+      {
+        "id": "array-strings",
+        "input": [
+          "a",
+          "b"
+        ]
+      }
+    ],
+    "rejectCases": [
+      {
+        "id": "float",
+        "input": {
+          "f": 1.5
+        }
+      }
+    ]
+  },
+  "expected": {
+    "canonical": {
+      "key-order": "{\"a\":2,\"b\":1}",
+      "nested": "{\"a\":[1,2],\"z\":{\"a\":false,\"b\":true}}",
+      "escape": "{\"k\":\"a\\\"b\\\\c\\nd\"}",
+      "control-char": "{\"k\":\"\\u0001\"}",
+      "empty-object": "{}",
+      "unicode-pass-through": "{\"k\":\"银行\"}",
+      "numbers": "{\"i\":0,\"j\":1234567890}",
+      "null-bool": "{\"f\":false,\"n\":null,\"t\":true}",
+      "array-strings": "[\"a\",\"b\"]"
+    },
+    "rejections": {
+      "float": "Error"
+    }
+  }
+}

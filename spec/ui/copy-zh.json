@@ -1,0 +1,151 @@
+{
+  "$comment": "PDIG canonical Chinese copy. Three platforms MUST use these strings for the listed keys so user-facing wording cannot drift. Platforms may localise layout/typography but not the meaning. Extracted from app/theme/tokens.uts and app/services/rules.uts @ 6d268c0. Hardcoding copy inline in platform UI is forbidden - UI copy must come from resource files (i18n-ready).",
+  "specVersion": "1.0.0",
+  "locale": "zh-CN",
+
+  "hardRules": [
+    "Normal UI MUST NOT display engineering enums (GraphRevision, DependencyProposal, RealityDrift, ScenarioCoverage, SourceInstance, merchant_agreement, funding_source, criticality).",
+    "Readiness MUST NEVER be expressed as safe / fully safe / 100% / all clear."
+  ],
+
+  "readiness": {
+    "blocked": "还有必须处理的事项",
+    "review_required": "还有信息需要确认",
+    "ready_with_known_scope": "基于当前信息，可以继续。"
+  },
+
+  "coverage": {
+    "unknown": "还不了解",
+    "limited": "依据有限",
+    "partial": "部分依据",
+    "well_evidenced": "依据较充分"
+  },
+
+  "planWorkflow": {
+    "draft": "草稿",
+    "analyzed": "已分析",
+    "review_required": "需要确认",
+    "ready": "可以开始",
+    "in_progress": "进行中",
+    "verifying": "待验证",
+    "completed": "已完成",
+    "cancelled": "已取消"
+  },
+
+  "timelineBuckets": {
+    "attention": "需要你处理",
+    "overdue": "已逾期",
+    "today": "今天",
+    "7d": "7 天内",
+    "30d": "30 天内",
+    "90d": "90 天内",
+    "later": "以后"
+  },
+
+  "relations": {
+    "funding_source": "资金来源",
+    "merchant_agreement": "自动扣款 / 订阅",
+    "default": "支付关系"
+  },
+
+  "relationHints": {
+    "funding_source": "它由这张卡 / 这个账户付款",
+    "merchant_agreement": "它按协议自动从这张卡扣款"
+  },
+
+  "criticality": {
+    "required": "必须使用",
+    "unknown": "还不确定"
+  },
+
+  "criticalityHints": {
+    "required": "换卡后必须处理，否则会中断",
+    "unknown": "先记为待确认，之后可以改"
+  },
+
+  "home": {
+    "needsAction": "需要你处理",
+    "possibleChange": "可能发生了变化",
+    "upcoming": "即将到来",
+    "commonScenarios": "常用场景",
+    "myInfrastructure": "我的基础设施"
+  },
+
+  "drift": {
+    "possibleChange": "可能发生了变化",
+    "confirmReplacement": "确认是更换了来源",
+    "confirmAdditional": "确认是新增了一条支付路径",
+    "dismiss": "先忽略"
+  },
+
+  "proposal": {
+    "basis": "本次分析依据",
+    "pendingService": "待确认服务",
+    "reviewAgain": "需要重新检查"
+  },
+
+  "impact": {
+    "mustChange": "必须处理",
+    "backupPath": "有备用路径",
+    "needsReview": "建议检查",
+    "unaffected": "不受影响",
+    "targetOperation": "最后一步：执行原始操作"
+  },
+
+  "verification": {
+    "pending": "待验证",
+    "evidenceSuggested": "发现可能是变更后的证据",
+    "verified": "已验证",
+    "failed": "验证未通过",
+    "notRequired": "无需验证"
+  },
+
+  "sourceImport": {
+    "wechat": "微信账单",
+    "csv": "通用 CSV",
+    "ofx": "OFX / QFX",
+    "mappingTitle": "选择对应的列",
+    "mappingHint": "请选择文件中与下列字段对应的列。",
+    "parseFailed": "账单文件无法解析。",
+    "mappingMissing": "选择的列在文件中不存在，请重新选择。"
+  },
+
+  "backup": {
+    "exportTitle": "导出加密备份",
+    "importTitle": "从备份恢复",
+    "passwordNotice": "密码一旦忘记将无法找回。",
+    "crossDevice": "备份文件可以在其他设备上导入。",
+    "wrongPassword": "密码错误，或备份文件已被修改。"
+  },
+
+  "lock": {
+    "title": "解锁",
+    "prompt": "验证身份以继续",
+    "cancelled": "已取消验证。",
+    "failed": "身份验证失败。",
+    "unavailable": "当前设备无法完成身份验证。"
+  },
+
+  "common": {
+    "confirm": "确认",
+    "cancel": "取消",
+    "save": "保存",
+    "delete": "删除",
+    "next": "下一步",
+    "back": "返回",
+    "done": "完成",
+    "retry": "重试",
+    "emptyTitle": "还没有内容",
+    "loading": "加载中…",
+    "errorTitle": "出错了"
+  },
+
+  "destructiveConfirmation": {
+    "policy": "Every destructive action requires an explicit confirmation step naming the concrete object and the irreversible consequence.",
+    "irreversibleExamples": [
+      "删除对象",
+      "清空本地数据",
+      "忽略可能的变更"
+    ]
+  }
+}

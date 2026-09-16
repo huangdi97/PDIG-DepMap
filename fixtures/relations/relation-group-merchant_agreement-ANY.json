@@ -1,0 +1,16 @@
+{
+  "id": "relation-group-merchant_agreement-ANY",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationGroupUse(merchant_agreement, ANY)",
+  "input": {
+    "relation": "merchant_agreement",
+    "mode": "ANY"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'merchant_agreement' does not allow groups"
+  }
+}

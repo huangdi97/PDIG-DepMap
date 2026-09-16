@@ -1,0 +1,36 @@
+{
+  "id": "parser-wechat-utf8-bom",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "wechat 解析 utf8-bom.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "wechat",
+    "file": "utf8-bom.csv",
+    "mapping": null
+  },
+  "expected": {
+    "observationCount": 2,
+    "observations": [
+      {
+        "occurredAt": "2026-05-03T10:23:00+08:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "腾讯视频",
+        "status": "支付成功"
+      },
+      {
+        "occurredAt": "2026-05-15T08:00:00+08:00",
+        "amount": 15,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "中国移动",
+        "status": "支付成功"
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

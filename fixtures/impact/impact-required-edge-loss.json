@@ -1,0 +1,155 @@
+{
+  "id": "impact-required-edge-loss",
+  "category": "impact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "required 边失效且无其他来源 → must_change / required_edge_no_alternative，并向下游级联",
+  "input": {
+    "graph": {
+      "dependencies": [
+        {
+          "id": "d1",
+          "from": "card-a",
+          "relation": "funding_source",
+          "to": "wechat",
+          "capability": "payment",
+          "criticality": "required",
+          "groupId": null,
+          "state": "active",
+          "origin": "manual",
+          "confirmedAt": "2026-09-13T00:00:00.000Z",
+          "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+          "retiredAt": null,
+          "evidenceRefs": [],
+          "verificationBasis": {
+            "type": "user_confirmed",
+            "verifiedAt": "2026-09-13T00:00:00.000Z"
+          },
+          "createdAt": "2026-09-13T00:00:00.000Z",
+          "updatedAt": "2026-09-13T00:00:00.000Z"
+        },
+        {
+          "id": "d2",
+          "from": "wechat",
+          "relation": "funding_source",
+          "to": "tencent",
+          "capability": "payment",
+          "criticality": "required",
+          "groupId": null,
+          "state": "active",
+          "origin": "manual",
+          "confirmedAt": "2026-09-13T00:00:00.000Z",
+          "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+          "retiredAt": null,
+          "evidenceRefs": [],
+          "verificationBasis": {
+            "type": "user_confirmed",
+            "verifiedAt": "2026-09-13T00:00:00.000Z"
+          },
+          "createdAt": "2026-09-13T00:00:00.000Z",
+          "updatedAt": "2026-09-13T00:00:00.000Z"
+        }
+      ],
+      "groups": [],
+      "proposals": [],
+      "nodeNames": {
+        "card-a": "招行信用卡",
+        "card-b": "建行储蓄卡",
+        "wechat": "微信支付",
+        "tencent": "腾讯视频",
+        "spotify": "Spotify"
+      }
+    },
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ]
+  },
+  "expected": {
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "lostKeys": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      },
+      {
+        "nodeId": "wechat",
+        "capability": "payment"
+      },
+      {
+        "nodeId": "tencent",
+        "capability": "payment"
+      }
+    ],
+    "targets": [
+      {
+        "nodeId": "wechat",
+        "nodeName": "微信支付",
+        "capability": "payment",
+        "depth": 1,
+        "status": "must_change",
+        "available": false,
+        "redundancyDegraded": false,
+        "reasonCode": "required_edge_no_alternative",
+        "reasonText": "已确认 微信支付 的支付能力依赖此关系（required），且无其他已记录来源",
+        "edgeKeys": [
+          "card-a|funding_source|wechat|payment"
+        ],
+        "groupKeys": [],
+        "proposalKeys": []
+      },
+      {
+        "nodeId": "tencent",
+        "nodeName": "腾讯视频",
+        "capability": "payment",
+        "depth": 2,
+        "status": "must_change",
+        "available": false,
+        "redundancyDegraded": false,
+        "reasonCode": "required_edge_no_alternative",
+        "reasonText": "已确认 腾讯视频 的支付能力依赖此关系（required），且无其他已记录来源",
+        "edgeKeys": [
+          "wechat|funding_source|tencent|payment"
+        ],
+        "groupKeys": [],
+        "proposalKeys": []
+      }
+    ],
+    "checklist": [
+      {
+        "level": "must_change",
+        "nodeId": "wechat",
+        "capability": "payment",
+        "title": "必须处理：微信支付 的支付能力将失效",
+        "detail": "已确认 微信支付 的支付能力依赖此关系（required），且无其他已记录来源"
+      },
+      {
+        "level": "must_change",
+        "nodeId": "tencent",
+        "capability": "payment",
+        "title": "必须处理：腾讯视频 的支付能力将失效",
+        "detail": "已确认 腾讯视频 的支付能力依赖此关系（required），且无其他已记录来源"
+      },
+      {
+        "level": "target_operation",
+        "nodeId": "card-a",
+        "capability": "payment",
+        "title": "最后一步：注销/停用 招行信用卡（原始操作）",
+        "detail": "以上事项处理完成后再执行原始操作。"
+      }
+    ],
+    "processedKeys": [
+      "card-a|payment",
+      "wechat|payment",
+      "tencent|payment"
+    ]
+  }
+}

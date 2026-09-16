@@ -1,0 +1,43 @@
+{
+  "id": "state-machine-reality-drift",
+  "category": "state-machine",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "RealityDrift：非 open 不可再处理；创建/忽略不改 Reality 与 revision",
+  "input": {
+    "fields": [
+      "status",
+      "observationCount",
+      "evidenceRefs"
+    ]
+  },
+  "expected": {
+    "initial": "open",
+    "transitions": {
+      "open": [
+        "confirmed_change",
+        "dismissed"
+      ],
+      "confirmed_change": [],
+      "dismissed": [],
+      "superseded": []
+    },
+    "creationRule": {
+      "requires": "positive evidence only",
+      "minObservations": 2,
+      "absenceOnly": "must never create a drift",
+      "alreadyConfirmedSource": "ignored with reason already_confirmed",
+      "belowThreshold": "ignored with reason below_threshold",
+      "duplicateEvidenceRef": "does not re-create or re-count",
+      "upsert": "same drift key accumulates observationCount and evidenceRefs into ONE open drift"
+    },
+    "guards": [
+      {
+        "id": "DRIFT-OPEN-ONLY",
+        "rule": "resolve/dismiss on a non-open drift MUST be rejected",
+        "errorCode": "illegal_state_transition"
+      }
+    ]
+  }
+}

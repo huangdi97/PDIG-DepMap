@@ -1,0 +1,546 @@
+{
+  "$comment": "PDIG Canonical Domain Spec — SINGLE SOURCE OF TRUTH. Three native platforms (Kotlin/Swift/ArkTS) MUST NOT redefine any value here. Extraction oracle: core/ @ commit 6d268c0 (see LEGACY_REFERENCE_MANIFEST.md). Regenerate platform enums with `node tools/codegen/generate.mjs`; hand-editing generated files fails the codegen gate.",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+
+  "graphPayload": {
+    "kind": "depmap-logical-graph",
+    "version": 3,
+    "migratableFrom": [1, 2],
+    "failureMode": "fail_closed"
+  },
+
+  "enums": {
+    "NodeKind": {
+      "values": [
+        "identity_anchor",
+        "payment_instrument",
+        "account",
+        "service",
+        "membership",
+        "device",
+        "custom"
+      ],
+      "storageAll": true,
+      "note": "Runtime MVP creation set is narrower than this enum; see runtimeCreatableNodeKinds in constants."
+    },
+
+    "Relation": {
+      "values": ["funding_source", "merchant_agreement", "verifies", "recovers", "bound_to"],
+      "runtimeValues": ["funding_source", "merchant_agreement"],
+      "note": "DB CHECK constraint accepts all 5; RelationDefinitionRegistry validates only runtimeValues. Non-runtime values are storage-legacy/future and MUST be rejected by runtime validation on all three platforms."
+    },
+
+    "Capability": {
+      "values": ["payment", "access", "recovery", "identity"],
+      "runtimeValues": ["payment"],
+      "note": "Edges may be stored for any capability; the Impact kernel propagates payment ONLY. Non-payment initial keys are ignored."
+    },
+
+    "Criticality": {
+      "values": ["required", "unknown"],
+      "machineMaySetRequired": false
+    },
+
+    "DependencyState": { "values": ["active", "retired"] },
+    "DependencyOrigin": { "values": ["manual", "proposal"] },
+    "GroupMode": { "values": ["ANY", "ALL"] },
+    "GroupState": { "values": ["active", "retired"] },
+    "ProposalDecision": { "values": ["pending", "accepted", "rejected"] },
+
+    "VerificationBasisType": {
+      "values": ["user_confirmed", "authoritative_source"],
+      "mvpRuntimeValues": ["user_confirmed"],
+      "note": "All three MVP file adapters are event_stream, so every Reality fact in MVP02/03 is user_confirmed."
+    },
+
+    "SourceKind": {
+      "values": ["statement_file", "platform_export", "open_banking", "manual", "discovery"]
+    },
+
+    "CoverageMode": {
+      "values": ["event_stream", "partial_snapshot", "complete_snapshot", "user_selected"],
+      "mvpRuntimeValues": ["event_stream"],
+      "note": "absence semantics: only non-event_stream modes could ever support negative inference. MVP has none."
+    },
+
+    "SourceInstanceState": { "values": ["active", "retired"] },
+
+    "ObservationDirection": { "values": ["in", "out", "neutral"] },
+
+    "EvidenceKind": { "values": ["transaction_stream"] },
+
+    "ProposalType": { "values": ["recurring_payment_route"] },
+
+    "ProposalSource": { "values": ["statement"] },
+
+    "ImpactLevel": {
+      "values": [
+        "must_change",
+        "backup_path",
+        "degraded",
+        "needs_review",
+        "unaffected",
+        "target_operation"
+      ],
+      "note": "target_operation is emitted only as the final checklist item; it never appears as a target status."
+    },
+
+    "ImpactTargetStatus": {
+      "values": ["must_change", "backup_path", "degraded", "needs_review", "unaffected"],
+      "severityOrder": ["unaffected", "needs_review", "backup_path", "degraded", "must_change"],
+      "note": "severity ranking used for state merge: must_change(3) > backup_path|degraded(2) > needs_review(1) > unaffected(0)."
+    },
+
+    "ImpactReasonCode": {
+      "values": [
+        "required_edge_no_alternative",
+        "confirmed_group_failed",
+        "confirmed_group_covered",
+        "unconfirmed_alternative_exists",
+        "criticality_unknown",
+        "proposal_only",
+        "upstream_uncertain"
+      ]
+    },
+
+    "ChangePlanWorkflowState": {
+      "values": [
+        "draft",
+        "analyzed",
+        "review_required",
+        "ready",
+        "in_progress",
+        "verifying",
+        "completed",
+        "cancelled"
+      ],
+      "terminalValues": ["completed", "cancelled"]
+    },
+
+    "PlanEffectiveStatus": {
+      "values": [
+        "draft",
+        "analyzed",
+        "review_required",
+        "ready",
+        "in_progress",
+        "verifying",
+        "completed",
+        "cancelled",
+        "needs_revalidation"
+      ],
+      "derivedOnly": ["needs_revalidation"],
+      "note": "needs_revalidation is DERIVED, never persisted; stored workflowState is never rewritten by staleness."
+    },
+
+    "PlanActionPhase": { "values": ["prepare", "change", "verify"] },
+
+    "ActionVerificationMethod": {
+      "values": ["manual_confirmation", "future_observation", "authoritative_source"]
+    },
+
+    "ActionVerificationStatus": {
+      "values": ["not_required", "pending", "evidence_suggested", "verified", "failed"],
+      "nonOverridableByEvidence": ["verified", "failed", "not_required"]
+    },
+
+    "PlanReadiness": {
+      "values": ["blocked", "review_required", "ready_with_known_scope"],
+      "forbiddenSynonyms": ["safe", "fully_safe", "all_clear", "100%"],
+      "note": "Exactly three values. No confidence channel, no absence channel exists in the input type."
+    },
+
+    "CoverageLevel": {
+      "values": ["unknown", "limited", "partial", "well_evidenced"],
+      "note": "Information coverage description, NOT a safety score."
+    },
+
+    "DriftKind": {
+      "values": ["possible_replacement", "possible_additional_path", "relation_reappeared"]
+    },
+
+    "DriftStatus": {
+      "values": ["open", "confirmed_change", "dismissed", "superseded"],
+      "actionableValues": ["open"]
+    },
+
+    "DriftIgnoreReason": { "values": ["already_confirmed", "below_threshold"] },
+
+    "CandidateKind": { "values": ["payment_instrument", "service"] },
+
+    "CandidateStatus": {
+      "values": ["pending", "accepted", "dismissed", "superseded"],
+      "actionableValues": ["pending"]
+    },
+
+    "TimelineBucket": {
+      "values": ["attention", "overdue", "today", "7d", "30d", "90d", "later"],
+      "sortOrder": ["attention", "overdue", "today", "7d", "30d", "90d", "later"]
+    },
+
+    "TimelineItemKind": {
+      "values": [
+        "needs_attention",
+        "upcoming_change",
+        "verification_pending",
+        "freshness_review",
+        "drift_review",
+        "expiration"
+      ]
+    },
+
+    "TimelineSourceType": {
+      "values": ["change_plan", "reality_drift", "action_verification", "node_expiry", "source_freshness"]
+    },
+
+    "ScenarioCategory": {
+      "values": ["payment", "identity", "device", "work", "international", "digital_assets"]
+    },
+
+    "ScenarioAvailability": { "values": ["active", "planned"] },
+
+    "AmountSignMode": { "values": ["signed", "debit_credit", "outward_positive"] },
+
+    "CsvDelimiter": { "values": [",", ";", "\t", "|"] },
+
+    "SourceEncoding": { "values": ["utf-8", "gb18030"] }
+  },
+
+  "entities": {
+    "Node": {
+      "logicalKey": ["id"],
+      "unique": [["id"]],
+      "fields": {
+        "id": "string",
+        "kind": "NodeKind",
+        "templateId": "string|null",
+        "name": "string",
+        "issuer": "string|null",
+        "last4": "string|null",
+        "owner": "string",
+        "archived": "boolean",
+        "fields": "object",
+        "vaultRef": "string|null",
+        "walletRef": "string|null",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "realityClass": "confirmed_reality",
+      "bumpsGraphRevisionOn": ["create", "update", "archive"]
+    },
+
+    "Dependency": {
+      "logicalKey": ["from", "relation", "to", "capability"],
+      "logicalKeySerialization": "from|relation|to|capability",
+      "unique": [["from", "relation", "to", "capability"]],
+      "enforcedBy": "database_unique_constraint",
+      "fields": {
+        "id": "string",
+        "from": "nodeId",
+        "relation": "Relation",
+        "to": "nodeId",
+        "capability": "Capability",
+        "criticality": "Criticality",
+        "groupId": "string|null",
+        "state": "DependencyState",
+        "origin": "DependencyOrigin",
+        "confirmedAt": "timestamp",
+        "lastVerifiedAt": "timestamp",
+        "retiredAt": "timestamp|null",
+        "evidenceRefs": "string[]",
+        "verificationBasis": "VerificationBasis|null",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "realityClass": "confirmed_reality",
+      "lifecycle": {
+        "firstObservationOfLogicalKey": "INSERT",
+        "alreadyActive": "UPSERT_AND_VERIFY",
+        "afterRetireReappears": "REACTIVATE_SAME_ROW",
+        "forbidden": "creating a second row for the same logical key"
+      },
+      "bumpsGraphRevisionOn": ["confirm_create", "confirm_update", "retire", "reactivate"]
+    },
+
+    "DependencyGroup": {
+      "logicalKey": ["groupKey"],
+      "groupKeySerialization": "targetNodeId|capability|mode|sorted(memberLogicalKeys...)",
+      "fields": {
+        "id": "string",
+        "groupKey": "string",
+        "targetNodeId": "nodeId",
+        "capability": "Capability",
+        "mode": "GroupMode",
+        "memberEdgeIds": "string[]",
+        "state": "GroupState",
+        "confirmedAt": "timestamp",
+        "lastVerifiedAt": "timestamp",
+        "verificationBasis": "VerificationBasis|null",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "realityClass": "confirmed_reality",
+      "invariant": "memberLogicalKeys are sorted and de-duplicated before hashing into groupKey; member order is therefore irrelevant."
+    },
+
+    "DependencyProposal": {
+      "logicalKey": ["key"],
+      "fields": {
+        "id": "string",
+        "key": "string",
+        "from": "nodeId",
+        "relation": "Relation",
+        "to": "nodeId",
+        "capability": "Capability",
+        "proposalType": "ProposalType",
+        "source": "ProposalSource",
+        "parserId": "string",
+        "parserVersion": "integer",
+        "confidenceScore": "number",
+        "path": "string[]",
+        "evidenceRefs": "string[]",
+        "decision": "ProposalDecision",
+        "decidedAt": "timestamp|null",
+        "criticalityDecision": "Criticality|null",
+        "observationCount": "integer",
+        "rejectedAt": "timestamp|null",
+        "rejectedAtStreamCounts": "map<sourceInstanceId,integer>|null",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "realityClass": "proposal",
+      "bumpsGraphRevision": false,
+      "note": "confidenceScore is display-only. It MUST NOT influence must_change or readiness on any platform."
+    },
+
+    "DependencyGroupProposal": {
+      "logicalKey": ["key"],
+      "keySerialization": "group|<canonicalGroupKey(target,capability,mode,sortedMemberKeys...)>",
+      "realityClass": "proposal",
+      "bumpsGraphRevision": false
+    },
+
+    "Evidence": {
+      "logicalKey": ["proposalKey", "sourceInstanceId"],
+      "unique": [["proposalKey", "sourceInstanceId"]],
+      "realityClass": "evidence_summary",
+      "bumpsGraphRevision": false,
+      "note": "Per-stream summary. observationCount MUST NOT be summed across streams to drive any decision."
+    },
+
+    "ObservationFingerprint": {
+      "logicalKey": ["sourceInstanceId", "fingerprintVersion", "fingerprint"],
+      "unique": [["sourceInstanceId", "fingerprintVersion", "fingerprint"]],
+      "realityClass": "evidence_summary",
+      "note": "Fingerprint namespace is scoped by SourceInstance. Different SourceInstances must never share a fingerprint namespace."
+    },
+
+    "ImportSession": {
+      "logicalKey": ["id"],
+      "realityClass": "audit_summary",
+      "bumpsGraphRevision": false
+    },
+
+    "SourceInstance": {
+      "logicalKey": ["id"],
+      "realityClass": "configuration",
+      "bumpsGraphRevision": false
+    },
+
+    "ChangePlan": {
+      "logicalKey": ["id"],
+      "realityClass": "user_intent_snapshot",
+      "bumpsGraphRevision": false,
+      "note": "A ChangePlan is NOT Reality. It records a user-acknowledged intent plus an impact snapshot."
+    },
+
+    "RealityDrift": {
+      "logicalKey": ["id"],
+      "realityClass": "proposal",
+      "bumpsGraphRevisionOn": ["create_never"],
+      "note": "Creating a drift never mutates Reality and never bumps the revision."
+    },
+
+    "DiscoveryCandidate": {
+      "logicalKey": ["normalizedKey"],
+      "unique": [["normalizedKey"]],
+      "realityClass": "candidate",
+      "bumpsGraphRevision": false,
+      "note": "A candidate does not participate in Impact and does not bump the revision. Only accept creates a Node."
+    },
+
+    "GraphRevision": {
+      "storage": "meta table key 'graph_revision', initial 0",
+      "realityClass": "reality_version_clock",
+      "bumpsOn": "confirmed Reality mutation only",
+      "atomicity": "reality mutation + revision increment in the SAME transaction"
+    }
+  },
+
+  "relations": {
+    "funding_source": {
+      "fromKinds": ["payment_instrument", "account", "service", "membership"],
+      "toKinds": ["account", "payment_instrument"],
+      "capability": "payment",
+      "allowsGroup": true,
+      "allowedGroupModes": ["ANY"],
+      "defaultCriticality": "unknown",
+      "verificationPolicy": "user_only",
+      "impactSemantics": "dependency"
+    },
+    "merchant_agreement": {
+      "fromKinds": ["account", "payment_instrument"],
+      "toKinds": ["service", "membership", "account"],
+      "capability": "payment",
+      "allowsGroup": false,
+      "allowedGroupModes": [],
+      "defaultCriticality": "unknown",
+      "verificationPolicy": "user_only",
+      "impactSemantics": "dependency"
+    }
+  },
+
+  "futureRelations": {
+    "$comment": "Spec-only. MUST NOT be enabled in the runtime registry during native migration.",
+    "values": ["card_on_file", "direct_debit_mandate", "payout_destination", "wallet_funding"],
+    "availability": "backlog"
+  },
+
+  "scenarioTemplates": {
+    "active": [
+      {
+        "id": "replace_payment_card",
+        "category": "payment",
+        "title": "更换银行卡",
+        "description": "换卡前检查支付钱包、自动扣款和订阅关系。",
+        "supportedCapabilities": ["payment"],
+        "recommendedLeadTimeDays": null,
+        "requiredInputs": ["targetPaymentInstrumentId"],
+        "optionalInputs": ["replacementPaymentInstrumentId", "effectiveDate"]
+      },
+      {
+        "id": "expiring_payment_card",
+        "category": "payment",
+        "title": "银行卡即将到期",
+        "description": "到期前检查仍依赖这张卡的支付路径。",
+        "supportedCapabilities": ["payment"],
+        "recommendedLeadTimeDays": 30,
+        "requiredInputs": ["targetPaymentInstrumentId"],
+        "optionalInputs": ["replacementPaymentInstrumentId", "effectiveDate"]
+      },
+      {
+        "id": "close_payment_instrument",
+        "category": "payment",
+        "title": "注销银行卡",
+        "description": "注销前确认哪些支付关系需要迁移。",
+        "supportedCapabilities": ["payment"],
+        "recommendedLeadTimeDays": 14,
+        "requiredInputs": ["targetPaymentInstrumentId"],
+        "optionalInputs": ["replacementPaymentInstrumentId", "effectiveDate"]
+      }
+    ],
+    "planned": [
+      {
+        "id": "replace_phone_number",
+        "category": "identity",
+        "title": "更换手机号",
+        "supportedCapabilities": ["access", "recovery", "identity"],
+        "recommendedLeadTimeDays": 30,
+        "executable": false
+      }
+    ],
+    "defaultActionPhases": ["prepare", "change", "verify"],
+    "policy": {
+      "excludedDomains": [
+        "water",
+        "birthday",
+        "plant",
+        "meeting",
+        "exercise",
+        "exam",
+        "anniversary",
+        "holiday"
+      ],
+      "note": "Daily-life reminder templates are forbidden in the registry. A planned template has no factory and MUST be rejected by instantiate."
+    }
+  },
+
+  "adapters": [
+    {
+      "id": "wechat_statement",
+      "version": 1,
+      "sourceKind": "statement_file",
+      "coverageMode": "event_stream",
+      "authoritativeFor": [],
+      "parserId": "wechat_statement",
+      "parserVersion": 1
+    },
+    {
+      "id": "generic_csv",
+      "version": 1,
+      "sourceKind": "statement_file",
+      "coverageMode": "event_stream",
+      "authoritativeFor": [],
+      "parserId": "generic_csv",
+      "parserVersion": 1
+    },
+    {
+      "id": "ofx_qfx",
+      "version": 1,
+      "sourceKind": "statement_file",
+      "coverageMode": "event_stream",
+      "authoritativeFor": [],
+      "parserId": "ofx_qfx",
+      "parserVersion": 1
+    }
+  ],
+
+  "constants": {
+    "legacyWechatSourceInstanceId": "legacy-wechat-statement",
+    "legacyWechatAdapterId": "wechat_statement",
+    "legacyWechatAdapterVersion": 1,
+    "driftMinObservations": 2,
+    "reproposalMinNewObservationsPerStream": 3,
+    "candidateReappealMinObservations": 2,
+    "timelineFreshnessThresholdDays": 45,
+    "readinessStaleDependencyDays": 90,
+    "resolverFuzzyThreshold": 0.9,
+    "timelineDayBuckets": {
+      "today": [0, 1],
+      "7d": [1, 8],
+      "30d": [8, 31],
+      "90d": [31, 91],
+      "later": [91, null]
+    },
+    "runtimeCreatableNodeKinds": ["payment_instrument", "account", "service"],
+    "impactPropagationCapability": "payment",
+    "maxCiphertextBytes": 67108864
+  },
+
+  "invariants": [
+    { "id": "OBS-01", "text": "Observation != Reality" },
+    { "id": "OBS-02", "text": "Proposal != Reality" },
+    { "id": "OBS-03", "text": "Candidate != Node" },
+    { "id": "OBS-04", "text": "Drift != Reality change" },
+    { "id": "OBS-05", "text": "Evidence != History" },
+    { "id": "OBS-06", "text": "absence != non-existence" },
+    { "id": "OBS-07", "text": "done != verified" },
+    { "id": "OBS-08", "text": "coverage != readiness" },
+    { "id": "OBS-09", "text": "Timeline != Truth" },
+    { "id": "IMP-01", "text": "must_change is reachable only from confirmed Reality; confirmed false positive = 0" },
+    { "id": "IMP-02", "text": "Machine inference must never set criticality=required" },
+    { "id": "IMP-03", "text": "Proposal confidence never participates in deterministic impact propagation" },
+    { "id": "IMP-04", "text": "retired Dependency does not propagate Impact" },
+    { "id": "GR-01", "text": "Only confirmed Reality mutation bumps graphRevision" },
+    { "id": "GR-02", "text": "Reality mutation and revision increment share one transaction" },
+    { "id": "DR-01", "text": "RealityDrift requires positive evidence; absence-only never produces a drift" },
+    { "id": "PC-01", "text": "DiscoveryCandidate does not enter Impact and does not bump graphRevision" },
+    { "id": "VF-01", "text": "Future evidence yields at most evidence_suggested; only user confirmation yields verified" },
+    { "id": "RD-01", "text": "PlanReadiness is derived from explicit Requirement/Impact resolution mapping, never subtraction" },
+    { "id": "SRC-01", "text": "Different SourceInstances must not share a fingerprint namespace" },
+    { "id": "SRC-02", "text": "Multi-source evidence adds provenance, not certainty" },
+    { "id": "DEP-01", "text": "DEPMAP_CONTAINER_V1 must remain byte-compatible across platforms" },
+    { "id": "SC-01", "text": "active scenario templates are payment-capability only" }
+  ]
+}

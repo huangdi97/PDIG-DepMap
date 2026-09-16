@@ -1,0 +1,112 @@
+{
+  "id": "depmap-bounds-and-structure-rejection",
+  "category": "depmap",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "解析 → 结构 → 边界 全部在 KDF 之前完成；恶意容器必须 fail closed",
+  "input": {
+    "base": {
+      "format": "depmap",
+      "formatVersion": 1,
+      "kdf": {
+        "algorithm": "argon2id",
+        "version": 19,
+        "salt": "ABEiM0RVZneImaq7zN3u/w==",
+        "memoryKiB": 65536,
+        "iterations": 3,
+        "parallelism": 1
+      },
+      "cipher": {
+        "algorithm": "AES-256-GCM",
+        "nonce": "obLD1OX2BxgpOktc"
+      },
+      "ciphertext": "AAAA",
+      "tag": "AAAAAAAAAAAAAAAAAAAAAA=="
+    },
+    "mutations": [
+      {
+        "id": "not-json",
+        "json": "nope"
+      },
+      {
+        "id": "json-array",
+        "json": "[]"
+      },
+      {
+        "id": "bad-format",
+        "json": "{\"format\":\"other\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-format-version",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":2,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-kdf-algorithm",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"pbkdf2\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-kdf-version",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":16,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "memory-too-large",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":1048576,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "memory-too-small",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":8,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "iterations-too-large",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":99,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "parallelism-too-large",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":9},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-salt-length",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"AAAA\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-nonce-length",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"AAAA\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-tag-length",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAA\"}"
+      },
+      {
+        "id": "empty-ciphertext",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "bad-cipher-algorithm",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-128-CBC\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      },
+      {
+        "id": "float-param",
+        "json": "{\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"version\":19,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"memoryKiB\":65536.5,\"iterations\":3,\"parallelism\":1},\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"AAAA\",\"tag\":\"AAAAAAAAAAAAAAAAAAAAAA==\"}"
+      }
+    ]
+  },
+  "expected": {
+    "not-json": "invalid_json",
+    "json-array": "invalid_structure",
+    "bad-format": "bounds",
+    "bad-format-version": "bounds",
+    "bad-kdf-algorithm": "bounds",
+    "bad-kdf-version": "bounds",
+    "memory-too-large": "bounds",
+    "memory-too-small": "bounds",
+    "iterations-too-large": "bounds",
+    "parallelism-too-large": "bounds",
+    "bad-salt-length": "bounds",
+    "bad-nonce-length": "bounds",
+    "bad-tag-length": "bounds",
+    "empty-ciphertext": "bounds",
+    "bad-cipher-algorithm": "bounds",
+    "float-param": "invalid_structure"
+  }
+}

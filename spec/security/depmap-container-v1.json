@@ -1,0 +1,123 @@
+{
+  "$comment": "DEPMAP_CONTAINER_V1 — the single most important cross-platform protocol. FROZEN. Native migration MUST NOT change it. Any protocol change requires a new formatVersion. All three platforms must produce byte-identical results for the golden vector.",
+  "protocol": "DEPMAP_CONTAINER_V1",
+  "format": "depmap",
+  "formatVersion": 1,
+  "status": "FROZEN",
+
+  "kdf": {
+    "algorithm": "argon2id",
+    "version": 19,
+    "saltBytes": 16,
+    "memoryKiB": 65536,
+    "iterations": 3,
+    "parallelism": 1,
+    "derivedKeyBytes": 32,
+    "passwordEncoding": "exact UTF-8 bytes",
+    "unicodeNormalization": "NONE",
+    "note": "NFC/NFD normalization must never be applied. Combining characters and emoji are passed through byte-for-byte."
+  },
+
+  "cipher": {
+    "algorithm": "AES-256-GCM",
+    "nonceBytes": 12,
+    "tagBytes": 16,
+    "keyBytes": 32
+  },
+
+  "encoding": {
+    "binaryEncoding": "RFC4648 Base64 WITH padding",
+    "hexOnlyForTestingDerivedKey": true
+  },
+
+  "aad": {
+    "source": "JCS(header)",
+    "jcs": "RFC 8785",
+    "includedKeys": ["format", "formatVersion", "kdf", "cipher"],
+    "excludedKeys": ["ciphertext", "tag"],
+    "serialization": "UTF-8 bytes of the canonical JSON string",
+    "note": "The container file itself is also serialized with JCS, making export deterministic."
+  },
+
+  "header": {
+    "requiredFields": [
+      "format",
+      "formatVersion",
+      "kdf.algorithm",
+      "kdf.version",
+      "kdf.salt",
+      "kdf.memoryKiB",
+      "kdf.iterations",
+      "kdf.parallelism",
+      "cipher.algorithm",
+      "cipher.nonce",
+      "ciphertext",
+      "tag"
+    ]
+  },
+
+  "bounds": {
+    "$comment": "Validated BEFORE any KDF work. A malicious container must never be able to force a huge-memory KDF.",
+    "memoryKiB": { "min": 16384, "max": 262144 },
+    "iterations": { "min": 1, "max": 10 },
+    "parallelism": { "min": 1, "max": 4 },
+    "saltBytes": 16,
+    "nonceBytes": 12,
+    "tagBytes": 16,
+    "ciphertextMaxBytes": 67108864
+  },
+
+  "decryptOrder": [
+    "parse JSON",
+    "structural validation",
+    "bounds validation",
+    "argon2id derivation",
+    "AES-256-GCM authentication"
+  ],
+
+  "payload": {
+    "schemaVersionIndependent": true,
+    "note": "The application payload schemaVersion is independent from formatVersion. Payload v1/v2 are migrated in memory to v3 before import."
+  },
+
+  "goldenVector": {
+    "id": "depmap-container-v1-golden",
+    "password": "depmap-test",
+    "saltHex": "00112233445566778899aabbccddeeff",
+    "nonceHex": "a1b2c3d4e5f60718293a4b5c",
+    "plaintext": "{\"app\":\"depmap\",\"schemaVersion\":1,\"nodes\":[],\"dependencies\":[]}",
+    "kdfParams": { "memoryKiB": 65536, "iterations": 3, "parallelism": 1 },
+    "expected": {
+      "derivedKeyHex": "66c4bec7f5e98856747d7b41d0a021bdc092d5e12d492852bd80647bd0ff0c86",
+      "ciphertextBase64": "KNSpbKK6waj4En3ADgeBB74H96Q7GCoBmNffeOG5QSQ9XJwx4LoJCQ0j8lEinA7GN85U6JwaVMqhAkqWDdG7",
+      "tagBase64": "5qpABhovPbNet1q2GNEhkg=="
+    },
+    "assertions": [
+      "derivedKey equals expected exactly",
+      "ciphertext equals expected exactly",
+      "tag equals expected exactly",
+      "every platform can open every other platform's export of this vector"
+    ]
+  },
+
+  "utf8TestVectors": [
+    { "id": "utf8-ascii", "password": "depmap-test", "comment": "ASCII baseline" },
+    { "id": "utf8-chinese", "password": "银行卡密码测试", "comment": "3-byte UTF-8 CJK" },
+    { "id": "utf8-emoji", "password": "🔐🔑", "comment": "4-byte UTF-8 surrogate pair" },
+    { "id": "utf8-combining", "password": "e\u0301cole", "comment": "e + U+0301 combining acute; MUST NOT be normalized to U+00E9" },
+    { "id": "utf8-nfc", "password": "école", "comment": "precomposed U+00E9; MUST hash differently from utf8-combining" }
+  ],
+
+  "jcsTestVectors": {
+    "note": "JCS must produce identical bytes on all three platforms for the same logical value.",
+    "cases": [
+      { "id": "jcs-key-order", "input": { "b": 1, "a": 2 }, "expected": "{\"a\":2,\"b\":1}" },
+      { "id": "jcs-nested", "input": { "z": { "b": true, "a": false }, "a": [1, 2] }, "expected": "{\"a\":[1,2],\"z\":{\"a\":false,\"b\":true}}" },
+      { "id": "jcs-escape", "input": { "k": "a\"b\\c\nd" }, "expected": "{\"k\":\"a\\\"b\\\\c\\nd\"}" },
+      { "id": "jcs-control-char", "input": { "k": "\u0001" }, "expected": "{\"k\":\"\\u0001\"}" },
+      { "id": "jcs-empty", "input": {}, "expected": "{}" },
+      { "id": "jcs-unicode-pass-through", "input": { "k": "银行" }, "expected": "{\"k\":\"银行\"}" }
+    ],
+    "restrictedDomain": "only string / safe integer / object / array / null / boolean; floating point MUST be rejected rather than silently serialized"
+  }
+}

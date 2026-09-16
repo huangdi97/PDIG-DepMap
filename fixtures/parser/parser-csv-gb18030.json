@@ -1,0 +1,61 @@
+{
+  "id": "parser-csv-gb18030",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "generic_csv 解析 csv-gb18030.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "generic_csv",
+    "file": "csv-gb18030.csv",
+    "mapping": {
+      "columns": {
+        "dateTime": "date",
+        "counterparty": "counterparty",
+        "amount": "amount",
+        "currency": "currency"
+      },
+      "options": {
+        "delimiter": ",",
+        "dateFormats": [
+          "YYYY-MM-DD"
+        ],
+        "decimalSeparator": ".",
+        "amountSignMode": "outward_positive",
+        "hasHeaderRow": true,
+        "encoding": "gb18030"
+      }
+    }
+  },
+  "expected": {
+    "observationCount": 3,
+    "observations": [
+      {
+        "occurredAt": "2026-01-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "腾讯视频VIP",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "腾讯视频VIP",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-20T00:00:00+00:00",
+        "amount": 8,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "网易云音乐",
+        "status": ""
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

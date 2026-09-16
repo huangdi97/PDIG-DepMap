@@ -1,0 +1,59 @@
+{
+  "$comment": "PDIG Canonical Error Codes. Platforms may localize the user-facing message, but the code, category and fail-closed behaviour are identical across Android/HarmonyOS/iOS. Raw platform exceptions (SQLException, NSError, ArkTS Error, stack traces) MUST NEVER reach the user.",
+  "specVersion": "1.0.0",
+  "policy": {
+    "failClosed": true,
+    "userFacingRule": "show copy-zh.json messageKey text only; log the code plus non-sensitive diagnostics",
+    "forbiddenInLogs": [
+      "raw statement row",
+      "password",
+      "derived key",
+      "fileEncryptionKey",
+      "fpSecret",
+      "decrypted depmap plaintext",
+      "full graph dump",
+      "SQLCipher secret",
+      "Keychain/HUKS material"
+    ]
+  },
+  "codes": [
+    { "code": "invalid_json", "category": "container", "messageKey": "err.invalid_json", "userMessage": "备份文件无法读取，可能已损坏。" },
+    { "code": "invalid_structure", "category": "container", "messageKey": "err.invalid_structure", "userMessage": "备份文件格式不正确。" },
+    { "code": "bounds_exceeded", "category": "container", "messageKey": "err.bounds", "userMessage": "备份文件参数超出安全范围，已拒绝处理。" },
+    { "code": "kdf_failed", "category": "crypto", "messageKey": "err.kdf", "userMessage": "无法根据密码派生密钥。" },
+    { "code": "crypto_auth_failed", "category": "crypto", "messageKey": "err.auth", "userMessage": "密码错误，或备份文件已被修改。" },
+    { "code": "unsupported_format_version", "category": "container", "messageKey": "err.format_version", "userMessage": "该备份文件由更新版本创建，当前版本无法读取。" },
+    { "code": "unsupported_schema", "category": "schema", "messageKey": "err.schema_newer", "userMessage": "数据来自更新版本的应用，请先升级应用。" },
+    { "code": "migration_failed", "category": "schema", "messageKey": "err.migration", "userMessage": "数据升级失败，已回滚到升级前状态。" },
+    { "code": "payload_invalid", "category": "payload", "messageKey": "err.payload", "userMessage": "备份内容不完整。" },
+    { "code": "payload_kind_mismatch", "category": "payload", "messageKey": "err.payload_kind", "userMessage": "这不是本应用的备份文件。" },
+    { "code": "payload_version_unsupported", "category": "payload", "messageKey": "err.payload_version", "userMessage": "备份内容版本不受支持。" },
+    { "code": "source_parse_failed", "category": "import", "messageKey": "err.parse", "userMessage": "账单文件无法解析。" },
+    { "code": "mapping_missing_column", "category": "import", "messageKey": "err.mapping", "userMessage": "选择的列在文件中不存在，请重新选择。" },
+    { "code": "validation_failed", "category": "domain", "messageKey": "err.validation", "userMessage": "输入内容不完整或格式不正确。" },
+    { "code": "relation_not_registered", "category": "domain", "messageKey": "err.relation", "userMessage": "该关系类型当前不受支持。" },
+    { "code": "relation_kind_violation", "category": "domain", "messageKey": "err.relation_kind", "userMessage": "该关系不适用于这两个对象。" },
+    { "code": "capability_mismatch", "category": "domain", "messageKey": "err.capability", "userMessage": "该关系与所选能力不匹配。" },
+    { "code": "group_mode_not_allowed", "category": "domain", "messageKey": "err.group_mode", "userMessage": "该关系不支持所选组合方式。" },
+    { "code": "illegal_state_transition", "category": "domain", "messageKey": "err.state", "userMessage": "当前状态不允许该操作。" },
+    { "code": "action_frozen", "category": "domain", "messageKey": "err.action_frozen", "userMessage": "该计划已结束，不能再修改。" },
+    { "code": "entity_not_found", "category": "domain", "messageKey": "err.not_found", "userMessage": "找不到该项目，可能已被删除。" },
+    { "code": "scenario_not_executable", "category": "scenario", "messageKey": "err.scenario_planned", "userMessage": "该场景尚未开放。" },
+    { "code": "scenario_missing_input", "category": "scenario", "messageKey": "err.scenario_input", "userMessage": "请选择要处理的对象。" },
+    { "code": "db_locked", "category": "storage", "messageKey": "err.db_locked", "userMessage": "数据正在被占用，请稍后重试。" },
+    { "code": "db_open_failed", "category": "storage", "messageKey": "err.db_open", "userMessage": "无法打开本地数据。" },
+    { "code": "auth_cancelled", "category": "security", "messageKey": "err.auth_cancelled", "userMessage": "已取消验证。" },
+    { "code": "auth_failed", "category": "security", "messageKey": "err.auth_failed", "userMessage": "身份验证失败。" },
+    { "code": "auth_unavailable", "category": "security", "messageKey": "err.auth_unavailable", "userMessage": "当前设备无法完成身份验证。" },
+    { "code": "key_unavailable", "category": "security", "messageKey": "err.key", "userMessage": "安全密钥不可用。" },
+    { "code": "cancelled_by_user", "category": "ui", "messageKey": "err.cancelled", "userMessage": "已取消。" }
+  ],
+  "legacyCodeMapping": {
+    "$comment": "Internal TypeScript codes mapped to canonical codes so platform behaviour is uniform.",
+    "invalid_json": "invalid_json",
+    "invalid_structure": "invalid_structure",
+    "bounds": "bounds_exceeded",
+    "kdf": "kdf_failed",
+    "auth_failed": "crypto_auth_failed"
+  }
+}

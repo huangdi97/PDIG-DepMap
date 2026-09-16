@@ -1,0 +1,145 @@
+{
+  "id": "impact-any-group-covered",
+  "category": "impact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "已确认 ANY 组合仍有可用成员 → backup_path / confirmed_group_covered，冗余度下降",
+  "input": {
+    "graph": {
+      "dependencies": [
+        {
+          "id": "d1",
+          "from": "card-a",
+          "relation": "funding_source",
+          "to": "wechat",
+          "capability": "payment",
+          "criticality": "required",
+          "groupId": "g1",
+          "state": "active",
+          "origin": "manual",
+          "confirmedAt": "2026-09-13T00:00:00.000Z",
+          "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+          "retiredAt": null,
+          "evidenceRefs": [],
+          "verificationBasis": {
+            "type": "user_confirmed",
+            "verifiedAt": "2026-09-13T00:00:00.000Z"
+          },
+          "createdAt": "2026-09-13T00:00:00.000Z",
+          "updatedAt": "2026-09-13T00:00:00.000Z"
+        },
+        {
+          "id": "d2",
+          "from": "card-b",
+          "relation": "funding_source",
+          "to": "wechat",
+          "capability": "payment",
+          "criticality": "required",
+          "groupId": "g1",
+          "state": "active",
+          "origin": "manual",
+          "confirmedAt": "2026-09-13T00:00:00.000Z",
+          "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+          "retiredAt": null,
+          "evidenceRefs": [],
+          "verificationBasis": {
+            "type": "user_confirmed",
+            "verifiedAt": "2026-09-13T00:00:00.000Z"
+          },
+          "createdAt": "2026-09-13T00:00:00.000Z",
+          "updatedAt": "2026-09-13T00:00:00.000Z"
+        }
+      ],
+      "groups": [
+        {
+          "id": "g1",
+          "groupKey": "wechat|payment|ANY|d1|d2",
+          "targetNodeId": "wechat",
+          "capability": "payment",
+          "mode": "ANY",
+          "memberEdgeIds": [
+            "d1",
+            "d2"
+          ],
+          "state": "active",
+          "confirmedAt": "2026-09-13T00:00:00.000Z",
+          "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+          "verificationBasis": {
+            "type": "user_confirmed",
+            "verifiedAt": "2026-09-13T00:00:00.000Z"
+          },
+          "createdAt": "2026-09-13T00:00:00.000Z",
+          "updatedAt": "2026-09-13T00:00:00.000Z"
+        }
+      ],
+      "proposals": [],
+      "nodeNames": {
+        "card-a": "招行信用卡",
+        "card-b": "建行储蓄卡",
+        "wechat": "微信支付",
+        "tencent": "腾讯视频",
+        "spotify": "Spotify"
+      }
+    },
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ]
+  },
+  "expected": {
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "lostKeys": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "targets": [
+      {
+        "nodeId": "wechat",
+        "nodeName": "微信支付",
+        "capability": "payment",
+        "depth": 1,
+        "status": "backup_path",
+        "available": true,
+        "redundancyDegraded": true,
+        "reasonCode": "confirmed_group_covered",
+        "reasonText": "已确认存在替代支付来源，微信支付 的支付可继续，但冗余度下降（能力降级）",
+        "edgeKeys": [
+          "card-a|funding_source|wechat|payment"
+        ],
+        "groupKeys": [
+          "wechat|payment|ANY|d1|d2"
+        ],
+        "proposalKeys": []
+      }
+    ],
+    "checklist": [
+      {
+        "level": "backup_path",
+        "nodeId": "wechat",
+        "capability": "payment",
+        "title": "有备用路径：微信支付 可切换（能力降级）",
+        "detail": "已确认存在替代支付来源，微信支付 的支付可继续，但冗余度下降（能力降级）"
+      },
+      {
+        "level": "target_operation",
+        "nodeId": "card-a",
+        "capability": "payment",
+        "title": "最后一步：注销/停用 招行信用卡（原始操作）",
+        "detail": "以上事项处理完成后再执行原始操作。"
+      }
+    ],
+    "processedKeys": [
+      "card-a|payment"
+    ]
+  }
+}

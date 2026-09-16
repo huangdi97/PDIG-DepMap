@@ -1,0 +1,43 @@
+{
+  "id": "scenario-template-policy",
+  "category": "scenario",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "active 模板必须是 payment capability 且可执行；planned 无 factory 必须被拒绝；注册表不得含日常生活提醒类模板",
+  "input": {
+    "excludedDomains": [
+      "water",
+      "birthday",
+      "plant",
+      "meeting",
+      "exercise",
+      "exam",
+      "anniversary",
+      "holiday"
+    ]
+  },
+  "expected": {
+    "activeIds": [
+      "replace_payment_card",
+      "expiring_payment_card",
+      "close_payment_instrument"
+    ],
+    "activeCategories": [
+      "payment",
+      "payment",
+      "payment"
+    ],
+    "plannedIds": [
+      "replace_phone_number"
+    ],
+    "plannedExecutable": [
+      false
+    ],
+    "leadingTimeByTemplate": {
+      "replace_payment_card": null,
+      "expiring_payment_card": 30,
+      "close_payment_instrument": 14
+    }
+  }
+}

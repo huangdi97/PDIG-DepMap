@@ -1,0 +1,16 @@
+{
+  "id": "relation-group-bound_to-ANY",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationGroupUse(bound_to, ANY)",
+  "input": {
+    "relation": "bound_to",
+    "mode": "ANY"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'bound_to' is not in the runtime registry"
+  }
+}

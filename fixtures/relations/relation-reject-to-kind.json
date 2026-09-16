@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-to-kind",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(payment_instrument, funding_source, device, payment)",
+  "input": {
+    "id": "reject-to-kind",
+    "fromKind": "payment_instrument",
+    "relation": "funding_source",
+    "toKind": "device",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'funding_source' does not allow toKind 'device'"
+  }
+}

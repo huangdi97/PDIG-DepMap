@@ -1,0 +1,15 @@
+{
+  "id": "relation-group-funding_source-ANY",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationGroupUse(funding_source, ANY)",
+  "input": {
+    "relation": "funding_source",
+    "mode": "ANY"
+  },
+  "expected": {
+    "ok": true
+  }
+}

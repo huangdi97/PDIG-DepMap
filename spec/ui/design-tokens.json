@@ -1,0 +1,126 @@
+{
+  "$comment": "PDIG Design Tokens — brand truth shared by all three platforms. Extracted from app/theme/tokens.uts @ 6d268c0. UI code is NOT generated from this file; only the token values and copy keys are shared. Each platform maps these to its native design system (Material 3 / ArkUI / SwiftUI) and MUST keep brand, content, domain semantics, key CTAs and user flow identical.",
+  "specVersion": "1.0.0",
+
+  "policy": {
+    "noRemoteFonts": true,
+    "noRemoteIconCdn": true,
+    "cjkFont": "system",
+    "colorRule": "pages MUST NOT hardcode color literals; only palette values and status role colours are allowed",
+    "statusNotColorOnly": true
+  },
+
+  "colors": {
+    "light": {
+      "primary": "#4C4FD8",
+      "primaryActive": "#3B3EB8",
+      "primarySoft": "#EEEEFB",
+      "background": "#F5F6FA",
+      "surface": "#FFFFFF",
+      "surfaceElevated": "#FFFFFF",
+      "textPrimary": "#1B1D29",
+      "textSecondary": "#5A5F73",
+      "textTertiary": "#8A90A6",
+      "border": "#E6E8F0",
+      "success": "#2BA471",
+      "warning": "#D98E04",
+      "danger": "#D54941",
+      "info": "#3B6FD8",
+      "disabled": "#B9BDCC"
+    },
+    "dark": {
+      "primary": "#8B8EF5",
+      "primaryActive": "#A5A7F8",
+      "primarySoft": "#242541",
+      "background": "#12131A",
+      "surface": "#1C1E28",
+      "surfaceElevated": "#232633",
+      "textPrimary": "#F2F3F7",
+      "textSecondary": "#B4B9C9",
+      "textTertiary": "#828799",
+      "border": "#2C2F3D",
+      "success": "#3FBF87",
+      "warning": "#E0A63A",
+      "danger": "#E4695F",
+      "info": "#5B8CE8",
+      "disabled": "#4A4E5E"
+    }
+  },
+
+  "statusRoles": {
+    "$comment": "Semantic status -> foreground colour. Both light and dark MUST define these; a status MUST NOT be communicated by colour alone.",
+    "map": {
+      "blocked": "danger",
+      "review_required": "warning",
+      "needs_revalidation": "warning",
+      "ready_with_known_scope": "success",
+      "verifying": "info",
+      "completed": "textSecondary",
+      "cancelled": "textTertiary",
+      "limited": "warning",
+      "partial": "info",
+      "well_evidenced": "success",
+      "default": "textTertiary"
+    },
+    "softBackgroundsLight": {
+      "blocked": "#FCEDEC",
+      "review_required": "#FCF4E3",
+      "needs_revalidation": "#FCF4E3",
+      "ready_with_known_scope": "#E8F6F0",
+      "verifying": "#EAF1FC",
+      "completed": "#F0F1F5",
+      "cancelled": "#F0F1F5",
+      "limited": "#FCF4E3",
+      "partial": "#EAF1FC",
+      "well_evidenced": "#E8F6F0",
+      "default": "#F0F1F5"
+    },
+    "note": "Soft backgrounds are enumerated explicitly; do NOT synthesise them by appending alpha to a 6-digit hex, since 8-digit hex is not guaranteed on every native platform."
+  },
+
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 20,
+    "xxl": 24,
+    "xxxl": 32
+  },
+
+  "radius": {
+    "sm": 6,
+    "md": 10,
+    "lg": 14,
+    "pill": 999
+  },
+
+  "typographyRoles": {
+    "display": 26,
+    "h1": 22,
+    "h2": 18,
+    "section": 16,
+    "body": 15,
+    "secondary": 13,
+    "caption": 12,
+    "button": 15
+  },
+
+  "accessibility": {
+    "touchTargetMinDp": 44,
+    "touchTargetMinPt": 44,
+    "touchTargetMinVp": 44,
+    "requirements": [
+      "status is never conveyed by colour alone - always pair with text",
+      "screen reader labels on every interactive element",
+      "large text must not clip critical content",
+      "contrast: body text >= 4.5:1, large text >= 3:1"
+    ]
+  },
+
+  "darkMode": {
+    "requirement": "System / Light / Dark if the native design system supports it cheaply",
+    "fallback": "at minimum the token layer must be ready (this file) even if the toggle is not yet exposed",
+    "note": "Light remains the default in MVP."
+  }
+}

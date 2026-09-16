@@ -1,0 +1,60 @@
+{
+  "id": "parser-csv-cr-only",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "generic_csv 解析 csv-cr-only.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "generic_csv",
+    "file": "csv-cr-only.csv",
+    "mapping": {
+      "columns": {
+        "dateTime": "date",
+        "counterparty": "counterparty",
+        "amount": "amount",
+        "currency": "currency"
+      },
+      "options": {
+        "delimiter": ",",
+        "dateFormats": [
+          "YYYY-MM-DD"
+        ],
+        "decimalSeparator": ".",
+        "amountSignMode": "outward_positive",
+        "hasHeaderRow": true
+      }
+    }
+  },
+  "expected": {
+    "observationCount": 3,
+    "observations": [
+      {
+        "occurredAt": "2026-01-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-20T00:00:00+00:00",
+        "amount": 11.99,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "SPOTIFY AB",
+        "status": ""
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

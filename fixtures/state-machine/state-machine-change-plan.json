@@ -1,0 +1,77 @@
+{
+  "id": "state-machine-change-plan",
+  "category": "state-machine",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "ChangePlan 合法迁移表（终态不可迁出）；派生 needs_revalidation 规则",
+  "input": {
+    "fields": [
+      "workflowState",
+      "currentGraphRevision",
+      "lastAnalyzedGraphRevision"
+    ]
+  },
+  "expected": {
+    "transitions": {
+      "draft": [
+        "analyzed",
+        "review_required",
+        "ready",
+        "in_progress",
+        "cancelled"
+      ],
+      "analyzed": [
+        "review_required",
+        "ready",
+        "in_progress",
+        "cancelled"
+      ],
+      "review_required": [
+        "ready",
+        "in_progress",
+        "cancelled",
+        "analyzed"
+      ],
+      "ready": [
+        "in_progress",
+        "cancelled",
+        "review_required"
+      ],
+      "in_progress": [
+        "verifying",
+        "completed",
+        "cancelled"
+      ],
+      "verifying": [
+        "completed",
+        "cancelled",
+        "in_progress"
+      ],
+      "completed": [],
+      "cancelled": []
+    },
+    "terminal": [
+      "completed",
+      "cancelled"
+    ],
+    "derivedStatus": {
+      "name": "PlanEffectiveStatus",
+      "value": "needs_revalidation",
+      "rule": "isStale(plan, currentGraphRevision) => workflowState NOT IN (completed, cancelled) AND currentGraphRevision > lastAnalyzedGraphRevision",
+      "persisted": false
+    },
+    "guards": [
+      {
+        "id": "PLAN-ACTION-FROZEN",
+        "rule": "completeAction on a plan whose workflowState is completed or cancelled MUST be rejected",
+        "errorCode": "action_frozen"
+      },
+      {
+        "id": "PLAN-ACTION-EXISTS",
+        "rule": "completeAction / verifyActionManually / suggestVerificationFromEvidence with an unknown actionId MUST be rejected",
+        "errorCode": "entity_not_found"
+      }
+    ]
+  }
+}

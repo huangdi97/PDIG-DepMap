@@ -1,0 +1,18 @@
+{
+  "id": "timeline-terminal-plans-excluded",
+  "category": "timeline",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "completed / cancelled 计划不产生 timeline 项（TL-007）",
+  "input": {
+    "now": "2026-09-13T00:00:00.000Z",
+    "graphRevision": 5
+  },
+  "expected": {
+    "count": 1,
+    "kinds": [
+      "freshness_review"
+    ]
+  }
+}

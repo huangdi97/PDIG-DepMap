@@ -1,0 +1,37 @@
+{
+  "id": "parser-ofx-malformed",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "ofx_qfx 解析 ofx-malformed.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "ofx_qfx",
+    "file": "ofx-malformed.ofx",
+    "mapping": null
+  },
+  "expected": {
+    "observationCount": 1,
+    "observations": [
+      {
+        "occurredAt": "2026-01-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": ""
+      }
+    ],
+    "errorCount": 2,
+    "errors": [
+      {
+        "line": 1,
+        "reason": "malformed STMTTRN block (no FITID/TRNAMT)"
+      },
+      {
+        "line": 2,
+        "reason": "malformed STMTTRN block (no FITID/TRNAMT)"
+      }
+    ]
+  }
+}

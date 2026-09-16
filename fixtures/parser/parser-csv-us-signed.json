@@ -1,0 +1,76 @@
+{
+  "id": "parser-csv-us-signed",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "generic_csv 解析 csv-us-credit-card.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "generic_csv",
+    "file": "csv-us-credit-card.csv",
+    "mapping": {
+      "columns": {
+        "dateTime": "Transaction Date",
+        "counterparty": "Description",
+        "amount": "Amount"
+      },
+      "options": {
+        "delimiter": ",",
+        "dateFormats": [
+          "MM/DD/YYYY"
+        ],
+        "decimalSeparator": ".",
+        "amountSignMode": "signed",
+        "positiveDirection": "out",
+        "hasHeaderRow": true
+      }
+    }
+  },
+  "expected": {
+    "observationCount": 5,
+    "observations": [
+      {
+        "occurredAt": "2026-01-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-20T00:00:00+00:00",
+        "amount": 11.99,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "SPOTIFY AB",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-20T00:00:00+00:00",
+        "amount": 11.99,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "SPOTIFY AB",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-05T00:00:00+00:00",
+        "amount": 5200,
+        "currency": "XXX",
+        "direction": "in",
+        "merchantRaw": "PAYROLL DEPOSIT ACME CORP",
+        "status": ""
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

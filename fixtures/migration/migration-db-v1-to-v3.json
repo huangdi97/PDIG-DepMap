@@ -1,0 +1,67 @@
+{
+  "id": "migration-db-v1-to-v3",
+  "category": "migration",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "DB v1 → v3：版本到达 3、legacy 数据归属 legacy SourceInstance、ID 与决策保留、指纹作用域重建、重复执行严格 no-op",
+  "input": {
+    "from": 1,
+    "to": 3,
+    "seeded": [
+      "node-1",
+      "dep-1",
+      "ev-1",
+      "fp-abc",
+      "prop-1",
+      "sess-1"
+    ]
+  },
+  "expected": {
+    "finalSchemaVersion": 3,
+    "tables": [
+      "change_plans",
+      "dependencies",
+      "dependency_group_proposals",
+      "dependency_groups",
+      "dependency_proposals",
+      "discovery_candidates",
+      "evidence",
+      "import_sessions",
+      "meta",
+      "nodes",
+      "observation_fingerprints",
+      "proposal_evidence_refs",
+      "reality_drifts",
+      "source_instances"
+    ],
+    "legacySourceInstanceId": "legacy-wechat-statement",
+    "legacySourceInstanceRows": 1,
+    "preserved": {
+      "node": {
+        "id": "node-1",
+        "name": "招行 4417"
+      },
+      "dependency": {
+        "id": "dep-1",
+        "state": "active",
+        "criticality": "required"
+      },
+      "evidence": {
+        "id": "ev-1",
+        "proposal_key": "k1",
+        "source_instance_id": "legacy-wechat-statement",
+        "evidence_kind": "transaction_stream"
+      },
+      "fingerprint": {
+        "fingerprint": "fp-abc",
+        "source_instance_id": "legacy-wechat-statement"
+      },
+      "proposal": {
+        "id": "prop-1",
+        "decision": "pending"
+      }
+    },
+    "idempotentAfter50": true
+  }
+}

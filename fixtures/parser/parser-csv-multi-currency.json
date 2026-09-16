@@ -1,0 +1,92 @@
+{
+  "id": "parser-csv-multi-currency",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "generic_csv 解析 csv-multi-currency.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "generic_csv",
+    "file": "csv-multi-currency.csv",
+    "mapping": {
+      "columns": {
+        "dateTime": "date",
+        "description": "description",
+        "amount": "amount",
+        "currency": "currency"
+      },
+      "options": {
+        "delimiter": ",",
+        "dateFormats": [
+          "YYYY-MM-DD"
+        ],
+        "decimalSeparator": ".",
+        "amountSignMode": "outward_positive",
+        "hasHeaderRow": true
+      }
+    }
+  },
+  "expected": {
+    "observationCount": 7,
+    "observations": [
+      {
+        "occurredAt": "2026-01-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-20T00:00:00+00:00",
+        "amount": 12.99,
+        "currency": "EUR",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-20T00:00:00+00:00",
+        "amount": 12.99,
+        "currency": "EUR",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-25T00:00:00+00:00",
+        "amount": 9.5,
+        "currency": "USD",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-02-25T00:00:00+00:00",
+        "amount": 9.5,
+        "currency": "USD",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      },
+      {
+        "occurredAt": "2026-01-30T00:00:00+00:00",
+        "amount": 1500,
+        "currency": "JPY",
+        "direction": "out",
+        "merchantRaw": "",
+        "status": ""
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

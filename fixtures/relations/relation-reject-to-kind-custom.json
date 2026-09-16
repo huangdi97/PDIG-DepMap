@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-to-kind-custom",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(account, merchant_agreement, custom, payment)",
+  "input": {
+    "id": "reject-to-kind-custom",
+    "fromKind": "account",
+    "relation": "merchant_agreement",
+    "toKind": "custom",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'merchant_agreement' does not allow toKind 'custom'"
+  }
+}

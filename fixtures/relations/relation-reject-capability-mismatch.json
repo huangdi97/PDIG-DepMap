@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-capability-mismatch",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(payment_instrument, funding_source, account, access)",
+  "input": {
+    "id": "reject-capability-mismatch",
+    "fromKind": "payment_instrument",
+    "relation": "funding_source",
+    "toKind": "account",
+    "capability": "access"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'funding_source' requires capability 'payment', got 'access'"
+  }
+}

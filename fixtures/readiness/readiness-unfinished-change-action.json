@@ -1,0 +1,34 @@
+{
+  "id": "readiness-unfinished-change-action",
+  "category": "readiness",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "未完成的 change 阶段动作 → review_required（FR-READ-014 / RD-08）",
+  "input": {
+    "plan": {
+      "id": "plan-1",
+      "templateId": "replace_payment_card",
+      "scenario": "replace_payment_card",
+      "title": "更换银行卡",
+      "workflowState": "analyzed",
+      "baselineGraphRevision": 3,
+      "lastAnalyzedGraphRevision": 3,
+      "targetNodeId": "card-a",
+      "effectiveDate": null,
+      "params": {},
+      "impactSnapshot": null,
+      "actions": [],
+      "createdAt": "2026-09-13T00:00:00.000Z",
+      "updatedAt": "2026-09-13T00:00:00.000Z"
+    },
+    "currentGraphRevision": 3,
+    "pendingMustChange": 0,
+    "pendingNeedsReview": 0,
+    "unresolvedCandidates": 0,
+    "pendingRelevantProposals": 0,
+    "staleRelevantDependencies": 0,
+    "unfinishedChangeActions": 1
+  },
+  "expected": "review_required"
+}

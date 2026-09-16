@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-non-runtime-relation-verifies",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(account, verifies, account, payment)",
+  "input": {
+    "id": "reject-non-runtime-relation-verifies",
+    "fromKind": "account",
+    "relation": "verifies",
+    "toKind": "account",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'verifies' is not in the runtime registry"
+  }
+}

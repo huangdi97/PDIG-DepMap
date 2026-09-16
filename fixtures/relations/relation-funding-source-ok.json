@@ -1,0 +1,18 @@
+{
+  "id": "relation-funding-source-ok",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(payment_instrument, funding_source, account, payment)",
+  "input": {
+    "id": "funding-source-ok",
+    "fromKind": "payment_instrument",
+    "relation": "funding_source",
+    "toKind": "account",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": true
+  }
+}

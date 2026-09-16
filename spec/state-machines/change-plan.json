@@ -1,0 +1,44 @@
+{
+  "$comment": "PDIG Canonical State Machines — machine-readable. All three platforms MUST implement these transition tables verbatim. Illegal transitions must throw/reject; they must never be silently coerced.",
+  "specVersion": "1.0.0",
+
+  "machineId": "ChangePlanWorkflow",
+  "entity": "ChangePlan",
+  "field": "workflowState",
+  "initial": "draft",
+  "terminal": ["completed", "cancelled"],
+  "transitions": {
+    "draft": ["analyzed", "review_required", "ready", "in_progress", "cancelled"],
+    "analyzed": ["review_required", "ready", "in_progress", "cancelled"],
+    "review_required": ["ready", "in_progress", "cancelled", "analyzed"],
+    "ready": ["in_progress", "cancelled", "review_required"],
+    "in_progress": ["verifying", "completed", "cancelled"],
+    "verifying": ["completed", "cancelled", "in_progress"],
+    "completed": [],
+    "cancelled": []
+  },
+  "derivedStatus": {
+    "name": "PlanEffectiveStatus",
+    "value": "needs_revalidation",
+    "rule": "isStale(plan, currentGraphRevision) => workflowState NOT IN (completed, cancelled) AND currentGraphRevision > lastAnalyzedGraphRevision",
+    "persisted": false
+  },
+  "guards": [
+    {
+      "id": "PLAN-ACTION-FROZEN",
+      "rule": "completeAction on a plan whose workflowState is completed or cancelled MUST be rejected",
+      "errorCode": "action_frozen"
+    },
+    {
+      "id": "PLAN-ACTION-EXISTS",
+      "rule": "completeAction / verifyActionManually / suggestVerificationFromEvidence with an unknown actionId MUST be rejected",
+      "errorCode": "entity_not_found"
+    }
+  ],
+  "invariants": [
+    "INV-15: after any sequence, ChangePlan.lastAnalyzedGraphRevision <= current graphRevision",
+    "INV-16: ready_with_known_scope requires revision current AND all must_change resolved",
+    "INV-17: a completed plan is never rewritten by a later rebase",
+    "PRB-009/010: completed and cancelled plans are historical and are not rebased"
+  ]
+}

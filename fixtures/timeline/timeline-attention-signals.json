@@ -1,0 +1,46 @@
+{
+  "id": "timeline-attention-signals",
+  "category": "timeline",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "开放 Drift → drift_review(attention)；过期来源 → freshness_review(attention)；到期 → expiration；revision 落后 → needs_attention",
+  "input": {
+    "now": "2026-09-13T00:00:00.000Z",
+    "graphRevision": 5,
+    "freshnessThresholdDays": 45
+  },
+  "expected": {
+    "kinds": [
+      "drift_review",
+      "freshness_review",
+      "freshness_review",
+      "expiration"
+    ],
+    "buckets": [
+      "attention",
+      "attention",
+      "attention",
+      "30d"
+    ],
+    "sourceTypes": [
+      "reality_drift",
+      "source_freshness",
+      "source_freshness",
+      "node_expiry"
+    ],
+    "priorities": [
+      3,
+      1,
+      1,
+      2
+    ],
+    "statuses": [
+      "open",
+      "stale",
+      "stale",
+      "scheduled"
+    ],
+    "allTraceable": true
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "parser-wechat-malformed",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "wechat 解析 malformed.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "wechat",
+    "file": "malformed.csv",
+    "mapping": null
+  },
+  "expected": {
+    "observationCount": 2,
+    "observations": [
+      {
+        "occurredAt": "2026-01-03T10:23:00+08:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "腾讯视频",
+        "status": "支付成功"
+      },
+      {
+        "occurredAt": "2026-01-07T10:23:00+08:00",
+        "amount": 12,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "正常行",
+        "status": "支付成功"
+      }
+    ],
+    "errorCount": 4,
+    "errors": [
+      {
+        "line": 13,
+        "reason": "expected >=9 columns, got 1"
+      },
+      {
+        "line": 14,
+        "reason": "bad transaction time: 2026-13-40 99:99:99"
+      },
+      {
+        "line": 15,
+        "reason": "bad amount: ¥ABCD"
+      },
+      {
+        "line": 16,
+        "reason": "expected >=9 columns, got 3"
+      }
+    ]
+  }
+}

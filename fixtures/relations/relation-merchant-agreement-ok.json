@@ -1,0 +1,18 @@
+{
+  "id": "relation-merchant-agreement-ok",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(payment_instrument, merchant_agreement, service, payment)",
+  "input": {
+    "id": "merchant-agreement-ok",
+    "fromKind": "payment_instrument",
+    "relation": "merchant_agreement",
+    "toKind": "service",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": true
+  }
+}

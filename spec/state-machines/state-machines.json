@@ -1,0 +1,236 @@
+{
+  "$comment": "PDIG Canonical State Machines (remaining machines). Each entry is a self-contained machine definition. Platforms MUST NOT add states or transitions.",
+  "specVersion": "1.0.0",
+  "machines": [
+    {
+      "machineId": "RealityDriftStatus",
+      "entity": "RealityDrift",
+      "field": "status",
+      "initial": "open",
+      "terminal": ["confirmed_change", "dismissed", "superseded"],
+      "transitions": {
+        "open": ["confirmed_change", "dismissed"],
+        "confirmed_change": [],
+        "dismissed": [],
+        "superseded": []
+      },
+      "creationRule": {
+        "requires": "positive evidence only",
+        "minObservations": 2,
+        "absenceOnly": "must never create a drift",
+        "alreadyConfirmedSource": "ignored with reason already_confirmed",
+        "belowThreshold": "ignored with reason below_threshold",
+        "duplicateEvidenceRef": "does not re-create or re-count",
+        "upsert": "same drift key accumulates observationCount and evidenceRefs into ONE open drift"
+      },
+      "transitionEffects": {
+        "dismiss": { "mutatesReality": false, "bumpsGraphRevision": false },
+        "resolveAsReplacement": {
+          "mutatesReality": true,
+          "effects": ["insert new active Dependency", "retire previous Dependency"],
+          "bumpsGraphRevision": true
+        },
+        "resolveAsAdditionalPath": {
+          "mutatesReality": true,
+          "effects": ["insert new active Dependency", "previous path stays active"],
+          "bumpsGraphRevision": true
+        }
+      },
+      "guards": [
+        {
+          "id": "DRIFT-OPEN-ONLY",
+          "rule": "resolve/dismiss on a non-open drift MUST be rejected",
+          "errorCode": "illegal_state_transition"
+        }
+      ],
+      "invariants": [
+        "INV-18: confirmed_change always corresponds to a successful Reality mutation",
+        "RD-004: dismiss leaves Graph and revision untouched",
+        "RD-010: a rejected Proposal never produces a confirmed drift"
+      ]
+    },
+    {
+      "machineId": "DiscoveryCandidateStatus",
+      "entity": "DiscoveryCandidate",
+      "field": "status",
+      "initial": "pending",
+      "terminal": ["accepted", "dismissed", "superseded"],
+      "transitions": {
+        "pending": ["accepted", "dismissed"],
+        "accepted": [],
+        "dismissed": ["pending"],
+        "superseded": []
+      },
+      "transitionEffects": {
+        "accept": {
+          "mutatesReality": true,
+          "effects": ["create exactly one Node"],
+          "bumpsGraphRevision": false,
+          "replay": "idempotent - accept replay returns created=false and the same nodeId"
+        },
+        "dismiss": {
+          "mutatesReality": false,
+          "effects": ["record dismissedAtObservationCount"],
+          "reappeal": "returns to pending only after newObservations >= 2"
+        }
+      },
+      "guards": [
+        {
+          "id": "CANDIDATE-PENDING-ONLY",
+          "rule": "accept on a dismissed or accepted candidate MUST be rejected",
+          "errorCode": "illegal_state_transition"
+        }
+      ],
+      "invariants": [
+        "PC-05: candidate never bumps graphRevision (upsert / dismiss / accept)",
+        "PC-06: candidate never enters Impact",
+        "INV-19: accepted candidate never creates a duplicate logical Node"
+      ]
+    },
+    {
+      "machineId": "ActionVerificationStatus",
+      "entity": "PlanAction.verification",
+      "field": "verification.status",
+      "initial": "pending",
+      "terminal": ["verified", "failed"],
+      "transitions": {
+        "not_required": [],
+        "pending": ["evidence_suggested", "verified", "failed", "not_required"],
+        "evidence_suggested": ["verified", "failed", "evidence_suggested"],
+        "verified": [],
+        "failed": []
+      },
+      "evidenceSignalRule": {
+        "appliesOnlyTo": ["pending", "evidence_suggested"],
+        "requiresMethod": "future_observation",
+        "requiresMatch": "expectedFromNodeId AND expectedToNodeId must both equal the signal",
+        "effect": "status becomes evidence_suggested",
+        "never": ["mutates Reality", "auto-verifies", "bumps graphRevision"]
+      },
+      "guards": [
+        {
+          "id": "VF-FROZEN",
+          "rule": "evidence suggestion must not override verified, failed or not_required",
+          "errorCode": "illegal_state_transition"
+        }
+      ],
+      "invariants": [
+        "VF-001: completeAction sets done only; verification stays pending",
+        "VF-005: duplicate evidenceRef is not recorded twice",
+        "VF-006: wrong source produces no suggestion",
+        "VF-007: verified survives process restart"
+      ]
+    },
+    {
+      "machineId": "DependencyLifecycle",
+      "entity": "Dependency",
+      "field": "state",
+      "initial": "active",
+      "terminal": [],
+      "transitions": {
+        "active": ["retired"],
+        "retired": ["active"]
+      },
+      "logicalKey": "from|relation|to|capability",
+      "reactivationRule": "a retired row that becomes true again MUST be re-activated on the SAME row id; a second logical edge must never be created",
+      "transitionEffects": {
+        "create": { "bumpsGraphRevision": true },
+        "retire": { "bumpsGraphRevision": true, "propagatesImpact": false },
+        "reactivate": { "bumpsGraphRevision": true, "propagatesImpact": true }
+      },
+      "invariants": [
+        "INV1/INV8: logical key uniqueness holds after accept replay x3 and retire->reactivate",
+        "INV9: retired Dependency does not propagate Impact; re-activation restores propagation"
+      ]
+    },
+    {
+      "machineId": "GroupLifecycle",
+      "entity": "DependencyGroup",
+      "field": "state",
+      "initial": "active",
+      "terminal": [],
+      "transitions": {
+        "active": ["retired"],
+        "retired": ["active"]
+      },
+      "groupKeyRule": "target|capability|mode|sorted(dedup(memberLogicalKeys...)); member order is irrelevant",
+      "creationRule": "groups are confirmable by the user only; the machine may only produce a DependencyGroupProposal",
+      "invariants": [
+        "INV2: repeated confirm of the same group yields one row with the canonical key",
+        "INV6: every group member edge exists and passes registry validation"
+      ]
+    },
+    {
+      "machineId": "ProposalDecision",
+      "entity": "DependencyProposal",
+      "field": "decision",
+      "initial": "pending",
+      "terminal": [],
+      "transitions": {
+        "pending": ["accepted", "rejected"],
+        "accepted": ["accepted"],
+        "rejected": ["pending", "rejected"]
+      },
+      "rules": {
+        "upsert": "same proposal key always UPSERTs; a new row is never created",
+        "pendingAccumulatesEvidence": true,
+        "acceptedIsNotAskedAgain": true,
+        "rejectedIsNotPermanentlyFalse": true,
+        "reproposalGate": "a rejected proposal may only return to pending when, for at least ONE evidence stream, observationCount - rejectedAtStreamCounts[streamId] >= 3",
+        "forbidden": "summing new observations across streams to reach the threshold"
+      }
+    },
+    {
+      "machineId": "SourceInstanceState",
+      "entity": "SourceInstance",
+      "field": "state",
+      "initial": "active",
+      "terminal": [],
+      "transitions": {
+        "active": ["retired"],
+        "retired": ["active"]
+      },
+      "rules": {
+        "retiredInstanceIsExcludedFromTimelineFreshness": true
+      }
+    },
+    {
+      "machineId": "GraphRevision",
+      "entity": "GraphRevision",
+      "field": "meta.graph_revision",
+      "initial": 0,
+      "monotonic": true,
+      "bumpsOn": [
+        "node_create",
+        "node_update",
+        "node_archive",
+        "dependency_confirm_create",
+        "dependency_confirm_update",
+        "dependency_retire",
+        "dependency_reactivate",
+        "group_confirm",
+        "group_retire",
+        "drift_resolve_replacement",
+        "drift_resolve_additional_path"
+      ],
+      "neverBumpsOn": [
+        "evidence_record",
+        "proposal_upsert",
+        "proposal_decision",
+        "candidate_upsert",
+        "candidate_dismiss",
+        "candidate_accept",
+        "drift_detect",
+        "drift_dismiss",
+        "timeline_build",
+        "import_session_record",
+        "plan_create",
+        "plan_rebase",
+        "plan_transition",
+        "action_complete",
+        "action_verify"
+      ],
+      "atomicity": "the Reality mutation and the revision increment MUST happen inside one database transaction on every platform"
+    }
+  ]
+}

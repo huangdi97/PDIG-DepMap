@@ -1,0 +1,59 @@
+{
+  "id": "state-machine-action-verification",
+  "category": "state-machine",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "Verification：done ≠ verified；verified/failed/not_required 不可被 evidence suggestion 覆盖",
+  "input": {
+    "fields": [
+      "verification.status",
+      "verification.method",
+      "done"
+    ]
+  },
+  "expected": {
+    "initial": "pending",
+    "terminal": [
+      "verified",
+      "failed"
+    ],
+    "transitions": {
+      "not_required": [],
+      "pending": [
+        "evidence_suggested",
+        "verified",
+        "failed",
+        "not_required"
+      ],
+      "evidence_suggested": [
+        "verified",
+        "failed",
+        "evidence_suggested"
+      ],
+      "verified": [],
+      "failed": []
+    },
+    "evidenceSignalRule": {
+      "appliesOnlyTo": [
+        "pending",
+        "evidence_suggested"
+      ],
+      "requiresMethod": "future_observation",
+      "requiresMatch": "expectedFromNodeId AND expectedToNodeId must both equal the signal",
+      "effect": "status becomes evidence_suggested",
+      "never": [
+        "mutates Reality",
+        "auto-verifies",
+        "bumps graphRevision"
+      ]
+    },
+    "guards": [
+      {
+        "id": "VF-FROZEN",
+        "rule": "evidence suggestion must not override verified, failed or not_required",
+        "errorCode": "illegal_state_transition"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-unknown-relation",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(account, nope, account, payment)",
+  "input": {
+    "id": "reject-unknown-relation",
+    "fromKind": "account",
+    "relation": "nope",
+    "toKind": "account",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'nope' is not in the runtime registry"
+  }
+}

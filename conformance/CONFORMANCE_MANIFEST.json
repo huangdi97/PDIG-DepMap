@@ -1,0 +1,704 @@
+{
+  "$comment": "PDIG Conformance Manifest. Every fixture here is generated from the frozen TypeScript oracle. Expected outputs for the same input MUST be reproduced byte-for-byte by the Kotlin/Swift/ArkTS implementations. Do NOT regenerate expected values without changing spec/ first.",
+  "manifestVersion": 1,
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "generator": "core/scripts/generate-conformance.ts",
+  "oracle": {
+    "kind": "frozen-typescript-reference",
+    "commit": "6d268c0c27d7e6dfd896e17bcaa3f5ead6b3a8d5",
+    "manifest": "LEGACY_REFERENCE_MANIFEST.md",
+    "frozenTag": "v0.3.0-uniapp-reference",
+    "baseline": "Test Files 43 passed, Tests 453 passed"
+  },
+  "counts": {
+    "cases": 91,
+    "byCategory": {
+      "impact": 13,
+      "readiness": 16,
+      "coverage": 6,
+      "relations": 18,
+      "depmap": 3,
+      "jcs": 1,
+      "scenario": 1,
+      "migration": 2,
+      "state-machine": 5,
+      "parser": 22,
+      "timeline": 3,
+      "backup": 1
+    }
+  },
+  "importFixtures": {
+    "directory": "fixtures/import/",
+    "count": 28,
+    "sha256": {
+      "normal-wechat.csv": "473daa5d05b8e9e525a16fec0332dfa84ada403a203e6c437b5f28c56f026678",
+      "utf8-bom.csv": "eafaa9e30dc165aafa26fdf7fb04bac45f07ab43c82fae2fe53583ee13c27c17",
+      "gbk.csv": "0cc6827730a831afc4313f98b665450f0390fcedd4f9c3ed09757b0343f1b386",
+      "header-offset.csv": "237c48a8ab79fe5ccc1d811c39c6717fa195608d53358b1f80330caad48e781c",
+      "refund.csv": "049ba68ec08cfef4e04df736af1e5d828ea3a3127ada12315669e6738814deeb",
+      "duplicate-import.csv": "c0a16a73834b2f8d8955edb26a932c3012b6b3b3215e1722b57b4d8e77371ff8",
+      "same-amount-twice.csv": "0d86c5bbdecf9a04bad124fa15b8f66cbb6f7a60ef2e3af271dc5d58828eb52b",
+      "malformed.csv": "f9f70782c37972f365b6d6a0ea40e876016afce07d0424a0b96ce38383dcf59b",
+      "recurring-monthly.csv": "13cd6614934b19b3cbfe9375ea6af95c929b8754cb3e7520251cdc4ee4a68547",
+      "non-recurring.csv": "ae048060c6a03df46f2b5ee2c5d749427b732f1472c06a9d9a4dd7e00baeab9e",
+      "dup-jan-jun.csv": "3a21821a94205eea1c6c7d50ea46feb0bd560883a5700f3aa4f640adc525a8db",
+      "dup-jan-aug.csv": "a4c69c24034e8d5ba91e7f8e4e5655007ec5fc509d5cc6a433318afe0ac76c41",
+      "csv-cr-only.csv": "134dd9d64dc4d249152890e5bbedf2b0eb6d7270c940bea5f65bf65dee0ea1bb",
+      "csv-crlf.csv": "dbd7c2d1f51010e316d319e3e9cbe42e54835d9c38ac73bca63ec8dace5b3d2f",
+      "csv-debit-credit-columns.csv": "f42e68c02cc008ffe028d0ce4440bdf28b51dc2cbc69f4f7102c7f789d4512fb",
+      "csv-eu-bank-semicolon.csv": "0817f2c4a7c50435e3cd96d7ca504dabd31338a59ef3b953b54d94b56bc52790",
+      "csv-gb18030.csv": "05c2f2c55a34d35830e24ee4c3062ee1e1f102fe895d9e88d2cd60c1df6625b9",
+      "csv-multi-currency.csv": "faab7cdaee7f31290ac1cc6bd7a23f98e27dedd7ba45a6efdcbd8f24795f9e67",
+      "csv-quoted-comma.csv": "325b6f8c363cd5a07f7d3fcda5fd481c3e8a52239401db3c1c35594070fb4b18",
+      "csv-us-credit-card.csv": "10776c60a969faa2c36611ee5eb394f66501d3f8bcfb5ad7833ac37e713b63aa",
+      "ofx-basic.qfx": "8365656e314b0eae1599a7e4b9c68c2d0a95b5c375ed5b31cba79284fc6e0ce8",
+      "qfx-basic.qfx": "f74ec04b031a0a14091255acb11d95b64d34d38b1e8a7c0dba18016f2e3c5334",
+      "ofx-multiple.ofx": "f29697b1691a7661569c9c36be228290985e49378cea4bd094889368942d4e52",
+      "ofx-missing-fitid.ofx": "ff86c1cbf7656a150ee27b30639e28f4c6d71cfde4e2c4af1a979bd7c443bc90",
+      "ofx-invalid-date.ofx": "653a45e97e73fcbc03412e9f7eae3b1e4b63409d588da89961b9ed8da86a50c0",
+      "ofx-negative-positive.ofx": "682c651f156b19ca63203f455bc95d63c7620de4e6e2ac97b85afeaff7f0f115",
+      "ofx-malformed.ofx": "173a5e0afcd17a4c0c5b6869f7dbabee4f1170f76b3956b2380977ade8cb812a",
+      "qfx-duplicate-fitid.ofx": "ac541ce8542146d2dcc457ef5f1168c5325a46f6a4b90059e0b8d6bf9109b8de"
+    }
+  },
+  "fixtures": [
+    {
+      "id": "impact-required-edge-loss",
+      "category": "impact",
+      "path": "fixtures/impact/impact-required-edge-loss.json",
+      "sha256": "74343e1393d355eab4ad1cfab5c679d709203b6e36b9f3f16135bb8ac2d8152a",
+      "description": "required 边失效且无其他来源 → must_change / required_edge_no_alternative，并向下游级联"
+    },
+    {
+      "id": "impact-unknown-criticality",
+      "category": "impact",
+      "path": "fixtures/impact/impact-unknown-criticality.json",
+      "sha256": "6b93301e4ad782a0e4172f2ae59b04838cb3defcf96e998cf4cff8f71ecded9c",
+      "description": "unknown criticality 只产生 needs_review，绝不 must_change（INV12）"
+    },
+    {
+      "id": "impact-any-group-covered",
+      "category": "impact",
+      "path": "fixtures/impact/impact-any-group-covered.json",
+      "sha256": "5a9fe467cb3a74b9c42579ee5a0361995f13c3c9797d831763f754ff9c7f9225",
+      "description": "已确认 ANY 组合仍有可用成员 → backup_path / confirmed_group_covered，冗余度下降"
+    },
+    {
+      "id": "impact-any-group-failed",
+      "category": "impact",
+      "path": "fixtures/impact/impact-any-group-failed.json",
+      "sha256": "9760983c7d6d229f7075fec05e385e1c26e37e05c660b1b8bd25a47e4b28f2fc",
+      "description": "已确认 ANY 组合全部成员失效 → must_change / confirmed_group_failed"
+    },
+    {
+      "id": "impact-all-group-unsatisfied",
+      "category": "impact",
+      "path": "fixtures/impact/impact-all-group-unsatisfied.json",
+      "sha256": "0f7ab5e10e852f2a79bb8f98cfa41aacbb7049084024e6a7121531acd6ec4f2a",
+      "description": "已确认 ALL 组合缺任一成员即不满足 → must_change"
+    },
+    {
+      "id": "impact-cycle-safe",
+      "category": "impact",
+      "path": "fixtures/impact/impact-cycle-safe.json",
+      "sha256": "e44a35388c55c8f8c02b753421cc14f3acf30372af526c4ed0fb02070411c058",
+      "description": "图允许有环；状态键 (nodeId,capability) 保证终止，processedKeys 无重复（IMP-05/06）"
+    },
+    {
+      "id": "impact-cycle-cascade",
+      "category": "impact",
+      "path": "fixtures/impact/impact-cycle-cascade.json",
+      "sha256": "bbcd44857bdcdcc8d2432ce47aaad52598a54c6044d76fc3e5b97e25a2529c7a",
+      "description": "真环 A→B→C→A 且每节点唯一入边：must_change 沿环级联传播，回到已不可用节点时终止（不重复处理）"
+    },
+    {
+      "id": "impact-dense-cycle-uncertainty-only",
+      "category": "impact",
+      "path": "fixtures/impact/impact-dense-cycle-uncertainty-only.json",
+      "sha256": "9e33847ee0026ba5fde4cd02a7a20150496a96b6e0585bba5f527bdb70bf8183",
+      "description": "稠密环中每节点都有其他来源：只传播不确定性，永不产生 must_change（IMP-03/07）"
+    },
+    {
+      "id": "impact-retired-edge",
+      "category": "impact",
+      "path": "fixtures/impact/impact-retired-edge.json",
+      "sha256": "9549a1780e9936e1d03d819bc555d24086da40c0920ee24f380857be61feebc2",
+      "description": "retired 边不传播 Impact（IMP-04 / INV9）"
+    },
+    {
+      "id": "impact-proposal-only",
+      "category": "impact",
+      "path": "fixtures/impact/impact-proposal-only.json",
+      "sha256": "12bc56f5bb2f6df755c4a6ae2b3524f97c52bfde46c2c8ee886b556113095f52",
+      "description": "仅存在 pending Proposal → needs_review / proposal_only；confidence 不改变结论（IMP-03）"
+    },
+    {
+      "id": "impact-multiple-alternatives",
+      "category": "impact",
+      "path": "fixtures/impact/impact-multiple-alternatives.json",
+      "sha256": "f13225c9f9a521847dc3105612c9c6893b4fba6e8fc1154bfa7337e9686bf023",
+      "description": "存在其他已记录来源但未确认备用组合 → needs_review / unconfirmed_alternative_exists"
+    },
+    {
+      "id": "impact-deterministic-ordering",
+      "category": "impact",
+      "path": "fixtures/impact/impact-deterministic-ordering.json",
+      "sha256": "3365bc457ac32b0712df956905afc2f30afbe2009ec1647d0ab4781ad003ad7f",
+      "description": "多目标输出按 (depth, nodeId, capability) 确定性排序；原始操作强制最后（IMP-08/09）"
+    },
+    {
+      "id": "impact-non-payment-capability-ignored",
+      "category": "impact",
+      "path": "fixtures/impact/impact-non-payment-capability-ignored.json",
+      "sha256": "fd31cc1bdc39504ea74419b6898a3ee118675c2e895ea4fc1b065edaeda72174",
+      "description": "MVP 只传播 payment；非 payment 初始键被忽略（AGENTS §13）"
+    },
+    {
+      "id": "readiness-one-target-multiple-actions",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-one-target-multiple-actions.json",
+      "sha256": "cd650976bf2b626b945b7bcbb458f2fbd4056dc54dce76633ea74815dc2faed4",
+      "description": "one target / multiple required actions —— 全部声明动作完成才算 resolved（FR-READ-001）"
+    },
+    {
+      "id": "readiness-one-target-multiple-actions-partial",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-one-target-multiple-actions-partial.json",
+      "sha256": "0ff54322526caaacf927993673325c02e26ec31712d9a89788add4d7541ca178",
+      "description": "one target / 两个声明动作只完成其一 → blocked（禁止减法近似，RD-01/02）"
+    },
+    {
+      "id": "readiness-multiple-targets-shared-action",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-multiple-targets-shared-action.json",
+      "sha256": "96ec07da7a9ad44b4b34c2a725003ac21e80c3f3f833c616b8b102faaca887f9",
+      "description": "multiple targets / one shared action 全部声明且完成 → 不 blocked（FR-READ-002）"
+    },
+    {
+      "id": "readiness-unrelated-completed-action",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-unrelated-completed-action.json",
+      "sha256": "5124d5c1966424b886f80c4c29d2d84ce3ba841af4320151ca4da0518a7ef917",
+      "description": "完成无关动作不解决任何 requirement → blocked（FR-READ-003 / RD-03）"
+    },
+    {
+      "id": "readiness-unresolved-must-change",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-unresolved-must-change.json",
+      "sha256": "2009e4bb71417bb782ad78cccc3f02b9cb1649829c6b6c1db44d2784c7cc1d36",
+      "description": "pendingMustChange > 0 → blocked（FR-READ-004）"
+    },
+    {
+      "id": "readiness-unknown-criticality-review",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-unknown-criticality-review.json",
+      "sha256": "5316e8ffb0d1e850fea4eafc5227e76e3effe3a0b0da9b88bd9643a29be90126",
+      "description": "unknown criticality（needs_review）→ review_required（FR-READ-005）"
+    },
+    {
+      "id": "readiness-pending-proposal",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-pending-proposal.json",
+      "sha256": "da669867d5ad733c8df243b6d6b2fa46072e028b2256f6a2d13740ea81f04111",
+      "description": "pending Proposal → review_required（FR-READ-006）"
+    },
+    {
+      "id": "readiness-unresolved-candidate",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-unresolved-candidate.json",
+      "sha256": "75cb4bb5dabee1b66f9ec4ad48871b03853c150856fa799fc89ad28713dae05e",
+      "description": "unresolved Candidate → review_required（FR-READ-007）"
+    },
+    {
+      "id": "readiness-revision-mismatch",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-revision-mismatch.json",
+      "sha256": "e09cdb1987d23267edc73984ea7034c4166cf0906a3ea9612c9ee8fc46075fe5",
+      "description": "revision 落后 → review_required（派生 needs_revalidation，FR-READ-008 / RD-09）"
+    },
+    {
+      "id": "readiness-stale-dependency",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-stale-dependency.json",
+      "sha256": "2d611aa5155e23c64b66d1246d8a897ef1fe564f5248fc771b77e4370a2e5b35",
+      "description": "长期未验证的相关依赖 → review_required（FR / plan-readiness-coverage #10）"
+    },
+    {
+      "id": "readiness-unfinished-change-action",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-unfinished-change-action.json",
+      "sha256": "64e29e9ac987e3c35b1ffd7f25f83359e88db6e83d82d2b4769632f258611bd4",
+      "description": "未完成的 change 阶段动作 → review_required（FR-READ-014 / RD-08）"
+    },
+    {
+      "id": "readiness-all-resolved",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-all-resolved.json",
+      "sha256": "19413fdf7f7513cf6d0f801089ee218b77dbf2cd29fe5c0a82b239ce9f96ad80",
+      "description": "全部已知要求处理完毕 → ready_with_known_scope（禁止 safe / 100%）"
+    },
+    {
+      "id": "readiness-confidence-cannot-bypass",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-confidence-cannot-bypass.json",
+      "sha256": "03d9b0367b81a0fcb62f026192d115efac543d5bc4366aaea464ecb7b4f1cafd",
+      "description": "输入结构中不存在 confidence 通道：conf .999 也无法绕过 review（FR-READ-010 / RD-06）"
+    },
+    {
+      "id": "readiness-absence-cannot-help",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-absence-cannot-help.json",
+      "sha256": "6f945637921c644006a2a60419db7673e3f5ba69b430544cfdea698e6c67a03d",
+      "description": "输入结构中不存在 absence 通道：absence 不能提高 readiness（FR-READ-011）"
+    },
+    {
+      "id": "readiness-blocked-beats-review",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-blocked-beats-review.json",
+      "sha256": "ecc385713f6ad6bbc0eb9ca77f24608e4b82ada3d58000b1cd8b00f947330389",
+      "description": "blocked 优先于 review_required（FR-READ-012 / RD-05）"
+    },
+    {
+      "id": "readiness-completed-empty-claim-not-retroactive",
+      "category": "readiness",
+      "path": "fixtures/readiness/readiness-completed-empty-claim-not-retroactive.json",
+      "sha256": "a7e2973c75a2062f60ac4d7504db621740a9bb09331c6d3df09b307328e234e5",
+      "description": "已完成的空声明动作不得事后追认 key → blocked（FR-READ-017 / RD-04）"
+    },
+    {
+      "id": "coverage-unknown",
+      "category": "coverage",
+      "path": "fixtures/coverage/coverage-unknown.json",
+      "sha256": "6cdb8f043cd901e4661fbbe7f2bea0ee24e90fdd2427d64037473b04a0d1c9b2",
+      "description": "无来源且无已确认直接依赖 → unknown"
+    },
+    {
+      "id": "coverage-limited-stale-sources",
+      "category": "coverage",
+      "path": "fixtures/coverage/coverage-limited-stale-sources.json",
+      "sha256": "dd3554047eefeb4d7c4f9c240c985b78864e28e7b6e4cbfbce0da053fbf98b31",
+      "description": "有来源但全部超过新鲜度阈值 → limited（且可解释）"
+    },
+    {
+      "id": "coverage-limited-no-direct-deps",
+      "category": "coverage",
+      "path": "fixtures/coverage/coverage-limited-no-direct-deps.json",
+      "sha256": "00a19166147cc0a02352d07ffddf35c812c0d510ba53168f44f22b3c09ef1162",
+      "description": "有新鲜来源但无任何已确认直接依赖 → limited"
+    },
+    {
+      "id": "coverage-partial-pending-proposal",
+      "category": "coverage",
+      "path": "fixtures/coverage/coverage-partial-pending-proposal.json",
+      "sha256": "982b596cac501fc7dc9c9b67d9f492d14f1391554df4ded9044bba398c41e6b4",
+      "description": "有新来源但有 pending proposal / unknown → partial，且可解释"
+    },
+    {
+      "id": "coverage-well-evidenced",
+      "category": "coverage",
+      "path": "fixtures/coverage/coverage-well-evidenced.json",
+      "sha256": "4e19f883ce720d74c7a3a4673991d369e9005288461bf17453abd424d0e29a11",
+      "description": "新来源 + 关键关系全部确认且无未决信号 → well_evidenced（仍不等于 ready / safe）"
+    },
+    {
+      "id": "coverage-never-ingested-is-stalest",
+      "category": "coverage",
+      "path": "fixtures/coverage/coverage-never-ingested-is-stalest.json",
+      "sha256": "dbe28ed8aaf35ea371bca07c11db87c30da4916b406d138735b3064e65de3f2e",
+      "description": "从未导入（lastIngestedAt=null）视为最陈旧 → 不会计入新鲜来源"
+    },
+    {
+      "id": "relation-funding-source-ok",
+      "category": "relations",
+      "path": "fixtures/relations/relation-funding-source-ok.json",
+      "sha256": "5dc882cb70143f37b4353bd385ecaacc2e9dfb510109e4f90dbf174a3528d84a",
+      "description": "validateRelationUse(payment_instrument, funding_source, account, payment)"
+    },
+    {
+      "id": "relation-funding-source-ok-account-from",
+      "category": "relations",
+      "path": "fixtures/relations/relation-funding-source-ok-account-from.json",
+      "sha256": "2650ef58a5e4c5e7f93a1cdb511e993889851cd63e64460df1e7729375de0827",
+      "description": "validateRelationUse(account, funding_source, payment_instrument, payment)"
+    },
+    {
+      "id": "relation-funding-source-ok-service-from",
+      "category": "relations",
+      "path": "fixtures/relations/relation-funding-source-ok-service-from.json",
+      "sha256": "cfb5b8b7446c6e585b2d64bbb134ea8ed164e6f35e0d6e0a77d6fb53cb9d0bd5",
+      "description": "validateRelationUse(service, funding_source, account, payment)"
+    },
+    {
+      "id": "relation-merchant-agreement-ok",
+      "category": "relations",
+      "path": "fixtures/relations/relation-merchant-agreement-ok.json",
+      "sha256": "f460aaf81825a389aee732d625dcaf882917797d62996cc051ba60f0a1949673",
+      "description": "validateRelationUse(payment_instrument, merchant_agreement, service, payment)"
+    },
+    {
+      "id": "relation-merchant-agreement-ok-membership",
+      "category": "relations",
+      "path": "fixtures/relations/relation-merchant-agreement-ok-membership.json",
+      "sha256": "ccc49cc15764e7d47480db9771435c03d998f86cf7c9f1b337ebb33b592a5184",
+      "description": "validateRelationUse(account, merchant_agreement, membership, payment)"
+    },
+    {
+      "id": "relation-reject-non-runtime-relation",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-non-runtime-relation.json",
+      "sha256": "aa5ea3ad3bf5033b4c684a65cfce2bb0ccba621b85dfe68f8a93252659950325",
+      "description": "validateRelationUse(payment_instrument, bound_to, account, payment)"
+    },
+    {
+      "id": "relation-reject-non-runtime-relation-verifies",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-non-runtime-relation-verifies.json",
+      "sha256": "15a35009586e372d668350a421e5381f4dd8d667fe8204fb18e1fd5d42fe7a80",
+      "description": "validateRelationUse(account, verifies, account, payment)"
+    },
+    {
+      "id": "relation-reject-unknown-relation",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-unknown-relation.json",
+      "sha256": "36f23908c7ca3ba2c0c3fb93ab079df1a2cea37dc976d7c0f12d576f13c41de4",
+      "description": "validateRelationUse(account, nope, account, payment)"
+    },
+    {
+      "id": "relation-reject-capability-mismatch",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-capability-mismatch.json",
+      "sha256": "9037b6499e717ffa032fa0e4289d549aaeb5e729bdfe265f32a916472d67fad7",
+      "description": "validateRelationUse(payment_instrument, funding_source, account, access)"
+    },
+    {
+      "id": "relation-reject-from-kind",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-from-kind.json",
+      "sha256": "346c8e4b45205be9ec043af5440492f49c9c3c88e0d831a636affb75dc291447",
+      "description": "validateRelationUse(device, funding_source, account, payment)"
+    },
+    {
+      "id": "relation-reject-from-kind-identity-anchor",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-from-kind-identity-anchor.json",
+      "sha256": "afdf8954e15195fd5a84259d1a10cb138f03850416fd65b9ad70b46ad0a3b3b6",
+      "description": "validateRelationUse(identity_anchor, merchant_agreement, service, payment)"
+    },
+    {
+      "id": "relation-reject-to-kind",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-to-kind.json",
+      "sha256": "9339750866ce064294c6d068917be0742dfdc2bbfeb225a249401641841c96e9",
+      "description": "validateRelationUse(payment_instrument, funding_source, device, payment)"
+    },
+    {
+      "id": "relation-reject-to-kind-custom",
+      "category": "relations",
+      "path": "fixtures/relations/relation-reject-to-kind-custom.json",
+      "sha256": "51cefbae53a1e5b12ccdd2731cb06af53a7486d3d97b740acf1cb7b909b83c4a",
+      "description": "validateRelationUse(account, merchant_agreement, custom, payment)"
+    },
+    {
+      "id": "relation-allow-null-kinds",
+      "category": "relations",
+      "path": "fixtures/relations/relation-allow-null-kinds.json",
+      "sha256": "44fb286dfd5b56592a164b9145699931f95fa2ddfb7035f86e03d0c3d45accbb",
+      "description": "validateRelationUse(null, funding_source, null, payment)"
+    },
+    {
+      "id": "relation-group-funding_source-ANY",
+      "category": "relations",
+      "path": "fixtures/relations/relation-group-funding_source-ANY.json",
+      "sha256": "cf739f68b39b8990a481d73a50ad3933026e0be4f436e980618a4d5e275e4bf8",
+      "description": "validateRelationGroupUse(funding_source, ANY)"
+    },
+    {
+      "id": "relation-group-funding_source-ALL",
+      "category": "relations",
+      "path": "fixtures/relations/relation-group-funding_source-ALL.json",
+      "sha256": "1590f65e27f3b74202c3d93968a9fd559f18f98a9cb8668037d3bff29ba9ba9c",
+      "description": "validateRelationGroupUse(funding_source, ALL)"
+    },
+    {
+      "id": "relation-group-merchant_agreement-ANY",
+      "category": "relations",
+      "path": "fixtures/relations/relation-group-merchant_agreement-ANY.json",
+      "sha256": "b6dde5b8791cf0bf34399ad9eb71807ac96fe30a55d010859df5497cded2ee8e",
+      "description": "validateRelationGroupUse(merchant_agreement, ANY)"
+    },
+    {
+      "id": "relation-group-bound_to-ANY",
+      "category": "relations",
+      "path": "fixtures/relations/relation-group-bound_to-ANY.json",
+      "sha256": "6f9282af00b12b127a2eb3ce74e28f22cea1ce1a9f0332a41e783b3975193cbd",
+      "description": "validateRelationGroupUse(bound_to, ANY)"
+    },
+    {
+      "id": "depmap-golden-v1",
+      "category": "depmap",
+      "path": "fixtures/depmap/depmap-golden-v1.json",
+      "sha256": "a23f967ed713406e920dd225c870574ea05eaec2c1b51fc99deaa0da21c040e9",
+      "description": "DEPMAP_CONTAINER_V1 固定向量：三端必须产出完全相同的 derivedKey / ciphertext / tag 与相同容器 JSON"
+    },
+    {
+      "id": "depmap-utf8-password-normalization",
+      "category": "depmap",
+      "path": "fixtures/depmap/depmap-utf8-password-normalization.json",
+      "sha256": "10fbd75f2021dd233c9610cd49e2513d23ecb5a81be48174c7eb92b3af1028c6",
+      "description": "password 使用精确 UTF-8 字节，不做 Unicode 归一化：combining 与 NFC 必须派生出不同密钥"
+    },
+    {
+      "id": "depmap-bounds-and-structure-rejection",
+      "category": "depmap",
+      "path": "fixtures/depmap/depmap-bounds-and-structure-rejection.json",
+      "sha256": "275fafa6cb53d93c9382acb170bb7faf200575968f5e6871ff44dadab4e4aebe",
+      "description": "解析 → 结构 → 边界 全部在 KDF 之前完成；恶意容器必须 fail closed"
+    },
+    {
+      "id": "jcs-rfc8785-restricted-domain",
+      "category": "jcs",
+      "path": "fixtures/jcs/jcs-rfc8785-restricted-domain.json",
+      "sha256": "e0dba2697724246c642bea4fcd0e52527066c5ecd6e6fe18df093a1c7f305ea2",
+      "description": "RFC 8785 JCS（受限值域）：对象键排序、转义、整数最短形式；浮点必须拒绝而非静默序列化"
+    },
+    {
+      "id": "scenario-template-policy",
+      "category": "scenario",
+      "path": "fixtures/scenario/scenario-template-policy.json",
+      "sha256": "da1438fa1029b53237a3d23d70d343767dabf7108d752ed38ae5d35bb42ad0f3",
+      "description": "active 模板必须是 payment capability 且可执行；planned 无 factory 必须被拒绝；注册表不得含日常生活提醒类模板"
+    },
+    {
+      "id": "migration-version-contract",
+      "category": "migration",
+      "path": "fixtures/migration/migration-version-contract.json",
+      "sha256": "ea311bb0aa208e6d4fdafe329bb3892d0b820cc3d6e740815b2957cf7122c56f",
+      "description": "Schema 迁移链与 payload 版本契约；未来版本必须被明确拒绝而非猜测兼容"
+    },
+    {
+      "id": "state-machine-change-plan",
+      "category": "state-machine",
+      "path": "fixtures/state-machine/state-machine-change-plan.json",
+      "sha256": "d0de5b6067e5678c5b281682c5717a3303c6df907e29b935e610316330330df1",
+      "description": "ChangePlan 合法迁移表（终态不可迁出）；派生 needs_revalidation 规则"
+    },
+    {
+      "id": "state-machine-reality-drift",
+      "category": "state-machine",
+      "path": "fixtures/state-machine/state-machine-reality-drift.json",
+      "sha256": "637935822810769f64955334ef62553d14a36368e45ca969db74a268ac2e9472",
+      "description": "RealityDrift：非 open 不可再处理；创建/忽略不改 Reality 与 revision"
+    },
+    {
+      "id": "state-machine-discovery-candidate",
+      "category": "state-machine",
+      "path": "fixtures/state-machine/state-machine-discovery-candidate.json",
+      "sha256": "a468e26df755beb53f02df8f912dff7d36a190f689c7cbc603e2b216c6d3d5fe",
+      "description": "DiscoveryCandidate：accept 幂等且不 bump revision；dismiss 后需 ≥2 新观测才回到 pending"
+    },
+    {
+      "id": "state-machine-action-verification",
+      "category": "state-machine",
+      "path": "fixtures/state-machine/state-machine-action-verification.json",
+      "sha256": "5ad5a3fb8fe45e0fc31330a1801d053be52ec998f7419b592c1d6aa46420569b",
+      "description": "Verification：done ≠ verified；verified/failed/not_required 不可被 evidence suggestion 覆盖"
+    },
+    {
+      "id": "state-machine-graph-revision",
+      "category": "state-machine",
+      "path": "fixtures/state-machine/state-machine-graph-revision.json",
+      "sha256": "631c949101172b8717989d5a4384415000f456bff2dd8fc9eb03e13c23bb25f4",
+      "description": "GraphRevision：只有 Confirmed Reality Mutation 才 bump；与 mutation 同事务"
+    },
+    {
+      "id": "parser-wechat-normal",
+      "category": "parser",
+      "path": "fixtures/parser/parser-wechat-normal.json",
+      "sha256": "627fc5090cc146c47c1e118199b68237cb7d5454fd5822b92b29fe051319134a",
+      "description": "wechat 解析 normal-wechat.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-wechat-utf8-bom",
+      "category": "parser",
+      "path": "fixtures/parser/parser-wechat-utf8-bom.json",
+      "sha256": "43836e3dfe07bf113393309929765197148f5fccf2303e0a73862414ba04b67c",
+      "description": "wechat 解析 utf8-bom.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-wechat-gb18030",
+      "category": "parser",
+      "path": "fixtures/parser/parser-wechat-gb18030.json",
+      "sha256": "cc449ad2132629c11ba59a31d5154b7f0eaa6546d8be7a759cbe10891aa45995",
+      "description": "wechat 解析 gbk.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-wechat-header-offset",
+      "category": "parser",
+      "path": "fixtures/parser/parser-wechat-header-offset.json",
+      "sha256": "575c80ec843f2ad2e61b75dac189a191e5b56486115b471d16a3e55a36a8fc98",
+      "description": "wechat 解析 header-offset.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-wechat-malformed",
+      "category": "parser",
+      "path": "fixtures/parser/parser-wechat-malformed.json",
+      "sha256": "ee817df39e685ccc8451cab772a481f78e47cc80212139539b4e000c645aaf9e",
+      "description": "wechat 解析 malformed.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-wechat-refund",
+      "category": "parser",
+      "path": "fixtures/parser/parser-wechat-refund.json",
+      "sha256": "b1a099a9f7c69a4f47d02a2882464914e2708f2bf6f7f8a2aa91aaa4fb726680",
+      "description": "wechat 解析 refund.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-crlf",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-crlf.json",
+      "sha256": "c0fecae0c77801945cdcebd244e0f46f202658c2f64cc250eb1b899825dc1cba",
+      "description": "generic_csv 解析 csv-crlf.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-cr-only",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-cr-only.json",
+      "sha256": "78d1d1f3b8a0c29980e81199702c681d69b33b24fb1bd5aff52dd2d33060c8bc",
+      "description": "generic_csv 解析 csv-cr-only.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-quoted-comma",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-quoted-comma.json",
+      "sha256": "fcbc74d8ba38985535ae715c8f633b12e2024c0e2c77813ff308eb52fbc22952",
+      "description": "generic_csv 解析 csv-quoted-comma.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-multi-currency",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-multi-currency.json",
+      "sha256": "4b9c6bc0261a2d1d67fef804f9ff593c18dd9d09c5ca52ceab728151d27939cb",
+      "description": "generic_csv 解析 csv-multi-currency.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-eu-semicolon",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-eu-semicolon.json",
+      "sha256": "5b7ee1440aa14f22d407ba70b05436931452e718da3af552d93e9a49dd97114a",
+      "description": "generic_csv 解析 csv-eu-bank-semicolon.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-debit-credit",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-debit-credit.json",
+      "sha256": "84dbb0bf18fee71d2e171900944321161c1daf0208e6f8769e5c121dc359a334",
+      "description": "generic_csv 解析 csv-debit-credit-columns.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-us-signed",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-us-signed.json",
+      "sha256": "edd6f4bdae2187cf7451772222f572d90441546f51fb4c83d833c3607d6f64fb",
+      "description": "generic_csv 解析 csv-us-credit-card.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-csv-gb18030",
+      "category": "parser",
+      "path": "fixtures/parser/parser-csv-gb18030.json",
+      "sha256": "51114fd992ea90f806d6fbba8b7cf15bc8bd6e6878bed40f2d787bfd75f0bbe9",
+      "description": "generic_csv 解析 csv-gb18030.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-ofx-basic",
+      "category": "parser",
+      "path": "fixtures/parser/parser-ofx-basic.json",
+      "sha256": "392a08a96e413bc686db3d0d7067c34d76d876ccb9e647b9382ae9e055e12d91",
+      "description": "ofx_qfx 解析 ofx-basic.qfx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-ofx-xml-multiple",
+      "category": "parser",
+      "path": "fixtures/parser/parser-ofx-xml-multiple.json",
+      "sha256": "db74a4a633819292e1d5066f2e81b61237c88e419899d042f2eee97754331e17",
+      "description": "ofx_qfx 解析 ofx-multiple.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-ofx-missing-fitid",
+      "category": "parser",
+      "path": "fixtures/parser/parser-ofx-missing-fitid.json",
+      "sha256": "117e0b7f310365d40c0aaebe9546b37d12f489d0010016d5ee0d74c62d49ce2f",
+      "description": "ofx_qfx 解析 ofx-missing-fitid.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-ofx-invalid-date",
+      "category": "parser",
+      "path": "fixtures/parser/parser-ofx-invalid-date.json",
+      "sha256": "8cd0e5c2abea0fbf2f91c05edcddda21aa315cb38b10452d97a391e55e8dc190",
+      "description": "ofx_qfx 解析 ofx-invalid-date.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-ofx-negative-positive",
+      "category": "parser",
+      "path": "fixtures/parser/parser-ofx-negative-positive.json",
+      "sha256": "f7a164ee977414bbc3a4b883e9c3fb0ed966792ae23095a137130eeef44eb94e",
+      "description": "ofx_qfx 解析 ofx-negative-positive.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-ofx-malformed",
+      "category": "parser",
+      "path": "fixtures/parser/parser-ofx-malformed.json",
+      "sha256": "5dcfe7e859899e96af326e4f46b73a70569c4eb40d574b357d7245585fb18b68",
+      "description": "ofx_qfx 解析 ofx-malformed.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-qfx-basic",
+      "category": "parser",
+      "path": "fixtures/parser/parser-qfx-basic.json",
+      "sha256": "310a0e997013baa61b243f1022db64a4806cd55730d7479dba1e10b87d0b6c92",
+      "description": "ofx_qfx 解析 qfx-basic.qfx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "parser-qfx-duplicate-fitid",
+      "category": "parser",
+      "path": "fixtures/parser/parser-qfx-duplicate-fitid.json",
+      "sha256": "03f9e376ccd703d3e179a525d22c0118a8fe5a789c5adfe74c96ecc9566a4939",
+      "description": "ofx_qfx 解析 qfx-duplicate-fitid.ofx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）"
+    },
+    {
+      "id": "timeline-buckets-and-ordering",
+      "category": "timeline",
+      "path": "fixtures/timeline/timeline-buckets-and-ordering.json",
+      "sha256": "5a33c923ffda1e50d086da159a5cc783f1ce9197799ed682d64e0128e096b0c8",
+      "description": "7 个分桶边界 + 确定性排序（bucket → priority 降序 → scheduledAt → id）；同一状态两次构建必须完全相同"
+    },
+    {
+      "id": "timeline-attention-signals",
+      "category": "timeline",
+      "path": "fixtures/timeline/timeline-attention-signals.json",
+      "sha256": "12591faa07817d98da939ad812e642c64f3f62baa218248cf9eda69b4b027f74",
+      "description": "开放 Drift → drift_review(attention)；过期来源 → freshness_review(attention)；到期 → expiration；revision 落后 → needs_attention"
+    },
+    {
+      "id": "timeline-terminal-plans-excluded",
+      "category": "timeline",
+      "path": "fixtures/timeline/timeline-terminal-plans-excluded.json",
+      "sha256": "d7a255ee014a82b7a564270b316146a216cbad6f320b9ca5f6920f4dd421e16d",
+      "description": "completed / cancelled 计划不产生 timeline 项（TL-007）"
+    },
+    {
+      "id": "migration-db-v1-to-v3",
+      "category": "migration",
+      "path": "fixtures/migration/migration-db-v1-to-v3.json",
+      "sha256": "e7e7e23a8c39b94795db8170654a3d3fb382780ef3ee31a3eeceebbe1666dc5e",
+      "description": "DB v1 → v3：版本到达 3、legacy 数据归属 legacy SourceInstance、ID 与决策保留、指纹作用域重建、重复执行严格 no-op"
+    },
+    {
+      "id": "backup-depmap-export-restore-roundtrip",
+      "category": "backup",
+      "path": "fixtures/backup/backup-depmap-export-restore-roundtrip.json",
+      "sha256": "8d393bed36df73cf908f3ad7bcd6203de536f18526a1f87838b5b4ced71e12c5",
+      "description": "导出 payload → 加密为 .depmap → 解密 → 恢复到新库 → 再次导出必须逐字节相同；且无孤儿引用"
+    }
+  ]
+}

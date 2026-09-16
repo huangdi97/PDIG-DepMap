@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-from-kind-identity-anchor",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(identity_anchor, merchant_agreement, service, payment)",
+  "input": {
+    "id": "reject-from-kind-identity-anchor",
+    "fromKind": "identity_anchor",
+    "relation": "merchant_agreement",
+    "toKind": "service",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'merchant_agreement' does not allow fromKind 'identity_anchor'"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "relation-reject-non-runtime-relation",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(payment_instrument, bound_to, account, payment)",
+  "input": {
+    "id": "reject-non-runtime-relation",
+    "fromKind": "payment_instrument",
+    "relation": "bound_to",
+    "toKind": "account",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'bound_to' is not in the runtime registry"
+  }
+}

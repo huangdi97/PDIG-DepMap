@@ -1,0 +1,77 @@
+{
+  "id": "impact-retired-edge",
+  "category": "impact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "retired 边不传播 Impact（IMP-04 / INV9）",
+  "input": {
+    "graph": {
+      "dependencies": [
+        {
+          "id": "d1",
+          "from": "card-a",
+          "relation": "funding_source",
+          "to": "wechat",
+          "capability": "payment",
+          "criticality": "required",
+          "groupId": null,
+          "state": "retired",
+          "origin": "manual",
+          "confirmedAt": "2026-09-13T00:00:00.000Z",
+          "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+          "retiredAt": "2026-09-13T00:00:00.000Z",
+          "evidenceRefs": [],
+          "verificationBasis": {
+            "type": "user_confirmed",
+            "verifiedAt": "2026-09-13T00:00:00.000Z"
+          },
+          "createdAt": "2026-09-13T00:00:00.000Z",
+          "updatedAt": "2026-09-13T00:00:00.000Z"
+        }
+      ],
+      "groups": [],
+      "proposals": [],
+      "nodeNames": {
+        "card-a": "招行信用卡",
+        "card-b": "建行储蓄卡",
+        "wechat": "微信支付",
+        "tencent": "腾讯视频",
+        "spotify": "Spotify"
+      }
+    },
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ]
+  },
+  "expected": {
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "lostKeys": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "targets": [],
+    "checklist": [
+      {
+        "level": "target_operation",
+        "nodeId": "card-a",
+        "capability": "payment",
+        "title": "最后一步：注销/停用 招行信用卡（原始操作）",
+        "detail": "以上事项处理完成后再执行原始操作。"
+      }
+    ],
+    "processedKeys": [
+      "card-a|payment"
+    ]
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "id": "parser-ofx-basic",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "ofx_qfx 解析 ofx-basic.qfx：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "ofx_qfx",
+    "file": "ofx-basic.qfx",
+    "mapping": null
+  },
+  "expected": {
+    "observationCount": 5,
+    "observations": [
+      {
+        "occurredAt": "2026-01-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": "DEBIT"
+      },
+      {
+        "occurredAt": "2026-02-15T00:00:00+00:00",
+        "amount": 25,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "TENCENT VIDEO VIP",
+        "status": "DEBIT"
+      },
+      {
+        "occurredAt": "2026-01-20T00:00:00+00:00",
+        "amount": 11.99,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "SPOTIFY AB",
+        "status": "DEBIT"
+      },
+      {
+        "occurredAt": "2026-02-20T00:00:00+00:00",
+        "amount": 11.99,
+        "currency": "XXX",
+        "direction": "out",
+        "merchantRaw": "SPOTIFY AB",
+        "status": "DEBIT"
+      },
+      {
+        "occurredAt": "2026-01-05T00:00:00+00:00",
+        "amount": 5200,
+        "currency": "XXX",
+        "direction": "in",
+        "merchantRaw": "PAYROLL DEPOSIT",
+        "status": "CREDIT"
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

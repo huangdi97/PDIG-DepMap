@@ -1,0 +1,65 @@
+{
+  "id": "migration-version-contract",
+  "category": "migration",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "Schema 迁移链与 payload 版本契约；未来版本必须被明确拒绝而非猜测兼容",
+  "input": {
+    "logicalSchemaVersion": 3,
+    "migrations": [
+      1,
+      2,
+      3
+    ]
+  },
+  "expected": {
+    "migrations": [
+      1,
+      2,
+      3
+    ],
+    "payloadKind": "depmap-logical-graph",
+    "payloadTables": [
+      "meta",
+      "nodes",
+      "dependencies",
+      "dependency_groups",
+      "dependency_proposals",
+      "dependency_group_proposals",
+      "proposal_evidence_refs",
+      "evidence",
+      "observation_fingerprints",
+      "import_sessions",
+      "source_instances"
+    ],
+    "rejectedSchemaVersions": [
+      0,
+      4,
+      99,
+      100
+    ],
+    "rejectedPayloadVersions": [
+      0,
+      4,
+      99
+    ],
+    "graphRevisionNeverBumpedBy": [
+      "evidence_record",
+      "proposal_upsert",
+      "proposal_decision",
+      "candidate_upsert",
+      "candidate_dismiss",
+      "candidate_accept",
+      "drift_detect",
+      "drift_dismiss",
+      "timeline_build",
+      "import_session_record",
+      "plan_create",
+      "plan_rebase",
+      "plan_transition",
+      "action_complete",
+      "action_verify"
+    ]
+  }
+}

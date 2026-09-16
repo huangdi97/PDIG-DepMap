@@ -1,0 +1,18 @@
+{
+  "id": "relation-allow-null-kinds",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationUse(null, funding_source, null, payment)",
+  "input": {
+    "id": "allow-null-kinds",
+    "fromKind": null,
+    "relation": "funding_source",
+    "toKind": null,
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": true
+  }
+}

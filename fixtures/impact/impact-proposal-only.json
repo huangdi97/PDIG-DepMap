@@ -1,0 +1,88 @@
+{
+  "id": "impact-proposal-only",
+  "category": "impact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "仅存在 pending Proposal → needs_review / proposal_only；confidence 不改变结论（IMP-03）",
+  "input": {
+    "graph": {
+      "dependencies": [],
+      "groups": [],
+      "proposals": [
+        {
+          "key": "card-a|funding_source|wechat|payment",
+          "from": "card-a",
+          "to": "wechat",
+          "capability": "payment",
+          "confidenceScore": 0.999
+        }
+      ],
+      "nodeNames": {
+        "card-a": "招行信用卡",
+        "card-b": "建行储蓄卡",
+        "wechat": "微信支付",
+        "tencent": "腾讯视频",
+        "spotify": "Spotify"
+      }
+    },
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ]
+  },
+  "expected": {
+    "unavailable": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "lostKeys": [
+      {
+        "nodeId": "card-a",
+        "capability": "payment"
+      }
+    ],
+    "targets": [
+      {
+        "nodeId": "wechat",
+        "nodeName": "微信支付",
+        "capability": "payment",
+        "depth": 1,
+        "status": "needs_review",
+        "available": true,
+        "redundancyDegraded": false,
+        "reasonCode": "proposal_only",
+        "reasonText": "检测到未确认的支付关系建议（置信度不改变结论），需人工核实 微信支付 的支付是否受影响",
+        "edgeKeys": [],
+        "groupKeys": [],
+        "proposalKeys": [
+          "card-a|funding_source|wechat|payment"
+        ]
+      }
+    ],
+    "checklist": [
+      {
+        "level": "needs_review",
+        "nodeId": "wechat",
+        "capability": "payment",
+        "title": "建议检查：微信支付",
+        "detail": "检测到未确认的支付关系建议（置信度不改变结论），需人工核实 微信支付 的支付是否受影响"
+      },
+      {
+        "level": "target_operation",
+        "nodeId": "card-a",
+        "capability": "payment",
+        "title": "最后一步：注销/停用 招行信用卡（原始操作）",
+        "detail": "以上事项处理完成后再执行原始操作。"
+      }
+    ],
+    "processedKeys": [
+      "card-a|payment",
+      "wechat|payment"
+    ]
+  }
+}

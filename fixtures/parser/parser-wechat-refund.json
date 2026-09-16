@@ -1,0 +1,44 @@
+{
+  "id": "parser-wechat-refund",
+  "category": "parser",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "wechat 解析 refund.csv：观测语义 + 坏行保守拒绝（sourceTxnId 不进 fixture）",
+  "input": {
+    "adapterId": "wechat",
+    "file": "refund.csv",
+    "mapping": null
+  },
+  "expected": {
+    "observationCount": 3,
+    "observations": [
+      {
+        "occurredAt": "2026-03-03T10:23:00+08:00",
+        "amount": 25,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "腾讯视频",
+        "status": "支付成功"
+      },
+      {
+        "occurredAt": "2026-03-05T14:00:00+08:00",
+        "amount": 90,
+        "currency": "CNY",
+        "direction": "out",
+        "merchantRaw": "某电商平台",
+        "status": "已全额退款"
+      },
+      {
+        "occurredAt": "2026-03-06T09:30:00+08:00",
+        "amount": 90,
+        "currency": "CNY",
+        "direction": "in",
+        "merchantRaw": "某电商平台",
+        "status": "退款成功"
+      }
+    ],
+    "errorCount": 0,
+    "errors": []
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "state-machine-discovery-candidate",
+  "category": "state-machine",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "DiscoveryCandidate：accept 幂等且不 bump revision；dismiss 后需 ≥2 新观测才回到 pending",
+  "input": {
+    "fields": [
+      "status",
+      "observationCount"
+    ]
+  },
+  "expected": {
+    "initial": "pending",
+    "transitions": {
+      "pending": [
+        "accepted",
+        "dismissed"
+      ],
+      "accepted": [],
+      "dismissed": [
+        "pending"
+      ],
+      "superseded": []
+    },
+    "accept": {
+      "mutatesReality": true,
+      "effects": [
+        "create exactly one Node"
+      ],
+      "bumpsGraphRevision": false,
+      "replay": "idempotent - accept replay returns created=false and the same nodeId"
+    },
+    "dismiss": {
+      "mutatesReality": false,
+      "effects": [
+        "record dismissedAtObservationCount"
+      ],
+      "reappeal": "returns to pending only after newObservations >= 2"
+    },
+    "guards": [
+      {
+        "id": "CANDIDATE-PENDING-ONLY",
+        "rule": "accept on a dismissed or accepted candidate MUST be rejected",
+        "errorCode": "illegal_state_transition"
+      }
+    ]
+  }
+}

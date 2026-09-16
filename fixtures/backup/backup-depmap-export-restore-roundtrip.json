@@ -1,0 +1,60 @@
+{
+  "id": "backup-depmap-export-restore-roundtrip",
+  "category": "backup",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "导出 payload → 加密为 .depmap → 解密 → 恢复到新库 → 再次导出必须逐字节相同；且无孤儿引用",
+  "input": {
+    "password": "depmap-backup",
+    "saltHex": "00112233445566778899aabbccddeeff",
+    "nonceHex": "a1b2c3d4e5f60718293a4b5c",
+    "seededNodes": [
+      "b-card",
+      "b-wechat"
+    ],
+    "seededDependencies": [
+      "b-dep"
+    ]
+  },
+  "expected": {
+    "payloadJson": "{\"payloadKind\":\"depmap-logical-graph\",\"payloadVersion\":3,\"schemaVersion\":3,\"meta\":[{\"key\":\"schema_version\",\"value\":\"3\"},{\"key\":\"schema_version_updated_at\",\"value\":\"2026-09-13T00:00:00.000Z\"}],\"source_instances\":[{\"id\":\"legacy-wechat-statement\",\"adapter_id\":\"wechat_statement\",\"adapter_version\":1,\"source_kind\":\"statement_file\",\"provider_id\":null,\"account_node_id\":null,\"label\":\"Legacy WeChat Statement Source\",\"country\":null,\"jurisdiction\":null,\"currencies_json\":\"[\\\"CNY\\\"]\",\"state\":\"active\",\"created_at\":\"1970-01-01T00:00:00.000Z\",\"updated_at\":\"1970-01-01T00:00:00.000Z\",\"last_ingested_at\":null}],\"nodes\":[{\"id\":\"b-card\",\"kind\":\"payment_instrument\",\"template_id\":null,\"name\":\"招行 4417\",\"issuer\":null,\"last4\":null,\"owner\":\"self\",\"archived\":0,\"fields_json\":\"{}\",\"vault_ref\":null,\"wallet_ref\":null,\"created_at\":\"2026-09-13T00:00:00.000Z\",\"updated_at\":\"2026-09-13T00:00:00.000Z\"},{\"id\":\"b-wechat\",\"kind\":\"account\",\"template_id\":null,\"name\":\"微信支付\",\"issuer\":null,\"last4\":null,\"owner\":\"self\",\"archived\":0,\"fields_json\":\"{}\",\"vault_ref\":null,\"wallet_ref\":null,\"created_at\":\"2026-09-13T00:00:00.000Z\",\"updated_at\":\"2026-09-13T00:00:00.000Z\"}],\"dependencies\":[{\"id\":\"b-dep\",\"from_node\":\"b-card\",\"relation\":\"funding_source\",\"to_node\":\"b-wechat\",\"capability\":\"payment\",\"criticality\":\"required\",\"group_id\":null,\"state\":\"active\",\"origin\":\"manual\",\"confirmed_at\":\"2026-09-13T00:00:00.000Z\",\"last_verified_at\":\"2026-09-13T00:00:00.000Z\",\"retired_at\":null,\"evidence_refs_json\":\"[]\",\"created_at\":\"2026-09-13T00:00:00.000Z\",\"updated_at\":\"2026-09-13T00:00:00.000Z\",\"verification_basis_type\":\"user_confirmed\",\"verification_basis_json\":null}],\"dependency_groups\":[],\"dependency_proposals\":[],\"proposal_evidence_refs\":[],\"dependency_group_proposals\":[],\"evidence\":[],\"observation_fingerprints\":[],\"import_sessions\":[]}",
+    "counts": {
+      "meta": 2,
+      "source_instances": 1,
+      "nodes": 2,
+      "dependencies": 1,
+      "dependency_groups": 0,
+      "dependency_proposals": 0,
+      "proposal_evidence_refs": 0,
+      "dependency_group_proposals": 0,
+      "evidence": 0,
+      "observation_fingerprints": 0,
+      "import_sessions": 0
+    },
+    "containerJson": "{\"cipher\":{\"algorithm\":\"AES-256-GCM\",\"nonce\":\"obLD1OX2BxgpOktc\"},\"ciphertext\":\"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\",\"format\":\"depmap\",\"formatVersion\":1,\"kdf\":{\"algorithm\":\"argon2id\",\"iterations\":3,\"memoryKiB\":65536,\"parallelism\":1,\"salt\":\"ABEiM0RVZneImaq7zN3u/w==\",\"version\":19},\"tag\":\"Fj/T9VXy2bx4MIHqem9oAw==\"}",
+    "decryptedEqualsPayload": true,
+    "imported": {
+      "meta": 2,
+      "source_instances": 1,
+      "nodes": 2,
+      "dependencies": 1,
+      "dependency_groups": 0,
+      "dependency_proposals": 0,
+      "proposal_evidence_refs": 0,
+      "dependency_group_proposals": 0,
+      "evidence": 0,
+      "observation_fingerprints": 0,
+      "import_sessions": 0
+    },
+    "roundtripPayloadJson": "{\"payloadKind\":\"depmap-logical-graph\",\"payloadVersion\":3,\"schemaVersion\":3,\"meta\":[{\"key\":\"schema_version\",\"value\":\"3\"},{\"key\":\"schema_version_updated_at\",\"value\":\"2026-09-13T00:00:00.000Z\"}],\"source_instances\":[{\"id\":\"legacy-wechat-statement\",\"adapter_id\":\"wechat_statement\",\"adapter_version\":1,\"source_kind\":\"statement_file\",\"provider_id\":null,\"account_node_id\":null,\"label\":\"Legacy WeChat Statement Source\",\"country\":null,\"jurisdiction\":null,\"currencies_json\":\"[\\\"CNY\\\"]\",\"state\":\"active\",\"created_at\":\"1970-01-01T00:00:00.000Z\",\"updated_at\":\"1970-01-01T00:00:00.000Z\",\"last_ingested_at\":null}],\"nodes\":[{\"id\":\"b-card\",\"kind\":\"payment_instrument\",\"template_id\":null,\"name\":\"招行 4417\",\"issuer\":null,\"last4\":null,\"owner\":\"self\",\"archived\":0,\"fields_json\":\"{}\",\"vault_ref\":null,\"wallet_ref\":null,\"created_at\":\"2026-09-13T00:00:00.000Z\",\"updated_at\":\"2026-09-13T00:00:00.000Z\"},{\"id\":\"b-wechat\",\"kind\":\"account\",\"template_id\":null,\"name\":\"微信支付\",\"issuer\":null,\"last4\":null,\"owner\":\"self\",\"archived\":0,\"fields_json\":\"{}\",\"vault_ref\":null,\"wallet_ref\":null,\"created_at\":\"2026-09-13T00:00:00.000Z\",\"updated_at\":\"2026-09-13T00:00:00.000Z\"}],\"dependencies\":[{\"id\":\"b-dep\",\"from_node\":\"b-card\",\"relation\":\"funding_source\",\"to_node\":\"b-wechat\",\"capability\":\"payment\",\"criticality\":\"required\",\"group_id\":null,\"state\":\"active\",\"origin\":\"manual\",\"confirmed_at\":\"2026-09-13T00:00:00.000Z\",\"last_verified_at\":\"2026-09-13T00:00:00.000Z\",\"retired_at\":null,\"evidence_refs_json\":\"[]\",\"created_at\":\"2026-09-13T00:00:00.000Z\",\"updated_at\":\"2026-09-13T00:00:00.000Z\",\"verification_basis_type\":\"user_confirmed\",\"verification_basis_json\":null}],\"dependency_groups\":[],\"dependency_proposals\":[],\"proposal_evidence_refs\":[],\"dependency_group_proposals\":[],\"evidence\":[],\"observation_fingerprints\":[],\"import_sessions\":[]}",
+    "roundtripEqual": true,
+    "integrity": {
+      "orphanDependencies": [],
+      "orphanGroups": [],
+      "danglingGroupMembers": [],
+      "orphanEvidence": [],
+      "orphanFingerprints": []
+    }
+  }
+}

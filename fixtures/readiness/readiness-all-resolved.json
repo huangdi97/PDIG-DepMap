@@ -1,0 +1,47 @@
+{
+  "id": "readiness-all-resolved",
+  "category": "readiness",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "全部已知要求处理完毕 → ready_with_known_scope（禁止 safe / 100%）",
+  "input": {
+    "plan": {
+      "id": "plan-1",
+      "templateId": "replace_payment_card",
+      "scenario": "replace_payment_card",
+      "title": "更换银行卡",
+      "workflowState": "analyzed",
+      "baselineGraphRevision": 3,
+      "lastAnalyzedGraphRevision": 3,
+      "targetNodeId": "card-a",
+      "effectiveDate": null,
+      "params": {},
+      "impactSnapshot": null,
+      "actions": [
+        {
+          "id": "c1",
+          "title": "change c1",
+          "detail": "fixture",
+          "phase": "change",
+          "done": true,
+          "doneAt": "2026-09-13T00:00:00.000Z",
+          "verification": null,
+          "resolvesImpactKeys": [
+            "wechat|payment"
+          ]
+        }
+      ],
+      "createdAt": "2026-09-13T00:00:00.000Z",
+      "updatedAt": "2026-09-13T00:00:00.000Z"
+    },
+    "currentGraphRevision": 3,
+    "pendingMustChange": 0,
+    "pendingNeedsReview": 0,
+    "unresolvedCandidates": 0,
+    "pendingRelevantProposals": 0,
+    "staleRelevantDependencies": 0,
+    "unfinishedChangeActions": 0
+  },
+  "expected": "ready_with_known_scope"
+}

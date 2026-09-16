@@ -1,0 +1,16 @@
+{
+  "id": "relation-group-funding_source-ALL",
+  "category": "relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "validateRelationGroupUse(funding_source, ALL)",
+  "input": {
+    "relation": "funding_source",
+    "mode": "ALL"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'funding_source' does not allow group mode 'ALL'"
+  }
+}
