@@ -1,27 +1,99 @@
 # WORK_STATUS.md
 
 > 本文件由执行 Agent 持续更新。不要删除历史关键结论。
+>
+> **⚠ 2026-09-15 技术栈已变更**：Production 切换为三端原生（Kotlin/Swift/ArkTS），
+> 彻底退出 uni-app x / UTS / DCloud。本文件 2026-09-15 之前的内容属于
+> **Legacy 阶段**，其结论对旧实现仍然有效，但**不再是产品未来**。
+> 当前进度见 `NATIVE_MIGRATION_STATUS.md`。
+> 详见 `GOAL_PDIG_NATIVE_MIGRATION.md`、`docs/ADR_NATIVE_MIGRATION.md`。
 > 分支历史：`feat/mvp02-global-source`（MVP02，tag v0.2.0-mvp02）→ `engineering/baseline-v1`
 > （Engineering Baseline V1 PASS，2026-09-13）→ `feat/mvp03-living-graph`（MVP03，tag v0.3.0-mvp03）
 > → `feat/mvp03-living-graph`（Production RC V1，2026-09-13）
 > → `feat/mvp03-living-graph`（FINAL PRODUCTION CLOSURE V1，2026-09-14）
 > → `feat/mvp03-living-graph`（PLATFORM BRINGUP，2026-09-15，**成果零提交**）
-> → **`feat/mvp03-living-graph`（AGENT HANDOFF PLATFORM BRINGUP / PRODUCTION RC CONTINUE，当前）**。
+> → `feat/mvp03-living-graph`（AGENT HANDOFF PLATFORM BRINGUP / PRODUCTION RC CONTINUE）
+> → **PDIG NATIVE MIGRATION N1 Android 垂直切片 + N2 全量 parity**
+> → **`feat/mvp03-living-graph`（ANDROID N1 / N2 RUNTIME CLOSURE，2026-09-15，当前）**
+>   —— 本轮只做运行时取证与构建链收口，**不新增功能、不进入 Harmony N3**。
+>   结论：`N1 = PARTIAL_WITH_REPORT`、`N2 = PARTIAL_WITH_REPORT`、parity **58/62**、
+>   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
+>   完整 27 Gate 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`。
+
+> → **（当前）ANDROID FINAL BLOCKER CLOSURE，2026-09-16**
+>   —— 关闭 App Lock 的真实接线缺口、备份导出 UI 误报、无障碍标签与滚动容器 hitbox；
+>   重跑核心 E2E 与全量回归；**重新计算** N1 / N2。
+>   结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**不沿用旧的 58/62 与旧 PASS 数量**）。
+>
+> **Production 依赖目标（明确冻结，不再动摇）**：
+> `DCloud = 0 target` · `UTS = 0 target` · `uni-app / uni-app x = 0 target`。
+> 这三者只作为 **LEGACY_REFERENCE / BEHAVIOR ORACLE** 留在仓库中，
+> **不再出现在 Current 路线的任何 blocker、门禁或 Next 里**。
 
 ## Current
 
-- Phase: **PDIG PLATFORM BRINGUP & RELEASE VALIDATION（Production RC V1 接力）**
-- Current Gate: `PRODUCTION_RC_V1 = PARTIAL_WITH_REPORT`
+- Phase: **PDIG NATIVE MIGRATION — Android 收口 → Harmony N3 next**
+- Current gate focus: **`N1_ANDROID_VERTICAL_SLICE` / `N2_ANDROID_FULL_PARITY`**（本轮**重新计算**）
 - Global status: **`ALL_DONE = NO`** · **`TASK_COMPLETE = NO`**
-- CURRENT_HEAD: **以 `git log --oneline -1` 为准**（本轮基线 `7295fc6`；本轮提交链见
-  `git log --oneline 7295fc6..HEAD`；报告不写入自身 SHA）
+- CURRENT_HEAD: **以 `git rev-parse HEAD` 为准**（报告不写入自身 SHA）
 - CURRENT_BRANCH: `feat/mvp03-living-graph`
-- NEXT_GATE: **`UI_BUILD_READY`**（= 解除 B10）
+- NEXT_GATE: **`N3_HARMONY_FULL_PARITY`** —— **只有在 N1 / N2 双双 PASS 之后才进入**
 - NEXT_COMMAND（下一位 Agent 的第一步）：
-  `git log --oneline -1 && git status --short -uall && cd core && npm run check`
-- Blocker (only real external): **B10 / DCloud 账号** + 设备 / 签名 / macOS / 商店账号 / 真实账单
 
-### 本轮（2026-09-15 接力轮）做了什么
+  ```bash
+  git rev-parse HEAD && git status --short -uall
+  cd android
+  # 非 ASCII 工程路径（含中文）会被 settings.gradle.kts 自动检测并完成
+  # build 输出 / java.io.tmpdir 的 ASCII 重定向，无需任何环境变量或仓库外 init script；
+  # 需要显式指定位置时再用 PDIG_ASCII_BUILD_ROOT=<ASCII_BUILD_ROOT>/pdig-build。
+  ./gradlew --no-daemon :core:test :conformance:run
+  ```
+
+### Current 只保留这 6 个关注面（其它内容一律属于 Historical / Legacy）
+
+| #   | 关注面                       | 状态                                                                 |
+| --- | ---------------------------- | -------------------------------------------------------------------- |
+| 1   | Native Migration             | 进行中（Android 收口）                                                |
+| 2   | Android N1 / N2              | 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`                         |
+| 3   | Harmony N3                   | **NOT_STARTED** —— N1/N2 未 PASS 前**不进入**                          |
+| 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
+| 5   | Cross-platform Conformance   | Android 侧 **91/91**；Harmony / iOS 无报告                             |
+| 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
+
+### 当前真实外部 blocker（只有这些）
+
+见 `BLOCKERS.md` / `NATIVE_EXTERNAL_BLOCKERS.md`：
+
+- **B3** 无 macOS / Xcode → iOS 无法编译验证（N4）
+- **B4** 无生产 release keystore → `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`
+- **B5 / B6 / B7 / B11 / B12 / B12b / B14–B17** 商店账号、正式包名、隐私政策 URL、品牌与素材
+- **B13** 真实账单（仅 REAL_DATA Gate 需要）
+- **B18** 真实设备（当前只有 AVD）
+- **B19** 是否需要真实数据验证的决策
+- **B23** 本机沙箱限制（clean clone 闭环 / 破坏性 `npm ci`）
+
+### 已从 Current blocker 列表移除（不再阻断当前路线）
+
+- **B10 / DCloud 账号**、**B1 / B2（uni-app x 产品级产物）**：
+  只阻断 **LEGACY uni-app x 路线**的产品级打包。Production 已退出该路线，
+  `DCloud = 0 target`，因此它们**不再出现在 Next / Current Gate 里**。
+- **B20 / B21 / B22**：这是 **LEGACY UTS 路线**的桥接缺口
+  （账单解析桥接 / `.depmap` 加解密桥接 / 设备端 Impact 镜像）。
+  原生 Android 已各自具备**真实实现 + 设备内证据**（见 `ANDROID_REMAINING_7_AUDIT.md`、
+  `ANDROID_CORE_USER_JOURNEY_E2E_REPORT.md`），**对新路线不构成 blocker**。
+  旧记录完整保留在下方 Historical / Legacy 区，不删除。
+
+---
+
+## HISTORICAL / LEGACY（不再代表当前 Production 路线）
+
+> 本节及以下全部内容描述的是 **uni-app x / UTS / DCloud 路线**（2026-09-15 之前）。
+> 其结论对旧实现仍然有效，**但不再是产品未来**，也不再出现在 Current 区。
+> 保留原因：Legacy 实现仍在仓库中充当 **BEHAVIOR ORACLE**
+> （见 `LEGACY_REFERENCE_MANIFEST.md`、`LEGACY_BEHAVIOR_CORRECTIONS.md`），
+> 在 Cutover 条件满足前**绝不删除**。
+
+### LEGACY 接力轮（2026-09-15）做了什么
 
 1. **恢复现场并保全前序工作（最重要）**：进入时工作区**不 clean** —— 上一轮
    PLATFORM BRINGUP 的**全部**产物（源码改动 + 23 份文档 + AAR）都在工作区、**零提交**。
@@ -221,3 +293,263 @@ Backup/Restore PASS + UI device QA PASS + Release blockers 清晰。**当前均�
 且 `git commit` 无法推进 HEAD。**规避：用 `commit-tree` 建链并把分支写进 `.git/packed-refs`。**
 若出现 "branch has no commits"，从 reflog 取哈希后重写 packed-refs；
 **不要**执行 `git reset --hard` / `git clean`。
+
+---
+
+## 本轮：PDIG NATIVE MIGRATION — 阶段 N0 完成 + N1 领域层（2026-09-15）
+
+### 决策
+
+用户最终决策：**彻底退出 uni-app x / UTS / DCloud**，切换为
+Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原生。
+旧实现保留为 `LEGACY_REFERENCE / BEHAVIOR_ORACLE`，**未删除**。
+
+### 本轮实测（本机，非声称）
+
+| 项                          | 命令                                                              | 结果                       |
+| --------------------------- | ----------------------------------------------------------------- | -------------------------- |
+| Legacy oracle 基线          | `cd core && npm test`                                              | **43 files / 453 tests PASS** |
+| Codegen Gate                | `node tools/codegen/generate.mjs --check`                           | **PASS**（3 端 generated） |
+| Oracle 自检                 | `core/scripts/generate-conformance.ts --verify`                    | **PASS（64 用例逐字节复现）** |
+| Android 领域层编译          | `gradle :core:compileKotlin`                                        | **BUILD SUCCESSFUL**       |
+| Android Conformance         | `gradle :conformance:run --args="<repo>"`                    | **pass=64 fail=0**         |
+| 跨端 Conformance Gate       | `node tools/conformance/run.mjs`                                    | **VERDICT: PASS**          |
+
+### 本轮产出（新增）
+
+**Canonical Spec（`spec/`）**
+
+- `README.md`、`domain/domain.json`（机器可读）、`domain/entities.md`、
+  `domain/invariants.md`
+- `schema/logical-schema.json`、`schema/persistence-contract.md`
+- `state-machines/change-plan.json` + `state-machines.json`（7 台状态机）
+- `errors/error-codes.json`
+- `security/depmap-container-v1.json`（含 Golden Vector + UTF-8 + JCS 向量）、
+  `security/security-policy.md`
+- `ui/design-tokens.json`、`ui/copy-zh.json`
+- `migration/migration-spec.md`
+
+**Fixtures / Conformance**
+
+- `fixtures/`：64 个平台中立用例（impact 13 / readiness 16 / coverage 6 /
+  relations 18 / depmap 3 / jcs 1 / scenario 1 / migration 1 / state-machine 5）
+- `fixtures/import/`：28 个原始输入（CSV/OFX/QFX）三端共用
+- `conformance/CONFORMANCE_MANIFEST.json`（含 sha256 与 oracle 提交）
+- `tools/conformance/run.mjs`：统一 Gate（codegen → 完整性 → oracle → 三端报告）
+
+**Codegen**
+
+- `tools/codegen/generate.mjs` → 三端 `generated/CanonicalEnums.{kt,swift,ets}`
+
+**Android（新工程 `android/`，非旧 `platforms/android`）**
+
+- `core`：domain / impact / plan / scenario / statemachine / schema / json（纯 Kotlin JVM）
+- `core/.../crypto`：JCS + `DepmapContainer`（BouncyCastle Argon2id + JDK JCE）
+- `conformance`：读取 fixtures → 产出 `conformance/reports/android.json`
+
+**Legacy 冻结与控制文件**
+
+- `LEGACY_REFERENCE_MANIFEST.md`、`legacy/README.md`、
+  `LEGACY_BEHAVIOR_CORRECTIONS.md`（6 条，含 **2 条真实功能性缺陷**）
+- tag `v0.3.0-uniapp-reference` → `6d268c0`
+- `GOAL_PDIG_NATIVE_MIGRATION.md`、`NATIVE_MIGRATION_STATUS.md`、
+  `NATIVE_MIGRATION_ACCEPTANCE.md`、`NATIVE_PARITY_MATRIX.md`、
+  `CROSS_PLATFORM_CONFORMANCE_MATRIX.md`、`NATIVE_RELEASE_MATRIX.md`、
+  `NATIVE_EXTERNAL_BLOCKERS.md`、`docs/ADR_NATIVE_MIGRATION.md`
+
+### 本轮发现并**修复**的真实缺陷
+
+| 编号  | 缺陷                                                          | 处置                     |
+| ----- | ------------------------------------------------------------- | ------------------------ |
+| LC-001 | `csv-utf8-bom.csv` 实际不含 BOM（该测试路径从未真正覆盖）      | 记录；Native fixture 另用真实 BOM 文件 |
+| LC-002 | `csv-missing-required-column.csv` 并未缺失必需列（命名误导）   | 记录                     |
+| LC-003 | legacy UI 暴露 runtime registry 不承认的 `bound_to`（用户可选到会被拒绝） | **Canonical Spec 锁定 2 值** |
+| LC-004 | `relationLabel` 含不存在的 `wallet_binding`                    | 记录                     |
+| LC-005 | readiness 文案两处不一致                                        | 以 `copy-zh.json` 为准   |
+| FIX-6  | golden fixture 的 wrongPasswordOutcome 误用正确口令             | **已修**（错误口令 + 增补篡改场景） |
+| FIX-7  | JCS reject case 含 NaN（JSON 无法表达，必然假失败）              | **已修**（移除）          |
+| FIX-8  | conformance harness 从 manifest 读 expected（manifest 不含）    | **已修**（改读 fixture 本体） |
+
+### 未做（诚实清单）
+
+- Android：**持久化 / Keystore / Biometric / Compose UI / APK** 全部未开始
+- HarmonyOS：**仅 codegen 产物**，Domain/UI/Crypto 未开始
+- iOS：**仅 codegen 产物**，build = `BLOCKED_BY_MACOS`
+- Timeline / Migration / Parser / Backup-Restore 的 Conformance fixture **尚未建立**
+- Production 仍依赖 DCloud/UTS/uni-app（未 Cutover，符合计划）
+
+### Next
+
+见 `NATIVE_MIGRATION_STATUS.md` § NEXT。
+
+---
+
+## 本轮：ANDROID N1 / N2 RUNTIME CLOSURE（2026-09-15）
+
+### 定位
+
+本轮**不是功能轮**。目标只有一个：用**真实运行时证据**判断 Android N1 / N2 能否 PASS，
+并把上一轮遗留的「构建链依赖本机绝对路径」永久收口。
+
+用户明确约束：**不进入 Harmony N3，不进入 MVP04，不新增业务 Domain，不重设计 UI。**
+
+### 1. 构建链（本轮最大的隐性 blocker）
+
+| 项 | 发现 | 处置 |
+| --- | --- | --- |
+| Gradle Wrapper | `android/` **完全没有** `gradlew` / `gradlew.bat` / `gradle-wrapper.jar` / `gradle-wrapper.properties`；构建只靠绝对路径 `<GRADLE_HOME>/bin/gradle.bat` | 生成标准 Wrapper（Gradle 8.9，官方 `distributionUrl`），已提交 `ad2350b` |
+| `android/local.properties` | 含机器 SDK 路径 | 保持 gitignore（`.gitignore:86`），**未提交**（已用 `git ls-files --error-unmatch` 验证 exit=1） |
+| `:conformance:run` 默认仓库根 | `rootProject.dir("../..")` 算错一级 → `<repo_parent>` → `FATAL: <repo_parent>/conformance\CONFORMANCE_MANIFEST.json not found` | 改为 `dir("..")` |
+| JVM 代理 | JVM 不读 `HTTP_PROXY` 环境变量，Wrapper 自举下载报 `Connection refused` | 用 `GRADLE_OPTS="-Dhttp.proxyHost=… -Dhttps.proxyPort=…"`（端口 10808 可通） |
+
+`gradlew clean` / `assembleDebug` / `assembleDebugAndroidTest` / `:conformance:run` 全部 **BUILD SUCCESSFUL**。
+
+### 2. 运行时实测（本机 AVD，非声称）
+
+| 项 | 命令 | 结果 |
+| --- | --- | --- |
+| Conformance | `./gradlew --no-daemon :conformance:run` | **pass=91 fail=0 notImplemented=0 total=91** |
+| 设备内 androidTest | `./gradlew --no-daemon :app:connectedDebugAndroidTest` | **19 / 19 PASS**（0 skipped / 0 failed） |
+| `:core` 纯 JVM 单测 | `./gradlew :core:test` | **NO-SOURCE（0 个）** —— 记为真实欠账，不粉饰 |
+| 真机 E2E | `local_private/e2e_drive.py`（串行单次干净运行） | 13 类步骤 PASS；业务写入链路等 NOT_RUN |
+| 性能 smoke | `PerfSmokeEvidenceTest` | `csvRowsParsed=10000`、`csvParseErrors=0`，强断言通过 |
+| logcat 隐私扫描 | PID/UID 归属扫描 | `appLines=44`，6 类敏感关键字命中 **全 0** |
+
+产物：`app-debug.apk` 36,794,370 B（SHA-256 `d84d8900…30879`）；
+`app-release.aab` 20,734,935 B（SHA-256 `f10cc60d…0f76c`，**未签名**）。
+
+### 3. 本轮修掉的真实缺陷（8 项）
+
+| # | 类别 | 缺陷 | 修复 |
+| --- | --- | --- | --- |
+| 1 | 构建链 | `android/` 完全没有 Gradle Wrapper | 生成标准 Wrapper（Gradle 8.9） |
+| 2 | 构建链 | conformance 默认仓库根算错一级 | `../..` → `..` |
+| 3 | 运行时 | SQLCipher native 库未加载 → `UnsatisfiedLinkError` | `System.loadLibrary("sqlcipher")` |
+| 4 | 运行时 | Cursor 惰性视图越界 → `CursorIndexOutOfBoundsException` | 改用 `MaterializedRow` |
+| 5 | 运行时 | 查询不存在的列 `criticality` → `SQLiteException` | 从 `acceptProposal` 的 SELECT 中移除 |
+| 6 | **取证方法** | 性能 smoke 数据**无效**（`csvRowsParsed=0`） | 修正 `dateFormats` + 强断言 `assertEquals(10_000, rows)` |
+| 7 | **取证方法** | logcat 扫描把 Launcher3 的 `password:false` 系统字段误判为应用泄露 | 改 PID/UID 归属扫描 |
+| 8 | 运行时 | 单进程跑 19 个 androidTest 被 OOM kill（signal 9） | 按类分批 + 类间 `pm clear` / `logcat -c` |
+
+> 第 6、7 项尤其值得记住：**上一轮报出的性能数字和"日志泄露"结论都是假的**，
+> 一个因为数据根本没解析进去，一个因为扫了别人的日志。旧数字已作废。
+
+### 4. 三个判定（分别回答，不混为一谈）
+
+| 判定 | 结果 | 一句话理由 |
+| --- | --- | --- |
+| `N1_ANDROID_VERTICAL_SLICE` | **PARTIAL_WITH_REPORT** | 分层证据很硬（91 + 19 全绿），但核心链路 import→proposal→reality→impact→changeplan→verification **设备级一次都没跑通** |
+| `N2_ANDROID_FULL_PARITY` | **PARTIAL_WITH_REPORT** | **58 / 62**；截图保护 / App Lock / Biometric 属于"只有实现没有运行时证据" |
+| `ANDROID_PRODUCTION_RELEASE_READY` | **BLOCKED_BY_PRODUCTION_SIGNING** | 缺生产 keystore；且非生产签名流水线本轮**未生效**（产物与未签名版同 SHA-256） |
+
+**最终：判定 B —— 不进入 Harmony N3。**
+
+### 5. 本轮报告（7 份，全部新写）
+
+`ANDROID_BUILD_REPRODUCIBILITY_REPORT.md`、`ANDROID_PERFORMANCE_SMOKE_REPORT.md`、
+`ANDROID_RUNTIME_E2E_REPORT.md`、`ANDROID_SECURITY_RUNTIME_AUDIT.md`、
+`ANDROID_REMAINING_7_AUDIT.md`、`ANDROID_STORE_METADATA.md`、
+`ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`
+
+### 6. 本轮状态文档更新
+
+- `NATIVE_MIGRATION_STATUS.md`：55/62 → **58/62**；N1 由 PASS **降级**为 PARTIAL_WITH_REPORT；可复现命令改用 `./gradlew`
+- `NATIVE_PARITY_MATRIX.md`：截图保护 / 设备 E2E / 性能 smoke / 无障碍 / Store metadata / Release 签名 逐格更新；新增 `PARTIAL` 标注口径声明
+- `CROSS_PLATFORM_CONFORMANCE_MATRIX.md`：用例总数 **64 → 91**（早期版本漏统计 Parser 22 / Timeline 3 / Migration-Backup 2），Android 91 PASS
+
+### 7. 本轮 Git 收口
+
+- 提交 `ad2350b`：`android/gradlew`、`android/gradlew.bat`、
+  `android/gradle/wrapper/gradle-wrapper.jar`、`android/gradle/wrapper/gradle-wrapper.properties`
+  —— **仅这 4 个路径**，工作树中其余未提交内容**未动**。
+- **⚠ 本轮复现了本工作区的既有 Git 故障**：`git commit` 成功创建了对象 `ad2350b`
+  并返回 0，但 **HEAD 未推进**（`git rev-parse HEAD` 仍是 `6d268c0`），
+  4 个文件只停留在 index（`A`）。
+  **处置**：沿用既有规避方式——确认 `ad2350b` 的 parent 确为 `6d268c0`、tree 正确后，
+  直接改写 `.git/packed-refs` 中 `refs/heads/feat/mvp03-living-graph` 的指向。
+  复核：`git rev-parse --short HEAD` = `ad2350b`，`git ls-files` 能列出全部 4 个 wrapper 文件。
+  **下次提交后务必复查 HEAD，不要只看 `git commit` 的返回码。**
+- **未 push**（用户未授权）。
+
+### 8. 本轮自我纠偏（必须记录）
+
+上一轮曾出现**循环检测**：反复读取同一个临时结果文件（`_adb.txt` / `_st.txt`）导致上下文空转。
+本轮改为**每次产出唯一结果文件 + 直接捕获 stdout**，未再发生。
+另有一次 E2E 因**两个驱动实例并发**而污染结果（首页标记为空、crashes=2），
+已改为串行单次运行后取得干净结果集。
+
+### 9. Next（仅清 blocker，不做新功能）
+
+见 `NATIVE_MIGRATION_STATUS.md` § NEXT（P0：打通应用层写入路径 + 给 `:core` 补 JVM 单测）。
+**P0 关闭前不进入 Harmony N3。**
+
+---
+
+## 2026-09-16 Android P0 Runtime Closure（实跑结果）
+
+被测 APK：`app-debug.apk`，SHA256
+`bf378ec6678f04bf988921528b73ab879d9381a418d3a094ece2e60490305ff1`（36,887,249 B）。
+设备：`emulator-5554`（API 34）。
+
+### P0-1 真机 E2E —— 21/21 PASS，App 崩溃 0
+
+`local_private/core_journey_e2e_v2.py`，证据 `local_private/e2e/core-journey-v2-20260916-172044.*`。
+J1 全新安装 → J2 导入（SAF 选真实 CSV）→ J3 候选 → J4 确认 Reality → J5 标记必需 + 影响面
+（必须处理（2））→ J6 变更计划 → J7 done → J8 verified → J9 进程死亡后数据仍在
+（共 5 个对象）→ J10 导出 .depmap + 错误密码恢复被拒。
+报告：`ANDROID_CORE_USER_JOURNEY_E2E_REPORT.md`。
+
+### P0-2 `:core:test` —— 71/71
+
+报告：`ANDROID_CORE_JVM_TEST_REPORT.md`。
+
+### P0-3 运行时安全取证
+
+- **Gate 1 FLAG_SECURE：PASS（6/6 路由）**。双证据：窗口 `fl=` 含 `SECURE` +
+  `screencap` 被抹黑（均值 0.17 vs 非敏感页 244.64）。
+  敏感：SOURCES / IMPORT / INFRASTRUCTURE / BACKUP；非敏感：HOME / SETTINGS。
+- **Gate 2 App Lock：PARTIAL，且有真实缺口**。`AppLock.state()` 在设备上返回
+  **`NOT_CONFIGURED`**（fail-closed，符合预期）；但 `MainActivity` 固定
+  `startDestination=HOME`，全仓库无 `nav.navigate(Route.LOCK)` —— **LockScreen 写好了
+  却没有任何入口能调起它**。
+- **Gate 3 备份加密 / Keystore：PASS**（`sqlcipher_plainSqliteCannotRead`、
+  `keystore_rawKeyNeverReachesDisk`、`depmap_tamperedCiphertextIsRejected` 等）。
+- 报告：`ANDROID_RUNTIME_SECURITY_EVIDENCE.md`。
+
+### P0-4 全回归
+
+| 项 | 结果 |
+|---|---|
+| `:core:test` | 71/71 PASS |
+| `:app:testDebugUnitTest` | **NO-SOURCE**（app 模块无 JVM 单测，如实记录） |
+| `:conformance:run` | **pass=91 fail=0 total=91** |
+| `:app:assembleDebug` | BUILD SUCCESSFUL（APK 见上） |
+| `:app:connectedDebugAndroidTest` | **19/19 PASS**（0 skipped） |
+
+### P0-5 Git HEAD
+
+- HEAD = `ad2350b`，branch `feat/mvp03-living-graph`，**无删除、无 staged 残留**。
+- 已跟踪修改：`AGENTS.md`、`WORK_STATUS.md`。
+- **未跟踪**：`android/`（全部原生源码）、`conformance/`、`fixtures/`、`spec/`、
+  `harmony/`、`ios/`、`legacy/`、`tools/` 及本轮新增报告。
+- **未提交**：范围太大且用户未授权；提交前需确认是"只提 android/ + 报告"还是整体入库。
+- **未 push**。
+
+### 本轮发现的两个真实缺陷（未修，只记录）
+
+1. **备份导出 UI 误报失败**（2/2 复现）：App 显示「备份失败：无法写入文件。」，
+   但 `/sdcard/Download/pdig-backup.depmap` 已完整写入，且用正确密码可成功恢复
+   （「已恢复 29 条记录。」）。不丢数据，但会误导用户。
+2. **「确认导入」按钮的有效点击区低于其可见范围**：点语义 `Button` 中心无效
+   （DB 大小/mtime 完全不变），点外层 clickable View 经底部裁剪后的落点才生效。
+   产品侧是否需要补滚动容器底部 padding 待评估。
+
+### 本轮自我纠偏（必须记录）
+
+- **取证口径 bug 差点造成误判**：`dumpsys` 输出的 flag 是裸名 `SECURE`，
+  之前 grep `FLAG_SECURE` 恒为 0，一度被当成"截图保护未生效"。修正口径后 Gate 1 全 PASS。
+  **结论：检测口径本身也要先自证。**
+- **断言过松会放过 FAIL**：J5 第一版只判断"存在『必须处理（』"，被 `（0）` 蒙混通过，
+  导致 J6~J8 连锁假失败。已改为断言数量 ≥ 1。
+- **E2E 行程缺了"用户显式标记必需"这一步**：`criticality=required` 只能由用户设置
+  （机器永不产生），漏掉后影响面恒为 0。已补进 J5。

@@ -410,6 +410,43 @@ MVP 默认：
 
 不要只说“完成了”。
 
+## 24.5 Native Migration（2026-09-15 起生效，**优先于 §5**）
+
+**技术栈已变更（§5 被本条覆盖，历史记录保留不删）**：
+
+- Production 技术栈冻结为 **Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI)** 三端原生。
+- **禁止**在 Production 中依赖 uni-app、uni-app x、`.uvue` runtime、UTS runtime、
+  HBuilderX、DCloud Cloud Build / Native SDK / 登录 / 云打包 / 运行时。
+- 旧的 TypeScript `core/` 与 uni-app x `app/` **保留为 LEGACY_REFERENCE / BEHAVIOR ORACLE**，
+  在 Cutover 条件满足前**绝不删除**。
+
+**最高真相源**：`spec/`。三端实现不得自行改变 Domain Semantics。
+
+**变更顺序（强制）**：
+
+```
+1. 改 Canonical Spec (spec/)
+2. 重新生成 Golden Fixtures (fixtures/ + conformance/expected/)
+3. 三端实现 (android/ harmony/ ios/)
+4. 跑 Conformance (node tools/conformance/run.mjs)
+5. 更新 Parity Matrix
+```
+
+**AI Agent 不得**（§170）：
+
+- 自己改变 Canonical Semantics
+- 手写会漂移的静态枚举（一律用 `tools/codegen`）
+- 把 `NOT_RUN` 写成 `PASS`；把"理论支持"写成"已验证"
+- 没有 macOS 却宣称 `IOS_BUILD = PASS`
+- 没有真机却宣称 `*_RUNTIME = PASS`
+- 在 Native Migration 完成前进入 MVP04 或任何新业务 Domain
+
+**每轮结束前**必须更新：`NATIVE_MIGRATION_STATUS.md` 与 `WORK_STATUS.md`。
+
+详见 `GOAL_PDIG_NATIVE_MIGRATION.md`、`spec/README.md`、`docs/ADR_NATIVE_MIGRATION.md`。
+
+---
+
 ## 25. Engineering Baseline V1（2026-09-13 起长期生效）
 
 任何 Agent 结束任务前必须：
