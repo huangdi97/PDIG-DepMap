@@ -458,6 +458,11 @@ NON_PRODUCTION_TEST_SIGNING  ≠  PRODUCTION_SIGNING
 **新 run id**：`core-journey-v3-20260917-111220`
 （不使用修复前的 `core-journey-v2-20260916-172044` 作为最终证据）
 
+> 期间还有若干次「驱动脚本自身仍在调试」的运行，保留在
+> `local_private/_e2e_v3_run*.log`，**均不作为证据**。其中 run4 在 J0 阶段因
+> `scroll_to()` 收到字符串型 `max_scroll` 直接抛出 `TypeError` 中断（脚本缺陷，
+> 非被测应用缺陷），run5/run6 是 ANR 时序与解锁路径的取样，run7 起才稳定。
+
 **总计 22 步：PASS 8 / FAIL 14 / PARTIAL 0。**
 
 | # | 步骤 | 结果 | 说明 |
@@ -589,7 +594,7 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 | G1 | `ANDROID_BUILD_REPRODUCIBLE`（无仓库外依赖） | **PASS** | §2：不带任何环境变量直接 `BUILD SUCCESSFUL` |
 | G2 | `ANDROID_CORE_JVM_TEST` | **PASS** | 71/71 |
 | G3 | `ANDROID_CONFORMANCE` | **PASS** | 91/91 |
-| G4 | `ANDROID_DEVICE_TEST` | **PASS** | 44/44 |
+| G4 | `ANDROID_DEVICE_TEST` | **PASS** | 45/45（重收后口径；旧 44 已作废，见 D-14） |
 | G5 | `ANDROID_APK_BUILD` | **PASS** | assembleDebug |
 | G6 | `ANDROID_AAB_BUILD` | **PASS** | bundleRelease |
 | G7 | `ANDROID_RELEASE_APK_BUILD` | **PASS** | assembleRelease |
@@ -770,7 +775,7 @@ cd android
 ./gradlew --no-daemon :conformance:run --console=plain
 cd .. && node tools/conformance/run.mjs
 
-# 3. 设备内证据（44，分 4 批规避 OOM）
+# 3. 设备内证据（45，分 4 批规避 OOM）
 bash local_private/run_connected_batches.sh
 
 # 4. 构建
