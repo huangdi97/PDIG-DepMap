@@ -799,7 +799,7 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 | G1 | `ANDROID_BUILD_REPRODUCIBLE`（无仓库外依赖） | **PASS** | §2：不带任何环境变量直接 `BUILD SUCCESSFUL` |
 | G2 | `ANDROID_CORE_JVM_TEST` | **PASS** | 71/71 |
 | G3 | `ANDROID_CONFORMANCE` | **PASS** | 91/91 |
-| G4 | `ANDROID_DEVICE_TEST` | **PASS** | 45/45（重收后口径；旧 44 已作废，见 D-14） |
+| G4 | `ANDROID_DEVICE_TEST` | **PASS** | **51/51**（2026-09-17 重收，含 D-16 专项 6 个；旧的 45 是分批方式不同，旧 44 已作废，见 D-14） |
 | G5 | `ANDROID_APK_BUILD` | **PASS** | assembleDebug |
 | G6 | `ANDROID_AAB_BUILD` | **PASS** | bundleRelease |
 | G7 | `ANDROID_RELEASE_APK_BUILD` | **PASS** | assembleRelease |
@@ -816,7 +816,7 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 | G18 | `ANDROID_LOG_HYGIENE` | **PASS** | §9 |
 | G19 | `ANDROID_RELEASE_SIGNING_PIPELINE` | **PASS**（非生产密钥验证链路） | §8 |
 | G20 | `ANDROID_RELEASE_SIGNING_PRODUCTION` | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE** | §8.2 |
-| G21 | `ANDROID_CORE_USER_JOURNEY_E2E` | **PASS**（2026-09-17 重判） | §10.1：`core-journey-v4-<ts>` = **41 / 41 PASS / 0 FAIL**。（旧的 v3 run 8 PASS / 14 FAIL 全部级联自 D-16，已随 D-16 关闭失效） |
+| G21 | `ANDROID_CORE_USER_JOURNEY_E2E` | **PASS**（2026-09-17 重判） | §10.1.1：`core-journey-v4-20260917-184856` = **41 / 41 PASS / 0 FAIL**。（旧的 v3 run 8 PASS / 14 FAIL 全部级联自 D-16，已随 D-16 关闭失效） |
 | G22 | `ANDROID_PROCESS_DEATH_PERSISTENCE` | **PASS** | `PersistenceEvidenceTest` 8/8（设备内）+ E2E J9 真实 `am kill` 后重建首屏是锁屏且数据仍在 |
 | G23 | `ANDROID_PERFORMANCE_SMOKE` | **PASS** | `PerfSmokeEvidenceTest`（10,000 行强断言） |
 | G24 | `ANDROID_STORE_METADATA` | **PARTIAL_WITH_REPORT** | 文案草稿完成；截图/图标/公开隐私政策链接 NOT_STARTED |
@@ -827,9 +827,9 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 | G29 | `ANDROID_D16_FILE_WORKFLOW` | **PASS** | §3.4：`FileWorkflowD16Test` **6/6**（设备内）+ E2E 每个外部 picker 节点的两条断言全 PASS；4 个 parity 格恢复 `RUNTIME_VERIFIED` |
 | G30 | `ANDROID_EVIDENCE_PIPELINE_INTEGRITY` | **PASS** | 4 批设备取证**指纹互不相同**、每批清空输出目录 + mtime 时间窗 + 类名校验（D-14/D-15 复检） |
 
-**Gate 汇总（2026-09-17 更新后）**：30 个 Gate —— **PASS 24 / PARTIAL_WITH_REPORT 3
-（G11 设备凭据、G15 无障碍、G26 跨端 conformance）/
-BLOCKED 2（G10 生物识别运行时、G20 生产签名）/ FAIL 0**。
+**Gate 汇总（2026-09-17 更新后）**：30 个 Gate —— **PASS 24** /
+**PARTIAL_WITH_REPORT 4**（G11 设备凭据、G15 无障碍、G24 Store 素材、G26 跨端 conformance）/
+**BLOCKED 2**（G10 生物识别运行时、G20 生产签名）/ **FAIL 0**。
 
 > G21 的 `41/41` 与 G4 的 `51/51` 以 §10 的最终 run 为准；
 > 若上述 run id 与本地 `local_private/e2e/` 下的最新文件不一致，以**文件**为准
