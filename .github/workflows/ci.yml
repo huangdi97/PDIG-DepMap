@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# ---------------------------------------------------------------------------
+# 诚实范围声明（不要删除）
+# ---------------------------------------------------------------------------
+# 本 CI 只做"在 GitHub-hosted runner 上真实可执行且已确认可行"的门禁：
+#
+#   job canonical      : codegen check + fixture integrity + oracle selfcheck + 平台报告 diff
+#   job android-core   : :core:test（纯 JVM）+ :conformance:run
+#
+# 明确 NOT AVAILABLE（不 fake，不写 continue-on-error 假装通过）：
+#
+#   HARMONY_CI = NOT_AVAILABLE
+#     GitHub-hosted runner 无 DevEco Studio / HarmonyOS SDK / hvigor，
+#     且 hvigor 5.13.2 只以 file: 协议引用 DevEco 内置包（公共 registry 无此版本）。
+#     需要 self-hosted Windows runner + 本机 DevEco 才能建立。
+#
+#   IOS_CI = NOT_ESTABLISHED
+#     macOS runner 可建立，但 iOS N4 尚未开工（BLOCKED_BY_MACOS 之外的工程缺口未开始），
+#     因此本轮不建空跑 job。
+#
+#   ANDROID_EMULATOR_E2E = NOT_RUN
+#     GitHub-hosted Linux runner 无 KVM 授权的硬件加速，
+#     不建立 emulator job —— 不声明「Android Emulator E2E = PASS」。
+#
+#   :app:assembleDebug = 本轮不纳入 CI
+#     未经 hosted runner 验证，不放入必过门禁；验证通过后再加入。
+# ---------------------------------------------------------------------------
+
+jobs:
+  canonical:
+    name: Canonical (codegen / fixtures / oracle)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: core/package-lock.json
+
+      - name: Install Legacy oracle dependencies
+        working-directory: core
+        run: npm ci
+
+      - name: 1. CODEGEN GATE (spec → generated)
+        run: node tools/codegen/generate.mjs --check
+
+      - name: 2-4. Conformance orchestrator
+        run: node tools/conformance/run.mjs
+
+      - name: Upload conformance summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: conformance-summary
+          path: conformance/reports/**
+          if-no-files-found: ignore
+
+  android-core:
+    name: Android core (JVM tests + conformance)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Gradle wrapper permissions
+        working-directory: android
+        run: chmod +x ./gradlew
+
+      - name: ":core:test + :conformance:run"
+        working-directory: android
+        run: ./gradlew --no-daemon --console=plain :core:test :conformance:run
+
+      - name: Upload Android conformance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-conformance-report
+          path: conformance/reports/android.json
+          if-no-files-found: ignore

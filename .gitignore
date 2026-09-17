@@ -113,3 +113,40 @@ reports/
 # 默认不入生产仓库；若将来需要把某些条目固化为正式工程记录，
 # 应当把它们移出 .pi/ 放到 docs/ 或根目录，而不是放开整个目录。
 .pi/
+
+# ---------------------------------------------------------------------------
+# GitHub 发布前增量（2026-09-17，A3）—— 审计后增量补齐，未覆盖既有规则
+# ---------------------------------------------------------------------------
+
+# .depmap 加密容器本体（明文/密文备份一律不入库；canonical golden 走 spec/fixtures）
+*.depmap
+
+# 设备取证输出（logcat / adb 导出，可能含真实界面内容）
+logcat*
+adb_logcat*
+
+# iOS / Xcode 本地状态（N4 之前先立规则，避免将来误入库）
+DerivedData/
+.swiftpm/
+.build/
+xcuserdata/
+*.xcuserstate
+*.xcworkspace
+
+# HarmonyOS 产物与本地状态补充
+*.hap
+*.hsp
+*.har
+**/oh_modules/
+**/.hvigor/
+**/.preview/
+
+# Python 取证脚本缓存（local_private/ 下的 e2e 驱动）
+__pycache__/
+*.pyc
+
+# 编辑器 / 工具临时文件
+*.swp
+*.swo
+*~
+

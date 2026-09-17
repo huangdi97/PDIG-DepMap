@@ -1,0 +1,78 @@
+name: Feature Request
+description: 提出新能力或改进（请先确认不在 NEXT_BACKLOG 范围内）
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    value: |
+      ## 先看范围
+
+      以下内容**明确不在当前范围**，提议会被关闭并指向 `NEXT_BACKLOG.md`：
+      Open Banking · 云同步 · AI/LLM 自动决策 · 手机号/邮箱 capability ·
+      GitHub/Domain/Cloud 图谱 · 支付宝专属解析器 · iOS N4（BLOCKED_BY_MACOS）。
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: 影响层
+      options:
+        - Canonical Spec（spec/）
+        - Fixtures / Conformance
+        - Android
+        - HarmonyOS
+        - iOS
+        - 工具链 / CI
+        - 文档
+    validations:
+      required: true
+
+  - type: dropdown
+    id: milestone
+    attributes:
+      label: 所属里程碑
+      options:
+        - MVP01 Payment Reality Kernel（已完成，仅修缺陷）
+        - MVP02 Global Source Abstraction（已完成，仅修缺陷）
+        - MVP03 Living Graph & Change Safety（已完成，仅修缺陷）
+        - Native Migration（Android 已冻结 / Harmony N3 / iOS N4）
+        - NEXT_BACKLOG（尚未排期）
+        - 不确定
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解决的问题
+      description: 不要直接写方案。先说清现在的具体问题与影响面。
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+      description: 涉及跨端行为时，说明是否需要改 `spec/` 与新增 fixture。
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: 核心原则确认
+      description: 本项目的第一原则是「宁可漏报，不可把不确定伪装成必须处理」。
+      options:
+        - label: 该提议**不会**让机器推断产生 `criticality=required`
+          required: false
+        - label: 该提议**不会**引入网络原语或云依赖
+          required: false
+        - label: 该提议**不会**让 Observation 自动变成 Reality
+          required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 验收标准
+      description: 怎样算完成？需要哪些**实跑**证据？
+    validations:
+      required: false

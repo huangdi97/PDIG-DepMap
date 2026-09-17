@@ -1,0 +1,119 @@
+name: Bug Report
+description: 报告一个真实缺陷（请勿提交真实个人金融数据）
+title: "[BUG] "
+labels: ["bug"]
+body:
+  - type: markdown
+    value: |
+      ## ⛔ 提交前必读
+
+      **禁止在本 issue 中粘贴**：真实账单、银行卡号 / 账户号、口令、
+      `.depmap` 明文、数据库文件、含个人数据的截图、logcat 原文、本机用户名路径。
+
+      请用 `fixtures/` 下的 canonical 用例或新建 synthetic fixture 复现，
+      并把日志中的 ID / 金额 / 账户 / 路径替换为占位符。
+
+      详见 `SECURITY.md`。**含真实个人数据的 issue 会被立即关闭并删除。**
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: 平台
+      description: 缺陷发生在哪一层？
+      options:
+        - Canonical（spec/ fixtures/ conformance/ tools/）
+        - Android（android/）
+        - HarmonyOS（harmony/）
+        - iOS（ios/）
+        - Legacy Behavior Oracle（core/ app/ platforms/）
+        - 文档 / 工程基线
+        - 不确定
+    validations:
+      required: true
+
+  - type: input
+    id: commit
+    attributes:
+      label: Commit SHA
+      description: 请粘贴 `git rev-parse HEAD` 的完整或前 7 位输出。不要填"最新版"。
+      placeholder: "9a00d8c"
+    validations:
+      required: true
+
+  - type: input
+    id: gate
+    attributes:
+      label: 相关 Gate / 用例 ID
+      description: 涉及的 Gate 名（如 HARMONY_DEPMAP）或 conformance 用例 ID（如 RD-003）。
+      placeholder: "ANDROID_NATIVE_CORE_HANDOFF / IMPACT-007"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 可独立执行的最小步骤。**必须基于 synthetic fixture。**
+      value: |
+        1.
+        2.
+        3.
+      validations:
+        required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 依据 `spec/` 或 Canonical 设计应当发生什么？
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际行为
+      description: 实际发生了什么？附命令输出（已脱敏）。
+    validations:
+      required: true
+
+  - type: dropdown
+    id: evidence_level
+    attributes:
+      label: 证据等级
+      description: 你的结论基于什么？（本项目不采信"代码看起来对"）
+      options:
+        - SOURCE_READY（仅源码）
+        - BUILD_READY（可编译）
+        - TESTED（有实跑测试输出）
+        - RUNTIME_VERIFIED（有真机/模拟器证据）
+        - NOT_RUN（无环境，未能执行）
+    validations:
+      required: true
+
+  - type: dropdown
+    id: logs_redacted
+    attributes:
+      label: 日志是否已脱敏？
+      options:
+        - "是 —— ID / 金额 / 账户 / 路径已全部替换为占位符"
+        - "不适用 —— 未附日志"
+        - "否 —— 我会在提交后立即自行编辑脱敏"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: no_personal_data
+    attributes:
+      label: 个人数据确认
+      options:
+        - label: 我确认本 issue **不含**任何真实个人金融数据、口令或可识别个人信息
+          required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: 补充上下文
+      description: 相关 blocker 编号、报告链接、环境版本（JDK / Node / SDK 等）。
+    validations:
+      required: false
