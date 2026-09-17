@@ -726,8 +726,9 @@ v4 相对 v3 的变化（都是为了把 D-16 变成**可断言**的事实，而
 提交链（每个提交后都校验 `rev-parse HEAD` / `log --oneline` / `status -uall` / `diff --check`）：
 
 ```
-HEAD（2026-09-17 D-16 关闭轮后）= 951e160c681c4fcd2ff714a0f1934337949fd62b
+# 2026-09-17 D-16 关闭轮新增两个提交（HEAD 以 `git rev-parse HEAD` 为准，报告不写死 SHA）
 
+b79ca5a docs(android): D-16 closure - final E2E v4 run id, Git closure record, stale-report banner
 951e160 fix(android): keep Import/Restore file workflows alive across the lock round-trip (D-16)
 f9428c3 docs(android): N1/N2 report V2 - align device-test count to re-collected 45 ...
 7b9d488 docs(android): refresh Git state in N1/N2 closure report V2
