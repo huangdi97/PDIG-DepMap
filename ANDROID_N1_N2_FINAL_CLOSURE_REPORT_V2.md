@@ -546,18 +546,16 @@ NON_PRODUCTION_TEST_SIGNING  ≠  PRODUCTION_SIGNING
 提交链（每个提交后都校验 `rev-parse HEAD` / `log --oneline` / `status -uall` / `diff --check`）：
 
 ```
-HEAD = 8354ea2ec95b1cad3ed240fcb040d662f5e85aaf
+HEAD = e9cdb87431db1a41c1fc595abbd8a7f219530013
 
+e9cdb87 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
+113c988 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
 8354ea2 fix(android): device credential must never be downgraded to a manual ack
 47991af fix(android): make the build reproducible on non-ASCII checkouts
 041ed8b test(android): device evidence suite, canonical spec and cross-platform fixtures
 ca36083 feat(android): Compose app, application layer and App Lock wiring
-38c9a50 feat(android): native Kotlin domain/data layer, conformance runner and Gradle build
-ad2350b build(android): add the missing Gradle Wrapper (8.9) so the build stops depending on a machine-local Gradle
-6d268c0 chore(build): ignore the agent workspace memory directory
-b93edd4 docs(release): correct the platform state after an independent re-verification
 
-工作区状态：dirty（30 个变更条目）
+工作区状态：dirty（4 个变更条目）
 ```
 
 **流程说明**：本工作区存在已知 Git 故障 —— loose ref（`.git/refs/heads/**`）会被外部进程回收，
