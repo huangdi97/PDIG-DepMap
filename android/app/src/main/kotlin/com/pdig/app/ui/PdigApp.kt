@@ -1,15 +1,18 @@
 package com.pdig.app.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.navigation.NavController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -90,12 +93,27 @@ object Route {
  *  - 直接跳转：没有任何可调用的 `nav.navigate(Route.LOCK)` 之外的入口
  *
  * 前后台：`ON_STOP` 一律回锁 —— 这是 application/security state，不触碰 Reality Graph。
+ *
+ * ---------------------------------------------------------------------------
+ * ## D-16：导航位置也要跨锁存活
+ *
+ * 「锁定时不组合 NavHost」在安全上是正确的，但副作用是：用户从导入向导切到
+ * 外部文件选择器 → 回锁 → 解锁后回到的是 `startDestination = HOME`，
+ * **不是**他离开时的那个向导页。
+ *
+ * 这里把"当前导航链"记在 [PdigApp] 的 `remember` 里 —— [PdigApp] 本身
+ * **不会因为锁定而离开组合树**（只有 NavHost 那一支会），所以它能跨锁存活；
+ * 解锁后 [AppNavHost] 依据它把栈重建回来。
+ * ---------------------------------------------------------------------------
  */
 @Composable
 fun PdigApp() {
     val context = LocalContext.current
     var capability by remember { mutableStateOf<LockCapability?>(null) }
     var checkGeneration by remember { mutableIntStateOf(0) }
+
+    // 跨锁保持的导航链（只记录**无参数**路由：带 {arg} 的路由无法在缺少实参时重建）。
+    var routeChain by remember { mutableStateOf<List<String>>(emptyList()) }
 
     LaunchedEffect(checkGeneration) {
         // Binder 查询放到后台线程；在此之前本页不展示任何用户数据。
@@ -138,17 +156,65 @@ fun PdigApp() {
             onUnlocked = { LockGate.unlock() },
             onRecheck = { checkGeneration += 1 },
         )
-        else -> AppNavHost()
+        else -> AppNavHost(
+            resumeChain = routeChain,
+            onDestinationChanged = { route -> routeChain = foldRoute(routeChain, route) },
+        )
     }
+}
+
+/**
+ * 把一次目的地变化折叠进导航链：
+ *  - 已在链中出现过 ⇒ 视为**回退**到该层，截断其后所有层
+ *  - 否则 ⇒ 视为**前进**，追加
+ *  - 带 `{arg}` 的路由（如 `node/{nodeId}`）无法在缺少实参时重建，**跳过**
+ */
+internal fun foldRoute(chain: List<String>, route: String): List<String> {
+    if (route.contains("{")) return chain
+    if (chain.lastOrNull() == route) return chain
+    val existing = chain.indexOfLast { it == route }
+    if (existing >= 0) return chain.subList(0, existing + 1)
+    return chain + route
 }
 
 /** 解锁后的 App 本体。锁定时它不会被组合，这是"锁不可绕过"的结构性保证。 */
 @Composable
-fun AppNavHost(startDestination: String = Route.HOME) {
+fun AppNavHost(
+    resumeChain: List<String> = emptyList(),
+    onDestinationChanged: (String) -> Unit = {},
+) {
     val nav = rememberNavController()
     val backStackEntry by nav.currentBackStackEntryAsState()
     // 截图保护：按当前路由设置 / 清除 FLAG_SECURE（敏感页清单见 SecureWindow.kt）
     SecureWindow(route = backStackEntry?.destination?.route)
+
+    // startDestination 必须**冻结**在首次组合时的值：resumeChain 在组合期间还会继续变化，
+    // 而 NavHost 的 startDestination 一旦变化就会重建整张 graph。
+    val startDestination = remember {
+        resumeChain.firstOrNull()?.takeIf { it.isNotBlank() } ?: Route.HOME
+    }
+
+    // 解锁后把用户离开时的导航栈补回来（D-16）。
+    // 只补第一层之后的层级：第一层已经作为 startDestination 生效。
+    var restored by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        if (restored) return@LaunchedEffect
+        restored = true
+        resumeChain.drop(1).forEach { route ->
+            runCatching { nav.navigate(route) }
+        }
+    }
+
+    val onRoute = rememberUpdatedState(onDestinationChanged)
+    DisposableEffect(nav) {
+        val listener = NavController.OnDestinationChangedListener { _, destination, _ ->
+            val route = destination.route
+            if (!route.isNullOrBlank()) onRoute.value.invoke(route)
+        }
+        nav.addOnDestinationChangedListener(listener)
+        onDispose { nav.removeOnDestinationChangedListener(listener) }
+    }
+
     NavHost(navController = nav, startDestination = startDestination) {
         composable(Route.ONBOARDING) { OnboardingScreen(nav) }
         composable(Route.HOME) { HomeScreen(nav) }

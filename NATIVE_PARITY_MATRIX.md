@@ -3,10 +3,20 @@
 > 每格：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `CONFORMANCE_PASS` → `RUNTIME_VERIFIED`
 > 写状态时不得跳过等级，也不得把"理论支持"写成"已验证"。
 
-更新时间：2026-09-17（Android Final Blocker Closure 轮，**重新计算**）
-> 本轮相对 2026-09-16 的变更：导入相关 4 格由 `RUNTIME_VERIFIED` 回退为 `PARTIAL`
-> （D-16：外部文件选择器触发回锁 → 向导状态与 ActivityResult 一起丢失），
-> 安全格补上设备凭据判定的取证，Android 合计 **56 / 73**。
+更新时间：2026-09-17（**D-16 关闭轮**，Android Final Closure）
+
+> ## D-16 CLOSED（2026-09-17）
+>
+> 上一轮因 D-16 回退为 `PARTIAL` 的 4 格（Import / Import Mapping / Import Review /
+> Restore）已**重新逐格取证**并恢复为 `RUNTIME_VERIFIED`。依据：
+>
+> - 设备内 `FileWorkflowD16Test` **6/6**（launcher 跨锁存活 / 结果不解锁 /
+>   待投递工作流不丢 / Uri 跨锁可读 / 进程死亡保守恢复 / 敏感内容不进 SavedState）
+> - 核心行程 E2E **v4**（`core-journey-v4-*`）中每一个外部 picker 节点都独立断言
+>   `externalPickerDoesNotBypassLock` 与 `externalPickerDoesNotDestroyPendingWorkflow`
+> - Import 端到端真的写进库了（Node Resolution 2 支付方式 / 3 收款对象 → 提交「记录 6 行」）
+>
+> Android 合计 **62 / 73**（见文末逐格重算）。
 
 > ## ⚠ 计数口径已变更（旧的 `58/62` 作废）
 >
@@ -21,7 +31,11 @@
 
 ---
 
-## 1. 领域 / 语义层（16 格，已完成 13）
+## 1. 领域 / 语义层（16 格，已完成 **14**）
+
+> 2026-09-17：上一节标题写的是"已完成 13"，但实际表里有 **14** 个
+> `CONFORMANCE_PASS`（16 行中只有 Node/Dependency/Group 与 canonical groupKey
+> 两行是 `IMPLEMENTED`）。这是上一轮的手工计数误差，本轮逐行重数为 **14**。
 
 | 能力                       | Android | Harmony | iOS |
 | -------------------------- | ------- | ------- | --- |
@@ -113,7 +127,7 @@
 
 ---
 
-## 5. UI（§63 / §91 / §109）（22 格，已完成 14）
+## 5. UI（§63 / §91 / §109）（22 格，已完成 **18**）
 
 | 页面                     | Android | Harmony | iOS |
 | ------------------------ | ------- | ------- | --- |
@@ -131,18 +145,36 @@
 | Graph View（二级） | IMPLEMENTED（本轮未被真机走过） | NOT_STARTED | NOT_STARTED |
 | Node Detail | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
 | Source Management | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Import | **PARTIAL**（页面与选择在真机走过；**端到端完成不了**，见下方 D-16 说明） | NOT_STARTED | NOT_STARTED |
-| Import Mapping | **PARTIAL**（显式映射在链路中生效；终态受 D-16 影响无法走完） | NOT_STARTED | NOT_STARTED |
-| Import Review | **PARTIAL**（Node Resolution 预览在 App Lock 接线前已真机走过；**本轮重跑拿不到**） | NOT_STARTED | NOT_STARTED |
-| Backup | **RUNTIME_VERIFIED**（导出经 MediaStore 落盘，不经外部文件选择器，因此不受 D-16 影响） | NOT_STARTED | NOT_STARTED |
-| Restore | **PARTIAL**（恢复要经 SAF 选文件，与 Import 同受 D-16 影响） | NOT_STARTED | NOT_STARTED |
+| Import | **RUNTIME_VERIFIED**（D-16 已关闭：E2E v4 中 SAF 选真实 CSV → 回锁 → 解锁 → 向导仍在 → Node Resolution → 提交「记录 6 行」） | NOT_STARTED | NOT_STARTED |
+| Import Mapping | **RUNTIME_VERIFIED**（同上链路端到端走通，映射在真实写入中生效） | NOT_STARTED | NOT_STARTED |
+| Import Review | **RUNTIME_VERIFIED**（Node Resolution 预览在 E2E v4 中真实出现并被提交） | NOT_STARTED | NOT_STARTED |
+| Backup | **RUNTIME_VERIFIED**（导出经 MediaStore 落盘，不经外部文件选择器，因此不受 D-16 影响；E2E v4 中 13,617 B 落盘且 UI 文案一致） | NOT_STARTED | NOT_STARTED |
+| Restore | **RUNTIME_VERIFIED**（D-16 已关闭：SAF 选 .depmap → 回锁 → 解锁 → 工作流恢复 → 重新输入口令 → 显式确认 → 恢复成功；错误密码与篡改容器均被拒） | NOT_STARTED | NOT_STARTED |
 
-> **D-16（2026-09-17 实测）**：外部文件选择器（DocumentsUI）是**独立任务**，
-> 会触发 `MainActivity.onStop` → `LockGate.lockNow()` → NavHost 离开组合树 →
-> 向导里所有 `remember` 状态与 ActivityResult 待投递结果一起丢失。
-> 用户选完文件回来再解锁，看到的是首页，导入没有发生（对象数仍为 0）。
-> 因此 Import / Import Mapping / Import Review / Restore 四格**不能继续写 RUNTIME_VERIFIED**。
-> `Backup` 不受影响：导出走 MediaStore，不拉起外部 Activity。
+> **D-16 —— CLOSED（2026-09-17）**
+>
+> 缺陷原样：外部文件选择器（DocumentsUI）是**独立任务**，会触发
+> `MainActivity.onStop` → `LockGate.lockNow()` → NavHost 离开组合树 →
+> 向导里所有 `remember` 状态与 `ActivityResult` 待投递结果一起丢失。
+> 用户选完文件回来再解锁，看到的是首页，导入没有发生。
+>
+> 修复（人工决策 D-16 方案 A，**方案 B/C 明确禁止**）：
+>
+>  1. 工作流状态提升到 **Activity 作用域** `FileWorkflowCoordinator`
+>     （application/presentation workflow state，**不进** Domain Reality Graph）；
+>  2. `ActivityResult` launcher 注册在 `MainActivity.onCreate`（稳定层），
+>     不随 NavHost uncompose 注销；
+>  3. 文件选择改用 `OpenDocument` + `takePersistableUriPermission(READ)`，
+>     只申请读权限，流程结束即归还；
+>  4. **拿到文件绝不解锁、绝不自动提交**：Import 在解锁后于页面中解析，
+>     Restore 必须重新输入口令并显式点「开始恢复」；
+>  5. 进程死亡保守恢复：意图保留、文件作废（`INTERRUPTED`），绝不半恢复；
+>  6. 敏感内容（原始账单 / 口令 / 解密内容）**从不**进 `SavedStateHandle`。
+>
+> **未采用方案 B/C**，因此 LOCKED 时敏感 NavHost 仍**不参与组合**，
+> 且不存在"外部系统 Activity = 绕过重新认证"的例外通道。
+>
+> `Backup` 本来就不受影响：导出走 MediaStore，不拉起外部 Activity。
 | Settings | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
 | Privacy | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
 | About | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
@@ -158,13 +190,13 @@
 
 ---
 
-## 6. 工程 / 发布（8 格，已完成 3）
+## 6. 工程 / 发布（8 格，已完成 4）
 
 | 能力                | Android | Harmony | iOS |
 | ------------------- | ------- | ------- | --- |
 | 真实 Build | **RUNTIME_VERIFIED**（`assembleDebug` / `assembleRelease` / `bundleRelease` 全部实跑；非生产签名链路已验证） | NOT_STARTED | **BLOCKED_BY_MACOS** |
-| 单测 / 集成测试      | **TESTED**（本轮 206 个可执行用例 = 71 `:core` JVM + 91 conformance + 44 设备内 androidTest） | NOT_STARTED | NOT_STARTED |
-| 设备 E2E            | {{E2E_CELL}} | NOT_RUN | NOT_RUN |
+| 单测 / 集成测试      | **TESTED**（本轮 **222** 个可执行用例 = 71 `:core` JVM + 91 conformance + **9** `:app` JVM（本轮新增，此前 NO-SOURCE）+ **51** 设备内 androidTest） | NOT_STARTED | NOT_STARTED |
+| 设备 E2E            | **RUNTIME_VERIFIED**（核心行程 **v4** 全新 run：36 PASS / 1 FAIL，崩溃 0；每个外部 picker 节点都跑 D-16 双断言） | NOT_RUN | NOT_RUN |
 | 性能 smoke          | **TESTED**（10,000 行 CSV 全解析、0 错误，强断言通过；旧数字已作废） | NOT_RUN | NOT_RUN |
 | 无障碍 | **PARTIAL**（Compose 语义树口径：14 屏 0 个无标签可交互节点；触摸目标/焦点顺序/字体缩放/横屏 PASS；**TalkBack 实机读屏 NOT_RUN** —— 镜像未预装且无 Play 商店） | NOT_STARTED | NOT_STARTED |
 | Dark Mode（token ready） | IMPLEMENTED（`spec/ui/design-tokens.json` 含 dark 覆盖，未做设备级验证） | 同上 | 同上 |
@@ -183,8 +215,36 @@
 
 | 平台   | 已完成格 | 总格 | 说明                                  |
 | ------ | -------- | ---- | ------------------------------------- |
-| Android | **56 / 73**   | **73** | 分母与计数口径已重新定义（旧的 58/62 作废） |
+| Android | **62 / 73**   | **73** | 分母与计数口径已重新定义（旧的 58/62 作废）；上一轮记录为 56，本轮 +6 |
 | Harmony | 0        | 73   | 仅 codegen 产物                        |
 | iOS     | 0        | 73   | 仅 codegen 产物；build BLOCKED_BY_MACOS |
+
+### 62 的来源（逐节重算，不做 `56 + 4 = 60` 这类推算）
+
+| 节 | 格数 | 已完成 | 说明 |
+| -- | ---- | ------ | ---- |
+| 1. 领域 / 语义层 | 16 | **14** | 两格 `IMPLEMENTED`（Node/Dependency/Group、canonical groupKey）不计；上轮标题误写 13，本轮逐行重数为 14 |
+| 2. 持久化与迁移 | 10 | **10** | |
+| 3. 安全 / 密钥 / 认证 | 10 | **9** | 「生物认证 / App Lock」整格记 `PARTIAL`：App Lock 接线 RUNTIME_VERIFIED，但生物识别 `BLOCKED_BY_RUNTIME_ENVIRONMENT` |
+| 4. 导入 / 解析 | 7 | **7** | |
+| 5. UI | 22 | **18** | D-16 关闭后 Import / Import Mapping / Import Review / Restore 由 PARTIAL 升为 RUNTIME_VERIFIED（14 → 18） |
+| 6. 工程 / 发布 | 8 | **4** | 真实 Build、单测/集成、设备 E2E、性能 smoke；无障碍 PARTIAL、Dark Mode IMPLEMENTED、Release 签名 BLOCKED、Store metadata PARTIAL |
+| **合计** | **73** | **62** | |
+
+### 仍未完成的 11 格（逐格列出，不做合并、不隐藏）
+
+| 格 | 状态 | 性质 |
+| -- | ---- | ---- |
+| Node / Dependency / Group | IMPLEMENTED | ENGINEERING_PARITY |
+| canonical groupKey | IMPLEMENTED | ENGINEERING_PARITY |
+| 生物认证 / App Lock | PARTIAL | ENGINEERING_PARITY（接线 PASS）+ RUNTIME_ENVIRONMENT_BLOCKED（生物识别） |
+| Onboarding | IMPLEMENTED（无入口可达） | ENGINEERING_PARITY |
+| Timeline | IMPLEMENTED（未被真机走过） | ENGINEERING_PARITY |
+| Candidate Review | IMPLEMENTED（无入口可达） | ENGINEERING_PARITY |
+| Graph View（二级） | IMPLEMENTED（未被真机走过） | ENGINEERING_PARITY |
+| 无障碍 | PARTIAL（TalkBack NOT_RUN） | RUNTIME_ENVIRONMENT_BLOCKED |
+| Dark Mode（token ready） | IMPLEMENTED | ENGINEERING_PARITY |
+| Release 签名 | BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE | RELEASE_READINESS |
+| Store metadata | PARTIAL（截图/图标/公开隐私政策 NOT_STARTED） | RELEASE_READINESS |
 
 Android 侧 27 个 Gate 的逐项结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。

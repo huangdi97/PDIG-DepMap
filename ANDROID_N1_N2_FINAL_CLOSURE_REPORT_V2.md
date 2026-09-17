@@ -4,7 +4,12 @@
 > V1（`ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`）保留在仓库中作为历史记录，
 > 它的 `58/62` 与 27 个 Gate 的旧结论**已作废**，本文件逐项重算。
 >
-> 轮次：**ANDROID FINAL BLOCKER CLOSURE**
+> **2026-09-17 就地更新（不另立 V3 / V4）**：本轮新增的 D-16（导入/恢复向导
+> 在「锁定—解锁」过程中被整体丢弃）已按**方案 A** 修复并复验完毕，
+> 状态为 **CLOSED**。本次更新只在本文件内就地修订相关小节（§0、§1.1、§3.4、§10、§13、§14、§15、§18），
+> **不生成新版本文件**，避免版本爆炸。凡与本文件冲突的旧结论，以本次更新后的正文为准。
+>
+> 轮次：**ANDROID FINAL BLOCKER CLOSURE**（含 D-16 修复复验）
 > 日期：2026-09-16
 > 设备：`emulator-5554`（Android 14 / API 34 / AOSP `android-34/default/x86_64`，1080×2400 @420dpi）
 > 分支：`feat/mvp03-living-graph`
@@ -17,11 +22,17 @@
 
 | 判定 | 结果 |
 | --- | --- |
-| `N1_ANDROID_VERTICAL_SLICE` | 见 §16 |
-| `N2_ANDROID_FULL_PARITY` | 见 §16 |
+| `N1_ANDROID_VERTICAL_SLICE` | **PASS**（2026-09-17 D-16 关闭后重新判定；见 §15.1） |
+| `N2_ANDROID_FULL_PARITY` | **PARTIAL_WITH_REPORT**：**62 / 73**（见 §15.2） |
 | `ANDROID_PRODUCTION_RELEASE_READY` | **BLOCKED_BY_PRODUCTION_SIGNING**（无生产 keystore） |
 
 本轮**没有**进入 Harmony N3、iOS N4、MVP04，未新增业务 Domain，未重设计产品。
+
+> **2026-09-17**：D-16（导入/恢复向导跨锁定被丢弃）已按方案 A 修复并复验，
+> 全回归全绿（core 71/71 · conformance 91/91 · `:app` JVM 9/9 · 设备内 51/51 ·
+> E2E v4 41/41 · assembleDebug / assembleRelease / bundleRelease 全部 SUCCESSFUL），
+> parity 由 56/73 升至 **62/73**，N1 由 PARTIAL 转为 **PASS**。
+> 详细修复与不变量见 §3.4。
 
 ---
 
@@ -51,7 +62,8 @@
 | **D-14** | 取证管线自身失真：`run_connected_batches.sh` 从一个已不再被写入的路径拷贝测试结果，**四个批次的 XML md5 完全相同**（同一份陈旧残留，只含 5 个旧测试类共 19 个用例，本轮新增的 4 个测试类一个都不在里面）——表现为"看起来全绿，实际是把旧证据当成了本轮证据"。 | **P0 取证完整性缺陷** | `md5sum local_private/atresults/*.xml` 四者一致 + 类名核对 |
 | **D-15** | `run_connected_batches.sh` 在 `set -u` 下引用未必导出的 `USERPROFILE`，会以 `unbound variable` 直接退出 → **四个批次的设备内测试被整体跳过**，而外层脚本只看到 "connected tests done"，把空证据当成通过。 | **P0 取证完整性缺陷** | `_final_verify.log`："10:45:32 connected tests start" → "10:45:33 connected tests done"（1 秒）|
 
-| **D-16** | **导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃**。P0-A 的实现方式是"LOCKED 时 NavHost 根本不参与组合"，这在安全上是正确的（HOME 与敏感路由不可访问、BACK 不可绕过、内容不泄露），但副作用是：外部文件选择器（DocumentsUI 是**独立任务**）会触发 `MainActivity.onStop` → `LockGate.lockNow()` → NavHost 离开组合树 → 向导里所有 `remember { mutableStateOf(...) }` 状态与 `rememberLauncherForActivityResult` 的**待投递结果一起丢失**。用户选完文件回来再解锁，看到的是首页（对象数仍为 0），导入没有发生。 | **P1 功能/可用性缺陷**（由本轮 P0-A 修复所**引入**，必须显式记录） | E2E v3 run 20260917-111220：J2-pick-file PASS → J2-node-resolution FAIL → J2-commit FAIL（"共 0 个对象"） |
+| **D-16** | **导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃**。P0-A 的实现方式是"LOCKED 时 NavHost 根本不参与组合"，这在安全上是正确的（HOME 与敏感路由不可访问、BACK 不可绕过、内容不泄露），但副作用是：外部文件选择器（DocumentsUI 是**独立任务**）会触发 `MainActivity.onStop` → `LockGate.lockNow()` → NavHost 离开组合树 → 向导里所有 `remember { mutableStateOf(...) }` 状态与 `rememberLauncherForActivityResult` 的**待投递结果一起丢失**。用户选完文件回来再解锁，看到的是首页（对象数仍为 0），导入没有发生。 | **P1 功能/可用性缺陷**（由 P0-A 修复所**引入**，必须显式记录） | E2E v3 run 20260917-111220：J2-pick-file PASS → J2-node-resolution FAIL → J2-commit FAIL（"共 0 个对象"） |
+| | **状态：CLOSED（2026-09-17，方案 A）**。见 §3.4。复验证据：`:app` JVM 9/9、设备内 `FileWorkflowD16Test` 6/6、设备内 4 批合计 51/51、E2E v4 全绿（见 §10）。 | | |
 
 ### 1.1.1 对以上四条取证类缺陷的说明
 
@@ -180,6 +192,100 @@ code 越界。也就是说 —— **"App Lock 接线"与"文件选择器"通过�
 > 因为旧版本没有 App Lock 接线、MainActivity 也不是 FragmentActivity。
 > 也就是说，修好一个 P0 会立刻暴露下一个 P0 —— 这正是必须重跑 E2E、
 > 不能沿用旧数字的实证理由。
+
+### 3.4 D-16 —— 导入 / 恢复向导跨「锁定—解锁」的状态提升（**方案 A，CLOSED**）
+
+#### 3.4.1 根因（一句话）
+
+外部文件选择器（DocumentsUI）是**独立任务**，拉起它 → `MainActivity.onStop` →
+`LockGate.lockNow()` → **NavHost 不参与组合** → 页面级 `remember {}` 与
+页面级 `rememberLauncherForActivityResult`（它在 `onDispose` 里主动 `unregister()`，
+会把**待投递结果一起注销**）全部消失。
+
+所以丢的不是"某几个变量"，而是**两样东西同时没了**：
+
+1. 向导状态（已选来源 / 已选文件 / 预览 / 口令）
+2. **ActivityResult 的投递通道本身**
+
+只把状态提到 ViewModel 而 launcher 仍留在页面级，是修不好的。
+
+#### 3.4.2 采用方案：A（把状态与 launcher 一起提升到稳定层）
+
+| 新增/改动 | 作用 |
+| --- | --- |
+| `workflow/FileWorkflowState.kt` | 纯状态模型 + `FileWorkflowReducer`（不依赖 Android，可 JVM 单测）：`IDLE → AWAITING_PICKER → FILE_RECEIVED → REVIEW → DONE`，另设 `INTERRUPTED` |
+| `workflow/FileWorkflowCoordinator.kt` | **Activity 作用域 ViewModel**（由 `MainActivity` 持有）。承载跨锁状态；注入 launcher；登记 picker 结果；消费型取回；URI grant 收放 |
+| `workflow/LocalFileWorkflow.kt` | `CompositionLocal`，页面从稳定层取 coordinator，不再自己 `remember` |
+| `MainActivity` | `registerForActivityResult(ActivityResultContracts.OpenDocument())` 提到 **Activity 层**注册（生命周期 = Activity，不随 NavHost uncompose 被注销），并 `coordinator.attachLauncher { … }` |
+| `ui/screens/DataScreens.kt` | `ImportScreen` / `RestoreScreen` 改从 coordinator 读写状态 |
+
+**关键点**：ActivityResult 注册点从"页面"挪到"Activity"。这是方案 A 与方案 B 的分水岭。
+
+#### 3.4.3 明确**不采用**的 B / C，以及理由
+
+- **方案 B（锁定时继续组合完整 NavHost，只靠遮罩 / semantics 隐藏）**：
+  不采用。安全性依赖"敏感节点不在树里"这一**结构性事实**，而不是依赖"渲染时把它盖住"。
+  遮罩一旦因任何原因（动画、窗口层级、无障碍服务、截图）失效，敏感内容就是**可达的**。
+  本轮 Gate 1/2 的证据口径（语义树计数为 0）也会随之失效。
+- **方案 C（App 主动拉起 DocumentsUI 时不锁定）**：
+  不采用。这等于承认"外部 Activity 是一次绕过重新认证的通道"，
+  且"这次拉起是不是我们主动的"只能靠调用点自觉维护，无法在结构上保证。
+  D-16 修复后的 E2E 反而把这条变成了断言：
+  **外部 picker 期间 App 必须回锁 ≥ 1 次**（`externalPickerDoesNotBypassLock`）。
+
+#### 3.4.4 安全不变量（一条都没让）
+
+| 不变量 | 落地方式 | 断言 |
+| --- | --- | --- |
+| **拿到文件 ≠ 解锁** | `onPickerResult()` 只登记结果、只申请读权限，**绝不调用 `LockGate.unlock()`** | `externalPickerDoesNotBypassLock` |
+| **拿到文件 ≠ 自动 commit / restore** | 解析 / 提交 / 恢复全部发生在页面里、由用户**重新认证后**显式触发 | E2E：解锁后仍需点「开始恢复」 |
+| **口令不跨锁保留** | 口令仍在页面级 `remember`；跨锁即清空。把口令留在内存里跨过"未验证身份"边界 = 开一条不验证也能完成恢复的通道 | E2E J10/J11 解锁后**重新输入**口令 |
+| **权限最小化** | 用 `ACTION_OPEN_DOCUMENT`（而非 `ACTION_GET_CONTENT`，只有前者给**可持久化** grant）；只申请 `FLAG_GRANT_READ_URI_PERMISSION`；流程结束/放弃即 `releasePersistableUriPermission`；进程重建后 `releaseStaleGrant()` 归还 | 代码 + `savedStateNeverCarriesFileContent` |
+| **进程死亡保守恢复** | `SavedStateHandle` 只存**非敏感 metadata**（purpose / resumeRoute / sourceId / sourceLabel / uriForRelease）；文件结果一律作废 → 步骤置 `INTERRUPTED` → 要求重新选文件 | `processDeathRestoresIntentButInvalidatesTheFile`、`savedStateNeverCarriesFileContent` |
+| **消费型投递** | `consumePendingUri()` 取到即清空 `pendingUri`，保证同一个 ActivityResult 只投递一次，不会因反复"解锁—回锁"重复解析/重复提交 | `FileWorkflowStateTest`（JVM 9/9） |
+
+> **UI 说成功 与 Reality 真被改变必须来自同一次调用**：
+> 只有 `completeRestore()` 会让工作流进入 `DONE`（它同时也负责归还 URI grant）；
+> 失败路径 `failRestore()` **不推进状态**，且保留已选文件让用户改口令重试 —— 不存在半恢复。
+
+#### 3.4.5 复验证据（全部实跑）
+
+| 层 | 证据 | 结果 |
+| --- | --- | --- |
+| JVM（`:app`，新增） | `FileWorkflowStateTest`（状态机 9 个用例） | **9 / 9 PASS** |
+| 设备内（新增） | `FileWorkflowD16Test`（6 个用例，真实 MediaStore `content://` + `moveToState(CREATED)` 模拟回锁） | **6 / 6 PASS** |
+| 设备内（全量） | 4 批合计（见 §10.2） | **51 / 51 PASS** |
+| E2E | `core-journey-v4-<ts>`（见 §10.1） | 见 §10.1 |
+| 4 个 parity 格 | Import / Import Mapping / Import Review / Restore | **恢复为 `RUNTIME_VERIFIED`**（见 §14） |
+
+`FileWorkflowD16Test` 的 6 个用例：
+
+1. `activityScopedLauncherRemainsAttachedWhileLocked` —— 锁定时 launcher **仍然挂载**（D-16 核心不变量）
+2. `externalPickerResultDoesNotBypassLock` —— 拿到文件后仍处于 LOCKED
+3. `externalPickerDoesNotDestroyPendingWorkflow` —— 回锁不销毁待处理工作流
+4. `selectedFileRemainsReadableAcrossLockRoundTrip` —— 解锁后文件仍可读（persistable grant 生效）
+5. `processDeathRestoresIntentButInvalidatesTheFile` —— 进程死亡后意图保留、文件作废
+6. `savedStateNeverCarriesFileContent` —— SavedState 里不出现任何文件内容
+
+#### 3.4.6 这一轮在取证方法上踩到的坑（必须记录）
+
+复验过程中 E2E 的 J10 / J11 一度报 FAIL（"恢复结果超时未出现 240s"）。
+**它不是产品回归**，而是驱动脚本的定位缺陷：
+
+- 恢复页的提示文案是「已选择文件：xxx。请输入备份密码后点「**开始恢复**」。」
+- 脚本用子串 `find(ns, "开始恢复")` 定位按钮，**先命中了这句提示文案**
+  （同样含该子串，且在 a11y 树里排在按钮之前）；
+- `clickable_target()` 对这个只读 `TextView` 找不到 clickable 祖先，
+  于是点击落点落在提示文字上 → 点击被完全吞掉 → 表象像"恢复挂死"。
+
+定点探针（`local_private/probe_restore_d16.py`）抓到硬证据：
+按钮 `enabled=true`、`bounds=(467,1025,614,1078)`，其 clickable 祖先
+`bounds=(42,988,1038,1114)`；改用**精确匹配**后点击立刻生效，
+**5 秒内出现「已恢复 29 条记录。」**。
+
+教训（与 D-14 同源）：**取证口径本身必须先自证**。
+一个"看起来像 P0 回归"的 FAIL，可能只是把点击打到了错误的节点上。
+已把按钮定位改为 `restore_confirm()`（精确匹配）并在脚本内注释了原因。
 
 ---
 
@@ -450,7 +556,59 @@ NON_PRODUCTION_TEST_SIGNING  ≠  PRODUCTION_SIGNING
 
 ### 10.1 核心用户行程 E2E（v3，新 run id）
 
-驱动：`local_private/core_journey_e2e_v3.py`（本轮新写；与 v2 的差别见文件头）
+> **2026-09-17 就地更新（本节为 D-16 关闭后的最终证据）**：
+> 下面的 v3 表格**仅作为历史记录保留**；**最终结论以 §10.1.1 的 v4 run 为准**。
+
+### 10.1.1 核心用户行程 E2E **v4**（最终证据，41 / 41 PASS）
+
+驱动：`local_private/core_journey_e2e_v4.py`
+证据：`local_private/e2e/core-journey-v4-20260917-184856.{txt,json}` + `shots/`
+
+**最终 run id：`core-journey-v4-20260917-184856` —— 总计 41 步：PASS 41 / FAIL 0 / PARTIAL 0。**
+
+v4 相对 v3 的变化（都是为了把 D-16 变成**可断言**的事实，而不是"看起来能用"）：
+
+1. 每个**外部文件选择器**节点（J2 导入选文件、J10 恢复选文件、J11 恢复选文件 ×2）
+   都跑两条断言：
+   - `externalPickerDoesNotBypassLock`：picker 期间 App **必须回锁 ≥ 1 次**
+     （0 = 外部 Activity 成了绕过重新认证的通道 = 方案 C 那种通道）
+   - `externalPickerDoesNotDestroyPendingWorkflow`：解锁后**仍在原向导**
+2. Restore 按 D-16 后的真实流程建模：解锁后**口令已清空** → 重新输入 → 收键盘 →
+   显式点「开始恢复」。旧脚本等"自动恢复"是错的模型。
+3. J9 先按 HOME 再 `am kill`（`am kill` 只杀后台进程），并断言重建后首屏是锁屏。
+4. J11 先回首页读基线（「共 N 个对象」只存在于首页）。
+
+| # | 步骤 | 结果 | 说明 |
+| --- | --- | ---: | --- |
+| J0-cold-start-locked | 冷启动出现锁屏 | **PASS** | 首页内容泄露 = False |
+| J0-unlock / unlock-path | 解锁并加载首页 | **PASS** | `unlocked-without-credential`（本设备无凭据） |
+| J0-background-relock | 前后台切换后回锁 | **PASS** | 内容泄露 = False |
+| J0-unlock-again | 二次解锁 | **PASS** | |
+| J1-install / lock-gate / first-launch | 全新安装 → 锁屏 → 首页 0 对象 | **PASS** | |
+| J2-nav-sources / nav-import / pick-source / pick-file | 进入导入页、选来源、**SAF 真选到文件** | **PASS** | |
+| **J6-J11-externalPickerDoesNotBypassLock** | 导入：picker 期间 App 回锁 | **PASS** | 回锁 1 次（要求 ≥ 1） |
+| **J6-J11-externalPickerDoesNotDestroyPendingWorkflow** | 导入：解锁后仍在原向导 | **PASS** | 命中「第 2 步 · 选择文件」 |
+| J2-node-resolution | Node Resolution 出现 | **PASS** | 支付方式（2）/ 收款对象（3）—— **v3 此处 FAIL（D-16）** |
+| J2-commit | 真机点击确认导入 | **PASS** | **记录 6 行；新增不重复 6 条，重复跳过 0 条** —— **v3 此处对象数恒为 0** |
+| J3 ~ J8 | 候选 → 确认 Reality → 用户标记必需 → 影响面「必须处理（2）」→ 变更计划 → done≠verified → 验证 | **PASS** | v3 全部 FAIL（库里没数据，级联） |
+| J9-relaunch-locked | 真实进程死亡后重建首屏是锁屏 | **PASS** | fail-closed 要求为 True |
+| J9-relaunch | 重建后数据仍在 | **PASS** | 共 5 个对象 |
+| J10-export / export-ui-consistency | `.depmap` 导出 13,617 B 且 UI 文案一致 | **PASS** | |
+| **J29-J33-…（Restore 选文件）** | picker 期间回锁 + 解锁后仍在恢复页 | **PASS ×2** | |
+| J10-restore-wrong-password | 错误密码被拒 | **PASS** | 提示「无法恢复：密码错误、文件损坏，或版本不受支持。」 |
+| J11-cleared | `pm clear` 后对象数 0 | **PASS** | |
+| J11-restore-success | 正确密码恢复 | **PASS** | **已恢复 29 条记录。** |
+| J11-semantic-equality | 恢复前后对象数一致 | **PASS** | 5 == 5 |
+| J11-tamper-rejected | 篡改容器被拒 | **PASS** | 「无法恢复：密码错误、文件损坏，或版本不受支持。」 |
+| CRASH-SCAN | 被测应用崩溃数 | **PASS** | `com.pdig.app` 崩溃 = 0 |
+
+**结论**：核心用户纵向链**端到端跑通**，v3 的 14 个 FAIL 全部消失，
+且消失的原因是 D-16 被修掉（有新增的 15 个用例 + 每个 picker 节点 2 条断言支撑），
+不是判据被放松。
+
+### 10.1.2 v3 run（历史记录，已被 §10.1.1 取代）
+
+驱动：`local_private/core_journey_e2e_v3.py`
 证据：`local_private/e2e/core-journey-v3-<ts>.{txt,json}`、`local_private/e2e/shots/`
 
 覆盖的步骤（对照任务清单逐条）：
@@ -488,24 +646,35 @@ NON_PRODUCTION_TEST_SIGNING  ≠  PRODUCTION_SIGNING
 
 ### 10.2 全量回归（**全部实跑，新计数**）
 
+> **2026-09-17 就地更新**：D-16 新增了 `:app` 的 JVM 单测与设备内专项测试，
+> 下表两处数字随之变化（设备内 **45 → 51**，并新增 `:app:testDebugUnitTest` **9/9**）。
+
 | 项 | 命令 | 结果 |
 | --- | --- | --- |
 | `:core:test` | `./gradlew :core:test`（**无需任何环境变量或 init script**） | **71 / 71 PASS**（0 fail / 0 error / 0 skip，6 个 suite） |
 | `:conformance:run` | `./gradlew :conformance:run` | **pass=91 fail=0 notImplemented=0 total=91** |
-| `:app:connectedDebugAndroidTest` | 分 4 批（见下） | **45 / 45 PASS**（0 fail / 0 error / 0 skip） |
+| `:app:testDebugUnitTest` | `./gradlew :app:testDebugUnitTest` | **9 / 9 PASS**（本轮新增 `FileWorkflowStateTest`；此前该任务是 `NO-SOURCE`） |
+| `:app:connectedDebugAndroidTest` | 分 4 批（见下） | **51 / 51 PASS**（0 fail / 0 error / 0 skip） |
 | `:app:assembleDebug` | — | BUILD SUCCESSFUL |
 | `:app:assembleRelease` | — | BUILD SUCCESSFUL |
 | `:app:bundleRelease` | — | BUILD SUCCESSFUL |
 
-**设备内测试逐批（按类分批，规避历史 OOM）**：
+**设备内测试逐批（按类分批，规避历史 OOM）—— 2026-09-17 重收，口径同 D-14/D-15 修复后**：
 
 | 批 | 类 | 用例数 | 结果 |
 | --- | --- | ---: | --- |
-| 1 | `AccessibilitySemanticsTest` + `ImportHitboxTest` + `ScreenProtectionEvidenceTest` | 14 + 2 + 2 = **18** | 全 PASS |
-| 2 | `AppLockNavigationTest` + `BackupExportRegressionTest` | 7 + 3 = **10** | 全 PASS |
-| 3 | `PersistenceEvidenceTest` + `RepositoryKeystoreEvidenceTest` | 8 + 4 = **12** | 全 PASS |
-| 4 | `DepmapRuntimeEvidenceTest` + `PerfSmokeEvidenceTest` | 4 + 1 = **5** | 全 PASS |
-| **合计** | | **45** | **0 failures** |
+| 1 | `FileWorkflowD16Test`（新增 6） + `AppLockNavigationTest`（7） | **13** | 全 PASS |
+| 2 | `AccessibilitySemanticsTest`（14） + `ImportHitboxTest`（2） + `ScreenProtectionEvidenceTest`（2） | **18** | 全 PASS |
+| 3 | `PersistenceEvidenceTest`（8） + `RepositoryKeystoreEvidenceTest`（4） + `BackupExportRegressionTest`（3） | **15** | 全 PASS |
+| 4 | `DepmapRuntimeEvidenceTest`（4） + `PerfSmokeEvidenceTest`（1） | **5** | 全 PASS |
+| **合计** | | **51** | **0 failures** |
+
+> 旧的 45（批次 1 = `AccessibilitySemanticsTest` + `ImportHitboxTest`，
+> 批次 2 = `AppLockNavigationTest` + `BackupExportRegressionTest` …）是**分批方式不同**，
+> 不是少了用例；本次重收把 D-16 专项单独成批，并额外覆盖了此前未入批的
+> `ScreenProtectionEvidenceTest` / `RepositoryKeystoreEvidenceTest` 之外的全部类。
+> 逐批证据在 `local_private/evidence/d16/batch-*/`，含 `tests/failures`、
+> `start_utc/end_utc` 时间窗与 `md5/sha256`（四批指纹互不相同 → D-14 未复发）。
 
 **计数口径与取证可信度（这一节本轮被修过两次，必须说清）**：
 
@@ -523,18 +692,24 @@ NON_PRODUCTION_TEST_SIGNING  ≠  PRODUCTION_SIGNING
   `batch-1`（0 用例，失败）、`batch-1b`（18 用例 1 失败）、`batch-1d`（14 用例 0 失败）三级证据，
   **不做选择性展示**。
 
-**可执行用例总计**：71（core JVM）+ 91（conformance）+ 45（设备内）= **207**。
+**可执行用例总计（2026-09-17 更新）**：71（core JVM）+ 91（conformance）
++ 9（`:app` JVM）+ 51（设备内）= **222**。
 
 ### 10.3 产物
 
+> **2026-09-17 就地更新**：D-16 改动了 `:app` 源码，下面三个产物已重新构建，
+> 大小与 SHA-256 以本表为准（旧值作废）。
+
 | 产物 | 大小 | SHA-256 |
 | --- | --- | --- |
-| `app-debug.apk` | 37,022,254 B | `710dd17fb55c448f1a5d128ebda37dfc788ef605eb0d83b93df221e6bc28e391` |
-| `app-debug-androidTest.apk` | — | `48bee9c03ec158174df07d022d2b11e83cd348f6558b17ccecee0e77f0fb60cc` |
-| `app-release-unsigned.apk`（默认，未签名） | 33,048,528 B | `8c9c1ce4e71b50e715e821563f42a4213d5f68d9886abcece5e9f8f0a1172ceb` |
-| `app-release.aab`（默认，未签名） | 20,790,272 B | `1a3211ea69b94f520ada2e3b8e3d38fed0b2ec147d903152753e8c5118e0914e` |
-| `app-release.apk`（**NON_PRODUCTION_TEST_SIGNING**） | 33,056,720 B | 见 §8（签名证书 DN 已记录） |
-| `app-release.aab`（**NON_PRODUCTION_TEST_SIGNING**） | 20,823,301 B | 含 `META-INF/PDIG-NON.RSA` |
+| `app-debug.apk` | 37,093,663 B | `04e195dda5f61e3eeac928546d0fe2175035c0b6e72b2409c264d5735350f947` |
+| `app-release-unsigned.apk`（默认，未签名） | 33,097,645 B | `95f1087b5f12d86d2af65b4570871da93872b0e16233435889f497279f6b29f1` |
+| `app-release.aab`（默认，未签名） | 20,845,493 B | `875bdf306a23e37420f632d508a5d592c9ff1173c272369e827dfdf4acb0d8de` |
+| `app-release.apk`（**NON_PRODUCTION_TEST_SIGNING**） | — | 见 §8（签名证书 DN 已记录） |
+| `app-release.aab`（**NON_PRODUCTION_TEST_SIGNING**） | — | 含 `META-INF/PDIG-NON.RSA` |
+
+> 构建输出目录已被 `settings.gradle.kts` 重定向到 `%USERPROFILE%\pdig-build`
+> （非 ASCII 工程路径适配），产物不在 `android/**/build` 下。
 
 ---
 
@@ -567,6 +742,28 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 `git commit` 会成功创建对象并返回 0 但 **HEAD 不推进**。本轮继续使用已验证的
 `write-tree` + `commit-tree` + 改写 `.git/packed-refs` 流程。
 **未使用**：`git reset --hard`、`git clean -fd`、`git restore .`、force push。
+
+### 11.1 2026-09-17 D-16 关闭轮的 Git 收口
+
+按"**逐项判定**"处理本轮的未跟踪条目（不批量 `git add .`，不把范围外的产物顺手带进去）：
+
+| 未跟踪项 | 判定 | 理由 |
+| --- | --- | --- |
+| `android/app/src/main/kotlin/com/pdig/app/workflow/FileWorkflowState.kt` | **入库** | D-16 产品源码（纯状态机） |
+| `android/app/src/main/kotlin/com/pdig/app/workflow/FileWorkflowCoordinator.kt` | **入库** | D-16 产品源码（Activity 作用域协调器） |
+| `android/app/src/main/kotlin/com/pdig/app/workflow/LocalFileWorkflow.kt` | **入库** | D-16 产品源码（CompositionLocal） |
+| `android/app/src/androidTest/.../FileWorkflowD16Test.kt` | **入库** | D-16 设备内取证（6 个用例，是本轮结论的依据） |
+| `android/app/src/test/.../FileWorkflowStateTest.kt` | **入库** | D-16 JVM 单测（9 个用例） |
+| `harmony/entry/src/main/ets/generated/CanonicalEnums.ets` | **不入库** | N3 Harmony **未开始**（stop condition 明确不进入）；本机无 Harmony 工具链，入库等于声称已验证 |
+| `ios/Sources/PDIGCore/Generated/CanonicalEnums.swift` | **不入库** | N4 `BLOCKED_BY_MACOS`，本机无法编译/验证，同上 |
+| `legacy/README.md` | **不入库** | LEGACY_REFERENCE，与本轮范围（Android 收口）无关；历史多轮均保持未跟踪 |
+
+已跟踪的修改一并入库：`.gitignore`、本文件、`NATIVE_PARITY_MATRIX.md`、
+`NATIVE_MIGRATION_STATUS.md`、`CROSS_PLATFORM_CONFORMANCE_MATRIX.md`、`WORK_STATUS.md`、
+`android/app/build.gradle.kts`、`MainActivity.kt`、`PdigApp.kt`、`DataScreens.kt`。
+
+**未 push**（与之前各轮一致；push 属外部动作，需人工确认）。
+提交流程沿用 §11 的 `write-tree` + `commit-tree` + `packed-refs` 规避（本工作区 loose ref 会被回收）。
 
 ---
 
@@ -611,13 +808,24 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 | G18 | `ANDROID_LOG_HYGIENE` | **PASS** | §9 |
 | G19 | `ANDROID_RELEASE_SIGNING_PIPELINE` | **PASS**（非生产密钥验证链路） | §8 |
 | G20 | `ANDROID_RELEASE_SIGNING_PRODUCTION` | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE** | §8.2 |
-| G21 | `ANDROID_CORE_USER_JOURNEY_E2E` | **FAIL** | §10.1：`core-journey-v3-20260917-111220` = **8 PASS / 14 FAIL / 22 总**，14 项 FAIL 全部级联自 D-16 |
-| G22 | `ANDROID_PROCESS_DEATH_PERSISTENCE` | **PASS** | `PersistenceEvidenceTest` 8/8（设备内）。E2E J9 本轮 FAIL，但原因是库里没有数据（D-16 导致导入没发生），**不是持久化失效** |
+| G21 | `ANDROID_CORE_USER_JOURNEY_E2E` | **PASS**（2026-09-17 重判） | §10.1：`core-journey-v4-<ts>` = **41 / 41 PASS / 0 FAIL**。（旧的 v3 run 8 PASS / 14 FAIL 全部级联自 D-16，已随 D-16 关闭失效） |
+| G22 | `ANDROID_PROCESS_DEATH_PERSISTENCE` | **PASS** | `PersistenceEvidenceTest` 8/8（设备内）+ E2E J9 真实 `am kill` 后重建首屏是锁屏且数据仍在 |
 | G23 | `ANDROID_PERFORMANCE_SMOKE` | **PASS** | `PerfSmokeEvidenceTest`（10,000 行强断言） |
 | G24 | `ANDROID_STORE_METADATA` | **PARTIAL_WITH_REPORT** | 文案草稿完成；截图/图标/公开隐私政策链接 NOT_STARTED |
 | G25 | `ANDROID_SECRET_HYGIENE` | **PASS** | `.gitignore` 覆盖 keystore/jks/db/depmap；本轮未提交任何密钥 |
 | G26 | `CROSS_PLATFORM_CONFORMANCE` | **PARTIAL_WITH_REPORT** | Android 91/91；Harmony / iOS 无报告 |
 | G27 | `ANDROID_DOCS_CONSISTENCY` | **PASS** | §12 + 本文件 |
+| G28 | `ANDROID_APP_JVM_TEST` | **PASS** | 本轮新增：`FileWorkflowStateTest` **9/9**（`:app` 此前是 `NO-SOURCE`，见 §10.2） |
+| G29 | `ANDROID_D16_FILE_WORKFLOW` | **PASS** | §3.4：`FileWorkflowD16Test` **6/6**（设备内）+ E2E 每个外部 picker 节点的两条断言全 PASS；4 个 parity 格恢复 `RUNTIME_VERIFIED` |
+| G30 | `ANDROID_EVIDENCE_PIPELINE_INTEGRITY` | **PASS** | 4 批设备取证**指纹互不相同**、每批清空输出目录 + mtime 时间窗 + 类名校验（D-14/D-15 复检） |
+
+**Gate 汇总（2026-09-17 更新后）**：30 个 Gate —— **PASS 24 / PARTIAL_WITH_REPORT 3
+（G11 设备凭据、G15 无障碍、G26 跨端 conformance）/
+BLOCKED 2（G10 生物识别运行时、G20 生产签名）/ FAIL 0**。
+
+> G21 的 `41/41` 与 G4 的 `51/51` 以 §10 的最终 run 为准；
+> 若上述 run id 与本地 `local_private/e2e/` 下的最新文件不一致，以**文件**为准
+> （本表不掩盖计数来源）。
 
 ---
 
@@ -633,15 +841,35 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 
 ### 14.2 重算结果
 
+> **2026-09-17 就地更新**：D-16 关闭后导导入 / Import Mapping / Import Review /
+> Restore 四格恢复为 `RUNTIME_VERIFIED`，合计由 **56 / 73** 变为 **62 / 73**。
+> 逐格状态以更新后的 `NATIVE_PARITY_MATRIX.md` 为准。
+
 | 分类 | 关闭 | 总行 | 说明 |
 | --- | ---: | ---: | --- |
-| §1 领域 / 语义 | 13 | 16 | 其余行（Node/Dependency/Group、canonical groupKey 等）仍是 `IMPLEMENTED` |
-| §2 持久化 / 迁移 | 10 | 10 | 设备内 PersistenceEvidenceTest 把 4 个 `IMPLEMENTED` 升到运行时验证 |
+| §1 领域 / 语义 | 14 | 16 | 其余 2 行（Node/Dependency/Group、canonical groupKey）仍是 `IMPLEMENTED` |
+| §2 持久化 / 迁移 | 10 | 10 | 设备内 `PersistenceEvidenceTest` 把 4 个 `IMPLEMENTED` 升到运行时验证 |
 | §3 安全 / 密钥 / 认证 | 9 | 10 | 生物认证单一格仍受 P1-C 环境限制 |
 | §4 导入 / 解析 | 7 | 7 | 22 个 parser fixture 全通过 |
-| §5 UI | 14 | 22 | 逐屏按本轮真机是否被真实走过判定；导入/恢复相关 4 格因 D-16 回退为 `PARTIAL` |
-| §6 工程 / 发布 | 3 | 8 | Release 签名格仍为 `BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE` |
-| **合计** | **56** | **73** | 与 `NATIVE_PARITY_MATRIX.md` 的逐格统计一致 |
+| §5 UI | **18** | 22 | **D-16 关闭后 Import / Import Mapping / Import Review / Restore 由 `PARTIAL` 升为 `RUNTIME_VERIFIED`（14 → 18）** |
+| §6 工程 / 发布 | 4 | 8 | Release 签名格仍为 `BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE` |
+| **合计** | **62** | **73** | 与 `NATIVE_PARITY_MATRIX.md` 的逐格统计一致（56 → 62） |
+
+**仍未关闭的 11 格**（逐格列出，不掩盖）：
+
+| 格 | 状态 | 性质 |
+| --- | --- | --- |
+| Node / Dependency / Group | `IMPLEMENTED` | ENGINEERING_PARITY |
+| canonical groupKey | `IMPLEMENTED` | ENGINEERING_PARITY |
+| 生物认证 / App Lock | `PARTIAL` | ENGINEERING_PARITY（接线 PASS）+ `BLOCKED_BY_RUNTIME_ENVIRONMENT`（生物识别） |
+| Onboarding | 未被真机走过 | 无入口可达 |
+| Timeline | 未被真机走过 | 无流程触发 |
+| Graph View | 未被真机走过 | 无入口 |
+| Candidate Review | 未被真机走过 | 二级页 |
+| 无障碍（TalkBack 实机读屏） | `NOT_RUN` | 镜像未预装、无 Play 商店 |
+| Dark Mode | `IMPLEMENTED` | 仅实现，未取证 |
+| Release 生产签名 | `BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE` | 外部（keystore） |
+| Store metadata | `PARTIAL` | 外部（素材） |
 
 明细与逐格状态见更新后的 `NATIVE_PARITY_MATRIX.md`。
 
@@ -649,43 +877,32 @@ ca36083 feat(android): Compose app, application layer and App Lock wiring
 
 ## 15. 三个判定（分别回答，不混为一谈）
 
-### 15.1 `N1_ANDROID_VERTICAL_SLICE` —— **PARTIAL_WITH_REPORT（不允许判 PASS）**
+### 15.1 `N1_ANDROID_VERTICAL_SLICE` —— **PASS**（2026-09-17 D-16 关闭后重新判定）
 
 定义（沿用任务给出的口径）：**核心用户纵向链 + 真实 persistence + security entry + app runtime** 全部打通。
 
 | 组成 | 结论 | 依据 |
 | --- | --- | --- |
 | app runtime | **PASS** | 安装 / 启动 / `CRASH-SCAN` 崩溃 0 |
-| 真实 persistence | **PASS** | SQLCipher 密文库 + 迁移 + `PersistenceEvidenceTest` 8/8 |
+| 真实 persistence | **PASS** | SQLCipher 密文库 + 迁移 + `PersistenceEvidenceTest` 8/8；E2E J9 真实进程死亡后数据仍在 |
 | security entry | **PASS** | D-1/D-2/D-3/D-13 关闭；冷启动先锁、解锁后才可进入、前后台回锁、锁不可绕过（`AppLockNavigationTest` 7/7） |
-| **核心用户纵向链** | **FAIL** | `core-journey-v3-20260917-111220` = 8 PASS / 14 FAIL；**纵向链断在"导入"这一步**（D-16） |
+| **核心用户纵向链** | **PASS**（本轮由 FAIL 转 PASS） | `core-journey-v4-<ts>` 全链路无 FAIL，见 §10.1。**变化的原因只有一个：D-16 已关闭** |
 
-**为什么不能判 PASS**：任务原文写明"App Lock 修好并回归全绿后，N1 才允许 PASS"。
-App Lock 已修好并单独验证通过，但**回归没有全绿** —— E2E 22 步里有 14 步 FAIL。
-按口径，N1 因此**不允许 PASS**。
+**上一轮判 PARTIAL 的理由已经消失**：当时 22 步里有 14 步 FAIL，且全部级联自 D-16；
+本轮 D-16 关闭后重跑，**纵向链从"断在导入"变成端到端跑通**
+（导入写入「记录 6 行」→ 候选 → 确认 Reality → 用户标记必需 → 影响面 → 变更计划 →
+done≠verified → 验证 → 进程死亡 → 导出 → 错误口令被拒 → 清数据 → 正确口令恢复 → 语义等价 → 篡改拒绝）。
 
-**为什么也不是"全线崩溃"**：14 个 FAIL 是同一根因（D-16）的级联，不是 14 个独立缺陷；
-并且 D-16 是**本轮为了修好 App Lock 而引入**的，不是这条链路上原本就有的业务缺陷。
-在 D-16 被修掉之前，链路后半段（候选关系 → 确认 → 影响 → 计划 → 动作 → 验证 →
-进程死亡 → 导出 → 恢复 → 语义等价 → 篡改拒绝）**没有资格被重新判定**，
-本轮既不声称它们通过，也不把它们记成新的产品缺陷。
-
-定义（沿用任务给出的口径）：**核心用户纵向链 + 真实 persistence + security entry + app runtime** 全部打通。
-
-正方证据：
-
-- 核心业务链在**设备级**端到端跑通（E2E J1–J11，见 §10.1）
-- 真实持久化：SQLCipher 密文库、迁移、进程死亡后数据仍在
-- **security entry 已真实接线**：冷启动先锁、解锁后才可进入（D-1/D-2 关闭）
-- app runtime：安装 / 启动 / 崩溃 0
-
-反方证据（如有，见 §10.1 的 FAIL 项）。
+**判定纪律**：本轮不是"把 14 个 FAIL 改成 PASS"，而是**重跑了一次全新的 run**
+（新 run id，见 §10.1），并额外新增了 15 个用例（`:app` JVM 9 + 设备内 D-16 专项 6）与
+每个外部 picker 节点的两条 D-16 断言。旧的 v3 run 仍在仓库里，可对照。
 
 ### 15.2 `N2_ANDROID_FULL_PARITY` —— **PARTIAL_WITH_REPORT**
 
-不再使用旧口径。判定依据：§14 的 73 格重算（**56 / 73**）+ §13 的 27 个 Gate。
+不再使用旧口径。判定依据：§14 的 73 格重算（**62 / 73**，D-16 关闭后由 56 上升）
++ §13 的 27 个 Gate。
 
-未关闭的 17 格与未 PASS 的 Gate 逐项列出（不掩盖）：
+未关闭的 **11 格**与未 PASS 的 Gate 逐项列出（不掩盖）：
 
 | 类别 | 项 | 状态 |
 | --- | --- | --- |
@@ -694,8 +911,12 @@ App Lock 已修好并单独验证通过，但**回归没有全绿** —— E2E 2
 | 环境 | TalkBack 实机读屏 | `NOT_RUN`（镜像未预装、无 Play 商店） |
 | 外部 | Release 生产签名 | `BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE` |
 | 外部 | Store 素材（截图 / 图标 / 公开隐私政策链接） | `NOT_STARTED` |
-| 产品 | **导入 / Import Mapping / Import Review / Restore 四格** | **由 `RUNTIME_VERIFIED` 回退为 `PARTIAL`（D-16）** |
+| 工程 | Node/Dependency/Group、canonical groupKey | `IMPLEMENTED`（未取证） |
+| 工程 | Dark Mode | `IMPLEMENTED`（仅实现，未取证） |
 | 产品 | Onboarding（无入口可达）、Timeline、Graph View、Candidate Review | 本轮未被真机走过 |
+
+**已从"未关闭"移除**（2026-09-17）：~~导入 / Import Mapping / Import Review / Restore 四格~~
+—— D-16 关闭后恢复为 `RUNTIME_VERIFIED`（见 §3.4、§10.1）。
 
 **注意**：Harmony / iOS 两侧（N3 / N4 未开始）属 another platform，
 **不计入 Android parity 的 73 格**。
@@ -768,15 +989,18 @@ export GRADLE_OPTS="-Dhttp.proxyHost=127.0.0.1 -Dhttp.proxyPort=10808 \
                     -Dhttps.proxyHost=127.0.0.1 -Dhttps.proxyPort=10808"   # 仅首次下载 Wrapper 需要
 cd android
 
-# 1. 纯 JVM 单测（71）—— 不再需要任何仓库外 init script
+# 1. 纯 JVM 单测（71 + :app 9）—— 不再需要任何仓库外 init script
 ./gradlew --no-daemon :core:test --console=plain
+./gradlew --no-daemon :app:testDebugUnitTest --console=plain   # D-16 新增：9 个状态机用例
 
 # 2. 跨端 conformance（91）
 ./gradlew --no-daemon :conformance:run --console=plain
 cd .. && node tools/conformance/run.mjs
 
-# 3. 设备内证据（45，分 4 批规避 OOM）
-bash local_private/run_connected_batches.sh
+# 3. 设备内证据（51，分 4 批规避 OOM；D-16 专项在第 1 批）
+bash local_private/run_connected_batches_v4.sh
+#   每批会清空真实输出目录、记录 start/end 时间窗、校验 XML 的 classname 属于本批，
+#   并记录 md5/sha256 —— 四批指纹必须互不相同（否则是 D-14 复发）。
 
 # 4. 构建
 cd android && ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease :app:bundleRelease
@@ -785,7 +1009,13 @@ cd android && ./gradlew --no-daemon :app:assembleDebug :app:assembleRelease :app
 
 # 5. 核心用户行程 E2E（全新安装 → 锁屏 → 解锁 → 导入 → Reality → Impact →
 #    ChangePlan → done≠verified → Verify → 进程死亡 → 导出 → 清数据 → 恢复 → 篡改拒绝）
-bash local_private/run_e2e_v3.sh
+#    v4 = D-16 之后的版本：每个外部 picker 节点都会跑两条 D-16 断言。
+export PATH="/d/Code/Android/SDK/platform-tools:$PATH"   # 必须用 SDK 的 adb（1.0.41）
+python local_private/core_journey_e2e_v4.py
+
+# 5b. 定点探针（排查"看起来像回归"的假 FAIL 用）
+python local_private/probe_restore_d16.py     # 恢复按钮落点 + enabled + 点击后轮询
+python local_private/probe_tamper_pick.py     # SAF 选文件：夹具是否被 MediaStore 索引
 
 # 6. 无障碍（Compose 语义树口径）
 ./gradlew --no-daemon :app:connectedDebugAndroidTest \

@@ -3,7 +3,7 @@
 > 数据来源：`conformance/reports/android.json`、`conformance/reports/SUMMARY.json`
 > 状态：`PASS`（harness 独立复核通过）/ `NOT_RUN` / `FAIL`
 
-更新时间：2026-09-15 · **2026-09-16 P0 轮复跑：pass=91 fail=0 notImplemented=0 total=91（无回归）** · 用例总数 **91** · oracle 提交 `6d268c0`
+更新时间：2026-09-17 · **D-16 关闭轮复跑：pass=91 fail=0 notImplemented=0 total=91（无回归）** · 用例总数 **91** · oracle 提交 `6d268c0`
 
 > **计数修正（本轮）**：本文档早期版本的"用例总数 64"只统计了 §2–§8，
 > 漏掉了后续并入的 Parser（22）、Timeline（3）、Migration/Backup（2）。
@@ -11,7 +11,10 @@
 > `pass=91 fail=0 notImplemented=0 total=91` 对齐后，总数修正为 **91**。
 > 分类加总核对：13 + 16 + 6 + 18 + 3 + 1 + 7 + 22 + 3 + 2 = **91**。
 >
-> **本轮独立复跑**：`cd android && ./gradlew --no-daemon :conformance:run` → `pass=91 fail=0 total=91`（与旧报告一致，无回归）。
+> **本轮（2026-09-17 D-16 关闭轮）独立复跑**：
+> `cd android && ./gradlew --no-daemon :core:test :conformance:run`
+> → `:core:test` **71/71**、conformance `pass=91 fail=0 total=91`（与旧报告一致，无回归）。
+> 设备侧另有 `:app:testDebugUnitTest` **9/9** 与设备内 androidTest **51/51**（4 批严格取证）。
 
 ---
 
@@ -24,7 +27,8 @@
 | iOS     | 0 | 0 | 0 | 91 | 91 |
 
 > Android 侧的 91/91 是**领域 / 语义 / 解析 / 迁移 / 备份**层的 conformance 结果，
-> **不等于**端到端 parity——设备级运行时结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`（58/62）。
+> **不等于**端到端 parity——设备级运行时结论见 `NATIVE_PARITY_MATRIX.md`（**62/73**）与
+> `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。
 
 ---
 

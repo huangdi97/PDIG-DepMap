@@ -20,7 +20,22 @@
 >   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
 >   完整 27 Gate 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`。
 
-> → **（当前）ANDROID FINAL BLOCKER CLOSURE，2026-09-16**
+> **（当前）ANDROID FINAL BLOCKER CLOSURE — D-16 关闭轮，2026-09-17**
+>   —— 关闭 D-16（导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃），采用**方案 A**：
+>   把 Import / Restore 的外部文件工作流状态提升到 Activity 作用域
+>   （`FileWorkflowCoordinator` + `LocalFileWorkflow`），并把 `ActivityResult` 注册
+>   移到 `MainActivity`（不随 NavHost 的 uncompose 被注销）。
+>   **明确不采用**方案 B（锁定时继续组合 NavHost 靠遮罩隐藏）与方案 C（拉起
+>   DocumentsUI 时不锁定）——两者都会削弱"敏感内容结构性不可达"这一安全事实。
+>   复验（全部实跑）：`:app` JVM **9/9** · 设备内 4 批 **51/51**（新增 `FileWorkflowD16Test` 6/6）·
+>   `:core:test` **71/71** · `:conformance:run` **91/91** · E2E v4
+>   **`core-journey-v4-20260917-184856` = 41/41 PASS / 0 FAIL** ·
+>   assembleDebug / assembleRelease / bundleRelease 全部 SUCCESSFUL。
+>   parity **62 / 73**（原 56）；`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、
+>   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
+>   完整内容见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**就地更新，未生成 V3/V4**）§3.4。
+>
+> → **（历史）ANDROID FINAL BLOCKER CLOSURE，2026-09-16**
 >   —— 关闭 App Lock 的真实接线缺口、备份导出 UI 误报、无障碍标签与滚动容器 hitbox；
 >   重跑核心 E2E 与全量回归；**重新计算** N1 / N2。
 >   结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**不沿用旧的 58/62 与旧 PASS 数量**）。
@@ -32,12 +47,16 @@
 
 ## Current
 
-- Phase: **PDIG NATIVE MIGRATION — Android 收口 → Harmony N3 next**
-- Current gate focus: **`N1_ANDROID_VERTICAL_SLICE` / `N2_ANDROID_FULL_PARITY`**（本轮**重新计算**）
+- Phase: **PDIG NATIVE MIGRATION — Android 收口完成（D-16 CLOSED），**等待人工 Final Acceptance
+- Current gate focus: **`N1_ANDROID_VERTICAL_SLICE` = PASS（已重新计算）** /
+  **`N2_ANDROID_FULL_PARITY` = PARTIAL_WITH_REPORT 62/73**
 - Global status: **`ALL_DONE = NO`** · **`TASK_COMPLETE = NO`**
+  （本轮**已按 stop condition 停止**：D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，
+  **不进入 Harmony N3 / iOS N4 / MVP04**，等待人工 Final Acceptance）
 - CURRENT_HEAD: **以 `git rev-parse HEAD` 为准**（报告不写入自身 SHA）
 - CURRENT_BRANCH: `feat/mvp03-living-graph`
-- NEXT_GATE: **`N3_HARMONY_FULL_PARITY`** —— **只有在 N1 / N2 双双 PASS 之后才进入**
+- NEXT_GATE: **`N3_HARMONY_FULL_PARITY`** —— **未开工**；只有在 N1 / N2 双双 PASS
+  **且人工 Final Acceptance 通过**之后才进入
 - NEXT_COMMAND（下一位 Agent 的第一步）：
 
   ```bash
@@ -53,9 +72,9 @@
 
 | #   | 关注面                       | 状态                                                                 |
 | --- | ---------------------------- | -------------------------------------------------------------------- |
-| 1   | Native Migration             | 进行中（Android 收口）                                                |
-| 2   | Android N1 / N2              | 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`                         |
-| 3   | Harmony N3                   | **NOT_STARTED** —— N1/N2 未 PASS 前**不进入**                          |
+| 1   | Native Migration             | 进行中（**Android 收口：D-16 CLOSED，等人工 Final Acceptance**）       |
+| 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md` |
+| 3   | Harmony N3                   | **NOT_STARTED** —— 本轮明确**不进入**（stop condition）                 |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
 | 5   | Cross-platform Conformance   | Android 侧 **91/91**；Harmony / iOS 无报告                             |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
@@ -553,3 +572,66 @@ J1 全新安装 → J2 导入（SAF 选真实 CSV）→ J3 候选 → J4 确认 
   导致 J6~J8 连锁假失败。已改为断言数量 ≥ 1。
 - **E2E 行程缺了"用户显式标记必需"这一步**：`criticality=required` 只能由用户设置
   （机器永不产生），漏掉后影响面恒为 0。已补进 J5。
+
+---
+
+## 本轮：ANDROID FINAL BLOCKER CLOSURE — D-16 关闭（2026-09-17）
+
+### 决策：D-16 采用方案 A
+
+- **根因**：外部文件选择器（DocumentsUI）是独立任务 → `MainActivity.onStop` →
+  `LockGate.lockNow()` → NavHost 离开组合树 → 页面级 `remember` **与**
+  `rememberLauncherForActivityResult` 的待投递结果一起丢失。
+  丢的不是几个变量，而是**状态 + 投递通道**两样东西；只提升状态、launcher 留在页面级修不好。
+- **做法**：`workflow/FileWorkflowState.kt`（纯状态机）+ `workflow/FileWorkflowCoordinator.kt`
+  （Activity 作用域 ViewModel）+ `workflow/LocalFileWorkflow.kt`（CompositionLocal）；
+  `ActivityResultContracts.OpenDocument()` 提到 **`MainActivity.onCreate`** 注册。
+- **明确不采用**：方案 B（锁定时继续组合 NavHost 靠遮罩隐藏）、
+  方案 C（拉起 DocumentsUI 时不锁定）。理由见 V2 报告 §3.4.3。
+
+### 安全不变量（一条都没让）
+
+拿到文件 ≠ 解锁 · 拿到文件 ≠ 自动 commit/restore · **口令不跨锁保留** ·
+URI grant 最小化（`ACTION_OPEN_DOCUMENT` + 只读 + 用完归还） ·
+进程死亡保守恢复（SavedState 只存 metadata，文件结果作废 → `INTERRUPTED`） ·
+消费型投递（`consumePendingUri` 取到即清空，不会重复提交）。
+
+### 复验（全部实跑）
+
+| 项 | 结果 |
+| --- | --- |
+| `:core:test` | 71 / 71 |
+| `:conformance:run` | 91 / 91 |
+| `:app:testDebugUnitTest`（新增） | 9 / 9（`FileWorkflowStateTest`） |
+| `:app:connectedDebugAndroidTest`（4 批） | 51 / 51（含新增 `FileWorkflowD16Test` 6/6） |
+| E2E v4（`core-journey-v4-20260917-184856`） | **41 / 41 PASS / 0 FAIL** |
+| assembleDebug / assembleRelease / bundleRelease | 全部 BUILD SUCCESSFUL |
+
+parity：**56 / 73 → 62 / 73**；`N1 = PASS`；`N2 = PARTIAL_WITH_REPORT`。
+
+### 本轮踩到并修掉的**取证脚本**缺陷（都不是产品问题，必须记下来）
+
+1. **子串定位命中提示文案**：恢复页提示「…请输入备份密码后点「**开始恢复**」。」也含
+   "开始恢复"，且在 a11y 树里排在按钮之前 → 点击落点落在只读 TextView 上 →
+   表现为"恢复挂死"。改用 `restore_confirm()`（精确匹配）。定点探针
+   `probe_restore_d16.py` 抓到对照证据：改用精确匹配后 5 秒内出现「已恢复 29 条记录。」
+2. **`adb push` 绕过 MediaStore**：DocumentsUI 会列出该文件，但**点它没有任何反应**
+   （24s 选择器不关闭）→ `unlocks=0` → 把「picker 期间必须回锁」打成 FAIL。
+   补一次 `MEDIA_SCANNER_SCAN_FILE` 广播后 2 秒即选中并回锁（`probe_tamper_pick.py` 对照）。
+3. 顺带：`saf_pick` 改为以 `topResumedActivity` 判断选择器是否真的关闭，不用固定 sleep 猜。
+
+### 未跟踪项逐项判定（Git 收口）
+
+| 项 | 判定 | 理由 |
+| --- | --- | --- |
+| `android/app/src/main/.../workflow/*.kt`（3 个） | **入库** | D-16 产品源码 |
+| `android/app/src/androidTest/.../FileWorkflowD16Test.kt` | **入库** | D-16 设备取证 |
+| `android/app/src/test/.../FileWorkflowStateTest.kt` | **入库** | D-16 JVM 单测 |
+| `harmony/entry/src/main/ets/generated/CanonicalEnums.ets` | **不入库** | N3 未开始（stop condition 明确不进入）；本机无 Harmony 工具链可验证 |
+| `ios/Sources/PDIGCore/Generated/CanonicalEnums.swift` | **不入库** | N4 `BLOCKED_BY_MACOS`，本机无法编译验证，入库等于声称已验证 |
+| `legacy/README.md` | **不入库** | LEGACY_REFERENCE，与本轮范围无关；历史多轮均保持未跟踪 |
+
+### 停止条件
+
+D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，**到此停止**，
+等待人工 Final Acceptance；**不进入 Harmony N3 / iOS N4 / MVP04**。

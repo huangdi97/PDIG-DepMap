@@ -112,6 +112,13 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling")
 
+    // ---- 纯 JVM 单测（不依赖设备） ----
+    //
+    // 在 D-16 之前 `app` 模块的 JVM 单测是 NO-SOURCE：所有判定都只能靠设备。
+    // 工作流状态机本身是纯逻辑（不依赖 Android），把它放到 `:app:testDebugUnitTest`
+    // 可以**不插设备**就验证"跨锁存活"这条链上唯一可纯逻辑判定的部分。
+    testImplementation("junit:junit:4.13.2")
+
     // ---- 运行时证据测试（androidTest，仅测试源集，不进入生产代码） ----
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")

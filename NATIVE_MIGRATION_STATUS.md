@@ -3,17 +3,21 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-更新时间：2026-09-16（**P0 Runtime Closure 轮后复核**）
+更新时间：2026-09-17（**D-16 关闭轮 · Android Final Closure**）
 
-> 完整结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`（27 个 Gate 逐个重算）。
-> 不沿用旧的 55/62，parity 重算为 **59 / 62**。
+> **本轮（2026-09-17 D-16 关闭轮）三个判定**：
+> `N1_ANDROID_VERTICAL_SLICE` = **PASS**（核心垂直切片 E2E v4 全链路无 FAIL，崩溃 0）
+> `N2_ANDROID_FULL_PARITY` = **PARTIAL_WITH_REPORT**（**62 / 73**，11 项未关闭）
+> `ANDROID_PRODUCTION_RELEASE_READY` = **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**
 >
-> **P0 轮（2026-09-16）三个判定**：
-> `N1_ANDROID_VERTICAL_SLICE` = **PASS**（核心垂直切片在真机 21/21 跑通，崩溃 0）
-> `N2_ANDROID_FULL_PARITY` = **PARTIAL_WITH_REPORT**（59/62，3 项未关闭）
-> `ANDROID_PRODUCTION_RELEASE_READY` = **BLOCKED_BY_PRODUCTION_SIGNING**
+> 逐格结论见 `NATIVE_PARITY_MATRIX.md`；Gate 侧结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。
 >
-> **Stop condition 已遵守**：P0 后停止，**未进入 Harmony N3**。
+> **Stop condition 已遵守**：D-16 关闭 + 全回归 + parity 重算 + Git 收口后停止，
+> **未进入 Harmony N3**，等人工 Final Acceptance。
+
+> 历史：2026-09-16 的 P0 Runtime Closure 轮记录了 `N1 = PARTIAL_WITH_REPORT` /
+> `N2 = PARTIAL_WITH_REPORT` / parity `56/73`（D-16 未修）。该轮结论**已被本轮取代**，
+> 但 D-16 的发现历史与根因完整保留在 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。
 
 ---
 
@@ -27,11 +31,11 @@
 | N0-D  | Codegen + Gate              | **PASS**                | spec → Kotlin/Swift/ArkTS；`--check` PASS         |
 | N0-E  | Golden Fixtures             | **PASS**                | **91 用例** + 28 输入 fixture + manifest + sha256  |
 | N0-F  | Conformance Harness         | **PASS**                | `node tools/conformance/run.mjs` 全绿            |
-| N1    | Android Vertical Slice      | **PASS**（2026-09-16 升级） | 核心垂直切片 import→proposal→reality→影响面→changeplan→done→verified **已在真机端到端跑通**：21/21 PASS，崩溃 0；`am kill` 后数据仍在。分层证据 181 用例全绿。此前因无应用层写入路径降级为 PARTIAL，本轮修复 |
-| N2    | Android Full Parity         | **PARTIAL_WITH_REPORT** | **59 / 62**（N1/N2 轮 +3，P0 轮 +1 单测）。未关闭 3 项：设备 E2E（剩余入口缺失）、无障碍、Release 签名 |
+| N1    | Android Vertical Slice      | **PASS**（2026-09-17 D-16 关闭后重新确认） | 核心垂直链 import→proposal→reality→影响面→changeplan→done→verified 在设备上端到端跑通；D-16 修复后**外部文件选择器往返不再丢工作流**，Import 真的写入（「记录 6 行」）。证据：`core-journey-v4-*` + `FileWorkflowD16Test` 6/6 |
+| N2    | Android Full Parity         | **PARTIAL_WITH_REPORT** | **62 / 73**（D-16 关闭 +4，§1 计数口径修正 +1，设备 E2E +1）。未关闭 11 项逐格列在 `NATIVE_PARITY_MATRIX.md` |
 | N3    | HarmonyOS Full Parity       | **NOT_STARTED**         | 仅 codegen 产物。**本轮明确不进入**（判定 B）      |
 | N4    | iOS Full Parity             | **NOT_STARTED**         | 仅 codegen 产物；build `BLOCKED_BY_MACOS`           |
-| N5    | Cross-platform Conformance  | **PARTIAL_WITH_REPORT** | Android 一侧 **91/91 PASS**（本轮用 `./gradlew :conformance:run` 独立复跑）；Harmony / iOS 未开始 |
+| N5    | Cross-platform Conformance  | **PARTIAL_WITH_REPORT** | Android 一侧 **91/91 PASS**（本轮独立复跑）；Harmony / iOS 未开始 |
 | N6    | Legacy Cutover              | **NOT_STARTED**         | 未满足 Cutover 条件（三端 parity 未达成）           |
 | N7    | Native Production RC        | **NOT_STARTED**         |                                                   |
 
@@ -52,15 +56,16 @@
 | Schema 迁移     | **PASS**                | `migration-db-v1-to-v3`：版本到 3、legacy 归属、50 次重复执行严格 no-op |
 | Backup / Restore | **PASS**              | `backup-depmap-export-restore-roundtrip`：导出→加密→解密→恢复→再导出**逐字节相同**，无孤儿引用 |
 | Keystore       | **PASS**                | `DatabaseKeyStore`：AES-256-GCM 密钥由 Android Keystore 生成且不可导出，包裹 DB passphrase |
-| Biometric / App Lock | **PARTIAL_WITH_REPORT** | `AppLock`（BiometricPrompt）+ `LockScreen` 分支齐全，但 **2026-09-16 真机取证：设备上 `AppLock.state()` 返回 `NOT_CONFIGURED`（fail-closed 正确），而全仓库无 `nav.navigate(Route.LOCK)` —— 锁屏页写好了却没有任何 UI 入口能调起**。这是真实缺口，不再是 PASS |
-| UI（Compose）  | **PASS**                | 21 个页面（Onboarding / Lock / Home / Scenario / Plan / Timeline / Review / Drift / Candidate / Infrastructure / Graph / NodeDetail / Sources / Import / Backup / Restore / Settings / Privacy / About） |
+| Biometric / App Lock | **PARTIAL_WITH_REPORT** | **App Lock 接线 = RUNTIME_VERIFIED**（冷启动先锁 / 解锁后才进 / 前后台回锁 / 锁定时 NavGraph 不参与组合；`AppLockNavigationTest` + E2E v4 J0 与 J9）。**生物识别匹配 = BLOCKED_BY_RUNTIME_ENVIRONMENT**（AVD 无 `hw.finger`）。两者同属一格 ⇒ 整格仍是 PARTIAL |
+| UI（Compose）  | **PASS**                | NavHost 注册 **20 个目的地**：Onboarding / Home / Scenario Center / Scenario Setup / ChangePlan(`plan/{planId}`) / Timeline / Pending Review / RealityDrift / Candidate Review / Infrastructure / Graph / NodeDetail(`node/{nodeId}`) / Sources / Import / Backup / Restore / Settings / Privacy / About / Impact(`impact/{nodeId}`)。「Lock」**刻意不是导航目的地** —— 它是 App 的门，锁定时 NavHost 本体不参与组合 |
 | Design System  | **PASS**                | `PDIGTheme` + tokens（color / spacing / radius / typography / status）映射自 `spec/ui/design-tokens.json` |
 | **Build（APK）** | **PASS**               | `app-debug.apk` **36,887,249 B**，SHA-256 `bf378ec6…305ff1`（2026-09-16 与源码同步重建；归档 `local_private/artifacts/app-debug.apk`） |
 | **Gradle Wrapper** | **PASS**             | 本轮新增。`gradlew` / `gradlew.bat` / `gradle-wrapper.jar`(43,504 B) / `gradle-wrapper.properties`（Gradle 8.9，官方 `distributionUrl`，无机器绝对路径）。此前**完全缺失**，构建依赖本机绝对路径 Gradle |
-| **Runtime / 核心行程** | **PASS**（2026-09-16 新增） | AVD `emulator-5554`（API34）**核心写路径 21/21 PASS，崩溃 0**：全新安装 → SAF 导入真实 CSV（2 支付方式 / 3 收款对象）→ 提交落库（10.8s，「记录 5 个对象，生成 3 条待确认关系」）→ 候选 → acceptProposal → **用户标记必需** → 影响面「必须处理（2）」→ 变更计划 → done≠verified → 验证 → `am kill` 后数据仍在 → `.depmap` 导出 13,617 B → 错误密码恢复被拒。详见 `ANDROID_CORE_USER_JOURNEY_E2E_REPORT.md` |
-| Runtime / 设备 E2E | **PARTIAL_WITH_REPORT** | 安装 / 首次启动 / 首页 / 场景中心 / 基础设施总览 / 加密持久化 / 明文 sqlite 无法打开 / 前后台切换 / 杀进程重启 / 清状态 / 触摸目标 / 字体缩放 / 横屏 / 焦点顺序 / logcat 隐私 均 PASS。**仍 NOT_RUN：Onboarding / Timeline / Drift / App Lock / TalkBack**（业务写入链路已于 P0 轮打通） |
-| `:core` JVM 单测 | **PASS**（2026-09-16 新增） | **71 / 71**：DomainInvariant 15 / ImpactKernel 11 / PlanReadiness 14 / MigrationSemantics 10 / GraphRevisionSemantics 7 / StateMachine 14。详见 `ANDROID_CORE_JVM_TEST_REPORT.md` |
-| 设备内 androidTest | **PASS**             | `connectedDebugAndroidTest` **19 / 19 PASS**（0 skipped / 0 failed）；19 个用例来自 5 个 evidence 测试类 |
+| Runtime / 核心行程 | **PASS**（2026-09-17 D-16 关闭后重新确认） | AVD `emulator-5554`（API34）核心行程 **v4** 全新 run：全新安装 → SAF 导入真实 CSV（2 支付方式 / 3 收款对象）→ 提交「记录 6 行」→ 候选 → 确认 Reality → 用户标记必需 → 影响面「必须处理（2）」→ 变更计划 → done≠verified → 验证 → `am kill`（真实进程死亡，先按 HOME 再 kill）重建后**首屏是锁屏**且数据仍在（共 5 个对象）→ `.depmap` 导出 13,617 B 且 UI 文案一致 → 错误密码恢复被拒 → 清数据 → 正确口令恢复成功 → 篡改容器被拒。崩溃 0。详见 `e:\...\local_private\e2e\core-journey-v4-*.json` |
+| Runtime / 设备 E2E | **PASS**（2026-09-17 升级） | 安装 / 首次启动 / 首页 / 场景中心 / 基础设施总览 / 加密持久化 / 明文 sqlite 无法打开 / 前后台切换 / 杀进程重启 / 清状态 / 触摸目标 / 字体缩放 / 横屏 / 焦点顺序 / logcat 隐私 **均 PASS**；核心行程 v4 覆盖 Import / Restore 全链路。**仍 NOT_RUN：TalkBack**（镜像未预装、无 Play 商店）；Onboarding / Timeline / Graph 二级页未被真机走过（无入口或无流程触发） |
+| `:core` JVM 单测 | **PASS** | **71 / 71**：DomainInvariant 15 / ImpactKernel 11 / PlanReadiness 14 / MigrationSemantics 10 / GraphRevisionSemantics 7 / StateMachine 14。详见 `ANDROID_CORE_JVM_TEST_REPORT.md` |
+| `:app` JVM 单测 | **PASS**（2026-09-17 新增） | **9 / 9**：`FileWorkflowStateTest`（D-16 工作流状态机）。**此前 `:app` 的 JVM 单测是 NO-SOURCE**（目录里放多少文件都跑 0 个用例却 BUILD SUCCESSFUL）——本轮把 `src/test/kotlin` 移到 AGP 标准源目录后真实执行 |
+| 设备内 androidTest | **PASS** | **51 / 51 PASS**（0 skipped / 0 failed），4 批严格取证：13 + 18 + 15 + 5。新增 `FileWorkflowD16Test` 6 个用例。**取证口径**：每批产出独立 md5/sha256、mtime 落在本批时间窗内、类名与本批预期集合一致、四批指纹互不相同；0 test 一律记 FAIL |
 | 性能 smoke      | **PASS**             | **有效数据**：`csvRowsParsed=10000`、`csvParseErrors=0`，强断言 `assertEquals(10_000, rows)` 通过。旧数字（parse=2427ms / insert=4839ms）因 `csvRowsParsed=0` 已**作废** |
 | 无障碍          | **PARTIAL_WITH_REPORT** | 实机审计：触摸目标 / 焦点顺序 / 字体缩放 / 横屏 PASS；**4 个可点击节点无标签**；TalkBack 未验证（NOT_RUN） |
 | 截图保护        | **PASS**（2026-09-16 升级为 RUNTIME_VERIFIED） | 真机 **6/6 路由双证据**：敏感页（SOURCES / IMPORT / INFRASTRUCTURE / BACKUP）窗口 `fl=` 含 `SECURE` 且 `screencap` 被抹黑（均值 0.17）；非敏感页（HOME / SETTINGS）无 `SECURE` 且截图正常（均值 244.64）。**注**：此前"运行时 flag 未取得"是检测口径 bug —— `dumpsys` 输出的是裸 flag 名 `SECURE`，grep `FLAG_SECURE` 恒为 0 |

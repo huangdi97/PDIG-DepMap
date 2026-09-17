@@ -108,3 +108,8 @@ reports/
 
 # Gradle 配置缓存与本地镜像
 .gradle-cache/
+
+# Agent session metadata（.pi/ 是执行 Agent 的会话/目标草稿，不是产品产物）
+# 默认不入生产仓库；若将来需要把某些条目固化为正式工程记录，
+# 应当把它们移出 .pi/ 放到 docs/ 或根目录，而不是放开整个目录。
+.pi/

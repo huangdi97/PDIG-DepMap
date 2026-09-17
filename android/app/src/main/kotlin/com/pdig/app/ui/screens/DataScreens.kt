@@ -1,8 +1,7 @@
 package com.pdig.app.ui.screens
 
+import android.net.Uri
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,10 +33,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
 import com.pdig.app.ui.Route
 import com.pdig.app.data.AppContainer
-import com.pdig.app.data.AppContainer.ImportPreview
 import com.pdig.app.data.AppContainer.ImportCommitResult
 import com.pdig.app.data.ExportBackupResult
 import com.pdig.app.data.ExportFailureStage
+import com.pdig.app.data.ParseOutcome
 import com.pdig.app.data.SourceRow
 import com.pdig.app.security.LockGate
 import com.pdig.app.ui.components.EmptyState
@@ -47,6 +46,10 @@ import com.pdig.app.ui.components.PdigScrollingPage
 import com.pdig.app.ui.components.PdigTopBar
 import com.pdig.app.ui.components.SectionHeader
 import com.pdig.app.ui.theme.PdigTokens
+import com.pdig.app.workflow.FileWorkflowPurpose
+import com.pdig.app.workflow.FileWorkflowStep
+import com.pdig.app.workflow.LocalFileWorkflow
+import com.pdig.core.sources.MappingProfile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,23 +61,83 @@ import kotlinx.coroutines.withContext
  * 步骤固定：选择来源 → 选择文件 → parse → preview → Node Resolution → 确认写入。
  * 确认写入之后落到库里的是 SourceInstance / Fingerprint / Evidence / Node / **Proposal**，
  * **不会**直接产生 Dependency —— Proposal ≠ Reality（spec §13）。
+ *
+ * ---------------------------------------------------------------------------
+ * ## D-16（方案 A）：本页的所有关键状态都在 Activity 作用域
+ *
+ * 外部文件选择器（DocumentsUI）是**独立任务**：拉起它会让 `MainActivity.onStop`
+ * → `LockGate.lockNow()` → NavHost 离开组合树 → **页面级 `remember` 全部被释放**。
+ * 之前 ActivityResult launcher 也注册在本页（`rememberLauncherForActivityResult`），
+ * 于是在 `onDispose` 时被 `unregister()`，待投递结果一起丢失。
+ *
+ * 现在：
+ *  - launcher 注册在 `MainActivity.onCreate`（生命周期 = Activity，不随组合树注销）
+ *  - 来源选择 / 当前步骤 / 待处理 Uri / Node Resolution 预览都存在
+ *    `FileWorkflowCoordinator`（Activity 作用域 ViewModel）
+ *  - 解析与提交跑在 `viewModelScope`，因此**切换后台不会取消导入**
+ *
+ * 安全语义保持不变：锁定期间 NavHost 仍不参与组合；ActivityResult 回调
+ * **只登记 Uri，绝不解锁、绝不读文件内容、绝不提交**。
+ * ---------------------------------------------------------------------------
  */
 @Composable
 fun ImportScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
-    val scope = rememberCoroutineScope()
+    val wf = LocalFileWorkflow.current
 
     var sources by remember { mutableStateOf<List<SourceRow>?>(null) }
     var selectedSourceId by remember { mutableStateOf<String?>(null) }
     var newSourceName by remember { mutableStateOf("") }
-    var preview by remember { mutableStateOf<ImportPreview?>(null) }
-    var committed by remember { mutableStateOf<ImportCommitResult?>(null) }
-    var statusText by remember { mutableStateOf<String?>(null) }
-    var busy by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         sources = withContext(Dispatchers.IO) { container.sourceInstances() }
+    }
+
+    // 进入本页：把跨锁存活的工作流状态接回页面。
+    // 页面级 remember 在"锁定 → NavHost uncompose"时已被释放，
+    // 因此来源选择与解析结果**必须以 coordinator 为准**。
+    LaunchedEffect(Unit) {
+        val w = wf.workflow
+        if (w == null || w.purpose != FileWorkflowPurpose.IMPORT) {
+            // 全新进入：不带任何上一次的完成态
+            wf.publishImportResult(null)
+            return@LaunchedEffect
+        }
+        selectedSourceId = w.requestedSourceId
+        if (w.requestedSourceId == null) newSourceName = w.requestedSourceLabel.orEmpty()
+        if (w.step == FileWorkflowStep.INTERRUPTED) {
+            wf.statusText = "上次的选择被中断（应用进程已重启），请重新选择文件。"
+        }
+    }
+
+    // 用户重新认证之后，取回外部 picker 的结果并解析 —— D-16 主流程的最后一段。
+    // 解析放在 viewModelScope（不是 rememberCoroutineScope）：即使此刻再次被切到后台，
+    // 工作也不会被取消。
+    LaunchedEffect(wf.workflow?.pendingUri) {
+        val uri = wf.consumePendingUri(FileWorkflowPurpose.IMPORT) ?: return@LaunchedEffect
+        val label = wf.workflow?.requestedSourceLabel ?: "账单文件"
+        wf.busy = true
+        wf.statusText = null
+        wf.launch {
+            val parsed = withContext(Dispatchers.IO) { readAndParse(context, uri, container, label) }
+            wf.busy = false
+            if (parsed == null) {
+                wf.statusText = "无法读取或解析这个文件。"
+                wf.publishImportPreview(null)
+                wf.markReview(null)
+            } else {
+                wf.publishImportPreview(
+                    container.previewImport(
+                        parsed.outcome.observations,
+                        parsed.outcome.errors,
+                        parsed.adapterId,
+                        parsed.sourceLabel,
+                    ),
+                )
+                wf.markReview(parsed.mapping)
+            }
+        }
     }
 
     fun activeSourceLabel(): String? {
@@ -83,52 +146,25 @@ fun ImportScreen(nav: NavController) {
         return newSourceName.trim().ifBlank { null }
     }
 
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            busy = true
-            statusText = null
-            val built = withContext(Dispatchers.IO) {
-                val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                if (bytes == null) {
-                    null
-                } else {
-                    // 适配器按内容判定：微信账单 / OFX / 通用 CSV
-                    val head = String(bytes, Charsets.UTF_8)
-                    val adapter = when {
-                        head.contains("微信支付账单明细") ||
-                            (head.contains("交易时间") && head.contains("收/支")) -> "wechat"
-                        head.contains("OFX", ignoreCase = true) -> "ofx_qfx"
-                        else -> "generic_csv"
-                    }
-                    val mapping = if (adapter == "generic_csv") defaultCsvMapping(head) else null
-                    val outcome = runCatching { container.parseFile(bytes, adapter, mapping) }.getOrNull()
-                    if (outcome == null) null
-                    else Triple(outcome, adapter, activeSourceLabel() ?: "账单文件")
-                }
-            }
-            busy = false
-            if (built == null) {
-                statusText = "无法读取或解析这个文件。"
-            } else {
-                val (outcome, adapter, label) = built
-                // Node Resolution 预览：不写库
-                preview = container.previewImport(outcome.observations, outcome.errors, adapter, label)
-            }
-        }
-    }
-
     // 导入完成态必须在 Scaffold 之前整体返回。
     // 原因：把 `return@Scaffold` 写在嵌套的 Column lambda 里会让 Compose 的
     // start/end 配对失衡，重组时抛 ComposeRuntimeError("Start/end imbalance")。
     // 实测：提交导入后渲染"导入完成"分支必崩（crash buffer: com.pdig.app）。
-    val done = committed
+    val done = wf.importResult
     if (done != null) {
-        ImportDonePanel(nav = nav, done = done)
+        ImportDonePanel(
+            nav = nav,
+            done = done,
+            onLeave = { wf.clear() },
+        )
         return
     }
 
-    Scaffold(topBar = { PdigTopBar("导入账单", onBack = { nav.popBackStack() }) }) { pad ->
+    Scaffold(
+        topBar = {
+            PdigTopBar("导入账单", onBack = { wf.clear(); nav.popBackStack() })
+        },
+    ) { pad ->
         // P1-A：滚动容器统一由 PdigScrollingPage 提供，末尾固定留出底部空隙，
         // 保证末尾的「确认导入」按钮能完整滚入可视区
         // （视觉区 == 真实点击区 == semantics bounds）。
@@ -174,19 +210,28 @@ fun ImportScreen(nav: NavController) {
             )
 
             // ---- 步骤 2：选择文件并解析 ----
+            //
+            // 交给 Activity 作用域的 coordinator 拉起外部文件选择器：
+            // launcher 注册在 MainActivity，不会因为本页离开组合树而被注销（D-16）。
             SectionHeader("第 2 步 · 选择文件")
             Button(
-                onClick = { picker.launch("*/*") },
+                onClick = {
+                    wf.beginImport(Route.IMPORT, selectedSourceId, activeSourceLabel())
+                    if (!wf.launchPicker("*/*")) {
+                        wf.statusText = "无法打开文件选择器，请重试。"
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = PdigTokens.MinTouchTarget),
-                enabled = activeSourceLabel() != null && !busy,
+                    .heightIn(min = PdigTokens.MinTouchTarget)
+                    .testTag(IMPORT_PICK_FILE_TAG),
+                enabled = activeSourceLabel() != null && !wf.busy && wf.launcherAttached,
             ) { Text("选择文件并解析") }
-            if (busy) LoadingState()
-            statusText?.let { Text(it, style = PdigTokens.BodyStrong) }
+            if (wf.busy) LoadingState()
+            wf.statusText?.let { Text(it, style = PdigTokens.BodyStrong) }
 
             // ---- 步骤 3：Node Resolution ----
-            val p = preview
+            val p = wf.importPreview
             if (p != null) {
                 SectionHeader("第 3 步 · 确认要记录的对象")
                 Text(
@@ -206,18 +251,19 @@ fun ImportScreen(nav: NavController) {
                 )
                 Button(
                     onClick = {
-                        scope.launch {
-                            busy = true
+                        wf.busy = true
+                        // viewModelScope：即使提交过程中被切到后台也不会被取消
+                        wf.launch {
                             val applied = withContext(Dispatchers.IO) { container.commitImport(p) }
-                            busy = false
-                            committed = applied
+                            wf.busy = false
+                            wf.publishImportResult(applied)
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = PdigTokens.MinTouchTarget)
                         .testTag(IMPORT_CONFIRM_TAG),
-                    enabled = !busy,
+                    enabled = !wf.busy,
                 ) { Text("确认导入") }
             }
         }
@@ -231,8 +277,10 @@ fun ImportScreen(nav: NavController) {
  * lambda 中会造成 Compose start/end 失衡并在重组时崩溃。
  */
 @Composable
-private fun ImportDonePanel(nav: NavController, done: ImportCommitResult) {
-    Scaffold(topBar = { PdigTopBar("导入账单", onBack = { nav.popBackStack() }) }) { pad ->
+private fun ImportDonePanel(nav: NavController, done: ImportCommitResult, onLeave: () -> Unit) {
+    Scaffold(
+        topBar = { PdigTopBar("导入账单", onBack = { onLeave(); nav.popBackStack() }) },
+    ) { pad ->
         PdigScrollingPage(
             modifier = Modifier
                 .padding(pad)
@@ -254,7 +302,7 @@ private fun ImportDonePanel(nav: NavController, done: ImportCommitResult) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Button(
-                onClick = { nav.navigate(Route.REVIEW) },
+                onClick = { onLeave(); nav.navigate(Route.REVIEW) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = PdigTokens.MinTouchTarget),
@@ -268,6 +316,55 @@ const val BACKUP_FILE_NAME = "pdig-backup.depmap"
 
 /** 导入确认按钮的稳定标识：让 Compose UI 测试与 host 侧 tap 指向同一个节点。 */
 const val IMPORT_CONFIRM_TAG = "import_confirm_button"
+
+/** 「选择文件并解析」按钮的稳定标识（D-16：E2E 需要确认它真的拉起了 SAF）。 */
+const val IMPORT_PICK_FILE_TAG = "import_pick_file_button"
+
+/** 恢复页三个关键节点的稳定标识。 */
+const val RESTORE_PICK_FILE_TAG = "restore_pick_file_button"
+const val RESTORE_SELECTED_TAG = "restore_selected_file"
+const val RESTORE_CONFIRM_TAG = "restore_confirm_button"
+const val RESTORE_RESULT_TAG = "restore_result_text"
+
+/** 一次"读文件 + 解析"的结果。**只在内存中流转**，不落库、不进 Bundle。 */
+private data class ParsedFile(
+    val outcome: ParseOutcome,
+    val adapterId: String,
+    val sourceLabel: String,
+    val mapping: MappingProfile?,
+)
+
+/**
+ * 读取并解析用户选中的文件。
+ *
+ * 抽成纯函数（而不是写在 Composable 里）的原因：D-16 之后它会被
+ * **用户重新认证之后**再次调用（此时页面刚被重建），必须能在任何组合状态下独立执行。
+ * 适配器按内容判定，不按扩展名猜（spec §69）。
+ */
+private suspend fun readAndParse(
+    context: android.content.Context,
+    uri: Uri,
+    container: AppContainer,
+    fallbackLabel: String,
+): ParsedFile? {
+    val bytes = try {
+        context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+    } catch (_: Throwable) {
+        null
+    } ?: return null
+    val head = String(bytes, Charsets.UTF_8)
+    val adapter = when {
+        head.contains("微信支付账单明细") ||
+            (head.contains("交易时间") && head.contains("收/支")) -> "wechat"
+        head.contains("OFX", ignoreCase = true) -> "ofx_qfx"
+        else -> "generic_csv"
+    }
+    val mapping = if (adapter == "generic_csv") defaultCsvMapping(head) else null
+    val outcome = runCatching {
+        container.parseFile(bytes, adapter, mapping)
+    }.getOrNull() ?: return null
+    return ParsedFile(outcome, adapter, fallbackLabel, mapping)
+}
 
 /** 极简 CSV 映射猜测：**仅在用户确认后**使用；绝不静默自动映射（spec §17 禁止 AI 自动映射）。 */
 internal fun defaultCsvMapping(head: String): com.pdig.core.sources.MappingProfile? {
@@ -424,33 +521,84 @@ fun BackupScreen(nav: NavController) {
     }
 }
 
+/**
+ * 从备份恢复。
+ *
+ * 与 Import 同样受 D-16 影响（要走外部文件选择器），因此同样把工作流状态放到
+ * Activity 作用域的 [FileWorkflowCoordinator]。
+ *
+ * **口令不会被跨锁保留**（这是刻意的安全选择，不是遗漏）：
+ * 锁定的语义边界就是"未验证身份"，把口令留在内存里跨过这个边界，
+ * 等于给它开了一条"不验证也能完成恢复"的通道。因此解锁后：
+ *
+ * ```
+ * 已选中的 .depmap 仍在（coordinator 保存 Uri）
+ *   → 用户重新输入口令
+ *   → 显式点「开始恢复」
+ *   → restore
+ * ```
+ *
+ * 也就是说：**拿到文件不会自动恢复，恢复一定发生在用户重新认证并确认之后。**
+ */
 @Composable
 fun RestoreScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
-    val scope = rememberCoroutineScope()
-    var password by remember { mutableStateOf("") }
-    var message by remember { mutableStateOf<String?>(null) }
-    var busy by remember { mutableStateOf(false) }
+    val wf = LocalFileWorkflow.current
 
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            busy = true
+    var password by remember { mutableStateOf("") }
+    // 「已选中的 .depmap」必须来自 coordinator：它是跨锁状态，
+    // 页面级 remember 在"锁定 → NavHost uncompose"时会被释放。
+    val selectedUri = wf.pendingRestoreUri()
+    val selectedName = wf.restoreFileName
+
+    LaunchedEffect(Unit) {
+        val w = wf.workflow
+        if (w == null || w.purpose != FileWorkflowPurpose.RESTORE) {
+            // 全新进入 Restore：不带上一次的完成态/失败态
+            wf.clearRestoreMessage()
+            return@LaunchedEffect
+        }
+        if (w.step == FileWorkflowStep.INTERRUPTED) {
+            wf.statusText = "上次的选择被中断（应用进程已重启），请重新选择 .depmap 文件。"
+        }
+    }
+
+    // 外部 picker 的结果到达时（App 仍处于 LOCKED），只把**展示名**记下来。
+    // 不做任何读取内容 / 解密 / 恢复 —— 那些必须等用户重新认证并显式确认。
+    LaunchedEffect(wf.workflow?.pendingUri) {
+        val uri = wf.pendingRestoreUri() ?: return@LaunchedEffect
+        if (wf.restoreFileName == null) {
+            wf.restoreFileName = queryDisplayName(context, uri)
+        }
+    }
+
+    fun restoreNow() {
+        val uri = wf.pendingRestoreUri() ?: return
+        val pw = password
+        wf.clearRestoreMessage()
+        wf.busy = true
+        wf.statusText = null
+        wf.launch {
             val outcome = withContext(Dispatchers.IO) {
                 val json = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                    ?.toString(Charsets.UTF_8) ?: return@withContext null
-                runCatching { container.restoreBackup(json, password) }.getOrNull()
+                    ?.toString(Charsets.UTF_8)
+                if (json == null) null
+                else runCatching { container.restoreBackup(json, pw) }.getOrNull()
             }
-            busy = false
-            message = when (outcome) {
-                null -> "无法恢复：密码错误、文件损坏，或版本不受支持。"
-                else -> "已恢复 $outcome 条记录。"
+            wf.busy = false
+            if (outcome == null) {
+                // 失败：保留已选文件，允许改口令重试；绝不推进工作流状态。
+                wf.failRestore("无法恢复：密码错误、文件损坏，或版本不受支持。")
+            } else {
+                wf.completeRestore("已恢复 $outcome 条记录。")
             }
         }
     }
 
-    Scaffold(topBar = { PdigTopBar("从备份恢复", onBack = { nav.popBackStack() }) }) { pad ->
+    Scaffold(
+        topBar = { PdigTopBar("从备份恢复", onBack = { wf.clear(); nav.popBackStack() }) },
+    ) { pad ->
         PdigScrollingPage(
             modifier = Modifier
                 .padding(pad)
@@ -472,17 +620,58 @@ fun RestoreScreen(nav: NavController) {
                 singleLine = true,
             )
             Button(
-                onClick = { picker.launch("*/*") },
+                onClick = {
+                    wf.beginRestore(Route.RESTORE)
+                    if (!wf.launchPicker("*/*")) {
+                        wf.statusText = "无法打开文件选择器，请重试。"
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = PdigTokens.MinTouchTarget),
-                enabled = password.isNotEmpty() && !busy,
+                    .heightIn(min = PdigTokens.MinTouchTarget)
+                    .testTag(RESTORE_PICK_FILE_TAG),
+                enabled = password.isNotEmpty() && !wf.busy && wf.launcherAttached,
             ) { Text("选择 .depmap 文件") }
-            if (busy) LoadingState()
-            message?.let { Text(it, style = PdigTokens.BodyStrong) }
+
+            val name = selectedName
+            if (name != null) {
+                Text(
+                    "已选择文件：$name。请输入备份密码后点「开始恢复」。",
+                    style = PdigTokens.Body,
+                    modifier = Modifier.testTag(RESTORE_SELECTED_TAG),
+                )
+            }
+            Button(
+                onClick = { restoreNow() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = PdigTokens.MinTouchTarget)
+                    .testTag(RESTORE_CONFIRM_TAG),
+                enabled = selectedUri != null && password.isNotEmpty() && !wf.busy,
+            ) { Text("开始恢复") }
+
+            if (wf.busy) LoadingState()
+            wf.statusText?.let { Text(it, style = PdigTokens.Caption, color = MaterialTheme.colorScheme.error) }
+            wf.restoreMessage?.let {
+                Text(
+                    it,
+                    style = PdigTokens.BodyStrong,
+                    modifier = Modifier.testTag(RESTORE_RESULT_TAG),
+                )
+            }
         }
     }
 }
+
+/** 读取用户可读的文件名（用于"已选择文件：xxx"提示）。 */
+private fun queryDisplayName(context: android.content.Context, uri: Uri): String? = try {
+    context.contentResolver.query(uri, null, null, null, null)?.use { c ->
+        val idx = c.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+        if (idx >= 0 && c.moveToFirst()) c.getString(idx) else null
+    }
+} catch (_: Throwable) {
+    null
+} ?: uri.lastPathSegment
 
 @Composable
 fun SettingsScreen(nav: NavController) {
