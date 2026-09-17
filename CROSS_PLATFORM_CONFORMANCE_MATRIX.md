@@ -11,10 +11,21 @@
 > `pass=91 fail=0 notImplemented=0 total=91` 对齐后，总数修正为 **91**。
 > 分类加总核对：13 + 16 + 6 + 18 + 3 + 1 + 7 + 22 + 3 + 2 = **91**。
 >
-> **本轮（2026-09-17 D-16 关闭轮）独立复跑**：
+> **本轮（2026-09-17 第二场：Android 冻结 + Harmony N3 开工）复跑**：
 > `cd android && ./gradlew --no-daemon :core:test :conformance:run`
-> → `:core:test` **71/71**、conformance `pass=91 fail=0 total=91`（与旧报告一致，无回归）。
-> 设备侧另有 `:app:testDebugUnitTest` **9/9** 与设备内 androidTest **51/51**（4 批严格取证）。
+> → `:core:test` **71/71**、conformance **`pass=91 fail=0 notImplemented=0 total=91`**（**本轮重新执行**，非沿用）。
+> `:app:testDebugUnitTest` **9/9**、设备内 androidTest **51/51**、`:core:test` **71/71** 亦为本轮实跑。
+> 详见 `ANDROID_NATIVE_CORE_FREEZE.md` §3。
+
+> **Harmony 列本轮细化（N3 开工）**：
+> `HARMONY_CONFORMANCE = NOT_RUN` —— **0 个用例被执行**。
+> 无设备、无模拟器系统镜像（`hdc list targets = [Empty]`），且未接本地测试框架。
+> 按分类拆分：**87 notImplemented / 4 blocked**（depmap 3 + backup 1，因 `cryptoFramework` 无 Argon2）。
+> 见 `HARMONY_N3_CONFORMANCE_REPORT.md`。
+
+> **⚠ 不得误用的正数**：`node tools/harmony/check-relations-semantics.mjs` 输出 **18/18**，
+> 但它是**源码语义镜像**（Node 等价实现 vs 同批 fixtures），**不是 ArkTS 运行时执行**，
+> 因此 **不写入本矩阵，也不计入 HARMONY_CONFORMANCE**。
 
 ---
 
@@ -23,7 +34,7 @@
 | 平台   | PASS | FAIL | NOT_IMPLEMENTED | NOT_RUN | 合计 |
 | ------ | ---- | ---- | --------------- | ------- | ---- |
 | Android | **91** | 0 | 0 | 0 | 91 |
-| Harmony | 0 | 0 | 0 | 91 | 91 |
+| Harmony | 0 | 0 | 87 | 4（blocked：depmap 3 + backup 1，无 Argon2） | 91 |
 | iOS     | 0 | 0 | 0 | 91 | 91 |
 
 > Android 侧的 91/91 是**领域 / 语义 / 解析 / 迁移 / 备份**层的 conformance 结果，

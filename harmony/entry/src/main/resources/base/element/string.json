@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "个人数字依赖图"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "个人数字依赖图"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "PDIG"
+    }
+  ]
+}

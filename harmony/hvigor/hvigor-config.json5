@@ -1,0 +1,23 @@
+{
+  "modelVersion": "5.0.0",
+
+  // DevEco Studio 5.0.5.310 内置 @ohos/hvigor 与 @ohos/hvigor-ohos-plugin 均为 5.13.2。
+  // 这里以 file: 协议直接引用本机 DevEco 内置包，避免联网到 registry 拉取。
+  //
+  // 注意 1：两个包都必须写在 dependencies 中。
+  //   实测（继承自 platforms/harmonyos 的验证结论）：若仅把路径写在 hvigorVersion，
+  //   wrapper 会将其当作**相对路径**解析，生成断链 node_modules/@ohos/hvigor。
+  // 注意 2：hvigor-config.json5 的合法字段仅
+  //   modelVersion / dependencies / execution / logging / debugging / nodeOptions / properties。
+  //   写入其它字段会触发 schema 校验失败。
+  //
+  // 若 DevEco 安装路径不同，请改用环境变量方式或改以下两条路径。
+  "dependencies": {
+    "@ohos/hvigor": "file:<DEVECO_HOME>/tools/hvigor/hvigor",
+    "@ohos/hvigor-ohos-plugin": "file:<DEVECO_HOME>/tools/hvigor/hvigor-ohos-plugin"
+  },
+  "execution": {},
+  "logging": {},
+  "debugging": {},
+  "nodeOptions": {}
+}

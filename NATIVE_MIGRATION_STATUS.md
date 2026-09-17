@@ -3,9 +3,28 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-更新时间：2026-09-17（**D-16 关闭轮 · Android Final Closure**）
+更新时间：2026-09-17（**Android 冻结 + Harmony N3 开工轮**）
 
-> **本轮（2026-09-17 D-16 关闭轮）三个判定**：
+> ## 本轮（2026-09-17 第二场）：Android 冻结 + 正式进入 Harmony N3
+>
+> 人工 Final Acceptance 已给出：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、
+> `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`、D-16 CLOSED。
+>
+> - **新增** `ANDROID_NATIVE_CORE_HANDOFF = PASS`（**不替代** N2，也不替代 release readiness；
+>   只回答"Android 是否已可作为 Harmony N3 的 Native Reference"）→ `ANDROID_NATIVE_CORE_FREEZE.md`
+> - Android 进入 **`CORE_FROZEN / MAINTENANCE_ONLY`**；不再为 parity 分数新增功能；剩余 11 格入 N2 Backlog
+> - **Git 尾项已收口**：HEAD `648aa36`；三端 codegen 产物与 `legacy/README.md` 入库；
+>   `.pi/` 保持 untracked（gitignore 覆盖）
+> - **正式进入 Harmony N3**：`harmony/` 由"仅 codegen"建成**可被 hvigor 真实构建并产出 HAP 的
+>   Stage Model 工程**，`HARMONY_BUILD = PASS`；首个纯 ArkTS Domain（Relations）已编译并打包进 HAP
+> - **两个真实 blocker**：`HARMONY_DEPMAP = BLOCKED`（cryptoFramework 无 Argon2）、
+>   `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）
+> - 按 stop condition：**未进入 iOS N4**
+>
+> 详见 `HARMONY_N3_BASELINE_AUDIT.md` / `HARMONY_N3_IMPLEMENTATION_STATUS.md` /
+> `HARMONY_N3_CONFORMANCE_REPORT.md` / `HARMONY_N3_RUNTIME_REPORT.md`。
+
+> **上一轮（2026-09-17 D-16 关闭轮）三个判定**：
 > `N1_ANDROID_VERTICAL_SLICE` = **PASS**（核心垂直切片 E2E v4 全链路无 FAIL，崩溃 0）
 > `N2_ANDROID_FULL_PARITY` = **PARTIAL_WITH_REPORT**（**62 / 73**，11 项未关闭）
 > `ANDROID_PRODUCTION_RELEASE_READY` = **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**
@@ -33,9 +52,9 @@
 | N0-F  | Conformance Harness         | **PASS**                | `node tools/conformance/run.mjs` 全绿            |
 | N1    | Android Vertical Slice      | **PASS**（2026-09-17 D-16 关闭后重新确认） | 核心垂直链 import→proposal→reality→影响面→changeplan→done→verified 在设备上端到端跑通；D-16 修复后**外部文件选择器往返不再丢工作流**，Import 真的写入（「记录 6 行」）。证据：`core-journey-v4-20260917-184856` = **41/41 PASS / 0 FAIL** + `FileWorkflowD16Test` 6/6 |
 | N2    | Android Full Parity         | **PARTIAL_WITH_REPORT** | **62 / 73**（D-16 关闭 +4，§1 计数口径修正 +1，设备 E2E +1）。未关闭 11 项逐格列在 `NATIVE_PARITY_MATRIX.md` |
-| N3    | HarmonyOS Full Parity       | **NOT_STARTED**         | 仅 codegen 产物。**本轮明确不进入**（判定 B）      |
+| N3    | HarmonyOS Full Parity       | **NOT_STARTED**（工程已开工，parity 仍 0/73） | 本轮正式进入：`HARMONY_BUILD = PASS`（hvigor 全清重建产出 HAP 60,133 B）、`HARMONY_DOMAIN = PARTIAL_WITH_REPORT`（Relations 已编译进 HAP）、`HARMONY_ARKUI = PARTIAL_WITH_REPORT`（骨架 + 1 占位页）；`HARMONY_DEPMAP = BLOCKED`（无 Argon2）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。14 个 Gate 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` |
 | N4    | iOS Full Parity             | **NOT_STARTED**         | 仅 codegen 产物；build `BLOCKED_BY_MACOS`           |
-| N5    | Cross-platform Conformance  | **PARTIAL_WITH_REPORT** | Android 一侧 **91/91 PASS**（本轮独立复跑）；Harmony / iOS 未开始 |
+| N5    | Cross-platform Conformance  | **PARTIAL_WITH_REPORT** | Android **91/91 PASS**（本轮实跑复验）；Harmony **NOT_RUN**（0 执行，87 notImplemented / 4 blocked）；iOS 未开始。见 `CROSS_PLATFORM_CONFORMANCE_MATRIX.md` |
 | N6    | Legacy Cutover              | **NOT_STARTED**         | 未满足 Cutover 条件（三端 parity 未达成）           |
 | N7    | Native Production RC        | **NOT_STARTED**         |                                                   |
 
@@ -110,16 +129,27 @@ cd .. && node tools/conformance/run.mjs
 
 ## HARMONY
 
+> **2026-09-17 更新：N3 已开工。** 工程从"仅 1 个 codegen 文件"变为可真实构建的 Stage Model 工程。
+
 | 层             | 状态        | 说明                                        |
 | -------------- | ----------- | ------------------------------------------- |
-| 工程脚手架     | **NOT_STARTED** | 仅 codegen 产物 `harmony/entry/.../generated/` |
-| Domain（ArkTS）| **NOT_STARTED** |                                             |
-| Crypto         | **NOT_STARTED** |                                             |
-| 持久化         | **NOT_STARTED** |                                             |
-| UI（ArkUI）    | **NOT_STARTED** |                                             |
-| Conformance    | **NOT_RUN** | `conformance/reports/harmony.json` 缺失      |
+| 工程脚手架     | **PASS** | `harmony/` 已建 Stage Model 工程（AppScope / build-profile / oh-package / hvigorfile / entry module.json5 / EntryAbility / resources）。hvigor 全清重建 **BUILD SUCCESSFUL** |
+| Domain（ArkTS）| **PARTIAL_WITH_REPORT** | `entry/src/main/ets/domain/Relations.ets` 已实现并**编译进 HAP**（HAP 内含域代码标记）；Impact / Readiness / Coverage / StateMachine / Timeline / Migration / GraphRevision / Scenario 未开工 |
+| Build          | **PASS** | HAP `entry-default-unsigned.hap`，**60,133 B**，sha256 `ac86a5af1a7f15d2ddba70b139b4cbe862d3d1af2898efa496ac05801f9c00fa`（未签名） |
+| Crypto         | **BLOCKED** | `cryptoFramework` KDF 仅 PBKDF2 / HKDF，**无 Argon2** → `.depmap` 无法实现（禁止自研原语） |
+| 持久化         | **NOT_STARTED** | ArkData relationalStore 未开工 |
+| UI（ArkUI）    | **PARTIAL_WITH_REPORT** | 骨架 + 1 个占位页；§L 的 17 个页面未开工 |
+| Conformance    | **NOT_RUN** | 无设备/模拟器、未接本地测试框架；0 执行（87 notImplemented / 4 blocked / 91） |
+| Runtime E2E    | **RUNTIME_NOT_RUN** | `hdc list targets = [Empty]`；无模拟器系统镜像（需 DevEco GUI 下载，用户侧外部闸门） |
 
-> 注意：`platforms/harmonyos/` 是**旧 UTS 路线**产物，不是本次 Native 工程。
+> 注意：`platforms/harmonyos/` 是**旧 UTS 路线**产物，**仅 Legacy Reference**，
+> 不得成为 Production dependency，其 HAP 也不得计入 `harmony/` 任何 Gate 证据。
+
+> **两个必须记住的构建坑**：
+> 1. hvigor 拒绝非 ASCII 工程路径（校验 `process.cwd()`，无环境变量绕过；`mklink /J` 亦无效）
+>    → 用 `tools/harmony/build-ascii-mirror.mjs` 做 ASCII 镜像构建。
+> 2. hvigor 增量 `CompileArkTS` 会**漏掉新增文件**（曾报 UP-TO-DATE 且 SUCCESSFUL，
+>    而新文件其实未编译）→ 验证性构建必须**全清**。
 
 ---
 
@@ -143,7 +173,7 @@ cd .. && node tools/conformance/run.mjs
 | fixture integrity   | PASS | 91 用例 + 28 输入文件 sha256 全匹配          |
 | oracle selfcheck    | PASS | 冻结 TS oracle 逐字节复现 91 用例            |
 | platform: android   | PASS | **91/91**                                    |
-| platform: harmony   | NOT_RUN | 无报告                                    |
+| platform: harmony   | NOT_RUN | **0 执行**：无设备/模拟器，未接本地测试框架。逐分类：87 notImplemented / 4 blocked（depmap 3 + backup 1，因无 Argon2）。见 `HARMONY_N3_CONFORMANCE_REPORT.md` |
 | platform: ios       | NOT_RUN | 无报告                                    |
 | **VERDICT**         | **PASS** | `conformance/reports/SUMMARY.json`       |
 
@@ -164,6 +194,17 @@ cd .. && node tools/conformance/run.mjs
 - **Biometric 仍 BLOCKED**：依赖真机生物特征，AVD 无指纹硬件。
 - **无障碍**：4 个无标签可点击节点未修；TalkBack 镜像未预装。
 
+**2026-09-17 新增（Harmony N3 侧）**：
+
+- **B25 Harmony 无 Argon2（P0）**：`@ohos.security.cryptoFramework` 的 KDF 仅 `PBKDF2Spec` / `HKDFSpec`，
+  全文检索 Argon2 零命中 → `HARMONY_DEPMAP = BLOCKED`。NDK 侧亦无 openssl / libsodium / argon2 产物。
+  可行解（需评审）：NAPI + 经审计的外部 Argon2 参考实现，或经审计的 ohpm 三方包。
+- **B26 Harmony 无运行时目标（P0，用户侧）**：Emulator.exe 存在但**无任何系统镜像**；
+  `hdc list targets = [Empty]` → `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`。
+  需 DevEco Studio GUI 下载镜像（账号/网络），与 Android 侧 B18 同类。
+- **HAP 未签名**：无 signingConfig，产物为 `entry-default-unsigned.hap`；
+  与 Android 侧缺生产 keystore 同类的外部闸门。
+
 **2026-09-16 P0 轮已解除的 blocker**：
 
 - ~~核心垂直切片未在设备级跑通~~ → **已解除**：真机 21/21 PASS，崩溃 0。N1 转为 **PASS**。
@@ -176,8 +217,25 @@ cd .. && node tools/conformance/run.mjs
 
 ## NEXT（下一 Agent 的第一步）
 
-> **stop condition 已遵守：P0 轮结束后停止，未进入 Harmony N3。**
-> 以下为下一轮（若决定继续）的"清 blocker"清单，**不做新功能、不新增 Domain、不重设计 UI**。
+> **⚠ 本节已更新（2026-09-17 第二场）：Harmony N3 已开工，并在真实 blocker 处停止。**
+>
+> **Android 侧**：已进入 `CORE_FROZEN / MAINTENANCE_ONLY`，**不再为 parity 分数新增功能**。
+> 仅允许 regression fix / Canonical Spec 同步 / 跨平台 conformance fix / N5 发现的 parity bug。
+>
+> **Harmony 侧**：以下为解除 N3 blocker 的清单，**不进入 iOS N4**。
+
+**N3 下一步（按优先级）**
+
+| 优先级 | 事项 | 前置 |
+| --- | --- | --- |
+| P0 | 确立 Argon2 路径（NAPI + 外部参考实现，或 ohpm 三方包），或正式升级为长期 blocker | 安全评审 |
+| P0 | DevEco 下载模拟器系统镜像，打通 `HARMONY_RUNTIME_E2E` | **用户操作**（账号/网络） |
+| P1 | 接 DevEco 本地测试框架，让 conformance 可脱离设备执行 | — |
+| P1 | 继续 Domain：Impact → PlanReadiness → Coverage → StateMachine → Timeline | Android 冻结基准 |
+| P2 | ArkData persistence + migration（I 节） | — |
+| P2 | HUKS + 用户认证（J 节） | — |
+| P2 | FileWorkflowCoordinator（M 节，防 D-16 重演） | application 层 |
+
 
 **P0 轮（2026-09-16）已完成**：
 

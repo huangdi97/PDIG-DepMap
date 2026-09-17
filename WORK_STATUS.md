@@ -20,7 +20,32 @@
 >   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
 >   完整 27 Gate 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`。
 
-> **（当前）ANDROID FINAL BLOCKER CLOSURE — D-16 关闭轮，2026-09-17**
+> **（当前）ANDROID 冻结 + 正式进入 Harmony N3，2026-09-17 第二场**
+>   —— 人工 Final Acceptance 结论已落地：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT (62/73)`、
+>   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`、D-16 CLOSED。
+>   本轮**不再把 Android 62/73 往 73/73 堆**。
+>   ① 新增 `ANDROID_NATIVE_CORE_HANDOFF = PASS`（**不替代** N2 / release readiness）
+>      → `ANDROID_NATIVE_CORE_FREEZE.md`；Android 转入 `CORE_FROZEN / MAINTENANCE_ONLY`；
+>      剩余 11 格按 ENGINEERING_NOT_YET_VERIFIED(7) / RUNTIME_ENVIRONMENT_BLOCKED(2) /
+>      RELEASE_EXTERNAL_BLOCKED(1) / STORE_PREPARATION(1) 分类保留在 N2 Backlog。
+>   ② **Git 尾项收口**：实查 HEAD `d966673` → 提交 `648aa36`（三端 codegen 产物 + `legacy/README.md` 入库，
+>      均为 `codegen --check` 验证的正式产物）；`.pi/` 保持 intentionally-untracked（gitignore 覆盖）。
+>      ⚠ 本轮再次复现既有 Git 故障：`git commit` 成功建对象但 HEAD 不推进 —— 已核实
+>      `648aa36` 的 parent/tree 后用 `.git/packed-refs` + loose ref 修正并复核通过。
+>      ⚠ `packed-refs` 必须写**完整 40 位 SHA**（曾误写短哈希导致 HEAD 无法解析，已修复）。
+>   ③ **Android 取证口径修正（重要）**：`android/settings.gradle.kts` 把构建输出重定向到
+>      `%USERPROFILE%/pdig-build/<module>`，**`android/**/build/**` 是自重定向后的过期残留**。
+>      既往报告里 `d84d8900…` / `bf378ec6…` 等 APK 哈希来源不明，本轮起作废。
+>      本轮实测：`:core:test` 71/71、`:app:testDebugUnitTest` 9/9、`:conformance:run` 91/91、
+>      设备内 androidTest 51/51（emulator-5554），APK/AAB 哈希见冻结报告。
+>   ④ **正式进入 Harmony N3**：`harmony/` 由「仅 1 个 codegen 文件」建成可真实构建的
+>      Stage Model 工程 —— hvigor 全清重建 `BUILD SUCCESSFUL`，产出 HAP **60,133 B**；
+>      首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP。
+>      `HARMONY_BUILD = PASS`；`HARMONY_DEPMAP = BLOCKED`（cryptoFramework 无 Argon2）；
+>      `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）。
+>      按 stop condition **未进入 iOS N4**，等 Harmony Gate 复核。
+>
+> **（历史）ANDROID FINAL BLOCKER CLOSURE — D-16 关闭轮，2026-09-17**
 >   —— 关闭 D-16（导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃），采用**方案 A**：
 >   把 Import / Restore 的外部文件工作流状态提升到 Activity 作用域
 >   （`FileWorkflowCoordinator` + `LocalFileWorkflow`），并把 `ActivityResult` 注册
@@ -47,9 +72,10 @@
 
 ## Current
 
-- Phase: **PDIG NATIVE MIGRATION — Android 收口完成（D-16 CLOSED），**等待人工 Final Acceptance
-- Current gate focus: **`N1_ANDROID_VERTICAL_SLICE` = PASS（已重新计算）** /
-  **`N2_ANDROID_FULL_PARITY` = PARTIAL_WITH_REPORT 62/73**
+- Phase: **PDIG NATIVE MIGRATION — Android 已冻结（CORE_FROZEN），N3 Harmony 已开工并在真实 blocker 处停止**
+- Current gate focus: **`ANDROID_NATIVE_CORE_HANDOFF` = PASS** /
+  **`N2_ANDROID_FULL_PARITY` 保持 PARTIAL_WITH_REPORT 62/73** /
+  **`N3_HARMONY_FULL_PARITY` = NOT_STARTED（`HARMONY_BUILD` = PASS，其余多未开工/阻塞）**
 - Global status: **`ALL_DONE = NO`** · **`TASK_COMPLETE = NO`**
   （本轮**已按 stop condition 停止**：D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，
   **不进入 Harmony N3 / iOS N4 / MVP04**，等待人工 Final Acceptance）
@@ -72,11 +98,11 @@
 
 | #   | 关注面                       | 状态                                                                 |
 | --- | ---------------------------- | -------------------------------------------------------------------- |
-| 1   | Native Migration             | 进行中（**Android 收口：D-16 CLOSED，等人工 Final Acceptance**）       |
+| 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 已开工，在 2 个真实 blocker 处停止**） |
 | 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md` |
-| 3   | Harmony N3                   | **NOT_STARTED** —— 本轮明确**不进入**（stop condition）                 |
+| 3   | Harmony N3                   | **已开工**：`HARMONY_BUILD` = **PASS**（hvigor 全清重建 → HAP 60,133 B）；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_DEPMAP` = **BLOCKED**（无 Argon2）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像）；parity 仍 0/73 |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
-| 5   | Cross-platform Conformance   | Android 侧 **91/91**；Harmony / iOS 无报告                             |
+| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑复验）；Harmony **NOT_RUN**（0 执行：87 notImplemented / 4 blocked）；iOS 无报告 |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
 
 ### 当前真实外部 blocker（只有这些）

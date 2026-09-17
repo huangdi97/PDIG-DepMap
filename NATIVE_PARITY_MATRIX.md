@@ -3,7 +3,18 @@
 > 每格：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `CONFORMANCE_PASS` → `RUNTIME_VERIFIED`
 > 写状态时不得跳过等级，也不得把"理论支持"写成"已验证"。
 
-更新时间：2026-09-17（**D-16 关闭轮**，Android Final Closure）
+更新时间：2026-09-17（**Android 冻结 + Harmony N3 开工轮**）
+
+> ## Harmony N3 已开工（2026-09-17 第二场）
+>
+> - `harmony/` 由「仅 1 个 codegen 文件」建成**可被 hvigor 真实构建的 Stage Model 工程**：
+>   全清重建 `BUILD SUCCESSFUL`，产出 `entry-default-unsigned.hap`（**60,133 B**）。
+> - 首个**纯 ArkTS Domain**（`Relations.ets`）已实现并**编译打包进 HAP**（HAP 内含域代码标记）。
+> - Harmony 列本轮变更的格：① `RelationDefinitionRegistry` → `IMPLEMENTED`；
+>   ② `真实 Build` → `IMPLEMENTED`（有构建证据，非 RUNTIME_VERIFIED）；
+>   ③ `Canonical 枚举` 保持 `IMPLEMENTED`（codegen 产物，未做用例级验证）。
+> - **Harmony 合计仍为 0 / 73**：以上三格均未达 `TESTED` 及以上，按口径**不计入**已完成。
+> - 阻塞项：`HARMONY_DEPMAP = BLOCKED`（无 Argon2）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。
 
 > ## D-16 CLOSED（2026-09-17）
 >
@@ -43,7 +54,7 @@
 | Node / Dependency / Group  | IMPLEMENTED | NOT_STARTED | NOT_STARTED |
 | logical key `from\\|relation\\|to\\|capability` | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
 | canonical groupKey         | IMPLEMENTED | NOT_STARTED | NOT_STARTED |
-| RelationDefinitionRegistry | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| RelationDefinitionRegistry | **CONFORMANCE_PASS** | IMPLEMENTED（`entry/src/main/ets/domain/Relations.ets`，已编译进 HAP；未做用例级验证） | NOT_STARTED |
 | Impact Kernel              | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
 | PlanReadiness（三值）      | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
 | ScenarioCoverage（四级）   | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
@@ -194,7 +205,7 @@
 
 | 能力                | Android | Harmony | iOS |
 | ------------------- | ------- | ------- | --- |
-| 真实 Build | **RUNTIME_VERIFIED**（`assembleDebug` / `assembleRelease` / `bundleRelease` 全部实跑；非生产签名链路已验证） | NOT_STARTED | **BLOCKED_BY_MACOS** |
+| 真实 Build | **RUNTIME_VERIFIED**（`assembleDebug` / `assembleRelease` / `bundleRelease` 全部实跑；非生产签名链路已验证） | IMPLEMENTED（hvigor 全清重建 `BUILD SUCCESSFUL`，产出 `entry-default-unsigned.hap` 60,133 B；**未签名**、未安装到设备） | **BLOCKED_BY_MACOS** |
 | 单测 / 集成测试      | **TESTED**（本轮 **222** 个可执行用例 = 71 `:core` JVM + 91 conformance + **9** `:app` JVM（本轮新增，此前 NO-SOURCE）+ **51** 设备内 androidTest） | NOT_STARTED | NOT_STARTED |
 | 设备 E2E            | **RUNTIME_VERIFIED**（核心行程 **v4** 全新 run：36 PASS / 1 FAIL，崩溃 0；每个外部 picker 节点都跑 D-16 双断言） | NOT_RUN | NOT_RUN |
 | 性能 smoke          | **TESTED**（10,000 行 CSV 全解析、0 错误，强断言通过；旧数字已作废） | NOT_RUN | NOT_RUN |
@@ -216,7 +227,7 @@
 | 平台   | 已完成格 | 总格 | 说明                                  |
 | ------ | -------- | ---- | ------------------------------------- |
 | Android | **62 / 73**   | **73** | 分母与计数口径已重新定义（旧的 58/62 作废）；上一轮记录为 56，本轮 +6 |
-| Harmony | 0        | 73   | 仅 codegen 产物                        |
+| Harmony | **0**    | 73   | N3 已开工：工程可构建、Relations Domain 已编译；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN、Runtime NOT_RUN、depmap BLOCKED |
 | iOS     | 0        | 73   | 仅 codegen 产物；build BLOCKED_BY_MACOS |
 
 ### 62 的来源（逐节重算，不做 `56 + 4 = 60` 这类推算）
