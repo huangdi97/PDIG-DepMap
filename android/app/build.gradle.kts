@@ -88,6 +88,22 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.5")
     implementation("androidx.biometric:biometric:1.1.0")
+    // ⚠ 显式钉住 androidx.fragment 的版本，**不能不写**。
+    //
+    // `androidx.biometric:biometric:1.1.0` 传递依赖的是 `androidx.fragment:fragment:1.2.5`（2020 年），
+    // 而本模块的 `androidx.activity` 是 1.9.1（2024 年）。两代混用会在真机上直接崩溃：
+    //
+    //   java.lang.IllegalArgumentException: Can only use lower 16 bits for requestCode
+    //     at androidx.fragment.app.FragmentActivity.checkForValidRequestCode(FragmentActivity.java:714)
+    //     at androidx.fragment.app.FragmentActivity.startActivityForResult(FragmentActivity.java:672)
+    //     at ... ImportScreen 的 picker.launch("*/*")
+    //
+    // 机制：`ActivityResultRegistry` 自动生成的 requestCode 由 activity 1.9.x 决定，
+    // 而 `FragmentActivity`（1.2.5）对 requestCode 强制 16 位上限。
+    // 因为 `MainActivity` 必须是 FragmentActivity（BiometricPrompt 的硬要求），
+    // 这条路径才会被走到 —— 即"App Lock 接线"与"文件选择器"通过宿主基类耦合在一起。
+    // 升级到与 activity 同代的 fragment 即可消除。
+    implementation("androidx.fragment:fragment:1.7.1")
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
     implementation("androidx.sqlite:sqlite-framework:2.4.0")
     implementation("net.zetetic:sqlcipher-android:4.5.5")
