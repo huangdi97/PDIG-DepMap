@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.navigation.compose.rememberNavController
@@ -56,9 +57,25 @@ class AccessibilitySemanticsTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private fun auditScreen(screen: String, content: @Composable () -> Unit) {
+    private fun auditScreen(
+        screen: String,
+        /** 某些页面的内容是从数据库异步加载的（见 D-12 的修复），组合完成时尚处于加载态。
+         *  给出等待标志后，门禁会等真实内容出现再扫描，避免对着加载态得出"无节点"结论。 */
+        awaitText: String? = null,
+        content: @Composable () -> Unit,
+    ) {
         compose.setContent { PDIGTheme { content() } }
         compose.waitForIdle()
+        if (awaitText != null) {
+            // 上限按实测给足：本机 AVD 上"打开 SQLCipher 密文库 + Argon2id 派生"
+            // 实测可达分钟级（E2E 里首页『共 N 个对象』也观测到同样量级），
+            // 30s 会稳定超时，那不是无障碍缺陷而是等待窗口不足。
+            compose.waitUntil(timeoutMillis = 180_000) {
+                compose.onAllNodesWithText(awaitText, substring = true)
+                    .fetchSemanticsNodes(atLeastOneRootRequired = false).isNotEmpty()
+            }
+            compose.waitForIdle()
+        }
 
         val clickable = compose
             .onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.OnClick))
@@ -141,7 +158,9 @@ class AccessibilitySemanticsTest {
 
     @Test
     fun homeScreen_interactiveElementsAreLabeled() {
-        auditScreen("Home") { HomeScreen(rememberNavController()) }
+        // Home 的卡片数据来自 `Dispatchers.IO`（D-12 修复后先渲染加载态），
+        // 必须等真实内容出现再扫描，否则门禁只会看到加载态。
+        auditScreen("Home", awaitText = "共 ") { HomeScreen(rememberNavController()) }
     }
 
     @Test

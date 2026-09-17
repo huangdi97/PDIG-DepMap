@@ -109,6 +109,27 @@ fun PdigApp() {
         LockGate.lockNow()
     }
 
+    // 回到前台**重新读一次**设备能力再锁。
+    //
+    // 真实缺陷（2026-09-17 取证发现）：能力原本只在冷启动读一次，之后一直缓存。
+    // 于是出现这样一条可复现的 fail-closed 失效路径 ——
+    //   1. 设备无凭据时冷启动 App → 能力被缓存为「无凭据」，锁屏显示
+    //      「已知悉风险，本次进入」；
+    //   2. 用户（或脚本）此时去系统设置里设了锁屏 PIN，App 进程没有被杀；
+    //   3. 再回到前台，App 用的还是旧能力 → **继续用手动放行按钮让用户进 HOME**，
+    //      而设备此刻明明已经可以验证身份。
+    // 决定"能不能进"这件事，必须在**决策的当下**依据设备的当前状态，
+    // 不能依赖进程启动时的一次快照。
+    //
+    // 用 `ON_RESUME` 而不是 `ON_START`：`ON_START` 在"App 本就已经在前台"时
+    // 不会再次派发，而 `ON_RESUME` 在每一次真正回到前台都会触发
+    // （2026-09-17 实测：`am start` 一个已经前台的 Activity 不会重发 ON_START，
+    //   于是能力仍然没被刷新，锁屏继续用旧能力放行用户）。
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        checkGeneration += 1
+        LockGate.lockNow()
+    }
+
     val cap = capability
     when {
         cap == null -> LockCheckingScreen()
