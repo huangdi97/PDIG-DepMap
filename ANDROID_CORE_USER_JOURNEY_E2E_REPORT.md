@@ -1,5 +1,13 @@
 # Android 核心用户行程端到端报告（P0-1）
 
+> **⚠ 本报告已被取代（2026-09-17）**：这是 v2 驱动（`core_journey_e2e_v2.py`）在
+> 2026-09-16 的一次运行记录，**不具备 D-16 之后的行为语义**（v2/v3 都没有
+> "外部文件选择器往返" 的建模与断言）。
+> **当前的 E2E 结论以 v4 为准**：`core-journey-v4-20260917-184856` =
+> **41 / 41 PASS / 0 FAIL**，驱动 `local_private/core_journey_e2e_v4.py`，
+> 详见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md` §10.1.1。
+> 本文件保留作为历史记录。
+
 生成时间：2026-09-16
 设备：`emulator-5554`（Android 14 / API 34，1080×2400，3-button 导航）
 APK：`app-debug.apk`

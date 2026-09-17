@@ -31,7 +31,7 @@
 | N0-D  | Codegen + Gate              | **PASS**                | spec → Kotlin/Swift/ArkTS；`--check` PASS         |
 | N0-E  | Golden Fixtures             | **PASS**                | **91 用例** + 28 输入 fixture + manifest + sha256  |
 | N0-F  | Conformance Harness         | **PASS**                | `node tools/conformance/run.mjs` 全绿            |
-| N1    | Android Vertical Slice      | **PASS**（2026-09-17 D-16 关闭后重新确认） | 核心垂直链 import→proposal→reality→影响面→changeplan→done→verified 在设备上端到端跑通；D-16 修复后**外部文件选择器往返不再丢工作流**，Import 真的写入（「记录 6 行」）。证据：`core-journey-v4-*` + `FileWorkflowD16Test` 6/6 |
+| N1    | Android Vertical Slice      | **PASS**（2026-09-17 D-16 关闭后重新确认） | 核心垂直链 import→proposal→reality→影响面→changeplan→done→verified 在设备上端到端跑通；D-16 修复后**外部文件选择器往返不再丢工作流**，Import 真的写入（「记录 6 行」）。证据：`core-journey-v4-20260917-184856` = **41/41 PASS / 0 FAIL** + `FileWorkflowD16Test` 6/6 |
 | N2    | Android Full Parity         | **PARTIAL_WITH_REPORT** | **62 / 73**（D-16 关闭 +4，§1 计数口径修正 +1，设备 E2E +1）。未关闭 11 项逐格列在 `NATIVE_PARITY_MATRIX.md` |
 | N3    | HarmonyOS Full Parity       | **NOT_STARTED**         | 仅 codegen 产物。**本轮明确不进入**（判定 B）      |
 | N4    | iOS Full Parity             | **NOT_STARTED**         | 仅 codegen 产物；build `BLOCKED_BY_MACOS`           |
@@ -61,7 +61,7 @@
 | Design System  | **PASS**                | `PDIGTheme` + tokens（color / spacing / radius / typography / status）映射自 `spec/ui/design-tokens.json` |
 | **Build（APK）** | **PASS**               | `app-debug.apk` **36,887,249 B**，SHA-256 `bf378ec6…305ff1`（2026-09-16 与源码同步重建；归档 `local_private/artifacts/app-debug.apk`） |
 | **Gradle Wrapper** | **PASS**             | 本轮新增。`gradlew` / `gradlew.bat` / `gradle-wrapper.jar`(43,504 B) / `gradle-wrapper.properties`（Gradle 8.9，官方 `distributionUrl`，无机器绝对路径）。此前**完全缺失**，构建依赖本机绝对路径 Gradle |
-| Runtime / 核心行程 | **PASS**（2026-09-17 D-16 关闭后重新确认） | AVD `emulator-5554`（API34）核心行程 **v4** 全新 run：全新安装 → SAF 导入真实 CSV（2 支付方式 / 3 收款对象）→ 提交「记录 6 行」→ 候选 → 确认 Reality → 用户标记必需 → 影响面「必须处理（2）」→ 变更计划 → done≠verified → 验证 → `am kill`（真实进程死亡，先按 HOME 再 kill）重建后**首屏是锁屏**且数据仍在（共 5 个对象）→ `.depmap` 导出 13,617 B 且 UI 文案一致 → 错误密码恢复被拒 → 清数据 → 正确口令恢复成功 → 篡改容器被拒。崩溃 0。详见 `e:\...\local_private\e2e\core-journey-v4-*.json` |
+| Runtime / 核心行程 | **PASS**（2026-09-17 D-16 关闭后重新确认） | AVD `emulator-5554`（API34）核心行程 **v4** 全新 run：全新安装 → SAF 导入真实 CSV（2 支付方式 / 3 收款对象）→ 提交「记录 6 行」→ 候选 → 确认 Reality → 用户标记必需 → 影响面「必须处理（2）」→ 变更计划 → done≠verified → 验证 → `am kill`（真实进程死亡，先按 HOME 再 kill）重建后**首屏是锁屏**且数据仍在（共 5 个对象）→ `.depmap` 导出 13,617 B 且 UI 文案一致 → 错误密码恢复被拒 → 清数据 → 正确口令恢复成功 → 篡改容器被拒。崩溃 0。**最终 run id = `core-journey-v4-20260917-184856`（41/41 PASS / 0 FAIL）**，详见 `local_private\e2e\core-journey-v4-20260917-184856.{txt,json}` |
 | Runtime / 设备 E2E | **PASS**（2026-09-17 升级） | 安装 / 首次启动 / 首页 / 场景中心 / 基础设施总览 / 加密持久化 / 明文 sqlite 无法打开 / 前后台切换 / 杀进程重启 / 清状态 / 触摸目标 / 字体缩放 / 横屏 / 焦点顺序 / logcat 隐私 **均 PASS**；核心行程 v4 覆盖 Import / Restore 全链路。**仍 NOT_RUN：TalkBack**（镜像未预装、无 Play 商店）；Onboarding / Timeline / Graph 二级页未被真机走过（无入口或无流程触发） |
 | `:core` JVM 单测 | **PASS** | **71 / 71**：DomainInvariant 15 / ImpactKernel 11 / PlanReadiness 14 / MigrationSemantics 10 / GraphRevisionSemantics 7 / StateMachine 14。详见 `ANDROID_CORE_JVM_TEST_REPORT.md` |
 | `:app` JVM 单测 | **PASS**（2026-09-17 新增） | **9 / 9**：`FileWorkflowStateTest`（D-16 工作流状态机）。**此前 `:app` 的 JVM 单测是 NO-SOURCE**（目录里放多少文件都跑 0 个用例却 BUILD SUCCESSFUL）——本轮把 `src/test/kotlin` 移到 AGP 标准源目录后真实执行 |

@@ -726,8 +726,11 @@ v4 相对 v3 的变化（都是为了把 D-16 变成**可断言**的事实，而
 提交链（每个提交后都校验 `rev-parse HEAD` / `log --oneline` / `status -uall` / `diff --check`）：
 
 ```
-HEAD = e9cdb87431db1a41c1fc595abbd8a7f219530013
+HEAD（2026-09-17 D-16 关闭轮后）= 951e160c681c4fcd2ff714a0f1934337949fd62b
 
+951e160 fix(android): keep Import/Restore file workflows alive across the lock round-trip (D-16)
+f9428c3 docs(android): N1/N2 report V2 - align device-test count to re-collected 45 ...
+7b9d488 docs(android): refresh Git state in N1/N2 closure report V2
 e9cdb87 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
 113c988 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
 8354ea2 fix(android): device credential must never be downgraded to a manual ack
@@ -735,7 +738,11 @@ e9cdb87 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
 041ed8b test(android): device evidence suite, canonical spec and cross-platform fixtures
 ca36083 feat(android): Compose app, application layer and App Lock wiring
 
-工作区状态：dirty（4 个变更条目）
+工作区状态：仅剩 3 个**有意保留未跟踪**的条目
+  harmony/entry/src/main/ets/generated/CanonicalEnums.ets
+  ios/Sources/PDIGCore/Generated/CanonicalEnums.swift
+  legacy/README.md
+（逐项判定见 §11.1）
 ```
 
 **流程说明**：本工作区存在已知 Git 故障 —— loose ref（`.git/refs/heads/**`）会被外部进程回收，
@@ -972,10 +979,20 @@ done≠verified → 验证 → 进程死亡 → 导出 → 错误口令被拒 �
 
 按任务要求**到此停止**：
 
+- **D-16 已关闭**（方案 A），并已逐项重新取证 Import / Import Mapping / Import Review /
+  Restore 四个 parity 格（由 `PARTIAL` 恢复为 `RUNTIME_VERIFIED`）
+- **已重跑核心 User Journey E2E v4**：`core-journey-v4-20260917-184856` = **41 / 41 PASS / 0 FAIL**
+- **已跑完全回归**：`:core:test` 71/71 · `:conformance:run` 91/91 · `:app` JVM 9/9 ·
+  设备内 4 批 51/51 · assembleDebug / assembleRelease / bundleRelease 全部 SUCCESSFUL
+- **已从 73 格重算 parity**：**62 / 73**
+- **判定**：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、`ANDROID_PRODUCTION_RELEASE_READY =
+  BLOCKED_BY_PRODUCTION_SIGNING`
+- **文档已就地更新**（本文件，未生成 V3 / V4）
+- **Git 已收口**：未跟踪项逐项判定后提交，HEAD = `951e160`，**未 push**
 - **不进入 Harmony N3**、**不进入 iOS N4**、**不进入 MVP04**
 - 未新增业务 Domain，未重设计产品
 
-等待人工复核。
+**等待人工 Final Acceptance。**
 
 ---
 
