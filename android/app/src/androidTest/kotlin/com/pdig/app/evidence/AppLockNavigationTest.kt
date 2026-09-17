@@ -184,4 +184,37 @@ class AppLockNavigationTest {
             assertEquals(LockState.LOCKED, state)
         }
     }
+
+    /**
+     * 回归守护：设备锁屏凭据（PIN/图案/密码）必须被识别为"可以验证身份"。
+     *
+     * 2026-09-17 在本机 AVD 上实测到的真实缺陷：
+     * 执行 `adb shell locksettings set-pin 1234` 且 `dumpsys lock_settings` 明确显示
+     * `CredentialType: PIN` 之后，`BiometricManager.canAuthenticate(DEVICE_CREDENTIAL)`
+     * 仍然返回非 SUCCESS。当时 `AppLock.capability()` 只信它，于是锁屏落到
+     * 「设备无任何凭据」分支，用一个"已知悉风险，本次进入"按钮放行用户 ——
+     * 设备明明**能**验证身份，却被降级为手动确认，fail-closed 语义被破坏。
+     *
+     * 修复以 `KeyguardManager.isDeviceSecure()` 为准。这条断言把"两者必须一致"
+     * 钉成不变量，任何一侧回退都会立刻变红。
+     */
+    @Test
+    fun deviceCredentialMustNotBeDowngradedToManualAck() {
+        val context = ctx()
+        val keyguard = context.getSystemService(android.content.Context.KEYGUARD_SERVICE)
+            as android.app.KeyguardManager
+        val deviceSecure = keyguard.isDeviceSecure
+        val capability = AppLock.capability(context)
+
+        println("DEVICE_CREDENTIAL keyguard.isDeviceSecure=$deviceSecure cred=${capability.credentialUsable}")
+
+        if (deviceSecure) {
+            assertTrue(
+                "设备已设置锁屏凭据，AppLock 必须认定可验证身份；" +
+                    "否则会用『已知悉风险，本次进入』放行用户（fail-closed 失效）",
+                capability.credentialUsable,
+            )
+            assertEquals("有凭据时必须 LOCKED，不得 NOT_CONFIGURED", LockState.LOCKED, AppLock.state(capability))
+        }
+    }
 }

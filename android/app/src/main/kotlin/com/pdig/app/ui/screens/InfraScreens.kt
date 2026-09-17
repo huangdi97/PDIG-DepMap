@@ -42,7 +42,8 @@ fun InfrastructureScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var nodes by remember { mutableStateOf<List<NodeRow>?>(null) }
-    LaunchedEffect(Unit) { nodes = container.nodes() }
+    // 数据库读一律在 IO 线程（主线程做 DB 会在冷启动触发 ANR，2026-09-16 修复）
+    LaunchedEffect(Unit) { nodes = withContext(Dispatchers.IO) { container.nodes() } }
 
     Scaffold(topBar = { PdigTopBar("我的基础设施", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -74,7 +75,7 @@ fun GraphScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var deps by remember { mutableStateOf<List<DependencyRow>?>(null) }
-    LaunchedEffect(Unit) { deps = container.dependencies() }
+    LaunchedEffect(Unit) { deps = withContext(Dispatchers.IO) { container.dependencies() } }
 
     Scaffold(topBar = { PdigTopBar("依赖图", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -118,8 +119,13 @@ fun NodeDetailScreen(nav: NavController, nodeId: String) {
     var refresh by remember { mutableStateOf(0) }
 
     LaunchedEffect(nodeId, refresh) {
-        node = container.nodes(true).firstOrNull { it.id == nodeId }
-        deps = container.dependencies().filter { it.from == nodeId || it.to == nodeId }
+        val loaded = withContext(Dispatchers.IO) {
+            val n = container.nodes(true).firstOrNull { it.id == nodeId }
+            val d = container.dependencies().filter { it.from == nodeId || it.to == nodeId }
+            n to d
+        }
+        node = loaded.first
+        deps = loaded.second
     }
 
     Scaffold(topBar = { PdigTopBar("对象详情", onBack = { nav.popBackStack() }) }) { pad ->
@@ -188,7 +194,7 @@ fun SourceManagementScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var rows by remember { mutableStateOf<List<SourceRow>?>(null) }
-    LaunchedEffect(Unit) { rows = container.sourceInstances() }
+    LaunchedEffect(Unit) { rows = withContext(Dispatchers.IO) { container.sourceInstances() } }
 
     Scaffold(topBar = { PdigTopBar("数据来源", onBack = { nav.popBackStack() }) }) { pad ->
         Column(

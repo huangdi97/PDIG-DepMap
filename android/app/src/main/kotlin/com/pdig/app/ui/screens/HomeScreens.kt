@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.pdig.app.ui.Route
 import com.pdig.app.data.AppContainer
 import com.pdig.app.data.PlanRow
@@ -78,10 +80,16 @@ fun HomeScreen(nav: NavController) {
     var plans by remember { mutableStateOf<List<PlanRow>>(emptyList()) }
     var nodeCount by remember { mutableStateOf(0) }
 
+    // ⚠ 数据库读写一律放到 IO 线程（2026-09-16 修复）：
+    // 此前这三行在主线程执行，全新安装后（dexopt + 打开 SQLCipher 密文库 + 迁移 + Argon2id）
+    // 会把主线程占满并触发系统 ANR 对话框（真机实测，本轮 E2E 连续复现）。
     LaunchedEffect(Unit) {
-        items = container.timeline()
-        plans = container.plans()
-        nodeCount = container.nodes().size
+        val loaded = withContext(Dispatchers.IO) {
+            Triple(container.timeline(), container.plans(), container.nodes().size)
+        }
+        items = loaded.first
+        plans = loaded.second
+        nodeCount = loaded.third
     }
 
     Scaffold(topBar = { PdigTopBar("PDIG") }) { pad ->
@@ -200,7 +208,7 @@ fun TimelineScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var items by remember { mutableStateOf<List<TimelineItem>?>(null) }
-    LaunchedEffect(Unit) { items = container.timeline() }
+    LaunchedEffect(Unit) { items = withContext(Dispatchers.IO) { container.timeline() } }
 
     Scaffold(topBar = { PdigTopBar("即将到来", onBack = { nav.popBackStack() }) }) { pad ->
         Column(

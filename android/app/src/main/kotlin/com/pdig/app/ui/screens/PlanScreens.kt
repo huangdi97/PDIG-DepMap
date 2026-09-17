@@ -245,7 +245,7 @@ fun RealityDriftScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var drifts by remember { mutableStateOf<List<DriftRow>?>(null) }
-    LaunchedEffect(Unit) { drifts = container.openDrifts() }
+    LaunchedEffect(Unit) { drifts = withContext(Dispatchers.IO) { container.openDrifts() } }
 
     Scaffold(topBar = { PdigTopBar("可能发生了变化", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -286,7 +286,7 @@ fun CandidateReviewScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var items by remember { mutableStateOf<List<CandidateRow>?>(null) }
-    LaunchedEffect(Unit) { items = container.pendingCandidates() }
+    LaunchedEffect(Unit) { items = withContext(Dispatchers.IO) { container.pendingCandidates() } }
 
     Scaffold(topBar = { PdigTopBar("待确认服务", onBack = { nav.popBackStack() }) }) { pad ->
         Column(

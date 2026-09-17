@@ -52,14 +52,31 @@ data class LockCapability(
  */
 object AppLock {
 
-    /** 读取设备能力。只读、无副作用；可在后台线程调用。 */
+    /**
+     * 读取设备能力。只读、无副作用；可在后台线程调用。
+     *
+     * **为什么设备凭据不能只问 `BiometricManager`**（2026-09-17 真机取证发现）：
+     * 在 AVD（API 34 / AOSP `android-34/default/x86_64`）执行
+     * `adb shell locksettings set-pin 1234` 并验证通过后，
+     * `dumpsys lock_settings` 明确显示 `CredentialType: PIN`，
+     * 但 `BiometricManager.canAuthenticate(DEVICE_CREDENTIAL)` 仍返回非 SUCCESS ——
+     * 于是锁屏走了「设备无任何凭据」分支，用一个「已知悉风险，本次进入」按钮放行用户。
+     * 那是一次真实的安全语义缺陷：设备**能够**验证身份，却被降级为手动确认。
+     *
+     * `KeyguardManager.isDeviceSecure()` 判断的正是"是否存在 PIN/图案/密码"这件事本身，
+     * 不依赖 biometric service 的绑定状态，因此以它为准；`BiometricManager` 的结果作为补充。
+     */
     fun capability(context: Context): LockCapability {
         val manager = BiometricManager.from(context)
         val biometric = manager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)
         val credential = manager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+        val deviceSecure = runCatching {
+            val km = context.getSystemService(Context.KEYGUARD_SERVICE) as android.app.KeyguardManager
+            km.isDeviceSecure
+        }.getOrDefault(false)
         return LockCapability(
             biometricUsable = biometric == BiometricManager.BIOMETRIC_SUCCESS,
-            credentialUsable = credential == BiometricManager.BIOMETRIC_SUCCESS,
+            credentialUsable = credential == BiometricManager.BIOMETRIC_SUCCESS || deviceSecure,
             // 只有"生物识别与设备凭据都报告没有硬件"才算真的 UNAVAILABLE；
             // 其余未知情况一律落到 NOT_CONFIGURED，两者都是 fail-closed。
             hardwareMissing = biometric == BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE &&
