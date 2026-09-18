@@ -175,3 +175,11 @@ jobs:
       # 这正是当年 Argon2idNative 因依赖方向反转成为孤儿的那类缺陷。
       - name: Import topology (orphan check)
         run: node tools/harmony/dump-import-graph.mjs
+
+      # 内嵌 fixture（供 Harmony 主机执行面使用）必须与冻结原件逐字节一致。
+      # 这道检查是 `run-conformance-host.mjs` 的**第一道**：
+      # 如果内嵌副本漂移了，那边是在拿一份已变质的数据做验证。
+      # 放在 CI 里可以在**没有 DevEco** 的机器上守住它 —— 主机执行面本身
+      # 需要 DevEco（HARMONY_CI_BUILD = NOT_AVAILABLE），但数据一致性不需要。
+      - name: Embedded fixtures match frozen originals
+        run: node tools/conformance/embed-fixtures.mjs --check
