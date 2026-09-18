@@ -16,7 +16,7 @@
 | 首次 push | **已完成**，且**先完成历史净化**（`GITHUB_HISTORY_SANITIZED = PASS`） |
 | force push | **未使用**（全程快进） |
 | 发布 Release | **无**（本轮不发布 v1.0 或任何 Release） |
-| `GITHUB_CI` | **PASS**（第三次运行 `35303432883` 全绿；前两次 FAIL 的原因见 §6，均已修复且复验） |
+| `GITHUB_CI` | **PASS**（第三次 `35303432883`、第四次 `35306907095` 均全绿；前两次 FAIL 的原因见 §6，均已修复且复验） |
 
 ---
 
@@ -47,8 +47,11 @@
 | --- | --- |
 | `443bd7e9..d9e5319` | §5 的两项仓库缺陷修复 + Android CI job 修正 |
 | `d9e5319..0b38bd40` | §6.3 清单根因修复 + §6.4 CI 门控补强 + 本报告入库 |
+| `0b38bd40..42b59a1` | 报告更新（记录第三次 CI 全绿） |
+| `42b59a1..2c9f71c` | PART B：`HARMONY_ARGON2_FEASIBILITY.md` + 状态文档同步 |
+| `2c9f71c..3e3b005` | PART B：Harmony `DEPMAP_CONTAINER_V1`（JCS / AAD / AES-256-GCM）+ 编译门取证 + `HARMONY_CONTAINER_V1_POC.md` |
 
-当前推送 tip：`0b38bd40e86b240a6ac621665b7f2c250abbdef0`（`main` 与 `feat/mvp03-living-graph` 同提交）。
+当前推送 tip：`3e3b005d626b6154fe8bd40eef71528df8603d2c`（`main` 与 `feat/mvp03-living-graph` 同提交）。
 （`GITHUB_HISTORY_SANITIZATION_REPORT.md` 不硬编码自身 SHA，`SANITIZED_CANONICAL_HEAD` 仍为首次 push 的
 `443bd7e9…`；本节的 tip 为推送链末端，二者语义不同，不可混用。）
 
@@ -131,6 +134,7 @@ Android Context / Compose / SQLite），本不需要 Android SDK；原 `android-
 | `35300849483` | `workflow_dispatch`（main @ `443bd7e9`） | **FAIL**（两个 job 均失败） |
 | `35301936345` | `workflow_dispatch`（main @ `d9e53190`，§5 修复后） | **FAIL**（Android job **PASS**；Canonical job 仅剩 `fixtureIntegrity`） |
 | `35303432883` | `workflow_dispatch`（main @ `0b38bd40`，§6.3 + §6.4 后） | **PASS**（两个 job 全绿） |
+| `35306907095` | `workflow_dispatch`（main @ `3e3b005`，Harmony 容器实现入库后） | **PASS**（两个 job 全绿） |
 
 ### 6.1 首次运行的两个失败（性质不同，均已分别处置）
 
@@ -226,7 +230,29 @@ VERDICT: PASS
 2. §6.4 的门控补强生效：CI 侧 `platform android` 由恒 `NOT_RUN` 变为 **PASS 91/91**，
    即 CI 现在真正校验「Android 实现逐用例复现 canonical」这一核心不变量。
 
-### 6.6 诚实口径
+### 6.6 第四次运行（Harmony 容器实现入库后）：仍然全绿
+
+`3e3b005` 引入了 Harmony 的 `crypto/` 模块与两个新工具，但**未触碰** canonical 链路
+（spec / codegen / fixtures / oracle / Android）。因此这次运行的价值是"回归确认"，
+而不是新能力证明 —— Harmony 侧的能力证据在 `HARMONY_CONTAINER_V1_POC.md`，
+且明确不含"CI 已验证 Harmony"。
+
+| job | 结论 | 耗时 |
+| --- | --- | --- |
+| Android core（JVM tests + conformance） | **SUCCESS** | 2m19s |
+| Canonical（codegen / fixtures / oracle） | **SUCCESS** | 19s |
+
+```
+CODEGEN GATE: PASS
+cases:   91/91 ok
+imports: 28/28 ok
+ORACLE SELFCHECK: PASS (91 cases reproduce exactly)
+platform android : PASS
+platform harmony : NOT_RUN (no conformance report produced by this platform yet)
+VERDICT: PASS
+```
+
+### 6.7 诚实口径
 
 - Harmony / iOS 在 CI 中为 `NOT_RUN`，未声明为 PASS。
 - Android 模拟器 E2E 未建立（hosted runner 无硬件加速），未声明为 PASS。
