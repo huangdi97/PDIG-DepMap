@@ -11,7 +11,9 @@
   //   modelVersion / dependencies / execution / logging / debugging / nodeOptions / properties。
   //   写入其它字段会触发 schema 校验失败。
   //
-  // 若 DevEco 安装路径不同，请改用环境变量方式或改以下两条路径。
+  // 仓库不保存本机绝对路径：下面的 <DEVECO_HOME> 是占位符。
+  // 运行 `node tools/harmony/build-ascii-mirror.mjs` 时，脚本会用环境变量
+  // PDIG_DEVECO_HOME 的真实值在 ASCII 镜像内替换它（镜像目录不受版本控制）。
   "dependencies": {
     "@ohos/hvigor": "file:<DEVECO_HOME>/tools/hvigor/hvigor",
     "@ohos/hvigor-ohos-plugin": "file:<DEVECO_HOME>/tools/hvigor/hvigor-ohos-plugin"

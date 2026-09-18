@@ -27,12 +27,29 @@ android {
     // ⚠️ 非生产测试签名（NON_PRODUCTION_TEST_SIGNING）
     // 用途只有一个：验证 release 签名流水线本身可用。
     // 它**不是** production signing；生产签名必须使用用户提供的真实 keystore。
+    // 仓库不保存任何口令字面量：三个值一律从环境变量或 -P 读取。
+    //   PDIG_NONPROD_KEYSTORE_PASSWORD / PDIG_NONPROD_KEY_ALIAS / PDIG_NONPROD_KEY_PASSWORD
+    // 未启用 -PpdigNonProdSigning=true 时返回空串（该 signingConfig 不会被套用）；
+    // 已启用但凭据缺失 → 明确失败，绝不 fallback 到硬编码默认值。
+    val nonProdSigningEnabled =
+        (project.findProperty("pdigNonProdSigning") as String?)?.toBoolean() ?: false
+
+    val nonProdSecret: (String) -> String = { envName ->
+        val value = System.getenv(envName) ?: (project.findProperty(envName) as String?) ?: ""
+        if (value.isEmpty() && nonProdSigningEnabled) {
+            error(
+                "NON_PRODUCTION_TEST_SIGNING 已启用（-PpdigNonProdSigning=true），但缺少 $envName。" +
+                    "请通过环境变量或 -P$envName=... 提供；仓库不保存任何口令字面量。"
+            )
+        }
+        value
+    }
     signingConfigs {
         create("nonProductionTest") {
             storeFile = rootProject.file("../local_private/build-chain/pdig-nonprod.jks")
-            storePassword = "<REDACTED_NONPROD_TEST_SECRET>"
-            keyAlias = "<REDACTED_NONPROD_TEST_SECRET>"
-            keyPassword = "<REDACTED_NONPROD_TEST_SECRET>"
+            storePassword = nonProdSecret("PDIG_NONPROD_KEYSTORE_PASSWORD")
+            keyAlias = nonProdSecret("PDIG_NONPROD_KEY_ALIAS")
+            keyPassword = nonProdSecret("PDIG_NONPROD_KEY_PASSWORD")
         }
     }
 

@@ -12,7 +12,7 @@
 //   node tools/harmony/build-ascii-mirror.mjs --clean    # 先清空镜像目录
 //
 // 镜像目录可用 PDIG_HARMONY_BUILD_ROOT 覆盖（默认 C:/Users/<user>/pdig-harmony-build）。
-import { existsSync, mkdirSync, rmSync, readdirSync, statSync, copyFileSync, writeFileSync, symlinkSync, lstatSync } from 'node:fs'
+import { existsSync, mkdirSync, rmSync, readdirSync, statSync, copyFileSync, readFileSync, writeFileSync, symlinkSync, lstatSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { homedir } from 'node:os'
@@ -23,7 +23,15 @@ const BUILD_ROOT = process.env.PDIG_HARMONY_BUILD_ROOT?.trim() ||
   posix.join(homedir().replace(/\\/g, '/'), 'pdig-harmony-build')
 const MIRROR = join(BUILD_ROOT, 'harmony')
 
-const DEVECO = '<DEVECO_HOME>'
+// 仓库不保存本机绝对路径：DevEco 安装位置必须由环境变量提供。
+//   PDIG_DEVECO_HOME=<你的 DevEco Studio 安装根目录>
+const DEVECO = (process.env.PDIG_DEVECO_HOME ?? '').trim()
+if (!DEVECO) {
+  console.error('[harmony] PDIG_DEVECO_HOME is not set.')
+  console.error('[harmony] Set it to your DevEco Studio install root, e.g.')
+  console.error('[harmony]   PDIG_DEVECO_HOME=<DEVECO_HOME> node tools/harmony/build-ascii-mirror.mjs')
+  process.exit(1)
+}
 const HVIGOR_JS = join(DEVECO, 'tools/hvigor/hvigor/bin/hvigor.js')
 const DEPS = {
   'hvigor': join(DEVECO, 'tools/hvigor/hvigor'),
@@ -53,6 +61,16 @@ if (!existsSync(HVIGOR_JS)) { console.error('未找到 DevEco hvigor:', HVIGOR_J
 // 1. 同步源码到镜像
 copyTree(SRC, MIRROR)
 console.log('[harmony] source mirrored')
+
+// 1b. hvigor-config.json5 —— 仓库内保存的是占位符 <DEVECO_HOME>，
+//     这里用真实 DevEco 路径替换（镜像目录不在版本控制内，不受影响）。
+{
+  const cfgPath = join(MIRROR, 'hvigor', 'hvigor-config.json5')
+  if (existsSync(cfgPath)) {
+    const cfg = readFileSync(cfgPath, 'utf8')
+    writeFileSync(cfgPath, cfg.split('<DEVECO_HOME>').join(DEVECO.replace(/\\/g, '/')))
+  }
+}
 
 // 2. local.properties —— SDK 路径（镜像内需要，仓库内已有同名文件但被 gitignore）
 writeFileSync(join(MIRROR, 'local.properties'),
