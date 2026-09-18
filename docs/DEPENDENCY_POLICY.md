@@ -27,3 +27,24 @@
    留待 vitest 5 计划性升级轮）。
 5. major 版本升级（TS 7 / vitest 5 等）单独开轮处理，不夹带。
 6. `npm outdated` 每轮 `check:deps` 如实记录（当前：@types/node patch 可跟；TS/vitest major 挂起）。
+
+## Vendored 原生依赖（不经过 npm，独立登记）
+
+> 规则 3 的"必须先更新本表"适用于以下条目。vendored 源码**必须**有机器可校验的
+> 完整性清单，并由 Gate 自动对账，不接受"人工确认没改过"。
+
+| 组件                      | 版本 / 固定点                                            | 宿主平台             | 用途                     | 接触敏感数据                             | 许可证              | 完整性清单                          |
+| ------------------------- | -------------------------------------------------------- | -------------------- | ------------------------ | ---------------------------------------- | ------------------- | ----------------------------------- |
+| argon2（PHC 参考实现）    | tag `20190702` / commit `62358ba2123abd17fccf2a108a301d4b52c01a7c` | HarmonyOS (ohos NDK) | DEPMAP_CONTAINER_V1 的 Argon2id KDF | 接触（口令与派生密钥仅在内存中瞬时存在） | CC0-1.0 OR Apache-2.0 | `third_party/argon2/VENDOR.json`    |
+
+**argon2 的引入理由（2026-09-18 决策）**：
+Harmony 托管的 `cryptoFramework` 与 `HUKS` 均**不提供 Argon2**（证据级排除，见
+`HARMONY_ARGON2_FEASIBILITY.md` §2），而 `argon2id` 是 `DEPMAP_CONTAINER_V1` 冻结协议的一部分，
+**不可降级**为 PBKDF2/HKDF（那会破坏三端互操作）。因此必须链接经审计的外部实现，
+而不是自研原语（spec §K 明确禁止自研密码学 primitive）。
+
+**Graph / 追踪义务**：
+`check:deps` 不会看到 `third_party/`。对应 Gate 是
+`node tools/harmony/check-third-party-hashes.mjs`
+（CI 里为 `Harmony third-party integrity` job），它对 `VENDOR.json` 里登记的每个文件
+逐字节校验 SHA-256，并对**未登记文件**报错。
