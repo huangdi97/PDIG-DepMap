@@ -48,11 +48,16 @@ const REQUIRED_MODULES = [
   { id: 'DepmapContainerV1', path: 'crypto/DepmapContainerV1.ets', required: true },
   { id: 'ContainerSelfCheck', path: 'crypto/ContainerSelfCheck.ets', required: true },
   { id: 'Argon2idNative', path: 'crypto/Argon2idNative.ets', required: true },
-  // 后续阶段（Domain 11 组 / Repository / Security）
-  { id: 'Entities', path: 'domain/Entities.ets', required: false },
+  // Domain 层：CanonicalWire 是手写的 wire 解析辅助（**非** codegen 产物），
+  // Entities / ImpactKernel / DomainSelfCheck 是本轮落地的纯 ArkTS Domain。
+  // 入边：pages/Index.ets → DomainSelfCheck → {Entities, ImpactKernel}。
+  { id: 'CanonicalWire', path: 'domain/CanonicalWire.ets', required: true },
+  { id: 'Entities', path: 'domain/Entities.ets', required: true },
+  { id: 'LogicalKey', path: 'domain/LogicalKey.ets', required: true },
+  { id: 'ImpactKernel', path: 'domain/ImpactKernel.ets', required: true },
+  { id: 'DomainSelfCheck', path: 'domain/DomainSelfCheck.ets', required: true },
+  // 后续阶段（Domain 其余组 / Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },
-  { id: 'LogicalKey', path: 'domain/LogicalKey.ets', required: false },
-  { id: 'ImpactKernel', path: 'domain/ImpactKernel.ets', required: false },
   { id: 'PlanReadiness', path: 'domain/PlanReadiness.ets', required: false },
   { id: 'ScenarioCoverage', path: 'domain/ScenarioCoverage.ets', required: false },
   { id: 'StateMachines', path: 'domain/StateMachines.ets', required: false },
@@ -346,6 +351,42 @@ if (process.argv.includes('--build')) {
     console.log('[reachability] WARNING previous probe was killed mid-flight; healed residue in:')
     for (const h of healed) console.log('[reachability]   -', h)
     console.log('[reachability] These files were restored to their pre-probe content.')
+  }
+
+  // 真实构建：刷新 ASCII 镜像并 assembleHap，产出**新的 modules.abc**。
+  //
+  // 为什么必须放在这里（这是一个真实缺陷的修复）：
+  //   原实现里 --build 只启用负向 probe，从不重建主产物。于是判据 C
+  //   （"符号是否真的进了 modules.abc"）读的一直是上一次构建留下的旧 abc。
+  //   后果有两个方向，都有害：
+  //     假阴性 —— 新增模块已正确落地，却因 abc 陈旧而被判 FAIL（"inAbc=false"）；
+  //     假阳性 —— 模块已被删除或改坏，旧 abc 里仍留着老符号，C 判据照样 PASS。
+  //   两种都不允许：本项目对"absence ≠ nonexistence"的要求是双向的。
+  //
+  // 用 --clean 的理由与负向 probe 相同：hvigor 的 CompileArkTS 有增量缓存，
+  // 不清目录时会复用旧编译结果，让"构建成功"失去证据力。
+  console.log('[reachability] --build: rebuilding the ASCII mirror (clean assembleHap) ...')
+  try {
+    execFileSync(process.execPath,
+      [join(REPO, 'tools', 'harmony', 'build-ascii-mirror.mjs'), '--clean', 'assembleHap'], {
+      cwd: REPO,
+      env: { ...process.env },
+      stdio: 'pipe', encoding: 'utf8', timeout: 30 * 60 * 1000,
+    })
+    console.log('[reachability] --build: rebuild OK')
+  } catch (e) {
+    const parts = [
+      typeof e?.stdout === 'string' ? e.stdout : '',
+      typeof e?.stderr === 'string' ? e.stderr : '',
+      ...(Array.isArray(e?.output) ? e.output.map((x) => (x == null ? '' : String(x))) : []),
+      typeof e?.message === 'string' ? e.message : '',
+    ]
+    const detail = parts.join('\n')
+    console.error('[reachability] --build: REBUILD FAILED — 判据 C 将按无产物处理')
+    console.error(detail.slice(-4000))
+    // 不在这里 exit(1)：让主流程带着"无新鲜产物"的事实继续跑完并如实报告，
+    // 而不是提前退出留下一个看不出阶段的半截结论。
+    process.env.PDIG_REACHABILITY_REBUILD_FAILED = '1'
   }
 }
 

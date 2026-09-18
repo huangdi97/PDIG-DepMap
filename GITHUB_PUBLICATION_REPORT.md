@@ -16,7 +16,7 @@
 | 首次 push | **已完成**，且**先完成历史净化**（`GITHUB_HISTORY_SANITIZED = PASS`） |
 | force push | **未使用**（全程快进） |
 | 发布 Release | **无**（本轮不发布 v1.0 或任何 Release） |
-| `GITHUB_CI` | **PASS**（第三次 `35303432883`、第四次 `35306907095` 均全绿；前两次 FAIL 的原因见 §6，均已修复且复验） |
+| `GITHUB_CI` | **PASS**（第三次 `35303432883`、第四次 `35306907095`、第五次 `35314181367` 均全绿；前两次 FAIL 的原因见 §6，均已修复且复验。**注意**：五次全部为人工 `workflow_dispatch` —— 本仓库 `push` 事件从未触发过 CI，见 §6.5） |
 
 ---
 
@@ -135,6 +135,39 @@ Android Context / Compose / SQLite），本不需要 Android SDK；原 `android-
 | `35301936345` | `workflow_dispatch`（main @ `d9e53190`，§5 修复后） | **FAIL**（Android job **PASS**；Canonical job 仅剩 `fixtureIntegrity`） |
 | `35303432883` | `workflow_dispatch`（main @ `0b38bd40`，§6.3 + §6.4 后） | **PASS**（两个 job 全绿） |
 | `35306907095` | `workflow_dispatch`（main @ `3e3b005`，Harmony 容器实现入库后） | **PASS**（两个 job 全绿） |
+| `35314181367` | `workflow_dispatch`（main @ `c2c217e`，Argon2 vendoring + NAPI 桥 + 编译可达性 Gate 入库后） | **PASS**（两个 job 全绿） |
+
+### 6.5 `35314181367` 附带发现：`push` 触发从未生效（值得单独记账）
+
+第四次运行之后，本轮把 4 个提交（`7cb33ca` → `c2c217e`）推上 `main`。
+**推送后 GitHub 并没有产生 `push` 事件的运行** —— 经核查：
+
+```
+gh api repos/huangdi97/PDIG-DepMap/actions/workflows/361028409/runs
+→ total_count = 4，四个全部是 workflow_dispatch
+```
+
+也就是说：`ci.yml` 声明了 `on: push: branches: ["**"]`，
+但**本仓库历史上从未有任何一次 `push` 事件真正触发过 CI**，
+全部四次绿灯都是人工 `workflow_dispatch` 的结果。
+
+同批核查已排除「配置问题」：
+
+| 核查项 | 结果 |
+| --- | --- |
+| 远端工作流文件与本地一致 | `git rev-parse HEAD:.github/workflows/ci.yml` = `69f7685`，远端 API 同值 |
+| Actions 开关 | `enabled=true`，`allowed_actions=all` |
+| 工作流状态 | `active`（workflow id `361028409`） |
+
+**结论与处置**：触发未生效的原因尚未定因（非配置、非禁用）。
+本轮按「不把不确定伪装成必须处理」的原则**不改 CI 触发语义**（改 `on: push` 属于
+扩大范围，且当前 `push` 并未被用来保证任何结论），改为**显式 dispatch 并记录运行 ID**，
+使「CI 是否真的跑过」始终有据可查。此项记为待观察，不阻塞 N3。
+
+> 副作用提醒（对本项目的实际影响）：由于 `push` 不触发，
+> **不能把「推上去了」当成「CI 会跑」**。任何依赖 CI 结论的 gate，
+> 都必须由运行 ID 佐证，而不是由提交已推送佐证。
+
 
 ### 6.1 首次运行的两个失败（性质不同，均已分别处置）
 

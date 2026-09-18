@@ -6,6 +6,7 @@
  * 真实的首页语义将在 domain + application 层就绪后替换此处的 placeholder。
  */
 import { validateRelationUse } from '../domain/Relations';
+import { domainSelfCheckLine } from '../domain/DomainSelfCheck';
 import { aadSelfCheckLine } from '../crypto/ContainerSelfCheck';
 import { argon2SelfCheckLine } from '../crypto/Argon2idNative';
 
@@ -14,6 +15,7 @@ import { argon2SelfCheckLine } from '../crypto/Argon2idNative';
 struct Index {
   @State message: string = 'PDIG — Harmony N3 Native Core';
   @State relationProbe: string = '';
+  @State domainProbe: string = '';
   @State containerProbe: string = '';
   @State argon2Probe: string = '';
 
@@ -22,16 +24,16 @@ struct Index {
     const ok: boolean = validateRelationUse('payment_instrument', 'funding_source', 'account', 'payment').ok;
     const bad: boolean = validateRelationUse('device', 'bound_to', 'account', 'payment').ok;
     this.relationProbe = `relations: funding_source=${ok ? 'allow' : 'reject'}, bound_to=${bad ? 'allow' : 'reject'}`;
+    // 探针：Domain 层（Entities / ImpactKernel）的确定性语义自检。
+    //
+    // 这一行是 domain/ 下 ImpactKernel 与 Entities 进入编译图的**唯一**入口。
+    // hvigor 只编译从 ability / page 可达的模块；若无此 import，
+    // 这两个文件会成为孤儿（源文件存在、从未被编译、assembleHap 仍成功），
+    // 由 tools/harmony/check-compiled-reachability.mjs 的正/负向 probe 测出。
+    this.domainProbe = domainSelfCheckLine();
     // 探针：DEPMAP_CONTAINER_V1 的 JCS / AAD 规范化自检。
-    // 这一行同时承担第二个作用 —— 让 crypto/ 下的模块进入 CompileArkTS 的编译图。
-    // hvigor 只编译从 ability / page 可达的模块，未被 import 的 .ets 不会被编译，
-    // 那种情况下 assembleHap 的 "BUILD SUCCESSFUL" 不构成任何证据。
     this.containerProbe = aadSelfCheckLine();
     // 探针：NAPI 桥接自检。链路 ArkTS → NAPI(libpdiargon2.so) → libargon2。
-    //
-    // 这一行是 Argon2idNative 进入编译图的**唯一**入口。此前该模块因依赖方向反转
-    // 而成为孤儿（源文件存在、从未被编译、构建仍成功），由
-    // tools/harmony/check-compiled-reachability.mjs 正向 + 负向 probe 测出。
     //
     // 无设备时它会如实返回 "argon2: FAIL(native load/exec: ...)"，不伪装成通过。
     this.argon2Probe = argon2SelfCheckLine();
@@ -54,6 +56,11 @@ struct Index {
           .fontSize(12)
           .fontColor('#999999')
           .margin({ top: 12 })
+
+        Text(this.domainProbe)
+          .fontSize(12)
+          .fontColor('#999999')
+          .margin({ top: 4 })
 
         Text(this.containerProbe)
           .fontSize(12)
