@@ -4,7 +4,7 @@
   "specVersion": "1.0.0",
   "appSchemaVersion": 3,
   "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
-  "description": "validateRelationGroupUse(bound_to, ANY)",
+  "description": "validateRelationGroupUse(bound_to, ANY) — LC-003 Canonical correction: Legacy exposed/accepted this relation, but it is NOT registered in the runtime registry, therefore it is not a valid canonical relation (frozen Legacy behaviour is unchanged; divergence recorded in LEGACY_BEHAVIOR_CORRECTIONS.md LC-003)",
   "input": {
     "relation": "bound_to",
     "mode": "ANY"

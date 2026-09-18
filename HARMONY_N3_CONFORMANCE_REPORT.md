@@ -547,3 +547,38 @@ definitions → 各平台 parser**；Legacy TS / uni-app x 仅作 Behavior Oracl
 完整处置与三端判定来源对照见 `LEGACY_BEHAVIOR_CORRECTIONS.md` §LC-003
 「跨端固化状态（2026-09-18 复核）」。
 
+### 7.8.1 fixture coverage audit（2026-09-18 按审计要求逐条给出）
+
+审计要求：不得仅凭"看起来相关"就判定已覆盖，必须确认用例**实际经过**
+「wire/logical-key 输入 → RelationDefinitionRegistry 校验 → reject」，
+而不是在 matrix 层 / schema 层 / 由其它字段先失败。
+
+| 项 | `relation-reject-non-runtime-relation` | `relation-group-bound_to-ANY` |
+| -- | ------------------------------------- | ----------------------------- |
+| input | `{fromKind: payment_instrument, relation: bound_to, toKind: account, capability: payment}` | `{relation: bound_to, mode: ANY}` |
+| 执行路径 | `validateRelationUse(fromKind, relation, toKind, capability)` | `validateRelationGroupUse(relation, mode)` |
+| 命中哪一道检查 | **第 1 道** `BY_ID.get(relation)` —— registry 未命中即 reject | **第 1 道** 同上 |
+| 是否"其它字段先失败" | **否**。capability / fromKind / toKind 检查都在 registry 检查**之后** | **否**。allowsGroup / groupMode 检查在其后 |
+| expected | `ok:false`，reason `relation 'bound_to' is not in the runtime registry` | 同左 |
+| Oracle 实测 | **PASS**（ORACLE SELFCHECK 91 cases reproduce exactly） | **PASS** |
+| Android 实测 | **PASS**（`conformance/reports/android.json`） | **PASS** |
+| Harmony 实测 | **PASS**（`ConformanceHost.test.ets` 逐用例 result） | **PASS** |
+
+**诚实边界（必须与上表一起引用）**：这两条走的是 **canonical relation 校验入口**，
+relation 以**离散字段**传入，**不经过** logical-key 字符串解析。这不是疏漏 ——
+而是 **Canonical Spec 只规定了 logical key 的序列化形态**
+（`spec/domain/domain.json`：`logicalKeySerialization = "from|relation|to|capability"`），
+**没有规定跨端的 parser API**：TS core 只有格式化器 `dependencyLogicalKey`；
+Kotlin 只有同名的强类型格式化器；三端均无线上的统一解析器已供给 conformance 使用。
+
+因此「补一个专门针对 logical-key parser 的 fixture」实际上等于**新增 canonical API 面**。
+按本节的真相源顺序（Canonical Spec → registry → generated → 各端 parser），
+它应当**从 spec 增补开始**，再据此约束 TS / Kotlin / ArkTS 三端；
+并且若直接以 Harmony 现有的 `parseDependencyLogicalKey` 为准，
+等于让「各端 parser」反向定义 Canonical —— 正是本节要避免的方向。
+故此处**不发明该 API**，登记为后续项（见 `IMPLEMENTATION_STATUS` / LC-003）。
+
+本轮已同时把两条 fixture 的 `description` 补上 LC-003 traceability 标记，
+使其作为 permanent contract freeze 的意图可被追溯。**注意：只改了 description，
+`expected` 未动一个字节**（已由 `fixtureIntegrity` 与 ORACLE SELFCHECK 双重复核）。
+

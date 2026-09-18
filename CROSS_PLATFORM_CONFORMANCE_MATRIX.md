@@ -227,7 +227,7 @@
 | ------------------------------- | ---- | --------------------------------------------- | ------- | ------- | --- |
 | `relation-funding-source-*`     | 3    | funding_source 合法组合                        | PASS | NOT_RUN | NOT_RUN |
 | `relation-merchant-agreement-*` | 2    | merchant_agreement 合法组合                    | PASS | NOT_RUN | NOT_RUN |
-| `relation-reject-non-runtime-*` | 2    | `bound_to` / `verifies` 不在 runtime registry | PASS | NOT_RUN | NOT_RUN |
+| `relation-reject-non-runtime-*` | 2    | `bound_to` / `verifies` 不在 runtime registry —— **同时锁定 LC-003 Canonical correction**（`bound_to` 用例的可追溯说明见该 fixture 的 `description` 字段） | PASS | NOT_RUN | NOT_RUN |
 | `relation-reject-unknown-*`     | 1    | 未知 relation                                  | PASS | NOT_RUN | NOT_RUN |
 | `relation-reject-capability-*`  | 1    | capability 不匹配                              | PASS | NOT_RUN | NOT_RUN |
 | `relation-reject-from-kind*`    | 2    | fromKind 不允许（`device` / `identity_anchor`）| PASS | NOT_RUN | NOT_RUN |

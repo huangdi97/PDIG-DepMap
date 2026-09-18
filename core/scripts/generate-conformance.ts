@@ -574,11 +574,20 @@ const relationCases: Array<{ id: string; fromKind: string | null; relation: stri
   { id: 'allow-null-kinds', fromKind: null, relation: 'funding_source', toKind: null, capability: 'payment' },
 ]
 
+// LC-003 Canonical correction 的可追溯标记（2026-09-18）：
+// Legacy 某路径曾暴露/接受 `bound_to`，但 runtime registry 未注册 ⇒
+// bound_to != valid canonical relation。此处 Markdown-fixture 的作用是把这条
+// **Canonical correction** 永久固化成跨端契约（Android / Harmony / iOS 同跑同批 fixture），
+// 而不是描述某一端的历史行为。冻结的 Legacy 行为不修改，差异经 LEGACY_BEHAVIOR_CORRECTIONS 记录。
+const LC003_NOTE =
+  ' — LC-003 Canonical correction: Legacy exposed/accepted this relation, but it is NOT registered in the runtime registry, therefore it is not a valid canonical relation (frozen Legacy behaviour is unchanged; divergence recorded in LEGACY_BEHAVIOR_CORRECTIONS.md LC-003)'
+
 for (const c of relationCases) {
+  const note = c.relation === 'bound_to' ? LC003_NOTE : ''
   add(
     `relation-${c.id}`,
     'relations',
-    `validateRelationUse(${c.fromKind ?? 'null'}, ${c.relation}, ${c.toKind ?? 'null'}, ${c.capability})`,
+    `validateRelationUse(${c.fromKind ?? 'null'}, ${c.relation}, ${c.toKind ?? 'null'}, ${c.capability})${note}`,
     c,
     validateRelationUse(c.fromKind as never, c.relation, c.toKind as never, c.capability),
   )
@@ -590,10 +599,11 @@ for (const c of [
   { relation: 'merchant_agreement', mode: 'ANY' as const },
   { relation: 'bound_to', mode: 'ANY' as const },
 ]) {
+  const note = c.relation === 'bound_to' ? LC003_NOTE : ''
   add(
     `relation-group-${c.relation}-${c.mode}`,
     'relations',
-    `validateRelationGroupUse(${c.relation}, ${c.mode})`,
+    `validateRelationGroupUse(${c.relation}, ${c.mode})${note}`,
     c,
     validateRelationGroupUse(c.relation, c.mode),
   )

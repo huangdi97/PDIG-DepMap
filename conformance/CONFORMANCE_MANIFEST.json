@@ -6,7 +6,7 @@
   "generator": "core/scripts/generate-conformance.ts",
   "oracle": {
     "kind": "frozen-typescript-reference",
-    "commit": "7bc0ed323ea82ce98139acd14eabd040a1ea111e",
+    "commit": "1e2a9750afbbf60061bc5c1e0e55e9bab57b53cc",
     "manifest": "LEGACY_REFERENCE_MANIFEST.md",
     "frozenTag": "v0.3.0-uniapp-reference",
     "baseline": "Test Files 43 passed, Tests 453 passed"
@@ -31,7 +31,6 @@
   "importFixtures": {
     "directory": "fixtures/import/",
     "count": 28,
-    "$note": "sha256 values are computed over CANONICAL GIT BLOB BYTES (LF). An earlier revision of this file recorded CRLF hashes produced by a core.autocrlf=true checkout on Windows; those were an artifact of the local working tree, not of the repository. fixtures/import/* is marked -text in .gitattributes so checkout is byte-exact on every platform. Corrected 2026-09-17; see GITHUB_PUBLICATION_REPORT.md section 6.2.",
     "sha256": {
       "normal-wechat.csv": "2b72155e0a60221a56d9b06fc1c00b72f930ada736809bbfd7ae383fee6aa650",
       "utf8-bom.csv": "24052c8444201fb9f8fd915d3c436840f005c0c62bfaf3d404e5e1872c56e3ef",
@@ -348,8 +347,8 @@
       "id": "relation-reject-non-runtime-relation",
       "category": "relations",
       "path": "fixtures/relations/relation-reject-non-runtime-relation.json",
-      "sha256": "aa5ea3ad3bf5033b4c684a65cfce2bb0ccba621b85dfe68f8a93252659950325",
-      "description": "validateRelationUse(payment_instrument, bound_to, account, payment)"
+      "sha256": "e3a2d75f8a56530373146191ab1b3a4a4bac0a3d0a5dbb92bb84d13a2b549fde",
+      "description": "validateRelationUse(payment_instrument, bound_to, account, payment) — LC-003 Canonical correction: Legacy exposed/accepted this relation, but it is NOT registered in the runtime registry, therefore it is not a valid canonical relation (frozen Legacy behaviour is unchanged; divergence recorded in LEGACY_BEHAVIOR_CORRECTIONS.md LC-003)"
     },
     {
       "id": "relation-reject-non-runtime-relation-verifies",
@@ -432,8 +431,8 @@
       "id": "relation-group-bound_to-ANY",
       "category": "relations",
       "path": "fixtures/relations/relation-group-bound_to-ANY.json",
-      "sha256": "6f9282af00b12b127a2eb3ce74e28f22cea1ce1a9f0332a41e783b3975193cbd",
-      "description": "validateRelationGroupUse(bound_to, ANY)"
+      "sha256": "a05cfbc7fb750880c9396c887ab5ba01db3f86f0e867265a84798da6a8c85dd1",
+      "description": "validateRelationGroupUse(bound_to, ANY) — LC-003 Canonical correction: Legacy exposed/accepted this relation, but it is NOT registered in the runtime registry, therefore it is not a valid canonical relation (frozen Legacy behaviour is unchanged; divergence recorded in LEGACY_BEHAVIOR_CORRECTIONS.md LC-003)"
     },
     {
       "id": "depmap-golden-v1",
