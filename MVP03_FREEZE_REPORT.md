@@ -42,7 +42,7 @@
    （1 target ↔ N actions / 1 action ↔ N targets 不成立）→ `PlanAction.resolvesImpactKeys[]`
    显式映射 +「该 key 的全部声明 change 动作 done 才 resolved」+ rebase claiming
    （确定性分配未声明 key 给第一个空声明未完成 change 动作，不自动完成任何动作）。
-   同步修正 UI plan-detail 派生逻辑（f692183）。
+   同步修正 UI plan-detail 派生逻辑（48b38b6）。
 2. **claiming 禁止事后追认**：已完成动作不得被自动分配 key（FM-2，FR-READ-017 固化）。
 3. **verified/failed 不可被 evidence suggestion 降级**（FM-3 固化）。
 4. **already_confirmed 来源新信号不产生 drift**（FM-4 固化）。
@@ -71,8 +71,8 @@ Correctness Gate = NOT_RUN；Value Gate = NOT_RUN（等待用户真实账单；s
 
 ## Git
 
-分支 `feat/mvp03-living-graph`；Freeze 轮 commits：f692183（P0 readiness 修复）→ df966f4/253cdd5
-（freeze gates + timeout）→ f72b322/fdde863/d41e12c/f65eca2/7f7077b（killers + 迁移/变异/UI/性能/稳定性报告）。
+分支 `feat/mvp03-living-graph`；Freeze 轮 commits：48b38b6（P0 readiness 修复）→ 4738ad4/f3e3449
+（freeze gates + timeout）→ e9c3768/f456fb3/4cc11f1/dcd687e/de08a3f（killers + 迁移/变异/UI/性能/稳定性报告）。
 **Tag：`v0.3.0-mvp03`（本轮创建）。** 未 push。
 
 ## 结论

@@ -4,7 +4,7 @@
 > 避免"一口气 `git add .`"把构建产物、机器路径、运行时证据和源码混在一起。
 >
 > 生成时间：2026-09-16
-> 基线 HEAD（审计开始时）：`ad2350b3bc32c86f73a37941765bf9b10c3aa577`
+> 基线 HEAD（审计开始时）：`68f506caa8953488e7fa277edf62d0be27315f12`
 > 未跟踪条目总数（`git status --porcelain -uall`，`??`）：**196**
 > 其中 `android/**`：**61**
 
@@ -32,9 +32,9 @@ Android 的 91/91 conformance 就失去可复现性 —— 因此必须入库。
 android/build.gradle.kts
 android/settings.gradle.kts
 android/gradle.properties          # 无 secret：只含 JVM 参数与 AGP 开关
-android/gradlew                    # 已跟踪（ad2350b）
-android/gradlew.bat                # 已跟踪（ad2350b）
-android/gradle/wrapper/*           # 已跟踪（ad2350b）
+android/gradlew                    # 已跟踪（68f506c）
+android/gradlew.bat                # 已跟踪（68f506c）
+android/gradle/wrapper/*           # 已跟踪（68f506c）
 ```
 
 判定：Gradle Wrapper + Kotlin DSL 构建脚本是**可复现构建的全部前提**。

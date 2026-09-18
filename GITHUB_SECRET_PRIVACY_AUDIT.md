@@ -80,7 +80,7 @@
 | --- | --- |
 | 位置 | `android/app/build.gradle.kts` L33 / L34 / L35 |
 | 内容性质 | `storePassword` / `keyAlias` / `keyPassword` 三个字面量（各 12 字符） |
-| 首次进入历史 | `ca36083`（feat(android): Compose app…），最近一次 `951e160` |
+| 首次进入历史 | `c70919c`（feat(android): Compose app…），最近一次 `17449e8` |
 | 对应密钥库 | `local_private/build-chain/pdig-nonprod.jks` |
 | 密钥库是否入库 | **否**（`git ls-files --error-unmatch` 返回 "did not match any file(s) known to git"；`local_private/` 已 gitignore） |
 | 生效条件 | 仅当显式传入 `-PpdigNonProdSigning=true` 时才套用；默认 release **保持未签名** |

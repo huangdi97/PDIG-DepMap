@@ -1,7 +1,7 @@
 # HARMONY_N3_IMPLEMENTATION_STATUS.md
 
 > Harmony N3 实施状态。生成时间：2026-09-17（Asia/Shanghai）
-> 上游冻结基准：`ANDROID_NATIVE_CORE_FREEZE.md` @ HEAD `648aa36`
+> 上游冻结基准：`ANDROID_NATIVE_CORE_FREEZE.md` @ HEAD `6053f3c`
 > 工程审计：`HARMONY_N3_BASELINE_AUDIT.md`
 
 ---

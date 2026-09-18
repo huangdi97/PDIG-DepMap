@@ -1,10 +1,10 @@
 # MVP02_PRE_AUDIT.md — MVP02 启动前审计（PHASE 0）
 
-> 采集：2026-09-12 · 分支 `feat/mvp02-global-source`（自 master `75e2725` 切出）
+> 采集：2026-09-12 · 分支 `feat/mvp02-global-source`（自 master `ac511f6` 切出）
 
 ## 现状
 
-- branch / HEAD：`feat/mvp02-global-source` / `75e2725`（MVP01 RC 收口末次提交）
+- branch / HEAD：`feat/mvp02-global-source` / `ac511f6`（MVP01 RC 收口末次提交）
 - MVP01 RC verdict：`MVP01_DEV_CLOSEOUT = PASS`（MVP01_RC_AUDIT_REPORT.md，2026-09-12）
 - 未跟踪文件：仅本轮新增 MVP02 控制文件（GOAL_MVP02_GLOBAL_SOURCE 等 7 个 + NEXT_BACKLOG.md）
 

@@ -35,7 +35,7 @@ REAL_DATA          = NOT_RUN     （Correctness Gate=NOT_RUN，Value Gate=NOT_RU
 | TODO release blockers    | 0                                                     |
 | production secrets       | 0                                                     |
 | 直接依赖                 | 10（runtime 1：hash-wasm；dev 9）                     |
-| 本轮 commits（RC 轮）    | 7（2e4c512…7896a61 区间内 7 个 RC 提交；仓库总计 18） |
+| 本轮 commits（RC 轮）    | 7（9e0a9cc…fce1e9d 区间内 7 个 RC 提交；仓库总计 18） |
 | 敏感日志命中             | 0                                                     |
 | 网络调用（业务）         | 0                                                     |
 

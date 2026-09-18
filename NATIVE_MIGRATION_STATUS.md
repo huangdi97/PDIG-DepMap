@@ -13,7 +13,7 @@
 > - **新增** `ANDROID_NATIVE_CORE_HANDOFF = PASS`（**不替代** N2，也不替代 release readiness；
 >   只回答"Android 是否已可作为 Harmony N3 的 Native Reference"）→ `ANDROID_NATIVE_CORE_FREEZE.md`
 > - Android 进入 **`CORE_FROZEN / MAINTENANCE_ONLY`**；不再为 parity 分数新增功能；剩余 11 格入 N2 Backlog
-> - **Git 尾项已收口**：HEAD `648aa36`；三端 codegen 产物与 `legacy/README.md` 入库；
+> - **Git 尾项已收口**：HEAD `6053f3c`；三端 codegen 产物与 `legacy/README.md` 入库；
 >   `.pi/` 保持 untracked（gitignore 覆盖）
 > - **正式进入 Harmony N3**：`harmony/` 由"仅 codegen"建成**可被 hvigor 真实构建并产出 HAP 的
 >   Stage Model 工程**，`HARMONY_BUILD = PASS`；首个纯 ArkTS Domain（Relations）已编译并打包进 HAP
@@ -44,7 +44,7 @@
 
 | Phase | 名称                        | 状态                    | 说明                                              |
 | ----- | --------------------------- | ----------------------- | ------------------------------------------------- |
-| N0-A  | 恢复仓库现场                | **PASS**                | git 全套审计；工作树 clean；HEAD `6d268c0`        |
+| N0-A  | 恢复仓库现场                | **PASS**                | git 全套审计；工作树 clean；HEAD `7bc0ed3`        |
 | N0-B  | Legacy 冻结                 | **PASS**                | tag `v0.3.0-uniapp-reference` + manifest + README |
 | N0-C  | Canonical Spec              | **PASS**                | `spec/` 机器可读（枚举/实体/关系/状态机/错误/Schema/安全/UI） |
 | N0-D  | Codegen + Gate              | **PASS**                | spec → Kotlin/Swift/ArkTS；`--check` PASS         |
@@ -244,7 +244,7 @@ cd .. && node tools/conformance/run.mjs
 3. ✅ FLAG_SECURE 运行时取证 **6/6 路由**
 4. ✅ 三扇安全门设备取证（Gate 1 PASS / Gate 2 缺入口 / Gate 3 PASS）
 5. ✅ 全回归：conformance 91/91 + 设备内 19/19 + `:core` 71/71
-6. ✅ Git HEAD `ad2350b` 核验通过
+6. ✅ Git HEAD `68f506c` 核验通过
 
 **未清的 blocker（按优先级）**：
 

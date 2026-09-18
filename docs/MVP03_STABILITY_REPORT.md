@@ -27,4 +27,4 @@
 
 ## 结论
 
-**FLAKY = PASS（0 flaky）**；既有 history：MVP01 曾修复 1 例 flaky（b9eeb3c），本轮 3+10 轮未复现。
+**FLAKY = PASS（0 flaky）**；既有 history：MVP01 曾修复 1 例 flaky（370b0f6），本轮 3+10 轮未复现。

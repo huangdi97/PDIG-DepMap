@@ -1,5 +1,5 @@
 {
-  "$comment": "PDIG Logical Schema v3. Logical schema MUST be identical across platforms. Physical DDL MAY differ (SQLCipher on Android/iOS, ArkData relationalStore on HarmonyOS) — but entity semantics, logical keys, uniqueness, constraints and migration behaviour MUST match. Source of truth: core/src/schema/migrations.ts @ 6d268c0.",
+  "$comment": "PDIG Logical Schema v3. Logical schema MUST be identical across platforms. Physical DDL MAY differ (SQLCipher on Android/iOS, ArkData relationalStore on HarmonyOS) — but entity semantics, logical keys, uniqueness, constraints and migration behaviour MUST match. Source of truth: core/src/schema/migrations.ts @ 7bc0ed3.",
   "logicalSchemaVersion": 3,
   "migrations": [1, 2, 3],
   "metaKeys": {

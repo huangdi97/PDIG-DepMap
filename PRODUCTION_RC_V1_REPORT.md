@@ -3,7 +3,7 @@
 > 项目：**PDIG / DepMap — 个人数字依赖图**
 > 轮次：**AGENT HANDOFF — PLATFORM BRINGUP · PRODUCTION RC CONTINUE**
 > 日期：2026-09-15
-> 分支：`feat/mvp03-living-graph`｜HEAD：以 `git log --oneline -1` 为准（本轮基线 `7295fc6`）｜**未 push / 未打 tag**
+> 分支：`feat/mvp03-living-graph`｜HEAD：以 `git log --oneline -1` 为准（本轮基线 `ee7ee58`）｜**未 push / 未打 tag**
 > 上一版本文件写于 2026-09-13（Production RC V1），其平台结论（「三端均未构建」）已被
 > 2026-09-15 的 PLATFORM BRINGUP 轮与本轮**先后两次推翻**，故整篇重写。
 
@@ -96,7 +96,7 @@ STORE_SUBMITTED            = NO
 
 | #   | 问题                                       | 答案                                                                                                                                                                                                                                                                                                                                                                          |
 | --- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | **当前 HEAD 是什么？**                     | 以 `git log --oneline -1` 为准。本轮**进入时**基线为 `7295fc6`；本轮提交链见 `git log --oneline 7295fc6..HEAD`。分支 `feat/mvp03-living-graph`，工作区 **clean**（`git status --short -uall` = 0 行），**未 push**、**未打 tag**。**报告不写入自身 SHA**（自引用必然失效）。                                                                                                  |
+| 1   | **当前 HEAD 是什么？**                     | 以 `git log --oneline -1` 为准。本轮**进入时**基线为 `ee7ee58`；本轮提交链见 `git log --oneline ee7ee58..HEAD`。分支 `feat/mvp03-living-graph`，工作区 **clean**（`git status --short -uall` = 0 行），**未 push**、**未打 tag**。**报告不写入自身 SHA**（自引用必然失效）。                                                                                                  |
 | 2   | **UI 是否真实 build？**                    | **否。** `.uvue` 从未被真实编译器处理过。26 个 `.uvue` 的静态门（`check:ui` U1–U9）PASS，但那只是机械校验。**但**：5 个 UTS 插件的三端实现本轮**首次通过真实 UTS 编译器**（15/15），这是 UI 相关代码第一次拿到编译器证据。                                                                                                                                                    |
 | 3   | **Android 是否真实 build？**               | **原生层是。** `assembleDebug/Release` → `BUILD SUCCESSFUL in 7m 50s`，`49/49 tasks executed`（无缓存），AAR ×2 产出且**逐字节可复现**；黄金向量 8/8 PASS。**产品级 APK/AAB 否**（B10）。                                                                                                                                                                                     |
 | 4   | **Android artifact 在哪？**                | `platforms/android/artifacts/core-debug.aar`（72,376 B，`dd7d8c04…`）与 `core-release.aar`（68,731 B，`4ac2e7f4…`）。**是 library archive，不是 APK**。                                                                                                                                                                                                                       |

@@ -109,23 +109,23 @@
 
 **执行树与「最终提交树」的精确口径（消除 HEAD 自引用）**
 
-milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the commit-count row self-reference safe`）；
-记录该次重跑的 `ef2cb18` 及其之后的提交均为**纯文档补录**。
+milestone 重跑的**实际执行树为 `3105c96`**（`docs(closure): make the commit-count row self-reference safe`）；
+记录该次重跑的 `ded6b17` 及其之后的提交均为**纯文档补录**。
 
 本报告**无法写入自身提交的 SHA**（写入即产生新提交、HEAD 随即前移）。为消除这一自引用，
 改用一个**与具体 SHA 无关、且可机器复核的不变量**锚定：
 
-> **不变量 D**：自 `878ce00`（`refactor(core): drop dead exports and rename obj to record`）起，
+> **不变量 D**：自 `016ba92`（`refactor(core): drop dead exports and rename obj to record`）起，
 > 至最终 HEAD 为止，**所有提交只改动 `.md` / `.mdc` 文档**，不含任何源码、测试、构建配置或门禁脚本。
 
 | 复核项                              | 命令                                                            | 结果                             |
 | ----------------------------------- | --------------------------------------------------------------- | -------------------------------- |
-| `878ce00` → HEAD 的**非文档**改动数 | `git diff --name-only 878ce00..HEAD \| grep -vE '\.(md\|mdc)$'` | **0 个**                         |
-| `878ce00` → HEAD 的文档改动数       | `git diff --name-only 878ce00..HEAD`                            | **15 个**（全部 `.md` / `.mdc`） |
-| 最后一个可能影响 Gate 的提交        | `git log -1 --format=%h 878ce00`                                | `878ce00`                        |
+| `016ba92` → HEAD 的**非文档**改动数 | `git diff --name-only 016ba92..HEAD \| grep -vE '\.(md\|mdc)$'` | **0 个**                         |
+| `016ba92` → HEAD 的文档改动数       | `git diff --name-only 016ba92..HEAD`                            | **15 个**（全部 `.md` / `.mdc`） |
+| 最后一个可能影响 Gate 的提交        | `git log -1 --format=%h 016ba92`                                | `016ba92`                        |
 
-⇒ **推论**：任何 Gate 结果在 `878ce00` 之后**不可能改变**。故下表的 milestone 结论
-对 `878ce00` 之后的**所有**提交（含最终 HEAD）同样成立，无需逐次重跑。
+⇒ **推论**：任何 Gate 结果在 `016ba92` 之后**不可能改变**。故下表的 milestone 结论
+对 `016ba92` 之后的**所有**提交（含最终 HEAD）同样成立，无需逐次重跑。
 
 | 命令                                        | 执行树实测                                                                                                               | 退出码 |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------ |
@@ -155,7 +155,7 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 
 | 项          | 值                                                                                                                                                                                            |
 | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 执行时 HEAD | `35d940e`（`docs(mutation): replace the estimated survivor breakdown with exact figures`）                                                                                                    |
+| 执行时 HEAD | `07328d8`（`docs(mutation): replace the estimated survivor breakdown with exact figures`）                                                                                                    |
 | 命令        | `cd core && npm run check`                                                                                                                                                                    |
 | 结果        | **EXIT=0** — 43 files / **453 passed**；architecture 48 files / circular 0；network 118 files / 0 原语；secrets **404 files** / 0 production secrets；UI 30 `.uvue` / 24 pages / 5 components |
 | 耗时        | 2 分 05 秒                                                                                                                                                                                    |
@@ -168,7 +168,7 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 
 除上表的 `npm run check` 外，第 144 节列出的其余命令亦已在**同一最终 HEAD** 上逐条真实重跑：
 
-- 执行时 HEAD = `bc8f631dc235d8019488c22007eb5a3a8be480fc`
+- 执行时 HEAD = `f8159b76abb1040a65a4294c3cea589b33018b09`
   （`docs(platform): re-run the available platform build and record the new hvigor root cause`）
 - 前置条件：`git status --short -uall` = **0 行**
 
@@ -218,7 +218,7 @@ milestone 重跑的**实际执行树为 `b0ed6b5`**（`docs(closure): make the c
 
 | 尝试                                          | 观测                                                                                              |
 | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `git clone` → `<repo_parent>/_depmap_cc3`（工作区外） | refs 复制成功，但对象库**不完整**：`fatal: unable to read tree (941966a…)`；检出被 `SIGTERM` 终止 |
+| `git clone` → `<repo_parent>/_depmap_cc3`（工作区外） | refs 复制成功，但对象库**不完整**：`fatal: unable to read tree (b5640f1…)`；检出被 `SIGTERM` 终止 |
 | `git clone` → `%TEMP%`                        | 命令报告成功，但目标目录**不可见**（写入被截断）                                                  |
 | 本轮自建临时目录清理                          | 已完成：`<repo_parent>/_depmap_probe`、`<repo_parent>/_depmap_cc3` 均已移除，工作区外无遗留                       |
 
@@ -453,19 +453,19 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 | 项                                         | 值                                                                                           |
 | ------------------------------------------ | -------------------------------------------------------------------------------------------- |
 | branch                                     | `feat/mvp03-living-graph`                                                                    |
-| HEAD（收口基线 / 正文首次落盘提交）        | `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`                                                   |
-| 收口后追加提交                             | `cfa4bf34e4a36fb3af62818bc29463c63233023a`                                                   |
+| HEAD（收口基线 / 正文首次落盘提交）        | `b5640f11b022c2a584d5b800353b7014d360cc63`                                                   |
+| 收口后追加提交                             | `33764eaee897f7b7a81d494282a06f0092704969`                                                   |
 | **最终 HEAD**                              | 以 `git log --oneline -1` 为准（报告无法写入自身提交的 SHA；等价锚定见 §2.0.1 **不变量 D**） |
-| 进入时基线                                 | `4af5b69`                                                                                    |
-| 本轮提交数（`4af5b69..35d940e`）           | **10** 个 = **4** 个收口提交 + **6** 个报告补录提交（见下方注）                              |
+| 进入时基线                                 | `6fe6c67`                                                                                    |
+| 本轮提交数（`6fe6c67..35d940e`）           | **10** 个 = **4** 个收口提交 + **6** 个报告补录提交（见下方注）                              |
 | `git status --short --untracked-files=all` | **0 行**（干净）                                                                             |
 | `git diff --check`                         | **PASS**（exit 0）                                                                           |
 | secret scan                                | **PASS**（404 files，0 production secrets）                                                  |
 | push                                       | **未执行**（用户未授权）                                                                     |
 | tag                                        | **未创建**（见下）                                                                           |
 
-> **计数锚定说明**：上表「本轮提交数」锚定在**固定提交 `35d940e`**（`git rev-list --count 4af5b69..35d940e` = **10**）。
-> 本报告在 `35d940e` 之后可能仍有**纯文档补录提交**（例如记录本节修订本身的那次提交），
+> **计数锚定说明**：上表「本轮提交数」锚定在**固定提交 `07328d8`**（`git rev-list --count 6fe6c67..35d940e` = **10**）。
+> 本报告在 `07328d8` 之后可能仍有**纯文档补录提交**（例如记录本节修订本身的那次提交），
 > 其**不计入该计数**；按 §2.0.1 **不变量 D**，这类提交不改变任何 Gate 结论。
 > 因此「最终 HEAD」只以 `git log --oneline -1` 为准，本报告**不以字面量声明自身 HEAD**。
 
@@ -473,34 +473,34 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 
 | SHA       | 类型             | 内容                                                                                          |
 | --------- | ---------------- | --------------------------------------------------------------------------------------------- |
-| `161d168` | `chore(style)`   | docs 格式门禁（`.prettierrc.json` + `format:docs*`）+ Gradle/Android 本地状态忽略             |
-| `6652950` | `style(docs)`    | 134 个 `.md` / `.mdc` 在新门禁下规范化                                                        |
-| `878ce00` | `refactor(core)` | 删除 3 个死导出 + 18 处 `obj` → `record`                                                      |
-| `941966a` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）                 |
-| `cfa4bf3` | `docs(closure)`  | PHASE P 结论（clean install PASS / clean clone BLOCKED）+ Git 收口 + B23（3 files，+137/−17） |
-| `0ea803d` | `docs(closure)`  | 固定第五个提交、移除本文的 HEAD 自引用（1 file，+20/−17）                                     |
-| `b0ed6b5` | `docs(closure)`  | 提交数行自引用安全化（1 file，+3/−1）                                                         |
-| `ef2cb18` | `docs(closure)`  | 记录第 144 节 milestone 重跑（执行树 `b0ed6b5`）+ Stryker 重跑（5 files，+123/−19）           |
-| `c235bed` | `docs(closure)`  | 新增 `MUTATION_RERUN` gate 行 + 收口措辞定稿（1 file，+49/−45）                               |
-| `35d940e` | `docs(mutation)` | 幸存者分类由**约数**改为**精确值**（2 files，+77/−15）                                        |
+| `0f968b3` | `chore(style)`   | docs 格式门禁（`.prettierrc.json` + `format:docs*`）+ Gradle/Android 本地状态忽略             |
+| `b1d884f` | `style(docs)`    | 134 个 `.md` / `.mdc` 在新门禁下规范化                                                        |
+| `016ba92` | `refactor(core)` | 删除 3 个死导出 + 18 处 `obj` → `record`                                                      |
+| `b5640f1` | `docs(release)`  | 12 份收口报告 + `WORK_STATUS.md` + `BLOCKERS.md`（14 files，**+2706 / −55**）                 |
+| `33764ea` | `docs(closure)`  | PHASE P 结论（clean install PASS / clean clone BLOCKED）+ Git 收口 + B23（3 files，+137/−17） |
+| `fb15e16` | `docs(closure)`  | 固定第五个提交、移除本文的 HEAD 自引用（1 file，+20/−17）                                     |
+| `3105c96` | `docs(closure)`  | 提交数行自引用安全化（1 file，+3/−1）                                                         |
+| `ded6b17` | `docs(closure)`  | 记录第 144 节 milestone 重跑（执行树 `3105c96`）+ Stryker 重跑（5 files，+123/−19）           |
+| `05ad4fe` | `docs(closure)`  | 新增 `MUTATION_RERUN` gate 行 + 收口措辞定稿（1 file，+49/−45）                               |
+| `07328d8` | `docs(mutation)` | 幸存者分类由**约数**改为**精确值**（2 files，+77/−15）                                        |
 
-> **关于报告补录提交**：`941966a` 之后共有 **6 个纯文档补录提交** —— `cfa4bf3`（PHASE P 与 Git 收口）、
-> `0ea803d`（修正本文的 HEAD 自引用）、`b0ed6b5`（提交数行自引用安全化）、`ef2cb18`（第 144 节 milestone
-> 重跑与 Stryker 重跑）、`c235bed`（`MUTATION_RERUN` gate 行与收口措辞）、`35d940e`（幸存者分类精确化）。
+> **关于报告补录提交**：`b5640f1` 之后共有 **6 个纯文档补录提交** —— `33764ea`（PHASE P 与 Git 收口）、
+> `fb15e16`（修正本文的 HEAD 自引用）、`3105c96`（提交数行自引用安全化）、`ded6b17`（第 144 节 milestone
+> 重跑与 Stryker 重跑）、`05ad4fe`（`MUTATION_RERUN` gate 行与收口措辞）、`07328d8`（幸存者分类精确化）。
 > 它们**只改 `.md` / `.mdc`，不改代码、不改测试、不改 Gate 配置**，因此**不改变任何 Gate 结论**
-> （机器可复核：`git diff --name-only 878ce00..HEAD | grep -vE '\.(md|mdc)$'` = **0 行**，即 **不变量 D**）。
-> 完整列表以 `git log --oneline 4af5b69..HEAD` 为准。
+> （机器可复核：`git diff --name-only 016ba92..HEAD | grep -vE '\.(md|mdc)$'` = **0 行**，即 **不变量 D**）。
+> 完整列表以 `git log --oneline 6fe6c67..HEAD` 为准。
 
 **过程中处置的环境故障（如实登记）**
 
 - 本工作区存在**外部进程删除分支 loose ref** 的已知问题。提交后 `.git/refs/heads/feat/` 被清除；
   且一次修复误将**缩写 SHA**（7 位）写入 `packed-refs`，导致
   `fatal: unexpected line in .git/packed-refs` 与 HEAD 失效（`git status` 一度显示 404 行全为 `A`）。
-- **修复（非破坏性）**：从 reflog 取完整 SHA `941966a2c8162a4b3e0bbb10e94a2c8b00e80130`，
+- **修复（非破坏性）**：从 reflog 取完整 SHA `b5640f11b022c2a584d5b800353b7014d360cc63`，
   以**完整 40 位**重写 `packed-refs` 并同时重建 loose ref；随后 `HEAD` / `for-each-ref` / `git status`
   全部恢复正常（`for-each-ref` 6 条 ref 全部可解析）。
 - **未执行**任何被禁止命令：`reset --hard` / `clean -fd` / `checkout .` / `restore .` / force push /
-  history rewrite。**未重做任何提交**（避免产生重复提交对象；此前出现的重复对象 `256a9c8` 已丢弃，保留 `161d168`）。
+  history rewrite。**未重做任何提交**（避免产生重复提交对象；此前出现的重复对象 `256a9c8` 已丢弃，保留 `0f968b3`）。
 
 **Tag 决策（第 132 节）：不创建**
 
@@ -556,15 +556,15 @@ Pilot 规格（仅准备流程，不自动索取）：1 份真实微信导出 + 
 
 - 所有**当前可执行的**代码 / 产品 / 工程 / 测试 / 安全 / UI 源码 / 文档 Gate 已完成并通过
   （`npm run check` 与 `check:full` 均 **EXIT=0**，453/453，0 flaky，0 类型逃逸，0 规则禁用，
-  0 生产密钥，0 网络原语），且是在**收口提交树**上复跑确认的（milestone 重跑的**执行树为 `b0ed6b5`**；
-  `npm run check` 另于最终 HEAD `35d940e` 独立复核 **EXIT=0**；按**不变量 D**，`878ce00` 之后无任何非文档改动，
+  0 生产密钥，0 网络原语），且是在**收口提交树**上复跑确认的（milestone 重跑的**执行树为 `3105c96`**；
+  `npm run check` 另于最终 HEAD `07328d8` 独立复核 **EXIT=0**；按**不变量 D**，`016ba92` 之后无任何非文档改动，
   故该结论对最终 HEAD 同样成立 —— 见 §2.0.1）。
 - **clean install = PASS**（非破坏性验证：`npm ci --dry-run` EXIT=0 + lockfile 同步 + deps gate）；
   **clean clone = BLOCKED（环境）**——工作区外批量写入被沙箱截断/终止，已用
   「工作区零未跟踪 ⇒ 磁盘树 ≡ 提交树 + 全门禁通过 ⇒ 提交树自足」作等价论证，**未硬写 PASS**。
 - 所有**外部平台 / 账号 Gate** 已被明确收敛为 `BLOCKED` 或 `NOT_RUN`，并给出精确解除动作。
 - 其中两条既有 Blocker（B1 / B2）的**事实前提经实测被推翻**，记录已修正 —— 这是本轮最实质的现场纠正。
-- **第 144 节 milestone 命令已在收口提交树上全部重跑**（执行树 `b0ed6b5`）：`check` / `check:full` / 全量 ×3 / critical ×10 /
+- **第 144 节 milestone 命令已在收口提交树上全部重跑**（执行树 `3105c96`）：`check` / `check:full` / 全量 ×3 / critical ×10 /
   secret / network / architecture / ui / db-integrity / perf / deps / clean install 全部 **EXIT=0**；
   **Stryker 变异测试真实重跑 PASS**（532 mutants，与冻结基线逐项一致）。
 - Git 收口完成：**4 个收口提交 + 若干报告补录提交**、工作区干净、`git diff --check` PASS、**未 push**、**未创建 RC / 1.0 tag**

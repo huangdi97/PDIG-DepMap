@@ -21,7 +21,7 @@
 | 命令 | 实测结果 |
 | --- | --- |
 | `git rev-parse --show-toplevel` | `<repo>` |
-| `git rev-parse HEAD` | `9a00d8cbd32b812b8ff0f107868b146d6dbff4e9` |
+| `git rev-parse HEAD` | `3c24ced03f7152887c88418d3ebca2c41eba61b3` |
 | `git branch --show-current` | `feat/mvp03-living-graph` |
 | `git status --short -uall` | **0 行（CLEAN）** |
 | `git diff --check` | 无输出（PASS） |
@@ -36,34 +36,34 @@
 ### 1.1 HEAD 附近历史（最近 20 条，节选）
 
 ```
-9a00d8c (HEAD -> feat/mvp03-living-graph) feat(harmony): enter N3 - freeze Android native core and build Harmony Stage Model project
-648aa36 chore(generated): track Harmony/iOS CanonicalEnums codegen outputs and legacy freeze README
-d966673 docs(android): align Gate G4/G21 with the final 51/51 and 41/41 counts
-684b24e docs(android): do not hard-code HEAD sha in the closure report
-b79ca5a docs(android): D-16 closure - final E2E v4 run id, Git closure record, stale-report banner
-951e160 fix(android): keep Import/Restore file workflows alive across the lock round-trip (D-16)
+3c24ced (HEAD -> feat/mvp03-living-graph) feat(harmony): enter N3 - freeze Android native core and build Harmony Stage Model project
+6053f3c chore(generated): track Harmony/iOS CanonicalEnums codegen outputs and legacy freeze README
+bc2eeb8 docs(android): align Gate G4/G21 with the final 51/51 and 41/41 counts
+4e74d1f docs(android): do not hard-code HEAD sha in the closure report
+65758ab docs(android): D-16 closure - final E2E v4 run id, Git closure record, stale-report banner
+17449e8 fix(android): keep Import/Restore file workflows alive across the lock round-trip (D-16)
 ...
-6d268c0 (tag-reachable) chore(build): ignore the agent workspace memory directory
+7bc0ed3 (tag-reachable) chore(build): ignore the agent workspace memory directory
 ```
 
-首个 commit（root）：`49b6fa44131ad7ea289439ba03f4f5bd56afd56a`
+首个 commit（root）：`3f1425d772e34609c1f042768595c04c8bc9386c`
 
 ### 1.2 Tags（全部保留，不删除、不移动）
 
 | Tag | 类型 | 指向对象 | 用途 |
 | --- | --- | --- | --- |
-| `v0.2.0-mvp02` | lightweight → commit | `1d0d1f6f` | MVP02 Global Source Abstraction 冻结 |
-| `v0.3.0-mvp03` | lightweight → commit | `21945e66` | MVP03 Living Graph & Change Safety 冻结 |
+| `v0.2.0-mvp02` | lightweight → commit | `9e28aa15` | MVP02 Global Source Abstraction 冻结 |
+| `v0.3.0-mvp03` | lightweight → commit | `714d52ee` | MVP03 Living Graph & Change Safety 冻结 |
 | `v0.3.0-uniapp-reference` | **annotated tag** | `8ff65fb3` | Legacy uni-app x **Behavior Oracle** 冻结（**必须保留**） |
 
 ### 1.3 Branches
 
 | Branch | HEAD | 说明 |
 | --- | --- | --- |
-| `feat/mvp03-living-graph` | `9a00d8c` | **当前分支，唯一完整历史**（124 commit） |
-| `engineering/baseline-v1` | `def9389` | Engineering Baseline V1 历史遗留分支 |
-| `feat/mvp02-global-source` | `482e545` | MVP02 历史分支 |
-| `master` | `75e2725` | 早期历史分支（已被后续分支取代） |
+| `feat/mvp03-living-graph` | `3c24ced` | **当前分支，唯一完整历史**（124 commit） |
+| `engineering/baseline-v1` | `b89ad8f` | Engineering Baseline V1 历史遗留分支 |
+| `feat/mvp02-global-source` | `2ad62ca` | MVP02 历史分支 |
+| `master` | `ac511f6` | 早期历史分支（已被后续分支取代） |
 
 **判定**：`feat/mvp03-living-graph` 是唯一包含全部工作（Legacy freeze + Android Native + Harmony N3 起点）的分支。
 按 A15 建议，**把当前 HEAD 建为 `main` 并保留原分支**，不做 rename、不做 merge、不删除历史分支。

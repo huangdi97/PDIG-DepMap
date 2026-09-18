@@ -3,7 +3,7 @@
 > 审计时间：2026-09-13（ZCode 接力启动时）
 > 前一执行者：WorkBuddy + DeepSeek-V4-Flash
 > 审计基础：git status / git diff / git log + 实际运行测试与质量门（非仅文件存在性）
-> 分支：`feat/mvp02-global-source`；接续基线 commit `482e545`，本轮首 commit `7a68887`
+> 分支：`feat/mvp02-global-source`；接续基线 commit `2ad62ca`，本轮首 commit `c32df02`
 
 ## 结论摘要
 
@@ -33,11 +33,11 @@ Real Data 双 Gate 维持 NOT_RUN。
 ## B. 已实现但未验证（接手时状态 → 本轮已验证）
 
 - `core/tests/repository/migration.test.ts` 的 T4/T4b/T5 新增用例 —— 接手时未提交、未跑。
-  本轮实跑 PASS 并修复 1 个 lint 问题（no-base-to-string）后随 `7a68887` 提交。
+  本轮实跑 PASS 并修复 1 个 lint 问题（no-base-to-string）后随 `c32df02` 提交。
 - `core/tests/perf/performance-smoke.test.ts` 的 3 个 MVP02 性能 smoke
   （10k CSV 64ms / 10k OFX 67ms / 3 SourceInstance 并发 2k×3 ≈4.6s）——
   接手时未提交、未跑。本轮实跑 PASS；修复 typecheck（`kind:'merchant'`→`'service'`，
-  与 E2E 一致）与 2 个未使用变量 lint 后随 `7a68887` 提交。
+  与 E2E 一致）与 2 个未使用变量 lint 后随 `c32df02` 提交。
 
 ## C. 部分完成
 
@@ -69,13 +69,13 @@ Real Data 双 Gate 维持 NOT_RUN。
 - 未跟踪：`.codebuddy/`、`CODEBUDDY.md`、`WORKBUDDY_*.md/txt`、
   `ZCODE_*.md/txt`、`ZCODE_REHANDOFF_README.md`（交接控制文件，保留不清理）
 
-处理：测试文件已验证后提交（`7a68887`）；控制文件保持未跟踪/或按需提交，
+处理：测试文件已验证后提交（`c32df02`）；控制文件保持未跟踪/或按需提交，
 未做任何 reset/clean/restore。
 
 ## G. NEXT_GATE
 
-1. ~~A 段补测 T4/T5/T6/T10~~（本轮完成，7a68887）
-2. ~~性能 smoke 扩展~~（本轮完成，7a68887）
+1. ~~A 段补测 T4/T5/T6/T10~~（本轮完成，c32df02）
+2. ~~性能 smoke 扩展~~（本轮完成，c32df02）
 3. ~~verificationBasis 调查~~（本轮完成，已有覆盖）
 4. WORK_STATUS.md 更新（本轮）
 5. MVP02_ACCEPTANCE.md 按证据勾选（本轮）

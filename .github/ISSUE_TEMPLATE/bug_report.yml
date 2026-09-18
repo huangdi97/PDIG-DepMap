@@ -36,7 +36,7 @@ body:
     attributes:
       label: Commit SHA
       description: 请粘贴 `git rev-parse HEAD` 的完整或前 7 位输出。不要填"最新版"。
-      placeholder: "9a00d8c"
+      placeholder: "3c24ced"
     validations:
       required: true
 

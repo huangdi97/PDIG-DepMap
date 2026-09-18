@@ -6,7 +6,7 @@
   "generator": "core/scripts/generate-conformance.ts",
   "oracle": {
     "kind": "frozen-typescript-reference",
-    "commit": "6d268c0c27d7e6dfd896e17bcaa3f5ead6b3a8d5",
+    "commit": "7bc0ed323ea82ce98139acd14eabd040a1ea111e",
     "manifest": "LEGACY_REFERENCE_MANIFEST.md",
     "frozenTag": "v0.3.0-uniapp-reference",
     "baseline": "Test Files 43 passed, Tests 453 passed"

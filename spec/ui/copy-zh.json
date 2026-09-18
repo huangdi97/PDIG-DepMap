@@ -1,5 +1,5 @@
 {
-  "$comment": "PDIG canonical Chinese copy. Three platforms MUST use these strings for the listed keys so user-facing wording cannot drift. Platforms may localise layout/typography but not the meaning. Extracted from app/theme/tokens.uts and app/services/rules.uts @ 6d268c0. Hardcoding copy inline in platform UI is forbidden - UI copy must come from resource files (i18n-ready).",
+  "$comment": "PDIG canonical Chinese copy. Three platforms MUST use these strings for the listed keys so user-facing wording cannot drift. Platforms may localise layout/typography but not the meaning. Extracted from app/theme/tokens.uts and app/services/rules.uts @ 7bc0ed3. Hardcoding copy inline in platform UI is forbidden - UI copy must come from resource files (i18n-ready).",
   "specVersion": "1.0.0",
   "locale": "zh-CN",
 

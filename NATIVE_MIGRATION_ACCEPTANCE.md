@@ -63,7 +63,7 @@
 | -------------------------------------- | ---- | --------------------------------- |
 | Legacy 未删除                          | **YES** | `core/` `app/` `platforms/` 在原位 |
 | `LEGACY_REFERENCE_MANIFEST.md`         | **YES** | 含 HEAD / Schema / DEPMAP / 测试数 |
-| 本地 tag `v0.3.0-uniapp-reference`     | **YES** | → `6d268c0`                       |
+| 本地 tag `v0.3.0-uniapp-reference`     | **YES** | → `7bc0ed3`                       |
 | Legacy README（为什么存在/如何使用）   | **YES** | `legacy/README.md`                |
 | 行为修正记录                           | **YES** | `LEGACY_BEHAVIOR_CORRECTIONS.md`（6 条，含 2 条真实功能性缺陷） |
 | Legacy 不参与 Production build         | **NO** | **尚未 Cutover**                  |

@@ -4,8 +4,8 @@
 > 阶段：PDIG Platform Bring-up / Production RC V1 接力
 > 审计日期：2026-09-15（本轮会话内实测）
 > 分支：`feat/mvp03-living-graph`（未 push）
-> HEAD：**以 `git log --oneline -1` 为准**。本轮进入时的基线是 `7295fc6`；本轮的提交链见
-> `git log --oneline 7295fc6..HEAD`（报告不写入自身提交的 SHA，避免自引用失效）。
+> HEAD：**以 `git log --oneline -1` 为准**。本轮进入时的基线是 `ee7ee58`；本轮的提交链见
+> `git log --oneline ee7ee58..HEAD`（报告不写入自身提交的 SHA，避免自引用失效）。
 >
 > **审计原则**：本文件所有数值均来自本轮真实执行的命令输出；旧报告只用于对照，
 > **凡与实测冲突一律以实测为准并在文中标注被推翻的旧结论**。未执行的项写 `NOT_RUN`，
@@ -27,7 +27,7 @@
 
 | 项                         | 实测值                                                                                  |
 | -------------------------- | --------------------------------------------------------------------------------------- |
-| 进入时 HEAD                | `7295fc6`（`docs(closure): add the directive status-name mapping ...`）                 |
+| 进入时 HEAD                | `ee7ee58`（`docs(closure): add the directive status-name mapping ...`）                 |
 | 分支                       | `feat/mvp03-living-graph`                                                               |
 | `git status --short -uall` | **非 clean**：19 个已跟踪文件被修改/重命名/删除，52 项未跟踪（见 §G）                   |
 | 已 staged                  | 1 个重命名（`arkts/RelationalStoreSecureAdapter.ets` → `entry/src/main/ets/adapters/`） |
@@ -39,7 +39,7 @@
 
 `git commit` / `git update-ref` 在本工作区**会成功创建对象但无法推进 HEAD**
 （`.git/refs/heads/**` 的 loose ref 被外部进程回收；`git update-ref` 返回 0 却不变更 HEAD；
-实测两次 `git commit` 产生的提交父节点都是 `7295fc6`，即**提交之间不成链**）。
+实测两次 `git commit` 产生的提交父节点都是 `ee7ee58`，即**提交之间不成链**）。
 
 **本轮采用的规避方式**（沿用 `WORK_STATUS.md` 记录的做法，未使用任何被禁止的破坏性命令）：
 

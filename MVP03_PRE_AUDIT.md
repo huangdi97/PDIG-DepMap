@@ -6,7 +6,7 @@
 
 | 项             | 值                                                                               |
 | -------------- | -------------------------------------------------------------------------------- |
-| HEAD（启动时） | `def9389` docs(status): WORK_STATUS — Engineering Baseline V1 代码侧 PASS        |
+| HEAD（启动时） | `b89ad8f` docs(status): WORK_STATUS — Engineering Baseline V1 代码侧 PASS        |
 | branch         | `engineering/baseline-v1`（干净，0 dirty）→ 本轮新分支 `feat/mvp03-living-graph` |
 | tag            | `v0.2.0-mvp02`（MVP02 终态锚点）                                                 |
 | Node           | v22.15.0 / npm 11.3.0                                                            |

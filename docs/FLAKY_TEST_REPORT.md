@@ -20,7 +20,7 @@
 
 ## 历史 flaky
 
-- MVP01 轮曾修复 1 例 flaky（见 b9eeb3c commit 记录）；本轮 3 连跑未复现。
+- MVP01 轮曾修复 1 例 flaky（见 370b0f6 commit 记录）；本轮 3 连跑未复现。
 - 已知非 flaky 的「慢」用例：perf smoke（约 12s）依赖真实计时，跨机器波动大 ——
   判定口径见 docs/PERFORMANCE_BASELINE.md（宽松预算，非精确毫秒断言）。
 

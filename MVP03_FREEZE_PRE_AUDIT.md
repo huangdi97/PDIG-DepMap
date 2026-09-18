@@ -6,7 +6,7 @@
 
 | 项         | 值                                                                                               |
 | ---------- | ------------------------------------------------------------------------------------------------ |
-| HEAD       | `cb3fe15` docs(mvp03): final report PASS + acceptance all-gates checked by evidence              |
+| HEAD       | `23b2e12` docs(mvp03): final report PASS + acceptance all-gates checked by evidence              |
 | branch     | `feat/mvp03-living-graph`（干净，0 dirty；6 个 Freeze 控制文件 untracked，为用户提供的任务输入） |
 | tags       | `v0.2.0-mvp02`（v0.3.0-mvp03 待 Freeze PASS 后创建）                                             |
 | Node / npm | v22.15.0 / 11.3.0                                                                                |

@@ -81,10 +81,10 @@ README 更新（如实：无手机号/邮箱/Open Banking/AI 能力宣传）；C
 
 ## Git
 
-分支 `feat/mvp03-living-graph`；本轮 commits：c96b3d2（控制文件）→ a2afcb9（schema v3+GR）→
-669e775（lint 修复）→ b1cebcb（ChangePlan/Drift/Candidate）→ 6908e35（Template/Timeline/Verification）→
-832663c（payload v3）→ aa35443（perf+mutation）→ 7480f6a（UI）→ 6dd13ba/57930f6（docs）→
-fedb5b9（drift 解析修复）→ c912fcf（coverage baselines）。未 push。
+分支 `feat/mvp03-living-graph`；本轮 commits：dfbbec2（控制文件）→ 2238958（schema v3+GR）→
+5470a1c（lint 修复）→ b377b4f（ChangePlan/Drift/Candidate）→ e51936b（Template/Timeline/Verification）→
+d684a37（payload v3）→ eec462e（perf+mutation）→ 4e55470（UI）→ 93f18b7/c4353db（docs）→
+252634b（drift 解析修复）→ 2d8c039（coverage baselines）。未 push。
 
 ## 结论
 

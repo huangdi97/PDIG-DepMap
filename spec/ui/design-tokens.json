@@ -1,5 +1,5 @@
 {
-  "$comment": "PDIG Design Tokens — brand truth shared by all three platforms. Extracted from app/theme/tokens.uts @ 6d268c0. UI code is NOT generated from this file; only the token values and copy keys are shared. Each platform maps these to its native design system (Material 3 / ArkUI / SwiftUI) and MUST keep brand, content, domain semantics, key CTAs and user flow identical.",
+  "$comment": "PDIG Design Tokens — brand truth shared by all three platforms. Extracted from app/theme/tokens.uts @ 7bc0ed3. UI code is NOT generated from this file; only the token values and copy keys are shared. Each platform maps these to its native design system (Material 3 / ArkUI / SwiftUI) and MUST keep brand, content, domain semantics, key CTAs and user flow identical.",
   "specVersion": "1.0.0",
 
   "policy": {

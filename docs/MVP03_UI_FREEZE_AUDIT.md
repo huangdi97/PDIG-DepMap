@@ -21,7 +21,7 @@
 - [x] **Coverage 与 Readiness 不混淆**：当前 UI 只呈现 readiness；ScenarioCoverage 为 core 计算面
       （computeScenarioCoverage），未在 UI 冒充安全结论 —— 无违规混用
 - [x] plan-detail 的 readiness 派生已同步 Freeze 语义（显式 resolvesImpactKeys 判定，
-      不再用 target 数量 − 动作数量；见 f692183 提交）
+      不再用 target 数量 − 动作数量；见 48b38b6 提交）
 
 ## §84 Drift UI（pages/drift/drift.uvue）
 

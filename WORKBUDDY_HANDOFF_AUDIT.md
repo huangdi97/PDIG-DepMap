@@ -3,8 +3,8 @@
 > Agent: WorkBuddy / DeepSeek-V4-Flash · Mode: Agent
 > 采集时间：2026-09-12
 > 分支：`feat/mvp02-global-source`
-> 审计基线提交：`85c68d9`（本轮修复后）
-> 前置交接提交：`fd6a968`（ZCode MVP02 P0 pre-audit baseline）
+> 审计基线提交：`025acc0`（本轮修复后）
+> 前置交接提交：`cc9c952`（ZCode MVP02 P0 pre-audit baseline）
 
 ---
 
@@ -103,7 +103,7 @@
 `relation-registry.ts`、`source.ts`、`source-instance-repository.ts`、`import-coordinator.ts`）。
 
 **处理方式**：未做任何丢弃或重置。全部修改经修复与验证后，作为单一提交
-`85c68d9` 落入 `feat/mvp02-global-source`，ZCode 的原始工作全部保留（含逐条根因说明）。
+`025acc0` 落入 `feat/mvp02-global-source`，ZCode 的原始工作全部保留（含逐条根因说明）。
 
 > 注：本轮发现该分支的 `.git/refs/heads/feat/` 目录缺失（提交对象与 reflog 均正常，
 > 仅 ref 文件未落盘），已按 reflog 中记录的真实提交哈希恢复，未改写任何历史。

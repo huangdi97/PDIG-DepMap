@@ -7,13 +7,13 @@
 
 | 项                | 值                                                                                  |
 | ----------------- | ----------------------------------------------------------------------------------- |
-| HEAD（审计时）    | `1d0d1f6` chore(engineering): track .codebuddy WorkBuddy relay rules                |
-| MVP02 收口 commit | `d294ad3`（tag `v0.2.0-mvp02` 指向 `1d0d1f6`，即 MVP02 终态 + .codebuddy 规则入库） |
+| HEAD（审计时）    | `9e28aa1` chore(engineering): track .codebuddy WorkBuddy relay rules                |
+| MVP02 收口 commit | `a622cb0`（tag `v0.2.0-mvp02` 指向 `9e28aa1`，即 MVP02 终态 + .codebuddy 规则入库） |
 | branch            | `engineering/baseline-v1`（自 `feat/mvp02-global-source` 切出）                     |
 | dirty files       | 0（仅 `.codebuddy/` 曾未跟踪，已审计：纯项目规则，无 secret，已入库）               |
 | `.workbuddy-ai/`  | 已跟踪（agent memory 记录，无 secret）                                              |
 
-未跟踪处理结论：`.codebuddy/rules/pdig-mvp02/RULE.mdc` 内容为 WorkBuddy 接力规则（correctness/development/scope 约束），无任何 secret，WorkBuddy 后续会话仍会使用 → **加入 Git**（commit `1d0d1f6`）。
+未跟踪处理结论：`.codebuddy/rules/pdig-mvp02/RULE.mdc` 内容为 WorkBuddy 接力规则（correctness/development/scope 约束），无任何 secret，WorkBuddy 后续会话仍会使用 → **加入 Git**（commit `9e28aa1`）。
 
 ## 2. 工具链版本（实跑）
 

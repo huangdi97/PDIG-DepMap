@@ -1,7 +1,7 @@
 # MVP02_ACCEPTANCE.md
 
 > `[x]` 只能在有测试/证据时勾选。Real Data 本轮允许保持 NOT_RUN。
-> 勾选基线：ZCode 接力轮 2026-09-13 实跑（commit `7a68887` 后，259/259 PASS；
+> 勾选基线：ZCode 接力轮 2026-09-13 实跑（commit `c32df02` 后，259/259 PASS；
 > 同日续轮补 relation-registry 直接测试 14 例后 **273/273 PASS**）。
 
 ## A Architecture

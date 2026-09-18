@@ -2,7 +2,7 @@
 
 三端共享的持久化契约。物理 DDL 可不同，**以下语义必须完全一致**。
 
-来源：`core/src/schema/migrations.ts`、`core/src/repositories/*` @ `6d268c0`。
+来源：`core/src/schema/migrations.ts`、`core/src/repositories/*` @ `7bc0ed3`。
 
 ---
 

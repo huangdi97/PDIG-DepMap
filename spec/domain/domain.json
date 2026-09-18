@@ -1,5 +1,5 @@
 {
-  "$comment": "PDIG Canonical Domain Spec — SINGLE SOURCE OF TRUTH. Three native platforms (Kotlin/Swift/ArkTS) MUST NOT redefine any value here. Extraction oracle: core/ @ commit 6d268c0 (see LEGACY_REFERENCE_MANIFEST.md). Regenerate platform enums with `node tools/codegen/generate.mjs`; hand-editing generated files fails the codegen gate.",
+  "$comment": "PDIG Canonical Domain Spec — SINGLE SOURCE OF TRUTH. Three native platforms (Kotlin/Swift/ArkTS) MUST NOT redefine any value here. Extraction oracle: core/ @ commit 7bc0ed3 (see LEGACY_REFERENCE_MANIFEST.md). Regenerate platform enums with `node tools/codegen/generate.mjs`; hand-editing generated files fails the codegen gate.",
   "specVersion": "1.0.0",
   "appSchemaVersion": 3,
 

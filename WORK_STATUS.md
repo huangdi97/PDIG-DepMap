@@ -28,10 +28,10 @@
 >      → `ANDROID_NATIVE_CORE_FREEZE.md`；Android 转入 `CORE_FROZEN / MAINTENANCE_ONLY`；
 >      剩余 11 格按 ENGINEERING_NOT_YET_VERIFIED(7) / RUNTIME_ENVIRONMENT_BLOCKED(2) /
 >      RELEASE_EXTERNAL_BLOCKED(1) / STORE_PREPARATION(1) 分类保留在 N2 Backlog。
->   ② **Git 尾项收口**：实查 HEAD `d966673` → 提交 `648aa36`（三端 codegen 产物 + `legacy/README.md` 入库，
+>   ② **Git 尾项收口**：实查 HEAD `bc2eeb8` → 提交 `6053f3c`（三端 codegen 产物 + `legacy/README.md` 入库，
 >      均为 `codegen --check` 验证的正式产物）；`.pi/` 保持 intentionally-untracked（gitignore 覆盖）。
 >      ⚠ 本轮再次复现既有 Git 故障：`git commit` 成功建对象但 HEAD 不推进 —— 已核实
->      `648aa36` 的 parent/tree 后用 `.git/packed-refs` + loose ref 修正并复核通过。
+>      `6053f3c` 的 parent/tree 后用 `.git/packed-refs` + loose ref 修正并复核通过。
 >      ⚠ `packed-refs` 必须写**完整 40 位 SHA**（曾误写短哈希导致 HEAD 无法解析，已修复）。
 >   ③ **Android 取证口径修正（重要）**：`android/settings.gradle.kts` 把构建输出重定向到
 >      `%USERPROFILE%/pdig-build/<module>`，**`android/**/build/**` 是自重定向后的过期残留**。
@@ -396,7 +396,7 @@ Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原�
 
 - `LEGACY_REFERENCE_MANIFEST.md`、`legacy/README.md`、
   `LEGACY_BEHAVIOR_CORRECTIONS.md`（6 条，含 **2 条真实功能性缺陷**）
-- tag `v0.3.0-uniapp-reference` → `6d268c0`
+- tag `v0.3.0-uniapp-reference` → `7bc0ed3`
 - `GOAL_PDIG_NATIVE_MIGRATION.md`、`NATIVE_MIGRATION_STATUS.md`、
   `NATIVE_MIGRATION_ACCEPTANCE.md`、`NATIVE_PARITY_MATRIX.md`、
   `CROSS_PLATFORM_CONFORMANCE_MATRIX.md`、`NATIVE_RELEASE_MATRIX.md`、
@@ -442,7 +442,7 @@ Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原�
 
 | 项 | 发现 | 处置 |
 | --- | --- | --- |
-| Gradle Wrapper | `android/` **完全没有** `gradlew` / `gradlew.bat` / `gradle-wrapper.jar` / `gradle-wrapper.properties`；构建只靠绝对路径 `<GRADLE_HOME>/bin/gradle.bat` | 生成标准 Wrapper（Gradle 8.9，官方 `distributionUrl`），已提交 `ad2350b` |
+| Gradle Wrapper | `android/` **完全没有** `gradlew` / `gradlew.bat` / `gradle-wrapper.jar` / `gradle-wrapper.properties`；构建只靠绝对路径 `<GRADLE_HOME>/bin/gradle.bat` | 生成标准 Wrapper（Gradle 8.9，官方 `distributionUrl`），已提交 `68f506c` |
 | `android/local.properties` | 含机器 SDK 路径 | 保持 gitignore（`.gitignore:86`），**未提交**（已用 `git ls-files --error-unmatch` 验证 exit=1） |
 | `:conformance:run` 默认仓库根 | `rootProject.dir("../..")` 算错一级 → `<repo_parent>` → `FATAL: <repo_parent>/conformance\CONFORMANCE_MANIFEST.json not found` | 改为 `dir("..")` |
 | JVM 代理 | JVM 不读 `HTTP_PROXY` 环境变量，Wrapper 自举下载报 `Connection refused` | 用 `GRADLE_OPTS="-Dhttp.proxyHost=… -Dhttps.proxyPort=…"`（端口 10808 可通） |
@@ -504,15 +504,15 @@ Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原�
 
 ### 7. 本轮 Git 收口
 
-- 提交 `ad2350b`：`android/gradlew`、`android/gradlew.bat`、
+- 提交 `68f506c`：`android/gradlew`、`android/gradlew.bat`、
   `android/gradle/wrapper/gradle-wrapper.jar`、`android/gradle/wrapper/gradle-wrapper.properties`
   —— **仅这 4 个路径**，工作树中其余未提交内容**未动**。
-- **⚠ 本轮复现了本工作区的既有 Git 故障**：`git commit` 成功创建了对象 `ad2350b`
-  并返回 0，但 **HEAD 未推进**（`git rev-parse HEAD` 仍是 `6d268c0`），
+- **⚠ 本轮复现了本工作区的既有 Git 故障**：`git commit` 成功创建了对象 `68f506c`
+  并返回 0，但 **HEAD 未推进**（`git rev-parse HEAD` 仍是 `7bc0ed3`），
   4 个文件只停留在 index（`A`）。
-  **处置**：沿用既有规避方式——确认 `ad2350b` 的 parent 确为 `6d268c0`、tree 正确后，
+  **处置**：沿用既有规避方式——确认 `68f506c` 的 parent 确为 `7bc0ed3`、tree 正确后，
   直接改写 `.git/packed-refs` 中 `refs/heads/feat/mvp03-living-graph` 的指向。
-  复核：`git rev-parse --short HEAD` = `ad2350b`，`git ls-files` 能列出全部 4 个 wrapper 文件。
+  复核：`git rev-parse --short HEAD` = `68f506c`，`git ls-files` 能列出全部 4 个 wrapper 文件。
   **下次提交后务必复查 HEAD，不要只看 `git commit` 的返回码。**
 - **未 push**（用户未授权）。
 
@@ -573,7 +573,7 @@ J1 全新安装 → J2 导入（SAF 选真实 CSV）→ J3 候选 → J4 确认 
 
 ### P0-5 Git HEAD
 
-- HEAD = `ad2350b`，branch `feat/mvp03-living-graph`，**无删除、无 staged 残留**。
+- HEAD = `68f506c`，branch `feat/mvp03-living-graph`，**无删除、无 staged 残留**。
 - 已跟踪修改：`AGENTS.md`、`WORK_STATUS.md`。
 - **未跟踪**：`android/`（全部原生源码）、`conformance/`、`fixtures/`、`spec/`、
   `harmony/`、`ios/`、`legacy/`、`tools/` 及本轮新增报告。

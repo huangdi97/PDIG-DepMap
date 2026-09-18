@@ -22,7 +22,7 @@
 | 性能 smoke | **有效数据**（10,000 行解析，0 错误），旧数字已作废 |
 | AAB | 构建成功（20,734,935 B），但**未签名**，非生产签名未生效 |
 | 截图保护 | **2026-09-16 已取得运行时证据**：6/6 路由按预期设置 FLAG_SECURE（窗口 `fl=` 含 `SECURE` + 截图被抹黑） |
-| Git HEAD（P0-5） | `ad2350b`，无删除、无 staged 残留 |
+| Git HEAD（P0-5） | `68f506c`，无删除、无 staged 残留 |
 
 > **P0 轮结论**：N1 由 PARTIAL 升为 **PASS**；N2 仍为 PARTIAL（59/62）；
 > `RELEASE_READY` 仍为 **BLOCKED_BY_PRODUCTION_SIGNING**。

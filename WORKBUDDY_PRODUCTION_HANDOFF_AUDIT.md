@@ -13,11 +13,11 @@
 | 项                                | 实测值                                                                                            |
 | --------------------------------- | ------------------------------------------------------------------------------------------------- |
 | 进入本会话时的工作树分支          | **`master`（错误线）**                                                                            |
-| 进入本会话时 `HEAD`               | `75e2725 docs: sync test counts (166) across FINAL_REPORT/README`                                 |
+| 进入本会话时 `HEAD`               | `ac511f6 docs: sync test counts (166) across FINAL_REPORT/README`                                 |
 | reflog 显示                       | `HEAD@{0}: checkout: moving from feat/mvp03-living-graph to master`（21:45:53，会话开始前 13 秒） |
 | `master` 与 MVP03 关系            | `git merge-base --is-ancestor master feat/mvp03-living-graph` → **YES**（master 是 mvp03 的祖先） |
 | `master..feat/mvp03-living-graph` | **46 commits**（master 无任何独有提交）                                                           |
-| MVP03 真实线                      | **`feat/mvp03-living-graph`** @ `1909174`                                                         |
+| MVP03 真实线                      | **`feat/mvp03-living-graph`** @ `f50b409`                                                         |
 | 处置                              | 已执行 `git checkout feat/mvp03-living-graph`（工作区干净，无覆盖风险）                           |
 
 **结论：`master` 上不存在 MVP03 代码**（无 `core/src/scenarios`、无 `core/src/sources`、无 `GOAL_MVP03_*` 等文件）。
@@ -25,7 +25,7 @@
 
 ### 0.2 `[Checkout-checkpoint]` 提交性质
 
-`1909174 [Checkout-checkpoint] from feat/mvp03-living-graph to master (21:45:53)` 是**工具在切分支前对 mvp03 未提交改动的自动保全提交**，位于 mvp03 分支顶端。
+`f50b409 [Checkout-checkpoint] from feat/mvp03-living-graph to master (21:45:53)` 是**工具在切分支前对 mvp03 未提交改动的自动保全提交**，位于 mvp03 分支顶端。
 **判定：无 ZCode 工作丢失。** 该提交内容为纯文档/状态快照，未修改任何 Core 源码（见 §0.3）。
 
 ### 0.3 工作区干净度
@@ -136,7 +136,7 @@ MVP03 九模块 + 迁移（代码与测试均实际存在，已抽查源码）�
 
 ## F. 未提交修改（Uncommitted）
 
-**无。** 工作区 clean。唯一相关提交为 `1909174`（工具自动 checkpoint，已在 mvp03 分支，内容为文档快照）。
+**无。** 工作区 clean。唯一相关提交为 `f50b409`（工具自动 checkpoint，已在 mvp03 分支，内容为文档快照）。
 
 ---
 

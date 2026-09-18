@@ -1,6 +1,6 @@
 // DO NOT EDIT — 语义必须与 Android 冻结基准一致
 // 端口自 android/core/src/main/kotlin/com/pdig/core/domain/Relations.kt
-// 冻结依据：ANDROID_NATIVE_CORE_FREEZE.md @ HEAD 648aa36
+// 冻结依据：ANDROID_NATIVE_CORE_FREEZE.md @ HEAD 6053f3c
 
 import { Capability, Criticality, GroupMode, NodeKind, Relation } from '../generated/CanonicalEnums';
 

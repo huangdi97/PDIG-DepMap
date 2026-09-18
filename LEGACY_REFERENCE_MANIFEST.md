@@ -13,7 +13,7 @@
 
 | 项                    | 值                                                                  |
 | --------------------- | ------------------------------------------------------------------- |
-| **Git HEAD**          | `6d268c0c27d7e6dfd896e17bcaa3f5ead6b3a8d5`（`6d268c0`）              |
+| **Git HEAD**          | `7bc0ed323ea82ce98139acd14eabd040a1ea111e`（`7bc0ed3`）              |
 | HEAD 提交信息         | `chore(build): ignore the agent workspace memory directory`          |
 | **Branch**            | `feat/mvp03-living-graph`                                            |
 | **Tag（本次新增）**   | `v0.3.0-uniapp-reference`                                            |

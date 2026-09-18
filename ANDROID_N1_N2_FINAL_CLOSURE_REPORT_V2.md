@@ -13,7 +13,7 @@
 > 日期：2026-09-16
 > 设备：`emulator-5554`（Android 14 / API 34 / AOSP `android-34/default/x86_64`，1080×2400 @420dpi）
 > 分支：`feat/mvp03-living-graph`
-> 基线 HEAD（本轮开始）：`ad2350b3bc32c86f73a37941765bf9b10c3aa577`
+> 基线 HEAD（本轮开始）：`68f506caa8953488e7fa277edf62d0be27315f12`
 > 本轮提交链见文末「Git 收口」小节（报告不写入自身 SHA）
 
 ---
@@ -728,16 +728,16 @@ v4 相对 v3 的变化（都是为了把 D-16 变成**可断言**的事实，而
 ```
 # 2026-09-17 D-16 关闭轮新增两个提交（HEAD 以 `git rev-parse HEAD` 为准，报告不写死 SHA）
 
-b79ca5a docs(android): D-16 closure - final E2E v4 run id, Git closure record, stale-report banner
-951e160 fix(android): keep Import/Restore file workflows alive across the lock round-trip (D-16)
-f9428c3 docs(android): N1/N2 report V2 - align device-test count to re-collected 45 ...
-7b9d488 docs(android): refresh Git state in N1/N2 closure report V2
-e9cdb87 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
-113c988 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
-8354ea2 fix(android): device credential must never be downgraded to a manual ack
-47991af fix(android): make the build reproducible on non-ASCII checkouts
-041ed8b test(android): device evidence suite, canonical spec and cross-platform fixtures
-ca36083 feat(android): Compose app, application layer and App Lock wiring
+65758ab docs(android): D-16 closure - final E2E v4 run id, Git closure record, stale-report banner
+17449e8 fix(android): keep Import/Restore file workflows alive across the lock round-trip (D-16)
+0ef76cf docs(android): N1/N2 report V2 - align device-test count to re-collected 45 ...
+34c908d docs(android): refresh Git state in N1/N2 closure report V2
+c4cc08c docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
+6fabff7 docs(android): rebuild N1/N2 closure report V2 on re-collected evidence
+3df482f fix(android): device credential must never be downgraded to a manual ack
+bef64dd fix(android): make the build reproducible on non-ASCII checkouts
+97a0348 test(android): device evidence suite, canonical spec and cross-platform fixtures
+c70919c feat(android): Compose app, application layer and App Lock wiring
 
 工作区状态：仅剩 3 个**有意保留未跟踪**的条目
   harmony/entry/src/main/ets/generated/CanonicalEnums.ets
@@ -989,7 +989,7 @@ done≠verified → 验证 → 进程死亡 → 导出 → 错误口令被拒 �
 - **判定**：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、`ANDROID_PRODUCTION_RELEASE_READY =
   BLOCKED_BY_PRODUCTION_SIGNING`
 - **文档已就地更新**（本文件，未生成 V3 / V4）
-- **Git 已收口**：未跟踪项逐项判定后提交，HEAD = `951e160`，**未 push**
+- **Git 已收口**：未跟踪项逐项判定后提交，HEAD = `17449e8`，**未 push**
 - **不进入 Harmony N3**、**不进入 iOS N4**、**不进入 MVP04**
 - 未新增业务 Domain，未重设计产品
 

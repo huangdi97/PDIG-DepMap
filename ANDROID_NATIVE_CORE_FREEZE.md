@@ -32,14 +32,14 @@
 
 | 项 | 值 |
 | --- | --- |
-| canonical HEAD | `648aa36ccf9711cd46aa2089140a7fe55ff65ddd` |
-| canonical HEAD（短） | `648aa36` |
+| canonical HEAD | `6053f3ca2a4cc7a4238614163c01321b214ff5af` |
+| canonical HEAD（短） | `6053f3c` |
 | branch | `feat/mvp03-living-graph` |
 | HEAD tree | `2b32c5a0e4ef55c90b0cba546646467f553b30fc` |
-| **Android source commit** | `951e160c681c4fcd2ff714a0f1934337949fd62b`（`951e160`） |
+| **Android source commit** | `17449e8dffba12d2daf00c55382677f7e20bfe81`（`17449e8`） |
 
-> Android 源码最后一次被改动是 `951e160`（D-16 修复）。
-> `648aa36` 只增加了三端 codegen 产物与 `legacy/README.md`，**未触碰 Android 源码**；
+> Android 源码最后一次被改动是 `17449e8`（D-16 修复）。
+> `6053f3c` 只增加了三端 codegen 产物与 `legacy/README.md`，**未触碰 Android 源码**；
 > 已用 `git status --short -- android` 复核为空，即 **Android 源码 ==提交的 LATEST**。
 
 ### Codegen 产物指纹（`node tools/codegen/generate.mjs --check` = CODEGEN GATE PASS）

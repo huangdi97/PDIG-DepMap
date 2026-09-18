@@ -47,7 +47,7 @@ harmony/
 **判定：`harmony/` = 纯 codegen 产物，不可被 hvigor 解析，不可构建。**
 
 该产品已由 `node tools/codegen/generate.mjs --check` 校验为**正式产物**
-（`CODEGEN GATE: PASS`），并已于本轮入库（`648aa36`），**不是**临时探测文件。
+（`CODEGEN GATE: PASS`），并已于本轮入库（`6053f3c`），**不是**临时探测文件。
 
 ---
 

@@ -20,7 +20,7 @@ PDIG 曾以 **uni-app x / UTS / DCloud** 作为三端统一技术栈。
 
 | 项         | 值                                        |
 | ---------- | ----------------------------------------- |
-| Git HEAD   | `6d268c0`                                  |
+| Git HEAD   | `7bc0ed3`                                  |
 | Git tag    | `v0.3.0-uniapp-reference`                  |
 | Schema     | v3                                         |
 | DEPMAP     | `DEPMAP_CONTAINER_V1`（formatVersion 1）    |

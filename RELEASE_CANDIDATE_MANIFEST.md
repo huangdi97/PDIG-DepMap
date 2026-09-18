@@ -6,7 +6,7 @@
 > **本清单不构成发布候选（Release Candidate）** —— 三端均无产品级可安装包（见 §4）。
 >
 > **Git**：branch `feat/mvp03-living-graph`，HEAD 以 `git log --oneline -1` 为准
-> （本轮基线 `7295fc6`），**未 push**、**未打 tag**。
+> （本轮基线 `ee7ee58`），**未 push**、**未打 tag**。
 > **应用版本**：`versionName 0.1.0` / `versionCode 1`（`app/manifest.json`）；
 > Schema **v3**；`.depmap` **formatVersion 1**；payload **v3**（v1/v2 可迁移）。
 

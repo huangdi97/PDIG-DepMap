@@ -75,7 +75,7 @@ npx vitest run tests/impact tests/invariants tests/contract tests/property --rep
 
 ### 4.2 并行执行下的显式超时（历史项，已冻结）
 
-`FR-GR-012` 在全量并行执行时曾出现超时，已由 commit `253cdd5` 为该用例设置**显式超时**（而非缩短断言或跳过）。本轮 3 次全量 + 10 次 focused 均未复现。
+`FR-GR-012` 在全量并行执行时曾出现超时，已由 commit `f3e3449` 为该用例设置**显式超时**（而非缩短断言或跳过）。本轮 3 次全量 + 10 次 focused 均未复现。
 
 ### 4.3 性能 smoke 的绝对耗时（非 flaky）
 
@@ -102,7 +102,7 @@ npx vitest run tests/impact tests/invariants tests/contract tests/property   # �
 ## 7. 重跑执行树复跑（第 144 节 milestone 重跑）
 
 第 144 节要求「最终 milestone 命令仍须重跑」。以下为在**重跑执行树**
-（`b0ed6b5`，工作区 `git status -uall` = 0 行 ⇒ 磁盘树 ≡ 提交树；该树为**执行树**，**不是**最终 HEAD，
+（`3105c96`，工作区 `git status -uall` = 0 行 ⇒ 磁盘树 ≡ 提交树；该树为**执行树**，**不是**最终 HEAD，
 其后提交均为纯文档 —— 见 `FINAL_PRODUCTION_CLOSURE_REPORT.md` §2.0.1 **不变量 D**）上的**复跑**结果：
 
 | 命令                                         | 执行树实测                                                | 退出码 |

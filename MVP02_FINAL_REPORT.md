@@ -1,8 +1,8 @@
 # MVP02_FINAL_REPORT.md
 
 > 生成：2026-09-13（ZCode 接力收口轮）
-> 分支：`feat/mvp02-global-source`；基线 `482e545`（WorkBuddy 253 tests）→
-> 本轮 `7a68887`（A 段补测 + 性能 smoke）→ 文档/报告 commit
+> 分支：`feat/mvp02-global-source`；基线 `2ad62ca`（WorkBuddy 253 tests）→
+> 本轮 `c32df02`（A 段补测 + 性能 smoke）→ 文档/报告 commit
 > 执行者链：ZCode → WorkBuddy → ZCode
 > 结论口径：只能 PASS / FAIL / BLOCKED / NOT_RUN
 
@@ -37,7 +37,7 @@ Real Data 与三端编译按既定口径保持 NOT_RUN/BLOCKED，不影响本判
 
 1. 恢复 WorkBuddy 现场并生成 `ZCODE_REHANDOFF_AUDIT.md`（A–G 分节实跑审计）
 2. 验证两个未提交测试文件并修复 3 类质量门错误（prettier/eslint ×2/
-   no-base-to-string/tsc NodeKind），提交 `7a68887`：
+   no-base-to-string/tsc NodeKind），提交 `c32df02`：
    - migration.test.ts +T4/T4b/T5（A 段补测闭环；T6 原已存在、T10=J2）
    - performance-smoke.test.ts +3 MVP02 性能 smoke（Next 第 4 项闭环）
 3. verificationBasis 调查闭环：写入回读断言已存在（e2e:287 + migration:265）

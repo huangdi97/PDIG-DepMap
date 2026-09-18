@@ -3,7 +3,7 @@
 > 数据来源：`conformance/reports/android.json`、`conformance/reports/SUMMARY.json`
 > 状态：`PASS`（harness 独立复核通过）/ `NOT_RUN` / `FAIL`
 
-更新时间：2026-09-17 · **D-16 关闭轮复跑：pass=91 fail=0 notImplemented=0 total=91（无回归）** · 用例总数 **91** · oracle 提交 `6d268c0`
+更新时间：2026-09-17 · **D-16 关闭轮复跑：pass=91 fail=0 notImplemented=0 total=91（无回归）** · 用例总数 **91** · oracle 提交 `7bc0ed3`
 
 > **计数修正（本轮）**：本文档早期版本的"用例总数 64"只统计了 §2–§8，
 > 漏掉了后续并入的 Parser（22）、Timeline（3）、Migration/Backup（2）。

@@ -20,7 +20,7 @@
 
 | 项                  | 实测值                                                                      |
 | ------------------- | --------------------------------------------------------------------------- |
-| HEAD                | `7295fc6`（`docs(closure): add the directive status-name mapping ...`）     |
+| HEAD                | `ee7ee58`（`docs(closure): add the directive status-name mapping ...`）     |
 | branch              | `feat/mvp03-living-graph`                                                   |
 | `git status`        | `nothing to commit, working tree clean`（进入时）                           |
 | `git diff`          | 空（clean）                                                                 |
