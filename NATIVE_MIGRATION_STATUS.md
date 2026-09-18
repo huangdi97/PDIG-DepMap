@@ -3,42 +3,55 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-更新时间：2026-09-17（**Android 冻结 + Harmony N3 开工轮**）
+更新时间：2026-09-18（**Harmony N3：Argon2 NAPI 全链路打通 + 编译可达性 Gate 固化**）
 
-> ## 本轮（2026-09-17 第二场）：Android 冻结 + 正式进入 Harmony N3
+> ## 本轮（2026-09-18 第三场）：Argon2 全链路 + 编译可达性 Gate
 >
+> - **`ARGON2_NATIVE_BUILD = PASS`**：vendored PHC 参考实现（tag `20190702` /
+>   commit `62358ba2…` / `local_modifications = 0`）经 OHOS NDK 交叉编译，
+>   **arm64-v8a (`AArch64`, 40,768 B) + x86_64 (`Advanced Micro Devices X86-64`, 42,296 B)** 双 ABI 通过；
+>   导出 `argon2_*` 符号 **0** 个（此前误设 `-DA2_VISCTL=1` 会导出 22 个 —— `A2_VISCTL` 的语义是**导出**而不是隐藏）。
+> - **端到端取证**：`libpdiargon2.so` 已打进 HAP
+>   （`libs/{arm64-v8a,x86_64}/`，49,776 / 50,576 B），
+>   **打包并 strip 后**的动态符号表恰好 3 个（`_init` / `_fini` / `RegisterPdiArgon2Module`），`argon2_*` = 0。
+> - **`HARMONY_MODULE_COMPILED = PASS`**：新增 `tools/harmony/check-compiled-reachability.mjs`
+>   固化 A/B/C/D 四判据。该 Gate **立刻抓到一个真实缺陷**：
+>   `Argon2idNative.ets` 因依赖方向反转（为拿一个类型而 import 容器）成为**孤儿模块** ——
+>   源文件存在、从未被编译、`assembleHap` 依然 BUILD SUCCESSFUL。
+>   修法：抽出中立 `crypto/KdfContract.ets`，两侧只依赖它，由 `pages/Index.ets` 建立入边。
+> - **`HARMONY_DEPMAP` 变化**：`BLOCKED_BY_NATIVE_VERIFICATION` → **`NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN`**。
+>   平台 API 无 Argon2 仍是真的，但**不再是 blocker** —— 已改走自建 NAPI 路径且全链路打通。
+> - **`HARMONY_RUNTIME_E2E` 仍为 `RUNTIME_NOT_RUN`**：阻断点已根因定位到
+>   **缺 Emulator 系统镜像**（SDK 内无任何 `images`；`hdc list targets = [Empty]`），
+>   需人工登录华为账号下载 —— 见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`。
+> - **`WORK_STATUS.md` Current 区已修正**（三段过期叙述归档至 Historical，未删除）。
+> - 按 stop condition：**未进入 iOS N4**。
+>
+> 详见 `HARMONY_ARGON2_INTEGRATION_REPORT.md` / `HARMONY_COMPILE_REACHABILITY_GATE.md` /
+> `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_N3_RUNTIME_REPORT.md`。
+
+> **上一轮（2026-09-17 第二场）**：Android 冻结 + 正式进入 Harmony N3。
 > 人工 Final Acceptance 已给出：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、
 > `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`、D-16 CLOSED。
 >
 > - **新增** `ANDROID_NATIVE_CORE_HANDOFF = PASS`（**不替代** N2，也不替代 release readiness；
 >   只回答"Android 是否已可作为 Harmony N3 的 Native Reference"）→ `ANDROID_NATIVE_CORE_FREEZE.md`
 > - Android 进入 **`CORE_FROZEN / MAINTENANCE_ONLY`**；不再为 parity 分数新增功能；剩余 11 格入 N2 Backlog
-> - **Git 尾项已收口**：HEAD `6053f3c`；三端 codegen 产物与 `legacy/README.md` 入库；
+> - **Git 尾项已收口**：三端 codegen 产物与 `legacy/README.md` 入库；
 >   `.pi/` 保持 untracked（gitignore 覆盖）
 > - **正式进入 Harmony N3**：`harmony/` 由"仅 codegen"建成**可被 hvigor 真实构建并产出 HAP 的
 >   Stage Model 工程**，`HARMONY_BUILD = PASS`；首个纯 ArkTS Domain（Relations）已编译并打包进 HAP
-> - **两个真实 blocker**（2026-09-18 更新）：
->   `HARMONY_DEPMAP = BLOCKED_BY_NATIVE_VERIFICATION`（`cryptoFramework`/`HUKS` 无 Argon2 已证据级排除；
->   **NDK + PHC 参考实现 + NAPI 路径已打通**：主机侧 Golden Vector `MATCH=YES`、arm64 `.so` 编译通过；
->   仍缺设备上复验 —— 见 `HARMONY_ARGON2_FEASIBILITY.md`）、
->   `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）
 > - 按 stop condition：**未进入 iOS N4**
->
-> 详见 `HARMONY_N3_BASELINE_AUDIT.md` / `HARMONY_N3_IMPLEMENTATION_STATUS.md` /
-> `HARMONY_N3_CONFORMANCE_REPORT.md` / `HARMONY_N3_RUNTIME_REPORT.md`。
 
-> **上一轮（2026-09-17 D-16 关闭轮）三个判定**：
+> **更早（2026-09-17 D-16 关闭轮）三个判定**：
 > `N1_ANDROID_VERTICAL_SLICE` = **PASS**（核心垂直切片 E2E v4 全链路无 FAIL，崩溃 0）
 > `N2_ANDROID_FULL_PARITY` = **PARTIAL_WITH_REPORT**（**62 / 73**，11 项未关闭）
 > `ANDROID_PRODUCTION_RELEASE_READY` = **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**
 >
 > 逐格结论见 `NATIVE_PARITY_MATRIX.md`；Gate 侧结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。
->
-> **Stop condition 已遵守**：D-16 关闭 + 全回归 + parity 重算 + Git 收口后停止，
-> **未进入 Harmony N3**，等人工 Final Acceptance。
 
 > 历史：2026-09-16 的 P0 Runtime Closure 轮记录了 `N1 = PARTIAL_WITH_REPORT` /
-> `N2 = PARTIAL_WITH_REPORT` / parity `56/73`（D-16 未修）。该轮结论**已被本轮取代**，
+> `N2 = PARTIAL_WITH_REPORT` / parity `56/73`（D-16 未修）。该轮结论**已被取代**，
 > 但 D-16 的发现历史与根因完整保留在 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。
 
 ---
@@ -55,7 +68,7 @@
 | N0-F  | Conformance Harness         | **PASS**                | `node tools/conformance/run.mjs` 全绿            |
 | N1    | Android Vertical Slice      | **PASS**（2026-09-17 D-16 关闭后重新确认） | 核心垂直链 import→proposal→reality→影响面→changeplan→done→verified 在设备上端到端跑通；D-16 修复后**外部文件选择器往返不再丢工作流**，Import 真的写入（「记录 6 行」）。证据：`core-journey-v4-20260917-184856` = **41/41 PASS / 0 FAIL** + `FileWorkflowD16Test` 6/6 |
 | N2    | Android Full Parity         | **PARTIAL_WITH_REPORT** | **62 / 73**（D-16 关闭 +4，§1 计数口径修正 +1，设备 E2E +1）。未关闭 11 项逐格列在 `NATIVE_PARITY_MATRIX.md` |
-| N3    | HarmonyOS Full Parity       | **NOT_STARTED**（工程已开工，parity 仍 0/73） | 本轮正式进入：`HARMONY_BUILD = PASS`（hvigor 全清重建产出 HAP 60,133 B）、`HARMONY_DOMAIN = PARTIAL_WITH_REPORT`（Relations 已编译进 HAP）、`HARMONY_ARKUI = PARTIAL_WITH_REPORT`（骨架 + 1 占位页）；`HARMONY_DEPMAP = BLOCKED_BY_NATIVE_VERIFICATION`（Argon2 原生路径已打通，待设备上复验；见 `HARMONY_ARGON2_FEASIBILITY.md`）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。14 个 Gate 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` |
+| N3    | HarmonyOS Full Parity       | **ACTIVE**（工程推进中，parity 仍 0/73） | `HARMONY_BUILD = PASS`（clean assembleHap，含 native）；**`HARMONY_MODULE_COMPILED = PASS`**（A/B/C/D 四判据，7/7 required 模块）；**`ARGON2_NATIVE_BUILD = PASS`**（arm64-v8a + x86_64，导出 `argon2_*` = 0）；**`HARMONY_DEPMAP = NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN`**（全链路已打通至打包进 HAP 且符号表只导出 NAPI 入口）；`HARMONY_DOMAIN = PARTIAL_WITH_REPORT`（仅 Relations）；`HARMONY_ARKUI = PARTIAL_WITH_REPORT`（骨架 + 1 占位页）；**`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`**（缺 Emulator 系统镜像）。详见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` |
 | N4    | iOS Full Parity             | **NOT_STARTED**         | 仅 codegen 产物；build `BLOCKED_BY_MACOS`           |
 | N5    | Cross-platform Conformance  | **PARTIAL_WITH_REPORT** | Android **91/91 PASS**（本轮实跑复验）；Harmony **NOT_RUN**（0 执行，87 notImplemented / 4 blocked）；iOS 未开始。见 `CROSS_PLATFORM_CONFORMANCE_MATRIX.md` |
 | N6    | Legacy Cutover              | **NOT_STARTED**         | 未满足 Cutover 条件（三端 parity 未达成）           |

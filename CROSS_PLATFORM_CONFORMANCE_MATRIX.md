@@ -31,10 +31,13 @@
 > 见 `GITHUB_PUBLICATION_REPORT.md` §6.4、§6.5。
 >
 > **（2026-09-18 追加）Harmony 的 depmap/backup 阻塞性质变化**：
-> `cryptoFramework` / `HUKS` 无 Argon2 已证据级排除，但**原生路径已打通**
-> （主机 Golden Vector `MATCH=YES` + OHOS arm64 `.so` 编译通过）；
-> 阻塞点从"平台无能力"变为"**尚未在设备上复验**" —— 仍是 blocked，不因编译通过而改判。
-> 见 `HARMONY_ARGON2_FEASIBILITY.md`。
+> `cryptoFramework` / `HUKS` 无 Argon2 已证据级排除，且**原生路径已全链路打通**：
+> 双 ABI 交叉编译通过、`libpdiargon2.so` 已打进 HAP、
+> 打包并 strip 后的动态符号表恰好 3 个符号（`argon2_*` = 0）。
+> 因此阻塞点从"**平台无能力**"变为"**无运行时**"：
+> 分类由 `BLOCKED_BY_PLATFORM` 改为 **`BLOCKED_BY_RUNTIME`**。
+> **四点仍记为 blocked，不因编译/打包通过而改判** —— 它们一次都没执行过。
+> 见 `HARMONY_ARGON2_INTEGRATION_REPORT.md`、`HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`。
 
 > **⚠ 不得误用的正数**：`node tools/harmony/check-relations-semantics.mjs` 输出 **18/18**，
 > 但它是**源码语义镜像**（Node 等价实现 vs 同批 fixtures），**不是 ArkTS 运行时执行**，
@@ -45,8 +48,20 @@
 > 它验证的是 **JCS / AAD / GCM 这份移植规格本身**（主机侧独立实现复现黄金向量），
 > **不是** ArkTS 运行时执行结果；`assembleHap` 的 `BUILD SUCCESSFUL` 同理，
 > 且在 2026-09-18 之前对未被 import 的 `.ets` 而言甚至是空证据
-> （hvigor 只编译可达模块，详见 `HARMONY_CONTAINER_V1_POC.md` §4）。
+> （hvigor 只编译可达模块）。
 > 三者**都不写入本矩阵**，Harmony 列保持 **0 执行 / 91**。
+>
+> **（2026-09-18 追加）同类"不得误用"的正数之三**（本轮新增两道）：
+>
+> | 工具 | 输出 | 它证明了什么 | 它**没有**证明什么 |
+> | --- | --- | --- | --- |
+> | `check-compiled-reachability.mjs --build` | `PASS`（7/7） | 模块真的进了编译图、真在 `modules.abc` 里、注入类型错误**真的**会让构建失败 | 行为正确性。**零个** conformance 用例执行过 |
+> | `check-argon2-native-build.mjs` | `PASS`（2 ABI） | 原生库真的被交叉编译、真的进了 HAP、`argon2_*` 真的没导出 | `deriveArgon2id` 会算出**正确**的派生密钥。链接属性 ≠ 行为属性 |
+>
+> 特别提示第 2 行：「信任边界成立」看起来很接近 `TESTED`，
+> 但它验证的是**链接/打包属性**。一个把算法写错的实现同样可以做到
+> 「不导出 `argon2_*`」—— 边界正确与结果正确是两件独立的事。
+> **两者都不写入本矩阵。Harmony 列保持 0 执行 / 91。**
 
 ---
 

@@ -96,35 +96,34 @@
 
 ## Current
 
-- Phase: **PDIG NATIVE MIGRATION — Android 已冻结（CORE_FROZEN），N3 Harmony 已开工并在真实 blocker 处停止**
-- Current gate focus: **`ANDROID_NATIVE_CORE_HANDOFF` = PASS** /
-  **`N2_ANDROID_FULL_PARITY` 保持 PARTIAL_WITH_REPORT 62/73** /
-  **`N3_HARMONY_FULL_PARITY` = NOT_STARTED（`HARMONY_BUILD` = PASS，其余多未开工/阻塞）**
+- Phase: **PDIG NATIVE MIGRATION — Android 已冻结（CORE_FROZEN），N3 Harmony 唯一活跃主线**
+- Current gate focus: **`N3_HARMONY_FULL_PARITY`**（唯一活跃 gate）/
+  **`ANDROID_NATIVE_CORE_HANDOFF` = PASS**（冻结，维护模式）/
+  **`N2_ANDROID_FULL_PARITY` 保持 PARTIAL_WITH_REPORT 62/73**（冻结，不再推进）
 - Global status: **`ALL_DONE = NO`** · **`TASK_COMPLETE = NO`**
-  （本轮**已按 stop condition 停止**：D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，
-  **不进入 Harmony N3 / iOS N4 / MVP04**，等待人工 Final Acceptance）
 - CURRENT_HEAD: **以 `git rev-parse HEAD` 为准**（报告不写入自身 SHA）
 - CURRENT_BRANCH: `feat/mvp03-living-graph`
-- NEXT_GATE: **`N3_HARMONY_FULL_PARITY`** —— **未开工**；只有在 N1 / N2 双双 PASS
-  **且人工 Final Acceptance 通过**之后才进入
+- NEXT_GATE: **`N3_HARMONY_FULL_PARITY`** —— **ACTIVE**（Android N1/N2 的
+  Final Acceptance 不是本 gate 的前置条件；该前置叙述已过期，见下方 Historical）
 - NEXT_COMMAND（下一位 Agent 的第一步）：
 
   ```bash
   git rev-parse HEAD && git status --short -uall
-  cd android
-  # 非 ASCII 工程路径（含中文）会被 settings.gradle.kts 自动检测并完成
-  # build 输出 / java.io.tmpdir 的 ASCII 重定向，无需任何环境变量或仓库外 init script；
-  # 需要显式指定位置时再用 PDIG_ASCII_BUILD_ROOT=<ASCII_BUILD_ROOT>/pdig-build。
-  ./gradlew --no-daemon :core:test :conformance:run
+  # Harmony：先跑三道主机侧 gate（均不需要设备）
+  PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-third-party-hashes.mjs
+  PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-argon2-native-build.mjs
+  PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-compiled-reachability.mjs --build
+  # Android（冻结，仅回归）
+  cd android && ./gradlew --no-daemon :core:test :conformance:run
   ```
 
 ### Current 只保留这 6 个关注面（其它内容一律属于 Historical / Legacy）
 
 | #   | 关注面                       | 状态                                                                 |
 | --- | ---------------------------- | -------------------------------------------------------------------- |
-| 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 已开工，在 2 个真实 blocker 处停止**） |
-| 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md` |
-| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM 已实现且经符号取证确认进入编译，主机侧黄金校验 5/5 PASS）；`HARMONY_DEPMAP` = **BLOCKED_BY_NATIVE_VERIFICATION**（Argon2 原生路径已打通：主机 Golden Vector `MATCH=YES` + arm64 `.so` 编译通过，KDF 尚未绑定）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像）；parity 仍 0/73 —— 见 `HARMONY_ARGON2_FEASIBILITY.md` / `HARMONY_CONTAINER_V1_POC.md` |
+| 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 为唯一活跃主线**） |
+| 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**冻结，不再推进**） |
+| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（clean assembleHap，含 native）；`HARMONY_MODULE_COMPILED` = **PASS**（A/B/C/D 四判据，7/7 required 模块）；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM）；`HARMONY_DEPMAP` = **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN**（Argon2 NAPI 全链路已打通：vendored 溯源 + 交叉编译 arm64/x86_64 + 打包进 HAP 且符号表恰好只导出 NAPI 入口）；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT（Domain 尚未落地）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像，见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）—— 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_ARGON2_INTEGRATION_REPORT.md` |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
 | 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **NOT_RUN**（0 执行：87 notImplemented / 4 blocked）；iOS 无报告。CI 已由恒 `NOT_RUN` 改为真正校验 Android 平台报告（见 `GITHUB_PUBLICATION_REPORT.md` §6.4） |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
@@ -161,6 +160,27 @@
 > 保留原因：Legacy 实现仍在仓库中充当 **BEHAVIOR ORACLE**
 > （见 `LEGACY_REFERENCE_MANIFEST.md`、`LEGACY_BEHAVIOR_CORRECTIONS.md`），
 > 在 Cutover 条件满足前**绝不删除**。
+
+### 已过期的 Current 叙述（2026-09-18 归档，内容原样保留不改写）
+
+以下三段曾经出现在 Current 区，**现已不再成立**。归档而非删除，
+是为了让「当时据何判断」可追溯 —— 这也是本项目对 absence ≠ nonexistence 的一贯处理方式。
+
+1. **「N3_HARMONY_FULL_PARITY = NOT_STARTED（HARMONY_BUILD = PASS，其余多未开工/阻塞）」**
+   —— 过期。实际：N3 已是唯一活跃主线，`HARMONY_BUILD` = PASS，
+   `HARMONY_MODULE_COMPILED` = PASS（A/B/C/D 四判据），
+   Argon2 NAPI 全链路打通并已打包进 HAP。见 `HARMONY_N3_IMPLEMENTATION_STATUS.md`。
+
+2. **「NEXT_GATE: N3_HARMONY_FULL_PARITY —— 未开工；只有在 N1 / N2 双双 PASS
+   且人工 Final Acceptance 通过之后才进入」**
+   —— 过期。该前置条件已被实际推进覆盖：N3 工作自 2026-09-18 起持续进行，
+   并未等待 N1/N2 的 Final Acceptance。Android 侧现为 **CORE_FROZEN / MAINTENANCE_ONLY**，
+   N2 保持 62/73 不再推进；N3 不以其为前置。
+
+3. **「本轮已按 stop condition 停止：D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，
+   **不进入 Harmony N3 / iOS N4 / MVP04**，等待人工 Final Acceptance」**
+   —— 过期。D-16 关闭与全回归确已完成，但「不进入 Harmony N3」这一约束在后续轮次
+   已被解除，N3 现为活跃工作。**iOS N4 与 MVP04 的禁止仍然有效。**
 
 ### LEGACY 接力轮（2026-09-15）做了什么
 

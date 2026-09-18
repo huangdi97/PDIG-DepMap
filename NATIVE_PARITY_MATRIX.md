@@ -3,31 +3,60 @@
 > 每格：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `CONFORMANCE_PASS` → `RUNTIME_VERIFIED`
 > 写状态时不得跳过等级，也不得把"理论支持"写成"已验证"。
 
-更新时间：2026-09-17（**Android 冻结 + Harmony N3 开工轮**）
+更新时间：2026-09-18（**Harmony N3：Argon2 NAPI 全链路 + 编译可达性 Gate**）
 
-> ## Harmony N3 已开工（2026-09-17 第二场）
+> ## 本轮（2026-09-18 第三场）：Argon2 全链路打通 + 编译可达性 Gate 固化
+>
+> **已有实质进展，但按本表口径仍不计入任何一格。** 原因见下。
+>
+> - **`ARGON2_NATIVE_BUILD = PASS`**：vendored PHC 参考实现（`local_modifications = 0`）
+>   经 OHOS NDK 交叉编译，**双 ABI 通过**（arm64-v8a 40,768 B / x86_64 42,296 B），
+>   导出 `argon2_*` 符号 **0** 个。
+> - **打包取证**：`libpdiargon2.so` 已进 HAP（`libs/{arm64-v8a,x86_64}/`，49,776 / 50,576 B）；
+>   **打包并 strip 后**的动态符号表恰好 3 个（`_init` / `_fini` / `RegisterPdiArgon2Module`），`argon2_*` = 0。
+> - **`HARMONY_MODULE_COMPILED = PASS`**：`check-compiled-reachability.mjs` 的
+>   A/B/C/D 四判据，7/7 required 模块通过。该 Gate 抓到一个真实缺陷 ——
+>   `Argon2idNative.ets` 因依赖方向反转成为**孤儿模块**（源文件存在、从未被编译、
+>   构建却是绿的），已通过抽出 `crypto/KdfContract.ets` 修复。
+> - **`HARMONY_DEPMAP` 变更**：`BLOCKED_BY_NATIVE_VERIFICATION`
+>   → **`NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN`**。
+>
+> ### 为什么这些进展**一格都不计入**
+>
+> 本表要求 `IMPLEMENTED → TESTED → CONFORMANCE_PASS → RUNTIME_VERIFIED` 逐级推进。
+> 本轮的成果全部落在「代码正确、被编译、被打包、边界正确」这一层，
+> **没有一项在 Harmony 运行时里执行过任何用例**。
+>
+> 特别地，"信任边界成立（`argon2_*` 不导出）"这一条看起来很像 `TESTED`，
+> 但它验证的是**链接/打包属性**，不是**行为正确性** ——
+> 它没有证明 `deriveArgon2id` 会算出正确的派生密钥。
+> 因此仍记 `IMPLEMENTED`。
+>
+> **Harmony 合计仍为 0 / 73。** 这个数字被刻意保持诚实：
+> 三项都是实实在在的工程进展，但按口径它们确实还不够格。
+>
+> 唯一阻断点已根因定位：**缺 Emulator 系统镜像**（需人工登录下载）——
+> 见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`。
+
+> ## Harmony N3 开工（2026-09-17 第二场）
 >
 > - `harmony/` 由「仅 1 个 codegen 文件」建成**可被 hvigor 真实构建的 Stage Model 工程**：
->   全清重建 `BUILD SUCCESSFUL`，产出 `entry-default-unsigned.hap`（**60,133 B**）。
-> - 首个**纯 ArkTS Domain**（`Relations.ets`）已实现并**编译打包进 HAP**（HAP 内含域代码标记）。
+>   全清重建 `BUILD SUCCESSFUL`，产出 HAP。
+> - 首个**纯 ArkTS Domain**（`Relations.ets`）已实现并**编译打包进 HAP**。
 > - Harmony 列本轮变更的格：① `RelationDefinitionRegistry` → `IMPLEMENTED`；
 >   ② `真实 Build` → `IMPLEMENTED`（有构建证据，非 RUNTIME_VERIFIED）；
 >   ③ `Canonical 枚举` 保持 `IMPLEMENTED`（codegen 产物，未做用例级验证）。
 > - **Harmony 合计仍为 0 / 73**：以上三格均未达 `TESTED` 及以上，按口径**不计入**已完成。
-> - 阻塞项：`HARMONY_DEPMAP = BLOCKED_BY_NATIVE_VERIFICATION`（2026-09-18 更新：托管 API 无 Argon2 已证据级排除，
->   **NDK + PHC 参考实现 + NAPI 路径已打通** —— 主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；
->   仍缺**设备上复验**，故未改 PASS）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。
->   详见 `HARMONY_ARGON2_FEASIBILITY.md`。
 >
 > **2026-09-18 追加（AES / JCS / container）**：`harmony/entry/src/main/ets/crypto/`
 > 新增 `Jcs.ets` / `DepmapContainerV1.ets` / `ContainerSelfCheck.ets`，
 > 主机侧黄金校验 **5/5 PASS**（`tools/harmony/verify-container-golden.mjs`），
-> ArkTS **真实编译**（`modules.abc` 42,916 B → 69,036 B，符号取证 `ABC_VERDICT=PRESENT`）。
-> 但**均未达 `TESTED`**，按口径仍**不计入** —— Harmony 合计**仍为 0 / 73**。
+> ArkTS **真实编译**。但**均未达 `TESTED`**，按口径仍**不计入**。
 > 定位过程中发现一条会影响所有后续 Harmony 结论的工程事实：
 > **hvigor 只编译从 ability / page 可达的模块**，未被引用的 `.ets` 放语法错误也照样
-> `BUILD SUCCESSFUL`；因此本轮之前的"编译通过"表述一律无效，已改用符号取证作证据。
-> 详见 `HARMONY_CONTAINER_V1_POC.md` §4。
+> `BUILD SUCCESSFUL`；因此"编译通过"这一表述本身不足以作为证据，
+> 现改用 `check-compiled-reachability.mjs` 的 A/B/C/D 四判据。
+> 详见 `HARMONY_COMPILE_REACHABILITY_GATE.md`。
 
 > ## D-16 CLOSED（2026-09-17）
 >

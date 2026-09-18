@@ -153,3 +153,15 @@ __pycache__/
 *.swo
 *~
 
+# Harmony / native 取证临时输出（工具链探测、Gate 日志、符号转储）
+# 注意：只忽略根目录下的临时 txt/日志，不忽略 docs/ 与 spec/ 下的正式记录。
+/pdig-*.txt
+/pdig-*.log
+/.probe-*.txt
+/ar2gate-out.txt
+/armdyn.txt
+/armnm*.txt
+/bisect-out.txt
+/elf-*.txt
+/x86h.txt
+
