@@ -55,6 +55,56 @@ Legacy（uni-app x / TypeScript）实现中发现的**真实缺陷**记录。
 | 处置     | **Canonical Spec 采用 `Relation.runtimeValues = [funding_source, merchant_agreement]`**。Native 端的可声明关系只能是这两个。`bound_to` 仅作为 Future / Backlog |
 | 不得     | 不得为了"迁就旧 UI"而在 Native domain 里放开 `bound_to`（会违反 §11「本轮不要启用 Future relation」）        |
 
+### LC-003 的跨端固化状态（2026-09-18 复核）
+
+**裁决方向：Canonical correction，不是任何单平台的特例。**
+
+> Legacy TS / uni-app x 只是 **Behavior Oracle**；已知 Legacy defect 必须经
+> `LEGACY_BEHAVIOR_CORRECTIONS` 记录，**不得反向污染 Canonical**。
+> 冻结的 `tag v0.3.0-uniapp-reference` 与其历史行为保持原样，不重写历史。
+
+`bound_to → reject` 已经**永久固化在跨端 fixture 集**中，三端同掺同一批 fixture：
+
+| Fixture | 断言 | 性质 |
+| ------- | ---- | ---- |
+| `fixtures/relations/relation-reject-non-runtime-relation.json` | `validateRelationUse(payment_instrument, bound_to, account, payment)` → `ok:false`，reason `relation 'bound_to' is not in the runtime registry` | 负向 `from\|bound_to\|to\|payment` |
+| `fixtures/relations/relation-group-bound_to-ANY.json` | `validateRelationGroupUse(bound_to, ANY)` → `ok:false`（同上 reason） | 负向，Group 路径 |
+
+因此**不存在**为补这条契约而新增同义 fixture 的空间 —— 新增只会让总数
+从 91 涨到 92 而覆盖面积为 0，属于虚增。
+
+三端判定来源（均为 `RelationDefinitionRegistry` 查找，**非**各自的 wire 枚举）：
+
+| 端 | relation 合法性判定 | 是否已拒绝 `bound_to` |
+| -- | ------------------- | --------------------- |
+| TS core（oracle） | `validateRelationUse` / `validateRelationGroupUse` → registry 查找 | **是** |
+| Kotlin | `Relations.kt` 同构 transfer（区别于 `CanonicalEnums.Relation` wire 枚举） | **是**（`DomainInvariantTest.kt` 已断言） |
+| ArkTS | `LogicalKey.parseDependencyLogicalKey` → `getRelationDefinition()` | **是**（2026-09-18 起仅用 registry，见下） |
+
+**关于「第二份枚举」的处置意见（勿删）：**
+`core/src/domain/types.ts` 的 `Relation` 联合类型与 Kotlin `CanonicalEnums.Relation`
+**保留** `verifies / recovers / bound_to` 三个值，**不得删**。理由是它们不是合法性判定器，
+而是**存储/wire 表示类型**：冻结 Schema v1 的 `CHECK(relation IN (5 值))` 允许这些值存在于
+历史行中，删掉它们会让历史行无法被读出 —— 那属于「为追求洁净而改动 Canonical 能表达的行集合」，
+与「不得反向污染 Canonical」是同一类错误的反方向。
+
+已核实这三处**没有**任何一处把该枚举当 runtime 判定器使用：
+
+- TS 侧不存在 `RELATION_VALUES` 之类的运行期集合，唯一的运行期权威是
+  `relation-registry.ts` 的 `RELATION_DEFINITIONS`；
+- Kotlin 侧同理，`Relations.kt` 的校验走 registry（`CanonicalEnums.Relation` 仅作 wire 表示）；
+- ArkTS 侧自 2026-09-18 起 `LogicalKey.parseDependencyLogicalKey` 只调 `getRelationDefinition()`。
+
+一句话：**存得下 ≠ 合法**。前者由 Schema 决定（含 Legacy 历史），后者只由 registry 决定。
+
+**更正一条先前写错的结论**：`HARMONY_N3_CONFORMANCE_REPORT.md` §7.8 曾称
+「Harmony 比 TS 基准更严，构成跨端行为差异」。该说法有误 —— TS core
+**没有** `parseDependencyLogicalKey`；TS 侧真正解析 logical key 的地方
+（`core/src/services/confirmation-service.ts` 成员键解析）走的正是
+`validateRelationGroupUse` → registry。三端结论一致，无差异可裁决。
+Harmony 侧现已从「枚举判定 + registry 判定」双份真源收敛为**仅 registry**，
+消除与 registry 分叉的第二份枚举。
+
 ---
 
 ## LC-004 — `rules.uts` 的 `relationLabel` 含不存在的 `wallet_binding`

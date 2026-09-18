@@ -35,14 +35,16 @@ export class LogicalKeyParseResult {
 /**
  * 解析 `from|relation|to|capability`。
  *
- * 与 TS 基准同一套 fail-closed 规则（confirmation-service.ts）：
+ * 与 TS 基准同一套 fail-closed 规则（confirmation-service.ts 成员键解析）：
  *   1. 分段数必须恰好为 4（!= 4 → 拒绝）
  *   2. 任一分段为空 → 拒绝
- *   3. relation / capability 必须能被 canonical 词表识别 → 否则拒绝
+ *   3. relation 必须在 runtime registry 中注册 / capability 必须可识别 → 否则拒绝
  *
- * 第 3 条是本端**额外**的收紧（TS 侧把 relation 交给 registry 校验）。
- * 保留它是因为：解析出 'bound_to' 这类 legacy 词表会让下游
- * RelationRegistry 拒绝，错误发生在更远处、更难定位。
+ * 第 3 条**不是**本端额外的收紧，而是 Canonical 本身的判定顺序：
+ *   Canonical Spec → RelationDefinitionRegistry → generated definitions → 各端 parser。
+ * TS 侧没有对等的独立 parser —— 它直接把 relation 交给 registry 校验
+ * （confirmation-service.ts 走 validateRelationGroupUse / validateRelationUse），
+ * 因此三端在"registry 未注册即拒绝"上本来就一致，本端不存在更严或更松。
  * relate：LEGACY_BEHAVIOR_CORRECTIONS.md LC-003。
  */
 export function parseDependencyLogicalKey(key: string): LogicalKeyParseResult {
@@ -60,20 +62,16 @@ export function parseDependencyLogicalKey(key: string): LogicalKeyParseResult {
     r.reason = `malformed member dependency key: ${key}`;
     return r;
   }
-  if (relationFromWire(relation) === undefined) {
-    r.reason = `unknown relation in logical key: ${relation}`;
-    return r;
-  }
-  // ⚠ 2026-09-18 修正：这里原先只做 `relationFromWire`（canonical 枚举成员）判定，
-  // 但上面的注释明确写着第 3 条要求是"拒绝 runtime registry 不承认的 relation"
-  // （LC-003：registry 锁定为 funding_source / merchant_agreement 两值）。
-  // 枚举里存在 `bound_to`，于是 `bound_to` 会被**放行** —— 实现与自己的契约不符，
-  // 下游 registry 才拒绝，错误被推得更远、更难定位。
-  // 现改为按 runtime registry 判定，与注释所述意图一致。
+  // relation 合法性的**唯一**真源是 runtime registry（RelationDefinitionRegistry）。
+  // 这里刻意不做 second enumeration（Relation wire 枚举成员）判定：
+  // 该枚举含 Future 词表（verifies / recovers / bound_to），若用它判合法，
+  // 就会与 registry 分叉出第二份真相，bound_to 之类的 legacy 词会被放行，
+  // 真正的拒绝被推迟到下游更难定位的位置。
   //
-  // 注意：这是本端**比 TS 基准更严**的一处（TS 侧把 relation 交给 registry 校验）。
-  // 该收紧是刻意保留并记录在案的，不是疏漏 —— 但它是**跨端行为差异**，
-  // 已记入 HARMONY_N3_CONFORMANCE_REPORT.md 的待复核项。
+  // Canonical correction（2026-09-18）：bound_to 属**已知 Legacy 偏差** ——
+  // Legacy 某路径曾暴露/接受它，但 runtime registry 未注册，因此
+  // `bound_to != valid canonical relation`，此处拒绝为正确行为。
+  // 冻结的 Legacy 行为不得被反向修改，差异经 LEGACY_BEHAVIOR_CORRECTIONS 记录。
   if (getRelationDefinition(relation) === undefined) {
     r.reason = `relation not in runtime registry: ${relation}`;
     return r;

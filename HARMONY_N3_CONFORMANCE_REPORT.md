@@ -509,26 +509,41 @@ node tools/harmony/run-conformance-host.mjs        # 镜像 → hvigor test → 
 `--no-build` 可只解析上次结果；无 `PDIG_DEVECO_HOME` 时报 `NOT_RUN` 并 exit 0
 （不让缺 SDK 的机器变成假失败）。镜像已存在时一次复跑约 30 秒。
 
-### 7.8 一项待裁决的跨端差异（尚未收敛，不计入 PASS）
+### 7.8 一条曾误报为「跨端差异」的结论 —— 已裁决为 Canonical correction 并撤回原结论
 
-第五轮修 §7.5 缺陷 3 时，`LogicalKey.parseDependencyLogicalKey` 改为按
-**runtime registry**（`getRelationDefinition()`）判定合法关系，而 TS 基准用的是
-`relationFromWire`（枚举）。二者差异：
+> **本节第一段是错的，保留原文以便对照。** 它记录了一个真实的方法论失误：
+> 我在没有核实 TS 侧是否存在对应实现的情况下，就从 Harmony 单端点出了一个
+> "跨端行为差异"，并据此提请裁决。核实之后结论完全相反。
 
-| 实现 | 判定依据 | 后果 |
-| ---- | -------- | ---- |
-| TS 基准 | wire 枚举 | 枚举内的 wire 名一律放行 |
-| Harmony（现） | registry 定义 | `bound_to` 等枚举内**但 registry 未注册**的关系被拒绝 |
+**原文（已作废）**：~~`LogicalKey.parseDependencyLogicalKey` 改为按 runtime registry 判定，
+而 TS 基准用 `relationFromWire`（枚举），因此 Harmony 比基准更严，构成跨端行为差异。~~
 
-**Harmony 比基准更严。** 现行 63 个 fixture **全部不受影响**（冻结论据里没有
-这种组合），所以这不是"为了通过测试而放宽/收紧"，但一旦 fixture 扩面就会出现分化。
+**为什么它是错的** —— 三件事逐条核实：
 
-这是**需要人工裁决的决策**，不是可以自行"顺手修好"的缺陷，因此原样保留并登记：
+1. **TS core 根本没有 `parseDependencyLogicalKey`**，只有格式化器 `dependencyLogicalKey`。
+   "TS 基准按枚举判定"这个对照在这样的 API 面前不存在。
+2. TS 侧**真正解析** logical key 的地方是 `core/src/services/confirmation-service.ts`
+   的成员键解析，它走的是 `validateRelationGroupUse(...)` → **registry**，即本来就拒绝 `bound_to`。
+3. 「现行 fixture 全部不受影响」也写反了 —— 冻结 fixture 集里**已经有两条**专门针对
+   `bound_to` 的负向用例，且三端都跑过：
+   `relation-reject-non-runtime-relation` 与 `relation-group-bound_to-ANY`。
 
-- **选项 A —— 对齐基准**：改用 `relationFromWire`，跨端行为一致，代价是失去
-  registry 的单一真源保护；
-- **选项 B —— 保留收紧**：认为 TS 侧才是应当被修正的一方；那也应先修 TS/冻结契约，
-  再由 Harmony 跟随，**而不是让 Harmony 悄悄对齐一个有待商榷的基准**。
+**裁决（用户 2026-09-18）：选择撤回、按 Canonical correction 处理。**
 
-在裁决前，本节不写 PASS 也不写 FAIL —— 差异存在且已被定位，这就是全部事实。
+判定真相源顺序为 **Canonical Spec → RelationDefinitionRegistry → generated
+definitions → 各平台 parser**；Legacy TS / uni-app x 仅作 Behavior Oracle，
+已知 Legacy defect 经 `LEGACY_BEHAVIOR_CORRECTIONS`（LC-003）记录，
+**不得反向污染 Canonical**，冻结的 `tag v0.3.0-uniapp-reference` 不重写。
+
+**因此 Harmony 的处置是「不许放松，但要单源化」**：`parseDependencyLogicalKey`
+删除与之分叉的 wire 枚举判定，relation 合法性只由 registry 判定一处决定。
+这不是为了让 Harmony 过测试，而是消除第二份真相源 —— 保留枚举判定会让
+`bound_to` 在本端被放行、再到下游 registry 才被拒，错误被推远且难定位。
+改动后 `HARMONY_CONFORMANCE_HOST` 复跑仍为 **PASS 67/67**。
+
+**用例总数不变：仍是 91。** `bound_to → reject` 早已由那两条 fixture 永久固化；
+再新增一条同义用例只会把总数写成 92 而覆盖面积为 0，属虚增，故不做。
+
+完整处置与三端判定来源对照见 `LEGACY_BEHAVIOR_CORRECTIONS.md` §LC-003
+「跨端固化状态（2026-09-18 复核）」。
 
