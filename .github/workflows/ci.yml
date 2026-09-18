@@ -183,3 +183,28 @@ jobs:
       # 需要 DevEco（HARMONY_CI_BUILD = NOT_AVAILABLE），但数据一致性不需要。
       - name: Embedded fixtures match frozen originals
         run: node tools/conformance/embed-fixtures.mjs --check
+
+      # 导入文件（CSV / OFX / QFX 原始字节，Base64 内嵌）同样必须与冻结原件一致。
+      # 为什么单独一道：这些是**字节**而不是文本。若内嵌副本与原件漂移，
+      # 主机执行面在用一份变质的数据做"逐字节复现 expected"的断言 ——
+      # 而解码仍在被测代码内进行（D-006），数据变质会被误记成解析器缺陷。
+      - name: Embedded import files match frozen originals
+        run: node tools/conformance/embed-import-files.mjs --check
+
+# ---------------------------------------------------------------------------
+# 本 workflow 里**没有** Harmony host conformance job，这是刻意的，不是遗漏。
+#
+# `tools/harmony/run-conformance-host.mjs` 需要 DevEco Studio 的 hvigor 才能
+# 在真实 ArkTS 运行时上执行 89 条检查；ubuntu runner 上没有、也无法安装它。
+# 若在这里加一个 job，它只会打印 `HARMONY_CONFORMANCE_HOST=NOT_RUN` 并退出 0
+# —— 那正是本项目反复在杀的那类假信号：一个绿色的 job，什么都没验证。
+#
+# 因此：
+#   * Harmony host conformance（89/89）与 compile reachability Gate（A/B/C/D）
+#     的**证据只在本地产生**，逐次记录于 WORK_STATUS.md 与
+#     HARMONY_REMAINING_6_AUDIT.md；
+#   * 本 workflow 只守住"不需要 DevEco 也能守住"的那部分：
+#     数据一致性（上面两道 embed 检查）、第三方完整性、golden vector、
+#     关系语义镜像、import 拓扑。
+#   * 任何把"CI 绿"写成"Harmony 远端验证 PASS"的报告都是错的。
+# ---------------------------------------------------------------------------
