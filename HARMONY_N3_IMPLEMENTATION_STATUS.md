@@ -131,7 +131,7 @@ Domain 层**不依赖** ArkUI / Ability / ArkData / HUKS / NAPI / cryptoFramewor
 | `HARMONY_CRYPTO` | **COMPILED** | JCS / AAD / AES-256-GCM 已进 `modules.abc`，主机黄金校验 5/5 |
 | `HARMONY_DOMAIN` | **COMPILED** | 11 组全部落地（RelationRegistry 按对齐决定不实现）；15 项自检进产物 |
 | `HARMONY_CONFORMANCE_RUNNER` | **PASS** | 真实 ArkTS runner 已落地并通过负向探针；见 §2.3 |
-| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **主机执行面**：57/57 运行时无关用例在真实 ArkTS 下逐字节复现；见 §2.4 |
+| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **主机执行面**：**63/63 运行时无关用例**（全部）在真实 ArkTS 下逐字节复现；见 §2.4 |
 | **`HARMONY_DOMAIN_HOST`** | **PASS** | 15/15 域自检在主机真跑全绿（修复 3 个缺陷后）；见 §2.4 |
 | `HARMONY_CONFORMANCE` | **NOT_RUN** | 设备执行面：**0 执行 / 91**。**不得**写 PASS |
 | `HARMONY_ARKDATA` | **NOT_STARTED** | — |
@@ -268,10 +268,12 @@ Domain 已从 PARTIAL 推进到 COMPILED；Conformance **runner 侧**已落地�
 ```
 node tools/harmony/run-conformance-host.mjs
   [conformance-host] 执行面 : hvigor 本地单元测试（ArkTS，无设备）
-  [conformance-host] 用例   : 61 条（含 3 条元测试）
-  [conformance-host] 汇总   : run=61 pass=61 fail=0 error=0
+  [conformance-host] 用例   : 67 条（含 3 条元测试）
+  [conformance-host] 汇总   : run=67 pass=67 fail=0 error=0
   HARMONY_CONFORMANCE_HOST=PASS
 ```
+
+67 = **63 conformance 用例（全部运行时无关项）+ 3 conformance 元测试 + 1 domain 自检**。
 
 **为什么这不违反 §10**：被执行的代码是 `ConformanceRunner` **本身**
 （真 ArkTS 编译器产出），不是另写的 Node 等价实现。
@@ -282,16 +284,22 @@ node tools/harmony/run-conformance-host.mjs
 `is not callable`），因此 28 个 @ohos 依赖用例仍是 `BLOCKED_BY_RUNTIME`。
 **主机执行面不替代设备执行面。**
 
-**真实执行抓到的 3 个缺陷（前两个代码审阅三轮未发现）**：
+**真实执行抓到的 5 个缺陷（前两个代码审阅三轮未发现）**：
 
 | # | 缺陷 | 位置 | 后果 |
 | - | ---- | ---- | ---- |
 | 1 | 拿美化 JSON 与紧凑 JSON 逐字符比 | runner `extractExpected` | 41/60 假失败 |
 | 2 | 白名单用**自造**契约词汇（`dependency_created`…） | `domain/GraphRevision.ets` | 契约里每个 mutation 都被判"不提升" |
 | 3 | 注释要求按 registry 判定，代码按枚举判定 | `domain/LogicalKey.ets` | `bound_to` 被错误放行 |
+| 4 | **priority 排序方向相反**（升序 vs 基准降序） | `domain/Timeline.ets` | attention 桶内次序错 |
+| 5 | **`scheduledAt=null` 排前/排后相反**（基准按空串比较） | `domain/Timeline.ets` | 同时段次序错 |
 
 外加 1 个**自检自身的缺陷**：`PlanReadiness` 的"全清"输入其实不清
 （默认 `lastAnalyzedGraphRevision=0` < `currentGraphRevision=1` → 判 stale）。
+
+**缺陷 4/5 的教训**：`checkTimeline` 当时只断言"同 priority 时 id 兜底"，
+即只测了**确定性**，没测**方向**。只测确定性不测方向，等于没测排序 ——
+现已补上两个方向性断言（`/pd`、`/nf` 两段）。
 
 **缺陷 2 的教训**：`DomainSelfCheck` 用同一套自造词断言同一套自造词，
 自洽地全绿 —— **自比自的检查不构成证据**，需要外部词汇表（冻结 fixture）才暴露。
@@ -372,26 +380,26 @@ K 节禁止自研原语，故当时记 `BLOCKED`。
   （Node 侧等价实现 vs 同一批 fixtures），**不是 ArkTS 运行时执行结果**，
   因此**不写入** `HARMONY_CONFORMANCE`。这个界限必须继续保持。
 
-**§11 要求的 91 例拆分（第四轮**实测**，取代上一版的推算值）**：
+**§11 要求的 91 例拆分（实测，取代此前两次推算值）**：
 
 | 分类 | 数量 | 含义 |
 | --- | --- | --- |
-| **已执行且通过** | **57** | 主机执行面真跑，actual 逐字节等于 expected |
+| **已执行且通过** | **63** | 主机执行面真跑，actual 逐字节等于 expected |
 | `BLOCKED_BY_RUNTIME` | **28** | 依赖 Argon2 / relationalStore 等 @ohos 能力 |
-| `NOT_IMPLEMENTED` | **6** | timeline ×3 + state-machine ×3（runner 侧缺口） |
+| `NOT_IMPLEMENTED` | **0** | — |
 | **合计** | **91** | |
 
 按类别：parser 22 / depmap 3 / jcs 1 / backup 1 / `migration-db-v1-to-v3` 1 = **28 blocked**；
-timeline 3 + `state-machine-{action-verification,discovery-candidate,reality-drift}` 3 = **6 notImplemented**；
-其余 **57 全部执行且通过**（impact 13 + readiness 16 + coverage 6 + relations 18 +
-scenario 1 + migration 1 + state-machine 2）。
+其余 **63 全部执行且通过**（impact 13 + readiness 16 + coverage 6 + relations 18 +
+scenario 1 + migration 1 + state-machine 5 + timeline 3）。
 
-> **⚠ 上一版写的是「60 可执行 / 3 notImplemented」，那是推算，不是实测，已作废。**
-> 错因：默认 state-machine 的 5 个用例都已实现，实际只有 2 个。
-> 这个错误是**自家测试自己抓出来的** —— `accountingSplitMatchesSection11`
-> 把三个数断言成精确值，推算值一放进去就失败。
+> **⚠ 两次推算值均已作废**：曾写「87 notImplemented / 4 blocked」（漏了 timeline 与
+> migration 的存在），又写「60 可执行 / 3 notImplemented」（默认 state-machine 5 个
+> 用例都已实现，实际只有 2 个）。两次都是**推算**，最终由自家测试
+> `accountingSplitMatchesSection11` 抓出。**没有执行过的账目，就是没有被验证的账目。**
 >
-> 分母校验：**63 运行时无关** = 57 已执行 + 6 未实现。
+> 现在的意义是：**所有运行时无关用例都真的跑通并通过了**，
+> 剩下的 28 个只受"没有设备运行时"这一个原因阻塞。
 
 ---
 
@@ -404,25 +412,34 @@ scenario 1 + migration 1 + state-machine 2）。
 
 **下一轮推荐动作（按性价比排序）**：
 
-1. **补上剩余 6 个 NOT_IMPLEMENTED**（timeline ×3 + state-machine ×3）。
-   纯 runner 侧实现工作，**不需要设备**，做完即 63/63 运行时无关全绿。
-2. **复核并记录 LogicalKey 的跨端收紧**（见下）。
-3. ArkData / Repository / migration 落地（`RUNTIME_VERIFIED` 需设备）。
+1. **复核并记录 LogicalKey 的跨端收紧**（见 §7 备注）—— 唯一未决的口径问题。
+2. **决策 timeline fixture 的欠定问题**（见下）—— 属契约质量问题，需人工裁定。
+3. ArkData / Repository / migration 落地（`RUNTIME_VERIFIED` 需设备）——
+   这也是把 28 个 `BLOCKED_BY_RUNTIME` 变成可执行的前提。
 4. ArkUI 纵向链路（§14，**不做 Graph View 优先**）。
 
 | 优先级 | 事项 | 前置 |
 | --- | --- | --- |
-| **P0** | runner 内实现 timeline 3 + state-machine 3（消除 NOT_IMPLEMENTED） | 无 |
-| **P0** | 复核 `LogicalKey` 的 LC-003 收紧是否造成跨端行为差异（见 §7 备注） | 无 |
+| **P0** | 复核 `LogicalKey` 的 LC-003 收紧是否造成跨端行为差异 | 无 |
+| **P0** | 裁定 timeline fixture 的欠定问题（见下） | 无 |
 | P1 | ArkData / Repository / migration 落地 | 设备（`RUNTIME_VERIFIED`） |
 | P2 | ArkUI 纵向链路（§14） | Domain |
 | P2 | HUKS + 用户认证 | 设备 |
 | — | 打通 `HARMONY_RUNTIME_E2E` | **用户操作**（登录 + 下载镜像） |
 
-> **§7 备注（需人工决策）**：`LogicalKey.parseDependencyLogicalKey` 现在按
+> **§7 备注 1（需人工决策）**：`LogicalKey.parseDependencyLogicalKey` 现在按
 > runtime registry 拒绝 relation（LC-003 的意图），而 TS 基准只在**成组使用**时校验。
 > 这是**本端刻意的额外收紧**，已按注释意图实现并写进报告，但它构成跨端行为差异 ——
 > 建议复核后决定"保留并记录为差异"还是"对齐基准"。
+>
+> **§7 备注 2（fixture 质量问题）**：timeline 三个 fixture 的 `input`
+> **不足以决定 `expected`** —— generator 先建真实 SQLite 场景再投影，
+> 而 input 只留下 `{now, plans, graphRevision}`，场景本身不在 fixture 里。
+> 三端都只能**重建同一场景**再跑投影（Android `Main.kt` 的 `runTimeline`
+> 正是按 caseId 硬编码同样的 insert）。
+> 因此这 3 个用例验证的是"**同一场景下投影内核是否一致**"，
+> 而**不是**"input → output"。要改成真正由 input 驱动，需改动冻结的 fixture
+> 生成器 —— 超出 N3 范围，故只记录不动手。
 
 ### 6.1 Hypium 前置：已在第四轮落地（本节保留为施工记录）
 

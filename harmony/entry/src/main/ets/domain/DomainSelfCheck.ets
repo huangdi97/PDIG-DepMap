@@ -538,8 +538,36 @@ function checkTimeline(): string {
   const sorted2 = sortTimelineKeys([b, a]);
   const deterministic = sorted1[0].id === 'a' && sorted2[0].id === 'a';
 
-  const ok = attn && overdue && today && d7 && d30 && d90 && later && utcStable && deterministic;
-  return `timeline=ok(${attn}/${overdue}/${today}/${d7}/${d30}/${d90}/${later}/u${utcStable}/d${deterministic})`;
+  // ⚠ 2026-09-18 补充：**排序方向**本身必须被断言。
+  // 此前这里只覆盖了"同 priority 时 id 兜底"，于是"priority 升序/降序写反"
+  // 与"scheduledAt=null 排前还是排后"这两处方向性错误全都漏过 ——
+  // 直到 timeline conformance 的 expected 把它们逼出来。
+  // 教训：只测"确定性"不测"方向"，等于没测排序。
+  const lowPri = new TimelineSortKey();
+  lowPri.id = 'low';
+  lowPri.bucket = TimelineBucket.ATTENTION;
+  lowPri.priority = 1;
+  const highPri = new TimelineSortKey();
+  highPri.id = 'high';
+  highPri.bucket = TimelineBucket.ATTENTION;
+  highPri.priority = 3;
+  const priorityDesc = sortTimelineKeys([lowPri, highPri])[0].id === 'high';
+
+  const noTime = new TimelineSortKey();
+  noTime.id = 'noTime';
+  noTime.bucket = TimelineBucket.ATTENTION;
+  noTime.priority = 2;
+  noTime.scheduledAt = null;
+  const dated = new TimelineSortKey();
+  dated.id = 'dated';
+  dated.bucket = TimelineBucket.ATTENTION;
+  dated.priority = 2;
+  dated.scheduledAt = '2026-01-01T00:00:00.000Z';
+  const nullFirst = sortTimelineKeys([dated, noTime])[0].id === 'noTime';
+
+  const ok = attn && overdue && today && d7 && d30 && d90 && later && utcStable && deterministic &&
+    priorityDesc && nullFirst;
+  return `timeline=ok(${attn}/${overdue}/${today}/${d7}/${d30}/${d90}/${later}/u${utcStable}/d${deterministic}/pd${priorityDesc}/nf${nullFirst})`;
 }
 
 /**

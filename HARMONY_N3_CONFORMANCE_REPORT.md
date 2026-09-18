@@ -1,7 +1,7 @@
 # HARMONY_N3_CONFORMANCE_REPORT.md
 
 > Harmony Conformance 报告。生成时间：2026-09-17（Asia/Shanghai）
-> **最近更新：2026-09-18（第四轮 —— 主机执行面打通，57 个用例真的跑了）**
+> **最近更新：2026-09-18（第五轮 —— 63/63 运行时无关用例全部真跑通过）**
 > 口径：§H —— same fixtures → ArkTS implementation → normalized output → compare expected。
 > **不得把 notImplemented 或 blocked 写成 PASS。**
 
@@ -11,68 +11,68 @@
 
 ```
 HARMONY_CONFORMANCE       = NOT_RUN      （设备执行面）pass = 0 / 91
-HARMONY_CONFORMANCE_HOST  = PASS         （主机执行面）pass = 57 / 57 可执行
+HARMONY_CONFORMANCE_HOST  = PASS         （主机执行面）pass = 63 / 63 运行时无关用例
 ```
 
 **设备上仍然没有任何用例被执行过**（`hdc list targets` = `[Empty]`）。
-但现在有了第二个、独立的执行面：**DevEco 本地单元测试能在无设备主机上真正执行
-ArkTS 代码**，而这一轮已经用它把那 57 个运行时无关用例跑通并逐字节比对通过。
+但在主机执行面上，**所有运行时无关用例都已真跑通过** —— 一条未实现都没有了。
 
 三个数字必须同时记住（总 91）：
 
 | 分类 | 数量 | 含义 |
 | ---- | ---- | ---- |
-| **已执行且通过** | **57** | 在**真实 ArkTS 运行时**下 actual 逐字节等于 expected |
+| **已执行且通过** | **63** | 在**真实 ArkTS 运行时**下 actual 逐字节等于 expected |
 | `BLOCKED_BY_RUNTIME` | **28** | 依赖 Argon2 / relationalStore 等 @ohos 能力，主机无实现 |
-| `NOT_IMPLEMENTED` | **6** | timeline ×3 + state-machine ×3，runner 侧尚未实现 |
+| `NOT_IMPLEMENTED` | **0** | — |
 
-### 0.0 本轮最重要的修正：账目本身是错的
+**这个分解的含义**：剩余 28 个用例**只受"没有设备运行时"这一个原因阻塞**，
+不再有任何工程实现缺口。§11 要求的"优先做运行时无关的 conformance"已经做完。
 
-上一版（第三轮）写的是「**60 可执行 / 3 notImplemented**」。那是**推算**的，不是实测的：
-我当时默认 state-machine 的 5 个用例都已实现，实际只有 2 个。
-真实执行后账目是 **57 / 28 / 6**。
+### 0.0 本轮最重要的修正：账目错过两次，都是推算而非实测
 
-> **教训一句**：没有执行过的账目，就是没有被验证的账目。
-> 而且这个错误是**自家测试自己抓出来的** —— `accountingSplitMatchesSection11`
-> 断言了三个数必须精确等于实测值，推算值一放进去就炸。
+| 版本 | 写的账目 | 错因 |
+| ---- | -------- | ---- |
+| 第二轮 | 87 notImplemented / 4 blocked | 漏了 timeline 与 migration 的存在 |
+| 第三轮 | 60 可执行 / 3 notImplemented | 默认 state-machine 5 个用例都已实现，**实际只有 2 个** |
+| **实测** | **63 / 28 / 0** | — |
 
-### 0.1 本轮交付（第四轮：主机执行面）
+两次都由自家测试 `accountingSplitMatchesSection11` 抓出（它把三个数写成精确值）。
+> **教训**：没有执行过的账目，就是没有被验证的账目。
 
-| # | 产出 | 路径 | 说明 |
+### 0.1 本轮交付（第五轮：补齐全部未实现用例）
+
+| # | 产出 | 位置 | 说明 |
 | - | ---- | ---- | ---- |
-| 1 | fixture 文本源抽象 | `conformance/ConformanceRunner.ets` | runner 改为**零 @ohos 依赖** |
-| 2 | 设备侧 fs 文本源 | `conformance/FsTextSource.ets` | 唯一允许 import `@ohos.file.fs` 的模块 |
-| 3 | fixture 内嵌生成器 | `tools/conformance/embed-fixtures.mjs` | 91 个 fixture → ArkTS 模块；`--check` 守漂移 |
-| 4 | **主机 conformance 测试** | `harmony/entry/src/test/ConformanceHost.test.ets` | 逐用例生成 `it()`，57 条 |
-| 5 | 主机 domain 自检 | `harmony/entry/src/test/DomainHost.test.ets` | 15 项自检真跑 |
-| 6 | 门禁驱动 | `tools/harmony/run-conformance-host.mjs` | `HARMONY_CONFORMANCE_HOST` 判定 |
-| 7 | 镜像修复 | `tools/harmony/build-ascii-mirror.mjs` | oh_modules 解引用复制（见 §7.2） |
+| 1 | ActionVerification 状态机 | `domain/StateMachines.ets` | 初态/终态/迁移表/守卫 + 证据信号规则 |
+| 2 | DiscoveryCandidate 状态机 | `domain/StateMachines.ets` | 含 accept 的 `mutatesReality=true` 但 `bumpsGraphRevision=false` |
+| 3 | RealityDriftStatus 状态机 | `domain/StateMachines.ets` | 含 creationRule（`minObservations=2`） |
+| 4 | **Timeline 纯投影** | `domain/Timeline.ets` | `buildTimelinePure()`：5 条收集规则 + 排序 |
+| 5 | 排序方向修正 | `domain/Timeline.ets` | priority 降序、null 按空串比较（见 §7.5） |
+| 6 | 自检补方向性断言 | `domain/DomainSelfCheck.ets` | `/pd`、`/nf` 两段，防退化 |
 
 ### 0.2 四条 gate 必须分开看（本报告最重要的一节）
 
 | Gate | 状态 | 依据 |
 | ---- | ---- | ---- |
-| `HARMONY_CONFORMANCE_RUNNER_IMPLEMENTED` | **PASS** | 4 模块落地，runner 本体已模块化 |
+| `HARMONY_CONFORMANCE_RUNNER_IMPLEMENTED` | **PASS** | runner 已模块化（纯逻辑 + `FsTextSource`） |
 | `HARMONY_MODULE_COMPILED` | **PASS** | **23/23** required；A+B+C+D 四判据 |
-| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **57/57** 运行时无关用例在真实 ArkTS 下逐字节复现 |
-| `HARMONY_DOMAIN_HOST` | **PASS** | 15/15 域自检在主机真跑全绿（修复 3 个缺陷后） |
+| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **63/63 运行时无关用例**逐字节复现 |
+| `HARMONY_DOMAIN_HOST` | **PASS** | 15/15 域自检在主机真跑全绿 |
 | `HARMONY_CONFORMANCE_EXECUTED` | **NOT_RUN** | 设备上 0 个用例真正执行 |
 | **`HARMONY_CONFORMANCE`** | **NOT_RUN** | 只有设备上 **91/91** 全绿才允许写 PASS |
 
 前四行的 PASS **一个都不能**被写成 `HARMONY_CONFORMANCE = PASS`。
-`HARMONY_CONFORMANCE_HOST` 覆盖的是 57/91 这个子集，
+`HARMONY_CONFORMANCE_HOST` 覆盖的是 63/91 这个子集，
 把它当成 91/91 会让分母失去意义。
 
-### 0.3 阻塞原因（已更新）
+### 0.3 阻塞原因（已收敛到单一根因）
 
 1. **无 Harmony 运行时（设备侧）**：`hdc list targets` = `[Empty]`；本机无模拟器系统镜像。
-   → 主机执行面**缓解但不消除**这一项：28 个 @ohos 依赖用例仍然只能等设备。
+   这是**唯一**剩下的原因 —— 28 个用例全部只等这一项。
 2. **fixture 尚未投放到设备沙箱**：#1 解决后仍需 `hdc file send`
    （命令已固化进 `HarnessFs.harnessHint()`）。
-3. ~~**未接本地测试框架**~~ → **已解决**：机机执行面已打通（§7）。
-4. **6 个用例尚未实现**：timeline ×3 + state-machine 的
-   action-verification / discovery-candidate / reality-drift。
-   它们是 runner 侧的实现缺口，**不是**环境问题。
+3. ~~未接本地测试框架~~ → **已解决**（§7）。
+4. ~~6 个用例尚未实现~~ → **已解决**（§0.1）。
 
 ---
 
@@ -421,7 +421,7 @@ $ node tools/harmony/check-relations-semantics.mjs
 内嵌数据由 `embed-fixtures.mjs --check` 守门：内嵌副本一旦与冻结原件不一致，
 门禁立即失败（它是 `run-conformance-host.mjs` 的**第一道**检查，先于执行）。
 
-### 7.5 真实执行一上来就抓到了 3 个缺陷
+### 7.5 真实执行一上来就抓到了 5 个缺陷
 
 这是本节最值得记住的部分：**前两个缺陷，代码审阅三轮都没发现。**
 
@@ -430,6 +430,8 @@ $ node tools/harmony/check-relations-semantics.mjs
 | 1 | **比对基准口径错**：拿美化 JSON 与紧凑 JSON 逐字符比 | runner `extractExpected` | 41/60 用例假失败 |
 | 2 | **自造契约词汇表**：白名单用 `dependency_created` 等自造名 | `GraphRevision.ets` | 契约里**每个** mutation 都被判"不提升" |
 | 3 | **实现与自身注释不符**：注释要求按 registry 判定，代码按枚举判定 | `LogicalKey.ets` | `bound_to` 被错误放行 |
+| 4 | **排序方向相反**：priority 用了升序，基准是**降序** | `Timeline.ets` | attention 桶内次序错 |
+| 5 | **null 时间点方向相反**：基准按空串比较（排**前**），实现按 +∞（排后） | `Timeline.ets` | 同时段次序错 |
 
 另有 1 个**测试自身的缺陷**（见 §7.6）：`PlanReadiness` 的"全清"输入其实不清。
 
@@ -437,10 +439,40 @@ $ node tools/harmony/check-relations-semantics.mjs
 自洽地全绿 —— 自比自的检查不构成证据。它需要一份**外部**词汇表（冻结 fixture）
 才暴露得出来。
 
+**缺陷 4/5 的教训单独也值得记**：`DomainSelfCheck.checkTimeline` 当时只断言
+"同 priority 时由 id 兜底" —— 那测的是**确定性**，不是**方向性**。
+只测确定性不测方向，等于没测排序。现已补上两个方向性断言
+（`timeline=ok(.../pd###/nf###)` 两段），防止再退化。
+
 缺陷 1 的修正方式也值得记：不是"把 expected 改成紧凑"（那是改冻结契约），
 而是在 runner 侧新增 `compactJson`，把**两侧**都规范化到紧凑形式再比 ——
 与 harness 的权威口径 `JSON.stringify(actual) === JSON.stringify(expected)`
 逐字对齐（空白无关、**键序相关**）。
+
+### 7.5.1 一个必须记录的 fixture 质量问题：timeline 类是**欠定**的
+
+`timeline-*` 三个 fixture 的 `input` **不足以决定 `expected`**：
+
+```
+input      = { now, plans[6], graphRevision }        # 只有这么点
+generator  = 先建真实 SQLite 场景（node/plans/drift/source_instance）
+             再投影出 expected；场景本身**不在 fixture 里**
+```
+
+证据：`expected.ids[0]` 是 `tl-fresh-legacy-wechat-statement`，
+而这条项来自 `migrate()` 植入的 legacy 来源 —— input 里根本没有它。
+
+因此三端都只能**重建同一场景**再跑投影（Android
+`android/conformance/.../Main.kt` 的 `runTimeline` 正是按 caseId
+硬编码同样的 `insertNode` / `insertPlan`）。本 runner 的做法与之一致。
+
+**这意味着这 3 个用例验证的是「同一场景下投影内核是否一致」，
+而不是「input → output」。** 要改成真正由 input 驱动，需改动冻结的
+fixture 生成器 —— 超出 N3 范围，故只记录不动手。
+
+顺带一提，`input.graphRevision: 5` 是**描述性**的：
+DB 里 `meta.graph_revision` 实际是 0（全新库）。这个差别决定了
+`plan-stale` 是否被判 stale —— 极易误读，已写进代码注释。
 
 ### 7.6 一条差点混过去的假绿
 

@@ -35,8 +35,8 @@ const RESULT = join(
 )
 
 // 期望账目：91 = 57 已执行 + 28 BLOCKED_BY_RUNTIME + 6 NOT_IMPLEMENTED
-const EXPECT_TOTAL = 61          // 57 用例 + 3 条 conformance 元测试 + 1 条 domain 自检
-const EXPECT_PASS = 61
+const EXPECT_TOTAL = 67          // 63 用例 + 3 条 conformance 元测试 + 1 条 domain 自检
+const EXPECT_PASS = 67
 const EXPECT_FAIL = 0
 const EXPECT_ERROR = 0
 
@@ -121,7 +121,7 @@ const ok = run === EXPECT_TOTAL && pass === EXPECT_PASS &&
 console.log('')
 console.log('HARMONY_CONFORMANCE_HOST=' + (ok ? 'PASS' : 'FAIL'))
 if (ok) {
-  console.log('  → 57 个运行时无关用例在真实 ArkTS 运行时下逐字节复现 expected')
-  console.log('  → 仍有 28 个 BLOCKED_BY_RUNTIME + 6 个 NOT_IMPLEMENTED，见报告')
+  console.log('  → 63 个运行时无关用例（全部）在真实 ArkTS 运行时下逐字节复现 expected')
+  console.log('  → 剩下的 28 个全部 BLOCKED_BY_RUNTIME（只差设备运行时），见报告')
 }
 process.exit(ok ? 0 : 1)

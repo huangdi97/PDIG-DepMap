@@ -52,10 +52,12 @@ import {
 import {
   Capability,
   ChangePlanWorkflowState,
+  DriftStatus,
   GroupMode,
   GroupState,
   DependencyState,
   PlanActionPhase,
+  SourceInstanceState,
 } from '../generated/CanonicalEnums';
 import {
   Dependency,
@@ -82,16 +84,57 @@ import {
 } from '../domain/ScenarioTemplate';
 import {
   ALL_WORKFLOW_STATES,
+  CANDIDATE_ACCEPT_BUMPS_REVISION,
+  CANDIDATE_ACCEPT_EFFECTS,
+  CANDIDATE_ACCEPT_MUTATES_REALITY,
+  CANDIDATE_ACCEPT_REPLAY,
+  CANDIDATE_DISMISS_EFFECTS,
+  CANDIDATE_DISMISS_MUTATES_REALITY,
+  CANDIDATE_DISMISS_REAPPEAL,
+  CANDIDATE_GUARDS,
+  CANDIDATE_INITIAL,
+  CANDIDATE_STATES,
+  DRIFT_CREATION_ABSENCE_ONLY,
+  DRIFT_CREATION_ALREADY_CONFIRMED,
+  DRIFT_CREATION_BELOW_THRESHOLD,
+  DRIFT_CREATION_DUPLICATE_REF,
+  DRIFT_CREATION_MIN_OBSERVATIONS,
+  DRIFT_CREATION_REQUIRES,
+  DRIFT_CREATION_UPSERT,
+  DRIFT_GUARDS,
+  DRIFT_INITIAL,
+  DRIFT_STATES,
+  StateGuard,
+  VERIFICATION_EVIDENCE_APPLIES_TO,
+  VERIFICATION_EVIDENCE_EFFECT,
+  VERIFICATION_EVIDENCE_MATCH,
+  VERIFICATION_EVIDENCE_METHOD,
+  VERIFICATION_EVIDENCE_NEVER,
+  VERIFICATION_GUARDS,
+  VERIFICATION_INITIAL,
+  VERIFICATION_STATES,
+  allowedCandidateNext,
+  allowedDriftNext,
   allowedNextStates,
+  allowedVerificationNext,
   isTerminalState,
+  isVerificationTerminal,
 } from '../domain/StateMachines';
 import { GRAPH_REVISION_KEY, doesMutationBumpRevision } from '../domain/GraphRevision';
 import {
   BUCKET_ORDER,
+  LEGACY_WECHAT_SOURCE_INSTANCE_ID,
+  TimelineDriftInput,
+  TimelineInput,
+  TimelineItem,
+  TimelineNodeInput,
+  TimelinePlanInput,
+  TimelineSortKey,
+  TimelineSourceInput,
   bucketOf,
+  buildTimelinePure,
   nodeExpiryDate,
   sortTimelineKeys,
-  TimelineSortKey,
 } from '../domain/Timeline';
 import { JsonText, compactJson } from './JsonText';
 
@@ -1163,7 +1206,118 @@ function runStateMachine(caseId: string, jt: JsonText): string {
   if (caseId === 'state-machine-graph-revision') {
     return stateMachineGraphRevision();
   }
+  if (caseId === 'state-machine-action-verification') {
+    return stateMachineActionVerification();
+  }
+  if (caseId === 'state-machine-discovery-candidate') {
+    return stateMachineDiscoveryCandidate();
+  }
+  if (caseId === 'state-machine-reality-drift') {
+    return stateMachineRealityDrift();
+  }
   return '';
+}
+
+/**
+ * 把"状态 → 合法出边"序列化成契约要求的 JSON 对象。
+ *
+ * 键序必须与 fixture 一致（自然序：初态 → 中间态 → 终态），
+ * 所以传进来的是**显式状态数组**而不是 Map 的迭代顺序 ——
+ * Map 的插入序虽然也可控，但把它当作契约一部分是过度依赖实现细节。
+ *
+ * 传入 lookup 而不是 Map：三台状态机的表在 domain 层是私有的，
+ * 只暴露访问器，避免调用方绕过校验直接改表。
+ */
+function serializeTransitionTable(states: string[], lookup: (from: string) => string[]): string {
+  const parts: string[] = [];
+  for (let i = 0; i < states.length; i++) {
+    parts.push(jsonEscape(states[i]) + ':' + serializeStrings(lookup(states[i])));
+  }
+  return '{' + parts.join(',') + '}';
+}
+
+/** 守卫数组的序列化；三者形状相同，故共用。 */
+function serializeGuards(guards: StateGuard[]): string {
+  const parts: string[] = [];
+  for (let i = 0; i < guards.length; i++) {
+    const g = guards[i];
+    parts.push('{"id":' + jsonEscape(g.id) +
+      ',"rule":' + jsonEscape(g.rule) +
+      ',"errorCode":' + jsonEscape(g.errorCode) + '}');
+  }
+  return '[' + parts.join(',') + ']';
+}
+
+/** 布尔字面量（避免依赖 String(false) 之类的平台差异）。 */
+function boolText(v: boolean): string {
+  return v ? 'true' : 'false';
+}
+
+/**
+ * ActionVerification 状态机（VF 铁律：done ≠ verified）。
+ *
+ * 这里**不**回显 spec 文档，而是报告本平台实现的规则视图：
+ * 初始态、终态、迁移表、守卫都取自 `domain/StateMachines.ets` 的常量与函数。
+ * 只有 evidenceSignalRule 的四段散文是合同原文照录 ——
+ * 它们是产品语义（什么条件下才允许置 evidence_suggested），
+ * 无法从布尔逻辑推导，必须逐字一致。
+ */
+function stateMachineActionVerification(): string {
+  const terminal: string[] = [];
+  for (let i = 0; i < VERIFICATION_STATES.length; i++) {
+    if (isVerificationTerminal(VERIFICATION_STATES[i])) {
+      terminal.push(jsonEscape(VERIFICATION_STATES[i]));
+    }
+  }
+  return '{"initial":' + jsonEscape(VERIFICATION_INITIAL) +
+    ',"terminal":[' + terminal.join(',') + ']' +
+    ',"transitions":' + serializeTransitionTable(VERIFICATION_STATES, allowedVerificationNext) +
+    ',"evidenceSignalRule":{"appliesOnlyTo":' + serializeStrings(VERIFICATION_EVIDENCE_APPLIES_TO) +
+    ',"requiresMethod":' + jsonEscape(VERIFICATION_EVIDENCE_METHOD) +
+    ',"requiresMatch":' + jsonEscape(VERIFICATION_EVIDENCE_MATCH) +
+    ',"effect":' + jsonEscape(VERIFICATION_EVIDENCE_EFFECT) +
+    ',"never":' + serializeStrings(VERIFICATION_EVIDENCE_NEVER) + '}' +
+    ',"guards":' + serializeGuards(VERIFICATION_GUARDS) + '}';
+}
+
+/**
+ * DiscoveryCandidate 状态机。
+ *
+ * `accept` 同时声明 mutatesReality=true 与 bumpsGraphRevision=false ——
+ * 两者并列出现是刻意的：接受候选会建 Node，却不提升 revision。
+ * 若把"改 Reality ⇒ bump revision"当成通则，这里就会写错。
+ */
+function stateMachineDiscoveryCandidate(): string {
+  return '{"initial":' + jsonEscape(CANDIDATE_INITIAL) +
+    ',"transitions":' + serializeTransitionTable(CANDIDATE_STATES, allowedCandidateNext) +
+    ',"accept":{"mutatesReality":' + boolText(CANDIDATE_ACCEPT_MUTATES_REALITY) +
+    ',"effects":' + serializeStrings(CANDIDATE_ACCEPT_EFFECTS) +
+    ',"bumpsGraphRevision":' + boolText(CANDIDATE_ACCEPT_BUMPS_REVISION) +
+    ',"replay":' + jsonEscape(CANDIDATE_ACCEPT_REPLAY) + '}' +
+    ',"dismiss":{"mutatesReality":' + boolText(CANDIDATE_DISMISS_MUTATES_REALITY) +
+    ',"effects":' + serializeStrings(CANDIDATE_DISMISS_EFFECTS) +
+    ',"reappeal":' + jsonEscape(CANDIDATE_DISMISS_REAPPEAL) + '}' +
+    ',"guards":' + serializeGuards(CANDIDATE_GUARDS) + '}';
+}
+
+/**
+ * RealityDriftStatus 状态机。
+ *
+ * creationRule 的 `minObservations` 是**数字**，不是字符串 ——
+ * 用 boolText 那种"手写字面量"思路会不小心把它写成 "2"，
+ * 这里显式用数字拼接。
+ */
+function stateMachineRealityDrift(): string {
+  return '{"initial":' + jsonEscape(DRIFT_INITIAL) +
+    ',"transitions":' + serializeTransitionTable(DRIFT_STATES, allowedDriftNext) +
+    ',"creationRule":{"requires":' + jsonEscape(DRIFT_CREATION_REQUIRES) +
+    ',"minObservations":' + DRIFT_CREATION_MIN_OBSERVATIONS +
+    ',"absenceOnly":' + jsonEscape(DRIFT_CREATION_ABSENCE_ONLY) +
+    ',"alreadyConfirmedSource":' + jsonEscape(DRIFT_CREATION_ALREADY_CONFIRMED) +
+    ',"belowThreshold":' + jsonEscape(DRIFT_CREATION_BELOW_THRESHOLD) +
+    ',"duplicateEvidenceRef":' + jsonEscape(DRIFT_CREATION_DUPLICATE_REF) +
+    ',"upsert":' + jsonEscape(DRIFT_CREATION_UPSERT) + '}' +
+    ',"guards":' + serializeGuards(DRIFT_GUARDS) + '}';
 }
 
 /**
@@ -1245,21 +1399,222 @@ function stateMachineChangePlan(): string {
 /* ==========================================================================
  * timeline（3 用例）
  *
- * Runtime-dependent 的分担说明：`timeline-attention-signals` 与
- * `timeline-terminal-plans-excluded` 的 expected 依赖 DB 中已有的
- * Drift / SourceInstance / ChangePlan 行。domain 层的 Timeline 只保留
- * **分类与排序内核**（bucket 判定 + deterministic 排序），
- * 条目收集属 data 层。因此这里对这两个用例返回空串 → NOT_IMPLEMENTED。
+ * ⚠ 首先必须说清一件事：这三个 fixture 的 `input` **不足以**决定 `expected`。
+ *   generator（core/scripts/generate-conformance.ts §12）先建了一个真实的
+ *   SQLite 场景（node / 6 个 plan / reality_drift / source_instance），
+ *   再把结果投影成 expected，而 input 里只留下了 `{now, plans, graphRevision}`。
+ *   场景本身**不在 fixture 里**。
  *
- * 这是如实记账：把只有内核的现状报成"通过"，等于声称已经实现了
- * 尚未实现的仓库读取。
+ *   因此三端都只能**重建同一个场景**再跑投影 —— 这不是取巧，是 Android
+ *   已经在做的事（见 android/conformance/.../Main.kt 的 runTimeline：
+ *   它按 caseId 硬编码同样的 insert）。本函数的做法与之一致。
+ *
+ *   这条已记入报告：fixture 对 timeline 类别是**欠定的**（under-specified），
+ *   它验证的是"同一场景下投影内核是否一致"，而不是"input → output"。
+ *   要改成真正由 input 驱动，需要改动冻结的 fixture 生成器 —— 那超出 N3 范围。
+ *
+ * 迁移植入的 legacy 来源会永远 stale（从未导入过），
+ * 因此每个场景都至少带一条 freshness_review —— 这是契约行为。
  * ========================================================================== */
 
+/** 与 generate-conformance.ts 的 T0 / TIMELINE_NOW 一致。 */
+const TL_T0 = '2026-09-13T00:00:00.000Z';
+const TL_FRESHNESS_DAYS = 45;
+
+/** 场景里"已迁移但从未导入"的 legacy 来源。 */
+function legacySource(): TimelineSourceInput {
+  const s = new TimelineSourceInput();
+  s.id = LEGACY_WECHAT_SOURCE_INSTANCE_ID;
+  s.label = '微信账单（历史导入）';
+  s.state = SourceInstanceState.ACTIVE;
+  s.lastIngestedAt = null;
+  return s;
+}
+
+function tlSource(id: string, label: string, lastIngestedAt: string | null): TimelineSourceInput {
+  const s = new TimelineSourceInput();
+  s.id = id;
+  s.label = label;
+  s.state = SourceInstanceState.ACTIVE;
+  s.lastIngestedAt = lastIngestedAt;
+  return s;
+}
+
+function tlPlan(
+  id: string, title: string, effectiveDate: string | null,
+  lastAnalyzed: number, workflowState: string,
+): TimelinePlanInput {
+  const p = new TimelinePlanInput();
+  p.id = id;
+  p.title = title;
+  p.scenario = 'replace_payment_card';
+  p.workflowState = workflowState;
+  p.lastAnalyzedGraphRevision = lastAnalyzed;
+  p.effectiveDate = effectiveDate;
+  return p;
+}
+
+function tlCardNode(expiryDate: string | null): TimelineNodeInput {
+  const n = new TimelineNodeInput();
+  n.id = 'n-card';
+  n.name = '招行 4417';
+  if (expiryDate !== null) {
+    n.fields.set('expiryDate', expiryDate);
+  }
+  return n;
+}
+
 function runTimeline(caseId: string, jt: JsonText): string {
-  if (caseId === 'timeline-buckets-and-ordering') {
-    // 该用例的 corpus 由 `graphRevision` + 一个固定来源 + 6 个计划构成，
-    // 其 expected 里的 tl-fresh-legacy-wechat-statement 来自 repository。
+  const env = timelineScenario(caseId);
+  if (env === undefined) {
     return '';
   }
+  const items = buildTimelinePure(env.input, TL_T0, TL_FRESHNESS_DAYS);
+
+  if (caseId === 'timeline-buckets-and-ordering') {
+    // 同一输入两次构建必须完全相同 —— 这是"投影可随时重建"的可验证含义。
+    const again = buildTimelinePure(env.input, TL_T0, TL_FRESHNESS_DAYS);
+    let same = items.length === again.length;
+    if (same) {
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].id !== again[i].id) {
+          same = false;
+          break;
+        }
+      }
+    }
+    return '{"buckets":' + serializeItemField(items, 'bucket') +
+      ',"ids":' + serializeItemField(items, 'id') +
+      ',"kinds":' + serializeItemField(items, 'kind') +
+      ',"deterministic":' + boolText(same) +
+      ',"planCountUnchanged":' + env.input.plans.length + '}';
+  }
+
+  if (caseId === 'timeline-attention-signals') {
+    const traceable = allItemsTraceable(items);
+    return '{"kinds":' + serializeItemField(items, 'kind') +
+      ',"buckets":' + serializeItemField(items, 'bucket') +
+      ',"sourceTypes":' + serializeItemField(items, 'sourceType') +
+      ',"priorities":' + serializeItemNumbers(items) +
+      ',"statuses":' + serializeItemField(items, 'status') +
+      ',"allTraceable":' + boolText(traceable) + '}';
+  }
+
+  if (caseId === 'timeline-terminal-plans-excluded') {
+    return '{"count":' + items.length +
+      ',"kinds":' + serializeItemField(items, 'kind') + '}';
+  }
   return '';
+}
+
+/**
+ * 重建 generator 里那三个场景。
+ *
+ * 返回 undefined 表示"这不是已知用例"→ 调用方记 NOT_IMPLEMENTED，
+ * 而不是抛错（抛错会被记成 FAIL，把"未实现"误报成"实现崩了"）。
+ */
+function timelineScenario(caseId: string): TimelineEnv | undefined {
+  const env = new TimelineEnv();
+
+  if (caseId === 'timeline-buckets-and-ordering') {
+    // (a) 6 个计划覆盖 6 个未来档；加 legacy 来源 = 7 项
+    env.input.currentGraphRevision = 0;
+    env.input.nodes.push(tlCardNode(null));
+    const dates: string[] = [
+      '2026-01-01', '2026-09-13', '2026-09-15', '2026-09-25', '2026-10-20', '2027-06-01',
+    ];
+    for (let i = 0; i < dates.length; i++) {
+      // lastAnalyzed = 5 而 DB 的实际 revision 是 0 → 不 stale。
+      // fixture input 里写的 graphRevision:5 是**描述性**的，
+      // 与 DB 里的 meta.graph_revision 不是同一个值 —— 这点极易误读。
+      env.input.plans.push(tlPlan('plan-' + (i + 1), '计划 ' + (i + 1), dates[i], 5, 'analyzed'));
+    }
+    env.input.sources.push(legacySource());
+    return env;
+  }
+
+  if (caseId === 'timeline-attention-signals') {
+    // (b) 开放 drift + 过期来源 + 到期节点 + 落后计划
+    env.input.currentGraphRevision = 0;
+    env.input.nodes.push(tlCardNode('2026-10-05'));
+    const wechat = new TimelineNodeInput();
+    wechat.id = 'n-wechat';
+    wechat.name = '微信支付';
+    env.input.nodes.push(wechat);
+
+    const d = new TimelineDriftInput();
+    d.id = 'drift-1';
+    d.kind = 'possible_replacement';
+    d.detectedAt = TL_T0;
+    d.status = DriftStatus.OPEN;
+    d.targetNodeId = 'n-wechat';
+    env.input.drifts.push(d);
+
+    env.input.sources.push(tlSource('inst-stale', '陈旧来源', '2026-01-01T00:00:00.000Z'));
+    env.input.sources.push(legacySource());
+
+    // 落后计划：lastAnalyzed=0，但 DB revision 也是 0 → **不 stale**，
+    // 且 effectiveDate 为空 → 一项都不产出。这正是基准的期望。
+    env.input.plans.push(tlPlan('plan-stale', '落后计划', null, 0, 'analyzed'));
+    return env;
+  }
+
+  if (caseId === 'timeline-terminal-plans-excluded') {
+    // (c) 终态计划必须被排除（TL-007）
+    env.input.currentGraphRevision = 0;
+    env.input.nodes.push(tlCardNode(null));
+    env.input.plans.push(tlPlan('plan-done', '已完成', '2026-09-20', 5, 'completed'));
+    env.input.plans.push(tlPlan('plan-cancel', '已取消', '2026-09-21', 5, 'cancelled'));
+    env.input.sources.push(legacySource());
+    return env;
+  }
+
+  return undefined;
+}
+
+/** 场景容器：把 input 包一层，便于把"场景"与"投影"分开。 */
+class TimelineEnv {
+  input: TimelineInput = new TimelineInput();
+}
+
+/** 取某个字段组成字符串数组（保持项次序）。 */
+function serializeItemField(items: TimelineItem[], field: string): string {
+  const out: string[] = [];
+  for (let i = 0; i < items.length; i++) {
+    if (field === 'id') {
+      out.push(jsonEscape(items[i].id));
+    } else if (field === 'kind') {
+      out.push(jsonEscape(items[i].kind));
+    } else if (field === 'bucket') {
+      out.push(jsonEscape(items[i].bucket));
+    } else if (field === 'sourceType') {
+      out.push(jsonEscape(items[i].sourceType));
+    } else if (field === 'status') {
+      out.push(jsonEscape(items[i].status));
+    }
+  }
+  return '[' + out.join(',') + ']';
+}
+
+function serializeItemNumbers(items: TimelineItem[]): string {
+  const out: string[] = [];
+  for (let i = 0; i < items.length; i++) {
+    out.push('' + items[i].priority);
+  }
+  return '[' + out.join(',') + ']';
+}
+
+/**
+ * 每一条 timeline 项都必须可溯源（sourceId 非空）。
+ *
+ * 这是"投影不是凭空造物"的可断言形式：宁可漏报一条，
+ * 也不能产生一条说不清来自哪里的提醒。
+ */
+function allItemsTraceable(items: TimelineItem[]): boolean {
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].sourceId.length === 0) {
+      return false;
+    }
+  }
+  return true;
 }

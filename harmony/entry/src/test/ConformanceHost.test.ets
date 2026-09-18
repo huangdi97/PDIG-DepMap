@@ -74,11 +74,18 @@ class EmbeddedTextSource implements ConformanceTextSource {
  * 未实现的 6 个是：timeline ×3、state-machine 的
  * action-verification / discovery-candidate / reality-drift。
  * 也就是说：**没有执行过的账目，就是没有被验证的账目。**
+ *
+ * 2026-09-18 后续：三台 state-machine（action-verification /
+ * discovery-candidate / reality-drift）与 timeline 纯投影均已落地并实现，
+ * 账目推进为 **63 已执行 + 28 blocked + 0 notImplemented**。
+ *
+ * 也就是说：**所有运行时无关用例都真的跑通并通过了**。
+ * 剩下的 28 个全部只受"没有设备运行时"这一个原因阻塞。
  */
 const EXPECTED_TOTAL = 91;
 const EXPECTED_BLOCKED_BY_RUNTIME = 28;
-const EXPECTED_NOT_IMPLEMENTED = 6;
-const EXPECTED_PASSED = 57;
+const EXPECTED_NOT_IMPLEMENTED = 0;
+const EXPECTED_PASSED = 63;
 const EXPECTED_FAILED = 0;
 
 export default function conformanceHostTest() {

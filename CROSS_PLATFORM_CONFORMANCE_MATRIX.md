@@ -85,16 +85,16 @@
 | 平台   | PASS | FAIL | NOT_IMPLEMENTED | NOT_RUN | 合计 |
 | ------ | ---- | ---- | --------------- | ------- | ---- |
 | Android | **91** | 0 | 0 | 0 | 91 |
-| Harmony（设备执行面） | 0 | 0 | 6 | **85**（57 主机已通过 + 28 `BLOCKED_BY_RUNTIME`） | 91 |
-| Harmony（**主机**执行面） | **57** | 0 | 6 | 28（`BLOCKED_BY_RUNTIME`） | 91 |
+| Harmony（设备执行面） | 0 | 0 | 0 | **91**（63 主机已通过 + 28 `BLOCKED_BY_RUNTIME`） | 91 |
+| Harmony（**主机**执行面） | **63** | 0 | 0 | 28（`BLOCKED_BY_RUNTIME`） | 91 |
 | iOS     | 0 | 0 | 0 | 91 | 91 |
 
 > **两行 Harmony 的读法**：
 > * **设备执行面**（`HARMONY_CONFORMANCE`）仍是 `NOT_RUN`，**pass = 0 / 91** ——
 >   一次都没在设备上跑过。这是往矩阵里写"Harmony conformance"时唯一该引用的口径。
-> * **主机执行面**（`HARMONY_CONFORMANCE_HOST`）**57/57 已真跑通过**。
+> * **主机执行面**（`HARMONY_CONFORMANCE_HOST`）**63/63 运行时无关用例已真跑通过**。
 >   它执行的是**同一个 ArkTS runner**（非 Node 复刻），因此可以计入 conformance；
->   但它只覆盖 57/91，**不能**被当成 91/91，也**不**替代设备执行面。
+>   但它只覆盖 63/91，**不能**被当成 91/91，也**不**替代设备执行面。
 > * 另有 gate `HARMONY_CONFORMANCE_RUNNER = PASS`（runner 已存在且被真的编译），
 >   该 gate **不改变**本表任何计数。
 
@@ -186,23 +186,26 @@
 ### 0.5 Harmony 用例的运行时相关性拆分（§11 要求）
 
 §11 要求「**优先做运行时无关的 conformance**，crypto 相关的运行时用例可以记为
-`BLOCKED_BY_RUNTIME`」。**第四轮实测**后的账目（取代此前的推算值）：
+`BLOCKED_BY_RUNTIME`」。**实测**账目（已取代此前的推算值）：
 
 | 分类 | 数量 | 说明 |
 | --- | --- | --- |
-| **已执行且通过** | **57** | 主机执行面真跑，actual 逐字节等于 expected |
+| **已执行且通过** | **63** | 主机执行面真跑，actual 逐字节等于 expected |
 | `BLOCKED_BY_RUNTIME` | **28** | parser 22 + depmap 3 + jcs 1 + backup 1 + `migration-db-v1-to-v3` 1 |
-| `NOT_IMPLEMENTED` | **6** | timeline 3 + state-machine 的 action-verification / discovery-candidate / reality-drift |
+| `NOT_IMPLEMENTED` | **0** | — |
 | **合计** | **91** | |
 
-**汇总：已执行通过 57 / `BLOCKED_BY_RUNTIME` 28 / `NOT_IMPLEMENTED` 6 = 91。**
+**汇总：已执行通过 63 / `BLOCKED_BY_RUNTIME` 28 / `NOT_IMPLEMENTED` 0 = 91。**
 
-分母校验：运行时无关共 **63** = 已执行 57 + 未实现 6。
+也就是说：**所有运行时无关用例都真的跑通并通过了**；
+剩下的 28 个只受"没有设备运行时"这一个原因阻塞。
 
-> **⚠ 更正**：本文档与相关报告此前写的是「60 可执行 / 3 notImplemented」。
-> 那是**推算**（默认 state-machine 5 个用例都已实现，实际只有 2 个），已作废。
-> 它是由自家测试 `accountingSplitMatchesSection11` 抓出来的 ——
-> 该断言把三个数写成精确值，推算值一放进去即失败。
+> **⚠ 更正记录（值得记住教训）**：本文档曾写「60 可执行 / 3 notImplemented」，
+> 再之前写「87 notImplemented / 4 blocked」。两次都是**推算**：
+> 第一次漏了 timeline 与 migration 的存在，第二次默认 state-machine 5 个用例都已实现
+> （实际只有 2 个）。最终由自家测试 `accountingSplitMatchesSection11` 抓出 ——
+> 它把三个数写成精确值，任何推算值一放进去即失败。
+> **没有执行过的账目，就是没有被验证的账目。**
 
 
 ## 4. Coverage（6 例）
