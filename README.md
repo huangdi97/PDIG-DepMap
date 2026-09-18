@@ -27,6 +27,7 @@ PDIG（Personal Digital Infrastructure Graph，内部代号 **DepMap**）是一�
 - [当前平台状态](#当前平台状态)
 - [已知限制](#已知限制)
 - [开发状态与路线](#开发状态与路线)
+- [文档索引（GitHub 入口）](#文档索引github-入口)
 - [License](#license)
 - [贡献](#贡献)
 - [安全报告](#安全报告)
@@ -285,6 +286,21 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 
 工程规范：`docs/ENGINEERING_STANDARDS.md` · 完成定义：`docs/DEFINITION_OF_DONE.md` ·
 Agent 协议：`docs/AGENT_DEVELOPMENT_PROTOCOL.md` · 变更风险分级：`docs/CHANGE_RISK_POLICY.md`。
+
+---
+
+## 文档索引（GitHub 入口）
+
+| 文档 | 内容 |
+| --- | --- |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 分层架构、Canonical 层与三端原生边界 |
+| [`docs/SECURITY_MODEL.md`](docs/SECURITY_MODEL.md) | 本地优先与失败即关闭的安全模型 |
+| [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md) | 一致性链路五阶段与 `NOT_RUN ≠ PASS` 口径 |
+| [`docs/DEPMAP_FORMAT.md`](docs/DEPMAP_FORMAT.md) | `.depmap` 容器格式与密码学参数 |
+| [`docs/NATIVE_MIGRATION.md`](docs/NATIVE_MIGRATION.md) | 迁移阶段 N0–N7 与三端现状 |
+
+发布与合规记录：`GITHUB_SECRET_PRIVACY_AUDIT.md` · `GITHUB_HISTORY_SANITIZATION_REPORT.md` ·
+`GITHUB_REPOSITORY_SIZE_AUDIT.md` · `TAG_REWRITE_MAP.md` · `LICENSE_DECISION.md`。
 
 ---
 

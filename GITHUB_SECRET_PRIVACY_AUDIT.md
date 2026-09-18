@@ -172,3 +172,27 @@ F-01 / F-02 已确认**非生产、不可单独利用**，但仍属"曾进入历
 | **C** | 轮换非生产测试 keystore（重新生成 + 新口令），使历史字面量失效 | 需重新生成 `pdig-nonprod.jks`；口令仍需入库或外置，不能彻底消除 |
 
 > 本轮**未执行** B / C，也未 push。见 `GITHUB_PUBLICATION_REPORT.md` §GITHUB_INITIAL_PUSH。
+
+---
+
+## 7. 净化后复扫（2026-09-18 追加，覆盖 §6 的历史类门禁）
+
+依据用户决策「先净化 Git 历史，再首次 push」，已用 `git-filter-repo` 2.47.0 完成全历史字面量净化，
+并对**可达历史**（126 commit / 1,197 blob）做字节级复扫。详见 `GITHUB_HISTORY_SANITIZATION_REPORT.md`。
+
+| Gate | 净化前 | 净化后 |
+| --- | --- | --- |
+| `SECRET_IN_HISTORY` | **YES**（F-01 非生产测试签名字面量） | **NO** |
+| `PRIVATE_KEY_IN_HISTORY` | NO | **NO** |
+| `TOKEN_IN_HISTORY` | NO | **NO** |
+| `RAW_FINANCIAL_DATA_IN_HISTORY` | NO | **NO** |
+| `PERSONAL_ABSOLUTE_PATH_IN_HISTORY`（F-02 本机用户名路径） | **YES** | **NO** |
+
+- F-01：三处非生产签名赋值的口令字面量已替换为 `<REDACTED_NONPROD_TEST_SECRET>`；
+  同时 `android/app/build.gradle.kts` 已改为环境变量 / Gradle property 查找，缺失时显式 fail-closed。
+- F-02：40 个受控文件 197 处机器绝对路径在工作树层已替换为占位符，历史层由 filter-repo 全量替换。
+- F-03（受控 agent 记录）已在 A1 阶段移出索引。
+- 规则字面量残留 **0/69**；通用敏感检测器（私钥 / 令牌 / Luhn 卡号 / 个人路径 / 机器路径）命中 **0**。
+- 历史中保留的 `C:\Users\<user>` / `X:\Users\<name>` 共 9 处为文档占位符，非真实个人路径。
+
+**结论**：A2 门禁的历史类阻塞项已解除，`GITHUB_HISTORY_SANITIZED = PASS`，可执行首次 push。
