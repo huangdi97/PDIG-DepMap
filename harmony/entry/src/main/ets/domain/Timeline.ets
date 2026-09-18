@@ -5,12 +5,18 @@
 // `../generated/CanonicalEnums`，**不依赖任何 repository / DB**。
 //
 // 与本 TS 基准的一处**有意差异**（必须显式记录，不得被当作遗漏）：
-//   原 buildTimeline() 需要 ChangePlanRepository / RealityDriftRepository /
-//   NodeRepository / SourceInstanceRepository 才能收集条目 —— 那是 data 层。
-//   Harmony domain 层不得依赖 relationalStore，因此这里保留的是
-//   Timeline 的**分类与排序内核**（bucket 判定 + deterministic 排序），
-//   它决定了"同一 DB 状态与同一 now 必然得到同一序列"这一不变式。
-//   条目的收集属于 application/data 层，尚未落地。
+//   原 buildTimeline() 从 ChangePlanRepository / RealityDriftRepository /
+//   NodeRepository / SourceInstanceRepository 收集条目 —— 那是 data 层，
+//   Harmony domain 层不得依赖 relationalStore。
+//
+//   2026-09-18 更新：这里**已经**提供完整的纯投影 `buildTimelinePure()`，
+//   但它接收的是**调用方传入的**条目集合（IoArray<PlanRow> / drift / source 等），
+//   而不是自己去读库。也就是说：
+//     * 「给定同一批条目 → 同一 atypical now → 同一序列」这个不变式在 domain 层被保证；
+//     * 「条目从哪来」仍属 application/data 层。
+//   conformance runner 侧的 timeline 三个用例，是按 caseId **重建 fixture 场景**
+//   后喂给本函数（见 HARMONY_N3_CONFORMANCE_REPORT.md §7.5.1 —— 那三个 fixture
+//   的 input 本身不足以决定 expected，三端都是这么做的）。
 //
 // 语义定位（原文照录）：纯投影（derived read model）：
 // 不是 Reality、不持久化、可随时重建。

@@ -408,11 +408,13 @@ scenario 1 + migration 1 + state-machine 5 + timeline 3）。
 本轮**未触发新的 stop condition**（§21 的 A–E 均未新增达成）。
 
 **外部硬 blocker 仍是**：缺 Emulator 系统镜像（需人工下载）。
-但 §10 的执行面**已不再依赖它** —— 主机执行面已打通，57/57 已真跑通过。
+但 §10 的执行面**已不再依赖它** —— 主机执行面已打通，63/63 运行时无关用例已真跑通过。
 
 **下一轮推荐动作（按性价比排序）**：
 
-1. **复核并记录 LogicalKey 的跨端收紧**（见 §7 备注）—— 唯一未决的口径问题。
+1. **裁决 LogicalKey 的跨端收紧**（2026-09-18 已记录为两个选项，见
+   `HARMONY_N3_CONFORMANCE_REPORT.md` §7.8）—— **唯一未决的口径问题**，需人工拍板；
+   在裁决前该差异既不计 PASS 也不计 FAIL。
 2. **决策 timeline fixture 的欠定问题**（见下）—— 属契约质量问题，需人工裁定。
 3. ArkData / Repository / migration 落地（`RUNTIME_VERIFIED` 需设备）——
    这也是把 28 个 `BLOCKED_BY_RUNTIME` 变成可执行的前提。

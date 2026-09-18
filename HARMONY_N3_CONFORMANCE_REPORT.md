@@ -247,33 +247,29 @@ COMPILE RESULT:FAIL {ERROR:8 WARN:2}
 | coverage | 6 | COMPILED | **可执行** | 直接调 `computeScenarioCoverage` |
 | state-machine | 5 | COMPILED | **可执行** | `allowedNextStates` / `isTerminalState` / `doesMutationBumpRevision` |
 | scenario | 1 | COMPILED | **可执行** | 读 `SCENARIO_TEMPLATES` / `PLANNED_TEMPLATES` 注册表 |
-| migration | 2 | 部分 | 1 **可执行** + 1 `BLOCKED_BY_RUNTIME` | `version-contract` 纯静态可跑；`db-v1-to-v3` 需 relationalStore |
-| timeline | 3 | 内核已 COMPILED | **NOT_IMPLEMENTED** | 见 §3.1 |
+| migration | 2 | 部分 | 1 **已执行** + 1 `BLOCKED_BY_RUNTIME` | `version-contract` 纯静态已跑；`db-v1-to-v3` 需 relationalStore |
+| timeline | 3 | 内核已 COMPILED | **已执行**（见 §3.1） | `buildTimelinePure()` 纯投影 |
 | parser | 22 | 未开工 | `BLOCKED_BY_RUNTIME` | 需 `TextDecoder('gb18030')` + 字节读取；ArkTS adapter 未移植 |
 | depmap | 3 | COMPILED | `BLOCKED_BY_RUNTIME` | expected 全含 `derivedKeyHex`/`ciphertextBase64`/`tagBase64`，必须真跑 Argon2id+AES-GCM |
 | jcs | 1 | COMPILED | `BLOCKED_BY_RUNTIME` | 需真实异常类型名 + JCS 内核 |
 | backup | 1 | 未开工 | `BLOCKED_BY_RUNTIME` | 需 DB 导出/恢复往返 + 加密容器 |
-| **合计** | **91** | — | **63 可执行 / 28 blockedByRuntime / 3 timeline NOT_IMPLEMENTED** | **0 执行** |
+| **合计** | **91** | — | **63 已执行（全通过）/ 28 `BLOCKED_BY_RUNTIME`/ 0 `NOT_IMPLEMENTED`** | 设备上仍 **0 执行** |
 
-> 计数说明：63 = 18+16+13+6+5+1+1+3(timeline 计入分母但不在可执行集)。
-> 精确口径：**可执行 60（relations 18 + readiness 16 + impact 13 + coverage 6 +
-> state-machine 5 + scenario 1 + migration-version-contract 1）+ timeline 3 NOT_IMPLEMENTED
-> + 28 blockedByRuntime = 91**。
+> 计数说明：63 = 18(relations) + 16(readiness) + 13(impact) + 6(coverage) +
+> 5(state-machine) + 1(scenario) + 1(migration-version-contract) + 3(timeline)。
+> 精确口径：**63 已执行 + 28 `BLOCKED_BY_RUNTIME` + 0 `NOT_IMPLEMENTED` = 91**。
+> 其中 `migration` 按**用例**而非分类切（见 §3.2），否则可执行的那个会被抹掉。
 
-### 3.1 timeline 为什么是 NOT_IMPLEMENTED 而不是 PASS
+### 3.1 timeline 曾是 NOT_IMPLEMENTED，本轮已实现 —— 但验证的是什么要看清
 
-`timeline` 3 个用例的 expected 里都含**来自仓库读取的条目**
-（`tl-fresh-legacy-wechat-statement` 需要 `SourceInstanceRepository`；
-`timeline-attention-signals` 需要 Drift 行；
-`timeline-terminal-plans-excluded` 需要 DB 里的计划）。
+上一轮这 3 个用例返回 `NOT_IMPLEMENTED`，原因是 domain 层只保留了分类与排序内核，
+条目收集属 data 层且未落地。本轮落地了 `Timeline.buildTimelinePure()`，
+runner 侧接入 `runTimeline`，3 个用例全部通过。
 
-Harmony domain 层的 `Timeline.ets` **只保留了分类与排序内核**
-（`bucketOf` + `sortTimelineKeys`），条目收集属 data 层且尚未落地 ——
-这是该文件头部已显式记录的有意差异。因此 runner 对这 3 个用例返回空串
-→ `NOT_IMPLEMENTED`。
-
-**如实记账的意义**：把"只有内核"报成"通过"，等于声称已经实现了尚未实现的仓库读取。
-`NOT_IMPLEMENTED` 既不是 FAIL 也不是 PASS，这是 harness 的既有契约。
+**但要连带看清 §7.5.1**：这 3 个 fixture 的 `input` 不足以决定 `expected`
+（expected 依赖 fixture 里没有的 DB 场景），因此包括 Android 基准在内的三端
+都是**重建同一场景**再跑投影。它们验证的是「同一场景下投影内核是否一致」，
+而**不是**「input → output」。这一点必须与"63/63 通过"一起被引用。
 
 ### 3.2 为什么 `migration` 要按**用例**而非**分类**切
 
@@ -315,12 +311,11 @@ $ node tools/harmony/check-relations-semantics.mjs
 
 ---
 
-## 5. 达成 91 / 91 的路径（本轮已推进到第 2 步）
+## 5. 达成 91 / 91 的路径（已推进到第 3 步）
 
 1. **打通执行面**（前置，最高优先）
    - 在 DevEco 下载模拟器系统镜像 → 可跑 `ohosTest`；或
-   - **接入 DevEco 本地单元测试框架（Hypium）→ 脱离设备执行**。
-   *在此之前，任何 conformance 数字都只能是 NOT_RUN。*
+   - **接入 DevEco 本地单元测试框架（Hypium）→ 脱离设备执行 —— 已完成**。
 2. ~~接 runner~~ —— **本轮完成**：读 `fixtures/`（与 Android 同一批）→
    ArkTS 实现 → 归一化 → 比对 `expected`；**未手抄任何 expected**。
 3. **投放 + 执行**：`hdc file send` 推 `conformance/` + `fixtures/` 进沙箱，
@@ -334,13 +329,14 @@ $ node tools/harmony/check-relations-semantics.mjs
 | 阶段 | 内容 | 需要运行时？ | 状态 |
 | --- | --- | --- | --- |
 | 1 | Domain 11 组落地 | 否 | **完成**（COMPILED） |
-| 2 | ArkTS conformance runner 落地并进编译图 | 否 | **完成（本轮）** |
-| 3 | 接 Hypium 或投放沙箱后执行 60 个可执行用例 | 否（若能脱离设备） | 待做 |
-| 4 | 执行 28 个 `BLOCKED_BY_RUNTIME` 用例 → `91/91` | **是** | 待做 |
+| 2 | ArkTS conformance runner 落地并进编译图 | 否 | **完成** |
+| 3 | 脱离设备执行运行时无关用例 | 否 | **完成：63/63 全通过** |
+| 4 | 执行 28 个 `BLOCKED_BY_RUNTIME` 用例 → `91/91` | **是** | **唯一的待做项** |
 
-**阶段 3 仍不需要设备**（若 Hypium 可脱离设备运行），是当前性价比最高的推进方向。
-把 91/91 拆成「60 可自行达成 + 3 待补实现 + 28 等外部资源」，
-比笼统地说「等运行时」更有行动力。
+**剩下的路只剩一条，而且原因只有一个**：阶段 1–3 都已走完，任何可以脱离
+`@ohos` 运行时验证的东西都已经真跑过了。把 91/91 拆成「63 已自行达成 +
+28 只等外部资源」，比笼统地说「等运行时」更有行动力 —— 而现在这 28 个
+**不再掺杂任何实现缺口**，它们纯粹在等一个设备或模拟器系统镜像。
 
 ---
 
@@ -348,10 +344,13 @@ $ node tools/harmony/check-relations-semantics.mjs
 
 | # | 不主张 | 理由 |
 | - | ------ | ---- |
-| 1 | 任何一个用例"通过" | 一次都没执行过 |
-| 2 | 比对逻辑（键序、序列化顺序）已正确 | 本机无 ArkTS 运行时，无法自证 |
-| 3 | 60 这个数字会变成 60/60 | 未执行即未知 |
-| 4 | `HARMONY_CONFORMANCE` 有任何进展 | 取值仍为 `NOT_RUN` |
+| 1 | 91 个用例"通过" | 只有 63 个跑过；28 个**一次都没执行过** |
+| 2 | **`HARMONY_CONFORMANCE_HOST` 等于 `HARMONY_CONFORMANCE`** | 前者是 **63/91 的子集**，且跑在**主机**而非设备上 |
+| 3 | `parser(22)` / `depmap(3)` / `backup(1)` / `jcs(1)` 有任何证据 | 未开工或需真实加密/GB18030，主机无法自证 |
+| 4 | timeline ×3 验证的是 `input → output` | fixture **欠定**，见 §7.5.1；三端均靠重建场景 |
+| 5 | `HARMONY_CONFORMANCE` 有任何进展 | 取值仍为 `NOT_RUN` |
+
+下面这两条曾被写下，**已在第四/五轮被推翻**，保留原文以便对照。
 
 ### 6.1 一条已被本轮推翻的方法论限制（保留原文以便对照）
 
@@ -504,9 +503,32 @@ node tools/conformance/embed-fixtures.mjs          # 生成内嵌 fixtures（改
 node tools/harmony/run-conformance-host.mjs        # 镜像 → hvigor test → 解析 → 判定
 # 期望：
 #   HARMONY_CONFORMANCE_HOST=PASS
-#   汇总 : run=61 pass=61 fail=0 error=0
+#   汇总 : run=67 pass=67 fail=0 error=0     # 63 用例 + 3 元测试 + 1 domain 自检
 ```
 
 `--no-build` 可只解析上次结果；无 `PDIG_DEVECO_HOME` 时报 `NOT_RUN` 并 exit 0
-（不让缺 SDK 的机器变成假失败）。
+（不让缺 SDK 的机器变成假失败）。镜像已存在时一次复跑约 30 秒。
+
+### 7.8 一项待裁决的跨端差异（尚未收敛，不计入 PASS）
+
+第五轮修 §7.5 缺陷 3 时，`LogicalKey.parseDependencyLogicalKey` 改为按
+**runtime registry**（`getRelationDefinition()`）判定合法关系，而 TS 基准用的是
+`relationFromWire`（枚举）。二者差异：
+
+| 实现 | 判定依据 | 后果 |
+| ---- | -------- | ---- |
+| TS 基准 | wire 枚举 | 枚举内的 wire 名一律放行 |
+| Harmony（现） | registry 定义 | `bound_to` 等枚举内**但 registry 未注册**的关系被拒绝 |
+
+**Harmony 比基准更严。** 现行 63 个 fixture **全部不受影响**（冻结论据里没有
+这种组合），所以这不是"为了通过测试而放宽/收紧"，但一旦 fixture 扩面就会出现分化。
+
+这是**需要人工裁决的决策**，不是可以自行"顺手修好"的缺陷，因此原样保留并登记：
+
+- **选项 A —— 对齐基准**：改用 `relationFromWire`，跨端行为一致，代价是失去
+  registry 的单一真源保护；
+- **选项 B —— 保留收紧**：认为 TS 侧才是应当被修正的一方；那也应先修 TS/冻结契约，
+  再由 Harmony 跟随，**而不是让 Harmony 悄悄对齐一个有待商榷的基准**。
+
+在裁决前，本节不写 PASS 也不写 FAIL —— 差异存在且已被定位，这就是全部事实。
 
