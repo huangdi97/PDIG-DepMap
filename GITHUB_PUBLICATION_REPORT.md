@@ -16,7 +16,7 @@
 | 首次 push | **已完成**，且**先完成历史净化**（`GITHUB_HISTORY_SANITIZED = PASS`） |
 | force push | **未使用**（全程快进） |
 | 发布 Release | **无**（本轮不发布 v1.0 或任何 Release） |
-| `GITHUB_CI` | **FAIL**（首次运行；原因见 §6，为既有 fixture 缺陷，非净化引入） |
+| `GITHUB_CI` | **PASS**（第三次运行 `35303432883` 全绿；前两次 FAIL 的原因见 §6，均已修复且复验） |
 
 ---
 
@@ -41,7 +41,16 @@
 **未推送**：任何临时 / 备份 ref（`refs/replace/*`、filter-repo 备份 ref 已在净化时 `delete-no-add`）、
 两份离线 bundle（仅存于本机，见净化报告 §1）。
 
-推送后二次修复提交（快进，非 force）：`443bd7e9..d9e5319`，修复内容见 §5。
+推送后两次修复提交（均为快进，非 force）：
+
+| 提交区间 | 内容 |
+| --- | --- |
+| `443bd7e9..d9e5319` | §5 的两项仓库缺陷修复 + Android CI job 修正 |
+| `d9e5319..0b38bd40` | §6.3 清单根因修复 + §6.4 CI 门控补强 + 本报告入库 |
+
+当前推送 tip：`0b38bd40e86b240a6ac621665b7f2c250abbdef0`（`main` 与 `feat/mvp03-living-graph` 同提交）。
+（`GITHUB_HISTORY_SANITIZATION_REPORT.md` 不硬编码自身 SHA，`SANITIZED_CANONICAL_HEAD` 仍为首次 push 的
+`443bd7e9…`；本节的 tip 为推送链末端，二者语义不同，不可混用。）
 
 ---
 
@@ -121,7 +130,7 @@ Android Context / Compose / SQLite），本不需要 Android SDK；原 `android-
 | --- | --- | --- |
 | `35300849483` | `workflow_dispatch`（main @ `443bd7e9`） | **FAIL**（两个 job 均失败） |
 | `35301936345` | `workflow_dispatch`（main @ `d9e53190`，§5 修复后） | **FAIL**（Android job **PASS**；Canonical job 仅剩 `fixtureIntegrity`） |
-| 第三次 | 推送 §6.3 根因修复 + §6.4 门控补强后 | 见 §6.5 |
+| `35303432883` | `workflow_dispatch`（main @ `0b38bd40`，§6.3 + §6.4 后） | **PASS**（两个 job 全绿） |
 
 ### 6.1 首次运行的两个失败（性质不同，均已分别处置）
 
@@ -186,7 +195,38 @@ Canonical job 的唯一红灯即 §6.3 的清单缺陷。
 - `if: always()` 保证 Android 失败时 Canonical 仍独立如实上报，不被 "skipped" 掩盖；
 - Android 失败时不下载报告 → 该平台仍如实报 `NOT_RUN`（`NOT_RUN ≠ PASS`）。
 
-### 6.5 诚实口径
+### 6.5 第三次运行（根因修复 + 门控补强后）：首次全绿
+
+| job | 结论 | 耗时 |
+| --- | --- | --- |
+| Android core（JVM tests + conformance） | **SUCCESS** | 2m33s |
+| Canonical（codegen / fixtures / oracle） | **SUCCESS** | 14s |
+
+Canonical job 在远真 runner 上的实际读数：
+
+```
+cases:   91/91 ok
+imports: 28/28 ok                      ← 修复前为 16/28
+ORACLE SELFCHECK: PASS (91 cases reproduce exactly)
+android  PASS  91 pass / 0 fail / 91 total   ← §6.4 之前在 CI 中恒为 NOT_RUN
+harmony  NOT_RUN  (conformance/reports/harmony.json absent)
+ios      NOT_RUN  (conformance/reports/ios.json absent)
+
+codegen          : PASS
+fixtureIntegrity : PASS
+oracleSelfcheck  : PASS
+platform android : PASS
+VERDICT: PASS
+```
+
+两点确认：
+
+1. §6.3 的清单修正在 **Linux runner** 上同样成立（`imports: 28/28`），证明新哈希取自 canonical blob 字节、
+   而不是又一次"本机恰好正确"。
+2. §6.4 的门控补强生效：CI 侧 `platform android` 由恒 `NOT_RUN` 变为 **PASS 91/91**，
+   即 CI 现在真正校验「Android 实现逐用例复现 canonical」这一核心不变量。
+
+### 6.6 诚实口径
 
 - Harmony / iOS 在 CI 中为 `NOT_RUN`，未声明为 PASS。
 - Android 模拟器 E2E 未建立（hosted runner 无硬件加速），未声明为 PASS。
