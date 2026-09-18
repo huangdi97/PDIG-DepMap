@@ -39,6 +39,14 @@
 > **⚠ 不得误用的正数**：`node tools/harmony/check-relations-semantics.mjs` 输出 **18/18**，
 > 但它是**源码语义镜像**（Node 等价实现 vs 同批 fixtures），**不是 ArkTS 运行时执行**，
 > 因此 **不写入本矩阵，也不计入 HARMONY_CONFORMANCE**。
+>
+> **（2026-09-18 追加）同类"不得误用"的正数之二**：
+> `node tools/harmony/verify-container-golden.mjs` 输出 **5/5 PASS**，
+> 它验证的是 **JCS / AAD / GCM 这份移植规格本身**（主机侧独立实现复现黄金向量），
+> **不是** ArkTS 运行时执行结果；`assembleHap` 的 `BUILD SUCCESSFUL` 同理，
+> 且在 2026-09-18 之前对未被 import 的 `.ets` 而言甚至是空证据
+> （hvigor 只编译可达模块，详见 `HARMONY_CONTAINER_V1_POC.md` §4）。
+> 三者**都不写入本矩阵**，Harmony 列保持 **0 执行 / 91**。
 
 ---
 

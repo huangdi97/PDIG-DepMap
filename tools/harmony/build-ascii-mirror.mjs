@@ -11,7 +11,8 @@
 //   node tools/harmony/build-ascii-mirror.mjs            # 镜像 + assembleHap
 //   node tools/harmony/build-ascii-mirror.mjs --clean    # 先清空镜像目录
 //
-// 镜像目录可用 PDIG_HARMONY_BUILD_ROOT 覆盖（默认 C:/Users/<user>/pdig-harmony-build）。
+// 镜像目录可用 PDIG_HARMONY_BUILD_ROOT 覆盖（默认 <用户主目录>/pdig-harmony-build，
+// 由 os.homedir() 推导；此处刻意不写任何真实机器路径）。
 import { existsSync, mkdirSync, rmSync, readdirSync, statSync, copyFileSync, readFileSync, writeFileSync, symlinkSync, lstatSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { execFileSync } from 'node:child_process'
@@ -37,7 +38,12 @@ const DEPS = {
   'hvigor': join(DEVECO, 'tools/hvigor/hvigor'),
   'hvigor-ohos-plugin': join(DEVECO, 'tools/hvigor/hvigor-ohos-plugin'),
 }
-const TARGETS = process.argv.slice(2).filter(a => !a.startsWith('--'))
+const ARGV = process.argv.slice(2)
+// --clean 曾经只在用法注释里存在、代码里从未实现，
+// 导致「想做干净构建」的人拿到的是一堆 UP-TO-DATE 的增量结果（假绿）。
+// 这里补上真实实现：构建前先删除镜像目录。
+const CLEAN = ARGV.includes('--clean')
+const TARGETS = ARGV.filter(a => !a.startsWith('--'))
 
 function copyTree(from, to) {
   mkdirSync(to, { recursive: true })
@@ -59,6 +65,10 @@ if (!existsSync(SRC)) { console.error('缺少 harmony/ 工程'); process.exit(1)
 if (!existsSync(HVIGOR_JS)) { console.error('未找到 DevEco hvigor:', HVIGOR_JS); process.exit(1) }
 
 // 1. 同步源码到镜像
+if (CLEAN && existsSync(BUILD_ROOT)) {
+  rmSync(BUILD_ROOT, { recursive: true, force: true })
+  console.log('[harmony] mirror cleaned:', BUILD_ROOT)
+}
 copyTree(SRC, MIRROR)
 console.log('[harmony] source mirrored')
 

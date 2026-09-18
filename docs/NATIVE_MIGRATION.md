@@ -56,12 +56,19 @@ PDIG/DepMap 采用「**规范先行、三端原生**」的迁移路径：
 | `HARMONY_BUILD` | **PASS** | hvigor 全清重建成功，产出 `entry-default-unsigned.hap`（60,133 B） |
 | `HARMONY_DOMAIN` | **PARTIAL_WITH_REPORT** | 首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP |
 | `HARMONY_ARKUI` | **PARTIAL_WITH_REPORT** | Stage Model 骨架 + 占位页面 |
+| `HARMONY_CRYPTO` | **COMPILED** | JCS（RFC 8785 受限域）/ AAD / AES-256-GCM / 容器加解密已实现于 `entry/src/main/ets/crypto/`；主机侧黄金校验 **5/5 PASS**；ArkTS **真实编译**（`modules.abc` 符号取证 `ABC_VERDICT=PRESENT`）。运行时 **NOT_RUN**，故未达 `TESTED`。详见 `HARMONY_CONTAINER_V1_POC.md` |
 | `HARMONY_DEPMAP` | **BLOCKED_BY_NATIVE_VERIFICATION** | 托管 API（`cryptoFramework` / `HUKS`）未提供 Argon2 —— 已证据级排除；**原生路径（NDK + PHC 参考实现 + NAPI）已打通**：主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；仍缺设备上复验，故**未**记为 PASS。详见 `HARMONY_ARGON2_FEASIBILITY.md` |
 | `HARMONY_RUNTIME_E2E` | **RUNTIME_NOT_RUN** | 无可用的模拟器镜像（`hdc list targets` 为空） |
 | 对等计数 | **0 / 73** | 上述三格未达 `TESTED` 及以上，按口径不计入 |
 
 > `DEPMAP_CONTAINER_V1` 的密码学参数（Argon2id v19 / AES-256-GCM / JCS 规范化）是**兼容性闸门**，
-> 不允许为适配单一平台而降级或修改容器格式。可行性论证见 `HARMONY_ARGON2_FEASIBILITY.md`。
+> 不允许为适配单一平台而降级或修改容器格式。可行性论证见 `HARMONY_ARGON2_FEASIBILITY.md`
+> 与 `HARMONY_CONTAINER_V1_POC.md`。
+
+> **⚠ Harmony 侧的构建取证纪律**：hvigor 的 `CompileArkTS` **只编译从 ability / page 可达的模块**，
+> 未被 `import` 的 `.ets` 完全不进入编译图（实证：放语法错误也 `BUILD SUCCESSFUL`）。
+> 因此任何"ArkTS 编译通过"都必须附 `modules.abc` 符号取证
+> （`node tools/harmony/probe-abc-symbols.mjs` → `ABC_VERDICT=PRESENT`），否则无效。
 
 ## 5. iOS（N4）——未开始
 

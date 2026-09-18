@@ -139,7 +139,7 @@ cd .. && node tools/conformance/run.mjs
 | 工程脚手架     | **PASS** | `harmony/` 已建 Stage Model 工程（AppScope / build-profile / oh-package / hvigorfile / entry module.json5 / EntryAbility / resources）。hvigor 全清重建 **BUILD SUCCESSFUL** |
 | Domain（ArkTS）| **PARTIAL_WITH_REPORT** | `entry/src/main/ets/domain/Relations.ets` 已实现并**编译进 HAP**（HAP 内含域代码标记）；Impact / Readiness / Coverage / StateMachine / Timeline / Migration / GraphRevision / Scenario 未开工 |
 | Build          | **PASS** | HAP `entry-default-unsigned.hap`，**60,133 B**，sha256 `ac86a5af1a7f15d2ddba70b139b4cbe862d3d1af2898efa496ac05801f9c00fa`（未签名） |
-| Crypto         | **BLOCKED** | `cryptoFramework` KDF 仅 PBKDF2 / HKDF，**无 Argon2** → `.depmap` 无法实现（禁止自研原语） |
+| Crypto         | **COMPILED / KDF 未绑定** | AES-256-GCM + AAD 平台能力**具备**（`GcmParamsSpec{iv,aad,authTag}`）；JCS（RFC 8785 受限域）、AAD 构造、容器加解密已实现于 `entry/src/main/ets/crypto/`，主机侧黄金校验 **5/5 PASS**，ArkTS **真实编译**（`modules.abc` 符号取证 `ABC_VERDICT=PRESENT`）。Argon2id 仍**未绑定**（KDF 以 `Argon2idDeriver` 注入），故 `.depmap` 端到端仍 **不可运行** —— 见 `HARMONY_CONTAINER_V1_POC.md` |
 | 持久化         | **NOT_STARTED** | ArkData relationalStore 未开工 |
 | UI（ArkUI）    | **PARTIAL_WITH_REPORT** | 骨架 + 1 个占位页；§L 的 17 个页面未开工 |
 | Conformance    | **NOT_RUN** | 无设备/模拟器、未接本地测试框架；0 执行（87 notImplemented / 4 blocked / 91） |
@@ -210,6 +210,15 @@ cd .. && node tools/conformance/run.mjs
   需 DevEco Studio GUI 下载镜像（账号/网络），与 Android 侧 B18 同类。
 - **HAP 未签名**：无 signingConfig，产物为 `entry-default-unsigned.hap`；
   与 Android 侧缺生产 keystore 同类的外部闸门。
+
+**2026-09-18 新增（Harmony 工程侧，非外部 blocker）**：
+
+- **B27 hvigor 只编译可达模块**（已定位并规避，但必须长期记住）：
+  `CompileArkTS` **只编译从 ability / page 可达的模块**；未被 `import` 的 `.ets`
+  完全不进入编译图。实证：在未被引用的文件里放**语法错误**，`assembleHap`
+  依然 `BUILD SUCCESSFUL`。因此"ArkTS 编译通过"只有在文件处于可达图中时才构成证据，
+  每次声称都必须附 `modules.abc` 符号取证（`tools/harmony/probe-abc-symbols.mjs`）。
+  规避方式：由 `pages/Index.ets` 引用 `crypto/ContainerSelfCheck.ets` 建立 import 边。
 
 **2026-09-16 P0 轮已解除的 blocker**：
 

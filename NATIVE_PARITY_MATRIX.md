@@ -18,6 +18,16 @@
 >   **NDK + PHC 参考实现 + NAPI 路径已打通** —— 主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；
 >   仍缺**设备上复验**，故未改 PASS）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。
 >   详见 `HARMONY_ARGON2_FEASIBILITY.md`。
+>
+> **2026-09-18 追加（AES / JCS / container）**：`harmony/entry/src/main/ets/crypto/`
+> 新增 `Jcs.ets` / `DepmapContainerV1.ets` / `ContainerSelfCheck.ets`，
+> 主机侧黄金校验 **5/5 PASS**（`tools/harmony/verify-container-golden.mjs`），
+> ArkTS **真实编译**（`modules.abc` 42,916 B → 69,036 B，符号取证 `ABC_VERDICT=PRESENT`）。
+> 但**均未达 `TESTED`**，按口径仍**不计入** —— Harmony 合计**仍为 0 / 73**。
+> 定位过程中发现一条会影响所有后续 Harmony 结论的工程事实：
+> **hvigor 只编译从 ability / page 可达的模块**，未被引用的 `.ets` 放语法错误也照样
+> `BUILD SUCCESSFUL`；因此本轮之前的"编译通过"表述一律无效，已改用符号取证作证据。
+> 详见 `HARMONY_CONTAINER_V1_POC.md` §4。
 
 > ## D-16 CLOSED（2026-09-17）
 >
@@ -101,11 +111,11 @@
 
 | 能力                     | Android | Harmony | iOS |
 | ------------------------ | ------- | ------- | --- |
-| `.depmap` 容器（V1）      | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| Argon2id + AES-256-GCM    | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| JCS (RFC 8785) 受限域     | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| UTF-8 口令不做归一化       | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| 恶意容器 bounds 前置校验   | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| `.depmap` 容器（V1）      | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（容器逻辑已实现并真实编译；未达 TESTED，**不计入** 0/73） | NOT_STARTED |
+| Argon2id + AES-256-GCM    | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（AES-256-GCM 走 `cryptoFramework`，规格经主机黄金校验 5/5；Argon2id **未绑定**） | NOT_STARTED |
+| JCS (RFC 8785) 受限域     | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（`Jcs.ets` 已实现并真实编译；设备自检 `ContainerSelfCheck` 就绪但未执行） | NOT_STARTED |
+| UTF-8 口令不做归一化       | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（`util.TextEncoder` 精确 UTF-8 字节；未达 TESTED） | NOT_STARTED |
+| 恶意容器 bounds 前置校验   | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（`validateDepmapBounds` 全项先于 KDF；未达 TESTED） | NOT_STARTED |
 | 平台密钥库（Keystore/HUKS/Keychain） | **RUNTIME_VERIFIED**（原始密钥不落盘；prefs 中只有包裹后的值；重启后可重新派生） | NOT_STARTED | NOT_STARTED |
 | 数据库加密 | **RUNTIME_VERIFIED**（明文 `sqlite3` 读不出来） | NOT_STARTED | NOT_STARTED |
 | 生物认证 / App Lock | **PARTIAL（App Lock 接线已完成且可独立验证；设备凭据判定本轮修好并取证；生物识别匹配仍受环境限制）** | NOT_STARTED | NOT_STARTED |

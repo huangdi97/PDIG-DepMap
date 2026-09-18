@@ -124,7 +124,7 @@
 | --- | ---------------------------- | -------------------------------------------------------------------- |
 | 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 已开工，在 2 个真实 blocker 处停止**） |
 | 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md` |
-| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（HAP 60,133 B）；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_DEPMAP` = **BLOCKED_BY_NATIVE_VERIFICATION**（Argon2 原生路径已打通：主机 Golden Vector `MATCH=YES` + arm64 `.so` 编译通过，待设备上复验）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像）；parity 仍 0/73 —— 见 `HARMONY_ARGON2_FEASIBILITY.md` |
+| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM 已实现且经符号取证确认进入编译，主机侧黄金校验 5/5 PASS）；`HARMONY_DEPMAP` = **BLOCKED_BY_NATIVE_VERIFICATION**（Argon2 原生路径已打通：主机 Golden Vector `MATCH=YES` + arm64 `.so` 编译通过，KDF 尚未绑定）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像）；parity 仍 0/73 —— 见 `HARMONY_ARGON2_FEASIBILITY.md` / `HARMONY_CONTAINER_V1_POC.md` |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
 | 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **NOT_RUN**（0 执行：87 notImplemented / 4 blocked）；iOS 无报告。CI 已由恒 `NOT_RUN` 改为真正校验 Android 平台报告（见 `GITHUB_PUBLICATION_REPORT.md` §6.4） |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
@@ -742,3 +742,66 @@ arm64 必须用可移植的 `ref.c`；漏掉会直接 `undefined reference to 'f
 - Argon2 源码**未入库**（PoC 源码在仓库外临时目录），依赖登记 / `THIRD_PARTY_NOTICES` 未更新
 - 设备上 Argon2 复验 —— **NOT_RUN**（无设备与模拟器镜像）
 - iOS N4 —— **未进入**（保持 `BLOCKED_BY_MACOS`）
+
+---
+
+## 本轮：PART B Harmony N3 — AES / JCS / container（2026-09-18）
+
+结论与证据见 `HARMONY_CONTAINER_V1_POC.md`。要点：
+
+| 项 | 结果 |
+| --- | --- |
+| Harmony AES-256-GCM + AAD 能力 | **具备**（`GcmParamsSpec{iv,aad,authTag}`，tag 由 `doFinalSync` 取、解密时经 `initSync` 传入） |
+| 主机侧黄金校验 | **5/5 PASS**（`tools/harmony/verify-container-golden.mjs`，仅用 `node:crypto`） |
+| ArkTS 实现 | `Jcs.ets` / `DepmapContainerV1.ets` / `ContainerSelfCheck.ets` |
+| ArkTS 编译 | **COMPILED**（真实编译，非假信号，见下） |
+| 运行时 | **NOT_RUN**（无设备） |
+| `.depmap` 协议 | **未改动** |
+
+### 本轮抓到的最严重问题：编译门曾是假信号
+
+顺序如下，必须记住：
+
+1. 新加两个 `.ets` 后 `assembleHap` 直接 `BUILD SUCCESSFUL` —— 可疑；
+2. 负向对照一：在文件里放**类型错误** → 仍 `BUILD SUCCESSFUL`；
+3. 负向对照二：放**语法错误** → 仍 `BUILD SUCCESSFUL`；
+4. `modules.abc` 符号取证 → 只含 `Relations` / `EntryAbility` / `CanonicalEnums` / `Index` 四个模块，
+   `jcsStringify`、`gateProbe` 命中数 **0**。
+
+⇒ **hvigor 的 `CompileArkTS` 只编译从 ability / page 可达的模块**，未被 `import` 的 `.ets` 不进编译图。
+在此之前任何"Harmony 编译通过"的表述都不构成证据。
+
+处置：新增 `ContainerSelfCheck.ets` 并由 `Index.ets` 引用，建立真实 import 边
+（`Index → ContainerSelfCheck → DepmapContainerV1 → Jcs`）。
+
+处置后的双向证据：
+
+- **负**：重建立即报出并拦截两条真实 ArkTS 错误
+  （`arkts-no-obj-literals-as-types` / `arkts-no-untyped-obj-literals`），
+  改为显式 `export interface AesGcmSealed` 后通过；
+- **正**：`modules.abc` 42,916 B → 69,036 B，符号取证确认三个 crypto 模块及全部函数在内，
+  并含 `@ohos:security.cryptoFramework` 导入（`tools/harmony/probe-abc-symbols.mjs` → `ABC_VERDICT=PRESENT`）。
+
+### 本轮顺手修掉的工具缺陷
+
+| 缺陷 | 处置 |
+| --- | --- |
+| `build-ascii-mirror.mjs --clean` 只在注释里存在，代码从未实现 → 想做干净构建的人拿到的是增量假绿 | 补上真实实现（构建前 `rmSync` 镜像目录） |
+| 符号取证脚本只存在于 `.workbuddy/`（不受版本控制） | 固化为 `tools/harmony/probe-abc-symbols.mjs` |
+
+### 新增产物
+
+- `HARMONY_CONTAINER_V1_POC.md`
+- `harmony/entry/src/main/ets/crypto/Jcs.ets`
+- `harmony/entry/src/main/ets/crypto/DepmapContainerV1.ets`
+- `harmony/entry/src/main/ets/crypto/ContainerSelfCheck.ets`
+- `tools/harmony/verify-container-golden.mjs`
+- `tools/harmony/probe-abc-symbols.mjs`
+
+### 下一步（按 PART B 顺序）
+
+1. Argon2id 绑定前置 Gate：依赖策略登记、License 选择（CC0-1.0 / Apache-2.0）、vendoring 决策；
+2. hvigor/CMake 集成 + `-fvisibility=hidden`，`p = 1..4` 重新验证；
+3. 设备上依次跑：`ContainerSelfCheck`（规范化层）→ Argon2id 黄金向量 → 完整容器加解密；
+4. Domain 11 组 → conformance 向 91/91 → ArkData → HUKS → ArkUI；
+5. `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`。
