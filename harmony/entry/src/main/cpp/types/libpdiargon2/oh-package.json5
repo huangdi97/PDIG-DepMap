@@ -1,0 +1,6 @@
+{
+  "name": "libpdiargon2.so",
+  "types": "./index.d.ts",
+  "version": "1.0.0",
+  "description": "PDIG Argon2id NAPI bridge — thin marshalling layer over the vendored PHC Argon2 reference implementation (third_party/argon2 @ 20190702 / 62358ba2). Implements no cryptography itself."
+}

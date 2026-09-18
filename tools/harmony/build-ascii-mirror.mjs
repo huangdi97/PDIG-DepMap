@@ -72,6 +72,26 @@ if (CLEAN && existsSync(BUILD_ROOT)) {
 copyTree(SRC, MIRROR)
 console.log('[harmony] source mirrored')
 
+// 1a. third_party/ 必须一起镜像。
+//
+// CMakeLists.txt 里 ARGON2_ROOT 是相对路径（../../../../../third_party/argon2），
+// 从 harmony/entry/src/main/cpp 向上五级正好落到「镜像根」。
+// 因此镜像若只 copy harmony/，CMake 会在 <build-root>/third_party/argon2 找不到
+// include/argon2.h 并 FATAL_ERROR —— 实测报错：
+//   CMake Error at CMakeLists.txt:23 (message): vendored argon2 not found at ...
+// 注意：这里镜像的是**构建输入**，不是构建产物；third_party 内容由
+// tools/harmony/check-third-party-hashes.mjs 按 VENDOR.json 校验完整性。
+{
+  const tpSrc = join(REPO, 'third_party')
+  const tpDst = join(BUILD_ROOT, 'third_party')
+  if (!existsSync(tpSrc)) {
+    console.error('[harmony] 缺少 third_party/ —— native 模块无法构建')
+    process.exit(1)
+  }
+  copyTree(tpSrc, tpDst)
+  console.log('[harmony] third_party mirrored:', tpDst)
+}
+
 // 1b. hvigor-config.json5 —— 仓库内保存的是占位符 <DEVECO_HOME>，
 //     这里用真实 DevEco 路径替换（镜像目录不在版本控制内，不受影响）。
 {

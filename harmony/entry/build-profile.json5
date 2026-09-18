@@ -1,6 +1,23 @@
 {
   "apiType": "stageMode",
-  "buildOption": {},
+  // pdiargon2: NAPI bridge over the vendored PHC Argon2 reference implementation
+  // (third_party/argon2 @ 20190702 / 62358ba2). See third_party/argon2/VENDOR.json
+  // and HARMONY_ARGON2_INTEGRATION_REPORT.md.
+  //
+  // abiFilters deliberately lists both ABIs:
+  //   arm64-v8a — real devices and the standard target
+  //   x86_64    — required by the OHOS emulator/system image
+  "buildOption": {
+    "externalNativeOptions": {
+      "path": "./src/main/cpp/CMakeLists.txt",
+      "arguments": "",
+      "cppFlags": "",
+      "abiFilters": [
+        "arm64-v8a",
+        "x86_64"
+      ]
+    }
+  },
   "targets": [
     {
       "name": "default",
