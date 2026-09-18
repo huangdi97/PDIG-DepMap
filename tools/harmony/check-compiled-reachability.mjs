@@ -57,13 +57,13 @@ const REQUIRED_MODULES = [
   { id: 'ImpactKernel', path: 'domain/ImpactKernel.ets', required: true },
   { id: 'PlanReadiness', path: 'domain/PlanReadiness.ets', required: true },
   { id: 'ScenarioCoverage', path: 'domain/ScenarioCoverage.ets', required: true },
+  { id: 'StateMachines', path: 'domain/StateMachines.ets', required: true },
+  { id: 'GraphRevision', path: 'domain/GraphRevision.ets', required: true },
+  { id: 'ScenarioTemplate', path: 'domain/ScenarioTemplate.ets', required: true },
+  { id: 'Timeline', path: 'domain/Timeline.ets', required: true },
   { id: 'DomainSelfCheck', path: 'domain/DomainSelfCheck.ets', required: true },
-  // 后续阶段（Domain 其余组 / Repository / Security）
+  // 后续阶段（Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },
-  { id: 'StateMachines', path: 'domain/StateMachines.ets', required: false },
-  { id: 'GraphRevision', path: 'domain/GraphRevision.ets', required: false },
-  { id: 'ScenarioTemplate', path: 'domain/ScenarioTemplate.ets', required: false },
-  { id: 'Timeline', path: 'domain/Timeline.ets', required: false },
   { id: 'Repository', path: 'data/Repository.ets', required: false },
   { id: 'Huks', path: 'security/Huks.ets', required: false },
 ]

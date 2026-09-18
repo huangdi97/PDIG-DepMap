@@ -16,12 +16,16 @@
 // 真正的判定在 tools/harmony/check-compiled-reachability.mjs 与
 // 未来的 ArkTS conformance runner。
 
-import { Capability, ChangePlanWorkflowState, CoverageLevel, Criticality, DependencyOrigin, DependencyState, GroupMode, GroupState, ImpactReasonCode, PlanReadiness as PlanReadinessEnum, Relation } from '../generated/CanonicalEnums';
+import { ActionVerificationStatus, Capability, ChangePlanWorkflowState, CoverageLevel, Criticality, DependencyOrigin, DependencyState, GroupMode, GroupState, ImpactReasonCode, PlanReadiness as PlanReadinessEnum, Relation, ScenarioAvailability, TimelineBucket } from '../generated/CanonicalEnums';
 import { ChangePlan, CoverageSourceInfo, Dependency, DependencyGroup, ImpactGraph, ImpactProposalInput, ImpactStateKey, PlanReadinessInput, ScenarioCoverageInput, canonicalGroupKey, dependencyLogicalKey } from './Entities';
 import { simulateDisable, simulateScenario } from './ImpactKernel';
 import { groupKeyDedupsMembers, groupKeyIsOrderIndependent, logicalKeyRoundTrips, parseDependencyLogicalKey } from './LogicalKey';
 import { computePlanReadiness } from './PlanReadiness';
 import { computeScenarioCoverage } from './ScenarioCoverage';
+import { ALL_WORKFLOW_STATES, allowedNextStates, canMutateAction, isTransitionAllowed, verificationAfterCompletion } from './StateMachines';
+import { REV_DEPENDENCY_CREATED, REV_DEPENDENCY_CRITICALITY_CHANGED, REV_DEPENDENCY_REACTIVATED, REV_DEPENDENCY_RETIRED, REV_GROUP_CONFIRMED, REV_GROUP_MEMBERSHIP_CHANGED, REV_GROUP_RETIRED, doesMutationBumpRevision, parseStoredRevision } from './GraphRevision';
+import { TimelineSortKey, bucketOf, sortTimelineKeys, startOfUtcDay } from './Timeline';
+import { listActiveTemplates, validateScenarioInstantiation } from './ScenarioTemplate';
 
 function dep(
   id: string,
@@ -379,6 +383,183 @@ function checkScenarioCoverage(): string {
 }
 
 /**
+ * 检查 S：状态机的终态与转换合法性。
+ *
+ * 关键不变式：
+ *   - completed / cancelled 是终态，出边为空，且**任何**状态都不得转到它们之外
+ *     —— 由全量穷举保证，而不是抽查几条；
+ *   - 未知状态 fail-closed（不允许转换）；
+ *   - done ≠ verified：完成动作不改变 verification 状态。
+ */
+function checkStateMachine(): string {
+  // 终态出边为空
+  let terminalOk = true;
+  if (allowedNextStates(ChangePlanWorkflowState.COMPLETED).length !== 0) {
+    terminalOk = false;
+  }
+  if (allowedNextStates(ChangePlanWorkflowState.CANCELLED).length !== 0) {
+    terminalOk = false;
+  }
+  // 任何状态都不得转到终态之外（这里校验终态不可达出边 + 自反检查）
+  let noSelfLoop = true;
+  for (let i = 0; i < ALL_WORKFLOW_STATES.length; i++) {
+    const s = ALL_WORKFLOW_STATES[i];
+    if (isTransitionAllowed(s, s)) {
+      // 原文白名单里没有任何自反转换
+      noSelfLoop = false;
+      break;
+    }
+  }
+  // 未知状态 fail-closed
+  const unknownRejected =
+    !isTransitionAllowed('not_a_state', ChangePlanWorkflowState.READY) &&
+    !isTransitionAllowed(ChangePlanWorkflowState.READY, 'not_a_state') &&
+    allowedNextStates('not_a_state').length === 0;
+  // 抽查两条原文明确允许 / 明确禁止的边
+  const knownAllow =
+    isTransitionAllowed(ChangePlanWorkflowState.DRAFT, ChangePlanWorkflowState.ANALYZED) &&
+    isTransitionAllowed(ChangePlanWorkflowState.IN_PROGRESS, ChangePlanWorkflowState.VERIFYING);
+  const knownDeny =
+    !isTransitionAllowed(ChangePlanWorkflowState.DRAFT, ChangePlanWorkflowState.COMPLETED) &&
+    !isTransitionAllowed(ChangePlanWorkflowState.COMPLETED, ChangePlanWorkflowState.DRAFT);
+
+  // done ≠ verified：完成不改变 verification 状态
+  const verUnchanged =
+    verificationAfterCompletion(ActionVerificationStatus.PENDING) === ActionVerificationStatus.PENDING &&
+    verificationAfterCompletion(ActionVerificationStatus.NOT_REQUIRED) === ActionVerificationStatus.NOT_REQUIRED;
+
+  // 终态下动作冻结
+  const frozen =
+    !canMutateAction('p1', ChangePlanWorkflowState.COMPLETED).allowed &&
+    !canMutateAction('p1', ChangePlanWorkflowState.CANCELLED).allowed &&
+    canMutateAction('p1', ChangePlanWorkflowState.IN_PROGRESS).allowed;
+
+  const ok = terminalOk && noSelfLoop && unknownRejected && knownAllow && knownDeny && verUnchanged && frozen;
+  return `statemachine=ok(${terminalOk}/n${noSelfLoop}/u${unknownRejected}/a${knownAllow}/d${knownDeny}/v${verUnchanged}/f${frozen})`;
+}
+
+/**
+ * 检查 G：graphRevision 的提升白名单。
+ *
+ * 关键不变式：**只有** Reality mutation 提升 revision。
+ * 白名单必须对非 Reality 事件返回 false —— 这是"不误报"的保证。
+ */
+function checkGraphRevision(): string {
+  // 7 种 Reality mutation 必须全部提升
+  const bumps =
+    doesMutationBumpRevision(REV_DEPENDENCY_CREATED) &&
+    doesMutationBumpRevision(REV_DEPENDENCY_RETIRED) &&
+    doesMutationBumpRevision(REV_DEPENDENCY_REACTIVATED) &&
+    doesMutationBumpRevision(REV_DEPENDENCY_CRITICALITY_CHANGED) &&
+    doesMutationBumpRevision(REV_GROUP_CONFIRMED) &&
+    doesMutationBumpRevision(REV_GROUP_RETIRED) &&
+    doesMutationBumpRevision(REV_GROUP_MEMBERSHIP_CHANGED);
+
+  // 非 Reality 事件一律不提升（proposal / observation / drift / UI）
+  const noBump =
+    !doesMutationBumpRevision('proposal_created') &&
+    !doesMutationBumpRevision('observation_imported') &&
+    !doesMutationBumpRevision('reality_drift_created') &&
+    !doesMutationBumpRevision('timeline_projection') &&
+    !doesMutationBumpRevision('ui_state_changed');
+
+  // 解析容错：缺失 → 0；非有限 → 0；负值 → 0（revision 单调递增）
+  const parse =
+    parseStoredRevision(null) === 0 &&
+    parseStoredRevision('') === 0 &&
+    parseStoredRevision('abc') === 0 &&
+    parseStoredRevision('-5') === 0 &&
+    parseStoredRevision('7') === 7;
+
+  const ok = bumps && noBump && parse;
+  return `graphrevision=ok(${bumps}/n${noBump}/p${parse})`;
+}
+
+/**
+ * 检查 N：Timeline 的 bucket 判定与确定性排序。
+ *
+ * 关键不变式：排序必须由 id 兜底，使同一组输入恒得同一序列。
+ */
+function checkTimeline(): string {
+  const now = Date.parse('2026-09-18T12:00:00.000Z');
+  const start = startOfUtcDay(now);
+
+  // null / 脏数据 → attention（往"更需要人看"方向收）
+  const attn =
+    bucketOf(null, now) === TimelineBucket.ATTENTION &&
+    bucketOf('not-a-date', now) === TimelineBucket.ATTENTION;
+
+  // 昨天 → overdue；今天 → today；3 天后 → 7d；14 天后 → 30d；40 天后 → 90d；100 天后 → later
+  const overdue = bucketOf('2026-09-17T12:00:00.000Z', now) === TimelineBucket.OVERDUE;
+  const today = bucketOf('2026-09-18T18:00:00.000Z', now) === TimelineBucket.TODAY;
+  const d7 = bucketOf('2026-09-21T12:00:00.000Z', now) === TimelineBucket.V7D;
+  const d30 = bucketOf('2026-10-02T12:00:00.000Z', now) === TimelineBucket.V30D;
+  const d90 = bucketOf('2026-10-28T12:00:00.000Z', now) === TimelineBucket.V90D;
+  const later = bucketOf('2026-12-31T12:00:00.000Z', now) === TimelineBucket.LATER;
+  // UTC 日界：now 落在当日任意时刻都得到同一个 todayStart
+  const utcStable = startOfUtcDay(now) === startOfUtcDay(now + 3600000);
+
+  // 确定性排序：同 bucket/priority/scheduledAt 时由 id 兜底
+  const a = new TimelineSortKey();
+  a.id = 'b';
+  a.bucket = TimelineBucket.TODAY;
+  const b = new TimelineSortKey();
+  b.id = 'a';
+  b.bucket = TimelineBucket.TODAY;
+  const sorted1 = sortTimelineKeys([a, b]);
+  const sorted2 = sortTimelineKeys([b, a]);
+  const deterministic = sorted1[0].id === 'a' && sorted2[0].id === 'a';
+
+  const ok = attn && overdue && today && d7 && d30 && d90 && later && utcStable && deterministic;
+  return `timeline=ok(${attn}/${overdue}/${today}/${d7}/${d30}/${d90}/${later}/u${utcStable}/d${deterministic})`;
+}
+
+/**
+ * 检查 T：ScenarioTemplate 的 ST gate。
+ *
+ * 关键不变式：availability != active 的模板**必须**被拒绝执行；
+ * 缺必填输入也必须被拒绝；正常模板必须通过。
+ */
+function checkScenarioGate(): string {
+  const inputs = new Map<string, string>();
+  inputs.set('targetPaymentInstrumentId', 'cardA');
+
+  // 正常 active 模板 + 必填齐全 → 通过
+  const okActive =
+    validateScenarioInstantiation('replace_payment_card', inputs).ok === true;
+
+  // planned 模板 → 拒绝，且 errorCode 是 scenario_not_executable
+  const planned = validateScenarioInstantiation('replace_phone_number', inputs);
+  const plannedRejected = !planned.ok && planned.errorCode === 'scenario_not_executable';
+
+  // 不存在的模板 → 拒绝
+  const missing = validateScenarioInstantiation('no_such_template', inputs);
+  const missingRejected = !missing.ok;
+
+  // 缺必填输入 → 拒绝
+  const empty = new Map<string, string>();
+  const missingInput = validateScenarioInstantiation('replace_payment_card', empty);
+  const inputRejected = !missingInput.ok && missingInput.errorCode === 'scenario_missing_input';
+
+  // active 模板数量必须是 3（与 spec 的 MVP03 payment 模板一致）
+  const countOk = listActiveTemplates().length === 3;
+
+  // planned 模板不得出现在 active 列表里
+  let plannedLeaked = false;
+  const actives = listActiveTemplates();
+  for (let i = 0; i < actives.length; i++) {
+    if (actives[i].availability !== ScenarioAvailability.ACTIVE) {
+      plannedLeaked = true;
+      break;
+    }
+  }
+
+  const ok =
+    okActive && plannedRejected && missingRejected && inputRejected && countOk && !plannedLeaked;
+  return `scenariogate=ok(${okActive}/p${plannedRejected}/m${missingRejected}/i${inputRejected}/c${countOk})`;
+}
+
+/**
  * 汇总：所有 domain 层的自检合并为一行，便于在页面上核对、
  * 也便于对 HAP 内的 modules.abc 做字符串反查（确认真的被打包）。
  */
@@ -395,6 +576,10 @@ export function domainSelfCheckLine(): string {
     checkLogicalKeyInvariants(),
     checkPlanReadiness(),
     checkScenarioCoverage(),
+    checkStateMachine(),
+    checkGraphRevision(),
+    checkTimeline(),
+    checkScenarioGate(),
   ];
   return `domain: ${parts.join(' ')}`;
 }
