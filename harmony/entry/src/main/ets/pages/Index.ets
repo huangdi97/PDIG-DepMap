@@ -9,6 +9,7 @@ import { validateRelationUse } from '../domain/Relations';
 import { domainSelfCheckLine } from '../domain/DomainSelfCheck';
 import { aadSelfCheckLine } from '../crypto/ContainerSelfCheck';
 import { argon2SelfCheckLine } from '../crypto/Argon2idNative';
+import { conformanceSummaryLine } from '../conformance/ConformanceSelfCheck';
 
 @Entry
 @Component
@@ -18,6 +19,7 @@ struct Index {
   @State domainProbe: string = '';
   @State containerProbe: string = '';
   @State argon2Probe: string = '';
+  @State conformanceProbe: string = '';
 
   aboutToAppear(): void {
     // 探针：确认 Domain 层被真正打进 HAP（可被反查字符串），而不是被 tree-shaking 丢弃。
@@ -37,6 +39,19 @@ struct Index {
     //
     // 无设备时它会如实返回 "argon2: FAIL(native load/exec: ...)"，不伪装成通过。
     this.argon2Probe = argon2SelfCheckLine();
+    // 探针：Conformance runner —— 在**设备上**执行平台中立 fixture。
+    //
+    // 这一行是 conformance/ 整层进入编译图的**唯一**入口，
+    // 链路：Index → ConformanceSelfCheck → ConformanceRunner
+    //       → { JsonText, HarnessFs, ImpactKernel, PlanReadiness, ScenarioCoverage,
+    //           Relations, ScenarioTemplate, StateMachines, GraphRevision, Timeline }。
+    //
+    // 两件必须看清的事：
+    //   1. 它**不是** verdict。fixture 根找不到时它返回 "NOT_RUN (0 executed)"，
+    //      并给出投放命令 —— 不会把"环境未就绪"伪装成"用例全失败"；
+    //   2. 它**不**把 runner 包装成一句"已实现"。91 这个分母是否满足，
+    //      以设备上真实执行到的计数为准。
+    this.conformanceProbe = conformanceSummaryLine();
   }
 
   build() {
@@ -68,6 +83,11 @@ struct Index {
           .margin({ top: 4 })
 
         Text(this.argon2Probe)
+          .fontSize(12)
+          .fontColor('#999999')
+          .margin({ top: 4 })
+
+        Text(this.conformanceProbe)
           .fontSize(12)
           .fontColor('#999999')
           .margin({ top: 4 })

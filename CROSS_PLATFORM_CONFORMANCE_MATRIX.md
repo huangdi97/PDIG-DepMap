@@ -20,7 +20,6 @@
 > **Harmony 列本轮细化（N3 开工）**：
 > `HARMONY_CONFORMANCE = NOT_RUN` —— **0 个用例被执行**。
 > 无设备、无模拟器系统镜像（`hdc list targets = [Empty]`），且未接本地测试框架。
-> 按分类拆分：**87 notImplemented / 4 blocked**（depmap 3 + backup 1，因 `cryptoFramework` 无 Argon2）。
 > 见 `HARMONY_N3_CONFORMANCE_REPORT.md`。
 >
 > **（2026-09-18 追加）Android 91/91 已获远真复验**：GitHub Actions 第三次运行
@@ -86,8 +85,15 @@
 | 平台   | PASS | FAIL | NOT_IMPLEMENTED | NOT_RUN | 合计 |
 | ------ | ---- | ---- | --------------- | ------- | ---- |
 | Android | **91** | 0 | 0 | 0 | 91 |
-| Harmony | 0 | 0 | 87 | 4（blocked：depmap 3 + backup 1，无 Argon2） | 91 |
+| Harmony | 0 | 0 | 3（timeline） | **88**（60 可执行待跑 + 28 `BLOCKED_BY_RUNTIME`） | 91 |
 | iOS     | 0 | 0 | 0 | 91 | 91 |
+
+> **Harmony 行的读法**：`PASS = 0` 是因为**一次都没执行**（`NOT_RUN`），
+> 不是因为失败。`NOT_IMPLEMENTED = 3` 是 runner 侧尚未实现的 timeline；
+> 其余 88 中 **60 条已具备执行条件**（runner 已就绪，只差执行入口），
+> 28 条按 §11 记为 `BLOCKED_BY_RUNTIME`。
+> 另立 gate `HARMONY_CONFORMANCE_RUNNER = PASS` 记录"runner 已存在且被真的编译"，
+> **该 gate 不改变本表任何计数**。
 
 > Android 侧的 91/91 是**领域 / 语义 / 解析 / 迁移 / 备份**层的 conformance 结果，
 > **不等于**端到端 parity——设备级运行时结论见 `NATIVE_PARITY_MATRIX.md`（**62/73**）与
@@ -134,9 +140,66 @@
 | `readiness-confidence-cannot-bypass`        | 无 confidence 通道              | PASS | NOT_RUN | NOT_RUN |
 | `readiness-absence-cannot-help`             | 无 absence 通道                 | PASS | NOT_RUN | NOT_RUN |
 | `readiness-blocked-beats-review`            | blocked 优先                    | PASS | NOT_RUN | NOT_RUN |
-| `readiness-completed-empty-claim-not-retroactive` | 禁止事后追认 key           | PASS | NOT_RUN | NOT_RUN |
+|> **（2026-09-18 追加）同类"不得误用"的正数之五（Conformance Runner 落地后，本轮最重要）**：
+>
+> | 工具 | 输出 | 它证明了什么 | 它**没有**证明什么 |
+> | --- | --- | --- | --- |
+> | `check-compiled-reachability.mjs --build` | `PASS`（**22/22**） | 4 个 conformance 模块（`JsonText` / `HarnessFs` / `ConformanceRunner` / `ConformanceSelfCheck`）真的进了编译图与 `modules.abc`，且逐模块注入类型错误**真的**会让构建失败 | **零个** conformance 用例执行过 |
+>
+> 这道正数比前四道都更接近"能跑"，也正因此更需要警惕：
+> `HARMONY_CONFORMANCE_RUNNER = PASS` 只说明 **runner 存在且被真的编译**。
+> 它**不是** `HARMONY_CONFORMANCE = PASS`，Harmony 列仍保持 **0 执行 / 91**。
+>
+> 接线前后的证据对照（这条链条本身即是"真的被编译"的证明）：
+>
+> ```
+> 未接线：BUILD SUCCESSFUL in 12 s 41 ms        ← 空证据（文件不在编译图里）
+> 接线后：COMPILE RESULT:FAIL {ERROR:8 WARN:2}  ← 7 类真实 ArkTS 错误暴露
+> 修复后：BUILD SUCCESSFUL in 15 s 350 ms       ← modules.abc 243,556 B / 23 modules / 0 orphans
+> ```
+>
+> **不得**把这批编译错误"修掉"当作负面记录删除 —— 它恰好是
+> §10「不得用 Node 镜像冒充 ArkTS」这条要求被**真的满足**的硬证据：
+> Node 镜像不可能产生 ArkTS 编译错误。
 
----
+### 0.5 Harmony 用例的运行时相关性拆分（§11 要求，本轮新立）
+
+§11 要求「**优先做运行时无关的 conformance**，crypto 相关的运行时用例可以记为
+`BLOCKED_BY_RUNTIME`」。据此把 91 例按"是否依赖真实运行时"重新计算：
+
+| 类别 | 用例数 | 性质 | 可执行 |
+| --- | --- | --- | --- |
+| impact | 13 | 运行时无关 | ✅ |
+| readiness | 16 | 运行时无关 | ✅ |
+| coverage | 6 | 运行时无关 | ✅ |
+| relations | 18 | 运行时无关 | ✅ |
+| scenario | 1 | 运行时无关 | ✅ |
+| migration（`migration-version-contract`） | 1 | 运行时无关 | ✅ |
+| state-machine | 5 | 运行时无关 | ✅ |
+| timeline | 3 | 运行时无关，但 runner 侧**尚未实现** | ❌ NOT_IMPLEMENTED |
+| parser | 22 | 依赖真实解析 / IO | ⛔ BLOCKED_BY_RUNTIME |
+| depmap | 3 | 依赖 Argon2 原生 + 运行时 | ⛔ BLOCKED_BY_RUNTIME |
+| jcs | 1 | 依赖运行时 | ⛔ BLOCKED_BY_RUNTIME |
+| backup | 1 | 依赖运行时 | ⛔ BLOCKED_BY_RUNTIME |
+| `migration-db-v1-to-v3` | 1 | 依赖 ArkData（**case 级**，非同类别整体） | ⛔ BLOCKED_BY_RUNTIME |
+| **合计** | **91** | | **60 可执行** |
+
+**汇总：可执行 60 / `BLOCKED_BY_RUNTIME` 28 / `NOT_IMPLEMENTED` 3 = 91。**
+
+分母校验：运行时无关共 **63**（13+16+6+18+1+1+5+3）= 可执行 60 + timeline 3。
+
+> 两点必须显式说明：
+>
+> 1. `migration` 类别**按 case 拆分**。类别整体依赖 ArkData，但
+>    `migration-version-contract` 只验版本契约（纯常量与函数），
+>    若在类别级一刀切会把它**错误地扫出分母**。
+> 2. timeline 的 3 例记为 **`NOT_IMPLEMENTED` 而非跳过**。
+>    按 harness 诚实性规则，`NOT_IMPLEMENTED` **既不是 FAIL 也不是 PASS**，
+>    不得从分母中抹去。
+>
+> 本拆分**不是**执行结果 —— `HARMONY_CONFORMANCE` 依然是 **NOT_RUN，0 执行**。
+> 它说明的是「一旦接上执行面，立刻可跑多少条」。
+
 
 ## 4. Coverage（6 例）
 

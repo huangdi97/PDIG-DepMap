@@ -109,13 +109,19 @@
 
   ```bash
   git rev-parse HEAD && git status --short -uall
-  # Harmony：先跑三道主机侧 gate（均不需要设备）
+  # Harmony：先跑四道主机侧 gate（均不需要设备）
   PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-third-party-hashes.mjs
   PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-argon2-native-build.mjs
   PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-compiled-reachability.mjs --build
+  # 第 4 道用同一环境变量，跑完可 grep conformance 模块与函数是否真的在 modules.abc 里
+  PDIG_HARMONY_BUILD_ROOT="C:/Users/Kaiser/pdig-harmony-build" node tools/harmony/probe-abc-symbols.mjs
   # Android（冻结，仅回归）
   cd android && ./gradlew --no-daemon :core:test :conformance:run
   ```
+
+  > **下一位 Agent 的第一优先动作不是跑 gate，而是给 conformance runner 接执行入口**
+  > （注册进 DevEco Hypium `ohosTest`）。runner 已就绪（`HARMONY_CONFORMANCE_RUNNER = PASS`），
+  > 60 条运行时无关用例只差一个执行面；接上之前 `HARMONY_CONFORMANCE` 永远是 `NOT_RUN`。
 
 ### Current 只保留这 6 个关注面（其它内容一律属于 Historical / Legacy）
 
@@ -123,9 +129,9 @@
 | --- | ---------------------------- | -------------------------------------------------------------------- |
 | 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 为唯一活跃主线**） |
 | 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**冻结，不再推进**） |
-| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（clean assembleHap，含 native）；`HARMONY_MODULE_COMPILED` = **PASS**（A/B/C/D 四判据，**18/18** required 模块，`modules.abc` 175,732 B）；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM）；**`HARMONY_DOMAIN` = COMPILED**（11 组纯 ArkTS 全部落地，15 项自检可从产物反查；`RelationRegistry` 按对齐 Android 冻结版的决定**不实现**）；`HARMONY_DEPMAP` = **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN**（Argon2 NAPI 全链路已打通：vendored 溯源 + 交叉编译 arm64/x86_64 + 打包进 HAP 且符号表恰好只导出 NAPI 入口）；`HARMONY_CONFORMANCE` = **NOT_RUN**（Domain 已 COMPILED，但 ArkTS runner 未接，**执行计数仍 pass=0**，不得记 PASS）；`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像，见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）—— 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_ARGON2_INTEGRATION_REPORT.md` |
+| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（clean assembleHap，含 native）；`HARMONY_MODULE_COMPILED` = **PASS**（A/B/C/D 四判据，**22/22** required 模块，`modules.abc` 243,556 B，0 孤儿）；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM）；**`HARMONY_DOMAIN` = COMPILED**（11 组纯 ArkTS 全部落地，15 项自检可从产物反查；`RelationRegistry` 按对齐 Android 冻结版的决定**不实现**）；`HARMONY_DEPMAP` = **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN**（Argon2 NAPI 全链路已打通：vendored 溯源 + 交叉编译 arm64/x86_64 + 打包进 HAP 且符号表恰好只导出 NAPI 入口）；**`HARMONY_CONFORMANCE_RUNNER` = PASS**（真实 ArkTS runner 已落地并进编译图：`conformance/` 4 模块 2,031 行，`modules.abc` 符号取证齐全；**非 Node 镜像**）；`HARMONY_CONFORMANCE` = **NOT_RUN**（runner 已就绪但**无运行时，一次都没执行**，**执行计数仍 pass=0**，不得记 PASS —— 见 `HARMONY_N3_CONFORMANCE_REPORT.md` §0.2）；`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像，见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）—— 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_ARGON2_INTEGRATION_REPORT.md` |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
-| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **NOT_RUN**（0 执行：87 notImplemented / 4 blocked）；iOS 无报告。CI 已由恒 `NOT_RUN` 改为真正校验 Android 平台报告（见 `GITHUB_PUBLICATION_REPORT.md` §6.4） |
+| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **NOT_RUN**（0 执行：runner 已就绪，**60 可执行 / 28 blockedByRuntime / 3 timeline notImplemented**）；iOS 无报告。CI 已由恒 `NOT_RUN` 改为真正校验 Android 平台报告（见 `GITHUB_PUBLICATION_REPORT.md` §6.4） |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
 
 ### 当前真实外部 blocker（只有这些）
@@ -825,3 +831,78 @@ arm64 必须用可移植的 `ref.c`；漏掉会直接 `undefined reference to 'f
 3. 设备上依次跑：`ContainerSelfCheck`（规范化层）→ Argon2id 黄金向量 → 完整容器加解密；
 4. Domain 11 组 → conformance 向 91/91 → ArkData → HUKS → ArkUI；
 5. `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`。
+
+---
+
+## 本轮：Harmony N3 Conformance Runner — 设计决策（2026-09-18）
+
+> 本轮**先落设计再落代码**。以下三条决策是后续所有 Harmony conformance 工作的前提，
+> 写在文件里而不是留在会话里 —— 因为它们直接决定「什么才算 PASS」。
+
+### 决策 1：ArkTS runner 读**原始源文件**，不做通用 JSON 解析
+
+ArkTS（Stage Model / ArkTS 1.1）**没有** `JSON.parse` 到强类型对象的可用路径：
+ArkTS 禁止 `any`/动态索引，`JSON.parse` 的结果无法安全地映射到 `class`。
+因此「把 fixture 解析成对象再喂给 Domain」这条路在 ArkTS 上**不存在**。
+
+处置：runner 用 `@ohos.file.fs` 读 fixture **原始文本**，用正则/受限扫描在源码侧
+直接取出 `expected` 子串，再把 ArkTS 自己算出的结果序列化成同形状 JSON 做**文本比对**。
+
+后果（必须显式记录，不得含糊）：**比对键序敏感**。
+runner 侧的 `serialize` 必须逐字段复刻 fixture 的 key 顺序；
+顺序不同即 FAIL —— 这是正确的，因为"逐字节复现"本就是本项目的跨端合同，
+不是宽松的语义等价。verdict 措辞因此严格限定为
+「expected 由 Android 端口**逐字节**复现」。
+
+### 决策 2：runtime-independent 用例必须**真正执行** `simulateScenario`
+
+最容易滑向"假 runner"的一步，是让 runner 只做形状检查
+（"expected 里有 targets 字段吗？"）而从不调用真实的 Impact 内核。
+那样跑出来的 13/13 毫无证据力。
+
+硬性要求：`impact` 分类必须经 fixture 的 `input` 重建 `ImpactGraph`，
+**真正调用 `impact/ImpactKernel.simulateScenario`**，再比对输出。
+重建依赖的即时解析量（`parseJsonStringMap` / `parseDependencyArray` /
+`parseGroupArray` / `parseProposalArray`）是**受控解析**，不是通用 JSON 解析：
+它只认与自身契约完全一致的输入，任何结构偏离都直接失败，不猜、不兜底。
+
+### 决策 3：runner 必须挂在可达 import 图内
+
+runner 若不被 `pages/Index.ets` 引用，就是上一轮已经踩过的坑：
+源文件存在 + `BUILD SUCCESSFUL` ≠ 已编译（见
+`tools/harmony/check-compiled-reachability.mjs` 顶部的成因说明）。
+因此 runner 必须由 `Index` 可达，并把自己登记进该 Gate 的 `REQUIRED_MODULES`，
+否则"ArkTS runner 已实现"这句话本身不成立。
+
+### 因此：runtime-dependent 用例如实记 `BLOCKED_BY_RUNTIME`
+
+`parser`（22）/ `depmap`（3）/ `jcs`（1）/ `backup`（1）/ `migration-db-v1-to-v3`（1）
+需要 Argon2 native 执行或 relationalStore，在无设备条件下一律记 `BLOCKED_BY_RUNTIME`，
+**不计入 pass**。`HARMONY_CONFORMANCE` 只有在 91/91 全绿时才允许写 PASS。
+
+### 落地结果（实跑，非声称）
+
+| 项 | 结果 |
+| --- | --- |
+| 新增文件 | `conformance/JsonText.ets`(590) · `HarnessFs.ets`(135) · `ConformanceRunner.ets`(**1189**) · `ConformanceSelfCheck.ets`(117) |
+| 接线 | `pages/Index.ets` 增 `conformanceProbe`；可达链 `Index → ConformanceSelfCheck → ConformanceRunner → {JsonText, HarnessFs, 9 个 Domain 模块}` |
+| 门禁登记 | `check-compiled-reachability.mjs` 的 `REQUIRED_MODULES` **18 → 22**（+JsonText/HarnessFs/ConformanceRunner/ConformanceSelfCheck） |
+| 编译 | `--clean assembleHap` → **BUILD SUCCESSFUL in 15 s 350 ms**（EXIT=0） |
+| `modules.abc` | 243,556 B / 23 个模块声明；4 个 conformance 模块**全部在内**；`runConformance`/`computeCase`/`runImpactSingle`/`locateConformanceRoot`/`conformanceSummaryLine` 等逐个可查 |
+| 可达性门禁 | **22/22 required**，A + B + C + D 四判据 **全部 PASS**；24 模块 0 孤儿 |
+| 负向探针 | `--probe-module ConformanceRunner`：注入类型错误后构建**真的失败**（7 类错误，`COMPILE RESULT:FAIL`）→ 证明它确实在编译图内；探针残留已清零（`grep __pdiTypeProbe` 无命中） |
+| `HARMONY_CONFORMANCE` | **NOT_RUN**（**执行计数仍 pass=0**，一次都没在设备上跑过） |
+
+**本轮最重要的一条证据链**（值得单独记住）：
+
+接线**之前**构建成功（15 s 102 ms）—— 因为文件不在编译图里，`CompileArkTS` 根本没碰它；
+接线**之后**构建立即 `COMPILE RESULT:FAIL {ERROR:8 WARN:2}`，报出 7 类真实 ArkTS 错误
+（`arkts-no-any-unknown` / `CanonicalWire` 无此导出 / `CoverageSourceInput` 实为
+`CoverageSourceInfo` / `RelationValidationResult` 导入自错模块 / `root` 字段缺失 /
+`string` 不可赋给 `ChangePlanWorkflowState` 与 `PlanActionPhase`）。
+修复后恢复绿。这一组对照把「源文件存在 + BUILD SUCCESSFUL = 已编译」这个假结论
+**在同一个文件上正反各证了一次**。
+
+**本轮明确不主张**：不主张任何用例通过；不主张比对逻辑（键序/序列化顺序）正确
+—— 本机无 ArkTS 运行时，无法自证；不主张 60 这个可执行数字会变成 60/60。
+详见 `HARMONY_N3_CONFORMANCE_REPORT.md` §0.2 与 §6。

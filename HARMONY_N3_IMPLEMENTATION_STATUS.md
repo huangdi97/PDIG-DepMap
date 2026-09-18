@@ -126,11 +126,12 @@ Domain 层**不依赖** ArkUI / Ability / ArkData / HUKS / NAPI / cryptoFramewor
 | Gate | 状态 | 依据 |
 | --- | --- | --- |
 | `HARMONY_BUILD` | **PASS** | clean `assembleHap` 成功（含 native 编译） |
-| `HARMONY_MODULE_COMPILED` | **PASS** | A/B/C/D 四判据，**18/18** required 模块；`modules.abc` 175,732 B；见 §2.1 |
+| `HARMONY_MODULE_COMPILED` | **PASS** | A/B/C/D 四判据，**22/22** required 模块；`modules.abc` 243,556 B；见 §2.1 |
 | `HARMONY_DEPMAP` | **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN** | 全链路打通至 HAP；设备执行未验证 |
 | `HARMONY_CRYPTO` | **COMPILED** | JCS / AAD / AES-256-GCM 已进 `modules.abc`，主机黄金校验 5/5 |
 | `HARMONY_DOMAIN` | **COMPILED** | 11 组全部落地（RelationRegistry 按对齐决定不实现）；15 项自检进产物 |
-| `HARMONY_CONFORMANCE` | **NOT_RUN** | 无设备/模拟器；仍未接本地测试框架。**不得**写 PASS |
+| `HARMONY_CONFORMANCE_RUNNER` | **PASS** | 真实 ArkTS runner 已落地并通过负向探针；见 §2.3。**不等于**用例执行过 |
+| `HARMONY_CONFORMANCE` | **NOT_RUN** | 无设备/模拟器；仍未接本地测试框架。**0 执行 / 91**。**不得**写 PASS |
 | `HARMONY_ARKDATA` | **NOT_STARTED** | — |
 | `HARMONY_MIGRATION` | **NOT_STARTED** | — |
 | `HARMONY_REPOSITORY` | **NOT_STARTED** | — |
@@ -157,35 +158,44 @@ Domain 层**不依赖** ArkUI / Ability / ArkData / HUKS / NAPI / cryptoFramewor
 现由 `check-compiled-reachability.mjs` 以 A/B/C/D 四判据守住，实跑（本轮最终值）：
 
 ```
-[reachability] ets modules found : 20
-[reachability] reachable         : 20
-[reachability] modules.abc       : 175732 bytes
+[reachability] ets modules found : 24
+[reachability] reachable         : 24
+[reachability] modules.abc       : 243556 bytes
 
-CanonicalEnums      reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-Relations           reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-Jcs                 reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+CanonicalEnums      reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+Relations           reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+Jcs                 reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
 KdfContract         reachable=true  inAbc=TYPE_ONLY  negative=NOT_RUN                    PASS
-DepmapContainerV1   reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-ContainerSelfCheck  reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-Argon2idNative      reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-CanonicalWire       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-Entities            reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-LogicalKey          reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-ImpactKernel        reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-PlanReadiness       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-ScenarioCoverage    reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-StateMachines       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-GraphRevision       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-ScenarioTemplate    reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-Timeline            reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
-DomainSelfCheck     reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+DepmapContainerV1   reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+ContainerSelfCheck  reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+Argon2idNative      reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+CanonicalWire       reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+Entities            reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+LogicalKey          reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+ImpactKernel        reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+PlanReadiness       reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+ScenarioCoverage    reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+StateMachines       reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+GraphRevision       reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+ScenarioTemplate    reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+Timeline            reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+DomainSelfCheck     reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+JsonText            reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+HarnessFs           reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+ConformanceRunner   reachable=true  inAbc=true       negative=PASS (via ConformanceRunner)  PASS
+ConformanceSelfCheck reachable=true inAbc=true       negative=PASS (via ConformanceRunner)  PASS
 
-  required modules              : 18
+  required modules              : 22
   all required reachable (A)    : true
   all required in modules.abc(C): true
 
 HARMONY_COMPILE_REACHABILITY=PASS
 ```
+
+> `negative=PASS (via …)` 是**本轮新增的第 D 条判据**：工具会往每个模块尾部注入
+> `__pdiTypeProbe` 类型错误并重跑构建，要求构建**真的失败**。
+> 只有"注错 → 构建 FAIL"这一对事实同时成立，"该模块参与编译"才算被证明。
+> 探针残留已核实清理（`grep -rn "__pdiTypeProbe" harmony/entry/src/main/ets/` 无匹配，exit 1）。
 
 §1.2 的 `--build` 缺陷修复后，上表由 7 项扩到 18 项 —— 之前那 11 项
 不是"没做"，而是"做了但 Gate 读的是旧产物、看不出来"。
@@ -195,8 +205,50 @@ HARMONY_COMPILE_REACHABILITY=PASS
 
 ### 2.2 `HARMONY_NATIVE_CORE_HANDOFF` 仍未达成
 
-18 个 gate 中：**6 PASS / 5 COMPILED / 3 NOT_STARTED / 1 PARTIAL / 1 BLOCKED / 1 NOT_RUN**。
-Domain 已从 PARTIAL 推进到 COMPILED；**剩余主要缺口是 Conformance（§10/§11）与 ArkUI（§14）**。
+18 个 gate 中：**7 PASS / 5 COMPILED / 3 NOT_STARTED / 1 PARTIAL / 1 BLOCKED / 1 NOT_RUN**。
+Domain 已从 PARTIAL 推进到 COMPILED；Conformance **runner 侧**已落地（§2.3），
+**剩余主要缺口是用例实际执行（§10 的 91/91）与 ArkUI（§14）**。
+
+### 2.3 `HARMONY_CONFORMANCE_RUNNER` 的独立判定（本轮新立，重要）
+
+§10 的要求是「**真实 Harmony Conformance Runner，不得用 Node 镜像冒充 ArkTS**，
+且 `91/91` 才算 PASS」。本轮交付的是这条要求的**前半段**，且刻意只声称前半段。
+
+**「真实 ArkTS runner」可验证的三项**（缺一不可，全部已独立核实）：
+
+| 项 | 判据 | 实测 |
+| --- | --- | --- |
+| A 可达 | 有从 ability/page 出发的 import 入边，能被 `CompileArkTS` 看见 | `pages/Index.ets` → `ConformanceSelfCheck` → `ConformanceRunner` → `{JsonText, HarnessFs}` |
+| B 进产物 | 符号真的在 `modules.abc` 里 | 4 个模块全在；`runConformance`/`computeCase`/`runImpactSingle`/`runReadiness`/`runCoverage`/`runRelations`/`runStateMachine`/`runScenario`/`runMigrationContract`/`extractExpected`/`serializeImpact` 逐个 grep 到 |
+| C 真编译 | 该模块参与编译，而非被 tree-shake | Gate 第 D 判据逐模块注入类型错误 → 构建**真的失败**；`negative=PASS (via ConformanceRunner)` |
+
+**接线的证据链（负向探针在这里发挥了作用）**：
+
+```
+未接线时：BUILD SUCCESSFUL in 12 s 41 ms        ← 空证据
+接线后首次构建：COMPILE RESULT:FAIL {ERROR:8 WARN:2}
+  ConformanceRunner.ets:676:13  arkts-no-any-unknown
+  ConformanceRunner.ets:36:3    'CanonicalWire' has no exported member
+  ConformanceRunner.ets:57:3    'CoverageSourceInput' → did you mean 'CoverageSourceInfo'
+  ConformanceRunner.ets:59:3    'RelationValidationResult' not in '../domain/Entities'
+  ConformanceRunner.ets:210:10  Property 'root' does not exist on 'ConformanceReport'
+  ConformanceRunner.ets:613:3   'string' not assignable to 'ChangePlanWorkflowState'
+  ConformanceRunner.ets:627:7   'string' not assignable to 'PlanActionPhase'
+修复后：BUILD SUCCESSFUL in 15 s 350 ms（EXIT=0）
+```
+
+这批错误本身**就是**「runner 真的被编译了」的最好证据 ——
+一个从未进编译图的文件不可能产生编译错误。
+
+**架构要点（为何不能复用 Node 实现）**：ArkTS 禁止 `any`/`unknown` 与动态索引，
+`JSON.parse` 的返回值**无法映射到类**。因此 runner 不解析 JSON，
+而是"文本定位 + 受控扫描"：`JsonText` 提供**带窗口的**字符串扫描原语，
+数组元素**各占自己的 `[start,end)` 窗口**，字段查找不能跨元素泄漏。
+这是"两个 action、只完成一个"这类用例不会假通过的正确性来源。
+
+**必须继续记住的界限**：`HARMONY_CONFORMANCE_RUNNER = PASS`
+**只说明 runner 存在且被真的编译**。它**没有**说明任何一条用例的行为正确性 ——
+`HARMONY_CONFORMANCE` 仍是 **NOT_RUN，0 执行 / 91**。
 
 
 ---
@@ -260,39 +312,100 @@ K 节禁止自研原语，故当时记 `BLOCKED`。
 
 ## 5. 关于 Conformance 的诚实口径
 
-`HARMONY_CONFORMANCE = NOT_RUN`。
+`HARMONY_CONFORMANCE = NOT_RUN`（**0 执行 / 91**）。
+`HARMONY_CONFORMANCE_RUNNER = PASS`（runner 已存在且真的被编译，见 §2.3）。
+**两者不可互相替代**，这是本轮最重要的口径分离。
 
-- 无设备、无模拟器镜像 → ArkTS conformance runner 无法执行。
-- **仍未**接 DevEco 本地测试框架 → 无替代执行面。
+- 无设备、无模拟器镜像 → runner **无法执行**，只能"编译通过"。
+- **仍未**接 DevEco 本地测试框架（Hypium）→ 无替代执行面。
+  这是**当前性价比最高的下一步**（见 §6 P0）。
 - `tools/harmony/check-relations-semantics.mjs` 的 18/18 是**源码语义镜像**
   （Node 侧等价实现 vs 同一批 fixtures），**不是 ArkTS 运行时执行结果**，
   因此**不写入** `HARMONY_CONFORMANCE`。这个界限必须继续保持。
-- 目标仍是 **91 / 91**；建议顺序：
-  relations(18) → impact(13) → readiness(16) → coverage(6) → parser(22) → 其余。
+
+**§11 要求的 91 例拆分（按"是否依赖运行时"重新计算，本轮新立）**：
+
+| 类别 | 用例数 | 性质 |
+| --- | --- | --- |
+| parser | 22 | **BLOCKED_BY_RUNTIME**（依赖真实解析/IO） |
+| impact | 13 | 运行时无关 |
+| readiness | 16 | 运行时无关 |
+| coverage | 6 | 运行时无关 |
+| relations | 18 | 运行时无关 |
+| scenario | 1 | 运行时无关 |
+| migration | 1 | 运行时无关（`migration-version-contract`） |
+| migration-db-v1-to-v3 | 1 | **BLOCKED_BY_RUNTIME**（case 级，依赖 ArkData） |
+| depmap | 3 | **BLOCKED_BY_RUNTIME**（依赖 Argon2 原生 + 运行时） |
+| jcs | 1 | **BLOCKED_BY_RUNTIME** |
+| backup | 1 | **BLOCKED_BY_RUNTIME** |
+| state-machine | 5 | 运行时无关 |
+| timeline | 3 | 运行时无关，但 **NOT_IMPLEMENTED**（runner 侧尚未实现，如实记账） |
+| **合计** | **91** | |
+
+汇总：**可执行 60 / BLOCKED_BY_RUNTIME 28 / NOT_IMPLEMENTED 3 = 91**。
+
+> 注意 `migration` 被**按 case 拆分**：类别整体依赖 ArkData，
+> 但 `migration-version-contract` 只验版本契约（纯常量与函数），
+> 若在类别级一刀切会把它错误地扫出分母。timeline 的 3 例是**主动记为
+> NOT_IMPLEMENTED 而非跳过** —— `NOT_IMPLEMENTED` 既不是 FAIL 也不是 PASS。
+
+作为分母校验：**63 运行时无关**（13+16+6+18+1+1+5+3）= 60 可执行 + 3 timeline。
+
+目标仍是 **91 / 91**；执行顺序建议：
+relations(18) → impact(13) → readiness(16) → coverage(6) → 其余运行时无关项 →
+再逐步解 BLOCKED_BY_RUNTIME。
 
 ---
 
 ## 6. 停止点与下一步
 
-本轮**未触发新的 stop condition**（§21 的 A–E 均未新增达成），
-Argon2 已推进至「无设备可验证」的上限。
+本轮**未触发新的 stop condition**（§21 的 A–E 均未新增达成）。
 
 **唯一硬 blocker** 仍是外部资源：缺 Emulator 系统镜像（需人工下载）。
+但 §10 的执行面**已不再唯一依赖它** —— runner 已存在，
+接入 DevEco 本地测试框架后即可在**无设备**条件下执行那 60 条。
 
-**下一轮唯一推荐动作：落地 Domain 11 组纯 ArkTS（§9）。**
+**下一轮唯一推荐动作：把 conformance runner 注册进 DevEco Hypium 测试框架。**
 
-理由：Argon2（§3–§6）与 ContainerSelfCheck（§8）已达无设备验证上限；
-运行时（§16）是外部阻塞；而 Domain 层**不依赖运行时**，
-且是 Conformance（§10/§11）与 ArkUI（§14）的前置。
+理由：Domain 11 组（§9）与 runner（§10/§11）均已完成；Argon2（§3–§6）与
+ContainerSelfCheck（§8）已达无设备验证上限；运行时（§16）是外部阻塞。
+而 runner **已经写好了**，只差一个执行入口 —— 这是把
+`HARMONY_CONFORMANCE` 从 `NOT_RUN` 推向真实读数的唯一低成本路径。
 
 | 优先级 | 事项 | 前置 |
 | --- | --- | --- |
-| **P0** | **Domain 11 组纯 ArkTS**（Entities → RelationRegistry → LogicalKey → ImpactKernel → PlanReadiness → ScenarioCoverage → StateMachines → GraphRevision → ScenarioTemplate → Timeline） | 无 |
-| P1 | ArkTS conformance runner（脱离设备可跑者优先） | Domain |
-| P1 | ArkData / Repository / migration | Domain + 运行时（RUNTIME_VERIFIED 需运行时） |
+| **P0** | **conformance runner 接入 Hypium**（`ohosTest`），跑通 60 条运行时无关用例 | 见下方"已探明的前置" |
+| **P0** | timeline 3 例在 runner 内实现（消除 NOT_IMPLEMENTED） | 无 |
+| P1 | ArkData / Repository / migration 落地 | 运行时（`RUNTIME_VERIFIED` 需运行时） |
 | P2 | ArkUI 纵向链路（§14，**不做 Graph View 优先**） | Domain |
 | P2 | HUKS + 用户认证 | 运行时 |
 | — | 打通 `HARMONY_RUNTIME_E2E` | **用户操作**（登录 + 下载镜像） |
+
+### 6.1 Hypium 接入的前置已探明（本轮实测，避免下一轮重新摸索）
+
+已确认 SDK / 工具链 / registry 三者齐备，**P0 路径是通的**：
+
+| 项 | 实测结果 |
+| --- | --- |
+| `@kit.TestKit.d.ts` | **存在**（`sdk/default/openharmony/ets/kits/`），含 `TestRunner` / `abilityDelegatorRegistry` |
+| ohpm registry | `https://ohpm.openharmony.cn/ohpm/` **可达** |
+| `@ohos/hypium` | 可解析，`latest = 1.0.28`；项目已 pin `1.0.24` |
+| SDK 版本 | API 13 / `5.0.1.115` |
+| `src/ohosTest` | **不存在** → 需新建 source set 与 `ohosTest` 目标配置 |
+
+**⚠ 发现一个必须先修的既有问题**：`harmony/oh-package.json5` 声明
+`"@ohos/hamock": "1.0.1"`，但 registry 中 `@ohos/hamock` **最高只有 `1.0.0`**
+（`versions: 2`）→ `ohpm install` **必然失败**：
+
+```
+ohpm ERROR: NOTFOUND package '@ohos/hamock@1.0.1' not found from all the registries
+ohpm ERROR: Install failed
+```
+
+实测把 pin 改为 `1.0.0` 后 `ohpm install` 立即成功
+（`fetch package done 1 @ohos/hamock … hamock-1.0.0.har`、`done 2 @ohos/hypium … 1.0.24.har`、
+`install completed in 0s 550ms`）。**该版本 pin 是任何依赖 `ohosTest` 的工作的硬前置**，
+本轮只做探针验证、**已还原**原文件，不擅自改动依赖声明。
 
 **约束提醒（不可违反）**：不得实现 RealityDrift / IncidentPlan /
 Browser Discovery / Open Banking / AI-LLM / 云同步；
@@ -304,6 +417,7 @@ Browser Discovery / Open Banking / AI-LLM / 云同步；
 
 ```bash
 PDIG_DEVECO_HOME="<DEVECO_HOME>"
+PDIG_HARMONY_BUILD_ROOT="C:/Users/Kaiser/pdig-harmony-build"
 
 # 1. 第三方完整性
 node tools/harmony/check-third-party-hashes.mjs
@@ -311,12 +425,15 @@ node tools/harmony/check-third-party-hashes.mjs
 # 2. 原生交叉编译
 node tools/harmony/check-argon2-native-build.mjs
 
-# 3. 编译可达性（A+B+C+D）
+# 3. 编译可达性（A+B+C+D，含负向探针）
 node tools/harmony/check-compiled-reachability.mjs --build
 
-# 4. 全清构建
+# 4. 产物符号反查（跑后可 grep conformance 模块与函数）
+node tools/harmony/probe-abc-symbols.mjs
+
+# 5. 全清构建
 node tools/harmony/build-ascii-mirror.mjs --clean assembleHap
 
-# 5. 诊断：import 拓扑 / 孤儿模块
+# 6. 诊断：import 拓扑 / 孤儿模块
 node tools/harmony/dump-import-graph.mjs
 ```

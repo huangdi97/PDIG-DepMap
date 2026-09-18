@@ -62,6 +62,15 @@ const REQUIRED_MODULES = [
   { id: 'ScenarioTemplate', path: 'domain/ScenarioTemplate.ets', required: true },
   { id: 'Timeline', path: 'domain/Timeline.ets', required: true },
   { id: 'DomainSelfCheck', path: 'domain/DomainSelfCheck.ets', required: true },
+  // Conformance 层：在设备上执行平台中立 fixture 的真实 ArkTS runner。
+  // 必须登记在这里，否则 §10 的「ArkTS runner 已实现」这句话没有依据 ——
+  // 未被 page/ability 可达的 .ets 根本不进编译图（见本文件顶部成因说明）。
+  // 入边：pages/Index.ets → ConformanceSelfCheck → ConformanceRunner
+  //       → { JsonText, HarnessFs }。
+  { id: 'JsonText', path: 'conformance/JsonText.ets', required: true },
+  { id: 'HarnessFs', path: 'conformance/HarnessFs.ets', required: true },
+  { id: 'ConformanceRunner', path: 'conformance/ConformanceRunner.ets', required: true },
+  { id: 'ConformanceSelfCheck', path: 'conformance/ConformanceSelfCheck.ets', required: true },
   // 后续阶段（Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },
   { id: 'Repository', path: 'data/Repository.ets', required: false },

@@ -37,6 +37,8 @@ console.log('bytes=' + b.length)
 const s = b.toString('latin1')
 const tokens = [...new Set((s.match(/[ -~]{6,}/g) || []))]
 
+// 全量模块声明（不限前缀长度）：用于统计"到底有多少个模块进了产物"
+const modDecls = tokens.filter((x) => x.includes('com.pdig.depmap/entry/ets/'))
 function show(title, pred, limit = 60) {
   const hits = tokens.filter(pred)
   console.log(`\n--- ${title} (${hits.length}) ---`)
@@ -48,11 +50,17 @@ show('模块声明', (x) => /^.{0,3}Lcom\.pdig\.depmap\/entry\/ets\//.test(x))
 show('含 crypto 的串', (x) => /crypto/i.test(x), 80)
 show('含 Jcs/jcs 的串', (x) => /Jcs|jcs/i.test(x), 40)
 
-// 显式判定：目标模块是否真的进了产物
+// 显式判定：目标模块是否真的进了产物。
+// 后 4 项是 §10 的 conformance runner —— 它们是"runner 真的被编译"这一
+// 声明的**唯一**产物级证据，故必须与 crypto 模块同等对待。
 const TARGETS = [
   'entry/ets/crypto/Jcs',
   'entry/ets/crypto/DepmapContainerV1',
   'entry/ets/crypto/ContainerSelfCheck',
+  'entry/ets/conformance/JsonText',
+  'entry/ets/conformance/HarnessFs',
+  'entry/ets/conformance/ConformanceRunner',
+  'entry/ets/conformance/ConformanceSelfCheck',
 ]
 console.log('\n--- 目标模块命中 ---')
 let all = true
@@ -61,5 +69,23 @@ for (const t of TARGETS) {
   if (!ok) all = false
   console.log(`  ${ok ? 'PRESENT' : 'MISSING'}  ${t}`)
 }
-console.log('\nABC_VERDICT=' + (all ? 'PRESENT' : 'MISSING'))
-process.exit(all ? 0 : 1)
+
+// 函数级取证：模块路径出现 ≠ 函数体被保留（理论上仍可能被裁剪）。
+// 逐个确认 runner 的关键入口真的以符号形式驻留。
+const FN_TARGETS = [
+  'runConformance', 'computeCase', 'extractExpected',
+  'runImpactSingle', 'runReadiness', 'runCoverage', 'runRelations',
+  'runStateMachine', 'runScenario', 'runMigrationContract',
+  'serializeImpact', 'locateConformanceRoot', 'conformanceSummaryLine',
+]
+console.log('\n--- runner 函数符号 ---')
+let allFn = true
+for (const f of FN_TARGETS) {
+  const ok = s.includes(f)
+  if (!ok) allFn = false
+  console.log(`  ${ok ? 'PRESENT' : 'MISSING'}  ${f}`)
+}
+
+console.log(`\nmodules in abc = ${new Set(modDecls.map((x) => x.replace(/^.*entry\/ets\//, ''))).size}`)
+console.log('\nABC_VERDICT=' + (all && allFn ? 'PRESENT' : 'MISSING'))
+process.exit(all && allFn ? 0 : 1)
