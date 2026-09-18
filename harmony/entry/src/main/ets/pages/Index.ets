@@ -7,6 +7,7 @@
  */
 import { validateRelationUse } from '../domain/Relations';
 import { aadSelfCheckLine } from '../crypto/ContainerSelfCheck';
+import { argon2SelfCheckLine } from '../crypto/Argon2idNative';
 
 @Entry
 @Component
@@ -14,6 +15,7 @@ struct Index {
   @State message: string = 'PDIG — Harmony N3 Native Core';
   @State relationProbe: string = '';
   @State containerProbe: string = '';
+  @State argon2Probe: string = '';
 
   aboutToAppear(): void {
     // 探针：确认 Domain 层被真正打进 HAP（可被反查字符串），而不是被 tree-shaking 丢弃。
@@ -25,6 +27,14 @@ struct Index {
     // hvigor 只编译从 ability / page 可达的模块，未被 import 的 .ets 不会被编译，
     // 那种情况下 assembleHap 的 "BUILD SUCCESSFUL" 不构成任何证据。
     this.containerProbe = aadSelfCheckLine();
+    // 探针：NAPI 桥接自检。链路 ArkTS → NAPI(libpdiargon2.so) → libargon2。
+    //
+    // 这一行是 Argon2idNative 进入编译图的**唯一**入口。此前该模块因依赖方向反转
+    // 而成为孤儿（源文件存在、从未被编译、构建仍成功），由
+    // tools/harmony/check-compiled-reachability.mjs 正向 + 负向 probe 测出。
+    //
+    // 无设备时它会如实返回 "argon2: FAIL(native load/exec: ...)"，不伪装成通过。
+    this.argon2Probe = argon2SelfCheckLine();
   }
 
   build() {
@@ -46,6 +56,11 @@ struct Index {
           .margin({ top: 12 })
 
         Text(this.containerProbe)
+          .fontSize(12)
+          .fontColor('#999999')
+          .margin({ top: 4 })
+
+        Text(this.argon2Probe)
           .fontSize(12)
           .fontColor('#999999')
           .margin({ top: 4 })

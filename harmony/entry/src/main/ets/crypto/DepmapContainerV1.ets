@@ -2,6 +2,7 @@ import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 import { util } from '@kit.ArkTS';
 
 import { JcsObject, jcsStringify } from './Jcs';
+import { Argon2idDeriver } from './KdfContract';
 
 /**
  * DEPMAP_CONTAINER_V1 —— Harmony (ArkTS) 口令派生文件加密实现。
@@ -110,14 +111,17 @@ export interface DepmapHeader {
 /**
  * Argon2id 派生器。passwordUtf8 必须是**精确 UTF-8 字节**（不做 Unicode 归一化），
  * 否则三端 Golden Vector 无法互操作。
+ *
+ * 该类型**声明**在 ./KdfContract（见文件顶部 import），此处 re-export 以保持本模块
+ * 公开 API 不变。之所以不在此处声明：声明在此会让 Argon2idNative 反过来 import
+ * 本模块，使依赖方向反转并导致 Argon2idNative 脱离编译图（详见 KdfContract.ets 顶部）。
+ *
+ * 注（两条实测约束，勿回退）：
+ *   1. ArkTS 不接受 `export type { X } from './Y'` 单行 re-export；
+ *   2. ArkTS 的 `import` 必须位于所有其它语句之前（arkts-no-misplaced-imports），
+ *      因此 import 放在文件顶部、export 留在原声明位置。
  */
-export type Argon2idDeriver = (
-  passwordUtf8: Uint8Array,
-  salt: Uint8Array,
-  memoryKiB: number,
-  iterations: number,
-  parallelism: number,
-) => Uint8Array;
+export { Argon2idDeriver };
 
 // ---------------------------------------------------------------------------
 // 基础编码
