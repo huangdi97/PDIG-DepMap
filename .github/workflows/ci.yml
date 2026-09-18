@@ -15,8 +15,14 @@ permissions:
 # ---------------------------------------------------------------------------
 # 本 CI 只做"在 GitHub-hosted runner 上真实可执行且已确认可行"的门禁：
 #
-#   job canonical      : codegen check + fixture integrity + oracle selfcheck + 平台报告 diff
 #   job android-core   : :core:test（纯 JVM）+ :conformance:run
+#   job canonical      : codegen check + fixture integrity + oracle selfcheck + 平台报告 diff
+#
+# canonical 通过 needs 串行依赖 android-core，并下载其产出的
+# conformance/reports/android.json —— 否则 conformance/reports/ 被 .gitignore 排除，
+# canonical 在 runner 上永远看不到 Android 报告，只能报 NOT_RUN。
+# 串联后 CI 才真正校验「Android 实现逐用例复现 canonical」，而不是恒为 NOT_RUN。
+# 若 android-core 失败，则不下载报告，canonical 对该平台仍诚实报 NOT_RUN。
 #
 # 明确 NOT AVAILABLE（不 fake，不写 continue-on-error 假装通过）：
 #
@@ -41,8 +47,21 @@ jobs:
   canonical:
     name: Canonical (codegen / fixtures / oracle)
     runs-on: ubuntu-latest
+    needs: android-core
+    # android-core 失败时仍然跑 canonical：两个 job 的结论各自独立如实上报，
+    # 不会因为串行依赖而把 Android 的失败隐藏成一个 "skipped"。
+    if: always()
     steps:
       - uses: actions/checkout@v4
+
+      # 仅在 android-core 成功时才存在该 artifact；缺失时 orchestrator 对
+      # android 平台如实报 NOT_RUN（NOT_RUN ≠ PASS）。
+      - name: Download Android conformance report
+        if: needs.android-core.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: android-conformance-report
+          path: conformance/reports
 
       - name: Setup Node 22
         uses: actions/setup-node@v4
@@ -93,10 +112,13 @@ jobs:
         working-directory: android
         run: ./gradlew --no-daemon --console=plain --configure-on-demand :core:test :conformance:run
 
+      # 上传整个目录（而非单文件路径），使 artifact 内部结构为 "android.json"，
+      # 下载到 conformance/reports 后落在 conformance/reports/android.json。
+      # :conformance:run 的输出路径就是仓库根的 conformance/reports/。
       - name: Upload Android conformance report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-conformance-report
-          path: conformance/reports/android.json
+          path: conformance/reports/
           if-no-files-found: ignore
