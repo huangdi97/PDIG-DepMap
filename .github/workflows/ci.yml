@@ -75,14 +75,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup JDK 17
+      # :core 与 :conformance 都是纯 Kotlin JVM 模块（kotlin("jvm")，硬约束：不得引入
+      # Android Context / Compose / SQLite），因此本 job **不需要 Android SDK**。
+      # 用 --configure-on-demand 避免配置 :app（AGP 模块，需要 Android SDK + compileSdk）
+      # —— 这既不是跳过测试，也不是跳过门禁：被门禁的两个模块照常在 runner 上实跑。
+      - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: "temurin"
-          java-version: "17"
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+          java-version: "21"
 
       - name: Gradle wrapper permissions
         working-directory: android
@@ -90,7 +91,7 @@ jobs:
 
       - name: ":core:test + :conformance:run"
         working-directory: android
-        run: ./gradlew --no-daemon --console=plain :core:test :conformance:run
+        run: ./gradlew --no-daemon --console=plain --configure-on-demand :core:test :conformance:run
 
       - name: Upload Android conformance report
         if: always()

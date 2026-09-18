@@ -3,6 +3,9 @@ node_modules/
 dist/
 build/
 coverage/
+# 例外：fixtures/coverage/ 是一致性用例目录（6 个 coverage 用例），
+# 不能与覆盖率输出目录同名而被整体忽略——否则 CI checkout 后用例文件缺失。
+!fixtures/coverage/
 .unpackage/
 unpackage/
 .hbuilderx/

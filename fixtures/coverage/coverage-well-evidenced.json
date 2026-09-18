@@ -1,0 +1,48 @@
+{
+  "id": "coverage-well-evidenced",
+  "category": "coverage",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "新来源 + 关键关系全部确认且无未决信号 → well_evidenced（仍不等于 ready / safe）",
+  "input": {
+    "scenarioId": "replace_payment_card",
+    "sources": [
+      {
+        "id": "s1",
+        "label": "微信账单",
+        "lastIngestedAt": "2026-09-12T00:00:00.000Z"
+      },
+      {
+        "id": "s2",
+        "label": "通用 CSV",
+        "lastIngestedAt": "2026-09-11T00:00:00.000Z"
+      }
+    ],
+    "confirmedDirectDependencies": 5,
+    "confirmedIndirectDependencies": 2,
+    "pendingProposals": 0,
+    "unresolvedCandidates": 0,
+    "staleDependencies": 0,
+    "unknownCriticalityCount": 0,
+    "unverifiedActions": 0,
+    "freshnessThresholdDays": 45,
+    "now": "2026-09-13T00:00:00.000Z"
+  },
+  "expected": {
+    "scenarioId": "replace_payment_card",
+    "coverageLevel": "well_evidenced",
+    "explanations": [
+      "2 个来源在新鲜度阈值内；5 条直接依赖已确认，无未决 Proposal / 候选 / unknown criticality。"
+    ],
+    "counts": {
+      "confirmedDirectDependencies": 5,
+      "confirmedIndirectDependencies": 2,
+      "pendingProposals": 0,
+      "unresolvedCandidates": 0,
+      "staleDependencies": 0,
+      "unknownCriticalityCount": 0,
+      "unverifiedActions": 0
+    }
+  }
+}

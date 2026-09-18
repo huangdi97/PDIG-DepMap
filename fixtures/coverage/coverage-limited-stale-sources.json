@@ -1,0 +1,43 @@
+{
+  "id": "coverage-limited-stale-sources",
+  "category": "coverage",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "有来源但全部超过新鲜度阈值 → limited（且可解释）",
+  "input": {
+    "scenarioId": "replace_payment_card",
+    "sources": [
+      {
+        "id": "s1",
+        "label": "微信账单",
+        "lastIngestedAt": "2026-01-01T00:00:00.000Z"
+      }
+    ],
+    "confirmedDirectDependencies": 3,
+    "confirmedIndirectDependencies": 0,
+    "pendingProposals": 0,
+    "unresolvedCandidates": 0,
+    "staleDependencies": 0,
+    "unknownCriticalityCount": 0,
+    "unverifiedActions": 0,
+    "freshnessThresholdDays": 45,
+    "now": "2026-09-13T00:00:00.000Z"
+  },
+  "expected": {
+    "scenarioId": "replace_payment_card",
+    "coverageLevel": "limited",
+    "explanations": [
+      "已有 1 个来源，但都超过新鲜度阈值（45 天）未刷新。"
+    ],
+    "counts": {
+      "confirmedDirectDependencies": 3,
+      "confirmedIndirectDependencies": 0,
+      "pendingProposals": 0,
+      "unresolvedCandidates": 0,
+      "staleDependencies": 0,
+      "unknownCriticalityCount": 0,
+      "unverifiedActions": 0
+    }
+  }
+}

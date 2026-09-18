@@ -1,0 +1,37 @@
+{
+  "id": "coverage-unknown",
+  "category": "coverage",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "无来源且无已确认直接依赖 → unknown",
+  "input": {
+    "scenarioId": "replace_payment_card",
+    "sources": [],
+    "confirmedDirectDependencies": 0,
+    "confirmedIndirectDependencies": 0,
+    "pendingProposals": 0,
+    "unresolvedCandidates": 0,
+    "staleDependencies": 0,
+    "unknownCriticalityCount": 0,
+    "unverifiedActions": 0,
+    "freshnessThresholdDays": 45,
+    "now": "2026-09-13T00:00:00.000Z"
+  },
+  "expected": {
+    "scenarioId": "replace_payment_card",
+    "coverageLevel": "unknown",
+    "explanations": [
+      "没有导入过任何相关来源，也没有已确认的直接依赖。"
+    ],
+    "counts": {
+      "confirmedDirectDependencies": 0,
+      "confirmedIndirectDependencies": 0,
+      "pendingProposals": 0,
+      "unresolvedCandidates": 0,
+      "staleDependencies": 0,
+      "unknownCriticalityCount": 0,
+      "unverifiedActions": 0
+    }
+  }
+}

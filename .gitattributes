@@ -8,6 +8,12 @@
 # Parser fixtures 按原始字节处理（含 GB18030 fixture，禁止归一化）
 core/tests/fixtures/* -text
 
+# 跨端一致性 import fixtures 同样按原始字节处理：
+# `csv-crlf.csv` 的 CRLF 是被测语义本身，若被 eol=lf 归一化，
+# Windows 工作树与 Linux CI 会算出不同的 sha256（实测差 1 个用例）。
+fixtures/import/* -text
+fixtures/coverage/* -text
+
 # 二进制
 *.png binary
 *.jpg binary

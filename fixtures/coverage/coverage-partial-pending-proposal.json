@@ -1,0 +1,44 @@
+{
+  "id": "coverage-partial-pending-proposal",
+  "category": "coverage",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "有新来源但有 pending proposal / unknown → partial，且可解释",
+  "input": {
+    "scenarioId": "replace_payment_card",
+    "sources": [
+      {
+        "id": "s1",
+        "label": "微信账单",
+        "lastIngestedAt": "2026-09-12T00:00:00.000Z"
+      }
+    ],
+    "confirmedDirectDependencies": 5,
+    "confirmedIndirectDependencies": 2,
+    "pendingProposals": 2,
+    "unresolvedCandidates": 0,
+    "staleDependencies": 0,
+    "unknownCriticalityCount": 1,
+    "unverifiedActions": 0,
+    "freshnessThresholdDays": 45,
+    "now": "2026-09-13T00:00:00.000Z"
+  },
+  "expected": {
+    "scenarioId": "replace_payment_card",
+    "coverageLevel": "partial",
+    "explanations": [
+      "2 个相关 Proposal 待确认（未确认不当作事实）。",
+      "1 条依赖 criticality=unknown（是否必需未确认）。"
+    ],
+    "counts": {
+      "confirmedDirectDependencies": 5,
+      "confirmedIndirectDependencies": 2,
+      "pendingProposals": 2,
+      "unresolvedCandidates": 0,
+      "staleDependencies": 0,
+      "unknownCriticalityCount": 1,
+      "unverifiedActions": 0
+    }
+  }
+}

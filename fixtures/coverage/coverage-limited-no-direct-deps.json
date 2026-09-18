@@ -1,0 +1,43 @@
+{
+  "id": "coverage-limited-no-direct-deps",
+  "category": "coverage",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "有新鲜来源但无任何已确认直接依赖 → limited",
+  "input": {
+    "scenarioId": "replace_payment_card",
+    "sources": [
+      {
+        "id": "s1",
+        "label": "微信账单",
+        "lastIngestedAt": "2026-09-12T00:00:00.000Z"
+      }
+    ],
+    "confirmedDirectDependencies": 0,
+    "confirmedIndirectDependencies": 0,
+    "pendingProposals": 0,
+    "unresolvedCandidates": 0,
+    "staleDependencies": 0,
+    "unknownCriticalityCount": 0,
+    "unverifiedActions": 0,
+    "freshnessThresholdDays": 45,
+    "now": "2026-09-13T00:00:00.000Z"
+  },
+  "expected": {
+    "scenarioId": "replace_payment_card",
+    "coverageLevel": "limited",
+    "explanations": [
+      "尚无已确认的直接依赖（目标对象没有 confirmed 支付关系）。"
+    ],
+    "counts": {
+      "confirmedDirectDependencies": 0,
+      "confirmedIndirectDependencies": 0,
+      "pendingProposals": 0,
+      "unresolvedCandidates": 0,
+      "staleDependencies": 0,
+      "unknownCriticalityCount": 0,
+      "unverifiedActions": 0
+    }
+  }
+}

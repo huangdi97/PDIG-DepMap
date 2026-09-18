@@ -1,0 +1,43 @@
+{
+  "id": "coverage-never-ingested-is-stalest",
+  "category": "coverage",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "从未导入（lastIngestedAt=null）视为最陈旧 → 不会计入新鲜来源",
+  "input": {
+    "scenarioId": "replace_payment_card",
+    "sources": [
+      {
+        "id": "s1",
+        "label": "从未导入",
+        "lastIngestedAt": null
+      }
+    ],
+    "confirmedDirectDependencies": 1,
+    "confirmedIndirectDependencies": 0,
+    "pendingProposals": 0,
+    "unresolvedCandidates": 0,
+    "staleDependencies": 0,
+    "unknownCriticalityCount": 0,
+    "unverifiedActions": 0,
+    "freshnessThresholdDays": 45,
+    "now": "2026-09-13T00:00:00.000Z"
+  },
+  "expected": {
+    "scenarioId": "replace_payment_card",
+    "coverageLevel": "limited",
+    "explanations": [
+      "已有 1 个来源，但都超过新鲜度阈值（45 天）未刷新。"
+    ],
+    "counts": {
+      "confirmedDirectDependencies": 1,
+      "confirmedIndirectDependencies": 0,
+      "pendingProposals": 0,
+      "unresolvedCandidates": 0,
+      "staleDependencies": 0,
+      "unknownCriticalityCount": 0,
+      "unverifiedActions": 0
+    }
+  }
+}
