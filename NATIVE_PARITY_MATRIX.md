@@ -57,6 +57,25 @@
 > `BUILD SUCCESSFUL`；因此"编译通过"这一表述本身不足以作为证据，
 > 现改用 `check-compiled-reachability.mjs` 的 A/B/C/D 四判据。
 > 详见 `HARMONY_COMPILE_REACHABILITY_GATE.md`。
+>
+> **2026-09-18 追加（Domain 11 组）**：`harmony/entry/src/main/ets/domain/` 下
+> 11 组纯 ArkTS 全部落地并 **COMPILED**
+> （Entities / LogicalKey / ImpactKernel / PlanReadiness / ScenarioCoverage /
+> StateMachines / GraphRevision / ScenarioTemplate / Timeline / Relations，
+> 外加 CanonicalWire 辅助与 DomainSelfCheck 入边）。
+> 关键证据：`HARMONY_COMPILE_REACHABILITY = PASS`，**18/18** required 模块
+> 全部 reachable + 在 `modules.abc` 中（175,732 B），且 **15 项语义自检标识符
+> 可从打包产物反查** —— 这排除了 tree-shaking 造成的假绿。
+>
+> 但**仍不计入 parity**：`COMPILED` 不等于 `TESTED`。
+> Domain 的语义目前由**主机镜像**自检（关系 18/18、容器 5/5），
+> 而 conformance 要求的是 **ArkTS 侧真实执行 fixtures 并比对**（§10 的 runner 尚未落地）。
+> 把主机镜像结果记成 conformance 通过，正是本项目一再定义的空心信号。
+>
+> **一处刻意的跨端对齐决定**：`RelationRegistry` **不实现**。
+> TS 基准的 `relation-registry.ts` 含 `verificationPolicy` / `impactSemantics`，
+> 但 **Android 冻结基准没有这两个字段**；只在 Harmony 侧补上会引入跨端分歧。
+>
 
 > ## D-16 CLOSED（2026-09-17）
 >
@@ -269,7 +288,7 @@
 | 平台   | 已完成格 | 总格 | 说明                                  |
 | ------ | -------- | ---- | ------------------------------------- |
 | Android | **62 / 73**   | **73** | 分母与计数口径已重新定义（旧的 58/62 作废）；上一轮记录为 56，本轮 +6 |
-| Harmony | **0**    | 73   | N3 已开工：工程可构建、Relations Domain 已编译；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN、Runtime NOT_RUN、depmap BLOCKED |
+| Harmony | **0**    | 73   | N3 已开工：工程可构建；**Domain 11 组已全部 COMPILED**（含 Relations / Impact / Readiness / Coverage / StateMachine / GraphRevision / ScenarioTemplate / Timeline）；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN（ArkTS runner 未接）、Runtime NOT_RUN、depmap ON_DEVICE_NOT_RUN |
 | iOS     | 0        | 73   | 仅 codegen 产物；build BLOCKED_BY_MACOS |
 
 ### 62 的来源（逐节重算，不做 `56 + 4 = 60` 这类推算）

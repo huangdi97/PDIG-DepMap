@@ -26,7 +26,9 @@
 > 剩余唯一硬 blocker 是**外部资源**：缺 Emulator 系统镜像，
 > 需人工登录华为账号下载。见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`。
 >
-> 因此：**Domain 层（§9）才是当前应为之事**，它不依赖运行时。
+> **Domain 11 组已全部落地**（§9）—— 纯 ArkTS、零平台依赖、
+> 经真实编译验证（18/18 required reachable，`modules.abc` 175,732 B），
+> 15 项语义自检标识符可从打包产物中反查。详见 §1.1。
 
 ---
 
@@ -46,6 +48,60 @@
 | 10 | Stage Model 工程骨架 | `harmony/**` | hvigor 真实构建 | PASS |
 | 11 | 纯 ArkTS Domain：Relations | `ets/domain/Relations.ets` | 进 `modules.abc` | COMPILED |
 | 12 | DEPMAP_CONTAINER_V1 | `ets/crypto/{Jcs,DepmapContainerV1,ContainerSelfCheck}.ets` | 进 `modules.abc` + 黄金校验 | **COMPILED** |
+| 13 | **Domain 11 组（本轮补全 10 组）** | `ets/domain/*.ets` | 真实编译 + 打包 + 自检反查 | **COMPILED** |
+| 14 | **编译 Gate 的 `--build` 缺陷修复** | `tools/harmony/check-compiled-reachability.mjs` | 重建后才读产物 | **PASS** |
+
+### 1.1 Domain 11 组的实际落地（§9）
+
+`HARMONY_DOMAIN` 从 `PARTIAL_WITH_REPORT`（仅 Relations）推进到 **COMPILED**。
+
+| # | 组 | 文件 | 状态 |
+| --- | --- | --- | --- |
+| 1 | Entities | `domain/Entities.ets` | COMPILED |
+| 2 | LogicalKey | `domain/LogicalKey.ets` | COMPILED |
+| 3 | ImpactKernel | `domain/ImpactKernel.ets` | COMPILED |
+| 4 | PlanReadiness | `domain/PlanReadiness.ets` | COMPILED |
+| 5 | ScenarioCoverage | `domain/ScenarioCoverage.ets` | COMPILED |
+| 6 | StateMachines | `domain/StateMachines.ets` | COMPILED |
+| 7 | GraphRevision | `domain/GraphRevision.ets` | COMPILED |
+| 8 | ScenarioTemplate | `domain/ScenarioTemplate.ets` | COMPILED |
+| 9 | Timeline | `domain/Timeline.ets` | COMPILED |
+| — | Relations（既有） | `domain/Relations.ets` | COMPILED |
+| — | CanonicalWire（辅助，非 11 组） | `domain/CanonicalWire.ets` | COMPILED |
+| — | DomainSelfCheck（入边） | `domain/DomainSelfCheck.ets` | COMPILED |
+
+**RelationRegistry 未实现 —— 这是刻意决定，不是遗漏。**
+TS 基准的 `relation-registry.ts` 比 Android 冻结版多了两个字段
+（`verificationPolicy` / `impactSemantics`），而 **Android 冻结基准里没有这两个字段**。
+只在 Harmony 侧加上它们会**引入跨端分歧**，与 N3 parity 的目标相反。
+故对齐 Android 冻结版（即既有 `Relations.ets`），并把差异记录在此。
+
+**分层约束已核实**：`domain/` 下所有模块的导入集合只含
+`../generated/CanonicalEnums` 与同目录 `./*`，
+**不含** ArkUI / Ability / relationalStore / HUKS / NAPI / cryptoFramework。
+
+### 1.2 本轮修掉的一个 Gate 缺陷（重要）
+
+`check-compiled-reachability.mjs` 的 `--build` **原先只启用负向 probe，从不重建主产物**。
+于是判据 C（"符号是否真的进了 `modules.abc`"）读的一直是上一次构建留下的旧 abc。
+这个缺陷**双向有害**：
+
+| 方向 | 表现 | 本轮是否实际发生 |
+| --- | --- | --- |
+| 假阴性 | 新模块已正确落地，却因 abc 陈旧被判 `inAbc=false` → FAIL | **是**（新 Domain 模块全部被误判） |
+| 假阳性 | 模块已被删除/改坏，旧 abc 里仍留着老符号 → 照样 PASS | 未发生但同等危险 |
+
+修复后立即暴露出一个旧 abc **一直在掩盖**的真实 ArkTS 错误：
+
+```
+ImpactKernel.ets:257:3 Nested functions are not supported (arkts-no-nested-funcs)
+```
+
+即原 TS 里的嵌套 `function evaluateTarget` 不能直接搬到 ArkTS。
+已提取为模块级函数 + 显式 `EvalContext`。
+**共享引用（而非拷贝）是必须的**：wave-BFS 每轮都往
+`unavailableSeen` / `uncertainSeen` 里追加，浅拷贝会让传播在第一轮后停住。
+
 
 ### 分层遵守情况（§G）
 
@@ -70,10 +126,10 @@ Domain 层**不依赖** ArkUI / Ability / ArkData / HUKS / NAPI / cryptoFramewor
 | Gate | 状态 | 依据 |
 | --- | --- | --- |
 | `HARMONY_BUILD` | **PASS** | clean `assembleHap` 成功（含 native 编译） |
-| `HARMONY_MODULE_COMPILED` | **PASS** | A/B/C/D 四判据，7/7 required 模块；见 §2.1 |
+| `HARMONY_MODULE_COMPILED` | **PASS** | A/B/C/D 四判据，**18/18** required 模块；`modules.abc` 175,732 B；见 §2.1 |
 | `HARMONY_DEPMAP` | **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN** | 全链路打通至 HAP；设备执行未验证 |
 | `HARMONY_CRYPTO` | **COMPILED** | JCS / AAD / AES-256-GCM 已进 `modules.abc`，主机黄金校验 5/5 |
-| `HARMONY_DOMAIN` | **PARTIAL_WITH_REPORT** | 仅 Relations；其余 10 组未开工 |
+| `HARMONY_DOMAIN` | **COMPILED** | 11 组全部落地（RelationRegistry 按对齐决定不实现）；15 项自检进产物 |
 | `HARMONY_CONFORMANCE` | **NOT_RUN** | 无设备/模拟器；仍未接本地测试框架。**不得**写 PASS |
 | `HARMONY_ARKDATA` | **NOT_STARTED** | — |
 | `HARMONY_MIGRATION` | **NOT_STARTED** | — |
@@ -98,9 +154,13 @@ Domain 层**不依赖** ArkUI / Ability / ArkData / HUKS / NAPI / cryptoFramewor
 `import { Argon2idDeriver } from './DepmapContainerV1'` 造成依赖方向反转，
 成为无人 import 的孤儿 —— 源文件存在、从未被编译、构建却是绿的。
 
-现由 `check-compiled-reachability.mjs` 以 A/B/C/D 四判据守住，实跑：
+现由 `check-compiled-reachability.mjs` 以 A/B/C/D 四判据守住，实跑（本轮最终值）：
 
 ```
+[reachability] ets modules found : 20
+[reachability] reachable         : 20
+[reachability] modules.abc       : 175732 bytes
+
 CanonicalEnums      reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
 Relations           reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
 Jcs                 reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
@@ -108,17 +168,36 @@ KdfContract         reachable=true  inAbc=TYPE_ONLY  negative=NOT_RUN           
 DepmapContainerV1   reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
 ContainerSelfCheck  reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
 Argon2idNative      reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+CanonicalWire       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+Entities            reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+LogicalKey          reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+ImpactKernel        reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+PlanReadiness       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+ScenarioCoverage    reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+StateMachines       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+GraphRevision       reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+ScenarioTemplate    reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+Timeline            reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+DomainSelfCheck     reachable=true  inAbc=true       negative=PASS (via CanonicalEnums)  PASS
+
+  required modules              : 18
+  all required reachable (A)    : true
+  all required in modules.abc(C): true
 
 HARMONY_COMPILE_REACHABILITY=PASS
 ```
+
+§1.2 的 `--build` 缺陷修复后，上表由 7 项扩到 18 项 —— 之前那 11 项
+不是"没做"，而是"做了但 Gate 读的是旧产物、看不出来"。
 
 设计细节（含为何纯类型模块豁免 C、为何 D 必须 `--clean`、
 为何只跑一个代表模块、以及残留自愈）见 `HARMONY_COMPILE_REACHABILITY_GATE.md`。
 
 ### 2.2 `HARMONY_NATIVE_CORE_HANDOFF` 仍未达成
 
-18 个 gate 中：6 PASS / 1 COMPILED×3 / 3 NOT_STARTED / 1 BLOCKED / 1 NOT_RUN / 2 PARTIAL。
-**距离达成还有实质工作**，尤其 Domain 与 Conformance。
+18 个 gate 中：**6 PASS / 5 COMPILED / 3 NOT_STARTED / 1 PARTIAL / 1 BLOCKED / 1 NOT_RUN**。
+Domain 已从 PARTIAL 推进到 COMPILED；**剩余主要缺口是 Conformance（§10/§11）与 ArkUI（§14）**。
+
 
 ---
 

@@ -53,21 +53,36 @@ pass = 0   fail = 0   notImplemented = 87   blocked = 4   total = 91
 
 ## 2. 逐分类状态
 
-| 分类 | 用例数 | Harmony 状态 | 说明 |
-| --- | --- | --- | --- |
-| relations | 18 | **notImplemented**（Domain 已移植并 COMPILED，未执行） | 无运行时 → 未跑 |
-| impact | 13 | notImplemented | 未开工 |
-| readiness | 16 | notImplemented | 未开工 |
-| coverage | 6 | notImplemented | 未开工 |
-| parser | 22 | notImplemented | 未开工 |
-| state-machine | 5 | notImplemented | 未开工 |
-| timeline | 3 | notImplemented | 未开工 |
-| migration | 2 | notImplemented | 未开工 |
-| scenario | 1 | notImplemented | 未开工 |
-| jcs | 1 | notImplemented | 未开工 |
-| **depmap** | **3** | **BLOCKED_BY_RUNTIME** | 平台无 Argon2 的阻塞已解除；现因无运行时未执行（§3） |
-| **backup** | **1** | **BLOCKED_BY_RUNTIME** | 依赖 `.depmap` 加解密，同上 |
-| **合计** | **91** | 87 notImplemented / 4 blocked | |
+> **更新说明（2026-09-18 第二轮）**：Domain 11 组已全部落地并 **COMPILED**
+> （`HARMONY_DOMAIN = COMPILED`，见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` §1.1）。
+> 但**本报告的执行计数不变，仍是 pass=0** —— 理由必须讲清楚，
+> 否则会把"实现就绪"误读成"已通过":
+
+| 分类 | 用例数 | Harmony 实现 | Harmony 执行 | 说明 |
+| --- | --- | --- | --- | --- |
+| relations | 18 | **COMPILED** | notImplemented | 18/18 主机镜像已过（`check-relations-semantics.mjs`），但**那不算 conformance 执行** |
+| impact | 13 | **COMPILED** | notImplemented | ArkTS runner 未接 |
+| readiness | 16 | **COMPILED** | notImplemented | 同上 |
+| coverage | 6 | **COMPILED** | notImplemented | 同上 |
+| parser | 22 | 未开工 | notImplemented | 属 import/source 层 |
+| state-machine | 5 | **COMPILED** | notImplemented | ArkTS runner 未接 |
+| timeline | 3 | **COMPILED** | notImplemented | 同上 |
+| migration | 2 | 未开工 | notImplemented | 需 ArkData（§12） |
+| scenario | 1 | **COMPILED** | notImplemented | 同上 |
+| jcs | 1 | **COMPILED** | notImplemented | 同上 |
+| **depmap** | **3** | **COMPILED** | **BLOCKED_BY_RUNTIME** | 平台无 Argon2 的阻塞已解除；现因无运行时未执行（§3） |
+| **backup** | **1** | 未开工 | **BLOCKED_BY_RUNTIME** | 依赖 `.depmap` 加解密 + ArkData，同上 |
+| **合计** | **91** | — | **87 notImplemented / 4 blocked** | **0 执行** |
+
+**为什么实现了却仍记 notImplemented**：本 gate 的判定标准是
+「在 **ArkTS 侧**真实执行 fixtures 并比对」。
+`check-relations-semantics.mjs` 跑的是**主机侧镜像**，
+它证明的是"移植语义正确"，**不是**"Harmony 运行时通过"。
+把主机镜像的 18/18 记成 conformance 的 18/18，正是本项目定义的空心信号。
+因此本轮**没有**把任何一条从 notImplemented 挪成 pass。
+
+真正能改动上表数字的，是 §10 要求的 **ArkTS conformance runner**（尚未落地）。
+
 
 ---
 
