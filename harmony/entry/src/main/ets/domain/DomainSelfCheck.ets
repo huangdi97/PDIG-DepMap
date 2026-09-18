@@ -16,10 +16,12 @@
 // 真正的判定在 tools/harmony/check-compiled-reachability.mjs 与
 // 未来的 ArkTS conformance runner。
 
-import { Capability, Criticality, DependencyOrigin, DependencyState, GroupMode, GroupState, ImpactReasonCode, Relation } from '../generated/CanonicalEnums';
-import { Dependency, DependencyGroup, ImpactGraph, ImpactProposalInput, ImpactStateKey, canonicalGroupKey, dependencyLogicalKey } from './Entities';
+import { Capability, ChangePlanWorkflowState, CoverageLevel, Criticality, DependencyOrigin, DependencyState, GroupMode, GroupState, ImpactReasonCode, PlanReadiness as PlanReadinessEnum, Relation } from '../generated/CanonicalEnums';
+import { ChangePlan, CoverageSourceInfo, Dependency, DependencyGroup, ImpactGraph, ImpactProposalInput, ImpactStateKey, PlanReadinessInput, ScenarioCoverageInput, canonicalGroupKey, dependencyLogicalKey } from './Entities';
 import { simulateDisable, simulateScenario } from './ImpactKernel';
 import { groupKeyDedupsMembers, groupKeyIsOrderIndependent, logicalKeyRoundTrips, parseDependencyLogicalKey } from './LogicalKey';
+import { computePlanReadiness } from './PlanReadiness';
+import { computeScenarioCoverage } from './ScenarioCoverage';
 
 function dep(
   id: string,
@@ -267,6 +269,116 @@ function checkLogicalKeyInvariants(): string {
 }
 
 /**
+ * 检查 R：PlanReadiness 的档位与优先级。
+ *
+ * 关键不变式：**不存在第 4 个取值**。最乐观也只是 ready_with_known_scope；
+ * 任何 'safe' / 'ok' / 'all_clear' 都是规范外产物。
+ * 同时校验优先级：pendingMustChange 最高（blocked），未决 proposal 次之。
+ */
+function checkPlanReadiness(): string {
+  const base = new PlanReadinessInput();
+  base.currentGraphRevision = 1;
+
+  // 全清 → ready_with_known_scope（注意：不是 'safe'）
+  const clean = computePlanReadiness(base);
+  const cleanOk = clean === PlanReadinessEnum.READY_WITH_KNOWN_SCOPE;
+
+  // must_change 优先于一切
+  const blocked = new PlanReadinessInput();
+  blocked.currentGraphRevision = 1;
+  blocked.pendingMustChange = 1;
+  blocked.pendingRelevantProposals = 5;
+  const blockedOk = computePlanReadiness(blocked) === PlanReadinessEnum.BLOCKED;
+
+  // 未决 proposal 单独存在 → review_required，且 confidence 不参与
+  const review = new PlanReadinessInput();
+  review.currentGraphRevision = 1;
+  review.pendingRelevantProposals = 1;
+  const reviewOk = computePlanReadiness(review) === PlanReadinessEnum.REVIEW_REQUIRED;
+
+  // stale（派生）优先于 ready：revision 前进但计划未重分析
+  const stale = new PlanReadinessInput();
+  stale.currentGraphRevision = 7;
+  const p = new ChangePlan();
+  p.workflowState = ChangePlanWorkflowState.ANALYZED;
+  p.lastAnalyzedGraphRevision = 3;
+  stale.plan = p;
+  const staleOk = computePlanReadiness(stale) === PlanReadinessEnum.REVIEW_REQUIRED;
+
+  // 无第 4 值：返回串必须落在三个合法枚举内
+  const legal =
+    clean === PlanReadinessEnum.BLOCKED ||
+    clean === PlanReadinessEnum.REVIEW_REQUIRED ||
+    clean === PlanReadinessEnum.READY_WITH_KNOWN_SCOPE;
+
+  const ok = cleanOk && blockedOk && reviewOk && staleOk && legal;
+  return `readiness=ok(${cleanOk}/b${blockedOk}/r${reviewOk}/s${staleOk}/l${legal})`;
+}
+
+/**
+ * 检查 V：ScenarioCoverage 的四档与可解释性。
+ *
+ * 关键不变式：每一档都必须带 explanations（§23 可解释要求），
+ * 且**不允许**出现"来源越多等级越高"的百分比式推断。
+ */
+function checkScenarioCoverage(): string {
+  // unknown：无来源 + 无已确认直接依赖
+  const a = new ScenarioCoverageInput();
+  a.scenarioId = 's';
+  a.now = '2026-09-18T00:00:00.000Z';
+  a.freshnessThresholdDays = 30;
+  const unknownOk = computeScenarioCoverage(a).coverageLevel === CoverageLevel.UNKNOWN;
+
+  // limited：有来源但全部过期（lastIngestedAt=null → +Infinity → 一律过期）
+  const b = new ScenarioCoverageInput();
+  b.scenarioId = 's';
+  b.now = '2026-09-18T00:00:00.000Z';
+  b.freshnessThresholdDays = 30;
+  const src = new CoverageSourceInfo();
+  src.id = 'src1';
+  src.label = 'stale';
+  src.lastIngestedAt = null;
+  b.sources = [src];
+  b.confirmedDirectDependencies = 3;
+  const limitedOk = computeScenarioCoverage(b).coverageLevel === CoverageLevel.LIMITED;
+
+  // partial：来源新鲜 + 有直接依赖，但存在 unknown criticality
+  const c = new ScenarioCoverageInput();
+  c.scenarioId = 's';
+  c.now = '2026-09-18T00:00:00.000Z';
+  c.freshnessThresholdDays = 30;
+  const fresh = new CoverageSourceInfo();
+  fresh.id = 'src1';
+  fresh.label = 'fresh';
+  fresh.lastIngestedAt = '2026-09-17T00:00:00.000Z';
+  c.sources = [fresh];
+  c.confirmedDirectDependencies = 3;
+  c.unknownCriticalityCount = 2;
+  const covC = computeScenarioCoverage(c);
+  const partialOk = covC.coverageLevel === CoverageLevel.PARTIAL;
+
+  // well_evidenced：全清
+  const d = new ScenarioCoverageInput();
+  d.scenarioId = 's';
+  d.now = '2026-09-18T00:00:00.000Z';
+  d.freshnessThresholdDays = 30;
+  const fresh2 = new CoverageSourceInfo();
+  fresh2.id = 'src1';
+  fresh2.label = 'fresh';
+  fresh2.lastIngestedAt = '2026-09-17T00:00:00.000Z';
+  d.sources = [fresh2];
+  d.confirmedDirectDependencies = 3;
+  const covD = computeScenarioCoverage(d);
+  const wellOk = covD.coverageLevel === CoverageLevel.WELL_EVIDENCED;
+
+  // 可解释性：四个场景都必须给出至少一条 explanation
+  const explained = covC.explanations.length > 0 && covD.explanations.length > 0;
+
+  const ok = unknownOk && limitedOk && partialOk && wellOk && explained;
+  return `coverage=ok(${unknownOk}/${limitedOk}/${partialOk}/${wellOk}/e${explained})`;
+}
+
+/**
  * 汇总：所有 domain 层的自检合并为一行，便于在页面上核对、
  * 也便于对 HAP 内的 modules.abc 做字符串反查（确认真的被打包）。
  */
@@ -281,6 +393,8 @@ export function domainSelfCheckLine(): string {
     checkMultiInitialDedup(),
     checkChecklistTargetLast(),
     checkLogicalKeyInvariants(),
+    checkPlanReadiness(),
+    checkScenarioCoverage(),
   ];
   return `domain: ${parts.join(' ')}`;
 }
