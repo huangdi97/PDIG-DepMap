@@ -26,10 +26,17 @@ permissions:
 #
 # 明确 NOT AVAILABLE（不 fake，不写 continue-on-error 假装通过）：
 #
-#   HARMONY_CI = NOT_AVAILABLE
+#   HARMONY_CI_BUILD = NOT_AVAILABLE
 #     GitHub-hosted runner 无 DevEco Studio / HarmonyOS SDK / hvigor，
 #     且 hvigor 5.13.2 只以 file: 协议引用 DevEco 内置包（公共 registry 无此版本）。
 #     需要 self-hosted Windows runner + 本机 DevEco 才能建立。
+#     → 因此 **不建立** 任何声称 "Harmony 构建通过" 的 job。
+#
+#   与之相对，job harmony-static 跑的是**在 hosted runner 上真实可执行**的部分：
+#     第三方完整性 / 容器黄金向量 / 关系语义镜像 / import 拓扑。
+#     这四个 gate 不依赖 DevEco、不依赖设备。它们**不能**替代 Harmony 构建，
+#     也**不产生** Harmony conformance 读数 —— job 内不产出 harmony.json，
+#     故 orchestrator 对 harmony 平台仍如实报 NOT_RUN。
 #
 #   IOS_CI = NOT_ESTABLISHED
 #     macOS runner 可建立，但 iOS N4 尚未开工（BLOCKED_BY_MACOS 之外的工程缺口未开始），
@@ -122,3 +129,49 @@ jobs:
           name: android-conformance-report
           path: conformance/reports/
           if-no-files-found: ignore
+
+  # ---------------------------------------------------------------------------
+  # Harmony 静态 gate（hosted runner 上真实可执行的部分）
+  #
+  # 为什么单列一个 job：这些检查**不需要** DevEco / HarmonyOS SDK / 设备，
+  # 但它们是 Harmony 侧唯一能在 hosted runner 上真正守住的东西 ——
+  # 尤其是 conformance runner 的新增代码不得悄悄破坏第三方完整性或 golden 向量。
+  #
+  # 诚实边界（必须保留这段说明）：
+  #   * 本 job **不**构建 Harmony，**不**产出 conformance/reports/harmony.json，
+  #     因此不会把 harmony 平台从 NOT_RUN 变成 PASS。
+  #   * 它**不能**替代 `check-compiled-reachability.mjs --build`
+  #     （那个需要 DevEco，声明为 HARMONY_CI_BUILD = NOT_AVAILABLE）。
+  #   * 每个 step 都是真实执行，无 continue-on-error —— 失败就是失败。
+  # ---------------------------------------------------------------------------
+  harmony-static:
+    name: Harmony static (no SDK, no device)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # vendored Argon2id 的完整性：文件哈希、数量、是否有未声明修改。
+      # 这是 Harmony 侧唯一"协议实现来源"的守门人。
+      - name: Third-party integrity
+        run: node tools/harmony/check-third-party-hashes.mjs
+
+      # DEPMAP_CONTAINER_V1 的 JCS / AAD / GCM 黄金向量逐字段比对。
+      # 注意：这验证的是**移植规格本身**（主机侧独立实现），
+      # 不是 ArkTS 运行时执行结果 —— 故不写入 conformance 矩阵。
+      - name: Container golden vectors
+        run: node tools/harmony/verify-container-golden.mjs
+
+      # 关系语义镜像（Node 等价实现 vs 同批 fixtures，18 例）。
+      # 同样**不是** ArkTS 运行时执行，不写入 conformance 矩阵。
+      - name: Relations semantics mirror
+        run: node tools/harmony/check-relations-semantics.mjs
+
+      # import 拓扑：确认没有模块静默脱离编译图（orphan）。
+      # 这正是当年 Argon2idNative 因依赖方向反转成为孤儿的那类缺陷。
+      - name: Import topology (orphan check)
+        run: node tools/harmony/dump-import-graph.mjs
