@@ -85,15 +85,18 @@
 | 平台   | PASS | FAIL | NOT_IMPLEMENTED | NOT_RUN | 合计 |
 | ------ | ---- | ---- | --------------- | ------- | ---- |
 | Android | **91** | 0 | 0 | 0 | 91 |
-| Harmony | 0 | 0 | 3（timeline） | **88**（60 可执行待跑 + 28 `BLOCKED_BY_RUNTIME`） | 91 |
+| Harmony（设备执行面） | 0 | 0 | 6 | **85**（57 主机已通过 + 28 `BLOCKED_BY_RUNTIME`） | 91 |
+| Harmony（**主机**执行面） | **57** | 0 | 6 | 28（`BLOCKED_BY_RUNTIME`） | 91 |
 | iOS     | 0 | 0 | 0 | 91 | 91 |
 
-> **Harmony 行的读法**：`PASS = 0` 是因为**一次都没执行**（`NOT_RUN`），
-> 不是因为失败。`NOT_IMPLEMENTED = 3` 是 runner 侧尚未实现的 timeline；
-> 其余 88 中 **60 条已具备执行条件**（runner 已就绪，只差执行入口），
-> 28 条按 §11 记为 `BLOCKED_BY_RUNTIME`。
-> 另立 gate `HARMONY_CONFORMANCE_RUNNER = PASS` 记录"runner 已存在且被真的编译"，
-> **该 gate 不改变本表任何计数**。
+> **两行 Harmony 的读法**：
+> * **设备执行面**（`HARMONY_CONFORMANCE`）仍是 `NOT_RUN`，**pass = 0 / 91** ——
+>   一次都没在设备上跑过。这是往矩阵里写"Harmony conformance"时唯一该引用的口径。
+> * **主机执行面**（`HARMONY_CONFORMANCE_HOST`）**57/57 已真跑通过**。
+>   它执行的是**同一个 ArkTS runner**（非 Node 复刻），因此可以计入 conformance；
+>   但它只覆盖 57/91，**不能**被当成 91/91，也**不**替代设备执行面。
+> * 另有 gate `HARMONY_CONFORMANCE_RUNNER = PASS`（runner 已存在且被真的编译），
+>   该 gate **不改变**本表任何计数。
 
 > Android 侧的 91/91 是**领域 / 语义 / 解析 / 迁移 / 备份**层的 conformance 结果，
 > **不等于**端到端 parity——设备级运行时结论见 `NATIVE_PARITY_MATRIX.md`（**62/73**）与
@@ -162,43 +165,44 @@
 > §10「不得用 Node 镜像冒充 ArkTS」这条要求被**真的满足**的硬证据：
 > Node 镜像不可能产生 ArkTS 编译错误。
 
-### 0.5 Harmony 用例的运行时相关性拆分（§11 要求，本轮新立）
+> **（2026-09-18 追加）与"不得误用"相反的一条：**`HARMONY_CONFORMANCE_HOST`
+> **可以**计入 conformance。这是本矩阵唯一一个"主机侧结果可以写进来"的例外，
+> 且理由必须写清楚，否则它看起来和前面五条被拒的正数没有区别：
+>
+> | | 被执行的代码 | 数据 | 与"Node 镜像"的区别 |
+> | --- | --- | --- | --- |
+> | `check-relations-semantics.mjs` | **另写**的 Node 等价实现 | 同批 fixtures | ❌ 是镜像，**不得计入** |
+> | **`HARMONY_CONFORMANCE_HOST`** | **ConformanceRunner 本身**（真 ArkTS 编译器产出） | 冻结 fixture 原文，逐字节内嵌 | ✅ 不是镜像，**可计入** |
+>
+> §10 禁止的是 "**Node mirror masquerading as ArkTS**" —— 即另写一份 Node 实现
+> 去跑 fixtures。本门禁执行的是被测实现本人。
+>
+> **仍然成立的边界**：主机对 `@ohos.*` 只提供**不可调用的桩**
+> （实测 `fs.readTextSync` → `is not callable`），
+> 因此 28 个 @ohos 依赖用例在主机上仍记 `BLOCKED_BY_RUNTIME`；
+> 主机执行面**不**覆盖它们，也**不**产出 91/91。
+> 内嵌 fixture 由 `embed-fixtures.mjs --check` 作为**执行前的第一道**检查守漂移。
+
+### 0.5 Harmony 用例的运行时相关性拆分（§11 要求）
 
 §11 要求「**优先做运行时无关的 conformance**，crypto 相关的运行时用例可以记为
-`BLOCKED_BY_RUNTIME`」。据此把 91 例按"是否依赖真实运行时"重新计算：
+`BLOCKED_BY_RUNTIME`」。**第四轮实测**后的账目（取代此前的推算值）：
 
-| 类别 | 用例数 | 性质 | 可执行 |
-| --- | --- | --- | --- |
-| impact | 13 | 运行时无关 | ✅ |
-| readiness | 16 | 运行时无关 | ✅ |
-| coverage | 6 | 运行时无关 | ✅ |
-| relations | 18 | 运行时无关 | ✅ |
-| scenario | 1 | 运行时无关 | ✅ |
-| migration（`migration-version-contract`） | 1 | 运行时无关 | ✅ |
-| state-machine | 5 | 运行时无关 | ✅ |
-| timeline | 3 | 运行时无关，但 runner 侧**尚未实现** | ❌ NOT_IMPLEMENTED |
-| parser | 22 | 依赖真实解析 / IO | ⛔ BLOCKED_BY_RUNTIME |
-| depmap | 3 | 依赖 Argon2 原生 + 运行时 | ⛔ BLOCKED_BY_RUNTIME |
-| jcs | 1 | 依赖运行时 | ⛔ BLOCKED_BY_RUNTIME |
-| backup | 1 | 依赖运行时 | ⛔ BLOCKED_BY_RUNTIME |
-| `migration-db-v1-to-v3` | 1 | 依赖 ArkData（**case 级**，非同类别整体） | ⛔ BLOCKED_BY_RUNTIME |
-| **合计** | **91** | | **60 可执行** |
+| 分类 | 数量 | 说明 |
+| --- | --- | --- |
+| **已执行且通过** | **57** | 主机执行面真跑，actual 逐字节等于 expected |
+| `BLOCKED_BY_RUNTIME` | **28** | parser 22 + depmap 3 + jcs 1 + backup 1 + `migration-db-v1-to-v3` 1 |
+| `NOT_IMPLEMENTED` | **6** | timeline 3 + state-machine 的 action-verification / discovery-candidate / reality-drift |
+| **合计** | **91** | |
 
-**汇总：可执行 60 / `BLOCKED_BY_RUNTIME` 28 / `NOT_IMPLEMENTED` 3 = 91。**
+**汇总：已执行通过 57 / `BLOCKED_BY_RUNTIME` 28 / `NOT_IMPLEMENTED` 6 = 91。**
 
-分母校验：运行时无关共 **63**（13+16+6+18+1+1+5+3）= 可执行 60 + timeline 3。
+分母校验：运行时无关共 **63** = 已执行 57 + 未实现 6。
 
-> 两点必须显式说明：
->
-> 1. `migration` 类别**按 case 拆分**。类别整体依赖 ArkData，但
->    `migration-version-contract` 只验版本契约（纯常量与函数），
->    若在类别级一刀切会把它**错误地扫出分母**。
-> 2. timeline 的 3 例记为 **`NOT_IMPLEMENTED` 而非跳过**。
->    按 harness 诚实性规则，`NOT_IMPLEMENTED` **既不是 FAIL 也不是 PASS**，
->    不得从分母中抹去。
->
-> 本拆分**不是**执行结果 —— `HARMONY_CONFORMANCE` 依然是 **NOT_RUN，0 执行**。
-> 它说明的是「一旦接上执行面，立刻可跑多少条」。
+> **⚠ 更正**：本文档与相关报告此前写的是「60 可执行 / 3 notImplemented」。
+> 那是**推算**（默认 state-machine 5 个用例都已实现，实际只有 2 个），已作废。
+> 它是由自家测试 `accountingSplitMatchesSection11` 抓出来的 ——
+> 该断言把三个数写成精确值，推算值一放进去即失败。
 
 
 ## 4. Coverage（6 例）

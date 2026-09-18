@@ -109,19 +109,20 @@
 
   ```bash
   git rev-parse HEAD && git status --short -uall
-  # Harmony：先跑四道主机侧 gate（均不需要设备）
+  # Harmony：先跑五道 gate（前四道不需要设备）
   PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-third-party-hashes.mjs
   PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-argon2-native-build.mjs
   PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/check-compiled-reachability.mjs --build
-  # 第 4 道用同一环境变量，跑完可 grep conformance 模块与函数是否真的在 modules.abc 里
+  # 主机执行面：57/57 运行时无关用例（真实 ArkTS，无设备）→ 期望 PASS
+  PDIG_DEVECO_HOME="<DEVECO_HOME>" node tools/harmony/run-conformance-host.mjs
+  # 产物符号反查
   PDIG_HARMONY_BUILD_ROOT="C:/Users/Kaiser/pdig-harmony-build" node tools/harmony/probe-abc-symbols.mjs
   # Android（冻结，仅回归）
   cd android && ./gradlew --no-daemon :core:test :conformance:run
   ```
 
-  > **下一位 Agent 的第一优先动作不是跑 gate，而是给 conformance runner 接执行入口**
-  > （注册进 DevEco Hypium `ohosTest`）。runner 已就绪（`HARMONY_CONFORMANCE_RUNNER = PASS`），
-  > 60 条运行时无关用例只差一个执行面；接上之前 `HARMONY_CONFORMANCE` 永远是 `NOT_RUN`。
+  > 需要 `ohpm install` 先跑过一次（生成 `oh_modules`），否则镜像缺依赖、测试代码编不过。
+  > 另：本仓库 `on.push` **不自动触发** CI，需 `gh workflow run CI --ref <branch>` 手动调度。
 
 ### Current 只保留这 6 个关注面（其它内容一律属于 Historical / Legacy）
 
@@ -131,7 +132,7 @@
 | 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**冻结，不再推进**） |
 | 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（clean assembleHap，含 native）；`HARMONY_MODULE_COMPILED` = **PASS**（A/B/C/D 四判据，**22/22** required 模块，`modules.abc` 243,556 B，0 孤儿）；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM）；**`HARMONY_DOMAIN` = COMPILED**（11 组纯 ArkTS 全部落地，15 项自检可从产物反查；`RelationRegistry` 按对齐 Android 冻结版的决定**不实现**）；`HARMONY_DEPMAP` = **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN**（Argon2 NAPI 全链路已打通：vendored 溯源 + 交叉编译 arm64/x86_64 + 打包进 HAP 且符号表恰好只导出 NAPI 入口）；**`HARMONY_CONFORMANCE_RUNNER` = PASS**（真实 ArkTS runner 已落地并进编译图：`conformance/` 4 模块 2,031 行，`modules.abc` 符号取证齐全；**非 Node 镜像**）；`HARMONY_CONFORMANCE` = **NOT_RUN**（runner 已就绪但**无运行时，一次都没执行**，**执行计数仍 pass=0**，不得记 PASS —— 见 `HARMONY_N3_CONFORMANCE_REPORT.md` §0.2）；`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像，见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）—— 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_ARGON2_INTEGRATION_REPORT.md` |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
-| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **NOT_RUN**（0 执行：runner 已就绪，**60 可执行 / 28 blockedByRuntime / 3 timeline notImplemented**）；iOS 无报告。CI 已由恒 `NOT_RUN` 改为真正校验 Android 平台报告（见 `GITHUB_PUBLICATION_REPORT.md` §6.4） |
+| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **设备侧 NOT_RUN（0 执行 / 91）**，但**主机执行面 `HARMONY_CONFORMANCE_HOST = PASS`：57/57 运行时无关用例在真实 ArkTS 下逐字节复现**；其余 **28 blockedByRuntime + 6 notImplemented**；iOS 无报告 |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
 
 ### 当前真实外部 blocker（只有这些）

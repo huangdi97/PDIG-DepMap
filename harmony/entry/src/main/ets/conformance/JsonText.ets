@@ -588,3 +588,53 @@ export class JsonText {
     return m;
   }
 }
+
+/* ==========================================================================
+ * 模块级工具
+ * ========================================================================== */
+
+/**
+ * 去掉 JSON 文本里的**非语义空白**（字符串字面量之外的空格 / 制表 / 换行 / 回车）。
+ *
+ * 为什么必须有这一步（2026-09-18 主机执行面实测所得）：
+ * fixture 里的 `expected` 是按 2 空格缩进的**美化** JSON，
+ * 而实现侧产出的是**紧凑** JSON。harness 的比对契约是
+ *
+ *     JSON.stringify(actual) === JSON.stringify(expected)
+ *
+ * 即「空白无关、**键序相关**」。两侧都必须先化成紧凑形式再比；
+ * 拿美化文本直接和紧凑文本比，任何用例都不可能相等 ——
+ * 首轮主机执行时 41 个用例全挂在这一条上。
+ *
+ * 本函数**只去空白**：不重排键、不改转义、不做任何美化。
+ * 键序是契约的一部分，动它就会把真实缺陷掩盖掉。
+ */
+export function compactJson(text: string): string {
+  let out = '';
+  let inStr = false;
+  let esc = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text.charAt(i);
+    if (inStr) {
+      out += c;
+      if (esc) {
+        esc = false;
+      } else if (c === '\\') {
+        esc = true;
+      } else if (c === '"') {
+        inStr = false;
+      }
+      continue;
+    }
+    if (c === '"') {
+      inStr = true;
+      out += c;
+      continue;
+    }
+    if (c === ' ' || c === '\t' || c === '\n' || c === '\r') {
+      continue;
+    }
+    out += c;
+  }
+  return out;
+}

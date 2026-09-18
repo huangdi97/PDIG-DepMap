@@ -52,8 +52,25 @@ function copyTree(from, to) {
     const t = join(to, e.name)
     if (e.name === 'node_modules' || e.name === 'oh_modules' || e.name === '.hvigor' ||
         e.name === 'build' || e.name === '.preview' || e.name === 'local.properties') continue
-    if (e.isDirectory()) copyTree(f, t)
-    else if (e.isFile()) copyFileSync(f, t)
+    // Dirent.isDirectory()/isFile() 对符号链接**都返回 false**，直接 if/else 会把链接
+    // 静默丢弃。ohpm 恰好在 oh_modules 内用符号链接组织包
+    // （entry/oh_modules/@ohos/hypium -> oh_modules/.ohpm/@ohos+hypium@1.0.24/...），
+    // 因此早期版本复制出来的 oh_modules 是个空壳，表现为
+    //   Failed to resolve OhmUrl for "@ohos/hypium"
+    // 这里对链接取 statSync（跟随链接）来判断真实类型，并**解引用复制内容**。
+    let isDir = e.isDirectory()
+    let isFile = e.isFile()
+    if (e.isSymbolicLink()) {
+      try {
+        const st = statSync(f)
+        isDir = st.isDirectory()
+        isFile = st.isFile()
+      } catch {
+        continue   // 悬空链接：跳过（不该出现在依赖目录里）
+      }
+    }
+    if (isDir) copyTree(f, t)
+    else if (isFile) copyFileSync(f, t)
   }
 }
 
@@ -115,6 +132,43 @@ for (const [name, target] of Object.entries(DEPS)) {
   let st = null
   try { st = lstatSync(link) } catch { /* not exists */ }
   if (!st) symlinkSync(target, link, 'junction')
+}
+
+// 3a. oh_modules（由 `ohpm install` 在仓库内生成）必须一并带进镜像。
+//
+// copyTree 故意排除 oh_modules（它是依赖产物，不该被复制成第二份真实副本），
+// 但 hvigor 的 ArkTS 编译要靠它解析 `@ohos/hypium` 等 import ——
+// 缺了它，任何测试代码都会报 "Cannot find module '@ohos/hypium'"。
+//
+// **必须是真实复制，不能做 junction**：实测 junction 指向仓库时，
+// hvigor 会顺着链接把模块物理路径解析回仓库（非 ASCII 且不在镜像工程根内），
+// OhmUrl 解析随之失败：
+//   ArkTS:ERROR Failed to resolve OhmUrl.
+//   ... for "E:\AI\号卡管理\harmony\oh_modules\.ohpm\@ohos+hypium@...\index.js"
+// 复制成真实目录后物理路径落在镜像内，解析正常。
+//
+// **两处都要**：ohpm 会分别在工程根（harmony/oh_modules）与
+// 声明了 devDependencies 的模块下（harmony/entry/oh_modules）落盘。
+// 只复制根目录那份时，entry 的测试代码仍报
+//   "has dependency which is not installed at its oh-package.json5" +
+//   Failed to resolve OhmUrl for "@ohos/hypium"。
+{
+  const OH_DIRS = ['oh_modules', join('entry', 'oh_modules')]
+  let copied = 0
+  for (const rel of OH_DIRS) {
+    const ohSrc = join(SRC, rel)
+    if (!existsSync(ohSrc)) continue
+    const ohDst = join(MIRROR, rel)
+    // 先删掉可能残留的 junction / 旧副本，否则 copyFileSync 会写到链接目标上。
+    if (existsSync(ohDst)) rmSync(ohDst, { recursive: true, force: true })
+    copyTree(ohSrc, ohDst)
+    copied++
+  }
+  if (copied === 0) {
+    console.log('[harmony] oh_modules absent (先跑 ohpm install 才能编译测试代码)')
+  } else {
+    console.log('[harmony] oh_modules copied into mirror (' + copied + ' location(s))')
+  }
 }
 
 // 4. 构建

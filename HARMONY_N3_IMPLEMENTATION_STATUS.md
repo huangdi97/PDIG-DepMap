@@ -130,8 +130,10 @@ Domain 层**不依赖** ArkUI / Ability / ArkData / HUKS / NAPI / cryptoFramewor
 | `HARMONY_DEPMAP` | **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN** | 全链路打通至 HAP；设备执行未验证 |
 | `HARMONY_CRYPTO` | **COMPILED** | JCS / AAD / AES-256-GCM 已进 `modules.abc`，主机黄金校验 5/5 |
 | `HARMONY_DOMAIN` | **COMPILED** | 11 组全部落地（RelationRegistry 按对齐决定不实现）；15 项自检进产物 |
-| `HARMONY_CONFORMANCE_RUNNER` | **PASS** | 真实 ArkTS runner 已落地并通过负向探针；见 §2.3。**不等于**用例执行过 |
-| `HARMONY_CONFORMANCE` | **NOT_RUN** | 无设备/模拟器；仍未接本地测试框架。**0 执行 / 91**。**不得**写 PASS |
+| `HARMONY_CONFORMANCE_RUNNER` | **PASS** | 真实 ArkTS runner 已落地并通过负向探针；见 §2.3 |
+| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **主机执行面**：57/57 运行时无关用例在真实 ArkTS 下逐字节复现；见 §2.4 |
+| **`HARMONY_DOMAIN_HOST`** | **PASS** | 15/15 域自检在主机真跑全绿（修复 3 个缺陷后）；见 §2.4 |
+| `HARMONY_CONFORMANCE` | **NOT_RUN** | 设备执行面：**0 执行 / 91**。**不得**写 PASS |
 | `HARMONY_ARKDATA` | **NOT_STARTED** | — |
 | `HARMONY_MIGRATION` | **NOT_STARTED** | — |
 | `HARMONY_REPOSITORY` | **NOT_STARTED** | — |
@@ -250,6 +252,53 @@ Domain 已从 PARTIAL 推进到 COMPILED；Conformance **runner 侧**已落地�
 **只说明 runner 存在且被真的编译**。它**没有**说明任何一条用例的行为正确性 ——
 `HARMONY_CONFORMANCE` 仍是 **NOT_RUN，0 执行 / 91**。
 
+### 2.4 `HARMONY_CONFORMANCE_HOST` —— 主机执行面（本轮核心发现）
+
+第三轮结束时，`HARMONY_CONFORMANCE` 的唯一出路被描述为"等设备"。
+本轮把这句话拆开验证，发现**存在第二个执行面**：
+
+| 候选 | 实测 |
+| --- | --- |
+| `ark_js_vm` | **不存在**（SDK 只有 `es2abc.exe` 编译器，无运行时） |
+| `Previewer.exe` | 存在但需 IDE socket；且 `@ohos` 是预览桩 → **弃用**（作为证据通道不成立） |
+| **hvigor `test`（本地单元测试）** | ✅ **可用**：编译 ArkTS → 执行 → `test_result.txt` |
+
+**实测结果**：
+
+```
+node tools/harmony/run-conformance-host.mjs
+  [conformance-host] 执行面 : hvigor 本地单元测试（ArkTS，无设备）
+  [conformance-host] 用例   : 61 条（含 3 条元测试）
+  [conformance-host] 汇总   : run=61 pass=61 fail=0 error=0
+  HARMONY_CONFORMANCE_HOST=PASS
+```
+
+**为什么这不违反 §10**：被执行的代码是 `ConformanceRunner` **本身**
+（真 ArkTS 编译器产出），不是另写的 Node 等价实现。
+对照 `check-relations-semantics.mjs`：那是另写实现，**不得**计入 conformance；
+本门禁可以。内嵌 fixture 由 `embed-fixtures.mjs --check` 先于执行守漂移。
+
+**边界**：主机对 `@ohos.*` 只提供不可调用的桩（实测 `fs.readTextSync` →
+`is not callable`），因此 28 个 @ohos 依赖用例仍是 `BLOCKED_BY_RUNTIME`。
+**主机执行面不替代设备执行面。**
+
+**真实执行抓到的 3 个缺陷（前两个代码审阅三轮未发现）**：
+
+| # | 缺陷 | 位置 | 后果 |
+| - | ---- | ---- | ---- |
+| 1 | 拿美化 JSON 与紧凑 JSON 逐字符比 | runner `extractExpected` | 41/60 假失败 |
+| 2 | 白名单用**自造**契约词汇（`dependency_created`…） | `domain/GraphRevision.ets` | 契约里每个 mutation 都被判"不提升" |
+| 3 | 注释要求按 registry 判定，代码按枚举判定 | `domain/LogicalKey.ets` | `bound_to` 被错误放行 |
+
+外加 1 个**自检自身的缺陷**：`PlanReadiness` 的"全清"输入其实不清
+（默认 `lastAnalyzedGraphRevision=0` < `currentGraphRevision=1` → 判 stale）。
+
+**缺陷 2 的教训**：`DomainSelfCheck` 用同一套自造词断言同一套自造词，
+自洽地全绿 —— **自比自的检查不构成证据**，需要外部词汇表（冻结 fixture）才暴露。
+
+**一条差点混过去的假绿**：runner 抛异常时 `actual`/`expected` **都是空串**，
+只比 payload 会让"崩了"与"通过"完全一样。现已先钉 `detail` 为空再比 payload。
+
 
 ---
 
@@ -323,37 +372,26 @@ K 节禁止自研原语，故当时记 `BLOCKED`。
   （Node 侧等价实现 vs 同一批 fixtures），**不是 ArkTS 运行时执行结果**，
   因此**不写入** `HARMONY_CONFORMANCE`。这个界限必须继续保持。
 
-**§11 要求的 91 例拆分（按"是否依赖运行时"重新计算，本轮新立）**：
+**§11 要求的 91 例拆分（第四轮**实测**，取代上一版的推算值）**：
 
-| 类别 | 用例数 | 性质 |
+| 分类 | 数量 | 含义 |
 | --- | --- | --- |
-| parser | 22 | **BLOCKED_BY_RUNTIME**（依赖真实解析/IO） |
-| impact | 13 | 运行时无关 |
-| readiness | 16 | 运行时无关 |
-| coverage | 6 | 运行时无关 |
-| relations | 18 | 运行时无关 |
-| scenario | 1 | 运行时无关 |
-| migration | 1 | 运行时无关（`migration-version-contract`） |
-| migration-db-v1-to-v3 | 1 | **BLOCKED_BY_RUNTIME**（case 级，依赖 ArkData） |
-| depmap | 3 | **BLOCKED_BY_RUNTIME**（依赖 Argon2 原生 + 运行时） |
-| jcs | 1 | **BLOCKED_BY_RUNTIME** |
-| backup | 1 | **BLOCKED_BY_RUNTIME** |
-| state-machine | 5 | 运行时无关 |
-| timeline | 3 | 运行时无关，但 **NOT_IMPLEMENTED**（runner 侧尚未实现，如实记账） |
+| **已执行且通过** | **57** | 主机执行面真跑，actual 逐字节等于 expected |
+| `BLOCKED_BY_RUNTIME` | **28** | 依赖 Argon2 / relationalStore 等 @ohos 能力 |
+| `NOT_IMPLEMENTED` | **6** | timeline ×3 + state-machine ×3（runner 侧缺口） |
 | **合计** | **91** | |
 
-汇总：**可执行 60 / BLOCKED_BY_RUNTIME 28 / NOT_IMPLEMENTED 3 = 91**。
+按类别：parser 22 / depmap 3 / jcs 1 / backup 1 / `migration-db-v1-to-v3` 1 = **28 blocked**；
+timeline 3 + `state-machine-{action-verification,discovery-candidate,reality-drift}` 3 = **6 notImplemented**；
+其余 **57 全部执行且通过**（impact 13 + readiness 16 + coverage 6 + relations 18 +
+scenario 1 + migration 1 + state-machine 2）。
 
-> 注意 `migration` 被**按 case 拆分**：类别整体依赖 ArkData，
-> 但 `migration-version-contract` 只验版本契约（纯常量与函数），
-> 若在类别级一刀切会把它错误地扫出分母。timeline 的 3 例是**主动记为
-> NOT_IMPLEMENTED 而非跳过** —— `NOT_IMPLEMENTED` 既不是 FAIL 也不是 PASS。
-
-作为分母校验：**63 运行时无关**（13+16+6+18+1+1+5+3）= 60 可执行 + 3 timeline。
-
-目标仍是 **91 / 91**；执行顺序建议：
-relations(18) → impact(13) → readiness(16) → coverage(6) → 其余运行时无关项 →
-再逐步解 BLOCKED_BY_RUNTIME。
+> **⚠ 上一版写的是「60 可执行 / 3 notImplemented」，那是推算，不是实测，已作废。**
+> 错因：默认 state-machine 的 5 个用例都已实现，实际只有 2 个。
+> 这个错误是**自家测试自己抓出来的** —— `accountingSplitMatchesSection11`
+> 把三个数断言成精确值，推算值一放进去就失败。
+>
+> 分母校验：**63 运行时无关** = 57 已执行 + 6 未实现。
 
 ---
 
@@ -361,39 +399,54 @@ relations(18) → impact(13) → readiness(16) → coverage(6) → 其余运行�
 
 本轮**未触发新的 stop condition**（§21 的 A–E 均未新增达成）。
 
-**唯一硬 blocker** 仍是外部资源：缺 Emulator 系统镜像（需人工下载）。
-但 §10 的执行面**已不再唯一依赖它** —— runner 已存在，
-接入 DevEco 本地测试框架后即可在**无设备**条件下执行那 60 条。
+**外部硬 blocker 仍是**：缺 Emulator 系统镜像（需人工下载）。
+但 §10 的执行面**已不再依赖它** —— 主机执行面已打通，57/57 已真跑通过。
 
-**下一轮唯一推荐动作：把 conformance runner 注册进 DevEco Hypium 测试框架。**
+**下一轮推荐动作（按性价比排序）**：
 
-理由：Domain 11 组（§9）与 runner（§10/§11）均已完成；Argon2（§3–§6）与
-ContainerSelfCheck（§8）已达无设备验证上限；运行时（§16）是外部阻塞。
-而 runner **已经写好了**，只差一个执行入口 —— 这是把
-`HARMONY_CONFORMANCE` 从 `NOT_RUN` 推向真实读数的唯一低成本路径。
+1. **补上剩余 6 个 NOT_IMPLEMENTED**（timeline ×3 + state-machine ×3）。
+   纯 runner 侧实现工作，**不需要设备**，做完即 63/63 运行时无关全绿。
+2. **复核并记录 LogicalKey 的跨端收紧**（见下）。
+3. ArkData / Repository / migration 落地（`RUNTIME_VERIFIED` 需设备）。
+4. ArkUI 纵向链路（§14，**不做 Graph View 优先**）。
 
 | 优先级 | 事项 | 前置 |
 | --- | --- | --- |
-| **P0** | **conformance runner 接入 Hypium**（`ohosTest`），跑通 60 条运行时无关用例 | 见下方"已探明的前置" |
-| **P0** | timeline 3 例在 runner 内实现（消除 NOT_IMPLEMENTED） | 无 |
-| P1 | ArkData / Repository / migration 落地 | 运行时（`RUNTIME_VERIFIED` 需运行时） |
-| P2 | ArkUI 纵向链路（§14，**不做 Graph View 优先**） | Domain |
-| P2 | HUKS + 用户认证 | 运行时 |
+| **P0** | runner 内实现 timeline 3 + state-machine 3（消除 NOT_IMPLEMENTED） | 无 |
+| **P0** | 复核 `LogicalKey` 的 LC-003 收紧是否造成跨端行为差异（见 §7 备注） | 无 |
+| P1 | ArkData / Repository / migration 落地 | 设备（`RUNTIME_VERIFIED`） |
+| P2 | ArkUI 纵向链路（§14） | Domain |
+| P2 | HUKS + 用户认证 | 设备 |
 | — | 打通 `HARMONY_RUNTIME_E2E` | **用户操作**（登录 + 下载镜像） |
 
-### 6.1 Hypium 接入的前置已探明（本轮实测，避免下一轮重新摸索）
+> **§7 备注（需人工决策）**：`LogicalKey.parseDependencyLogicalKey` 现在按
+> runtime registry 拒绝 relation（LC-003 的意图），而 TS 基准只在**成组使用**时校验。
+> 这是**本端刻意的额外收紧**，已按注释意图实现并写进报告，但它构成跨端行为差异 ——
+> 建议复核后决定"保留并记录为差异"还是"对齐基准"。
 
-已确认 SDK / 工具链 / registry 三者齐备，**P0 路径是通的**：
+### 6.1 Hypium 前置：已在第四轮落地（本节保留为施工记录）
 
-| 项 | 实测结果 |
+第三轮探明的前置，第四轮**已全部落实**：
+
+| 项 | 状态 |
 | --- | --- |
-| `@kit.TestKit.d.ts` | **存在**（`sdk/default/openharmony/ets/kits/`），含 `TestRunner` / `abilityDelegatorRegistry` |
-| ohpm registry | `https://ohpm.openharmony.cn/ohpm/` **可达** |
-| `@ohos/hypium` | 可解析，`latest = 1.0.28`；项目已 pin `1.0.24` |
-| SDK 版本 | API 13 / `5.0.1.115` |
-| `src/ohosTest` | **不存在** → 需新建 source set 与 `ohosTest` 目标配置 |
+| `@kit.TestKit.d.ts` / ohpm registry / SDK API 13 | 均可用 |
+| `@ohos/hypium` | 已在**工程根与 `entry/` 两处**声明 `1.0.24` |
+| `@ohos/hamock` | pin 已从 `1.0.1` 改为 **`1.0.0`** ← 见下方修正 |
+| `src/test` 本地单元测试 | **已建成并跑通**（57 用例 + 4 元测试） |
+| `src/ohosTest` 设备测试 | 仍未建（设备侧路线，暂不需要） |
 
-**⚠ 发现一个必须先修的既有问题**：`harmony/oh-package.json5` 声明
+**修正记录**：`harmony/oh-package.json5` 原先声明 `"@ohos/hamock": "1.0.1"`，
+但 registry 中该包**最高只有 `1.0.0`** → `ohpm install` **必然失败**：
+
+```
+ohpm ERROR: NOTFOUND package '@ohos/hamock@1.0.1' not found from all the registries
+```
+
+第三轮只做探针验证并还原；第四轮**已正式改为 `1.0.0`**（实测 install 立即成功）。
+这是一个与 conformance 无关、但会卡住任何测试工作的既有缺陷。
+
+**⚠ 上一轮记录过的既有问题（已修）**：`harmony/oh-package.json5` 曾声明
 `"@ohos/hamock": "1.0.1"`，但 registry 中 `@ohos/hamock` **最高只有 `1.0.0`**
 （`versions: 2`）→ `ohpm install` **必然失败**：
 
@@ -402,10 +455,8 @@ ohpm ERROR: NOTFOUND package '@ohos/hamock@1.0.1' not found from all the registr
 ohpm ERROR: Install failed
 ```
 
-实测把 pin 改为 `1.0.0` 后 `ohpm install` 立即成功
-（`fetch package done 1 @ohos/hamock … hamock-1.0.0.har`、`done 2 @ohos/hypium … 1.0.24.har`、
-`install completed in 0s 550ms`）。**该版本 pin 是任何依赖 `ohosTest` 的工作的硬前置**，
-本轮只做探针验证、**已还原**原文件，不擅自改动依赖声明。
+现已改为 `1.0.0`，`ohpm install` 立即成功
+（`fetch package done 1 @ohos/hamock … hamock-1.0.0.har`、`done 2 @ohos/hypium … 1.0.24.har`）。
 
 **约束提醒（不可违反）**：不得实现 RealityDrift / IncidentPlan /
 Browser Discovery / Open Banking / AI-LLM / 云同步；

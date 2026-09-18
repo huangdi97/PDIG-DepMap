@@ -21,26 +21,40 @@
 //     Timeline projection / UI 状态。
 
 /**
- * 会被提升 graphRevision 的 Reality mutation 种类。
+ * 会被提升 graphRevision 的 Reality mutation 种类 —— **契约用词，不是内部发明**。
  *
- * 为什么用本模块内的字符串常量，而不是在 `CanonicalEnums.ets` 里加一个枚举：
- *   `CanonicalEnums.ets` 由 tools/codegen/generate.mjs 从 spec/domain/domain.json 生成，
- *   而 domain.json 是**三端共享的冻结契约**（Android / iOS / Harmony 同时生成）。
- *   为了一个只在本模块使用的判别而新增 canonical enum，等于改动冻结契约并
- *   要求 iOS/Android 一并重新生成 —— 那是超出 N3 范围的变更。
- *   revision 的判别属于 Harmony 端的**内部实现细节**，不是跨端数据格式的一部分：
- *   它不参与任何持久化字段或协议，因此放在这里更合适。
+ * ⚠ 2026-09-18 修正（由真实执行发现，不是代码审阅发现的）：
+ *   本函数原先用一套自造的字符串（`dependency_created` / `group_confirmed` …），
+ *   理由是"这属于 Harmony 端内部实现细节，不是跨端数据格式的一部分"。
+ *   **那个理由是错的。** mutation 种类名就是**跨端共享的冻结词汇表**：
+ *     * `spec/state-machines/state-machines.json` → machines[].bumpsOn
+ *     * `fixtures/state-machine/state-machine-graph-revision.json` → expected.bumpsOn
+ *     * `android/core/.../StateMachines.kt` → GraphRevisionMachine.bumpsOn
+ *   三处都用 `node_create` / `dependency_confirm_create` / `drift_resolve_*` 这套词。
+ *   自造词汇的后果是：契约里每一个真实 mutation 都被判为"不提升"，
+ *   而 `drift_resolve_*` 等条目连对应常量都没有。
  *
- * 反过来，如果哪天它需要跨端交换，那就应当先进入 domain.json，
- * 而不是先在这里"长出来"。
+ *   为什么代码审阅没发现：`DomainSelfCheck` 用的是**同一套自造词**去断言同一套自造词，
+ *   自洽地全绿。这正是本项目反复强调的那条 —— **自比自的检查不构成证据**。
+ *   只有拿冻结 fixture 真跑一遍才暴露出来。
+ *
+ * 为什么不放进 `CanonicalEnums.ets`：
+ *   那是 tools/codegen/generate.mjs 从 spec/domain/domain.json 生成的三端共享枚举，
+ *   为一个判别而新增 canonical enum 会改动冻结契约并要求 iOS/Android 重新生成，
+ *   超出 N3 范围。这里用**普通字符串常量承载契约原文**即可 ——
+ *   常量值必须与上面三处逐字一致。
  */
-export const REV_DEPENDENCY_CREATED: string = 'dependency_created';
-export const REV_DEPENDENCY_RETIRED: string = 'dependency_retired';
-export const REV_DEPENDENCY_REACTIVATED: string = 'dependency_reactivated';
-export const REV_DEPENDENCY_CRITICALITY_CHANGED: string = 'dependency_criticality_changed';
-export const REV_GROUP_CONFIRMED: string = 'group_confirmed';
-export const REV_GROUP_RETIRED: string = 'group_retired';
-export const REV_GROUP_MEMBERSHIP_CHANGED: string = 'group_membership_changed';
+export const MUT_NODE_CREATE: string = 'node_create';
+export const MUT_NODE_UPDATE: string = 'node_update';
+export const MUT_NODE_ARCHIVE: string = 'node_archive';
+export const MUT_DEPENDENCY_CONFIRM_CREATE: string = 'dependency_confirm_create';
+export const MUT_DEPENDENCY_CONFIRM_UPDATE: string = 'dependency_confirm_update';
+export const MUT_DEPENDENCY_RETIRE: string = 'dependency_retire';
+export const MUT_DEPENDENCY_REACTIVATE: string = 'dependency_reactivate';
+export const MUT_GROUP_CONFIRM: string = 'group_confirm';
+export const MUT_GROUP_RETIRE: string = 'group_retire';
+export const MUT_DRIFT_RESOLVE_REPLACEMENT: string = 'drift_resolve_replacement';
+export const MUT_DRIFT_RESOLVE_ADDITIONAL_PATH: string = 'drift_resolve_additional_path';
 
 /** 持久化键名（与 TS 基准一致：复用 meta 表，初始 0，不做 event sourcing）。 */
 export const GRAPH_REVISION_KEY: string = 'graph_revision';
@@ -53,27 +67,42 @@ export const GRAPH_REVISION_KEY: string = 'graph_revision';
  * 黑名单会默认"提升"（把非 Reality 变化误记成 Reality 变更，
  * 让所有计划无端变 stale），白名单则默认"不提升"（最多漏一次提示，不会误报）。
  * 本项目的取向一贯是宁可漏报，不可把不确定伪装成必须处理。
+ *
+ * 白名单内容 = `spec/state-machines/state-machines.json` 的 GraphRevision.bumpsOn，
+ * 逐条对应，不多不少。
  */
 export function doesMutationBumpRevision(kind: string): boolean {
-  if (kind === REV_DEPENDENCY_CREATED) {
+  if (kind === MUT_NODE_CREATE) {
     return true;
   }
-  if (kind === REV_DEPENDENCY_RETIRED) {
+  if (kind === MUT_NODE_UPDATE) {
     return true;
   }
-  if (kind === REV_DEPENDENCY_REACTIVATED) {
+  if (kind === MUT_NODE_ARCHIVE) {
     return true;
   }
-  if (kind === REV_DEPENDENCY_CRITICALITY_CHANGED) {
+  if (kind === MUT_DEPENDENCY_CONFIRM_CREATE) {
     return true;
   }
-  if (kind === REV_GROUP_CONFIRMED) {
+  if (kind === MUT_DEPENDENCY_CONFIRM_UPDATE) {
     return true;
   }
-  if (kind === REV_GROUP_RETIRED) {
+  if (kind === MUT_DEPENDENCY_RETIRE) {
     return true;
   }
-  if (kind === REV_GROUP_MEMBERSHIP_CHANGED) {
+  if (kind === MUT_DEPENDENCY_REACTIVATE) {
+    return true;
+  }
+  if (kind === MUT_GROUP_CONFIRM) {
+    return true;
+  }
+  if (kind === MUT_GROUP_RETIRE) {
+    return true;
+  }
+  if (kind === MUT_DRIFT_RESOLVE_REPLACEMENT) {
+    return true;
+  }
+  if (kind === MUT_DRIFT_RESOLVE_ADDITIONAL_PATH) {
     return true;
   }
   return false;

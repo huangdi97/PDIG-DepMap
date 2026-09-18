@@ -16,7 +16,8 @@
 // 这件事依赖于尚未落地的能力。
 
 import { common } from '@kit.AbilityKit';
-import { ConformanceReport, RunnerEnv, runConformance } from './ConformanceRunner';
+import { ConformanceReport, RunnerEnv } from './ConformanceRunner';
+import { runConformanceFs } from './FsTextSource';
 import { harnessHint } from './HarnessFs';
 
 /**
@@ -33,7 +34,7 @@ export function conformanceSummaryLine(): string {
   env.now = new Date().toISOString();
   env.root = '';
 
-  const report = runConformance(env);
+  const report = runConformanceFs(env);
 
   if (report.notRun.length > 0 && report.passCount() === 0 && report.failed.length === 0) {
     // 环境未就绪：给出可直接执行的投放命令，而不是一句"未找到"。
@@ -55,7 +56,7 @@ export function conformanceDetailLines(): string[] {
   env.now = new Date().toISOString();
   env.root = '';
 
-  const report = runConformance(env);
+  const report = runConformanceFs(env);
   const lines: string[] = [];
   lines.push('platform=harmony specVersion=' + report.specVersion);
   lines.push('generatedAt=' + report.generatedAt);
@@ -79,5 +80,5 @@ export function conformanceRun(): ConformanceReport {
   env.filesDir = ctx.filesDir;
   env.now = new Date().toISOString();
   env.root = '';
-  return runConformance(env);
+  return runConformanceFs(env);
 }

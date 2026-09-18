@@ -131,3 +131,61 @@ Device Manager 以**已登录的华为开发者账号**下载。这涉及：
   #    "argon2: native-ok(p=1..4 distinct, lib v19)"  -> 运行时 PASS
   #    "argon2: FAIL(native load/exec: ...)"         -> 如实失败，据此定位
   ```
+
+---
+
+## 7. 主机侧执行面审计（2026-09-18 第四轮新增）
+
+本节回答一个此前**没有被真正验证过**的问题：
+「没有设备，是否就真的没有 **任何** 执行面？」
+
+结论：**不是。存在第二个执行面，而且它执行的是真实 ArkTS。**
+这一节把它与两个不可用的候选路径一起记录，避免以后重复摸索。
+
+### 7.1 三个候选路径的实测结论
+
+| 候选 | 实测 | 判定 |
+| ---- | ---- | ---- |
+| `ark_js_vm`（ArkTS 独立虚拟机） | **不存在**。`sdk/default/openharmony/toolchains/` 只有 `es2abc.exe`（编译器）、`ark_disasm.exe`（反汇编器）等，**无运行时** | ❌ 不可用 |
+| `Previewer.exe` | 存在（`sdk/default/openharmony/previewer/common/bin/`）。实测需 `-j <app path>` + 与 IDE 的 socket/trace 管道（`LocalSocket::ConnectToServer`），且 `@ohos.*` 是**预览桩** | ❌ 作为证据通道不成立 |
+| **hvigor `test` 任务（本地单元测试）** | ✅ **可用**。编译 ArkTS → 在主机执行 → 落 `test_result.txt` | ✅ **采用** |
+
+### 7.2 为什么弃用 Previewer（不是"试不通就放弃"）
+
+它**能**跑，但作为 conformance 的证据通道**不成立**：
+预览器的 `@ohos.*` 行为与真实实现不同（是给 UI 预览用的桩），
+用它算出来的 PASS **无法归因到 ArkTS 实现本身**。
+一个结论不能建立在"看起来像运行"的通道上。
+
+### 7.3 采用路径的真实能力与边界
+
+采用路径（本地单元测试）**真的执行 ArkTS**：`.ets` 由真 ArkTS 编译器产出 JS，
+再由主机引擎执行，且**可以读回逐用例结果**：
+
+```
+# <mirror>/harmony/entry/.test/default/intermediates/test/coverage_data/test_result.txt
+class=harmonyConformanceHost
+test=impact/impact-required-edge-loss
+result=Success
+...
+Tests run: 61, Failure: 0, Error: 0, Pass: 61, Ignore: 0
+```
+
+**边界（三条，都必须记住）**：
+
+1. 主机对 `@ohos.*` 只提供**不可调用的桩** —— 实测
+   `fs.readTextSync(...)` → `is not callable`。
+   因此 fixture 文本必须以**数据**形式编译进去（`FixtureBundle.ets`），
+   不能走文件读取。
+2. 因此 **28 个 @ohos 依赖用例在主机上仍是 `BLOCKED_BY_RUNTIME`**。
+   主机执行面**不**覆盖它们。
+3. **它仍然不是设备运行时。** `HARMONY_RUNTIME_E2E` 与
+   `HARMONY_CONFORMANCE`（设备口径）都不因它改变，
+   本节第 1–6 节的结论（缺 Emulator 系统镜像）**依然成立**。
+
+### 7.4 这一条对"阻塞"叙事的修正
+
+前面几节把 `RUNTIME_NOT_RUN` 归因于"缺设备"。那仍然正确，
+但**不足以推出"完全没有执行面"** —— 第四轮据此把 57 个运行时无关用例真跑通了。
+教训：一个看起来不可绕过的阻塞，值得再问一次"真的吗"。
+

@@ -28,10 +28,17 @@
 // 未知取值返回 undefined 并立即失败，不猜、不兜底。
 // 这与"通用 JSON 解析"有本质区别：后者会静默接受任何输入。
 //
-// 依赖约束：ArkTS 侧只允许 @ohos.file.fs。
-// 不得依赖 ArkUI / Ability / relationalStore / HUKS / NAPI / cryptoFramework。
+// 依赖约束：**本模块不得 import 任何 @ohos.* / ArkUI / Ability 模块。**
+//
+// 原因（2026-09-18 实测确认）：DevEco 的「本地单元测试」能在**无设备的主机**上
+// 执行真实 ArkTS 代码，但它对 @ohos.* 只提供**不可调用的桩**
+// （实测 `fs.readTextSync` → "is not callable"）。
+// 只要 runner 保持纯净，它就能同时跑在两种执行面上：
+//   * 设备 / 模拟器：文本由 FsTextSource（@ohos.file.fs）提供
+//   * 主机单元测试：文本由内存源提供（见 src/test 的 FixtureBundle）
+// 一旦这里 import 了 fs，主机执行面就会连带失去 —— 那是白白放弃一个执行面。
+// fixture 文本一律经 ConformanceTextSource 注入，本模块不碰任何 IO。
 
-import fs from '@ohos.file.fs';
 import {
   nodeKindFromWire,
   relationFromWire,
@@ -86,8 +93,7 @@ import {
   sortTimelineKeys,
   TimelineSortKey,
 } from '../domain/Timeline';
-import { JsonText } from './JsonText';
-import { locateConformanceRoot, harnessHint } from './HarnessFs';
+import { JsonText, compactJson } from './JsonText';
 
 /* ==========================================================================
  * 结果类型
@@ -195,29 +201,42 @@ export class RunnerEnv {
   now: string = '';
 }
 
+/**
+ * fixture 文本的来源。
+ *
+ * 抽出来的唯一理由：让 runner 能在**不同执行面**上跑，而 runner 自身保持纯净。
+ *   * 设备侧实现：FsTextSource（走 @ohos.file.fs）
+ *   * 主机单元测试：内存实现（主机无 fs，见文件头说明）
+ *
+ * 契约：读不到就返回空串，**不要抛错**。runner 把空串统一记成 NOT_RUN ——
+ * "环境缺文件"和"实现有缺陷"必须可区分，抛错会把两者混成同一种失败。
+ */
+export interface ConformanceTextSource {
+  /** manifest 原文；供 runner 定位 fixtures 清单。 */
+  readManifest(): string;
+  /** 相对仓库根的 fixture 路径（形如 fixtures/impact/xxx.json）。 */
+  readFixture(relPath: string): string;
+  /** 这一轮文本从哪来，写进报告以便区分执行面。 */
+  describe(): string;
+}
+
 /* ==========================================================================
  * 入口
  * ========================================================================== */
 
 /**
- * 执行全部 runtime-independent 用例。
+ * 执行全部 runtime-independent 用例（文本由 source 注入）。
  *
  * 返回的 `ConformanceReport` 里已经分好类，调用方只负责渲染/落盘。
  * 任何"环境不可用"都在这里显式表达为 NOT_RUN，不上抛异常 ——
  * 因为一个抛出的异常在 UI 上会退化成一句无信息量的失败提示。
  */
-export function runConformance(env: RunnerEnv): ConformanceReport {
+export function runConformanceWith(env: RunnerEnv, source: ConformanceTextSource): ConformanceReport {
   const report = new ConformanceReport();
   report.generatedAt = env.now;
+  report.root = env.root;
 
-  const root = locateConformanceRoot(env.filesDir);
-  if (root === undefined) {
-    report.notRun.push('*');
-    return report;
-  }
-  report.root = root;
-
-  const manifestText = readTextIfExists(root + '/conformance/CONFORMANCE_MANIFEST.json');
+  const manifestText = source.readManifest();
   if (manifestText.length === 0) {
     report.notRun.push('*');
     return report;
@@ -253,7 +272,7 @@ export function runConformance(env: RunnerEnv): ConformanceReport {
       continue;
     }
 
-    const fixtureText = readTextIfExists(root + '/' + path);
+    const fixtureText = source.readFixture(path);
     if (fixtureText.length === 0) {
       // fixture 清单里登记了但文件读不到 —— 这是环境缺陷，不是实现缺陷。
       outcome.status = 'NOT_RUN';
@@ -304,12 +323,18 @@ export function runConformance(env: RunnerEnv): ConformanceReport {
 const EXPECTED_MARKER = '"expected"';
 
 /**
- * 取出 fixture 的 `expected` 原文（去掉键与冒号后的空白，保留 JSON 本体）。
+ * 取出 fixture 的 `expected`，并**规范化成紧凑 JSON**。
  *
- * 用途是**比对基准**，不是解析：把 expected 当成一段必须被逐字节复现的文本。
- * 注意 Harness 侧另有独立比对（`tools/conformance/run.mjs` 会把 actual 重新
- * JSON 解析后与 fixture 的 expected 逐字节比较），两处口径必须一致，
- * 所以这里刻意不做任何美化/键排序。
+ * 规范化是必须的，不是美化偏好：harness 侧的权威比对是
+ *     JSON.stringify(actual) === JSON.stringify(expected)
+ * （见 `tools/conformance/run.mjs`），即空白无关、键序相关。
+ * 而 fixture 存的是 2 空格缩进的美化文本 —— 不做规范化，
+ * 紧凑的 actual 与美化的 expected **永远不可能相等**。
+ *
+ * 注意只去空白，**不排序键、不美化、不改转义**：
+ * 键序本身是契约的一部分，重排会把真实缺陷掩盖掉。
+ * 同样地，标量（readiness 的 expected 是裸字符串）原样返回 ——
+ * 字符串内部的空格是语义的一部分，不能被当成 JSON 空白吃掉。
  */
 export function extractExpected(fixtureText: string): string {
   const i = fixtureText.indexOf(EXPECTED_MARKER);
@@ -332,9 +357,9 @@ export function extractExpected(fixtureText: string): string {
     if (close < 0) {
       throw new Error('unterminated expected section');
     }
-    return fixtureText.substring(k, close + 1);
+    return compactJson(fixtureText.substring(k, close + 1));
   }
-  // 标量（readiness 的 expected 是裸字符串）
+  // 标量（readiness 的 expected 是裸字符串）—— 原样保留，不去空白。
   if (ch === '"') {
     const jt = new JsonText();
     jt.setSource(fixtureText);
@@ -424,18 +449,6 @@ function errorText(e: Error): string {
     return 'unknown error';
   }
   return msg;
-}
-
-/** 读文本；不存在或不可读返回空串（调用方据空串记 NOT_RUN，不抛错）。 */
-export function readTextIfExists(fullPath: string): string {
-  try {
-    if (!fs.accessSync(fullPath)) {
-      return '';
-    }
-    return fs.readTextSync(fullPath);
-  } catch (e) {
-    return '';
-  }
 }
 
 /* ==========================================================================

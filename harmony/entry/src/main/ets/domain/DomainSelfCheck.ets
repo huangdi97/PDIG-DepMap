@@ -23,7 +23,7 @@ import { groupKeyDedupsMembers, groupKeyIsOrderIndependent, logicalKeyRoundTrips
 import { computePlanReadiness } from './PlanReadiness';
 import { computeScenarioCoverage } from './ScenarioCoverage';
 import { ALL_WORKFLOW_STATES, allowedNextStates, canMutateAction, isTransitionAllowed, verificationAfterCompletion } from './StateMachines';
-import { REV_DEPENDENCY_CREATED, REV_DEPENDENCY_CRITICALITY_CHANGED, REV_DEPENDENCY_REACTIVATED, REV_DEPENDENCY_RETIRED, REV_GROUP_CONFIRMED, REV_GROUP_MEMBERSHIP_CHANGED, REV_GROUP_RETIRED, doesMutationBumpRevision, parseStoredRevision } from './GraphRevision';
+import { MUT_DEPENDENCY_CONFIRM_CREATE, MUT_DEPENDENCY_CONFIRM_UPDATE, MUT_DEPENDENCY_REACTIVATE, MUT_DEPENDENCY_RETIRE, MUT_DRIFT_RESOLVE_ADDITIONAL_PATH, MUT_DRIFT_RESOLVE_REPLACEMENT, MUT_GROUP_CONFIRM, MUT_GROUP_RETIRE, MUT_NODE_ARCHIVE, MUT_NODE_CREATE, MUT_NODE_UPDATE, doesMutationBumpRevision, parseStoredRevision } from './GraphRevision';
 import { TimelineSortKey, bucketOf, sortTimelineKeys, startOfUtcDay } from './Timeline';
 import { listActiveTemplates, validateScenarioInstantiation } from './ScenarioTemplate';
 
@@ -282,6 +282,12 @@ function checkLogicalKeyInvariants(): string {
 function checkPlanReadiness(): string {
   const base = new PlanReadinessInput();
   base.currentGraphRevision = 1;
+  // ⚠ 2026-09-18 修正：光设 currentGraphRevision 并不构成"全清"输入。
+  // 默认 ChangePlan 的 lastAnalyzedGraphRevision = 0，
+  // 于是 isPlanStale(workflowState, 0, 1) = 1 > 0 = true → 判为 REVIEW_REQUIRED，
+  // 这一项永远不可能等于 ready_with_known_scope（实测 cleanOk=false）。
+  // 真正的"全清"必须让计划已在**当前** revision 上分析过。
+  base.plan.lastAnalyzedGraphRevision = base.currentGraphRevision;
 
   // 全清 → ready_with_known_scope（注意：不是 'safe'）
   const clean = computePlanReadiness(base);
@@ -443,25 +449,47 @@ function checkStateMachine(): string {
  *
  * 关键不变式：**只有** Reality mutation 提升 revision。
  * 白名单必须对非 Reality 事件返回 false —— 这是"不误报"的保证。
+ *
+ * ⚠ 2026-09-18 修正：本检查原先用**自造词**断言**同一套自造词**
+ * （`dependency_created` / `proposal_created` …），因此它自洽地全绿，
+ * 却对冻结契约的真实词汇表（`node_create` / `dependency_confirm_create` …）
+ * 一无所知 —— 自比自的检查不构成证据。
+ * 现已改为逐条覆盖 `spec/state-machines/state-machines.json` 里
+ * GraphRevision.bumpsOn / neverBumpsOn 的**契约原文**。
  */
 function checkGraphRevision(): string {
-  // 7 种 Reality mutation 必须全部提升
+  // 11 种 Reality mutation 必须全部提升（= 契约 bumpsOn 全集）
   const bumps =
-    doesMutationBumpRevision(REV_DEPENDENCY_CREATED) &&
-    doesMutationBumpRevision(REV_DEPENDENCY_RETIRED) &&
-    doesMutationBumpRevision(REV_DEPENDENCY_REACTIVATED) &&
-    doesMutationBumpRevision(REV_DEPENDENCY_CRITICALITY_CHANGED) &&
-    doesMutationBumpRevision(REV_GROUP_CONFIRMED) &&
-    doesMutationBumpRevision(REV_GROUP_RETIRED) &&
-    doesMutationBumpRevision(REV_GROUP_MEMBERSHIP_CHANGED);
+    doesMutationBumpRevision(MUT_NODE_CREATE) &&
+    doesMutationBumpRevision(MUT_NODE_UPDATE) &&
+    doesMutationBumpRevision(MUT_NODE_ARCHIVE) &&
+    doesMutationBumpRevision(MUT_DEPENDENCY_CONFIRM_CREATE) &&
+    doesMutationBumpRevision(MUT_DEPENDENCY_CONFIRM_UPDATE) &&
+    doesMutationBumpRevision(MUT_DEPENDENCY_RETIRE) &&
+    doesMutationBumpRevision(MUT_DEPENDENCY_REACTIVATE) &&
+    doesMutationBumpRevision(MUT_GROUP_CONFIRM) &&
+    doesMutationBumpRevision(MUT_GROUP_RETIRE) &&
+    doesMutationBumpRevision(MUT_DRIFT_RESOLVE_REPLACEMENT) &&
+    doesMutationBumpRevision(MUT_DRIFT_RESOLVE_ADDITIONAL_PATH);
 
-  // 非 Reality 事件一律不提升（proposal / observation / drift / UI）
+  // 非 Reality 事件一律不提升（= 契约 neverBumpsOn 全集）。
+  // 用契约原文而非自造词：否则这条断言只能证明"我们自己的名字互相同意"。
   const noBump =
-    !doesMutationBumpRevision('proposal_created') &&
-    !doesMutationBumpRevision('observation_imported') &&
-    !doesMutationBumpRevision('reality_drift_created') &&
-    !doesMutationBumpRevision('timeline_projection') &&
-    !doesMutationBumpRevision('ui_state_changed');
+    !doesMutationBumpRevision('evidence_record') &&
+    !doesMutationBumpRevision('proposal_upsert') &&
+    !doesMutationBumpRevision('proposal_decision') &&
+    !doesMutationBumpRevision('candidate_upsert') &&
+    !doesMutationBumpRevision('candidate_dismiss') &&
+    !doesMutationBumpRevision('candidate_accept') &&
+    !doesMutationBumpRevision('drift_detect') &&
+    !doesMutationBumpRevision('drift_dismiss') &&
+    !doesMutationBumpRevision('timeline_build') &&
+    !doesMutationBumpRevision('import_session_record') &&
+    !doesMutationBumpRevision('plan_create') &&
+    !doesMutationBumpRevision('plan_rebase') &&
+    !doesMutationBumpRevision('plan_transition') &&
+    !doesMutationBumpRevision('action_complete') &&
+    !doesMutationBumpRevision('action_verify');
 
   // 解析容错：缺失 → 0；非有限 → 0；负值 → 0（revision 单调递增）
   const parse =

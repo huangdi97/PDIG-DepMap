@@ -1,7 +1,7 @@
 # HARMONY_N3_CONFORMANCE_REPORT.md
 
 > Harmony Conformance 报告。生成时间：2026-09-17（Asia/Shanghai）
-> **最近更新：2026-09-18（第三轮 —— ArkTS runner 落地）**
+> **最近更新：2026-09-18（第四轮 —— 主机执行面打通，57 个用例真的跑了）**
 > 口径：§H —— same fixtures → ArkTS implementation → normalized output → compare expected。
 > **不得把 notImplemented 或 blocked 写成 PASS。**
 
@@ -10,55 +10,69 @@
 ## 0. 总结论
 
 ```
-HARMONY_CONFORMANCE = NOT_RUN
-pass = 0   fail = 0   notImplemented = 59   blockedByRuntime = 28   notRun = 0   total = 91
+HARMONY_CONFORMANCE       = NOT_RUN      （设备执行面）pass = 0 / 91
+HARMONY_CONFORMANCE_HOST  = PASS         （主机执行面）pass = 57 / 57 可执行
 ```
 
-**没有任何一个用例在设备上被执行过。**
+**设备上仍然没有任何用例被执行过**（`hdc list targets` = `[Empty]`）。
+但现在有了第二个、独立的执行面：**DevEco 本地单元测试能在无设备主机上真正执行
+ArkTS 代码**，而这一轮已经用它把那 57 个运行时无关用例跑通并逐字节比对通过。
 
-但本节第一行的 `NOT_RUN` 与上一版的**含义已经不同**，必须区分：
+三个数字必须同时记住（总 91）：
 
-| 时点 | ArkTS runner | 可执行用例 | 执行结果 |
-| ---- | ------------ | ---------- | -------- |
-| 上一版（2026-09-18 第二轮） | **不存在** | — | 87 notImplemented / 4 blocked |
-| **本轮（第三轮）** | **已落地、已编译、产物级取证** | **63** | 仍是 0 执行 |
+| 分类 | 数量 | 含义 |
+| ---- | ---- | ---- |
+| **已执行且通过** | **57** | 在**真实 ArkTS 运行时**下 actual 逐字节等于 expected |
+| `BLOCKED_BY_RUNTIME` | **28** | 依赖 Argon2 / relationalStore 等 @ohos 能力，主机无实现 |
+| `NOT_IMPLEMENTED` | **6** | timeline ×3 + state-machine ×3，runner 侧尚未实现 |
 
-也就是说：**从"没有尺子"变成了"有尺子但还没量过东西"。**
-这是真实推进，但它**不改变** `HARMONY_CONFORMANCE` 的取值 ——
-runner 编译通过不等于 conformance 通过（§0.2）。
+### 0.0 本轮最重要的修正：账目本身是错的
 
-### 0.1 本轮交付（§10 / §11）
+上一版（第三轮）写的是「**60 可执行 / 3 notImplemented**」。那是**推算**的，不是实测的：
+我当时默认 state-machine 的 5 个用例都已实现，实际只有 2 个。
+真实执行后账目是 **57 / 28 / 6**。
 
-| # | 产出 | 路径 | 行数 |
+> **教训一句**：没有执行过的账目，就是没有被验证的账目。
+> 而且这个错误是**自家测试自己抓出来的** —— `accountingSplitMatchesSection11`
+> 断言了三个数必须精确等于实测值，推算值一放进去就炸。
+
+### 0.1 本轮交付（第四轮：主机执行面）
+
+| # | 产出 | 路径 | 说明 |
 | - | ---- | ---- | ---- |
-| 1 | 文本级 JSON 工具 | `harmony/entry/src/main/ets/conformance/JsonText.ets` | 590 |
-| 2 | fixture 根探测 | `harmony/entry/src/main/ets/conformance/HarnessFs.ets` | 135 |
-| 3 | **runner 本体** | `harmony/entry/src/main/ets/conformance/ConformanceRunner.ets` | 1189 |
-| 4 | 可达入边 / 自检桥 | `harmony/entry/src/main/ets/conformance/ConformanceSelfCheck.ets` | 117 |
-| 5 | 页面接线 | `pages/Index.ets`（新增 `conformanceProbe`） | — |
-| 6 | 门禁登记 | `tools/harmony/check-compiled-reachability.mjs`（+4 required） | — |
+| 1 | fixture 文本源抽象 | `conformance/ConformanceRunner.ets` | runner 改为**零 @ohos 依赖** |
+| 2 | 设备侧 fs 文本源 | `conformance/FsTextSource.ets` | 唯一允许 import `@ohos.file.fs` 的模块 |
+| 3 | fixture 内嵌生成器 | `tools/conformance/embed-fixtures.mjs` | 91 个 fixture → ArkTS 模块；`--check` 守漂移 |
+| 4 | **主机 conformance 测试** | `harmony/entry/src/test/ConformanceHost.test.ets` | 逐用例生成 `it()`，57 条 |
+| 5 | 主机 domain 自检 | `harmony/entry/src/test/DomainHost.test.ets` | 15 项自检真跑 |
+| 6 | 门禁驱动 | `tools/harmony/run-conformance-host.mjs` | `HARMONY_CONFORMANCE_HOST` 判定 |
+| 7 | 镜像修复 | `tools/harmony/build-ascii-mirror.mjs` | oh_modules 解引用复制（见 §7.2） |
 
-### 0.2 三条 gate 必须分开看（本报告最重要的一节）
+### 0.2 四条 gate 必须分开看（本报告最重要的一节）
 
 | Gate | 状态 | 依据 |
 | ---- | ---- | ---- |
-| `HARMONY_CONFORMANCE_RUNNER_IMPLEMENTED` | **PASS** | 4 模块落地，1189 行 runner，8 个可运行分类 |
-| `HARMONY_MODULE_COMPILED` | **PASS** | **22/22** required；A+B+C+D 四判据；`modules.abc` 符号取证 |
-| `HARMONY_CONFORMANCE_EXECUTED` | **NOT_RUN** | 本机无 Harmony 运行时，0 个用例真正执行 |
+| `HARMONY_CONFORMANCE_RUNNER_IMPLEMENTED` | **PASS** | 4 模块落地，runner 本体已模块化 |
+| `HARMONY_MODULE_COMPILED` | **PASS** | **23/23** required；A+B+C+D 四判据 |
+| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **57/57** 运行时无关用例在真实 ArkTS 下逐字节复现 |
+| `HARMONY_DOMAIN_HOST` | **PASS** | 15/15 域自检在主机真跑全绿（修复 3 个缺陷后） |
+| `HARMONY_CONFORMANCE_EXECUTED` | **NOT_RUN** | 设备上 0 个用例真正执行 |
 | **`HARMONY_CONFORMANCE`** | **NOT_RUN** | 只有设备上 **91/91** 全绿才允许写 PASS |
 
-把第 1、2 行的 PASS 写成 `HARMONY_CONFORMANCE = PASS`（哪怕是
-`PARTIAL_WITH_REPORT`），都会让 91 这个分母失去意义。
-`WORK_STATUS.md` 里的**执行计数保持 pass=0**。
+前四行的 PASS **一个都不能**被写成 `HARMONY_CONFORMANCE = PASS`。
+`HARMONY_CONFORMANCE_HOST` 覆盖的是 57/91 这个子集，
+把它当成 91/91 会让分母失去意义。
 
-### 0.3 阻塞原因（沿用并细化）
+### 0.3 阻塞原因（已更新）
 
-1. **无 Harmony 运行时**：`hdc list targets` = `[Empty]`；本机无模拟器系统镜像
-   （根因见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）。
-2. **fixture 尚未投放到设备沙箱**：#1 解决后仍需 `hdc file send` 推送
+1. **无 Harmony 运行时（设备侧）**：`hdc list targets` = `[Empty]`；本机无模拟器系统镜像。
+   → 主机执行面**缓解但不消除**这一项：28 个 @ohos 依赖用例仍然只能等设备。
+2. **fixture 尚未投放到设备沙箱**：#1 解决后仍需 `hdc file send`
    （命令已固化进 `HarnessFs.harnessHint()`）。
-3. **未接本地测试框架**：DevEco Hypium 尚未布好 ——
-   这是**唯一可能脱离设备推进**的路径，见 §5.1。
+3. ~~**未接本地测试框架**~~ → **已解决**：机机执行面已打通（§7）。
+4. **6 个用例尚未实现**：timeline ×3 + state-machine 的
+   action-verification / discovery-candidate / reality-drift。
+   它们是 runner 侧的实现缺口，**不是**环境问题。
 
 ---
 
@@ -339,18 +353,128 @@ $ node tools/harmony/check-relations-semantics.mjs
 | 3 | 60 这个数字会变成 60/60 | 未执行即未知 |
 | 4 | `HARMONY_CONFORMANCE` 有任何进展 | 取值仍为 `NOT_RUN` |
 
-### 6.1 一条必须写下的方法论限制
+### 6.1 一条已被本轮推翻的方法论限制（保留原文以便对照）
 
-ArkTS 没有可在 Node 上跑的等价物（这恰恰是 §10 禁止"Node 镜像"的原因），
-因此**本轮无法在本机证明 runner 的比对逻辑是对的**。
+第三轮曾写下：
 
-可主张的范围严格限于：
+> ArkTS 没有可在 Node 上跑的等价物（这恰恰是 §10 禁止"Node 镜像"的原因），
+> 因此**本轮无法在本机证明 runner 的比对逻辑是对的**。
 
-- ✅ runner 已实现（1189 行，60 个可执行用例的覆盖）；
-- ✅ 它确实被编译并打进 `modules.abc`（符号级取证）；
-- ✅ 负向探针证明它真的在编译图里（§2.4 与门禁 D 判据）。
+**这条限制已经在第四轮被推翻。** 推翻它的不是"找了个 Node 替身"，
+而是找到了一个**真的 ArkTS 执行面**：DevEco 的本地单元测试
+（详见 §7）。它执行的是**同一个 ConformanceRunner**，不是另写一份实现。
 
-**下一步唯一能推进的事**：让 Hypium 脱离设备可用，或拿到一台 Harmony 设备 /
-让模拟器镜像可用，然后读 `conformanceSummaryLine()` 的真实计数。
-在拿到那个数字之前，`HARMONY_CONFORMANCE` 保持 `NOT_RUN`。
+保留这段原文，是因为它记录了一个真实的推理跳跃：
+"没有设备"被当成了"没有执行面"，而实际上还有第二个执行面存在 ——
+**一个看起来不可绕过的阻塞，值得再问一次"真的吗"。**
+
+---
+
+## 7. 主机执行面（第四轮，本轮的核心发现）
+
+### 7.1 它是怎么被找到的
+
+原判断是「无设备 → 无法执行 → conformance 只能等设备」。本轮把这句话拆开逐项验证，
+结果发现**存在第二个执行面**：
+
+| 候选路径 | 实测结果 |
+| -------- | -------- |
+| `ark_js_vm`（ArkTS 独立虚拟机） | **不存在**。SDK 只带 `es2abc.exe`（编译器），无运行时 |
+| `Previewer.exe` | 存在，但需 `-j <app path>` + 与 IDE 的 socket 管道；且 `@ohos` 模块是预览桩 |
+| **hvigor `test` 任务（本地单元测试）** | ✅ **可用**。编译 ArkTS → 执行 → 产出 `test_result.txt` |
+
+`Previewer.exe` 被**弃用**（不是"试不通就放弃"，而是它作为证据通道不成立）：
+它的 `@ohos.*` 行为与真实实现不同，用它算出来的 PASS 无法归因到 ArkTS 实现本身。
+
+### 7.2 打通执行面必须解决的 4 个具体问题
+
+| # | 问题 | 现象 | 解法 |
+| - | ---- | ---- | ---- |
+| 1 | `oh_modules` 未进镜像 | `Cannot find module '@ohos/hypium'` | 镜像时一并复制（**两处**：工程根与 `entry/`） |
+| 2 | **`ohpm` 用符号链接组织包** | 复制出来是**空壳**，报 `Failed to resolve OhmUrl` | `copyTree` 对链接取 `statSync` 并**解引用复制** |
+| 3 | 不能做 junction | 顺链解析回仓库（非 ASCII）→ `OhmUrl` 失败 | 必须真实复制 |
+| 4 | `@ohos/hypium` 须在**模块级**声明 | `has dependency which is not installed at its oh-package.json5` | 写进 `entry/oh-package.json5` |
+| 5 | `@ohos/hamock@1.0.1` **在 registry 不存在** | `ohpm install` 必然失败 | 降至 `1.0.0`（registry 最高仅 1.0.0） |
+
+> 第 2 条最隐蔽：`Dirent.isDirectory()` 与 `isFile()` 对符号链接**都返回 false**，
+> 于是循环直接 `continue` 跳过，**不报错**。表现为"依赖装好了但解析不到"。
+> 这类"静默跳过"比报错更难查。
+
+### 7.3 主机执行面的边界（不可越过的三条）
+
+1. **主机对 `@ohos.*` 只提供不可调用的桩**：实测 `fs.readTextSync(...)` →
+   `is not callable`。因此 fixture 文本必须以**数据**形式编译进去（`FixtureBundle.ets`）。
+2. **因此 28 个 @ohos 依赖用例在主机上仍记 `BLOCKED_BY_RUNTIME`** ——
+   主机执行面**不**覆盖它们，也**不**产出 91/91。
+3. **它仍然不是设备运行时**。`HARMONY_CONFORMANCE` 保持 `NOT_RUN`。
+
+### 7.4 为什么这不违反 §10
+
+§10 禁止的是 "**Node mirror masquerading as ArkTS**"，即**另写一份 Node 实现**去跑 fixtures。
+本方案的不同之处：
+
+| | 被执行的代码 | 数据 | 结论来源 |
+| - | - | - | - |
+| `check-relations-semantics.mjs`（**禁止计入**） | 另写的 Node 等价实现 | 同批 fixtures | Node 实现自己 |
+| **`HARMONY_CONFORMANCE_HOST`（本轮）** | **ConformanceRunner 本身**（真 ArkTS 编译器产出） | 冻结 fixture 原文，逐字节内嵌 | **ArkTS runner 自己** |
+
+内嵌数据由 `embed-fixtures.mjs --check` 守门：内嵌副本一旦与冻结原件不一致，
+门禁立即失败（它是 `run-conformance-host.mjs` 的**第一道**检查，先于执行）。
+
+### 7.5 真实执行一上来就抓到了 3 个缺陷
+
+这是本节最值得记住的部分：**前两个缺陷，代码审阅三轮都没发现。**
+
+| # | 缺陷 | 位置 | 性质 |
+| - | ---- | ---- | ---- |
+| 1 | **比对基准口径错**：拿美化 JSON 与紧凑 JSON 逐字符比 | runner `extractExpected` | 41/60 用例假失败 |
+| 2 | **自造契约词汇表**：白名单用 `dependency_created` 等自造名 | `GraphRevision.ets` | 契约里**每个** mutation 都被判"不提升" |
+| 3 | **实现与自身注释不符**：注释要求按 registry 判定，代码按枚举判定 | `LogicalKey.ets` | `bound_to` 被错误放行 |
+
+另有 1 个**测试自身的缺陷**（见 §7.6）：`PlanReadiness` 的"全清"输入其实不清。
+
+**缺陷 2 尤其值得记住**：`DomainSelfCheck` 用**同一套自造词**去断言同一套自造词，
+自洽地全绿 —— 自比自的检查不构成证据。它需要一份**外部**词汇表（冻结 fixture）
+才暴露得出来。
+
+缺陷 1 的修正方式也值得记：不是"把 expected 改成紧凑"（那是改冻结契约），
+而是在 runner 侧新增 `compactJson`，把**两侧**都规范化到紧凑形式再比 ——
+与 harness 的权威口径 `JSON.stringify(actual) === JSON.stringify(expected)`
+逐字对齐（空白无关、**键序相关**）。
+
+### 7.6 一条差点混过去的假绿
+
+主机测试最初这样断言每个用例：
+
+```ts
+expect(o.actual).assertEqual(o.expected);
+```
+
+而 runner 在**抛异常**时把 `actual` 与 `expected` 都留成**空串** ——
+`expect('') === expect('')` 恒成立，于是**"实现崩了"与"通过"在报表上完全一样**。
+`state-machine-graph-revision` 就是这样"通过"了一轮。
+
+修法是先钉 `detail` 为空，再比 payload：
+
+```ts
+expect(o.detail).assertEqual('');       // 崩了就有 detail
+expect(o.actual).assertEqual(o.expected);
+```
+
+**教训**：断言必须能把"没有结果"和"结果正确"区分开。
+只比一个可能为空的值，等于没比。
+
+### 7.7 复现
+
+```bash
+export PDIG_DEVECO_HOME="<DEVECO_HOME>"
+node tools/conformance/embed-fixtures.mjs          # 生成内嵌 fixtures（改了 fixture 才需重跑）
+node tools/harmony/run-conformance-host.mjs        # 镜像 → hvigor test → 解析 → 判定
+# 期望：
+#   HARMONY_CONFORMANCE_HOST=PASS
+#   汇总 : run=61 pass=61 fail=0 error=0
+```
+
+`--no-build` 可只解析上次结果；无 `PDIG_DEVECO_HOME` 时报 `NOT_RUN` 并 exit 0
+（不让缺 SDK 的机器变成假失败）。
 

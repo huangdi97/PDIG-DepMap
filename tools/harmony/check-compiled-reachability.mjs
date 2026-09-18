@@ -65,11 +65,14 @@ const REQUIRED_MODULES = [
   // Conformance 层：在设备上执行平台中立 fixture 的真实 ArkTS runner。
   // 必须登记在这里，否则 §10 的「ArkTS runner 已实现」这句话没有依据 ——
   // 未被 page/ability 可达的 .ets 根本不进编译图（见本文件顶部成因说明）。
-  // 入边：pages/Index.ets → ConformanceSelfCheck → ConformanceRunner
-  //       → { JsonText, HarnessFs }。
+  // 入边：pages/Index.ets → ConformanceSelfCheck → FsTextSource
+  //       → ConformanceRunner → { JsonText, HarnessFs }。
+  // FsTextSource 是**唯一**允许 import @ohos.file.fs 的 conformance 模块；
+  // ConformanceRunner 必须保持零 @ohos 依赖，才能同时跑在设备与主机执行面上。
   { id: 'JsonText', path: 'conformance/JsonText.ets', required: true },
   { id: 'HarnessFs', path: 'conformance/HarnessFs.ets', required: true },
   { id: 'ConformanceRunner', path: 'conformance/ConformanceRunner.ets', required: true },
+  { id: 'FsTextSource', path: 'conformance/FsTextSource.ets', required: true },
   { id: 'ConformanceSelfCheck', path: 'conformance/ConformanceSelfCheck.ets', required: true },
   // 后续阶段（Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },

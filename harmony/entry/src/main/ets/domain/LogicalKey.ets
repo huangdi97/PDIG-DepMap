@@ -13,6 +13,7 @@
 import { Capability, GroupMode, Relation } from '../generated/CanonicalEnums';
 import { DependencyLogicalKeyParts, canonicalGroupKey, dependencyLogicalKey, groupProposalKey } from './Entities';
 import { capabilityFromWire, relationFromWire } from './CanonicalWire';
+import { getRelationDefinition } from './Relations';
 
 /**
  * 一次 logical key 解析的结果。
@@ -61,6 +62,20 @@ export function parseDependencyLogicalKey(key: string): LogicalKeyParseResult {
   }
   if (relationFromWire(relation) === undefined) {
     r.reason = `unknown relation in logical key: ${relation}`;
+    return r;
+  }
+  // ⚠ 2026-09-18 修正：这里原先只做 `relationFromWire`（canonical 枚举成员）判定，
+  // 但上面的注释明确写着第 3 条要求是"拒绝 runtime registry 不承认的 relation"
+  // （LC-003：registry 锁定为 funding_source / merchant_agreement 两值）。
+  // 枚举里存在 `bound_to`，于是 `bound_to` 会被**放行** —— 实现与自己的契约不符，
+  // 下游 registry 才拒绝，错误被推得更远、更难定位。
+  // 现改为按 runtime registry 判定，与注释所述意图一致。
+  //
+  // 注意：这是本端**比 TS 基准更严**的一处（TS 侧把 relation 交给 registry 校验）。
+  // 该收紧是刻意保留并记录在案的，不是疏漏 —— 但它是**跨端行为差异**，
+  // 已记入 HARMONY_N3_CONFORMANCE_REPORT.md 的待复核项。
+  if (getRelationDefinition(relation) === undefined) {
+    r.reason = `relation not in runtime registry: ${relation}`;
     return r;
   }
   if (capabilityFromWire(capability) === undefined) {
