@@ -45,6 +45,30 @@
 >      `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）。
 >      按 stop condition **未进入 iOS N4**，等 Harmony Gate 复核。
 >
+> **（当前）PART A GitHub 发布收口 + PART B Harmony N3 Argon2 深挖，2026-09-18**
+>   —— ① **GitHub 发布完成**：历史净化门禁全 PASS 后首次 push 到 `huangdi97/PDIG-DepMap`
+>      （PRIVATE，5 分支 + 3 标签，**全程快进、无 force**）。
+>      CI 三轮：首轮 FAIL（2 个真实仓库缺陷）→ 二轮 FAIL（Android job 转绿，Canonical 仅剩
+>      `fixtureIntegrity`）→ **三轮全绿**（`cases 91/91`、`imports 28/28`、oracle PASS、
+>      `platform android PASS 91/91`、`VERDICT: PASS`）。
+>      产出 `GITHUB_SECRET_PRIVACY_AUDIT.md` / `GITHUB_HISTORY_SANITIZATION_REPORT.md` /
+>      `GITHUB_PUBLICATION_REPORT.md`。
+>      ② **定因并修复了既有 fixture 缺陷**：`fixtures/import` 12/28 的 sha256 与清单不一致，
+>      根因**不是字节漂移**，而是清单记录了生成机 `core.autocrlf=true` **检出态的 CRLF 假象**
+>      （blob 级取证：12 个文件 HEAD blob == 引入提交 `97a0348` blob、均无 CR；
+>      对照 `csv-cr-only.csv` 净化后仍保留 CR → 净化不剥离 CR；12/12 命中
+>      `sha256(CRLF(当前字节)) == 清单原值`）。按 canonical blob 字节**修正清单 12 条哈希**
+>      （`oracle.commit` 未动），不改字节、不降门禁。
+>      ③ **Harmony N3 Argon2 深挖**：`cryptoFramework` / `HUKS` 无 Argon2（证据级排除）；
+>      `hash-wasm` 的 `argon2.c` 是 WASM 实现**不能**作原生源；**NDK 路径可行** ——
+>      主机侧 PHC 参考实现**逐字节复现 Golden Vector**（`MATCH=YES`，version 19），
+>      OHOS arm64 交叉编译产出 `libargon2_ohos.so`（ELF64/AArch64/仅依赖 libc.so）
+>      与 NAPI 桥接 `libpdiargon2.so`（8 个 `napi_*` 由 Ark 运行时解析）。
+>      `HARMONY_DEPMAP`：`BLOCKED` → **`BLOCKED_BY_NATIVE_VERIFICATION`**；
+>      `HARMONY_RUNTIME_E2E` 仍为 `RUNTIME_NOT_RUN`（无设备/镜像）。
+>      Android 保持 **CORE_FROZEN**，**未进入 iOS N4**。
+>      完整内容见 `HARMONY_ARGON2_FEASIBILITY.md`。
+>
 > **（历史）ANDROID FINAL BLOCKER CLOSURE — D-16 关闭轮，2026-09-17**
 >   —— 关闭 D-16（导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃），采用**方案 A**：
 >   把 Import / Restore 的外部文件工作流状态提升到 Activity 作用域
@@ -100,9 +124,9 @@
 | --- | ---------------------------- | -------------------------------------------------------------------- |
 | 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 已开工，在 2 个真实 blocker 处停止**） |
 | 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md` |
-| 3   | Harmony N3                   | **已开工**：`HARMONY_BUILD` = **PASS**（hvigor 全清重建 → HAP 60,133 B）；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_DEPMAP` = **BLOCKED**（无 Argon2）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像）；parity 仍 0/73 |
+| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（HAP 60,133 B）；`HARMONY_DOMAIN`/`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_DEPMAP` = **BLOCKED_BY_NATIVE_VERIFICATION**（Argon2 原生路径已打通：主机 Golden Vector `MATCH=YES` + arm64 `.so` 编译通过，待设备上复验）；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像）；parity 仍 0/73 —— 见 `HARMONY_ARGON2_FEASIBILITY.md` |
 | 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
-| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑复验）；Harmony **NOT_RUN**（0 执行：87 notImplemented / 4 blocked）；iOS 无报告 |
+| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **NOT_RUN**（0 执行：87 notImplemented / 4 blocked）；iOS 无报告。CI 已由恒 `NOT_RUN` 改为真正校验 Android 平台报告（见 `GITHUB_PUBLICATION_REPORT.md` §6.4） |
 | 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
 
 ### 当前真实外部 blocker（只有这些）
@@ -661,3 +685,60 @@ parity：**56 / 73 → 62 / 73**；`N1 = PASS`；`N2 = PARTIAL_WITH_REPORT`。
 
 D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，**到此停止**，
 等待人工 Final Acceptance；**不进入 Harmony N3 / iOS N4 / MVP04**。
+
+---
+
+## 本轮：PART A GitHub 发布收口 + PART B Harmony Argon2 深挖（2026-09-18）
+
+### PART A：发布与 CI
+
+| 项 | 结果 |
+| --- | --- |
+| 历史净化门禁 | **全 PASS**（`SECRET/PRIVATE_KEY/TOKEN/RAW_FINANCIAL/PERSONAL_PATH_IN_HISTORY` 均为 NO；1,259 个可达 blob 复扫残留 **0**；`REACHABLE_OLD_SHA_COUNT=0`） |
+| 首次 push | **完成**，PRIVATE，5 分支 + 3 标签，**无 force** |
+| 二次 / 三次 push | 均快进：`443bd7e9..d9e5319`、`d9e5319..0b38bd40`、`0b38bd4..42b59a1` |
+| `GITHUB_CI` | **PASS**（第三次运行 `35303432883`：两个 job 全绿） |
+
+**首次 CI 暴露的两个真实仓库缺陷（均已修复并远真复验）**
+
+| 缺陷 | 根因 | 处置 |
+| --- | --- | --- |
+| `fixtures/coverage/` 6 个用例被忽略 | `.gitignore` 的 `coverage/` 匹配**任意层级**同名目录 | 增加 `!fixtures/coverage/`；6 个用例入库 |
+| `csv-crlf.csv` 的 CRLF 被归一化 | `.gitattributes` 的 `* text=auto eol=lf` 动了被测语义本身 | `fixtures/import/*`、`fixtures/coverage/*` 加 `-text` |
+| Android job `Setup Android SDK` 失败 | `:core`/`:conformance` 是**纯 JVM 模块**，本不需要 SDK | 改为 JDK 21 + `--configure-on-demand` |
+
+**既有 fixture 缺陷的定因（推翻"清单过期"的粗判，给出机制）**
+
+见 `GITHUB_PUBLICATION_REPORT.md` §6.3。核心证据链：
+
+1. 12 个文件 HEAD blob == 引入提交 `97a0348` blob，**均无 CR**；
+2. 对照 `csv-cr-only.csv` 净化后**仍保留 CR** → 净化不剥离 CR；
+3. 12/12 命中 `sha256(CRLF(当前字节)) == 清单原值`。
+
+⇒ **仓库字节从未漂移**，是清单记录了 `core.autocrlf=true` 检出态假象。
+按 canonical blob 字节修正 12 条哈希，`oracle.commit` 保持 `7bc0ed32…` 未动。
+
+> 说明：本轮再次复现本工作区 Git 故障 —— `git commit` 建对象成功但 HEAD 不推进。
+> 已用 `.workbuddy/advance_refs.mjs`（写 loose ref + `packed-refs` + `show-ref` 复核）
+> 修正三次，**未使用任何 `reset --hard` / `clean` / force push**。
+
+### PART B：Harmony N3 Argon2
+
+结论与证据见 `HARMONY_ARGON2_FEASIBILITY.md`。要点：
+
+- 托管路径（`cryptoFramework` / `HUKS`）**证据级排除**；
+- `hash-wasm/src/argon2.c` 是 **WASM 实现**，不能作原生源（本轮新排除的候选）；
+- **NDK 路径可行**：clang 15.0.4 + sysroot + Node-API 头 + `ohos.toolchain.cmake` 齐备；
+- 主机侧 PHC 参考实现**逐字节复现 Golden Vector**（`MATCH=YES`，`ARGON2_VERSION_13 = 19`）；
+- OHOS arm64 交叉编译通过：`.so` 为 ELF64 / AArch64 / 仅 `NEEDED libc.so`；
+- **`HARMONY_ARGON2_ON_DEVICE = NOT_RUN`** —— 编译通过**不等于**设备上通过，未虚报。
+
+**可移植性教训（记下来）**：PHC 参考实现的 `opt.c` 是 x86 SSE2 实现，
+arm64 必须用可移植的 `ref.c`；漏掉会直接 `undefined reference to 'fill_segment'`。
+
+### 本轮未做（诚实清单）
+
+- Harmony Domain 11 组、conformance 91/91、ArkData、HUKS、ArkUI —— **未开工**（Argon2 先行）
+- Argon2 源码**未入库**（PoC 源码在仓库外临时目录），依赖登记 / `THIRD_PARTY_NOTICES` 未更新
+- 设备上 Argon2 复验 —— **NOT_RUN**（无设备与模拟器镜像）
+- iOS N4 —— **未进入**（保持 `BLOCKED_BY_MACOS`）

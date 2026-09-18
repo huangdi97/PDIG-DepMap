@@ -17,7 +17,10 @@
 >   `.pi/` 保持 untracked（gitignore 覆盖）
 > - **正式进入 Harmony N3**：`harmony/` 由"仅 codegen"建成**可被 hvigor 真实构建并产出 HAP 的
 >   Stage Model 工程**，`HARMONY_BUILD = PASS`；首个纯 ArkTS Domain（Relations）已编译并打包进 HAP
-> - **两个真实 blocker**：`HARMONY_DEPMAP = BLOCKED`（cryptoFramework 无 Argon2）、
+> - **两个真实 blocker**（2026-09-18 更新）：
+>   `HARMONY_DEPMAP = BLOCKED_BY_NATIVE_VERIFICATION`（`cryptoFramework`/`HUKS` 无 Argon2 已证据级排除；
+>   **NDK + PHC 参考实现 + NAPI 路径已打通**：主机侧 Golden Vector `MATCH=YES`、arm64 `.so` 编译通过；
+>   仍缺设备上复验 —— 见 `HARMONY_ARGON2_FEASIBILITY.md`）、
 >   `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）
 > - 按 stop condition：**未进入 iOS N4**
 >
@@ -52,7 +55,7 @@
 | N0-F  | Conformance Harness         | **PASS**                | `node tools/conformance/run.mjs` 全绿            |
 | N1    | Android Vertical Slice      | **PASS**（2026-09-17 D-16 关闭后重新确认） | 核心垂直链 import→proposal→reality→影响面→changeplan→done→verified 在设备上端到端跑通；D-16 修复后**外部文件选择器往返不再丢工作流**，Import 真的写入（「记录 6 行」）。证据：`core-journey-v4-20260917-184856` = **41/41 PASS / 0 FAIL** + `FileWorkflowD16Test` 6/6 |
 | N2    | Android Full Parity         | **PARTIAL_WITH_REPORT** | **62 / 73**（D-16 关闭 +4，§1 计数口径修正 +1，设备 E2E +1）。未关闭 11 项逐格列在 `NATIVE_PARITY_MATRIX.md` |
-| N3    | HarmonyOS Full Parity       | **NOT_STARTED**（工程已开工，parity 仍 0/73） | 本轮正式进入：`HARMONY_BUILD = PASS`（hvigor 全清重建产出 HAP 60,133 B）、`HARMONY_DOMAIN = PARTIAL_WITH_REPORT`（Relations 已编译进 HAP）、`HARMONY_ARKUI = PARTIAL_WITH_REPORT`（骨架 + 1 占位页）；`HARMONY_DEPMAP = BLOCKED`（无 Argon2）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。14 个 Gate 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` |
+| N3    | HarmonyOS Full Parity       | **NOT_STARTED**（工程已开工，parity 仍 0/73） | 本轮正式进入：`HARMONY_BUILD = PASS`（hvigor 全清重建产出 HAP 60,133 B）、`HARMONY_DOMAIN = PARTIAL_WITH_REPORT`（Relations 已编译进 HAP）、`HARMONY_ARKUI = PARTIAL_WITH_REPORT`（骨架 + 1 占位页）；`HARMONY_DEPMAP = BLOCKED_BY_NATIVE_VERIFICATION`（Argon2 原生路径已打通，待设备上复验；见 `HARMONY_ARGON2_FEASIBILITY.md`）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。14 个 Gate 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` |
 | N4    | iOS Full Parity             | **NOT_STARTED**         | 仅 codegen 产物；build `BLOCKED_BY_MACOS`           |
 | N5    | Cross-platform Conformance  | **PARTIAL_WITH_REPORT** | Android **91/91 PASS**（本轮实跑复验）；Harmony **NOT_RUN**（0 执行，87 notImplemented / 4 blocked）；iOS 未开始。见 `CROSS_PLATFORM_CONFORMANCE_MATRIX.md` |
 | N6    | Legacy Cutover              | **NOT_STARTED**         | 未满足 Cutover 条件（三端 parity 未达成）           |
@@ -198,6 +201,9 @@ cd .. && node tools/conformance/run.mjs
 
 - **B25 Harmony 无 Argon2（P0）**：`@ohos.security.cryptoFramework` 的 KDF 仅 `PBKDF2Spec` / `HKDFSpec`，
   全文检索 Argon2 零命中 → `HARMONY_DEPMAP = BLOCKED`。NDK 侧亦无 openssl / libsodium / argon2 产物。
+  （**2026-09-18 追加**：NDK 自身 clang/sysroot/Node-API/CMake 工具链齐备，只是**不自带**这些库；
+  因此改为编译 PHC 参考实现 —— 主机 Golden Vector 已 `MATCH=YES`，arm64 `.so` 已产出，
+  状态精确化为 `BLOCKED_BY_NATIVE_VERIFICATION`。见 `HARMONY_ARGON2_FEASIBILITY.md`。）
   可行解（需评审）：NAPI + 经审计的外部 Argon2 参考实现，或经审计的 ohpm 三方包。
 - **B26 Harmony 无运行时目标（P0，用户侧）**：Emulator.exe 存在但**无任何系统镜像**；
   `hdc list targets = [Empty]` → `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`。

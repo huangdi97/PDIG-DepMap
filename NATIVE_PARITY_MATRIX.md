@@ -14,7 +14,10 @@
 >   ② `真实 Build` → `IMPLEMENTED`（有构建证据，非 RUNTIME_VERIFIED）；
 >   ③ `Canonical 枚举` 保持 `IMPLEMENTED`（codegen 产物，未做用例级验证）。
 > - **Harmony 合计仍为 0 / 73**：以上三格均未达 `TESTED` 及以上，按口径**不计入**已完成。
-> - 阻塞项：`HARMONY_DEPMAP = BLOCKED`（无 Argon2）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。
+> - 阻塞项：`HARMONY_DEPMAP = BLOCKED_BY_NATIVE_VERIFICATION`（2026-09-18 更新：托管 API 无 Argon2 已证据级排除，
+>   **NDK + PHC 参考实现 + NAPI 路径已打通** —— 主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；
+>   仍缺**设备上复验**，故未改 PASS）、`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像）。
+>   详见 `HARMONY_ARGON2_FEASIBILITY.md`。
 
 > ## D-16 CLOSED（2026-09-17）
 >

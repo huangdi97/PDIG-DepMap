@@ -56,7 +56,7 @@ PDIG/DepMap 采用「**规范先行、三端原生**」的迁移路径：
 | `HARMONY_BUILD` | **PASS** | hvigor 全清重建成功，产出 `entry-default-unsigned.hap`（60,133 B） |
 | `HARMONY_DOMAIN` | **PARTIAL_WITH_REPORT** | 首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP |
 | `HARMONY_ARKUI` | **PARTIAL_WITH_REPORT** | Stage Model 骨架 + 占位页面 |
-| `HARMONY_DEPMAP` | **BLOCKED** | `cryptoFramework` 未提供 Argon2；`.depmap` 容器的 Argon2id 是不可降级的兼容性闸门 |
+| `HARMONY_DEPMAP` | **BLOCKED_BY_NATIVE_VERIFICATION** | 托管 API（`cryptoFramework` / `HUKS`）未提供 Argon2 —— 已证据级排除；**原生路径（NDK + PHC 参考实现 + NAPI）已打通**：主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；仍缺设备上复验，故**未**记为 PASS。详见 `HARMONY_ARGON2_FEASIBILITY.md` |
 | `HARMONY_RUNTIME_E2E` | **RUNTIME_NOT_RUN** | 无可用的模拟器镜像（`hdc list targets` 为空） |
 | 对等计数 | **0 / 73** | 上述三格未达 `TESTED` 及以上，按口径不计入 |
 

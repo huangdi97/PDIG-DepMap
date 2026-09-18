@@ -22,6 +22,19 @@
 > 无设备、无模拟器系统镜像（`hdc list targets = [Empty]`），且未接本地测试框架。
 > 按分类拆分：**87 notImplemented / 4 blocked**（depmap 3 + backup 1，因 `cryptoFramework` 无 Argon2）。
 > 见 `HARMONY_N3_CONFORMANCE_REPORT.md`。
+>
+> **（2026-09-18 追加）Android 91/91 已获远真复验**：GitHub Actions 第三次运行
+> （`35303432883`）在 hosted Linux runner 上实跑 `node tools/conformance/run.mjs`，
+> 读数 `cases 91/91`、`imports 28/28`、`ORACLE SELFCHECK PASS`、`platform android PASS 91/91`、
+> `VERDICT: PASS`。此前 CI 的 Canonical job 因 `conformance/reports/` 被 gitignore 而**永远看不到**
+> Android 报告，只能报 `NOT_RUN`；现已通过 `needs: android-core` + artifact 下载修正为**真门禁**。
+> 见 `GITHUB_PUBLICATION_REPORT.md` §6.4、§6.5。
+>
+> **（2026-09-18 追加）Harmony 的 depmap/backup 阻塞性质变化**：
+> `cryptoFramework` / `HUKS` 无 Argon2 已证据级排除，但**原生路径已打通**
+> （主机 Golden Vector `MATCH=YES` + OHOS arm64 `.so` 编译通过）；
+> 阻塞点从"平台无能力"变为"**尚未在设备上复验**" —— 仍是 blocked，不因编译通过而改判。
+> 见 `HARMONY_ARGON2_FEASIBILITY.md`。
 
 > **⚠ 不得误用的正数**：`node tools/harmony/check-relations-semantics.mjs` 输出 **18/18**，
 > 但它是**源码语义镜像**（Node 等价实现 vs 同批 fixtures），**不是 ArkTS 运行时执行**，
