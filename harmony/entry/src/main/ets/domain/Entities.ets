@@ -11,8 +11,7 @@
 //  - criticality 只有 required / unknown，机器永不产生 required
 //  - retired 表示"不再成立"，不是删除；重新成立时 re-activate 原行
 
-import { Capability, ChangePlanWorkflowState, CoverageLevel, Criticality, DependencyOrigin, DependencyState, GroupMode, GroupState, NodeKind, PlanActionPhase, Relation } from '../generated/CanonicalEnums';
-import { capabilityFromWire } from './CanonicalWire';
+import { capabilityFromWire, Capability, ChangePlanWorkflowState, CoverageLevel, Criticality, DependencyOrigin, DependencyState, GroupMode, GroupState, NodeKind, PlanActionPhase, Relation } from '../generated/CanonicalEnums';
 
 export class DepNode {
   id: string = '';

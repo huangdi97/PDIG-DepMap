@@ -3,6 +3,7 @@
 // 冻结依据：ANDROID_NATIVE_CORE_FREEZE.md @ HEAD 6053f3c
 
 import { Capability, Criticality, GroupMode, NodeKind, Relation } from '../generated/CanonicalEnums';
+import { CANONICAL_RELATION_DEFINITIONS } from '../generated/CanonicalRelations';
 
 /**
  * RelationDefinitionRegistry —— relation 的治理定义。
@@ -14,6 +15,11 @@ import { Capability, Criticality, GroupMode, NodeKind, Relation } from '../gener
  * 这是一条真实的历史缺陷防线：legacy UI 的 DECLARABLE_RELATIONS 曾暴露 `bound_to`，
  * 而 registry 并不承认它 —— 用户选了会被后端拒绝（见 LEGACY_BEHAVIOR_CORRECTIONS.md LC-003）。
  * Harmony 端不重演。
+ *
+ * 数据表本身来自 generated（`generated/CanonicalRelations.ets`，由
+ * tools/codegen/generate.mjs 从 spec/domain/domain.json 的 `relations` 段产出）。
+ * 这里**不再**手抄一份：此前这份 `RELATION_DEFINITIONS` 与 spec 内容一致但漂移无 Gate 可抓，
+ * 属第二真相源。本模块只保留 registry 的**行为**（查找 / 校验 / 结果归一）。
  */
 export interface RelationDefinition {
   id: Relation;
@@ -25,33 +31,8 @@ export interface RelationDefinition {
   defaultCriticality: Criticality;
 }
 
-const PAYMENT_KINDS: NodeKind[] = [
-  NodeKind.PAYMENT_INSTRUMENT,
-  NodeKind.ACCOUNT,
-  NodeKind.SERVICE,
-  NodeKind.MEMBERSHIP,
-];
-
-export const RELATION_DEFINITIONS: RelationDefinition[] = [
-  {
-    id: Relation.FUNDING_SOURCE,
-    fromKinds: PAYMENT_KINDS,
-    toKinds: [NodeKind.ACCOUNT, NodeKind.PAYMENT_INSTRUMENT],
-    capability: Capability.PAYMENT,
-    allowsGroup: true,
-    allowedGroupModes: [GroupMode.ANY],
-    defaultCriticality: Criticality.UNKNOWN,
-  },
-  {
-    id: Relation.MERCHANT_AGREEMENT,
-    fromKinds: [NodeKind.ACCOUNT, NodeKind.PAYMENT_INSTRUMENT],
-    toKinds: [NodeKind.SERVICE, NodeKind.MEMBERSHIP, NodeKind.ACCOUNT],
-    capability: Capability.PAYMENT,
-    allowsGroup: false,
-    allowedGroupModes: [],
-    defaultCriticality: Criticality.UNKNOWN,
-  },
-];
+/** spec 声明顺序即 registry 顺序；`listRuntimeRelationIds` 的输出由此保持稳定。 */
+export const RELATION_DEFINITIONS: RelationDefinition[] = CANONICAL_RELATION_DEFINITIONS;
 
 export function getRelationDefinition(id: string): RelationDefinition | undefined {
   for (let i = 0; i < RELATION_DEFINITIONS.length; i++) {

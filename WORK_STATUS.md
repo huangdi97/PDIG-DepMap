@@ -907,3 +907,84 @@ runner 若不被 `pages/Index.ets` 引用，就是上一轮已经踩过的坑：
 **本轮明确不主张**：不主张任何用例通过；不主张比对逻辑（键序/序列化顺序）正确
 —— 本机无 ArkTS 运行时，无法自证；不主张 60 这个可执行数字会变成 60/60。
 详见 `HARMONY_N3_CONFORMANCE_REPORT.md` §0.2 与 §6。
+
+---
+
+## 本轮：Harmony Host Closure — parser 移植，账目 65 → 85/91（2026-09-18）
+
+### 结论（实跑，非声称）
+
+| 项 | 结果 |
+| --- | --- |
+| host 测试 | **89/89**（85 canonical + 3 条 conformance 元测试 + 1 条 domain 自检），fail=0 error=0 |
+| canonical 账目 | **85/91** = 85 已执行 + 0 未移植 + 2 环境缺失 + 4 设备运行时 |
+| `HARMONY_CONFORMANCE_HOST` | **PASS** |
+| `HARMONY_COMPILE_REACHABILITY` | **PASS**（A 可达 + B clean build + C modules.abc + D 负向探针） |
+| `CODEGEN GATE` | PASS |
+
+### 做了什么
+
+1. 新增 `harmony/entry/src/main/ets/sources/Parsers.ets` 与 `sources/Utf8.ets`：
+   纯 ArkTS 移植 CSV 词法 / 日期+金额 / OFX SGML 扫描 / 微信账单列规则。
+2. `ConformanceTextSource` 契约新增 `readImportFileBase64(relPath)`：
+   导入文件以**原始字节的 Base64** 提供，字节 → 文本的解码留在被测代码内。
+3. `tools/conformance/embed-import-files.mjs`（新增）：把 28 个导入文件嵌入测试 bundle，
+   带 `--check` 自校验，防止内嵌数据与冻结原件漂移。
+4. 20 条 parser 用例从 `HOST_IMPLEMENTATION_MISSING` 迁入已执行。
+
+### 两个真实缺陷（都不是"设备才能测"）
+
+**1. `decodeBase64` 尾部截断**（`crypto/DepmapBounds.ets`）
+
+原实现按完整 4 字符组分配输出长度 `(digits.length / 4 | 0) * 3`，忽略尾部残缺组。
+Base64 末尾 2 个有效字符 + `==` 仍编码 1 个真实字节，3 个有效字符 + `=` 编码 2 个，
+旧公式把这部分静默丢弃 → **长度 mod 3 ≠ 0 的文件丢失最后 1–2 字节**。
+
+表现极隐蔽：只错最后一行，金额列解析正常 —— `EUR` → `EU`、`JPY` → `JP`。
+命中 `parser-csv-eu-semicolon` 与 `parser-csv-multi-currency`。
+
+修法：`rem = digits.length % 4`，`(digits.length >> 2) * 3 + (rem === 0 ? 0 : rem - 1)`，
+`rem === 1` 判为非法 base64。已用 28 个导入文件逐一 round-trip 校验通过。
+
+此前不暴露，是因为只有 depmap 的 salt / tag / ciphertext 走过这条路径，而那些字段
+长度恰好整除。**这正是 D-006 存在的理由**（见 `DECISION_LOG.md`）。
+
+**2. `export { X } from './Y'` 不产生局部绑定**（`crypto/DepmapContainerV1.ets`）
+
+分层抽出 `DepmapBounds.ets` 时只做了 re-export，未补 import，于是
+`kdfJcs(kdf: DepmapKdfHeader)` / `cipherJcs(cipher: DepmapCipherHeader)` 报
+`Cannot find name`。
+
+**为什么之前没暴露**：主机 test 构建的编译图**不覆盖**该文件（它依赖
+`@kit.CryptoArchitectureKit`），只有 `--clean assembleHap` 才会编译到它。
+⇒ **改 `main/ets` 后必须单独跑一次 `check-compiled-reachability.mjs --build`**，
+只跑 test 会漏掉只在 hap 图里的编译错误。
+
+### 账目迁移（分母 91 全程未变）
+
+| 阶段 | 已执行 | 未移植 | 环境缺失 | 设备运行时 |
+| --- | --- | --- | --- | --- |
+| N3 基线（按类一刀切） | 57 | — | — | 28（整类） |
+| 逐条重新定性后 | 63 | 20 | 2 | 4 |
+| state-machine + timeline 落地后 | 65 | 20 | 2 | 4 |
+| **本轮（ArkTS parser 落地）** | **85** | **0** | **2** | **4** |
+
+`HOST_IMPL_MISSING_CASES` 保留为**空数组**而非删除分支 —— 下次有人往回塞一条
+必须写明理由。
+
+### 文档与工具修正
+
+- 新增 `HARMONY_REMAINING_6_AUDIT.md`：此前 `ConformanceRunner.ets` 与
+  `run-conformance-host.mjs` 都引用 `HARMONY_REMAINING_24_AUDIT.md`，而**该文件不存在**
+  —— 一个指向不存在文档的引用等于无法核查的承诺。现已补齐并改指。
+- `DECISION_LOG.md` 增 **D-005**（未执行用例按性质分桶，禁按类一刀切）、
+  **D-006**（导入文件 Base64 内嵌、解码留在被测代码内）。
+- `tools/harmony/build-ascii-mirror.mjs`：hvigor 超时由 15 min 降到 4 min，
+  并允许对**超时**重试一次（不对编译失败重试）。本机 hvigor 存在间歇性永久挂起，
+  原设置会让一次门禁卡住 15 分钟才被发现；实测本次挂了 16 分钟。
+
+### 明确不主张
+
+不主张 Harmony 已 91/91；不主张 4 条 `BLOCKED_BY_RUNTIME` 与 2 条
+`BLOCKED_BY_ENVIRONMENT` 有任何一条被验证 —— 它们**一次都没执行过**。
+`HARMONY_HOST_PASS=85/91` 是分子，分母仍是 91。

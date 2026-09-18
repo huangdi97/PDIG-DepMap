@@ -3,6 +3,31 @@ import { util } from '@kit.ArkTS';
 
 import { JcsObject, jcsStringify } from './Jcs';
 import { Argon2idDeriver } from './KdfContract';
+// 结构 / 边界层：纯 ArkTS，且所有常量派生自 generated —— 本模块**不得**再写死一份。
+import {
+  ARGON2_VERSION_19,
+  CIPHER_ALGORITHM,
+  DEPMAP_FORMAT,
+  DEPMAP_FORMAT_VERSION,
+  ITERATIONS_DEFAULT,
+  KEY_LEN,
+  MEMORY_KIB_DEFAULT,
+  NONCE_LEN,
+  PARALLELISM_DEFAULT,
+  SALT_LEN,
+  TAG_LEN,
+  DepmapError,
+  // 这两个**必须**在 import 列表里，不能只靠下方的 `export { ... } from`：
+  // re-export 只是把名字转发给下游，**不在本模块作用域内绑定**，
+  // 于是 `kdfJcs(kdf: DepmapKdfHeader)` 这类注解会报 "Cannot find name"。
+  // 分层清理时只补了 re-export，hap 构建（--clean assembleHap）才会暴露 ——
+  // 主机 test 构建的编译图不覆盖本文件，因此一度被漏掉。
+  DepmapCipherHeader,
+  DepmapHeader,
+  DepmapKdfHeader,
+  parseDepmapHeader,
+  validateDepmapBounds,
+} from './DepmapBounds';
 
 /**
  * DEPMAP_CONTAINER_V1 —— Harmony (ArkTS) 口令派生文件加密实现。
@@ -30,12 +55,10 @@ import { Argon2idDeriver } from './KdfContract';
 
 // ---------------------------------------------------------------------------
 // 常量
+//
+// 所有 protocol 常量统一由 ./DepmapBounds 提供（后者派生自 generated）。
+// 这里只保留**平台相关**的部分：cryptoFramework 的算法名与 transformation。
 // ---------------------------------------------------------------------------
-
-export const DEPMAP_FORMAT: string = 'depmap';
-export const DEPMAP_FORMAT_VERSION: number = 1;
-export const ARGON2_VERSION_19: number = 19;
-export const CIPHER_ALGORITHM: string = 'AES-256-GCM';
 
 /** cryptoFramework transformation。 */
 export const AES_GCM_TRANSFORMATION: string = 'AES256|GCM|PKCS7';
@@ -43,70 +66,43 @@ export const AES_GCM_TRANSFORMATION: string = 'AES256|GCM|PKCS7';
 export const SYM_KEY_ALG_NAME: string = 'AES256';
 export const GCM_PARAMS_ALG_NAME: string = 'GcmParamsSpec';
 
-export const SALT_LEN: number = 16;
-export const NONCE_LEN: number = 12;
-export const TAG_LEN: number = 16;
-export const KEY_LEN: number = 32;
-
-export const MEMORY_KIB_DEFAULT: number = 65536;
-export const ITERATIONS_DEFAULT: number = 3;
-export const PARALLELISM_DEFAULT: number = 1;
-
-export const MEMORY_KIB_MIN: number = 16384;
-export const MEMORY_KIB_MAX: number = 262144;
-export const ITERATIONS_MIN: number = 1;
-export const ITERATIONS_MAX: number = 10;
-export const PARALLELISM_MIN: number = 1;
-export const PARALLELISM_MAX: number = 4;
-export const CIPHERTEXT_MAX_BYTES: number = 64 * 1024 * 1024;
-
-// ---------------------------------------------------------------------------
-// 错误
 // ---------------------------------------------------------------------------
 
-export type DepmapErrorCode =
-  | 'invalid_json'
-  | 'invalid_structure'
-  | 'bounds'
-  | 'kdf'
-  | 'auth_failed';
-
-export class DepmapError extends Error {
-  readonly code: DepmapErrorCode;
-
-  constructor(code: DepmapErrorCode, message: string) {
-    super(message);
-    this.name = 'DepmapError';
-    this.code = code;
-  }
-}
-
 // ---------------------------------------------------------------------------
-// 结构
+// 错误 / 结构 / 结构校验 / 边界校验
+//
+// 全部迁至 ./DepmapBounds（纯 ArkTS），那里才是它们的单一家。
+// 本模块对其做 re-export，是为了不让既有调用方（ContainerSelfCheck 等）
+// 因为一次分层清理而被迫改签 —— re-export 不产生第二份定义。
 // ---------------------------------------------------------------------------
 
-export interface DepmapKdfHeader {
-  algorithm: string;
-  version: number;
-  salt: string;
-  memoryKiB: number;
-  iterations: number;
-  parallelism: number;
-}
-
-export interface DepmapCipherHeader {
-  algorithm: string;
-  nonce: string;
-}
-
-export interface DepmapHeader {
-  format: string;
-  formatVersion: number;
-  kdf: DepmapKdfHeader;
-  cipher: DepmapCipherHeader;
-  ciphertext: string;
-  tag: string;
-}
+export {
+  ARGON2_ALGORITHM,
+  ARGON2_VERSION_19,
+  CIPHERTEXT_MAX_BYTES,
+  CIPHER_ALGORITHM,
+  DEPMAP_FORMAT,
+  DEPMAP_FORMAT_VERSION,
+  DepmapError,
+  DepmapCipherHeader,
+  DepmapHeader,
+  DepmapKdfHeader,
+  ITERATIONS_DEFAULT,
+  ITERATIONS_MAX,
+  ITERATIONS_MIN,
+  KEY_LEN,
+  MEMORY_KIB_DEFAULT,
+  MEMORY_KIB_MAX,
+  MEMORY_KIB_MIN,
+  NONCE_LEN,
+  PARALLELISM_DEFAULT,
+  PARALLELISM_MAX,
+  PARALLELISM_MIN,
+  SALT_LEN,
+  TAG_LEN,
+  parseDepmapHeader,
+  validateDepmapBounds,
+} from './DepmapBounds';
 
 /**
  * Argon2id 派生器。passwordUtf8 必须是**精确 UTF-8 字节**（不做 Unicode 归一化），
@@ -198,124 +194,6 @@ export function serializeContainer(header: DepmapHeader): string {
   return jcsStringify(root);
 }
 
-// ---------------------------------------------------------------------------
-// 结构 / 边界校验（全部在 KDF 之前完成）
-// ---------------------------------------------------------------------------
-
-function requireString(v: Object, field: string): string {
-  if (typeof v !== 'string') {
-    throw new DepmapError('invalid_structure', `header field ${field} must be a string`);
-  }
-  return v as string;
-}
-
-function requireInt(v: Object, field: string): number {
-  if (typeof v !== 'number' || !Number.isSafeInteger(v)) {
-    throw new DepmapError('invalid_structure', `header field ${field} must be an integer`);
-  }
-  return v as number;
-}
-
-function requireObject(v: Object, field: string): Object {
-  if (typeof v !== 'object' || v === null) {
-    throw new DepmapError('invalid_structure', `header field ${field} must be an object`);
-  }
-  return v;
-}
-
-/** 解析 + 结构校验（不执行 KDF）。 */
-export function parseDepmapHeader(json: string): DepmapHeader {
-  let raw: Object;
-  try {
-    const parsed: Object = JSON.parse(json) as Object;
-    if (parsed === null || typeof parsed !== 'object') {
-      throw new DepmapError('invalid_structure', 'container must be a JSON object');
-    }
-    raw = parsed;
-  } catch (e) {
-    if (e instanceof DepmapError) {
-      throw e;
-    }
-    throw new DepmapError('invalid_json', 'container is not valid JSON');
-  }
-  const rec: Record<string, Object> = raw as Record<string, Object>;
-  const kdfRaw: Object = requireObject(rec['kdf'], 'kdf');
-  const cipherRaw: Object = requireObject(rec['cipher'], 'cipher');
-  const kdf: Record<string, Object> = kdfRaw as Record<string, Object>;
-  const cipher: Record<string, Object> = cipherRaw as Record<string, Object>;
-  return {
-    format: requireString(rec['format'], 'format'),
-    formatVersion: requireInt(rec['formatVersion'], 'formatVersion'),
-    kdf: {
-      algorithm: requireString(kdf['algorithm'], 'kdf.algorithm'),
-      version: requireInt(kdf['version'], 'kdf.version'),
-      salt: requireString(kdf['salt'], 'kdf.salt'),
-      memoryKiB: requireInt(kdf['memoryKiB'], 'kdf.memoryKiB'),
-      iterations: requireInt(kdf['iterations'], 'kdf.iterations'),
-      parallelism: requireInt(kdf['parallelism'], 'kdf.parallelism'),
-    },
-    cipher: {
-      algorithm: requireString(cipher['algorithm'], 'cipher.algorithm'),
-      nonce: requireString(cipher['nonce'], 'cipher.nonce'),
-    },
-    ciphertext: requireString(rec['ciphertext'], 'ciphertext'),
-    tag: requireString(rec['tag'], 'tag'),
-  };
-}
-
-/** V1 边界校验：恶意容器不得触发超大内存 KDF。 */
-export function validateDepmapBounds(header: DepmapHeader): void {
-  if (header.format !== DEPMAP_FORMAT) {
-    throw new DepmapError('bounds', `format must be "${DEPMAP_FORMAT}"`);
-  }
-  if (header.formatVersion !== DEPMAP_FORMAT_VERSION) {
-    throw new DepmapError('bounds', 'formatVersion must be 1');
-  }
-  if (header.kdf.algorithm !== 'argon2id') {
-    throw new DepmapError('bounds', 'kdf.algorithm must be argon2id');
-  }
-  if (header.kdf.version !== ARGON2_VERSION_19) {
-    throw new DepmapError('bounds', 'kdf.version must be 19');
-  }
-  if (header.cipher.algorithm !== CIPHER_ALGORITHM) {
-    throw new DepmapError('bounds', `cipher.algorithm must be ${CIPHER_ALGORITHM}`);
-  }
-  const memoryKiB: number = header.kdf.memoryKiB;
-  if (memoryKiB < MEMORY_KIB_MIN || memoryKiB > MEMORY_KIB_MAX) {
-    throw new DepmapError(
-      'bounds',
-      `kdf.memoryKiB out of bounds [${MEMORY_KIB_MIN},${MEMORY_KIB_MAX}]`,
-    );
-  }
-  if (header.kdf.iterations < ITERATIONS_MIN || header.kdf.iterations > ITERATIONS_MAX) {
-    throw new DepmapError(
-      'bounds',
-      `kdf.iterations out of bounds [${ITERATIONS_MIN},${ITERATIONS_MAX}]`,
-    );
-  }
-  if (header.kdf.parallelism < PARALLELISM_MIN || header.kdf.parallelism > PARALLELISM_MAX) {
-    throw new DepmapError(
-      'bounds',
-      `kdf.parallelism out of bounds [${PARALLELISM_MIN},${PARALLELISM_MAX}]`,
-    );
-  }
-  if (fromBase64(header.kdf.salt).length !== SALT_LEN) {
-    throw new DepmapError('bounds', 'kdf.salt must decode to 16 bytes');
-  }
-  if (fromBase64(header.cipher.nonce).length !== NONCE_LEN) {
-    throw new DepmapError('bounds', 'cipher.nonce must decode to 12 bytes');
-  }
-  if (fromBase64(header.tag).length !== TAG_LEN) {
-    throw new DepmapError('bounds', 'tag must decode to 16 bytes');
-  }
-  const ctLen: number = fromBase64(header.ciphertext).length;
-  if (ctLen === 0) {
-    throw new DepmapError('bounds', 'ciphertext must not be empty');
-  }
-  if (ctLen > CIPHERTEXT_MAX_BYTES) {
-    throw new DepmapError('bounds', 'ciphertext exceeds 64 MiB limit');
-  }
-}
 
 // ---------------------------------------------------------------------------
 // AES-256-GCM

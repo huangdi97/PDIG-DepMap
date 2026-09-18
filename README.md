@@ -129,7 +129,7 @@ docs/          99 份工程文档（设计 / 基线 / 审计 / 报告 / 平台�
 | 工具 | 版本 |
 | --- | --- |
 | Node.js | ≥ 22.5（Canonical 层与 Legacy oracle） |
-| JDK | 17（Android） |
+| JDK | **21（Android，硬要求）** — CI 亦使用 JDK 21 |
 | Android SDK | 通过 `android/local.properties` 指向（该文件已 gitignore） |
 | DevEco Studio + HarmonyOS SDK | 5.0.5.310 / API 13（Harmony） |
 | Xcode + macOS | iOS N4 需要，当前 `BLOCKED_BY_MACOS` |
@@ -152,11 +152,21 @@ npm run check          # format + lint + typecheck + tests + architecture + secr
 
 ### 3. Android
 
+**JDK 21 是硬要求。** Gradle 默认会拿 PATH 上第一个 `java`；本机那通常是 JDK 8，
+于是 Android Gradle Plugin 会以
+`Dependency requires at least JVM runtime version 11` /
+`Cannot find a Java installation ... languageVersion=21` 这种间接错误失败，而不是告诉你"版本不对"。
+因此在跑 gradlew 前必须显式指定 `JAVA_HOME`（jbr 目录随 IDE 安装，勿与其他 JDK 混用）：
+
 ```bash
 cd android
-./gradlew --no-daemon :core:test :conformance:run
-./gradlew --no-daemon :app:assembleDebug
+JAVA_HOME="<JDK21_HOME>" ./gradlew --no-daemon :core:test :conformance:run
+JAVA_HOME="<JDK21_HOME>" ./gradlew --no-daemon :app:assembleDebug
 ```
+
+`<JDK21_HOME>` 指向一个 **JDK 21** 安装根目录（内含 `bin/javac`）。
+版本不对时 `android/build.gradle.kts` 会前置抛出 `Requires JDK 21 ...`（列出实际检测到的版本与 `java.home`）——
+这条检查存在的唯一目的，就是让人不需要再去猜第二次。
 
 > 非 ASCII 工程路径（如含中文目录）会被 `settings.gradle.kts` 自动检测并把构建输出
 > 重定向到 ASCII 路径，无需额外环境变量；需要显式指定时用

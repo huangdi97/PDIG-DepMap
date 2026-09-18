@@ -21,6 +21,31 @@ export enum NodeKind {
   CUSTOM = 'custom'
 }
 
+export function nodeKindFromWire(value: string): NodeKind | undefined {
+  if (value === NodeKind.IDENTITY_ANCHOR) {
+    return NodeKind.IDENTITY_ANCHOR;
+  }
+  if (value === NodeKind.PAYMENT_INSTRUMENT) {
+    return NodeKind.PAYMENT_INSTRUMENT;
+  }
+  if (value === NodeKind.ACCOUNT) {
+    return NodeKind.ACCOUNT;
+  }
+  if (value === NodeKind.SERVICE) {
+    return NodeKind.SERVICE;
+  }
+  if (value === NodeKind.MEMBERSHIP) {
+    return NodeKind.MEMBERSHIP;
+  }
+  if (value === NodeKind.DEVICE) {
+    return NodeKind.DEVICE;
+  }
+  if (value === NodeKind.CUSTOM) {
+    return NodeKind.CUSTOM;
+  }
+  return undefined;
+}
+
 export enum Relation {
   FUNDING_SOURCE = 'funding_source',
   MERCHANT_AGREEMENT = 'merchant_agreement',
@@ -29,9 +54,38 @@ export enum Relation {
   BOUND_TO = 'bound_to'
 }
 
+export function relationFromWire(value: string): Relation | undefined {
+  if (value === Relation.FUNDING_SOURCE) {
+    return Relation.FUNDING_SOURCE;
+  }
+  if (value === Relation.MERCHANT_AGREEMENT) {
+    return Relation.MERCHANT_AGREEMENT;
+  }
+  if (value === Relation.VERIFIES) {
+    return Relation.VERIFIES;
+  }
+  if (value === Relation.RECOVERS) {
+    return Relation.RECOVERS;
+  }
+  if (value === Relation.BOUND_TO) {
+    return Relation.BOUND_TO;
+  }
+  return undefined;
+}
+
 export enum RelationRuntime {
   FUNDING_SOURCE = 'funding_source',
   MERCHANT_AGREEMENT = 'merchant_agreement'
+}
+
+export function relationRuntimeFromWire(value: string): RelationRuntime | undefined {
+  if (value === RelationRuntime.FUNDING_SOURCE) {
+    return RelationRuntime.FUNDING_SOURCE;
+  }
+  if (value === RelationRuntime.MERCHANT_AGREEMENT) {
+    return RelationRuntime.MERCHANT_AGREEMENT;
+  }
+  return undefined;
 }
 
 export enum Capability {
@@ -41,8 +95,31 @@ export enum Capability {
   IDENTITY = 'identity'
 }
 
+export function capabilityFromWire(value: string): Capability | undefined {
+  if (value === Capability.PAYMENT) {
+    return Capability.PAYMENT;
+  }
+  if (value === Capability.ACCESS) {
+    return Capability.ACCESS;
+  }
+  if (value === Capability.RECOVERY) {
+    return Capability.RECOVERY;
+  }
+  if (value === Capability.IDENTITY) {
+    return Capability.IDENTITY;
+  }
+  return undefined;
+}
+
 export enum CapabilityRuntime {
   PAYMENT = 'payment'
+}
+
+export function capabilityRuntimeFromWire(value: string): CapabilityRuntime | undefined {
+  if (value === CapabilityRuntime.PAYMENT) {
+    return CapabilityRuntime.PAYMENT;
+  }
+  return undefined;
 }
 
 export enum Criticality {
@@ -50,9 +127,29 @@ export enum Criticality {
   UNKNOWN = 'unknown'
 }
 
+export function criticalityFromWire(value: string): Criticality | undefined {
+  if (value === Criticality.REQUIRED) {
+    return Criticality.REQUIRED;
+  }
+  if (value === Criticality.UNKNOWN) {
+    return Criticality.UNKNOWN;
+  }
+  return undefined;
+}
+
 export enum DependencyState {
   ACTIVE = 'active',
   RETIRED = 'retired'
+}
+
+export function dependencyStateFromWire(value: string): DependencyState | undefined {
+  if (value === DependencyState.ACTIVE) {
+    return DependencyState.ACTIVE;
+  }
+  if (value === DependencyState.RETIRED) {
+    return DependencyState.RETIRED;
+  }
+  return undefined;
 }
 
 export enum DependencyOrigin {
@@ -60,14 +157,44 @@ export enum DependencyOrigin {
   PROPOSAL = 'proposal'
 }
 
+export function dependencyOriginFromWire(value: string): DependencyOrigin | undefined {
+  if (value === DependencyOrigin.MANUAL) {
+    return DependencyOrigin.MANUAL;
+  }
+  if (value === DependencyOrigin.PROPOSAL) {
+    return DependencyOrigin.PROPOSAL;
+  }
+  return undefined;
+}
+
 export enum GroupMode {
   ANY = 'ANY',
   ALL = 'ALL'
 }
 
+export function groupModeFromWire(value: string): GroupMode | undefined {
+  if (value === GroupMode.ANY) {
+    return GroupMode.ANY;
+  }
+  if (value === GroupMode.ALL) {
+    return GroupMode.ALL;
+  }
+  return undefined;
+}
+
 export enum GroupState {
   ACTIVE = 'active',
   RETIRED = 'retired'
+}
+
+export function groupStateFromWire(value: string): GroupState | undefined {
+  if (value === GroupState.ACTIVE) {
+    return GroupState.ACTIVE;
+  }
+  if (value === GroupState.RETIRED) {
+    return GroupState.RETIRED;
+  }
+  return undefined;
 }
 
 export enum ProposalDecision {
@@ -76,9 +203,32 @@ export enum ProposalDecision {
   REJECTED = 'rejected'
 }
 
+export function proposalDecisionFromWire(value: string): ProposalDecision | undefined {
+  if (value === ProposalDecision.PENDING) {
+    return ProposalDecision.PENDING;
+  }
+  if (value === ProposalDecision.ACCEPTED) {
+    return ProposalDecision.ACCEPTED;
+  }
+  if (value === ProposalDecision.REJECTED) {
+    return ProposalDecision.REJECTED;
+  }
+  return undefined;
+}
+
 export enum VerificationBasisType {
   USER_CONFIRMED = 'user_confirmed',
   AUTHORITATIVE_SOURCE = 'authoritative_source'
+}
+
+export function verificationBasisTypeFromWire(value: string): VerificationBasisType | undefined {
+  if (value === VerificationBasisType.USER_CONFIRMED) {
+    return VerificationBasisType.USER_CONFIRMED;
+  }
+  if (value === VerificationBasisType.AUTHORITATIVE_SOURCE) {
+    return VerificationBasisType.AUTHORITATIVE_SOURCE;
+  }
+  return undefined;
 }
 
 export enum SourceKind {
@@ -89,6 +239,25 @@ export enum SourceKind {
   DISCOVERY = 'discovery'
 }
 
+export function sourceKindFromWire(value: string): SourceKind | undefined {
+  if (value === SourceKind.STATEMENT_FILE) {
+    return SourceKind.STATEMENT_FILE;
+  }
+  if (value === SourceKind.PLATFORM_EXPORT) {
+    return SourceKind.PLATFORM_EXPORT;
+  }
+  if (value === SourceKind.OPEN_BANKING) {
+    return SourceKind.OPEN_BANKING;
+  }
+  if (value === SourceKind.MANUAL) {
+    return SourceKind.MANUAL;
+  }
+  if (value === SourceKind.DISCOVERY) {
+    return SourceKind.DISCOVERY;
+  }
+  return undefined;
+}
+
 export enum CoverageMode {
   EVENT_STREAM = 'event_stream',
   PARTIAL_SNAPSHOT = 'partial_snapshot',
@@ -96,9 +265,35 @@ export enum CoverageMode {
   USER_SELECTED = 'user_selected'
 }
 
+export function coverageModeFromWire(value: string): CoverageMode | undefined {
+  if (value === CoverageMode.EVENT_STREAM) {
+    return CoverageMode.EVENT_STREAM;
+  }
+  if (value === CoverageMode.PARTIAL_SNAPSHOT) {
+    return CoverageMode.PARTIAL_SNAPSHOT;
+  }
+  if (value === CoverageMode.COMPLETE_SNAPSHOT) {
+    return CoverageMode.COMPLETE_SNAPSHOT;
+  }
+  if (value === CoverageMode.USER_SELECTED) {
+    return CoverageMode.USER_SELECTED;
+  }
+  return undefined;
+}
+
 export enum SourceInstanceState {
   ACTIVE = 'active',
   RETIRED = 'retired'
+}
+
+export function sourceInstanceStateFromWire(value: string): SourceInstanceState | undefined {
+  if (value === SourceInstanceState.ACTIVE) {
+    return SourceInstanceState.ACTIVE;
+  }
+  if (value === SourceInstanceState.RETIRED) {
+    return SourceInstanceState.RETIRED;
+  }
+  return undefined;
 }
 
 export enum ObservationDirection {
@@ -107,16 +302,50 @@ export enum ObservationDirection {
   NEUTRAL = 'neutral'
 }
 
+export function observationDirectionFromWire(value: string): ObservationDirection | undefined {
+  if (value === ObservationDirection.IN) {
+    return ObservationDirection.IN;
+  }
+  if (value === ObservationDirection.OUT) {
+    return ObservationDirection.OUT;
+  }
+  if (value === ObservationDirection.NEUTRAL) {
+    return ObservationDirection.NEUTRAL;
+  }
+  return undefined;
+}
+
 export enum EvidenceKind {
   TRANSACTION_STREAM = 'transaction_stream'
+}
+
+export function evidenceKindFromWire(value: string): EvidenceKind | undefined {
+  if (value === EvidenceKind.TRANSACTION_STREAM) {
+    return EvidenceKind.TRANSACTION_STREAM;
+  }
+  return undefined;
 }
 
 export enum ProposalType {
   RECURRING_PAYMENT_ROUTE = 'recurring_payment_route'
 }
 
+export function proposalTypeFromWire(value: string): ProposalType | undefined {
+  if (value === ProposalType.RECURRING_PAYMENT_ROUTE) {
+    return ProposalType.RECURRING_PAYMENT_ROUTE;
+  }
+  return undefined;
+}
+
 export enum ProposalSource {
   STATEMENT = 'statement'
+}
+
+export function proposalSourceFromWire(value: string): ProposalSource | undefined {
+  if (value === ProposalSource.STATEMENT) {
+    return ProposalSource.STATEMENT;
+  }
+  return undefined;
 }
 
 export enum ImpactLevel {
@@ -128,12 +357,53 @@ export enum ImpactLevel {
   TARGET_OPERATION = 'target_operation'
 }
 
+export function impactLevelFromWire(value: string): ImpactLevel | undefined {
+  if (value === ImpactLevel.MUST_CHANGE) {
+    return ImpactLevel.MUST_CHANGE;
+  }
+  if (value === ImpactLevel.BACKUP_PATH) {
+    return ImpactLevel.BACKUP_PATH;
+  }
+  if (value === ImpactLevel.DEGRADED) {
+    return ImpactLevel.DEGRADED;
+  }
+  if (value === ImpactLevel.NEEDS_REVIEW) {
+    return ImpactLevel.NEEDS_REVIEW;
+  }
+  if (value === ImpactLevel.UNAFFECTED) {
+    return ImpactLevel.UNAFFECTED;
+  }
+  if (value === ImpactLevel.TARGET_OPERATION) {
+    return ImpactLevel.TARGET_OPERATION;
+  }
+  return undefined;
+}
+
 export enum ImpactTargetStatus {
   MUST_CHANGE = 'must_change',
   BACKUP_PATH = 'backup_path',
   DEGRADED = 'degraded',
   NEEDS_REVIEW = 'needs_review',
   UNAFFECTED = 'unaffected'
+}
+
+export function impactTargetStatusFromWire(value: string): ImpactTargetStatus | undefined {
+  if (value === ImpactTargetStatus.MUST_CHANGE) {
+    return ImpactTargetStatus.MUST_CHANGE;
+  }
+  if (value === ImpactTargetStatus.BACKUP_PATH) {
+    return ImpactTargetStatus.BACKUP_PATH;
+  }
+  if (value === ImpactTargetStatus.DEGRADED) {
+    return ImpactTargetStatus.DEGRADED;
+  }
+  if (value === ImpactTargetStatus.NEEDS_REVIEW) {
+    return ImpactTargetStatus.NEEDS_REVIEW;
+  }
+  if (value === ImpactTargetStatus.UNAFFECTED) {
+    return ImpactTargetStatus.UNAFFECTED;
+  }
+  return undefined;
 }
 
 export enum ImpactReasonCode {
@@ -146,6 +416,31 @@ export enum ImpactReasonCode {
   UPSTREAM_UNCERTAIN = 'upstream_uncertain'
 }
 
+export function impactReasonCodeFromWire(value: string): ImpactReasonCode | undefined {
+  if (value === ImpactReasonCode.REQUIRED_EDGE_NO_ALTERNATIVE) {
+    return ImpactReasonCode.REQUIRED_EDGE_NO_ALTERNATIVE;
+  }
+  if (value === ImpactReasonCode.CONFIRMED_GROUP_FAILED) {
+    return ImpactReasonCode.CONFIRMED_GROUP_FAILED;
+  }
+  if (value === ImpactReasonCode.CONFIRMED_GROUP_COVERED) {
+    return ImpactReasonCode.CONFIRMED_GROUP_COVERED;
+  }
+  if (value === ImpactReasonCode.UNCONFIRMED_ALTERNATIVE_EXISTS) {
+    return ImpactReasonCode.UNCONFIRMED_ALTERNATIVE_EXISTS;
+  }
+  if (value === ImpactReasonCode.CRITICALITY_UNKNOWN) {
+    return ImpactReasonCode.CRITICALITY_UNKNOWN;
+  }
+  if (value === ImpactReasonCode.PROPOSAL_ONLY) {
+    return ImpactReasonCode.PROPOSAL_ONLY;
+  }
+  if (value === ImpactReasonCode.UPSTREAM_UNCERTAIN) {
+    return ImpactReasonCode.UPSTREAM_UNCERTAIN;
+  }
+  return undefined;
+}
+
 export enum ChangePlanWorkflowState {
   DRAFT = 'draft',
   ANALYZED = 'analyzed',
@@ -155,6 +450,34 @@ export enum ChangePlanWorkflowState {
   VERIFYING = 'verifying',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled'
+}
+
+export function changePlanWorkflowStateFromWire(value: string): ChangePlanWorkflowState | undefined {
+  if (value === ChangePlanWorkflowState.DRAFT) {
+    return ChangePlanWorkflowState.DRAFT;
+  }
+  if (value === ChangePlanWorkflowState.ANALYZED) {
+    return ChangePlanWorkflowState.ANALYZED;
+  }
+  if (value === ChangePlanWorkflowState.REVIEW_REQUIRED) {
+    return ChangePlanWorkflowState.REVIEW_REQUIRED;
+  }
+  if (value === ChangePlanWorkflowState.READY) {
+    return ChangePlanWorkflowState.READY;
+  }
+  if (value === ChangePlanWorkflowState.IN_PROGRESS) {
+    return ChangePlanWorkflowState.IN_PROGRESS;
+  }
+  if (value === ChangePlanWorkflowState.VERIFYING) {
+    return ChangePlanWorkflowState.VERIFYING;
+  }
+  if (value === ChangePlanWorkflowState.COMPLETED) {
+    return ChangePlanWorkflowState.COMPLETED;
+  }
+  if (value === ChangePlanWorkflowState.CANCELLED) {
+    return ChangePlanWorkflowState.CANCELLED;
+  }
+  return undefined;
 }
 
 export enum PlanEffectiveStatus {
@@ -169,16 +492,73 @@ export enum PlanEffectiveStatus {
   NEEDS_REVALIDATION = 'needs_revalidation'
 }
 
+export function planEffectiveStatusFromWire(value: string): PlanEffectiveStatus | undefined {
+  if (value === PlanEffectiveStatus.DRAFT) {
+    return PlanEffectiveStatus.DRAFT;
+  }
+  if (value === PlanEffectiveStatus.ANALYZED) {
+    return PlanEffectiveStatus.ANALYZED;
+  }
+  if (value === PlanEffectiveStatus.REVIEW_REQUIRED) {
+    return PlanEffectiveStatus.REVIEW_REQUIRED;
+  }
+  if (value === PlanEffectiveStatus.READY) {
+    return PlanEffectiveStatus.READY;
+  }
+  if (value === PlanEffectiveStatus.IN_PROGRESS) {
+    return PlanEffectiveStatus.IN_PROGRESS;
+  }
+  if (value === PlanEffectiveStatus.VERIFYING) {
+    return PlanEffectiveStatus.VERIFYING;
+  }
+  if (value === PlanEffectiveStatus.COMPLETED) {
+    return PlanEffectiveStatus.COMPLETED;
+  }
+  if (value === PlanEffectiveStatus.CANCELLED) {
+    return PlanEffectiveStatus.CANCELLED;
+  }
+  if (value === PlanEffectiveStatus.NEEDS_REVALIDATION) {
+    return PlanEffectiveStatus.NEEDS_REVALIDATION;
+  }
+  return undefined;
+}
+
 export enum PlanActionPhase {
   PREPARE = 'prepare',
   CHANGE = 'change',
   VERIFY = 'verify'
 }
 
+export function planActionPhaseFromWire(value: string): PlanActionPhase | undefined {
+  if (value === PlanActionPhase.PREPARE) {
+    return PlanActionPhase.PREPARE;
+  }
+  if (value === PlanActionPhase.CHANGE) {
+    return PlanActionPhase.CHANGE;
+  }
+  if (value === PlanActionPhase.VERIFY) {
+    return PlanActionPhase.VERIFY;
+  }
+  return undefined;
+}
+
 export enum ActionVerificationMethod {
   MANUAL_CONFIRMATION = 'manual_confirmation',
   FUTURE_OBSERVATION = 'future_observation',
   AUTHORITATIVE_SOURCE = 'authoritative_source'
+}
+
+export function actionVerificationMethodFromWire(value: string): ActionVerificationMethod | undefined {
+  if (value === ActionVerificationMethod.MANUAL_CONFIRMATION) {
+    return ActionVerificationMethod.MANUAL_CONFIRMATION;
+  }
+  if (value === ActionVerificationMethod.FUTURE_OBSERVATION) {
+    return ActionVerificationMethod.FUTURE_OBSERVATION;
+  }
+  if (value === ActionVerificationMethod.AUTHORITATIVE_SOURCE) {
+    return ActionVerificationMethod.AUTHORITATIVE_SOURCE;
+  }
+  return undefined;
 }
 
 export enum ActionVerificationStatus {
@@ -189,10 +569,42 @@ export enum ActionVerificationStatus {
   FAILED = 'failed'
 }
 
+export function actionVerificationStatusFromWire(value: string): ActionVerificationStatus | undefined {
+  if (value === ActionVerificationStatus.NOT_REQUIRED) {
+    return ActionVerificationStatus.NOT_REQUIRED;
+  }
+  if (value === ActionVerificationStatus.PENDING) {
+    return ActionVerificationStatus.PENDING;
+  }
+  if (value === ActionVerificationStatus.EVIDENCE_SUGGESTED) {
+    return ActionVerificationStatus.EVIDENCE_SUGGESTED;
+  }
+  if (value === ActionVerificationStatus.VERIFIED) {
+    return ActionVerificationStatus.VERIFIED;
+  }
+  if (value === ActionVerificationStatus.FAILED) {
+    return ActionVerificationStatus.FAILED;
+  }
+  return undefined;
+}
+
 export enum PlanReadiness {
   BLOCKED = 'blocked',
   REVIEW_REQUIRED = 'review_required',
   READY_WITH_KNOWN_SCOPE = 'ready_with_known_scope'
+}
+
+export function planReadinessFromWire(value: string): PlanReadiness | undefined {
+  if (value === PlanReadiness.BLOCKED) {
+    return PlanReadiness.BLOCKED;
+  }
+  if (value === PlanReadiness.REVIEW_REQUIRED) {
+    return PlanReadiness.REVIEW_REQUIRED;
+  }
+  if (value === PlanReadiness.READY_WITH_KNOWN_SCOPE) {
+    return PlanReadiness.READY_WITH_KNOWN_SCOPE;
+  }
+  return undefined;
 }
 
 export enum CoverageLevel {
@@ -202,10 +614,39 @@ export enum CoverageLevel {
   WELL_EVIDENCED = 'well_evidenced'
 }
 
+export function coverageLevelFromWire(value: string): CoverageLevel | undefined {
+  if (value === CoverageLevel.UNKNOWN) {
+    return CoverageLevel.UNKNOWN;
+  }
+  if (value === CoverageLevel.LIMITED) {
+    return CoverageLevel.LIMITED;
+  }
+  if (value === CoverageLevel.PARTIAL) {
+    return CoverageLevel.PARTIAL;
+  }
+  if (value === CoverageLevel.WELL_EVIDENCED) {
+    return CoverageLevel.WELL_EVIDENCED;
+  }
+  return undefined;
+}
+
 export enum DriftKind {
   POSSIBLE_REPLACEMENT = 'possible_replacement',
   POSSIBLE_ADDITIONAL_PATH = 'possible_additional_path',
   RELATION_REAPPEARED = 'relation_reappeared'
+}
+
+export function driftKindFromWire(value: string): DriftKind | undefined {
+  if (value === DriftKind.POSSIBLE_REPLACEMENT) {
+    return DriftKind.POSSIBLE_REPLACEMENT;
+  }
+  if (value === DriftKind.POSSIBLE_ADDITIONAL_PATH) {
+    return DriftKind.POSSIBLE_ADDITIONAL_PATH;
+  }
+  if (value === DriftKind.RELATION_REAPPEARED) {
+    return DriftKind.RELATION_REAPPEARED;
+  }
+  return undefined;
 }
 
 export enum DriftStatus {
@@ -215,9 +656,35 @@ export enum DriftStatus {
   SUPERSEDED = 'superseded'
 }
 
+export function driftStatusFromWire(value: string): DriftStatus | undefined {
+  if (value === DriftStatus.OPEN) {
+    return DriftStatus.OPEN;
+  }
+  if (value === DriftStatus.CONFIRMED_CHANGE) {
+    return DriftStatus.CONFIRMED_CHANGE;
+  }
+  if (value === DriftStatus.DISMISSED) {
+    return DriftStatus.DISMISSED;
+  }
+  if (value === DriftStatus.SUPERSEDED) {
+    return DriftStatus.SUPERSEDED;
+  }
+  return undefined;
+}
+
 export enum DriftIgnoreReason {
   ALREADY_CONFIRMED = 'already_confirmed',
   BELOW_THRESHOLD = 'below_threshold'
+}
+
+export function driftIgnoreReasonFromWire(value: string): DriftIgnoreReason | undefined {
+  if (value === DriftIgnoreReason.ALREADY_CONFIRMED) {
+    return DriftIgnoreReason.ALREADY_CONFIRMED;
+  }
+  if (value === DriftIgnoreReason.BELOW_THRESHOLD) {
+    return DriftIgnoreReason.BELOW_THRESHOLD;
+  }
+  return undefined;
 }
 
 export enum CandidateKind {
@@ -225,11 +692,37 @@ export enum CandidateKind {
   SERVICE = 'service'
 }
 
+export function candidateKindFromWire(value: string): CandidateKind | undefined {
+  if (value === CandidateKind.PAYMENT_INSTRUMENT) {
+    return CandidateKind.PAYMENT_INSTRUMENT;
+  }
+  if (value === CandidateKind.SERVICE) {
+    return CandidateKind.SERVICE;
+  }
+  return undefined;
+}
+
 export enum CandidateStatus {
   PENDING = 'pending',
   ACCEPTED = 'accepted',
   DISMISSED = 'dismissed',
   SUPERSEDED = 'superseded'
+}
+
+export function candidateStatusFromWire(value: string): CandidateStatus | undefined {
+  if (value === CandidateStatus.PENDING) {
+    return CandidateStatus.PENDING;
+  }
+  if (value === CandidateStatus.ACCEPTED) {
+    return CandidateStatus.ACCEPTED;
+  }
+  if (value === CandidateStatus.DISMISSED) {
+    return CandidateStatus.DISMISSED;
+  }
+  if (value === CandidateStatus.SUPERSEDED) {
+    return CandidateStatus.SUPERSEDED;
+  }
+  return undefined;
 }
 
 export enum TimelineBucket {
@@ -242,6 +735,31 @@ export enum TimelineBucket {
   LATER = 'later'
 }
 
+export function timelineBucketFromWire(value: string): TimelineBucket | undefined {
+  if (value === TimelineBucket.ATTENTION) {
+    return TimelineBucket.ATTENTION;
+  }
+  if (value === TimelineBucket.OVERDUE) {
+    return TimelineBucket.OVERDUE;
+  }
+  if (value === TimelineBucket.TODAY) {
+    return TimelineBucket.TODAY;
+  }
+  if (value === TimelineBucket.V7D) {
+    return TimelineBucket.V7D;
+  }
+  if (value === TimelineBucket.V30D) {
+    return TimelineBucket.V30D;
+  }
+  if (value === TimelineBucket.V90D) {
+    return TimelineBucket.V90D;
+  }
+  if (value === TimelineBucket.LATER) {
+    return TimelineBucket.LATER;
+  }
+  return undefined;
+}
+
 export enum TimelineItemKind {
   NEEDS_ATTENTION = 'needs_attention',
   UPCOMING_CHANGE = 'upcoming_change',
@@ -251,12 +769,53 @@ export enum TimelineItemKind {
   EXPIRATION = 'expiration'
 }
 
+export function timelineItemKindFromWire(value: string): TimelineItemKind | undefined {
+  if (value === TimelineItemKind.NEEDS_ATTENTION) {
+    return TimelineItemKind.NEEDS_ATTENTION;
+  }
+  if (value === TimelineItemKind.UPCOMING_CHANGE) {
+    return TimelineItemKind.UPCOMING_CHANGE;
+  }
+  if (value === TimelineItemKind.VERIFICATION_PENDING) {
+    return TimelineItemKind.VERIFICATION_PENDING;
+  }
+  if (value === TimelineItemKind.FRESHNESS_REVIEW) {
+    return TimelineItemKind.FRESHNESS_REVIEW;
+  }
+  if (value === TimelineItemKind.DRIFT_REVIEW) {
+    return TimelineItemKind.DRIFT_REVIEW;
+  }
+  if (value === TimelineItemKind.EXPIRATION) {
+    return TimelineItemKind.EXPIRATION;
+  }
+  return undefined;
+}
+
 export enum TimelineSourceType {
   CHANGE_PLAN = 'change_plan',
   REALITY_DRIFT = 'reality_drift',
   ACTION_VERIFICATION = 'action_verification',
   NODE_EXPIRY = 'node_expiry',
   SOURCE_FRESHNESS = 'source_freshness'
+}
+
+export function timelineSourceTypeFromWire(value: string): TimelineSourceType | undefined {
+  if (value === TimelineSourceType.CHANGE_PLAN) {
+    return TimelineSourceType.CHANGE_PLAN;
+  }
+  if (value === TimelineSourceType.REALITY_DRIFT) {
+    return TimelineSourceType.REALITY_DRIFT;
+  }
+  if (value === TimelineSourceType.ACTION_VERIFICATION) {
+    return TimelineSourceType.ACTION_VERIFICATION;
+  }
+  if (value === TimelineSourceType.NODE_EXPIRY) {
+    return TimelineSourceType.NODE_EXPIRY;
+  }
+  if (value === TimelineSourceType.SOURCE_FRESHNESS) {
+    return TimelineSourceType.SOURCE_FRESHNESS;
+  }
+  return undefined;
 }
 
 export enum ScenarioCategory {
@@ -268,15 +827,60 @@ export enum ScenarioCategory {
   DIGITAL_ASSETS = 'digital_assets'
 }
 
+export function scenarioCategoryFromWire(value: string): ScenarioCategory | undefined {
+  if (value === ScenarioCategory.PAYMENT) {
+    return ScenarioCategory.PAYMENT;
+  }
+  if (value === ScenarioCategory.IDENTITY) {
+    return ScenarioCategory.IDENTITY;
+  }
+  if (value === ScenarioCategory.DEVICE) {
+    return ScenarioCategory.DEVICE;
+  }
+  if (value === ScenarioCategory.WORK) {
+    return ScenarioCategory.WORK;
+  }
+  if (value === ScenarioCategory.INTERNATIONAL) {
+    return ScenarioCategory.INTERNATIONAL;
+  }
+  if (value === ScenarioCategory.DIGITAL_ASSETS) {
+    return ScenarioCategory.DIGITAL_ASSETS;
+  }
+  return undefined;
+}
+
 export enum ScenarioAvailability {
   ACTIVE = 'active',
   PLANNED = 'planned'
+}
+
+export function scenarioAvailabilityFromWire(value: string): ScenarioAvailability | undefined {
+  if (value === ScenarioAvailability.ACTIVE) {
+    return ScenarioAvailability.ACTIVE;
+  }
+  if (value === ScenarioAvailability.PLANNED) {
+    return ScenarioAvailability.PLANNED;
+  }
+  return undefined;
 }
 
 export enum AmountSignMode {
   SIGNED = 'signed',
   DEBIT_CREDIT = 'debit_credit',
   OUTWARD_POSITIVE = 'outward_positive'
+}
+
+export function amountSignModeFromWire(value: string): AmountSignMode | undefined {
+  if (value === AmountSignMode.SIGNED) {
+    return AmountSignMode.SIGNED;
+  }
+  if (value === AmountSignMode.DEBIT_CREDIT) {
+    return AmountSignMode.DEBIT_CREDIT;
+  }
+  if (value === AmountSignMode.OUTWARD_POSITIVE) {
+    return AmountSignMode.OUTWARD_POSITIVE;
+  }
+  return undefined;
 }
 
 export enum CsvDelimiter {
@@ -286,9 +890,35 @@ export enum CsvDelimiter {
   U7C = '|'
 }
 
+export function csvDelimiterFromWire(value: string): CsvDelimiter | undefined {
+  if (value === CsvDelimiter.U2C) {
+    return CsvDelimiter.U2C;
+  }
+  if (value === CsvDelimiter.U3B) {
+    return CsvDelimiter.U3B;
+  }
+  if (value === CsvDelimiter.U09) {
+    return CsvDelimiter.U09;
+  }
+  if (value === CsvDelimiter.U7C) {
+    return CsvDelimiter.U7C;
+  }
+  return undefined;
+}
+
 export enum SourceEncoding {
   UTF_8 = 'utf-8',
   GB18030 = 'gb18030'
+}
+
+export function sourceEncodingFromWire(value: string): SourceEncoding | undefined {
+  if (value === SourceEncoding.UTF_8) {
+    return SourceEncoding.UTF_8;
+  }
+  if (value === SourceEncoding.GB18030) {
+    return SourceEncoding.GB18030;
+  }
+  return undefined;
 }
 
 export enum ErrorCode {
@@ -322,6 +952,100 @@ export enum ErrorCode {
   AUTH_UNAVAILABLE = 'auth_unavailable',
   KEY_UNAVAILABLE = 'key_unavailable',
   CANCELLED_BY_USER = 'cancelled_by_user'
+}
+
+export function errorCodeFromWire(value: string): ErrorCode | undefined {
+  if (value === ErrorCode.INVALID_JSON) {
+    return ErrorCode.INVALID_JSON;
+  }
+  if (value === ErrorCode.INVALID_STRUCTURE) {
+    return ErrorCode.INVALID_STRUCTURE;
+  }
+  if (value === ErrorCode.BOUNDS_EXCEEDED) {
+    return ErrorCode.BOUNDS_EXCEEDED;
+  }
+  if (value === ErrorCode.KDF_FAILED) {
+    return ErrorCode.KDF_FAILED;
+  }
+  if (value === ErrorCode.CRYPTO_AUTH_FAILED) {
+    return ErrorCode.CRYPTO_AUTH_FAILED;
+  }
+  if (value === ErrorCode.UNSUPPORTED_FORMAT_VERSION) {
+    return ErrorCode.UNSUPPORTED_FORMAT_VERSION;
+  }
+  if (value === ErrorCode.UNSUPPORTED_SCHEMA) {
+    return ErrorCode.UNSUPPORTED_SCHEMA;
+  }
+  if (value === ErrorCode.MIGRATION_FAILED) {
+    return ErrorCode.MIGRATION_FAILED;
+  }
+  if (value === ErrorCode.PAYLOAD_INVALID) {
+    return ErrorCode.PAYLOAD_INVALID;
+  }
+  if (value === ErrorCode.PAYLOAD_KIND_MISMATCH) {
+    return ErrorCode.PAYLOAD_KIND_MISMATCH;
+  }
+  if (value === ErrorCode.PAYLOAD_VERSION_UNSUPPORTED) {
+    return ErrorCode.PAYLOAD_VERSION_UNSUPPORTED;
+  }
+  if (value === ErrorCode.SOURCE_PARSE_FAILED) {
+    return ErrorCode.SOURCE_PARSE_FAILED;
+  }
+  if (value === ErrorCode.MAPPING_MISSING_COLUMN) {
+    return ErrorCode.MAPPING_MISSING_COLUMN;
+  }
+  if (value === ErrorCode.VALIDATION_FAILED) {
+    return ErrorCode.VALIDATION_FAILED;
+  }
+  if (value === ErrorCode.RELATION_NOT_REGISTERED) {
+    return ErrorCode.RELATION_NOT_REGISTERED;
+  }
+  if (value === ErrorCode.RELATION_KIND_VIOLATION) {
+    return ErrorCode.RELATION_KIND_VIOLATION;
+  }
+  if (value === ErrorCode.CAPABILITY_MISMATCH) {
+    return ErrorCode.CAPABILITY_MISMATCH;
+  }
+  if (value === ErrorCode.GROUP_MODE_NOT_ALLOWED) {
+    return ErrorCode.GROUP_MODE_NOT_ALLOWED;
+  }
+  if (value === ErrorCode.ILLEGAL_STATE_TRANSITION) {
+    return ErrorCode.ILLEGAL_STATE_TRANSITION;
+  }
+  if (value === ErrorCode.ACTION_FROZEN) {
+    return ErrorCode.ACTION_FROZEN;
+  }
+  if (value === ErrorCode.ENTITY_NOT_FOUND) {
+    return ErrorCode.ENTITY_NOT_FOUND;
+  }
+  if (value === ErrorCode.SCENARIO_NOT_EXECUTABLE) {
+    return ErrorCode.SCENARIO_NOT_EXECUTABLE;
+  }
+  if (value === ErrorCode.SCENARIO_MISSING_INPUT) {
+    return ErrorCode.SCENARIO_MISSING_INPUT;
+  }
+  if (value === ErrorCode.DB_LOCKED) {
+    return ErrorCode.DB_LOCKED;
+  }
+  if (value === ErrorCode.DB_OPEN_FAILED) {
+    return ErrorCode.DB_OPEN_FAILED;
+  }
+  if (value === ErrorCode.AUTH_CANCELLED) {
+    return ErrorCode.AUTH_CANCELLED;
+  }
+  if (value === ErrorCode.AUTH_FAILED) {
+    return ErrorCode.AUTH_FAILED;
+  }
+  if (value === ErrorCode.AUTH_UNAVAILABLE) {
+    return ErrorCode.AUTH_UNAVAILABLE;
+  }
+  if (value === ErrorCode.KEY_UNAVAILABLE) {
+    return ErrorCode.KEY_UNAVAILABLE;
+  }
+  if (value === ErrorCode.CANCELLED_BY_USER) {
+    return ErrorCode.CANCELLED_BY_USER;
+  }
+  return undefined;
 }
 
 export class DepmapContainerV1 {

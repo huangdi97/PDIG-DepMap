@@ -183,15 +183,41 @@ const env = {
   //   "Unable to find 'DEVECO_SDK_HOME' in the system environment path."
   DEVECO_SDK_HOME: join(DEVECO, 'sdk'),
 }
-try {
-  const out = execFileSync(process.execPath, [HVIGOR_JS, ...args], {
-    cwd: MIRROR, env, encoding: 'utf8', stdio: 'pipe', timeout: 15 * 60 * 1000,
-  })
-  process.stdout.write(out)
-  console.log('\n[harmony] BUILD SUCCESSFUL')
-} catch (e) {
-  process.stdout.write(e.stdout || '')
-  process.stderr.write(e.stderr || '')
-  console.error('\n[harmony] BUILD FAILED')
-  process.exit(1)
+// 超时取 4 分钟而不是 15 分钟，并允许对**超时**重试一次。
+//
+// 实测：hvigor 在本机会**间歇性永久挂起** —— 同样一条命令，有时 40 秒完成，
+// 有时卡在 `BuildUnitTestHook` 之后再无进展，直到被强杀（exit 124）。
+// 挂起发生在测试执行之前的构建阶段，与被测代码无关；重跑一次通常即通过。
+//
+// 为什么只重试「超时」而不重试「失败」：
+//   编译失败是真实信号（例如 re-export 不产生局部绑定这类错误），
+//   重试只会让人多等几分钟然后看到同一个错误，还会把首次失败的输出冲掉。
+//   超时则相反 —— 它没有诊断价值，只有成本。
+//
+// 重试必须**可见**：静默重试会把"这个工具链不稳定"这个事实藏起来。
+const BUILD_TIMEOUT_MS = 4 * 60 * 1000
+const MAX_ATTEMPTS = 2
+
+let out = ''
+for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+  try {
+    out = execFileSync(process.execPath, [HVIGOR_JS, ...args], {
+      cwd: MIRROR, env, encoding: 'utf8', stdio: 'pipe', timeout: BUILD_TIMEOUT_MS,
+    })
+    process.stdout.write(out)
+    console.log('\n[harmony] BUILD SUCCESSFUL')
+    break
+  } catch (e) {
+    process.stdout.write(e.stdout || '')
+    process.stderr.write(e.stderr || '')
+    const timedOut = e.status === null || e.signal === 'SIGTERM' || e.killed === true
+    if (!timedOut || attempt === MAX_ATTEMPTS) {
+      console.error('\n[harmony] BUILD FAILED' +
+        (timedOut ? ' (hvigor 超时 ' + BUILD_TIMEOUT_MS / 1000 + 's，已重试 ' +
+          (attempt - 1) + ' 次)' : ''))
+      process.exit(1)
+    }
+    console.error('\n[harmony] hvigor 超时挂起（本机已知间歇性问题），重试 ' +
+      attempt + '/' + (MAX_ATTEMPTS - 1) + ' ...')
+  }
 }

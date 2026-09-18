@@ -430,6 +430,27 @@ export class JsonText {
     return this.readString(i);
   }
 
+  /** 取字符串字段，缺失时用默认值（用于"契约里有默认值"的可选字段）。 */
+  optionalStringOr(name: string, fallback: string): string {
+    const i = this.findField(name);
+    if (i < 0 || this.isNull(i)) {
+      return fallback;
+    }
+    if (this.src.charAt(i) !== '"') {
+      throw new Error(`JsonText: field ${name} is not a JSON string`);
+    }
+    return this.readString(i);
+  }
+
+  /** 取布尔字段，缺失时用默认值。 */
+  optionalBoolOr(name: string, fallback: boolean): boolean {
+    const i = this.findField(name);
+    if (i < 0 || this.isNull(i)) {
+      return fallback;
+    }
+    return this.readBool(i);
+  }
+
   /** 取字符串数组字段（元素必须是 JSON 字符串）。 */
   requireStringArray(name: string): string[] {
     const out: string[] = [];

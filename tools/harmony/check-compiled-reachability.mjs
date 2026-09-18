@@ -42,16 +42,22 @@ const ETS_ROOT = join(REPO, 'harmony', 'entry', 'src', 'main', 'ets')
 //   否则会把一个正确的编译结果判成 FAIL —— 那是假阴性，与假阳性同样有害。
 const REQUIRED_MODULES = [
   { id: 'CanonicalEnums', path: 'generated/CanonicalEnums.ets', required: true },
+  { id: 'CanonicalRelations', path: 'generated/CanonicalRelations.ets', required: true },
   { id: 'Relations', path: 'domain/Relations.ets', required: true },
   { id: 'Jcs', path: 'crypto/Jcs.ets', required: true },
+  // 结构 / 边界层：从 crypto/DepmapContainerV1 抽出的纯 ArkTS 部分，
+  // 因此 conformance runner 能在主机面上验证"边界先于 KDF"而不引入 @ohos 依赖。
+  { id: 'DepmapBounds', path: 'crypto/DepmapBounds.ets', required: true },
+  // 账单解析器与 UTF-8 解码：零平台依赖，parser 用例由此可在主机执行面真跑。
+  { id: 'Utf8', path: 'sources/Utf8.ets', required: true },
+  { id: 'Parsers', path: 'sources/Parsers.ets', required: true },
   { id: 'KdfContract', path: 'crypto/KdfContract.ets', required: true, typeOnly: true },
   { id: 'DepmapContainerV1', path: 'crypto/DepmapContainerV1.ets', required: true },
   { id: 'ContainerSelfCheck', path: 'crypto/ContainerSelfCheck.ets', required: true },
   { id: 'Argon2idNative', path: 'crypto/Argon2idNative.ets', required: true },
-  // Domain 层：CanonicalWire 是手写的 wire 解析辅助（**非** codegen 产物），
-  // Entities / ImpactKernel / DomainSelfCheck 是本轮落地的纯 ArkTS Domain。
+  // Domain 层：wire 解析与 relation 注册表均来自 generated（Single Source of Truth），
+  // 见 HARMONY_CANONICAL_SINGLE_SOURCE_AUDIT.md。原先手写的 CanonicalWire.ets 已删除。
   // 入边：pages/Index.ets → DomainSelfCheck → {Entities, ImpactKernel}。
-  { id: 'CanonicalWire', path: 'domain/CanonicalWire.ets', required: true },
   { id: 'Entities', path: 'domain/Entities.ets', required: true },
   { id: 'LogicalKey', path: 'domain/LogicalKey.ets', required: true },
   { id: 'ImpactKernel', path: 'domain/ImpactKernel.ets', required: true },

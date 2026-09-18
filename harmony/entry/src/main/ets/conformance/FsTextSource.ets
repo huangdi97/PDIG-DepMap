@@ -13,6 +13,7 @@
  */
 
 import fs from '@ohos.file.fs';
+import { util } from '@kit.ArkTS';
 import { locateConformanceRoot } from './HarnessFs';
 import { ConformanceReport, ConformanceTextSource, RunnerEnv, runConformanceWith } from './ConformanceRunner';
 
@@ -36,6 +37,8 @@ export function readTextIfExists(fullPath: string): string {
   }
 }
 
+const BASE64: util.Base64Helper = new util.Base64Helper();
+
 /** 以「仓库根」为基准的 fs 文本源。 */
 export class FsTextSource implements ConformanceTextSource {
   private root: string = '';
@@ -50,6 +53,30 @@ export class FsTextSource implements ConformanceTextSource {
 
   readFixture(relPath: string): string {
     return readTextIfExists(this.root + '/' + relPath);
+  }
+
+  /**
+   * 设备侧以**字节**读入账单文件后编码成 Base64 字符串。
+   *
+   * 为什么接口是 Base64 文本而不是 `Uint8Array`：保持 `ConformanceTextSource`
+   * 的"纯文本注入"契约 —— 契约里出现二进制类型会让主机侧与设备侧的边界变得含糊，
+   * 而 Base64 只是一段文本，任何执行面都能给。
+   */
+  readImportFileBase64(relPath: string): string {
+    const fullPath: string = this.root + '/' + relPath;
+    try {
+      if (!fs.accessSync(fullPath)) {
+        return '';
+      }
+      const file: fs.File = fs.openSync(fullPath, fs.OpenMode.READ_ONLY);
+      const stat: fs.Stat = fs.statSync(fullPath);
+      const buf: ArrayBuffer = new ArrayBuffer(stat.size);
+      fs.readSync(file.fd, buf);
+      fs.closeSync(file);
+      return BASE64.encodeToStringSync(new Uint8Array(buf));
+    } catch (e) {
+      return '';
+    }
   }
 
   describe(): string {

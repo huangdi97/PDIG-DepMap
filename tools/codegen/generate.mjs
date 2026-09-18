@@ -259,6 +259,38 @@ function emitSwift() {
 // ArkTS
 // ---------------------------------------------------------------------------
 
+/** 首字母小写（ArkTS `fromWire` 函数命名：`NodeKind` → `nodeKindFromWire`）。 */
+function lowerFirst(s) {
+  return s.charAt(0).toLowerCase() + s.slice(1)
+}
+
+/**
+ * 为每个 enum 生成 `xxxFromWire`。
+ *
+ * 为什么必须生成而不是手写（单一真相源）：
+ *   Kotlin / Swift emitter 早就随 enum 一起产出 `fromWire`（Kotlin 走 `entries`，
+ *   Swift 走 `init?(rawValue:)`），唯独 ArkTS emitter 只产纯 enum，于是 Harmony 侧
+ *   曾经在 `domain/CanonicalWire.ets` 里**手抄了一份 wire→成员表** —— 那正是
+ *   「同一个合法集合被维护两遍」的典型第二真相源：spec 加一个枚举值，
+ *   generated 文件会自动更新，手抄表不会，且不会被任何 Gate 抓住。
+ *
+ * 现在由生成物直接提供，删除手抄表；此后新增枚举值只有一处需要改（spec）。
+ */
+function emitArkTSFromWire(enumName, entries) {
+  const fn = `${lowerFirst(enumName)}FromWire`
+  const L = []
+  L.push(`export function ${fn}(value: string): ${enumName} | undefined {`)
+  for (const e of entries) {
+    L.push(`  if (value === ${enumName}.${e.name}) {`)
+    L.push(`    return ${enumName}.${e.name};`)
+    L.push('  }')
+  }
+  L.push('  return undefined;')
+  L.push('}')
+  L.push('')
+  return L
+}
+
 function emitArkTS() {
   const L = []
   L.push(header('//'))
@@ -280,6 +312,7 @@ function emitArkTS() {
       })
       L.push('}')
       L.push('')
+      L.push(...emitArkTSFromWire(enumName, entries))
     }
   }
 
@@ -290,6 +323,12 @@ function emitArkTS() {
   })
   L.push('}')
   L.push('')
+  L.push(
+    ...emitArkTSFromWire(
+      'ErrorCode',
+      errors.codes.map((c) => ({ name: enumConstName(c.code), wire: c.code })),
+    ),
+  )
 
   L.push('export class DepmapContainerV1 {')
   L.push(`  static readonly FORMAT: string = ${quote(depmap.format)}`)
@@ -317,6 +356,80 @@ function emitArkTS() {
 }
 
 // ---------------------------------------------------------------------------
+// ArkTS — RelationDefinitionRegistry（从 spec/domain/domain.json 的 `relations` 生成）
+// ---------------------------------------------------------------------------
+
+/**
+ * Relation 治理定义表。
+ *
+ * 为什么要生成本文件（而不是在 `domain/Relations.ets` 里手写）：
+ *   `spec/domain/domain.json` 的 `relations` 段本身就是权威定义，
+ *   Harmony 侧此前手抄了一份 `RELATION_DEFINITIONS` —— 内容与 spec 一致但漂移无 Gate 可抓。
+ *   属第二真相源，故改为生成。
+ *
+ * 字段集合的选择（重要）：spec 里每个 relation 还带 `verificationPolicy` /
+ * `impactSemantics`，而 **Android 冻结基准（ANDROID_NATIVE_CORE_FREEZE.md）没有这两个字段**。
+ * 此处只发射 Android 冻结版那 7 个字段 —— 目的是 parity，不是超前。
+ * 两个字段的差异仍记录在审计报告中。
+ */
+function emitArkTSRelations() {
+  const L = []
+  L.push(header('//'))
+  L.push(`import { Capability, Criticality, GroupMode, NodeKind, Relation } from './CanonicalEnums';`)
+  L.push('')
+  L.push('/** single relation definition — 字段集合对齐 Android 冻结版。 */')
+  L.push('export class CanonicalRelationDefinition {')
+  L.push('  id: Relation;')
+  L.push('  fromKinds: NodeKind[];')
+  L.push('  toKinds: NodeKind[];')
+  L.push('  capability: Capability;')
+  L.push('  allowsGroup: boolean;')
+  L.push('  allowedGroupModes: GroupMode[];')
+  L.push('  defaultCriticality: Criticality;')
+  L.push('')
+  L.push('  constructor(')
+  L.push('    id: Relation,')
+  L.push('    fromKinds: NodeKind[],')
+  L.push('    toKinds: NodeKind[],')
+  L.push('    capability: Capability,')
+  L.push('    allowsGroup: boolean,')
+  L.push('    allowedGroupModes: GroupMode[],')
+  L.push('    defaultCriticality: Criticality,')
+  L.push('  ) {')
+  L.push('    this.id = id;')
+  L.push('    this.fromKinds = fromKinds;')
+  L.push('    this.toKinds = toKinds;')
+  L.push('    this.capability = capability;')
+  L.push('    this.allowsGroup = allowsGroup;')
+  L.push('    this.allowedGroupModes = allowedGroupModes;')
+  L.push('    this.defaultCriticality = defaultCriticality;')
+  L.push('  }')
+  L.push('}')
+  L.push('')
+
+  const ids = Object.keys(spec.relations)
+  L.push('/** spec.relations 的 runtime 注册表（futureRelations **不在**其中）。 */')
+  L.push('export const CANONICAL_RELATION_DEFINITIONS: CanonicalRelationDefinition[] = [')
+  ids.forEach((wire, i) => {
+    const d = spec.relations[wire]
+    const kinds = (list) => list.map((k) => `NodeKind.${enumConstName(k)}`).join(', ')
+    const modes = (d.allowedGroupModes ?? []).map((m) => `GroupMode.${enumConstName(m)}`).join(', ')
+    L.push(`  new CanonicalRelationDefinition(`)
+    L.push(`    Relation.${enumConstName(wire)},`)
+    L.push(`    [${kinds(d.fromKinds)}],`)
+    L.push(`    [${kinds(d.toKinds)}],`)
+    L.push(`    Capability.${enumConstName(d.capability)},`)
+    L.push(`    ${d.allowsGroup ? 'true' : 'false'},`)
+    L.push(`    [${modes}],`)
+    L.push(`    Criticality.${enumConstName(d.defaultCriticality)},`)
+    L.push(`  )${i === ids.length - 1 ? '' : ','}`)
+  })
+  L.push('];')
+  L.push('')
+  return L.join('\n')
+}
+
+// ---------------------------------------------------------------------------
 // 目标文件表
 // ---------------------------------------------------------------------------
 
@@ -324,6 +437,7 @@ const TARGETS = [
   { path: join(ROOT, 'android/core/src/main/kotlin/com/pdig/core/generated/CanonicalEnums.kt'), content: emitKotlin() },
   { path: join(ROOT, 'ios/Sources/PDIGCore/Generated/CanonicalEnums.swift'), content: emitSwift() },
   { path: join(ROOT, 'harmony/entry/src/main/ets/generated/CanonicalEnums.ets'), content: emitArkTS() },
+  { path: join(ROOT, 'harmony/entry/src/main/ets/generated/CanonicalRelations.ets'), content: emitArkTSRelations() },
 ]
 
 // ---------------------------------------------------------------------------

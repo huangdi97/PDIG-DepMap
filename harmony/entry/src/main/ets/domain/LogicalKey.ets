@@ -10,9 +10,8 @@
 //
 // 分层约束：只依赖 `./Entities` 与 `../generated/CanonicalEnums`。
 
-import { Capability, GroupMode, Relation } from '../generated/CanonicalEnums';
+import { Capability, capabilityFromWire, GroupMode, Relation, relationFromWire } from '../generated/CanonicalEnums';
 import { DependencyLogicalKeyParts, canonicalGroupKey, dependencyLogicalKey, groupProposalKey } from './Entities';
-import { capabilityFromWire, relationFromWire } from './CanonicalWire';
 import { getRelationDefinition } from './Relations';
 
 /**

@@ -24,9 +24,13 @@
 // 因此本文件用 `JsonText` 在文本上做**受控扫描**：
 // 结构扫描（数组切分、对象窗口、字段定位）是通用的；
 // 值装载（`parseDependencyObjects` 等）是**类型化**的 ——
-// 它每读一个字段都经过 CanonicalWire 的 wire→enum 转换，
+// 它每读一个字段都经过 generated 的 wire→enum 转换（`<Enum>FromWire`，
+// 由 tools/codegen/generate.mjs 与 Kotlin / Swift 同源产出），
 // 未知取值返回 undefined 并立即失败，不猜、不兜底。
 // 这与"通用 JSON 解析"有本质区别：后者会静默接受任何输入。
+//
+// 唯一例外是 jcs 用例：它测的正是"任意 JSON 值树 → JCS 字节"，
+// 由 `JcsParser`（crypto/Jcs 内）按受限值域解析，越界即抛。详见 runJcs。
 //
 // 依赖约束：**本模块不得 import 任何 @ohos.* / ArkUI / Ability 模块。**
 //
@@ -40,16 +44,6 @@
 // fixture 文本一律经 ConformanceTextSource 注入，本模块不碰任何 IO。
 
 import {
-  nodeKindFromWire,
-  relationFromWire,
-  capabilityFromWire,
-  criticalityFromWire,
-  dependencyStateFromWire,
-  dependencyOriginFromWire,
-  groupModeFromWire,
-  groupStateFromWire,
-} from '../domain/CanonicalWire';
-import {
   Capability,
   ChangePlanWorkflowState,
   DriftStatus,
@@ -58,6 +52,16 @@ import {
   DependencyState,
   PlanActionPhase,
   SourceInstanceState,
+  changePlanWorkflowStateFromWire,
+  groupModeFromWire,
+  groupStateFromWire,
+  planActionPhaseFromWire,
+  capabilityFromWire,
+  criticalityFromWire,
+  dependencyOriginFromWire,
+  dependencyStateFromWire,
+  nodeKindFromWire,
+  relationFromWire,
 } from '../generated/CanonicalEnums';
 import {
   Dependency,
@@ -137,6 +141,17 @@ import {
   sortTimelineKeys,
 } from '../domain/Timeline';
 import { JsonText, compactJson } from './JsonText';
+import { JcsError, jcsEscapeString, jcsParse, jcsStringify } from '../crypto/Jcs';
+import { decodeBase64, DepmapError, parseDepmapHeader, validateDepmapBounds } from '../crypto/DepmapBounds';
+import {
+  GenericCsvParser,
+  MappingProfile,
+  Observation,
+  OfxParser,
+  ParseError,
+  ParseResult,
+  WechatParser,
+} from '../sources/Parsers';
 
 /* ==========================================================================
  * 结果类型
@@ -166,6 +181,10 @@ export class ConformanceReport {
   failed: string[] = [];
   /** 未实现（fixture 存在但本平台无实现）的用例 id 列表。 */
   notImplemented: string[] = [];
+  /** 纯逻辑尚未移植、**不需要**设备即可判定的用例（本轮要求清零的账）。 */
+  hostImplMissing: string[] = [];
+  /** 需要 GB18030 等主机执行面缺失能力的用例。 */
+  blockedByEnvironment: string[] = [];
   /** 需要设备运行时能力、当前无法判定的用例 id 列表（**不计入 pass**）。 */
   blockedByRuntime: string[] = [];
   /** 因环境缺失而完全未执行的用例 id 列表。 */
@@ -184,47 +203,94 @@ export class ConformanceReport {
  * 混为一谈会让 91 这个分母失去意义。
  * ========================================================================== */
 
-/**
- * 需要 Argon2 native 执行或 relationalStore 才能判定的用例。
+/* ==========================================================================
+ * 未执行用例的分担表
  *
- * 逐类理由（不是笼统的"依赖运行时"）：
- *   - parser(22)：需要 `TextDecoder('gb18030')` 与文件字节读取，
- *     且 ArkTS 侧 adapter 尚未移植 —— 属**未实现**，需运行环境才能验证；
- *   - depmap(3)：3 个用例的 expected 全部含 `derivedKeyHex` / `ciphertextBase64`
- *     / `tagBase64`，必须真实执行 Argon2id + AES-256-GCM；
- *   - jcs(1)：expected 含 `rejections.float = "Error"`，
- *     需要有真实的异常类型名，且 9 个 canonical 用例走 JCS 内核；
- *   - backup(1)：需要 DB 导出/恢复往返 + 加密容器；
- *   - migration-db-v1-to-v3(1)：需要 relationalStore 与 v1 schema 种子数据。
- */
-const RUNTIME_DEPENDENT_CATEGORIES: string[] = ['parser', 'depmap', 'jcs', 'backup'];
+ * 这张表是"诚实计数"的核心：它把 3 种**性质不同**的未执行区分开 ——
+ *   HOST_IMPLEMENTATION_MISSING  纯逻辑尚未移植，**不需要**任何 Harmony runtime
+ *   BLOCKED_BY_ENVIRONMENT       逻辑可行，但缺主机执行面给不了的能力（字符集转换）
+ *   BLOCKED_BY_RUNTIME           必须真实设备/KDF 才能判定
+ *
+ * 三者混为一谈会让 91 这个分母失去意义：把"没写"记成"设备才能测"，
+ * 等于把没做的事伪装成外部阻塞。**逐 case 列出**，而不是按类一刀切 ——
+ * 详细论证见 `HARMONY_REMAINING_6_AUDIT.md`。
+ * ========================================================================== */
 
 /**
- * 精确到**用例级**的 runtime 依赖。
+ * 纯逻辑未移植（**当前为空**）。
  *
- * 为什么不按整类扔进 BLOCKED：`migration` 类里
- *   - `migration-version-contract` 是纯静态的版本契约断言，**能跑**；
- *   - `migration-db-v1-to-v3` 需要真实 DB 迁移，**跑不了**。
- * 按类一刀切会把一个可执行用例从分母里抹掉 —— 那是隐性降级门禁。
+ * 上一版这里是 20 条 parser 用例。它们的输入文件经实测全部是合法 UTF-8，
+ * 解析逻辑（CSV 词法 + 日期/金额 + OFX SGML 扫描 + 微信账单列规则）零平台 API，
+ * 缺的只是 ArkTS 侧 adapter —— 那是"没写"，不是"只有设备才测得"。
+ * 本轮移植 `sources/Parsers.ets` 后清零。
+ *
+ * 保留这个空清单而不是删掉整个分支：它的存在让"HOST_IMPLEMENTATION_MISSING
+ * 必须有逐条 caseId 证据"这件事继续成立，下次有人再往回塞一条时得写清理由。
  */
-const RUNTIME_DEPENDENT_CASE_IDS: string[] = ['migration-db-v1-to-v3'];
+const HOST_IMPL_MISSING_CASES: string[] = [];
 
-function isRuntimeDependent(category: string, caseId: string): boolean {
-  for (let i = 0; i < RUNTIME_DEPENDENT_CASES.length; i++) {
-    if (RUNTIME_DEPENDENT_CASES[i] === caseId) {
-      return true;
+/**
+ * 环境缺失（当前数量 2）：需要 GB18030 → UTF-16 字符集转换。
+ *
+ * 这两个文件的字节**不是合法 UTF-8**（实测），必须先做 GB18030 解码；
+ * 主机执行面无 `util.TextDecoder` 实现，自造一张 GB18030 码表既无必要也无从验证。
+ * 设备上解码成立后才可在这个 runner 跑。
+ */
+const ENV_BLOCKED_CASES: string[] = [
+  'parser-csv-gb18030',
+  'parser-wechat-gb18030',
+];
+
+/**
+ * 需要真实设备能力（当前数量 4）。
+ *
+ * 逐条理由（不是笼统的"依赖运行时"）：
+ *   - depmap-golden-v1 / depmap-utf8-password-normalization：
+ *     expected 含 `derivedKeyHex` / `ciphertextBase64` / `tagBase64`，
+ *     必须真实执行 Argon2id（NAPI 原生 .so）+ AES-256-GCM。主机的本地单元测试
+ *     无法加载 OHOS ABI 的 native 库，这两条在主机面**原理上**不可执行。
+ *   - backup-depmap-export-restore-roundtrip：图 payload 导出 → 加密容器 →
+ *     恢复到新库 → 二次导出逐字节相同，需要 ArkData 真实 DB + 加密 + 往返。
+ *   - migration-db-v1-to-v3：需要 relationalStore 与 v1 schema 种子数据。
+ */
+const RUNTIME_BLOCKED_CASES: string[] = [
+  'depmap-golden-v1',
+  'depmap-utf8-password-normalization',
+  'backup-depmap-export-restore-roundtrip',
+  'migration-db-v1-to-v3',
+];
+
+/**
+ * 按类一刀切的旧写法已废弃。
+ *
+ * 为什么不再用 `RUNTIME_DEPENDENT_CATEGORIES = ['parser','depmap','jcs','backup']`：
+ * 它会把 `depmap-bounds-and-structure-rejection`（协议明确规定「边界校验必须发生在
+ * KDF 之前」，因此**不需要** KDF）和 `jcs-*`（纯 JCS 内核）从分母里抹掉 ——
+ * 那是隐性降级门禁。现在两个 case 已作为真实执行用例入账。
+ */
+export type CaseExecutionClass = 'EXECUTABLE' | 'IMPL_MISSING' | 'ENV' | 'RUNTIME';
+
+function indexOfString(list: string[], value: string): number {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i] === value) {
+      return i;
     }
   }
-  for (let i = 0; i < RUNTIME_DEPENDENT_CATEGORIES.length; i++) {
-    if (RUNTIME_DEPENDENT_CATEGORIES[i] === category) {
-      return true;
-    }
-  }
-  return false;
+  return -1;
 }
 
-// 显式列出而非直接内联到 isRuntimeDependent：便于在报告里逐条引用。
-const RUNTIME_DEPENDENT_CASES: string[] = RUNTIME_DEPENDENT_CASE_IDS;
+export function caseExecutionClass(caseId: string): CaseExecutionClass {
+  if (indexOfString(HOST_IMPL_MISSING_CASES, caseId) >= 0) {
+    return 'IMPL_MISSING';
+  }
+  if (indexOfString(ENV_BLOCKED_CASES, caseId) >= 0) {
+    return 'ENV';
+  }
+  if (indexOfString(RUNTIME_BLOCKED_CASES, caseId) >= 0) {
+    return 'RUNTIME';
+  }
+  return 'EXECUTABLE';
+}
 
 /* ==========================================================================
  * 运行时依赖的注入点
@@ -259,6 +325,15 @@ export interface ConformanceTextSource {
   readManifest(): string;
   /** 相对仓库根的 fixture 路径（形如 fixtures/impact/xxx.json）。 */
   readFixture(relPath: string): string;
+  /**
+   * 被解析的原始账单文件，**以 Base64 文本形式**返回其字节。
+   *
+   * 为什么传字节而不是字符串：parser 用例的语义包含"字节 → 文本"这一步
+   * （UTF-8 BOM、严格 UTF-8 失败回退）。若在读取侧先 decode 成字符串再交给 runner，
+   * 这一步就被移出被测代码，编码相关缺陷将永远测不到 —— 与 conformance 的目的相悖。
+   * 读不到返回空串（与 readFixture 同契约：空串 = 环境缺失，不是实现缺陷）。
+   */
+  readImportFileBase64(relPath: string): string;
   /** 这一轮文本从哪来，写进报告以便区分执行面。 */
   describe(): string;
 }
@@ -307,9 +382,24 @@ export function runConformanceWith(env: RunnerEnv, source: ConformanceTextSource
     outcome.caseId = id;
     outcome.category = category;
 
-    if (isRuntimeDependent(category, id)) {
+    const klass: CaseExecutionClass = caseExecutionClass(id);
+    if (klass === 'IMPL_MISSING') {
+      outcome.status = 'HOST_IMPLEMENTATION_MISSING';
+      outcome.detail = 'pure logic not ported to ArkTS yet; no Harmony runtime required';
+      report.hostImplMissing.push(id);
+      report.outcomes.push(outcome);
+      continue;
+    }
+    if (klass === 'ENV') {
+      outcome.status = 'BLOCKED_BY_ENVIRONMENT';
+      outcome.detail = 'requires GB18030 charset decode; unavailable on the host test surface';
+      report.blockedByEnvironment.push(id);
+      report.outcomes.push(outcome);
+      continue;
+    }
+    if (klass === 'RUNTIME') {
       outcome.status = 'BLOCKED_BY_RUNTIME';
-      outcome.detail = 'requires on-device Argon2 / relationalStore; no runtime in this run';
+      outcome.detail = 'requires on-device Argon2id/ArkData; no runtime in this run';
       report.blockedByRuntime.push(id);
       report.outcomes.push(outcome);
       continue;
@@ -327,7 +417,7 @@ export function runConformanceWith(env: RunnerEnv, source: ConformanceTextSource
 
     let actual = '';
     try {
-      actual = computeCase(category, id, fixtureText);
+      actual = computeCase(category, id, fixtureText, source);
     } catch (e) {
       outcome.status = 'FAIL';
       outcome.detail = 'runner error: ' + errorText(e);
@@ -433,57 +523,32 @@ function isWs(ch: string): boolean {
 }
 
 /**
- * `ChangePlanWorkflowState` 的 wire 解析。
+ * `ChangePlanWorkflowState` 的 wire 解析 —— 合法集合**不在这里**。
  *
- * 为什么不放在 `domain/CanonicalWire.ets`：那个模块是**手写的 domain 辅助**，
- * 遵循一条明确的分工 —— 只为「DB / wire 边界」上的枚举提供解析。
- * workflowState 与 actionPhase 只出现在 conformance fixture 与 UI 输入里，
- * 不属于 DB 读取路径，因此按同一纪律留在使用它的地方，
- * 而不是把 domain 模块扩成一个"什么 wire 都懂的"杂物间。
+ * 这里曾经逐成员枚举一遍 `=== ChangePlanWorkflowState.X`，与 generated enum
+ * 构成两份真相：spec 新增一个状态时必须改两处，漏改不会被任何 Gate 抓住。
+ * 2026-09-18 由 `changePlanWorkflowStateFromWire`（generated，与 Kotlin/Swift 同源）
+ * 取代；本函数只负责把「未命中」升级为 fail-closed 抛错。
  *
- * 解析失败一律抛错（fail-closed）：一个不在词表里的状态说明 fixture 或数据已损坏，
- * 此时继续往下跑会把损坏状态带进状态机判定，比立刻停下更危险。
+ * 为什么仍然 fail-closed 而不是返回默认值：workflowState 与 actionPhase 只出现在
+ * conformance fixture 与 UI 输入里，一个不在词表里的状态说明 fixture 或数据已损坏，
+ * 继续往下跑会把损坏状态带进状态机判定，比立刻停下更危险。
  */
 function workflowStateFromWire(value: string): ChangePlanWorkflowState {
-  if (value === ChangePlanWorkflowState.DRAFT) {
-    return ChangePlanWorkflowState.DRAFT;
+  const parsed: ChangePlanWorkflowState | undefined = changePlanWorkflowStateFromWire(value);
+  if (parsed === undefined) {
+    throw new Error(`unknown workflowState wire value: ${value}`);
   }
-  if (value === ChangePlanWorkflowState.ANALYZED) {
-    return ChangePlanWorkflowState.ANALYZED;
-  }
-  if (value === ChangePlanWorkflowState.REVIEW_REQUIRED) {
-    return ChangePlanWorkflowState.REVIEW_REQUIRED;
-  }
-  if (value === ChangePlanWorkflowState.READY) {
-    return ChangePlanWorkflowState.READY;
-  }
-  if (value === ChangePlanWorkflowState.IN_PROGRESS) {
-    return ChangePlanWorkflowState.IN_PROGRESS;
-  }
-  if (value === ChangePlanWorkflowState.VERIFYING) {
-    return ChangePlanWorkflowState.VERIFYING;
-  }
-  if (value === ChangePlanWorkflowState.COMPLETED) {
-    return ChangePlanWorkflowState.COMPLETED;
-  }
-  if (value === ChangePlanWorkflowState.CANCELLED) {
-    return ChangePlanWorkflowState.CANCELLED;
-  }
-  throw new Error(`unknown workflowState wire value: ${value}`);
+  return parsed;
 }
 
-/** `PlanActionPhase` 的 wire 解析；失败抛错，理由同 `workflowStateFromWire`。 */
+/** `PlanActionPhase` 的 wire 解析；合法集合同样来自 generated，理由同上。 */
 function actionPhaseFromWire(value: string): PlanActionPhase {
-  if (value === PlanActionPhase.PREPARE) {
-    return PlanActionPhase.PREPARE;
+  const parsed: PlanActionPhase | undefined = planActionPhaseFromWire(value);
+  if (parsed === undefined) {
+    throw new Error(`unknown action phase wire value: ${value}`);
   }
-  if (value === PlanActionPhase.CHANGE) {
-    return PlanActionPhase.CHANGE;
-  }
-  if (value === PlanActionPhase.VERIFY) {
-    return PlanActionPhase.VERIFY;
-  }
-  throw new Error(`unknown action phase wire value: ${value}`);
+  return parsed;
 }
 
 function errorText(e: Error): string {
@@ -505,7 +570,30 @@ function errorText(e: Error): string {
  * 抛错表示"实现存在但崩了"→ 调用方记 FAIL。
  * 这两种情形必须可区分：把崩溃记成"未实现"会让缺陷被永久掩盖。
  */
-export function computeCase(category: string, caseId: string, fixtureText: string): string {
+class EmptyTextSource implements ConformanceTextSource {
+  readManifest(): string {
+    return '';
+  }
+  readFixture(relPath: string): string {
+    return '';
+  }
+  readImportFileBase64(relPath: string): string {
+    return '';
+  }
+  describe(): string {
+    return 'empty';
+  }
+}
+
+/** 默认文本源：任何读取都返回空串（调用方不关心文件字节时使用）。 */
+const EMPTY_SOURCE: ConformanceTextSource = new EmptyTextSource();
+
+export function computeCase(
+  category: string,
+  caseId: string,
+  fixtureText: string,
+  source: ConformanceTextSource = EMPTY_SOURCE,
+): string {
   const jt = new JsonText();
   jt.setSource(fixtureText);
 
@@ -533,7 +621,266 @@ export function computeCase(category: string, caseId: string, fixtureText: strin
   if (category === 'migration') {
     return runMigrationContract(jt);
   }
+  if (category === 'jcs') {
+    return runJcs(jt);
+  }
+  if (category === 'depmap') {
+    // 只有结构/边界用例进到这里 —— 需要 KDF 的两条在 RUNTIME_BLOCKED_CASES 里。
+    return runDepmapBounds(jt);
+  }
+  if (category === 'parser') {
+    return runParser(jt, source);
+  }
   return '';
+}
+
+/* ==========================================================================
+ * parser（22 用例中的 20 条）—— 移植自 sources/Parsers.kt，零平台依赖
+ *
+ * 两条 GB18030 用例不在这里跑：它们的字节不是合法 UTF-8，需要字符集解码器，
+ * 主机执行面没有（见 ENV_BLOCKED_CASES）。一旦解码器就绪，
+ * 把这两条从 ENV_BLOCKED_CASES 里移除即可，本函数无需改动。
+ * ========================================================================== */
+
+function runParser(jt: JsonText, source: ConformanceTextSource): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  let adapterId: string;
+  let fileName: string;
+  let mapping: MappingProfile | null;
+  try {
+    adapterId = jt.requireString('adapterId');
+    fileName = jt.requireString('file');
+    mapping = parseMappingProfile(jt);
+  } finally {
+    jt.resetWindow();
+  }
+
+  const b64: string = source.readImportFileBase64('fixtures/import/' + fileName);
+  if (b64.length === 0) {
+    return '';
+  }
+  const bytes: Uint8Array = decodeBase64(b64);
+
+  let result: ParseResult;
+  if (adapterId === 'wechat') {
+    result = WechatParser.parse(bytes);
+  } else if (adapterId === 'ofx_qfx') {
+    result = OfxParser.parse(bytes);
+  } else if (adapterId === 'generic_csv') {
+    result = GenericCsvParser.parse(bytes, mapping);
+  } else {
+    throw new Error('unknown adapter: ' + adapterId);
+  }
+
+  const obs: string[] = [];
+  for (let i = 0; i < result.observations.length; i++) {
+    const o: Observation = result.observations[i];
+    obs.push(
+      '{"occurredAt":' + jsonEscape(o.occurredAt) +
+      ',"amount":' + jsNumberText(o.amount) +
+      ',"currency":' + jsonEscape(o.currency) +
+      ',"direction":' + jsonEscape(o.direction) +
+      ',"merchantRaw":' + jsonEscape(o.merchantRaw) +
+      ',"status":' + jsonEscape(o.status) + '}',
+    );
+  }
+  const errs: string[] = [];
+  for (let i = 0; i < result.errors.length; i++) {
+    const e: ParseError = result.errors[i];
+    errs.push('{"line":' + e.line + ',"reason":' + jsonEscape(e.reason) + '}');
+  }
+  return '{"observationCount":' + result.observations.length +
+    ',"observations":[' + obs.join(',') + ']' +
+    ',"errorCount":' + result.errors.length +
+    ',"errors":[' + errs.join(',') + ']}';
+}
+
+/**
+ * JS `JSON.stringify(number)` 等价：整数不输出小数点，否则输出最短往返表示。
+ * 与 Android `num()` 同语义 —— 这一处若不一致，25 会变成 25.0，逐字节比对立刻失败。
+ */
+function jsNumberText(d: number): string {
+  if (Math.floor(d) === d && Math.abs(d) < 1e15) {
+    return '' + Math.round(d);
+  }
+  return '' + d;
+}
+
+/** 解析显式字段映射；没有 mapping 字段（wechat / ofx_qfx）时返回 null。 */
+function parseMappingProfile(jt: JsonText): MappingProfile | null {
+  const mi = jt.findField('mapping');
+  if (mi < 0 || jt.getSource().charAt(mi) !== '{') {
+    return null;
+  }
+  const mClose = jt.matchBracket(mi);
+  jt.setWindow(mi, mClose);
+  try {
+    const profile: MappingProfile = new MappingProfile();
+    const ci = jt.findField('columns');
+    if (ci >= 0 && jt.getSource().charAt(ci) === '{') {
+      const cClose = jt.matchBracket(ci);
+      jt.setWindow(ci, cClose);
+      profile.columns.transactionId = jt.optionalString('transactionId');
+      profile.columns.dateTime = jt.requireString('dateTime');
+      profile.columns.amount = jt.optionalString('amount');
+      profile.columns.debit = jt.optionalString('debit');
+      profile.columns.credit = jt.optionalString('credit');
+      profile.columns.description = jt.optionalString('description');
+      profile.columns.counterparty = jt.optionalString('counterparty');
+      profile.columns.currency = jt.optionalString('currency');
+      profile.columns.balance = jt.optionalString('balance');
+      profile.columns.transactionType = jt.optionalString('transactionType');
+      profile.columns.paymentMethod = jt.optionalString('paymentMethod');
+      jt.resetWindow();
+      jt.setWindow(mi, mClose);
+    }
+    const oi = jt.findField('options');
+    if (oi >= 0 && jt.getSource().charAt(oi) === '{') {
+      const oClose = jt.matchBracket(oi);
+      jt.setWindow(oi, oClose);
+      profile.options.delimiter = jt.optionalStringOr('delimiter', ',');
+      profile.options.dateFormats = jt.requireStringArray('dateFormats');
+      profile.options.decimalSeparator = jt.optionalStringOr('decimalSeparator', '.');
+      profile.options.amountSignMode = jt.optionalStringOr('amountSignMode', 'outward_positive');
+      profile.options.hasHeaderRow = jt.optionalBoolOr('hasHeaderRow', true);
+      profile.options.encoding = jt.optionalStringOr('encoding', 'utf-8');
+      profile.options.positiveDirection = jt.optionalString('positiveDirection');
+      jt.resetWindow();
+      jt.setWindow(mi, mClose);
+    }
+    return profile;
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+/* ==========================================================================
+ * jcs（1 用例）—— 调用 crypto/Jcs 的受限值域序列化 + 文本→值树解析器
+ *
+ * 这一条过去被整类归入 BLOCKED_BY_RUNTIME，但它其实**不需要任何运行时能力**：
+ * JCS 是纯字节规范化。真正的缺口是 ArkTS 侧没有"JSON 文本 → JCS 值树"的入口
+ * （Object.keys 不可用、`JSON.parse` 结果无法枚举键），现已由 `jcsParse` 补上。
+ * ========================================================================== */
+
+function runJcs(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const canonical: string = jcsSection(jt, 'cases', inputIdx, close, false);
+    const rejections: string = jcsSection(jt, 'rejectCases', inputIdx, close, true);
+    return '{"canonical":' + canonical + ',"rejections":' + rejections + '}';
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+/**
+ * 逐个 case 求值并拼成 `{ "<id>": "<串>" }`。
+ *
+ * `rejectMode` 下把 JcsError 归一为 `"Error"`，**其它异常必须向上抛** ——
+ * 若把解析器崩了也算作预期的 "Error"，这个用例就退化成"永不失败"。
+ */
+function jcsSection(
+  jt: JsonText,
+  name: string,
+  outerStart: number,
+  outerStop: number,
+  rejectMode: boolean,
+): string {
+  const ai = jt.findField(name);
+  if (ai < 0 || jt.getSource().charAt(ai) !== '[') {
+    return '{}';
+  }
+  const pairs = jt.splitTopLevelElements(ai);
+  const parts: string[] = [];
+  for (let p = 0; p + 1 < pairs.length; p += 2) {
+    jt.setWindow(pairs[p], pairs[p + 1]);
+    const caseId: string = jt.requireString('id');
+    const vi = jt.findField('input');
+    let valueJson = '{}';
+    if (vi >= 0) {
+      const c: string = jt.getSource().charAt(vi);
+      if (c === '{' || c === '[') {
+        const vc: number = jt.matchBracket(vi);
+        valueJson = jt.getSource().substring(vi, vc + 1);
+      }
+    }
+    let outcome = '';
+    if (rejectMode) {
+      try {
+        jcsStringify(jcsParse(valueJson));
+        outcome = 'serialized';
+      } catch (e) {
+        if (e instanceof JcsError) {
+          outcome = 'Error';
+        } else {
+          throw new Error('jcs: unexpected non-JcsError failure: ' + errorText(e));
+        }
+      }
+    } else {
+      outcome = jcsStringify(jcsParse(valueJson));
+    }
+    parts.push(jcsEscapeString(caseId) + ':' + jcsEscapeString(outcome));
+    jt.resetWindow();
+    jt.setWindow(outerStart, outerStop);
+  }
+  return '{' + parts.join(',') + '}';
+}
+
+/* ==========================================================================
+ * depmap 结构/边界（1 用例）—— 调用 crypto/DepmapBounds（纯 ArkTS）
+ *
+ * fixture 自己就把意图写明了：「解析 → 结构 → 边界 全部在 KDF 之前完成」。
+ * 也就是说这条用例**按协议设计**就不该触发 KDF —— 过去把它和需要 Argon2id 的
+ * 两条一起丢进 BLOCKED，是把"没做 extracted 分层"误记成了"没有设备"。
+ * 分层抽出后它在主机执行面可以直接跑。
+ * ========================================================================== */
+
+function runDepmapBounds(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const mi = jt.findField('mutations');
+    if (mi < 0 || jt.getSource().charAt(mi) !== '[') {
+      return '';
+    }
+    const pairs = jt.splitTopLevelElements(mi);
+    const parts: string[] = [];
+    for (let p = 0; p + 1 < pairs.length; p += 2) {
+      jt.setWindow(pairs[p], pairs[p + 1]);
+      const mutationId: string = jt.requireString('id');
+      const json: string = jt.requireString('json');
+      let kind = 'accepted';
+      try {
+        validateDepmapBounds(parseDepmapHeader(json));
+      } catch (e) {
+        if (e instanceof DepmapError) {
+          kind = e.code;
+        } else {
+          throw new Error('depmap bounds: unexpected non-DepmapError failure: ' + errorText(e));
+        }
+      }
+      parts.push(jcsEscapeString(mutationId) + ':' + jcsEscapeString(kind));
+      jt.resetWindow();
+      jt.setWindow(inputIdx, close);
+    }
+    return '{' + parts.join(',') + '}';
+  } finally {
+    jt.resetWindow();
+  }
 }
 
 /* ==========================================================================
