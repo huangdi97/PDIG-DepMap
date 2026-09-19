@@ -988,3 +988,141 @@ Base64 末尾 2 个有效字符 + `==` 仍编码 1 个真实字节，3 个有效
 不主张 Harmony 已 91/91；不主张 4 条 `BLOCKED_BY_RUNTIME` 与 2 条
 `BLOCKED_BY_ENVIRONMENT` 有任何一条被验证 —— 它们**一次都没执行过**。
 `HARMONY_HOST_PASS=85/91` 是分子，分母仍是 91。
+
+---
+
+## 本轮：REMOTE FRESH CLONE REPRODUCTION + main 集成（2026-09-19）
+
+上一轮工作区发生过 Git 对象库损坏（见 `GIT_OPS_INCIDENT_AND_RULES.md`），
+因此本轮不信任旧工作区，改为**从远端全新 clone 复现全部证据**后推进 main。
+旧工作区自此只作为参考，未再执行 rebase / gc / prune / reset --hard / clean -fd / force push。
+
+### 1. Fresh clone 与 git 完整性
+
+| 项 | 值 |
+| --- | --- |
+| clone 目录 | `C:/Users/Kaiser/pdig-fresh-clone`（ASCII-only，全新，无旧 `.git` / objects / index 复用） |
+| checkout | `feat/mvp03-living-graph` |
+| `git rev-parse HEAD` | `c8ad43f29270251475e6aca489d508f69d2dde75` ✓ |
+| `git status --short` | 空 ✓ |
+| `git fsck --full` | exit 0，无任何输出 ✓ → **FRESH_CLONE_GIT_FSCK = PASS** |
+
+### 2. Portable gates（在 fresh clone 内实跑）
+
+| gate | 结果 |
+| --- | --- |
+| `tools/codegen/generate.mjs --check` | **PASS**（4 个 generated 文件一致） |
+| fixture integrity | **91/91** + imports **28/28** |
+| oracle selfcheck | **PASS**（91 cases reproduce exactly） |
+| `embed-import-files.mjs --check` | **PASS 28/28** |
+| `embed-fixtures.mjs --check` | **PASS**（91 fixtures 无漂移） |
+| Android `:core:test + :conformance:run` | **pass=91 fail=0 notImplemented=0 total=91** |
+
+→ **FRESH_CLONE_PORTABLE_GATES = PASS**
+
+### 3. Harmony 本机工具链独立复验
+
+全新构建根 `C:/Users/Kaiser/pdig-fresh-build`（不复用旧镜像、旧 `modules.abc`、
+旧 HAP、旧日志），源码来自 fresh clone：
+
+```
+[conformance-host] 执行面 : hvigor 本地单元测试（ArkTS，无设备）
+[conformance-host] 用例   : 89 条（含 3 条元测试）
+[conformance-host] 汇总   : run=89 pass=89 fail=0 error=0
+[ canonical ] HARMONY_HOST_EXECUTED = 85   (fail=0)
+[ canonical ] HARMONY_HOST_IMPL_MISSING = 0 / ENV_BLOCKED = 2 / DEVICE_BLOCKED = 4
+HARMONY_CONFORMANCE_HOST=PASS
+```
+
+结构仍为 **85 canonical + 3 meta + 1 domain selfcheck = 89**
+→ **FRESH_CLONE_HARMONY_HOST = PASS 89/89**
+
+### 4. Compile Reachability 独立复验（全新 clean build）
+
+- 28 个 ets 模块，28 个从 `entryability/EntryAbility.ets` / `pages/Index.ets` 可达（A）
+- `--clean assembleHap` 真实重建成功（B）
+- `modules.abc` = 356496 bytes，26 个必需模块符号全部在列（C）
+- 负向 probe：向目标文件注入类型错误后 clean build 确实在 CompileArkTS 失败（D）
+- **额外定向验证本轮新增模块**：`--probe-module Parsers` / `Utf8` / `ConformanceRunner`
+  三者均 PASS —— 新模块不是"碰巧在 abc 里"，而是真在编译图里
+
+→ **FRESH_CLONE_COMPILE_REACHABILITY = PASS**
+
+### 5. 新增模块与依赖洁净性
+
+fresh clone 中存在且可达：`sources/Parsers.ets`、`sources/Utf8.ets`、
+`generated/CanonicalRelations.ets`（`CANONICAL_RELATION_DEFINITIONS`，即 relation mapping）、
+`generated/CanonicalEnums.ets`、`crypto/Jcs.ets`、`crypto/DepmapBounds.ets`、
+`crypto/DepmapContainerV1.ets`、`conformance/ConformanceRunner.ets`，
+以及本轮 tooling `tools/conformance/embed-import-files.mjs`。
+
+- `.workbuddy/`：**未被 git 跟踪**（`git ls-files | grep -c '^\.workbuddy/'` = 0），
+  fresh clone 内不存在该目录。
+- `local_private/`：仅被两个**文档注释/可选只读脚本**提及，正式源码与门禁零引用。
+- 未跟踪文件：fresh clone `git status` 为空，不存在"靠本地未跟踪文件才能跑"的情况。
+- 注：`domain/RelationRegistry.ets` 在门禁里 `required: false` → **NOT_IMPLEMENTED**，
+  不是本轮交付物；本轮的 relation registry 是 generated 的
+  `CANONICAL_RELATION_DEFINITIONS`。
+
+### 6. Fresh Clone Gate 结论
+
+```
+FRESH_CLONE_GIT_FSCK              = PASS
+FRESH_CLONE_PORTABLE_GATES        = PASS
+FRESH_CLONE_HARMONY_HOST          = PASS 89/89
+FRESH_CLONE_COMPILE_REACHABILITY  = PASS
+→ MAIN_INTEGRATION_GATE           = PASS
+```
+
+### 7. main 集成（fast-forward，无 force）
+
+- `git merge-base --is-ancestor origin/main origin/feat/mvp03-living-graph` → **exit 0**
+- `git merge --ff-only origin/feat/mvp03-living-graph`（在 fresh clone 内执行）
+- `git push origin main` → `f6b4e01..c8ad43f`，**fast-forward**
+- 远端确认 `origin/main = c8ad43f29270251475e6aca489d508f69d2dde75` ✓
+
+### 8. main 上重新运行远端 CI
+
+run **35415381696**（head `c8ad43f2`，手工 `workflow_dispatch` 触发）：
+
+| job | 结论 |
+| --- | --- |
+| Android core (JVM tests + conformance) | success（91/91） |
+| Harmony static (no SDK, no device) | success |
+| Canonical (codegen / fixtures / oracle) | success |
+
+`SUMMARY.json`：codegen PASS / fixtureIntegrity PASS（91+28）/ oracleSelfcheck PASS /
+android PASS 91/0/91 / harmony **NOT_RUN** / ios NOT_RUN / verdict PASS。
+
+### 9. CI 口径（永久分离，四条独立账）
+
+```
+GITHUB_PORTABLE_CI                  = PASS
+HARMONY_HOST_CONFORMANCE_LOCAL      = PASS 89/89      (canonical 85/91)
+HARMONY_COMPILE_REACHABILITY_LOCAL  = PASS            (A/B/C/D)
+HARMONY_GITHUB_HOSTED_NATIVE_BUILD  = NOT_AVAILABLE
+HARMONY_DEVICE_RUNTIME              = NOT_RUN
+```
+
+禁止把 `GITHUB_PORTABLE_CI = PASS` 写成「Harmony native verification PASS」；
+也禁止因 hosted runner 无 DevEco 而永久阻止 main 集成。
+同样口径已写入 `.github/workflows/ci.yml` 头部与 `GIT_OPS_INCIDENT_AND_RULES.md` §4。
+
+### 10. workflow 触发修正
+
+`on: push: branches: ["**"]` 在本仓库**从未触发过一次**运行 ——
+历史 14 条运行全是 `workflow_dispatch`，包括多次真实 push。
+已改为显式列举 `push: [main, feat/mvp03-living-graph]` + `pull_request: [main]`，
+并要求此后**用 API 核对确实出现 `event=push` 的运行**。
+
+### 11. Final Status（本轮之后唯一可写的口径）
+
+```
+HARMONY_CONFORMANCE_HOST = PASS
+canonical  = 85 / 91 executed
+host suite = 89 / 89 PASS   (85 canonical + 3 meta + 1 domain selfcheck)
+remaining  = 6              (2 = environment missing, 4 = device/runtime required)
+```
+
+不得写：`HARMONY_CONFORMANCE = 91/91`；不得写：`N3_HARMONY_FULL_PARITY = PASS`。
+Harmony 尚未完成 Runtime Closure —— 下一阶段才是 **HARMONY RUNTIME / REMAINING-6 CLOSURE**。

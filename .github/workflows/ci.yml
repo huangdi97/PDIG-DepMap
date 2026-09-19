@@ -1,10 +1,21 @@
 name: CI
 
+# 触发分支改为**显式列举**，不再用 `branches: ["**"]`。
+#
+# 实测（2026-09-19）：`["**"]` 在本仓库从未触发过一次 push 运行 ——
+# `gh api .../actions/runs` 的全部 14 条运行**全部**是 workflow_dispatch，
+# 包括对 main 与 feat/mvp03-living-graph 的多次真实 push。
+# 「看起来配了自动验证、实际一次没跑」是比没配更危险的状态：
+# 它会让人以为 push 已被守住。这里改成本轮实际使用的两个分支 + PR 到 main，
+# 并在每次改动后**用 API 核对确实产生了 event=push 的运行**（见 GIT_OPS_INCIDENT_AND_RULES.md）。
 on:
   push:
-    branches: ["**"]
+    branches:
+      - main
+      - feat/mvp03-living-graph
   pull_request:
-    branches: ["**"]
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -48,6 +59,30 @@ permissions:
 #
 #   :app:assembleDebug = 本轮不纳入 CI
 #     未经 hosted runner 验证，不放入必过门禁；验证通过后再加入。
+#
+# ---------------------------------------------------------------------------
+# 状态口径（永久，见 GIT_OPS_INCIDENT_AND_RULES.md §CI 口径）
+# ---------------------------------------------------------------------------
+# 以下四者是**四条独立的账**，任何报告都不得互相替代：
+#
+#   GITHUB_PORTABLE_CI                  = PASS
+#     本 workflow 的全部 job 结论（codegen / fixture integrity / oracle
+#     selfcheck / import embed / Android conformance / harmony-static）。
+#
+#   HARMONY_HOST_CONFORMANCE_LOCAL      = PASS 89/89
+#     本机 DevEco hvigor 实跑的 ArkTS 本地单元测试。
+#     canonical 85/91 已执行（+3 元测试 +1 域自检 = 89）。
+#
+#   HARMONY_COMPILE_REACHABILITY_LOCAL  = PASS
+#     本机 clean assembleHap + modules.abc 取证 + 负向 probe（A/B/C/D）。
+#
+#   HARMONY_GITHUB_HOSTED_NATIVE_BUILD  = NOT_AVAILABLE
+#   HARMONY_DEVICE_RUNTIME              = NOT_RUN
+#
+# 禁止：把 `GITHUB_PORTABLE_CI = PASS` 写成「Harmony native verification PASS」。
+# 也禁止：因为 hosted runner 没有 DevEco，就永远阻止 main integration ——
+#   Harmony 的本地证据按次记录于 WORK_STATUS.md 与 HARMONY_REMAINING_6_AUDIT.md，
+#   main 推进以「远端 portable CI 绿 + 本地 Harmony 门禁绿」为准。
 # ---------------------------------------------------------------------------
 
 jobs:

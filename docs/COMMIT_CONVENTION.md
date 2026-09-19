@@ -28,6 +28,11 @@ docs / engineering / release。
 - `fix`、`update`、`123`、`修改一下` 等无信息 subject。
 - 一次 commit 混合不相关改动（保持小步）。
 - 提交：`.env` secrets / keystore / p12 / p8 / provisioning / 真实账单 / local user DB / 解密产物。
+- **在本环境用 `rebase` 处理分叉**（`git rebase` / `rebase --onto` / 交互式 rebase）。
+  它是长事务，被超时杀死后触发的 gc 会剪掉"因 ref 混乱显得不可达"的对象，
+  造成不可恢复的丢失 —— 2026-09-18 已真实发生一次。
+  分叉改用「remote tip + 当前 worktree 树 → `commit-tree` 显式指定父」或 fresh clone，
+  详见 `GIT_OPS_INCIDENT_AND_RULES.md` §2–§3。
 
 ## 历史
 
