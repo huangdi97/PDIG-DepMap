@@ -17,11 +17,12 @@ final class ConformanceTests: XCTestCase {
                 .map { "  - \($0.id): \($0.detail)" }.joined(separator: "\n"))
         // 已移植的分类：relations 18 + jcs 1 + scenario 1 + parser 22 + impact 13
         // + readiness 16 + coverage 6 + timeline 3 + state-machine 5
-        // + migration-version-contract 1 = 86；剩余 4 条 = depmap 3 + backup 1
-        //（需要 Argon2id / AES-GCM 容器层，尚未接入本包）。
-        XCTAssertEqual(report.passed, 86, "本轮已移植用例数应为 86")
-        XCTAssertEqual(report.envBlocked, 1, "migration-db-v1-to-v3 需要 SQLCipher，记环境缺失")
-        XCTAssertEqual(report.implMissing, 91 - 86 - 1)
+        // + depmap-bounds 1 + migration-version-contract 1 = 87；
+        // 剩余 3 条 = depmap-golden-v1 / depmap-utf8-password-normalization
+        //（需 Argon2id 原生）+ backup-depmap-export-restore-roundtrip（需图序列化）。
+        XCTAssertEqual(report.passed, 87, "本轮已移植用例数应为 87")
+        XCTAssertEqual(report.envBlocked, 3, "migration-db-v1-to-v3 需要 SQLCipher；2 条 depmap 需要 Argon2id")
+        XCTAssertEqual(report.implMissing, 91 - 87 - 3)
     }
 }
 

@@ -37,6 +37,7 @@ public enum Evaluators {
         case "parser": return .value(try parser(input, store))
         case "readiness": return .value(try readiness(input))
         case "coverage": return .value(try coverage(input))
+        case "depmap": return try depmap(caseId, input)
         case "state-machine": return try stateMachine(caseId)
         case "impact": return .value(try impact(input))
         case "timeline": return try timeline(caseId, input)
@@ -239,6 +240,42 @@ public enum Evaluators {
             })),
             ("leadingTimeByTemplate", .obj(JsonObject(lead))),
         ]))
+    }
+
+    // ------------------------------------------------------------------ depmap
+
+    private static func depmap(_ caseId: String, _ input: JsonObject) throws -> EvalOutcome {
+        switch caseId {
+        case "depmap-bounds-and-structure-rejection":
+            return .value(try depmapBounds(input))
+        case "depmap-golden-v1", "depmap-utf8-password-normalization":
+            // 需要 Argon2id 原生实现（平台安全层）。未接入前如实记 BLOCKED。
+            return .blocked("requires Argon2id native provider (not linked into this package yet)")
+        default:
+            return .notImplemented
+        }
+    }
+
+    /// 解析 → 结构 → 边界，全部在 KDF **之前**完成；恶意容器必须 fail closed。
+    /// 这里逐条跑本平台的真实校验，把抛出的错误码作为结果，
+    /// 而不是照抄 expected —— 校验放宽会立刻变成 FAIL。
+    private static func depmapBounds(_ input: JsonObject) throws -> Json {
+        var fields: [(String, Json)] = []
+        for item in input["mutations"]?.arrayValue ?? [] {
+            guard let o = item.objectValue,
+                  let id = o["id"]?.stringValue,
+                  let json = o["json"]?.stringValue else { continue }
+            let code: String
+            do {
+                let h = try DepmapContainer.parseHeader(json)
+                try DepmapContainer.validateBounds(h)
+                code = "accepted"
+            } catch let e as DepmapException {
+                code = e.code
+            }
+            fields.append((id, .str(code)))
+        }
+        return .obj(JsonObject(fields))
     }
 
     // --------------------------------------------------------- state-machine
