@@ -15,11 +15,11 @@ final class ConformanceTests: XCTestCase {
         XCTAssertEqual(report.failed, 0, "已执行用例不允许有失败：\n"
             + report.outcomes.filter { $0.status == .fail }
                 .map { "  - \($0.id): \($0.detail)" }.joined(separator: "\n"))
-        // 已移植的分类：relations 18 + jcs 1 + scenario 1 + parser 22
-        // + timeline 3 + migration-version-contract 1 = 46。
-        XCTAssertEqual(report.passed, 46, "本轮已移植用例数应为 46")
+        // 已移植的分类：relations 18 + jcs 1 + scenario 1 + parser 22 + impact 13
+        // + timeline 3 + migration-version-contract 1 = 59。
+        XCTAssertEqual(report.passed, 59, "本轮已移植用例数应为 59")
         XCTAssertEqual(report.envBlocked, 1, "migration-db-v1-to-v3 需要 SQLCipher，记环境缺失")
-        XCTAssertEqual(report.implMissing, 91 - 46 - 1)
+        XCTAssertEqual(report.implMissing, 91 - 59 - 1)
     }
 }
 

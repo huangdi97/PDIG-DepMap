@@ -35,6 +35,7 @@ public enum Evaluators {
         case "jcs": return .value(try jcs(input))
         case "scenario": return .value(try scenario(input))
         case "parser": return .value(try parser(input, store))
+        case "impact": return .value(try impact(input))
         case "timeline": return try timeline(caseId, input)
         case "migration": return try migration(caseId, input)
         default: return .notImplemented
@@ -235,6 +236,144 @@ public enum Evaluators {
             })),
             ("leadingTimeByTemplate", .obj(JsonObject(lead))),
         ]))
+    }
+
+    // ------------------------------------------------------------------ impact
+
+    /// 用 fixture 的 graph 直接驱动 `ImpactKernel.simulateScenario`。
+    ///
+    /// 刻意**不**读 proposal 的 `confidenceScore`：确认度不参与确定性失效传播，
+    /// 读进来就等于给"confidence 可以影响结论"留一道门。
+    private static func impact(_ input: JsonObject) throws -> Json {
+        let g = input["graph"]?.objectValue ?? JsonObject([])
+
+        var deps: [Dependency] = []
+        for item in g["dependencies"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            deps.append(
+                Dependency(
+                    id: try requireString(o, "id"),
+                    from: try requireString(o, "from"),
+                    relation: try wire(o, "relation", Relation.self),
+                    to: try requireString(o, "to"),
+                    capability: try wire(o, "capability", Capability.self),
+                    criticality: try wire(o, "criticality", Criticality.self),
+                    groupId: o["groupId"]?.stringValue,
+                    state: try wire(o, "state", DependencyState.self),
+                    origin: try wire(o, "origin", DependencyOrigin.self),
+                    lastVerifiedAt: try requireString(o, "lastVerifiedAt")
+                )
+            )
+        }
+
+        var groups: [DependencyGroup] = []
+        for item in g["groups"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            groups.append(
+                DependencyGroup(
+                    id: try requireString(o, "id"),
+                    groupKey: try requireString(o, "groupKey"),
+                    targetNodeId: try requireString(o, "targetNodeId"),
+                    capability: try wire(o, "capability", Capability.self),
+                    mode: try wire(o, "mode", GroupMode.self),
+                    memberEdgeIds: o["memberEdgeIds"]?.arrayValue?.compactMap { $0.stringValue } ?? [],
+                    state: try wire(o, "state", GroupState.self)
+                )
+            )
+        }
+
+        var proposals: [ImpactProposalInput] = []
+        for item in g["proposals"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            proposals.append(
+                ImpactProposalInput(
+                    key: try requireString(o, "key"),
+                    from: try requireString(o, "from"),
+                    to: try requireString(o, "to"),
+                    capability: try wire(o, "capability", Capability.self)
+                )
+            )
+        }
+
+        var nodeNames: [String: String] = [:]
+        if let names = g["nodeNames"]?.objectValue {
+            for (k, _) in names.fields { nodeNames[k] = names[k]?.stringValue ?? "" }
+        }
+
+        var unavailable: [ImpactStateKey] = []
+        for item in input["unavailable"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            unavailable.append(
+                ImpactStateKey(
+                    try requireString(o, "nodeId"),
+                    try wire(o, "capability", Capability.self)
+                )
+            )
+        }
+
+        let result = ImpactKernel.simulateScenario(
+            graph: ImpactGraph(
+                dependencies: deps, groups: groups, proposals: proposals, nodeNames: nodeNames
+            ),
+            unavailable: unavailable
+        )
+
+        var targets: [Json] = []
+        for t in result.targets {
+            targets.append(.obj(JsonObject([
+                ("nodeId", .str(t.nodeId)),
+                ("nodeName", .str(t.nodeName)),
+                ("capability", .str(t.capability.wire)),
+                ("depth", .num(String(t.depth))),
+                ("status", .str(t.status.wire)),
+                ("available", .bool(t.available)),
+                ("redundancyDegraded", .bool(t.redundancyDegraded)),
+                ("reasonCode", .str(t.reasonCode.wire)),
+                ("reasonText", .str(t.reasonText)),
+                ("edgeKeys", .arr(t.edgeKeys.map { Json.str($0) })),
+                ("groupKeys", .arr(t.groupKeys.map { Json.str($0) })),
+                ("proposalKeys", .arr(t.proposalKeys.map { Json.str($0) })),
+            ])))
+        }
+        var checklist: [Json] = []
+        for c in result.checklist {
+            checklist.append(.obj(JsonObject([
+                ("level", .str(c.level.wire)),
+                ("nodeId", c.nodeId.map { Json.str($0) } ?? .null),
+                ("capability", c.capability.map { Json.str($0.wire) } ?? .null),
+                ("title", .str(c.title)),
+                ("detail", .str(c.detail)),
+            ])))
+        }
+        return .obj(JsonObject([
+            ("unavailable", .arr(result.unavailable.map { stateKeyJson($0) })),
+            ("lostKeys", .arr(result.lostKeys.map { stateKeyJson($0) })),
+            ("targets", .arr(targets)),
+            ("checklist", .arr(checklist)),
+            ("processedKeys", .arr(result.processedKeys.map { Json.str($0) })),
+        ]))
+    }
+
+    private static func stateKeyJson(_ k: ImpactStateKey) -> Json {
+        .obj(JsonObject([("nodeId", .str(k.nodeId)), ("capability", .str(k.capability.wire))]))
+    }
+
+    private static func requireString(_ o: JsonObject, _ field: String) throws -> String {
+        guard let s = o[field]?.stringValue else {
+            throw EvalError("missing string field '\(field)'")
+        }
+        return s
+    }
+
+    /// wire → 枚举。未知 wire 直接抛错（fail closed，不静默取默认值）。
+    private static func wire<T: RawRepresentable>(
+        _ o: JsonObject, _ field: String, _ type: T.Type
+    ) throws -> T where T.RawValue == String {
+        let raw = try requireString(o, field)
+        guard let v = T(rawValue: raw) else {
+            throw EvalError("unknown wire value for '\(field)': \(raw)")
+        }
+        return v
     }
 
     // ---------------------------------------------------------------- timeline
