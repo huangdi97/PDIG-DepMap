@@ -8,6 +8,7 @@
 // 不写成 PASS。
 
 import Foundation
+import PDIGArgon2
 import PDIGCore
 
 public enum EvalOutcome {
@@ -248,12 +249,131 @@ public enum Evaluators {
         switch caseId {
         case "depmap-bounds-and-structure-rejection":
             return .value(try depmapBounds(input))
-        case "depmap-golden-v1", "depmap-utf8-password-normalization":
-            // 需要 Argon2id 原生实现（平台安全层）。未接入前如实记 BLOCKED。
-            return .blocked("requires Argon2id native provider (not linked into this package yet)")
+        case "depmap-golden-v1":
+            return .value(try depmapGolden(input))
+        case "depmap-utf8-password-normalization":
+            return .value(try depmapPasswordNormalization(input))
         default:
             return .notImplemented
         }
+    }
+
+    /// 固定向量：password 用精确 UTF-8 字节、不做 Unicode 归一化（spec §38 / DEP-03）。
+    ///
+    /// salt 取自 depmap-golden-v1 的 `saltHex`，参数取 DepmapContainerV1 默认值；
+    /// 参数不是猜的 —— 已用独立实现（argon2-cffi / libargon2）先核过 ascii 用例的
+    /// derivedKey 与 expected 逐字节一致（tools 侧 `_argon2_check.py` 留档）。
+    private static let fixedSalt: [UInt8] = [
+        0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
+        0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
+    ]
+
+    private static func depmapGolden(_ input: JsonObject) throws -> Json {
+        let password = try requireString(input, "password")
+        let plaintext = try requireString(input, "plaintext")
+        let kdf = input["kdf"]?.objectValue ?? JsonObject([])
+        let memoryKiB = try requireInt(kdf, "memoryKiB")
+        let iterations = try requireInt(kdf, "iterations")
+        let parallelism = try requireInt(kdf, "parallelism")
+
+        let created = try DepmapContainer.create(
+            plaintext: Array(plaintext.utf8),
+            password: password,
+            kdf: Argon2idNative(),
+            opts: DepmapContainer.CreateOptions(
+                salt: try hexBytes(try requireString(input, "saltHex")),
+                nonce: try hexBytes(try requireString(input, "nonceHex")),
+                memoryKiB: memoryKiB,
+                iterations: iterations,
+                parallelism: parallelism
+            )
+        )
+        let reopened = try DepmapContainer.openContainer(
+            json: created.json, password: password, kdf: Argon2idNative()
+        )
+
+        // 错密码 / 篡改密文：两者都必须 fail closed 为 auth_failed。
+        let wrong: String
+        do {
+            _ = try DepmapContainer.openContainer(
+                json: created.json, password: password + "-wrong", kdf: Argon2idNative()
+            )
+            wrong = "accepted"
+        } catch let e as DepmapException { wrong = e.code }
+
+        var tamperedBytes = Array(created.header.ciphertextB64.utf8)
+        // 翻**首位**（不是末位）：末位可能是 base64 填充 '='，改成字母会让
+        // fromBase64 报 invalid_structure —— 那样验证的是解析器而不是认证标签。
+        // 翻首位：字母表内替换、长度不变，必定只触发 GCM 认证失败。
+        if !tamperedBytes.isEmpty {
+            let first = tamperedBytes[0]
+            tamperedBytes[0] = (first == UInt8(ascii: "A")) ? UInt8(ascii: "B") : UInt8(ascii: "A")
+        }
+        let tamperedHeader = created.header.copy(
+            ciphertextB64: String(decoding: tamperedBytes, as: UTF8.self)
+        )
+        let tamperedJson = try Jcs.stringify(DepmapContainer.toJson(tamperedHeader))
+        let tampered: String
+        do {
+            _ = try DepmapContainer.openContainer(
+                json: tamperedJson, password: password, kdf: Argon2idNative()
+            )
+            tampered = "accepted"
+        } catch let e as DepmapException { tampered = e.code }
+
+        return .obj(JsonObject([
+            ("derivedKeyHex", .str(created.derivedKeyHex)),
+            ("ciphertextBase64", .str(created.header.ciphertextB64)),
+            ("tagBase64", .str(created.header.tagB64)),
+            ("containerJson", .str(created.json)),
+            ("reopenedPlaintext", .str(String(decoding: reopened, as: UTF8.self))),
+            ("wrongPasswordOutcome", .str(wrong)),
+            ("tamperedCiphertextOutcome", .str(tampered)),
+        ]))
+    }
+
+    private static func depmapPasswordNormalization(_ input: JsonObject) throws -> Json {
+        var byCase: [(String, Json)] = []
+        var derived: [String: String] = [:]
+        for item in input["cases"]?.arrayValue ?? [] {
+            guard let o = item.objectValue,
+                  let id = o["id"]?.stringValue,
+                  let pw = o["password"]?.stringValue else { continue }
+            // 直接取 fixture 里的原始字节：**不**做任何归一化。
+            let key = try Argon2idNative().derive(
+                password: Array(pw.utf8),
+                salt: fixedSalt,
+                memoryKiB: DepmapContainerV1.memoryKiB,
+                iterations: DepmapContainerV1.iterations,
+                parallelism: DepmapContainerV1.parallelism
+            )
+            let hex = DepmapContainer.toHex(key)
+            derived[id] = hex
+            byCase.append((id, .str(hex)))
+        }
+        let differs: Bool = {
+            guard let a = derived["combining"], let b = derived["nfc"] else { return false }
+            return a != b
+        }()
+        return .obj(JsonObject([
+            ("derivedKeyHexByCase", .obj(JsonObject(byCase))),
+            ("combiningDiffersFromNfc", .bool(differs)),
+        ]))
+    }
+
+    private static func hexBytes(_ s: String) throws -> [UInt8] {
+        var out: [UInt8] = []
+        var it = Array(s)
+        var i = 0
+        while i + 1 < it.count {
+            guard let hi = it[i].hexDigitValue, let lo = it[i + 1].hexDigitValue else {
+                throw EvalError("invalid hex: \(s)")
+            }
+            out.append(UInt8(hi * 16 + lo))
+            i += 2
+        }
+        guard !out.isEmpty else { throw EvalError("empty hex: \(s)") }
+        return out
     }
 
     /// 解析 → 结构 → 边界，全部在 KDF **之前**完成；恶意容器必须 fail closed。

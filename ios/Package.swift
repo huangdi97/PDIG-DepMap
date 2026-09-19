@@ -27,18 +27,33 @@ let package = Package(
         .library(name: "PDIGConformance", targets: ["PDIGConformance"]),
     ],
     targets: [
+        // vendored Argon2（third_party/argon2，包外单一真源，靠 -I 引入）。
+        // 不复制源码进包内：复制件会让 VENDOR.json 的哈希校验形同虚设。
+        .target(
+            name: "PDIGArgon2C",
+            path: "Sources/PDIGArgon2C",
+            cSettings: [
+                .headerSearchPath("../../../third_party/argon2"),
+                .headerSearchPath("../../../third_party/argon2/include"),
+            ]
+        ),
+        .target(
+            name: "PDIGArgon2",
+            dependencies: ["PDIGArgon2C", "PDIGCore"],
+            path: "Sources/PDIGArgon2"
+        ),
         .target(
             name: "PDIGCore",
             path: "Sources/PDIGCore"
         ),
         .target(
             name: "PDIGConformance",
-            dependencies: ["PDIGCore"],
+            dependencies: ["PDIGCore", "PDIGArgon2"],
             path: "Sources/PDIGConformance"
         ),
         .testTarget(
             name: "PDIGConformanceTests",
-            dependencies: ["PDIGCore", "PDIGConformance"],
+            dependencies: ["PDIGCore", "PDIGConformance", "PDIGArgon2"],
             path: "Tests/PDIGConformanceTests"
         ),
     ]
