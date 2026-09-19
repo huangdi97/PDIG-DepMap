@@ -143,17 +143,26 @@ public enum Evaluators {
         guard let now = input["now"]?.stringValue else {
             throw EvalError("timeline fixture missing now")
         }
-        let freshness = Int(input["freshnessThresholdDays"]?.doubleValue ?? 45)
+        // Json 没有 doubleValue（数字一律存 raw 文本，取值时才转），
+        // 且 `try` 只能用在 throwing 的 asDouble 上。
+        let freshness: Int
+        if let raw = input["freshnessThresholdDays"] {
+            freshness = Int(try raw.asDouble)
+        } else {
+            freshness = 45
+        }
         let items = Timeline.buildTimelinePure(scenario, now, freshness)
         switch caseId {
         case "timeline-buckets-and-ordering":
             let again = Timeline.buildTimelinePure(scenario, now, freshness)
             let deterministic = (items.count == again.count)
                 && zip(items, again).allSatisfy { pair in pair.0.id == pair.1.id }
+            // 显式写出 `Json.`：`map` 闭包的返回类型无法穿过两层枚举 case
+            // （.value(.obj(JsonObject([...])))）反向推断。
             return .value(.obj(JsonObject([
-                ("buckets", .arr(items.map { .str($0.bucket) })),
-                ("ids", .arr(items.map { .str($0.id) })),
-                ("kinds", .arr(items.map { .str($0.kind) })),
+                ("buckets", .arr(items.map { Json.str($0.bucket) })),
+                ("ids", .arr(items.map { Json.str($0.id) })),
+                ("kinds", .arr(items.map { Json.str($0.kind) })),
                 ("deterministic", .bool(deterministic)),
                 ("planCountUnchanged", .num(String(scenario.plans.count))),
             ])))
@@ -170,7 +179,7 @@ public enum Evaluators {
         case "timeline-terminal-plans-excluded":
             return .value(.obj(JsonObject([
                 ("count", .num(String(items.count))),
-                ("kinds", .arr(items.map { .str($0.kind) })),
+                ("kinds", .arr(items.map { Json.str($0.kind) })),
             ])))
         default:
             return .notImplemented
