@@ -149,7 +149,7 @@ public enum Evaluators {
         case "timeline-buckets-and-ordering":
             let again = Timeline.buildTimelinePure(scenario, now, freshness)
             let deterministic = (items.count == again.count)
-                && zip(items, again).allSatisfy { $0.id == $1.id }
+                && zip(items, again).allSatisfy { pair in pair.0.id == pair.1.id }
             return .value(.obj(JsonObject([
                 ("buckets", .arr(items.map { .str($0.bucket) })),
                 ("ids", .arr(items.map { .str($0.id) })),

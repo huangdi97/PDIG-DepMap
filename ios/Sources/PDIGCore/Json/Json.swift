@@ -321,21 +321,20 @@ public enum JsonWriter {
 
     private static func emitString(_ sb: inout String, _ s: String) {
         sb += "\""
+        let backspace = Character(UnicodeScalar(0x08))
+        let formfeed = Character(UnicodeScalar(0x0C))
         for ch in s {
-            switch ch {
-            case "\"": sb += "\\\""
-            case "\\": sb += "\\\\"
-            case "\n": sb += "\\n"
-            case "\r": sb += "\\r"
-            case "\t": sb += "\\t"
-            case Character(UnicodeScalar(0x08)): sb += "\\b"
-            case Character(UnicodeScalar(0x0C)): sb += "\\f"
-            default:
-                if let v = ch.unicodeScalars.first?.value, v < 0x20 {
-                    sb += String(format: "\\u%04x", v)
-                } else {
-                    sb.append(ch)
-                }
+            if ch == "\"" { sb += "\\\"" }
+            else if ch == "\\" { sb += "\\\\" }
+            else if ch == "\n" { sb += "\\n" }
+            else if ch == "\r" { sb += "\\r" }
+            else if ch == "\t" { sb += "\\t" }
+            else if ch == backspace { sb += "\\b" }
+            else if ch == formfeed { sb += "\\f" }
+            else if let v = ch.unicodeScalars.first?.value, v < 0x20 {
+                sb += String(format: "\\u%04x", v)
+            } else {
+                sb.append(ch)
             }
         }
         sb += "\""

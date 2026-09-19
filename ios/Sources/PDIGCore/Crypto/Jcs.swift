@@ -62,21 +62,20 @@ public enum Jcs {
     /// RFC 8785 §3.2.2.2 转义；非 ASCII 原样输出（UTF-8）。
     private static func emitString(_ sb: inout String, _ s: String) {
         sb += "\""
+        let backspace = Character(UnicodeScalar(0x08))
+        let formfeed = Character(UnicodeScalar(0x0C))
         for ch in s {
-            switch ch {
-            case "\"": sb += "\\\""
-            case "\\": sb += "\\\\"
-            case Character(UnicodeScalar(0x08)): sb += "\\b"
-            case "\t": sb += "\\t"
-            case "\n": sb += "\\n"
-            case Character(UnicodeScalar(0x0C)): sb += "\\f"
-            case "\r": sb += "\\r"
-            default:
-                if let v = ch.unicodeScalars.first?.value, v < 0x20 {
-                    sb += "\\u00" + String(v, radix: 16).leftPadded(to: 2, with: "0")
-                } else {
-                    sb.append(ch)
-                }
+            if ch == "\"" { sb += "\\\"" }
+            else if ch == "\\" { sb += "\\\\" }
+            else if ch == backspace { sb += "\\b" }
+            else if ch == "\t" { sb += "\\t" }
+            else if ch == "\n" { sb += "\\n" }
+            else if ch == formfeed { sb += "\\f" }
+            else if ch == "\r" { sb += "\\r" }
+            else if let v = ch.unicodeScalars.first?.value, v < 0x20 {
+                sb += "\\u00" + String(v, radix: 16).leftPadded(to: 2, with: "0")
+            } else {
+                sb.append(ch)
             }
         }
         sb += "\""

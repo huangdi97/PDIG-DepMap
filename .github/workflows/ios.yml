@@ -50,15 +50,19 @@ jobs:
       - name: Swift toolchain
         run: swift --version
 
+      # ⚠ 不要写成 `swift build 2>&1 | tail -N`：管道的退出码取自 `tail`，
+      # 编译失败会被吞成 0，产出一个"什么都没验证"的绿灯。
+      # 2026-09-19 实测踩过一次：build 报 `unterminated string literal`，
+      # job 结论仍是 success。因此这里不用管道，让退出码如实上传。
       - name: Build (PDIGCore + PDIGConformance)
         working-directory: ios
-        run: swift build 2>&1 | tail -40
+        run: swift build
 
       # canonical runner 从仓库读冻结 fixture（不在包里内嵌副本），
       # 因此必须在仓库根下执行；SwiftPM 的 cwd 即为包目录，上溯两级到根。
       - name: Test (canonical 91 + smoke)
         working-directory: ios
-        run: swift test 2>&1 | tail -120
+        run: swift test
 
       - name: Upload iOS conformance report
         if: always()

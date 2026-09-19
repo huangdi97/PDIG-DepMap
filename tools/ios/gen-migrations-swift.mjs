@@ -105,19 +105,33 @@ function resolveTemplates(s) {
   })
 }
 
-function swiftRawString(s) {
+//   3. 输出为 Swift raw string：
+//      单行 → `#"..."#`；**多行 → 必须用 `#"""..."""#`**。
+//      2026-09-19 实测：Swift 的单行 raw string 不允许内含裸换行，
+//      用 `#"..."#` 承载多行 DDL 会报 `unterminated string literal`。
+//      raw string 同时让 `\(`、`\` 不被重新解释。
+function swiftRawString(s, indent = '    ') {
   if (s.includes('"#')) throw new Error('statement contains "#" — raw string delimiter would break')
-  return '#"' + s + '"#'
+  if (!s.includes('\n')) return '#"' + s + '"#'
+  const body = s
+    .split('\n')
+    .map((line) => indent + line)
+    .join('\n')
+  // 多行 raw string：闭合 `"""#` 的缩进会从每行剥离，
+  // 因此正文与闭合符用**同一**缩进，产出与源 SQL 逐字一致（含内部缩进）。
+  if (s.includes('"""')) throw new Error('statement contains triple quote')
+  return '#"""\n' + body + '\n' + indent + '"""#'
 }
 
 function emit(name, items) {
+  // 常量落在 `enum Migrations` 内，必须是 `static`（caseless enum 不能有实例存储属性）。
   const body = items
     .map((it) => {
       const v = it.kind === 'raw' ? trimIndent(resolveTemplates(it.value)) : resolveTemplates(it.value)
-      return '    ' + swiftRawString(v)
+      return '        ' + swiftRawString(v, '        ')
     })
     .join(',\n')
-  return `public let ${name}: [String] = [\n${body},\n]`
+  return `    public static let ${name}: [String] = [\n${body},\n    ]`
 }
 
 const v1 = extractList('SCHEMA_V1_STATEMENTS')
