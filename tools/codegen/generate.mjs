@@ -234,7 +234,7 @@ function emitSwift() {
       // 少了它会让整片模型的合成失败。
       L.push(`public enum ${enumName}: String, CaseIterable, Sendable, Equatable {`)
       for (const e of entries) {
-        L.push(`    case ${lowerCamel(e.name)} = ${dq(e.wire)}`)
+        L.push(`    case ${swiftIdent(lowerCamel(e.name))} = ${dq(e.wire)}`)
       }
       L.push('')
       L.push(`    public var wire: String { rawValue }`)
@@ -253,7 +253,7 @@ function emitSwift() {
   L.push('    public var category: String {')
   L.push('        switch self {')
   for (const c of errors.codes) {
-    L.push(`        case .${lowerCamel(enumConstName(c.code))}: return ${dq(c.category)}`)
+    L.push(`        case .${swiftIdent(lowerCamel(enumConstName(c.code)))}: return ${dq(c.category)}`)
   }
   L.push('        }')
   L.push('    }')

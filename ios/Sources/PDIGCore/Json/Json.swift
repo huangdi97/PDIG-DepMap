@@ -21,7 +21,7 @@ public struct JsonException: Error, CustomStringConvertible, Equatable {
 }
 
 /// JSON 对象：保留插入顺序的字段列表 + 惰性 key 索引。
-public struct JsonObject: Equatable, Sendable {
+public struct JsonObject: Sendable {
     public let fields: [(String, Json)]
 
     public init(_ fields: [(String, Json)] = []) { self.fields = fields }

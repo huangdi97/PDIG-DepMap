@@ -359,7 +359,7 @@ public enum DepmapContainer {
                 ciphertext: ciphertext,
                 tag: tag
             )
-            let opened = try AES.GCM.open(box, using: SymmetricKey(data: key), authenticating: aad)
+            let opened = try AES.GCM.`open`(box, using: SymmetricKey(data: key), authenticating: aad)
             return Array(opened)
         } catch {
             throw DepmapException(

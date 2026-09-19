@@ -79,7 +79,7 @@ public enum DependencyOrigin: String, CaseIterable, Sendable, Equatable {
 }
 
 public enum GroupMode: String, CaseIterable, Sendable, Equatable {
-    case any = "ANY"
+    case `any` = "ANY"
     case all = "ALL"
 
     public var wire: String { rawValue }
@@ -134,7 +134,7 @@ public enum SourceInstanceState: String, CaseIterable, Sendable, Equatable {
 }
 
 public enum ObservationDirection: String, CaseIterable, Sendable, Equatable {
-    case in = "in"
+    case `in` = "in"
     case out = "out"
     case neutral = "neutral"
 
@@ -271,7 +271,7 @@ public enum DriftKind: String, CaseIterable, Sendable, Equatable {
 }
 
 public enum DriftStatus: String, CaseIterable, Sendable, Equatable {
-    case open = "open"
+    case `open` = "open"
     case confirmedChange = "confirmed_change"
     case dismissed = "dismissed"
     case superseded = "superseded"
