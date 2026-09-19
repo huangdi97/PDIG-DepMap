@@ -35,6 +35,8 @@ public enum Evaluators {
         case "jcs": return .value(try jcs(input))
         case "scenario": return .value(try scenario(input))
         case "parser": return .value(try parser(input, store))
+        case "readiness": return .value(try readiness(input))
+        case "coverage": return .value(try coverage(input))
         case "impact": return .value(try impact(input))
         case "timeline": return try timeline(caseId, input)
         case "migration": return try migration(caseId, input)
@@ -236,6 +238,102 @@ public enum Evaluators {
             })),
             ("leadingTimeByTemplate", .obj(JsonObject(lead))),
         ]))
+    }
+
+    // -------------------------------------------------------------- readiness
+
+    /// readiness 的输出就是一个 wire 字符串（"ready" / "blocked" / …）。
+    private static func readiness(_ input: JsonObject) throws -> Json {
+        guard let planJson = input["plan"]?.objectValue else {
+            throw EvalError("readiness input has no plan object")
+        }
+        var actions: [PlanAction] = []
+        for item in planJson["actions"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            actions.append(
+                PlanAction(
+                    id: try requireString(o, "id"),
+                    title: try requireString(o, "title"),
+                    phase: try wire(o, "phase", PlanActionPhase.self),
+                    done: o["done"]?.boolValue ?? false,
+                    resolvesImpactKeys: o["resolvesImpactKeys"]?.arrayValue?
+                        .compactMap { $0.stringValue } ?? []
+                )
+            )
+        }
+        let plan = ChangePlan(
+            id: try requireString(planJson, "id"),
+            templateId: planJson["templateId"]?.stringValue,
+            scenario: try requireString(planJson, "scenario"),
+            title: try requireString(planJson, "title"),
+            workflowState: try wire(planJson, "workflowState", ChangePlanWorkflowState.self),
+            baselineGraphRevision: try requireInt(planJson, "baselineGraphRevision"),
+            lastAnalyzedGraphRevision: try requireInt(planJson, "lastAnalyzedGraphRevision"),
+            targetNodeId: planJson["targetNodeId"]?.stringValue,
+            effectiveDate: planJson["effectiveDate"]?.stringValue,
+            actions: actions
+        )
+        let readinessInput = PlanReadinessInput(
+            plan: plan,
+            currentGraphRevision: try requireInt(input, "currentGraphRevision"),
+            pendingMustChange: try requireInt(input, "pendingMustChange"),
+            pendingNeedsReview: try requireInt(input, "pendingNeedsReview"),
+            unresolvedCandidates: try requireInt(input, "unresolvedCandidates"),
+            pendingRelevantProposals: try requireInt(input, "pendingRelevantProposals"),
+            staleRelevantDependencies: try requireInt(input, "staleRelevantDependencies"),
+            unfinishedChangeActions: try requireInt(input, "unfinishedChangeActions")
+        )
+        return .str(PlanRules.computePlanReadiness(readinessInput).wire)
+    }
+
+    // --------------------------------------------------------------- coverage
+
+    private static func coverage(_ input: JsonObject) throws -> Json {
+        var sources: [CoverageSourceInfo] = []
+        for item in input["sources"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            sources.append(
+                CoverageSourceInfo(
+                    id: try requireString(o, "id"),
+                    label: try requireString(o, "label"),
+                    lastIngestedAt: o["lastIngestedAt"]?.stringValue
+                )
+            )
+        }
+        let covInput = ScenarioCoverageInput(
+            scenarioId: try requireString(input, "scenarioId"),
+            sources: sources,
+            confirmedDirectDependencies: try requireInt(input, "confirmedDirectDependencies"),
+            confirmedIndirectDependencies: try requireInt(input, "confirmedIndirectDependencies"),
+            pendingProposals: try requireInt(input, "pendingProposals"),
+            unresolvedCandidates: try requireInt(input, "unresolvedCandidates"),
+            staleDependencies: try requireInt(input, "staleDependencies"),
+            unknownCriticalityCount: try requireInt(input, "unknownCriticalityCount"),
+            unverifiedActions: try requireInt(input, "unverifiedActions"),
+            freshnessThresholdDays: try requireInt(input, "freshnessThresholdDays"),
+            now: try requireString(input, "now")
+        )
+        let cov = PlanRules.computeScenarioCoverage(covInput)
+        let counts: Json = .obj(JsonObject([
+            ("confirmedDirectDependencies", .num(String(cov.counts.confirmedDirectDependencies))),
+            ("confirmedIndirectDependencies", .num(String(cov.counts.confirmedIndirectDependencies))),
+            ("pendingProposals", .num(String(cov.counts.pendingProposals))),
+            ("unresolvedCandidates", .num(String(cov.counts.unresolvedCandidates))),
+            ("staleDependencies", .num(String(cov.counts.staleDependencies))),
+            ("unknownCriticalityCount", .num(String(cov.counts.unknownCriticalityCount))),
+            ("unverifiedActions", .num(String(cov.counts.unverifiedActions))),
+        ]))
+        return .obj(JsonObject([
+            ("scenarioId", .str(cov.scenarioId)),
+            ("coverageLevel", .str(cov.coverageLevel.wire)),
+            ("explanations", .arr(cov.explanations.map { Json.str($0) })),
+            ("counts", counts),
+        ]))
+    }
+
+    private static func requireInt(_ o: JsonObject, _ field: String) throws -> Int {
+        guard let v = o[field] else { throw EvalError("missing int field '\(field)'") }
+        return Int(try v.asLong)
     }
 
     // ------------------------------------------------------------------ impact
