@@ -1,24 +1,23 @@
 /*
- * PDIG —— vendored Argon2 (third_party/argon2) 的 SwiftPM 编译单元。
+ * PDIG —— vendored Argon2（third_party/argon2）的 SwiftPM 编译单元。
  *
  * 为什么用 `#include "...c"` 把源码拉进一个 TU，而不是让 SwiftPM 直接编译
  * vendored 目录：
- *   - SwiftPM 的 target path 必须落在包内；third_party/ 在仓库根的**包外**。
- *   - 复制到包内 = 制造第二份 argon2 源码，VENDOR.json 的哈希校验就失去意义
- *     （改了 vendored 原件而副本不动，也能"通过"）。
- * 因此这里保留单一真源：只加一个 -I 指向 vendored 根目录，把需要的 .c 拉进来。
+ *   - SwiftPM 的 target path / header search path 都不能指到包外；
+ *   - 复制到包内 = 制造第二份 argon2 源码，VENDOR.json 的哈希校验就失去意义。
+ * 因此这里保留单一真源：相对路径 include 真源，配合 include/argon2.h 转发头。
  *
  * 编译单元清单与 upstream 的 Makefile 一致（ref 实现 + 线程层）。
  */
 
 #include "pdig_argon2.h"
 
-#include "src/argon2.c"
-#include "src/core.c"
-#include "src/encoding.c"
-#include "src/ref.c"
-#include "src/thread.c"
-#include "src/blake2/blake2b.c"
+#include "../../../third_party/argon2/src/argon2.c"
+#include "../../../third_party/argon2/src/core.c"
+#include "../../../third_party/argon2/src/encoding.c"
+#include "../../../third_party/argon2/src/ref.c"
+#include "../../../third_party/argon2/src/thread.c"
+#include "../../../third_party/argon2/src/blake2/blake2b.c"
 
 int pdig_argon2id(
     const uint8_t *pwd,

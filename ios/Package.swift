@@ -27,15 +27,14 @@ let package = Package(
         .library(name: "PDIGConformance", targets: ["PDIGConformance"]),
     ],
     targets: [
-        // vendored Argon2（third_party/argon2，包外单一真源，靠 -I 引入）。
+        // vendored Argon2（third_party/argon2，包外单一真源）。
         // 不复制源码进包内：复制件会让 VENDOR.json 的哈希校验形同虚设。
+        // SwiftPM 不允许 header search path 指向包外，所以由
+        // Sources/PDIGArgon2C/include/argon2.h 做转发，把 vendored 的
+        // `#include "argon2.h"` 引回真源。
         .target(
             name: "PDIGArgon2C",
-            path: "Sources/PDIGArgon2C",
-            cSettings: [
-                .headerSearchPath("../../../third_party/argon2"),
-                .headerSearchPath("../../../third_party/argon2/include"),
-            ]
+            path: "Sources/PDIGArgon2C"
         ),
         .target(
             name: "PDIGArgon2",
