@@ -42,23 +42,27 @@ const RESULT = join(
 //   EXPECT_PASS         其中通过的检查数
 //   CANONICAL_*         91 条 canonical 用例的口径 —— **这才是不能只报 67/67 的原因**
 //
-// 为什么加 CANONICAL_*：只报 "host PASS 89/89" 会让 91 这个分母消失。
-// 一个装饰器人的读者会以为 Harmony 已经 91/91；真相是 85/91，
-// 剩下 6 条按**性质**分开计（未移植 / 环境缺失 / 设备运行时），不得合并成一句"blocked"。
+// 为什么加 CANONICAL_*：只报 "host PASS 91/91" 会让 91 这个分母消失。
+// 一个装饰器人的读者会以为 Harmony 已经 91/91；真相是 87/91，
+// 剩下 4 条按**性质**分开计（未移植 / 环境缺失 / 设备运行时），不得合并成一句"blocked"。
 //
 // 2026-09-18：20 条 parser 用例从「未移植」迁入「已执行」（ArkTS adapter 落地），
 // 分母不动、分子从 65 → 85。被这次迁移暴露的一个真实缺陷记在 DECISION_LOG：
 // decodeBase64 曾按完整 4 字符组分配输出长度，长度 mod 3 != 0 的文件尾部字节被
 // 静默截断（EUR → EU / JPY → JP），且只错最后一行。
+//
+// 2026-09-19：2 条 GB18030 用例从「环境缺失」迁入「已执行」，分子 85 → 87，
+// 环境桶归零。依据不是"补了解码器"这么一句话，而是：码表由 Node ICU 生成、
+// 再由 CPython 内置 gb18030 codec 逐位独立复验（tools/encoding/ 下三个文件）。
 // ---------------------------------------------------------------------------
-const EXPECT_HOST_TOTAL = 89   // 85 canonical 用例 + 3 条 conformance 元测试 + 1 条 domain 自检
-const EXPECT_PASS = 89
+const EXPECT_HOST_TOTAL = 91   // 87 canonical 用例 + 3 条 conformance 元测试 + 1 条 domain 自检
+const EXPECT_PASS = 91
 const EXPECT_FAIL = 0
 const EXPECT_ERROR = 0
 const CANONICAL_TOTAL = 91
-const CANONICAL_EXECUTED = 85
+const CANONICAL_EXECUTED = 87
 const CANONICAL_IMPL_MISSING = 0
-const CANONICAL_ENV_BLOCKED = 2
+const CANONICAL_ENV_BLOCKED = 0
 const CANONICAL_RUNTIME_BLOCKED = 4
 
 if (!DEVECO || !existsSync(DEVECO)) {

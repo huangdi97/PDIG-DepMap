@@ -1,0 +1,72 @@
+name: iOS
+
+# 触发方式同 ci.yml：显式列举分支 + PR + 手工 dispatch。
+#
+# ⚠ 截至 2026-09-19，本仓库的 push 触发从未真实产生过一次运行
+# （见 GIT_OPS_INCIDENT_AND_RULES.md §5）。因此**不要**假设 push 已被守住：
+# 远端验证一律手工 `gh workflow run iOS --ref <branch>` 并核对 head_sha。
+on:
+  push:
+    branches:
+      - main
+      - feat/mvp03-living-graph
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# ---------------------------------------------------------------------------
+# 诚实范围声明（不要删除）
+# ---------------------------------------------------------------------------
+# 本 workflow 只做"在 GitHub-hosted macOS runner 上真实可执行"的门禁：
+#
+#   job ios-core : swift build（PDIGCore + PDIGConformance）
+#                  + swift test（canonical 91 条 + 核心 smoke）
+#
+# 明确 NOT AVAILABLE / NOT_RUN（不 fake，不用 continue-on-error 假装通过）：
+#
+#   IOS_SIGNING / TESTFLIGHT / APP_STORE      = EXTERNAL_BLOCKED（需人类动作）
+#   IOS_DEVICE_RUNTIME（真机 LocalAuthentication / Keychain 访问组）
+#                                            = NOT_RUN
+#   IOS_SQLCIPHER_PERSISTENCE                 = NOT_RUN（依赖尚未接入本包，
+#                                              相关 canonical 用例记 ENV_BLOCKED）
+#   IOS_ARGON2ID_NATIVE                       = NOT_RUN（同上）
+#
+# 口径：本 workflow 的结论叫 IOS_CI_COMPILE_AND_HOST_CONFORMANCE，
+# **不**等于「iOS 应用可上架」，也**不**替代真机门禁。
+# ---------------------------------------------------------------------------
+
+jobs:
+  ios-core:
+    name: iOS core (Swift build + canonical conformance)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      # 记录工具链版本：跨 runner 镜像升级时，编译行为差异要有据可查。
+      - name: Swift toolchain
+        run: swift --version
+
+      - name: Build (PDIGCore + PDIGConformance)
+        working-directory: ios
+        run: swift build 2>&1 | tail -40
+
+      # canonical runner 从仓库读冻结 fixture（不在包里内嵌副本），
+      # 因此必须在仓库根下执行；SwiftPM 的 cwd 即为包目录，上溯两级到根。
+      - name: Test (canonical 91 + smoke)
+        working-directory: ios
+        run: swift test 2>&1 | tail -120
+
+      - name: Upload iOS conformance report
+        if: always()
+        run: |
+          echo "IOS_CI_COMPILE_AND_HOST_CONFORMANCE=see 'Test' step output" > ios-conformance.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-conformance-report
+          path: ios-conformance.txt
+          if-no-files-found: ignore

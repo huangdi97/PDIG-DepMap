@@ -115,19 +115,19 @@ class EmbeddedTextSource implements ConformanceTextSource {
  *     ArkTS 侧 adapter 移植 → 本轮补上后**全部可执行**。
  *     注意原始文件是**按字节 Base64 内嵌**的，解码仍在被测代码里完成 ——
  *     若在读取侧先 decode，"字节→文本"就被移出被测范围，编码缺陷将永远测不到。
- *   - parser 的 2 条 GB18030 用例：需要字符集解码器，主机执行面没有
- *     → BLOCKED_BY_ENVIRONMENT（这 2 条是"环境缺能力"，不是"没写"）。
- *   - 余下 4 条（depmap-golden-v1 / depmap-utf8-password-normalization /
- *     backup-depmap-export-restore-roundtrip / migration-db-v1-to-v3）：
- *     确需设备上的 Argon2id 原生库或 ArkData。
- * 账目推进为 **85 已执行 + 0 未移植 + 2 环境缺失 + 4 设备运行时**。
+ * 2026-09-19 GB18030 落地（本轮）：那 2 条 BLOCKED_BY_ENVIRONMENT 被真正关闭 ——
+ * 不是"自造一张码表"，而是：码表由 Node ICU 生成，再由 CPython 内置 gb18030
+ * codec **逐位独立复验**（23,940 双字节码位 + 50,400 四字节槽位 + 增补平面抽样），
+ * 两套实现一致才允许把它们从环境桶里移除。详见
+ * `tools/encoding/generate-gb18030-table.mjs` 与 `crosscheck-gb18030.py`。
+ * 账目推进为 **87 已执行 + 0 未移植 + 0 环境缺失 + 4 设备运行时**。
  */
 const EXPECTED_TOTAL = 91;
 const EXPECTED_BLOCKED_BY_RUNTIME = 4;
-const EXPECTED_BLOCKED_BY_ENVIRONMENT = 2;
+const EXPECTED_BLOCKED_BY_ENVIRONMENT = 0;
 const EXPECTED_HOST_IMPL_MISSING = 0;
 const EXPECTED_NOT_IMPLEMENTED = 0;
-const EXPECTED_PASSED = 85;
+const EXPECTED_PASSED = 87;
 const EXPECTED_FAILED = 0;
 
 export default function conformanceHostTest() {

@@ -1,0 +1,55 @@
+{
+  "generator": "tools/encoding/generate-gb18030-table.mjs",
+  "source": "Node ICU TextDecoder('gb18030', { fatal: true })",
+  "independentVerifier": "CPython built-in gb18030 codec (tools/encoding/crosscheck-gb18030.py)",
+  "twoByte": {
+    "slots": 23940,
+    "leadRange": [
+      129,
+      254
+    ],
+    "trailRange": [
+      64,
+      254
+    ],
+    "trailExcludes": [
+      127
+    ],
+    "bytes": 47880,
+    "sha256": "116bceec0a13515dfd51dff69070d9e26908b17b0fbfb2efc66063269ae0d436",
+    "checksumFnv1a": 4255789608
+  },
+  "bmp4": {
+    "slots": 50400,
+    "valid": 39420,
+    "runs": 209,
+    "checksumFnv1a": 535144084,
+    "monotonic": false,
+    "note": "GB18030-2005 修订过该区，映射非单调，不能由公式推导；按 209 段连续上升游程存储。"
+  },
+  "supplementary": {
+    "formula": "0x10000 + ((b1-0x90)*10 + (b2-0x30))*1260 + ((b3-0x81)*10 + (b4-0x30))",
+    "max": "U+10FFFF",
+    "verifiedAgainstIcu": {
+      "checked": 7656,
+      "mismatch": 0
+    }
+  },
+  "singleByte0x80": {
+    "icu": "U+20AC",
+    "decoderBehaviour": "INVALID",
+    "note": "ICU(CP936 宽松) 解为 U+20AC，CPython 拒绝；GB18030-2005 单字节区只有 0x00–0x7F，从严判非法。"
+  },
+  "androidAlignment": {
+    "policy": "base=icu，override=java（Android 已 CORE_FROZEN，活跃端向冻结端对齐）",
+    "recordedDivergences": 21,
+    "appliedOverrides": [
+      {
+        "seq": "A3A0",
+        "from": "U+3000",
+        "to": "U+E5E5"
+      }
+    ],
+    "divergenceFile": "tools/encoding/gb18030-divergences.json"
+  }
+}

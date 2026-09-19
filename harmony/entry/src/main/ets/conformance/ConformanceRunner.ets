@@ -230,16 +230,24 @@ export class ConformanceReport {
 const HOST_IMPL_MISSING_CASES: string[] = [];
 
 /**
- * 环境缺失（当前数量 2）：需要 GB18030 → UTF-16 字符集转换。
+ * 环境缺失（当前数量 0）。
  *
- * 这两个文件的字节**不是合法 UTF-8**（实测），必须先做 GB18030 解码；
- * 主机执行面无 `util.TextDecoder` 实现，自造一张 GB18030 码表既无必要也无从验证。
- * 设备上解码成立后才可在这个 runner 跑。
+ * 上一版这里是 `parser-csv-gb18030` / `parser-wechat-gb18030` 两条，理由是
+ * 「主机执行面无 util.TextDecoder，自造码表无从验证」。
+ *
+ * 该理由已被消除，方式不是"自造一张码表"，而是：
+ *   1. 码表由 **Node ICU** 的 `TextDecoder('gb18030', {fatal:true})` 生成
+ *      （`tools/encoding/generate-gb18030-table.mjs`），不是手写；
+ *   2. 生成结果再由**独立实现** CPython 内置 gb18030 codec **逐位复验**
+ *      （`tools/encoding/crosscheck-gb18030.py`：23,940 个双字节码位 +
+ *      50,400 个四字节 BMP 槽位 + 增补平面抽样，全部一致）。
+ *
+ * 两套独立实现一致，才让"这两条现在是真执行"这句话成立。
+ *
+ * 保留这个空清单而不是删掉整个分支：它的存在让"BLOCKED_BY_ENVIRONMENT
+ * 必须有逐条 caseId 证据"这件事继续成立，下次有人再往回塞一条时得写清理由。
  */
-const ENV_BLOCKED_CASES: string[] = [
-  'parser-csv-gb18030',
-  'parser-wechat-gb18030',
-];
+const ENV_BLOCKED_CASES: string[] = [];
 
 /**
  * 需要真实设备能力（当前数量 4）。
@@ -392,7 +400,9 @@ export function runConformanceWith(env: RunnerEnv, source: ConformanceTextSource
     }
     if (klass === 'ENV') {
       outcome.status = 'BLOCKED_BY_ENVIRONMENT';
-      outcome.detail = 'requires GB18030 charset decode; unavailable on the host test surface';
+      // 当前该桶为空（GB18030 两条已迁入已执行）。保留分支是为了让
+      // "往这个桶里放东西必须给出逐条理由"这件事继续成立。
+      outcome.detail = 'requires a host capability that is not available on the test surface';
       report.blockedByEnvironment.push(id);
       report.outcomes.push(outcome);
       continue;
@@ -635,11 +645,11 @@ export function computeCase(
 }
 
 /* ==========================================================================
- * parser（22 用例中的 20 条）—— 移植自 sources/Parsers.kt，零平台依赖
+ * parser（22 用例，全部可跑）—— 移植自 sources/Parsers.kt，零平台依赖
  *
- * 两条 GB18030 用例不在这里跑：它们的字节不是合法 UTF-8，需要字符集解码器，
- * 主机执行面没有（见 ENV_BLOCKED_CASES）。一旦解码器就绪，
- * 把这两条从 ENV_BLOCKED_CASES 里移除即可，本函数无需改动。
+ * 2026-09-19：GB18030 解码器落地后，最后 2 条也进来了，22/22 全部真实执行。
+ * 解码器本身与它的码表是独立的可验证件（见 tools/encoding/），
+ * 不是"在解析层加个 try/catch 就算支持"。
  * ========================================================================== */
 
 function runParser(jt: JsonText, source: ConformanceTextSource): string {

@@ -15,6 +15,7 @@
 
 import { ObservationDirection } from '../generated/CanonicalEnums';
 import { decodeStrictUtf8, hasUtf8Bom, stripUtf8Bom } from './Utf8';
+import { decodeGb18030, isGb18030Encoding } from './Gb18030';
 
 /** 需要 GB18030 解码时抛出 —— 主机执行面没有该能力，不得静默降级。 */
 export class CharsetNotSupportedError extends Error {
@@ -131,13 +132,13 @@ function isoUtc(y: number, mo: number, d: number, h: number, mi: number, s: numb
 }
 
 /**
- * UTF-8 BOM → 按 UTF-8；否则严格 UTF-8，失败则需要 GB18030。
+ * UTF-8 BOM → 按 UTF-8；否则严格 UTF-8，失败则回退 GB18030。
  *
- * 与 Android `decodeBillText` 的差异（如实记录，不是等价声明）：
- * Android 在严格 UTF-8 失败后回退 `Charset.forName("GB18030")`。
- * 本端目前**没有** GB18030 解码器（需要 2 万余码点的码表，自造既无依据也无验证手段），
- * 因此这里显式抛错，而不是静默替换成 U+FFFD
- * —— 静默替换会把"这份账单其实是 GBK 的"这个事实彻底抹掉，错的字节会一路流到金额里。
+ * 与 Android `decodeBillText` 同策略（严格 UTF-8 → GB18030 回退），
+ * 但边界口径更严：Android 用 `Charset.forName("GB18030")`，Java 实现在 0x80
+ * 等未定义字节上有 CP936 兼容行为；本端对无定义字节一律判非法
+ * （见 Gb18030.ets 文件头）。差异方向是**保守**的：拒绝会变成一条可解释的
+ * 错误，静默解错会变成一条错误的金额。
  */
 function decodeBillText(bytes: Uint8Array): string {
   if (hasUtf8Bom(bytes)) {
@@ -151,7 +152,11 @@ function decodeBillText(bytes: Uint8Array): string {
   if (strict !== undefined) {
     return strict;
   }
-  throw new CharsetNotSupportedError('GB18030 decode is not available on this platform yet');
+  const gb: string | undefined = decodeGb18030(bytes);
+  if (gb === undefined) {
+    throw new CharsetNotSupportedError('file is neither valid UTF-8 nor decodable GB18030');
+  }
+  return gb;
 }
 
 // ---------------------------------------------------------------------------
@@ -746,9 +751,21 @@ export class GenericCsvParser {
     if (strict !== undefined) {
       return strict;
     }
-    throw new CharsetNotSupportedError(
-      `encoding '${encoding}' requires a charset decoder not available on this platform`,
-    );
+    // 严格 UTF-8 失败 → 只有在 mapping 明确声明了 GB18030 系编码时才回退。
+    // 声明驱动、而不是"反正解不出来就试试 GBK"：后者会让一份真正损坏的 UTF-8
+    // 文件被 GB18030 解出一堆看起来正常的汉字，错误就此隐形。
+    if (!isGb18030Encoding(encoding)) {
+      throw new CharsetNotSupportedError(
+        `file is not valid UTF-8 and encoding '${encoding}' is not a GB18030 family charset`,
+      );
+    }
+    const gb: string | undefined = decodeGb18030(data);
+    if (gb === undefined) {
+      throw new CharsetNotSupportedError(
+        `file is not valid UTF-8 and could not be decoded as '${encoding}'`,
+      );
+    }
+    return gb;
   }
 }
 

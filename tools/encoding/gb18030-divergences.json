@@ -1,0 +1,41 @@
+{
+  "purpose": "GB18030 存在三套实现互不一致的码位。本文件把它们逐条固化，作为门禁断言的依据。",
+  "why_it_exists": "如果只说「码表由 ICU 生成」，那么 ICU 与 Android 端口（Java Charset.forName(\"GB18030\")）在这 21 个码位上不同这件事就会被藏起来。本项目要求三端逐字节一致，因此分歧必须逐条列出、可被复算、且**数量变化即 FAIL**。",
+  "implementations": {
+    "icu": "Node ICU TextDecoder('gb18030', {fatal:true}) —— 码表来源；同时也是 core（TypeScript oracle）所用实现",
+    "cpython": "CPython 内置 gb18030 codec（Modules/cjkcodecs）—— 独立复验方",
+    "java": "JDK Charset.forName(\"GB18030\") —— Android 端口所用实现（android/core/.../Parsers.kt:135）"
+  },
+  "overall_reading": "ICU 与 Java 在 21 个分歧码位中有 20 个一致；CPython 与它们都不同（CPython 实现的是 GB18030-2000 的映射，ICU / Java 是 GB18030-2005）。唯 A3A0 是 ICU 单独一侧。",
+  "policy": {
+    "base": "icu",
+    "override_target": "java",
+    "override_reason": "Android 已 CORE_FROZEN，其解码结果不可更改（只能做 canonical regression fix）。要让三端在同一份账单上产出同一结果，活跃端（Harmony / iOS）必须向冻结端对齐，反之不可行。因此码表以 ICU 为基底，再对 ICU 与 Java 不一致的码位套用 Java 的值。",
+    "oracle_impact": "core（TypeScript oracle）用的是 ICU，因此在被覆盖的码位上，oracle 与三端会差一个码点。已核查 fixtures/import 的 28 个文件与 fixtures/parser 的全部用例，均不含这些字节序列，故不影响任何既有 fixture 的 expected。",
+    "if_a_fixture_ever_contains_them": "必须先把该码位的裁决写进这里，再重新生成码表；不允许在解析层加特例。"
+  },
+  "entries": [
+    { "kind": "2", "seq": "A3A0", "icu": "U+3000", "cpython": "U+E5E5", "java": "U+E5E5", "override": "U+E5E5", "note": "唯一 ICU 单独一侧的码位；Java 与 CPython 同为 U+E5E5（PUA）。" },
+    { "kind": "2", "seq": "A6D9", "icu": "U+FE10", "cpython": "U+E78D", "java": "U+FE10", "override": null, "note": "GB18030-2000(PUA) vs 2005(竖排标点)" },
+    { "kind": "2", "seq": "A6DA", "icu": "U+FE12", "cpython": "U+E78E", "java": "U+FE12", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6DB", "icu": "U+FE11", "cpython": "U+E78F", "java": "U+FE11", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6DC", "icu": "U+FE13", "cpython": "U+E790", "java": "U+FE13", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6DD", "icu": "U+FE14", "cpython": "U+E791", "java": "U+FE14", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6DE", "icu": "U+FE15", "cpython": "U+E792", "java": "U+FE15", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6DF", "icu": "U+FE16", "cpython": "U+E793", "java": "U+FE16", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6EC", "icu": "U+FE17", "cpython": "U+E794", "java": "U+FE17", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6ED", "icu": "U+FE18", "cpython": "U+E795", "java": "U+FE18", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A6F3", "icu": "U+FE19", "cpython": "U+E796", "java": "U+FE19", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "A8BC", "icu": "U+1E3F", "cpython": "U+E7C7", "java": "U+1E3F", "override": null, "note": "2000/2005 对调：2000 为 PUA U+E7C7，2005 为 U+1E3F" },
+    { "kind": "2", "seq": "FE59", "icu": "U+9FB4", "cpython": "U+E81E", "java": "U+9FB4", "override": null, "note": "CJK 扩展汉字，2005 新增" },
+    { "kind": "2", "seq": "FE61", "icu": "U+9FB5", "cpython": "U+E826", "java": "U+9FB5", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "FE66", "icu": "U+9FB6", "cpython": "U+E82B", "java": "U+9FB6", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "FE67", "icu": "U+9FB7", "cpython": "U+E82C", "java": "U+9FB7", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "FE6D", "icu": "U+9FB8", "cpython": "U+E832", "java": "U+9FB8", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "FE7E", "icu": "U+9FB9", "cpython": "U+E843", "java": "U+9FB9", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "FE90", "icu": "U+9FBA", "cpython": "U+E854", "java": "U+9FBA", "override": null, "note": "同上" },
+    { "kind": "2", "seq": "FEA0", "icu": "U+9FBB", "cpython": "U+E864", "java": "U+9FBB", "override": null, "note": "同上" },
+    { "kind": "4", "seq": "8135F437", "icu": "U+E7C7", "cpython": "U+1E3F", "java": "U+E7C7", "override": null, "note": "四字节 BMP 区：与 A8BC 恰好对调，是 2000/2005 差异的直接证据" }
+  ],
+  "how_to_recompute": "python tools/encoding/crosscheck-gb18030.py 生成 .workbuddy/_gb_divergences.txt，再 java tools/encoding/Gb18030Arbiter.java <该文件> 取得 Java 侧取值。"
+}
