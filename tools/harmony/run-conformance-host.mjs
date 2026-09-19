@@ -20,7 +20,7 @@
 //
 // 无 PDIG_DEVECO_HOME 时：报 NOT_RUN 并 exit 0 ——
 // 不让缺 SDK 的 runner 变成假失败（与其它 Harmony gate 口径一致）。
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { join, posix } from 'node:path'
 import { homedir } from 'node:os'
 import { execFileSync } from 'node:child_process'
@@ -141,6 +141,39 @@ if (bad.length > 0) {
   for (const b of bad) console.log('  ' + b.status + '  ' + b.id)
 }
 
+// 机器可读报告（N5 跨平台差分要读它）。
+// 只写**真实执行过**的用例：没跑的用例在这里出现就是伪造证据。
+// Harmony 的 actual 不落盘（ArkTS 主机测试不保证可写文件），
+// 因此本报告只带 verdict，字节级 actual 比对留给 Android × iOS。
+function writeReport(canonCases) {
+  const results = {}
+  for (const c of canonCases) {
+    const slash = c.id.indexOf('/')
+    const category = slash > 0 ? c.id.slice(0, slash) : ''
+    const caseId = slash > 0 ? c.id.slice(slash + 1) : c.id
+    results[caseId] = {
+      status: (c.status === 'Success') ? 'PASS' : 'FAIL',
+      category,
+    }
+  }
+  const report = {
+    platform: 'harmony',
+    specVersion: '1.0.0',
+    summary: {
+      pass: canonCases.filter((c) => c.status === 'Success').length,
+      fail: canonCases.filter((c) => c.status !== 'Success').length,
+      notImplemented: CANONICAL_IMPL_MISSING,
+      envBlocked: CANONICAL_ENV_BLOCKED,
+      runtimeBlocked: CANONICAL_RUNTIME_BLOCKED,
+      total: CANONICAL_TOTAL,
+    },
+    results,
+  }
+  const dir = join(REPO, 'conformance', 'reports')
+  mkdirSync(dir, { recursive: true })
+  writeFileSync(join(dir, 'harmony.json'), JSON.stringify(report, null, 2) + '\n', 'utf8')
+}
+
 const ok = run === EXPECT_HOST_TOTAL && pass === EXPECT_PASS &&
   fail === EXPECT_FAIL && err === EXPECT_ERROR && bad.length === 0
 
@@ -194,7 +227,10 @@ console.log('[ canonical ] 三桶计数由测试内 accountingSplitMatchesSectio
 console.log('');
 console.log('HARMONY_CONFORMANCE_HOST=' + (ok && canonOk ? 'PASS' : 'FAIL'));
 console.log('HARMONY_HOST_PASS=' + CANONICAL_EXECUTED + '/' + CANONICAL_TOTAL);
+const canonCases = cases.filter((c) => c.id.includes('/'));
+
 if (ok && canonOk) {
+  writeReport(canonCases);
   console.log('  → ' + CANONICAL_EXECUTED + ' 条 canonical 用例在真实 ArkTS 运行时下逐字节复现 expected');
   console.log('  → 余下 ' + (CANONICAL_TOTAL - CANONICAL_EXECUTED) + ' 条按性质分三桶，'
     + '明细见 HARMONY_REMAINING_6_AUDIT.md');

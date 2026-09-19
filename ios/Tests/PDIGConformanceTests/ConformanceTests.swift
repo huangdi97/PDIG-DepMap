@@ -8,7 +8,7 @@ final class ConformanceTests: XCTestCase {
     ///
     /// 已执行 / 未移植 / 环境缺失三桶各自断言，**不**把"未移植"计入通过。
     func testCanonicalAccounting() throws {
-        let report = try ConformanceRunner.run()
+        let report = try ConformanceRunner.runAndWriteReport()
         print("\n" + report.render() + "\n")
 
         XCTAssertEqual(report.total, 91, "canonical 用例总数必须是 91")

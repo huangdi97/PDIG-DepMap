@@ -1140,3 +1140,92 @@ remaining  = 6              (2 = environment missing, 4 = device/runtime require
 
 不得写：`HARMONY_CONFORMANCE = 91/91`；不得写：`N3_HARMONY_FULL_PARITY = PASS`。
 Harmony 尚未完成 Runtime Closure —— 下一阶段才是 **HARMONY RUNTIME / REMAINING-6 CLOSURE**。
+
+---
+
+## 本轮：iOS N4 canonical 全移植 + Harmony GB18030 闭合（2026-09-19）
+
+分支 `feat/mvp03-living-graph`，末提交 `9cd55f5`。
+
+### 1. Harmony：GB18030 字符集 ENV_BLOCKED 闭合（85 → 87）
+
+两条 `parser-*-gb18030` 此前记 ENV_BLOCKED。本轮以**可复现证据**闭合：
+
+| 环节 | 实现 | 结果 |
+| --- | --- | --- |
+| 表生成 | Node ICU `TextDecoder('gb18030', {fatal:true})` | 双字节 23940 全定义；BMP 四字节 50400 槽（有效 39420 / 209 游程）；增补平面复验 7656 条 |
+| 独立验算 | CPython `gb18030` codec（`tools/encoding/crosscheck-gb18030.py`） | mismatch = 0 → `GB18030_CROSSCHECK = PASS` |
+| 分歧仲裁 | JDK `Charset.forName("GB18030")`（Android 冻结口径） | 21 个分歧码位，JAVA 同意 ICU 20 / 同意 CPython 1 / 都不 0；仅 `A3A0` 采用 override `U+E5E5` |
+
+产物：`tools/encoding/gb18030-divergences.json`（21 条逐条记录）、
+`Gb18030Table.ets` / `Gb18030Table.swift`（生成物，未手抄）。
+解析侧是**声明驱动**的：先严格 UTF-8，仅当 mapping 声明了 GB18030 系列
+charset 才回退，不做静默兜底。
+
+```
+HARMONY_CONFORMANCE_HOST=PASS
+HARMONY_HOST_PASS=87/91   fail=0
+HARMONY_ENV_BLOCKED=0
+HARMONY_DEVICE_BLOCKED=4  (Argon2id 原生 / ArkData)
+```
+
+### 2. iOS N4：canonical 91 条全部真实执行
+
+PDIGCore 移植模块（均为 Android 冻结源的忠实移植，非重新设计）：
+`Models / Relations / ImpactKernel / PlanRules / ScenarioRegistry /
+StateMachines / GraphRevision / Json / Jcs / DepmapContainer / Schema /
+Migrations（由 Kotlin 源生成）/ SchemaMigrator / Parsers / Gb18030 /
+Timeline / SqliteDriver / GraphSerialize`；
+`PDIGConformance` 为 fixture 驱动执行器；`PDIGArgon2` 通过转发头接
+vendored Argon2（不复制源码进包，VENDOR.json 哈希校验才成立）。
+
+CI（macos-14，run **35427324918**，head `9cd55f5`）：
+
+```
+IOS_TOTAL_CANONICAL      = 91
+IOS_HOST_EXECUTED        = 91   (fail=0)
+IOS_HOST_IMPL_MISSING    = 0
+IOS_ENV_BLOCKED          = 0
+IOS_CONFORMANCE_HOST     = PASS
+IOS_HOST_PASS            = 91/91
+```
+
+分类账（逐项，不用汇总值代替）：relations 18 / jcs 1 / scenario 1 /
+parser 22 / impact 13 / readiness 16 / coverage 6 / timeline 3 /
+state-machine 5 / depmap 3 / migration 2 / backup 1 = **91**。
+
+### 3. 本轮修掉的两个真缺陷（都不是"改测试让它绿"）
+
+1. **门禁假绿**：`swift build 2>&1 | tail -40` 的退出码取自 `tail`，
+   编译错误被吞掉、job 仍报 success。已去掉管道，退出码直接透传。
+2. **Swift `Character` 是字素簇**：`"\r\n"` 是**一个** Character，
+   `Array(text)` + `ch == "\r"` 永远匹配不到 CRLF → `parser-csv-crlf`
+   表头最后一列变成 `currency\r\n`。已改为按 `unicodeScalars` 扫描
+   （`splitLines` / `parseCsvLine` / `parseCsv`），是解析层修复，非用例规避。
+
+另有 codegen 侧三处：保留字 case 未加反引号（`in` / `any` / `open`）、
+`dq()` 未转义控制字符（TAB 分隔符字面量进源码）、raw-value enum 缺
+Equatable 合成条件 —— 全部修在生成器 `tools/codegen/generate.mjs`，
+不手改生成物。
+
+### 4. 口径边界（必须照此书写，不得升级）
+
+- iOS 91/91 证明的是 **canonical 逻辑一致性**，**不是**以下任何一项：
+  - 不是「iOS App 已接入 SQLCipher」——host harness 用系统 sqlite3，
+    仅覆盖 payload 序列化与迁移逻辑；at-rest 加密仍是 App 层未完成项；
+  - 不是「iOS UI / Keychain / LocalAuthentication 已完成」——SwiftUI、
+    生物识别解锁、Keychain 尚未开工；
+  - 不是「iOS 真机跑过」——全部结论来自 macos-14 runner 的编译 + 单测，
+    **无设备运行时证据**。
+- Harmony 仍为 87/91（4 条设备运行时：Argon2id 原生 / ArkData）。
+
+### 5. 当前唯一可写口径
+
+```
+GITHUB_PORTABLE_CI                  = PASS
+HARMONY_HOST_CONFORMANCE_LOCAL      = PASS  (canonical 87/91, ENV_BLOCKED 0, DEVICE_BLOCKED 4)
+IOS_CI_COMPILE_AND_HOST_CONFORMANCE = PASS  (canonical 91/91, fail 0)
+ANDROID_CONFORMANCE                 = PASS 91/91 (JVM, 本机 JDK21 复跑)
+IOS_DEVICE_RUNTIME                  = NOT_RUN
+HARMONY_DEVICE_RUNTIME              = NOT_RUN
+```

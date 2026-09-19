@@ -28,6 +28,25 @@ public enum ConformanceRunner {
         public let category: String
         public let status: CaseStatus
         public let detail: String
+        /// 实际产出（跨平台差分要用；未执行则为 nil）。
+        public let actual: Json?
+        public init(id: String, category: String, status: CaseStatus, detail: String, actual: Json? = nil) {
+            self.id = id
+            self.category = category
+            self.status = status
+            self.detail = detail
+            self.actual = actual
+        }
+
+        /// Android 报告里的同名词，便于三端差分工具统一处理。
+        public var wireStatus: String {
+            switch status {
+            case .pass: return "PASS"
+            case .fail: return "FAIL"
+            case .implMissing: return "NOT_IMPLEMENTED"
+            case .envBlocked: return "ENV_BLOCKED"
+            }
+        }
     }
 
     public struct Report: Sendable {
@@ -78,11 +97,12 @@ public enum ConformanceRunner {
                 switch try Evaluators.evaluate(category: entry.category, caseId: entry.id, input: input, store: store) {
                 case .value(let actual):
                     if JsonDeepEqual.equal(expected, actual) {
-                        outcomes.append(CaseOutcome(id: entry.id, category: entry.category, status: .pass, detail: ""))
+                        outcomes.append(CaseOutcome(id: entry.id, category: entry.category, status: .pass, detail: "", actual: actual))
                     } else {
                         outcomes.append(CaseOutcome(
                             id: entry.id, category: entry.category, status: .fail,
-                            detail: JsonDeepEqual.describeDiff(expected: expected, actual: actual)
+                            detail: JsonDeepEqual.describeDiff(expected: expected, actual: actual),
+                            actual: actual
                         ))
                     }
                 case .notImplemented:
@@ -100,5 +120,38 @@ public enum ConformanceRunner {
             }
         }
         return Report(outcomes: outcomes)
+    }
+
+    /// 与 Android `conformance/reports/android.json` 同形的机器可读报告，
+    /// 供跨平台差分工具逐用例比对（N5）。
+    public static func runAndWriteReport() throws -> Report {
+        let report = try run()
+        let store = try FixtureStore.locate()
+        var fields: [(String, Json)] = []
+        for o in report.outcomes {
+            var entry: [(String, Json)] = [
+                ("status", .str(o.wireStatus)),
+                ("category", .str(o.category)),
+            ]
+            if let actual = o.actual { entry.append(("actual", actual)) }
+            fields.append((o.id, .obj(JsonObject(entry))))
+        }
+        let json = Json.obj(JsonObject([
+            ("platform", .str("ios")),
+            ("specVersion", .str("1.0.0")),
+            ("summary", .obj(JsonObject([
+                ("pass", .num(String(report.passed))),
+                ("fail", .num(String(report.failed))),
+                ("notImplemented", .num(String(report.implMissing))),
+                ("envBlocked", .num(String(report.envBlocked))),
+                ("total", .num(String(report.total))),
+            ]))),
+            ("results", .obj(JsonObject(fields))),
+        ]))
+        let dir = (store.root as NSString).appendingPathComponent("conformance/reports")
+        try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        let path = (dir as NSString).appendingPathComponent("ios.json")
+        try (JsonWriter.write(json) + "\n").write(toFile: path, atomically: true, encoding: .utf8)
+        return report
     }
 }

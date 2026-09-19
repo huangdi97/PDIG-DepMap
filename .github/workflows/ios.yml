@@ -31,9 +31,14 @@ permissions:
 #   IOS_SIGNING / TESTFLIGHT / APP_STORE      = EXTERNAL_BLOCKED（需人类动作）
 #   IOS_DEVICE_RUNTIME（真机 LocalAuthentication / Keychain 访问组）
 #                                            = NOT_RUN
-#   IOS_SQLCIPHER_PERSISTENCE                 = NOT_RUN（依赖尚未接入本包，
-#                                              相关 canonical 用例记 ENV_BLOCKED）
-#   IOS_ARGON2ID_NATIVE                       = NOT_RUN（同上）
+#   IOS_SQLCIPHER_PERSISTENCE                 = NOT_RUN（App 层未完成。canonical
+#                                               的 backup / migration 两条由 host
+#                                               harness 用系统 sqlite3 执行，证明的是
+#                                               payload 与迁移逻辑，**不是** at-rest
+#                                               加密）
+#   IOS_ARGON2ID_NATIVE                       = PASS（vendored Argon2 经转发头接入，
+#                                               depmap-golden-v1 对 derivedKey 做字节级
+#                                               golden 校验）
 #
 # 口径：本 workflow 的结论叫 IOS_CI_COMPILE_AND_HOST_CONFORMANCE，
 # **不**等于「iOS 应用可上架」，也**不**替代真机门禁。
@@ -60,17 +65,16 @@ jobs:
 
       # canonical runner 从仓库读冻结 fixture（不在包里内嵌副本），
       # 因此必须在仓库根下执行；SwiftPM 的 cwd 即为包目录，上溯两级到根。
+      # canonical runner 会顺带写出 conformance/reports/ios.json（N5 差分要用）。
+      # 写不出来也算失败：差分工具缺一份报告就无法证明跨平台一致。
       - name: Test (canonical 91 + smoke)
         working-directory: ios
         run: swift test
 
       - name: Upload iOS conformance report
         if: always()
-        run: |
-          echo "IOS_CI_COMPILE_AND_HOST_CONFORMANCE=see 'Test' step output" > ios-conformance.txt
-      - uses: actions/upload-artifact@v4
-        if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: ios-conformance-report
-          path: ios-conformance.txt
-          if-no-files-found: ignore
+          path: conformance/reports/ios.json
+          if-no-files-found: error
