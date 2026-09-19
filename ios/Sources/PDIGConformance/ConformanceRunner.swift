@@ -75,7 +75,7 @@ public enum ConformanceRunner {
                 continue
             }
             do {
-                switch try Evaluators.evaluate(category: entry.category, caseId: entry.id, input: input) {
+                switch try Evaluators.evaluate(category: entry.category, caseId: entry.id, input: input, store: store) {
                 case .value(let actual):
                     if JsonDeepEqual.equal(expected, actual) {
                         outcomes.append(CaseOutcome(id: entry.id, category: entry.category, status: .pass, detail: ""))

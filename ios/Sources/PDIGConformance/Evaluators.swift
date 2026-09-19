@@ -24,11 +24,17 @@ public struct EvalError: Error, CustomStringConvertible, Equatable {
 
 public enum Evaluators {
 
-    public static func evaluate(category: String, caseId: String, input: JsonObject) throws -> EvalOutcome {
+    public static func evaluate(
+        category: String,
+        caseId: String,
+        input: JsonObject,
+        store: FixtureStore
+    ) throws -> EvalOutcome {
         switch category {
         case "relations": return .value(try relations(input))
         case "jcs": return .value(try jcs(input))
         case "scenario": return .value(try scenario(input))
+        case "parser": return .value(try parser(input, store))
         case "timeline": return try timeline(caseId, input)
         case "migration": return try migration(caseId, input)
         default: return .notImplemented
@@ -71,6 +77,101 @@ public enum Evaluators {
         var fields: [(String, Json)] = [("ok", .bool(r.ok))]
         if let reason = r.reason { fields.append(("reason", .str(reason))) }
         return .obj(JsonObject(fields))
+    }
+
+    // ------------------------------------------------------------------ parser
+
+    /// 把 fixture 指向的导入文件喂给**真实解析器**，输出与 expected 同形的 Json。
+    ///
+    /// 只投影 sourceTxnId 之外的字段：fixture 是冻结契约，sourceTxnId 由
+    /// 各端内部生成、不参与跨端比对（见 fixture 的 description）。
+    private static func parser(_ input: JsonObject, _ store: FixtureStore) throws -> Json {
+        guard let adapterId = input["adapterId"]?.stringValue else {
+            throw EvalError("parser fixture missing adapterId")
+        }
+        guard let file = input["file"]?.stringValue else {
+            throw EvalError("parser fixture missing file")
+        }
+        let bytes = try store.readBytes("fixtures/import/" + file)
+        let result: ParseResult
+        switch adapterId {
+        case "wechat":
+            result = try WechatParser.parse(bytes)
+        case "ofx_qfx":
+            result = try OfxParser.parse(bytes)
+        case "generic_csv":
+            result = try GenericCsvParser.parse(bytes, try mappingProfile(input["mapping"]))
+        default:
+            throw EvalError("unknown adapter: \(adapterId)")
+        }
+
+        var obs: [Json] = []
+        for o in result.observations {
+            obs.append(.obj(JsonObject([
+                ("occurredAt", .str(o.occurredAt)),
+                ("amount", .num(numberText(o.amount))),
+                ("currency", .str(o.currency)),
+                ("direction", .str(o.direction.rawValue)),
+                ("merchantRaw", .str(o.merchantRaw)),
+                ("status", .str(o.status)),
+            ])))
+        }
+        var errs: [Json] = []
+        for e in result.errors {
+            errs.append(.obj(JsonObject([
+                ("line", .num(String(e.line))),
+                ("reason", .str(e.reason)),
+            ])))
+        }
+        return .obj(JsonObject([
+            ("observationCount", .num(String(result.observations.count))),
+            ("observations", .arr(obs)),
+            ("errorCount", .num(String(result.errors.count))),
+            ("errors", .arr(errs)),
+        ]))
+    }
+
+    /// 数字字面形式与 TS oracle / Android `num()` 对齐：整数不带小数点。
+    /// （JsonDeepEqual 按数值比较，这里保持同形只是为了让失败时的 diff 可读。）
+    private static func numberText(_ d: Double) -> String {
+        if d == d.rounded() && abs(d) < 1e15 { return String(Int64(d)) }
+        return String(d)
+    }
+
+    /// 显式字段映射。fixture 没给 mapping（wechat / ofx_qfx）时返回 nil。
+    private static func mappingProfile(_ v: Json?) throws -> MappingProfile? {
+        guard let v = v, let m = v.objectValue else { return nil }
+        guard let columnsJson = m["columns"]?.objectValue,
+              let dateTime = columnsJson["dateTime"]?.stringValue else {
+            throw EvalError("generic_csv mapping missing columns.dateTime")
+        }
+        let columns = MappingColumns(
+            transactionId: columnsJson["transactionId"]?.stringValue,
+            dateTime: dateTime,
+            amount: columnsJson["amount"]?.stringValue,
+            debit: columnsJson["debit"]?.stringValue,
+            credit: columnsJson["credit"]?.stringValue,
+            description: columnsJson["description"]?.stringValue,
+            counterparty: columnsJson["counterparty"]?.stringValue,
+            currency: columnsJson["currency"]?.stringValue,
+            balance: columnsJson["balance"]?.stringValue,
+            transactionType: columnsJson["transactionType"]?.stringValue,
+            paymentMethod: columnsJson["paymentMethod"]?.stringValue
+        )
+        let o = m["options"]?.objectValue ?? JsonObject([])
+        let formats = o["dateFormats"]?.arrayValue?.compactMap { $0.stringValue } ?? ["YYYY-MM-DD"]
+        let decRaw = o["decimalSeparator"]?.stringValue ?? "."
+        guard let dec = decRaw.first else { throw EvalError("empty decimalSeparator") }
+        let options = MappingOptions(
+            delimiter: o["delimiter"]?.stringValue ?? ",",
+            dateFormats: formats,
+            decimalSeparator: dec,
+            amountSignMode: o["amountSignMode"]?.stringValue ?? "outward_positive",
+            hasHeaderRow: o["hasHeaderRow"]?.boolValue ?? true,
+            encoding: o["encoding"]?.stringValue ?? "utf-8",
+            positiveDirection: o["positiveDirection"]?.stringValue
+        )
+        return MappingProfile(columns: columns, options: options)
     }
 
     // --------------------------------------------------------------------- jcs

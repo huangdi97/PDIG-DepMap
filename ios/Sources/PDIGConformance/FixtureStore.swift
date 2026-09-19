@@ -41,6 +41,14 @@ public struct FixtureStore {
         return String(decoding: data, as: UTF8.self)
     }
 
+    public func readBytes(_ relativePath: String) throws -> [UInt8] {
+        let p = (root as NSString).appendingPathComponent(relativePath)
+        guard let data = FileManager.default.contents(atPath: p) else {
+            throw FixtureError("fixture file missing: \(relativePath)")
+        }
+        return [UInt8](data)
+    }
+
     public func manifest() throws -> [FixtureEntry] {
         let text = try read("conformance/CONFORMANCE_MANIFEST.json")
         let parsed = try JsonParser.parse(text)
