@@ -484,7 +484,7 @@ public enum class AmountSignMode(public val wire: String) {
 public enum class CsvDelimiter(public val wire: String) {
     U2C(","),
     U3B(";"),
-    U09("	"),
+    U09("\t"),
     U7C("|")
     ;
 

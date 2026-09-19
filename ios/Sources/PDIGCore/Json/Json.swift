@@ -46,8 +46,8 @@ public struct JsonObject: Equatable, Sendable {
     public func has(_ key: String) -> Bool { index[key] != nil }
 }
 
-/// JSON 值模型（无第三方类型）。
-public enum Json: Equatable, Sendable {
+/// JSON 值模型（无第三方类型）。同上：不声明 `Equatable`（元组字段的缘故）。
+public enum Json: Sendable {
     case null
     case bool(Bool)
     case num(String)

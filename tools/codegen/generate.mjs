@@ -67,8 +67,43 @@ function quote(s) {
   return "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'"
 }
 
+/**
+ * wire value → 'X' 形式（双引号转义）。
+ *
+ * 2026-09-19 修正：**控制字符必须转义**。此前 `dq()` 只处理 `\` 与 `"`，
+ * 于是 `CsvDelimiter.U_0009` 的 wire（一个裸 TAB）被原样写进源码，
+ * Swift 报 `unprintable ASCII character found in source file`。
+ * 转义成 `\t` / `\n` / `\r` / `\uXXXX` 在 Kotlin / Swift / ArkTS 里语义相同。
+ */
 function dq(s) {
-  return '"' + String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"'
+  const escaped = String(s)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\t/g, '\\t')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/[\u0000-\u001f]/g, (c) => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0'))
+  return '"' + escaped + '"'
+}
+
+/**
+ * Swift 保留字作为 case 名必须加反引号。
+ *
+ * 2026-09-19 修正：spec 里有 `in`（ObservationDirection）、`any`（GroupMode）、
+ * `open`（DriftStatus），直接输出 `case in = "in"` 会让 Swift 报
+ * `keyword 'in' cannot be used as an identifier here`。
+ */
+const SWIFT_KEYWORDS = new Set([
+  'in', 'any', 'open', 'default', 'self', 'static', 'do', 'is', 'as', 'nil',
+  'true', 'false', 'repeat', 'where', 'defer', 'guard', 'import', 'init',
+  'deinit', 'subscript', 'protocol', 'extension', 'internal', 'public',
+  'private', 'fileprivate', 'inout', 'operator', 'precedence', 'type',
+  'some', 'none', 'for', 'while', 'switch', 'case', 'break', 'continue',
+  'fallthrough', 'return', 'throw', 'try', 'catch', 'async', 'await',
+])
+
+function swiftIdent(name) {
+  return SWIFT_KEYWORDS.has(name) ? '`' + name + '`' : name
 }
 
 // ---------------------------------------------------------------------------
@@ -194,7 +229,10 @@ function emitSwift() {
 
   for (const name of Object.keys(spec.enums)) {
     for (const { enumName, entries } of enumEntries(name)) {
-      L.push(`public enum ${enumName}: String, CaseIterable, Sendable {`)
+      // Equatable 必须**显式声明**：raw-value enum 不会自动获得 `==`，
+      // 而领域模型（Dependency / DepNode …）声明了 Equatable 并持有这些枚举，
+      // 少了它会让整片模型的合成失败。
+      L.push(`public enum ${enumName}: String, CaseIterable, Sendable, Equatable {`)
       for (const e of entries) {
         L.push(`    case ${lowerCamel(e.name)} = ${dq(e.wire)}`)
       }
@@ -205,9 +243,9 @@ function emitSwift() {
     }
   }
 
-  L.push('public enum ErrorCode: String, CaseIterable, Sendable {')
+  L.push('public enum ErrorCode: String, CaseIterable, Sendable, Equatable {')
   for (const c of errors.codes) {
-    L.push(`    case ${lowerCamel(enumConstName(c.code))} = ${dq(c.code)}`)
+    L.push(`    case ${swiftIdent(lowerCamel(enumConstName(c.code)))} = ${dq(c.code)}`)
   }
   L.push('')
   L.push('    public var wire: String { rawValue }')
@@ -223,7 +261,7 @@ function emitSwift() {
   L.push('    public var messageKey: String {')
   L.push('        switch self {')
   for (const c of errors.codes) {
-    L.push(`        case .${lowerCamel(enumConstName(c.code))}: return ${dq(c.messageKey)}`)
+    L.push(`        case .${swiftIdent(lowerCamel(enumConstName(c.code)))}: return ${dq(c.messageKey)}`)
   }
   L.push('        }')
   L.push('    }')

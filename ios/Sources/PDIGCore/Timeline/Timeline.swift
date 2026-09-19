@@ -396,7 +396,7 @@ public enum Timeline {
 
         // 3. 开放 Drift → drift_review（attention，priority 3）
         for d in input.drifts {
-            if d.status != DriftStatus.open.rawValue { continue }
+            if d.status != DriftStatus.`open`.rawValue { continue }
             items.append(
                 Item(
                     id: "tl-drift-\(d.id)",

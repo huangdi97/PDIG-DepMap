@@ -136,7 +136,7 @@ public enum ImpactKernel {
                 let groupResults = coveringGroups.map { g -> Bool in
                     let memberEdges = activePaymentDeps.filter { g.memberEdgeIds.contains($0.id) }
                     let availableMembers = memberEdges.filter { !unavailableSet.contains(keyOf($0.from)) }
-                    if g.mode == .any {
+                    if g.mode == .`any` {
                         return !availableMembers.isEmpty
                     }
                     return availableMembers.count == memberEdges.count

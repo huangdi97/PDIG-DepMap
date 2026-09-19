@@ -13,7 +13,7 @@ public enum CanonicalSpec {
     public static let graphPayloadVersion = 3
 }
 
-public enum NodeKind: String, CaseIterable, Sendable {
+public enum NodeKind: String, CaseIterable, Sendable, Equatable {
     case identityAnchor = "identity_anchor"
     case paymentInstrument = "payment_instrument"
     case account = "account"
@@ -25,7 +25,7 @@ public enum NodeKind: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum Relation: String, CaseIterable, Sendable {
+public enum Relation: String, CaseIterable, Sendable, Equatable {
     case fundingSource = "funding_source"
     case merchantAgreement = "merchant_agreement"
     case verifies = "verifies"
@@ -35,14 +35,14 @@ public enum Relation: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum RelationRuntime: String, CaseIterable, Sendable {
+public enum RelationRuntime: String, CaseIterable, Sendable, Equatable {
     case fundingSource = "funding_source"
     case merchantAgreement = "merchant_agreement"
 
     public var wire: String { rawValue }
 }
 
-public enum Capability: String, CaseIterable, Sendable {
+public enum Capability: String, CaseIterable, Sendable, Equatable {
     case payment = "payment"
     case access = "access"
     case recovery = "recovery"
@@ -51,48 +51,48 @@ public enum Capability: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum CapabilityRuntime: String, CaseIterable, Sendable {
+public enum CapabilityRuntime: String, CaseIterable, Sendable, Equatable {
     case payment = "payment"
 
     public var wire: String { rawValue }
 }
 
-public enum Criticality: String, CaseIterable, Sendable {
+public enum Criticality: String, CaseIterable, Sendable, Equatable {
     case required = "required"
     case unknown = "unknown"
 
     public var wire: String { rawValue }
 }
 
-public enum DependencyState: String, CaseIterable, Sendable {
+public enum DependencyState: String, CaseIterable, Sendable, Equatable {
     case active = "active"
     case retired = "retired"
 
     public var wire: String { rawValue }
 }
 
-public enum DependencyOrigin: String, CaseIterable, Sendable {
+public enum DependencyOrigin: String, CaseIterable, Sendable, Equatable {
     case manual = "manual"
     case proposal = "proposal"
 
     public var wire: String { rawValue }
 }
 
-public enum GroupMode: String, CaseIterable, Sendable {
+public enum GroupMode: String, CaseIterable, Sendable, Equatable {
     case any = "ANY"
     case all = "ALL"
 
     public var wire: String { rawValue }
 }
 
-public enum GroupState: String, CaseIterable, Sendable {
+public enum GroupState: String, CaseIterable, Sendable, Equatable {
     case active = "active"
     case retired = "retired"
 
     public var wire: String { rawValue }
 }
 
-public enum ProposalDecision: String, CaseIterable, Sendable {
+public enum ProposalDecision: String, CaseIterable, Sendable, Equatable {
     case pending = "pending"
     case accepted = "accepted"
     case rejected = "rejected"
@@ -100,14 +100,14 @@ public enum ProposalDecision: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum VerificationBasisType: String, CaseIterable, Sendable {
+public enum VerificationBasisType: String, CaseIterable, Sendable, Equatable {
     case userConfirmed = "user_confirmed"
     case authoritativeSource = "authoritative_source"
 
     public var wire: String { rawValue }
 }
 
-public enum SourceKind: String, CaseIterable, Sendable {
+public enum SourceKind: String, CaseIterable, Sendable, Equatable {
     case statementFile = "statement_file"
     case platformExport = "platform_export"
     case openBanking = "open_banking"
@@ -117,7 +117,7 @@ public enum SourceKind: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum CoverageMode: String, CaseIterable, Sendable {
+public enum CoverageMode: String, CaseIterable, Sendable, Equatable {
     case eventStream = "event_stream"
     case partialSnapshot = "partial_snapshot"
     case completeSnapshot = "complete_snapshot"
@@ -126,14 +126,14 @@ public enum CoverageMode: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum SourceInstanceState: String, CaseIterable, Sendable {
+public enum SourceInstanceState: String, CaseIterable, Sendable, Equatable {
     case active = "active"
     case retired = "retired"
 
     public var wire: String { rawValue }
 }
 
-public enum ObservationDirection: String, CaseIterable, Sendable {
+public enum ObservationDirection: String, CaseIterable, Sendable, Equatable {
     case in = "in"
     case out = "out"
     case neutral = "neutral"
@@ -141,25 +141,25 @@ public enum ObservationDirection: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum EvidenceKind: String, CaseIterable, Sendable {
+public enum EvidenceKind: String, CaseIterable, Sendable, Equatable {
     case transactionStream = "transaction_stream"
 
     public var wire: String { rawValue }
 }
 
-public enum ProposalType: String, CaseIterable, Sendable {
+public enum ProposalType: String, CaseIterable, Sendable, Equatable {
     case recurringPaymentRoute = "recurring_payment_route"
 
     public var wire: String { rawValue }
 }
 
-public enum ProposalSource: String, CaseIterable, Sendable {
+public enum ProposalSource: String, CaseIterable, Sendable, Equatable {
     case statement = "statement"
 
     public var wire: String { rawValue }
 }
 
-public enum ImpactLevel: String, CaseIterable, Sendable {
+public enum ImpactLevel: String, CaseIterable, Sendable, Equatable {
     case mustChange = "must_change"
     case backupPath = "backup_path"
     case degraded = "degraded"
@@ -170,7 +170,7 @@ public enum ImpactLevel: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ImpactTargetStatus: String, CaseIterable, Sendable {
+public enum ImpactTargetStatus: String, CaseIterable, Sendable, Equatable {
     case mustChange = "must_change"
     case backupPath = "backup_path"
     case degraded = "degraded"
@@ -180,7 +180,7 @@ public enum ImpactTargetStatus: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ImpactReasonCode: String, CaseIterable, Sendable {
+public enum ImpactReasonCode: String, CaseIterable, Sendable, Equatable {
     case requiredEdgeNoAlternative = "required_edge_no_alternative"
     case confirmedGroupFailed = "confirmed_group_failed"
     case confirmedGroupCovered = "confirmed_group_covered"
@@ -192,7 +192,7 @@ public enum ImpactReasonCode: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ChangePlanWorkflowState: String, CaseIterable, Sendable {
+public enum ChangePlanWorkflowState: String, CaseIterable, Sendable, Equatable {
     case draft = "draft"
     case analyzed = "analyzed"
     case reviewRequired = "review_required"
@@ -205,7 +205,7 @@ public enum ChangePlanWorkflowState: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum PlanEffectiveStatus: String, CaseIterable, Sendable {
+public enum PlanEffectiveStatus: String, CaseIterable, Sendable, Equatable {
     case draft = "draft"
     case analyzed = "analyzed"
     case reviewRequired = "review_required"
@@ -219,7 +219,7 @@ public enum PlanEffectiveStatus: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum PlanActionPhase: String, CaseIterable, Sendable {
+public enum PlanActionPhase: String, CaseIterable, Sendable, Equatable {
     case prepare = "prepare"
     case change = "change"
     case verify = "verify"
@@ -227,7 +227,7 @@ public enum PlanActionPhase: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ActionVerificationMethod: String, CaseIterable, Sendable {
+public enum ActionVerificationMethod: String, CaseIterable, Sendable, Equatable {
     case manualConfirmation = "manual_confirmation"
     case futureObservation = "future_observation"
     case authoritativeSource = "authoritative_source"
@@ -235,7 +235,7 @@ public enum ActionVerificationMethod: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ActionVerificationStatus: String, CaseIterable, Sendable {
+public enum ActionVerificationStatus: String, CaseIterable, Sendable, Equatable {
     case notRequired = "not_required"
     case pending = "pending"
     case evidenceSuggested = "evidence_suggested"
@@ -245,7 +245,7 @@ public enum ActionVerificationStatus: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum PlanReadiness: String, CaseIterable, Sendable {
+public enum PlanReadiness: String, CaseIterable, Sendable, Equatable {
     case blocked = "blocked"
     case reviewRequired = "review_required"
     case readyWithKnownScope = "ready_with_known_scope"
@@ -253,7 +253,7 @@ public enum PlanReadiness: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum CoverageLevel: String, CaseIterable, Sendable {
+public enum CoverageLevel: String, CaseIterable, Sendable, Equatable {
     case unknown = "unknown"
     case limited = "limited"
     case partial = "partial"
@@ -262,7 +262,7 @@ public enum CoverageLevel: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum DriftKind: String, CaseIterable, Sendable {
+public enum DriftKind: String, CaseIterable, Sendable, Equatable {
     case possibleReplacement = "possible_replacement"
     case possibleAdditionalPath = "possible_additional_path"
     case relationReappeared = "relation_reappeared"
@@ -270,7 +270,7 @@ public enum DriftKind: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum DriftStatus: String, CaseIterable, Sendable {
+public enum DriftStatus: String, CaseIterable, Sendable, Equatable {
     case open = "open"
     case confirmedChange = "confirmed_change"
     case dismissed = "dismissed"
@@ -279,21 +279,21 @@ public enum DriftStatus: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum DriftIgnoreReason: String, CaseIterable, Sendable {
+public enum DriftIgnoreReason: String, CaseIterable, Sendable, Equatable {
     case alreadyConfirmed = "already_confirmed"
     case belowThreshold = "below_threshold"
 
     public var wire: String { rawValue }
 }
 
-public enum CandidateKind: String, CaseIterable, Sendable {
+public enum CandidateKind: String, CaseIterable, Sendable, Equatable {
     case paymentInstrument = "payment_instrument"
     case service = "service"
 
     public var wire: String { rawValue }
 }
 
-public enum CandidateStatus: String, CaseIterable, Sendable {
+public enum CandidateStatus: String, CaseIterable, Sendable, Equatable {
     case pending = "pending"
     case accepted = "accepted"
     case dismissed = "dismissed"
@@ -302,7 +302,7 @@ public enum CandidateStatus: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum TimelineBucket: String, CaseIterable, Sendable {
+public enum TimelineBucket: String, CaseIterable, Sendable, Equatable {
     case attention = "attention"
     case overdue = "overdue"
     case today = "today"
@@ -314,7 +314,7 @@ public enum TimelineBucket: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum TimelineItemKind: String, CaseIterable, Sendable {
+public enum TimelineItemKind: String, CaseIterable, Sendable, Equatable {
     case needsAttention = "needs_attention"
     case upcomingChange = "upcoming_change"
     case verificationPending = "verification_pending"
@@ -325,7 +325,7 @@ public enum TimelineItemKind: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum TimelineSourceType: String, CaseIterable, Sendable {
+public enum TimelineSourceType: String, CaseIterable, Sendable, Equatable {
     case changePlan = "change_plan"
     case realityDrift = "reality_drift"
     case actionVerification = "action_verification"
@@ -335,7 +335,7 @@ public enum TimelineSourceType: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ScenarioCategory: String, CaseIterable, Sendable {
+public enum ScenarioCategory: String, CaseIterable, Sendable, Equatable {
     case payment = "payment"
     case identity = "identity"
     case device = "device"
@@ -346,14 +346,14 @@ public enum ScenarioCategory: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum ScenarioAvailability: String, CaseIterable, Sendable {
+public enum ScenarioAvailability: String, CaseIterable, Sendable, Equatable {
     case active = "active"
     case planned = "planned"
 
     public var wire: String { rawValue }
 }
 
-public enum AmountSignMode: String, CaseIterable, Sendable {
+public enum AmountSignMode: String, CaseIterable, Sendable, Equatable {
     case signed = "signed"
     case debitCredit = "debit_credit"
     case outwardPositive = "outward_positive"
@@ -361,23 +361,23 @@ public enum AmountSignMode: String, CaseIterable, Sendable {
     public var wire: String { rawValue }
 }
 
-public enum CsvDelimiter: String, CaseIterable, Sendable {
+public enum CsvDelimiter: String, CaseIterable, Sendable, Equatable {
     case u2c = ","
     case u3b = ";"
-    case u09 = "	"
+    case u09 = "\t"
     case u7c = "|"
 
     public var wire: String { rawValue }
 }
 
-public enum SourceEncoding: String, CaseIterable, Sendable {
+public enum SourceEncoding: String, CaseIterable, Sendable, Equatable {
     case utf8 = "utf-8"
     case gb18030 = "gb18030"
 
     public var wire: String { rawValue }
 }
 
-public enum ErrorCode: String, CaseIterable, Sendable {
+public enum ErrorCode: String, CaseIterable, Sendable, Equatable {
     case invalidJson = "invalid_json"
     case invalidStructure = "invalid_structure"
     case boundsExceeded = "bounds_exceeded"

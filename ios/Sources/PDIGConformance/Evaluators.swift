@@ -218,7 +218,7 @@ public enum Evaluators {
         case "timeline-attention-signals":
             let drift = Timeline.DriftInput(
                 id: "drift-1", kind: DriftKind.possibleReplacement.rawValue,
-                detectedAt: "2026-09-13T00:00:00.000Z", status: DriftStatus.open.rawValue,
+                detectedAt: "2026-09-13T00:00:00.000Z", status: DriftStatus.`open`.rawValue,
                 targetNodeId: "n-wechat"
             )
             let wechat = Timeline.NodeInput(id: "n-wechat", name: "微信支付", archived: false, fields: [:])

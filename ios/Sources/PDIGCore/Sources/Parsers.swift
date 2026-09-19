@@ -525,7 +525,7 @@ public enum WechatParser {
 
     private static func parseDirection(_ raw: String) -> ObservationDirection? {
         switch kotlinTrim(raw) {
-        case "收入": return .in
+        case "收入": return .`in`
         case "支出": return .out
         case "/", "中性交易", "": return .neutral
         default: return nil
@@ -690,7 +690,7 @@ public enum GenericCsvParser {
                     direction = .out
                 } else if let credit = credit, credit > 0 {
                     amount = credit
-                    direction = .in
+                    direction = .`in`
                 } else {
                     errors.append(ParseError(line, "missing debit/credit amount"))
                     continue
@@ -708,7 +708,7 @@ public enum GenericCsvParser {
                     // 绝不根据数据分布自动猜测方向 —— 必须由 mapping 显式声明。
                     let positiveDirection = mapping.options.positiveDirection ?? "in"
                     if amountNonNil < 0 {
-                        direction = (positiveDirection == "in") ? .out : .in
+                        direction = (positiveDirection == "in") ? .out : .`in`
                     } else if amountNonNil > 0 {
                         direction = try ObservationDirection.fromWire(positiveDirection)
                     } else {
@@ -943,7 +943,7 @@ public enum OfxParser {
                     description: txn.memo ?? "",
                     amount: abs(amount),
                     currency: txn.currency ?? "XXX",
-                    direction: amount < 0 ? .out : .in,
+                    direction: amount < 0 ? .out : .`in`,
                     paymentMethodRaw: "",
                     status: txn.trntype ?? "",
                     note: ""

@@ -62,7 +62,7 @@ public enum RelationRegistry {
             toKinds: [.account, .paymentInstrument],
             capability: .payment,
             allowsGroup: true,
-            allowedGroupModes: [.any],
+            allowedGroupModes: [.`any`],
             defaultCriticality: .unknown
         ),
         RelationDefinition(

@@ -81,10 +81,10 @@ public enum ChangePlanMachine {
 // ---------------------------------------------------------------------------
 
 public enum DriftMachine {
-    public static let initial: DriftStatus = .open
+    public static let initial: DriftStatus = .`open`
 
     public static let transitions: [DriftStatus: [DriftStatus]] = [
-        .open: [.confirmedChange, .dismissed],
+        .`open`: [.confirmedChange, .dismissed],
         .confirmedChange: [],
         .dismissed: [],
         .superseded: [],
@@ -118,7 +118,7 @@ public enum DriftMachine {
         ),
     ]
 
-    public static func canResolve(_ status: DriftStatus) -> Bool { status == .open }
+    public static func canResolve(_ status: DriftStatus) -> Bool { status == .`open` }
 }
 
 // ---------------------------------------------------------------------------
