@@ -1111,9 +1111,23 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 ### 10. workflow 触发修正
 
 `on: push: branches: ["**"]` 在本仓库**从未触发过一次**运行 ——
-历史 14 条运行全是 `workflow_dispatch`，包括多次真实 push。
-已改为显式列举 `push: [main, feat/mvp03-living-graph]` + `pull_request: [main]`，
-并要求此后**用 API 核对确实出现 `event=push` 的运行**。
+历史运行全是 `workflow_dispatch`，包括多次真实 push。
+
+已改为显式列举 `push: [main, feat/mvp03-living-graph]` + `pull_request: [main]`。
+**但改动落地后 push 依然不触发**，如实记录证据：
+
+- `repos/<repo>/events`：02:28:34Z 的 `PushEvent`（含该 workflow 改动）**存在**；
+- `actions/runs?event=push`：`total_count = 0`；
+- 该 commit 的 check-runs：`0`。
+
+即 GitHub 收到了 push 却没启动任何运行；分支过滤器不是原因（`["**"]`
+与显式列举表现一致）。API 侧已排除：Actions `enabled:true / allowed_actions:all`、
+workflow 解析正常（同一文件的 dispatch 能跑）、无 `[skip ci]`、非 fork、未归档、
+main 为默认分支。
+
+**当前生效规则**：在出现第一条 `event=push` 运行之前，远端验证一律手工
+`gh workflow run CI --ref <branch>` 并核对 `head_sha`。
+"配了 push 触发"不得写成"push 已被验证"。
 
 ### 11. Final Status（本轮之后唯一可写的口径）
 
