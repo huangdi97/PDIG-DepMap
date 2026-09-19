@@ -1219,13 +1219,40 @@ Equatable 合成条件 —— 全部修在生成器 `tools/codegen/generate.mjs`
     **无设备运行时证据**。
 - Harmony 仍为 87/91（4 条设备运行时：Argon2id 原生 / ArkData）。
 
-### 5. 当前唯一可写口径
+### 5. 跨平台差分（N5）
+
+三份报告各自独立产生，差分工具 `tools/conformance/diff-reports.mjs` 只做比对、
+**不重算任何用例**：
+
+| 平台 | 报告 | 产生方式 | 结果 |
+| --- | --- | --- | --- |
+| android | `conformance/reports/android.json` | `JAVA_HOME="D:/Code/Android Studio/jbr" ./gradlew --no-daemon :conformance:run` | `pass=91 fail=0 notImplemented=0 total=91` |
+| harmony | `conformance/reports/harmony.json` | 真 ArkTS 运行时（hvigor 本地单测） | `executed=87 pass=87 fail=0` |
+| ios | `conformance/reports/ios.json` | macOS runner `swift test`（run 35427846349，head `61fb69d`） | `91/91` |
+
+```
+CROSS_PLATFORM_VERDICT_MATRIX     = PASS   （0 条判定分歧）
+CROSS_PLATFORM_ACTUAL_ANDROID_IOS = PASS   （91/91 actual 逐字节相同）
+CROSS_PLATFORM_DIFFERENTIAL       = PASS
+```
+
+- `actual` 比对用自带的规范化序列化器（保留数字原始文本与对象键顺序）——
+  `JSON.parse` 会把 `1.0` 与 `1` 合成同一个 number，正是这类差异会被漏掉。
+- Harmony **只参加判定矩阵，不参加字节比对**：ArkTS 主机测试不保证可写文件，
+  故不产出 `actual`。这是能力边界，已在工具与输出里明示，未用占位值填补。
+- `conformance/reports/` 被 `.gitignore` 排除（生成物），证据留在运行输出与
+  本报告里，不入库。
+
+### 6. 当前唯一可写口径
 
 ```
 GITHUB_PORTABLE_CI                  = PASS
 HARMONY_HOST_CONFORMANCE_LOCAL      = PASS  (canonical 87/91, ENV_BLOCKED 0, DEVICE_BLOCKED 4)
 IOS_CI_COMPILE_AND_HOST_CONFORMANCE = PASS  (canonical 91/91, fail 0)
 ANDROID_CONFORMANCE                 = PASS 91/91 (JVM, 本机 JDK21 复跑)
+CROSS_PLATFORM_DIFFERENTIAL         = PASS  (verdict 0 分歧；Android×iOS actual 91/91 逐字节相同)
+NATIVE_MIGRATION                    = NOT PASS（11 条 Cutover 条件 8 PASS / 3 未满足，
+                                       见 NATIVE_MIGRATION_ACCEPTANCE_2026-09-19.md）
 IOS_DEVICE_RUNTIME                  = NOT_RUN
 HARMONY_DEVICE_RUNTIME              = NOT_RUN
 ```
