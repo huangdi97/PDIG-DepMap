@@ -6,8 +6,14 @@ name: CI
 # `gh api .../actions/runs` 的全部 14 条运行**全部**是 workflow_dispatch，
 # 包括对 main 与 feat/mvp03-living-graph 的多次真实 push。
 # 「看起来配了自动验证、实际一次没跑」是比没配更危险的状态：
-# 它会让人以为 push 已被守住。这里改成本轮实际使用的两个分支 + PR 到 main，
-# 并在每次改动后**用 API 核对确实产生了 event=push 的运行**（见 GIT_OPS_INCIDENT_AND_RULES.md）。
+# 它会让人以为 push 已被守住。这里改成本轮实际使用的两个分支 + PR 到 main。
+#
+# ⚠️ 截至 2026-09-19：**改了仍然不触发**。该改动落地后的第一次真实 push
+# （02:28:34Z，PushEvent 存在于 repos/<repo>/events）依旧没有产生
+# `event=push` 的运行（`actions/runs?event=push` total_count = 0，check-runs = 0）。
+# 所以「配了 push 触发」≠「push 被验证过」。在出现第一条 event=push 运行之前，
+# 远端验证一律手工 `gh workflow run CI --ref <branch>` 并核对 head_sha。
+# 详见 GIT_OPS_INCIDENT_AND_RULES.md §5。
 on:
   push:
     branches:

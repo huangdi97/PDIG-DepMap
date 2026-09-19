@@ -117,5 +117,24 @@ main 推进以「远端 portable CI 绿 + 本地 Harmony 门禁绿」为准。
 "看起来配了自动验证、实际一次没跑"比没配更危险。
 
 已改为显式列举：`push: [main, feat/mvp03-living-graph]`、`pull_request: [main]`。
-规则：**改完 workflow 后必须用 API 核对确实产生了 `event=push` 的运行**，
-否则等于又写了一张无法核查的承诺。
+
+**但改完之后 push 依然没有触发 —— 必须如实记下，不能让"改过"冒充"修好"：**
+
+- 2026-09-19 02:28:34Z 的 `PushEvent`（`refs/heads/feat/mvp03-living-graph`，
+  含本次 workflow 改动）在 `repos/<repo>/events` 里**确实存在**；
+- 而 `repos/<repo>/actions/runs?event=push` 的 `total_count` 仍为 **0**；
+- 该 commit 的 check-runs 为 **0**。
+
+即：GitHub 收到了 push，但没有为它启动任何运行。分支过滤器不是原因
+（`["**"]` 与显式列举都不触发）。已从 API 侧排除的项：
+`actions/permissions` = `enabled:true, allowed_actions:all`；
+workflow 本身解析正常（同一份文件的 `workflow_dispatch` 能跑）；
+commit message 无 `[skip ci]`；仓库非 fork、未归档、main 为默认分支。
+
+**因此当前生效的规则是**：在出现第一条 `event=push` 的运行之前，
+远端验证一律手工触发（`gh workflow run CI --ref <branch>`）并用 API 核对
+`head_sha`；不得因为"配了 push 触发"就假定它已经跑过。
+
+仍未查明的部分需在 GitHub 网页端核对（API 不暴露）：
+Settings → Actions → General 的 Actions permissions / Allow actions、
+以及是否存在组织级策略限制。
