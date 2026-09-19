@@ -41,13 +41,20 @@ let package = Package(
             dependencies: ["PDIGArgon2C", "PDIGCore"],
             path: "Sources/PDIGArgon2"
         ),
+        // 系统 sqlite3（**仅 host harness**）。App 持久化须用 SQLCipher，
+        // 这里只用来跑 backup / migration 两条 DB 型 canonical 用例——
+        // 它们验证的是 payload 序列化与迁移逻辑，与 at-rest 加密无关。
+        .systemLibrary(
+            name: "CSQLite",
+            path: "Sources/CSQLite"
+        ),
         .target(
             name: "PDIGCore",
             path: "Sources/PDIGCore"
         ),
         .target(
             name: "PDIGConformance",
-            dependencies: ["PDIGCore", "PDIGArgon2"],
+            dependencies: ["PDIGCore", "PDIGArgon2", "CSQLite"],
             path: "Sources/PDIGConformance"
         ),
         .testTarget(

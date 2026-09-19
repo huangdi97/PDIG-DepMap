@@ -43,6 +43,7 @@ public enum Evaluators {
         case "impact": return .value(try impact(input))
         case "timeline": return try timeline(caseId, input)
         case "migration": return try migration(caseId, input)
+        case "backup": return .value(try backup(input))
         default: return .notImplemented
         }
     }
@@ -906,9 +907,7 @@ public enum Evaluators {
         case "migration-version-contract":
             return .value(try migrationVersionContract(input))
         case "migration-db-v1-to-v3":
-            // 需要真实 SQL 执行（建表 / 迁移 / 断言保留项）。
-            // 本包未引入 SQLCipher，如实记 BLOCKED —— 不伪造 PASS。
-            return .blocked("requires SQLCipher-backed migration executor (not in package yet)")
+            return .value(try migrationV1ToV3())
         default:
             return .notImplemented
         }
@@ -950,5 +949,197 @@ public enum Evaluators {
             ("rejectedPayloadVersions", .arr(SchemaVersion.rejectedPayloadVersions.map { .num(String($0)) })),
             ("graphRevisionNeverBumpedBy", .arr(SchemaVersion.graphRevisionNeverBumpedBy.map { .str($0) })),
         ]))
+    }
+
+    // ------------------------------------------------------------------ backup
+
+    /// 与 core/scripts/generate-conformance.ts 及 Android Main.kt 的 T0 保持一致。
+    private static let T0 = "2026-09-13T00:00:00.000Z"
+
+    private static func insertNode(_ driver: SqliteDriver, _ id: String, _ kind: String, _ name: String) throws {
+        try driver.prepare(
+            """
+            INSERT INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, vault_ref, wallet_ref, created_at, updated_at)
+            VALUES (?, ?, NULL, ?, NULL, NULL, 'self', 0, '{}', NULL, NULL, ?, ?)
+            """
+        ).run([.text(id), .text(kind), .text(name), .text(T0), .text(T0)])
+    }
+
+    private static func countsJson(_ counts: [String: Int]) -> Json {
+        .obj(JsonObject(PAYLOAD_TABLES.map { t in
+            (t.table, Json.num(String(counts[t.table] ?? 0)))
+        }))
+    }
+
+    /// 导出 → 加密为 .depmap → 解密 → 恢复到新库 → 再导出必须逐字节一致，且无孤儿。
+    /// 全流程走 PDIGCore 的真实序列化 + 真实容器实现，**不**回放 expected。
+    private static func backup(_ input: JsonObject) throws -> Json {
+        guard let password = input["password"]?.stringValue else {
+            throw EvalError("backup fixture missing password")
+        }
+        let salt = try hexBytes(input["saltHex"]?.stringValue ?? "")
+        let nonce = try hexBytes(input["nonceHex"]?.stringValue ?? "")
+        let kdf = Argon2idNative()
+
+        // 源库
+        let src = try withTempDb("bak") { driver -> GraphExportResult in
+            try SchemaMigrator.migrate(driver, nowIso: T0)
+            for item in input["seededNodes"]?.arrayValue ?? [] {
+                guard let id = item.stringValue else { continue }
+                let kind = (id == "b-card") ? "payment_instrument" : "account"
+                let name = (id == "b-card") ? "招行 4417" : "微信支付"
+                try insertNode(driver, id, kind, name)
+            }
+            try driver.prepare(
+                """
+                INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, state, origin, confirmed_at, last_verified_at, evidence_refs_json, verification_basis_type, created_at, updated_at)
+                VALUES ('b-dep', 'b-card', 'funding_source', 'b-wechat', 'payment', 'required', 'active', 'manual', ?, ?, '[]', 'user_confirmed', ?, ?)
+                """
+            ).run([.text(T0), .text(T0), .text(T0), .text(T0)])
+            return try exportGraph(driver)
+        }
+
+        // 加密 → 解密
+        let created = try DepmapContainer.create(
+            plaintext: Array(src.payloadJson.utf8),
+            password: password,
+            kdf: kdf,
+            opts: DepmapContainer.CreateOptions(salt: salt, nonce: nonce)
+        )
+        let plaintext = try DepmapContainer.openContainer(json: created.json, password: password, kdf: kdf)
+        let decrypted = String(decoding: plaintext, as: UTF8.self)
+
+        // 恢复到全新库 → 再导出
+        struct Restored {
+            let imported: [String: Int]
+            let reExported: GraphExportResult
+            let integrity: OrphanReport
+        }
+        let restored = try withTempDb("bak-restore") { driver -> Restored in
+            try SchemaMigrator.migrate(driver, nowIso: T0)
+            let imported = try importGraph(driver, decrypted)
+            let reExported = try exportGraph(driver)
+            let integrity = try checkGraphIntegrity(driver)
+            return Restored(imported: imported, reExported: reExported, integrity: integrity)
+        }
+
+        return .obj(JsonObject([
+            ("payloadJson", .str(src.payloadJson)),
+            ("counts", countsJson(src.counts)),
+            ("containerJson", .str(created.json)),
+            ("decryptedEqualsPayload", .bool(decrypted == src.payloadJson)),
+            ("imported", countsJson(restored.imported)),
+            ("roundtripPayloadJson", .str(restored.reExported.payloadJson)),
+            ("roundtripEqual", .bool(restored.reExported.payloadJson == src.payloadJson)),
+            ("integrity", .obj(JsonObject([
+                ("orphanDependencies", .arr(restored.integrity.orphanDependencies.map { Json.str($0) })),
+                ("orphanGroups", .arr(restored.integrity.orphanGroups.map { Json.str($0) })),
+                ("danglingGroupMembers", .arr(restored.integrity.danglingGroupMembers.map { Json.str($0) })),
+                ("orphanEvidence", .arr(restored.integrity.orphanEvidence.map { Json.str($0) })),
+                ("orphanFingerprints", .arr(restored.integrity.orphanFingerprints.map { Json.str($0) })),
+            ]))),
+        ]))
+    }
+
+    // ------------------------------------------------- migration-db-v1-to-v3
+
+    /// 手工构造 v1 库 → migrate 到 v3 → 断言保留项 + 50 次重复幂等。
+    private static func migrationV1ToV3() throws -> Json {
+        return try withTempDb("mig") { driver -> Json in
+            for sql in Migrations.schemaV1Statements { try driver.exec(sql) }
+            try driver.prepare("INSERT INTO meta (key, value) VALUES ('schema_version', '1')").run([])
+            try driver.prepare(
+                """
+                INSERT INTO nodes (id, kind, name, owner, archived, fields_json, created_at, updated_at)
+                VALUES ('node-1', 'payment_instrument', '招行 4417', 'self', 0, '{}', ?, ?)
+                """
+            ).run([.text(T0), .text(T0)])
+            try driver.prepare(
+                """
+                INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, state, origin, confirmed_at, last_verified_at, evidence_refs_json, created_at, updated_at)
+                VALUES ('dep-1', 'node-1', 'funding_source', 'node-1', 'payment', 'required', 'active', 'manual', ?, ?, '[]', ?, ?)
+                """
+            ).run([.text(T0), .text(T0), .text(T0), .text(T0)])
+            try driver.prepare(
+                """
+                INSERT INTO evidence (id, proposal_key, source_type, parser_id, parser_version, last_import_session_id, first_observed_at, last_observed_at, observation_count, created_at, updated_at)
+                VALUES ('ev-1', 'k1', 'wechat_bill', 'wechat', 1, 'sess-1', ?, ?, 3, ?, ?)
+                """
+            ).run([.text(T0), .text(T0), .text(T0), .text(T0)])
+            try driver.prepare(
+                """
+                INSERT INTO observation_fingerprints (fingerprint, source, fingerprint_version, import_session_id, first_seen_at)
+                VALUES ('fp-abc', 'wechat', 1, 'sess-1', ?)
+                """
+            ).run([.text(T0)])
+            try driver.prepare(
+                """
+                INSERT INTO dependency_proposals (id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, evidence_id, decision, observation_count, created_at, updated_at)
+                VALUES ('prop-1', 'k1', 'node-1', 'funding_source', 'node-1', 'payment', 'recurring_payment_route', 'statement', 'wechat', 1, 0.9, '[]', 'ev-1', 'pending', 3, ?, ?)
+                """
+            ).run([.text(T0), .text(T0)])
+            try driver.prepare(
+                """
+                INSERT INTO import_sessions (id, source_type, parser_id, parser_version, started_at, completed_at, raw_count, new_unique_count, duplicate_count, proposal_count, error_count)
+                VALUES ('sess-1', 'wechat_bill', 'wechat', 1, ?, ?, 6, 6, 0, 1, 0)
+                """
+            ).run([.text(T0), .text(T0)])
+
+            let finalVersion = try SchemaMigrator.migrate(driver, nowIso: T0)
+            let tables = try driver.prepare(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+            ).all([]).map { Json.str($0.str("name") ?? "") }
+            let dep = try driver.prepare("SELECT id, state, criticality FROM dependencies WHERE id = ?").get([.text("dep-1")])
+            let node = try driver.prepare("SELECT id, name FROM nodes WHERE id = ?").get([.text("node-1")])
+            let ev = try driver.prepare(
+                "SELECT id, proposal_key, source_instance_id, evidence_kind FROM evidence WHERE id = ?"
+            ).get([.text("ev-1")])
+            let fp = try driver.prepare(
+                "SELECT fingerprint, source_instance_id FROM observation_fingerprints WHERE fingerprint = ?"
+            ).get([.text("fp-abc")])
+            let prop = try driver.prepare("SELECT id, decision FROM dependency_proposals WHERE id = ?").get([.text("prop-1")])
+            let legacyCount = try driver.prepare(
+                "SELECT COUNT(*) AS c FROM source_instances WHERE id = ?"
+            ).get([.text(Migrations.legacyWechatSourceInstanceId)])?.long("c") ?? 0
+
+            // 幂等：重复 migrate 50 次不漂移
+            var idempotent = true
+            for _ in 0..<50 {
+                if try SchemaMigrator.migrate(driver, nowIso: T0) != finalVersion { idempotent = false }
+            }
+
+            return .obj(JsonObject([
+                ("finalSchemaVersion", .num(String(finalVersion))),
+                ("tables", .arr(tables)),
+                ("legacySourceInstanceId", .str(Migrations.legacyWechatSourceInstanceId)),
+                ("legacySourceInstanceRows", .num(String(legacyCount))),
+                ("preserved", .obj(JsonObject([
+                    ("node", .obj(JsonObject([
+                        ("id", .str(node?.str("id") ?? "")),
+                        ("name", .str(node?.str("name") ?? "")),
+                    ]))),
+                    ("dependency", .obj(JsonObject([
+                        ("id", .str(dep?.str("id") ?? "")),
+                        ("state", .str(dep?.str("state") ?? "")),
+                        ("criticality", .str(dep?.str("criticality") ?? "")),
+                    ]))),
+                    ("evidence", .obj(JsonObject([
+                        ("id", .str(ev?.str("id") ?? "")),
+                        ("proposal_key", .str(ev?.str("proposal_key") ?? "")),
+                        ("source_instance_id", .str(ev?.str("source_instance_id") ?? "")),
+                        ("evidence_kind", .str(ev?.str("evidence_kind") ?? "")),
+                    ]))),
+                    ("fingerprint", .obj(JsonObject([
+                        ("fingerprint", .str(fp?.str("fingerprint") ?? "")),
+                        ("source_instance_id", .str(fp?.str("source_instance_id") ?? "")),
+                    ]))),
+                    ("proposal", .obj(JsonObject([
+                        ("id", .str(prop?.str("id") ?? "")),
+                        ("decision", .str(prop?.str("decision") ?? "")),
+                    ]))),
+                ]))),
+                ("idempotentAfter50", .bool(idempotent)),
+            ]))
+        }
     }
 }
