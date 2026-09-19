@@ -37,6 +37,7 @@ public enum Evaluators {
         case "parser": return .value(try parser(input, store))
         case "readiness": return .value(try readiness(input))
         case "coverage": return .value(try coverage(input))
+        case "state-machine": return try stateMachine(caseId)
         case "impact": return .value(try impact(input))
         case "timeline": return try timeline(caseId, input)
         case "migration": return try migration(caseId, input)
@@ -237,6 +238,152 @@ public enum Evaluators {
                 .bool(ScenarioRegistry.isExecutable($0.id))
             })),
             ("leadingTimeByTemplate", .obj(JsonObject(lead))),
+        ]))
+    }
+
+    // --------------------------------------------------------- state-machine
+
+    /// 状态机用例报告的是**本平台实现的规则视图**：状态表、守卫、合同文本都取自
+    /// PDIGCore 的常量，而不是回显 spec 文档 —— 否则"文档改了实现没改"不会被发现。
+    private static func stateMachine(_ caseId: String) throws -> EvalOutcome {
+        switch caseId {
+        case "state-machine-change-plan":
+            return .value(changePlanMachine())
+        case "state-machine-graph-revision":
+            return .value(try graphRevisionMachine())
+        case "state-machine-action-verification":
+            return .value(verificationMachine())
+        case "state-machine-discovery-candidate":
+            return .value(candidateMachine())
+        case "state-machine-reality-drift":
+            return .value(driftMachine())
+        default:
+            return .notImplemented
+        }
+    }
+
+    private static func changePlanMachine() -> Json {
+        let order: [ChangePlanWorkflowState] = [
+            .draft, .analyzed, .reviewRequired, .ready, .inProgress, .verifying, .completed, .cancelled,
+        ]
+        var fields: [(String, Json)] = []
+        for s in order {
+            let next = (ChangePlanMachine.transitions[s] ?? []).map { Json.str($0.wire) }
+            fields.append((s.wire, .arr(next)))
+        }
+        let d = ChangePlanMachine.derivedStatus
+        return .obj(JsonObject([
+            ("transitions", .obj(JsonObject(fields))),
+            ("terminal", .arr(ChangePlanMachine.terminal.map { Json.str($0.wire) })),
+            ("derivedStatus", .obj(JsonObject([
+                ("name", .str(d.name)),
+                ("value", .str(d.value)),
+                ("rule", .str(d.rule)),
+                ("persisted", .bool(d.persisted)),
+            ]))),
+            ("guards", .arr(ChangePlanMachine.guards.map { guardJson($0) })),
+        ]))
+    }
+
+    private static func graphRevisionMachine() throws -> Json {
+        // 交叉验证：白名单里的每个 mutation 都必须被本平台认可 bump，
+        // 黑名单里的每个都必须**不** bump。这让"三端同一套白名单"成为可执行断言。
+        for m in GraphRevisionMachine.bumpsOn where !GraphRevision.doesMutationBumpRevision(m) {
+            throw EvalError("mutation must bump revision but does not: \(m)")
+        }
+        for m in GraphRevisionMachine.neverBumpsOn where GraphRevision.doesMutationBumpRevision(m) {
+            throw EvalError("mutation must never bump revision but does: \(m)")
+        }
+        return .obj(JsonObject([
+            ("initial", .num("0")),
+            ("monotonic", .bool(GraphRevisionMachine.monotonic)),
+            ("atomicity", .str(GraphRevisionMachine.atomicity)),
+            ("bumpsOn", .arr(GraphRevisionMachine.bumpsOn.map { Json.str($0) })),
+            ("neverBumpsOn", .arr(GraphRevisionMachine.neverBumpsOn.map { Json.str($0) })),
+        ]))
+    }
+
+    private static func verificationMachine() -> Json {
+        let order: [ActionVerificationStatus] = [
+            .notRequired, .pending, .evidenceSuggested, .verified, .failed,
+        ]
+        var fields: [(String, Json)] = []
+        for s in order {
+            let next = (VerificationMachine.transitions[s] ?? []).map { Json.str($0.wire) }
+            fields.append((s.wire, .arr(next)))
+        }
+        let r = VerificationMachine.evidenceSignalRule
+        return .obj(JsonObject([
+            ("initial", .str(VerificationMachine.initial.wire)),
+            ("terminal", .arr(VerificationMachine.terminal.map { Json.str($0.wire) })),
+            ("transitions", .obj(JsonObject(fields))),
+            ("evidenceSignalRule", .obj(JsonObject([
+                ("appliesOnlyTo", .arr(r.appliesOnlyTo.map { Json.str($0.wire) })),
+                ("requiresMethod", .str(r.requiresMethod)),
+                ("requiresMatch", .str(r.requiresMatch)),
+                ("effect", .str(r.effect)),
+                ("never", .arr(r.never.map { Json.str($0) })),
+            ]))),
+            ("guards", .arr(VerificationMachine.guards.map { guardJson($0) })),
+        ]))
+    }
+
+    private static func candidateMachine() -> Json {
+        let order: [CandidateStatus] = [.pending, .accepted, .dismissed, .superseded]
+        var fields: [(String, Json)] = []
+        for s in order {
+            let next = (CandidateMachine.transitions[s] ?? []).map { Json.str($0.wire) }
+            fields.append((s.wire, .arr(next)))
+        }
+        let a = CandidateMachine.accept
+        let d = CandidateMachine.dismiss
+        return .obj(JsonObject([
+            ("initial", .str(CandidateMachine.initial.wire)),
+            ("transitions", .obj(JsonObject(fields))),
+            ("accept", .obj(JsonObject([
+                ("mutatesReality", .bool(a.mutatesReality)),
+                ("effects", .arr(a.effects.map { Json.str($0) })),
+                ("bumpsGraphRevision", .bool(a.bumpsGraphRevision)),
+                ("replay", .str(a.replay)),
+            ]))),
+            ("dismiss", .obj(JsonObject([
+                ("mutatesReality", .bool(d.mutatesReality)),
+                ("effects", .arr(d.effects.map { Json.str($0) })),
+                ("reappeal", .str(d.reappeal)),
+            ]))),
+            ("guards", .arr(CandidateMachine.guards.map { guardJson($0) })),
+        ]))
+    }
+
+    private static func driftMachine() -> Json {
+        let order: [DriftStatus] = [.`open`, .confirmedChange, .dismissed, .superseded]
+        var fields: [(String, Json)] = []
+        for s in order {
+            let next = (DriftMachine.transitions[s] ?? []).map { Json.str($0.wire) }
+            fields.append((s.wire, .arr(next)))
+        }
+        let c = DriftMachine.creationRule
+        return .obj(JsonObject([
+            ("initial", .str(DriftMachine.initial.wire)),
+            ("transitions", .obj(JsonObject(fields))),
+            ("creationRule", .obj(JsonObject([
+                ("requires", .str(c.requires)),
+                ("minObservations", .num(String(c.minObservations))),
+                ("absenceOnly", .str(c.absenceOnly)),
+                ("alreadyConfirmedSource", .str(c.alreadyConfirmedSource)),
+                ("belowThreshold", .str(c.belowThreshold)),
+                ("duplicateEvidenceRef", .str(c.duplicateEvidenceRef)),
+                ("upsert", .str(c.upsert)),
+            ]))),
+            ("guards", .arr(DriftMachine.guards.map { guardJson($0) })),
+        ]))
+    }
+
+    private static func guardJson(_ g: Guard) -> Json {
+        .obj(JsonObject([
+            ("id", .str(g.id)),
+            ("rule", .str(g.rule)),
+            ("errorCode", .str(g.errorCode)),
         ]))
     }
 

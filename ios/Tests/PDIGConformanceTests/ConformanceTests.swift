@@ -16,11 +16,12 @@ final class ConformanceTests: XCTestCase {
             + report.outcomes.filter { $0.status == .fail }
                 .map { "  - \($0.id): \($0.detail)" }.joined(separator: "\n"))
         // 已移植的分类：relations 18 + jcs 1 + scenario 1 + parser 22 + impact 13
-        // + readiness 16 + coverage 6 + timeline 3 + migration-version-contract 1
-        // = 81；剩余 9 条 = state-machine 5 + depmap 3 + backup 1。
-        XCTAssertEqual(report.passed, 81, "本轮已移植用例数应为 81")
+        // + readiness 16 + coverage 6 + timeline 3 + state-machine 5
+        // + migration-version-contract 1 = 86；剩余 4 条 = depmap 3 + backup 1
+        //（需要 Argon2id / AES-GCM 容器层，尚未接入本包）。
+        XCTAssertEqual(report.passed, 86, "本轮已移植用例数应为 86")
         XCTAssertEqual(report.envBlocked, 1, "migration-db-v1-to-v3 需要 SQLCipher，记环境缺失")
-        XCTAssertEqual(report.implMissing, 91 - 81 - 1)
+        XCTAssertEqual(report.implMissing, 91 - 86 - 1)
     }
 }
 
