@@ -228,6 +228,19 @@ internal func isoUtc(_ y: Int, _ mo: Int, _ d: Int, _ h: Int, _ mi: Int, _ s: In
     "\(pad4(y))-\(pad2(mo))-\(pad2(d))T\(pad2(h)):\(pad2(mi)):\(pad2(s))+00:00"
 }
 
+// ---------------------------------------------------------------------------
+// 逐标量扫描（不是逐 Character）
+//
+// Swift 的 `Character` 是**字素簇**：`"\r\n"` 是**一个** Character。
+// 于是 `Array(text)` 后判断 `ch == "\r"` 对 CRLF 文件永远不成立，CRLF 会被当成
+// 普通字符塞进单元格 —— 实际表现就是"表头最后一列匹配不上"（parser-csv-crlf
+// 在 macos-14 上的真实失败）。行/单元格扫描一律改用 `unicodeScalars`。
+// ---------------------------------------------------------------------------
+
+internal let SCALAR_CR: Unicode.Scalar = "\r"
+internal let SCALAR_LF: Unicode.Scalar = "\n"
+internal let SCALAR_QUOTE: Unicode.Scalar = "\""
+
 /// Java `String.trim()` / `Character.isWhitespace` 语义：ASCII 控制空白 + Unicode
 /// 分隔符，但**排除** NBSP 家族（0x00A0 / 0x2007 / 0x202F）。
 ///
@@ -281,22 +294,22 @@ internal func decodeBillText(_ bytes: [UInt8]) throws -> String {
 /** 与 Kotlin `String.split(Regex("\\r\\n|\\r|\\n"))` 对齐：CRLF / CR / LF，丢弃尾部空串。 */
 internal func splitLines(_ text: String) -> [String] {
     var rows: [String] = []
-    var cur = ""
-    let chars = Array(text)
+    var cur = String.UnicodeScalarView()
+    let scalars = Array(text.unicodeScalars)
     var i = 0
-    while i < chars.count {
-        let ch = chars[i]
-        if ch == "\r" {
-            if i + 1 < chars.count && chars[i + 1] == "\n" { i += 1 }
-            rows.append(cur); cur = ""
-        } else if ch == "\n" {
-            rows.append(cur); cur = ""
+    while i < scalars.count {
+        let ch = scalars[i]
+        if ch == SCALAR_CR {
+            if i + 1 < scalars.count && scalars[i + 1] == SCALAR_LF { i += 1 }
+            rows.append(String(cur)); cur = String.UnicodeScalarView()
+        } else if ch == SCALAR_LF {
+            rows.append(String(cur)); cur = String.UnicodeScalarView()
         } else {
             cur.append(ch)
         }
         i += 1
     }
-    rows.append(cur)
+    rows.append(String(cur))
     while let last = rows.last, last.isEmpty { rows.removeLast() }
     return rows
 }
@@ -308,16 +321,17 @@ internal func splitLines(_ text: String) -> [String] {
 /// 解析单行 CSV（引号转义 + 引号内逗号）。
 public func parseCsvLine(_ line: String) -> [String] {
     var cells: [String] = []
-    var cur = ""
+    var cur = String.UnicodeScalarView()
     var inQuotes = false
-    let chars = Array(line)
+    let scalars = Array(line.unicodeScalars)
+    let delim: Unicode.Scalar = ","
     var i = 0
-    while i < chars.count {
-        let ch = chars[i]
+    while i < scalars.count {
+        let ch = scalars[i]
         if inQuotes {
-            if ch == "\"" {
-                if i + 1 < chars.count && chars[i + 1] == "\"" {
-                    cur.append("\"")
+            if ch == SCALAR_QUOTE {
+                if i + 1 < scalars.count && scalars[i + 1] == SCALAR_QUOTE {
+                    cur.append(SCALAR_QUOTE)
                     i += 1
                 } else {
                     inQuotes = false
@@ -325,16 +339,16 @@ public func parseCsvLine(_ line: String) -> [String] {
             } else {
                 cur.append(ch)
             }
-        } else if ch == "\"" {
+        } else if ch == SCALAR_QUOTE {
             inQuotes = true
-        } else if ch == "," {
-            cells.append(cur); cur = ""
+        } else if ch == delim {
+            cells.append(String(cur)); cur = String.UnicodeScalarView()
         } else {
             cur.append(ch)
         }
         i += 1
     }
-    cells.append(cur)
+    cells.append(String(cur))
     return cells
 }
 
@@ -342,16 +356,17 @@ public func parseCsvLine(_ line: String) -> [String] {
 public func parseCsv(_ text: String, _ delimiter: String) -> [[String]] {
     var rows: [[String]] = []
     var row: [String] = []
-    var cur = ""
+    var cur = String.UnicodeScalarView()
     var inQuotes = false
-    let chars = Array(text)
+    let scalars = Array(text.unicodeScalars)
+    let delim: Unicode.Scalar = delimiter.unicodeScalars.first ?? ","
     var i = 0
-    while i < chars.count {
-        let ch = chars[i]
+    while i < scalars.count {
+        let ch = scalars[i]
         if inQuotes {
-            if ch == "\"" {
-                if i + 1 < chars.count && chars[i + 1] == "\"" {
-                    cur.append("\"")
+            if ch == SCALAR_QUOTE {
+                if i + 1 < scalars.count && scalars[i + 1] == SCALAR_QUOTE {
+                    cur.append(SCALAR_QUOTE)
                     i += 1
                 } else {
                     inQuotes = false
@@ -359,22 +374,22 @@ public func parseCsv(_ text: String, _ delimiter: String) -> [[String]] {
             } else {
                 cur.append(ch)
             }
-        } else if ch == "\"" {
+        } else if ch == SCALAR_QUOTE {
             inQuotes = true
-        } else if String(ch) == delimiter {
-            row.append(cur); cur = ""
-        } else if ch == "\r" && i + 1 < chars.count && chars[i + 1] == "\n" {
-            row.append(cur); rows.append(row); row = []; cur = ""
+        } else if ch == delim {
+            row.append(String(cur)); cur = String.UnicodeScalarView()
+        } else if ch == SCALAR_CR && i + 1 < scalars.count && scalars[i + 1] == SCALAR_LF {
+            row.append(String(cur)); rows.append(row); row = []; cur = String.UnicodeScalarView()
             i += 1
-        } else if ch == "\r" || ch == "\n" {
-            row.append(cur); rows.append(row); row = []; cur = ""
+        } else if ch == SCALAR_CR || ch == SCALAR_LF {
+            row.append(String(cur)); rows.append(row); row = []; cur = String.UnicodeScalarView()
         } else {
             cur.append(ch)
         }
         i += 1
     }
     if !cur.isEmpty || !row.isEmpty {
-        row.append(cur)
+        row.append(String(cur))
         rows.append(row)
     }
     return rows
