@@ -598,5 +598,11 @@ describe('multi-source synthetic E2E (MVP02 K)', () => {
     }
     const baseline = signatures[0]!
     for (const s of signatures) expect(s).toBe(baseline)
-  })
+    // 显式超时（30s），不要用默认 5s：
+    // 本用例跑 20 轮「新建 sqlite 库 + 迁移 + 双源导入」，单跑约 1.4s，
+    // 但全量并发下 perf 套件（10k/1k-node 级）会把 CPU 吃满，实测默认 5s
+    // 会因调度饥饿超时 —— 那是**测试调度**问题，不是确定性语义失效
+    // （断言本身一次未改：20 轮签名必须逐字节相同）。
+    // 严禁靠放宽断言让它绿：签名比较仍是严格 toBe。
+  }, 30_000)
 })

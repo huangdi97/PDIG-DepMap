@@ -174,7 +174,13 @@ interface Case {
 
 const cases: Case[] = []
 
-function add(id: string, category: string, description: string, input: unknown, expected: unknown): void {
+function add(
+  id: string,
+  category: string,
+  description: string,
+  input: unknown,
+  expected: unknown,
+): void {
   cases.push({ id, category, description, input, expected })
 }
 
@@ -190,11 +196,20 @@ const NODES: Record<string, string> = {
   spotify: 'Spotify',
 }
 
-function impactGraph(deps: Dependency[], groups: DependencyGroup[], proposals: ImpactGraph['proposals'] = []): ImpactGraph {
+function impactGraph(
+  deps: Dependency[],
+  groups: DependencyGroup[],
+  proposals: ImpactGraph['proposals'] = [],
+): ImpactGraph {
   return { dependencies: deps, groups, proposals, nodeNames: NODES }
 }
 
-function runImpact(id: string, description: string, graph: ImpactGraph, unavailable: ImpactStateKey[]): void {
+function runImpact(
+  id: string,
+  description: string,
+  graph: ImpactGraph,
+  unavailable: ImpactStateKey[],
+): void {
   const result = simulateScenario(graph, new Set(unavailable))
   add(id, 'impact', description, { graph, unavailable }, result)
 }
@@ -324,7 +339,19 @@ runImpact(
 runImpact(
   'impact-proposal-only',
   '仅存在 pending Proposal → needs_review / proposal_only；confidence 不改变结论（IMP-03）',
-  impactGraph([], [], [{ key: 'card-a|funding_source|wechat|payment', from: 'card-a', to: 'wechat', capability: 'payment', confidenceScore: 0.999 }]),
+  impactGraph(
+    [],
+    [],
+    [
+      {
+        key: 'card-a|funding_source|wechat|payment',
+        from: 'card-a',
+        to: 'wechat',
+        capability: 'payment',
+        confidenceScore: 0.999,
+      },
+    ],
+  ),
   [{ nodeId: 'card-a', capability: 'payment' }],
 )
 
@@ -361,7 +388,10 @@ runImpact(
 runImpact(
   'impact-non-payment-capability-ignored',
   'MVP 只传播 payment；非 payment 初始键被忽略（AGENTS §13）',
-  impactGraph([dep('d1', 'card-a', 'wechat', { criticality: 'required', capability: 'access' })], []),
+  impactGraph(
+    [dep('d1', 'card-a', 'wechat', { criticality: 'required', capability: 'access' })],
+    [],
+  ),
   [{ nodeId: 'card-a', capability: 'payment' }],
 )
 
@@ -390,25 +420,42 @@ function addReadiness(id: string, description: string, input: PlanReadinessInput
 addReadiness(
   'readiness-one-target-multiple-actions',
   'one target / multiple required actions —— 全部声明动作完成才算 resolved（FR-READ-001）',
-  readinessInput({ pendingMustChange: 0, plan: plan({ actions: [action('c1', 'change', ['wechat|payment'], true)] }) }),
+  readinessInput({
+    pendingMustChange: 0,
+    plan: plan({ actions: [action('c1', 'change', ['wechat|payment'], true)] }),
+  }),
 )
 
 addReadiness(
   'readiness-one-target-multiple-actions-partial',
   'one target / 两个声明动作只完成其一 → blocked（禁止减法近似，RD-01/02）',
-  readinessInput({ pendingMustChange: 1, plan: plan({ actions: [action('c1', 'change', ['wechat|payment'], true), action('c2', 'change', ['wechat|payment'], false)] }) }),
+  readinessInput({
+    pendingMustChange: 1,
+    plan: plan({
+      actions: [
+        action('c1', 'change', ['wechat|payment'], true),
+        action('c2', 'change', ['wechat|payment'], false),
+      ],
+    }),
+  }),
 )
 
 addReadiness(
   'readiness-multiple-targets-shared-action',
   'multiple targets / one shared action 全部声明且完成 → 不 blocked（FR-READ-002）',
-  readinessInput({ pendingMustChange: 0, plan: plan({ actions: [action('c1', 'change', ['wechat|payment', 'alipay|payment'], true)] }) }),
+  readinessInput({
+    pendingMustChange: 0,
+    plan: plan({ actions: [action('c1', 'change', ['wechat|payment', 'alipay|payment'], true)] }),
+  }),
 )
 
 addReadiness(
   'readiness-unrelated-completed-action',
   '完成无关动作不解决任何 requirement → blocked（FR-READ-003 / RD-03）',
-  readinessInput({ pendingMustChange: 1, plan: plan({ actions: [action('c1', 'change', ['other|payment'], true)] }) }),
+  readinessInput({
+    pendingMustChange: 1,
+    plan: plan({ actions: [action('c1', 'change', ['other|payment'], true)] }),
+  }),
 )
 
 addReadiness(
@@ -480,7 +527,15 @@ addReadiness(
 addReadiness(
   'readiness-completed-empty-claim-not-retroactive',
   '已完成的空声明动作不得事后追认 key → blocked（FR-READ-017 / RD-04）',
-  readinessInput({ pendingMustChange: 1, plan: plan({ actions: [action('a1', 'change', [], true), action('a2', 'change', ['wechat|payment'], false)] }) }),
+  readinessInput({
+    pendingMustChange: 1,
+    plan: plan({
+      actions: [
+        action('a1', 'change', [], true),
+        action('a2', 'change', ['wechat|payment'], false),
+      ],
+    }),
+  }),
 )
 
 // ---------------------------------------------------------------------------
@@ -513,13 +568,18 @@ addCoverage('coverage-unknown', '无来源且无已确认直接依赖 → unknow
 addCoverage(
   'coverage-limited-stale-sources',
   '有来源但全部超过新鲜度阈值 → limited（且可解释）',
-  covInput({ sources: [{ id: 's1', label: '微信账单', lastIngestedAt: '2026-01-01T00:00:00.000Z' }], confirmedDirectDependencies: 3 }),
+  covInput({
+    sources: [{ id: 's1', label: '微信账单', lastIngestedAt: '2026-01-01T00:00:00.000Z' }],
+    confirmedDirectDependencies: 3,
+  }),
 )
 
 addCoverage(
   'coverage-limited-no-direct-deps',
   '有新鲜来源但无任何已确认直接依赖 → limited',
-  covInput({ sources: [{ id: 's1', label: '微信账单', lastIngestedAt: '2026-09-12T00:00:00.000Z' }] }),
+  covInput({
+    sources: [{ id: 's1', label: '微信账单', lastIngestedAt: '2026-09-12T00:00:00.000Z' }],
+  }),
 )
 
 addCoverage(
@@ -550,28 +610,121 @@ addCoverage(
 addCoverage(
   'coverage-never-ingested-is-stalest',
   '从未导入（lastIngestedAt=null）视为最陈旧 → 不会计入新鲜来源',
-  covInput({ sources: [{ id: 's1', label: '从未导入', lastIngestedAt: null }], confirmedDirectDependencies: 1 }),
+  covInput({
+    sources: [{ id: 's1', label: '从未导入', lastIngestedAt: null }],
+    confirmedDirectDependencies: 1,
+  }),
 )
 
 // ---------------------------------------------------------------------------
 // 4. RELATIONS — RelationDefinitionRegistry
 // ---------------------------------------------------------------------------
 
-const relationCases: Array<{ id: string; fromKind: string | null; relation: string; toKind: string | null; capability: string }> = [
-  { id: 'funding-source-ok', fromKind: 'payment_instrument', relation: 'funding_source', toKind: 'account', capability: 'payment' },
-  { id: 'funding-source-ok-account-from', fromKind: 'account', relation: 'funding_source', toKind: 'payment_instrument', capability: 'payment' },
-  { id: 'funding-source-ok-service-from', fromKind: 'service', relation: 'funding_source', toKind: 'account', capability: 'payment' },
-  { id: 'merchant-agreement-ok', fromKind: 'payment_instrument', relation: 'merchant_agreement', toKind: 'service', capability: 'payment' },
-  { id: 'merchant-agreement-ok-membership', fromKind: 'account', relation: 'merchant_agreement', toKind: 'membership', capability: 'payment' },
-  { id: 'reject-non-runtime-relation', fromKind: 'payment_instrument', relation: 'bound_to', toKind: 'account', capability: 'payment' },
-  { id: 'reject-non-runtime-relation-verifies', fromKind: 'account', relation: 'verifies', toKind: 'account', capability: 'payment' },
-  { id: 'reject-unknown-relation', fromKind: 'account', relation: 'nope', toKind: 'account', capability: 'payment' },
-  { id: 'reject-capability-mismatch', fromKind: 'payment_instrument', relation: 'funding_source', toKind: 'account', capability: 'access' },
-  { id: 'reject-from-kind', fromKind: 'device', relation: 'funding_source', toKind: 'account', capability: 'payment' },
-  { id: 'reject-from-kind-identity-anchor', fromKind: 'identity_anchor', relation: 'merchant_agreement', toKind: 'service', capability: 'payment' },
-  { id: 'reject-to-kind', fromKind: 'payment_instrument', relation: 'funding_source', toKind: 'device', capability: 'payment' },
-  { id: 'reject-to-kind-custom', fromKind: 'account', relation: 'merchant_agreement', toKind: 'custom', capability: 'payment' },
-  { id: 'allow-null-kinds', fromKind: null, relation: 'funding_source', toKind: null, capability: 'payment' },
+const relationCases: Array<{
+  id: string
+  fromKind: string | null
+  relation: string
+  toKind: string | null
+  capability: string
+}> = [
+  {
+    id: 'funding-source-ok',
+    fromKind: 'payment_instrument',
+    relation: 'funding_source',
+    toKind: 'account',
+    capability: 'payment',
+  },
+  {
+    id: 'funding-source-ok-account-from',
+    fromKind: 'account',
+    relation: 'funding_source',
+    toKind: 'payment_instrument',
+    capability: 'payment',
+  },
+  {
+    id: 'funding-source-ok-service-from',
+    fromKind: 'service',
+    relation: 'funding_source',
+    toKind: 'account',
+    capability: 'payment',
+  },
+  {
+    id: 'merchant-agreement-ok',
+    fromKind: 'payment_instrument',
+    relation: 'merchant_agreement',
+    toKind: 'service',
+    capability: 'payment',
+  },
+  {
+    id: 'merchant-agreement-ok-membership',
+    fromKind: 'account',
+    relation: 'merchant_agreement',
+    toKind: 'membership',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-non-runtime-relation',
+    fromKind: 'payment_instrument',
+    relation: 'bound_to',
+    toKind: 'account',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-non-runtime-relation-verifies',
+    fromKind: 'account',
+    relation: 'verifies',
+    toKind: 'account',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-unknown-relation',
+    fromKind: 'account',
+    relation: 'nope',
+    toKind: 'account',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-capability-mismatch',
+    fromKind: 'payment_instrument',
+    relation: 'funding_source',
+    toKind: 'account',
+    capability: 'access',
+  },
+  {
+    id: 'reject-from-kind',
+    fromKind: 'device',
+    relation: 'funding_source',
+    toKind: 'account',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-from-kind-identity-anchor',
+    fromKind: 'identity_anchor',
+    relation: 'merchant_agreement',
+    toKind: 'service',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-to-kind',
+    fromKind: 'payment_instrument',
+    relation: 'funding_source',
+    toKind: 'device',
+    capability: 'payment',
+  },
+  {
+    id: 'reject-to-kind-custom',
+    fromKind: 'account',
+    relation: 'merchant_agreement',
+    toKind: 'custom',
+    capability: 'payment',
+  },
+  {
+    id: 'allow-null-kinds',
+    fromKind: null,
+    relation: 'funding_source',
+    toKind: null,
+    capability: 'payment',
+  },
 ]
 
 // LC-003 Canonical correction 的可追溯标记（2026-09-18）：
@@ -624,7 +777,10 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
   })
   const opened = await openDepmapContainer(r.json, 'depmap-test')
   const firstFailure = (e: unknown) => (e as { code?: string }).code ?? 'error'
-  const wrong = await openDepmapContainer(r.json, 'wrong-password').then(() => 'opened', firstFailure)
+  const wrong = await openDepmapContainer(r.json, 'wrong-password').then(
+    () => 'opened',
+    firstFailure,
+  )
   // 篡改：正确密码 + 被改动的 ciphertext 也必须认证失败（fail closed）
   const tampered = r.json.replace(/"ciphertext":"[^"]+"/, '"ciphertext":"AAAAAAAAAAAAAAAAAAAAAA=="')
   const tamperedOutcome = await openDepmapContainer(tampered, 'depmap-test').then(
@@ -716,13 +872,17 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
     { id: 'bad-nonce-length', patch: (h) => ({ ...h, cipher: { ...h.cipher, nonce: 'AAAA' } }) },
     { id: 'bad-tag-length', patch: (h) => ({ ...h, tag: 'AAAA' }) },
     { id: 'empty-ciphertext', patch: (h) => ({ ...h, ciphertext: '' }) },
-    { id: 'bad-cipher-algorithm', patch: (h) => ({ ...h, cipher: { ...h.cipher, algorithm: 'AES-128-CBC' } }) },
+    {
+      id: 'bad-cipher-algorithm',
+      patch: (h) => ({ ...h, cipher: { ...h.cipher, algorithm: 'AES-128-CBC' } }),
+    },
     { id: 'float-param', patch: (h) => ({ ...h, kdf: { ...h.kdf, memoryKiB: 65536.5 } }) },
   ]
 
   const outcomes: Record<string, string> = {}
   for (const m of mutations) {
-    const json = typeof m.patch(base) === 'string' ? (m.patch(base) as string) : JSON.stringify(m.patch(base))
+    const json =
+      typeof m.patch(base) === 'string' ? (m.patch(base) as string) : JSON.stringify(m.patch(base))
     outcomes[m.id] = await openDepmapContainer(json, 'depmap-test').then(
       () => 'OPENED_UNEXPECTEDLY',
       (e: unknown) => (e as { code?: string }).code ?? 'error',
@@ -732,7 +892,13 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
     'depmap-bounds-and-structure-rejection',
     'depmap',
     '解析 → 结构 → 边界 全部在 KDF 之前完成；恶意容器必须 fail closed',
-    { base, mutations: mutations.map((m) => ({ id: m.id, json: typeof m.patch(base) === 'string' ? m.patch(base) : JSON.stringify(m.patch(base)) })) },
+    {
+      base,
+      mutations: mutations.map((m) => ({
+        id: m.id,
+        json: typeof m.patch(base) === 'string' ? m.patch(base) : JSON.stringify(m.patch(base)),
+      })),
+    },
     outcomes,
   )
 }
@@ -761,9 +927,7 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
   // `JSON.stringify({f: NaN})` 会写成 `{"f":null}`，平台解析后不会抛错，
   // 造成 "expected=Error / actual=序列化成功" 的假失败。
   // JCS 受限域的浮点拒绝用 1.5 表达即可覆盖同一分支。
-  const rejectCases: Array<{ id: string; input: unknown }> = [
-    { id: 'float', input: { f: 1.5 } },
-  ]
+  const rejectCases: Array<{ id: string; input: unknown }> = [{ id: 'float', input: { f: 1.5 } }]
   for (const c of rejectCases) {
     rejections[c.id] = (() => {
       try {
@@ -797,11 +961,20 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
     { excludedDomains: specDomain.scenarioTemplates.policy.excludedDomains },
     {
       activeIds: specDomain.scenarioTemplates.active.map((t: { id: string }) => t.id),
-      activeCategories: specDomain.scenarioTemplates.active.map((t: { category: string }) => t.category),
+      activeCategories: specDomain.scenarioTemplates.active.map(
+        (t: { category: string }) => t.category,
+      ),
       plannedIds: specDomain.scenarioTemplates.planned.map((t: { id: string }) => t.id),
-      plannedExecutable: specDomain.scenarioTemplates.planned.map((t: { executable: boolean }) => t.executable),
+      plannedExecutable: specDomain.scenarioTemplates.planned.map(
+        (t: { executable: boolean }) => t.executable,
+      ),
       leadingTimeByTemplate: Object.fromEntries(
-        specDomain.scenarioTemplates.active.map((t: { id: string; recommendedLeadTimeDays: number | null }) => [t.id, t.recommendedLeadTimeDays]),
+        specDomain.scenarioTemplates.active.map(
+          (t: { id: string; recommendedLeadTimeDays: number | null }) => [
+            t.id,
+            t.recommendedLeadTimeDays,
+          ],
+        ),
       ),
     },
   )
@@ -812,7 +985,9 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
 // ---------------------------------------------------------------------------
 
 {
-  const specSchema = JSON.parse(readFileSync(join(ROOT, 'spec', 'schema', 'logical-schema.json'), 'utf8'))
+  const specSchema = JSON.parse(
+    readFileSync(join(ROOT, 'spec', 'schema', 'logical-schema.json'), 'utf8'),
+  )
   add(
     'migration-version-contract',
     'migration',
@@ -820,7 +995,9 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
     { logicalSchemaVersion: specSchema.logicalSchemaVersion, migrations: specSchema.migrations },
     {
       migrations: specSchema.migrations,
-      payloadKind: specSchema.payloadNote.includes('depmap-logical-graph') ? 'depmap-logical-graph' : null,
+      payloadKind: specSchema.payloadNote.includes('depmap-logical-graph')
+        ? 'depmap-logical-graph'
+        : null,
       payloadTables: specSchema.payloadTables,
       rejectedSchemaVersions: [0, 4, 99, 100],
       rejectedPayloadVersions: [0, 4, 99],
@@ -855,9 +1032,33 @@ const GOLDEN_PLAINTEXT = '{"app":"depmap","schemaVersion":1,"nodes":[],"dependen
  * 否则三端只是在比谁复制得快，而不是在实现语义。
  */
 {
-  const cm = JSON.parse(readFileSync(join(ROOT, 'spec', 'state-machines', 'change-plan.json'), 'utf8'))
-  const sm = JSON.parse(readFileSync(join(ROOT, 'spec', 'state-machines', 'state-machines.json'), 'utf8'))
-  const machine = (id: string) => sm.machines.find((m: { machineId: string }) => m.machineId === id)
+  const cm = JSON.parse(
+    readFileSync(join(ROOT, 'spec', 'state-machines', 'change-plan.json'), 'utf8'),
+  )
+  // `JSON.parse` 返回 any：这里立刻收敛成递归索引类型，避免 any 沿 machine()
+  // 调用链扩散（eslint no-unsafe-return）。spec 里 machine 的字段是「嵌套对象
+  // + 标量」混合，递归索引类型既保住 `drift.transitionEffects.accept` 这类访问，
+  // 又让返回值不再是 any。
+  // 本脚本用到的字段在类型层面声明为**必选**（spec 缺字段时生成的 fixture 会
+  // 与冻结的 CONFORMANCE_MANIFEST 不一致，差分会捕获），其余字段走索引签名。
+  // 这样既去掉 any，又不撒谎成"字段可能不存在"（那会让 fixture 静默变 undefined）。
+  type Machine = {
+    machineId: string
+    initial: unknown
+    transitions: unknown
+    creationRule: unknown
+    guards: unknown
+    transitionEffects: { accept: unknown; dismiss: unknown }
+    [k: string]: unknown
+  }
+  const sm = JSON.parse(
+    readFileSync(join(ROOT, 'spec', 'state-machines', 'state-machines.json'), 'utf8'),
+  ) as { machines: Machine[] }
+  const machine = (id: string): Machine => {
+    const m = sm.machines.find((x) => x.machineId === id)
+    if (m === undefined) throw new Error(`state-machines.json: missing machineId=${id}`)
+    return m
+  }
 
   add(
     'state-machine-change-plan',
@@ -1004,7 +1205,12 @@ for (const f of importFiles) {
   }
 
   const simpleCsv: MappingProfile = {
-    columns: { dateTime: 'date', counterparty: 'counterparty', amount: 'amount', currency: 'currency' },
+    columns: {
+      dateTime: 'date',
+      counterparty: 'counterparty',
+      amount: 'amount',
+      currency: 'currency',
+    },
     options: {
       delimiter: ',',
       dateFormats: ['YYYY-MM-DD'],
@@ -1019,11 +1225,21 @@ for (const f of importFiles) {
     options: { ...simpleCsv.options },
   }
   const simpleCsvDesc: MappingProfile = {
-    columns: { dateTime: 'date', description: 'description', amount: 'amount', currency: 'currency' },
+    columns: {
+      dateTime: 'date',
+      description: 'description',
+      amount: 'amount',
+      currency: 'currency',
+    },
     options: { ...simpleCsv.options },
   }
   const euBank: MappingProfile = {
-    columns: { dateTime: 'Buchungstag', counterparty: 'Verwendungszweck', amount: 'Betrag', currency: 'Waehrung' },
+    columns: {
+      dateTime: 'Buchungstag',
+      counterparty: 'Verwendungszweck',
+      amount: 'Betrag',
+      currency: 'Waehrung',
+    },
     options: {
       delimiter: ';',
       dateFormats: ['DD.MM.YYYY'],
@@ -1033,7 +1249,13 @@ for (const f of importFiles) {
     },
   }
   const debitCredit: MappingProfile = {
-    columns: { dateTime: 'Date', counterparty: 'Description', debit: 'Debit', credit: 'Credit', balance: 'Balance' },
+    columns: {
+      dateTime: 'Date',
+      counterparty: 'Description',
+      debit: 'Debit',
+      credit: 'Credit',
+      balance: 'Balance',
+    },
     options: {
       delimiter: ',',
       dateFormats: ['YYYY-MM-DD'],
@@ -1053,7 +1275,10 @@ for (const f of importFiles) {
       hasHeaderRow: true,
     },
   }
-  const gb18030Csv: MappingProfile = { ...simpleCsv, options: { ...simpleCsv.options, encoding: 'gb18030' } }
+  const gb18030Csv: MappingProfile = {
+    ...simpleCsv,
+    options: { ...simpleCsv.options, encoding: 'gb18030' },
+  }
 
   const parserCases: Array<{
     id: string
@@ -1075,10 +1300,30 @@ for (const f of importFiles) {
       file: 'csv-quoted-comma.csv',
       mapping: simpleCsvNoCurrency,
     },
-    { id: 'csv-multi-currency', adapter: 'generic_csv', file: 'csv-multi-currency.csv', mapping: simpleCsvDesc },
-    { id: 'csv-eu-semicolon', adapter: 'generic_csv', file: 'csv-eu-bank-semicolon.csv', mapping: euBank },
-    { id: 'csv-debit-credit', adapter: 'generic_csv', file: 'csv-debit-credit-columns.csv', mapping: debitCredit },
-    { id: 'csv-us-signed', adapter: 'generic_csv', file: 'csv-us-credit-card.csv', mapping: usCard },
+    {
+      id: 'csv-multi-currency',
+      adapter: 'generic_csv',
+      file: 'csv-multi-currency.csv',
+      mapping: simpleCsvDesc,
+    },
+    {
+      id: 'csv-eu-semicolon',
+      adapter: 'generic_csv',
+      file: 'csv-eu-bank-semicolon.csv',
+      mapping: euBank,
+    },
+    {
+      id: 'csv-debit-credit',
+      adapter: 'generic_csv',
+      file: 'csv-debit-credit-columns.csv',
+      mapping: debitCredit,
+    },
+    {
+      id: 'csv-us-signed',
+      adapter: 'generic_csv',
+      file: 'csv-us-credit-card.csv',
+      mapping: usCard,
+    },
     { id: 'csv-gb18030', adapter: 'generic_csv', file: 'csv-gb18030.csv', mapping: gb18030Csv },
     { id: 'ofx-basic', adapter: 'ofx_qfx', file: 'ofx-basic.qfx' },
     { id: 'ofx-xml-multiple', adapter: 'ofx_qfx', file: 'ofx-multiple.ofx' },
@@ -1090,11 +1335,15 @@ for (const f of importFiles) {
     { id: 'qfx-duplicate-fitid', adapter: 'ofx_qfx', file: 'qfx-duplicate-fitid.ofx' },
   ]
 
+  // WeChatStatementAdapter 的构造需要一个 driver（它内部持有 NodeRepository）。
+  // 这里给一个一次性临时库，仅为满足构造契约：本段 22 条 parser 用例只断言
+  // `parse()` 的观测输出与坏行保守拒绝，读取结果与库内容无关。
+  const wechatDb = freshDb('parser-wechat')
   for (const c of parserCases) {
     const data = new Uint8Array(readFileSync(join(CORE, 'tests', 'fixtures', c.file)))
     const adapter =
       c.adapter === 'wechat'
-        ? new WeChatStatementAdapter()
+        ? new WeChatStatementAdapter(wechatDb.driver)
         : c.adapter === 'ofx_qfx'
           ? new OfxQfxAdapter()
           : new GenericCsvAdapter()
@@ -1123,6 +1372,7 @@ for (const f of importFiles) {
       },
     )
   }
+  closeDb(wechatDb.driver, wechatDb.dir)
 }
 
 // ---------------------------------------------------------------------------
@@ -1148,7 +1398,13 @@ function closeDb(driver: NodeSqliteDriver, dir: string): void {
   }
 }
 
-function insertNode(driver: NodeSqliteDriver, id: string, kind: string, name: string, fields = '{}'): void {
+function insertNode(
+  driver: NodeSqliteDriver,
+  id: string,
+  kind: string,
+  name: string,
+  fields = '{}',
+): void {
   driver
     .prepare(
       `INSERT INTO nodes (id, kind, template_id, name, issuer, last4, owner, archived, fields_json, vault_ref, wallet_ref, created_at, updated_at)
@@ -1290,18 +1546,28 @@ function insertPlan(
 
   const finalVersion = migrate(d1, T0)
   const tables = d1
-    .prepare(`SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name`)
+    .prepare(
+      `SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name`,
+    )
     .all()
     .map((r) => String((r as Record<string, unknown>).name))
-  const dep = d1.prepare('SELECT id, state, criticality FROM dependencies WHERE id = ?').get('dep-1')
+  const dep = d1
+    .prepare('SELECT id, state, criticality FROM dependencies WHERE id = ?')
+    .get('dep-1')
   const node = d1.prepare('SELECT id, name FROM nodes WHERE id = ?').get('node-1')
   const ev = d1
-    .prepare('SELECT id, proposal_key, source_instance_id, evidence_kind FROM evidence WHERE id = ?')
+    .prepare(
+      'SELECT id, proposal_key, source_instance_id, evidence_kind FROM evidence WHERE id = ?',
+    )
     .get('ev-1')
   const fp = d1
-    .prepare('SELECT fingerprint, source_instance_id FROM observation_fingerprints WHERE fingerprint = ?')
+    .prepare(
+      'SELECT fingerprint, source_instance_id FROM observation_fingerprints WHERE fingerprint = ?',
+    )
     .get('fp-abc')
-  const prop = d1.prepare('SELECT id, decision FROM dependency_proposals WHERE id = ?').get('prop-1')
+  const prop = d1
+    .prepare('SELECT id, decision FROM dependency_proposals WHERE id = ?')
+    .get('prop-1')
   const legacyCount = d1
     .prepare('SELECT COUNT(*) AS c FROM source_instances WHERE id = ?')
     .get(LEGACY_WECHAT_SOURCE_INSTANCE_ID)
@@ -1314,7 +1580,11 @@ function insertPlan(
     'migration-db-v1-to-v3',
     'migration',
     'DB v1 → v3：版本到达 3、legacy 数据归属 legacy SourceInstance、ID 与决策保留、指纹作用域重建、重复执行严格 no-op',
-    { from: 1, to: finalVersion, seeded: ['node-1', 'dep-1', 'ev-1', 'fp-abc', 'prop-1', 'sess-1'] },
+    {
+      from: 1,
+      to: finalVersion,
+      seeded: ['node-1', 'dep-1', 'ev-1', 'fp-abc', 'prop-1', 'sess-1'],
+    },
     {
       finalSchemaVersion: finalVersion,
       tables,
@@ -1445,7 +1715,13 @@ if (verifyMode) {
   process.exit(0)
 }
 
-const written: Array<{ id: string; category: string; path: string; sha256: string; description: string }> = []
+const written: Array<{
+  id: string
+  category: string
+  path: string
+  sha256: string
+  description: string
+}> = []
 
 if (existsSync(FIX)) {
   // 只清理本次生成的类别目录，避免误删手工 fixture
@@ -1517,7 +1793,11 @@ const manifest = {
 }
 
 mkdirSync(CONF, { recursive: true })
-writeFileSync(join(CONF, 'CONFORMANCE_MANIFEST.json'), JSON.stringify(manifest, null, 2) + '\n', 'utf8')
+writeFileSync(
+  join(CONF, 'CONFORMANCE_MANIFEST.json'),
+  JSON.stringify(manifest, null, 2) + '\n',
+  'utf8',
+)
 
 console.log(`conformance fixtures: ${written.length} cases written`)
 console.log(`import fixtures: ${Object.keys(importHashes).length} files copied`)

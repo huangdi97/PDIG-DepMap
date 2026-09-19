@@ -39,6 +39,12 @@ const SECRET_FILE_PATTERNS = [
   [/(real[_-]?bill|真实账单).*(\.csv|\.ofx|\.pdf|\.xlsx?)$/i, 'possible real bill'],
 ]
 
+// 已知非秘密的**文件名**豁免（路径级，逐条写明理由，不做模糊放行）。
+// 只豁免这一条：`spec/ui/design-tokens.json` 是 UI 设计令牌（颜色/间距/字号），
+// 被 `tokens?\.json$` 这条文件名规则误命中。它不是凭证，里面也没有密钥值。
+// 注意：豁免是**路径精确**的，其它任何 `*token*.json` 仍照常命中（见 FILE_ALLOWLIST 的正则锚定）。
+const FILE_ALLOWLIST = [/^spec\/ui\/design-tokens\.json$/]
+
 const CONTENT_PATTERNS = [
   [/-----BEGIN (RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----/, 'private key block'],
   [/AKIA[0-9A-Z]{16}/, 'AWS access key'],
@@ -66,7 +72,9 @@ for (const rel of files) {
   }
   if (!stat.isFile()) continue
   for (const [re, label] of SECRET_FILE_PATTERNS) {
-    if (re.test(rel)) findings.push(`[file:${label}] ${rel}`)
+    if (re.test(rel) && !FILE_ALLOWLIST.some((a) => a.test(rel))) {
+      findings.push(`[file:${label}] ${rel}`)
+    }
   }
   if (BINARY_EXT.test(rel)) continue
   let text

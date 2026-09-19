@@ -1250,9 +1250,24 @@ GITHUB_PORTABLE_CI                  = PASS
 HARMONY_HOST_CONFORMANCE_LOCAL      = PASS  (canonical 87/91, ENV_BLOCKED 0, DEVICE_BLOCKED 4)
 IOS_CI_COMPILE_AND_HOST_CONFORMANCE = PASS  (canonical 91/91, fail 0)
 ANDROID_CONFORMANCE                 = PASS 91/91 (JVM, 本机 JDK21 复跑)
+ANDROID_CORE_TEST                   = PASS 71/71 (6 类, 本机 --rerun 实测)
+ANDROID_DEBUG_BUILD                 = PASS (:app:clean :app:assembleDebug, APK 36,958,501 B)
+ANDROID_DEVICE_RUNTIME_EMULATOR     = PASS (AVD Android 34 x86_64, install+start+home UI 无崩溃)
+WEB_CORE_STATIC_GATES               = PASS (typecheck/lint/format:check/architecture/network/secrets/ui)
+WEB_CORE_UNIT_TESTS                 = PASS 453/453 (43 files)
+WEB_CORE_ORACLE_SELFCHECK           = PASS 91/91
+WEB_UTS_COMPILE_GATE                = PASS 15/15
+WEB_APP_H5_BUILD                    = NOT_AVAILABLE (BLOCKERS B10: 无 HBuilderX/uni-app x CLI)
 CROSS_PLATFORM_DIFFERENTIAL         = PASS  (verdict 0 分歧；Android×iOS actual 91/91 逐字节相同)
 NATIVE_MIGRATION                    = NOT PASS（11 条 Cutover 条件 8 PASS / 3 未满足，
                                        见 NATIVE_MIGRATION_ACCEPTANCE_2026-09-19.md）
 IOS_DEVICE_RUNTIME                  = NOT_RUN
 HARMONY_DEVICE_RUNTIME              = NOT_RUN
 ```
+
+> 安卓端和 web(core) 端复验细节见 `VERIFICATION_ANDROID_WEB_2026-09-19.md`。
+> 复验同时修掉 3 个真缺陷：
+> 1) `scripts/generate-conformance.ts` 编译失败（WeChatStatementAdapter 缺 driver + any 扩散）；
+> 2) `scripts/check-secrets.mjs` 误报 `spec/ui/design-tokens.json`；
+> 3) `tests/integration/multi-source-e2e.test.ts` K6 在并发 perf 饱和下默认 5s flaky。
+
