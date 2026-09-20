@@ -86,15 +86,19 @@ Android 清单实际申请的权限（以构建产物 `app-debug.apk` 的 `Andro
 
 ## 6. 支持的场景（Supported scenarios）
 
-当前内置 3 个场景模板（MVP 范围）：
+当前内置 3 个**支付类**场景模板（MVP 范围，与 `ScenarioRegistry.active` 一致）：
 
-1. **更换支付卡（replace_payment_card）**
-2. 更换 / 停用邮箱
-3. 停用某个订阅
+1. **更换支付卡（replace_payment_card）** —— 换卡前检查支付钱包、自动扣款和订阅关系。
+2. **银行卡即将到期（expiring_payment_card）** —— 到期前检查仍依赖这张卡的支付路径（建议提前 30 天）。
+3. **注销银行卡（close_payment_instrument）** —— 注销前确认哪些支付关系需要迁移（建议提前 14 天）。
 
-场景覆盖度分四级：`full` / `partial` / `unknown` / `not_applicable`。
+产品按「需要你处理 / 可能发生了变化 / 即将到来 / 常用场景 / 我的基础设施」组织首页，
+场景执行完整走过：影响面 → 变更计划 → 逐项完成 → 逐项验证（done ≠ verified）。
+场景覆盖度按 `unknown / limited / partial / well_evidenced` 分级，
 **"unknown" 会如实显示，不会伪装成已覆盖。**
 
+> 说明：早期文档曾把场景误写为「更换/停用邮箱」与「停用订阅」，与 `ScenarioRegistry.active`
+> （3 个支付场景）不一致，已按 canonical 修正。
 ---
 
 ## 7. 数据处理说明（Data handling）

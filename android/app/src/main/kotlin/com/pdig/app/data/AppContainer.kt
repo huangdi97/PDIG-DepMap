@@ -83,6 +83,16 @@ class AppContainer private constructor(private val driver: SqliteDriver) {
          * 生产路径只走 [get]。
          */
         internal fun forDriver(driver: SqliteDriver): AppContainer = AppContainer(driver)
+
+        /** 拆除单例（L-37 删除所有数据用）。调用方先 close 当前 driver，否则下次 get 会重开已关闭的库。 */
+        internal fun reset() {
+            synchronized(this) {
+                instance?.let { app ->
+                    runCatching { (app.driver as? com.pdig.app.platform.AndroidSqliteDriver)?.close() }
+                }
+                instance = null
+            }
+        }
     }
     // ------------------------------------------------------------------
     // 查询（只读投影）

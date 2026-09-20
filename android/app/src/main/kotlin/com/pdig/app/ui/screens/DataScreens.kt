@@ -1,4 +1,4 @@
-package com.pdig.app.ui.screens
+﻿package com.pdig.app.ui.screens
 
 import android.net.Uri
 import android.widget.Toast
@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -31,14 +32,15 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
-import com.pdig.app.ui.Route
 import com.pdig.app.data.AppContainer
 import com.pdig.app.data.AppContainer.ImportCommitResult
 import com.pdig.app.data.ExportBackupResult
 import com.pdig.app.data.ExportFailureStage
 import com.pdig.app.data.ParseOutcome
 import com.pdig.app.data.SourceRow
+import com.pdig.app.security.DatabaseKeyStore
 import com.pdig.app.security.LockGate
+import com.pdig.app.ui.Route
 import com.pdig.app.ui.components.EmptyState
 import com.pdig.app.ui.components.LoadingState
 import com.pdig.app.ui.components.PdigCard
@@ -675,6 +677,8 @@ private fun queryDisplayName(context: android.content.Context, uri: Uri): String
 
 @Composable
 fun SettingsScreen(nav: NavController) {
+    val context = LocalContext.current
+    var showDeleteConfirm by remember { mutableStateOf(false) }
     Scaffold(topBar = { PdigTopBar("设置", onBack = { nav.popBackStack() }) }) { pad ->
         PdigScrollingPage(
             modifier = Modifier
@@ -698,9 +702,61 @@ fun SettingsScreen(nav: NavController) {
                     )
                 }
             }
+            // L-37：删除所有数据。只删除本应用私有数据（DB / 包裹密钥 / 缓存 / 工作流状态），
+            // **不删除**用户导出到外部位置的 `.depmap` 备份文件。破坏性操作，必须显式确认。
+            PdigCard(onClick = { showDeleteConfirm = true }) {
+                Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
+                    Text(
+                        "删除所有数据",
+                        style = PdigTokens.BodyStrong,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Text(
+                        "删除本机全部记录（数据库、密钥、缓存与工作流状态）。不会删除你导出到外部位置的备份文件。此操作不可恢复。",
+                        style = PdigTokens.Caption,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             PdigCard(onClick = { nav.navigate(Route.PRIVACY) }) { Text("隐私") }
             PdigCard(onClick = { nav.navigate(Route.ABOUT) }) { Text("关于") }
         }
+    }
+    if (showDeleteConfirm) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { showDeleteConfirm = false },
+            title = { Text("删除所有数据？") },
+            text = {
+                Text(
+                    "将永久删除这台设备上的全部记录（数据库、密钥、缓存与工作流状态）。" +
+                        "这不影响你已导出到外部位置的 `.depmap` 备份文件。此操作无法撤销。",
+                )
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showDeleteConfirm = false
+                    // 后台删除私有数据，主线程不被 DB 打开阻塞（L-37/D-12 同口径）。
+                    val executor = java.util.concurrent.Executors.newSingleThreadExecutor()
+                    executor.execute {
+                        try {
+                            AppContainer.reset()
+                            DatabaseKeyStore.clear(context)
+                            context.deleteDatabase("pdig.db")
+                            context.cacheDir?.listFiles()?.forEach { it.delete() }
+                            context.filesDir.listFiles()?.forEach { f ->
+                                if (f.name != "pdig.db") f.delete()
+                            }
+                        } finally {
+                            executor.shutdown()
+                        }
+                    }
+                    LockGate.lockNow()
+                }) { Text("删除", color = MaterialTheme.colorScheme.onError) }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeleteConfirm = false }) { Text("取消") }
+            },
+        )
     }
 }
 
@@ -744,3 +800,4 @@ fun AboutScreen(nav: NavController) {
         }
     }
 }
+

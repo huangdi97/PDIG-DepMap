@@ -55,6 +55,17 @@ object DatabaseKeyStore {
         return blob
     }
 
+    /**
+     * 删除所有数据（L-37）：清掉包裹的口令 prefs 与 Keystore 包裹密钥。
+     * 只作用于本应用私有数据；**不触碰**用户导出到外部位置的 `.depmap` 文件。
+     */
+    fun clear(context: Context) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().clear().apply()
+        runCatching {
+            val ks = KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
+            if (ks.containsAlias(ALIAS)) ks.deleteEntry(ALIAS)
+        }
+    }
     /** 解开密码短语（仅内存使用；调用方用后应尽快清掉）。 */
     fun passphrase(context: Context): String {
         val blob = Base64.decode(wrappedPassphrase(context), Base64.DEFAULT)
