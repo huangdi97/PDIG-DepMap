@@ -1,7 +1,7 @@
 ﻿package com.pdig.app.ui.screens
 
 import android.net.Uri
-import android.widget.Toast
+import java.io.File
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -741,7 +741,13 @@ fun SettingsScreen(nav: NavController) {
                         try {
                             AppContainer.reset()
                             DatabaseKeyStore.clear(context)
+                            // deleteDatabase 在 SQLCipher 直接打开的文件上可能静默失败
+                            // （L-37 设备实测），补一层直接删文件（含 WAL/SHM/journal）。
                             context.deleteDatabase("pdig.db")
+                            File(context.filesDir, "pdig.db").delete()
+                            File(context.filesDir, "pdig.db-journal").delete()
+                            File(context.filesDir, "pdig.db-wal").delete()
+                            File(context.filesDir, "pdig.db-shm").delete()
                             context.cacheDir?.listFiles()?.forEach { it.delete() }
                             context.filesDir.listFiles()?.forEach { f ->
                                 if (f.name != "pdig.db") f.delete()
