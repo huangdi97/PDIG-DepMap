@@ -63,8 +63,8 @@ permissions:
 #     GitHub-hosted Linux runner 无 KVM 授权的硬件加速，
 #     不建立 emulator job —— 不声明「Android Emulator E2E = PASS」。
 #
-#   :app:assembleDebug = 本轮不纳入 CI
-#     未经 hosted runner 验证，不放入必过门禁；验证通过后再加入。
+#   :app:testDebugUnitTest + :app:assembleDebug = 已纳入 CI（2026-09-20，O-51）
+#     job android-app 在 hosted runner 上用自带 Android SDK 真实执行（见下方 job 定义）。
 #
 # ---------------------------------------------------------------------------
 # 状态口径（永久，见 GIT_OPS_INCIDENT_AND_RULES.md §CI 口径）
@@ -169,8 +169,62 @@ jobs:
         with:
           name: android-conformance-report
           path: conformance/reports/
+      - name: Upload Android conformance report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-conformance-report
+          path: conformance/reports/
           if-no-files-found: ignore
 
+  # ---------------------------------------------------------------------------
+  # Android App（AGP 模块）真实验证：hosted runner 自带 Android SDK。
+  # 2026-09-20 产品收口决策（O-51）：`:app:testDebugUnitTest`（纯 JVM，App 模块
+  # 的工作流状态机等逻辑）+ `:app:assembleDebug`（真实编译 Compose/AGP 工程）
+  # 从此纳入 CI 必过门禁 —— 不再是「未经 hosted runner 验证」。
+  #
+  # 诚实边界：
+  #   * 只做 JVM 单测 + 编译/打包，**不**做 emulator 运行（hosted Linux runner
+  #     无 KVM 硬件加速，Android 设备测试仍只在本地 AVD 上做，见 ANDROID_EMULATOR_E2E）。
+  #   * local.properties 指向 runner 自带 SDK（ANDROID_HOME 已由 runner 设置）；
+  #     AGP 需要已接受的 licenses —— ubuntu-latest 预装镜像已包含。
+  #   * 本 job 与 android-core **并行**，互不依赖；失败即失败，无 continue-on-error。
+  # ---------------------------------------------------------------------------
+  android-app:
+    name: Android app (JVM tests + assembleDebug)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Gradle wrapper permissions
+        working-directory: android
+        run: chmod +x ./gradlew
+
+      # runner 自带 Android SDK；显式写 local.properties 确保 AGP 一定能找到。
+      # ANDROID_HOME 由 runner 预置（/usr/local/lib/android/sdk）。
+      - name: Configure Android SDK location
+        working-directory: android
+        run: |
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          cat local.properties
+
+      - name: ":app:testDebugUnitTest + :app:assembleDebug"
+        working-directory: android
+        run: ./gradlew --no-daemon --console=plain :app:testDebugUnitTest :app:assembleDebug
+
+      - name: Upload app JVM test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-app-test-results
+          path: android/app/build/reports/tests/testDebugUnitTest/
+          if-no-files-found: ignore
   # ---------------------------------------------------------------------------
   # Harmony 静态 gate（hosted runner 上真实可执行的部分）
   #

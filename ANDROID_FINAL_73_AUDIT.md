@@ -5,7 +5,7 @@
 > ID / 能力 / 设计要求 / 实现状态 / 测试状态 / runtime evidence / 当前状态 / 缺口 / 能否本轮关闭 / 外部 blocker
 > 分类：`ENGINEERING_GAP` / `TEST_EVIDENCE_GAP` / `RUNTIME_ENVIRONMENT_GAP` / `RELEASE_EXTERNAL_BLOCKER` / `STORE_PREPARATION` / `PRODUCT_DECISION_REQUIRED`
 > 完成口径：`TESTED` / `CONFORMANCE_PASS` / `RUNTIME_VERIFIED` 计入完成格（与 NATIVE_PARITY_MATRIX.md 一致）
-> 基准：HEAD `d88b831`（含 H-16/H-17/E-10/D-9 代码）+ 本轮设备批（58/58）+ Core Journey E2E v4
+> 基准：HEAD `d88b831`（含 H-16/H-17/E-10/D-9 代码）+ 本轮设备批（**59/59**，含新增 CandidateDrift 7 + DeleteAllData 1）+ Core Journey E2E v4（**41/41 PASS / 0 FAIL**）
 
 ---
 
@@ -144,8 +144,8 @@
 | ID | 能力 | 设计要求 | 实现状态 | 测试状态 | runtime evidence | 当前状态 | 缺口 | 本轮关闭 | 外部 blocker |
 |----|------|----------|----------|----------|------------------|----------|------|----------|--------------|
 | E-01 | 真实 Build | 可复现三目标 | assembleDebug/Release/bundleRelease（本轮 fresh clone 全量） | — | `app-debug.apk` 37,118,898 B SHA256 `E78E60B8…`；`app-release-unsigned.apk` 33,114,029 B SHA256 `C9BFF575…`；`app-release.aab` 20,861,666 B SHA256 `4F7090F7…`；androidTest 1,183,982 B `2423E49C…` | **RUNTIME_VERIFIED** | 无 | ✅ | — |
-| E-02 | 单测 / 集成测试 | 全部真实执行 | :core 71 / :app JVM 9 / conformance 91 / 设备 58（本轮含 CandidateDrift + 既有 51） | 本轮全量重跑 | 全绿 | **TESTED** | 无 | ✅ | — |
-| E-03 | 设备 E2E | 核心行程全链路 | Core Journey E2E v4（本轮 fresh 两轮：40/41 后修复驱动时序重跑） | — | J0–J11 覆盖锁/导入/提案/现实/影响/计划/完成/验证/进程死亡/导出/恢复/篡改（产品侧拒绝均正确） | **RUNTIME_VERIFIED** | 无 | ✅ | — |
+| E-02 | 单测 / 集成测试 | 全部真实执行 | :core 71 / :app JVM 9 / conformance 91 / 设备 **59**（CandidateDrift 7 + DeleteAllData 1 + 既有 51） | 本轮全量重跑 | 全绿 | **TESTED** | 无 | ✅ | — |
+| E-03 | 设备 E2E | 核心行程全链路 | Core Journey E2E v4（本轮 fresh 最终 **41/41 PASS / 0 FAIL**；驱动时序假阴性已修复） | — | J0–J11 覆盖锁/导入/提案/现实/影响/计划/完成/验证/进程死亡/导出/恢复/篡改（产品侧拒绝均正确） | **RUNTIME_VERIFIED** | 无 | ✅ | — |
 | E-04 | 性能 smoke | 10k CSV 强断言 | PerfSmokeEvidenceTest | 设备内 1/1 | `csvRowsParsed=10000` `csvParseErrors=0` | **TESTED** | 无 | ✅ | — |
 | E-05 | Dark Mode（token→设备验证） | 支持并设备级验证（用户决策） | Theme.kt DarkColors/LightColors | 本轮设备像素取证 | night: bg(18,19,26)=`0xFF12131A`；light: bg(245,246,250)=`0xFFF5F6FA` —— 与 token 精确一致 | **RUNTIME_VERIFIED**（从 IMPLEMENTED 升级） | 无 | ✅ | — |
 | E-06 | Release 签名 | 生产 keystore | 非生产测试签名链路 PASS（`pdig-nonprod.jks` 本地）；release 默认**不签名** | apksigner 非生产验证已过 | `app-release-unsigned.apk` / `app-release.aab`（未签名） | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE** | 用户提供 keystore | ❌ | ✅ production keystore（B4） |

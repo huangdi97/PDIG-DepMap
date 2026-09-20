@@ -2,9 +2,7 @@
 
 > 审计时间：2026-09-20（Android Product Finalization）
 > 审计对象：Android App 全部产品页面（Kotlin/Compose 原生）
-> 证据来源：源码静态审计 + 设备内 androidTest（58/58）+ Core Journey E2E v4（40/41，唯一 FAIL 为驱动时序假阴性，产品侧正确拒绝）+ 设备 UI 操作（截图/像素取证）
-> 判据分级：`PASS`（设备实测或强测试断言）、`IMPL`（代码实现 + 语义门禁，未逐个运行时走查）、`GAP`（缺口，必须本轮关闭）
-
+> 证据来源：源码静态审计 + 设备内 androidTest（**59/59**，含新增 CandidateDrift 7 + DeleteAllData 1）+ Core Journey E2E v4（**41/41 PASS / 0 FAIL**）+ 设备 UI 操作（截图/像素取证）
 ---
 
 ## 0. 导航总表
@@ -177,6 +175,6 @@
 ```
 ANDROID_UI_PRODUCT_AUDIT = PASS（21 个产品目的地，0 个 ghost 路由）
   - 产品 UI 审计缺口：无（全部条目本轮已关闭或为设备环境受限项）
-  - 设备运行证据：androidTest 58/58 + Core Journey E2E 40/41（唯一 FAIL 为驱动时序假阴性，产品侧拒绝行为正确）
+- 设备运行证据：androidTest 59/59 + Core Journey E2E **41/41 PASS / 0 FAIL**（含错误口令/篡改拒绝、进程死亡、D-16 双断言）
   - TalkBack 实机读屏 = 诚实记 NOT_RUN / 按环境受限跟踪
 ```
