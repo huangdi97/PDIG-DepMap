@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -77,9 +78,15 @@ fun ChangePlanScreen(nav: NavController, planId: String) {
                 d.effectiveState?.let {
                     EmptyState("本计划依据的图谱已变化，需要重新分析后再继续。")
                 }
-                SectionHeader("版本依据")
+                SectionHeader("信息时效")
                 Text(
-                    "创建时图谱版本 ${d.baselineGraphRevision}；分析时版本 ${d.lastAnalyzedGraphRevision}；当前版本 ${d.currentGraphRevision}。",
+                    when {
+                        d.effectiveState != null ->
+                            "创建后你的基础设施信息发生了变化，需要重新检查（需要重新检查）。"
+                        d.currentGraphRevision > d.lastAnalyzedGraphRevision ->
+                            "自分析以来信息有更新，需要重新检查（需要重新检查）。"
+                        else -> "计划依据的信息没有发生变化。"
+                    },
                     style = PdigTokens.Body,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -101,11 +108,7 @@ fun ChangePlanScreen(nav: NavController, planId: String) {
                         PdigCard {
                             Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
                                 Text(a.title, style = PdigTokens.BodyStrong)
-                                Text(
-                                    "对应影响项：${a.resolvesImpactKeys.joinToString("、") { it.substringBefore('|') }}",
-                                    style = PdigTokens.Caption,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                Text(a.title, style = PdigTokens.BodyStrong)
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm),
@@ -244,8 +247,15 @@ fun PendingReviewScreen(nav: NavController) {
 fun RealityDriftScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
+    val scope = rememberCoroutineScope()
     var drifts by remember { mutableStateOf<List<DriftRow>?>(null) }
-    LaunchedEffect(Unit) { drifts = withContext(Dispatchers.IO) { container.openDrifts() } }
+    var resolvedIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+
+    fun reload() {
+        scope.launch { drifts = withContext(Dispatchers.IO) { container.openDrifts() } }
+    }
+
+    LaunchedEffect(Unit) { reload() }
 
     Scaffold(topBar = { PdigTopBar("可能发生了变化", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -259,7 +269,42 @@ fun RealityDriftScreen(nav: NavController) {
                 drifts == null -> LoadingState()
                 drifts!!.isEmpty() -> EmptyState("没有检测到需要确认的变化。")
                 else -> drifts!!.forEach { d ->
-                    PdriftCard(d) { nav.navigate(Route.NODE.replace("{nodeId}", d.targetNodeId)) }
+                    if (d.id in resolvedIds) return@forEach
+                    // H-17：发现 → Review → 用户选择 → Reality mutation。
+                    // 已更换 / 两者都在用 是 Reality mutation（resolve_* ∈ bumpsOn）；
+                    // 没变化 = dismiss（不改 Reality）；稍后确认 = 保持 open（本屏不操作）。
+                    PdigCard {
+                        Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
+                            Text("可能发生了变化", style = PdigTokens.BodyStrong)
+                            Text(
+                                "依据 ${d.observationCount} 条观测记录（${d.detectedAt.take(10)}）。" +
+                                    "请确认：这张卡现在怎么在用？",
+                                style = PdigTokens.Caption,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Row(horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm)) {
+                                Button(onClick = {
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) { container.resolveDriftAsReplacement(d.id) }
+                                        resolvedIds = resolvedIds + d.id
+                                    }
+                                }) { Text("已更换") }
+                                Button(onClick = {
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) { container.resolveDriftAsAdditionalPath(d.id) }
+                                        resolvedIds = resolvedIds + d.id
+                                    }
+                                }) { Text("两者都在用") }
+                                OutlinedButton(onClick = {
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) { container.dismissDrift(d.id) }
+                                        resolvedIds = resolvedIds + d.id
+                                    }
+                                }) { Text("没变化") }
+                                TextButton(onClick = { resolvedIds = resolvedIds + d.id }) { Text("稍后确认") }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -280,13 +325,20 @@ private fun PdriftCard(d: DriftRow, onClick: () -> Unit) {
     }
 }
 
-/** DiscoveryCandidate：accept 才创建 Node；不进 Impact、不 bump revision（spec §24/§26）。 */
+/** DiscoveryCandidate：accept 才创建 Node；不进 Impact、不 bump revision（spec §24/§26，H-16）。 */
 @Composable
 fun CandidateReviewScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
+    val scope = rememberCoroutineScope()
     var items by remember { mutableStateOf<List<CandidateRow>?>(null) }
-    LaunchedEffect(Unit) { items = withContext(Dispatchers.IO) { container.pendingCandidates() } }
+    var acceptedLabels by remember { mutableStateOf<Set<String>>(emptySet()) }
+
+    fun reload() {
+        scope.launch { items = withContext(Dispatchers.IO) { container.pendingCandidates() } }
+    }
+
+    LaunchedEffect(Unit) { reload() }
 
     Scaffold(topBar = { PdigTopBar("待确认服务", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -300,14 +352,29 @@ fun CandidateReviewScreen(nav: NavController) {
                 items == null -> LoadingState()
                 items!!.isEmpty() -> EmptyState("没有新的候选对象。")
                 else -> items!!.forEach { c ->
+                    if (c.label in acceptedLabels) return@forEach
                     PdigCard {
                         Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
                             Text(c.label, style = PdigTokens.BodyStrong)
                             Text(
-                                "观测到 ${c.observationCount} 次",
+                                "观测到 ${c.observationCount} 次；尚未确认，不会参与影响分析。",
                                 style = PdigTokens.Caption,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                            Row(horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm)) {
+                                Button(onClick = {
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) { container.acceptCandidate(c.id) }
+                                        acceptedLabels = acceptedLabels + c.label
+                                    }
+                                }) { Text("确认") }
+                                OutlinedButton(onClick = {
+                                    scope.launch {
+                                        withContext(Dispatchers.IO) { container.dismissCandidate(c.id) }
+                                        acceptedLabels = acceptedLabels + c.label
+                                    }
+                                }) { Text("忽略") }
+                            }
                         }
                     }
                 }

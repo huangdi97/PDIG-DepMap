@@ -27,6 +27,8 @@ import java.time.Instant
 // ---- 领域层（纯 Kotlin，不含 Android 依赖）----
 import com.pdig.core.domain.Dependency
 import com.pdig.core.domain.DependencyGroup
+import com.pdig.core.generated.CandidateStatus
+import com.pdig.core.generated.DriftStatus
 import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.domain.ImpactProposalInput
 import com.pdig.core.domain.PlanReadinessInput
@@ -75,8 +77,13 @@ class AppContainer private constructor(private val driver: SqliteDriver) {
                 AppContainer(driver).also { instance = it }
             }
         }
-    }
 
+        /**
+         * 测试/取证用工厂：用调用方提供的 driver 构造（androidTest 在 app 模块内可访问）。
+         * 生产路径只走 [get]。
+         */
+        internal fun forDriver(driver: SqliteDriver): AppContainer = AppContainer(driver)
+    }
     // ------------------------------------------------------------------
     // 查询（只读投影）
     // ------------------------------------------------------------------
@@ -138,26 +145,40 @@ class AppContainer private constructor(private val driver: SqliteDriver) {
     }
 
     fun openDrifts(): List<DriftRow> = driver.prepare(
-        "SELECT id, kind, target_node_id, detected_at, observation_count FROM reality_drifts WHERE status = 'open' ORDER BY detected_at DESC",
+        """
+        SELECT id, kind, target_node_id, capability, candidate_from, candidate_relation,
+               related_dependency_ids_json, observation_count, detected_at
+          FROM reality_drifts WHERE status = 'open' ORDER BY detected_at DESC
+        """.trimIndent(),
     ).all().map {
         DriftRow(
             id = it.str("id") ?: "",
             kind = it.str("kind") ?: "",
             targetNodeId = it.str("target_node_id") ?: "",
-            detectedAt = it.str("detected_at") ?: "",
+            capability = it.str("capability") ?: "payment",
+            candidateFrom = it.str("candidate_from"),
+            candidateRelation = it.str("candidate_relation") ?: "funding_source",
+            relatedDependencyIds = parseStringList(it.str("related_dependency_ids_json")),
             observationCount = (it.long("observation_count") ?: 0L).toInt(),
+            detectedAt = it.str("detected_at") ?: "",
         )
     }
 
     fun pendingCandidates(): List<CandidateRow> = driver.prepare(
-        "SELECT id, display_label, normalized_key, observation_count, status FROM discovery_candidates WHERE status = 'pending' ORDER BY observation_count DESC",
+        """
+        SELECT id, candidate_kind, display_label, observation_count, status
+          FROM discovery_candidates WHERE status = 'pending' ORDER BY observation_count DESC
+        """.trimIndent(),
     ).all().map {
         CandidateRow(
             id = it.str("id") ?: "",
+            candidateKind = it.str("candidate_kind") ?: "service",
             label = it.str("display_label") ?: "",
             observationCount = (it.long("observation_count") ?: 0L).toInt(),
+            status = it.str("status") ?: "pending",
         )
     }
+
 
     fun sourceInstances(): List<SourceRow> = driver.prepare(
         "SELECT id, label, adapter_id, state, last_ingested_at FROM source_instances ORDER BY created_at",
@@ -250,7 +271,172 @@ class AppContainer private constructor(private val driver: SqliteDriver) {
             driver.prepare(
                 "UPDATE dependency_proposals SET decision = 'rejected', decided_at = ? WHERE id = ?",
             ).run(Instant.now().toString(), proposalId)
+    }
+    }
+    // ------------------------------------------------------------------
+    // DiscoveryCandidate（H-16：发现 → Review → Confirm → Node / Dismiss / Later）
+    // ------------------------------------------------------------------
+    // 规范（spec/domain/domain.json + state-machines/state-machines.json）：
+    //   - Candidate 本身不进入 Impact、不 bump graphRevision；
+    //   - accept 幂等：replay 返回 created=false 与同一个 nodeId；
+    //   - dismiss 不改 Reality，仅记录 dismissedAtObservationCount；
+    //   - 未确认前不得进入 Impact（loadImpactGraph 只读 dependencies + pending proposals）。
+    // ------------------------------------------------------------------
+
+    /**
+     * 用户接受候选对象 → 创建**一个** Node（candidate_kind → NodeKind），
+     * 并把 candidate 标记为 accepted + 记录 nodeId。
+     * 幂等：已 accepted 的 candidate 返回同一 nodeId，不重复建节点。
+     * 注意：candidate_accept 在 GraphRevisionMachine.neverBumpsOn —— **不 bump**。
+     */
+    fun acceptCandidate(candidateId: String): String {
+        val now = Instant.now().toString()
+        return driver.transaction {
+            val c = driver.prepare(
+                "SELECT id, candidate_kind, display_label, status, accepted_node_id FROM discovery_candidates WHERE id = ?",
+            ).get(candidateId)
+                ?: throw IllegalStateException("entity_not_found")
+            val status = c.str("status") ?: "pending"
+            if (status == CandidateStatus.ACCEPTED.wire) {
+                return@transaction c.str("accepted_node_id")
+                    ?: throw IllegalStateException("illegal_state_transition")
+            }
+            if (status != CandidateStatus.PENDING.wire) {
+                throw IllegalStateException("illegal_state_transition")
+            }
+            val kindWire = c.str("candidate_kind") ?: "service"
+            val kind = NodeKind.fromWire(kindWire) ?: NodeKind.SERVICE
+            val label = c.str("display_label") ?: ""
+            val nodeId = nodeIdFor(kind, label)
+            // candidate_accept ∈ GraphRevisionMachine.neverBumpsOn —— 创建 Node **不** bump。
+            // 与 import Node Resolution 不同（那里 node_create ∈ bumpsOn，必须 bump）。
+            insertNodeNoBump(nodeId, kind, label, now)
+            driver.prepare(
+                "UPDATE discovery_candidates SET status = ?, accepted_node_id = ?, updated_at = ? WHERE id = ?",
+            ).run(CandidateStatus.ACCEPTED.wire, nodeId, now, candidateId)
+            nodeId
         }
+    }
+
+    /** 只插入 Node，不 bump revision（candidate_accept 专用；幂等：已存在则跳过）。 */
+    private fun insertNodeNoBump(id: String, kind: NodeKind, name: String, now: String) {
+        driver.prepare(
+            """
+            INSERT OR IGNORE INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at)
+            VALUES (?, ?, ?, 0, '{}', 'self', ?, ?)
+            """.trimIndent(),
+        ).run(id, kind.wire, name, now, now)
+    }
+
+    /** 用户忽略候选对象：仅记录 dismissed，不改 Reality、不 bump（candidate_dismiss ∈ neverBumpsOn）。 */
+    fun dismissCandidate(candidateId: String) {
+        val now = Instant.now().toString()
+        driver.transaction {
+            val c = driver.prepare("SELECT status, observation_count FROM discovery_candidates WHERE id = ?")
+                .get(candidateId) ?: throw IllegalStateException("entity_not_found")
+            if (c.str("status") != CandidateStatus.PENDING.wire) {
+                throw IllegalStateException("illegal_state_transition")
+            }
+            driver.prepare(
+                """
+                UPDATE discovery_candidates
+                   SET status = ?, dismissed_at_observation_count = ?, updated_at = ?
+                 WHERE id = ?
+                """.trimIndent(),
+            ).run(CandidateStatus.DISMISSED.wire, c.long("observation_count") ?: 0L, now, candidateId)
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // RealityDrift（H-17：发现 → Review → 用户选择 → Reality mutation）
+    // 规范：drift_detect / drift_dismiss 不 bump；drift_resolve_replacement /
+    //       drift_resolve_additional_path 属于 GraphRevisionMachine.bumpsOn。
+    //       用户选择「已更换」= 替换（retire 旧边 + 建新边）；
+    //       「两者都在用」= 额外路径（只建新边，旧边保持 active）；
+    //       「没变化」= dismiss；「稍后确认」= 保持 open（不改任何东西）。
+    // ------------------------------------------------------------------
+
+    /** 已更换：retire 关联旧边 + 创建 candidate_from → target 的新边，drift → confirmed_change。 */
+    fun resolveDriftAsReplacement(driftId: String) {
+        val now = Instant.now().toString()
+        driver.transaction {
+            val d = driftOpenOrThrow(driftId)
+            val candidateFrom = d.candidateFrom
+                ?: throw IllegalStateException("illegal_state_transition")
+            insertDependencyFromDrift(d, candidateFrom, now)
+            // retire 关联的旧边（仅 active）
+            for (oldId in d.relatedDependencyIds) {
+                val row = driver.prepare("SELECT state FROM dependencies WHERE id = ?").get(oldId)
+                if (row?.str("state") == DependencyState.ACTIVE.wire) {
+                    driver.prepare("UPDATE dependencies SET state = ?, updated_at = ? WHERE id = ?")
+                        .run(DependencyState.RETIRED.wire, now, oldId)
+                    bumpRevision() // dependency_retire ∈ bumpsOn
+                }
+            }
+            finalizeDrift(d, now)
+        }
+    }
+
+    /** 两者都在用：创建新边，旧边保持 active，drift → confirmed_change。 */
+    fun resolveDriftAsAdditionalPath(driftId: String) {
+        val now = Instant.now().toString()
+        driver.transaction {
+            val d = driftOpenOrThrow(driftId)
+            val candidateFrom = d.candidateFrom
+                ?: throw IllegalStateException("illegal_state_transition")
+            insertDependencyFromDrift(d, candidateFrom, now)
+            finalizeDrift(d, now)
+        }
+    }
+
+    /** 没变化：dismiss 不改 Reality、不 bump；「稍后确认」由 UI 不调用本函数（保持 open）。 */
+    fun dismissDrift(driftId: String) {
+        val now = Instant.now().toString()
+        driver.transaction {
+            driftOpenOrThrow(driftId)
+            driver.prepare("UPDATE reality_drifts SET status = ?, updated_at = ? WHERE id = ?")
+                .run(DriftStatus.DISMISSED.wire, now, driftId)
+        }
+    }
+
+    private fun driftOpenOrThrow(driftId: String): DriftRow {
+        val d = openDrifts().firstOrNull { it.id == driftId }
+            ?: run {
+                val raw = driver.prepare("SELECT status FROM reality_drifts WHERE id = ?").get(driftId)
+                if (raw == null) throw IllegalStateException("entity_not_found")
+                throw IllegalStateException("illegal_state_transition")
+            }
+        return d
+    }
+
+    private fun insertDependencyFromDrift(d: DriftRow, from: String, now: String): String {
+        val capability = Capability.fromWire(d.capability) ?: Capability.PAYMENT
+        val relation = Relation.fromWire(d.candidateRelation) ?: Relation.FUNDING_SOURCE
+        val depId = "dep-drift-" + sha256Hex(d.id).take(12)
+        driver.prepare(
+            """
+            INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, state,
+                                      origin, confirmed_at, last_verified_at, evidence_refs_json,
+                                      verification_basis_type, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, 'unknown', 'active', 'manual', ?, ?, '[]', 'user_confirmed', ?, ?)
+            ON CONFLICT (from_node, relation, to_node, capability) DO NOTHING
+            """.trimIndent(),
+        ).run(depId, from, relation.wire, d.targetNodeId, capability.wire, now, now, now, now)
+        bumpRevision() // drift_resolve_* ∈ bumpsOn（与新建 dependency 同事务）
+        return depId
+    }
+
+    /** drift → confirmed_change，并让同 target/capability/candidateFrom 的其它 open drift superseded。 */
+    private fun finalizeDrift(d: DriftRow, now: String) {
+        driver.prepare("UPDATE reality_drifts SET status = ?, updated_at = ? WHERE id = ?")
+            .run(DriftStatus.CONFIRMED_CHANGE.wire, now, d.id)
+        driver.prepare(
+            """
+            UPDATE reality_drifts SET status = 'superseded', updated_at = ?
+             WHERE status = 'open' AND id != ?
+               AND target_node_id = ? AND capability = ? AND candidate_from IS ?
+            """.trimIndent(),
+        ).run(now, d.id, d.targetNodeId, d.capability, d.candidateFrom)
     }
 
     /**
@@ -1007,8 +1193,24 @@ data class PlanRow(
     val effectiveDate: String?,
 )
 
-data class DriftRow(val id: String, val kind: String, val targetNodeId: String, val detectedAt: String, val observationCount: Int)
-data class CandidateRow(val id: String, val label: String, val observationCount: Int)
+data class DriftRow(
+    val id: String,
+    val kind: String,
+    val targetNodeId: String,
+    val capability: String,
+    val candidateFrom: String?,
+    val candidateRelation: String,
+    val relatedDependencyIds: List<String>,
+    val observationCount: Int,
+    val detectedAt: String,
+)
+data class CandidateRow(
+    val id: String,
+    val candidateKind: String,
+    val label: String,
+    val observationCount: Int,
+    val status: String,
+)
 data class SourceRow(val id: String, val label: String, val adapterId: String, val state: String, val lastIngestedAt: String?)
 data class ProposalRow(
     val id: String,

@@ -153,7 +153,9 @@ observation_fingerprints, import_sessions, source_instances
 - Native 第一版**仍然读取当前 Schema**（v3）。**不得**因为重写而降级到 v1。
 - Native App 必须能读取现有 `.depmap` —— 这是 Cutover 的核心要求。
 - 不要求读取旧 App 的私有 DB 文件；若旧 App 从未公开发布，通过 `.depmap` 迁移即可。
-- Onboarding 必须支持"从旧 `.depmap` 恢复"。
+- 「从备份恢复」入口必须可达（Settings → 从备份恢复 / 首次启动无库时直达 Restore）；
+  Onboarding 作为独立引导页已在产品决策中**正式取消**（2026-09-19 Android Product Finalization，
+  见 ANDROID_FINAL_73_AUDIT.md D-条款）——不再存在"Onboarding 必须支持恢复"的 ghost 需求。
 
 ---
 

@@ -40,33 +40,6 @@ import com.pdig.app.ui.components.StatusChip
 import com.pdig.app.ui.theme.PdigTokens
 import com.pdig.core.timeline.TimelineItem
 
-/** 首次启动 / 从旧 .depmap 恢复（spec §223）。 */
-@Composable
-fun OnboardingScreen(nav: NavController) {
-    Scaffold { pad ->
-        Column(
-            modifier = Modifier
-                .padding(pad)
-                .padding(PdigTokens.SpaceXl)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceLg),
-        ) {
-            Text("欢迎使用 PDIG", style = PdigTokens.Display)
-            Text(
-                "PDIG 帮你记录：服务背后依赖了哪些卡、账户和入口。\n" +
-                    "所有数据只保存在这台设备上。",
-                style = PdigTokens.Body,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Button(onClick = { nav.navigate(Route.HOME) }, modifier = Modifier.fillMaxWidth()) {
-                Text("开始使用")
-            }
-            Button(onClick = { nav.navigate(Route.RESTORE) }, modifier = Modifier.fillMaxWidth()) {
-                Text("从备份文件恢复")
-            }
-        }
-    }
-}
 
 /**
  * 首页：Answer-oriented（spec §64/§186）。
@@ -79,17 +52,30 @@ fun HomeScreen(nav: NavController) {
     var items by remember { mutableStateOf<List<TimelineItem>?>(null) }
     var plans by remember { mutableStateOf<List<PlanRow>>(emptyList()) }
     var nodeCount by remember { mutableStateOf(0) }
+    var pendingProposalCount by remember { mutableStateOf<Int?>(null) }
+    var candidateCount by remember { mutableStateOf<Int?>(null) }
+    var driftCount by remember { mutableStateOf<Int?>(null) }
 
     // ⚠ 数据库读写一律放到 IO 线程（2026-09-16 修复）：
-    // 此前这三行在主线程执行，全新安装后（dexopt + 打开 SQLCipher 密文库 + 迁移 + Argon2id）
+    // 此前这些行在主线程执行，全新安装后（dexopt + 打开 SQLCipher 密文库 + 迁移 + Argon2id）
     // 会把主线程占满并触发系统 ANR 对话框（真机实测，本轮 E2E 连续复现）。
     LaunchedEffect(Unit) {
         val loaded = withContext(Dispatchers.IO) {
-            Triple(container.timeline(), container.plans(), container.nodes().size)
+            HomeCounts(
+                timeline = container.timeline(),
+                plans = container.plans(),
+                nodeCount = container.nodes().size,
+                proposals = container.pendingProposals().size,
+                candidates = container.pendingCandidates().size,
+                drifts = container.openDrifts().size,
+            )
         }
-        items = loaded.first
-        plans = loaded.second
-        nodeCount = loaded.third
+        items = loaded.timeline
+        plans = loaded.plans
+        nodeCount = loaded.nodeCount
+        pendingProposalCount = loaded.proposals
+        candidateCount = loaded.candidates
+        driftCount = loaded.drifts
     }
 
     Scaffold(topBar = { PdigTopBar("PDIG") }) { pad ->
@@ -105,7 +91,19 @@ fun HomeScreen(nav: NavController) {
                 val upcoming = items!!.filter { it.bucket != "attention" }
 
                 SectionHeader("需要你处理")
-                if (attention.isEmpty()) {
+                val hasPendingReview = (pendingProposalCount ?: 0) > 0
+                val hasCandidates = (candidateCount ?: 0) > 0
+                if (hasPendingReview) {
+                    PdigCard(onClick = { nav.navigate(Route.REVIEW) }) {
+                        Text("有待确认的关系：$pendingProposalCount 条", style = PdigTokens.BodyStrong)
+                    }
+                }
+                if (hasCandidates) {
+                    PdigCard(onClick = { nav.navigate(Route.CANDIDATES) }) {
+                        Text("有待确认的服务：$candidateCount 个", style = PdigTokens.BodyStrong)
+                    }
+                }
+                if (attention.isEmpty() && !hasPendingReview && !hasCandidates) {
                     EmptyState("现在没有需要你处理的事项。")
                 } else {
                     attention.take(5).forEach { item ->
@@ -124,7 +122,10 @@ fun HomeScreen(nav: NavController) {
 
                 SectionHeader("可能发生了变化")
                 PdigCard(onClick = { nav.navigate(Route.DRIFT) }) {
-                    Text("查看待确认的变化", style = PdigTokens.BodyStrong)
+                    Text(
+                        if ((driftCount ?: 0) > 0) "有 $driftCount 条变化待确认" else "查看待确认的变化",
+                        style = PdigTokens.BodyStrong,
+                    )
                 }
 
                 SectionHeader("即将到来")
@@ -249,3 +250,12 @@ fun TimelineScreen(nav: NavController) {
         }
     }
 }
+/** Home 页一次 IO 取回的聚合数据（E-10：Attention 聚合）。 */
+private data class HomeCounts(
+    val timeline: List<TimelineItem>,
+    val plans: List<PlanRow>,
+    val nodeCount: Int,
+    val proposals: Int,
+    val candidates: Int,
+    val drifts: Int,
+)

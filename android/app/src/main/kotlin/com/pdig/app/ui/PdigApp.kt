@@ -34,7 +34,6 @@ import com.pdig.app.ui.screens.InfrastructureScreen
 import com.pdig.app.ui.screens.LockCheckingScreen
 import com.pdig.app.ui.screens.LockScreen
 import com.pdig.app.ui.screens.NodeDetailScreen
-import com.pdig.app.ui.screens.OnboardingScreen
 import com.pdig.app.ui.screens.PendingReviewScreen
 import com.pdig.app.ui.screens.PrivacyScreen
 import com.pdig.app.ui.screens.RealityDriftScreen
@@ -48,7 +47,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object Route {
-    const val ONBOARDING = "onboarding"
+    /**
+     * ONBOARDING：产品决策（2026-09-19 Android Product Finalization）正式取消 ——
+     * 不再注册该路由，避免"页面存在但无入口"的 ghost 状态（见 ANDROID_FINAL_73_AUDIT.md / D-条款）。
+     */
+
 
     /**
      * 应用锁**不是** NavGraph 中的一个目的地 —— 它是 App 的门（见 [PdigApp]）。
@@ -87,8 +90,6 @@ object Route {
  *  2. 读到设备能力后，一律进入 LOCKED（`LockGate` 的初值就是 true，冷启动不解锁）。
  *  3. 只有 `LockGate.unlock()` 之后才组合 [AppNavHost]。
  *
- * 因此以下绕过路径在结构上不存在（不是靠"记得别写 navigate"来保证）：
- *  - BACK 键：锁定时栈里根本没有非锁页面
  *  - 深链：NavHost 未组合（且 manifest 中除 LAUNCHER 外没有任何 intent-filter）
  *  - 直接跳转：没有任何可调用的 `nav.navigate(Route.LOCK)` 之外的入口
  *
@@ -216,7 +217,6 @@ fun AppNavHost(
     }
 
     NavHost(navController = nav, startDestination = startDestination) {
-        composable(Route.ONBOARDING) { OnboardingScreen(nav) }
         composable(Route.HOME) { HomeScreen(nav) }
         composable(Route.SCENARIOS) { ScenarioCenterScreen(nav) }
         composable(Route.TIMELINE) { TimelineScreen(nav) }
