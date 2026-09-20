@@ -169,12 +169,6 @@ jobs:
         with:
           name: android-conformance-report
           path: conformance/reports/
-      - name: Upload Android conformance report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-conformance-report
-          path: conformance/reports/
           if-no-files-found: ignore
 
   # ---------------------------------------------------------------------------
