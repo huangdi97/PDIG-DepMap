@@ -48,14 +48,6 @@
 | D-09 | ChangePlan 状态机 | draft→…→completed/cancelled；派生 needs_revalidation 不落库 | `statemachine/StateMachines.kt` | conformance state-machine-change-plan | 91/91 + E2E J6-J8 | **CONFORMANCE_PASS** | 无 | ✅ | — |
 | D-10 | RealityDrift 状态机 | open→confirmed_change/dismissed；creation 需 ≥2 正向证据 | `statemachine/StateMachines.kt` | conformance state-machine-reality-drift + 本轮设备测试 | 91/91 + CandidateDriftEvidenceTest 7/7 | **CONFORMANCE_PASS** | 无 | ✅ | — |
 | D-11 | DiscoveryCandidate 状态机 | pending→accepted/dismissed；accept 幂等不 bump | `statemachine/StateMachines.kt` | conformance state-machine-discovery-candidate + 设备测试 | 91/91 + 设备 7/7 | **CONFORMANCE_PASS** | 无 | ✅ | — |
-| D-12 | Verification 状态机 | pending→verified/failed；evidence 只建议不自动验证 | `statemachine/StateMachines.kt` | conformance state-machine-action-verification + E2E J7/J8 | 91/91 + E2E done≠verified | **CONFORMANCE_PASS** | 无 | ✅ | — |
-| D-13 | GraphRevision 策略 | bumpsOn/neverBumpsOn/atomicity 同事务 | `statemachine/StateMachines.kt` + AppContainer | conformance state-machine-graph-revision + 设备候选/漂移 bump 断言 | 91/91 + 设备 | **CONFORMANCE_PASS** | 无 | ✅ | — |
-| D-14 | ScenarioTemplate（3 active） | 仅 replace/expiring/close；planned 不可执行 | `scenario/ScenarioRegistry.kt` | conformance scenario-template-policy | 91/91（activeIds 精确匹配） | **CONFORMANCE_PASS** | 无 | ✅ | — |
-| D-15 | Timeline 分桶（7 桶） | 纯投影；deterministic 排序 | `timeline/Timeline.kt` | conformance timeline ×3 | 91/91 | **CONFORMANCE_PASS** | 无 | ✅ | — |
-| D-16 | 显式 resolution（readiness） | 未解决 must_change/Candidate → blocked/review_required；confidence≠confirmation | `plan/Rules.kt` | conformance readiness（confidence-cannot-bypass / absence-cannot-help 等） | 91/91 | **CONFORMANCE_PASS** | 无 | ✅ | — |
-
----
-
 ## 2. 持久化与迁移（10 格，完成 10）
 
 | ID | 能力 | 设计要求 | 实现状态 | 测试状态 | runtime evidence | 当前状态 | 缺口 | 本轮关闭 | 外部 blocker |
@@ -145,7 +137,7 @@
 |----|------|----------|----------|----------|------------------|----------|------|----------|--------------|
 | E-01 | 真实 Build | 可复现三目标 | assembleDebug/Release/bundleRelease（本轮 fresh clone 全量） | — | `app-debug.apk` 37,118,898 B SHA256 `E78E60B8…`；`app-release-unsigned.apk` 33,114,029 B SHA256 `C9BFF575…`；`app-release.aab` 20,861,666 B SHA256 `4F7090F7…`；androidTest 1,183,982 B `2423E49C…` | **RUNTIME_VERIFIED** | 无 | ✅ | — |
 | E-02 | 单测 / 集成测试 | 全部真实执行 | :core 71 / :app JVM 9 / conformance 91 / 设备 **59**（CandidateDrift 7 + DeleteAllData 1 + 既有 51） | 本轮全量重跑 | 全绿 | **TESTED** | 无 | ✅ | — |
-| E-03 | 设备 E2E | 核心行程全链路 | Core Journey E2E v4（本轮 fresh 最终 **41/41 PASS / 0 FAIL**；驱动时序假阴性已修复） | — | J0–J11 覆盖锁/导入/提案/现实/影响/计划/完成/验证/进程死亡/导出/恢复/篡改（产品侧拒绝均正确） | **RUNTIME_VERIFIED** | 无 | ✅ | — |
+| E-03 | 设备 E2E | 核心行程全链路 | Core Journey E2E v4（41/41 PASS / 0 FAIL）**+ 三场景 E2E（G-13：40/40 PASS / 0 FAIL，replace/expiring/close 各自完整闭环 Setup→Impact→Plan→done→verified）** | Run `scenario-e2e-20260921-151631`（40 条断言） | J0–J11 + 三场景：done≠verified 每场景实测；0 崩溃 | **RUNTIME_VERIFIED** | 无 | ✅ | — |
 | E-04 | 性能 smoke | 10k CSV 强断言 | PerfSmokeEvidenceTest | 设备内 1/1 | `csvRowsParsed=10000` `csvParseErrors=0` | **TESTED** | 无 | ✅ | — |
 | E-05 | Dark Mode（token→设备验证） | 支持并设备级验证（用户决策） | Theme.kt DarkColors/LightColors | 本轮设备像素取证 | night: bg(18,19,26)=`0xFF12131A`；light: bg(245,246,250)=`0xFFF5F6FA` —— 与 token 精确一致 | **RUNTIME_VERIFIED**（从 IMPLEMENTED 升级） | 无 | ✅ | — |
 | E-06 | Release 签名 | 生产 keystore | 非生产测试签名链路 PASS（`pdig-nonprod.jks` 本地）；release 默认**不签名** | apksigner 非生产验证已过 | `app-release-unsigned.apk` / `app-release.aab`（未签名） | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE** | 用户提供 keystore | ❌ | ✅ production keystore（B4） |
