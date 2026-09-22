@@ -17,13 +17,13 @@
 
 ## 2. Canonical HEAD
 
-`61ecdd6`（本报告生成时 HEAD；报告本身不写死自身，以 `git rev-parse HEAD` 为准）。
+`4f7b6d0`（最终验收 HEAD；报告本身不写死自身，以 `git rev-parse HEAD` 为准）。
 本轮提交：`d88b831`（H-16/H-17/E-10/D-9）→ `3d371b2`（L-37 + 审计文档）→ `504173f`（L-37 设备验证）→
-`ba6b3fe` + `82db491`（CI 扩大 + 修复）→ `61ecdd6`（三场景 E2E 报告）。
+`ba6b3fe` + `82db491`（CI 扩大 + 修复）→ `61ecdd6`（三场景 E2E 报告）→ `4f7b6d0`（验收文档收口 + parity 69/73 修正）。
 
 ## 3. GitHub state
 
-- 远端 `huangdi97/PDIG-DepMap`（PRIVATE），分支 `feat/mvp03-living-graph` 已推送。
+- 远端 `huangdi97/PDIG-DepMap`（PRIVATE），分支 `feat/mvp03-living-graph` 已推送（HEAD `4f7b6d0`，与远端同步 0/0）。
 - CI（workflow_dispatch 手动触发，仓库已知 push 触发不生效）：末期 run **35520532048 全绿**——
   `android-core`（:core:test + :conformance:run 91/91）、`android-app`（**:app:testDebugUnitTest + :app:assembleDebug，新增**）、
   `canonical`（codegen / fixtures / oracle）、`harmony-static` 全部 success。
