@@ -3,8 +3,23 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-更新时间：2026-09-18（**Harmony N3：Argon2 NAPI 全链路打通 + 编译可达性 Gate 固化**）
+更新时间：2026-09-22（**ANDROID PRODUCT FINALIZATION 收口：62→69/73，三场景 E2E 40/40，产品完成 PASS-like**）
 
+> ## 本轮（2026-09-21）：Android 产品收口（由用户暂停 Harmony/iOS，Android 从 CORE_FROZEN 临时解除）
+>
+> - **新增功能收口（非新业务）**：DiscoveryCandidate 确认/忽略流、RealityDrift 四选一解决流、
+>   首页 Attention 聚合（Proposal/Candidate/Drift 计数）、设置「删除所有数据」（L-37）、Onboarding 正式取消（D-9）。
+> - **设备验证新证据**：指纹 AVD（API35 google_apis_playstore `hw.fingerprint=yes`）跑通
+>   指纹成功/失败/取消 + PIN 正确/错误 + 前后台回锁；Dark Mode 像素级验证；删除所有数据设备测试 1/1；
+>   CandidateDrift 设备测试 7/7。
+> - **E2E**：Core Journey v4 `core-journey-v4-20260920-200002` = **41/41 PASS / 0 FAIL**；
+>   三场景 E2E `scenario-e2e-20260921-151631` = **40/40 PASS / 0 FAIL**（replace/expiring/close 全闭环）。
+> - **parity 62 → 69 / 73**（逐格重审）：生物识别/App Lock 与 Dark Mode 两格升级 RUNTIME_VERIFIED；
+>   Onboarding 按产品决策移除。剩余 4 格 = TalkBack 实机（环境）+ production keystore（用户）+
+>   Store 素材（品牌决策）+ R8（未开 minify 如实 NOT_APPLICABLE）。
+> - **CI 扩大（O-51）**：新增 `android-app` job（`:app:testDebugUnitTest` + `:app:assembleDebug`，
+>   hosted runner 自带 SDK），末期 run **35520532048 全绿**。
+> - 见 `ANDROID_PRODUCT_FINAL_ACCEPTANCE.md`（40 节完整验收）。
 > ## 本轮（2026-09-18 第三场）：Argon2 全链路 + 编译可达性 Gate
 >
 > - **`ARGON2_NATIVE_BUILD = PASS`**：vendored PHC 参考实现（tag `20190702` /
@@ -58,7 +73,7 @@
 
 ## PHASE
 
-| Phase | 名称                        | 状态                    | 说明                                              |
+| N2    | Android Full Parity         | **PARTIAL_WITH_REPORT（69/73）** | **62→69**（逐格重审）：生物识别/App Lock、Dark Mode 升级 RUNTIME_VERIFIED；Onboarding 决策移除。剩余 4 格 = TalkBack 实机（环境）/production keystore（用户）/Store 素材（品牌）/R8（未开 minify）。详见 `ANDROID_FINAL_73_AUDIT.md` |
 | ----- | --------------------------- | ----------------------- | ------------------------------------------------- |
 | N0-A  | 恢复仓库现场                | **PASS**                | git 全套审计；工作树 clean；HEAD `7bc0ed3`        |
 | N0-B  | Legacy 冻结                 | **PASS**                | tag `v0.3.0-uniapp-reference` + manifest + README |
@@ -91,18 +106,17 @@
 | Schema 迁移     | **PASS**                | `migration-db-v1-to-v3`：版本到 3、legacy 归属、50 次重复执行严格 no-op |
 | Backup / Restore | **PASS**              | `backup-depmap-export-restore-roundtrip`：导出→加密→解密→恢复→再导出**逐字节相同**，无孤儿引用 |
 | Keystore       | **PASS**                | `DatabaseKeyStore`：AES-256-GCM 密钥由 Android Keystore 生成且不可导出，包裹 DB passphrase |
-| Biometric / App Lock | **PARTIAL_WITH_REPORT** | **App Lock 接线 = RUNTIME_VERIFIED**（冷启动先锁 / 解锁后才进 / 前后台回锁 / 锁定时 NavGraph 不参与组合；`AppLockNavigationTest` + E2E v4 J0 与 J9）。**生物识别匹配 = BLOCKED_BY_RUNTIME_ENVIRONMENT**（AVD 无 `hw.finger`）。两者同属一格 ⇒ 整格仍是 PARTIAL |
-| UI（Compose）  | **PASS**                | NavHost 注册 **20 个目的地**：Onboarding / Home / Scenario Center / Scenario Setup / ChangePlan(`plan/{planId}`) / Timeline / Pending Review / RealityDrift / Candidate Review / Infrastructure / Graph / NodeDetail(`node/{nodeId}`) / Sources / Import / Backup / Restore / Settings / Privacy / About / Impact(`impact/{nodeId}`)。「Lock」**刻意不是导航目的地** —— 它是 App 的门，锁定时 NavHost 本体不参与组合 |
+| Biometric / App Lock | **RUNTIME_VERIFIED**（2026-09-21 升级） | API35 google_apis_playstore AVD（`hw.fingerprint=yes` + 真实录入）跑通：指纹成功/失败/取消、PIN 正确/错误、冷启动先锁/前后台回锁/锁定时 NavGraph 不参与组合。`AppLockNavigationTest` 7/7 |
+| UI（Compose）  | **PASS**                | NavHost 注册 **21 个目的地**（本轮新增 Settings 入口变更 + 删除所有数据）；Onboarding 已按 D-9 产品决策移除注册。Lock 是 App 的门（不参与 NavHost 组合） |
 | Design System  | **PASS**                | `PDIGTheme` + tokens（color / spacing / radius / typography / status）映射自 `spec/ui/design-tokens.json` |
-| **Build（APK）** | **PASS**               | `app-debug.apk` **36,887,249 B**，SHA-256 `bf378ec6…305ff1`（2026-09-16 与源码同步重建；归档 `local_private/artifacts/app-debug.apk`） |
+| **Build（APK/AAB）** | **PASS**（2026-09-21 fresh clone 重算） | `app-debug.apk` 37,123,275 B `E78E60B8…`；`app-release-unsigned.apk` 33,114,029 B `C9BFF575…`；`app-release.aab` 20,861,666 B `4F7090F7…`；androidTest 1,185,921 B `2423E49C…`（明细见 `ANDROID_PRODUCT_FINAL_ACCEPTANCE.md` §31） |
 | **Gradle Wrapper** | **PASS**             | 本轮新增。`gradlew` / `gradlew.bat` / `gradle-wrapper.jar`(43,504 B) / `gradle-wrapper.properties`（Gradle 8.9，官方 `distributionUrl`，无机器绝对路径）。此前**完全缺失**，构建依赖本机绝对路径 Gradle |
 | Runtime / 核心行程 | **PASS**（2026-09-17 D-16 关闭后重新确认） | AVD `emulator-5554`（API34）核心行程 **v4** 全新 run：全新安装 → SAF 导入真实 CSV（2 支付方式 / 3 收款对象）→ 提交「记录 6 行」→ 候选 → 确认 Reality → 用户标记必需 → 影响面「必须处理（2）」→ 变更计划 → done≠verified → 验证 → `am kill`（真实进程死亡，先按 HOME 再 kill）重建后**首屏是锁屏**且数据仍在（共 5 个对象）→ `.depmap` 导出 13,617 B 且 UI 文案一致 → 错误密码恢复被拒 → 清数据 → 正确口令恢复成功 → 篡改容器被拒。崩溃 0。**最终 run id = `core-journey-v4-20260917-184856`（41/41 PASS / 0 FAIL）**，详见 `local_private\e2e\core-journey-v4-20260917-184856.{txt,json}` |
 | Runtime / 设备 E2E | **PASS**（2026-09-17 升级） | 安装 / 首次启动 / 首页 / 场景中心 / 基础设施总览 / 加密持久化 / 明文 sqlite 无法打开 / 前后台切换 / 杀进程重启 / 清状态 / 触摸目标 / 字体缩放 / 横屏 / 焦点顺序 / logcat 隐私 **均 PASS**；核心行程 v4 覆盖 Import / Restore 全链路。**仍 NOT_RUN：TalkBack**（镜像未预装、无 Play 商店）；Onboarding / Timeline / Graph 二级页未被真机走过（无入口或无流程触发） |
-| `:core` JVM 单测 | **PASS** | **71 / 71**：DomainInvariant 15 / ImpactKernel 11 / PlanReadiness 14 / MigrationSemantics 10 / GraphRevisionSemantics 7 / StateMachine 14。详见 `ANDROID_CORE_JVM_TEST_REPORT.md` |
 | `:app` JVM 单测 | **PASS**（2026-09-17 新增） | **9 / 9**：`FileWorkflowStateTest`（D-16 工作流状态机）。**此前 `:app` 的 JVM 单测是 NO-SOURCE**（目录里放多少文件都跑 0 个用例却 BUILD SUCCESSFUL）——本轮把 `src/test/kotlin` 移到 AGP 标准源目录后真实执行 |
-| 设备内 androidTest | **PASS** | **51 / 51 PASS**（0 skipped / 0 failed），4 批严格取证：13 + 18 + 15 + 5。新增 `FileWorkflowD16Test` 6 个用例。**取证口径**：每批产出独立 md5/sha256、mtime 落在本批时间窗内、类名与本批预期集合一致、四批指纹互不相同；0 test 一律记 FAIL |
+| 设备内 androidTest | **PASS** | **59 / 59 PASS**（0 skipped / 0 failed）：AccessibilitySemantics 14 + AppLockNavigation 7 + BackupExport 3 + **CandidateDrift 7 + DeleteAllData 1** + DepmapRuntime 4 + FileWorkflowD16 6 + ImportHitbox 2 + PerfSmoke 1 + Persistence 8 + RepositoryKeystore 4 + ScreenProtection 2（pm clear 隔离批次） |
 | 性能 smoke      | **PASS**             | **有效数据**：`csvRowsParsed=10000`、`csvParseErrors=0`，强断言 `assertEquals(10_000, rows)` 通过。旧数字（parse=2427ms / insert=4839ms）因 `csvRowsParsed=0` 已**作废** |
-| 无障碍          | **PARTIAL_WITH_REPORT** | 实机审计：触摸目标 / 焦点顺序 / 字体缩放 / 横屏 PASS；**4 个可点击节点无标签**；TalkBack 未验证（NOT_RUN） |
+| 无障碍          | **PARTIAL_WITH_REPORT** | Compose 语义树 14 屏 0 无标签可交互节点（AccessibilitySemanticsTest 14/14）；触摸目标/焦点/字体缩放/横屏 PASS。**TalkBack 实机读屏 NOT_RUN**（镜像无 Play 商店）→ 记为环境受限项，非工程缺口 |
 | 截图保护        | **PASS**（2026-09-16 升级为 RUNTIME_VERIFIED） | 真机 **6/6 路由双证据**：敏感页（SOURCES / IMPORT / INFRASTRUCTURE / BACKUP）窗口 `fl=` 含 `SECURE` 且 `screencap` 被抹黑（均值 0.17）；非敏感页（HOME / SETTINGS）无 `SECURE` 且截图正常（均值 244.64）。**注**：此前"运行时 flag 未取得"是检测口径 bug —— `dumpsys` 输出的是裸 flag 名 `SECURE`，grep `FLAG_SECURE` 恒为 0 |
 | Store metadata  | **PARTIAL_WITH_REPORT** | `ANDROID_STORE_METADATA.md` 文案草稿完成；截图 / 图标 / 隐私政策公开链接 NOT_STARTED |
 | Release 签名    | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE** | `app-release.aab` 20,734,935 B 构建成功但**未签名**；非生产签名配置本轮**未生效**（与未签名产物同 SHA-256），已如实记录 |

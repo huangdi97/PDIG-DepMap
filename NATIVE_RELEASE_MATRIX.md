@@ -3,28 +3,29 @@
 > 状态枚举：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `RUNTIME_VERIFIED` → `STORE_READY`
 > 商店提交**只准备，不自动提交**（§206）。
 
-更新时间：2026-09-15
+更新时间：2026-09-21（Android Product Finalization 收口；Android 行刷新为当前真实状态）
 
+---
 ---
 
 ## 1. Android
 
 | 项                        | 状态        | 说明                                     |
+| 项                        | 状态        | 说明                                     |
 | ------------------------- | ----------- | ---------------------------------------- |
-| 源码                      | IMPLEMENTED | `android/core`（领域 + crypto）          |
-| 领域 Conformance          | **TESTED**  | 64/64                                    |
-| 单元测试                  | NOT_STARTED | 仅 conformance runner                    |
-| Integration / Migration   | NOT_STARTED |                                          |
-| UI 测试                   | NOT_STARTED |                                          |
-| debug APK                 | NOT_STARTED | 无 app 模块                              |
-| release AAB               | NOT_STARTED |                                          |
-| signing config            | BLOCKED     | `signing/` 无 keystore（NB-2）            |
-| 设备 E2E                  | NOT_RUN     | AVD 缺 system image（NB-8）              |
-| 性能 smoke                | NOT_RUN     |                                          |
-| 无障碍                    | NOT_STARTED |                                          |
-| Play Console metadata     | NOT_STARTED |                                          |
-| **STORE_READY**           | **NO**      |                                          |
-
+| 源码                      | RUNTIME_VERIFIED | `android/` 三模块（:core / :conformance / :app）fresh clone 可构建 |
+| 领域 Conformance          | **PASS**    | 91/91                                     |
+| 单元测试                  | **PASS**    | :core 71/71 + :app JVM 9/9                |
+| Integration / Migration   | **PASS**    | JVM MigrationSemantics 10 + conformance migration + 设备证据 |
+| UI 测试                   | **PASS**    | 设备内 androidTest 59/59 + 三场景 E2E 40/40 + Core Journey 41/41 |
+| debug APK                 | **PASS**    | `app-debug.apk` 36,974,885 B `030BD9E3…` |
+| release AAB               | **PASS**（未签名） | `app-release.aab` 20,862,091 B `A24593A6…` |
+| signing config            | BLOCKED     | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**（用户提供；runbook 就绪） |
+| 设备 E2E                  | **RUNTIME_VERIFIED** | Core Journey 41/41 + 三场景 40/40（AVD API34 + API35） |
+| 性能 smoke                | **PASS**    | 10,000 行 CSV 全解析 0 错误                |
+| 无障碍                    | PARTIAL     | Compose 语义树 14/14 PASS；TalkBack 实机 NOT_RUN（环境受限） |
+| Play Console metadata     | PARTIAL     | `ANDROID_STORE_METADATA.md` 文案完成；截图/图标/URL 待用户 |
+| **STORE_READY**           | **NO**      | 阻塞：production keystore + 开发账号 + 正式 applicationId + 品牌素材 + 隐私 URL |
 ---
 
 ## 2. HarmonyOS

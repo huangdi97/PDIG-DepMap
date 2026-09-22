@@ -283,40 +283,34 @@
 
 ---
 
-## 汇总
+## 汇总（2026-09-21 Android Product Finalization 逐格重审）
 
 | 平台   | 已完成格 | 总格 | 说明                                  |
 | ------ | -------- | ---- | ------------------------------------- |
-| Android | **62 / 73**   | **73** | 分母与计数口径已重新定义（旧的 58/62 作废）；上一轮记录为 56，本轮 +6 |
-| Harmony | **0**    | 73   | N3 已开工：工程可构建；**Domain 11 组已全部 COMPILED**（含 Relations / Impact / Readiness / Coverage / StateMachine / GraphRevision / ScenarioTemplate / Timeline）；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN（ArkTS runner 未接）、Runtime NOT_RUN、depmap ON_DEVICE_NOT_RUN |
-| iOS     | 0        | 73   | 仅 codegen 产物；build BLOCKED_BY_MACOS |
+| Android | **69 / 73**   | **73** | 逐格重审（**非 62+7 推算**）：本轮把「生物识别 / App Lock」与「Dark Mode」两格升为 RUNTIME_VERIFIED、Onboarding 按产品决策移除（D-9）、Node/Dependency/Group 与 canonical groupKey 补实体级 conformance/设备证据升 CONFORMANCE_PASS。明细见 `ANDROID_FINAL_73_AUDIT.md` |
+| Harmony | **0**    | 73   | N3 已开工：工程可构建；**Domain 11 组已全部 COMPILED**（含 Relations / Impact / Readiness / Coverage / StateMachine / GraphRevision / ScenarioTemplate / Timeline）；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN（ArkTS runner 未接）、Runtime NOT_RUN、depmap ON_DEVICE_NOT_RUN。**PAUSED_BY_PRODUCT_PRIORITY** |
+| iOS     | 0        | 73   | 仅 codegen 产物；build BLOCKED_BY_MACOS（PAUSED / NOT_STARTED） |
 
-### 62 的来源（逐节重算，不做 `56 + 4 = 60` 这类推算）
+### 69 的来源（逐节重算，不做 `62 + 完成项` 这类推算）
 
 | 节 | 格数 | 已完成 | 说明 |
 | -- | ---- | ------ | ---- |
-| 1. 领域 / 语义层 | 16 | **14** | 两格 `IMPLEMENTED`（Node/Dependency/Group、canonical groupKey）不计；上轮标题误写 13，本轮逐行重数为 14 |
+| 1. 领域 / 语义层 | 16 | **16** | Node/Dependency/Group、canonical groupKey 本轮补 conformance + 设备实体层证据（CandidateDriftEvidenceTest 7/7）→ CONFORMANCE_PASS |
 | 2. 持久化与迁移 | 10 | **10** | |
-| 3. 安全 / 密钥 / 认证 | 10 | **9** | 「生物认证 / App Lock」整格记 `PARTIAL`：App Lock 接线 RUNTIME_VERIFIED，但生物识别 `BLOCKED_BY_RUNTIME_ENVIRONMENT` |
+| 3. 安全 / 密钥 / 认证 | 10 | **10** | 「生物认证 / App Lock」本轮在指纹 AVD（API35 `hw.fingerprint=yes`）跑通指纹成功/失败/取消 + PIN 正确/错误 → **RUNTIME_VERIFIED** |
 | 4. 导入 / 解析 | 7 | **7** | |
-| 5. UI | 22 | **18** | D-16 关闭后 Import / Import Mapping / Import Review / Restore 由 PARTIAL 升为 RUNTIME_VERIFIED（14 → 18） |
-| 6. 工程 / 发布 | 8 | **4** | 真实 Build、单测/集成、设备 E2E、性能 smoke；无障碍 PARTIAL、Dark Mode IMPLEMENTED、Release 签名 BLOCKED、Store metadata PARTIAL |
-| **合计** | **73** | **62** | |
+| 5. UI | 22 | **21** | Onboarding 按产品决策移除（D-9）；Timeline / Candidate Review / Graph 本轮不再为缺口（首页聚合 + 入口 + 语义门禁）；Drift/Candidate 四选一与确认/忽略设备验证 |
+| 6. 工程 / 发布 | 8 | **5** | 本轮：Dark Mode 设备像素验证 → RUNTIME_VERIFIED（由 IMPLEMENTED 升级）、真实 Build/单测/E2E/性能 四格保持；新增 DeleteAllData/L-37 设备测试 |
+| **合计** | **73** | **69** | |
 
-### 仍未完成的 11 格（逐格列出，不做合并、不隐藏）
+### 仍未完成的 4 格（逐格列出，不做合并、不隐藏）
 
 | 格 | 状态 | 性质 |
 | -- | ---- | ---- |
-| Node / Dependency / Group | IMPLEMENTED | ENGINEERING_PARITY |
-| canonical groupKey | IMPLEMENTED | ENGINEERING_PARITY |
-| 生物认证 / App Lock | PARTIAL | ENGINEERING_PARITY（接线 PASS）+ RUNTIME_ENVIRONMENT_BLOCKED（生物识别） |
-| Onboarding | IMPLEMENTED（无入口可达） | ENGINEERING_PARITY |
-| Timeline | IMPLEMENTED（未被真机走过） | ENGINEERING_PARITY |
-| Candidate Review | IMPLEMENTED（无入口可达） | ENGINEERING_PARITY |
-| Graph View（二级） | IMPLEMENTED（未被真机走过） | ENGINEERING_PARITY |
-| 无障碍 | PARTIAL（TalkBack NOT_RUN） | RUNTIME_ENVIRONMENT_BLOCKED |
-| Dark Mode（token ready） | IMPLEMENTED | ENGINEERING_PARITY |
-| Release 签名 | BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE | RELEASE_READINESS |
-| Store metadata | PARTIAL（截图/图标/公开隐私政策 NOT_STARTED） | RELEASE_READINESS |
+| 无障碍（TalkBack 实机读屏） | PARTIAL（语义树 14/14 PASS；TalkBack NOT_RUN） | RUNTIME_ENVIRONMENT_GAP（AVD 无 Play 商店/需真机） |
+| Release 签名 | BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE | RELEASE_EXTERNAL_BLOCKER（用户提供 keystore） |
+| Store metadata（截图/图标/公开 URL） | PARTIAL（文案完成） | STORE_PREPARATION（需最终品牌决策） |
+| R8 / minify | NOT_APPLICABLE（release 未开 minify，如实不伪报） | 工程项（当前不适用，开启后需重验） |
+
 
 Android 侧 27 个 Gate 的逐项结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。

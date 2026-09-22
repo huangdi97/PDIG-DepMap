@@ -96,15 +96,30 @@
 
 ## Current
 
-- Phase: **PDIG NATIVE MIGRATION — Android 已冻结（CORE_FROZEN），N3 Harmony 唯一活跃主线**
-- Current gate focus: **`N3_HARMONY_FULL_PARITY`**（唯一活跃 gate）/
-  **`ANDROID_NATIVE_CORE_HANDOFF` = PASS**（冻结，维护模式）/
-  **`N2_ANDROID_FULL_PARITY` 保持 PARTIAL_WITH_REPORT 62/73**（冻结，不再推进）
-- Global status: **`ALL_DONE = NO`** · **`TASK_COMPLETE = NO`**
+- Phase: **ANDROID PRODUCT FINALIZATION（本轮收口完成）**—— Harmony/iOS **PAUSED_BY_PRODUCT_PRIORITY**（不是 FAILED）
+- Current gate focus: **`ANDROID_PRODUCT_COMPLETE = PASS`**（本轮达成，见 `ANDROID_PRODUCT_FINAL_ACCEPTANCE.md`）/
+  **`N2_ANDROID_FULL_PARITY` = PARTIAL_WITH_REPORT（69/73，逐格重审）** /
+  **`ANDROID_NATIVE_CORE_HANDOFF` = PASS**
+- This round results: parity **69/73**（生物识别 + Dark Mode 升级 RUNTIME_VERIFIED；Onboarding 决策移除）、
+  Core Journey E2E **41/41**、三场景 E2E **40/40**、设备 androidTest **59/59**、
+  CI 扩大含 :app JVM + assembleDebug（run 35520532048 全绿）
+- Global status: **`ALL_DONE = NO`**（剩余项全部为 external blocker：keystore / 开发账号 / 正式 applicationId /
+  品牌素材 / privacy+support URL / 真机 / 真实账单 / Store 提交）· **`TASK_COMPLETE = NO`**
 - CURRENT_HEAD: **以 `git rev-parse HEAD` 为准**（报告不写入自身 SHA）
 - CURRENT_BRANCH: `feat/mvp03-living-graph`
-- NEXT_GATE: **`N3_HARMONY_FULL_PARITY`** —— **ACTIVE**（Android N1/N2 的
-  Final Acceptance 不是本 gate 的前置条件；该前置叙述已过期，见下方 Historical）
+- NEXT_GATE: 无新 Android 工程 gate（已收口）；若用户继续 → Harmony N3 恢复 / iOS N4 / 或用户提供外部项后走发布
+- NEXT_COMMAND（下一位 Agent 的第一步）：
+
+  ```bash
+  git rev-parse HEAD && git status --short -uall
+  # Android 回归（产品收口后仍应全绿）
+  cd android && ./gradlew --no-daemon :core:test :app:testDebugUnitTest :conformance:run
+  # 设备：（如 AVD 在线）59 个 androidTest + Core Journey + 三场景
+  # CI：gh workflow run CI --ref feat/mvp03-living-graph（仓库 push 触发不生效的已知问题仍在）
+  ```
+
+> 说明：Android 收口轮已按人工批准把 Android 从 CORE_FROZEN 临时解除；本轮完成后保持冻结范围
+> （仅发布/外部项可继续），不进入 MVP04 或新业务 Domain。
 - NEXT_COMMAND（下一位 Agent 的第一步）：
 
   ```bash

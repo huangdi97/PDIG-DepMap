@@ -18,18 +18,18 @@
 | 3. 安全/密钥/认证 | 10 | **10** | 0（生物识别本轮设备验证通过） |
 | 4. 导入/解析 | 7 | **7** | 0 |
 | 5. UI | 22 | **21** | 1（TalkBack 实机读屏 = 环境受限） |
-| 6. 工程/发布 | 8 | **4** | 4（Release 签名 = 外部 keystore；Store 截图文案等 = 准备项；R8 = 非阻断验证项；无障碍 = 环境受限已并入 §3 说明） |
-| **合计** | **73** | **68** | **5** |
+| 6. 工程/发布 | 8 | **5** | 4（Release 签名 = 外部 keystore；Store 截图文案等 = 准备项；R8 = 非阻断验证项；无障碍 = 环境受限已并入 §3/§5 说明） |
+| **合计** | **73** | **69** | **4** |
 
-> 未完成 5 格及性质：
+> 未完成 4 格及性质：
 > - §5 UI 「无障碍（TalkBack 实机读屏）」 = `RUNTIME_ENVIRONMENT_GAP`（AVD 语义门禁 PASS；TalkBack 实机需 Play Store/真机）
 > - §6 「Release 签名」 = `RELEASE_EXTERNAL_BLOCKER`（缺用户提供 production keystore）
 > - §6 「Store metadata（截图/图标/公开 URL 素材）」 = `STORE_PREPARATION`（文案已完成；素材需最终品牌决策）
-> - §6 「Dark Mode（token ready→已设备验证，见 §5.『设计系统』）」 已关闭 → 不再计入未完成
-> - §6 「R8 / minify」 = `ENGINEERING_GAP`（release 未开启 minify，R8 不参与 —— 本格按「不适用但需如实记录」处理，不伪报 PASS；见 §6.9）
+> - §6 「R8 / minify」 = `NOT_APPLICABLE`（release 未开 minify，R8 不参与 —— 本格按「不适用但需如实记录」处理，不伪报 PASS；见 §6.9）
+
 
 > ⚠ 口径说明：本次审计把「生物识别/App Lock」一格（§3）从 PARTIAL 提升为 **RUNTIME_VERIFIED**（本轮在支持指纹的 API35 AVD 上真实录入并跑通 success/failure/cancel/PIN 四路径），把「Dark Mode」从 IMPLEMENTED 提升为 **RUNTIME_VERIFIED**（设备像素取证）。
-> 因此 62 → **68**。剩余的 5 格全部是环境/外部/素材类，非工程实现缺口。
+> 因此 62 → **69**。剩余的 4 格全部是环境/外部/素材类，非工程实现缺口。
 
 ---
 
@@ -131,11 +131,11 @@
 
 ---
 
-## 6. 工程 / 发布（8 格，完成 4）
+## 6. 工程 / 发布（8 格，完成 5）
 
 | ID | 能力 | 设计要求 | 实现状态 | 测试状态 | runtime evidence | 当前状态 | 缺口 | 本轮关闭 | 外部 blocker |
 |----|------|----------|----------|----------|------------------|----------|------|----------|--------------|
-| E-01 | 真实 Build | 可复现三目标 | assembleDebug/Release/bundleRelease（本轮 fresh clone 全量） | — | `app-debug.apk` 37,118,898 B SHA256 `E78E60B8…`；`app-release-unsigned.apk` 33,114,029 B SHA256 `C9BFF575…`；`app-release.aab` 20,861,666 B SHA256 `4F7090F7…`；androidTest 1,183,982 B `2423E49C…` | **RUNTIME_VERIFIED** | 无 | ✅ | — |
+| E-01 | 真实 Build | 可复现三目标 | assembleDebug/Release/bundleRelease（本轮 fresh clone 全量） | — | `app-debug.apk` 36,974,885 B SHA256 `030BD9E3…`；`app-release-unsigned.apk` 33,130,413 B SHA256 `C659F077…`；`app-release.aab` 20,862,091 B SHA256 `A24593A6…`；androidTest 1,135,942 B `7E641719…` | **RUNTIME_VERIFIED** | 无 | ✅ | — |
 | E-02 | 单测 / 集成测试 | 全部真实执行 | :core 71 / :app JVM 9 / conformance 91 / 设备 **59**（CandidateDrift 7 + DeleteAllData 1 + 既有 51） | 本轮全量重跑 | 全绿 | **TESTED** | 无 | ✅ | — |
 | E-03 | 设备 E2E | 核心行程全链路 | Core Journey E2E v4（41/41 PASS / 0 FAIL）**+ 三场景 E2E（G-13：40/40 PASS / 0 FAIL，replace/expiring/close 各自完整闭环 Setup→Impact→Plan→done→verified）** | Run `scenario-e2e-20260921-151631`（40 条断言） | J0–J11 + 三场景：done≠verified 每场景实测；0 崩溃 | **RUNTIME_VERIFIED** | 无 | ✅ | — |
 | E-04 | 性能 smoke | 10k CSV 强断言 | PerfSmokeEvidenceTest | 设备内 1/1 | `csvRowsParsed=10000` `csvParseErrors=0` | **TESTED** | 无 | ✅ | — |
@@ -174,9 +174,9 @@ Harmony 侧曾发现：自定义 Base64 分配输出长度按完整 4 字符组�
 ## 结论
 
 ```
-ANDROID parity（逐格重审）= 68 / 73
-  剩余 5 格：
-    2 = RUNTIME_ENVIRONMENT_GAP（TalkBack 实机读屏；AVD 无 Play 商店/真机）
+ANDROID parity（逐格重审）= 69 / 73
+  剩余 4 格：
+    1 = RUNTIME_ENVIRONMENT_GAP（TalkBack 实机读屏；AVD 无 Play 商店/真机）
     1 = RELEASE_EXTERNAL_BLOCKER（production keystore — 用户提供）
     1 = STORE_PREPARATION（截图/图标/公开 URL — 用户最终品牌决策）
     1 = NOT_APPLICABLE 如实记录（release 未开 minify，R8 不参与，不伪报）
