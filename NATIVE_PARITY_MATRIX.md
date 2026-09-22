@@ -2,6 +2,13 @@
 
 > 每格：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `CONFORMANCE_PASS` → `RUNTIME_VERIFIED`
 > 写状态时不得跳过等级，也不得把"理论支持"写成"已验证"。
+>
+> **2026-09-22 ANDROID_CANONICAL_FREEZE 轮复验注记**：本矩阵保持 **69/73**。
+> 剩余 4 项（无障碍 TalkBack 实机 / Release 签名 / Store 素材 / R8·minify）本轮逐项确认为外部 blocker，
+> 分类见文末与 `ANDROID_FINAL_73_AUDIT.md`、`BLOCKERS.md`。
+> 本轮实跑回归：`:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·
+> connectedDebugAndroidTest 59/59（emulator-5554）· assembleDebug/assembleRelease/bundleRelease SUCCESSFUL。
+> **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
 
 更新时间：2026-09-18（**Harmony N3：Argon2 NAPI 全链路 + 编译可达性 Gate**）
 

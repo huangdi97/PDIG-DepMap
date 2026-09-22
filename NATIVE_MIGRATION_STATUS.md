@@ -3,8 +3,18 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-更新时间：2026-09-22（**ANDROID PRODUCT FINALIZATION 收口：62→69/73，三场景 E2E 40/40，产品完成 PASS-like**）
-
+> 更新：2026-09-22（**ANDROID_CANONICAL_FREEZE 轮**：main 推进到 89b653a、tag `v0.3.0-android-canonical-freeze`、
+> parity 69/73 的剩余 4 项逐项确认为外部 blocker、ENGINEERING_GAP=0 / TEST_EVIDENCE_GAP=0、
+> Release Identity / Signing / Real Device / Real Data / Store / Brand / CI policy / Security / Supply Chain 文档包全部落地）
+>
+> 本轮关键结论：
+> - **PUSH_TRIGGER = PASS**（branches 显式列举修正后，event=push 已在基准 HEAD 出现并全绿：
+>   run 35700579040 CI + 35700579087 iOS，head_sha=`89b653a…`，详见 `ANDROID_CI_EXACT_SHA_POLICY.md`）
+> - **回归全绿（本轮实跑）**：`:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·
+>   connectedDebugAndroidTest **59/59**（emulator-5554）· assembleDebug/assembleRelease/bundleRelease SUCCESSFUL
+> - **剩余 blocker 全部为 EXTERNAL_BLOCKER**：真机 / 生产 keystore / 身份决策 / 品牌 / Play 账号 / 公网 URL /
+>   授权账单 / 商店人工提交（见 BLOCKERS.md E-1..E-8）
+> - Harmony N3、iOS N4 本轮**不进入**（契约 Boundary）
 > ## 本轮（2026-09-21）：Android 产品收口（由用户暂停 Harmony/iOS，Android 从 CORE_FROZEN 临时解除）
 >
 > - **新增功能收口（非新业务）**：DiscoveryCandidate 确认/忽略流、RealityDrift 四选一解决流、

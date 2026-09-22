@@ -3,7 +3,12 @@
 > 状态枚举：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `RUNTIME_VERIFIED` → `STORE_READY`
 > 商店提交**只准备，不自动提交**（§206）。
 
-更新时间：2026-09-21（Android Product Finalization 收口；Android 行刷新为当前真实状态）
+> 更新：2026-09-22（**ANDROID_CANONICAL_FREEZE 轮**：main 推进到 89b653a、tag `v0.3.0-android-canonical-freeze`、本轮实跑产物登记刷新）
+>
+> 本轮实测（2026-09-22，基准 HEAD `89b653a`，本地 JDK21 + Gradle 8.9 复跑）：
+> `:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·
+> connectedDebugAndroidTest 59/59（emulator-5554）· assembleDebug/assembleRelease/bundleRelease SUCCESSFUL。
+> 产物 SHA256 见 §4 登记表。
 
 ---
 ---
@@ -60,13 +65,15 @@
 > 不得声称三端 Device Verified**。
 
 ---
+## 4. 发布产物登记（2026-09-22 实测，基准 HEAD `89b653a13f3dd96f6ed4acc579128b218c9b7c22`）
 
-## 4. 发布产物登记（§228：path / hash / version / HEAD / platform）
+| 平台 | 产物 | path | size（bytes） | SHA256（前 16） | version | HEAD | 签名 |
+| ---- | ---- | ---- | ------------ | --------------- | ------- | ---- | ---- |
+| Android | debug APK | `%USERPROFILE%\pdig-build\app\outputs\apk\debug\app-debug.apk` | 36,977,699 | `EBE38DC6E557396C…` | 0.1.0-milestone | 89b653a | debug |
+| Android | release unsigned APK | `%USERPROFILE%\pdig-build\app\outputs\apk\release\app-release-unsigned.apk` | 33,130,413 | `C659F077DAB78590…` | 0.1.0-milestone | 89b653a | **未签名**（无生产 keystore） |
+| Android | release AAB | `%USERPROFILE%\pdig-build\app\outputs\bundle\release\app-release.aab` | 20,862,091 | `A24593A684CAB7C7…` | 0.1.0-milestone | 89b653a | 未签名（Play 侧签） |
 
-| 平台   | 产物 | path | hash | version | HEAD |
-| ------ | ---- | ---- | ---- | ------- | ---- |
-| —      | **尚无发布产物** | — | — | — | — |
-
+> 完整 SHA256 见最终报告；release AAB 哈希与既有记录一致（可复现）。
 ---
 
 ## 5. 可复现性（§229）

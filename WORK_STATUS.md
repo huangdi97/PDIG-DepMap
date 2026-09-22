@@ -96,26 +96,38 @@
 
 ## Current
 
-- Phase: **ANDROID PRODUCT FINALIZATION（本轮收口完成）**—— Harmony/iOS **PAUSED_BY_PRODUCT_PRIORITY**（不是 FAILED）
-- Current gate focus: **`ANDROID_PRODUCT_COMPLETE = PASS`**（本轮达成，见 `ANDROID_PRODUCT_FINAL_ACCEPTANCE.md`）/
-  **`N2_ANDROID_FULL_PARITY` = PARTIAL_WITH_REPORT（69/73，逐格重审）** /
-  **`ANDROID_NATIVE_CORE_HANDOFF` = PASS**
-- This round results: parity **69/73**（生物识别 + Dark Mode 升级 RUNTIME_VERIFIED；Onboarding 决策移除）、
-  Core Journey E2E **41/41**、三场景 E2E **40/40**、设备 androidTest **59/59**、
-  CI 扩大含 :app JVM + assembleDebug（run 35520532048 全绿）
-- Global status: **`ALL_DONE = NO`**（剩余项全部为 external blocker：keystore / 开发账号 / 正式 applicationId /
-  品牌素材 / privacy+support URL / 真机 / 真实账单 / Store 提交）· **`TASK_COMPLETE = NO`**
-- CURRENT_HEAD: **以 `git rev-parse HEAD` 为准**（报告不写入自身 SHA）
-- CURRENT_BRANCH: `feat/mvp03-living-graph`
-- NEXT_GATE: 无新 Android 工程 gate（已收口）；若用户继续 → Harmony N3 恢复 / iOS N4 / 或用户提供外部项后走发布
+- Phase: **ANDROID CANONICAL FREEZE → PRODUCTION / REALITY CLOSURE（本轮收口完成）**—— Harmony/iOS **PAUSED**（契约 Boundary，本轮不进入）
+- 本轮新增 Gate：**`ANDROID_CANONICAL_FREEZE = PASS`**（main 推进到基准 HEAD `89b653a` + tag `v0.3.0-android-canonical-freeze`）
+- 本轮文档包（全部落地）：`ANDROID_RELEASE_IDENTITY_DECISION.md` / `ANDROID_PRODUCTION_SIGNING_ACCEPTANCE.md` /
+  `PLAY_APP_SIGNING_DECISION.md` / `ANDROID_REAL_DEVICE_ACCEPTANCE_PLAN.md` / `scripts/android_real_device_acceptance.ps1` /
+  `REAL_DATA_PILOT_0_PROTOCOL.md` / `REAL_DATA_PRIVACY_PROTOCOL.md` / `ANDROID_BRAND_ASSET_SPEC.md` /
+  `ANDROID_SCREENSHOT_SHOT_LIST.md` / `store/{STORE_LISTING,DATA_SAFETY,SUPPORT_PAGE,RELEASE_NOTES,PERMISSION_RATIONALE}_DRAFT.md` /
+  `PRIVACY_URL_REQUIREMENT.md` / `SUPPORT_URL_REQUIREMENT.md` / `ANDROID_CI_EXACT_SHA_POLICY.md` /
+  `ANDROID_SECURITY_PRIVACY_FINAL_AUDIT.md` / `ANDROID_SUPPLY_CHAIN_FINAL_AUDIT.md` / 母版 v2.1-R1 差异说明
+- Current gate focus: **`ANDROID_PRODUCT_COMPLETE = PASS`** / **`N2_ANDROID_FULL_PARITY` = PARTIAL_WITH_REPORT（69/73，剩余 4 项全部为外部 blocker）** /
+  **`ANDROID_SIGNING_READY` = BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**（不以 debug key 冒充）/
+  **`ANDROID_REAL_DEVICE_VERIFIED` = BLOCKED_BY_MISSING_REAL_DEVICE**
+- This round results（本轮实跑，基准 HEAD `89b653a`）：`:core:test` **71/71** · `:app:testDebugUnitTest` **9/9** ·
+  `:conformance:run` **91/91** · connectedDebugAndroidTest **59/59**（emulator-5554，2026-09-22）·
+  assembleDebug / assembleRelease / bundleRelease **SUCCESSFUL**；release AAB SHA256 `A24593A6…`（与既有记录一致，可复现）
+- **CI**：**`PUSH_TRIGGER = PASS`**（branches 显式列举修正后 event=push 已出现并全绿 ——
+  run 35700579040（CI, 4 job success）+ 35700579087（iOS），head_sha = `89b653a13f3dd96f6ed4acc579128b218c9b7c22`；
+  详见 `ANDROID_CI_EXACT_SHA_POLICY.md`，exact-SHA policy 已正式建立）
+- Secret/privacy：`check-secrets.mjs` PASS（867 文件 0 production secrets）；`ANDROID_SECURITY_PRIVACY_FINAL_AUDIT.md` PASS（19 项全检，无新增 INTERNET/analytics/telemetry）
+- Parity 剩余 4 项（逐项确认 blocker）：TalkBack 实机读屏（REAL_DEVICE_REQUIRED）/ Release 签名（PRODUCTION_KEY_REQUIRED）/
+  Store 素材（FINAL_BRAND_REQUIRED + STORE_ACCOUNT_REQUIRED）/ R8·minify（未开 minify 如实 NOT_APPLICABLE，工程项已确认非缺口）
+- Global status: **`ALL_DONE = NO`**（剩余项全部为真实 EXTERNAL_BLOCKER，见 `BLOCKERS.md` E-1..E-8）· **`TASK_COMPLETE = YES`（本轮契约完成）**
+- CURRENT_HEAD: 基准 `89b653a` + 本轮文档 commit（以 `git rev-parse HEAD` 为准）
+- CURRENT_BRANCH: `main`（已 FF 推进）· 备份引用：`backup/478d85f9-pre-canonical-freeze`（旧 HEAD 可恢复）
+- NEXT_GATE: 无新 Android 工程 gate（本轮收口）；由用户决定：解除外部 Gate（真机/keystore/品牌/Play 账号/URL/账单）或恢复 Harmony N3
 - NEXT_COMMAND（下一位 Agent 的第一步）：
 
   ```bash
-  git rev-parse HEAD && git status --short -uall
-  # Android 回归（产品收口后仍应全绿）
+  git fetch origin && git rev-parse HEAD && git status --short -uall
+  # Android 回归（canonical freeze 后仍应全绿）
   cd android && ./gradlew --no-daemon :core:test :app:testDebugUnitTest :conformance:run
-  # 设备：（如 AVD 在线）59 个 androidTest + Core Journey + 三场景
-  # CI：gh workflow run CI --ref feat/mvp03-living-graph（仓库 push 触发不生效的已知问题仍在）
+  # 设备：（如 AVD 在线）59 个 androidTest
+  # CI 引用必须带 exact-SHA：gh api repos/huangdi97/PDIG-DepMap/actions/runs?event=push（head_sha + run URL + all jobs）
   ```
 
 > 说明：Android 收口轮已按人工批准把 Android 从 CORE_FROZEN 临时解除；本轮完成后保持冻结范围
