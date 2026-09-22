@@ -93,8 +93,15 @@ PUSH_TRIGGER = PASS
 ---
 
 ## 4. 状态
+## 3.5 2026-09-22 main@3f466f8 push CI 状态（账户计费限制，非代码缺陷）
 
-```text
-PUSH_TRIGGER        = PASS（event=push 已在基准 HEAD 上出现并全绿，root cause 已定案）
-CI_EXACT_SHA_POLICY = PASS（本文件 = 正式 policy；报告引用 CI 必须带 SHA + run URL + all jobs）
-```
+- 本轮文档 commit `3f466f8` push 后，CI run `35728513967`（event=push）触发：
+  - Android app / Android core / Harmony static 3 个 job **success** ✅
+  - iOS run `35728513716` **success** ✅
+  - Canonical job **未启动**（annotations：`The job was not started because recent account payments have
+    failed or your spending limit needs to be increased`）→ **GitHub 账户计费/配额限制**
+- 重跑 `gh run rerun --failed` 后 Canonical 仍被同一账单限制拦截（非代码/配置缺陷）。
+- **基准 HEAD 89b653a 的 push CI 全绿不受影响**（run 35700579040 CI + 35700579087 iOS，all jobs success）。
+- 结论：`PUSH_TRIGGER` 仍然 PASS（push 事件正确触发 workflow）；Canonical job 的调度被
+  **EXTERNAL_REPO_ACCOUNT_BILLING** 阻塞 —— 属于外部 blocker，见 BLOCKERS.md E-10。
+- 解除：用户在 GitHub → Settings → Billing & plans 处理账单/提升 spending limit 后重跑。
