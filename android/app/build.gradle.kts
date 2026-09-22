@@ -13,12 +13,12 @@ plugins {
 
 android {
     namespace = "com.pdig.app"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.pdig.app"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 1
         versionName = "0.1.0-milestone"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
