@@ -73,8 +73,11 @@
 
 **EXCEPTIONS.json 当前登记**（4 条，全部带类别与理由）：fileSizeOver300×2（Migrations=migration、GraphSerialize=schema）、kotlinEscapes×2（MainActivity.kt:56、conformance Main.kt:26，lateinit，均 JUSTIFIED）。
 
-**诚实观察项（非失败）**：`:repos`（本轮新增 :app→:repos 抽取）尚未纳入 gate `SCOPE_DIRS`（check-quality.mjs L29 只列 app/core/conformance/desktop）；repos 现有 9 个生产文件均 ≤300 行且无上述逃逸，建议下轮将 `android/repos/src/main` 加入 gate 范围。
+**观察项关闭（v0.1.0 轮）**：`:repos` 已于本轮纳入 gate `SCOPE_DIRS`（`check-quality.mjs` 现列
+`android/app/src/main, android/core/src/main, android/conformance/src/main, android/repos/src/main, desktop`），
+2026-09-24 实跑 `node scripts/quality/check-quality.mjs` → `UNJUSTIFIED_PRODUCTION_FILE_GT_300=0`、
+`DEPENDENCY_CYCLE=0`、`UNJUSTIFIED_KOTLIN_ESCAPE=0`、`RAW_TODO=0`、`SENSITIVE_LOGGING=0`、
+`KNOWN_DEAD_CODE=0`、`ENGINEERING_GAP=0`，VERDICT PASS（exit 0），无 `echo PASS` 伪装。
+**结论**：gate 范围生产代码 10 项质量 counter 全绿（!! 23→0、cast 8+→0、lateinit 2/2 已登记、suppress/GlobalScope/裸 catch/TODO/secret/敏感日志/dependency cycle 均 0）；异常边界由 GraphImportError / DepmapException(带码) / ErrorCode / IllegalStateException(领域码) 组成（StoreException 不存在，已更正）；`:repos` 已纳入 gate scope（观察项关闭），最终 HEAD `f5cc53e` 复核通过。
 
 ---
-
-**结论**：gate 范围生产代码 10 项质量 counter 全绿（!! 23→0、cast 8+→0、lateinit 2/2 已登记、suppress/GlobalScope/裸 catch/TODO/secret/敏感日志/dependency cycle 均 0）；异常边界由 GraphImportError / DepmapException(带码) / ErrorCode / IllegalStateException(领域码) 组成（StoreException 不存在，已更正）；唯一待办观察项为 :repos 纳入 gate scope。

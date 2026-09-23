@@ -75,7 +75,18 @@
 
 - `75e33b6`：Gate + R1/R2/R3 + :repos 初版 + desktop 骨架
 - `903ac92`：Gate 全 PASS + R6/R7/R8 + Desktop plumbing
-- 后续 commit（本报告完成后更新）：R5 收尾验证、desktop UI、打包、release 文档
+- `2bf1820`：desktop 23 screens + secure persistence + smoke E2E + JVM tests 全绿
+- `3759f1f` / `c4509de` / `d02a794`：v0.1.0 收尾三件（screen-protection 路由修正、jpackage 打包 task、EXCEPTIONS 登记桌面测试合成口令）
+- `f5cc53e`：DESKTOP_V0_1_0_SCOPE_ADDENDUM + 打包/SBOM 工具（release(v0.1.0)）
+
+## v0.1.0 轮复核结论（2026-09-24）
+
+- 行为回归锚点复跑全绿：`:conformance:run` 91/91（fail=0）、`:core:test` 71/71、
+  `:app:testDebugUnitTest` 9/9、desktop `:app:test` 9/9、`:app:run --args="--smoke"` 14/14 步骤 PASS；
+- API36 AVD 仪器化证据 59/59（12 类全绿，0 crash）；
+- `android/repos/src/main` 已纳入 quality gate scope（观察项关闭）；
+- 产物：Windows x64 installer + portable zip、Android preview APK（versionCode 200001 / 0.1.0 /
+  `com.pdig.app.preview`），Release 相关文档见 `PRODUCT_V0_1_0_RELEASE_MANIFEST.md`。
 
 ## 遗留清单（不做 ≠ 掩盖）
 
