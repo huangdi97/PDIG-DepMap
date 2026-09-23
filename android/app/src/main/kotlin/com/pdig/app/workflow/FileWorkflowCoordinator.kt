@@ -1,16 +1,12 @@
 package com.pdig.app.workflow
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pdig.app.data.AppContainer.ImportCommitResult
-import com.pdig.app.data.AppContainer.ImportPreview
+import com.pdig.app.data.ImportCommitResult
+import com.pdig.app.data.ImportPreview
 import com.pdig.core.sources.MappingProfile
 import kotlinx.coroutines.launch
 
@@ -48,15 +44,18 @@ import kotlinx.coroutines.launch
  * `releasePersistableUriPermission` 归还，不无理由长期持有。
  */
 class FileWorkflowCoordinator(
-    private val savedState: SavedStateHandle? = null,
+    savedState: SavedStateHandle? = null,
 ) : ViewModel() {
 
     // ------------------------------------------------------------------
-    // 状态
+    // 状态（状态值与读写逻辑委托给私有 [FileWorkflowEngine]，
+    // 公开属性名 / 类型 / 可见性保持不变）
     // ------------------------------------------------------------------
 
+    private val engine = FileWorkflowEngine(savedState)
+
     /** 当前工作流（含"等待外部 picker 结果"这一跨锁状态）。 */
-    var workflow: PendingFileWorkflow? by mutableStateOf(null)
+    var workflow: PendingFileWorkflow? by engine::workflow
         private set
 
     /**
@@ -66,15 +65,15 @@ class FileWorkflowCoordinator(
      * 它之所以放在这里而不是页面级 `remember`，是因为用户可能在
      * 「预览已出现、还没点确认」时把 App 切到后台 —— 那时同样会回锁。
      */
-    var importPreview: ImportPreview? by mutableStateOf(null)
+    var importPreview: ImportPreview? by engine::importPreview
         private set
 
     /** 导入提交结果（完成态面板）。仅内存。 */
-    var importResult: ImportCommitResult? by mutableStateOf(null)
+    var importResult: ImportCommitResult? by engine::importResult
         private set
 
     /** 恢复结果的可展示信息。仅内存。 */
-    var restoreMessage: String? by mutableStateOf(null)
+    var restoreMessage: String? by engine::restoreMessage
         private set
 
     /**
@@ -83,13 +82,13 @@ class FileWorkflowCoordinator(
      * 放在这里而不是页面级 `remember`：Restore 的中间态是"文件已选、口令待输入"，
      * 用户完全可能在这个状态下切后台 → 回锁 → 解锁。
      */
-    var restoreFileName: String? by mutableStateOf(null)
+    var restoreFileName: String? by engine::restoreFileName
 
     /** 面向用户的工作流提示（例如"请重新选择文件"）。 */
-    var statusText: String? by mutableStateOf(null)
+    var statusText: String? by engine::statusText
 
     /** 是否有后台工作在进行（解析/提交/恢复）。 */
-    var busy: Boolean by mutableStateOf(false)
+    var busy: Boolean by engine::busy
 
     // ------------------------------------------------------------------
     // launcher（由 MainActivity 注入的**稳定** ActivityResult 入口）
@@ -118,7 +117,7 @@ class FileWorkflowCoordinator(
     fun launchPicker(mime: String = "*/*"): Boolean {
         val block = launcher ?: return false
         val current = workflow ?: return false
-        update(FileWorkflowReducer.markLaunched(current))
+        engine.update(FileWorkflowReducer.markLaunched(current))
         block(mime)
         return true
     }
@@ -128,8 +127,8 @@ class FileWorkflowCoordinator(
     // ------------------------------------------------------------------
 
     fun beginImport(resumeRoute: String, sourceId: String?, sourceLabel: String?) {
-        resetSideEffects()
-        update(
+        engine.resetSideEffects()
+        engine.update(
             FileWorkflowReducer.begin(
                 purpose = FileWorkflowPurpose.IMPORT,
                 resumeRoute = resumeRoute,
@@ -140,8 +139,8 @@ class FileWorkflowCoordinator(
     }
 
     fun beginRestore(resumeRoute: String) {
-        resetSideEffects()
-        update(
+        engine.resetSideEffects()
+        engine.update(
             FileWorkflowReducer.begin(
                 purpose = FileWorkflowPurpose.RESTORE,
                 resumeRoute = resumeRoute,
@@ -161,22 +160,7 @@ class FileWorkflowCoordinator(
      *  - 此方法**不会**读取文件内容、不会 commit、不会 restore
      */
     fun onPickerResult(context: Context, uri: Uri?) {
-        appContext = context.applicationContext
-        val current = workflow
-        if (current == null || uri == null) {
-            if (current != null) update(FileWorkflowReducer.onResult(current, null))
-            return
-        }
-        // 只申请**读**权限，且只在真正需要跨"锁定—解锁"读取时才持久化。
-        // ACTION_OPEN_DOCUMENT 保证 grant 可持久化；如果不是（异常路径）也不阻塞流程。
-        runCatching {
-            context.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION,
-            )
-        }
-        heldUri = uri
-        update(FileWorkflowReducer.onResult(current, uri.toString()))
+        engine.onPickerResult(context, uri, workflow)
     }
 
     /**
@@ -193,7 +177,7 @@ class FileWorkflowCoordinator(
         if (current.purpose != purpose) return null
         if (current.step != FileWorkflowStep.FILE_RECEIVED) return null
         val raw = current.pendingUri ?: return null
-        update(current.copy(pendingUri = null))
+        engine.update(current.copy(pendingUri = null))
         return Uri.parse(raw)
     }
 
@@ -213,7 +197,7 @@ class FileWorkflowCoordinator(
 
     fun markReview(mappingProfile: MappingProfile?) {
         val current = workflow ?: return
-        update(FileWorkflowReducer.markReview(current, mappingProfile))
+        engine.update(FileWorkflowReducer.markReview(current, mappingProfile))
     }
 
     fun publishImportPreview(preview: ImportPreview?) {
@@ -224,7 +208,7 @@ class FileWorkflowCoordinator(
         importResult = result
         if (result != null) {
             val current = workflow
-            if (current != null) update(FileWorkflowReducer.markDone(current))
+            if (current != null) engine.update(FileWorkflowReducer.markDone(current))
         }
     }
 
@@ -236,9 +220,9 @@ class FileWorkflowCoordinator(
      */
     fun completeRestore(message: String) {
         restoreMessage = message
-        releaseHeldUri()
+        engine.releaseHeldUri()
         val current = workflow
-        if (current != null) update(FileWorkflowReducer.markDone(current))
+        if (current != null) engine.update(FileWorkflowReducer.markDone(current))
     }
 
     /**
@@ -257,66 +241,7 @@ class FileWorkflowCoordinator(
 
     /** 放弃当前工作流（用户离开页面 / 取消），并归还 URI 权限。 */
     fun clear() {
-        releaseHeldUri()
-        workflow?.let { update(FileWorkflowReducer.abandon(it)) }
-        workflow = null
-        savedState?.let { handle ->
-            SAVED_KEYS.forEach { handle.remove<String>(it) }
-            handle.remove<String>(KEY_URI_FOR_RELEASE)
-        }
-        importPreview = null
-        importResult = null
-        restoreMessage = null
-        restoreFileName = null
-        statusText = null
-        busy = false
-    }
-
-    // ------------------------------------------------------------------
-    // 内部：状态落盘（只落非敏感 metadata）与 URI 权限回收
-    // ------------------------------------------------------------------
-
-    private var appContext: Context? = null
-    private var heldUri: Uri? = null
-
-    init {
-        restoreFromSavedState()
-    }
-
-    private fun update(next: PendingFileWorkflow) {
-        workflow = next
-        persist(next)
-    }
-
-    private fun persist(workflow: PendingFileWorkflow) {
-        val handle = savedState ?: return
-        handle[KEY_PURPOSE] = workflow.purpose.name
-        handle[KEY_RESUME_ROUTE] = workflow.resumeRoute
-        handle[KEY_SOURCE_ID] = workflow.requestedSourceId
-        handle[KEY_SOURCE_LABEL] = workflow.requestedSourceLabel
-        // ⚠ 这里**只**保存 Uri 字符串，唯一目的是进程重建后能把 grant 还回去
-        // （见 releaseStaleGrant）。它**不会**被用来自动恢复流程 —— 恢复时
-        // 步骤一律是 INTERRUPTED，必须重新选文件。
-        handle[KEY_URI_FOR_RELEASE] = workflow.pendingUri
-    }
-
-    private fun restoreFromSavedState() {
-        val handle = savedState ?: return
-        val purpose = handle.get<String>(KEY_PURPOSE) ?: return
-        val parsed = runCatching { FileWorkflowPurpose.valueOf(purpose) }.getOrNull() ?: return
-        val route = handle.get<String>(KEY_RESUME_ROUTE) ?: return
-        // CASE B（进程死亡）：意图保留，文件结果作废 —— 明确要求重新选择文件，
-        // 绝不出现"UI 说成功、Reality 实际没变"的半恢复状态。
-        workflow = PendingFileWorkflow(
-            purpose = parsed,
-            resumeRoute = route,
-            step = FileWorkflowStep.INTERRUPTED,
-            requestedSourceId = handle.get<String>(KEY_SOURCE_ID),
-            requestedSourceLabel = handle.get<String>(KEY_SOURCE_LABEL),
-            pendingUri = null,
-            launchedExternalPicker = false,
-            mappingProfile = null,
-        )
+        engine.clear()
     }
 
     /**
@@ -326,44 +251,15 @@ class FileWorkflowCoordinator(
      * 就没有理由继续持有这个读权限。
      */
     fun releaseStaleGrant(context: Context) {
-        appContext = context.applicationContext
-        val raw = savedState?.get<String>(KEY_URI_FOR_RELEASE) ?: return
-        val uri = runCatching { Uri.parse(raw) }.getOrNull() ?: return
-        runCatching {
-            context.contentResolver.releasePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION,
-            )
-        }
-        savedState?.remove<String>(KEY_URI_FOR_RELEASE)
+        engine.releaseStaleGrant(context)
     }
 
-    private fun releaseHeldUri() {
-        val uri = heldUri ?: return
-        val ctx = appContext
-        if (ctx != null) {
-            runCatching {
-                ctx.contentResolver.releasePersistableUriPermission(
-                    uri,
-                    Intent.FLAG_GRANT_READ_URI_PERMISSION,
-                )
-            }
-        }
-        heldUri = null
-    }
-
-    private fun resetSideEffects() {
-        releaseHeldUri()
-        importPreview = null
-        importResult = null
-        restoreMessage = null
-        restoreFileName = null
-        statusText = null
-        busy = false
+    init {
+        engine.restoreWorkflow()?.let { workflow = it }
     }
 
     override fun onCleared() {
-        releaseHeldUri()
+        engine.releaseHeldUri()
         super.onCleared()
     }
 

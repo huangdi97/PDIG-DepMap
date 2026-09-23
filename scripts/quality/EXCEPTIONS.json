@@ -1,0 +1,35 @@
+{
+  "_readme": "PDIG quality gate exception register. Every entry must carry a REAL category from {generated, migration, schema, fixture, vendor, lockfile, pure-data} and an auditable reason. Entries are keyed by repo-relative path. Generated-code is auto-detected by the gate (path or header) and does NOT need an entry.",
+  "fileSizeOver300": [
+    {
+      "path": "android/core/src/main/kotlin/com/pdig/core/schema/Migrations.kt",
+      "category": "migration",
+      "reason": "Schema v1->v3 migration DDL (SCHEMA_V1/V2/V3_STATEMENTS + apply logic). Canonical frozen; three-end logical schema contract (spec/schema)."
+    },
+    {
+      "path": "android/core/src/main/kotlin/com/pdig/core/serialize/GraphSerialize.kt",
+      "category": "schema",
+      "reason": "Payload schema v3 serialization contract (PAYLOAD_TABLES = the 11 logical tables; export/import/migrate must stay byte-exact across platforms; faithful Kotlin port of core/src/services/graph-serialize.ts)."
+    }
+  ],
+  "largeComposable": [],
+  "kotlinEscapes": [
+    {
+      "path": "android/app/src/main/kotlin/com/pdig/app/MainActivity.kt",
+      "line": 56,
+      "kind": "lateinit",
+      "classification": "JUSTIFIED",
+      "reason": "Android Activity lifecycle: FileWorkflowCoordinator is created in onCreate after super.onCreate; lateinit avoids nullable ceremony. Platform boundary."
+    },
+    {
+      "path": "android/conformance/src/main/kotlin/com/pdig/conformance/Main.kt",
+      "line": 72,
+      "kind": "lateinit",
+      "classification": "JUSTIFIED",
+      "reason": "Conformance runner top-level ROOT initialized in main(); runner is a gate harness, never shipped."
+    }
+  ],
+  "secretPattern": [],
+  "knownDeadCode": [],
+  "engineeringGaps": []
+}

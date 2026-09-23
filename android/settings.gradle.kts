@@ -72,3 +72,4 @@ if (asciiBuildRoot != null) {
 include(":core")
 include(":conformance")
 include(":app")
+ include(":repos")
