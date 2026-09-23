@@ -35,6 +35,12 @@
       "line": 39,
       "category": "fixture",
       "reason": "Smoke runner 的合成测试口令（等价于 golden vector 'depmap-test'）；非真实凭据，永不进入产物数据。"
+    },
+    {
+      "path": "desktop/app/src/test/kotlin/com/pdig/desktop/DepmapFileStoreTest.kt",
+      "line": 21,
+      "category": "fixture",
+      "reason": "JVM 测试的合成口令（等价于 golden vector 'depmap-test'）；仅用于单元测试 encrypt/decrypt/auth_failed 契约，非真实凭据，永不进入产物数据。"
     }
   ],
   "knownDeadCode": [],
