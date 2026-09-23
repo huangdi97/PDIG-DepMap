@@ -1,10 +1,16 @@
 # ANDROID_PRODUCT_FINAL_ACCEPTANCE.md
 
 > 生成时间：2026-09-21（Android Product Finalization 收口）
-> 执行环境：Windows 11，fresh clone `E:\AI\depmap-fresh`（ASCII 路径）
-> 分支：`feat/mvp03-living-graph` · Canonical HEAD：`61ecdd6`
-> 设备：AVD `pdig_api34`（API34 emulator-5554，1080×2340）+ AVD `pdig_api35_fp`（API35 google_apis_playstore，`hw.fingerprint=yes`，用于生物识别）
-> 结论先行：**ANDROID_PRODUCT_COMPLETE = PASS**（见 §40；剩余项全部为 external blocker / 不可用环境项）
+> **更新：2026-09-23（ANDROID API36 工程全速收口轮）**——compileSdk/targetSdk→36（Android 16），
+>   API36 双 AVD 全量回归（androidTest 59/59×2、Core Journey 41/41、三场景 32/32）、
+>   edge-to-edge / predictive back / adaptive layout / D-16 四项 PASS、
+>   NON-PRODUCTION 签名链路验证（apksigner v2 + signed AAB）、
+>   **parity 保持 69/73**（剩余 4 格仍为外部 blocker / 政策项）、
+>   `ANDROID_GOOGLE_PLAY_RELEASED` 仍如实 BLOCKED（无 Play 账号 / applicationId 未定 / 无生产 keystore / 无真机 / 无真实数据）。
+> 执行环境：Windows 11，仓库 `E:\AI\号卡管理`（非 ASCII 路径，构建输出重定向 `%USERPROFILE%\pdig-build`）
+> 分支：`feat/android-production-release` · 本轮 HEAD：`b13f2f7` + 文档 commit（以 `git rev-parse HEAD` 为准）
+> 设备：AVD `pdig_api36_phone`（Android 16/API36，1080×2424）+ `pdig_api36_tablet`（API36，2560×1600）
+> 结论先行：**ANDROID_PRODUCT_COMPLETE = PASS**；**ANDROID_API36_READY = PASS（工程可验证范围）**；剩余项全部为 external blocker
 
 ---
 
