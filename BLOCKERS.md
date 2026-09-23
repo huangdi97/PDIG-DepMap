@@ -1,7 +1,7 @@
 # BLOCKERS.md
 
 > 本文件只记录**无法由代码解决**、确实需要用户/外部环境介入的事项（AGENTS §20）。
-> 更新：2026-09-22（ANDROID_CANONICAL_FREEZE → Production/Reality Closure 轮）
+> 更新：2026-09-23（ANDROID API36 工程全速收口轮 —— E-1..E-10 状态与证据刷新）
 >
 > ⚠ **结构声明**：本文件已按 Goal §28 重构为结构化格式
 > （Gate / Status / Blocker class / Why blocked / Engineering work remaining /
@@ -15,16 +15,16 @@
 
 | # | Gate | Status | Blocker class | Why blocked | Engineering work remaining | User/external input required | Exact closure procedure | Acceptance evidence |
 |---|------|--------|---------------|-------------|---------------------------|------------------------------|------------------------|----------------------|
-| E-1 | `ANDROID_REAL_DEVICE_VERIFIED` | BLOCKED | `REAL_DEVICE_REQUIRED` | 无真实 Android 手机；AVD 已充分覆盖（设备内 androidTest 59/59、E2E 41/41、三场景 40/40），但真实硬件/传感器/系统 UI 维度未验证 | 无（验收计划已就绪：`ANDROID_REAL_DEVICE_ACCEPTANCE_PLAN.md` + `scripts/android_real_device_acceptance.ps1`） | 一台真实 Android 手机（API 26+） | 按验收计划逐节执行 → 工具自动收集 → 人工判定 | 验收计划 §10 结论模板 = PASS |
-| E-2 | `ANDROID_SIGNING_READY` | BLOCKED | `PRODUCTION_KEY_REQUIRED` | 无生产 keystore；不以 debug/non-prod key 冒充（AGENTS §19） | 无（签名流水线已验证：non-prod 签名 + apksigner verify PASS；验收包已就绪） | 生产 keystore + storePassword + keyAlias + keyPassword（K-1..K-4） | 按 `ANDROID_PRODUCTION_SIGNING_ACCEPTANCE.md` §2 步骤 1–8 | 签名 APK 可安装 + apksigner verify Signer#1 为生产证书 |
-| E-3 | `ANDROID_RELEASE_IDENTITY_READY` | PARTIAL（决策包就绪） | `PRODUCT_DECISION_REQUIRED` | applicationId / 对外版本名 / Play App Signing / 首发渠道未定案 | 无（决策包已就绪：`ANDROID_RELEASE_IDENTITY_DECISION.md`） | R-1..R-5 用户裁决 | 用户在首次上传 AAB 前定案 | 决策项全部关闭 |
+| E-1 | `ANDROID_REAL_DEVICE_VERIFIED` | BLOCKED | `REAL_DEVICE_REQUIRED` | 无真实 Android 手机；**API36 AVD 已充分覆盖**（androidTest 59/59×2、Core Journey 41/41、三场景 32/32，见 `ANDROID_16_API36_CLOSURE_REPORT.md`），但真实硬件/传感器/系统 UI/指纹匹配维度未验证 | 无（验收计划已就绪：`ANDROID_REAL_DEVICE_ACCEPTANCE_PLAN.md` + `scripts/android_real_device_acceptance.ps1`；本轮 `ANDROID_REAL_DEVICE_FINAL_REPORT.md` 如实 BLOCKED） | 一台真实 Android 手机（API 26+） | 按验收计划逐节执行 → 工具自动收集 → 人工判定 | 验收计划 §10 结论模板 = PASS |
+| E-2 | `ANDROID_SIGNING_READY` | BLOCKED | `PRODUCTION_KEY_REQUIRED` | 无生产 keystore；不以 debug/non-prod key 冒充（AGENTS §19） | 无（本轮再次验证 NON-PRODUCTION 签名链路：`-PpdigNonProdSigning=true` 产出 signed APK + `apksigner verify` v2 PASS、signed AAB `jarsigner` verified；证据见 `ANDROID_PRODUCTION_RC_MANIFEST.md`） | 生产 keystore + storePassword + keyAlias + keyPassword（K-1..K-4） | 按 `ANDROID_PRODUCTION_SIGNING_ACCEPTANCE.md` §2 步骤 1–8 | 签名 APK 可安装 + apksigner verify Signer#1 为生产证书 |
+| E-3 | `ANDROID_RELEASE_IDENTITY_READY` | PARTIAL（决策包就绪） | `PRODUCT_DECISION_REQUIRED` | applicationId / 对外版本名 / Play App Signing / 首发渠道未定案；本轮 TARGET_SDK/compileSdk 已升 36（`ANDROID_RELEASE_IDENTITY_DECISION.md` 已同步） | 无（决策包已就绪；`ANDROID_VERSIONING_POLICY.md` 本轮新建） | R-1..R-5 用户裁决 | 用户在首次上传 AAB 前定案 | 决策项全部关闭 |
 | E-4 | `ANDROID_STORE_METADATA_READY` | PARTIAL（文案完成） | `FINAL_BRAND_REQUIRED` + `STORE_ACCOUNT_REQUIRED` | 截图/图标/feature graphic 需最终品牌；Play 开发者账号未创建 | 无（STORE_LISTING / DATA_SAFETY / SUPPORT_PAGE / RELEASE_NOTES / PERMISSION_RATIONALE 草稿全部就绪） | 最终品牌素材 + Play 账号 | 品牌定案 → 素材按 `ANDROID_BRAND_ASSET_SPEC.md` 制作 → 截图按 shot list 拍摄 | 素材 + 截图齐备 |
 | E-5 | `ANDROID_STORE_SUBMISSION_READY` | BLOCKED | `HUMAN_STORE_FLOW_REQUIRED` + `STORE_ACCOUNT_REQUIRED` | 商店人工提交流程需要账号 + 人工操作 | 无 | Google Play 开发者账号 + 正式 applicationId | 创建应用 → 上传 AAB → 填写列表 → 提审 | Play Console 提交状态 |
 | E-6 | `PRIVACY_URL` / `SUPPORT_URL` | BLOCKED | `PUBLIC_URL_REQUIRED` | 无公开域名；不以 GitHub raw URL 冒充 | 无（内容草稿就绪：`PRIVACY_POLICY_DRAFT.md` / `store/SUPPORT_PAGE_DRAFT.md` / `PRIVACY_URL_REQUIREMENT.md` / `SUPPORT_URL_REQUIREMENT.md`） | 用户托管公网 URL + 联系渠道 | 发布草稿为正式页面 → 回填 Play Console | URL 可公开访问 |
 | E-7 | `REAL_DATA_CORRECTNESS` / `REAL_DATA_VALUE` | BLOCKED | `REAL_DATA_REQUIRED` | 无用户授权真实账单 | 无（Pilot-0 协议已就绪：`REAL_DATA_PILOT_0_PROTOCOL.md` / `REAL_DATA_PRIVACY_PROTOCOL.md`） | 1 位用户 + 1 份本人授权账单 | 按 Pilot-0 协议执行 | 指标表达成（false must_change = 0 硬目标） |
 | E-8 | `IOS_BUILD` / iOS 侧 | BLOCKED | `IOS_MACOS_ENVIRONMENT_REQUIRED`（契约授权的 iOS 环境类） | 本机 Windows 无 macOS/Xcode | 无（iOS 代码已在仓库，swift 侧 conformance 由 CI iOS job 守护，本地构建需 Mac） | macOS 环境 | macOS 上 `swift test` / Xcode 构建 | `IOS_BUILD = PASS` |
 | E-9 | Harmony N3 恢复 | PAUSED（非 blocker） | `PRODUCT_PRIORITY`（非外部） | 用户裁决暂停 Harmony，Android 优先收口 | 见 NATIVE_MIGRATION_STATUS.md | 用户决定恢复时机 | 用户指示后恢复 | — |
-| E-10 | CI Canonical job 调度 | BLOCKED（部分 job 未启动） | `EXTERNAL_REPO_ACCOUNT_BILLING`（GitHub 账户计费/配额，外部） | run 35728513967 的 Canonical job 未启动：annotations 显示「recent account payments have failed or your spending limit needs to be increased」；其余 3 job + iOS run 全绿；基准 HEAD 89b653a 的 push CI 全绿不受影响 | 无（代码与 CI 配置无缺陷） | 用户处理 GitHub 账单/提升 spending limit | GitHub → Settings → Billing & plans → 处理账单 → 重跑 CI | run 35728512967 全部 job success |
+| E-10 | CI Canonical job 调度 | BLOCKED（部分 job 未启动） | `EXTERNAL_REPO_ACCOUNT_BILLING`（GitHub 账户计费/配额，外部） | run 35728513967 的 Canonical job 未启动：annotations 显示「recent account payments have failed or your spending limit needs to be increased」；其余 3 job + iOS run 全绿；基准 HEAD 89b653a 的 push CI 全绿不受影响。本轮工程 HEAD（b13f2f7+文档）push 后 CI 结果以实际 run 为准，若仍因计费未调度则继续本 blocker | 无（代码与 CI 配置无缺陷） | 用户处理 GitHub 账单/提升 spending limit | GitHub → Settings → Billing & plans → 处理账单 → 重跑 CI（本轮 push 后对新 run 复检） | 本轮 push 对应实例的全部 job success |
 > 说明：E-9 属于产品优先级暂停，**不是** external blocker；记录在此仅为透明。
 
 ---

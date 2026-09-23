@@ -96,30 +96,36 @@
 
 ## Current
 
-- Phase: **ANDROID CANONICAL FREEZE → PRODUCTION / REALITY CLOSURE（本轮收口完成）**—— Harmony/iOS **PAUSED**（契约 Boundary，本轮不进入）
-- 本轮新增 Gate：**`ANDROID_CANONICAL_FREEZE = PASS`**（main 推进到基准 HEAD `89b653a` + tag `v0.3.0-android-canonical-freeze`）
-- 本轮文档包（全部落地）：`ANDROID_RELEASE_IDENTITY_DECISION.md` / `ANDROID_PRODUCTION_SIGNING_ACCEPTANCE.md` /
-  `PLAY_APP_SIGNING_DECISION.md` / `ANDROID_REAL_DEVICE_ACCEPTANCE_PLAN.md` / `scripts/android_real_device_acceptance.ps1` /
-  `REAL_DATA_PILOT_0_PROTOCOL.md` / `REAL_DATA_PRIVACY_PROTOCOL.md` / `ANDROID_BRAND_ASSET_SPEC.md` /
-  `ANDROID_SCREENSHOT_SHOT_LIST.md` / `store/{STORE_LISTING,DATA_SAFETY,SUPPORT_PAGE,RELEASE_NOTES,PERMISSION_RATIONALE}_DRAFT.md` /
-  `PRIVACY_URL_REQUIREMENT.md` / `SUPPORT_URL_REQUIREMENT.md` / `ANDROID_CI_EXACT_SHA_POLICY.md` /
-  `ANDROID_SECURITY_PRIVACY_FINAL_AUDIT.md` / `ANDROID_SUPPLY_CHAIN_FINAL_AUDIT.md` / 母版 v2.1-R1 差异说明
-- Current gate focus: **`ANDROID_PRODUCT_COMPLETE = PASS`** / **`N2_ANDROID_FULL_PARITY` = PARTIAL_WITH_REPORT（69/73，剩余 4 项全部为外部 blocker）** /
-  **`ANDROID_SIGNING_READY` = BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**（不以 debug key 冒充）/
-  **`ANDROID_REAL_DEVICE_VERIFIED` = BLOCKED_BY_MISSING_REAL_DEVICE**
-- This round results（本轮实跑，基准 HEAD `89b653a`）：`:core:test` **71/71** · `:app:testDebugUnitTest` **9/9** ·
-  `:conformance:run` **91/91** · connectedDebugAndroidTest **59/59**（emulator-5554，2026-09-22）·
-  assembleDebug / assembleRelease / bundleRelease **SUCCESSFUL**；release AAB SHA256 `A24593A6…`（与既有记录一致，可复现）
-- **CI**：**`PUSH_TRIGGER = PASS`**（branches 显式列举修正后 event=push 已出现并全绿 ——
-  run 35700579040（CI, 4 job success）+ 35700579087（iOS），head_sha = `89b653a13f3dd96f6ed4acc579128b218c9b7c22`；
-  详见 `ANDROID_CI_EXACT_SHA_POLICY.md`，exact-SHA policy 已正式建立）
-- Secret/privacy：`check-secrets.mjs` PASS（867 文件 0 production secrets）；`ANDROID_SECURITY_PRIVACY_FINAL_AUDIT.md` PASS（19 项全检，无新增 INTERNET/analytics/telemetry）
-- Parity 剩余 4 项（逐项确认 blocker）：TalkBack 实机读屏（REAL_DEVICE_REQUIRED）/ Release 签名（PRODUCTION_KEY_REQUIRED）/
-  Store 素材（FINAL_BRAND_REQUIRED + STORE_ACCOUNT_REQUIRED）/ R8·minify（未开 minify 如实 NOT_APPLICABLE，工程项已确认非缺口）
-- Global status: **`ALL_DONE = NO`**（剩余项全部为真实 EXTERNAL_BLOCKER，见 `BLOCKERS.md` E-1..E-8）· **`TASK_COMPLETE = YES`（本轮契约完成）**
-- CURRENT_HEAD: 基准 `89b653a` + 本轮文档 commit（以 `git rev-parse HEAD` 为准）
-- CURRENT_BRANCH: `main`（已 FF 推进）· 备份引用：`backup/478d85f9-pre-canonical-freeze`（旧 HEAD 可恢复）
-- NEXT_GATE: 无新 Android 工程 gate（本轮收口）；由用户决定：解除外部 Gate（真机/keystore/品牌/Play 账号/URL/账单）或恢复 Harmony N3
+- Phase: **ANDROID API36 工程全速收口（ANDROID_2026_PRODUCTION_REALITY_CLOSURE）** —— Harmony/iOS **PAUSED**（契约 Boundary）
+- 本轮 Gate：**`ANDROID_CANONICAL_FREEZE = PASS`**（基线 tag `v0.3.0-android-canonical-freeze`）+ **`ANDROID_API36_READY = PASS`（工程可验证范围）**
+- 本轮新增/更新的文档：`ANDROID_PLATFORM_BASELINE.md`（新建）· `ANDROID_VERSIONING_POLICY.md`（新建）·
+  `ANDROID_16_API36_CLOSURE_REPORT.md`（新建）· `ANDROID_PLAY_CONSOLE_READINESS.md`（新建）·
+  `ANDROID_STORE_COMPLIANCE_REPORT.md`（新建）· `ANDROID_CLOSED_TEST_PLAN.md`（新建）·
+  `ANDROID_REAL_DEVICE_FINAL_REPORT.md`（新建，如实 BLOCKED）· `REAL_DATA_PILOT_0_REPORT.md`（新建，如实未执行）·
+  `ANDROID_PRODUCTION_RC_MANIFEST.md`（新建，NON-PROD 签名产物）· `ANDROID_RELEASE_IDENTITY_DECISION.md`（TARGET_SDK→36）·
+  `NATIVE_PARITY_MATRIX.md` / `NATIVE_RELEASE_MATRIX.md` / `NATIVE_MIGRATION_STATUS.md`（API36 轮注记）
+- Current gate focus: **`ANDROID_PRODUCT_COMPLETE = PASS`** / **`N2_ANDROID_FULL_PARITY = PARTIAL_WITH_REPORT（69/73）`** /
+  **`ANDROID_SIGNING_READY = BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE`**（NON-PROD 签名链路已验证，不以 non-prod 冒充）/
+  **`ANDROID_REAL_DEVICE_VERIFIED = BLOCKED_BY_MISSING_REAL_DEVICE`**
+- This round results（本轮实跑，HEAD `b13f2f7`，**API36 AVD phone + tablet**）：`:core:test` **71/71** ·
+  `:app:testDebugUnitTest` **9/9** · `:conformance:run` **91/91** · connectedDebugAndroidTest **59/59 × 2**（phone + tablet）·
+  **Core Journey E2E 41/41** · **三场景 E2E 32/32** · assembleDebug / assembleRelease / bundleRelease **SUCCESSFUL** ·
+  **NON-PROD signed APK（apksigner v2 verify PASS）+ signed AAB（jarsigner verified）** · crash-scan 0
+- **API36 行为 Gate（见 `ANDROID_16_API36_CLOSURE_REPORT.md`）**：`EDGE_TO_EDGE_API36 = PASS` /
+  `PREDICTIVE_BACK_API36 = PASS` / `ANDROID16_ADAPTIVE_LAYOUT = PASS` / D-16 **PASS**（无内容压系统栏、无绕过锁）
+- **CI**：基准 HEAD `89b653a` push CI 全绿记录仍有效（run 35700579040/35700579087）；
+  本轮工程 HEAD（b13f2f7 + 文档 commit）CI 验证见 `git push` 结果与 `ANDROID_CI_EXACT_SHA_POLICY.md`；
+  E-10（GitHub 计费/配额）阻塞与否以本轮 push 后 run 为准，如实记录
+- Secret/privacy：`check-secrets.mjs` PASS（**896** 文件 0 production secrets）；无新增 INTERNET/analytics/telemetry
+- Parity 保持 **69/73**：剩余 4 项逐格确认仍为外部 blocker / 政策项（TalkBack 实机 / production keystore / 最终品牌素材 / R8·minify 未开）
+- 外部项（全部真实 BLOCKED，见 `BLOCKERS.md`）：applicationId/品牌决策（OPEN）、生产 keystore、真机、真实账单 Pilot-0、
+  Play 开发者账号、隐私/支持公网 URL、closed test、E-10 CI 计费
+- Global status: **`ALL_DONE = NO`**（剩余项全部为真实 EXTERNAL_BLOCKER）· **`TASK_COMPLETE = YES`（本轮契约完成）**
+- 诚实声明：**`ANDROID_GOOGLE_PLAY_RELEASED` 非 PASS**（无 Play 账号/身份验证/付款、无 applicationId 定案、
+  无生产 keystore、无真机、无真实数据、closed test 未启动 —— 本轮不宣称上架）
+- CURRENT_HEAD: `b13f2f7` + 本轮文档 commit（以 `git rev-parse HEAD` 为准）· CURRENT_BRANCH: `feat/android-production-release`
+- NEXT_GATE: 由用户解除外部 Gate（R-1..R-5 / keystore / Play 账号 / 真机 / 账单 / 公网 URL / closed test）后继续
+  Play 提交轨；解除后按 `ANDROID_PLAY_CONSOLE_READINESS.md` 顺序执行（Internal → Closed → Production）
 - NEXT_COMMAND（下一位 Agent 的第一步）：
 
   ```bash

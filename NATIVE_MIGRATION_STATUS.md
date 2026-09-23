@@ -3,10 +3,21 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-> 更新：2026-09-22（**ANDROID_CANONICAL_FREEZE 轮**：main 推进到 89b653a、tag `v0.3.0-android-canonical-freeze`、
-> parity 69/73 的剩余 4 项逐项确认为外部 blocker、ENGINEERING_GAP=0 / TEST_EVIDENCE_GAP=0、
-> Release Identity / Signing / Real Device / Real Data / Store / Brand / CI policy / Security / Supply Chain 文档包全部落地）
+> 更新：2026-09-23（**ANDROID API36 工程全速收口轮**：compileSdk/targetSdk→36、API36 双 AVD 全量回归、
+> Core Journey 41/41、三场景 32/32、edge-to-edge/predictive-back/adaptive-layout 三项 Gate PASS、
+> NON-PROD 签名链路验证、N2 parity 保持 69/73、外部 Gate 保持 BLOCKED；Harmony/iOS 本轮未进入）
 >
+> API36 轮关键结论（详见 `ANDROID_16_API36_CLOSURE_REPORT.md`）：
+> - **API36 全绿**：`:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·
+>   connectedDebugAndroidTest **59/59 × 2**（phone + tablet）· Core Journey **41/41** · 三场景 **32/32** ·
+>   assembleDebug/assembleRelease/bundleRelease SUCCESSFUL · crash-scan 0。
+> - **ANDROID_API36_READY = PASS（工程可验证范围）**；真机级指纹匹配/字体/缩放仍 BLOCKED_BY_REAL_DEVICE（E-1）。
+> - **本轮驱动脚本修复（非产品缺陷）**：① API36 新 DocumentsUI 单击=预览、长按+Select 才确认，
+>   驱动 `saf_pick` 增加长按回退；② API36 手势导航导航条窗口名=Taskbar（非 NavigationBar），
+>   `navigation_bar_top()` 改从 InsetsSource 读取 → `content_bottom()=2340`，底部按钮不再落进手势区。
+> - **剩余 blocker 全部为真实 EXTERNAL_BLOCKER**：真机 / 生产 keystore / applicationId 与品牌决策 /
+>   Play 账号 / 公网 URL / 授权账单 / closed test（见 BLOCKERS.md E-1..E-10）。
+> - Harmony N3、iOS N4 本轮**不进入**（契约 Boundary；Android 主发布轨未完成发布不切换）。
 > 本轮关键结论：
 > - **PUSH_TRIGGER = PASS**（branches 显式列举修正后，event=push 已在基准 HEAD 出现并全绿：
 >   run 35700579040 CI + 35700579087 iOS，head_sha=`89b653a…`，详见 `ANDROID_CI_EXACT_SHA_POLICY.md`）

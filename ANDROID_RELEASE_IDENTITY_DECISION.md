@@ -1,6 +1,10 @@
 # ANDROID_RELEASE_IDENTITY_DECISION.md
-
+>
 > 生成时间：2026-09-22（ANDROID_CANONICAL_FREEZE → Production/Reality Closure 轮）
+> **更新：2026-09-23（ANDROID_2026_PRODUCTION_REALITY_CLOSURE · API36 工程全速收口轮）**
+> —— TARGET_SDK / compileSdk 已由 `b13f2f7` 提升到 **36**（本文件 §4 同步更新）；
+>    applicationId / 品牌 / 版本 / Signing / 渠道（R-1..R-5）仍 **OPEN**，本轮**不冻结**、
+>    不创建 Play App、不上传 AAB（保持 BLOCKED_BY_USER_DECISION）。
 > 状态：**DECISION PACKAGE READY / DECISIONS OPEN（需用户裁决）**
 > 对应 Gate：`ANDROID_RELEASE_IDENTITY_READY = PARTIAL（包就绪，身份未定）`
 >
@@ -19,7 +23,7 @@
 | VERSION_NAME | `0.1.0-milestone` | 对外首发建议 `1.0.0` | 可改（每次发布可变化） | ✅（策略决定） |
 | VERSION_CODE | `1` | `1`（首发起点，后续单调递增） | **❌ 已发布版本不可复用** | ✅（首次即定） |
 | MIN_SDK | `26` | `26` | 可提高，不可降低 | 已确定，无需决策 |
-| TARGET_SDK | `34` | `34`（随 Play 政策演进） | 可提高 | 已确定，需随政策跟进 |
+| TARGET_SDK | `36` | `36`（随 Play 政策演进） | 可提高 | 已确定为 36（2026-09-23 提升） |
 | PACKAGE/NAMESPACE POLICY | `namespace == applicationId == com.pdig.app` | 保持 namespace == applicationId | namespace 可改（未上架时） | 随 applicationId 一起定 |
 
 ---
@@ -75,8 +79,8 @@
 | 项 | CURRENT | RECOMMENDED | WHY | CAN_CHANGE_LATER? | COST_OF_CHANGE | MUST_DECIDE_BEFORE |
 |----|---------|-------------|-----|-------------------|----------------|--------------------|
 | MIN_SDK | `26`（Android 8.0） | `26`（**已确定**） | SQLCipher / AES-256-GCM / BiometricPrompt / FileProvider 的能力下限；无需用户决策 | 只能提高（放弃更老设备），不能降低 | 提高 = 排除老设备 + 重测 | 无需（已确定） |
-| TARGET_SDK | `34` | `34`（当前稳定合规线，与 compileSdk 34 一致） | Play 政策要求 targetSdk 跟随；34 为安全默认 | ✅ 可提高 | 提高需回归重验 + 处理新行为变更 | 跟随 Play 强制时间表（无需立即决定） |
-| compileSdk | `34` | `34` | 与 targetSdk 一致，依赖链（AGP/Compose）匹配 | ✅ | 提高需升级依赖 | 无需（已确定） |
+| TARGET_SDK | `36` | `36`（当前合规线） | Android 16 目标（2026-09-23 由 `b13f2f7` 提升）；Play 政策要求 targetSdk 跟随 | ✅ 可提高 | 提高需回归重验 + 处理新行为变更 | 已确定（36） |
+| compileSdk | `36` | `36` | 与 targetSdk 一致；AGP 8.5.2 上限 34 已显式声明 `suppressUnsupportedCompileSdk=36` 并在 API36 全量验证 | ✅ | 提高需升级依赖 | 已确定（36） |
 
 ---
 

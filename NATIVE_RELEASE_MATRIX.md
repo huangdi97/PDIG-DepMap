@@ -3,12 +3,15 @@
 > 状态枚举：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `RUNTIME_VERIFIED` → `STORE_READY`
 > 商店提交**只准备，不自动提交**（§206）。
 
-> 更新：2026-09-22（**ANDROID_CANONICAL_FREEZE 轮**：main 推进到 89b653a、tag `v0.3.0-android-canonical-freeze`、本轮实跑产物登记刷新）
+> 更新：2026-09-23（**ANDROID API36 工程全速收口轮**：compileSdk/targetSdk→36、API36 AVD 全量回归、
+> Core Journey 41/41、三场景 32/32、NON-PROD 签名验证、N2 parity 保持 69/73、外部 Gate 保持 BLOCKED）
 >
-> 本轮实测（2026-09-22，基准 HEAD `89b653a`，本地 JDK21 + Gradle 8.9 复跑）：
+> 本轮实测（2026-09-23，HEAD `b13f2f7`，API36 AVD `pdig_api36_phone` + `pdig_api36_tablet`）：
 > `:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·
-> connectedDebugAndroidTest 59/59（emulator-5554）· assembleDebug/assembleRelease/bundleRelease SUCCESSFUL。
-> 产物 SHA256 见 §4 登记表。
+> connectedDebugAndroidTest **59/59 × 2**（phone + tablet，均 API36）· Core Journey E2E **41/41** ·
+> 三场景 E2E **32/32** · assembleDebug/assembleRelease/bundleRelease SUCCESSFUL ·
+> NON-PROD signed APK（apksigner v2 verify PASS）+ signed AAB（jarsigner verified）。
+> 产物 SHA256 见 `ANDROID_PRODUCTION_RC_MANIFEST.md`。正式 Release 签名仍 BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE。
 
 ---
 ---

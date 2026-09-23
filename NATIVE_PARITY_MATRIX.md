@@ -3,11 +3,19 @@
 > 每格：`NOT_STARTED` → `IMPLEMENTED` → `TESTED` → `CONFORMANCE_PASS` → `RUNTIME_VERIFIED`
 > 写状态时不得跳过等级，也不得把"理论支持"写成"已验证"。
 >
-> **2026-09-22 ANDROID_CANONICAL_FREEZE 轮复验注记**：本矩阵保持 **69/73**。
-> 剩余 4 项（无障碍 TalkBack 实机 / Release 签名 / Store 素材 / R8·minify）本轮逐项确认为外部 blocker，
-> 分类见文末与 `ANDROID_FINAL_73_AUDIT.md`、`BLOCKERS.md`。
-> 本轮实跑回归：`:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·
-> connectedDebugAndroidTest 59/59（emulator-5554）· assembleDebug/assembleRelease/bundleRelease SUCCESSFUL。
+> **2026-09-23 API36 工程全速收口轮复验注记**：本矩阵保持 **69/73**。
+> 剩余 4 格（无障碍 TalkBack 实机 / Release 签名 / Store 素材 / R8·minify）本轮再次逐格确认
+> 为真实外部 blocker / 政策项（分类见 `ANDROID_FINAL_73_AUDIT.md`、`BLOCKERS.md`）：
+> - 无障碍：Compose 语义树在 API36 AVD 复验 PASS；**TalkBack 实机读屏仍需真机（E-1）**，不冒充。
+> - Release 签名：NON-PRODUCTION 签名链路在 API36 release 产物复验 PASS（apksigner v2 verify），
+>   **正式 production keystore 仍缺失（E-2）**，不以 non-prod 冒充。
+> - Store 素材：文案/合规文档全部就绪（本轮新增 `ANDROID_PLAY_CONSOLE_READINESS.md` /
+>   `ANDROID_STORE_COMPLIANCE_REPORT.md`）；**最终品牌未定（R-2/E-4）**。
+> - R8 / minify：release `isMinifyEnabled=false` 如实记录 **NOT_APPLICABLE**，本轮未擅自开启。
+> 本轮实跑回归（**API36 AVD pdig_api36_phone，Android 16 实测 sdk=36**）：`:core:test` 71/71 ·
+> `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 · connectedDebugAndroidTest **59/59** ·
+> assembleDebug / assembleRelease / bundleRelease SUCCESSFUL（含 NON-PROD signed 变体），
+> Core Journey E2E 与三场景 E2E 见 `ANDROID_16_API36_CLOSURE_REPORT.md`。
 > **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
 
 更新时间：2026-09-18（**Harmony N3：Argon2 NAPI 全链路 + 编译可达性 Gate**）
