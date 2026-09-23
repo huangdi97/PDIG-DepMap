@@ -105,3 +105,20 @@ PUSH_TRIGGER = PASS
 - 结论：`PUSH_TRIGGER` 仍然 PASS（push 事件正确触发 workflow）；Canonical job 的调度被
   **EXTERNAL_REPO_ACCOUNT_BILLING** 阻塞 —— 属于外部 blocker，见 BLOCKERS.md E-10。
 - 解除：用户在 GitHub → Settings → Billing & plans 处理账单/提升 spending limit 后重跑。
+
+---
+
+## 5. 2026-09-23 API36 轮 exact-SHA dispatch 状态（仍被账户计费阻塞）
+
+- 本轮工程 HEAD（分支 `feat/android-production-release`，HEAD `fe952a0`，含 API36 文档与状态）已 push
+  （`git ls-remote` 确认远端 = `fe952a09400aec399df0eebf2799ea0906ed644a`，与本地 HEAD 一致）。
+- 按 exact-SHA policy 使用 `gh workflow run CI --ref feat/android-production-release` 触发
+  **exact-SHA CI**：run **`35839835622`**，head_sha = `fe952a0…`（已核实）。
+- 结果：**4/4 job 全部未启动**，annotations（每条 job 均出现）：
+  `The job was not started because recent account payments have failed or your spending limit needs to be increased`
+  （Harmony static / Android app / Android core / Canonical 均被同一账户计费限制拦截）。
+- 证实：**E-10（EXTERNAL_REPO_ACCOUNT_BILLING）持续阻塞本账户全部 CI job**（不仅 Canonical）。
+  这不是代码/配置缺陷；本地同一 HEAD 全量测试绿（见 `ANDROID_16_API36_CLOSURE_REPORT.md`）。
+- `PUSH_TRIGGER` 口径不变：push 事件可触发 workflow；job 调度受账单限制。
+- 解除：用户在 GitHub → Settings → Billing & plans 处理账单/提升 spending limit → 重跑 `gh workflow run CI --ref feat/android-production-release`。
+- **未被冒充**：本表不把「本地绿」写成「CI 绿」；exact-SHA CI 以 run 35839835622 的真实结果为准（BLOCKED）。
