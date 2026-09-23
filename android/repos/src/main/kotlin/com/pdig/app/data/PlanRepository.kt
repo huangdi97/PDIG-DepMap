@@ -191,7 +191,7 @@ class PlanRepository(
         if (actions.isEmpty()) return
         val allDone = actions.all { it.done }
         val allVerified = actions.all {
-            it.verification == null || it.verification!!.status == ActionVerificationStatus.VERIFIED
+            it.verification == null || it.verification?.status == ActionVerificationStatus.VERIFIED
         }
         val target = when {
             allDone && allVerified -> ChangePlanWorkflowState.COMPLETED

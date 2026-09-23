@@ -23,6 +23,23 @@ android {
         versionName = "0.1.0-milestone"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+ 
+     // ---------- Product flavors（ANDROID_VERSIONING_POLICY.md §1.2）----------
+     // production = 默认（placeholder versionCode=1 / 0.1.0-milestone，未定案，不冒充上架版）；
+     // preview    = GitHub Developer Preview 0.1.0：internal-testing 轨 versionCode 2xxxxx，
+     //              applicationId com.pdig.app.preview，明确标识为 Preview，禁止误当生产。
+     flavorDimensions += "tier"
+     productFlavors {
+         create("production") {
+             dimension = "tier"
+         }
+         create("preview") {
+             dimension = "tier"
+             applicationIdSuffix = ".preview"
+             versionCode = 200001
+             versionName = "0.1.0"
+         }
+     }
 
     // ⚠️ 非生产测试签名（NON_PRODUCTION_TEST_SIGNING）
     // 用途只有一个：验证 release 签名流水线本身可用。
@@ -148,3 +165,19 @@ dependencies {
     // createAndroidComposeRule 需要一个可调试的空 Activity 载体
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }
+ 
+ // ---------------------------------------------------------------------------
+ // 兼容别名：引入 flavor 后旧的单变体任务名不再成立（C4：默认构建不被破坏）。
+ // 保留产品以前的命令/脚本可用的任务名，指向 production 变体（默认轨）。
+ // ---------------------------------------------------------------------------
+ afterEvaluate {
+     tasks.register("testDebugUnitTest") {
+         dependsOn("testProductionDebugUnitTest")
+     }
+     tasks.register("connectedDebugAndroidTest") {
+         dependsOn("connectedProductionDebugAndroidTest")
+     }
+     tasks.register("compileDebugKotlin") {
+         dependsOn("compileProductionDebugKotlin")
+     }
+ }

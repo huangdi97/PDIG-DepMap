@@ -56,8 +56,8 @@ fun CandidateReviewScreen(nav: NavController) {
         ) {
             when {
                 items == null -> LoadingState()
-                items!!.isEmpty() -> EmptyState("没有新的候选对象。")
-                else -> items!!.forEach { c ->
+                items?.isEmpty() == true -> EmptyState("没有新的候选对象。")
+                else -> items?.forEach { c ->
                     if (c.label in acceptedLabels) return@forEach
                     PdigCard {
                         Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {

@@ -87,8 +87,8 @@ fun HomeScreen(nav: NavController) {
             if (items == null) {
                 LoadingState()
             } else {
-                val attention = items!!.filter { it.bucket == "attention" }
-                val upcoming = items!!.filter { it.bucket != "attention" }
+                val attention = (items ?: emptyList()).filter { it.bucket == "attention" }
+                val upcoming = (items ?: emptyList()).filter { it.bucket != "attention" }
 
                 SectionHeader("需要你处理")
                 val hasPendingReview = (pendingProposalCount ?: 0) > 0
@@ -220,8 +220,8 @@ fun TimelineScreen(nav: NavController) {
         ) {
             when {
                 items == null -> LoadingState()
-                items!!.isEmpty() -> EmptyState("还没有需要跟踪的事项。")
-                else -> items!!.forEach { item ->
+                items?.isEmpty() == true -> EmptyState("还没有需要跟踪的事项。")
+                else -> items?.forEach { item ->
                     PdigCard(onClick = { nav.navigate(Route.PLAN.replace("{planId}", item.sourceId)) }) {
                         Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
                             Text(item.title, style = PdigTokens.BodyStrong)

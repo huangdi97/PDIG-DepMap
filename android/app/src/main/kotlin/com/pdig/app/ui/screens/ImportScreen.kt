@@ -172,7 +172,7 @@ fun ImportScreen(nav: NavController) {
             SectionHeader("第 1 步 · 选择数据来源")
             when {
                 sources == null -> LoadingState()
-                sources!!.isNotEmpty() -> sources!!.forEach { s ->
+                sources?.isNotEmpty() == true -> sources?.forEach { s ->
                     PdigCard(onClick = {
                         selectedSourceId = s.id
                         newSourceName = ""

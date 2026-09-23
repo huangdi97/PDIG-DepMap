@@ -54,9 +54,9 @@ fun InfrastructureScreen(nav: NavController) {
         ) {
             when {
                 nodes == null -> LoadingState()
-                nodes!!.isEmpty() -> EmptyState("还没有记录任何对象。可以先导入一份账单。")
+                nodes?.isEmpty() == true -> EmptyState("还没有记录任何对象。可以先导入一份账单。")
                 else -> {
-                    nodes!!.forEach { n ->
+                    nodes?.forEach { n ->
                         PdigCard(onClick = { nav.navigate(Route.NODE.replace("{nodeId}", n.id)) }) {
                             Text(n.name, style = PdigTokens.BodyStrong)
                         }
@@ -87,8 +87,8 @@ fun GraphScreen(nav: NavController) {
         ) {
             when {
                 deps == null -> LoadingState()
-                deps!!.isEmpty() -> EmptyState("还没有已确认的依赖关系。")
-                else -> deps!!.forEach { d ->
+                deps?.isEmpty() == true -> EmptyState("还没有已确认的依赖关系。")
+                else -> deps?.forEach { d ->
                     PdigCard(onClick = { nav.navigate(Route.NODE.replace("{nodeId}", d.to)) }) {
                         Column {
                             Text("${d.fromName} → ${d.toName}", style = PdigTokens.BodyStrong)
@@ -139,10 +139,10 @@ fun NodeDetailScreen(nav: NavController, nodeId: String) {
             when {
                 node == null -> EmptyState("没有找到这个对象。")
                 else -> {
-                    Text(node!!.name, style = PdigTokens.Title)
+                    Text(node?.name ?: "", style = PdigTokens.Title)
 
                     // 支付工具可以直接进行影响面模拟（走 core.impact，UI 不推导）
-                    if (node!!.kind == "payment_instrument") {
+                    if (node?.kind == "payment_instrument") {
                         PdigCard(
                             onClick = { nav.navigate(Route.IMPACT.replace("{nodeId}", nodeId)) },
                         ) {
@@ -206,13 +206,13 @@ fun SourceManagementScreen(nav: NavController) {
         ) {
             when {
                 rows == null -> LoadingState()
-                rows!!.isEmpty() -> EmptyState("还没有数据来源。")
-                else -> rows!!.forEach { s ->
+                rows?.isEmpty() == true -> EmptyState("还没有数据来源。")
+                else -> rows?.forEach { s ->
                     PdigCard {
                         Column {
                             Text(s.label, style = PdigTokens.BodyStrong)
                             Text(
-                                if (s.lastIngestedAt == null) "从未导入过数据" else "最近更新：${s.lastIngestedAt!!.take(10)}",
+                                if (s.lastIngestedAt == null) "从未导入过数据" else "最近更新：${s.lastIngestedAt?.take(10) ?: ""}",
                                 style = PdigTokens.Caption,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )

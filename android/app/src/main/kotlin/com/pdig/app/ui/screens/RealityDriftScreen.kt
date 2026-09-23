@@ -57,8 +57,8 @@ fun RealityDriftScreen(nav: NavController) {
         ) {
             when {
                 drifts == null -> LoadingState()
-                drifts!!.isEmpty() -> EmptyState("没有检测到需要确认的变化。")
-                else -> drifts!!.forEach { d ->
+                drifts?.isEmpty() == true -> EmptyState("没有检测到需要确认的变化。")
+                else -> drifts?.forEach { d ->
                     if (d.id in resolvedIds) return@forEach
                     // H-17：发现 → Review → 用户选择 → Reality mutation。
                     // 已更换 / 两者都在用 是 Reality mutation（resolve_* ∈ bumpsOn）；

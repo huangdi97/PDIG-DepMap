@@ -79,10 +79,10 @@ fun ScenarioSetupScreen(nav: NavController, templateId: String) {
 
             when {
                 instruments == null -> LoadingState()
-                instruments!!.isEmpty() -> EmptyState("还没有可以变更的支付工具。")
+                instruments?.isEmpty() == true -> EmptyState("还没有可以变更的支付工具。")
                 else -> {
                     SectionHeader("选择要变更的支付工具")
-                    instruments!!.forEach { n ->
+                    instruments?.forEach { n ->
                         PdigCard(onClick = { selectedId = n.id }) {
                             Row(
                                 Modifier.fillMaxWidth(),

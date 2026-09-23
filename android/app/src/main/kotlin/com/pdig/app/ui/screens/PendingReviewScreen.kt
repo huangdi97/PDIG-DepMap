@@ -60,8 +60,8 @@ fun PendingReviewScreen(nav: NavController) {
         ) {
             when {
                 proposals == null -> LoadingState()
-                proposals!!.isEmpty() -> EmptyState("没有待确认的项目。")
-                else -> proposals!!.forEach { p ->
+                proposals?.isEmpty() == true -> EmptyState("没有待确认的项目。")
+                else -> proposals?.forEach { p ->
                     var done by remember(p.id) { mutableStateOf(false) }
                     if (done) return@forEach
                     PdigCard {

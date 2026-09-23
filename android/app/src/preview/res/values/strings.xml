@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Preview 构建的显式标识：不得与 Production 品牌混淆（D4）。 -->
+    <string name="app_name">PDIG Preview</string>
+    <string name="app_name_full">个人数字基础设施图谱 — Developer Preview</string>
+</resources>

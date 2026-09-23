@@ -23,8 +23,8 @@
     },
     {
       "path": "android/conformance/src/main/kotlin/com/pdig/conformance/Main.kt",
-      "line": 72,
-      "kind": "lateinit",
+       "line": 26,
+       "kind": "lateinit",
       "classification": "JUSTIFIED",
       "reason": "Conformance runner top-level ROOT initialized in main(); runner is a gate harness, never shipped."
     }
