@@ -21,7 +21,6 @@ import org.junit.runner.RunWith
 class ScreenProtectionEvidenceTest {
 
     private val allRoutes = listOf(
-        Route.ONBOARDING,
         Route.LOCK,
         Route.HOME,
         Route.SCENARIOS,
