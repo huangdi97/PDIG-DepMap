@@ -272,6 +272,19 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 
 ---
 
+## 产品版本状态（2026-09-24）
+
+> 严格区分三类口径，不混淆：
+
+| 口径 | 状态 |
+| --- | --- |
+| **Stable Production** | 尚未发布（无 Play 上架、无生产签名 keystore、无正式包名/隐私政策 URL） |
+| **Developer Preview 0.1.0** | 已发布（GitHub Pre-release `product-v0.1.0`）：Windows Desktop（x64 installer + portable zip）+ Android Preview APK（`com.pdig.app.preview`，非生产测试签名）。详见 `RELEASE_NOTES_0_1_0.md` |
+| **Canonical 工程状态** | Quality Gate PASS、Conformance 91/91、Android API36 仪器化 59/59、Desktop smoke 14/14 —— 全部**本地真实运行**；CI 因 GitHub 账户计费被外部阻断（`CI_EXTERNAL_BLOCKED`，见 `BLOCKERS.md` E-10） |
+
+> 下载链接与 SHA-256：见 GitHub Release 页面（`https://github.com/huangdi97/PDIG-DepMap/releases`）。
+> Windows 二进制**未签名**，运行可能触发 SmartScreen 警告。
+
 ## 已知限制
 
 - **Impact 仅覆盖 payment capability**；其他 capability 只存边，不参与影响计算
