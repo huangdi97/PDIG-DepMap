@@ -96,6 +96,14 @@
 
 ## Current
 
+- **v0.1.0 Developer Preview 轮（2026-09-24）**：全仓工程治理复核收尾 + Windows Desktop + Android GitHub Preview
+  **已发布**（GitHub Pre-release `product-v0.1.0`，详见 `PRODUCT_V0_1_0_RELEASE_MANIFEST.md`）。
+  - 复核结论（本地真实运行）：Quality Gate PASS（10 counter 全 0）；`:conformance:run` 91/91；`:core:test` 71/71；
+    `:app:testDebugUnitTest` 9/9；desktop `:app:test` 9/9 + `--smoke` 14/14 步骤 PASS；API36 AVD 仪器化 59/59（0 crash）。
+  - 产物：`PDIG-0.1.0-windows-x64-setup.exe` / `-portable.zip`（未签名，SmartScreen 提示如实披露）、
+    `PDIG-0.1.0-android-preview.apk`（`com.pdig.app.preview`，versionCode 200001，NON-PROD 测试签名，明确非 Play 版）。
+  - `DESKTOP_V0_1_0_SCOPE_ADDENDUM.md` 声明 Desktop 不是 Canonical Truth Source；打包/SBOM 工具入仓
+    （`scripts/release/`），可复现。
 - Phase: **ANDROID API36 工程全速收口（ANDROID_2026_PRODUCTION_REALITY_CLOSURE）** —— Harmony/iOS **PAUSED**（契约 Boundary）
 - 本轮 Gate：**`ANDROID_CANONICAL_FREEZE = PASS`**（基线 tag `v0.3.0-android-canonical-freeze`）+ **`ANDROID_API36_READY = PASS`（工程可验证范围）**
 - 本轮新增/更新的文档：`ANDROID_PLATFORM_BASELINE.md`（新建）· `ANDROID_VERSIONING_POLICY.md`（新建）·

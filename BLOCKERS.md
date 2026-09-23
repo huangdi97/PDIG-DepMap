@@ -10,6 +10,10 @@
 > 不代表当前 Android 原生路线的阻塞 —— 当前路线技术栈为 **Android(Kotlin/Compose)**（AGENTS §24.5）。
 
 ---
+> v0.1.0 Developer Preview 轮注记（2026-09-24）：E-1..E-10 状态不变；按 Goal §91，
+> 以上外部 blocker **均不阻塞 GitHub Developer Preview v0.1.0**（真机/生产 keystore/
+> 商店账号/正式包名/隐私 URL/真实账单/CI billing 均以 Known Limitation 如实披露，
+> 见 `RELEASE_NOTES_0_1_0.md`）。
 
 ## 当前 Active blockers（全部为真实 EXTERNAL_BLOCKER）
 
