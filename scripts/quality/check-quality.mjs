@@ -26,7 +26,7 @@
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const EXC = JSON.parse(fs.readFileSync(path.join(ROOT, "scripts/quality/EXCEPTIONS.json"), "utf8"));
 
-const SCOPE_DIRS = ["android/app/src/main", "android/core/src/main", "android/conformance/src/main", "desktop"];
+ const SCOPE_DIRS = ["android/app/src/main", "android/core/src/main", "android/conformance/src/main", "android/repos/src/main", "desktop"];
 const EXT = new Set([".kt", ".ts", ".mjs", ".js"]);
 const GENERATED_PATH = /[\\/]generated[\\/]|codegen|generate\.mjs/;
 const GENERATED_HEADER = /Generated from canonical|DO NOT EDIT|codegen output/i;
@@ -35,7 +35,7 @@ function inScope(p) {
   const r = path.relative(ROOT, p).replace(/\\/g, "/");
   return SCOPE_DIRS.some((d) => r.startsWith(d + "/")) && EXT.has(path.extname(p));
 }
-function rel(p) {
+ function rel(p) {
   return path.relative(ROOT, p).replace(/\\/g, "/");
 }
 function walk(dir, out = []) {

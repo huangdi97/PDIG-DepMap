@@ -23,13 +23,20 @@
     },
     {
       "path": "android/conformance/src/main/kotlin/com/pdig/conformance/Main.kt",
-       "line": 26,
-       "kind": "lateinit",
+      "line": 26,
+      "kind": "lateinit",
       "classification": "JUSTIFIED",
       "reason": "Conformance runner top-level ROOT initialized in main(); runner is a gate harness, never shipped."
     }
   ],
-  "secretPattern": [],
+  "secretPattern": [
+    {
+      "path": "desktop/app/src/main/kotlin/com/pdig/desktop/SmokeRunner.kt",
+      "line": 39,
+      "category": "fixture",
+      "reason": "Smoke runner 的合成测试口令（等价于 golden vector 'depmap-test'）；非真实凭据，永不进入产物数据。"
+    }
+  ],
   "knownDeadCode": [],
   "engineeringGaps": []
 }
