@@ -50,3 +50,15 @@ compose.desktop {
         }
     }
 }
+ 
+ // ---------------------------------------------------------------------------
+ // 手动打包辅助：把 runtime classpath 与主 jar 收集到一个目录，供 jpackage 直接使用
+ // （绕过 Compose downloadWix：Windows 安装器由 NSIS 产出，jpackage 只做 app-image）。
+ // ---------------------------------------------------------------------------
+ tasks.register<Copy>("collectRuntimeForJpackage") {
+     dependsOn("jar")
+     val libs = layout.buildDirectory.dir("jpackage-libs")
+     into(libs)
+     from(configurations.runtimeClasspath)
+     from(tasks.named<Jar>("jar").map { it.archiveFile })
+ }
