@@ -25,17 +25,16 @@ const get = (flag) => {
 const DESKTOP_LIBS = get("--desktop-libs");
 const ANDROID_DEPS = get("--android-deps");
 const OUT = get("--out");
-if (!DESKTOP_LIBS || !ANDROID_DEPS || !OUT) {
-  console.error("usage: gen-sbom.mjs --desktop-libs <dir> --android-deps <file> --out <dir>");
-  process.exit(2);
-}
-
-const VERSION = "0.1.0";
+const VERSION = get("--version") || "0.1.0";
 
 // group inference for first-party modules (project modules, not OSS deps)
 const FIRST_PARTY = new Set(["app", "core", "conformance", "repos"]);
 
 // Desktop jar filename -> { group, name } (compose / kotlin / androidx naming).
+if (!DESKTOP_LIBS || !ANDROID_DEPS || !OUT) {
+  console.error("usage: gen-sbom.mjs --desktop-libs <dir> --android-deps <file> --out <dir> [--version x.y.z]");
+  process.exit(2);
+}
 const JAR_GROUP = [
   [/^kotlin-stdlib-jdk7-(.+)/, "org.jetbrains.kotlin", "kotlin-stdlib-jdk7"],
   [/^kotlin-stdlib-jdk8-(.+)/, "org.jetbrains.kotlin", "kotlin-stdlib-jdk8"],
@@ -58,6 +57,7 @@ const JAR_GROUP = [
   [/^sqlite-jdbc-(.+)/, "org.xerial", "sqlite-jdbc"],
   [/^slf4j-api-(.+)/, "org.slf4j", "slf4j-api"],
   [/^annotations-(.+)/, "org.jetbrains", "annotations"],
+  [/^slf4j-nop-(.+)/, "org.slf4j", "slf4j-nop"],
 ];
 
 function parseJar(name) {
@@ -173,7 +173,7 @@ const bom = {
   ],
 };
 
-const sbomFile = path.join(OUT, "PDIG-0.1.0-SBOM.cyclonedx.json");
+const sbomFile = path.join(OUT, `PDIG-${VERSION}-SBOM.cyclonedx.json`);
 fs.writeFileSync(sbomFile, JSON.stringify(bom, null, 2) + "\n");
 
 // ---- THIRD-PARTY-NOTICES ----
