@@ -17,6 +17,10 @@ dependencies {
     // Argon2id（DEPMAP_CONTAINER_V1 KDF）。AES-GCM / Base64 / SecureRandom 用 JDK。
     implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
 
+    // slf4j-nop：sqlite-jdbc 依赖 slf4j-api 但无绑定会打 StaticLoggerBinder 噪音；
+    // 本项目不对外提供日志，nop 绑定为最小静默。
+    runtimeOnly("org.slf4j:slf4j-nop:1.7.36")
+
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
 

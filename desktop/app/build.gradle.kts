@@ -21,6 +21,8 @@ dependencies {
     // Windows DPAPI (DesktopSecurityPort) — JNA platform bindings
     implementation("net.java.dev.jna:jna:5.14.0")
     implementation("net.java.dev.jna:jna-platform:5.14.0")
+    // slf4j-nop：消除 sqlite-jdbc 的 StaticLoggerBinder 噪音（运行时与测试输出保持干净）。
+    runtimeOnly("org.slf4j:slf4j-nop:1.7.36")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")

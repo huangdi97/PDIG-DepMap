@@ -18,6 +18,8 @@ dependencies {
     implementation(project(":core"))
     // 仅 conformance harness 在 JVM 上使用；Android App 使用平台 SQLite / SQLCipher。
     implementation("org.xerial:sqlite-jdbc:3.46.1.0")
+    // slf4j-nop：消除 sqlite-jdbc 的 StaticLoggerBinder 噪音（harness 输出保持干净）。
+    runtimeOnly("org.slf4j:slf4j-nop:1.7.36")
 }
 
 application {

@@ -49,11 +49,6 @@ fun rememberUiState(): UiState {
 }
 
 /** 从当前目录向上找仓库根（含 fixtures/import/normal-wechat.csv 的目录）。 */
-fun findRepoRoot(start: File): File? {
-    var dir = start
-    while (dir != null) {
-        if (File(dir, "fixtures/import/normal-wechat.csv").isFile) return dir
-        dir = dir.parentFile
-    }
-    return null
-}
+fun findRepoRoot(start: File): File? =
+    generateSequence(start) { it.parentFile }
+        .firstOrNull { File(it, "fixtures/import/normal-wechat.csv").isFile }

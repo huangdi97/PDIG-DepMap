@@ -137,14 +137,20 @@ fun simulateScenario(graph: ImpactGraph, unavailable: List<ImpactStateKey>): Imp
                 ::edgeKeysOf,
             )
             val prev = results[k]
-            if (prev == null || severity(result.status) > severity(prev.status)) {
+            if (prev == null) {
                 results[k] = result
-            } else if (prev != null && severity(result.status) == severity(prev.status)) {
-                results[k] = prev.copy(
-                    edgeKeys = (prev.edgeKeys + result.edgeKeys).distinct().sorted(),
-                    groupKeys = (prev.groupKeys + result.groupKeys).distinct().sorted(),
-                    proposalKeys = (prev.proposalKeys + result.proposalKeys).distinct().sorted(),
-                )
+            } else {
+                val current = severity(result.status)
+                val old = severity(prev.status)
+                if (current > old) {
+                    results[k] = result
+                } else if (current == old) {
+                    results[k] = prev.copy(
+                        edgeKeys = (prev.edgeKeys + result.edgeKeys).distinct().sorted(),
+                        groupKeys = (prev.groupKeys + result.groupKeys).distinct().sorted(),
+                        proposalKeys = (prev.proposalKeys + result.proposalKeys).distinct().sorted(),
+                    )
+                }
             }
             when {
                 result.status == ImpactTargetStatus.MUST_CHANGE && !unavailableSet.contains(k) -> {
