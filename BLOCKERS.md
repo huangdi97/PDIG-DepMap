@@ -18,8 +18,9 @@
 
 > v0.1.2 质量迭代收口轮注记（2026-09-24）：E-1..E-10 状态不变，其中 **E-10（CI billing）保持
 > CI_EXTERNAL_BLOCKED**；本轮无新增外部 blocker。已知限制（非 blocker，如实登记）：
-> 无 Play 生产发布；Android 运行时 smoke 本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起
-> 本机所有 AVD full startup 静默退出——环境问题，非代码回归；仪器化以当日上午 60/60 实跑为基线）；
+> 无 Play 生产发布；Android 运行时 smoke 已修复并取得新鲜证据（PASS）：android-36 系统镜像损坏
+> 经 sdkmanager 重装修复，pdig36 AVD 恢复可引导；安装/launch/无崩溃/卸载数据全 Success +
+> connectedPreviewDebugAndroidTest **60/60 新鲜复跑**（详见 WORK_STATUS.md 2026-09-24 晚注记）；
 > 无真机/真实数据（全合成 fixture）；Harmony/iOS 不在本轮；Windows 未签名（SmartScreen）；
 > 旧 tag product-v0.1.0/v0.1.1 保留。本轮结论标注：质量 Gate 10 项计数全 0（EXCEPTIONS.json 复核
 > JUSTIFIED：fileSizeOver300×2 / kotlinEscapes×2 lateinit / secretPattern×2 fixture 合成口令）；

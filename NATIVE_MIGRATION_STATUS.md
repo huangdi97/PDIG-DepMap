@@ -15,10 +15,14 @@
 >   apksigner verify v2 scheme Verified（NON-PROD 测试签名，非生产签名）；`:core:test` 71/71、
 >   `:app:testDebugUnitTest` 9/9（--rerun-tasks fresh）；仪器化基线
 >   `TEST-pdig36(AVD)-16-_app-preview.xml` **60/60 PASS**（2026-09-24 11:39）。
-> - **Android 运行时 smoke = RUNTIME_ENVIRONMENT_BLOCKED**：2026-09-24 下午起本机所有 AVD
->   （pdig36、pdig_api36_phone、pdig_api36_tablet、Medium_Phone_API_35(API35)、
->   PDIG_API34_DEFAULT(ARM 不支持)、petaccess_api35(镜像路径损坏)）均在 full startup 静默退出，
->   WHPX 检测正常、无 WER 崩溃记录——环境阻塞，不是回归。
+> - **Android 运行时 smoke = PASS（环境修复后新鲜证据，2026-09-24 晚）**：android-36 系统镜像损坏
+>   （目录仅剩 `.installer` 锁文件）经 sdkmanager 重装 `system-images;android-36;google_apis;x86_64`
+>   修复，`pdig36` AVD 恢复可引导（~90s）；`adb install` preview-release APK Success +
+>   launch MainActivity 进程存活（pid=3204）+ topResumedActivity=MainActivity + crash buffer 空 +
+>   截图 1080×2340；`connectedPreviewDebugAndroidTest` BUILD SUCCESSFUL（1m57s）→ TEST XML
+>   **60/60 PASS（0 failure/0 error/0 skipped，pdig36 AVD 新鲜）**；卸载数据 Success、包与数据移除、
+>   crash 空。环境特性记录：模拟器子进程随启动 shell 退出被回收（设备操作须单命令内完成）；
+>   PATH 旧 adb 1.0.32 与 platform-tools 1.0.41 冲突（前缀 platform-tools 解决）。
 > - **Conformance（fresh SUMMARY 2026-09-24）**：android **91/91 PASS**（fresh，pass=91 fail=0 total=91）；
 >   harmony 87/91（4 项 runtime-blocked：depmap-golden-v1、depmap-utf8-password-normalization、
 >   migration-db-v1-to-v3、backup-depmap-export-restore-roundtrip，2026-09-19 旧记录，本机无 HarmonyOS

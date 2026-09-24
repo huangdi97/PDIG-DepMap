@@ -118,10 +118,21 @@
     `assemblePreviewRelease -PpdigNonProdSigning=true` BUILD SUCCESSFUL（1m19s，52 tasks）；
     APK `com.pdig.app.preview` versionCode=200003 versionName=0.1.2 platformBuild API 36；
     apksigner verify v2 scheme Verified（NON-PROD 测试签名，非生产签名）。
-  - Android 运行时 smoke：本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起本机所有 AVD——
-    pdig36、pdig_api36_phone、pdig_api36_tablet、Medium_Phone_API_35(API35)、
-    PDIG_API34_DEFAULT(ARM 不支持)、petaccess_api35(镜像路径损坏)——均在 full startup 静默退出，
-    WHPX 检测正常、无 WER 崩溃记录）。环境阻塞，不是回归；仪器化以当日上午 60/60 实跑为基线。
+  - Android 运行时 smoke：环境修复后 **A5 全流程取得新鲜证据（PASS）**（2026-09-24 晚）：
+    （1）根因修复——android-36 系统镜像损坏（`system-images/android-36/google_apis/x86_64` 目录仅剩
+    `.installer` 锁文件，kernel-ranchu/system.img 缺失），经 sdkmanager 重装
+    `system-images;android-36;google_apis;x86_64`（system.img 4.4GB 就位）后 `pdig36` AVD 恢复可引导
+    （~90s）；另确认两个环境特性：模拟器子进程随启动它的 shell 退出即被回收（故一切设备操作须在
+    单命令内完成：启动→引导→操作），PATH 中旧 `C:\Android\adb.exe` 1.0.32 与 platform-tools 1.0.41
+    冲突（统一前缀 platform-tools 解决）。
+    （2）新鲜证据：pdig36(API36) `adb install` preview-release APK **Success**
+    （com.pdig.app.preview versionCode=200003 versionName=0.1.2 targetSdk=36；sha256
+    5406d9e7…与 Release Manifest 一致）；launch MainActivity 成功、进程存活（pid=3204）、
+    topResumedActivity=MainActivity、crash buffer 为空；截图
+    `.tmp_audit/android-smoke-v012-pdig36-home.png`（1080×2340）；
+    `:app:connectedPreviewDebugAndroidTest` **BUILD SUCCESSFUL**（1m57s）→ TEST XML
+    **60/60 PASS（0 failure/0 error/0 skipped，pdig36 AVD 新鲜复跑）**；
+    卸载数据（install→uninstall→确认包与数据移除）全 Success、crash buffer 空。
   - Desktop 版本与产物：packageVersion/version/描述字符串 0.1.1→0.1.2；PDIG.exe GUI 启动 20s 无崩溃
     （窗口 1100×720 固定，分辨率覆盖以默认窗口实跑）；Windows 打包：
     NSIS installer `PDIG-0.1.2-windows-x64-setup.exe` 149,537,743 B（sha256
@@ -134,7 +145,8 @@
     SBOM `fc5448782262e007a20f050c56043af6b5bfc197d5c2891774e341d7376eada9`；
     NOTICES `7275ec5b40aa5bd659e9938d8fc4491afbcc9ff095d1fa138f25b0e5deaee944`。
     新文件 `RELEASE_NOTES_0_1_2.md`、`PRODUCT_V0_1_2_RELEASE_MANIFEST.md` 已创建。
-  - 已知限制：无 Play 生产发布；Android 运行时 smoke 本轮环境阻塞（模拟器）；无真机/真实数据
+  - 已知限制：无 Play 生产发布；Android 运行时 smoke 已在本轮修复并取得新鲜证据
+    （API36 AVD PASS，见上；真实手机仍为外部 blocker E-1）；无真机/真实数据
     （全合成 fixture）；Harmony/iOS 不在本轮；Windows 未签名（SmartScreen）；
     CI billing E-10（CI_EXTERNAL_BLOCKED）；旧 tag product-v0.1.0/v0.1.1 保留。
 - **v0.1.1 质量迭代轮（2026-09-24）**：共享发现引擎 + 桌面验证补全 + 代码卫生。
