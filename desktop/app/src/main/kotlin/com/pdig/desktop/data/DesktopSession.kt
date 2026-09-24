@@ -6,6 +6,7 @@ import com.pdig.app.data.GraphRepository
 import com.pdig.app.data.PlanRepository
 import com.pdig.app.data.ProposalRepository
 import com.pdig.app.data.SourceRepository
+import com.pdig.app.data.DiscoveryRepository
  import com.pdig.core.db.SqliteDriver
  import com.pdig.core.schema.migrate
  import com.pdig.core.serialize.importGraph
@@ -27,8 +28,9 @@ class DesktopSession private constructor(
     val proposals: ProposalRepository = ProposalRepository(driver, graph)
     val candidates: CandidateRepository = CandidateRepository(driver)
     val drifts: DriftRepository = DriftRepository(driver, graph)
+    val discovery: DiscoveryRepository = DiscoveryRepository(driver)
     val plans: PlanRepository = PlanRepository(driver, graph, proposals)
-    val sources: SourceRepository = SourceRepository(driver, graph, proposals)
+    val sources: SourceRepository = SourceRepository(driver, graph, proposals, discovery)
 
     companion object {
         /**

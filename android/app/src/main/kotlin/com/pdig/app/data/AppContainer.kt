@@ -57,10 +57,11 @@ class AppContainer private constructor(private val driver: SqliteDriver) {
     // ---- repository wiring（同一 driver；跨类的 Reality mutation 与 revision bump 仍同事务）----
     private val graphRepo: GraphRepository = GraphRepository(driver) { proposalRepo.pendingProposals() }
     private val proposalRepo: ProposalRepository = ProposalRepository(driver, graphRepo)
-    private val candidateRepo = CandidateRepository(driver)
-    private val driftRepo = DriftRepository(driver, graphRepo)
-    private val planRepo = PlanRepository(driver, graphRepo, proposalRepo)
-    private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo)
+private val candidateRepo = CandidateRepository(driver)
+private val driftRepo = DriftRepository(driver, graphRepo)
+private val discoveryRepo = DiscoveryRepository(driver)
+private val planRepo = PlanRepository(driver, graphRepo, proposalRepo)
+private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, discoveryRepo)
     private val backupRepo = BackupRepository(driver)
 
     // ------------------------------------------------------------------

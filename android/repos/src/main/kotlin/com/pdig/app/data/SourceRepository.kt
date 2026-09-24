@@ -25,6 +25,7 @@ class SourceRepository(
     private val driver: SqliteDriver,
     private val graph: GraphRepository,
     private val proposals: ProposalRepository,
+    private val discovery: DiscoveryRepository,
 ) {
 
     fun sourceInstances(): List<SourceRow> = driver.prepare(
@@ -149,6 +150,9 @@ class SourceRepository(
             }
 
             for (key in keys) proposals.upsertProposal(key, preview.adapterId, sessionId, sourceInstanceId, now)
+            // 共享生成引擎（H-16/H-17）：同一事务内为 discovery_candidates / reality_drifts
+            // 生成/累计 pending/open 行。只写这两张表，绝不 bump revision、绝不改 Reality。
+            discovery.generateFromObservations(preview.observations, preview.adapterId, sourceInstanceId, now)
         }
 
         driver.prepare(
