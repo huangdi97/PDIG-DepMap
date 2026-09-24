@@ -54,12 +54,12 @@ hvigor 的 `CompileArkTS` **只编译从 ability / page 可达的模块**。
 
 只有四项**同时**成立，才允许 `HARMONY_MODULE_COMPILED = PASS`。
 
-| 判据 | 含义 | 证据来源 |
-| --- | --- | --- |
-| **A** 可达 | 模块在 ability/page 可达的 import graph 中 | 静态解析 import 边 + 从入口 BFS |
-| **B** clean build | `--clean assembleHap` 成功 | 构建输出 |
-| **C** 产物符号 | `modules.abc` 中存在该模块 | 扫描 `modules.abc` |
-| **D** 负向 probe | 注入真实类型错误能让构建**真的失败** | 注入 + 重新 clean 构建 |
+| 判据              | 含义                                       | 证据来源                        |
+| ----------------- | ------------------------------------------ | ------------------------------- |
+| **A** 可达        | 模块在 ability/page 可达的 import graph 中 | 静态解析 import 边 + 从入口 BFS |
+| **B** clean build | `--clean assembleHap` 成功                 | 构建输出                        |
+| **C** 产物符号    | `modules.abc` 中存在该模块                 | 扫描 `modules.abc`              |
+| **D** 负向 probe  | 注入真实类型错误能让构建**真的失败**       | 注入 + 重新 clean 构建          |
 
 A 单独是**纯静态**结论，不需要 SDK；B/C/D 需要真实构建。
 

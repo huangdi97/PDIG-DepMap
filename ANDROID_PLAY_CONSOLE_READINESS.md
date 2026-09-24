@@ -9,15 +9,15 @@
 
 ## 0. 前置事实（本轮已定 / 未定）
 
-| 项 | 状态 |
-|----|------|
-| Google Play 开发者账号 | **无**（未注册、未付款）→ `PLAY_DEVELOPER_IDENTITY_READY = BLOCKED_BY_STORE_ACCOUNT`（E-5） |
-| applicationId | `com.pdig.app`（**占位，OPEN**，上架后不可改）→ R-1 |
-| 最终品牌（中/英文名） | **NOT_FINAL_BRAND**（工作名：个人数字依赖图 / PDIG）→ R-2 |
-| versionName / versionCode | `0.1.0-milestone` / `1`（占位；首个上传前按 `ANDROID_VERSIONING_POLICY.md` 定案）→ R-3 |
-| 生产 keystore | **未提供**（本轮 non-prod 验证）→ K-1..K-4（E-2） |
-| 隐私/支持公网 URL | **无**（草稿就绪）→ E-6 |
-| 真机 / 真实数据 | **无**（本轮 BLOCKED）→ E-1 / E-7 |
+| 项                        | 状态                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------------------- |
+| Google Play 开发者账号    | **无**（未注册、未付款）→ `PLAY_DEVELOPER_IDENTITY_READY = BLOCKED_BY_STORE_ACCOUNT`（E-5） |
+| applicationId             | `com.pdig.app`（**占位，OPEN**，上架后不可改）→ R-1                                         |
+| 最终品牌（中/英文名）     | **NOT_FINAL_BRAND**（工作名：个人数字依赖图 / PDIG）→ R-2                                   |
+| versionName / versionCode | `0.1.0-milestone` / `1`（占位；首个上传前按 `ANDROID_VERSIONING_POLICY.md` 定案）→ R-3      |
+| 生产 keystore             | **未提供**（本轮 non-prod 验证）→ K-1..K-4（E-2）                                           |
+| 隐私/支持公网 URL         | **无**（草稿就绪）→ E-6                                                                     |
+| 真机 / 真实数据           | **无**（本轮 BLOCKED）→ E-1 / E-7                                                           |
 
 **顺序原则**（粘贴 Goal §45 §47）：先冻结 Release Identity（R-1..R-3）→ 再注册账号 → 创建 App →
 启 Play App Signing → 上传 AAB → 填 Store Listing → 提审。**不得**抢先创建临时 applicationId 的正式 App。
@@ -28,46 +28,46 @@
 
 ### 1A. App 基本信息（创建页）
 
-| 字段 | 值（本轮就绪状态） | 阻塞/来源 |
-|------|--------------------|-----------|
-| App name（默认语言） | 最终品牌定案后填写（工作名「个人数字依赖图」） | R-2 |
-| Default language | `zh-CN` 或按最终品牌（建议中文 + 英文均可） | R-2 |
-| App / Game | **App**（工具/财务依赖梳理，非游戏） | 就绪 |
-| Free / Paid | **Free**（产品无内购设计；最终以用户商业决策为准） | 用户 R-4（未定则标记 HUMAN_REQUIRED） |
-| Developer declarations | 按要求勾选（隐私政策、出口法规、儿童隐私等） | 需正式提交时逐项确认 |
+| 字段                   | 值（本轮就绪状态）                                 | 阻塞/来源                             |
+| ---------------------- | -------------------------------------------------- | ------------------------------------- |
+| App name（默认语言）   | 最终品牌定案后填写（工作名「个人数字依赖图」）     | R-2                                   |
+| Default language       | `zh-CN` 或按最终品牌（建议中文 + 英文均可）        | R-2                                   |
+| App / Game             | **App**（工具/财务依赖梳理，非游戏）               | 就绪                                  |
+| Free / Paid            | **Free**（产品无内购设计；最终以用户商业决策为准） | 用户 R-4（未定则标记 HUMAN_REQUIRED） |
+| Developer declarations | 按要求勾选（隐私政策、出口法规、儿童隐私等）       | 需正式提交时逐项确认                  |
 
 ### 1B. Release Identity（创建前必须先定，`ANDROID_RELEASE_IDENTITY_DECISION.md` R-1..R-5）
 
-| 决策 | 状态 | 就绪材料 |
-|------|------|----------|
-| R-1 applicationId | OPEN（占位 `com.pdig.app`） | 决策文档 §1 |
-| R-2 品牌名 ZH/EN | OPEN | 决策文档 §2 + ANDROID_BRAND_ASSET_SPEC.md |
-| R-3 versionName/versionCode | OPEN（策略就绪） | ANDROID_VERSIONING_POLICY.md |
-| R-4 收费模式 | OPEN | 本文件 1A |
-| R-5 Play App Signing 方案 | 决策文档就绪（PLAY_APP_SIGNING_DECISION.md） | 用户确认后启用 |
+| 决策                        | 状态                                         | 就绪材料                                  |
+| --------------------------- | -------------------------------------------- | ----------------------------------------- |
+| R-1 applicationId           | OPEN（占位 `com.pdig.app`）                  | 决策文档 §1                               |
+| R-2 品牌名 ZH/EN            | OPEN                                         | 决策文档 §2 + ANDROID_BRAND_ASSET_SPEC.md |
+| R-3 versionName/versionCode | OPEN（策略就绪）                             | ANDROID_VERSIONING_POLICY.md              |
+| R-4 收费模式                | OPEN                                         | 本文件 1A                                 |
+| R-5 Play App Signing 方案   | 决策文档就绪（PLAY_APP_SIGNING_DECISION.md） | 用户确认后启用                            |
 
 ### 1C. Play App Signing（上传前）
 
-| 项 | 本轮状态 |
-|----|----------|
-| Upload Key | 由用户在 `keytool` 生成（提供路径/密码到本机安全位置）；本轮已就绪 `ANDROID_PRODUCTION_SIGNING_RUNBOOK.md` 步骤 |
-| App Signing Key | Play 托管；上传后由 Play Console 显示指纹（记录到 PLAY_APP_SIGNING_EVIDENCE.md） |
-| 密钥备份/恢复 | PLAY_APP_SIGNING_DECISION.md 已给出方案（下载 .pepk / 上传密钥记录） |
+| 项              | 本轮状态                                                                                                        |
+| --------------- | --------------------------------------------------------------------------------------------------------------- |
+| Upload Key      | 由用户在 `keytool` 生成（提供路径/密码到本机安全位置）；本轮已就绪 `ANDROID_PRODUCTION_SIGNING_RUNBOOK.md` 步骤 |
+| App Signing Key | Play 托管；上传后由 Play Console 显示指纹（记录到 PLAY_APP_SIGNING_EVIDENCE.md）                                |
+| 密钥备份/恢复   | PLAY_APP_SIGNING_DECISION.md 已给出方案（下载 .pepk / 上传密钥记录）                                            |
 
 ### 1D. Store Listing（主列表）
 
-| 字段 | 就绪内容 | 阻塞 |
-|------|----------|------|
-| App name | store/STORE_LISTING_DRAFT.md ++ R-2 | R-2 |
-| Short description | ✅（≤80 字符，草稿） | — |
-| Full description | ✅（草稿，含诚实边界） | — |
-| App icon（512×512） | 占位 `ic_launcher` → `NOT_FINAL_BRAND_ASSET` | R-2 + ANDROID_BRAND_ASSET_SPEC.md |
-| Feature graphic（1024×500） | 无 → NOT_FINAL_BRAND_ASSET | R-2 |
-| Phone screenshots | 计划就绪（ANDROID_SCREENSHOT_SHOT_LIST.md）；截图需最终品牌定案后拍摄 | R-2 + 真机/AVD |
-| Tablet screenshots | 计划含 ≥600dp AVD（pdig_api36_tablet） | AVD 可用（本轮已建） |
-| Contact email | 待用户提供（store/SUPPORT_PAGE_DRAFT.md） | 用户 |
-| Support URL | 草稿就绪；公网 URL 无 | E-6 |
-| Privacy URL | 草稿就绪；公网 URL 无 | E-6 |
+| 字段                        | 就绪内容                                                              | 阻塞                              |
+| --------------------------- | --------------------------------------------------------------------- | --------------------------------- |
+| App name                    | store/STORE_LISTING_DRAFT.md ++ R-2                                   | R-2                               |
+| Short description           | ✅（≤80 字符，草稿）                                                  | —                                 |
+| Full description            | ✅（草稿，含诚实边界）                                                | —                                 |
+| App icon（512×512）         | 占位 `ic_launcher` → `NOT_FINAL_BRAND_ASSET`                          | R-2 + ANDROID_BRAND_ASSET_SPEC.md |
+| Feature graphic（1024×500） | 无 → NOT_FINAL_BRAND_ASSET                                            | R-2                               |
+| Phone screenshots           | 计划就绪（ANDROID_SCREENSHOT_SHOT_LIST.md）；截图需最终品牌定案后拍摄 | R-2 + 真机/AVD                    |
+| Tablet screenshots          | 计划含 ≥600dp AVD（pdig_api36_tablet）                                | AVD 可用（本轮已建）              |
+| Contact email               | 待用户提供（store/SUPPORT_PAGE_DRAFT.md）                             | 用户                              |
+| Support URL                 | 草稿就绪；公网 URL 无                                                 | E-6                               |
+| Privacy URL                 | 草稿就绪；公网 URL 无                                                 | E-6                               |
 
 ### 1E. App Content（见 `ANDROID_STORE_COMPLIANCE_REPORT.md` §4）
 
@@ -91,12 +91,12 @@
 
 ## 2. 轨道顺序（Internal → Closed → Production）
 
-| 轨道 | 本轮状态 | 前置 |
-|------|----------|------|
-| Internal Testing | BLOCKED_BY_STORE_ACCOUNT（无账号，无法上传） | 账号 + R-1..R-3 + Upload Key |
-| Closed Testing | BLOCKED（计划就绪 `ANDROID_CLOSED_TEST_PLAN.md`；12 testers / 14 天 / continuous opt-in） | 账号 + Internal 通过 |
-| Production Access | BLOCKED（需满足 closed-testing 要求或账号类型豁免） | Closed 数据 + Google 问卷 |
-| Production | BLOCKED（全部前置） | 上述全部 + `ANDROID_PRODUCTION_RELEASE_READY` |
+| 轨道              | 本轮状态                                                                                  | 前置                                          |
+| ----------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Internal Testing  | BLOCKED_BY_STORE_ACCOUNT（无账号，无法上传）                                              | 账号 + R-1..R-3 + Upload Key                  |
+| Closed Testing    | BLOCKED（计划就绪 `ANDROID_CLOSED_TEST_PLAN.md`；12 testers / 14 天 / continuous opt-in） | 账号 + Internal 通过                          |
+| Production Access | BLOCKED（需满足 closed-testing 要求或账号类型豁免）                                       | Closed 数据 + Google 问卷                     |
+| Production        | BLOCKED（全部前置）                                                                       | 上述全部 + `ANDROID_PRODUCTION_RELEASE_READY` |
 
 ---
 

@@ -9,25 +9,25 @@
 
 ## 1. 数据边界（什么能碰、什么不能碰）
 
-| 数据 | 可处理 | 说明 |
-|------|--------|------|
-| 用户授权的账单文件（一份） | ✅ 本机解析 | 仅用于本次 pilot；session-only |
-| 服务 / 商户名（如「腾讯视频」） | ✅ 可保留 | 用于 Node Resolution 判断 |
-| 金额 / 日期 / 币种 | ✅ 统计用 | 不进入任何报告正文 |
-| 卡号 / 账号 / 手机号 / 邮箱 | ❌ | 出现即脱敏为 `***` |
-| 任何可识别单个人的组合 | ❌ | 报告发布前二次检查 |
+| 数据                            | 可处理      | 说明                           |
+| ------------------------------- | ----------- | ------------------------------ |
+| 用户授权的账单文件（一份）      | ✅ 本机解析 | 仅用于本次 pilot；session-only |
+| 服务 / 商户名（如「腾讯视频」） | ✅ 可保留   | 用于 Node Resolution 判断      |
+| 金额 / 日期 / 币种              | ✅ 统计用   | 不进入任何报告正文             |
+| 卡号 / 账号 / 手机号 / 邮箱     | ❌          | 出现即脱敏为 `***`             |
+| 任何可识别单个人的组合          | ❌          | 报告发布前二次检查             |
 
 ---
 
 ## 2. 生命周期（session-only）
 
-| 阶段 | 约束 |
-|------|------|
-| 文件到达 | 用户放入 `local_private/`（gitignored）或设备本机；**立即从版本管理排除** |
-| 解析 | 仅导入会话内存；**不落库** |
-| 会话结束 | 原始账单与 parsed transaction arrays **销毁**（session-only） |
+| 阶段         | 约束                                                                                                         |
+| ------------ | ------------------------------------------------------------------------------------------------------------ |
+| 文件到达     | 用户放入 `local_private/`（gitignored）或设备本机；**立即从版本管理排除**                                    |
+| 解析         | 仅导入会话内存；**不落库**                                                                                   |
+| 会话结束     | 原始账单与 parsed transaction arrays **销毁**（session-only）                                                |
 | 持久化白名单 | 只允许：必要 **fingerprint** / **EvidenceSummary** / **provenance** / **用户确认后的 Reality**（AGENTS §12） |
-| 禁止持久化 | 完整交易历史、raw statement、parsed transaction arrays、完整交易时间线 |
+| 禁止持久化   | 完整交易历史、raw statement、parsed transaction arrays、完整交易时间线                                       |
 
 > 产品本身即如此（Observation 仅存会话内存）；Pilot-0 协议只是重申并审计这一点。
 
@@ -44,14 +44,14 @@
 
 ## 4. 操作流程（backup before / restore after / delete）
 
-| 流程 | 步骤 |
-|------|------|
-| **Backup before pilot** | 先导出 `.depmap` 加密备份（app 内 Backup 功能，MediaStore 落盘） |
-| **Pilot 执行** | 按 REAL_DATA_PILOT_0_PROTOCOL.md §9 |
-| **Delete pilot data** | 删除本 pilot 产生的解析产物（导入会话数据）；app 内可逐项删除，或用 L-37「删除所有数据」兜底 |
-| **Restore after pilot** | 从步骤 1 的备份恢复（选 `.depmap` → 口令 → 显式确认） |
-| **Delete all data** | 设置 → 「删除所有数据」（L-37，已实现并有设备测试 `DeleteAllDataEvidenceTest` 1/1） |
-| **原始账单销毁** | pilot 结束后用户确认删除原始文件；删除后 `Get-ChildItem` 复核为空（AGENTS §21 诚实原则） |
+| 流程                    | 步骤                                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------- |
+| **Backup before pilot** | 先导出 `.depmap` 加密备份（app 内 Backup 功能，MediaStore 落盘）                             |
+| **Pilot 执行**          | 按 REAL_DATA_PILOT_0_PROTOCOL.md §9                                                          |
+| **Delete pilot data**   | 删除本 pilot 产生的解析产物（导入会话数据）；app 内可逐项删除，或用 L-37「删除所有数据」兜底 |
+| **Restore after pilot** | 从步骤 1 的备份恢复（选 `.depmap` → 口令 → 显式确认）                                        |
+| **Delete all data**     | 设置 → 「删除所有数据」（L-37，已实现并有设备测试 `DeleteAllDataEvidenceTest` 1/1）          |
+| **原始账单销毁**        | pilot 结束后用户确认删除原始文件；删除后 `Get-ChildItem` 复核为空（AGENTS §21 诚实原则）     |
 
 ---
 

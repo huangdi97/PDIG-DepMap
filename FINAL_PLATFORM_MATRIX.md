@@ -25,14 +25,14 @@
 
 | 组件           | 实测                                                                                                                                                                      |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Android SDK    | **存在** `<ANDROID_SDK_ROOT>`                                                                                                                                            |
+| Android SDK    | **存在** `<ANDROID_SDK_ROOT>`                                                                                                                                             |
 | platforms      | `android-36.1`、`android-37.0`                                                                                                                                            |
 | build-tools    | `36.1.0`、`37.0.0`                                                                                                                                                        |
 | cmdline-tools  | `latest`（含 `sdkmanager.bat`）                                                                                                                                           |
 | licenses       | **7 个 license 哈希文件全部存在 → 已接受**                                                                                                                                |
-| JDK            | **17.0.12**（`<DEVECO_HOME>\jbr`）；**21.0.10**（`<ANDROID_STUDIO_HOME>\jbr`）                                                                           |
+| JDK            | **17.0.12**（`<DEVECO_HOME>\jbr`）；**21.0.10**（`<ANDROID_STUDIO_HOME>\jbr`）                                                                                            |
 | Android Studio | **存在**（`AI-253.32098.37.2534.15232325`）                                                                                                                               |
-| adb            | `<ANDROID_SDK_ROOT>\adb.exe` 可用                                                                                                                                                 |
+| adb            | `<ANDROID_SDK_ROOT>\adb.exe` 可用                                                                                                                                         |
 | Gradle         | **无可用发行版** —— `~/.gradle/wrapper/dists/gradle-9.3.1-bin/` 仅 0 字节 `.part`/`.lck`；Android Studio 内无完整发行版；工程内无 `gradlew` / `gradle-wrapper.properties` |
 | 构建依赖网络   | `repo1.maven.org` HTTP 200；**Gradle 发行包 CDN `curl` exit 7（不可达）**                                                                                                 |
 
@@ -67,7 +67,7 @@
 
 | 组件           | 实测                                                                                                                                            |
 | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| DevEco Studio  | **存在** `<DEVECO_HOME>`，version `5.0.5.310`                                                                                   |
+| DevEco Studio  | **存在** `<DEVECO_HOME>`，version `5.0.5.310`                                                                                                   |
 | SDK            | `sdk/default/openharmony/{ets,js,native,previewer,toolchains}` + `sdk/default/hms/*`；`apiVersion 13`、`version 5.0.1.115`、`metaVersion 3.0.0` |
 | hvigor         | `5.13.2`（内置）+ `@ohos/hvigor-ohos-plugin 5.13.2`                                                                                             |
 | ohpm           | `5.0.10`（实测可执行）；registry `https://ohpm.openharmony.cn/ohpm/`                                                                            |

@@ -22,11 +22,11 @@ Desktop 与三端共享**同一套**：
 
 ## 2. 平台范围
 
-| 项 | v0.1.0 决策 |
-| --- | --- |
-| 目标平台 | **Windows x64**（最低、必须真实验证的目标） |
+| 项            | v0.1.0 决策                                                                                                   |
+| ------------- | ------------------------------------------------------------------------------------------------------------- |
+| 目标平台      | **Windows x64**（最低、必须真实验证的目标）                                                                   |
 | macOS / Linux | 不自动扩展；代码保持跨平台可编译的边界（`DesktopSecurityPort` 接口化），但 v0.1.0 只在 Windows x64 验证与发布 |
-| 运行环境 | JDK 21 (Temurin) + Compose Desktop（Kotlin/JVM） |
+| 运行环境      | JDK 21 (Temurin) + Compose Desktop（Kotlin/JVM）                                                              |
 
 ## 3. 技术路线
 
@@ -49,6 +49,7 @@ Desktop 通过 `desktop/settings.gradle.kts` 以 `projectDir` 直接复用
 ## 4. 共享与平台差异清单
 
 **共享（同一份实现，禁止平行发展）**：
+
 - Domain 实体与业务规则（`:core`）
 - Impact Kernel（`:core` impact）
 - Readiness / ScenarioTemplate / ChangePlan 语义（`:core`）
@@ -58,6 +59,7 @@ Desktop 通过 `desktop/settings.gradle.kts` 以 `projectDir` 直接复用
 - Conformance 与 fixture（`:conformance` + `conformance/expected/`）
 
 **平台差异（只允许这些）**：
+
 - UI 层（Compose Desktop `ui/`）
 - 文件选择（`io/FileOps.kt` → AwtDesktopFileOps）
 - 平台密钥通道（`security/DesktopSecurityPort.kt` → Windows DPAPI）
@@ -117,7 +119,6 @@ Backup、Restore、Settings、Security、About、Gate（App Lock）。
 - Release Notes 必须说明：**Windows 可能显示 SmartScreen 警告**。
 
 ## 9. 验收证据（引用）
-
 
 - Desktop JVM 测试：`desktop/app/src/test`（DesktopSessionTest / DepmapFileStoreTest 等）全绿。
 - Headless runtime smoke：`:app:run --args="--smoke"` → `VERDICT: PASS`，

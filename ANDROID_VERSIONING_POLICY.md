@@ -47,7 +47,7 @@
 - **每个 release artifact 必须携带来源 commit**：`versionName` + `versionCode` +
   `git rev-parse HEAD` 三者写入 `ANDROID_PRODUCTION_RC_MANIFEST.md` 的同一行。
 - 构建时通过 `BuildConfig`（`buildConfigField`）把 `VERSION_NAME / VERSION_CODE /
-  GIT_SHA` 注入，About 页显示三者，避免"装的这版是什么"不可答。
+GIT_SHA` 注入，About 页显示三者，避免"装的这版是什么"不可答。
   - 若本轮未给 `:app` 加 `buildConfigField`（改动有回归成本），则至少在 RC manifest 中保证
     可映射，并在报告中明确记录当前实现方式（进度项，不做隐性承诺）。
 
@@ -67,12 +67,12 @@ versionCode = 1
 versionName = "0.1.0-milestone"
 ```
 
-| 字段 | 当前值 | 本轮是否改动 | 说明 |
-|------|--------|--------------|------|
-| versionCode | `1` | **不改**（未定案前占位） | 首个上传前用户 R-3 定案后按 §1.2 改写 |
-| versionName | `0.1.0-milestone` | **不改** | 对外首发名用户 R-3 决策 |
-| applicationId | `com.pdig.app` | **不改**（OPEN，上架后不可变） | R-1 |
-| minSdk / targetSdk / compileSdk | 26 / 36 / 36 | targetSdk/compileSdk 本轮已升 36 | 见 ANDROID_PLATFORM_BASELINE.md |
+| 字段                            | 当前值            | 本轮是否改动                     | 说明                                  |
+| ------------------------------- | ----------------- | -------------------------------- | ------------------------------------- |
+| versionCode                     | `1`               | **不改**（未定案前占位）         | 首个上传前用户 R-3 定案后按 §1.2 改写 |
+| versionName                     | `0.1.0-milestone` | **不改**                         | 对外首发名用户 R-3 决策               |
+| applicationId                   | `com.pdig.app`    | **不改**（OPEN，上架后不可变）   | R-1                                   |
+| minSdk / targetSdk / compileSdk | 26 / 36 / 36      | targetSdk/compileSdk 本轮已升 36 | 见 ANDROID_PLATFORM_BASELINE.md       |
 
 > 本轮不改 versionCode/Name 的原因：正式 keystore、applicationId、对外品牌均未定案，
 > 且 `versionCode` 一旦上传即不可复用。**未到上传点，不擅自占用版本号。**
@@ -81,13 +81,13 @@ versionName = "0.1.0-milestone"
 
 ## 3. 可追踪性矩阵（示例，非最终值）
 
-| 场景 | versionCode 区间 | versionName 示例 | 轨道 | 是否可上传 Production |
-|------|------------------|------------------|------|------------------------|
-| 生产首发 | `1xxxxx` | `1.0.0` | Production | ✅ |
-| 内部测试 | `2xxxxx` | `1.0.0-alpha.N` / `1.0.0-rc.N` | Internal | ❌（测试轨道） |
-| 封闭测试 | `3xxxxx` | `1.0.0-beta.N` | Closed | ❌ |
-| 开放测试 | `4xxxxx` | `1.0.0-beta.N` | Open | ❌ |
-| CI/临时 | `9xxxxx` | `0.0.1-ci.SHA[:7]` | 任意（仅本次验证） | ❌ |
+| 场景     | versionCode 区间 | versionName 示例               | 轨道               | 是否可上传 Production |
+| -------- | ---------------- | ------------------------------ | ------------------ | --------------------- |
+| 生产首发 | `1xxxxx`         | `1.0.0`                        | Production         | ✅                    |
+| 内部测试 | `2xxxxx`         | `1.0.0-alpha.N` / `1.0.0-rc.N` | Internal           | ❌（测试轨道）        |
+| 封闭测试 | `3xxxxx`         | `1.0.0-beta.N`                 | Closed             | ❌                    |
+| 开放测试 | `4xxxxx`         | `1.0.0-beta.N`                 | Open               | ❌                    |
+| CI/临时  | `9xxxxx`         | `0.0.1-ci.SHA[:7]`             | 任意（仅本次验证） | ❌                    |
 
 ---
 
@@ -102,8 +102,8 @@ versionName = "0.1.0-milestone"
 
 ## 5. 决策项（仍 HUMAN_REQUIRED）
 
-| # | 决策 | 状态 |
-|---|------|------|
-| R-3 | 对外 versionName 首版（建议 `1.0.0`） | OPEN（用户定案） |
-| R-3b | 首发 versionCode 起点（建议生产 100001，或按 §1.2 轨道前缀方案） | OPEN |
-| — | 是否采用 `buildConfigField` 注入 GIT_SHA 到 About | 待用户确认改造范围（不影响本轮 Gate） |
+| #    | 决策                                                             | 状态                                  |
+| ---- | ---------------------------------------------------------------- | ------------------------------------- |
+| R-3  | 对外 versionName 首版（建议 `1.0.0`）                            | OPEN（用户定案）                      |
+| R-3b | 首发 versionCode 起点（建议生产 100001，或按 §1.2 轨道前缀方案） | OPEN                                  |
+| —    | 是否采用 `buildConfigField` 注入 GIT_SHA 到 About                | 待用户确认改造范围（不影响本轮 Gate） |

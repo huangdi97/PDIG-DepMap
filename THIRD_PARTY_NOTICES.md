@@ -33,9 +33,9 @@
 
 ### Vendored 源码（复制进仓库，非包管理器依赖）
 
-| 平台      | 组件                    | Version / 固定点                                                    | License              | 完整性清单                       | 为什么需要                                                             |
-| --------- | ----------------------- | ------------------------------------------------------------------- | -------------------- | -------------------------------- | ---------------------------------------------------------------------- |
-| HarmonyOS | argon2（PHC 参考实现）  | tag `20190702` / commit `62358ba2123abd17fccf2a108a301d4b52c01a7c` | CC0-1.0 OR Apache-2.0 | `third_party/argon2/VENDOR.json` | Harmony 托管的 cryptoFramework / HUKS **无 Argon2**；而 `argon2id v19` 是 `DEPMAP_CONTAINER_V1` 冻结协议，不可降级为 PBKDF2/HKDF，也不允许自研原语 |
+| 平台      | 组件                   | Version / 固定点                                                   | License               | 完整性清单                       | 为什么需要                                                                                                                                         |
+| --------- | ---------------------- | ------------------------------------------------------------------ | --------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| HarmonyOS | argon2（PHC 参考实现） | tag `20190702` / commit `62358ba2123abd17fccf2a108a301d4b52c01a7c` | CC0-1.0 OR Apache-2.0 | `third_party/argon2/VENDOR.json` | Harmony 托管的 cryptoFramework / HUKS **无 Argon2**；而 `argon2id v19` 是 `DEPMAP_CONTAINER_V1` 冻结协议，不可降级为 PBKDF2/HKDF，也不允许自研原语 |
 
 > 上游版权声明（逐字保留，未修改）：
 > `Copyright 2015 Daniel Dinu, Dmitry Khovratovich, Jean-Philippe Aumasson, and Samuel Neves`

@@ -26,8 +26,8 @@
 
 | 项                | 值                                                                   |
 | ----------------- | -------------------------------------------------------------------- |
-| DevEco Studio     | `<DEVECO_HOME>`（5.0.5.310）                         |
-| HarmonyOS SDK     | `<DEVECO_HOME>\sdk`（API 13 / 5.0.1.115）            |
+| DevEco Studio     | `<DEVECO_HOME>`（5.0.5.310）                                         |
+| HarmonyOS SDK     | `<DEVECO_HOME>\sdk`（API 13 / 5.0.1.115）                            |
 | Node（hvigor 用） | DevEco 内置 `tools\node`（v18.20.1），由 `build.sh` 自动注入 `PATH`  |
 | npmrc             | `C:\Users\<user>\.npmrc` 必须存在，否则报 `No npmrc file is matched` |
 | hvigor 依赖       | 由 `hvigor/hvigor-config.json5` 以 `file:` 协议引用 DevEco 内置包    |
@@ -155,7 +155,7 @@ hdc shell aa start -a EntryAbility -b <bundleName>
 | `Schema validate failed` @ `abilities[0].label`  | `label` 必须是 `$string:` 引用      | 改 `$string:xxx` 并在 `element/string.json` 补齐                        |
 | `Schema validate failed` @ `hvigor-config.json5` | 出现非法字段（如 `hvigorVersion`）  | 删除非法字段                                                            |
 | `srcEntry ... not found` @ `CompileArkTS`        | `srcEntry` 多写了 `src/main/` 一层  | 改为 `./ets/entryability/EntryAbility.ets`                              |
-| `NODE_HOME is not set ...`                       | `.bat` 由 cmd 解析，需 Windows 路径 | `NODE_HOME='<DEVECO_HOME>\tools\node'`                  |
+| `NODE_HOME is not set ...`                       | `.bat` 由 cmd 解析，需 Windows 路径 | `NODE_HOME='<DEVECO_HOME>\tools\node'`                                  |
 | safe-delete 守卫拒绝清理镜像目录                 | 单次批量删除超阈值                  | 用覆盖式 `tar xf - --overwrite`，只单独清理 `entry/build` 等            |
 
 ---

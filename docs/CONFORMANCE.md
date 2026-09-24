@@ -18,20 +18,20 @@ Canonical Spec（`spec/`）是唯一真源，`fixtures/` 是它的可执行表�
 
 ## 2. 用例构成（91 个）
 
-| 类别 | 数量 | 覆盖 |
-| --- | --- | --- |
-| `impact` | 13 | 影响传播与 required 语义 |
-| `readiness` | 16 | PlanReadiness 三值判定 |
-| `coverage` | 6 | ScenarioCoverage 四级 |
-| `relation` | 18 | 关系语义与 logicalKey / groupKey |
-| `depmap` | 3 | 容器：正常 / 错误口令 / 篡改 |
-| `jcs` | 1 | JCS（RFC 8785）序列化 |
-| `scenario` | 1 | 场景模板 |
-| `migration` | 2 | schema 迁移语义 |
-| `state` | 5 | 状态机合法/非法迁移 |
-| `parser` | 22 | CSV / OFX / QFX 解析（含 hostile bounds） |
-| `timeline` | 3 | Timeline 确定性投影 |
-| `backup` | 1 | 备份 / 恢复往返 |
+| 类别        | 数量 | 覆盖                                      |
+| ----------- | ---- | ----------------------------------------- |
+| `impact`    | 13   | 影响传播与 required 语义                  |
+| `readiness` | 16   | PlanReadiness 三值判定                    |
+| `coverage`  | 6    | ScenarioCoverage 四级                     |
+| `relation`  | 18   | 关系语义与 logicalKey / groupKey          |
+| `depmap`    | 3    | 容器：正常 / 错误口令 / 篡改              |
+| `jcs`       | 1    | JCS（RFC 8785）序列化                     |
+| `scenario`  | 1    | 场景模板                                  |
+| `migration` | 2    | schema 迁移语义                           |
+| `state`     | 5    | 状态机合法/非法迁移                       |
+| `parser`    | 22   | CSV / OFX / QFX 解析（含 hostile bounds） |
+| `timeline`  | 3    | Timeline 确定性投影                       |
+| `backup`    | 1    | 备份 / 恢复往返                           |
 
 另有 `fixtures/import/` 下 **28 个**原始输入（CSV / OFX / QFX），三端共用。
 
@@ -80,12 +80,12 @@ conformance/reports/<platform>.json
 
 ## 5. 诚实口径（重要）
 
-| 状态 | 含义 |
-| --- | --- |
-| `PASS` | 用例数与实际一致 |
-| `FAIL` | 明确不一致 |
-| `NOT_IMPLEMENTED` | 该端尚未实现 |
-| **`NOT_RUN`** | **该端未产出报告（报告文件缺失）** |
+| 状态              | 含义                               |
+| ----------------- | ---------------------------------- |
+| `PASS`            | 用例数与实际一致                   |
+| `FAIL`            | 明确不一致                         |
+| `NOT_IMPLEMENTED` | 该端尚未实现                       |
+| **`NOT_RUN`**     | **该端未产出报告（报告文件缺失）** |
 
 > **`NOT_RUN` 不算 PASS，也不算 FAIL。**
 > 「平台报告缺失」绝不记成通过 —— 这是本项目最容易被动摇的一条纪律，
@@ -95,18 +95,18 @@ conformance/reports/<platform>.json
 
 ## 6. 当前状态（2026-09-17 实跑）
 
-| 平台 | 结果 |
-| --- | --- |
-| **Android** | **PASS — 91 pass / 0 fail / 91 total** |
+| 平台          | 结果                                                   |
+| ------------- | ------------------------------------------------------ |
+| **Android**   | **PASS — 91 pass / 0 fail / 91 total**                 |
 | **HarmonyOS** | **NOT_RUN**（`conformance/reports/harmony.json` 缺失） |
-| **iOS** | **NOT_RUN**（`conformance/reports/ios.json` 缺失） |
+| **iOS**       | **NOT_RUN**（`conformance/reports/ios.json` 缺失）     |
 
-| Gate | 结果 |
-| --- | --- |
-| codegen | PASS |
+| Gate             | 结果                                |
+| ---------------- | ----------------------------------- |
+| codegen          | PASS                                |
 | fixtureIntegrity | PASS（91/91 cases + 28/28 imports） |
-| oracleSelfcheck | PASS（91 cases reproduce exactly） |
-| **VERDICT** | **PASS** |
+| oracleSelfcheck  | PASS（91 cases reproduce exactly）  |
+| **VERDICT**      | **PASS**                            |
 
 ---
 

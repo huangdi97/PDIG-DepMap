@@ -23,15 +23,15 @@ AAR ≠ APK。Android 的 `INSTALL_READY` / `DEVICE_VERIFIED` 不因本报告而
 
 ## 2. 工具链（实测版本）
 
-| 组件                  | 版本 / 路径                                                            |
-| --------------------- | ---------------------------------------------------------------------- |
+| 组件                  | 版本 / 路径                                                           |
+| --------------------- | --------------------------------------------------------------------- |
 | JDK（构建用）         | OpenJDK **21.0.10**（`<ANDROID_STUDIO_HOME>\jbr`）                    |
-| Gradle                | **8.9**（`<GRADLE_HOME>`，经华为镜像获取）           |
-| Android Gradle Plugin | **8.5.2**                                                              |
-| Kotlin                | **2.0.0**                                                              |
-| compileSdk / minSdk   | **34** / **26**                                                        |
+| Gradle                | **8.9**（`<GRADLE_HOME>`，经华为镜像获取）                            |
+| Android Gradle Plugin | **8.5.2**                                                             |
+| Kotlin                | **2.0.0**                                                             |
+| compileSdk / minSdk   | **34** / **26**                                                       |
 | Android SDK           | `<ANDROID_SDK_ROOT>`（`platforms;android-34` + `build-tools;34.0.0`） |
-| 构建产物根目录        | `%USERPROFILE%\depmap-android-build`（见 §5 非 ASCII 路径回退）      |
+| 构建产物根目录        | `%USERPROFILE%\depmap-android-build`（见 §5 非 ASCII 路径回退）       |
 
 > 注意：PATH 上的 `java` 为 1.8.0_441，**不可用于 AGP**。构建必须显式指定
 > `JAVA_HOME=<ANDROID_STUDIO_HOME>\jbr`。`JAVA_HOME` / `ANDROID_HOME` 在本机**均未预设**。
@@ -230,11 +230,11 @@ uni-app x 工程（`app/`）经 HBuilderX 产出。当前阻塞：
 
 ## 8. 设备与安装：BLOCKED
 
-| 项               | 实测                                                             |
-| ---------------- | ---------------------------------------------------------------- |
-| `adb devices -l` | **空**（无连接设备）                                             |
-| AVD 列表         | **0 个**（`emulator -list-avds` 空）                             |
-| system-images    | **不存在**                                                       |
+| 项               | 实测                                                                     |
+| ---------------- | ------------------------------------------------------------------------ |
+| `adb devices -l` | **空**（无连接设备）                                                     |
+| AVD 列表         | **0 个**（`emulator -list-avds` 空）                                     |
+| system-images    | **不存在**                                                               |
 | PATH 上的 `adb`  | `1.0.32`（2016 年，`<ANDROID_SDK_ROOT>\adb`）与 SDK 的 `1.0.41` **冲突** |
 
 → `INSTALL_READY` / `DEVICE_VERIFIED` = **BLOCKED**。本报告**不声称**任何真机验证结果。

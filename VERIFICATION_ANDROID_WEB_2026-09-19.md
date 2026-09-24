@@ -17,11 +17,11 @@
 
 ## 2. 本轮修掉的 3 个真实缺陷
 
-| # | 缺陷 | 影响 | 修复位置 |
-|---|---|---|---|
-| 1 | `core/scripts/generate-conformance.ts` 无法通过 `tsc`：`new WeChatStatementAdapter()` 缺少构造参数 `SqliteDriver`，脚本整体不可运行 | canonical fixture 生成器（TS oracle）事实不可用 | `scripts/generate-conformance.ts`：给 parser 段建一次性临时库，传入 `WeChatStatementAdapter(wechatDb.driver)`；同时给 `machine()` 加显式类型，消除 `any` 扩散 |
-| 2 | `scripts/generate-conformance.ts` 的 `machine()` 把 `JSON.parse(...)` 的 `any` 直接返回，触发 `no-unsafe-return` | lint 门禁红 | 同文件：显式声明 `Machine` 类型，运行时缺失 machineId 则抛错 |
-| 3 | `check-secrets` 误报 `spec/ui/design-tokens.json`（UI 设计令牌文件，不是凭证） | 密钥门禁红 | `core/scripts/check-secrets.mjs`：加精确路径豁免 `spec/ui/design-tokens.json`，并写明理由；其它 `*token*.json` 仍正常命中（已用探针反事实验证） |
+| #   | 缺陷                                                                                                                                | 影响                                            | 修复位置                                                                                                                                                      |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `core/scripts/generate-conformance.ts` 无法通过 `tsc`：`new WeChatStatementAdapter()` 缺少构造参数 `SqliteDriver`，脚本整体不可运行 | canonical fixture 生成器（TS oracle）事实不可用 | `scripts/generate-conformance.ts`：给 parser 段建一次性临时库，传入 `WeChatStatementAdapter(wechatDb.driver)`；同时给 `machine()` 加显式类型，消除 `any` 扩散 |
+| 2   | `scripts/generate-conformance.ts` 的 `machine()` 把 `JSON.parse(...)` 的 `any` 直接返回，触发 `no-unsafe-return`                    | lint 门禁红                                     | 同文件：显式声明 `Machine` 类型，运行时缺失 machineId 则抛错                                                                                                  |
+| 3   | `check-secrets` 误报 `spec/ui/design-tokens.json`（UI 设计令牌文件，不是凭证）                                                      | 密钥门禁红                                      | `core/scripts/check-secrets.mjs`：加精确路径豁免 `spec/ui/design-tokens.json`，并写明理由；其它 `*token*.json` 仍正常命中（已用探针反事实验证）               |
 
 另外发现一个**测试调度 flaky**：
 
@@ -119,15 +119,15 @@ classes16.dex        406,288 B
 
 ### 4.1 代码层静态门禁
 
-| 门禁 | 命令 | 结果 |
-|---|---|---|
-| `typecheck` | `tsc --noEmit` | PASS（0 错误） |
-| `lint` | `eslint .` | PASS（0 问题） |
-| `format:check` | `prettier --check .` | PASS |
-| `check:architecture` | 模块依赖扫描 | PASS（48 文件，0 循环依赖） |
-| `check:network` | 网络原语扫描 | PASS（130 业务文件，0 网络原语） |
-| `check:secrets` | 密钥/凭证文件名 + 内容扫描 | PASS（850 文件，0 生产秘密） |
-| `check:ui` | `.uvue` 静态结构校验 | PASS（30 `.uvue`，24 pages，5 components，34 colors） |
+| 门禁                 | 命令                       | 结果                                                  |
+| -------------------- | -------------------------- | ----------------------------------------------------- |
+| `typecheck`          | `tsc --noEmit`             | PASS（0 错误）                                        |
+| `lint`               | `eslint .`                 | PASS（0 问题）                                        |
+| `format:check`       | `prettier --check .`       | PASS                                                  |
+| `check:architecture` | 模块依赖扫描               | PASS（48 文件，0 循环依赖）                           |
+| `check:network`      | 网络原语扫描               | PASS（130 业务文件，0 网络原语）                      |
+| `check:secrets`      | 密钥/凭证文件名 + 内容扫描 | PASS（850 文件，0 生产秘密）                          |
+| `check:ui`           | `.uvue` 静态结构校验       | PASS（30 `.uvue`，24 pages，5 components，34 colors） |
 
 `check:secrets` 反事实验证：
 

@@ -19,21 +19,21 @@ PDIG/DepMap 采用「**规范先行、三端原生**」的迁移路径：
 
 ## 2. 阶段状态
 
-| Phase | 名称 | 状态 | 关键证据 |
-| --- | --- | --- | --- |
-| N0-A | 恢复仓库现场 | **PASS** | 全套 Git 审计；工作树 clean |
-| N0-B | Legacy 冻结 | **PASS** | tag `v0.3.0-uniapp-reference` + manifest + README |
-| N0-C | Canonical Spec | **PASS** | `spec/` 机器可读，八类规范齐备 |
-| N0-D | Codegen + Gate | **PASS** | 三端 generated 产物；`--check` PASS |
-| N0-E | Golden Fixtures | **PASS** | 91 用例 + 28 输入 fixture + sha256 清单 |
-| N0-F | Conformance Harness | **PASS** | `node tools/conformance/run.mjs` |
-| N1 | Android 垂直切片 | **PASS** | 设备端核心链路 E2E `41/41 PASS / 0 FAIL` |
-| N2 | Android 全量对等 | **PARTIAL_WITH_REPORT** | 对等矩阵 **62 / 73**，11 项未关闭 |
-| N3 | HarmonyOS 全量对等 | **ACTIVE / 0 / 73** | 工程可构建并产出 HAP；一致性未执行 |
-| N4 | iOS 全量对等 | **NOT_STARTED** | 仅 codegen 产物；构建 `BLOCKED_BY_MACOS` |
-| N5 | 跨端一致性 | **PARTIAL_WITH_REPORT** | Android 91/91；Harmony / iOS 未执行 |
-| N6 | Legacy 切流 | **NOT_STARTED** | 前置条件（三端对等）未达成 |
-| N7 | 原生生产 RC | **NOT_STARTED** | — |
+| Phase | 名称                | 状态                    | 关键证据                                          |
+| ----- | ------------------- | ----------------------- | ------------------------------------------------- |
+| N0-A  | 恢复仓库现场        | **PASS**                | 全套 Git 审计；工作树 clean                       |
+| N0-B  | Legacy 冻结         | **PASS**                | tag `v0.3.0-uniapp-reference` + manifest + README |
+| N0-C  | Canonical Spec      | **PASS**                | `spec/` 机器可读，八类规范齐备                    |
+| N0-D  | Codegen + Gate      | **PASS**                | 三端 generated 产物；`--check` PASS               |
+| N0-E  | Golden Fixtures     | **PASS**                | 91 用例 + 28 输入 fixture + sha256 清单           |
+| N0-F  | Conformance Harness | **PASS**                | `node tools/conformance/run.mjs`                  |
+| N1    | Android 垂直切片    | **PASS**                | 设备端核心链路 E2E `41/41 PASS / 0 FAIL`          |
+| N2    | Android 全量对等    | **PARTIAL_WITH_REPORT** | 对等矩阵 **62 / 73**，11 项未关闭                 |
+| N3    | HarmonyOS 全量对等  | **ACTIVE / 0 / 73**     | 工程可构建并产出 HAP；一致性未执行                |
+| N4    | iOS 全量对等        | **NOT_STARTED**         | 仅 codegen 产物；构建 `BLOCKED_BY_MACOS`          |
+| N5    | 跨端一致性          | **PARTIAL_WITH_REPORT** | Android 91/91；Harmony / iOS 未执行               |
+| N6    | Legacy 切流         | **NOT_STARTED**         | 前置条件（三端对等）未达成                        |
+| N7    | 原生生产 RC         | **NOT_STARTED**         | —                                                 |
 
 ## 3. Android（N1 / N2）——`CORE_FROZEN / MAINTENANCE_ONLY`
 
@@ -51,15 +51,15 @@ PDIG/DepMap 采用「**规范先行、三端原生**」的迁移路径：
 
 ## 4. HarmonyOS（N3）——当前活跃
 
-| 子项 | 状态 | 说明 |
-| --- | --- | --- |
-| `HARMONY_BUILD` | **PASS** | hvigor 全清重建成功，产出 `entry-default-unsigned.hap`（60,133 B） |
-| `HARMONY_DOMAIN` | **PARTIAL_WITH_REPORT** | 首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP |
-| `HARMONY_ARKUI` | **PARTIAL_WITH_REPORT** | Stage Model 骨架 + 占位页面 |
-| `HARMONY_CRYPTO` | **COMPILED** | JCS（RFC 8785 受限域）/ AAD / AES-256-GCM / 容器加解密已实现于 `entry/src/main/ets/crypto/`；主机侧黄金校验 **5/5 PASS**；ArkTS **真实编译**（`modules.abc` 符号取证 `ABC_VERDICT=PRESENT`）。运行时 **NOT_RUN**，故未达 `TESTED`。详见 `HARMONY_CONTAINER_V1_POC.md` |
-| `HARMONY_DEPMAP` | **BLOCKED_BY_NATIVE_VERIFICATION** | 托管 API（`cryptoFramework` / `HUKS`）未提供 Argon2 —— 已证据级排除；**原生路径（NDK + PHC 参考实现 + NAPI）已打通**：主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；仍缺设备上复验，故**未**记为 PASS。详见 `HARMONY_ARGON2_FEASIBILITY.md` |
-| `HARMONY_RUNTIME_E2E` | **RUNTIME_NOT_RUN** | 无可用的模拟器镜像（`hdc list targets` 为空） |
-| 对等计数 | **0 / 73** | 上述三格未达 `TESTED` 及以上，按口径不计入 |
+| 子项                  | 状态                               | 说明                                                                                                                                                                                                                                                                  |
+| --------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `HARMONY_BUILD`       | **PASS**                           | hvigor 全清重建成功，产出 `entry-default-unsigned.hap`（60,133 B）                                                                                                                                                                                                    |
+| `HARMONY_DOMAIN`      | **PARTIAL_WITH_REPORT**            | 首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP                                                                                                                                                                                                              |
+| `HARMONY_ARKUI`       | **PARTIAL_WITH_REPORT**            | Stage Model 骨架 + 占位页面                                                                                                                                                                                                                                           |
+| `HARMONY_CRYPTO`      | **COMPILED**                       | JCS（RFC 8785 受限域）/ AAD / AES-256-GCM / 容器加解密已实现于 `entry/src/main/ets/crypto/`；主机侧黄金校验 **5/5 PASS**；ArkTS **真实编译**（`modules.abc` 符号取证 `ABC_VERDICT=PRESENT`）。运行时 **NOT_RUN**，故未达 `TESTED`。详见 `HARMONY_CONTAINER_V1_POC.md` |
+| `HARMONY_DEPMAP`      | **BLOCKED_BY_NATIVE_VERIFICATION** | 托管 API（`cryptoFramework` / `HUKS`）未提供 Argon2 —— 已证据级排除；**原生路径（NDK + PHC 参考实现 + NAPI）已打通**：主机侧 Golden Vector 逐字节复现、OHOS arm64 `.so` 编译通过；仍缺设备上复验，故**未**记为 PASS。详见 `HARMONY_ARGON2_FEASIBILITY.md`             |
+| `HARMONY_RUNTIME_E2E` | **RUNTIME_NOT_RUN**                | 无可用的模拟器镜像（`hdc list targets` 为空）                                                                                                                                                                                                                         |
+| 对等计数              | **0 / 73**                         | 上述三格未达 `TESTED` 及以上，按口径不计入                                                                                                                                                                                                                            |
 
 > `DEPMAP_CONTAINER_V1` 的密码学参数（Argon2id v19 / AES-256-GCM / JCS 规范化）是**兼容性闸门**，
 > 不允许为适配单一平台而降级或修改容器格式。可行性论证见 `HARMONY_ARGON2_FEASIBILITY.md`
@@ -78,11 +78,11 @@ PDIG/DepMap 采用「**规范先行、三端原生**」的迁移路径：
 
 ## 6. 跨端一致性（N5）
 
-| 平台 | 一致性结果 |
-| --- | --- |
-| Android | **91 / 91 PASS**（实跑复验） |
+| 平台    | 一致性结果                                                       |
+| ------- | ---------------------------------------------------------------- |
+| Android | **91 / 91 PASS**（实跑复验）                                     |
 | Harmony | **NOT_RUN**（0 条执行；87 条 `notImplemented` / 4 条 `blocked`） |
-| iOS | 未开始 |
+| iOS     | 未开始                                                           |
 
 一致性链路由五个阶段组成，任一阶段失败即整体失败：
 

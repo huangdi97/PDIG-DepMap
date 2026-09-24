@@ -8,13 +8,13 @@
 
 ## 1. 当前占位情况（如实记录）
 
-| 资产 | 当前实现 | 性质 |
-|------|----------|------|
-| launcher icon | `res/drawable/ic_launcher`（占位） | 占位，非最终品牌 |
-| adaptive icon | 未配置 foreground/background 分层 | 缺失（Android 8+ 推荐） |
-| monochrome icon | 未配置 | 缺失（Android 13+ 主题图标可选） |
-| splash | 未配置 `Theme.SplashScreen`（用 `Theme.PDIG` 起屏） | 占位级 |
-| app name（桌面） | `PDIG` / `个人数字基础设施图谱` | 占位（内部代号 → 用户决策 R-1） |
+| 资产             | 当前实现                                            | 性质                             |
+| ---------------- | --------------------------------------------------- | -------------------------------- |
+| launcher icon    | `res/drawable/ic_launcher`（占位）                  | 占位，非最终品牌                 |
+| adaptive icon    | 未配置 foreground/background 分层                   | 缺失（Android 8+ 推荐）          |
+| monochrome icon  | 未配置                                              | 缺失（Android 13+ 主题图标可选） |
+| splash           | 未配置 `Theme.SplashScreen`（用 `Theme.PDIG` 起屏） | 占位级                           |
+| app name（桌面） | `PDIG` / `个人数字基础设施图谱`                     | 占位（内部代号 → 用户决策 R-1）  |
 
 ---
 
@@ -22,12 +22,12 @@
 
 ### 2.1 Launcher Icon（自适应）
 
-| 项 | 规格 | 说明 |
-|----|------|------|
-| 前景层 | 108×108 dp（安全区约 66×66 dp） | PNG / Vector，透明背景 |
-| 背景层 | 108×108 dp 纯色或图形 | 与前景对比安全 |
-| 旧版 `mipmap` | 48/72/96/144/192 px | 兼容 <API26（minSdk=26，适配 i 一整套以备旧设备） |
-| monochrome | 单色版本（API33+） | 系统主题图标 |
+| 项            | 规格                            | 说明                                              |
+| ------------- | ------------------------------- | ------------------------------------------------- |
+| 前景层        | 108×108 dp（安全区约 66×66 dp） | PNG / Vector，透明背景                            |
+| 背景层        | 108×108 dp 纯色或图形           | 与前景对比安全                                    |
+| 旧版 `mipmap` | 48/72/96/144/192 px             | 兼容 <API26（minSdk=26，适配 i 一整套以备旧设备） |
+| monochrome    | 单色版本（API33+）              | 系统主题图标                                      |
 
 落地路径：`android/app/src/main/res/mipmap-*/` + `mipmap-anydpi-v26/ic_launcher.xml`（adaptive）+ `mipmap-anydpi-v33/ic_monochrome.xml`。
 
@@ -42,10 +42,10 @@
 
 ### 2.4 Store 素材（关联 ANDROID_STORE_METADATA.md）
 
-| 素材 | 规格 |
-|------|------|
-| Feature graphic | 1024×500 |
-| 商店截图 | 见 ANDROID_STORE_METADATA.md §8（≥2 张，推荐 4–8 张） |
+| 素材            | 规格                                                  |
+| --------------- | ----------------------------------------------------- |
+| Feature graphic | 1024×500                                              |
+| 商店截图        | 见 ANDROID_STORE_METADATA.md §8（≥2 张，推荐 4–8 张） |
 
 ---
 

@@ -8,17 +8,17 @@
 
 ## 1. 顶层布局
 
-| 顶层目录 | 角色 | 发布相关性 |
-|---|---|---|
-| `spec/` | **Canonical Truth Source**：domain/schema/security/state-machines/errors/ui（JSON 冻结） | 不发布（源码） |
-| `fixtures/` | canonical 测试夹具（impact/readiness/parser/depmap/backup/…，91 用例） | 不发布（源码） |
-| `tools/` | 生成器与 gate（codegen、conformance 编排、harmony 探针） | 不发布（源码） |
-| `android/` | **Active Android 产品**：`core`(纯 JVM 领域) / `repos`(共享 Repository，纯 JVM) / `conformance`(JVM runner) / `app`(Kotlin/Compose UI + 平台实现) | v0.1.0 Preview APK |
-| `desktop/` | **Windows Desktop 产品（本轮新建）**：Kotlin/JVM + Compose Desktop，复用 `android/:core` 与 `android/:repos` | v0.1.0 installer + portable |
-| `core/`（TS） | **LEGACY_REFERENCE / BEHAVIOR ORACLE**（uni-app x 时代 TS 领域实现） | 不发布（保留为 oracle） |
-| `app/`（uvue）、`platforms/`、`legacy/` | 旧路线实现与中间产物（只读静态审计） | 不发布 |
-| `ios/`、`harmony/` | iOS(Swift)/HarmonyOS(ArkTS) 实现（本轮 PAUSED/BLOCKED，静态只读审计） | 不发布 |
-| `store/`、`assets/`、`docs/`、`scripts/`、`conformance/`(根) | 商店文案/素材/文档/脚本/根级报告 | 文档可随 Release 提示 |
+| 顶层目录                                                     | 角色                                                                                                                                              | 发布相关性                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| `spec/`                                                      | **Canonical Truth Source**：domain/schema/security/state-machines/errors/ui（JSON 冻结）                                                          | 不发布（源码）              |
+| `fixtures/`                                                  | canonical 测试夹具（impact/readiness/parser/depmap/backup/…，91 用例）                                                                            | 不发布（源码）              |
+| `tools/`                                                     | 生成器与 gate（codegen、conformance 编排、harmony 探针）                                                                                          | 不发布（源码）              |
+| `android/`                                                   | **Active Android 产品**：`core`(纯 JVM 领域) / `repos`(共享 Repository，纯 JVM) / `conformance`(JVM runner) / `app`(Kotlin/Compose UI + 平台实现) | v0.1.0 Preview APK          |
+| `desktop/`                                                   | **Windows Desktop 产品（本轮新建）**：Kotlin/JVM + Compose Desktop，复用 `android/:core` 与 `android/:repos`                                      | v0.1.0 installer + portable |
+| `core/`（TS）                                                | **LEGACY_REFERENCE / BEHAVIOR ORACLE**（uni-app x 时代 TS 领域实现）                                                                              | 不发布（保留为 oracle）     |
+| `app/`（uvue）、`platforms/`、`legacy/`                      | 旧路线实现与中间产物（只读静态审计）                                                                                                              | 不发布                      |
+| `ios/`、`harmony/`                                           | iOS(Swift)/HarmonyOS(ArkTS) 实现（本轮 PAUSED/BLOCKED，静态只读审计）                                                                             | 不发布                      |
+| `store/`、`assets/`、`docs/`、`scripts/`、`conformance/`(根) | 商店文案/素材/文档/脚本/根级报告                                                                                                                  | 文档可随 Release 提示       |
 
 ## 2. Android 模块（`android/`，Gradle 多模块）
 
@@ -67,6 +67,7 @@ Infrastructure：android(app)=SQLCipher+Keystore；desktop=sqlite-jdbc+DPAPI；c
 ```
 
 关键实测约束：
+
 - `:core` 只依赖 `org.bouncycastle:bcprov-jdk18on`（Argon2id），AES/Base64/SecureRandom 用 JDK；
 - `:repos` 只依赖 `:core` + kotlinx-coroutines-core（SourceRepository 的 IO 调度）；
 - `:app` 的 Android 依赖（SQLCipher/Keystore/Biometric/MediaStore）全部集中在 `platform/`、`security/`、`data/BackupRepository.kt`；
@@ -89,33 +90,33 @@ ImpactResult → ChangePlan（must_change 每 key 一条 CHANGE action）→ Act
 
 ## 6. 平台依赖表
 
-| 能力 | Android | Desktop (Windows) | Conformance (JVM) |
-|---|---|---|---|
-| 本地 DB | SQLCipher（加密） | sqlite-jdbc `:memory:`（永不落盘明文） | sqlite-jdbc |
-| 密钥 | Android Keystore + Biometric | Windows DPAPI（OS-protected） | — |
-| 文件 | MediaStore / scoped storage | AWT FileDialog | 直接 File |
-| 生物识别 | BiometricPrompt | —（口令） | — |
-| 隐私屏 | FLAG_SECURE | —（窗口） | — |
+| 能力     | Android                      | Desktop (Windows)                      | Conformance (JVM) |
+| -------- | ---------------------------- | -------------------------------------- | ----------------- |
+| 本地 DB  | SQLCipher（加密）            | sqlite-jdbc `:memory:`（永不落盘明文） | sqlite-jdbc       |
+| 密钥     | Android Keystore + Biometric | Windows DPAPI（OS-protected）          | —                 |
+| 文件     | MediaStore / scoped storage  | AWT FileDialog                         | 直接 File         |
+| 生物识别 | BiometricPrompt              | —（口令）                              | —                 |
+| 隐私屏   | FLAG_SECURE                  | —（窗口）                              | —                 |
 
 ## 7. 测试归属
 
-| 测试面 | 位置 | 数量（本轮实测） |
-|---|---|---|
-| 领域 invariant（C5 全量） | android/core/src/test | 71/71（含 done≠verified、unknown≠required、proposal 不升级 must_change 等） |
-| 文件工作流状态机 | android/app/src/test | 9/9 |
-| Android 设备内 androidTest | android/app/src/androidTest | 59（基线 API36；本轮 smoke 复跑见 Android v0.1.0 报告） |
-| Canonical conformance | android/conformance + fixtures | 91/91（本轮 fresh run，报告 conformance/reports/android.json） |
-| legacy TS 领域 | core/tests（vitest） | 430 用例（oracle，只读） |
-| Desktop（本轮新建） | desktop/app/src/test + SmokeRunner(--smoke) | 见 DESKTOP 报告 |
+| 测试面                     | 位置                                        | 数量（本轮实测）                                                            |
+| -------------------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
+| 领域 invariant（C5 全量）  | android/core/src/test                       | 71/71（含 done≠verified、unknown≠required、proposal 不升级 must_change 等） |
+| 文件工作流状态机           | android/app/src/test                        | 9/9                                                                         |
+| Android 设备内 androidTest | android/app/src/androidTest                 | 59（基线 API36；本轮 smoke 复跑见 Android v0.1.0 报告）                     |
+| Canonical conformance      | android/conformance + fixtures              | 91/91（本轮 fresh run，报告 conformance/reports/android.json）              |
+| legacy TS 领域             | core/tests（vitest）                        | 430 用例（oracle，只读）                                                    |
+| Desktop（本轮新建）        | desktop/app/src/test + SmokeRunner(--smoke) | 见 DESKTOP 报告                                                             |
 
 ## 8. 生成/手写边界
 
-| 文件 | 生成器 | 规则 |
-|---|---|---|
+| 文件                                                                                                       | 生成器                                                | 规则                                      |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------- |
 | android/core/.../generated/CanonicalEnums.kt、harmony/.../CanonicalEnums.ets、ios/.../CanonicalEnums.swift | tools/codegen/generate.mjs（spec/domain/domain.json） | 人工改生成结果 = 违规；改 spec 再重新生成 |
-| conformance 期望值 | tools/conformance（fixtures + embed） | fixtures 是 goldset（纯数据） |
-| GB18030 表、codegen 产物 | tools/encoding、tools/codegen | 同上 |
-| 其余全部 | 手写 | 受 AGENTS 质量门约束 |
+| conformance 期望值                                                                                         | tools/conformance（fixtures + embed）                 | fixtures 是 goldset（纯数据）             |
+| GB18030 表、codegen 产物                                                                                   | tools/encoding、tools/codegen                         | 同上                                      |
+| 其余全部                                                                                                   | 手写                                                  | 受 AGENTS 质量门约束                      |
 
 ## 9. Release relevance（v0.1.0）
 

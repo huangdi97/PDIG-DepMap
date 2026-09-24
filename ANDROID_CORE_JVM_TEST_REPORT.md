@@ -25,21 +25,22 @@ BUILD SUCCESSFUL in 41s
 
 ## 2. 测试计数（从 XML 汇总，非声称）
 
-| suite | tests | failures | errors |
-|---|---:|---:|---:|
-| `com.pdig.core.domain.DomainInvariantTest` | 15 | 0 | 0 |
-| `com.pdig.core.impact.ImpactKernelTest` | 11 | 0 | 0 |
-| `com.pdig.core.plan.PlanReadinessTest` | 14 | 0 | 0 |
-| `com.pdig.core.schema.MigrationSemanticsTest` | 10 | 0 | 0 |
-| `com.pdig.core.statemachine.GraphRevisionSemanticsTest` | 7 | 0 | 0 |
-| `com.pdig.core.statemachine.StateMachineTest` | 14 | 0 | 0 |
-| **合计** | **71** | **0** | **0** |
+| suite                                                   |  tests | failures | errors |
+| ------------------------------------------------------- | -----: | -------: | -----: |
+| `com.pdig.core.domain.DomainInvariantTest`              |     15 |        0 |      0 |
+| `com.pdig.core.impact.ImpactKernelTest`                 |     11 |        0 |      0 |
+| `com.pdig.core.plan.PlanReadinessTest`                  |     14 |        0 |      0 |
+| `com.pdig.core.schema.MigrationSemanticsTest`           |     10 |        0 |      0 |
+| `com.pdig.core.statemachine.GraphRevisionSemanticsTest` |      7 |        0 |      0 |
+| `com.pdig.core.statemachine.StateMachineTest`           |     14 |        0 |      0 |
+| **合计**                                                | **71** |    **0** |  **0** |
 
 skipped = 0（没有用 skip 制造绿色）。
 
 ## 3. 覆盖的不变量（逐类）
 
 ### DomainInvariantTest（15）
+
 - 机器永不产生 `criticality=required`：`unknownCannotAutoBecomeRequired`
 - `criticality` 只允许 `required` / `unknown` 两态
 - **Proposal ≠ Reality**：`candidateIsNotANodeUntilAccepted`
@@ -51,6 +52,7 @@ skipped = 0（没有用 skip 制造绿色）。
 - `impactStateKey` 往返稳定
 
 ### ImpactKernelTest（11）
+
 - `required` 边且无替代 ⇒ MUST_CHANGE
 - 未确认（`unknown`）不是"未受影响"，而是 NEEDS_REVIEW
 - 存在未确认替代 ⇒ NEEDS_REVIEW
@@ -62,6 +64,7 @@ skipped = 0（没有用 skip 制造绿色）。
 - 原始操作始终是清单最后一项
 
 ### PlanReadinessTest（14）
+
 - 未解决的 MUST_CHANGE ⇒ blocked
 - 待确认 NEEDS_REVIEW ⇒ review_required
 - blocked 优先于 review_required
@@ -69,7 +72,9 @@ skipped = 0（没有用 skip 制造绿色）。
 - 过期证据 ⇒ review_required
 
 ### MigrationSemanticsTest（10，跑在真实 SQLite 上）
+
 用 `sqlite-jdbc` 内存库 + `JdbcTestDriver`（测试替身，仅 Domain/Schema 层用得到的能力），验证 `Migrations.kt` 头部契约：
+
 - 全新库迁移到当前版本；重复迁移 50 次严格 no-op
 - 未来 `schema_version` **明确拒绝**（不猜测兼容）
 - v1 建基础表、v1→v3 补 source-scoped fingerprint / plan 表，且重建临时表必须 DROP
@@ -78,10 +83,12 @@ skipped = 0（没有用 skip 制造绿色）。
 - legacy WeChat SourceInstance 唯一且确定性
 
 ### GraphRevisionSemanticsTest（7）
+
 - 会 bump 的事件与永不 bump 的事件**互斥**（`bumpsOn` ∩ `neverBumpsOn` = ∅）
 - 单调递增、原子性
 
 ### StateMachineTest（14）
+
 - ChangePlan / Drift / Candidate / Verification 的合法与非法迁移
 - 终态不可再流转
 - **Evidence 记录永远不会自动把动作变成 verified**
@@ -89,32 +96,36 @@ skipped = 0（没有用 skip 制造绿色）。
 ## 4. 本轮修复的构建/测试缺陷（不降 Gate）
 
 ### 4.1 JUnit Platform 未绑定（测试根本没跑）
+
 只声明 `kotlin("test")` 时 JVM 上没有绑定的测试框架，Gradle 用默认 JUnit4 runner 加载类，
 表现为全部 `initializationError` / `ClassNotFoundException`。
 
 修复（`android/core/build.gradle.kts`）：
+
 ```kotlin
 testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
 tasks.withType<Test>().configureEach { useJUnitPlatform() }
 ```
 
 ### 4.2 Windows 中文路径 + Gradle 8.9 `@argfile` → 测试类全部 ClassNotFoundException
+
 **表现**：加了 JUnit5 后，10 个测试类**全部** `ClassNotFoundException`，但同样的类用
 `java -cp <含中文路径>` 手动加载**成功**。
 
 **根因（已用最小实验复现）**：
 
-| 方式 | 结果 |
-|---|---|
-| 命令行 `-cp`（含中文） | ✅ 加载成功 |
+| 方式                                   | 结果                        |
+| -------------------------------------- | --------------------------- |
+| 命令行 `-cp`（含中文）                 | ✅ 加载成功                 |
 | `@argfile` 以 **UTF-8** 写入（含中文） | ❌ `ClassNotFoundException` |
-| `@argfile` 以 **GBK** 写入（含中文） | ✅ 加载成功 |
+| `@argfile` 以 **GBK** 写入（含中文）   | ✅ 加载成功                 |
 
 Gradle 8.9 在 Windows 上把 test worker 的 classpath 写进 UTF-8 的 `@argfile`
 （`%TEMP%\gradle-worker-classpath*.txt`），JVM launcher 却按系统 ANSI 代码页（本机 GBK）解析，
 于是所有含非 ASCII 字符的 classpath 条目被破坏。
 
 **这是构建环境缺陷，不是代码缺陷。** 尝试过的方案：
+
 - `mklink /J` 建 ASCII 联接 → **无效**，Gradle 会把 junction 规范化回真实中文路径（已验证）。
 
 **采用的修正**：init script 把 **build 输出目录**重定向到纯 ASCII 路径，使 test worker classpath
@@ -125,6 +136,7 @@ Gradle 8.9 在 Windows 上把 test worker 的 classpath 写进 UTF-8 的 `@argfi
 - 诊断脚本：`local_private/print_cp.gradle.kts`（打印 test runtime classpath / testClassesDirs）
 
 ### 4.3 一处测试自身 bug（不是产品 bug）
+
 `MigrationSemanticsTest.futureSchemaVersionIsRejected` 在**全新库**上直接
 `INSERT INTO meta`，而此时 `meta` 尚未建立。改为：先 `migrate()` 到当前版本，
 再把 `schema_version` 改成 99 —— 这样被断言的行为只剩"未来版本必须明确拒绝"。

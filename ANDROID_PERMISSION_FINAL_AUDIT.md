@@ -9,37 +9,37 @@
 
 ## 1. 权限清单（声明即全量）
 
-| # | 权限 | 用途 | 是否必要 | 说明 |
-|---|------|------|----------|------|
-| 1 | `android.permission.USE_BIOMETRIC` | App Lock 生物识别验证（`BiometricPrompt`，`AppLock.kt`） | **必要** | App Lock 是产品核心安全门（spec §155）；该权限用于调用系统生物识别（指纹/人脸）。 |
-| 2 | `android.permission.USE_FINGERPRINT` | 兼容旧 API 的指纹权限（与 USE_BIOMETRIC 并存） | 必要（兼容） | API 28 及以下需要 USE_FINGERPRINT；与 USE_BIOMETRIC 同时声明是 Android 官方推荐写法，目标设备主走 USE_BIOMETRIC。 |
+| #   | 权限                                 | 用途                                                     | 是否必要     | 说明                                                                                                              |
+| --- | ------------------------------------ | -------------------------------------------------------- | ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | `android.permission.USE_BIOMETRIC`   | App Lock 生物识别验证（`BiometricPrompt`，`AppLock.kt`） | **必要**     | App Lock 是产品核心安全门（spec §155）；该权限用于调用系统生物识别（指纹/人脸）。                                 |
+| 2   | `android.permission.USE_FINGERPRINT` | 兼容旧 API 的指纹权限（与 USE_BIOMETRIC 并存）           | 必要（兼容） | API 28 及以下需要 USE_FINGERPRINT；与 USE_BIOMETRIC 同时声明是 Android 官方推荐写法，目标设备主走 USE_BIOMETRIC。 |
 
 **未声明（有意缺失）**：
 
-| 权限 | 缺失原因 |
-|------|----------|
-| `android.permission.INTERNET` | 产品**无任何业务网络**、无 analytics、无 telemetry、无广告 SDK（spec §130 / §153）。缺失即结构性保证：应用无法发起网络请求。 |
-| `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE` | 导入走 **SAF `OpenDocument`**（用户显式选择文件，`ACTION_OPEN_DOCUMENT`，只申请读取且可持久化 URI 权限），导出走 **MediaStore `Downloads`**；两者都不需要存储权限。 |
-| `CAMERA` / `RECORD_AUDIO` / `LOCATION` / `CONTACTS` / `SMS` 等 | 产品无对应能力，一律不声明。 |
-| `RECEIVE_BOOT_COMPLETED` | 无开机自启需求。 |
+| 权限                                                           | 缺失原因                                                                                                                                                            |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `android.permission.INTERNET`                                  | 产品**无任何业务网络**、无 analytics、无 telemetry、无广告 SDK（spec §130 / §153）。缺失即结构性保证：应用无法发起网络请求。                                        |
+| `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE`             | 导入走 **SAF `OpenDocument`**（用户显式选择文件，`ACTION_OPEN_DOCUMENT`，只申请读取且可持久化 URI 权限），导出走 **MediaStore `Downloads`**；两者都不需要存储权限。 |
+| `CAMERA` / `RECORD_AUDIO` / `LOCATION` / `CONTACTS` / `SMS` 等 | 产品无对应能力，一律不声明。                                                                                                                                        |
+| `RECEIVE_BOOT_COMPLETED`                                       | 无开机自启需求。                                                                                                                                                    |
 
 ---
 
 ## 2. 组件出口（exported）审计
 
-| 组件 | exported | 说明 |
-|------|----------|------|
-| `MainActivity` | `true` | **唯一** Activity；带 `MAIN`/`LAUNCHER` intent-filter，home 图标入口，必须 exported。manifest 中**没有**其它 intent-filter（无深链），因此不存在被外部任意调起的深层页面。 |
+| 组件           | exported | 说明                                                                                                                                                                       |
+| -------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `MainActivity` | `true`   | **唯一** Activity；带 `MAIN`/`LAUNCHER` intent-filter，home 图标入口，必须 exported。manifest 中**没有**其它 intent-filter（无深链），因此不存在被外部任意调起的深层页面。 |
 
 其它组件（service / receiver / provider）：**manifest 中一个都没有** —— 无后台服务、无广播接收器、无 ContentProvider（SQLCipher 数据由 app 私有进程直接持有，不暴露给其它 app）。
 
 ### 3. 敏感数据通道
 
-| 通道 | 存在？ | 说明 |
-|------|--------|------|
-| FileProvider | 无 | 不对外分享文件，无 `<provider>`。SAF 导出走 MediaStore，导入走 OpenDocument。 |
-| 深链（deep link / intent-filter data） | 无 | 除 LAUNCHER 外无任何 intent-filter；锁定时 NavHost 不参与组合，深链天然不可达。 |
-| 剪贴板自读 | 无 | 代码中无 ClipboardManager 使用（见 temp/clipboard 审计）。 |
+| 通道                                   | 存在？ | 说明                                                                            |
+| -------------------------------------- | ------ | ------------------------------------------------------------------------------- |
+| FileProvider                           | 无     | 不对外分享文件，无 `<provider>`。SAF 导出走 MediaStore，导入走 OpenDocument。   |
+| 深链（deep link / intent-filter data） | 无     | 除 LAUNCHER 外无任何 intent-filter；锁定时 NavHost 不参与组合，深链天然不可达。 |
+| 剪贴板自读                             | 无     | 代码中无 ClipboardManager 使用（见 temp/clipboard 审计）。                      |
 
 ---
 

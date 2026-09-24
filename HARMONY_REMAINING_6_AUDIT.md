@@ -15,12 +15,12 @@
 
 **账目迁移链（每一步都有对应的可执行证据，不是叙事）：**
 
-| 阶段 | 已执行 | 未移植 | 环境缺失 | 设备运行时 |
-|---|---|---|---|---|
-| N3 基线（按类一刀切） | 57 | — | — | 28（整类） |
-| 逐条重新定性后 | 63 | 20 | 2 | 4 |
-| state-machine + timeline 落地后 | 65 | 20 | 2 | 4 |
-| **ArkTS parser adapter 落地后（本轮）** | **85** | **0** | **2** | **4** |
+| 阶段                                    | 已执行 | 未移植 | 环境缺失 | 设备运行时 |
+| --------------------------------------- | ------ | ------ | -------- | ---------- |
+| N3 基线（按类一刀切）                   | 57     | —      | —        | 28（整类） |
+| 逐条重新定性后                          | 63     | 20     | 2        | 4          |
+| state-machine + timeline 落地后         | 65     | 20     | 2        | 4          |
+| **ArkTS parser adapter 落地后（本轮）** | **85** | **0**  | **2**    | **4**      |
 
 分母 91 全程未变。变的只是"哪些被真实执行了"——这正是这个门禁存在的意义。
 
@@ -70,10 +70,10 @@ salt / tag / ciphertext 走过这条路径，而那些字段长度恰好整除�
 
 ## 3. 环境缺失（BLOCKED_BY_ENVIRONMENT）：2 条
 
-| caseId | 阻塞原因 | 解除条件 |
-|---|---|---|
-| `parser-csv-gb18030` | 输入字节非合法 UTF-8，必须先做 GB18030 解码 | 主机执行面可用的字符集解码器 |
-| `parser-wechat-gb18030` | 同上 | 同上 |
+| caseId                  | 阻塞原因                                    | 解除条件                     |
+| ----------------------- | ------------------------------------------- | ---------------------------- |
+| `parser-csv-gb18030`    | 输入字节非合法 UTF-8，必须先做 GB18030 解码 | 主机执行面可用的字符集解码器 |
+| `parser-wechat-gb18030` | 同上                                        | 同上                         |
 
 这两条的性质是"环境缺能力"，不是"没写"：
 
@@ -88,12 +88,12 @@ salt / tag / ciphertext 走过这条路径，而那些字段长度恰好整除�
 
 ## 4. 设备运行时（BLOCKED_BY_RUNTIME）：4 条
 
-| caseId | 必需的真实能力 | 为什么主机原理上不可执行 |
-|---|---|---|
-| `depmap-golden-v1` | Argon2id（NAPI 原生 `.so`）+ AES-256-GCM | expected 含 `derivedKeyHex` / `ciphertextBase64` / `tagBase64`，必须真实 KDF 产出；主机无法加载 OHOS ABI 的 native 库 |
-| `depmap-utf8-password-normalization` | 同上 + 口令 UTF-8 规范化 | 同上 |
-| `backup-depmap-export-restore-roundtrip` | ArkData 真实 DB + 加密 + 往返 | 需要"导出 → 加密容器 → 恢复到新库 → 二次导出逐字节相同"的完整链路 |
-| `migration-db-v1-to-v3` | relationalStore + v1 schema 种子数据 | 需要真实数据库实例与迁移执行 |
+| caseId                                   | 必需的真实能力                           | 为什么主机原理上不可执行                                                                                              |
+| ---------------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `depmap-golden-v1`                       | Argon2id（NAPI 原生 `.so`）+ AES-256-GCM | expected 含 `derivedKeyHex` / `ciphertextBase64` / `tagBase64`，必须真实 KDF 产出；主机无法加载 OHOS ABI 的 native 库 |
+| `depmap-utf8-password-normalization`     | 同上 + 口令 UTF-8 规范化                 | 同上                                                                                                                  |
+| `backup-depmap-export-restore-roundtrip` | ArkData 真实 DB + 加密 + 往返            | 需要"导出 → 加密容器 → 恢复到新库 → 二次导出逐字节相同"的完整链路                                                     |
+| `migration-db-v1-to-v3`                  | relationalStore + v1 schema 种子数据     | 需要真实数据库实例与迁移执行                                                                                          |
 
 注意 `depmap-bounds-and-structure-rejection` **不在**这张表里：协议明确规定
 「边界校验必须发生在 KDF 之前」，该用例按设计就不该触发 Argon2id。

@@ -9,7 +9,7 @@
 | git clone（tracked tree only）                                     | ✅ 16+2 提交，全部必要文件在位（core/app/platforms/docs/控制文件）                   |
 | 未跟踪垃圾/IDE 缓存混入                                            | ✅ 无（clone 只含 tracked 文件）                                                     |
 | local_private                                                      | ✅ 仅 README.md（.gitignore 生效）                                                   |
-| 绝对本机路径（<repo_parent>…）扫描 core/src                                | ✅ 0 命中                                                                            |
+| 绝对本机路径（<repo_parent>…）扫描 core/src                        | ✅ 0 命中                                                                            |
 | `npm ci`                                                           | ✅ lockfile 一致安装                                                                 |
 | `npm run check`（format+lint+typecheck+test+architecture+secrets） | ✅ 全绿：**166/166 tests**、architecture PASS（27 files）、secret PASS（0 findings） |
 

@@ -8,17 +8,17 @@
 
 ## 0. 结论
 
-| 项 | 结论 |
-|----|------|
-| 网络权限 | **无 INTERNET**（manifest 实查 + 源码扫描 0 引用） |
-| 存储权限 | **无**（FileProvider + SAF 按需授权，不申请 storage 权限） |
-| 生物识别权限 | `USE_BIOMETRIC` + `USE_FINGERPRINT`（App Lock 用，用户明确授予用） |
-| 通知权限 | **无**（不请求） |
-| Analytics / Telemetry / Crash SDK | **无**（Firebase/OkHttp/Retrofit/Crashlytics 等 0 引用） |
-| 后台任务 / 定位 / 相机 / 麦克风 / 通讯录 | **无** |
-| 数据收集与分享 | **不在应用外收集**；无账号、无云同步、无广告 SDK |
-| 声明状态 | `DATA_SAFETY_READY = READY`（表单内容见 store/DATA_SAFETY_DRAFT.md，Play Console 填写依赖账号，E-5） |
-| Content Rating | **待填写 IARC 问卷**（需在已创建的 Play App 内真实作答；本轮无账号 → `CONTENT_RATING = BLOCKED_BY_STORE_ACCOUNT`） |
+| 项                                       | 结论                                                                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| 网络权限                                 | **无 INTERNET**（manifest 实查 + 源码扫描 0 引用）                                                                 |
+| 存储权限                                 | **无**（FileProvider + SAF 按需授权，不申请 storage 权限）                                                         |
+| 生物识别权限                             | `USE_BIOMETRIC` + `USE_FINGERPRINT`（App Lock 用，用户明确授予用）                                                 |
+| 通知权限                                 | **无**（不请求）                                                                                                   |
+| Analytics / Telemetry / Crash SDK        | **无**（Firebase/OkHttp/Retrofit/Crashlytics 等 0 引用）                                                           |
+| 后台任务 / 定位 / 相机 / 麦克风 / 通讯录 | **无**                                                                                                             |
+| 数据收集与分享                           | **不在应用外收集**；无账号、无云同步、无广告 SDK                                                                   |
+| 声明状态                                 | `DATA_SAFETY_READY = READY`（表单内容见 store/DATA_SAFETY_DRAFT.md，Play Console 填写依赖账号，E-5）               |
+| Content Rating                           | **待填写 IARC 问卷**（需在已创建的 Play App 内真实作答；本轮无账号 → `CONTENT_RATING = BLOCKED_BY_STORE_ACCOUNT`） |
 
 ---
 
@@ -42,28 +42,28 @@
 
 ### 权限逐项判定（粘贴 Goal §56 要求：needed / explained / policy compatible）
 
-| 权限 | needed | explained | policy compatible |
-|------|--------|-----------|-------------------|
-| USE_BIOMETRIC | ✅ App Lock | ✅ 设置页/锁屏明确说明 | ✅ |
-| USE_FINGERPRINT | ✅（旧版本兼容别名） | ✅ | ✅ |
-| （无）INTERNET | N/A（不申请） | N/A | ✅（无网络行为） |
-| （无）POST_NOTIFICATIONS | N/A | N/A | ✅ |
+| 权限                     | needed               | explained              | policy compatible |
+| ------------------------ | -------------------- | ---------------------- | ----------------- |
+| USE_BIOMETRIC            | ✅ App Lock          | ✅ 设置页/锁屏明确说明 | ✅                |
+| USE_FINGERPRINT          | ✅（旧版本兼容别名） | ✅                     | ✅                |
+| （无）INTERNET           | N/A（不申请）        | N/A                    | ✅（无网络行为）  |
+| （无）POST_NOTIFICATIONS | N/A                  | N/A                    | ✅                |
 
 ---
 
 ## 2. Data Safety（按真实代码事实逐项）
 
-| Data safety 字段 | 真实状态 | 证据 |
-|------------------|----------|------|
-| 是否收集任何个人数据 | **否（应用内不收集、不上传）** | 无 INTERNET 权限；无登录/账号；无 analytics SDK |
-| 数据是否分享/出售 | **否** | 无分享代码、无 SDK |
-| 是否允许删除数据 | **是（本机删除）** | 「删除所有数据」在 Settings/About（L-37 已实现并设备验证） |
-| 数据加密 | **是** | SQLCipher（net.zetetic 4.5.5）+ Android Keystore/Biometric |
-| 数据保留 | **仅本机**；导入原始解析仅会话内存 | AGENTS §12 / REAL_DATA_PRIVACY_PROTOCOL |
-| 备份/导出 | 用户主动导出 `.depmap`（DEPMAP_CONTAINER_V1，AES-256-GCM + Argon2id） | Backup/Restore 功能已实现 |
-| 网络行为 | **无网络**：无 INTERNET 权限、无 DNS/外连代码 | 见下方 §3 |
-| 广告 | **无** | 无广告 SDK（依赖树 0） |
-| 儿童向/Family | **非儿童向**（工具/财务依赖梳理） | IARC 问卷时如实作答（需账号） |
+| Data safety 字段     | 真实状态                                                              | 证据                                                       |
+| -------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 是否收集任何个人数据 | **否（应用内不收集、不上传）**                                        | 无 INTERNET 权限；无登录/账号；无 analytics SDK            |
+| 数据是否分享/出售    | **否**                                                                | 无分享代码、无 SDK                                         |
+| 是否允许删除数据     | **是（本机删除）**                                                    | 「删除所有数据」在 Settings/About（L-37 已实现并设备验证） |
+| 数据加密             | **是**                                                                | SQLCipher（net.zetetic 4.5.5）+ Android Keystore/Biometric |
+| 数据保留             | **仅本机**；导入原始解析仅会话内存                                    | AGENTS §12 / REAL_DATA_PRIVACY_PROTOCOL                    |
+| 备份/导出            | 用户主动导出 `.depmap`（DEPMAP_CONTAINER_V1，AES-256-GCM + Argon2id） | Backup/Restore 功能已实现                                  |
+| 网络行为             | **无网络**：无 INTERNET 权限、无 DNS/外连代码                         | 见下方 §3                                                  |
+| 广告                 | **无**                                                                | 无广告 SDK（依赖树 0）                                     |
+| 儿童向/Family        | **非儿童向**（工具/财务依赖梳理）                                     | IARC 问卷时如实作答（需账号）                              |
 
 ---
 
@@ -94,28 +94,28 @@
 > 本轮**未创建 Play 应用**（E-3/E-5：applicationId OPEN + 无开发者账号），以下为可预填内容与
 > 填写方式；正式填写在账号存在后按 `ANDROID_PLAY_CONSOLE_READINESS.md` 完成。
 
-| Play 表单项 | 本轮状态 | 正式填写建议 |
-|-------------|----------|--------------|
-| 隐私政策 URL | DRAFT（内容就绪，无公网 URL）→ BLOCKED_BY_PUBLIC_URL | 发布 PRIVACY_POLICY_DRAFT 到公网后回填 |
-| 广告声明 | **无广告**（真实代码 0 广告 SDK） | 勾选「不会」 |
-| App access | 无需账号登录（本地 App）；若 reviewer 需要访问指引，见 `ANDROID_PLAY_CONSOLE_READINESS.md` §Reviewer | 不虚构测试账号 |
-| Target audience | 工具/财务（成人），非儿童向 | 问卷时如实作答 |
-| Content rating（IARC） | 未作答（需账号内完成） | 首次上传前完成，否则 Play 拒审 |
-| Data safety | 内容 READY（本报告 §2） | 按 Data Safety 表单逐项填写（与本文一致） |
-| 高敏权限声明 | 无高敏权限（仅 biometric，含说明） | 如实声明 USE_BIOMETRIC |
-| News 声明 | 非 News 应用 | 如实选择 |
+| Play 表单项            | 本轮状态                                                                                             | 正式填写建议                              |
+| ---------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| 隐私政策 URL           | DRAFT（内容就绪，无公网 URL）→ BLOCKED_BY_PUBLIC_URL                                                 | 发布 PRIVACY_POLICY_DRAFT 到公网后回填    |
+| 广告声明               | **无广告**（真实代码 0 广告 SDK）                                                                    | 勾选「不会」                              |
+| App access             | 无需账号登录（本地 App）；若 reviewer 需要访问指引，见 `ANDROID_PLAY_CONSOLE_READINESS.md` §Reviewer | 不虚构测试账号                            |
+| Target audience        | 工具/财务（成人），非儿童向                                                                          | 问卷时如实作答                            |
+| Content rating（IARC） | 未作答（需账号内完成）                                                                               | 首次上传前完成，否则 Play 拒审            |
+| Data safety            | 内容 READY（本报告 §2）                                                                              | 按 Data Safety 表单逐项填写（与本文一致） |
+| 高敏权限声明           | 无高敏权限（仅 biometric，含说明）                                                                   | 如实声明 USE_BIOMETRIC                    |
+| News 声明              | 非 News 应用                                                                                         | 如实选择                                  |
 
 ---
 
 ## 5. 已知与未知（如实标注）
 
-| 项 | 状态 |
-|----|------|
-| `DATA_SAFETY_READY` | READY（内容）；Play 表单提交依赖账号 |
-| `PLAY_APP_CONTENT_READY` | PARTIAL：内容已可预填；**最终提交在 Play App 内**（E-5） |
-| `CONTENT_RATING` | BLOCKED_BY_STORE_ACCOUNT（IARC 问卷需在 App 内完成，本轮无账号） |
-| 隐私 URL | BLOCKED_BY_PUBLIC_URL（E-6） |
-| 支持 URL / 联系邮箱 | DRAFT 就绪（store/SUPPORT_PAGE_DRAFT.md）；公网 URL BLOCKED |
+| 项                       | 状态                                                             |
+| ------------------------ | ---------------------------------------------------------------- |
+| `DATA_SAFETY_READY`      | READY（内容）；Play 表单提交依赖账号                             |
+| `PLAY_APP_CONTENT_READY` | PARTIAL：内容已可预填；**最终提交在 Play App 内**（E-5）         |
+| `CONTENT_RATING`         | BLOCKED_BY_STORE_ACCOUNT（IARC 问卷需在 App 内完成，本轮无账号） |
+| 隐私 URL                 | BLOCKED_BY_PUBLIC_URL（E-6）                                     |
+| 支持 URL / 联系邮箱      | DRAFT 就绪（store/SUPPORT_PAGE_DRAFT.md）；公网 URL BLOCKED      |
 
 ---
 

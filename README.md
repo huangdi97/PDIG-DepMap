@@ -38,27 +38,27 @@ PDIG（Personal Digital Infrastructure Graph，内部代号 **DepMap**）是一�
 
 这些是硬约束，不是设计偏好。任何实现都必须遵守：
 
-| 原则 | 含义 |
-| --- | --- |
-| **Observation ≠ Reality** | 从账单/文件里"看到"的只是观测；只有用户确认后才成为现实 |
-| **Proposal ≠ Reality** | 机器只能提出候选，不能替用户确认现实 |
-| **Candidate ≠ Node** | 候选实体不进入图谱、不参与影响计算、不 bump revision |
-| **Drift ≠ Reality mutation** | 现实漂移只做记录与提示，绝不静默改写已确认的现实 |
-| **done ≠ verified** | 完成动作不等于验证通过；验证是独立的第二段 |
-| **Coverage ≠ Readiness** | 场景覆盖度不代表变更计划已就绪；两者是不同的判定 |
-| **Graph is a state model, not a homepage** | 图谱是状态模型的持久化表达，不是展示页 |
-| **宁可漏报，不可把不确定伪装成必须处理** | 第一原则。`criticality=required` **只能由用户设置**，机器永不产生 |
+| 原则                                       | 含义                                                              |
+| ------------------------------------------ | ----------------------------------------------------------------- |
+| **Observation ≠ Reality**                  | 从账单/文件里"看到"的只是观测；只有用户确认后才成为现实           |
+| **Proposal ≠ Reality**                     | 机器只能提出候选，不能替用户确认现实                              |
+| **Candidate ≠ Node**                       | 候选实体不进入图谱、不参与影响计算、不 bump revision              |
+| **Drift ≠ Reality mutation**               | 现实漂移只做记录与提示，绝不静默改写已确认的现实                  |
+| **done ≠ verified**                        | 完成动作不等于验证通过；验证是独立的第二段                        |
+| **Coverage ≠ Readiness**                   | 场景覆盖度不代表变更计划已就绪；两者是不同的判定                  |
+| **Graph is a state model, not a homepage** | 图谱是状态模型的持久化表达，不是展示页                            |
+| **宁可漏报，不可把不确定伪装成必须处理**   | 第一原则。`criticality=required` **只能由用户设置**，机器永不产生 |
 
 ---
 
 ## 当前范围
 
-| 里程碑 | 名称 | 状态 |
-| --- | --- | --- |
-| **MVP01** | Payment Reality Kernel | ✅ 完成（见 `MVP01_RC_AUDIT_REPORT.md`） |
-| **MVP02** | Global Source Abstraction | ✅ 完成（见 `MVP02_FINAL_REPORT.md`） |
-| **MVP03** | Living Graph & Change Safety | ✅ 完成（见 `MVP03_FINAL_REPORT.md`） |
-| **Native Migration** | 三端原生重写（Android / HarmonyOS / iOS） | 🚧 **进行中**（见下方平台状态） |
+| 里程碑               | 名称                                      | 状态                                     |
+| -------------------- | ----------------------------------------- | ---------------------------------------- |
+| **MVP01**            | Payment Reality Kernel                    | ✅ 完成（见 `MVP01_RC_AUDIT_REPORT.md`） |
+| **MVP02**            | Global Source Abstraction                 | ✅ 完成（见 `MVP02_FINAL_REPORT.md`）    |
+| **MVP03**            | Living Graph & Change Safety              | ✅ 完成（见 `MVP03_FINAL_REPORT.md`）    |
+| **Native Migration** | 三端原生重写（Android / HarmonyOS / iOS） | 🚧 **进行中**（见下方平台状态）          |
 
 明确**不在**当前范围：Open Banking、云同步、AI/LLM 自动决策、手机号/邮箱 capability、
 GitHub/Domain/Cloud 图谱、支付宝专属解析器。详见 `NEXT_BACKLOG.md` 与 `FUTURE.md`。
@@ -126,13 +126,13 @@ docs/          99 份工程文档（设计 / 基线 / 审计 / 报告 / 平台�
 
 ### 0. 前置
 
-| 工具 | 版本 |
-| --- | --- |
-| Node.js | ≥ 22.5（Canonical 层与 Legacy oracle） |
-| JDK | **21（Android，硬要求）** — CI 亦使用 JDK 21 |
-| Android SDK | 通过 `android/local.properties` 指向（该文件已 gitignore） |
-| DevEco Studio + HarmonyOS SDK | 5.0.5.310 / API 13（Harmony） |
-| Xcode + macOS | iOS N4 需要，当前 `BLOCKED_BY_MACOS` |
+| 工具                          | 版本                                                       |
+| ----------------------------- | ---------------------------------------------------------- |
+| Node.js                       | ≥ 22.5（Canonical 层与 Legacy oracle）                     |
+| JDK                           | **21（Android，硬要求）** — CI 亦使用 JDK 21               |
+| Android SDK                   | 通过 `android/local.properties` 指向（该文件已 gitignore） |
+| DevEco Studio + HarmonyOS SDK | 5.0.5.310 / API 13（Harmony）                              |
+| Xcode + macOS                 | iOS N4 需要，当前 `BLOCKED_BY_MACOS`                       |
 
 ### 1. Canonical 层（任何平台都需要先跑通）
 
@@ -214,16 +214,16 @@ node tools/conformance/run.mjs
 
 ## 安全模型
 
-| 维度 | 实现 |
-| --- | --- |
-| 数据存储 | 本地 SQLCipher 全库加密（Android 已落地） |
+| 维度     | 实现                                                                      |
+| -------- | ------------------------------------------------------------------------- |
+| 数据存储 | 本地 SQLCipher 全库加密（Android 已落地）                                 |
 | 密钥保护 | 平台密钥库：Android Keystore / Harmony HUKS；**原始密钥不落盘、不进日志** |
-| 备份导出 | `.depmap` 容器：Argon2id KDF + AES-256-GCM |
-| 会话保护 | App Lock；敏感页 `FLAG_SECURE` 防截图 |
-| 文件访问 | SAF / picker 最小权限、只读、用完归还 URI grant |
-| 进程死亡 | 保守恢复：只保留 metadata，文件结果作废 → `INTERRUPTED` |
-| 网络 | **零网络原语**（`docs/NETWORK_AUDIT.md`：0 命中） |
-| 日志 | 敏感字段零输出（`docs/LOGGING_AUDIT.md`） |
+| 备份导出 | `.depmap` 容器：Argon2id KDF + AES-256-GCM                                |
+| 会话保护 | App Lock；敏感页 `FLAG_SECURE` 防截图                                     |
+| 文件访问 | SAF / picker 最小权限、只读、用完归还 URI grant                           |
+| 进程死亡 | 保守恢复：只保留 metadata，文件结果作废 → `INTERRUPTED`                   |
+| 网络     | **零网络原语**（`docs/NETWORK_AUDIT.md`：0 命中）                         |
+| 日志     | 敏感字段零输出（`docs/LOGGING_AUDIT.md`）                                 |
 
 深度文档：`docs/SECURITY_MODEL.md` · `spec/security/security-policy.md` ·
 `docs/CRYPTO_PROTOCOL.md` · `docs/FAIL_CLOSED_MATRIX.md` · `docs/PRIVACY_DATAFLOW_AUDIT.md`。
@@ -237,15 +237,15 @@ node tools/conformance/run.mjs
 
 `DEPMAP_CONTAINER_V1` 是**跨平台契约**，Android / HarmonyOS / iOS 必须完全一致：
 
-| 项 | 值 |
-| --- | --- |
-| KDF | **Argon2id**，version **19** |
-| 对称加密 | **AES-256-GCM**，16 字节 tag、12 字节 nonce |
-| Salt | 16 字节 |
-| AAD | `UTF8(JCS({format, formatVersion, kdf, cipher}))` —— **ciphertext / tag 不进 AAD** |
-| 序列化 | **JCS（RFC 8785）** 确定性键序 |
-| Base64 | RFC 4648 标准带填充 |
-| 迁移 | payload v1 / v2 可迁移；未来版本必须 reject（不静默降级） |
+| 项       | 值                                                                                 |
+| -------- | ---------------------------------------------------------------------------------- |
+| KDF      | **Argon2id**，version **19**                                                       |
+| 对称加密 | **AES-256-GCM**，16 字节 tag、12 字节 nonce                                        |
+| Salt     | 16 字节                                                                            |
+| AAD      | `UTF8(JCS({format, formatVersion, kdf, cipher}))` —— **ciphertext / tag 不进 AAD** |
+| 序列化   | **JCS（RFC 8785）** 确定性键序                                                     |
+| Base64   | RFC 4648 标准带填充                                                                |
+| 迁移     | payload v1 / v2 可迁移；未来版本必须 reject（不静默降级）                          |
 
 Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 三端必须产出**逐字节一致**的 `derivedKey`。
@@ -261,12 +261,12 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 
 > 2026-09-17 口径。**只记录实跑结论，不虚报。**
 
-| 平台 | 阶段 | 状态 |
-| --- | --- | --- |
-| **Android** | N1 / N2 完成 | `ANDROID_NATIVE_CORE_HANDOFF = PASS`；`N1 = PASS`；`N2 = PARTIAL_WITH_REPORT (62/73)`；Conformance **91/91**；`ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。已进入 **CORE_FROZEN / MAINTENANCE_ONLY** |
-| **HarmonyOS** | N3 进行中 | `HARMONY_BUILD = PASS`（hvigor 全清重建 → HAP 60,133 B）；`HARMONY_DOMAIN` / `HARMONY_ARKUI` = PARTIAL；**`HARMONY_DEPMAP = BLOCKED`**（cryptoFramework 无 Argon2）；**`HARMONY_RUNTIME_E2E = NOT_RUN`**（无模拟器镜像 / 无设备） |
-| **iOS** | N4 未开工 | `BLOCKED_BY_MACOS`（无 macOS / Xcode） |
-| **Legacy** | 冻结 | uni-app x / UTS / DCloud，仅作 **Behavior Oracle** |
+| 平台          | 阶段         | 状态                                                                                                                                                                                                                              |
+| ------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Android**   | N1 / N2 完成 | `ANDROID_NATIVE_CORE_HANDOFF = PASS`；`N1 = PASS`；`N2 = PARTIAL_WITH_REPORT (62/73)`；Conformance **91/91**；`ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。已进入 **CORE_FROZEN / MAINTENANCE_ONLY**       |
+| **HarmonyOS** | N3 进行中    | `HARMONY_BUILD = PASS`（hvigor 全清重建 → HAP 60,133 B）；`HARMONY_DOMAIN` / `HARMONY_ARKUI` = PARTIAL；**`HARMONY_DEPMAP = BLOCKED`**（cryptoFramework 无 Argon2）；**`HARMONY_RUNTIME_E2E = NOT_RUN`**（无模拟器镜像 / 无设备） |
+| **iOS**       | N4 未开工    | `BLOCKED_BY_MACOS`（无 macOS / Xcode）                                                                                                                                                                                            |
+| **Legacy**    | 冻结         | uni-app x / UTS / DCloud，仅作 **Behavior Oracle**                                                                                                                                                                                |
 
 外部 blocker 全表见 `BLOCKERS.md`、`NATIVE_EXTERNAL_BLOCKERS.md`。
 
@@ -276,11 +276,11 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 
 > 严格区分三类口径，不混淆：
 
-| 口径 | 状态 |
-| --- | --- |
-| **Stable Production** | 尚未发布（无 Play 上架、无生产签名 keystore、无正式包名/隐私政策 URL） |
-| **Developer Preview 0.1.0** | 已发布（GitHub Pre-release `product-v0.1.0`）：Windows Desktop（x64 installer + portable zip）+ Android Preview APK（`com.pdig.app.preview`，非生产测试签名）。详见 `RELEASE_NOTES_0_1_0.md` |
-| **Canonical 工程状态** | Quality Gate PASS、Conformance 91/91、Android API36 仪器化 59/59、Desktop smoke 14/14 —— 全部**本地真实运行**；CI 因 GitHub 账户计费被外部阻断（`CI_EXTERNAL_BLOCKED`，见 `BLOCKERS.md` E-10） |
+| 口径                        | 状态                                                                                                                                                                                           |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Stable Production**       | 尚未发布（无 Play 上架、无生产签名 keystore、无正式包名/隐私政策 URL）                                                                                                                         |
+| **Developer Preview 0.1.0** | 已发布（GitHub Pre-release `product-v0.1.0`）：Windows Desktop（x64 installer + portable zip）+ Android Preview APK（`com.pdig.app.preview`，非生产测试签名）。详见 `RELEASE_NOTES_0_1_0.md`   |
+| **Canonical 工程状态**      | Quality Gate PASS、Conformance 91/91、Android API36 仪器化 59/59、Desktop smoke 14/14 —— 全部**本地真实运行**；CI 因 GitHub 账户计费被外部阻断（`CI_EXTERNAL_BLOCKED`，见 `BLOCKERS.md` E-10） |
 
 > 下载链接与 SHA-256：见 GitHub Release 页面（`https://github.com/huangdi97/PDIG-DepMap/releases`）。
 > Windows 二进制**未签名**，运行可能触发 SmartScreen 警告。
@@ -299,13 +299,13 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 
 ## 开发状态与路线
 
-| 关注面 | 状态 |
-| --- | --- |
-| Native Migration | 进行中（Android 已冻结；Harmony N3 进行中；iOS N4 阻塞） |
-| Android N1 / N2 | 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`、`ANDROID_NATIVE_CORE_FREEZE.md` |
-| Harmony N3 | 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md`、`HARMONY_N3_CONFORMANCE_REPORT.md`、`HARMONY_N3_RUNTIME_REPORT.md` |
-| Cross-platform Conformance | 见 `CROSS_PLATFORM_CONFORMANCE_MATRIX.md` |
-| Legacy Cutover | **NOT_STARTED**（Cutover 条件未满足；Legacy 保留为 Behavior Oracle） |
+| 关注面                     | 状态                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Native Migration           | 进行中（Android 已冻结；Harmony N3 进行中；iOS N4 阻塞）                                                     |
+| Android N1 / N2            | 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`、`ANDROID_NATIVE_CORE_FREEZE.md`                               |
+| Harmony N3                 | 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md`、`HARMONY_N3_CONFORMANCE_REPORT.md`、`HARMONY_N3_RUNTIME_REPORT.md` |
+| Cross-platform Conformance | 见 `CROSS_PLATFORM_CONFORMANCE_MATRIX.md`                                                                    |
+| Legacy Cutover             | **NOT_STARTED**（Cutover 条件未满足；Legacy 保留为 Behavior Oracle）                                         |
 
 工程规范：`docs/ENGINEERING_STANDARDS.md` · 完成定义：`docs/DEFINITION_OF_DONE.md` ·
 Agent 协议：`docs/AGENT_DEVELOPMENT_PROTOCOL.md` · 变更风险分级：`docs/CHANGE_RISK_POLICY.md`。
@@ -314,13 +314,13 @@ Agent 协议：`docs/AGENT_DEVELOPMENT_PROTOCOL.md` · 变更风险分级：`doc
 
 ## 文档索引（GitHub 入口）
 
-| 文档 | 内容 |
-| --- | --- |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | 分层架构、Canonical 层与三端原生边界 |
-| [`docs/SECURITY_MODEL.md`](docs/SECURITY_MODEL.md) | 本地优先与失败即关闭的安全模型 |
-| [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md) | 一致性链路五阶段与 `NOT_RUN ≠ PASS` 口径 |
-| [`docs/DEPMAP_FORMAT.md`](docs/DEPMAP_FORMAT.md) | `.depmap` 容器格式与密码学参数 |
-| [`docs/NATIVE_MIGRATION.md`](docs/NATIVE_MIGRATION.md) | 迁移阶段 N0–N7 与三端现状 |
+| 文档                                                   | 内容                                     |
+| ------------------------------------------------------ | ---------------------------------------- |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)         | 分层架构、Canonical 层与三端原生边界     |
+| [`docs/SECURITY_MODEL.md`](docs/SECURITY_MODEL.md)     | 本地优先与失败即关闭的安全模型           |
+| [`docs/CONFORMANCE.md`](docs/CONFORMANCE.md)           | 一致性链路五阶段与 `NOT_RUN ≠ PASS` 口径 |
+| [`docs/DEPMAP_FORMAT.md`](docs/DEPMAP_FORMAT.md)       | `.depmap` 容器格式与密码学参数           |
+| [`docs/NATIVE_MIGRATION.md`](docs/NATIVE_MIGRATION.md) | 迁移阶段 N0–N7 与三端现状                |
 
 发布与合规记录：`GITHUB_SECRET_PRIVACY_AUDIT.md` · `GITHUB_HISTORY_SANITIZATION_REPORT.md` ·
 `GITHUB_REPOSITORY_SIZE_AUDIT.md` · `TAG_REWRITE_MAP.md` · `LICENSE_DECISION.md`。

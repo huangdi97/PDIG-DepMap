@@ -6,16 +6,16 @@
 
 ## 0. 总览
 
-| # | 重构 | 类型 | 行为变化 | 证据 |
-|---|---|---|---|---|
-| R1 | AppContainer.kt 1425 → 205 行，拆出 8 个 Repository/Models/DataUtils | 结构 | 无 | :app 编译 + androidTest 基线 + UI 引用不变 |
-| R2 | UI 屏面文件拆分（DataScreens/PlanScreens/ImpactJourneyScreens → 13 单屏文件；FileWorkflowCoordinator + FileWorkflowEngine） | 结构 | 无 | :app:testDebugUnitTest 9/9 + androidTest 基线 |
-| R3 | :core Parsers/ImpactKernel/Timeline 机械拆分（9 文件） | 结构 | 无（byte-exact） | :conformance:run 91/91（逐字段比对） |
-| R4 | :conformance Main.kt 1095 → Main + 5 Runner | 结构 | 仅错误路径异常类型（ClassCast→Runtime，PASS 路径不变） | 91/91 |
-| R5 | Repository 提取为共享纯 JVM 模块 `:repos`（Android + Desktop 共用） | 结构+依赖 | 无（AppContainer 公开 API 不变） | :app 编译 + 9/9 + androidTest |
-| R6 | 生产代码 `!!` 23 处 → 0（safe-call/guard 等价改写） | 卫生 | 无（各改写经等价论证） | Gate kotlin-escape PASS + 编译 + 测试 |
-| R7 | conformance unchecked cast `as Json.X` → 安全 cast 助手 | 卫生 | 仅错误路径消息 | 91/91 |
-| R8 | Android product flavor（production/preview）+ 任务名兼容别名 | 构建 | 无（production 语义不变） | assembleDebug 双 flavor 成功 |
+| #   | 重构                                                                                                                        | 类型      | 行为变化                                               | 证据                                          |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------ | --------------------------------------------- |
+| R1  | AppContainer.kt 1425 → 205 行，拆出 8 个 Repository/Models/DataUtils                                                        | 结构      | 无                                                     | :app 编译 + androidTest 基线 + UI 引用不变    |
+| R2  | UI 屏面文件拆分（DataScreens/PlanScreens/ImpactJourneyScreens → 13 单屏文件；FileWorkflowCoordinator + FileWorkflowEngine） | 结构      | 无                                                     | :app:testDebugUnitTest 9/9 + androidTest 基线 |
+| R3  | :core Parsers/ImpactKernel/Timeline 机械拆分（9 文件）                                                                      | 结构      | 无（byte-exact）                                       | :conformance:run 91/91（逐字段比对）          |
+| R4  | :conformance Main.kt 1095 → Main + 5 Runner                                                                                 | 结构      | 仅错误路径异常类型（ClassCast→Runtime，PASS 路径不变） | 91/91                                         |
+| R5  | Repository 提取为共享纯 JVM 模块 `:repos`（Android + Desktop 共用）                                                         | 结构+依赖 | 无（AppContainer 公开 API 不变）                       | :app 编译 + 9/9 + androidTest                 |
+| R6  | 生产代码 `!!` 23 处 → 0（safe-call/guard 等价改写）                                                                         | 卫生      | 无（各改写经等价论证）                                 | Gate kotlin-escape PASS + 编译 + 测试         |
+| R7  | conformance unchecked cast `as Json.X` → 安全 cast 助手                                                                     | 卫生      | 仅错误路径消息                                         | 91/91                                         |
+| R8  | Android product flavor（production/preview）+ 任务名兼容别名                                                                | 构建      | 无（production 语义不变）                              | assembleDebug 双 flavor 成功                  |
 
 ## R1 — AppContainer 拆 Repository
 

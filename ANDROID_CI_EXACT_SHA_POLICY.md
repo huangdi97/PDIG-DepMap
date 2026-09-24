@@ -84,22 +84,23 @@ PUSH_TRIGGER = PASS
 
 ## 3. 本轮 exact-SHA 证据（契约 §6 / §22）
 
-| 项 | 值 |
-|----|----|
-| Push CI（基准 HEAD） | run 35700579040（CI）+ 35700579087（iOS），head_sha = `89b653a13f3dd96f6ed4acc579128b218c9b7c22`，event = push，all jobs success ✅ |
+| 项                           | 值                                                                                                                                                                                                               |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Push CI（基准 HEAD）         | run 35700579040（CI）+ 35700579087（iOS），head_sha = `89b653a13f3dd96f6ed4acc579128b218c9b7c22`，event = push，all jobs success ✅                                                                              |
 | 本地回归（同基准 HEAD 复跑） | `:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 · connectedDebugAndroidTest **59/59**（emulator-5554，2026-09-22 实跑）· assembleDebug / assembleRelease / bundleRelease SUCCESSFUL |
-| 禁止项 | 不得把本表 push CI 绿写成「Harmony native verification PASS」；不得把 dispatch 绿写成任意 commit 的 push 绿 |
+| 禁止项                       | 不得把本表 push CI 绿写成「Harmony native verification PASS」；不得把 dispatch 绿写成任意 commit 的 push 绿                                                                                                      |
 
 ---
 
 ## 4. 状态
+
 ## 3.5 2026-09-22 main@3f466f8 push CI 状态（账户计费限制，非代码缺陷）
 
 - 本轮文档 commit `3f466f8` push 后，CI run `35728513967`（event=push）触发：
   - Android app / Android core / Harmony static 3 个 job **success** ✅
   - iOS run `35728513716` **success** ✅
   - Canonical job **未启动**（annotations：`The job was not started because recent account payments have
-    failed or your spending limit needs to be increased`）→ **GitHub 账户计费/配额限制**
+failed or your spending limit needs to be increased`）→ **GitHub 账户计费/配额限制**
 - 重跑 `gh run rerun --failed` 后 Canonical 仍被同一账单限制拦截（非代码/配置缺陷）。
 - **基准 HEAD 89b653a 的 push CI 全绿不受影响**（run 35700579040 CI + 35700579087 iOS，all jobs success）。
 - 结论：`PUSH_TRIGGER` 仍然 PASS（push 事件正确触发 workflow）；Canonical job 的调度被

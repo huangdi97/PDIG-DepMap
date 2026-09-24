@@ -18,13 +18,13 @@
 
 ## 3. 持久化（C7 / E6 专项）
 
-| 面 | 结论 | 证据 |
-|---|---|---|
-| RAW_FINANCIAL_DATA_LONG_TERM_STORAGE | **= 0**：Observation 仅导入会话内存（:core sources + :repos SourceRepository 语义），持久化只有 Fingerprint / Evidence summary / Proposal 状态 / 图实体 / ImportSession summary | Repository 全部写入路径核对 |
-| Android 本地库 | SQLCipher 加密（db_passphrase 由 Keystore 包裹，never 明文） | AndroidSqliteDriver + DatabaseKeyStore |
- | Desktop 落盘 | 仅 `.depmap` = DEPMAP_CONTAINER_V1（Argon2id v19 / AES-256-GCM / RFC 8785 JCS AAD）加密 payload；内存库永不明文落盘 | DepmapFileStore（唯一出口）；桌面无明文 SQLite/JSON 缓存 |
-| 密码/密钥 | 不写日志、不写源码、不写配置文件；Desktop 的“记住本机”为 opt-in 且只存 DPAPI-protected blob（Windows OS 持钥） | DeviceUnlockStore + WindowsDpapiSecurityPort |
-| 未来 schema | payloadVersion/schemaVersion 超前 → 显式拒绝（spec §42），不猜测、不降级明文 | DepmapFileStore.isFutureSchema + core SchemaVersion |
+| 面                                   | 结论                                                                                                                                                                            | 证据                                                     |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| RAW_FINANCIAL_DATA_LONG_TERM_STORAGE | **= 0**：Observation 仅导入会话内存（:core sources + :repos SourceRepository 语义），持久化只有 Fingerprint / Evidence summary / Proposal 状态 / 图实体 / ImportSession summary | Repository 全部写入路径核对                              |
+| Android 本地库                       | SQLCipher 加密（db_passphrase 由 Keystore 包裹，never 明文）                                                                                                                    | AndroidSqliteDriver + DatabaseKeyStore                   |
+| Desktop 落盘                         | 仅 `.depmap` = DEPMAP_CONTAINER_V1（Argon2id v19 / AES-256-GCM / RFC 8785 JCS AAD）加密 payload；内存库永不明文落盘                                                             | DepmapFileStore（唯一出口）；桌面无明文 SQLite/JSON 缓存 |
+| 密码/密钥                            | 不写日志、不写源码、不写配置文件；Desktop 的“记住本机”为 opt-in 且只存 DPAPI-protected blob（Windows OS 持钥）                                                                  | DeviceUnlockStore + WindowsDpapiSecurityPort             |
+| 未来 schema                          | payloadVersion/schemaVersion 超前 → 显式拒绝（spec §42），不猜测、不降级明文                                                                                                    | DepmapFileStore.isFutureSchema + core SchemaVersion      |
 
 ## 4. 日志纪律（实测扫描）
 

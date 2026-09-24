@@ -11,26 +11,26 @@
 
 ## 1. 产物身份
 
-| 项 | 值 |
-|----|----|
-| Git SHA (HEAD) | `b13f2f72f89cf3ee384ac9c7c149f7bff724fbab` |
-| Git tag | 无（工作分支 `feat/android-production-release`） |
-| versionName | `0.1.0-milestone`（占位，R-3 OPEN） |
-| versionCode | `1`（占位，R-3 OPEN） |
-| applicationId | `com.pdig.app`（占位，R-1 OPEN） |
-| compileSdk / targetSdk / minSdk | 36 / 36 / 26 |
-| AGP / Gradle / JDK / Kotlin | 8.5.2 / 8.9 wrapper / OpenJDK 21.0.10 (Android Studio JBR) / 2.0.0 |
-| 构建环境 | Windows 11 10.0.26200（`E:\AI\号卡管理`，输出重定向 `%USERPROFILE%\pdig-build`） |
+| 项                              | 值                                                                               |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| Git SHA (HEAD)                  | `b13f2f72f89cf3ee384ac9c7c149f7bff724fbab`                                       |
+| Git tag                         | 无（工作分支 `feat/android-production-release`）                                 |
+| versionName                     | `0.1.0-milestone`（占位，R-3 OPEN）                                              |
+| versionCode                     | `1`（占位，R-3 OPEN）                                                            |
+| applicationId                   | `com.pdig.app`（占位，R-1 OPEN）                                                 |
+| compileSdk / targetSdk / minSdk | 36 / 36 / 26                                                                     |
+| AGP / Gradle / JDK / Kotlin     | 8.5.2 / 8.9 wrapper / OpenJDK 21.0.10 (Android Studio JBR) / 2.0.0               |
+| 构建环境                        | Windows 11 10.0.26200（`E:\AI\号卡管理`，输出重定向 `%USERPROFILE%\pdig-build`） |
 
 ## 2. 产物清单（2026-09-23 实跑构建）
 
-| 产物 | 路径 | bytes | SHA256 | 签名 |
-|------|------|-------|--------|------|
-| **release AAB（NON-PROD signed）** | `C:\Users\Kaiser\pdig-build\app\outputs\bundle\release\app-release.aab` | 20,894,496 | `D1AD7635FEBDAAE9A6CC3292131691979B987B302281F1C72617E396EAEEEC9` | `pdig-nonprod.jks`（JKS，v? jarsigner 已验证） |
-| **release APK（NON-PROD signed）** | `C:\Users\Kaiser\pdig-build\app\outputs\apk\release\app-release.apk` | 33,122,221 | `7FD81247120E858C4A2CA16641A97928013D20B12FB837BD36E8217600A8BE55` | apksigner v2 ✅ |
-| release AAB（基线未签名） | `C:\Users\Kaiser\pdig-build\app\outputs\bundle\release\app-release.aab`（覆盖前基线） | 20,861,455 | `C4E70F3D4885456DAAE856EA0BACA30A661A07DD552C4DA65D7EC7B5C6F27465` | 无（未签名基线） |
-| debug APK | `C:\Users\Kaiser\pdig-build\app\outputs\apk\debug\app-debug.apk` | 37,123,563 | `73008F14B5C9272E2EED2B9FE3044F6237785525B9D6E19F521AFE60A9C03835` | debug 签名 |
-| androidTest APK | `C:\Users\Kaiser\pdig-build\app\outputs\apk\androidTest\debug\app-debug-androidTest.apk` | 1,137,154 | `69A35474ED801610CB09C20F67276E1DD84D945AF9864B7F4816706246957680` | debug 签名 |
+| 产物                               | 路径                                                                                     | bytes      | SHA256                                                             | 签名                                           |
+| ---------------------------------- | ---------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------------------------ | ---------------------------------------------- |
+| **release AAB（NON-PROD signed）** | `C:\Users\Kaiser\pdig-build\app\outputs\bundle\release\app-release.aab`                  | 20,894,496 | `D1AD7635FEBDAAE9A6CC3292131691979B987B302281F1C72617E396EAEEEC9`  | `pdig-nonprod.jks`（JKS，v? jarsigner 已验证） |
+| **release APK（NON-PROD signed）** | `C:\Users\Kaiser\pdig-build\app\outputs\apk\release\app-release.apk`                     | 33,122,221 | `7FD81247120E858C4A2CA16641A97928013D20B12FB837BD36E8217600A8BE55` | apksigner v2 ✅                                |
+| release AAB（基线未签名）          | `C:\Users\Kaiser\pdig-build\app\outputs\bundle\release\app-release.aab`（覆盖前基线）    | 20,861,455 | `C4E70F3D4885456DAAE856EA0BACA30A661A07DD552C4DA65D7EC7B5C6F27465` | 无（未签名基线）                               |
+| debug APK                          | `C:\Users\Kaiser\pdig-build\app\outputs\apk\debug\app-debug.apk`                         | 37,123,563 | `73008F14B5C9272E2EED2B9FE3044F6237785525B9D6E19F521AFE60A9C03835` | debug 签名                                     |
+| androidTest APK                    | `C:\Users\Kaiser\pdig-build\app\outputs\apk\androidTest\debug\app-debug-androidTest.apk` | 1,137,154  | `69A35474ED801610CB09C20F67276E1DD84D945AF9864B7F4816706246957680` | debug 签名                                     |
 
 > 注：基线未签名 AAB 哈希来自 b13f2f7 构建（`ANDROID_PLATFORM_BASELINE.md` §5）。
 > 本轮 NON-PROD signed 构建覆盖同名文件，产出新的 signed AAB/APK 如上。
@@ -67,14 +67,14 @@ jar 已验证（exit=0）；条目 X.509 证书逐项列出（CN=PDIG NON-PRODUC
 
 ## 4. 测试汇总（本轮实跑，对应产物）
 
-| 套件 | 结果 | 时间 |
-|------|------|------|
-| `:core:test` | 71/71 | 2026-09-23 |
-| `:app:testDebugUnitTest` | 9/9 | 2026-09-23 |
-| `:conformance:run` | 91/91 | 2026-09-23 |
-| connectedDebugAndroidTest | 59/59（API36 AVD） | 2026-09-23 |
-| Core Journey E2E v4 | 见 `ANDROID_16_API36_CLOSURE_REPORT.md` | 2026-09-23 |
-| Three-scenario E2E | 见 `ANDROID_16_API36_CLOSURE_REPORT.md` | 2026-09-23 |
+| 套件                      | 结果                                    | 时间       |
+| ------------------------- | --------------------------------------- | ---------- |
+| `:core:test`              | 71/71                                   | 2026-09-23 |
+| `:app:testDebugUnitTest`  | 9/9                                     | 2026-09-23 |
+| `:conformance:run`        | 91/91                                   | 2026-09-23 |
+| connectedDebugAndroidTest | 59/59（API36 AVD）                      | 2026-09-23 |
+| Core Journey E2E v4       | 见 `ANDROID_16_API36_CLOSURE_REPORT.md` | 2026-09-23 |
+| Three-scenario E2E        | 见 `ANDROID_16_API36_CLOSURE_REPORT.md` | 2026-09-23 |
 
 ## 5. 达到 Play 可上传状态尚缺（依 BLOCKERS.md）
 

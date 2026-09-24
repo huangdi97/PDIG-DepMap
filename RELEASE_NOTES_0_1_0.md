@@ -38,11 +38,11 @@ Observation != Reality，Proposal != Reality，done != verified
 
 ## Downloads
 
-| 平台 | 文件 | 说明 |
-| --- | --- | --- |
-| Windows x64 | `PDIG-0.1.0-windows-x64-setup.exe` | NSIS 安装器（未签名，见 Known Limitations） |
-| Windows x64 | `PDIG-0.1.0-windows-x64-portable.zip` | 便携包：解压后运行 `PDIG/PDIG.exe` |
-| Android | `PDIG-0.1.0-android-preview.apk` | Preview APK（`com.pdig.app.preview`，versionCode 200001） |
+| 平台        | 文件                                  | 说明                                                      |
+| ----------- | ------------------------------------- | --------------------------------------------------------- |
+| Windows x64 | `PDIG-0.1.0-windows-x64-setup.exe`    | NSIS 安装器（未签名，见 Known Limitations）               |
+| Windows x64 | `PDIG-0.1.0-windows-x64-portable.zip` | 便携包：解压后运行 `PDIG/PDIG.exe`                        |
+| Android     | `PDIG-0.1.0-android-preview.apk`      | Preview APK（`com.pdig.app.preview`，versionCode 200001） |
 
 校验：所有二进制的 SHA-256 见 `SHA256SUMS.txt`。依赖清单见
 `PDIG-0.1.0-SBOM.cyclonedx.json`，第三方许可见 `THIRD-PARTY-NOTICES.md`。
@@ -79,14 +79,14 @@ Observation != Reality，Proposal != Reality，done != verified
 
 ## 工程状态（诚实口径）
 
-| Gate | 值 | 证据 |
-| --- | --- | --- |
-| Quality Gate | PASS | 10 counter 全 0，`node scripts/quality/check-quality.mjs` exit 0 |
-| Canonical Conformance | 91/91 | `:conformance:run` pass=91 fail=0（本地实跑） |
-| Android JVM | 71/71 + 9/9 | `:core:test`、`:app:testDebugUnitTest`（本地实跑） |
-| Android API36 仪器化 | 59/59 | `connectedPreviewDebugAndroidTest`（AVD pdig36，0 crash） |
-| Desktop JVM + smoke | 9/9 + 14/14 | `:app:test`、`:app:run --args="--smoke"` |
-| REAL_DEVICE_VERIFIED | 未宣称 | 无真机；API36 AVD 证据已齐（E-1 仍 BLOCKED） |
+| Gate                  | 值          | 证据                                                             |
+| --------------------- | ----------- | ---------------------------------------------------------------- |
+| Quality Gate          | PASS        | 10 counter 全 0，`node scripts/quality/check-quality.mjs` exit 0 |
+| Canonical Conformance | 91/91       | `:conformance:run` pass=91 fail=0（本地实跑）                    |
+| Android JVM           | 71/71 + 9/9 | `:core:test`、`:app:testDebugUnitTest`（本地实跑）               |
+| Android API36 仪器化  | 59/59       | `connectedPreviewDebugAndroidTest`（AVD pdig36，0 crash）        |
+| Desktop JVM + smoke   | 9/9 + 14/14 | `:app:test`、`:app:run --args="--smoke"`                         |
+| REAL_DEVICE_VERIFIED  | 未宣称      | 无真机；API36 AVD 证据已齐（E-1 仍 BLOCKED）                     |
 
 ## 下一步（由用户决定）
 

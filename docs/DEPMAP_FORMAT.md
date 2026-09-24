@@ -30,18 +30,18 @@ status        : FROZEN
 
 ## 1. 密码学参数
 
-| 项 | 值 |
-| --- | --- |
-| **KDF** | **Argon2id**，version **19** |
-| KDF 参数 | `memoryKiB` / `iterations` / `parallelism`（见 spec `bounds`） |
-| Salt | 16 字节 |
-| 派生密钥长度 | 见 spec `kdf.derivedKeyBytes` |
-| 口令编码 | UTF-8，**不做 Unicode 归一化**（见 `kdf.unicodeNormalization`） |
-| **对称加密** | **AES-256-GCM** |
-| Nonce | 12 字节 |
-| Tag | 16 字节 |
-| 二进制编码 | Base64（RFC 4648，标准带填充）；`derivedKey` 仅测试用 hex |
-| 序列化 | **JCS（RFC 8785）** 确定性键序 |
+| 项           | 值                                                              |
+| ------------ | --------------------------------------------------------------- |
+| **KDF**      | **Argon2id**，version **19**                                    |
+| KDF 参数     | `memoryKiB` / `iterations` / `parallelism`（见 spec `bounds`）  |
+| Salt         | 16 字节                                                         |
+| 派生密钥长度 | 见 spec `kdf.derivedKeyBytes`                                   |
+| 口令编码     | UTF-8，**不做 Unicode 归一化**（见 `kdf.unicodeNormalization`） |
+| **对称加密** | **AES-256-GCM**                                                 |
+| Nonce        | 12 字节                                                         |
+| Tag          | 16 字节                                                         |
+| 二进制编码   | Base64（RFC 4648，标准带填充）；`derivedKey` 仅测试用 hex       |
+| 序列化       | **JCS（RFC 8785）** 确定性键序                                  |
 
 ### 1.1 AAD
 
@@ -111,21 +111,21 @@ tagBase64        : 5qpABhovPbNet1q2GNEhkg==
 
 ## 5. 兼容性与实现约束
 
-| 约束 | 说明 |
-| --- | --- |
-| **禁止自研 Argon2 / AES 原语** | 必须链接经过审计的实现（如 libargon2 / BouncyCastle / CryptoKit） |
-| **Argon2id 是 Compatibility Gate** | 不是"实现建议" |
-| 三端 derivedKey 必须一致 | 只比对 Golden Vector 的 `derivedKeyHex` 即可判定 |
-| 未通过 Golden 不得继续 | 容器/迁移/JCS 全部依赖它 |
+| 约束                               | 说明                                                              |
+| ---------------------------------- | ----------------------------------------------------------------- |
+| **禁止自研 Argon2 / AES 原语**     | 必须链接经过审计的实现（如 libargon2 / BouncyCastle / CryptoKit） |
+| **Argon2id 是 Compatibility Gate** | 不是"实现建议"                                                    |
+| 三端 derivedKey 必须一致           | 只比对 Golden Vector 的 `derivedKeyHex` 即可判定                  |
+| 未通过 Golden 不得继续             | 容器/迁移/JCS 全部依赖它                                          |
 
 ### 5.1 当前各端状态（2026-09-17）
 
-| 平台 | 状态 |
-| --- | --- |
-| Android | ✅ 已实现并验证（BouncyCastle Argon2id + JDK JCE） |
-| Legacy Node/TS | ✅ 参考实现（oracle） |
-| **HarmonyOS** | ❌ **`HARMONY_DEPMAP = BLOCKED`** —— `cryptoFramework` 的 KDF 只有 PBKDF2 / HKDF，**无 Argon2**；正在评估 NDK + libargon2 路径（见 `HARMONY_ARGON2_FEASIBILITY.md`） |
-| iOS | ❌ 未实现（`BLOCKED_BY_MACOS`，N4 未开工） |
+| 平台           | 状态                                                                                                                                                                 |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Android        | ✅ 已实现并验证（BouncyCastle Argon2id + JDK JCE）                                                                                                                   |
+| Legacy Node/TS | ✅ 参考实现（oracle）                                                                                                                                                |
+| **HarmonyOS**  | ❌ **`HARMONY_DEPMAP = BLOCKED`** —— `cryptoFramework` 的 KDF 只有 PBKDF2 / HKDF，**无 Argon2**；正在评估 NDK + libargon2 路径（见 `HARMONY_ARGON2_FEASIBILITY.md`） |
+| iOS            | ❌ 未实现（`BLOCKED_BY_MACOS`，N4 未开工）                                                                                                                           |
 
 ---
 

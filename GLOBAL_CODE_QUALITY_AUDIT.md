@@ -16,15 +16,15 @@
 
 ## 2. Kotlin 安全点清单（本轮修复实证）
 
-| 检查 | 审计前基线 | 当前（gate 复扫） | 说明 |
-|---|---|---|---|
-| 生产 `!!` | **23** | **0** | 全部消除（可空传递改为显式错误模型） |
-| `lateinit var` | — | **2（均登记 JUSTIFIED）** | MainActivity.kt:56（Activity 生命周期边界）、conformance Main.kt:26（harness 入口） |
-| 未检查 cast（`as X`） | **8+（conformance）** | **0** | 逐点消除；gate 复核 0 命中 |
-| `@Suppress` / `@ts-ignore` / `@ts-expect-error` / `type: ignore` / `noqa` | — | **0** | 全仓禁止 |
-| `GlobalScope` | — | **0** | 结构化并发 |
-| 裸 catch（`catch { }` / `catch (e) { }` 空吞） | — | **0** | silent failure 一律禁止 |
-| 未捕获 `Exception` 逐条过 | — | 0（边界见 §6 异常模型） | — |
+| 检查                                                                      | 审计前基线            | 当前（gate 复扫）         | 说明                                                                                |
+| ------------------------------------------------------------------------- | --------------------- | ------------------------- | ----------------------------------------------------------------------------------- |
+| 生产 `!!`                                                                 | **23**                | **0**                     | 全部消除（可空传递改为显式错误模型）                                                |
+| `lateinit var`                                                            | —                     | **2（均登记 JUSTIFIED）** | MainActivity.kt:56（Activity 生命周期边界）、conformance Main.kt:26（harness 入口） |
+| 未检查 cast（`as X`）                                                     | **8+（conformance）** | **0**                     | 逐点消除；gate 复核 0 命中                                                          |
+| `@Suppress` / `@ts-ignore` / `@ts-expect-error` / `type: ignore` / `noqa` | —                     | **0**                     | 全仓禁止                                                                            |
+| `GlobalScope`                                                             | —                     | **0**                     | 结构化并发                                                                          |
+| 裸 catch（`catch { }` / `catch (e) { }` 空吞）                            | —                     | **0**                     | silent failure 一律禁止                                                             |
+| 未捕获 `Exception` 逐条过                                                 | —                     | 0（边界见 §6 异常模型）   | —                                                                                   |
 
 > 复核备注：独立扫描在 `security/AppLock.kt:74` 命中 1 处 `) as android.app.KeyguardManager`——这是 **PowerShell 大小写不敏感匹配的误报**；gate 正则要求 `[A-Z]` 起始（类名小写 `android` 不命中），且该处为平台服务类型化强转（`getSystemService` 返回 `Any?`，属安全边界内显式断言），不计入未检查 cast。
 
@@ -58,18 +58,18 @@
 
 `node scripts/quality/check-quality.mjs` → **VERDICT PASS**（10 counters 全 0）：
 
-| # | counter | 值 | 结论 |
-|---|---|---|---|
-| 1 | UNJUSTIFIED_PRODUCTION_FILE_GT_300 | 0 | PASS（3 个豁免：Migrations 434 / GraphSerialize 470 / CanonicalEnums 564，见 CODE_SIZE_AUDIT §9） |
-| 2 | CRITICAL_COMPLEXITY_VIOLATION（大型 @Composable > 200） | 0 | PASS（largeComposable 例外 0 条） |
-| 3 | RAW_TODO | 0 | PASS |
-| 4 | FORBIDDEN_SUPPRESSION | 0 | PASS |
-| 5 | DEPENDENCY_CYCLE（package 级 import 图 DFS） | 0 | PASS |
-| 6 | HARDCODED_SECRET | 0 | PASS（secretPattern 例外 0 条） |
-| 7 | SENSITIVE_LOGGING | 0 | PASS |
-| 8 | UNJUSTIFIED_KOTLIN_ESCAPE（!! / lateinit / GlobalScope / 裸 catch / cast） | 0 | PASS（kotlinEscapes 仅 2 条 lateinit，均 JUSTIFIED） |
-| 9 | KNOWN_DEAD_CODE | 0 | PASS |
-| 10 | ENGINEERING_GAP | 0 | PASS |
+| #   | counter                                                                    | 值  | 结论                                                                                              |
+| --- | -------------------------------------------------------------------------- | --- | ------------------------------------------------------------------------------------------------- |
+| 1   | UNJUSTIFIED_PRODUCTION_FILE_GT_300                                         | 0   | PASS（3 个豁免：Migrations 434 / GraphSerialize 470 / CanonicalEnums 564，见 CODE_SIZE_AUDIT §9） |
+| 2   | CRITICAL_COMPLEXITY_VIOLATION（大型 @Composable > 200）                    | 0   | PASS（largeComposable 例外 0 条）                                                                 |
+| 3   | RAW_TODO                                                                   | 0   | PASS                                                                                              |
+| 4   | FORBIDDEN_SUPPRESSION                                                      | 0   | PASS                                                                                              |
+| 5   | DEPENDENCY_CYCLE（package 级 import 图 DFS）                               | 0   | PASS                                                                                              |
+| 6   | HARDCODED_SECRET                                                           | 0   | PASS（secretPattern 例外 0 条）                                                                   |
+| 7   | SENSITIVE_LOGGING                                                          | 0   | PASS                                                                                              |
+| 8   | UNJUSTIFIED_KOTLIN_ESCAPE（!! / lateinit / GlobalScope / 裸 catch / cast） | 0   | PASS（kotlinEscapes 仅 2 条 lateinit，均 JUSTIFIED）                                              |
+| 9   | KNOWN_DEAD_CODE                                                            | 0   | PASS                                                                                              |
+| 10  | ENGINEERING_GAP                                                            | 0   | PASS                                                                                              |
 
 **EXCEPTIONS.json 当前登记**（4 条，全部带类别与理由）：fileSizeOver300×2（Migrations=migration、GraphSerialize=schema）、kotlinEscapes×2（MainActivity.kt:56、conformance Main.kt:26，lateinit，均 JUSTIFIED）。
 

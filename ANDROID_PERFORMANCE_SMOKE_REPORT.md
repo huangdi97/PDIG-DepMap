@@ -11,16 +11,16 @@
 
 上一轮报告中出现过以下数字：
 
-| 指标 | 旧值 |
-| --- | --- |
-| `parse_generic_csv_10k_rows` | 2427 ms |
+| 指标                                 | 旧值    |
+| ------------------------------------ | ------- |
+| `parse_generic_csv_10k_rows`         | 2427 ms |
 | `insert_10k_rows_in_one_transaction` | 4839 ms |
-| `db_open_encrypted_sqlcipher` | 138 ms |
-| `migrate_v0_to_v3` | 671 ms |
-| `build_timeline` | 242 ms |
-| `export_graph` | 704 ms |
-| `depmap_encrypt_export` | 1937 ms |
-| `depmap_decrypt_and_import` | 9509 ms |
+| `db_open_encrypted_sqlcipher`        | 138 ms  |
+| `migrate_v0_to_v3`                   | 671 ms  |
+| `build_timeline`                     | 242 ms  |
+| `export_graph`                       | 704 ms  |
+| `depmap_encrypt_export`              | 1937 ms |
+| `depmap_decrypt_and_import`          | 9509 ms |
 
 **全部作废（INVALIDATED），不得用于任何性能结论。**
 
@@ -40,15 +40,15 @@
 
 ## 2. 测试环境
 
-| 项 | 值 |
-| --- | --- |
-| 设备 | Android SDK built for x86_64（AVD `PDIG_API34_DEFAULT`） |
-| API / ABI | 34 / x86_64 |
-| 屏幕 | 1080x2400，density 420 |
-| 加速 | swiftshader_indirect（软件渲染） |
-| AVD 内存 | 3072 MB |
-| 宿主可用内存 | 约 5.6 GB / 31.8 GB（**内存紧张**） |
-| 构建 | `app-debug.apk`，debug 变体 |
+| 项           | 值                                                       |
+| ------------ | -------------------------------------------------------- |
+| 设备         | Android SDK built for x86_64（AVD `PDIG_API34_DEFAULT`） |
+| API / ABI    | 34 / x86_64                                              |
+| 屏幕         | 1080x2400，density 420                                   |
+| 加速         | swiftshader_indirect（软件渲染）                         |
+| AVD 内存     | 3072 MB                                                  |
+| 宿主可用内存 | 约 5.6 GB / 31.8 GB（**内存紧张**）                      |
+| 构建         | `app-debug.apk`，debug 变体                              |
 
 > 这是**软件渲染的模拟器**，绝对数值不代表真机表现，只能用于同环境纵向对比。
 > 宿主内存紧张会放大耗时波动。
@@ -63,29 +63,29 @@
 
 ### 3.1 前置校验（决定数字是否可用）
 
-| 项 | 值 | 结论 |
-| --- | --- | --- |
-| `csvRowsInput` | 10,000 | — |
-| `csvRowsParsed` | **10,000** | ✅ 与上轮 0 形成对比 |
-| `csvParseErrors` | **0** | ✅ 无错误行被吞掉 |
-| `assertEquals(10_000, rows)` | 通过 | ✅ 强断言生效 |
+| 项                           | 值         | 结论                 |
+| ---------------------------- | ---------- | -------------------- |
+| `csvRowsInput`               | 10,000     | —                    |
+| `csvRowsParsed`              | **10,000** | ✅ 与上轮 0 形成对比 |
+| `csvParseErrors`             | **0**      | ✅ 无错误行被吞掉    |
+| `assertEquals(10_000, rows)` | 通过       | ✅ 强断言生效        |
 
 只有 `csvRowsParsed == 10_000` 才允许记录下列数值 —— 本轮满足。
 
 ### 3.2 观测值
 
-| 指标 | 实测（ms） | 说明 |
-| --- | --- | --- |
-| `db_open_encrypted_sqlcipher` | **149** | SQLCipher 打开加密库 |
-| `migrate_v0_to_v3` | **831** | 空库迁移到 schema v3 |
-| `parse_generic_csv_10k_rows` | **6058** | 解析 1 万行 CSV（**有效**） |
-| `insert_10k_rows_in_one_transaction` | **8679** | 单事务写入 1 万行指纹 |
-| `query_nodes_empty` | **0** | 空表查询 |
-| `build_timeline` | **448** | 时间线分桶 |
-| `export_graph`（1,999,690 字节） | **624** | 导出图 payload |
-| `depmap_encrypt_export` | **2722** | `.depmap` 加密导出 |
-| `depmap_decrypt_and_import` | **11290** | `.depmap` 解密 + 导入 |
-| 用例总时长 | **34,257** | 含未单独计时的步骤 |
+| 指标                                 | 实测（ms） | 说明                        |
+| ------------------------------------ | ---------- | --------------------------- |
+| `db_open_encrypted_sqlcipher`        | **149**    | SQLCipher 打开加密库        |
+| `migrate_v0_to_v3`                   | **831**    | 空库迁移到 schema v3        |
+| `parse_generic_csv_10k_rows`         | **6058**   | 解析 1 万行 CSV（**有效**） |
+| `insert_10k_rows_in_one_transaction` | **8679**   | 单事务写入 1 万行指纹       |
+| `query_nodes_empty`                  | **0**      | 空表查询                    |
+| `build_timeline`                     | **448**    | 时间线分桶                  |
+| `export_graph`（1,999,690 字节）     | **624**    | 导出图 payload              |
+| `depmap_encrypt_export`              | **2722**   | `.depmap` 加密导出          |
+| `depmap_decrypt_and_import`          | **11290**  | `.depmap` 解密 + 导入       |
+| 用例总时长                           | **34,257** | 含未单独计时的步骤          |
 
 ### 3.3 DB row count
 
@@ -116,7 +116,7 @@
 
 ## 5. Gate
 
-| Gate | 状态 |
-| --- | --- |
-| `ANDROID_PERFORMANCE_SMOKE` | **PASS_WITH_REPORT** |
-| 说明 | 数字有效（10,000 行解析、0 错误、强断言通过），但仅单次采样、环境为软件渲染模拟器，不构成 SLA；DB 回读计数未测量 |
+| Gate                        | 状态                                                                                                             |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `ANDROID_PERFORMANCE_SMOKE` | **PASS_WITH_REPORT**                                                                                             |
+| 说明                        | 数字有效（10,000 行解析、0 错误、强断言通过），但仅单次采样、环境为软件渲染模拟器，不构成 SLA；DB 回读计数未测量 |

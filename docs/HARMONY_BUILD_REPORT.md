@@ -25,14 +25,14 @@
 
 ## 2. 构建环境
 
-| 组件                       | 版本 / 路径                                                   |
-| -------------------------- | ------------------------------------------------------------- |
-| DevEco Studio              | 5.0.5.310（`<DEVECO_HOME>`）                  |
-| HarmonyOS SDK              | HarmonyOS 5.0.1，`5.0.1.115`，API 13（`sdk/default`）         |
-| `@ohos/hvigor`             | 5.13.2（DevEco 内置，`file:` 协议引用）                       |
-| `@ohos/hvigor-ohos-plugin` | 5.13.2（DevEco 内置，`file:` 协议引用）                       |
-| Node                       | v18.20.1（DevEco 内置）                                       |
-| 构建入口                   | `platforms/harmonyos/build.sh`（自动镜像到 ASCII 路径）       |
+| 组件                       | 版本 / 路径                                                  |
+| -------------------------- | ------------------------------------------------------------ |
+| DevEco Studio              | 5.0.5.310（`<DEVECO_HOME>`）                                 |
+| HarmonyOS SDK              | HarmonyOS 5.0.1，`5.0.1.115`，API 13（`sdk/default`）        |
+| `@ohos/hvigor`             | 5.13.2（DevEco 内置，`file:` 协议引用）                      |
+| `@ohos/hvigor-ohos-plugin` | 5.13.2（DevEco 内置，`file:` 协议引用）                      |
+| Node                       | v18.20.1（DevEco 内置）                                      |
+| 构建入口                   | `platforms/harmonyos/build.sh`（自动镜像到 ASCII 路径）      |
 | 镜像目录                   | `<DEPMAP_TOOLS_HOME>\harmony-ascii3`（默认 `harmony-ascii`） |
 
 ---

@@ -29,11 +29,11 @@ PDIG 此前以 **uni-app x + UTS** 作为三端统一底座：
 
 **彻底退出 uni-app x / UTS / DCloud Production 技术栈。**
 
-| 平台      | 技术栈                                                                 |
-| --------- | ---------------------------------------------------------------------- |
-| Android   | Kotlin + Jetpack Compose + Navigation Compose + Coroutines/Flow + SQLCipher + Keystore + BiometricPrompt |
+| 平台      | 技术栈                                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------------- |
+| Android   | Kotlin + Jetpack Compose + Navigation Compose + Coroutines/Flow + SQLCipher + Keystore + BiometricPrompt   |
 | iOS       | Swift + SwiftUI + NavigationStack + async/await + Observation + SQLCipher + Keychain + LocalAuthentication |
-| HarmonyOS | ArkTS + ArkUI + Stage Model + ArkData relationalStore + HUKS + Harmony 认证 |
+| HarmonyOS | ArkTS + ArkUI + Stage Model + ArkData relationalStore + HUKS + Harmony 认证                                |
 
 Production 禁止依赖：uni-app、uni-app x、`.uvue` runtime、UTS runtime、
 HBuilderX、DCloud Cloud Build / Native SDK / 登录 / 云打包 / 运行时。
@@ -46,11 +46,11 @@ HBuilderX、DCloud Cloud Build / Native SDK / 登录 / 云打包 / 运行时。
 
 ### 为什么不再"修一修 uni-app x"
 
-| 方案                       | 优点                       | 缺点                                        |
-| -------------------------- | -------------------------- | ------------------------------------------- |
-| 继续 uni-app x             | 复用现有 24 页 UI          | 构建闸门在外部账号；UI 与 Core 双真相；Harmony 原生能力受限 |
-| **三端原生**               | 无外部构建闸门；平台原生感 | 三份实现，需要强 Spec + Conformance 约束      |
-| Flutter / RN / Capacitor   | 一套代码                   | 不满足 HarmonyOS 原生上架要求（已否决）      |
+| 方案                     | 优点                       | 缺点                                                        |
+| ------------------------ | -------------------------- | ----------------------------------------------------------- |
+| 继续 uni-app x           | 复用现有 24 页 UI          | 构建闸门在外部账号；UI 与 Core 双真相；Harmony 原生能力受限 |
+| **三端原生**             | 无外部构建闸门；平台原生感 | 三份实现，需要强 Spec + Conformance 约束                    |
+| Flutter / RN / Capacitor | 一套代码                   | 不满足 HarmonyOS 原生上架要求（已否决）                     |
 
 ### 接受的成本
 

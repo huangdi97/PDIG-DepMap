@@ -18,20 +18,20 @@
 
 ## 1. Shot List（10 类必拍 + 2 备选）
 
-| # | 屏幕 | 来源路由 | 画面要点（合成数据示例文案） | 拍摄要求 |
-|---|------|----------|------------------------------|----------|
-| 1 | **Home / Attention** | `Route.HOME` | 「需要你处理」1–2 项（如「确认 2 条待确认关系」）；「即将到来」显示一张卡到期 | 六区可见；无真实数据 |
-| 2 | **Import privacy** | `Route.IMPORT` | 导入前隐私说明：「文件仅在本机解析，不上传」 | 展示隐私承诺 |
-| 3 | **Import review** | `Route.IMPORT_REVIEW` | 解析结果预览：N 行解析 / Node Resolution 结果 | 展示脱敏后的服务名（示例） |
-| 4 | **Proposal review** | `Route.PENDING_REVIEW` | 待确认 Proposal 列表：「示例服务与示例卡可能有关联？」+ 确认/忽略按钮 | 突出「未确认 ≠ 事实」 |
-| 5 | **Infrastructure** | `Route.INFRASTRUCTURE` | 节点列表：示例服务 / 示例卡 / 示例账户 | 无真实账号 |
-| 6 | **Scenario Center** | `Route.SCENARIO_CENTER` | 三场景卡：更换支付卡 / 银行卡即将到期 / 注销银行卡 | 展示场景覆盖分级 |
-| 7 | **Impact** | `Route.SCENARIO_SETUP`（影响面） | 更换支付卡 → 受影响下游列表 | 展示影响面 |
-| 8 | **ChangePlan** | `Route.CHANGE_PLAN_DETAIL` | 计划详情：状态标签 + 要做的事 + 下一步 | 展示 done≠verified 双态 |
-| 9 | **Verification** | `Route.CHANGE_PLAN_DETAIL`（验证态） | 逐项验证列表：「确认已验证」按钮 | 展示 verification |
-| 10 | **Timeline / Backup** | `Route.TIMELINE` / `Route.BACKUP` | 时间线分桶 + 备份导出入口 | 展示时间线投影与备份 |
-| 11（备选） | **Restore** | `Route.RESTORE` | 选择 .depmap → 口令 → 显式确认 | 展示加密恢复 |
-| 12（备选） | **Privacy 设置** | `Route.PRIVACY` | 隐私说明页 / 数据管理 | 展示本地优先 |
+| #          | 屏幕                  | 来源路由                             | 画面要点（合成数据示例文案）                                                  | 拍摄要求                   |
+| ---------- | --------------------- | ------------------------------------ | ----------------------------------------------------------------------------- | -------------------------- |
+| 1          | **Home / Attention**  | `Route.HOME`                         | 「需要你处理」1–2 项（如「确认 2 条待确认关系」）；「即将到来」显示一张卡到期 | 六区可见；无真实数据       |
+| 2          | **Import privacy**    | `Route.IMPORT`                       | 导入前隐私说明：「文件仅在本机解析，不上传」                                  | 展示隐私承诺               |
+| 3          | **Import review**     | `Route.IMPORT_REVIEW`                | 解析结果预览：N 行解析 / Node Resolution 结果                                 | 展示脱敏后的服务名（示例） |
+| 4          | **Proposal review**   | `Route.PENDING_REVIEW`               | 待确认 Proposal 列表：「示例服务与示例卡可能有关联？」+ 确认/忽略按钮         | 突出「未确认 ≠ 事实」      |
+| 5          | **Infrastructure**    | `Route.INFRASTRUCTURE`               | 节点列表：示例服务 / 示例卡 / 示例账户                                        | 无真实账号                 |
+| 6          | **Scenario Center**   | `Route.SCENARIO_CENTER`              | 三场景卡：更换支付卡 / 银行卡即将到期 / 注销银行卡                            | 展示场景覆盖分级           |
+| 7          | **Impact**            | `Route.SCENARIO_SETUP`（影响面）     | 更换支付卡 → 受影响下游列表                                                   | 展示影响面                 |
+| 8          | **ChangePlan**        | `Route.CHANGE_PLAN_DETAIL`           | 计划详情：状态标签 + 要做的事 + 下一步                                        | 展示 done≠verified 双态    |
+| 9          | **Verification**      | `Route.CHANGE_PLAN_DETAIL`（验证态） | 逐项验证列表：「确认已验证」按钮                                              | 展示 verification          |
+| 10         | **Timeline / Backup** | `Route.TIMELINE` / `Route.BACKUP`    | 时间线分桶 + 备份导出入口                                                     | 展示时间线投影与备份       |
+| 11（备选） | **Restore**           | `Route.RESTORE`                      | 选择 .depmap → 口令 → 显式确认                                                | 展示加密恢复               |
+| 12（备选） | **Privacy 设置**      | `Route.PRIVACY`                      | 隐私说明页 / 数据管理                                                         | 展示本地优先               |
 
 > 屏幕路由名以 `android/app/src/main/kotlin/com/pdig/app/ui/` 实际代码为准；
 > 若个别路由在最终产品中不可达，则跳过并在记录中注明（不伪造截图）。

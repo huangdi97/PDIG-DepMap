@@ -11,16 +11,16 @@ canonical 65 → 85/91）。
 
 ## 1. 现象链（按发生顺序）
 
-| # | 现象 | 直接证据 |
-| --- | --- | --- |
-| 1 | `git commit` 输出正常、commit 对象已建、reflog 已写，**但分支 ref 不动** | `git log --oneline -1` 仍是旧 commit；`git cat-file -t <新sha>` 存在 |
-| 2 | `git update-ref` 返回 0，同样不生效；关掉沙箱重试也无效 | `git rev-parse HEAD` 不变 |
-| 3 | 分支 ref **只存在于 `packed-refs`**，`.git/refs/heads/feat/` 目录不存在 | `git show-ref` 出得来；`ls .git/refs/heads/` 里没有 `feat/` |
-| 4 | `git push` 之后 `refs/remotes/origin/*` **变空**（fetch 重写 packed-refs 时丢 remote-tracking） | `git rev-parse origin/feat/...` 失败；`ls -R .git/refs/remotes` 空 |
-| 5 | `git rebase --onto` 被 120s 超时 SIGTERM 杀死，留下空的 `.git/rebase-merge/` | `ls .git/rebase-merge` 为空目录 |
-| 6 | rebase 触发的 gc 把「因 ref 混乱而显得不可达」的对象 prune 掉 → **对象库损坏** | `pack has 42 unresolved deltas`；`Could not read <sha>`；本地独有提交的树**永久丢失** |
-| 7 | 协商式 `git fetch` 无法修复：delta base 已缺，协商必然失败 | `git fetch --no-tags origin <branch>` 报 unresolved deltas 后中止 |
-| 8 | `git commit` 本身也会触发 gc，二次损坏 | commit 被超时中断后再查，对象又少一批 |
+| #   | 现象                                                                                            | 直接证据                                                                              |
+| --- | ----------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 1   | `git commit` 输出正常、commit 对象已建、reflog 已写，**但分支 ref 不动**                        | `git log --oneline -1` 仍是旧 commit；`git cat-file -t <新sha>` 存在                  |
+| 2   | `git update-ref` 返回 0，同样不生效；关掉沙箱重试也无效                                         | `git rev-parse HEAD` 不变                                                             |
+| 3   | 分支 ref **只存在于 `packed-refs`**，`.git/refs/heads/feat/` 目录不存在                         | `git show-ref` 出得来；`ls .git/refs/heads/` 里没有 `feat/`                           |
+| 4   | `git push` 之后 `refs/remotes/origin/*` **变空**（fetch 重写 packed-refs 时丢 remote-tracking） | `git rev-parse origin/feat/...` 失败；`ls -R .git/refs/remotes` 空                    |
+| 5   | `git rebase --onto` 被 120s 超时 SIGTERM 杀死，留下空的 `.git/rebase-merge/`                    | `ls .git/rebase-merge` 为空目录                                                       |
+| 6   | rebase 触发的 gc 把「因 ref 混乱而显得不可达」的对象 prune 掉 → **对象库损坏**                  | `pack has 42 unresolved deltas`；`Could not read <sha>`；本地独有提交的树**永久丢失** |
+| 7   | 协商式 `git fetch` 无法修复：delta base 已缺，协商必然失败                                      | `git fetch --no-tags origin <branch>` 报 unresolved deltas 后中止                     |
+| 8   | `git commit` 本身也会触发 gc，二次损坏                                                          | commit 被超时中断后再查，对象又少一批                                                 |
 
 根因一句话：**分支 ref 写在 packed-refs 里、而创建嵌套 loose ref 目录的操作在本环境被拦截**
 （现象 1–4），加上**长事务 git 命令被超时杀死后由 gc 剪掉"看似不可达"的对象**（现象 5–8）。
@@ -94,13 +94,13 @@ main 推进前：
 
 ## 4. CI 口径（永久，四条独立账）
 
-| 账 | 值 | 产生位置 |
-| --- | --- | --- |
-| `GITHUB_PORTABLE_CI` | PASS / FAIL | `.github/workflows/ci.yml` 全部 job |
-| `HARMONY_HOST_CONFORMANCE_LOCAL` | PASS 89/89（canonical 85/91） | 本机 DevEco hvigor，`tools/harmony/run-conformance-host.mjs` |
-| `HARMONY_COMPILE_REACHABILITY_LOCAL` | PASS（A/B/C/D） | 本机 clean assembleHap，`tools/harmony/check-compiled-reachability.mjs --build` |
-| `HARMONY_GITHUB_HOSTED_NATIVE_BUILD` | **NOT_AVAILABLE** | hosted runner 无 DevEco / HarmonyOS SDK / hvigor |
-| `HARMONY_DEVICE_RUNTIME` | **NOT_RUN** | 无设备运行时 |
+| 账                                   | 值                            | 产生位置                                                                        |
+| ------------------------------------ | ----------------------------- | ------------------------------------------------------------------------------- |
+| `GITHUB_PORTABLE_CI`                 | PASS / FAIL                   | `.github/workflows/ci.yml` 全部 job                                             |
+| `HARMONY_HOST_CONFORMANCE_LOCAL`     | PASS 89/89（canonical 85/91） | 本机 DevEco hvigor，`tools/harmony/run-conformance-host.mjs`                    |
+| `HARMONY_COMPILE_REACHABILITY_LOCAL` | PASS（A/B/C/D）               | 本机 clean assembleHap，`tools/harmony/check-compiled-reachability.mjs --build` |
+| `HARMONY_GITHUB_HOSTED_NATIVE_BUILD` | **NOT_AVAILABLE**             | hosted runner 无 DevEco / HarmonyOS SDK / hvigor                                |
+| `HARMONY_DEVICE_RUNTIME`             | **NOT_RUN**                   | 无设备运行时                                                                    |
 
 禁止：把 `GITHUB_PORTABLE_CI = PASS` 写成「Harmony native verification PASS」。
 也禁止：因为 hosted runner 没有 DevEco，就永远阻止 main integration ——

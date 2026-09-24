@@ -32,18 +32,18 @@
 
 ## 4. 本机环境审计（2026-09-06 实测）
 
-| 工具                         | 状态                                                                   | 对 MVP 的影响                                             |
-| ---------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
-| Node.js v22.15.0             | 可用                                                                   | 共享 Core 测试可运行                                      |
-| npm 11.3.0（registry 连通）  | 可用                                                                   | 可安装 vitest / hash-wasm 等开发依赖                      |
-| git 2.55.0                   | 可用                                                                   | 版本管理可执行                                            |
-| `node:sqlite`（Node 内置）   | 可用（experimental）                                                   | Repository/Migration 测试可用真实 SQLite 语义，零原生依赖 |
-| Java                         | 仅 JRE 1.8（无 JDK 17）                                                | **Gradle/AGP 构建不可用**（Android 构建需要 JDK 17+）     |
+| 工具                         | 状态                                                                           | 对 MVP 的影响                                             |
+| ---------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------- |
+| Node.js v22.15.0             | 可用                                                                           | 共享 Core 测试可运行                                      |
+| npm 11.3.0（registry 连通）  | 可用                                                                           | 可安装 vitest / hash-wasm 等开发依赖                      |
+| git 2.55.0                   | 可用                                                                           | 版本管理可执行                                            |
+| `node:sqlite`（Node 内置）   | 可用（experimental）                                                           | Repository/Migration 测试可用真实 SQLite 语义，零原生依赖 |
+| Java                         | 仅 JRE 1.8（无 JDK 17）                                                        | **Gradle/AGP 构建不可用**（Android 构建需要 JDK 17+）     |
 | Android SDK                  | 仅 `<ANDROID_SDK_ROOT>\adb.exe`（platform-tools），无 SDK/platform/build-tools | **Android 编译不可行**                                    |
-| Gradle                       | 未安装                                                                 | 同上                                                      |
-| HBuilderX / uni-app x CLI    | 未安装                                                                 | **uni-app x 应用编译不可行**                              |
-| DevEco Studio / ArkTS 工具链 | 未安装                                                                 | **HarmonyOS 编译不可行**                                  |
-| macOS / Xcode                | 无（本机 Windows）                                                     | **iOS 编译/签名不可行**（GOAL/PLATFORM_DECISION 预期内）  |
+| Gradle                       | 未安装                                                                         | 同上                                                      |
+| HBuilderX / uni-app x CLI    | 未安装                                                                         | **uni-app x 应用编译不可行**                              |
+| DevEco Studio / ArkTS 工具链 | 未安装                                                                         | **HarmonyOS 编译不可行**                                  |
+| macOS / Xcode                | 无（本机 Windows）                                                             | **iOS 编译/签名不可行**（GOAL/PLATFORM_DECISION 预期内）  |
 
 结论：本机可交付 = 共享 Core 全量实现 + 测试 + `.depmap` 协议 + 平台 Adapter/工程源码 + 文档；
 不可交付（外部 Blocker）= Android/HarmonyOS/iOS/HBuilderX 实际编译、真机验证、签名。

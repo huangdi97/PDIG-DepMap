@@ -39,17 +39,17 @@ sdk/default/
 
 ## 2. 逐项审计
 
-| 项 | 期望 | 实测 | 判定 |
-| --- | --- | --- | --- |
-| DevEco Studio 安装 | 存在 | `$PDIG_DEVECO_HOME` 可用（9 个顶层条目） | **满足** |
-| OpenHarmony SDK | 存在 | `sdk/default/openharmony`（5 个子目录） | **满足** |
-| HMS SDK | 存在 | `sdk/default/hms`（4 个子目录） | **满足** |
-| OHOS NDK / clang | 存在 | `sdk/default/openharmony/native/llvm/bin/clang 15.0.4` 可用，已完成 arm64-v8a + x86_64 交叉编译 | **满足** |
-| hvigor | 存在 | `tools/hvigor/hvigor/bin/hvigor.js` 可用，clean assembleHap 成功 | **满足** |
-| Emulator 可执行文件 | 存在 | `tools/emulator/Emulator.exe`（38 个条目），`emulator.json` 定义机型模板（Huawei_Phone API11/12/13 等） | **满足** |
-| **Emulator 系统镜像** | 存在 | **不存在**：`images` 目录缺失，机型模板只有元数据、无镜像实体 | **缺失（阻断点）** |
-| `hdc` 可执行文件 | 存在 | `sdk/default/openharmony/toolchains/hdc.exe` | **满足** |
-| **`hdc` 可用目标** | ≥1 | `hdc list targets` → **`[Empty]`** | **缺失** |
+| 项                    | 期望 | 实测                                                                                                    | 判定               |
+| --------------------- | ---- | ------------------------------------------------------------------------------------------------------- | ------------------ |
+| DevEco Studio 安装    | 存在 | `$PDIG_DEVECO_HOME` 可用（9 个顶层条目）                                                                | **满足**           |
+| OpenHarmony SDK       | 存在 | `sdk/default/openharmony`（5 个子目录）                                                                 | **满足**           |
+| HMS SDK               | 存在 | `sdk/default/hms`（4 个子目录）                                                                         | **满足**           |
+| OHOS NDK / clang      | 存在 | `sdk/default/openharmony/native/llvm/bin/clang 15.0.4` 可用，已完成 arm64-v8a + x86_64 交叉编译         | **满足**           |
+| hvigor                | 存在 | `tools/hvigor/hvigor/bin/hvigor.js` 可用，clean assembleHap 成功                                        | **满足**           |
+| Emulator 可执行文件   | 存在 | `tools/emulator/Emulator.exe`（38 个条目），`emulator.json` 定义机型模板（Huawei_Phone API11/12/13 等） | **满足**           |
+| **Emulator 系统镜像** | 存在 | **不存在**：`images` 目录缺失，机型模板只有元数据、无镜像实体                                           | **缺失（阻断点）** |
+| `hdc` 可执行文件      | 存在 | `sdk/default/openharmony/toolchains/hdc.exe`                                                            | **满足**           |
+| **`hdc` 可用目标**    | ≥1   | `hdc list targets` → **`[Empty]`**                                                                      | **缺失**           |
 
 ---
 
@@ -76,12 +76,12 @@ Device Manager 以**已登录的华为开发者账号**下载。这涉及：
 
 ### 明确的候选路径（供用户选择，非本轮已执行）
 
-| 路径 | 前置 | 代价 | 备注 |
-| --- | --- | --- | --- |
-| A. 本地模拟器 | 登录华为账号 + 下载系统镜像 | 数 GB 磁盘 + 下载时间 | 最标准；`x86_64` ABI 已在构建 profile 中备好 |
-| B. 远程模拟器 / 云真机 | 登录 + 配额 | 取决于账号权限 | 依赖账号可用性 |
-| C. 真实设备 | 一台 HarmonyOS 手机 + USB 调试 | 需要硬件 | 最快拿到真机证据；`arm64-v8a` 已备好 |
-| D. 暂不提供运行时 | —— | —— | 保持 `RUNTIME_NOT_RUN`，继续推进不依赖运行时的部分 |
+| 路径                   | 前置                           | 代价                  | 备注                                               |
+| ---------------------- | ------------------------------ | --------------------- | -------------------------------------------------- |
+| A. 本地模拟器          | 登录华为账号 + 下载系统镜像    | 数 GB 磁盘 + 下载时间 | 最标准；`x86_64` ABI 已在构建 profile 中备好       |
+| B. 远程模拟器 / 云真机 | 登录 + 配额                    | 取决于账号权限        | 依赖账号可用性                                     |
+| C. 真实设备            | 一台 HarmonyOS 手机 + USB 调试 | 需要硬件              | 最快拿到真机证据；`arm64-v8a` 已备好               |
+| D. 暂不提供运行时      | ——                             | ——                    | 保持 `RUNTIME_NOT_RUN`，继续推进不依赖运行时的部分 |
 
 **工程侧已为该选择做好准备的证据**：`build-profile.json5` 的 `abiFilters`
 **同时**包含 `arm64-v8a`（真机/标准目标）与 `x86_64`（模拟器系统镜像所需），
@@ -94,14 +94,14 @@ Device Manager 以**已登录的华为开发者账号**下载。这涉及：
 
 必须强调：`RUNTIME_NOT_RUN` 不等于「什么都没验证」。下列结论**不依赖设备**且已取得实证：
 
-| 结论 | 证据 | 状态 |
-| --- | --- | --- |
-| ArkTS 模块真的被编译 | `check-compiled-reachability.mjs` 的 A/B/C/D 四判据，含负向 probe 真失败 | **PASS** |
-| 原生库真的被交叉编译 | `check-argon2-native-build.mjs`：arm64-v8a `AArch64` 40768B / x86_64 `Advanced Micro Devices X86-64` 42296B | **PASS** |
-| 原生库真的进了产物 | HAP 内 `libs/arm64-v8a/libpdiargon2.so` + `libs/x86_64/libpdiargon2.so` + `ets/modules.abc` | **PASS** |
-| 信任边界真的成立 | 打包并 strip 后的动态符号表**恰好 3 个**：`_init`/`_fini`/`RegisterPdiArgon2Module`，`argon2_*` = 0 | **PASS** |
-| 第三方源码真的未改 | `check-third-party-hashes.mjs`：16/16 文件哈希一致，`local_modifications = 0` | **PASS** |
-| 容器格式与 Android 一致 | 主机侧黄金校验 5/5 | **PASS** |
+| 结论                    | 证据                                                                                                        | 状态     |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------- | -------- |
+| ArkTS 模块真的被编译    | `check-compiled-reachability.mjs` 的 A/B/C/D 四判据，含负向 probe 真失败                                    | **PASS** |
+| 原生库真的被交叉编译    | `check-argon2-native-build.mjs`：arm64-v8a `AArch64` 40768B / x86_64 `Advanced Micro Devices X86-64` 42296B | **PASS** |
+| 原生库真的进了产物      | HAP 内 `libs/arm64-v8a/libpdiargon2.so` + `libs/x86_64/libpdiargon2.so` + `ets/modules.abc`                 | **PASS** |
+| 信任边界真的成立        | 打包并 strip 后的动态符号表**恰好 3 个**：`_init`/`_fini`/`RegisterPdiArgon2Module`，`argon2_*` = 0         | **PASS** |
+| 第三方源码真的未改      | `check-third-party-hashes.mjs`：16/16 文件哈希一致，`local_modifications = 0`                               | **PASS** |
+| 容器格式与 Android 一致 | 主机侧黄金校验 5/5                                                                                          | **PASS** |
 
 **唯一无法在无设备下完成的是**：Argon2 派生在真实 OHOS 运行时上执行、
 以及 `p=1..4` 参数透传的设备侧取证。
@@ -144,11 +144,11 @@ Device Manager 以**已登录的华为开发者账号**下载。这涉及：
 
 ### 7.1 三个候选路径的实测结论
 
-| 候选 | 实测 | 判定 |
-| ---- | ---- | ---- |
-| `ark_js_vm`（ArkTS 独立虚拟机） | **不存在**。`sdk/default/openharmony/toolchains/` 只有 `es2abc.exe`（编译器）、`ark_disasm.exe`（反汇编器）等，**无运行时** | ❌ 不可用 |
-| `Previewer.exe` | 存在（`sdk/default/openharmony/previewer/common/bin/`）。实测需 `-j <app path>` + 与 IDE 的 socket/trace 管道（`LocalSocket::ConnectToServer`），且 `@ohos.*` 是**预览桩** | ❌ 作为证据通道不成立 |
-| **hvigor `test` 任务（本地单元测试）** | ✅ **可用**。编译 ArkTS → 在主机执行 → 落 `test_result.txt` | ✅ **采用** |
+| 候选                                   | 实测                                                                                                                                                                       | 判定                  |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| `ark_js_vm`（ArkTS 独立虚拟机）        | **不存在**。`sdk/default/openharmony/toolchains/` 只有 `es2abc.exe`（编译器）、`ark_disasm.exe`（反汇编器）等，**无运行时**                                                | ❌ 不可用             |
+| `Previewer.exe`                        | 存在（`sdk/default/openharmony/previewer/common/bin/`）。实测需 `-j <app path>` + 与 IDE 的 socket/trace 管道（`LocalSocket::ConnectToServer`），且 `@ohos.*` 是**预览桩** | ❌ 作为证据通道不成立 |
+| **hvigor `test` 任务（本地单元测试）** | ✅ **可用**。编译 ArkTS → 在主机执行 → 落 `test_result.txt`                                                                                                                | ✅ **采用**           |
 
 ### 7.2 为什么弃用 Previewer（不是"试不通就放弃"）
 
@@ -188,4 +188,3 @@ Tests run: 61, Failure: 0, Error: 0, Pass: 61, Ignore: 0
 前面几节把 `RUNTIME_NOT_RUN` 归因于"缺设备"。那仍然正确，
 但**不足以推出"完全没有执行面"** —— 第四轮据此把 57 个运行时无关用例真跑通了。
 教训：一个看起来不可绕过的阻塞，值得再问一次"真的吗"。
-

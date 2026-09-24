@@ -216,11 +216,11 @@ milestone 重跑的**实际执行树为 `3105c96`**（`docs(closure): make the c
 
 **尝试与观测**（如实登记）：
 
-| 尝试                                          | 观测                                                                                              |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| 尝试                                                  | 观测                                                                                              |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `git clone` → `<repo_parent>/_depmap_cc3`（工作区外） | refs 复制成功，但对象库**不完整**：`fatal: unable to read tree (b5640f1…)`；检出被 `SIGTERM` 终止 |
-| `git clone` → `%TEMP%`                        | 命令报告成功，但目标目录**不可见**（写入被截断）                                                  |
-| 本轮自建临时目录清理                          | 已完成：`<repo_parent>/_depmap_probe`、`<repo_parent>/_depmap_cc3` 均已移除，工作区外无遗留                       |
+| `git clone` → `%TEMP%`                                | 命令报告成功，但目标目录**不可见**（写入被截断）                                                  |
+| 本轮自建临时目录清理                                  | 已完成：`<repo_parent>/_depmap_probe`、`<repo_parent>/_depmap_cc3` 均已移除，工作区外无遗留       |
 
 **根因**：本沙箱对**工作区外的批量写入**做截断 / 终止；且 Node 进程被注入 safe-delete 批量守卫（阈值 50 文件）。
 
@@ -255,7 +255,7 @@ milestone 重跑的**实际执行树为 `3105c96`**（`docs(closure): make the c
 | HarmonyOS | SDK 组件                 | 读 5 个 `oh-uni-package.json`                                             | `ets`/`js`/`native`/`previewer`/`toolchains` **均存在**，`apiVersion 13`、`version 5.0.1.115`、`metaVersion 3.0.0` | **一致**   |
 | HarmonyOS | hvigor 入口              | `ls tools/hvigor/bin`                                                     | `hvigorw`、`hvigorw.bat`、`hvigorw.js`                                                                             | 一致       |
 | HarmonyOS | **实际构建（真实重跑）** | 见下                                                                      | **BUILD FAILED**，精确复现既有错误 + **新增根因**                                                                  | 见下       |
-| UI        | HBuilderX                | `ls <TOOLS_ROOT>/HBuilderX`、`where HBuilderX`                                 | **不存在**                                                                                                         | **一致**   |
+| UI        | HBuilderX                | `ls <TOOLS_ROOT>/HBuilderX`、`where HBuilderX`                            | **不存在**                                                                                                         | **一致**   |
 | iOS       | macOS / Xcode            | `command -v xcodebuild`                                                   | **不存在**                                                                                                         | **一致**   |
 
 ### HarmonyOS hvigor 重跑（唯一被实际执行的 platform build）

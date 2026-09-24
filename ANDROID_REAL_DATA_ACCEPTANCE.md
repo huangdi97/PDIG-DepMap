@@ -8,22 +8,22 @@
 
 ## 1. 验收门禁
 
-| Gate | 判定 | 现状 |
-|------|------|------|
-| 授权数据存在（用户提供 1 份真实账单） | 必须 True | **False**（无授权数据） |
-| REAL_DATA_CORRECTNESS | 通过协议 + 脱敏执行一轮 | **BLOCKED_BY_REAL_DATA** |
-| REAL_DATA_VALUE | 指标达成 + 用户复核 | **BLOCKED_BY_REAL_DATA** |
+| Gate                                  | 判定                    | 现状                     |
+| ------------------------------------- | ----------------------- | ------------------------ |
+| 授权数据存在（用户提供 1 份真实账单） | 必须 True               | **False**（无授权数据）  |
+| REAL_DATA_CORRECTNESS                 | 通过协议 + 脱敏执行一轮 | **BLOCKED_BY_REAL_DATA** |
+| REAL_DATA_VALUE                       | 指标达成 + 用户复核     | **BLOCKED_BY_REAL_DATA** |
 
 ## 2. 指标目标（协议 §4 的验收值）
 
-| 指标 | 验收线 |
-|------|--------|
+| 指标                     | 验收线                                             |
+| ------------------------ | -------------------------------------------------- |
 | Precision（must_change） | 无假阳性：`confirmed false positive = 0`（硬目标） |
-| false must_change | 0 |
-| Node Resolution 正确率 | ≥95% |
-| Proposal 有用率 | ≥80% |
-| 遗漏 dependency | 分类记录（不设 0 目标 —— 真实世界永远有未知） |
-| 单次换卡排查时间 | 记录中位数（不预设） |
+| false must_change        | 0                                                  |
+| Node Resolution 正确率   | ≥95%                                               |
+| Proposal 有用率          | ≥80%                                               |
+| 遗漏 dependency          | 分类记录（不设 0 目标 —— 真实世界永远有未知）      |
+| 单次换卡排查时间         | 记录中位数（不预设）                               |
 
 ## 3. 现状与证据边界
 

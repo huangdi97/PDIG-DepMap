@@ -25,14 +25,14 @@
 
 ## 3. Parser 验证
 
-| 检查项 | 记录 |
-|--------|------|
-| row parse correctness | 解析行数 / 错误行数 / 跳过行数 |
-| date | 日期字段解析正确率（真实格式 vs spec） |
-| amount | 金额解析正确率（含负值/币种） |
-| currency | 币种识别（多币种账单） |
-| description | 描述字段保留完整性 |
-| transaction identity | 交易身份（去重/防重）判定 |
+| 检查项                | 记录                                   |
+| --------------------- | -------------------------------------- |
+| row parse correctness | 解析行数 / 错误行数 / 跳过行数         |
+| date                  | 日期字段解析正确率（真实格式 vs spec） |
+| amount                | 金额解析正确率（含负值/币种）          |
+| currency              | 币种识别（多币种账单）                 |
+| description           | 描述字段保留完整性                     |
+| transaction identity  | 交易身份（去重/防重）判定              |
 
 > 目标：与 synthetic 参考线一致（conformance 覆盖的全部格式族）；差异逐条记录原因。
 
@@ -41,26 +41,26 @@
 按 spec 顺序（**builtin alias exact → normalized exact → conservative fuzzy → 用户确认**；
 禁止 embedding / LLM / vector DB）：
 
-| 统计 | 定义 |
-|------|------|
+| 统计               | 定义                               |
+| ------------------ | ---------------------------------- |
 | correct resolution | 机器正确解析到服务节点（用户认可） |
-| ambiguous | 多个候选，需用户选择 |
-| false merge | 机器把两个不同服务合并成一个节点 |
-| false split | 机器把同一服务拆成多个节点 |
-| unresolved | 无法解析，留在未确认状态 |
+| ambiguous          | 多个候选，需用户选择               |
+| false merge        | 机器把两个不同服务合并成一个节点   |
+| false split        | 机器把同一服务拆成多个节点         |
+| unresolved         | 无法解析，留在未确认状态           |
 
 > 未完成 resolution 的商户**不得**生成 DependencyProposal（spec / AGENTS §15）。
 
 ## 5. Proposal 验证
 
-| 统计 | 定义 |
-|------|------|
-| total proposals | 机器产生的 Proposal 总数 |
-| accepted | 用户确认采纳 |
-| rejected | 用户拒绝 |
-| uncertain | 用户无法判断 |
-| useful | 用户认为有用（含 rejected 但信息有用） |
-| obvious noise | 用户认为纯噪音 |
+| 统计            | 定义                                   |
+| --------------- | -------------------------------------- |
+| total proposals | 机器产生的 Proposal 总数               |
+| accepted        | 用户确认采纳                           |
+| rejected        | 用户拒绝                               |
+| uncertain       | 用户无法判断                           |
+| useful          | 用户认为有用（含 rejected 但信息有用） |
+| obvious noise   | 用户认为纯噪音                         |
 
 同 key Proposal 生命周期（UPSERT）：pending → 继续累计 evidence；accepted → 不重复问；
 rejected → 有新 evidence 才重提（AGENTS §11）。
@@ -74,25 +74,25 @@ rejected → 有新 evidence 才重提（AGENTS §11）。
 
 ## 7. Impact 验证（重点）
 
-| 检查项 | 定义 | 严重度 |
-|--------|------|--------|
-| **false must_change** | 机器标 must_change 但用户确认无需处理 | **高严重度，硬目标 = 0** |
-| false unaffected | 机器标 unaffected 但实际受影响（漏报） | 记录并分类 |
-| false backup_path | 误判为可替换路径 | 中 |
-| needs_review quality | needs_review 项是否对用户有指导价值 | 记录 |
+| 检查项                | 定义                                   | 严重度                   |
+| --------------------- | -------------------------------------- | ------------------------ |
+| **false must_change** | 机器标 must_change 但用户确认无需处理  | **高严重度，硬目标 = 0** |
+| false unaffected      | 机器标 unaffected 但实际受影响（漏报） | 记录并分类               |
+| false backup_path     | 误判为可替换路径                       | 中                       |
+| needs_review quality  | needs_review 项是否对用户有指导价值    | 记录                     |
 
 > `must_change` 只能由 Confirmed Reality 中的高确定性条件产生（AGENTS §13/§14）。
 
 ## 8. 指标表与目标
 
-| 指标 | 定义 | 目标 |
-|------|------|------|
+| 指标                     | 定义                                            | 目标                                     |
+| ------------------------ | ----------------------------------------------- | ---------------------------------------- |
 | Precision（must_change） | 用户确认的 must_change / 机器标出的 must_change | 无假阳性（confirmed false positive = 0） |
-| false must_change 数 | 机器标 must_change 但用户说不对 | **0**（硬目标） |
-| Node Resolution 正确率 | 正确识别支付方式/收款对象比例 | ≥95%（synthetic 参考线） |
-| Proposal 有用率 | 用户确认/采纳的 Proposal 比例 | ≥80%（参考线，非硬门禁） |
-| 遗漏 dependency | 用户补充确认了机器没发现的依赖 | 记录并分类 |
-| 换卡排查时间 | 从导入到 verified 的端到端时间 | 记录，不预设 |
+| false must_change 数     | 机器标 must_change 但用户说不对                 | **0**（硬目标）                          |
+| Node Resolution 正确率   | 正确识别支付方式/收款对象比例                   | ≥95%（synthetic 参考线）                 |
+| Proposal 有用率          | 用户确认/采纳的 Proposal 比例                   | ≥80%（参考线，非硬门禁）                 |
+| 遗漏 dependency          | 用户补充确认了机器没发现的依赖                  | 记录并分类                               |
+| 换卡排查时间             | 从导入到 verified 的端到端时间                  | 记录，不预设                             |
 
 ## 9. 执行步骤
 

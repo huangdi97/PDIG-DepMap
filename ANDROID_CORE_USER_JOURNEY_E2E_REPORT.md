@@ -24,29 +24,29 @@ SHA256：`bf378ec6678f04bf988921528b73ab879d9381a418d3a094ece2e60490305ff1`
 
 ## 行程结果
 
-| # | 步骤 | 结果 | 关键证据 |
-|---|---|---|---|
-| J1-install | 卸载后重装 APK | PASS | `Success` |
-| J1-first-launch | 全新安装首启 | PASS | 首页出现，对象数 = 0 |
-| J2-nav-sources | 首页 → 数据来源与导入 | PASS | — |
-| J2-nav-import | → 导入页 | PASS | 「第 1 步」出现 |
-| J2-pick-source | 选中已有来源 | PASS | 「已选择」标记出现 |
-| J2-pick-file | SAF 选中 `wechat_synthetic.csv` | PASS | 真实系统文件选择器 |
-| J2-node-resolution | Node Resolution 预览 | PASS | 支付方式（2）、收款对象（3） |
-| J2-commit | 确认导入 | PASS | 「记录 6 行；新增不重复 6 条，重复跳过 0 条。」耗时 8.8s |
-| J3-review-screen | 进入待确认服务页 | PASS | 候选关系未确认 |
-| J4-confirm-reality | 用户确认候选关系 | PASS | 点击「确认」3 次 → 转为 Reality |
-| J4-back-home | 回到基础设施页 | PASS | 出现「招商银行…」 |
-| J5-mark-required | 用户显式标记必需 | PASS | 标记 2 次，详情页显示「必需」2 个 |
-| J5-impact-screen | 影响范围页 | PASS | **必须处理（2）**，含处理顺序 |
-| J6-create-plan | 生成变更计划 | PASS | 计划页生成，revision 8 |
-| J7-complete-actions | 标记动作完成 | PASS | 2 个动作 |
-| J7-done-is-not-verified | done ≠ verified | PASS | done 后仍剩 2 个「确认验证」按钮，状态「验证：待验证」 |
-| J8-verify-actions | 确认验证 | PASS | 2 个动作 |
-| J9-relaunch | 进程死亡后重启 | PASS | 数据仍在：「共 5 个对象」 |
-| J10-export | 导出 .depmap | PASS | `/sdcard/Download/pdig-backup.depmap`，13,617 字节（本轮时间戳） |
-| J10-restore-wrong-password | 错误密码恢复被拒 | PASS | 「无法恢复：密码错误、文件损坏，或版本不受支持。」 |
-| CRASH-SCAN | 应用崩溃扫描 | PASS | `com.pdig.app` 崩溃 0 次 |
+| #                          | 步骤                            | 结果 | 关键证据                                                         |
+| -------------------------- | ------------------------------- | ---- | ---------------------------------------------------------------- |
+| J1-install                 | 卸载后重装 APK                  | PASS | `Success`                                                        |
+| J1-first-launch            | 全新安装首启                    | PASS | 首页出现，对象数 = 0                                             |
+| J2-nav-sources             | 首页 → 数据来源与导入           | PASS | —                                                                |
+| J2-nav-import              | → 导入页                        | PASS | 「第 1 步」出现                                                  |
+| J2-pick-source             | 选中已有来源                    | PASS | 「已选择」标记出现                                               |
+| J2-pick-file               | SAF 选中 `wechat_synthetic.csv` | PASS | 真实系统文件选择器                                               |
+| J2-node-resolution         | Node Resolution 预览            | PASS | 支付方式（2）、收款对象（3）                                     |
+| J2-commit                  | 确认导入                        | PASS | 「记录 6 行；新增不重复 6 条，重复跳过 0 条。」耗时 8.8s         |
+| J3-review-screen           | 进入待确认服务页                | PASS | 候选关系未确认                                                   |
+| J4-confirm-reality         | 用户确认候选关系                | PASS | 点击「确认」3 次 → 转为 Reality                                  |
+| J4-back-home               | 回到基础设施页                  | PASS | 出现「招商银行…」                                                |
+| J5-mark-required           | 用户显式标记必需                | PASS | 标记 2 次，详情页显示「必需」2 个                                |
+| J5-impact-screen           | 影响范围页                      | PASS | **必须处理（2）**，含处理顺序                                    |
+| J6-create-plan             | 生成变更计划                    | PASS | 计划页生成，revision 8                                           |
+| J7-complete-actions        | 标记动作完成                    | PASS | 2 个动作                                                         |
+| J7-done-is-not-verified    | done ≠ verified                 | PASS | done 后仍剩 2 个「确认验证」按钮，状态「验证：待验证」           |
+| J8-verify-actions          | 确认验证                        | PASS | 2 个动作                                                         |
+| J9-relaunch                | 进程死亡后重启                  | PASS | 数据仍在：「共 5 个对象」                                        |
+| J10-export                 | 导出 .depmap                    | PASS | `/sdcard/Download/pdig-backup.depmap`，13,617 字节（本轮时间戳） |
+| J10-restore-wrong-password | 错误密码恢复被拒                | PASS | 「无法恢复：密码错误、文件损坏，或版本不受支持。」               |
+| CRASH-SCAN                 | 应用崩溃扫描                    | PASS | `com.pdig.app` 崩溃 0 次                                         |
 
 ---
 

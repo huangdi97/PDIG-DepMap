@@ -8,15 +8,15 @@
 
 ## 1. 修复前的真实状态
 
-| 检查项 | 修复前 |
-| --- | --- |
-| `android/gradlew` | **不存在** |
-| `android/gradlew.bat` | **不存在** |
-| `android/gradle/wrapper/` | **不存在** |
-| PATH 中的 `gradle` | 无（`Get-Command gradle` 为空） |
-| `JAVA_HOME` | 未设置 |
-| PATH 中的 java | 只有 Oracle Java 8 shim（`java8path`）→ **不满足** |
-| 但 `app-debug.apk` 曾产出 | 是 → 说明此前依赖本机绝对路径 Gradle |
+| 检查项                    | 修复前                                             |
+| ------------------------- | -------------------------------------------------- |
+| `android/gradlew`         | **不存在**                                         |
+| `android/gradlew.bat`     | **不存在**                                         |
+| `android/gradle/wrapper/` | **不存在**                                         |
+| PATH 中的 `gradle`        | 无（`Get-Command gradle` 为空）                    |
+| `JAVA_HOME`               | 未设置                                             |
+| PATH 中的 java            | 只有 Oracle Java 8 shim（`java8path`）→ **不满足** |
+| 但 `app-debug.apk` 曾产出 | 是 → 说明此前依赖本机绝对路径 Gradle               |
 
 `android/` 目录实际内容（修复前）：
 
@@ -31,28 +31,28 @@ build.gradle.kts  gradle.properties  local.properties  settings.gradle.kts
 
 `android/build.gradle.kts`：
 
-| 项 | 值 |
-| --- | --- |
-| Android Gradle Plugin | **8.5.2** |
-| Kotlin | **2.0.0** |
+| 项                              | 值           |
+| ------------------------------- | ------------ |
+| Android Gradle Plugin           | **8.5.2**    |
+| Kotlin                          | **2.0.0**    |
 | compileSdk / targetSdk / minSdk | 34 / 34 / 26 |
-| Java 兼容 | `VERSION_17` |
+| Java 兼容                       | `VERSION_17` |
 
 AGP 8.5.2 要求 **Gradle 8.7+** 且 **JDK 17+**。
 
 本机 Java 候选：
 
-| 候选 | 版本 | 结论 |
-| --- | --- | --- |
-| `%PROGRAMFILES% (x86)\Common Files\Oracle\Java\java8path\java.exe` | Java 8 | ❌ 版本不足 |
-| `%PROGRAMFILES%\Java\jre1.8.0_441` | Java 8 | ❌ 版本不足 |
-| `<ANDROID_STUDIO_HOME>\jbr\bin\java.exe` | **OpenJDK 21.0.10 (JetBrains Runtime)** | ✅ 采用 |
+| 候选                                                               | 版本                                    | 结论        |
+| ------------------------------------------------------------------ | --------------------------------------- | ----------- |
+| `%PROGRAMFILES% (x86)\Common Files\Oracle\Java\java8path\java.exe` | Java 8                                  | ❌ 版本不足 |
+| `%PROGRAMFILES%\Java\jre1.8.0_441`                                 | Java 8                                  | ❌ 版本不足 |
+| `<ANDROID_STUDIO_HOME>\jbr\bin\java.exe`                           | **OpenJDK 21.0.10 (JetBrains Runtime)** | ✅ 采用     |
 
 Gradle 候选：
 
-| 候选 | 结论 |
-| --- | --- |
-| `<GRADLE_HOME>\bin\gradle.bat` | ✅ **Gradle 8.9**，与 AGP 8.5.2 兼容，采用 |
+| 候选                                                    | 结论                                                                                                     |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `<GRADLE_HOME>\bin\gradle.bat`                          | ✅ **Gradle 8.9**，与 AGP 8.5.2 兼容，采用                                                               |
 | `%USERPROFILE%\.gradle\wrapper\dists\gradle-9.3.1-bin\` | ❌ 只有 `gradle-9.3.1-bin.zip.part`（**0 字节**）与 `.lck`，是失败下载残片；且 Gradle 9 不兼容 AGP 8.5.2 |
 
 **未下载任何新 JDK 或新 Gradle 发行版** —— 全部使用本机已有且版本匹配的组件。
@@ -85,12 +85,12 @@ allprojects {
 
 生成结果：
 
-| 文件 | 大小 |
-| --- | --- |
-| `android/gradlew` | 生成 |
-| `android/gradlew.bat` | 生成 |
-| `android/gradle/wrapper/gradle-wrapper.jar` | 43,504 B |
-| `android/gradle/wrapper/gradle-wrapper.properties` | 251 B |
+| 文件                                               | 大小     |
+| -------------------------------------------------- | -------- |
+| `android/gradlew`                                  | 生成     |
+| `android/gradlew.bat`                              | 生成     |
+| `android/gradle/wrapper/gradle-wrapper.jar`        | 43,504 B |
+| `android/gradle/wrapper/gradle-wrapper.properties` | 251 B    |
 
 `gradle-wrapper.properties`：
 
@@ -140,26 +140,26 @@ java.net.ConnectException: Connection refused: getsockopt
 
 ## 4. 修复后验证（全部真实执行）
 
-| 命令 | 结果 |
-| --- | --- |
-| `.\gradlew.bat --version` | **PASS** — Gradle 8.9 / Launcher JVM 21.0.10 (JetBrains s.r.o.) / Windows 11 10.0 amd64 |
-| `.\gradlew.bat clean` | **PASS** — `BUILD SUCCESSFUL` |
-| `.\gradlew.bat :app:assembleDebug` | **PASS** → `app-debug.apk` 36,794,370 B |
-| `.\gradlew.bat :app:assembleDebugAndroidTest` | **PASS** → `app-debug-androidTest.apk` 396,650 B |
-| `.\gradlew.bat :core:test` | **NO-SOURCE** — `:core` 无 JVM 单元测试源集（见 §6） |
-| `.\gradlew.bat :conformance:run` | **PASS** — `pass=91 fail=0 notImplemented=0 total=91` |
-| `.\gradlew.bat :app:bundleRelease` | **PASS** → `app-release.aab` 20,734,935 B |
+| 命令                                          | 结果                                                                                    |
+| --------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `.\gradlew.bat --version`                     | **PASS** — Gradle 8.9 / Launcher JVM 21.0.10 (JetBrains s.r.o.) / Windows 11 10.0 amd64 |
+| `.\gradlew.bat clean`                         | **PASS** — `BUILD SUCCESSFUL`                                                           |
+| `.\gradlew.bat :app:assembleDebug`            | **PASS** → `app-debug.apk` 36,794,370 B                                                 |
+| `.\gradlew.bat :app:assembleDebugAndroidTest` | **PASS** → `app-debug-androidTest.apk` 396,650 B                                        |
+| `.\gradlew.bat :core:test`                    | **NO-SOURCE** — `:core` 无 JVM 单元测试源集（见 §6）                                    |
+| `.\gradlew.bat :conformance:run`              | **PASS** — `pass=91 fail=0 notImplemented=0 total=91`                                   |
+| `.\gradlew.bat :app:bundleRelease`            | **PASS** → `app-release.aab` 20,734,935 B                                               |
 
 ---
 
 ## 5. 仓库洁净性
 
-| 检查项 | 结果 |
-| --- | --- |
-| Wrapper 四件套已生成 | ✅ |
-| `distributionUrl` 不含机器绝对路径 | ✅ 官方 https 地址 |
-| `local.properties` 不进仓库 | ✅ 根 `.gitignore:86` 命中 `local.properties` |
-| 仓库中无硬编码当前电脑路径 | ✅（`local.properties` 被忽略；`build.gradle.kts` 中测试 keystore 路径指向 `local_private/`，受保护另有开关） |
+| 检查项                             | 结果                                                                                                          |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Wrapper 四件套已生成               | ✅                                                                                                            |
+| `distributionUrl` 不含机器绝对路径 | ✅ 官方 https 地址                                                                                            |
+| `local.properties` 不进仓库        | ✅ 根 `.gitignore:86` 命中 `local.properties`                                                                 |
+| 仓库中无硬编码当前电脑路径         | ✅（`local.properties` 被忽略；`build.gradle.kts` 中测试 keystore 路径指向 `local_private/`，受保护另有开关） |
 
 ---
 
@@ -177,7 +177,7 @@ java.net.ConnectException: Connection refused: getsockopt
 
 ## 7. Gate
 
-| Gate | 状态 |
-| --- | --- |
-| `ANDROID_GRADLE_WRAPPER` | **PASS** |
+| Gate                            | 状态     |
+| ------------------------------- | -------- |
+| `ANDROID_GRADLE_WRAPPER`        | **PASS** |
 | `ANDROID_BUILD_REPRODUCIBILITY` | **PASS** |

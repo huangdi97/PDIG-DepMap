@@ -23,22 +23,22 @@
 
 ## 2. 工具链实测（决定哪些 Gate 可执行）
 
-| 工具           | 实测结果                                                                                                                                            | 影响                                                          |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| Node           | `v22.22.2`                                                                                                                                          | Core 可执行                                                   |
-| npm            | `10.9.7`                                                                                                                                            | 与 `packageManager: npm@11.3.0` **不一致**（见 §11 发现 F-3） |
-| HBuilderX      | **未安装**（`C:`/`D:`/`E:` 及 AppData 全路径搜索无命中）                                                                                            | B10 仍成立                                                    |
-| JDK            | `java 1.8.0_441`（PATH）；**JDK 17.0.12**（DevEco JBR）；**JDK 21.0.10**（Android Studio JBR）                                                      | B1 前提被推翻（见 §4）                                        |
+| 工具           | 实测结果                                                                                                                                           | 影响                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Node           | `v22.22.2`                                                                                                                                         | Core 可执行                                                   |
+| npm            | `10.9.7`                                                                                                                                           | 与 `packageManager: npm@11.3.0` **不一致**（见 §11 发现 F-3） |
+| HBuilderX      | **未安装**（`C:`/`D:`/`E:` 及 AppData 全路径搜索无命中）                                                                                           | B10 仍成立                                                    |
+| JDK            | `java 1.8.0_441`（PATH）；**JDK 17.0.12**（DevEco JBR）；**JDK 21.0.10**（Android Studio JBR）                                                     | B1 前提被推翻（见 §4）                                        |
 | Android SDK    | **存在** `<ANDROID_SDK_ROOT>`（platforms `android-36.1`/`android-37.0`、build-tools `36.1.0`/`37.0.0`、cmdline-tools/latest、licenses 全部已接受） | B1 前提被推翻                                                 |
 | Android Studio | **存在** `<ANDROID_STUDIO_HOME>`（build `AI-253.32098.37.2534.15232325`）                                                                          | —                                                             |
-| Gradle         | 仅 `~/.gradle/wrapper/dists/gradle-9.3.1-bin/` 内 **0 字节 `.part`/`.lck`**（下载未完成）                                                           | 无可用 Gradle 发行版                                          |
-| adb            | `<ANDROID_SDK_ROOT>\adb.exe` 可用；`adb devices` → **无设备**                                                                                               | 真机 Gate 不可执行                                            |
-| DevEco Studio  | **存在** `<DEVECO_HOME>`，version `5.0.5.310`                                                                                       | B2 前提被推翻（见 §5）                                        |
-| HarmonyOS SDK  | **存在** `sdk/default/{openharmony,hms}`，`apiVersion 13`，`version 5.0.1.115`，`metaVersion 3.0.0`                                                 | —                                                             |
-| hvigor         | `5.13.2`（DevEco 内置，`tools/hvigor/hvigor`）+ `@ohos/hvigor-ohos-plugin 5.13.2`                                                                   | 可执行（实测，见 §5）                                         |
-| ohpm           | `5.0.10`（实测 `pm-cli.js -v`）；registry `https://ohpm.openharmony.cn/ohpm/`                                                                       | 可执行                                                        |
-| macOS / Xcode  | 无（`uname -s` = `MINGW64_NT-10.0-26200`；`xcodebuild` 不存在）                                                                                     | B3 成立（预期内）                                             |
-| 构建仓库网络   | `repo1.maven.org` HTTP 200；`services.gradle.org` HTTP 200；`ohpm.openharmony.cn` 可达；**但 Gradle 发行包 CDN 下载 `curl` exit 7（连接失败）**     | Android/Harmony 真实构建受阻（见 §4/§5）                      |
+| Gradle         | 仅 `~/.gradle/wrapper/dists/gradle-9.3.1-bin/` 内 **0 字节 `.part`/`.lck`**（下载未完成）                                                          | 无可用 Gradle 发行版                                          |
+| adb            | `<ANDROID_SDK_ROOT>\adb.exe` 可用；`adb devices` → **无设备**                                                                                      | 真机 Gate 不可执行                                            |
+| DevEco Studio  | **存在** `<DEVECO_HOME>`，version `5.0.5.310`                                                                                                      | B2 前提被推翻（见 §5）                                        |
+| HarmonyOS SDK  | **存在** `sdk/default/{openharmony,hms}`，`apiVersion 13`，`version 5.0.1.115`，`metaVersion 3.0.0`                                                | —                                                             |
+| hvigor         | `5.13.2`（DevEco 内置，`tools/hvigor/hvigor`）+ `@ohos/hvigor-ohos-plugin 5.13.2`                                                                  | 可执行（实测，见 §5）                                         |
+| ohpm           | `5.0.10`（实测 `pm-cli.js -v`）；registry `https://ohpm.openharmony.cn/ohpm/`                                                                      | 可执行                                                        |
+| macOS / Xcode  | 无（`uname -s` = `MINGW64_NT-10.0-26200`；`xcodebuild` 不存在）                                                                                    | B3 成立（预期内）                                             |
+| 构建仓库网络   | `repo1.maven.org` HTTP 200；`services.gradle.org` HTTP 200；`ohpm.openharmony.cn` 可达；**但 Gradle 发行包 CDN 下载 `curl` exit 7（连接失败）**    | Android/Harmony 真实构建受阻（见 §4/§5）                      |
 
 ---
 

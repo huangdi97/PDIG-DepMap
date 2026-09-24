@@ -8,8 +8,8 @@
 
 - **Active production scope（本轮 gating 对象）**：`android/{app,core,conformance}/src/main` + `desktop/**/src/main`。
   这些目录必须满足 C2 全部计数 = 0（已通过：`node scripts/quality/check-quality.mjs` → VERDICT PASS）。
- - **共享 canonical**：`spec/` + `fixtures/` + `tools/`（goldset / 生成器 / 编排；canonical 语义冻结）。
- - **只读静态审计（环境受限，不参与 gating）**：`ios/`（BLOCKED_BY_MACOS，无 Xcode）、`harmony/`（本轮 PAUSED，
+- **共享 canonical**：`spec/` + `fixtures/` + `tools/`（goldset / 生成器 / 编排；canonical 语义冻结）。
+- **只读静态审计（环境受限，不参与 gating）**：`ios/`（BLOCKED_BY_MACOS，无 Xcode）、`harmony/`（本轮 PAUSED，
   主机 63/63 用例曾 PASS、设备侧 RUNTIME_NOT_RUN）、`legacy/` + `app/` + `platforms/` + 根 `conformance/`（旧路线 oracle，
   AGENTS §24.5 要求 Cutover 前绝不删除）、`core/`（TS oracle）。
   → 这些目录存在 >300 行文件（如 `ios/Sources/.../Evaluators.swift` 1145 行、`harmony/.../ConformanceRunner.ets` 1977 行、
@@ -39,7 +39,7 @@
 - `GraphRevisionMachine`（core StateMachines）列出的 bumpsOn/neverBumpsOn 是**权威清单**；
 - Repository 实现遵守：Reality mutation（node/dependency/group/drift_resolve）与 `graph_revision+1` 在同一
   `driver.transaction {}` 内；`proposal_upsert / proposal_decision / candidate_* / drift_detect|dismiss /
-  timeline_build / import_session / plan_* / action_*` 不 bump（GraphRepository.bumpRevision 只在明确列出的操作中调用）；
+timeline_build / import_session / plan_* / action_*` 不 bump（GraphRepository.bumpRevision 只在明确列出的操作中调用）；
 - 无 Repository 偷偷 commit：`SqliteDriver.transaction` 是唯一提交点，查询路径全部只读；
 - Desktop 的内存库同样走 `:repos` 事务语义，落盘仅有 `exportGraph → container` 一条明文出口（加密）。
 
@@ -52,12 +52,12 @@
 
 ## 6. 平台隔离（Adapter 检查）
 
-| 能力 | Android 实现位置 | Desktop 实现位置 | Domain 是否感知 |
-|---|---|---|---|
-| DB 驱动 | app/platform/AndroidSqliteDriver（SQLCipher） | conformance/JdbcSqliteDriver（:memory:） | 无（只认 SqliteDriver 接口） |
-| 文件选择 | workflow/FileWorkflowCoordinator（MediaStore） | desktop/io/FileOps（AWT） | 无 |
-| 密钥 | security/DatabaseKeyStore + Biometric | desktop/security/DesktopSecurityPort（DPAPI） | 无 |
-| 备份落盘 | data/BackupRepository（MediaStore） | desktop/persist/DepmapFileStore（文件） | 只认 exportGraph/importGraph |
+| 能力     | Android 实现位置                               | Desktop 实现位置                              | Domain 是否感知              |
+| -------- | ---------------------------------------------- | --------------------------------------------- | ---------------------------- |
+| DB 驱动  | app/platform/AndroidSqliteDriver（SQLCipher）  | conformance/JdbcSqliteDriver（:memory:）      | 无（只认 SqliteDriver 接口） |
+| 文件选择 | workflow/FileWorkflowCoordinator（MediaStore） | desktop/io/FileOps（AWT）                     | 无                           |
+| 密钥     | security/DatabaseKeyStore + Biometric          | desktop/security/DesktopSecurityPort（DPAPI） | 无                           |
+| 备份落盘 | data/BackupRepository（MediaStore）            | desktop/persist/DepmapFileStore（文件）       | 只认 exportGraph/importGraph |
 
 结论：业务代码中不存在 Android/iOS/Harmony 条件分支；平台差异全部收敛在 Adapter 层。
 

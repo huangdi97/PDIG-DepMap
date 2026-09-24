@@ -8,16 +8,16 @@ Android：CORE_FROZEN（不改动） · iOS N4：未进入
 
 ## 0. 结论
 
-| 项 | 结论 | 证据级别 |
-|---|---|---|
-| Harmony 是否具备 AES-256-GCM + AAD | **具备** | SDK 契约（`GcmParamsSpec{iv,aad,authTag}`）+ 官方指导文档 |
-| Harmony 是否具备 RFC 4648 带填充 Base64 | **具备** | `util.Base64Helper`，默认 `Type.BASIC` |
-| JCS（RFC 8785 受限域）能否在 ArkTS 实现 | **能** | 已实现并在编译图中通过 ArkTS 严格检查 |
-| AAD / 容器字节是否与冻结向量一致 | **一致**（主机侧独立实现复现） | `tools/harmony/verify-container-golden.mjs` → 5/5 PASS |
-| ArkTS 代码是否真被编译 | **是**（此前不是，见 §4） | `modules.abc` 符号级取证 |
-| ArkTS 运行时是否验证 | **NOT_RUN** | 无设备 / 无系统镜像 |
-| Argon2id 是否绑定 | **未绑定** | KDF 以 `Argon2idDeriver` 注入，原生绑定待依赖策略 Gate |
-| `.depmap` 协议是否被改动 | **否** | 常量与边界逐项对齐 `core/src/crypto/depmap.ts` |
+| 项                                      | 结论                           | 证据级别                                                  |
+| --------------------------------------- | ------------------------------ | --------------------------------------------------------- |
+| Harmony 是否具备 AES-256-GCM + AAD      | **具备**                       | SDK 契约（`GcmParamsSpec{iv,aad,authTag}`）+ 官方指导文档 |
+| Harmony 是否具备 RFC 4648 带填充 Base64 | **具备**                       | `util.Base64Helper`，默认 `Type.BASIC`                    |
+| JCS（RFC 8785 受限域）能否在 ArkTS 实现 | **能**                         | 已实现并在编译图中通过 ArkTS 严格检查                     |
+| AAD / 容器字节是否与冻结向量一致        | **一致**（主机侧独立实现复现） | `tools/harmony/verify-container-golden.mjs` → 5/5 PASS    |
+| ArkTS 代码是否真被编译                  | **是**（此前不是，见 §4）      | `modules.abc` 符号级取证                                  |
+| ArkTS 运行时是否验证                    | **NOT_RUN**                    | 无设备 / 无系统镜像                                       |
+| Argon2id 是否绑定                       | **未绑定**                     | KDF 以 `Argon2idDeriver` 注入，原生绑定待依赖策略 Gate    |
+| `.depmap` 协议是否被改动                | **否**                         | 常量与边界逐项对齐 `core/src/crypto/depmap.ts`            |
 
 **一句话**：规范层（JCS + AAD + GCM 参数）已被锁定并可复现；ArkTS 侧实现已完成且**确实进入编译**；
 但"Harmony 容器可用"尚未成立 —— 缺 Argon2id 绑定与设备运行时验证，两者都不能用编译成功冒充。
@@ -141,10 +141,10 @@ VERDICT=PASS
 首次把 `crypto/Jcs.ets` 与 `crypto/DepmapContainerV1.ets` 加进工程后，
 `assembleHap` 直接 `BUILD SUCCESSFUL`。随后做了负向对照：
 
-| 对照 | 放入的错误 | assembleHap 结果 |
-|---|---|---|
+| 对照        | 放入的错误                           | assembleHap 结果     |
+| ----------- | ------------------------------------ | -------------------- |
 | #1 类型错误 | `const n: number = s`（s 为 string） | **BUILD SUCCESSFUL** |
-| #2 语法错误 | `return n ;;; }}}` | **BUILD SUCCESSFUL** |
+| #2 语法错误 | `return n ;;; }}}`                   | **BUILD SUCCESSFUL** |
 
 结论：这些文件**根本没有被编译**。
 
@@ -188,12 +188,12 @@ ability/page 可达图中时才构成证据；否则必须同时给出 `modules.
 
 ## 5. ArkTS 实现
 
-| 文件 | 内容 |
-|---|---|
-| `harmony/entry/src/main/ets/crypto/Jcs.ets` | RFC 8785 受限域 JCS；`JcsObject` + `jcsStringify` + `jcsEscapeString` |
-| `harmony/entry/src/main/ets/crypto/DepmapContainerV1.ets` | 常量 / 边界 / header 解析 / AAD / 容器序列化 / AES-256-GCM / 加解密入口 |
-| `harmony/entry/src/main/ets/crypto/ContainerSelfCheck.ets` | AAD 规范化自检（设备可运行）+ 建立编译图 import 边 |
-| `harmony/entry/src/main/ets/pages/Index.ets` | 增加 `containerProbe` 一行，引用自检 |
+| 文件                                                       | 内容                                                                    |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `harmony/entry/src/main/ets/crypto/Jcs.ets`                | RFC 8785 受限域 JCS；`JcsObject` + `jcsStringify` + `jcsEscapeString`   |
+| `harmony/entry/src/main/ets/crypto/DepmapContainerV1.ets`  | 常量 / 边界 / header 解析 / AAD / 容器序列化 / AES-256-GCM / 加解密入口 |
+| `harmony/entry/src/main/ets/crypto/ContainerSelfCheck.ets` | AAD 规范化自检（设备可运行）+ 建立编译图 import 边                      |
+| `harmony/entry/src/main/ets/pages/Index.ets`               | 增加 `containerProbe` 一行，引用自检                                    |
 
 为适配 ArkTS strict 所做的**非协议性**设计取舍：
 
@@ -209,15 +209,15 @@ ability/page 可达图中时才构成证据；否则必须同时给出 `modules.
 
 ## 6. 状态与未解决项
 
-| 项 | 状态 | 说明 |
-|---|---|---|
-| JCS / AAD 规格 | **PASS**（主机侧） | §3，5/5 |
-| ArkTS 代码 | **COMPILED**（真实编译，非假信号） | §4.3 |
-| ArkTS 运行时（JCS/AAD 自检） | **NOT_RUN** | `ContainerSelfCheck` 已就绪，等设备上跑 |
-| AES-256-GCM 运行时 | **NOT_RUN** | 依赖 cryptoFramework，需设备 |
-| Argon2id 绑定 | **PENDING** | 待依赖策略 / 第三方声明 / vendoring 决策（`HARMONY_ARGON2_FEASIBILITY.md` §6） |
-| 恶意容器边界校验运行时 | **NOT_RUN** | `validateDepmapBounds` 已实现，未执行 |
-| `HARMONY_RUNTIME_E2E` | **RUNTIME_NOT_RUN** | 无设备 / 无镜像，不记为 PASS |
+| 项                           | 状态                               | 说明                                                                           |
+| ---------------------------- | ---------------------------------- | ------------------------------------------------------------------------------ |
+| JCS / AAD 规格               | **PASS**（主机侧）                 | §3，5/5                                                                        |
+| ArkTS 代码                   | **COMPILED**（真实编译，非假信号） | §4.3                                                                           |
+| ArkTS 运行时（JCS/AAD 自检） | **NOT_RUN**                        | `ContainerSelfCheck` 已就绪，等设备上跑                                        |
+| AES-256-GCM 运行时           | **NOT_RUN**                        | 依赖 cryptoFramework，需设备                                                   |
+| Argon2id 绑定                | **PENDING**                        | 待依赖策略 / 第三方声明 / vendoring 决策（`HARMONY_ARGON2_FEASIBILITY.md` §6） |
+| 恶意容器边界校验运行时       | **NOT_RUN**                        | `validateDepmapBounds` 已实现，未执行                                          |
+| `HARMONY_RUNTIME_E2E`        | **RUNTIME_NOT_RUN**                | 无设备 / 无镜像，不记为 PASS                                                   |
 
 **明确不做**：不因为编译成功就把 `HARMONY_DEPMAP` 标为 PASS；
 不用 PBKDF2 / HKDF 等平台自带 KDF 替代 Argon2id（那会改变 `.depmap` 协议并使跨端互操作失效）。

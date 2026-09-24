@@ -40,18 +40,18 @@
 
 ## 4. 测试矩阵（每个测试者至少覆盖关键链）
 
-| # | 关键路径 | 验收目标 |
-|---|----------|----------|
-| 1 | 安装 + 首启 | 冷启动锁屏 → 解锁 → 首页 |
-| 2 | Onboarding（首次） | 引导完成 |
-| 3 | 导入（synthetic CSV） | Node Resolution 正确、确认导入 |
-| 4 | Proposal Review | 候选关系出现；未确认不进入 Reality |
-| 5 | Confirm Reality | 确认后 Dependency 建立 |
-| 6 | Scenario（replace/expiring/close） | Setup→Impact→Plan→Action→Verification→verified |
-| 7 | Backup | 导出 `.depmap` + UI/文件一致 |
-| 8 | Restore | 正确密码恢复 / 错误密码拒绝 / 篡改拒绝 |
-| 9 | Delete All Data | 删除后清空 |
-| 10 | App Lock 前后台 | 回后台→回前台重新锁定，不可绕过 |
+| #   | 关键路径                           | 验收目标                                       |
+| --- | ---------------------------------- | ---------------------------------------------- |
+| 1   | 安装 + 首启                        | 冷启动锁屏 → 解锁 → 首页                       |
+| 2   | Onboarding（首次）                 | 引导完成                                       |
+| 3   | 导入（synthetic CSV）              | Node Resolution 正确、确认导入                 |
+| 4   | Proposal Review                    | 候选关系出现；未确认不进入 Reality             |
+| 5   | Confirm Reality                    | 确认后 Dependency 建立                         |
+| 6   | Scenario（replace/expiring/close） | Setup→Impact→Plan→Action→Verification→verified |
+| 7   | Backup                             | 导出 `.depmap` + UI/文件一致                   |
+| 8   | Restore                            | 正确密码恢复 / 错误密码拒绝 / 篡改拒绝         |
+| 9   | Delete All Data                    | 删除后清空                                     |
+| 10  | App Lock 前后台                    | 回后台→回前台重新锁定，不可绕过                |
 
 > 反馈表模板（正式阶段放 `local_private/` 或 Play 渠道）：
 > 可复现路径 / 期望 / 实际 / 设备型号与 Android 版本 / 截图。
@@ -76,10 +76,10 @@
 
 ## 7. 当前阻塞（BLOCKERS 引用）
 
-| Gate | 状态 | 精确 blocker | Required action |
-|------|------|--------------|-----------------|
-| `PLAY_CLOSED_TEST_READY` | BLOCKED_BY_STORE_ACCOUNT | 无 Play 开发者账号、无测试者 | 用户注册账号 + 提供 ≥12 真实测试者 |
-| `PLAY_PRODUCTION_ACCESS_READY` | BLOCKED_BY_CLOSED_TEST_NOT_RUN | closed test 未开始（上一条未解除） | 先完成 closed test |
+| Gate                           | 状态                           | 精确 blocker                       | Required action                    |
+| ------------------------------ | ------------------------------ | ---------------------------------- | ---------------------------------- |
+| `PLAY_CLOSED_TEST_READY`       | BLOCKED_BY_STORE_ACCOUNT       | 无 Play 开发者账号、无测试者       | 用户注册账号 + 提供 ≥12 真实测试者 |
+| `PLAY_PRODUCTION_ACCESS_READY` | BLOCKED_BY_CLOSED_TEST_NOT_RUN | closed test 未开始（上一条未解除） | 先完成 closed test                 |
 
 ## 8. 状态
 

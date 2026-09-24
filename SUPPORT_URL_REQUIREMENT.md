@@ -20,11 +20,11 @@ Google Play 商店列表需要提供**支持 URL**（support URL），指向用�
 
 ## 2. 当前状态
 
-| 项 | 状态 |
-|----|------|
-| 支持页内容草稿 | ✅ READY（`store/SUPPORT_PAGE_DRAFT.md`） |
-| 公网 URL | ❌ **BLOCKED_BY_PUBLIC_URL**（无公开域名） |
-| 支持邮箱/联系渠道 | ❌ 待用户提供 |
+| 项                | 状态                                       |
+| ----------------- | ------------------------------------------ |
+| 支持页内容草稿    | ✅ READY（`store/SUPPORT_PAGE_DRAFT.md`）  |
+| 公网 URL          | ❌ **BLOCKED_BY_PUBLIC_URL**（无公开域名） |
+| 支持邮箱/联系渠道 | ❌ 待用户提供                              |
 
 ## 3. 禁止
 

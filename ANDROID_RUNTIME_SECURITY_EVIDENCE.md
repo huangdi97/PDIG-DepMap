@@ -37,14 +37,14 @@ Android 的 `dumpsys` 输出的是 flag 的裸名（`SECURE`），不带 `FLAG_`
 
 ### 实测结果
 
-| 路由 | 期望敏感 | 窗口 fl= 含 SECURE | 截图均值 | 截图判定 | 页面独有文本校验 | 结论 |
-|---|---|---|---|---|---|---|
-| HOME 首页 | 否 | 否 | 244.64 | 有内容 | 我的基础设施 | PASS |
-| SETTINGS 设置 | 否 | 否 | 244.64 | 有内容 | 从备份恢复 | PASS |
-| SOURCES 数据来源 | 是 | **是** | 0.17 | 被抹黑 | 导入账单文件 | PASS |
-| IMPORT 导入账单 | 是 | **是** | 0.17 | 被抹黑 | 第 1 步 / 选择文件并解析 | PASS |
-| INFRASTRUCTURE 我的基础设施 | 是 | **是** | 0.17 | 被抹黑 | 还没有记录任何对象 | PASS |
-| BACKUP 备份 | 是 | **是** | 0.17 | 被抹黑 | 备份密码 / 生成加密备份 | PASS |
+| 路由                        | 期望敏感 | 窗口 fl= 含 SECURE | 截图均值 | 截图判定 | 页面独有文本校验         | 结论 |
+| --------------------------- | -------- | ------------------ | -------- | -------- | ------------------------ | ---- |
+| HOME 首页                   | 否       | 否                 | 244.64   | 有内容   | 我的基础设施             | PASS |
+| SETTINGS 设置               | 否       | 否                 | 244.64   | 有内容   | 从备份恢复               | PASS |
+| SOURCES 数据来源            | 是       | **是**             | 0.17     | 被抹黑   | 导入账单文件             | PASS |
+| IMPORT 导入账单             | 是       | **是**             | 0.17     | 被抹黑   | 第 1 步 / 选择文件并解析 | PASS |
+| INFRASTRUCTURE 我的基础设施 | 是       | **是**             | 0.17     | 被抹黑   | 还没有记录任何对象       | PASS |
+| BACKUP 备份                 | 是       | **是**             | 0.17     | 被抹黑   | 备份密码 / 生成加密备份  | PASS |
 
 原始窗口 flag（敏感页）：
 
@@ -117,26 +117,26 @@ fl=DRAWS_SYSTEM_BAR_BACKGROUNDS HARDWARE_ACCELERATED LAYOUT_INSET_DECOR
 
 与本门相关的用例全部通过：
 
-| 测试类 | 用例 | 时间 |
-|---|---|---|
-| RepositoryKeystoreEvidenceTest | `keystore_rawKeyNeverReachesDisk` | 0.666s |
-| RepositoryKeystoreEvidenceTest | `repository_transactionMechanismIsAtomic` | 0.482s |
-| RepositoryKeystoreEvidenceTest | `repository_realityMutationBumpsGraphRevisionExactlyOnce` | 2.071s |
-| RepositoryKeystoreEvidenceTest | `appLock_stateIsDeterministicAndFailClosed` | 0.221s |
-| PersistenceEvidenceTest | `sqlcipher_wrongKeyIsRejected` | 1.559s |
-| PersistenceEvidenceTest | `sqlcipher_plainSqliteCannotRead` | 0.914s |
-| PersistenceEvidenceTest | `sqlcipher_transactionRollbackLeavesNoPartialWrite` | 0.760s |
-| PersistenceEvidenceTest | `sqlcipher_openCloseReopen_persistsRows` | 1.609s |
-| PersistenceEvidenceTest | `migration_v1_to_v3_preservesEverything` / `migration_v2_to_v3` | 3.960s / 4.467s |
-| PersistenceEvidenceTest | `migration_failureRollsBack_andDatabaseNotWiped` | 2.775s |
-| PersistenceEvidenceTest | `migration_futureSchemaVersionIsRejected_andDatabaseNotWiped` | 2.386s |
-| DepmapRuntimeEvidenceTest | `depmap_exportImportRoundTrip_isByteIdentical` | 8.072s |
-| DepmapRuntimeEvidenceTest | `depmap_wrongPasswordIsRejected` | 5.134s |
-| DepmapRuntimeEvidenceTest | `depmap_tamperedCiphertextIsRejected` | 4.277s |
-| DepmapRuntimeEvidenceTest | `depmap_v1AndV2PayloadsMigrateToTheSameV3Graph` | 2.165s |
-| ScreenProtectionEvidenceTest | `everyRouteHasAnExplicitScreenProtectionDecision` | 0.015s |
-| ScreenProtectionEvidenceTest | `unknownOrNullRouteIsNeverTreatedAsSensitive` | 0.075s |
-| PerfSmokeEvidenceTest | `perfSmoke` | 83.443s |
+| 测试类                         | 用例                                                            | 时间            |
+| ------------------------------ | --------------------------------------------------------------- | --------------- |
+| RepositoryKeystoreEvidenceTest | `keystore_rawKeyNeverReachesDisk`                               | 0.666s          |
+| RepositoryKeystoreEvidenceTest | `repository_transactionMechanismIsAtomic`                       | 0.482s          |
+| RepositoryKeystoreEvidenceTest | `repository_realityMutationBumpsGraphRevisionExactlyOnce`       | 2.071s          |
+| RepositoryKeystoreEvidenceTest | `appLock_stateIsDeterministicAndFailClosed`                     | 0.221s          |
+| PersistenceEvidenceTest        | `sqlcipher_wrongKeyIsRejected`                                  | 1.559s          |
+| PersistenceEvidenceTest        | `sqlcipher_plainSqliteCannotRead`                               | 0.914s          |
+| PersistenceEvidenceTest        | `sqlcipher_transactionRollbackLeavesNoPartialWrite`             | 0.760s          |
+| PersistenceEvidenceTest        | `sqlcipher_openCloseReopen_persistsRows`                        | 1.609s          |
+| PersistenceEvidenceTest        | `migration_v1_to_v3_preservesEverything` / `migration_v2_to_v3` | 3.960s / 4.467s |
+| PersistenceEvidenceTest        | `migration_failureRollsBack_andDatabaseNotWiped`                | 2.775s          |
+| PersistenceEvidenceTest        | `migration_futureSchemaVersionIsRejected_andDatabaseNotWiped`   | 2.386s          |
+| DepmapRuntimeEvidenceTest      | `depmap_exportImportRoundTrip_isByteIdentical`                  | 8.072s          |
+| DepmapRuntimeEvidenceTest      | `depmap_wrongPasswordIsRejected`                                | 5.134s          |
+| DepmapRuntimeEvidenceTest      | `depmap_tamperedCiphertextIsRejected`                           | 4.277s          |
+| DepmapRuntimeEvidenceTest      | `depmap_v1AndV2PayloadsMigrateToTheSameV3Graph`                 | 2.165s          |
+| ScreenProtectionEvidenceTest   | `everyRouteHasAnExplicitScreenProtectionDecision`               | 0.015s          |
+| ScreenProtectionEvidenceTest   | `unknownOrNullRouteIsNeverTreatedAsSensitive`                   | 0.075s          |
+| PerfSmokeEvidenceTest          | `perfSmoke`                                                     | 83.443s         |
 
 host 侧交叉验证：真机上直接 `sqlite3` 打开应用库，返回
 `Parse error: file is not a database` —— 库确实是加密的（SQLCipher），
@@ -162,6 +162,7 @@ python local_private/sec_settings.py          # 设置/备份两条路由的补�
 ```
 
 产物：
+
 - `local_private/secshots/sec_*.png` —— 各路由截图（敏感页应为全黑）
 - `local_private/sec_window_dump.txt` —— 窗口 flag 原始 dump
 - `local_private/security_evidence_v2.json` —— 结构化结果

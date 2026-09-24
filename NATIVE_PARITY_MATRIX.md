@@ -6,17 +6,18 @@
 > **2026-09-23 API36 工程全速收口轮复验注记**：本矩阵保持 **69/73**。
 > 剩余 4 格（无障碍 TalkBack 实机 / Release 签名 / Store 素材 / R8·minify）本轮再次逐格确认
 > 为真实外部 blocker / 政策项（分类见 `ANDROID_FINAL_73_AUDIT.md`、`BLOCKERS.md`）：
+>
 > - 无障碍：Compose 语义树在 API36 AVD 复验 PASS；**TalkBack 实机读屏仍需真机（E-1）**，不冒充。
 > - Release 签名：NON-PRODUCTION 签名链路在 API36 release 产物复验 PASS（apksigner v2 verify），
 >   **正式 production keystore 仍缺失（E-2）**，不以 non-prod 冒充。
 > - Store 素材：文案/合规文档全部就绪（本轮新增 `ANDROID_PLAY_CONSOLE_READINESS.md` /
 >   `ANDROID_STORE_COMPLIANCE_REPORT.md`）；**最终品牌未定（R-2/E-4）**。
 > - R8 / minify：release `isMinifyEnabled=false` 如实记录 **NOT_APPLICABLE**，本轮未擅自开启。
-> 本轮实跑回归（**API36 AVD pdig_api36_phone，Android 16 实测 sdk=36**）：`:core:test` 71/71 ·
-> `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 · connectedDebugAndroidTest **59/59** ·
-> assembleDebug / assembleRelease / bundleRelease SUCCESSFUL（含 NON-PROD signed 变体），
-> Core Journey E2E 与三场景 E2E 见 `ANDROID_16_API36_CLOSURE_REPORT.md`。
-> **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
+>   本轮实跑回归（**API36 AVD pdig_api36_phone，Android 16 实测 sdk=36**）：`:core:test` 71/71 ·
+>   `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 · connectedDebugAndroidTest **59/59** ·
+>   assembleDebug / assembleRelease / bundleRelease SUCCESSFUL（含 NON-PROD signed 变体），
+>   Core Journey E2E 与三场景 E2E 见 `ANDROID_16_API36_CLOSURE_REPORT.md`。
+>   **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
 
 更新时间：2026-09-18（**Harmony N3：Argon2 NAPI 全链路 + 编译可达性 Gate**）
 
@@ -90,7 +91,6 @@
 > **一处刻意的跨端对齐决定**：`RelationRegistry` **不实现**。
 > TS 基准的 `relation-registry.ts` 含 `verificationPolicy` / `impactSemantics`，
 > 但 **Android 冻结基准没有这两个字段**；只在 Harmony 侧补上会引入跨端分歧。
->
 
 > ## D-16 CLOSED（2026-09-17）
 >
@@ -124,24 +124,24 @@
 > `CONFORMANCE_PASS`（16 行中只有 Node/Dependency/Group 与 canonical groupKey
 > 两行是 `IMPLEMENTED`）。这是上一轮的手工计数误差，本轮逐行重数为 **14**。
 
-| 能力                       | Android | Harmony | iOS |
-| -------------------------- | ------- | ------- | --- |
-| Canonical 枚举（codegen）  | **CONFORMANCE_PASS** | IMPLEMENTED（codegen 产物） | IMPLEMENTED（codegen 产物） |
-| Node / Dependency / Group  | IMPLEMENTED | NOT_STARTED | NOT_STARTED |
-| logical key `from\\|relation\\|to\\|capability` | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| canonical groupKey         | IMPLEMENTED | NOT_STARTED | NOT_STARTED |
-| RelationDefinitionRegistry | **CONFORMANCE_PASS** | IMPLEMENTED（`entry/src/main/ets/domain/Relations.ets`，已编译进 HAP；未做用例级验证） | NOT_STARTED |
-| Impact Kernel              | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| PlanReadiness（三值）      | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| ScenarioCoverage（四级）   | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| ChangePlan 状态机          | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| RealityDrift 状态机        | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| DiscoveryCandidate 状态机  | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| Verification 状态机        | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| GraphRevision 策略         | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| ScenarioTemplate（3 active）| **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| Timeline 分桶（7 桶） | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| 显式 resolution（readiness）| **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| 能力                         | Android              | Harmony                                                                                | iOS                         |
+| ---------------------------- | -------------------- | -------------------------------------------------------------------------------------- | --------------------------- |
+| Canonical 枚举（codegen）    | **CONFORMANCE_PASS** | IMPLEMENTED（codegen 产物）                                                            | IMPLEMENTED（codegen 产物） |
+| Node / Dependency / Group    | IMPLEMENTED          | NOT_STARTED                                                                            | NOT_STARTED                 |
+| logical key `from\\          | relation\\           | to\\                                                                                   | capability`                 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| canonical groupKey           | IMPLEMENTED          | NOT_STARTED                                                                            | NOT_STARTED                 |
+| RelationDefinitionRegistry   | **CONFORMANCE_PASS** | IMPLEMENTED（`entry/src/main/ets/domain/Relations.ets`，已编译进 HAP；未做用例级验证） | NOT_STARTED                 |
+| Impact Kernel                | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| PlanReadiness（三值）        | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| ScenarioCoverage（四级）     | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| ChangePlan 状态机            | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| RealityDrift 状态机          | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| DiscoveryCandidate 状态机    | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| Verification 状态机          | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| GraphRevision 策略           | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| ScenarioTemplate（3 active） | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| Timeline 分桶（7 桶）        | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
+| 显式 resolution（readiness） | **CONFORMANCE_PASS** | NOT_STARTED                                                                            | NOT_STARTED                 |
 
 > 未完成的 2 格（Node/Dependency/Group、canonical groupKey）处于 `IMPLEMENTED`：
 > 有实现，但没有把"实体/分组"本身作为独立对象做跨端用例级验证，
@@ -151,18 +151,18 @@
 
 ## 2. 持久化与迁移（10 格，已完成 10）
 
-| 能力                        | Android | Harmony | iOS |
-| --------------------------- | ------- | ------- | --- |
-| 逻辑 Schema v3 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| SQLCipher / ArkData 加密库 | **RUNTIME_VERIFIED**（密文库拉出后 `sqlite3` → `file is not a database`；明文不可读） | NOT_STARTED | NOT_STARTED |
-| Migration v1→v2→v3 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| 迁移失败回滚（同事务） | **RUNTIME_VERIFIED**（设备内：失败后不推进版本号、不留半迁移状态） | NOT_STARTED | NOT_STARTED |
-| Graph payload 导出/导入 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| payload v1/v2 → v3 内存迁移 | **RUNTIME_VERIFIED**（设备内：两种 payload 迁到同一 v3 图） | NOT_STARTED | NOT_STARTED |
-| 未来版本拒绝（fail closed）  | **RUNTIME_VERIFIED**（设备内：未来 `schema_version` 明确拒绝、库不被清空） | NOT_STARTED | NOT_STARTED |
-| Fingerprint 作用域隔离 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| SourceInstance | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| Evidence 多源分流 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| 能力                        | Android                                                                               | Harmony     | iOS         |
+| --------------------------- | ------------------------------------------------------------------------------------- | ----------- | ----------- |
+| 逻辑 Schema v3              | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
+| SQLCipher / ArkData 加密库  | **RUNTIME_VERIFIED**（密文库拉出后 `sqlite3` → `file is not a database`；明文不可读） | NOT_STARTED | NOT_STARTED |
+| Migration v1→v2→v3          | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
+| 迁移失败回滚（同事务）      | **RUNTIME_VERIFIED**（设备内：失败后不推进版本号、不留半迁移状态）                    | NOT_STARTED | NOT_STARTED |
+| Graph payload 导出/导入     | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
+| payload v1/v2 → v3 内存迁移 | **RUNTIME_VERIFIED**（设备内：两种 payload 迁到同一 v3 图）                           | NOT_STARTED | NOT_STARTED |
+| 未来版本拒绝（fail closed） | **RUNTIME_VERIFIED**（设备内：未来 `schema_version` 明确拒绝、库不被清空）            | NOT_STARTED | NOT_STARTED |
+| Fingerprint 作用域隔离      | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
+| SourceInstance              | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
+| Evidence 多源分流           | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
 
 > 本轮把 4 格从 `IMPLEMENTED` 升到 `RUNTIME_VERIFIED`：依据是设备内
 > `PersistenceEvidenceTest` / `DepmapRuntimeEvidenceTest` 的真实运行时证据，
@@ -172,18 +172,18 @@
 
 ## 3. 安全 / 密钥 / 认证（10 格，已完成 9）
 
-| 能力                     | Android | Harmony | iOS |
-| ------------------------ | ------- | ------- | --- |
-| `.depmap` 容器（V1）      | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（容器逻辑已实现并真实编译；未达 TESTED，**不计入** 0/73） | NOT_STARTED |
-| Argon2id + AES-256-GCM    | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（AES-256-GCM 走 `cryptoFramework`，规格经主机黄金校验 5/5；Argon2id **未绑定**） | NOT_STARTED |
-| JCS (RFC 8785) 受限域     | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（`Jcs.ets` 已实现并真实编译；设备自检 `ContainerSelfCheck` 就绪但未执行） | NOT_STARTED |
-| UTF-8 口令不做归一化       | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（`util.TextEncoder` 精确 UTF-8 字节；未达 TESTED） | NOT_STARTED |
-| 恶意容器 bounds 前置校验   | **CONFORMANCE_PASS** | IMPLEMENTED_COMPILED_NOT_RUN（`validateDepmapBounds` 全项先于 KDF；未达 TESTED） | NOT_STARTED |
-| 平台密钥库（Keystore/HUKS/Keychain） | **RUNTIME_VERIFIED**（原始密钥不落盘；prefs 中只有包裹后的值；重启后可重新派生） | NOT_STARTED | NOT_STARTED |
-| 数据库加密 | **RUNTIME_VERIFIED**（明文 `sqlite3` 读不出来） | NOT_STARTED | NOT_STARTED |
-| 生物认证 / App Lock | **PARTIAL（App Lock 接线已完成且可独立验证；设备凭据判定本轮修好并取证；生物识别匹配仍受环境限制）** | NOT_STARTED | NOT_STARTED |
-| 截图保护                   | **RUNTIME_VERIFIED**（6 路由双证据：窗口 flag 含 `SECURE` + `screencap` 被抹黑，非敏感页不受影响） | NOT_STARTED | NOT_STARTED |
-| 日志脱敏（release） | **RUNTIME_VERIFIED**（按 PID/UID 归属扫描，敏感关键字命中全 0；错误码化） | NOT_STARTED | NOT_STARTED |
+| 能力                                 | Android                                                                                              | Harmony                                                                                                       | iOS         |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ----------- |
+| `.depmap` 容器（V1）                 | **CONFORMANCE_PASS**                                                                                 | IMPLEMENTED_COMPILED_NOT_RUN（容器逻辑已实现并真实编译；未达 TESTED，**不计入** 0/73）                        | NOT_STARTED |
+| Argon2id + AES-256-GCM               | **CONFORMANCE_PASS**                                                                                 | IMPLEMENTED_COMPILED_NOT_RUN（AES-256-GCM 走 `cryptoFramework`，规格经主机黄金校验 5/5；Argon2id **未绑定**） | NOT_STARTED |
+| JCS (RFC 8785) 受限域                | **CONFORMANCE_PASS**                                                                                 | IMPLEMENTED_COMPILED_NOT_RUN（`Jcs.ets` 已实现并真实编译；设备自检 `ContainerSelfCheck` 就绪但未执行）        | NOT_STARTED |
+| UTF-8 口令不做归一化                 | **CONFORMANCE_PASS**                                                                                 | IMPLEMENTED_COMPILED_NOT_RUN（`util.TextEncoder` 精确 UTF-8 字节；未达 TESTED）                               | NOT_STARTED |
+| 恶意容器 bounds 前置校验             | **CONFORMANCE_PASS**                                                                                 | IMPLEMENTED_COMPILED_NOT_RUN（`validateDepmapBounds` 全项先于 KDF；未达 TESTED）                              | NOT_STARTED |
+| 平台密钥库（Keystore/HUKS/Keychain） | **RUNTIME_VERIFIED**（原始密钥不落盘；prefs 中只有包裹后的值；重启后可重新派生）                     | NOT_STARTED                                                                                                   | NOT_STARTED |
+| 数据库加密                           | **RUNTIME_VERIFIED**（明文 `sqlite3` 读不出来）                                                      | NOT_STARTED                                                                                                   | NOT_STARTED |
+| 生物认证 / App Lock                  | **PARTIAL（App Lock 接线已完成且可独立验证；设备凭据判定本轮修好并取证；生物识别匹配仍受环境限制）** | NOT_STARTED                                                                                                   | NOT_STARTED |
+| 截图保护                             | **RUNTIME_VERIFIED**（6 路由双证据：窗口 flag 含 `SECURE` + `screencap` 被抹黑，非敏感页不受影响）   | NOT_STARTED                                                                                                   | NOT_STARTED |
+| 日志脱敏（release）                  | **RUNTIME_VERIFIED**（按 PID/UID 归属扫描，敏感关键字命中全 0；错误码化）                            | NOT_STARTED                                                                                                   | NOT_STARTED |
 
 > **生物认证 / App Lock 这一格拆开说**（这是本轮最容易被误读的一格）：
 >
@@ -200,15 +200,15 @@
 
 ## 4. 导入 / 解析（7 格，已完成 7）
 
-| 能力                | Android | Harmony | iOS |
-| ------------------- | ------- | ------- | --- |
-| WeChat Statement | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| Generic CSV | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| OFX / QFX | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| BOM / CRLF / CR-only | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| GB18030 编码 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| 能力                       | Android              | Harmony     | iOS         |
+| -------------------------- | -------------------- | ----------- | ----------- |
+| WeChat Statement           | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| Generic CSV                | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| OFX / QFX                  | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| BOM / CRLF / CR-only       | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| GB18030 编码               | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
 | 借贷列 / 多币种 / 分号分隔 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
-| 坏行保守拒绝 | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
+| 坏行保守拒绝               | **CONFORMANCE_PASS** | NOT_STARTED | NOT_STARTED |
 
 > 28 个原始输入 fixture 已在 `fixtures/import/`，三端共用（§244）。
 
@@ -216,27 +216,27 @@
 
 ## 5. UI（§63 / §91 / §109）（22 格，已完成 **18**）
 
-| 页面                     | Android | Harmony | iOS |
-| ------------------------ | ------- | ------- | --- |
-| Onboarding | IMPLEMENTED（**本轮仍不可达**，见下方说明） | NOT_STARTED | NOT_STARTED |
-| Lock | **RUNTIME_VERIFIED**（冷启动 / 前后台 / 无凭据三态均在真机走过） | NOT_STARTED | NOT_STARTED |
-| Home（回答式首页） | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Scenario Center | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
-| Scenario Setup | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| ChangePlan Detail | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Timeline | IMPLEMENTED（本轮未被真机走过） | NOT_STARTED | NOT_STARTED |
-| Pending Review | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| RealityDrift | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
-| Candidate Review | IMPLEMENTED（本轮未被真机走过；且**无任何入口导航到它**） | NOT_STARTED | NOT_STARTED |
-| Infrastructure Overview | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Graph View（二级） | IMPLEMENTED（本轮未被真机走过） | NOT_STARTED | NOT_STARTED |
-| Node Detail | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Source Management | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Import | **RUNTIME_VERIFIED**（D-16 已关闭：E2E v4 中 SAF 选真实 CSV → 回锁 → 解锁 → 向导仍在 → Node Resolution → 提交「记录 6 行」） | NOT_STARTED | NOT_STARTED |
-| Import Mapping | **RUNTIME_VERIFIED**（同上链路端到端走通，映射在真实写入中生效） | NOT_STARTED | NOT_STARTED |
-| Import Review | **RUNTIME_VERIFIED**（Node Resolution 预览在 E2E v4 中真实出现并被提交） | NOT_STARTED | NOT_STARTED |
-| Backup | **RUNTIME_VERIFIED**（导出经 MediaStore 落盘，不经外部文件选择器，因此不受 D-16 影响；E2E v4 中 13,617 B 落盘且 UI 文案一致） | NOT_STARTED | NOT_STARTED |
-| Restore | **RUNTIME_VERIFIED**（D-16 已关闭：SAF 选 .depmap → 回锁 → 解锁 → 工作流恢复 → 重新输入口令 → 显式确认 → 恢复成功；错误密码与篡改容器均被拒） | NOT_STARTED | NOT_STARTED |
+| 页面                    | Android                                                                                                                                       | Harmony     | iOS         |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------- | ----------- |
+| Onboarding              | IMPLEMENTED（**本轮仍不可达**，见下方说明）                                                                                                   | NOT_STARTED | NOT_STARTED |
+| Lock                    | **RUNTIME_VERIFIED**（冷启动 / 前后台 / 无凭据三态均在真机走过）                                                                              | NOT_STARTED | NOT_STARTED |
+| Home（回答式首页）      | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| Scenario Center         | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁）                                                                                                 | NOT_STARTED | NOT_STARTED |
+| Scenario Setup          | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| ChangePlan Detail       | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| Timeline                | IMPLEMENTED（本轮未被真机走过）                                                                                                               | NOT_STARTED | NOT_STARTED |
+| Pending Review          | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| RealityDrift            | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁）                                                                                                 | NOT_STARTED | NOT_STARTED |
+| Candidate Review        | IMPLEMENTED（本轮未被真机走过；且**无任何入口导航到它**）                                                                                     | NOT_STARTED | NOT_STARTED |
+| Infrastructure Overview | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| Graph View（二级）      | IMPLEMENTED（本轮未被真机走过）                                                                                                               | NOT_STARTED | NOT_STARTED |
+| Node Detail             | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| Source Management       | **RUNTIME_VERIFIED**                                                                                                                          | NOT_STARTED | NOT_STARTED |
+| Import                  | **RUNTIME_VERIFIED**（D-16 已关闭：E2E v4 中 SAF 选真实 CSV → 回锁 → 解锁 → 向导仍在 → Node Resolution → 提交「记录 6 行」）                  | NOT_STARTED | NOT_STARTED |
+| Import Mapping          | **RUNTIME_VERIFIED**（同上链路端到端走通，映射在真实写入中生效）                                                                              | NOT_STARTED | NOT_STARTED |
+| Import Review           | **RUNTIME_VERIFIED**（Node Resolution 预览在 E2E v4 中真实出现并被提交）                                                                      | NOT_STARTED | NOT_STARTED |
+| Backup                  | **RUNTIME_VERIFIED**（导出经 MediaStore 落盘，不经外部文件选择器，因此不受 D-16 影响；E2E v4 中 13,617 B 落盘且 UI 文案一致）                 | NOT_STARTED | NOT_STARTED |
+| Restore                 | **RUNTIME_VERIFIED**（D-16 已关闭：SAF 选 .depmap → 回锁 → 解锁 → 工作流恢复 → 重新输入口令 → 显式确认 → 恢复成功；错误密码与篡改容器均被拒） | NOT_STARTED | NOT_STARTED |
 
 > **D-16 —— CLOSED（2026-09-17）**
 >
@@ -247,24 +247,24 @@
 >
 > 修复（人工决策 D-16 方案 A，**方案 B/C 明确禁止**）：
 >
->  1. 工作流状态提升到 **Activity 作用域** `FileWorkflowCoordinator`
+> 1.  工作流状态提升到 **Activity 作用域** `FileWorkflowCoordinator`
 >     （application/presentation workflow state，**不进** Domain Reality Graph）；
->  2. `ActivityResult` launcher 注册在 `MainActivity.onCreate`（稳定层），
+> 2.  `ActivityResult` launcher 注册在 `MainActivity.onCreate`（稳定层），
 >     不随 NavHost uncompose 注销；
->  3. 文件选择改用 `OpenDocument` + `takePersistableUriPermission(READ)`，
+> 3.  文件选择改用 `OpenDocument` + `takePersistableUriPermission(READ)`，
 >     只申请读权限，流程结束即归还；
->  4. **拿到文件绝不解锁、绝不自动提交**：Import 在解锁后于页面中解析，
+> 4.  **拿到文件绝不解锁、绝不自动提交**：Import 在解锁后于页面中解析，
 >     Restore 必须重新输入口令并显式点「开始恢复」；
->  5. 进程死亡保守恢复：意图保留、文件作废（`INTERRUPTED`），绝不半恢复；
->  6. 敏感内容（原始账单 / 口令 / 解密内容）**从不**进 `SavedStateHandle`。
+> 5.  进程死亡保守恢复：意图保留、文件作废（`INTERRUPTED`），绝不半恢复；
+> 6.  敏感内容（原始账单 / 口令 / 解密内容）**从不**进 `SavedStateHandle`。
 >
 > **未采用方案 B/C**，因此 LOCKED 时敏感 NavHost 仍**不参与组合**，
 > 且不存在"外部系统 Activity = 绕过重新认证"的例外通道。
 >
 > `Backup` 本来就不受影响：导出走 MediaStore，不拉起外部 Activity。
-| Settings | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
-| Privacy | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
-| About | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
+> | Settings | **RUNTIME_VERIFIED** | NOT_STARTED | NOT_STARTED |
+> | Privacy | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
+> | About | **RUNTIME_VERIFIED**（设备内渲染 + 语义门禁） | NOT_STARTED | NOT_STARTED |
 
 > **两个"写了但不可达"的路由（如实记录，不掩盖）**：
 >
@@ -279,53 +279,53 @@
 
 ## 6. 工程 / 发布（8 格，已完成 4）
 
-| 能力                | Android | Harmony | iOS |
-| ------------------- | ------- | ------- | --- |
-| 真实 Build | **RUNTIME_VERIFIED**（`assembleDebug` / `assembleRelease` / `bundleRelease` 全部实跑；非生产签名链路已验证） | IMPLEMENTED（hvigor 全清重建 `BUILD SUCCESSFUL`，产出 `entry-default-unsigned.hap` 60,133 B；**未签名**、未安装到设备） | **BLOCKED_BY_MACOS** |
-| 单测 / 集成测试      | **TESTED**（本轮 **222** 个可执行用例 = 71 `:core` JVM + 91 conformance + **9** `:app` JVM（本轮新增，此前 NO-SOURCE）+ **51** 设备内 androidTest） | NOT_STARTED | NOT_STARTED |
-| 设备 E2E            | **RUNTIME_VERIFIED**（核心行程 **v4** 全新 run：36 PASS / 1 FAIL，崩溃 0；每个外部 picker 节点都跑 D-16 双断言） | NOT_RUN | NOT_RUN |
-| 性能 smoke          | **TESTED**（10,000 行 CSV 全解析、0 错误，强断言通过；旧数字已作废） | NOT_RUN | NOT_RUN |
-| 无障碍 | **PARTIAL**（Compose 语义树口径：14 屏 0 个无标签可交互节点；触摸目标/焦点顺序/字体缩放/横屏 PASS；**TalkBack 实机读屏 NOT_RUN** —— 镜像未预装且无 Play 商店） | NOT_STARTED | NOT_STARTED |
-| Dark Mode（token ready） | IMPLEMENTED（`spec/ui/design-tokens.json` 含 dark 覆盖，未做设备级验证） | 同上 | 同上 |
-| Release 签名        | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**（流水线本身已验证可用：非生产密钥签名后 `apksigner verify` 通过；但**没有生产 keystore**） | BLOCKED（AGC） | BLOCKED（Apple 账号） |
-| Store metadata      | **PARTIAL**（`ANDROID_STORE_METADATA.md` 文案草稿；截图 / 图标 / 公开隐私政策链接 NOT_STARTED） | NOT_STARTED | NOT_STARTED |
+| 能力                     | Android                                                                                                                                                        | Harmony                                                                                                                 | iOS                   |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------- |
+| 真实 Build               | **RUNTIME_VERIFIED**（`assembleDebug` / `assembleRelease` / `bundleRelease` 全部实跑；非生产签名链路已验证）                                                   | IMPLEMENTED（hvigor 全清重建 `BUILD SUCCESSFUL`，产出 `entry-default-unsigned.hap` 60,133 B；**未签名**、未安装到设备） | **BLOCKED_BY_MACOS**  |
+| 单测 / 集成测试          | **TESTED**（本轮 **222** 个可执行用例 = 71 `:core` JVM + 91 conformance + **9** `:app` JVM（本轮新增，此前 NO-SOURCE）+ **51** 设备内 androidTest）            | NOT_STARTED                                                                                                             | NOT_STARTED           |
+| 设备 E2E                 | **RUNTIME_VERIFIED**（核心行程 **v4** 全新 run：36 PASS / 1 FAIL，崩溃 0；每个外部 picker 节点都跑 D-16 双断言）                                               | NOT_RUN                                                                                                                 | NOT_RUN               |
+| 性能 smoke               | **TESTED**（10,000 行 CSV 全解析、0 错误，强断言通过；旧数字已作废）                                                                                           | NOT_RUN                                                                                                                 | NOT_RUN               |
+| 无障碍                   | **PARTIAL**（Compose 语义树口径：14 屏 0 个无标签可交互节点；触摸目标/焦点顺序/字体缩放/横屏 PASS；**TalkBack 实机读屏 NOT_RUN** —— 镜像未预装且无 Play 商店） | NOT_STARTED                                                                                                             | NOT_STARTED           |
+| Dark Mode（token ready） | IMPLEMENTED（`spec/ui/design-tokens.json` 含 dark 覆盖，未做设备级验证）                                                                                       | 同上                                                                                                                    | 同上                  |
+| Release 签名             | **BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE**（流水线本身已验证可用：非生产密钥签名后 `apksigner verify` 通过；但**没有生产 keystore**）                          | BLOCKED（AGC）                                                                                                          | BLOCKED（Apple 账号） |
+| Store metadata           | **PARTIAL**（`ANDROID_STORE_METADATA.md` 文案草稿；截图 / 图标 / 公开隐私政策链接 NOT_STARTED）                                                                | NOT_STARTED                                                                                                             | NOT_STARTED           |
 
 > **不单独占格的项**：
+>
 > - `ANDROID_GRADLE_WRAPPER` = **PASS**（仓库内标准 Wrapper，Gradle 8.9，官方 `distributionUrl`）。
 > - `ANDROID_BUILD_REPRODUCIBLE` = **PASS**（本轮新增验证：不带任何环境变量/仓库外 init script
 >   直接 `./gradlew` 即可构建；非 ASCII 路径与临时目录重定向已内置在 `settings.gradle.kts`）。
-> 这两项属于"真实 Build"这一格的可复现前提，不是 parity 能力，因此**不计入 73 格**。
+>   这两项属于"真实 Build"这一格的可复现前提，不是 parity 能力，因此**不计入 73 格**。
 
 ---
 
 ## 汇总（2026-09-21 Android Product Finalization 逐格重审）
 
-| 平台   | 已完成格 | 总格 | 说明                                  |
-| ------ | -------- | ---- | ------------------------------------- |
-| Android | **69 / 73**   | **73** | 逐格重审（**非 62+7 推算**）：本轮把「生物识别 / App Lock」与「Dark Mode」两格升为 RUNTIME_VERIFIED、Onboarding 按产品决策移除（D-9）、Node/Dependency/Group 与 canonical groupKey 补实体级 conformance/设备证据升 CONFORMANCE_PASS。明细见 `ANDROID_FINAL_73_AUDIT.md` |
-| Harmony | **0**    | 73   | N3 已开工：工程可构建；**Domain 11 组已全部 COMPILED**（含 Relations / Impact / Readiness / Coverage / StateMachine / GraphRevision / ScenarioTemplate / Timeline）；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN（ArkTS runner 未接）、Runtime NOT_RUN、depmap ON_DEVICE_NOT_RUN。**PAUSED_BY_PRODUCT_PRIORITY** |
-| iOS     | 0        | 73   | 仅 codegen 产物；build BLOCKED_BY_MACOS（PAUSED / NOT_STARTED） |
+| 平台    | 已完成格    | 总格   | 说明                                                                                                                                                                                                                                                                                                                |
+| ------- | ----------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Android | **69 / 73** | **73** | 逐格重审（**非 62+7 推算**）：本轮把「生物识别 / App Lock」与「Dark Mode」两格升为 RUNTIME_VERIFIED、Onboarding 按产品决策移除（D-9）、Node/Dependency/Group 与 canonical groupKey 补实体级 conformance/设备证据升 CONFORMANCE_PASS。明细见 `ANDROID_FINAL_73_AUDIT.md`                                             |
+| Harmony | **0**       | 73     | N3 已开工：工程可构建；**Domain 11 组已全部 COMPILED**（含 Relations / Impact / Readiness / Coverage / StateMachine / GraphRevision / ScenarioTemplate / Timeline）；但均未达 `TESTED`，故仍 0。Conformance NOT_RUN（ArkTS runner 未接）、Runtime NOT_RUN、depmap ON_DEVICE_NOT_RUN。**PAUSED_BY_PRODUCT_PRIORITY** |
+| iOS     | 0           | 73     | 仅 codegen 产物；build BLOCKED_BY_MACOS（PAUSED / NOT_STARTED）                                                                                                                                                                                                                                                     |
 
 ### 69 的来源（逐节重算，不做 `62 + 完成项` 这类推算）
 
-| 节 | 格数 | 已完成 | 说明 |
-| -- | ---- | ------ | ---- |
-| 1. 领域 / 语义层 | 16 | **16** | Node/Dependency/Group、canonical groupKey 本轮补 conformance + 设备实体层证据（CandidateDriftEvidenceTest 7/7）→ CONFORMANCE_PASS |
-| 2. 持久化与迁移 | 10 | **10** | |
-| 3. 安全 / 密钥 / 认证 | 10 | **10** | 「生物认证 / App Lock」本轮在指纹 AVD（API35 `hw.fingerprint=yes`）跑通指纹成功/失败/取消 + PIN 正确/错误 → **RUNTIME_VERIFIED** |
-| 4. 导入 / 解析 | 7 | **7** | |
-| 5. UI | 22 | **21** | Onboarding 按产品决策移除（D-9）；Timeline / Candidate Review / Graph 本轮不再为缺口（首页聚合 + 入口 + 语义门禁）；Drift/Candidate 四选一与确认/忽略设备验证 |
-| 6. 工程 / 发布 | 8 | **5** | 本轮：Dark Mode 设备像素验证 → RUNTIME_VERIFIED（由 IMPLEMENTED 升级）、真实 Build/单测/E2E/性能 四格保持；新增 DeleteAllData/L-37 设备测试 |
-| **合计** | **73** | **69** | |
+| 节                    | 格数   | 已完成 | 说明                                                                                                                                                          |
+| --------------------- | ------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. 领域 / 语义层      | 16     | **16** | Node/Dependency/Group、canonical groupKey 本轮补 conformance + 设备实体层证据（CandidateDriftEvidenceTest 7/7）→ CONFORMANCE_PASS                             |
+| 2. 持久化与迁移       | 10     | **10** |                                                                                                                                                               |
+| 3. 安全 / 密钥 / 认证 | 10     | **10** | 「生物认证 / App Lock」本轮在指纹 AVD（API35 `hw.fingerprint=yes`）跑通指纹成功/失败/取消 + PIN 正确/错误 → **RUNTIME_VERIFIED**                              |
+| 4. 导入 / 解析        | 7      | **7**  |                                                                                                                                                               |
+| 5. UI                 | 22     | **21** | Onboarding 按产品决策移除（D-9）；Timeline / Candidate Review / Graph 本轮不再为缺口（首页聚合 + 入口 + 语义门禁）；Drift/Candidate 四选一与确认/忽略设备验证 |
+| 6. 工程 / 发布        | 8      | **5**  | 本轮：Dark Mode 设备像素验证 → RUNTIME_VERIFIED（由 IMPLEMENTED 升级）、真实 Build/单测/E2E/性能 四格保持；新增 DeleteAllData/L-37 设备测试                   |
+| **合计**              | **73** | **69** |                                                                                                                                                               |
 
 ### 仍未完成的 4 格（逐格列出，不做合并、不隐藏）
 
-| 格 | 状态 | 性质 |
-| -- | ---- | ---- |
-| 无障碍（TalkBack 实机读屏） | PARTIAL（语义树 14/14 PASS；TalkBack NOT_RUN） | RUNTIME_ENVIRONMENT_GAP（AVD 无 Play 商店/需真机） |
-| Release 签名 | BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE | RELEASE_EXTERNAL_BLOCKER（用户提供 keystore） |
-| Store metadata（截图/图标/公开 URL） | PARTIAL（文案完成） | STORE_PREPARATION（需最终品牌决策） |
-| R8 / minify | NOT_APPLICABLE（release 未开 minify，如实不伪报） | 工程项（当前不适用，开启后需重验） |
-
+| 格                                   | 状态                                              | 性质                                               |
+| ------------------------------------ | ------------------------------------------------- | -------------------------------------------------- |
+| 无障碍（TalkBack 实机读屏）          | PARTIAL（语义树 14/14 PASS；TalkBack NOT_RUN）    | RUNTIME_ENVIRONMENT_GAP（AVD 无 Play 商店/需真机） |
+| Release 签名                         | BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE            | RELEASE_EXTERNAL_BLOCKER（用户提供 keystore）      |
+| Store metadata（截图/图标/公开 URL） | PARTIAL（文案完成）                               | STORE_PREPARATION（需最终品牌决策）                |
+| R8 / minify                          | NOT_APPLICABLE（release 未开 minify，如实不伪报） | 工程项（当前不适用，开启后需重验）                 |
 
 Android 侧 27 个 Gate 的逐项结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`。

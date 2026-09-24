@@ -49,13 +49,13 @@
 
 ## 3. Java / JDK
 
-| 来源                    | 实测版本                | 路径                                             |
-| ----------------------- | ----------------------- | ------------------------------------------------ |
-| PATH `java`             | **1.8.0_441**（Java 8） | PATH 默认                                        |
-| PATH `javac`            | **不存在**              | —                                                |
-| Android Studio 内置 JBR | **OpenJDK 21.0.10**     | `<ANDROID_STUDIO_HOME>\jbr\bin\java.exe`        |
-| DevEco Studio 内置 JBR  | **OpenJDK 17.0.12**     | `<DEVECO_HOME>\jbr\bin\java.exe` |
-| `JAVA_HOME`             | **未设置**              | —                                                |
+| 来源                    | 实测版本                | 路径                                     |
+| ----------------------- | ----------------------- | ---------------------------------------- |
+| PATH `java`             | **1.8.0_441**（Java 8） | PATH 默认                                |
+| PATH `javac`            | **不存在**              | —                                        |
+| Android Studio 内置 JBR | **OpenJDK 21.0.10**     | `<ANDROID_STUDIO_HOME>\jbr\bin\java.exe` |
+| DevEco Studio 内置 JBR  | **OpenJDK 17.0.12**     | `<DEVECO_HOME>\jbr\bin\java.exe`         |
+| `JAVA_HOME`             | **未设置**              | —                                        |
 
 **结论**：JDK 17 / 21 均存在但**均未进入 PATH**，且 `JAVA_HOME` 未设置。Android 构建须显式指定 `JAVA_HOME`。PATH 上的 Java 8 **不可用于 AGP 8.5.2**。
 
@@ -63,24 +63,24 @@
 
 ## 4. Android 工具链
 
-| 项                 | 实测值                                                                                                                                                           |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ANDROID_HOME`     | **未设置**                                                                                                                                                       |
-| `ANDROID_SDK_ROOT` | **未设置**                                                                                                                                                       |
-| Android SDK 根     | `<ANDROID_SDK_ROOT>`（实测存在）                                                                                                                                |
-| platforms          | `android-34`（本轮新装）、`android-36.1`、`android-37.0`                                                                                                         |
-| build-tools        | `34.0.0`（本轮新装）、`36.1.0`、`37.0.0`                                                                                                                         |
-| cmdline-tools      | `latest`（v20.0，可执行）                                                                                                                                        |
-| platform-tools     | `37.0.0` → `adb` 1.0.41                                                                                                                                          |
-| licenses           | 已接受（`android-sdk-license` 等 7 项在盘）                                                                                                                      |
-| emulator           | 已安装 `36.5.11`                                                                                                                                                 |
-| system-images      | **无**（`<ANDROID_SDK_ROOT>\system-images` 不存在）                                                                                                             |
-| AVD                | **0 个**（`emulator -list-avds` 空输出）                                                                                                                         |
-| `adb devices -l`   | **空**（无物理设备、无模拟器）                                                                                                                                   |
-| Gradle（PATH）     | **不存在**                                                                                                                                                       |
+| 项                 | 实测值                                                                                                                                         |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ANDROID_HOME`     | **未设置**                                                                                                                                     |
+| `ANDROID_SDK_ROOT` | **未设置**                                                                                                                                     |
+| Android SDK 根     | `<ANDROID_SDK_ROOT>`（实测存在）                                                                                                               |
+| platforms          | `android-34`（本轮新装）、`android-36.1`、`android-37.0`                                                                                       |
+| build-tools        | `34.0.0`（本轮新装）、`36.1.0`、`37.0.0`                                                                                                       |
+| cmdline-tools      | `latest`（v20.0，可执行）                                                                                                                      |
+| platform-tools     | `37.0.0` → `adb` 1.0.41                                                                                                                        |
+| licenses           | 已接受（`android-sdk-license` 等 7 项在盘）                                                                                                    |
+| emulator           | 已安装 `36.5.11`                                                                                                                               |
+| system-images      | **无**（`<ANDROID_SDK_ROOT>\system-images` 不存在）                                                                                            |
+| AVD                | **0 个**（`emulator -list-avds` 空输出）                                                                                                       |
+| `adb devices -l`   | **空**（无物理设备、无模拟器）                                                                                                                 |
+| Gradle（PATH）     | **不存在**                                                                                                                                     |
 | Gradle 发行版      | 旧：`~/.gradle/wrapper/dists/gradle-9.3.1-bin/` 仅 0 字节 `.lck`/`.part`；**本轮新装 8.9 于 `<GRADLE_HOME>`（`gradle -v` 实测 `Gradle 8.9`）** |
-| Android Studio     | 已安装（`DS`/`AI-253.…` 版本目录在盘）                                                                                                                           |
-| `PATH` 上的 `adb`  | **旧版 1.0.32**（`<ANDROID_SDK_ROOT>\adb`，2016 年文件）→ 与 SDK adb 1.0.41 端口冲突，须用 SDK 版                                                                        |
+| Android Studio     | 已安装（`DS`/`AI-253.…` 版本目录在盘）                                                                                                         |
+| `PATH` 上的 `adb`  | **旧版 1.0.32**（`<ANDROID_SDK_ROOT>\adb`，2016 年文件）→ 与 SDK adb 1.0.41 端口冲突，须用 SDK 版                                              |
 
 ---
 
@@ -89,7 +89,7 @@
 | 项               | 实测值                                                                                                                        |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | DevEco Studio    | **5.0.5.310**（`build.txt` = `DS-233.14475.28.36.505310`）                                                                    |
-| 安装路径         | `<DEVECO_HOME>`                                                                                               |
+| 安装路径         | `<DEVECO_HOME>`                                                                                                               |
 | HarmonyOS SDK    | `sdk/default/{openharmony,hms}`，`sdk-pkg.json` = **HarmonyOS 5.0.1 / apiVersion 13 / version 5.0.1.115 / metaVersion 3.0.0** |
 | SDK 组件（在盘） | `openharmony/{ets, js, native, previewer, toolchains}` **五组件全部存在**，各自 `oh-uni-package.json` 均报 `apiVersion 13`    |
 | hvigor           | `tools/hvigor/bin/hvigorw`（hvigorw.bat / hvigorw.js）                                                                        |
@@ -108,7 +108,7 @@
 | 旧状态（B10）        | 全盘搜索无命中 → 本轮**推翻**：可获取官方安装包并已落地                                            |
 | 官方版本索引         | `https://download1.dcloud.net.cn/hbuilderx/release.json` → **5.24.2026081301**                     |
 | 安装包               | `HBuilderX.5.24.2026081301.zip`（87.09 M，官方 CDN 下载成功）                                      |
-| 安装路径（本轮）     | `<DEPMAP_TOOLS_HOME>\HBuilderX`（绿色免安装，解压即用）                                           |
+| 安装路径（本轮）     | `<DEPMAP_TOOLS_HOME>\HBuilderX`（绿色免安装，解压即用）                                            |
 | 解压结果             | **5151 个文件 / 143 MB**，`HBuilderX.exe`、`cli.exe` 均在                                          |
 | 版本（实测）         | **5.24.2026081301**（`cli --help` 自报 + 启动日志）                                                |
 | 进程状态             | 已成功启动并常驻（PID 存在），日志正常输出                                                         |
@@ -155,7 +155,7 @@
 | 依赖                  | androidx.core-ktx 1.13.1 / biometric 1.1.0 / fragment-ktx 1.8.2 / **net.zetetic:sqlcipher-android 4.6.1** / androidx.sqlite 2.4.0 / **bcprov-jdk18on 1.78.1** / coroutines-android 1.8.1；test: junit 4.13.2 / org.json 20240303 / kotlin-test 2.0.0 |
 | Manifest              | 最小权限：仅 `USE_BIOMETRIC`；`allowBackup=false`；`usesCleartextTraffic=false`                                                                                                                                                                      |
 | Gradle wrapper        | **无**（工程内无 `gradlew` / `gradle-wrapper.properties`）                                                                                                                                                                                           |
-| `local.properties`    | 本轮创建（`sdk.dir=<ANDROID_SDK_ROOT>`），已被 `.gitignore` 忽略                                                                                                                                                                                    |
+| `local.properties`    | 本轮创建（`sdk.dir=<ANDROID_SDK_ROOT>`），已被 `.gitignore` 忽略                                                                                                                                                                                     |
 
 ### 7.2 HarmonyOS（`platforms/harmonyos/`）
 
@@ -196,13 +196,13 @@
 
 ## 9. 本轮已执行的环境动作（审计后）
 
-| #   | 动作                                                           | 结果                                                                  |
-| --- | -------------------------------------------------------------- | --------------------------------------------------------------------- |
-| 9.1 | 下载 Gradle 8.9（华为镜像 136 MB）                             | **成功**，解压至 `<GRADLE_HOME>`，`gradle -v` = 8.9 |
-| 9.2 | `sdkmanager --install platforms;android-34 build-tools;34.0.0` | **成功**，两组件已落盘                                                |
-| 9.3 | 下载 HBuilderX 5.24（官方 CDN 87 MB）                          | **成功**，解压至 `<DEPMAP_TOOLS_HOME>\HBuilderX`，已启动并导入工程   |
-| 9.4 | 创建 `platforms/android/local.properties`                      | **成功**（已 gitignore）                                              |
-| 9.5 | 创建 `.tmp_audit/` 临时目录                                    | 存放工具包与探测输出；**收尾时清理，不入库**                          |
+| #   | 动作                                                           | 结果                                                               |
+| --- | -------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 9.1 | 下载 Gradle 8.9（华为镜像 136 MB）                             | **成功**，解压至 `<GRADLE_HOME>`，`gradle -v` = 8.9                |
+| 9.2 | `sdkmanager --install platforms;android-34 build-tools;34.0.0` | **成功**，两组件已落盘                                             |
+| 9.3 | 下载 HBuilderX 5.24（官方 CDN 87 MB）                          | **成功**，解压至 `<DEPMAP_TOOLS_HOME>\HBuilderX`，已启动并导入工程 |
+| 9.4 | 创建 `platforms/android/local.properties`                      | **成功**（已 gitignore）                                           |
+| 9.5 | 创建 `.tmp_audit/` 临时目录                                    | 存放工具包与探测输出；**收尾时清理，不入库**                       |
 
 ### 9.5 网络可达性实测（与旧报告差异显著）
 
@@ -225,7 +225,7 @@
 
 | #   | Blocker                                                                             | 性质                   |
 | --- | ----------------------------------------------------------------------------------- | ---------------------- |
-| B1  | **工程路径含非 ASCII 字符**（`<repo>`）→ AGP 拒绝构建（已实测复现）         | **可解（本轮处理中）** |
+| B1  | **工程路径含非 ASCII 字符**（`<repo>`）→ AGP 拒绝构建（已实测复现）                 | **可解（本轮处理中）** |
 | B2  | HarmonyOS hvigor 组件解析失败 + `repo.harmonyos.com` 远端 400                       | 待定位                 |
 | B3  | 无 macOS / Xcode（`xcodebuild` 不存在）                                             | **外部，不可解**       |
 | B10 | HBuilderX **CLI 无 build/publish 命令** → 无法在无 GUI 交互下触发 uni-app x 编译    | **本轮新根因**         |

@@ -2,11 +2,11 @@
 
 > 生成时间：2026-09-21（Android Product Finalization 收口）
 > **更新：2026-09-23（ANDROID API36 工程全速收口轮）**——compileSdk/targetSdk→36（Android 16），
->   API36 双 AVD 全量回归（androidTest 59/59×2、Core Journey 41/41、三场景 32/32）、
->   edge-to-edge / predictive back / adaptive layout / D-16 四项 PASS、
->   NON-PRODUCTION 签名链路验证（apksigner v2 + signed AAB）、
->   **parity 保持 69/73**（剩余 4 格仍为外部 blocker / 政策项）、
->   `ANDROID_GOOGLE_PLAY_RELEASED` 仍如实 BLOCKED（无 Play 账号 / applicationId 未定 / 无生产 keystore / 无真机 / 无真实数据）。
+> API36 双 AVD 全量回归（androidTest 59/59×2、Core Journey 41/41、三场景 32/32）、
+> edge-to-edge / predictive back / adaptive layout / D-16 四项 PASS、
+> NON-PRODUCTION 签名链路验证（apksigner v2 + signed AAB）、
+> **parity 保持 69/73**（剩余 4 格仍为外部 blocker / 政策项）、
+> `ANDROID_GOOGLE_PLAY_RELEASED` 仍如实 BLOCKED（无 Play 账号 / applicationId 未定 / 无生产 keystore / 无真机 / 无真实数据）。
 > 执行环境：Windows 11，仓库 `E:\AI\号卡管理`（非 ASCII 路径，构建输出重定向 `%USERPROFILE%\pdig-build`）
 > 分支：`feat/android-production-release` · 本轮 HEAD：`b13f2f7` + 文档 commit（以 `git rev-parse HEAD` 为准）
 > 设备：AVD `pdig_api36_phone`（Android 16/API36，1080×2424）+ `pdig_api36_tablet`（API36，2560×1600）
@@ -179,12 +179,12 @@ Settings →「删除所有数据」+ AlertDialog 确认；删除 DB/WAL/SHM/jou
 
 ## 31. APK / AAB
 
-| 产物 | 大小 | SHA-256（前 16） |
-|------|------|------------------|
-| app-debug.apk | 36,974,885 B | `030BD9E3…` |
-| app-release-unsigned.apk | 33,130,413 B | `C659F077…` |
-| app-release.aab | 20,862,091 B | `A24593A6…` |
-| app-debug-androidTest.apk | 1,135,942 B | `7E641719…` |
+| 产物                      | 大小         | SHA-256（前 16） |
+| ------------------------- | ------------ | ---------------- |
+| app-debug.apk             | 36,974,885 B | `030BD9E3…`      |
+| app-release-unsigned.apk  | 33,130,413 B | `C659F077…`      |
+| app-release.aab           | 20,862,091 B | `A24593A6…`      |
+| app-debug-androidTest.apk | 1,135,942 B  | `7E641719…`      |
 
 （fresh clone 构建；settings.gradle.kts ASCII 重定向为项目内建，产物路径以实际构建输出为准记录。）
 
@@ -236,25 +236,25 @@ process death/TalkBack/performance smoke）已列出，等待用户提供真机�
 
 ## 40. ANDROID_PRODUCT_COMPLETE 判定
 
-| 项 | 结果 |
-|----|------|
-| MVP01–03 功能全部实现 | ✅ |
-| 核心 UI 全部可达 | ✅（21 目的地，0 ghost） |
-| 三个 active 场景全流程 | ✅（40/40） |
-| Import 完整 | ✅ |
-| Reality Boundary 正确 | ✅ |
-| Impact / ChangePlan / Verification 正确 | ✅（conformance + 设备） |
-| Backup/Restore 正确 | ✅（41/41 含错误口令/篡改拒绝） |
-| Migration / Persistence 正确 | ✅ |
-| App Lock / Privacy 正确 | ✅（59/59 + 权限审计） |
-| Accessibility 工程内可完成项 | ✅（语义树 14/14；TalkBack 实机=环境受限项） |
-| Process death 可靠 | ✅（E2E J9） |
-| Performance / Stability 无 blocker | ✅ |
-| Release build 可复现 | ✅（三产物 + SHA256） |
-| Permission / Network / Logging audit | ✅ |
-| Dependency / license / SBOM | ✅ |
-| Product UI QA / Store metadata draft / Privacy draft | ✅ |
-| **剩余全部为 external blocker** | ✅（§39 七项，均需用户提供） |
+| 项                                                   | 结果                                         |
+| ---------------------------------------------------- | -------------------------------------------- |
+| MVP01–03 功能全部实现                                | ✅                                           |
+| 核心 UI 全部可达                                     | ✅（21 目的地，0 ghost）                     |
+| 三个 active 场景全流程                               | ✅（40/40）                                  |
+| Import 完整                                          | ✅                                           |
+| Reality Boundary 正确                                | ✅                                           |
+| Impact / ChangePlan / Verification 正确              | ✅（conformance + 设备）                     |
+| Backup/Restore 正确                                  | ✅（41/41 含错误口令/篡改拒绝）              |
+| Migration / Persistence 正确                         | ✅                                           |
+| App Lock / Privacy 正确                              | ✅（59/59 + 权限审计）                       |
+| Accessibility 工程内可完成项                         | ✅（语义树 14/14；TalkBack 实机=环境受限项） |
+| Process death 可靠                                   | ✅（E2E J9）                                 |
+| Performance / Stability 无 blocker                   | ✅                                           |
+| Release build 可复现                                 | ✅（三产物 + SHA256）                        |
+| Permission / Network / Logging audit                 | ✅                                           |
+| Dependency / license / SBOM                          | ✅                                           |
+| Product UI QA / Store metadata draft / Privacy draft | ✅                                           |
+| **剩余全部为 external blocker**                      | ✅（§39 七项，均需用户提供）                 |
 
 ```
 ANDROID_PRODUCT_COMPLETE = PASS

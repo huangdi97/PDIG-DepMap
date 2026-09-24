@@ -14,24 +14,24 @@
 
 ## 2. 已就绪的验收材料（真实可用，不 pretend）
 
-| 材料 | 位置 | 状态 |
-|------|------|------|
-| 真机验收计划（Installation/Security/Lifecycle/Import/Scenario/Backup/A11y/Performance） | `ANDROID_REAL_DEVICE_ACCEPTANCE_PLAN.md` | READY |
+| 材料                                                                                              | 位置                                         | 状态                     |
+| ------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------ |
+| 真机验收计划（Installation/Security/Lifecycle/Import/Scenario/Backup/A11y/Performance）           | `ANDROID_REAL_DEVICE_ACCEPTANCE_PLAN.md`     | READY                    |
 | 自动采集脚本（adb devices/model/OS/API/ABI/density/分辨率/APK SHA/install/test/logcat/crash/ANR） | `scripts/android_real_device_acceptance.ps1` | READY（可 dry-run 验证） |
-| 表征设备信息最小集 | 粘贴 Goal §26 列表 | 就绪（不采集无关隐私） |
+| 表征设备信息最小集                                                                                | 粘贴 Goal §26 列表                           | 就绪（不采集无关隐私）   |
 
 ## 3. API36 AVD 已覆盖的等效维度（供真机日对照基线，不冒充真机）
 
-| 维度 | AVD 结果 | 证据 |
-|------|----------|------|
-| 安装 | `adb install -r` Success | Core Journey E2E J1 |
-| 安全（Lock/Fingerprint/前后台回锁） | PASS | J0 / AppLockNavigationTest / RepositoryKeystoreEvidenceTest |
-| 生命周期（process death / recreation） | PASS | J9 |
-| Import / D-16 | PASS | J2 + FileWorkflowD16Test |
-| 三场景闭环 | 见 `ANDROID_16_API36_CLOSURE_REPORT.md` §C | scenario-e2e-v2 |
-| Backup / Restore / 篡改拒绝 | PASS | J10/J11 |
-| 性能 smoke | 待 `ANDROID_PERFORMANCE_SMOKE_REPORT.md` 确认 | PerfSmokeEvidenceTest |
-| 崩溃/ANR | 0（本机全量） | crash-scan |
+| 维度                                   | AVD 结果                                      | 证据                                                        |
+| -------------------------------------- | --------------------------------------------- | ----------------------------------------------------------- |
+| 安装                                   | `adb install -r` Success                      | Core Journey E2E J1                                         |
+| 安全（Lock/Fingerprint/前后台回锁）    | PASS                                          | J0 / AppLockNavigationTest / RepositoryKeystoreEvidenceTest |
+| 生命周期（process death / recreation） | PASS                                          | J9                                                          |
+| Import / D-16                          | PASS                                          | J2 + FileWorkflowD16Test                                    |
+| 三场景闭环                             | 见 `ANDROID_16_API36_CLOSURE_REPORT.md` §C    | scenario-e2e-v2                                             |
+| Backup / Restore / 篡改拒绝            | PASS                                          | J10/J11                                                     |
+| 性能 smoke                             | 待 `ANDROID_PERFORMANCE_SMOKE_REPORT.md` 确认 | PerfSmokeEvidenceTest                                       |
+| 崩溃/ANR                               | 0（本机全量）                                 | crash-scan                                                  |
 
 ## 4. Gate 结论
 

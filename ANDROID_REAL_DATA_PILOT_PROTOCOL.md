@@ -29,14 +29,14 @@
 
 ## 4. 指标（对照 ANDROID_REAL_DATA_ACCEPTANCE.md）
 
-| 指标 | 定义 | 目标 |
-|------|------|------|
+| 指标                     | 定义                                            | 目标                                         |
+| ------------------------ | ----------------------------------------------- | -------------------------------------------- |
 | Precision（must_change） | 用户确认的 must_change / 机器标出的 must_change | 追求无假阳性（confirmed false positive = 0） |
-| false must_change 数 | 机器标 must_change 但用户说不对 | **0**（硬目标） |
-| Node Resolution 正确率 | 正确识别支付方式/收款对象比例 | ≥95%（synthetic 参考线） |
-| Proposal 有用率 | 用户确认/采纳的 Proposal 比例 | ≥80% |
-| 遗漏 dependency | 用户补充确认了机器没发现的依赖 | 记录并分类 |
-| 完成一次换卡排查时间 | 从导入到 verified 的端到端时间 | 记录，不预设 |
+| false must_change 数     | 机器标 must_change 但用户说不对                 | **0**（硬目标）                              |
+| Node Resolution 正确率   | 正确识别支付方式/收款对象比例                   | ≥95%（synthetic 参考线）                     |
+| Proposal 有用率          | 用户确认/采纳的 Proposal 比例                   | ≥80%                                         |
+| 遗漏 dependency          | 用户补充确认了机器没发现的依赖                  | 记录并分类                                   |
+| 完成一次换卡排查时间     | 从导入到 verified 的端到端时间                  | 记录，不预设                                 |
 
 ## 5. 禁止
 

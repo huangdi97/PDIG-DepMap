@@ -8,11 +8,11 @@
 
 **彻底退出 uni-app x / UTS / DCloud Production 技术栈，切换为三端原生。**
 
-| 平台      | 语言 / UI         | 导航                  | 并发            | 存储                | 密钥       | 认证                  |
-| --------- | ----------------- | --------------------- | --------------- | ------------------- | ---------- | --------------------- |
-| Android   | Kotlin / Compose  | Navigation Compose    | Coroutines/Flow | SQLite / SQLCipher  | Keystore   | BiometricPrompt       |
-| iOS       | Swift / SwiftUI   | NavigationStack       | async/await     | SQLite / SQLCipher  | Keychain   | LocalAuthentication   |
-| HarmonyOS | ArkTS / ArkUI     | Stage Model 导航      | ArkTS 并发      | ArkData relationalStore | HUKS   | Harmony 用户认证      |
+| 平台      | 语言 / UI        | 导航               | 并发            | 存储                    | 密钥     | 认证                |
+| --------- | ---------------- | ------------------ | --------------- | ----------------------- | -------- | ------------------- |
+| Android   | Kotlin / Compose | Navigation Compose | Coroutines/Flow | SQLite / SQLCipher      | Keystore | BiometricPrompt     |
+| iOS       | Swift / SwiftUI  | NavigationStack    | async/await     | SQLite / SQLCipher      | Keychain | LocalAuthentication |
+| HarmonyOS | ArkTS / ArkUI    | Stage Model 导航   | ArkTS 并发      | ArkData relationalStore | HUKS     | Harmony 用户认证    |
 
 **Production 中禁止依赖**：uni-app、uni-app x、`.uvue` runtime、UTS runtime、
 HBuilderX build pipeline、DCloud Cloud Build、DCloud Native SDK、DCloud 登录、
@@ -35,16 +35,16 @@ Android 不得自己设计一套业务规则、iOS 再猜一套、Harmony 再抄
 
 ## 2. 阶段划分
 
-| Phase | 名称                                  | 关键产出                                              |
-| ----- | ------------------------------------- | ----------------------------------------------------- |
-| **N0**  | Canonical Specification             | `spec/` + `fixtures/` + codegen + conformance harness |
-| **N1**  | Android Vertical Slice               | fresh install → import → proposal → scenario → plan → backup → restore |
-| **N2**  | Android Full Parity（MVP01–03）      | 全部功能 + Conformance PASS                            |
-| **N3**  | HarmonyOS Full Parity                | 与 Android 功能 parity                                  |
-| **N4**  | iOS Full Parity / Source Parity      | 无 macOS 时先 Source Parity                             |
-| **N5**  | Cross-platform Conformance           | Domain / StateMachine / Impact / Migration / Crypto / DEPMap / UI |
-| **N6**  | Legacy Cutover                       | 移除 DCloud / UTS / uni-app 的 Production 依赖          |
-| **N7**  | Native Production RC                 | Build / Runtime / Security / Store Readiness / Final Report |
+| Phase  | 名称                            | 关键产出                                                               |
+| ------ | ------------------------------- | ---------------------------------------------------------------------- |
+| **N0** | Canonical Specification         | `spec/` + `fixtures/` + codegen + conformance harness                  |
+| **N1** | Android Vertical Slice          | fresh install → import → proposal → scenario → plan → backup → restore |
+| **N2** | Android Full Parity（MVP01–03） | 全部功能 + Conformance PASS                                            |
+| **N3** | HarmonyOS Full Parity           | 与 Android 功能 parity                                                 |
+| **N4** | iOS Full Parity / Source Parity | 无 macOS 时先 Source Parity                                            |
+| **N5** | Cross-platform Conformance      | Domain / StateMachine / Impact / Migration / Crypto / DEPMap / UI      |
+| **N6** | Legacy Cutover                  | 移除 DCloud / UTS / uni-app 的 Production 依赖                         |
+| **N7** | Native Production RC            | Build / Runtime / Security / Store Readiness / Final Report            |
 
 ### N0 完成判据（§174）
 
@@ -80,28 +80,28 @@ Android 不得自己设计一套业务规则、iOS 再猜一套、Harmony 再抄
 
 ## 4. 不可协商的正确性铁律
 
-| ID      | 铁律                                                |
-| ------- | --------------------------------------------------- |
-| OBS-01  | Observation ≠ Reality                               |
-| OBS-02  | Proposal ≠ Reality                                  |
-| OBS-03  | Candidate ≠ Node                                    |
-| OBS-04  | Drift ≠ Reality Change                              |
-| OBS-05  | Evidence ≠ History                                  |
-| OBS-06  | absence ≠ non-existence                             |
-| OBS-07  | done ≠ verified                                     |
-| OBS-08  | coverage ≠ readiness                                |
-| OBS-09  | Timeline ≠ Truth                                    |
-| IMP-01  | `must_change` 只来自 confirmed reality；false positive = 0 |
-| IMP-02  | 机器推断**永不**设置 `criticality = required`         |
-| GR-01   | 只有 confirmed reality mutation 才 bump graphRevision |
-| GR-02   | mutation 与 revision increment **同事务**             |
-| DR-01   | Drift 只接受 positive evidence                       |
-| PC-01   | Candidate 不进 Impact、不 bump revision              |
-| VF-01   | future evidence 最多 `evidence_suggested`            |
-| RD-01   | Readiness 用显式 resolution 映射，**禁止减法**        |
-| SRC-01  | 不同 SourceInstance 不共享 fingerprint 命名空间        |
-| SRC-02  | 多源 evidence 增加 provenance，不增加确定性             |
-| DEP-01  | `DEPMAP_CONTAINER_V1` 三端字节级兼容                   |
+| ID     | 铁律                                                       |
+| ------ | ---------------------------------------------------------- |
+| OBS-01 | Observation ≠ Reality                                      |
+| OBS-02 | Proposal ≠ Reality                                         |
+| OBS-03 | Candidate ≠ Node                                           |
+| OBS-04 | Drift ≠ Reality Change                                     |
+| OBS-05 | Evidence ≠ History                                         |
+| OBS-06 | absence ≠ non-existence                                    |
+| OBS-07 | done ≠ verified                                            |
+| OBS-08 | coverage ≠ readiness                                       |
+| OBS-09 | Timeline ≠ Truth                                           |
+| IMP-01 | `must_change` 只来自 confirmed reality；false positive = 0 |
+| IMP-02 | 机器推断**永不**设置 `criticality = required`              |
+| GR-01  | 只有 confirmed reality mutation 才 bump graphRevision      |
+| GR-02  | mutation 与 revision increment **同事务**                  |
+| DR-01  | Drift 只接受 positive evidence                             |
+| PC-01  | Candidate 不进 Impact、不 bump revision                    |
+| VF-01  | future evidence 最多 `evidence_suggested`                  |
+| RD-01  | Readiness 用显式 resolution 映射，**禁止减法**             |
+| SRC-01 | 不同 SourceInstance 不共享 fingerprint 命名空间            |
+| SRC-02 | 多源 evidence 增加 provenance，不增加确定性                |
+| DEP-01 | `DEPMAP_CONTAINER_V1` 三端字节级兼容                       |
 
 完整清单见 `spec/domain/invariants.md`。
 
@@ -157,21 +157,21 @@ force push、history rewrite。
 
 ## 8. 关键文件索引
 
-| 文件                                    | 作用                                    |
-| --------------------------------------- | --------------------------------------- |
-| `spec/README.md`                        | Canonical Spec 的法律地位               |
-| `spec/domain/domain.json`               | 机器可读枚举 / 实体 / 关系 / 场景 / 常量 |
-| `spec/state-machines/`                  | 状态机（机器可读）                      |
-| `spec/security/depmap-container-v1.json`| `.depmap` 冻结协议 + Golden Vector      |
-| `spec/schema/`                          | 逻辑 Schema + 持久化契约                |
-| `spec/ui/`                              | 设计 token + 中文文案                   |
-| `fixtures/`                             | 平台中立输入 + 期望输出（64 用例）      |
-| `conformance/CONFORMANCE_MANIFEST.json` | 用例清单 + 哈希 + oracle 提交           |
-| `tools/codegen/generate.mjs`            | spec → Kotlin/Swift/ArkTS 枚举          |
-| `tools/conformance/run.mjs`             | 统一 Conformance Gate                   |
-| `LEGACY_REFERENCE_MANIFEST.md`          | Legacy 冻结身份卡                       |
-| `LEGACY_BEHAVIOR_CORRECTIONS.md`        | 旧实现真实缺陷                          |
-| `NATIVE_MIGRATION_STATUS.md`            | 当前进度（每次运行后更新）              |
-| `NATIVE_PARITY_MATRIX.md`               | 功能 parity 矩阵                        |
-| `CROSS_PLATFORM_CONFORMANCE_MATRIX.md`  | 跨端 Conformance 矩阵                   |
-| `NATIVE_EXTERNAL_BLOCKERS.md`           | 真正的外部 blocker                      |
+| 文件                                     | 作用                                     |
+| ---------------------------------------- | ---------------------------------------- |
+| `spec/README.md`                         | Canonical Spec 的法律地位                |
+| `spec/domain/domain.json`                | 机器可读枚举 / 实体 / 关系 / 场景 / 常量 |
+| `spec/state-machines/`                   | 状态机（机器可读）                       |
+| `spec/security/depmap-container-v1.json` | `.depmap` 冻结协议 + Golden Vector       |
+| `spec/schema/`                           | 逻辑 Schema + 持久化契约                 |
+| `spec/ui/`                               | 设计 token + 中文文案                    |
+| `fixtures/`                              | 平台中立输入 + 期望输出（64 用例）       |
+| `conformance/CONFORMANCE_MANIFEST.json`  | 用例清单 + 哈希 + oracle 提交            |
+| `tools/codegen/generate.mjs`             | spec → Kotlin/Swift/ArkTS 枚举           |
+| `tools/conformance/run.mjs`              | 统一 Conformance Gate                    |
+| `LEGACY_REFERENCE_MANIFEST.md`           | Legacy 冻结身份卡                        |
+| `LEGACY_BEHAVIOR_CORRECTIONS.md`         | 旧实现真实缺陷                           |
+| `NATIVE_MIGRATION_STATUS.md`             | 当前进度（每次运行后更新）               |
+| `NATIVE_PARITY_MATRIX.md`                | 功能 parity 矩阵                         |
+| `CROSS_PLATFORM_CONFORMANCE_MATRIX.md`   | 跨端 Conformance 矩阵                    |
+| `NATIVE_EXTERNAL_BLOCKERS.md`            | 真正的外部 blocker                       |

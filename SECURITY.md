@@ -9,13 +9,13 @@
 
 ### 期望收到
 
-| 项 | 说明 |
-| --- | --- |
-| 影响面 | 哪个平台（Android / HarmonyOS / iOS / Canonical / Legacy） |
-| 版本 | commit SHA（不是"最新版"） |
-| 最小复现 | 可独立执行的步骤，**基于 synthetic fixture** |
-| 期望 vs 实际 | 明确的安全属性差异 |
-| 证据 | 脱敏日志、测试输出；**不含真实个人数据** |
+| 项           | 说明                                                       |
+| ------------ | ---------------------------------------------------------- |
+| 影响面       | 哪个平台（Android / HarmonyOS / iOS / Canonical / Legacy） |
+| 版本         | commit SHA（不是"最新版"）                                 |
+| 最小复现     | 可独立执行的步骤，**基于 synthetic fixture**               |
+| 期望 vs 实际 | 明确的安全属性差异                                         |
+| 证据         | 脱敏日志、测试输出；**不含真实个人数据**                   |
 
 ---
 
@@ -45,13 +45,13 @@
 
 ## 支持范围
 
-| 范围 | 是否受理 |
-| --- | --- |
-| `spec/` / `fixtures/` / `conformance/`（Canonical 契约） | ✅ |
-| `android/`（原生实现） | ✅ |
-| `harmony/`（原生实现） | ✅ |
+| 范围                                                      | 是否受理                            |
+| --------------------------------------------------------- | ----------------------------------- |
+| `spec/` / `fixtures/` / `conformance/`（Canonical 契约）  | ✅                                  |
+| `android/`（原生实现）                                    | ✅                                  |
+| `harmony/`（原生实现）                                    | ✅                                  |
 | `core/` / `app/` / `platforms/`（Legacy Behavior Oracle） | ⚠️ 受理但优先级较低（不进生产路径） |
-| 第三方依赖（DCloud / UTS / Gradle / ohpm 包） | ❌ 请直接向对应上游报告 |
+| 第三方依赖（DCloud / UTS / Gradle / ohpm 包）             | ❌ 请直接向对应上游报告             |
 
 ---
 
@@ -59,12 +59,12 @@
 
 以下几点是**有意设计**，不作为漏洞受理：
 
-| 事实 | 原因 |
-| --- | --- |
-| `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING` | 缺生产 keystore；**不是**签名逻辑缺陷 |
-| Harmony `HARMONY_DEPMAP = BLOCKED` | cryptoFramework 无 Argon2；**不得**降级为 PBKDF2，容器格式是跨平台契约 |
-| Harmony / iOS 无运行时取证 | 无模拟器镜像 / 无 macOS；属外部 blocker，非实现缺陷 |
-| `criticality=required` 只能由用户设置 | 机器永不产生 required，这是第一原则的一部分 |
+| 事实                                                               | 原因                                                                   |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING` | 缺生产 keystore；**不是**签名逻辑缺陷                                  |
+| Harmony `HARMONY_DEPMAP = BLOCKED`                                 | cryptoFramework 无 Argon2；**不得**降级为 PBKDF2，容器格式是跨平台契约 |
+| Harmony / iOS 无运行时取证                                         | 无模拟器镜像 / 无 macOS；属外部 blocker，非实现缺陷                    |
+| `criticality=required` 只能由用户设置                              | 机器永不产生 required，这是第一原则的一部分                            |
 
 ---
 

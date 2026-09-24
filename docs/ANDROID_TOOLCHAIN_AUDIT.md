@@ -8,13 +8,13 @@
 
 ## 1. Java / JDK
 
-| 项                      | 实测值                                                              | 可用性                  |
-| ----------------------- | ------------------------------------------------------------------- | ----------------------- |
-| PATH `java`             | `1.8.0_441`（Java 8）                                               | ❌ 不满足 AGP 8.5.2     |
-| PATH `javac`            | 不存在                                                              | ❌                      |
-| Android Studio 内置 JBR | `openjdk 21.0.10 2026-01-20`（`<ANDROID_STUDIO_HOME>\jbr`）        | ✅ **本轮构建实际使用** |
-| DevEco Studio 内置 JBR  | `openjdk 17.0.12 2024-07-16`（`<DEVECO_HOME>\jbr`） | ✅ 备选                 |
-| `JAVA_HOME`             | **未设置**                                                          | 需显式导出              |
+| 项                      | 实测值                                                      | 可用性                  |
+| ----------------------- | ----------------------------------------------------------- | ----------------------- |
+| PATH `java`             | `1.8.0_441`（Java 8）                                       | ❌ 不满足 AGP 8.5.2     |
+| PATH `javac`            | 不存在                                                      | ❌                      |
+| Android Studio 内置 JBR | `openjdk 21.0.10 2026-01-20`（`<ANDROID_STUDIO_HOME>\jbr`） | ✅ **本轮构建实际使用** |
+| DevEco Studio 内置 JBR  | `openjdk 17.0.12 2024-07-16`（`<DEVECO_HOME>\jbr`）         | ✅ 备选                 |
+| `JAVA_HOME`             | **未设置**                                                  | 需显式导出              |
 
 **结论**：AGP 8.5.2 + Kotlin 2.0.0 要求 JDK 17+。本机 JDK 21（Android Studio JBR）实测可完成构建（§7 记录 `gradle -v` 与真实构建均成功）。PATH 上的 Java 8 **不可用**。
 
@@ -24,7 +24,7 @@
 
 | 项                  | 实测值                                                              |
 | ------------------- | ------------------------------------------------------------------- |
-| SDK 根              | `<ANDROID_SDK_ROOT>`                                               |
+| SDK 根              | `<ANDROID_SDK_ROOT>`                                                |
 | `ANDROID_HOME`      | **未设置**（需显式导出）                                            |
 | `ANDROID_SDK_ROOT`  | **未设置**                                                          |
 | platforms（审计初） | `android-36.1`、`android-37.0`（**无 34**，工程 `compileSdk = 34`） |
@@ -55,12 +55,12 @@ sdkmanager --install "platforms;android-34" "build-tools;34.0.0"
 
 ## 3. Gradle
 
-| 项               | 实测值                                                                                                         |
-| ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| PATH `gradle`    | **不存在**                                                                                                     |
-| 旧 wrapper dists | `~/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/` 仅 `0` 字节 `.lck` / `.part`（**损坏/未完成**）             |
-| 工程内 wrapper   | **无**（`platforms/android/` 无 `gradlew` / `gradle-wrapper.properties`）                                      |
-| 本轮安装         | `<GRADLE_HOME>`，`gradle -v` → **Gradle 8.9**（Kotlin 1.9.23 / Groovy 3.0.21 / JVM 21.0.10） |
+| 项               | 实测值                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------- |
+| PATH `gradle`    | **不存在**                                                                                         |
+| 旧 wrapper dists | `~/.gradle/wrapper/dists/gradle-9.3.1-bin/<hash>/` 仅 `0` 字节 `.lck` / `.part`（**损坏/未完成**） |
+| 工程内 wrapper   | **无**（`platforms/android/` 无 `gradlew` / `gradle-wrapper.properties`）                          |
+| 本轮安装         | `<GRADLE_HOME>`，`gradle -v` → **Gradle 8.9**（Kotlin 1.9.23 / Groovy 3.0.21 / JVM 21.0.10）       |
 
 ### 3.1 Gradle 发行版获取路径（旧报告称「CDN 不可达」——本轮实测推翻）
 

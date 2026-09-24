@@ -13,13 +13,13 @@
 
 ## 0. 结论
 
-| 路径 | 结论 | 证据强度 |
-| --- | --- | --- |
-| `cryptoFramework`（托管 KDF） | **排除** | 直接读 SDK 类型声明，Argon2 命中 **0** |
-| `HUKS`（托管密钥/派生） | **排除** | 直接读 SDK 类型声明，Argon2 命中 **0** |
-| SDK 自带 OpenSSL / libsodium | **不存在** | 递归检索 `openharmony/native`，仅命中 CMake 的 `FindOpenSSL` 文档 |
-| `hash-wasm` 的 `argon2.c` 当原生源 vendored | **排除** | 该文件是 WASM 目标实现，依赖 `__builtin_wasm_memory_grow` |
-| **NDK + PHC 参考实现 + NAPI 桥接** | **可行（编译期已验证）** | 已产出 arm64 `.so`；主机侧 PoC 逐字节复现 Golden Vector |
+| 路径                                        | 结论                     | 证据强度                                                          |
+| ------------------------------------------- | ------------------------ | ----------------------------------------------------------------- |
+| `cryptoFramework`（托管 KDF）               | **排除**                 | 直接读 SDK 类型声明，Argon2 命中 **0**                            |
+| `HUKS`（托管密钥/派生）                     | **排除**                 | 直接读 SDK 类型声明，Argon2 命中 **0**                            |
+| SDK 自带 OpenSSL / libsodium                | **不存在**               | 递归检索 `openharmony/native`，仅命中 CMake 的 `FindOpenSSL` 文档 |
+| `hash-wasm` 的 `argon2.c` 当原生源 vendored | **排除**                 | 该文件是 WASM 目标实现，依赖 `__builtin_wasm_memory_grow`         |
+| **NDK + PHC 参考实现 + NAPI 桥接**          | **可行（编译期已验证）** | 已产出 arm64 `.so`；主机侧 PoC 逐字节复现 Golden Vector           |
 
 **`HARMONY_DEPMAP` 的状态迁移**：`BLOCKED` → **`BLOCKED_BY_NATIVE_VERIFICATION`**。
 
@@ -77,26 +77,26 @@
 
 ### 3.1 工具链实测（本机）
 
-| 能力 | 位置（相对 `<DEVECO_HOME>/sdk/default/openharmony`） | 结果 |
-| --- | --- | --- |
-| C 编译器 | `native/llvm/bin/clang.exe` | **存在**（clang 15.0.4） |
-| C++ / 链接器 / 归档 | `clang++.exe`、`ld.lld.exe`、`llvm-ar.exe` | **存在** |
-| sysroot | `native/sysroot/usr/{include,lib}` | **存在** |
-| **Node-API 头** | `sysroot/usr/include/napi/native_api.h`、`sysroot/usr/include/node_api.h` | **存在** |
-| CMake 工具链文件 | `native/build/cmake/ohos.toolchain.cmake` | **存在** |
-| CMake 构建工具 | `native/build-tools/cmake`（3.28） | **存在** |
-| 可用 ABI | `sysroot/usr/lib/{aarch64-linux-ohos, arm-linux-ohos, x86_64-linux-ohos}` | 三种；`OHOS_ARCH` 默认 **arm64-v8a** |
+| 能力                | 位置（相对 `<DEVECO_HOME>/sdk/default/openharmony`）                      | 结果                                 |
+| ------------------- | ------------------------------------------------------------------------- | ------------------------------------ |
+| C 编译器            | `native/llvm/bin/clang.exe`                                               | **存在**（clang 15.0.4）             |
+| C++ / 链接器 / 归档 | `clang++.exe`、`ld.lld.exe`、`llvm-ar.exe`                                | **存在**                             |
+| sysroot             | `native/sysroot/usr/{include,lib}`                                        | **存在**                             |
+| **Node-API 头**     | `sysroot/usr/include/napi/native_api.h`、`sysroot/usr/include/node_api.h` | **存在**                             |
+| CMake 工具链文件    | `native/build/cmake/ohos.toolchain.cmake`                                 | **存在**                             |
+| CMake 构建工具      | `native/build-tools/cmake`（3.28）                                        | **存在**                             |
+| 可用 ABI            | `sysroot/usr/lib/{aarch64-linux-ohos, arm-linux-ohos, x86_64-linux-ohos}` | 三种；`OHOS_ARCH` 默认 **arm64-v8a** |
 
 结论：**原生构建链路完整**，此前"NDK 下仅有 FindOpenSSL、无 openssl"的判断成立，
 但"因此无法编译原生库"是**过度推论** —— 不需要 OpenSSL，需要的只是一个能编译 C 的交叉工具链，它就在 SDK 里。
 
 ### 3.2 源码选型与许可
 
-| 项 | 取值 |
-| --- | --- |
-| 实现 | PHC `phc-winner-argon2` @ `20190702`（Argon2 官方参考实现） |
-| 许可 | **CC0-1.0 OR Apache-2.0**（双许可，二选一） |
-| 组成 | `argon2.c` `core.c` `encoding.c` `thread.c` `blake2/blake2b.c` + **`ref.c`** |
+| 项               | 取值                                                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| 实现             | PHC `phc-winner-argon2` @ `20190702`（Argon2 官方参考实现）                                                                      |
+| 许可             | **CC0-1.0 OR Apache-2.0**（双许可，二选一）                                                                                      |
+| 组成             | `argon2.c` `core.c` `encoding.c` `thread.c` `blake2/blake2b.c` + **`ref.c`**                                                     |
 | 关键可移植性约束 | **arm64 必须用 `ref.c`，不能用 `opt.c`** —— `opt.c` 是 x86 SSE2 优化实现；漏掉 `fill_segment` 会直接链接失败（实测遇到并已定位） |
 
 ### 3.3 与"禁止自研原语"的关系
@@ -169,15 +169,15 @@ NAPI  : 8 个 napi_* 未定义符号（napi_create_function / napi_get_cb_info /
 
 ## 5. 状态迁移（精确口径）
 
-| 标识 | 迁移前 | 迁移后 |
-| --- | --- | --- |
-| `HARMONY_ARGON2_MANAGED_API` | UNKNOWN | **NOT_AVAILABLE**（证据级排除） |
-| `HARMONY_ARGON2_NATIVE_TOOLCHAIN` | UNKNOWN | **AVAILABLE**（clang/sysroot/NAPI/CMake 齐备） |
-| `HARMONY_ARGON2_HOST_GOLDEN` | UNKNOWN | **PASS**（PoC-1 逐字节复现） |
-| `HARMONY_ARGON2_OHOS_BUILD` | UNKNOWN | **PASS（编译期）**（PoC-2/3，arm64 .so） |
-| `HARMONY_ARGON2_ON_DEVICE` | NOT_RUN | **NOT_RUN**（无设备/镜像，外部闸门） |
-| `HARMONY_DEPMAP` | BLOCKED | **BLOCKED_BY_NATIVE_VERIFICATION** |
-| `HARMONY_RUNTIME_E2E` | RUNTIME_NOT_RUN | **RUNTIME_NOT_RUN**（不变） |
+| 标识                              | 迁移前          | 迁移后                                         |
+| --------------------------------- | --------------- | ---------------------------------------------- |
+| `HARMONY_ARGON2_MANAGED_API`      | UNKNOWN         | **NOT_AVAILABLE**（证据级排除）                |
+| `HARMONY_ARGON2_NATIVE_TOOLCHAIN` | UNKNOWN         | **AVAILABLE**（clang/sysroot/NAPI/CMake 齐备） |
+| `HARMONY_ARGON2_HOST_GOLDEN`      | UNKNOWN         | **PASS**（PoC-1 逐字节复现）                   |
+| `HARMONY_ARGON2_OHOS_BUILD`       | UNKNOWN         | **PASS（编译期）**（PoC-2/3，arm64 .so）       |
+| `HARMONY_ARGON2_ON_DEVICE`        | NOT_RUN         | **NOT_RUN**（无设备/镜像，外部闸门）           |
+| `HARMONY_DEPMAP`                  | BLOCKED         | **BLOCKED_BY_NATIVE_VERIFICATION**             |
+| `HARMONY_RUNTIME_E2E`             | RUNTIME_NOT_RUN | **RUNTIME_NOT_RUN**（不变）                    |
 
 ---
 

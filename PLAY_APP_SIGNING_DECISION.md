@@ -29,11 +29,11 @@ Android 应用在 Play 上的签名涉及**两把不同的 key**：
 
 ## 2. 三个概念（澄清）
 
-| 概念 | 是什么 | 本项目对应 |
-|------|--------|-----------|
-| **Upload Key** | 本地生成的签名密钥，仅用于「上传 AAB 到 Play」这一步 | `ANDROID_PRODUCTION_SIGNING_*` 中的生产 keystore（K-1） |
-| **App Signing Key** | 用户设备上 APK 的最终签名密钥 | 启用 Play App Signing 后由 Google 托管；不启用 = 与 Upload Key 相同 |
-| **Google Play App Signing** | Play 的一项服务：Google 保管 App Signing Key，开发者只上传（用 Upload Key 签的）AAB | 推荐启用（见 §4） |
+| 概念                        | 是什么                                                                              | 本项目对应                                                          |
+| --------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Upload Key**              | 本地生成的签名密钥，仅用于「上传 AAB 到 Play」这一步                                | `ANDROID_PRODUCTION_SIGNING_*` 中的生产 keystore（K-1）             |
+| **App Signing Key**         | 用户设备上 APK 的最终签名密钥                                                       | 启用 Play App Signing 后由 Google 托管；不启用 = 与 Upload Key 相同 |
+| **Google Play App Signing** | Play 的一项服务：Google 保管 App Signing Key，开发者只上传（用 Upload Key 签的）AAB | 推荐启用（见 §4）                                                   |
 
 > 对用户可感知的影响：**更新应用时要求签名一致** —— 而「一致」的比较对象是 App Signing Key，
 > 不是 Upload Key。所以保管好哪把 key 决定了丢失时的后果（§3）。
@@ -42,12 +42,12 @@ Android 应用在 Play 上的签名涉及**两把不同的 key**：
 
 ## 3. key 丢失 / 泄露的后果
 
-| 场景 | 不启用 Play App Signing | 启用 Play App Signing |
-|------|------------------------|----------------------|
-| Upload Key 丢失 | **灾难**：无法再签更新（应用身份 = 该 key） | **可恢复**：向 Play 申请「重置上传密钥」（需验证身份，约 1 周） |
-| App Signing Key 丢失 | 同左（就是 Upload Key） | Google 托管，不受影响 |
-| Upload Key 泄露 | 攻击者可签「合法更新」推毒 | 仅能冒名上传 AAB；可重置上传密钥切断 |
-| App Signing Key 泄露 | 同上，灾难级 | Google 侧处理（风险集中在 Google 一侧） |
+| 场景                 | 不启用 Play App Signing                     | 启用 Play App Signing                                           |
+| -------------------- | ------------------------------------------- | --------------------------------------------------------------- |
+| Upload Key 丢失      | **灾难**：无法再签更新（应用身份 = 该 key） | **可恢复**：向 Play 申请「重置上传密钥」（需验证身份，约 1 周） |
+| App Signing Key 丢失 | 同左（就是 Upload Key）                     | Google 托管，不受影响                                           |
+| Upload Key 泄露      | 攻击者可签「合法更新」推毒                  | 仅能冒名上传 AAB；可重置上传密钥切断                            |
+| App Signing Key 泄露 | 同上，灾难级                                | Google 侧处理（风险集中在 Google 一侧）                         |
 
 ---
 
@@ -76,23 +76,23 @@ Android 应用在 Play 上的签名涉及**两把不同的 key**：
 
 ## 5. key backup / rotation / recovery（启用后的运维策略）
 
-| 主题 | 策略 |
-|------|------|
-| **Backup** | ① keystore 文件（Upload Key）→ 密码管理器 + 离线加密介质 ×2（异地）；② 三个口令分开放置（密码管理器 + 纸质副本）；③ 记录证书 SHA-256 指纹（可验证备份是否完好） |
+| 主题                 | 策略                                                                                                                                                                    |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Backup**           | ① keystore 文件（Upload Key）→ 密码管理器 + 离线加密介质 ×2（异地）；② 三个口令分开放置（密码管理器 + 纸质副本）；③ 记录证书 SHA-256 指纹（可验证备份是否完好）         |
 | **Rotation（轮转）** | ① **App Signing Key 不可轮转**（更换 = 新应用）；② **Upload Key 可重置**：Play Console → App signing → 请求重置上传密钥（用新的 key pair 签名替换请求，需账号身份验证） |
-| **Recovery** | ① Upload Key 丢失 → Play Console 申请重置（约 1 周，需公司/身份证明）；② App Signing Key 丢失（未启用托管时）→ **无法恢复**，只能换 applicationId 重新上架 |
-| **泄露响应** | 立即申请重置 Upload Key；同时撤销并重建本地 keystore；评估是否需要新 applicationId（App Signing Key 未泄露则不必） |
+| **Recovery**         | ① Upload Key 丢失 → Play Console 申请重置（约 1 周，需公司/身份证明）；② App Signing Key 丢失（未启用托管时）→ **无法恢复**，只能换 applicationId 重新上架              |
+| **泄露响应**         | 立即申请重置 Upload Key；同时撤销并重建本地 keystore；评估是否需要新 applicationId（App Signing Key 未泄露则不必）                                                      |
 
 ---
 
 ## 6. 与本仓库的衔接
 
-| 仓库内对象 | 说明 |
-|------------|------|
-| `ANDROID_PRODUCTION_SIGNING_RUNBOOK.md` §5 | Play Console 设置步骤（创建应用 → 选「Google 管理签名密钥」→ 上传 AAB） |
-| `ANDROID_PRODUCTION_SIGNING_ACCEPTANCE.md` §5 | 备份 / 轮转 / 恢复的口径（本文件是其展开） |
-| `ANDROID_RELEASE_IDENTITY_DECISION.md` R-4 | 「是否启用 Play App Signing」是待用户决策项之一 |
-| `NATIVE_RELEASE_MATRIX.md` §7 | Store 复用与更新项（技术栈描述待更新为原生） |
+| 仓库内对象                                    | 说明                                                                    |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| `ANDROID_PRODUCTION_SIGNING_RUNBOOK.md` §5    | Play Console 设置步骤（创建应用 → 选「Google 管理签名密钥」→ 上传 AAB） |
+| `ANDROID_PRODUCTION_SIGNING_ACCEPTANCE.md` §5 | 备份 / 轮转 / 恢复的口径（本文件是其展开）                              |
+| `ANDROID_RELEASE_IDENTITY_DECISION.md` R-4    | 「是否启用 Play App Signing」是待用户决策项之一                         |
+| `NATIVE_RELEASE_MATRIX.md` §7                 | Store 复用与更新项（技术栈描述待更新为原生）                            |
 
 ---
 

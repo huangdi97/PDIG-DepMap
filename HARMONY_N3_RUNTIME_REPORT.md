@@ -29,12 +29,12 @@ HARMONY_RUNTIME_E2E        = RUNTIME_NOT_RUN
 
 ## 1. 运行时环境实测
 
-| 项 | 命令 / 位置 | 实测结果 |
-| --- | --- | --- |
-| hdc 可执行文件 | `.../sdk/default/openharmony/toolchains/hdc.exe` | 存在 |
-| **已连接目标** | `hdc list targets` | **`[Empty]`** |
-| Emulator 二进制 | `DevEco Studio/tools/emulator/Emulator.exe` | 存在（38 个条目，含 `emulator.json` 机型模板） |
-| **模拟器系统镜像** | 检索 SDK 内 `images` 目录 | **不存在**；SDK 下只有 `toolchains/ previewer/ ets/ native/` |
+| 项                 | 命令 / 位置                                      | 实测结果                                                     |
+| ------------------ | ------------------------------------------------ | ------------------------------------------------------------ |
+| hdc 可执行文件     | `.../sdk/default/openharmony/toolchains/hdc.exe` | 存在                                                         |
+| **已连接目标**     | `hdc list targets`                               | **`[Empty]`**                                                |
+| Emulator 二进制    | `DevEco Studio/tools/emulator/Emulator.exe`      | 存在（38 个条目，含 `emulator.json` 机型模板）               |
+| **模拟器系统镜像** | 检索 SDK 内 `images` 目录                        | **不存在**；SDK 下只有 `toolchains/ previewer/ ets/ native/` |
 
 **blocker 性质**：模拟器系统镜像只能通过 **DevEco Studio GUI 下载**（需华为账号登录）。
 这与 Android 侧"需在 SDK Manager 安装 system-image"（B18）同类，属**用户侧外部闸门**，
@@ -57,15 +57,15 @@ HARMONY_RUNTIME_E2E        = RUNTIME_NOT_RUN
 > hvigor BUILD SUCCESSFUL in 19 s 625 ms
 ```
 
-| 项 | 值 |
-| --- | --- |
-| 产物 | `entry-default-unsigned.hap` |
-| bytes | **2,774,411** |
-| 条目数 | 11 |
-| native | `libs/arm64-v8a/libpdiargon2.so` (49,776) / `libs/x86_64/libpdiargon2.so` (50,576) |
-| ArkTS | `ets/modules.abc` (75,076) |
-| 签名 | **未签名**（无 signingConfig —— 与 Android 侧缺生产 keystore 同类的外部闸门） |
-| 打包后导出符号 | **3**（`_init`/`_fini`/`RegisterPdiArgon2Module`），`argon2_*` = 0 |
+| 项             | 值                                                                                 |
+| -------------- | ---------------------------------------------------------------------------------- |
+| 产物           | `entry-default-unsigned.hap`                                                       |
+| bytes          | **2,774,411**                                                                      |
+| 条目数         | 11                                                                                 |
+| native         | `libs/arm64-v8a/libpdiargon2.so` (49,776) / `libs/x86_64/libpdiargon2.so` (50,576) |
+| ArkTS          | `ets/modules.abc` (75,076)                                                         |
+| 签名           | **未签名**（无 signingConfig —— 与 Android 侧缺生产 keystore 同类的外部闸门）      |
+| 打包后导出符号 | **3**（`_init`/`_fini`/`RegisterPdiArgon2Module`），`argon2_*` = 0                 |
 
 > **`BUILD SUCCESSFUL` 的历史陷阱**：hvigor 的 `CompileArkTS` 只编译从
 > ability/page **可达**的模块。未被 import 的 `.ets` 根本不进编译图，
@@ -84,32 +84,32 @@ HARMONY_RUNTIME_E2E        = RUNTIME_NOT_RUN
 
 以下每一项都**没有在 Harmony 上跑过**：
 
-| # | 行程 | 状态 |
-| --- | --- | --- |
-| 1 | fresh install | NOT_RUN |
-| 2 | launch | NOT_RUN |
-| 3 | lock / unlock | NOT_RUN |
-| 4 | import | NOT_RUN |
-| 5 | proposal | NOT_RUN |
-| 6 | confirm reality | NOT_RUN |
-| 7 | impact | NOT_RUN |
-| 8 | changeplan | NOT_RUN |
-| 9 | done ≠ verified | NOT_RUN |
-| 10 | verification | NOT_RUN |
-| 11 | restart（进程重启后数据仍在） | NOT_RUN |
-| 12 | backup | NOT_RUN |
-| 13 | restore | NOT_RUN |
+| #   | 行程                          | 状态    |
+| --- | ----------------------------- | ------- |
+| 1   | fresh install                 | NOT_RUN |
+| 2   | launch                        | NOT_RUN |
+| 3   | lock / unlock                 | NOT_RUN |
+| 4   | import                        | NOT_RUN |
+| 5   | proposal                      | NOT_RUN |
+| 6   | confirm reality               | NOT_RUN |
+| 7   | impact                        | NOT_RUN |
+| 8   | changeplan                    | NOT_RUN |
+| 9   | done ≠ verified               | NOT_RUN |
+| 10  | verification                  | NOT_RUN |
+| 11  | restart（进程重启后数据仍在） | NOT_RUN |
+| 12  | backup                        | NOT_RUN |
+| 13  | restore                       | NOT_RUN |
 
 ### 3.1 三条探针的实际状态
 
 `pages/Index.ets` 的 `aboutToAppear()` 中已埋三条探针，
 **代码已编译、已打包**，但**从未在设备上执行**：
 
-| 探针 | 期望读数 | 状态 |
-| --- | --- | --- |
+| 探针      | 期望读数                                           | 状态        |
+| --------- | -------------------------------------------------- | ----------- |
 | relations | `relations: funding_source=allow, bound_to=reject` | **NOT_RUN** |
-| container | AAD 自检行（长度 228） | **NOT_RUN** |
-| argon2 | `argon2: native-ok(p=1..4 distinct, lib v19)` | **NOT_RUN** |
+| container | AAD 自检行（长度 228）                             | **NOT_RUN** |
+| argon2    | `argon2: native-ok(p=1..4 distinct, lib v19)`      | **NOT_RUN** |
 
 argon2 探针失败时会如实返回 `argon2: FAIL(native load/exec: ...)` ——
 **该分支的存在就是为了让失败可见且不可伪装**。
@@ -133,14 +133,14 @@ Harmony 侧已按 §M 设计方向写进代码注释与分层约束：
 
 ## 5. 无设备下**已**取得的替代证据及其边界
 
-| 结论 | 工具 | 结果 |
-| --- | --- | --- |
-| ArkTS 模块真的被编译 | `check-compiled-reachability.mjs --build` | **PASS**（7/7 required，含负向 probe） |
-| 原生库真的被交叉编译 | `check-argon2-native-build.mjs` | **PASS**（arm64-v8a / x86_64） |
-| 原生库真的进了产物 | HAP 内容枚举 | **PASS** |
-| 信任边界真的成立 | 打包 strip 后读动态符号表 | **PASS**（`argon2_*` = 0） |
-| 第三方源码真的未改 | `check-third-party-hashes.mjs` | **PASS**（16/16） |
-| 容器格式与 Android 一致 | `verify-container-golden.mjs` | **PASS**（5/5，主机侧） |
+| 结论                    | 工具                                      | 结果                                   |
+| ----------------------- | ----------------------------------------- | -------------------------------------- |
+| ArkTS 模块真的被编译    | `check-compiled-reachability.mjs --build` | **PASS**（7/7 required，含负向 probe） |
+| 原生库真的被交叉编译    | `check-argon2-native-build.mjs`           | **PASS**（arm64-v8a / x86_64）         |
+| 原生库真的进了产物      | HAP 内容枚举                              | **PASS**                               |
+| 信任边界真的成立        | 打包 strip 后读动态符号表                 | **PASS**（`argon2_*` = 0）             |
+| 第三方源码真的未改      | `check-third-party-hashes.mjs`            | **PASS**（16/16）                      |
+| 容器格式与 Android 一致 | `verify-container-golden.mjs`             | **PASS**（5/5，主机侧）                |
 
 **边界必须说清**：这套证据证明「代码正确、被编译、被打包、边界正确」，
 **不证明**「代码在 OHOS 运行时会给出正确结果」。后者只能由设备侧执行证明。

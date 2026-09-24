@@ -74,4 +74,3 @@ Reason:
 Consequence:
 `decodeBase64` 现按 `rem = digits.length % 4` 补齐（`rem === 1` 判非法），
 并已用 28 个导入文件逐一 round-trip 校验。
-

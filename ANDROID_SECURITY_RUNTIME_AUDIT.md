@@ -8,23 +8,23 @@
 
 ## 1. 被审计对象
 
-| 项 | 值 |
-| --- | --- |
-| 文件 | `android/app/build/outputs/apk/debug/app-debug.apk` |
-| 大小 | 36,794,370 B |
-| SHA-256 | `d84d8900c66e781694a4b71d9782796d858edd93a48156bf070319c1d6230879` |
-| 包名 | `com.pdig.app` |
-| versionCode / versionName | 1 / `0.1.0-milestone` |
-| minSdk / targetSdk / compileSdk | 26 / 34 / 34 |
+| 项                              | 值                                                                 |
+| ------------------------------- | ------------------------------------------------------------------ |
+| 文件                            | `android/app/build/outputs/apk/debug/app-debug.apk`                |
+| 大小                            | 36,794,370 B                                                       |
+| SHA-256                         | `d84d8900c66e781694a4b71d9782796d858edd93a48156bf070319c1d6230879` |
+| 包名                            | `com.pdig.app`                                                     |
+| versionCode / versionName       | 1 / `0.1.0-milestone`                                              |
+| minSdk / targetSdk / compileSdk | 26 / 34 / 34                                                       |
 
 ---
 
 ## 2. 权限（`aapt2 dump badging` 实测）
 
-| 权限 | 用途 |
-| --- | --- |
-| `android.permission.USE_BIOMETRIC` | 生物识别解锁（应用锁） |
-| `android.permission.USE_FINGERPRINT` | 同上（旧 API 兼容） |
+| 权限                                                    | 用途                              |
+| ------------------------------------------------------- | --------------------------------- |
+| `android.permission.USE_BIOMETRIC`                      | 生物识别解锁（应用锁）            |
+| `android.permission.USE_FINGERPRINT`                    | 同上（旧 API 兼容）               |
 | `com.pdig.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION` | AndroidX 自动注入，非应用主动申请 |
 
 **未申请的关键权限（实测确认不存在）**：
@@ -40,12 +40,12 @@
 
 ## 3. 清单安全属性（`aapt2 dump xmltree` 实测）
 
-| 属性 | 实测值 | 评价 |
-| --- | --- | --- |
-| `android:debuggable` | **true** | ⚠️ 这是 **debug 构建**的预期值；**release 构建未验证**，release 产物必须复查此项 |
-| `android:allowBackup` | **false** | ✅ 关闭系统备份 |
-| `android:fullBackupContent` | **false** | ✅ 无明文备份内容 |
-| `android:dataExtractionRules` | 已设置（`@0x7f0f0000`） | ✅ Android 12+ 导出规则已配置 |
+| 属性                          | 实测值                  | 评价                                                                             |
+| ----------------------------- | ----------------------- | -------------------------------------------------------------------------------- |
+| `android:debuggable`          | **true**                | ⚠️ 这是 **debug 构建**的预期值；**release 构建未验证**，release 产物必须复查此项 |
+| `android:allowBackup`         | **false**               | ✅ 关闭系统备份                                                                  |
+| `android:fullBackupContent`   | **false**               | ✅ 无明文备份内容                                                                |
+| `android:dataExtractionRules` | 已设置（`@0x7f0f0000`） | ✅ Android 12+ 导出规则已配置                                                    |
 
 ### 导出组件
 
@@ -108,14 +108,14 @@ v1→v3 / v2→v3 迁移保真、未来 schema 版本 fail-closed、失败回滚
 
 本轮结果：`appLines=44`
 
-| 关键字 | 命中数 |
-| --- | --- |
-| `db_passphrase_wrapped` | 0 |
-| `sqlcipher` | 0 |
-| `passphrase` | 0 |
-| `password` | 0 |
-| `begin pgp` | 0 |
-| `private key` | 0 |
+| 关键字                  | 命中数 |
+| ----------------------- | ------ |
+| `db_passphrase_wrapped` | 0      |
+| `sqlcipher`             | 0      |
+| `passphrase`            | 0      |
+| `password`              | 0      |
+| `begin pgp`             | 0      |
+| `private key`           | 0      |
 
 → **PASS**。
 
@@ -129,12 +129,12 @@ v1→v3 / v2→v3 迁移保真、未来 schema 版本 fail-closed、失败回滚
 
 ## 6. 网络与第三方 SDK
 
-| 检查项 | 结果 |
-| --- | --- |
-| 是否申请 `INTERNET` | **否** |
+| 检查项                                 | 结果                                                      |
+| -------------------------------------- | --------------------------------------------------------- |
+| 是否申请 `INTERNET`                    | **否**                                                    |
 | 是否有网络请求库（OkHttp/Retrofit 等） | **无**（依赖白名单审计，`app/build.gradle.kts` 中不存在） |
-| 是否有 analytics / crash 上报 SDK | **无** |
-| 是否含广告 SDK | **无** |
+| 是否有 analytics / crash 上报 SDK      | **无**                                                    |
+| 是否含广告 SDK                         | **无**                                                    |
 
 → 无网络栈、无遥测，符合 local-first 设计。
 
@@ -142,20 +142,20 @@ v1→v3 / v2→v3 迁移保真、未来 schema 版本 fail-closed、失败回滚
 
 ## 7. 未完成的审计项（如实列出）
 
-| 项 | 状态 | 说明 |
-| --- | --- | --- |
-| 导出组件逐个归属审计 | **未完成** | 只统计到数量与权限，未逐个定位 |
-| release 构建 `debuggable` | **未验证** | 只验证了 debug APK；release APK 未构建 |
-| 明文流量 `usesCleartextTraffic` | **未验证** | manifest 中未显式声明；因无 INTERNET 权限，风险已被消除，但未作为独立项取证 |
-| 临时文件 / 剪贴板 / 最近任务内容残留 | **未审计** | 本轮未执行 |
-| Root/越狱设备下的内存读取 | **不在范围** | FLAG_SECURE 不防御此类威胁，已在代码注释中明确 |
+| 项                                   | 状态         | 说明                                                                        |
+| ------------------------------------ | ------------ | --------------------------------------------------------------------------- |
+| 导出组件逐个归属审计                 | **未完成**   | 只统计到数量与权限，未逐个定位                                              |
+| release 构建 `debuggable`            | **未验证**   | 只验证了 debug APK；release APK 未构建                                      |
+| 明文流量 `usesCleartextTraffic`      | **未验证**   | manifest 中未显式声明；因无 INTERNET 权限，风险已被消除，但未作为独立项取证 |
+| 临时文件 / 剪贴板 / 最近任务内容残留 | **未审计**   | 本轮未执行                                                                  |
+| Root/越狱设备下的内存读取            | **不在范围** | FLAG_SECURE 不防御此类威胁，已在代码注释中明确                              |
 
 ---
 
 ## 8. Gate
 
-| Gate | 状态 |
-| --- | --- |
-| `ANDROID_PRIVACY_SECURITY_AUDIT` | **PARTIAL_WITH_REPORT** |
-| `ANDROID_LOGCAT_PRIVACY` | **PASS** |
-| 理由 | 权限面、备份策略、Keystore 包装、SQLCipher 加密、日志脱敏均已实测通过；但导出组件逐个归属、release debuggable、临时文件残留等项未完成审计 |
+| Gate                             | 状态                                                                                                                                      |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `ANDROID_PRIVACY_SECURITY_AUDIT` | **PARTIAL_WITH_REPORT**                                                                                                                   |
+| `ANDROID_LOGCAT_PRIVACY`         | **PASS**                                                                                                                                  |
+| 理由                             | 权限面、备份策略、Keystore 包装、SQLCipher 加密、日志脱敏均已实测通过；但导出组件逐个归属、release debuggable、临时文件残留等项未完成审计 |

@@ -14,11 +14,11 @@
 
 ## 2. 已就绪的协议与材料（真实可用）
 
-| 材料 | 位置 | 状态 |
-|------|------|------|
-| Pilot-0 执行协议（Parser/Node Resolution/Proposal/Impact/产品价值前后对照） | `REAL_DATA_PILOT_0_PROTOCOL.md` | READY |
-| 隐私协议（raw statement 会话内存、不持久化交易、delete pilot data/delete all/backup/restore） | `REAL_DATA_PRIVACY_PROTOCOL.md` | READY |
-| 指标模板（total/parsed/failed rows、date/amount/currency/description 正确性、stable ID/fingerprint、resolution 统计、false merge 高严重度、proposal 计分、false must_change=P0） | 粘贴 Goal §38–§41 驱动的协议模板 | 就绪 |
+| 材料                                                                                                                                                                             | 位置                             | 状态  |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ----- |
+| Pilot-0 执行协议（Parser/Node Resolution/Proposal/Impact/产品价值前后对照）                                                                                                      | `REAL_DATA_PILOT_0_PROTOCOL.md`  | READY |
+| 隐私协议（raw statement 会话内存、不持久化交易、delete pilot data/delete all/backup/restore）                                                                                    | `REAL_DATA_PRIVACY_PROTOCOL.md`  | READY |
+| 指标模板（total/parsed/failed rows、date/amount/currency/description 正确性、stable ID/fingerprint、resolution 统计、false merge 高严重度、proposal 计分、false must_change=P0） | 粘贴 Goal §38–§41 驱动的协议模板 | 就绪  |
 
 ## 3. 执行时的判定标准（重申红线）
 

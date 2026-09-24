@@ -29,20 +29,20 @@ harmony/
                     └── CanonicalEnums.ets      ← 唯一文件（347 行）
 ```
 
-| Stage Model 必需文件 | 是否存在 |
-| --- | --- |
-| `AppScope/app.json5` | ❌ |
-| `build-profile.json5` | ❌（根目录） |
-| `oh-package.json5` | ❌ |
-| `hvigorfile.ts` | ❌ |
-| `hvigor/hvigor-config.json5` | ❌ |
-| `entry/build-profile.json5` | ❌ |
-| `entry/hvigorfile.ts` | ❌ |
-| `entry/oh-package.json5` | ❌ |
-| `entry/src/main/module.json5` | ❌ |
-| `entry/src/main/ets/entryability/EntryAbility.ets` | ❌ |
-| `hvigorw` / `hvigorw.bat` | ❌ |
-| `local.properties` | ❌ |
+| Stage Model 必需文件                               | 是否存在     |
+| -------------------------------------------------- | ------------ |
+| `AppScope/app.json5`                               | ❌           |
+| `build-profile.json5`                              | ❌（根目录） |
+| `oh-package.json5`                                 | ❌           |
+| `hvigorfile.ts`                                    | ❌           |
+| `hvigor/hvigor-config.json5`                       | ❌           |
+| `entry/build-profile.json5`                        | ❌           |
+| `entry/hvigorfile.ts`                              | ❌           |
+| `entry/oh-package.json5`                           | ❌           |
+| `entry/src/main/module.json5`                      | ❌           |
+| `entry/src/main/ets/entryability/EntryAbility.ets` | ❌           |
+| `hvigorw` / `hvigorw.bat`                          | ❌           |
+| `local.properties`                                 | ❌           |
 
 **判定：`harmony/` = 纯 codegen 产物，不可被 hvigor 解析，不可构建。**
 
@@ -55,49 +55,49 @@ harmony/
 
 ### 2.1 DevEco Studio
 
-| 项 | 值 |
-| --- | --- |
-| 安装路径 | `<DEVECO_HOME>` |
-| build | `DS-233.14475.28.36.505310` |
-| version | `5.0.5.310` |
-| productCode | `DS` |
-| 自带 JBR | 存在（`jbr/bin`） |
+| 项          | 值                          |
+| ----------- | --------------------------- |
+| 安装路径    | `<DEVECO_HOME>`             |
+| build       | `DS-233.14475.28.36.505310` |
+| version     | `5.0.5.310`                 |
+| productCode | `DS`                        |
+| 自带 JBR    | 存在（`jbr/bin`）           |
 
 ### 2.2 Harmony SDK
 
-| 项 | 值 |
-| --- | --- |
-| 路径 | `<DEVECO_HOME>\sdk\default` |
-| 组件 | `openharmony`、`hms` |
-| **apiVersion** | **13** |
-| version | `5.0.1.115` |
-| releaseType | `Release` |
-| openharmony/ets 子件 | `api`、`arkts`、`build-tools`、`component`、`kits` |
-| toolchains | `hdc.exe`、`restool.exe`、`syscap_tool.exe`、`modulecheck`、`configcheck` 等 |
+| 项                   | 值                                                                           |
+| -------------------- | ---------------------------------------------------------------------------- |
+| 路径                 | `<DEVECO_HOME>\sdk\default`                                                  |
+| 组件                 | `openharmony`、`hms`                                                         |
+| **apiVersion**       | **13**                                                                       |
+| version              | `5.0.1.115`                                                                  |
+| releaseType          | `Release`                                                                    |
+| openharmony/ets 子件 | `api`、`arkts`、`build-tools`、`component`、`kits`                           |
+| toolchains           | `hdc.exe`、`restool.exe`、`syscap_tool.exe`、`modulecheck`、`configcheck` 等 |
 
 `hms/ets` 同版本（apiVersion 13 / 5.0.1.115），含 `@hms.core.*` 系列能力。
 
 ### 2.3 打包与依赖管理
 
-| 工具 | 版本 | 位置 |
-| --- | --- | --- |
-| `@ohos/hvigor` | **5.13.2** | `tools/hvigor/hvigor` |
-| `@ohos/hvigor-ohos-plugin` | **5.13.2** | `tools/hvigor/hvigor-ohos-plugin` |
-| `@ohos/ohpm` | **5.0.10** | `tools/ohpm` |
-| Node（DevEco 内置） | **v18.20.1** | `tools/node/node.exe` |
+| 工具                       | 版本         | 位置                              |
+| -------------------------- | ------------ | --------------------------------- |
+| `@ohos/hvigor`             | **5.13.2**   | `tools/hvigor/hvigor`             |
+| `@ohos/hvigor-ohos-plugin` | **5.13.2**   | `tools/hvigor/hvigor-ohos-plugin` |
+| `@ohos/ohpm`               | **5.0.10**   | `tools/ohpm`                      |
+| Node（DevEco 内置）        | **v18.20.1** | `tools/node/node.exe`             |
 
 ### 2.4 关键 API 存在性核验（读 `openharmony/ets/api` 目录）
 
-| N3 需要的能力 | 声明文件 | 存在 |
-| --- | --- | --- |
-| ArkData 关系型数据库 | `@ohos.data.relationalStore.d.ts` | ✅ |
-| HUKS 密钥管理 | `@ohos.security.huks.d.ts` | ✅ |
-| 通用密码框架 | `@ohos.security.cryptoFramework.d.ts` | ✅ |
-| 用户认证 | `@ohos.userIAM.userAuth.d.ts` | ✅ |
-| 文件选择器 | `@ohos.file.picker.d.ts` | ✅ |
-| Stage Model UIAbility | `@ohos.app.ability.UIAbility.d.ts` | ✅ |
-| ArkUI 组件框架 | `@ohos.arkui.*` | ✅ |
-| 偏好存储 | `@ohos.data.preferences.d.ts` | ✅ |
+| N3 需要的能力         | 声明文件                              | 存在 |
+| --------------------- | ------------------------------------- | ---- |
+| ArkData 关系型数据库  | `@ohos.data.relationalStore.d.ts`     | ✅   |
+| HUKS 密钥管理         | `@ohos.security.huks.d.ts`            | ✅   |
+| 通用密码框架          | `@ohos.security.cryptoFramework.d.ts` | ✅   |
+| 用户认证              | `@ohos.userIAM.userAuth.d.ts`         | ✅   |
+| 文件选择器            | `@ohos.file.picker.d.ts`              | ✅   |
+| Stage Model UIAbility | `@ohos.app.ability.UIAbility.d.ts`    | ✅   |
+| ArkUI 组件框架        | `@ohos.arkui.*`                       | ✅   |
+| 偏好存储              | `@ohos.data.preferences.d.ts`         | ✅   |
 
 ---
 
@@ -128,10 +128,10 @@ KdfSpec (interface)
 
 ### 3.3 还核查过的两条"绕路"
 
-| 路径 | 结论 |
-| --- | --- |
-| NDK native OpenSSL | ❌ `openharmony/native` 下仅存在 CMake 的 `Modules/FindOpenSSL.cmake`，**无 openssl 头/库** |
-| NDK 内 libsodium / argon2 产物 | ❌ 递归检索 `openharmony/native` 无任何命中 |
+| 路径                           | 结论                                                                                        |
+| ------------------------------ | ------------------------------------------------------------------------------------------- |
+| NDK native OpenSSL             | ❌ `openharmony/native` 下仅存在 CMake 的 `Modules/FindOpenSSL.cmake`，**无 openssl 头/库** |
+| NDK 内 libsodium / argon2 产物 | ❌ 递归检索 `openharmony/native` 无任何命中                                                 |
 
 ### 3.4 尚未排除的可行路径（下轮评估，**本轮不实施**）
 
@@ -146,11 +146,11 @@ KdfSpec (interface)
 
 ## 4. 运行时环境（§N 的拆分口径）
 
-| 项 | 实测 | 结论 |
-| --- | --- | --- |
-| `Emulator.exe` | 存在（`tools/emulator/Emulator.exe`，含 Qt 依赖） | 二进制就绪 |
-| **模拟器系统镜像** | ❌ `%USERPROFILE%/AppData/Local/Huawei`、`%USERPROFILE%/Huawei`、`<HUAWEI_HOME>` 等常见位置均无；AppData/Local 下检索 `*.img`/`*.qcow2` 无命中 | **缺镜像** |
-| `hdc list targets` | **`[Empty]`** | 无设备、无在线模拟器 |
+| 项                 | 实测                                                                                                                                           | 结论                 |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| `Emulator.exe`     | 存在（`tools/emulator/Emulator.exe`，含 Qt 依赖）                                                                                              | 二进制就绪           |
+| **模拟器系统镜像** | ❌ `%USERPROFILE%/AppData/Local/Huawei`、`%USERPROFILE%/Huawei`、`<HUAWEI_HOME>` 等常见位置均无；AppData/Local 下检索 `*.img`/`*.qcow2` 无命中 | **缺镜像**           |
+| `hdc list targets` | **`[Empty]`**                                                                                                                                  | 无设备、无在线模拟器 |
 
 **真实拆分结论：**
 

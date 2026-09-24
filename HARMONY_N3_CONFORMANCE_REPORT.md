@@ -19,47 +19,48 @@ HARMONY_CONFORMANCE_HOST  = PASS         （主机执行面）pass = 63 / 63 运
 
 三个数字必须同时记住（总 91）：
 
-| 分类 | 数量 | 含义 |
-| ---- | ---- | ---- |
-| **已执行且通过** | **63** | 在**真实 ArkTS 运行时**下 actual 逐字节等于 expected |
+| 分类                 | 数量   | 含义                                                    |
+| -------------------- | ------ | ------------------------------------------------------- |
+| **已执行且通过**     | **63** | 在**真实 ArkTS 运行时**下 actual 逐字节等于 expected    |
 | `BLOCKED_BY_RUNTIME` | **28** | 依赖 Argon2 / relationalStore 等 @ohos 能力，主机无实现 |
-| `NOT_IMPLEMENTED` | **0** | — |
+| `NOT_IMPLEMENTED`    | **0**  | —                                                       |
 
 **这个分解的含义**：剩余 28 个用例**只受"没有设备运行时"这一个原因阻塞**，
 不再有任何工程实现缺口。§11 要求的"优先做运行时无关的 conformance"已经做完。
 
 ### 0.0 本轮最重要的修正：账目错过两次，都是推算而非实测
 
-| 版本 | 写的账目 | 错因 |
-| ---- | -------- | ---- |
-| 第二轮 | 87 notImplemented / 4 blocked | 漏了 timeline 与 migration 的存在 |
-| 第三轮 | 60 可执行 / 3 notImplemented | 默认 state-machine 5 个用例都已实现，**实际只有 2 个** |
-| **实测** | **63 / 28 / 0** | — |
+| 版本     | 写的账目                      | 错因                                                   |
+| -------- | ----------------------------- | ------------------------------------------------------ |
+| 第二轮   | 87 notImplemented / 4 blocked | 漏了 timeline 与 migration 的存在                      |
+| 第三轮   | 60 可执行 / 3 notImplemented  | 默认 state-machine 5 个用例都已实现，**实际只有 2 个** |
+| **实测** | **63 / 28 / 0**               | —                                                      |
 
 两次都由自家测试 `accountingSplitMatchesSection11` 抓出（它把三个数写成精确值）。
+
 > **教训**：没有执行过的账目，就是没有被验证的账目。
 
 ### 0.1 本轮交付（第五轮：补齐全部未实现用例）
 
-| # | 产出 | 位置 | 说明 |
-| - | ---- | ---- | ---- |
-| 1 | ActionVerification 状态机 | `domain/StateMachines.ets` | 初态/终态/迁移表/守卫 + 证据信号规则 |
-| 2 | DiscoveryCandidate 状态机 | `domain/StateMachines.ets` | 含 accept 的 `mutatesReality=true` 但 `bumpsGraphRevision=false` |
-| 3 | RealityDriftStatus 状态机 | `domain/StateMachines.ets` | 含 creationRule（`minObservations=2`） |
-| 4 | **Timeline 纯投影** | `domain/Timeline.ets` | `buildTimelinePure()`：5 条收集规则 + 排序 |
-| 5 | 排序方向修正 | `domain/Timeline.ets` | priority 降序、null 按空串比较（见 §7.5） |
-| 6 | 自检补方向性断言 | `domain/DomainSelfCheck.ets` | `/pd`、`/nf` 两段，防退化 |
+| #   | 产出                      | 位置                         | 说明                                                             |
+| --- | ------------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| 1   | ActionVerification 状态机 | `domain/StateMachines.ets`   | 初态/终态/迁移表/守卫 + 证据信号规则                             |
+| 2   | DiscoveryCandidate 状态机 | `domain/StateMachines.ets`   | 含 accept 的 `mutatesReality=true` 但 `bumpsGraphRevision=false` |
+| 3   | RealityDriftStatus 状态机 | `domain/StateMachines.ets`   | 含 creationRule（`minObservations=2`）                           |
+| 4   | **Timeline 纯投影**       | `domain/Timeline.ets`        | `buildTimelinePure()`：5 条收集规则 + 排序                       |
+| 5   | 排序方向修正              | `domain/Timeline.ets`        | priority 降序、null 按空串比较（见 §7.5）                        |
+| 6   | 自检补方向性断言          | `domain/DomainSelfCheck.ets` | `/pd`、`/nf` 两段，防退化                                        |
 
 ### 0.2 四条 gate 必须分开看（本报告最重要的一节）
 
-| Gate | 状态 | 依据 |
-| ---- | ---- | ---- |
-| `HARMONY_CONFORMANCE_RUNNER_IMPLEMENTED` | **PASS** | runner 已模块化（纯逻辑 + `FsTextSource`） |
-| `HARMONY_MODULE_COMPILED` | **PASS** | **23/23** required；A+B+C+D 四判据 |
-| **`HARMONY_CONFORMANCE_HOST`** | **PASS** | **63/63 运行时无关用例**逐字节复现 |
-| `HARMONY_DOMAIN_HOST` | **PASS** | 15/15 域自检在主机真跑全绿 |
-| `HARMONY_CONFORMANCE_EXECUTED` | **NOT_RUN** | 设备上 0 个用例真正执行 |
-| **`HARMONY_CONFORMANCE`** | **NOT_RUN** | 只有设备上 **91/91** 全绿才允许写 PASS |
+| Gate                                     | 状态        | 依据                                       |
+| ---------------------------------------- | ----------- | ------------------------------------------ |
+| `HARMONY_CONFORMANCE_RUNNER_IMPLEMENTED` | **PASS**    | runner 已模块化（纯逻辑 + `FsTextSource`） |
+| `HARMONY_MODULE_COMPILED`                | **PASS**    | **23/23** required；A+B+C+D 四判据         |
+| **`HARMONY_CONFORMANCE_HOST`**           | **PASS**    | **63/63 运行时无关用例**逐字节复现         |
+| `HARMONY_DOMAIN_HOST`                    | **PASS**    | 15/15 域自检在主机真跑全绿                 |
+| `HARMONY_CONFORMANCE_EXECUTED`           | **NOT_RUN** | 设备上 0 个用例真正执行                    |
+| **`HARMONY_CONFORMANCE`**                | **NOT_RUN** | 只有设备上 **91/91** 全绿才允许写 PASS     |
 
 前四行的 PASS **一个都不能**被写成 `HARMONY_CONFORMANCE = PASS`。
 `HARMONY_CONFORMANCE_HOST` 覆盖的是 63/91 这个子集，
@@ -239,21 +240,21 @@ COMPILE RESULT:FAIL {ERROR:8 WARN:2}
 
 ## 3. 逐分类状态（本轮重算）
 
-| 分类 | 用例数 | Harmony 实现 | 本轮归属 | 说明 |
-| --- | --- | --- | --- | --- |
-| relations | 18 | COMPILED | **可执行** | 直接调 `validateRelationUse` / `validateRelationGroupUse` |
-| readiness | 16 | COMPILED | **可执行** | 直接调 `computePlanReadiness` |
-| impact | 13 | COMPILED | **可执行** | 重建图后**真调** `simulateScenario` |
-| coverage | 6 | COMPILED | **可执行** | 直接调 `computeScenarioCoverage` |
-| state-machine | 5 | COMPILED | **可执行** | `allowedNextStates` / `isTerminalState` / `doesMutationBumpRevision` |
-| scenario | 1 | COMPILED | **可执行** | 读 `SCENARIO_TEMPLATES` / `PLANNED_TEMPLATES` 注册表 |
-| migration | 2 | 部分 | 1 **已执行** + 1 `BLOCKED_BY_RUNTIME` | `version-contract` 纯静态已跑；`db-v1-to-v3` 需 relationalStore |
-| timeline | 3 | 内核已 COMPILED | **已执行**（见 §3.1） | `buildTimelinePure()` 纯投影 |
-| parser | 22 | 未开工 | `BLOCKED_BY_RUNTIME` | 需 `TextDecoder('gb18030')` + 字节读取；ArkTS adapter 未移植 |
-| depmap | 3 | COMPILED | `BLOCKED_BY_RUNTIME` | expected 全含 `derivedKeyHex`/`ciphertextBase64`/`tagBase64`，必须真跑 Argon2id+AES-GCM |
-| jcs | 1 | COMPILED | `BLOCKED_BY_RUNTIME` | 需真实异常类型名 + JCS 内核 |
-| backup | 1 | 未开工 | `BLOCKED_BY_RUNTIME` | 需 DB 导出/恢复往返 + 加密容器 |
-| **合计** | **91** | — | **63 已执行（全通过）/ 28 `BLOCKED_BY_RUNTIME`/ 0 `NOT_IMPLEMENTED`** | 设备上仍 **0 执行** |
+| 分类          | 用例数 | Harmony 实现    | 本轮归属                                                              | 说明                                                                                    |
+| ------------- | ------ | --------------- | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| relations     | 18     | COMPILED        | **可执行**                                                            | 直接调 `validateRelationUse` / `validateRelationGroupUse`                               |
+| readiness     | 16     | COMPILED        | **可执行**                                                            | 直接调 `computePlanReadiness`                                                           |
+| impact        | 13     | COMPILED        | **可执行**                                                            | 重建图后**真调** `simulateScenario`                                                     |
+| coverage      | 6      | COMPILED        | **可执行**                                                            | 直接调 `computeScenarioCoverage`                                                        |
+| state-machine | 5      | COMPILED        | **可执行**                                                            | `allowedNextStates` / `isTerminalState` / `doesMutationBumpRevision`                    |
+| scenario      | 1      | COMPILED        | **可执行**                                                            | 读 `SCENARIO_TEMPLATES` / `PLANNED_TEMPLATES` 注册表                                    |
+| migration     | 2      | 部分            | 1 **已执行** + 1 `BLOCKED_BY_RUNTIME`                                 | `version-contract` 纯静态已跑；`db-v1-to-v3` 需 relationalStore                         |
+| timeline      | 3      | 内核已 COMPILED | **已执行**（见 §3.1）                                                 | `buildTimelinePure()` 纯投影                                                            |
+| parser        | 22     | 未开工          | `BLOCKED_BY_RUNTIME`                                                  | 需 `TextDecoder('gb18030')` + 字节读取；ArkTS adapter 未移植                            |
+| depmap        | 3      | COMPILED        | `BLOCKED_BY_RUNTIME`                                                  | expected 全含 `derivedKeyHex`/`ciphertextBase64`/`tagBase64`，必须真跑 Argon2id+AES-GCM |
+| jcs           | 1      | COMPILED        | `BLOCKED_BY_RUNTIME`                                                  | 需真实异常类型名 + JCS 内核                                                             |
+| backup        | 1      | 未开工          | `BLOCKED_BY_RUNTIME`                                                  | 需 DB 导出/恢复往返 + 加密容器                                                          |
+| **合计**      | **91** | —               | **63 已执行（全通过）/ 28 `BLOCKED_BY_RUNTIME`/ 0 `NOT_IMPLEMENTED`** | 设备上仍 **0 执行**                                                                     |
 
 > 计数说明：63 = 18(relations) + 16(readiness) + 13(impact) + 6(coverage) +
 > 5(state-machine) + 1(scenario) + 1(migration-version-contract) + 3(timeline)。
@@ -326,12 +327,12 @@ $ node tools/harmony/check-relations-semantics.mjs
 
 ### 5.1 分阶段可达的近期目标
 
-| 阶段 | 内容 | 需要运行时？ | 状态 |
-| --- | --- | --- | --- |
-| 1 | Domain 11 组落地 | 否 | **完成**（COMPILED） |
-| 2 | ArkTS conformance runner 落地并进编译图 | 否 | **完成** |
-| 3 | 脱离设备执行运行时无关用例 | 否 | **完成：63/63 全通过** |
-| 4 | 执行 28 个 `BLOCKED_BY_RUNTIME` 用例 → `91/91` | **是** | **唯一的待做项** |
+| 阶段 | 内容                                           | 需要运行时？ | 状态                   |
+| ---- | ---------------------------------------------- | ------------ | ---------------------- |
+| 1    | Domain 11 组落地                               | 否           | **完成**（COMPILED）   |
+| 2    | ArkTS conformance runner 落地并进编译图        | 否           | **完成**               |
+| 3    | 脱离设备执行运行时无关用例                     | 否           | **完成：63/63 全通过** |
+| 4    | 执行 28 个 `BLOCKED_BY_RUNTIME` 用例 → `91/91` | **是**       | **唯一的待做项**       |
 
 **剩下的路只剩一条，而且原因只有一个**：阶段 1–3 都已走完，任何可以脱离
 `@ohos` 运行时验证的东西都已经真跑过了。把 91/91 拆成「63 已自行达成 +
@@ -342,13 +343,13 @@ $ node tools/harmony/check-relations-semantics.mjs
 
 ## 6. 本轮明确**不**主张的事
 
-| # | 不主张 | 理由 |
-| - | ------ | ---- |
-| 1 | 91 个用例"通过" | 只有 63 个跑过；28 个**一次都没执行过** |
-| 2 | **`HARMONY_CONFORMANCE_HOST` 等于 `HARMONY_CONFORMANCE`** | 前者是 **63/91 的子集**，且跑在**主机**而非设备上 |
-| 3 | `parser(22)` / `depmap(3)` / `backup(1)` / `jcs(1)` 有任何证据 | 未开工或需真实加密/GB18030，主机无法自证 |
-| 4 | timeline ×3 验证的是 `input → output` | fixture **欠定**，见 §7.5.1；三端均靠重建场景 |
-| 5 | `HARMONY_CONFORMANCE` 有任何进展 | 取值仍为 `NOT_RUN` |
+| #   | 不主张                                                         | 理由                                              |
+| --- | -------------------------------------------------------------- | ------------------------------------------------- |
+| 1   | 91 个用例"通过"                                                | 只有 63 个跑过；28 个**一次都没执行过**           |
+| 2   | **`HARMONY_CONFORMANCE_HOST` 等于 `HARMONY_CONFORMANCE`**      | 前者是 **63/91 的子集**，且跑在**主机**而非设备上 |
+| 3   | `parser(22)` / `depmap(3)` / `backup(1)` / `jcs(1)` 有任何证据 | 未开工或需真实加密/GB18030，主机无法自证          |
+| 4   | timeline ×3 验证的是 `input → output`                          | fixture **欠定**，见 §7.5.1；三端均靠重建场景     |
+| 5   | `HARMONY_CONFORMANCE` 有任何进展                               | 取值仍为 `NOT_RUN`                                |
 
 下面这两条曾被写下，**已在第四/五轮被推翻**，保留原文以便对照。
 
@@ -376,24 +377,24 @@ $ node tools/harmony/check-relations-semantics.mjs
 原判断是「无设备 → 无法执行 → conformance 只能等设备」。本轮把这句话拆开逐项验证，
 结果发现**存在第二个执行面**：
 
-| 候选路径 | 实测结果 |
-| -------- | -------- |
-| `ark_js_vm`（ArkTS 独立虚拟机） | **不存在**。SDK 只带 `es2abc.exe`（编译器），无运行时 |
-| `Previewer.exe` | 存在，但需 `-j <app path>` + 与 IDE 的 socket 管道；且 `@ohos` 模块是预览桩 |
-| **hvigor `test` 任务（本地单元测试）** | ✅ **可用**。编译 ArkTS → 执行 → 产出 `test_result.txt` |
+| 候选路径                               | 实测结果                                                                    |
+| -------------------------------------- | --------------------------------------------------------------------------- |
+| `ark_js_vm`（ArkTS 独立虚拟机）        | **不存在**。SDK 只带 `es2abc.exe`（编译器），无运行时                       |
+| `Previewer.exe`                        | 存在，但需 `-j <app path>` + 与 IDE 的 socket 管道；且 `@ohos` 模块是预览桩 |
+| **hvigor `test` 任务（本地单元测试）** | ✅ **可用**。编译 ArkTS → 执行 → 产出 `test_result.txt`                     |
 
 `Previewer.exe` 被**弃用**（不是"试不通就放弃"，而是它作为证据通道不成立）：
 它的 `@ohos.*` 行为与真实实现不同，用它算出来的 PASS 无法归因到 ArkTS 实现本身。
 
 ### 7.2 打通执行面必须解决的 4 个具体问题
 
-| # | 问题 | 现象 | 解法 |
-| - | ---- | ---- | ---- |
-| 1 | `oh_modules` 未进镜像 | `Cannot find module '@ohos/hypium'` | 镜像时一并复制（**两处**：工程根与 `entry/`） |
-| 2 | **`ohpm` 用符号链接组织包** | 复制出来是**空壳**，报 `Failed to resolve OhmUrl` | `copyTree` 对链接取 `statSync` 并**解引用复制** |
-| 3 | 不能做 junction | 顺链解析回仓库（非 ASCII）→ `OhmUrl` 失败 | 必须真实复制 |
-| 4 | `@ohos/hypium` 须在**模块级**声明 | `has dependency which is not installed at its oh-package.json5` | 写进 `entry/oh-package.json5` |
-| 5 | `@ohos/hamock@1.0.1` **在 registry 不存在** | `ohpm install` 必然失败 | 降至 `1.0.0`（registry 最高仅 1.0.0） |
+| #   | 问题                                        | 现象                                                            | 解法                                            |
+| --- | ------------------------------------------- | --------------------------------------------------------------- | ----------------------------------------------- |
+| 1   | `oh_modules` 未进镜像                       | `Cannot find module '@ohos/hypium'`                             | 镜像时一并复制（**两处**：工程根与 `entry/`）   |
+| 2   | **`ohpm` 用符号链接组织包**                 | 复制出来是**空壳**，报 `Failed to resolve OhmUrl`               | `copyTree` 对链接取 `statSync` 并**解引用复制** |
+| 3   | 不能做 junction                             | 顺链解析回仓库（非 ASCII）→ `OhmUrl` 失败                       | 必须真实复制                                    |
+| 4   | `@ohos/hypium` 须在**模块级**声明           | `has dependency which is not installed at its oh-package.json5` | 写进 `entry/oh-package.json5`                   |
+| 5   | `@ohos/hamock@1.0.1` **在 registry 不存在** | `ohpm install` 必然失败                                         | 降至 `1.0.0`（registry 最高仅 1.0.0）           |
 
 > 第 2 条最隐蔽：`Dirent.isDirectory()` 与 `isFile()` 对符号链接**都返回 false**，
 > 于是循环直接 `continue` 跳过，**不报错**。表现为"依赖装好了但解析不到"。
@@ -412,10 +413,10 @@ $ node tools/harmony/check-relations-semantics.mjs
 §10 禁止的是 "**Node mirror masquerading as ArkTS**"，即**另写一份 Node 实现**去跑 fixtures。
 本方案的不同之处：
 
-| | 被执行的代码 | 数据 | 结论来源 |
-| - | - | - | - |
-| `check-relations-semantics.mjs`（**禁止计入**） | 另写的 Node 等价实现 | 同批 fixtures | Node 实现自己 |
-| **`HARMONY_CONFORMANCE_HOST`（本轮）** | **ConformanceRunner 本身**（真 ArkTS 编译器产出） | 冻结 fixture 原文，逐字节内嵌 | **ArkTS runner 自己** |
+|                                                 | 被执行的代码                                      | 数据                          | 结论来源              |
+| ----------------------------------------------- | ------------------------------------------------- | ----------------------------- | --------------------- |
+| `check-relations-semantics.mjs`（**禁止计入**） | 另写的 Node 等价实现                              | 同批 fixtures                 | Node 实现自己         |
+| **`HARMONY_CONFORMANCE_HOST`（本轮）**          | **ConformanceRunner 本身**（真 ArkTS 编译器产出） | 冻结 fixture 原文，逐字节内嵌 | **ArkTS runner 自己** |
 
 内嵌数据由 `embed-fixtures.mjs --check` 守门：内嵌副本一旦与冻结原件不一致，
 门禁立即失败（它是 `run-conformance-host.mjs` 的**第一道**检查，先于执行）。
@@ -424,13 +425,13 @@ $ node tools/harmony/check-relations-semantics.mjs
 
 这是本节最值得记住的部分：**前两个缺陷，代码审阅三轮都没发现。**
 
-| # | 缺陷 | 位置 | 性质 |
-| - | ---- | ---- | ---- |
-| 1 | **比对基准口径错**：拿美化 JSON 与紧凑 JSON 逐字符比 | runner `extractExpected` | 41/60 用例假失败 |
-| 2 | **自造契约词汇表**：白名单用 `dependency_created` 等自造名 | `GraphRevision.ets` | 契约里**每个** mutation 都被判"不提升" |
-| 3 | **实现与自身注释不符**：注释要求按 registry 判定，代码按枚举判定 | `LogicalKey.ets` | `bound_to` 被错误放行 |
-| 4 | **排序方向相反**：priority 用了升序，基准是**降序** | `Timeline.ets` | attention 桶内次序错 |
-| 5 | **null 时间点方向相反**：基准按空串比较（排**前**），实现按 +∞（排后） | `Timeline.ets` | 同时段次序错 |
+| #   | 缺陷                                                                   | 位置                     | 性质                                   |
+| --- | ---------------------------------------------------------------------- | ------------------------ | -------------------------------------- |
+| 1   | **比对基准口径错**：拿美化 JSON 与紧凑 JSON 逐字符比                   | runner `extractExpected` | 41/60 用例假失败                       |
+| 2   | **自造契约词汇表**：白名单用 `dependency_created` 等自造名             | `GraphRevision.ets`      | 契约里**每个** mutation 都被判"不提升" |
+| 3   | **实现与自身注释不符**：注释要求按 registry 判定，代码按枚举判定       | `LogicalKey.ets`         | `bound_to` 被错误放行                  |
+| 4   | **排序方向相反**：priority 用了升序，基准是**降序**                    | `Timeline.ets`           | attention 桶内次序错                   |
+| 5   | **null 时间点方向相反**：基准按空串比较（排**前**），实现按 +∞（排后） | `Timeline.ets`           | 同时段次序错                           |
 
 另有 1 个**测试自身的缺陷**（见 §7.6）：`PlanReadiness` 的"全清"输入其实不清。
 
@@ -553,16 +554,16 @@ definitions → 各平台 parser**；Legacy TS / uni-app x 仅作 Behavior Oracl
 「wire/logical-key 输入 → RelationDefinitionRegistry 校验 → reject」，
 而不是在 matrix 层 / schema 层 / 由其它字段先失败。
 
-| 项 | `relation-reject-non-runtime-relation` | `relation-group-bound_to-ANY` |
-| -- | ------------------------------------- | ----------------------------- |
-| input | `{fromKind: payment_instrument, relation: bound_to, toKind: account, capability: payment}` | `{relation: bound_to, mode: ANY}` |
-| 执行路径 | `validateRelationUse(fromKind, relation, toKind, capability)` | `validateRelationGroupUse(relation, mode)` |
-| 命中哪一道检查 | **第 1 道** `BY_ID.get(relation)` —— registry 未命中即 reject | **第 1 道** 同上 |
-| 是否"其它字段先失败" | **否**。capability / fromKind / toKind 检查都在 registry 检查**之后** | **否**。allowsGroup / groupMode 检查在其后 |
-| expected | `ok:false`，reason `relation 'bound_to' is not in the runtime registry` | 同左 |
-| Oracle 实测 | **PASS**（ORACLE SELFCHECK 91 cases reproduce exactly） | **PASS** |
-| Android 实测 | **PASS**（`conformance/reports/android.json`） | **PASS** |
-| Harmony 实测 | **PASS**（`ConformanceHost.test.ets` 逐用例 result） | **PASS** |
+| 项                   | `relation-reject-non-runtime-relation`                                                     | `relation-group-bound_to-ANY`              |
+| -------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------ |
+| input                | `{fromKind: payment_instrument, relation: bound_to, toKind: account, capability: payment}` | `{relation: bound_to, mode: ANY}`          |
+| 执行路径             | `validateRelationUse(fromKind, relation, toKind, capability)`                              | `validateRelationGroupUse(relation, mode)` |
+| 命中哪一道检查       | **第 1 道** `BY_ID.get(relation)` —— registry 未命中即 reject                              | **第 1 道** 同上                           |
+| 是否"其它字段先失败" | **否**。capability / fromKind / toKind 检查都在 registry 检查**之后**                      | **否**。allowsGroup / groupMode 检查在其后 |
+| expected             | `ok:false`，reason `relation 'bound_to' is not in the runtime registry`                    | 同左                                       |
+| Oracle 实测          | **PASS**（ORACLE SELFCHECK 91 cases reproduce exactly）                                    | **PASS**                                   |
+| Android 实测         | **PASS**（`conformance/reports/android.json`）                                             | **PASS**                                   |
+| Harmony 实测         | **PASS**（`ConformanceHost.test.ets` 逐用例 result）                                       | **PASS**                                   |
 
 **诚实边界（必须与上表一起引用）**：这两条走的是 **canonical relation 校验入口**，
 relation 以**离散字段**传入，**不经过** logical-key 字符串解析。这不是疏漏 ——
@@ -581,4 +582,3 @@ Kotlin 只有同名的强类型格式化器；三端均无线上的统一解析�
 本轮已同时把两条 fixture 的 `description` 补上 LC-003 traceability 标记，
 使其作为 permanent contract freeze 的意图可被追溯。**注意：只改了 description，
 `expected` 未动一个字节**（已由 `fixtureIntegrity` 与 ORACLE SELFCHECK 双重复核）。
-

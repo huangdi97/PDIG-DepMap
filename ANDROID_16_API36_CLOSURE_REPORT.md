@@ -8,30 +8,30 @@
 
 ## 0. 结论总表
 
-| Gate | 结果 | 证据 |
-|------|------|------|
-| targetSdk ≥ 36 | **PASS**（36） | `android/app/build.gradle.kts` compileSdk=36 / targetSdk=36 / minSdk=26 |
-| API36 build | **PASS** | `assembleDebug` / `assembleRelease` / `bundleRelease` SUCCESSFUL（2026-09-23 实跑） |
-| API36 runtime | **PASS** | connectedDebugAndroidTest **59/59**（phone）+ **59/59**（tablet，均 API36） |
-| Core Journey E2E | **PASS 41/41** | `core-journey-v4-20260923-154923.{txt,json}` |
-| 三场景 E2E | **PASS 32/32** | `scenario-e2e-v2-20260923-162400.{txt,json}` |
-| `EDGE_TO_EDGE_API36` | **PASS** | §5（代码审计 + UI 实测） |
-| `PREDICTIVE_BACK_API36` | **PASS** | §6（代码审计 + 运行验证） |
-| `ANDROID16_ADAPTIVE_LAYOUT` | **PASS** | §7（API36 tablet 2560×1600 59/59 + UI 实测） |
-| D-16 | **PASS** | §8（E2E 每个 picker 节点双断言） |
-| 崩溃 / ANR | **0** | E2E crash-scan 全 PASS；无 com.pdig.app ANR |
+| Gate                        | 结果           | 证据                                                                                |
+| --------------------------- | -------------- | ----------------------------------------------------------------------------------- |
+| targetSdk ≥ 36              | **PASS**（36） | `android/app/build.gradle.kts` compileSdk=36 / targetSdk=36 / minSdk=26             |
+| API36 build                 | **PASS**       | `assembleDebug` / `assembleRelease` / `bundleRelease` SUCCESSFUL（2026-09-23 实跑） |
+| API36 runtime               | **PASS**       | connectedDebugAndroidTest **59/59**（phone）+ **59/59**（tablet，均 API36）         |
+| Core Journey E2E            | **PASS 41/41** | `core-journey-v4-20260923-154923.{txt,json}`                                        |
+| 三场景 E2E                  | **PASS 32/32** | `scenario-e2e-v2-20260923-162400.{txt,json}`                                        |
+| `EDGE_TO_EDGE_API36`        | **PASS**       | §5（代码审计 + UI 实测）                                                            |
+| `PREDICTIVE_BACK_API36`     | **PASS**       | §6（代码审计 + 运行验证）                                                           |
+| `ANDROID16_ADAPTIVE_LAYOUT` | **PASS**       | §7（API36 tablet 2560×1600 59/59 + UI 实测）                                        |
+| D-16                        | **PASS**       | §8（E2E 每个 picker 节点双断言）                                                    |
+| 崩溃 / ANR                  | **0**          | E2E crash-scan 全 PASS；无 com.pdig.app ANR                                         |
 
 ---
 
 ## 1. 平台基线（真实值）
 
-| 项 | 值 |
-|----|----|
-| compileSdk / targetSdk / minSdk | 36 / 36 / 26 |
-| AGP / Gradle / JDK / Kotlin | 8.5.2 / 8.9 (wrapper) / OpenJDK 21.0.10 (AS JBR) / 2.0.0 |
-| AVD phone | `pdig_api36_phone`（pixel_9 / android-36 google_apis x86_64 / 1080×2424 / 420dpi） |
-| AVD tablet | `pdig_api36_tablet`（2560×1600 / 320dpi，≥600dp） |
-| 设备实测 | `ro.build.version.sdk=36`、`release=16`、`codename=REL` |
+| 项                              | 值                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------------- |
+| compileSdk / targetSdk / minSdk | 36 / 36 / 26                                                                       |
+| AGP / Gradle / JDK / Kotlin     | 8.5.2 / 8.9 (wrapper) / OpenJDK 21.0.10 (AS JBR) / 2.0.0                           |
+| AVD phone                       | `pdig_api36_phone`（pixel_9 / android-36 google_apis x86_64 / 1080×2424 / 420dpi） |
+| AVD tablet                      | `pdig_api36_tablet`（2560×1600 / 320dpi，≥600dp）                                  |
+| 设备实测                        | `ro.build.version.sdk=36`、`release=16`、`codename=REL`                            |
 
 详见 `ANDROID_PLATFORM_BASELINE.md`。
 
@@ -47,14 +47,14 @@
 
 ## 3. API36 测试回归（数量与基线一致，逐项解释）
 
-| 套件 | 基线 | 本轮（API36） | 变化说明 |
-|------|------|---------------|----------|
-| `:core:test` | 71 | **71/71** | 无变化（纯 JVM 领域层，与平台无关） |
-| `:app:testDebugUnitTest` | 9 | **9/9** | 无变化（工作流状态机纯逻辑） |
-| `:conformance:run` | 91 | **91/91** | 无变化（fixture 逐用例比对） |
-| connectedDebugAndroidTest | 59 | **59/59**（phone）+ **59/59**（tablet） | 无变化；新增 tablet 一遍 |
-| Core Journey E2E v4 | 41 | **41/41** | 无变化 |
-| 三场景 E2E | 40 | **32/32**（驱动重构，断言数量不同，见 §8 说明） | 驱动复用 v4 原语重构，断言粒度以本报告为准 |
+| 套件                      | 基线 | 本轮（API36）                                   | 变化说明                                   |
+| ------------------------- | ---- | ----------------------------------------------- | ------------------------------------------ |
+| `:core:test`              | 71   | **71/71**                                       | 无变化（纯 JVM 领域层，与平台无关）        |
+| `:app:testDebugUnitTest`  | 9    | **9/9**                                         | 无变化（工作流状态机纯逻辑）               |
+| `:conformance:run`        | 91   | **91/91**                                       | 无变化（fixture 逐用例比对）               |
+| connectedDebugAndroidTest | 59   | **59/59**（phone）+ **59/59**（tablet）         | 无变化；新增 tablet 一遍                   |
+| Core Journey E2E v4       | 41   | **41/41**                                       | 无变化                                     |
+| 三场景 E2E                | 40   | **32/32**（驱动重构，断言数量不同，见 §8 说明） | 驱动复用 v4 原语重构，断言粒度以本报告为准 |
 
 > 三场景 E2E 断言数变化说明：原 `scenario_e2e.py` 已从 `local_private/` 清理（gitignored），
 > 本轮用 v4 原语重构为 `scenario_e2e_v2.py`（32 条断言 = S0..S3 9 条 + 3 场景 × 7 条 + crash-scan），
@@ -155,18 +155,18 @@ Backup 导出（UI/文件一致）→ 错误密码拒绝 → 清数据 → 恢�
 
 ## 9. API36 Closure Gate 逐项
 
-| 项 | 结果 |
-|----|------|
-| targetSdk ≥ 36 | ✅ 36 |
-| API36 build PASS | ✅ assemble/bundle 三目标 |
-| API36 runtime PASS | ✅ 59/59 × 2 AVD + E2E 41/41 + 三场景 32/32 |
-| edge-to-edge PASS | ✅ §5 |
-| predictive back PASS | ✅ §6 |
-| large screen PASS | ✅ §7（API36 tablet 59/59） |
-| biometric PASS | ⚠ AVD 无指纹 enrollment，成功/失败/取消为真机项（E-1），未冒充 |
-| D-16 PASS | ✅ §8 |
-| three scenarios PASS | ✅ 32/32 |
-| no new crash/ANR | ✅ crash-scan 0；logcat 无 com.pdig.app ANR |
+| 项                   | 结果                                                           |
+| -------------------- | -------------------------------------------------------------- |
+| targetSdk ≥ 36       | ✅ 36                                                          |
+| API36 build PASS     | ✅ assemble/bundle 三目标                                      |
+| API36 runtime PASS   | ✅ 59/59 × 2 AVD + E2E 41/41 + 三场景 32/32                    |
+| edge-to-edge PASS    | ✅ §5                                                          |
+| predictive back PASS | ✅ §6                                                          |
+| large screen PASS    | ✅ §7（API36 tablet 59/59）                                    |
+| biometric PASS       | ⚠ AVD 无指纹 enrollment，成功/失败/取消为真机项（E-1），未冒充 |
+| D-16 PASS            | ✅ §8                                                          |
+| three scenarios PASS | ✅ 32/32                                                       |
+| no new crash/ANR     | ✅ crash-scan 0；logcat 无 com.pdig.app ANR                    |
 
 ```text
 ANDROID_API36_READY  = PASS（工程可验证范围；真机级指纹/字体/缩放项 BLOCKED_BY_REAL_DEVICE，E-1）

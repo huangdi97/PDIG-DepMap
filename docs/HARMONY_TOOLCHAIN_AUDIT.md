@@ -23,7 +23,7 @@
 | 组件                       | 实测值                                                                     |
 | -------------------------- | -------------------------------------------------------------------------- |
 | DevEco Studio              | **5.0.5.310**（`build.txt` = `DS-233.14475.28.36.505310`）                 |
-| 安装路径                   | `<DEVECO_HOME>`                                            |
+| 安装路径                   | `<DEVECO_HOME>`                                                            |
 | HarmonyOS SDK              | **HarmonyOS 5.0.1**，`version 5.0.1.115`，`apiVersion 13`，`stage Release` |
 | SDK 路径                   | `<DevEco>/sdk/default/{hms, openharmony}`                                  |
 | `@ohos/hvigor`             | **5.13.2**（`<DevEco>/tools/hvigor/hvigor`）                               |
@@ -148,10 +148,10 @@ DevEco 内置的 5.13.2 属**未发布私有构建**。
 
 ### 5.4 环境侧变更
 
-| 变更                                                                                      | 原因                                                                                  |
-| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 创建 `%USERPROFILE%\.npmrc`（内容 `registry=https://registry.npmjs.org/`）              | hvigor wrapper 强制要求用户目录存在 `.npmrc`，否则拒绝执行                            |
-| `NODE_HOME` 指向 DevEco 内置 node（`<DEVECO_HOME>\tools\node`，v18.20.1） | `hvigorw.bat` 需要 `NODE_HOME` 或 PATH 中有 `node`；且 pnpm 子进程依赖 `node` 在 PATH |
+| 变更                                                                       | 原因                                                                                  |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| 创建 `%USERPROFILE%\.npmrc`（内容 `registry=https://registry.npmjs.org/`） | hvigor wrapper 强制要求用户目录存在 `.npmrc`，否则拒绝执行                            |
+| `NODE_HOME` 指向 DevEco 内置 node（`<DEVECO_HOME>\tools\node`，v18.20.1）  | `hvigorw.bat` 需要 `NODE_HOME` 或 PATH 中有 `node`；且 pnpm 子进程依赖 `node` 在 PATH |
 
 > `.npmrc` 内容刻意保持 `registry.npmjs.org`（npm 默认值），**不改变用户原有 registry 行为**。
 

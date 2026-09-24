@@ -8,15 +8,15 @@
 
 ## § 状态头（Goal §27）
 
-| 键 | 值 |
-|----|----|
-| HEAD | `b038d8660f0998d580fe929fc63970945ef5d610` |
-| MAIN | `b038d866`（远端 origin/main = 同 SHA） |
-| FEATURE | `feat/mvp03-living-graph` = `89b653a`（基准 HEAD） |
-| BACKUP | `backup/478d85f9-pre-canonical-freeze`（旧 HEAD 可恢复） |
-| WORKTREE_CLEAN | YES（git status --short 空） |
-| REMOTE_SYNC | YES（local main == origin/main == tag） |
-| TAG | `v0.3.0-android-canonical-freeze` → `b038d866`（已推送，远端确认） |
+| 键             | 值                                                                 |
+| -------------- | ------------------------------------------------------------------ |
+| HEAD           | `b038d8660f0998d580fe929fc63970945ef5d610`                         |
+| MAIN           | `b038d866`（远端 origin/main = 同 SHA）                            |
+| FEATURE        | `feat/mvp03-living-graph` = `89b653a`（基准 HEAD）                 |
+| BACKUP         | `backup/478d85f9-pre-canonical-freeze`（旧 HEAD 可恢复）           |
+| WORKTREE_CLEAN | YES（git status --short 空）                                       |
+| REMOTE_SYNC    | YES（local main == origin/main == tag）                            |
+| TAG            | `v0.3.0-android-canonical-freeze` → `b038d866`（已推送，远端确认） |
 
 **Tag 建议（顶部）**：`v0.3.0-android-canonical-freeze`——遵循仓库 `vX.Y.Z-<阶段>` 惯例
 （`v0.2.0-mvp02` / `v0.3.0-mvp03` / `v0.3.0-uniapp-reference`），与 v0.3.0 同版本线、以阶段区分，
@@ -26,15 +26,15 @@
 
 ## 本轮 7 个新 Gate（Goal §26）
 
-| Gate | 状态 |
-|------|------|
-| `ANDROID_CANONICAL_FREEZE` | **PASS** |
-| `ANDROID_RELEASE_IDENTITY_READY` | **PARTIAL**（决策包就绪，R-1..R-5 待用户） |
-| `ANDROID_PRODUCTION_SIGNING_PACKAGE_READY` | **PASS**（Signing 保持 `BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE`） |
-| `ANDROID_REAL_DEVICE_TEST_PACKAGE_READY` | **PASS**（真机待提供） |
-| `ANDROID_REAL_DATA_PILOT_PACKAGE_READY` | **PASS**（未执行，无授权数据） |
-| `ANDROID_STORE_PREPARATION_INTERNAL_COMPLETE` | **PASS**（6 类 store 草稿落地） |
-| `ANDROID_EXTERNAL_CLOSURE_READY` | **PASS** |
+| Gate                                          | 状态                                                              |
+| --------------------------------------------- | ----------------------------------------------------------------- |
+| `ANDROID_CANONICAL_FREEZE`                    | **PASS**                                                          |
+| `ANDROID_RELEASE_IDENTITY_READY`              | **PARTIAL**（决策包就绪，R-1..R-5 待用户）                        |
+| `ANDROID_PRODUCTION_SIGNING_PACKAGE_READY`    | **PASS**（Signing 保持 `BLOCKED_BY_MISSING_PRODUCTION_KEYSTORE`） |
+| `ANDROID_REAL_DEVICE_TEST_PACKAGE_READY`      | **PASS**（真机待提供）                                            |
+| `ANDROID_REAL_DATA_PILOT_PACKAGE_READY`       | **PASS**（未执行，无授权数据）                                    |
+| `ANDROID_STORE_PREPARATION_INTERNAL_COMPLETE` | **PASS**（6 类 store 草稿落地）                                   |
+| `ANDROID_EXTERNAL_CLOSURE_READY`              | **PASS**                                                          |
 
 ---
 
@@ -53,12 +53,12 @@
 
 **6 Parity ✅** 基准矩阵 **69/73 PASS-equivalent / 4 unresolved**（blocker 全外部）：
 
-| ID | Requirement | Current | Blocker category | Why engineering can't close | External input | Closure test |
-|----|-------------|---------|------|------|----------------|------|
-| P-1 | 无障碍（TalkBack 实机读屏） | PARTIAL（语义树 14/14） | REAL_DEVICE_REQUIRED | 需真机 | 真机 | 实机读屏 |
-| P-2 | Release 签名 | BLOCKED | PRODUCTION_KEY_REQUIRED | 缺 keystore | keystore K-1..K-4 | apksigner verify |
-| P-3 | Store 素材/公开 URL | PARTIAL | FINAL_BRAND + PUBLIC_URL | 需品牌+域名 | 素材/账号 | 商店可提交 |
-| P-4 | R8 / minify | NOT_APPLICABLE | PRODUCT_DECISION（非缺口） | 未开 minify | 决策 | — |
+| ID  | Requirement                 | Current                 | Blocker category           | Why engineering can't close | External input    | Closure test     |
+| --- | --------------------------- | ----------------------- | -------------------------- | --------------------------- | ----------------- | ---------------- |
+| P-1 | 无障碍（TalkBack 实机读屏） | PARTIAL（语义树 14/14） | REAL_DEVICE_REQUIRED       | 需真机                      | 真机              | 实机读屏         |
+| P-2 | Release 签名                | BLOCKED                 | PRODUCTION_KEY_REQUIRED    | 缺 keystore                 | keystore K-1..K-4 | apksigner verify |
+| P-3 | Store 素材/公开 URL         | PARTIAL                 | FINAL_BRAND + PUBLIC_URL   | 需品牌+域名                 | 素材/账号         | 商店可提交       |
+| P-4 | R8 / minify                 | NOT_APPLICABLE          | PRODUCT_DECISION（非缺口） | 未开 minify                 | 决策              | —                |
 
 **`ENGINEERING_GAP = 0 · TEST_EVIDENCE_GAP = 0`**
 

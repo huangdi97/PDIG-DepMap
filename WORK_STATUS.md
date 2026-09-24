@@ -15,79 +15,79 @@
 > → `feat/mvp03-living-graph`（AGENT HANDOFF PLATFORM BRINGUP / PRODUCTION RC CONTINUE）
 > → **PDIG NATIVE MIGRATION N1 Android 垂直切片 + N2 全量 parity**
 > → **`feat/mvp03-living-graph`（ANDROID N1 / N2 RUNTIME CLOSURE，2026-09-15，当前）**
->   —— 本轮只做运行时取证与构建链收口，**不新增功能、不进入 Harmony N3**。
->   结论：`N1 = PARTIAL_WITH_REPORT`、`N2 = PARTIAL_WITH_REPORT`、parity **58/62**、
->   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
->   完整 27 Gate 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`。
+> —— 本轮只做运行时取证与构建链收口，**不新增功能、不进入 Harmony N3**。
+> 结论：`N1 = PARTIAL_WITH_REPORT`、`N2 = PARTIAL_WITH_REPORT`、parity **58/62**、
+> `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
+> 完整 27 Gate 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT.md`。
 
 > **（当前）ANDROID 冻结 + 正式进入 Harmony N3，2026-09-17 第二场**
->   —— 人工 Final Acceptance 结论已落地：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT (62/73)`、
->   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`、D-16 CLOSED。
->   本轮**不再把 Android 62/73 往 73/73 堆**。
->   ① 新增 `ANDROID_NATIVE_CORE_HANDOFF = PASS`（**不替代** N2 / release readiness）
->      → `ANDROID_NATIVE_CORE_FREEZE.md`；Android 转入 `CORE_FROZEN / MAINTENANCE_ONLY`；
->      剩余 11 格按 ENGINEERING_NOT_YET_VERIFIED(7) / RUNTIME_ENVIRONMENT_BLOCKED(2) /
->      RELEASE_EXTERNAL_BLOCKED(1) / STORE_PREPARATION(1) 分类保留在 N2 Backlog。
->   ② **Git 尾项收口**：实查 HEAD `bc2eeb8` → 提交 `6053f3c`（三端 codegen 产物 + `legacy/README.md` 入库，
->      均为 `codegen --check` 验证的正式产物）；`.pi/` 保持 intentionally-untracked（gitignore 覆盖）。
->      ⚠ 本轮再次复现既有 Git 故障：`git commit` 成功建对象但 HEAD 不推进 —— 已核实
->      `6053f3c` 的 parent/tree 后用 `.git/packed-refs` + loose ref 修正并复核通过。
->      ⚠ `packed-refs` 必须写**完整 40 位 SHA**（曾误写短哈希导致 HEAD 无法解析，已修复）。
->   ③ **Android 取证口径修正（重要）**：`android/settings.gradle.kts` 把构建输出重定向到
->      `%USERPROFILE%/pdig-build/<module>`，**`android/**/build/**` 是自重定向后的过期残留**。
->      既往报告里 `d84d8900…` / `bf378ec6…` 等 APK 哈希来源不明，本轮起作废。
->      本轮实测：`:core:test` 71/71、`:app:testDebugUnitTest` 9/9、`:conformance:run` 91/91、
->      设备内 androidTest 51/51（emulator-5554），APK/AAB 哈希见冻结报告。
->   ④ **正式进入 Harmony N3**：`harmony/` 由「仅 1 个 codegen 文件」建成可真实构建的
->      Stage Model 工程 —— hvigor 全清重建 `BUILD SUCCESSFUL`，产出 HAP **60,133 B**；
->      首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP。
->      `HARMONY_BUILD = PASS`；`HARMONY_DEPMAP = BLOCKED`（cryptoFramework 无 Argon2）；
->      `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）。
->      按 stop condition **未进入 iOS N4**，等 Harmony Gate 复核。
+> —— 人工 Final Acceptance 结论已落地：`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT (62/73)`、
+> `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`、D-16 CLOSED。
+> 本轮**不再把 Android 62/73 往 73/73 堆**。
+> ① 新增 `ANDROID_NATIVE_CORE_HANDOFF = PASS`（**不替代** N2 / release readiness）
+> → `ANDROID_NATIVE_CORE_FREEZE.md`；Android 转入 `CORE_FROZEN / MAINTENANCE_ONLY`；
+> 剩余 11 格按 ENGINEERING_NOT_YET_VERIFIED(7) / RUNTIME_ENVIRONMENT_BLOCKED(2) /
+> RELEASE_EXTERNAL_BLOCKED(1) / STORE_PREPARATION(1) 分类保留在 N2 Backlog。
+> ② **Git 尾项收口**：实查 HEAD `bc2eeb8` → 提交 `6053f3c`（三端 codegen 产物 + `legacy/README.md` 入库，
+> 均为 `codegen --check` 验证的正式产物）；`.pi/` 保持 intentionally-untracked（gitignore 覆盖）。
+> ⚠ 本轮再次复现既有 Git 故障：`git commit` 成功建对象但 HEAD 不推进 —— 已核实
+> `6053f3c` 的 parent/tree 后用 `.git/packed-refs` + loose ref 修正并复核通过。
+> ⚠ `packed-refs` 必须写**完整 40 位 SHA**（曾误写短哈希导致 HEAD 无法解析，已修复）。
+> ③ **Android 取证口径修正（重要）**：`android/settings.gradle.kts` 把构建输出重定向到
+> `%USERPROFILE%/pdig-build/<module>`，**`android/**/build/**` 是自重定向后的过期残留**。
+> 既往报告里 `d84d8900…` / `bf378ec6…` 等 APK 哈希来源不明，本轮起作废。
+> 本轮实测：`:core:test` 71/71、`:app:testDebugUnitTest` 9/9、`:conformance:run` 91/91、
+> 设备内 androidTest 51/51（emulator-5554），APK/AAB 哈希见冻结报告。
+> ④ **正式进入 Harmony N3**：`harmony/` 由「仅 1 个 codegen 文件」建成可真实构建的
+> Stage Model 工程 —— hvigor 全清重建 `BUILD SUCCESSFUL`，产出 HAP **60,133 B**；
+> 首个纯 ArkTS Domain（`Relations.ets`）已编译并打包进 HAP。
+> `HARMONY_BUILD = PASS`；`HARMONY_DEPMAP = BLOCKED`（cryptoFramework 无 Argon2）；
+> `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`（无模拟器镜像，`hdc list targets = [Empty]`）。
+> 按 stop condition **未进入 iOS N4**，等 Harmony Gate 复核。
 >
 > **（当前）PART A GitHub 发布收口 + PART B Harmony N3 Argon2 深挖，2026-09-18**
->   —— ① **GitHub 发布完成**：历史净化门禁全 PASS 后首次 push 到 `huangdi97/PDIG-DepMap`
->      （PRIVATE，5 分支 + 3 标签，**全程快进、无 force**）。
->      CI 三轮：首轮 FAIL（2 个真实仓库缺陷）→ 二轮 FAIL（Android job 转绿，Canonical 仅剩
->      `fixtureIntegrity`）→ **三轮全绿**（`cases 91/91`、`imports 28/28`、oracle PASS、
->      `platform android PASS 91/91`、`VERDICT: PASS`）。
->      产出 `GITHUB_SECRET_PRIVACY_AUDIT.md` / `GITHUB_HISTORY_SANITIZATION_REPORT.md` /
->      `GITHUB_PUBLICATION_REPORT.md`。
->      ② **定因并修复了既有 fixture 缺陷**：`fixtures/import` 12/28 的 sha256 与清单不一致，
->      根因**不是字节漂移**，而是清单记录了生成机 `core.autocrlf=true` **检出态的 CRLF 假象**
->      （blob 级取证：12 个文件 HEAD blob == 引入提交 `97a0348` blob、均无 CR；
->      对照 `csv-cr-only.csv` 净化后仍保留 CR → 净化不剥离 CR；12/12 命中
->      `sha256(CRLF(当前字节)) == 清单原值`）。按 canonical blob 字节**修正清单 12 条哈希**
->      （`oracle.commit` 未动），不改字节、不降门禁。
->      ③ **Harmony N3 Argon2 深挖**：`cryptoFramework` / `HUKS` 无 Argon2（证据级排除）；
->      `hash-wasm` 的 `argon2.c` 是 WASM 实现**不能**作原生源；**NDK 路径可行** ——
->      主机侧 PHC 参考实现**逐字节复现 Golden Vector**（`MATCH=YES`，version 19），
->      OHOS arm64 交叉编译产出 `libargon2_ohos.so`（ELF64/AArch64/仅依赖 libc.so）
->      与 NAPI 桥接 `libpdiargon2.so`（8 个 `napi_*` 由 Ark 运行时解析）。
->      `HARMONY_DEPMAP`：`BLOCKED` → **`BLOCKED_BY_NATIVE_VERIFICATION`**；
->      `HARMONY_RUNTIME_E2E` 仍为 `RUNTIME_NOT_RUN`（无设备/镜像）。
->      Android 保持 **CORE_FROZEN**，**未进入 iOS N4**。
->      完整内容见 `HARMONY_ARGON2_FEASIBILITY.md`。
+> —— ① **GitHub 发布完成**：历史净化门禁全 PASS 后首次 push 到 `huangdi97/PDIG-DepMap`
+> （PRIVATE，5 分支 + 3 标签，**全程快进、无 force**）。
+> CI 三轮：首轮 FAIL（2 个真实仓库缺陷）→ 二轮 FAIL（Android job 转绿，Canonical 仅剩
+> `fixtureIntegrity`）→ **三轮全绿**（`cases 91/91`、`imports 28/28`、oracle PASS、
+> `platform android PASS 91/91`、`VERDICT: PASS`）。
+> 产出 `GITHUB_SECRET_PRIVACY_AUDIT.md` / `GITHUB_HISTORY_SANITIZATION_REPORT.md` /
+> `GITHUB_PUBLICATION_REPORT.md`。
+> ② **定因并修复了既有 fixture 缺陷**：`fixtures/import` 12/28 的 sha256 与清单不一致，
+> 根因**不是字节漂移**，而是清单记录了生成机 `core.autocrlf=true` **检出态的 CRLF 假象**
+> （blob 级取证：12 个文件 HEAD blob == 引入提交 `97a0348` blob、均无 CR；
+> 对照 `csv-cr-only.csv` 净化后仍保留 CR → 净化不剥离 CR；12/12 命中
+> `sha256(CRLF(当前字节)) == 清单原值`）。按 canonical blob 字节**修正清单 12 条哈希**
+> （`oracle.commit` 未动），不改字节、不降门禁。
+> ③ **Harmony N3 Argon2 深挖**：`cryptoFramework` / `HUKS` 无 Argon2（证据级排除）；
+> `hash-wasm` 的 `argon2.c` 是 WASM 实现**不能**作原生源；**NDK 路径可行** ——
+> 主机侧 PHC 参考实现**逐字节复现 Golden Vector**（`MATCH=YES`，version 19），
+> OHOS arm64 交叉编译产出 `libargon2_ohos.so`（ELF64/AArch64/仅依赖 libc.so）
+> 与 NAPI 桥接 `libpdiargon2.so`（8 个 `napi_*` 由 Ark 运行时解析）。
+> `HARMONY_DEPMAP`：`BLOCKED` → **`BLOCKED_BY_NATIVE_VERIFICATION`**；
+> `HARMONY_RUNTIME_E2E` 仍为 `RUNTIME_NOT_RUN`（无设备/镜像）。
+> Android 保持 **CORE_FROZEN**，**未进入 iOS N4**。
+> 完整内容见 `HARMONY_ARGON2_FEASIBILITY.md`。
 >
 > **（历史）ANDROID FINAL BLOCKER CLOSURE — D-16 关闭轮，2026-09-17**
->   —— 关闭 D-16（导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃），采用**方案 A**：
->   把 Import / Restore 的外部文件工作流状态提升到 Activity 作用域
->   （`FileWorkflowCoordinator` + `LocalFileWorkflow`），并把 `ActivityResult` 注册
->   移到 `MainActivity`（不随 NavHost 的 uncompose 被注销）。
->   **明确不采用**方案 B（锁定时继续组合 NavHost 靠遮罩隐藏）与方案 C（拉起
->   DocumentsUI 时不锁定）——两者都会削弱"敏感内容结构性不可达"这一安全事实。
->   复验（全部实跑）：`:app` JVM **9/9** · 设备内 4 批 **51/51**（新增 `FileWorkflowD16Test` 6/6）·
->   `:core:test` **71/71** · `:conformance:run` **91/91** · E2E v4
->   **`core-journey-v4-20260917-184856` = 41/41 PASS / 0 FAIL** ·
->   assembleDebug / assembleRelease / bundleRelease 全部 SUCCESSFUL。
->   parity **62 / 73**（原 56）；`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、
->   `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
->   完整内容见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**就地更新，未生成 V3/V4**）§3.4。
+> —— 关闭 D-16（导入 / 恢复向导在"锁定—解锁"过程中被整体丢弃），采用**方案 A**：
+> 把 Import / Restore 的外部文件工作流状态提升到 Activity 作用域
+> （`FileWorkflowCoordinator` + `LocalFileWorkflow`），并把 `ActivityResult` 注册
+> 移到 `MainActivity`（不随 NavHost 的 uncompose 被注销）。
+> **明确不采用**方案 B（锁定时继续组合 NavHost 靠遮罩隐藏）与方案 C（拉起
+> DocumentsUI 时不锁定）——两者都会削弱"敏感内容结构性不可达"这一安全事实。
+> 复验（全部实跑）：`:app` JVM **9/9** · 设备内 4 批 **51/51**（新增 `FileWorkflowD16Test` 6/6）·
+> `:core:test` **71/71** · `:conformance:run` **91/91** · E2E v4
+> **`core-journey-v4-20260917-184856` = 41/41 PASS / 0 FAIL** ·
+> assembleDebug / assembleRelease / bundleRelease 全部 SUCCESSFUL。
+> parity **62 / 73**（原 56）；`N1 = PASS`、`N2 = PARTIAL_WITH_REPORT`、
+> `ANDROID_PRODUCTION_RELEASE_READY = BLOCKED_BY_PRODUCTION_SIGNING`。
+> 完整内容见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**就地更新，未生成 V3/V4**）§3.4。
 >
 > → **（历史）ANDROID FINAL BLOCKER CLOSURE，2026-09-16**
->   —— 关闭 App Lock 的真实接线缺口、备份导出 UI 误报、无障碍标签与滚动容器 hitbox；
->   重跑核心 E2E 与全量回归；**重新计算** N1 / N2。
->   结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**不沿用旧的 58/62 与旧 PASS 数量**）。
+> —— 关闭 App Lock 的真实接线缺口、备份导出 UI 误报、无障碍标签与滚动容器 hitbox；
+> 重跑核心 E2E 与全量回归；**重新计算** N1 / N2。
+> 结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**不沿用旧的 58/62 与旧 PASS 数量**）。
 >
 > **Production 依赖目标（明确冻结，不再动摇）**：
 > `DCloud = 0 target` · `UTS = 0 target` · `uni-app / uni-app x = 0 target`。
@@ -157,6 +157,7 @@
 
 > 说明：Android 收口轮已按人工批准把 Android 从 CORE_FROZEN 临时解除；本轮完成后保持冻结范围
 > （仅发布/外部项可继续），不进入 MVP04 或新业务 Domain。
+
 - NEXT_COMMAND（下一位 Agent 的第一步）：
 
   ```bash
@@ -178,14 +179,14 @@
 
 ### Current 只保留这 6 个关注面（其它内容一律属于 Historical / Legacy）
 
-| #   | 关注面                       | 状态                                                                 |
-| --- | ---------------------------- | -------------------------------------------------------------------- |
-| 1   | Native Migration             | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 为唯一活跃主线**） |
-| 2   | Android N1 / N2              | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**冻结，不再推进**） |
-| 3   | Harmony N3                   | **ACTIVE**：`HARMONY_BUILD` = **PASS**（clean assembleHap，含 native）；`HARMONY_MODULE_COMPILED` = **PASS**（A/B/C/D 四判据，**22/22** required 模块，`modules.abc` 243,556 B，0 孤儿）；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM）；**`HARMONY_DOMAIN` = COMPILED**（11 组纯 ArkTS 全部落地，15 项自检可从产物反查；`RelationRegistry` 按对齐 Android 冻结版的决定**不实现**）；`HARMONY_DEPMAP` = **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN**（Argon2 NAPI 全链路已打通：vendored 溯源 + 交叉编译 arm64/x86_64 + 打包进 HAP 且符号表恰好只导出 NAPI 入口）；**`HARMONY_CONFORMANCE_RUNNER` = PASS**（真实 ArkTS runner 已落地并进编译图：`conformance/` 4 模块 2,031 行，`modules.abc` 符号取证齐全；**非 Node 镜像**）；`HARMONY_CONFORMANCE` = **NOT_RUN**（runner 已就绪但**无运行时，一次都没执行**，**执行计数仍 pass=0**，不得记 PASS —— 见 `HARMONY_N3_CONFORMANCE_REPORT.md` §0.2）；`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像，见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）—— 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_ARGON2_INTEGRATION_REPORT.md` |
-| 4   | iOS N4                       | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                   |
-| 5   | Cross-platform Conformance   | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **设备侧 NOT_RUN（0 执行 / 91）**，但**主机执行面 `HARMONY_CONFORMANCE_HOST = PASS`：63/63 运行时无关用例在真实 ArkTS 下逐字节复现**（另有 `HARMONY_DOMAIN_HOST` = PASS 15/15）；其余 **28 全部 blockedByRuntime，0 notImplemented**；timeline ×3 的 fixture 欠定见报告 §7.5.1；**LC-003 `bound_to` 已裁决为 Canonical correction：三端判定一致（均为 registry 查找，非各自 wire 枚举），`bound_to → reject` 早已由既有 2 条 fixture 永久固化，用例总数维持 91**（见 `LEGACY_BEHAVIOR_CORRECTIONS.md` §LC-003、报告 §7.8 —— 该节原文曾误报为跨端差异，已撤回）；iOS 无报告 |
-| 6   | Legacy Cutover               | **NOT_STARTED**（Cutover 条件未满足）                                  |
+| #   | 关注面                     | 状态                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| --- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Native Migration           | 进行中（**Android 已冻结 CORE_FROZEN；N3 Harmony 为唯一活跃主线**）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 2   | Android N1 / N2            | **N1 = PASS**，`N2 = PARTIAL_WITH_REPORT` 62/73 —— 见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V2.md`（**冻结，不再推进**）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 3   | Harmony N3                 | **ACTIVE**：`HARMONY_BUILD` = **PASS**（clean assembleHap，含 native）；`HARMONY_MODULE_COMPILED` = **PASS**（A/B/C/D 四判据，**22/22** required 模块，`modules.abc` 243,556 B，0 孤儿）；`HARMONY_CRYPTO` = **COMPILED**（JCS / AAD / AES-256-GCM）；**`HARMONY_DOMAIN` = COMPILED**（11 组纯 ArkTS 全部落地，15 项自检可从产物反查；`RelationRegistry` 按对齐 Android 冻结版的决定**不实现**）；`HARMONY_DEPMAP` = **NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN**（Argon2 NAPI 全链路已打通：vendored 溯源 + 交叉编译 arm64/x86_64 + 打包进 HAP 且符号表恰好只导出 NAPI 入口）；**`HARMONY_CONFORMANCE_RUNNER` = PASS**（真实 ArkTS runner 已落地并进编译图：`conformance/` 4 模块 2,031 行，`modules.abc` 符号取证齐全；**非 Node 镜像**）；`HARMONY_CONFORMANCE` = **NOT_RUN**（runner 已就绪但**无运行时，一次都没执行**，**执行计数仍 pass=0**，不得记 PASS —— 见 `HARMONY_N3_CONFORMANCE_REPORT.md` §0.2）；`HARMONY_ARKUI` = PARTIAL_WITH_REPORT；`HARMONY_RUNTIME_E2E` = **RUNTIME_NOT_RUN**（无模拟器镜像，见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）—— 见 `HARMONY_N3_IMPLEMENTATION_STATUS.md` / `HARMONY_ARGON2_INTEGRATION_REPORT.md` |
+| 4   | iOS N4                     | `BLOCKED_BY_MACOS`（真实外部 blocker，不是工程缺口）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 5   | Cross-platform Conformance | Android **91/91**（本轮实跑 + **CI 远真复验**双证）；Harmony **设备侧 NOT_RUN（0 执行 / 91）**，但**主机执行面 `HARMONY_CONFORMANCE_HOST = PASS`：63/63 运行时无关用例在真实 ArkTS 下逐字节复现**（另有 `HARMONY_DOMAIN_HOST` = PASS 15/15）；其余 **28 全部 blockedByRuntime，0 notImplemented**；timeline ×3 的 fixture 欠定见报告 §7.5.1；**LC-003 `bound_to` 已裁决为 Canonical correction：三端判定一致（均为 registry 查找，非各自 wire 枚举），`bound_to → reject` 早已由既有 2 条 fixture 永久固化，用例总数维持 91**（见 `LEGACY_BEHAVIOR_CORRECTIONS.md` §LC-003、报告 §7.8 —— 该节原文曾误报为跨端差异，已撤回）；iOS 无报告                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 6   | Legacy Cutover             | **NOT_STARTED**（Cutover 条件未满足）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 
 ### 当前真实外部 blocker（只有这些）
 
@@ -274,13 +275,13 @@
 
 ### 本轮 Platform 复现（实测口径）
 
-| 平台     | 命令（可直接复制）                                                                                                                                                                                                                            | 结果                                             |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| Core     | `cd core && npm run check`                                                                                                                                                                                                                    | EXIT=0（453/453）                                |
-| UTS 三端 | `cd core && npm run check:uts`                                                                                                                                                                                                                | 15/15 PASS                                       |
+| 平台     | 命令（可直接复制）                                                                                                                                                                                                        | 结果                                             |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Core     | `cd core && npm run check`                                                                                                                                                                                                | EXIT=0（453/453）                                |
+| UTS 三端 | `cd core && npm run check:uts`                                                                                                                                                                                            | 15/15 PASS                                       |
 | Android  | `cd platforms/android && JAVA_HOME="<ANDROID_STUDIO_HOME>/jbr" ANDROID_HOME="<ANDROID_SDK_ROOT>" "<GRADLE_HOME>/bin/gradle.bat" --no-daemon assembleDebug assembleRelease collectArtifacts --rerun-tasks --console=plain` | BUILD SUCCESSFUL in 7m 50s；AAR 逐字节复现       |
-| Harmony  | 见 `docs/HARMONY_RELEASE_RUNBOOK.md`；本环境需用 Python 复刻 ASCII 镜像（`build.sh` 依赖 bash 工具）                                                                                                                                          | 见 `docs/HARMONY_BUILD_REPORT.md` + 本轮复现记录 |
-| iOS      | 不可执行（非 macOS）                                                                                                                                                                                                                          | `IOS_TOOLCHAIN_READY = BLOCKED (B3)`             |
+| Harmony  | 见 `docs/HARMONY_RELEASE_RUNBOOK.md`；本环境需用 Python 复刻 ASCII 镜像（`build.sh` 依赖 bash 工具）                                                                                                                      | 见 `docs/HARMONY_BUILD_REPORT.md` + 本轮复现记录 |
+| iOS      | 不可执行（非 macOS）                                                                                                                                                                                                      | `IOS_TOOLCHAIN_READY = BLOCKED (B3)`             |
 
 ### Git 故障与规避（本工作区特有，务必先读）
 
@@ -454,14 +455,14 @@ Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原�
 
 ### 本轮实测（本机，非声称）
 
-| 项                          | 命令                                                              | 结果                       |
-| --------------------------- | ----------------------------------------------------------------- | -------------------------- |
-| Legacy oracle 基线          | `cd core && npm test`                                              | **43 files / 453 tests PASS** |
-| Codegen Gate                | `node tools/codegen/generate.mjs --check`                           | **PASS**（3 端 generated） |
-| Oracle 自检                 | `core/scripts/generate-conformance.ts --verify`                    | **PASS（64 用例逐字节复现）** |
-| Android 领域层编译          | `gradle :core:compileKotlin`                                        | **BUILD SUCCESSFUL**       |
-| Android Conformance         | `gradle :conformance:run --args="<repo>"`                    | **pass=64 fail=0**         |
-| 跨端 Conformance Gate       | `node tools/conformance/run.mjs`                                    | **VERDICT: PASS**          |
+| 项                    | 命令                                            | 结果                          |
+| --------------------- | ----------------------------------------------- | ----------------------------- |
+| Legacy oracle 基线    | `cd core && npm test`                           | **43 files / 453 tests PASS** |
+| Codegen Gate          | `node tools/codegen/generate.mjs --check`       | **PASS**（3 端 generated）    |
+| Oracle 自检           | `core/scripts/generate-conformance.ts --verify` | **PASS（64 用例逐字节复现）** |
+| Android 领域层编译    | `gradle :core:compileKotlin`                    | **BUILD SUCCESSFUL**          |
+| Android Conformance   | `gradle :conformance:run --args="<repo>"`       | **pass=64 fail=0**            |
+| 跨端 Conformance Gate | `node tools/conformance/run.mjs`                | **VERDICT: PASS**             |
 
 ### 本轮产出（新增）
 
@@ -507,16 +508,16 @@ Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原�
 
 ### 本轮发现并**修复**的真实缺陷
 
-| 编号  | 缺陷                                                          | 处置                     |
-| ----- | ------------------------------------------------------------- | ------------------------ |
-| LC-001 | `csv-utf8-bom.csv` 实际不含 BOM（该测试路径从未真正覆盖）      | 记录；Native fixture 另用真实 BOM 文件 |
-| LC-002 | `csv-missing-required-column.csv` 并未缺失必需列（命名误导）   | 记录                     |
-| LC-003 | legacy UI 暴露 runtime registry 不承认的 `bound_to`（用户可选到会被拒绝） | **Canonical Spec 锁定 2 值** |
-| LC-004 | `relationLabel` 含不存在的 `wallet_binding`                    | 记录                     |
-| LC-005 | readiness 文案两处不一致                                        | 以 `copy-zh.json` 为准   |
-| FIX-6  | golden fixture 的 wrongPasswordOutcome 误用正确口令             | **已修**（错误口令 + 增补篡改场景） |
-| FIX-7  | JCS reject case 含 NaN（JSON 无法表达，必然假失败）              | **已修**（移除）          |
-| FIX-8  | conformance harness 从 manifest 读 expected（manifest 不含）    | **已修**（改读 fixture 本体） |
+| 编号   | 缺陷                                                                      | 处置                                   |
+| ------ | ------------------------------------------------------------------------- | -------------------------------------- |
+| LC-001 | `csv-utf8-bom.csv` 实际不含 BOM（该测试路径从未真正覆盖）                 | 记录；Native fixture 另用真实 BOM 文件 |
+| LC-002 | `csv-missing-required-column.csv` 并未缺失必需列（命名误导）              | 记录                                   |
+| LC-003 | legacy UI 暴露 runtime registry 不承认的 `bound_to`（用户可选到会被拒绝） | **Canonical Spec 锁定 2 值**           |
+| LC-004 | `relationLabel` 含不存在的 `wallet_binding`                               | 记录                                   |
+| LC-005 | readiness 文案两处不一致                                                  | 以 `copy-zh.json` 为准                 |
+| FIX-6  | golden fixture 的 wrongPasswordOutcome 误用正确口令                       | **已修**（错误口令 + 增补篡改场景）    |
+| FIX-7  | JCS reject case 含 NaN（JSON 无法表达，必然假失败）                       | **已修**（移除）                       |
+| FIX-8  | conformance harness 从 manifest 读 expected（manifest 不含）              | **已修**（改读 fixture 本体）          |
 
 ### 未做（诚实清单）
 
@@ -543,52 +544,52 @@ Android(Kotlin/Compose) / iOS(Swift/SwiftUI) / HarmonyOS(ArkTS/ArkUI) 三端原�
 
 ### 1. 构建链（本轮最大的隐性 blocker）
 
-| 项 | 发现 | 处置 |
-| --- | --- | --- |
-| Gradle Wrapper | `android/` **完全没有** `gradlew` / `gradlew.bat` / `gradle-wrapper.jar` / `gradle-wrapper.properties`；构建只靠绝对路径 `<GRADLE_HOME>/bin/gradle.bat` | 生成标准 Wrapper（Gradle 8.9，官方 `distributionUrl`），已提交 `68f506c` |
-| `android/local.properties` | 含机器 SDK 路径 | 保持 gitignore（`.gitignore:86`），**未提交**（已用 `git ls-files --error-unmatch` 验证 exit=1） |
-| `:conformance:run` 默认仓库根 | `rootProject.dir("../..")` 算错一级 → `<repo_parent>` → `FATAL: <repo_parent>/conformance\CONFORMANCE_MANIFEST.json not found` | 改为 `dir("..")` |
-| JVM 代理 | JVM 不读 `HTTP_PROXY` 环境变量，Wrapper 自举下载报 `Connection refused` | 用 `GRADLE_OPTS="-Dhttp.proxyHost=… -Dhttps.proxyPort=…"`（端口 10808 可通） |
+| 项                            | 发现                                                                                                                                                    | 处置                                                                                             |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Gradle Wrapper                | `android/` **完全没有** `gradlew` / `gradlew.bat` / `gradle-wrapper.jar` / `gradle-wrapper.properties`；构建只靠绝对路径 `<GRADLE_HOME>/bin/gradle.bat` | 生成标准 Wrapper（Gradle 8.9，官方 `distributionUrl`），已提交 `68f506c`                         |
+| `android/local.properties`    | 含机器 SDK 路径                                                                                                                                         | 保持 gitignore（`.gitignore:86`），**未提交**（已用 `git ls-files --error-unmatch` 验证 exit=1） |
+| `:conformance:run` 默认仓库根 | `rootProject.dir("../..")` 算错一级 → `<repo_parent>` → `FATAL: <repo_parent>/conformance\CONFORMANCE_MANIFEST.json not found`                          | 改为 `dir("..")`                                                                                 |
+| JVM 代理                      | JVM 不读 `HTTP_PROXY` 环境变量，Wrapper 自举下载报 `Connection refused`                                                                                 | 用 `GRADLE_OPTS="-Dhttp.proxyHost=… -Dhttps.proxyPort=…"`（端口 10808 可通）                     |
 
 `gradlew clean` / `assembleDebug` / `assembleDebugAndroidTest` / `:conformance:run` 全部 **BUILD SUCCESSFUL**。
 
 ### 2. 运行时实测（本机 AVD，非声称）
 
-| 项 | 命令 | 结果 |
-| --- | --- | --- |
-| Conformance | `./gradlew --no-daemon :conformance:run` | **pass=91 fail=0 notImplemented=0 total=91** |
-| 设备内 androidTest | `./gradlew --no-daemon :app:connectedDebugAndroidTest` | **19 / 19 PASS**（0 skipped / 0 failed） |
-| `:core` 纯 JVM 单测 | `./gradlew :core:test` | **NO-SOURCE（0 个）** —— 记为真实欠账，不粉饰 |
-| 真机 E2E | `local_private/e2e_drive.py`（串行单次干净运行） | 13 类步骤 PASS；业务写入链路等 NOT_RUN |
-| 性能 smoke | `PerfSmokeEvidenceTest` | `csvRowsParsed=10000`、`csvParseErrors=0`，强断言通过 |
-| logcat 隐私扫描 | PID/UID 归属扫描 | `appLines=44`，6 类敏感关键字命中 **全 0** |
+| 项                  | 命令                                                   | 结果                                                  |
+| ------------------- | ------------------------------------------------------ | ----------------------------------------------------- |
+| Conformance         | `./gradlew --no-daemon :conformance:run`               | **pass=91 fail=0 notImplemented=0 total=91**          |
+| 设备内 androidTest  | `./gradlew --no-daemon :app:connectedDebugAndroidTest` | **19 / 19 PASS**（0 skipped / 0 failed）              |
+| `:core` 纯 JVM 单测 | `./gradlew :core:test`                                 | **NO-SOURCE（0 个）** —— 记为真实欠账，不粉饰         |
+| 真机 E2E            | `local_private/e2e_drive.py`（串行单次干净运行）       | 13 类步骤 PASS；业务写入链路等 NOT_RUN                |
+| 性能 smoke          | `PerfSmokeEvidenceTest`                                | `csvRowsParsed=10000`、`csvParseErrors=0`，强断言通过 |
+| logcat 隐私扫描     | PID/UID 归属扫描                                       | `appLines=44`，6 类敏感关键字命中 **全 0**            |
 
 产物：`app-debug.apk` 36,794,370 B（SHA-256 `d84d8900…30879`）；
 `app-release.aab` 20,734,935 B（SHA-256 `f10cc60d…0f76c`，**未签名**）。
 
 ### 3. 本轮修掉的真实缺陷（8 项）
 
-| # | 类别 | 缺陷 | 修复 |
-| --- | --- | --- | --- |
-| 1 | 构建链 | `android/` 完全没有 Gradle Wrapper | 生成标准 Wrapper（Gradle 8.9） |
-| 2 | 构建链 | conformance 默认仓库根算错一级 | `../..` → `..` |
-| 3 | 运行时 | SQLCipher native 库未加载 → `UnsatisfiedLinkError` | `System.loadLibrary("sqlcipher")` |
-| 4 | 运行时 | Cursor 惰性视图越界 → `CursorIndexOutOfBoundsException` | 改用 `MaterializedRow` |
-| 5 | 运行时 | 查询不存在的列 `criticality` → `SQLiteException` | 从 `acceptProposal` 的 SELECT 中移除 |
-| 6 | **取证方法** | 性能 smoke 数据**无效**（`csvRowsParsed=0`） | 修正 `dateFormats` + 强断言 `assertEquals(10_000, rows)` |
-| 7 | **取证方法** | logcat 扫描把 Launcher3 的 `password:false` 系统字段误判为应用泄露 | 改 PID/UID 归属扫描 |
-| 8 | 运行时 | 单进程跑 19 个 androidTest 被 OOM kill（signal 9） | 按类分批 + 类间 `pm clear` / `logcat -c` |
+| #   | 类别         | 缺陷                                                               | 修复                                                     |
+| --- | ------------ | ------------------------------------------------------------------ | -------------------------------------------------------- |
+| 1   | 构建链       | `android/` 完全没有 Gradle Wrapper                                 | 生成标准 Wrapper（Gradle 8.9）                           |
+| 2   | 构建链       | conformance 默认仓库根算错一级                                     | `../..` → `..`                                           |
+| 3   | 运行时       | SQLCipher native 库未加载 → `UnsatisfiedLinkError`                 | `System.loadLibrary("sqlcipher")`                        |
+| 4   | 运行时       | Cursor 惰性视图越界 → `CursorIndexOutOfBoundsException`            | 改用 `MaterializedRow`                                   |
+| 5   | 运行时       | 查询不存在的列 `criticality` → `SQLiteException`                   | 从 `acceptProposal` 的 SELECT 中移除                     |
+| 6   | **取证方法** | 性能 smoke 数据**无效**（`csvRowsParsed=0`）                       | 修正 `dateFormats` + 强断言 `assertEquals(10_000, rows)` |
+| 7   | **取证方法** | logcat 扫描把 Launcher3 的 `password:false` 系统字段误判为应用泄露 | 改 PID/UID 归属扫描                                      |
+| 8   | 运行时       | 单进程跑 19 个 androidTest 被 OOM kill（signal 9）                 | 按类分批 + 类间 `pm clear` / `logcat -c`                 |
 
 > 第 6、7 项尤其值得记住：**上一轮报出的性能数字和"日志泄露"结论都是假的**，
 > 一个因为数据根本没解析进去，一个因为扫了别人的日志。旧数字已作废。
 
 ### 4. 三个判定（分别回答，不混为一谈）
 
-| 判定 | 结果 | 一句话理由 |
-| --- | --- | --- |
-| `N1_ANDROID_VERTICAL_SLICE` | **PARTIAL_WITH_REPORT** | 分层证据很硬（91 + 19 全绿），但核心链路 import→proposal→reality→impact→changeplan→verification **设备级一次都没跑通** |
-| `N2_ANDROID_FULL_PARITY` | **PARTIAL_WITH_REPORT** | **58 / 62**；截图保护 / App Lock / Biometric 属于"只有实现没有运行时证据" |
-| `ANDROID_PRODUCTION_RELEASE_READY` | **BLOCKED_BY_PRODUCTION_SIGNING** | 缺生产 keystore；且非生产签名流水线本轮**未生效**（产物与未签名版同 SHA-256） |
+| 判定                               | 结果                              | 一句话理由                                                                                                             |
+| ---------------------------------- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `N1_ANDROID_VERTICAL_SLICE`        | **PARTIAL_WITH_REPORT**           | 分层证据很硬（91 + 19 全绿），但核心链路 import→proposal→reality→impact→changeplan→verification **设备级一次都没跑通** |
+| `N2_ANDROID_FULL_PARITY`           | **PARTIAL_WITH_REPORT**           | **58 / 62**；截图保护 / App Lock / Biometric 属于"只有实现没有运行时证据"                                              |
+| `ANDROID_PRODUCTION_RELEASE_READY` | **BLOCKED_BY_PRODUCTION_SIGNING** | 缺生产 keystore；且非生产签名流水线本轮**未生效**（产物与未签名版同 SHA-256）                                          |
 
 **最终：判定 B —— 不进入 Harmony N3。**
 
@@ -666,13 +667,13 @@ J1 全新安装 → J2 导入（SAF 选真实 CSV）→ J3 候选 → J4 确认 
 
 ### P0-4 全回归
 
-| 项 | 结果 |
-|---|---|
-| `:core:test` | 71/71 PASS |
-| `:app:testDebugUnitTest` | **NO-SOURCE**（app 模块无 JVM 单测，如实记录） |
-| `:conformance:run` | **pass=91 fail=0 total=91** |
-| `:app:assembleDebug` | BUILD SUCCESSFUL（APK 见上） |
-| `:app:connectedDebugAndroidTest` | **19/19 PASS**（0 skipped） |
+| 项                               | 结果                                           |
+| -------------------------------- | ---------------------------------------------- |
+| `:core:test`                     | 71/71 PASS                                     |
+| `:app:testDebugUnitTest`         | **NO-SOURCE**（app 模块无 JVM 单测，如实记录） |
+| `:conformance:run`               | **pass=91 fail=0 total=91**                    |
+| `:app:assembleDebug`             | BUILD SUCCESSFUL（APK 见上）                   |
+| `:app:connectedDebugAndroidTest` | **19/19 PASS**（0 skipped）                    |
 
 ### P0-5 Git HEAD
 
@@ -727,14 +728,14 @@ URI grant 最小化（`ACTION_OPEN_DOCUMENT` + 只读 + 用完归还） ·
 
 ### 复验（全部实跑）
 
-| 项 | 结果 |
-| --- | --- |
-| `:core:test` | 71 / 71 |
-| `:conformance:run` | 91 / 91 |
-| `:app:testDebugUnitTest`（新增） | 9 / 9（`FileWorkflowStateTest`） |
-| `:app:connectedDebugAndroidTest`（4 批） | 51 / 51（含新增 `FileWorkflowD16Test` 6/6） |
-| E2E v4（`core-journey-v4-20260917-184856`） | **41 / 41 PASS / 0 FAIL** |
-| assembleDebug / assembleRelease / bundleRelease | 全部 BUILD SUCCESSFUL |
+| 项                                              | 结果                                        |
+| ----------------------------------------------- | ------------------------------------------- |
+| `:core:test`                                    | 71 / 71                                     |
+| `:conformance:run`                              | 91 / 91                                     |
+| `:app:testDebugUnitTest`（新增）                | 9 / 9（`FileWorkflowStateTest`）            |
+| `:app:connectedDebugAndroidTest`（4 批）        | 51 / 51（含新增 `FileWorkflowD16Test` 6/6） |
+| E2E v4（`core-journey-v4-20260917-184856`）     | **41 / 41 PASS / 0 FAIL**                   |
+| assembleDebug / assembleRelease / bundleRelease | 全部 BUILD SUCCESSFUL                       |
 
 parity：**56 / 73 → 62 / 73**；`N1 = PASS`；`N2 = PARTIAL_WITH_REPORT`。
 
@@ -751,14 +752,14 @@ parity：**56 / 73 → 62 / 73**；`N1 = PASS`；`N2 = PARTIAL_WITH_REPORT`。
 
 ### 未跟踪项逐项判定（Git 收口）
 
-| 项 | 判定 | 理由 |
-| --- | --- | --- |
-| `android/app/src/main/.../workflow/*.kt`（3 个） | **入库** | D-16 产品源码 |
-| `android/app/src/androidTest/.../FileWorkflowD16Test.kt` | **入库** | D-16 设备取证 |
-| `android/app/src/test/.../FileWorkflowStateTest.kt` | **入库** | D-16 JVM 单测 |
+| 项                                                        | 判定       | 理由                                                                |
+| --------------------------------------------------------- | ---------- | ------------------------------------------------------------------- |
+| `android/app/src/main/.../workflow/*.kt`（3 个）          | **入库**   | D-16 产品源码                                                       |
+| `android/app/src/androidTest/.../FileWorkflowD16Test.kt`  | **入库**   | D-16 设备取证                                                       |
+| `android/app/src/test/.../FileWorkflowStateTest.kt`       | **入库**   | D-16 JVM 单测                                                       |
 | `harmony/entry/src/main/ets/generated/CanonicalEnums.ets` | **不入库** | N3 未开始（stop condition 明确不进入）；本机无 Harmony 工具链可验证 |
-| `ios/Sources/PDIGCore/Generated/CanonicalEnums.swift` | **不入库** | N4 `BLOCKED_BY_MACOS`，本机无法编译验证，入库等于声称已验证 |
-| `legacy/README.md` | **不入库** | LEGACY_REFERENCE，与本轮范围无关；历史多轮均保持未跟踪 |
+| `ios/Sources/PDIGCore/Generated/CanonicalEnums.swift`     | **不入库** | N4 `BLOCKED_BY_MACOS`，本机无法编译验证，入库等于声称已验证         |
+| `legacy/README.md`                                        | **不入库** | LEGACY_REFERENCE，与本轮范围无关；历史多轮均保持未跟踪              |
 
 ### 停止条件
 
@@ -771,20 +772,20 @@ D-16 关闭 + 全回归 + parity 重算 + Git 收口均已完成，**到此停�
 
 ### PART A：发布与 CI
 
-| 项 | 结果 |
-| --- | --- |
-| 历史净化门禁 | **全 PASS**（`SECRET/PRIVATE_KEY/TOKEN/RAW_FINANCIAL/PERSONAL_PATH_IN_HISTORY` 均为 NO；1,259 个可达 blob 复扫残留 **0**；`REACHABLE_OLD_SHA_COUNT=0`） |
-| 首次 push | **完成**，PRIVATE，5 分支 + 3 标签，**无 force** |
-| 二次 / 三次 push | 均快进：`443bd7e9..d9e5319`、`d9e5319..0b38bd40`、`0b38bd4..42b59a1` |
-| `GITHUB_CI` | **PASS**（第三次运行 `35303432883`：两个 job 全绿） |
+| 项               | 结果                                                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 历史净化门禁     | **全 PASS**（`SECRET/PRIVATE_KEY/TOKEN/RAW_FINANCIAL/PERSONAL_PATH_IN_HISTORY` 均为 NO；1,259 个可达 blob 复扫残留 **0**；`REACHABLE_OLD_SHA_COUNT=0`） |
+| 首次 push        | **完成**，PRIVATE，5 分支 + 3 标签，**无 force**                                                                                                        |
+| 二次 / 三次 push | 均快进：`443bd7e9..d9e5319`、`d9e5319..0b38bd40`、`0b38bd4..42b59a1`                                                                                    |
+| `GITHUB_CI`      | **PASS**（第三次运行 `35303432883`：两个 job 全绿）                                                                                                     |
 
 **首次 CI 暴露的两个真实仓库缺陷（均已修复并远真复验）**
 
-| 缺陷 | 根因 | 处置 |
-| --- | --- | --- |
-| `fixtures/coverage/` 6 个用例被忽略 | `.gitignore` 的 `coverage/` 匹配**任意层级**同名目录 | 增加 `!fixtures/coverage/`；6 个用例入库 |
-| `csv-crlf.csv` 的 CRLF 被归一化 | `.gitattributes` 的 `* text=auto eol=lf` 动了被测语义本身 | `fixtures/import/*`、`fixtures/coverage/*` 加 `-text` |
-| Android job `Setup Android SDK` 失败 | `:core`/`:conformance` 是**纯 JVM 模块**，本不需要 SDK | 改为 JDK 21 + `--configure-on-demand` |
+| 缺陷                                 | 根因                                                      | 处置                                                  |
+| ------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------- |
+| `fixtures/coverage/` 6 个用例被忽略  | `.gitignore` 的 `coverage/` 匹配**任意层级**同名目录      | 增加 `!fixtures/coverage/`；6 个用例入库              |
+| `csv-crlf.csv` 的 CRLF 被归一化      | `.gitattributes` 的 `* text=auto eol=lf` 动了被测语义本身 | `fixtures/import/*`、`fixtures/coverage/*` 加 `-text` |
+| Android job `Setup Android SDK` 失败 | `:core`/`:conformance` 是**纯 JVM 模块**，本不需要 SDK    | 改为 JDK 21 + `--configure-on-demand`                 |
 
 **既有 fixture 缺陷的定因（推翻"清单过期"的粗判，给出机制）**
 
@@ -828,14 +829,14 @@ arm64 必须用可移植的 `ref.c`；漏掉会直接 `undefined reference to 'f
 
 结论与证据见 `HARMONY_CONTAINER_V1_POC.md`。要点：
 
-| 项 | 结果 |
-| --- | --- |
+| 项                             | 结果                                                                                           |
+| ------------------------------ | ---------------------------------------------------------------------------------------------- |
 | Harmony AES-256-GCM + AAD 能力 | **具备**（`GcmParamsSpec{iv,aad,authTag}`，tag 由 `doFinalSync` 取、解密时经 `initSync` 传入） |
-| 主机侧黄金校验 | **5/5 PASS**（`tools/harmony/verify-container-golden.mjs`，仅用 `node:crypto`） |
-| ArkTS 实现 | `Jcs.ets` / `DepmapContainerV1.ets` / `ContainerSelfCheck.ets` |
-| ArkTS 编译 | **COMPILED**（真实编译，非假信号，见下） |
-| 运行时 | **NOT_RUN**（无设备） |
-| `.depmap` 协议 | **未改动** |
+| 主机侧黄金校验                 | **5/5 PASS**（`tools/harmony/verify-container-golden.mjs`，仅用 `node:crypto`）                |
+| ArkTS 实现                     | `Jcs.ets` / `DepmapContainerV1.ets` / `ContainerSelfCheck.ets`                                 |
+| ArkTS 编译                     | **COMPILED**（真实编译，非假信号，见下）                                                       |
+| 运行时                         | **NOT_RUN**（无设备）                                                                          |
+| `.depmap` 协议                 | **未改动**                                                                                     |
 
 ### 本轮抓到的最严重问题：编译门曾是假信号
 
@@ -863,10 +864,10 @@ arm64 必须用可移植的 `ref.c`；漏掉会直接 `undefined reference to 'f
 
 ### 本轮顺手修掉的工具缺陷
 
-| 缺陷 | 处置 |
-| --- | --- |
-| `build-ascii-mirror.mjs --clean` 只在注释里存在，代码从未实现 → 想做干净构建的人拿到的是增量假绿 | 补上真实实现（构建前 `rmSync` 镜像目录） |
-| 符号取证脚本只存在于 `.workbuddy/`（不受版本控制） | 固化为 `tools/harmony/probe-abc-symbols.mjs` |
+| 缺陷                                                                                             | 处置                                         |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------- |
+| `build-ascii-mirror.mjs --clean` 只在注释里存在，代码从未实现 → 想做干净构建的人拿到的是增量假绿 | 补上真实实现（构建前 `rmSync` 镜像目录）     |
+| 符号取证脚本只存在于 `.workbuddy/`（不受版本控制）                                               | 固化为 `tools/harmony/probe-abc-symbols.mjs` |
 
 ### 新增产物
 
@@ -935,16 +936,16 @@ runner 若不被 `pages/Index.ets` 引用，就是上一轮已经踩过的坑：
 
 ### 落地结果（实跑，非声称）
 
-| 项 | 结果 |
-| --- | --- |
-| 新增文件 | `conformance/JsonText.ets`(590) · `HarnessFs.ets`(135) · `ConformanceRunner.ets`(**1189**) · `ConformanceSelfCheck.ets`(117) |
-| 接线 | `pages/Index.ets` 增 `conformanceProbe`；可达链 `Index → ConformanceSelfCheck → ConformanceRunner → {JsonText, HarnessFs, 9 个 Domain 模块}` |
-| 门禁登记 | `check-compiled-reachability.mjs` 的 `REQUIRED_MODULES` **18 → 22**（+JsonText/HarnessFs/ConformanceRunner/ConformanceSelfCheck） |
-| 编译 | `--clean assembleHap` → **BUILD SUCCESSFUL in 15 s 350 ms**（EXIT=0） |
-| `modules.abc` | 243,556 B / 23 个模块声明；4 个 conformance 模块**全部在内**；`runConformance`/`computeCase`/`runImpactSingle`/`locateConformanceRoot`/`conformanceSummaryLine` 等逐个可查 |
-| 可达性门禁 | **22/22 required**，A + B + C + D 四判据 **全部 PASS**；24 模块 0 孤儿 |
-| 负向探针 | `--probe-module ConformanceRunner`：注入类型错误后构建**真的失败**（7 类错误，`COMPILE RESULT:FAIL`）→ 证明它确实在编译图内；探针残留已清零（`grep __pdiTypeProbe` 无命中） |
-| `HARMONY_CONFORMANCE` | **NOT_RUN**（**执行计数仍 pass=0**，一次都没在设备上跑过） |
+| 项                    | 结果                                                                                                                                                                        |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 新增文件              | `conformance/JsonText.ets`(590) · `HarnessFs.ets`(135) · `ConformanceRunner.ets`(**1189**) · `ConformanceSelfCheck.ets`(117)                                                |
+| 接线                  | `pages/Index.ets` 增 `conformanceProbe`；可达链 `Index → ConformanceSelfCheck → ConformanceRunner → {JsonText, HarnessFs, 9 个 Domain 模块}`                                |
+| 门禁登记              | `check-compiled-reachability.mjs` 的 `REQUIRED_MODULES` **18 → 22**（+JsonText/HarnessFs/ConformanceRunner/ConformanceSelfCheck）                                           |
+| 编译                  | `--clean assembleHap` → **BUILD SUCCESSFUL in 15 s 350 ms**（EXIT=0）                                                                                                       |
+| `modules.abc`         | 243,556 B / 23 个模块声明；4 个 conformance 模块**全部在内**；`runConformance`/`computeCase`/`runImpactSingle`/`locateConformanceRoot`/`conformanceSummaryLine` 等逐个可查  |
+| 可达性门禁            | **22/22 required**，A + B + C + D 四判据 **全部 PASS**；24 模块 0 孤儿                                                                                                      |
+| 负向探针              | `--probe-module ConformanceRunner`：注入类型错误后构建**真的失败**（7 类错误，`COMPILE RESULT:FAIL`）→ 证明它确实在编译图内；探针残留已清零（`grep __pdiTypeProbe` 无命中） |
+| `HARMONY_CONFORMANCE` | **NOT_RUN**（**执行计数仍 pass=0**，一次都没在设备上跑过）                                                                                                                  |
 
 **本轮最重要的一条证据链**（值得单独记住）：
 
@@ -966,13 +967,13 @@ runner 若不被 `pages/Index.ets` 引用，就是上一轮已经踩过的坑：
 
 ### 结论（实跑，非声称）
 
-| 项 | 结果 |
-| --- | --- |
-| host 测试 | **89/89**（85 canonical + 3 条 conformance 元测试 + 1 条 domain 自检），fail=0 error=0 |
-| canonical 账目 | **85/91** = 85 已执行 + 0 未移植 + 2 环境缺失 + 4 设备运行时 |
-| `HARMONY_CONFORMANCE_HOST` | **PASS** |
-| `HARMONY_COMPILE_REACHABILITY` | **PASS**（A 可达 + B clean build + C modules.abc + D 负向探针） |
-| `CODEGEN GATE` | PASS |
+| 项                             | 结果                                                                                   |
+| ------------------------------ | -------------------------------------------------------------------------------------- |
+| host 测试                      | **89/89**（85 canonical + 3 条 conformance 元测试 + 1 条 domain 自检），fail=0 error=0 |
+| canonical 账目                 | **85/91** = 85 已执行 + 0 未移植 + 2 环境缺失 + 4 设备运行时                           |
+| `HARMONY_CONFORMANCE_HOST`     | **PASS**                                                                               |
+| `HARMONY_COMPILE_REACHABILITY` | **PASS**（A 可达 + B clean build + C modules.abc + D 负向探针）                        |
+| `CODEGEN GATE`                 | PASS                                                                                   |
 
 ### 做了什么
 
@@ -1014,12 +1015,12 @@ Base64 末尾 2 个有效字符 + `==` 仍编码 1 个真实字节，3 个有效
 
 ### 账目迁移（分母 91 全程未变）
 
-| 阶段 | 已执行 | 未移植 | 环境缺失 | 设备运行时 |
-| --- | --- | --- | --- | --- |
-| N3 基线（按类一刀切） | 57 | — | — | 28（整类） |
-| 逐条重新定性后 | 63 | 20 | 2 | 4 |
-| state-machine + timeline 落地后 | 65 | 20 | 2 | 4 |
-| **本轮（ArkTS parser 落地）** | **85** | **0** | **2** | **4** |
+| 阶段                            | 已执行 | 未移植 | 环境缺失 | 设备运行时 |
+| ------------------------------- | ------ | ------ | -------- | ---------- |
+| N3 基线（按类一刀切）           | 57     | —      | —        | 28（整类） |
+| 逐条重新定性后                  | 63     | 20     | 2        | 4          |
+| state-machine + timeline 落地后 | 65     | 20     | 2        | 4          |
+| **本轮（ArkTS parser 落地）**   | **85** | **0**  | **2**    | **4**      |
 
 `HOST_IMPL_MISSING_CASES` 保留为**空数组**而非删除分支 —— 下次有人往回塞一条
 必须写明理由。
@@ -1051,23 +1052,23 @@ Base64 末尾 2 个有效字符 + `==` 仍编码 1 个真实字节，3 个有效
 
 ### 1. Fresh clone 与 git 完整性
 
-| 项 | 值 |
-| --- | --- |
-| clone 目录 | `C:/Users/Kaiser/pdig-fresh-clone`（ASCII-only，全新，无旧 `.git` / objects / index 复用） |
-| checkout | `feat/mvp03-living-graph` |
-| `git rev-parse HEAD` | `c8ad43f29270251475e6aca489d508f69d2dde75` ✓ |
-| `git status --short` | 空 ✓ |
-| `git fsck --full` | exit 0，无任何输出 ✓ → **FRESH_CLONE_GIT_FSCK = PASS** |
+| 项                   | 值                                                                                         |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| clone 目录           | `C:/Users/Kaiser/pdig-fresh-clone`（ASCII-only，全新，无旧 `.git` / objects / index 复用） |
+| checkout             | `feat/mvp03-living-graph`                                                                  |
+| `git rev-parse HEAD` | `c8ad43f29270251475e6aca489d508f69d2dde75` ✓                                               |
+| `git status --short` | 空 ✓                                                                                       |
+| `git fsck --full`    | exit 0，无任何输出 ✓ → **FRESH_CLONE_GIT_FSCK = PASS**                                     |
 
 ### 2. Portable gates（在 fresh clone 内实跑）
 
-| gate | 结果 |
-| --- | --- |
-| `tools/codegen/generate.mjs --check` | **PASS**（4 个 generated 文件一致） |
-| fixture integrity | **91/91** + imports **28/28** |
-| oracle selfcheck | **PASS**（91 cases reproduce exactly） |
-| `embed-import-files.mjs --check` | **PASS 28/28** |
-| `embed-fixtures.mjs --check` | **PASS**（91 fixtures 无漂移） |
+| gate                                    | 结果                                         |
+| --------------------------------------- | -------------------------------------------- |
+| `tools/codegen/generate.mjs --check`    | **PASS**（4 个 generated 文件一致）          |
+| fixture integrity                       | **91/91** + imports **28/28**                |
+| oracle selfcheck                        | **PASS**（91 cases reproduce exactly）       |
+| `embed-import-files.mjs --check`        | **PASS 28/28**                               |
+| `embed-fixtures.mjs --check`            | **PASS**（91 fixtures 无漂移）               |
 | Android `:core:test + :conformance:run` | **pass=91 fail=0 notImplemented=0 total=91** |
 
 → **FRESH_CLONE_PORTABLE_GATES = PASS**
@@ -1137,11 +1138,11 @@ FRESH_CLONE_COMPILE_REACHABILITY  = PASS
 
 run **35415381696**（head `c8ad43f2`，手工 `workflow_dispatch` 触发）：
 
-| job | 结论 |
-| --- | --- |
-| Android core (JVM tests + conformance) | success（91/91） |
-| Harmony static (no SDK, no device) | success |
-| Canonical (codegen / fixtures / oracle) | success |
+| job                                     | 结论             |
+| --------------------------------------- | ---------------- |
+| Android core (JVM tests + conformance)  | success（91/91） |
+| Harmony static (no SDK, no device)      | success          |
+| Canonical (codegen / fixtures / oracle) | success          |
 
 `SUMMARY.json`：codegen PASS / fixtureIntegrity PASS（91+28）/ oracleSelfcheck PASS /
 android PASS 91/0/91 / harmony **NOT_RUN** / ios NOT_RUN / verdict PASS。
@@ -1203,11 +1204,11 @@ Harmony 尚未完成 Runtime Closure —— 下一阶段才是 **HARMONY RUNTIME
 
 两条 `parser-*-gb18030` 此前记 ENV_BLOCKED。本轮以**可复现证据**闭合：
 
-| 环节 | 实现 | 结果 |
-| --- | --- | --- |
-| 表生成 | Node ICU `TextDecoder('gb18030', {fatal:true})` | 双字节 23940 全定义；BMP 四字节 50400 槽（有效 39420 / 209 游程）；增补平面复验 7656 条 |
-| 独立验算 | CPython `gb18030` codec（`tools/encoding/crosscheck-gb18030.py`） | mismatch = 0 → `GB18030_CROSSCHECK = PASS` |
-| 分歧仲裁 | JDK `Charset.forName("GB18030")`（Android 冻结口径） | 21 个分歧码位，JAVA 同意 ICU 20 / 同意 CPython 1 / 都不 0；仅 `A3A0` 采用 override `U+E5E5` |
+| 环节     | 实现                                                              | 结果                                                                                        |
+| -------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 表生成   | Node ICU `TextDecoder('gb18030', {fatal:true})`                   | 双字节 23940 全定义；BMP 四字节 50400 槽（有效 39420 / 209 游程）；增补平面复验 7656 条     |
+| 独立验算 | CPython `gb18030` codec（`tools/encoding/crosscheck-gb18030.py`） | mismatch = 0 → `GB18030_CROSSCHECK = PASS`                                                  |
+| 分歧仲裁 | JDK `Charset.forName("GB18030")`（Android 冻结口径）              | 21 个分歧码位，JAVA 同意 ICU 20 / 同意 CPython 1 / 都不 0；仅 `A3A0` 采用 override `U+E5E5` |
 
 产物：`tools/encoding/gb18030-divergences.json`（21 条逐条记录）、
 `Gb18030Table.ets` / `Gb18030Table.swift`（生成物，未手抄）。
@@ -1276,11 +1277,11 @@ Equatable 合成条件 —— 全部修在生成器 `tools/codegen/generate.mjs`
 三份报告各自独立产生，差分工具 `tools/conformance/diff-reports.mjs` 只做比对、
 **不重算任何用例**：
 
-| 平台 | 报告 | 产生方式 | 结果 |
-| --- | --- | --- | --- |
+| 平台    | 报告                               | 产生方式                                                                        | 结果                                       |
+| ------- | ---------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------ |
 | android | `conformance/reports/android.json` | `JAVA_HOME="D:/Code/Android Studio/jbr" ./gradlew --no-daemon :conformance:run` | `pass=91 fail=0 notImplemented=0 total=91` |
-| harmony | `conformance/reports/harmony.json` | 真 ArkTS 运行时（hvigor 本地单测） | `executed=87 pass=87 fail=0` |
-| ios | `conformance/reports/ios.json` | macOS runner `swift test`（run 35427846349，head `61fb69d`） | `91/91` |
+| harmony | `conformance/reports/harmony.json` | 真 ArkTS 运行时（hvigor 本地单测）                                              | `executed=87 pass=87 fail=0`               |
+| ios     | `conformance/reports/ios.json`     | macOS runner `swift test`（run 35427846349，head `61fb69d`）                    | `91/91`                                    |
 
 ```
 CROSS_PLATFORM_VERDICT_MATRIX     = PASS   （0 条判定分歧）
@@ -1319,7 +1320,7 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 
 > 安卓端和 web(core) 端复验细节见 `VERIFICATION_ANDROID_WEB_2026-09-19.md`。
 > 复验同时修掉 3 个真缺陷：
-> 1) `scripts/generate-conformance.ts` 编译失败（WeChatStatementAdapter 缺 driver + any 扩散）；
-> 2) `scripts/check-secrets.mjs` 误报 `spec/ui/design-tokens.json`；
-> 3) `tests/integration/multi-source-e2e.test.ts` K6 在并发 perf 饱和下默认 5s flaky。
-
+>
+> 1. `scripts/generate-conformance.ts` 编译失败（WeChatStatementAdapter 缺 driver + any 扩散）；
+> 2. `scripts/check-secrets.mjs` 误报 `spec/ui/design-tokens.json`；
+> 3. `tests/integration/multi-source-e2e.test.ts` K6 在并发 perf 饱和下默认 5s flaky。
