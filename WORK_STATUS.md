@@ -96,6 +96,17 @@
 
 ## Current
 
+- **v0.1.1 质量迭代轮（2026-09-24）**：共享发现引擎 + 桌面验证补全 + 代码卫生。
+  - 引擎：`DiscoveryRepository`（:repos）在 `commitImport` 内生成/累计 DiscoveryCandidate /
+    RealityDrift（Android/Desktop 共用）；宁可漏报、机器不自动确认、不 bump revision；
+    Desktop smoke 与 Android 仪器化证据链全绿（引擎单测 8 条 + smoke 2 步 + androidTest 1 条）。
+  - Desktop 验证：默认 1100×720、1280×720、1920×1080、最大化/恢复、最小 420×320、
+    键盘 Tab/Shift+Tab/Enter/Escape、高 DPI（120%）缩放全部真实执行，截图+日志证据；
+    唯一登记限制：Compose Desktop UIA 暴露有限。
+  - 代码卫生：2 处 Kotlin 死条件警告消除；slf4j-nop 静默 sqlite-jdbc 噪音；
+    遗留清单 #1（Android 平台绑定结论）与 #3（发现生成）关闭。
+  - 版本：Android Preview versionCode 200002 / 0.1.1；Desktop PDIG 0.1.1。
+
 - **v0.1.0 Developer Preview 轮（2026-09-24）**：全仓工程治理复核收尾 + Windows Desktop + Android GitHub Preview
   **已发布**（GitHub Pre-release `product-v0.1.0`，详见 `PRODUCT_V0_1_0_RELEASE_MANIFEST.md`）。
   - 复核结论（本地真实运行）：Quality Gate PASS（10 counter 全 0）；`:conformance:run` 91/91；`:core:test` 71/71；

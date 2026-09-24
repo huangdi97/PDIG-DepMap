@@ -92,3 +92,32 @@ Observation != Reality，Proposal != Reality，done != verified
 
 0.1.0 发布后**停止**；后续方向由用户选择：0.1.x 质量迭代、Android Play Production、
 Harmony N3 恢复、或真实数据 Pilot。
+
+---
+
+# PDIG 0.1.1 Developer Preview — 增量更新（2026-09-24）
+
+> 本轮为 0.1.x 质量迭代收口：功能性收尾（共享发现引擎）+ 桌面验证补全 + 代码卫生。
+
+## What's new in 0.1.1
+
+- **共享 Candidate / Drift 生成引擎（`DiscoveryRepository`，:repos）**：Android 与
+  Desktop 对导入数据产生一致的 DiscoveryCandidate / RealityDrift（同一份代码）。
+  规则严格保守（宁可漏报）：只接受支出型正证据；<2 条观测不新建；已确认来源忽略；
+  dismiss 后需 ≥2 条新观测才回到 pending；机器**永不**自动 accept / resolve /
+  设置 required / bump revision。用户仍通过 Review 屏幕做最终确认。
+- **Desktop 验证补全**：窗口默认 1100×720、1280×720、1920×1080、最大化/恢复、
+  最小 420×320、键盘 Tab / Shift+Tab / Enter / Escape、高 DPI 缩放 —— 全部真实执行
+  （截图 + 日志证据见发布收口报告）；未发现需要修复的布局缺陷。
+- **代码卫生**：消除 2 处 Kotlin 死条件警告；sqlite-jdbc 的 SLF4J 噪音以 slf4j-nop 静默；
+  遗留清单 #1（BackupRepository MediaStore 为 Android 平台绑定，确认非缺口）与
+  #3（发现生成）关闭。
+- 版本：Android Preview `versionCode 200002` / `versionName 0.1.1`；Desktop
+  `PDIG 0.1.1 …`（installer / portable）。
+
+## 已知限制（在 0.1.0 基础上新增）
+
+- **Compose Desktop 的 Windows UI Automation 暴露有限**（窗口级 1 个元素）；
+  无障碍（label/focus）以键盘导航可用性为准，暂不宣称完整屏幕阅读器支持。
+- 其余与 0.1.0 相同：Play 未上架、非生产测试签名、Windows 未签名（SmartScreen）、
+  无真人/真实账单验证、CI 外部阻断（E-10）、Harmony/iOS 不在本版本。

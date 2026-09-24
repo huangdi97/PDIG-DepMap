@@ -227,8 +227,6 @@ class DiscoveryRepository(private val driver: SqliteDriver) {
          WHERE to_node = ? AND relation = 'funding_source' AND capability = 'payment' AND state = 'active'
         """.trimIndent(),
     ).all(serviceId).mapNotNull { it.str("id") }
-
-
     private fun accumulateDrift(existing: SqlRow, refs: List<String>, now: String) {
         val existingRefs = parseRefs(existing.str("evidence_refs_json"))
         val newRefs = refs.filterNot { it in existingRefs }
@@ -276,17 +274,14 @@ class DiscoveryRepository(private val driver: SqliteDriver) {
     }
 
     // ------------------------------------------------------------ helpers
-
     private fun driftKey(instrumentId: String, serviceId: String): String = "$instrumentId|$serviceId"
 
     /** 归一化 merchant：trim + 小写 + 折叠连续空白；确定性，跨导入稳定。 */
     private fun normalizeLabel(raw: String): String =
         raw.trim().lowercase().replace(Regex("\\s+"), " ")
-
     /** 本次导入内该组观察的去重 evidence ref（DR-05：fingerprint 级去重）。 */
     private fun evidenceRefs(obs: List<Observation>, adapterId: String): List<String> =
         obs.map { "fp:" + observationFingerprint(adapterId, it) }.distinct()
-
     private fun refsJson(refs: List<String>): Json.Arr = Json.Arr(refs.map { Json.Str(it) })
 
     private fun parseRefs(json: String?): List<String> {
@@ -298,7 +293,6 @@ class DiscoveryRepository(private val driver: SqliteDriver) {
             emptyList()
         }
     }
-
     /** 合并去重 + 上限截断（DR-05/DR-06：provenance 引用合并不复制内容）。 */
     private fun mergeRefs(existing: List<String>, incoming: List<String>): List<String> =
         (existing + incoming).distinct().take(MAX_EVIDENCE_REFS)

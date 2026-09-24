@@ -118,6 +118,7 @@ Backup、Restore、Settings、Security、About、Gate（App Lock）。
 
 ## 9. 验收证据（引用）
 
+
 - Desktop JVM 测试：`desktop/app/src/test`（DesktopSessionTest / DepmapFileStoreTest 等）全绿。
 - Headless runtime smoke：`:app:run --args="--smoke"` → `VERDICT: PASS`，
   覆盖 fresh launch / create-open / import / proposal / candidate / drift /
@@ -130,4 +131,21 @@ Backup、Restore、Settings、Security、About、Gate（App Lock）。
   发现的语义问题单独登记（`BLOCKERS.md` / 审计报告），不就地改协议。
 - 不得降低安全要求（明文持久化 / debug APK 冒充 Preview / synthetic 冒充真实验证）。
 - 不得新建第二套 Domain 语义。
+
+## 11. 0.1.1 增补：共享发现引擎（DiscoveryRepository）
+
+- `android/repos/.../DiscoveryRepository.kt`：Android 与 Desktop **共用**的
+  DiscoveryCandidate / RealityDrift 保守生成/累计引擎，在 `commitImport` 事务内运行。
+- 规则（spec §9–§10 + invariants DR-01..09 / PC-01..06）：只接受支出型正证据；
+  <2 观测不新建；已确认来源忽略；同 key 单一 open 行累计；跨导入 evidence 去重；
+  dismiss 后 ≥2 条新观测才回到 pending；accepted/superseded 不再打扰。
+- SAFETY：引擎不引用 GraphRepository → 结构上不可能 bump revision；只写
+  `discovery_candidates` / `reality_drifts`；机器不自动 accept / resolve / set required。
+- 证据链：Desktop smoke（engine-generates-candidate-from-import /
+  engine-generates-drift-never-auto-resolves）+ Android 仪器化
+  （importGeneratesCandidateAndDrift_conservatively_noAutoResolve）全绿。
+- Desktop 窗口/键盘/无障碍验证（v0.1.1）：默认 1100×720、1280×720、1920×1080、
+  最大化/恢复、最小 420×320、键盘 Tab/Shift+Tab/Enter/Escape 无崩溃；
+  高 DPI（系统 120%）窗口按逻辑尺寸正确缩放；截图 + 日志证据在发布收口报告。
+  Compose Desktop 的 UIA 只暴露窗口级元素（已登记为已知限制）。
 - Desktop v0.1.0 是 Developer Preview，不是 Stable Production。
