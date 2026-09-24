@@ -88,11 +88,17 @@
 - 产物：Windows x64 installer + portable zip、Android preview APK（versionCode 200001 / 0.1.0 /
   `com.pdig.app.preview`），Release 相关文档见 `PRODUCT_V0_1_0_RELEASE_MANIFEST.md`。
 
-## 遗留清单（不做 ≠ 掩盖）
+## 遗留清单（不做 ≠ 掩盖；0.1.1 轮复核）
 
-1. `BackupRepository` 的 MediaStore 部分未提取共享层（见 GLOBAL_ARCHITECTURE_AUDIT §7.1）；
+1. ~~`BackupRepository` 的 MediaStore 部分未提取共享层~~ → **CLOSED（0.1.1）**：
+   `BackupRepository` 位于 android/:app，强绑定 `android.provider.MediaStore` /
+   `ContentResolver` / `Context`（scoped-storage 导出）；提取进纯 JVM `:repos` 会把
+   Android 平台 API 拉进共享层，违反 :repos 约束。Desktop 使用自有文件层
+   （`DepmapFileStore.backupCopy`），两端职责分离是有意设计，非缺口。
 2. `Route.GRAPH` 维持“非首页”（产品口径，D-条款）；
-3. Desktop 未实现 candidate/drift 生成 pipeline（与 Android 对齐，消费既有数据；生成留给统一发现管线，FUTURE.md）；
+3. ~~Desktop 未实现 candidate/drift 生成 pipeline~~ → **CLOSED（0.1.1）**：
+   共享生成引擎 `DiscoveryRepository`（:repos）已实现并在 Android/Desktop 导入流程
+   接线；smoke + 仪器化证据链全绿（见 commit `feat(discovery)`）。
 4. conformance Runner 的失败路径异常类型变更（R4/R7）属可接受的 harness 级行为。
 
 ## 结论
