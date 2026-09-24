@@ -7,6 +7,7 @@
 # Reproducible inputs: repo source at current HEAD; outputs only to ASCII paths.
 param(
     [Parameter(Mandatory = $true)][string]$OutDir,
+    [string]$Version = "0.1.0",
     [string]$BuildRoot = "",
     [switch]$SkipGradle
 )
@@ -46,7 +47,7 @@ Write-Host "[3/5] jpackage app-image..."
     --main-jar $MainJar.Name `
     --main-class com.pdig.desktop.MainKt `
     --name PDIG `
-    --app-version 0.1.0 `
+    --app-version $Version `
     --vendor PDIG `
     --dest $AsciiOut
 if ($LASTEXITCODE -ne 0) { throw "jpackage failed (exit $LASTEXITCODE)" }
@@ -55,7 +56,7 @@ $Launcher = Join-Path $AppDir "PDIG.exe"
 if (-not (Test-Path $Launcher)) { throw "app-image launcher missing: $Launcher" }
 
 Write-Host "[4/5] portable zip..."
-$PortableZip = Join-Path $OutDir "PDIG-0.1.0-windows-x64-portable.zip"
+$PortableZip = Join-Path $OutDir "PDIG-$Version-windows-x64-portable.zip"
 if (Test-Path $PortableZip) { Remove-Item -Force $PortableZip }
 # Zip the PDIG folder itself so extraction yields PDIG/PDIG.exe at the zip root.
 Compress-Archive -Path $AppDir -DestinationPath $PortableZip -CompressionLevel Optimal
@@ -63,12 +64,12 @@ Compress-Archive -Path $AppDir -DestinationPath $PortableZip -CompressionLevel O
 Write-Host "[5/5] NSIS installer..."
 $Nsi = Join-Path $AsciiOut "PDIG-installer.nsi"
 $NsiBody = @"
-; PDIG 0.1.0 Developer Preview installer (unsigned; SmartScreen warning expected).
+; PDIG $Version Developer Preview installer (unsigned; SmartScreen warning expected).
 !define APPNAME "PDIG"
-!define APPVERSION "0.1.0"
+!define APPVERSION "$Version"
 !define SRCDIR "$AppDir"
 Name "PDIG $APPVERSION"
-OutFile "$(Join-Path $OutDir 'PDIG-0.1.0-windows-x64-setup.exe')"
+OutFile "$(Join-Path $OutDir ('PDIG-' + $Version + '-windows-x64-setup.exe'))"
 InstallDir "`$LOCALAPPDATA\Programs\PDIG"
 RequestExecutionLevel user
 Unicode true
@@ -99,7 +100,7 @@ if (-not (Test-Path $MakeNsis)) { throw "makensis not found: $MakeNsis" }
 & $MakeNsis $Nsi
 if ($LASTEXITCODE -ne 0) { throw "makensis failed (exit $LASTEXITCODE)" }
 
-$Setup = Join-Path $OutDir "PDIG-0.1.0-windows-x64-setup.exe"
+$Setup = Join-Path $OutDir "PDIG-$Version-windows-x64-setup.exe"
 if (-not (Test-Path $Setup)) { throw "installer missing: $Setup" }
 
 Write-Host ""

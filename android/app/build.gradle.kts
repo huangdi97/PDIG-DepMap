@@ -36,8 +36,8 @@ android {
          create("preview") {
              dimension = "tier"
              applicationIdSuffix = ".preview"
-             versionCode = 200001
-             versionName = "0.1.0"
+             versionCode = 200002
+             versionName = "0.1.1"
          }
      }
 

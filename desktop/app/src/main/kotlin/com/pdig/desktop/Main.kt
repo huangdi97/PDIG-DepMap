@@ -13,7 +13,7 @@ import com.pdig.desktop.ui.PDIGAppShell
 import com.pdig.desktop.ui.UiState
 import java.io.File
 
-private const val VERSION = "0.1.0"
+private const val VERSION = "0.1.1"
 
 fun main(args: Array<String>) {
     if (args.contains("--smoke")) {
@@ -27,7 +27,7 @@ fun main(args: Array<String>) {
     application {
         Window(
             onCloseRequest = ::exitApplication,
-            title = "PDIG 0.1.0 Developer Preview",
+            title = "PDIG $VERSION Developer Preview",
             state = rememberWindowState(width = 1100.dp, height = 720.dp),
         ) {
             val ui = rememberUiState()
