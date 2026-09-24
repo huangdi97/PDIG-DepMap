@@ -138,6 +138,9 @@ object SmokeRunner {
          runScenarios("expiring_payment_card", session)
          runScenarios("close_payment_instrument", session)
 
+        // 引擎证据链（候选/漂移）放到 scenario 之后：额外 funding 边不得干扰 must_change 判定。
+        SmokeEngineSteps.run(session, ::step)
+
         step("candidate-accept-dismiss") {
             val now = Instant.now().toString()
             session.driver.exec(
