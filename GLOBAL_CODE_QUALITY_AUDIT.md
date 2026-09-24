@@ -81,3 +81,25 @@
 **结论**：gate 范围生产代码 10 项质量 counter 全绿（!! 23→0、cast 8+→0、lateinit 2/2 已登记、suppress/GlobalScope/裸 catch/TODO/secret/敏感日志/dependency cycle 均 0）；异常边界由 GraphImportError / DepmapException(带码) / ErrorCode / IllegalStateException(领域码) 组成（StoreException 不存在，已更正）；`:repos` 已纳入 gate scope（观察项关闭），最终 HEAD `f5cc53e` 复核通过。
 
 ---
+
+## 8. v0.1.2 质量迭代收口轮复核（2026-09-24）
+
+- **Gate 复跑（fresh）**：`node scripts/quality/check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），
+  10 项计数全 0：UNJUSTIFIED_PRODUCTION_FILE_GT_300=0、CRITICAL_COMPLEXITY_VIOLATION=0、RAW_TODO=0、
+  FORBIDDEN_SUPPRESSION=0、DEPENDENCY_CYCLE=0、HARDCODED_SECRET=0、SENSITIVE_LOGGING=0、
+  UNJUSTIFIED_KOTLIN_ESCAPE=0、KNOWN_DEAD_CODE=0、ENGINEERING_GAP=0；file-size OK（exempted 3）；
+  scope=`android/app,core,conformance,repos` + desktop。
+- **EXCEPTIONS.json 复核（JUSTIFIED）**：合法 UTF-8 JSON、reason 无乱码；fileSizeOver300 2 条
+  （Migrations.kt=migration、GraphSerialize.kt=schema）、kotlinEscapes 2 条（MainActivity lateinit、
+  conformance Main lateinit，均 JUSTIFIED）、secretPattern 2 条（SmokeRunner.kt:39、DepmapFileStoreTest.kt:21，
+  fixture 合成口令）。
+- **Dead code（FIXED）**：`desktop/app/src/main/kotlin/com/pdig/desktop/io/FileOps.kt` 删除无调用者的
+  `DesktopFileOps.write` 默认方法（6 行；Grep 确认 desktop 全树无 `.write(` 调用者、无实现覆盖），
+  保留 pickOpen/pickSave/readBytes。
+- **格式轮**：121 个 md 经 prettier 规范化，commit `a9c1cab`（纯格式，`git diff -w` 复核无业务语义变化）。
+- **行为回归锚点**：core `npm run check` 全绿（453 tests / 43 files PASS、architecture circular=0、
+  network gate 0 primitives（130 文件）、secret scan 988 files PASS、UI gate 30 .uvue PASS）；
+  conformance fresh SUMMARY（2026-09-24）android **91/91 PASS**；`:core:test` 71/71、
+  `:app:testDebugUnitTest` 9/9（--rerun-tasks fresh，0 failure）；仪器化基线 60/60 PASS（2026-09-24 11:39）。
+- **结论**：10 counter 全 0 复证；Kotlin 逃逸点仅 2 条 lateinit（均 JUSTIFIED）；secretPattern 仅
+  fixture 合成口令；本轮无新审计发现，未把 NOT_RUN 写成 PASS。

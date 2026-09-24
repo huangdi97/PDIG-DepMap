@@ -16,6 +16,16 @@
 > 商店账号/正式包名/隐私 URL/真实账单/CI billing 均以 Known Limitation 如实披露，
 > 见 `RELEASE_NOTES_0_1_0.md`）。
 
+> v0.1.2 质量迭代收口轮注记（2026-09-24）：E-1..E-10 状态不变，其中 **E-10（CI billing）保持
+> CI_EXTERNAL_BLOCKED**；本轮无新增外部 blocker。已知限制（非 blocker，如实登记）：
+> 无 Play 生产发布；Android 运行时 smoke 本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起
+> 本机所有 AVD full startup 静默退出——环境问题，非代码回归；仪器化以当日上午 60/60 实跑为基线）；
+> 无真机/真实数据（全合成 fixture）；Harmony/iOS 不在本轮；Windows 未签名（SmartScreen）；
+> 旧 tag product-v0.1.0/v0.1.1 保留。本轮结论标注：质量 Gate 10 项计数全 0（EXCEPTIONS.json 复核
+> JUSTIFIED：fileSizeOver300×2 / kotlinEscapes×2 lateinit / secretPattern×2 fixture 合成口令）；
+> 死代码清理（FIXED：desktop FileOps.kt 删除无调用者的 DesktopFileOps.write，6 行）。
+> 完整审计结论见 `GLOBAL_CODE_QUALITY_AUDIT.md` / `PRODUCT_V0_1_2_RELEASE_MANIFEST.md`。
+
 ## 当前 Active blockers（全部为真实 EXTERNAL_BLOCKER）
 
 | #    | Gate                                        | Status                         | Blocker class                                                 | Why blocked                                                                                                                                                                                                                                                                                                                                                                                                          | Engineering work remaining                                                                                                                                                                        | User/external input required                                       | Exact closure procedure                                                                                                       | Acceptance evidence                                        |

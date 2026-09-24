@@ -106,3 +106,24 @@
 - 本轮无 Big-Bang Rewrite、无并发混入业务改动、无历史重写/force push；
 - 行为回归锚点：`:core:test` 71/71、`:app:testDebugUnitTest` 9/9、`:conformance:run` 91/91、androidTest 基线、
   Gate 10 计数 PASS —— 重构是可追溯、可复验、最小安全的。
+
+## v0.1.2 轮复核结论（2026-09-24）
+
+- **本轮无 Big-Bang Rewrite**：唯一源码改动为死代码删除（**FIXED**）——
+  `desktop/app/src/main/kotlin/com/pdig/desktop/io/FileOps.kt` 删除无调用者的 `DesktopFileOps.write`
+  默认方法（6 行；Grep 确认 desktop 全树无 `.write(` 调用者、无实现覆盖），保留 pickOpen/pickSave/readBytes；
+  行为证据：desktop `:app:test` BUILD SUCCESSFUL（27s，0 failure）+ `--smoke` **16/16 PASS**（app-0.1.2.jar）。
+- **纯格式轮**：121 个 md 经 prettier 规范化，commit `a9c1cab`（纯格式，`git diff -w` 复核无业务语义变化）。
+- **行为回归锚点全绿**：core `npm run check` 453 tests / 43 files PASS、architecture circular=0；
+  conformance fresh SUMMARY（2026-09-24）android **91/91 PASS**；`:core:test` 71/71、
+  `:app:testDebugUnitTest` 9/9（--rerun-tasks fresh）；仪器化基线 `TEST-pdig36(AVD)-16-_app-preview.xml`
+  **60/60 PASS**（2026-09-24 11:39）。
+- **JUSTIFIED 复核**：EXCEPTIONS.json 合法 UTF-8 JSON、reason 无乱码；fileSizeOver300 2 条
+  （Migrations.kt=migration、GraphSerialize.kt=schema）、kotlinEscapes 2 条（MainActivity /
+  conformance Main，lateinit，均 JUSTIFIED）、secretPattern 2 条（SmokeRunner.kt:39、
+  DepmapFileStoreTest.kt:21，fixture 合成口令）。
+- **BLOCKED（环境，非回归）**：Android 运行时 smoke 本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起
+  本机所有 AVD full startup 静默退出，WHPX 检测正常、无 WER 崩溃记录）；Harmony/iOS 不在本轮
+  （harmony 87/91、ios 91/91 为 2026-09-19 旧记录，本机无 HarmonyOS 运行环境）。
+- **遗留清单**：#2（Route.GRAPH 非首页，产品口径）与 #4（conformance harness 失败路径异常类型）继续保留，
+  本轮未引入新遗留。

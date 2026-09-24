@@ -68,3 +68,21 @@
 - C7 六项全绿：Reality mutation 同事务、revision 权威清单、无偷偷 commit、无长存原始金融数据、
   无 INTERNET/analytics/telemetry、日志无语义泄漏；
 - Gate secret/senslog = 0；DESKTOP_SECURITY = **PASS**（容器 + DPAPI 实现，无明文持久化，未为发布降级）。
+
+## 10. v0.1.2 质量迭代收口轮复核（2026-09-24）
+
+- **Gate 复跑**：`node scripts/quality/check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），
+  `HARDCODED_SECRET=0`、`SENSITIVE_LOGGING=0` 保持；core `npm run check` secret scan **988 files PASS**、
+  network gate 0 primitives（130 文件）。
+- **secretPattern 例外复核（JUSTIFIED）**：EXCEPTIONS.json 为合法 UTF-8 JSON、reason 无乱码；
+  secretPattern 2 条（SmokeRunner.kt:39、DepmapFileStoreTest.kt:21）均为 **fixture 合成口令**，非真实凭据。
+- **发布物核验**：Windows 打包产物（NSIS installer 149,537,743 B / portable zip 149,769,364 B，sha256 见
+  `PRODUCT_V0_1_2_RELEASE_MANIFEST.md`）+ SBOM `PDIG-0.1.2-SBOM.cyclonedx.json`（CycloneDX 1.5，
+  151 components）+ THIRD-PARTY-NOTICES.md + SHA256SUMS.txt 生成；APK sha256
+  `5406d9e7edd6f274b5de23752d98451ded94716c88ff049589e4afe6b4716c8e`（NON-PROD 测试签名，非生产签名）。
+- **无新增暴露面**：本轮无新增 INTERNET / analytics / telemetry；无真实数据（全合成 fixture）；
+  Windows 未签名（SmartScreen 提示如实披露）。
+- **已知限制（如实）**：Android 运行时 smoke 本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起
+  本机所有 AVD full startup 静默退出——环境阻塞，不是回归）；Harmony/iOS 不在本轮（harmony 87/91、
+  ios 91/91 为 2026-09-19 旧记录）；无 Play 生产发布。
+- **结论**：GLOBAL_SECURITY_PRIVACY = **PASS（保持）**；未把 NOT_RUN 写成 PASS，未夹带秘密。

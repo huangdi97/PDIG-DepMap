@@ -96,6 +96,47 @@
 
 ## Current
 
+- **v0.1.2 质量迭代收口轮（2026-09-24）**：质量 Gate 复证 + 死代码清理 + Windows 0.1.2 打包。
+  - 质量 Gate：`node scripts/quality/check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），
+    10 项计数全 0（UNJUSTIFIED_PRODUCTION_FILE_GT_300 / CRITICAL_COMPLEXITY_VIOLATION / RAW_TODO /
+    FORBIDDEN_SUPPRESSION / DEPENDENCY_CYCLE / HARDCODED_SECRET / SENSITIVE_LOGGING /
+    UNJUSTIFIED_KOTLIN_ESCAPE / KNOWN_DEAD_CODE / ENGINEERING_GAP 全 = 0）；file-size OK（exempted 3）；
+    scope=`android/app,core,conformance,repos` + desktop。EXCEPTIONS.json 复核合法 UTF-8 JSON、reason 无乱码：
+    fileSizeOver300 2 条（Migrations.kt=migration、GraphSerialize.kt=schema）、kotlinEscapes 2 条
+    （MainActivity lateinit、conformance Main lateinit，均 JUSTIFIED）、secretPattern 2 条
+    （SmokeRunner.kt:39、DepmapFileStoreTest.kt:21，fixture 合成口令）。
+  - 纯格式轮：121 个 md 经 prettier 规范化，commit `a9c1cab`（纯格式，`git diff -w` 复核无业务语义变化）。
+  - 死代码（FIXED）：desktop `io/FileOps.kt` 删除无调用者的 `DesktopFileOps.write`（6 行；Grep 确认
+    desktop 全树无 `.write(` 调用者、无实现覆盖），保留 pickOpen/pickSave/readBytes。
+  - 回归全绿：core `npm run check` **453 tests / 43 files PASS**、architecture circular=0、
+    network gate 0 primitives（130 文件）、secret scan **988 files PASS**、UI gate 30 .uvue PASS；
+    conformance fresh SUMMARY（2026-09-24）android **91/91 PASS**（pass=91 fail=0 total=91）；
+    `:core:test` **71/71**、`:app:testDebugUnitTest` **9/9**（--rerun-tasks fresh，0 failure）；
+    仪器化基线 `TEST-pdig36(AVD)-16-_app-preview.xml` **60/60 PASS**（2026-09-24 11:39）；
+    desktop `:app:test` BUILD SUCCESSFUL（27s，0 failure）+ `--smoke` **16/16 PASS**（app-0.1.2.jar）。
+  - Android 版本：preview flavor versionCode 200002→**200003**、versionName "0.1.1"→"0.1.2"；
+    `assemblePreviewRelease -PpdigNonProdSigning=true` BUILD SUCCESSFUL（1m19s，52 tasks）；
+    APK `com.pdig.app.preview` versionCode=200003 versionName=0.1.2 platformBuild API 36；
+    apksigner verify v2 scheme Verified（NON-PROD 测试签名，非生产签名）。
+  - Android 运行时 smoke：本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起本机所有 AVD——
+    pdig36、pdig_api36_phone、pdig_api36_tablet、Medium_Phone_API_35(API35)、
+    PDIG_API34_DEFAULT(ARM 不支持)、petaccess_api35(镜像路径损坏)——均在 full startup 静默退出，
+    WHPX 检测正常、无 WER 崩溃记录）。环境阻塞，不是回归；仪器化以当日上午 60/60 实跑为基线。
+  - Desktop 版本与产物：packageVersion/version/描述字符串 0.1.1→0.1.2；PDIG.exe GUI 启动 20s 无崩溃
+    （窗口 1100×720 固定，分辨率覆盖以默认窗口实跑）；Windows 打包：
+    NSIS installer `PDIG-0.1.2-windows-x64-setup.exe` 149,537,743 B（sha256
+    92baac291afbd8d41da5cfebb3451593458b9afeee3066540b93b0967ff973a6）+ portable zip
+    `PDIG-0.1.2-windows-x64-portable.zip` 149,769,364 B
+    （fa3a229355f273e1121c534b0243525f2caed9622f624e694beb00a671545b01）；
+    SBOM `PDIG-0.1.2-SBOM.cyclonedx.json`（CycloneDX 1.5，151 components，由 jpackage-libs +
+    Gradle previewReleaseRuntimeClasspath 依赖树生成）+ THIRD-PARTY-NOTICES.md + SHA256SUMS.txt。
+  - 发布物哈希：APK sha256 `5406d9e7edd6f274b5de23752d98451ded94716c88ff049589e4afe6b4716c8e`；
+    SBOM `fc5448782262e007a20f050c56043af6b5bfc197d5c2891774e341d7376eada9`；
+    NOTICES `7275ec5b40aa5bd659e9938d8fc4491afbcc9ff095d1fa138f25b0e5deaee944`。
+    新文件 `RELEASE_NOTES_0_1_2.md`、`PRODUCT_V0_1_2_RELEASE_MANIFEST.md` 已创建。
+  - 已知限制：无 Play 生产发布；Android 运行时 smoke 本轮环境阻塞（模拟器）；无真机/真实数据
+    （全合成 fixture）；Harmony/iOS 不在本轮；Windows 未签名（SmartScreen）；
+    CI billing E-10（CI_EXTERNAL_BLOCKED）；旧 tag product-v0.1.0/v0.1.1 保留。
 - **v0.1.1 质量迭代轮（2026-09-24）**：共享发现引擎 + 桌面验证补全 + 代码卫生。
   - 引擎：`DiscoveryRepository`（:repos）在 `commitImport` 内生成/累计 DiscoveryCandidate /
     RealityDrift（Android/Desktop 共用）；宁可漏报、机器不自动确认、不 bump revision；

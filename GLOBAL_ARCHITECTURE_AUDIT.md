@@ -76,3 +76,25 @@ timeline_build / import_session / plan_* / action_*` 不 bump（GraphRepository.
 - ARCHITECTURE_QUALITY = **PASS**（active scope）：分层单向、无环、平台隔离、事务语义由 core 权威清单约束、
   Desktop 复用同一 Domain+Application，未创建第二 Domain；
 - 所有豁免与静态范围均真实、可审核（见 scripts/quality/EXCEPTIONS.json 与本文件 §1）。
+
+## 9. v0.1.2 质量迭代收口轮复核（2026-09-24）
+
+- **本轮结论**：ARCHITECTURE_QUALITY = **PASS（保持）**；分层单向、无环、平台隔离、事务语义未变。
+- **纯格式轮（FIXED 复核）**：121 个 md 经 prettier 规范化，commit `a9c1cab`（纯格式，`git diff -w`
+  复核无业务语义变化）——架构文档与代码均无结构改动。
+- **质量 Gate**：`node scripts/quality/check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），
+  10 项计数全 0（含 `DEPENDENCY_CYCLE=0`）；file-size OK（exempted 3）；scope=`android/app,core,conformance,repos` + desktop。
+- **EXCEPTIONS.json 复核（JUSTIFIED）**：合法 UTF-8 JSON、reason 无乱码；fileSizeOver300 2 条
+  （Migrations.kt=migration、GraphSerialize.kt=schema）、kotlinEscapes 2 条（MainActivity lateinit、
+  conformance Main lateinit，均 JUSTIFIED）、secretPattern 2 条（SmokeRunner.kt:39、DepmapFileStoreTest.kt:21，
+  fixture 合成口令）。
+- **Dead code（FIXED）**：`desktop/app/src/main/kotlin/com/pdig/desktop/io/FileOps.kt` 删除无调用者的
+  `DesktopFileOps.write` 默认方法（6 行；Grep 确认 desktop 全树无 `.write(` 调用者、无实现覆盖），
+  保留 pickOpen/pickSave/readBytes。
+- **行为回归锚点**：core `npm run check` 全绿（453 tests / 43 files、architecture circular=0）；
+  conformance fresh SUMMARY（2026-09-24）android **91/91 PASS**（pass=91 fail=0 total=91）；
+  Android `:core:test` 71/71、`:app:testDebugUnitTest` 9/9（--rerun-tasks fresh）；
+  仪器化基线 `TEST-pdig36(AVD)-16-_app-preview.xml` **60/60 PASS**（2026-09-24 11:39）。
+- **平台状态（如实）**：harmony 87/91（4 项 runtime-blocked，2026-09-19 旧记录，本机无 HarmonyOS 运行环境）；
+  ios 91/91（2026-09-19 旧记录）；Android 运行时 smoke 本轮 **RUNTIME_ENVIRONMENT_BLOCKED**
+  （2026-09-24 下午起本机所有 AVD full startup 静默退出——环境阻塞，不是回归）。

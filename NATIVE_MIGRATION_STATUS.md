@@ -7,6 +7,33 @@
 > Core Journey 41/41、三场景 32/32、edge-to-edge/predictive-back/adaptive-layout 三项 Gate PASS、
 > NON-PROD 签名链路验证、N2 parity 保持 69/73、外部 Gate 保持 BLOCKED；Harmony/iOS 本轮未进入）
 >
+> 更新：2026-09-24（**v0.1.2 质量迭代收口轮**）：
+>
+> - **Android**：preview flavor versionCode 200002→**200003**、versionName "0.1.1"→"0.1.2"；
+>   `assemblePreviewRelease -PpdigNonProdSigning=true` BUILD SUCCESSFUL（1m19s，52 tasks）；
+>   APK `com.pdig.app.preview` versionCode=200003 versionName=0.1.2 platformBuild API 36；
+>   apksigner verify v2 scheme Verified（NON-PROD 测试签名，非生产签名）；`:core:test` 71/71、
+>   `:app:testDebugUnitTest` 9/9（--rerun-tasks fresh）；仪器化基线
+>   `TEST-pdig36(AVD)-16-_app-preview.xml` **60/60 PASS**（2026-09-24 11:39）。
+> - **Android 运行时 smoke = RUNTIME_ENVIRONMENT_BLOCKED**：2026-09-24 下午起本机所有 AVD
+>   （pdig36、pdig_api36_phone、pdig_api36_tablet、Medium_Phone_API_35(API35)、
+>   PDIG_API34_DEFAULT(ARM 不支持)、petaccess_api35(镜像路径损坏)）均在 full startup 静默退出，
+>   WHPX 检测正常、无 WER 崩溃记录——环境阻塞，不是回归。
+> - **Conformance（fresh SUMMARY 2026-09-24）**：android **91/91 PASS**（fresh，pass=91 fail=0 total=91）；
+>   harmony 87/91（4 项 runtime-blocked：depmap-golden-v1、depmap-utf8-password-normalization、
+>   migration-db-v1-to-v3、backup-depmap-export-restore-roundtrip，2026-09-19 旧记录，本机无 HarmonyOS
+>   运行环境）；ios 91/91（2026-09-19 旧记录）。
+> - **质量 Gate**：`node scripts/quality/check-quality.mjs` → VERDICT PASS exit 0（2026-09-24T06:56Z），
+>   10 项计数全 0；file-size OK（exempted 3）；EXCEPTIONS.json 复核合法 UTF-8 JSON（fileSizeOver300×2
+>   migration/schema、kotlinEscapes×2 lateinit 均 JUSTIFIED、secretPattern×2 fixture 合成口令）。
+> - **Desktop**：packageVersion/version/描述 0.1.1→0.1.2；`:app:test` BUILD SUCCESSFUL（27s）；
+>   `--smoke` **16/16 PASS**；PDIG.exe GUI 启动 20s 无崩溃（窗口 1100×720 固定）；Windows 打包产出
+>   NSIS installer + portable zip + SBOM（CycloneDX 1.5，151 components）+ THIRD-PARTY-NOTICES.md +
+>   SHA256SUMS.txt；新文件 `RELEASE_NOTES_0_1_2.md`、`PRODUCT_V0_1_2_RELEASE_MANIFEST.md` 已创建。
+> - 已知限制：无 Play 生产发布；无真机/真实数据（全合成 fixture）；Harmony/iOS 不在本轮；
+>   Windows 未签名（SmartScreen）；CI billing E-10（CI_EXTERNAL_BLOCKED）；
+>   旧 tag product-v0.1.0/v0.1.1 保留。
+>
 > API36 轮关键结论（详见 `ANDROID_16_API36_CLOSURE_REPORT.md`）：
 >
 > - **API36 全绿**：`:core:test` 71/71 · `:app:testDebugUnitTest` 9/9 · `:conformance:run` 91/91 ·

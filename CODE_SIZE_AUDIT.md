@@ -178,3 +178,19 @@
 ---
 
 **结论**：gate 范围（app/core/conformance/desktop 生产源）无未注册 >300 文件；3 个豁免全部带类别与理由登记（migration/schema/generated）；本轮拆分全部落地且 `scripts/quality/check-quality.mjs` file-size 检查 PASS；ios/harmony/core-TS/platforms 为 STATIC-ONLY / READ_ONLY / vendored，不参与 gating。
+
+## v0.1.2 质量迭代收口轮复核（2026-09-24）
+
+- **file-size Gate 复跑**：`node scripts/quality/check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），
+  `UNJUSTIFIED_PRODUCTION_FILE_GT_300=0`；file-size OK（exempted 3）。scope=`android/app,core,conformance,repos` + desktop。
+- **EXCEPTIONS.json 复核（JUSTIFIED）**：合法 UTF-8 JSON、reason 无乱码；fileSizeOver300 2 条
+  （Migrations.kt=migration、GraphSerialize.kt=schema）；kotlinEscapes 2 条（MainActivity lateinit、
+  conformance Main lateinit，均 JUSTIFIED）；secretPattern 2 条（SmokeRunner.kt:39、
+  DepmapFileStoreTest.kt:21，fixture 合成口令）。generated/CanonicalEnums.kt 仍由 gate 自动豁免。
+- **本轮源码变化（FIXED）**：desktop `io/FileOps.kt` 删除无调用者的 `DesktopFileOps.write` 默认方法（6 行），
+  保留 pickOpen/pickSave/readBytes；无其它生产文件增删。
+- **行为回归**：core `npm run check` 全绿（453 tests / 43 files、circular=0）；desktop `:app:test`
+  BUILD SUCCESSFUL（27s）+ `--smoke` 16/16 PASS；Android `:core:test` 71/71、`:app:testDebugUnitTest` 9/9
+  （--rerun-tasks fresh）、仪器化基线 60/60 PASS（2026-09-24 11:39）；conformance fresh SUMMARY
+  （2026-09-24）android 91/91 PASS。
+- **结论**：gate 范围无未注册 >300 文件（3 豁免不变）；无新增 >300 生产文件；未把 NOT_RUN 写成 PASS。

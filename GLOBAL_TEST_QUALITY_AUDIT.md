@@ -84,3 +84,28 @@ desktop 模块**当前无任何测试源集**（11 个生产文件、0 个测试
 ---
 
 **结论**：Android 侧本轮三通道（core 71 / app 9 / conformance 91）全部 fresh PASS，C5 八大不变式在核心测试中逐条有专名用例且 conformance 交叉佐证；命名行为式、核心零 mock、失败/边界路径覆盖齐全；androidTest 59×2、E2E 41/41 与 32/32、harmony 89 host、ios 7 funcs 均**如实标注为前轮/环境受限记录**；Desktop 与 :repos 测试源集为空，测试计划（DepmapFileStore round-trip / security / 28-fixture parser 集成）为 planned，须下轮落地。
+
+## 8. v0.1.2 质量迭代收口轮复核（2026-09-24）
+
+- **本轮 fresh 基线**（2026-09-24）：
+  - `:core:test` **71/71**、`:app:testDebugUnitTest` **9/9**（--rerun-tasks fresh，0 failure）；
+  - conformance `tools/conformance/run.mjs` fresh SUMMARY（2026-09-24）：codegen / fixtureIntegrity /
+    oracleSelfcheck 均 PASS；android **91/91 PASS**（pass=91 fail=0 total=91）；
+  - Android 仪器化测试基线 `TEST-pdig36(AVD)-16-_app-preview.xml` **60/60 PASS**（2026-09-24 11:39）；
+  - Desktop `:app:test` BUILD SUCCESSFUL（27s，0 failure）+ `--smoke` **16/16 PASS**（app-0.1.2.jar：
+    fresh-launch / create-open / wrong-password-rejected / tampered-file-rejected / future-schema-rejected /
+    import-wechat-fixture / proposal-accept-bumps-revision / criticality-required-only-by-user /
+    scenario-replace_payment_card / scenario-expiring_payment_card / scenario-close_payment_instrument /
+    engine-generates-candidate-from-import / engine-generates-drift-never-auto-resolves /
+    candidate-accept-dismiss / drift-resolve-dismiss / backup-restore-reopen-delete）；
+  - legacy core-TS oracle：core `npm run check` 全绿（453 tests / 43 files PASS）。
+- **前轮设备/平台记录（如实标注，未重跑）**：harmony 87/91（4 项 runtime-blocked：depmap-golden-v1、
+  depmap-utf8-password-normalization、migration-db-v1-to-v3、backup-depmap-export-restore-roundtrip，
+  2026-09-19 旧记录，本机无 HarmonyOS 运行环境）；ios 91/91（2026-09-19 旧记录）。
+- **BLOCKED（环境，非回归）**：Android 运行时 smoke 本轮 **RUNTIME_ENVIRONMENT_BLOCKED**（2026-09-24 下午起
+  本机所有 AVD——pdig36、pdig_api36_phone、pdig_api36_tablet、Medium_Phone_API_35(API35)、
+  PDIG_API34_DEFAULT(ARM 不支持)、petaccess_api35(镜像路径损坏)——均在 full startup 静默退出，
+  WHPX 检测正常、无 WER 崩溃记录）；仪器化以当日上午 60/60 实跑为基线。
+- **FIXED（死代码）**：desktop `FileOps.kt` 删除无调用者的 `DesktopFileOps.write`（6 行；Grep 确认
+  desktop 全树无 `.write(` 调用者、无实现覆盖）。
+- **结论**：JVM / 桌面 / conformance 三通道 fresh 全绿；设备侧引用旧记录如实标注；未把 NOT_RUN 写成 PASS。

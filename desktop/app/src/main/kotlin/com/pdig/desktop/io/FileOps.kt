@@ -18,12 +18,6 @@ interface DesktopFileOps {
 
     /** 读取整个文件；IO 错误转 Runtime。 */
     fun readBytes(file: File): ByteArray = file.readBytes()
-
-    /** 写文件（覆盖）；IO 错误转 Runtime。 */
-    fun write(file: File, content: ByteArray) {
-        file.parentFile?.mkdirs()
-        file.writeBytes(content)
-    }
 }
 
 /** Windows 真机实现：AWT FileDialog（平台原生）。 */

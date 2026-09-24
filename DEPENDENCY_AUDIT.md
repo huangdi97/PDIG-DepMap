@@ -93,3 +93,19 @@
 ---
 
 **结论**：Android 运行时依赖以 AndroidX/Compose 平台栈为主，唯一非平台第三方运行时依赖为 BouncyCastle（Argon2id，协议强制）与 SQLCipher（加密 DB）；Desktop 新增 Compose 1.6.11 + JNA 5.14.0（DPAPI），不影响 Android SBOM；legacy core-TS 依赖全为 dev-only oracle 工具链；本轮无移除项，CVE 扫描如实记为 NOT_RUN_ONLINE。
+
+## v0.1.2 质量迭代收口轮复核（2026-09-24）
+
+- **本轮依赖面**：无新增/移除运行时依赖；Windows 打包产物生成 SBOM
+  `PDIG-0.1.2-SBOM.cyclonedx.json`（**CycloneDX 1.5，151 components**，由 jpackage-libs +
+  Gradle previewReleaseRuntimeClasspath 依赖树生成）+ `THIRD-PARTY-NOTICES.md` + `SHA256SUMS.txt`；
+  SBOM sha256 `fc5448782262e007a20f050c56043af6b5bfc197d5c2891774e341d7376eada9`、NOTICES
+  `7275ec5b40aa5bd659e9938d8fc4491afbcc9ff095d1fa138f25b0e5deaee944`（见 `PRODUCT_V0_1_2_RELEASE_MANIFEST.md`）。
+- **质量 Gate**：`check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），`DEPENDENCY_CYCLE=0`；
+  core `npm run check` network gate 0 primitives（130 文件）。
+- **JUSTIFIED**：EXCEPTIONS.json 复核为合法 UTF-8 JSON、reason 无乱码（fileSizeOver300×2 migration/schema、
+  kotlinEscapes×2 lateinit 均 JUSTIFIED、secretPattern×2 fixture 合成口令）。
+- **BLOCKED（外部，未变化）**：CI billing E-10（GitHub 计费，CI_EXTERNAL_BLOCKED）继续阻塞远端 CI；
+  在线 CVE 扫描本轮**未重跑**，保持 `CVE_SCAN = NOT_RUN_ONLINE`（不把「未扫描」写成「无漏洞」）。
+- **结论**：依赖策略与 SBOM 一致；本轮发布物为 Windows 打包，Android SBOM 不受影响；观察项
+  （security-crypto alpha / ui-tooling-preview / material-icons-core）状态不变。
