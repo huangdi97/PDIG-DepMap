@@ -1,7 +1,7 @@
 # V0.2.0 FINAL GATES（goal §110 收口输出）
 
 > 全部为 2026-09-25 真实执行证据；任何非 PASS 附 §111 结构块。
-> 版本：PDIG 0.2.0 Preview（tag `product-v0.2.0` = main = origin/main = 1fe3d05…）。
+> 版本：PDIG 0.2.0 Preview（tag `product-v0.2.0` = main = origin/main；SHA 以 `git rev-parse product-v0.2.0` 为准）。
 
 ## 发布轨道
 
