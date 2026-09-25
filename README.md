@@ -285,6 +285,54 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 > 下载链接与 SHA-256：见 GitHub Release 页面（`https://github.com/huangdi97/PDIG-DepMap/releases`）。
 > Windows 二进制**未签名**，运行可能触发 SmartScreen 警告。
 
+
+## v0.2.0：你可以做什么（产品视角）
+
+PDIG v0.2.0 是 **Windows Desktop + Android** 双端一致的 Developer Preview。
+
+### 三个场景
+
+| 场景 | 说明 |
+| --- | --- |
+| 更换银行卡 | 换卡前检查支付、订阅和钱包依赖 |
+| 银行卡即将到期 | 到期前看看还有哪些支付关系依赖这张卡 |
+| 注销银行卡 | 注销前确认哪些支付关系需要迁移 |
+
+### 核心流程（双端一致）
+
+导入数据 → 确认关系 → （换卡/到期/注销）影响分析 → 变更计划 → 完成与验证 → 备份与恢复。
+
+- 导入支持微信账单、通用 CSV、OFX/QFX 与手动添加；文件只在本机解析，不会上传
+- 首页按"需要你处理 → 可能发生了变化 → 即将到来 → 常用场景 → 我的基础设施"组织
+- 影响分析四类结果：**必须处理 / 可能还有其他可用方式 / 需要确认 / 当前未发现影响**
+- 变更计划区分**完成操作**与**确认结果**（做完了 ≠ 已验证）
+- 备份 = 加密的 `.depmap` 容器，密码无法找回
+
+### 安装 Windows（x64）
+
+1. 从 GitHub Release `product-v0.2.0` 下载 `PDIG-0.2.0-windows-x64-setup.exe`（或 portable zip）
+2. 安装（或解压）后双击 PDIG 启动；如出现 SmartScreen 提示，这是**未签名**的常见提示，
+   可核对 `PDIG-0.2.0-SHA256SUMS.txt` 后继续
+3. 首次启动新建一个数据文件（设置一个密码）
+
+### 安装 Android（Preview）
+
+1. 下载 `PDIG-0.2.0-android-preview.apk`（包名 `com.pdig.app.preview`，**非 Google Play 版本**）
+2. 允许未知来源安装后安装
+3. 打开后先用设备解锁（生物识别或设备密码）
+
+### 用户文档
+
+见 [`docs/user/`](docs/user/)：
+
+- [快速开始](docs/user/GETTING_STARTED.md)
+- [导入指南](docs/user/IMPORT_GUIDE.md)
+- [场景指南](docs/user/SCENARIO_GUIDE.md)
+- [备份与恢复指南](docs/user/BACKUP_RESTORE_GUIDE.md)
+- [隐私与安全](docs/user/PRIVACY_AND_SECURITY.md)
+
+产品体验说明：`PRODUCT_EXPERIENCE_MAP_V0_2.md` · 双端一致性矩阵：`DUAL_CLIENT_EXPERIENCE_MATRIX_V0_2.md` ·
+术语词典：`PRODUCT_TERMINOLOGY_V0_2.md` · 错误目录：`PRODUCT_ERROR_CATALOG.md`。
 ## 已知限制
 
 - **Impact 仅覆盖 payment capability**；其他 capability 只存边，不参与影响计算
