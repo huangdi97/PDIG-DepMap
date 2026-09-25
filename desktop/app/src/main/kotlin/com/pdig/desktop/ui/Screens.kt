@@ -6,15 +6,16 @@ package com.pdig.desktop.ui
  */
 enum class Screen(val route: String, val title: String) {
     HOME("home", "首页"),
+    ATTENTION("attention", "需要处理"),
     SOURCES("sources", "数据来源"),
     IMPORT("import", "导入"),
     MAPPING("mapping", "CSV 映射"),
     REVIEW("review", "待确认"),
-    PROPOSALS("proposals", "Proposal 确认"),
-    CANDIDATES("candidates", "候选对象"),
-    DRIFTS("drifts", "现实变化"),
+    PROPOSALS("proposals", "待确认关系"),
+    CANDIDATES("candidates", "待确认服务"),
+    DRIFTS("drifts", "可能发生了变化"),
     INFRA("infrastructure", "基础设施"),
-    NODE("node", "节点详情"),
+    NODE("node", "对象详情"),
     SCENARIOS("scenarios", "场景中心"),
     SCENARIO_SETUP("scenario-setup", "场景设置"),
     IMPACT("impact", "影响分析"),
@@ -29,10 +30,8 @@ enum class Screen(val route: String, val title: String) {
     ABOUT("about", "关于"),
 }
 
-/** 左侧导航里固定的顶层入口（不依赖参数的屏面）。 */
+/** 左侧导航里固定的顶层入口（不依赖参数的屏面；其余屏面从内容区进入）。 */
 val TOP_LEVEL_SCREENS: List<Screen> = listOf(
-    Screen.HOME, Screen.SOURCES, Screen.IMPORT, Screen.MAPPING, Screen.REVIEW,
-    Screen.PROPOSALS, Screen.CANDIDATES, Screen.DRIFTS, Screen.INFRA,
-    Screen.SCENARIOS, Screen.TIMELINE, Screen.BACKUP, Screen.RESTORE,
-    Screen.SETTINGS, Screen.SECURITY, Screen.ABOUT,
+    Screen.HOME, Screen.ATTENTION, Screen.SOURCES, Screen.INFRA,
+    Screen.SCENARIOS, Screen.TIMELINE, Screen.SETTINGS,
 )

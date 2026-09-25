@@ -36,7 +36,7 @@ fun ActionsScreen(ui: UiState) {
         }
         Column {
             InfoRow("计划", detail.title)
-            InfoRow("工作流状态", detail.workflowState.wire)
+            InfoRow("工作流状态", workflowStateLabel(detail.workflowState.wire))
             SectionDivider("动作（${detail.actions.size}）")
             if (detail.actions.isEmpty()) {
                 EmptyState("该计划没有动作。")

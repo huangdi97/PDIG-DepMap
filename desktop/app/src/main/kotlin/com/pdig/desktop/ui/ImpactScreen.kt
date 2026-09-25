@@ -37,9 +37,9 @@ fun ImpactScreen(ui: UiState) {
         val impact = ui.session.graph.impactFor(target)
         Column {
             SectionDivider("概览")
-            InfoRow("不可用能力键", impact.unavailable.size.toString())
-            InfoRow("受影响键", impact.lostKeys.size.toString())
-            InfoRow("处理过的键", impact.processedKeys.size.toString())
+            InfoRow("本次停用", impact.unavailable.size.toString() + " 项")
+            InfoRow("受影响", impact.lostKeys.size.toString() + " 项")
+            InfoRow("本次分析依据（已检查）", impact.processedKeys.size.toString() + " 项")
             SectionDivider("检查清单（${impact.checklist.size}）")
             if (impact.checklist.isEmpty()) {
                 EmptyState("没有必须处理的事项（不代表一切安全）。")
@@ -48,7 +48,7 @@ fun ImpactScreen(ui: UiState) {
                     PdigCard(
                         title = item.title,
                         subtitle = item.detail,
-                        trailing = { StatusChip(item.level.wire, toneFor(item.level.wire)) },
+                        trailing = { StatusChip(impactLevelLabel(item.level.wire), toneFor(item.level.wire)) },
                     )
                 }
             }

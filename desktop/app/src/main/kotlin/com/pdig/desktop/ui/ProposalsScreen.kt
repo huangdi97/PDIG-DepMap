@@ -32,7 +32,7 @@ fun ProposalsScreen(ui: UiState) {
                 proposals.forEach { p ->
                     PdigCard(
                         title = "${p.from} → ${p.to}",
-                        subtitle = "关系：${p.relation} · 能力：${p.capability} · 观察 ${p.observationCount} 次" +
+                        subtitle = "关系：${relationLabel(p.relation)} · 能力：${capabilityLabel(p.capability)} · 观察 ${p.observationCount} 次" +
                             " · 置信度 ${(p.confidence * 100).toInt()}%",
                         trailing = {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -50,8 +50,8 @@ fun ProposalsScreen(ui: UiState) {
 private fun acceptProposal(ui: UiState, id: String) {
     try {
         ui.session.proposals.acceptProposal(id)
-        ui.notice = "已接受，边已进入 Reality。注意：新增边的 criticality 仍为 unknown，" +
-            "不会自动升级为 required；如确属必需，请在节点详情的依赖中手动设为必需。"
+        ui.notice = "已接受，依赖已进入 Reality。注意：新增依赖的重要程度仍未确认，不会自动升级为「必需」；" +
+            "如确属必需，请在对象详情的依赖中手动设为「必需」。"
         ui.refresh()
     } catch (t: Throwable) {
         ui.showError(t)

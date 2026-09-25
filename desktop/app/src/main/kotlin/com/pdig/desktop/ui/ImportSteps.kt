@@ -40,7 +40,7 @@ internal fun ImportPreviewStep(ui: UiState) {
                 EmptyState("本次文件里没有识别到支付工具（可能被标记为解析错误，见下方明细）。")
             } else {
                 preview.instruments.forEach { p ->
-                    PdigCard(title = p.label, subtitle = "类型：${p.kind.wire} · ID: ${p.nodeId}")
+                    PdigCard(title = p.label, subtitle = "类型：${kindLabel(p.kind.wire)}")
                 }
             }
             SectionDivider("检测到的商户 / 服务（${preview.counterparties.size}）")
@@ -48,7 +48,7 @@ internal fun ImportPreviewStep(ui: UiState) {
                 EmptyState("本次文件里没有识别到商户 / 服务（可能被标记为解析错误，见下方明细）。")
             } else {
                 preview.counterparties.forEach { p ->
-                    PdigCard(title = p.label, subtitle = "类型：${p.kind.wire} · ID: ${p.nodeId}")
+                    PdigCard(title = p.label, subtitle = "类型：${kindLabel(p.kind.wire)}")
                 }
             }
             SectionDivider("概览")

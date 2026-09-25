@@ -39,19 +39,14 @@ fun PlanScreen(ui: UiState) {
             SectionDivider("计划信息")
             InfoRow("标题", detail.title)
             InfoRow("场景", detail.scenario)
-            InfoRow("工作流状态", detail.workflowState.wire)
-            detail.effectiveState?.let { s -> InfoRow("派生生效状态", s.wire) }
-            InfoRow("基线图版本", detail.baselineGraphRevision.toString())
-            InfoRow("最近分析版本", detail.lastAnalyzedGraphRevision.toString())
-            InfoRow("当前图版本", detail.currentGraphRevision.toString())
+            InfoRow("工作流状态", workflowStateLabel(detail.workflowState.wire))
+            detail.effectiveState?.let { s -> InfoRow("派生生效状态", workflowStateLabel(s.wire)) }
             InfoRow("目标节点", detail.targetNodeName)
             InfoRow("生效日期", detail.effectiveDate ?: "未设置")
-            InfoRow("就绪度", detail.readiness.wire)
+            InfoRow("就绪度", readinessLabel(detail.readiness.wire))
             InfoRow("受影响服务数", detail.affectedServiceCount.toString())
-            InfoRow("必须处理键", detail.mustChangeKeys.size.toString())
-            if (detail.unresolvedMustChangeKeys.isNotEmpty()) {
-                InfoRow("仍未解决", detail.unresolvedMustChangeKeys.joinToString("；"))
-            }
+            InfoRow("必须处理的事项", "${detail.mustChangeKeys.size} 条")
+            InfoRow("仍未解决", "${detail.unresolvedMustChangeKeys.size} 条")
             SectionDivider("动作（${detail.actions.size}）")
             if (detail.actions.isEmpty()) {
                 EmptyState("该计划没有动作。")
@@ -73,9 +68,8 @@ internal fun PlanActionCard(ui: UiState, planId: String, action: PlanAction) {
     PdigCard(
         title = action.title,
         subtitle = listOfNotNull(
-            "动作 ID: ${action.id}",
-            "阶段：${action.phase.wire}",
-            v?.let { "验证：${it.method.wire} / ${it.status.wire}" },
+            "阶段：${actionPhaseLabel(action.phase.wire)}",
+            v?.let { "验证：${verificationMethodLabel(it.method.wire)} / ${verificationStatusLabel(it.status.wire)}" },
         ).joinToString(" · "),
         trailing = {
             Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {

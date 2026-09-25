@@ -32,7 +32,7 @@ fun CandidatesScreen(ui: UiState) {
                 candidates.forEach { c ->
                     PdigCard(
                         title = c.label,
-                        subtitle = "类型：${c.candidateKind} · 观察 ${c.observationCount} 次",
+                        subtitle = "类型：${kindLabel(c.candidateKind)} · 观察 ${c.observationCount} 次",
                         trailing = {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 TextButton(onClick = { acceptCandidate(ui, c.id) }) { Text("接受为节点") }

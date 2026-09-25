@@ -15,16 +15,16 @@
 
 ## 平台状态（本轮实跑）
 
-| 平台 | 状态 | 证据 |
-| ---- | ---- | ---- |
-| Android Preview 0.1.2 | 构建 PASS | `assemblePreviewRelease` BUILD SUCCESSFUL（1m19s）；APK `com.pdig.app.preview` / `versionCode=200003` / `versionName=0.1.2`；apksigner verify：v2 scheme Verified |
-| Android JVM 测试 | 71/71 + 9/9 PASS | `:core:test` 71/71 · `:app:testDebugUnitTest` 9/9（fresh rerun，0 failure） |
-| Android 仪器化测试 | 60/60 PASS（基线） | `TEST-pdig36(AVD)-16-_app-preview.xml`，2026-09-24 11:39（本轮模拟器环境阻塞前实跑） |
-| Android 运行时 smoke | **RUNTIME_ENVIRONMENT_BLOCKED** | 2026-09-24 下午起本机所有 AVD（pdig36 / pdig_api36_phone / pdig_api36_tablet / API35 / API34-ARM）均在 full startup 静默退出；真实运行证据无法在本机复现，见 Known Limitations |
-| Windows Desktop 0.1.2 | 构建+测试+冒烟 PASS | `:app:test` BUILD SUCCESSFUL；`--smoke` 16/16 PASS（含三 Scenario + Backup/Restore）；PDIG.exe GUI 启动 20s 无崩溃 |
-| conformance | android 91/91 PASS | 2026-09-24 fresh（codegen / fixtureIntegrity / oracleSelfcheck PASS）；harmony 87/91（4 项 runtime-blocked，环境阻塞，2026-09-19 记录）；ios 91/91（2026-09-19 记录） |
-| 质量 Gate | PASS | `check-quality.mjs` exit 0，10 项计数全 0（file-size / composable / todo / suppress / cycle / secret / senslog / kotlin-escape / deadcode / gap） |
-| core `npm run check` | 全绿 | 453 tests / 43 files PASS · architecture circular=0 · network 0 primitives · secret scan 988 files · UI gate 30 `.uvue` |
+| 平台                  | 状态                            | 证据                                                                                                                                                                           |
+| --------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Android Preview 0.1.2 | 构建 PASS                       | `assemblePreviewRelease` BUILD SUCCESSFUL（1m19s）；APK `com.pdig.app.preview` / `versionCode=200003` / `versionName=0.1.2`；apksigner verify：v2 scheme Verified              |
+| Android JVM 测试      | 71/71 + 9/9 PASS                | `:core:test` 71/71 · `:app:testDebugUnitTest` 9/9（fresh rerun，0 failure）                                                                                                    |
+| Android 仪器化测试    | 60/60 PASS（基线）              | `TEST-pdig36(AVD)-16-_app-preview.xml`，2026-09-24 11:39（本轮模拟器环境阻塞前实跑）                                                                                           |
+| Android 运行时 smoke  | **RUNTIME_ENVIRONMENT_BLOCKED** | 2026-09-24 下午起本机所有 AVD（pdig36 / pdig_api36_phone / pdig_api36_tablet / API35 / API34-ARM）均在 full startup 静默退出；真实运行证据无法在本机复现，见 Known Limitations |
+| Windows Desktop 0.1.2 | 构建+测试+冒烟 PASS             | `:app:test` BUILD SUCCESSFUL；`--smoke` 16/16 PASS（含三 Scenario + Backup/Restore）；PDIG.exe GUI 启动 20s 无崩溃                                                             |
+| conformance           | android 91/91 PASS              | 2026-09-24 fresh（codegen / fixtureIntegrity / oracleSelfcheck PASS）；harmony 87/91（4 项 runtime-blocked，环境阻塞，2026-09-19 记录）；ios 91/91（2026-09-19 记录）          |
+| 质量 Gate             | PASS                            | `check-quality.mjs` exit 0，10 项计数全 0（file-size / composable / todo / suppress / cycle / secret / senslog / kotlin-escape / deadcode / gap）                              |
+| core `npm run check`  | 全绿                            | 453 tests / 43 files PASS · architecture circular=0 · network 0 primitives · secret scan 988 files · UI gate 30 `.uvue`                                                        |
 
 ## 发布物（GitHub Pre-release `product-v0.1.2`）
 

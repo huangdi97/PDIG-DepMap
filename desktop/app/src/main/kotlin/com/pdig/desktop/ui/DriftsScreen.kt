@@ -32,7 +32,7 @@ fun DriftsScreen(ui: UiState) {
                 drifts.forEach { d ->
                     PdigCard(
                         title = "${d.candidateFrom ?: "（未知来源）"} → ${d.targetNodeId}",
-                        subtitle = "类型：${d.kind} · 能力：${d.capability} · 观察 ${d.observationCount} 次" +
+                        subtitle = "类型：${driftKindLabel(d.kind)} · 能力：${capabilityLabel(d.capability)} · 观察 ${d.observationCount} 次" +
                             " · 关联依赖 ${d.relatedDependencyIds.size} 条 · 发现于 ${d.detectedAt.take(19)}",
                         trailing = {
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

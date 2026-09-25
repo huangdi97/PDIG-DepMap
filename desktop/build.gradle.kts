@@ -8,5 +8,5 @@ plugins {
 
 allprojects {
     group = "com.pdig"
-    version = "0.1.2"
+    version = "0.2.0"
 }

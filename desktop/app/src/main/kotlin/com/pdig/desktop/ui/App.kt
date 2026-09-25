@@ -1,5 +1,6 @@
 package com.pdig.desktop.ui
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,7 +36,7 @@ private fun AppFrame(ui: UiState) {
         Surface(Modifier.width(180.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surfaceVariant) {
             Column(Modifier.padding(vertical = 12.dp).fillMaxHeight()) {
                 Text(
-                    "PDIG 0.1.0",
+                    "PDIG 0.2.0",
                     Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
@@ -61,9 +62,10 @@ private fun KeyedContent(ui: UiState) {
     // 读 refreshKey 键：任何 refresh() 使当前屏面重查询（State 读取即订阅）
     val refreshKey = ui.refreshKey
     if (refreshKey < 0) return@KeyedContent // unreachable; keeps the read observable
-    Surface(Modifier.fillMaxSize()) {
+    Surface(Modifier.fillMaxSize().focusable()) {
         when (ui.screen) {
             Screen.HOME -> HomeScreen(ui)
+            Screen.ATTENTION -> AttentionScreen(ui)
             Screen.SOURCES -> SourcesScreen(ui)
             Screen.IMPORT -> ImportScreen(ui)
             Screen.MAPPING -> MappingScreen(ui)

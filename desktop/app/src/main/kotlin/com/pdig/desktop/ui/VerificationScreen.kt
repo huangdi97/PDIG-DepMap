@@ -43,13 +43,11 @@ fun VerificationScreen(ui: UiState) {
                                 PdigCard(
                                     title = a.title,
                                     subtitle = listOfNotNull(
-                                        "actionId: ${a.id}",
-                                        "方法：${v.method.wire}",
-                                        "预期来源/目标：${v.expectedFromNodeId ?: "-"} → ${v.expectedToNodeId ?: "-"}",
+            "验证方式：${verificationMethodLabel(v.method.wire)}",
                                     ).joinToString(" · "),
                                     trailing = {
                                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                            StatusChip(v.status.wire, toneFor(v.status.wire))
+                                            StatusChip(verificationStatusLabel(v.status.wire), toneFor(v.status.wire))
                                             TextButton(
                                                 onClick = { verifyPlanAction(ui, plan.id, a.id) },
                                                 enabled = canVerify,

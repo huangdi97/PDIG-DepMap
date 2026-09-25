@@ -285,18 +285,17 @@ Golden Vector 定义在 `spec/security/depmap-container-v1.json`，
 > 下载链接与 SHA-256：见 GitHub Release 页面（`https://github.com/huangdi97/PDIG-DepMap/releases`）。
 > Windows 二进制**未签名**，运行可能触发 SmartScreen 警告。
 
-
 ## v0.2.0：你可以做什么（产品视角）
 
 PDIG v0.2.0 是 **Windows Desktop + Android** 双端一致的 Developer Preview。
 
 ### 三个场景
 
-| 场景 | 说明 |
-| --- | --- |
-| 更换银行卡 | 换卡前检查支付、订阅和钱包依赖 |
+| 场景           | 说明                                 |
+| -------------- | ------------------------------------ |
+| 更换银行卡     | 换卡前检查支付、订阅和钱包依赖       |
 | 银行卡即将到期 | 到期前看看还有哪些支付关系依赖这张卡 |
-| 注销银行卡 | 注销前确认哪些支付关系需要迁移 |
+| 注销银行卡     | 注销前确认哪些支付关系需要迁移       |
 
 ### 核心流程（双端一致）
 
@@ -333,6 +332,7 @@ PDIG v0.2.0 是 **Windows Desktop + Android** 双端一致的 Developer Preview�
 
 产品体验说明：`PRODUCT_EXPERIENCE_MAP_V0_2.md` · 双端一致性矩阵：`DUAL_CLIENT_EXPERIENCE_MATRIX_V0_2.md` ·
 术语词典：`PRODUCT_TERMINOLOGY_V0_2.md` · 错误目录：`PRODUCT_ERROR_CATALOG.md`。
+
 ## 已知限制
 
 - **Impact 仅覆盖 payment capability**；其他 capability 只存边，不参与影响计算

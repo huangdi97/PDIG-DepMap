@@ -28,7 +28,6 @@ fun SettingsScreen(ui: UiState) {
     var confirmMode by remember { mutableStateOf(false) }
     var password by remember { mutableStateOf("") }
     val file = ui.dataFile
-    val graphRevision = ui.session.graph.graphRevision()
     val nodeCount = ui.session.graph.nodes(includeArchived = true).size
     val depCount = ui.session.graph.dependencies().size
     PdigPage(
@@ -44,9 +43,33 @@ fun SettingsScreen(ui: UiState) {
             InfoRow("文件名", file?.name ?: "（未落盘）")
             InfoRow("位置", file?.absolutePath ?: "（仅内存）")
             InfoRow("大小", file?.let { "${it.length()} 字节" } ?: "—")
-            InfoRow("graphRevision", graphRevision.toString())
             InfoRow("节点数（含归档）", nodeCount.toString())
             InfoRow("依赖边数", depCount.toString())
+            SectionDivider("功能入口")
+            ActionRow(
+                title = "备份与恢复",
+                description = "把加密的数据文件复制到别处，或从备份文件恢复",
+                actionLabel = "打开",
+                onAction = { ui.screen = Screen.BACKUP },
+            )
+            ActionRow(
+                title = "恢复数据文件",
+                description = "从 .depmap 备份恢复（当前会话被原子替换）",
+                actionLabel = "打开",
+                onAction = { ui.screen = Screen.RESTORE },
+            )
+            ActionRow(
+                title = "安全",
+                description = "本机解锁（记住口令）开关与加密说明",
+                actionLabel = "打开",
+                onAction = { ui.screen = Screen.SECURITY },
+            )
+            ActionRow(
+                title = "关于",
+                description = "版本、构建信息与发布声明",
+                actionLabel = "打开",
+                onAction = { ui.screen = Screen.ABOUT },
+            )
             SectionDivider("窗口（占位说明，仅本次会话）")
             InfoRow("全屏", "窗口由系统控制；本预览版不记忆窗口设置。")
             InfoRow("主题", "跟随系统；不提供持久化主题配置。")

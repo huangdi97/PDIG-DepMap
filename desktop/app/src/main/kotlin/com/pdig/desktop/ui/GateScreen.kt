@@ -30,7 +30,7 @@ fun GateScreen(ui: UiState) {
         )
     }
     PdigPage(
-        title = "PDIG 0.1.0 Developer Preview",
+        title = "PDIG 0.2.0 Preview",
         subtitle = "个人数字基础设施图谱",
         notice = ui.notice,
         error = ui.error,

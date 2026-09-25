@@ -12,7 +12,7 @@ import com.pdig.desktop.ui.components.SectionDivider
 fun AboutScreen(ui: UiState) {
     PdigPage(
         title = "关于",
-        subtitle = "PDIG 0.1.0 Developer Preview",
+        subtitle = "PDIG 0.2.0 Preview",
         notice = ui.notice,
         error = ui.error,
         onDismissNotice = { ui.notice = null },
@@ -21,7 +21,7 @@ fun AboutScreen(ui: UiState) {
         Column {
             SectionDivider("项目")
             InfoRow("名称", "个人数字基础设施图谱（PDIG）")
-            InfoRow("版本", "0.1.0 Developer Preview")
+            InfoRow("版本", "0.2.0 Preview")
             InfoRow("一句话", "换卡、换号、注销账户之前，先看清哪些账户和支付路径会被影响。")
             SectionDivider("构建信息")
             InfoRow("界面框架", "Compose Desktop")

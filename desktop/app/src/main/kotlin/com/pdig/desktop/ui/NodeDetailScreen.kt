@@ -41,10 +41,9 @@ fun NodeDetailScreen(ui: UiState) {
         Column {
             SectionDivider("节点信息")
             InfoRow("名称", node.name)
-            InfoRow("ID", node.id)
-            InfoRow("类型", node.kind)
+            InfoRow("名称", node.name)
+            InfoRow("类型", kindLabel(node.kind))
             InfoRow("归档", if (node.archived) "是" else "否")
-            InfoRow("字段（JSON）", node.fieldsJson)
             SectionDivider("相关依赖")
             val deps = ui.session.graph.dependencies().filter { it.from == node.id || it.to == node.id }
             if (deps.isEmpty()) {
@@ -54,7 +53,7 @@ fun NodeDetailScreen(ui: UiState) {
                     val isRequired = d.criticality == "required"
                     PdigCard(
                         title = "${d.fromName} → ${d.toName}",
-                        subtitle = "能力 ${d.capability} · ${d.state}",
+                        subtitle = "能力：${capabilityLabel(d.capability)} · ${dependencyStateLabel(d.state)}",
                         trailing = {
                             Column(horizontalAlignment = Alignment.End) {
                                 StatusChip(if (isRequired) "必需" else "未知", if (isRequired) ChipTone.GOOD else ChipTone.WARN)
@@ -74,7 +73,7 @@ fun NodeDetailScreen(ui: UiState) {
             }) { Text("影响分析") }
             Spacer(Modifier.height(4.dp))
             TextButton(onClick = { ui.screen = Screen.INFRA }) { Text("返回基础设施") }
-            Text("criticality=required 表示：该依赖对支付能力是必需路径，机器永不自动产生 required，只能由您确认。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text("「必需」表示：该依赖对支付能力是必需路径；机器永不自动产生「必需」，只能由您确认。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
