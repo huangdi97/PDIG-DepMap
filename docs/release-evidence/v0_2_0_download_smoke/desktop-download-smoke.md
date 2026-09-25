@@ -1,6 +1,7 @@
-# v0.2.0 Desktop ÏÂÔØºó smoke£¨Release attachment£©
-1. PDIG-0.2.0-windows-x64-portable.zip ÏÂÔØ×Ô GitHub Release product-v0.2.0£¬SHA256 MATCH¡£
-2. ½âÑ¹ºóÔËÐÐ PDIG\PDIG.cmd£¨jlink runtime + javaw Òýµ¼£©¡£
-3. Êµ²â£ºjavaw pid=45140£¬´°¿Ú¾ä±ú 19864028£¬´°¿Ú±êÌâ [PDIG 0.2.0 Preview] ¡ª¡ª ÕæÊµ GUI ´°¿Ú¡£
-4. ³¡¾°/¼Æ»®/ÑéÖ¤/±¸·Ý»Ö¸´Á÷³ÌÓÉ --smoke 16/16£¨Í¬Ò» app jar£©¸²¸Ç£¬Á¬Ðø 5 ´ÎÈ« PASS£¨G2 ÎÈ¶¨ÐÔ£©¡£
-5. setup.exe Í¬Ô´£¨Í¬Ò» app-image ÓÉ NSIS ´ò°ü£©£¬°²×°Ê÷º¬ runtime\bin\java.exe/javaw.exe¡£
+# v0.2.0 Desktop ï¿½ï¿½ï¿½Øºï¿½ smokeï¿½ï¿½Release attachmentï¿½ï¿½
+
+1. PDIG-0.2.0-windows-x64-portable.zip ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ GitHub Release product-v0.2.0ï¿½ï¿½SHA256 MATCHï¿½ï¿½
+2. ï¿½ï¿½Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PDIG\PDIG.cmdï¿½ï¿½jlink runtime + javaw ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+3. Êµï¿½â£ºjavaw pid=45140ï¿½ï¿½ï¿½ï¿½ï¿½Ú¾ï¿½ï¿½ 19864028ï¿½ï¿½ï¿½ï¿½ï¿½Ú±ï¿½ï¿½ï¿½ [PDIG 0.2.0 Preview] ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Êµ GUI ï¿½ï¿½ï¿½Ú¡ï¿½
+4. ï¿½ï¿½ï¿½ï¿½/ï¿½Æ»ï¿½/ï¿½ï¿½Ö¤/ï¿½ï¿½ï¿½Ý»Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ --smoke 16/16ï¿½ï¿½Í¬Ò» app jarï¿½ï¿½ï¿½ï¿½ï¿½Ç£ï¿½ï¿½ï¿½ï¿½ï¿½ 5 ï¿½ï¿½È« PASSï¿½ï¿½G2 ï¿½È¶ï¿½ï¿½Ô£ï¿½ï¿½ï¿½
+5. setup.exe Í¬Ô´ï¿½ï¿½Í¬Ò» app-image ï¿½ï¿½ NSIS ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ runtime\bin\java.exe/javaw.exeï¿½ï¿½

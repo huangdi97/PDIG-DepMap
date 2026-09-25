@@ -96,6 +96,26 @@
 
 ## Current
 
+- **2026-09-25 Harmony N3 恢复轮（代码侧推进）**：用户批准重启 E-9（PAUSED → ACTIVE）；把 Harmony parity 从
+  「表格未同步」归位为「与真实源码 + 真实执行一致」，**0/73 → 22/73**。全部证据本轮新鲜实跑：
+  - `hvigorw assembleHap`（ASCII 镜像 + --clean）→ BUILD SUCCESSFUL 67s；HAP `entry-default-unsigned.hap`
+    **3,380,659 B**，SHA-256 `610701e006a857dde7e6cd16a4dba57b4d74158a551ba25fe54edb82a9057c21`
+    （HAP 非字节可复现：zip 时间戳，同源码两轮 clean 为 86f1bc53… / 610701e0…，字节数一致）。
+  - `check-compiled-reachability.mjs --build` PASS：**26/26 required 模块** reachable + 全入
+    `modules.abc`（432,560 B）；负向 probe（注入类型错误必须 fail clean 构建）PASS；孤儿模块 = **0**。
+  - `run-conformance-host.mjs` PASS：**91/91 host checks**（87 canonical + 3 元测试 + 1 domain 自检）；
+    `HARMONY_HOST_PASS = 87/91`（87 条 canonical 真实 ArkTS 运行时逐字节复现 expected，0 fail）。
+  - `codegen --check` PASS（spec→generated 无漂移）；`tools/conformance/run.mjs`：android **PASS 91/91** 保持、
+    harmony 87/91（4 条 DEVICE-BLOCKED：golden/utf8-norm/migration-db/backup-roundtrip，如实记 FAIL
+    「no result reported」**不写 PASS**）、ios 91/91（2026-09-19 旧记录）。
+  - **Parity 归位口径**：`CONFORMANCE_PASS`（host 执行面）= 源码入 HAP + canonical 用例在真实 ArkTS 运行时 PASS；
+    `IMPLEMENTED_COMPILED_NOT_RUN` = 只有源码 + 编译证据；**RUNTIME_VERIFIED 一格未增**（设备面不可用，
+    `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`，华为账号 + 模拟器镜像为唯一外部依赖 E-9）。
+    明细：§1 12 CP + 3 ICNR · §2 0（无 ArkTS repository 层）· §3 2 CP + 3 ICNR · §4 7 CP（parser 22/22）·
+    §5 0（UI 仅 Index.ets）· §6 1 TESTED（host 单测 91 checks）。逐格见 `NATIVE_PARITY_MATRIX.md`。
+  - 回归：core `npm run check` 全绿（453/453，architecture circular=0，network/secrets/ui 全 PASS）；
+    修复 1 个 v0.2.0 既有文档格式回归（desktop-download-smoke.md prettier 空行，仅格式零内容）；
+    `spec/`、`fixtures/`、`conformance/expected/` 零改动；未进入 iOS N4（E-8 需 macOS）。
 - **v0.2.0 Product Usability & Dual-Client Maturity 轮（2026-09-25）**：产品体验/double-client 一致性/发布收口。
   - 基线对齐：main 5069df9 起于 `feat/product-v0.2.0-usability`，ff 合入 main=origin/main=release/product-v0.2.0
     = tag `product-v0.2.0`（SHA 见 git；全程无 force）。

@@ -3,9 +3,41 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-> 更新：2026-09-23（**ANDROID API36 工程全速收口轮**：compileSdk/targetSdk→36、API36 双 AVD 全量回归、
-> Core Journey 41/41、三场景 32/32、edge-to-edge/predictive-back/adaptive-layout 三项 Gate PASS、
-> NON-PROD 签名链路验证、N2 parity 保持 69/73、外部 Gate 保持 BLOCKED；Harmony/iOS 本轮未进入）
+> 更新：2026-09-25（**Harmony N3 恢复轮 —— 代码侧 parity 推进**；E-9 PAUSED → ACTIVE，用户批准重启）
+>
+> - **`HARMONY_BUILD = PASS`**：`hvigorw assembleHap --mode module -p product=default -p buildMode=debug
+--no-daemon`（ASCII 镜像 + `--clean` 全量重建）→ `BUILD SUCCESSFUL in 1 min 3 s`；HAP
+>   `entry-default-unsigned.hap` = **3,380,659 B**，SHA-256
+>   `610701e006a857dde7e6cd16a4dba57b4d74158a551ba25fe54edb82a9057c21`
+>   （HAP 是 zip、含构建时间戳，**非字节可复现**：同源码两轮 clean 构建哈希依次 86f1bc53… / 610701e0…，字节数一致）。
+> - **`HARMONY_MODULE_COMPILED = PASS`**：`node tools/harmony/check-compiled-reachability.mjs --build`
+>   A/B/C/D 四判据全过：**26/26 required 模块 reachable**、全部存在于 `modules.abc`（432,560 B）、
+>   代表模块负向 probe（注入类型错误 → clean 构建必须失败）PASS；**孤儿模块 = 0**（30 found / 30 reachable）。
+> - **`HARMONY_CONFORMANCE_HOST = PASS`**（2026-09-25 新鲜）：`node tools/harmony/run-conformance-host.mjs`
+>   → **91/91 host checks**（87 canonical + 3 conformance 元测试 + 1 domain 自检），0 fail；
+>   **`HARMONY_HOST_PASS = 87/91`** —— 87 条 canonical 在真实 ArkTS 运行时逐字节复现冻结 expected；
+>   余 4 条 = DEVICE-BLOCKED（depmap-golden-v1 / depmap-utf8-password-normalization /
+>   migration-db-v1-to-v3 / backup-depmap-export-restore-roundtrip），统一 harness 如实记 FAIL
+>   （no result reported），**不写 PASS**；`conformance/reports/harmony.json` + `SUMMARY.json` 已刷新。
+> - **`HARMONY_DEPMAP = NATIVE_BUILD_PASS / ON_DEVICE_NOT_RUN`**（保持）：`libpdiargon2.so`
+>   （arm64-v8a 40,768 B / x86_64 42,296 B，strip 后动态符号仅 3 个）在 HAP 内，Argon2id NAPI 已真实绑定。
+> - **`HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`**（本轮唯一外部项，不变）：缺 Emulator 系统镜像，
+>   需华为账号登录下载（见 `HARMONY_RUNTIME_ENVIRONMENT_AUDIT.md`）。
+> - **Parity**：Harmony 0/73 → **22/73**（§1 领域/语义 12 CONFORMANCE_PASS(host) + 3 IMPLEMENTED_COMPILED_NOT_RUN ·
+>   §2 持久化 0（无 ArkTS repository 层，reachability 显示 data/Repository.ets = NOT_IMPLEMENTED）·
+>   §3 安全 2 CONFORMANCE_PASS（jcs / bounds）+ 3 IMPLEMENTED_COMPILED_NOT_RUN（容器/Argon2+AES/UTF-8，后两者 DEVICE-BLOCKED）·
+>   §4 导入/解析 7 CONFORMANCE_PASS（parser 22/22）· §5 UI 0（仅 Index.ets）· §6 工程 1 TESTED（host 单测 91 checks））。
+>   逐格依据见 `NATIVE_PARITY_MATRIX.md`「Harmony 22/73 的来源」。**RUNTIME_VERIFIED 一格未增**。
+> - **回归**：`core/` `npm run check` 全绿（**453/453** tests；format/lint/typecheck/architecture circular=0 /
+>   network / secrets / ui 全 PASS）；`node tools/conformance/run.mjs`：codegen PASS · fixtureIntegrity 91/91+28/28 ·
+>   oracle PASS · **android PASS 91/91** · harmony 87/91（4 条 device-blocked，未写 PASS）· ios 91/91
+>   （2026-09-19 旧记录）。`spec/`、`fixtures/`、`conformance/expected/` **零改动**（codegen --check PASS 佐证）。
+> - 本轮**未进入 iOS N4**（E-8 仍需 macOS）；Android（CORE_FROZEN）/Desktop 零改动 —— 仅修复 1 个 v0.2.0
+>   既有文档格式回归（`docs/release-evidence/v0_2_0_download_smoke/desktop-download-smoke.md` prettier 空行，
+>   纯格式零内容）。后续代码缺口：ArkTS 持久化层（data/Repository.ets）与 UI 页面 parity（下一阶段）。
+>   更新：2026-09-23（**ANDROID API36 工程全速收口轮**：compileSdk/targetSdk→36、API36 双 AVD 全量回归、
+>   Core Journey 41/41、三场景 32/32、edge-to-edge/predictive-back/adaptive-layout 三项 Gate PASS、
+>   NON-PROD 签名链路验证、N2 parity 保持 69/73、外部 Gate 保持 BLOCKED；Harmony/iOS 本轮未进入）
 >
 > 更新：2026-09-24（**v0.1.2 质量迭代收口轮**）：
 >
