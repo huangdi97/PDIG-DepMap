@@ -55,6 +55,22 @@ internal fun impactLevelLabel(level: ImpactLevel): String = when (level) {
     ImpactLevel.TARGET_OPERATION -> "最后执行"
 }
 
+/** 每个影响级别下的稳定解释句（基于 ImpactLevel 映射，不暴露内部枚举名 —— spec §65）。 */
+internal fun impactCaption(level: ImpactLevel): String = when (level) {
+    ImpactLevel.MUST_CHANGE ->
+        "这个服务只有这一个已确认的支付方式，换卡后可能无法扣款。依据是你确认过的依赖关系。"
+    ImpactLevel.BACKUP_PATH ->
+        "已确认存在其他可用的支付方式，影响有限，但冗余度下降。"
+    ImpactLevel.DEGRADED ->
+        "已确认存在其他可用的支付方式，能力会降级，但不会完全中断。"
+    ImpactLevel.NEEDS_REVIEW ->
+        "还没有确认是否受影响，需要人工核实；未经确认不会当成必须处理。"
+    ImpactLevel.UNAFFECTED ->
+        "未发现受影响的已确认关系。"
+    ImpactLevel.TARGET_OPERATION ->
+        "这是最后一步：以上事项处理完成后再执行停用/注销。"
+}
+
 /**
  * Impact 结果页：直接展示 core.impact 的输出，UI 不自行推导。
  * machine 未确认的内容在这里最多显示为「建议检查」，不会被提升为必须处理。
@@ -102,17 +118,20 @@ fun ImpactScreen(nav: NavController, nodeId: String) {
                     title = "必须处理（${mustChange.size}）",
                     emptyText = "没有必须处理的事项。",
                     items = mustChange.map { it.nodeName to it.reasonText },
+                    caption = impactCaption(ImpactLevel.MUST_CHANGE),
                 )
                 ImpactGroup(
                     title = "建议检查（${needsReview.size}）",
                     emptyText = "没有需要人工核实的事项。",
                     items = needsReview.map { it.nodeName to it.reasonText },
+                    caption = impactCaption(ImpactLevel.NEEDS_REVIEW),
                 )
                 if (backup.isNotEmpty()) {
                     ImpactGroup(
                         title = "有备用路径 / 能力降级（${backup.size}）",
                         emptyText = "",
                         items = backup.map { it.nodeName to it.reasonText },
+                        caption = impactCaption(ImpactLevel.BACKUP_PATH),
                     )
                 }
                 ImpactGroup(
@@ -135,6 +154,11 @@ fun ImpactScreen(nav: NavController, nodeId: String) {
                                     )
                                 }
                                 Text(
+                                    impactCaption(item.level),
+                                    style = PdigTokens.Caption,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
                                     item.detail,
                                     style = PdigTokens.Caption,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -156,7 +180,7 @@ fun ImpactScreen(nav: NavController, nodeId: String) {
 }
 
 @Composable
-private fun ImpactGroup(title: String, emptyText: String, items: List<Pair<String, String>>) {
+private fun ImpactGroup(title: String, emptyText: String, items: List<Pair<String, String>>, caption: String? = null) {
     SectionHeader(title)
     if (items.isEmpty()) {
         if (emptyText.isNotBlank()) EmptyState(emptyText)
@@ -166,6 +190,10 @@ private fun ImpactGroup(title: String, emptyText: String, items: List<Pair<Strin
                 PdigCard {
                     Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
                         Text(name, style = PdigTokens.BodyStrong)
+                        // 稳定解释句：说明这一类的判定依据（中性色，不渲染成错误）。
+                        caption?.let {
+                            Text(it, style = PdigTokens.Caption, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                         Text(reason, style = PdigTokens.Caption, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }

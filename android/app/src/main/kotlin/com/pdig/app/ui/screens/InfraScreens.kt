@@ -10,7 +10,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,8 +44,10 @@ fun InfrastructureScreen(nav: NavController) {
     val context = LocalContext.current
     val container = remember { AppContainer.get(context) }
     var nodes by remember { mutableStateOf<List<NodeRow>?>(null) }
+    var query by remember { mutableStateOf("") }
     // 数据库读一律在 IO 线程（主线程做 DB 会在冷启动触发 ANR，2026-09-16 修复）
     LaunchedEffect(Unit) { nodes = withContext(Dispatchers.IO) { container.nodes() } }
+
 
     Scaffold(topBar = { PdigTopBar("我的基础设施", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -56,9 +60,25 @@ fun InfrastructureScreen(nav: NavController) {
                 nodes == null -> LoadingState()
                 nodes?.isEmpty() == true -> EmptyState("还没有记录任何对象。可以先导入一份账单。")
                 else -> {
-                    nodes?.forEach { n ->
-                        PdigCard(onClick = { nav.navigate(Route.NODE.replace("{nodeId}", n.id)) }) {
-                            Text(n.name, style = PdigTokens.BodyStrong)
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        label = { Text("搜索对象") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    val filtered = (nodes ?: emptyList())
+                        .filter { query.isBlank() || it.name.contains(query.trim(), ignoreCase = true) }
+                    if (filtered.isEmpty()) {
+                        EmptyState("没有找到匹配「${query.trim()}」的对象。")
+                    } else {
+                        groupedNodes(filtered).forEach { (label, items) ->
+                            SectionHeader("$label（${items.size}）")
+                            items.forEach { n ->
+                                PdigCard(onClick = { nav.navigate(Route.NODE.replace("{nodeId}", n.id)) }) {
+                                    Text(n.name, style = PdigTokens.BodyStrong)
+                                }
+                            }
                         }
                     }
                     SectionHeader("高级视图")
@@ -66,6 +86,24 @@ fun InfrastructureScreen(nav: NavController) {
                 }
             }
         }
+    }
+}
+
+/**
+ * 节点 kind 的人话分组名（spec §65：内部 wire 值绝不上屏）。
+ * NodeKind 枚举没有 counterparty —— 收款对象以 service 节点表示（导入时 merchantRaw → SERVICE）。
+ */
+internal fun nodeKindGroupLabel(kind: String): String = when (kind) {
+    "payment_instrument" -> "支付方式"
+    "service" -> "收款对象"
+    else -> "其他"
+}
+
+/** 按人话分组名聚合节点；分组顺序固定，空组不显示。 */
+internal fun groupedNodes(nodes: List<NodeRow>): List<Pair<String, List<NodeRow>>> {
+    val groups = nodes.groupBy { nodeKindGroupLabel(it.kind) }
+    return listOf("支付方式", "收款对象", "其他").mapNotNull { label ->
+        groups[label]?.takeIf { it.isNotEmpty() }?.let { label to it }
     }
 }
 
@@ -117,16 +155,23 @@ fun NodeDetailScreen(nav: NavController, nodeId: String) {
     var node by remember { mutableStateOf<NodeRow?>(null) }
     var deps by remember { mutableStateOf<List<DependencyRow>>(emptyList()) }
     var refresh by remember { mutableStateOf(0) }
+    var pendingIssueCount by remember { mutableStateOf<Int?>(null) }
+    var hasPendingProposals by remember { mutableStateOf(false) }
 
     LaunchedEffect(nodeId, refresh) {
         val loaded = withContext(Dispatchers.IO) {
             val n = container.nodes(true).firstOrNull { it.id == nodeId }
             val d = container.dependencies().filter { it.from == nodeId || it.to == nodeId }
-            n to d
+            val proposals = container.pendingProposals().count { it.from == nodeId || it.to == nodeId }
+            val drifts = container.openDrifts().count { it.targetNodeId == nodeId }
+            NodeDetailSnapshot(n, d, proposals, drifts)
         }
-        node = loaded.first
-        deps = loaded.second
+        node = loaded.node
+        deps = loaded.deps
+        pendingIssueCount = loaded.pendingProposals + loaded.openDrifts
+        hasPendingProposals = loaded.pendingProposals > 0
     }
+
 
     Scaffold(topBar = { PdigTopBar("对象详情", onBack = { nav.popBackStack() }) }) { pad ->
         Column(
@@ -149,6 +194,10 @@ fun NodeDetailScreen(nav: NavController, nodeId: String) {
                             Text("如果这张卡停用，会影响到什么", style = PdigTokens.BodyStrong)
                         }
                     }
+
+                    // NodeDetail 六问：① 这是什么 ② 确认了什么（③ 相关依赖见下）
+                    NodeIdentityCard(node?.kind ?: "")
+                    ConfirmedCard(node?.name ?: "", node?.kind ?: "", deps.size)
 
                     SectionHeader("相关依赖")
                     if (deps.isEmpty()) {
@@ -183,6 +232,15 @@ fun NodeDetailScreen(nav: NavController, nodeId: String) {
                             }
                         }
                     }
+
+                    // NodeDetail 六问 · ⑥ 有没有待处理问题（④ 依据来源 / ⑤ 最近确认无字段，诚实省略）
+                    SectionHeader("待处理问题")
+                    PendingIssuesCard(
+                        count = pendingIssueCount,
+                        hasProposals = hasPendingProposals,
+                        onClickProposals = { nav.navigate(Route.REVIEW) },
+                        onClickDrift = { nav.navigate(Route.DRIFT) },
+                    )
                 }
             }
         }

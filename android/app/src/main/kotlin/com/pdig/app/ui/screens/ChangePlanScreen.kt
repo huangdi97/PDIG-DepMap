@@ -97,7 +97,6 @@ fun ChangePlanScreen(nav: NavController, planId: String) {
                         PdigCard {
                             Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
                                 Text(a.title, style = PdigTokens.BodyStrong)
-                                Text(a.title, style = PdigTokens.BodyStrong)
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm),
@@ -158,7 +157,7 @@ internal fun verificationLabel(status: ActionVerificationStatus?): String = when
     null -> "无需验证"
     ActionVerificationStatus.NOT_REQUIRED -> "无需验证"
     ActionVerificationStatus.PENDING -> "待验证"
-    ActionVerificationStatus.EVIDENCE_SUGGESTED -> "有佐证提示"
+    ActionVerificationStatus.EVIDENCE_SUGGESTED -> "发现新的依据，请确认"
     ActionVerificationStatus.VERIFIED -> "已验证"
     ActionVerificationStatus.FAILED -> "验证失败"
 }

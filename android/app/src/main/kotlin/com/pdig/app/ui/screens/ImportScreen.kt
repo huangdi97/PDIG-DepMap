@@ -77,6 +77,9 @@ fun ImportScreen(nav: NavController) {
     var sources by remember { mutableStateOf<List<SourceRow>?>(null) }
     var selectedSourceId by remember { mutableStateOf<String?>(null) }
     var newSourceName by remember { mutableStateOf("") }
+    // CSV 字段对应步骤的内存态（表头/示例 + 原始字节）。仅存内存、绝不持久化（spec §151）。
+    var pendingHead by remember { mutableStateOf<String?>(null) }
+    var pendingBytes by remember { mutableStateOf<ByteArray?>(null) }
 
     LaunchedEffect(Unit) {
         sources = withContext(Dispatchers.IO) { container.sourceInstances() }
@@ -110,20 +113,31 @@ fun ImportScreen(nav: NavController) {
         wf.launch {
             val parsed = withContext(Dispatchers.IO) { readAndParse(context, uri, container, label) }
             wf.busy = false
-            if (parsed == null) {
-                wf.statusText = "无法读取或解析这个文件。"
-                wf.publishImportPreview(null)
-                wf.markReview(null)
-            } else {
-                wf.publishImportPreview(
-                    container.previewImport(
-                        parsed.outcome.observations,
-                        parsed.outcome.errors,
-                        parsed.adapterId,
-                        parsed.sourceLabel,
-                    ),
-                )
-                wf.markReview(parsed.mapping)
+            when (parsed) {
+                is ImportFileResult.Failed -> {
+                    // 失败文案区分读取与解析，绝不暴露异常类型/堆栈（spec §24）
+                    wf.statusText = when (parsed.reason) {
+                        ImportFailReason.UNREADABLE -> IMPORT_UNREADABLE_MESSAGE
+                        ImportFailReason.UNPARSEABLE -> IMPORT_PARSE_FAILED_MESSAGE
+                    }
+                    wf.publishImportPreview(null)
+                    wf.markReview(null)
+                    pendingHead = null
+                    pendingBytes = null
+                }
+                is ImportFileResult.Ok -> {
+                    pendingHead = parsed.parsed.head
+                    pendingBytes = parsed.parsed.bytes
+                    wf.publishImportPreview(
+                        container.previewImport(
+                            parsed.parsed.outcome.observations,
+                            parsed.parsed.outcome.errors,
+                            parsed.parsed.adapterId,
+                            parsed.parsed.sourceLabel,
+                        ),
+                    )
+                    wf.markReview(parsed.parsed.mapping)
+                }
             }
         }
     }
@@ -163,70 +177,60 @@ fun ImportScreen(nav: NavController) {
             verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceMd),
         ) {
             Text(
-                "文件只在本机解析，不会上传；解析结果不会长期保存原始交易明细。",
+                "文件只在本机解析，不会上传。完整流水不会保存为账本，仅保留分析所需的摘要、证据和你确认的信息。",
                 style = PdigTokens.Body,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
-            // ---- 步骤 1：选择来源 ----
-            SectionHeader("第 1 步 · 选择数据来源")
-            when {
-                sources == null -> LoadingState()
-                sources?.isNotEmpty() == true -> sources?.forEach { s ->
-                    PdigCard(onClick = {
-                        selectedSourceId = s.id
-                        newSourceName = ""
-                    }) {
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(s.label, style = PdigTokens.BodyStrong, modifier = Modifier.weight(1f))
-                            if (selectedSourceId == s.id) {
-                                Text("已选择", style = PdigTokens.Label, color = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-                    }
-                }
-                else -> EmptyState("还没有数据来源，请在下方新建一个。")
-            }
-            OutlinedTextField(
-                value = newSourceName,
-                onValueChange = { newSourceName = it; selectedSourceId = null },
-                label = { Text("或新建来源名称") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics { contentDescription = "新建数据来源名称" },
-                singleLine = true,
+            // ---- 步骤 1：选择来源（子 composable 见 ImportStepPanels.kt）----
+            ImportSourcePickerStep(
+                sources = sources,
+                selectedSourceId = selectedSourceId,
+                newSourceName = newSourceName,
+                onSourceClick = { id -> selectedSourceId = id; newSourceName = "" },
+                onNewNameChange = { name -> newSourceName = name; selectedSourceId = null },
             )
 
-            // ---- 步骤 2：选择文件并解析 ----
-            //
-            // 交给 Activity 作用域的 coordinator 拉起外部文件选择器：
-            // launcher 注册在 MainActivity，不会因为本页离开组合树而被注销（D-16）。
-            SectionHeader("第 2 步 · 选择文件")
-            Button(
-                onClick = {
+            // ---- 步骤 2：选择文件并解析（D-16 说明见 ImportStepPanels.kt）----
+            ImportFilePickerStep(
+                enabled = activeSourceLabel() != null && !wf.busy && wf.launcherAttached,
+                busy = wf.busy,
+                statusText = wf.statusText,
+                onPickFile = {
                     wf.beginImport(Route.IMPORT, selectedSourceId, activeSourceLabel())
                     if (!wf.launchPicker("*/*")) {
                         wf.statusText = "无法打开文件选择器，请重试。"
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = PdigTokens.MinTouchTarget)
-                    .testTag(IMPORT_PICK_FILE_TAG),
-                enabled = activeSourceLabel() != null && !wf.busy && wf.launcherAttached,
-            ) { Text("选择文件并解析") }
-            if (wf.busy) LoadingState()
-            wf.statusText?.let { Text(it, style = PdigTokens.BodyStrong) }
+            )
 
             // ---- 步骤 3：Node Resolution ----
             val p = wf.importPreview
             if (p != null) {
+                // 第 2.5 步 · 检查字段对应：仅 generic_csv 有列映射，wechat / ofx 无此步骤
+                if (p.adapterId == "generic_csv") {
+                    CsvMappingStep(
+                        head = pendingHead,
+                        initialMapping = wf.workflow?.mappingProfile,
+                        bytes = pendingBytes,
+                        container = container,
+                        onReparsed = { outcome, mapping ->
+                            wf.publishImportPreview(container.previewImport(outcome.observations, outcome.errors, "generic_csv", p.sourceLabel))
+                            wf.markReview(mapping)
+                        },
+                        onReparseFailed = { wf.statusText = IMPORT_PARSE_FAILED_MESSAGE },
+                    )
+                }
                 SectionHeader("第 3 步 · 确认要记录的对象")
                 Text(
                     "解析到 ${p.observations.size} 条记录" +
                         (if (p.errors.isEmpty()) "" else "，${p.errors.size} 行被跳过"),
                     style = PdigTokens.BodyStrong,
                 )
+                if (p.errors.isNotEmpty()) {
+                    Text("跳过的行不会参与分析。", style = PdigTokens.Caption, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+
                 Text("支付方式（${p.instruments.size}）", style = PdigTokens.Body)
                 p.instruments.forEach { i -> Text("· ${i.label}", style = PdigTokens.Caption) }
                 Text("收款对象（${p.counterparties.size}）", style = PdigTokens.Body)

@@ -93,6 +93,14 @@ fun HomeScreen(nav: NavController) {
                 SectionHeader("需要你处理")
                 val hasPendingReview = (pendingProposalCount ?: 0) > 0
                 val hasCandidates = (candidateCount ?: 0) > 0
+                val planNeedsHandling = plansNeedingHandling(plans)
+                // 计划也进入"需要你处理"聚合：review_required / verifying 等状态
+                // 表示计划本身还等着用户操作（goal §16/§17）。
+                if (planNeedsHandling > 0) {
+                    PdigCard(onClick = { nav.navigate(Route.TIMELINE) }) {
+                        Text("有 $planNeedsHandling 个计划需要处理", style = PdigTokens.BodyStrong)
+                    }
+                }
                 if (hasPendingReview) {
                     PdigCard(onClick = { nav.navigate(Route.REVIEW) }) {
                         Text("有待确认的关系：$pendingProposalCount 条", style = PdigTokens.BodyStrong)
@@ -103,7 +111,7 @@ fun HomeScreen(nav: NavController) {
                         Text("有待确认的服务：$candidateCount 个", style = PdigTokens.BodyStrong)
                     }
                 }
-                if (attention.isEmpty() && !hasPendingReview && !hasCandidates) {
+                if (attention.isEmpty() && !hasPendingReview && !hasCandidates && planNeedsHandling == 0) {
                     EmptyState("现在没有需要你处理的事项。")
                 } else {
                     attention.take(5).forEach { item ->
@@ -119,6 +127,7 @@ fun HomeScreen(nav: NavController) {
                         }
                     }
                 }
+
 
                 SectionHeader("可能发生了变化")
                 PdigCard(onClick = { nav.navigate(Route.DRIFT) }) {
@@ -259,3 +268,20 @@ private data class HomeCounts(
     val candidates: Int,
     val drifts: Int,
 )
+/**
+ * 需要用户处理的计划状态（PlanRow.workflowState 的 wire 值）。
+ *
+ * 实际写入该列的枚举是 ChangePlanWorkflowState（review_required / verifying 会真实出现）；
+ * blocked / needs_revalidation 保留在集合里，覆盖未来迁移表可能写入的值（见 core.statemachine）。
+ * 语义：这些状态都表示计划还等着用户去操作，不能放进"全部完成"。
+ */
+internal val PLAN_NEEDS_HANDLING_STATES: Set<String> = setOf(
+    "blocked",
+    "review_required",
+    "needs_revalidation",
+    "verifying",
+)
+
+/** Home "需要你处理" 聚合里的计划计数（goal §16/§17）。 */
+internal fun plansNeedingHandling(plans: List<PlanRow>): Int =
+    plans.count { it.workflowState in PLAN_NEEDS_HANDLING_STATES }
