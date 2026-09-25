@@ -80,12 +80,19 @@ const REQUIRED_MODULES = [
   { id: 'ConformanceRunner', path: 'conformance/ConformanceRunner.ets', required: true },
   { id: 'FsTextSource', path: 'conformance/FsTextSource.ets', required: true },
   { id: 'ConformanceSelfCheck', path: 'conformance/ConformanceSelfCheck.ets', required: true },
+  // data 层：payload 契约 / 编解码 / 迁移（2026-09-25 Harmony N3 连续推进轮）。
+  // 入边：pages/Index.ets → PersistenceSelfCheck → { SchemaV3, PayloadCodec, PayloadMigration }；
+  //       PayloadMigration → domain/SourceInstance（data → domain，方向正确；域模块零依赖）。
+  { id: 'SchemaV3', path: 'data/SchemaV3.ets', required: true },
+  { id: 'PayloadCodec', path: 'data/PayloadCodec.ets', required: true },
+  { id: 'PayloadMigration', path: 'data/PayloadMigration.ets', required: true },
+  { id: 'SourceInstance', path: 'domain/SourceInstance.ets', required: true },
+  { id: 'PersistenceSelfCheck', path: 'data/PersistenceSelfCheck.ets', required: true },
   // 后续阶段（Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },
   { id: 'Repository', path: 'data/Repository.ets', required: false },
   { id: 'Huks', path: 'security/Huks.ets', required: false },
 ]
-
 // ability / page 入口：可达性的根。
 const ENTRY_ROOTS = [
   'entryability/EntryAbility.ets',

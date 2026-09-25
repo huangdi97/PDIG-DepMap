@@ -3,7 +3,24 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-> 更新：2026-09-25（**Harmony N3 恢复轮 —— 代码侧 parity 推进**；E-9 PAUSED → ACTIVE，用户批准重启）
+> 更新：2026-09-25（**Harmony N3 连续推进轮 #2 —— ArkTS 持久化逻辑层**；round#1 基础上继续）
+>
+> - **新增 5 个纯 ArkTS 模块**（零 @ohos，真实编译进 HAP）：`data/SchemaV3.ets`（schema/payload 契约常量）、
+>   `data/PayloadCodec.ets`（payload 构建·校验 + 5 项孤儿完整性）、`data/PayloadMigration.ets`
+>   （v1→v2→v3 纯函数迁移 + legacy 工厂）、`domain/SourceInstance.ets`（零依赖：SRC-01 作用域契约）、
+>   `data/PersistenceSelfCheck.ets`（编译图入边 + 自检行）。
+> - **`HARMONY_BUILD = PASS`**（clean）：HAP `entry-default-unsigned.hap` = **3,438,086 B**，
+>   SHA-256 `96c974fbdaff2edfeb4bf311759b4a5096c685a6f854ed762b96d3e0aefe3926`（非字节可复现，同上轮口径）。
+> - **`HARMONY_MODULE_COMPILED = PASS`**：`check-compiled-reachability.mjs --build` → **31/31 required 模块**
+>   reachable + 入 `modules.abc`（461,272 B），负向 probe PASS，孤儿 0。Gate 首跑抓到真实缺陷：
+>   `domain/SourceInstance.ets` 曾无入边（仅被测试引用）→ 由 `PersistenceSelfCheck`（data→domain 方向）接入。
+> - **`HARMONY_CONFORMANCE_HOST = PASS`**：`run-conformance-host.mjs` → **105/105 host checks**
+>   （87 canonical + 3 元测试 + 1 domain 自检 + **14 条新持久化测试**），0 fail；
+>   canonical 口径不变（87 executed / 4 DEVICE-BLOCKED），`HARMONY_HOST_PASS = 87/91`。
+> - **Parity**：Harmony 22/73 → **27/73**（§2 持久化 0 → 5 TESTED(host) + 2 ICNR；明细见矩阵
+>   「Harmony 27/73 的来源」）。DB repository / UI 仍为下一阶段缺口。
+> - 未进入 iOS N4；`spec/`、`fixtures/`、`conformance/expected/` 零改动；`codegen --check` PASS。
+>   更新：2026-09-25（**Harmony N3 恢复轮 —— 代码侧 parity 推进**；E-9 PAUSED → ACTIVE，用户批准重启）
 >
 > - **`HARMONY_BUILD = PASS`**：`hvigorw assembleHap --mode module -p product=default -p buildMode=debug
 --no-daemon`（ASCII 镜像 + `--clean` 全量重建）→ `BUILD SUCCESSFUL in 1 min 3 s`；HAP

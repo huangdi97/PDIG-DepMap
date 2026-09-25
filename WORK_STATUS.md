@@ -96,6 +96,17 @@
 
 ## Current
 
+- **2026-09-25 Harmony N3 连续推进轮 #2（ArkTS 持久化逻辑层）**：在 round#1 基础上继续；parity 22/73 → **27/73**。
+  - 新增 5 个纯 ArkTS 模块（`data/SchemaV3` / `data/PayloadCodec` / `data/PayloadMigration` /
+    `domain/SourceInstance` / `data/PersistenceSelfCheck`），零 @ohos、真实编译进 HAP；
+    `check-compiled-reachability --build` **31/31 PASS**（Gate 首跑抓出 SourceInstance 缺入边 →
+    由 PersistenceSelfCheck 以 data→domain 正确方向接入）。
+  - **`HARMONY_CONFORMANCE_HOST = PASS`（105/105）**：87 canonical + 3 元测试 + 1 domain 自检 +
+    **14 条新持久化测试**（schema 契约逐字断言 / v1→v2→v3 迁移 / evidence provenance / build-validate
+    roundtrip / 5 项孤儿完整性 / 版本 fail-closed 拒绝 / SRC-01 作用域隔离 / legacy 工厂确定性）。
+  - HAP 3,438,086 B（sha256 `96c974fb…`，clean 17s）；`spec/`、`fixtures/`、`conformance/expected/` 零改动。
+  - 诚实边界：DB 原子导入（ArkData）、crypto 哈希、evidence repository 属设备层 → 相关格保持 ICNR /
+    NOT_STARTED，主机测试不冒充设备运行时；`RUNTIME_E2E=RUNTIME_NOT_RUN`（华为账号+镜像 E-9）。
 - **2026-09-25 Harmony N3 恢复轮（代码侧推进）**：用户批准重启 E-9（PAUSED → ACTIVE）；把 Harmony parity 从
   「表格未同步」归位为「与真实源码 + 真实执行一致」，**0/73 → 22/73**。全部证据本轮新鲜实跑：
   - `hvigorw assembleHap`（ASCII 镜像 + --clean）→ BUILD SUCCESSFUL 67s；HAP `entry-default-unsigned.hap`

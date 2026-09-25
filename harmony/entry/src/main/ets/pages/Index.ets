@@ -10,6 +10,7 @@ import { domainSelfCheckLine } from '../domain/DomainSelfCheck';
 import { aadSelfCheckLine } from '../crypto/ContainerSelfCheck';
 import { argon2SelfCheckLine } from '../crypto/Argon2idNative';
 import { conformanceSummaryLine } from '../conformance/ConformanceSelfCheck';
+import { persistenceSelfCheckLine } from '../data/PersistenceSelfCheck';
 
 @Entry
 @Component
@@ -20,6 +21,7 @@ struct Index {
   @State containerProbe: string = '';
   @State argon2Probe: string = '';
   @State conformanceProbe: string = '';
+  @State persistenceProbe: string = '';
 
   aboutToAppear(): void {
     // 探针：确认 Domain 层被真正打进 HAP（可被反查字符串），而不是被 tree-shaking 丢弃。
@@ -52,6 +54,9 @@ struct Index {
     //   2. 它**不**把 runner 包装成一句"已实现"。91 这个分母是否满足，
     //      以设备上真实执行到的计数为准。
     this.conformanceProbe = conformanceSummaryLine();
+    // 探针：data 持久化逻辑层（payload 编解码 / 迁移 / 版本契约）关键路径自检。
+    // 链路：Index → PersistenceSelfCheck → { SchemaV3, PayloadCodec, PayloadMigration }。
+    this.persistenceProbe = persistenceSelfCheckLine();
   }
 
   build() {
@@ -88,6 +93,14 @@ struct Index {
           .margin({ top: 4 })
 
         Text(this.conformanceProbe)
+          .fontSize(12)
+          .fontColor('#999999')
+        Text(this.conformanceProbe)
+          .fontSize(12)
+          .fontColor('#999999')
+          .margin({ top: 4 })
+
+        Text(this.persistenceProbe)
           .fontSize(12)
           .fontColor('#999999')
           .margin({ top: 4 })

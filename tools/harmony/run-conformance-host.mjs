@@ -54,9 +54,14 @@ const RESULT = join(
 // 2026-09-19：2 条 GB18030 用例从「环境缺失」迁入「已执行」，分子 85 → 87，
 // 环境桶归零。依据不是"补了解码器"这么一句话，而是：码表由 Node ICU 生成、
 // 再由 CPython 内置 gb18030 codec 逐位独立复验（tools/encoding/ 下三个文件）。
-// ---------------------------------------------------------------------------
-const EXPECT_HOST_TOTAL = 91   // 87 canonical 用例 + 3 条 conformance 元测试 + 1 条 domain 自检
-const EXPECT_PASS = 91
+// 2026-09-25（Harmony N3 连续推进轮）新增 data/ 持久化逻辑层主机测试
+//   PersistenceHost.test.ets（14 条）：被测代码为平台侧真实 ArkTS 模块
+//   （SchemaV3 / PayloadCodec / PayloadMigration / SourceInstance），期望值来自
+//   冻结契约与 spec —— 因此 host checks 总数上升，**不改变** canonical 计数口径
+//   （87）与三个阻塞桶（每桶 0/0/4）。计数口径 = 执行口径（每个 it() 一条）。
+const PERSISTENCE_HOST_TEST_COUNT = 14 // 与 harmony/entry/src/test/PersistenceHost.test.ets 的 it() 数一一对应
+const EXPECT_HOST_TOTAL = 91 + PERSISTENCE_HOST_TEST_COUNT // 87 canonical + 3 元测试 + 1 domain 自检 + 14 persistence
+const EXPECT_PASS = 91 + PERSISTENCE_HOST_TEST_COUNT
 const EXPECT_FAIL = 0
 const EXPECT_ERROR = 0
 const CANONICAL_TOTAL = 91

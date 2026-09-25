@@ -19,6 +19,20 @@
 >   Core Journey E2E 与三场景 E2E 见 `ANDROID_16_API36_CLOSURE_REPORT.md`。
 >   **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
 
+> **2026-09-25 Harmony N3 连续推进轮 #2（ArkTS 持久化逻辑层）**：
+> 本轮新增 5 个纯 ArkTS 模块（SchemaV3 / PayloadCodec / PayloadMigration / SourceInstance /
+> PersistenceSelfCheck），全部真实编译进 HAP；**§2 归位 7 格（5 TESTED + 2 IMPLEMENTED_COMPILED_NOT_RUN），
+> Harmony 合计 22 → 27 / 73**。证据（本轮新鲜实跑）：
+>
+> 1. clean `assembleHap` → `BUILD SUCCESSFUL`，HAP 3,438,086 B（sha256 `96c974fb…`，见 NATIVE_MIGRATION_STATUS.md）；
+> 2. `check-compiled-reachability.mjs --build` → **31/31 required 模块 PASS**（新增 5 模块全可达 + 入 abc，孤儿 0）；
+> 3. `run-conformance-host.mjs` → **105/105 host checks**（87 canonical + 3 元测试 + 1 domain 自检 +
+>    14 条新持久化测试：schema 契约 / v1→v2→v3 迁移 / evidence provenance / build-validate roundtrip /
+>    5 项孤儿完整性 / 版本拒绝 / SRC-01 作用域隔离 / legacy 工厂确定性）。
+>
+> **诚实边界**：payload 迁移输出与 TS 冻结基准逐字节一致（缺列不写入）；DB 原子导入（ArkData）、
+> crypto 哈希（HMAC/SHA-256）与 evidence repository 属设备层 → 相关格保持 ICNR / NOT_STARTED，
+> **不把主机测试写成设备运行时结论**；`RUNTIME_E2E` 仍为 `RUNTIME_NOT_RUN`（E-9 外部依赖不变）。
 > **2026-09-25 Harmony N3 恢复轮（代码侧推进，用户批准重启 E-9）**：
 > 本轮把 Harmony 列从「工程已开工但表格未同步」归位为**与真实源码 + 真实执行一致**。全部证据**本轮新鲜实跑**：
 >
@@ -166,18 +180,18 @@
 
 ## 2. 持久化与迁移（10 格，已完成 10）
 
-| 能力                        | Android                                                                               | Harmony     | iOS         |
-| --------------------------- | ------------------------------------------------------------------------------------- | ----------- | ----------- |
-| 逻辑 Schema v3              | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
-| SQLCipher / ArkData 加密库  | **RUNTIME_VERIFIED**（密文库拉出后 `sqlite3` → `file is not a database`；明文不可读） | NOT_STARTED | NOT_STARTED |
-| Migration v1→v2→v3          | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
-| 迁移失败回滚（同事务）      | **RUNTIME_VERIFIED**（设备内：失败后不推进版本号、不留半迁移状态）                    | NOT_STARTED | NOT_STARTED |
-| Graph payload 导出/导入     | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
-| payload v1/v2 → v3 内存迁移 | **RUNTIME_VERIFIED**（设备内：两种 payload 迁到同一 v3 图）                           | NOT_STARTED | NOT_STARTED |
-| 未来版本拒绝（fail closed） | **RUNTIME_VERIFIED**（设备内：未来 `schema_version` 明确拒绝、库不被清空）            | NOT_STARTED | NOT_STARTED |
-| Fingerprint 作用域隔离      | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
-| SourceInstance              | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
-| Evidence 多源分流           | **CONFORMANCE_PASS**                                                                  | NOT_STARTED | NOT_STARTED |
+| 能力                        | Android                                                                               | Harmony                                                                                                                                            | iOS         |
+| --------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| 逻辑 Schema v3              | **CONFORMANCE_PASS**                                                                  | TESTED（host：PersistenceHost schema-contract —— 冻结契约逐字断言 + 11 表列清单全覆盖）                                                            | NOT_STARTED |
+| SQLCipher / ArkData 加密库  | **RUNTIME_VERIFIED**（密文库拉出后 `sqlite3` → `file is not a database`；明文不可读） | NOT_STARTED                                                                                                                                        | NOT_STARTED |
+| Migration v1→v2→v3          | **CONFORMANCE_PASS**                                                                  | NOT_STARTED                                                                                                                                        | NOT_STARTED |
+| 迁移失败回滚（同事务）      | **RUNTIME_VERIFIED**（设备内：失败后不推进版本号、不留半迁移状态）                    | NOT_STARTED                                                                                                                                        | NOT_STARTED |
+| Graph payload 导出/导入     | **CONFORMANCE_PASS**                                                                  | TESTED（host：PayloadCodec build→validate→roundtrip + checkGraphIntegrity 5 孤儿项）                                                               | NOT_STARTED |
+| payload v1/v2 → v3 内存迁移 | **RUNTIME_VERIFIED**（设备内：两种 payload 迁到同一 v3 图）                           | TESTED（host：PayloadMigration v1→v2→v3 组合、deterministic、input 不变、graph_revision 增/留）                                                    | NOT_STARTED |
+| 未来版本拒绝（fail closed） | **RUNTIME_VERIFIED**（设备内：未来 `schema_version` 明确拒绝、库不被清空）            | TESTED（host：validatePayload 拒绝 kind/version/schema/表/列，全部失败前置、fail-closed）                                                          | NOT_STARTED |
+| Fingerprint 作用域隔离      | **CONFORMANCE_PASS**                                                                  | IMPLEMENTED_COMPILED_NOT_RUN（domain/SourceInstance：SRC-01 作用域契约（si,txn）命名空间主机测试通过；HMAC-SHA256 哈希层需设备 crypto）            | NOT_STARTED |
+| SourceInstance              | **CONFORMANCE_PASS**                                                                  | TESTED（host：legacy 工厂字节确定性 + v1 迁移归属 evidence/fingerprint/session provenance 三证）                                                   | NOT_STARTED |
+| Evidence 多源分流           | **CONFORMANCE_PASS**                                                                  | IMPLEMENTED_COMPILED_NOT_RUN（payload UNIQUE(proposal_key, source_instance_id) 分流契约 + 迁移 provenance 主机测试；evidence repository 层需设备） | NOT_STARTED |
 
 > 本轮把 4 格从 `IMPLEMENTED` 升到 `RUNTIME_VERIFIED`：依据是设备内
 > `PersistenceEvidenceTest` / `DepmapRuntimeEvidenceTest` 的真实运行时证据，
@@ -316,18 +330,18 @@
 
 ## 汇总（2026-09-21 Android Product Finalization 逐格重审）
 
-| 平台    | 已完成格    | 总格   | 说明                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| ------- | ----------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Android | **69 / 73** | **73** | 逐格重审（**非 62+7 推算**）：本轮把「生物识别 / App Lock」与「Dark Mode」两格升为 RUNTIME_VERIFIED、Onboarding 按产品决策移除（D-9）、Node/Dependency/Group 与 canonical groupKey 补实体级 conformance/设备证据升 CONFORMANCE_PASS。明细见 `ANDROID_FINAL_73_AUDIT.md`                                                                                                                                                                           |
-| Harmony | **22**      | 73     | 2026-09-25 N3 恢复轮：host conformance **87 canonical 在真实 ArkTS 运行时执行 0 fail** → §1 12 格 + §3 2 格 + §4 7 格 = `CONFORMANCE_PASS`（host 执行面），§6 「单测/集成测试」1 格 = `TESTED`；另有 3 格 §1（Node/DG、logical key、groupKey）+ 3 格 §3（容器/Argon2+AES/UTF-8）保持 `IMPLEMENTED_COMPILED_NOT_RUN`。**RUNTIME 类一格未动**（`RUNTIME_E2E = RUNTIME_NOT_RUN`，华为账号+镜像 E-9）；UI 层与 ArkTS 持久化层仍 NOT_STARTED（无源码） |
-| iOS     | 0           | 73     | 仅 codegen 产物；build BLOCKED_BY_MACOS（PAUSED / NOT_STARTED）                                                                                                                                                                                                                                                                                                                                                                                   |
+| 平台    | 已完成格    | 总格   | 说明                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| ------- | ----------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Android | **69 / 73** | **73** | 逐格重审（**非 62+7 推算**）：本轮把「生物识别 / App Lock」与「Dark Mode」两格升为 RUNTIME_VERIFIED、Onboarding 按产品决策移除（D-9）、Node/Dependency/Group 与 canonical groupKey 补实体级 conformance/设备证据升 CONFORMANCE_PASS。明细见 `ANDROID_FINAL_73_AUDIT.md`                                                                                                                                                          |
+| Harmony | **27**      | 73     | N3 推进轮（2026-09-25）：round#1 host conformance 87 canonical PASS → §1 12 + §3 2 + §4 7 = CONFORMANCE_PASS(host) + §6 1 TESTED；round#2 ArkTS 持久化逻辑层 → §2 5 TESTED（schema 契约 / payload 导出导入 / payload 内存迁移 / 未来版本拒绝 / SourceInstance）+ 2 ICNR（fingerprint 作用域 / evidence 分流）。**RUNTIME 类一格未动**（RUNTIME_E2E=RUNTIME_NOT_RUN，华为账号+镜像 E-9）；ArkData repository 与 UI 仍 NOT_STARTED |
+| iOS     | 0           | 73     | 仅 codegen 产物；build BLOCKED_BY_MACOS（PAUSED / NOT_STARTED）                                                                                                                                                                                                                                                                                                                                                                  |
 
-### Harmony 22/73 的来源（2026-09-25，逐格以本轮新鲜证据归位，无证据不升级）
+### Harmony 27/73 的来源（2026-09-25，逐格以本轮新鲜证据归位，无证据不升级）
 
 | 节                    | 格数   | 已完成 | 说明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | --------------------- | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1. 领域 / 语义层      | 16     | **12** | `CONFORMANCE_PASS`（host 执行面）：RelationDefinitionRegistry（relations 18/18）、Impact Kernel（impact 13/13）、PlanReadiness 含显式 resolution（readiness 16/16）、ScenarioCoverage（coverage 6/6）、ChangePlan / RealityDrift / DiscoveryCandidate / Verification 四状态机 + GraphRevision（state-machine 5/5）、ScenarioTemplate（scenario-template-policy）、Timeline（timeline 3/3）。另 3 格 `IMPLEMENTED_COMPILED_NOT_RUN`：Node/Dependency/Group、logical key、canonical groupKey（Entities.ets 已编译入 HAP；无独立用例故不跳级）。 |
-| 2. 持久化与迁移       | 10     | 0      | 无 ArkTS repository/persistence 层（`check-compiled-reachability`：data/Repository.ets = NOT_IMPLEMENTED）。migration-version-contract 等 host PASS 用例验证的是 harness 内契约而非平台持久化，**不计入任何格**。                                                                                                                                                                                                                                                                                                                             |
+| 2. 持久化与迁移       | 10     | **5**  | round#2 ArkTS 持久化逻辑层：SchemaV3 / PayloadCodec / PayloadMigration / SourceInstance 真实编译进 HAP + host 105/105（含 14 条新持久化测试）→ 逻辑 Schema v3 / Graph payload 导出·导入 / payload v1→v3 内存迁移 / 未来版本拒绝 / SourceInstance = TESTED(host)；Fingerprint 作用域隔离、Evidence 多源分流 = IMPLEMENTED_COMPILED_NOT_RUN（哈希与 repository 层需设备）。DB 迁移 / 回滚 / 加密库三格保持 NOT_STARTED                                                                                                                          |
 | 3. 安全 / 密钥 / 认证 | 10     | **2**  | JCS（jcs-rfc8785-restricted-domain）、恶意容器 bounds（depmap-bounds-and-structure-rejection）→ `CONFORMANCE_PASS`（host）。`.depmap` 容器 / Argon2id+AES-256-GCM / UTF-8 口令不做归一化 保持 `IMPLEMENTED_COMPILED_NOT_RUN`（golden/utf8 两条 canonical 均 DEVICE-BLOCKED；Argon2 NAPI 已真实绑定，执行面需设备）。密钥库 / 库加密 / 生物认证 / 截图保护 / 日志脱敏 = NOT_STARTED（无 ArkTS security 层）。                                                                                                                                  |
 | 4. 导入 / 解析        | 7      | **7**  | parser 22/22 host PASS：WeChat 7 / CSV 8 / OFX 6 / QFX 2 / GB18030 2 / 编码规范（BOM·CRLF·CR-only）全部覆盖，含 malformed-ofx、bad-line 等坏行保守拒绝用例。                                                                                                                                                                                                                                                                                                                                                                                  |
 | 5. UI                 | 22     | 0      | 仅 `pages/Index.ets` 单页；产品级页面未实现（NOT_STARTED，无虚假进度）。                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
