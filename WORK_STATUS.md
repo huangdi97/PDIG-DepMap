@@ -123,8 +123,8 @@
     README v0.2.0 安装/场景章节。
   - 门禁与测试（全部真实执行）：core `npm run check` PASS（453/453 + architecture 0 + network 0 + secrets 0）；
     quality `check-quality.mjs` VERDICT **PASS**（10 项计数 0）；Android `:core:test` 71/71、`:app:testDebugUnitTest`
-    63/63、`:conformance:run` 91/91、仪器化 pdig36 **60/60**×2；API36 tablet 2560×1600 安装/启动/截图/卸载 PASS
-    （tablet 全量 connected 套件本环境挂起，v0.1.x 同 AVD 曾 59/59，如实记录）；Desktop :app:test 14/14 +
+    63/63、`:conformance:run` 91/91、仪器化 pdig36 **60/60**×2；API36 tablet 全量 connected 套件 **60/60 PASS**（pdig36_tablet_b，1920×1200@240dpi/3GB；设备守卫排除外来 API-15 模拟器后取得；根因与 2560×1600 时序 flake 见 FINAL GATES）
+    ；Desktop :app:test 14/14 +
     `--smoke` 16/16（Desktop Core Journey：launch/import/confirm/scenario/plan/complete/verify/backup/restore）；
     Fresh Clone 最终回归（C:\pdig-fresh-020）Android JVM+conformance 91/91+签名 APK+仪器化 60/60、
     Desktop compile/test/smoke 全 PASS。

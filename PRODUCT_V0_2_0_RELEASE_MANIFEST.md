@@ -37,20 +37,20 @@
 
 ## 测试证据（2026-09-25 真实执行）
 
-| 项                               | 结果                                                                                                                                               |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| core `npm run check`             | PASS：453/453 tests、architecture circular=0、network=0 原语、secret scan 1005 文件 0 泄漏                                                         |
-| quality gate                     | `check-quality.mjs` VERDICT **PASS**（10 项计数全 0；EXCEPTIONS 6 条既有 justified）                                                               |
-| Android `:core:test`             | **71/71**（--rerun-tasks fresh）                                                                                                                   |
-| Android `:app:testDebugUnitTest` | **63/63**（新增 54 个 v0.2.0 UI 逻辑单测，0 失败）                                                                                                 |
-| Android `:conformance:run`       | **91/91**（fresh clone 亦 91/91）                                                                                                                  |
-| Android 仪器化（pdig36 phone）   | **60/60 PASS**（0 fail/0 skip，fresh clone 复跑 60/60）                                                                                            |
-| Android API36 tablet             | 2560×1600 安装/启动（am start Status:ok）/截图/卸载 PASS；全量 connected 套件在平板 AVD 本环境会话挂起（v0.1.x 同 AVD 曾 59/59，环境限制如实记录） |
-| Desktop `:app:test`              | 全部 PASSED（14 cases）                                                                                                                            |
-| Desktop `--smoke`                | **16/16 PASS**（含 3 场景 + done≠verified + backup/restore/reopen/delete，即 Desktop Core Journey）                                                |
-| E2E / Core Journey               | Android 证据套件 60 项（含 Core Journey 路径/三场景/DeleteAll/BackupExport/PerfSmoke）；Desktop smoke 16/16                                        |
-| 双端一致性                       | DUAL_CLIENT_EXPERIENCE_MATRIX_V0_2.md + 源码审计（内部术语不上屏）+ 双端术语词典                                                                   |
-| Fresh Clone 最终回归             | Android core/JVM/conformance/签名 APK 构建/仪器化 60/60 + Desktop compile/test/smoke 全 PASS                                                       |
+| 项                               | 结果                                                                                                                                                                                                                                           |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| core `npm run check`             | PASS：453/453 tests、architecture circular=0、network=0 原语、secret scan 1005 文件 0 泄漏                                                                                                                                                     |
+| quality gate                     | `check-quality.mjs` VERDICT **PASS**（10 项计数全 0；EXCEPTIONS 6 条既有 justified）                                                                                                                                                           |
+| Android `:core:test`             | **71/71**（--rerun-tasks fresh）                                                                                                                                                                                                               |
+| Android `:app:testDebugUnitTest` | **63/63**（新增 54 个 v0.2.0 UI 逻辑单测，0 失败）                                                                                                                                                                                             |
+| Android `:conformance:run`       | **91/91**（fresh clone 亦 91/91）                                                                                                                                                                                                              |
+| Android 仪器化（pdig36 phone）   | **60/60 PASS**（0 fail/0 skip；fresh clone 复跑 60/60；tablet 全量套件 60/60 PASS）                                                                                                                                                            |
+| Android API36 tablet             | **全量 connected 套件 60/60 PASS**（pdig36_tablet_b，1920×1200@240dpi/3GB，0 fail/0 skip）；早期“挂起”根因=外来 API-15 模拟器抢占设备枚举，设备守卫+新 AVD 后解决；原始 2560×1600 下 34/36（2 例启动时序 flake，本机 2K 渲染过慢，非代码缺陷） |
+| Desktop `:app:test`              | 全部 PASSED（14 cases）                                                                                                                                                                                                                        |
+| Desktop `--smoke`                | **16/16 PASS**（含 3 场景 + done≠verified + backup/restore/reopen/delete，即 Desktop Core Journey）                                                                                                                                            |
+| E2E / Core Journey               | Android 证据套件 60 项（含 Core Journey 路径/三场景/DeleteAll/BackupExport/PerfSmoke）；Desktop smoke 16/16                                                                                                                                    |
+| 双端一致性                       | DUAL_CLIENT_EXPERIENCE_MATRIX_V0_2.md + 源码审计（内部术语不上屏）+ 双端术语词典                                                                                                                                                               |
+| Fresh Clone 最终回归             | Android core/JVM/conformance/签名 APK 构建/仪器化 60/60 + Desktop compile/test/smoke 全 PASS                                                                                                                                                   |
 
 ## 双端 v0.2.0 新增（用户视角）
 
@@ -77,6 +77,6 @@
 - Android 为 GitHub Preview，非 Google Play 生产（无生产 keystore、无商店账号 E-2/E-5）
 - Windows 未签名（SmartScreen）
 - Harmony / iOS 不在本轮（E-9 暂停 / E-8 macOS 阻塞）
-- 无真机（E-1）；API36 AVD phone + tablet 覆盖（tablet 全量套件挂起为本环境限制，见上）
+- 无真机（E-1）；API36 AVD phone + tablet 全量套件均 60/60 PASS（tablet 证据见 docs/release-evidence/v0_2_0_download_smoke/）
 - CI 因 GitHub 账户计费外部阻断（E-10）；本地全量门禁为验收依据
 - 屏幕阅读器仅工程级检查（未做真人测试），不宣称 SCREEN_READER_VERIFIED

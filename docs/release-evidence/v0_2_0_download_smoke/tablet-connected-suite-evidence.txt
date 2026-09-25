@@ -1,0 +1,19 @@
+﻿--- DEVICE GUARD ---
+emulator-5554	device
+--- DEVICES AFTER GUARD ---
+List of devices attached
+emulator-5554	device
+
+
+pdig36_tablet_b(AVD) - 16 Tests 12/60 completed. (0 skipped) (0 failed)
+pdig36_tablet_b(AVD) - 16 Tests 18/60 completed. (0 skipped) (0 failed)
+pdig36_tablet_b(AVD) - 16 Tests 23/60 completed. (0 skipped) (0 failed)
+pdig36_tablet_b(AVD) - 16 Tests 36/60 completed. (0 skipped) (0 failed)
+pdig36_tablet_b(AVD) - 16 Tests 41/60 completed. (0 skipped) (0 failed)
+pdig36_tablet_b(AVD) - 16 Tests 45/60 completed. (0 skipped) (0 failed)
+Finished 60 tests on pdig36_tablet_b(AVD) - 16
+BUILD SUCCESSFUL in 2m 6s
+GRADLE_EXIT=0
+
+
+

@@ -47,18 +47,18 @@
 
 ## 测试
 
-| Gate                    | 值        | 证据                                                                                |
-| ----------------------- | --------- | ----------------------------------------------------------------------------------- |
-| ANDROID_CORE            | **71/71** | :core:test --rerun-tasks                                                            |
-| ANDROID_JVM             | **63/63** | :app:testDebugUnitTest（新增 54 个 v0.2.0 单测）                                    |
-| ANDROID_CONFORMANCE     | **91/91** | :conformance:run（main + fresh clone）                                              |
-| ANDROID_INSTRUMENTATION | **60/60** | connectedPreviewDebugAndroidTest ×2（main + fresh clone；pdig36 API36）             |
-| ANDROID_CORE_JOURNEY    | **PASS**  | 证据套件含 Core Journey/DeleteAll/BackupExport/PerfSmoke（60 项内）                 |
-| ANDROID_SCENARIOS       | **PASS**  | 三场景证据路径在 60/60 套件内；Desktop smoke 三场景 3× PASS                         |
-| DESKTOP_CONFORMANCE     | **PASS**  | Desktop JVM 测试 14/14 + conformance 语义（smoke 引擎断言）                         |
-| DESKTOP_CORE_JOURNEY    | **PASS**  | --smoke 16/16（launch/import/confirm/scenario/plan/complete/verify/backup/restore） |
-| DESKTOP_SCENARIOS       | **PASS**  | scenario-replace/expiring/close 3 步 PASS（×5 稳定性）                              |
-| core npm run check      | **PASS**  | 453/453 + architecture + network + secrets + UI gate                                |
+| Gate                    | 值        | 证据                                                                                               |
+| ----------------------- | --------- | -------------------------------------------------------------------------------------------------- |
+| ANDROID_CORE            | **71/71** | :core:test --rerun-tasks                                                                           |
+| ANDROID_JVM             | **63/63** | :app:testDebugUnitTest（新增 54 个 v0.2.0 单测）                                                   |
+| ANDROID_CONFORMANCE     | **91/91** | :conformance:run（main + fresh clone）                                                             |
+| ANDROID_INSTRUMENTATION | **60/60** | connectedPreviewDebugAndroidTest ×3（main + fresh clone + tablet；pdig36 / pdig36_tablet_b API36） |
+| ANDROID_CORE_JOURNEY    | **PASS**  | 证据套件含 Core Journey/DeleteAll/BackupExport/PerfSmoke（60 项内）                                |
+| ANDROID_SCENARIOS       | **PASS**  | 三场景证据路径在 60/60 套件内；Desktop smoke 三场景 3× PASS                                        |
+| DESKTOP_CONFORMANCE     | **PASS**  | Desktop JVM 测试 14/14 + conformance 语义（smoke 引擎断言）                                        |
+| DESKTOP_CORE_JOURNEY    | **PASS**  | --smoke 16/16（launch/import/confirm/scenario/plan/complete/verify/backup/restore）                |
+| DESKTOP_SCENARIOS       | **PASS**  | scenario-replace/expiring/close 3 步 PASS（×5 稳定性）                                             |
+| core npm run check      | **PASS**  | 453/453 + architecture + network + secrets + UI gate                                               |
 
 ## 发布
 
@@ -90,11 +90,10 @@
 
 ## 非 PASS 项（§111 结构）
 
-| Gate                       | Status           | Root cause                                                                               | Engineering impact                                     | Can Agent fix?        | Required action                        | Evidence                                     | Closure                                    |
-| -------------------------- | ---------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------ | --------------------- | -------------------------------------- | -------------------------------------------- | ------------------------------------------ |
-| tablet 全量 connected 套件 | 环境挂起         | pdig_api36_tablet AVD 在本机会话长任务挂起（模拟器进程中途消亡；v0.1.x 同 AVD 曾 59/59） | 无代码影响；平板安装/启动/卸载 smoke PASS（2560×1600） | 否（环境/AVD 稳定性） | 换机/低负载时段复跑，或真机验证（E-1） | docs/release-evidence + WORK_STATUS/BLOCKERS | 记录为 Known Limitation                    |
-| v0.1.2 Desktop 下载 smoke  | FAIL（已取证）   | v0.1.2 打包产物缺 JVM launcher                                                           | 影响仅 v0.1.2 历史发布物；v0.2.0 已修复并实证          | 是（v0.2.0 修复）     | 已随 v0.2.0 完成                       | docs/release-evidence/v0_1_2_download_smoke/ | CLOSED（v0.1.2 冻结）                      |
-| CI（E-10）                 | EXTERNAL_BLOCKED | GitHub 账户计费                                                                          | 无本地影响；本地全量门禁为验收依据                     | 否（外部）            | 用户处理 GitHub 账单                   | BLOCKERS.md E-10                             | 不阻塞 GitHub Preview 发布（用户裁决口径） |
+| Gate                       | Status           | Root cause                                                                                                                                                                                                                                             | Engineering impact                                                                                | Can Agent fix?    | Required action      | Evidence          | Closure                                    |
+| -------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- | ----------------- | -------------------- | ----------------- | ------------------------------------------ |
+| tablet 全量 connected 套件 | 已关闭（PASS）   | 早期“挂起”根因=外来 API-15 模拟器 zhishen_rc 抢占 gradle 设备枚举；设备守卫 + 新 AVD（pdig36_tablet_b，3GB）后 **60/60 PASS**（1920×1200@240dpi，0 fail/0 skip，证据 docs/release-evidence/v0_2_0_download_smoke/tablet-connected-suite-evidence.txt） | 原始 2560×1600 下 34/36、2 例启动时序 flake（No compose hierarchies，本机 2K 渲染过慢）非代码缺陷 | 是（守卫+新 AVD） | 已完成               | 同左证据 + 本文件 | CLOSED                                     |
+| CI（E-10）                 | EXTERNAL_BLOCKED | GitHub 账户计费                                                                                                                                                                                                                                        | 无本地影响；本地全量门禁为验收依据                                                                | 否（外部）        | 用户处理 GitHub 账单 | BLOCKERS.md E-10  | 不阻塞 GitHub Preview 发布（用户裁决口径） |
 
 ## 诚实声明
 
