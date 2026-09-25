@@ -25,6 +25,8 @@ param(
 
 $ErrorActionPreference = "Continue"
 
+function Log { param([string]$M) Write-Host "[avd-gate] $M" }
+
 if (-not $SdkRoot) {
     $repoRoot = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
     $localProps = Join-Path $repoRoot "android\local.properties"
@@ -47,7 +49,27 @@ $adb = Join-Path $SdkRoot "platform-tools\adb.exe"
 if (-not (Test-Path $emulator)) { throw "emulator.exe missing: $emulator" }
 if (-not (Test-Path $adb)) { throw "adb.exe missing: $adb" }
 
-function Log { param([string]$M) Write-Host "[avd-gate] $M" }
+# ---------------------------------------------------------------------------
+# Environment hardening (goal §7-§8):
+# An old adb (e.g. C:\Android\adb.exe 1.0.32) may sit on PATH. If the
+# emulator child process starts an adb server through that PATH entry, the
+# platform-tools (1.0.41) client will kill and restart the server mid-session,
+# leaving the device "offline" and breaking every later operation.
+# 1) Start the platform-tools adb server BEFORE the emulator so the emulator
+#    never has a reason to start its own (possibly mismatched) server.
+# 2) Give the child emulator a clean env: ANDROID_HOME/ANDROID_SDK_ROOT set
+#    and platform-tools first on PATH.
+# ---------------------------------------------------------------------------
+$env:ANDROID_HOME = $SdkRoot
+$env:ANDROID_SDK_ROOT = $SdkRoot
+$platformToolsDir = Split-Path $adb -Parent
+$env:PATH = "$platformToolsDir;$env:PATH"
+
+Log "starting platform-tools adb server ..."
+& $adb start-server 2>&1 | Out-Null
+Start-Sleep -Seconds 2
+$serverVer = (& $adb version 2>&1 | Select-Object -First 1)
+Log "adb server: $serverVer"
 
 # ---------------------------------------------------------------------------
 # Launch emulator detached (no-window, no-audio; survives this shell)

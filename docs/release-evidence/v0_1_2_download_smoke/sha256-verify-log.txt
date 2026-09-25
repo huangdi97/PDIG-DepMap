@@ -1,0 +1,9 @@
+# SHA256 校验（gh release download 的 attachment 对 Release SHA256SUMS.txt）
+ALL_PRODUCT_ASSETS_MATCH = YES
+  PDIG-0.1.2-android-preview.apk   = 5406d9e7edd6f274b5de23752d98451ded94716c88ff049589e4afe6b4716c8e  MATCH (Manifest 同一值)
+  PDIG-0.1.2-SBOM.cyclonedx.json   = fc5448782262e007a20f050c56043af6b5bfc197d5c2891774e341d7376eada9  MATCH
+  PDIG-0.1.2-windows-x64-portable.zip = fa3a229355f273e1121c534b0243525f2caed9622f624e694beb00a671545b01  MATCH
+  PDIG-0.1.2-windows-x64-setup.exe = 92baac291afbd8d41da5cfebb3451593458b9afeee3066540b93b0967ff973a6  MATCH
+  PRODUCT_V0_1_2_RELEASE_MANIFEST.md = cb81696fa126db9e242fa3ea251b16b3de344f27a8d5394e0baaa3566bca9105 MATCH
+  RELEASE_NOTES_0_1_2.md           = a6df32926cd200d3f36bebadb8e2a9b2ece620d242403c05402b7aee44767566  MATCH
+  THIRD-PARTY-NOTICES.md           = 7275ec5b40aa5bd659e9938d8fc4491afbcc9ff095d1fa138f25b0e5deaee944  MATCH

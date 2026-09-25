@@ -1,0 +1,31 @@
+﻿--- PKG MGR READY: True ---
+adb.exe : C:\Users\Kaiser\.pi-desktop\scratch\494d9c36-1f9a-4b4f-8011-345918719801\v012-download\PDIG-0.1.2-android-pre
+view.apk: 1 file pushed, 0 skipped. 25.9 MB/s (33155017 bytes in 1.223s)
+At C:\Users\Kaiser\.pi-desktop\scratch\494d9c36-1f9a-4b4f-8011-345918719801\v012-android-op.ps1:15 char:5
++     & $adb -s emulator-5554 push $apk /data/local/tmp/pdig.apk 2>&1 | ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\Kaiser...ytes in 1.223s):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+
+PUSH_OK=True
+--- PM INSTALL attempt 1 ---
+Success
+INSTALLED=True
+--- INSTALLED VERSION ---
+
+    versionName=0.1.2
+--- LAUNCH (monkey) ---
+Events injected: 1
+--- PID ---
+2774
+--- FOCUS ---
+--- CRASH BUFFER ---
+--- UNINSTALL ---
+Success
+--- PACKAGES AFTER ---
+--- DATA DIR AFTER ---
+SMOKE_ANDROID_012 = DONE
+
+
+

@@ -1,6 +1,6 @@
-# android_preflight.ps1
+﻿# android_preflight.ps1
 #
-# PDIG v0.2.0 Android environment preflight (goal §7-§9).
+# PDIG v0.2.0 Android environment preflight (goal 搂7-搂9).
 # Deterministic, fail-fast environment check before any Android build/test.
 #
 # Checks:
@@ -67,7 +67,7 @@ if (-not $SdkRoot -or -not (Test-Path $SdkRoot)) {
 }
 
 # ---------------------------------------------------------------------------
-# 2. adb: actual path + version + PATH conflict detection (goal §8)
+# 2. adb: actual path + version + PATH conflict detection (goal 搂8)
 # ---------------------------------------------------------------------------
 $platformToolsAdb = ""
 if ($SdkRoot -and (Test-Path (Join-Path $SdkRoot "platform-tools\adb.exe"))) {
@@ -137,7 +137,7 @@ if ($sdkmanager) {
 }
 
 # ---------------------------------------------------------------------------
-# 4. android-36 system image integrity (goal §9)
+# 4. android-36 system image integrity (goal 搂9)
 # ---------------------------------------------------------------------------
 $imgRel = $SystemImage -replace '^system-images;', 'system-images\' -replace ';', '\'
 $imgDir = Join-Path $SdkRoot $imgRel
@@ -170,7 +170,15 @@ if ($corrupted) {
 # ---------------------------------------------------------------------------
 # 5. AVD presence + boot state + device status
 # ---------------------------------------------------------------------------
-$avdDir = Join-Path $env:USERPROFILE ".android\avd\$AvdName.avd"
+# AVD home resolution must match the emulator's own lookup rules: ANDROID_AVD_HOME
+# first, then ANDROID_USER_HOME, then legacy ANDROID_SDK_HOME/.android, else
+# %USERPROFILE%\.android. This environment historically has ANDROID_SDK_HOME
+# pointing at a legacy SDK root (C:\Android), which the emulator honors.
+$avdHome = $env:ANDROID_AVD_HOME
+if (-not $avdHome -and $env:ANDROID_USER_HOME) { $avdHome = Join-Path $env:ANDROID_USER_HOME "avd" }
+if (-not $avdHome -and $env:ANDROID_SDK_HOME) { $avdHome = Join-Path $env:ANDROID_SDK_HOME ".android\avd" }
+if (-not $avdHome) { $avdHome = Join-Path $env:USERPROFILE ".android\avd" }
+$avdDir = Join-Path $avdHome "$AvdName.avd"
 if (Test-Path $avdDir) {
     Report "OK" "avd" "$AvdName ($avdDir)"
 } else {
@@ -209,3 +217,4 @@ if ($script:failures.Count -eq 0) {
     if ($script:failures -contains "ANDROID36_SYSTEM_IMAGE_CORRUPTED") { exit 3 }
     exit 4
 }
+
