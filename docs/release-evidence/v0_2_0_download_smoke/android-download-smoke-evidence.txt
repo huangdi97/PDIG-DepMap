@@ -1,0 +1,20 @@
+﻿PKG_MGR_READY=True
+PUSH_OK=True
+--- INSTALL attempt 1 ---
+Success
+INSTALLED=True
+--- VERSION ---
+
+    versionName=0.2.0
+--- LAUNCH (monkey) ---
+Events injected: 1
+PID=3165
+--- CRASH ---
+SCREEN_BYTES=2588042
+--- UNINSTALL ---
+Success
+PACKAGES_AFTER_HAS_PDIG=False
+SMOKE_020_ANDROID = DONE
+
+
+

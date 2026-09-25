@@ -1,0 +1,10 @@
+# v0.2.0 Release 下载后 SHA256 校验（attachment 对 PDIG-0.2.0-SHA256SUMS.txt）
+ALL_7_ASSETS_MATCH = YES
+  PDIG-0.2.0-android-preview.apk          ff13e51b…  MATCH
+  PDIG-0.2.0-windows-x64-setup.exe        ecad6055…  MATCH
+  PDIG-0.2.0-windows-x64-portable.zip     2adc08ed…  MATCH
+  PDIG-0.2.0-SBOM.cyclonedx.json          3513ac1e…  MATCH
+  THIRD-PARTY-NOTICES.md                  b01a26b5…  MATCH
+  PRODUCT_V0_2_0_RELEASE_MANIFEST.md      ed22ed9d…  MATCH
+  RELEASE_NOTES_0_2_0.md                  58e3747c…  MATCH
+（完整 64 位哈希见下载目录 PDIG-0.2.0-SHA256SUMS.txt；比对脚本逐文件输出 MATCH）
