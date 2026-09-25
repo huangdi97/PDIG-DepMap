@@ -96,6 +96,42 @@
 
 ## Current
 
+- **v0.2.0 Product Usability & Dual-Client Maturity 轮（2026-09-25）**：产品体验/double-client 一致性/发布收口。
+  - 基线对齐：main 5069df9 起于 `feat/product-v0.2.0-usability`，ff 合入 main=origin/main=release/product-v0.2.0
+    = tag `product-v0.2.0`（SHA 见 git；全程无 force）。
+  - 环境取证（A3/§6）：v0.1.2 GitHub 下载 smoke —— **Android PASS**（SHA 匹配 + install/launch/uninstall +
+    60/60 复跑）；**Desktop FAIL 取证**：v0.1.2 portable/installer 的 jpackage runtime 缺 java.exe/javaw.exe
+    （399 条目唯一 exe 是 PDIG.exe），进程存活无窗口无 JVM 子进程，根因=v0.1.2 打包链路残 defect 未被发现。
+    `V0_1_2_RELEASE_TRAIN = CLOSED`（记录见 docs/release-evidence/v0_1_2_download_smoke/）。
+  - 打包链路重写（修复根因）：`scripts/release/build-desktop-package.ps1` = gradle jar → jdeps（--multi-release
+    base + ASCII 清单解析）→ jlink（本机验证产出 java.exe/javaw.exe）→ 手工 app-image + PDIG.cmd launcher →
+    打包后自检（JVM launcher 必须存在）→ NSIS/portable zip。实测 portable 解压启动出真实窗口
+    `PDIG 0.2.0 Preview`（javaw pid）。
+  - Android 产品改造：Home 聚合 blocked/review_required/needs_revalidation/verifying 计划卡（plansNeedingHandling +
+    5 单测）；ChangePlanScreen 重复标题修复 + EVIDENCE_SUGGESTED→「发现新的依据，请确认」；Impact 每级稳定解释文案
+    （needs_review 不上错误色）；Infrastructure 搜索+kind 分组（nodeKindGroupLabel + groupedNodes）；NodeDetail
+    六问卡（是什么/确认了什么/待处理问题；依据与最近确认因模型无字段诚实省略）；CSV 字段对应可改步骤
+    （ExposedDropdownMenuBox，自动建议+人工可改+示例值+重新解析）；导入错误分层
+    （UNREADABLE/UNPARSEABLE 文案 + 跳过错行说明）；隐私声明统一；ImportScreen 拆分 ≤200 行 composable。
+  - Desktop 产品改造：一级导航 16→7（HOME/ATTENTION/SOURCES/INFRA/SCENARIOS/TIMELINE/SETTINGS）+ 新增
+    AttentionScreen（待确认关系/待确认服务/可能发生了变化/需要处理的计划四卡）；Infrastructure 双栏
+    （左列表右 NodeDetailPane）；内部术语清零（Humanize.kt：kind/relation/capability/criticality/readiness/
+    phase/verification 全人话，ImpactScreen/PlanScreen/VerificationScreen 的 wire 上屏点清掉、actionId/nodeId
+    泄漏清除、graphRevision 三行移除）；版本 0.2.0 全端统一；内容区 focusable（键盘可达）。
+  - 双端一致性文档：PRODUCT_TERMINOLOGY_V0_2.md（术语词典）、PRODUCT_EXPERIENCE_MAP_V0_2.md（14 用户任务×八问）、
+    DUAL_CLIENT_EXPERIENCE_MATRIX_V0_2.md、PRODUCT_ERROR_CATALOG.md（10 类错误×四问）、docs/user/ 五份用户指南、
+    README v0.2.0 安装/场景章节。
+  - 门禁与测试（全部真实执行）：core `npm run check` PASS（453/453 + architecture 0 + network 0 + secrets 0）；
+    quality `check-quality.mjs` VERDICT **PASS**（10 项计数 0）；Android `:core:test` 71/71、`:app:testDebugUnitTest`
+    63/63、`:conformance:run` 91/91、仪器化 pdig36 **60/60**×2；API36 tablet 2560×1600 安装/启动/截图/卸载 PASS
+    （tablet 全量 connected 套件本环境挂起，v0.1.x 同 AVD 曾 59/59，如实记录）；Desktop :app:test 14/14 +
+    `--smoke` 16/16（Desktop Core Journey：launch/import/confirm/scenario/plan/complete/verify/backup/restore）；
+    Fresh Clone 最终回归（C:\pdig-fresh-020）Android JVM+conformance 91/91+签名 APK+仪器化 60/60、
+    Desktop compile/test/smoke 全 PASS。
+  - 发布：versionName 0.2.0 / versionCode 200004（NON-PROD 签名 apksigner v2 Verified）；
+    artifacts：setup.exe（ecad6055…）、portable.zip（2adc08ed…）、APK（ff13e51b…）、
+    SBOM CycloneDX 1.5 151 components、THIRD-PARTY-NOTICES、SHA256SUMS、Manifest、Release Notes。
+  - 详情见 `PRODUCT_V0_2_0_RELEASE_MANIFEST.md` / `RELEASE_NOTES_0_2_0.md` / 各审计文档。
 - **v0.1.2 质量迭代收口轮（2026-09-24）**：质量 Gate 复证 + 死代码清理 + Windows 0.1.2 打包。
   - 质量 Gate：`node scripts/quality/check-quality.mjs` → **VERDICT PASS exit 0**（2026-09-24T06:56Z），
     10 项计数全 0（UNJUSTIFIED_PRODUCTION_FILE_GT_300 / CRITICAL_COMPLEXITY_VIOLATION / RAW_TODO /

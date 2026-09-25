@@ -27,6 +27,12 @@
 > 死代码清理（FIXED：desktop FileOps.kt 删除无调用者的 DesktopFileOps.write，6 行）。
 > 完整审计结论见 `GLOBAL_CODE_QUALITY_AUDIT.md` / `PRODUCT_V0_1_2_RELEASE_MANIFEST.md`。
 
+> v0.2.0 发布轮注记（2026-09-25）：E-1..E-10 **状态不变**（真机 / 生产 keystore / 商店账号 / 真实数据 /
+> 隐私 URL / CI 计费均为 Known Limitation 而非本轮阻塞）。本轮新增环境限制记录：**API36 tablet AVD 上
+> 全量 connected androidTest 在本机会话挂起**（phone 同套件 60/60×2 PASS；tablet 安装/启动/卸载 smoke PASS），
+> 属于本机 AVD/资源环境限制，非代码缺陷（v0.1.x 同 AVD 曾 59/59）。其余见
+> `PRODUCT_V0_2_0_RELEASE_MANIFEST.md`。
+
 ## 当前 Active blockers（全部为真实 EXTERNAL_BLOCKER）
 
 | #    | Gate                                        | Status                         | Blocker class                                                 | Why blocked                                                                                                                                                                                                                                                                                                                                                                                                          | Engineering work remaining                                                                                                                                                                        | User/external input required                                       | Exact closure procedure                                                                                                       | Acceptance evidence                                        |

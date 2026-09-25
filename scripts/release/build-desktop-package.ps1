@@ -53,9 +53,11 @@ Write-Host "[2/6] main jar: $($MainJar.Name)"
 Write-Host "[3/6] computing jlink modules via jdeps ..."
 $ClassPath = (Get-ChildItem -Path $Libs -Filter "*.jar" | ForEach-Object { $_.FullName }) -join ";"
 if ($LASTEXITCODE -ne 0) { throw "libs enumeration failed" }
-$Modules = (& (Join-Path $JavaHome "bin\jdeps.exe") --print-module-deps --ignore-missing-deps -cp $ClassPath $MainJar.FullName 2>$null | Select-Object -First 1)
-if (-not $Modules -or $Modules -match "error|Error|Exception") {
-    Write-Host "  jdeps could not determine modules ($Modules); falling back to ALL-MODULE-PATH"
+# jdeps 会因多发行版 jar 输出警告（本机控制台为 GBK 时警告乱码）；无论乱码如何，
+# 模块清单本身是纯 ASCII（java.base,java.desktop,...），因此只取最后一行 ASCII 清单。
+$Modules = (& (Join-Path $JavaHome "bin\jdeps.exe") --print-module-deps --ignore-missing-deps --multi-release base -cp $ClassPath $MainJar.FullName 2>&1 | ForEach-Object { $_.ToString().Trim() } | Where-Object { $_ -match '^[A-Za-z][A-Za-z0-9,._-]*$' } | Select-Object -Last 1)
+if (-not $Modules) {
+    Write-Host "  jdeps could not determine modules; falling back to ALL-MODULE-PATH"
     $Modules = "ALL-MODULE-PATH"
 }
 Write-Host "  modules: $Modules"
