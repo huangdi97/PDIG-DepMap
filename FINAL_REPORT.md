@@ -1,5 +1,14 @@
 # FINAL_REPORT.md — MVP01 执行报告
 
+> **v0.2.0 发布轮（2026-09-25）已完成**：PDIG 0.2.0 Preview 已发布（GitHub Release，tag product-v0.2.0，Pre-release）。
+> 本轮验收以 RELEASE_V0_2_0_FINAL_GATES.md（§110 全 Gate 表 + DoD 复核）为准；
+> 发布清单见 PRODUCT_V0_2_0_RELEASE_MANIFEST.md，用户说明见 RELEASE_NOTES_0_2_0.md 与 docs/user/。
+> 本文件以下内容为 MVP01 历史轮报告，保留不改。
+
+---
+
+# FINAL_REPORT.md — MVP01 执行报告
+
 > 执行：ZCode / GLM-5.3-Flash · 2026-09-06 → 2026-09-11
 > 范围：GOAL_MVP01 PHASE 0–15 · 依据 AGENTS.md / CANONICAL_DESIGN.md / PLATFORM_DECISION.md / MVP_ACCEPTANCE.md
 
