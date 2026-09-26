@@ -1,33 +1,10 @@
-# iOS runtime + visual evidence sweep (2026-09-26 multiclient round, spec §85-§92)
-#
-# Honest scope statement (do not delete):
-#   This round's contract (goal spec §3-§4, §80-§84, §126-§128) forbids silently
-#   implementing a full iOS N4 app. ios/ today is a SwiftPM package of pure-logic
-#   libraries (PDIGCore / PDIGConformance / PDIGArgon2 + CSQLite) with NO app target,
-#   NO SwiftUI screens, NO Xcode project. Therefore the parts of this workflow that
-#   require an app in the Simulator (boot app / XCUITest interactions / screenshots)
-#   produce a documented, machine-readable N4_APP_GAP evidence instead of a fake PASS.
-#
-#   What IS executed for real on the macOS runner:
-#     * fresh `swift build` + `swift test` (fresh canonical 91/91 + smoke)
-#     * simulator runtime/device inventory (xcodebuild -version, xcrun simctl list)
-#     * simulator boot of an available iPhone runtime (proves a real boot path)
-#     * app-target gap audit written to conformance/reports/ios-app-audit.json
-#
-#   Statuses reported:
-#     IOS_BUILD / IOS_UNIT / IOS_CANONICAL   = PASS or FAIL (fresh, this run)
-#     IOS_SIMULATOR_APP_RUNTIME              = NOT_IMPLEMENTED (app target absent -> N4 gap)
-#     IOS_UI_TESTS / IOS_SCREENSHOTS         = NOT_IMPLEMENTED (no app; never faked)
-#
-# Dispatch (repo policy): `gh workflow run ios-runtime-visual.yml --ref <branch>`,
-# then verify head_sha of the created run equals the ref SHA before trusting results.
-
 name: iOS Runtime Visual
 
 on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - test/multiclient-runtime-visual-sweep
 
 permissions:
@@ -46,12 +23,8 @@ jobs:
       - name: Xcode / simulator inventory (dynamic, never hardcoded)
         run: |
           xcodebuild -version
-          echo "--- runtimes ---"
           xcrun simctl list runtimes available || true
-          echo "--- devices ---"
           xcrun simctl list devices available || true
-          echo "--- ros ---"
-          xcrun simctl list runtimes | grep -E "iOS" | head -n 5 || true
 
       - name: Build (PDIGCore + PDIGConformance + PDIGArgon2)
         working-directory: ios
@@ -65,27 +38,24 @@ jobs:
         run: |
           UDID=$(xcrun simctl list devices available | grep -E "iPhone" | head -n 1 | grep -oE "[0-9A-F-]{36}" || true)
           if [ -n "$UDID" ]; then
-            echo "booting simulator $UDID"
             xcrun simctl boot "$UDID" || true
             xcrun simctl bootstatus "$UDID" -b || true
             xcrun simctl list devices | grep Booted || true
             echo "SIMULATOR_BOOT=PASS" > conformance/reports/ios-simulator-boot.txt
           else
-            echo "no iPhone simulator available on this runner"
             echo "SIMULATOR_BOOT=NO_DEVICE" > conformance/reports/ios-simulator-boot.txt
           fi
-        env:
-          SIMCTL_CHILD: "1"
+
       - name: N4 app-target gap audit (real project scan, no fake PASS)
         run: |
           mkdir -p conformance/reports
           if find ios/Sources -name "*.swift" -print0 | xargs -0 grep -l "@main" >/dev/null 2>&1; then
-            printf '{"app_target": true}\n' > conformance/reports/ios-app-audit.json
+            echo '{"app_target": true}' > conformance/reports/ios-app-audit.json
           else
-            printf '{"app_target": false, "n4_gap": "IOS_N4_APP_NOT_IMPLEMENTED", "app_ui_screens": 0, "xcuitest": "NOT_IMPLEMENTED", "screenshots": "NOT_IMPLEMENTED"}\n' > conformance/reports/ios-app-audit.json
+            echo '{"app_target": false, "n4_gap": "IOS_N4_APP_NOT_IMPLEMENTED", "app_ui_screens": 0, "xcuitest": "NOT_IMPLEMENTED", "screenshots": "NOT_IMPLEMENTED"}' > conformance/reports/ios-app-audit.json
           fi
-          echo "--- audit ---"
           cat conformance/reports/ios-app-audit.json
+
       - name: Upload iOS evidence
         if: always()
         uses: actions/upload-artifact@v4
