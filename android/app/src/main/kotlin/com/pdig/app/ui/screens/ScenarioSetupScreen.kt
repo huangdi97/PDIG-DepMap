@@ -24,8 +24,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavController
 import com.pdig.app.data.AppContainer
- import com.pdig.app.data.ScenarioPlanRequest
 import com.pdig.app.data.NodeRow
+import com.pdig.app.data.ScenarioPlanRequest
 import com.pdig.app.ui.Route
 import com.pdig.app.ui.components.EmptyState
 import com.pdig.app.ui.components.LoadingState
@@ -38,8 +38,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 /**
- * 场景设置页：选择要变更的支付工具，然后由 core 创建真实 ChangePlan。
+ * 场景设置页：选择要变更的目标（支付工具 / 旧手机号身份锚点），然后由 core 创建真实 ChangePlan。
  * 场景清单来自 ScenarioRegistry（planned 模板不可执行）。
+ * - replace_phone_number → 旧手机号（必选）为 identity_anchor；新手机号（可选，仅记录）复用同一候选列表。
  */
 @Composable
 fun ScenarioSetupScreen(nav: NavController, templateId: String) {
@@ -47,15 +48,19 @@ fun ScenarioSetupScreen(nav: NavController, templateId: String) {
     val container = remember { AppContainer.get(context) }
     val scope = rememberCoroutineScope()
     val template = com.pdig.core.scenario.ScenarioRegistry.get(templateId)
-    var instruments by remember { mutableStateOf<List<NodeRow>?>(null) }
+    val isPhoneScenario = templateId == "replace_phone_number"
+    var candidates by remember { mutableStateOf<List<NodeRow>?>(null) }
     var selectedId by remember { mutableStateOf<String?>(null) }
+    var altId by remember { mutableStateOf<String?>(null) }
     var effectiveDate by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var failure by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(templateId) {
-        instruments = withContext(Dispatchers.IO) {
-            container.nodes().filter { it.kind == "payment_instrument" }
+        candidates = withContext(Dispatchers.IO) {
+            container.nodes().filter { n ->
+                if (isPhoneScenario) n.kind == "identity_anchor" else n.kind == "payment_instrument"
+            }
         }
     }
 
@@ -77,12 +82,34 @@ fun ScenarioSetupScreen(nav: NavController, templateId: String) {
                 Text(it, style = PdigTokens.Body, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
+            // replace_phone_number 的人话提示（对齐 Desktop ScenarioSetupScreen，不泄漏内部枚举名）
+            if (isPhoneScenario) {
+                Text("流程要求", style = PdigTokens.BodyStrong)
+                Text(
+                    "先建立并验证新手机号的恢复路径，才能停用旧手机号。",
+                    style = PdigTokens.Body,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text("关于服务商能力", style = PdigTokens.BodyStrong)
+                Text(
+                    "服务商支持某项能力 ≠ 你已配置该项能力；未确认前只会提示，不会自动确认依赖。",
+                    style = PdigTokens.Body,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
             when {
-                instruments == null -> LoadingState()
-                instruments?.isEmpty() == true -> EmptyState("还没有可以变更的支付工具。")
+                candidates == null -> LoadingState()
+                candidates?.isEmpty() == true -> EmptyState(
+                    if (isPhoneScenario) {
+                        "没有身份锚点节点。请先在「待确认服务」中确认手机号身份锚点，再回到这里。"
+                    } else {
+                        "没有支付工具节点。请先导入账单或接受候选对象，再回到这里。"
+                    },
+                )
                 else -> {
-                    SectionHeader("选择要变更的支付工具")
-                    instruments?.forEach { n ->
+                    SectionHeader(if (isPhoneScenario) "旧手机号（必选）" else "选择要变更的支付工具")
+                    candidates?.forEach { n ->
                         PdigCard(onClick = { selectedId = n.id }) {
                             Row(
                                 Modifier.fillMaxWidth(),
@@ -94,6 +121,31 @@ fun ScenarioSetupScreen(nav: NavController, templateId: String) {
                                     Text("已选择", style = PdigTokens.Label, color = MaterialTheme.colorScheme.primary)
                                 }
                             }
+                        }
+                    }
+
+                    if (isPhoneScenario) {
+                        SectionHeader("新手机号（可选，仅记录）")
+                        candidates?.forEach { n ->
+                            PdigCard(onClick = { altId = n.id }) {
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(n.name, style = PdigTokens.BodyStrong, modifier = Modifier.weight(1f))
+                                    if (altId == n.id) {
+                                        Text("已选择", style = PdigTokens.Label, color = MaterialTheme.colorScheme.primary)
+                                    }
+                                }
+                            }
+                        }
+                        if (altId != null) {
+                            Text(
+                                "新手机号：$altId（当前仅作记录，可在后续手动关联）",
+                                style = PdigTokens.Caption,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
 

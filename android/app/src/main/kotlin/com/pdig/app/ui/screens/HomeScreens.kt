@@ -55,6 +55,7 @@ fun HomeScreen(nav: NavController) {
     var pendingProposalCount by remember { mutableStateOf<Int?>(null) }
     var candidateCount by remember { mutableStateOf<Int?>(null) }
     var driftCount by remember { mutableStateOf<Int?>(null) }
+    var findings by remember { mutableStateOf<FindingsModel?>(null) }
 
     // ⚠ 数据库读写一律放到 IO 线程（2026-09-16 修复）：
     // 此前这些行在主线程执行，全新安装后（dexopt + 打开 SQLCipher 密文库 + 迁移 + Argon2id）
@@ -76,6 +77,7 @@ fun HomeScreen(nav: NavController) {
         pendingProposalCount = loaded.proposals
         candidateCount = loaded.candidates
         driftCount = loaded.drifts
+        findings = withContext(Dispatchers.IO) { buildFindings(container) }
     }
 
     Scaffold(topBar = { PdigTopBar("PDIG") }) { pad ->
@@ -164,6 +166,17 @@ fun HomeScreen(nav: NavController) {
                 PdigCard(onClick = { nav.navigate(Route.SCENARIOS) }) { Text("更换银行卡 / 银行卡即将到期 / 注销银行卡") }
 
                 SectionHeader("我的基础设施")
+                findings?.let { f ->
+                    PdigCard(onClick = { nav.navigate(Route.FINDINGS) }) {
+                        Column {
+                            Text("基础设施薄弱点", style = PdigTokens.BodyStrong)
+                            Text(
+                                "唯一恢复来源 ${f.spof.size} · 共享故障点 ${f.shared.size} · 恢复循环 ${f.cycles.size}",
+                                style = PdigTokens.Caption, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                }
                 PdigCard(onClick = { nav.navigate(Route.INFRASTRUCTURE) }) {
                     Text("共 $nodeCount 个对象", style = PdigTokens.BodyStrong)
                 }
