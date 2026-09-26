@@ -230,12 +230,13 @@ describe('MVP03 Living Graph invariants（INV-15..21）', () => {
     }
   })
 
-  it('INV-21: active ScenarioTemplate 必须对应已支持 capability（payment）', () => {
+  it('INV-21: active ScenarioTemplate 的 capability 必须属于 v0.3.0 runtime 集合', () => {
+    const RUNTIME_CAPS = ['payment', 'access', 'authentication', 'recovery', 'communication']
     for (const t of listActiveTemplates()) {
       expect(t.availability).toBe('active')
       expect(t.scenarioFactory).not.toBeNull()
       for (const cap of t.supportedCapabilities) {
-        expect(cap).toBe('payment') // MVP Impact 仅 payment
+        expect(RUNTIME_CAPS).toContain(cap)
       }
     }
   })

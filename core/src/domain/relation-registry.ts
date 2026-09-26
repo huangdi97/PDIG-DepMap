@@ -20,7 +20,8 @@ export interface RelationDefinition {
   impactSemantics: 'dependency'
 }
 
-export type RelationId = 'funding_source' | 'merchant_agreement'
+export type RelationId =
+  'funding_source' | 'merchant_agreement' | 'recovers' | 'authenticates' | 'controls'
 
 const PAYMENT_KINDS: readonly NodeKind[] = [
   'payment_instrument',
@@ -46,6 +47,39 @@ export const RELATION_DEFINITIONS: ReadonlyArray<RelationDefinition> = [
     fromKinds: ['account', 'payment_instrument'],
     toKinds: ['service', 'membership', 'account'],
     capability: 'payment',
+    allowsGroup: false,
+    allowedGroupModes: [],
+    defaultCriticality: 'unknown',
+    verificationPolicy: 'user_only',
+    impactSemantics: 'dependency',
+  },
+  {
+    id: 'recovers',
+    fromKinds: ['identity_anchor', 'account', 'device', 'service'],
+    toKinds: ['account', 'service', 'identity_anchor'],
+    capability: 'recovery',
+    allowsGroup: true,
+    allowedGroupModes: ['ANY'],
+    defaultCriticality: 'unknown',
+    verificationPolicy: 'user_only',
+    impactSemantics: 'dependency',
+  },
+  {
+    id: 'authenticates',
+    fromKinds: ['identity_anchor', 'account', 'device'],
+    toKinds: ['account', 'service'],
+    capability: 'authentication',
+    allowsGroup: true,
+    allowedGroupModes: ['ANY'],
+    defaultCriticality: 'unknown',
+    verificationPolicy: 'user_only',
+    impactSemantics: 'dependency',
+  },
+  {
+    id: 'controls',
+    fromKinds: ['account', 'device'],
+    toKinds: ['account', 'service', 'identity_anchor'],
+    capability: 'access',
     allowsGroup: false,
     allowedGroupModes: [],
     defaultCriticality: 'unknown',

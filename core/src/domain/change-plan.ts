@@ -64,6 +64,11 @@ export interface PlanAction {
    * 都完成」才 resolved；禁止用 target 数量 − 动作数量的减法近似。
    */
   resolvesImpactKeys?: string[] | undefined
+  /**
+   * v0.3.0 (Canonical vNext)：前置动作 id 列表。必须先完成的动作。
+   * 由 ActionDag 校验（cycle reject / missing prerequisite reject / stable topo order）。
+   */
+  prerequisiteActionIds?: string[] | undefined
 }
 
 /** 影响快照（创建/每次 rebase 时固定；用于 old vs new 差异）。 */

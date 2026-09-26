@@ -47,7 +47,8 @@ export type Relation =
   'funding_source' | 'merchant_agreement' | 'verifies' | 'recovers' | 'bound_to'
 
 /** MVP Impact domain 只支持 payment；其他 capability 仅允许存边、不参与传播。 */
-export type Capability = 'payment' | 'access' | 'recovery' | 'identity'
+export type Capability =
+  'payment' | 'access' | 'authentication' | 'recovery' | 'communication' | 'identity'
 
 /** MVP criticality 只有 required | unknown；禁止机器自动产生 required。 */
 export type Criticality = 'required' | 'unknown'

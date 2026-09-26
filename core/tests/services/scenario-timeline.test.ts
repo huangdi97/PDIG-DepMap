@@ -41,17 +41,28 @@ describe('ScenarioTemplate（MVP03 ST）', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
-  it('ST-001: 3 个 active 支付模板（replace/expiring/close），capability 均为 payment', () => {
+  it('ST-001: 4 个 active 模板（3 支付 + replace_phone_number），capability 在 v0.3.0 runtime 集合内', () => {
     const active = listActiveTemplates()
     expect(active.map((t) => t.id).sort()).toEqual([
       'close_payment_instrument',
       'expiring_payment_card',
       'replace_payment_card',
+      'replace_phone_number',
     ])
-    for (const t of active) {
-      expect(t.category).toBe('payment')
+    const paymentTemplates = active.filter((t) => t.category === 'payment')
+    expect(paymentTemplates.length).toBe(3)
+    for (const t of paymentTemplates) {
       expect(t.supportedCapabilities).toEqual(['payment'])
     }
+    const phone = active.find((t) => t.id === 'replace_phone_number')
+    expect(phone).toBeDefined()
+    expect(phone?.category).toBe('identity')
+    expect(phone?.supportedCapabilities).toEqual([
+      'access',
+      'authentication',
+      'recovery',
+      'communication',
+    ])
     expect(getScenarioTemplate('expiring_payment_card')?.recommendedLeadTimeDays).toBe(30)
   })
 

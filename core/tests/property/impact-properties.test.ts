@@ -252,20 +252,19 @@ describe('Impact Kernel property-based invariants（fast-check，Engineering Bas
     )
   })
 
-  it('P6: lostKeys 值级唯一、全为 payment；初始键必在，传播键必有 must_change 依据', () => {
+  it('P6: lostKeys 值级唯一、capability 合法；初始键必在，传播键必有 must_change 依据', () => {
     fc.assert(
       fc.property(graphArb, unavailableArb, (g, unavailable) => {
         const r = simulateScenario(g, unavailable)
-        // 全为 payment 且值级唯一
+        // capability 必须在 runtime 集合内且值级唯一
+        const RUNTIME_CAPS = ['payment', 'access', 'authentication', 'recovery', 'communication']
         for (const k of r.lostKeys) {
-          expect(k.capability).toBe('payment')
+          expect(RUNTIME_CAPS).toContain(k.capability)
         }
-        const lostStr = r.lostKeys.map((k) => `${k.nodeId}|payment`)
+        const lostStr = r.lostKeys.map((k) => `${k.nodeId}|${k.capability}`)
         expect(new Set(lostStr).size).toBe(lostStr.length)
-        // 初始 payment 键 ⊆ lostKeys
-        const initialStr = [...unavailable]
-          .filter((k) => k.capability === 'payment')
-          .map((k) => `${k.nodeId}|payment`)
+        // 初始键 ⊆ lostKeys
+        const initialStr = [...unavailable].map((k) => `${k.nodeId}|${k.capability}`)
         for (const s of initialStr) {
           expect(lostStr).toContain(s)
         }
@@ -273,10 +272,16 @@ describe('Impact Kernel property-based invariants（fast-check，Engineering Bas
         const initialSet = new Set(initialStr)
         for (const s of lostStr) {
           if (initialSet.has(s)) continue
-          const nodeId = s.slice(0, -'|payment'.length)
-          expect(r.targets.some((t) => t.nodeId === nodeId && t.status === 'must_change')).toBe(
-            true,
-          )
+          const idx = s.lastIndexOf('|')
+          const nodeId = s.slice(0, idx)
+          expect(
+            r.targets.some(
+              (t) =>
+                t.nodeId === nodeId &&
+                t.status === 'must_change' &&
+                t.capability === s.slice(idx + 1),
+            ),
+          ).toBe(true)
         }
       }),
       { numRuns: 150 },
