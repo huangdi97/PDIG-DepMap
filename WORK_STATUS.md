@@ -1472,3 +1472,18 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 > 1. `scripts/generate-conformance.ts` 编译失败（WeChatStatementAdapter 缺 driver + any 扩散）；
 > 2. `scripts/check-secrets.mjs` 误报 `spec/ui/design-tokens.json`；
 > 3. `tests/integration/multi-source-e2e.test.ts` K6 在并发 perf 饱和下默认 5s flaky。
+
+
+---
+
+## 2026-09-26 MULTI_CLIENT RUNTIME/VISUAL EVIDENCE SWEEP（追加注记）
+
+- 全新证据轮（feature 分支 test/multiclient-runtime-visual-sweep，装配 SHA 73b0216）：
+  - Desktop：`--smoke` 16/16 PASS；`--shots` 50/50 PASS（24 页 × ≥1 窗口档，3 分辨率档；修复 2 个布局缺陷：PdigPage 无限滚动嵌套崩溃、Node 页重复“名称”行）。
+  - Android：fresh canonical **91/91**（android.json 2026-09-26）；connected instrumented **61/61**（API36 pdig36 AVD；修复 AppLock 测试时序 flake）；production-debug APK 37.2MB install Success。
+  - Harmony：host **142/142**；canonical 87/91 host（fail=0）；clean assembleHap SUCCESSFUL（HAP sha256 80beb459…）；runtime BLOCKED（E-9 模拟器镜像，preflight 本轮新鲜取证）。
+  - iOS：macOS runner run 36231032190（push 触发，head 73b0216）；app/UI 无 target → NOT_IMPLEMENTED（N4 gap，不伪造）。
+- 受限项（§145 精确记录）：A1 Android 页面视觉 PNG 主机取回 BLOCKED（环境：Android 11+ 作用域存储 + 共享主机 qemu/adb 不稳定）；A2 emulator 稳定性（外部进程强杀 qemu，无日志）；E-9 Harmony 镜像；E-1/E-2/AGC/Apple 签名外部。
+- 报告：MULTI_CLIENT_RUNTIME_ACCEPTANCE / FUNCTIONAL_MATRIX / VISUAL_ACCEPTANCE / CROSS_PLATFORM_RUNTIME_DIFF / RUNTIME_EVIDENCE_INDEX + DESKTOP/ANDROID/HARMONY/IOS_SIMULATOR FINAL_REPORT + IOS_RUNTIME_BASELINE_AUDIT。
+- 机器可读单源：runtime/RUNTIME_ACCEPTANCE_MATRIX.json（292 行 = 73 特征 × 4 平台，25 字段/行；evidence overlays 为 runtime/evidence/*.json）。
+- NATIVE_PARITY_MATRIX 首次引入 Desktop 列（仅本注记，不动 73 行口径）；详细证据见上述报告与 Evidence Index。
