@@ -436,3 +436,15 @@ Android 侧 27 个 Gate 的逐项结论见 `ANDROID_N1_N2_FINAL_CLOSURE_REPORT_V
 - 报告：MULTI_CLIENT_RUNTIME_ACCEPTANCE / FUNCTIONAL_MATRIX / VISUAL_ACCEPTANCE / CROSS_PLATFORM_RUNTIME_DIFF / RUNTIME_EVIDENCE_INDEX + DESKTOP/ANDROID/HARMONY/IOS_SIMULATOR FINAL_REPORT + IOS_RUNTIME_BASELINE_AUDIT。
 - 机器可读单源：runtime/RUNTIME_ACCEPTANCE_MATRIX.json（292 行 = 73 特征 × 4 平台，25 字段/行；evidence overlays 为 runtime/evidence/*.json）。
 - NATIVE_PARITY_MATRIX 首次引入 Desktop 列（仅本注记，不动 73 行口径）；详细证据见上述报告与 Evidence Index。
+
+## 2026-09-26 v0.3.0 FOUR-PLATFORM CONFORMANCE CLOSURE（追加注记）
+
+- **同一 Canonical Spec / 同一 fixture set / 同一 expected set**（128 = 旧 91 逐字节 + 新 37），四端无单端语义漂移：
+  - Android：`conformance/reports/android.json` **128/128 PASS**（fresh，本机 gradle）。
+  - Harmony：host **179/179** PASS；canonical **124/128**（旧 87 + 新 37；4 条 Argon2id 原生 / ArkData 为真实设备门禁，harness 显式 `RUNTIME_BLOCKED` + 逐条理由；`PASS_WITH_EXTERNAL_GATES`）。
+  - iOS：macOS CI（run 36266556360）`conformance/reports/ios.json` **128/128 PASS**（含 37 条新 fixture；`IOS_CONFORMANCE_HOST=PASS`）。
+  - Desktop：非 canonical 平台（复用 Android :core/:conformance/:repos）；`--smoke` 17/17（含 replace_phone_number Make-Before-Break 门禁）、`--shots` 53/53。
+- **v0.3.0 引擎 parity（逐引擎有 fixture + 三端实现）**：FailureDomain/PathIndependence、RecoveryCycle、ActionDag（prerequisiteActionIds）、MakeBeforeBreak（BREAK_BEFORE_MAKE=FORBIDDEN）、TemporalChange、ProviderPolicy、InfrastructureFindings 7 类、identity-relations（authenticates/recovers/controls）——TS/Kotlin/Swift/ArkTS 同源实现，`npm run check` + `check:full` 全绿。
+- **UI parity**：四端均实现 replace_phone_number 场景设置（identity_anchor 选择 + 流程要求/服务商能力文案）、基础设施薄弱点页（SPOF/共享故障点/恢复循环，仅依据已确认 Reality）、变更计划前置关系人话（必须先完成/等待验证/可以并行处理/验证后才能移除旧路径）；截图证据：Desktop 53 张、Android 42 张（API36）、iOS macOS-render 20 张。
+- 汇总：`conformance/reports/SUMMARY.json`（android PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS）；`PDIG_V0_3_0_PRODUCT_COMPLETE=PASS`、`RELEASE_READY=PASS`、`GITHUB_PRODUCT_V0_3_0=PUBLISHED`。
+- 剩余均为真实外部 Gate（无工程缺口）：Play/App Store/AppGallery 账号与正式签名、Harmony 设备运行时（模拟器镜像）、iOS 真机 LocalAuthentication/Keychain、Windows 安装包签名。

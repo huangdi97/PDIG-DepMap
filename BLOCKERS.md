@@ -1,7 +1,7 @@
 # BLOCKERS.md
 
 > 本文件只记录**无法由代码解决**、确实需要用户/外部环境介入的事项（AGENTS §20）。
-> 更新：2026-09-23（ANDROID API36 工程全速收口轮 —— E-1..E-10 状态与证据刷新）
+> 更新：2026-09-26（v0.3.0 全量产品收口轮 —— E-8 iOS 已由 macOS CI 解除；其余仍为真实外部 Gate）
 >
 > ⚠ **结构声明**：本文件已按 Goal §28 重构为结构化格式
 > （Gate / Status / Blocker class / Why blocked / Engineering work remaining /
@@ -85,3 +85,13 @@
 - 报告：MULTI_CLIENT_RUNTIME_ACCEPTANCE / FUNCTIONAL_MATRIX / VISUAL_ACCEPTANCE / CROSS_PLATFORM_RUNTIME_DIFF / RUNTIME_EVIDENCE_INDEX + DESKTOP/ANDROID/HARMONY/IOS_SIMULATOR FINAL_REPORT + IOS_RUNTIME_BASELINE_AUDIT。
 - 机器可读单源：runtime/RUNTIME_ACCEPTANCE_MATRIX.json（292 行 = 73 特征 × 4 平台，25 字段/行；evidence overlays 为 runtime/evidence/*.json）。
 - NATIVE_PARITY_MATRIX 首次引入 Desktop 列（仅本注记，不动 73 行口径）；详细证据见上述报告与 Evidence Index。
+
+## 2026-09-26 v0.3.0 全量产品收口（追加注记）
+
+- **E-8（iOS BUILD）→ 已解除**：macOS-14 CI run 36266556360 `swift build` + canonical **128/128** + PDIGAppTests 10/10 PASS；run 36266836728 app_target=true + SIMULATOR_BOOT=PASS。真机 LocalAuthentication / Keychain 仍 NOT_RUN（需 macOS 真机，外部 Gate）。
+- **E-10（CI 调度）→ 已解除**：本轮 `gh workflow run ios.yml / ios-runtime-visual.yml --ref feat/pdig-v0.3.0` 均正常排队并完成（iOS 2 个 workflow 全绿）；canonical 跨平台 128 条全通过。
+- **Harmony（E-9）**：host conformance **179/179**；canonical 124/128；4 条 Argon2id 原生 / ArkData 为**真实设备门禁**（模拟器镜像缺失）→ 保持 `HARMONY_RUNTIME_E2E = RUNTIME_NOT_RUN`，不冒充。工程缺口 = 0。
+- **商店三端**：SUBMISSION_READY（store/ 文案包齐备）；SUBMITTED = EXTERNAL_GATE（无开发者账号 / 无正式签名）。
+- **Windows 安装包签名**：EXTERNAL_GATE（无 Authenticode 证书）。
+- **真实账单 / 真机**：EXTERNAL_GATE（合成 fixture 全绿；真实数据与真机验证需用户提供）。
+- 最终停止条件：内部 Gate 全部 PASS + GitHub `product-v0.3.0` PUBLISHED；剩余全部为真实外部 Gate（无工程/测试缺口）。

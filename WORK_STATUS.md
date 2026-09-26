@@ -120,7 +120,13 @@
 
 ## Current
 
-- **2026-09-25 Harmony N3 连续推进轮 #5（host Core-Journey E2E）**：parity 保持 29/73（纯测试 + 文档轮）。
+- **2026-09-26 v0.3.0 全量产品收口（Goal 契约执行完毕）**：
+  - **Canonical / Schema / Fixtures**：spec/domain/domain.json additive vNext（5 capabilities、3 新 relations、7 类 finding、replace_phone_number）；logical-schema-v4.json 冻结；128 fixtures（旧 91 逐字节未动 + 37 新），oracle selfcheck 128/128。
+  - **四端 conformance**：Android 128/128 PASS；Harmony host 179/179（canonical 124/128，4 条 Argon2id 原生/ArkData 为设备门禁，`PASS_WITH_EXTERNAL_GATES`）；iOS macOS CI **128/128 PASS**（run 36266556360）+ app_target audit true + SIMULATOR_BOOT PASS（run 36266836728）；Desktop smoke 17/17 + shots 53/53。
+  - **产品四端 UI**：replace_phone_number（Make-Before-Break 前置人话）、基础设施薄弱点页、服务商能力解释、Action DAG 前置展示——Desktop/Android/iOS 实现 + 截图证据；Harmony ArkTS 引擎全移植。
+  - **质量门禁**：`npm run check` / `check:full` 全绿（476 tests）；quality gate VERDICT PASS（file-size/cycle/complexity/escape/todo/secret/senslog 全 0）；Android :core:test 71/71、connected instrumentation 61/61；stability 3×green。
+  - **Release**：`PDIG-0.3.0` GitHub Release（Pre-release=YES）已发布；Windows setup+portable、APK+AAB、SHA256SUMS、SBOM（CycloneDX 45 components）、THIRD-PARTY-NOTICES、RELEASE_NOTES、PRODUCT_V0_3_0_RELEASE_MANIFEST 齐备；`product-v0.2.0`=ff69a3e 未动。
+  - **商店**：三端 SUBMISSION_READY（store/ 文案包），SUBMITTED = EXTERNAL_GATE（无账号/正式签名）。
   - 零生产源码改动；新增 `CoreJourneyHost.test.ets`（8 条 E2E）：导入→提案→确认→影响→备份/恢复往返。
   - **`HARMONY_CONFORMANCE_HOST = PASS`（142/142）**：87 canonical + 3 元测试 + 1 domain 自检 +
     14 persistence + 17 repository + 12 import-pipeline + **8 core-journey**，0 fail。
