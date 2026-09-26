@@ -52,6 +52,23 @@ public struct ProviderPolicy: Equatable, Sendable {
         self.policyRevision = policyRevision
         self.state = state
     }
+
+    // Json 不是 Equatable（自包含解析器刻意不合成），parameters 按规范化 JSON 文本比较
+    // （同一输入解析出的键序固定，所以 write 输出是确定性指纹）。
+    public static func == (lhs: ProviderPolicy, rhs: ProviderPolicy) -> Bool {
+        lhs.provider == rhs.provider &&
+            lhs.policyType == rhs.policyType &&
+            lhs.sourceUrl == rhs.sourceUrl &&
+            lhs.retrievedAt == rhs.retrievedAt &&
+            lhs.lastVerifiedAt == rhs.lastVerifiedAt &&
+            lhs.effectiveFrom == rhs.effectiveFrom &&
+            lhs.effectiveTo == rhs.effectiveTo &&
+            lhs.jurisdiction == rhs.jurisdiction &&
+            lhs.accountTypeScope == rhs.accountTypeScope &&
+            JsonWriter.write(lhs.parameters) == JsonWriter.write(rhs.parameters) &&
+            lhs.policyRevision == rhs.policyRevision &&
+            lhs.state == rhs.state
+    }
 }
 
 public struct ProviderPolicyInput: Equatable, Sendable {
