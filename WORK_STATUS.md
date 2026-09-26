@@ -96,6 +96,14 @@
 
 ## Current
 
+- **2026-09-25 Harmony N3 连续推进轮 #5（host Core-Journey E2E）**：parity 保持 29/73（纯测试 + 文档轮）。
+  - 零生产源码改动；新增 `CoreJourneyHost.test.ets`（8 条 E2E）：导入→提案→确认→影响→备份/恢复往返。
+  - **`HARMONY_CONFORMANCE_HOST = PASS`（142/142）**：87 canonical + 3 元测试 + 1 domain 自检 +
+    14 persistence + 17 repository + 12 import-pipeline + **8 core-journey**，0 fail。
+  - E2E 断言：proposal-only 永不 must_change（AGENTS §9）· confirmed required 边失效 →
+    must_change(required_edge_no_alternative) · 未确认备用 → needs_review · 管线全链路无 required ·
+    备份→恢复逐字节相同且影响一致 · 事务注入失败边与 revision 一并回滚。
+  - HAP 3,569,752 B（生产源码与 round#4 同源）；`spec/`、`fixtures/`、`conformance/expected/` 零改动。
 - **2026-09-25 Harmony N3 连续推进轮 #4（Import 管线 host 集成）**：parity 保持 29/73（工程深度集成轮）。
   - 新增 3 个纯 ArkTS 模块（`data/MerchantResolver` / `data/RecurrenceDetector` / `data/ImportPipeline`），
     零 @ohos、真实编译进 HAP；`check-compiled-reachability --build` **38/38 PASS**。

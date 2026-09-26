@@ -19,6 +19,24 @@
 >   Core Journey E2E 与三场景 E2E 见 `ANDROID_16_API36_CLOSURE_REPORT.md`。
 >   **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
 
+> **2026-09-25 Harmony N3 连续推进轮 #5（host Core-Journey E2E）**：
+> 本轮零生产源码改动（纯测试 + 文档），把四轮 host 验证模块在真实 ArkTS 里端到端串成
+> **Core-Journey E2E**（Android 设备内 Core Journey 的无设备等价物）：
+> 导入（WechatParser+ImportPipeline）→ 提案（GraphRepository upsert）→ 用户确认
+> （confirmDependency）→ 影响（ImpactKernel simulateScenario）→ 备份/恢复往返。
+> **parity 保持 29/73**。证据（本轮新鲜实跑）：
+>
+> 1. `run-conformance-host.mjs` → **142/142 host checks**（87 canonical + 3 元测试 + 1 domain 自检 +
+>    14 persistence + 17 repository + 12 import-pipeline + **8 core-journey**），0 fail；
+> 2. clean `assembleHap` → `BUILD SUCCESSFUL`（52s），HAP 3,569,752 B（sha256 `21f3bc59…`，
+>    生产源码与 round#4 同源，尺寸一致）/ `npm run check` 全绿 / 统一 conformance android 91/91 保持。
+>
+> **Core-Journey 断言覆盖**：recurring 提案正确生成（pending、observation_count 3）· 确认边 +
+> revision 同事务 bump · **proposal-only 永不 must_change（AGENTS §9）** ·
+> confirmed required 边失效 → must_change(required_edge_no_alternative) + checklist 以
+> target_operation 收尾 · 未确认备用来源 → needs_review(unconfirmed_alternative_exists) ·
+> 管线全链路无 required（机器不自动）· 备份→恢复逐字节相同且影响结果一致 · 事务注入失败 →
+> 边与 revision 一并回滚。
 > **2026-09-25 Harmony N3 连续推进轮 #4（Import 管线 host 集成）**：
 > 新增 3 个纯 ArkTS 模块（MerchantResolver / RecurrenceDetector / ImportPipeline），全部真实编译进 HAP；
 > **parity 保持 29/73**（本轮为工程深度集成轮：解析器 × 解析器 × 仓库的端到端 host 验证，无新矩阵格移动）。

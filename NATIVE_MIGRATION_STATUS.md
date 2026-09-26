@@ -3,7 +3,19 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-> 更新：2026-09-25（**Harmony N3 连续推进轮 #4 —— Import 管线 host 集成**；round#3 基础上继续）
+> 更新：2026-09-25（**Harmony N3 连续推进轮 #5 —— host Core-Journey E2E**；纯测试 + 文档轮）
+>
+> - **零生产源码改动**；新增 `entry/src/test/CoreJourneyHost.test.ets`（8 条 E2E）。
+> - **`HARMONY_CONFORMANCE_HOST = PASS`**：**142/142 host checks**（87 canonical + 3 元测试 + 1 domain
+>   自检 + 14 persistence + 17 repository + 12 import-pipeline + **8 core-journey**），0 fail；
+>   canonical 口径不变（87/91，4 DEVICE-BLOCKED）。
+> - **`HARMONY_BUILD = PASS`**（clean）：HAP 3,569,752 B（生产源码与 round#4 同源），
+>   SHA-256 `21f3bc590d1c057d8bb5033e0b22d22310c8bb9c82665e76124bb8783a6ac6ee`。
+> - **Parity**：保持 29/73。
+> - E2E 覆盖：导入→提案→确认→影响（proposal-only 永不 must_change；confirmed required 边失效 →
+>   must_change；未确认备用 → needs_review）→ 备份/恢复往返 → revision 原子回滚。
+> - 未进入 iOS N4；`spec/`、`fixtures/`、`conformance/expected/` 零改动；core `npm run check` 全绿。
+>   更新：2026-09-25（**Harmony N3 连续推进轮 #4 —— Import 管线 host 集成**；round#3 基础上继续）
 >
 > - **新增 3 个纯 ArkTS 模块**（零 @ohos，真实编译进 HAP）：`data/MerchantResolver.ets`（AGENTS §15
 >   解析顺序：builtin alias → normalized exact → conservative fuzzy → 用户确认）、
