@@ -70,6 +70,7 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
         "phase" to Json.Str(a.phase.wire),
         "done" to Json.Bool(a.done),
         "resolvesImpactKeys" to Json.Arr(a.resolvesImpactKeys.map { Json.Str(it) }),
+        "prerequisiteActionIds" to Json.Arr(a.prerequisiteActionIds.map { Json.Str(it) }),
         "verification" to (a.verification?.let { v ->
             Json.Obj(
                 listOf(
@@ -104,6 +105,8 @@ internal fun planActionsFromJson(raw: String?): List<PlanAction> {
                     ?: PlanActionPhase.CHANGE,
                 done = (o["done"] as? Json.Bool)?.value ?: false,
                 resolvesImpactKeys = ((o["resolvesImpactKeys"] as? Json.Arr)?.items)
+                    ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
+                prerequisiteActionIds = ((o["prerequisiteActionIds"] as? Json.Arr)?.items)
                     ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
                 verification = v,
             )

@@ -37,23 +37,29 @@ export class TemporalChangeResult {
   retireBlockedReason: string | null = null;
 }
 
+/**
+ * 校验时间窗顺序：effectiveAt(必有) → verificationNotBefore → verificationDueAt →
+ * retireOldPathAfter。null（未设置）跳过；任何非 null 时间小于前一个已见时间即不合法。
+ */
 export function validateTemporalOrder(window: TemporalChangeWindow): boolean {
-  const times: Array<string | null> = [
-    window.effectiveAt,
-    window.verificationNotBefore,
-    window.verificationDueAt,
-    window.retireOldPathAfter,
-  ];
-  let prev: string | null = null;
-  for (let i = 0; i < times.length; i++) {
-    const t = times[i];
-    if (t === null) {
-      continue;
-    }
-    if (prev !== null && t < prev) {
+  let prev: string | null = window.effectiveAt;
+  if (window.verificationNotBefore !== null) {
+    if (prev !== null && window.verificationNotBefore < prev) {
       return false;
     }
-    prev = t;
+    prev = window.verificationNotBefore;
+  }
+  if (window.verificationDueAt !== null) {
+    if (prev !== null && window.verificationDueAt < prev) {
+      return false;
+    }
+    prev = window.verificationDueAt;
+  }
+  if (window.retireOldPathAfter !== null) {
+    if (prev !== null && window.retireOldPathAfter < prev) {
+      return false;
+    }
+    prev = window.retireOldPathAfter;
   }
   return true;
 }

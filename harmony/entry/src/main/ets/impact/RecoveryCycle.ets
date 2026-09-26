@@ -130,8 +130,8 @@ function findCycles(edges: CycleEdge[], maxLen: number): string[][] {
 
   const cycles = new Set<string>();
   const nodes: string[] = [];
-  for (const key of adj.keys()) {
-    nodes.push(key);
+  for (const entry of adj) {
+    nodes.push(entry[0]);
   }
   nodes.sort();
 
@@ -145,8 +145,9 @@ function findCycles(edges: CycleEdge[], maxLen: number): string[][] {
   }
 
   const result: string[][] = [];
-  for (const c of cycles.values()) {
-    result.push(c.split('|'));
+  const cycleStrs = Array.from(cycles);
+  for (let i = 0; i < cycleStrs.length; i++) {
+    result.push(cycleStrs[i].split('|'));
   }
   result.sort((a: string[], b: string[]): number => {
     const n = a.length < b.length ? a.length : b.length;

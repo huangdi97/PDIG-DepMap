@@ -150,6 +150,8 @@ data class PlanAction(
     val done: Boolean = false,
     val resolvesImpactKeys: List<String> = emptyList(),
     val verification: ActionVerification? = null,
+    /** v0.3.0 (Canonical vNext)：前置动作 id 列表（必须先完成）。 */
+    val prerequisiteActionIds: List<String> = emptyList(),
 )
 
 data class ChangePlan(
