@@ -3,7 +3,23 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-> 更新：2026-09-25（**Harmony N3 连续推进轮 #3 —— ArkTS 内存持久化执行层**；round#2 基础上继续）
+> 更新：2026-09-25（**Harmony N3 连续推进轮 #4 —— Import 管线 host 集成**；round#3 基础上继续）
+>
+> - **新增 3 个纯 ArkTS 模块**（零 @ohos，真实编译进 HAP）：`data/MerchantResolver.ets`（AGENTS §15
+>   解析顺序：builtin alias → normalized exact → conservative fuzzy → 用户确认）、
+>   `data/RecurrenceDetector.ets`（monthly/quarterly/yearly 周期识别，只输出 confidence）、
+>   `data/ImportPipeline.ets`（三段式 begin→resolveMerchant→finalize：parse → normalize → 商户分组 →
+>   指纹（哈希缝注入）→ fresh/dup → recurrence → merchant_agreement 路由 → proposal/evidence/
+>   fingerprint/session 同事务落库）。
+> - **`HARMONY_BUILD = PASS`**（clean）：HAP 3,569,752 B，SHA-256 `9987c44317f893a84863bbc1f316d9c7f2f8aff71c497632167c53aa9181d07b`。
+> - **`HARMONY_MODULE_COMPILED = PASS`**：`check-compiled-reachability.mjs --build` → **38/38 required**。
+> - **`HARMONY_CONFORMANCE_HOST = PASS`**：**134/134 host checks**（+12 import-pipeline 测试），0 fail；
+>   canonical 口径不变（87/91，4 DEVICE-BLOCKED）。
+> - **Parity**：保持 29/73（本轮为工程深度集成，无新格移动）。
+> - 诚实边界：指纹哈希（cryptoFramework）与 WeChat adapter 的 funding_source 路由建议属设备层；
+>   主机用注入 mock 哈希与默认 merchant_agreement 路由；未 resolution / 非 recurring 不产生 Proposal。
+> - 未进入 iOS N4；`spec/`、`fixtures/`、`conformance/expected/` 零改动；codegen --check PASS。
+>   更新：2026-09-25（**Harmony N3 连续推进轮 #3 —— ArkTS 内存持久化执行层**；round#2 基础上继续）
 >
 > - **新增 4 个纯 ArkTS 模块**（零 @ohos，真实编译进 HAP）：`data/GraphStore.ets`（内存存储 + 快照/克隆）、
 >   `data/GraphRepository.ets`（事务 + node/dependency/group/proposal/evidence/fingerprint/import-session

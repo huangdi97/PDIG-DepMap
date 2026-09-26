@@ -96,6 +96,16 @@
 
 ## Current
 
+- **2026-09-25 Harmony N3 连续推进轮 #4（Import 管线 host 集成）**：parity 保持 29/73（工程深度集成轮）。
+  - 新增 3 个纯 ArkTS 模块（`data/MerchantResolver` / `data/RecurrenceDetector` / `data/ImportPipeline`），
+    零 @ohos、真实编译进 HAP；`check-compiled-reachability --build` **38/38 PASS**。
+  - **`HARMONY_CONFORMANCE_HOST = PASS`（134/134）**：+12 条管线测试 —— 真实微信 CSV（base64 内嵌）→
+    WechatParser → 商户分组/resolver（alias/normalized/fuzzy/ambiguous/unresolved）→ 指纹（哈希缝 mock，
+    deterministic + secret 敏感）→ recurrence → merchant_agreement proposal/evidence/fingerprint/session
+    同事务落库 → 幂等重导全 dup → revision 不 bump。
+  - HAP 3,569,752 B（sha256 `9987c443…`，clean 30s）；`spec/`、`fixtures/`、`conformance/expected/` 零改动。
+  - 诚实边界：指纹哈希（cryptoFramework）与 funding_source 路由建议属设备层；未 resolution / 非 recurring
+    商户不产生 Proposal（AGENTS §15 / GOAL §14）。
 - **2026-09-25 Harmony N3 连续推进轮 #3（ArkTS 内存持久化执行层）**：parity 27/73 → **29/73**。
   - 新增 4 个纯 ArkTS 模块（`data/GraphStore` / `data/GraphRepository` / `data/MigrationChain` /
     `data/RepositorySelfCheck`），零 @ohos、真实编译进 HAP；`check-compiled-reachability --build` **35/35 PASS**。

@@ -497,7 +497,8 @@ export class GraphRepository {
     });
   }
 
-  recordImportSession(id: string): void {
+  recordImportSession(id: string, rawCount: number, newUniqueCount: number,
+    duplicateCount: number, proposalCount: number, errorCount: number): void {
     this.withTransaction(() => {
       const row = newRecord();
       row['id'] = id;
@@ -509,11 +510,11 @@ export class GraphRepository {
       row['adapter_version'] = LEGACY_WECHAT_ADAPTER_VERSION;
       row['started_at'] = NOW;
       row['completed_at'] = NOW;
-      row['raw_count'] = 0;
-      row['new_unique_count'] = 0;
-      row['duplicate_count'] = 0;
-      row['proposal_count'] = 0;
-      row['error_count'] = 0;
+      row['raw_count'] = rawCount;
+      row['new_unique_count'] = newUniqueCount;
+      row['duplicate_count'] = duplicateCount;
+      row['proposal_count'] = proposalCount;
+      row['error_count'] = errorCount;
       this.store.importSessions.set(id, row);
     });
   }

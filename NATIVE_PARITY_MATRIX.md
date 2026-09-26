@@ -19,6 +19,23 @@
 >   Core Journey E2E 与三场景 E2E 见 `ANDROID_16_API36_CLOSURE_REPORT.md`。
 >   **ENGINEERING_GAP = 0、TEST_EVIDENCE_GAP = 0**（无工程/测试缺口被标为 external）。
 
+> **2026-09-25 Harmony N3 连续推进轮 #4（Import 管线 host 集成）**：
+> 新增 3 个纯 ArkTS 模块（MerchantResolver / RecurrenceDetector / ImportPipeline），全部真实编译进 HAP；
+> **parity 保持 29/73**（本轮为工程深度集成轮：解析器 × 解析器 × 仓库的端到端 host 验证，无新矩阵格移动）。
+> 证据（本轮新鲜实跑）：
+>
+> 1. clean `assembleHap` → `BUILD SUCCESSFUL`，HAP 3,569,752 B（sha256 `9987c443…`，见 NATIVE_MIGRATION_STATUS.md）；
+> 2. `check-compiled-reachability.mjs --build` → **38/38 required 模块 PASS**（3 个新模块全可达 + 入 abc）；
+> 3. `run-conformance-host.mjs` → **134/134 host checks**（87 canonical + 3 元测试 + 1 domain 自检 +
+>    14 persistence + 17 repository + **12 import-pipeline**：真实微信 CSV → WechatParser →
+>    商户分组 / resolver（builtin alias / normalized exact / fuzzy / ambiguous / unresolved）→
+>    指纹（哈希缝 mock：deterministic + secret 敏感）→ recurrence（monthly）→
+>    merchant_agreement proposal / evidence / fingerprint / session 同事务落库 → 幂等重导全 dup →
+>    revision 不 bump）。
+>
+> **诚实边界**：指纹哈希为设备 cryptoFramework（主机用注入 mock）；WeChat adapter 的 funding_source
+> 路由建议属设备层 enrich（主机用默认 merchant_agreement 路由）；未 resolution / 非 recurring 商户
+> **不产生 Proposal**（AGENTS §15 / GOAL §14）。
 > **2026-09-25 Harmony N3 连续推进轮 #3（ArkTS 内存持久化执行层）**：
 > 新增 4 个纯 ArkTS 模块（GraphStore / GraphRepository / MigrationChain / RepositorySelfCheck），
 > 全部真实编译进 HAP；**§2 再归位 2 格（Migration v1→v2→v3、迁移失败回滚 → TESTED(host)），

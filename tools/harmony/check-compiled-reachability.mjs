@@ -95,6 +95,11 @@ const REQUIRED_MODULES = [
   { id: 'GraphRepository', path: 'data/GraphRepository.ets', required: true },
   { id: 'MigrationChain', path: 'data/MigrationChain.ets', required: true },
   { id: 'RepositorySelfCheck', path: 'data/RepositorySelfCheck.ets', required: true },
+  // 导入管线（round#4）：MerchantResolver / RecurrenceDetector / ImportPipeline。
+  // 入边：RepositorySelfCheck → ImportPipeline → { MerchantResolver, RecurrenceDetector }。
+  { id: 'MerchantResolver', path: 'data/MerchantResolver.ets', required: true },
+  { id: 'RecurrenceDetector', path: 'data/RecurrenceDetector.ets', required: true },
+  { id: 'ImportPipeline', path: 'data/ImportPipeline.ets', required: true },
   // 后续阶段（Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },
   { id: 'Repository', path: 'data/Repository.ets', required: false },
