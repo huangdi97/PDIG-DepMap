@@ -1,439 +1,439 @@
 {
   "D01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D11": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D12": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D13": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D14": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D15": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "D16": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "P10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "S10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "I07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U11": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U12": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U13": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U14": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U15": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U16": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U17": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U18": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U19": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U20": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U21": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "U22": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "E01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "E02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "E03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "E04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop runtime: JVM canonical 91/91 (shared) + --smoke 16/16 + --shots 50/50 rendered reachability; all 24 pages rendered at >=1 window profile (light)"
   },
   "E05": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop has no a11y harness this round; keyboard/focus smoke documented in DESKTOP_RUNTIME_FINAL_REPORT §4"
   },
   "E06": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop product has no theme switching (Material3 default light only); dark not captured"
   },
   "E07": {
     "status": "BLOCKED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "no production keystore (E-2 external)"
   },
   "E08": {
     "status": "NOT_APPLICABLE",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "desktop is not a store product this round"
   }

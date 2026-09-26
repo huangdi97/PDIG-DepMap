@@ -75,21 +75,16 @@ jobs:
             echo "SIMULATOR_BOOT=NO_DEVICE" > conformance/reports/ios-simulator-boot.txt
           fi
         env:
-          SIMCTL_CHILD: "1"
-
       - name: N4 app-target gap audit (real project scan, no fake PASS)
         run: |
           mkdir -p conformance/reports
           if find ios/Sources -name "*.swift" -print0 | xargs -0 grep -l "@main" >/dev/null 2>&1; then
-            echo "{\"app_target\": true}" > conformance/reports/ios-app-audit.json
+            printf '{"app_target": true}\n' > conformance/reports/ios-app-audit.json
           else
-            cat > conformance/reports/ios-app-audit.json <<'EOF'
-            {"app_target": false, "n4_gap": "IOS_N4_APP_NOT_IMPLEMENTED", "app_ui_screens": 0, "xcuitest": "NOT_IMPLEMENTED", "screenshots": "NOT_IMPLEMENTED"}
-            EOF
+            printf '{"app_target": false, "n4_gap": "IOS_N4_APP_NOT_IMPLEMENTED", "app_ui_screens": 0, "xcuitest": "NOT_IMPLEMENTED", "screenshots": "NOT_IMPLEMENTED"}\n' > conformance/reports/ios-app-audit.json
           fi
           echo "--- audit ---"
           cat conformance/reports/ios-app-audit.json
-
       - name: Upload iOS evidence
         if: always()
         uses: actions/upload-artifact@v4

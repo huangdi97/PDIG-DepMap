@@ -27,11 +27,13 @@ IOS_UI_TESTS = NOT_IMPLEMENTED；IOS_RUNTIME_SWEEP = PASS(build+canonical) / N4 
 真实工程扫描结论：`ios/Sources` 仅 SwiftPM 库（PDIGCore / PDIGConformance / PDIGArgon2 / PDIGArgon2C / CSQLite）；
 **无 @main、无 SwiftUI 屏、无 .xcodeproj/.xcworkspace、无 UITests** → `IOS_N4_APP_NOT_IMPLEMENTED`。
 本轮不实现 N4（边界 §84/§126-§128）；未实现项一律 NOT_IMPLEMENTED，不生成假截图。
-
-## 4. Gate（§142）
 ```text
-IOS_BUILD            = runner ≥ SUCCESS（若 run 完成）
-IOS_UNIT             = runner ≥ SUCCESS
-IOS_CANONICAL        = runner ≥ 91/91 fresh
-IOS_RUNTIME_SWEEP    = PASS（build+canonical+fresh 执行证据）| UI/screenshot NOT_IMPLEMENTED（N4 gap，非阻塞）
+IOS_BUILD        = PASS（fresh swift build，runner run 36231032190）
+IOS_UNIT/CANONICAL = PASS（fresh canonical pass=91 fail=0 total=91 → conformance/reports/ios.json）
+IOS_SIMULATOR_IPHONE = SIMULATOR_BOOT=PASS（runner 上真实 boot 可用 iPhone simulator 成功）
+IOS_SIMULATOR_APP_RUNTIME = NOT_IMPLEMENTED（无 app target）
+IOS_PAGE_IMPLEMENTED_TOTAL = 0；IOS_PAGE_SCREENSHOTTED = 0（无 app → 不伪造截图）
+IOS_FUNCTION_TOTAL = 91（canonical fresh）；IOS_FUNCTION_NOT_IMPLEMENTED = 全部 UI 页
+IOS_UI_TESTS = NOT_IMPLEMENTED；IOS_RUNTIME_SWEEP = PASS（build+canonical+simulator-boot 全实证）| N4 gap 记录
+```
 ```

@@ -1,439 +1,439 @@
 {
   "D01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D11": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D12": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D13": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D14": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D15": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "D16": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "P10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S08": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S09": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "S10": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I03": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I04": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I05": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I06": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "I07": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "E01": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "E02": {
     "status": "PASS",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
-    "notes": "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run"
+    "notes": "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)"
   },
   "U01": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U02": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U03": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U04": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U05": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U06": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U07": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U08": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U09": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U10": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U11": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U12": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U13": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U14": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U15": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U16": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U17": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U18": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U19": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U20": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U21": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "U22": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)"
   },
   "E03": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "no iOS app target to run E2E"
   },
   "E04": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "no iOS UI/perf harness"
   },
   "E05": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "no iOS UI"
   },
   "E06": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "no iOS UI"
   },
   "E07": {
     "status": "BLOCKED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "Apple signing/account external (NB-4)"
   },
   "E08": {
     "status": "NOT_IMPLEMENTED",
-    "git_sha": "73b0216824b56840cc6021513a2e20eaee414a2e",
+    "git_sha": "cac50eb548454cb8dc0a5abfb3de3d9f6185350a",
     "updated_at": "2026-09-26",
     "notes": "store metadata not started"
   }

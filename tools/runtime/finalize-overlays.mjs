@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+﻿#!/usr/bin/env node
 // Generate runtime/evidence/<platform>.json overlays from compact per-platform rules,
 // then rebuild runtime/RUNTIME_ACCEPTANCE_MATRIX.json (292 rows x 25 fields).
 //
@@ -90,7 +90,7 @@ const harmony = overlay(
 
 const ios = overlay(
   [...ALL_LOGICAL, "E01", "E02"],
-  "ios runner result pending dispatch (run 36231032190); canonical fresh result to be backfilled after run",
+  "ios fresh canonical pass=91 fail=0 total=91 (macOS runner run 36231032190, artifact ios.json); SIMULATOR_BOOT=PASS; app/UI NOT_IMPLEMENTED (N4 gap)",
   {
     ...Object.fromEntries(UI.map((id) => [id, { status: "NOT_IMPLEMENTED", note: "iOS has no app target/UI (N4_APP gap, IOS_RUNTIME_BASELINE_AUDIT)" }])),
     E03: { status: "NOT_IMPLEMENTED", note: "no iOS app target to run E2E" },
