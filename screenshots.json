@@ -1,8 +1,654 @@
 [
   {
+    "file": "android/android__phone-api36__dark__about__populated__34.png",
+    "sha256": "76d2a32567ade98d5f25776b1e071e932c6298b50766e7894d8f5cc7864fb191",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "about",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.577Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__backup__populated__30.png",
+    "sha256": "315b0e724bc32885fb52e41984ccd5efb6f8f3ca4e4b43273deb2bdfb4cd1a6a",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "backup",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__candidates__populated__25.png",
+    "sha256": "176a66a41af5e7f889f3fe7f1a5c54b192fb3b3bd0a519147660f6b7bd630791",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "candidates",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__drift__populated__24.png",
+    "sha256": "3caf9d2af50651fcc0cf4cd3b9121bddaed34c4a35d05c9ba1f7ba87c98e160d",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "drift",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__graph__populated__27.png",
+    "sha256": "0833a9026f5598375dfaf67e60643d57f86b7bb78e2999abd25ebb73f73da612",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "graph",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__home__populated__20.png",
+    "sha256": "73ff6710fb357b726f50d286cccd0c6c94783ea66a4f0ef69e3f4e1492b8dc0c",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "home",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__impact__populated__35.png",
+    "sha256": "0e4c7efceeacd0cc4294a28aa331c7e49f78ce36ae79aa30f7b5fb3f1e6debce",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "impact",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__import__populated__29.png",
+    "sha256": "d3b788ae0c060e9d9474692b468119d8ed9c2d824faf894975d55401824ef673",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "import",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__infrastructure__populated__26.png",
+    "sha256": "3fe2c7a7f9dc6f69bbec2522dc2087b39e5079f8d7d88a57992585a513782dfa",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "infrastructure",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__node__populated__38.png",
+    "sha256": "3e8573d002b174258fa64adecf60a770e57524964336635dddc512f8062ee079",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "node",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__plan__populated__37.png",
+    "sha256": "1d873678ab4fa2443423e64cbd50b0525d03c98921744cf273bcbefd54be3b54",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "plan",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__privacy__populated__33.png",
+    "sha256": "a3d565202b16caef1c2930afe4a410164c916a83c4eb427ef72149e797022f92",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "privacy",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__restore__populated__31.png",
+    "sha256": "f6da4c9ca7c8712c86734e0ef68824eaea39427ba8c1b51c6f961e01c93b13ff",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "restore",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__review__populated__23.png",
+    "sha256": "ec4eb948fa5fefad90e0f817837f1993aebcfdec379cdc10e7a244f9c37f05f5",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "review",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__scenario-setup__populated__36.png",
+    "sha256": "94d267fd51045d01c4a1d33f1bb47b116c797333e763829b6d171a58b17fc5ab",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "scenario-setup",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__scenarios__populated__21.png",
+    "sha256": "88f37bef4e80166ef1e8ebc7d8cd3e79de7dc16e4a4d42e0bbc5a4dbbd72ca49",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "scenarios",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__settings__populated__32.png",
+    "sha256": "25d8fa7a974a6b98b4eb75681fb08dcbe942acc356d18e72b31a009706199eed",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "settings",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__sources__populated__28.png",
+    "sha256": "5d20c7c6af708e6aba7942bc5a52da6be10c34c74350d4efa6b2bc6e522cb2ac",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "sources",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__dark__timeline__populated__22.png",
+    "sha256": "5b77792dadb9c41916dc8324ee01b219a1b3604c3c8ce873aacb3e19cbff89bc",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "dark",
+    "page": "timeline",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__about__populated__15.png",
+    "sha256": "33e0537a63dd85cd5d090fb007b2273434380c0be16920beeee1bc0889298bfe",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "about",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__backup__populated__11.png",
+    "sha256": "d1eb6db0f31dd2896ada56424024b41eaedb45ed0876fece29f9cf41e003ebe2",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "backup",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__candidates__populated__06.png",
+    "sha256": "7ba044d291c4d6a69c124f4622342ded266cfca9f7c600d342283ec18b002327",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "candidates",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__drift__populated__05.png",
+    "sha256": "00794814c883b902f963466186843aec1943558b7b73b832b9d7d600735ba4cf",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "drift",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__graph__populated__08.png",
+    "sha256": "de3ce537704f61e875b1850974ea87ff4103d38f4550bf5099e4f3b6808aa4c3",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "graph",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__home__populated__01.png",
+    "sha256": "773d881ae03e3724017b51a635ee1d4b8545c260f4fc75b6a9ee499915918a3b",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "home",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__impact__populated__16.png",
+    "sha256": "e5801194a2579732a9d618243da0c0cea0507bb1117be8d1c8b152b67b512473",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "impact",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__import__populated__10.png",
+    "sha256": "623f20d04d0e2d60e7cf6d598a68c0c60f317c187ae07e4ac1dcc0766591bd7f",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "import",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__infrastructure__populated__07.png",
+    "sha256": "99838451d3b7b5ffe025c7780a559573b014fa663c8a777ce8381a4948151169",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "infrastructure",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__node__populated__19.png",
+    "sha256": "af037ca19b58e438384a4037daaf67f78133522b71377e9df331d52f1272023d",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "node",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__plan__populated__18.png",
+    "sha256": "7ba3b809be4b6124d2192467191bfcd3dcd43df1da4a5bd188734602f6710bb7",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "plan",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__privacy__populated__14.png",
+    "sha256": "f87a449c3e871fd7ff675a522001852c1ec687420a59498f5e3ce2ca37d48211",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "privacy",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__restore__populated__12.png",
+    "sha256": "0c9468285b43863df0a17e1a4aae4ab2dbf459f7c2687a723dcd4e7335236e54",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "restore",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__review__populated__04.png",
+    "sha256": "d1ca0fe355ecd6196b4791f12b1ba8f4ccad87ef505287a52334817a54e50ea4",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "review",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__scenario-setup__populated__17.png",
+    "sha256": "c835b8438bdbca28450135432a02b830f23723407ed97b362a9bf0f24066b661",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "scenario-setup",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__scenarios__populated__02.png",
+    "sha256": "78381983c616656275f322dca76251657bc8cdf32f4e94b454f527d2e50e20f7",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "scenarios",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__settings__populated__13.png",
+    "sha256": "f173cdea201c4b66b88453175ae4fe2591cf0cf544afd68783e70c486859bbbf",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "settings",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__sources__populated__09.png",
+    "sha256": "eb4c5b17118c447107ebd3ea6534e62c1fc24f53a8821e48dcb5c73b4e05eb93",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "sources",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
+    "file": "android/android__phone-api36__light__timeline__populated__03.png",
+    "sha256": "f7f471251ef06383f77a1405e8656da99992349c9446202fdd75646cb1da28ba",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
+    "platform": "android/android",
+    "runtime": "android/android",
+    "device": "phone-api36",
+    "resolution": "1280x720",
+    "density": "~420dpi",
+    "locale": "zh-CN",
+    "theme": "light",
+    "page": "timeline",
+    "state": "populated",
+    "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
+    "test_id": "android:UiScreenshotEvidenceTest",
+    "timestamp": "2026-09-26T10:07:43.580Z"
+  },
+  {
     "file": "desktop/desktop__win11__light__about__populated__24.png",
     "sha256": "2f2c8c975103deca25cc7014977af200b3446c6d97ef9ebbbdd8733efc29c0c7",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -14,12 +660,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.918Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__actions__populated__17.png",
     "sha256": "4e31b92d4a9497e76648e0385a6c972eb98867b5902fd41a659e4dfd0b073c76",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -31,12 +677,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__attention__populated__03.png",
     "sha256": "a82608508227a1050a7453c14c5cf37f69657207fced189503f61345705eb2b6",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -48,12 +694,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__attention__populated__26.png",
     "sha256": "055dc1f0ba052a39971ba38ae8049d8a11a8668b7897e4df4e647a73b8628c2b",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -65,12 +711,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__attention__populated__39.png",
     "sha256": "1f951c8b50a88329afbbce1da5531b3e1d541a5fc94c532ba975e4490f415cf0",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -82,12 +728,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__backup__populated__20.png",
     "sha256": "af19b794c83a85b444fadcbc64e90a79755d0e78de3f3a5f743cd204515716cc",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -99,12 +745,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__backup__populated__34.png",
     "sha256": "03737bf9f47d528a00096081fbdf576f1197a45895a66ff8455aa04a597d4594",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -116,12 +762,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__backup__populated__47.png",
     "sha256": "d3aed1fbbbf24bf1a7196065ff4cc8e9ac4c317e4b4958105656f70b83ea0d8f",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -133,12 +779,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__candidates__populated__09.png",
     "sha256": "daa93e6089db8a8fb77b39809ae6fbf05d80dc68507105e91a3e4e1d685cbca6",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -150,12 +796,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__drifts__populated__10.png",
     "sha256": "ec3beeb710d5ad98286df2918dd0de0abe00dd25639b02d6a2a6002a00ab0f30",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -167,12 +813,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__gate__gate__01.png",
     "sha256": "daa93e6089db8a8fb77b39809ae6fbf05d80dc68507105e91a3e4e1d685cbca6",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -184,12 +830,12 @@
     "state": "gate",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__home__populated__02.png",
     "sha256": "daa93e6089db8a8fb77b39809ae6fbf05d80dc68507105e91a3e4e1d685cbca6",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -201,12 +847,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__home__populated__25.png",
     "sha256": "9c275372b7c8975950b405399e007f19288602b233d6af00db11dd5664a36f48",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -218,12 +864,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__home__populated__38.png",
     "sha256": "a1304e6d2a243db6ee6c08829f4f70bc2b5108d2ae25a534c0638eff01cbb209",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -235,12 +881,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__impact__populated__15.png",
     "sha256": "0e3a8a330688d1d7aa6419a5d5904d450373cb7cf2e0377c71593bd2b88d0cdc",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -252,12 +898,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__impact__populated__30.png",
     "sha256": "b1ad61991f6c188f118c1347b64e0c8db8f3d7b8a3882f5673fe84d6a1b9d35b",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -269,12 +915,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__impact__populated__43.png",
     "sha256": "b22f230d409a8ee4b58e2bc6b599780eb9a0aa2a4d729d5db5791c46315d86b2",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -286,12 +932,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__import__idle__05.png",
     "sha256": "77a4474412f5a346976ed0e5d363f418e119f826337b894738f1536b1a2e05eb",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -303,12 +949,12 @@
     "state": "idle",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__import__populated__37.png",
     "sha256": "5dc22ed923b192e24864bf6f6ca9a280189d92098659cb22f94bfbf2003c9dc0",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -320,12 +966,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__import__populated__50.png",
     "sha256": "e766de777c9809612ae7359020ecce685e68d1bdd336bb2b7fa06b04d348f281",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -337,12 +983,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__infra__populated__11.png",
     "sha256": "ec3beeb710d5ad98286df2918dd0de0abe00dd25639b02d6a2a6002a00ab0f30",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -354,12 +1000,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__infra__populated__28.png",
     "sha256": "905bc6d6ce2baf556756cfe4945ec1049e3cb3cb451638ca7e13348f22d11a78",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -371,12 +1017,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__infra__populated__41.png",
     "sha256": "edd0d80ae119d5c2cab30ce163ecf4d7639da671cbe348b86459fc6853d42711",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -388,12 +1034,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__mapping__empty__06.png",
     "sha256": "de39dc03e7a038f1ac6c2905334a8f20026b361fd8399489f922eecd8af7d750",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -405,12 +1051,12 @@
     "state": "empty",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__node__populated__12.png",
     "sha256": "db3950d21d39ee8456d8c2443fad55718675d961e7eadee3138f27ac0db6bb16",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -422,12 +1068,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__plan__populated__16.png",
     "sha256": "0c084a2eddba2f20c4dbb015470ef6d7492329b964cc0ba197ce6b8d540435c4",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -439,12 +1085,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__plan__populated__31.png",
     "sha256": "9bab2e4b8a457f63c6381d4c82d91ad779edb04d2b54fb64d636c1f206d9919f",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -456,12 +1102,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__plan__populated__44.png",
     "sha256": "fdcf6c1e0103dbaf8eb2659b721f0e61b3b05086c7a8817a183db6eac6045295",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -473,12 +1119,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__proposals__populated__08.png",
     "sha256": "32e2657c059978009c009087cad34220b68bf720937d2cc3ab06afcb98be6104",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -490,12 +1136,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__restore__empty__21.png",
     "sha256": "b63cf3c3e186c35f8e24b891ac3c95126baca4de9f999b5e319e27c9190495df",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -507,12 +1153,12 @@
     "state": "empty",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__restore__populated__35.png",
     "sha256": "b51f6220d42e370abf39a8a47f16fbb4fe98eea46fb9d52cebabaee2d9efe33b",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -524,12 +1170,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__restore__populated__48.png",
     "sha256": "ca79546f2db6474f5443221beee964cec27903af331e934789629ca187d4ec9c",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -541,12 +1187,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__review__populated__07.png",
     "sha256": "2a2fa563c2c453a95a61d78461429d0884e6963559254684d221d115762879f7",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -558,12 +1204,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__scenario-setup__populated__14.png",
     "sha256": "03a09ed06a74b2f66c058070bbd36b6d8755eaf2c45e6b793edcad158879200d",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -575,12 +1221,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__scenarios__populated__13.png",
     "sha256": "c218e40c0d90bf916ab4becfacafdfc878b765d831fe8ef84b4382618c74ca2c",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -592,12 +1238,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__scenarios__populated__29.png",
     "sha256": "3c9fedbb9109837a1e80eefbff40eb7f710877f06974fd0de94c040bf52ba369",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -609,12 +1255,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__scenarios__populated__42.png",
     "sha256": "973c8da9a0699fbf14c296b8b2dad180322cfdb1be7f97163526e43b61731d18",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -626,12 +1272,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__security__populated__23.png",
     "sha256": "2f2c8c975103deca25cc7014977af200b3446c6d97ef9ebbbdd8733efc29c0c7",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -643,12 +1289,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__settings__populated__22.png",
     "sha256": "2f2c8c975103deca25cc7014977af200b3446c6d97ef9ebbbdd8733efc29c0c7",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -660,12 +1306,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__settings__populated__36.png",
     "sha256": "b050263c3863b857397e0100c7881fcc1c58f40436b88240e5c2f14790d33ed5",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -677,12 +1323,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__settings__populated__49.png",
     "sha256": "4e17ccc8ed06d0e32a8cf25023d8adc35e82410a3693cbd4fea35f989cf09cf6",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -694,12 +1340,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__sources__populated__04.png",
     "sha256": "2fcf5947f80401c078c54769c3dc49cb29fd3af7ea467b4ba523d7ede31024cd",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -711,12 +1357,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__sources__populated__27.png",
     "sha256": "007721e661a68e1742f8776312ca8e1ff3b934c73afcea9b1b4d4b9b73f3e37d",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -728,12 +1374,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__sources__populated__40.png",
     "sha256": "74ce2c1dc4a386a97f716a04060d639cf02a5f12e60a878c3ff1f54eff888a6b",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -745,12 +1391,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__timeline__populated__19.png",
     "sha256": "f536a62d238c8fe0d9198ea500c0cc0d625ea21198c9d52cef2a481ad39d6a47",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -762,12 +1408,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__timeline__populated__33.png",
     "sha256": "fcc055d6245a1a2f984f49aca3c64438be7adefd9fdca04179feeda3a79cc04a",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -779,12 +1425,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__timeline__populated__46.png",
     "sha256": "a309f7cbd6a7bfe495c922a68739b502274024a66ea1dacec2cc3cc2c0238ba5",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -796,12 +1442,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__verification__populated__18.png",
     "sha256": "b3a4706e536ccb4d059dae74f4a074f2598218ddbfe78dcf423a794c2afc46d5",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -813,12 +1459,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__verification__populated__32.png",
     "sha256": "d0e49f40978f030e733e4ae2732c3b85701672eabf37732a784b29d4585b0bb5",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -830,12 +1476,12 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   },
   {
     "file": "desktop/desktop__win11__light__verification__populated__45.png",
     "sha256": "38d8346d1a4c4687af4e09838bd695ac355b240564de3397f8b8153dae1ed607",
-    "git_sha": "37b3f856637a2f8f545cdbcab55c95642c2a3509",
+    "git_sha": "9db0743cf455b5427bd09ab81afacba0f708e244",
     "platform": "desktop/desktop",
     "runtime": "desktop/desktop",
     "device": "win11",
@@ -847,6 +1493,6 @@
     "state": "populated",
     "fixture": "synthetic (fixtures/import/normal-wechat.csv or in-test manual observations)",
     "test_id": "android:UiScreenshotEvidenceTest",
-    "timestamp": "2026-09-26T08:58:25.919Z"
+    "timestamp": "2026-09-26T10:07:43.580Z"
   }
 ]
