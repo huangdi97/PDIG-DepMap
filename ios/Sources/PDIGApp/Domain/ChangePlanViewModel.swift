@@ -140,8 +140,6 @@ public enum ChangePlanViewModel {
         PlanRules.countUnresolvedMustChange(actions: actions, keys: impactKeys)
     }
 
-    }
-
     public static func workflowText(_ state: ChangePlanWorkflowState) -> String {
         switch state {
         case .draft: return CopyZh.planDraft
@@ -221,7 +219,7 @@ public enum ChangePlanViewModel {
                 title: a.title,
                 phaseText: phaseText(a.phase),
                 done: a.done,
-            ctaTitle: ctaTitle(plan: input.plan, readiness: readinessValue, currentGraphRevision: input.currentGraphRevision),
+                verificationStatusText: verificationText(a.verification),
                 prerequisiteText: preText
             )
         }
@@ -231,7 +229,7 @@ public enum ChangePlanViewModel {
             readiness: readinessValue,
             effectiveStatus: effectiveStatus,
             readinessText: stale ? CopyZh.planNeedsRevalidation : readinessText(readinessValue),
-            ctaTitle: ctaTitle(plan: input.plan, readiness: readinessValue),
+            ctaTitle: ctaTitle(plan: input.plan, readiness: readinessValue, currentGraphRevision: input.currentGraphRevision),
             workflowText: workflowText(input.plan.workflowState),
             actions: actionViews,
             unresolvedMustChange: unresolved

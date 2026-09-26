@@ -301,6 +301,7 @@ struct ImportScreen: View {
                     from: "card-main",
                     relation: .fundingSource,
                     to: "service-\(p.merchant)",
+                    capability: .payment,
                     confidenceScore: p.confidence,
                     observationCount: p.observations,
                     createdAt: "2030-01-15T00:00:00+00:00",

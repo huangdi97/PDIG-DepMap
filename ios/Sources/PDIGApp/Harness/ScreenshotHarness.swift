@@ -14,6 +14,7 @@ import UniformTypeIdentifiers
 
 public enum ScreenshotHarness {
 
+    @MainActor
     public static func runAndExit(arguments: [String]) -> Never {
         let runId = value(of: "--runid", in: arguments) ?? UUID().uuidString.prefix(8).description
         let outputDir = value(of: "--output", in: arguments)
@@ -26,7 +27,7 @@ public enum ScreenshotHarness {
         guard let i = args.firstIndex(of: flag), i + 1 < args.count else { return nil }
         return args[i + 1]
     }
-
+    @MainActor
     private static func renderAll(runId: String, outputDir: String) {
         let session = demoSession()
         let screens: [(name: String, view: AnyView)] = [
@@ -76,7 +77,7 @@ public enum ScreenshotHarness {
         return s
     }
 
-    /// 渲染为 CGImage（尺寸固定便于比对）。
+    @MainActor
     private static func render(_ view: AnyView, scheme: ColorScheme) -> CGImage? {
         let renderer = ImageRenderer(
             content: view

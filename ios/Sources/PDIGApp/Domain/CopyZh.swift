@@ -8,6 +8,7 @@
 // 注意：copy 只做键值翻译；枚举 wire 只在 ViewModel 内部使用，渲染层一律走这里。
 
 import Foundation
+import PDIGCore
 
 /// 用户可见中文文案（单一来源，供所有 UI 使用）。
 public enum CopyZh {

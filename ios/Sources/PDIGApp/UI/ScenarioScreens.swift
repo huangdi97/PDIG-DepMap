@@ -69,7 +69,7 @@ struct ScenarioFlowScreen: View {
             if targets.isEmpty {
                 Text("还没有可选的\(isIdentity ? CopyZh.phoneNumber : "支付工具")。").foregroundStyle(.secondary)
             } else {
-                ForEach(targets) { n in
+                ForEach(targets, id: \.id) { n in
                     Button {
                         targetNodeId = n.id
                     } label: {

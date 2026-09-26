@@ -69,7 +69,7 @@ public struct DriftItem: Equatable, Sendable, Identifiable {
 }
 
 public struct ImportState: Equatable, Sendable {
-    public let stage: ImportStage
+    public var stage: ImportStage
     public let fileName: String
     public let rows: [ImportRow]
     public let summary: ImportSummary?

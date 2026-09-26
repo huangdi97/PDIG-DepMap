@@ -13,8 +13,11 @@ struct PDIGApp: App {
 
     init() {
         // 截图 harness 模式：同步渲染 + 写 PNG 后退出（不在 App 生命周期内）。
+        // 该路径在真实启动主线程上执行；ImageRenderer 需要 MainActor（Swift 5.9 隔离检查）。
         if CommandLine.arguments.contains("--screenshot") {
-            ScreenshotHarness.runAndExit(arguments: CommandLine.arguments)
+            MainActor.assumeIsolated {
+                ScreenshotHarness.runAndExit(arguments: CommandLine.arguments)
+            }
         }
     }
 
