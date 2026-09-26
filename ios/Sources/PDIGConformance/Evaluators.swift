@@ -44,6 +44,14 @@ public enum Evaluators {
         case "timeline": return try timeline(caseId, input)
         case "migration": return try migration(caseId, input)
         case "backup": return .value(try backup(input))
+        // v0.3.0（Canonical vNext）新增分类
+        case "failure-domain": return .value(try failureDomain(input))
+        case "recovery-cycle": return .value(try recoveryCycle(input))
+        case "action-dag": return .value(try actionDag(input))
+        case "make-before-break": return .value(try makeBeforeBreak(input))
+        case "temporal-change": return .value(try temporalChange(input))
+        case "provider-policy": return .value(try providerPolicy(input))
+        case "identity-relations": return .value(try relations(input))
         default: return .notImplemented
         }
     }
@@ -1142,4 +1150,239 @@ public enum Evaluators {
             ]))
         }
     }
+
+    // ---------------------------------------------------------- v0.3.0 引擎
+
+    /// 共享的 dependency 数组解析（与 impact 用例同构的 fixture 形状）。
+    private static func parseDependencyItems(_ arr: [Json]?) throws -> [Dependency] {
+        var deps: [Dependency] = []
+        for item in arr ?? [] {
+            guard let o = item.objectValue else { continue }
+            deps.append(
+                Dependency(
+                    id: try requireString(o, "id"),
+                    from: try requireString(o, "from"),
+                    relation: try wire(o, "relation", Relation.self),
+                    to: try requireString(o, "to"),
+                    capability: try wire(o, "capability", Capability.self),
+                    criticality: try wire(o, "criticality", Criticality.self),
+                    groupId: o["groupId"]?.stringValue,
+                    state: try wire(o, "state", DependencyState.self),
+                    origin: try wire(o, "origin", DependencyOrigin.self),
+                    lastVerifiedAt: try requireString(o, "lastVerifiedAt")
+                )
+            )
+        }
+        return deps
+    }
+
+    /// make-before-break 的 action 形状（PlanAction 投影）。
+    private static func parseAction(_ o: JsonObject) throws -> PlanAction {
+        let verification: ActionVerification?
+        if let v = o["verification"]?.objectValue {
+            verification = ActionVerification(
+                method: try wire(v, "method", ActionVerificationMethod.self),
+                status: try wire(v, "status", ActionVerificationStatus.self),
+                evidenceRefs: v["evidenceRefs"]?.arrayValue?.compactMap { $0.stringValue } ?? []
+            )
+        } else {
+            verification = nil
+        }
+        return PlanAction(
+            id: try requireString(o, "id"),
+            title: try requireString(o, "title"),
+            phase: try wire(o, "phase", PlanActionPhase.self),
+            done: o["done"]?.boolValue ?? false,
+            resolvesImpactKeys: o["resolvesImpactKeys"]?.arrayValue?.compactMap { $0.stringValue } ?? [],
+            verification: verification
+        )
+    }
+
+    // ---------------------------------------------------------- failure-domain
+
+    private static func failureDomain(_ input: JsonObject) throws -> Json {
+        let targetNodeId = try requireString(input, "targetNodeId")
+        let capability = try wire(input, "capability", Capability.self)
+        let deps = try parseDependencyItems(input["dependencies"]?.arrayValue)
+
+        var confirmedDomains: [String: String] = [:]
+        for item in input["confirmedDomains"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            confirmedDomains[try requireString(o, "key")] = try requireString(o, "id")
+        }
+        var suspectedDomains: [String: String] = [:]
+        for item in input["suspectedDomains"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            suspectedDomains[try requireString(o, "key")] = try requireString(o, "id")
+        }
+        var edgeToDomainKeys: [String: [String]] = [:]
+        if let map = input["edgeToDomainKeys"]?.objectValue {
+            for (key, _) in map.fields {
+                edgeToDomainKeys[key] = map[key]?.arrayValue?.compactMap { $0.stringValue } ?? []
+            }
+        }
+
+        let result = FailureDomainEngine.computePathIndependence(
+            PathIndependenceInput(
+                targetNodeId: targetNodeId,
+                capability: capability,
+                dependencies: deps,
+                confirmedDomains: confirmedDomains,
+                suspectedDomains: suspectedDomains,
+                edgeToDomainKeys: edgeToDomainKeys
+            )
+        )
+        return .obj(JsonObject([
+            ("targetNodeId", .str(result.targetNodeId)),
+            ("capability", .str(result.capability.wire)),
+            ("pathCount", .num(String(result.pathCount))),
+            ("independentPathCount", .num(String(result.independentPathCount))),
+            ("sharedFailureDomains", .arr(result.sharedFailureDomains.map { .str($0) })),
+            ("unresolvedAssumptions", .arr(result.unresolvedAssumptions.map { .str($0) })),
+        ]))
+    }
+
+    // ---------------------------------------------------------- recovery-cycle
+
+    private static func recoveryCycle(_ input: JsonObject) throws -> Json {
+        let capability = try wire(input, "capability", Capability.self)
+        let deps = try parseDependencyItems(input["dependencies"]?.arrayValue)
+        var hinted: [RecoveryHintedEdge] = []
+        for item in input["hintedEdges"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            hinted.append(
+                RecoveryHintedEdge(
+                    from: try requireString(o, "from"),
+                    to: try requireString(o, "to")
+                )
+            )
+        }
+        let result = RecoveryCycleEngine.detectRecoveryCycles(
+            RecoveryCycleInput(capability: capability, dependencies: deps, hintedEdges: hinted)
+        )
+        return .obj(JsonObject([
+            ("status", .str(result.status.wire)),
+            ("confirmedCycles", .arr(result.confirmedCycles.map { (cycle: [String]) -> Json in
+                .arr(cycle.map { (node: String) -> Json in .str(node) })
+            })),
+            ("potentialCycles", .arr(result.potentialCycles.map { (cycle: [String]) -> Json in
+                .arr(cycle.map { (node: String) -> Json in .str(node) })
+            })),
+            ("capability", .str(result.capability.wire)),
+        ]))
+    }
+
+    // --------------------------------------------------------------- action-dag
+
+    private static func actionDag(_ input: JsonObject) throws -> Json {
+        var actions: [DagAction] = []
+        for item in input["actions"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            actions.append(
+                DagAction(
+                    id: try requireString(o, "id"),
+                    prerequisiteActionIds: o["prerequisiteActionIds"]?
+                        .arrayValue?.compactMap { $0.stringValue } ?? []
+                )
+            )
+        }
+        let result = ActionDagEngine.validateActionDag(actions: actions)
+        return .obj(JsonObject([
+            ("ok", .bool(result.ok)),
+            ("violation", .str(result.violation.wire)),
+            ("offendingActionId", result.offendingActionId.map { .str($0) } ?? .null),
+            ("topologicalOrder", .arr(result.topologicalOrder.map { .str($0) })),
+        ]))
+    }
+
+    // ---------------------------------------------------------- make-before-break
+
+    private static func makeBeforeBreak(_ input: JsonObject) throws -> Json {
+        var newPaths: [PlanAction] = []
+        for item in input["newPaths"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            newPaths.append(try parseAction(o))
+        }
+        var verifications: [PlanAction] = []
+        for item in input["verifications"]?.arrayValue ?? [] {
+            guard let o = item.objectValue else { continue }
+            verifications.append(try parseAction(o))
+        }
+        let result = MakeBeforeBreakEngine.evaluate(
+            MakeBeforeBreakInput(
+                newPathActions: newPaths,
+                verificationActions: verifications,
+                retireActionId: "retire",
+                retireAlreadyDone: input["retireDone"]?.boolValue ?? false
+            )
+        )
+        return .obj(JsonObject([
+            ("status", .str(result.status.wire)),
+            ("unverifiedNewPaths", .arr(result.unverifiedNewPaths.map { .str($0) })),
+            ("reason", .str(result.reason)),
+        ]))
+    }
+
+    // ---------------------------------------------------------- temporal-change
+
+    private static func temporalChange(_ input: JsonObject) throws -> Json {
+        guard let window = input["window"]?.objectValue else {
+            throw EvalError("temporal-change fixture missing window")
+        }
+        let w = TemporalChangeWindow(
+            effectiveAt: try requireString(window, "effectiveAt"),
+            verificationNotBefore: window["verificationNotBefore"]?.stringValue,
+            verificationDueAt: window["verificationDueAt"]?.stringValue,
+            retireOldPathAfter: window["retireOldPathAfter"]?.stringValue
+        )
+        let result = TemporalChangeEngine.classifyTemporalPhase(
+            window: w,
+            now: try requireString(input, "now"),
+            allKeyNewPathsVerified: input["verified"]?.boolValue ?? false
+        )
+        return .obj(JsonObject([
+            ("phase", .str(result.phase.wire)),
+            ("validOrder", .bool(result.validOrder)),
+            ("retireAllowedAt", result.retireAllowedAt.map { .str($0) } ?? .null),
+            ("retireBlockedReason", result.retireBlockedReason.map { .str($0) } ?? .null),
+        ]))
+    }
+
+    // ---------------------------------------------------------- provider-policy
+
+    private static func providerPolicy(_ input: JsonObject) throws -> Json {
+        let userConfigured = input["userConfigured"]?.boolValue ?? false
+        let policy: ProviderPolicy?
+        if let p = input["policy"]?.objectValue {
+            policy = ProviderPolicy(
+                provider: try requireString(p, "provider"),
+                policyType: try requireString(p, "policyType"),
+                sourceUrl: try requireString(p, "sourceUrl"),
+                retrievedAt: try requireString(p, "retrievedAt"),
+                lastVerifiedAt: p["lastVerifiedAt"]?.stringValue,
+                effectiveFrom: p["effectiveFrom"]?.stringValue,
+                effectiveTo: p["effectiveTo"]?.stringValue,
+                jurisdiction: p["jurisdiction"]?.stringValue,
+                accountTypeScope: p["accountTypeScope"]?.stringValue,
+                parameters: p["parameters"] ?? .null,
+                policyRevision: try requireInt(p, "policyRevision"),
+                state: try wire(p, "state", ProviderPolicyState.self)
+            )
+        } else {
+            policy = nil
+        }
+        let result = ProviderPolicyEngine.interpretProviderCapability(
+            policy: policy,
+            userConfigured: userConfigured
+        )
+        return .obj(JsonObject([
+            ("provider", .str(result.provider)),
+            ("supports", .bool(result.supports)),
+            ("configured", .bool(result.configured)),
+            ("explanation", .str(result.explanation)),
+            ("influences", .arr(result.influences.map { .str($0.wire) })),
+            ("state", .str(result.state.wire)),
+        ]))
+    }
+
 }

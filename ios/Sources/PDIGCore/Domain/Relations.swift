@@ -2,13 +2,13 @@
 //
 // 源头：android/core/.../domain/Relations.kt。
 //
-// MVP02 runtime 只正式支持 funding_source / merchant_agreement。
-// Future / legacy 词表（verifies / recovers / bound_to / card_on_file 等）
+// v0.3.0 runtime registry（与 core/src/domain/relation-registry.ts 对齐）：
+//   payment 域：funding_source / merchant_agreement
+//   identity 域：recovers / authenticates / controls
+// verifies / bound_to / card_on_file 等 Future / legacy 词表
 // **不进入 runtime validation**，即便 DB CHECK 允许它们存在。
-//
-// 这是一条真实的历史缺陷防线：legacy UI 的 DECLARABLE_RELATIONS 曾暴露 `bound_to`，
-// 而 registry 并不承认它 —— 用户选了会被后端拒绝。
-// 见 LEGACY_BEHAVIOR_CORRECTIONS.md LC-003。Native 端不再重演。
+// 历史防线（LEGACY_BEHAVIOR_CORRECTIONS.md LC-003）：legacy UI 曾暴露 `bound_to`，
+// 而 registry 并不承认它 —— Native 端不再重演。
 
 import Foundation
 
@@ -70,6 +70,33 @@ public enum RelationRegistry {
             fromKinds: [.account, .paymentInstrument],
             toKinds: [.service, .membership, .account],
             capability: .payment,
+            allowsGroup: false,
+            allowedGroupModes: [],
+            defaultCriticality: .unknown
+        ),
+        RelationDefinition(
+            id: .recovers,
+            fromKinds: [.identityAnchor, .account, .device, .service],
+            toKinds: [.account, .service, .identityAnchor],
+            capability: .recovery,
+            allowsGroup: true,
+            allowedGroupModes: [.`any`],
+            defaultCriticality: .unknown
+        ),
+        RelationDefinition(
+            id: .authenticates,
+            fromKinds: [.identityAnchor, .account, .device],
+            toKinds: [.account, .service],
+            capability: .authentication,
+            allowsGroup: true,
+            allowedGroupModes: [.`any`],
+            defaultCriticality: .unknown
+        ),
+        RelationDefinition(
+            id: .controls,
+            fromKinds: [.account, .device],
+            toKinds: [.account, .service, .identityAnchor],
+            capability: .access,
             allowsGroup: false,
             allowedGroupModes: [],
             defaultCriticality: .unknown

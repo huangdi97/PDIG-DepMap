@@ -2,6 +2,14 @@
 
 > 本文件由执行 Agent 持续更新。不要删除历史关键结论。
 >
+
+> **（当前）iOS N4 前置：v0.3.0 确定性引擎移植 + conformance 128 条，2026-10-02**
+> —— iOS Swift core（PDIGCore）移植 v0.3.0 六个确定性引擎（failure-domain /
+> recovery-cycle / action-dag / make-before-break / temporal-change / provider-policy，
+> 逐行对齐 core TS reference）+ RelationRegistry 新增 recovers/authenticates/controls +
+> Evaluators 新增 7 分类 + ConformanceTests 断言 91→128。
+> **本机（Windows）无 Swift 工具链：IOS_BUILD / conformance 均 NOT_RUN**，等 macOS CI
+> 执行（E-8），不得写成 PASS。`spec/`、`fixtures/`、`conformance/` 零改动。
 > **⚠ 2026-09-15 技术栈已变更**：Production 切换为三端原生（Kotlin/Swift/ArkTS），
 > 彻底退出 uni-app x / UTS / DCloud。本文件 2026-09-15 之前的内容属于
 > **Legacy 阶段**，其结论对旧实现仍然有效，但**不再是产品未来**。

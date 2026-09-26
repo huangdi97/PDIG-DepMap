@@ -3,6 +3,21 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
+> 更新：2026-10-02（**iOS N4 前置轮 —— v0.3.0 确定性引擎移植 + conformance 扩至 128 条**）
+>
+> - **新增 6 个纯 Swift 引擎**（PDIGCore，逐行移植自 core TS reference）：
+>   `Domain/FailureDomain.swift`（computePathIndependence + buildEdgeToDomainIndex）、
+>   `Impact/RecoveryCycle.swift`（detectRecoveryCycles）、`Domain/ActionDag.swift`
+>   （validateActionDag + stableTopologicalOrder）、`Domain/MakeBeforeBreak.swift`、
+>   `Domain/TemporalChange.swift`、`Services/ProviderPolicy.swift`
+>   （inferProviderPolicyState + interpretProviderCapability）。
+> - **RelationRegistry 扩展** recovers / authenticates / controls（identity-relations 6 条
+>   复用 relations 求值器）；**Evaluators.swift 新增 7 个分类分发**；ConformanceTests 断言
+>   **91 → 128**（manifest 已含 128 条，fixtures/conformance 零改动）。
+> - **`IOS_BUILD = NOT_RUN`**：Windows 无 Swift 工具链，本地未编译未执行；
+>   由 macOS CI 执行（E-8），不得写成 PASS。
+> - `spec/`、`fixtures/`、`conformance/` 零改动；core `npm run check` 未跑（TS 侧未动）。
+
 > 更新：2026-09-25（**Harmony N3 连续推进轮 #5 —— host Core-Journey E2E**；纯测试 + 文档轮）
 >
 > - **零生产源码改动**；新增 `entry/src/test/CoreJourneyHost.test.ets`（8 条 E2E）。
