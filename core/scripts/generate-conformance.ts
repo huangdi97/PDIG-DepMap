@@ -1735,7 +1735,13 @@ function insertPlan(
       suspectedDomains: suspectedMap,
       edgeToDomainKeys: edgeMap,
     })
-    add(id, 'failure-domain', description, fdInput(deps, confirmed, suspected, edgeToDomain), result)
+    add(
+      id,
+      'failure-domain',
+      description,
+      fdInput(deps, confirmed, suspected, edgeToDomain),
+      result,
+    )
   }
 
   // FD-01 两条路径同一台手机 → independent 1
@@ -1842,7 +1848,13 @@ function insertPlan(
     hinted: Array<{ from: string; to: string }>,
   ) {
     const result = detectRecoveryCycles({ capability, dependencies: deps, hintedEdges: hinted })
-    add(id, 'recovery-cycle', description, { capability, dependencies: deps, hintedEdges: hinted }, result)
+    add(
+      id,
+      'recovery-cycle',
+      description,
+      { capability, dependencies: deps, hintedEdges: hinted },
+      result,
+    )
   }
 
   rcRun(
@@ -1857,17 +1869,15 @@ function insertPlan(
     'rc-multihop-cycle',
     '多跳环 account-a→phone-a→email-a→account-a → confirmed_cycle',
     'recovery',
-    [rcDep('d1', 'account-a', 'phone-a'), rcDep('d2', 'phone-a', 'email-a'), rcDep('d3', 'email-a', 'account-a')],
+    [
+      rcDep('d1', 'account-a', 'phone-a'),
+      rcDep('d2', 'phone-a', 'email-a'),
+      rcDep('d3', 'email-a', 'account-a'),
+    ],
     [],
   )
 
-  rcRun(
-    'rc-no-cycle',
-    '无环 → no_cycle',
-    'recovery',
-    [rcDep('d1', 'phone-a', 'account-a')],
-    [],
-  )
+  rcRun('rc-no-cycle', '无环 → no_cycle', 'recovery', [rcDep('d1', 'phone-a', 'account-a')], [])
 
   rcRun(
     'rc-unconfirmed-edge-potential-only',
@@ -1881,7 +1891,10 @@ function insertPlan(
     'rc-retired-edge-excluded',
     'retired 边不参与检测 → no_cycle',
     'recovery',
-    [rcDep('d1', 'account-a', 'phone-a', 'recovery', 'retired'), rcDep('d2', 'phone-a', 'account-a', 'recovery', 'retired')],
+    [
+      rcDep('d1', 'account-a', 'phone-a', 'recovery', 'retired'),
+      rcDep('d2', 'phone-a', 'account-a', 'recovery', 'retired'),
+    ],
     [],
   )
 
@@ -1889,7 +1902,10 @@ function insertPlan(
     'rc-mixed-capability-no-cycle',
     '混合 capability 不产生 confirmed cycle → no_cycle',
     'recovery',
-    [rcDep('d1', 'account-a', 'phone-a', 'recovery'), rcDep('d2', 'phone-a', 'account-a', 'access')],
+    [
+      rcDep('d1', 'account-a', 'phone-a', 'recovery'),
+      rcDep('d2', 'phone-a', 'account-a', 'access'),
+    ],
     [],
   )
 
@@ -2028,7 +2044,13 @@ function insertPlan(
 // ---------------------------------------------------------------------------
 
 {
-  function tcRun(id: string, description: string, window: TemporalChangeWindow, now: string, verified: boolean) {
+  function tcRun(
+    id: string,
+    description: string,
+    window: TemporalChangeWindow,
+    now: string,
+    verified: boolean,
+  ) {
     const result = classifyTemporalPhase(window, now, verified)
     add(id, 'temporal-change', description, { window, now, verified }, result)
   }
@@ -2036,7 +2058,12 @@ function insertPlan(
   tcRun(
     'tc-before-phase',
     'now < effectiveAt → before；retire 未开放',
-    { effectiveAt: '2026-10-01T00:00:00.000Z', verificationNotBefore: null, verificationDueAt: null, retireOldPathAfter: null },
+    {
+      effectiveAt: '2026-10-01T00:00:00.000Z',
+      verificationNotBefore: null,
+      verificationDueAt: null,
+      retireOldPathAfter: null,
+    },
     '2026-09-20T00:00:00.000Z',
     false,
   )
@@ -2044,7 +2071,12 @@ function insertPlan(
   tcRun(
     'tc-transition-phase-verified-retire-allowed',
     'transition 中 + 全部新路径已验证 → retireAllowedAt 给出',
-    { effectiveAt: '2026-10-01T00:00:00.000Z', verificationNotBefore: '2026-10-01T00:00:00.000Z', verificationDueAt: '2026-10-15T00:00:00.000Z', retireOldPathAfter: '2026-10-20T00:00:00.000Z' },
+    {
+      effectiveAt: '2026-10-01T00:00:00.000Z',
+      verificationNotBefore: '2026-10-01T00:00:00.000Z',
+      verificationDueAt: '2026-10-15T00:00:00.000Z',
+      retireOldPathAfter: '2026-10-20T00:00:00.000Z',
+    },
     '2026-10-21T00:00:00.000Z',
     true,
   )
@@ -2052,7 +2084,12 @@ function insertPlan(
   tcRun(
     'tc-transition-unverified-blocked',
     'transition 中 + 新路径未验证 → retire blocked 即使时间已到',
-    { effectiveAt: '2026-10-01T00:00:00.000Z', verificationNotBefore: null, verificationDueAt: null, retireOldPathAfter: '2026-10-20T00:00:00.000Z' },
+    {
+      effectiveAt: '2026-10-01T00:00:00.000Z',
+      verificationNotBefore: null,
+      verificationDueAt: null,
+      retireOldPathAfter: '2026-10-20T00:00:00.000Z',
+    },
     '2026-10-21T00:00:00.000Z',
     false,
   )
@@ -2060,7 +2097,12 @@ function insertPlan(
   tcRun(
     'tc-invalid-order',
     'verificationNotBefore < effectiveAt → 时间窗顺序不合法',
-    { effectiveAt: '2026-10-02T00:00:00.000Z', verificationNotBefore: '2026-10-01T00:00:00.000Z', verificationDueAt: null, retireOldPathAfter: null },
+    {
+      effectiveAt: '2026-10-02T00:00:00.000Z',
+      verificationNotBefore: '2026-10-01T00:00:00.000Z',
+      verificationDueAt: null,
+      retireOldPathAfter: null,
+    },
     '2026-09-20T00:00:00.000Z',
     false,
   )
@@ -2071,10 +2113,30 @@ function insertPlan(
 // ---------------------------------------------------------------------------
 
 {
-  function ppRun(id: string, description: string, policy: ProviderPolicy | null, userConfigured: boolean) {
+  function ppRun(
+    id: string,
+    description: string,
+    policy: ProviderPolicy | null,
+    userConfigured: boolean,
+  ) {
     const interpretation = interpretProviderCapability(policy, userConfigured)
-    const state = policy ? policy.state : inferProviderPolicyState({ provider: 'unknown', policyType: 'recovery', sourceUrl: null, retrievedAt: T0, lastVerifiedAt: null, policyRevision: 0 })
-    add(id, 'provider-policy', description, { policy, userConfigured }, { ...interpretation, state })
+    const state = policy
+      ? policy.state
+      : inferProviderPolicyState({
+          provider: 'unknown',
+          policyType: 'recovery',
+          sourceUrl: null,
+          retrievedAt: T0,
+          lastVerifiedAt: null,
+          policyRevision: 0,
+        })
+    add(
+      id,
+      'provider-policy',
+      description,
+      { policy, userConfigured },
+      { ...interpretation, state },
+    )
   }
 
   const effectivePolicy: ProviderPolicy = {
@@ -2092,12 +2154,32 @@ function insertPlan(
     state: 'effective',
   }
 
-  ppRun('pp-supports-but-not-configured', 'Provider 支持 SMS 恢复但用户未配置 → suggestion', effectivePolicy, false)
-  ppRun('pp-supports-and-configured', 'Provider 支持且用户已配置 → interpretation', effectivePolicy, true)
-  ppRun('pp-unverifiable-needs-review', '无法核实的 policy → needs_review，不自动影响建议', null, true)
+  ppRun(
+    'pp-supports-but-not-configured',
+    'Provider 支持 SMS 恢复但用户未配置 → suggestion',
+    effectivePolicy,
+    false,
+  )
+  ppRun(
+    'pp-supports-and-configured',
+    'Provider 支持且用户已配置 → interpretation',
+    effectivePolicy,
+    true,
+  )
+  ppRun(
+    'pp-unverifiable-needs-review',
+    '无法核实的 policy → needs_review，不自动影响建议',
+    null,
+    true,
+  )
 
   const needsReviewPolicy: ProviderPolicy = { ...effectivePolicy, state: 'needs_review' }
-  ppRun('pp-state-needs-review-no-auto-influence', 'needs_review policy 不产生 suggestion', needsReviewPolicy, false)
+  ppRun(
+    'pp-state-needs-review-no-auto-influence',
+    'needs_review policy 不产生 suggestion',
+    needsReviewPolicy,
+    false,
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -2105,17 +2187,66 @@ function insertPlan(
 // ---------------------------------------------------------------------------
 
 {
-  function relRun(id: string, description: string, fromKind: string | null, relation: string, toKind: string | null, capability: string) {
+  function relRun(
+    id: string,
+    description: string,
+    fromKind: string | null,
+    relation: string,
+    toKind: string | null,
+    capability: string,
+  ) {
     const result = validateRelationUse(fromKind as never, relation, toKind as never, capability)
     add(id, 'identity-relations', description, { fromKind, relation, toKind, capability }, result)
   }
 
-  relRun('rel-recovers-phone-to-account', 'recovers：identity_anchor(phone) → account, recovery 放行', 'identity_anchor', 'recovers', 'account', 'recovery')
-  relRun('rel-recovers-rejects-payment-capability', 'recovers 要求 recovery；payment 被拒', 'identity_anchor', 'recovers', 'account', 'payment')
-  relRun('rel-authenticates-device-to-account', 'authenticates：device → account, authentication 放行', 'device', 'authenticates', 'account', 'authentication')
-  relRun('rel-authenticates-rejects-recovery-capability', 'authenticates 要求 authentication；recovery 被拒', 'device', 'authenticates', 'account', 'recovery')
-  relRun('rel-controls-account-to-service', 'controls：account → service, access 放行', 'account', 'controls', 'service', 'access')
-  relRun('rel-verifies-still-not-runtime', 'verifies 仍不进入 runtime registry（v0.3.0 保持）', 'account', 'verifies', 'account', 'payment')
+  relRun(
+    'rel-recovers-phone-to-account',
+    'recovers：identity_anchor(phone) → account, recovery 放行',
+    'identity_anchor',
+    'recovers',
+    'account',
+    'recovery',
+  )
+  relRun(
+    'rel-recovers-rejects-payment-capability',
+    'recovers 要求 recovery；payment 被拒',
+    'identity_anchor',
+    'recovers',
+    'account',
+    'payment',
+  )
+  relRun(
+    'rel-authenticates-device-to-account',
+    'authenticates：device → account, authentication 放行',
+    'device',
+    'authenticates',
+    'account',
+    'authentication',
+  )
+  relRun(
+    'rel-authenticates-rejects-recovery-capability',
+    'authenticates 要求 authentication；recovery 被拒',
+    'device',
+    'authenticates',
+    'account',
+    'recovery',
+  )
+  relRun(
+    'rel-controls-account-to-service',
+    'controls：account → service, access 放行',
+    'account',
+    'controls',
+    'service',
+    'access',
+  )
+  relRun(
+    'rel-verifies-still-not-runtime',
+    'verifies 仍不进入 runtime registry（v0.3.0 保持）',
+    'account',
+    'verifies',
+    'account',
+    'payment',
+  )
 }
 
 // ---------------------------------------------------------------------------

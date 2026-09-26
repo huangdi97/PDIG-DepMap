@@ -6,14 +6,14 @@
 > 更新：2026-10-04（**iOS N4 —— PDIGApp SwiftUI 产品 App（v0.3.0）落地**）
 >
 > - **新增 `ios/Sources/PDIGApp/`（可执行 target，约 28 文件）**：@main SwiftUI App
->   + 导航模型（Home/Lock/Onboarding 根分流）、Onboarding(≤3 屏)、LocalAuthentication
->   + Keychain 解锁门、Home（需要你处理/可能发生了变化/即将到来/常用场景/我的基础设施/
->   基础设施薄弱点）、Findings（FailureDomainEngine + RecoveryCycleEngine 组合，六问展示）、
->   Infrastructure（按对象/按能力）、节点六问卡、场景中心（支付 3 场景 + 换号，带
->   make-before-break 语言与顺序闸门）、ChangePlan（CTA 映射 + 白话前置）、验证屏
->   （新手机号已添加 ≠ 新恢复路径已经验证）、时间线、导入八步（CSV/OFX 解析→映射→
->   解析→复查→建议→候选→漂移）、备份/恢复（DepmapContainer V1 + Argon2id + payload
->   原子恢复）、删除所有数据（显式确认）、设置/安全/关于。
+>   - 导航模型（Home/Lock/Onboarding 根分流）、Onboarding(≤3 屏)、LocalAuthentication
+>   - Keychain 解锁门、Home（需要你处理/可能发生了变化/即将到来/常用场景/我的基础设施/
+>     基础设施薄弱点）、Findings（FailureDomainEngine + RecoveryCycleEngine 组合，六问展示）、
+>     Infrastructure（按对象/按能力）、节点六问卡、场景中心（支付 3 场景 + 换号，带
+>     make-before-break 语言与顺序闸门）、ChangePlan（CTA 映射 + 白话前置）、验证屏
+>     （新手机号已添加 ≠ 新恢复路径已经验证）、时间线、导入八步（CSV/OFX 解析→映射→
+>     解析→复查→建议→候选→漂移）、备份/恢复（DepmapContainer V1 + Argon2id + payload
+>     原子恢复）、删除所有数据（显式确认）、设置/安全/关于。
 > - **新增 `ios/Tests/PDIGAppTests/`**：导航 / Findings 组合 / 换号前置与闸门 / CTA 映射 /
 >   导入流水线 8 条纯逻辑单测。
 > - **`IOS_BUILD = NOT_RUN` / `IOS_VISUAL = NOT_RUN`（等 macOS CI）**：本机 Windows 无
@@ -46,7 +46,7 @@
 > - **`HARMONY_COMPILE_REACHABILITY = PASS`**（--build）：6 个新模块全部进入编译图，modules.abc 符号在场，
 >   负向 probe 全绿。
 > - `spec/`、`fixtures/`、`conformance/` 零改动；core `npm run check` 未跑（TS 侧未动）。
-> 更新：2026-10-02（**iOS N4 前置轮 —— v0.3.0 确定性引擎移植 + conformance 扩至 128 条**）
+>   更新：2026-10-02（**iOS N4 前置轮 —— v0.3.0 确定性引擎移植 + conformance 扩至 128 条**）
 >
 > - **新增 6 个纯 Swift 引擎**（PDIGCore，逐行移植自 core TS reference）：
 >   `Domain/FailureDomain.swift`（computePathIndependence + buildEdgeToDomainIndex）、

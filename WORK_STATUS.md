@@ -1,7 +1,6 @@
 # WORK_STATUS.md
 
 > 本文件由执行 Agent 持续更新。不要删除历史关键结论。
->
 
 > **（当前）iOS N4：PDIGApp SwiftUI 产品 App（v0.3.0）落地，2026-10-04**
 > —— 新增 `ios/Sources/PDIGApp/`（@main App + Home/Lock/Onboarding/Findings/
@@ -26,7 +25,7 @@
 > domain/MakeBeforeBreak、domain/TemporalChange、services/ProviderPolicy 六个纯 ArkTS 引擎 +
 > ConformanceRunner 七个新类别分发 + ConformanceHost 断言 91→128；identity-relations 复用
 > generated/CanonicalRelations 的 recovers/authenticates/controls 注册表。`HARMONY_COMPILE_REACHABILITY
-> = PASS`（--build）。`spec/`、`fixtures/`、`conformance/` 零改动。
+= PASS`（--build）。`spec/`、`fixtures/`、`conformance/` 零改动。
 > **⚠ 2026-09-15 技术栈已变更**：Production 切换为三端原生（Kotlin/Swift/ArkTS），
 > 彻底退出 uni-app x / UTS / DCloud。本文件 2026-09-15 之前的内容属于
 > **Legacy 阶段**，其结论对旧实现仍然有效，但**不再是产品未来**。
