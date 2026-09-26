@@ -82,9 +82,9 @@ object ShotDriver {
                 while (uiRef.get() == null || winRef.get() == null || stateRef.get() == null) {
                     Thread.sleep(60)
                 }
-                val ui = uiRef.get()!!
-                val win = winRef.get()!!
-                val windowState = stateRef.get()!!
+                val ui = checkNotNull(uiRef.get()) { "uiRef not set before capture" }
+                val win = checkNotNull(winRef.get()) { "winRef not set before capture" }
+                val windowState = checkNotNull(stateRef.get()) { "stateRef not set before capture" }
                 val robot = Robot()
                 val shots = planShots(prepared, ui)
                 for ((i, target) in shots.withIndex()) {

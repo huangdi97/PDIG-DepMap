@@ -166,20 +166,11 @@ fun HomeScreen(nav: NavController) {
                 PdigCard(onClick = { nav.navigate(Route.SCENARIOS) }) { Text("更换银行卡 / 银行卡即将到期 / 注销银行卡") }
 
                 SectionHeader("我的基础设施")
-                findings?.let { f ->
-                    PdigCard(onClick = { nav.navigate(Route.FINDINGS) }) {
-                        Column {
-                            Text("基础设施薄弱点", style = PdigTokens.BodyStrong)
-                            Text(
-                                "唯一恢复来源 ${f.spof.size} · 共享故障点 ${f.shared.size} · 恢复循环 ${f.cycles.size}",
-                                style = PdigTokens.Caption, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
+                findings?.let { f -> HomeFindingsCard(nav, f) }
                 PdigCard(onClick = { nav.navigate(Route.INFRASTRUCTURE) }) {
                     Text("共 $nodeCount 个对象", style = PdigTokens.BodyStrong)
                 }
+
 
                 // 导入 / 备份恢复此前从首页不可达，核心行程根本走不通。
                 // 这里补上最小入口（不改信息架构，只是让已存在的页面可达）。

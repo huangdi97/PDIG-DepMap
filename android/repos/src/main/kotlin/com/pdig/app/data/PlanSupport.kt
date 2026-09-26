@@ -46,6 +46,47 @@ internal fun buildActionsFor(
     )
 }
 
+/**
+ * replace_phone_number 的 Make-Before-Break 动作 DAG：
+ * rpn-prepare-1 → rpn-change-1 → rpn-verify-1 → rpn-change-2
+ * （先建新路径并验证，才能 retire 旧路径；BREAK_BEFORE_MAKE = FORBIDDEN）。
+ * 纯数据构造：DAG 校验与前置门禁在 PlanRepository.completeAction / core ActionDagEngine 里。
+ */
+internal fun buildReplacePhoneActions(): List<PlanAction> {
+    val futureObservation = com.pdig.core.domain.ActionVerification(
+        method = ActionVerificationMethod.FUTURE_OBSERVATION,
+        status = ActionVerificationStatus.PENDING,
+    )
+    return listOf(
+        PlanAction(
+            id = "rpn-prepare-1",
+            title = "检查旧手机号承担的恢复与认证能力",
+            phase = PlanActionPhase.PREPARE,
+            prerequisiteActionIds = emptyList(),
+        ),
+        PlanAction(
+            id = "rpn-change-1",
+            title = "添加新手机号并迁移关键账户",
+            phase = PlanActionPhase.CHANGE,
+            prerequisiteActionIds = listOf("rpn-prepare-1"),
+            verification = futureObservation,
+        ),
+        PlanAction(
+            id = "rpn-verify-1",
+            title = "验证新手机号恢复路径",
+            phase = PlanActionPhase.VERIFY,
+            prerequisiteActionIds = listOf("rpn-change-1"),
+            verification = futureObservation,
+        ),
+        PlanAction(
+            id = "rpn-change-2",
+            title = "停用旧手机号（新路径全部验证后）",
+            phase = PlanActionPhase.CHANGE,
+            prerequisiteActionIds = listOf("rpn-verify-1"),
+        ),
+    )
+}
+
 internal fun snapshotKeys(snapshot: String?, field: String): List<String> {
     if (snapshot.isNullOrBlank()) return emptyList()
     return try {
