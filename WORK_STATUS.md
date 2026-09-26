@@ -3,6 +3,16 @@
 > 本文件由执行 Agent 持续更新。不要删除历史关键结论。
 >
 
+> **（当前）iOS N4：PDIGApp SwiftUI 产品 App（v0.3.0）落地，2026-10-04**
+> —— 新增 `ios/Sources/PDIGApp/`（@main App + Home/Lock/Onboarding/Findings/
+> Infrastructure/NodeDetail/Scenario/ChangePlan/Verification/Timeline/Import 八步/
+> Backup/DeleteAll/Settings）+ `ios/Tests/PDIGAppTests/`（8 条纯逻辑单测：导航、
+> Findings 组合、换号闸门、CTA 映射、导入流水线）+ `Package.swift` 新增 PDIGApp
+> 可执行/测试 target + `ios.yml`/`ios-runtime-visual.yml` 增加 app 构建、app 单测、
+> macOS 渲染截图步骤（保留 canonical 91+37=128 条不变）。
+> **IOS_BUILD / APP_TESTS / SCREENSHOTS 均 NOT_RUN（本机无 Swift，等 macOS CI 验证）**；
+> SQLCipher = NOT_RUN、截图 = MACOS_RENDER、真机 Keychain/LocalAuthentication = NOT_RUN。
+> `spec/`、`fixtures/`、`conformance/expected/`、`core/`（TS）、`android/`、`harmony/` 零改动。
 > **（当前）iOS N4 前置：v0.3.0 确定性引擎移植 + conformance 128 条，2026-10-02**
 > —— iOS Swift core（PDIGCore）移植 v0.3.0 六个确定性引擎（failure-domain /
 > recovery-cycle / action-dag / make-before-break / temporal-change / provider-policy，
@@ -10,6 +20,13 @@
 > Evaluators 新增 7 分类 + ConformanceTests 断言 91→128。
 > **本机（Windows）无 Swift 工具链：IOS_BUILD / conformance 均 NOT_RUN**，等 macOS CI
 > 执行（E-8），不得写成 PASS。`spec/`、`fixtures/`、`conformance/` 零改动。
+> **（本轮 Harmony 收口）2026-10-02：`HARMONY_CONFORMANCE_HOST = PASS`（179/179 host checks，0 fail）**，
+> `HARMONY_HOST_PASS = 124/128`（87 旧 + 37 新 canonical 在真实 ArkTS 运行时逐字节复现冻结 expected；
+> 4 DEVICE-BLOCKED 不变）。落地：domain/FailureDomain、impact/RecoveryCycle、domain/ActionDag、
+> domain/MakeBeforeBreak、domain/TemporalChange、services/ProviderPolicy 六个纯 ArkTS 引擎 +
+> ConformanceRunner 七个新类别分发 + ConformanceHost 断言 91→128；identity-relations 复用
+> generated/CanonicalRelations 的 recovers/authenticates/controls 注册表。`HARMONY_COMPILE_REACHABILITY
+> = PASS`（--build）。`spec/`、`fixtures/`、`conformance/` 零改动。
 > **⚠ 2026-09-15 技术栈已变更**：Production 切换为三端原生（Kotlin/Swift/ArkTS），
 > 彻底退出 uni-app x / UTS / DCloud。本文件 2026-09-15 之前的内容属于
 > **Legacy 阶段**，其结论对旧实现仍然有效，但**不再是产品未来**。

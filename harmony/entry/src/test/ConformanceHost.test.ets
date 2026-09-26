@@ -121,13 +121,20 @@ class EmbeddedTextSource implements ConformanceTextSource {
  * 两套实现一致才允许把它们从环境桶里移除。详见
  * `tools/encoding/generate-gb18030-table.mjs` 与 `crosscheck-gb18030.py`。
  * 账目推进为 **87 已执行 + 0 未移植 + 0 环境缺失 + 4 设备运行时**。
+ *
+ * 2026-09-26（v0.3.0 确定性引擎收口）：failure-domain / recovery-cycle / action-dag /
+ * make-before-break / temporal-change / provider-policy / identity-relations 七个新类别
+ * 共 37 条 fixture 落地 ArkTS（引擎移植至 domain/FailureDomain、impact/RecoveryCycle、
+ * domain/ActionDag、domain/MakeBeforeBreak、domain/TemporalChange、services/ProviderPolicy，
+ * identity-relations 复用 generated/CanonicalRelations 的 recovers/authenticates/controls 注册表）。
+ * 账目推进为 **124 已执行 + 0 未移植 + 0 环境缺失 + 4 设备运行时**（分母 91 → 128）。
  */
-const EXPECTED_TOTAL = 91;
+const EXPECTED_TOTAL = 128;
 const EXPECTED_BLOCKED_BY_RUNTIME = 4;
 const EXPECTED_BLOCKED_BY_ENVIRONMENT = 0;
 const EXPECTED_HOST_IMPL_MISSING = 0;
 const EXPECTED_NOT_IMPLEMENTED = 0;
-const EXPECTED_PASSED = 87;
+const EXPECTED_PASSED = 124;
 const EXPECTED_FAILED = 0;
 
 export default function conformanceHostTest() {

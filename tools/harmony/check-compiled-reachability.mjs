@@ -68,6 +68,17 @@ const REQUIRED_MODULES = [
   { id: 'ScenarioTemplate', path: 'domain/ScenarioTemplate.ets', required: true },
   { id: 'Timeline', path: 'domain/Timeline.ets', required: true },
   { id: 'DomainSelfCheck', path: 'domain/DomainSelfCheck.ets', required: true },
+  // v0.3.0 确定性引擎（2026-09-26）：failure-domain / recovery-cycle / action-dag /
+  // make-before-break / temporal-change / provider-policy。全部为纯逻辑模块，
+  // 零 @ohos 依赖；入边：pages/Index.ets → ConformanceSelfCheck → ConformanceRunner
+  //       → { FailureDomain, RecoveryCycle, ActionDag, MakeBeforeBreak,
+  //           TemporalChange, ProviderPolicy }。
+  { id: 'FailureDomain', path: 'domain/FailureDomain.ets', required: true },
+  { id: 'RecoveryCycle', path: 'impact/RecoveryCycle.ets', required: true },
+  { id: 'ActionDag', path: 'domain/ActionDag.ets', required: true },
+  { id: 'MakeBeforeBreak', path: 'domain/MakeBeforeBreak.ets', required: true },
+  { id: 'TemporalChange', path: 'domain/TemporalChange.ets', required: true },
+  { id: 'ProviderPolicy', path: 'services/ProviderPolicy.ets', required: true },
   // Conformance 层：在设备上执行平台中立 fixture 的真实 ArkTS runner。
   // 必须登记在这里，否则 §10 的「ArkTS runner 已实现」这句话没有依据 ——
   // 未被 page/ability 可达的 .ets 根本不进编译图（见本文件顶部成因说明）。
