@@ -169,6 +169,19 @@ function writeReport(canonCases) {
       category,
     }
   }
+  // 设备门禁例外必须**显式登记**到 results（带逐条理由），
+  // 而不是静默缺席 —— 缺席会被 harness 误读为"没有跑"，既不诚实也模糊门禁。
+  // 理由与 harmony/entry/src/main/ets/conformance/ConformanceRunner.ets 的
+  // RUNTIME_BLOCKED_CASES 注释一一对应（V030 设备阻塞：Argon2id native / ArkData）。
+  const blockedWithReason = [
+    ['depmap-golden-v1', 'requires on-device Argon2id (NAPI .so) + AES-256-GCM; host unit tests cannot load OHOS ABI native lib'],
+    ['depmap-utf8-password-normalization', 'requires on-device Argon2id (NAPI .so); host unit tests cannot load OHOS ABI native lib'],
+    ['backup-depmap-export-restore-roundtrip', 'requires ArkData real DB + encrypted container round-trip on device'],
+    ['migration-db-v1-to-v3', 'requires relationalStore + v1 schema seed data on device'],
+  ]
+  for (const [caseId, reason] of blockedWithReason) {
+    results[caseId] = { status: 'RUNTIME_BLOCKED', category: 'depmap', detail: reason }
+  }
   const report = {
     platform: 'harmony',
     specVersion: '1.0.0',

@@ -190,7 +190,9 @@ for (const platform of PLATFORMS) {
   const results = rep.results ?? {}
   let pass = 0
   let fail = 0
+  let blocked = 0
   const mismatches = []
+  const blockedList = []
 
   for (const [id, expExpected] of expectedById) {
     const got = results[id]
@@ -201,6 +203,14 @@ for (const platform of PLATFORMS) {
     }
     if (got.status === 'NOT_IMPLEMENTED') {
       // 诚实口径：未实现不是 FAIL，但也不算 PASS
+      continue
+    }
+    // 外部环境 gate（Harmony 设备阻塞 Argon2id/ArkData 等）：既不是 FAIL 也不算 PASS，
+    // 单独进入 blocked 桶 —— 这是契约允许的真实外部 Gate，且平台报告必须带逐条理由。
+    if (got.status === 'RUNTIME_BLOCKED' || got.status === 'ENV_BLOCKED' ||
+        got.status === 'BLOCKED_BY_RUNTIME' || got.status === 'BLOCKED_BY_ENVIRONMENT') {
+      blocked++
+      blockedList.push({ id, reason: got.detail ?? got.status })
       continue
     }
     if (got.status === 'FAIL') {
@@ -226,20 +236,28 @@ for (const platform of PLATFORMS) {
     pass++
   }
 
+  const status =
+    fail > 0 ? 'FAIL'
+      : blocked > 0 ? 'PASS_WITH_EXTERNAL_GATES'
+      : 'PASS'
   summary.platforms[platform] = {
-    status: fail === 0 ? 'PASS' : 'FAIL',
+    status,
     reportedAt: rep.generatedAt ?? null,
     pass,
     fail,
+    blocked,
     total: expectedById.size,
     mismatches: mismatches.slice(0, 25),
+    externalGates: blockedList,
   }
-  console.log(`${platform.padEnd(8)} ${fail === 0 ? 'PASS' : 'FAIL'}  ${pass} pass / ${fail} fail / ${expectedById.size} total`)
+  console.log(`${platform.padEnd(8)} ${status}  ${pass} pass / ${fail} fail / ${blocked} blocked / ${expectedById.size} total`)
+  for (const b of blockedList.slice(0, 10)) console.log(`  GATE ${b.id}: ${b.reason}`)
   if (fail > 0) {
     hardFailures++
     for (const m of mismatches.slice(0, 10)) console.error(`  FAIL ${m.id}: ${m.reason}`)
   }
 }
+
 
 // ---------------------------------------------------------------------------
 // 5. SUMMARY
