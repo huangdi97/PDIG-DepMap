@@ -51,7 +51,9 @@ export enum Relation {
   MERCHANT_AGREEMENT = 'merchant_agreement',
   VERIFIES = 'verifies',
   RECOVERS = 'recovers',
-  BOUND_TO = 'bound_to'
+  BOUND_TO = 'bound_to',
+  AUTHENTICATES = 'authenticates',
+  CONTROLS = 'controls'
 }
 
 export function relationFromWire(value: string): Relation | undefined {
@@ -70,12 +72,21 @@ export function relationFromWire(value: string): Relation | undefined {
   if (value === Relation.BOUND_TO) {
     return Relation.BOUND_TO;
   }
+  if (value === Relation.AUTHENTICATES) {
+    return Relation.AUTHENTICATES;
+  }
+  if (value === Relation.CONTROLS) {
+    return Relation.CONTROLS;
+  }
   return undefined;
 }
 
 export enum RelationRuntime {
   FUNDING_SOURCE = 'funding_source',
-  MERCHANT_AGREEMENT = 'merchant_agreement'
+  MERCHANT_AGREEMENT = 'merchant_agreement',
+  RECOVERS = 'recovers',
+  AUTHENTICATES = 'authenticates',
+  CONTROLS = 'controls'
 }
 
 export function relationRuntimeFromWire(value: string): RelationRuntime | undefined {
@@ -85,13 +96,24 @@ export function relationRuntimeFromWire(value: string): RelationRuntime | undefi
   if (value === RelationRuntime.MERCHANT_AGREEMENT) {
     return RelationRuntime.MERCHANT_AGREEMENT;
   }
+  if (value === RelationRuntime.RECOVERS) {
+    return RelationRuntime.RECOVERS;
+  }
+  if (value === RelationRuntime.AUTHENTICATES) {
+    return RelationRuntime.AUTHENTICATES;
+  }
+  if (value === RelationRuntime.CONTROLS) {
+    return RelationRuntime.CONTROLS;
+  }
   return undefined;
 }
 
 export enum Capability {
   PAYMENT = 'payment',
   ACCESS = 'access',
+  AUTHENTICATION = 'authentication',
   RECOVERY = 'recovery',
+  COMMUNICATION = 'communication',
   IDENTITY = 'identity'
 }
 
@@ -102,8 +124,14 @@ export function capabilityFromWire(value: string): Capability | undefined {
   if (value === Capability.ACCESS) {
     return Capability.ACCESS;
   }
+  if (value === Capability.AUTHENTICATION) {
+    return Capability.AUTHENTICATION;
+  }
   if (value === Capability.RECOVERY) {
     return Capability.RECOVERY;
+  }
+  if (value === Capability.COMMUNICATION) {
+    return Capability.COMMUNICATION;
   }
   if (value === Capability.IDENTITY) {
     return Capability.IDENTITY;
@@ -112,12 +140,28 @@ export function capabilityFromWire(value: string): Capability | undefined {
 }
 
 export enum CapabilityRuntime {
-  PAYMENT = 'payment'
+  PAYMENT = 'payment',
+  ACCESS = 'access',
+  AUTHENTICATION = 'authentication',
+  RECOVERY = 'recovery',
+  COMMUNICATION = 'communication'
 }
 
 export function capabilityRuntimeFromWire(value: string): CapabilityRuntime | undefined {
   if (value === CapabilityRuntime.PAYMENT) {
     return CapabilityRuntime.PAYMENT;
+  }
+  if (value === CapabilityRuntime.ACCESS) {
+    return CapabilityRuntime.ACCESS;
+  }
+  if (value === CapabilityRuntime.AUTHENTICATION) {
+    return CapabilityRuntime.AUTHENTICATION;
+  }
+  if (value === CapabilityRuntime.RECOVERY) {
+    return CapabilityRuntime.RECOVERY;
+  }
+  if (value === CapabilityRuntime.COMMUNICATION) {
+    return CapabilityRuntime.COMMUNICATION;
   }
   return undefined;
 }
@@ -921,6 +965,274 @@ export function sourceEncodingFromWire(value: string): SourceEncoding | undefine
   return undefined;
 }
 
+export enum FailureDomainKind {
+  DEVICE = 'DEVICE',
+  PHONE_NUMBER = 'PHONE_NUMBER',
+  ACCOUNT = 'ACCOUNT',
+  PROVIDER = 'PROVIDER',
+  PERSON = 'PERSON',
+  REGION = 'REGION',
+  PHYSICAL_LOCATION = 'PHYSICAL_LOCATION',
+  NETWORK = 'NETWORK'
+}
+
+export function failureDomainKindFromWire(value: string): FailureDomainKind | undefined {
+  if (value === FailureDomainKind.DEVICE) {
+    return FailureDomainKind.DEVICE;
+  }
+  if (value === FailureDomainKind.PHONE_NUMBER) {
+    return FailureDomainKind.PHONE_NUMBER;
+  }
+  if (value === FailureDomainKind.ACCOUNT) {
+    return FailureDomainKind.ACCOUNT;
+  }
+  if (value === FailureDomainKind.PROVIDER) {
+    return FailureDomainKind.PROVIDER;
+  }
+  if (value === FailureDomainKind.PERSON) {
+    return FailureDomainKind.PERSON;
+  }
+  if (value === FailureDomainKind.REGION) {
+    return FailureDomainKind.REGION;
+  }
+  if (value === FailureDomainKind.PHYSICAL_LOCATION) {
+    return FailureDomainKind.PHYSICAL_LOCATION;
+  }
+  if (value === FailureDomainKind.NETWORK) {
+    return FailureDomainKind.NETWORK;
+  }
+  return undefined;
+}
+
+export enum FailureDomainKindRuntime {
+  DEVICE = 'DEVICE',
+  PHONE_NUMBER = 'PHONE_NUMBER',
+  ACCOUNT = 'ACCOUNT',
+  PROVIDER = 'PROVIDER'
+}
+
+export function failureDomainKindRuntimeFromWire(value: string): FailureDomainKindRuntime | undefined {
+  if (value === FailureDomainKindRuntime.DEVICE) {
+    return FailureDomainKindRuntime.DEVICE;
+  }
+  if (value === FailureDomainKindRuntime.PHONE_NUMBER) {
+    return FailureDomainKindRuntime.PHONE_NUMBER;
+  }
+  if (value === FailureDomainKindRuntime.ACCOUNT) {
+    return FailureDomainKindRuntime.ACCOUNT;
+  }
+  if (value === FailureDomainKindRuntime.PROVIDER) {
+    return FailureDomainKindRuntime.PROVIDER;
+  }
+  return undefined;
+}
+
+export enum FailureDomainStatus {
+  CONFIRMED = 'confirmed',
+  NEEDS_REVIEW = 'needs_review'
+}
+
+export function failureDomainStatusFromWire(value: string): FailureDomainStatus | undefined {
+  if (value === FailureDomainStatus.CONFIRMED) {
+    return FailureDomainStatus.CONFIRMED;
+  }
+  if (value === FailureDomainStatus.NEEDS_REVIEW) {
+    return FailureDomainStatus.NEEDS_REVIEW;
+  }
+  return undefined;
+}
+
+export enum InfrastructureFindingType {
+  SINGLE_POINT_OF_FAILURE = 'SINGLE_POINT_OF_FAILURE',
+  SHARED_FAILURE_DOMAIN = 'SHARED_FAILURE_DOMAIN',
+  RECOVERY_CYCLE = 'RECOVERY_CYCLE',
+  UNCONFIRMED_FALLBACK = 'UNCONFIRMED_FALLBACK',
+  STALE_RECOVERY_INFORMATION = 'STALE_RECOVERY_INFORMATION',
+  UNKNOWN_CRITICAL_PATH = 'UNKNOWN_CRITICAL_PATH',
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION'
+}
+
+export function infrastructureFindingTypeFromWire(value: string): InfrastructureFindingType | undefined {
+  if (value === InfrastructureFindingType.SINGLE_POINT_OF_FAILURE) {
+    return InfrastructureFindingType.SINGLE_POINT_OF_FAILURE;
+  }
+  if (value === InfrastructureFindingType.SHARED_FAILURE_DOMAIN) {
+    return InfrastructureFindingType.SHARED_FAILURE_DOMAIN;
+  }
+  if (value === InfrastructureFindingType.RECOVERY_CYCLE) {
+    return InfrastructureFindingType.RECOVERY_CYCLE;
+  }
+  if (value === InfrastructureFindingType.UNCONFIRMED_FALLBACK) {
+    return InfrastructureFindingType.UNCONFIRMED_FALLBACK;
+  }
+  if (value === InfrastructureFindingType.STALE_RECOVERY_INFORMATION) {
+    return InfrastructureFindingType.STALE_RECOVERY_INFORMATION;
+  }
+  if (value === InfrastructureFindingType.UNKNOWN_CRITICAL_PATH) {
+    return InfrastructureFindingType.UNKNOWN_CRITICAL_PATH;
+  }
+  if (value === InfrastructureFindingType.PENDING_VERIFICATION) {
+    return InfrastructureFindingType.PENDING_VERIFICATION;
+  }
+  return undefined;
+}
+
+export enum ChangePrimitive {
+  REPLACE = 'REPLACE',
+  LOSE = 'LOSE',
+  COMPROMISE = 'COMPROMISE',
+  MIGRATE = 'MIGRATE',
+  PORT = 'PORT',
+  SUSPEND = 'SUSPEND'
+}
+
+export function changePrimitiveFromWire(value: string): ChangePrimitive | undefined {
+  if (value === ChangePrimitive.REPLACE) {
+    return ChangePrimitive.REPLACE;
+  }
+  if (value === ChangePrimitive.LOSE) {
+    return ChangePrimitive.LOSE;
+  }
+  if (value === ChangePrimitive.COMPROMISE) {
+    return ChangePrimitive.COMPROMISE;
+  }
+  if (value === ChangePrimitive.MIGRATE) {
+    return ChangePrimitive.MIGRATE;
+  }
+  if (value === ChangePrimitive.PORT) {
+    return ChangePrimitive.PORT;
+  }
+  if (value === ChangePrimitive.SUSPEND) {
+    return ChangePrimitive.SUSPEND;
+  }
+  return undefined;
+}
+
+export enum ChangePrimitiveRuntime {
+  REPLACE = 'REPLACE'
+}
+
+export function changePrimitiveRuntimeFromWire(value: string): ChangePrimitiveRuntime | undefined {
+  if (value === ChangePrimitiveRuntime.REPLACE) {
+    return ChangePrimitiveRuntime.REPLACE;
+  }
+  return undefined;
+}
+
+export enum RecoveryCycleStatus {
+  CONFIRMED_CYCLE = 'confirmed_cycle',
+  POTENTIAL_CYCLE = 'potential_cycle',
+  NO_CYCLE = 'no_cycle'
+}
+
+export function recoveryCycleStatusFromWire(value: string): RecoveryCycleStatus | undefined {
+  if (value === RecoveryCycleStatus.CONFIRMED_CYCLE) {
+    return RecoveryCycleStatus.CONFIRMED_CYCLE;
+  }
+  if (value === RecoveryCycleStatus.POTENTIAL_CYCLE) {
+    return RecoveryCycleStatus.POTENTIAL_CYCLE;
+  }
+  if (value === RecoveryCycleStatus.NO_CYCLE) {
+    return RecoveryCycleStatus.NO_CYCLE;
+  }
+  return undefined;
+}
+
+export enum PathIndependenceStatus {
+  VERIFIED_INDEPENDENT = 'verified_independent',
+  SHARED_FAILURE_DOMAIN = 'shared_failure_domain',
+  NEEDS_REVIEW = 'needs_review'
+}
+
+export function pathIndependenceStatusFromWire(value: string): PathIndependenceStatus | undefined {
+  if (value === PathIndependenceStatus.VERIFIED_INDEPENDENT) {
+    return PathIndependenceStatus.VERIFIED_INDEPENDENT;
+  }
+  if (value === PathIndependenceStatus.SHARED_FAILURE_DOMAIN) {
+    return PathIndependenceStatus.SHARED_FAILURE_DOMAIN;
+  }
+  if (value === PathIndependenceStatus.NEEDS_REVIEW) {
+    return PathIndependenceStatus.NEEDS_REVIEW;
+  }
+  return undefined;
+}
+
+export enum ActionDagViolation {
+  CYCLE = 'cycle',
+  MISSING_PREREQUISITE = 'missing_prerequisite',
+  UNKNOWN_ACTION = 'unknown_action',
+  NONE = 'none'
+}
+
+export function actionDagViolationFromWire(value: string): ActionDagViolation | undefined {
+  if (value === ActionDagViolation.CYCLE) {
+    return ActionDagViolation.CYCLE;
+  }
+  if (value === ActionDagViolation.MISSING_PREREQUISITE) {
+    return ActionDagViolation.MISSING_PREREQUISITE;
+  }
+  if (value === ActionDagViolation.UNKNOWN_ACTION) {
+    return ActionDagViolation.UNKNOWN_ACTION;
+  }
+  if (value === ActionDagViolation.NONE) {
+    return ActionDagViolation.NONE;
+  }
+  return undefined;
+}
+
+export enum ProviderPolicyState {
+  EFFECTIVE = 'effective',
+  SUPERSEDED = 'superseded',
+  NEEDS_REVIEW = 'needs_review'
+}
+
+export function providerPolicyStateFromWire(value: string): ProviderPolicyState | undefined {
+  if (value === ProviderPolicyState.EFFECTIVE) {
+    return ProviderPolicyState.EFFECTIVE;
+  }
+  if (value === ProviderPolicyState.SUPERSEDED) {
+    return ProviderPolicyState.SUPERSEDED;
+  }
+  if (value === ProviderPolicyState.NEEDS_REVIEW) {
+    return ProviderPolicyState.NEEDS_REVIEW;
+  }
+  return undefined;
+}
+
+export enum TemporalChangePhase {
+  BEFORE = 'before',
+  TRANSITION = 'transition',
+  AFTER = 'after'
+}
+
+export function temporalChangePhaseFromWire(value: string): TemporalChangePhase | undefined {
+  if (value === TemporalChangePhase.BEFORE) {
+    return TemporalChangePhase.BEFORE;
+  }
+  if (value === TemporalChangePhase.TRANSITION) {
+    return TemporalChangePhase.TRANSITION;
+  }
+  if (value === TemporalChangePhase.AFTER) {
+    return TemporalChangePhase.AFTER;
+  }
+  return undefined;
+}
+
+export enum MakeBeforeBreakStatus {
+  BLOCKED = 'blocked',
+  ALLOWED = 'allowed'
+}
+
+export function makeBeforeBreakStatusFromWire(value: string): MakeBeforeBreakStatus | undefined {
+  if (value === MakeBeforeBreakStatus.BLOCKED) {
+    return MakeBeforeBreakStatus.BLOCKED;
+  }
+  if (value === MakeBeforeBreakStatus.ALLOWED) {
+    return MakeBeforeBreakStatus.ALLOWED;
+  }
+  return undefined;
+}
+
 export enum ErrorCode {
   INVALID_JSON = 'invalid_json',
   INVALID_STRUCTURE = 'invalid_structure',
@@ -951,7 +1263,13 @@ export enum ErrorCode {
   AUTH_FAILED = 'auth_failed',
   AUTH_UNAVAILABLE = 'auth_unavailable',
   KEY_UNAVAILABLE = 'key_unavailable',
-  CANCELLED_BY_USER = 'cancelled_by_user'
+  CANCELLED_BY_USER = 'cancelled_by_user',
+  MACHINE_CANNOT_CONFIRM_FAILURE_DOMAIN = 'machine_cannot_confirm_failure_domain',
+  TEMPORAL_WINDOW_INVALID_ORDER = 'temporal_window_invalid_order',
+  BREAK_BEFORE_MAKE_FORBIDDEN = 'break_before_make_forbidden',
+  ACTION_DAG_CYCLE = 'action_dag_cycle',
+  ACTION_MISSING_PREREQUISITE = 'action_missing_prerequisite',
+  PROVIDER_POLICY_UNVERIFIABLE = 'provider_policy_unverifiable'
 }
 
 export function errorCodeFromWire(value: string): ErrorCode | undefined {
@@ -1044,6 +1362,24 @@ export function errorCodeFromWire(value: string): ErrorCode | undefined {
   }
   if (value === ErrorCode.CANCELLED_BY_USER) {
     return ErrorCode.CANCELLED_BY_USER;
+  }
+  if (value === ErrorCode.MACHINE_CANNOT_CONFIRM_FAILURE_DOMAIN) {
+    return ErrorCode.MACHINE_CANNOT_CONFIRM_FAILURE_DOMAIN;
+  }
+  if (value === ErrorCode.TEMPORAL_WINDOW_INVALID_ORDER) {
+    return ErrorCode.TEMPORAL_WINDOW_INVALID_ORDER;
+  }
+  if (value === ErrorCode.BREAK_BEFORE_MAKE_FORBIDDEN) {
+    return ErrorCode.BREAK_BEFORE_MAKE_FORBIDDEN;
+  }
+  if (value === ErrorCode.ACTION_DAG_CYCLE) {
+    return ErrorCode.ACTION_DAG_CYCLE;
+  }
+  if (value === ErrorCode.ACTION_MISSING_PREREQUISITE) {
+    return ErrorCode.ACTION_MISSING_PREREQUISITE;
+  }
+  if (value === ErrorCode.PROVIDER_POLICY_UNVERIFIABLE) {
+    return ErrorCode.PROVIDER_POLICY_UNVERIFIABLE;
   }
   return undefined;
 }

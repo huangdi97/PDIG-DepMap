@@ -33,7 +33,9 @@ public enum class Relation(public val wire: String) {
     MERCHANT_AGREEMENT("merchant_agreement"),
     VERIFIES("verifies"),
     RECOVERS("recovers"),
-    BOUND_TO("bound_to")
+    BOUND_TO("bound_to"),
+    AUTHENTICATES("authenticates"),
+    CONTROLS("controls")
     ;
 
     public companion object {
@@ -43,7 +45,10 @@ public enum class Relation(public val wire: String) {
 
 public enum class RelationRuntime(public val wire: String) {
     FUNDING_SOURCE("funding_source"),
-    MERCHANT_AGREEMENT("merchant_agreement")
+    MERCHANT_AGREEMENT("merchant_agreement"),
+    RECOVERS("recovers"),
+    AUTHENTICATES("authenticates"),
+    CONTROLS("controls")
     ;
 
     public companion object {
@@ -54,7 +59,9 @@ public enum class RelationRuntime(public val wire: String) {
 public enum class Capability(public val wire: String) {
     PAYMENT("payment"),
     ACCESS("access"),
+    AUTHENTICATION("authentication"),
     RECOVERY("recovery"),
+    COMMUNICATION("communication"),
     IDENTITY("identity")
     ;
 
@@ -64,7 +71,11 @@ public enum class Capability(public val wire: String) {
 }
 
 public enum class CapabilityRuntime(public val wire: String) {
-    PAYMENT("payment")
+    PAYMENT("payment"),
+    ACCESS("access"),
+    AUTHENTICATION("authentication"),
+    RECOVERY("recovery"),
+    COMMUNICATION("communication")
     ;
 
     public companion object {
@@ -503,6 +514,148 @@ public enum class SourceEncoding(public val wire: String) {
     }
 }
 
+public enum class FailureDomainKind(public val wire: String) {
+    DEVICE("DEVICE"),
+    PHONE_NUMBER("PHONE_NUMBER"),
+    ACCOUNT("ACCOUNT"),
+    PROVIDER("PROVIDER"),
+    PERSON("PERSON"),
+    REGION("REGION"),
+    PHYSICAL_LOCATION("PHYSICAL_LOCATION"),
+    NETWORK("NETWORK")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): FailureDomainKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class FailureDomainKindRuntime(public val wire: String) {
+    DEVICE("DEVICE"),
+    PHONE_NUMBER("PHONE_NUMBER"),
+    ACCOUNT("ACCOUNT"),
+    PROVIDER("PROVIDER")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): FailureDomainKindRuntime? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class FailureDomainStatus(public val wire: String) {
+    CONFIRMED("confirmed"),
+    NEEDS_REVIEW("needs_review")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): FailureDomainStatus? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class InfrastructureFindingType(public val wire: String) {
+    SINGLE_POINT_OF_FAILURE("SINGLE_POINT_OF_FAILURE"),
+    SHARED_FAILURE_DOMAIN("SHARED_FAILURE_DOMAIN"),
+    RECOVERY_CYCLE("RECOVERY_CYCLE"),
+    UNCONFIRMED_FALLBACK("UNCONFIRMED_FALLBACK"),
+    STALE_RECOVERY_INFORMATION("STALE_RECOVERY_INFORMATION"),
+    UNKNOWN_CRITICAL_PATH("UNKNOWN_CRITICAL_PATH"),
+    PENDING_VERIFICATION("PENDING_VERIFICATION")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): InfrastructureFindingType? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class ChangePrimitive(public val wire: String) {
+    REPLACE("REPLACE"),
+    LOSE("LOSE"),
+    COMPROMISE("COMPROMISE"),
+    MIGRATE("MIGRATE"),
+    PORT("PORT"),
+    SUSPEND("SUSPEND")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): ChangePrimitive? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class ChangePrimitiveRuntime(public val wire: String) {
+    REPLACE("REPLACE")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): ChangePrimitiveRuntime? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class RecoveryCycleStatus(public val wire: String) {
+    CONFIRMED_CYCLE("confirmed_cycle"),
+    POTENTIAL_CYCLE("potential_cycle"),
+    NO_CYCLE("no_cycle")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): RecoveryCycleStatus? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class PathIndependenceStatus(public val wire: String) {
+    VERIFIED_INDEPENDENT("verified_independent"),
+    SHARED_FAILURE_DOMAIN("shared_failure_domain"),
+    NEEDS_REVIEW("needs_review")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): PathIndependenceStatus? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class ActionDagViolation(public val wire: String) {
+    CYCLE("cycle"),
+    MISSING_PREREQUISITE("missing_prerequisite"),
+    UNKNOWN_ACTION("unknown_action"),
+    NONE("none")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): ActionDagViolation? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class ProviderPolicyState(public val wire: String) {
+    EFFECTIVE("effective"),
+    SUPERSEDED("superseded"),
+    NEEDS_REVIEW("needs_review")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): ProviderPolicyState? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class TemporalChangePhase(public val wire: String) {
+    BEFORE("before"),
+    TRANSITION("transition"),
+    AFTER("after")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): TemporalChangePhase? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MakeBeforeBreakStatus(public val wire: String) {
+    BLOCKED("blocked"),
+    ALLOWED("allowed")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MakeBeforeBreakStatus? = entries.firstOrNull { it.wire == value }
+    }
+}
+
 public enum class ErrorCode(public val wire: String, public val category: String, public val messageKey: String) {
     INVALID_JSON("invalid_json", "container", "err.invalid_json"),
     INVALID_STRUCTURE("invalid_structure", "container", "err.invalid_structure"),
@@ -533,7 +686,13 @@ public enum class ErrorCode(public val wire: String, public val category: String
     AUTH_FAILED("auth_failed", "security", "err.auth_failed"),
     AUTH_UNAVAILABLE("auth_unavailable", "security", "err.auth_unavailable"),
     KEY_UNAVAILABLE("key_unavailable", "security", "err.key"),
-    CANCELLED_BY_USER("cancelled_by_user", "ui", "err.cancelled")
+    CANCELLED_BY_USER("cancelled_by_user", "ui", "err.cancelled"),
+    MACHINE_CANNOT_CONFIRM_FAILURE_DOMAIN("machine_cannot_confirm_failure_domain", "domain", "err.fd_confirm"),
+    TEMPORAL_WINDOW_INVALID_ORDER("temporal_window_invalid_order", "domain", "err.temporal_order"),
+    BREAK_BEFORE_MAKE_FORBIDDEN("break_before_make_forbidden", "domain", "err.break_before_make"),
+    ACTION_DAG_CYCLE("action_dag_cycle", "domain", "err.dag_cycle"),
+    ACTION_MISSING_PREREQUISITE("action_missing_prerequisite", "domain", "err.dag_prereq"),
+    PROVIDER_POLICY_UNVERIFIABLE("provider_policy_unverifiable", "provider", "err.policy_unverified")
     ;
 
     public companion object {

@@ -53,5 +53,32 @@ export const CANONICAL_RELATION_DEFINITIONS: CanonicalRelationDefinition[] = [
     false,
     [],
     Criticality.UNKNOWN,
+  ),
+  new CanonicalRelationDefinition(
+    Relation.RECOVERS,
+    [NodeKind.IDENTITY_ANCHOR, NodeKind.ACCOUNT, NodeKind.DEVICE, NodeKind.SERVICE],
+    [NodeKind.ACCOUNT, NodeKind.SERVICE, NodeKind.IDENTITY_ANCHOR],
+    Capability.RECOVERY,
+    true,
+    [GroupMode.ANY],
+    Criticality.UNKNOWN,
+  ),
+  new CanonicalRelationDefinition(
+    Relation.AUTHENTICATES,
+    [NodeKind.IDENTITY_ANCHOR, NodeKind.ACCOUNT, NodeKind.DEVICE],
+    [NodeKind.ACCOUNT, NodeKind.SERVICE],
+    Capability.AUTHENTICATION,
+    true,
+    [GroupMode.ANY],
+    Criticality.UNKNOWN,
+  ),
+  new CanonicalRelationDefinition(
+    Relation.CONTROLS,
+    [NodeKind.ACCOUNT, NodeKind.DEVICE],
+    [NodeKind.ACCOUNT, NodeKind.SERVICE, NodeKind.IDENTITY_ANCHOR],
+    Capability.ACCESS,
+    false,
+    [],
+    Criticality.UNKNOWN,
   )
 ];
