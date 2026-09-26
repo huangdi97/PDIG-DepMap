@@ -30,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.pdig.app.ui.screens.ScenarioCenterScreen
 import com.pdig.app.ui.screens.ScenarioSetupScreen
+import com.pdig.app.ui.screens.FindingsScreen
 import com.pdig.app.ui.screens.SettingsScreen
 import com.pdig.app.ui.screens.SourceManagementScreen
 import com.pdig.app.ui.screens.TimelineScreen
@@ -89,6 +90,32 @@ class UiScreenshotEvidenceTest {
         app.dependencies().firstOrNull()?.let { app.setDependencyCriticality(it.id, true) }
         // engine candidate + drift: same merchant on a second card
         import(listOf(obs("t3", "示例服务", "备用卡 6677"), obs("t4", "示例服务", "备用卡 6677")), "shot-2")
+        // v0.3.0 身份/恢复边：与 Desktop ShotDriver 同一套合成数据，
+        // 让「基础设施薄弱点」展示 SPOF / 共享故障点 / 恢复循环三类示例。
+        val now = java.time.Instant.now().toString()
+        val phone1 = "shot-phone-1"
+        val phone2 = "shot-phone-2"
+        val dev = "shot-dev-1"
+        val acct = "shot-acct-1"
+        val drv = app.evidenceDriver
+        drv.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+            "VALUES ('$phone1','identity_anchor','旧手机号',0,'{}','self','$now','$now')")
+        drv.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+            "VALUES ('$phone2','identity_anchor','新手机号',0,'{}','self','$now','$now')")
+        drv.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+            "VALUES ('$dev','device','备用设备',0,'{}','self','$now','$now')")
+        drv.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+            "VALUES ('$acct','account','主账户',0,'{}','self','$now','$now')")
+        fun depEdge(id: String, from: String, to: String) {
+            drv.exec(
+                "INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, state, origin, confirmed_at, last_verified_at, created_at, updated_at) " +
+                    "VALUES ('$id','$from','recovers','$to','recovery','unknown','active','manual','$now','$now','$now','$now')",
+            )
+        }
+        depEdge("shot-dep-1", dev, phone1)
+        depEdge("shot-dep-2", dev, acct)
+        depEdge("shot-dep-3", phone2, acct)
+        depEdge("shot-dep-4", acct, phone2)
         // change plan
         val target = app.nodes().firstOrNull() ?: return
         val planId = app.createPlanForScenario(
@@ -179,6 +206,7 @@ class UiScreenshotEvidenceTest {
             "drift" to { RealityDriftScreen(rememberNavController()) },
             "candidates" to { CandidateReviewScreen(rememberNavController()) },
             "infrastructure" to { InfrastructureScreen(rememberNavController()) },
+            "findings" to { FindingsScreen(rememberNavController()) },
             "graph" to { GraphScreen(rememberNavController()) },
             "sources" to { SourceManagementScreen(rememberNavController()) },
             "import" to { ImportScreen(rememberNavController()) },
@@ -189,6 +217,7 @@ class UiScreenshotEvidenceTest {
             "about" to { AboutScreen(rememberNavController()) },
             "impact" to { ImpactScreen(rememberNavController(), nodeId) },
             "scenario-setup" to { ScenarioSetupScreen(rememberNavController(), "replace_payment_card") },
+            "scenario-setup-phone" to { ScenarioSetupScreen(rememberNavController(), "replace_phone_number") },
             "plan" to { ChangePlanScreen(rememberNavController(), planId) },
             "node" to { NodeDetailScreen(rememberNavController(), nodeId) },
         )
@@ -204,6 +233,6 @@ class UiScreenshotEvidenceTest {
                 capture(pageId, seq)
             }
         }
-        assertTrue("expected 38 screenshots, found ${outDir.listFiles()?.size}", (outDir.listFiles()?.size ?: 0) >= 38)
+        assertTrue("expected 40 screenshots, found ${outDir.listFiles()?.size}", (outDir.listFiles()?.size ?: 0) >= 40)
     }
 }
