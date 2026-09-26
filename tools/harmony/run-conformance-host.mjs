@@ -60,8 +60,9 @@ const RESULT = join(
 //   冻结契约与 spec —— 因此 host checks 总数上升，**不改变** canonical 计数口径
 //   （87）与三个阻塞桶（每桶 0/0/4）。计数口径 = 执行口径（每个 it() 一条）。
 const PERSISTENCE_HOST_TEST_COUNT = 14 // 与 harmony/entry/src/test/PersistenceHost.test.ets 的 it() 数一一对应
-const EXPECT_HOST_TOTAL = 91 + PERSISTENCE_HOST_TEST_COUNT // 87 canonical + 3 元测试 + 1 domain 自检 + 14 persistence
-const EXPECT_PASS = 91 + PERSISTENCE_HOST_TEST_COUNT
+const REPOSITORY_HOST_TEST_COUNT = 17 // 与 harmony/entry/src/test/RepositoryHost.test.ets 的 it() 数一一对应（round#3）
+const EXPECT_HOST_TOTAL = 91 + PERSISTENCE_HOST_TEST_COUNT + REPOSITORY_HOST_TEST_COUNT // 87 canonical + 3 元测试 + 1 domain 自检 + 14 persistence + 17 repository
+const EXPECT_PASS = 91 + PERSISTENCE_HOST_TEST_COUNT + REPOSITORY_HOST_TEST_COUNT
 const EXPECT_FAIL = 0
 const EXPECT_ERROR = 0
 const CANONICAL_TOTAL = 91

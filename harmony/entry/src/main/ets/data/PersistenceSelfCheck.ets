@@ -20,6 +20,7 @@ import {
 } from '../data/PayloadCodec';
 import { migrateIfNeeded } from '../data/PayloadMigration';
 import { FingerprintScope } from '../domain/SourceInstance';
+import { repositorySelfCheckLine } from '../data/RepositorySelfCheck';
 
 /** 最小 v1 payload（schema 契约要求的 10 张 v1 表全空）。 */
 function minimalV1Payload(): string {
@@ -38,10 +39,12 @@ export function persistenceSelfCheckLine(): string {
     const json = buildPayloadJson(tables);
     validatePayload(json);
     const scope = FingerprintScope.scopeKey('wechat_statement', 'si-a', 'txn-1');
+    const repoLine = repositorySelfCheckLine();
     return 'payload: kind=ok version='.concat(String(GRAPH_PAYLOAD_VERSION))
       .concat(' schema=').concat(String(SCHEMA_VERSION))
       .concat(' tables=').concat(String(PAYLOAD_TABLES.length))
-      .concat(' migrate=v3 build=roundtrip srcscope=').concat(scope);
+      .concat(' migrate=v3 build=roundtrip srcscope=').concat(scope)
+      .concat(' | ').concat(repoLine);
   } catch (e) {
     const code = (e instanceof PayloadError) ? e.code : 'unknown';
     return 'payload: FAIL('.concat(code).concat(')');

@@ -88,6 +88,13 @@ const REQUIRED_MODULES = [
   { id: 'PayloadMigration', path: 'data/PayloadMigration.ets', required: true },
   { id: 'SourceInstance', path: 'domain/SourceInstance.ets', required: true },
   { id: 'PersistenceSelfCheck', path: 'data/PersistenceSelfCheck.ets', required: true },
+  // data 持久化执行层（round#3）：内存 GraphStore / GraphRepository / MigrationChain。
+  // 入边：pages/Index.ets → PersistenceSelfCheck → RepositorySelfCheck → { GraphStore,
+  //       GraphRepository, MigrationChain }。
+  { id: 'GraphStore', path: 'data/GraphStore.ets', required: true },
+  { id: 'GraphRepository', path: 'data/GraphRepository.ets', required: true },
+  { id: 'MigrationChain', path: 'data/MigrationChain.ets', required: true },
+  { id: 'RepositorySelfCheck', path: 'data/RepositorySelfCheck.ets', required: true },
   // 后续阶段（Repository / Security）
   { id: 'RelationRegistry', path: 'domain/RelationRegistry.ets', required: false },
   { id: 'Repository', path: 'data/Repository.ets', required: false },

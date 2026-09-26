@@ -3,7 +3,21 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
-> 更新：2026-09-25（**Harmony N3 连续推进轮 #2 —— ArkTS 持久化逻辑层**；round#1 基础上继续）
+> 更新：2026-09-25（**Harmony N3 连续推进轮 #3 —— ArkTS 内存持久化执行层**；round#2 基础上继续）
+>
+> - **新增 4 个纯 ArkTS 模块**（零 @ohos，真实编译进 HAP）：`data/GraphStore.ets`（内存存储 + 快照/克隆）、
+>   `data/GraphRepository.ets`（事务 + node/dependency/group/proposal/evidence/fingerprint/import-session
+>   语义 + revision 同事务 bump + payload 原子导入导出）、`data/MigrationChain.ets`（schema 1→2→3 链应用，
+>   幂等 / 失败回滚 / revision 不 bump）、`data/RepositorySelfCheck.ets`（编译图入边）。
+> - **`HARMONY_BUILD = PASS`**（clean）：HAP `entry-default-unsigned.hap` = **3,511,091 B**，
+>   SHA-256 `1213f05acd788e4f7fe0f4d0b0bc5e261bf81898627b7b6c12206a21b2c15fec`。
+> - **`HARMONY_MODULE_COMPILED = PASS`**：`check-compiled-reachability.mjs --build` → **35/35 required 模块**，
+>   负向 probe PASS，孤儿 0。
+> - **`HARMONY_CONFORMANCE_HOST = PASS`**：**122/122 host checks**（87 canonical + 3 元测试 + 1 domain 自检
+>   - 14 persistence + **17 repository**），0 fail；canonical 口径不变（87 executed / 4 DEVICE-BLOCKED）。
+> - **Parity**：Harmony 27/73 → **29/73**（§2 持久化 5 → 7 TESTED：新增 Migration v1→v3 链、迁移失败回滚）。
+> - 未进入 iOS N4；`spec/`、`fixtures/`、`conformance/expected/` 零改动；codegen --check PASS。
+>   更新：2026-09-25（**Harmony N3 连续推进轮 #2 —— ArkTS 持久化逻辑层**；round#1 基础上继续）
 >
 > - **新增 5 个纯 ArkTS 模块**（零 @ohos，真实编译进 HAP）：`data/SchemaV3.ets`（schema/payload 契约常量）、
 >   `data/PayloadCodec.ets`（payload 构建·校验 + 5 项孤儿完整性）、`data/PayloadMigration.ets`

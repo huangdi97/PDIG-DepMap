@@ -96,6 +96,16 @@
 
 ## Current
 
+- **2026-09-25 Harmony N3 连续推进轮 #3（ArkTS 内存持久化执行层）**：parity 27/73 → **29/73**。
+  - 新增 4 个纯 ArkTS 模块（`data/GraphStore` / `data/GraphRepository` / `data/MigrationChain` /
+    `data/RepositorySelfCheck`），零 @ohos、真实编译进 HAP；`check-compiled-reachability --build` **35/35 PASS**。
+  - **`HARMONY_CONFORMANCE_HOST = PASS`（122/122）**：+17 条仓库测试（logical-key 唯一 / verify 不重复建边 /
+    retire-reactivate 同 id / retire 幂等 / criticality 缺省 unknown 且永不自动 required / revision 同事务 /
+    group 成员回填 / proposal UPSERT 生命周期 / evidence·fingerprint 唯一键 / export-import 逐字节往返 /
+    原子回滚 / 迁移链 ×50 幂等 + 失败回滚停在旧版本）。
+  - HAP 3,511,091 B（sha256 `1213f05a…`，clean 16s）；`spec/`、`fixtures/`、`conformance/expected/` 零改动。
+  - 诚实边界：ArkData 物理 DB、crypto 哈希、change_plans/reality_drifts/discovery_candidates 行数据属设备层 →
+    相关格保持 ICNR / NOT_STARTED；`RUNTIME_E2E=RUNTIME_NOT_RUN`（华为账号+镜像 E-9）。
 - **2026-09-25 Harmony N3 连续推进轮 #2（ArkTS 持久化逻辑层）**：在 round#1 基础上继续；parity 22/73 → **27/73**。
   - 新增 5 个纯 ArkTS 模块（`data/SchemaV3` / `data/PayloadCodec` / `data/PayloadMigration` /
     `domain/SourceInstance` / `data/PersistenceSelfCheck`），零 @ohos、真实编译进 HAP；
