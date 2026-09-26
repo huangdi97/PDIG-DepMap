@@ -219,7 +219,7 @@ public enum ChangePlanViewModel {
                 title: a.title,
                 phaseText: phaseText(a.phase),
                 done: a.done,
-                verificationStatusText: verificationText(a.verification),
+                verificationStatusText: verificationText(a.verification?.status),
                 prerequisiteText: preText
             )
         }
