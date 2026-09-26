@@ -46,7 +46,13 @@
     { "code": "auth_failed", "category": "security", "messageKey": "err.auth_failed", "userMessage": "身份验证失败。" },
     { "code": "auth_unavailable", "category": "security", "messageKey": "err.auth_unavailable", "userMessage": "当前设备无法完成身份验证。" },
     { "code": "key_unavailable", "category": "security", "messageKey": "err.key", "userMessage": "安全密钥不可用。" },
-    { "code": "cancelled_by_user", "category": "ui", "messageKey": "err.cancelled", "userMessage": "已取消。" }
+    { "code": "cancelled_by_user", "category": "ui", "messageKey": "err.cancelled", "userMessage": "已取消。" },
+    { "code": "machine_cannot_confirm_failure_domain", "category": "domain", "messageKey": "err.fd_confirm", "userMessage": "该故障点是否成立需要你确认，系统不会自动认定。" },
+    { "code": "temporal_window_invalid_order", "category": "domain", "messageKey": "err.temporal_order", "userMessage": "时间安排不合法：开始、验证、停用的顺序不正确。" },
+    { "code": "break_before_make_forbidden", "category": "domain", "messageKey": "err.break_before_make", "userMessage": "新路径尚未验证，暂时不能停用旧路径。" },
+    { "code": "action_dag_cycle", "category": "domain", "messageKey": "err.dag_cycle", "userMessage": "计划步骤之间存在循环依赖，无法继续。" },
+    { "code": "action_missing_prerequisite", "category": "domain", "messageKey": "err.dag_prereq", "userMessage": "该步骤依赖的先前步骤不存在，无法继续。" },
+    { "code": "provider_policy_unverifiable", "category": "provider", "messageKey": "err.policy_unverified", "userMessage": "该规则的来源无法核实，已标记为需要重新确认。" }
   ],
   "legacyCodeMapping": {
     "$comment": "Internal TypeScript codes mapped to canonical codes so platform behaviour is uniform.",

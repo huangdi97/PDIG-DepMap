@@ -26,15 +26,29 @@
     },
 
     "Relation": {
-      "values": ["funding_source", "merchant_agreement", "verifies", "recovers", "bound_to"],
-      "runtimeValues": ["funding_source", "merchant_agreement"],
-      "note": "DB CHECK constraint accepts all 5; RelationDefinitionRegistry validates only runtimeValues. Non-runtime values are storage-legacy/future and MUST be rejected by runtime validation on all three platforms."
+      "values": [
+        "funding_source",
+        "merchant_agreement",
+        "verifies",
+        "recovers",
+        "bound_to",
+        "authenticates",
+        "controls"
+      ],
+      "runtimeValues": [
+        "funding_source",
+        "merchant_agreement",
+        "recovers",
+        "authenticates",
+        "controls"
+      ],
+      "note": "DB CHECK constraint accepts all 7; RelationDefinitionRegistry validates only runtimeValues. verifies/bound_to remain storage-legacy/future and MUST be rejected by runtime validation on all three platforms. recovers/authenticates/controls enter the runtime registry in v0.3.0 (Canonical vNext)."
     },
 
     "Capability": {
-      "values": ["payment", "access", "recovery", "identity"],
-      "runtimeValues": ["payment"],
-      "note": "Edges may be stored for any capability; the Impact kernel propagates payment ONLY. Non-payment initial keys are ignored."
+      "values": ["payment", "access", "authentication", "recovery", "communication", "identity"],
+      "runtimeValues": ["payment", "access", "authentication", "recovery", "communication"],
+      "note": "v0.3.0 Impact kernel propagates all five runtime capabilities via (nodeId, capability) state keys. identity is storage-allowed but NOT a runtime propagation capability."
     },
 
     "Criticality": {
@@ -191,7 +205,13 @@
     },
 
     "TimelineSourceType": {
-      "values": ["change_plan", "reality_drift", "action_verification", "node_expiry", "source_freshness"]
+      "values": [
+        "change_plan",
+        "reality_drift",
+        "action_verification",
+        "node_expiry",
+        "source_freshness"
+      ]
     },
 
     "ScenarioCategory": {
@@ -204,7 +224,70 @@
 
     "CsvDelimiter": { "values": [",", ";", "\t", "|"] },
 
-    "SourceEncoding": { "values": ["utf-8", "gb18030"] }
+    "SourceEncoding": { "values": ["utf-8", "gb18030"] },
+
+    "FailureDomainKind": {
+      "values": [
+        "DEVICE",
+        "PHONE_NUMBER",
+        "ACCOUNT",
+        "PROVIDER",
+        "PERSON",
+        "REGION",
+        "PHYSICAL_LOCATION",
+        "NETWORK"
+      ],
+      "runtimeValues": ["DEVICE", "PHONE_NUMBER", "ACCOUNT", "PROVIDER"],
+      "note": "v0.3.0 production FailureDomain kinds are DEVICE/PHONE_NUMBER/ACCOUNT/PROVIDER. PERSON/REGION/PHYSICAL_LOCATION/NETWORK are spec vocabulary for future rounds; runtime must not create them."
+    },
+
+    "FailureDomainStatus": {
+      "values": ["confirmed", "needs_review"],
+      "note": "A shared failure domain is only 'confirmed' when backed by confirmed reality; machine inference may at most produce needs_review."
+    },
+
+    "InfrastructureFindingType": {
+      "values": [
+        "SINGLE_POINT_OF_FAILURE",
+        "SHARED_FAILURE_DOMAIN",
+        "RECOVERY_CYCLE",
+        "UNCONFIRMED_FALLBACK",
+        "STALE_RECOVERY_INFORMATION",
+        "UNKNOWN_CRITICAL_PATH",
+        "PENDING_VERIFICATION"
+      ],
+      "note": "v0.3.0 exactly these seven finding kinds, each with what/why/confirmed basis/unknowns/affected capability/recommended next action/evidence refs. No pseudo-precision scores."
+    },
+
+    "ChangePrimitive": {
+      "values": ["REPLACE", "LOSE", "COMPROMISE", "MIGRATE", "PORT", "SUSPEND"],
+      "runtimeValues": ["REPLACE"],
+      "note": "v0.3.0 active primitive is REPLACE only (replace_payment_card, replace_phone_number). Remaining values are registered vocabulary for future rounds and MUST NOT be executable."
+    },
+
+    "RecoveryCycleStatus": {
+      "values": ["confirmed_cycle", "potential_cycle", "no_cycle"],
+      "note": "Only confirmed-reality active edges can produce confirmed_cycle; proposal/candidate edges at most produce potential_cycle."
+    },
+
+    "PathIndependenceStatus": {
+      "values": ["verified_independent", "shared_failure_domain", "needs_review"],
+      "note": "Classification of a recovery/authentication path pair. NEVER exposed as a numeric health score to users."
+    },
+
+    "ActionDagViolation": {
+      "values": ["cycle", "missing_prerequisite", "unknown_action", "none"],
+      "note": "Action DAG validation verdict. 'cycle' and 'missing_prerequisite' are rejected at plan build time; a stable deterministic topological order is emitted otherwise."
+    },
+
+    "ProviderPolicyState": {
+      "values": ["effective", "superseded", "needs_review"],
+      "note": "A ProviderPolicy whose current rule cannot be proven against an official/verifiable source MUST be needs_review, never silently treated as eternal truth."
+    },
+
+    "TemporalChangePhase": { "values": ["before", "transition", "after"] },
+
+    "MakeBeforeBreakStatus": { "values": ["blocked", "allowed"] }
   },
 
   "entities": {
@@ -375,6 +458,92 @@
       "realityClass": "reality_version_clock",
       "bumpsOn": "confirmed Reality mutation only",
       "atomicity": "reality mutation + revision increment in the SAME transaction"
+    },
+
+    "$commentV030": "Entities below are added by Canonical vNext (v0.3.0). They extend — never replace — the entities above. Old 91 fixtures remain byte-identical; new capabilities add new fixtures only.",
+
+    "FailureDomain": {
+      "logicalKey": ["id"],
+      "realityClass": "confirmed_reality_when_confirmed",
+      "fields": {
+        "id": "string",
+        "kind": "FailureDomainKind",
+        "subjectRef": "nodeId",
+        "scope": "string",
+        "evidenceRefs": "string[]",
+        "status": "FailureDomainStatus",
+        "confirmedAt": "timestamp|null",
+        "createdAt": "timestamp",
+        "updatedAt": "timestamp"
+      },
+      "note": "FailureDomain itself obeys the reality boundary: only user confirmation or authoritative evidence yields status=confirmed; machine inference may at most create needs_review."
+    },
+
+    "InfrastructureFinding": {
+      "logicalKey": ["id"],
+      "realityClass": "derived_projection",
+      "fields": {
+        "id": "string",
+        "type": "InfrastructureFindingType",
+        "what": "string",
+        "why": "string",
+        "confirmedBasis": "string",
+        "unknowns": "string",
+        "affectedCapability": "Capability",
+        "recommendedNextAction": "string",
+        "evidenceRefs": "string[]",
+        "createdAt": "timestamp"
+      },
+      "bumpsGraphRevision": false,
+      "note": "InfrastructureFindings are derived projections of confirmed reality. They never mutate Reality and never bump graphRevision. No pseudo-precision scores."
+    },
+
+    "ChangePrimitiveRef": {
+      "logicalKey": ["id"],
+      "fields": {
+        "id": "string",
+        "primitive": "ChangePrimitive",
+        "subjectKind": "string",
+        "subjectSubtype": "string|null",
+        "note": "replace_payment_card = REPLACE x payment_instrument; replace_phone_number = REPLACE x identity_anchor(phone_number)."
+      },
+      "realityClass": "vocabulary"
+    },
+
+    "ProviderPolicy": {
+      "logicalKey": ["provider", "policyType", "policyRevision"],
+      "fields": {
+        "provider": "string",
+        "policyType": "string",
+        "sourceUrl": "string",
+        "retrievedAt": "timestamp",
+        "lastVerifiedAt": "timestamp|null",
+        "effectiveFrom": "timestamp|null",
+        "effectiveTo": "timestamp|null",
+        "jurisdiction": "string|null",
+        "accountTypeScope": "string|null",
+        "parameters": "object",
+        "policyRevision": "integer",
+        "state": "ProviderPolicyState"
+      },
+      "realityClass": "knowledge_plane",
+      "bumpsGraphRevision": false,
+      "invariant": "Provider supports X != User has configured X. ProviderPolicy may influence interpretation/suggestion/revalidation but must never auto-create dependencies, auto-confirm phone numbers, or auto-mark required."
+    },
+
+    "RecoveryCycle": {
+      "logicalKey": ["id"],
+      "realityClass": "derived_projection",
+      "fields": {
+        "id": "string",
+        "status": "RecoveryCycleStatus",
+        "path": "string[]",
+        "capability": "Capability",
+        "confirmedBasis": "string",
+        "detectedAt": "timestamp"
+      },
+      "bumpsGraphRevision": false,
+      "note": "Only confirmed-reality active edges can produce confirmed_cycle; proposal/candidate edges at most produce potential_cycle."
     }
   },
 
@@ -398,6 +567,42 @@
       "defaultCriticality": "unknown",
       "verificationPolicy": "user_only",
       "impactSemantics": "dependency"
+    },
+
+    "recovers": {
+      "fromKinds": ["identity_anchor", "account", "device", "service"],
+      "toKinds": ["account", "service", "identity_anchor"],
+      "capability": "recovery",
+      "allowsGroup": true,
+      "allowedGroupModes": ["ANY"],
+      "defaultCriticality": "unknown",
+      "verificationPolicy": "user_only",
+      "impactSemantics": "dependency",
+      "note": "v0.3.0 production relation. Recovery-capability dependency edge (e.g. SMS recovery from a phone number anchor)."
+    },
+
+    "authenticates": {
+      "fromKinds": ["identity_anchor", "account", "device"],
+      "toKinds": ["account", "service"],
+      "capability": "authentication",
+      "allowsGroup": true,
+      "allowedGroupModes": ["ANY"],
+      "defaultCriticality": "unknown",
+      "verificationPolicy": "user_only",
+      "impactSemantics": "dependency",
+      "note": "v0.3.0 production relation. Authentication-capability dependency edge (e.g. passkey or password manager authenticates an account)."
+    },
+
+    "controls": {
+      "fromKinds": ["account", "device"],
+      "toKinds": ["account", "service", "identity_anchor"],
+      "capability": "access",
+      "allowsGroup": false,
+      "allowedGroupModes": [],
+      "defaultCriticality": "unknown",
+      "verificationPolicy": "user_only",
+      "impactSemantics": "dependency",
+      "note": "v0.3.0 production relation. Access-capability dependency edge (e.g. device controls sign-in of an account)."
     }
   },
 
@@ -466,6 +671,50 @@
     }
   },
 
+  "scenarioTemplatesVNext": {
+    "$comment": "Canonical vNext (v0.3.0) scenario catalog. Legacy scenarioTemplates above remain the frozen v1 catalog (old 91 fixtures read it verbatim). The v0.3.0 runtime registry serves active = legacy active + this active list. This key is additive; old fixtures never read it.",
+    "active": [
+      {
+        "id": "replace_phone_number",
+        "category": "identity",
+        "title": "更换手机号",
+        "description": "更换手机号前检查该手机号承担的认证、恢复与通讯能力，以及所有关联账户与共享故障点。",
+        "changePrimitive": "REPLACE",
+        "subjectKind": "identity_anchor",
+        "subjectSubtype": "phone_number",
+        "supportedCapabilities": ["access", "authentication", "recovery", "communication"],
+        "recommendedLeadTimeDays": 30,
+        "requiredInputs": ["targetPhoneAnchorId"],
+        "optionalInputs": ["replacementPhoneAnchorId", "effectiveDate"],
+        "makeBeforeBreakRequired": true,
+        "requiresNewPathVerification": true,
+        "temporalWindow": {
+          "fields": [
+            "effectiveAt",
+            "verificationNotBefore",
+            "verificationDueAt",
+            "retireOldPathAfter"
+          ],
+          "retireRequires": "all_key_new_paths_verified"
+        }
+      }
+    ],
+    "planned": [],
+    "defaultActionPhases": ["prepare", "change", "verify"],
+    "policy": {
+      "excludedDomains": [
+        "water",
+        "birthday",
+        "plant",
+        "meeting",
+        "exercise",
+        "exam",
+        "anniversary",
+        "holiday"
+      ]
+    }
+  },
+
   "adapters": [
     {
       "id": "wechat_statement",
@@ -515,7 +764,57 @@
     },
     "runtimeCreatableNodeKinds": ["payment_instrument", "account", "service"],
     "impactPropagationCapability": "payment",
+    "impactPropagationCapabilitiesV030": [
+      "payment",
+      "access",
+      "authentication",
+      "recovery",
+      "communication"
+    ],
+    "recoveryFreshnessThresholdDaysV030": 45,
+    "recoveryStaleDaysV030": 90,
+    "maxIndependentPathReportedV030": 10,
+    "maxCyclePathLengthV030": 16,
+    "makeBeforeBreakRetireGateV030": "all_key_new_paths_verified",
     "maxCiphertextBytes": 67108864
+  },
+
+  "changePrimitivesV030": {
+    "$comment": "Canonical vNext Change Primitive registry (v0.3.0). REPLACE is the only active primitive. Scenarios map to (primitive x subject).",
+    "active": [
+      {
+        "id": "replace_payment_card",
+        "primitive": "REPLACE",
+        "subjectKind": "payment_instrument",
+        "subjectSubtype": null
+      },
+      {
+        "id": "replace_phone_number",
+        "primitive": "REPLACE",
+        "subjectKind": "identity_anchor",
+        "subjectSubtype": "phone_number"
+      }
+    ],
+    "futureVocabulary": ["LOSE", "COMPROMISE", "MIGRATE", "PORT", "SUSPEND"],
+    "note": "Future primitives are vocabulary only; no runtime factory exists in v0.3.0."
+  },
+
+  "providerKnowledgeV030": {
+    "$comment": "Canonical vNext Provider Knowledge plane (v0.3.0). ProviderPolicy lives here; see ProviderPolicy entity.",
+    "permittedInfluences": [
+      "interpretation",
+      "suggestion",
+      "change_plan_template",
+      "needs_revalidation"
+    ],
+    "forbiddenInfluences": [
+      "auto_create_dependency",
+      "auto_confirm_phone_number",
+      "auto_mark_required",
+      "write_user_configuration_into_reality"
+    ],
+    "unverifiableState": "needs_review",
+    "provenanceRequired": ["provider", "policyType", "sourceUrl", "retrievedAt", "policyRevision"]
   },
 
   "invariants": [
@@ -528,19 +827,61 @@
     { "id": "OBS-07", "text": "done != verified" },
     { "id": "OBS-08", "text": "coverage != readiness" },
     { "id": "OBS-09", "text": "Timeline != Truth" },
-    { "id": "IMP-01", "text": "must_change is reachable only from confirmed Reality; confirmed false positive = 0" },
+    {
+      "id": "IMP-01",
+      "text": "must_change is reachable only from confirmed Reality; confirmed false positive = 0"
+    },
     { "id": "IMP-02", "text": "Machine inference must never set criticality=required" },
-    { "id": "IMP-03", "text": "Proposal confidence never participates in deterministic impact propagation" },
+    {
+      "id": "IMP-03",
+      "text": "Proposal confidence never participates in deterministic impact propagation"
+    },
     { "id": "IMP-04", "text": "retired Dependency does not propagate Impact" },
     { "id": "GR-01", "text": "Only confirmed Reality mutation bumps graphRevision" },
     { "id": "GR-02", "text": "Reality mutation and revision increment share one transaction" },
-    { "id": "DR-01", "text": "RealityDrift requires positive evidence; absence-only never produces a drift" },
-    { "id": "PC-01", "text": "DiscoveryCandidate does not enter Impact and does not bump graphRevision" },
-    { "id": "VF-01", "text": "Future evidence yields at most evidence_suggested; only user confirmation yields verified" },
-    { "id": "RD-01", "text": "PlanReadiness is derived from explicit Requirement/Impact resolution mapping, never subtraction" },
+    {
+      "id": "DR-01",
+      "text": "RealityDrift requires positive evidence; absence-only never produces a drift"
+    },
+    {
+      "id": "PC-01",
+      "text": "DiscoveryCandidate does not enter Impact and does not bump graphRevision"
+    },
+    {
+      "id": "VF-01",
+      "text": "Future evidence yields at most evidence_suggested; only user confirmation yields verified"
+    },
+    {
+      "id": "RD-01",
+      "text": "PlanReadiness is derived from explicit Requirement/Impact resolution mapping, never subtraction"
+    },
     { "id": "SRC-01", "text": "Different SourceInstances must not share a fingerprint namespace" },
     { "id": "SRC-02", "text": "Multi-source evidence adds provenance, not certainty" },
     { "id": "DEP-01", "text": "DEPMAP_CONTAINER_V1 must remain byte-compatible across platforms" },
-    { "id": "SC-01", "text": "active scenario templates are payment-capability only" }
+    { "id": "SC-01", "text": "active scenario templates are payment-capability only" },
+    {
+      "id": "V030-FD-01",
+      "text": "FailureDomain itself obeys the reality boundary: only user confirmation or authoritative evidence yields confirmed"
+    },
+    {
+      "id": "V030-IP-01",
+      "text": "pathCount is not independentPathCount; two paths sharing a failure domain are not independent"
+    },
+    {
+      "id": "V030-RC-01",
+      "text": "only confirmed-reality active edges can produce confirmed_cycle; proposal/candidate at most potential_cycle"
+    },
+    {
+      "id": "V030-MBB-01",
+      "text": "BREAK_BEFORE_MAKE = FORBIDDEN; retiring an old path while the new path is unverified is blocked"
+    },
+    {
+      "id": "V030-TC-01",
+      "text": "temporal change requires effectiveAt ordering and verification-before-retire gates"
+    },
+    {
+      "id": "V030-PP-01",
+      "text": "ProviderPolicy never auto-creates Dependency or auto-confirms Reality; Provider supports X != User configured X"
+    }
   ]
 }

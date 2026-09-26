@@ -1,10 +1,10 @@
 {
-  "$comment": "PDIG canonical Chinese copy. Three platforms MUST use these strings for the listed keys so user-facing wording cannot drift. Platforms may localise layout/typography but not the meaning. Extracted from app/theme/tokens.uts and app/services/rules.uts @ 7bc0ed3. Hardcoding copy inline in platform UI is forbidden - UI copy must come from resource files (i18n-ready).",
+  "$comment": "PDIG canonical Chinese copy. Three platforms MUST use these strings for the listed keys so user-facing wording cannot drift. Platforms may localise layout/typography but not the meaning. Extracted from app/theme/tokens.uts and app/services/rules.uts @ 7bc0ed3. Hardcoding copy inline in platform UI is forbidden - UI copy must come from resource files (i18n-ready). v0.3.0 additions are marked keys (relationsV030 / findings / failureDomain / recoveryCycle / changePlanV030 / providerPolicy / scenarioV030) and are additive.",
   "specVersion": "1.0.0",
   "locale": "zh-CN",
 
   "hardRules": [
-    "Normal UI MUST NOT display engineering enums (GraphRevision, DependencyProposal, RealityDrift, ScenarioCoverage, SourceInstance, merchant_agreement, funding_source, criticality).",
+    "Normal UI MUST NOT display engineering enums (GraphRevision, DependencyProposal, RealityDrift, ScenarioCoverage, SourceInstance, merchant_agreement, funding_source, criticality, SHARED_FAILURE_DOMAIN, RECOVERY_CYCLE, FD-003).",
     "Readiness MUST NEVER be expressed as safe / fully safe / 100% / all clear."
   ],
 
@@ -68,7 +68,8 @@
     "possibleChange": "可能发生了变化",
     "upcoming": "即将到来",
     "commonScenarios": "常用场景",
-    "myInfrastructure": "我的基础设施"
+    "myInfrastructure": "我的基础设施",
+    "infrastructureWeakness": "基础设施薄弱点"
   },
 
   "drift": {
@@ -142,10 +143,94 @@
 
   "destructiveConfirmation": {
     "policy": "Every destructive action requires an explicit confirmation step naming the concrete object and the irreversible consequence.",
-    "irreversibleExamples": [
-      "删除对象",
-      "清空本地数据",
-      "忽略可能的变更"
-    ]
+    "irreversibleExamples": ["删除对象", "清空本地数据", "忽略可能的变更"]
+  },
+
+  "relationsV030": {
+    "recovers": "恢复方式 / 找回路径",
+    "authenticates": "验证方式 / 登录依据",
+    "controls": "登录控制 / 管理入口"
+  },
+
+  "relationHintsV030": {
+    "recovers": "它通过这个手机号 / 这台设备找回账号",
+    "authenticates": "它用这种方式验证身份登录",
+    "controls": "这个手机号 / 设备可以登录并管理该账户"
+  },
+
+  "identity": {
+    "phoneNumber": "手机号",
+    "email": "邮箱",
+    "securityKey": "安全密钥",
+    "recoveryPath": "恢复路径",
+    "authenticationPath": "验证方式",
+    "newPath": "新路径",
+    "oldPath": "旧路径"
+  },
+
+  "findings": {
+    "title": "基础设施薄弱点",
+    "singlePointOfFailure": "只有一个来源，没有备用路径",
+    "sharedFailureDomain": "这两个路径依赖同一个故障点",
+    "recoveryCycle": "发现一个恢复循环",
+    "unconfirmedFallback": "备用路径尚未确认",
+    "staleRecoveryInformation": "恢复信息需要重新确认",
+    "unknownCriticalPath": "关键路径的影响还不清楚",
+    "pendingVerification": "有一项变更仍未验证",
+    "what": "发现了什么",
+    "why": "为什么",
+    "confirmedBasis": "基于什么确认",
+    "unknowns": "还不知道什么",
+    "affectedCapability": "可能影响什么",
+    "recommendedNextAction": "下一步建议"
+  },
+
+  "failureDomain": {
+    "sharedDevice": "这两个恢复方式都依赖同一台手机",
+    "sharedPhoneNumber": "这两个恢复方式都依赖同一个手机号",
+    "sharedProvider": "这两个路径都属于同一家服务商",
+    "needsReview": "它们是否共享同一个故障点还不确定",
+    "independentPath": "独立恢复路径",
+    "notIndependent": "不是独立的备用路径"
+  },
+
+  "recoveryCycle": {
+    "confirmed": "这个恢复方式本身依赖你正在尝试恢复的账号，因此不能视为独立备用路径",
+    "potential": "这个恢复方式可能依赖你正在尝试恢复的账号，需要确认",
+    "noCycle": "未发现恢复循环"
+  },
+
+  "changePlanV030": {
+    "prerequisite": "必须先完成",
+    "completesBefore": "完成后才能继续",
+    "waitingVerification": "等待验证",
+    "parallel": "可以并行处理",
+    "verifyBeforeRemove": "验证后才能移除旧路径",
+    "newPathEstablished": "新路径已建立",
+    "newPathVerified": "新路径已验证",
+    "oldPathRetired": "旧路径已停用"
+  },
+
+  "providerPolicy": {
+    "supports": "服务商支持",
+    "configured": "你已配置",
+    "supportsNotConfigured": "服务商支持这项能力，但你还没有配置",
+    "needsReview": "该规则来源不明，需要重新确认",
+    "lastVerifiedAt": "最后核验时间",
+    "policyRevision": "规则版本"
+  },
+
+  "scenarioV030": {
+    "replacePhoneNumber": "更换手机号",
+    "replacePhoneTitle": "更换手机号",
+    "selectOldPhone": "选择旧手机号",
+    "reviewImpact": "查看影响",
+    "reviewRecoveryPaths": "查看恢复路径",
+    "reviewFailureDomains": "查看共享故障点",
+    "addNewPhone": "添加新手机号",
+    "verifyNewPhone": "验证新手机号",
+    "migrateAccounts": "迁移关键账户",
+    "retireOldPhone": "停用旧手机号（新路径全部验证后）",
+    "complete": "完成"
   }
 }
