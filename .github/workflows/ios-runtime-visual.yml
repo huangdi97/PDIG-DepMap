@@ -75,6 +75,7 @@ jobs:
             echo "SIMULATOR_BOOT=NO_DEVICE" > conformance/reports/ios-simulator-boot.txt
           fi
         env:
+          SIMCTL_CHILD: "1"
       - name: N4 app-target gap audit (real project scan, no fake PASS)
         run: |
           mkdir -p conformance/reports

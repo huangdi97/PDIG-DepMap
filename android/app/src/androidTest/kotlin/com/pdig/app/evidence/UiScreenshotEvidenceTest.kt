@@ -1,5 +1,7 @@
 package com.pdig.app.evidence
 
+import android.content.ContentValues
+import android.provider.MediaStore
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
@@ -125,9 +127,27 @@ class UiScreenshotEvidenceTest {
                 compose.waitForIdle()
                 val bmp = compose.onRoot().captureToImage().asAndroidBitmap()
                 val theme = if (current.dark) "dark" else "light"
-                val f = File(outDir, "android__phone-api36__${theme}__${pageId}__populated__%02d.png".format(seq))
+                val name = "android__phone-api36__${theme}__${pageId}__populated__%02d.png".format(seq)
+                val f = File(outDir, name)
                 f.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
                 assertTrue("screenshot must be non-empty: ${f.name}", f.isFile && f.length() > 0)
+                // Also publish into public Downloads so the sweep harness can adb-pull
+                // (Android 11+ scoped storage hides app dirs from adb shell).
+                try {
+                    val cv = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/ui-shots")
+                    }
+                    val uri = ctx().contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv)
+                    if (uri != null) {
+                        val bos = java.io.ByteArrayOutputStream()
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, bos)
+                        ctx().contentResolver.openOutputStream(uri)?.use { it.write(bos.toByteArray()) }
+                    }
+                } catch (_: Throwable) {
+                    // best-effort: filesDir copy is the source of truth for the in-test assert
+                }
                 return
             } catch (t: Throwable) {
                 if (attempts >= 3) {
