@@ -8,7 +8,6 @@ import com.pdig.desktop.data.DesktopSession
 import com.pdig.desktop.io.AwtDesktopFileOps
 import com.pdig.desktop.security.DeviceUnlockStore
 import com.pdig.desktop.security.WindowsDpapiSecurityPort
-import com.pdig.desktop.ui.Gate
 import com.pdig.desktop.ui.PDIGAppShell
 import com.pdig.desktop.ui.UiState
 import java.io.File
@@ -22,6 +21,15 @@ fun main(args: Array<String>) {
         val work = File(System.getenv("PI_SCRATCH_DIR") ?: System.getProperty("java.io.tmpdir"), "pdig-smoke")
         work.mkdirs()
         kotlin.system.exitProcess(SmokeRunner.run(repo, work))
+        return
+    }
+    // --shots <evidence dir>：multiclient runtime sweep 的桌面可视化取证（见 ShotDriver.kt）
+    if (args.contains("--shots")) {
+        val repo = findRepoRoot(File(".").absoluteFile)
+            ?: error("--shots 需要在仓库内运行以读取 fixtures/")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-09-26-multiclient-sweep")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(ShotDriver.run(repo, outRoot))
         return
     }
     application {

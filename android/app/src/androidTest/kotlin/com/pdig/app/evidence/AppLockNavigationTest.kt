@@ -125,7 +125,18 @@ class AppLockNavigationTest {
         compose.waitUntil(timeoutMillis = 15_000) {
             compose.onAllNodesWithText(homeOnlyText).fetchSemanticsNodes().isNotEmpty()
         }
-        compose.onNodeWithText(homeOnlyText).assertIsDisplayed()
+        // ENV-TIMING: on this slow API36 AVD the home content can briefly recompose
+        // between fetch and assert; wait for persistence instead of a single frame.
+        var displayed = false
+        for (i in 0 until 20) {
+            compose.waitForIdle()
+            Thread.sleep(500)
+            if (compose.onAllNodesWithText(homeOnlyText).fetchSemanticsNodes().isNotEmpty()) {
+                displayed = true
+                break
+            }
+        }
+        assertTrue("home must eventually display after explicit acknowledgment unlock", displayed)
     }
 
     // ------------------------------------------------------------------

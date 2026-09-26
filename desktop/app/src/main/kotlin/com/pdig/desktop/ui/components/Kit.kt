@@ -35,6 +35,7 @@ fun PdigPage(
     error: String? = null,
     onDismissNotice: (() -> Unit)? = null,
     onDismissError: (() -> Unit)? = null,
+    scrollable: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     Column(Modifier.fillMaxSize().padding(20.dp)) {
@@ -46,7 +47,12 @@ fun PdigPage(
         if (notice != null) NoticeStrip(notice, onDismissNotice)
         if (error != null) ErrorStrip(error, onDismissError)
         Spacer(Modifier.height(12.dp))
-        Box(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { content() }
+        val scrollModifier = if (scrollable) {
+            Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        } else {
+            Modifier.fillMaxSize()
+        }
+        Box(scrollModifier) { content() }
     }
 }
 

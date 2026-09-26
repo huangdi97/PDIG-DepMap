@@ -40,6 +40,7 @@ fun InfraScreen(ui: UiState) {
         error = ui.error,
         onDismissNotice = { ui.notice = null },
         onDismissError = { ui.error = null },
+        scrollable = false,
     ) {
         if (nodes.isEmpty()) {
             EmptyState("还没有节点。先前往「数据来源 → 导入」添加账单，或在待确认服务中确认节点。")

@@ -41,7 +41,6 @@ fun NodeDetailScreen(ui: UiState) {
         Column {
             SectionDivider("节点信息")
             InfoRow("名称", node.name)
-            InfoRow("名称", node.name)
             InfoRow("类型", kindLabel(node.kind))
             InfoRow("归档", if (node.archived) "是" else "否")
             SectionDivider("相关依赖")
