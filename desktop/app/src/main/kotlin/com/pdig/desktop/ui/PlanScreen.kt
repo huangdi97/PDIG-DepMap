@@ -17,7 +17,7 @@ import com.pdig.desktop.ui.components.PdigPage
 import com.pdig.desktop.ui.components.SectionDivider
 import com.pdig.desktop.ui.components.StatusChip
 
-/** 变更计划详情：信息 + 动作清单（完成 / 验证）。 */
+/** 变更计划详情：信息 + 动作清单（前置关系人话 + 完成 / 验证）。 */
 @Composable
 fun PlanScreen(ui: UiState) {
     val planId = ui.selectedPlanId
@@ -51,7 +51,9 @@ fun PlanScreen(ui: UiState) {
             if (detail.actions.isEmpty()) {
                 EmptyState("该计划没有动作。")
             } else {
-                detail.actions.forEach { a -> PlanActionCard(ui, pid, a) }
+                detail.actions.forEach { a ->
+                    PlanActionCard(ui, pid, a, detail.actions)
+                }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 TextButton(onClick = { ui.screen = Screen.ACTIONS }) { Text("行动计划") }
@@ -61,27 +63,72 @@ fun PlanScreen(ui: UiState) {
     }
 }
 
-/** 单个计划动作卡片：阶段 / done / verification + 完成 / 验证按钮。 */
+/**
+ * 单个计划动作卡片：阶段 / done / verification + 前置关系人话 + 完成 / 验证按钮。
+ * 前置关系只展示用户语义（必须先完成 / 完成后才能继续 / 等待验证 / 验证后才能移除旧路径 / 可以并行处理），
+ * 不把 DAG / prerequisite / 内部枚举名泄漏给用户。
+ */
 @Composable
-internal fun PlanActionCard(ui: UiState, planId: String, action: PlanAction) {
+internal fun PlanActionCard(ui: UiState, planId: String, action: PlanAction, allActions: List<PlanAction>) {
     val v = action.verification
+    val prereqTitles = action.prerequisiteActionIds.mapNotNull { pid -> allActions.firstOrNull { it.id == pid }?.title }
+    val dependsTitles = allActions.filter { pid -> action.id in pid.prerequisiteActionIds }.map { it.title }
+    val preconditionLines = buildPreconditionLines(action, prereqTitles, dependsTitles)
     PdigCard(
         title = action.title,
         subtitle = listOfNotNull(
             "阶段：${actionPhaseLabel(action.phase.wire)}",
             v?.let { "验证：${verificationMethodLabel(it.method.wire)} / ${verificationStatusLabel(it.status.wire)}" },
+            preconditionLines.takeIf { it.isNotEmpty() },
         ).joinToString(" · "),
         trailing = {
             Column(horizontalAlignment = androidx.compose.ui.Alignment.End) {
                 StatusChip(if (action.done) "done" else "todo", if (action.done) ChipTone.GOOD else ChipTone.NEUTRAL)
+                if (preconditionLines.isNotEmpty()) {
+                    Text(
+                        preconditionLines.joinToString("\n"),
+                        style = androidx.compose.material3.MaterialTheme.typography.labelSmall,
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    TextButton(onClick = { completePlanAction(ui, planId, action.id) }, enabled = !action.done) { Text("标记完成") }
+                    val prereqsDone = action.prerequisiteActionIds.all { p ->
+                        allActions.firstOrNull { it.id == p }?.done == true
+                    }
+                    TextButton(
+                        onClick = { completePlanAction(ui, planId, action.id) },
+                        enabled = prereqsDone && !action.done,
+                    ) { Text("标记完成") }
                     val canVerify = canVerifyAction(action)
                     TextButton(onClick = { verifyPlanAction(ui, planId, action.id) }, enabled = canVerify) { Text("验证") }
                 }
             }
         },
     )
+}
+
+/** 前置关系人话：每条一句话，正面给出用户可以理解的动作依赖。 */
+internal fun buildPreconditionLines(
+    action: PlanAction,
+    prereqTitles: List<String>,
+    dependsTitles: List<String>,
+): List<String> = buildList {
+    if (prereqTitles.isNotEmpty()) {
+        add("必须先完成：${prereqTitles.joinToString("、")}")
+    }
+    if (dependsTitles.isNotEmpty()) {
+        add("完成后才能继续：${dependsTitles.joinToString("、")}")
+    }
+    val v = action.verification
+    if (action.done && v != null && v.status == ActionVerificationStatus.PENDING) {
+        add("等待验证")
+    }
+    if (action.title.contains("停用旧") && prereqTitles.isNotEmpty()) {
+        add("验证后才能移除旧路径")
+    }
+    if (isEmpty()) {
+        add("可以并行处理")
+    }
 }
 
 internal fun canVerifyAction(action: PlanAction): Boolean {

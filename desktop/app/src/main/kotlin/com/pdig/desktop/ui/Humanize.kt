@@ -21,12 +21,21 @@ internal fun kindLabel(kind: String): String = when (kind) {
 internal fun relationLabel(relation: String): String = when (relation) {
     "funding_source" -> "资金来源"
     "merchant_agreement" -> "服务付费关系"
+    "recovers" -> "恢复方式"
+    "authenticates" -> "登录认证"
+    "controls" -> "控制权"
     else -> "关系"
 }
 
 /** 能力人话：MVP 只有支付；其余一律「未分类」。 */
-internal fun capabilityLabel(capability: String): String =
-    if (capability == "payment") "支付" else "未分类"
+internal fun capabilityLabel(capability: String): String = when (capability) {
+    "payment" -> "支付"
+    "access" -> "账户访问"
+    "authentication" -> "登录认证"
+    "recovery" -> "恢复"
+    "communication" -> "通讯"
+    else -> "未分类"
+}
 
 /** 重要程度人话：机器永不自动产生「必需」。 */
 internal fun criticalityLabel(criticality: String): String = when (criticality) {

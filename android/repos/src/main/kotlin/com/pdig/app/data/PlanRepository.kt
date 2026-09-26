@@ -197,6 +197,15 @@ class PlanRepository(
                 ?: throw IllegalStateException("entity_not_found")
             val idx = actions.indexOfFirst { it.id == actionId }
             if (idx < 0) throw IllegalStateException("entity_not_found")
+            // v0.3.0 Action DAG gate：前置动作未完成 → 禁止完成
+            val prereqs = actions[idx].prerequisiteActionIds
+            if (prereqs.isNotEmpty()) {
+                for (p in prereqs) {
+                    val pAction = actions.firstOrNull { it.id == p }
+                    if (pAction == null) throw IllegalStateException("action_missing_prerequisite")
+                    if (!pAction.done) throw IllegalStateException("action_missing_prerequisite")
+                }
+            }
             actions[idx] = actions[idx].copy(done = true)
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)

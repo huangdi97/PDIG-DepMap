@@ -16,6 +16,7 @@ enum class Screen(val route: String, val title: String) {
     DRIFTS("drifts", "可能发生了变化"),
     INFRA("infrastructure", "基础设施"),
     NODE("node", "对象详情"),
+    FINDINGS("findings", "基础设施薄弱点"),
     SCENARIOS("scenarios", "场景中心"),
     SCENARIO_SETUP("scenario-setup", "场景设置"),
     IMPACT("impact", "影响分析"),
@@ -33,5 +34,5 @@ enum class Screen(val route: String, val title: String) {
 /** 左侧导航里固定的顶层入口（不依赖参数的屏面；其余屏面从内容区进入）。 */
 val TOP_LEVEL_SCREENS: List<Screen> = listOf(
     Screen.HOME, Screen.ATTENTION, Screen.SOURCES, Screen.INFRA,
-    Screen.SCENARIOS, Screen.TIMELINE, Screen.SETTINGS,
+    Screen.FINDINGS, Screen.SCENARIOS, Screen.TIMELINE, Screen.SETTINGS,
 )

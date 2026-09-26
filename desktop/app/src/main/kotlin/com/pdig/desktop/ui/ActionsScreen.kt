@@ -41,7 +41,7 @@ fun ActionsScreen(ui: UiState) {
             if (detail.actions.isEmpty()) {
                 EmptyState("该计划没有动作。")
             } else {
-                detail.actions.forEach { a -> PlanActionCard(ui, planId, a) }
+                detail.actions.forEach { a -> PlanActionCard(ui, planId, a, detail.actions) }
             }
             Spacer(Modifier.height(4.dp))
             TextButton(onClick = { ui.screen = Screen.PLAN }) { Text("返回计划") }

@@ -150,7 +150,7 @@ object ShotDriver {
         return if (failures.get() == 0) 0 else 1
     }
 
-    /** All 23 screens + gate at 1280x720, then the complex/top-level set at the two larger profiles. */
+    /** All 24 screens + gate at 1280x720, then the complex/top-level set at the two larger profiles. */
     private fun planShots(prepared: Prepared, ui: UiState): List<Target> {
         ui.selectedNodeId = prepared.cardId
         ui.selectedPlanId = prepared.planId
@@ -168,6 +168,7 @@ object ShotDriver {
             Screen.DRIFTS to "populated",
             Screen.INFRA to "populated",
             Screen.NODE to "populated",
+            Screen.FINDINGS to "populated",
             Screen.SCENARIOS to "populated",
             Screen.SCENARIO_SETUP to "populated",
             Screen.IMPACT to "populated",
@@ -187,9 +188,8 @@ object ShotDriver {
             targets.add(Target(screen, state, SIZES[0]))
         }
         targets.add(0, Target(Screen.HOME, "gate", SIZES[0]))
-
         val bigSet = listOf(
-            Screen.HOME, Screen.ATTENTION, Screen.SOURCES, Screen.INFRA, Screen.SCENARIOS,
+            Screen.HOME, Screen.ATTENTION, Screen.SOURCES, Screen.INFRA, Screen.FINDINGS, Screen.SCENARIOS,
             Screen.IMPACT, Screen.PLAN, Screen.VERIFICATION, Screen.TIMELINE, Screen.BACKUP,
             Screen.RESTORE, Screen.SETTINGS, Screen.IMPORT,
         )
@@ -261,6 +261,32 @@ object ShotDriver {
                     "VALUES ('shot-drift-1','possible_replacement','$cardId','payment','nd-card-y','funding_source'," +
                     "'[\"$anyDepId\"]','[]','[]',4,'$now','$now','open')",
             )
+
+            // v0.3.0 画面数据：身份/恢复边（旧手机号 + 备用设备 + 账户），
+            // 让「基础设施薄弱点」展示 SPOF / 共享故障点 / 恢复循环三类示例。
+            val now2 = Instant.now().toString()
+            val phone1 = "shot-phone-1"
+            val phone2 = "shot-phone-2"
+            val dev = "shot-dev-1"
+            val acct = "shot-acct-1"
+            session.driver.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+                "VALUES ('$phone1','identity_anchor','旧手机号',0,'{}','self','$now2','$now2')")
+            session.driver.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+                "VALUES ('$phone2','identity_anchor','新手机号',0,'{}','self','$now2','$now2')")
+            session.driver.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+                "VALUES ('$dev','device','备用设备',0,'{}','self','$now2','$now2')")
+            session.driver.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+                "VALUES ('$acct','account','主账户',0,'{}','self','$now2','$now2')")
+            fun depEdge(id: String, from: String, to: String) {
+                session.driver.exec(
+                    "INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, state, origin, confirmed_at, last_verified_at, created_at, updated_at) " +
+                        "VALUES ('$id','$from','recovers','$to','recovery','unknown','active','manual','$now2','$now2','$now2','$now2')",
+                )
+            }
+            depEdge("shot-dep-1", dev, phone1)   // phone1 只有唯一恢复来源 → SPOF
+            depEdge("shot-dep-2", dev, acct)     // dev 服务两条恢复路径 → 共享故障点
+            depEdge("shot-dep-3", phone2, acct)  // 与新手机号成环（下一条回边）
+            depEdge("shot-dep-4", acct, phone2)  // 恢复循环：acct ⇄ phone2
 
             store.save(dataFile, session.exportPayload(), PASSWORD)
             return Prepared(cardId, planId)
