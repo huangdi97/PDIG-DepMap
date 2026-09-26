@@ -1473,7 +1473,6 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 > 2. `scripts/check-secrets.mjs` 误报 `spec/ui/design-tokens.json`；
 > 3. `tests/integration/multi-source-e2e.test.ts` K6 在并发 perf 饱和下默认 5s flaky。
 
-
 ---
 
 ## 2026-09-26 MULTI_CLIENT RUNTIME/VISUAL EVIDENCE SWEEP（追加注记）

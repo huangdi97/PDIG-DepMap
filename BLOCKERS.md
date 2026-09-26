@@ -72,7 +72,6 @@
 - B23（沙箱限制）→ 历史记录，不再适用（原生构建已在本机跑通）。
 - B24（无 Android 设备）→ 已部分解除：AVD 可用且设备内测试全绿；**真实手机仍为 E-1**。
 
-
 ---
 
 ## 2026-09-26 MULTI_CLIENT RUNTIME/VISUAL EVIDENCE SWEEP（追加注记）
