@@ -34,7 +34,8 @@ public enum Evaluators {
         switch category {
         case "relations": return .value(try relations(input))
         case "jcs": return .value(try jcs(input))
-        case "scenario": return .value(try scenario(input))
+        case "scenario": return .value(try scenario(input, store))
+        case "parser": return .value(try parser(input, store))
         case "parser": return .value(try parser(input, store))
         case "readiness": return .value(try readiness(input))
         case "coverage": return .value(try coverage(input))
@@ -221,33 +222,42 @@ public enum Evaluators {
     }
 
     // ---------------------------------------------------------------- scenario
-
-    private static func scenario(_ input: JsonObject) throws -> Json {
+    private static func scenario(_ input: JsonObject, _ store: FixtureStore) throws -> Json {
         // 政策 gate：fixture 声明的排除域必须与注册表逐条一致。
-        // 注册表悄悄多出一个"浇花提醒"模板时，这里 FAIL —— 这是本用例真正的牙齿。
         if let declared = input["excludedDomains"]?.arrayValue?.compactMap({ $0.stringValue }) {
             let platform = ScenarioRegistry.excludedDomains
             if Set(declared) != Set(platform) {
                 throw EvalError(
-                    "excludedDomains mismatch: fixture=\(declared.sorted()) platform=\(platform.sorted())"
+                    "excludedDomains mismatch: fixture=\\(declared.sorted()) platform=\\(platform.sorted())"
                 )
             }
         }
+        // scenario-template-policy fixture 冻结的是 spec/domain/domain.json 的 scenarioTemplates（v1 目录），
+        // 不是运行时注册表（v0.3.0 运行时 replace_phone_number 已 active）。与 generator / Android 一致，直接读 spec JSON。
+        let specText = try store.read("spec/domain/domain.json")
+        let spec = try JsonParser.parse(specText)
+        guard let specObj = spec.objectValue,
+              let templates = specObj["scenarioTemplates"]?.objectValue else {
+            throw EvalError("spec/domain/domain.json has no scenarioTemplates object")
+        }
+        let active = templates["active"]?.arrayValue?.compactMap { $0.objectValue } ?? []
+        let planned = templates["planned"]?.arrayValue?.compactMap { $0.objectValue } ?? []
+        func s(_ o: JsonObject, _ key: String) -> String { o[key]?.stringValue ?? "" }
         var lead: [(String, Json)] = []
-        for t in ScenarioRegistry.active {
-            if let d = t.recommendedLeadTimeDays {
-                lead.append((t.id, .num(String(d))))
-            } else {
-                lead.append((t.id, .null))
+        for t in active {
+            let id = s(t, "id")
+            switch t["recommendedLeadTimeDays"] {
+            case .num(let raw):
+                lead.append((id, .num(raw)))
+            default:
+                lead.append((id, .null))
             }
         }
         return .obj(JsonObject([
-            ("activeIds", .arr(ScenarioRegistry.active.map { .str($0.id) })),
-            ("activeCategories", .arr(ScenarioRegistry.active.map { .str($0.category) })),
-            ("plannedIds", .arr(ScenarioRegistry.planned.map { .str($0.id) })),
-            ("plannedExecutable", .arr(ScenarioRegistry.planned.map {
-                .bool(ScenarioRegistry.isExecutable($0.id))
-            })),
+            ("activeIds", .arr(active.map { .str(s($0, "id")) })),
+            ("activeCategories", .arr(active.map { .str(s($0, "category")) })),
+            ("plannedIds", .arr(planned.map { .str(s($0, "id")) })),
+            ("plannedExecutable", .arr(planned.map { .bool($0["executable"]?.boolValue == true) })),
             ("leadingTimeByTemplate", .obj(JsonObject(lead))),
         ]))
     }
