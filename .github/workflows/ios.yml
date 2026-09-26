@@ -23,19 +23,21 @@ permissions:
 # ---------------------------------------------------------------------------
 # 本 workflow 只做"在 GitHub-hosted macOS runner 上真实可执行"的门禁：
 #
-#   job ios-core : swift build（PDIGCore + PDIGConformance）
-#                  + swift test（canonical 91 条 + 核心 smoke）
+#   job ios-core : swift build（PDIGCore + PDIGConformance + PDIGApp 可执行）
+#                  + swift test（canonical 91+37=128 条 + 核心 smoke + PDIGApp 视图模型）
+#                  + 截图 harness（PDIGApp --screenshot → macOS 渲染 PNG + evidence-index）
 #
 # 明确 NOT AVAILABLE / NOT_RUN（不 fake，不用 continue-on-error 假装通过）：
 #
 #   IOS_SIGNING / TESTFLIGHT / APP_STORE      = EXTERNAL_BLOCKED（需人类动作）
 #   IOS_DEVICE_RUNTIME（真机 LocalAuthentication / Keychain 访问组）
 #                                            = NOT_RUN
-#   IOS_SQLCIPHER_PERSISTENCE                 = NOT_RUN（App 层未完成。canonical
-#                                               的 backup / migration 两条由 host
-#                                               harness 用系统 sqlite3 执行，证明的是
-#                                               payload 与迁移逻辑，**不是** at-rest
-#                                               加密）
+#   IOS_SQLCIPHER_PERSISTENCE                 = NOT_RUN（App 用系统 sqlite +
+#                                                PDIGCore GraphSerialize；SQLCipher
+#                                                at-rest 加密未接入）
+#   IOS_VISUAL（截图）                        = MACOS_RENDER（macOS 上 SwiftUI
+#                                                ImageRenderer 渲染，不是模拟器/
+#                                                真机截图，无 XCUITest）
 #   IOS_ARGON2ID_NATIVE                       = PASS（vendored Argon2 经转发头接入，
 #                                               depmap-golden-v1 对 derivedKey 做字节级
 #                                               golden 校验）
@@ -46,7 +48,7 @@ permissions:
 
 jobs:
   ios-core:
-    name: iOS core (Swift build + canonical conformance)
+    name: iOS core (Swift build + canonical conformance + N4 app)
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
@@ -57,19 +59,30 @@ jobs:
 
       # ⚠ 不要写成 `swift build 2>&1 | tail -N`：管道的退出码取自 `tail`，
       # 编译失败会被吞成 0，产出一个"什么都没验证"的绿灯。
-      # 2026-09-19 实测踩过一次：build 报 `unterminated string literal`，
-      # job 结论仍是 success。因此这里不用管道，让退出码如实上传。
-      - name: Build (PDIGCore + PDIGConformance)
+      - name: Build (PDIGCore + PDIGConformance + PDIGApp)
         working-directory: ios
         run: swift build
 
       # canonical runner 从仓库读冻结 fixture（不在包里内嵌副本），
       # 因此必须在仓库根下执行；SwiftPM 的 cwd 即为包目录，上溯两级到根。
-      # canonical runner 会顺带写出 conformance/reports/ios.json（N5 差分要用）。
-      # 写不出来也算失败：差分工具缺一份报告就无法证明跨平台一致。
-      - name: Test (canonical 91 + smoke)
+      # 会顺带写出 conformance/reports/ios.json（N5 差分要用）。
+      - name: Test (canonical 91+37 smoke + PDIGApp view models)
         working-directory: ios
         run: swift test
+
+      # N4 App 单元测试（显式跑一遍，便于定位失败归属）。
+      - name: Test (PDIGAppTests)
+        working-directory: ios
+        run: swift test --filter PDIGAppTests
+
+      # 截图 harness：macOS 渲染关键屏 → artifacts/runtime-evidence/ios-n4-<runid>/
+      - name: Generate screenshots (macOS SwiftUI render)
+        working-directory: ios
+        run: |
+          RUNID=$(date +%Y%m%d%H%M%S)
+          mkdir -p ../artifacts/runtime-evidence
+          swift run PDIGApp --screenshot --runid "$RUNID" --output "../artifacts/runtime-evidence/ios-n4-$RUNID"
+          ls -la "../artifacts/runtime-evidence/ios-n4-$RUNID"
 
       - name: Upload iOS conformance report
         if: always()
@@ -78,3 +91,11 @@ jobs:
           name: ios-conformance-report
           path: conformance/reports/ios.json
           if-no-files-found: error
+
+      - name: Upload iOS N4 screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-n4-screenshots
+          path: artifacts/runtime-evidence/ios-n4-*/
+          if-no-files-found: warn
