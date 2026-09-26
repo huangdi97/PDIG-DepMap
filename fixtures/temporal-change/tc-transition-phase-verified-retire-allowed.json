@@ -1,0 +1,24 @@
+{
+  "id": "tc-transition-phase-verified-retire-allowed",
+  "category": "temporal-change",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "transition 中 + 全部新路径已验证 → retireAllowedAt 给出",
+  "input": {
+    "window": {
+      "effectiveAt": "2026-10-01T00:00:00.000Z",
+      "verificationNotBefore": "2026-10-01T00:00:00.000Z",
+      "verificationDueAt": "2026-10-15T00:00:00.000Z",
+      "retireOldPathAfter": "2026-10-20T00:00:00.000Z"
+    },
+    "now": "2026-10-21T00:00:00.000Z",
+    "verified": true
+  },
+  "expected": {
+    "phase": "after",
+    "validOrder": true,
+    "retireAllowedAt": "2026-10-20T00:00:00.000Z",
+    "retireBlockedReason": null
+  }
+}

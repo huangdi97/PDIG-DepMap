@@ -1,0 +1,42 @@
+{
+  "id": "mbb-new-path-not-verified-retire-blocked",
+  "category": "make-before-break",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "新路径未建立/未验证 → retire blocked（BREAK_BEFORE_MAKE = FORBIDDEN）",
+  "input": {
+    "newPaths": [
+      {
+        "id": "rpn-change-1",
+        "title": "rpn-change-1",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": []
+      }
+    ],
+    "verifications": [
+      {
+        "id": "rpn-verify-1",
+        "title": "rpn-verify-1",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": []
+      }
+    ],
+    "retireDone": false
+  },
+  "expected": {
+    "status": "blocked",
+    "unverifiedNewPaths": [
+      "rpn-change-1"
+    ],
+    "reason": "new path(s) not yet established: rpn-change-1"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "id": "tc-transition-unverified-blocked",
+  "category": "temporal-change",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "transition 中 + 新路径未验证 → retire blocked 即使时间已到",
+  "input": {
+    "window": {
+      "effectiveAt": "2026-10-01T00:00:00.000Z",
+      "verificationNotBefore": null,
+      "verificationDueAt": null,
+      "retireOldPathAfter": "2026-10-20T00:00:00.000Z"
+    },
+    "now": "2026-10-21T00:00:00.000Z",
+    "verified": false
+  },
+  "expected": {
+    "phase": "after",
+    "validOrder": true,
+    "retireAllowedAt": null,
+    "retireBlockedReason": "新路径尚未全部验证，暂时不能停用旧路径。"
+  }
+}

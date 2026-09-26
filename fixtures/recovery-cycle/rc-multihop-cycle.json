@@ -1,0 +1,89 @@
+{
+  "id": "rc-multihop-cycle",
+  "category": "recovery-cycle",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "多跳环 account-a→phone-a→email-a→account-a → confirmed_cycle",
+  "input": {
+    "capability": "recovery",
+    "dependencies": [
+      {
+        "id": "d1",
+        "from": "account-a",
+        "relation": "recovers",
+        "to": "phone-a",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      },
+      {
+        "id": "d2",
+        "from": "phone-a",
+        "relation": "recovers",
+        "to": "email-a",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      },
+      {
+        "id": "d3",
+        "from": "email-a",
+        "relation": "recovers",
+        "to": "account-a",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      }
+    ],
+    "hintedEdges": []
+  },
+  "expected": {
+    "status": "confirmed_cycle",
+    "confirmedCycles": [
+      [
+        "account-a",
+        "phone-a",
+        "email-a"
+      ]
+    ],
+    "potentialCycles": [],
+    "capability": "recovery"
+  }
+}

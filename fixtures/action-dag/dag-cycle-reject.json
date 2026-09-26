@@ -1,0 +1,44 @@
+{
+  "id": "dag-cycle-reject",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "环 a→b→a 必须被拒绝",
+  "input": {
+    "actions": [
+      {
+        "id": "a",
+        "title": "a",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "b"
+        ]
+      },
+      {
+        "id": "b",
+        "title": "b",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "a"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "ok": false,
+    "violation": "cycle",
+    "offendingActionId": "a",
+    "topologicalOrder": []
+  }
+}

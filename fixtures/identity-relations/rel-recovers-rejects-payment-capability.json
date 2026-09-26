@@ -1,0 +1,18 @@
+{
+  "id": "rel-recovers-rejects-payment-capability",
+  "category": "identity-relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "recovers 要求 recovery；payment 被拒",
+  "input": {
+    "fromKind": "identity_anchor",
+    "relation": "recovers",
+    "toKind": "account",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'recovers' requires capability 'recovery', got 'payment'"
+  }
+}

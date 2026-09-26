@@ -1,0 +1,72 @@
+{
+  "id": "dag-stable-topo-order",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "稳定拓扑顺序：相同输入两次输出相同",
+  "input": {
+    "actions": [
+      {
+        "id": "z",
+        "title": "z",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      },
+      {
+        "id": "y",
+        "title": "y",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      },
+      {
+        "id": "x",
+        "title": "x",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "z"
+        ]
+      },
+      {
+        "id": "w",
+        "title": "w",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "y",
+          "x"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "violation": "none",
+    "offendingActionId": null,
+    "topologicalOrder": [
+      "y",
+      "z",
+      "x",
+      "w"
+    ]
+  }
+}

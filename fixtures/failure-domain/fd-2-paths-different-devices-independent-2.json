@@ -1,0 +1,86 @@
+{
+  "id": "fd-2-paths-different-devices-independent-2",
+  "category": "failure-domain",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "SMS 恢复依赖 phone-a、Passkey 依赖 phone-b → pathCount=2, independentPathCount=2",
+  "input": {
+    "targetNodeId": "wechat",
+    "capability": "recovery",
+    "dependencies": [
+      {
+        "id": "d1",
+        "from": "phone-a",
+        "relation": "recovers",
+        "to": "wechat",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      },
+      {
+        "id": "d2",
+        "from": "phone-b",
+        "relation": "recovers",
+        "to": "wechat",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      }
+    ],
+    "confirmedDomains": [
+      {
+        "key": "DEVICE|phone-a",
+        "id": "fd-device-a"
+      },
+      {
+        "key": "DEVICE|phone-b",
+        "id": "fd-device-b"
+      }
+    ],
+    "suspectedDomains": [],
+    "edgeToDomainKeys": {
+      "d1": [
+        "DEVICE|phone-a"
+      ],
+      "d2": [
+        "DEVICE|phone-b"
+      ]
+    }
+  },
+  "expected": {
+    "targetNodeId": "wechat",
+    "capability": "recovery",
+    "pathCount": 2,
+    "independentPathCount": 2,
+    "sharedFailureDomains": [
+      "fd-device-a",
+      "fd-device-b"
+    ],
+    "unresolvedAssumptions": []
+  }
+}

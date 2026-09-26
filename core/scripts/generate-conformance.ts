@@ -39,6 +39,13 @@ import {
   WeChatStatementAdapter,
   GenericCsvAdapter,
   OfxQfxAdapter,
+  computePathIndependence,
+  detectRecoveryCycles,
+  validateActionDag,
+  evaluateMakeBeforeBreak,
+  classifyTemporalPhase,
+  interpretProviderCapability,
+  inferProviderPolicyState,
   type Capability,
   type ChangePlan,
   type Criticality,
@@ -51,6 +58,8 @@ import {
   type PlanAction,
   type PlanReadinessInput,
   type ScenarioCoverageInput,
+  type ProviderPolicy,
+  type TemporalChangeWindow,
 } from '../src/index.ts'
 import { createDepmapContainer, openDepmapContainer } from '../src/crypto/depmap.ts'
 import { jcsStringify } from '../src/crypto/jcs.ts'
@@ -1660,6 +1669,456 @@ function insertPlan(
 }
 
 // ---------------------------------------------------------------------------
+// 15. V0.3.0 — FAILURE DOMAIN / PATH INDEPENDENCE（Canonical vNext）
+// ---------------------------------------------------------------------------
+
+{
+  function fdDep(
+    id: string,
+    from: string,
+    to: string,
+    capability: 'recovery' | 'authentication' | 'access' = 'recovery',
+    state: 'active' | 'retired' = 'active',
+  ): Dependency {
+    return {
+      id,
+      from,
+      relation: 'recovers' as const,
+      to,
+      capability,
+      criticality: 'unknown',
+      groupId: null,
+      state,
+      origin: 'manual',
+      confirmedAt: T0,
+      lastVerifiedAt: T0,
+      retiredAt: state === 'retired' ? T0 : null,
+      evidenceRefs: [],
+      verificationBasis: { type: 'user_confirmed', verifiedAt: T0 },
+      createdAt: T0,
+      updatedAt: T0,
+    }
+  }
+
+  function fdInput(
+    dependencies: Dependency[],
+    confirmedDomains: Array<{ key: string; id: string }>,
+    suspectedDomains: Array<{ key: string; id: string }>,
+    edgeToDomainKeys: Record<string, string[]>,
+  ) {
+    return {
+      targetNodeId: 'wechat',
+      capability: 'recovery',
+      dependencies,
+      confirmedDomains,
+      suspectedDomains,
+      edgeToDomainKeys,
+    }
+  }
+
+  function fdRun(
+    id: string,
+    description: string,
+    deps: Dependency[],
+    confirmed: Array<{ key: string; id: string }>,
+    suspected: Array<{ key: string; id: string }>,
+    edgeToDomain: Record<string, string[]>,
+  ) {
+    const confirmedMap = new Map(confirmed.map((d) => [d.key, d.id]))
+    const suspectedMap = new Map(suspected.map((d) => [d.key, d.id]))
+    const edgeMap = new Map(Object.entries(edgeToDomain))
+    const result = computePathIndependence({
+      targetNodeId: 'wechat',
+      capability: 'recovery',
+      dependencies: deps,
+      confirmedDomains: confirmedMap,
+      suspectedDomains: suspectedMap,
+      edgeToDomainKeys: edgeMap,
+    })
+    add(id, 'failure-domain', description, fdInput(deps, confirmed, suspected, edgeToDomain), result)
+  }
+
+  // FD-01 两条路径同一台手机 → independent 1
+  fdRun(
+    'fd-2-paths-same-phone-independent-1',
+    'SMS 恢复与 Passkey 恢复都依赖 phone-a → pathCount=2, independentPathCount=1（V030-IP-01）',
+    [fdDep('d1', 'phone-a', 'wechat'), fdDep('d2', 'phone-a', 'wechat')],
+    [{ key: 'DEVICE|phone-a', id: 'fd-device-1' }],
+    [],
+    { d1: ['DEVICE|phone-a'], d2: ['DEVICE|phone-a'] },
+  )
+
+  // FD-02 两条路径不同设备 → independent 2
+  fdRun(
+    'fd-2-paths-different-devices-independent-2',
+    'SMS 恢复依赖 phone-a、Passkey 依赖 phone-b → pathCount=2, independentPathCount=2',
+    [fdDep('d1', 'phone-a', 'wechat'), fdDep('d2', 'phone-b', 'wechat')],
+    [
+      { key: 'DEVICE|phone-a', id: 'fd-device-a' },
+      { key: 'DEVICE|phone-b', id: 'fd-device-b' },
+    ],
+    [],
+    { d1: ['DEVICE|phone-a'], d2: ['DEVICE|phone-b'] },
+  )
+
+  // FD-03 共享 provider 未确认 → needs_review（不自动 confirmed）
+  fdRun(
+    'fd-shared-provider-unconfirmed-needs-review',
+    '两条路径同属 ChinaMobile，但 provider 共享未确认 → sharedFailureDomains 空、unresolvedAssumptions 非空',
+    [fdDep('d1', 'phone-a', 'wechat'), fdDep('d2', 'phone-b', 'wechat')],
+    [],
+    [{ key: 'PROVIDER|ChinaMobile', id: 'fd-provider-1' }],
+    { d1: ['PROVIDER|ChinaMobile'], d2: ['PROVIDER|ChinaMobile'] },
+  )
+
+  // FD-04 共享 provider 已确认 → sharedFailureDomains 非空
+  fdRun(
+    'fd-shared-provider-confirmed',
+    '两条路径同属 ChinaMobile 且 provider 共享已确认 → sharedFailureDomains=[fd-provider-1]',
+    [fdDep('d1', 'phone-a', 'wechat'), fdDep('d2', 'phone-b', 'wechat')],
+    [{ key: 'PROVIDER|ChinaMobile', id: 'fd-provider-1' }],
+    [],
+    { d1: ['PROVIDER|ChinaMobile'], d2: ['PROVIDER|ChinaMobile'] },
+  )
+
+  // FD-05 retired 边排除
+  fdRun(
+    'fd-retired-edge-excluded',
+    'retired 边不参与路径统计 → pathCount=0, independentPathCount=0',
+    [fdDep('d1', 'phone-a', 'wechat', 'recovery', 'retired')],
+    [],
+    [],
+    { d1: ['DEVICE|phone-a'] },
+  )
+
+  // FD-06 混合 capability：authentication 边不参与 recovery 统计
+  fdRun(
+    'fd-mixed-capability-excluded',
+    '认证边（authentication）不参与 recovery 路径统计 → pathCount=0',
+    [fdDep('d1', 'phone-a', 'wechat', 'authentication')],
+    [],
+    [],
+    { d1: ['DEVICE|phone-a'] },
+  )
+}
+
+// ---------------------------------------------------------------------------
+// 16. V0.3.0 — RECOVERY CYCLE（Canonical vNext）
+// ---------------------------------------------------------------------------
+
+{
+  function rcDep(
+    id: string,
+    from: string,
+    to: string,
+    capability: 'recovery' | 'access' | 'authentication' = 'recovery',
+    state: 'active' | 'retired' = 'active',
+  ): Dependency {
+    return {
+      id,
+      from,
+      relation: 'recovers' as const,
+      to,
+      capability,
+      criticality: 'unknown',
+      groupId: null,
+      state,
+      origin: 'manual',
+      confirmedAt: T0,
+      lastVerifiedAt: T0,
+      retiredAt: state === 'retired' ? T0 : null,
+      evidenceRefs: [],
+      verificationBasis: { type: 'user_confirmed', verifiedAt: T0 },
+      createdAt: T0,
+      updatedAt: T0,
+    }
+  }
+
+  function rcRun(
+    id: string,
+    description: string,
+    capability: 'recovery',
+    deps: Dependency[],
+    hinted: Array<{ from: string; to: string }>,
+  ) {
+    const result = detectRecoveryCycles({ capability, dependencies: deps, hintedEdges: hinted })
+    add(id, 'recovery-cycle', description, { capability, dependencies: deps, hintedEdges: hinted }, result)
+  }
+
+  rcRun(
+    'rc-simple-cycle',
+    '简单环 account-a→phone-a→account-a（confirmed）→ confirmed_cycle',
+    'recovery',
+    [rcDep('d1', 'account-a', 'phone-a'), rcDep('d2', 'phone-a', 'account-a')],
+    [],
+  )
+
+  rcRun(
+    'rc-multihop-cycle',
+    '多跳环 account-a→phone-a→email-a→account-a → confirmed_cycle',
+    'recovery',
+    [rcDep('d1', 'account-a', 'phone-a'), rcDep('d2', 'phone-a', 'email-a'), rcDep('d3', 'email-a', 'account-a')],
+    [],
+  )
+
+  rcRun(
+    'rc-no-cycle',
+    '无环 → no_cycle',
+    'recovery',
+    [rcDep('d1', 'phone-a', 'account-a')],
+    [],
+  )
+
+  rcRun(
+    'rc-unconfirmed-edge-potential-only',
+    '未确认边（proposal hint）只产生 potential_cycle，绝不 confirmed',
+    'recovery',
+    [rcDep('d1', 'account-a', 'phone-a')],
+    [{ from: 'phone-a', to: 'account-a' }],
+  )
+
+  rcRun(
+    'rc-retired-edge-excluded',
+    'retired 边不参与检测 → no_cycle',
+    'recovery',
+    [rcDep('d1', 'account-a', 'phone-a', 'recovery', 'retired'), rcDep('d2', 'phone-a', 'account-a', 'recovery', 'retired')],
+    [],
+  )
+
+  rcRun(
+    'rc-mixed-capability-no-cycle',
+    '混合 capability 不产生 confirmed cycle → no_cycle',
+    'recovery',
+    [rcDep('d1', 'account-a', 'phone-a', 'recovery'), rcDep('d2', 'phone-a', 'account-a', 'access')],
+    [],
+  )
+
+  rcRun(
+    'rc-potential-cycle-only',
+    '只有 hint 边的环 → potential_cycle only（confirmedCycles 空）',
+    'recovery',
+    [],
+    [
+      { from: 'account-a', to: 'phone-a' },
+      { from: 'phone-a', to: 'account-a' },
+    ],
+  )
+}
+
+// ---------------------------------------------------------------------------
+// 17. V0.3.0 — ACTION DAG（prerequisiteActionIds）
+// ---------------------------------------------------------------------------
+
+{
+  function dagAction(id: string, prereqs: string[] = []): PlanAction {
+    return {
+      id,
+      title: id,
+      detail: '',
+      phase: 'change',
+      done: false,
+      doneAt: null,
+      verification: null,
+      resolvesImpactKeys: [],
+      prerequisiteActionIds: prereqs,
+    }
+  }
+
+  function dagRun(id: string, description: string, actions: PlanAction[]) {
+    const result = validateActionDag({ actions })
+    add(id, 'action-dag', description, { actions }, result)
+  }
+
+  dagRun('dag-linear-chain', '线性链 a→b→c：stable topo order [a,b,c]', [
+    dagAction('c', ['b']),
+    dagAction('b', ['a']),
+    dagAction('a'),
+  ])
+
+  dagRun('dag-parallel-actions', '并行动作 + 汇合点：stable topo order 确定', [
+    dagAction('b'),
+    dagAction('a'),
+    dagAction('c', ['a', 'b']),
+  ])
+
+  dagRun('dag-cycle-reject', '环 a→b→a 必须被拒绝', [dagAction('a', ['b']), dagAction('b', ['a'])])
+
+  dagRun('dag-missing-prerequisite-reject', '引用不存在的前置动作 → missing_prerequisite 拒绝', [
+    dagAction('a', ['ghost']),
+  ])
+
+  dagRun('dag-completed-prerequisite-ok', '前置已完成仍合法（校验不关心 done 状态）', [
+    dagAction('b', ['a']),
+    dagAction('a'),
+  ])
+
+  dagRun('dag-verification-prerequisite', '验证动作作为前置：verify 必须在 retire 之前', [
+    dagAction('retire', ['verify']),
+    dagAction('verify'),
+  ])
+
+  dagRun('dag-stable-topo-order', '稳定拓扑顺序：相同输入两次输出相同', [
+    dagAction('z'),
+    dagAction('y'),
+    dagAction('x', ['z']),
+    dagAction('w', ['y', 'x']),
+  ])
+}
+
+// ---------------------------------------------------------------------------
+// 18. V0.3.0 — MAKE-BEFORE-BREAK
+// ---------------------------------------------------------------------------
+
+{
+  function mbbAction(id: string, verified: boolean, done = true): PlanAction {
+    return {
+      id,
+      title: id,
+      detail: '',
+      phase: 'change',
+      done,
+      doneAt: done ? T0 : null,
+      verification: verified
+        ? { method: 'manual_confirmation', status: 'verified', verifiedAt: T0, evidenceRefs: [] }
+        : null,
+      resolvesImpactKeys: [],
+    }
+  }
+
+  function mbbRun(
+    id: string,
+    description: string,
+    newPaths: PlanAction[],
+    verifications: PlanAction[],
+    retireDone = false,
+  ) {
+    const result = evaluateMakeBeforeBreak({
+      newPathActions: newPaths,
+      verificationActions: verifications,
+      retireActionId: 'rpn-change-2',
+      retireAlreadyDone: retireDone,
+    })
+    add(id, 'make-before-break', description, { newPaths, verifications, retireDone }, result)
+  }
+
+  mbbRun(
+    'mbb-new-path-not-verified-retire-blocked',
+    '新路径未建立/未验证 → retire blocked（BREAK_BEFORE_MAKE = FORBIDDEN）',
+    [mbbAction('rpn-change-1', false, false)],
+    [mbbAction('rpn-verify-1', false, false)],
+  )
+
+  mbbRun(
+    'mbb-new-path-verified-retire-allowed',
+    '新路径已建立且已验证 → retire allowed',
+    [mbbAction('rpn-change-1', false, true)],
+    [mbbAction('rpn-verify-1', true, true)],
+  )
+
+  mbbRun(
+    'mbb-done-not-verified-blocked',
+    '新路径 done 但未 verified → 仍 blocked（done ≠ verified）',
+    [mbbAction('rpn-change-1', false, true)],
+    [mbbAction('rpn-verify-1', false, true)],
+  )
+}
+
+// ---------------------------------------------------------------------------
+// 19. V0.3.0 — TEMPORAL CHANGE（transition window）
+// ---------------------------------------------------------------------------
+
+{
+  function tcRun(id: string, description: string, window: TemporalChangeWindow, now: string, verified: boolean) {
+    const result = classifyTemporalPhase(window, now, verified)
+    add(id, 'temporal-change', description, { window, now, verified }, result)
+  }
+
+  tcRun(
+    'tc-before-phase',
+    'now < effectiveAt → before；retire 未开放',
+    { effectiveAt: '2026-10-01T00:00:00.000Z', verificationNotBefore: null, verificationDueAt: null, retireOldPathAfter: null },
+    '2026-09-20T00:00:00.000Z',
+    false,
+  )
+
+  tcRun(
+    'tc-transition-phase-verified-retire-allowed',
+    'transition 中 + 全部新路径已验证 → retireAllowedAt 给出',
+    { effectiveAt: '2026-10-01T00:00:00.000Z', verificationNotBefore: '2026-10-01T00:00:00.000Z', verificationDueAt: '2026-10-15T00:00:00.000Z', retireOldPathAfter: '2026-10-20T00:00:00.000Z' },
+    '2026-10-21T00:00:00.000Z',
+    true,
+  )
+
+  tcRun(
+    'tc-transition-unverified-blocked',
+    'transition 中 + 新路径未验证 → retire blocked 即使时间已到',
+    { effectiveAt: '2026-10-01T00:00:00.000Z', verificationNotBefore: null, verificationDueAt: null, retireOldPathAfter: '2026-10-20T00:00:00.000Z' },
+    '2026-10-21T00:00:00.000Z',
+    false,
+  )
+
+  tcRun(
+    'tc-invalid-order',
+    'verificationNotBefore < effectiveAt → 时间窗顺序不合法',
+    { effectiveAt: '2026-10-02T00:00:00.000Z', verificationNotBefore: '2026-10-01T00:00:00.000Z', verificationDueAt: null, retireOldPathAfter: null },
+    '2026-09-20T00:00:00.000Z',
+    false,
+  )
+}
+
+// ---------------------------------------------------------------------------
+// 20. V0.3.0 — PROVIDER POLICY（Provider Knowledge Plane）
+// ---------------------------------------------------------------------------
+
+{
+  function ppRun(id: string, description: string, policy: ProviderPolicy | null, userConfigured: boolean) {
+    const interpretation = interpretProviderCapability(policy, userConfigured)
+    const state = policy ? policy.state : inferProviderPolicyState({ provider: 'unknown', policyType: 'recovery', sourceUrl: null, retrievedAt: T0, lastVerifiedAt: null, policyRevision: 0 })
+    add(id, 'provider-policy', description, { policy, userConfigured }, { ...interpretation, state })
+  }
+
+  const effectivePolicy: ProviderPolicy = {
+    provider: 'ChinaMobile',
+    policyType: 'recovery',
+    sourceUrl: 'https://www.10086.cn/policy',
+    retrievedAt: T0,
+    lastVerifiedAt: T0,
+    effectiveFrom: null,
+    effectiveTo: null,
+    jurisdiction: 'CN',
+    accountTypeScope: null,
+    parameters: { sms_recovery: true },
+    policyRevision: 3,
+    state: 'effective',
+  }
+
+  ppRun('pp-supports-but-not-configured', 'Provider 支持 SMS 恢复但用户未配置 → suggestion', effectivePolicy, false)
+  ppRun('pp-supports-and-configured', 'Provider 支持且用户已配置 → interpretation', effectivePolicy, true)
+  ppRun('pp-unverifiable-needs-review', '无法核实的 policy → needs_review，不自动影响建议', null, true)
+
+  const needsReviewPolicy: ProviderPolicy = { ...effectivePolicy, state: 'needs_review' }
+  ppRun('pp-state-needs-review-no-auto-influence', 'needs_review policy 不产生 suggestion', needsReviewPolicy, false)
+}
+
+// ---------------------------------------------------------------------------
+// 21. V0.3.0 — IDENTITY & RECOVERY RELATIONS（recovers/authenticates/controls）
+// ---------------------------------------------------------------------------
+
+{
+  function relRun(id: string, description: string, fromKind: string | null, relation: string, toKind: string | null, capability: string) {
+    const result = validateRelationUse(fromKind as never, relation, toKind as never, capability)
+    add(id, 'identity-relations', description, { fromKind, relation, toKind, capability }, result)
+  }
+
+  relRun('rel-recovers-phone-to-account', 'recovers：identity_anchor(phone) → account, recovery 放行', 'identity_anchor', 'recovers', 'account', 'recovery')
+  relRun('rel-recovers-rejects-payment-capability', 'recovers 要求 recovery；payment 被拒', 'identity_anchor', 'recovers', 'account', 'payment')
+  relRun('rel-authenticates-device-to-account', 'authenticates：device → account, authentication 放行', 'device', 'authenticates', 'account', 'authentication')
+  relRun('rel-authenticates-rejects-recovery-capability', 'authenticates 要求 authentication；recovery 被拒', 'device', 'authenticates', 'account', 'recovery')
+  relRun('rel-controls-account-to-service', 'controls：account → service, access 放行', 'account', 'controls', 'service', 'access')
+  relRun('rel-verifies-still-not-runtime', 'verifies 仍不进入 runtime registry（v0.3.0 保持）', 'account', 'verifies', 'account', 'payment')
+}
+
+// ---------------------------------------------------------------------------
 // write fixtures
 // ---------------------------------------------------------------------------
 
@@ -1677,6 +2136,13 @@ const GENERATED_CATEGORIES = [
   'parser',
   'timeline',
   'backup',
+  'failure-domain',
+  'recovery-cycle',
+  'action-dag',
+  'make-before-break',
+  'temporal-change',
+  'provider-policy',
+  'identity-relations',
 ]
 
 if (verifyMode) {

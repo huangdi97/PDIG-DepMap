@@ -1,0 +1,62 @@
+{
+  "id": "rc-mixed-capability-no-cycle",
+  "category": "recovery-cycle",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "混合 capability 不产生 confirmed cycle → no_cycle",
+  "input": {
+    "capability": "recovery",
+    "dependencies": [
+      {
+        "id": "d1",
+        "from": "account-a",
+        "relation": "recovers",
+        "to": "phone-a",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      },
+      {
+        "id": "d2",
+        "from": "phone-a",
+        "relation": "recovers",
+        "to": "account-a",
+        "capability": "access",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      }
+    ],
+    "hintedEdges": []
+  },
+  "expected": {
+    "status": "no_cycle",
+    "confirmedCycles": [],
+    "potentialCycles": [],
+    "capability": "recovery"
+  }
+}

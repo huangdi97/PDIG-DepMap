@@ -1,0 +1,58 @@
+{
+  "id": "dag-parallel-actions",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "并行动作 + 汇合点：stable topo order 确定",
+  "input": {
+    "actions": [
+      {
+        "id": "b",
+        "title": "b",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      },
+      {
+        "id": "a",
+        "title": "a",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      },
+      {
+        "id": "c",
+        "title": "c",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "a",
+          "b"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "violation": "none",
+    "offendingActionId": null,
+    "topologicalOrder": [
+      "a",
+      "b",
+      "c"
+    ]
+  }
+}

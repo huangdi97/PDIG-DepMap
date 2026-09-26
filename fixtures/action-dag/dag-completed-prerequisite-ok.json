@@ -1,0 +1,45 @@
+{
+  "id": "dag-completed-prerequisite-ok",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "前置已完成仍合法（校验不关心 done 状态）",
+  "input": {
+    "actions": [
+      {
+        "id": "b",
+        "title": "b",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "a"
+        ]
+      },
+      {
+        "id": "a",
+        "title": "a",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      }
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "violation": "none",
+    "offendingActionId": null,
+    "topologicalOrder": [
+      "a",
+      "b"
+    ]
+  }
+}

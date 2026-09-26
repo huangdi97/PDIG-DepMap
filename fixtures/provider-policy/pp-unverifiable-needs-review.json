@@ -1,0 +1,20 @@
+{
+  "id": "pp-unverifiable-needs-review",
+  "category": "provider-policy",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "无法核实的 policy → needs_review，不自动影响建议",
+  "input": {
+    "policy": null,
+    "userConfigured": true
+  },
+  "expected": {
+    "provider": "unknown",
+    "supports": false,
+    "configured": true,
+    "explanation": "该规则的来源无法核实，已标记为需要重新确认。",
+    "influences": [],
+    "state": "needs_review"
+  }
+}
