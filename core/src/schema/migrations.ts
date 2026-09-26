@@ -9,6 +9,12 @@ import type { SqliteDriver } from '../db/driver.ts'
 
 export const SCHEMA_VERSION = 3
 
+/** Schema v4（Canonical vNext）：应用层显式升级到 v4 的目标版本；冻结的 legacy fixture 默认仍停在 v3。 */
+export const LATEST_SCHEMA_VERSION = 4
+
+/** 冻结的 payload schema 版本：.depmap 导出/恢复始终使用 payload v3（DEPMAP_CONTAINER_V1 不变）。 */
+export const PAYLOAD_SCHEMA_VERSION = 3
+
 /** deterministic legacy WeChat SourceInstance（重复 migration 不得创建第二个）。 */
 export const LEGACY_WECHAT_SOURCE_INSTANCE_ID = 'legacy-wechat-statement'
 export const LEGACY_WECHAT_ADAPTER_ID = 'wechat_statement'
@@ -332,10 +338,163 @@ export const SCHEMA_V3_STATEMENTS: string[] = [
   `CREATE INDEX IF NOT EXISTS idx_reality_drifts_status ON reality_drifts (status)`,
 ]
 
+// ---------------------------------------------------------------------------
+// Schema v4 — Canonical vNext（v0.3.0）：Identity & Recovery / FailureDomain /
+// ProviderPolicy / ChangePrimitive metadata / temporal verification fields。
+// SQLite 不能 ALTER CHECK → 需要 widening 的表用「建临时表 → 拷贝 → 换名」重建；
+// 每版本仍在独立事务内执行，失败回滚。.depmap payload schemaVersion 保持 3。
+// ---------------------------------------------------------------------------
+
+const CAPABILITY_CHECK_V4 =
+  "capability IN ('payment','access','authentication','recovery','communication','identity')"
+const RELATION_CHECK_V4 =
+  "relation IN ('funding_source','merchant_agreement','verifies','recovers','bound_to','authenticates','controls')"
+
+export const SCHEMA_V4_STATEMENTS: string[] = [
+  // 1. dependencies：widening capability + relation CHECK（重建，保留数据与 UNIQUE）
+  `CREATE TABLE dependencies_v4 (
+    id TEXT PRIMARY KEY,
+    from_node TEXT NOT NULL,
+    relation TEXT NOT NULL CHECK (${RELATION_CHECK_V4}),
+    to_node TEXT NOT NULL,
+    capability TEXT NOT NULL CHECK (${CAPABILITY_CHECK_V4}),
+    criticality TEXT NOT NULL DEFAULT 'unknown' CHECK (criticality IN ('required','unknown')),
+    group_id TEXT,
+    state TEXT NOT NULL DEFAULT 'active' CHECK (state IN ('active','retired')),
+    origin TEXT NOT NULL CHECK (origin IN ('manual','proposal')),
+    confirmed_at TEXT NOT NULL,
+    last_verified_at TEXT NOT NULL,
+    retired_at TEXT,
+    evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    verification_basis_type TEXT NOT NULL DEFAULT 'user_confirmed',
+    verification_basis_json TEXT,
+    UNIQUE (from_node, relation, to_node, capability)
+  )`,
+  `INSERT INTO dependencies_v4 (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at, verification_basis_type, verification_basis_json)
+   SELECT id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at, verification_basis_type, verification_basis_json FROM dependencies`,
+  `DROP TABLE dependencies`,
+  `ALTER TABLE dependencies_v4 RENAME TO dependencies`,
+  `CREATE INDEX IF NOT EXISTS idx_dep_to ON dependencies(to_node, capability, state)`,
+  `CREATE INDEX IF NOT EXISTS idx_dep_from ON dependencies(from_node, capability, state)`,
+
+  // 2. dependency_groups：widening capability CHECK
+  `CREATE TABLE dependency_groups_v4 (
+    id TEXT PRIMARY KEY,
+    group_key TEXT NOT NULL UNIQUE,
+    target_node_id TEXT NOT NULL,
+    capability TEXT NOT NULL CHECK (${CAPABILITY_CHECK_V4}),
+    mode TEXT NOT NULL CHECK (mode IN ('ANY','ALL')),
+    member_edge_ids_json TEXT NOT NULL,
+    state TEXT NOT NULL DEFAULT 'active' CHECK (state IN ('active','retired')),
+    confirmed_at TEXT NOT NULL,
+    last_verified_at TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    verification_basis_type TEXT NOT NULL DEFAULT 'user_confirmed',
+    verification_basis_json TEXT
+  )`,
+  `INSERT INTO dependency_groups_v4 (id, group_key, target_node_id, capability, mode, member_edge_ids_json, state, confirmed_at, last_verified_at, created_at, updated_at, verification_basis_type, verification_basis_json)
+   SELECT id, group_key, target_node_id, capability, mode, member_edge_ids_json, state, confirmed_at, last_verified_at, created_at, updated_at, verification_basis_type, verification_basis_json FROM dependency_groups`,
+  `DROP TABLE dependency_groups`,
+  `ALTER TABLE dependency_groups_v4 RENAME TO dependency_groups`,
+
+  // 3. dependency_proposals：widening capability + relation CHECK（v2 重建遗留的 evidence_id 不再回来）
+  `CREATE TABLE dependency_proposals_v4 (
+    id TEXT PRIMARY KEY,
+    key TEXT NOT NULL UNIQUE,
+    from_node TEXT NOT NULL,
+    relation TEXT NOT NULL CHECK (${RELATION_CHECK_V4}),
+    to_node TEXT NOT NULL,
+    capability TEXT NOT NULL CHECK (${CAPABILITY_CHECK_V4}),
+    proposal_type TEXT NOT NULL,
+    source TEXT NOT NULL,
+    parser_id TEXT NOT NULL,
+    parser_version INTEGER NOT NULL,
+    confidence_score REAL NOT NULL,
+    path_json TEXT NOT NULL DEFAULT '[]',
+    decision TEXT NOT NULL DEFAULT 'pending' CHECK (decision IN ('pending','accepted','rejected')),
+    decided_at TEXT,
+    criticality_decision TEXT CHECK (criticality_decision IN ('required','unknown')),
+    observation_count INTEGER NOT NULL DEFAULT 0,
+    rejected_at TEXT,
+    rejected_at_stream_counts_json TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
+  `INSERT INTO dependency_proposals_v4 (id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, decision, decided_at, criticality_decision, observation_count, rejected_at, rejected_at_stream_counts_json, created_at, updated_at)
+   SELECT id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, decision, decided_at, criticality_decision, observation_count, rejected_at, rejected_at_stream_counts_json, created_at, updated_at FROM dependency_proposals`,
+  `DROP TABLE dependency_proposals`,
+  `ALTER TABLE dependency_proposals_v4 RENAME TO dependency_proposals`,
+
+  // 4. reality_drifts：widening capability CHECK
+  `CREATE TABLE reality_drifts_v4 (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL CHECK (kind IN ('possible_replacement','possible_additional_path','relation_reappeared')),
+    target_node_id TEXT NOT NULL,
+    capability TEXT NOT NULL CHECK (${CAPABILITY_CHECK_V4}),
+    candidate_from TEXT,
+    candidate_relation TEXT NOT NULL DEFAULT 'funding_source',
+    related_dependency_ids_json TEXT NOT NULL DEFAULT '[]',
+    evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+    proposal_keys_json TEXT NOT NULL DEFAULT '[]',
+    observation_count INTEGER NOT NULL DEFAULT 0,
+    detected_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('open','confirmed_change','dismissed','superseded'))
+  )`,
+  `INSERT INTO reality_drifts_v4 (id, kind, target_node_id, capability, candidate_from, candidate_relation, related_dependency_ids_json, evidence_refs_json, proposal_keys_json, observation_count, detected_at, updated_at, status)
+   SELECT id, kind, target_node_id, capability, candidate_from, candidate_relation, related_dependency_ids_json, evidence_refs_json, proposal_keys_json, observation_count, detected_at, updated_at, status FROM reality_drifts`,
+  `DROP TABLE reality_drifts`,
+  `ALTER TABLE reality_drifts_v4 RENAME TO reality_drifts`,
+  `CREATE INDEX IF NOT EXISTS idx_reality_drifts_status ON reality_drifts (status)`,
+
+  // 5. change_plans：Identity & Recovery / temporal / policy revision metadata
+  `ALTER TABLE change_plans ADD COLUMN baseline_policy_revision INTEGER`,
+  `ALTER TABLE change_plans ADD COLUMN last_analyzed_policy_revision INTEGER`,
+  `ALTER TABLE change_plans ADD COLUMN change_primitive TEXT DEFAULT 'REPLACE'`,
+  `ALTER TABLE change_plans ADD COLUMN temporal_effective_at TEXT`,
+  `ALTER TABLE change_plans ADD COLUMN temporal_verification_not_before TEXT`,
+  `ALTER TABLE change_plans ADD COLUMN temporal_verification_due_at TEXT`,
+  `ALTER TABLE change_plans ADD COLUMN temporal_retire_old_path_after TEXT`,
+
+  // 6. FailureDomain 持久化（v0.3.0）
+  `CREATE TABLE IF NOT EXISTS failure_domains (
+    id TEXT PRIMARY KEY,
+    kind TEXT NOT NULL CHECK (kind IN ('DEVICE','PHONE_NUMBER','ACCOUNT','PROVIDER')),
+    subject_ref TEXT NOT NULL,
+    scope TEXT NOT NULL DEFAULT 'ALL_CAPABILITIES',
+    evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+    status TEXT NOT NULL DEFAULT 'needs_review' CHECK (status IN ('confirmed','needs_review')),
+    confirmed_at TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )`,
+
+  // 7. ProviderPolicy 知识层（v0.3.0）
+  `CREATE TABLE IF NOT EXISTS provider_policies (
+    provider TEXT NOT NULL,
+    policy_type TEXT NOT NULL,
+    source_url TEXT NOT NULL,
+    retrieved_at TEXT NOT NULL,
+    last_verified_at TEXT,
+    effective_from TEXT,
+    effective_to TEXT,
+    jurisdiction TEXT,
+    account_type_scope TEXT,
+    parameters_json TEXT NOT NULL DEFAULT '{}',
+    policy_revision INTEGER NOT NULL,
+    state TEXT NOT NULL DEFAULT 'needs_review' CHECK (state IN ('effective','superseded','needs_review')),
+    PRIMARY KEY (provider, policy_type, policy_revision)
+  )`,
+]
+
 export const MIGRATIONS: Migration[] = [
   { version: 1, statements: SCHEMA_V1_STATEMENTS },
   { version: 2, statements: SCHEMA_V2_STATEMENTS },
   { version: 3, statements: SCHEMA_V3_STATEMENTS },
+  { version: 4, statements: SCHEMA_V4_STATEMENTS },
 ]
 
 function ensureMetaTable(driver: SqliteDriver): void {
@@ -370,17 +529,31 @@ function setSchemaVersion(driver: SqliteDriver, version: number, nowIso: string)
 /**
  * 幂等迁移：当前版本已是最新则 no-op；
  * 每个版本在独立事务内执行，失败回滚，不留下半迁移 DB。
+ *
+ * targetVersion 默认 = SCHEMA_VERSION（3，冻结的 legacy 行为，fixture 逐字节复现）。
+ * 应用层升级到 v4 时显式传入 LATEST_SCHEMA_VERSION。
  */
-export function migrate(driver: SqliteDriver, nowIso: string = new Date().toISOString()): number {
+export function migrate(
+  driver: SqliteDriver,
+  nowIso: string = new Date().toISOString(),
+  targetVersion: number = SCHEMA_VERSION,
+): number {
+  if (!Number.isSafeInteger(targetVersion) || targetVersion < 1) {
+    throw new Error(`invalid migration target version: ${String(targetVersion)}`)
+  }
+  if (targetVersion > LATEST_SCHEMA_VERSION) {
+    throw new Error(
+      `migration target (${targetVersion}) is newer than supported (${LATEST_SCHEMA_VERSION})`,
+    )
+  }
   ensureMetaTable(driver)
   let current = getSchemaVersion(driver)
-  if (current > SCHEMA_VERSION) {
-    throw new Error(
-      `database schema_version (${current}) is newer than supported (${SCHEMA_VERSION})`,
-    )
+  if (current > targetVersion) {
+    throw new Error(`database schema_version (${current}) is newer than target (${targetVersion})`)
   }
   for (const migration of MIGRATIONS) {
     if (migration.version <= current) continue
+    if (migration.version > targetVersion) break
     driver.transaction(() => {
       for (const sql of migration.statements) {
         driver.exec(sql)

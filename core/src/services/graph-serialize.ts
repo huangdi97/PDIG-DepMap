@@ -1,6 +1,7 @@
 import type { SqliteDriver } from '../db/driver.ts'
 import {
   SCHEMA_VERSION,
+  PAYLOAD_SCHEMA_VERSION,
   LEGACY_WECHAT_SOURCE_INSTANCE_ID,
   LEGACY_WECHAT_ADAPTER_ID,
   LEGACY_WECHAT_ADAPTER_VERSION,
@@ -222,7 +223,7 @@ export function exportGraph(driver: SqliteDriver): GraphExportResult {
   const payload: Record<string, unknown> = {
     payloadKind: GRAPH_PAYLOAD_KIND,
     payloadVersion: GRAPH_PAYLOAD_VERSION,
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: PAYLOAD_SCHEMA_VERSION,
   }
   const counts: Record<string, number> = {}
   for (const t of PAYLOAD_TABLES) {
@@ -405,7 +406,7 @@ export function migratePayloadV2toV3(payloadJson: string): string {
   const v3: Record<string, unknown> = {
     ...v2,
     payloadVersion: GRAPH_PAYLOAD_VERSION,
-    schemaVersion: SCHEMA_VERSION,
+    schemaVersion: PAYLOAD_SCHEMA_VERSION,
   }
   const meta = Array.isArray(v2['meta']) ? (v2['meta'] as Array<Record<string, unknown>>) : []
   if (!meta.some((row) => row['key'] === 'graph_revision')) {

@@ -123,10 +123,10 @@ describe('Schema migration v2 → v3 (MVP03 MIG3)', () => {
     }
   })
 
-  it('MIG3-006: MIGRATIONS 声明含 version 3；未来版本拒绝', () => {
-    expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2, 3])
+  it('MIG3-006: MIGRATIONS 声明含 version 3 与 4；未来版本拒绝', () => {
+    expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2, 3, 4])
     migrate(driver)
     driver.prepare(`UPDATE meta SET value = '99' WHERE key = 'schema_version'`).run()
-    expect(() => migrate(driver)).toThrow(/newer than supported/)
+    expect(() => migrate(driver)).toThrow(/newer than target/)
   })
 })
