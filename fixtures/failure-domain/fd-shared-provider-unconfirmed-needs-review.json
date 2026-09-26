@@ -1,0 +1,81 @@
+{
+  "id": "fd-shared-provider-unconfirmed-needs-review",
+  "category": "failure-domain",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "两条路径同属 ChinaMobile，但 provider 共享未确认 → sharedFailureDomains 空、unresolvedAssumptions 非空",
+  "input": {
+    "targetNodeId": "wechat",
+    "capability": "recovery",
+    "dependencies": [
+      {
+        "id": "d1",
+        "from": "phone-a",
+        "relation": "recovers",
+        "to": "wechat",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      },
+      {
+        "id": "d2",
+        "from": "phone-b",
+        "relation": "recovers",
+        "to": "wechat",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      }
+    ],
+    "confirmedDomains": [],
+    "suspectedDomains": [
+      {
+        "key": "PROVIDER|ChinaMobile",
+        "id": "fd-provider-1"
+      }
+    ],
+    "edgeToDomainKeys": {
+      "d1": [
+        "PROVIDER|ChinaMobile"
+      ],
+      "d2": [
+        "PROVIDER|ChinaMobile"
+      ]
+    }
+  },
+  "expected": {
+    "targetNodeId": "wechat",
+    "capability": "recovery",
+    "pathCount": 2,
+    "independentPathCount": 2,
+    "sharedFailureDomains": [],
+    "unresolvedAssumptions": [
+      "fd-provider-1"
+    ]
+  }
+}

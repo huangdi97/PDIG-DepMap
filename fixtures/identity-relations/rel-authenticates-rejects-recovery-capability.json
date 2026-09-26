@@ -1,0 +1,18 @@
+{
+  "id": "rel-authenticates-rejects-recovery-capability",
+  "category": "identity-relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "authenticates 要求 authentication；recovery 被拒",
+  "input": {
+    "fromKind": "device",
+    "relation": "authenticates",
+    "toKind": "account",
+    "capability": "recovery"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'authenticates' requires capability 'authentication', got 'recovery'"
+  }
+}

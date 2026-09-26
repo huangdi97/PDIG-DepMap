@@ -1,0 +1,571 @@
+{
+  "$comment": "PDIG Logical Schema v4 (Canonical vNext, v0.3.0). ADDITIVE superset of v3 (see logical-schema.json, which remains the frozen v3 record that legacy conformance fixtures read verbatim). Schema v4 adds Identity & Recovery persistence without breaking payment v3 truth: no v3 table/column is dropped or semantically changed; migration v1->v2->v3->v4 is chain-preserving. DEPMAP_CONTAINER_V1 and .depmap payload version stay at their v1/v3 values; this file describes the internal logical DB schema, not the payload format.",
+  "logicalSchemaVersion": 4,
+  "basedOn": "logical-schema.json (v3)",
+  "migrations": [1, 2, 3, 4],
+  "migrationChains": {
+    "v1ToV4": [1, 2, 3, 4],
+    "v2ToV4": [2, 3, 4],
+    "v3ToV4": [3, 4],
+    "v4Reopen": "idempotent no-op",
+    "futureSchemaReject": "target > 4 must fail closed",
+    "corruptRollback": "migration failure rolls back to previous version in the same transaction",
+    "transactionRollback": "reality mutation + revision increment share one transaction"
+  },
+  "metaKeys": {
+    "schema_version": "integer as TEXT",
+    "schema_version_updated_at": "timestamp",
+    "graph_revision": "integer as TEXT, initial 0"
+  },
+
+  "tables": [
+    {
+      "name": "meta",
+      "primaryKey": ["key"],
+      "columns": [
+        { "name": "key", "type": "TEXT", "nullable": false },
+        { "name": "value", "type": "TEXT", "nullable": false }
+      ]
+    },
+    {
+      "name": "nodes",
+      "primaryKey": ["id"],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "kind", "type": "TEXT", "nullable": false },
+        { "name": "template_id", "type": "TEXT", "nullable": true },
+        { "name": "name", "type": "TEXT", "nullable": false },
+        { "name": "issuer", "type": "TEXT", "nullable": true },
+        { "name": "last4", "type": "TEXT", "nullable": true },
+        { "name": "owner", "type": "TEXT", "nullable": false, "default": "'self'" },
+        { "name": "archived", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "fields_json", "type": "TEXT", "nullable": false, "default": "'{}'" },
+        { "name": "vault_ref", "type": "TEXT", "nullable": true },
+        { "name": "wallet_ref", "type": "TEXT", "nullable": true },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false }
+      ],
+      "indexes": [{ "name": "idx_nodes_kind", "columns": ["kind"] }],
+      "v4Subtype": "identity_anchor subtype (phone_number/email) and account subtype (platform_account/email_account/password_manager_account), device subtype (phone/computer/security_key) live in fields_json.subtype; no new columns required."
+    },
+    {
+      "name": "dependencies",
+      "primaryKey": ["id"],
+      "unique": [["from_node", "relation", "to_node", "capability"]],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "from_node", "type": "TEXT", "nullable": false },
+        {
+          "name": "relation",
+          "type": "TEXT",
+          "nullable": false,
+          "check": [
+            "funding_source",
+            "merchant_agreement",
+            "verifies",
+            "recovers",
+            "bound_to",
+            "authenticates",
+            "controls"
+          ]
+        },
+        { "name": "to_node", "type": "TEXT", "nullable": false },
+        {
+          "name": "capability",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["payment", "access", "authentication", "recovery", "communication", "identity"]
+        },
+        {
+          "name": "criticality",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'unknown'",
+          "check": ["required", "unknown"]
+        },
+        { "name": "group_id", "type": "TEXT", "nullable": true },
+        {
+          "name": "state",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'active'",
+          "check": ["active", "retired"]
+        },
+        { "name": "origin", "type": "TEXT", "nullable": false, "check": ["manual", "proposal"] },
+        { "name": "confirmed_at", "type": "TEXT", "nullable": false },
+        { "name": "last_verified_at", "type": "TEXT", "nullable": false },
+        { "name": "retired_at", "type": "TEXT", "nullable": true },
+        { "name": "evidence_refs_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false },
+        {
+          "name": "verification_basis_type",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'user_confirmed'",
+          "addedInVersion": 2
+        },
+        { "name": "verification_basis_json", "type": "TEXT", "nullable": true, "addedInVersion": 2 }
+      ],
+      "indexes": [
+        { "name": "idx_dep_to", "columns": ["to_node", "capability", "state"] },
+        { "name": "idx_dep_from", "columns": ["from_node", "capability", "state"] }
+      ],
+      "logicalKeySerialization": "from_node|relation|to_node|capability"
+    },
+    {
+      "name": "dependency_groups",
+      "primaryKey": ["id"],
+      "unique": [["group_key"]],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "group_key", "type": "TEXT", "nullable": false },
+        { "name": "target_node_id", "type": "TEXT", "nullable": false },
+        {
+          "name": "capability",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["payment", "access", "authentication", "recovery", "communication", "identity"]
+        },
+        { "name": "mode", "type": "TEXT", "nullable": false, "check": ["ANY", "ALL"] },
+        { "name": "member_edge_ids_json", "type": "TEXT", "nullable": false },
+        {
+          "name": "state",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'active'",
+          "check": ["active", "retired"]
+        },
+        { "name": "confirmed_at", "type": "TEXT", "nullable": false },
+        { "name": "last_verified_at", "type": "TEXT", "nullable": false },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false },
+        {
+          "name": "verification_basis_type",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'user_confirmed'",
+          "addedInVersion": 2
+        },
+        { "name": "verification_basis_json", "type": "TEXT", "nullable": true, "addedInVersion": 2 }
+      ]
+    },
+    {
+      "name": "dependency_proposals",
+      "primaryKey": ["id"],
+      "unique": [["key"]],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "key", "type": "TEXT", "nullable": false },
+        { "name": "from_node", "type": "TEXT", "nullable": false },
+        {
+          "name": "relation",
+          "type": "TEXT",
+          "nullable": false,
+          "check": [
+            "funding_source",
+            "merchant_agreement",
+            "verifies",
+            "recovers",
+            "bound_to",
+            "authenticates",
+            "controls"
+          ]
+        },
+        { "name": "to_node", "type": "TEXT", "nullable": false },
+        {
+          "name": "capability",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["payment", "access", "authentication", "recovery", "communication", "identity"]
+        },
+        {
+          "name": "proposal_type",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["recurring_payment_route", "recovery_path", "authentication_path"]
+        },
+        { "name": "source", "type": "TEXT", "nullable": false },
+        { "name": "parser_id", "type": "TEXT", "nullable": false },
+        { "name": "parser_version", "type": "INTEGER", "nullable": false },
+        { "name": "confidence_score", "type": "REAL", "nullable": false },
+        { "name": "path_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        {
+          "name": "decision",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'pending'",
+          "check": ["pending", "accepted", "rejected"]
+        },
+        { "name": "decided_at", "type": "TEXT", "nullable": true },
+        {
+          "name": "criticality_decision",
+          "type": "TEXT",
+          "nullable": true,
+          "check": ["required", "unknown"]
+        },
+        { "name": "observation_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "rejected_at", "type": "TEXT", "nullable": true },
+        {
+          "name": "rejected_at_stream_counts_json",
+          "type": "TEXT",
+          "nullable": true,
+          "addedInVersion": 2
+        },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false }
+      ],
+      "removedInVersion2": ["evidence_id"]
+    },
+    {
+      "name": "dependency_group_proposals",
+      "primaryKey": ["id"],
+      "unique": [["key"]],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "key", "type": "TEXT", "nullable": false },
+        { "name": "target_node_id", "type": "TEXT", "nullable": false },
+        { "name": "capability", "type": "TEXT", "nullable": false },
+        { "name": "mode", "type": "TEXT", "nullable": false, "check": ["ANY", "ALL"] },
+        { "name": "member_dependency_keys_json", "type": "TEXT", "nullable": false },
+        {
+          "name": "decision",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'pending'",
+          "check": ["pending", "accepted", "rejected"]
+        },
+        { "name": "decided_at", "type": "TEXT", "nullable": true },
+        { "name": "rejected_at", "type": "TEXT", "nullable": true },
+        { "name": "rejected_at_observation_count", "type": "INTEGER", "nullable": true },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false }
+      ]
+    },
+    {
+      "name": "evidence",
+      "primaryKey": ["id"],
+      "unique": [["proposal_key", "source_instance_id"]],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "proposal_key", "type": "TEXT", "nullable": false },
+        { "name": "source_instance_id", "type": "TEXT", "nullable": false, "addedInVersion": 2 },
+        { "name": "adapter_id", "type": "TEXT", "nullable": false, "addedInVersion": 2 },
+        { "name": "adapter_version", "type": "INTEGER", "nullable": false, "addedInVersion": 2 },
+        {
+          "name": "evidence_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'transaction_stream'",
+          "addedInVersion": 2
+        },
+        { "name": "source_type", "type": "TEXT", "nullable": false },
+        { "name": "parser_id", "type": "TEXT", "nullable": false },
+        { "name": "parser_version", "type": "INTEGER", "nullable": false },
+        { "name": "last_import_session_id", "type": "TEXT", "nullable": false },
+        { "name": "first_observed_at", "type": "TEXT", "nullable": false },
+        { "name": "last_observed_at", "type": "TEXT", "nullable": false },
+        { "name": "observation_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false }
+      ]
+    },
+    {
+      "name": "proposal_evidence_refs",
+      "primaryKey": ["proposal_key", "evidence_id"],
+      "addedInVersion": 2,
+      "columns": [
+        { "name": "proposal_key", "type": "TEXT", "nullable": false },
+        { "name": "evidence_id", "type": "TEXT", "nullable": false },
+        { "name": "position", "type": "INTEGER", "nullable": false, "default": "0" }
+      ]
+    },
+    {
+      "name": "observation_fingerprints",
+      "primaryKey": [],
+      "unique": [["source_instance_id", "fingerprint_version", "fingerprint"]],
+      "columns": [
+        { "name": "fingerprint", "type": "TEXT", "nullable": false },
+        { "name": "source_instance_id", "type": "TEXT", "nullable": false, "addedInVersion": 2 },
+        { "name": "source", "type": "TEXT", "nullable": false, "default": "''" },
+        { "name": "fingerprint_version", "type": "INTEGER", "nullable": false, "default": "1" },
+        { "name": "import_session_id", "type": "TEXT", "nullable": false },
+        { "name": "first_seen_at", "type": "TEXT", "nullable": false }
+      ]
+    },
+    {
+      "name": "import_sessions",
+      "primaryKey": ["id"],
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "source_type", "type": "TEXT", "nullable": false },
+        { "name": "parser_id", "type": "TEXT", "nullable": false },
+        { "name": "parser_version", "type": "INTEGER", "nullable": false },
+        { "name": "started_at", "type": "TEXT", "nullable": false },
+        { "name": "completed_at", "type": "TEXT", "nullable": true },
+        { "name": "raw_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "new_unique_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "duplicate_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "proposal_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "error_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "source_instance_id", "type": "TEXT", "nullable": true, "addedInVersion": 2 },
+        { "name": "adapter_id", "type": "TEXT", "nullable": true, "addedInVersion": 2 },
+        { "name": "adapter_version", "type": "INTEGER", "nullable": true, "addedInVersion": 2 }
+      ]
+    },
+    {
+      "name": "source_instances",
+      "primaryKey": ["id"],
+      "addedInVersion": 2,
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "adapter_id", "type": "TEXT", "nullable": false },
+        { "name": "adapter_version", "type": "INTEGER", "nullable": false },
+        {
+          "name": "source_kind",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["statement_file", "platform_export", "open_banking", "manual", "discovery"]
+        },
+        { "name": "provider_id", "type": "TEXT", "nullable": true },
+        { "name": "account_node_id", "type": "TEXT", "nullable": true },
+        { "name": "label", "type": "TEXT", "nullable": false },
+        { "name": "country", "type": "TEXT", "nullable": true },
+        { "name": "jurisdiction", "type": "TEXT", "nullable": true },
+        { "name": "currencies_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        {
+          "name": "state",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'active'",
+          "check": ["active", "retired"]
+        },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false },
+        { "name": "last_ingested_at", "type": "TEXT", "nullable": true }
+      ]
+    },
+    {
+      "name": "change_plans",
+      "primaryKey": ["id"],
+      "addedInVersion": 3,
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "template_id", "type": "TEXT", "nullable": true },
+        { "name": "scenario", "type": "TEXT", "nullable": false },
+        { "name": "title", "type": "TEXT", "nullable": false },
+        {
+          "name": "workflow_state",
+          "type": "TEXT",
+          "nullable": false,
+          "check": [
+            "draft",
+            "analyzed",
+            "review_required",
+            "ready",
+            "in_progress",
+            "verifying",
+            "completed",
+            "cancelled"
+          ]
+        },
+        { "name": "baseline_graph_revision", "type": "INTEGER", "nullable": false },
+        { "name": "last_analyzed_graph_revision", "type": "INTEGER", "nullable": false },
+        { "name": "target_node_id", "type": "TEXT", "nullable": true },
+        { "name": "effective_date", "type": "TEXT", "nullable": true },
+        { "name": "params_json", "type": "TEXT", "nullable": false, "default": "'{}'" },
+        { "name": "impact_snapshot_json", "type": "TEXT", "nullable": true },
+        { "name": "action_items_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false },
+        {
+          "name": "baseline_policy_revision",
+          "type": "INTEGER",
+          "nullable": true,
+          "addedInVersion": 4
+        },
+        {
+          "name": "last_analyzed_policy_revision",
+          "type": "INTEGER",
+          "nullable": true,
+          "addedInVersion": 4
+        },
+        {
+          "name": "change_primitive",
+          "type": "TEXT",
+          "nullable": true,
+          "default": "'REPLACE'",
+          "addedInVersion": 4
+        },
+        { "name": "temporal_effective_at", "type": "TEXT", "nullable": true, "addedInVersion": 4 },
+        {
+          "name": "temporal_verification_not_before",
+          "type": "TEXT",
+          "nullable": true,
+          "addedInVersion": 4
+        },
+        {
+          "name": "temporal_verification_due_at",
+          "type": "TEXT",
+          "nullable": true,
+          "addedInVersion": 4
+        },
+        {
+          "name": "temporal_retire_old_path_after",
+          "type": "TEXT",
+          "nullable": true,
+          "addedInVersion": 4
+        }
+      ],
+      "indexes": [{ "name": "idx_change_plans_state", "columns": ["workflow_state"] }],
+      "v4Note": "Action DAG prerequisites are expressed inside action_items_json as prerequisiteActionIds[] per action. Make-before-break is enforced at application layer, not by a column."
+    },
+    {
+      "name": "reality_drifts",
+      "primaryKey": ["id"],
+      "addedInVersion": 3,
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        {
+          "name": "kind",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["possible_replacement", "possible_additional_path", "relation_reappeared"]
+        },
+        { "name": "target_node_id", "type": "TEXT", "nullable": false },
+        {
+          "name": "capability",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["payment", "access", "authentication", "recovery", "communication", "identity"]
+        },
+        { "name": "candidate_from", "type": "TEXT", "nullable": true },
+        {
+          "name": "candidate_relation",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'funding_source'"
+        },
+        {
+          "name": "related_dependency_ids_json",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'[]'"
+        },
+        { "name": "evidence_refs_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        { "name": "proposal_keys_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        { "name": "observation_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "detected_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["open", "confirmed_change", "dismissed", "superseded"]
+        }
+      ],
+      "indexes": [{ "name": "idx_reality_drifts_status", "columns": ["status"] }]
+    },
+    {
+      "name": "discovery_candidates",
+      "primaryKey": ["id"],
+      "unique": [["normalized_key"]],
+      "addedInVersion": 3,
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        { "name": "candidate_kind", "type": "TEXT", "nullable": false },
+        { "name": "display_label", "type": "TEXT", "nullable": false },
+        { "name": "normalized_key", "type": "TEXT", "nullable": false },
+        { "name": "source_instance_id", "type": "TEXT", "nullable": false },
+        { "name": "evidence_refs_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        { "name": "observation_count", "type": "INTEGER", "nullable": false, "default": "0" },
+        { "name": "first_seen_at", "type": "TEXT", "nullable": false },
+        { "name": "last_seen_at", "type": "TEXT", "nullable": false },
+        { "name": "dismissed_at_observation_count", "type": "INTEGER", "nullable": true },
+        { "name": "accepted_node_id", "type": "TEXT", "nullable": true },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["pending", "accepted", "dismissed", "superseded"]
+        },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false }
+      ],
+      "indexes": [
+        {
+          "name": "idx_discovery_candidates_normalized_key",
+          "columns": ["normalized_key"],
+          "unique": true
+        }
+      ]
+    },
+    {
+      "name": "failure_domains",
+      "primaryKey": ["id"],
+      "addedInVersion": 4,
+      "columns": [
+        { "name": "id", "type": "TEXT", "nullable": false },
+        {
+          "name": "kind",
+          "type": "TEXT",
+          "nullable": false,
+          "check": ["DEVICE", "PHONE_NUMBER", "ACCOUNT", "PROVIDER"]
+        },
+        { "name": "subject_ref", "type": "TEXT", "nullable": false },
+        { "name": "scope", "type": "TEXT", "nullable": false, "default": "'ALL_CAPABILITIES'" },
+        { "name": "evidence_refs_json", "type": "TEXT", "nullable": false, "default": "'[]'" },
+        {
+          "name": "status",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'needs_review'",
+          "check": ["confirmed", "needs_review"]
+        },
+        { "name": "confirmed_at", "type": "TEXT", "nullable": true },
+        { "name": "created_at", "type": "TEXT", "nullable": false },
+        { "name": "updated_at", "type": "TEXT", "nullable": false }
+      ]
+    },
+    {
+      "name": "provider_policies",
+      "primaryKey": ["provider", "policy_type", "policy_revision"],
+      "addedInVersion": 4,
+      "columns": [
+        { "name": "provider", "type": "TEXT", "nullable": false },
+        { "name": "policy_type", "type": "TEXT", "nullable": false },
+        { "name": "source_url", "type": "TEXT", "nullable": false },
+        { "name": "retrieved_at", "type": "TEXT", "nullable": false },
+        { "name": "last_verified_at", "type": "TEXT", "nullable": true },
+        { "name": "effective_from", "type": "TEXT", "nullable": true },
+        { "name": "effective_to", "type": "TEXT", "nullable": true },
+        { "name": "jurisdiction", "type": "TEXT", "nullable": true },
+        { "name": "account_type_scope", "type": "TEXT", "nullable": true },
+        { "name": "parameters_json", "type": "TEXT", "nullable": false, "default": "'{}'" },
+        { "name": "policy_revision", "type": "INTEGER", "nullable": false },
+        {
+          "name": "state",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "'needs_review'",
+          "check": ["effective", "superseded", "needs_review"]
+        }
+      ]
+    }
+  ],
+
+  "payloadTables": [
+    "meta",
+    "nodes",
+    "dependencies",
+    "dependency_groups",
+    "dependency_proposals",
+    "dependency_group_proposals",
+    "proposal_evidence_refs",
+    "evidence",
+    "observation_fingerprints",
+    "import_sessions",
+    "source_instances"
+  ],
+  "payloadNote": "change_plans / reality_drifts / discovery_candidates / failure_domains / provider_policies are NOT part of the logical graph payload export (payloadKind=depmap-logical-graph). graph_revision travels inside meta. failure_domains and provider_policies are app-level knowledge/reality metadata that must survive local persistence but are not exported in the .depmap payload; this keeps .depmap payload v3 byte-compatible and DEPMAP_CONTAINER_V1 frozen."
+}

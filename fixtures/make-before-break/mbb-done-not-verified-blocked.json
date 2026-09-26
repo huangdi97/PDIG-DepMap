@@ -1,0 +1,42 @@
+{
+  "id": "mbb-done-not-verified-blocked",
+  "category": "make-before-break",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "新路径 done 但未 verified → 仍 blocked（done ≠ verified）",
+  "input": {
+    "newPaths": [
+      {
+        "id": "rpn-change-1",
+        "title": "rpn-change-1",
+        "detail": "",
+        "phase": "change",
+        "done": true,
+        "doneAt": "2026-09-13T00:00:00.000Z",
+        "verification": null,
+        "resolvesImpactKeys": []
+      }
+    ],
+    "verifications": [
+      {
+        "id": "rpn-verify-1",
+        "title": "rpn-verify-1",
+        "detail": "",
+        "phase": "change",
+        "done": true,
+        "doneAt": "2026-09-13T00:00:00.000Z",
+        "verification": null,
+        "resolvesImpactKeys": []
+      }
+    ],
+    "retireDone": false
+  },
+  "expected": {
+    "status": "blocked",
+    "unverifiedNewPaths": [
+      "rpn-verify-1"
+    ],
+    "reason": "new path(s) not yet verified: rpn-verify-1"
+  }
+}

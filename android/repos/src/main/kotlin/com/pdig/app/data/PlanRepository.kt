@@ -1,7 +1,10 @@
 package com.pdig.app.data
 
 import com.pdig.core.db.SqliteDriver
+import com.pdig.core.domain.ActionVerificationMethod
 import com.pdig.core.domain.ActionVerificationStatus
+import com.pdig.core.domain.PlanAction
+import com.pdig.core.generated.PlanActionPhase
 import com.pdig.core.domain.PlanReadinessInput
 import com.pdig.core.generated.ChangePlanWorkflowState
 import com.pdig.core.generated.ImpactTargetStatus
@@ -53,7 +56,11 @@ class PlanRepository(
         val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
         val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
             keysOfStatus(impact, ImpactTargetStatus.DEGRADED)
-        val actions = buildActionsFor(planId, impact, mustChangeKeys)
+        val actions = if (req.scenarioId == "replace_phone_number") {
+            buildReplacePhoneActions()
+        } else {
+            buildActionsFor(planId, impact, mustChangeKeys)
+        }
         val snapshot = JsonWriter.write(
             Json.Obj(
                 listOf(
@@ -101,7 +108,7 @@ class PlanRepository(
         }
         return planId
     }
-
+    private fun buildReplacePhoneActions(): List<PlanAction> = com.pdig.app.data.buildReplacePhoneActions()
     fun planDetail(planId: String): PlanDetailView? {
         val plan = planDomain(planId) ?: return null
         val snapshot = driver.prepare("SELECT impact_snapshot_json FROM change_plans WHERE id = ?")
@@ -150,6 +157,15 @@ class PlanRepository(
                 ?: throw IllegalStateException("entity_not_found")
             val idx = actions.indexOfFirst { it.id == actionId }
             if (idx < 0) throw IllegalStateException("entity_not_found")
+            // v0.3.0 Action DAG gate：前置动作未完成 → 禁止完成
+            val prereqs = actions[idx].prerequisiteActionIds
+            if (prereqs.isNotEmpty()) {
+                for (p in prereqs) {
+                    val pAction = actions.firstOrNull { it.id == p }
+                    if (pAction == null) throw IllegalStateException("action_missing_prerequisite")
+                    if (!pAction.done) throw IllegalStateException("action_missing_prerequisite")
+                }
+            }
             actions[idx] = actions[idx].copy(done = true)
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)

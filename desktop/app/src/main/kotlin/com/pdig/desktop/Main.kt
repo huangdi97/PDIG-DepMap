@@ -12,7 +12,7 @@ import com.pdig.desktop.ui.PDIGAppShell
 import com.pdig.desktop.ui.UiState
 import java.io.File
 
-private const val VERSION = "0.2.0"
+private const val VERSION = "0.3.0"
 
 fun main(args: Array<String>) {
     if (args.contains("--smoke")) {

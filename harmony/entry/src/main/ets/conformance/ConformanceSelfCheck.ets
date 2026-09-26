@@ -45,7 +45,7 @@ export function conformanceSummaryLine(): string {
     ' fail=' + report.failed.length +
     ' notImplemented=' + report.notImplemented.length +
     ' blockedByRuntime=' + report.blockedByRuntime.length +
-    ' (of 91)';
+    ' (of 128)';
 }
 
 /** 面向报告的明细行；供后续落盘 `conformance/reports/harmony.json` 使用。 */

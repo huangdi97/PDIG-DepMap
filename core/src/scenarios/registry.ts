@@ -26,8 +26,9 @@ export interface ScenarioTemplate {
   category: 'payment' | 'identity' | 'device' | 'work' | 'international' | 'digital_assets'
   title: string
   description: string
-  supportedCapabilities:
-    readonly ['payment'] | readonly ('payment' | 'access' | 'recovery' | 'identity')[]
+  supportedCapabilities: readonly (
+    'payment' | 'access' | 'authentication' | 'recovery' | 'communication' | 'identity'
+  )[]
   requiredInputs: ScenarioTemplateInputSpec[]
   optionalInputs: ScenarioTemplateInputSpec[]
   /** 产品建议提前量（天）；非法律/金融保证，用户可调整。 */
@@ -161,25 +162,114 @@ export const SCENARIO_TEMPLATES: ScenarioTemplate[] = [
     leadTimeDays: 14,
     actionTitle: '注销前迁移',
   }),
+  makeReplacePhoneTemplate(),
 ]
 
-/** planned 展示样例：无 factory，不可执行（用于证明 planned gate 生效）。 */
-export const PLANNED_TEMPLATES: ScenarioTemplate[] = [
-  {
+/** v0.3.0 (Canonical vNext)：replace_phone_number 由 planned → active（带 factory）。 */
+function makeReplacePhoneTemplate(): ScenarioTemplate {
+  return {
     id: 'replace_phone_number',
     category: 'identity',
     title: '更换手机号',
-    description: '设计稿（未实现）：手机号关联的验证与恢复路径检查。',
-    supportedCapabilities: ['access', 'recovery', 'identity'] as const,
+    description:
+      '更换手机号前检查该手机号承担的认证、恢复与通讯能力，以及所有关联账户与共享故障点。',
+    supportedCapabilities: ['access', 'authentication', 'recovery', 'communication'],
     requiredInputs: [
-      { key: 'targetPhoneAnchorId', required: true, description: '手机号锚点节点 id' },
+      { key: 'targetPhoneAnchorId', required: true, description: '旧手机号锚点节点 id' },
     ],
-    optionalInputs: [],
+    optionalInputs: [
+      {
+        key: 'replacementPhoneAnchorId',
+        required: false,
+        description: '新手机号锚点节点 id（可选）',
+      },
+      { key: 'effectiveDate', required: false, description: '计划生效日期（ISO 8601）' },
+    ],
     recommendedLeadTimeDays: 30,
-    availability: 'planned',
-    scenarioFactory: null,
-  },
-]
+    availability: 'active',
+    scenarioFactory: (driver: SqliteDriver, inputs: Record<string, string>) => {
+      const target = inputs['targetPhoneAnchorId']
+      if (!target) {
+        throw new Error('scenario replace_phone_number requires targetPhoneAnchorId')
+      }
+      const service = new ChangePlanService(driver)
+      const now = new Date().toISOString()
+      const effectiveAt = inputs['effectiveDate'] ?? now
+      const plan = service.plans.create({
+        templateId: 'replace_phone_number',
+        scenario: 'replace_phone_number',
+        title: '更换手机号',
+        targetNodeId: target,
+        effectiveDate: effectiveAt,
+        params: { ...inputs },
+        graphRevision: getGraphRevision(driver),
+      })
+      const actions: PlanAction[] = [
+        {
+          id: 'rpn-prepare-1',
+          title: '检查旧手机号承担的恢复与认证能力',
+          detail: '确认哪些账户依赖此手机号验证身份或找回账号（见影响清单）。',
+          phase: 'prepare',
+          done: false,
+          doneAt: null,
+          verification: null,
+          resolvesImpactKeys: [],
+          prerequisiteActionIds: [],
+        },
+        {
+          id: 'rpn-change-1',
+          title: '添加新手机号并迁移关键账户',
+          detail: '在关键账户中把验证/恢复方式切换到新手机号（逐项确认）。',
+          phase: 'change',
+          done: false,
+          doneAt: null,
+          verification: {
+            method: 'future_observation',
+            status: 'pending',
+            verifiedAt: null,
+            evidenceRefs: [],
+          },
+          resolvesImpactKeys: [],
+          prerequisiteActionIds: ['rpn-prepare-1'],
+        },
+        {
+          id: 'rpn-verify-1',
+          title: '验证新手机号恢复路径',
+          detail: '用新手机号实际完成一次验证/恢复确认关键路径可用（done ≠ verified）。',
+          phase: 'verify',
+          done: false,
+          doneAt: null,
+          verification: {
+            method: 'future_observation',
+            status: 'pending',
+            verifiedAt: null,
+            evidenceRefs: [],
+          },
+          resolvesImpactKeys: [],
+          prerequisiteActionIds: ['rpn-change-1'],
+        },
+        {
+          id: 'rpn-change-2',
+          title: '停用旧手机号（新路径全部验证后）',
+          detail: '只有 rpn-verify-1 已验证才允许执行（BREAK_BEFORE_MAKE = FORBIDDEN）。',
+          phase: 'change',
+          done: false,
+          doneAt: null,
+          verification: null,
+          resolvesImpactKeys: [],
+          prerequisiteActionIds: ['rpn-verify-1'],
+        },
+      ]
+      return {
+        ...plan,
+        actions,
+      }
+    },
+  }
+}
+
+/** planned 展示样例：无 factory，不可执行（用于证明 planned gate 生效）。 */
+export const PLANNED_TEMPLATES: ScenarioTemplate[] = []
 
 export function listActiveTemplates(): ScenarioTemplate[] {
   return SCENARIO_TEMPLATES.filter((t) => t.availability === 'active' && t.scenarioFactory !== null)

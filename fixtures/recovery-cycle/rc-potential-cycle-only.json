@@ -1,0 +1,33 @@
+{
+  "id": "rc-potential-cycle-only",
+  "category": "recovery-cycle",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "只有 hint 边的环 → potential_cycle only（confirmedCycles 空）",
+  "input": {
+    "capability": "recovery",
+    "dependencies": [],
+    "hintedEdges": [
+      {
+        "from": "account-a",
+        "to": "phone-a"
+      },
+      {
+        "from": "phone-a",
+        "to": "account-a"
+      }
+    ]
+  },
+  "expected": {
+    "status": "potential_cycle",
+    "confirmedCycles": [],
+    "potentialCycles": [
+      [
+        "account-a",
+        "phone-a"
+      ]
+    ],
+    "capability": "recovery"
+  }
+}

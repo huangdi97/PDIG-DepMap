@@ -55,6 +55,7 @@ fun HomeScreen(nav: NavController) {
     var pendingProposalCount by remember { mutableStateOf<Int?>(null) }
     var candidateCount by remember { mutableStateOf<Int?>(null) }
     var driftCount by remember { mutableStateOf<Int?>(null) }
+    var findings by remember { mutableStateOf<FindingsModel?>(null) }
 
     // ⚠ 数据库读写一律放到 IO 线程（2026-09-16 修复）：
     // 此前这些行在主线程执行，全新安装后（dexopt + 打开 SQLCipher 密文库 + 迁移 + Argon2id）
@@ -76,6 +77,7 @@ fun HomeScreen(nav: NavController) {
         pendingProposalCount = loaded.proposals
         candidateCount = loaded.candidates
         driftCount = loaded.drifts
+        findings = withContext(Dispatchers.IO) { buildFindings(container) }
     }
 
     Scaffold(topBar = { PdigTopBar("PDIG") }) { pad ->
@@ -164,9 +166,11 @@ fun HomeScreen(nav: NavController) {
                 PdigCard(onClick = { nav.navigate(Route.SCENARIOS) }) { Text("更换银行卡 / 银行卡即将到期 / 注销银行卡") }
 
                 SectionHeader("我的基础设施")
+                findings?.let { f -> HomeFindingsCard(nav, f) }
                 PdigCard(onClick = { nav.navigate(Route.INFRASTRUCTURE) }) {
                     Text("共 $nodeCount 个对象", style = PdigTokens.BodyStrong)
                 }
+
 
                 // 导入 / 备份恢复此前从首页不可达，核心行程根本走不通。
                 // 这里补上最小入口（不改信息架构，只是让已存在的页面可达）。

@@ -167,10 +167,12 @@ class DomainInvariantTest {
 
     @Test
     fun runtimeRegistryOnlyContainsSupportedRelations() {
+        // v0.3.0：recovers / authenticates / controls 进入 runtime；
+        // verifies / bound_to 等 legacy 词表仍不得进入运行时校验（与 core/src/domain/relation-registry.ts 同口径）。
         assertEquals(
-            setOf("funding_source", "merchant_agreement"),
+            setOf("funding_source", "merchant_agreement", "recovers", "authenticates", "controls"),
             listRuntimeRelationIds().toSet(),
-            "runtime registry 只承认两个 relation；bound_to 等 legacy 词表不得进入运行时校验",
+            "runtime registry 只承认五个 relation；verifies/bound_to 等 legacy 词表不得进入运行时校验",
         )
     }
 

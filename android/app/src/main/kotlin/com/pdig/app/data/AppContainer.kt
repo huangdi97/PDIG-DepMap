@@ -180,4 +180,11 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     suspend fun restoreBackup(containerJson: String, password: String): Int =
         backupRepo.restoreBackup(containerJson, password)
 
+    // ------------------------------------------------------------------
+    // 取证专用（androidTest / evidence harness 使用）：只读暴露 driver，
+    // 让截图循证可以植入与真实产品一致的恢复/身份边，再走同一 singletion 渲染。
+    // 绝不暴露给 UI/路由；生产代码不调用。
+    // ------------------------------------------------------------------
+    internal val evidenceDriver: SqliteDriver get() = driver
+
 }

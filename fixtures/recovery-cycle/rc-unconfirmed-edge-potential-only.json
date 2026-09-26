@@ -1,0 +1,51 @@
+{
+  "id": "rc-unconfirmed-edge-potential-only",
+  "category": "recovery-cycle",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "未确认边（proposal hint）只产生 potential_cycle，绝不 confirmed",
+  "input": {
+    "capability": "recovery",
+    "dependencies": [
+      {
+        "id": "d1",
+        "from": "account-a",
+        "relation": "recovers",
+        "to": "phone-a",
+        "capability": "recovery",
+        "criticality": "unknown",
+        "groupId": null,
+        "state": "active",
+        "origin": "manual",
+        "confirmedAt": "2026-09-13T00:00:00.000Z",
+        "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+        "retiredAt": null,
+        "evidenceRefs": [],
+        "verificationBasis": {
+          "type": "user_confirmed",
+          "verifiedAt": "2026-09-13T00:00:00.000Z"
+        },
+        "createdAt": "2026-09-13T00:00:00.000Z",
+        "updatedAt": "2026-09-13T00:00:00.000Z"
+      }
+    ],
+    "hintedEdges": [
+      {
+        "from": "phone-a",
+        "to": "account-a"
+      }
+    ]
+  },
+  "expected": {
+    "status": "potential_cycle",
+    "confirmedCycles": [],
+    "potentialCycles": [
+      [
+        "account-a",
+        "phone-a"
+      ]
+    ],
+    "capability": "recovery"
+  }
+}

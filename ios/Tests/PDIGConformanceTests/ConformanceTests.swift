@@ -4,22 +4,24 @@ import PDIGConformance
 
 final class ConformanceTests: XCTestCase {
 
-    /// 91 条 canonical 用例全跑一遍；断言账目与"已执行用例零失败"。
+    /// 128 条 canonical 用例全跑一遍；断言账目与"已执行用例零失败"。
     ///
     /// 已执行 / 未移植 / 环境缺失三桶各自断言，**不**把"未移植"计入通过。
     func testCanonicalAccounting() throws {
         let report = try ConformanceRunner.runAndWriteReport()
         print("\n" + report.render() + "\n")
 
-        XCTAssertEqual(report.total, 91, "canonical 用例总数必须是 91")
+        XCTAssertEqual(report.total, 128, "canonical 用例总数必须是 128")
         XCTAssertEqual(report.failed, 0, "已执行用例不允许有失败：\n"
             + report.outcomes.filter { $0.status == .fail }
                 .map { "  - \($0.id): \($0.detail)" }.joined(separator: "\n"))
-        // 全部 91 条已移植：relations 18 + jcs 1 + scenario 1 + parser 22
+        // 全部 128 条已移植：91 条基线（relations 18 + jcs 1 + scenario 1 + parser 22
         // + impact 13 + readiness 16 + coverage 6 + timeline 3 + state-machine 5
-        // + depmap 3 + migration 2 + backup 1 = 91。
+        // + depmap 3 + migration 2 + backup 1）+ v0.3.0 新增 37 条
+        // （failure-domain 6 + recovery-cycle 7 + action-dag 7 + make-before-break 3
+        // + temporal-change 4 + provider-policy 4 + identity-relations 6）= 128。
         // 0 条未移植、0 条环境缺失 —— 若将来出现回退，这条断言会立刻红。
-        XCTAssertEqual(report.passed, 91, "全部 canonical 用例都应真实执行并通过")
+        XCTAssertEqual(report.passed, 128, "全部 canonical 用例都应真实执行并通过")
         XCTAssertEqual(report.implMissing, 0)
         XCTAssertEqual(report.envBlocked, 0)
     }

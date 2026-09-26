@@ -31,6 +31,8 @@ public enum Relation: String, CaseIterable, Sendable, Equatable {
     case verifies = "verifies"
     case recovers = "recovers"
     case boundTo = "bound_to"
+    case authenticates = "authenticates"
+    case controls = "controls"
 
     public var wire: String { rawValue }
 }
@@ -38,6 +40,9 @@ public enum Relation: String, CaseIterable, Sendable, Equatable {
 public enum RelationRuntime: String, CaseIterable, Sendable, Equatable {
     case fundingSource = "funding_source"
     case merchantAgreement = "merchant_agreement"
+    case recovers = "recovers"
+    case authenticates = "authenticates"
+    case controls = "controls"
 
     public var wire: String { rawValue }
 }
@@ -45,7 +50,9 @@ public enum RelationRuntime: String, CaseIterable, Sendable, Equatable {
 public enum Capability: String, CaseIterable, Sendable, Equatable {
     case payment = "payment"
     case access = "access"
+    case authentication = "authentication"
     case recovery = "recovery"
+    case communication = "communication"
     case identity = "identity"
 
     public var wire: String { rawValue }
@@ -53,6 +60,10 @@ public enum Capability: String, CaseIterable, Sendable, Equatable {
 
 public enum CapabilityRuntime: String, CaseIterable, Sendable, Equatable {
     case payment = "payment"
+    case access = "access"
+    case authentication = "authentication"
+    case recovery = "recovery"
+    case communication = "communication"
 
     public var wire: String { rawValue }
 }
@@ -377,6 +388,112 @@ public enum SourceEncoding: String, CaseIterable, Sendable, Equatable {
     public var wire: String { rawValue }
 }
 
+public enum FailureDomainKind: String, CaseIterable, Sendable, Equatable {
+    case device = "DEVICE"
+    case phoneNumber = "PHONE_NUMBER"
+    case account = "ACCOUNT"
+    case provider = "PROVIDER"
+    case person = "PERSON"
+    case region = "REGION"
+    case physicalLocation = "PHYSICAL_LOCATION"
+    case network = "NETWORK"
+
+    public var wire: String { rawValue }
+}
+
+public enum FailureDomainKindRuntime: String, CaseIterable, Sendable, Equatable {
+    case device = "DEVICE"
+    case phoneNumber = "PHONE_NUMBER"
+    case account = "ACCOUNT"
+    case provider = "PROVIDER"
+
+    public var wire: String { rawValue }
+}
+
+public enum FailureDomainStatus: String, CaseIterable, Sendable, Equatable {
+    case confirmed = "confirmed"
+    case needsReview = "needs_review"
+
+    public var wire: String { rawValue }
+}
+
+public enum InfrastructureFindingType: String, CaseIterable, Sendable, Equatable {
+    case singlePointOfFailure = "SINGLE_POINT_OF_FAILURE"
+    case sharedFailureDomain = "SHARED_FAILURE_DOMAIN"
+    case recoveryCycle = "RECOVERY_CYCLE"
+    case unconfirmedFallback = "UNCONFIRMED_FALLBACK"
+    case staleRecoveryInformation = "STALE_RECOVERY_INFORMATION"
+    case unknownCriticalPath = "UNKNOWN_CRITICAL_PATH"
+    case pendingVerification = "PENDING_VERIFICATION"
+
+    public var wire: String { rawValue }
+}
+
+public enum ChangePrimitive: String, CaseIterable, Sendable, Equatable {
+    case replace = "REPLACE"
+    case lose = "LOSE"
+    case compromise = "COMPROMISE"
+    case migrate = "MIGRATE"
+    case port = "PORT"
+    case suspend = "SUSPEND"
+
+    public var wire: String { rawValue }
+}
+
+public enum ChangePrimitiveRuntime: String, CaseIterable, Sendable, Equatable {
+    case replace = "REPLACE"
+
+    public var wire: String { rawValue }
+}
+
+public enum RecoveryCycleStatus: String, CaseIterable, Sendable, Equatable {
+    case confirmedCycle = "confirmed_cycle"
+    case potentialCycle = "potential_cycle"
+    case noCycle = "no_cycle"
+
+    public var wire: String { rawValue }
+}
+
+public enum PathIndependenceStatus: String, CaseIterable, Sendable, Equatable {
+    case verifiedIndependent = "verified_independent"
+    case sharedFailureDomain = "shared_failure_domain"
+    case needsReview = "needs_review"
+
+    public var wire: String { rawValue }
+}
+
+public enum ActionDagViolation: String, CaseIterable, Sendable, Equatable {
+    case cycle = "cycle"
+    case missingPrerequisite = "missing_prerequisite"
+    case unknownAction = "unknown_action"
+    case `none` = "none"
+
+    public var wire: String { rawValue }
+}
+
+public enum ProviderPolicyState: String, CaseIterable, Sendable, Equatable {
+    case effective = "effective"
+    case superseded = "superseded"
+    case needsReview = "needs_review"
+
+    public var wire: String { rawValue }
+}
+
+public enum TemporalChangePhase: String, CaseIterable, Sendable, Equatable {
+    case before = "before"
+    case transition = "transition"
+    case after = "after"
+
+    public var wire: String { rawValue }
+}
+
+public enum MakeBeforeBreakStatus: String, CaseIterable, Sendable, Equatable {
+    case blocked = "blocked"
+    case allowed = "allowed"
+
+    public var wire: String { rawValue }
+}
+
 public enum ErrorCode: String, CaseIterable, Sendable, Equatable {
     case invalidJson = "invalid_json"
     case invalidStructure = "invalid_structure"
@@ -408,6 +525,12 @@ public enum ErrorCode: String, CaseIterable, Sendable, Equatable {
     case authUnavailable = "auth_unavailable"
     case keyUnavailable = "key_unavailable"
     case cancelledByUser = "cancelled_by_user"
+    case machineCannotConfirmFailureDomain = "machine_cannot_confirm_failure_domain"
+    case temporalWindowInvalidOrder = "temporal_window_invalid_order"
+    case breakBeforeMakeForbidden = "break_before_make_forbidden"
+    case actionDagCycle = "action_dag_cycle"
+    case actionMissingPrerequisite = "action_missing_prerequisite"
+    case providerPolicyUnverifiable = "provider_policy_unverifiable"
 
     public var wire: String { rawValue }
 
@@ -443,6 +566,12 @@ public enum ErrorCode: String, CaseIterable, Sendable, Equatable {
         case .authUnavailable: return "security"
         case .keyUnavailable: return "security"
         case .cancelledByUser: return "ui"
+        case .machineCannotConfirmFailureDomain: return "domain"
+        case .temporalWindowInvalidOrder: return "domain"
+        case .breakBeforeMakeForbidden: return "domain"
+        case .actionDagCycle: return "domain"
+        case .actionMissingPrerequisite: return "domain"
+        case .providerPolicyUnverifiable: return "provider"
         }
     }
 
@@ -478,6 +607,12 @@ public enum ErrorCode: String, CaseIterable, Sendable, Equatable {
         case .authUnavailable: return "err.auth_unavailable"
         case .keyUnavailable: return "err.key"
         case .cancelledByUser: return "err.cancelled"
+        case .machineCannotConfirmFailureDomain: return "err.fd_confirm"
+        case .temporalWindowInvalidOrder: return "err.temporal_order"
+        case .breakBeforeMakeForbidden: return "err.break_before_make"
+        case .actionDagCycle: return "err.dag_cycle"
+        case .actionMissingPrerequisite: return "err.dag_prereq"
+        case .providerPolicyUnverifiable: return "err.policy_unverified"
         }
     }
 }

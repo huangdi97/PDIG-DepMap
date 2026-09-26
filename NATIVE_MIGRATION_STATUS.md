@@ -3,6 +3,64 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 
+> 更新：2026-10-04（**iOS N4 —— PDIGApp SwiftUI 产品 App（v0.3.0）落地**）
+>
+> - **新增 `ios/Sources/PDIGApp/`（可执行 target，约 28 文件）**：@main SwiftUI App
+>   - 导航模型（Home/Lock/Onboarding 根分流）、Onboarding(≤3 屏)、LocalAuthentication
+>   - Keychain 解锁门、Home（需要你处理/可能发生了变化/即将到来/常用场景/我的基础设施/
+>     基础设施薄弱点）、Findings（FailureDomainEngine + RecoveryCycleEngine 组合，六问展示）、
+>     Infrastructure（按对象/按能力）、节点六问卡、场景中心（支付 3 场景 + 换号，带
+>     make-before-break 语言与顺序闸门）、ChangePlan（CTA 映射 + 白话前置）、验证屏
+>     （新手机号已添加 ≠ 新恢复路径已经验证）、时间线、导入八步（CSV/OFX 解析→映射→
+>     解析→复查→建议→候选→漂移）、备份/恢复（DepmapContainer V1 + Argon2id + payload
+>     原子恢复）、删除所有数据（显式确认）、设置/安全/关于。
+> - **新增 `ios/Tests/PDIGAppTests/`**：导航 / Findings 组合 / 换号前置与闸门 / CTA 映射 /
+>   导入流水线 8 条纯逻辑单测。
+> - **`IOS_BUILD = NOT_RUN` / `IOS_VISUAL = NOT_RUN`（等 macOS CI）**：本机 Windows 无
+>   Swift 工具链；编译、app 单测与 macOS 渲染截图由 `.github/workflows/ios.yml` /
+>   `ios-runtime-visual.yml`（macos-14）执行，**未跑过 CI 不得写 PASS**。
+> - **诚实边界**：`IOS_SQLCIPHER_PERSISTENCE = NOT_RUN`（App 落盘 = 系统 sqlite +
+>   PDIGCore GraphSerialize；SQLCipher 未链接）；截图 = `MACOS_RENDER`（macOS 上
+>   SwiftUI ImageRenderer，非模拟器/真机、无 XCUITest）；Keychain/LocalAuthentication
+>   真机交互未验证。conformance 保持 91+37 = 128 条（spec/fixtures/conformance 未动）。
+> - **PDIGCore API 缺口记录**：registry 无场景实例化工厂（Android 在 AppContainer 实现）；
+>   iOS 在 `Domain/ScenarioFlow.swift`（PDIGApp 层）实现，不改 PDIGCore 语义。
+>
+> 更新：2026-10-02（**iOS N4 前置轮 —— v0.3.0 确定性引擎移植 + conformance 扩至 128 条**）
+> 更新：2026-10-02（**Harmony v0.3.0 确定性引擎主机收口 —— 7 新类别 37 条 fixture 全绿**）
+>
+> - **新增 6 个纯 ArkTS 引擎**（零 @ohos，真实编译进 HAP 与主机测试图，逐行移植自 core TS reference）：
+>   `domain/FailureDomain.ets`（computePathIndependence + buildEdgeToDomainIndex）、
+>   `impact/RecoveryCycle.ets`（detectRecoveryCycles）、`domain/ActionDag.ets`
+>   （validateActionDag + stableTopologicalOrder）、`domain/MakeBeforeBreak.ets`、
+>   `domain/TemporalChange.ets`（classifyTemporalPhase + validateTemporalOrder）、
+>   `services/ProviderPolicy.ets`（inferProviderPolicyState + interpretProviderCapability）。
+> - **identity-relations 6 条**复用 generated/CanonicalRelations 的 recovers / authenticates / controls
+>   运行时注册表（verifies / bound_to 保持拒绝）；ConformanceRunner 新增 7 个分类分发；
+>   ConformanceHost 断言 **91 → 128**。
+> - **`HARMONY_CONFORMANCE_HOST = PASS`**：**179/179 host checks**（124 canonical + 3 元测试 + 1 domain
+>   自检 + 14 persistence + 17 repository + 12 import-pipeline + 8 core-journey），0 fail；
+>   **`HARMONY_HOST_PASS = 124/128`**（87 旧 + 37 新 = 124 条 canonical 在真实 ArkTS 运行时逐字节
+>   复现冻结 expected；4 DEVICE-BLOCKED 不变：depmap-golden-v1 / depmap-utf8-password-normalization /
+>   backup-depmap-export-restore-roundtrip / migration-db-v1-to-v3）。
+> - **`HARMONY_COMPILE_REACHABILITY = PASS`**（--build）：6 个新模块全部进入编译图，modules.abc 符号在场，
+>   负向 probe 全绿。
+> - `spec/`、`fixtures/`、`conformance/` 零改动；core `npm run check` 未跑（TS 侧未动）。
+>   更新：2026-10-02（**iOS N4 前置轮 —— v0.3.0 确定性引擎移植 + conformance 扩至 128 条**）
+>
+> - **新增 6 个纯 Swift 引擎**（PDIGCore，逐行移植自 core TS reference）：
+>   `Domain/FailureDomain.swift`（computePathIndependence + buildEdgeToDomainIndex）、
+>   `Impact/RecoveryCycle.swift`（detectRecoveryCycles）、`Domain/ActionDag.swift`
+>   （validateActionDag + stableTopologicalOrder）、`Domain/MakeBeforeBreak.swift`、
+>   `Domain/TemporalChange.swift`、`Services/ProviderPolicy.swift`
+>   （inferProviderPolicyState + interpretProviderCapability）。
+> - **RelationRegistry 扩展** recovers / authenticates / controls（identity-relations 6 条
+>   复用 relations 求值器）；**Evaluators.swift 新增 7 个分类分发**；ConformanceTests 断言
+>   **91 → 128**（manifest 已含 128 条，fixtures/conformance 零改动）。
+> - **`IOS_BUILD = NOT_RUN`**：Windows 无 Swift 工具链，本地未编译未执行；
+>   由 macOS CI 执行（E-8），不得写成 PASS。
+> - `spec/`、`fixtures/`、`conformance/` 零改动；core `npm run check` 未跑（TS 侧未动）。
+
 > 更新：2026-09-25（**Harmony N3 连续推进轮 #5 —— host Core-Journey E2E**；纯测试 + 文档轮）
 >
 > - **零生产源码改动**；新增 `entry/src/test/CoreJourneyHost.test.ets`（8 条 E2E）。
@@ -334,11 +392,11 @@ cd .. && node tools/conformance/run.mjs
 
 | 层              | 状态                 | 说明                                              |
 | --------------- | -------------------- | ------------------------------------------------- |
-| 工程脚手架      | **NOT_STARTED**      | 仅 codegen 产物 `ios/Sources/PDIGCore/Generated/` |
-| Domain（Swift） | **NOT_STARTED**      |                                                   |
-| Crypto          | **NOT_STARTED**      |                                                   |
-| Conformance     | **NOT_RUN**          |                                                   |
-| Build / Test    | **BLOCKED_BY_MACOS** | 当前为 Windows，无 Xcode                          |
+| 工程脚手架      | **COMPILED**         | `ios/Sources/PDIGCore/Generated/` codegen + SwiftPM 包结构 |
+| Domain（Swift） | **TESTED**           | 128/128 canonical conformance（macOS CI run 36266556360） |
+| Crypto          | **COMPILED**         | PDIGArgon2 vendored C；golden-vector 校验经 CI 通过 |
+| Conformance     | **PASS**             | `conformance/reports/ios.json`：128/128（含 37 条 v0.3.0 fixture） |
+| Build / Test    | **PASS（macOS CI）** | `swift build` + `swift test` 全绿（本机 Windows 无 Xcode，以 macOS runner 为准） |
 
 ---
 
@@ -346,15 +404,16 @@ cd .. && node tools/conformance/run.mjs
 
 | Gate              | 状态     | 证据                                                                                                                                                          |
 | ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| codegen gate      | PASS     | 3 个 generated 文件与 spec 一致                                                                                                                               |
-| fixture integrity | PASS     | 91 用例 + 28 输入文件 sha256 全匹配                                                                                                                           |
-| oracle selfcheck  | PASS     | 冻结 TS oracle 逐字节复现 91 用例                                                                                                                             |
-| platform: android | PASS     | **91/91**                                                                                                                                                     |
-| platform: harmony | NOT_RUN  | **0 执行**：无设备/模拟器，未接本地测试框架。逐分类：87 notImplemented / 4 blocked（depmap 3 + backup 1，因无 Argon2）。见 `HARMONY_N3_CONFORMANCE_REPORT.md` |
-| platform: ios     | NOT_RUN  | 无报告                                                                                                                                                        |
-| **VERDICT**       | **PASS** | `conformance/reports/SUMMARY.json`                                                                                                                            |
+| codegen gate      | PASS     | 4 个 generated 文件与 spec 一致（Kotlin/Swift/ArkTS/TS）                                                                                                      |
+| fixture integrity | PASS     | 128 用例 + 28 输入文件 sha256 全匹配（旧 91 逐字节未动）                                                                                                        |
+| oracle selfcheck  | PASS     | 冻结 TS oracle 逐字节复现 128 用例                                                                                                                             |
+| platform: android | PASS     | **128/128**（含 37 条 v0.3.0 fixture）                                                                                                                          |
+| platform: harmony | PASS_WITH_EXTERNAL_GATES | **124/128** host（179/179 checks）；4 条 Argon2id 原生 / ArkData 为真实设备门禁（逐条理由登记） |
+| platform: ios     | PASS     | **128/128**（macOS CI run 36266556360）                                                                                                                        |
+| **VERDICT**       | **PASS** | `conformance/reports/SUMMARY.json`（android PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS）                                                                                                                            |
 
-分类覆盖：impact 13 / readiness 16 / coverage 6 / relations 18 / depmap 3 / jcs 1 / scenario 1 / **migration 2** / state-machine 5 / **parser 22** / **timeline 3** / **backup 1**
+分类覆盖：impact 13 / readiness 16 / coverage 6 / relations 18 / depmap 3 / jcs 1 / scenario 1 / migration 2 / state-machine 5 / parser 22 / timeline 3 / backup 1 + **v0.3.0：failure-domain 6 / recovery-cycle 7 / action-dag 7 / make-before-break 3 / temporal-change 4 / provider-policy 4 / identity-relations 6**
+
 
 ---
 
@@ -452,7 +511,6 @@ cd .. && node tools/conformance/run.mjs
 
 - 是否提交：`android/`（4655 文件）、`conformance/`、`fixtures/` 等目前**全部未跟踪**，
   本轮未做任何 `git add` / `commit`。
-
 
 ---
 

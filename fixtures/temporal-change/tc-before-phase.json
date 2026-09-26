@@ -1,0 +1,24 @@
+{
+  "id": "tc-before-phase",
+  "category": "temporal-change",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "now < effectiveAt → before；retire 未开放",
+  "input": {
+    "window": {
+      "effectiveAt": "2026-10-01T00:00:00.000Z",
+      "verificationNotBefore": null,
+      "verificationDueAt": null,
+      "retireOldPathAfter": null
+    },
+    "now": "2026-09-20T00:00:00.000Z",
+    "verified": false
+  },
+  "expected": {
+    "phase": "before",
+    "validOrder": true,
+    "retireAllowedAt": null,
+    "retireBlockedReason": "未设置停用时间"
+  }
+}

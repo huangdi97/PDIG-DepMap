@@ -1,0 +1,31 @@
+{
+  "id": "dag-missing-prerequisite-reject",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "引用不存在的前置动作 → missing_prerequisite 拒绝",
+  "input": {
+    "actions": [
+      {
+        "id": "a",
+        "title": "a",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "ghost"
+        ]
+      }
+    ]
+  },
+  "expected": {
+    "ok": false,
+    "violation": "missing_prerequisite",
+    "offendingActionId": "a",
+    "topologicalOrder": []
+  }
+}

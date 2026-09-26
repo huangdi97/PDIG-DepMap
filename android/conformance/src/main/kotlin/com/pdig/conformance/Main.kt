@@ -134,8 +134,16 @@ private fun compute(category: String, id: String, input: Json): Json = when (cat
         else -> runMigration()
     }
     "backup" -> runBackup(requireObj(input))
+    "failure-domain" -> runFailureDomain(requireObj(input))
+    "recovery-cycle" -> runRecoveryCycle(requireObj(input))
+    "action-dag" -> runActionDag(requireObj(input))
+    "make-before-break" -> runMakeBeforeBreak(requireObj(input))
+    "temporal-change" -> runTemporalChange(requireObj(input))
+    "provider-policy" -> runProviderPolicy(requireObj(input))
+    "identity-relations" -> runIdentityRelations(requireObj(input))
     else -> throw NotImplementedError("no runner for category $category")
 }
+
 
 // ---------------------------------------------------------------------------
 // 临时 DB 与种子数据（RunnerBackupTimeline.kt 的 runner 共用）

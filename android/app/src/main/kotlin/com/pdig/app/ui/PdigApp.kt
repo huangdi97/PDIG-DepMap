@@ -26,6 +26,7 @@ import com.pdig.app.ui.screens.AboutScreen
 import com.pdig.app.ui.screens.BackupScreen
 import com.pdig.app.ui.screens.CandidateReviewScreen
 import com.pdig.app.ui.screens.ChangePlanScreen
+import com.pdig.app.ui.screens.FindingsScreen
 import com.pdig.app.ui.screens.GraphScreen
 import com.pdig.app.ui.screens.HomeScreen
 import com.pdig.app.ui.screens.ImpactScreen
@@ -68,6 +69,7 @@ object Route {
     const val DRIFT = "drift"
     const val CANDIDATES = "candidates"
     const val INFRASTRUCTURE = "infrastructure"
+    const val FINDINGS = "findings"
     const val GRAPH = "graph"
     const val NODE = "node/{nodeId}"
     const val SOURCES = "sources"
@@ -224,6 +226,7 @@ fun AppNavHost(
         composable(Route.DRIFT) { RealityDriftScreen(nav) }
         composable(Route.CANDIDATES) { CandidateReviewScreen(nav) }
         composable(Route.INFRASTRUCTURE) { InfrastructureScreen(nav) }
+        composable(Route.FINDINGS) { FindingsScreen(nav) }
         composable(Route.GRAPH) { GraphScreen(nav) }
         composable(Route.SOURCES) { SourceManagementScreen(nav) }
         composable(Route.IMPORT) { ImportScreen(nav) }

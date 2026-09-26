@@ -45,8 +45,8 @@ compose.desktop {
         mainClass = "com.pdig.desktop.MainKt"
         nativeDistributions {
             packageName = "PDIG"
-            packageVersion = "0.2.0"
-            description = "PDIG 0.2.0 Preview — 个人数字依赖图 (Windows Desktop)"
+            packageVersion = "0.3.0"
+            description = "PDIG 0.3.0 Preview — 个人数字依赖图 (Windows Desktop)"
             vendor = "PDIG"
             includeAllModules = true
         }

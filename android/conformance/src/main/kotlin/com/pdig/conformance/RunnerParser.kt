@@ -1,7 +1,7 @@
 package com.pdig.conformance
 
 import com.pdig.core.json.Json
-import com.pdig.core.scenario.ScenarioRegistry
+import com.pdig.core.json.JsonParser
 import com.pdig.core.schema.SchemaVersion
 import com.pdig.core.sources.GenericCsvParser
 import com.pdig.core.sources.OfxParser
@@ -66,21 +66,31 @@ internal fun runParser(input: Json.Obj): Json {
 // scenario / migration（产品配置与版本契约）
 // ---------------------------------------------------------------------------
 
-internal fun runScenario(): Json = Json.Obj(
-    listOf(
-        "activeIds" to Json.Arr(ScenarioRegistry.active.map { Json.Str(it.id) }),
-        "activeCategories" to Json.Arr(ScenarioRegistry.active.map { Json.Str(it.category) }),
-        "plannedIds" to Json.Arr(ScenarioRegistry.planned.map { Json.Str(it.id) }),
-        "plannedExecutable" to Json.Arr(
-            ScenarioRegistry.planned.map { Json.Bool(it.availability == "active") },
+internal fun runScenario(): Json {
+    // scenario-template-policy fixture 冻结的是 spec/domain/domain.json 的 scenarioTemplates（v1 目录），
+    // 不是运行时注册表（v0.3.0 运行时 replace_phone_number 已 active）。与 generator 一致，直接读 spec JSON。
+    val spec = JsonParser.parse(
+        java.io.File(ROOT, "spec/domain/domain.json").readText(Charsets.UTF_8),
+    ) as? Json.Obj
+    val templates = (spec?.get("scenarioTemplates") as? Json.Obj) ?: Json.Obj(emptyList())
+    val active = ((templates["active"] as? Json.Arr)?.items ?: emptyList()).mapNotNull { it as? Json.Obj }
+    val planned = ((templates["planned"] as? Json.Arr)?.items ?: emptyList()).mapNotNull { it as? Json.Obj }
+    fun str(o: Json.Obj, k: String): String = (o[k] as? Json.Str)?.value ?: ""
+    return Json.Obj(
+        listOf(
+            "activeIds" to Json.Arr(active.map { Json.Str(str(it, "id")) }),
+            "activeCategories" to Json.Arr(active.map { Json.Str(str(it, "category")) }),
+            "plannedIds" to Json.Arr(planned.map { Json.Str(str(it, "id")) }),
+            "plannedExecutable" to Json.Arr(planned.map { Json.Bool((it["executable"] as? Json.Bool)?.value == true) }),
+            "leadingTimeByTemplate" to Json.Obj(
+                active.map {
+                    val lead = (it["recommendedLeadTimeDays"] as? Json.Num)?.raw
+                    str(it, "id") to (lead?.let { d -> Json.Num(d) } ?: Json.Null)
+                },
+            ),
         ),
-        "leadingTimeByTemplate" to Json.Obj(
-            ScenarioRegistry.active.map {
-                it.id to (it.recommendedLeadTimeDays?.let { d -> Json.Num(d.toString()) } ?: Json.Null)
-            },
-        ),
-    ),
-)
+    )
+}
 
 internal fun runMigration(): Json = Json.Obj(
     listOf(

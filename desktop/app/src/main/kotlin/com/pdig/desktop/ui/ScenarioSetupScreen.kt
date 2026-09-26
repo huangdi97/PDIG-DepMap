@@ -23,7 +23,11 @@ import com.pdig.desktop.ui.components.PdigCard
 import com.pdig.desktop.ui.components.PdigPage
 import com.pdig.desktop.ui.components.SectionDivider
 
-/** 场景设置：选择目标支付工具后创建变更计划。 */
+/**
+ * 场景设置：选择目标节点后创建变更计划。
+ * - replace_phone_number → 选择旧手机号身份锚点（identity_anchor）
+ * - 其余支付场景 → 选择支付工具
+ */
 @Composable
 fun ScenarioSetupScreen(ui: UiState) {
     val template = ui.selectedScenarioId?.let { ScenarioRegistry.get(it) }
@@ -40,7 +44,10 @@ fun ScenarioSetupScreen(ui: UiState) {
             return@PdigPage
         }
         val executable = ScenarioRegistry.isExecutable(template.id)
-        val instruments = ui.session.graph.nodes().filter { it.kind == "payment_instrument" }
+        val isPhoneScenario = template.id == "replace_phone_number"
+        val candidates = ui.session.graph.nodes().filter { n ->
+            if (isPhoneScenario) n.kind == "identity_anchor" else n.kind == "payment_instrument"
+        }
         var targetId by remember { mutableStateOf<String?>(null) }
         var altId by remember { mutableStateOf<String?>(null) }
         Column {
@@ -48,24 +55,37 @@ fun ScenarioSetupScreen(ui: UiState) {
             InfoRow("名称", template.title)
             InfoRow("说明", template.description)
             InfoRow("建议提前天数", template.recommendedLeadTimeDays?.let { "$it 天" } ?: "无固定建议")
+            if (isPhoneScenario) {
+                InfoRow("流程要求", "先建立并验证新手机号的恢复路径，才能停用旧手机号。")
+                InfoRow("关于服务商能力", "服务商支持某项能力 ≠ 你已配置该项能力；未确认前只会提示，不会自动确认依赖。")
+            }
             if (!executable) {
                 NoticeStrip("该场景为 planned（设计稿），当前版本无法创建变更计划。")
                 return@PdigPage
             }
-            SectionDivider("目标支付工具（必选）")
-            if (instruments.isEmpty()) {
-                EmptyState("没有支付工具节点。请先导入账单或接受候选对象，再回到这里。")
+            SectionDivider(if (isPhoneScenario) "旧手机号（必选）" else "目标支付工具（必选）")
+            if (candidates.isEmpty()) {
+                EmptyState(
+                    if (isPhoneScenario) {
+                        "没有身份锚点节点。请先在「待确认服务」中确认手机号身份锚点，再回到这里。"
+                    } else {
+                        "没有支付工具节点。请先导入账单或接受候选对象，再回到这里。"
+                    },
+                )
             } else {
-                instruments.forEach { n ->
+                candidates.forEach { n ->
                     SelectNodeCard(title = n.name, subtitle = n.id, selected = targetId == n.id, onSelect = { targetId = n.id })
                 }
             }
-            SectionDivider("替代支付工具（可选，仅记录）")
-            instruments.forEach { n ->
+            SectionDivider(if (isPhoneScenario) "新手机号（可选，仅记录）" else "替代支付工具（可选，仅记录）")
+            candidates.forEach { n ->
                 SelectNodeCard(title = n.name, subtitle = n.id, selected = altId == n.id, onSelect = { altId = n.id })
             }
             if (altId != null) {
-                Text("替代支付工具：$altId（当前仅作记录，不参与计划生成）", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(
+                    if (isPhoneScenario) "新手机号：$altId（当前仅作记录，可在后续手动关联）" else "替代支付工具：$altId（当前仅作记录，不参与计划生成）",
+                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 Spacer(Modifier.height(8.dp))
             }
             Button(

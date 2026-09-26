@@ -134,9 +134,10 @@ object SmokeRunner {
             }
         }
  
-         runScenarios("replace_payment_card", session)
-         runScenarios("expiring_payment_card", session)
-         runScenarios("close_payment_instrument", session)
+        runSmokeScenario("replace_payment_card", session, ::step)
+        runSmokeScenario("expiring_payment_card", session, ::step)
+        runSmokeScenario("close_payment_instrument", session, ::step)
+        runSmokeScenario("replace_phone_number", session, ::step)
 
         // 引擎证据链（候选/漂移）放到 scenario 之后：额外 funding 边不得干扰 must_change 判定。
         SmokeEngineSteps.run(session, ::step)
@@ -215,50 +216,6 @@ object SmokeRunner {
         return 1
     }
 
-    private fun runScenarios(scenarioId: String, session: DesktopSession) {
-        step("scenario-$scenarioId") {
-             val nodes = session.graph.nodes()
-             val activeDeps = session.graph.dependencies().filter { it.state == "active" }
-             val target = activeDeps.firstOrNull { d -> nodes.any { it.id == d.from } }
-                 ?.let { d -> nodes.first { it.id == d.from } }
-                 ?: nodes.first { it.kind == NodeKind.PAYMENT_INSTRUMENT.wire }
-             // 确保 target 至少一条 required 支付依赖 → impact 必产生 must_change（unknown→required 只能由用户路径设置）
-             val targetActive = activeDeps.filter { it.from == target.id }
-             if (targetActive.isNotEmpty()) {
-                 val dep = targetActive.first()
-                 if (dep.criticality != "required") {
-                     session.graph.setDependencyCriticality(dep.id, required = true)
-                 }
-             }
-             val planId = session.plans.createPlanForScenario(
-                 ScenarioPlanRequest(scenarioId = scenarioId, targetNodeId = target.id, effectiveDate = null),
-             )
-            val detail = checkNotNull(session.plans.planDetail(planId)) { "planDetail null" }
-            check(detail.actions.isNotEmpty()) { "plan produced no actions" }
-            // 完成每个 CHANGE action；done ≠ verified 断言
-            for (action in detail.actions) {
-                if (action.resolvesImpactKeys.isNotEmpty()) {
-                    session.plans.completeAction(planId, action.id)
-                    val after = checkNotNull(session.plans.planDetail(planId))
-                    val updated = after.actions.first { it.id == action.id }
-                    check(updated.done) { "action not marked done" }
-                    check(updated.verification?.status != DomainVerificationStatus.VERIFIED) {
-                        "done must NOT imply verified"
-                    }
-                }
-            }
-            // 可验证动作置 VERIFIED（人工确认路径）
-            val d2 = checkNotNull(session.plans.planDetail(planId))
-            for (action in d2.actions) {
-                val v = action.verification
-                if (action.done && v != null && v.status != DomainVerificationStatus.NOT_REQUIRED) {
-                    session.plans.verifyAction(planId, action.id)
-                }
-            }
-            val d3 = checkNotNull(session.plans.planDetail(planId))
-            check(d3.workflowState != com.pdig.core.generated.ChangePlanWorkflowState.DRAFT) { "plan did not leave draft" }
-        }
-    }
 
     private fun manualObservations(): List<Observation> = listOf(
         Observation(

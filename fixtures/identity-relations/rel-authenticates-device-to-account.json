@@ -1,0 +1,17 @@
+{
+  "id": "rel-authenticates-device-to-account",
+  "category": "identity-relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "authenticates：device → account, authentication 放行",
+  "input": {
+    "fromKind": "device",
+    "relation": "authenticates",
+    "toKind": "account",
+    "capability": "authentication"
+  },
+  "expected": {
+    "ok": true
+  }
+}

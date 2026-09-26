@@ -32,6 +32,7 @@ import com.pdig.app.ui.components.SectionHeader
 import com.pdig.app.ui.components.StatusChip
 import com.pdig.app.ui.theme.PdigTokens
 import com.pdig.core.domain.ActionVerificationStatus
+import com.pdig.core.domain.PlanAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -93,10 +94,22 @@ fun ChangePlanScreen(nav: NavController, planId: String) {
                     EmptyState("计划里没有需要执行的步骤。")
                 } else {
                     d.actions.forEach { a ->
+                        val prereqTitles = a.prerequisiteActionIds.mapNotNull { pid ->
+                            d.actions.firstOrNull { it.id == pid }?.title
+                        }
+                        val dependsTitles = d.actions.filter { a.id in it.prerequisiteActionIds }.map { it.title }
+                        val preconditionLines = buildPreconditionLines(a, prereqTitles, dependsTitles)
                         val v = a.verification
                         PdigCard {
                             Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
                                 Text(a.title, style = PdigTokens.BodyStrong)
+                                if (preconditionLines.isNotEmpty()) {
+                                    Text(
+                                        preconditionLines.joinToString("\n"),
+                                        style = PdigTokens.Caption,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm),
@@ -160,4 +173,27 @@ internal fun verificationLabel(status: ActionVerificationStatus?): String = when
     ActionVerificationStatus.EVIDENCE_SUGGESTED -> "发现新的依据，请确认"
     ActionVerificationStatus.VERIFIED -> "已验证"
     ActionVerificationStatus.FAILED -> "验证失败"
+}
+/** 前置关系人话：每条一句话，正面给出用户可以理解的动作依赖（对齐 Desktop PlanScreen）。 */
+internal fun buildPreconditionLines(
+    action: PlanAction,
+    prereqTitles: List<String>,
+    dependsTitles: List<String>,
+): List<String> = buildList {
+    if (prereqTitles.isNotEmpty()) {
+        add("必须先完成：${prereqTitles.joinToString("、")}")
+    }
+    if (dependsTitles.isNotEmpty()) {
+        add("完成后才能继续：${dependsTitles.joinToString("、")}")
+    }
+    val v = action.verification
+    if (action.done && v != null && v.status == ActionVerificationStatus.PENDING) {
+        add("等待验证")
+    }
+    if (action.title.contains("停用旧") && prereqTitles.isNotEmpty()) {
+        add("验证后才能移除旧路径")
+    }
+    if (isEmpty()) {
+        add("可以并行处理")
+    }
 }

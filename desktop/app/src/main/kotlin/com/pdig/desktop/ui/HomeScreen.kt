@@ -8,7 +8,7 @@ import com.pdig.desktop.ui.components.PdigCard
 import com.pdig.desktop.ui.components.PdigPage
 import com.pdig.desktop.ui.components.SectionDivider
 
-/** 首页：当前文件、需要关注的时间线、待确认计数、活跃场景入口。 */
+/** 首页：当前文件、需要关注的时间线、待确认计数、活跃场景入口、基础设施薄弱点。 */
 @Composable
 fun HomeScreen(ui: UiState) {
     val attention = ui.session.graph.timeline().filter { it.bucket == "attention" }
@@ -64,6 +64,13 @@ fun HomeScreen(ui: UiState) {
                     },
                 )
             }
+            SectionDivider("基础设施薄弱点")
+            val findings = buildFindings(ui.session)
+            PdigCard(
+                title = "查看恢复 / 认证路径薄弱点",
+                subtitle = "唯一恢复来源 ${findings.spof.size} 处 · 共享故障点 ${findings.shared.size} 处 · 恢复循环 ${findings.cycles.size} 处",
+                onClick = { ui.screen = Screen.FINDINGS },
+            )
         }
     }
 }

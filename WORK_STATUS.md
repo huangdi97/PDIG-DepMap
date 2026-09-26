@@ -1,7 +1,31 @@
 # WORK_STATUS.md
 
 > 本文件由执行 Agent 持续更新。不要删除历史关键结论。
->
+
+> **（当前）iOS N4：PDIGApp SwiftUI 产品 App（v0.3.0）落地，2026-10-04**
+> —— 新增 `ios/Sources/PDIGApp/`（@main App + Home/Lock/Onboarding/Findings/
+> Infrastructure/NodeDetail/Scenario/ChangePlan/Verification/Timeline/Import 八步/
+> Backup/DeleteAll/Settings）+ `ios/Tests/PDIGAppTests/`（8 条纯逻辑单测：导航、
+> Findings 组合、换号闸门、CTA 映射、导入流水线）+ `Package.swift` 新增 PDIGApp
+> 可执行/测试 target + `ios.yml`/`ios-runtime-visual.yml` 增加 app 构建、app 单测、
+> macOS 渲染截图步骤（保留 canonical 91+37=128 条不变）。
+> **IOS_BUILD / APP_TESTS / SCREENSHOTS 均 NOT_RUN（本机无 Swift，等 macOS CI 验证）**；
+> SQLCipher = NOT_RUN、截图 = MACOS_RENDER、真机 Keychain/LocalAuthentication = NOT_RUN。
+> `spec/`、`fixtures/`、`conformance/expected/`、`core/`（TS）、`android/`、`harmony/` 零改动。
+> **（当前）iOS N4 前置：v0.3.0 确定性引擎移植 + conformance 128 条，2026-10-02**
+> —— iOS Swift core（PDIGCore）移植 v0.3.0 六个确定性引擎（failure-domain /
+> recovery-cycle / action-dag / make-before-break / temporal-change / provider-policy，
+> 逐行对齐 core TS reference）+ RelationRegistry 新增 recovers/authenticates/controls +
+> Evaluators 新增 7 分类 + ConformanceTests 断言 91→128。
+> **本机（Windows）无 Swift 工具链：IOS_BUILD / conformance 均 NOT_RUN**，等 macOS CI
+> 执行（E-8），不得写成 PASS。`spec/`、`fixtures/`、`conformance/` 零改动。
+> **（本轮 Harmony 收口）2026-10-02：`HARMONY_CONFORMANCE_HOST = PASS`（179/179 host checks，0 fail）**，
+> `HARMONY_HOST_PASS = 124/128`（87 旧 + 37 新 canonical 在真实 ArkTS 运行时逐字节复现冻结 expected；
+> 4 DEVICE-BLOCKED 不变）。落地：domain/FailureDomain、impact/RecoveryCycle、domain/ActionDag、
+> domain/MakeBeforeBreak、domain/TemporalChange、services/ProviderPolicy 六个纯 ArkTS 引擎 +
+> ConformanceRunner 七个新类别分发 + ConformanceHost 断言 91→128；identity-relations 复用
+> generated/CanonicalRelations 的 recovers/authenticates/controls 注册表。`HARMONY_COMPILE_REACHABILITY
+= PASS`（--build）。`spec/`、`fixtures/`、`conformance/` 零改动。
 > **⚠ 2026-09-15 技术栈已变更**：Production 切换为三端原生（Kotlin/Swift/ArkTS），
 > 彻底退出 uni-app x / UTS / DCloud。本文件 2026-09-15 之前的内容属于
 > **Legacy 阶段**，其结论对旧实现仍然有效，但**不再是产品未来**。
@@ -96,7 +120,13 @@
 
 ## Current
 
-- **2026-09-25 Harmony N3 连续推进轮 #5（host Core-Journey E2E）**：parity 保持 29/73（纯测试 + 文档轮）。
+- **2026-09-26 v0.3.0 全量产品收口（Goal 契约执行完毕）**：
+  - **Canonical / Schema / Fixtures**：spec/domain/domain.json additive vNext（5 capabilities、3 新 relations、7 类 finding、replace_phone_number）；logical-schema-v4.json 冻结；128 fixtures（旧 91 逐字节未动 + 37 新），oracle selfcheck 128/128。
+  - **四端 conformance**：Android 128/128 PASS；Harmony host 179/179（canonical 124/128，4 条 Argon2id 原生/ArkData 为设备门禁，`PASS_WITH_EXTERNAL_GATES`）；iOS macOS CI **128/128 PASS**（run 36266556360）+ app_target audit true + SIMULATOR_BOOT PASS（run 36266836728）；Desktop smoke 17/17 + shots 53/53。
+  - **产品四端 UI**：replace_phone_number（Make-Before-Break 前置人话）、基础设施薄弱点页、服务商能力解释、Action DAG 前置展示——Desktop/Android/iOS 实现 + 截图证据；Harmony ArkTS 引擎全移植。
+  - **质量门禁**：`npm run check` / `check:full` 全绿（476 tests）；quality gate VERDICT PASS（file-size/cycle/complexity/escape/todo/secret/senslog 全 0）；Android :core:test 71/71、connected instrumentation 61/61；stability 3×green。
+  - **Release**：`PDIG-0.3.0` GitHub Release（Pre-release=YES）已发布；Windows setup+portable、APK+AAB、SHA256SUMS、SBOM（CycloneDX 45 components）、THIRD-PARTY-NOTICES、RELEASE_NOTES、PRODUCT_V0_3_0_RELEASE_MANIFEST 齐备；`product-v0.2.0`=ff69a3e 未动。
+  - **商店**：三端 SUBMISSION_READY（store/ 文案包），SUBMITTED = EXTERNAL_GATE（无账号/正式签名）。
   - 零生产源码改动；新增 `CoreJourneyHost.test.ets`（8 条 E2E）：导入→提案→确认→影响→备份/恢复往返。
   - **`HARMONY_CONFORMANCE_HOST = PASS`（142/142）**：87 canonical + 3 元测试 + 1 domain 自检 +
     14 persistence + 17 repository + 12 import-pipeline + **8 core-journey**，0 fail。
@@ -1472,7 +1502,6 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 > 1. `scripts/generate-conformance.ts` 编译失败（WeChatStatementAdapter 缺 driver + any 扩散）；
 > 2. `scripts/check-secrets.mjs` 误报 `spec/ui/design-tokens.json`；
 > 3. `tests/integration/multi-source-e2e.test.ts` K6 在并发 perf 饱和下默认 5s flaky。
-
 
 ---
 

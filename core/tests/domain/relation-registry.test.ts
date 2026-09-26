@@ -24,18 +24,29 @@ import {
  */
 
 describe('RelationDefinitionRegistry (MVP02 PHASE 6)', () => {
-  it('runtime 词表只有 funding_source / merchant_agreement（future 词表不进入 runtime）', () => {
-    expect(listRuntimeRelationIds()).toEqual(['funding_source', 'merchant_agreement'])
+  it('runtime 词表 = 5 个 production relations；verifies/bound_to 仍不进入 runtime（v0.3.0）', () => {
+    expect(listRuntimeRelationIds()).toEqual([
+      'funding_source',
+      'merchant_agreement',
+      'recovers',
+      'authenticates',
+      'controls',
+    ])
     expect(getRelationDefinition('verifies')).toBeNull()
-    expect(getRelationDefinition('recovers')).toBeNull()
     expect(getRelationDefinition('bound_to')).toBeNull()
+    expect(getRelationDefinition('recovers')).not.toBeNull()
+    expect(getRelationDefinition('authenticates')).not.toBeNull()
+    expect(getRelationDefinition('controls')).not.toBeNull()
     expect(getRelationDefinition('funding_source')).not.toBeNull()
     expect(getRelationDefinition('merchant_agreement')).not.toBeNull()
   })
 
   it('定义治理字段：defaultCriticality=unknown、verificationPolicy=user_only、impactSemantics=dependency', () => {
     for (const def of RELATION_DEFINITIONS) {
-      expect(def.capability).toBe('payment')
+      // v0.3.0：capability 从 payment-only 扩展到 5 个 runtime capabilities
+      expect(['payment', 'access', 'authentication', 'recovery', 'communication']).toContain(
+        def.capability,
+      )
       expect(def.defaultCriticality).toBe('unknown')
       expect(def.verificationPolicy).toBe('user_only')
       expect(def.impactSemantics).toBe('dependency')

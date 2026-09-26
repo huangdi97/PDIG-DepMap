@@ -11,14 +11,16 @@ import com.pdig.core.generated.Relation
 /**
  * RelationDefinitionRegistry —— relation 的治理定义。
  *
- * MVP02 runtime 只正式支持 funding_source / merchant_agreement。
- * Future / legacy 词表（verifies / recovers / bound_to / card_on_file 等）
+ * v0.3.0 runtime 正式支持 funding_source / merchant_agreement / recovers /
+ * authenticates / controls（与 core/src/domain/relation-registry.ts 同口径）。
+ * Future / legacy 词表（verifies / bound_to / card_on_file 等）
  * **不进入 runtime validation**，即便 DB CHECK 允许它们存在。
  *
  * 这是一个真实的历史缺陷防线：legacy UI 的 DECLARABLE_RELATIONS 曾暴露
  * `bound_to`，而 registry 并不承认它 —— 用户选了会被后端拒绝。
  * 见 LEGACY_BEHAVIOR_CORRECTIONS.md LC-003。Native 端不再重演。
  */
+
 
 data class RelationDefinition(
     val id: Relation,
@@ -52,6 +54,33 @@ val RELATION_DEFINITIONS: List<RelationDefinition> = listOf(
         fromKinds = listOf(NodeKind.ACCOUNT, NodeKind.PAYMENT_INSTRUMENT),
         toKinds = listOf(NodeKind.SERVICE, NodeKind.MEMBERSHIP, NodeKind.ACCOUNT),
         capability = Capability.PAYMENT,
+        allowsGroup = false,
+        allowedGroupModes = emptyList(),
+        defaultCriticality = com.pdig.core.generated.Criticality.UNKNOWN,
+    ),
+    RelationDefinition(
+        id = Relation.RECOVERS,
+        fromKinds = listOf(NodeKind.IDENTITY_ANCHOR, NodeKind.ACCOUNT, NodeKind.DEVICE, NodeKind.SERVICE),
+        toKinds = listOf(NodeKind.ACCOUNT, NodeKind.SERVICE, NodeKind.IDENTITY_ANCHOR),
+        capability = Capability.RECOVERY,
+        allowsGroup = true,
+        allowedGroupModes = listOf(GroupMode.ANY),
+        defaultCriticality = com.pdig.core.generated.Criticality.UNKNOWN,
+    ),
+    RelationDefinition(
+        id = Relation.AUTHENTICATES,
+        fromKinds = listOf(NodeKind.IDENTITY_ANCHOR, NodeKind.ACCOUNT, NodeKind.DEVICE),
+        toKinds = listOf(NodeKind.ACCOUNT, NodeKind.SERVICE),
+        capability = Capability.AUTHENTICATION,
+        allowsGroup = true,
+        allowedGroupModes = listOf(GroupMode.ANY),
+        defaultCriticality = com.pdig.core.generated.Criticality.UNKNOWN,
+    ),
+    RelationDefinition(
+        id = Relation.CONTROLS,
+        fromKinds = listOf(NodeKind.ACCOUNT, NodeKind.DEVICE),
+        toKinds = listOf(NodeKind.ACCOUNT, NodeKind.SERVICE, NodeKind.IDENTITY_ANCHOR),
+        capability = Capability.ACCESS,
         allowsGroup = false,
         allowedGroupModes = emptyList(),
         defaultCriticality = com.pdig.core.generated.Criticality.UNKNOWN,

@@ -6,13 +6,13 @@
   "generator": "core/scripts/generate-conformance.ts",
   "oracle": {
     "kind": "frozen-typescript-reference",
-    "commit": "1e2a9750afbbf60061bc5c1e0e55e9bab57b53cc",
+    "commit": "f7978b45702c7d1e8102a2eb793282a6cfdd17ef",
     "manifest": "LEGACY_REFERENCE_MANIFEST.md",
     "frozenTag": "v0.3.0-uniapp-reference",
     "baseline": "Test Files 43 passed, Tests 453 passed"
   },
   "counts": {
-    "cases": 91,
+    "cases": 128,
     "byCategory": {
       "impact": 13,
       "readiness": 16,
@@ -25,7 +25,14 @@
       "state-machine": 5,
       "parser": 22,
       "timeline": 3,
-      "backup": 1
+      "backup": 1,
+      "failure-domain": 6,
+      "recovery-cycle": 7,
+      "action-dag": 7,
+      "make-before-break": 3,
+      "temporal-change": 4,
+      "provider-policy": 4,
+      "identity-relations": 6
     }
   },
   "importFixtures": {
@@ -699,6 +706,265 @@
       "path": "fixtures/backup/backup-depmap-export-restore-roundtrip.json",
       "sha256": "8d393bed36df73cf908f3ad7bcd6203de536f18526a1f87838b5b4ced71e12c5",
       "description": "导出 payload → 加密为 .depmap → 解密 → 恢复到新库 → 再次导出必须逐字节相同；且无孤儿引用"
+    },
+    {
+      "id": "fd-2-paths-same-phone-independent-1",
+      "category": "failure-domain",
+      "path": "fixtures/failure-domain/fd-2-paths-same-phone-independent-1.json",
+      "sha256": "6c8b5c6f7a569e534fc1caa1ab435653fec7ee7571049c839bebb26ccea77346",
+      "description": "SMS 恢复与 Passkey 恢复都依赖 phone-a → pathCount=2, independentPathCount=1（V030-IP-01）"
+    },
+    {
+      "id": "fd-2-paths-different-devices-independent-2",
+      "category": "failure-domain",
+      "path": "fixtures/failure-domain/fd-2-paths-different-devices-independent-2.json",
+      "sha256": "4f0f1119799ca88c00b7dd002fabc68b953177f12115007bed8aa6c06e39d67b",
+      "description": "SMS 恢复依赖 phone-a、Passkey 依赖 phone-b → pathCount=2, independentPathCount=2"
+    },
+    {
+      "id": "fd-shared-provider-unconfirmed-needs-review",
+      "category": "failure-domain",
+      "path": "fixtures/failure-domain/fd-shared-provider-unconfirmed-needs-review.json",
+      "sha256": "de0a75b5025a3eaa2dac89d789ac23035c230995c837e4139ec722c3b79ba663",
+      "description": "两条路径同属 ChinaMobile，但 provider 共享未确认 → sharedFailureDomains 空、unresolvedAssumptions 非空"
+    },
+    {
+      "id": "fd-shared-provider-confirmed",
+      "category": "failure-domain",
+      "path": "fixtures/failure-domain/fd-shared-provider-confirmed.json",
+      "sha256": "5bd5ebe4b787ec6d06b3b518d435d9edc8a0f55637f9c1bd385d9109f6cdacb5",
+      "description": "两条路径同属 ChinaMobile 且 provider 共享已确认 → sharedFailureDomains=[fd-provider-1]"
+    },
+    {
+      "id": "fd-retired-edge-excluded",
+      "category": "failure-domain",
+      "path": "fixtures/failure-domain/fd-retired-edge-excluded.json",
+      "sha256": "b2cb6bb5970b0f2a3a1a9491d43fe2fd7449f33b0039be77c96d01944ea6cbfc",
+      "description": "retired 边不参与路径统计 → pathCount=0, independentPathCount=0"
+    },
+    {
+      "id": "fd-mixed-capability-excluded",
+      "category": "failure-domain",
+      "path": "fixtures/failure-domain/fd-mixed-capability-excluded.json",
+      "sha256": "2f937b2ef10c732a4c4ae693c6f1c7ecc9a545e3f92f23be852026971bc6a9f1",
+      "description": "认证边（authentication）不参与 recovery 路径统计 → pathCount=0"
+    },
+    {
+      "id": "rc-simple-cycle",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-simple-cycle.json",
+      "sha256": "545bf993757b1c0b191df4c20a42ea9165882bf232ddf397992c33c1043f00d5",
+      "description": "简单环 account-a→phone-a→account-a（confirmed）→ confirmed_cycle"
+    },
+    {
+      "id": "rc-multihop-cycle",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-multihop-cycle.json",
+      "sha256": "e59b106de792eecc99420dad636e4ccbd40056aa0da3a8de6d63d7f52c3d6538",
+      "description": "多跳环 account-a→phone-a→email-a→account-a → confirmed_cycle"
+    },
+    {
+      "id": "rc-no-cycle",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-no-cycle.json",
+      "sha256": "a19bd90d9aa4416b0cf3e678cf13595b9ec3dc8d94afa6325f11695175f4ecbe",
+      "description": "无环 → no_cycle"
+    },
+    {
+      "id": "rc-unconfirmed-edge-potential-only",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-unconfirmed-edge-potential-only.json",
+      "sha256": "bb988e7d4d59e4ee31b30b659bfabc9bf668eec7782f8ad19a1a3ee8372a06d9",
+      "description": "未确认边（proposal hint）只产生 potential_cycle，绝不 confirmed"
+    },
+    {
+      "id": "rc-retired-edge-excluded",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-retired-edge-excluded.json",
+      "sha256": "8a887ecb4656c9b240921103d1dee397e99fa0a287f7704f372707c9321c4045",
+      "description": "retired 边不参与检测 → no_cycle"
+    },
+    {
+      "id": "rc-mixed-capability-no-cycle",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-mixed-capability-no-cycle.json",
+      "sha256": "9397717b362735b1a670f7e030fc6078b1f420d933446d3466f10fe3f0cba4f8",
+      "description": "混合 capability 不产生 confirmed cycle → no_cycle"
+    },
+    {
+      "id": "rc-potential-cycle-only",
+      "category": "recovery-cycle",
+      "path": "fixtures/recovery-cycle/rc-potential-cycle-only.json",
+      "sha256": "fa2fa32bac465c596d81393d1dda023c148a4b6bea413a23965340134c743411",
+      "description": "只有 hint 边的环 → potential_cycle only（confirmedCycles 空）"
+    },
+    {
+      "id": "dag-linear-chain",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-linear-chain.json",
+      "sha256": "f2c77aa37dd0bdb26a427b84cbaad43dba0b2693f91968fc9da5a070059f1424",
+      "description": "线性链 a→b→c：stable topo order [a,b,c]"
+    },
+    {
+      "id": "dag-parallel-actions",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-parallel-actions.json",
+      "sha256": "b2bb3d3a469d24787e69e3c51fd861731f63dc2c7420f21b3bc8d7d225e40fd8",
+      "description": "并行动作 + 汇合点：stable topo order 确定"
+    },
+    {
+      "id": "dag-cycle-reject",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-cycle-reject.json",
+      "sha256": "bc49cc33eb40e784bfed9031c2b751613d78bbaf6e4928f8efbb2500aa76b886",
+      "description": "环 a→b→a 必须被拒绝"
+    },
+    {
+      "id": "dag-missing-prerequisite-reject",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-missing-prerequisite-reject.json",
+      "sha256": "848b26c8865d8ba42c845a9bacbb5f147d64e3c4e6f4065df985235456d62c47",
+      "description": "引用不存在的前置动作 → missing_prerequisite 拒绝"
+    },
+    {
+      "id": "dag-completed-prerequisite-ok",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-completed-prerequisite-ok.json",
+      "sha256": "2749324b344fe3530ceccd3b5483457774ebc816658e8fa567fa453f3690e5b7",
+      "description": "前置已完成仍合法（校验不关心 done 状态）"
+    },
+    {
+      "id": "dag-verification-prerequisite",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-verification-prerequisite.json",
+      "sha256": "20709af7bd79e816e69fd041df0b3507ed9122e2d1d485aa3f06536b5d854b7d",
+      "description": "验证动作作为前置：verify 必须在 retire 之前"
+    },
+    {
+      "id": "dag-stable-topo-order",
+      "category": "action-dag",
+      "path": "fixtures/action-dag/dag-stable-topo-order.json",
+      "sha256": "0a543d755735aa3e6f295ae16222083c93f80f8681a09a50747ff6186d984d40",
+      "description": "稳定拓扑顺序：相同输入两次输出相同"
+    },
+    {
+      "id": "mbb-new-path-not-verified-retire-blocked",
+      "category": "make-before-break",
+      "path": "fixtures/make-before-break/mbb-new-path-not-verified-retire-blocked.json",
+      "sha256": "35de8760a75d2033981d25fb362c66239d0d068c1c9bd721f4fe1d2394d46982",
+      "description": "新路径未建立/未验证 → retire blocked（BREAK_BEFORE_MAKE = FORBIDDEN）"
+    },
+    {
+      "id": "mbb-new-path-verified-retire-allowed",
+      "category": "make-before-break",
+      "path": "fixtures/make-before-break/mbb-new-path-verified-retire-allowed.json",
+      "sha256": "59b9a05b6cd350e446d6b8fd6546d76df4ab301904702412119cc6c67a37d2ef",
+      "description": "新路径已建立且已验证 → retire allowed"
+    },
+    {
+      "id": "mbb-done-not-verified-blocked",
+      "category": "make-before-break",
+      "path": "fixtures/make-before-break/mbb-done-not-verified-blocked.json",
+      "sha256": "0694d3c3487a95e0e8ed537eec3e3dfa7400399efe893d0d620d3c396705edbc",
+      "description": "新路径 done 但未 verified → 仍 blocked（done ≠ verified）"
+    },
+    {
+      "id": "tc-before-phase",
+      "category": "temporal-change",
+      "path": "fixtures/temporal-change/tc-before-phase.json",
+      "sha256": "60b5911a4295bf0b4b69330d81a89059bac03997867d2099cf69e9c6a10d27bb",
+      "description": "now < effectiveAt → before；retire 未开放"
+    },
+    {
+      "id": "tc-transition-phase-verified-retire-allowed",
+      "category": "temporal-change",
+      "path": "fixtures/temporal-change/tc-transition-phase-verified-retire-allowed.json",
+      "sha256": "0857e4c151eb56f29e178e138b7fdf774db8ba161494f384e0f40fb6f640590d",
+      "description": "transition 中 + 全部新路径已验证 → retireAllowedAt 给出"
+    },
+    {
+      "id": "tc-transition-unverified-blocked",
+      "category": "temporal-change",
+      "path": "fixtures/temporal-change/tc-transition-unverified-blocked.json",
+      "sha256": "2a84b83b300775330941d425780b087c74ac961247c329562078f377e1f7bef6",
+      "description": "transition 中 + 新路径未验证 → retire blocked 即使时间已到"
+    },
+    {
+      "id": "tc-invalid-order",
+      "category": "temporal-change",
+      "path": "fixtures/temporal-change/tc-invalid-order.json",
+      "sha256": "b0f187b63f180e844532fc52f5d10b1d9ad5400f1502272ef65a7e66d32340dd",
+      "description": "verificationNotBefore < effectiveAt → 时间窗顺序不合法"
+    },
+    {
+      "id": "pp-supports-but-not-configured",
+      "category": "provider-policy",
+      "path": "fixtures/provider-policy/pp-supports-but-not-configured.json",
+      "sha256": "b34d15477286bcdcea4d6724a1d96e919ba5d89f5681b262f652777fcccbbbfc",
+      "description": "Provider 支持 SMS 恢复但用户未配置 → suggestion"
+    },
+    {
+      "id": "pp-supports-and-configured",
+      "category": "provider-policy",
+      "path": "fixtures/provider-policy/pp-supports-and-configured.json",
+      "sha256": "a68278c9e7059486f386538804bc6e99513b5eb4b7c1911b8d7c92ed75947d8a",
+      "description": "Provider 支持且用户已配置 → interpretation"
+    },
+    {
+      "id": "pp-unverifiable-needs-review",
+      "category": "provider-policy",
+      "path": "fixtures/provider-policy/pp-unverifiable-needs-review.json",
+      "sha256": "879f5c0b586fc99c79b5ade17e3dc26189fb265f89f857b02a35571d12e3447f",
+      "description": "无法核实的 policy → needs_review，不自动影响建议"
+    },
+    {
+      "id": "pp-state-needs-review-no-auto-influence",
+      "category": "provider-policy",
+      "path": "fixtures/provider-policy/pp-state-needs-review-no-auto-influence.json",
+      "sha256": "efad60a9bf2802cfc877655c5ca315ce9533acab425c4fea2417e670eaea73e7",
+      "description": "needs_review policy 不产生 suggestion"
+    },
+    {
+      "id": "rel-recovers-phone-to-account",
+      "category": "identity-relations",
+      "path": "fixtures/identity-relations/rel-recovers-phone-to-account.json",
+      "sha256": "27201e80a22add11ea3c5cb911d0e3a71c87737409f5be8a7527bc75ef072d8d",
+      "description": "recovers：identity_anchor(phone) → account, recovery 放行"
+    },
+    {
+      "id": "rel-recovers-rejects-payment-capability",
+      "category": "identity-relations",
+      "path": "fixtures/identity-relations/rel-recovers-rejects-payment-capability.json",
+      "sha256": "17095fe26ae0534a3e76e79f4a655d25b44b23417f15a4be423b6652b64edfc6",
+      "description": "recovers 要求 recovery；payment 被拒"
+    },
+    {
+      "id": "rel-authenticates-device-to-account",
+      "category": "identity-relations",
+      "path": "fixtures/identity-relations/rel-authenticates-device-to-account.json",
+      "sha256": "39e3aadc16197b87282908c919480f31ce05f0ea41508ff520aec00f68370266",
+      "description": "authenticates：device → account, authentication 放行"
+    },
+    {
+      "id": "rel-authenticates-rejects-recovery-capability",
+      "category": "identity-relations",
+      "path": "fixtures/identity-relations/rel-authenticates-rejects-recovery-capability.json",
+      "sha256": "70a7e908de47ed06afb261a1a7906e002002c22792d6c922d86a5ce3e3617f7a",
+      "description": "authenticates 要求 authentication；recovery 被拒"
+    },
+    {
+      "id": "rel-controls-account-to-service",
+      "category": "identity-relations",
+      "path": "fixtures/identity-relations/rel-controls-account-to-service.json",
+      "sha256": "29c71407f80f24f116090108bfbbe96dcb7cf91a9b062c7deefc39a06963da66",
+      "description": "controls：account → service, access 放行"
+    },
+    {
+      "id": "rel-verifies-still-not-runtime",
+      "category": "identity-relations",
+      "path": "fixtures/identity-relations/rel-verifies-still-not-runtime.json",
+      "sha256": "2584d0d5991b225f358f08366a82184a60fbe0313981bf3c9b5168c916d2f706",
+      "description": "verifies 仍不进入 runtime registry（v0.3.0 保持）"
     }
   ]
 }

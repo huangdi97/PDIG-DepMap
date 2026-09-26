@@ -152,6 +152,14 @@ import {
   ParseResult,
   WechatParser,
 } from '../sources/Parsers';
+import { PathIndependenceInput, computePathIndependence } from '../domain/FailureDomain';
+import { HintedEdge, RecoveryCycleInput, detectRecoveryCycles } from '../impact/RecoveryCycle';
+import { ActionDagInput, DagAction, validateActionDag } from '../domain/ActionDag';
+import { MakeBeforeBreakInput, evaluateMakeBeforeBreak } from '../domain/MakeBeforeBreak';
+import { TemporalChangeWindow, classifyTemporalPhase } from '../domain/TemporalChange';
+import { ProviderPolicy, ProviderPolicyInfluence, interpretProviderCapability } from '../services/ProviderPolicy';
+import { ActionVerification, ActionVerificationMethod, ActionVerificationStatus } from '../domain/Entities';
+import { providerPolicyStateFromWire } from '../generated/CanonicalEnums';
 
 /* ==========================================================================
  * 结果类型
@@ -641,6 +649,30 @@ export function computeCase(
   if (category === 'parser') {
     return runParser(jt, source);
   }
+  if (category === 'failure-domain') {
+    return runFailureDomain(jt);
+  }
+  if (category === 'recovery-cycle') {
+    return runRecoveryCycle(jt);
+  }
+  if (category === 'action-dag') {
+    return runActionDag(jt);
+  }
+  if (category === 'make-before-break') {
+    return runMakeBeforeBreak(jt);
+  }
+  if (category === 'temporal-change') {
+    return runTemporalChange(jt);
+  }
+  if (category === 'provider-policy') {
+    return runProviderPolicy(jt);
+  }
+  if (category === 'identity-relations') {
+    // 与 relations 共用同一 registry 校验（recovers / authenticates / controls）。
+    // 这些 relation 的运行时定义已在 generated/CanonicalRelations.ets 中注册，
+    // 因此走与 relations 相同的 validateRelationUse 路径即可，无需第二份实现。
+    return runRelations(jt);
+  }
   return '';
 }
 
@@ -1038,6 +1070,384 @@ function normalizeResult(r: RelationValidationResult): string {
   }
   return '{"ok":false,"reason":' + jsonEscape(r.reason) + '}';
 }
+/* ==========================================================================
+ * v0.3.0 deterministic engines —— failure-domain / recovery-cycle / action-dag /
+ * make-before-break / temporal-change / provider-policy / identity-relations
+ *
+ * 输出形状逐字段复刻 fixture（也是 Android RunnerV030.kt 的 serialize 顺序）：
+ * 比对是逐字节的，键序不同即 FAIL。
+ * ========================================================================== */
+
+function runFailureDomain(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const input = new PathIndependenceInput();
+  input.targetNodeId = jt.requireString('targetNodeId');
+  const cap = capabilityFromWire(jt.requireString('capability'));
+  if (cap === undefined) {
+    throw new Error('unknown failure-domain capability wire value');
+  }
+  input.capability = cap;
+  jt.setWindow(inputIdx, close);
+  input.dependencies = parseDependencyArray(jt);
+  jt.setWindow(inputIdx, close);
+  input.confirmedDomains = parseDomainKeyIdMap(jt, 'confirmedDomains');
+  jt.setWindow(inputIdx, close);
+  input.suspectedDomains = parseDomainKeyIdMap(jt, 'suspectedDomains');
+  jt.setWindow(inputIdx, close);
+  input.edgeToDomainKeys = parseStringListMap(jt, 'edgeToDomainKeys');
+  jt.resetWindow();
+
+  const r = computePathIndependence(input);
+  return '{"targetNodeId":' + jsonEscape(r.targetNodeId) +
+    ',"capability":' + jsonEscape(r.capability) +
+    ',"pathCount":' + r.pathCount +
+    ',"independentPathCount":' + r.independentPathCount +
+    ',"sharedFailureDomains":' + serializeStrings(r.sharedFailureDomains) +
+    ',"unresolvedAssumptions":' + serializeStrings(r.unresolvedAssumptions) + '}';
+}
+
+function runRecoveryCycle(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const input = new RecoveryCycleInput();
+  const cap = capabilityFromWire(jt.requireString('capability'));
+  if (cap === undefined) {
+    throw new Error('unknown recovery-cycle capability wire value');
+  }
+  input.capability = cap;
+  jt.setWindow(inputIdx, close);
+  input.dependencies = parseDependencyArray(jt);
+  jt.setWindow(inputIdx, close);
+  input.hintedEdges = parseHintedEdges(jt);
+  jt.resetWindow();
+
+  const r = detectRecoveryCycles(input);
+  return '{"status":' + jsonEscape(r.status) +
+    ',"confirmedCycles":' + serializeCyclePaths(r.confirmedCycles) +
+    ',"potentialCycles":' + serializeCyclePaths(r.potentialCycles) +
+    ',"capability":' + jsonEscape(r.capability) + '}';
+}
+
+function runActionDag(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const input = new ActionDagInput();
+  const ai = jt.findField('actions');
+  if (ai >= 0 && jt.getSource().charAt(ai) === '[') {
+    const outerEnd = jt.getEnd();
+    const pairs = jt.splitTopLevelObjects(ai);
+    for (let p = 0; p + 1 < pairs.length; p += 2) {
+      jt.setWindow(pairs[p], pairs[p + 1]);
+      const a = new DagAction();
+      a.id = jt.requireString('id');
+      a.prerequisiteActionIds = requireStringArrayOrEmpty(jt, 'prerequisiteActionIds');
+      jt.resetWindow();
+      jt.setWindow(ai, outerEnd);
+      input.actions.push(a);
+    }
+  }
+  jt.resetWindow();
+
+  const r = validateActionDag(input);
+  const offending = r.offendingActionId === null ? 'null' : jsonEscape(r.offendingActionId);
+  return '{"ok":' + boolText(r.ok) +
+    ',"violation":' + jsonEscape(r.violation) +
+    ',"offendingActionId":' + offending +
+    ',"topologicalOrder":' + serializeStrings(r.topologicalOrder) + '}';
+}
+
+function runMakeBeforeBreak(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const input = new MakeBeforeBreakInput();
+  input.retireAlreadyDone = jt.optionalBoolOr('retireDone', false);
+  jt.setWindow(inputIdx, close);
+  input.newPathActions = parseMbbActionArray(jt, 'newPaths');
+  jt.setWindow(inputIdx, close);
+  input.verificationActions = parseMbbActionArray(jt, 'verifications');
+  jt.resetWindow();
+
+  const r = evaluateMakeBeforeBreak(input);
+  return '{"status":' + jsonEscape(r.status) +
+    ',"unverifiedNewPaths":' + serializeStrings(r.unverifiedNewPaths) +
+    ',"reason":' + jsonEscape(r.reason) + '}';
+}
+
+function runTemporalChange(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const wi = jt.findField('window');
+  if (wi < 0 || jt.getSource().charAt(wi) !== '{') {
+    throw new Error('temporal-change input has no window object');
+  }
+  const wClose = jt.matchBracket(wi);
+  jt.setWindow(wi, wClose);
+  const window = new TemporalChangeWindow();
+  window.effectiveAt = jt.requireString('effectiveAt');
+  window.verificationNotBefore = jt.optionalString('verificationNotBefore');
+  window.verificationDueAt = jt.optionalString('verificationDueAt');
+  window.retireOldPathAfter = jt.optionalString('retireOldPathAfter');
+  jt.resetWindow();
+  jt.setWindow(inputIdx, close);
+  const now = jt.requireString('now');
+  const verified = jt.optionalBoolOr('verified', false);
+  jt.resetWindow();
+
+  const r = classifyTemporalPhase(window, now, verified);
+  const allowed = r.retireAllowedAt === null ? 'null' : jsonEscape(r.retireAllowedAt);
+  const blocked = r.retireBlockedReason === null ? 'null' : jsonEscape(r.retireBlockedReason);
+  return '{"phase":' + jsonEscape(r.phase) +
+    ',"validOrder":' + boolText(r.validOrder) +
+    ',"retireAllowedAt":' + allowed +
+    ',"retireBlockedReason":' + blocked + '}';
+}
+
+function runProviderPolicy(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const policy = parseProviderPolicy(jt);
+  jt.setWindow(inputIdx, close);
+  const userConfigured = jt.optionalBoolOr('userConfigured', false);
+  jt.resetWindow();
+
+  const r = interpretProviderCapability(policy, userConfigured);
+  return '{"provider":' + jsonEscape(r.provider) +
+    ',"supports":' + boolText(r.supports) +
+    ',"configured":' + boolText(r.configured) +
+    ',"explanation":' + jsonEscape(r.explanation) +
+    ',"influences":' + serializeInfluenceWires(r.influences) +
+    ',"state":' + jsonEscape(r.state) + '}';
+}
+
+/* --------------------------------------------------------------------------
+ * v0.3.0 输入解析辅助
+ * -------------------------------------------------------------------------- */
+
+/** 解析 `{ "key": "...", "id": "..." }` 数组为 Map（confirmed/suspected domains）。 */
+function parseDomainKeyIdMap(jt: JsonText, name: string): Map<string, string> {
+  const m = new Map<string, string>();
+  const i = jt.findField(name);
+  if (i < 0 || jt.getSource().charAt(i) !== '[') {
+    return m;
+  }
+  const outerEnd = jt.getEnd();
+  const pairs = jt.splitTopLevelObjects(i);
+  for (let p = 0; p + 1 < pairs.length; p += 2) {
+    jt.setWindow(pairs[p], pairs[p + 1]);
+    const key = jt.requireString('key');
+    const id = jt.requireString('id');
+    m.set(key, id);
+    jt.resetWindow();
+    jt.setWindow(i, outerEnd);
+  }
+  jt.resetWindow();
+  return m;
+}
+
+/** 解析 `{ "edgeId": ["KEY", ...], ... }` 的字符串列表映射（edgeToDomainKeys）。 */
+function parseStringListMap(jt: JsonText, name: string): Map<string, string[]> {
+  const m = new Map<string, string[]>();
+  const i = jt.findField(name);
+  if (i < 0 || jt.getSource().charAt(i) !== '{') {
+    return m;
+  }
+  const closeIdx = jt.matchBracket(i);
+  if (closeIdx < 0) {
+    return m;
+  }
+  let k = i + 1;
+  while (k < closeIdx) {
+    if (jt.getSource().charAt(k) === '"') {
+      const key = jt.readString(k);
+      k = jt.skipString(k);
+      while (k < closeIdx && (jt.getSource().charAt(k) === ' ' || jt.getSource().charAt(k) === '\t' ||
+        jt.getSource().charAt(k) === '\n' || jt.getSource().charAt(k) === '\r' ||
+        jt.getSource().charAt(k) === ':')) {
+        k++;
+      }
+      if (k < closeIdx && jt.getSource().charAt(k) === '[') {
+        const aClose = jt.matchBracket(k);
+        const list: string[] = [];
+        let j = k + 1;
+        while (j < aClose) {
+          if (jt.getSource().charAt(j) === '"') {
+            list.push(jt.readString(j));
+            j = jt.skipString(j);
+            continue;
+          }
+          j++;
+        }
+        m.set(key, list);
+        k = aClose + 1;
+      }
+      while (k < closeIdx && jt.getSource().charAt(k) !== ',') {
+        k++;
+      }
+      k++;
+      continue;
+    }
+    k++;
+  }
+  return m;
+}
+
+/** 解析 hintedEdges 数组（recovery-cycle 的 proposal 暗示边）。 */
+function parseHintedEdges(jt: JsonText): HintedEdge[] {
+  const out: HintedEdge[] = [];
+  const i = jt.findField('hintedEdges');
+  if (i < 0 || jt.getSource().charAt(i) !== '[') {
+    return out;
+  }
+  const outerEnd = jt.getEnd();
+  const pairs = jt.splitTopLevelObjects(i);
+  for (let p = 0; p + 1 < pairs.length; p += 2) {
+    jt.setWindow(pairs[p], pairs[p + 1]);
+    const e = new HintedEdge();
+    e.from = jt.requireString('from');
+    e.to = jt.requireString('to');
+    jt.resetWindow();
+    jt.setWindow(i, outerEnd);
+    out.push(e);
+  }
+  jt.resetWindow();
+  return out;
+}
+
+/** 解析 make-before-break 的 action 数组（newPaths / verifications）。 */
+function parseMbbActionArray(jt: JsonText, name: string): PlanAction[] {
+  const out: PlanAction[] = [];
+  const i = jt.findField(name);
+  if (i < 0 || jt.getSource().charAt(i) !== '[') {
+    return out;
+  }
+  const outerEnd = jt.getEnd();
+  const pairs = jt.splitTopLevelObjects(i);
+  for (let p = 0; p + 1 < pairs.length; p += 2) {
+    jt.setWindow(pairs[p], pairs[p + 1]);
+    const a = new PlanAction();
+    a.id = jt.requireString('id');
+    a.done = jt.optionalBoolOr('done', false);
+    const vi = jt.findField('verification');
+    if (vi >= 0 && !jt.isNull(vi) && jt.getSource().charAt(vi) === '{') {
+      const vClose = jt.matchBracket(vi);
+      jt.setWindow(vi, vClose);
+      const v = new ActionVerification();
+      v.method = verificationMethodFromWireEntities(jt.requireString('method'));
+      v.status = verificationStatusFromWireEntities(jt.requireString('status'));
+      a.verification = v;
+      jt.resetWindow();
+    }
+    jt.resetWindow();
+    jt.setWindow(i, outerEnd);
+    out.push(a);
+  }
+  jt.resetWindow();
+  return out;
+}
+
+/** wire → Entities.ActionVerificationMethod（值域与 generated 相同，类型以 Entities 为准）。 */
+function verificationMethodFromWireEntities(value: string): ActionVerificationMethod {
+  if (value === ActionVerificationMethod.MANUAL_CONFIRMATION) {
+    return ActionVerificationMethod.MANUAL_CONFIRMATION;
+  }
+  if (value === ActionVerificationMethod.FUTURE_OBSERVATION) {
+    return ActionVerificationMethod.FUTURE_OBSERVATION;
+  }
+  if (value === ActionVerificationMethod.AUTHORITATIVE_SOURCE) {
+    return ActionVerificationMethod.AUTHORITATIVE_SOURCE;
+  }
+  throw new Error('unknown verification method wire value: ' + value);
+}
+
+/** wire → Entities.ActionVerificationStatus（done ≠ verified 的判定基准）。 */
+function verificationStatusFromWireEntities(value: string): ActionVerificationStatus {
+  if (value === ActionVerificationStatus.NOT_REQUIRED) {
+    return ActionVerificationStatus.NOT_REQUIRED;
+  }
+  if (value === ActionVerificationStatus.PENDING) {
+    return ActionVerificationStatus.PENDING;
+  }
+  if (value === ActionVerificationStatus.EVIDENCE_SUGGESTED) {
+    return ActionVerificationStatus.EVIDENCE_SUGGESTED;
+  }
+  if (value === ActionVerificationStatus.VERIFIED) {
+    return ActionVerificationStatus.VERIFIED;
+  }
+  if (value === ActionVerificationStatus.FAILED) {
+    return ActionVerificationStatus.FAILED;
+  }
+  throw new Error('unknown verification status wire value: ' + value);
+}
+
+/** 解析 policy 对象；`policy: null` 或缺失 → null（pp-unverifiable 用例）。 */
+function parseProviderPolicy(jt: JsonText): ProviderPolicy | null {
+  const pi = jt.findField('policy');
+  if (pi < 0 || jt.isNull(pi)) {
+    return null;
+  }
+  if (jt.getSource().charAt(pi) !== '{') {
+    throw new Error('provider-policy input policy is not an object');
+  }
+  const pClose = jt.matchBracket(pi);
+  jt.setWindow(pi, pClose);
+  const policy = new ProviderPolicy();
+  policy.provider = jt.requireString('provider');
+  policy.policyType = jt.requireString('policyType');
+  policy.sourceUrl = jt.optionalStringOr('sourceUrl', '');
+  policy.retrievedAt = jt.optionalStringOr('retrievedAt', '');
+  policy.lastVerifiedAt = jt.optionalString('lastVerifiedAt');
+  const state = providerPolicyStateFromWire(jt.requireString('state'));
+  if (state === undefined) {
+    throw new Error('unknown provider policy state wire value');
+  }
+  policy.state = state;
+  jt.resetWindow();
+  return policy;
+}
+
+/** 二维字符串数组（环路径列表）序列化。 */
+function serializeCyclePaths(cycles: string[][]): string {
+  const parts: string[] = [];
+  for (let i = 0; i < cycles.length; i++) {
+    parts.push(serializeStrings(cycles[i]));
+  }
+  return '[' + parts.join(',') + ']';
+}
+
+/** ProviderPolicyInfluence 枚举序列化（wire 值与枚举成员一致）。 */
+function serializeInfluenceWires(influences: ProviderPolicyInfluence[]): string {
+  const out: string[] = [];
+  for (let i = 0; i < influences.length; i++) {
+    out.push(jsonEscape(influences[i]));
+  }
+  return '[' + out.join(',') + ']';
+}
+
 
 /* ==========================================================================
  * readiness（16 用例）—— 直接调用 domain/PlanReadiness

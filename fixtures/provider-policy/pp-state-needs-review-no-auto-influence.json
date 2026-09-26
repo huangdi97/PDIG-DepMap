@@ -1,0 +1,35 @@
+{
+  "id": "pp-state-needs-review-no-auto-influence",
+  "category": "provider-policy",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "needs_review policy 不产生 suggestion",
+  "input": {
+    "policy": {
+      "provider": "ChinaMobile",
+      "policyType": "recovery",
+      "sourceUrl": "https://www.10086.cn/policy",
+      "retrievedAt": "2026-09-13T00:00:00.000Z",
+      "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "jurisdiction": "CN",
+      "accountTypeScope": null,
+      "parameters": {
+        "sms_recovery": true
+      },
+      "policyRevision": 3,
+      "state": "needs_review"
+    },
+    "userConfigured": false
+  },
+  "expected": {
+    "provider": "ChinaMobile",
+    "supports": false,
+    "configured": false,
+    "explanation": "该规则的来源无法核实，已标记为需要重新确认。",
+    "influences": [],
+    "state": "needs_review"
+  }
+}

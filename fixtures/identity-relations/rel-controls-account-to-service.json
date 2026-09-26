@@ -1,0 +1,17 @@
+{
+  "id": "rel-controls-account-to-service",
+  "category": "identity-relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "controls：account → service, access 放行",
+  "input": {
+    "fromKind": "account",
+    "relation": "controls",
+    "toKind": "service",
+    "capability": "access"
+  },
+  "expected": {
+    "ok": true
+  }
+}

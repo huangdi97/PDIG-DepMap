@@ -63,12 +63,17 @@ const PERSISTENCE_HOST_TEST_COUNT = 14 // 与 harmony/entry/src/test/Persistence
 const REPOSITORY_HOST_TEST_COUNT = 17 // 与 harmony/entry/src/test/RepositoryHost.test.ets 的 it() 数一一对应（round#3）
 const IMPORT_PIPELINE_HOST_TEST_COUNT = 12 // 与 harmony/entry/src/test/ImportPipelineHost.test.ets 的 it() 数一一对应（round#4）
 const CORE_JOURNEY_HOST_TEST_COUNT = 8 // 与 harmony/entry/src/test/CoreJourneyHost.test.ets 的 it() 数一一对应（round#5）
-const EXPECT_HOST_TOTAL = 91 + PERSISTENCE_HOST_TEST_COUNT + REPOSITORY_HOST_TEST_COUNT + IMPORT_PIPELINE_HOST_TEST_COUNT + CORE_JOURNEY_HOST_TEST_COUNT // 87 canonical + 3 元测试 + 1 domain 自检 + 14 persistence + 17 repository + 12 import-pipeline + 8 core-journey
-const EXPECT_PASS = 91 + PERSISTENCE_HOST_TEST_COUNT + REPOSITORY_HOST_TEST_COUNT + IMPORT_PIPELINE_HOST_TEST_COUNT + CORE_JOURNEY_HOST_TEST_COUNT
+// v0.3.0 确定性引擎收口（2026-09-26）：canonical 分母 91 → 128
+// （failure-domain 6 + recovery-cycle 7 + action-dag 7 + make-before-break 3 +
+//  temporal-change 4 + provider-policy 4 + identity-relations 6 = 37 条新 fixture）。
+// ConformanceHost.test.ets 的 it() 数随之从 91 → 128（124 已执行 + 3 元测试 + 1 domain 自检）。
+const CONFORMANCE_HOST_TEST_COUNT = 128
+const EXPECT_HOST_TOTAL = CONFORMANCE_HOST_TEST_COUNT + PERSISTENCE_HOST_TEST_COUNT + REPOSITORY_HOST_TEST_COUNT + IMPORT_PIPELINE_HOST_TEST_COUNT + CORE_JOURNEY_HOST_TEST_COUNT // 124 canonical + 3 元测试 + 1 domain 自检 + 14 persistence + 17 repository + 12 import-pipeline + 8 core-journey
+const EXPECT_PASS = EXPECT_HOST_TOTAL
 const EXPECT_FAIL = 0
 const EXPECT_ERROR = 0
-const CANONICAL_TOTAL = 91
-const CANONICAL_EXECUTED = 87
+const CANONICAL_TOTAL = 128
+const CANONICAL_EXECUTED = 124
 const CANONICAL_IMPL_MISSING = 0
 const CANONICAL_ENV_BLOCKED = 0
 const CANONICAL_RUNTIME_BLOCKED = 4
@@ -163,6 +168,19 @@ function writeReport(canonCases) {
       status: (c.status === 'Success') ? 'PASS' : 'FAIL',
       category,
     }
+  }
+  // 设备门禁例外必须**显式登记**到 results（带逐条理由），
+  // 而不是静默缺席 —— 缺席会被 harness 误读为"没有跑"，既不诚实也模糊门禁。
+  // 理由与 harmony/entry/src/main/ets/conformance/ConformanceRunner.ets 的
+  // RUNTIME_BLOCKED_CASES 注释一一对应（V030 设备阻塞：Argon2id native / ArkData）。
+  const blockedWithReason = [
+    ['depmap-golden-v1', 'requires on-device Argon2id (NAPI .so) + AES-256-GCM; host unit tests cannot load OHOS ABI native lib'],
+    ['depmap-utf8-password-normalization', 'requires on-device Argon2id (NAPI .so); host unit tests cannot load OHOS ABI native lib'],
+    ['backup-depmap-export-restore-roundtrip', 'requires ArkData real DB + encrypted container round-trip on device'],
+    ['migration-db-v1-to-v3', 'requires relationalStore + v1 schema seed data on device'],
+  ]
+  for (const [caseId, reason] of blockedWithReason) {
+    results[caseId] = { status: 'RUNTIME_BLOCKED', category: 'depmap', detail: reason }
   }
   const report = {
     platform: 'harmony',

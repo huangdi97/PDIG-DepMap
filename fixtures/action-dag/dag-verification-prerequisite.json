@@ -1,0 +1,45 @@
+{
+  "id": "dag-verification-prerequisite",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "验证动作作为前置：verify 必须在 retire 之前",
+  "input": {
+    "actions": [
+      {
+        "id": "retire",
+        "title": "retire",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "verify"
+        ]
+      },
+      {
+        "id": "verify",
+        "title": "verify",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      }
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "violation": "none",
+    "offendingActionId": null,
+    "topologicalOrder": [
+      "verify",
+      "retire"
+    ]
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "id": "rel-verifies-still-not-runtime",
+  "category": "identity-relations",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "verifies 仍不进入 runtime registry（v0.3.0 保持）",
+  "input": {
+    "fromKind": "account",
+    "relation": "verifies",
+    "toKind": "account",
+    "capability": "payment"
+  },
+  "expected": {
+    "ok": false,
+    "reason": "relation 'verifies' is not in the runtime registry"
+  }
+}

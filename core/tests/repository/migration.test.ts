@@ -181,7 +181,7 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
   it('rejects a database whose schema_version is newer than supported', () => {
     migrate(driver)
     driver.prepare(`UPDATE meta SET value = '99' WHERE key = 'schema_version'`).run()
-    expect(() => migrate(driver)).toThrowError(/newer than supported/)
+    expect(() => migrate(driver)).toThrowError(/newer than target/)
   })
 
   it('T7: invalid relation/capability rejected（v2 CHECK 延续）', () => {
@@ -286,8 +286,8 @@ describe('Schema migration (v1→v2, MVP02 T1–T10)', () => {
     expect(Number((orphan as Record<string, unknown>)['c'])).toBe(0)
   })
 
-  it('MIGRATIONS 顺序完整（1,2）', () => {
-    expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2, 3])
+  it('MIGRATIONS 顺序完整（1,2,3,4）', () => {
+    expect(MIGRATIONS.map((m) => m.version)).toEqual([1, 2, 3, 4])
   })
 
   // -------------------------------------------------------------------------

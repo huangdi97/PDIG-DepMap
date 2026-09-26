@@ -1,0 +1,37 @@
+{
+  "id": "pp-supports-and-configured",
+  "category": "provider-policy",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "Provider 支持且用户已配置 → interpretation",
+  "input": {
+    "policy": {
+      "provider": "ChinaMobile",
+      "policyType": "recovery",
+      "sourceUrl": "https://www.10086.cn/policy",
+      "retrievedAt": "2026-09-13T00:00:00.000Z",
+      "lastVerifiedAt": "2026-09-13T00:00:00.000Z",
+      "effectiveFrom": null,
+      "effectiveTo": null,
+      "jurisdiction": "CN",
+      "accountTypeScope": null,
+      "parameters": {
+        "sms_recovery": true
+      },
+      "policyRevision": 3,
+      "state": "effective"
+    },
+    "userConfigured": true
+  },
+  "expected": {
+    "provider": "ChinaMobile",
+    "supports": true,
+    "configured": true,
+    "explanation": "服务商支持这项能力，且你已配置。",
+    "influences": [
+      "interpretation"
+    ],
+    "state": "effective"
+  }
+}

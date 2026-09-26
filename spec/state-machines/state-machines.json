@@ -231,6 +231,70 @@
         "action_verify"
       ],
       "atomicity": "the Reality mutation and the revision increment MUST happen inside one database transaction on every platform"
+    },
+    {
+      "machineId": "FailureDomainStatus",
+      "entity": "FailureDomain",
+      "field": "status",
+      "initial": "needs_review",
+      "terminal": [],
+      "transitions": {
+        "needs_review": ["confirmed"],
+        "confirmed": []
+      },
+      "creationRule": {
+        "machineMayConfirm": false,
+        "userOrAuthoritativeMayConfirm": true,
+        "unconfirmedReview": "kept as needs_review forever unless user/authoritative evidence arrives"
+      },
+      "guards": [
+        {
+          "id": "FD-CONFIRM-GATE",
+          "rule": "machine inference may at most create needs_review; only user confirmation or authoritative evidence transitions to confirmed",
+          "errorCode": "machine_cannot_confirm_failure_domain"
+        }
+      ]
+    },
+    {
+      "machineId": "ActionDagValidation",
+      "entity": "ChangePlan.action_items",
+      "field": "prerequisiteActionIds",
+      "initial": "none",
+      "terminal": [],
+      "transitions": {
+        "none": ["cycle", "missing_prerequisite", "unknown_action"],
+        "cycle": ["none"],
+        "missing_prerequisite": ["none"],
+        "unknown_action": ["none"]
+      },
+      "invariants": [
+        "V030-DAG-01: a prerequisite cycle must be rejected at plan build time",
+        "V030-DAG-02: an action referencing an unknown prerequisite action id must be rejected",
+        "V030-DAG-03: topological order must be deterministic and stable for identical input"
+      ]
+    },
+    {
+      "machineId": "TemporalChangeWindow",
+      "entity": "ChangePlan",
+      "field": "temporal",
+      "initial": "before",
+      "terminal": ["after"],
+      "transitions": {
+        "before": ["transition"],
+        "transition": ["after"]
+      },
+      "guards": [
+        {
+          "id": "TC-ORDER-GATE",
+          "rule": "effectiveAt <= verificationNotBefore <= verificationDueAt <= retireOldPathAfter",
+          "errorCode": "temporal_window_invalid_order"
+        },
+        {
+          "id": "TC-RETIRE-GATE",
+          "rule": "retireOldPathAfter allowed only when all key new paths are verified (BREAK_BEFORE_MAKE = FORBIDDEN)",
+          "errorCode": "break_before_make_forbidden"
+        }
+      ]
     }
   ]
 }

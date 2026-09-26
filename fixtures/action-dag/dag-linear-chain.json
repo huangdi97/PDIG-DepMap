@@ -1,0 +1,59 @@
+{
+  "id": "dag-linear-chain",
+  "category": "action-dag",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "core (TypeScript reference) @ LEGACY_REFERENCE_MANIFEST.md",
+  "description": "线性链 a→b→c：stable topo order [a,b,c]",
+  "input": {
+    "actions": [
+      {
+        "id": "c",
+        "title": "c",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "b"
+        ]
+      },
+      {
+        "id": "b",
+        "title": "b",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": [
+          "a"
+        ]
+      },
+      {
+        "id": "a",
+        "title": "a",
+        "detail": "",
+        "phase": "change",
+        "done": false,
+        "doneAt": null,
+        "verification": null,
+        "resolvesImpactKeys": [],
+        "prerequisiteActionIds": []
+      }
+    ]
+  },
+  "expected": {
+    "ok": true,
+    "violation": "none",
+    "offendingActionId": null,
+    "topologicalOrder": [
+      "a",
+      "b",
+      "c"
+    ]
+  }
+}
