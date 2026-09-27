@@ -31,6 +31,12 @@ settings:
     SWIFT_VERSION: "5.9"
     CODE_SIGNING_ALLOWED: "NO"
     CODE_SIGN_IDENTITY: ""
+    # XCUITest runner installs the app bundle on the simulator; the generated
+    # Info.plist must contain CFBundleVersion/CFBundleShortVersionString or
+    # install fails ("The application's Info.plist does not contain a valid
+    # CFBundleVersion") and the test runner dies before starting tests.
+    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.3.0"
 targets:
   PDIGApp:
     type: application
