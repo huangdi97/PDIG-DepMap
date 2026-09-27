@@ -108,20 +108,22 @@ Actual:   feat/pdig-v0.3.0 → `--no-ff` merge（commit 9e114d2 "release(v0.3.0)
 - workflow `ios-runtime-visual.yml` 扩展：xcodegen 生成 → app build（simulator）→ `swift test`（canonical 128/128 + PDIGAppTests）→ iPhone + iPad simulator → XCUITest → xcresult 采集 → IOS_* summary；
 - 排障根因已找到并修复：CFBundleVersion/MARKETING_VERSION 缺失（simulator 拒绝安装 → runner SIGKILL）、shared derivedData 相互覆盖、build-for-testing/test-without-building 的 xctestrun 不确定性、iPad `.confirmationDialog` 在 XCUITest 不可见（改为 `.alert`）、`--uitest-demo` 种精子时序（App.init → RootView.onAppear）。
 
-| IOS_*                                                                                     | 值                                                                     | 证据                                                                                                                                                 |
-| ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| IOS_APP_TARGET                                                                            | PASS                                                                   | xcodegen 工程生成 PDIGApp.app（build-for-simulator BUILD SUCCEEDED，run 36293560488 logs）                                                           |
-| IOS_BUILD                                                                                 | PASS                                                                   | `swift build` PASS（多次 run；含 Swift 序列化回滚后分支 head 6cf3557 的 128/128 canonical）                                                          |
-| IOS_UNIT                                                                                  | PASS                                                                   | PDIGAppTests 10/10，0 failures（36293560488 swift-test.log）                                                                                         |
-| IOS_CANONICAL                                                                             | PASS                                                                   | 128/128（IOS_CONFORMANCE_HOST=PASS，IOS_HOST_EXECUTED=128 fail=0）                                                                                   |
-| IOS_IPHONE_SIMULATOR                                                                      | IN_PROGRESS                                                            | 已在 iPhone 15 Pro Max simulator 上执行 build/test；XCUITest 步骤在 closure 轮内持续排障（见上根因），最终绿态未在本轮记录完成前闭合（分支继续持有） |
-| IOS_IPAD_SIMULATOR                                                                        | IN_PROGRESS                                                            | iPad Pro (11-inch) 4th gen 已入队；同上                                                                                                              |
-| IOS_XCUITEST                                                                              | IN_PROGRESS（工程已建立、多根因已修；最终绿态待分支闭环）              | 分支 commit 历史 + 本轮多次 run logs；证据目录 `artifacts/runtime-evidence/2026-09-27-closure-ios/`（部分行由分支流水线写入）                        |
-| IOS_PAYMENT / IDENTITY_RECOVERY / REPLACE_PHONE_NUMBER / BACKUP_RESTORE / DELETE_ALL_DATA | NOT_RUN（UI 流程依赖 XCUITest 前置）                                   | —                                                                                                                                                    |
-| IOS_VISUAL                                                                                | PASS_MACOS_RENDER（既有 N4 渲染截图） / simulator 视觉待 XCUITest 闭环 | 既有 `ios-n4-*` 证据 + run logs                                                                                                                      |
-| IOS_XCRESULT                                                                              | IN_PROGRESS（-resultBundlePath 已接入）                                | 上一轮 36293560488 已产出 ios-xcresult-iphone.xcresult（失败态）；成功态待闭环                                                                       |
+| IOS_*                                                                                     | 值   | 证据                                                                                                                                                                                                                                                    |
+| ----------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| IOS_APP_TARGET                                                                            | PASS | xcodegen 工程生成 PDIGApp.app（build-for-simulator BUILD SUCCEEDED，run 36293560488 logs）                                                                                                                                                              |
+| IOS_BUILD                                                                                 | PASS | `swift build` PASS（多次 run；含 Swift 序列化回滚后分支 head 6cf3557 的 128/128 canonical）                                                                                                                                                             |
+| IOS_UNIT                                                                                  | PASS | PDIGAppTests 10/10，0 failures（36293560488 swift-test.log）                                                                                                                                                                                            |
+| IOS_CANONICAL                                                                             | PASS | 128/128（IOS_CONFORMANCE_HOST=PASS，IOS_HOST_EXECUTED=128 fail=0）                                                                                                                                                                                      |
+| IOS_IPHONE_SIMULATOR                                                                      | PASS | run 36317166192：iPhone 15 Pro Max simulator XCUITest 2/2 PASS（xcuitest-iphone.log）                                                                                                                                                                   |
+| IOS_IPAD_SIMULATOR                                                                        | PASS | run 36317166192：iPad Pro 11-inch (M4) simulator XCUITest 2/2 PASS（xcuitest-ipad.log）                                                                                                                                                                 |
+| IOS_XCUITEST                                                                              | PASS | run 36317166192（workflow 全绿 8m33s，head 16e70a6）—— build-for-testing + test-without-building（每 leg 独立 DerivedData）方案闭环；证据 `artifacts/runtime-evidence/2026-09-27-closure-ios/`（xcuitest-iphone/ipad.log、xctestrun dumps、build logs） |
+| IOS_PAYMENT / IDENTITY_RECOVERY / REPLACE_PHONE_NUMBER / BACKUP_RESTORE / DELETE_ALL_DATA | PASS | 同一 run：XCUITest smoke 流程在 iPhone 15 Pro Max 与 iPad Pro 11-inch (M4) 双端 PASS（payment / identity recovery / replace phone number / backup-restore / delete-all-data confirm）                                                                   |
+| IOS_VISUAL                                                                                | PASS | 同一 run：xcresult 截图附件 + macOS harness light/dark 渲染（`harness-macos/ios-n4-*.png`）+ manual-launch 截图                                                                                                                                         |
+| IOS_XCRESULT                                                                              | PASS | 同一 run：`ios-xcresult-iphone.xcresult` + `ios-xcresult-ipad.xcresult` 采集并上传（本仓库证据目录已含双端 xcresult）                                                                                                                                   |
 
-**结论**：iOS 工程侧补充（工程壳/UITests/xcresult/双设备）已在闭口轮内落地并多轮排障；XCUITest 全绿尚未在本轮闭环。矩阵如实标记 IN_PROGRESS，`IOS_FINAL_RUNTIME` 不得伪称 PASS。
+**结论**：iOS XCUITest 管线已在分支 `closure/ios-xcuitest` 全绿（run 36317166192），
+并已并入 `main`（merge `aad64a7`）。`IOS_FINAL_RUNTIME = PASS`（iPhone + iPad XCUITest、
+xcresult、场景流 smoke、canonical 128/128、unit 10/10、build 全部 fresh PASS）。
 
 ---
 
@@ -291,20 +293,20 @@ RELEASE_DOWNLOAD_SMOKE = PASS（已执行行：Windows zip + Android apk；iOS/H
 
 ### Product
 
-| Gate                    | 值   | 证据                                                                                                                  |
-| ----------------------- | ---- | --------------------------------------------------------------------------------------------------------------------- |
-| CANONICAL_VNEXT         | PASS | canonical 128/128（fixture 128 + oracle 128 + android 128）；Harmony 126/128 host（2 real gates）                     |
-| SCHEMA_V4               | PASS | §1（migration 链 v1→v4 + 本地持久化 T1；spec payloadNote 对齐）                                                       |
-| FAILURE_DOMAIN          | PASS | 引擎 + canonical 6 条 fixture；桌面 Findings 渲染（profiles FINDINGS 帧）                                             |
-| INDEPENDENT_PATH        | PASS | canonical path-independence fixtures                                                                                  |
-| RECOVERY_CYCLE          | PASS | canonical recovery-cycle 7 条                                                                                         |
-| INFRASTRUCTURE_FINDINGS | PASS | Findings 引擎 + 页面（桌面/Android 截图）                                                                             |
-| CHANGE_PRIMITIVE        | PASS | canonical change-primitive fixtures；change_plans 持久化 T1/T5                                                        |
-| ACTION_DAG              | PASS | action-dag 7 条 + prerequisiteActionIds 持久化（T1 action_items）                                                     |
-| MAKE_BEFORE_BREAK       | PASS | make-before-break 3 条 + replace_phone_number 场景（烟雾/UI 帧）                                                      |
-| TEMPORAL_CHANGE         | PASS | temporal 4 条 + change_plans temporal 列持久化（T1/T5）                                                               |
-| PROVIDER_KNOWLEDGE      | PASS | provider-policy 4 条 + provider_policies 本地持久化（T1）                                                             |
-| REPLACE_PHONE_NUMBER    | PASS | 场景激活（desktop smoke scenario-replace_phone_number；Android Findings/replace 截图；iOS 场景 XCUITest IN_PROGRESS） |
+| Gate                    | 值   | 证据                                                                                                                                        |
+| ----------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| CANONICAL_VNEXT         | PASS | canonical 128/128（fixture 128 + oracle 128 + android 128）；Harmony 126/128 host（2 real gates）                                           |
+| SCHEMA_V4               | PASS | §1（migration 链 v1→v4 + 本地持久化 T1；spec payloadNote 对齐）                                                                             |
+| FAILURE_DOMAIN          | PASS | 引擎 + canonical 6 条 fixture；桌面 Findings 渲染（profiles FINDINGS 帧）                                                                   |
+| INDEPENDENT_PATH        | PASS | canonical path-independence fixtures                                                                                                        |
+| RECOVERY_CYCLE          | PASS | canonical recovery-cycle 7 条                                                                                                               |
+| INFRASTRUCTURE_FINDINGS | PASS | Findings 引擎 + 页面（桌面/Android 截图）                                                                                                   |
+| CHANGE_PRIMITIVE        | PASS | canonical change-primitive fixtures；change_plans 持久化 T1/T5                                                                              |
+| ACTION_DAG              | PASS | action-dag 7 条 + prerequisiteActionIds 持久化（T1 action_items）                                                                           |
+| MAKE_BEFORE_BREAK       | PASS | make-before-break 3 条 + replace_phone_number 场景（烟雾/UI 帧）                                                                            |
+| TEMPORAL_CHANGE         | PASS | temporal 4 条 + change_plans temporal 列持久化（T1/T5）                                                                                     |
+| PROVIDER_KNOWLEDGE      | PASS | provider-policy 4 条 + provider_policies 本地持久化（T1）                                                                                   |
+| REPLACE_PHONE_NUMBER    | PASS | 场景激活（desktop smoke scenario-replace_phone_number；Android Findings/replace 截图；iOS 场景 iPhone+iPad XCUITest PASS，run 36317166192） |
 
 ### Persistence
 
@@ -318,34 +320,34 @@ RELEASE_DOWNLOAD_SMOKE = PASS（已执行行：Windows zip + Android apk；iOS/H
 
 ### Platforms
 
-| Gate           | 值                                                       |
-| -------------- | -------------------------------------------------------- |
-| DESKTOP_V0_3_0 | PASS                                                     |
-| ANDROID_V0_3_0 | PASS（tablet fresh 备注诚实）                            |
-| IOS_V0_3_0     | PASS（BUILD/UNIT/CANONICAL fresh；XCUITest IN_PROGRESS） |
-| HARMONY_V0_3_0 | PASS（host 181/181；2 real device gates EXTERNAL）       |
+| Gate           | 值                                                                    |
+| -------------- | --------------------------------------------------------------------- |
+| DESKTOP_V0_3_0 | PASS                                                                  |
+| ANDROID_V0_3_0 | PASS（tablet fresh 备注诚实）                                         |
+| IOS_V0_3_0     | PASS（BUILD/UNIT/CANONICAL/iPhone+iPad XCUITest/xcresult 全部 fresh） |
+| HARMONY_V0_3_0 | PASS（host 181/181；2 real device gates EXTERNAL）                    |
 
 ### Runtime
 
-| DESKTOP_RUNTIME | PASS | | ANDROID_RUNTIME | PASS（API36 launch/light/dark fresh） | | IOS_IPHONE_RUNTIME | IN_PROGRESS（XCUITest） | | IOS_IPAD_RUNTIME | IN_PROGRESS（XCUITest） | | HARMONY_RUNTIME | EXTERNAL_GATE（2/4 real NAPI；无模拟器镜像 E-9） |
+| DESKTOP_RUNTIME | PASS | | ANDROID_RUNTIME | PASS（API36 launch/light/dark fresh） | | IOS_IPHONE_RUNTIME | PASS（iPhone 15 Pro Max XCUITest 2/2，run 36317166192） | | IOS_IPAD_RUNTIME | PASS（iPad Pro 11-inch (M4) XCUITest 2/2，run 36317166192） | | HARMONY_RUNTIME | EXTERNAL_GATE（2/4 real NAPI；无模拟器镜像 E-9） |
 
 ### Test
 
-| Gate                     | 值                                                            |
-| ------------------------ | ------------------------------------------------------------- |
-| CORE_TESTS               | PASS（487/487 含本轮 v4 persistence 11 条）                   |
-| OLD_CANONICAL_REGRESSION | PASS（旧 fixture 逐字节未动；128/128）                        |
-| NEW_CANONICAL_FIXTURES   | PASS（37 条 v0.3.0 全绿）                                     |
-| DESKTOP_CONFORMANCE      | PASS（smoke 17/17 + profiles + keys）                         |
-| ANDROID_CONFORMANCE      | PASS（128/128 fresh）                                         |
-| IOS_CONFORMANCE          | PASS（128/128 fresh CI）                                      |
-| HARMONY_CONFORMANCE      | PASS（126/128 executed fresh + 2 real gates）                 |
-| IOS_XCUITEST             | IN_PROGRESS（工程落地 + 多根因修复；最终绿态待分支闭环）      |
-| FRESH_CLONE_RC           | PASS（closure 头；released SHA 文档格式 gate 漂移已修复留档） |
+| Gate                     | 值                                                                              |
+| ------------------------ | ------------------------------------------------------------------------------- |
+| CORE_TESTS               | PASS（487/487 含本轮 v4 persistence 11 条）                                     |
+| OLD_CANONICAL_REGRESSION | PASS（旧 fixture 逐字节未动；128/128）                                          |
+| NEW_CANONICAL_FIXTURES   | PASS（37 条 v0.3.0 全绿）                                                       |
+| DESKTOP_CONFORMANCE      | PASS（smoke 17/17 + profiles + keys）                                           |
+| ANDROID_CONFORMANCE      | PASS（128/128 fresh）                                                           |
+| IOS_CONFORMANCE          | PASS（128/128 fresh CI）                                                        |
+| HARMONY_CONFORMANCE      | PASS（126/128 executed fresh + 2 real gates）                                   |
+| IOS_XCUITEST             | PASS（run 36317166192 全绿：iPhone+iPad 双端 2/2，xcresult 采集，场景流 smoke） |
+| FRESH_CLONE_RC           | PASS（closure 头；released SHA 文档格式 gate 漂移已修复留档）                   |
 
 ### Visual
 
-| DESKTOP_VISUAL | PASS（渲染级） | | ANDROID_VISUAL | PASS（fresh light/dark + sweep 42 帧） | | IOS_VISUAL | PASS_MACOS_RENDER（simulator 待 XCUITest） | | HARMONY_VISUAL | EXTERNAL_GATE |
+| DESKTOP_VISUAL | PASS（渲染级） | | ANDROID_VISUAL | PASS（fresh light/dark + sweep 42 帧） | | IOS_VISUAL | PASS（xcresult 截图附件 + macOS harness light/dark 渲染，run 36317166192） | | HARMONY_VISUAL | EXTERNAL_GATE |
 
 ### Product Quality
 
@@ -380,7 +382,7 @@ RELEASE_DOWNLOAD_SMOKE = PASS（已执行行：Windows zip + Android apk；iOS/H
 | APP_STORE / APPGALLERY SUBMITTED                 | iOS / Harmony | Apple / Huawei 开发者账号与签名                        | 同上                                                                           | 账号 + 签名 + bundle 归属                   | XCUITest 闭环后截图材料全                               | 用户账号                       | —                                                              |
 | IOS_REAL_DEVICE (LA/Keychain)                    | iOS           | 真机签名                                               | 无签名无法在真机安装                                                           | Apple 签名 + 真机                           | 无                                                      | 开发者账号                     | 如实 NOT_RUN                                                   |
 
-**非法 external gate 检查**：test 没跑 / UI 没写 / 截图没做 / iPad 没测 / migration 没测 / 网站没部署 / 文案没写 / icon 没做 —— 均未伪装为 external gate；唯一未闭环工程项（iOS XCUITest）如实标记 IN_PROGRESS。
+**非法 external gate 检查**：test 没跑 / UI 没写 / 截图没做 / iPad 没测 / migration 没测 / 网站没部署 / 文案没写 / icon 没做 —— 均未伪装为 external gate；本轮唯一的工程开放项（iOS XCUITest）已在轮内闭环（run 36317166192 全绿）。
 
 ---
 
@@ -390,7 +392,7 @@ RELEASE_DOWNLOAD_SMOKE = PASS（已执行行：Windows zip + Android apk；iOS/H
 SCHEMA_VERSION_SEMANTICS    = RESOLVED（§1：三版本概念 + spec payloadNote 对齐）
 SCHEMA_V4_PERSISTENCE       = PASS（DB 级往返；payload v3 为冻结设计）
 RELEASE_PROTOCOL_DEVIATION  = DOCUMENTED（PROCESS_ONLY）
-IOS_FINAL_RUNTIME           = IN_PROGRESS（BUILD/UNIT/CANONICAL PASS；XCUITest/iPad/xcresult 工程落地+多根因修复，最终绿态待 closure/ios-xcuitest 分支闭环）
+IOS_FINAL_RUNTIME           = PASS（iPhone 15 Pro Max + iPad Pro 11-inch (M4) XCUITest 2/2、xcresult 双端采集、场景流 smoke、canonical 128/128、unit 10/10 —— run 36317166192 fresh）
 DESKTOP_FINAL_RUNTIME       = PASS（分辨率/缩放/键盘全绿）
 ANDROID_FINAL_RUNTIME       = PASS（API36 release APK 安装/启动/明暗；tablet fresh 受环境限制备注）
 HARMONY_ENGINEERING_GAP     = 0（H3/H4 closed；H1/H2 real EXTERNAL_GATE）
@@ -405,19 +407,21 @@ RELEASE_DOWNLOAD_SMOKE      = PASS（Windows + Android）
 STORE_ENGINEERING_PREPARATION = PASS（三家均 SUBMISSION_EXTERNAL_GATE，工程材料齐备）
 ```
 
-依据 §25 严格规则：**存在 1 项内部工程未闭环项（iOS XCUITest IN_PROGRESS）**，
-因此本轮诚实最终状态为：
+依据 §25 严格规则：**内部工程缺口已全部闭环**（iOS XCUITest 在分支与 main 均全绿），
+因此最终状态为：
 
 ```
-PDIG_V0_3_0_PRODUCT_COMPLETE = NOT_YET_PASS（唯一未闭环：iOS XCUITest/iPad/xcresult 最终绿态，分支 closure/ios-xcuitest 持续持有，根因已全部定位并修复，待一次全绿运行闭环）
-PDIG_V0_3_0_RELEASE_READY    = NOT_YET_PASS（同上；其余全部 gate 为 PASS/EXTERNAL/DEFERRED）
-GITHUB_PRODUCT_V0_3_0        = PUBLISHED（本轮已将 draft 原位发布为 Pre-release，历史/tag/assets 未动）
-ENGINEERING_GAP              = 1（iOS XCUITest 最终绿态；工程已落地，根因已修）
+PDIG_V0_3_0_PRODUCT_COMPLETE = PASS（全部内部工程 gate 真实 PASS；仅剩真实外部 Gate：Harmony H1/H2 NAPI 设备、商店账号/签名、真人/真机验证 —— 均为合法 external/deferred 项）
+PDIG_V0_3_0_RELEASE_READY    = PASS（同上；release 相关 gate 全部 PASS/EXTERNAL/DEFERRED）
+GITHUB_PRODUCT_V0_3_0        = PUBLISHED（draft 原位发布为 Pre-release，历史/tag/assets 未动）
+ENGINEERING_GAP              = 0
 TEST_EVIDENCE_GAP            = 0
 RELEASE_EVIDENCE_GAP         = 0
 ```
 
-**说明**：不得把上述 NOT_YET_PASS 读作“v0.3.0 未发布或被否定”——发布与 tag 保持原样；该状态仅反映 closure 轮结束时 iOS UI-测试基础设施尚未完成最后一次全绿运行。其余全部契约项在本轮以真实运行/真实产物闭环。iOS 分支（`closure/ios-xcuitest`）保持运行在后，candidate 下一轮收敛后即可翻绿（届时更新本文件并推进 §26 停止条件全集）。
+**说明**：v0.3.0 的发布与 tag 全程原样保留；本轮 closure 在轮内把唯一工程开放项（iOS XCUITest）
+闭环（分支 run 36317166192 全绿 → 并入 main merge aad64a7），
+全部 §26 停止条件中的工程项现已满足（external/deferred 项依法分类）。
 
 ## 19. STOP
 

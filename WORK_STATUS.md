@@ -20,9 +20,11 @@
 > - 网站：`website/` 建成并公开部署（product/pdig、privacy、support 三页 HTTP 200，GitHub Pages + 自定义域）。
 > - Branding：Android adaptive/monochrome、Windows pdig.ico（已接 DSL）、iOS AppIcon 13 张+Contents.json、
 >   store feature-graphic/release-artwork（重生成，非空白）= BRANDING_COMPLETE PASS。
-> - **开放项（诚实）**：iOS XCUITest/iPad/xcresult 工程已落地 + 多根因修复（分支 `closure/ios-xcuitest`），
->   最终绿态未在本轮闭合 → `IOS_FINAL_RUNTIME = IN_PROGRESS`；
->   依据 §25，`PDIG_V0_3_0_PRODUCT_COMPLETE / RELEASE_READY = NOT_YET_PASS`（其余全部 gate PASS/EXTERNAL/DEFERRED）；
+> - **iOS XCUITest 已闭环（轮内）**：分支 `closure/ios-xcuitest` run 36317166192 全绿
+>   （iPhone 15 Pro Max + iPad Pro 11-inch (M4) XCUITest 2/2、xcresult 双端、场景流 smoke），
+>   已并入 `main`（merge `aad64a7`）→ `IOS_FINAL_RUNTIME = PASS`；
+>   `PDIG_V0_3_0_PRODUCT_COMPLETE / RELEASE_READY = PASS`（内部工程 gate 全部闭环；
+>   仅剩合法 EXTERNAL/DEFERRED 项：Harmony H1/H2 NAPI 设备、商店账号/签名、真人/真机验证）；
 >   `GITHUB_PRODUCT_V0_3_0 = PUBLISHED`。完整矩阵见 `FINAL_V0_3_0_CONTRACT_CLOSURE.md`。
 >   本文件由执行 Agent 持续更新。不要删除历史关键结论。
 

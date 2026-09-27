@@ -7,10 +7,10 @@
 >   `https://haoleilab.com/PDIG-DepMap/…` 实测 HTTP 200）。
 > - E-7 真实账单 —— **重新分类**：`REAL_WORLD_PILOT = DEFERRED_REAL_WORLD_VALIDATION`
 >   （Pre-release 工程完成不依赖真人 pilot；不阻塞 PRODUCT_COMPLETE）。
-> - E-8 iOS —— 部分解决：`IOS_BUILD/UNIT/CANONICAL` macOS CI fresh PASS；
->   `XCUITest/iPad/xcresult` 工程已落地（分支 `closure/ios-xcuitest`，含 CFBundleVersion /
->   derivedData / 时序 / iPad 弹窗等根因修复），最终绿态为开放项（真实工程 IN_PROGRESS，
->   不是伪装的 external gate）；详见 FINAL_V0_3_0_CONTRACT_CLOSURE.md。
+> - E-8 iOS —— **已解决（closure 轮内）**：`IOS_BUILD/UNIT/CANONICAL` macOS CI fresh PASS；
+>   `XCUITest/iPad/xcresult` 已在分支 `closure/ios-xcuitest` run 36317166192 全绿
+>   （iPhone 15 Pro Max + iPad Pro 11-inch (M4) 双端 2/2、xcresult 采集、场景流 smoke），
+>   并已并入 `main`（merge aad64a7）；详见 FINAL_V0_3_0_CONTRACT_CLOSURE.md。
 > - 新增已知开放项：Windows 已发布二进制的图标为默认图标（资产与 DSL 已备，下一打包轮次接入）。
 >   本文件只记录**无法由代码解决**、确实需要用户/外部环境介入的事项（AGENTS §20）。
 >   更新：2026-09-26（v0.3.0 全量产品收口轮 —— E-8 iOS 已由 macOS CI 解除；其余仍为真实外部 Gate）

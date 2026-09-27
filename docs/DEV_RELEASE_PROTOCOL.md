@@ -41,8 +41,8 @@ node tools/conformance/run.mjs  # codegen --check + fixture integrity + oracle +
 - 禁止把工程缺口伪装成 external gate。
 - 发布后不自动进入下一 MVP；由用户决定。
 
-## 4. 本轮遗留（已知 open item，不属于历史改写）
+## 4. 本轮遗留（已收敛，不属于历史改写）
 
-- iOS XCUITest/iPad UI 测试最终绿态：分支 `closure/ios-xcuitest`（工程+根因修复已在分支），
-  待一次全绿运行后并入 main（并按 §1 ff-only），随后更新 Final Gate Matrix。
+- iOS XCUITest/iPad UI 测试：**已闭环**（分支 `closure/ios-xcuitest` run 36317166192 全绿 → 并入 main `aad64a7`）；
+  后续 iOS 改动按 §1 流程执行。
 - 下一打包轮次把 Windows `pdig.ico`（本轮已入树并接入 `nativeDistributions.windows.iconFile`）接入 NSIS 手工打包脚本。

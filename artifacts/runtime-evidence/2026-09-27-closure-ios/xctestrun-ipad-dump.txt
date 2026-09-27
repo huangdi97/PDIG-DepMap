@@ -1,0 +1,2 @@
+--- xctestrun in derived/closure-ipad ---
+-rw-r--r--  1 runner  staff  4224 Sep 27 11:59 derived/closure-ipad/Build/Products/PDIGApp_iphonesimulator17.5-arm64.xctestrun
