@@ -137,6 +137,23 @@ jobs:
       # 单独 xcodebuild test 在全新 derivedDataPath（app 由另一次 generic build 产出）下，
       # 解析 UITest 目标 app 路径时丢失 .app 后缀。经典疗法 = build-for-testing 与
       # test-without-building 使用**同一个** concrete destination，并在同一次构建动作里生成 xctestrun。
+      # Pre-place PDIGApp.app in this leg's derived data via a plain build:
+      # proven-good recipe = build -> build-for-testing -> test-without-building
+      # in the SAME derived data dir. When build-for-testing must build the app
+      # itself in a fresh dir, xcodebuild records the app path WITHOUT the .app
+      # suffix and test-without-building fails ("The bundle identifier for
+      # PDIGApp couldn't be read .../PDIGApp").
+      - name: Build app (iPhone destination, pre-place for test leg)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
+            -derivedDataPath derived/closure-iphone \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-iphone.log | tail -n 5
       - name: Build-for-testing (iPhone destination)
         working-directory: ios
         run: |
@@ -195,6 +212,17 @@ jobs:
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
 
       # IOS_IPAD_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT（iPad destination，同一疗法）
+      - name: Build app (iPad destination, pre-place for test leg)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
+            -derivedDataPath derived/closure-ipad \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-ipad.log | tail -n 5
       - name: Build-for-testing (iPad destination)
         working-directory: ios
         run: |
