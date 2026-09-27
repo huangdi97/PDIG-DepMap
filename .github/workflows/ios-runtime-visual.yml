@@ -51,7 +51,8 @@ jobs:
         working-directory: ios
         run: xcodegen generate
 
-      # IOS_APP_TARGET：xcodegen 生成的 app target 在 iOS Simulator 上构建出 .app。
+      # IOS_APP_TARGET: generic simulator app build (evidence + source for the
+      # manual-launch diagnostic below).
       - name: Build app for iOS Simulator (IOS_APP_TARGET)
         working-directory: ios
         run: |
@@ -67,11 +68,10 @@ jobs:
       - name: Select and boot iPhone + iPad simulators
         run: |
           set -e
-          # Device picker: prefer the newest iOS 17.x runtime (closest to the
-          # 17.5 SDK that xcodebuild uses) so XCTRunner / XCTest private
-          # frameworks are not skewed against an old simulator runtime.
-          # Also prefer 430pt-wide iPhones (Pro Max / Plus) so the right-side
-          # bottom tab is not clipped on the 420pt min-width root view.
+          # Prefer the newest iOS 17.x runtime (17.5 first, matching the 17.5
+          # SDK), and prefer 430pt-wide iPhones (Pro Max / Plus) so the
+          # right-side bottom tab is not clipped on the 420pt min-width root
+          # view. The iPad preference also starts on 17.5.
           devlist=$(xcrun simctl list devices available)
           pick_device() {
             local model="$1"
@@ -101,7 +101,10 @@ jobs:
           if [ -z "$iphone" ]; then
             iphone=$(pick_device "iPhone" 17.5 17.4 17.2 17.0 || true)
           fi
-          ipad=$(pick_device "iPad Pro (11-inch) (4th generation)" 17.5 17.4 17.2 17.0 || true)
+          ipad=$(pick_device "iPad Pro 11-inch (M4)" 17.5 17.4 17.2 17.0 || true)
+          if [ -z "$ipad" ]; then
+            ipad=$(pick_device "iPad Pro (11-inch) (4th generation)" 17.5 17.4 17.2 17.0 || true)
+          fi
           if [ -z "$ipad" ]; then
             ipad=$(pick_device "iPad" 17.5 17.4 17.2 17.0 || true)
           fi
@@ -132,31 +135,10 @@ jobs:
           fi
           xcrun simctl list devices | grep -E "Booted" || true
 
-      # IOS_IPHONE_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT（iPhone destination）
-      # 修复 “The bundle identifier for PDIGApp couldn’t be read”：
-      # 单独 xcodebuild test 在全新 derivedDataPath（app 由另一次 generic build 产出）下，
-      # 解析 UITest 目标 app 路径时丢失 .app 后缀。经典疗法 = build-for-testing 与
-      # test-without-building 使用**同一个** concrete destination，并在同一次构建动作里生成 xctestrun。
-      - name: Build-for-testing (iPhone destination)
-        working-directory: ios
-        run: |
-          set -o pipefail
-          if [ -z "$IPHONE_UDID" ]; then
-            echo "NO_IPHONE_SIMULATOR: runner has no available iPhone simulator" > ../artifacts/runtime-evidence/2026-09-27-closure-ios/status.txt
-            exit 1
-          fi
-          xcodebuild build-for-testing \
-            -project PDIG.xcodeproj \
-            -scheme PDIGApp \
-            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure \
-            CODE_SIGNING_ALLOWED=NO \
-            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 5
-
       # Diagnostic: manually launch PDIGApp on the booted iPhone simulator in
-      # --uitest-demo mode BEFORE the XCUITest, so an app-launch crash (or a
-      # healthy launch) is captured with crash logs + screenshot + console log
-      # instead of the opaque "test runner killed" error. Step never fails.
+      # --uitest-demo mode, so an app-launch crash (or a healthy launch) is
+      # captured with crash logs + screenshot + console log instead of the
+      # opaque "test runner killed" error. Step never fails.
       - name: Diagnostic - manual app launch (uitest-demo) on iPhone simulator
         working-directory: ios
         run: |
@@ -179,56 +161,45 @@ jobs:
           xcrun simctl io "$IPHONE_UDID" screenshot ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-manual-launch-iphone.png >/dev/null 2>&1
           xcrun simctl terminate "$IPHONE_UDID" com.pdig.depmap.app >/dev/null 2>&1
           exit 0
+
+      # IOS_IPHONE_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT (iPhone destination).
+      # Single `xcodebuild test` per leg with a fresh per-leg DerivedData dir:
+      # build + xctestrun + run happen in ONE action, avoiding the two-phase
+      # build-for-testing -> test-without-building dance whose xctestrun output
+      # is not emitted deterministically (causing "The bundle identifier for
+      # PDIGApp couldn't be read .../PDIGApp" - app path without .app).
       - name: XCUITest on iPhone simulator (xcresult)
         working-directory: ios
         run: |
           set -o pipefail
           xcrun simctl bootstatus "$IPHONE_UDID" -b
-          { echo "--- products dir before test ---"; ls -la derived/closure/Build/Products/Debug-iphonesimulator/ | grep -E "PDIGApp|Runner|\.xctestrun" || true; for f in derived/closure/Build/Products/Debug-iphonesimulator/*.xctestrun; do [ -e "$f" ] || continue; echo "===== $f ====="; python3 -c "import plistlib,sys; print(plistlib.load(open(sys.argv[1],'rb')))" "$f" 2>/dev/null | head -c 8000; echo; done; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-iphone-dump.txt
-          xcodebuild test-without-building \
+          rm -rf derived/closure-iphone
+          xcodebuild test \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-iphone \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
-            -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
 
-      # IOS_IPAD_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT（iPad destination，同一疗法）
-      - name: Build-for-testing (iPad destination)
-        working-directory: ios
-        run: |
-          set -o pipefail
-          if [ -z "$IPAD_UDID" ]; then
-            echo "NO_IPAD_SIMULATOR: runner has no available iPad simulator" > ../artifacts/runtime-evidence/2026-09-27-closure-ios/status.txt
-            exit 1
-          fi
-          xcodebuild build-for-testing \
-            -project PDIG.xcodeproj \
-            -scheme PDIGApp \
-            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure \
-            CODE_SIGNING_ALLOWED=NO \
-            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 5
-
+      # IOS_IPAD_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT (iPad destination, same
+      # single-action recipe with its own fresh DerivedData dir).
       - name: XCUITest on iPad simulator (xcresult)
         working-directory: ios
         run: |
           set -o pipefail
           xcrun simctl bootstatus "$IPAD_UDID" -b
-          { echo "--- products dir before test ---"; ls -la derived/closure/Build/Products/Debug-iphonesimulator/ | grep -E "PDIGApp|Runner|\.xctestrun" || true; for f in derived/closure/Build/Products/Debug-iphonesimulator/*.xctestrun; do [ -e "$f" ] || continue; echo "===== $f ====="; python3 -c "import plistlib,sys; print(plistlib.load(open(sys.argv[1],'rb')))" "$f" 2>/dev/null | head -c 8000; echo; done; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-ipad-dump.txt
-          xcodebuild test-without-building \
+          rm -rf derived/closure-ipad
+          xcodebuild test \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-ipad \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult \
-            -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-ipad.log | tail -n 8
 
-      # N4 app-target 审计 + macOS 渲染截图（保留原步骤；harness 失败必须暴露，不吞掉）
       - name: N4 app-target audit + screenshots
         run: |
           mkdir -p conformance/reports artifacts/runtime-evidence
