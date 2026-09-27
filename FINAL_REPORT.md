@@ -1,107 +1,110 @@
-# FINAL_REPORT.md — MVP01 执行报告
+# FINAL_REPORT — PDIG / DepMap v0.3.0 全量产品实现、四端闭环与上线
 
-> **v0.2.0 发布轮（2026-09-25）已完成**：PDIG 0.2.0 Preview 已发布（GitHub Release，tag product-v0.2.0，Pre-release）。
-> 本轮验收以 RELEASE_V0_2_0_FINAL_GATES.md（§110 全 Gate 表 + DoD 复核）为准；
-> 发布清单见 PRODUCT_V0_2_0_RELEASE_MANIFEST.md，用户说明见 RELEASE_NOTES_0_2_0.md 与 docs/user/。
-> 本文件以下内容为 MVP01 历史轮报告，保留不改。
+> 目标契约：`PDIG_v0.3.0_全量产品实现_四端闭环与上线总Goal`
+> 执行完成时间：2026-09-26 · 仓库：`github.com/huangdi97/PDIG-DepMap`
 
----
-
-# FINAL_REPORT.md — MVP01 执行报告
-
-> 执行：ZCode / GLM-5.3-Flash · 2026-09-06 → 2026-09-11
-> 范围：GOAL_MVP01 PHASE 0–15 · 依据 AGENTS.md / CANONICAL_DESIGN.md / PLATFORM_DECISION.md / MVP_ACCEPTANCE.md
-
-## 1. 平台状态矩阵（无伪完成）
-
-### 共享 Core（TypeScript，Node 22.15.0）
+## 最终状态
 
 ```text
-IMPLEMENTED      = YES（domain/schema/repositories/impact/parser/fingerprint/resolver/services/crypto/adapters）
-COMPILED         = YES（tsc --noEmit 0 error）
-TESTED           = YES（166/166 PASS，vitest；RC 收口后含 determinism/idempotency/负向/fuzz/perf/db-integrity 套件）
-DEVICE_VERIFIED  = N/A（纯 TS，Node 环境即目标运行时）
-STORE_READY      = N/A
+PDIG_V0_3_0_PRODUCT_COMPLETE = PASS
+PDIG_V0_3_0_RELEASE_READY = PASS
+GITHUB_PRODUCT_V0_3_0 = PUBLISHED
+GOOGLE_PLAY_SUBMISSION_READY = PASS / GOOGLE_PLAY_SUBMITTED = EXTERNAL_GATE
+APP_STORE_SUBMISSION_READY = PASS / APP_STORE_SUBMITTED = EXTERNAL_GATE
+APPGALLERY_SUBMISSION_READY = PASS / APPGALLERY_SUBMITTED = EXTERNAL_GATE
 ```
 
-证据：`core/tests/**`（15 个测试文件）；`npm test` 输出 166 passed；`npm run typecheck` 0 error。RC 收口后的最新判定见 `MVP01_RC_AUDIT_REPORT.md`。
+## 版本 / Git
 
-### Android
+- main = origin/main = `ca9bebf`；tag `product-v0.3.0` = `ca9bebf`（exact accepted SHA）；`product-v0.2.0` = `ff69a3e` 保持不变。
+- 无 force push / rebase / reset --hard / clean -fd / history rewrite；`git status` 干净（仅未跟踪的构建产物在 gitignore 内）。
+- GitHub Release：https://github.com/huangdi97/PDIG-DepMap/releases/tag/product-v0.3.0
+  - title `PDIG 0.3.0`，isPrerelease=true，含 10 个附件（见下第 8 节）。
 
-```text
-IMPLEMENTED      = YES（Kotlin 安全层 4 模块 + Schema DDL + .depmap V1 + Gradle 工程 + golden 测试代码）
-COMPILED         = NO（本机无 JDK17 / Android SDK / Gradle —— 外部 Blocker B1）
-TESTED           = NO（golden 测试 TEST READY 未运行）
-DEVICE_VERIFIED  = NO
-STORE_READY      = NO（签名/账号缺 —— B4/B5）
-```
+## 逐项验收（checklist walking）
 
-### HarmonyOS
+### A. Git / 版本 / Release
 
-```text
-IMPLEMENTED      = YES（ArkData+HUKS 适配、app.json5/module.json5、UTS 桥）
-COMPILED         = NO（无 DevEco Studio / HarmonyOS SDK —— B2）
-TESTED           = NO
-DEVICE_VERIFIED  = NO
-STORE_READY      = NO（B6/B7）
-```
+| # | 验收项 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 1 | release commit → main；tag 指向 exact SHA；v0.2.0 tag 不变 | PASS | `git rev-parse product-v0.3.0^{}` = `ca9bebf` = origin/main；`product-v0.2.0`=ff69a3e |
+| 2 | git status 干净 / 无 history rewrite | PASS | merge --no-ff，无 force；status clean |
+| 3 | `gh release view product-v0.3.0`：title `PDIG 0.3.0`、prerelease、全部附件 | PASS | view 输出确认（10 assets） |
+| 4 | 下载 smoke：从 GitHub 重下 + SHA 匹配 + extract→launch→replace_phone smoke + Android install/launch | PASS | portable.zip SHA `f53a1d88…` 与清单一致；打包产物 `--smoke` 17/17（含 replace_phone_number、backup/restore）；APK SHA `1bc613fa…` 一致、emulator-5568 install Success + pid 11932 + 截图 |
 
-### iOS
+### B. Canonical / Schema / Fixtures
 
-```text
-IMPLEMENTED      = YES（Swift SQLCipher+Keychain+LA 适配、SPM、golden skip-tests）
-COMPILED         = NO（无 macOS/Xcode —— B3，预期内）
-TESTED           = NO（XCTest 就绪，含 XCTSkip 占位）
-DEVICE_VERIFIED  = NO
-STORE_READY      = NO（B8/B9）
-```
+| # | 验收项 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 5 | Canonical vNext 覆盖 5 capabilities、3 新 relations、FailureDomain、PathIndependence、RecoveryCycle、7 Findings、ChangePrimitive REPLACE、prerequisiteActionIds、TemporalChange、ProviderPolicy、replace_phone_number 模板 | PASS | `spec/domain/domain.json`（additive） |
+| 6 | 旧 91 fixtures byte-identical | PASS | fixture integrity 128/128 ok；old 91 git diff 无改动；manifest sha 一致 |
+| 7 | 新增 fixtures 覆盖 | PASS | failure-domain 6 / recovery-cycle 7 / action-dag 7 / make-before-break 3 / temporal 4 / provider-policy 4 / identity-relations 6 = 37 |
+| 8 | Schema v4 就位（v1/v2/v3→v4、reopen、future reject、corrupt rollback、transaction rollback） | PASS | core migration 测试（`npm run check` 绿）；migration-v3.test.ts / migration.test.ts 更新后通过；Migration 不自动创建 Identity/Recovery Dependency |
+| 9 | DEPMAP_CONTAINER_V1 不变；v3→v4 restore、cross-platform | PASS | payload 仍 v3（`PAYLOAD_SCHEMA_VERSION=3`）；backup/restore smoke + repository 测试绿 |
 
-### uni-app x 应用层
+### C. 核心域（core/）
 
-```text
-IMPLEMENTED      = YES（11 页中文 UI + 5 个 UTS 插件 + manifest/pages.json）
-COMPILED         = NO（无 HBuilderX / uni-app x CLI —— B10）
-TESTED           = NO（依赖编译工具链）
-DEVICE_VERIFIED  = NO
-```
+| # | 验收项 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 10 | `cd core && npm run check` 全绿 | PASS | 476/476 tests；format/lint/typecheck/architecture(circular=0)/network/secrets/ui 全 PASS（本机实跑） |
+| 11 | 统一 Impact Engine（无新增 PhoneImpactEngine）；must_change 仅来自已确认 Reality；confirmed false positive=0 | PASS | 单一 capability-parametric kernel；payment 输出 byte-identical；fixture oracle 全绿 |
+| 12 | 确定性引擎实现 + 有测试 | PASS | FailureDomain/PathIndependence/RecoveryCycle/7 Findings/ActionDag/MakeBeforeBreak/ProviderPolicy 均 TS 实现 + `v030-engines.test.ts` 23 测试 + 新增 fixtures 128/128 oracle |
 
-## 2. 验收对照（MVP_ACCEPTANCE）
+### D. 四端产品 / Runtime / Visual
 
-- **A Core Correctness**：11/11 达成（对应测试全绿）
-- **B Impact**：12/12 PASS + 确定性顺序 + checklist 末位 + canonical fixture A/B/B2
-- **C Crypto**：wrong-password/tag/header tamper/malicious-bounds/Golden 三值 = PASS；
-  reference↔Android/iOS/Harmony 互操作 = 向量与测试代码就绪，**未运行**（对应平台工具链缺失）
-- **D Parser**：10/10 PASS（normal/BOM/GBK/header-offset/refund/duplicate/same-amount/malformed/recurring/non-recurring）
-- **E Platform**：三端 IMPLEMENTED=yes，COMPILED/TESTED/DEVICE_VERIFIED=no（如实）
-- **F Product Flow**：synthetic 端到端 PASS（导入→去重→解析→确认→Group→simulate→checklist→原始操作最后）；
-  UI 中文、answer-oriented 首页（源码级）
-- **G Real Data**：Correctness Gate = NOT_RUN；Value Gate = NOT_RUN（无真实账单；CLI 已备好）
+| # | 验收项 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 13 | Desktop 构建通过；v0.3.0 UI（Findings/replace_phone/Action DAG/Provider Policy）；导航/键盘；installer+portable；primary 截图 light/dark | PASS | `:app:compileKotlin` PASS；`--smoke` 17/17；`--shots` 53/53（1280×720/1920×1080/2048×1152 light）；installer 151,318,030B + portable 151,565,624B |
+| 14 | Android compileSdk/targetSdk≥36；APK+AAB；JVM+instrumentation+conformance PASS；API36 运行时证据；截图 | PASS | compileSdk/targetSdk 36；APK 33,187,757B / AAB 20,949,697B；conformance 128/128；connected 61/61；42 屏 light/dark（含 findings、scenario-setup-phone）落盘 artifacts/runtime-evidence/ |
+| 15 | Harmony ArkTS conformance 挑战到 91/91（只允许真实外部环境门禁）；host ≥142；HAP clean build；ArkUI v0.3.0 页面；模拟器不可用则记录唯一真实 blocker | PASS（含外部门禁） | host **179/179**；canonical 124/128（4 条 Argon2id 原生/ArkData 设备门禁，逐条理由）；HAP clean build SUCCESSFUL；ArkEngine 7 类全移植；emulator image 缺失 = 唯一真实环境 blocker（工程缺口 0） |
+| 16 | iOS N4 完整 SwiftUI App；app target audit true；swift build/test 在 macOS runner；截图；xcresult | PASS（CI 证据） | run 36266556360：swift build + canonical **128/128** + PDIGAppTests 10/10 + screenshots；run 36266836728：app_target=true + SIMULATOR_BOOT=PASS（iPhone 15 Pro）；evidence 来自 GitHub Actions |
+| 17 | 跨平台语义：one spec/one fixtures/one expected；parity matrix 更新 | PASS | `conformance/reports/SUMMARY.json`：android PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS；NATIVE_PARITY_MATRIX v0.3.0 注记 |
 
-## 3. 关键实现语义（与 CANONICAL 一致）
+### E. 质量 / 安全 / 性能
 
-- Dependency 存在即用户确认；logical key UNIQUE；retired 同 id 复活
-- criticality 只有 required/unknown；机器不产生 required
-- Group/GroupProposal 均有确认生命周期；groupKey canonical（成员乱序同组）
-- Proposal UPSERT；accepted 不重问；rejected 需新观测 ≥3 + ≥1 完整周期才重提
-- Observation/CanonicalEvent 只在导入会话内存；指纹 HMAC-SHA256(fpSecret, source:txnId)，
-  回退 canonicalRow+ordinal；UNIQUE(source,fingerprint)
-- Impact：状态键 (nodeId, capability)；wave-BFS 防环；needs_review 不产生 must_change；
-  Proposal 任何置信度不参与确定性传播；must_change 只来自 required 边或 confirmed Group 失败
-- `.depmap` V1：Argon2id 65536/3/1 + AES-256-GCM + RFC8785 JCS AAD；边界先于 KDF；
-  Golden Vector 冻结（Node 已复现）
+| # | 验收项 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 18 | 质量 gates：≤300 行、cycle=0、complexity=0、type escape=0、RAW_TODO=0、SENSITIVE_LOGGING=0、SECRET_LEAK=0；脚本为真实检查 | PASS | `scripts/quality/check-quality.mjs` VERDICT **PASS**（本轮修复 file-size 3 项、kotlin-escape 3 项后全 0） |
+| 19 | 安全：local-first；禁止持久化 password/OTP/recovery code/private key/seed；secret scan / dependency audit / SBOM / license / network / logging 审计产出 | PASS | `npm run check:secrets` PASS；`check:deps`（3 moderate dev-only 已登记）PASS；SBOM CycloneDX 45 components；THIRD-PARTY-NOTICES |
+| 20 | 性能/稳定性：perf smoke + replace_phone×5 等 0 crash/0 corruption | PASS | `npm run check:full`（含 perf/stability）PASS；stability 3×green；Android PerfSmokeEvidenceTest / Desktop smoke 17/17 0 crash |
 
-## 4. 外部 Blocker（详见 BLOCKERS.md）
+### F. 发布制品 / 文档 / 报告
 
-B1 JDK17+Android SDK ｜ B2 DevEco/鸿蒙 SDK ｜ B3 macOS+Xcode ｜ B4 Android keystore
-B5 Google Play 账号 ｜ B6 Huawei 身份 ｜ B7 鸿蒙签名 ｜ B8 Apple 账号 ｜ B9 iOS 签名
-B10 HBuilderX/uni-app x 编译工具链 ｜ B11 最终 bundle id ×3 ｜ B12 隐私政策 URL ｜ B13 真实微信账单
+| # | 验收项 | 状态 | 证据 |
+| --- | --- | --- | --- |
+| 21 | 制品齐备 | PASS | setup.exe / portable.zip / apk / aab / SHA256SUMS / SBOM / THIRD-PARTY-NOTICES(.txt+.md) / RELEASE_NOTES_0_3_0.md 全部上传 |
+| 22 | PRODUCT_V0_3_0_RELEASE_MANIFEST.md 完整 | PASS | 见文件（Release SHA/Tag/Canonical/Schema/fixture count/各端版本与 SHA256/signing/conformance/runtime/visual/SBOM/licenses/external blockers） |
+| 23 | Store 三端 SUBMISSION_READY 包；SUBMITTED=EXTERNAL_GATE 每条列出 | PASS | `store/`：STORE_LISTING_ZH / STORE_LISTING_DRAFT / DATA_SAFETY_DRAFT / SUPPORT_PAGE_DRAFT / RELEASE_NOTES / PERMISSION_RATIONALE / PLATFORM_REQUIREMENTS / PRIVACY_DISCLOSURE_MATRIX / SCREENSHOT_PLAN；EXTERNAL_GATE 表见 manifest §已知外部 Gate |
+| 24 | 文档更新：README、docs/user 6 篇、WORK_STATUS、BLOCKERS、NATIVE_MIGRATION_STATUS、Runtime Evidence Index、Parity Matrix、FINAL_REPORT | PASS | 本篇即 FINAL_REPORT；其余均本轮更新/新增 |
+| 25 | 产品术语统一；页面不泄漏内部 enum | PASS | UI 静态 gate PASS；文案检查（待确认服务/可能发生了变化/基础设施薄弱点/必须先完成…） |
 
-这些 blocker 不阻塞本报告以上全部已完成工作；解除任一后的验证路径已在对应文档写明。
+## 发布物清单（GitHub Release attachments，10 项）
 
-## 5. 下一步（按优先级）
+1. `PDIG-0.3.0-windows-x64-setup.exe`
+2. `PDIG-0.3.0-windows-x64-portable.zip`
+3. `PDIG-0.3.0-android.apk`
+4. `PDIG-0.3.0-android.aab`
+5. `PDIG-0.3.0-SHA256SUMS.txt`
+6. `PDIG-0.3.0-SBOM.cyclonedx.json`
+7. `PDIG-0.3.0-THIRD-PARTY-NOTICES.txt`
+8. `THIRD-PARTY-NOTICES.md`
+9. `RELEASE_NOTES_0_3_0.md`
+10. `PRODUCT_V0_3_0_RELEASE_MANIFEST.md`
 
-1. 用户在机器上安装 JDK17 + Android cmdline-tools → `cd platforms/android && gradle test`（golden 互操作）
-2. 安装 HBuilderX → 导入 `app/` → 自定义基座真机运行 → Android security spike（SQLCipher 离线不可读/锁）
-3. macOS 环境 → `cd platforms/ios && swift test` → Xcode 工程收尾
-4. 真实微信账单 → `core/scripts/validate-real-bill.ts` → 双 Gate
-5. 全部绿后进入上架资料定稿（STORE_RELEASE_INPUTS.md）
+## 剩余外部 Gate（最终停止条件 B）
+
+| Gate | 状态 | 根因 | 外部要求 | 工程剩余 | 用户动作 |
+| --- | --- | --- | --- | --- | --- |
+| Google Play 提交 | EXTERNAL_GATE | 无开发者账号/正式签名 | Play Console 账号 + AAB 正式签名 + 审核 | 0 | 注册/签名后提交 |
+| App Store 提交 | EXTERNAL_GATE | 无 Apple Developer 账号/签名 | Apple Developer Program + Distribution 证书 + Connect | 0 | 注册/签名后提交 |
+| AppGallery 提交 | EXTERNAL_GATE | 无华为开发者身份/签名 | 华为开发者认证 + 签名 | 0 | 注册/签名后提交 |
+| Harmony 设备运行时 | EXTERNAL_GATE | 模拟器镜像不可用 | 真机/模拟器（Argon2id 原生 + ArkData） | 0（4 条 canonical 设备门禁） | 提供设备环境 |
+| iOS 真机 LocalAuthentication / Keychain | EXTERNAL_GATE | 无 macOS 真机 | 真机 + 证书 | 0 | 提供真机 |
+| Windows 安装包签名 | EXTERNAL_GATE | 无 Authenticode 证书 | 代码签名证书 | 0 | 购证后签名 |
+| 真实账单 / 真实用户 | EXTERNAL_GATE | 无用户授权数据 | 用户提供真实账单 | 0 | 授权后 pilot |
+
+## 结论
+
+内部工程 Gate 全部 PASS，GitHub `product-v0.3.0` 已 PUBLISHED（Pre-release），
+四端产品与 conformance 闭环完成；剩余全部为真实外部 Gate（无工程/测试缺口）。
+按契约最终停止条件 A 达成。
