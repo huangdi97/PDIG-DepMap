@@ -175,10 +175,9 @@ struct SettingsScreen: View {
             }
         }
         .frame(minWidth: 420, minHeight: 600)
-        .confirmationDialog(
+        .alert(
             CopyZh.deleteAllDataConfirmTitle,
-            isPresented: $confirmDelete,
-            titleVisibility: .visible
+            isPresented: $confirmDelete
         ) {
             Button(CopyZh.deleteAllDataConfirmAction, role: .destructive) {
                 try? session.deleteAllData()
