@@ -167,8 +167,8 @@ jobs:
           xcrun simctl launch "$IPHONE_UDID" com.pdig.depmap.app --uitest-demo
           sleep 25
           echo "--- ps check ---"
-          xcrun simctl spawn "$IPHONE_UDID" ps -ax | grep -i pdig || true
-          if xcrun simctl spawn "$IPHONE_UDID" ps -ax | grep -q "PDIGApp"; then
+          xcrun simctl spawn "$IPHONE_UDID" /bin/ps -ax | grep -i pdig || true
+          if xcrun simctl spawn "$IPHONE_UDID" /bin/ps -ax | grep -q "PDIGApp"; then
             echo "APP_LAUNCH_CHECK=ALIVE"
           else
             echo "APP_LAUNCH_CHECK=DEAD"
