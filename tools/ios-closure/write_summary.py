@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Write the IOS_* closure evidence summary (JSON + Markdown) for ios-closure.yml.
+"""Write the IOS_* closure evidence summary (JSON + Markdown) for the iOS closure workflow.
 
 Usage:
-    python3 tools/ios-closure/write_summary.py <evidence_dir> <run_id> <head_sha> <iphone_name> <ipad_name>
+    python3 tools/ios-closure/write_summary.py <evidence_dir> <run_id> <head_sha> <iphone_name> <ipad_name> [workflow_file]
 
 Reads logs written by the workflow into <evidence_dir> and emits:
     <evidence_dir>/ios-closure-summary.json
@@ -49,6 +49,7 @@ def main() -> None:
     evid, run_id, sha = sys.argv[1], sys.argv[2], sys.argv[3]
     iphone_name = sys.argv[4] if len(sys.argv) > 4 else "?"
     ipad_name = sys.argv[5] if len(sys.argv) > 5 else "?"
+    workflow = sys.argv[6] if len(sys.argv) > 6 else "ios-runtime-visual.yml"
     os.makedirs(evid, exist_ok=True)
 
     app_build = read(evid, "ios-app-build.log")
@@ -109,7 +110,7 @@ def main() -> None:
     summary = {
         "run_id": run_id,
         "head_sha": sha,
-        "workflow": "ios-closure.yml",
+        "workflow": workflow,
         "evidence_dir": evid,
         "devices": {"iphone": iphone_name, "ipad": ipad_name},
         "ios_matrix": matrix,
@@ -122,10 +123,10 @@ def main() -> None:
         json.dump(summary, f, ensure_ascii=False, indent=2)
 
     lines = [
-        "# iOS Closure Evidence — run " + run_id,
+        "# iOS Closure Evidence (workflow " + workflow + ") — run " + run_id,
         "",
         "- head_sha: " + sha,
-        "- workflow: ios-closure.yml",
+        "- workflow: " + workflow,
         "- devices: iPhone " + iphone_name + " / iPad " + ipad_name,
         "",
         "| key | value |",
