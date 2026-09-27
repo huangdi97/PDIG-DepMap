@@ -51,12 +51,12 @@ import kotlin.math.roundToInt
  */
 object ShotDriver {
 
-    private const val PASSWORD = "shot-password-2026"
-    private val SIZES = listOf(1280 to 720, 1920 to 1080, 2048 to 1152)
+    internal const val PASSWORD = "shot-password-2026"
+    private val SIZES = listOf(1280 to 720, 1920 to 1080, 2048 to 1152, 2560 to 1440)
 
     data class Target(val screen: Screen, val state: String, val size: Pair<Int, Int>)
 
-    private class Prepared(val cardId: String, val planId: String)
+    internal class Prepared(val cardId: String, val planId: String)
 
     fun run(repoRoot: File, outRoot: File): Int {
         val workDir = File(System.getProperty("java.io.tmpdir"), "pdig-shot-work").apply { mkdirs() }
@@ -199,7 +199,7 @@ object ShotDriver {
         return targets
     }
 
-    private fun prepareSession(repoRoot: File, dataFile: File, store: DepmapFileStore): Prepared {
+    internal fun prepareSession(repoRoot: File, dataFile: File, store: DepmapFileStore): Prepared {
         val fixture = File(repoRoot, "fixtures/import/normal-wechat.csv")
         check(fixture.isFile) { "fixture missing: $fixture" }
         val session = DesktopSession.open()

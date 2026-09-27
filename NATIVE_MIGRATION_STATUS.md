@@ -390,30 +390,29 @@ cd .. && node tools/conformance/run.mjs
 
 ## IOS
 
-| 层              | 状态                 | 说明                                              |
-| --------------- | -------------------- | ------------------------------------------------- |
-| 工程脚手架      | **COMPILED**         | `ios/Sources/PDIGCore/Generated/` codegen + SwiftPM 包结构 |
-| Domain（Swift） | **TESTED**           | 128/128 canonical conformance（macOS CI run 36266556360） |
-| Crypto          | **COMPILED**         | PDIGArgon2 vendored C；golden-vector 校验经 CI 通过 |
-| Conformance     | **PASS**             | `conformance/reports/ios.json`：128/128（含 37 条 v0.3.0 fixture） |
+| 层              | 状态                 | 说明                                                                             |
+| --------------- | -------------------- | -------------------------------------------------------------------------------- |
+| 工程脚手架      | **COMPILED**         | `ios/Sources/PDIGCore/Generated/` codegen + SwiftPM 包结构                       |
+| Domain（Swift） | **TESTED**           | 128/128 canonical conformance（macOS CI run 36266556360）                        |
+| Crypto          | **COMPILED**         | PDIGArgon2 vendored C；golden-vector 校验经 CI 通过                              |
+| Conformance     | **PASS**             | `conformance/reports/ios.json`：128/128（含 37 条 v0.3.0 fixture）               |
 | Build / Test    | **PASS（macOS CI）** | `swift build` + `swift test` 全绿（本机 Windows 无 Xcode，以 macOS runner 为准） |
 
 ---
 
 ## CONFORMANCE
 
-| Gate              | 状态     | 证据                                                                                                                                                          |
-| ----------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| codegen gate      | PASS     | 4 个 generated 文件与 spec 一致（Kotlin/Swift/ArkTS/TS）                                                                                                      |
-| fixture integrity | PASS     | 128 用例 + 28 输入文件 sha256 全匹配（旧 91 逐字节未动）                                                                                                        |
-| oracle selfcheck  | PASS     | 冻结 TS oracle 逐字节复现 128 用例                                                                                                                             |
-| platform: android | PASS     | **128/128**（含 37 条 v0.3.0 fixture）                                                                                                                          |
-| platform: harmony | PASS_WITH_EXTERNAL_GATES | **124/128** host（179/179 checks）；4 条 Argon2id 原生 / ArkData 为真实设备门禁（逐条理由登记） |
-| platform: ios     | PASS     | **128/128**（macOS CI run 36266556360）                                                                                                                        |
-| **VERDICT**       | **PASS** | `conformance/reports/SUMMARY.json`（android PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS）                                                                                                                            |
+| Gate              | 状态                     | 证据                                                                                             |
+| ----------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
+| codegen gate      | PASS                     | 4 个 generated 文件与 spec 一致（Kotlin/Swift/ArkTS/TS）                                         |
+| fixture integrity | PASS                     | 128 用例 + 28 输入文件 sha256 全匹配（旧 91 逐字节未动）                                         |
+| oracle selfcheck  | PASS                     | 冻结 TS oracle 逐字节复现 128 用例                                                               |
+| platform: android | PASS                     | **128/128**（含 37 条 v0.3.0 fixture）                                                           |
+| platform: harmony | PASS_WITH_EXTERNAL_GATES | **124/128** host（179/179 checks）；4 条 Argon2id 原生 / ArkData 为真实设备门禁（逐条理由登记）  |
+| platform: ios     | PASS                     | **128/128**（macOS CI run 36266556360）                                                          |
+| **VERDICT**       | **PASS**                 | `conformance/reports/SUMMARY.json`（android PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS） |
 
 分类覆盖：impact 13 / readiness 16 / coverage 6 / relations 18 / depmap 3 / jcs 1 / scenario 1 / migration 2 / state-machine 5 / parser 22 / timeline 3 / backup 1 + **v0.3.0：failure-domain 6 / recovery-cycle 7 / action-dag 7 / make-before-break 3 / temporal-change 4 / provider-policy 4 / identity-relations 6**
-
 
 ---
 

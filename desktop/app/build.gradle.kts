@@ -49,6 +49,11 @@ compose.desktop {
             description = "PDIG 0.3.0 Preview — 个人数字依赖图 (Windows Desktop)"
             vendor = "PDIG"
             includeAllModules = true
+            windows {
+                // 打包图标（closure branding）：手动 app-image/NSIS 流程未接入 jpackage --icon，
+                // 此处 DSL 供 Compose native packaging 使用；手工 NSIS 脚本的图标接入见后续打包轮次。
+                iconFile.set(file("src/main/resources/pdig.ico"))
+            }
         }
     }
 }

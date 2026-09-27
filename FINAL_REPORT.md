@@ -1,10 +1,9 @@
-# FINAL_REPORT — PDIG / DepMap v0.3.0 全量产品实现、四端闭环与上线
+﻿# FINAL_REPORT 鈥?PDIG / DepMap v0.3.0 鍏ㄩ噺浜у搧瀹炵幇銆佸洓绔棴鐜笌涓婄嚎
 
-> 目标契约：`PDIG_v0.3.0_全量产品实现_四端闭环与上线总Goal`
-> 执行完成时间：2026-09-26 · 仓库：`github.com/huangdi97/PDIG-DepMap`
+> 鐩爣濂戠害锛歚PDIG_v0.3.0_鍏ㄩ噺浜у搧瀹炵幇_鍥涚闂幆涓庝笂绾挎€籊oal`
+> 鎵ц瀹屾垚鏃堕棿锛?026-09-26 路 浠撳簱锛歚github.com/huangdi97/PDIG-DepMap`
 
-## 最终状态
-
+## 鏈€缁堢姸鎬?
 ```text
 PDIG_V0_3_0_PRODUCT_COMPLETE = PASS
 PDIG_V0_3_0_RELEASE_READY = PASS
@@ -14,72 +13,67 @@ APP_STORE_SUBMISSION_READY = PASS / APP_STORE_SUBMITTED = EXTERNAL_GATE
 APPGALLERY_SUBMISSION_READY = PASS / APPGALLERY_SUBMITTED = EXTERNAL_GATE
 ```
 
-## 版本 / Git
+## 鐗堟湰 / Git
 
-- main = origin/main = `ca9bebf`；tag `product-v0.3.0` = `ca9bebf`（exact accepted SHA）；`product-v0.2.0` = `ff69a3e` 保持不变。
-- 无 force push / rebase / reset --hard / clean -fd / history rewrite；`git status` 干净（仅未跟踪的构建产物在 gitignore 内）。
-- GitHub Release：https://github.com/huangdi97/PDIG-DepMap/releases/tag/product-v0.3.0
-  - title `PDIG 0.3.0`，isPrerelease=true，含 10 个附件（见下第 8 节）。
+- main = origin/main = `ca9bebf`锛泃ag `product-v0.3.0` = `ca9bebf`锛坋xact accepted SHA锛夛紱`product-v0.2.0` = `ff69a3e` 淇濇寔涓嶅彉銆?- 鏃?force push / rebase / reset --hard / clean -fd / history rewrite锛沗git status` 骞插噣锛堜粎鏈窡韪殑鏋勫缓浜х墿鍦?gitignore 鍐咃級銆?- GitHub Release锛歨ttps://github.com/huangdi97/PDIG-DepMap/releases/tag/product-v0.3.0
+  - title `PDIG 0.3.0`锛宨sPrerelease=true锛屽惈 10 涓檮浠讹紙瑙佷笅绗?8 鑺傦級銆?
+## 閫愰」楠屾敹锛坈hecklist walking锛?
+### A. Git / 鐗堟湰 / Release
 
-## 逐项验收（checklist walking）
-
-### A. Git / 版本 / Release
-
-| # | 验收项 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| 1 | release commit → main；tag 指向 exact SHA；v0.2.0 tag 不变 | PASS | `git rev-parse product-v0.3.0^{}` = `ca9bebf` = origin/main；`product-v0.2.0`=ff69a3e |
-| 2 | git status 干净 / 无 history rewrite | PASS | merge --no-ff，无 force；status clean |
-| 3 | `gh release view product-v0.3.0`：title `PDIG 0.3.0`、prerelease、全部附件 | PASS | view 输出确认（10 assets） |
-| 4 | 下载 smoke：从 GitHub 重下 + SHA 匹配 + extract→launch→replace_phone smoke + Android install/launch | PASS | portable.zip SHA `f53a1d88…` 与清单一致；打包产物 `--smoke` 17/17（含 replace_phone_number、backup/restore）；APK SHA `1bc613fa…` 一致、emulator-5568 install Success + pid 11932 + 截图 |
+| #   | 楠屾敹椤?                                                                                             | 鐘舵€?| 璇佹嵁                                                                                                                                                                                     |
+| --- | --------------------------------------------------------------------------------------------------- | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | release commit 鈫?main锛泃ag 鎸囧悜 exact SHA锛泇0.2.0 tag 涓嶅彉                                          | PASS | `git rev-parse product-v0.3.0^{}` = `ca9bebf` = origin/main锛沗product-v0.2.0`=ff69a3e                                                                                                    |
+| 2   | git status 骞插噣 / 鏃?history rewrite                                                                | PASS | merge --no-ff锛屾棤 force锛泂tatus clean                                                                                                                                                    |
+| 3   | `gh release view product-v0.3.0`锛歵itle `PDIG 0.3.0`銆乸rerelease銆佸叏閮ㄩ檮浠?                         | PASS | view 杈撳嚭纭锛?0 assets锛?                                                                                                                                                              |
+| 4   | 涓嬭浇 smoke锛氫粠 GitHub 閲嶄笅 + SHA 鍖归厤 + extract鈫抣aunch鈫抮eplace_phone smoke + Android install/launch | PASS | portable.zip SHA `f53a1d88鈥 涓庢竻鍗曚竴鑷达紱鎵撳寘浜х墿 `--smoke` 17/17锛堝惈 replace_phone_number銆乥ackup/restore锛夛紱APK SHA `1bc613fa鈥 涓€鑷淬€乪mulator-5568 install Success + pid 11932 + 鎴浘 |
 
 ### B. Canonical / Schema / Fixtures
 
-| # | 验收项 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| 5 | Canonical vNext 覆盖 5 capabilities、3 新 relations、FailureDomain、PathIndependence、RecoveryCycle、7 Findings、ChangePrimitive REPLACE、prerequisiteActionIds、TemporalChange、ProviderPolicy、replace_phone_number 模板 | PASS | `spec/domain/domain.json`（additive） |
-| 6 | 旧 91 fixtures byte-identical | PASS | fixture integrity 128/128 ok；old 91 git diff 无改动；manifest sha 一致 |
-| 7 | 新增 fixtures 覆盖 | PASS | failure-domain 6 / recovery-cycle 7 / action-dag 7 / make-before-break 3 / temporal 4 / provider-policy 4 / identity-relations 6 = 37 |
-| 8 | Schema v4 就位（v1/v2/v3→v4、reopen、future reject、corrupt rollback、transaction rollback） | PASS | core migration 测试（`npm run check` 绿）；migration-v3.test.ts / migration.test.ts 更新后通过；Migration 不自动创建 Identity/Recovery Dependency |
-| 9 | DEPMAP_CONTAINER_V1 不变；v3→v4 restore、cross-platform | PASS | payload 仍 v3（`PAYLOAD_SCHEMA_VERSION=3`）；backup/restore smoke + repository 测试绿 |
+| #   | 楠屾敹椤?                                                                                                                                                                                                                    | 鐘舵€?| 璇佹嵁                                                                                                                                              |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 5   | Canonical vNext 瑕嗙洊 5 capabilities銆? 鏂?relations銆丗ailureDomain銆丳athIndependence銆丷ecoveryCycle銆? Findings銆丆hangePrimitive REPLACE銆乸rerequisiteActionIds銆乀emporalChange銆丳roviderPolicy銆乺eplace_phone_number 妯℃澘 | PASS | `spec/domain/domain.json`锛坅dditive锛?                                                                                                            |
+| 6   | 鏃?91 fixtures byte-identical                                                                                                                                                                                              | PASS | fixture integrity 128/128 ok锛沷ld 91 git diff 鏃犳敼鍔紱manifest sha 涓€鑷?                                                                          |
+| 7   | 鏂板 fixtures 瑕嗙洊                                                                                                                                                                                                         | PASS | failure-domain 6 / recovery-cycle 7 / action-dag 7 / make-before-break 3 / temporal 4 / provider-policy 4 / identity-relations 6 = 37             |
+| 8   | Schema v4 灏变綅锛坴1/v2/v3鈫抳4銆乺eopen銆乫uture reject銆乧orrupt rollback銆乼ransaction rollback锛?                                                                                                                              | PASS | core migration 娴嬭瘯锛坄npm run check` 缁匡級锛沵igration-v3.test.ts / migration.test.ts 鏇存柊鍚庨€氳繃锛汳igration 涓嶈嚜鍔ㄥ垱寤?Identity/Recovery Dependency |
+| 9   | DEPMAP_CONTAINER_V1 涓嶅彉锛泇3鈫抳4 restore銆乧ross-platform                                                                                                                                                                    | PASS | payload 浠?v3锛坄PAYLOAD_SCHEMA_VERSION=3`锛夛紱backup/restore smoke + repository 娴嬭瘯缁?                                                            |
 
-### C. 核心域（core/）
+### C. 鏍稿績鍩燂紙core/锛?
+| #   | 楠屾敹椤?                                                                                                      | 鐘舵€?| 璇佹嵁                                                                                                                                                                        |
+| --- | ------------------------------------------------------------------------------------------------------------ | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 10  | `cd core && npm run check` 鍏ㄧ豢                                                                              | PASS | 476/476 tests锛沠ormat/lint/typecheck/architecture(circular=0)/network/secrets/ui 鍏?PASS锛堟湰鏈哄疄璺戯級                                                                        |
+| 11  | 缁熶竴 Impact Engine锛堟棤鏂板 PhoneImpactEngine锛夛紱must_change 浠呮潵鑷凡纭 Reality锛沜onfirmed false positive=0 | PASS | 鍗曚竴 capability-parametric kernel锛沺ayment 杈撳嚭 byte-identical锛沠ixture oracle 鍏ㄧ豢                                                                                         |
+| 12  | 纭畾鎬у紩鎿庡疄鐜?+ 鏈夋祴璇?                                                                                     | PASS | FailureDomain/PathIndependence/RecoveryCycle/7 Findings/ActionDag/MakeBeforeBreak/ProviderPolicy 鍧?TS 瀹炵幇 + `v030-engines.test.ts` 23 娴嬭瘯 + 鏂板 fixtures 128/128 oracle |
 
-| # | 验收项 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| 10 | `cd core && npm run check` 全绿 | PASS | 476/476 tests；format/lint/typecheck/architecture(circular=0)/network/secrets/ui 全 PASS（本机实跑） |
-| 11 | 统一 Impact Engine（无新增 PhoneImpactEngine）；must_change 仅来自已确认 Reality；confirmed false positive=0 | PASS | 单一 capability-parametric kernel；payment 输出 byte-identical；fixture oracle 全绿 |
-| 12 | 确定性引擎实现 + 有测试 | PASS | FailureDomain/PathIndependence/RecoveryCycle/7 Findings/ActionDag/MakeBeforeBreak/ProviderPolicy 均 TS 实现 + `v030-engines.test.ts` 23 测试 + 新增 fixtures 128/128 oracle |
+### D. 鍥涚浜у搧 / Runtime / Visual
 
-### D. 四端产品 / Runtime / Visual
+| #   | 楠屾敹椤?                                                                                                                                             | 鐘舵€?              | 璇佹嵁                                                                                                                                                                                             |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 13  | Desktop 鏋勫缓閫氳繃锛泇0.3.0 UI锛團indings/replace_phone/Action DAG/Provider Policy锛夛紱瀵艰埅/閿洏锛沬nstaller+portable锛沺rimary 鎴浘 light/dark            | PASS               | `:app:compileKotlin` PASS锛沗--smoke` 17/17锛沗--shots` 53/53锛?280脳720/1920脳1080/2048脳1152 light锛夛紱installer 151,318,030B + portable 151,565,624B                                                |
+| 14  | Android compileSdk/targetSdk鈮?6锛汚PK+AAB锛汮VM+instrumentation+conformance PASS锛汚PI36 杩愯鏃惰瘉鎹紱鎴浘                                              | PASS               | compileSdk/targetSdk 36锛汚PK 33,187,757B / AAB 20,949,697B锛沜onformance 128/128锛沜onnected 61/61锛?2 灞?light/dark锛堝惈 findings銆乻cenario-setup-phone锛夎惤鐩?artifacts/runtime-evidence/          |
+| 15  | Harmony ArkTS conformance 鎸戞垬鍒?91/91锛堝彧鍏佽鐪熷疄澶栭儴鐜闂ㄧ锛夛紱host 鈮?42锛汬AP clean build锛汚rkUI v0.3.0 椤甸潰锛涙ā鎷熷櫒涓嶅彲鐢ㄥ垯璁板綍鍞竴鐪熷疄 blocker | PASS锛堝惈澶栭儴闂ㄧ锛?| host **179/179**锛沜anonical 124/128锛? 鏉?Argon2id 鍘熺敓/ArkData 璁惧闂ㄧ锛岄€愭潯鐞嗙敱锛夛紱HAP clean build SUCCESSFUL锛汚rkEngine 7 绫诲叏绉绘锛沞mulator image 缂哄け = 鍞竴鐪熷疄鐜 blocker锛堝伐绋嬬己鍙?0锛?|
+| 16  | iOS N4 瀹屾暣 SwiftUI App锛沘pp target audit true锛泂wift build/test 鍦?macOS runner锛涙埅鍥撅紱xcresult                                                    | PASS锛圕I 璇佹嵁锛?   | run 36266556360锛歴wift build + canonical **128/128** + PDIGAppTests 10/10 + screenshots锛況un 36266836728锛歛pp_target=true + SIMULATOR_BOOT=PASS锛坕Phone 15 Pro锛夛紱evidence 鏉ヨ嚜 GitHub Actions   |
+| 17  | 璺ㄥ钩鍙拌涔夛細one spec/one fixtures/one expected锛沺arity matrix 鏇存柊                                                                                  | PASS               | `conformance/reports/SUMMARY.json`锛歛ndroid PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS锛汵ATIVE_PARITY_MATRIX v0.3.0 娉ㄨ                                                                 |
 
-| # | 验收项 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| 13 | Desktop 构建通过；v0.3.0 UI（Findings/replace_phone/Action DAG/Provider Policy）；导航/键盘；installer+portable；primary 截图 light/dark | PASS | `:app:compileKotlin` PASS；`--smoke` 17/17；`--shots` 53/53（1280×720/1920×1080/2048×1152 light）；installer 151,318,030B + portable 151,565,624B |
-| 14 | Android compileSdk/targetSdk≥36；APK+AAB；JVM+instrumentation+conformance PASS；API36 运行时证据；截图 | PASS | compileSdk/targetSdk 36；APK 33,187,757B / AAB 20,949,697B；conformance 128/128；connected 61/61；42 屏 light/dark（含 findings、scenario-setup-phone）落盘 artifacts/runtime-evidence/ |
-| 15 | Harmony ArkTS conformance 挑战到 91/91（只允许真实外部环境门禁）；host ≥142；HAP clean build；ArkUI v0.3.0 页面；模拟器不可用则记录唯一真实 blocker | PASS（含外部门禁） | host **179/179**；canonical 124/128（4 条 Argon2id 原生/ArkData 设备门禁，逐条理由）；HAP clean build SUCCESSFUL；ArkEngine 7 类全移植；emulator image 缺失 = 唯一真实环境 blocker（工程缺口 0） |
-| 16 | iOS N4 完整 SwiftUI App；app target audit true；swift build/test 在 macOS runner；截图；xcresult | PASS（CI 证据） | run 36266556360：swift build + canonical **128/128** + PDIGAppTests 10/10 + screenshots；run 36266836728：app_target=true + SIMULATOR_BOOT=PASS（iPhone 15 Pro）；evidence 来自 GitHub Actions |
-| 17 | 跨平台语义：one spec/one fixtures/one expected；parity matrix 更新 | PASS | `conformance/reports/SUMMARY.json`：android PASS / harmony PASS_WITH_EXTERNAL_GATES / ios PASS；NATIVE_PARITY_MATRIX v0.3.0 注记 |
+### E. 璐ㄩ噺 / 瀹夊叏 / 鎬ц兘
 
-### E. 质量 / 安全 / 性能
+| #   | 楠屾敹椤?                                                                                                                                                 | 鐘舵€?| 璇佹嵁                                                                                                                            |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 18  | 璐ㄩ噺 gates锛氣墹300 琛屻€乧ycle=0銆乧omplexity=0銆乼ype escape=0銆丷AW_TODO=0銆丼ENSITIVE_LOGGING=0銆丼ECRET_LEAK=0锛涜剼鏈负鐪熷疄妫€鏌?                              | PASS | `scripts/quality/check-quality.mjs` VERDICT **PASS**锛堟湰杞慨澶?file-size 3 椤广€乲otlin-escape 3 椤瑰悗鍏?0锛?                      |
+| 19  | 瀹夊叏锛歭ocal-first锛涚姝㈡寔涔呭寲 password/OTP/recovery code/private key/seed锛泂ecret scan / dependency audit / SBOM / license / network / logging 瀹¤浜у嚭 | PASS | `npm run check:secrets` PASS锛沗check:deps`锛? moderate dev-only 宸茬櫥璁帮級PASS锛汼BOM CycloneDX 45 components锛汿HIRD-PARTY-NOTICES |
+| 20  | 鎬ц兘/绋冲畾鎬э細perf smoke + replace_phone脳5 绛?0 crash/0 corruption                                                                                       | PASS | `npm run check:full`锛堝惈 perf/stability锛塒ASS锛泂tability 3脳green锛汚ndroid PerfSmokeEvidenceTest / Desktop smoke 17/17 0 crash   |
 
-| # | 验收项 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| 18 | 质量 gates：≤300 行、cycle=0、complexity=0、type escape=0、RAW_TODO=0、SENSITIVE_LOGGING=0、SECRET_LEAK=0；脚本为真实检查 | PASS | `scripts/quality/check-quality.mjs` VERDICT **PASS**（本轮修复 file-size 3 项、kotlin-escape 3 项后全 0） |
-| 19 | 安全：local-first；禁止持久化 password/OTP/recovery code/private key/seed；secret scan / dependency audit / SBOM / license / network / logging 审计产出 | PASS | `npm run check:secrets` PASS；`check:deps`（3 moderate dev-only 已登记）PASS；SBOM CycloneDX 45 components；THIRD-PARTY-NOTICES |
-| 20 | 性能/稳定性：perf smoke + replace_phone×5 等 0 crash/0 corruption | PASS | `npm run check:full`（含 perf/stability）PASS；stability 3×green；Android PerfSmokeEvidenceTest / Desktop smoke 17/17 0 crash |
+### F. 鍙戝竷鍒跺搧 / 鏂囨。 / 鎶ュ憡
 
-### F. 发布制品 / 文档 / 报告
+| #   | 楠屾敹椤?                                                          | 鐘舵€?| 璇佹嵁                                                                                                                                                                                                                                                                                |
+| --- | ---------------------------------------------------------------- | ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 21  | 鍒跺搧榻愬                                                         | PASS | setup.exe / portable.zip / apk / aab / SHA256SUMS / SBOM / THIRD-PARTY-NOTICES(.txt+.md) / RELEASE_NOTES_0_3_0.md 鍏ㄩ儴涓婁紶                                                                                                                                                          |
+| 22  | PRODUCT_V0_3_0_RELEASE_MANIFEST.md 瀹屾暣                          | PASS | 瑙佹枃浠讹紙Release SHA/Tag/Canonical/Schema/fixture count/鍚勭鐗堟湰涓?SHA256/signing/conformance/runtime/visual/SBOM/licenses/external blockers锛?                                                                                                                                      |
+| 23  | Store 涓夌 SUBMISSION_READY 鍖咃紱SUBMITTED=EXTERNAL_GATE 姣忔潯鍒楀嚭 | PASS | `store/`锛歋TORE_LISTING_ZH / STORE_LISTING_DRAFT / REVIEW_INSTRUCTIONS锛堝鏍歌鏄庯級/ DATA_SAFETY_DRAFT / SUPPORT_PAGE_DRAFT / RELEASE_NOTES / PERMISSION_RATIONALE / PLATFORM_REQUIREMENTS / PRIVACY_DISCLOSURE_MATRIX / SCREENSHOT_PLAN锛汦XTERNAL_GATE 琛ㄨ manifest 搂宸茬煡澶栭儴 Gate |
 
-| # | 验收项 | 状态 | 证据 |
-| --- | --- | --- | --- |
-| 21 | 制品齐备 | PASS | setup.exe / portable.zip / apk / aab / SHA256SUMS / SBOM / THIRD-PARTY-NOTICES(.txt+.md) / RELEASE_NOTES_0_3_0.md 全部上传 |
-| 22 | PRODUCT_V0_3_0_RELEASE_MANIFEST.md 完整 | PASS | 见文件（Release SHA/Tag/Canonical/Schema/fixture count/各端版本与 SHA256/signing/conformance/runtime/visual/SBOM/licenses/external blockers） |
-| 23 | Store 三端 SUBMISSION_READY 包；SUBMITTED=EXTERNAL_GATE 每条列出 | PASS | `store/`：STORE_LISTING_ZH / STORE_LISTING_DRAFT / REVIEW_INSTRUCTIONS（审核说明）/ DATA_SAFETY_DRAFT / SUPPORT_PAGE_DRAFT / RELEASE_NOTES / PERMISSION_RATIONALE / PLATFORM_REQUIREMENTS / PRIVACY_DISCLOSURE_MATRIX / SCREENSHOT_PLAN；EXTERNAL_GATE 表见 manifest §已知外部 Gate |
+| 24 | 鏂囨。鏇存柊锛歊EADME銆乨ocs/user 6 绡囥€乄ORK_STATUS銆丅LOCKERS銆丯ATIVE_MIGRATION_STATUS銆丷untime Evidence Index銆丳arity Matrix銆丗INAL_REPORT | PASS | 鏈瘒鍗?FINAL_REPORT锛涘叾浣欏潎鏈疆鏇存柊/鏂板 |
+| 25 | 浜у搧鏈缁熶竴锛涢〉闈笉娉勬紡鍐呴儴 enum | PASS | UI 闈欐€?gate PASS锛涙枃妗堟鏌ワ紙寰呯‘璁ゆ湇鍔?鍙兘鍙戠敓浜嗗彉鍖?鍩虹璁炬柦钖勫急鐐?蹇呴』鍏堝畬鎴愨€︼級 |
 
-| 24 | 文档更新：README、docs/user 6 篇、WORK_STATUS、BLOCKERS、NATIVE_MIGRATION_STATUS、Runtime Evidence Index、Parity Matrix、FINAL_REPORT | PASS | 本篇即 FINAL_REPORT；其余均本轮更新/新增 |
-| 25 | 产品术语统一；页面不泄漏内部 enum | PASS | UI 静态 gate PASS；文案检查（待确认服务/可能发生了变化/基础设施薄弱点/必须先完成…） |
-
-## 发布物清单（GitHub Release attachments，10 项）
+## 鍙戝竷鐗╂竻鍗曪紙GitHub Release attachments锛?0 椤癸級
 
 1. `PDIG-0.3.0-windows-x64-setup.exe`
 2. `PDIG-0.3.0-windows-x64-portable.zip`
@@ -92,20 +86,24 @@ APPGALLERY_SUBMISSION_READY = PASS / APPGALLERY_SUBMITTED = EXTERNAL_GATE
 9. `RELEASE_NOTES_0_3_0.md`
 10. `PRODUCT_V0_3_0_RELEASE_MANIFEST.md`
 
-## 剩余外部 Gate（最终停止条件 B）
+## 鍓╀綑澶栭儴 Gate锛堟渶缁堝仠姝㈡潯浠?B锛?
+| Gate                                    | 鐘舵€?         | 鏍瑰洜                         | 澶栭儴瑕佹眰                                              | 宸ョ▼鍓╀綑                     | 鐢ㄦ埛鍔ㄤ綔        |
+| --------------------------------------- | ------------- | ---------------------------- | ----------------------------------------------------- | ---------------------------- | --------------- |
+| Google Play 鎻愪氦                        | EXTERNAL_GATE | 鏃犲紑鍙戣€呰处鍙?姝ｅ紡绛惧悕        | Play Console 璐﹀彿 + AAB 姝ｅ紡绛惧悕 + 瀹℃牳               | 0                            | 娉ㄥ唽/绛惧悕鍚庢彁浜?|
+| App Store 鎻愪氦                          | EXTERNAL_GATE | 鏃?Apple Developer 璐﹀彿/绛惧悕 | Apple Developer Program + Distribution 璇佷功 + Connect | 0                            | 娉ㄥ唽/绛惧悕鍚庢彁浜?|
+| AppGallery 鎻愪氦                         | EXTERNAL_GATE | 鏃犲崕涓哄紑鍙戣€呰韩浠?绛惧悕        | 鍗庝负寮€鍙戣€呰璇?+ 绛惧悕                                 | 0                            | 娉ㄥ唽/绛惧悕鍚庢彁浜?|
+| Harmony 璁惧杩愯鏃?                     | EXTERNAL_GATE | 妯℃嫙鍣ㄩ暅鍍忎笉鍙敤             | 鐪熸満/妯℃嫙鍣紙Argon2id 鍘熺敓 + ArkData锛?               | 0锛? 鏉?canonical 璁惧闂ㄧ锛?| 鎻愪緵璁惧鐜    |
+| iOS 鐪熸満 LocalAuthentication / Keychain | EXTERNAL_GATE | 鏃?macOS 鐪熸満                | 鐪熸満 + 璇佷功                                           | 0                            | 鎻愪緵鐪熸満        |
+| Windows 瀹夎鍖呯鍚?                     | EXTERNAL_GATE | 鏃?Authenticode 璇佷功         | 浠ｇ爜绛惧悕璇佷功                                          | 0                            | 璐瘉鍚庣鍚?     |
+| 鐪熷疄璐﹀崟 / 鐪熷疄鐢ㄦ埛                     | EXTERNAL_GATE | 鏃犵敤鎴锋巿鏉冩暟鎹?              | 鐢ㄦ埛鎻愪緵鐪熷疄璐﹀崟                                      | 0                            | 鎺堟潈鍚?pilot    |
 
-| Gate | 状态 | 根因 | 外部要求 | 工程剩余 | 用户动作 |
-| --- | --- | --- | --- | --- | --- |
-| Google Play 提交 | EXTERNAL_GATE | 无开发者账号/正式签名 | Play Console 账号 + AAB 正式签名 + 审核 | 0 | 注册/签名后提交 |
-| App Store 提交 | EXTERNAL_GATE | 无 Apple Developer 账号/签名 | Apple Developer Program + Distribution 证书 + Connect | 0 | 注册/签名后提交 |
-| AppGallery 提交 | EXTERNAL_GATE | 无华为开发者身份/签名 | 华为开发者认证 + 签名 | 0 | 注册/签名后提交 |
-| Harmony 设备运行时 | EXTERNAL_GATE | 模拟器镜像不可用 | 真机/模拟器（Argon2id 原生 + ArkData） | 0（4 条 canonical 设备门禁） | 提供设备环境 |
-| iOS 真机 LocalAuthentication / Keychain | EXTERNAL_GATE | 无 macOS 真机 | 真机 + 证书 | 0 | 提供真机 |
-| Windows 安装包签名 | EXTERNAL_GATE | 无 Authenticode 证书 | 代码签名证书 | 0 | 购证后签名 |
-| 真实账单 / 真实用户 | EXTERNAL_GATE | 无用户授权数据 | 用户提供真实账单 | 0 | 授权后 pilot |
+## 缁撹
 
-## 结论
+鍐呴儴宸ョ▼ Gate 鍏ㄩ儴 PASS锛孏itHub `product-v0.3.0` 宸?PUBLISHED锛圥re-release锛夛紝
+鍥涚浜у搧涓?conformance 闂幆瀹屾垚锛涘墿浣欏叏閮ㄤ负鐪熷疄澶栭儴 Gate锛堟棤宸ョ▼/娴嬭瘯缂哄彛锛夈€?鎸夊绾︽渶缁堝仠姝㈡潯浠?A 杈炬垚銆?
 
-内部工程 Gate 全部 PASS，GitHub `product-v0.3.0` 已 PUBLISHED（Pre-release），
-四端产品与 conformance 闭环完成；剩余全部为真实外部 Gate（无工程/测试缺口）。
-按契约最终停止条件 A 达成。
+> **Closure 修订（2026-09-27，v0.3.0 Final Contract & Evidence Closure）**：
+> 本文档为 v0.3.0 发布时的报告。最终矩阵以 **FINAL_V0_3_0_CONTRACT_CLOSURE.md** 为准。
+> 关键修订：PDIG_V0_3_0_PRODUCT_COMPLETE / RELEASE_READY = NOT_YET_PASS
+> （唯一未闭环：iOS XCUITest/iPad/xcresult 最终绿态，工程已落地于分支 closure/ios-xcuitest，
+> 根因已修复；其余全部 gate PASS/EXTERNAL/DEFERRED）。GITHUB_PRODUCT_V0_3_0 = PUBLISHED（draft 原位发布）。

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>支持与常见问题 — PDIG / DepMap</title>
+  <style>
+    :root { color-scheme: light; --fg:#1c1c1e; --muted:#6e6e73; --accent:#0a84ff; --bg:#f5f5f7; }
+    * { box-sizing: border-box; }
+    body { font: 16px/1.7 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; margin:0; color:var(--fg); background:var(--bg); }
+    header { background:#fff; border-bottom:1px solid #e2e2e6; padding:1.2rem 1.5rem; }
+    .wrap { max-width:860px; margin:0 auto; }
+    main.wrap { padding:2rem 1.5rem 4rem; }
+    h1 { font-size:1.8rem; }
+    h2 { font-size:1.15rem; margin:1.8rem 0 .4rem; }
+    p, li { color:#3a3a3c; }
+    details { background:#fff; border:1px solid #e2e2e6; border-radius:10px; padding:.8rem 1.1rem; margin:.6rem 0; }
+    summary { cursor:pointer; font-weight:600; }
+    code { background:#ececf0; padding:.1rem .4rem; border-radius:6px; font-size:.9em; }
+    .warn { background:#fff7e6; border:1px solid #ffe0a3; border-radius:10px; padding:.8rem 1.1rem; margin:1rem 0; }
+    footer { border-top:1px solid #e2e2e6; padding:1.5rem; color:var(--muted); font-size:.85rem; text-align:center; }
+    @media (max-width:640px){ body{ font-size:15px; } }
+  </style>
+</head>
+<body>
+<header><div class="wrap"><strong>PDIG / DepMap</strong> · <a href="/product/pdig/">产品</a> · 支持</div></header>
+<main class="wrap">
+  <h1>支持与常见问题</h1>
+  <p>当前版本为 Developer Preview（Pre-release）。如遇问题，请先在下方查找；未解决时到 GitHub 仓库提交 Issue。</p>
+
+  <div class="warn"><strong>重要提示：</strong>Windows 安装包未做代码签名，首次运行可能触发 SmartScreen 提示；.depmap 备份口令丢失后无法恢复数据。</div>
+
+  <h2>快速开始</h2>
+  <ol>
+    <li>下载对应平台安装包（见<a href="/product/pdig/">产品页</a>）。</li>
+    <li>「导入」→ 选择微信账单 CSV 或 OFX 文件 → 预览候选。</li>
+    <li>确认候选关系后，「场景中心」选择「更换手机号」或「更换银行卡」。</li>
+    <li>按变更计划顺序完成动作：先建立并验证新路径，再停用旧路径。</li>
+  </ol>
+
+  <details><summary>导入账单支持哪些格式？</summary><p>微信支付 CSV（UTF-8 / GBK / GB18030）、通用 CSV、OFX / QFX。格式解析错误会逐行提示，不会静默丢弃。</p></details>
+  <details><summary>如何备份与恢复？</summary><p>「设置 → 备份」创建 .depmap 加密文件；「恢复」时选择该文件并输入口令。同一文件可在 Windows 桌面与 Android 之间恢复。</p></details>
+  <details><summary>忘记备份口令怎么办？</summary><p>无法恢复。口令通过 Argon2id 派生密钥，只有你能解密；没有后门。</p></details>
+  <details><summary>「未来 schema」错误是什么？</summary><p>备份文件来自比当前应用更新的版本。请升级应用后重试；出于安全我们不会猜测兼容旧文件。</p></details>
+  <details><summary>更换手机号为什么要求先验证新手机号？</summary><p>Make-Before-Break 原则：先建立并验证新的恢复路径，才能停用旧的，避免把自己锁在账户之外。</p></details>
+  <details><summary>基础设施薄弱点是怎么来的？</summary><p>只依据你已经确认的依赖关系计算唯一恢复来源、共享故障点与恢复循环；未确认的候选不会进入薄弱点列表。</p></details>
+  <details><summary>数据会上传到服务器吗？</summary><p>不会。无账号、无后端、无遥测；详见<a href="/privacy/">隐私政策</a>。</p></details>
+  <details><summary>如何提交反馈或 Bug？</summary><p>在 <a href="https://github.com/huangdi97/PDIG-DepMap/issues">GitHub Issues</a> 提交，附上平台版本、操作步骤与截图。请勿在 Issue 中上传含敏感信息的账单文件。</p></details>
+
+  <h2>已知限制（开发预览）</h2>
+  <ul>
+    <li>HarmonyOS 模拟器镜像不可用：部分设备能力（Argon2id 原生 / ArkData 加密存储）为真实设备验证项。</li>
+    <li>iOS 为 macOS CI 构建验证状态；商店提交需要开发账号与正式签名。</li>
+    <li>商店提交（Google Play / App Store / AppGallery）尚未进行。</li>
+  </ul>
+</main>
+<footer><div class="wrap">PDIG / DepMap · <a href="/product/pdig/">产品</a> · <a href="/privacy/">隐私</a></div></footer>
+</body>
+</html>

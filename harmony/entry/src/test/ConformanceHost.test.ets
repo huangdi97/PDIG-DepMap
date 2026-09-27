@@ -128,13 +128,19 @@ class EmbeddedTextSource implements ConformanceTextSource {
  * domain/ActionDag、domain/MakeBeforeBreak、domain/TemporalChange、services/ProviderPolicy，
  * identity-relations 复用 generated/CanonicalRelations 的 recovers/authenticates/controls 注册表）。
  * 账目推进为 **124 已执行 + 0 未移植 + 0 环境缺失 + 4 设备运行时**（分母 91 → 128）。
+ *
+ * 2026-09-27（closure）：migration-db-v1-to-v3 与 backup-depmap-export-restore-roundtrip
+ * 从 RUNTIME_BLOCKED_CASES 移出 —— migration 由 data/MigrationChain.ets 在 in-memory
+ * GraphStore 上真跑迁移链（runMigrationV1ToV3Host）；backup 在主机面断言 11 表 payload
+ * 导出→恢复→再导出逐字节相同（runBackupHost，T2 同口径；容器半程仍属 H1/H2 设备门禁）。
+ * 账目推进为 **126 已执行 + 0 未移植 + 0 环境缺失 + 2 设备运行时**。
  */
 const EXPECTED_TOTAL = 128;
-const EXPECTED_BLOCKED_BY_RUNTIME = 4;
+const EXPECTED_BLOCKED_BY_RUNTIME = 2;
 const EXPECTED_BLOCKED_BY_ENVIRONMENT = 0;
 const EXPECTED_HOST_IMPL_MISSING = 0;
 const EXPECTED_NOT_IMPLEMENTED = 0;
-const EXPECTED_PASSED = 124;
+const EXPECTED_PASSED = 126;
 const EXPECTED_FAILED = 0;
 
 export default function conformanceHostTest() {
