@@ -57,6 +57,12 @@ final class PDIGAppUITests: XCTestCase {
         element.tap()
     }
 
+    /// 卡片式按钮（VStack 内标题+副标题两个 Text）的 accessibility label 会被拼接
+    /// 为 “标题, 副标题”。用 BEGINSWITH 前缀匹配，兼容两种拼接行为。
+    private func buttonLabelStarts(_ app: XCUIApplication, _ prefix: String) -> XCUIElement {
+        app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", prefix)).firstMatch
+    }
+
     /// 全流程冒烟。iPhone / iPad 通用（两个 destination 都执行本测试）。
     func testSmokeFlowHomeScenarioPhonePlanBackupSettings() throws {
         let app = launchApp()
@@ -71,7 +77,7 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "02-scenario-center")
 
         // 3. replace_phone_number 设置
-        tapWhenReady(app.buttons["更换手机号"], in: app)
+        tapWhenReady(buttonLabelStarts(app, "更换手机号"), in: app)
         XCTAssertTrue(app.staticTexts["场景设置"].waitForExistence(timeout: 10), "换号设置未出现")
         attachScreenshot(app, name: "03-phone-setup")
 
