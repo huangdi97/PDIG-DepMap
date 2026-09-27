@@ -1,4 +1,4 @@
-﻿name: iOS Runtime Visual
+name: iOS Runtime Visual
 
 on:
   workflow_dispatch:
@@ -191,9 +191,9 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 3
           { echo "--- xctestrun in derived/closure-iphone ---"; find derived/closure-iphone -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-iphone-dump.txt
-                    rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
+          rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
           rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult
-xcodebuild test-without-building \
+          xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
@@ -224,9 +224,9 @@ xcodebuild test-without-building \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 3
           { echo "--- xctestrun in derived/closure-ipad ---"; find derived/closure-ipad -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-ipad-dump.txt
-                    rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
+          rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
           rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult
-xcodebuild test-without-building \
+          xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
@@ -245,7 +245,7 @@ xcodebuild test-without-building \
             echo '{"app_target": false, "n4_gap": "IOS_N4_APP_NOT_IMPLEMENTED"}' > conformance/reports/ios-app-audit.json
           fi
           cat conformance/reports/ios-app-audit.json
-          # macOS 娓叉煋鎴浘锛坔arness 鍦?PDIGApp 鍐咃紝swift test 闃舵宸茬紪璇戯級
+          # macOS 渲染截图（harness 在 PDIGApp 内，swift test 阶段已编译）
           RUNID=$(date +%Y%m%d%H%M%S)
           (cd ios && swift run PDIGApp --screenshot --runid "$RUNID" --output "../artifacts/runtime-evidence/2026-09-27-closure-ios/harness-macos")
 
