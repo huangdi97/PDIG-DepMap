@@ -149,7 +149,7 @@ jobs:
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-iphone \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 5
 
@@ -161,7 +161,7 @@ jobs:
         working-directory: ios
         run: |
           set +e
-          APP=derived/closure/Build/Products/Debug-iphonesimulator/PDIGApp.app
+          APP=derived/closure-iphone/Build/Products/Debug-iphonesimulator/PDIGApp.app
           xcrun simctl bootstatus "$IPHONE_UDID" -b >/dev/null 2>&1
           xcrun simctl install "$IPHONE_UDID" "$APP"
           xcrun simctl launch "$IPHONE_UDID" com.pdig.depmap.app --uitest-demo
@@ -188,7 +188,7 @@ jobs:
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-iphone \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
@@ -207,7 +207,7 @@ jobs:
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-ipad \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 5
 
@@ -220,7 +220,7 @@ jobs:
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-ipad \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
