@@ -19,6 +19,12 @@ struct PDIGApp: App {
                 ScreenshotHarness.runAndExit(arguments: CommandLine.arguments)
             }
         }
+        // UITest 演示模式（XCUITest）：注入演示图并跳过 Onboarding/Lock。
+        // 模拟器无法通过 LocalAuthentication 生物识别解锁，因此 UI 测试用
+        // 启动参数直入 ready；不改产品启动分流（boot() 不受影响）。
+        if CommandLine.arguments.contains("--uitest-demo") {
+            session.seedDemo()
+        }
     }
 
     var body: some Scene {

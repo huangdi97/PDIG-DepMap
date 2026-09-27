@@ -1,0 +1,81 @@
+# PDIG iOS Xcode project spec —— CI 期由 xcodegen 生成（不提交 .xcodeproj）。
+#
+# 用途（closure/ios-xcuitest）：
+#   - PDIGApp          iOS app target（SwiftUI @main 可执行），源码 = 本包 Sources/PDIGApp；
+#                      PDIGCore / PDIGConformance / PDIGArgon2 以 SwiftPM 本地包产物引入
+#                      （CSQLite 由 SwiftPM 在包内解析，App target 不直接链接系统库）。
+#   - PDIGAppUITests   XCUITest bundle（smoke 流程，iPhone/iPad 通用），
+#                      host app = PDIGApp；xcresult 由 workflow 收集上传。
+#
+# 生成：cd ios && xcodegen generate
+# 构建：xcodebuild -project ios/PDIG.xcodeproj -scheme PDIGApp -destination 'generic/platform=iOS Simulator'
+#
+# 诚实口径：这是 XCUITest 工程壳，只用于 simulator 门禁；真机/签名/上架仍是
+# IOS_DEVICE_RUNTIME = NOT_RUN（见 .github/workflows/ios.yml 声明）。
+
+name: PDIG
+options:
+  bundleIdPrefix: com.pdig
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  PDIG:
+    path: .
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    CODE_SIGNING_ALLOWED: "NO"
+    CODE_SIGN_IDENTITY: ""
+
+targets:
+  PDIGApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/PDIGApp
+    dependencies:
+      - package: PDIG
+        product: PDIGCore
+      - package: PDIG
+        product: PDIGConformance
+      - package: PDIG
+        product: PDIGArgon2
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pdig.depmap.app
+        PRODUCT_NAME: PDIGApp
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: "个人数字依赖图"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+
+  PDIGAppUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: UITests
+    dependencies:
+      - target: PDIGApp
+    settings:
+      base:
+        TEST_TARGET_NAME: PDIGApp
+        PRODUCT_BUNDLE_IDENTIFIER: com.pdig.depmap.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+
+schemes:
+  PDIGApp:
+    build:
+      targets:
+        PDIGApp: all
+        PDIGAppUITests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - PDIGAppUITests

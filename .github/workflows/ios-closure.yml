@@ -1,0 +1,173 @@
+name: iOS Closure
+
+# 触发：仅 workflow_dispatch。在分支 closure/ios-xcuitest 上通过
+#   gh workflow run ios-closure.yml --ref closure/ios-xcuitest
+# 派发。所有证据落在 artifacts/runtime-evidence/2026-09-27-closure-ios/。
+#
+# 相比 ios.yml / ios-runtime-visual.yml 新增：
+#   - xcodegen 生成 Xcode 工程（app target PDIGApp + XCUITest bundle PDIGAppUITests）
+#   - iPhone + iPad 两个模拟器 destination 各跑一遍 XCUITest
+#   - -resultBundlePath 捕获 xcresult 并上传
+#   - IOS_* 矩阵摘要（JSON + Markdown）
+#
+# 诚实口径：任何步骤失败都会让 job 失败；不用 continue-on-error 假绿。
+# 模拟器不可用（环境限制）按 NOT_RUN 记录并如实失败/标注，不写 PASS。
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-closure-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ios-closure:
+    name: iOS closure evidence (XCUITest + iPad + xcresult)
+    runs-on: macos-14
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Toolchain + simulator inventory
+        run: |
+          swift --version
+          xcodebuild -version
+          echo "--- runtimes ---"
+          xcrun simctl list runtimes available || true
+          echo "--- devices ---"
+          xcrun simctl list devices available || true
+
+      - name: Install xcodegen
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then
+            brew install xcodegen
+          fi
+          xcodegen --version
+
+      - name: Swift build (host macOS compile)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          mkdir -p ../artifacts/runtime-evidence/2026-09-27-closure-ios
+          swift build 2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-swift-build.log | tail -n 3
+
+      - name: Swift test (canonical 91+37 + PDIGApp view models)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          swift test 2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-swift-test.log | tail -n 3
+
+      - name: Generate Xcode project (xcodegen)
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: Build app for iOS Simulator (IOS_APP_TARGET)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath derived/closure \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-app-build.log | tail -n 5
+
+      - name: Select and boot iPhone + iPad simulators
+        run: |
+          set -e
+          # 根视图 frame(minWidth: 420)：优先 430pt 宽的 iPhone（Pro Max / Plus），
+          # 避免右侧 tab 被裁切；再退而求其次任选一台可用 iPhone。
+          iphone=$(xcrun simctl list devices available | grep -E "iPhone 15 Pro Max" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          if [ -z "$iphone" ]; then
+            iphone=$(xcrun simctl list devices available | grep -E "iPhone 15 Plus" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          fi
+          if [ -z "$iphone" ]; then
+            iphone=$(xcrun simctl list devices available | grep -E "iPhone 14 Pro Max" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          fi
+          if [ -z "$iphone" ]; then
+            iphone=$(xcrun simctl list devices available | grep -E "iPhone" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          fi
+          ipad=$(xcrun simctl list devices available | grep -E "iPad" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          iphonename=$(xcrun simctl list devices available | grep "$iphone" | sed -E 's/^[[:space:]]*(.*) \([0-9A-F-]{36}\).*/\1/' | head -n 1 || true)
+          ipadname=$(xcrun simctl list devices available | grep "$ipad" | sed -E 's/^[[:space:]]*(.*) \([0-9A-F-]{36}\).*/\1/' | head -n 1 || true)
+          echo "IPHONE_UDID=$iphone" >> "$GITHUB_ENV"
+          echo "IPAD_UDID=$ipad" >> "$GITHUB_ENV"
+          echo "IPHONE_NAME=$iphonename" >> "$GITHUB_ENV"
+          echo "IPAD_NAME=$ipadname" >> "$GITHUB_ENV"
+          echo "picked iPhone: $iphonename ($iphone) ; iPad: $ipadname ($ipad)"
+          if [ -n "$iphone" ]; then
+            xcrun simctl boot "$iphone" 2>/dev/null || true
+            xcrun simctl bootstatus "$iphone" -b || true
+          fi
+          if [ -n "$ipad" ]; then
+            xcrun simctl boot "$ipad" 2>/dev/null || true
+            xcrun simctl bootstatus "$ipad" -b || true
+          fi
+          xcrun simctl list devices | grep -E "Booted" || true
+
+      - name: XCUITest on iPhone simulator (xcresult)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          if [ -z "$IPHONE_UDID" ]; then
+            echo "NO_IPHONE_SIMULATOR: runner has no available iPhone simulator" > ../artifacts/runtime-evidence/2026-09-27-closure-ios/status.txt
+            exit 1
+          fi
+          xcodebuild test \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
+            -derivedDataPath derived/closure \
+            -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
+            -only-testing:PDIGAppUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
+
+      - name: XCUITest on iPad simulator (xcresult)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          if [ -z "$IPAD_UDID" ]; then
+            echo "NO_IPAD_SIMULATOR: runner has no available iPad simulator" > ../artifacts/runtime-evidence/2026-09-27-closure-ios/status.txt
+            exit 1
+          fi
+          xcodebuild test \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
+            -derivedDataPath derived/closure \
+            -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult \
+            -only-testing:PDIGAppUITests \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-ipad.log | tail -n 8
+
+      - name: Screenshot harness (macOS SwiftUI render, kept from ios-runtime-visual.yml)
+        working-directory: ios
+        run: |
+          set -o pipefail
+          RUNID=$(date +%Y%m%d%H%M%S)
+          mkdir -p ../artifacts/runtime-evidence/2026-09-27-closure-ios/harness-macos
+          swift run PDIGApp --screenshot --runid "$RUNID" --output "../artifacts/runtime-evidence/2026-09-27-closure-ios/harness-macos" 2>&1 | tail -n 3
+
+      - name: Collect IOS_* evidence summary
+        if: always()
+        run: |
+          set -e
+          python3 tools/ios-closure/write_summary.py \
+            artifacts/runtime-evidence/2026-09-27-closure-ios \
+            "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${IPHONE_NAME:-?}" "${IPAD_NAME:-?}"
+          cat artifacts/runtime-evidence/2026-09-27-closure-ios/ios-closure-summary.md
+
+      - name: Upload iOS closure evidence (xcresult + logs + summary)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-closure-evidence
+          path: |
+            artifacts/runtime-evidence/2026-09-27-closure-ios/**
+            conformance/reports/ios.json
+          if-no-files-found: warn
