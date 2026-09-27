@@ -90,6 +90,7 @@
 - [x] `PDIG-0.3.0-SHA256SUMS.txt`
 - [x] `PDIG-0.3.0-SBOM.cyclonedx.json`（CycloneDX 1.5，45 components）
 - [x] `PDIG-0.3.0-THIRD-PARTY-NOTICES.txt`
+- [x] `THIRD-PARTY-NOTICES.md`
 - [x] `RELEASE_NOTES_0_3_0.md`
 - [x] `PRODUCT_V0_3_0_RELEASE_MANIFEST.md`
 
