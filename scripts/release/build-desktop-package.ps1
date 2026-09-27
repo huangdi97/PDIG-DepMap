@@ -52,7 +52,7 @@ Write-Host "[2/6] main jar: $($MainJar.Name)"
 # ---------------------------------------------------------------------------
 Write-Host "[3/6] computing jlink modules via jdeps ..."
 $ClassPath = (Get-ChildItem -Path $Libs -Filter "*.jar" | ForEach-Object { $_.FullName }) -join ";"
-if ($LASTEXITCODE -ne 0) { throw "libs enumeration failed" }
+if ($LASTEXITCODE) { throw "libs enumeration failed" }
 # jdeps 会因多发行版 jar 输出警告（本机控制台为 GBK 时警告乱码）；无论乱码如何，
 # 模块清单本身是纯 ASCII（java.base,java.desktop,...），因此只取最后一行 ASCII 清单。
 $Modules = (& (Join-Path $JavaHome "bin\jdeps.exe") --print-module-deps --ignore-missing-deps --multi-release base -cp $ClassPath $MainJar.FullName 2>&1 | ForEach-Object { $_.ToString().Trim() } | Where-Object { $_ -match '^[A-Za-z][A-Za-z0-9,._-]*$' } | Select-Object -Last 1)
@@ -85,12 +85,45 @@ set "APP_DIR=%~dp0"
 start "" "%APP_DIR%runtime\bin\javaw.exe" -cp "%APP_DIR%app\*" com.pdig.desktop.MainKt
 "@
 Set-Content -Path $Launcher -Value $LauncherBody -Encoding ASCII
-
+# --- v0.3.1 branding: portable launcher PDIG.exe (icon + VERSIONINFO) ---
+$IconSrc = Join-Path $RepoRoot "desktop\app\src\main\resources\pdig.ico"
+if (-not (Test-Path $IconSrc)) { throw "icon missing: $IconSrc" }
+Copy-Item -Path $IconSrc -Destination (Join-Path $AppDir "pdig.ico") -Force
+$LauncherCs = Join-Path $AsciiOut "PdigLauncher.cs"
+$CsBody = @"
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Reflection;
+[assembly: AssemblyVersion("${Version}.0")]
+[assembly: AssemblyFileVersion("${Version}.0")]
+[assembly: AssemblyProduct("PDIG")]
+[assembly: AssemblyDescription("PDIG ${Version}")]
+[assembly: AssemblyCompany("PDIG")]
+[assembly: AssemblyTitle("PDIG ${Version}")]
+class PdigLauncher {
+    [STAThread]
+    public static void Main(string[] args) {
+        string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        string java = Path.Combine(baseDir, "runtime", "bin", "javaw.exe");
+        var psi = new ProcessStartInfo(java, "-cp \"app\\*\" com.pdig.desktop.MainKt") {
+            WorkingDirectory = baseDir,
+            UseShellExecute = false
+        };
+        Process.Start(psi);
+    }
+}
+"@
+Set-Content -Path $LauncherCs -Value $CsBody -Encoding ASCII
+$Csc = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
+if (-not (Test-Path $Csc)) { throw "csc.exe not found: $Csc" }
+& $Csc /nologo /target:winexe "/out:$(Join-Path $AppDir "PDIG.exe")" "/win32icon:$($IconSrc.Replace('\','/'))" $LauncherCs
+if ($LASTEXITCODE) { throw "csc failed (exit $LASTEXITCODE)" }
 # ---------------------------------------------------------------------------
 # Post-build verification (v0.1.2 regression guard):
 # the packaged runtime MUST be able to launch -> JVM launchers must exist.
 # ---------------------------------------------------------------------------
-foreach ($req in @("runtime\bin\java.exe", "runtime\bin\javaw.exe", "PDIG.cmd")) {
+foreach ($req in @("runtime\bin\java.exe", "runtime\bin\javaw.exe", "PDIG.cmd", "PDIG.exe", "pdig.ico")) {
     $p = Join-Path $AppDir $req
     if (-not (Test-Path $p)) { throw "post-build verification failed: missing $req in app-image" }
     Write-Host "[verify] OK $req"
@@ -113,6 +146,13 @@ OutFile "$(Join-Path $OutDir ('PDIG-' + $Version + '-windows-x64-setup.exe'))"
 InstallDir "`$LOCALAPPDATA\Programs\PDIG"
 RequestExecutionLevel user
 Unicode true
+Icon "$($AppDir.Replace('\','/'))/pdig.ico"
+VIProductVersion "${Version}.0"
+VIAddVersionKey "ProductName" "PDIG"
+VIAddVersionKey "ProductVersion" "${Version}"
+VIAddVersionKey "FileDescription" "PDIG ${Version}"
+VIAddVersionKey "FileVersion" "${Version}.0"
+VIAddVersionKey "LegalCopyright" "Copyright (c) 2026 PDIG"
 !include "MUI2.nsh"
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_INSTFILES
@@ -122,8 +162,8 @@ Section "Install"
   SetOutPath "`$INSTDIR"
   File /r "`${SRCDIR}\*.*"
   CreateDirectory "`$SMPROGRAMS\PDIG"
-  CreateShortCut "`$SMPROGRAMS\PDIG\PDIG.lnk" "`$INSTDIR\PDIG.cmd"
-  CreateShortCut "`$DESKTOP\PDIG.lnk" "`$INSTDIR\PDIG.cmd"
+  CreateShortCut "`$SMPROGRAMS\PDIG\PDIG.lnk" "`$INSTDIR\PDIG.exe" "" "`$INSTDIR\pdig.ico"
+  CreateShortCut "`$DESKTOP\PDIG.lnk" "`$INSTDIR\PDIG.exe" "" "`$INSTDIR\pdig.ico"
   WriteUninstaller "`$INSTDIR\Uninstall.exe"
 SectionEnd
 Section "Uninstall"
@@ -143,6 +183,15 @@ if ($LASTEXITCODE -ne 0) { throw "makensis failed (exit $LASTEXITCODE)" }
 $Setup = Join-Path $OutDir "PDIG-$Version-windows-x64-setup.exe"
 if (-not (Test-Path $Setup)) { throw "installer missing: $Setup" }
 
+# --- v0.3.1 post-build branding verification ---
+$PdExe = Join-Path $AppDir "PDIG.exe"
+$pdInfo = (Get-Item $PdExe).VersionInfo
+if ($pdInfo.FileVersion -notlike "0.3.1*") { throw "PDIG.exe FileVersion mismatch: $($pdInfo.FileVersion)" }
+if ($pdInfo.ProductName -ne "PDIG") { throw "PDIG.exe ProductName mismatch: $($pdInfo.ProductName)" }
+$setupInfo = (Get-Item $Setup).VersionInfo
+if ($setupInfo.FileVersion -notlike "0.3.1*") { throw "setup.exe FileVersion mismatch: $($setupInfo.FileVersion)" }
+Write-Host "[brand] PDIG.exe FileVersion=$($pdInfo.FileVersion) ProductName=$($pdInfo.ProductName)"
+Write-Host "[brand] setup.exe FileVersion=$($setupInfo.FileVersion) ProductName=$($setupInfo.ProductName)"
 Write-Host ""
 Write-Host "DESKTOP PACKAGE OK"
 Write-Host "  installer : $Setup  ($((Get-Item $Setup).Length) bytes)"

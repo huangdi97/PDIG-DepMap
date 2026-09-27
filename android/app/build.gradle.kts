@@ -19,14 +19,14 @@ android {
         applicationId = "com.pdig.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0-milestone"
+        versionCode = 2
+        versionName = "0.3.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
  
      // ---------- Product flavors（ANDROID_VERSIONING_POLICY.md §1.2）----------
-     // production = 默认（placeholder versionCode=1 / 0.1.0-milestone，未定案，不冒充上架版）；
-     // preview    = GitHub Developer Preview 0.1.0：internal-testing 轨 versionCode 2xxxxx，
+     // production = 默认（v0.3.1 corrective：versionCode=2 / 0.3.1；Play 正式上传码待用户 R-3 定案，未冒充上架版）；
+     // preview    = GitHub Developer Preview 0.3.1：internal-testing 轨 versionCode 2xxxxx，
      //              applicationId com.pdig.app.preview，明确标识为 Preview，禁止误当生产。
      flavorDimensions += "tier"
      productFlavors {
@@ -36,8 +36,8 @@ android {
          create("preview") {
              dimension = "tier"
              applicationIdSuffix = ".preview"
-            versionCode = 200004
-            versionName = "0.2.0"
+            versionCode = 200005
+            versionName = "0.3.1"
          }
      }
 
