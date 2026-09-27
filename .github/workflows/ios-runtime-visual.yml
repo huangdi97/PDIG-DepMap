@@ -67,19 +67,44 @@ jobs:
       - name: Select and boot iPhone + iPad simulators
         run: |
           set -e
-          # 根视图 frame(minWidth: 420)：优先 430pt 宽的 iPhone（Pro Max / Plus），
-          # 避免右侧 tab 被裁切；再退而求其次任选一台可用 iPhone。
-          iphone=$(xcrun simctl list devices available | grep -E "iPhone 15 Pro Max" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          # Device picker: prefer the newest iOS 17.x runtime (closest to the
+          # 17.5 SDK that xcodebuild uses) so XCTRunner / XCTest private
+          # frameworks are not skewed against an old simulator runtime.
+          # Also prefer 430pt-wide iPhones (Pro Max / Plus) so the right-side
+          # bottom tab is not clipped on the 420pt min-width root view.
+          devlist=$(xcrun simctl list devices available)
+          pick_device() {
+            local model="$1"
+            shift
+            local line udid
+            for os in "$@"; do
+              line=$(printf '%s\n' "$devlist" | awk -v os="$os" -v m="$model" '
+                $0 == "-- iOS " os " --" { inblock=1; next }
+                inblock && $0 ~ /^--/ { inblock=0 }
+                inblock && index($0, m " (") > 0 { print; exit }
+              ')
+              if [ -n "$line" ]; then
+                udid=$(printf '%s\n' "$line" | grep -oE '[0-9A-F-]{36}' | head -n 1)
+                echo "$udid"
+                return 0
+              fi
+            done
+            return 1
+          }
+          iphone=$(pick_device "iPhone 15 Pro Max" 17.5 17.4 17.2 17.0 || true)
           if [ -z "$iphone" ]; then
-            iphone=$(xcrun simctl list devices available | grep -E "iPhone 15 Plus" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+            iphone=$(pick_device "iPhone 15 Plus" 17.5 17.4 17.2 17.0 || true)
           fi
           if [ -z "$iphone" ]; then
-            iphone=$(xcrun simctl list devices available | grep -E "iPhone 14 Pro Max" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+            iphone=$(pick_device "iPhone 14 Pro Max" 17.5 17.4 17.2 17.0 || true)
           fi
           if [ -z "$iphone" ]; then
-            iphone=$(xcrun simctl list devices available | grep -E "iPhone" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+            iphone=$(pick_device "iPhone" 17.5 17.4 17.2 17.0 || true)
           fi
-          ipad=$(xcrun simctl list devices available | grep -E "iPad" | grep -oE "[0-9A-F-]{36}" | head -n 1 || true)
+          ipad=$(pick_device "iPad Pro (11-inch) (4th generation)" 17.5 17.4 17.2 17.0 || true)
+          if [ -z "$ipad" ]; then
+            ipad=$(pick_device "iPad" 17.5 17.4 17.2 17.0 || true)
+          fi
           iphonename="?"
           ipadname="?"
           if [ -n "$iphone" ]; then
@@ -128,16 +153,44 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 5
 
+      # Diagnostic: manually launch PDIGApp on the booted iPhone simulator in
+      # --uitest-demo mode BEFORE the XCUITest, so an app-launch crash (or a
+      # healthy launch) is captured with crash logs + screenshot + console log
+      # instead of the opaque "test runner killed" error. Step never fails.
+      - name: Diagnostic - manual app launch (uitest-demo) on iPhone simulator
+        working-directory: ios
+        run: |
+          set +e
+          APP=derived/closure/Build/Products/Debug-iphonesimulator/PDIGApp.app
+          xcrun simctl bootstatus "$IPHONE_UDID" -b >/dev/null 2>&1
+          xcrun simctl install "$IPHONE_UDID" "$APP"
+          xcrun simctl launch "$IPHONE_UDID" com.pdig.depmap.app --uitest-demo
+          sleep 25
+          echo "--- ps check ---"
+          xcrun simctl spawn "$IPHONE_UDID" ps -ax | grep -i pdig || true
+          if xcrun simctl spawn "$IPHONE_UDID" ps -ax | grep -q "PDIGApp"; then
+            echo "APP_LAUNCH_CHECK=ALIVE"
+          else
+            echo "APP_LAUNCH_CHECK=DEAD"
+          fi
+          mkdir -p ../artifacts/runtime-evidence/2026-09-27-closure-ios/crashlogs
+          cp ~/Library/Logs/DiagnosticReports/*.ips ../artifacts/runtime-evidence/2026-09-27-closure-ios/crashlogs/ 2>/dev/null
+          xcrun simctl spawn "$IPHONE_UDID" log show --last 4m --predicate 'process == "PDIGApp"' --style compact > ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-app-launch-console.log 2>&1
+          xcrun simctl io "$IPHONE_UDID" screenshot ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-manual-launch-iphone.png >/dev/null 2>&1
+          xcrun simctl terminate "$IPHONE_UDID" com.pdig.depmap.app >/dev/null 2>&1
+          exit 0
       - name: XCUITest on iPhone simulator (xcresult)
         working-directory: ios
         run: |
           set -o pipefail
+          xcrun simctl bootstatus "$IPHONE_UDID" -b
           xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
             -derivedDataPath derived/closure \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
+            -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
 
@@ -162,12 +215,14 @@ jobs:
         working-directory: ios
         run: |
           set -o pipefail
+          xcrun simctl bootstatus "$IPAD_UDID" -b
           xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
             -derivedDataPath derived/closure \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult \
+            -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-ipad.log | tail -n 8
 
