@@ -26,6 +26,7 @@ let package = Package(
     products: [
         .library(name: "PDIGCore", targets: ["PDIGCore"]),
         .library(name: "PDIGConformance", targets: ["PDIGConformance"]),
+        .library(name: "PDIGArgon2", targets: ["PDIGArgon2"]),
         .executable(name: "PDIGApp", targets: ["PDIGApp"]),
     ],
     targets: [

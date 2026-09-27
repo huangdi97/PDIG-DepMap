@@ -19,13 +19,21 @@ struct PDIGApp: App {
                 ScreenshotHarness.runAndExit(arguments: CommandLine.arguments)
             }
         }
+        // UITest 演示模式（--uitest-demo）在 body.onAppear 里触发（见下），
+        // 而不是 init：@StateObject 在 init 中访问会创建一次性临时实例，
+        // 导致注入被丢弃。必须在视图安装后的真实 session 上执行。
     }
 
     var body: some Scene {
         WindowGroup {
             RootView(session: session)
                 .onAppear {
-                    if session.phase == .booting {
+                    // XCUITest 演示模式：注入演示图并直入 ready（模拟器无法
+                    // 通过 LocalAuthentication 解锁）。必须用已安装的 session
+                    // 实例执行（@StateObject 在 init 中访问会创建一次性实例）。
+                    if CommandLine.arguments.contains("--uitest-demo") {
+                        session.seedDemo()
+                    } else if session.phase == .booting {
                         session.boot(dataDirectory: FileStore.dataDirectory())
                     }
                 }

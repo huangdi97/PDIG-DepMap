@@ -104,6 +104,26 @@ public final class AppSession: ObservableObject {
         snapshot = GraphSnapshot()
         plans = []
     }
+    // MARK: - uitest / demo seeding
+
+    /// UITest/演示专用：注入演示图并直接进入 ready。
+    /// 不写 Keychain、不设解锁盐；产品启动分流（boot()）完全不受影响。
+    /// 仅供 XCUITest（--uitest-demo 启动参数）与截图 harness 使用，不属于产品逻辑。
+    public func seedDemo() {
+        do {
+            let driver = try SqliteProvider.openDatabase(atDirectory: FileStore.dataDirectory())
+            let repo = try GraphRepository(driver: driver)
+            repository = repo
+            snapshot = DemoData.snapshot()
+            plans = DemoData.plans()
+            phase = .ready
+            route = .home
+            navigationStack = []
+        } catch let e {
+            phase = .locked
+            lastError = "\(e)"
+        }
+    }
 
     // MARK: - navigation
 
