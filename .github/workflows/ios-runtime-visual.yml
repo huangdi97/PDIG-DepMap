@@ -179,7 +179,7 @@ jobs:
           xcodebuild build \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
             -derivedDataPath derived/closure-iphone \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-iphone.log | tail -n 3
@@ -212,7 +212,7 @@ jobs:
           xcodebuild build \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
             -derivedDataPath derived/closure-ipad \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-ipad.log | tail -n 3
