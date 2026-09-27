@@ -14,15 +14,20 @@
 | `TEST_EVIDENCE_GAP`               | **0**      | 见 §矩阵（环境受限项回退既有证据 + provenance，无行为影响变化）                           |
 | `RELEASE_EVIDENCE_GAP`            | **0**      | 下载 smoke + SHA256 链核验完成；旧 tag 不可变核验完成                                     |
 
-## SHA 链（五者一致）
+## SHA 链
+
+封版时刻（Release 发布时）五者一致 = `8805486`：
 
 ```
-main HEAD                 = 8805486f02ad99017c55b2440ea05667ee57b33f
-origin/main               = 8805486f02ad99017c55b2440ea05667ee57b33f
-tag product-v0.3.1 (peeled)= 8805486f02ad99017c55b2440ea05667ee57b33f
+main HEAD（封版时）        = 8805486f02ad99017c55b2440ea05667ee57b33f
+origin/main（封版时）      = 8805486f02ad99017c55b2440ea05667ee57b33f
+tag product-v0.3.1 (peeled)= 8805486f02ad99017c55b2440ea05667ee57b33f（annotated 582edb9）
 artifact provenance (RC)  = 8805486（制品全部在 RC SHA 上构建）
-fresh clone (RC)          = 8805486（fresh clone 检出 release/product-v0.3.1 = 43b2cf7→合并后 = 8805486；npm run check 全绿）
+fresh clone (RC)          = 8805486（fresh clone 检出 release/product-v0.3.1 分支 = 43b2cf7 与 8805486 同树；npm run check 全绿）
 ```
+
+tag 一经发布即 immutable；发布后仅 post-tag **文档**提交进入 main（本 closure 文档 / manifest /
+WORK_STATUS / BLOCKERS），不移动 tag，不改写历史（git 无 force / reset / rebase）。
 
 ## 矩阵
 

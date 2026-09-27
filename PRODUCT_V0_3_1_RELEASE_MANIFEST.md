@@ -8,7 +8,7 @@
 
 - 版本：PDIG / DepMap 0.3.1 Developer Preview（Pre-release）—— corrective closure
 - 日期：2026-09-28
-- Git：tag `product-v0.3.1`（annotated）→ peeled SHA = RC_ACCEPTED_SHA（ff-only 合回 main，无 force / 无 history rewrite）
+- Git：tag `product-v0.3.1`（annotated `582edb9`）→ peeled SHA `8805486` = RC_ACCEPTED_SHA（ff-only 合回 main，无 force / 无 history rewrite）；tag 一经发布即 immutable，post-tag 文档提交不移动 tag
 - GitHub Release 标题：`PDIG 0.3.1`（Pre-release = YES）
 - 旧 tag 保持 immutable：`product-v0.2.0` = `ff69a3e`、`product-v0.3.0` = annotated `effbdd6`（peeled `be3bc81`）未移动/覆盖/删除；v0.3.0 Release 未改动
 - 变更审计：`V0_3_0_TO_V0_3_1_CHANGE_AUDIT.md`——187 文件分类（RUNTIME_EVIDENCE 130 / BRANDING 23 / DOCUMENTATION 9 / PRODUCTION_CODE 10 / BUILD 3 / RELEASE 4 / TEST 3 / CI 1 / WEBSITE 4）；
@@ -61,7 +61,7 @@
 | 项               | 值                                                                        |
 | ---------------- | ------------------------------------------------------------------------- |
 | 版本             | MARKETING_VERSION 0.3.1 / CURRENT_PROJECT_VERSION 2                        |
-| CI（RC SHA）     | `ios-runtime-visual.yml` workflow_dispatch at tag `product-v0.3.1`（= RC SHA）run 36341248203 16 步全绿：canonical 128 + PDIGAppTests + XCUITest iPhone/iPad + N4 app-target audit + screenshots |
+| CI（RC SHA）     | `ios-runtime-visual.yml` workflow_dispatch at tag `product-v0.3.1`（= RC SHA `8805486`）run 36341248203 18 步全绿：canonical 128 + PDIGAppTests + XCUITest iPhone/iPad + N4 app-target audit + screenshots |
 | 前置（branch）   | 同 workflow at `release/product-v0.3.1` run 36339136775 全绿（xctestrun app-path 补丁确定性修复） |
 
 ## 制品与哈希
