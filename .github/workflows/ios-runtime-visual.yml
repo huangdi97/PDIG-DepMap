@@ -179,7 +179,7 @@ jobs:
           xcodebuild build \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
-            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath derived/closure-iphone \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-iphone.log | tail -n 3
@@ -191,8 +191,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 3
           { echo "--- xctestrun in derived/closure-iphone ---"; find derived/closure-iphone -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-iphone-dump.txt
-          rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
-          rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult
           xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
@@ -212,7 +210,7 @@ jobs:
           xcodebuild build \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
-            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
+            -destination 'generic/platform=iOS Simulator' \
             -derivedDataPath derived/closure-ipad \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-ipad.log | tail -n 3
@@ -224,8 +222,6 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 3
           { echo "--- xctestrun in derived/closure-ipad ---"; find derived/closure-ipad -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-ipad-dump.txt
-          rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
-          rm -rf ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult
           xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
