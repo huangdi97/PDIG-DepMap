@@ -191,11 +191,19 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 3
           { echo "--- xctestrun in derived/closure-iphone ---"; find derived/closure-iphone -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-iphone-dump.txt
+          # Workaround for Xcode 15 "The bundle identifier for PDIGApp couldn't be
+          # read .../PDIGApp": the generated xctestrun may record the app path
+          # WITHOUT the .app suffix. Patch it (plist -> xml -> append .app).
+          for x in derived/closure-iphone/Build/Products/*.xctestrun; do
+            [ -f "$x" ] || continue
+            plutil -convert xml1 "$x" >/dev/null 2>&1 || true
+            perl -pi -e 's{/PDIGApp(</string>)}{/PDIGApp.app$1}g' "$x" 2>/dev/null || true
+          done
+          XCTESTRUN=$(find derived/closure-iphone -name "*.xctestrun" | head -n 1)
+          echo "xctestrun for iphone leg: $XCTESTRUN"
           xcodebuild test-without-building \
-            -project PDIG.xcodeproj \
-            -scheme PDIGApp \
+            -xctestrun "$XCTESTRUN" \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure-iphone \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
@@ -222,11 +230,19 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 3
           { echo "--- xctestrun in derived/closure-ipad ---"; find derived/closure-ipad -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-ipad-dump.txt
+          # Workaround for Xcode 15 "The bundle identifier for PDIGApp couldn't be
+          # read .../PDIGApp": the generated xctestrun may record the app path
+          # WITHOUT the .app suffix. Patch it (plist -> xml -> append .app).
+          for x in derived/closure-ipad/Build/Products/*.xctestrun; do
+            [ -f "$x" ] || continue
+            plutil -convert xml1 "$x" >/dev/null 2>&1 || true
+            perl -pi -e 's{/PDIGApp(</string>)}{/PDIGApp.app$1}g' "$x" 2>/dev/null || true
+          done
+          XCTESTRUN=$(find derived/closure-ipad -name "*.xctestrun" | head -n 1)
+          echo "xctestrun for ipad leg: $XCTESTRUN"
           xcodebuild test-without-building \
-            -project PDIG.xcodeproj \
-            -scheme PDIGApp \
+            -xctestrun "$XCTESTRUN" \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure-ipad \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
