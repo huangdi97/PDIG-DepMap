@@ -68,3 +68,5 @@ PDIG **不是**：
 
 了解更多：导入见 `IMPORT_GUIDE.md`，场景见 `SCENARIO_GUIDE.md`，
 备份恢复见 `BACKUP_RESTORE_GUIDE.md`，隐私见 `PRIVACY_AND_SECURITY.md`。
+
+> 更新：v0.3.0（2026-09-26）——新增「更换手机号」场景与「基础设施薄弱点」；变更计划动作显示前置顺序；能力维度扩展为支付 / 账户访问 / 登录认证 / 恢复 / 通讯。
