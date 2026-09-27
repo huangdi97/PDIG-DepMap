@@ -9,8 +9,8 @@
 > - 门禁（RC SHA 原生）：`npm run check` 全绿（45 files / 487 tests + architecture/network/secrets/UI）；conformance 128/128；schema-v4 persistence 11/11；desktop smoke 17/17 + profiles 5×16 PASS；Android unit + assembleRelease/bundleRelease + APK versionCode 核验（production 2/0.3.1、preview 200005/0.3.1）+ codegen drift check PASS；Harmony host conformance 181/181（canonical 126/128 executed + 2 DEVICE-BLOCKED 真实 NAPI EXTERNAL_GATE）+ HAP 构建 PASS；iOS CI（run 36339136775，branch ref）16 步全绿。
 > - **desktop --keys 本轮受环境限制**（本会话窗口无法获焦，Robot 注入无效 → 11 项 FAIL）：production tree 零行为变化（本轮 desktop 仅版本常量 0.3.0→0.3.1），回退既有证据 `desktop__keys__focus-visible.png` + provenance（v0.3.0 closure）。**stability 3×green 复跑受本机高负载（两个遗留 qemu 模拟器占用 CPU 68–100%）影响**：perf large-synthetic 隔离复跑 6951/7017/3851ms 均 < 10s 阈值，判定为环境性而非回归；既有 stability 3×green 证据留档。
 > - 网站：product/support 页更新为 0.3.1 + corrective 说明；gh-pages 已推送（38f7aab）；Pages + haoleilab 自定义域 200 复验。
-> - 待办：RC SHA 冻结 → ff-only 合回 main → tag `product-v0.3.1` → push → RC SHA 重生成制品（Windows/APK/AAB/HAP/SHA256SUMS/SBOM/THIRD-PARTY-NOTICES/manifest）→ GitHub Release → 下载 smoke → 最终 closure 文档（`PRODUCT_V0_3_1_RELEASE_MANIFEST.md` / `FINAL_V0_3_1_RELEASE_CLOSURE.md`）。
->> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
+> - 完成（2026-09-28）：RC SHA 8805486 冻结 → ff-only 合回 main → annotated tag product-v0.3.1（582edb9）→ push → RC SHA 重生成制品（Windows/APK/AAB/HAP/SHA256SUMS/SBOM/THIRD-PARTY-NOTICES）→ GitHub Release 发布（13 assets，isDraft=false / isPrerelease=true）→ 下载 smoke PASS（SHA256 MATCH + 品牌核验 + 便携启动）→ PRODUCT_V0_3_1_RELEASE_MANIFEST.md / FINAL_V0_3_1_RELEASE_CLOSURE.md 已提交（post-tag docs，tag 未动）。
+> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
 >
 > - P0 三版本语义 RESOLVED：DEPMAP_CONTAINER_VERSION=1 / 逻辑 Schema v4（DB 级）/ PAYLOAD_SCHEMA_VERSION=3
 >   （spec payloadNote 明示元数据表不导出；.depmap 图载荷 11 表字节兼容 + 容器 V1 冻结）。
