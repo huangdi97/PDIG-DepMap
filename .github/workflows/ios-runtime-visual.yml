@@ -51,8 +51,8 @@ jobs:
         working-directory: ios
         run: xcodegen generate
 
-      # IOS_APP_TARGET: generic simulator app build (evidence + pre-place of the
-      # app bundle; the UI-test legs reuse this same derived data dir).
+      # IOS_APP_TARGET: generic simulator app build (evidence + source for the
+      # manual-launch diagnostic below).
       - name: Build app for iOS Simulator (IOS_APP_TARGET)
         working-directory: ios
         run: |
@@ -162,73 +162,71 @@ jobs:
           xcrun simctl terminate "$IPHONE_UDID" com.pdig.depmap.app >/dev/null 2>&1
           exit 0
 
-      # IOS_IPHONE_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT (iPhone destination).
-      # Proven-good recipe (observed green 2026-09-27): the app is pre-placed in
-      # the shared derived dir by the generic build above, then build-for-testing
-      # + test-without-building run against the same concrete destination so the
-      # xctestrun is generated in the same build action. The dump below records
-      # where xcodebuild put the xctestrun (it is not emitted deterministically).
-      - name: Build-for-testing (iPhone destination)
-        working-directory: ios
-        run: |
-          set -o pipefail
-          if [ -z "$IPHONE_UDID" ]; then
-            echo "NO_IPHONE_SIMULATOR: runner has no available iPhone simulator" > ../artifacts/runtime-evidence/2026-09-27-closure-ios/status.txt
-            exit 1
-          fi
-          xcodebuild build-for-testing \
-            -project PDIG.xcodeproj \
-            -scheme PDIGApp \
-            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure \
-            CODE_SIGNING_ALLOWED=NO \
-            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 5
-
+      # Each test leg runs in its OWN DerivedData dir with the proven-good
+      # recipe: (1) plain `xcodebuild build` pre-places PDIGApp.app, (2)
+      # build-for-testing generates the scheme xctestrun, (3) test-without-
+      # building consumes it. Sharing one DerivedData dir between the two legs
+      # is NOT safe: the second build-for-testing overwrites the single
+      # Build/Products/PDIGApp_iphonesimulator17.5-arm64.xctestrun with one
+      # whose app path is broken ("The bundle identifier for PDIGApp couldn't
+      # be read .../PDIGApp" - missing .app suffix), failing the second leg.
       - name: XCUITest on iPhone simulator (xcresult)
         working-directory: ios
         run: |
           set -o pipefail
           xcrun simctl bootstatus "$IPHONE_UDID" -b
-          { echo "--- xctestrun anywhere in derived ---"; find derived/closure -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; echo "--- products dir ---"; ls -la derived/closure/Build/Products/Debug-iphonesimulator/ 2>/dev/null | grep -E "PDIGApp|Runner|\.xctestrun" || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-iphone-dump.txt
+          rm -rf derived/closure-iphone
+          xcodebuild build \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath derived/closure-iphone \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-iphone.log | tail -n 3
+          xcodebuild build-for-testing \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
+            -derivedDataPath derived/closure-iphone \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-iphone.log | tail -n 3
+          { echo "--- xctestrun in derived/closure-iphone ---"; find derived/closure-iphone -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-iphone-dump.txt
           xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPHONE_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-iphone \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
-
-      # IOS_IPAD_SIMULATOR + IOS_XCUITEST + IOS_XCRESULT (iPad destination, same
-      # recipe; the iPad is picked on the newest iOS 17.x runtime).
-      - name: Build-for-testing (iPad destination)
-        working-directory: ios
-        run: |
-          set -o pipefail
-          if [ -z "$IPAD_UDID" ]; then
-            echo "NO_IPAD_SIMULATOR: runner has no available iPad simulator" > ../artifacts/runtime-evidence/2026-09-27-closure-ios/status.txt
-            exit 1
-          fi
-          xcodebuild build-for-testing \
-            -project PDIG.xcodeproj \
-            -scheme PDIGApp \
-            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure \
-            CODE_SIGNING_ALLOWED=NO \
-            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 5
 
       - name: XCUITest on iPad simulator (xcresult)
         working-directory: ios
         run: |
           set -o pipefail
           xcrun simctl bootstatus "$IPAD_UDID" -b
-          { echo "--- xctestrun anywhere in derived ---"; find derived/closure -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; echo "--- products dir ---"; ls -la derived/closure/Build/Products/Debug-iphonesimulator/ 2>/dev/null | grep -E "PDIGApp|Runner|\.xctestrun" || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-ipad-dump.txt
+          rm -rf derived/closure-ipad
+          xcodebuild build \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath derived/closure-ipad \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-ipad.log | tail -n 3
+          xcodebuild build-for-testing \
+            -project PDIG.xcodeproj \
+            -scheme PDIGApp \
+            -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
+            -derivedDataPath derived/closure-ipad \
+            CODE_SIGNING_ALLOWED=NO \
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/build-for-testing-ipad.log | tail -n 3
+          { echo "--- xctestrun in derived/closure-ipad ---"; find derived/closure-ipad -name "*.xctestrun" -exec ls -la {} \; 2>/dev/null || true; } | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xctestrun-ipad-dump.txt
           xcodebuild test-without-building \
             -project PDIG.xcodeproj \
             -scheme PDIGApp \
             -destination "platform=iOS Simulator,id=${IPAD_UDID}" \
-            -derivedDataPath derived/closure \
+            -derivedDataPath derived/closure-ipad \
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-ipad.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
