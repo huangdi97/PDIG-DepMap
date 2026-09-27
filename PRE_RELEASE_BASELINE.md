@@ -5,15 +5,15 @@
 
 ## 1. Git 状态（§4 命令输出）
 
-| 项 | 值 |
-| --- | --- |
-| HEAD | 5781ce60fd03bcdd40e6d6878b1548ed3db224c7 |
-| main | 5781ce60fd03bcdd40e6d6878b1548ed3db224c7 |
-| origin/main | 5781ce60fd03bcdd40e6d6878b1548ed3db224c7 |
-| worktree | clean（git status --short -uall 空；## main...origin/main） |
-| product-v0.2.0（tag） | ff69a3e07a98a82892e03e585eb67e28e507b018 |
-| product-v0.3.0（annotated tag object） | effbdd608261d16574ec1aac310ff5e7132d5a57 |
-| product-v0.3.0^{}（peeled commit） | be3bc81720e6f27270666ff5bbc06556840ffc3e |
+| 项                                     | 值                                                          |
+| -------------------------------------- | ----------------------------------------------------------- |
+| HEAD                                   | 5781ce60fd03bcdd40e6d6878b1548ed3db224c7                    |
+| main                                   | 5781ce60fd03bcdd40e6d6878b1548ed3db224c7                    |
+| origin/main                            | 5781ce60fd03bcdd40e6d6878b1548ed3db224c7                    |
+| worktree                               | clean（git status --short -uall 空；## main...origin/main） |
+| product-v0.2.0（tag）                  | ff69a3e07a98a82892e03e585eb67e28e507b018                    |
+| product-v0.3.0（annotated tag object） | effbdd608261d16574ec1aac310ff5e7132d5a57                    |
+| product-v0.3.0^{}（peeled commit）     | be3bc81720e6f27270666ff5bbc06556840ffc3e                    |
 
 ## 2. GitHub Release product-v0.3.0
 
@@ -24,6 +24,7 @@ gh release view product-v0.3.0 --json tagName,isDraft,isPrerelease：
 ## 3. product-v0.3.0 之后的 commits（git log product-v0.3.0^{}..main --reverse）
 
 Closure 阶段共 31 个 commit，内容分三类：
+
 - iOS closure 工程/排障：xcodegen 工程壳、XCUITest bundle、CI workflow 迭代（CFBundleVersion、derivedData、xctestrun、iPad 弹窗、seed 时序、xctestrun .app 补丁等）；
 - Closure 收口：Schema v4 证据、Harmony H3/H4 host 闭环、Desktop profiles/keys、Android/Website/Branding/Security 证据、最终矩阵；
 - CI 修复：xcresult 残留、单次 action、配方恢复、确定性 xctestrun 修复。
@@ -32,13 +33,13 @@ Closure 阶段共 31 个 commit，内容分三类：
 
 ## 4. 版本基线（§8 修改前）
 
-| 平台 | 当前值 |
-| --- | --- |
-| Desktop | packageVersion = "0.3.0"；Main.kt VERSION = "0.3.0" |
-| Android production | versionCode = 1 / versionName = "0.1.0-milestone"（占位） |
-| Android preview | versionCode = 200004 |
-| iOS | MARKETING_VERSION = "0.3.0"；CURRENT_PROJECT_VERSION = "1" |
-| Harmony | versionCode = 1000000 / versionName = "1.0.0" |
+| 平台               | 当前值                                                     |
+| ------------------ | ---------------------------------------------------------- |
+| Desktop            | packageVersion = "0.3.0"；Main.kt VERSION = "0.3.0"        |
+| Android production | versionCode = 1 / versionName = "0.1.0-milestone"（占位）  |
+| Android preview    | versionCode = 200004                                       |
+| iOS                | MARKETING_VERSION = "0.3.0"；CURRENT_PROJECT_VERSION = "1" |
+| Harmony            | versionCode = 1000000 / versionName = "1.0.0"              |
 
 ## 5. Windows 打包现状（§7 修改前）
 

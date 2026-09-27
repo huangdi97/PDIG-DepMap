@@ -16,12 +16,12 @@ v0.3.1 是 **immutable corrective release**：capability set 与 v0.3.0 完全�
 
 ## 平台
 
-| 平台                  | 构建                          | 测试                                                   | 运行时证据                                                |
-| --------------------- | ----------------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
-| Windows Desktop (x64) | ✅ installer + portable       | smoke 17/17 PASS                                       | 品牌：PDIG.exe / setup.exe 图标 + VERSIONINFO 0.3.1.0     |
-| Android (API36)       | ✅ APK + AAB（non-prod 签名） | conformance 128/128；instrumentation 61/61 PASS        | 42 屏 light/dark（既有证据 + provenance 复核）            |
-| HarmonyOS             | ✅ ArkTS 主机 conformance     | host 181/181 PASS（H1/H2 为真实 NAPI EXTERNAL_GATE）    | —（无模拟器镜像，外部 Gate）                              |
-| iOS (N4 SwiftUI)      | ✅ swift build（macOS CI）    | canonical 128/128 PASS；PDIGAppTests 10/10 PASS        | macOS 渲染截图 light/dark；iPhone 模拟器 boot PASS        |
+| 平台                  | 构建                          | 测试                                                 | 运行时证据                                            |
+| --------------------- | ----------------------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| Windows Desktop (x64) | ✅ installer + portable       | smoke 17/17 PASS                                     | 品牌：PDIG.exe / setup.exe 图标 + VERSIONINFO 0.3.1.0 |
+| Android (API36)       | ✅ APK + AAB（non-prod 签名） | conformance 128/128；instrumentation 61/61 PASS      | 42 屏 light/dark（既有证据 + provenance 复核）        |
+| HarmonyOS             | ✅ ArkTS 主机 conformance     | host 181/181 PASS（H1/H2 为真实 NAPI EXTERNAL_GATE） | —（无模拟器镜像，外部 Gate）                          |
+| iOS (N4 SwiftUI)      | ✅ swift build（macOS CI）    | canonical 128/128 PASS；PDIGAppTests 10/10 PASS      | macOS 渲染截图 light/dark；iPhone 模拟器 boot PASS    |
 
 ## 兼容性与数据
 
