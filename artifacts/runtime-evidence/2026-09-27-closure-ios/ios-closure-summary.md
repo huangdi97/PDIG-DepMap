@@ -1,6 +1,6 @@
-# iOS Closure Evidence (workflow ios-runtime-visual.yml) — run 36317166192
+# iOS Closure Evidence (workflow ios-runtime-visual.yml) — run 36328510711
 
-- head_sha: 16e70a68dbcc40037f4bfc80ea80bdfa45ecfa4c
+- head_sha: 898e4b111c43d9530114f9c6fb4f49bcc4f61a23
 - workflow: ios-runtime-visual.yml
 - devices: iPhone iPhone 15 Pro Max / iPad iPad Pro 11-inch (M4)
 

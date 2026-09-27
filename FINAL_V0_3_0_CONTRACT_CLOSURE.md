@@ -125,15 +125,15 @@ Actual:   feat/pdig-v0.3.0 → `--no-ff` merge（commit 9e114d2 "release(v0.3.0)
 并已并入 `main`（merge `aad64a7`）。`IOS_FINAL_RUNTIME = PASS`（iPhone + iPad XCUITest、
 xcresult、场景流 smoke、canonical 128/128、unit 10/10、build 全部 fresh PASS）。
 
-**环境备注（runner 镜像漂移，非产品/工程缺陷）**：绿态证据 = 分支 run `36317166192`
-（iPhone 15 Pro Max + iPad Pro 11-inch (M4) 双端 XCUITest 2/2、xcresult、场景流 smoke 全绿）。
-同配方在 main 上的后续重跑（14:45 后）复现 xcodebuild 15 已知问题
-“The bundle identifier for PDIGApp couldn't be read …/PDIGApp”（xctestrun 内 app 路径缺 `.app` 后缀）
-——该问题在 macOS runner 镜像更新（Xcode/simulator runtime 配对漂移）后出现，
-与仓库代码/workflow 无关（同一 workflow+代码在 11:53 双端全绿，14:45 同态失败）。
-处理：main 保留 proven-green workflow（= 分支 16e70a6 原样）；xcresult 证据以 CI 制品方式
-按 run ID 引用（已从仓库移除已提交副本，避免 `-resultBundlePath` 残留冲突）。
-此为环境 Gate（等待 runner 镜像/重新触发），不改变工程闭环结论。
+**确定性修复（xctestrun app-path 补丁）**：main 重跑曾复现 xcodebuild 15 已知问题
+“The bundle identifier for PDIGApp couldn't be read …/PDIGApp”（xctestrun 内 app 路径缺 `.app` 后缀，
+macOS runner 镜像更新后触发）。已在 workflow 中做确定性修复：build-for-testing 后
+`plutil -convert xml1` + 正则把 xctestrun 内 app 路径补 `.app`，再以 `-xctestrun` 显式传给
+`test-without-building`（双 leg 同修）。
+**修复后 main 双端全绿**：run `36328510711`（head `898e4b1`）= SUCCESS——
+iPhone 15 Pro Max + iPad Pro 11-inch (M4) XCUITest 2/2、`IOS_XCRESULT = PASS`（xcresult 以 CI 制品
+按 run ID 引用，不入仓库，避免 `-resultBundlePath` 残留冲突）、五个场景流 smoke 双端全 PASS。
+同一绿态配方（分支 run `36317166192`）与 main 修复后 run 均验证，非 flake。
 
 ---
 

@@ -1,6 +1,6 @@
 {
-  "run_id": "36317166192",
-  "head_sha": "16e70a68dbcc40037f4bfc80ea80bdfa45ecfa4c",
+  "run_id": "36328510711",
+  "head_sha": "898e4b111c43d9530114f9c6fb4f49bcc4f61a23",
   "workflow": "ios-runtime-visual.yml",
   "evidence_dir": "artifacts/runtime-evidence/2026-09-27-closure-ios",
   "devices": {
