@@ -18,9 +18,9 @@ options:
   bundleIdPrefix: com.pdig
   deploymentTarget:
     iOS: "16.0"
-  # macos-14 runner 默认 Xcode 15.x：必须生成旧版工程格式（objectVersion 56），
+  # macos-14 runner 默认 Xcode 15.x：必须生成 Xcode 15 工程格式，
   # 否则 xcodebuild 报 “future Xcode project file format (77)”。
-  xcodeVersion: "15.0"
+  projectFormat: xcode15_0
 
 packages:
   PDIG:
