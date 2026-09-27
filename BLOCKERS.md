@@ -1,6 +1,18 @@
 # BLOCKERS.md
 
-> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**：
+> **product-v0.3.1（corrective closure，2026-09-28）**：
+>
+> - Windows 已发布二进制图标默认问题 —— **本轮已解决（§7）**：setup.exe / PDIG.exe 均嵌入
+>   pdig.ico + VERSIONINFO 0.3.1.0/PDIG（csc assembly attributes + /win32icon）。
+> - 外部项不变（真实外部 Gate，不阻塞 corrective release）：商店提交（Play/App Store/AppGallery
+>   账号与签名）、Harmony H1/H2 NAPI 真机（模拟器镜像不可用）、iOS 真机
+>   LocalAuthentication/Keychain 访问组、生产 keystore、最终包名/隐私 URL 定案（Android Play
+>   正式上传 versionCode 待用户 R-3 决策）。
+> - 环境性注记（非 blocker、无伪 PASS）：本机两个遗留 qemu 模拟器长期占用 CPU（68–100%），
+>   perf large-synthetic 阈值（<10s）在并行负载下偶发超时；隔离复跑 6951/7017/3851ms 均 PASS，
+>   stability 3×green 回退既有证据；desktop --keys 本会话窗口无法获焦（11 项 FAIL），
+>   production tree 零行为变化，回退既有证据 + provenance。
+>> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**：
 >
 > - E-6 `PRIVACY_URL` / `SUPPORT_URL` —— **已解决**（`website/` 已建成并公开部署；
 >   `https://huangdi97.github.io/PDIG-DepMap/privacy/` 与 `/support/` 及自定义域
