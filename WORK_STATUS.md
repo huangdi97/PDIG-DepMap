@@ -1,6 +1,30 @@
 # WORK_STATUS.md
 
-> 本文件由执行 Agent 持续更新。不要删除历史关键结论。
+> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
+>
+> - P0 三版本语义 RESOLVED：DEPMAP_CONTAINER_VERSION=1 / 逻辑 Schema v4（DB 级）/ PAYLOAD_SCHEMA_VERSION=3
+>   （spec payloadNote 明示元数据表不导出；.depmap 图载荷 11 表字节兼容 + 容器 V1 冻结）。
+>   新增 `core/tests/integration/schema-v4-persistence.test.ts`（11 条：DB 级 close→reopen 无损、
+>   迁移链 v1→v4/v2→v4/v3→v4、v4 reopen、future reject、corrupt rollback、容器 round-trip、
+>   Unicode/large）；core 测试 487/487；conformance 128/128（working tree 与 release tag 双绿）。
+> - GitHub Release `product-v0.3.0`：从 draft **原位发布**为 Pre-release（tag/assets/digest 未动）。
+> - Desktop closure：新增 `--profiles`（5 档：1280×720 / 1920×1080 / 2560×1440 / 125% / 150%，80 帧渲染 PASS）
+>   与 `--keys`（Tab/Shift+Tab/Enter/Space/Escape，8 顶层页键盘可达，focus-visible）→ DESKTOP_RUNTIME PASS。
+> - Android closure：conformance 128/128、unit、APK build、release APK SHA256 一致、API36 安装/启动/明暗截图
+>   （tablet fresh 复跑受本会话 emulator 不稳定限制，既有证据留档）。
+> - Harmony closure：H3/H4 由 ENGINEERING_GAP **闭环为 host-executed PASS**（ConformanceRunner 新增
+>   migration/backup 分支，用既有 in-memory 引擎）；host 181/181，canonical 126/128 executed，
+>   H1/H2 = 真实 NAPI EXTERNAL_GATE，`HARMONY_ENGINEERING_GAP = 0`。
+> - Fresh Clone RC：released SHA 除 `format:docs:check`（9 md，docs commit 后未跑 gate）外全绿；
+>   该 gate 漂移已修复（`npm run format:docs` 后 `npm run check` 全绿）并留档，不改写历史。
+> - 网站：`website/` 建成并公开部署（product/pdig、privacy、support 三页 HTTP 200，GitHub Pages + 自定义域）。
+> - Branding：Android adaptive/monochrome、Windows pdig.ico（已接 DSL）、iOS AppIcon 13 张+Contents.json、
+>   store feature-graphic/release-artwork（重生成，非空白）= BRANDING_COMPLETE PASS。
+> - **开放项（诚实）**：iOS XCUITest/iPad/xcresult 工程已落地 + 多根因修复（分支 `closure/ios-xcuitest`），
+>   最终绿态未在本轮闭合 → `IOS_FINAL_RUNTIME = IN_PROGRESS`；
+>   依据 §25，`PDIG_V0_3_0_PRODUCT_COMPLETE / RELEASE_READY = NOT_YET_PASS`（其余全部 gate PASS/EXTERNAL/DEFERRED）；
+>   `GITHUB_PRODUCT_V0_3_0 = PUBLISHED`。完整矩阵见 `FINAL_V0_3_0_CONTRACT_CLOSURE.md`。
+>   本文件由执行 Agent 持续更新。不要删除历史关键结论。
 
 > **（当前）iOS N4：PDIGApp SwiftUI 产品 App（v0.3.0）落地，2026-10-04**
 > —— 新增 `ios/Sources/PDIGApp/`（@main App + Home/Lock/Onboarding/Findings/

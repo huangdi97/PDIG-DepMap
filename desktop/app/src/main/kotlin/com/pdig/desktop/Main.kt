@@ -32,6 +32,16 @@ fun main(args: Array<String>) {
         kotlin.system.exitProcess(ShotDriver.run(repo, outRoot))
         return
     }
+
+    // --profiles / --keys：v0.3.0 closure 的桌面分辨率/缩放/键盘取证（见 ProfileDriver.kt / KeyboardDriver.kt）
+    if (args.contains("--profiles") || args.contains("--keys")) {
+        val repo = findRepoRoot(File(".").absoluteFile)
+            ?: error("desktop closure 需要在仓库内运行以读取 fixtures/")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-09-27-closure-desktop").apply { mkdirs() }
+        val exit = if (args.contains("--profiles")) ProfileDriver.run(repo, outRoot) else KeyboardDriver.run(repo, outRoot)
+        kotlin.system.exitProcess(exit)
+        return
+    }
     application {
         Window(
             onCloseRequest = ::exitApplication,

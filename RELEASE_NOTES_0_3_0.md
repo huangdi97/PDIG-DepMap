@@ -6,6 +6,7 @@
 ## 版本主题：换手机号（Make-Before-Break）与基础设施薄弱点
 
 v0.3.0 把 MVP 从"只模拟换卡/注销银行卡"扩展到**身份与恢复**：
+
 - 新场景 **更换手机号**（replace_phone_number）：先建立并验证新手机号的恢复路径，**才能**停用旧手机号（Make-Before-Break，禁止先拆后建）。
 - 新页面 **基础设施薄弱点**：唯一恢复来源（SPOF）、共享故障点、恢复循环——全部只依据**已确认的现实关系**生成。
 - 能力从 payment 扩展到 **payment / access / authentication / recovery / communication** 五类；新增 **恢复（recovers）/ 登录认证（authenticates）/ 控制权（controls）** 三种关系。
@@ -13,12 +14,12 @@ v0.3.0 把 MVP 从"只模拟换卡/注销银行卡"扩展到**身份与恢复**�
 
 ## 平台
 
-| 平台 | 构建 | 测试 | 运行时证据 |
-| --- | --- | --- | --- |
-| Windows Desktop (x64) | ✅ installer + portable | smoke 17/17 PASS | 53 屏 light/dark 截图（1280×720 / 1920×1080 / 2048×1152） |
-| Android (API36) | ✅ APK + AAB（non-prod 签名） | conformance 128/128；instrumentation 61/61 PASS | 42 屏 light/dark（含 Findings / 更换手机号） |
-| HarmonyOS | ✅ ArkTS 主机 conformance | host 179/179 PASS；canonical 124/128（4 条为设备门禁） | —（无模拟器镜像，外部 Gate） |
-| iOS (N4 SwiftUI) | ✅ swift build（macOS CI） | canonical **128/128 PASS**；PDIGAppTests 10/10 PASS | macOS 渲染截图 light/dark；iPhone 模拟器 boot PASS |
+| 平台                  | 构建                          | 测试                                                   | 运行时证据                                                |
+| --------------------- | ----------------------------- | ------------------------------------------------------ | --------------------------------------------------------- |
+| Windows Desktop (x64) | ✅ installer + portable       | smoke 17/17 PASS                                       | 53 屏 light/dark 截图（1280×720 / 1920×1080 / 2048×1152） |
+| Android (API36)       | ✅ APK + AAB（non-prod 签名） | conformance 128/128；instrumentation 61/61 PASS        | 42 屏 light/dark（含 Findings / 更换手机号）              |
+| HarmonyOS             | ✅ ArkTS 主机 conformance     | host 179/179 PASS；canonical 124/128（4 条为设备门禁） | —（无模拟器镜像，外部 Gate）                              |
+| iOS (N4 SwiftUI)      | ✅ swift build（macOS CI）    | canonical **128/128 PASS**；PDIGAppTests 10/10 PASS    | macOS 渲染截图 light/dark；iPhone 模拟器 boot PASS        |
 
 ## 兼容性与数据
 

@@ -1,0 +1,12 @@
+﻿
+  ACTIVITY com.google.android.apps.nexuslauncher/.NexusLauncherActivity f0cee9 pid=1013 userId=0 uid=10183 displayId=0(
+type=INTERNAL)
+    Local Activity f01226c State:
+      mResumed=false mStopped=true mFinished=false
+      mCurrentConfig={1.0 310mcc260mnc [en_US] ldltr sw390dp w390dp h844dp 420dpi nrml long port finger qwerty/v/v dpad
+/v winConfig={ mBounds=Rect(0, 0 - 1024, 2216) mAppBounds=Rect(0, 0 - 1024, 2216) mMaxBounds=Rect(0, 0 - 1024, 2216) mD
+isplayRotation=ROTATION_0 mWindowingMode=fullscreen mActivityType=home mAlwaysOnTop=undefined mRotation=ROTATION_0} s.4
+ fontWeightAdjustment=0}
+        mHost=android.app.Activity$HostCallbacks@3319153
+
+

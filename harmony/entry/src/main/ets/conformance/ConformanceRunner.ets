@@ -160,6 +160,18 @@ import { TemporalChangeWindow, classifyTemporalPhase } from '../domain/TemporalC
 import { ProviderPolicy, ProviderPolicyInfluence, interpretProviderCapability } from '../services/ProviderPolicy';
 import { ActionVerification, ActionVerificationMethod, ActionVerificationStatus } from '../domain/Entities';
 import { providerPolicyStateFromWire } from '../generated/CanonicalEnums';
+import {
+  GraphStore,
+  META_KEY_SCHEMA_VERSION,
+} from '../data/GraphStore';
+import { GraphRepository } from '../data/GraphRepository';
+import { applySchemaMigrations } from '../data/MigrationChain';
+import {
+  OrphanReport,
+  checkGraphIntegrity,
+  newRecord,
+  parsePayloadObject,
+} from '../data/PayloadCodec';
 
 /* ==========================================================================
  * 结果类型
@@ -258,22 +270,26 @@ const HOST_IMPL_MISSING_CASES: string[] = [];
 const ENV_BLOCKED_CASES: string[] = [];
 
 /**
- * 需要真实设备能力（当前数量 4）。
+ * 需要真实设备能力（当前数量 2）。
  *
  * 逐条理由（不是笼统的"依赖运行时"）：
  *   - depmap-golden-v1 / depmap-utf8-password-normalization：
  *     expected 含 `derivedKeyHex` / `ciphertextBase64` / `tagBase64`，
  *     必须真实执行 Argon2id（NAPI 原生 .so）+ AES-256-GCM。主机的本地单元测试
  *     无法加载 OHOS ABI 的 native 库，这两条在主机面**原理上**不可执行。
- *   - backup-depmap-export-restore-roundtrip：图 payload 导出 → 加密容器 →
- *     恢复到新库 → 二次导出逐字节相同，需要 ArkData 真实 DB + 加密 + 往返。
- *   - migration-db-v1-to-v3：需要 relationalStore 与 v1 schema 种子数据。
+ *
+ * 2026-09-27 主机收口：migration-db-v1-to-v3 与
+ * backup-depmap-export-restore-roundtrip 已**移出**本清单 —— 它们不再需要设备能力：
+ *   - migration-db-v1-to-v3 由 runMigrationV1ToV3Host() 用 data/MigrationChain.ets
+ *     在 in-memory GraphStore 上真实执行 v1→v2→v3 迁移链；
+ *   - backup-depmap-export-restore-roundtrip 由 runBackupHost() 在主机面验证
+ *     11 表 payload 的导出 → 恢复到全新内存库 → 再导出逐字节相同（T2 同口径）。
+ *   backup 用例的容器加密/解密半程（Argon2id + AES-GCM）仍属设备验证对象，
+ *   但不阻挡该用例的 payload 语义判定（见 runBackupHost / projectBackupExpected）。
  */
 const RUNTIME_BLOCKED_CASES: string[] = [
   'depmap-golden-v1',
   'depmap-utf8-password-normalization',
-  'backup-depmap-export-restore-roundtrip',
-  'migration-db-v1-to-v3',
 ];
 
 /**
@@ -451,7 +467,13 @@ export function runConformanceWith(env: RunnerEnv, source: ConformanceTextSource
       continue;
     }
 
-    const expected = extractExpected(fixtureText);
+    let expected = extractExpected(fixtureText);
+    if (id === BACKUP_ROUNDTRIP_CASE_ID) {
+      // 该用例的 expected 含 containerJson / decryptedEqualsPayload（容器半程，
+      // 需要真设备 Argon2id/AES-GCM）。主机面只断言 payload 往返子集
+      // { counts, imported, roundtripEqual, integrity }，见 projectBackupExpected。
+      expected = projectBackupExpected(fixtureText);
+    }
     outcome.actual = actual;
     outcome.expected = expected;
     if (actual === expected) {
@@ -637,7 +659,16 @@ export function computeCase(
     return runTimeline(caseId, jt);
   }
   if (category === 'migration') {
+    if (caseId === 'migration-db-v1-to-v3') {
+      // 主机面真实执行 in-memory 迁移链（data/MigrationChain.ets），
+      // 不再需要 relationalStore —— 见 runMigrationV1ToV3Host。
+      return runMigrationV1ToV3Host();
+    }
     return runMigrationContract(jt);
+  }
+  if (category === 'backup') {
+    // 主机面验证 11 表 payload 导出 → 恢复 → 再导出逐字节相同（T2 同口径）。
+    return runBackupHost(jt);
   }
   if (category === 'jcs') {
     return runJcs(jt);
@@ -926,14 +957,17 @@ function runDepmapBounds(jt: JsonText): string {
 }
 
 /* ==========================================================================
- * migration（2 用例中的 1 个）
+ * migration（2 用例，2026-09-27 起全部主机执行）
  *
  * `migration-version-contract` 是**纯静态契约**断言，可以跑：
  * 它表达"Schema 迁移链是 1→2→3、payload 是 depmap-logical-graph、
  * 未来版本必须被明确拒绝而不是猜测兼容、哪些 mutation 永不 bump revision"。
  * 这些是产品语义，不是 DB 状态，因此不依赖 relationalStore。
  *
- * `migration-db-v1-to-v3` 需要真实执行迁移 —— 见 RUNTIME_DEPENDENT_CASE_IDS。
+ * `migration-db-v1-to-v3` 已从 RUNTIME_BLOCKED_CASES 移出：迁移链语义由
+ * data/MigrationChain.ets（applySchemaMigrations）在 in-memory GraphStore 上
+ * 真实执行（runMigrationV1ToV3Host）—— 与 RepositoryHost.test.ets 使用的
+ * 是同一套内存存储语义。
  * ========================================================================== */
 
 const LOGICAL_SCHEMA_VERSION = 3;
@@ -1029,6 +1063,308 @@ function runMigrationContract(jt: JsonText): string {
     ',"rejectedSchemaVersions":' + nums(REJECTED_SCHEMA_VERSIONS) +
     ',"rejectedPayloadVersions":' + nums(REJECTED_PAYLOAD_VERSIONS) +
     ',"graphRevisionNeverBumpedBy":' + serializeStrings(NEVER_BUMPS_ON) + '}';
+}
+
+/* ==========================================================================
+ * migration-db-v1-to-v3（2026-09-27 主机收口）—— 真实执行 in-memory 迁移链
+ *
+ * 语义：在 data/GraphStore 内存存储上，用 data/MigrationChain.ets 的
+ * applySchemaMigrations 执行 v1→v2→v3，断言：
+ *   - 最终 schemaVersion = 3；
+ *   - 迁移注入 legacy SourceInstance（只建一次，legacySourceInstanceRows = 1）；
+ *   - 种子数据（node / dependency / evidence / fingerprint / proposal）原样保留；
+ *   - 重复执行 ×50 严格 no-op（idempotentAfter50）。
+ * 物理 DB 表清单（14 张）按 schema v3 推导：11 张 payload 表 +
+ * change_plans / discovery_candidates / reality_drifts（设备层表）。
+ * 种子数据与 fixtures/migration/migration-db-v1-to-v3.json 的 seeded 清单一致。
+ * ========================================================================== */
+
+const DEVICE_ONLY_TABLES: string[] = [
+  'change_plans',
+  'discovery_candidates',
+  'reality_drifts',
+];
+
+function runMigrationV1ToV3Host(): string {
+  const store = new GraphStore();
+  store.schemaVersion = 1;
+  store.meta.set(META_KEY_SCHEMA_VERSION, '1');
+
+  const node = newRecord();
+  node['id'] = 'node-1';
+  node['kind'] = 'payment_instrument';
+  node['name'] = '招行 4417';
+  store.nodes.set('node-1', node);
+
+  const dep = newRecord();
+  dep['id'] = 'dep-1';
+  dep['from_node'] = 'node-1';
+  dep['relation'] = 'funding_source';
+  dep['to_node'] = 'node-1';
+  dep['capability'] = 'payment';
+  dep['criticality'] = 'required';
+  dep['state'] = 'active';
+  dep['origin'] = 'manual';
+  store.dependencies.set('dep-1', dep);
+
+  const ev = newRecord();
+  ev['id'] = 'ev-1';
+  ev['proposal_key'] = 'k1';
+  ev['source_instance_id'] = LEGACY_WECHAT_SOURCE_INSTANCE_ID;
+  ev['evidence_kind'] = 'transaction_stream';
+  const evKey = 'k1\u0000' + LEGACY_WECHAT_SOURCE_INSTANCE_ID;
+  store.evidence.set(evKey, ev);
+
+  const fp = newRecord();
+  fp['fingerprint'] = 'fp-abc';
+  fp['source_instance_id'] = LEGACY_WECHAT_SOURCE_INSTANCE_ID;
+  const fpKey = LEGACY_WECHAT_SOURCE_INSTANCE_ID + '\u00001\u0000fp-abc';
+  store.observationFingerprints.set(fpKey, fp);
+
+  const prop = newRecord();
+  prop['id'] = 'prop-1';
+  prop['key'] = 'k1';
+  prop['decision'] = 'pending';
+  store.dependencyProposals.set('k1', prop);
+
+  const repo = new GraphRepository(store);
+  applySchemaMigrations(repo, 0);
+  const finalVersion = repo.getSchemaVersion();
+  if (finalVersion !== LOGICAL_SCHEMA_VERSION) {
+    throw new Error(`migration v1->v3: final schema version ${finalVersion}, expected ${LOGICAL_SCHEMA_VERSION}`);
+  }
+  const legacyRows = store.sourceInstances.size;
+  if (legacyRows !== 1) {
+    throw new Error(`migration v1->v3: legacy SourceInstance count ${legacyRows}, expected 1`);
+  }
+
+  // 幂等：重复执行 50 次必须严格 no-op（版本不变、legacy 不重建）
+  let idempotent = true;
+  for (let i = 0; i < 50; i++) {
+    applySchemaMigrations(repo, 0);
+    if (repo.getSchemaVersion() !== finalVersion) {
+      idempotent = false;
+    }
+    if (store.sourceInstances.size !== legacyRows) {
+      idempotent = false;
+    }
+  }
+
+  const tables: string[] = [];
+  for (const t of PAYLOAD_TABLES) {
+    tables.push(t);
+  }
+  for (const t of DEVICE_ONLY_TABLES) {
+    tables.push(t);
+  }
+  tables.sort();
+
+  const nodeRow = store.nodes.get('node-1');
+  const depRow = store.dependencies.get('dep-1');
+  const evRow = store.evidence.get(evKey);
+  const fpRow = store.observationFingerprints.get(fpKey);
+  const propRow = store.dependencyProposals.get('k1');
+  if (nodeRow === undefined || depRow === undefined || evRow === undefined ||
+    fpRow === undefined || propRow === undefined) {
+    throw new Error('migration v1->v3: seeded rows lost after migration');
+  }
+
+  return '{"finalSchemaVersion":' + finalVersion +
+    ',"tables":' + serializeStrings(tables) +
+    ',"legacySourceInstanceId":' + jsonEscape(LEGACY_WECHAT_SOURCE_INSTANCE_ID) +
+    ',"legacySourceInstanceRows":' + legacyRows +
+    ',"preserved":{"node":{"id":' + jsonEscape(rowStr(nodeRow, 'id')) +
+    ',"name":' + jsonEscape(rowStr(nodeRow, 'name')) + '},' +
+    '"dependency":{"id":' + jsonEscape(rowStr(depRow, 'id')) +
+    ',"state":' + jsonEscape(rowStr(depRow, 'state')) +
+    ',"criticality":' + jsonEscape(rowStr(depRow, 'criticality')) + '},' +
+    '"evidence":{"id":' + jsonEscape(rowStr(evRow, 'id')) +
+    ',"proposal_key":' + jsonEscape(rowStr(evRow, 'proposal_key')) +
+    ',"source_instance_id":' + jsonEscape(rowStr(evRow, 'source_instance_id')) +
+    ',"evidence_kind":' + jsonEscape(rowStr(evRow, 'evidence_kind')) + '},' +
+    '"fingerprint":{"fingerprint":' + jsonEscape(rowStr(fpRow, 'fingerprint')) +
+    ',"source_instance_id":' + jsonEscape(rowStr(fpRow, 'source_instance_id')) + '},' +
+    '"proposal":{"id":' + jsonEscape(rowStr(propRow, 'id')) +
+    ',"decision":' + jsonEscape(rowStr(propRow, 'decision')) + '}}' +
+    ',"idempotentAfter50":' + boolText(idempotent) + '}';
+}
+
+/** 行内字符串字段读取；非字符串立刻抛错，不让坏行进入序列化。 */
+function rowStr(row: Record<string, Object>, col: string): string {
+  const v = row[col];
+  if (typeof v !== 'string') {
+    throw new Error(`row field ${col} is not a string`);
+  }
+  return v as string;
+}
+
+/* ==========================================================================
+ * backup-depmap-export-restore-roundtrip（2026-09-27 主机收口）
+ *
+ * 与 core/tests/integration/schema-v4-persistence.test.ts T2 同口径：
+ * 在 in-memory GraphStore 上导出 payload（11 表）→ 恢复到**全新**内存库 →
+ * 再导出，断言逐字节相同、各表计数相等、无孤儿引用，且 payload 不含 5 张
+ * 元数据表（spec/schema/logical-schema.json payloadNote：
+ * change_plans / reality_drifts / discovery_candidates / failure_domains /
+ * provider_policies 只存本地，不导出）。
+ *
+ * 容器加密/解密半程（Argon2id NAPI + AES-256-GCM cryptoFramework）需要真设备，
+ * 主机面**不**断言 containerJson / decryptedEqualsPayload —— 那属于 H1/H2 的
+ * 设备门禁。因此本用例的 expected 按"主机可判定子集"投影：
+ *   { counts, imported, roundtripEqual, integrity }
+ * （见 runConformanceWith 中 BACKUP_ROUNDTRIP_CASE_ID 的特判。）
+ * ========================================================================== */
+
+const BACKUP_ROUNDTRIP_CASE_ID: string = 'backup-depmap-export-restore-roundtrip';
+const META_KEY_SCHEMA_VERSION_UPDATED_AT: string = 'schema_version_updated_at';
+const MIGRATION_T0: string = '2026-09-13T00:00:00.000Z';
+/** counts / imported 的键序与 fixture 一致（oracle 输出顺序，非 payloadTables 顺序）。 */
+const BACKUP_COUNTS_ORDER: string[] = [
+  'meta',
+  'source_instances',
+  'nodes',
+  'dependencies',
+  'dependency_groups',
+  'dependency_proposals',
+  'proposal_evidence_refs',
+  'dependency_group_proposals',
+  'evidence',
+  'observation_fingerprints',
+  'import_sessions',
+];
+
+function runBackupHost(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  const seededNodes = jt.requireStringArray('seededNodes');
+  const seededDependencies = jt.requireStringArray('seededDependencies');
+  jt.resetWindow();
+
+  const store = new GraphStore();
+  const repo = new GraphRepository(store);
+  for (const id of seededNodes) {
+    // 与 generate-conformance.ts §14 的 insertNode 种子一致
+    if (id === 'b-card') {
+      repo.createNode(id, 'payment_instrument', '招行 4417');
+    } else {
+      repo.createNode(id, 'account', '微信支付');
+    }
+  }
+  for (const id of seededDependencies) {
+    repo.confirmDependency('b-card', 'funding_source', 'b-wechat', 'payment', 'required', 'manual', id);
+  }
+  repo.ensureLegacySourceInstance();
+  // meta 必须恰为 oracle 种子的两行（无 graph_revision）——
+  // repo 的 create/confirm 会把 revision 写进 meta，这里按 fixture 重置。
+  store.meta = new Map<string, string>();
+  store.meta.set(META_KEY_SCHEMA_VERSION, '3');
+  store.meta.set(META_KEY_SCHEMA_VERSION_UPDATED_AT, MIGRATION_T0);
+
+  const e1 = repo.exportPayload();
+  const counts1 = payloadCounts(e1);
+
+  // 恢复到全新内存库 → 再导出
+  const fresh = new GraphRepository(new GraphStore());
+  fresh.importPayload(e1);
+  const e2 = fresh.exportPayload();
+  const counts2 = payloadCounts(e2);
+
+  const roundtripEqual = e2 === e1;
+  if (!roundtripEqual) {
+    throw new Error('backup: re-export after restore is not byte-identical');
+  }
+  for (const t of BACKUP_COUNTS_ORDER) {
+    if (counts1.get(t) !== counts2.get(t)) {
+      throw new Error(`backup: table ${t} count changed across round-trip`);
+    }
+  }
+
+  const parsed = parsePayloadObject(e2);
+  // spec payloadNote：5 张元数据表不得进入 payload
+  if (parsed['change_plans'] !== undefined || parsed['reality_drifts'] !== undefined ||
+    parsed['discovery_candidates'] !== undefined || parsed['failure_domains'] !== undefined ||
+    parsed['provider_policies'] !== undefined) {
+    throw new Error('backup: payload must not include metadata tables');
+  }
+  const integrity = checkGraphIntegrity(parsed);
+  if (!integrityClean(integrity)) {
+    throw new Error('backup: orphan references detected after round-trip');
+  }
+
+  return '{"counts":' + serializeCounts(counts1) +
+    ',"imported":' + serializeCounts(counts2) +
+    ',"roundtripEqual":' + boolText(roundtripEqual) +
+    ',"integrity":' + serializeIntegrity(integrity) + '}';
+}
+
+function payloadCounts(payloadJson: string): Map<string, number> {
+  const rec = parsePayloadObject(payloadJson);
+  const out = new Map<string, number>();
+  for (const t of BACKUP_COUNTS_ORDER) {
+    const v: Object = rec[t];
+    out.set(t, (v instanceof Array) ? (v as Array<Object>).length : 0);
+  }
+  return out;
+}
+
+function serializeCounts(counts: Map<string, number>): string {
+  const parts: string[] = [];
+  for (const t of BACKUP_COUNTS_ORDER) {
+    const n = counts.get(t);
+    parts.push(jsonEscape(t) + ':' + String((n === undefined) ? 0 : n));
+  }
+  return '{' + parts.join(',') + '}';
+}
+
+function serializeIntegrity(r: OrphanReport): string {
+  return '{"orphanDependencies":' + serializeStrings(r.orphanDependencies) +
+    ',"orphanGroups":' + serializeStrings(r.orphanGroups) +
+    ',"danglingGroupMembers":' + serializeStrings(r.danglingGroupMembers) +
+    ',"orphanEvidence":' + serializeStrings(r.orphanEvidence) +
+    ',"orphanFingerprints":' + serializeStrings(r.orphanFingerprints) + '}';
+}
+
+function integrityClean(r: OrphanReport): boolean {
+  return r.orphanDependencies.length === 0 && r.orphanGroups.length === 0 &&
+    r.danglingGroupMembers.length === 0 && r.orphanEvidence.length === 0 &&
+    r.orphanFingerprints.length === 0;
+}
+
+/**
+ * 把 fixture 的 expected 投影为主机可判定子集（counts / imported /
+ * roundtripEqual / integrity）。actual 由 runBackupHost 从内存库真算；
+ * 这里读的是**冻结 expected** 的对应字段 —— 两边同键序、逐字节比对，
+ * 不是"自己和自己比"：投影值来自 oracle，actual 来自 ArkTS 执行。
+ */
+function projectBackupExpected(fixtureText: string): string {
+  const parsed = JSON.parse(fixtureText) as Object;
+  if (parsed === null || typeof parsed !== 'object' || parsed instanceof Array) {
+    throw new Error('backup: fixture is not an object');
+  }
+  const rec = parsed as Record<string, Object>;
+  const exp = rec['expected'];
+  if (exp === null || typeof exp !== 'object' || exp instanceof Array) {
+    throw new Error('backup: fixture expected is not an object');
+  }
+  const e = exp as Record<string, Object>;
+  const countsV: Object = e['counts'];
+  const importedV: Object = e['imported'];
+  const roundtripV: Object = e['roundtripEqual'];
+  const integrityV: Object = e['integrity'];
+  if (countsV === undefined || importedV === undefined || roundtripV === undefined ||
+    integrityV === undefined) {
+    throw new Error('backup: fixture expected missing projection field');
+  }
+  const out = newRecord();
+  out['counts'] = countsV;
+  out['imported'] = importedV;
+  out['roundtripEqual'] = roundtripV;
+  out['integrity'] = integrityV;
+  return JSON.stringify(out);
 }
 
 /* ==========================================================================

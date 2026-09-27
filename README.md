@@ -53,13 +53,12 @@ PDIG（Personal Digital Infrastructure Graph，内部代号 **DepMap**）是一�
 
 ## 当前范围
 
-
-| 里程碑               | 名称                                      | 状态                                     |
-| -------------------- | ----------------------------------------- | ---------------------------------------- |
-| **MVP01**            | Payment Reality Kernel                    | ✅ 完成（见 `MVP01_RC_AUDIT_REPORT.md`） |
-| **MVP02**            | Global Source Abstraction                 | ✅ 完成（见 `MVP02_FINAL_REPORT.md`）    |
-| **MVP03**            | Living Graph & Change Safety              | ✅ 完成（见 `MVP03_FINAL_REPORT.md`）    |
-| **v0.3.0**           | 四端产品实现与上线（Desktop / Android / HarmonyOS / iOS N4） | ✅ 完成（见 `FINAL_REPORT.md`、`PRODUCT_V0_3_0_RELEASE_MANIFEST.md`；GitHub Release `product-v0.3.0`） |
+| 里程碑     | 名称                                                         | 状态                                                                                                   |
+| ---------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| **MVP01**  | Payment Reality Kernel                                       | ✅ 完成（见 `MVP01_RC_AUDIT_REPORT.md`）                                                               |
+| **MVP02**  | Global Source Abstraction                                    | ✅ 完成（见 `MVP02_FINAL_REPORT.md`）                                                                  |
+| **MVP03**  | Living Graph & Change Safety                                 | ✅ 完成（见 `MVP03_FINAL_REPORT.md`）                                                                  |
+| **v0.3.0** | 四端产品实现与上线（Desktop / Android / HarmonyOS / iOS N4） | ✅ 完成（见 `FINAL_REPORT.md`、`PRODUCT_V0_3_0_RELEASE_MANIFEST.md`；GitHub Release `product-v0.3.0`） |
 
 明确**不在**当前范围：Open Banking、云同步、AI/LLM 自动决策、手机号/邮箱 capability、
 GitHub/Domain/Cloud 图谱、支付宝专属解析器。详见 `NEXT_BACKLOG.md` 与 `FUTURE.md`。
