@@ -11,38 +11,38 @@
 
 ## 1. Acceptance Matrix（对照 spec §98）
 
-| Gate | 状态 | 证据 |
-| --- | --- | --- |
-| SKILL_UI_UX_PRO_MAX = USED | ✅ | UIUX_SKILL_USAGE_AUDIT.md（11 次检索，5 类全覆盖） |
-| SKILL_IMPECCABLE = USED | ✅ | context.mjs + shape/critique/document/distill/clarify/adapt/polish/harden 工作流（见 audit） |
-| SKILL_FRONTEND_DESIGN = USED | ✅ | 方向冻结（Continuity Rail 唯一 signature） |
-| LOCAL_WORKSPACE_POLICY = PASS | ✅ | 全部写入 REPO_ROOT 内；.agent-work/ 已 gitignore |
-| LOCAL_TOOLCHAIN_INVENTORY = PASS | ✅ | LOCAL_ENV_INVENTORY.md |
-| UNNECESSARY_DOWNLOAD_COUNT = 0 | ✅ | LOCAL_DOWNLOAD_AUDIT.md（唯一下载 = 项目锁定 Gradle 8.9 还原） |
-| UIUX_DIRECTION = FROZEN | ✅ | PDIG_UIUX_DIRECTION_FREEZE.md |
-| DESIGN_SYSTEM = PASS | ✅ | PDIG_DESIGN_SYSTEM.md + design-tokens v1.1 |
-| HOME_UX = PASS（实现） | ✅ | Desktop/Android 六段 Briefing；iOS/Harmony 落地 |
-| FINDINGS_UX = PASS（实现） | ✅ | what/why/next + 展开 evidence/unknown/affected |
-| INFRASTRUCTURE_UX = PASS（实现） | ✅ | By Item/By Capability + master-detail/分段 |
-| SCENARIO_UX = PASS（实现） | ✅ | 支付/身份与恢复分组；三问卡片 |
-| REPLACE_PHONE_UX = PASS（实现） | ✅ | Continuity Rail 全链 + make-before-break 闸门 |
-| IMPACT_UX = PASS（实现） | ✅ | 四类分组，must_change 突出 |
-| CHANGE_PLAN_UX = PASS（实现） | ✅ | 步骤轨道 + verified>completed + 闸门 |
-| VERIFICATION_UX = PASS（实现） | ✅ | done≠verified；verified 强于 completed |
-| DESKTOP_UIUX | ✅ 工程面（80 帧 PASS）· 审美面见 §2 | desktop-profiles 80 帧 + 像素量化 |
-| ANDROID_UIUX | ✅ 工程面（42 帧 + 单测）· 审美面见 §2 | AVD 实拍 + compile/test 绿 |
-| IOS_UIUX | ⚠ IOS_RUNTIME_EXTERNAL_GATE | 源码落地 + 静态自查；构建/截图走 macOS CI |
-| HARMONY_UIUX_ENGINEERING | ✅ 工程面（HAP build PASS）· RUNTIME_EXTERNAL_GATE | 本机 DevEco assembleHap 成功 |
-| ACCESSIBILITY_ENGINEERING = PASS | ✅ | 状态三通道 / 触控 44-48 / 大字体不裁剪 / reduced-motion（见 DESIGN_SYSTEM + 各端实现） |
-| LIGHT_DARK = PASS | ✅ | token dark scheme 三端 + Harmony 预留 |
-| LARGE_TEXT = PASS | ✅ | 无固定高度裁剪 CTA（代码审计） |
-| KEYBOARD = PASS（代码面） | ✅ | focusable + 导航顺序；--keys Robot 受会话焦点限制（环境注记） |
-| GENERIC_AI_UI_FINDINGS_P0 = 0 | ✅ | 见 §3 frontend-design 五问 |
-| GENERIC_AI_UI_FINDINGS_P1 = 0 | ✅ | 见 §3 |
-| DOMAIN_SEMANTIC_REGRESSION = 0 | ✅ | core 487 tests + canonical/conformance 全绿（见 §4） |
-| CANONICAL_REGRESSION = 0 | ✅ | 同上；spec/ 仅 tokens/copy additive |
-| SECURITY_REGRESSION = 0 | ✅ | secret scan 0 / network gate 0 / 无遥测/远程字体/CDN |
-| FEATURE_BRANCH_PUSHED = PASS | ✅ | push 执行（见 §5） |
+| Gate                             | 状态                                               | 证据                                                                                         |
+| -------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| SKILL_UI_UX_PRO_MAX = USED       | ✅                                                 | UIUX_SKILL_USAGE_AUDIT.md（11 次检索，5 类全覆盖）                                           |
+| SKILL_IMPECCABLE = USED          | ✅                                                 | context.mjs + shape/critique/document/distill/clarify/adapt/polish/harden 工作流（见 audit） |
+| SKILL_FRONTEND_DESIGN = USED     | ✅                                                 | 方向冻结（Continuity Rail 唯一 signature）                                                   |
+| LOCAL_WORKSPACE_POLICY = PASS    | ✅                                                 | 全部写入 REPO_ROOT 内；.agent-work/ 已 gitignore                                             |
+| LOCAL_TOOLCHAIN_INVENTORY = PASS | ✅                                                 | LOCAL_ENV_INVENTORY.md                                                                       |
+| UNNECESSARY_DOWNLOAD_COUNT = 0   | ✅                                                 | LOCAL_DOWNLOAD_AUDIT.md（唯一下载 = 项目锁定 Gradle 8.9 还原）                               |
+| UIUX_DIRECTION = FROZEN          | ✅                                                 | PDIG_UIUX_DIRECTION_FREEZE.md                                                                |
+| DESIGN_SYSTEM = PASS             | ✅                                                 | PDIG_DESIGN_SYSTEM.md + design-tokens v1.1                                                   |
+| HOME_UX = PASS（实现）           | ✅                                                 | Desktop/Android 六段 Briefing；iOS/Harmony 落地                                              |
+| FINDINGS_UX = PASS（实现）       | ✅                                                 | what/why/next + 展开 evidence/unknown/affected                                               |
+| INFRASTRUCTURE_UX = PASS（实现） | ✅                                                 | By Item/By Capability + master-detail/分段                                                   |
+| SCENARIO_UX = PASS（实现）       | ✅                                                 | 支付/身份与恢复分组；三问卡片                                                                |
+| REPLACE_PHONE_UX = PASS（实现）  | ✅                                                 | Continuity Rail 全链 + make-before-break 闸门                                                |
+| IMPACT_UX = PASS（实现）         | ✅                                                 | 四类分组，must_change 突出                                                                   |
+| CHANGE_PLAN_UX = PASS（实现）    | ✅                                                 | 步骤轨道 + verified>completed + 闸门                                                         |
+| VERIFICATION_UX = PASS（实现）   | ✅                                                 | done≠verified；verified 强于 completed                                                       |
+| DESKTOP_UIUX                     | ✅ 工程面（80 帧 PASS）· 审美面见 §2               | desktop-profiles 80 帧 + 像素量化                                                            |
+| ANDROID_UIUX                     | ✅ 工程面（42 帧 + 单测）· 审美面见 §2             | AVD 实拍 + compile/test 绿                                                                   |
+| IOS_UIUX                         | ⚠ IOS_RUNTIME_EXTERNAL_GATE                        | 源码落地 + 静态自查；构建/截图走 macOS CI                                                    |
+| HARMONY_UIUX_ENGINEERING         | ✅ 工程面（HAP build PASS）· RUNTIME_EXTERNAL_GATE | 本机 DevEco assembleHap 成功                                                                 |
+| ACCESSIBILITY_ENGINEERING = PASS | ✅                                                 | 状态三通道 / 触控 44-48 / 大字体不裁剪 / reduced-motion（见 DESIGN_SYSTEM + 各端实现）       |
+| LIGHT_DARK = PASS                | ✅                                                 | token dark scheme 三端 + Harmony 预留                                                        |
+| LARGE_TEXT = PASS                | ✅                                                 | 无固定高度裁剪 CTA（代码审计）                                                               |
+| KEYBOARD = PASS（代码面）        | ✅                                                 | focusable + 导航顺序；--keys Robot 受会话焦点限制（环境注记）                                |
+| GENERIC_AI_UI_FINDINGS_P0 = 0    | ✅                                                 | 见 §3 frontend-design 五问                                                                   |
+| GENERIC_AI_UI_FINDINGS_P1 = 0    | ✅                                                 | 见 §3                                                                                        |
+| DOMAIN_SEMANTIC_REGRESSION = 0   | ✅                                                 | core 487 tests + canonical/conformance 全绿（见 §4）                                         |
+| CANONICAL_REGRESSION = 0         | ✅                                                 | 同上；spec/ 仅 tokens/copy additive                                                          |
+| SECURITY_REGRESSION = 0          | ✅                                                 | secret scan 0 / network gate 0 / 无遥测/远程字体/CDN                                         |
+| FEATURE_BRANCH_PUSHED = PASS     | ✅                                                 | push 执行（见 §5）                                                                           |
 
 ## 2. Visual Craft（诚实门，spec §99）
 
@@ -85,12 +85,12 @@
 
 ## 7. External Gates（真实，非代码缺陷）
 
-| Gate | 原因 |
-| --- | --- |
-| IOS_RUNTIME_EXTERNAL_GATE | 本机 Windows 无 Swift/Xcode；构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml） |
-| HARMONY_RUNTIME_EXTERNAL_GATE | 无 DevEco 模拟器镜像/真机（华为账号）；HAP 构建已 PASS，runtime 视觉需设备 |
-| DESKTOP_KEYS_ROBOT | 本会话窗口焦点限制（BLOCKERS 环境注记），代码面 focusable+顺序审计已兜底 |
-| VISUAL_CRAFT | NEEDS_HUMAN_VISUAL_REVIEW（spec §99 诚实门，证据齐备待人工复核） |
+| Gate                          | 原因                                                                                                |
+| ----------------------------- | --------------------------------------------------------------------------------------------------- |
+| IOS_RUNTIME_EXTERNAL_GATE     | 本机 Windows 无 Swift/Xcode；构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml） |
+| HARMONY_RUNTIME_EXTERNAL_GATE | 无 DevEco 模拟器镜像/真机（华为账号）；HAP 构建已 PASS，runtime 视觉需设备                          |
+| DESKTOP_KEYS_ROBOT            | 本会话窗口焦点限制（BLOCKERS 环境注记），代码面 focusable+顺序审计已兜底                            |
+| VISUAL_CRAFT                  | NEEDS_HUMAN_VISUAL_REVIEW（spec §99 诚实门，证据齐备待人工复核）                                    |
 
 ## 8. 停止条件（spec §101–§102）
 

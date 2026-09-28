@@ -5,7 +5,6 @@
 
 ---
 
->
 > - 基线：`5781ce6`（= 进入本轮的 HEAD/main/origin/main）；release 分支 `release/product-v0.3.1`。
 > - 变更审计：`V0_3_0_TO_V0_3_1_CHANGE_AUDIT.md`（187 文件分类；NO_V0_4_SCOPE / NO_NEW_SCENARIO / NO_NEW_CAPABILITY / NO_DOMAIN_SCOPE_EXPANSION = PASS）；`PRE_RELEASE_BASELINE.md`。
 > - 四端版本对齐：Android production versionCode 2 / 0.3.1（Play 定案前占位，正式上传码待用户 R-3 决策）、preview 200005/0.3.1；iOS MARKETING_VERSION 0.3.1 / CURRENT_PROJECT_VERSION 2；Harmony 1000001 / 0.3.1；Desktop 0.3.1。
