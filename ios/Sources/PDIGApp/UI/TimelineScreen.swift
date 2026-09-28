@@ -1,4 +1,5 @@
-// 时间线屏（task #11）+ 漂移复查屏。
+// 时间线屏 + 漂移复查屏。
+// 时间戳一律来自 PdigClock.nowIso()（真实 now）；固定假时间禁止进生产 UI。
 
 import SwiftUI
 import PDIGCore
@@ -11,7 +12,7 @@ struct TimelineScreen: View {
             snapshot: session.snapshot,
             plans: session.plans,
             drifts: openDrifts(),
-            nowIso: "2030-01-15T00:00:00+00:00"
+            nowIso: PdigClock.nowIso()
         )
     }
 
@@ -21,23 +22,27 @@ struct TimelineScreen: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     if sections.isEmpty {
-                        Text(CopyZh.emptyTitle).foregroundStyle(.secondary).padding(.top, 64)
+                        EmptyState(
+                            icon: "calendar",
+                            title: "时间线还是空的",
+                            message: "创建变更计划后，验证与到期节点会出现在这里。"
+                        )
                     }
                     ForEach(sections) { section in
                         VStack(alignment: .leading, spacing: 6) {
-                            Text(section.title).font(.headline)
+                            SectionHeader(section.title)
                             ForEach(section.items, id: \.id) { item in
-                                HStack(alignment: .top) {
-                                    Image(systemName: kindIcon(item.kind))
-                                        .foregroundStyle(.secondary)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(item.title).font(.body)
-                                        Text(item.subtitle).font(.caption).foregroundStyle(.secondary)
+                                PdigCard {
+                                    HStack(alignment: .top) {
+                                        Image(systemName: kindIcon(item.kind))
+                                            .foregroundStyle(.secondary)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(item.title).font(.body)
+                                            Text(item.subtitle).font(.caption).foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
                                     }
-                                    Spacer()
                                 }
-                                .padding(8)
-                                .background(Color.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 8))
                             }
                         }
                     }
