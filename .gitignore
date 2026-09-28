@@ -3,9 +3,8 @@ node_modules/
 dist/
 build/
 coverage/
-# 例外：fixtures/coverage/ 是一致性用例目录（6 个 coverage 用例），
-# 不能与覆盖率输出目录同名而被整体忽略——否则 CI checkout 后用例文件缺失。
-!fixtures/coverage/
+# 例外：fixtures/coverage/ 是一致性用例目录（6 �?coverage 用例），
+# 不能与覆盖率输出目录同名而被整体忽略——否�?CI checkout 后用例文件缺失�?!fixtures/coverage/
 .unpackage/
 unpackage/
 .hbuilderx/
@@ -45,8 +44,7 @@ certificates/
 !.vscode/extensions.json
 !.vscode/settings.example.json
 
-# Agent workspace state（本地工作记录，不进产品仓库）
-.workbuddy-ai/
+# Agent workspace state（本地工作记录，不进产品仓库�?.workbuddy-ai/
 .workbuddy/
 
 # User/private data
@@ -84,15 +82,13 @@ tmp/
 # Agent scratch / toolchain probes（临时工具与探测输出，禁止提交）
 .tmp_audit/
 
-# Gradle / Android local build state（机器相关，禁止提交）
-.gradle/
+# Gradle / Android local build state（机器相关，禁止提交�?.gradle/
 local.properties
 .kotlin/
 *.hprof
 captures/
 
-# HarmonyOS / DevEco local build state（机器相关，禁止提交）
-.hvigor/
+# HarmonyOS / DevEco local build state（机器相关，禁止提交�?.hvigor/
 oh_modules/
 .hvigorw/
 entry/build/
@@ -105,57 +101,47 @@ reports/
 *.mutbak
 
 # Android 截图 / adb 取证输出（可能含真实界面内容，禁止入库）
-# 注意：不全局忽略 *.png —— app/src/main/res/drawable/ 里的图标资产必须入库。
-*.png.tmp
+# 注意：不全局忽略 *.png —�?app/src/main/res/drawable/ 里的图标资产必须入库�?*.png.tmp
 */screenshots/evidence/
 
-# Gradle 配置缓存与本地镜像
-.gradle-cache/
+# Gradle 配置缓存与本地镜�?.gradle-cache/
 
-# Agent session metadata（.pi/ 是执行 Agent 的会话/目标草稿，不是产品产物）
+# Agent session metadata�?pi/ 是执�?Agent 的会�?目标草稿，不是产品产物）
 # 默认不入生产仓库；若将来需要把某些条目固化为正式工程记录，
-# 应当把它们移出 .pi/ 放到 docs/ 或根目录，而不是放开整个目录。
-.pi/
+# 应当把它们移�?.pi/ 放到 docs/ 或根目录，而不是放开整个目录�?.pi/
 
 # ---------------------------------------------------------------------------
-# GitHub 发布前增量（2026-09-17，A3）—— 审计后增量补齐，未覆盖既有规则
-# ---------------------------------------------------------------------------
+# GitHub 发布前增量（2026-09-17，A3）—�?审计后增量补齐，未覆盖既有规�?# ---------------------------------------------------------------------------
 
-# .depmap 加密容器本体（明文/密文备份一律不入库；canonical golden 走 spec/fixtures）
-*.depmap
+# .depmap 加密容器本体（明�?密文备份一律不入库；canonical golden �?spec/fixtures�?*.depmap
 
-# 设备取证输出（logcat / adb 导出，可能含真实界面内容）
-logcat*
+# 设备取证输出（logcat / adb 导出，可能含真实界面内容�?logcat*
 adb_logcat*
 
-# iOS / Xcode 本地状态（N4 之前先立规则，避免将来误入库）
-DerivedData/
+# iOS / Xcode 本地状态（N4 之前先立规则，避免将来误入库�?DerivedData/
 .swiftpm/
 .build/
 xcuserdata/
 *.xcuserstate
 *.xcworkspace
 
-# HarmonyOS 产物与本地状态补充
-*.hap
+# HarmonyOS 产物与本地状态补�?*.hap
 *.hsp
 *.har
 **/oh_modules/
 **/.hvigor/
 **/.preview/
 
-# Python 取证脚本缓存（local_private/ 下的 e2e 驱动）
-__pycache__/
+# Python 取证脚本缓存（local_private/ 下的 e2e 驱动�?__pycache__/
 *.pyc
 
-# 编辑器 / 工具临时文件
+# 编辑�?/ 工具临时文件
 *.swp
 *.swo
 *~
 
 # Harmony / native 取证临时输出（工具链探测、Gate 日志、符号转储）
-# 注意：只忽略根目录下的临时 txt/日志，不忽略 docs/ 与 spec/ 下的正式记录。
-/pdig-*.txt
+# 注意：只忽略根目录下的临�?txt/日志，不忽略 docs/ �?spec/ 下的正式记录�?/pdig-*.txt
 /pdig-*.log
 /.probe-*.txt
 /ar2gate-out.txt
@@ -166,4 +152,5 @@ __pycache__/
 /x86h.txt
 
 
-# Agent local work (UI/UX refinement).agent-work/
+# Agent local work (UI/UX refinement)
+.agent-work/
