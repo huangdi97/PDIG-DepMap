@@ -37,8 +37,16 @@ fun main(args: Array<String>) {
     if (args.contains("--profiles") || args.contains("--keys")) {
         val repo = findRepoRoot(File(".").absoluteFile)
             ?: error("desktop closure 需要在仓库内运行以读取 fixtures/")
-        val outRoot = File(repo, "artifacts/runtime-evidence/2026-09-27-closure-desktop").apply { mkdirs() }
-        val exit = if (args.contains("--profiles")) ProfileDriver.run(repo, outRoot) else KeyboardDriver.run(repo, outRoot)
+        // UIUX 精修轮：允许用环境变量把取证输出重定向到新的证据目录，
+        // 默认行为不变（既有调用方照旧写回历史 closure 目录）。
+        val overrideRoot = System.getenv("PDIG_UIUX_EVIDENCE_ROOT")?.takeIf { it.isNotBlank() }
+        val outRoot =
+            if (overrideRoot != null) File(overrideRoot)
+            else File(repo, "artifacts/runtime-evidence/2026-09-27-closure-desktop")
+        outRoot.mkdirs()
+        val exit =
+            if (args.contains("--profiles")) ProfileDriver.run(repo, outRoot)
+            else KeyboardDriver.run(repo, outRoot)
         kotlin.system.exitProcess(exit)
         return
     }
