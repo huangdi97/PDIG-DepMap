@@ -88,8 +88,6 @@ internal fun ImportDoneStep(ui: UiState) {
         }
         Column {
             SectionDivider("导入结果")
-            InfoRow("来源实例", result.sourceInstanceId)
-            InfoRow("导入会话", result.importSessionId)
             InfoRow("原始记录数", result.rawCount.toString())
             InfoRow("新增唯一记录", result.newUniqueCount.toString())
             InfoRow("重复记录", result.duplicateCount.toString())

@@ -10,6 +10,7 @@ import com.pdig.desktop.security.DeviceUnlockStore
 import com.pdig.desktop.security.WindowsDpapiSecurityPort
 import com.pdig.desktop.ui.PDIGAppShell
 import com.pdig.desktop.ui.UiState
+import com.pdig.desktop.ui.theme.PDIGTheme
 import java.io.File
 
 private const val VERSION = "0.3.1"
@@ -57,7 +58,9 @@ fun main(args: Array<String>) {
             state = rememberWindowState(width = 1100.dp, height = 720.dp),
         ) {
             val ui = rememberUiState()
-            PDIGAppShell(ui)
+            PDIGTheme {
+                PDIGAppShell(ui)
+            }
         }
     }
 }
