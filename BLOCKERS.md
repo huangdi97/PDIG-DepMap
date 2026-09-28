@@ -12,7 +12,8 @@
 >   perf large-synthetic 阈值（<10s）在并行负载下偶发超时；隔离复跑 6951/7017/3851ms 均 PASS，
 >   stability 3×green 回退既有证据；desktop --keys 本会话窗口无法获焦（11 项 FAIL），
 >   production tree 零行为变化，回退既有证据 + provenance。
->> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**：
+>
+> > **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**：
 >
 > - E-6 `PRIVACY_URL` / `SUPPORT_URL` —— **已解决**（`website/` 已建成并公开部署；
 >   `https://huangdi97.github.io/PDIG-DepMap/privacy/` 与 `/support/` 及自定义域
