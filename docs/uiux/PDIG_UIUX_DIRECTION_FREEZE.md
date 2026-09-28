@@ -35,6 +35,7 @@ calm · precise · trustworthy · structured · private · native · quiet · cl
 ## 4. Home = Personal Infrastructure Briefing（非 Dashboard of boxes）
 
 信息顺序（自上而下；不存在的块给出「清楚的范围说明」，不显示空卡片）：
+
 1. 需要你处理（attention/action 行，图标+文案+去往）
 2. 基础设施薄弱点（findings 摘要：1-3 条强摘要 + 去 Findings）
 3. 可能发生了变化（drift/待确认 counts 的紧凑行）
@@ -77,16 +78,16 @@ Healthy state：不显示 "0 issues" 或健康分；显示「当前没有需要�
 
 ## 9. Status 体系（spec §46）
 
-| 状态 | icon/shape | label（copy-zh） | color |
-| --- | --- | --- | --- |
-| blocked（必须处理） | ⛔/! (danger icon) | 还有必须处理的事项 | danger |
-| review_required | ⚠ | 还有信息需要确认 | warning |
-| ready_with_known_scope | ✓ | 基于当前信息，可以继续。 | success |
-| verifying | ↻（clock） | 待验证 | info |
-| verified | ✓✓（双勾） | 已验证 | success（强） |
-| completed（≠verified） | ✓ 单勾 | 已完成 | textSecondary（弱于 verified） |
-| unknown | ? | 还不了解 | textTertiary |
-| cancelled | – | 已取消 | textTertiary |
+| 状态                   | icon/shape         | label（copy-zh）         | color                          |
+| ---------------------- | ------------------ | ------------------------ | ------------------------------ |
+| blocked（必须处理）    | ⛔/! (danger icon) | 还有必须处理的事项       | danger                         |
+| review_required        | ⚠                  | 还有信息需要确认         | warning                        |
+| ready_with_known_scope | ✓                  | 基于当前信息，可以继续。 | success                        |
+| verifying              | ↻（clock）         | 待验证                   | info                           |
+| verified               | ✓✓（双勾）         | 已验证                   | success（强）                  |
+| completed（≠verified） | ✓ 单勾             | 已完成                   | textSecondary（弱于 verified） |
+| unknown                | ?                  | 还不了解                 | textTertiary                   |
+| cancelled              | –                  | 已取消                   | textTertiary                   |
 
 verified 必须视觉与语义上都强于 completed（spec §36）。影响页 must_change 视觉突出 ≠ needs_review 为 warning（spec §33）。
 

@@ -5,27 +5,28 @@
 
 ## 1. Color
 
-| Role | Light | Dark | 用途 |
-| --- | --- | --- | --- |
-| primary (indigo) | #4C4FD8 | #8B8EF5 | 品牌/主 CTA/选中/链接（品牌色冻结不动） |
-| primaryActive | #3B3EB8 | #A5A7F8 | 按压态 |
-| primarySoft | #EEEEFB | #242541 | 图标底/轻 accent |
-| background | #F5F6FA | #12131A | 页面底色（不再被 surfaceVariant 条取代） |
-| surface | #FFFFFF | #1C1E28 | 面板/内容容器 |
-| surfaceElevated | #FFFFFF | #232633 | 浮层/对话框 |
-| surfaceVariant（新语义：surfaceLow） | #EDEFF6 | #232633 | 不可交互的底层容器（少用） |
-| textPrimary | #1B1D29 | #F2F3F7 | 主要文本 |
-| textSecondary | #5A5F73 | #B4B9C9 | 次要文本 |
-| textTertiary | #8A90A6 | #828799 | 元信息/占位 |
-| border | #E6E8F0 | #2C2F3D | hairline 分隔（替代 surfaceVariant 填底） |
-| success | #2BA471 | #3FBF87 | verified/ready/well-evidenced |
-| warning | #D98E04 | #E0A63A | review_required/needs_revalidation |
-| danger | #D54941 | #E4695F | blocked/must-change/failed |
-| info | #3B6FD8 | #5B8CE8 | verifying/partial |
-| disabled | #B9BDCC | #4A4E5E | 禁用 |
-| focusRing | #4C4FD8 | #A5A7F8 | 键盘焦点（桌面 2dp ring + offset） |
+| Role                                 | Light   | Dark    | 用途                                      |
+| ------------------------------------ | ------- | ------- | ----------------------------------------- |
+| primary (indigo)                     | #4C4FD8 | #8B8EF5 | 品牌/主 CTA/选中/链接（品牌色冻结不动）   |
+| primaryActive                        | #3B3EB8 | #A5A7F8 | 按压态                                    |
+| primarySoft                          | #EEEEFB | #242541 | 图标底/轻 accent                          |
+| background                           | #F5F6FA | #12131A | 页面底色（不再被 surfaceVariant 条取代）  |
+| surface                              | #FFFFFF | #1C1E28 | 面板/内容容器                             |
+| surfaceElevated                      | #FFFFFF | #232633 | 浮层/对话框                               |
+| surfaceVariant（新语义：surfaceLow） | #EDEFF6 | #232633 | 不可交互的底层容器（少用）                |
+| textPrimary                          | #1B1D29 | #F2F3F7 | 主要文本                                  |
+| textSecondary                        | #5A5F73 | #B4B9C9 | 次要文本                                  |
+| textTertiary                         | #8A90A6 | #828799 | 元信息/占位                               |
+| border                               | #E6E8F0 | #2C2F3D | hairline 分隔（替代 surfaceVariant 填底） |
+| success                              | #2BA471 | #3FBF87 | verified/ready/well-evidenced             |
+| warning                              | #D98E04 | #E0A63A | review_required/needs_revalidation        |
+| danger                               | #D54941 | #E4695F | blocked/must-change/failed                |
+| info                                 | #3B6FD8 | #5B8CE8 | verifying/partial                         |
+| disabled                             | #B9BDCC | #4A4E5E | 禁用                                      |
+| focusRing                            | #4C4FD8 | #A5A7F8 | 键盘焦点（桌面 2dp ring + offset）        |
 
 ### 对比度核验（全部 ≥4.5:1 正文 / ≥3:1 大字）
+
 - textPrimary on surface/background：light ≈13.4:1 / dark ≈15.2:1 ✓
 - textSecondary on surface：light ≈6.0:1 / dark ≈6.3:1 ✓
 - textTertiary on surface：light ≈3.2:1 → **仅用于元信息/辅助文字（并 ≥3:1 大字标准）**；正文一律 textPrimary/Secondary
@@ -34,16 +35,16 @@
 
 ## 2. Typography（system / CJK，禁远程字体）
 
-| Role | Desktop | Mobile | Weight | 用途 |
-| --- | --- | --- | --- | --- |
-| pageTitle | 24 | 20 | 600/700 | 页面标题 |
-| sectionTitle | 15 | 16 | 600 | 小节标题 + hairline |
-| body | 14 | 16 | 400 | 正文 |
-| secondary | 12.5 | 13 | 400 | 副文本/描述 |
-| meta | 12 | 12 | 400 | 时间/来源等元信息 |
-| label | 12 | 12 | 500 | 状态/徽标文字 |
-| button | 14 | 14 | 500 | 按钮/CTA |
-| mono（少量数据专用） | 12.5 | 12 | 400 | 关键 ID/数字对齐（非装饰） |
+| Role                 | Desktop | Mobile | Weight  | 用途                       |
+| -------------------- | ------- | ------ | ------- | -------------------------- |
+| pageTitle            | 24      | 20     | 600/700 | 页面标题                   |
+| sectionTitle         | 15      | 16     | 600     | 小节标题 + hairline        |
+| body                 | 14      | 16     | 400     | 正文                       |
+| secondary            | 12.5    | 13     | 400     | 副文本/描述                |
+| meta                 | 12      | 12     | 400     | 时间/来源等元信息          |
+| label                | 12      | 12     | 500     | 状态/徽标文字              |
+| button               | 14      | 14     | 500     | 按钮/CTA                   |
+| mono（少量数据专用） | 12.5    | 12     | 400     | 关键 ID/数字对齐（非装饰） |
 
 行高：正文 1.45，多行 1.5；行宽桌面 ≤680px。
 
@@ -64,19 +65,19 @@ sm=6（chip/小徽标）、md=8（卡片/输入/按钮）、lg=12（对话框/�
 
 ## 6. Iconography（native icons / vector，禁远程 CDN，禁 emoji 图标）
 
-| 语义 | Icon 建议 |
-| --- | --- |
-| blocked / must-change | error/warning 圆（!） |
-| review_required | warning triangle |
-| ready / ok | check circle |
-| verifying | progress/clock |
-| verified | check circle double（或实心 check） |
-| completed | check（无圆） |
-| unknown | question mark |
-| 去往/动作 | arrow-right / chevron |
-| 场景 | scenario-wand / credit-card / phone |
-| 基础设施 | account-circle / device / email |
-| 本地安全 | lock / shield |
+| 语义                  | Icon 建议                           |
+| --------------------- | ----------------------------------- |
+| blocked / must-change | error/warning 圆（!）               |
+| review_required       | warning triangle                    |
+| ready / ok            | check circle                        |
+| verifying             | progress/clock                      |
+| verified              | check circle double（或实心 check） |
+| completed             | check（无圆）                       |
+| unknown               | question mark                       |
+| 去往/动作             | arrow-right / chevron               |
+| 场景                  | scenario-wand / credit-card / phone |
+| 基础设施              | account-circle / device / email     |
+| 本地安全              | lock / shield                       |
 
 图标尺寸：桌面 16-18dp，移动 20-24dp（iOS SF 用 medium/bold weight；Android Material Icons；Harmony 系统图标或 vector）。
 
@@ -85,6 +86,7 @@ sm=6（chip/小徽标）、md=8（卡片/输入/按钮）、lg=12（对话框/�
 ```
 [icon] [label文字] （颜色作第三通道，不唯一）
 ```
+
 - StatusBadge（桌面/卡片内）：icon 14 + label 12/500，色 = 语义色 text 或 soft 底 + 深色字（保证对比）。
 - StatusRow（列表行内）：icon 16 + label 13/500。
 - 色板：blocked=danger、review_required=warning、verifying=info、ready=success、verified=success（强，双勾）、completed=textSecondary（单勾，弱于 verified）、unknown=textTertiary(?)、cancelled=textTertiary(–)。
@@ -123,12 +125,14 @@ sm=6（chip/小徽标）、md=8（卡片/输入/按钮）、lg=12（对话框/�
 ## 13. Findings 行
 
 默认三行结构：
+
 ```
 [状态icon] 标题(14/600)
            一句人话解释（13/400 secondary）
            [下一步建议→]（12/500 action，可点）
 可展开：是什么(what) / 为什么(why) / 基于什么确认 / 还不知道什么 / 可能影响什么
 ```
+
 颜色强调 must_change；其余中性。
 
 ## 14. Continuity Rail（旗舰）
@@ -137,6 +141,7 @@ sm=6（chip/小徽标）、md=8（卡片/输入/按钮）、lg=12（对话框/�
 step1 ●──step2 ●──step3 ●── step4(verification) ◎── step5 …
       done  done    blocked            verifying        upcoming
 ```
+
 - 节点：完成=实心 check 圆（success）；当前=空心圆+编号（primary）；阻止=圆+!+danger；待验证=时钟圆（info）；未来=灰空心。
 - 连线：完成段实线 success，未完成段虚灰线；闸门说明块（「新手机号验证通过后才能停用旧手机号」）在禁用步骤上方 13/400 secondary。
 - 步骤下可挂子卡片（只在该步骤有内容时）。

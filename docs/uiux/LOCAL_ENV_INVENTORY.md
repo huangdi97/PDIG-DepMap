@@ -4,23 +4,23 @@
 
 ## 结论概览
 
-| 项 | 状态 | 证据 |
-| --- | --- | --- |
-| Windows 11 / 26200 | PRESENT | `[System.Environment]::OSVersion` → Microsoft Windows NT 10.0.26200 |
-| CPU / RAM | Intel i5-12400F / 31.8 GB | Win32_Processor / TotalPhysicalMemory |
-| git | 2.55.0.windows.5 | `git --version` |
-| node / npm | v22.15.0 / 11.3.0 | `node --version` `npm --version` |
-| Java / JDK | OpenJDK 21.0.12.1 LTS | `java -version` |
-| Gradle | 8.9（wrapper 锁定，首次构建经 proxy 下载） | `android/gradle/wrapper/gradle-wrapper.properties`；`android/.gradle/8.9` |
-| Android SDK | `D:\Code\Android\SDK`（ANDROID_HOME） | env |
-| platform-tools / adb | 1.0.41 | `adb version` |
-| system-images | android-34 / 35 / 36（google_apis x86_64；android-35 还有 playstore） | SDK/system-images |
-| AVD | `main`（pixel_7, android-36, 1080×2400, 420dpi, x86_64）+ `zhishen_rc`（android-35） | `emulator -list-avds`；`D:\avdhome`（ANDROID_AVD_HOME） |
-| 模拟器加速 | WHPX 可用 | `emulator-check accel` → 0/WHPX usable |
-| DevEco Studio / Harmony SDK / hdc | ABSENT | 搜索 `C:\Program Files\Huawei` 等均不存在；`Get-Command hdc` 为空 |
-| 本机浏览器 | Chrome + Edge | Program Files 探测 |
-| iOS / Xcode | ABSENT（Windows 宿主） | 平台现实：iOS 运行验证走既有 GitHub Actions macOS workflow（E-8） |
-| Core 测试工具链 | `core/` npm scripts 完整，node_modules 已存在 | `core/package.json` |
+| 项                                | 状态                                                                                 | 证据                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| Windows 11 / 26200                | PRESENT                                                                              | `[System.Environment]::OSVersion` → Microsoft Windows NT 10.0.26200       |
+| CPU / RAM                         | Intel i5-12400F / 31.8 GB                                                            | Win32_Processor / TotalPhysicalMemory                                     |
+| git                               | 2.55.0.windows.5                                                                     | `git --version`                                                           |
+| node / npm                        | v22.15.0 / 11.3.0                                                                    | `node --version` `npm --version`                                          |
+| Java / JDK                        | OpenJDK 21.0.12.1 LTS                                                                | `java -version`                                                           |
+| Gradle                            | 8.9（wrapper 锁定，首次构建经 proxy 下载）                                           | `android/gradle/wrapper/gradle-wrapper.properties`；`android/.gradle/8.9` |
+| Android SDK                       | `D:\Code\Android\SDK`（ANDROID_HOME）                                                | env                                                                       |
+| platform-tools / adb              | 1.0.41                                                                               | `adb version`                                                             |
+| system-images                     | android-34 / 35 / 36（google_apis x86_64；android-35 还有 playstore）                | SDK/system-images                                                         |
+| AVD                               | `main`（pixel_7, android-36, 1080×2400, 420dpi, x86_64）+ `zhishen_rc`（android-35） | `emulator -list-avds`；`D:\avdhome`（ANDROID_AVD_HOME）                   |
+| 模拟器加速                        | WHPX 可用                                                                            | `emulator-check accel` → 0/WHPX usable                                    |
+| DevEco Studio / Harmony SDK / hdc | ABSENT                                                                               | 搜索 `C:\Program Files\Huawei` 等均不存在；`Get-Command hdc` 为空         |
+| 本机浏览器                        | Chrome + Edge                                                                        | Program Files 探测                                                        |
+| iOS / Xcode                       | ABSENT（Windows 宿主）                                                               | 平台现实：iOS 运行验证走既有 GitHub Actions macOS workflow（E-8）         |
+| Core 测试工具链                   | `core/` npm scripts 完整，node_modules 已存在                                        | `core/package.json`                                                       |
 
 ## 与 spec §55 的对照
 

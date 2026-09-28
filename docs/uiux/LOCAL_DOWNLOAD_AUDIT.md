@@ -4,15 +4,15 @@
 
 ## 总览
 
-| # | 项 | 必要性 | 来源 | 版本 | 网络大小 | 状态 |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | Gradle 8.9 distribution | 项目锁定依赖还原（spec §62「project dependency restore」：necessary / project-scoped / version locked；本机无全局 gradle） | services.gradle.org → GitHub release 307 重定向 | 8.9-bin | ≈130 MB | DOWNLOADED（经本地代理 127.0.0.1:10808；JVM `_JAVA_OPTIONS`） |
-| 2 | Gradle/Maven 声明依赖（core/conformance/app + Compose Desktop 插件与依赖） | 项目声明依赖还原 | mavenCentral / google / gradlePluginPortal（均项目声明、版本锁定） | 各 build 文件锁定版本 | — | RESTORED（`gradlew :app:jar` 与 android 构建所需） |
-| 3 | Android SDK system-image / AVD | 不需要（已有 API36 `main` AVD） | — | — | 0 | N/A |
-| 4 | Skill（ui-ux-pro-max / impeccable / frontend-design） | 已装，不重装不更新（spec §9） | 本机 `~/.agents/skills/` | 见 UIUX_SKILL_USAGE_AUDIT.md | 0 | N/A |
-| 5 | 字体 / 图标 / stock art / AI 装饰包 | 禁止（spec §63、§42：noRemoteFonts/SVG/native icons） | — | — | 0 | 未下载 |
-| 6 | iOS 工具链 | 禁止（spec §60：Windows 宿主不下载 macOS VM / 黑苹果 / 第三方 remote Mac）；CI 用仓库既有 workflow | — | — | 0 | N/A |
-| 7 | Harmony DevEco / 模拟器镜像 | 外部门禁（BLOCKERS E-9：需华为账号 + DevEco 登录）。本机无 DevEco；**未尝试反复下载随机镜像**（spec §59） | — | — | 0 | EXTERNAL_GATE |
+| #   | 项                                                                         | 必要性                                                                                                                     | 来源                                                               | 版本                         | 网络大小 | 状态                                                          |
+| --- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------- | -------- | ------------------------------------------------------------- |
+| 1   | Gradle 8.9 distribution                                                    | 项目锁定依赖还原（spec §62「project dependency restore」：necessary / project-scoped / version locked；本机无全局 gradle） | services.gradle.org → GitHub release 307 重定向                    | 8.9-bin                      | ≈130 MB  | DOWNLOADED（经本地代理 127.0.0.1:10808；JVM `_JAVA_OPTIONS`） |
+| 2   | Gradle/Maven 声明依赖（core/conformance/app + Compose Desktop 插件与依赖） | 项目声明依赖还原                                                                                                           | mavenCentral / google / gradlePluginPortal（均项目声明、版本锁定） | 各 build 文件锁定版本        | —        | RESTORED（`gradlew :app:jar` 与 android 构建所需）            |
+| 3   | Android SDK system-image / AVD                                             | 不需要（已有 API36 `main` AVD）                                                                                            | —                                                                  | —                            | 0        | N/A                                                           |
+| 4   | Skill（ui-ux-pro-max / impeccable / frontend-design）                      | 已装，不重装不更新（spec §9）                                                                                              | 本机 `~/.agents/skills/`                                           | 见 UIUX_SKILL_USAGE_AUDIT.md | 0        | N/A                                                           |
+| 5   | 字体 / 图标 / stock art / AI 装饰包                                        | 禁止（spec §63、§42：noRemoteFonts/SVG/native icons）                                                                      | —                                                                  | —                            | 0        | 未下载                                                        |
+| 6   | iOS 工具链                                                                 | 禁止（spec §60：Windows 宿主不下载 macOS VM / 黑苹果 / 第三方 remote Mac）；CI 用仓库既有 workflow                         | —                                                                  | —                            | 0        | N/A                                                           |
+| 7   | Harmony DevEco / 模拟器镜像                                                | 外部门禁（BLOCKERS E-9：需华为账号 + DevEco 登录）。本机无 DevEco；**未尝试反复下载随机镜像**（spec §59）                  | —                                                                  | —                            | 0        | EXTERNAL_GATE                                                 |
 
 **UNNECESSARY_DOWNLOAD_COUNT = 0**（唯一下载 #1 为项目锁定依赖还原，属 spec §62 允许类别，且逐项记录）。
 
