@@ -1,5 +1,13 @@
 # BLOCKERS.md
 
+> **UI/UX Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）新增/确认的真实外部 Gate（不阻塞本轮，不影响 product-v0.3.1）：**
+>
+> - `IOS_RUNTIME_EXTERNAL_GATE`：本机 Windows 无 Swift/Xcode；iOS 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml）。
+> - `HARMONY_RUNTIME_EXTERNAL_GATE`：无 DevEco 模拟器镜像/真机（华为账号）；HAP 构建已 PASS，runtime 视觉需设备。
+> - `VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW`（spec §99 诚实门）：BEFORE/AFTER 证据齐备（Desktop 80 帧 + Android 42 帧 + 浏览器画廊），审美 PASS 由用户查看截图后判定。
+> - 环境注记（非 blocker）：Android AVD 在长会话高负载下偶发不稳定（截图取证采用同会话原子流程）；Desktop `--keys` Robot 注入受会话窗口焦点限制（代码面 focusable + 导航顺序已兜底）。
+>
+---
 > **product-v0.3.1（corrective closure，2026-09-28）**：
 >
 > - Windows 已发布二进制图标默认问题 —— **本轮已解决（§7）**：setup.exe / PDIG.exe 均嵌入

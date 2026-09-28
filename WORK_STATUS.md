@@ -1,6 +1,10 @@
 # WORK_STATUS.md
 
-> **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
+> **（当前）PDIG v0.3.1 UI/UX Visual Design Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）**
+> —— 冻结方向「Quiet Infrastructure / Calm Control Plane」，Signature Motif = Continuity Rail。四平台落地：Desktop（主题+壳+旗舰屏全量重构）、Android（screens 层重构）、iOS（PdigTheme+PdigComponents 源码落地）、Harmony（Index 首页工程化，assembleHap PASS）。spec/ui tokens v1.1 + copy-zh uiuxV031 additive。回归：core 487 tests 全绿（architecture 0 环 / network 0 / secrets 0 / UI gate PASS）、desktop smoke PASS + profiles 80 帧、android compile+unit 绿 + AVD 42 帧、harmony HAP build PASS。外部门禁如实：iOS runtime 走 macOS CI、Harmony runtime 无设备、VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW（诚实门，BEFORE/AFTER 证据齐备待人工复核）。详见 docs/uiux/（10 份）+ artifacts/runtime-evidence/2026-09-28-uiux-{baseline,refinement}/。
+
+---
+
 >
 > - 基线：`5781ce6`（= 进入本轮的 HEAD/main/origin/main）；release 分支 `release/product-v0.3.1`。
 > - 变更审计：`V0_3_0_TO_V0_3_1_CHANGE_AUDIT.md`（187 文件分类；NO_V0_4_SCOPE / NO_NEW_SCENARIO / NO_NEW_CAPABILITY / NO_DOMAIN_SCOPE_EXPANSION = PASS）；`PRE_RELEASE_BASELINE.md`。
