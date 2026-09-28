@@ -26,9 +26,9 @@ fun AboutScreen(nav: NavController) {
         ) {
             Text("PDIG", style = PdigTokens.Display)
             Text("个人数字基础设施图谱", style = PdigTokens.Body)
-            Text("版本 0.1.0-milestone（Native Migration）", style = PdigTokens.Caption,
+            Text("版本 0.3.1", style = PdigTokens.Caption,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            EmptyState("本版本为原生迁移内部里程碑版本，不是对外正式发布版本。")
+            EmptyState("数据默认留在本机，不上传任何服务器。")
         }
     }
 }

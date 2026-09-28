@@ -150,7 +150,7 @@ class UiScreenshotEvidenceTest {
             try {
                 attempts++
                 compose.waitForIdle()
-                Thread.sleep(1800)
+                Thread.sleep(3500)
                 compose.waitForIdle()
                 val bmp = compose.onRoot().captureToImage().asAndroidBitmap()
                 val theme = if (current.dark) "dark" else "light"
