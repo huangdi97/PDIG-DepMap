@@ -154,3 +154,16 @@ xcuserdata/
 
 # Agent local work (UI/UX refinement)
 .agent-work/
+
+# Build-state dirs (repo-local, never commit)
+**/.gradle/
+**/.kotlin/
+**/.hvigor/
+**/oh_modules/
+**/node_modules/
+
+# Agent/tooling workspace state
+.pi/
+.workbuddy-ai/
+.workbuddy/
+.tmp_audit/
