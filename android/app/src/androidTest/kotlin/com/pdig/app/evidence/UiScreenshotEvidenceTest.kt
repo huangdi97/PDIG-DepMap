@@ -42,6 +42,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
 import android.graphics.Bitmap
+import android.util.Log
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.test.onNodeWithTag
+import com.pdig.uivnext.VNextApp
+import com.pdig.uivnext.createVNextAppState
+import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.ui.VAppState
 
 /**
  * 2026-09-26 multiclient sweep: per-page visual evidence on the API36 AVD.
@@ -234,5 +241,117 @@ class UiScreenshotEvidenceTest {
             }
         }
         assertTrue("expected 40 screenshots, found ${outDir.listFiles()?.size}", (outDir.listFiles()?.size ?: 0) >= 40)
+    }
+
+    // ---------------------------------------------------------------------------
+    // UI vNext 演示层证据（2026-09-29）：10 屏截图 + wide 布局 2 张 + testTag geometry probe。
+    // 纯 synthetic fixture（com.pdig.uivnext.*），不触碰真实 repos；不删不改既有测试/断言。
+    // ---------------------------------------------------------------------------
+    private var vnextSlot by mutableStateOf<(@Composable () -> Unit)?>(null)
+
+    private fun captureVNext(pageId: String, seq: Int) {
+        var attempts = 0
+        while (true) {
+            try {
+                attempts++
+                compose.waitForIdle()
+                Thread.sleep(1500)
+                compose.waitForIdle()
+                val bmp = compose.onRoot().captureToImage().asAndroidBitmap()
+                val name = "android__phone-api36__vnext__dark__${pageId}__%02d.png".format(seq)
+                val f = File(outDir, name)
+                f.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                assertTrue("vnext screenshot must be non-empty: ${f.name}", f.isFile && f.length() > 0)
+                try {
+                    val cv = ContentValues().apply {
+                        put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                        put(MediaStore.MediaColumns.MIME_TYPE, "image/png")
+                        put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/ui-shots")
+                    }
+                    val uri = ctx().contentResolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, cv)
+                    if (uri != null) {
+                        val bos = java.io.ByteArrayOutputStream()
+                        bmp.compress(Bitmap.CompressFormat.PNG, 100, bos)
+                        ctx().contentResolver.openOutputStream(uri)?.use { it.write(bos.toByteArray()) }
+                    }
+                } catch (_: Throwable) {
+                    // best-effort: filesDir copy is the source of truth for the in-test assert
+                }
+                return
+            } catch (t: Throwable) {
+                if (attempts >= 3) {
+                    throw IllegalStateException("vnext capture failed for page=$pageId seq=$seq after 3 attempts", t)
+                }
+                Thread.sleep(2000)
+            }
+        }
+    }
+
+    /** testTag geometry probe：boundsInRoot（与 desktop UI_LAYOUT_PROBE 同语义）。 */
+    private fun probeTag(tag: String): Rect {
+        compose.waitForIdle()
+        val node = compose.onNodeWithTag(tag).fetchSemanticsNode()
+        Log.i("UiVNextEvidence", "probe ${node.boundsInRoot} tag=$tag")
+        return node.boundsInRoot
+    }
+
+    @Test
+    fun capturesVNextDemoScreens_andProbesKeyTestTags() {
+        var seq = 0
+        val screens = listOf<Pair<String, (VAppState) -> Unit>>(
+            "now" to {},
+            "infrastructure-overview" to { app -> app.navigate(VScreen.OVERVIEW) },
+            "cards" to { app -> app.navigate(VScreen.CARDS) },
+            "card-detail" to { app -> app.openCard("card-cn-2") },
+            "numbers" to { app -> app.navigate(VScreen.NUMBERS) },
+            "number-detail" to { app -> app.openNumber("num-cn-1") },
+            "change-phone" to { app -> app.navigate(VScreen.CHANGE_PHONE) },
+            "card-customization" to { app -> app.openCardCustomization("card-cn-1") },
+            "number-customization" to { app -> app.openNumberCustomization("num-cn-1") },
+            "personalization" to { app -> app.navigate(VScreen.PERSONALIZATION) },
+        )
+        compose.setContent { vnextSlot?.invoke() }
+        compose.waitForIdle()
+        // 1) 手机（compact）10 屏截图
+        for ((pageId, prepare) in screens) {
+            val app = createVNextAppState()
+            prepare(app)
+            vnextSlot = { VNextApp(app) }
+            seq++
+            captureVNext(pageId, seq)
+        }
+        // 2) wide 布局截图（rail 形态证据，宽度冻结 1280dp）
+        val wideOverview = createVNextAppState().apply { navigate(VScreen.OVERVIEW) }
+        vnextSlot = { VNextApp(wideOverview, forcedViewportWidthDp = 1280) }
+        seq++
+        captureVNext("overview-wide-1280dp", seq)
+        val wideCards = createVNextAppState().apply { navigate(VScreen.CARDS) }
+        vnextSlot = { VNextApp(wideCards, forcedViewportWidthDp = 1280) }
+        seq++
+        captureVNext("cards-wide-1280dp", seq)
+
+        // 3) testTag geometry probe（wide 冻结 → NavigationRail 存在）
+        val probeApp = createVNextAppState()
+        vnextSlot = { VNextApp(probeApp, forcedViewportWidthDp = 1280) }
+        compose.waitForIdle()
+        val rail = probeTag("pdig.nav.rail")
+        assertTrue("pdig.nav.rail must be laid out in wide shell", rail.width > 0f && rail.height > 0f)
+        probeApp.navigate(VScreen.OVERVIEW)
+        val stage = probeTag("pdig.globe.stage")
+        assertTrue("pdig.globe.stage must be laid out on overview", stage.width > 0f && stage.height > 0f)
+        probeApp.navigate(VScreen.CARDS)
+        val grid = probeTag("pdig.card.grid")
+        assertTrue("pdig.card.grid must be laid out on cards", grid.width > 0f && grid.height > 0f)
+
+        val probeText = buildString {
+            appendLine("pdig.nav.rail: x=${rail.left.toInt()} y=${rail.top.toInt()} w=${rail.width.toInt()} h=${rail.height.toInt()}")
+            appendLine("pdig.globe.stage: x=${stage.left.toInt()} y=${stage.top.toInt()} w=${stage.width.toInt()} h=${stage.height.toInt()}")
+            appendLine("pdig.card.grid: x=${grid.left.toInt()} y=${grid.top.toInt()} w=${grid.width.toInt()} h=${grid.height.toInt()}")
+        }
+        File(File(ctx().filesDir, "ui-shots"), "vnext-testtag-probe.txt").writeText(probeText)
+        Log.i("UiVNextEvidence", "vnext testTag probe:\n$probeText")
+
+        val vnextCount = outDir.listFiles()?.count { it.name.contains("vnext") } ?: 0
+        assertTrue("expected >= 12 vnext screenshots, found $vnextCount", vnextCount >= 12)
     }
 }

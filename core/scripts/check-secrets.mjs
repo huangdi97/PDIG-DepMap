@@ -43,7 +43,7 @@ const SECRET_FILE_PATTERNS = [
 // 只豁免这一条：`spec/ui/design-tokens.json` 是 UI 设计令牌（颜色/间距/字号），
 // 被 `tokens?\.json$` 这条文件名规则误命中。它不是凭证，里面也没有密钥值。
 // 注意：豁免是**路径精确**的，其它任何 `*token*.json` 仍照常命中（见 FILE_ALLOWLIST 的正则锚定）。
-const FILE_ALLOWLIST = [/^spec\/ui\/design-tokens\.json$/]
+const FILE_ALLOWLIST = [/^spec\/ui\/design-tokens\.json$/, /^spec\/ui-vnext\/DESIGN_TOKENS\.json$/]
 
 const CONTENT_PATTERNS = [
   [/-----BEGIN (RSA |EC |OPENSSH |PGP )?PRIVATE KEY-----/, 'private key block'],

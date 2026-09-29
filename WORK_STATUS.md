@@ -1,5 +1,21 @@
 # WORK_STATUS.md
 
+> **（当前）PDIG UI vNext（2026-09-29，feature branch `feat/pdig-ui-vnext`）**
+> —— No-Vision Blind Coding Agent 轮：冻结方向「Global Digital Infrastructure」（dark spatial · deep navy · subtle glass · premium · calm），
+> 契约全量落地于 `spec/ui-vnext/`（29 文件：DESIGN_TOKENS/VISUAL_DNA/IA/LAYOUT_CONTRACT/MOTION_CONTRACT/INTERACTION_CONTRACT/RESPONSIVE_CONTRACT/PRESENTATION_PROFILE_SCHEMA/UIVNextDemoFixture/components 9/screens 10/references）。
+> **Desktop 本机闭环**：`com/pdig/uivnext/**` 全量实现（VNextShell rail 80/188 + top 48、程序化 2.5D Interactive Globe（drag/zoom/hover/click/focus/跨区弧线、offline、深度着色）、10 屏、PresentationProfile、Privacy Mask）+ Main.kt `--vnext`/`--vnext-shots`；
+> `gradlew :app:compileKotlin` BUILD SUCCESSFUL；离屏证据 90 帧（10 屏 × 5 档案 1280x720/1920x1080/2560x1440/@1.25/@1.5；overview+now × 5 `--globe-camera` 预设 global/cn/hk/gb/us）+ UI_LAYOUT_PROBE.json + EVIDENCE_SHA256SUMS.txt + IMAGE_METRICS.json
+> （JDK ImageIO 工具，meanLuminance 0.073–0.135、darkRatio 0.952–0.995、无空 bbox/无全黑；部分帧 blankAreaRatio 0.7–0.96 属深色画布设计预期，留人审）。
+> Token 单一真源：tools/codegen/generate.mjs 扩展 → 四端 GeneratedPdigV2Tokens（desktop+android kt / ios swift / harmony ets），`--check` = CODEGEN GATE PASS（含既有 canonical 零漂移）。
+> core 回归：`npm run check` 全绿（format/lint/typecheck/487 tests/architecture circular=0/network 0/secrets 0/UI gate）；
+> check-secrets.mjs 新增精确豁免 `/^spec\/ui-vnext\/DESIGN_TOKENS\.json$/`（与既有 spec/ui/design-tokens.json 同类惯例）。
+> Skills：ui-ux-pro-max / impeccable / frontend-design 仅用于交互/可访问/密度/反模式/平台适配，**不用于视觉自判**。
+> 诚实门：`VISUAL_CONTRACT_IMPLEMENTATION = PASS`；审美 `VISION_REVIEW = NEEDS_HUMAN_OR_VISION_MODEL`（90 帧评审包已备 artifacts/ui-vnext-review/）；
+> Android/iOS/Harmony 屏幕实现与 LAYOUT_CONTRACT 证据 = PENDING_CONVERGENCE（并行平台 fixer 产出，汇合后补全，不提前写 PASS）。
+> 文档：docs/ui-vnext/（10 份）+ artifacts/ui-vnext-review/（desktop 证据副本 + TOKEN_MANIFEST / REFERENCE_MANIFEST / TEST_RESULTS / VISION_REVIEW_TEMPLATE / IMAGE_METRICS）。
+> 分支纪律：push 前 STOP（不 merge main、不建 tag、不发布、不进 v0.4）；不动 product-v0.3.1 冻结物。
+
+---
 > **（当前）PDIG v0.3.1 UI/UX Visual Design Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）**
 > —— 冻结方向「Quiet Infrastructure / Calm Control Plane」，Signature Motif = Continuity Rail。四平台落地：Desktop（主题+壳+旗舰屏全量重构）、Android（screens 层重构）、iOS（PdigTheme+PdigComponents 源码落地）、Harmony（Index 首页工程化，assembleHap PASS）。spec/ui tokens v1.1 + copy-zh uiuxV031 additive。回归：core 487 tests 全绿（architecture 0 环 / network 0 / secrets 0 / UI gate PASS）、desktop smoke PASS + profiles 80 帧、android compile+unit 绿 + AVD 42 帧、harmony HAP build PASS。外部门禁如实：iOS runtime 走 macOS CI、Harmony runtime 无设备、VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW（诚实门，BEFORE/AFTER 证据齐备待人工复核）。详见 docs/uiux/（10 份）+ artifacts/runtime-evidence/2026-09-28-uiux-{baseline,refinement}/。
 

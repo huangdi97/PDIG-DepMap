@@ -1,5 +1,14 @@
 # BLOCKERS.md
 
+> **UI vNext（2026-09-29，feature branch `feat/pdig-ui-vnext`）新增/确认的真实外部 Gate（不阻塞本轮桌面闭环，汇合后由并行 fixer / 人工解除）：**
+>
+> - `IOS_RUNTIME_EXTERNAL_GATE`：本机 Windows 无 Swift/Xcode；iOS vNext 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml），本机只能交付源码与静态契约证据。
+> - `HARMONY_RUNTIME_EXTERNAL_GATE`：无 hdc / DevEco / 华为模拟器镜像与真机（华为账号）；Harmony vNext 只能 hvigor 构建，runtime 视觉需设备。
+> - `GOLDEN_APPROVAL_GATE`：spec/ui-vnext/golden/ 像素基线**必须 human-approved 后才建立**；当前 `REFERENCE_MANIFEST.json = none-approved`（实现完全来自 Visual Contract）。
+> - `PLATFORM_EVIDENCE_CONVERGENCE`：Android/iOS/Harmony 的 LAYOUT_CONTRACT 实现/证据由并行平台 fixer 产出，汇合后补全（PENDING_CONVERGENCE），不提前写 PASS。
+> - 环境注记（非 blocker）：Desktop 离屏渲染（ImageComposeScene）无真实窗口焦点系统 → 键盘 focus-visible 的 OS 级验证标 `NEEDS_RUNTIME_VERIFICATION`（代码面 focusable 链 + Region List 已兜底）。
+
+---
 > **UI/UX Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）新增/确认的真实外部 Gate（不阻塞本轮，不影响 product-v0.3.1）：**
 >
 > - `IOS_RUNTIME_EXTERNAL_GATE`：本机 Windows 无 Swift/Xcode；iOS 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml）。

@@ -10,6 +10,8 @@ import com.pdig.app.ui.PdigApp
 import com.pdig.app.ui.theme.PDIGTheme
 import com.pdig.app.workflow.FileWorkflowCoordinator
 import com.pdig.app.workflow.LocalFileWorkflow
+import com.pdig.uivnext.VNextApp
+import com.pdig.uivnext.createVNextAppState
 
 /**
  * 单一 Activity + Compose Navigation（spec §53）。无 WebView、无 uni-app runtime。
@@ -73,12 +75,20 @@ class MainActivity : FragmentActivity() {
         }
         coordinator.attachLauncher { mime -> picker.launch(arrayOf(mime)) }
 
+        // vNext 演示壳入口（debug flag，仅 synthetic fixture；不经过锁门 —— 壳内没有任何真实数据可保护）。
+        // 正常 launcher 启动不带该 extra，v0.3.1 锁门流程原样保留（并行存在）。
+        val vnextDemo = intent?.getBooleanExtra("vnext_demo", false) == true
+
         setContent {
-            PDIGTheme {
-                androidx.compose.runtime.CompositionLocalProvider(
-                    LocalFileWorkflow provides coordinator,
-                ) {
-                    PdigApp()
+            if (vnextDemo) {
+                VNextApp(createVNextAppState())
+            } else {
+                PDIGTheme {
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        LocalFileWorkflow provides coordinator,
+                    ) {
+                        PdigApp()
+                    }
                 }
             }
         }
