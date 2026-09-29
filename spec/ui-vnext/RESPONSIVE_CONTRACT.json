@@ -1,0 +1,43 @@
+{
+  "$comment": "PDIG UI vNext Responsive Contract. Semantic consistent across platforms; pixels intentionally differ (spec §88). Desktop anchor 1920x1080 with 1280x720 / 2560x1440 / 125% / 150%.",
+  "specVersion": "2.0.0",
+  "desktop": {
+    "breakpoints": {
+      "wide": { "minWidth": 1920, "columns": 4 },
+      "medium": { "minWidth": 1280, "columns": 3 },
+      "compact": { "minWidth": 0, "columns": 2 }
+    },
+    "requiredProfiles": [
+      { "width": 1920, "height": 1080, "scale": 1.0 },
+      { "width": 2560, "height": 1440, "scale": 1.0 },
+      { "width": 1280, "height": 720, "scale": 1.0 },
+      { "width": 1920, "height": 1080, "scale": 1.25 },
+      { "width": 1920, "height": 1080, "scale": 1.5 }
+    ],
+    "navbar": "collapsible rail (80 collapsed / 188 expanded)",
+    "contentMaxWidth": 1400
+  },
+  "android": {
+    "phone": "bottom nav <=5; compact globe hero; region swipe; attention list; active change",
+    "tabletLarge": "expanded globe",
+    "lightDark": "light/dark both",
+    "fontScale": "no clip, no hidden CTA"
+  },
+  "ios": {
+    "phone": "NavigationStack + List + sheets + toolbar",
+    "ipad": "NavigationSplitView (Infrastructure), expanded globe",
+    "dynamicType": "no clip, no hidden CTA",
+    "lightDark": "light/dark both"
+  },
+  "harmony": {
+    "phone": "ArkUI native",
+    "tablet": "window width adaptation",
+    "globe": "shared spatial spec with platform renderer"
+  },
+  "rules": [
+    "12FV mobile does NOT copy desktop pixel layout",
+    "data readbility unchanged across breakpoints (L3-L5 never glassed)",
+    "touch targets: Android >=48dp, iOS >=44pt",
+    "desktop densities: row 40-48; keyboard-first"
+  ]
+}

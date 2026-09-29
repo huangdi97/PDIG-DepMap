@@ -1,0 +1,7 @@
+{
+  "specVersion": "1.0.0",
+  "policy": "reference images are NOT machine design instructions (spec §16); implementation source is the Visual Contract",
+  "entries": [],
+  "status": "none-approved",
+  "note": "仓库内当前无 human-approved 参考图；实现完全来自 Visual Contract。未来人工批准截图进入 spec/ui-vnext/golden/<platform>/ 后再建立 golden baseline。"
+}

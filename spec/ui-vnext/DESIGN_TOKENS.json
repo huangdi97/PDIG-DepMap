@@ -1,0 +1,176 @@
+{
+  "$comment": "PDIG UI vNext Design Tokens V2 — single source of truth for the vNext visual system (Global Digital Infrastructure: dark spatial · deep navy · subtle glass · premium · calm). Authority: spec/ui-vnext goal §18 baseline. Any token value change requires: (1) write reason in this $comment or a linked ADR, (2) change this file first (spec-first), (3) regenerate platform tokens via tools/codegen. Do NOT hand-edit generated token files. This file is presentation-only and MUST NOT alter Domain Truth, Presentation does not affect node identity / dependencies / evidence / confirmation. v0.3.1 tokens in spec/ui/design-tokens.json remain frozen and untouched.",
+  "specVersion": "2.0.0",
+  "scope": "ui-vnext-feature-branch",
+  "policy": {
+    "noRemoteFonts": true,
+    "noRemoteIconCdn": true,
+    "noRemoteImages": true,
+    "cjkFont": "system",
+    "offlineFirst": true,
+    "colorRule": "Data surfaces MUST use semantic tokens; environment layers (L0-L2) may use glass; glass MUST NOT reduce data readability (L3-L5)",
+    "statusNotColorOnly": true,
+    "privacyRule": "PresentationProfile is a local app preference; NEVER written into .depmap frozen payload",
+    "selfApproval": "FORBIDDEN",
+    "tokenChange": "reason first, spec first, then codegen"
+  },
+  "colors": {
+    "canvas": "#061225",
+    "canvasDeep": "#030A18",
+    "surface": "#0B1A33",
+    "surfaceRaised": "#102340",
+    "surfaceGlass": "rgba(28, 56, 96, 0.54)",
+    "borderSubtle": "rgba(148, 180, 234, 0.13)",
+    "borderStrong": "rgba(116, 161, 255, 0.34)",
+    "primary": "#4D74FF",
+    "primaryBright": "#67A7FF",
+    "primarySoft": "#1C2E55",
+    "textPrimary": "#F4F7FF",
+    "textSecondary": "#A9B8D5",
+    "textMuted": "#7383A3",
+    "positive": "#3BD49B",
+    "warning": "#F4B64B",
+    "critical": "#FA626B",
+    "unknown": "#8C9AB5",
+    "regionNodeHi": "#67A7FF",
+    "regionNodeLo": "rgba(103, 167, 255, 0.35)",
+    "arcActive": "rgba(103, 167, 255, 0.55)",
+    "arcQuiet": "rgba(115, 131, 163, 0.28)",
+    "atmosphereInner": "rgba(77, 116, 255, 0.18)",
+    "atmosphereOuter": "rgba(6, 18, 37, 0.0)"
+  },
+  "semantic": {
+    "$comment": "Semantic aliases; platform code maps these roles, not raw palette names.",
+    "env": {
+      "background": "colors.canvas",
+      "backgroundDeep": "colors.canvasDeep",
+      "glass": "colors.surfaceGlass"
+    },
+    "data": {
+      "panel": "colors.surface",
+      "panelRaised": "colors.surfaceRaised",
+      "divider": "colors.borderSubtle",
+      "dividerStrong": "colors.borderStrong"
+    },
+    "ink": {
+      "strong": "colors.textPrimary",
+      "regular": "colors.textSecondary",
+      "muted": "colors.textMuted"
+    },
+    "status": {
+      "ok": "colors.positive",
+      "warning": "colors.warning",
+      "critical": "colors.critical",
+      "unknown": "colors.unknown"
+    },
+    "focus": "colors.primaryBright"
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 20,
+    "xxl": 24,
+    "xxxl": 32,
+    "pagePadding": 24,
+    "pagePaddingNarrow": 16,
+    "sectionGap": 24,
+    "gridGap": 16,
+    "gridGapWide": 20
+  },
+  "radius": {
+    "sm": 6,
+    "md": 10,
+    "lg": 14,
+    "xl": 18,
+    "pill": 999
+  },
+  "typography": {
+    "pageTitle": { "size": 26, "weight": 700, "lineHeight": 1.25 },
+    "sectionTitle": { "size": 15, "weight": 600, "lineHeight": 1.4 },
+    "body": { "size": 14, "weight": 400, "lineHeight": 1.5 },
+    "secondary": { "size": 13, "weight": 400, "lineHeight": 1.45 },
+    "meta": { "size": 12, "weight": 400, "lineHeight": 1.4 },
+    "label": { "size": 12, "weight": 600, "lineHeight": 1.3 },
+    "statusLabel": { "size": 12, "weight": 600, "lineHeight": 1.3 },
+    "displayGlobe": { "size": 15, "weight": 600, "lineHeight": 1.3 },
+    "mono": { "size": 13, "weight": 400, "lineHeight": 1.4 }
+  },
+  "motion": {
+    "fast": 140,
+    "normal": 200,
+    "slow": 260,
+    "globeFocus": 620,
+    "idleRotationPeriodMs": 90000,
+    "easing": "easeInOutCubic",
+    "reduceMotion": {
+      "idleRotation": "off",
+      "cameraAnimation": "simplified",
+      "arcAnimation": "static"
+    }
+  },
+  "globe": {
+    "preferredSphereDiameterMin": 520,
+    "idleRotationDegPerSec": 0.8,
+    "maxZoom": 1.9,
+    "minZoom": 0.7,
+    "regionAnchorDiameter": 14,
+    "regionAnchorActiveDiameter": 22,
+    "arcCountPolicy": "only real cross-region relations or region infrastructure summary; never decorative",
+    "cameraPresets": ["global", "cn", "hk", "gb", "us"]
+  },
+  "components": {
+    "nav": {
+      "railCollapsedWidth": 80,
+      "railExpandedWidth": 188,
+      "railExpandedMax": 188,
+      "topCommandHeight": 48,
+      "railWidthRange": { "min": 76, "max": 188 }
+    },
+    "page": {
+      "padding": 24,
+      "paddingNarrow": 16,
+      "maxWidth": 1400
+    },
+    "overview": {
+      "globeStageWidthRatio": { "min": 0.55, "max": 0.65 },
+      "globeStageHeightRatio": { "min": 0.65, "max": 0.78 },
+      "activityRailWidth": { "min": 300, "max": 380 },
+      "quickEntryHeight": { "min": 88, "max": 120 }
+    },
+    "cardsGrid": {
+      "columns1920": 4,
+      "columns1280": 3,
+      "columnsSmall": 2,
+      "cardAspectRatio": 1.586,
+      "gap": { "min": 16, "max": 20 }
+    },
+    "cardDetail": {
+      "identityColumnRatio": { "min": 0.3, "max": 0.36 },
+      "infoColumnRatio": { "min": 0.64, "max": 0.7 }
+    },
+    "customization": {
+      "libraryColumnRatio": 0.22,
+      "previewColumnRatio": 0.46,
+      "inspectorColumnRatio": 0.32
+    },
+    "touchTarget": {
+      "android": 48,
+      "ios": 44
+    }
+  },
+  "contrast": {
+    "bodyTextMin": "4.5:1",
+    "largeTextMin": "3:1"
+  },
+  "privacyMask": {
+    "maskCardLast4": true,
+    "maskPhoneNumbers": true,
+    "maskAccountNames": true
+  },
+  "testIds": {
+    "prefixes": ["pdig.nav.", "pdig.globe.", "pdig.region.", "pdig.card.", "pdig.phone.", "pdig.change.", "pdig.customization."],
+    "rule": "same semantic id on all four platforms"
+  }
+}

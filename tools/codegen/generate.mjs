@@ -468,6 +468,167 @@ function emitArkTSRelations() {
 }
 
 // ---------------------------------------------------------------------------
+// PDIG UI vNext Design Tokens（spec/ui-vnext/DESIGN_TOKENS.json → 三端）
+// ---------------------------------------------------------------------------
+
+/** vNext tokens JSON（单一真源；四端不得手写不同蓝色）。 */
+const VNEXT_TOKENS_PATH = join(ROOT, 'spec', 'ui-vnext', 'DESIGN_TOKENS.json')
+const vnext = JSON.parse(readFileSync(VNEXT_TOKENS_PATH, 'utf8'))
+
+/**
+ * JSON 路径（如 ["components","nav","railCollapsedWidth"]）→ 平台常量名。
+ * camelCase 分片 → UPPER_SNAKE（surfaceRaised → SURFACE_RAISED）；
+ * 数字/保留字开头加 V 前缀；非法字符 → '_'。
+ */
+function tokenConstName(path) {
+  const snake = path
+    .map((seg) =>
+      seg
+        .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+        .replace(/[^A-Za-z0-9]+/g, '_')
+        .replace(/^_+|_+$/g, ''),
+    )
+    .filter((s) => s.length > 0)
+    .join('_')
+    .toUpperCase()
+  return /^[0-9]/.test(snake) ? 'V' + snake : snake
+}
+
+/** JSON 路径 → Swift lowerCamel 常量名（如 colorCanvas）。 */
+function tokenSwiftName(path) {
+  const snake = tokenConstName(path)
+  return lowerCamel(snake)
+}
+
+/** 递归摊平 JSON：返回 [{ path: string[], value }]，跳过 $ 开头（如 $comment）。 */
+function flattenTokens(obj, prefix = []) {
+  const out = []
+  for (const key of Object.keys(obj)) {
+    if (key.startsWith('$')) continue
+    const path = [...prefix, key]
+    const v = obj[key]
+    if (v !== null && typeof v === 'object' && !Array.isArray(v)) {
+      out.push(...flattenTokens(v, path))
+    } else {
+      out.push({ path, value: v })
+    }
+  }
+  return out
+}
+
+const FLAT_TOKENS = flattenTokens(vnext)
+
+function tokenHeader(comment, sourceLabel) {
+  return [
+    `${comment} DO NOT EDIT`,
+    `${comment} Generated from ${sourceLabel}`,
+    `${comment} specVersion: ${vnext.specVersion} (ui-vnext tokens)`,
+    `${comment} Generator: tools/codegen/generate.mjs — run \`node tools/codegen/generate.mjs\``,
+    '',
+  ].join('\n')
+}
+
+/** Kotlin 数组字面量（string/number 数组）。 */
+function kotlinArrayLiteral(arr) {
+  return 'arrayOf(' + arr.map((v) => (typeof v === 'number' ? String(v) : dq(String(v)))).join(', ') + ')'
+}
+
+function emitPdigV2TokensKotlin() {
+  const L = []
+  L.push(tokenHeader('//', 'spec/ui-vnext/DESIGN_TOKENS.json'))
+  L.push('package com.pdig.uivnext.generated')
+  L.push('')
+  L.push('/**')
+  L.push(' * PDIG UI vNext design tokens — Kotlin (Desktop & Android native).')
+  L.push(' * Single source of truth: spec/ui-vnext/DESIGN_TOKENS.json')
+  L.push(' * Do NOT hand-edit; run `node tools/codegen/generate.mjs` (Desktop and Android targets are emitted identically).')
+  L.push(' */')
+  L.push('public object GeneratedPdigV2Tokens {')
+  for (const { path, value } of FLAT_TOKENS) {
+    if (Array.isArray(value)) {
+      L.push(`    public val ${tokenConstName(path)}: Array<String> = ${kotlinArrayLiteral(value)}`)
+    } else if (typeof value === 'number') {
+      if (Number.isInteger(value)) {
+        L.push(`    public const val ${tokenConstName(path)}: Int = ${value}`)
+      } else {
+        L.push(`    public const val ${tokenConstName(path)}: Double = ${value}`)
+      }
+    } else if (typeof value === 'boolean') {
+      L.push(`    public const val ${tokenConstName(path)}: Boolean = ${value}`)
+    } else {
+      L.push(`    public const val ${tokenConstName(path)}: String = ${dq(String(value))}`)
+    }
+  }
+  L.push('}')
+  L.push('')
+  return L.join('\n')
+}
+
+/** Swift 数组字面量。 */
+function swiftArrayLiteral(arr) {
+  return '[' + arr.map((v) => (typeof v === 'number' ? String(v) : dq(String(v)))).join(', ') + ']'
+}
+
+function emitPdigV2TokensSwift() {
+  const L = []
+  L.push(tokenHeader('//', 'spec/ui-vnext/DESIGN_TOKENS.json'))
+  L.push('import Foundation')
+  L.push('')
+  L.push('/// PDIG UI vNext design tokens — Swift (iOS native).')
+  L.push('/// Single source of truth: spec/ui-vnext/DESIGN_TOKENS.json')
+  L.push('/// Do NOT hand-edit; run `node tools/codegen/generate.mjs`.')
+  L.push('public enum GeneratedPdigV2Tokens {')
+  for (const { path, value } of FLAT_TOKENS) {
+    if (Array.isArray(value)) {
+      L.push(`    public static let ${tokenSwiftName(path)}: [String] = ${swiftArrayLiteral(value)}`)
+    } else if (typeof value === 'number') {
+      L.push(`    public static let ${tokenSwiftName(path)} = ${value}`)
+    } else if (typeof value === 'boolean') {
+      L.push(`    public static let ${tokenSwiftName(path)} = ${value}`)
+    } else {
+      L.push(`    public static let ${tokenSwiftName(path)} = ${dq(String(value))}`)
+    }
+  }
+  L.push('}')
+  L.push('')
+  return L.join('\n')
+}
+
+/** ArkTS 数组字面量。 */
+function arktsArrayLiteral(arr) {
+  return '[' + arr.map((v) => (typeof v === 'number' ? String(v) : quote(String(v)))).join(', ') + ']'
+}
+
+function emitPdigV2TokensArkTs() {
+  const L = []
+  L.push(tokenHeader('//', 'spec/ui-vnext/DESIGN_TOKENS.json'))
+  L.push('/**')
+  L.push(' * PDIG UI vNext design tokens — ArkTS (HarmonyOS native).')
+  L.push(' * Single source of truth: spec/ui-vnext/DESIGN_TOKENS.json')
+  L.push(' * Do NOT hand-edit; run `node tools/codegen/generate.mjs`.')
+  L.push(' */')
+  L.push('export class GeneratedPdigV2Tokens {')
+  for (const { path, value } of FLAT_TOKENS) {
+    if (Array.isArray(value)) {
+      L.push(`  static readonly ${tokenConstName(path)}: string[] = ${arktsArrayLiteral(value)};`)
+    } else if (typeof value === 'number') {
+      L.push(`  static readonly ${tokenConstName(path)}: number = ${value};`)
+    } else if (typeof value === 'boolean') {
+      L.push(`  static readonly ${tokenConstName(path)}: boolean = ${value};`)
+    } else {
+      L.push(`  static readonly ${tokenConstName(path)}: string = ${quote(String(value))};`)
+    }
+  }
+  L.push('}')
+  L.push('')
+  return L.join('\n')
+}
+
+const PDIG_V2_TOKENS_KOTLIN = emitPdigV2TokensKotlin()
+const PDIG_V2_TOKENS_SWIFT = emitPdigV2TokensSwift()
+const PDIG_V2_TOKENS_ARKTS = emitPdigV2TokensArkTs()
+
+// ---------------------------------------------------------------------------
 // 目标文件表
 // ---------------------------------------------------------------------------
 
@@ -476,7 +637,11 @@ const TARGETS = [
   { path: join(ROOT, 'ios/Sources/PDIGCore/Generated/CanonicalEnums.swift'), content: emitSwift() },
   { path: join(ROOT, 'harmony/entry/src/main/ets/generated/CanonicalEnums.ets'), content: emitArkTS() },
   { path: join(ROOT, 'harmony/entry/src/main/ets/generated/CanonicalRelations.ets'), content: emitArkTSRelations() },
-]
+  { path: join(ROOT, 'desktop/app/src/main/kotlin/com/pdig/uivnext/generated/GeneratedPdigV2Tokens.kt'), content: PDIG_V2_TOKENS_KOTLIN },
+  { path: join(ROOT, 'android/app/src/main/kotlin/com/pdig/uivnext/generated/GeneratedPdigV2Tokens.kt'), content: PDIG_V2_TOKENS_KOTLIN },
+  { path: join(ROOT, 'ios/Sources/PDIGApp/Generated/GeneratedPdigV2Tokens.swift'), content: PDIG_V2_TOKENS_SWIFT },
+  { path: join(ROOT, 'harmony/entry/src/main/ets/generated/GeneratedPdigV2Tokens.ets'), content: PDIG_V2_TOKENS_ARKTS }
+ ]
 
 // ---------------------------------------------------------------------------
 // main

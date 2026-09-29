@@ -1,0 +1,51 @@
+{
+  "$comment": "PDIG UI vNext PresentationProfile Schema (spec §29-§31, §33, §35). Presentation Layer ONLY: never changes node identity / dependencies / evidence / confirmation. Stored as local app preference; NEVER written into .depmap frozen payload. Schema v4 Canonical untouched.",
+  "specVersion": "1.0.0",
+  "targetType": { "oneOf": ["node", "card", "phoneNumber"], "description": "which object this profile customizes" },
+  "targetId": { "type": "string", "description": "local node id (UI-facing, may be masked)" },
+  "$schema": {
+    "type": "object",
+    "required": ["targetType", "targetId", "themeId"],
+    "properties": {
+      "targetType": { "enum": ["node", "card", "phoneNumber"] },
+      "targetId": { "type": "string" },
+      "themeId": { "type": "string", "description": "e.g. deep-space / minimal / region / city / glass / metal / abstract / country / banking / travel / recovery / work / private" },
+      "material": { "enum": ["glass", "metal", "matte", "paper", "none"] },
+      "accentColor": { "type": "string", "format": "hex-color" },
+      "background": {
+        "type": "object",
+        "properties": {
+          "kind": { "enum": ["preset", "gradient", "procedural", "bundled-image", "user-image"] },
+          "value": { "type": "string", "description": "preset id / gradient spec / procedural seed / bundled asset key / imported image key" }
+        },
+        "required": ["kind", "value"]
+      },
+      "layout": { "enum": ["standard", "minimal", "dense", "editorial"] },
+      "privacy": {
+        "type": "object",
+        "properties": {
+          "maskSensitive": { "type": "boolean", "default": true },
+          "maskLast4": { "type": "boolean" },
+          "maskNumber": { "type": "boolean" }
+        }
+      },
+      "visibleFields": { "type": "array", "items": { "type": "string" }, "description": "empty = default set" },
+      "flags": {
+        "type": "object",
+        "properties": {
+          "showLogo": { "type": "boolean" },
+          "showNetwork": { "type": "boolean" },
+          "showRegion": { "type": "boolean" },
+          "showCurrency": { "type": "boolean" },
+          "showStatus": { "type": "boolean" },
+          "showCarrier": { "type": "boolean" },
+          "showSimBadge": { "type": "boolean" },
+          "showRole": { "type": "boolean" },
+          "showUsageTags": { "type": "boolean" },
+          "showCountryFlagForNumber": { "type": "boolean" }
+        }
+      },
+      "ok": true
+    }
+  }
+}

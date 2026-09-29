@@ -34,6 +34,29 @@ fun main(args: Array<String>) {
         return
     }
 
+    // --vnext：UI vNext 演示壳（Presentation Layer，fixture 驱动）
+    if (args.contains("--vnext")) {
+        val camera = args.firstOrNull { it.startsWith("--vnext-camera=") }?.substringAfter("=")
+        val app = com.pdig.uivnext.createVNextAppState(cameraPreset = camera)
+        application {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "PDIG vNext Preview",
+                state = rememberWindowState(width = 1920.dp, height = 1080.dp),
+            ) {
+                com.pdig.uivnext.VNextApp(app)
+            }
+        }
+        return
+    }
+    // --vnext-shots：vNext 离屏确定性截图（无窗口依赖）+ UI_LAYOUT_PROBE.json
+    if (args.contains("--vnext-shots")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-09-29-ui-vnext")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextShotDriver.runAll(outRoot))
+        return
+    }
     // --profiles / --keys：v0.3.0 closure 的桌面分辨率/缩放/键盘取证（见 ProfileDriver.kt / KeyboardDriver.kt）
     if (args.contains("--profiles") || args.contains("--keys")) {
         val repo = findRepoRoot(File(".").absoluteFile)
