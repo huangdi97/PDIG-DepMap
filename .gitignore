@@ -167,3 +167,5 @@ xcuserdata/
 .workbuddy-ai/
 .workbuddy/
 .tmp_audit/
+
+tools/ui-vnext/image-metrics/*.class
