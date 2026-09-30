@@ -135,6 +135,47 @@ object VNextShotDriver {
 
     private fun screenId(screen: VScreen): String = SCREENS.first { it.first == screen }.second
 
+    /**
+     * PHASE 1C 关键帧（Review §31）：仅 1920x1080@1.0，8 张最小证据集。
+     * 1 overview-global / 2 overview-HK 聚焦 / 3 globe close-up / 4 cards /
+     * 5 card-detail / 6 card-customization theme-city + theme-glass（两图）/
+     * 7 number-detail / 8 change-phone state-transition。
+     */
+    fun runPhase1C(outRoot: File): Int {
+        val profile = Profile(1920, 1080, "1920x1080@1.0")
+        val profileDir = File(outRoot, "profiles/${profile.label}")
+        profileDir.mkdirs()
+        var count = 0
+        // (screen, camera, tag, customTheme)
+        val shots = listOf(
+            VScreen.OVERVIEW to ("global" to Pair("", null)),
+            VScreen.OVERVIEW to ("hk" to Pair("region-hk", null)),
+            VScreen.OVERVIEW to ("global" to Pair("closeup", null)),
+            VScreen.CARDS to ("global" to Pair("", null)),
+            VScreen.CARD_DETAIL to ("global" to Pair("", null)),
+            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-city", "city")),
+            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-glass", "glass")),
+            VScreen.NUMBER_DETAIL to ("global" to Pair("", null)),
+            VScreen.CHANGE_PHONE to ("global" to Pair("state-transition", null)),
+        )
+        for ((screen, camTheme) in shots) {
+            val (camera, tagTheme) = camTheme
+            val (tag, theme) = tagTheme
+            val app = com.pdig.uivnext.createVNextAppState(screen, camera, theme)
+            prepareScreen(app, screen)
+            if (tag == "region-hk") app.selectRegion("HK")
+            if (tag == "closeup") app.globe.camera = app.globe.camera.copy(zoom = 1.7f)
+            val tagPart = if (tag.isEmpty()) "" else "__$tag"
+            val fileName = "vnext__${screenId(screen)}__camera-$camera${tagPart}__${profile.label}.png"
+            renderToFile(app, profile, File(profileDir, fileName))
+            count++
+        }
+        writeSha256(File(outRoot, "EVIDENCE_SHA256SUMS.txt"), outRoot)
+        println("VNextShotDriver(1C): wrote $count key frames -> ${outRoot.absolutePath}")
+        return 0
+    }
+
+
     private fun prepareScreen(app: VAppState, screen: VScreen) {
         when (screen) {
             VScreen.CARD_DETAIL -> app.openCard("card-cn-2")

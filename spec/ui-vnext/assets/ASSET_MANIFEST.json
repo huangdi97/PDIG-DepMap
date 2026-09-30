@@ -1,0 +1,38 @@
+{
+  "specVersion": "1.0.0",
+  "assets": [
+    {
+      "id": "earth_albedo_2048",
+      "file": "spec/ui-vnext/assets/earth_albedo_2048.png",
+      "type": "texture-equirect-rgb",
+      "source": "generated deterministically from repo-bundled desktop WorldCoastlines.kt / WorldCityLights.kt + procedural value noise (repo own asset; no third-party textures)",
+      "license": "PDIG-repo-generated (own work; offline; no redistribution of third-party content)",
+      "sha256": "182d0fc24d49c315acfaee7e8c7f9a5d7e4b3d994a5569d8d767ae2c56636ca7",
+      "resolution": "2048x1024",
+      "usage": "TextureEarthRenderer day-side earth material (ocean/land/terrain/coast)",
+      "fallback": "VectorEarthFallbackRenderer (bundled coastlines procedural)"
+    },
+    {
+      "id": "earth_night_lights_2048",
+      "file": "spec/ui-vnext/assets/earth_night_lights_2048.png",
+      "type": "texture-equirect-rgb",
+      "source": "generated deterministically from repo-bundled desktop WorldCoastlines.kt / WorldCityLights.kt + procedural value noise (repo own asset; no third-party textures)",
+      "license": "PDIG-repo-generated (own work; offline; no redistribution of third-party content)",
+      "sha256": "c84a16b9e145ac50076da1e94b25038b0e4a947ef6b1dadf455e14694fe2158f",
+      "resolution": "2048x1024",
+      "usage": "TextureEarthRenderer night-side city illumination",
+      "fallback": "VectorEarthFallbackRenderer (bundled coastlines procedural)"
+    },
+    {
+      "id": "cloud_2048",
+      "file": "spec/ui-vnext/assets/cloud_2048.png",
+      "type": "texture-equirect-rgb",
+      "source": "generated deterministically from repo-bundled desktop WorldCoastlines.kt / WorldCityLights.kt + procedural value noise (repo own asset; no third-party textures)",
+      "license": "PDIG-repo-generated (own work; offline; no redistribution of third-party content)",
+      "sha256": "254050bb481eb749e900064c2a109e9b6e5c169aaf3195d9e390fabe1bb65d4d",
+      "resolution": "2048x1024",
+      "usage": "TextureEarthRenderer subtle cloud layer",
+      "fallback": "VectorEarthFallbackRenderer (bundled coastlines procedural)"
+    }
+  ]
+}

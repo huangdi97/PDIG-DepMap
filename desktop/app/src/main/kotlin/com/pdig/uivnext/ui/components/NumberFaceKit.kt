@@ -177,7 +177,7 @@ fun NumberFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
     Box(
         modifier
             .fillMaxWidth(0.92f)
-            .height(76.dp)
+            .height(84.dp)
             .drawBehind { drawNumberFaceBackdrop(profile) }
             .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
     ) {

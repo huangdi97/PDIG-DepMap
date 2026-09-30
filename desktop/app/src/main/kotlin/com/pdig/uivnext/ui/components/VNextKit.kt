@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -121,7 +122,7 @@ fun AttentionRow(item: AttentionItem, onClick: (AttentionItem) -> Unit, modifier
     }
 }
 
-/** RegionListItem：Globe 的非视觉替代（screen reader / 键盘 / 触屏均可操作）。 */
+/** RegionListItem（PHASE 1C）：更大地区身份（flag/region glyph 主、计数次级、lighter chrome）。 */
 @Composable
 fun RegionListItem(
     region: RegionPresentation,
@@ -129,8 +130,8 @@ fun RegionListItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val containerColor = if (selected) PdigV2Colors.Primary.copy(alpha = 0.18f) else PdigV2Colors.Surface
-    val borderColor = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle
+    val containerColor = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.10f) else Color.Transparent
+    val borderColor = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.35f) else PdigV2Colors.BorderSubtle.copy(alpha = 0.4f)
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -143,22 +144,19 @@ fun RegionListItem(
             Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .background(if (region.attentionCount > 0) PdigV2Colors.Warning else PdigV2Colors.PrimaryBright, CircleShape),
-            )
+            RegionBadge(region.regionCode, badgeSize = 44.dp)
             Spacer(Modifier.width(VSpacing.Lg))
             Column(Modifier.weight(1f)) {
-                Text(region.displayName, style = VType.Body, color = PdigV2Colors.TextPrimary)
+                Text(region.displayName, style = VType.Body, fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold, color = PdigV2Colors.TextPrimary, maxLines = 1)
                 Text(
                     "${region.cardCount} 张卡 · ${region.phoneCount} 个号码 · ${region.serviceCount} 项服务",
-                    style = VType.Secondary,
-                    color = PdigV2Colors.TextSecondary,
+                    style = VType.Meta,
+                    color = PdigV2Colors.TextMuted,
+                    maxLines = 1,
                 )
             }
             if (region.attentionCount > 0) {
-                Surface(color = PdigV2Colors.Warning.copy(alpha = 0.18f), shape = RoundedCornerShape(VRadius.Sm)) {
+                Surface(color = PdigV2Colors.Warning.copy(alpha = 0.16f), shape = RoundedCornerShape(VRadius.Sm)) {
                     Text(
                         "${region.attentionCount}",
                         Modifier.padding(horizontal = 8.dp, vertical = 2.dp),

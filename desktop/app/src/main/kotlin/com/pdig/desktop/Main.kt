@@ -65,6 +65,14 @@ fun main(args: Array<String>) {
         kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextShotDriver.runPhase1B(outRoot))
         return
     }
+    // --vnext-shots-1c：PHASE 1C 关键帧（Review §31，8 张 1920×1080 最小证据集）
+    if (args.contains("--vnext-shots-1c")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-03-ui-vnext-phase1c")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextShotDriver.runPhase1C(outRoot))
+        return
+    }
     // --profiles / --keys：v0.3.0 closure 的桌面分辨率/缩放/键盘取证（见 ProfileDriver.kt / KeyboardDriver.kt）
     if (args.contains("--profiles") || args.contains("--keys")) {
         val repo = findRepoRoot(File(".").absoluteFile)

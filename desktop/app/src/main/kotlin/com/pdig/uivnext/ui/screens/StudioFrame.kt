@@ -88,7 +88,7 @@ fun StudioFrame(
             // LEFT：对象库 + 预设（22%；紧凑、无整体滚动，规避 Row 内 scroll 无限高约束）
             Column(
                 Modifier
-                    .weight(0.22f)
+                    .weight(0.20f)
                     .fillMaxSize()
                     .testTagLocal(VTestIds.CUSTOMIZATION_LIBRARY),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -118,7 +118,7 @@ fun StudioFrame(
             // CENTER：大尺寸实时预览（46%，主角）
             Column(
                 Modifier
-                    .weight(0.46f)
+                    .weight(0.55f)
                     .fillMaxSize()
                     .testTagLocal(VTestIds.CUSTOMIZATION_PREVIEW),
             ) {
@@ -133,7 +133,7 @@ fun StudioFrame(
                     Box(
                         Modifier
                             .align(Alignment.Center)
-                            .fillMaxWidth(0.72f)
+                            .fillMaxWidth(0.9f)
                             .graphicsLayer {
                                 rotationX = if (reduceMotion) 0f else 5f
                                 cameraDistance = 24f * density
@@ -153,7 +153,7 @@ fun StudioFrame(
             // RIGHT：属性编辑器（32%，用户语言）
             Column(
                 Modifier
-                    .weight(0.32f)
+                    .weight(0.25f)
                     .fillMaxSize()
                     .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR)
                     .verticalScroll(rememberScrollState()),

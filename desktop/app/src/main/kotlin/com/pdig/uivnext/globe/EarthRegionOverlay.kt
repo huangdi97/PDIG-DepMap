@@ -18,17 +18,12 @@ import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.theme.PdigV2Colors
 
 /**
- * 真实地球感 vector Earth —— 环境与覆盖层（G1/G3）。
- *
- * 在行星内容层（EarthScene.kt drawEarth）之上叠加：
- *  - 确定性星点点阵（L0 环境；star token）；
- *  - 大气 rim（atmosphereRim 沿球缘 + 软外晕）；
- *  - 极淡经纬网格（空间定位；非 HUD）；
- *  - 跨区真实关系弧线（arcActive/arcQuiet；绝不装饰性连线）；
- *  - 地区锚点 + 区域 label chip（region code + 名称 + 计数；不用 emoji）。
+ * EarthRegionOverlay —— 地球上方空间覆盖层（PHASE 1C）：
+ * 星点、极淡经纬网格、跨区真实关系弧、地区锚点 + label chip。
+ * 全部确定性、离线。
  */
 
-/** 确定性星点点阵（固定步长散列；截图可复现，禁随机源）。 */
+/** 确定性星点点阵（固定散列；截图可复现）。 */
 internal fun DrawScope.drawStars() {
     for (i in 0 until 96) {
         val x = ((i * 137.508f) % 360f) / 360f * size.width
@@ -54,31 +49,6 @@ internal fun DrawScope.drawGraticule(center: Offset, radius: Float, cam: GlobeCa
         drawArcPath(center, radius, cam, greatCircleSamples(m.first, m.second, m.first + 10f, m.second, 24), gridColor, widthPx = 0.8f)
         drawArcPath(center, radius, cam, greatCircleSamples(m.first, m.second, m.first + 10f, m.second + 10f, 24), gridColor, widthPx = 0.8f)
     }
-}
-
-/** 大气 rim：软外晕 + 沿球缘亮环。 */
-internal fun DrawScope.drawAtmosphereRim(center: Offset, radius: Float) {
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(PdigV2Colors.AtmosphereRim.copy(alpha = 0.22f), PdigV2Colors.AtmosphereOuter),
-            center = center,
-            radius = radius * 1.28f,
-        ),
-        radius = radius * 1.28f,
-        center = center,
-    )
-    drawCircle(
-        PdigV2Colors.AtmosphereRim.copy(alpha = 0.5f),
-        radius = radius,
-        center = center,
-        style = Stroke(width = radius * 0.028f),
-    )
-    drawCircle(
-        PdigV2Colors.AtmosphereRim.copy(alpha = 0.15f),
-        radius = radius * 1.045f,
-        center = center,
-        style = Stroke(width = radius * 0.016f),
-    )
 }
 
 /** 跨区真实关系弧线（只有真实 cross-region 关系；绝不装饰性连线）。 */
@@ -182,7 +152,7 @@ private fun DrawScope.drawRegionLabel(
     drawText(c, topLeft = Offset(pos.x + 7f, pos.y + 5f + t.size.height))
 }
 
-/** 弧线段：仅绘制前半球交界、按深度淡出（2.5D 加分项）。 */
+/** 弧线段：仅绘制前半球交界、按深度淡出。 */
 internal fun DrawScope.drawArcPath(
     center: Offset,
     radius: Float,

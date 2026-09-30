@@ -121,7 +121,7 @@ private fun FloatingSpatialInspector(app: VAppState, regions: List<RegionPresent
             .fillMaxHeight()
             .padding(top = 0.dp, end = 0.dp)
             .testTagLocal(VTestIds.OVERVIEW_ACTIVITY),
-        color = PdigV2Colors.SurfaceGlass.copy(alpha = 0.72f),
+        color = PdigV2Colors.SurfaceGlass.copy(alpha = 0.55f),
         shape = RoundedCornerShape(VRadius.Xl2),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle.copy(alpha = 0.5f)),
     ) {

@@ -1,8 +1,9 @@
 # BLOCKERS.md
 
-> **UI vNext PHASE 1B —— Desktop Visual Fidelity Iteration 2 已完成（2026-10-02），等待 Human/Vision Review：**
+> **UI vNext PHASE 1C —— Renderer Upgrade 已完成（2026-10-03），等待 Human/Vision Review：**
 >
-> - 第二轮评审（2026-10-01）判定 PHASE 1 视觉：STRUCTURE/功能可接受，**VISUAL FIDELITY = FAIL / REFERENCE PARITY = FAIL**；PHASE 1B 只收敛 Desktop 视觉层（Domain/导航/测试/Profile 不动）。
+> - PHASE 1C 交付：OFFLINE_TEXTURE_EARTH（bundled albedo/night/cloud 纹理 + ASSET_MANIFEST.json）、renderer 拆分 7 文件、CardVisualRenderer、LocalLightSource 分页光源、导航单行 chrome 56px、Now 双栏、CardDetail Hero、Studio 20/55/25、ChangePhone 三态投影（After=Plan Projection）；**9 帧关键证据**（2026-10-03-ui-vnext-phase1c，IMAGE_METRICS 0 error/0 empty/0 near-black、meanLum 0.102）+ SCREENSHOTS_PHASE1C.md（0 missing）。
+> - `PHASE_1C_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`（Review §33，永不自行 PASS）。
 > - PHASE 1B 交付：DESIGN_TOKENS v2.2（近黑基底 + 地球材质 token）+ Globe v2（海洋材质/镜面高光/大陆纹理/云层/大气 rim/方向光）+ Overview 浮动空间检查器 + 底部紧凑动作坞 + rail subtle glow + 顶部 segmented context rail + CardFace 8 预设 3 布局 + Studio 用户语言编辑器/视觉缩略图/spotlight 舞台 + Change Phone 空间迁移图；**15 张关键帧**（artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1b/，IMAGE_METRICS：0 error / 0 empty / 0 near-black、meanLum 0.126）+ SCREENSHOTS_PHASE1B.md（0 missing）+ REFERENCE_VISUAL_CONTRACT ×4。
 > - `VISUAL_FIDELITY_ITERATION_2 = COMPLETE`、`NEEDS_HUMAN_REVIEW = TRUE`；`VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（Review §23，永不自行改 PASS）。
 > - `GOLDEN_APPROVAL_GATE`：像素基线必须 human-approved 后才建立；参考图 ≠ pixel golden。

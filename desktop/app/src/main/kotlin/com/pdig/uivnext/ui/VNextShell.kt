@@ -52,7 +52,7 @@ import com.pdig.uivnext.ui.components.MaskEnabledIndicator
 /** 一级入口（rail 顶部固定区）。 */
 private data class RailEntry(val screen: VScreen, val icon: ImageVector)
 
-/** Primary Rail 只保留四个一级项（Review §G/§5）：现在 / 基础设施 / 变更 / 记录。 */
+/** Primary Rail（PHASE 1C）：现在 / 基础设施 / 变更 / 记录。 */
 private val PRIMARY_ENTRIES = listOf(
     RailEntry(VScreen.NOW, Icons.Filled.Home),
     RailEntry(VScreen.INFRASTRUCTURE, Icons.Filled.Public),
@@ -60,13 +60,13 @@ private val PRIMARY_ENTRIES = listOf(
     RailEntry(VScreen.RECORDS, Icons.Filled.History),
 )
 
-/** Secondary：数据源 / 设置（置于 rail 底部，Review §5）。 */
+/** Secondary：数据源 / 设置（rail 底部）。 */
 private val SECONDARY_ENTRIES = listOf(
     RailEntry(VScreen.SOURCES, Icons.Filled.Source),
     RailEntry(VScreen.SETTINGS, Icons.Filled.Settings),
 )
 
-/** 基础设施二级：进入基础设施时在顶部显示为 segmented context rail（Review §4/§5）。 */
+/** 基础设施二级：进入基础设施时并入顶部单行 chrome（overlay segmented，非第二行 header）。 */
 private val INFRA_ENTRIES = listOf(
     RailEntry(VScreen.OVERVIEW, Icons.Filled.Public),
     RailEntry(VScreen.CARDS, Icons.Filled.CreditCard),
@@ -88,18 +88,15 @@ fun VNextShell(app: VAppState, viewportWidth: Int = 1920) {
     Row(Modifier.fillMaxSize()) {
         NavigationRail(app)
         Column(Modifier.weight(1f)) {
-            TopCommandBar(app)
-            // 基础设施二级 = 顶部 segmented context rail（永不永久占满侧栏）
-            if (app.screen.section == VSection.INFRA) ContextRail(app)
+            TopChrome(app)
             VNextContentHost(app, breakpoint)
         }
     }
 }
 
 /**
- * L2 Navigation Rail（Review §5 v2）：collapsed 68 / expanded 188；
- * 选中态 = subtle glow（低 alpha 底 + 细描边 + 左侧指示条），
- * 非选中透明；数据源/设置置于底部。
+ * L2 导航 rail（PHASE 1C）：collapsed 68 / expanded 188；选中 subtle glow；
+ * 数据源/设置置底；无巨块填充矩形。
  */
 @Composable
 private fun NavigationRail(app: VAppState) {
@@ -116,7 +113,7 @@ private fun NavigationRail(app: VAppState) {
                 Modifier.padding(horizontal = if (app.railExpanded) VSpacing.Lg else VSpacing.Md),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Surface(Modifier.size(32.dp), color = PdigV2Colors.Primary, shape = RoundedCornerShape(VRadius.Md)) {
+                Surface(Modifier.size(30.dp), color = PdigV2Colors.Primary, shape = RoundedCornerShape(VRadius.Md)) {
                     Box(contentAlignment = Alignment.Center) {
                         Text("P", color = PdigV2Colors.CanvasDeep, fontWeight = FontWeight.Bold)
                     }
@@ -134,7 +131,6 @@ private fun NavigationRail(app: VAppState) {
             Spacer(Modifier.weight(1f))
             SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
             Spacer(Modifier.height(VSpacing.Sm))
-            // 折叠/展开开关（底部）
             Surface(
                 Modifier
                     .fillMaxWidth()
@@ -160,51 +156,6 @@ private fun NavigationRail(app: VAppState) {
     }
 }
 
-/** Top segmented context rail：基础设施 8 个二级项（Review §4/§5）。 */
-@Composable
-private fun ContextRail(app: VAppState) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(44.dp)
-            .testTag("pdig.nav.context"),
-        color = PdigV2Colors.SurfaceGlass.copy(alpha = 0.72f),
-    ) {
-        Row(
-            Modifier
-                .fillMaxSize()
-                .padding(horizontal = VSpacing.Xxl),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            INFRA_ENTRIES.forEach { entry ->
-                val selected = app.screen == entry.screen ||
-                    (app.screen == VScreen.CARD_DETAIL && entry.screen == VScreen.CARDS) ||
-                    (app.screen == VScreen.NUMBER_DETAIL && entry.screen == VScreen.NUMBERS) ||
-                    (app.screen == VScreen.CARD_CUSTOMIZATION && entry.screen == VScreen.CARDS) ||
-                    (app.screen == VScreen.NUMBER_CUSTOMIZATION && entry.screen == VScreen.NUMBERS)
-                Surface(
-                    modifier = Modifier
-                        .clickable { app.navigate(entry.screen) }
-                        .testTag("pdig.nav.context.${entry.screen.route}"),
-                    color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else Color.Transparent,
-                    shape = RoundedCornerShape(VRadius.Sm),
-                    border = if (selected) BorderStroke(1.dp, PdigV2Colors.PrimaryBright.copy(alpha = 0.22f)) else null,
-                ) {
-                    Text(
-                        entry.screen.titleZh,
-                        Modifier.padding(horizontal = VSpacing.Md, vertical = 6.dp),
-                        color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-                        fontSize = 13.sp,
-                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                        maxLines = 1,
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Composable
 private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expanded: Boolean) {
     val selected = app.screen == screen ||
@@ -213,7 +164,6 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
         (app.screen == VScreen.CARD_CUSTOMIZATION && screen == VScreen.CARDS) ||
         (app.screen == VScreen.NUMBER_CUSTOMIZATION && screen == VScreen.NUMBERS) ||
         (app.screen == VScreen.CHANGE_PHONE && screen == VScreen.CHANGE)
-    // subtle glow：选中态仅低 alpha 底 + 细描边；非选中透明（无巨块填充矩形）
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -227,7 +177,7 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = if (expanded) VSpacing.Md else VSpacing.Sm, vertical = 9.dp),
+                .padding(horizontal = if (expanded) VSpacing.Md else VSpacing.Sm, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -250,13 +200,17 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
     }
 }
 
-/** L2 Top Command/Search：44–52px；glass chrome + 状态位 + 隐私遮蔽指示。 */
+/**
+ * 单行顶部 chrome（PHASE 1C：总视觉高度 56px ≤ 64px）。
+ * 基础设施二级以 overlay segmented 形式并入同一行（无第二行固定 header）；
+ * 页面标题移入 content canvas（此处不重复显示）。
+ */
 @Composable
-private fun TopCommandBar(app: VAppState) {
+private fun TopChrome(app: VAppState) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
+            .height(56.dp)
             .testTag(VTestIds.NAV_TOP),
         color = PdigV2Colors.SurfaceGlass,
     ) {
@@ -265,8 +219,34 @@ private fun TopCommandBar(app: VAppState) {
                 .fillMaxSize()
                 .padding(horizontal = VSpacing.Xxl),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(app.screen.titleZh, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+            if (app.screen.section == VSection.INFRA) {
+                INFRA_ENTRIES.forEach { entry ->
+                    val selected = app.screen == entry.screen ||
+                        (app.screen == VScreen.CARD_DETAIL && entry.screen == VScreen.CARDS) ||
+                        (app.screen == VScreen.NUMBER_DETAIL && entry.screen == VScreen.NUMBERS) ||
+                        (app.screen == VScreen.CARD_CUSTOMIZATION && entry.screen == VScreen.CARDS) ||
+                        (app.screen == VScreen.NUMBER_CUSTOMIZATION && entry.screen == VScreen.NUMBERS)
+                    Surface(
+                        modifier = Modifier
+                            .clickable { app.navigate(entry.screen) }
+                            .testTag("pdig.nav.context.${entry.screen.route}"),
+                        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else Color.Transparent,
+                        shape = RoundedCornerShape(VRadius.Sm),
+                        border = if (selected) BorderStroke(1.dp, PdigV2Colors.PrimaryBright.copy(alpha = 0.22f)) else null,
+                    ) {
+                        Text(
+                            entry.screen.titleZh,
+                            Modifier.padding(horizontal = VSpacing.Md, vertical = 6.dp),
+                            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                            fontSize = 13.sp,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.weight(1f))
             Surface(
                 color = PdigV2Colors.SurfaceRaised.copy(alpha = 0.9f),

@@ -1,5 +1,6 @@
 package com.pdig.uivnext.globe
 
+import androidx.compose.ui.geometry.Offset
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.atan2
@@ -138,3 +139,44 @@ fun graticuleLines(stepDeg: Int = 30): Pair<List<Pair<Float, Float>>, List<Pair<
     }
     return parallels to meridians
 }
+
+/** 相机逆旋转（屏幕/相机空间 → 世界空间）；供 TextureEarthRenderer 逐像素取色。 */
+fun inverseRotatePoint(p: Vec3, cam: GlobeCamera): Vec3 {
+    val a = rad(cam.pitchDeg)
+    val c = cos(a)
+    val s = sin(a)
+    val rx = Vec3(p.x, c * p.y + s * p.z, -s * p.y + c * p.z)
+    val b = rad(cam.yawDeg)
+    val c2 = cos(b)
+    val s2 = sin(b)
+    return Vec3(c2 * rx.x - s2 * rx.z, rx.y, s2 * rx.x + c2 * rx.z)
+}
+
+/** 球心/半径（IntSize 版本；离屏与交互共用）。 */
+fun globeMetrics(size: androidx.compose.ui.unit.IntSize, zoom: Float): Pair<Offset, Float> {
+    val d = minOf(size.width, size.height).toFloat()
+    val radius = d * 0.36f * zoom
+    return Offset(size.width / 2f, size.height / 2f) to radius
+}
+
+/** 球心/半径（Size 版本）。 */
+fun globeMetrics(size: androidx.compose.ui.geometry.Size, zoom: Float): Pair<Offset, Float> {
+    val d = minOf(size.width, size.height)
+    val radius = d * 0.36f * zoom
+    return Offset(size.width / 2f, size.height / 2f) to radius
+}
+
+/** 经纬度锚点 → 屏幕坐标（仅前半球）。 */
+fun anchorScreen(
+    region: com.pdig.uivnext.model.RegionPresentation,
+    cam: GlobeCamera,
+    center: Offset,
+    radius: Float,
+): Pair<Offset, Float>? {
+    val p = project(latLonToVec(region.latitude.toFloat(), region.longitude.toFloat()), cam, radius, center.x, center.y)
+    if (p.zDepth <= 0f) return null
+    return Offset(p.x, p.y) to p.zDepth
+}
+
+/** 锚点命中容差。 */
+fun hitTolerance(radius: Float): Float = (radius * 0.05f).coerceIn(10f, 18f)

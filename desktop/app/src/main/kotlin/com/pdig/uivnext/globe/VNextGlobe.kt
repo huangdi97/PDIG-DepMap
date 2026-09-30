@@ -73,6 +73,9 @@ fun VNextGlobe(
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var yawBase by remember { mutableStateOf(0f) }
+    // PHASE 1C：默认 OFFLINE_TEXTURE_EARTH（bundled 纹理）；资产缺失 → VectorEarthFallbackRenderer
+    val earthAssets = remember { EarthMaterialAssets.load() }
+    val earthRenderer = remember { createEarthRenderer(earthAssets) }
 
     // Idle rotation：极慢、可被交互暂停、reduce motion 或选中地区时关闭。
     LaunchedEffect(controller.interactive, controller.selectedRegion, reduceMotion) {
@@ -165,15 +168,18 @@ fun VNextGlobe(
                 },
         ) {
             val cam = cameraOverride ?: controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
-            drawEarth(
-                camera = cam,
-                regions = regions,
-                arcingPairs = arcingPairs,
-                selectedRegion = controller.selectedRegion,
-                hoveredRegion = controller.hoveredRegion,
-                lowPower = lowPower,
-                showRegionLabels = showRegionLabels,
-                textMeasurer = textMeasurer,
+            earthRenderer.render(
+                this,
+                EarthRenderInput(
+                    camera = cam,
+                    regions = regions,
+                    arcingPairs = arcingPairs,
+                    selectedRegion = controller.selectedRegion,
+                    hoveredRegion = controller.hoveredRegion,
+                    showRegionLabels = showRegionLabels,
+                    lowPower = lowPower,
+                    textMeasurer = textMeasurer,
+                ),
             )
         }
     }

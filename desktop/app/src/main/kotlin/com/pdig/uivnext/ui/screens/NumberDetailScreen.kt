@@ -44,15 +44,42 @@ fun NumberDetailScreen(app: VAppState) {
             .padding(VSpacing.Xxl),
         verticalArrangement = Arrangement.spacedBy(VSpacing.Xxl),
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            Text("号码身份", style = VType.Meta, color = PdigV2Colors.TextMuted)
-            Spacer(Modifier.height(4.dp))
-            NumberFace(
-                number = number,
-                privacyMask = app.privacyMask,
-                onClick = {},
-                modifier = Modifier.testTagLocal(VTestIds.NUMBER_FACE),
-            )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(VSpacing.Xxl), verticalAlignment = Alignment.Top) {
+            com.pdig.uivnext.ui.components.LocalGlow(
+                color = PdigV2Colors.TerminatorLight,
+                alpha = 0.07f,
+                radiusFraction = 0.6f,
+                centerFraction = androidx.compose.ui.geometry.Offset(0.35f, 0.45f),
+            ) {
+                androidx.compose.foundation.layout.Box(Modifier.fillMaxWidth(0.38f)) {
+                    Column {
+                        Text("号码身份", style = VType.Meta, color = PdigV2Colors.TextMuted)
+                        Spacer(Modifier.height(4.dp))
+                        NumberFace(
+                            number = number,
+                            privacyMask = app.privacyMask,
+                            onClick = {},
+                            modifier = Modifier.testTagLocal(VTestIds.NUMBER_FACE),
+                        )
+                    }
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                SectionHeader("状态 · 角色 · 用途")
+                Text("状态：${number.status} · 角色：${roleLabel(number.role)}", color = PdigV2Colors.TextPrimary, style = VType.Body)
+                Text("用途：${number.usages.joinToString(" · ")}", color = PdigV2Colors.TextSecondary, style = VType.Secondary)
+                Text("关联服务：${services.size} 项 · 唯一恢复路径 ${if (number.recoveryOnly) "存在" else "无"}", color = PdigV2Colors.TextSecondary, style = VType.Secondary)
+                if (number.recoveryOnly) {
+                    Surface(color = PdigV2Colors.Warning.copy(alpha = 0.14f), shape = RoundedCornerShape(VRadius.Md), modifier = Modifier.fillMaxWidth()) {
+                        Text(
+                            "风险：此号码是 2 个账户的唯一恢复路径",
+                            Modifier.padding(VSpacing.Md),
+                            color = PdigV2Colors.Warning,
+                            style = VType.Label,
+                        )
+                    }
+                }
+            }
         }
         Row(
             Modifier.fillMaxWidth(),

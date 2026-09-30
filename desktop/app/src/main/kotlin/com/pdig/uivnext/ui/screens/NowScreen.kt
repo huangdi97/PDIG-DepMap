@@ -34,8 +34,8 @@ import com.pdig.uivnext.ui.components.AttentionRow
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
- * Now（G11）：Globe Context + Need Attention（3–5 项）+ Active Change + Upcoming。
- * 禁止一堆小 KPI 卡：globe 是语境主角，attention 是 L5 最重要区块。
+ * Now（PHASE 1C §7）：LEFT 60–68% 空间 Globe + 全局上下文；RIGHT 32–40% Now Stream
+ * （纵向 需要处理 → 正在进行 → 即将到来）。不再三列等宽 dashboard block；下半屏无空黑。
  */
 @Composable
 fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
@@ -44,55 +44,51 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(VSpacing.Xxl)
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(VSpacing.Xxxl),
+            .padding(VSpacing.Xxl),
+        verticalArrangement = Arrangement.spacedBy(VSpacing.Xl),
     ) {
-        // Globe Context（L1 主角；edge-to-edge，不塞卡片）
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(if (breakpoint == MediaBreakpoint.WIDE) 400.dp else 300.dp)
-                .testTagLocal(VTestIds.NOW_GLOBE),
-        ) {
-            VNextGlobe(
-                controller = app.globe,
-                regions = regions,
-                arcingPairs = arcingPairs,
-                reduceMotion = app.reduceMotion,
-                showRegionLabels = true,
-            )
-            Column(Modifier.align(Alignment.TopStart).padding(VSpacing.Xxl)) {
-                Text("现在", style = VType.PageTitle, color = PdigV2Colors.TextPrimary)
-                Text(
-                    "全球 ${UiVNextDemoFixture.cards.size} 张卡 · ${UiVNextDemoFixture.numbers.size} 个号码",
-                    style = VType.Secondary,
-                    color = PdigV2Colors.TextSecondary,
-                )
-            }
-            Surface(
-                Modifier.align(Alignment.BottomStart).padding(VSpacing.Lg),
-                color = PdigV2Colors.SurfaceGlass,
-                shape = RoundedCornerShape(VRadius.Md),
+        PageHeader(
+            title = "现在",
+            subtitle = "全球 ${UiVNextDemoFixture.cards.size} 张卡 · ${UiVNextDemoFixture.numbers.size} 个号码 · 空间上下文",
+        )
+        Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
+            // LEFT：spatial globe + 全局上下文（64%）
+            Box(
+                Modifier
+                    .weight(0.64f)
+                    .fillMaxSize()
+                    .testTagLocal(VTestIds.NOW_GLOBE),
             ) {
-                Text(
-                    "点击地区聚焦基础设施 · 再次点击打开地区抽屉",
-                    Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
-                    style = VType.Secondary,
-                    color = PdigV2Colors.TextSecondary,
+                VNextGlobe(
+                    controller = app.globe,
+                    regions = regions,
+                    arcingPairs = arcingPairs,
+                    reduceMotion = app.reduceMotion,
+                    showRegionLabels = true,
                 )
+                Surface(
+                    Modifier.align(Alignment.BottomStart).padding(VSpacing.Lg),
+                    color = PdigV2Colors.SurfaceGlass,
+                    shape = RoundedCornerShape(VRadius.Md),
+                ) {
+                    Text(
+                        "点击地区聚焦基础设施 · 再次点击打开地区抽屉",
+                        Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
+                        style = VType.Secondary,
+                        color = PdigV2Colors.TextSecondary,
+                    )
+                }
             }
-        }
-
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
-            // Need Attention（L5 最重要；最多 3–5 项）
+            // RIGHT：Now Stream（36%，纵向）
             Column(
                 Modifier
-                    .weight(1.2f)
+                    .weight(0.36f)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
                     .testTagLocal(VTestIds.NOW_ATTENTION),
                 verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
             ) {
-                SectionHeader("需要你处理（${UiVNextDemoFixture.attentionItems.size}）")
+                SectionHeader("需要处理（${UiVNextDemoFixture.attentionItems.size}）")
                 UiVNextDemoFixture.attentionItems.forEach { item ->
                     AttentionRow(item = item, onClick = { clicked ->
                         when {
@@ -101,27 +97,8 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         }
                     })
                 }
-            }
-            // Active Change
-            Column(
-                Modifier
-                    .weight(0.9f)
-                    .testTagLocal(VTestIds.NOW_CHANGES),
-                verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
-            ) {
-                SectionHeader(
-                    "进行中的变更",
-                    trailing = { Text("查看全部", color = PdigV2Colors.PrimaryBright, style = VType.Label) },
-                )
+                SectionHeader("正在进行", trailing = { Text("查看全部", color = PdigV2Colors.PrimaryBright, style = VType.Label) })
                 ActiveChangeCard(app)
-            }
-            // Upcoming
-            Column(
-                Modifier
-                    .weight(0.9f)
-                    .testTagLocal(VTestIds.NOW_UPCOMING),
-                verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
-            ) {
                 SectionHeader("即将到来")
                 UiVNextDemoFixture.upcoming.forEach { item ->
                     Surface(
@@ -152,7 +129,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     }
 }
 
-/** Active Change 卡：「更换手机号 2 / 6 · 下一步：验证新号码」（fixture 派生）。 */
+/** Active Change 卡：「更换手机号 2 / 6 · 下一步：验证新号码」。 */
 @Composable
 private fun ActiveChangeCard(app: VAppState) {
     val stages = UiVNextDemoFixture.changeStages
@@ -176,7 +153,6 @@ private fun ActiveChangeCard(app: VAppState) {
                 style = VType.Secondary,
                 color = PdigV2Colors.Warning,
             )
-            // 迷你进度条（完成/进行/未开始/阻止）
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 stages.forEach { stage ->
                     val barColor = when (stage.status) {

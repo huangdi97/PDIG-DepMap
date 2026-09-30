@@ -12,6 +12,37 @@ import com.pdig.uivnext.model.UiVNextService
 import com.pdig.uivnext.model.UpcomingItem
 
 /**
+ * PHASE 1C：每张 synthetic 卡的默认 PresentationProfile（仅视觉 demo，
+ * 不冒充官方品牌卡面）。key = issuer 家族；同 issuer 共享 family。
+ */
+data class CardVisualProfile(
+    val theme: String,
+    val material: String,
+    val accent: String,
+    val layout: String,
+)
+
+/** issuer → 默认视觉（PHASE 1C §14；unique accent/material/artwork/layout + region identity）。 */
+val ISSUER_VISUAL_PROFILES: Map<String, CardVisualProfile> = mapOf(
+    "招商银行" to CardVisualProfile("matte", "matte", "crimson", "standard"),
+    "中国工商银行" to CardVisualProfile("minimal", "minimal", "warm", "emblem"),
+    "中国银行" to CardVisualProfile("metal", "metal", "cool", "standard"),
+    "HSBC 汇丰" to CardVisualProfile("city", "glass", "navy", "emblem"),
+    "Monzo" to CardVisualProfile("minimal", "minimal", "coral", "minimal-content"),
+    "Revolut" to CardVisualProfile("deep-space", "glass", "gold", "standard"),
+    "Chase" to CardVisualProfile("metal", "metal", "navy", "standard"),
+    "Capital One" to CardVisualProfile("abstract", "matte", "jade", "minimal-content"),
+    "DBS" to CardVisualProfile("region", "matte", "crimson", "emblem"),
+    "中银香港" to CardVisualProfile("city", "glass", "gold", "standard"),
+)
+
+/** 卡 id → PresentationProfile（供 AssetCard 默认与 Studio 初始值；仅呈现层）。 */
+fun cardVisualProfileFor(cardId: String): CardVisualProfile {
+    val issuer = com.pdig.uivnext.demo.UiVNextDemoFixture.cardById(cardId)?.issuer ?: return CardVisualProfile("deep-space", "glass", "navy", "standard")
+    return ISSUER_VISUAL_PROFILES[issuer] ?: CardVisualProfile("deep-space", "glass", "navy", "standard")
+}
+
+/**
  * PDIG UI vNext Demo Fixture — Desktop 移植（all synthetic）。
  * 单一真源：spec/ui-vnext/UIVNextDemoFixture.json（人工 port；禁止真实数据）。
  * 冻结：同一 fixture + 同一时间 + 同一 locale + 同一动画状态 + 同一 scale = 截图可复现。

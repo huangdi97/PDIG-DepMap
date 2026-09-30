@@ -87,3 +87,35 @@ PHASE 1 Desktop 参考实现：契约/几何/token/交互/证据类 Gate 全部 
 
 **平台保持冻结**：Android/iOS/Harmony 视觉传播仍等 Desktop 批准（PHASE 3–5 HOLD）。
 **停止**：本轮提交推送后 STOP，不自动进入下一平台。
+
+---
+
+## 6. PHASE 1C — Renderer Upgrade（2026-10-03）
+
+> Human Visual Review（2026-10-01）：STRUCTURE/PRODUCT IA/DESKTOP DIRECTION 接受；
+> **VISUAL LANGUAGE = NOT_ACCEPTED、REFERENCE PARITY = NOT_ACCEPTED** → 升级 renderer，非 polish。
+
+| Gate | 状态 | 证据 |
+| --- | --- | --- |
+| RENDERER_SPLIT | **PASS** | globe/ 出现 EarthRenderer / TextureEarthRenderer（默认 OFFLINE_TEXTURE_EARTH）/ VectorEarthFallbackRenderer（LOW_POWER/VECTOR_EARTH_FALLBACK 非默认）/ EarthMaterialAssets / EarthLighting / EarthAtmosphere / EarthRegionOverlay；单文件 ≤300 行；EarthScene.kt / EarthOverlay.kt 已删除 |
+| TEXTURE_ASSETS | **PASS** | spec/ui-vnext/assets/：earth_albedo_2048.png / earth_night_lights_2048.png / cloud_2048.png + ASSET_MANIFEST.json（id/file/type/source/license/sha256/resolution/usage/fallback）；自产确定性生成（gen_earth_assets.py），license-safe、offline、无 CDN/遥测 |
+| EARTH_VISUAL_CONTRACT_A_J | **PASS（代码+截图可核验）** | 逐像素 equirect 纹理投影：大陆纹理（A）/ 海陆材质（B）/ terminator（C）/ 夜间城市光（D）/ 大气蓝 rim（E）/ 云层（F）/ specular ocean（G）/ 区域节点（H）/ 真实弧线（I）/ 相机聚焦（J） |
+| NO_GLOBAL_BLUE_BLOB | **PASS** | EnvironmentBackdrop 仅近黑/深藏青基底 + 星点；局部光源 LocalLightSource 分页（Overview=Earth 大气、Studio=preview、ChangePhone=migration path、NumberDetail=identity face） |
+| NAV_MERGED | **PASS** | rail 68；顶部 chrome 单行 56px ≤64px（基础设施二级 overlay segmented 并入；无第二行 header；标题移入 content） |
+| NOW_TWO_COLUMN | **PASS** | LEFT 64% Globe + RIGHT 36% Now Stream（需要处理/正在进行/即将到来 纵向） |
+| OVERVIEW | **PASS** | 浮动空间检查器 lighter glass（0.55）+ 更大地区身份（RegionBadge 44dp 主、计数次级）+ 底部动作坞保留 |
+| CARD_VISUAL_RENDERER | **PASS** | CardVisualRenderer.kt：CardMaterial（matte 微颗粒/glass 分层+边缘高光/metal 拉丝+各向异性/minimal 实心）+ CardArtwork（region 地形等高线+海岸轮廓、city 天际线+灯光、abstract/deep-space）；CardFace 委托同一渲染器，Studio 缩略图复用 |
+| ISSUER_PROFILES | **PASS** | fixture ISSUER_VISUAL_PROFILES：招商 matte/crimson、工行 minimal/warm+emblem、中行 metal/cool、HSBC city/glass/navy、Monzo minimal/coral、Revolut deep-space/glass/gold、Chase metal/navy、DBS region/crimson；synthetic demo 注明 |
+| CARD_GRID | **PASS** | 1920 三列保留 |
+| CARD_DETAIL_HERO | **PASS** | 顶部 Hero Asset Stage（卡 430dp ≈40% + issuer/status/region/currency/expiry/主操作），下方 绑定服务/风险/恢复与替代/历史 |
+| STUDIO | **PASS** | 三栏 20/55/25；预览卡 90% 宽（+25–40%）；主题 tile 84dp 高、两列、调用生产渲染器、显示中文名、选中 border/glow；右栏 卡面/背景/布局/显示内容/隐私 分组 |
+| NUMBER_IDENTITY | **PASS（改进）** | NumberDetail 左 Number Identity Face 38% + 右 status/role/usage/dependencies/risk，下方 services/recovery/history；LocalGlow 低强度地区光 |
+| CONTINUITY_SCENE | **PASS（本轮）** | Change Phone：三态投影选择器（当前/迁移中/完成后，After 标注 Plan Projection）；OLD→迁移通道→NEW 空间迁移图 + 路径局部光；state-transition 帧 |
+| LOCAL_LIGHT_SOURCE | **PASS | LocalLightSource.kt + 页面内使用（NumberDetail/ChangePhone）；Studio 舞台自带；Overview 用 Earth 大气 |
+| KEY_FRAMES | **PASS** | 2026-10-03-ui-vnext-phase1c 恰好 9 文件（8 项：overview-global / overview-HK / closeup / cards / card-detail / card-customization city+glass（两项）/ number-detail / change-phone state-transition） |
+| IMAGE_METRICS | **PASS** | 9 条：0 error / 0 empty bbox / 0 near-black（min 0.070 ≥ 0.02）；meanLuminance 0.102 ≥ 0.10 |
+| SCREENSHOTS_PHASE1C | **PASS** | docs/ui-vnext/SCREENSHOTS_PHASE1C.md，引用 0 missing |
+| PHASE_1C_IMPLEMENTED | **PASS** | 本轮允许的结论 |
+| VISUAL_CRAFT / REFERENCE_PARITY | **NEEDS_HUMAN_REVIEW** | 永不自行 PASS |
+
+**平台保持 HOLD**：Android/iOS/Harmony 视觉传播等 Desktop 批准。**停止**：提交推送后 STOP。

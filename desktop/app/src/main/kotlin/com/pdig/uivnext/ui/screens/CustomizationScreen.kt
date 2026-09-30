@@ -14,6 +14,7 @@ import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.CardFaceThumbnail
 import com.pdig.uivnext.ui.components.NumberFace
 import com.pdig.uivnext.ui.components.NumberFaceThumbnail
+import com.pdig.uivnext.ui.components.cardProfileOf
 
 /**
  * Card / Number Customization Studio 入口（Review §9–§15）。
@@ -26,8 +27,15 @@ import com.pdig.uivnext.ui.components.NumberFaceThumbnail
 fun CardCustomizationScreen(app: VAppState) {
     val initial = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
     var selectedId by remember { mutableStateOf(initial.id) }
+    val themeOverride = app.initialCustomTheme
     var profile by remember {
-        mutableStateOf(PresentationProfile.defaultFor("card", initial.id, app.initialCustomTheme ?: initial.preset))
+        mutableStateOf(
+            if (themeOverride != null) {
+                PresentationProfile.defaultFor("card", initial.id, themeOverride)
+            } else {
+                cardProfileOf(initial)
+            },
+        )
     }
     StudioFrame(
         title = "卡面定制",

@@ -187,10 +187,17 @@ object VType {
     )
 }
 
-/** 强调色可选项（全部来自 token palette；禁止页面自造色）。 */
+/** 强调色可选项（全部来自 token palette；PHASE 1C 增加语义命名 accent，无新色值）。 */
 val ACCENT_SWATCHES: List<Pair<String, Color>> = listOf(
     "primary" to PdigV2Colors.Primary,
     "primaryBright" to PdigV2Colors.PrimaryBright,
+    "navy" to PdigV2Colors.Primary,
+    "crimson" to PdigV2Colors.Critical,
+    "warm" to PdigV2Colors.Warning,
+    "coral" to PdigV2Colors.TerminatorLight,
+    "cool" to PdigV2Colors.Unknown,
+    "gold" to PdigV2Colors.NightCityLight,
+    "jade" to PdigV2Colors.Positive,
     "terminatorLight" to PdigV2Colors.TerminatorLight,
     "nightCityLight" to PdigV2Colors.NightCityLight,
     "positive" to PdigV2Colors.Positive,

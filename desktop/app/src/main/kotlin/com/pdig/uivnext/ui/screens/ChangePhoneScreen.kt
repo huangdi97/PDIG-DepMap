@@ -86,15 +86,23 @@ fun ChangePhoneScreen(app: VAppState) {
             modifier = Modifier.testTagLocal(VTestIds.CHANGE_PROGRESS),
         )
 
+        // 三态投影：当前 / 迁移中 / 完成后（After = Plan Projection，不冒充 Confirmed Reality）
+        ContinuityProjectionSelector()
         // 中央空间迁移图：OLD node → 迁移关系通道 → NEW node
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(VSpacing.Lg),
-            verticalAlignment = Alignment.Top,
+        com.pdig.uivnext.ui.components.LocalGlow(
+            color = PdigV2Colors.PrimaryBright,
+            alpha = 0.06f,
+            radiusFraction = 0.45f,
         ) {
-            if (old != null) OldNumberNode(old)
-            MigrationLanes(UiVNextDemoFixture.changeMigrations, Modifier.weight(1f))
-            if (new != null) NewNumberNode(new)
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(VSpacing.Lg),
+                verticalAlignment = Alignment.Top,
+            ) {
+                if (old != null) OldNumberNode(old)
+                MigrationLanes(UiVNextDemoFixture.changeMigrations, Modifier.weight(1f))
+                if (new != null) NewNumberNode(new)
+            }
         }
 
         // 下方 = detail inspector（非主视觉；保持信息完整）
@@ -129,6 +137,29 @@ fun ChangePhoneScreen(app: VAppState) {
                 color = PdigV2Colors.TextPrimary,
                 style = VType.Secondary,
             )
+        }
+    }
+}
+
+/** 三态投影选择器（当前 / 迁移中 / 完成后；After 标注 Plan Projection）。 */
+@Composable
+private fun ContinuityProjectionSelector() {
+    val projections = listOf("当前", "迁移中", "完成后")
+    Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm), verticalAlignment = Alignment.CenterVertically) {
+        Text("投影", color = PdigV2Colors.TextMuted, style = VType.Label)
+        projections.forEach { label ->
+            Surface(
+                color = if (label == "迁移中") PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else PdigV2Colors.SurfaceGlass,
+                shape = RoundedCornerShape(VRadius.Sm),
+                border = BorderStroke(1.dp, if (label == "迁移中") PdigV2Colors.PrimaryBright.copy(alpha = 0.3f) else PdigV2Colors.BorderSubtle),
+            ) {
+                Text(
+                    label + if (label == "完成后") " · Plan Projection" else "",
+                    Modifier.padding(horizontal = VSpacing.Md, vertical = 4.dp),
+                    color = if (label == "迁移中") PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                    style = VType.Label,
+                )
+            }
         }
     }
 }

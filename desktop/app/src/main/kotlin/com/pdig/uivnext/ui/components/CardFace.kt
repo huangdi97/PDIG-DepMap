@@ -73,6 +73,18 @@ internal fun cardLayoutLabel(layout: String): String = when (layout) {
     else -> "标准"
 }
 
+/** 卡默认视觉（PHASE 1C §14：issuer 差异化，synthetic demo；仅呈现层，绝不写 .depmap）。 */
+fun cardProfileOf(card: com.pdig.uivnext.model.UiVNextCard): PresentationProfile {
+    val vp = com.pdig.uivnext.demo.cardVisualProfileFor(card.id)
+    return PresentationProfile.defaultFor("card", card.id, vp.theme).copy(
+        material = vp.material,
+        accentColor = vp.accent,
+        layout = vp.layout,
+        backgroundKind = "preset",
+        backgroundValue = vp.theme,
+    )
+}
+
 @Composable
 fun AssetCard(
     card: UiVNextCard,
@@ -81,7 +93,7 @@ fun AssetCard(
     modifier: Modifier = Modifier,
     profile: PresentationProfile? = null,
 ) {
-    val p = profile ?: PresentationProfile.defaultFor("card", card.id, card.preset)
+    val p = profile ?: cardProfileOf(card)
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(VRadius.Xl))
@@ -310,126 +322,9 @@ internal fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
         else -> Brush.linearGradient(listOf(PdigV2Colors.Surface, PdigV2Colors.CanvasDeep))
     }
     drawRect(base)
-    // 2. Theme motifs（视觉身份，不全是蓝渐变）
-    when (p.themeId) {
-        "deep-space" -> {
-            drawCircle(
-                brush = Brush.radialGradient(listOf(PdigV2Colors.PrimarySoft.copy(alpha = 0.7f), Color.Transparent)),
-                radius = w * 0.55f,
-                center = Offset(w * 0.30f, h * 0.20f),
-            )
-            for (i in 0 until 16) {
-                val x = ((i * 37.5f) % 100f) / 100f * w
-                val y = ((i * 23.7f) % 100f) / 100f * h
-                drawCircle(PdigV2Colors.Star.copy(alpha = 0.30f + (i % 3) * 0.12f), radius = 1.0f + (i % 2), center = Offset(x, y))
-            }
-        }
-        "region" -> {
-            drawCircle(PdigV2Colors.LandBase.copy(alpha = 0.55f), radius = w * 0.34f, center = Offset(w * 0.78f, h * 0.30f))
-            drawCircle(PdigV2Colors.LandTextureHi.copy(alpha = 0.25f), radius = w * 0.18f, center = Offset(w * 0.62f, h * 0.38f))
-            drawCircle(PdigV2Colors.OceanBase.copy(alpha = 0.55f), radius = w * 0.26f, center = Offset(w * 0.20f, h * 0.85f))
-            drawCircle(PdigV2Colors.RegionNodeHi.copy(alpha = 0.85f), radius = 3f, center = Offset(w * 0.78f, h * 0.30f))
-        }
-        "city" -> {
-            val skyline = Path()
-            skyline.moveTo(0f, h * 0.72f)
-            skyline.lineTo(w * 0.10f, h * 0.72f)
-            skyline.lineTo(w * 0.10f, h * 0.55f)
-            skyline.lineTo(w * 0.18f, h * 0.55f)
-            skyline.lineTo(w * 0.18f, h * 0.62f)
-            skyline.lineTo(w * 0.27f, h * 0.62f)
-            skyline.lineTo(w * 0.27f, h * 0.45f)
-            skyline.lineTo(w * 0.36f, h * 0.45f)
-            skyline.lineTo(w * 0.36f, h * 0.60f)
-            skyline.lineTo(w * 0.48f, h * 0.60f)
-            skyline.lineTo(w * 0.48f, h * 0.50f)
-            skyline.lineTo(w * 0.58f, h * 0.50f)
-            skyline.lineTo(w * 0.58f, h * 0.70f)
-            skyline.lineTo(w, h * 0.70f)
-            skyline.lineTo(w, h)
-            skyline.lineTo(0f, h)
-            skyline.close()
-            drawPath(skyline, color = PdigV2Colors.CanvasDeep.copy(alpha = 0.75f))
-            for (row in 0 until 4) {
-                for (col in 0 until 10) {
-                    val x = 12f + col * ((w - 24f) / 9f)
-                    val y = h * (0.30f + 0.13f * row)
-                    drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.22f + (col % 3) * 0.14f), radius = 1.1f, center = Offset(x, y))
-                }
-            }
-        }
-        "abstract" -> {
-            val diag = Path().apply {
-                moveTo(w * 0.30f, 0f)
-                lineTo(w, h * 0.62f)
-                lineTo(w, h)
-                lineTo(w * 0.12f, h)
-                close()
-            }
-            drawPath(diag, color = PdigV2Colors.PrimaryBright.copy(alpha = 0.18f))
-            drawCircle(PdigV2Colors.PrimaryBright.copy(alpha = 0.30f), radius = w * 0.22f, center = Offset(w * 0.78f, h * 0.28f))
-            drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.18f), radius = w * 0.10f, center = Offset(w * 0.28f, h * 0.78f))
-            for (i in 1 until 6) {
-                val x = w * i / 6f
-                drawLine(
-                    color = PdigV2Colors.TextMuted.copy(alpha = 0.08f),
-                    start = Offset(x, 0f),
-                    end = Offset(x, h),
-                    strokeWidth = 1f,
-                )
-            }
-        }
-        "glass" -> {
-            drawRect(
-                Brush.linearGradient(
-                    listOf(PdigV2Colors.AtmosphereRim.copy(alpha = 0.30f), Color.Transparent),
-                    start = Offset(0f, h),
-                    end = Offset(w, 0f),
-                ),
-            )
-        }
-        else -> Unit
-    }
-    // 3. Material 质感
-    when (p.material) {
-        "matte" -> {
-            for (i in 0 until 26) {
-                val x = ((i * 41.7f) % 100f) / 100f * w
-                val y = ((i * 29.3f) % 100f) / 100f * h
-                drawCircle(PdigV2Colors.TextMuted.copy(alpha = 0.06f + (i % 3) * 0.03f), radius = 0.6f + (i % 2) * 0.4f, center = Offset(x, y))
-            }
-        }
-        "metal" -> {
-            drawRect(
-                Brush.linearGradient(
-                    listOf(
-                        PdigV2Colors.TextPrimary.copy(alpha = 0.10f),
-                        Color.Transparent,
-                        PdigV2Colors.TextPrimary.copy(alpha = 0.05f),
-                    ),
-                    start = Offset(0f, h * 0.28f),
-                    end = Offset(0f, h * 0.72f),
-                ),
-            )
-            drawRect(Brush.horizontalGradient(listOf(Color.Transparent, PdigV2Colors.TextMuted.copy(alpha = 0.20f), Color.Transparent)), topLeft = Offset(0f, h * 0.44f), size = Size(w, 1f))
-            for (i in 1 until 7) {
-                drawLine(
-                    color = PdigV2Colors.TextMuted.copy(alpha = 0.05f),
-                    start = Offset(0f, h * i / 7f),
-                    end = Offset(w, h * i / 7f),
-                    strokeWidth = 1f,
-                )
-            }
-        }
-        "glass" -> drawRect(
-            Brush.linearGradient(
-                listOf(PdigV2Colors.TextPrimary.copy(alpha = 0.07f), Color.Transparent),
-                start = Offset(0f, 0f),
-                end = Offset(w, h),
-            ),
-        )
-        else -> Unit
-    }
+    // 2+3. 委托 CardVisualRenderer（PHASE 1C 拆分：CardArtwork + CardMaterial）
+    CardArtwork.artwork(this, p, w, h)
+    CardMaterial.material(this, p, w, h)
     // 4. 左缘 accent 洗色（克制的品牌强调）
     val accent = accentColorOf(p.accentColor)
     drawRect(
@@ -459,7 +354,7 @@ fun CardFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
     Box(
         modifier
             .fillMaxWidth(0.92f)
-            .height(76.dp)
+            .height(84.dp)
             .drawBehind { drawCardFaceBackdrop(profile) }
             .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
     ) {
