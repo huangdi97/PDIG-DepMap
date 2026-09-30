@@ -208,7 +208,7 @@ private struct CustomizationFrame: View {
         }
         .vPageBackground()
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .cancellationAction) {
                 VBackButton { onBack() }
             }
         }

@@ -39,7 +39,7 @@ struct ChangePhoneView: View {
         }
         .vPageBackground()
         .toolbar {
-            ToolbarItem(placement: .navigationBarLeading) {
+            ToolbarItem(placement: .cancellationAction) {
                 VBackButton { model.back() }
             }
         }

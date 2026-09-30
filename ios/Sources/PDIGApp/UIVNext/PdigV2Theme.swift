@@ -107,6 +107,7 @@ enum VSpace {
     static let pagePadding: CGFloat = CGFloat(GeneratedPdigV2Tokens.spacingPagePadding)
     static let sectionGap: CGFloat = CGFloat(GeneratedPdigV2Tokens.spacingSectionGap)
     static let gridGap: CGFloat = CGFloat(GeneratedPdigV2Tokens.spacingGridGap)
+    static let gridGapWide: CGFloat = CGFloat(GeneratedPdigV2Tokens.spacingGridGapWide)
 }
 
 enum VRadius {
