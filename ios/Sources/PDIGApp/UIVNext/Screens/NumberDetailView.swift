@@ -44,7 +44,9 @@ struct NumberDetailView: View {
                     VBackButton { model.back() }
                 }
             }
-            .navigationBarBackButtonHidden(true)
+                #if os(iOS)
+                .navigationBarBackButtonHidden(true)
+                #endif
         }
     }
 

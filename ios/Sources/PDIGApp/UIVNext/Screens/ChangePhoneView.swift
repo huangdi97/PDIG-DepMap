@@ -43,7 +43,9 @@ struct ChangePhoneView: View {
                 VBackButton { model.back() }
             }
         }
-        .navigationBarBackButtonHidden(true)
+            #if os(iOS)
+            .navigationBarBackButtonHidden(true)
+            #endif
     }
 
     private var titleSection: some View {

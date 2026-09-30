@@ -101,7 +101,9 @@ struct PersonalizationView: View {
                 VBackButton { model.back() }
             }
         }
-        .navigationBarBackButtonHidden(true)
+            #if os(iOS)
+            .navigationBarBackButtonHidden(true)
+            #endif
     }
 
     private func toggleRow(_ label: String, _ value: String, enabled: Bool, onToggle: (() -> Void)? = nil) -> some View {

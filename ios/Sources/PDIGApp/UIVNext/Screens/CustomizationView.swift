@@ -212,6 +212,8 @@ private struct CustomizationFrame: View {
                 VBackButton { onBack() }
             }
         }
-        .navigationBarBackButtonHidden(true)
+            #if os(iOS)
+            .navigationBarBackButtonHidden(true)
+            #endif
     }
 }
