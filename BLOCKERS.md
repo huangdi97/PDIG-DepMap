@@ -2,10 +2,10 @@
 
 > **UI vNext（2026-09-29，feature branch `feat/pdig-ui-vnext`）新增/确认的真实外部 Gate（不阻塞本轮桌面闭环，汇合后由并行 fixer / 人工解除）：**
 >
-> - `IOS_RUNTIME_EXTERNAL_GATE`：本机 Windows 无 Swift/Xcode；iOS vNext 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml），本机只能交付源码与静态契约证据。
+> - `IOS_RUNTIME_EXTERNAL_GATE`：~~本机 Windows 无 Swift/Xcode；iOS vNext 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml），本机只能交付源码与静态契约证据。~~ **已解除（2026-09-30）**：ios.yml run 36665451395 PASS + ios-runtime-visual.yml run 36667427702 PASS（Simulator build + XCUITest iPhone/iPad + xcresult + screenshots）。真机 LocalAuthentication/Keychain 仍为外部项。
+> - `PLATFORM_EVIDENCE_CONVERGENCE`：~~Android/iOS/Harmony 的 LAYOUT_CONTRACT 实现/证据由并行平台 fixer 产出，汇合后补全（PENDING_CONVERGENCE），不提前写 PASS。~~ **已汇合（2026-09-30）**：Android = PASS（编译级 + 设备截图；完整 probe 运行受模拟器稳定性限制 NOT_RUN）；iOS = PASS（macOS CI）；Harmony = EXTERNAL_GATE（hvigor bootstrap 需网络，源码完整）。
 > - `HARMONY_RUNTIME_EXTERNAL_GATE`：无 hdc / DevEco / 华为模拟器镜像与真机（华为账号）；Harmony vNext 只能 hvigor 构建，runtime 视觉需设备。
 > - `GOLDEN_APPROVAL_GATE`：spec/ui-vnext/golden/ 像素基线**必须 human-approved 后才建立**；当前 `REFERENCE_MANIFEST.json = none-approved`（实现完全来自 Visual Contract）。
-> - `PLATFORM_EVIDENCE_CONVERGENCE`：Android/iOS/Harmony 的 LAYOUT_CONTRACT 实现/证据由并行平台 fixer 产出，汇合后补全（PENDING_CONVERGENCE），不提前写 PASS。
 > - 环境注记（非 blocker）：Desktop 离屏渲染（ImageComposeScene）无真实窗口焦点系统 → 键盘 focus-visible 的 OS 级验证标 `NEEDS_RUNTIME_VERIFICATION`（代码面 focusable 链 + Region List 已兜底）。
 
 ---
