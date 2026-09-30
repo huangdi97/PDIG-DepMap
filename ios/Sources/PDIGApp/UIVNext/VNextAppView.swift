@@ -106,20 +106,20 @@ struct VNextSplitShell: View {
 
     var body: some View {
         NavigationSplitView {
-            List(selection: $model.screen) {
+            List {
                 Section(VCopy.navNow) {
-                    NavigationLink(value: VScreen.now) { Label(VCopy.navNow, systemImage: "house.fill") }
+                    Button { model.screen = .now } label: { Label(VCopy.navNow, systemImage: "house.fill") }
                 }
                 Section(VCopy.navInfrastructure) {
-                    NavigationLink(value: VScreen.overview) { Label(VCopy.navInfraOverview, systemImage: "globe.asia.australia.fill") }
-                    NavigationLink(value: VScreen.cards) { Label(VCopy.navInfraCards, systemImage: "creditcard.fill") }
-                    NavigationLink(value: VScreen.numbers) { Label(VCopy.navInfraNumbers, systemImage: "phone.fill") }
+                    Button { model.screen = .overview } label: { Label(VCopy.navInfraOverview, systemImage: "globe.asia.australia.fill") }
+                    Button { model.screen = .cards } label: { Label(VCopy.navInfraCards, systemImage: "creditcard.fill") }
+                    Button { model.screen = .numbers } label: { Label(VCopy.navInfraNumbers, systemImage: "phone.fill") }
                 }
                 Section(VCopy.navChange) {
-                    NavigationLink(value: VScreen.changePhone) { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
+                    Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
                 }
                 Section(VCopy.navSettings) {
-                    NavigationLink(value: VScreen.personalization) { Label(VCopy.navSettings, systemImage: "gearshape.fill") }
+                    Button { model.screen = .personalization } label: { Label(VCopy.navSettings, systemImage: "gearshape.fill") }
                 }
             }
             .listStyle(.sidebar)
