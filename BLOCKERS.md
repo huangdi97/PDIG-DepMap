@@ -1,12 +1,12 @@
 # BLOCKERS.md
 
-> **UI vNext（2026-09-29，feature branch `feat/pdig-ui-vnext`）新增/确认的真实外部 Gate（不阻塞本轮桌面闭环，汇合后由并行 fixer / 人工解除）：**
+> **UI vNext PHASE 1 —— Desktop 参考实现已完成（2026-10-01），等待 Human/Vision Review：**
 >
-> - `IOS_RUNTIME_EXTERNAL_GATE`：~~本机 Windows 无 Swift/Xcode；iOS vNext 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml），本机只能交付源码与静态契约证据。~~ **已解除（2026-09-30）**：ios.yml run 36665451395 PASS + ios-runtime-visual.yml run 36667427702 PASS（Simulator build + XCUITest iPhone/iPad + xcresult + screenshots）。真机 LocalAuthentication/Keychain 仍为外部项。
-> - `PLATFORM_EVIDENCE_CONVERGENCE`：~~Android/iOS/Harmony 的 LAYOUT_CONTRACT 实现/证据由并行平台 fixer 产出，汇合后补全（PENDING_CONVERGENCE），不提前写 PASS。~~ **已汇合（2026-09-30）**：Android = PASS（编译级 + 设备截图；完整 probe 运行受模拟器稳定性限制 NOT_RUN）；iOS = PASS（macOS CI）；Harmony = EXTERNAL_GATE（hvigor bootstrap 需网络，源码完整）。
-> - `HARMONY_RUNTIME_EXTERNAL_GATE`：无 hdc / DevEco 模拟器镜像与真机（华为账号）；Harmony vNext **HAP 构建已 PASS（2026-09-30，ASCII mirror + DevEco 内置 hvigor，entry-default-unsigned.hap 3,758,625 B）**，runtime 视觉仍需设备。
-> - `GOLDEN_APPROVAL_GATE`：spec/ui-vnext/golden/ 像素基线**必须 human-approved 后才建立**；当前 `REFERENCE_MANIFEST.json = none-approved`（实现完全来自 Visual Contract）。
-> - 环境注记（非 blocker）：Desktop 离屏渲染（ImageComposeScene）无真实窗口焦点系统 → 键盘 focus-visible 的 OS 级验证标 `NEEDS_RUNTIME_VERIFICATION`（代码面 focusable 链 + Region List 已兜底）。
+> - PHASE 1 Desktop 参考实现完成：9 核心屏 + vector-Earth Globe（bundled 海岸线/城市灯光/程序化大气，offline）+ Card/Number 定制工作室（before/customized 变体证据）+ Change Phone flagship；**100 帧证据**（artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1/）+ IMAGE_METRICS.json（100 帧：0 error / 0 empty bbox / 0 near-black）+ UI_LAYOUT_PROBE.json + EVIDENCE_SHA256SUMS.txt + gallery（0 missing）。
+> - `VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（Review §V 强制，永不自行改 PASS）：由 Human/Vision 对照 spec/ui-vnext/references/（4 张 HUMAN-APPROVED VISUAL TARGET）评审；批准后才建立 golden（spec/ui-vnext/golden/）并进入 PHASE 3–5（Android/iOS/Harmony 传播，Review §T）。
+> - `GOLDEN_APPROVAL_GATE`：像素基线必须 human-approved 后才建立；参考图 ≠ pixel golden。
+> - 平台传播冻结：Android/iOS/Harmony 视觉等待 Desktop 批准；既有证据保留：Android compile PASS + 设备 5 帧（2026-09-29-ui-vnext-android）、iOS CI run 36665451395 / 36667427702 PASS（artifact 需登录）、Harmony HAP build PASS（3,758,625 B，sha256 E37A5A03…）。
+> - 环境注记（非 blocker）：Android AVD `main` 不稳定（qemu 进程消失 → instrumentation `Process crashed` → 完整 connected run 尾段 NOT_RUN 如实）；Harmony runtime 无设备（EXTERNAL_GATE）；iOS 截图仅 CI artifact（需登录）。
 
 ---
 > **UI/UX Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）新增/确认的真实外部 Gate（不阻塞本轮，不影响 product-v0.3.1）：**

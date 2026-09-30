@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pdig.desktop.ui.theme.PdigDesktopTokens as T
 import com.pdig.desktop.ui.theme.PdigStatusColors
 import com.pdig.desktop.ui.theme.PdigSoftBackgrounds
@@ -157,7 +159,7 @@ fun PdigCard(
     onClick: (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
 ) {
-    // surface + 1dp border；悬停轻底色（Quiet Infrastructure：卡片只在真正独立对象上用，用 border 而非填紫条）
+    // surface + 1dp border + 微弱阴影；悬停轻底色（卡片只在真正独立对象上用）
     val interaction = remember { MutableInteractionSource() }
     val hovered by interaction.collectIsHoveredAsState()
     Surface(
@@ -166,13 +168,14 @@ fun PdigCard(
             .let { if (onClick != null) it.clickable(interactionSource = interaction, indication = null) { onClick() } else it },
         color = if (hovered && onClick != null) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(T.RadiusMd),
+        shadowElevation = if (onClick != null) 1.dp else 0.dp,
     ) {
-        Row(Modifier.fillMaxWidth().padding(horizontal = T.SpaceLg, vertical = T.SpaceMd), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(horizontal = T.SpaceLg, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(title, style = PdigType.Body, fontWeight = FontWeight.Medium)
+                Text(title, style = PdigType.Body, fontWeight = FontWeight.SemiBold)
                 if (subtitle != null) {
-                    Spacer(Modifier.height(2.dp))
-                    Text(subtitle, style = PdigType.Secondary, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(3.dp))
+                    Text(subtitle, style = PdigType.Secondary, color = MaterialTheme.colorScheme.onSurfaceVariant, lineHeight = 20.sp)
                 }
             }
             trailing?.invoke()
@@ -294,7 +297,6 @@ fun ActionRow(
         }
     }
 }
-
 /** 列表行（hairline 分隔，非卡片）：icon/状态 + 标题 + 描述 + 右侧动作。 */
 @Composable
 fun PdigRow(
@@ -311,17 +313,24 @@ fun PdigRow(
         Row(
             Modifier
                 .fillMaxWidth()
-                .height(T.ListRowHeight)
+                .heightIn(min = 48.dp)
                 .let { if (onClick != null) it.clickable(interactionSource = interaction, indication = null) { onClick() } else it }
-                .background(if (hovered && onClick != null) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent, RoundedCornerShape(4.dp))
-                .padding(horizontal = T.SpaceSm),
+                .background(
+                    when {
+                        hovered && onClick != null -> MaterialTheme.colorScheme.surfaceVariant
+                        else -> MaterialTheme.colorScheme.surface
+                    },
+                    RoundedCornerShape(6.dp),
+                )
+                .padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             leading?.invoke()
             if (leading != null) Spacer(Modifier.width(T.SpaceMd))
             Column(Modifier.weight(1f)) {
-                Text(title, style = PdigType.Body, fontWeight = FontWeight.Medium, maxLines = 1)
+                Text(title, style = PdigType.Body, fontWeight = FontWeight.SemiBold, maxLines = 1)
                 if (subtitle != null) {
+                    Spacer(Modifier.height(2.dp))
                     Text(subtitle, style = PdigType.Secondary, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
                 }
             }
@@ -398,32 +407,32 @@ fun ContinuityRail(
     Column(Modifier.fillMaxWidth()) {
         steps.forEachIndexed { i, step ->
             val isLast = i == steps.lastIndex
-            Row(Modifier.fillMaxHeight().padding(vertical = 2.dp)) {
-                // 轨道线 + 节点
-                Column(Modifier.width(28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    RailNode(step)
+            Row(Modifier.fillMaxHeight().padding(vertical = 3.dp)) {
+                // 轨道线 + 节点（放大到 28dp，带编号，成为真 signature）
+                Column(Modifier.width(36.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    RailNode(step, index = i + 1)
                     if (!isLast) {
                         Box(
                             Modifier
-                                .width(2.dp)
+                                .width(3.dp)
                                 .weight(1f)
                                 .background(
                                     when (step.state) {
                                         RailState.SUCCESS, RailState.VERIFIED -> MaterialTheme.colorScheme.secondary
-                                        else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.8f)
+                                        else -> MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.9f)
                                     },
                                 ),
                         )
                     }
                 }
-                Spacer(Modifier.width(T.SpaceMd))
-                Column(Modifier.padding(bottom = if (isLast) 0.dp else 12.dp)) {
+                Spacer(Modifier.width(T.SpaceLg))
+                Column(Modifier.padding(bottom = if (isLast) 0.dp else 14.dp).weight(1f)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             step.label,
                             style = PdigType.Body,
                             fontWeight = when (step.state) {
-                                RailState.SUCCESS, RailState.VERIFIED, RailState.ACTIVE -> FontWeight.Medium
+                                RailState.SUCCESS, RailState.VERIFIED, RailState.ACTIVE -> FontWeight.SemiBold
                                 else -> FontWeight.Normal
                             },
                             color = when (step.state) {
@@ -436,17 +445,17 @@ fun ContinuityRail(
                         step.stateLabel?.let { StatusBadge(it, step.state.wire, compact = true) }
                     }
                     step.description?.let {
-                        Spacer(Modifier.height(2.dp))
+                        Spacer(Modifier.height(3.dp))
                         Text(it, style = PdigType.Secondary, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     step.content?.invoke()
                     if (step.state == RailState.BLOCKED) {
                         blockedReason?.let {
-                            Spacer(Modifier.height(4.dp))
+                            Spacer(Modifier.height(5.dp))
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Filled.WarningAmber, contentDescription = "原因", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(14.dp))
+                                Icon(Icons.Filled.WarningAmber, contentDescription = "原因", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(15.dp))
                                 Spacer(Modifier.width(6.dp))
-                                Text(it, style = PdigType.Secondary, color = MaterialTheme.colorScheme.error)
+                                Text(it, style = PdigType.Secondary, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -478,7 +487,7 @@ enum class RailState(val wire: String) {
 }
 
 @Composable
-private fun RailNode(step: ContinuityStep) {
+private fun RailNode(step: ContinuityStep, index: Int) {
     val color = when (step.state) {
         RailState.SUCCESS, RailState.VERIFIED -> MaterialTheme.colorScheme.secondary
         RailState.ACTIVE -> MaterialTheme.colorScheme.primary
@@ -487,17 +496,17 @@ private fun RailNode(step: ContinuityStep) {
     }
     Box(
         Modifier
-            .size(20.dp)
+            .size(30.dp)
             .background(circleBg(step.state), CircleShape)
-            .border(if (step.state == RailState.ACTIVE) 2.dp else 0.dp, color, CircleShape),
+            .border(if (step.state == RailState.ACTIVE) 2.dp else 1.dp, color, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         when (step.state) {
-            RailState.SUCCESS -> Icon(Icons.Filled.Check, contentDescription = "完成", tint = Color.White, modifier = Modifier.size(12.dp))
-            RailState.VERIFIED -> Icon(Icons.Filled.DoneAll, contentDescription = "已验证", tint = Color.White, modifier = Modifier.size(12.dp))
-            RailState.ACTIVE -> Text("", modifier = Modifier.size(8.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
-            RailState.BLOCKED -> Icon(Icons.Filled.ErrorOutline, contentDescription = "受阻", tint = Color.White, modifier = Modifier.size(12.dp))
-            RailState.UPCOMING -> Box(Modifier.size(6.dp).background(MaterialTheme.colorScheme.outline, CircleShape))
+            RailState.SUCCESS -> Icon(Icons.Filled.Check, contentDescription = "完成", tint = Color.White, modifier = Modifier.size(16.dp))
+            RailState.VERIFIED -> Icon(Icons.Filled.DoneAll, contentDescription = "已验证", tint = Color.White, modifier = Modifier.size(16.dp))
+            RailState.BLOCKED -> Icon(Icons.Filled.ErrorOutline, contentDescription = "受阻", tint = Color.White, modifier = Modifier.size(16.dp))
+            RailState.ACTIVE -> Text(index.toString(), style = PdigType.Label, color = Color.White, fontWeight = FontWeight.Bold)
+            RailState.UPCOMING -> Text(index.toString(), style = PdigType.Meta, color = MaterialTheme.colorScheme.outline, fontWeight = FontWeight.Medium)
         }
     }
 }

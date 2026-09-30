@@ -1,24 +1,15 @@
 # WORK_STATUS.md
 
-> **（当前）PDIG UI vNext · PHASE 1 Desktop 视觉重建（2026-09-30，Human Visual Review 后）**
-> —— 人工评审结论：`VISUAL_DIRECTION = FAIL`、`VISUAL_CONTRACT_IMPLEMENTATION = NOT_ACCEPTED`；原截图定为 `REJECTED_ENGINEERING_PROTOTYPE`（保留为 BEFORE，见 artifacts/runtime-evidence/2026-09-29-ui-vnext/VISUAL_STATUS.json）。
-> —— 目标 = Global Digital Infrastructure **Spatial Product**（非 admin dashboard）：vector-Earth Globe 签名组件（bundled 简化海岸线 + 夜间城市灯光 + atmospheric rim + sunlight/暗面，plain sphere 降级为 LOW_POWER_FALLBACK）、edge-to-edge 空间舞台（52–64% 宽 × 64–78% 高）、Primary Rail（现在/基础设施/变更/记录）+ 上下文二级 Subnav、放大字号（title 32–44 / section 18–22 / body 15–17 / ≤12 仅 metadata）、卡资产身份差异化卡面、PresentationProfile<Card>/<PhoneNumber> 定制工作室、Change Phone flagship。
-> —— PHASE 1 只做 Desktop 9 屏（Now/Overview/Cards/CardDetail/Numbers/NumberDetail/CardCustomization/NumberCustomization/ChangePhone）；完成后给证据并 STOP，经 Human/Vision Review 通过后才进入 Android/iOS/Harmony 适配（PHASE 3–5）。
-> —— 参考图已入 spec/ui-vnext/references/（4 张，REFERENCE_MANIFEST.json humanApproved=true）；Golden 只在 production 截图获人工批准后建立。
-> —— No-Vision Blind Coding Agent 轮：冻结方向「Global Digital Infrastructure」（dark spatial · deep navy · subtle glass · premium · calm），
-> 契约全量落地于 `spec/ui-vnext/`（29 文件：DESIGN_TOKENS/VISUAL_DNA/IA/LAYOUT_CONTRACT/MOTION_CONTRACT/INTERACTION_CONTRACT/RESPONSIVE_CONTRACT/PRESENTATION_PROFILE_SCHEMA/UIVNextDemoFixture/components 9/screens 10/references）。
-> **Desktop 本机闭环**：`com/pdig/uivnext/**` 全量实现（VNextShell rail 80/188 + top 48、程序化 2.5D Interactive Globe（drag/zoom/hover/click/focus/跨区弧线、offline、深度着色）、10 屏、PresentationProfile、Privacy Mask）+ Main.kt `--vnext`/`--vnext-shots`；
-> `gradlew :app:compileKotlin` BUILD SUCCESSFUL；离屏证据 90 帧（10 屏 × 5 档案 1280x720/1920x1080/2560x1440/@1.25/@1.5；overview+now × 5 `--globe-camera` 预设 global/cn/hk/gb/us）+ UI_LAYOUT_PROBE.json + EVIDENCE_SHA256SUMS.txt + IMAGE_METRICS.json
-> （JDK ImageIO 工具，meanLuminance 0.073–0.135、darkRatio 0.952–0.995、无空 bbox/无全黑；部分帧 blankAreaRatio 0.7–0.96 属深色画布设计预期，留人审）。
-> Token 单一真源：tools/codegen/generate.mjs 扩展 → 四端 GeneratedPdigV2Tokens（desktop+android kt / ios swift / harmony ets），`--check` = CODEGEN GATE PASS（含既有 canonical 零漂移）。
-> core 回归：`npm run check` 全绿（format/lint/typecheck/487 tests/architecture circular=0/network 0/secrets 0/UI gate）；
-> check-secrets.mjs 新增精确豁免 `/^spec\/ui-vnext\/DESIGN_TOKENS\.json$/`（与既有 spec/ui/design-tokens.json 同类惯例）。
-> Skills：ui-ux-pro-max / impeccable / frontend-design 仅用于交互/可访问/密度/反模式/平台适配，**不用于视觉自判**。
-> 诚实门：`VISUAL_CONTRACT_IMPLEMENTATION = PASS`；审美 `VISION_REVIEW = NEEDS_HUMAN_OR_VISION_MODEL`（90 帧评审包已备 artifacts/ui-vnext-review/）；
-> **三端汇合（2026-09-30 更新）**：Android uivnext 全屏源码 + UiScreenshotEvidenceTest testTag probe，三变体编译 BUILD SUCCESSFUL + 设备截图 5 帧；`connectedPreviewDebugAndroidTest` 62 用例执行（vNext 截图确定性修复 reduceMotion 冻结 idle 旋转；首轮 61/62 绿，修复后 now/overview/cards 推进成功，模拟器环境性中断 → 尾段 NOT_RUN 如实）。iOS UIVNext 20 文件：`ios.yml` run 36665451395 PASS + `ios-runtime-visual.yml` run 36667427702 PASS（Simulator build + XCUITest iPhone/iPad + xcresult + screenshots；CI 修复 5 类平台 API 问题）。**Harmony：HAP 构建 PASS（2026-09-30，ASCII mirror + PDIG_DEVECO_HOME=D:\Code\Harmony\DevEco Studio，BUILD SUCCESSFUL 1m02s，entry-default-unsigned.hap 3,758,625 B，sha256 E37A5A03…；根因 = wrapper 联网 bootstrap vs DevEco 内置 file: 协议，已用仓库规范流程解决）**，runtime 需设备。评审包 artifacts/ui-vnext-review/ 就绪。
-> 文档：docs/ui-vnext/（10 份）+ artifacts/ui-vnext-review/（desktop 证据副本 + TOKEN_MANIFEST / REFERENCE_MANIFEST / TEST_RESULTS / VISION_REVIEW_TEMPLATE / IMAGE_METRICS）。
-> 分支纪律：push 前 STOP（不 merge main、不建 tag、不发布、不进 v0.4）；不动 product-v0.3.1 冻结物。
-
+> **（当前）PDIG UI vNext · PHASE 1 Desktop 视觉重建 —— 已完成（2026-10-01，依据 Human Visual Review 2026-09-30）**
+> —— 评审结论：旧实现 `VISUAL_DIRECTION = FAIL` / `VISUAL_CONTRACT_IMPLEMENTATION = NOT_ACCEPTED`，定为 `REJECTED_ENGINEERING_PROTOTYPE`（保留为 BEFORE：artifacts/runtime-evidence/2026-09-29-ui-vnext/VISUAL_STATUS.json，不删）。
+> —— 目标 = Global Digital Infrastructure **Spatial Product**（非 admin dashboard）：vector-Earth Globe 签名组件（bundled 简化海岸线 + ~90 城市夜间灯光 + 程序化大气/明暗/星空/跨区弧线；plain sphere 仅保留 LOW_POWER_FALLBACK）、edge-to-edge 空间舞台（globe 52–64% 宽 × 64–78% 高；L0 env → L1 globe → L2 floating chrome → L3 solid data → L4 asset identity → L5 status）、Primary Rail（现在/基础设施/变更/记录 + 数据源/设置；基础设施 8 二级项进 context subnav）、放大字阶（pageTitle 36 / majorNumber 30 / sectionTitle 20 / body 16 / ≤12 仅 metadata）、卡/号码资产身份面（CardFace 1.586 + NumberFace）+ PresentationProfile<Card>/<PhoneNumber> 定制工作室（三栏 22/46/32 对象库/实时预览/分组编辑器、live preview、保存只写 PresentationProfile 绝不写 .depmap）、Change Phone flagship（顶部 6-stage + 中央旧→迁移→新 + 左右迁移列 + migrated/waiting/manual/blocked/not-started 同屏）。
+> —— 交付（PHASE 1 Desktop 9 屏完成，STOP）：`artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1/` **100 帧**（9 核心屏 + overview/now × 5 相机 global/cn/hk/gb/us + card/number customization before+customized 变体 + 5 分辨率档案）+ UI_LAYOUT_PROBE.json + EVIDENCE_SHA256SUMS.txt + IMAGE_METRICS.json（100 帧：0 error / 0 empty bbox / 0 near-black；meanLum 0.18）；gallery 重建 docs/ui-vnext/gallery/index.html + SCREENSHOTS.md（0 missing）。
+> —— 本机闭环：`gradlew :app:compileKotlin` BUILD SUCCESSFUL（仅既有 ArrowForward deprecation 警告）；新增 globe/WorldCoastlines.kt、WorldCityLights.kt、EarthScene.kt、EarthOverlay.kt、EnvironmentBackdrop.kt、components/CardFace.kt、NumberFaceKit.kt、screens/PageChrome.kt、StudioFrame.kt；DESIGN_TOKENS.json v2.1.0 → tools/codegen 四端零漂移（CODEGEN GATE PASS）。
+> —— Gate（Review §V）：LAYOUT_CONTRACT / TOKENS / FUNCTIONAL_INTERACTION / GLOBE_INTERACTION / SCREENSHOTS_GENERATED = **PASS**；**VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW（永不自行改 PASS）**。
+> —— 参考图 = HUMAN-APPROVED VISUAL TARGET（spec/ui-vnext/references/ 4 张，REFERENCE_MANIFEST.json humanApproved=true，1672×941）；Golden 只在 production 截图获批准后建立。
+> —— 平台冻结（Review §T）：Android/iOS/Harmony 视觉传播等待 Human/Vision 批准 Desktop 参考实现后启动（PHASE 3–5）；既有平台证据保留（Android compile + 设备 5 帧、iOS CI run 36665451395/36667427702 PASS、Harmony HAP 3,758,625 B PASS）。
+> —— core 回归：`npm run check` 全绿（487 tests / architecture circular=0 / network 0 / secrets 0）；Domain/Core/状态机/数据模型/测试零改动。
+> —— 分支纪律：`feat/pdig-ui-vnext` 推送后 STOP；不 merge main、不建 tag、不发布、不进 v0.4；不动 product-v0.3.1 冻结物。
 ---
 > **（当前）PDIG v0.3.1 UI/UX Visual Design Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）**
 > —— 冻结方向「Quiet Infrastructure / Calm Control Plane」，Signature Motif = Continuity Rail。四平台落地：Desktop（主题+壳+旗舰屏全量重构）、Android（screens 层重构）、iOS（PdigTheme+PdigComponents 源码落地）、Harmony（Index 首页工程化，assembleHap PASS）。spec/ui tokens v1.1 + copy-zh uiuxV031 additive。回归：core 487 tests 全绿（architecture 0 环 / network 0 / secrets 0 / UI gate PASS）、desktop smoke PASS + profiles 80 帧、android compile+unit 绿 + AVD 42 帧、harmony HAP build PASS。外部门禁如实：iOS runtime 走 macOS CI、Harmony runtime 无设备、VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW（诚实门，BEFORE/AFTER 证据齐备待人工复核）。详见 docs/uiux/（10 份）+ artifacts/runtime-evidence/2026-09-28-uiux-{baseline,refinement}/。
@@ -1575,3 +1566,62 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 - 报告：MULTI_CLIENT_RUNTIME_ACCEPTANCE / FUNCTIONAL_MATRIX / VISUAL_ACCEPTANCE / CROSS_PLATFORM_RUNTIME_DIFF / RUNTIME_EVIDENCE_INDEX + DESKTOP/ANDROID/HARMONY/IOS_SIMULATOR FINAL_REPORT + IOS_RUNTIME_BASELINE_AUDIT。
 - 机器可读单源：runtime/RUNTIME_ACCEPTANCE_MATRIX.json（292 行 = 73 特征 × 4 平台，25 字段/行；evidence overlays 为 runtime/evidence/*.json）。
 - NATIVE_PARITY_MATRIX 首次引入 Desktop 列（仅本注记，不动 73 行口径）；详细证据见上述报告与 Evidence Index。
+
+---
+
+## 本轮：UI vNext PHASE 1 Desktop 视觉重建（2026-10-01，分支 feat/pdig-ui-vnext）
+
+Human Visual Review 后的强制重做：目标从「深蓝工程后台」改为 **Global Digital Infrastructure Spatial Product**。
+只重构 PRESENTATION / LAYOUT / SPATIAL UI；功能/状态机/数据模型/测试/导航能力全部保留。
+
+### 视觉重建（G1–G13 逐条）
+
+- **G1 Globe = SIGNATURE**：默认渲染器 = 真实地球感 vector Earth。新增 bundled 数据
+  `globe/WorldCoastlines.kt`（9 块简化海岸线：北美/南美/非洲/欧亚/澳洲 + 格陵兰/马达加斯加/英伦/日本/新西兰）
+  与 `globe/WorldCityLights.kt`（约 90 个主要城市坐标）。渲染分层（`globe/EarthScene.kt` +
+  `globe/EarthOverlay.kt`）：海洋径向（oceanBase/oceanDeep）、大陆多边形按深度+terminator 着色、
+  夜间城市灯光（nightCityLight+光晕，暗面增强）、大气 rim、sunlight/terminator 暗面、确定性星点、
+  极淡经纬网格、地区锚点+label、连接弧。旧 plain sphere 保留为 LOW_POWER_FALLBACK（lowPower 开关）。
+  全部 token 色、零网络、零远程 tiles。
+- **G2 Globe 舞台**：Overview = LEFT rail / CENTER globe 舞台（62% 宽、填充主行高，edge-to-edge 无卡片 chrome）/
+  RIGHT activity rail（300–380px，solid）/ BOTTOM 快捷动作（glass 96px）+ Region Drawer。
+- **G3 去 Dashboard**：`ui/EnvironmentBackdrop.kt`（L0：canvas→canvasDeep 深空渐变 + 大气辉光 + earth light +
+  subtle 星点）；数据面板 solid 高可读；glass 仅用于导航/浮动控制/区域抽屉。
+- **G4 字阶与留白**：`theme/PdigV2Theme.kt` 新增 VType（pageTitle 36 / majorNumber 30 / sectionTitle 20 /
+  body 16 / secondary 14 / label 13 / meta 12 / mono 14，含 line-height）与 VSpacing 扩展
+  （xxxl/xxxxl/sectionGapWide/gridGapWide）；`PageChrome.PageHeader` 统一各屏标题。
+- **G5 导航重做**：Primary Rail 只保留 现在/基础设施/变更/记录，Secondary 数据源/设置；
+  基础设施二级（总览/卡片/号码/账户/邮箱/设备/服务/薄弱点）移到 ContextSubnav 窄条（152px，
+  仅进入基础设施时显示）。
+- **G6 Cards**：`components/CardFace.kt` — 卡面=真实支付卡资产身份：1.586 ratio、issuer/nickname/
+  masked number/network/category 明确位置、region/currency/status 在 metadata 层、实体/虚拟克制区分、
+  7 个 preset 各有底色/材质/图案（glass/metal/abstract/region/city/deep-space/minimal），
+  由 PresentationProfile 驱动（含 accent、mask、layout）。
+- **G7 Card Customization Studio**：`screens/StudioFrame.kt` 三栏（对象库 22% / 大尺寸实时预览 46% /
+  属性编辑器 32%）；编辑器分组：卡面设计（材质/主题/布局/强调色/遮蔽）/内容信息/样式/高级；
+  每次修改 live preview；保存=本地偏好（绝不写 .depmap）。
+- **G8 Numbers**：桌面高密度 list + inspector；`components/NumberFaceKit.kt` NUMBER IDENTITY FACE
+  （region code 色块 flag、masked number 大号、carrier、SIM/eSIM、role、usage、recovery、status）。
+- **G9 Number Customization Studio**：三栏同构；Preset Country/City/Minimal/Banking/Travel/Recovery/Work/Private；
+  界面注明「视觉预设 ≠ 语义角色」。
+- **G10 Infrastructure Overview**：globe 上直接绘制地区锚点 label（region code + 名称 + 计数，不用 emoji）；
+  点击聚焦 → 过滤 → Region Drawer（Cards/Numbers/Accounts/Services + 查看全部/卡片/号码）。
+- **G11 Now**：Globe Context + Need Attention（3 项）+ Active Change（「更换手机号 2/6 · 下一步：验证新号码」）
+  + Upcoming；无 KPI 卡。
+- **G12 Change Phone flagship**：顶部 6-stage ContinuityRail（completed/verifying/not_started/blocked +
+  明文闸门原因）；中央 旧号码→关键服务→新号码；左=仍依赖旧号码、右=等待验证/已迁移；
+  状态 migrated/waiting/manual/blocked/not-started 全部支持。
+- **G13 Glass 规则**：glass 仅用于导航/顶部指令条/快捷入口/Region Drawer；数据面板 solid。
+
+### 证据
+
+- 编译：`android\gradlew.bat -p desktop --no-daemon --offline :app:compileKotlin` → **BUILD SUCCESSFUL**。
+- 截图：`:app:run --args=--vnext-shots` → **90 帧**写至
+  `artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1/`（5 profiles × 18 屏；
+  overview/now 各 5 camera 预设）；含 `UI_LAYOUT_PROBE.json` + `EVIDENCE_SHA256SUMS.txt`。
+  旧 `2026-09-29-ui-vnext` 目录保留为 REJECTED baseline，未覆盖。
+- 像素取证（1920×1080 采样）：overview-global 帧 globe 中心为 landHighlight 色（陆地）、
+  海洋/陆地/大气/星点色值命中；cards 帧不同网格单元卡面底色各异（preset 差异可见）；
+  暖色城市灯光在 globe 帧可检出。
+- 未改动：spec/、fixtures/、core/、canonical、数据层/状态机/模型语义、测试；
+  无新依赖；Desktop 仅限（Android/iOS/Harmony 未动）。

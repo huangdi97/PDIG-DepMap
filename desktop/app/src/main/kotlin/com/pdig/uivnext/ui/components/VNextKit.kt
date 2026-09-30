@@ -23,20 +23,19 @@ import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.model.AttentionItem
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
+import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.theme.statusColor
 import com.pdig.uivnext.theme.statusLabelZh
 
@@ -46,7 +45,7 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     val color = statusColor(status)
     val icon: ImageVector = when (status) {
         "critical", "blocked", "expiring_soon" -> Icons.Filled.Warning
-        "verifying", "waiting", "not_started" -> Icons.Filled.HourglassEmpty
+        "verifying", "waiting", "not_started", "manual" -> Icons.Filled.HourglassEmpty
         "completed", "active", "ok", "migrated" -> Icons.Filled.CheckCircle
         else -> Icons.Filled.Error
     }
@@ -57,21 +56,21 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
         border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Row(
-            Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
+            Modifier.padding(horizontal = VSpacing.Sm, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(13.dp))
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(14.dp))
             Text(
                 statusLabelZh(status),
-                style = MaterialTheme.typography.labelSmall,
+                style = VType.StatusLabel,
                 color = color,
             )
         }
     }
 }
 
-/** SectionHeader：小节标题 + hairline。 */
+/** SectionHeader：小节标题（20sp）+ hairline。 */
 @Composable
 fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: (@Composable () -> Unit)? = null) {
     Column(modifier.fillMaxWidth()) {
@@ -82,8 +81,7 @@ fun SectionHeader(title: String, modifier: Modifier = Modifier, trailing: (@Comp
         ) {
             Text(
                 title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
+                style = VType.SectionTitle,
                 color = PdigV2Colors.TextPrimary,
             )
             trailing?.invoke()
@@ -107,18 +105,18 @@ fun AttentionRow(item: AttentionItem, onClick: (AttentionItem) -> Unit, modifier
         border = androidx.compose.foundation.BorderStroke(1.dp, if (item.severity == "critical") PdigV2Colors.Critical.copy(alpha = 0.4f) else PdigV2Colors.BorderSubtle),
     ) {
         Row(
-            Modifier.padding(horizontal = VSpacing.Lg, vertical = 12.dp),
+            Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Lg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(20.dp))
             Spacer(Modifier.width(VSpacing.Lg))
             Text(
                 item.title,
-                style = MaterialTheme.typography.bodyMedium,
+                style = VType.Body,
                 color = PdigV2Colors.TextPrimary,
                 modifier = Modifier.weight(1f),
             )
-            Icon(Icons.Filled.ArrowForward, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(16.dp))
+            Icon(Icons.Filled.ArrowForward, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(18.dp))
         }
     }
 }
@@ -142,20 +140,20 @@ fun RegionListItem(
         border = androidx.compose.foundation.BorderStroke(1.dp, borderColor),
     ) {
         Row(
-            Modifier.padding(horizontal = VSpacing.Lg, vertical = 10.dp),
+            Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 Modifier
-                    .size(8.dp)
+                    .size(10.dp)
                     .background(if (region.attentionCount > 0) PdigV2Colors.Warning else PdigV2Colors.PrimaryBright, CircleShape),
             )
             Spacer(Modifier.width(VSpacing.Lg))
             Column(Modifier.weight(1f)) {
-                Text(region.displayName, style = MaterialTheme.typography.bodyMedium, color = PdigV2Colors.TextPrimary)
+                Text(region.displayName, style = VType.Body, color = PdigV2Colors.TextPrimary)
                 Text(
                     "${region.cardCount} 张卡 · ${region.phoneCount} 个号码 · ${region.serviceCount} 项服务",
-                    style = MaterialTheme.typography.bodySmall,
+                    style = VType.Secondary,
                     color = PdigV2Colors.TextSecondary,
                 )
             }
@@ -164,7 +162,7 @@ fun RegionListItem(
                     Text(
                         "${region.attentionCount}",
                         Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = VType.Label,
                         color = PdigV2Colors.Warning,
                     )
                 }
@@ -177,11 +175,11 @@ fun RegionListItem(
 @Composable
 fun MaskEnabledIndicator(enabled: Boolean, modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Filled.Lock, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(13.dp))
+        Icon(Icons.Filled.Lock, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(14.dp))
         Spacer(Modifier.width(4.dp))
         Text(
             if (enabled) "隐私遮蔽已开启" else "隐私遮蔽已关闭",
-            style = MaterialTheme.typography.labelSmall,
+            style = VType.Secondary,
             color = PdigV2Colors.TextSecondary,
         )
     }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -133,27 +135,28 @@ private fun Sidebar(ui: UiState) {
     ) {
         Column(Modifier.fillMaxHeight()) {
             // 品牌块
+            // 品牌块（放大：mark 36dp + PDIG 20sp）
             Row(
-                Modifier.padding(horizontal = T.SpaceLg, vertical = T.SpaceLg),
+                Modifier.padding(horizontal = T.SpaceLg, vertical = 18.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
-                    Modifier.size(28.dp),
+                    Modifier.size(36.dp),
                     color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(10.dp),
                 ) {
                     Text(
                         "P",
-                        Modifier.padding(top = 3.dp).fillMaxWidth(),
+                        Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center,
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        style = PdigType.Button,
+                        style = PdigType.SectionTitle,
                     )
                 }
                 Spacer(Modifier.width(T.SpaceMd))
                 Column {
-                    Text("PDIG", style = PdigType.SectionTitle, fontWeight = FontWeight.SemiBold)
+                    Text("PDIG", style = PdigType.SectionTitle, fontWeight = FontWeight.Bold)
                     Text("个人数字基础设施", style = PdigType.Meta, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
@@ -207,14 +210,18 @@ private fun SidebarItem(item: NavItem, selected: Boolean, onClick: () -> Unit) {
                 },
                 RoundedCornerShape(6.dp),
             )
+            .heightIn(min = 44.dp)
             .padding(horizontal = T.SpaceLg, vertical = 9.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        // 选中左侧 indigo 竖条（selected 标识）
+        Box(Modifier.width(3.dp).height(18.dp).background(if (selected) MaterialTheme.colorScheme.primary else Color.Transparent, RoundedCornerShape(2.dp)))
+        Spacer(Modifier.width(T.SpaceMd))
         Icon(
             item.icon,
             contentDescription = item.title,
             tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(T.IconSize),
+            modifier = Modifier.size(18.dp),
         )
         Spacer(Modifier.width(T.SpaceMd))
         Text(
@@ -231,7 +238,7 @@ private fun KeyedContent(ui: UiState) {
     // 读 refreshKey 键：任何 refresh() 使当前屏面重查询（State 读取即订阅）
     val refreshKey = ui.refreshKey
     if (refreshKey < 0) return@KeyedContent // unreachable; keeps the read observable
-    Surface(Modifier.fillMaxSize().focusable()) {
+    Surface(Modifier.fillMaxSize().focusable(), color = MaterialTheme.colorScheme.background) {
         when (ui.screen) {
             Screen.HOME -> HomeScreen(ui)
             Screen.ATTENTION -> AttentionScreen(ui)

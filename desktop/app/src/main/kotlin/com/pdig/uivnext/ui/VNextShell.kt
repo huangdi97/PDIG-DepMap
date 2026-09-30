@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.model.VSection
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -49,6 +50,7 @@ import com.pdig.uivnext.ui.components.MaskEnabledIndicator
 /** 一级入口（rail 顶部固定区）。 */
 private data class RailEntry(val screen: VScreen, val icon: ImageVector)
 
+/** Primary Rail 只保留四个一级项（G5）：现在 / 基础设施 / 变更 / 记录。 */
 private val PRIMARY_ENTRIES = listOf(
     RailEntry(VScreen.NOW, Icons.Filled.Home),
     RailEntry(VScreen.INFRASTRUCTURE, Icons.Filled.Public),
@@ -56,12 +58,13 @@ private val PRIMARY_ENTRIES = listOf(
     RailEntry(VScreen.RECORDS, Icons.Filled.History),
 )
 
+/** Secondary：数据源 / 设置。 */
 private val SECONDARY_ENTRIES = listOf(
     RailEntry(VScreen.SOURCES, Icons.Filled.Source),
     RailEntry(VScreen.SETTINGS, Icons.Filled.Settings),
 )
 
-/** 基础设施二级（rail 内嵌小节；卡片/号码为最高优先二级页）。 */
+/** 基础设施二级：只在 ContextSubnav（窄条）出现，不与一级同权（G5）。 */
 private val INFRA_ENTRIES = listOf(
     RailEntry(VScreen.OVERVIEW, Icons.Filled.Public),
     RailEntry(VScreen.CARDS, Icons.Filled.CreditCard),
@@ -82,6 +85,8 @@ fun VNextShell(app: VAppState, viewportWidth: Int = 1920) {
     }
     Row(Modifier.fillMaxSize()) {
         NavigationRail(app)
+        // 进入基础设施时显示窄条二级（Context Subnav / flyout 语义）
+        if (app.screen.section == VSection.INFRA) ContextSubnav(app)
         Column(Modifier.weight(1f)) {
             TopCommandBar(app)
             VNextContentHost(app, breakpoint)
@@ -89,7 +94,7 @@ fun VNextShell(app: VAppState, viewportWidth: Int = 1920) {
     }
 }
 
-/** L2 Navigation Rail：collapsed 80 / expanded ≤188；一级 + 二级 + 基础设施二级。 */
+/** L2 Navigation Rail（glass 只用于导航 chrome；collapsed 80 / expanded ≤188）。 */
 @Composable
 private fun NavigationRail(app: VAppState) {
     val width = if (app.railExpanded) 188.dp else 80.dp
@@ -98,7 +103,7 @@ private fun NavigationRail(app: VAppState) {
             .width(width)
             .fillMaxHeight()
             .testTag(VTestIds.NAV_RAIL),
-        color = PdigV2Colors.Surface.copy(alpha = 0.86f),
+        color = PdigV2Colors.SurfaceGlass,
     ) {
         Column(Modifier.fillMaxSize().padding(vertical = VSpacing.Lg)) {
             Row(Modifier.padding(horizontal = VSpacing.Lg), verticalAlignment = Alignment.CenterVertically) {
@@ -118,9 +123,7 @@ private fun NavigationRail(app: VAppState) {
             Spacer(Modifier.height(VSpacing.Xxl))
             PRIMARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
             Spacer(Modifier.height(VSpacing.Xl))
-            RailSectionLabel("基础设施", expanded = app.railExpanded)
-            INFRA_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
-            Spacer(Modifier.height(VSpacing.Xl))
+            if (app.railExpanded) RailSectionLabel("系统")
             SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
             Spacer(Modifier.weight(1f))
             // 折叠/展开开关
@@ -148,9 +151,24 @@ private fun NavigationRail(app: VAppState) {
     }
 }
 
+/** Context Subnav：进入基础设施时的窄条二级（总览/卡片/号码/账户/邮箱/设备/服务/薄弱点）。 */
 @Composable
-private fun RailSectionLabel(label: String, expanded: Boolean) {
-    if (!expanded) return
+private fun ContextSubnav(app: VAppState) {
+    Surface(
+        modifier = Modifier
+            .width(152.dp)
+            .fillMaxHeight(),
+        color = PdigV2Colors.Surface.copy(alpha = 0.9f),
+    ) {
+        Column(Modifier.fillMaxSize().padding(vertical = VSpacing.Lg)) {
+            RailSectionLabel("基础设施")
+            INFRA_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = true) }
+        }
+    }
+}
+
+@Composable
+private fun RailSectionLabel(label: String) {
     Text(
         label,
         Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
@@ -193,13 +211,14 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
                     color = if (selected) PdigV2Colors.TextPrimary else PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    maxLines = 1,
                 )
             }
         }
     }
 }
 
-/** L2 Top Command/Search：44–52px；状态位 + 隐私遮蔽指示 + Ctrl/Cmd+K 提示。 */
+/** L2 Top Command/Search：44–52px；glass chrome + 状态位 + 隐私遮蔽指示。 */
 @Composable
 private fun TopCommandBar(app: VAppState) {
     Surface(
@@ -207,7 +226,7 @@ private fun TopCommandBar(app: VAppState) {
             .fillMaxWidth()
             .height(48.dp)
             .testTag(VTestIds.NAV_TOP),
-        color = PdigV2Colors.Surface.copy(alpha = 0.9f),
+        color = PdigV2Colors.SurfaceGlass,
     ) {
         Row(
             Modifier
@@ -218,7 +237,7 @@ private fun TopCommandBar(app: VAppState) {
             Text(app.screen.titleZh, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(Modifier.weight(1f))
             Surface(
-                color = PdigV2Colors.SurfaceRaised,
+                color = PdigV2Colors.SurfaceRaised.copy(alpha = 0.9f),
                 shape = RoundedCornerShape(VRadius.Sm),
                 border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {

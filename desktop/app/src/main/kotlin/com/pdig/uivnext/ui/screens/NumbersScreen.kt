@@ -22,54 +22,50 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextNumber
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VSpacing
+import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.ui.components.NumberFace
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
- * Numbers：桌面默认 List/Table + Inspector（号码信息密度高，不硬套卡片）。
- * 过滤：国家 / 区号 / SIM eSIM / 主副号 / 用途 / 状态 / 恢复用途。
+ * Numbers（G8）：桌面高密度 List + Inspector（号码信息密度高，不硬套卡片）。
+ * Inspector 顶部 = NumberFace（号码身份面：region flag 视觉 + 大号 masked number）。
+ * 过滤：SIM/eSIM、主副号、保号（本地状态）。
  */
 @Composable
 fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val all = UiVNextDemoFixture.numbers
-    val filtered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
+    val regionFiltered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
     var selectedId by remember { mutableStateOf(all.firstOrNull()?.id) }
-    val selected = filtered.firstOrNull { it.id == selectedId } ?: filtered.firstOrNull()
+    val selected = regionFiltered.firstOrNull { it.id == selectedId } ?: regionFiltered.firstOrNull()
 
-    Row(Modifier.fillMaxSize().padding(24.dp)) {
+    Row(Modifier.fillMaxSize().padding(VSpacing.Xxl)) {
         // 列表
-        Column(Modifier.weight(0.55f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("号码", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-            Text(
-                if (app.regionFilter == null) "全球 ${filtered.size} 个号码" else "地区 ${app.regionFilter} · ${filtered.size} 个号码",
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 13.sp,
+        Column(Modifier.weight(0.55f), verticalArrangement = Arrangement.spacedBy(VSpacing.Lg)) {
+            PageHeader(
+                title = "号码",
+                subtitle = if (app.regionFilter == null) "全球 ${regionFiltered.size} 个号码 · 高密度列表 + 检查器" else "地区 ${app.regionFilter} · ${regionFiltered.size} 个号码",
             )
-            Spacer(Modifier.height(8.dp))
             FilterRowNumbers()
-            Spacer(Modifier.height(8.dp))
-            Surface(
-                modifier = Modifier
+            Spacer(Modifier.height(4.dp))
+            DataPanel(
+                Modifier
                     .fillMaxWidth()
+                    .weight(1f)
                     .testTagLocal(VTestIds.PHONE_LIST),
-                color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-                shape = RoundedCornerShape(VRadius.Xl),
-                border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
-                LazyColumn(Modifier.fillMaxSize().padding(8.dp)) {
-                    items(filtered, key = { it.id }) { number ->
+                LazyColumn(Modifier.fillMaxSize().padding(VSpacing.Sm)) {
+                    items(regionFiltered, key = { it.id }) { number ->
                         NumberRow(number, selected?.id == number.id, app) {
                             selectedId = number.id
                             app.openNumber(number.id)
@@ -78,41 +74,29 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 }
             }
         }
-        Spacer(Modifier.width(24.dp))
-        // Inspector（详情摘要）
-        Surface(
-            modifier = Modifier
+        Spacer(Modifier.width(VSpacing.Xxl))
+        // Inspector（详情摘要；号码身份面优先）
+        DataPanel(
+            Modifier
                 .weight(0.45f)
                 .fillMaxSize()
                 .testTagLocal(VTestIds.PHONE_INSPECTOR),
-            color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-            shape = RoundedCornerShape(VRadius.Xl),
-            border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         ) {
-            Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(VSpacing.Xxl),
+                verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
+            ) {
                 if (selected == null) {
-                    Text("选择一个号码查看详情", color = PdigV2Colors.TextMuted, fontSize = 13.sp)
+                    Text("选择一个号码查看详情", color = PdigV2Colors.TextMuted, style = VType.Secondary)
                 } else {
-                    SectionHeader("号码详情")
-                    Text(selected.nickname, color = PdigV2Colors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-                    Text(
-                        selected.maskedNumber,
-                        color = PdigV2Colors.TextPrimary,
-                        fontSize = 20.sp,
-                        fontFamily = FontFamily.Monospace,
-                    )
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        LabelChip(if (selected.simKind == "eSIM") "eSIM" else "实体 SIM")
-                        LabelChip(if (selected.role == "primary") "主号" else "副号")
-                        LabelChip("${selected.carrier}")
-                        if (selected.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
-                    }
-                    Text("用途：${selected.usages.joinToString(" · ")}", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+                    NumberFace(number = selected, privacyMask = app.privacyMask, onClick = {})
                     val services = UiVNextDemoFixture.servicesForNumber(selected.id)
                     SectionHeader("关联服务（${services.size}）")
                     services.forEach { service ->
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(service.name, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+                            Text(service.name, color = PdigV2Colors.TextSecondary, style = VType.Secondary)
                             LabelChip(if (service.kind == "twoFA") "2FA" else "验证方式")
                         }
                     }
@@ -123,10 +107,9 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     ) {
                         Text(
                             "查看完整详情 →",
-                            Modifier.padding(12.dp).clickable { app.openNumber(selected.id) },
+                            Modifier.padding(VSpacing.Md).clickable { app.openNumber(selected.id) },
                             color = PdigV2Colors.PrimaryBright,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            style = VType.Label,
                         )
                     }
                 }
@@ -137,14 +120,14 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
 @Composable
 private fun FilterRowNumbers() {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
         listOf("全部", "eSIM", "实体 SIM", "主号", "副号", "保号").forEach { label ->
             Surface(
                 color = PdigV2Colors.SurfaceRaised,
                 shape = RoundedCornerShape(VRadius.Sm),
                 border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
-                Text(label, Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+                Text(label, Modifier.padding(horizontal = VSpacing.Md, vertical = 5.dp), color = PdigV2Colors.TextSecondary, style = VType.Label)
             }
         }
     }
@@ -161,20 +144,20 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
         shape = RoundedCornerShape(VRadius.Md),
         border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
     ) {
-        Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Md), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text("${number.countryCode}", color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                    Text(number.nickname, color = PdigV2Colors.TextPrimary, style = VType.Label)
+                    Text("${number.countryCode} · ${number.region}", color = PdigV2Colors.TextMuted, style = VType.Meta)
                 }
                 Text(
                     "${number.maskedNumber} · ${number.carrier} · ${if (number.simKind == "eSIM") "eSIM" else "SIM"} · ${if (number.role == "primary") "主号" else "副号"}",
                     color = PdigV2Colors.TextSecondary,
-                    fontSize = 12.sp,
+                    style = VType.Secondary,
                 )
             }
             if (number.recoveryOnly) LabelChip("恢复唯一", highlight = true)
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(VSpacing.Sm))
             StatusBadge(number.status)
         }
     }

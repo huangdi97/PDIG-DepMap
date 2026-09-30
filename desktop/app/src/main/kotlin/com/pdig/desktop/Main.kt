@@ -52,7 +52,7 @@ fun main(args: Array<String>) {
     // --vnext-shots：vNext 离屏确定性截图（无窗口依赖）+ UI_LAYOUT_PROBE.json
     if (args.contains("--vnext-shots")) {
         val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
-        val outRoot = File(repo, "artifacts/runtime-evidence/2026-09-29-ui-vnext")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1")
         outRoot.mkdirs()
         kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextShotDriver.runAll(outRoot))
         return

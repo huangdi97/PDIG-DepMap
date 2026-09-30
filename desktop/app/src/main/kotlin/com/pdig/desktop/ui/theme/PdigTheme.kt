@@ -33,7 +33,7 @@ object PdigDesktopTokens {
     val RadiusLg = 12.dp
 
     // 组件尺寸
-    val SidebarWidth = 220.dp
+    val SidebarWidth = 240.dp
     val ContentMaxWidth = 1240.dp
     val InfraMasterWidth = 300.dp
     val ListRowHeight = 40.dp
@@ -145,16 +145,16 @@ object PdigSoftBackgrounds {
     }
 }
 
-/** 桌面字体层级（system CJK；禁远程字体）。 */
+/** 桌面字体层级（system CJK；禁远程字体）。更大的字号差建立明确层级。 */
 object PdigType {
-    val PageTitle = TextStyle(fontSize = 24.sp, fontWeight = FontWeight.SemiBold, lineHeight = 32.sp, fontFamily = FontFamily.Default)
-    val SectionTitle = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.SemiBold, lineHeight = 22.sp, fontFamily = FontFamily.Default)
-    val Body = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Normal, lineHeight = 20.sp, fontFamily = FontFamily.Default)
-    val Secondary = TextStyle(fontSize = 12.5.sp, fontWeight = FontWeight.Normal, lineHeight = 18.sp, fontFamily = FontFamily.Default)
-    val Meta = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Normal, lineHeight = 16.sp, fontFamily = FontFamily.Default)
-    val Label = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, lineHeight = 16.sp, fontFamily = FontFamily.Default)
-    val Button = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Medium, lineHeight = 20.sp, fontFamily = FontFamily.Default)
-    val Mono = TextStyle(fontSize = 12.5.sp, fontWeight = FontWeight.Normal, fontFamily = FontFamily.Monospace)
+    val PageTitle = TextStyle(fontSize = 28.sp, fontWeight = FontWeight.Bold, lineHeight = 36.sp, fontFamily = FontFamily.Default)
+    val SectionTitle = TextStyle(fontSize = 17.sp, fontWeight = FontWeight.SemiBold, lineHeight = 24.sp, fontFamily = FontFamily.Default)
+    val Body = TextStyle(fontSize = 15.sp, fontWeight = FontWeight.Normal, lineHeight = 22.sp, fontFamily = FontFamily.Default)
+    val Secondary = TextStyle(fontSize = 13.5.sp, fontWeight = FontWeight.Normal, lineHeight = 20.sp, fontFamily = FontFamily.Default)
+    val Meta = TextStyle(fontSize = 12.5.sp, fontWeight = FontWeight.Normal, lineHeight = 17.sp, fontFamily = FontFamily.Default)
+    val Label = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.SemiBold, lineHeight = 18.sp, fontFamily = FontFamily.Default)
+    val Button = TextStyle(fontSize = 14.5.sp, fontWeight = FontWeight.SemiBold, lineHeight = 20.sp, fontFamily = FontFamily.Default)
+    val Mono = TextStyle(fontSize = 13.sp, fontWeight = FontWeight.Normal, fontFamily = FontFamily.Monospace)
 }
 
 @Composable

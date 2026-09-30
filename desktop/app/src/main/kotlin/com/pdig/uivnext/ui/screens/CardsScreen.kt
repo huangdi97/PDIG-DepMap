@@ -27,20 +27,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextCard
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VSpacing
+import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.SectionHeader
+import com.pdig.uivnext.ui.components.StatusBadge
 
-/** Cards：过滤（全部/国家/实体虚拟/储蓄信用/币种/状态/即将到期）+ Visual Grid / Compact List。 */
+/**
+ * Cards（G6）：真实支付卡资产身份网格。
+ * 过滤（全部/国家/实体虚拟/储蓄信用/币种/状态/即将到期）+ Visual Grid / Compact List。
+ * 每张卡面由 PresentationProfile 驱动（默认 fixture preset），preset 间视觉差异明显。
+ */
 @Composable
 fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val all = UiVNextDemoFixture.cards
@@ -50,32 +55,27 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(VSpacing.Xxl),
     ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-                Text(
-                    if (app.regionFilter == null) "全球 ${regionFiltered.size} 张卡" else "地区 ${app.regionFilter} · ${regionFiltered.size} 张卡",
-                    color = PdigV2Colors.TextSecondary,
-                    fontSize = 13.sp,
-                )
-            }
-            FilterChip("全部", app.regionFilter == null) { app.regionFilter = null }
-            FilterChip("即将到期", app.regionFilter != null && app.regionFilter == "expiring", { app.regionFilter = null })
-            Spacer(Modifier.width(12.dp))
-            ViewToggle(gridView, onToggle = { gridView = !gridView })
-        }
+        PageHeader(
+            title = "卡片",
+            subtitle = if (app.regionFilter == null) "全球 ${regionFiltered.size} 张卡 · 每张卡都是可独立的资产身份" else "地区 ${app.regionFilter} · ${regionFiltered.size} 张卡",
+            trailing = {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(VSpacing.Md)) {
+                    FilterChip("全部", app.regionFilter == null) { app.regionFilter = null }
+                    ViewToggle(gridView, onToggle = { gridView = !gridView })
+                }
+            },
+        )
 
-        Spacer(Modifier.height(20.dp))
-        // 过滤行（国家/实体虚拟/储蓄信用）
+        Spacer(Modifier.height(VSpacing.Xxl))
         FilterRow(
             regions = UiVNextDemoFixture.regions.map { it.regionCode },
             activeRegion = app.regionFilter,
             onRegion = { app.regionFilter = it },
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(VSpacing.Xxl))
 
         if (gridView) {
             val columns = when (breakpoint) {
@@ -88,8 +88,8 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 modifier = Modifier
                     .fillMaxSize()
                     .testTagLocal(VTestIds.CARD_GRID),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(VSpacing.GridGapWide),
+                verticalArrangement = Arrangement.spacedBy(VSpacing.GridGapWide),
             ) {
                 items(regionFiltered) { card ->
                     AssetCard(card = card, privacyMask = app.privacyMask, onClick = { app.openCard(card.id) })
@@ -116,12 +116,12 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable { app.openCard(card.id) },
-        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
+        color = PdigV2Colors.Surface.copy(alpha = 0.96f),
         shape = RoundedCornerShape(VRadius.Md),
         border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Row(
-            Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Md),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -130,26 +130,26 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
                     .height(28.dp)
                     .background(PdigV2Colors.PrimaryBright, RoundedCornerShape(2.dp)),
             )
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(VSpacing.Md))
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text(card.masked, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text(card.nickname, color = PdigV2Colors.TextPrimary, style = VType.Label)
+                    Text(card.masked, color = PdigV2Colors.TextMuted, style = VType.Meta)
                 }
                 Text(
                     "${card.issuer} · ${card.region} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",
                     color = PdigV2Colors.TextSecondary,
-                    fontSize = 12.sp,
+                    style = VType.Secondary,
                 )
             }
-            com.pdig.uivnext.ui.components.StatusBadge(card.status)
+            StatusBadge(card.status)
         }
     }
 }
 
 @Composable
 private fun FilterRow(regions: List<String>, activeRegion: String?, onRegion: (String?) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
         FilterChip("全部", activeRegion == null) { onRegion(null) }
         regions.forEach { code ->
             FilterChip(code, activeRegion == code) { onRegion(code) }
@@ -167,28 +167,26 @@ internal fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     ) {
         Text(
             label,
-            Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            Modifier.padding(horizontal = VSpacing.Md, vertical = 6.dp),
             color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-            fontSize = 12.sp,
-            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+            style = VType.Label,
         )
     }
 }
 
 @Composable
 private fun ViewToggle(grid: Boolean, onToggle: () -> Unit) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Surface(
-            modifier = Modifier.clickable(onClick = onToggle).testTagLocal(VTestIds.CARD_VIEW_TOGGLE),
-            color = PdigV2Colors.SurfaceRaised,
-            shape = RoundedCornerShape(VRadius.Sm),
-        ) {
-            Text(
-                if (grid) "切换：紧凑列表" else "切换：视觉网格",
-                Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 12.sp,
-            )
-        }
+    Surface(
+        modifier = Modifier.clickable(onClick = onToggle).testTagLocal(VTestIds.CARD_VIEW_TOGGLE),
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Sm),
+        border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Text(
+            if (grid) "切换：紧凑列表" else "切换：视觉网格",
+            Modifier.padding(horizontal = VSpacing.Md, vertical = 6.dp),
+            color = PdigV2Colors.TextSecondary,
+            style = VType.Label,
+        )
     }
 }

@@ -18,6 +18,7 @@ class VAppState(
     var privacyMask by mutableStateOf(true)
     var reduceMotion by mutableStateOf(false)
     var railExpanded by mutableStateOf(true)
+    var initialCustomTheme by mutableStateOf<String?>(null)
     val globe = GlobeController(initialCamera)
 
     fun navigate(next: VScreen) {

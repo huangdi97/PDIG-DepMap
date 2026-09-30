@@ -55,14 +55,29 @@ object VNextShotDriver {
             for ((screen, id) in SCREENS) {
                 val cameras: List<String> =
                     if (screen == VScreen.OVERVIEW || screen == VScreen.NOW) CAMERA_PRESETS else listOf("global")
+                // customization 屏幕额外生成 before/customized 变体帧（评审交付项 W.3/W.4）。
+                val variants: List<String> =
+                    if (screen == VScreen.CARD_CUSTOMIZATION || screen == VScreen.NUMBER_CUSTOMIZATION) {
+                        listOf("before", "customized")
+                    } else {
+                        listOf("")
+                    }
                 for (camera in cameras) {
-                    val app = com.pdig.uivnext.createVNextAppState(screen, camera)
-                    prepareScreen(app, screen)
-                    val fileName = "vnext__${id}__camera-${camera}__${profile.label}.png"
-                    val target = File(profileDir, fileName)
-                    renderToFile(app, profile, target)
-                    probe.addAll(collectProbe(profile, id))
-                    count++
+                    for (variant in variants) {
+                        val customTheme = when {
+                            variant == "customized" && screen == VScreen.CARD_CUSTOMIZATION -> "abstract"
+                            variant == "customized" && screen == VScreen.NUMBER_CUSTOMIZATION -> "travel"
+                            else -> null
+                        }
+                        val app = com.pdig.uivnext.createVNextAppState(screen, camera, customTheme)
+                        prepareScreen(app, screen)
+                        val variantTag = if (variant.isEmpty()) "" else "__$variant"
+                        val fileName = "vnext__${id}__camera-${camera}${variantTag}__${profile.label}.png"
+                        val target = File(profileDir, fileName)
+                        renderToFile(app, profile, target)
+                        probe.addAll(collectProbe(profile, id))
+                        count++
+                    }
                 }
             }
         }

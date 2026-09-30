@@ -26,9 +26,14 @@ fun VNextApp(app: VAppState) {
     }
 }
 
-/** 构造应用状态（含初始屏/相机）。 */
-fun createVNextAppState(screen: VScreen = VScreen.NOW, cameraPreset: String? = null): VAppState {
+/** 构造应用状态（含初始屏/相机）；customTheme 仅用于截图证据（customization before/customized 变体）。 */
+fun createVNextAppState(
+    screen: VScreen = VScreen.NOW,
+    cameraPreset: String? = null,
+    customTheme: String? = null,
+): VAppState {
     val app = VAppState(initialScreen = screen)
     if (cameraPreset != null) app.applyCameraPreset(cameraPreset)
+    if (customTheme != null) app.initialCustomTheme = customTheme
     return app
 }

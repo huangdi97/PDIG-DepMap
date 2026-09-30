@@ -180,4 +180,7 @@ object VTestIds {
     const val NOW_GLOBE = "pdig.now.globe"
     const val CUSTOMIZATION_PREVIEW = "pdig.customization.preview"
     const val CUSTOMIZATION_INSPECTOR = "pdig.customization.inspector"
+    const val REGION_DRAWER = "pdig.region.drawer"
+    const val CHANGE_PROGRESS = "pdig.change.progress"
+    const val NUMBER_FACE = "pdig.phone.face"
 }
