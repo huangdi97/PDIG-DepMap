@@ -1,6 +1,6 @@
 // DO NOT EDIT
 // Generated from spec/ui-vnext/DESIGN_TOKENS.json
-// specVersion: 2.1.0 (ui-vnext tokens)
+// specVersion: 2.2.0 (ui-vnext tokens)
 // Generator: tools/codegen/generate.mjs — run `node tools/codegen/generate.mjs`
 
 /**
@@ -9,7 +9,7 @@
  * Do NOT hand-edit; run `node tools/codegen/generate.mjs`.
  */
 export class GeneratedPdigV2Tokens {
-  static readonly SPEC_VERSION: string = '2.1.0';
+  static readonly SPEC_VERSION: string = '2.2.0';
   static readonly SCOPE: string = 'ui-vnext-feature-branch';
   static readonly POLICY_NO_REMOTE_FONTS: boolean = true;
   static readonly POLICY_NO_REMOTE_ICON_CDN: boolean = true;
@@ -23,16 +23,16 @@ export class GeneratedPdigV2Tokens {
   static readonly POLICY_SELF_APPROVAL: string = 'FORBIDDEN';
   static readonly POLICY_TOKEN_CHANGE: string = 'reason first, spec first, then codegen';
   static readonly POLICY_VISUAL_STATUS: string = 'VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW';
-  static readonly COLORS_CANVAS: string = '#061225';
-  static readonly COLORS_CANVAS_DEEP: string = '#030A18';
-  static readonly COLORS_SURFACE: string = '#0B1A33';
-  static readonly COLORS_SURFACE_RAISED: string = '#102340';
-  static readonly COLORS_SURFACE_GLASS: string = 'rgba(28, 56, 96, 0.54)';
-  static readonly COLORS_BORDER_SUBTLE: string = 'rgba(148, 180, 234, 0.13)';
-  static readonly COLORS_BORDER_STRONG: string = 'rgba(116, 161, 255, 0.34)';
+  static readonly COLORS_CANVAS: string = '#04060D';
+  static readonly COLORS_CANVAS_DEEP: string = '#020308';
+  static readonly COLORS_SURFACE: string = '#10141E';
+  static readonly COLORS_SURFACE_RAISED: string = '#1A2231';
+  static readonly COLORS_SURFACE_GLASS: string = 'rgba(22, 30, 46, 0.66)';
+  static readonly COLORS_BORDER_SUBTLE: string = 'rgba(140, 170, 220, 0.12)';
+  static readonly COLORS_BORDER_STRONG: string = 'rgba(130, 170, 255, 0.30)';
   static readonly COLORS_PRIMARY: string = '#4D74FF';
   static readonly COLORS_PRIMARY_BRIGHT: string = '#67A7FF';
-  static readonly COLORS_PRIMARY_SOFT: string = '#1C2E55';
+  static readonly COLORS_PRIMARY_SOFT: string = '#14203C';
   static readonly COLORS_TEXT_PRIMARY: string = '#F4F7FF';
   static readonly COLORS_TEXT_SECONDARY: string = '#A9B8D5';
   static readonly COLORS_TEXT_MUTED: string = '#7383A3';
@@ -55,6 +55,11 @@ export class GeneratedPdigV2Tokens {
   static readonly COLORS_STAR: string = '#C9D8FF';
   static readonly COLORS_ATMOSPHERE_RIM: string = 'rgba(103, 167, 255, 0.38)';
   static readonly COLORS_TERMINATOR_LIGHT: string = '#67A7FF';
+  static readonly COLORS_OCEAN_SPECULAR: string = '#5E87C8';
+  static readonly COLORS_LAND_TEXTURE_HI: string = '#3A628F';
+  static readonly COLORS_LAND_TEXTURE_LO: string = '#142C48';
+  static readonly COLORS_CLOUD: string = '#E8F1FF';
+  static readonly COLORS_LOCAL_ILLUM: string = '#2C4A7E';
   static readonly SEMANTIC_ENV_BACKGROUND: string = 'colors.canvas';
   static readonly SEMANTIC_ENV_BACKGROUND_DEEP: string = 'colors.canvasDeep';
   static readonly SEMANTIC_ENV_GLASS: string = 'colors.surfaceGlass';
@@ -148,13 +153,13 @@ export class GeneratedPdigV2Tokens {
   static readonly GLOBE_BUNDLED_DATA_CITY_LIGHTS: string = 'bundled major city coordinates for procedural night lights';
   static readonly GLOBE_BUNDLED_DATA_LAND_SHADING: string = 'depth + terminator shading on land';
   static readonly GLOBE_BUNDLED_DATA_OCEAN: string = 'oceanBase/oceanDeep radial shading';
-  static readonly COMPONENTS_NAV_RAIL_COLLAPSED_WIDTH: number = 80;
+  static readonly COMPONENTS_NAV_RAIL_COLLAPSED_WIDTH: number = 68;
   static readonly COMPONENTS_NAV_RAIL_EXPANDED_WIDTH: number = 188;
   static readonly COMPONENTS_NAV_RAIL_EXPANDED_MAX: number = 188;
   static readonly COMPONENTS_NAV_TOP_COMMAND_HEIGHT: number = 48;
-  static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: number = 76;
+  static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: number = 64;
   static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MAX: number = 188;
-  static readonly COMPONENTS_NAV_PRIMARY_ONLY: string = 'primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar';
+  static readonly COMPONENTS_NAV_PRIMARY_ONLY: string = 'primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar';
   static readonly COMPONENTS_PAGE_PADDING: number = 24;
   static readonly COMPONENTS_PAGE_PADDING_NARROW: number = 16;
   static readonly COMPONENTS_PAGE_MAX_WIDTH: number = 1400;
@@ -162,11 +167,11 @@ export class GeneratedPdigV2Tokens {
   static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MAX: number = 0.64;
   static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MIN: number = 0.64;
   static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MAX: number = 0.78;
-  static readonly COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MIN: number = 300;
-  static readonly COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MAX: number = 380;
-  static readonly COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MIN: number = 88;
-  static readonly COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MAX: number = 120;
-  static readonly COMPONENTS_CARDS_GRID_COLUMNS1920: number = 4;
+  static readonly COMPONENTS_OVERVIEW_SPATIAL_INSPECTOR_WIDTH: number = 320;
+  static readonly COMPONENTS_OVERVIEW_SPATIAL_INSPECTOR_MARGIN: number = 28;
+  static readonly COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MIN: number = 64;
+  static readonly COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MAX: number = 88;
+  static readonly COMPONENTS_CARDS_GRID_COLUMNS1920: number = 3;
   static readonly COMPONENTS_CARDS_GRID_COLUMNS1280: number = 3;
   static readonly COMPONENTS_CARDS_GRID_COLUMNS_SMALL: number = 2;
   static readonly COMPONENTS_CARDS_GRID_CARD_ASPECT_RATIO: number = 1.586;

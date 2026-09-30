@@ -87,6 +87,54 @@ object VNextShotDriver {
         return 0
     }
 
+    /**
+     * PHASE 1B 关键帧（Review §22）：仅 1920×1080@1.0，15 张最小证据集。
+     * A now / B overview / C overview-HK 聚焦 / D cards / E card-detail /
+     * F card-customization minimal|glass|metal|city / G number-detail /
+     * H number-customization country|banking|travel / I change-phone / J globe close-up。
+     */
+    fun runPhase1B(outRoot: File): Int {
+        val profile = Profile(1920, 1080, "1920x1080@1.0")
+        val profileDir = File(outRoot, "profiles/${profile.label}")
+        profileDir.mkdirs()
+        var count = 0
+        // (screen, camera, tag, customTheme)
+        val shots = listOf(
+            VScreen.NOW to ("global" to Pair("", null)),
+            VScreen.OVERVIEW to ("global" to Pair("", null)),
+            VScreen.OVERVIEW to ("hk" to Pair("region-hk", null)),
+            VScreen.CARDS to ("global" to Pair("", null)),
+            VScreen.CARD_DETAIL to ("global" to Pair("", null)),
+            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-minimal", "minimal")),
+            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-glass", "glass")),
+            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-metal", "metal")),
+            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-city", "city")),
+            VScreen.NUMBER_DETAIL to ("global" to Pair("", null)),
+            VScreen.NUMBER_CUSTOMIZATION to ("global" to Pair("theme-country", "country")),
+            VScreen.NUMBER_CUSTOMIZATION to ("global" to Pair("theme-banking", "banking")),
+            VScreen.NUMBER_CUSTOMIZATION to ("global" to Pair("theme-travel", "travel")),
+            VScreen.CHANGE_PHONE to ("global" to Pair("", null)),
+            VScreen.OVERVIEW to ("global" to Pair("closeup", null)),
+        )
+        for ((screen, camTheme) in shots) {
+            val (camera, tagTheme) = camTheme
+            val (tag, theme) = tagTheme
+            val app = com.pdig.uivnext.createVNextAppState(screen, camera, theme)
+            prepareScreen(app, screen)
+            if (tag == "region-hk") app.selectRegion("HK")
+            if (tag == "closeup") app.globe.camera = app.globe.camera.copy(zoom = 1.7f)
+            val tagPart = if (tag.isEmpty()) "" else "__$tag"
+            val fileName = "vnext__${screenId(screen)}__camera-$camera${tagPart}__${profile.label}.png"
+            renderToFile(app, profile, File(profileDir, fileName))
+            count++
+        }
+        writeSha256(File(outRoot, "EVIDENCE_SHA256SUMS.txt"), outRoot)
+        println("VNextShotDriver(1B): wrote $count key frames -> ${outRoot.absolutePath}")
+        return 0
+    }
+
+    private fun screenId(screen: VScreen): String = SCREENS.first { it.first == screen }.second
+
     private fun prepareScreen(app: VAppState, screen: VScreen) {
         when (screen) {
             VScreen.CARD_DETAIL -> app.openCard("card-cn-2")

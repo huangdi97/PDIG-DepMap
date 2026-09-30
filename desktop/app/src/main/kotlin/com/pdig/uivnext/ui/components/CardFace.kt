@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,6 +27,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -38,15 +41,37 @@ import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 
 /**
- * AssetCard —— 卡面 = 真实支付卡资产身份（G6）。
+ * AssetCard —— 卡面 = 真实支付卡资产身份（Review §7/§8）。
  *
- *  - 1.586 ratio；issuer/nickname/masked number/network/category 有明确位置；
- *  - region/currency/type/status 在 metadata 层；
- *  - physical/virtual 有明显但克制的区别（chip 样式差异）；
- *  - 卡面可自定义（PresentationProfile<Card>）；不同 preset 视觉差异明显
- *    （minimal/deep-space/region/city/glass/metal/abstract 各有底色/材质/质感）；
- *  - 背景全部程序化（token 色），零远程图片。
+ * 视觉语法分层：Background Material → Issuer Identity → Card Identity →
+ * Financial Metadata → Status Overlay；layout preset 可改变各层位置：
+ *   standard（issuer 顶部 / number 中部 / metadata+status 底部）、
+ *   minimal-content（仅 nickname+number+network）、
+ *   emblem（issuer 大标题顶 / number 左下 / network 右下）。
+ *
+ * 8 个视觉预设真实不同（非全蓝渐变）：
+ *   minimal / matte / glass / metal / region / city / abstract / deep-space；
+ * 全部程序化（token 色），零远程图片；保持 1.586 ratio。
  */
+
+/** 卡片主题中文名（用户语言；高级内部值不进普通 UI）。 */
+internal fun cardThemeLabel(theme: String): String = when (theme) {
+    "minimal" -> "极简"
+    "matte" -> "哑光"
+    "glass" -> "玻璃"
+    "metal" -> "金属"
+    "region" -> "地区"
+    "city" -> "城市"
+    "abstract" -> "抽象"
+    "deep-space" -> "深空"
+    else -> theme
+}
+
+internal fun cardLayoutLabel(layout: String): String = when (layout) {
+    "emblem" -> "徽章"
+    "minimal-content" -> "精简内容"
+    else -> "标准"
+}
 
 @Composable
 fun AssetCard(
@@ -71,15 +96,19 @@ fun AssetCard(
                 .border(1.dp, cardFaceBorder(p), RoundedCornerShape(VRadius.Xl))
                 .padding(VSpacing.Xl),
         ) {
-            CardFaceContent(card, p, privacyMask)
+            when (p.layout) {
+                "emblem" -> EmblemContent(card, p, privacyMask)
+                "minimal-content" -> MinimalContent(card, p, privacyMask)
+                else -> StandardContent(card, p, privacyMask)
+            }
         }
     }
 }
 
+/** 标准布局：issuer 顶部 / 卡号中部 / metadata+status 底部。 */
 @Composable
-private fun CardFaceContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
-    Column(Modifier.fillMaxWidth()) {
-        // 顶部：issuer + network（身份首行）
+private fun StandardContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
+    Column(Modifier.fillMaxSize()) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
             Column {
                 Text(card.issuer, style = VType.Label, color = PdigV2Colors.TextSecondary, maxLines = 1)
@@ -89,7 +118,6 @@ private fun CardFaceContent(card: UiVNextCard, p: PresentationProfile, privacyMa
             NetworkChip(card.network)
         }
         Spacer(Modifier.weight(1f))
-        // 中部：卡号 + chip
         Row(verticalAlignment = Alignment.CenterVertically) {
             CardChip(p)
             Spacer(Modifier.width(VSpacing.Md))
@@ -103,14 +131,13 @@ private fun CardFaceContent(card: UiVNextCard, p: PresentationProfile, privacyMa
             )
         }
         Spacer(Modifier.height(VSpacing.Lg))
-        // 底部：category / form + metadata + status
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
                     FormChip(card.form)
                     CategoryChip(card.type)
                 }
-                if (p.layout != "minimal-content") {
+                if (p.backgroundKind == "preset" || p.layout == "standard") {
                     Spacer(Modifier.height(VSpacing.Sm))
                     Text(
                         "${card.region} · ${card.currency} · 到期 ${card.expiry}",
@@ -121,6 +148,66 @@ private fun CardFaceContent(card: UiVNextCard, p: PresentationProfile, privacyMa
                 }
             }
             StatusBadge(card.status)
+        }
+    }
+}
+
+/** 精简内容布局：仅 nickname + 大号卡号 + network。 */
+@Composable
+private fun MinimalContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Text(card.nickname, style = VType.Label, color = PdigV2Colors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
+            NetworkChip(card.network)
+        }
+        Spacer(Modifier.weight(1f))
+        Text(
+            maskedNumber(card, privacyMask, p.maskSensitive),
+            style = VType.Mono,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = PdigV2Colors.TextPrimary,
+            maxLines = 1,
+        )
+    }
+}
+
+/** 徽章布局：issuer 大标题顶部 / number 左下 / network 右下。 */
+@Composable
+private fun EmblemContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
+    Column(Modifier.fillMaxSize()) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
+            Column(Modifier.weight(1f)) {
+                Text(card.issuer, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary, maxLines = 1)
+                Spacer(Modifier.height(2.dp))
+                Text(card.nickname, style = VType.Meta, color = PdigV2Colors.TextSecondary, maxLines = 1)
+            }
+            StatusBadge(card.status)
+        }
+        Spacer(Modifier.weight(1f))
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CardChip(p)
+                    Spacer(Modifier.width(VSpacing.Md))
+                    Text(
+                        maskedNumber(card, privacyMask, p.maskSensitive),
+                        style = VType.Mono,
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = PdigV2Colors.TextPrimary,
+                        maxLines = 1,
+                    )
+                }
+                Spacer(Modifier.height(VSpacing.Sm))
+                Text(
+                    "${card.region} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",
+                    style = VType.Meta,
+                    color = PdigV2Colors.TextMuted,
+                    maxLines = 1,
+                )
+            }
+            NetworkChip(card.network)
         }
     }
 }
@@ -148,7 +235,7 @@ private fun FormChip(form: String) {
     Surface(
         color = if (virtual) PdigV2Colors.PrimarySoft else Color.Transparent,
         shape = RoundedCornerShape(VRadius.Sm),
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             1.dp,
             if (virtual) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
         ),
@@ -182,7 +269,7 @@ private fun CardChip(p: PresentationProfile) {
         Modifier.size(width = 34.dp, height = 24.dp),
         color = accent.copy(alpha = 0.85f),
         shape = RoundedCornerShape(5.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.TextPrimary.copy(alpha = 0.35f)),
+        border = BorderStroke(1.dp, PdigV2Colors.TextPrimary.copy(alpha = 0.35f)),
     ) {}
 }
 
@@ -192,14 +279,20 @@ internal fun accentColorOf(accent: String): Color =
 private fun cardFaceBorder(p: PresentationProfile): Color = when (p.material) {
     "glass" -> PdigV2Colors.BorderStrong.copy(alpha = 0.6f)
     "metal" -> PdigV2Colors.TextSecondary.copy(alpha = 0.35f)
+    "minimal" -> PdigV2Colors.BorderSubtle
     else -> PdigV2Colors.BorderSubtle
 }
 
-/** 卡面背景：theme 底色 + material 质感 + theme 图案（全部 token 色）。 */
-private fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
+/**
+ * 卡面背景：theme 底色 + material 质感 + theme 图案（全部 token 色）。
+ * internal：供 StudioFrame 的确定性视觉缩略图复用同一渲染器。
+ */
+internal fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
     val w = size.width
     val h = size.height
+    // 1. Theme base
     val base: Brush = when (p.themeId) {
+        "minimal" -> Brush.verticalGradient(listOf(PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep))
         "deep-space" -> Brush.radialGradient(
             listOf(PdigV2Colors.Surface, PdigV2Colors.CanvasDeep),
             center = Offset(w * 0.42f, h * 0.34f),
@@ -217,15 +310,95 @@ private fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
         else -> Brush.linearGradient(listOf(PdigV2Colors.Surface, PdigV2Colors.CanvasDeep))
     }
     drawRect(base)
-    // material 质感
+    // 2. Theme motifs（视觉身份，不全是蓝渐变）
+    when (p.themeId) {
+        "deep-space" -> {
+            drawCircle(
+                brush = Brush.radialGradient(listOf(PdigV2Colors.PrimarySoft.copy(alpha = 0.7f), Color.Transparent)),
+                radius = w * 0.55f,
+                center = Offset(w * 0.30f, h * 0.20f),
+            )
+            for (i in 0 until 16) {
+                val x = ((i * 37.5f) % 100f) / 100f * w
+                val y = ((i * 23.7f) % 100f) / 100f * h
+                drawCircle(PdigV2Colors.Star.copy(alpha = 0.30f + (i % 3) * 0.12f), radius = 1.0f + (i % 2), center = Offset(x, y))
+            }
+        }
+        "region" -> {
+            drawCircle(PdigV2Colors.LandBase.copy(alpha = 0.55f), radius = w * 0.34f, center = Offset(w * 0.78f, h * 0.30f))
+            drawCircle(PdigV2Colors.LandTextureHi.copy(alpha = 0.25f), radius = w * 0.18f, center = Offset(w * 0.62f, h * 0.38f))
+            drawCircle(PdigV2Colors.OceanBase.copy(alpha = 0.55f), radius = w * 0.26f, center = Offset(w * 0.20f, h * 0.85f))
+            drawCircle(PdigV2Colors.RegionNodeHi.copy(alpha = 0.85f), radius = 3f, center = Offset(w * 0.78f, h * 0.30f))
+        }
+        "city" -> {
+            val skyline = Path()
+            skyline.moveTo(0f, h * 0.72f)
+            skyline.lineTo(w * 0.10f, h * 0.72f)
+            skyline.lineTo(w * 0.10f, h * 0.55f)
+            skyline.lineTo(w * 0.18f, h * 0.55f)
+            skyline.lineTo(w * 0.18f, h * 0.62f)
+            skyline.lineTo(w * 0.27f, h * 0.62f)
+            skyline.lineTo(w * 0.27f, h * 0.45f)
+            skyline.lineTo(w * 0.36f, h * 0.45f)
+            skyline.lineTo(w * 0.36f, h * 0.60f)
+            skyline.lineTo(w * 0.48f, h * 0.60f)
+            skyline.lineTo(w * 0.48f, h * 0.50f)
+            skyline.lineTo(w * 0.58f, h * 0.50f)
+            skyline.lineTo(w * 0.58f, h * 0.70f)
+            skyline.lineTo(w, h * 0.70f)
+            skyline.lineTo(w, h)
+            skyline.lineTo(0f, h)
+            skyline.close()
+            drawPath(skyline, color = PdigV2Colors.CanvasDeep.copy(alpha = 0.75f))
+            for (row in 0 until 4) {
+                for (col in 0 until 10) {
+                    val x = 12f + col * ((w - 24f) / 9f)
+                    val y = h * (0.30f + 0.13f * row)
+                    drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.22f + (col % 3) * 0.14f), radius = 1.1f, center = Offset(x, y))
+                }
+            }
+        }
+        "abstract" -> {
+            val diag = Path().apply {
+                moveTo(w * 0.30f, 0f)
+                lineTo(w, h * 0.62f)
+                lineTo(w, h)
+                lineTo(w * 0.12f, h)
+                close()
+            }
+            drawPath(diag, color = PdigV2Colors.PrimaryBright.copy(alpha = 0.18f))
+            drawCircle(PdigV2Colors.PrimaryBright.copy(alpha = 0.30f), radius = w * 0.22f, center = Offset(w * 0.78f, h * 0.28f))
+            drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.18f), radius = w * 0.10f, center = Offset(w * 0.28f, h * 0.78f))
+            for (i in 1 until 6) {
+                val x = w * i / 6f
+                drawLine(
+                    color = PdigV2Colors.TextMuted.copy(alpha = 0.08f),
+                    start = Offset(x, 0f),
+                    end = Offset(x, h),
+                    strokeWidth = 1f,
+                )
+            }
+        }
+        "glass" -> {
+            drawRect(
+                Brush.linearGradient(
+                    listOf(PdigV2Colors.AtmosphereRim.copy(alpha = 0.30f), Color.Transparent),
+                    start = Offset(0f, h),
+                    end = Offset(w, 0f),
+                ),
+            )
+        }
+        else -> Unit
+    }
+    // 3. Material 质感
     when (p.material) {
-        "glass" -> drawRect(
-            Brush.linearGradient(
-                listOf(PdigV2Colors.TextPrimary.copy(alpha = 0.07f), Color.Transparent),
-                start = Offset(0f, 0f),
-                end = Offset(w, h),
-            ),
-        )
+        "matte" -> {
+            for (i in 0 until 26) {
+                val x = ((i * 41.7f) % 100f) / 100f * w
+                val y = ((i * 29.3f) % 100f) / 100f * h
+                drawCircle(PdigV2Colors.TextMuted.copy(alpha = 0.06f + (i % 3) * 0.03f), radius = 0.6f + (i % 2) * 0.4f, center = Offset(x, y))
+            }
+        }
         "metal" -> {
             drawRect(
                 Brush.linearGradient(
@@ -238,51 +411,62 @@ private fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
                     end = Offset(0f, h * 0.72f),
                 ),
             )
-            drawRect(Brush.horizontalGradient(listOf(Color.Transparent, PdigV2Colors.TextMuted.copy(alpha = 0.22f), Color.Transparent)), topLeft = Offset(0f, h * 0.44f), size = Size(w, 1f))
-        }
-        "matte" -> drawRect(PdigV2Colors.Surface.copy(alpha = 0.40f))
-        else -> Unit
-    }
-    // theme 图案
-    when (p.themeId) {
-        "deep-space" -> {
-            for (i in 0 until 14) {
-                val x = ((i * 37.5f) % 100f) / 100f * w
-                val y = ((i * 23.7f) % 100f) / 100f * h
-                drawCircle(PdigV2Colors.Star.copy(alpha = 0.35f + (i % 3) * 0.12f), radius = 1.0f + (i % 2), center = Offset(x, y))
+            drawRect(Brush.horizontalGradient(listOf(Color.Transparent, PdigV2Colors.TextMuted.copy(alpha = 0.20f), Color.Transparent)), topLeft = Offset(0f, h * 0.44f), size = Size(w, 1f))
+            for (i in 1 until 7) {
+                drawLine(
+                    color = PdigV2Colors.TextMuted.copy(alpha = 0.05f),
+                    start = Offset(0f, h * i / 7f),
+                    end = Offset(w, h * i / 7f),
+                    strokeWidth = 1f,
+                )
             }
-        }
-        "city" -> {
-            for (row in 0 until 4) {
-                for (col in 0 until 10) {
-                    val x = 12f + col * ((w - 24f) / 9f)
-                    val y = h * (0.38f + 0.14f * row)
-                    drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.30f + (col % 3) * 0.18f), radius = 1.2f, center = Offset(x, y))
-                }
-            }
-        }
-        "region" -> {
-            drawCircle(PdigV2Colors.LandBase.copy(alpha = 0.5f), radius = w * 0.34f, center = Offset(w * 0.78f, h * 0.30f))
-            drawCircle(PdigV2Colors.OceanBase.copy(alpha = 0.55f), radius = w * 0.26f, center = Offset(w * 0.20f, h * 0.85f))
-        }
-        "abstract" -> {
-            drawCircle(PdigV2Colors.PrimaryBright.copy(alpha = 0.22f), radius = w * 0.30f, center = Offset(w * 0.75f, h * 0.25f))
-            drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.16f), radius = w * 0.16f, center = Offset(w * 0.30f, h * 0.80f))
         }
         "glass" -> drawRect(
             Brush.linearGradient(
-                listOf(PdigV2Colors.AtmosphereRim.copy(alpha = 0.30f), Color.Transparent),
-                start = Offset(0f, h),
-                end = Offset(w, 0f),
+                listOf(PdigV2Colors.TextPrimary.copy(alpha = 0.07f), Color.Transparent),
+                start = Offset(0f, 0f),
+                end = Offset(w, h),
             ),
         )
         else -> Unit
     }
-    // 左缘 accent 洗色（克制的品牌强调）
+    // 4. 左缘 accent 洗色（克制的品牌强调）
     val accent = accentColorOf(p.accentColor)
     drawRect(
         Brush.horizontalGradient(listOf(accent.copy(alpha = 0.16f), Color.Transparent)),
         topLeft = Offset(0f, 0f),
         size = Size(w * 0.55f, h),
     )
+    // 5. 顶部 rim 高光（空间层次；仅 glass/metal）
+    if (p.material == "glass" || p.material == "metal") {
+        drawRect(
+            Brush.verticalGradient(listOf(PdigV2Colors.TextPrimary.copy(alpha = 0.14f), Color.Transparent)),
+            topLeft = Offset(0f, 0f),
+            size = Size(w, h * 0.16f),
+        )
+    }
+}
+
+/**
+ * 确定性视觉缩略图（Studio 主题选择器用；固定尺寸 76dp、固定渲染器、
+ * 共享 PresentationProfile 渲染；避免在滚动容器内使用 aspectRatio）。
+ */
+@Composable
+fun CardFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
+    val profile = PresentationProfile.defaultFor("card", "thumb", preset).copy(
+        material = if (preset == "matte") "matte" else if (preset == "glass") "glass" else if (preset == "metal") "metal" else "minimal",
+    )
+    Box(
+        modifier
+            .fillMaxWidth(0.92f)
+            .height(76.dp)
+            .drawBehind { drawCardFaceBackdrop(profile) }
+            .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
+    ) {
+        Column(Modifier.fillMaxSize().padding(6.dp)) {
+            Text(cardThemeLabel(preset), style = VType.Meta, color = PdigV2Colors.TextSecondary, maxLines = 1)
+            Spacer(Modifier.weight(1f))
+            Text("•••• ••••", style = VType.Mono, fontSize = 9.sp, color = PdigV2Colors.TextPrimary)
+        }
+    }
 }

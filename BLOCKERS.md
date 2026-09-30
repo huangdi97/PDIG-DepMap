@@ -1,11 +1,12 @@
 # BLOCKERS.md
 
-> **UI vNext PHASE 1 —— Desktop 参考实现已完成（2026-10-01），等待 Human/Vision Review：**
+> **UI vNext PHASE 1B —— Desktop Visual Fidelity Iteration 2 已完成（2026-10-02），等待 Human/Vision Review：**
 >
-> - PHASE 1 Desktop 参考实现完成：9 核心屏 + vector-Earth Globe（bundled 海岸线/城市灯光/程序化大气，offline）+ Card/Number 定制工作室（before/customized 变体证据）+ Change Phone flagship；**100 帧证据**（artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1/）+ IMAGE_METRICS.json（100 帧：0 error / 0 empty bbox / 0 near-black）+ UI_LAYOUT_PROBE.json + EVIDENCE_SHA256SUMS.txt + gallery（0 missing）。
-> - `VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（Review §V 强制，永不自行改 PASS）：由 Human/Vision 对照 spec/ui-vnext/references/（4 张 HUMAN-APPROVED VISUAL TARGET）评审；批准后才建立 golden（spec/ui-vnext/golden/）并进入 PHASE 3–5（Android/iOS/Harmony 传播，Review §T）。
+> - 第二轮评审（2026-10-01）判定 PHASE 1 视觉：STRUCTURE/功能可接受，**VISUAL FIDELITY = FAIL / REFERENCE PARITY = FAIL**；PHASE 1B 只收敛 Desktop 视觉层（Domain/导航/测试/Profile 不动）。
+> - PHASE 1B 交付：DESIGN_TOKENS v2.2（近黑基底 + 地球材质 token）+ Globe v2（海洋材质/镜面高光/大陆纹理/云层/大气 rim/方向光）+ Overview 浮动空间检查器 + 底部紧凑动作坞 + rail subtle glow + 顶部 segmented context rail + CardFace 8 预设 3 布局 + Studio 用户语言编辑器/视觉缩略图/spotlight 舞台 + Change Phone 空间迁移图；**15 张关键帧**（artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1b/，IMAGE_METRICS：0 error / 0 empty / 0 near-black、meanLum 0.126）+ SCREENSHOTS_PHASE1B.md（0 missing）+ REFERENCE_VISUAL_CONTRACT ×4。
+> - `VISUAL_FIDELITY_ITERATION_2 = COMPLETE`、`NEEDS_HUMAN_REVIEW = TRUE`；`VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（Review §23，永不自行改 PASS）。
 > - `GOLDEN_APPROVAL_GATE`：像素基线必须 human-approved 后才建立；参考图 ≠ pixel golden。
-> - 平台传播冻结：Android/iOS/Harmony 视觉等待 Desktop 批准；既有证据保留：Android compile PASS + 设备 5 帧（2026-09-29-ui-vnext-android）、iOS CI run 36665451395 / 36667427702 PASS（artifact 需登录）、Harmony HAP build PASS（3,758,625 B，sha256 E37A5A03…）。
+> - 平台传播冻结：Android/iOS/Harmony 视觉等待 Desktop 批准（PHASE 3–5 HOLD）；既有证据保留：Android compile PASS + 设备 5 帧（2026-09-29-ui-vnext-android）、iOS CI run 36665451395 / 36667427702 PASS（artifact 需登录）、Harmony HAP build PASS（3,758,625 B，sha256 E37A5A03…）。
 > - 环境注记（非 blocker）：Android AVD `main` 不稳定（qemu 进程消失 → instrumentation `Process crashed` → 完整 connected run 尾段 NOT_RUN 如实）；Harmony runtime 无设备（EXTERNAL_GATE）；iOS 截图仅 CI artifact（需登录）。
 
 ---

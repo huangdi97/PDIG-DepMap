@@ -91,6 +91,7 @@ internal fun DrawScope.drawEarth(
             drawLand(center, radius, camera)
             drawNightTerminator(center, radius, camera)
             drawCityLights(center, radius, camera)
+            drawClouds(center, radius, camera)
         }
         drawGraticule(center, radius, camera)
         drawArcs(center, radius, camera, regions, arcingPairs, selectedRegion)
@@ -109,6 +110,27 @@ private fun DrawScope.drawOcean(center: Offset, radius: Float) {
         ),
         radius = radius,
         center = center,
+    )
+    // 镜面海洋高光：太阳受光侧的椭圆亮斑（oceanSpecular；克制低 alpha，非 HUD）
+    val litSide = Offset(center.x + radius * 0.20f, center.y + radius * 0.08f)
+    drawOval(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.OceanSpecular.copy(alpha = 0.16f), Color.Transparent),
+            center = litSide,
+            radius = radius * 0.66f,
+        ),
+        topLeft = Offset(litSide.x - radius * 0.66f, litSide.y - radius * 0.32f),
+        size = Size(radius * 1.32f, radius * 0.64f),
+    )
+    // 受光缘微弱亮度（direction light 的 diffuse 感）
+    drawOval(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.OceanBase.copy(alpha = 0.30f), Color.Transparent),
+            center = Offset(center.x - radius * 0.45f, center.y - radius * 0.40f),
+            radius = radius * 0.8f,
+        ),
+        topLeft = Offset(center.x - radius * 1.25f, center.y - radius * 1.2f),
+        size = Size(radius * 1.6f, radius * 1.6f),
     )
 }
 
@@ -135,10 +157,27 @@ private fun DrawScope.drawLand(center: Offset, radius: Float, cam: GlobeCamera) 
         val t = (0.28f + 0.55f * light) * (0.35f + 0.65f * shade)
         val land = lerp(PdigV2Colors.LandBase, PdigV2Colors.LandHighlight, t.coerceIn(0f, 1f))
         drawPath(path, color = land)
+        // 大陆纹理：沿陆块内部的等高线带（landTextureLo/Hi 低 alpha，clipPath 保持在大陆内）
+        clipPath(path) {
+            val bands = 2 + (coast.points.size % 3)
+            val minX = projected.minOfOrNull { it.x } ?: 0f
+            val maxX = projected.maxOfOrNull { it.x } ?: 0f
+            val midY = projected.map { it.y }.average().toFloat()
+            for (b in 1 until bands) {
+                val y = midY + (b - bands / 2f) * radius * 0.050f
+                drawLine(
+                    color = PdigV2Colors.LandTextureLo.copy(alpha = 0.30f * light + 0.05f),
+                    start = Offset(minX, y),
+                    end = Offset(maxX, y),
+                    strokeWidth = 1.0f,
+                )
+            }
+        }
+        // 海岸亮缘（landTextureHi 高光描边，克制）
         drawPath(
             path,
-            color = lerp(PdigV2Colors.LandBase, PdigV2Colors.LandHighlight, 0.85f).copy(alpha = 0.5f),
-            style = Stroke(width = 1.0f),
+            color = PdigV2Colors.LandTextureHi.copy(alpha = 0.30f * light + 0.05f),
+            style = Stroke(width = 1.4f),
         )
     }
 }
@@ -187,6 +226,28 @@ private fun DrawScope.drawCityLights(center: Offset, radius: Float, cam: GlobeCa
         }
     }
 }
+/**
+ * 云层/噪声层：确定性软云斑（cloud token，低 alpha），暗面略浓；
+ * 程序化生成、零远程资源；保持可复现（固定散列）。
+ */
+private fun DrawScope.drawClouds(center: Offset, radius: Float, cam: GlobeCamera) {
+    for (i in 0 until 9) {
+        val lat = ((i * 53.0) % 160.0) - 80.0
+        val lon = ((i * 97.0) % 360.0) - 180.0
+        val v = latLonToVec(lat.toFloat(), lon.toFloat())
+        val p = project(v, cam, radius, center.x, center.y)
+        if (p.zDepth < -0.05f) continue
+        val lit = v.x * SUN_DIR.x + v.y * SUN_DIR.y + v.z * SUN_DIR.z
+        val night = ((1f - lit) / 2f).coerceIn(0f, 1f)
+        val alpha = (0.035f + 0.045f * night).coerceIn(0.03f, 0.10f)
+        drawCircle(
+            brush = Brush.radialGradient(listOf(PdigV2Colors.Cloud.copy(alpha = alpha), Color.Transparent)),
+            radius = radius * (0.14f + 0.10f * (i % 3)),
+            center = Offset(p.x, p.y),
+        )
+    }
+}
+
 
 /** LOW_POWER_FALLBACK：旧 plain sphere（深度着色，无纹理；不再作为默认）。 */
 private fun DrawScope.drawLowPowerSphere(center: Offset, radius: Float) {

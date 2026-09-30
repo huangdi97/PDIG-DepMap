@@ -1,6 +1,6 @@
 // DO NOT EDIT
 // Generated from spec/ui-vnext/DESIGN_TOKENS.json
-// specVersion: 2.1.0 (ui-vnext tokens)
+// specVersion: 2.2.0 (ui-vnext tokens)
 // Generator: tools/codegen/generate.mjs — run `node tools/codegen/generate.mjs`
 
 package com.pdig.uivnext.generated
@@ -11,7 +11,7 @@ package com.pdig.uivnext.generated
  * Do NOT hand-edit; run `node tools/codegen/generate.mjs` (Desktop and Android targets are emitted identically).
  */
 public object GeneratedPdigV2Tokens {
-    public const val SPEC_VERSION: String = "2.1.0"
+    public const val SPEC_VERSION: String = "2.2.0"
     public const val SCOPE: String = "ui-vnext-feature-branch"
     public const val POLICY_NO_REMOTE_FONTS: Boolean = true
     public const val POLICY_NO_REMOTE_ICON_CDN: Boolean = true
@@ -25,16 +25,16 @@ public object GeneratedPdigV2Tokens {
     public const val POLICY_SELF_APPROVAL: String = "FORBIDDEN"
     public const val POLICY_TOKEN_CHANGE: String = "reason first, spec first, then codegen"
     public const val POLICY_VISUAL_STATUS: String = "VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW"
-    public const val COLORS_CANVAS: String = "#061225"
-    public const val COLORS_CANVAS_DEEP: String = "#030A18"
-    public const val COLORS_SURFACE: String = "#0B1A33"
-    public const val COLORS_SURFACE_RAISED: String = "#102340"
-    public const val COLORS_SURFACE_GLASS: String = "rgba(28, 56, 96, 0.54)"
-    public const val COLORS_BORDER_SUBTLE: String = "rgba(148, 180, 234, 0.13)"
-    public const val COLORS_BORDER_STRONG: String = "rgba(116, 161, 255, 0.34)"
+    public const val COLORS_CANVAS: String = "#04060D"
+    public const val COLORS_CANVAS_DEEP: String = "#020308"
+    public const val COLORS_SURFACE: String = "#10141E"
+    public const val COLORS_SURFACE_RAISED: String = "#1A2231"
+    public const val COLORS_SURFACE_GLASS: String = "rgba(22, 30, 46, 0.66)"
+    public const val COLORS_BORDER_SUBTLE: String = "rgba(140, 170, 220, 0.12)"
+    public const val COLORS_BORDER_STRONG: String = "rgba(130, 170, 255, 0.30)"
     public const val COLORS_PRIMARY: String = "#4D74FF"
     public const val COLORS_PRIMARY_BRIGHT: String = "#67A7FF"
-    public const val COLORS_PRIMARY_SOFT: String = "#1C2E55"
+    public const val COLORS_PRIMARY_SOFT: String = "#14203C"
     public const val COLORS_TEXT_PRIMARY: String = "#F4F7FF"
     public const val COLORS_TEXT_SECONDARY: String = "#A9B8D5"
     public const val COLORS_TEXT_MUTED: String = "#7383A3"
@@ -57,6 +57,11 @@ public object GeneratedPdigV2Tokens {
     public const val COLORS_STAR: String = "#C9D8FF"
     public const val COLORS_ATMOSPHERE_RIM: String = "rgba(103, 167, 255, 0.38)"
     public const val COLORS_TERMINATOR_LIGHT: String = "#67A7FF"
+    public const val COLORS_OCEAN_SPECULAR: String = "#5E87C8"
+    public const val COLORS_LAND_TEXTURE_HI: String = "#3A628F"
+    public const val COLORS_LAND_TEXTURE_LO: String = "#142C48"
+    public const val COLORS_CLOUD: String = "#E8F1FF"
+    public const val COLORS_LOCAL_ILLUM: String = "#2C4A7E"
     public const val SEMANTIC_ENV_BACKGROUND: String = "colors.canvas"
     public const val SEMANTIC_ENV_BACKGROUND_DEEP: String = "colors.canvasDeep"
     public const val SEMANTIC_ENV_GLASS: String = "colors.surfaceGlass"
@@ -150,13 +155,13 @@ public object GeneratedPdigV2Tokens {
     public const val GLOBE_BUNDLED_DATA_CITY_LIGHTS: String = "bundled major city coordinates for procedural night lights"
     public const val GLOBE_BUNDLED_DATA_LAND_SHADING: String = "depth + terminator shading on land"
     public const val GLOBE_BUNDLED_DATA_OCEAN: String = "oceanBase/oceanDeep radial shading"
-    public const val COMPONENTS_NAV_RAIL_COLLAPSED_WIDTH: Int = 80
+    public const val COMPONENTS_NAV_RAIL_COLLAPSED_WIDTH: Int = 68
     public const val COMPONENTS_NAV_RAIL_EXPANDED_WIDTH: Int = 188
     public const val COMPONENTS_NAV_RAIL_EXPANDED_MAX: Int = 188
     public const val COMPONENTS_NAV_TOP_COMMAND_HEIGHT: Int = 48
-    public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: Int = 76
+    public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: Int = 64
     public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MAX: Int = 188
-    public const val COMPONENTS_NAV_PRIMARY_ONLY: String = "primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar"
+    public const val COMPONENTS_NAV_PRIMARY_ONLY: String = "primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar"
     public const val COMPONENTS_PAGE_PADDING: Int = 24
     public const val COMPONENTS_PAGE_PADDING_NARROW: Int = 16
     public const val COMPONENTS_PAGE_MAX_WIDTH: Int = 1400
@@ -164,11 +169,11 @@ public object GeneratedPdigV2Tokens {
     public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MAX: Double = 0.64
     public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MIN: Double = 0.64
     public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MAX: Double = 0.78
-    public const val COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MIN: Int = 300
-    public const val COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MAX: Int = 380
-    public const val COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MIN: Int = 88
-    public const val COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MAX: Int = 120
-    public const val COMPONENTS_CARDS_GRID_COLUMNS1920: Int = 4
+    public const val COMPONENTS_OVERVIEW_SPATIAL_INSPECTOR_WIDTH: Int = 320
+    public const val COMPONENTS_OVERVIEW_SPATIAL_INSPECTOR_MARGIN: Int = 28
+    public const val COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MIN: Int = 64
+    public const val COMPONENTS_OVERVIEW_QUICK_ENTRY_HEIGHT_MAX: Int = 88
+    public const val COMPONENTS_CARDS_GRID_COLUMNS1920: Int = 3
     public const val COMPONENTS_CARDS_GRID_COLUMNS1280: Int = 3
     public const val COMPONENTS_CARDS_GRID_COLUMNS_SMALL: Int = 2
     public const val COMPONENTS_CARDS_GRID_CARD_ASPECT_RATIO: Double = 1.586

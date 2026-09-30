@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,7 +37,7 @@ import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 
 /**
- * NumberFace —— 号码身份面（G8/G9）。
+ * NumberFace —— 号码身份面（Review §13/§14）。
  *
  *  - region flag 视觉（RegionBadge：region code 色块，不用 emoji）；
  *  - masked number 大号（majorNumber 30）+ nickname + carrier；
@@ -151,6 +152,41 @@ private fun regionColors(code: String): Pair<Color, Color> = when (code) {
     "US" -> PdigV2Colors.RegionNodeHi to PdigV2Colors.SurfaceRaised
     "SG" -> PdigV2Colors.Primary to PdigV2Colors.PrimarySoft
     else -> PdigV2Colors.TextSecondary to PdigV2Colors.SurfaceRaised
+}
+
+/** 号码主题中文名（用户语言）。 */
+internal fun numberThemeLabel(theme: String): String = when (theme) {
+    "country" -> "国家"
+    "city" -> "城市"
+    "minimal" -> "极简"
+    "banking" -> "银行"
+    "travel" -> "旅行"
+    "recovery" -> "恢复"
+    "work" -> "工作"
+    "private" -> "私人"
+    else -> theme
+}
+
+/**
+ * 确定性号码面缩略图（Studio 主题选择器用；固定尺寸 76dp、
+ * 共享 drawNumberFaceBackdrop 渲染器；避免在滚动容器内使用 aspectRatio）。
+ */
+@Composable
+fun NumberFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
+    val profile = PresentationProfile.defaultFor("phoneNumber", "thumb", preset)
+    Box(
+        modifier
+            .fillMaxWidth(0.92f)
+            .height(76.dp)
+            .drawBehind { drawNumberFaceBackdrop(profile) }
+            .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
+    ) {
+        Column(Modifier.fillMaxSize().padding(6.dp)) {
+            Text(numberThemeLabel(preset), style = VType.Meta, color = PdigV2Colors.TextSecondary, maxLines = 1)
+            Spacer(Modifier.weight(1f))
+            Text("+86 ••• •••", style = VType.Mono, fontSize = 9.sp, color = PdigV2Colors.TextPrimary)
+        }
+    }
 }
 
 /** 号码面背景：theme 预设程序化（全部 token 色）。 */

@@ -79,8 +79,8 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         if (gridView) {
             val columns = when (breakpoint) {
-                MediaBreakpoint.WIDE -> 4
-                MediaBreakpoint.MEDIUM -> 3
+                MediaBreakpoint.WIDE -> 3
+                MediaBreakpoint.MEDIUM -> 2
                 MediaBreakpoint.COMPACT -> 2
             }
             LazyVerticalGrid(

@@ -64,3 +64,26 @@ PHASE 1 Desktop 参考实现：契约/几何/token/交互/证据类 Gate 全部 
 2. 重点核对：Globe 大陆/海洋/夜间灯光/大气/明暗/锚点/弧线；9 屏空间层级；卡片资产身份；号码身份面；两个定制工作室前后对比；Change Phone 5 状态；
 3. 批准后建立 `spec/ui-vnext/golden/` 像素基线（在此之前不存在 golden）；
 4. 批准后才启动 PHASE 3–5；全程不 merge main、不建 tag、不发布、不进 v0.4。
+
+---
+
+## 5. PHASE 1B — Desktop Visual Fidelity Iteration 2（2026-10-02）
+
+> Human Visual Review（2026-10-01）第二轮：STRUCTURE = ACCEPTABLE、FUNCTIONAL UI = ACCEPTABLE、
+> **VISUAL FIDELITY = FAIL、REFERENCE PARITY = FAIL** → 本轮只做 Desktop 视觉层收敛，不推翻 Domain/导航/测试/Profile。
+
+| Gate | 状态 | 证据 |
+| --- | --- | --- |
+| TOKENS_v2.2 | **PASS** | DESIGN_TOKENS.json 2.2.0：近黑基底（canvas #04060D / surface #10141E / surfaceRaised #1A2231）+ 地球材质 token（oceanSpecular/landTextureHi/landTextureLo/cloud/localIllum）+ railCollapsedWidth 68 + spatialInspector 320/28 + cardsGrid columns1920=3；`node tools/codegen/generate.mjs --check` = CODEGEN GATE PASS，四端零漂移 |
+| DESKTOP_COMPILE | **PASS** | `:app:compileKotlin` BUILD SUCCESSFUL（离线） |
+| KEY_FRAMES | **PASS** | `artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1b/profiles/1920x1080@1.0/` 恰好 15 帧：A now / B overview / C overview-HK 聚焦 / D cards / E card-detail / F card-customization minimal·glass·metal·city（4）/ G number-detail / H number-customization country·banking·travel（3）/ I change-phone / J globe close-up |
+| IMAGE_METRICS | **PASS** | IMAGE_METRICS.json：15 条、0 error、0 empty bbox、0 近黑（min luma 0.086）、meanLuminance 0.126（≥0.12） |
+| SCREENSHOTS_PHASE1B | **PASS** | docs/ui-vnext/SCREENSHOTS_PHASE1B.md 生成，15 帧引用 0 missing |
+| REFERENCE_VISUAL_CONTRACTS | **PASS** | spec/ui-vnext/REFERENCE_VISUAL_CONTRACT_<id>.md ×4（内容 = Human Review + 冻结 spec；不声称看图；逐项 PENDING_VISION_ANNOTATION） |
+| VISUAL_REWORK | **PASS（代码/截图可核验）** | 画布近黑为主（蓝仅辉光/选中/激活）；Globe v2（海洋材质+镜面高光+大陆纹理+云层+大气 rim+方向光；plain sphere 仅 LOW_POWER_FALLBACK）；Overview 浮动空间检查器（glass 320px、边缘 28px）+ 底部紧凑动作坞；rail 68 + subtle glow + 顶部 segmented context rail；Cards 1920 三列；CardFace 8 预设（minimal/matte/glass/metal/region/city/abstract/deep-space 视觉真不同）+ 3 布局（standard/emblem/minimal-content）；Studio 用户语言编辑器（材质/背景/布局/强调色/显示内容/隐私）+ 确定性视觉缩略图 + spotlight 舞台；NumberFace 身份面；Change Phone 空间迁移图（OLD→迁移通道→NEW + 5 状态 icon+label+color） |
+| VISUAL_FIDELITY_ITERATION_2 | **COMPLETE** | 本轮视觉收敛证据齐备（Review §23 允许的结论） |
+| NEEDS_HUMAN_REVIEW | **TRUE** | 交 Human/Vision 对照 references/ 评审 |
+| VISUAL_CRAFT | **NEEDS_HUMAN_OR_VISION_REVIEW** | 永不自行改 PASS（Review §23） |
+
+**平台保持冻结**：Android/iOS/Harmony 视觉传播仍等 Desktop 批准（PHASE 3–5 HOLD）。
+**停止**：本轮提交推送后 STOP，不自动进入下一平台。

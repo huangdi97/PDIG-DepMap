@@ -1,6 +1,9 @@
 package com.pdig.uivnext.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,18 +11,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.HourglassEmpty
+import androidx.compose.material.icons.filled.Handyman
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.model.ChangeMigration
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -29,14 +43,14 @@ import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.ContinuityRail
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
-import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
- * Change Phone（G12 flagship）：
- * 顶部 6-stage progress（ContinuityRail）；中央 旧手机号 → migration → 新手机号；
- * 左 = 仍依赖旧号的 services/accounts；右 = 已迁移 / 等待验证。
- * 状态至少 migrated / waiting / manual / blocked / not-started；
- * 一眼看出：旧号承担什么、新号接管什么、什么还不能停。
+ * Change Phone（Review §16/§17）：从流程后台升级为空间迁移图。
+ *  - 顶部 6-stage progress（ContinuityRail 保留）；
+ *  - 中央：OLD identity node → 迁移关系通道（状态着色 + icon/label）→ NEW identity node；
+ *  - 状态：migrated=green / waiting=amber / blocked=red / not-started=muted / manual=neutral；
+ *    颜色永远伴随 icon + label（三通道）；
+ *  - 下方两组列表降级为 detail inspector（非主视觉）。
  */
 @Composable
 fun ChangePhoneScreen(app: VAppState) {
@@ -72,86 +86,30 @@ fun ChangePhoneScreen(app: VAppState) {
             modifier = Modifier.testTagLocal(VTestIds.CHANGE_PROGRESS),
         )
 
-        // 中央：旧手机号 → migration → 新手机号
-        SectionHeader("旧手机号 → 关键服务 → 新手机号")
+        // 中央空间迁移图：OLD node → 迁移关系通道 → NEW node
         Row(
             Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(VSpacing.Md),
+            horizontalArrangement = Arrangement.spacedBy(VSpacing.Lg),
             verticalAlignment = Alignment.Top,
         ) {
-            if (old != null) {
-                Surface(
-                    Modifier.weight(1f),
-                    color = PdigV2Colors.Surface.copy(alpha = 0.96f),
-                    shape = RoundedCornerShape(VRadius.Lg),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                ) {
-                    Column(Modifier.padding(VSpacing.Lg)) {
-                        LabelChip("旧号码")
-                        Spacer(Modifier.height(VSpacing.Sm))
-                        Text(old.maskedNumber, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary)
-                        Text("${old.carrier} · 主号", color = PdigV2Colors.TextMuted, style = VType.Meta)
-                        Spacer(Modifier.height(VSpacing.Sm))
-                        Text("承担：银行验证 / 注册 / 2FA（${old.usages.size} 类用途）", color = PdigV2Colors.TextSecondary, style = VType.Secondary)
-                    }
-                }
-            }
-            Text("→", color = PdigV2Colors.TextMuted, style = VType.SectionTitle, modifier = Modifier.padding(top = 8.dp))
-            Surface(
-                Modifier.weight(1.3f),
-                color = PdigV2Colors.Surface.copy(alpha = 0.96f),
-                shape = RoundedCornerShape(VRadius.Lg),
-                border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-            ) {
-                Column(Modifier.padding(VSpacing.Lg), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    LabelChip("关键服务与账户")
-                    Spacer(Modifier.height(4.dp))
-                    UiVNextDemoFixture.changeMigrations.forEach { m ->
-                        Row(
-                            Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(m.service, color = PdigV2Colors.TextSecondary, style = VType.Secondary)
-                            StatusBadge(m.status)
-                        }
-                    }
-                }
-            }
-            Text("→", color = PdigV2Colors.TextMuted, style = VType.SectionTitle, modifier = Modifier.padding(top = 8.dp))
-            if (new != null) {
-                Surface(
-                    Modifier.weight(1f),
-                    color = PdigV2Colors.Primary.copy(alpha = 0.14f),
-                    shape = RoundedCornerShape(VRadius.Lg),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.PrimaryBright),
-                ) {
-                    Column(Modifier.padding(VSpacing.Lg)) {
-                        LabelChip("新号码", highlight = true)
-                        Spacer(Modifier.height(VSpacing.Sm))
-                        Text(new.maskedNumber, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary)
-                        Text("${new.carrier} · 副号", color = PdigV2Colors.TextMuted, style = VType.Meta)
-                        Spacer(Modifier.height(VSpacing.Sm))
-                        Text("待验证通过后接管关键账户绑定", color = PdigV2Colors.Warning, style = VType.Secondary)
-                    }
-                }
-            }
+            if (old != null) OldNumberNode(old)
+            MigrationLanes(UiVNextDemoFixture.changeMigrations, Modifier.weight(1f))
+            if (new != null) NewNumberNode(new)
         }
 
-        // 左 = 仍依赖旧号 / 右 = 等待验证与已迁移
+        // 下方 = detail inspector（非主视觉；保持信息完整）
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                SectionHeader("仍依赖旧号码")
+                SectionHeader("仍依赖旧号码 · 详情")
                 val stillOnOld = UiVNextDemoFixture.changeMigrations.filter { it.status != "migrated" }
                 if (stillOnOld.isEmpty()) {
                     Text("暂无 — 旧号码已完成接管", color = PdigV2Colors.TextMuted, style = VType.Secondary)
                 } else {
-                    stillOnOld.forEach { m ->
-                        MigrationRow(m.service, m.status, "仍以旧号码为验证/扣款路径")
-                    }
+                    stillOnOld.forEach { m -> MigrationRow(m.service, m.status, "仍以旧号码为验证/扣款路径") }
                 }
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                SectionHeader("等待验证 / 已迁移")
+                SectionHeader("等待验证 / 已迁移 · 详情")
                 val waiting = UiVNextDemoFixture.changeMigrations.filter { it.status == "waiting" }
                 val migrated = UiVNextDemoFixture.changeMigrations.filter { it.status == "migrated" }
                 if (migrated.isEmpty() && waiting.isEmpty()) {
@@ -175,12 +133,131 @@ fun ChangePhoneScreen(app: VAppState) {
     }
 }
 
+/** OLD 号码身份节点。 */
+@Composable
+private fun OldNumberNode(old: com.pdig.uivnext.model.UiVNextNumber) {
+    Surface(
+        Modifier.width(300.dp),
+        color = PdigV2Colors.Surface.copy(alpha = 0.9f),
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(VSpacing.Xl), verticalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+            LabelChip("旧号码")
+            Text(old.maskedNumber, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary)
+            Text("${old.carrier} · 主号", color = PdigV2Colors.TextMuted, style = VType.Meta)
+            Text("承担：银行验证 / 注册 / 2FA（${old.usages.size} 类用途）", color = PdigV2Colors.TextSecondary, style = VType.Secondary)
+        }
+    }
+}
+
+/** NEW 号码身份节点（待验证接管）。 */
+@Composable
+private fun NewNumberNode(new: com.pdig.uivnext.model.UiVNextNumber) {
+    Surface(
+        Modifier.width(300.dp),
+        color = PdigV2Colors.Primary.copy(alpha = 0.14f),
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.PrimaryBright),
+    ) {
+        Column(Modifier.padding(VSpacing.Xl), verticalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+            LabelChip("新号码", highlight = true)
+            Text(new.maskedNumber, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary)
+            Text("${new.carrier} · 副号", color = PdigV2Colors.TextMuted, style = VType.Meta)
+            Text("待验证通过后接管关键账户绑定", color = PdigV2Colors.Warning, style = VType.Secondary)
+        }
+    }
+}
+
+/** 迁移关系通道：每个服务一条状态线（OLD ──状态──▶ NEW）。 */
+@Composable
+private fun MigrationLanes(items: List<ChangeMigration>, modifier: Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("迁移关系", style = VType.SectionTitle, color = PdigV2Colors.TextPrimary)
+        items.forEach { m ->
+            val color = migrationStatusColor(m.status)
+            val icon = migrationStatusIcon(m.status)
+            Row(
+                Modifier.fillMaxWidth().height(46.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // 服务名（左）
+                Text(
+                    m.service,
+                    Modifier.width(120.dp),
+                    color = PdigV2Colors.TextPrimary,
+                    style = VType.Label,
+                    maxLines = 1,
+                )
+                // 状态关系线：旧侧圆点 ── 状态色线 ── 新侧箭头
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(16.dp),
+                )
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .height(3.dp)
+                        .background(color.copy(alpha = 0.55f), RoundedCornerShape(2.dp)),
+                )
+                Icon(
+                    Icons.Filled.RadioButtonUnchecked,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(10.dp),
+                )
+                Spacer(Modifier.width(6.dp))
+                Surface(color = color.copy(alpha = 0.14f), shape = RoundedCornerShape(VRadius.Sm)) {
+                    Text(
+                        migrationStatusLabel(m.status),
+                        Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
+                        style = VType.StatusLabel,
+                        color = color,
+                    )
+                }
+            }
+        }
+        Text(
+            "migrated 已接管 · waiting 待验证 · manual 需手动 · blocked 不可停 · not-started 未开始",
+            style = VType.Meta,
+            color = PdigV2Colors.TextMuted,
+        )
+    }
+}
+
+private fun migrationStatusColor(status: String): Color = when (status) {
+    "migrated" -> PdigV2Colors.Positive
+    "waiting" -> PdigV2Colors.Warning
+    "blocked" -> PdigV2Colors.Critical
+    "manual" -> PdigV2Colors.Unknown
+    else -> PdigV2Colors.TextMuted
+}
+
+private fun migrationStatusIcon(status: String): ImageVector = when (status) {
+    "migrated" -> Icons.Filled.CheckCircle
+    "waiting" -> Icons.Filled.HourglassEmpty
+    "blocked" -> Icons.Filled.Error
+    "manual" -> Icons.Filled.Handyman
+    else -> Icons.Filled.RadioButtonUnchecked
+}
+
+private fun migrationStatusLabel(status: String): String = when (status) {
+    "migrated" -> "已迁移"
+    "waiting" -> "等待中"
+    "blocked" -> "阻止"
+    "manual" -> "手动"
+    "not_started" -> "未开始"
+    else -> status
+}
+
 @Composable
 private fun MigrationRow(name: String, status: String, hint: String) {
     Surface(
-        color = PdigV2Colors.Surface.copy(alpha = 0.96f),
+        color = PdigV2Colors.Surface.copy(alpha = 0.8f),
         shape = RoundedCornerShape(VRadius.Md),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
@@ -193,7 +270,14 @@ private fun MigrationRow(name: String, status: String, hint: String) {
                 Text(hint, color = PdigV2Colors.TextMuted, style = VType.Meta)
             }
             Spacer(Modifier.width(VSpacing.Md))
-            StatusBadge(status)
+            Surface(color = migrationStatusColor(status).copy(alpha = 0.14f), shape = RoundedCornerShape(VRadius.Sm)) {
+                Text(
+                    migrationStatusLabel(status),
+                    Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
+                    style = VType.StatusLabel,
+                    color = migrationStatusColor(status),
+                )
+            }
         }
     }
 }

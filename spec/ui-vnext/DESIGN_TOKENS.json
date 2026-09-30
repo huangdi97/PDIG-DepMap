@@ -1,6 +1,6 @@
 {
   "$comment": "PDIG UI vNext Design Tokens V2 — single source of truth for the vNext visual system (Global Digital Infrastructure: dark spatial · deep navy · subtle glass · premium · calm). Authority: spec/ui-vnext goal §18 baseline + Human Visual Review 2026-09-30. Change log 2026-09-30 (Human Visual Review acceptance criteria): (1) typography scale enlarged per review F (pageTitle 32-44px, section 18-22, body 15-17, secondary 13-15, <=12 only rare metadata); (2) added Earth/ocean/land/night-city-light/atmosphere-rim/star tokens for a real-Earth spatial globe (review B/E) — the plain dark sphere is demoted to LOW_POWER_FALLBACK, default renderer = bundled simplified coastlines + procedural night lights + atmosphere rim + sunlight terminator (offline, no remote tiles); (3) overview globe stage ratio tightened to 52-64% width / 64-78% height (review C); (4) glass policy: navigation/floating controls/region node/transient overlays only, data surfaces solid (review P). Any token change: reason first, spec first, then codegen. This file is presentation-only; MUST NOT alter Domain Truth; never written into .depmap frozen payload. v0.3.1 tokens in spec/ui/design-tokens.json remain frozen and untouched.",
-  "specVersion": "2.1.0",
+  "specVersion": "2.2.0",
   "scope": "ui-vnext-feature-branch",
   "policy": {
     "noRemoteFonts": true,
@@ -17,16 +17,16 @@
     "visualStatus": "VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW"
   },
   "colors": {
-    "canvas": "#061225",
-    "canvasDeep": "#030A18",
-    "surface": "#0B1A33",
-    "surfaceRaised": "#102340",
-    "surfaceGlass": "rgba(28, 56, 96, 0.54)",
-    "borderSubtle": "rgba(148, 180, 234, 0.13)",
-    "borderStrong": "rgba(116, 161, 255, 0.34)",
+    "canvas": "#04060D",
+    "canvasDeep": "#020308",
+    "surface": "#10141E",
+    "surfaceRaised": "#1A2231",
+    "surfaceGlass": "rgba(22, 30, 46, 0.66)",
+    "borderSubtle": "rgba(140, 170, 220, 0.12)",
+    "borderStrong": "rgba(130, 170, 255, 0.30)",
     "primary": "#4D74FF",
     "primaryBright": "#67A7FF",
-    "primarySoft": "#1C2E55",
+    "primarySoft": "#14203C",
     "textPrimary": "#F4F7FF",
     "textSecondary": "#A9B8D5",
     "textMuted": "#7383A3",
@@ -48,7 +48,12 @@
     "nightCityGlow": "rgba(255, 217, 138, 0.35)",
     "star": "#C9D8FF",
     "atmosphereRim": "rgba(103, 167, 255, 0.38)",
-    "terminatorLight": "#67A7FF"
+    "terminatorLight": "#67A7FF",
+    "oceanSpecular": "#5E87C8",
+    "landTextureHi": "#3A628F",
+    "landTextureLo": "#142C48",
+    "cloud": "#E8F1FF",
+    "localIllum": "#2C4A7E"
   },
   "semantic": {
     "$comment": "Semantic aliases; platform code maps these roles, not raw palette names.",
@@ -154,12 +159,12 @@
   },
   "components": {
     "nav": {
-      "railCollapsedWidth": 80,
+      "railCollapsedWidth": 68,
       "railExpandedWidth": 188,
       "railExpandedMax": 188,
       "topCommandHeight": 48,
-      "railWidthRange": { "min": 76, "max": 188 },
-      "primaryOnly": "primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar"
+      "railWidthRange": { "min": 64, "max": 188 },
+      "primaryOnly": "primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar"
     },
     "page": {
       "padding": 24,
@@ -169,11 +174,12 @@
     "overview": {
       "globeStageWidthRatio": { "min": 0.52, "max": 0.64 },
       "globeStageHeightRatio": { "min": 0.64, "max": 0.78 },
-      "activityRailWidth": { "min": 300, "max": 380 },
-      "quickEntryHeight": { "min": 88, "max": 120 }
+      "spatialInspectorWidth": 320,
+      "spatialInspectorMargin": 28,
+      "quickEntryHeight": { "min": 64, "max": 88 }
     },
     "cardsGrid": {
-      "columns1920": 4,
+      "columns1920": 3,
       "columns1280": 3,
       "columnsSmall": 2,
       "cardAspectRatio": 1.586,

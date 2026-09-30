@@ -68,6 +68,11 @@ object PdigV2Colors {
     val Star = hexColor(T.COLORS_STAR)
     val AtmosphereRim = rgbaColor(T.COLORS_ATMOSPHERE_RIM)
     val TerminatorLight = hexColor(T.COLORS_TERMINATOR_LIGHT)
+    val OceanSpecular = hexColor(T.COLORS_OCEAN_SPECULAR)
+    val LandTextureHi = hexColor(T.COLORS_LAND_TEXTURE_HI)
+    val LandTextureLo = hexColor(T.COLORS_LAND_TEXTURE_LO)
+    val Cloud = hexColor(T.COLORS_CLOUD)
+    val LocalIllum = hexColor(T.COLORS_LOCAL_ILLUM)
 }
 
 /** 语义状态色（icon+label+color 三通道；色仅为第三通道）。 */

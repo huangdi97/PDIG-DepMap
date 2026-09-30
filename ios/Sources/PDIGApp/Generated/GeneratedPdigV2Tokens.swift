@@ -1,6 +1,6 @@
 // DO NOT EDIT
 // Generated from spec/ui-vnext/DESIGN_TOKENS.json
-// specVersion: 2.1.0 (ui-vnext tokens)
+// specVersion: 2.2.0 (ui-vnext tokens)
 // Generator: tools/codegen/generate.mjs — run `node tools/codegen/generate.mjs`
 
 import Foundation
@@ -9,7 +9,7 @@ import Foundation
 /// Single source of truth: spec/ui-vnext/DESIGN_TOKENS.json
 /// Do NOT hand-edit; run `node tools/codegen/generate.mjs`.
 public enum GeneratedPdigV2Tokens {
-    public static let specVersion = "2.1.0"
+    public static let specVersion = "2.2.0"
     public static let scope = "ui-vnext-feature-branch"
     public static let policyNoRemoteFonts = true
     public static let policyNoRemoteIconCdn = true
@@ -23,16 +23,16 @@ public enum GeneratedPdigV2Tokens {
     public static let policySelfApproval = "FORBIDDEN"
     public static let policyTokenChange = "reason first, spec first, then codegen"
     public static let policyVisualStatus = "VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW"
-    public static let colorsCanvas = "#061225"
-    public static let colorsCanvasDeep = "#030A18"
-    public static let colorsSurface = "#0B1A33"
-    public static let colorsSurfaceRaised = "#102340"
-    public static let colorsSurfaceGlass = "rgba(28, 56, 96, 0.54)"
-    public static let colorsBorderSubtle = "rgba(148, 180, 234, 0.13)"
-    public static let colorsBorderStrong = "rgba(116, 161, 255, 0.34)"
+    public static let colorsCanvas = "#04060D"
+    public static let colorsCanvasDeep = "#020308"
+    public static let colorsSurface = "#10141E"
+    public static let colorsSurfaceRaised = "#1A2231"
+    public static let colorsSurfaceGlass = "rgba(22, 30, 46, 0.66)"
+    public static let colorsBorderSubtle = "rgba(140, 170, 220, 0.12)"
+    public static let colorsBorderStrong = "rgba(130, 170, 255, 0.30)"
     public static let colorsPrimary = "#4D74FF"
     public static let colorsPrimaryBright = "#67A7FF"
-    public static let colorsPrimarySoft = "#1C2E55"
+    public static let colorsPrimarySoft = "#14203C"
     public static let colorsTextPrimary = "#F4F7FF"
     public static let colorsTextSecondary = "#A9B8D5"
     public static let colorsTextMuted = "#7383A3"
@@ -55,6 +55,11 @@ public enum GeneratedPdigV2Tokens {
     public static let colorsStar = "#C9D8FF"
     public static let colorsAtmosphereRim = "rgba(103, 167, 255, 0.38)"
     public static let colorsTerminatorLight = "#67A7FF"
+    public static let colorsOceanSpecular = "#5E87C8"
+    public static let colorsLandTextureHi = "#3A628F"
+    public static let colorsLandTextureLo = "#142C48"
+    public static let colorsCloud = "#E8F1FF"
+    public static let colorsLocalIllum = "#2C4A7E"
     public static let semanticEnvBackground = "colors.canvas"
     public static let semanticEnvBackgroundDeep = "colors.canvasDeep"
     public static let semanticEnvGlass = "colors.surfaceGlass"
@@ -148,13 +153,13 @@ public enum GeneratedPdigV2Tokens {
     public static let globeBundledDataCityLights = "bundled major city coordinates for procedural night lights"
     public static let globeBundledDataLandShading = "depth + terminator shading on land"
     public static let globeBundledDataOcean = "oceanBase/oceanDeep radial shading"
-    public static let componentsNavRailCollapsedWidth = 80
+    public static let componentsNavRailCollapsedWidth = 68
     public static let componentsNavRailExpandedWidth = 188
     public static let componentsNavRailExpandedMax = 188
     public static let componentsNavTopCommandHeight = 48
-    public static let componentsNavRailWidthRangeMin = 76
+    public static let componentsNavRailWidthRangeMin = 64
     public static let componentsNavRailWidthRangeMax = 188
-    public static let componentsNavPrimaryOnly = "primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar"
+    public static let componentsNavPrimaryOnly = "primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar"
     public static let componentsPagePadding = 24
     public static let componentsPagePaddingNarrow = 16
     public static let componentsPageMaxWidth = 1400
@@ -162,11 +167,11 @@ public enum GeneratedPdigV2Tokens {
     public static let componentsOverviewGlobeStageWidthRatioMax = 0.64
     public static let componentsOverviewGlobeStageHeightRatioMin = 0.64
     public static let componentsOverviewGlobeStageHeightRatioMax = 0.78
-    public static let componentsOverviewActivityRailWidthMin = 300
-    public static let componentsOverviewActivityRailWidthMax = 380
-    public static let componentsOverviewQuickEntryHeightMin = 88
-    public static let componentsOverviewQuickEntryHeightMax = 120
-    public static let componentsCardsGridColumns1920 = 4
+    public static let componentsOverviewSpatialInspectorWidth = 320
+    public static let componentsOverviewSpatialInspectorMargin = 28
+    public static let componentsOverviewQuickEntryHeightMin = 64
+    public static let componentsOverviewQuickEntryHeightMax = 88
+    public static let componentsCardsGridColumns1920 = 3
     public static let componentsCardsGridColumns1280 = 3
     public static let componentsCardsGridColumnsSmall = 2
     public static let componentsCardsGridCardAspectRatio = 1.586

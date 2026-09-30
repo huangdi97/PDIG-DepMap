@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextNumber
@@ -33,7 +34,9 @@ import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.ui.components.RegionBadge
 import com.pdig.uivnext.ui.components.NumberFace
+import com.pdig.uivnext.ui.components.roleLabel
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
@@ -135,28 +138,48 @@ private fun FilterRowNumbers() {
 
 @Composable
 private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, onClick: () -> Unit) {
+    val depCount = UiVNextDemoFixture.servicesForNumber(number.id).size
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
             .clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.18f) else PdigV2Colors.SurfaceRaised.copy(alpha = 0.6f),
+        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.12f) else PdigV2Colors.SurfaceRaised.copy(alpha = 0.55f),
         shape = RoundedCornerShape(VRadius.Md),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.35f) else PdigV2Colors.BorderSubtle),
     ) {
         Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Md), verticalAlignment = Alignment.CenterVertically) {
+            // 行首 region 身份（flag 视觉）
+            RegionBadge(number.region, badgeSize = 34.dp)
+            Spacer(Modifier.width(VSpacing.Lg))
             Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                    Text(number.nickname, color = PdigV2Colors.TextPrimary, style = VType.Label)
-                    Text("${number.countryCode} · ${number.region}", color = PdigV2Colors.TextMuted, style = VType.Meta)
-                }
                 Text(
-                    "${number.maskedNumber} · ${number.carrier} · ${if (number.simKind == "eSIM") "eSIM" else "SIM"} · ${if (number.role == "primary") "主号" else "副号"}",
+                    number.maskedNumber,
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 17.sp,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    maxLines = 1,
+                )
+                Text(
+                    "${number.carrier} · ${if (number.simKind == "eSIM") "eSIM" else "实体 SIM"} · ${roleLabel(number.role)}",
                     color = PdigV2Colors.TextSecondary,
                     style = VType.Secondary,
+                    maxLines = 1,
                 )
             }
             if (number.recoveryOnly) LabelChip("恢复唯一", highlight = true)
+            Spacer(Modifier.width(VSpacing.Sm))
+            if (depCount > 0) {
+                Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Sm)) {
+                    Text(
+                        "$depCount 依赖",
+                        Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
+                        style = VType.Label,
+                        color = PdigV2Colors.PrimaryBright,
+                    )
+                }
+            }
             Spacer(Modifier.width(VSpacing.Sm))
             StatusBadge(number.status)
         }

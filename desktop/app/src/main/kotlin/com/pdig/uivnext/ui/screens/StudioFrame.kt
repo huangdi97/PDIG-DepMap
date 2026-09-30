@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,29 +20,34 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
-import com.pdig.uivnext.model.PresentationProfile
-import com.pdig.uivnext.ui.components.SectionHeader
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.dp
+import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.ACCENT_SWATCHES
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
-import com.pdig.uivnext.ui.components.accentColorOf
+import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
- * Customization Studio 三栏框架（G7/G9）：
- * LEFT 对象/卡片库（22%）→ CENTER 大尺寸实时卡面预览（46%，主角）→ RIGHT 属性编辑器（32%）。
+ * Customization Studio 三栏框架（Review §9–§12）：
+ * LEFT 对象库 + 预设（22%，紧凑无整体滚动；主题 = 确定性视觉缩略图，两列网格）→
+ * CENTER 大尺寸实时预览（46%，主角：spotlight / floor / 环境辉光；卡占 72% 宽；tilt 随 reduced-motion 关闭）→
+ * RIGHT 属性编辑器（32%，用户语言：材质 / 背景 / 布局 / 强调色 / 显示内容 / 隐私；删除开发者 token 行）。
  * 编辑对象 = PresentationProfile（本地偏好；绝不写 .depmap）。
- * 每次修改 live preview 即时重绘；保存 = 本地偏好语义。
  */
 @Composable
 fun StudioFrame(
@@ -54,9 +60,11 @@ fun StudioFrame(
     layouts: List<String>,
     profile: PresentationProfile,
     onProfileChange: (PresentationProfile) -> Unit,
+    reduceMotion: Boolean,
+    thumbnail: @Composable (String) -> Unit,
     preview: @Composable (String) -> Unit,
 ) {
-    var saved by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    var saved by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(VSpacing.Xxl), verticalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
@@ -77,26 +85,33 @@ fun StudioFrame(
             }
         }
         Row(Modifier.fillMaxSize()) {
-            // LEFT：对象库（22%）
+            // LEFT：对象库 + 预设（22%；紧凑、无整体滚动，规避 Row 内 scroll 无限高约束）
             Column(
                 Modifier
                     .weight(0.22f)
                     .fillMaxSize()
                     .testTagLocal(VTestIds.CUSTOMIZATION_LIBRARY),
-                verticalArrangement = Arrangement.spacedBy(VSpacing.Sm),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 SectionHeader("对象库")
                 libraryItems.forEach { (id, label) ->
-                    LibraryItem(label, selected = selectedLibraryId == id) { onSelectLibrary(id) }
+                    LibraryItem(label, selected = selectedLibraryId == id, compact = true) { onSelectLibrary(id) }
                 }
-                Spacer(Modifier.height(VSpacing.Md))
-                SectionHeader("预设")
-                presets.forEach { preset ->
-                    ChipRow(
-                        label = preset,
-                        selected = profile.themeId == preset,
-                        onClick = { onProfileChange(profile.copy(themeId = preset, backgroundValue = preset)) },
-                    )
+                Spacer(Modifier.height(VSpacing.Sm))
+                SectionHeader("主题")
+                presets.chunked(2).forEach { pair ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        pair.forEach { preset ->
+                            ThemeThumb(
+                                thumbnail = thumbnail,
+                                preset = preset,
+                                selected = profile.themeId == preset,
+                                onClick = { onProfileChange(profile.copy(themeId = preset, backgroundValue = preset)) },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        repeat(2 - pair.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
             Spacer(Modifier.width(VSpacing.Lg))
@@ -109,16 +124,21 @@ fun StudioFrame(
             ) {
                 SectionHeader("实时预览")
                 Spacer(Modifier.height(VSpacing.Md))
-                Surface(
+                Box(
                     Modifier
                         .fillMaxWidth()
                         .weight(1f)
-                        .padding(0.dp),
-                    color = PdigV2Colors.Surface.copy(alpha = 0.96f),
-                    shape = RoundedCornerShape(VRadius.Xl),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                        .drawBehind { drawPreviewStage() },
                 ) {
-                    Box(Modifier.fillMaxSize().padding(VSpacing.Xxl), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier
+                            .align(Alignment.Center)
+                            .fillMaxWidth(0.72f)
+                            .graphicsLayer {
+                                rotationX = if (reduceMotion) 0f else 5f
+                                cameraDistance = 24f * density
+                            },
+                    ) {
                         preview(selectedLibraryId)
                     }
                 }
@@ -130,7 +150,7 @@ fun StudioFrame(
                 )
             }
             Spacer(Modifier.width(VSpacing.Lg))
-            // RIGHT：属性编辑器（32%）
+            // RIGHT：属性编辑器（32%，用户语言）
             Column(
                 Modifier
                     .weight(0.32f)
@@ -144,16 +164,25 @@ fun StudioFrame(
                     GroupLabel("材质")
                     Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
                         materials.forEach { m ->
-                            ChipRow(label = m, selected = profile.material == m, compact = true) {
+                            ChipRow(label = materialLabel(m), selected = profile.material == m, compact = true) {
                                 onProfileChange(profile.copy(material = m))
                             }
                         }
                     }
                 }
+                GroupLabel("背景")
+                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                    ChipRow(label = "预设背景", selected = profile.backgroundKind == "preset", compact = true) {
+                        onProfileChange(profile.copy(backgroundKind = "preset", backgroundValue = profile.themeId))
+                    }
+                    ChipRow(label = "纯色", selected = profile.backgroundKind == "plain", compact = true) {
+                        onProfileChange(profile.copy(backgroundKind = "plain", backgroundValue = ""))
+                    }
+                }
                 GroupLabel("布局")
                 Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
                     layouts.forEach { l ->
-                        ChipRow(label = l, selected = profile.layout == l, compact = true) {
+                        ChipRow(label = layoutLabel(l), selected = profile.layout == l, compact = true) {
                             onProfileChange(profile.copy(layout = l))
                         }
                     }
@@ -166,20 +195,15 @@ fun StudioFrame(
                         }
                     }
                 }
-                ToggleRow("敏感信息遮蔽", profile.maskSensitive) {
+                Spacer(Modifier.height(VSpacing.Sm))
+                SectionHeader("显示内容")
+                ToggleRow("隐藏部分信息（隐私遮蔽）", profile.maskSensitive) {
                     onProfileChange(profile.copy(maskSensitive = !profile.maskSensitive))
                 }
+                InfoRow("Logo / 尾号 / 卡组织", if (profile.maskSensitive) "受遮蔽保护" else "可见")
+                InfoRow("币种 / 地区", if (profile.layout == "minimal-content") "精简隐藏" else "显示")
                 Spacer(Modifier.height(VSpacing.Sm))
-                SectionHeader("内容信息")
-                InfoRow("主题", profile.themeId)
-                InfoRow("背景", profile.backgroundValue)
-                InfoRow("遮蔽", if (profile.maskSensitive) "已开启" else "已关闭")
-                Spacer(Modifier.height(VSpacing.Sm))
-                SectionHeader("样式")
-                InfoRow("圆角", "xl · 18px（token）")
-                InfoRow("边框", "borderSubtle / borderStrong")
-                Spacer(Modifier.height(VSpacing.Sm))
-                SectionHeader("高级")
+                SectionHeader("隐私")
                 Text(
                     "PresentationProfile 是本地 app 偏好，绝不写入 .depmap / PersonalReality；修改不影响依赖、证据与确认。",
                     style = VType.Meta,
@@ -190,17 +214,75 @@ fun StudioFrame(
     }
 }
 
+/** 舞台绘制：spotlight（中心聚光）+ 卡片下方 soft floor 椭圆反射 + 环境辉光。 */
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPreviewStage() {
+    val w = size.width
+    val h = size.height
+    drawRect(Brush.verticalGradient(listOf(PdigV2Colors.CanvasDeep.copy(alpha = 0.6f), PdigV2Colors.Canvas)))
+    drawCircle(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.LocalIllum.copy(alpha = 0.40f), Color.Transparent),
+            center = Offset(w * 0.5f, h * 0.44f),
+            radius = w * 0.55f,
+        ),
+        radius = w * 0.55f,
+        center = Offset(w * 0.5f, h * 0.44f),
+    )
+    drawOval(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.PrimaryBright.copy(alpha = 0.12f), Color.Transparent),
+            center = Offset(w * 0.5f, h * 0.86f),
+            radius = w * 0.30f,
+        ),
+        topLeft = Offset(w * 0.5f - w * 0.30f, h * 0.86f - w * 0.10f),
+        size = androidx.compose.ui.geometry.Size(w * 0.60f, w * 0.20f),
+    )
+}
+
+private fun materialLabel(m: String): String = when (m) {
+    "matte" -> "哑光"
+    "glass" -> "玻璃"
+    "metal" -> "金属"
+    "minimal" -> "极简"
+    else -> m
+}
+
+private fun layoutLabel(l: String): String = when (l) {
+    "emblem" -> "徽章"
+    "minimal-content" -> "精简"
+    else -> "标准"
+}
+
+/** 主题视觉缩略图（固定尺寸、固定渲染器；选中 = 描边高亮 + 圆点）。 */
 @Composable
-private fun LibraryItem(label: String, selected: Boolean, onClick: () -> Unit) {
+private fun ThemeThumb(
+    thumbnail: @Composable (String) -> Unit,
+    preset: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier.clickable(onClick = onClick)) {
+        thumbnail(preset)
+        Surface(
+            modifier = Modifier.align(Alignment.CenterEnd).size(20.dp).padding(end = 6.dp).clip(CircleShape).clickable(onClick = onClick),
+            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.SurfaceRaised,
+            border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        ) {}
+    }
+}
+
+@Composable
+private fun LibraryItem(label: String, selected: Boolean, compact: Boolean = false, onClick: () -> Unit) {
     Surface(
         Modifier.fillMaxWidth().clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
+        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else Color.Transparent,
         shape = RoundedCornerShape(VRadius.Md),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.3f) else PdigV2Colors.BorderSubtle),
     ) {
         Text(
             label,
-            Modifier.padding(horizontal = VSpacing.Md, vertical = VSpacing.Sm),
+            Modifier.padding(horizontal = VSpacing.Md, vertical = if (compact) 4.dp else VSpacing.Sm),
             color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextPrimary,
             style = VType.Label,
             maxLines = 1,
@@ -212,9 +294,9 @@ private fun LibraryItem(label: String, selected: Boolean, onClick: () -> Unit) {
 private fun ChipRow(label: String, selected: Boolean, compact: Boolean = false, onClick: () -> Unit) {
     Surface(
         Modifier.clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
+        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else PdigV2Colors.SurfaceRaised,
         shape = RoundedCornerShape(VRadius.Sm),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.3f) else PdigV2Colors.BorderSubtle),
     ) {
         Text(
             label,
@@ -231,14 +313,14 @@ private fun GroupLabel(text: String) {
 }
 
 @Composable
-private fun SwatchDot(color: androidx.compose.ui.graphics.Color, selected: Boolean, onClick: () -> Unit) {
+private fun SwatchDot(color: Color, selected: Boolean, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .size(26.dp)
             .clip(CircleShape)
             .clickable(onClick = onClick),
         color = color,
-        border = androidx.compose.foundation.BorderStroke(
+        border = BorderStroke(
             if (selected) 3.dp else 1.dp,
             if (selected) PdigV2Colors.TextPrimary else PdigV2Colors.BorderSubtle,
         ),

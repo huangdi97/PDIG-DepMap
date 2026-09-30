@@ -1,5 +1,7 @@
 package com.pdig.uivnext.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,19 +13,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Dialpad
+import androidx.compose.material.icons.filled.SyncAlt
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.globe.VNextGlobe
 import com.pdig.uivnext.model.MediaBreakpoint
+import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -36,12 +48,12 @@ import com.pdig.uivnext.ui.components.RegionListItem
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
- * Infrastructure Overview（G2/G10）：Globe 舞台（L1 spatial stage，edge-to-edge）。
+ * Infrastructure Overview（Review §4 v2）：Globe 成为绝对主角（视觉 ≈60%）。
  *
- * 布局：LEFT rail（shell）→ CENTER globe 舞台（52–64% 宽 × 64–78% 高）→
- * RIGHT context/activity rail（solid L3）→ BOTTOM 快捷动作（floating glass L2）。
- * 顺序：environment → globe → overlay → controls。
- * Globe 上直接绘制地区锚点 label（region code + 名称 + 计数）。
+ *  - 右区 = floating spatial inspector（glass 半透明、宽 320、与边缘留 28px，
+ *    悬浮于 globe 环境上，不再是"右侧普通后台 panel"）；
+ *  - 底部 = compact action dock / floating control strip（非 4 个 dashboard 卡片）；
+ *  - Globe 上直接绘制地区锚点 label（region code + 名称 + 计数）。
  */
 @Composable
 fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
@@ -51,19 +63,19 @@ fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         Modifier
             .fillMaxSize()
             .padding(VSpacing.Xxl),
+        verticalArrangement = Arrangement.spacedBy(VSpacing.Xl),
     ) {
         PageHeader(
             title = "我的基础设施",
             subtitle = "你的数字基础设施分布在全球哪些地方 · 点击地区聚焦，再次点击打开地区抽屉",
         )
-        Spacer(Modifier.height(VSpacing.Xxl))
         Row(
             Modifier
                 .fillMaxWidth()
                 .weight(1f),
             horizontalArrangement = Arrangement.spacedBy(VSpacing.Xl),
         ) {
-            // CENTER Globe Stage（L1 spatial；62% content 宽，无卡片 chrome）
+            // CENTER Globe Stage（L1 spatial；Globe 是主角，无卡片 chrome）
             Box(
                 Modifier
                     .fillMaxWidth(0.62f)
@@ -90,82 +102,102 @@ fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     )
                 }
             }
-            // RIGHT Activity Rail（L3 Solid Data Surface；300–380px）
-            Surface(
-                modifier = Modifier
-                    .width(if (breakpoint == MediaBreakpoint.WIDE) 360.dp else 320.dp)
-                    .fillMaxHeight()
-                    .testTagLocal(VTestIds.OVERVIEW_ACTIVITY),
-                color = PdigV2Colors.Surface.copy(alpha = 0.96f),
-                shape = RoundedCornerShape(VRadius.Xl),
-                border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-            ) {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(VSpacing.Xl),
-                    verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
-                ) {
-                    SectionHeader("地区（Region List）")
-                    regions.forEach { region ->
-                        RegionListItem(
-                            region = region,
-                            selected = app.regionFilter == region.regionCode,
-                            onClick = { app.selectRegion(region.regionCode) },
-                        )
-                    }
-                    SectionHeader("需要处理")
-                    UiVNextDemoFixture.attentionItems.forEach { item ->
-                        AttentionRow(item = item, onClick = { clicked ->
-                            when {
-                                UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
-                                else -> app.openNumber(clicked.target)
-                            }
-                        })
-                    }
-                }
+            // RIGHT Floating Spatial Inspector（glass；宽 320；边缘留 28px）
+            Box(Modifier.weight(1f).fillMaxHeight()) {
+                FloatingSpatialInspector(app, regions)
             }
         }
-        // BOTTOM Quick Entry（L2 floating glass；88–120px）
-        Spacer(Modifier.height(VSpacing.Xl))
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(96.dp)
-                .testTagLocal(VTestIds.OVERVIEW_QUICK),
-            color = PdigV2Colors.SurfaceGlass,
-            shape = RoundedCornerShape(VRadius.Lg),
-            border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        // BOTTOM Compact Action Dock（floating strip，非 dashboard 卡片）
+        CompactActionDock(app)
+    }
+}
+
+/** Floating spatial inspector：glass 半透明表面，悬浮于 globe 环境（Review §4）。 */
+@Composable
+private fun FloatingSpatialInspector(app: VAppState, regions: List<RegionPresentation>) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth(0.78f)
+            .fillMaxHeight()
+            .padding(top = 0.dp, end = 0.dp)
+            .testTagLocal(VTestIds.OVERVIEW_ACTIVITY),
+        color = PdigV2Colors.SurfaceGlass.copy(alpha = 0.72f),
+        shape = RoundedCornerShape(VRadius.Xl2),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle.copy(alpha = 0.5f)),
+    ) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(VSpacing.Xl),
+            verticalArrangement = Arrangement.spacedBy(VSpacing.Md),
         ) {
-            Row(
-                Modifier.fillMaxSize().padding(horizontal = VSpacing.Xxl),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(VSpacing.Lg),
-            ) {
-                QuickEntry("查看卡片", "全球 ${UiVNextDemoFixture.cards.size} 张卡") { app.navigate(VScreen.CARDS) }
-                QuickEntry("查看号码", "全球 ${UiVNextDemoFixture.numbers.size} 个号码") { app.navigate(VScreen.NUMBERS) }
-                QuickEntry("更换手机号", "旗舰流程") { app.navigate(VScreen.CHANGE_PHONE) }
-                QuickEntry("基础设施薄弱点", "待确认风险") { app.navigate(VScreen.WEAKNESSES) }
+            SectionHeader("地区分布")
+            regions.forEach { region ->
+                RegionListItem(
+                    region = region,
+                    selected = app.regionFilter == region.regionCode,
+                    onClick = { app.selectRegion(region.regionCode) },
+                )
+            }
+            SectionHeader("需要处理")
+            UiVNextDemoFixture.attentionItems.forEach { item ->
+                AttentionRow(item = item, onClick = { clicked ->
+                    when {
+                        UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
+                        else -> app.openNumber(clicked.target)
+                    }
+                })
             }
         }
     }
 }
 
+/** 底部 compact action dock：悬浮玻璃条，4 个紧凑动作（icon + 短标签）。 */
 @Composable
-private fun RowScope.QuickEntry(title: String, hint: String, onClick: () -> Unit) {
+private fun CompactActionDock(app: VAppState) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(72.dp)
+            .testTagLocal(VTestIds.OVERVIEW_QUICK),
+        color = PdigV2Colors.SurfaceGlass,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle.copy(alpha = 0.5f)),
+    ) {
+        Row(
+            Modifier.fillMaxSize().padding(horizontal = VSpacing.Xxl),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(VSpacing.Xl),
+        ) {
+            DockAction("查看卡片", Icons.Filled.CreditCard, "全球 ${UiVNextDemoFixture.cards.size} 张卡") { app.navigate(VScreen.CARDS) }
+            DockAction("查看号码", Icons.Filled.Dialpad, "全球 ${UiVNextDemoFixture.numbers.size} 个号码") { app.navigate(VScreen.NUMBERS) }
+            DockAction("更换手机号", Icons.Filled.SyncAlt, "旗舰流程") { app.navigate(VScreen.CHANGE_PHONE) }
+            DockAction("薄弱点", Icons.Filled.Warning, "待确认风险") { app.navigate(VScreen.WEAKNESSES) }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.DockAction(title: String, icon: ImageVector, hint: String, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .weight(1f)
-            .fillMaxHeight(0.72f)
-            .clickableLocal(onClick = onClick),
-        color = PdigV2Colors.SurfaceRaised.copy(alpha = 0.9f),
+            .fillMaxHeight(0.86f)
+            .clickable(onClick = onClick),
+        color = Color.Transparent,
         shape = RoundedCornerShape(VRadius.Md),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
-        Column(Modifier.padding(VSpacing.Lg), verticalArrangement = Arrangement.Center) {
-            Text(title, color = PdigV2Colors.TextPrimary, style = VType.Label)
-            Text(hint, color = PdigV2Colors.TextMuted, style = VType.Meta)
+        Row(
+            Modifier.padding(horizontal = VSpacing.Lg),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(icon, contentDescription = null, tint = PdigV2Colors.PrimaryBright, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(VSpacing.Md))
+            Column {
+                Text(title, color = PdigV2Colors.TextPrimary, style = VType.Label)
+                Text(hint, color = PdigV2Colors.TextMuted, style = VType.Meta)
+            }
         }
     }
 }

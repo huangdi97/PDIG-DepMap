@@ -11,12 +11,15 @@ import com.pdig.uivnext.model.NUMBER_THEME_PRESETS
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
+import com.pdig.uivnext.ui.components.CardFaceThumbnail
 import com.pdig.uivnext.ui.components.NumberFace
+import com.pdig.uivnext.ui.components.NumberFaceThumbnail
 
 /**
- * Card / Number Customization Studio 入口（G7/G9）。
- * 三栏（对象库 22% / 大尺寸实时预览 46% / 属性编辑器 32%）由 StudioFrame 提供；
+ * Card / Number Customization Studio 入口（Review §9–§15）。
+ * 三栏（对象库 22% / 大尺寸实时预览 46% / 分组编辑器 32%）由 StudioFrame 提供；
  * 编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap）。
+ * 主题选择 = 确定性视觉缩略图（共享 PresentationProfile 渲染器，不依赖视觉判断）。
  */
 
 @Composable
@@ -36,9 +39,11 @@ fun CardCustomizationScreen(app: VAppState) {
         },
         presets = CARD_THEME_PRESETS,
         materials = listOf("minimal", "matte", "glass", "metal"),
-        layouts = listOf("standard", "minimal-content"),
+        layouts = listOf("standard", "emblem", "minimal-content"),
         profile = profile,
         onProfileChange = { profile = it },
+        reduceMotion = app.reduceMotion,
+        thumbnail = { preset -> CardFaceThumbnail(preset) },
         preview = { id ->
             val card = UiVNextDemoFixture.cardById(id) ?: return@StudioFrame
             AssetCard(
@@ -68,6 +73,8 @@ fun NumberCustomizationScreen(app: VAppState) {
         layouts = listOf("standard", "minimal-content"),
         profile = profile,
         onProfileChange = { profile = it },
+        reduceMotion = app.reduceMotion,
+        thumbnail = { preset -> NumberFaceThumbnail(preset) },
         preview = { id ->
             val number = UiVNextDemoFixture.numberById(id) ?: return@StudioFrame
             NumberFace(

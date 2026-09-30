@@ -22,33 +22,34 @@ import com.pdig.uivnext.theme.PdigV2Colors
 @Composable
 fun EnvironmentBackdrop(modifier: Modifier = Modifier) {
     Canvas(modifier.fillMaxSize()) {
+        // 近黑基底为主（canvasDeep → canvas 极缓过渡）；蓝只出现在局部辉光
         drawRect(Brush.verticalGradient(listOf(PdigV2Colors.Canvas, PdigV2Colors.CanvasDeep)))
-        // 大气辉光（globe 区域后方，偏中上）
+        // 地球舞台后方的局部大气辉光（globe 区域，右侧中上）
         drawCircle(
             brush = Brush.radialGradient(
-                listOf(PdigV2Colors.AtmosphereInner.copy(alpha = 0.75f), PdigV2Colors.AtmosphereOuter),
-                center = Offset(size.width * 0.56f, size.height * 0.42f),
-                radius = size.height * 0.85f,
+                listOf(PdigV2Colors.AtmosphereInner.copy(alpha = 0.90f), Color.Transparent),
+                center = Offset(size.width * 0.58f, size.height * 0.40f),
+                radius = size.height * 0.62f,
             ),
-            radius = size.height * 0.85f,
-            center = Offset(size.width * 0.56f, size.height * 0.42f),
+            radius = size.height * 0.62f,
+            center = Offset(size.width * 0.58f, size.height * 0.40f),
         )
-        // 底部 earth light（克制的蓝色微光）
+        // 底部 earth light（微弱环境反射；低 alpha）
         drawCircle(
             brush = Brush.radialGradient(
-                listOf(PdigV2Colors.Primary.copy(alpha = 0.10f), Color.Transparent),
-                center = Offset(size.width * 0.5f, size.height * 0.94f),
-                radius = size.height * 0.5f,
+                listOf(PdigV2Colors.LocalIllum.copy(alpha = 0.30f), Color.Transparent),
+                center = Offset(size.width * 0.5f, size.height * 1.02f),
+                radius = size.height * 0.55f,
             ),
-            radius = size.height * 0.5f,
-            center = Offset(size.width * 0.5f, size.height * 0.94f),
+            radius = size.height * 0.55f,
+            center = Offset(size.width * 0.5f, size.height * 1.02f),
         )
-        // subtle 星点（确定性分布）
-        for (i in 0 until 70) {
+        // subtle 星点（确定性分布；低 alpha，非过量）
+        for (i in 0 until 56) {
             val x = ((i * 127.7f) % 360f) / 360f * size.width
             val y = ((i * 83.9f) % 240f) / 240f * size.height
-            val a = 0.08f + 0.16f * ((i * 5) % 9) / 9f
-            drawCircle(PdigV2Colors.Star.copy(alpha = a), radius = 0.5f + (i % 2) * 0.4f, center = Offset(x, y))
+            val a = 0.06f + 0.12f * ((i * 5) % 9) / 9f
+            drawCircle(PdigV2Colors.Star.copy(alpha = a), radius = 0.4f + (i % 2) * 0.3f, center = Offset(x, y))
         }
     }
 }
