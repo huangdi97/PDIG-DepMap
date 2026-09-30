@@ -314,24 +314,24 @@ class UiScreenshotEvidenceTest {
         compose.waitForIdle()
         // 1) 手机（compact）10 屏截图
         for ((pageId, prepare) in screens) {
-            val app = createVNextAppState()
+            val app = createVNextAppState().apply { reduceMotion = true }
             prepare(app)
             vnextSlot = { VNextApp(app) }
             seq++
             captureVNext(pageId, seq)
         }
         // 2) wide 布局截图（rail 形态证据，宽度冻结 1280dp）
-        val wideOverview = createVNextAppState().apply { navigate(VScreen.OVERVIEW) }
+        val wideOverview = createVNextAppState().apply { reduceMotion = true; navigate(VScreen.OVERVIEW) }
         vnextSlot = { VNextApp(wideOverview, forcedViewportWidthDp = 1280) }
         seq++
         captureVNext("overview-wide-1280dp", seq)
-        val wideCards = createVNextAppState().apply { navigate(VScreen.CARDS) }
+        val wideCards = createVNextAppState().apply { reduceMotion = true; navigate(VScreen.CARDS) }
         vnextSlot = { VNextApp(wideCards, forcedViewportWidthDp = 1280) }
         seq++
         captureVNext("cards-wide-1280dp", seq)
 
         // 3) testTag geometry probe（wide 冻结 → NavigationRail 存在）
-        val probeApp = createVNextAppState()
+        val probeApp = createVNextAppState().apply { reduceMotion = true }
         vnextSlot = { VNextApp(probeApp, forcedViewportWidthDp = 1280) }
         compose.waitForIdle()
         val rail = probeTag("pdig.nav.rail")
