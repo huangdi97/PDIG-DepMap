@@ -1,6 +1,10 @@
 # WORK_STATUS.md
 
-> **（当前）PDIG UI vNext（2026-09-29，feature branch `feat/pdig-ui-vnext`）**
+> **（当前）PDIG UI vNext · PHASE 1 Desktop 视觉重建（2026-09-30，Human Visual Review 后）**
+> —— 人工评审结论：`VISUAL_DIRECTION = FAIL`、`VISUAL_CONTRACT_IMPLEMENTATION = NOT_ACCEPTED`；原截图定为 `REJECTED_ENGINEERING_PROTOTYPE`（保留为 BEFORE，见 artifacts/runtime-evidence/2026-09-29-ui-vnext/VISUAL_STATUS.json）。
+> —— 目标 = Global Digital Infrastructure **Spatial Product**（非 admin dashboard）：vector-Earth Globe 签名组件（bundled 简化海岸线 + 夜间城市灯光 + atmospheric rim + sunlight/暗面，plain sphere 降级为 LOW_POWER_FALLBACK）、edge-to-edge 空间舞台（52–64% 宽 × 64–78% 高）、Primary Rail（现在/基础设施/变更/记录）+ 上下文二级 Subnav、放大字号（title 32–44 / section 18–22 / body 15–17 / ≤12 仅 metadata）、卡资产身份差异化卡面、PresentationProfile<Card>/<PhoneNumber> 定制工作室、Change Phone flagship。
+> —— PHASE 1 只做 Desktop 9 屏（Now/Overview/Cards/CardDetail/Numbers/NumberDetail/CardCustomization/NumberCustomization/ChangePhone）；完成后给证据并 STOP，经 Human/Vision Review 通过后才进入 Android/iOS/Harmony 适配（PHASE 3–5）。
+> —— 参考图已入 spec/ui-vnext/references/（4 张，REFERENCE_MANIFEST.json humanApproved=true）；Golden 只在 production 截图获人工批准后建立。
 > —— No-Vision Blind Coding Agent 轮：冻结方向「Global Digital Infrastructure」（dark spatial · deep navy · subtle glass · premium · calm），
 > 契约全量落地于 `spec/ui-vnext/`（29 文件：DESIGN_TOKENS/VISUAL_DNA/IA/LAYOUT_CONTRACT/MOTION_CONTRACT/INTERACTION_CONTRACT/RESPONSIVE_CONTRACT/PRESENTATION_PROFILE_SCHEMA/UIVNextDemoFixture/components 9/screens 10/references）。
 > **Desktop 本机闭环**：`com/pdig/uivnext/**` 全量实现（VNextShell rail 80/188 + top 48、程序化 2.5D Interactive Globe（drag/zoom/hover/click/focus/跨区弧线、offline、深度着色）、10 屏、PresentationProfile、Privacy Mask）+ Main.kt `--vnext`/`--vnext-shots`；

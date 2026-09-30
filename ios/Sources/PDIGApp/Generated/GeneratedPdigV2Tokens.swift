@@ -1,6 +1,6 @@
 // DO NOT EDIT
 // Generated from spec/ui-vnext/DESIGN_TOKENS.json
-// specVersion: 2.0.0 (ui-vnext tokens)
+// specVersion: 2.1.0 (ui-vnext tokens)
 // Generator: tools/codegen/generate.mjs — run `node tools/codegen/generate.mjs`
 
 import Foundation
@@ -9,7 +9,7 @@ import Foundation
 /// Single source of truth: spec/ui-vnext/DESIGN_TOKENS.json
 /// Do NOT hand-edit; run `node tools/codegen/generate.mjs`.
 public enum GeneratedPdigV2Tokens {
-    public static let specVersion = "2.0.0"
+    public static let specVersion = "2.1.0"
     public static let scope = "ui-vnext-feature-branch"
     public static let policyNoRemoteFonts = true
     public static let policyNoRemoteIconCdn = true
@@ -17,10 +17,12 @@ public enum GeneratedPdigV2Tokens {
     public static let policyCjkFont = "system"
     public static let policyOfflineFirst = true
     public static let policyColorRule = "Data surfaces MUST use semantic tokens; environment layers (L0-L2) may use glass; glass MUST NOT reduce data readability (L3-L5)"
+    public static let policyGlassRule = "glass only for navigation / floating controls / region node / transient inspector / overlay; key data areas stay solid and high contrast"
     public static let policyStatusNotColorOnly = true
     public static let policyPrivacyRule = "PresentationProfile is a local app preference; NEVER written into .depmap frozen payload"
     public static let policySelfApproval = "FORBIDDEN"
     public static let policyTokenChange = "reason first, spec first, then codegen"
+    public static let policyVisualStatus = "VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW"
     public static let colorsCanvas = "#061225"
     public static let colorsCanvasDeep = "#030A18"
     public static let colorsSurface = "#0B1A33"
@@ -44,6 +46,15 @@ public enum GeneratedPdigV2Tokens {
     public static let colorsArcQuiet = "rgba(115, 131, 163, 0.28)"
     public static let colorsAtmosphereInner = "rgba(77, 116, 255, 0.18)"
     public static let colorsAtmosphereOuter = "rgba(6, 18, 37, 0.0)"
+    public static let colorsOceanBase = "#0B2447"
+    public static let colorsOceanDeep = "#071833"
+    public static let colorsLandBase = "#1E3A5F"
+    public static let colorsLandHighlight = "#2C5380"
+    public static let colorsNightCityLight = "#FFD98A"
+    public static let colorsNightCityGlow = "rgba(255, 217, 138, 0.35)"
+    public static let colorsStar = "#C9D8FF"
+    public static let colorsAtmosphereRim = "rgba(103, 167, 255, 0.38)"
+    public static let colorsTerminatorLight = "#67A7FF"
     public static let semanticEnvBackground = "colors.canvas"
     public static let semanticEnvBackgroundDeep = "colors.canvasDeep"
     public static let semanticEnvGlass = "colors.surfaceGlass"
@@ -59,6 +70,13 @@ public enum GeneratedPdigV2Tokens {
     public static let semanticStatusCritical = "colors.critical"
     public static let semanticStatusUnknown = "colors.unknown"
     public static let semanticFocus = "colors.primaryBright"
+    public static let semanticEarthOcean = "colors.oceanBase"
+    public static let semanticEarthOceanDeep = "colors.oceanDeep"
+    public static let semanticEarthLand = "colors.landBase"
+    public static let semanticEarthLandHighlight = "colors.landHighlight"
+    public static let semanticEarthCityLight = "colors.nightCityLight"
+    public static let semanticEarthStar = "colors.star"
+    public static let semanticEarthRim = "colors.atmosphereRim"
     public static let spacingXs = 4
     public static let spacingSm = 8
     public static let spacingMd = 12
@@ -66,43 +84,49 @@ public enum GeneratedPdigV2Tokens {
     public static let spacingXl = 20
     public static let spacingXxl = 24
     public static let spacingXxxl = 32
+    public static let spacingXxxxl = 40
     public static let spacingPagePadding = 24
     public static let spacingPagePaddingNarrow = 16
     public static let spacingSectionGap = 24
+    public static let spacingSectionGapWide = 32
     public static let spacingGridGap = 16
     public static let spacingGridGapWide = 20
     public static let radiusSm = 6
     public static let radiusMd = 10
     public static let radiusLg = 14
     public static let radiusXl = 18
+    public static let radiusXl2 = 24
     public static let radiusPill = 999
-    public static let typographyPageTitleSize = 26
+    public static let typographyPageTitleSize = 36
     public static let typographyPageTitleWeight = 700
-    public static let typographyPageTitleLineHeight = 1.25
-    public static let typographySectionTitleSize = 15
+    public static let typographyPageTitleLineHeight = 1.2
+    public static let typographyMajorNumberSize = 30
+    public static let typographyMajorNumberWeight = 700
+    public static let typographyMajorNumberLineHeight = 1.15
+    public static let typographySectionTitleSize = 20
     public static let typographySectionTitleWeight = 600
-    public static let typographySectionTitleLineHeight = 1.4
-    public static let typographyBodySize = 14
+    public static let typographySectionTitleLineHeight = 1.35
+    public static let typographyBodySize = 16
     public static let typographyBodyWeight = 400
-    public static let typographyBodyLineHeight = 1.5
-    public static let typographySecondarySize = 13
+    public static let typographyBodyLineHeight = 1.6
+    public static let typographySecondarySize = 14
     public static let typographySecondaryWeight = 400
-    public static let typographySecondaryLineHeight = 1.45
+    public static let typographySecondaryLineHeight = 1.55
     public static let typographyMetaSize = 12
     public static let typographyMetaWeight = 400
     public static let typographyMetaLineHeight = 1.4
-    public static let typographyLabelSize = 12
+    public static let typographyLabelSize = 13
     public static let typographyLabelWeight = 600
     public static let typographyLabelLineHeight = 1.3
-    public static let typographyStatusLabelSize = 12
+    public static let typographyStatusLabelSize = 13
     public static let typographyStatusLabelWeight = 600
     public static let typographyStatusLabelLineHeight = 1.3
-    public static let typographyDisplayGlobeSize = 15
+    public static let typographyDisplayGlobeSize = 18
     public static let typographyDisplayGlobeWeight = 600
     public static let typographyDisplayGlobeLineHeight = 1.3
-    public static let typographyMonoSize = 13
+    public static let typographyMonoSize = 14
     public static let typographyMonoWeight = 400
-    public static let typographyMonoLineHeight = 1.4
+    public static let typographyMonoLineHeight = 1.5
     public static let motionFast = 140
     public static let motionNormal = 200
     public static let motionSlow = 260
@@ -112,26 +136,31 @@ public enum GeneratedPdigV2Tokens {
     public static let motionReduceMotionIdleRotation = "off"
     public static let motionReduceMotionCameraAnimation = "simplified"
     public static let motionReduceMotionArcAnimation = "static"
-    public static let globePreferredSphereDiameterMin = 520
-    public static let globeIdleRotationDegPerSec = 0.8
+    public static let globePreferredSphereDiameterMin = 560
+    public static let globeIdleRotationDegPerSec = 0.6
     public static let globeMaxZoom = 1.9
     public static let globeMinZoom = 0.7
     public static let globeRegionAnchorDiameter = 14
-    public static let globeRegionAnchorActiveDiameter = 22
+    public static let globeRegionAnchorActiveDiameter = 24
     public static let globeArcCountPolicy = "only real cross-region relations or region infrastructure summary; never decorative"
     public static let globeCameraPresets: [String] = ["global", "cn", "hk", "gb", "us"]
+    public static let globeBundledDataCoastlines = "bundled simplified world coastlines (lat/lon polygons)"
+    public static let globeBundledDataCityLights = "bundled major city coordinates for procedural night lights"
+    public static let globeBundledDataLandShading = "depth + terminator shading on land"
+    public static let globeBundledDataOcean = "oceanBase/oceanDeep radial shading"
     public static let componentsNavRailCollapsedWidth = 80
     public static let componentsNavRailExpandedWidth = 188
     public static let componentsNavRailExpandedMax = 188
     public static let componentsNavTopCommandHeight = 48
     public static let componentsNavRailWidthRangeMin = 76
     public static let componentsNavRailWidthRangeMax = 188
+    public static let componentsNavPrimaryOnly = "primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar"
     public static let componentsPagePadding = 24
     public static let componentsPagePaddingNarrow = 16
     public static let componentsPageMaxWidth = 1400
-    public static let componentsOverviewGlobeStageWidthRatioMin = 0.55
-    public static let componentsOverviewGlobeStageWidthRatioMax = 0.65
-    public static let componentsOverviewGlobeStageHeightRatioMin = 0.65
+    public static let componentsOverviewGlobeStageWidthRatioMin = 0.52
+    public static let componentsOverviewGlobeStageWidthRatioMax = 0.64
+    public static let componentsOverviewGlobeStageHeightRatioMin = 0.64
     public static let componentsOverviewGlobeStageHeightRatioMax = 0.78
     public static let componentsOverviewActivityRailWidthMin = 300
     public static let componentsOverviewActivityRailWidthMax = 380
@@ -150,6 +179,7 @@ public enum GeneratedPdigV2Tokens {
     public static let componentsCustomizationLibraryColumnRatio = 0.22
     public static let componentsCustomizationPreviewColumnRatio = 0.46
     public static let componentsCustomizationInspectorColumnRatio = 0.32
+    public static let componentsCustomizationInspectorGroups: [String] = ["cardFaceDesign", "contentInfo", "style", "advanced"]
     public static let componentsTouchTargetAndroid = 48
     public static let componentsTouchTargetIos = 44
     public static let contrastBodyTextMin = "4.5:1"

@@ -1,6 +1,6 @@
 // DO NOT EDIT
 // Generated from spec/ui-vnext/DESIGN_TOKENS.json
-// specVersion: 2.0.0 (ui-vnext tokens)
+// specVersion: 2.1.0 (ui-vnext tokens)
 // Generator: tools/codegen/generate.mjs — run `node tools/codegen/generate.mjs`
 
 /**
@@ -9,7 +9,7 @@
  * Do NOT hand-edit; run `node tools/codegen/generate.mjs`.
  */
 export class GeneratedPdigV2Tokens {
-  static readonly SPEC_VERSION: string = '2.0.0';
+  static readonly SPEC_VERSION: string = '2.1.0';
   static readonly SCOPE: string = 'ui-vnext-feature-branch';
   static readonly POLICY_NO_REMOTE_FONTS: boolean = true;
   static readonly POLICY_NO_REMOTE_ICON_CDN: boolean = true;
@@ -17,10 +17,12 @@ export class GeneratedPdigV2Tokens {
   static readonly POLICY_CJK_FONT: string = 'system';
   static readonly POLICY_OFFLINE_FIRST: boolean = true;
   static readonly POLICY_COLOR_RULE: string = 'Data surfaces MUST use semantic tokens; environment layers (L0-L2) may use glass; glass MUST NOT reduce data readability (L3-L5)';
+  static readonly POLICY_GLASS_RULE: string = 'glass only for navigation / floating controls / region node / transient inspector / overlay; key data areas stay solid and high contrast';
   static readonly POLICY_STATUS_NOT_COLOR_ONLY: boolean = true;
   static readonly POLICY_PRIVACY_RULE: string = 'PresentationProfile is a local app preference; NEVER written into .depmap frozen payload';
   static readonly POLICY_SELF_APPROVAL: string = 'FORBIDDEN';
   static readonly POLICY_TOKEN_CHANGE: string = 'reason first, spec first, then codegen';
+  static readonly POLICY_VISUAL_STATUS: string = 'VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW';
   static readonly COLORS_CANVAS: string = '#061225';
   static readonly COLORS_CANVAS_DEEP: string = '#030A18';
   static readonly COLORS_SURFACE: string = '#0B1A33';
@@ -44,6 +46,15 @@ export class GeneratedPdigV2Tokens {
   static readonly COLORS_ARC_QUIET: string = 'rgba(115, 131, 163, 0.28)';
   static readonly COLORS_ATMOSPHERE_INNER: string = 'rgba(77, 116, 255, 0.18)';
   static readonly COLORS_ATMOSPHERE_OUTER: string = 'rgba(6, 18, 37, 0.0)';
+  static readonly COLORS_OCEAN_BASE: string = '#0B2447';
+  static readonly COLORS_OCEAN_DEEP: string = '#071833';
+  static readonly COLORS_LAND_BASE: string = '#1E3A5F';
+  static readonly COLORS_LAND_HIGHLIGHT: string = '#2C5380';
+  static readonly COLORS_NIGHT_CITY_LIGHT: string = '#FFD98A';
+  static readonly COLORS_NIGHT_CITY_GLOW: string = 'rgba(255, 217, 138, 0.35)';
+  static readonly COLORS_STAR: string = '#C9D8FF';
+  static readonly COLORS_ATMOSPHERE_RIM: string = 'rgba(103, 167, 255, 0.38)';
+  static readonly COLORS_TERMINATOR_LIGHT: string = '#67A7FF';
   static readonly SEMANTIC_ENV_BACKGROUND: string = 'colors.canvas';
   static readonly SEMANTIC_ENV_BACKGROUND_DEEP: string = 'colors.canvasDeep';
   static readonly SEMANTIC_ENV_GLASS: string = 'colors.surfaceGlass';
@@ -59,6 +70,13 @@ export class GeneratedPdigV2Tokens {
   static readonly SEMANTIC_STATUS_CRITICAL: string = 'colors.critical';
   static readonly SEMANTIC_STATUS_UNKNOWN: string = 'colors.unknown';
   static readonly SEMANTIC_FOCUS: string = 'colors.primaryBright';
+  static readonly SEMANTIC_EARTH_OCEAN: string = 'colors.oceanBase';
+  static readonly SEMANTIC_EARTH_OCEAN_DEEP: string = 'colors.oceanDeep';
+  static readonly SEMANTIC_EARTH_LAND: string = 'colors.landBase';
+  static readonly SEMANTIC_EARTH_LAND_HIGHLIGHT: string = 'colors.landHighlight';
+  static readonly SEMANTIC_EARTH_CITY_LIGHT: string = 'colors.nightCityLight';
+  static readonly SEMANTIC_EARTH_STAR: string = 'colors.star';
+  static readonly SEMANTIC_EARTH_RIM: string = 'colors.atmosphereRim';
   static readonly SPACING_XS: number = 4;
   static readonly SPACING_SM: number = 8;
   static readonly SPACING_MD: number = 12;
@@ -66,43 +84,49 @@ export class GeneratedPdigV2Tokens {
   static readonly SPACING_XL: number = 20;
   static readonly SPACING_XXL: number = 24;
   static readonly SPACING_XXXL: number = 32;
+  static readonly SPACING_XXXXL: number = 40;
   static readonly SPACING_PAGE_PADDING: number = 24;
   static readonly SPACING_PAGE_PADDING_NARROW: number = 16;
   static readonly SPACING_SECTION_GAP: number = 24;
+  static readonly SPACING_SECTION_GAP_WIDE: number = 32;
   static readonly SPACING_GRID_GAP: number = 16;
   static readonly SPACING_GRID_GAP_WIDE: number = 20;
   static readonly RADIUS_SM: number = 6;
   static readonly RADIUS_MD: number = 10;
   static readonly RADIUS_LG: number = 14;
   static readonly RADIUS_XL: number = 18;
+  static readonly RADIUS_XL2: number = 24;
   static readonly RADIUS_PILL: number = 999;
-  static readonly TYPOGRAPHY_PAGE_TITLE_SIZE: number = 26;
+  static readonly TYPOGRAPHY_PAGE_TITLE_SIZE: number = 36;
   static readonly TYPOGRAPHY_PAGE_TITLE_WEIGHT: number = 700;
-  static readonly TYPOGRAPHY_PAGE_TITLE_LINE_HEIGHT: number = 1.25;
-  static readonly TYPOGRAPHY_SECTION_TITLE_SIZE: number = 15;
+  static readonly TYPOGRAPHY_PAGE_TITLE_LINE_HEIGHT: number = 1.2;
+  static readonly TYPOGRAPHY_MAJOR_NUMBER_SIZE: number = 30;
+  static readonly TYPOGRAPHY_MAJOR_NUMBER_WEIGHT: number = 700;
+  static readonly TYPOGRAPHY_MAJOR_NUMBER_LINE_HEIGHT: number = 1.15;
+  static readonly TYPOGRAPHY_SECTION_TITLE_SIZE: number = 20;
   static readonly TYPOGRAPHY_SECTION_TITLE_WEIGHT: number = 600;
-  static readonly TYPOGRAPHY_SECTION_TITLE_LINE_HEIGHT: number = 1.4;
-  static readonly TYPOGRAPHY_BODY_SIZE: number = 14;
+  static readonly TYPOGRAPHY_SECTION_TITLE_LINE_HEIGHT: number = 1.35;
+  static readonly TYPOGRAPHY_BODY_SIZE: number = 16;
   static readonly TYPOGRAPHY_BODY_WEIGHT: number = 400;
-  static readonly TYPOGRAPHY_BODY_LINE_HEIGHT: number = 1.5;
-  static readonly TYPOGRAPHY_SECONDARY_SIZE: number = 13;
+  static readonly TYPOGRAPHY_BODY_LINE_HEIGHT: number = 1.6;
+  static readonly TYPOGRAPHY_SECONDARY_SIZE: number = 14;
   static readonly TYPOGRAPHY_SECONDARY_WEIGHT: number = 400;
-  static readonly TYPOGRAPHY_SECONDARY_LINE_HEIGHT: number = 1.45;
+  static readonly TYPOGRAPHY_SECONDARY_LINE_HEIGHT: number = 1.55;
   static readonly TYPOGRAPHY_META_SIZE: number = 12;
   static readonly TYPOGRAPHY_META_WEIGHT: number = 400;
   static readonly TYPOGRAPHY_META_LINE_HEIGHT: number = 1.4;
-  static readonly TYPOGRAPHY_LABEL_SIZE: number = 12;
+  static readonly TYPOGRAPHY_LABEL_SIZE: number = 13;
   static readonly TYPOGRAPHY_LABEL_WEIGHT: number = 600;
   static readonly TYPOGRAPHY_LABEL_LINE_HEIGHT: number = 1.3;
-  static readonly TYPOGRAPHY_STATUS_LABEL_SIZE: number = 12;
+  static readonly TYPOGRAPHY_STATUS_LABEL_SIZE: number = 13;
   static readonly TYPOGRAPHY_STATUS_LABEL_WEIGHT: number = 600;
   static readonly TYPOGRAPHY_STATUS_LABEL_LINE_HEIGHT: number = 1.3;
-  static readonly TYPOGRAPHY_DISPLAY_GLOBE_SIZE: number = 15;
+  static readonly TYPOGRAPHY_DISPLAY_GLOBE_SIZE: number = 18;
   static readonly TYPOGRAPHY_DISPLAY_GLOBE_WEIGHT: number = 600;
   static readonly TYPOGRAPHY_DISPLAY_GLOBE_LINE_HEIGHT: number = 1.3;
-  static readonly TYPOGRAPHY_MONO_SIZE: number = 13;
+  static readonly TYPOGRAPHY_MONO_SIZE: number = 14;
   static readonly TYPOGRAPHY_MONO_WEIGHT: number = 400;
-  static readonly TYPOGRAPHY_MONO_LINE_HEIGHT: number = 1.4;
+  static readonly TYPOGRAPHY_MONO_LINE_HEIGHT: number = 1.5;
   static readonly MOTION_FAST: number = 140;
   static readonly MOTION_NORMAL: number = 200;
   static readonly MOTION_SLOW: number = 260;
@@ -112,26 +136,31 @@ export class GeneratedPdigV2Tokens {
   static readonly MOTION_REDUCE_MOTION_IDLE_ROTATION: string = 'off';
   static readonly MOTION_REDUCE_MOTION_CAMERA_ANIMATION: string = 'simplified';
   static readonly MOTION_REDUCE_MOTION_ARC_ANIMATION: string = 'static';
-  static readonly GLOBE_PREFERRED_SPHERE_DIAMETER_MIN: number = 520;
-  static readonly GLOBE_IDLE_ROTATION_DEG_PER_SEC: number = 0.8;
+  static readonly GLOBE_PREFERRED_SPHERE_DIAMETER_MIN: number = 560;
+  static readonly GLOBE_IDLE_ROTATION_DEG_PER_SEC: number = 0.6;
   static readonly GLOBE_MAX_ZOOM: number = 1.9;
   static readonly GLOBE_MIN_ZOOM: number = 0.7;
   static readonly GLOBE_REGION_ANCHOR_DIAMETER: number = 14;
-  static readonly GLOBE_REGION_ANCHOR_ACTIVE_DIAMETER: number = 22;
+  static readonly GLOBE_REGION_ANCHOR_ACTIVE_DIAMETER: number = 24;
   static readonly GLOBE_ARC_COUNT_POLICY: string = 'only real cross-region relations or region infrastructure summary; never decorative';
   static readonly GLOBE_CAMERA_PRESETS: string[] = ['global', 'cn', 'hk', 'gb', 'us'];
+  static readonly GLOBE_BUNDLED_DATA_COASTLINES: string = 'bundled simplified world coastlines (lat/lon polygons)';
+  static readonly GLOBE_BUNDLED_DATA_CITY_LIGHTS: string = 'bundled major city coordinates for procedural night lights';
+  static readonly GLOBE_BUNDLED_DATA_LAND_SHADING: string = 'depth + terminator shading on land';
+  static readonly GLOBE_BUNDLED_DATA_OCEAN: string = 'oceanBase/oceanDeep radial shading';
   static readonly COMPONENTS_NAV_RAIL_COLLAPSED_WIDTH: number = 80;
   static readonly COMPONENTS_NAV_RAIL_EXPANDED_WIDTH: number = 188;
   static readonly COMPONENTS_NAV_RAIL_EXPANDED_MAX: number = 188;
   static readonly COMPONENTS_NAV_TOP_COMMAND_HEIGHT: number = 48;
   static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: number = 76;
   static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MAX: number = 188;
+  static readonly COMPONENTS_NAV_PRIMARY_ONLY: string = 'primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar';
   static readonly COMPONENTS_PAGE_PADDING: number = 24;
   static readonly COMPONENTS_PAGE_PADDING_NARROW: number = 16;
   static readonly COMPONENTS_PAGE_MAX_WIDTH: number = 1400;
-  static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MIN: number = 0.55;
-  static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MAX: number = 0.65;
-  static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MIN: number = 0.65;
+  static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MIN: number = 0.52;
+  static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MAX: number = 0.64;
+  static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MIN: number = 0.64;
   static readonly COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MAX: number = 0.78;
   static readonly COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MIN: number = 300;
   static readonly COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MAX: number = 380;
@@ -150,6 +179,7 @@ export class GeneratedPdigV2Tokens {
   static readonly COMPONENTS_CUSTOMIZATION_LIBRARY_COLUMN_RATIO: number = 0.22;
   static readonly COMPONENTS_CUSTOMIZATION_PREVIEW_COLUMN_RATIO: number = 0.46;
   static readonly COMPONENTS_CUSTOMIZATION_INSPECTOR_COLUMN_RATIO: number = 0.32;
+  static readonly COMPONENTS_CUSTOMIZATION_INSPECTOR_GROUPS: string[] = ['cardFaceDesign', 'contentInfo', 'style', 'advanced'];
   static readonly COMPONENTS_TOUCH_TARGET_ANDROID: number = 48;
   static readonly COMPONENTS_TOUCH_TARGET_IOS: number = 44;
   static readonly CONTRAST_BODY_TEXT_MIN: string = '4.5:1';

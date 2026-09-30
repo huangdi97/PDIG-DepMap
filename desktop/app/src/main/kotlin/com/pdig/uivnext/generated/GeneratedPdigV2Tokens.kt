@@ -1,6 +1,6 @@
 // DO NOT EDIT
 // Generated from spec/ui-vnext/DESIGN_TOKENS.json
-// specVersion: 2.0.0 (ui-vnext tokens)
+// specVersion: 2.1.0 (ui-vnext tokens)
 // Generator: tools/codegen/generate.mjs — run `node tools/codegen/generate.mjs`
 
 package com.pdig.uivnext.generated
@@ -11,7 +11,7 @@ package com.pdig.uivnext.generated
  * Do NOT hand-edit; run `node tools/codegen/generate.mjs` (Desktop and Android targets are emitted identically).
  */
 public object GeneratedPdigV2Tokens {
-    public const val SPEC_VERSION: String = "2.0.0"
+    public const val SPEC_VERSION: String = "2.1.0"
     public const val SCOPE: String = "ui-vnext-feature-branch"
     public const val POLICY_NO_REMOTE_FONTS: Boolean = true
     public const val POLICY_NO_REMOTE_ICON_CDN: Boolean = true
@@ -19,10 +19,12 @@ public object GeneratedPdigV2Tokens {
     public const val POLICY_CJK_FONT: String = "system"
     public const val POLICY_OFFLINE_FIRST: Boolean = true
     public const val POLICY_COLOR_RULE: String = "Data surfaces MUST use semantic tokens; environment layers (L0-L2) may use glass; glass MUST NOT reduce data readability (L3-L5)"
+    public const val POLICY_GLASS_RULE: String = "glass only for navigation / floating controls / region node / transient inspector / overlay; key data areas stay solid and high contrast"
     public const val POLICY_STATUS_NOT_COLOR_ONLY: Boolean = true
     public const val POLICY_PRIVACY_RULE: String = "PresentationProfile is a local app preference; NEVER written into .depmap frozen payload"
     public const val POLICY_SELF_APPROVAL: String = "FORBIDDEN"
     public const val POLICY_TOKEN_CHANGE: String = "reason first, spec first, then codegen"
+    public const val POLICY_VISUAL_STATUS: String = "VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW"
     public const val COLORS_CANVAS: String = "#061225"
     public const val COLORS_CANVAS_DEEP: String = "#030A18"
     public const val COLORS_SURFACE: String = "#0B1A33"
@@ -46,6 +48,15 @@ public object GeneratedPdigV2Tokens {
     public const val COLORS_ARC_QUIET: String = "rgba(115, 131, 163, 0.28)"
     public const val COLORS_ATMOSPHERE_INNER: String = "rgba(77, 116, 255, 0.18)"
     public const val COLORS_ATMOSPHERE_OUTER: String = "rgba(6, 18, 37, 0.0)"
+    public const val COLORS_OCEAN_BASE: String = "#0B2447"
+    public const val COLORS_OCEAN_DEEP: String = "#071833"
+    public const val COLORS_LAND_BASE: String = "#1E3A5F"
+    public const val COLORS_LAND_HIGHLIGHT: String = "#2C5380"
+    public const val COLORS_NIGHT_CITY_LIGHT: String = "#FFD98A"
+    public const val COLORS_NIGHT_CITY_GLOW: String = "rgba(255, 217, 138, 0.35)"
+    public const val COLORS_STAR: String = "#C9D8FF"
+    public const val COLORS_ATMOSPHERE_RIM: String = "rgba(103, 167, 255, 0.38)"
+    public const val COLORS_TERMINATOR_LIGHT: String = "#67A7FF"
     public const val SEMANTIC_ENV_BACKGROUND: String = "colors.canvas"
     public const val SEMANTIC_ENV_BACKGROUND_DEEP: String = "colors.canvasDeep"
     public const val SEMANTIC_ENV_GLASS: String = "colors.surfaceGlass"
@@ -61,6 +72,13 @@ public object GeneratedPdigV2Tokens {
     public const val SEMANTIC_STATUS_CRITICAL: String = "colors.critical"
     public const val SEMANTIC_STATUS_UNKNOWN: String = "colors.unknown"
     public const val SEMANTIC_FOCUS: String = "colors.primaryBright"
+    public const val SEMANTIC_EARTH_OCEAN: String = "colors.oceanBase"
+    public const val SEMANTIC_EARTH_OCEAN_DEEP: String = "colors.oceanDeep"
+    public const val SEMANTIC_EARTH_LAND: String = "colors.landBase"
+    public const val SEMANTIC_EARTH_LAND_HIGHLIGHT: String = "colors.landHighlight"
+    public const val SEMANTIC_EARTH_CITY_LIGHT: String = "colors.nightCityLight"
+    public const val SEMANTIC_EARTH_STAR: String = "colors.star"
+    public const val SEMANTIC_EARTH_RIM: String = "colors.atmosphereRim"
     public const val SPACING_XS: Int = 4
     public const val SPACING_SM: Int = 8
     public const val SPACING_MD: Int = 12
@@ -68,43 +86,49 @@ public object GeneratedPdigV2Tokens {
     public const val SPACING_XL: Int = 20
     public const val SPACING_XXL: Int = 24
     public const val SPACING_XXXL: Int = 32
+    public const val SPACING_XXXXL: Int = 40
     public const val SPACING_PAGE_PADDING: Int = 24
     public const val SPACING_PAGE_PADDING_NARROW: Int = 16
     public const val SPACING_SECTION_GAP: Int = 24
+    public const val SPACING_SECTION_GAP_WIDE: Int = 32
     public const val SPACING_GRID_GAP: Int = 16
     public const val SPACING_GRID_GAP_WIDE: Int = 20
     public const val RADIUS_SM: Int = 6
     public const val RADIUS_MD: Int = 10
     public const val RADIUS_LG: Int = 14
     public const val RADIUS_XL: Int = 18
+    public const val RADIUS_XL2: Int = 24
     public const val RADIUS_PILL: Int = 999
-    public const val TYPOGRAPHY_PAGE_TITLE_SIZE: Int = 26
+    public const val TYPOGRAPHY_PAGE_TITLE_SIZE: Int = 36
     public const val TYPOGRAPHY_PAGE_TITLE_WEIGHT: Int = 700
-    public const val TYPOGRAPHY_PAGE_TITLE_LINE_HEIGHT: Double = 1.25
-    public const val TYPOGRAPHY_SECTION_TITLE_SIZE: Int = 15
+    public const val TYPOGRAPHY_PAGE_TITLE_LINE_HEIGHT: Double = 1.2
+    public const val TYPOGRAPHY_MAJOR_NUMBER_SIZE: Int = 30
+    public const val TYPOGRAPHY_MAJOR_NUMBER_WEIGHT: Int = 700
+    public const val TYPOGRAPHY_MAJOR_NUMBER_LINE_HEIGHT: Double = 1.15
+    public const val TYPOGRAPHY_SECTION_TITLE_SIZE: Int = 20
     public const val TYPOGRAPHY_SECTION_TITLE_WEIGHT: Int = 600
-    public const val TYPOGRAPHY_SECTION_TITLE_LINE_HEIGHT: Double = 1.4
-    public const val TYPOGRAPHY_BODY_SIZE: Int = 14
+    public const val TYPOGRAPHY_SECTION_TITLE_LINE_HEIGHT: Double = 1.35
+    public const val TYPOGRAPHY_BODY_SIZE: Int = 16
     public const val TYPOGRAPHY_BODY_WEIGHT: Int = 400
-    public const val TYPOGRAPHY_BODY_LINE_HEIGHT: Double = 1.5
-    public const val TYPOGRAPHY_SECONDARY_SIZE: Int = 13
+    public const val TYPOGRAPHY_BODY_LINE_HEIGHT: Double = 1.6
+    public const val TYPOGRAPHY_SECONDARY_SIZE: Int = 14
     public const val TYPOGRAPHY_SECONDARY_WEIGHT: Int = 400
-    public const val TYPOGRAPHY_SECONDARY_LINE_HEIGHT: Double = 1.45
+    public const val TYPOGRAPHY_SECONDARY_LINE_HEIGHT: Double = 1.55
     public const val TYPOGRAPHY_META_SIZE: Int = 12
     public const val TYPOGRAPHY_META_WEIGHT: Int = 400
     public const val TYPOGRAPHY_META_LINE_HEIGHT: Double = 1.4
-    public const val TYPOGRAPHY_LABEL_SIZE: Int = 12
+    public const val TYPOGRAPHY_LABEL_SIZE: Int = 13
     public const val TYPOGRAPHY_LABEL_WEIGHT: Int = 600
     public const val TYPOGRAPHY_LABEL_LINE_HEIGHT: Double = 1.3
-    public const val TYPOGRAPHY_STATUS_LABEL_SIZE: Int = 12
+    public const val TYPOGRAPHY_STATUS_LABEL_SIZE: Int = 13
     public const val TYPOGRAPHY_STATUS_LABEL_WEIGHT: Int = 600
     public const val TYPOGRAPHY_STATUS_LABEL_LINE_HEIGHT: Double = 1.3
-    public const val TYPOGRAPHY_DISPLAY_GLOBE_SIZE: Int = 15
+    public const val TYPOGRAPHY_DISPLAY_GLOBE_SIZE: Int = 18
     public const val TYPOGRAPHY_DISPLAY_GLOBE_WEIGHT: Int = 600
     public const val TYPOGRAPHY_DISPLAY_GLOBE_LINE_HEIGHT: Double = 1.3
-    public const val TYPOGRAPHY_MONO_SIZE: Int = 13
+    public const val TYPOGRAPHY_MONO_SIZE: Int = 14
     public const val TYPOGRAPHY_MONO_WEIGHT: Int = 400
-    public const val TYPOGRAPHY_MONO_LINE_HEIGHT: Double = 1.4
+    public const val TYPOGRAPHY_MONO_LINE_HEIGHT: Double = 1.5
     public const val MOTION_FAST: Int = 140
     public const val MOTION_NORMAL: Int = 200
     public const val MOTION_SLOW: Int = 260
@@ -114,26 +138,31 @@ public object GeneratedPdigV2Tokens {
     public const val MOTION_REDUCE_MOTION_IDLE_ROTATION: String = "off"
     public const val MOTION_REDUCE_MOTION_CAMERA_ANIMATION: String = "simplified"
     public const val MOTION_REDUCE_MOTION_ARC_ANIMATION: String = "static"
-    public const val GLOBE_PREFERRED_SPHERE_DIAMETER_MIN: Int = 520
-    public const val GLOBE_IDLE_ROTATION_DEG_PER_SEC: Double = 0.8
+    public const val GLOBE_PREFERRED_SPHERE_DIAMETER_MIN: Int = 560
+    public const val GLOBE_IDLE_ROTATION_DEG_PER_SEC: Double = 0.6
     public const val GLOBE_MAX_ZOOM: Double = 1.9
     public const val GLOBE_MIN_ZOOM: Double = 0.7
     public const val GLOBE_REGION_ANCHOR_DIAMETER: Int = 14
-    public const val GLOBE_REGION_ANCHOR_ACTIVE_DIAMETER: Int = 22
+    public const val GLOBE_REGION_ANCHOR_ACTIVE_DIAMETER: Int = 24
     public const val GLOBE_ARC_COUNT_POLICY: String = "only real cross-region relations or region infrastructure summary; never decorative"
     public val GLOBE_CAMERA_PRESETS: Array<String> = arrayOf("global", "cn", "hk", "gb", "us")
+    public const val GLOBE_BUNDLED_DATA_COASTLINES: String = "bundled simplified world coastlines (lat/lon polygons)"
+    public const val GLOBE_BUNDLED_DATA_CITY_LIGHTS: String = "bundled major city coordinates for procedural night lights"
+    public const val GLOBE_BUNDLED_DATA_LAND_SHADING: String = "depth + terminator shading on land"
+    public const val GLOBE_BUNDLED_DATA_OCEAN: String = "oceanBase/oceanDeep radial shading"
     public const val COMPONENTS_NAV_RAIL_COLLAPSED_WIDTH: Int = 80
     public const val COMPONENTS_NAV_RAIL_EXPANDED_WIDTH: Int = 188
     public const val COMPONENTS_NAV_RAIL_EXPANDED_MAX: Int = 188
     public const val COMPONENTS_NAV_TOP_COMMAND_HEIGHT: Int = 48
     public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: Int = 76
     public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MAX: Int = 188
+    public const val COMPONENTS_NAV_PRIMARY_ONLY: String = "primary rail = 现在/基础设施/变更/记录 only; infrastructure secondary lives in context subnav/flyout, never permanent equal row in sidebar"
     public const val COMPONENTS_PAGE_PADDING: Int = 24
     public const val COMPONENTS_PAGE_PADDING_NARROW: Int = 16
     public const val COMPONENTS_PAGE_MAX_WIDTH: Int = 1400
-    public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MIN: Double = 0.55
-    public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MAX: Double = 0.65
-    public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MIN: Double = 0.65
+    public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MIN: Double = 0.52
+    public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_WIDTH_RATIO_MAX: Double = 0.64
+    public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MIN: Double = 0.64
     public const val COMPONENTS_OVERVIEW_GLOBE_STAGE_HEIGHT_RATIO_MAX: Double = 0.78
     public const val COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MIN: Int = 300
     public const val COMPONENTS_OVERVIEW_ACTIVITY_RAIL_WIDTH_MAX: Int = 380
@@ -152,6 +181,7 @@ public object GeneratedPdigV2Tokens {
     public const val COMPONENTS_CUSTOMIZATION_LIBRARY_COLUMN_RATIO: Double = 0.22
     public const val COMPONENTS_CUSTOMIZATION_PREVIEW_COLUMN_RATIO: Double = 0.46
     public const val COMPONENTS_CUSTOMIZATION_INSPECTOR_COLUMN_RATIO: Double = 0.32
+    public val COMPONENTS_CUSTOMIZATION_INSPECTOR_GROUPS: Array<String> = arrayOf("cardFaceDesign", "contentInfo", "style", "advanced")
     public const val COMPONENTS_TOUCH_TARGET_ANDROID: Int = 48
     public const val COMPONENTS_TOUCH_TARGET_IOS: Int = 44
     public const val CONTRAST_BODY_TEXT_MIN: String = "4.5:1"
