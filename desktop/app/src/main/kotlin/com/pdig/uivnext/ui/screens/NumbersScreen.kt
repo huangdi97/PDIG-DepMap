@@ -39,12 +39,14 @@ import com.pdig.uivnext.ui.components.NumberFace
 import com.pdig.uivnext.ui.components.RegionBadge
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
+import com.pdig.uivnext.ui.components.collectVNextInteraction
+import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
 import com.pdig.uivnext.ui.components.roleLabel
 
 /**
  * Numbers（G8）：桌面高密度 List + Inspector（号码信息密度高，不硬套卡片）。
- * Inspector 顶部 = NumberFace（号码身份面：region flag 视觉 + 大号 masked number）。
- * 过滤：SIM/eSIM、主副号、保号（本地状态）。
+ * 过滤：全部 / eSIM / 实体 SIM / 主号 / 副号 / 保号（功能性过滤，§26）；
+ * 空状态（§46）；行交互 hover（§41）。
  */
 @Composable
 fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
@@ -164,14 +166,31 @@ private fun FilterRowNumbers(selected: String, onSelect: (String) -> Unit) {
 @Composable
 private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, onClick: () -> Unit) {
     val depCount = UiVNextDemoFixture.servicesForNumber(number.id).size
+    val source = rememberVNextInteractionSource()
+    val hover = collectVNextInteraction(source).hovered
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
-            .clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.12f) else PdigV2Colors.SurfaceRaised.copy(alpha = 0.55f),
+            .clickable(
+                interactionSource = source,
+                indication = null,
+                onClick = onClick,
+            ),
+        color = when {
+            selected -> PdigV2Colors.PrimaryBright.copy(alpha = 0.12f)
+            hover -> PdigV2Colors.Primary.copy(alpha = 0.14f)
+            else -> PdigV2Colors.SurfaceRaised.copy(alpha = 0.55f)
+        },
         shape = RoundedCornerShape(VRadius.Md),
-        border = androidx.compose.foundation.BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.35f) else PdigV2Colors.BorderSubtle),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            when {
+                selected -> PdigV2Colors.PrimaryBright.copy(alpha = 0.35f)
+                hover -> PdigV2Colors.BorderStrong.copy(alpha = 0.6f)
+                else -> PdigV2Colors.BorderSubtle
+            },
+        ),
     ) {
         Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Md), verticalAlignment = Alignment.CenterVertically) {
             // 行首 region 身份（flag 视觉）

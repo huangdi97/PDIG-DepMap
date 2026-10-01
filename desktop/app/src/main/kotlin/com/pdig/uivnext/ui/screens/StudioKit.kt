@@ -34,6 +34,8 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
+import com.pdig.uivnext.ui.components.collectVNextInteraction
+import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
 
 /** 材质中文名。 */
 internal fun materialLabel(m: String): String = when (m) {
@@ -76,7 +78,6 @@ internal fun DrawScope.drawPreviewStage() {
     )
 }
 
-/** 材质 visual tile：直接渲染材质层小样（不读文字也能区分）。 */
 @Composable
 internal fun MaterialTile(
     material: String,
@@ -85,13 +86,19 @@ internal fun MaterialTile(
     onClick: () -> Unit,
 ) {
     val previewProfile = profile.copy(material = material)
+    val source = rememberVNextInteractionSource()
+    val hover = collectVNextInteraction(source).hovered
     Box(
         Modifier
             .size(width = 64.dp, height = 44.dp)
             .clip(RoundedCornerShape(VRadius.Md))
             .drawBehind { drawMaterialTile(previewProfile) }
-            .drawBehind { drawMaterialTileBorder(selected) }
-            .clickable(onClick = onClick),
+            .drawBehind { drawMaterialTileBorder(selected, hover) }
+            .clickable(
+                interactionSource = source,
+                indication = null,
+                onClick = onClick,
+            ),
     ) {
         Text(
             materialLabel(material),
@@ -110,8 +117,12 @@ private fun DrawScope.drawMaterialTile(p: PresentationProfile) {
     com.pdig.uivnext.ui.components.CardMaterial.material(this, p, w, h)
 }
 
-private fun DrawScope.drawMaterialTileBorder(selected: Boolean) {
-    val color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle
+private fun DrawScope.drawMaterialTileBorder(selected: Boolean, hover: Boolean = false) {
+    val color = when {
+        selected -> PdigV2Colors.PrimaryBright
+        hover -> PdigV2Colors.BorderStrong.copy(alpha = 0.8f)
+        else -> PdigV2Colors.BorderSubtle
+    }
     val stroke = if (selected) 2.dp.toPx() else 1.dp.toPx()
     drawRoundRect(
         color = color,
@@ -122,7 +133,7 @@ private fun DrawScope.drawMaterialTileBorder(selected: Boolean) {
     )
 }
 
-/** 主题视觉缩略图（2 列大 tile；选中 = 边框高亮，无 toggle dot）。 */
+/** 主题视觉缩略图（2 列大 tile；选中 = 边框高亮，hover = 提亮，无 toggle dot）。 */
 @Composable
 internal fun ThemeThumb(
     thumbnail: @Composable (String) -> Unit,
@@ -131,15 +142,21 @@ internal fun ThemeThumb(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val source = rememberVNextInteractionSource()
+    val hover = collectVNextInteraction(source).hovered
     Box(
         modifier
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = source,
+                indication = null,
+                onClick = onClick,
+            )
             .then(
-                if (selected) {
+                if (selected || hover) {
                     Modifier.drawBehind {
                         drawRoundRect(
-                            color = PdigV2Colors.PrimaryBright.copy(alpha = 0.9f),
-                            style = Stroke(width = 2.dp.toPx()),
+                            color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.9f) else PdigV2Colors.BorderStrong.copy(alpha = 0.6f),
+                            style = Stroke(width = if (selected) 2.dp.toPx() else 1.dp.toPx()),
                             cornerRadius = CornerRadius(8f),
                         )
                     }

@@ -45,6 +45,8 @@ import com.pdig.uivnext.theme.statusColor
 import com.pdig.uivnext.theme.statusLabelZh
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.SectionHeader
+import com.pdig.uivnext.ui.components.collectVNextInteraction
+import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
 
 
 /**
@@ -188,7 +190,7 @@ private fun stageLabelShort(key: String): String = when (key) {
     else -> key
 }
 
-/** 投影选择器（当前 / 迁移中 / 完成后；After 显式标注 Plan Projection）。 */
+/** 投影选择器（当前 / 迁移中 / 完成后；After 显式标注 计划投影）。 */
 @Composable
 private fun ProjectionSelector(app: VAppState) {
     val projections = listOf("current" to "当前", "transition" to "迁移中", "after" to "完成后")
@@ -196,11 +198,28 @@ private fun ProjectionSelector(app: VAppState) {
         Text("投影", color = PdigV2Colors.TextMuted, style = VType.Label)
         projections.forEach { (key, label) ->
             val selected = app.changeProjection == key
+            val source = rememberVNextInteractionSource()
+            val hover = collectVNextInteraction(source).hovered
             Surface(
-                color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else PdigV2Colors.SurfaceGlass,
+                color = when {
+                    selected -> PdigV2Colors.PrimaryBright.copy(alpha = 0.14f)
+                    hover -> PdigV2Colors.Primary.copy(alpha = 0.16f)
+                    else -> PdigV2Colors.SurfaceGlass
+                },
                 shape = RoundedCornerShape(VRadius.Sm),
-                border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.3f) else PdigV2Colors.BorderSubtle),
-                modifier = Modifier.clickable { app.changeProjection = key },
+                border = BorderStroke(
+                    1.dp,
+                    when {
+                        selected -> PdigV2Colors.PrimaryBright.copy(alpha = 0.3f)
+                        hover -> PdigV2Colors.BorderStrong.copy(alpha = 0.7f)
+                        else -> PdigV2Colors.BorderSubtle
+                    },
+                ),
+                modifier = Modifier.clickable(
+                    interactionSource = source,
+                    indication = null,
+                    onClick = { app.changeProjection = key },
+                ),
             ) {
                 Text(
                     label + if (key == "after") "· 计划投影" else "",

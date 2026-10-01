@@ -47,6 +47,8 @@ import com.pdig.uivnext.ui.components.AttentionRow
 import com.pdig.uivnext.ui.components.RegionBadge
 import com.pdig.uivnext.ui.components.RegionListItem
 import com.pdig.uivnext.ui.components.SectionHeader
+import com.pdig.uivnext.ui.components.collectVNextInteraction
+import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
 
 /**
  * Infrastructure Overview（Review §4 v2）：Globe 成为绝对主角（视觉 ≈60%）。
@@ -242,13 +244,20 @@ private fun CompactActionDock(app: VAppState) {
 
 @Composable
 private fun RowScope.DockAction(title: String, icon: ImageVector, onClick: () -> Unit) {
+    val source = rememberVNextInteractionSource()
+    val hover = collectVNextInteraction(source).hovered
     Surface(
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight(0.9f)
-            .clickable(onClick = onClick),
-        color = Color.Transparent,
+            .clickable(
+                interactionSource = source,
+                indication = null,
+                onClick = onClick,
+            ),
+        color = if (hover) PdigV2Colors.Primary.copy(alpha = 0.16f) else Color.Transparent,
         shape = RoundedCornerShape(VRadius.Md),
+        border = if (hover) BorderStroke(1.dp, PdigV2Colors.PrimaryBright.copy(alpha = 0.35f)) else null,
     ) {
         Row(
             Modifier.padding(horizontal = VSpacing.Md),

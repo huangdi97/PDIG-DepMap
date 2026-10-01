@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +33,8 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
+import com.pdig.uivnext.ui.components.collectVNextInteraction
+import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
 
 /**
  * AssetCard —— 卡面 = 真实支付卡资产身份（PHASE 1D §12–§15）。
@@ -83,10 +86,21 @@ fun AssetCard(
     profile: PresentationProfile? = null,
 ) {
     val p = profile ?: cardProfileOf(card)
+    val source = rememberVNextInteractionSource()
+    val hover = collectVNextInteraction(source).hovered
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(VRadius.Xl))
-            .clickable(onClick = onClick),
+            .graphicsLayer {
+                // PHASE 1E §17/§42：hover 时才倾斜 2–4°（确定性；非 idle 动画）
+                rotationX = if (hover) 3f else 0f
+                cameraDistance = 24f * density
+            }
+            .clickable(
+                interactionSource = source,
+                indication = null,
+                onClick = onClick,
+            ),
         shape = RoundedCornerShape(VRadius.Xl),
         color = Color.Transparent,
     ) {
