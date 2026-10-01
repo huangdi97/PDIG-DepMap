@@ -165,67 +165,19 @@ fun StudioFrame(
                 )
             }
             Spacer(Modifier.width(VSpacing.Lg))
-            // RIGHT：视觉化 inspector（卡面 / 材质 / 背景 / 布局 / 信息 / 隐私）
+            // RIGHT：视觉化 inspector（PHASE 1E §20：分组折叠，默认只展开当前组）
             Column(
                 Modifier
                     .weight(0.25f)
                     .fillMaxSize()
-                    .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(VSpacing.Sm),
+                    .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR),
             ) {
-                SectionHeader("卡面")
-                if (materials.isNotEmpty()) {
-                    GroupLabel("材质")
-                    Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                        materials.forEach { m ->
-                            MaterialTile(
-                                material = m,
-                                profile = profile,
-                                selected = profile.material == m,
-                                onClick = { onProfileChange(profile.copy(material = m)) },
-                            )
-                        }
-                    }
-                }
-                GroupLabel("背景")
-                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                    ChipRow(label = "预设背景", selected = profile.backgroundKind == "preset", compact = true) {
-                        onProfileChange(profile.copy(backgroundKind = "preset", backgroundValue = profile.themeId))
-                    }
-                    ChipRow(label = "纯色", selected = profile.backgroundKind == "plain", compact = true) {
-                        onProfileChange(profile.copy(backgroundKind = "plain", backgroundValue = ""))
-                    }
-                }
-                GroupLabel("布局")
-                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                    layouts.forEach { l ->
-                        ChipRow(label = layoutLabel(l), selected = profile.layout == l, compact = true) {
-                            onProfileChange(profile.copy(layout = l))
-                        }
-                    }
-                }
-                GroupLabel("强调色")
-                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                    ACCENT_SWATCHES.forEach { (key, color) ->
-                        SwatchDot(color, selected = profile.accentColor == key) {
-                            onProfileChange(profile.copy(accentColor = key))
-                        }
-                    }
-                }
-                Spacer(Modifier.height(VSpacing.Sm))
-                SectionHeader("信息")
-                ToggleRow("隐藏部分信息（隐私遮蔽）", profile.maskSensitive) {
-                    onProfileChange(profile.copy(maskSensitive = !profile.maskSensitive))
-                }
-                InfoRow("Logo / 尾号 / 卡组织", if (profile.maskSensitive) "受遮蔽保护" else "可见")
-                InfoRow("币种 / 地区", if (profile.layout == "minimal-content") "精简隐藏" else "显示")
-                Spacer(Modifier.height(VSpacing.Sm))
-                SectionHeader("隐私")
-                Text(
-                    "外观设置只改变显示方式，不会修改你的基础设施关系或确认状态。",
-                    style = VType.Meta,
-                    color = PdigV2Colors.TextMuted,
+                StudioInspector(
+                    profile = profile,
+                    onProfileChange = onProfileChange,
+                    materials = materials,
+                    layouts = layouts,
+                    currentGroup = "卡面",
                 )
             }
         }

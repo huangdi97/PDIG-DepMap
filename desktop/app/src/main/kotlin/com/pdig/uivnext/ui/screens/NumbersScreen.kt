@@ -49,18 +49,27 @@ import com.pdig.uivnext.ui.components.roleLabel
 @Composable
 fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val all = UiVNextDemoFixture.numbers
-    val regionFiltered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
+    val regionBase = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
+    var filterKind by remember { mutableStateOf("全部") }
+    val filtered = when (filterKind) {
+        "eSIM" -> regionBase.filter { it.simKind == "eSIM" }
+        "实体 SIM" -> regionBase.filter { it.simKind == "SIM" }
+        "主号" -> regionBase.filter { it.role == "primary" }
+        "副号" -> regionBase.filter { it.role == "secondary" }
+        "保号" -> regionBase.filter { it.role == "keep" }
+        else -> regionBase
+    }
     var selectedId by remember { mutableStateOf(all.firstOrNull()?.id) }
-    val selected = regionFiltered.firstOrNull { it.id == selectedId } ?: regionFiltered.firstOrNull()
+    val selected = filtered.firstOrNull { it.id == selectedId } ?: filtered.firstOrNull()
 
     Row(Modifier.fillMaxSize().padding(VSpacing.Xxl)) {
         // 列表
         Column(Modifier.weight(0.55f), verticalArrangement = Arrangement.spacedBy(VSpacing.Lg)) {
             PageHeader(
                 title = "号码",
-                subtitle = if (app.regionFilter == null) "全球 ${regionFiltered.size} 个号码 · 高密度列表 + 检查器" else "地区 ${app.regionFilter} · ${regionFiltered.size} 个号码",
+                subtitle = if (app.regionFilter == null) "全球 ${filtered.size} 个号码 · 高密度列表 + 检查器" else "地区 ${app.regionFilter} · ${filtered.size} 个号码",
             )
-            FilterRowNumbers()
+            FilterRowNumbers(selected = filterKind, onSelect = { filterKind = it })
             Spacer(Modifier.height(4.dp))
             DataPanel(
                 Modifier
@@ -68,7 +77,7 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     .weight(1f)
                     .testTagLocal(VTestIds.PHONE_LIST),
             ) {
-                if (regionFiltered.isEmpty() || app.demoEmptyNumbers) {
+                if (filtered.isEmpty() || app.demoEmptyNumbers) {
                     EmptyState(
                         title = "还没有记录手机号",
                         body = "加入常用号码后，可以查看：哪些账户依赖它用于登录、验证或恢复。",
@@ -76,7 +85,7 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     )
                 } else {
                     LazyColumn(Modifier.fillMaxSize().padding(VSpacing.Sm)) {
-                        items(regionFiltered, key = { it.id }) { number ->
+                        items(filtered, key = { it.id }) { number ->
                             NumberRow(number, selected?.id == number.id, app) {
                                 selectedId = number.id
                                 app.openNumber(number.id)
@@ -131,15 +140,22 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun FilterRowNumbers() {
+private fun FilterRowNumbers(selected: String, onSelect: (String) -> Unit) {
     Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
         listOf("全部", "eSIM", "实体 SIM", "主号", "副号", "保号").forEach { label ->
+            val active = selected == label
             Surface(
-                color = PdigV2Colors.SurfaceRaised,
+                color = if (active) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
                 shape = RoundedCornerShape(VRadius.Sm),
-                border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                border = androidx.compose.foundation.BorderStroke(1.dp, if (active) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+                modifier = Modifier.clickable { onSelect(label) },
             ) {
-                Text(label, Modifier.padding(horizontal = VSpacing.Md, vertical = 5.dp), color = PdigV2Colors.TextSecondary, style = VType.Label)
+                Text(
+                    label,
+                    Modifier.padding(horizontal = VSpacing.Md, vertical = 5.dp),
+                    color = if (active) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                    style = VType.Label,
+                )
             }
         }
     }

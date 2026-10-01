@@ -211,10 +211,10 @@ internal fun GroupLabel(text: String) {
 }
 
 @Composable
-internal fun SwatchDot(color: Color, selected: Boolean, onClick: () -> Unit) {
+internal fun SwatchDot(color: Color, selected: Boolean, onClick: () -> Unit, size: androidx.compose.ui.unit.Dp = 30.dp) {
     Surface(
         modifier = Modifier
-            .size(26.dp)
+            .size(size)
             .clip(CircleShape)
             .clickable(onClick = onClick),
         color = color,
@@ -224,7 +224,6 @@ internal fun SwatchDot(color: Color, selected: Boolean, onClick: () -> Unit) {
         ),
     ) {}
 }
-
 @Composable
 internal fun ToggleRow(label: String, checked: Boolean, onToggle: () -> Unit) {
     Surface(
