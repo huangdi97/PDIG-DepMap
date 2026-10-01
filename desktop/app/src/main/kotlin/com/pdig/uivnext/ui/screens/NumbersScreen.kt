@@ -33,12 +33,13 @@ import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.LabelChip
-import com.pdig.uivnext.ui.components.RegionBadge
 import com.pdig.uivnext.ui.components.NumberFace
-import com.pdig.uivnext.ui.components.roleLabel
+import com.pdig.uivnext.ui.components.RegionBadge
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
+import com.pdig.uivnext.ui.components.roleLabel
 
 /**
  * Numbers（G8）：桌面高密度 List + Inspector（号码信息密度高，不硬套卡片）。
@@ -67,11 +68,19 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     .weight(1f)
                     .testTagLocal(VTestIds.PHONE_LIST),
             ) {
-                LazyColumn(Modifier.fillMaxSize().padding(VSpacing.Sm)) {
-                    items(regionFiltered, key = { it.id }) { number ->
-                        NumberRow(number, selected?.id == number.id, app) {
-                            selectedId = number.id
-                            app.openNumber(number.id)
+                if (regionFiltered.isEmpty() || app.demoEmptyNumbers) {
+                    EmptyState(
+                        title = "还没有记录手机号",
+                        body = "加入常用号码后，可以查看：哪些账户依赖它用于登录、验证或恢复。",
+                        actionLabel = "添加号码",
+                    )
+                } else {
+                    LazyColumn(Modifier.fillMaxSize().padding(VSpacing.Sm)) {
+                        items(regionFiltered, key = { it.id }) { number ->
+                            NumberRow(number, selected?.id == number.id, app) {
+                                selectedId = number.id
+                                app.openNumber(number.id)
+                            }
                         }
                     }
                 }

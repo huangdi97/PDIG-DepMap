@@ -60,6 +60,17 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint) {
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app)
             else -> PlaceholderScreen(app.screen)
         }
+        if (app.paletteOpen) {
+            Surface(
+                Modifier
+                    .fillMaxSize()
+                    .clickableLocal { app.paletteOpen = false },
+                color = PdigV2Colors.CanvasDeep.copy(alpha = 0.40f),
+            ) {}
+            Box(Modifier.fillMaxSize().padding(top = 64.dp), contentAlignment = Alignment.TopCenter) {
+                CommandPalette(app)
+            }
+        }
         if (app.globe.state == VGlobeState.REGION_DETAIL) {
             RegionDrawer(app)
         }

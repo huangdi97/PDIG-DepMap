@@ -1,7 +1,9 @@
 package com.pdig.uivnext.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,8 +52,14 @@ private fun StandardContent(card: UiVNextCard, p: PresentationProfile, privacyMa
         }
         Spacer(Modifier.weight(1f))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            CardChip(p)
-            Spacer(Modifier.width(VSpacing.Md))
+            // 实体卡：EMV chip visual；虚拟卡：无 chip + 抽象数字标记（§11）
+            if (card.form == "physical") {
+                CardChip(p)
+                Spacer(Modifier.width(VSpacing.Md))
+            } else {
+                VirtualMark()
+                Spacer(Modifier.width(VSpacing.Md))
+            }
             Text(
                 maskedNumber(card, privacyMask, p.maskSensitive),
                 style = VType.Mono,
@@ -118,8 +127,13 @@ private fun EmblemContent(card: UiVNextCard, p: PresentationProfile, privacyMask
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    CardChip(p)
-                    Spacer(Modifier.width(VSpacing.Md))
+                    if (card.form == "physical") {
+                        CardChip(p)
+                        Spacer(Modifier.width(VSpacing.Md))
+                    } else {
+                        VirtualMark()
+                        Spacer(Modifier.width(VSpacing.Md))
+                    }
                     Text(
                         maskedNumber(card, privacyMask, p.maskSensitive),
                         style = VType.Mono,
@@ -167,7 +181,6 @@ private fun NetworkChip(network: String) {
         )
     }
 }
-
 /** 物理/虚拟：形态差异（克制：实体 = 描边、虚拟 = 填充亮色）。 */
 @Composable
 private fun FormChip(form: String) {
@@ -201,7 +214,23 @@ private fun CategoryChip(type: String) {
     }
 }
 
-/** 程序化支付芯片（点缀真实感；accent 色 token）。 */
+/** 虚拟卡数字标记（无 EMV chip；抽象数字/填充点；§11）。 */
+@Composable
+private fun VirtualMark() {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        repeat(3) { i ->
+            Box(
+                Modifier
+                    .size(5.dp + 2.dp * (i % 2))
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(PdigV2Colors.PrimaryBright.copy(alpha = 0.85f)),
+            )
+            if (i < 2) Spacer(Modifier.width(3.dp))
+        }
+    }
+}
+
+/** 程序化支付芯片（实体卡 EMV；accent 色 token）。 */
 @Composable
 private fun CardChip(p: PresentationProfile) {
     val accent = accentColorOf(p.accentColor)

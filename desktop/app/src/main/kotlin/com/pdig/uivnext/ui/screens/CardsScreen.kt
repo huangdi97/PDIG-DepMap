@@ -38,13 +38,13 @@ import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
+import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
  * Cards（G6）：真实支付卡资产身份网格。
- * 过滤（全部/国家/实体虚拟/储蓄信用/币种/状态/即将到期）+ Visual Grid / Compact List。
- * 每张卡面由 PresentationProfile 驱动（默认 fixture preset），preset 间视觉差异明显。
+ * 空状态（§45）与 Visual Grid / Compact List 切换；过滤（全部/国家/实体虚拟/储蓄信用/币种/状态）。
  */
 @Composable
 fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
@@ -76,6 +76,15 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         )
 
         Spacer(Modifier.height(VSpacing.Xxl))
+
+        if (regionFiltered.isEmpty() || app.demoEmptyCards) {
+            EmptyState(
+                title = "还没有记录卡片",
+                body = "添加卡片后，PDIG 可以帮助你了解：它在哪里使用、什么时候到期，以及换卡前会影响什么。",
+                actionLabel = "添加卡片",
+            )
+            return@Column
+        }
 
         if (gridView) {
             val columns = when (breakpoint) {

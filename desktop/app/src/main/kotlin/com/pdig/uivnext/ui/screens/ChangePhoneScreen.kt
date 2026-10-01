@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -54,7 +56,16 @@ fun ChangePhoneScreen(app: VAppState) {
     val old = UiVNextDemoFixture.numberById("num-cn-1") ?: return
     val new = UiVNextDemoFixture.numberById("num-cn-3") ?: return
     val stages = UiVNextDemoFixture.changeStages
-    val migrations = UiVNextDemoFixture.changeMigrations.map { SceneMigration(it.service, it.status) }
+    val migrations = UiVNextDemoFixture.changeMigrations.map { m ->
+        val role = when (m.service) {
+            "微信支付" -> "支付 · 登录验证"
+            "支付宝" -> "支付 · 恢复"
+            "招商银行网银" -> "银行 · 资金"
+            "腾讯视频" -> "订阅"
+            else -> "登录验证"
+        }
+        SceneMigration(m.service, m.status, role)
+    }
     Column(
         Modifier
             .fillMaxSize()
@@ -64,7 +75,7 @@ fun ChangePhoneScreen(app: VAppState) {
     ) {
         PageHeader(
             title = "更换手机号",
-            subtitle = "让旧号码承担的，由新号码接管 · 验证通过前旧号码不能停用（make-before-break）",
+            subtitle = "让旧号码承担的，由新号码接管 · 验证新号码可用之前，不要停用旧号码",
             trailing = {
                 Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Md)) {
                     Text(
@@ -97,11 +108,23 @@ fun ChangePhoneScreen(app: VAppState) {
         // 下方详情（默认折叠为 Inspector/Expandable）
         CollapsibleDetails(migrations)
 
-        SectionHeader("风险提示")
-        Surface(color = PdigV2Colors.Warning.copy(alpha = 0.12f), shape = RoundedCornerShape(VRadius.Md), modifier = Modifier.fillMaxWidth()) {
+        // 风险提示：compact critical notice（§37 不横贯大 banner）
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .background(PdigV2Colors.Warning.copy(alpha = 0.10f), RoundedCornerShape(VRadius.Md))
+                .padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                Icons.Filled.Warning,
+                contentDescription = null,
+                tint = PdigV2Colors.Warning,
+                modifier = Modifier.size(16.dp),
+            )
+            Spacer(Modifier.width(VSpacing.Sm))
             Text(
-                "旧号码是 2 个账户的唯一恢复路径：迁移完成前不要停用；验证阶段未完成时「停用旧号码」必须保持禁用。",
-                Modifier.padding(VSpacing.Lg),
+                "旧号码是 2 个账户的唯一恢复路径；「停用旧号码」必须保持禁用，直到新号码验证完成。",
                 color = PdigV2Colors.TextPrimary,
                 style = VType.Secondary,
             )
@@ -180,7 +203,7 @@ private fun ProjectionSelector(app: VAppState) {
                 modifier = Modifier.clickable { app.changeProjection = key },
             ) {
                 Text(
-                    label + if (key == "after") " · Plan Projection" else "",
+                    label + if (key == "after") "· 计划投影" else "",
                     Modifier.padding(horizontal = VSpacing.Md, vertical = 4.dp),
                     color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
                     style = VType.Label,

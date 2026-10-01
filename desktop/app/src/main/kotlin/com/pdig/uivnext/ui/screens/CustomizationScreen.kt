@@ -30,11 +30,12 @@ fun CardCustomizationScreen(app: VAppState) {
     val themeOverride = app.initialCustomTheme
     var profile by remember {
         mutableStateOf(
-            if (themeOverride != null) {
-                PresentationProfile.defaultFor("card", initial.id, themeOverride)
-            } else {
-                cardProfileOf(initial)
-            },
+            app.profileStore.load("card", initial.id)
+                ?: if (themeOverride != null) {
+                    PresentationProfile.defaultFor("card", initial.id, themeOverride)
+                } else {
+                    cardProfileOf(initial)
+                },
         )
     }
     StudioFrame(
@@ -43,7 +44,8 @@ fun CardCustomizationScreen(app: VAppState) {
         selectedLibraryId = selectedId,
         onSelectLibrary = {
             selectedId = it
-            profile = PresentationProfile.defaultFor("card", it, UiVNextDemoFixture.cardById(it)?.preset ?: "minimal")
+            profile = app.profileStore.load("card", it)
+                ?: PresentationProfile.defaultFor("card", it, UiVNextDemoFixture.cardById(it)?.preset ?: "minimal")
         },
         presets = CARD_THEME_PRESETS,
         materials = listOf("minimal", "matte", "glass", "metal"),
@@ -69,6 +71,10 @@ fun CardCustomizationScreen(app: VAppState) {
                 profile = profile,
             )
         },
+        onSave = {
+            // PresentationProfile 持久化（PHASE 1E §66）；绝不写 .depmap / canonical。
+            app.profileStore.save(profile)
+        },
     )
 }
 
@@ -77,13 +83,20 @@ fun NumberCustomizationScreen(app: VAppState) {
     val initial = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
     var selectedId by remember { mutableStateOf(initial.id) }
     var profile by remember {
-        mutableStateOf(PresentationProfile.defaultFor("phoneNumber", initial.id, app.initialCustomTheme ?: "country"))
+        mutableStateOf(
+            app.profileStore.load("phoneNumber", initial.id)
+                ?: PresentationProfile.defaultFor("phoneNumber", initial.id, app.initialCustomTheme ?: "country"),
+        )
     }
     StudioFrame(
         title = "号码面定制",
         libraryItems = UiVNextDemoFixture.numbers.map { it.id to it.nickname },
         selectedLibraryId = selectedId,
-        onSelectLibrary = { selectedId = it },
+        onSelectLibrary = {
+            selectedId = it
+            profile = app.profileStore.load("phoneNumber", it)
+                ?: PresentationProfile.defaultFor("phoneNumber", it, "country")
+        },
         presets = NUMBER_THEME_PRESETS,
         materials = emptyList(),
         layouts = listOf("standard", "minimal-content"),
@@ -107,6 +120,9 @@ fun NumberCustomizationScreen(app: VAppState) {
                 onClick = {},
                 profile = profile,
             )
+        },
+        onSave = {
+            app.profileStore.save(profile)
         },
     )
 }

@@ -68,6 +68,7 @@ fun StudioFrame(
     thumbnail: @Composable (String) -> Unit,
     preview: @Composable (String) -> Unit,
     libraryThumbnail: @Composable (String) -> Unit = {},
+    onSave: (() -> Unit)? = null,
 ) {
     var saved by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(VSpacing.Xxl), verticalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
@@ -79,7 +80,10 @@ fun StudioFrame(
             Surface(
                 color = if (saved) PdigV2Colors.Positive.copy(alpha = 0.2f) else PdigV2Colors.Primary,
                 shape = RoundedCornerShape(VRadius.Md),
-                modifier = Modifier.clickable { saved = true },
+                modifier = Modifier.clickable {
+                    saved = true
+                    onSave?.invoke()
+                },
             ) {
                 Text(
                     if (saved) "已保存（本地偏好）" else "保存",
@@ -219,7 +223,7 @@ fun StudioFrame(
                 Spacer(Modifier.height(VSpacing.Sm))
                 SectionHeader("隐私")
                 Text(
-                    "PresentationProfile 是本地 app 偏好，绝不写入 .depmap / PersonalReality；修改不影响依赖、证据与确认。",
+                    "外观设置只改变显示方式，不会修改你的基础设施关系或确认状态。",
                     style = VType.Meta,
                     color = PdigV2Colors.TextMuted,
                 )

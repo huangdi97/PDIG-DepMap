@@ -87,7 +87,7 @@ fun ContinuityScene(
             accent = PdigV2Colors.PrimaryBright,
         )
         services.forEachIndexed { i, m ->
-            drawServiceNode(textMeasurer, cols[i % 2], rows[i / 2], m.service, m.status, projection, w, h)
+            drawServiceNode(textMeasurer, cols[i % 2], rows[i / 2], m.service, m.role, m.status, projection, w, h)
         }
         if (projection == "after") {
             drawPlanProjectionBadge(textMeasurer, w)
@@ -221,6 +221,7 @@ private fun DrawScope.drawServiceNode(
     sx: Float,
     sy: Float,
     name: String,
+    role: String,
     status: String,
     projection: String,
     w: Float,
@@ -243,25 +244,43 @@ private fun DrawScope.drawServiceNode(
         style = TextStyle(color = PdigV2Colors.TextPrimary.copy(alpha = alpha), fontSize = 12.sp, fontWeight = FontWeight.W600),
     )
     drawText(tName, topLeft = Offset(left + 34f, sy - 14f))
+    val roleLine = if (role.isNotEmpty()) role else sceneStatusLabel(status)
     val tRole = textMeasurer.measure(
-        AnnotatedString(sceneStatusLabel(status)),
+        AnnotatedString(roleLine),
         style = TextStyle(color = PdigV2Colors.TextMuted.copy(alpha = alpha), fontSize = 10.sp),
     )
     drawText(tRole, topLeft = Offset(left + 34f, sy + 2f))
+    val tStatus = textMeasurer.measure(
+        AnnotatedString(sceneStatusLabel(status)),
+        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 10.sp, fontWeight = FontWeight.W600),
+    )
+    drawText(tStatus, topLeft = Offset(left + 34f, sy + 16f))
 }
 
 private fun DrawScope.drawPlanProjectionBadge(textMeasurer: TextMeasurer, w: Float) {
     val t = textMeasurer.measure(
-        AnnotatedString("PLAN PROJECTION · 计划投影 ≠ 现实"),
+        AnnotatedString("计划投影"),
         style = TextStyle(color = PdigV2Colors.Warning, fontSize = 12.sp, fontWeight = FontWeight.W600),
     )
+    val sub = textMeasurer.measure(
+        AnnotatedString("计划完成后的预期状态，不代表已经完成或验证"),
+        style = TextStyle(color = PdigV2Colors.TextSecondary, fontSize = 10.sp),
+    )
+    val chipW = maxOf(t.size.width, sub.size.width) + 16f
+    val chipH = t.size.height + sub.size.height + 12f
     drawRoundRect(
-        PdigV2Colors.CanvasDeep.copy(alpha = 0.85f),
-        Offset(w - t.size.width - 16f, 8f),
-        Size(t.size.width + 12f, t.size.height + 8f),
+        PdigV2Colors.CanvasDeep.copy(alpha = 0.88f),
+        Offset(w - chipW - 16f, 8f),
+        Size(chipW, chipH),
         CornerRadius(8f),
     )
-    drawText(t, topLeft = Offset(w - t.size.width - 10f, 12f), color = PdigV2Colors.Warning)
+    drawRect(
+        Brush.horizontalGradient(listOf(PdigV2Colors.Warning.copy(alpha = 0.20f), PdigV2Colors.Warning.copy(alpha = 0.02f))),
+        topLeft = Offset(w - chipW - 16f, 8f),
+        size = Size(3f, chipH),
+    )
+    drawText(t, topLeft = Offset(w - chipW - 10f, 12f), color = PdigV2Colors.Warning)
+    drawText(sub, topLeft = Offset(w - chipW - 10f, 12f + t.size.height + 1f), color = PdigV2Colors.TextSecondary)
 }
 
 private fun sceneStatusLabel(status: String): String = when (status) {
@@ -272,12 +291,16 @@ private fun sceneStatusLabel(status: String): String = when (status) {
     else -> status
 }
 
+/** 服务节点迁移数据（Change Phone 场景行；role = 关系角色，§33）。 */
+data class SceneMigration(
+    val service: String,
+    val status: String,
+    val role: String = "",
+)
+
 private fun roleLabelScene(role: String): String = when (role) {
     "primary" -> "主号"
     "secondary" -> "副号"
     "keep" -> "保号"
     else -> role
 }
-
-/** 服务节点迁移数据（Change Phone 场景行）。 */
-data class SceneMigration(val service: String, val status: String)

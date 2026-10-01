@@ -2,6 +2,7 @@ package com.pdig.uivnext.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,10 +33,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.utf16CodePoint
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,7 +93,31 @@ fun VNextShell(app: VAppState, viewportWidth: Int = 1920) {
         viewportWidth >= 1024 -> MediaBreakpoint.MEDIUM
         else -> MediaBreakpoint.COMPACT
     }
-    Row(Modifier.fillMaxSize()) {
+    val focusState = remember { KeyboardFocusState() }
+    Row(
+        Modifier
+            .fillMaxSize()
+            .focusable()
+            .onPreviewKeyEvent { event ->
+                if (event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown) {
+                    val normalized = normalizeKey(
+                        isCtrl = event.isCtrlPressed,
+                        isShift = event.isShiftPressed,
+                        key = event.key,
+                    ) ?: run {
+                        val c = event.utf16CodePoint
+                        if (c == 0) null else c.toChar().lowercaseChar().toString()
+                    }
+                    if (normalized != null) {
+                        routeKey(app, focusState, normalized) != KeyAction.NONE
+                    } else {
+                        false
+                    }
+                } else {
+                    false
+                }
+            },
+    ) {
         NavigationRail(app)
         Column(Modifier.weight(1f)) {
             TopChrome(app)
@@ -248,26 +280,7 @@ private fun TopChrome(app: VAppState) {
                 }
             }
             Spacer(Modifier.weight(1f))
-            Surface(
-                color = PdigV2Colors.SurfaceRaised.copy(alpha = 0.9f),
-                shape = RoundedCornerShape(VRadius.Sm),
-                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-            ) {
-                Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Search, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(14.dp))
-                    Spacer(Modifier.width(VSpacing.Sm))
-                    Text("搜索 / 命令", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                    Spacer(Modifier.width(VSpacing.Lg))
-                    Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(4.dp)) {
-                        Text(
-                            "Ctrl K",
-                            Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                            color = PdigV2Colors.TextSecondary,
-                            fontSize = 10.sp,
-                        )
-                    }
-                }
-            }
+            PaletteTrigger(app = app)
             Spacer(Modifier.width(VSpacing.Lg))
             MaskEnabledIndicator(app.privacyMask)
         }

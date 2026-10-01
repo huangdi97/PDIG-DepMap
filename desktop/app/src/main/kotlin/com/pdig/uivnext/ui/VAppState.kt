@@ -7,11 +7,14 @@ import com.pdig.uivnext.globe.GlobeController
 import com.pdig.uivnext.globe.GlobeCamera
 import com.pdig.uivnext.model.VGlobeState
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.persist.PresentationProfileStore
+import com.pdig.uivnext.persist.defaultProfileStore
 
 /** vNext 演示应用状态（Presentation Layer；不触碰真实 domain repos）。 */
 class VAppState(
     initialScreen: VScreen = VScreen.NOW,
     initialCamera: GlobeCamera = GlobeCamera(0f, 30f, 1f),
+    val profileStore: PresentationProfileStore = defaultProfileStore(),
 ) {
     var screen by mutableStateOf(initialScreen)
     var regionFilter by mutableStateOf<String?>(null)
@@ -19,7 +22,16 @@ class VAppState(
     var reduceMotion by mutableStateOf(false)
     var railExpanded by mutableStateOf(true)
     var initialCustomTheme by mutableStateOf<String?>(null)
-    /** Change Phone 投影（current / transition / after；after = Plan Projection，不冒充 Reality）。 */
+    /** 证据 seam（截图/交互日志）：强制空列表渲染（Cards/Numbers 空状态，§45–46）。 */
+    var demoEmptyCards by mutableStateOf(false)
+    var demoEmptyNumbers by mutableStateOf(false)
+    /** Command Palette（PHASE 1E §39）：真实可用键盘/搜索；仅影响导航。 */
+    var paletteOpen by mutableStateOf(false)
+    var paletteQuery by mutableStateOf("")
+    var paletteSelectedIndex by mutableStateOf(0)
+    /** 导入背景（Card / Number Studio）命中的本地文件路径（app-managed；证据 seam）。 */
+    var lastImportedBackgroundPath by mutableStateOf<String?>(null)
+    /** Change Phone 投影（current / transition / after；after = 计划投影，不冒充现实）。 */
     var changeProjection by mutableStateOf("transition")
     val globe = GlobeController(initialCamera)
 

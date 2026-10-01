@@ -36,7 +36,7 @@ fun PersonalizationScreen(app: VAppState) {
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Text("个性化", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("以下均为本地偏好（Presentation Layer）；不影响依赖/证据/确认，也不写入 .depmap 备份。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+        Text("以下均为本地外观偏好；只改变显示方式，不会修改你的基础设施关系或确认状态，也不会写入备份。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
 
         SectionHeader("工作区外观")
         ToggleRow("Workspace 主题", "深空（vNext）· 系统跟随", enabled = true)
