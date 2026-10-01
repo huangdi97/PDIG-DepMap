@@ -1632,29 +1632,33 @@ Human Visual Review åçš„å¼ºåˆ¶é‡åšï¼šç›®æ ‡ä»ã€Œæ·±è“å·¥ç¨‹åå°ã€æ”¹ä¸º
 
 ---
 
-## ±¾ÂÖ£ºUI vNext PHASE 1E ¡ª Desktop Final Visual Acceptance & Interaction Closure£¨2026-10-05£¬feat/pdig-ui-vnext£©
+## ï¿½ï¿½ï¿½Ö£ï¿½UI vNext PHASE 1E ï¿½ï¿½ Desktop Final Visual Acceptance & Interaction Closureï¿½ï¿½2026-10-05ï¿½ï¿½feat/pdig-ui-vnextï¿½ï¿½
 
 ### ×´Ì¬
-- PHASE_1E_IMPLEMENTATION = PASS£»DESKTOP_REFERENCE_CANDIDATE = READY£»
-- DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_REVIEW£»VISUAL_CRAFT = NEEDS_HUMAN_FINAL_REVIEW£¨No-Vision ¼ÍÂÉ£¬²»×ÔÅĞ ACCEPTED£©¡£
 
-### ±¾ÂÖÍê³É
-- Command Palette£¨Ctrl+K ÕæÊµ¿ÉÓÃ£ºËÑË÷¿¨Æ¬/ºÅÂë¡¢´ò¿ª»ù´¡ÉèÊ©¡¢¸ü»»ÊÖ»úºÅ¡¢¸öĞÔ»¯£©+ ¼üÅÌÓÅÏÈÂ·ÓÉ£¨routeKey / KeyboardFocusState£¬Tab/Shift+Tab/Enter/Space/Escape 7 ÆÁ£©
-- PresentationProfile ³Ö¾Ã»¯ store + 4 Ïî²âÊÔ£¨±à¼­¡ú±£´æ¡úÖØ¿ª±£Áô£»canonical .depmap Áã±ä»¯£©
-- ×Ô¶¨Òå±³¾°µ¼Èë LocalBackgroundImporter + 7 Ïî°²È«²âÊÔ£¨SVG/Î±À©Õ¹Ãû/³¬´ó/³¬³ß´ç¾Ü¾ø£»½ö app-managed storage£©
-- Interaction states£ºCard hover tilt¡¢NumberRow / DockAction / MaterialTile / ThemeThumb / ProjectionSelector hover/pressed/selected
-- ¿Õ×´Ì¬£¨Cards ¡ì45 / Numbers ¡ì46 ÎÄ°¸£©£»UI copy ºÏ¹æ£¨ÒÆ³ı PresentationProfile/PersonalReality/make-before-break/PLAN PROJECTION µÈÄÚ²¿ÊõÓï£©
-- ContinuityScene ·şÎñ½Úµãº¬½ÇÉ«+×´Ì¬¡¢compact risk notice¡¢¼Æ»®Í¶Ó°½ö After
-- Studio ÕÛµş inspector ·Ö×é¡¢6¨C8 curated accent swatches£¨30dp ring£©¡¢ÖĞÑëÔ¤ÀÀ 620¨C720px @1920
-- Numbers ¹ıÂË¹¦ÄÜ»¯£»ÊµÌå/ĞéÄâ¿¨Éí·İÇø·Ö£¨chip vs VirtualMark£©
-- Ö¤¾İ£º16 ÕÅÖ÷½ØÍ¼ + mechanical£¨1280/2560/1.25/1.5£©+ 15 ²½ journey + keyboard log + persistence evidence + IMAGE_METRICS£¨0 error/0 empty/0 near-black£©+ layout probe
-- ĞŞ¸´ NowScreen ÎŞÏŞ¸ß¶ÈÔ¼Êø»Ø¹é£¨1C ÒÅÁô£©£»PdigImageMetrics JSON ×ªÒåĞŞ¸´
-- ²âÊÔ£ºdesktop :app:test È« PASS£¨ĞÂÔö 17 Ïî£©£»core 487 PASS¡¢architecture/secrets/network ÂÌ
-- ÎÄµµ£ºSCREENSHOTS_PHASE1E.md¡¢gallery-phase1e/index.html¡¢PHASE1E_SKILL_USAGE.md¡¢PHASE_1E_IMPLEMENTATION_REPORT.md
+- PHASE_1E_IMPLEMENTATION = PASSï¿½ï¿½DESKTOP_REFERENCE_CANDIDATE = READYï¿½ï¿½
+- DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_REVIEWï¿½ï¿½VISUAL_CRAFT = NEEDS_HUMAN_FINAL_REVIEWï¿½ï¿½No-Vision ï¿½ï¿½ï¿½É£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ACCEPTEDï¿½ï¿½ï¿½ï¿½
 
-### Ö¤¾İÄ¿Â¼
+### ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+
+- Command Paletteï¿½ï¿½Ctrl+K ï¿½ï¿½Êµï¿½ï¿½ï¿½Ã£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¬/ï¿½ï¿½ï¿½ë¡¢ï¿½ò¿ª»ï¿½ï¿½ï¿½ï¿½ï¿½Ê©ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½Å¡ï¿½ï¿½ï¿½ï¿½Ô»ï¿½ï¿½ï¿½+ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½É£ï¿½routeKey / KeyboardFocusStateï¿½ï¿½Tab/Shift+Tab/Enter/Space/Escape 7 ï¿½ï¿½ï¿½ï¿½
+- PresentationProfile ï¿½Ö¾Ã»ï¿½ store + 4 ï¿½ï¿½ï¿½ï¿½Ô£ï¿½ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½canonical .depmap ï¿½ï¿½ä»¯ï¿½ï¿½
+- ï¿½Ô¶ï¿½ï¿½å±³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ LocalBackgroundImporter + 7 ï¿½î°²È«ï¿½ï¿½ï¿½Ô£ï¿½SVG/Î±ï¿½ï¿½Õ¹ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½/ï¿½ï¿½ï¿½ß´ï¿½Ü¾ï¿½ï¿½ï¿½ï¿½ï¿½ app-managed storageï¿½ï¿½
+- Interaction statesï¿½ï¿½Card hover tiltï¿½ï¿½NumberRow / DockAction / MaterialTile / ThemeThumb / ProjectionSelector hover/pressed/selected
+- ï¿½ï¿½×´Ì¬ï¿½ï¿½Cards ï¿½ï¿½45 / Numbers ï¿½ï¿½46 ï¿½Ä°ï¿½ï¿½ï¿½ï¿½ï¿½UI copy ï¿½Ï¹æ£¨ï¿½Æ³ï¿½ PresentationProfile/PersonalReality/make-before-break/PLAN PROJECTION ï¿½ï¿½ï¿½Ú²ï¿½ï¿½ï¿½ï¿½ï£©
+- ContinuityScene ï¿½ï¿½ï¿½ï¿½Úµãº¬ï¿½ï¿½É«+×´Ì¬ï¿½ï¿½compact risk noticeï¿½ï¿½ï¿½Æ»ï¿½Í¶Ó°ï¿½ï¿½ After
+- Studio ï¿½Ûµï¿½ inspector ï¿½ï¿½ï¿½é¡¢6ï¿½C8 curated accent swatchesï¿½ï¿½30dp ringï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¤ï¿½ï¿½ 620ï¿½C720px @1920
+- Numbers ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½Ü»ï¿½ï¿½ï¿½Êµï¿½ï¿½/ï¿½ï¿½ï¿½â¿¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö£ï¿½chip vs VirtualMarkï¿½ï¿½
+- Ö¤ï¿½İ£ï¿½16 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¼ + mechanicalï¿½ï¿½1280/2560/1.25/1.5ï¿½ï¿½+ 15 ï¿½ï¿½ journey + keyboard log + persistence evidence + IMAGE_METRICSï¿½ï¿½0 error/0 empty/0 near-blackï¿½ï¿½+ layout probe
+- ï¿½Ş¸ï¿½ NowScreen ï¿½ï¿½ï¿½Ş¸ß¶ï¿½Ô¼ï¿½ï¿½ï¿½Ø¹é£¨1C ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½PdigImageMetrics JSON ×ªï¿½ï¿½ï¿½Ş¸ï¿½
+- ï¿½ï¿½ï¿½Ô£ï¿½desktop :app:test È« PASSï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 17 ï¿½î£©ï¿½ï¿½core 487 PASSï¿½ï¿½architecture/secrets/network ï¿½ï¿½
+- ï¿½Äµï¿½ï¿½ï¿½SCREENSHOTS_PHASE1E.mdï¿½ï¿½gallery-phase1e/index.htmlï¿½ï¿½PHASE1E_SKILL_USAGE.mdï¿½ï¿½PHASE_1E_IMPLEMENTATION_REPORT.md
+
+### Ö¤ï¿½ï¿½Ä¿Â¼
+
 - artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e/
 
 ### Æ½Ì¨×´Ì¬
-- ANDROID/IOS/HARMONY UI vNext = HOLD£¨µÈ´ı Human DESKTOP_VISUAL_REFERENCE = ACCEPTED£©
-- Light theme£ºDARK_REFERENCE = PRIMARY£»LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER£¨Î´»Ñ³Æ full parity£©
+
+- ANDROID/IOS/HARMONY UI vNext = HOLDï¿½ï¿½ï¿½È´ï¿½ Human DESKTOP_VISUAL_REFERENCE = ACCEPTEDï¿½ï¿½
+- Light themeï¿½ï¿½DARK_REFERENCE = PRIMARYï¿½ï¿½LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATERï¿½ï¿½Î´ï¿½Ñ³ï¿½ full parityï¿½ï¿½

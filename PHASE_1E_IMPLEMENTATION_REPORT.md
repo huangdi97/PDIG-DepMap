@@ -23,22 +23,22 @@ HARMONY_UI_VNEXT         = HOLD
 
 ## What changed（本轮）
 
-| 领域 | 变更 |
-| --- | --- |
-| Command Palette | 新增 `ui/CommandPalette.kt`：搜索 card/number/基础设施/更换手机号/个性化 + 直跳；键盘优先（↑↓/Enter/Esc）；接入 TopChrome（原装饰按钮 → 真实入口） |
-| Keyboard-first | 新增 `ui/VKeyboard.kt`（routeKey / KeyboardFocusState / normalizeKey）；Ctrl+K / Tab / Shift+Tab / Enter / Space / Escape 路由；7 屏可达 |
-| Persistence | 新增 `persist/PresentationProfileStore.kt` + `PresentationProfilePersistenceTest`（4 项）；Studio 保存真实写入 + 重开保留；canonical .depmap 零变化 |
-| Import Background | 新增 `persist/LocalBackgroundImporter.kt` + `LocalBackgroundImporterTest`（7 项）：白名单 ext、size/dimension 上限、decode validation、禁 SVG/远程、sha256 命名、app-managed storage |
-| Interaction states | 新增 `ui/components/VNextInteraction.kt`（hover/pressed/selected）；Card（hover tilt 3°，§17/§42）、NumberRow、DockAction、MaterialTile、ThemeThumb、ProjectionSelector 接入 |
-| Empty states | Cards（**§45 文案**）与 Numbers（**§46 文案**）空状态；unknown 不伪装 healthy |
-| UI copy 合规 | 移除普通 UI 中的 PresentationProfile / PersonalReality / make-before-break / "Presentation Layer" / "PLAN PROJECTION"；改“外观设置只改变显示方式…”；计划投影在普通 UI 使用中文 + “不代表已完成或验证” |
-| Continuity scene | 服务节点含 glyph + 名称 + 关系角色 + 状态；路径 2.0–2.6px；scene 430px（420–500 内）；风险提示改 compact notice（§37） |
-| Studio | 右侧 inspector 分组折叠（默认只展开当前组）；accent 6–8 curated swatches（30dp、ring）；中央预览 620–720px @1920；导入图片入口 |
-| Numbers 列表 | 地区/状态/形态过滤功能化（§26）；行 hover；空状态；region glyph + masked number + 依赖计数 |
-| Card identity | 实体卡 EMV chip；虚拟卡无 chip + VirtualMark（§11）；内容层级（issuer/nickname → PAN → network → metadata → status） |
-| Evidence harness | 新增 `evidence/VNextPhaseEvidence1E.kt`（16 主图 + mechanical + probe）与 `evidence/VNextJourney1E.kt`（15 步 + keyboard + persistence）；Main.kt 接入 `--vnext-shots-1e`/`--vnext-journey-1e` |
-| 既有回归修复 | NowScreen 无限高度约束绑定回归（PHASE 1C 遗留，1C/1D 证据未覆盖 Now 而未暴露）→ 修复并可渲染 |
-| metrics 工具 | `PdigImageMetrics.java` 增加 JSON 字符串转义（Windows 路径反斜杠不再产出非法 JSON） |
+| 领域               | 变更                                                                                                                                                                                                  |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Command Palette    | 新增 `ui/CommandPalette.kt`：搜索 card/number/基础设施/更换手机号/个性化 + 直跳；键盘优先（↑↓/Enter/Esc）；接入 TopChrome（原装饰按钮 → 真实入口）                                                    |
+| Keyboard-first     | 新增 `ui/VKeyboard.kt`（routeKey / KeyboardFocusState / normalizeKey）；Ctrl+K / Tab / Shift+Tab / Enter / Space / Escape 路由；7 屏可达                                                              |
+| Persistence        | 新增 `persist/PresentationProfileStore.kt` + `PresentationProfilePersistenceTest`（4 项）；Studio 保存真实写入 + 重开保留；canonical .depmap 零变化                                                   |
+| Import Background  | 新增 `persist/LocalBackgroundImporter.kt` + `LocalBackgroundImporterTest`（7 项）：白名单 ext、size/dimension 上限、decode validation、禁 SVG/远程、sha256 命名、app-managed storage                  |
+| Interaction states | 新增 `ui/components/VNextInteraction.kt`（hover/pressed/selected）；Card（hover tilt 3°，§17/§42）、NumberRow、DockAction、MaterialTile、ThemeThumb、ProjectionSelector 接入                          |
+| Empty states       | Cards（**§45 文案**）与 Numbers（**§46 文案**）空状态；unknown 不伪装 healthy                                                                                                                         |
+| UI copy 合规       | 移除普通 UI 中的 PresentationProfile / PersonalReality / make-before-break / "Presentation Layer" / "PLAN PROJECTION"；改“外观设置只改变显示方式…”；计划投影在普通 UI 使用中文 + “不代表已完成或验证” |
+| Continuity scene   | 服务节点含 glyph + 名称 + 关系角色 + 状态；路径 2.0–2.6px；scene 430px（420–500 内）；风险提示改 compact notice（§37）                                                                                |
+| Studio             | 右侧 inspector 分组折叠（默认只展开当前组）；accent 6–8 curated swatches（30dp、ring）；中央预览 620–720px @1920；导入图片入口                                                                        |
+| Numbers 列表       | 地区/状态/形态过滤功能化（§26）；行 hover；空状态；region glyph + masked number + 依赖计数                                                                                                            |
+| Card identity      | 实体卡 EMV chip；虚拟卡无 chip + VirtualMark（§11）；内容层级（issuer/nickname → PAN → network → metadata → status）                                                                                  |
+| Evidence harness   | 新增 `evidence/VNextPhaseEvidence1E.kt`（16 主图 + mechanical + probe）与 `evidence/VNextJourney1E.kt`（15 步 + keyboard + persistence）；Main.kt 接入 `--vnext-shots-1e`/`--vnext-journey-1e`        |
+| 既有回归修复       | NowScreen 无限高度约束绑定回归（PHASE 1C 遗留，1C/1D 证据未覆盖 Now 而未暴露）→ 修复并可渲染                                                                                                          |
+| metrics 工具       | `PdigImageMetrics.java` 增加 JSON 字符串转义（Windows 路径反斜杠不再产出非法 JSON）                                                                                                                   |
 
 ## What stayed frozen（未推翻）
 
