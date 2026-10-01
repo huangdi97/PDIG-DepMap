@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,6 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VTestIds
@@ -30,10 +37,14 @@ import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
+import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
- * Card Detail（PHASE 1C §16）：顶部 Hero Asset Stage（卡占 ~40%，最大视觉对象之一）
- * + issuer/status/region/currency/expiry/主操作旁列；下方才进入 绑定服务/风险/恢复与替代/历史。
+ * Card Detail（PHASE 1D §16–17）：顶部 Hero 舞台。
+ * LEFT ~42%：大卡舞台（local illumination + floor reflection + soft depth，卡不贴黑角落）；
+ * RIGHT ~58%：issuer identity / status / region / currency / expiry + 主操作
+ * （模拟换卡 / 标记即将到期 / 查看绑定 / 定制卡面）。
+ * 下方：绑定服务 / 影响与风险 / 备用支付 / 变更历史 —— 「卡片资料」不再是 label-value 表主导。
  */
 @Composable
 fun CardDetailScreen(app: VAppState) {
@@ -46,49 +57,54 @@ fun CardDetailScreen(app: VAppState) {
             .padding(VSpacing.Xxl),
         verticalArrangement = Arrangement.spacedBy(VSpacing.Xl),
     ) {
-        // Hero Asset Stage
+        // Hero Stage（42% / 58%）
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(VSpacing.Xl)) {
             Box(
                 Modifier
-                    .width(430.dp)
+                    .width(600.dp)
+                    .height(400.dp)
                     .testTagLocal(VTestIds.CARD_DETAIL_IDENTITY),
             ) {
-                AssetCard(card = card, privacyMask = app.privacyMask, onClick = {})
-            }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                SectionHeader("卡片资料")
-                DetailRow("发卡行", card.issuer)
-                DetailRow("卡组织", card.network)
-                DetailRow("地区", card.region)
-                DetailRow("币种", card.currency)
-                DetailRow("卡种", if (card.type == "credit") "信用卡" else "储蓄卡")
-                DetailRow("形态", if (card.form == "virtual") "虚拟卡" else "实体卡")
-                DetailRow("有效期", card.expiry)
-                DetailRow("状态", statusLabelZh(card.status))
-                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                    Surface(
-                        Modifier.clickableLocal { app.openCardCustomization(card.id) },
-                        color = PdigV2Colors.PrimarySoft,
-                        shape = RoundedCornerShape(VRadius.Md),
-                    ) {
-                        Text("定制卡面 →", Modifier.padding(horizontal = VSpacing.Md, vertical = 6.dp), color = PdigV2Colors.PrimaryBright, style = VType.Label)
-                    }
-                    LabelChip("当前主题：${card.preset} · 素材全部本地")
+                CardHeroStage {
+                    AssetCard(card = card, privacyMask = app.privacyMask, onClick = {})
                 }
             }
+            Column(Modifier.weight(1f).testTagLocal(VTestIds.CARD_DETAIL_INFO), verticalArrangement = Arrangement.spacedBy(VSpacing.Md)) {
+                Text(card.nickname, style = VType.PageTitle, color = PdigV2Colors.TextPrimary, maxLines = 1)
+                Text(card.issuer, style = VType.SectionTitle, color = PdigV2Colors.TextSecondary, maxLines = 1)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(VSpacing.Md)) {
+                    StatusBadge(card.status)
+                    LabelChip(if (card.form == "virtual") "虚拟卡" else "实体卡")
+                    LabelChip(if (card.type == "credit") "信用卡" else "储蓄卡")
+                }
+                Spacer(Modifier.height(VSpacing.Sm))
+                FactRow("地区", card.region)
+                FactRow("币种", card.currency)
+                FactRow("有效期", card.expiry)
+                FactRow("卡组织", card.network)
+                Spacer(Modifier.height(VSpacing.Sm))
+                // Primary actions
+                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                    ActionButton("模拟换卡", primary = true) {}
+                    ActionButton("标记即将到期") {}
+                    ActionButton("查看绑定") {}
+                    ActionButton("定制卡面 →") { app.openCardCustomization(card.id) }
+                }
+                Text(
+                    "「卡片资料」以身份为主：发卡行 / 卡组织 / 地区 / 币种 / 卡种 / 形态 / 有效期 / 状态。",
+                    style = VType.Meta,
+                    color = PdigV2Colors.TextMuted,
+                )
+            }
         }
-        // 下方：绑定服务 / 风险 / 恢复与替代 / 历史
-        SectionHeader("使用场景")
-        Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-            card.usages.forEach { LabelChip(it) }
-        }
+        // 下方：绑定服务 / 影响与风险 / 备用支付 / 变更历史
         SectionHeader("绑定服务（${services.size}）")
         services.forEach { service ->
             Surface(
                 Modifier.fillMaxWidth(),
                 color = PdigV2Colors.Surface,
                 shape = RoundedCornerShape(VRadius.Md),
-                border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
                 Row(
                     Modifier.padding(VSpacing.Lg),
@@ -96,14 +112,14 @@ fun CardDetailScreen(app: VAppState) {
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Column {
-                        Text(service.name, color = PdigV2Colors.TextPrimary, style = VType.Body, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
-                        Text("地区 ${service.region} · ${service.kind}", color = PdigV2Colors.TextMuted, style = VType.Meta)
+                        Text(service.name, color = PdigV2Colors.TextPrimary, style = VType.Body, fontWeight = FontWeight.Medium, maxLines = 1)
+                        Text("地区 ${service.region} · ${service.kind}", color = PdigV2Colors.TextMuted, style = VType.Meta, maxLines = 1)
                     }
                     LabelChip(if (service.kind == "funding") "资金来源" else "验证方式")
                 }
             }
         }
-        SectionHeader("风险")
+        SectionHeader("影响与风险")
         if (card.status == "expiring_soon") {
             Surface(color = PdigV2Colors.Critical.copy(alpha = 0.12f), shape = RoundedCornerShape(VRadius.Md), modifier = Modifier.fillMaxWidth()) {
                 Text(
@@ -116,9 +132,9 @@ fun CardDetailScreen(app: VAppState) {
         } else {
             Text("当前未发现必须处理的风险。", color = PdigV2Colors.TextSecondary, style = VType.Secondary)
         }
-        SectionHeader("恢复与替代")
+        SectionHeader("备用支付")
         Text(
-            "模拟更换此卡：影响分析由已确认依赖驱动（未知 = 未知，绝不推断）。接入 Impact Kernel 后此处展示「必须处理 / 有备用路径 / 建议检查」分级。",
+            "备用支付路径全部来自已确认依赖；未知 = 未知。模拟更换此卡的影响分析由已确认依赖驱动。",
             color = PdigV2Colors.TextSecondary,
             style = VType.Secondary,
         )
@@ -132,12 +148,64 @@ fun CardDetailScreen(app: VAppState) {
 }
 
 @Composable
-private fun DetailRow(label: String, value: String) {
-    Row(
-        Modifier.fillMaxWidth().padding(vertical = 5.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+private fun CardHeroStage(content: @Composable () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .drawBehind { drawCardHeroStage() },
+        contentAlignment = Alignment.Center,
     ) {
-        Text(label, color = PdigV2Colors.TextMuted, style = VType.Meta)
-        Text(value, color = PdigV2Colors.TextPrimary, style = VType.Secondary, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
+        content()
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawCardHeroStage() {
+    val w = size.width
+    val h = size.height
+    drawRect(Brush.verticalGradient(listOf(PdigV2Colors.CanvasDeep.copy(alpha = 0.7f), PdigV2Colors.Canvas)))
+    drawCircle(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.LocalIllum.copy(alpha = 0.42f), Color.Transparent),
+            center = Offset(w * 0.5f, h * 0.42f),
+            radius = w * 0.6f,
+        ),
+        radius = w * 0.6f,
+        center = Offset(w * 0.5f, h * 0.42f),
+    )
+    drawOval(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.PrimaryBright.copy(alpha = 0.12f), Color.Transparent),
+            center = Offset(w * 0.5f, h * 0.86f),
+            radius = w * 0.28f,
+        ),
+        topLeft = Offset(w * 0.5f - w * 0.28f, h * 0.86f - w * 0.10f),
+        size = androidx.compose.ui.geometry.Size(w * 0.56f, w * 0.20f),
+    )
+}
+
+@Composable
+private fun FactRow(label: String, value: String) {
+    Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, color = PdigV2Colors.TextMuted, style = VType.Meta, maxLines = 1)
+        Spacer(Modifier.width(VSpacing.Md))
+        Text(value, color = PdigV2Colors.TextPrimary, style = VType.Secondary, fontWeight = FontWeight.Medium, maxLines = 1)
+    }
+}
+
+@Composable
+private fun ActionButton(label: String, primary: Boolean = false, onClick: () -> Unit = {}) {
+    Surface(
+        Modifier.clickableLocal(onClick = onClick),
+        color = if (primary) PdigV2Colors.Primary else PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = if (primary) null else BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Text(
+            label,
+            Modifier.padding(horizontal = VSpacing.Md, vertical = 6.dp),
+            color = if (primary) PdigV2Colors.CanvasDeep else PdigV2Colors.TextSecondary,
+            style = VType.Label,
+            maxLines = 1,
+        )
     }
 }

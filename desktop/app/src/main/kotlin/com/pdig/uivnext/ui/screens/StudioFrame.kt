@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.ACCENT_SWATCHES
@@ -43,10 +45,12 @@ import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
- * Customization Studio 三栏框架（Review §9–§12）：
- * LEFT 对象库 + 预设（22%，紧凑无整体滚动；主题 = 确定性视觉缩略图，两列网格）→
- * CENTER 大尺寸实时预览（46%，主角：spotlight / floor / 环境辉光；卡占 72% 宽；tilt 随 reduced-motion 关闭）→
- * RIGHT 属性编辑器（32%，用户语言：材质 / 背景 / 布局 / 强调色 / 显示内容 / 隐私；删除开发者 token 行）。
+ * Customization Studio 三栏框架（PHASE 1D §18–21）：
+ * LEFT 对象库（thumbnail + nickname，选中小高亮）+ 主题（2 列大 visual tile，无 toggle dot）→
+ * CENTER 大尺寸实时预览（预览占 center pane 70–78%，卡宽 @1920 ≈560–700px；
+ * 中性空间舞台 + 卡本地光 + ground/reflection；tilt 随 reduced-motion 关闭）→
+ * RIGHT 视觉化 inspector（卡面 / 材质 visual tile / 背景 / 布局 / 信息 / 隐私：
+ * visual selector / swatch / thumbnail / toggle，不用文字 chip 堆砌）。
  * 编辑对象 = PresentationProfile（本地偏好；绝不写 .depmap）。
  */
 @Composable
@@ -63,6 +67,7 @@ fun StudioFrame(
     reduceMotion: Boolean,
     thumbnail: @Composable (String) -> Unit,
     preview: @Composable (String) -> Unit,
+    libraryThumbnail: @Composable (String) -> Unit = {},
 ) {
     var saved by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(VSpacing.Xxl), verticalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
@@ -85,7 +90,7 @@ fun StudioFrame(
             }
         }
         Row(Modifier.fillMaxSize()) {
-            // LEFT：对象库 + 预设（22%；紧凑、无整体滚动，规避 Row 内 scroll 无限高约束）
+            // LEFT：对象库 + 主题（20%；紧凑、无整体滚动）
             Column(
                 Modifier
                     .weight(0.20f)
@@ -93,9 +98,14 @@ fun StudioFrame(
                     .testTagLocal(VTestIds.CUSTOMIZATION_LIBRARY),
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
-                SectionHeader("对象库")
+                SectionHeader("对象")
                 libraryItems.forEach { (id, label) ->
-                    LibraryItem(label, selected = selectedLibraryId == id, compact = true) { onSelectLibrary(id) }
+                    LibraryItem(
+                        label = label,
+                        selected = selectedLibraryId == id,
+                        thumbnail = { libraryThumbnail(id) },
+                        onClick = { onSelectLibrary(id) },
+                    )
                 }
                 Spacer(Modifier.height(VSpacing.Sm))
                 SectionHeader("主题")
@@ -115,7 +125,7 @@ fun StudioFrame(
                 }
             }
             Spacer(Modifier.width(VSpacing.Lg))
-            // CENTER：大尺寸实时预览（46%，主角）
+            // CENTER：大尺寸实时预览（主角；预览 70–78% pane 宽）
             Column(
                 Modifier
                     .weight(0.55f)
@@ -129,11 +139,12 @@ fun StudioFrame(
                         .fillMaxWidth()
                         .weight(1f)
                         .drawBehind { drawPreviewStage() },
+                    contentAlignment = Alignment.Center,
                 ) {
                     Box(
                         Modifier
-                            .align(Alignment.Center)
-                            .fillMaxWidth(0.9f)
+                            .fillMaxWidth(0.75f)
+                            .widthIn(max = 700.dp)
                             .graphicsLayer {
                                 rotationX = if (reduceMotion) 0f else 5f
                                 cameraDistance = 24f * density
@@ -150,7 +161,7 @@ fun StudioFrame(
                 )
             }
             Spacer(Modifier.width(VSpacing.Lg))
-            // RIGHT：属性编辑器（32%，用户语言）
+            // RIGHT：视觉化 inspector（卡面 / 材质 / 背景 / 布局 / 信息 / 隐私）
             Column(
                 Modifier
                     .weight(0.25f)
@@ -159,14 +170,17 @@ fun StudioFrame(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(VSpacing.Sm),
             ) {
-                SectionHeader("卡面设计")
+                SectionHeader("卡面")
                 if (materials.isNotEmpty()) {
                     GroupLabel("材质")
                     Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
                         materials.forEach { m ->
-                            ChipRow(label = materialLabel(m), selected = profile.material == m, compact = true) {
-                                onProfileChange(profile.copy(material = m))
-                            }
+                            MaterialTile(
+                                material = m,
+                                profile = profile,
+                                selected = profile.material == m,
+                                onClick = { onProfileChange(profile.copy(material = m)) },
+                            )
                         }
                     }
                 }
@@ -196,7 +210,7 @@ fun StudioFrame(
                     }
                 }
                 Spacer(Modifier.height(VSpacing.Sm))
-                SectionHeader("显示内容")
+                SectionHeader("信息")
                 ToggleRow("隐藏部分信息（隐私遮蔽）", profile.maskSensitive) {
                     onProfileChange(profile.copy(maskSensitive = !profile.maskSensitive))
                 }
@@ -211,147 +225,5 @@ fun StudioFrame(
                 )
             }
         }
-    }
-}
-
-/** 舞台绘制：spotlight（中心聚光）+ 卡片下方 soft floor 椭圆反射 + 环境辉光。 */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPreviewStage() {
-    val w = size.width
-    val h = size.height
-    drawRect(Brush.verticalGradient(listOf(PdigV2Colors.CanvasDeep.copy(alpha = 0.6f), PdigV2Colors.Canvas)))
-    drawCircle(
-        brush = Brush.radialGradient(
-            listOf(PdigV2Colors.LocalIllum.copy(alpha = 0.40f), Color.Transparent),
-            center = Offset(w * 0.5f, h * 0.44f),
-            radius = w * 0.55f,
-        ),
-        radius = w * 0.55f,
-        center = Offset(w * 0.5f, h * 0.44f),
-    )
-    drawOval(
-        brush = Brush.radialGradient(
-            listOf(PdigV2Colors.PrimaryBright.copy(alpha = 0.12f), Color.Transparent),
-            center = Offset(w * 0.5f, h * 0.86f),
-            radius = w * 0.30f,
-        ),
-        topLeft = Offset(w * 0.5f - w * 0.30f, h * 0.86f - w * 0.10f),
-        size = androidx.compose.ui.geometry.Size(w * 0.60f, w * 0.20f),
-    )
-}
-
-private fun materialLabel(m: String): String = when (m) {
-    "matte" -> "哑光"
-    "glass" -> "玻璃"
-    "metal" -> "金属"
-    "minimal" -> "极简"
-    else -> m
-}
-
-private fun layoutLabel(l: String): String = when (l) {
-    "emblem" -> "徽章"
-    "minimal-content" -> "精简"
-    else -> "标准"
-}
-
-/** 主题视觉缩略图（固定尺寸、固定渲染器；选中 = 描边高亮 + 圆点）。 */
-@Composable
-private fun ThemeThumb(
-    thumbnail: @Composable (String) -> Unit,
-    preset: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(modifier.clickable(onClick = onClick)) {
-        thumbnail(preset)
-        Surface(
-            modifier = Modifier.align(Alignment.CenterEnd).size(20.dp).padding(end = 6.dp).clip(CircleShape).clickable(onClick = onClick),
-            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.SurfaceRaised,
-            border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
-        ) {}
-    }
-}
-
-@Composable
-private fun LibraryItem(label: String, selected: Boolean, compact: Boolean = false, onClick: () -> Unit) {
-    Surface(
-        Modifier.fillMaxWidth().clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else Color.Transparent,
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.3f) else PdigV2Colors.BorderSubtle),
-    ) {
-        Text(
-            label,
-            Modifier.padding(horizontal = VSpacing.Md, vertical = if (compact) 4.dp else VSpacing.Sm),
-            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextPrimary,
-            style = VType.Label,
-            maxLines = 1,
-        )
-    }
-}
-
-@Composable
-private fun ChipRow(label: String, selected: Boolean, compact: Boolean = false, onClick: () -> Unit) {
-    Surface(
-        Modifier.clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.14f) else PdigV2Colors.SurfaceRaised,
-        shape = RoundedCornerShape(VRadius.Sm),
-        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.3f) else PdigV2Colors.BorderSubtle),
-    ) {
-        Text(
-            label,
-            Modifier.padding(horizontal = if (compact) VSpacing.Md else VSpacing.Lg, vertical = if (compact) 4.dp else 6.dp),
-            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-            style = VType.Label,
-        )
-    }
-}
-
-@Composable
-private fun GroupLabel(text: String) {
-    Text(text, style = VType.Label, color = PdigV2Colors.TextMuted)
-}
-
-@Composable
-private fun SwatchDot(color: Color, selected: Boolean, onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .size(26.dp)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
-        color = color,
-        border = BorderStroke(
-            if (selected) 3.dp else 1.dp,
-            if (selected) PdigV2Colors.TextPrimary else PdigV2Colors.BorderSubtle,
-        ),
-    ) {}
-}
-
-@Composable
-private fun ToggleRow(label: String, checked: Boolean, onToggle: () -> Unit) {
-    Surface(
-        color = PdigV2Colors.SurfaceRaised,
-        shape = RoundedCornerShape(VRadius.Md),
-        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-    ) {
-        Row(Modifier.padding(horizontal = VSpacing.Md, vertical = VSpacing.Sm).clickable(onClick = onToggle), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(label, color = PdigV2Colors.TextSecondary, style = VType.Secondary)
-            Surface(color = if (checked) PdigV2Colors.Primary.copy(alpha = 0.3f) else PdigV2Colors.Surface, shape = RoundedCornerShape(VRadius.Sm)) {
-                Text(
-                    if (checked) "开" else "关",
-                    Modifier.padding(horizontal = VSpacing.Md, vertical = 3.dp),
-                    color = if (checked) PdigV2Colors.PrimaryBright else PdigV2Colors.TextMuted,
-                    style = VType.Label,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun InfoRow(label: String, value: String) {
-    Row(Modifier.fillMaxWidth().padding(vertical = 3.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, color = PdigV2Colors.TextMuted, style = VType.Secondary)
-        Text(value, color = PdigV2Colors.TextPrimary, style = VType.Secondary, fontWeight = androidx.compose.ui.text.font.FontWeight.Medium)
     }
 }

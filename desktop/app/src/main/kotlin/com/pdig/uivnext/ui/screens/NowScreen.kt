@@ -64,7 +64,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     regions = regions,
                     arcingPairs = arcingPairs,
                     reduceMotion = app.reduceMotion,
-                    showRegionLabels = true,
+                    showRegionLabels = false,
                 )
                 Surface(
                     Modifier.align(Alignment.BottomStart).padding(VSpacing.Lg),

@@ -3,23 +3,18 @@ package com.pdig.uivnext.ui.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -27,31 +22,25 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.UiVNextCard
-import com.pdig.uivnext.theme.ACCENT_SWATCHES
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 
 /**
- * AssetCard —— 卡面 = 真实支付卡资产身份（Review §7/§8）。
+ * AssetCard —— 卡面 = 真实支付卡资产身份（PHASE 1D §12–§15）。
  *
  * 视觉语法分层：Background Material → Issuer Identity → Card Identity →
- * Financial Metadata → Status Overlay；layout preset 可改变各层位置：
- *   standard（issuer 顶部 / number 中部 / metadata+status 底部）、
- *   minimal-content（仅 nickname+number+network）、
- *   emblem（issuer 大标题顶 / number 左下 / network 右下）。
- *
- * 8 个视觉预设真实不同（非全蓝渐变）：
- *   minimal / matte / glass / metal / region / city / abstract / deep-space；
- * 全部程序化（token 色），零远程图片；保持 1.586 ratio。
+ * Financial Metadata → Status Overlay；内容排版（standard / emblem /
+ * minimal-content）拆分在 CardFaceContent.kt（≤300 行）。
+ * 8 个视觉预设真实不同（非全蓝渐变）；全部程序化（token 色），零远程图片；
+ * 保持 1.586 ratio。
  */
 
 /** 卡片主题中文名（用户语言；高级内部值不进普通 UI）。 */
@@ -73,8 +62,8 @@ internal fun cardLayoutLabel(layout: String): String = when (layout) {
     else -> "标准"
 }
 
-/** 卡默认视觉（PHASE 1C §14：issuer 差异化，synthetic demo；仅呈现层，绝不写 .depmap）。 */
-fun cardProfileOf(card: com.pdig.uivnext.model.UiVNextCard): PresentationProfile {
+/** 卡默认视觉（PHASE 1D §13：issuer 差异化，synthetic demo；仅呈现层，绝不写 .depmap）。 */
+fun cardProfileOf(card: UiVNextCard): PresentationProfile {
     val vp = com.pdig.uivnext.demo.cardVisualProfileFor(card.id)
     return PresentationProfile.defaultFor("card", card.id, vp.theme).copy(
         material = vp.material,
@@ -108,191 +97,9 @@ fun AssetCard(
                 .border(1.dp, cardFaceBorder(p), RoundedCornerShape(VRadius.Xl))
                 .padding(VSpacing.Xl),
         ) {
-            when (p.layout) {
-                "emblem" -> EmblemContent(card, p, privacyMask)
-                "minimal-content" -> MinimalContent(card, p, privacyMask)
-                else -> StandardContent(card, p, privacyMask)
-            }
+            CardContent(card, p, privacyMask)
         }
     }
-}
-
-/** 标准布局：issuer 顶部 / 卡号中部 / metadata+status 底部。 */
-@Composable
-private fun StandardContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
-    Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-            Column {
-                Text(card.issuer, style = VType.Label, color = PdigV2Colors.TextSecondary, maxLines = 1)
-                Spacer(Modifier.height(2.dp))
-                Text(card.nickname, style = VType.Body, fontWeight = FontWeight.SemiBold, color = PdigV2Colors.TextPrimary, maxLines = 1)
-            }
-            NetworkChip(card.network)
-        }
-        Spacer(Modifier.weight(1f))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            CardChip(p)
-            Spacer(Modifier.width(VSpacing.Md))
-            Text(
-                maskedNumber(card, privacyMask, p.maskSensitive),
-                style = VType.Mono,
-                fontSize = 21.sp,
-                fontWeight = FontWeight.Bold,
-                color = PdigV2Colors.TextPrimary,
-                maxLines = 1,
-            )
-        }
-        Spacer(Modifier.height(VSpacing.Lg))
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Bottom) {
-            Column {
-                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                    FormChip(card.form)
-                    CategoryChip(card.type)
-                }
-                if (p.backgroundKind == "preset" || p.layout == "standard") {
-                    Spacer(Modifier.height(VSpacing.Sm))
-                    Text(
-                        "${card.region} · ${card.currency} · 到期 ${card.expiry}",
-                        style = VType.Meta,
-                        color = PdigV2Colors.TextMuted,
-                        maxLines = 1,
-                    )
-                }
-            }
-            StatusBadge(card.status)
-        }
-    }
-}
-
-/** 精简内容布局：仅 nickname + 大号卡号 + network。 */
-@Composable
-private fun MinimalContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
-    Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(card.nickname, style = VType.Label, color = PdigV2Colors.TextPrimary, maxLines = 1, modifier = Modifier.weight(1f))
-            NetworkChip(card.network)
-        }
-        Spacer(Modifier.weight(1f))
-        Text(
-            maskedNumber(card, privacyMask, p.maskSensitive),
-            style = VType.Mono,
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = PdigV2Colors.TextPrimary,
-            maxLines = 1,
-        )
-    }
-}
-
-/** 徽章布局：issuer 大标题顶部 / number 左下 / network 右下。 */
-@Composable
-private fun EmblemContent(card: UiVNextCard, p: PresentationProfile, privacyMask: Boolean) {
-    Column(Modifier.fillMaxSize()) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-            Column(Modifier.weight(1f)) {
-                Text(card.issuer, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary, maxLines = 1)
-                Spacer(Modifier.height(2.dp))
-                Text(card.nickname, style = VType.Meta, color = PdigV2Colors.TextSecondary, maxLines = 1)
-            }
-            StatusBadge(card.status)
-        }
-        Spacer(Modifier.weight(1f))
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween) {
-            Column {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CardChip(p)
-                    Spacer(Modifier.width(VSpacing.Md))
-                    Text(
-                        maskedNumber(card, privacyMask, p.maskSensitive),
-                        style = VType.Mono,
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = PdigV2Colors.TextPrimary,
-                        maxLines = 1,
-                    )
-                }
-                Spacer(Modifier.height(VSpacing.Sm))
-                Text(
-                    "${card.region} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",
-                    style = VType.Meta,
-                    color = PdigV2Colors.TextMuted,
-                    maxLines = 1,
-                )
-            }
-            NetworkChip(card.network)
-        }
-    }
-}
-
-private fun maskedNumber(card: UiVNextCard, privacyMask: Boolean, maskSensitive: Boolean): String =
-    if (privacyMask && maskSensitive) "•••• •••• •••• ••••" else "•••• •••• •••• ${card.last4}"
-
-/** 网络徽标（银联 / Visa / Mastercard…）。 */
-@Composable
-private fun NetworkChip(network: String) {
-    Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Sm)) {
-        Text(
-            network,
-            Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
-            style = VType.Label,
-            color = PdigV2Colors.PrimaryBright,
-        )
-    }
-}
-
-/** 物理/虚拟：形态差异（克制：实体 = 描边、虚拟 = 填充亮色）。 */
-@Composable
-private fun FormChip(form: String) {
-    val virtual = form == "virtual"
-    Surface(
-        color = if (virtual) PdigV2Colors.PrimarySoft else Color.Transparent,
-        shape = RoundedCornerShape(VRadius.Sm),
-        border = BorderStroke(
-            1.dp,
-            if (virtual) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
-        ),
-    ) {
-        Text(
-            if (virtual) "虚拟卡" else "实体卡",
-            Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
-            style = VType.Label,
-            color = if (virtual) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-        )
-    }
-}
-
-@Composable
-private fun CategoryChip(type: String) {
-    Surface(color = PdigV2Colors.SurfaceRaised, shape = RoundedCornerShape(VRadius.Sm)) {
-        Text(
-            if (type == "credit") "信用卡" else "储蓄卡",
-            Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),
-            style = VType.Label,
-            color = PdigV2Colors.TextSecondary,
-        )
-    }
-}
-
-/** 程序化支付芯片（点缀真实感；accent 色 token）。 */
-@Composable
-private fun CardChip(p: PresentationProfile) {
-    val accent = accentColorOf(p.accentColor)
-    Surface(
-        Modifier.size(width = 34.dp, height = 24.dp),
-        color = accent.copy(alpha = 0.85f),
-        shape = RoundedCornerShape(5.dp),
-        border = BorderStroke(1.dp, PdigV2Colors.TextPrimary.copy(alpha = 0.35f)),
-    ) {}
-}
-
-internal fun accentColorOf(accent: String): Color =
-    ACCENT_SWATCHES.firstOrNull { it.first == accent }?.second ?: PdigV2Colors.Primary
-
-private fun cardFaceBorder(p: PresentationProfile): Color = when (p.material) {
-    "glass" -> PdigV2Colors.BorderStrong.copy(alpha = 0.6f)
-    "metal" -> PdigV2Colors.TextSecondary.copy(alpha = 0.35f)
-    "minimal" -> PdigV2Colors.BorderSubtle
-    else -> PdigV2Colors.BorderSubtle
 }
 
 /**

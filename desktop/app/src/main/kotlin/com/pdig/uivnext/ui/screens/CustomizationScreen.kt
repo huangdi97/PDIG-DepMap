@@ -52,6 +52,14 @@ fun CardCustomizationScreen(app: VAppState) {
         onProfileChange = { profile = it },
         reduceMotion = app.reduceMotion,
         thumbnail = { preset -> CardFaceThumbnail(preset) },
+        libraryThumbnail = { id ->
+            val card = UiVNextDemoFixture.cardById(id) ?: return@StudioFrame
+            AssetCard(
+                card = card,
+                privacyMask = app.privacyMask,
+                onClick = {},
+            )
+        },
         preview = { id ->
             val card = UiVNextDemoFixture.cardById(id) ?: return@StudioFrame
             AssetCard(
@@ -83,6 +91,14 @@ fun NumberCustomizationScreen(app: VAppState) {
         onProfileChange = { profile = it },
         reduceMotion = app.reduceMotion,
         thumbnail = { preset -> NumberFaceThumbnail(preset) },
+        libraryThumbnail = { id ->
+            val number = UiVNextDemoFixture.numberById(id) ?: return@StudioFrame
+            NumberFace(
+                number = number,
+                privacyMask = app.privacyMask,
+                onClick = {},
+            )
+        },
         preview = { id ->
             val number = UiVNextDemoFixture.numberById(id) ?: return@StudioFrame
             NumberFace(

@@ -19,6 +19,8 @@ class VAppState(
     var reduceMotion by mutableStateOf(false)
     var railExpanded by mutableStateOf(true)
     var initialCustomTheme by mutableStateOf<String?>(null)
+    /** Change Phone 投影（current / transition / after；after = Plan Projection，不冒充 Reality）。 */
+    var changeProjection by mutableStateOf("transition")
     val globe = GlobeController(initialCamera)
 
     fun navigate(next: VScreen) {

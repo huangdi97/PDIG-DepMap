@@ -1,37 +1,44 @@
 {
-  "specVersion": "1.0.0",
+  "specVersion": "1.1.0",
+  "policy": "REAL_GEOGRAPHIC_TEXTURE_EARTH — bundled open-license equirectangular assets; runtime zero network. Assets verified by sha256 before promotion from .agent-work/ui-vnext/assets-staging/ (license/hash gate).",
   "assets": [
     {
       "id": "earth_albedo_2048",
       "file": "spec/ui-vnext/assets/earth_albedo_2048.png",
       "type": "texture-equirect-rgb",
-      "source": "generated deterministically from repo-bundled desktop WorldCoastlines.kt / WorldCityLights.kt + procedural value noise (repo own asset; no third-party textures)",
-      "license": "PDIG-repo-generated (own work; offline; no redistribution of third-party content)",
-      "sha256": "182d0fc24d49c315acfaee7e8c7f9a5d7e4b3d994a5569d8d767ae2c56636ca7",
+      "source": "NASA Visible Earth — Blue Marble Next Generation (world.topo.bathy.200412.3x5400x2700.jpg), equirectangular day-side earth (topography + bathymetry). Downloaded 2026-10-01, resized deterministically to 2048x1024 (LANCZOS). Original retained in .agent-work/ui-vnext/assets-staging/day_albedo_src.jpg (sha256 a9f0088972dee0254610af851c4d6838ca3f2cf79176987e0a5713e2c15ec042).",
+      "license": "NASA imagery (Public Domain — NASA image use policy; no copyright, no redistribution restriction)",
+      "sourceUrl": "https://eoimages.gsfc.nasa.gov/images/imagerecords/73000/73909/world.topo.bathy.200412.3x5400x2700.jpg",
+      "sha256": "1f3a570d3ea83c7375956fc89db04242008799b23bcd0103a2481292b07808a6",
       "resolution": "2048x1024",
-      "usage": "TextureEarthRenderer day-side earth material (ocean/land/terrain/coast)",
+      "retrievedAt": "2026-10-01",
+      "usage": "TextureEarthRenderer day-side earth material (real continents, natural coastlines, land/ocean depth variation)",
       "fallback": "VectorEarthFallbackRenderer (bundled coastlines procedural)"
     },
     {
       "id": "earth_night_lights_2048",
       "file": "spec/ui-vnext/assets/earth_night_lights_2048.png",
       "type": "texture-equirect-rgb",
-      "source": "generated deterministically from repo-bundled desktop WorldCoastlines.kt / WorldCityLights.kt + procedural value noise (repo own asset; no third-party textures)",
-      "license": "PDIG-repo-generated (own work; offline; no redistribution of third-party content)",
-      "sha256": "c84a16b9e145ac50076da1e94b25038b0e4a947ef6b1dadf455e14694fe2158f",
+      "source": "NASA Visible Earth — Earth at Night 2012 (dnb_land_ocean_ice.2012.3600x1800.jpg), real city illumination distribution. Downloaded 2026-10-01, resized deterministically to 2048x1024 (LANCZOS). Original retained in .agent-work/ui-vnext/assets-staging/night_lights_src.jpg (sha256 373e5a08c9f378a2ce6320214a613148e4b1e3946b3f39a516c9093b76cb7124).",
+      "license": "NASA imagery (Public Domain — NASA image use policy; no copyright, no redistribution restriction)",
+      "sourceUrl": "https://eoimages.gsfc.nasa.gov/images/imagerecords/79000/79765/dnb_land_ocean_ice.2012.3600x1800.jpg",
+      "sha256": "3a61542c553c04b44e000862882970c92fc6bede004466b9a1376f6e3c68f913",
       "resolution": "2048x1024",
-      "usage": "TextureEarthRenderer night-side city illumination",
+      "retrievedAt": "2026-10-01",
+      "usage": "TextureEarthRenderer night-side real city illumination (warm/amber distribution from real world)",
       "fallback": "VectorEarthFallbackRenderer (bundled coastlines procedural)"
     },
     {
       "id": "cloud_2048",
       "file": "spec/ui-vnext/assets/cloud_2048.png",
       "type": "texture-equirect-rgb",
-      "source": "generated deterministically from repo-bundled desktop WorldCoastlines.kt / WorldCityLights.kt + procedural value noise (repo own asset; no third-party textures)",
-      "license": "PDIG-repo-generated (own work; offline; no redistribution of third-party content)",
-      "sha256": "254050bb481eb749e900064c2a109e9b6e5c169aaf3195d9e390fabe1bb65d4d",
+      "source": "NASA Visible Earth — cloud composite (cloud_combined_2048.jpg), real cloud field, not procedural circles. Downloaded 2026-10-01, resized deterministically to 2048x1024 (LANCZOS). Original retained in .agent-work/ui-vnext/assets-staging/clouds_src.jpg (sha256 daddaad84d7a33bbbc86cdda3f591099f57cee8607b7bcf3b67eb7e4f7a1c793).",
+      "license": "NASA imagery (Public Domain — NASA image use policy; no copyright, no redistribution restriction)",
+      "sourceUrl": "https://eoimages.gsfc.nasa.gov/images/imagerecords/57000/57747/cloud_combined_2048.jpg",
+      "sha256": "32d502d7869045d52d9f6a92c1117a8e8117c4acc5f11d333b0261fdb864fe71",
       "resolution": "2048x1024",
-      "usage": "TextureEarthRenderer subtle cloud layer",
+      "retrievedAt": "2026-10-01",
+      "usage": "TextureEarthRenderer cloud layer (real cloud field, subtle blend)",
       "fallback": "VectorEarthFallbackRenderer (bundled coastlines procedural)"
     }
   ]

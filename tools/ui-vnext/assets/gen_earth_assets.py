@@ -227,6 +227,20 @@ def sha256_file(path):
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
+    manifest_path = os.path.join(OUT_DIR, "ASSET_MANIFEST.json")
+    # SAFETY: PHASE 1D replaced procedural generation with real NASA public-domain
+    # textures. Refuse to clobber them if the manifest records real (non-generated) assets.
+    if os.path.exists(manifest_path):
+        try:
+            existing = json.load(open(manifest_path, encoding="utf-8"))
+            sources = " ".join(a.get("source", "") for a in existing.get("assets", []))
+            if "NASA" in sources or "Visible Earth" in sources:
+                print("REFUSE: ASSET_MANIFEST.json records real NASA assets; procedural generator must not overwrite them.")
+                return
+        except Exception as e:
+            print("REFUSE: cannot read existing manifest; not overwriting.", e)
+            return
+    os.makedirs(OUT_DIR, exist_ok=True)
     files = {
         "earth_albedo_2048.png": gen_albedo(),
         "earth_night_lights_2048.png": gen_night_lights(),

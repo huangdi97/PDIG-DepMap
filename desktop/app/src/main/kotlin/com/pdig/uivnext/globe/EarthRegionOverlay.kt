@@ -105,7 +105,7 @@ internal fun DrawScope.drawAnchors(
                 center = projected.first,
             )
         }
-        if (isSelected || isHovered || showRegionLabels) {
+        if (isSelected || isHovered || r.attentionCount > 0 || showRegionLabels) {
             drawRegionLabel(projected.first, r, isSelected, textMeasurer)
         }
     }

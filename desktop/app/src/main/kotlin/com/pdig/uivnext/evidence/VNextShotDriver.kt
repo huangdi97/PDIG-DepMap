@@ -17,6 +17,8 @@ import javax.imageio.ImageIO
  * 截图确定性：同一 fixture + 同一屏幕 + 同一 camera 预设 + reduceMotion（无 idle 旋转）+ 同一 scale。
  * Globe 相机由 `--vnext-camera=global|cn|hk|gb|us` 冻结（cameraOverride 不参与 idle yawBase）。
  * 输出：PNG 帧 + UI_LAYOUT_PROBE.json（几何值来自 LAYOUT_CONTRACT，确定性）。
+ *
+ * PHASE 1B/1C/1D 关键帧证据集在 VNextPhaseEvidence.kt（≤300 行拆分）。
  */
 object VNextShotDriver {
 
@@ -87,96 +89,9 @@ object VNextShotDriver {
         return 0
     }
 
-    /**
-     * PHASE 1B 关键帧（Review §22）：仅 1920×1080@1.0，15 张最小证据集。
-     * A now / B overview / C overview-HK 聚焦 / D cards / E card-detail /
-     * F card-customization minimal|glass|metal|city / G number-detail /
-     * H number-customization country|banking|travel / I change-phone / J globe close-up。
-     */
-    fun runPhase1B(outRoot: File): Int {
-        val profile = Profile(1920, 1080, "1920x1080@1.0")
-        val profileDir = File(outRoot, "profiles/${profile.label}")
-        profileDir.mkdirs()
-        var count = 0
-        // (screen, camera, tag, customTheme)
-        val shots = listOf(
-            VScreen.NOW to ("global" to Pair("", null)),
-            VScreen.OVERVIEW to ("global" to Pair("", null)),
-            VScreen.OVERVIEW to ("hk" to Pair("region-hk", null)),
-            VScreen.CARDS to ("global" to Pair("", null)),
-            VScreen.CARD_DETAIL to ("global" to Pair("", null)),
-            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-minimal", "minimal")),
-            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-glass", "glass")),
-            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-metal", "metal")),
-            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-city", "city")),
-            VScreen.NUMBER_DETAIL to ("global" to Pair("", null)),
-            VScreen.NUMBER_CUSTOMIZATION to ("global" to Pair("theme-country", "country")),
-            VScreen.NUMBER_CUSTOMIZATION to ("global" to Pair("theme-banking", "banking")),
-            VScreen.NUMBER_CUSTOMIZATION to ("global" to Pair("theme-travel", "travel")),
-            VScreen.CHANGE_PHONE to ("global" to Pair("", null)),
-            VScreen.OVERVIEW to ("global" to Pair("closeup", null)),
-        )
-        for ((screen, camTheme) in shots) {
-            val (camera, tagTheme) = camTheme
-            val (tag, theme) = tagTheme
-            val app = com.pdig.uivnext.createVNextAppState(screen, camera, theme)
-            prepareScreen(app, screen)
-            if (tag == "region-hk") app.selectRegion("HK")
-            if (tag == "closeup") app.globe.camera = app.globe.camera.copy(zoom = 1.7f)
-            val tagPart = if (tag.isEmpty()) "" else "__$tag"
-            val fileName = "vnext__${screenId(screen)}__camera-$camera${tagPart}__${profile.label}.png"
-            renderToFile(app, profile, File(profileDir, fileName))
-            count++
-        }
-        writeSha256(File(outRoot, "EVIDENCE_SHA256SUMS.txt"), outRoot)
-        println("VNextShotDriver(1B): wrote $count key frames -> ${outRoot.absolutePath}")
-        return 0
-    }
+    internal fun screenId(screen: VScreen): String = SCREENS.first { it.first == screen }.second
 
-    private fun screenId(screen: VScreen): String = SCREENS.first { it.first == screen }.second
-
-    /**
-     * PHASE 1C 关键帧（Review §31）：仅 1920x1080@1.0，8 张最小证据集。
-     * 1 overview-global / 2 overview-HK 聚焦 / 3 globe close-up / 4 cards /
-     * 5 card-detail / 6 card-customization theme-city + theme-glass（两图）/
-     * 7 number-detail / 8 change-phone state-transition。
-     */
-    fun runPhase1C(outRoot: File): Int {
-        val profile = Profile(1920, 1080, "1920x1080@1.0")
-        val profileDir = File(outRoot, "profiles/${profile.label}")
-        profileDir.mkdirs()
-        var count = 0
-        // (screen, camera, tag, customTheme)
-        val shots = listOf(
-            VScreen.OVERVIEW to ("global" to Pair("", null)),
-            VScreen.OVERVIEW to ("hk" to Pair("region-hk", null)),
-            VScreen.OVERVIEW to ("global" to Pair("closeup", null)),
-            VScreen.CARDS to ("global" to Pair("", null)),
-            VScreen.CARD_DETAIL to ("global" to Pair("", null)),
-            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-city", "city")),
-            VScreen.CARD_CUSTOMIZATION to ("global" to Pair("theme-glass", "glass")),
-            VScreen.NUMBER_DETAIL to ("global" to Pair("", null)),
-            VScreen.CHANGE_PHONE to ("global" to Pair("state-transition", null)),
-        )
-        for ((screen, camTheme) in shots) {
-            val (camera, tagTheme) = camTheme
-            val (tag, theme) = tagTheme
-            val app = com.pdig.uivnext.createVNextAppState(screen, camera, theme)
-            prepareScreen(app, screen)
-            if (tag == "region-hk") app.selectRegion("HK")
-            if (tag == "closeup") app.globe.camera = app.globe.camera.copy(zoom = 1.7f)
-            val tagPart = if (tag.isEmpty()) "" else "__$tag"
-            val fileName = "vnext__${screenId(screen)}__camera-$camera${tagPart}__${profile.label}.png"
-            renderToFile(app, profile, File(profileDir, fileName))
-            count++
-        }
-        writeSha256(File(outRoot, "EVIDENCE_SHA256SUMS.txt"), outRoot)
-        println("VNextShotDriver(1C): wrote $count key frames -> ${outRoot.absolutePath}")
-        return 0
-    }
-
-
-    private fun prepareScreen(app: VAppState, screen: VScreen) {
+    internal fun prepareScreen(app: VAppState, screen: VScreen) {
         when (screen) {
             VScreen.CARD_DETAIL -> app.openCard("card-cn-2")
             VScreen.NUMBER_DETAIL -> app.openNumber("num-cn-1")
@@ -187,7 +102,7 @@ object VNextShotDriver {
         }
     }
 
-    private fun renderToFile(app: VAppState, profile: Profile, file: File) {
+    internal fun renderToFile(app: VAppState, profile: Profile, file: File) {
         val scale = scaleOf(profile.label)
         val scene = ImageComposeScene(
             width = profile.width,
@@ -254,10 +169,10 @@ object VNextShotDriver {
         return entries
     }
 
-    private fun probeEntry(id: String, x: Int, y: Int, w: Int, h: Int, visible: Boolean, enabled: Boolean): Map<String, Any> =
+    internal fun probeEntry(id: String, x: Int, y: Int, w: Int, h: Int, visible: Boolean, enabled: Boolean): Map<String, Any> =
         mapOf("testId" to id, "x" to x, "y" to y, "width" to w, "height" to h, "visible" to visible, "enabled" to enabled)
 
-    private fun writeProbe(file: File, entries: List<Map<String, Any>>) {
+    internal fun writeProbe(file: File, entries: List<Map<String, Any>>) {
         val sb = StringBuilder()
         sb.append("{\n  \"spec\": \"UI_LAYOUT_PROBE.json (v1) — offscreen deterministic render; geometry per LAYOUT_CONTRACT\",\n  \"entries\": [\n")
         entries.forEachIndexed { i, e ->
@@ -268,7 +183,7 @@ object VNextShotDriver {
         file.writeText(sb.toString())
     }
 
-    private fun writeSha256(file: File, root: File) {
+    internal fun writeSha256(file: File, root: File) {
         val lines = root.walkTopDown().filter { it.isFile && it.extension == "png" }.sortedBy { it.name }
             .map { f -> f.inputStream().use { ins ->
                 val digest = java.security.MessageDigest.getInstance("SHA-256")
@@ -282,4 +197,9 @@ object VNextShotDriver {
             } }
         file.writeText(lines.joinToString("\n") + "\n")
     }
+}
+
+/** PHASE 1D 截图辅助：把 Change Phone 投影切换为指定档位（current/transition/after）。 */
+fun setChangeProjection(app: com.pdig.uivnext.ui.VAppState, projection: String) {
+    app.changeProjection = projection
 }

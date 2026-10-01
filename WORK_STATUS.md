@@ -1,7 +1,7 @@
 # WORK_STATUS.md
 
-> **（当前）PDIG UI vNext · PHASE 1C Renderer Upgrade（2026-10-03，第三轮 Human Visual Review 2026-10-01 后）**
-> —— PHASE 1C（2026-10-03）：renderer 升级（OFFLINE_TEXTURE_EARTH / CardVisualRenderer / CONTINUITY SCENE）+ 全局蓝 blob 移除 + 导航合并（56px 单行 chrome）+ Now 双栏 + CardDetail Hero + Studio 20/55/25 + NumberIdentity + ChangePhone 三态投影；**9 帧关键证据**（2026-10-03-ui-vnext-phase1c，IMAGE_METRICS 0 error/0 empty/0 near-black、meanLum 0.102）+ SCREENSHOTS_PHASE1C.md（0 missing）+ ASSET_MANIFEST.json + 4 个 reference contracts 保留。`PHASE_1C_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`。
+> **（当前）PDIG UI vNext · PHASE 1D Desktop Reference Convergence & Visual Productization（2026-10-01）**
+> —— PHASE 1D：只做 Desktop 参考图收敛 + 视觉产品化。**P0 Number Detail 布局回归修复**（三栏 identity 36%/summary 32%/recovery 32%，UI_LAYOUT_PROBE summary 538px ≥300dp passed=true、verticalTextRegression=0、clippedPrimaryLabels=0）；**REAL_EARTH_ASSET_PIPELINE**（NASA Visible Earth public-domain albedo/night/cloud → 2048×1024，ASSET_MANIFEST.json specVersion 1.1.0 记录 source/license/sha256/resolution/retrievedAt/usage，runtime 零网络；默认 Earth 不再 procedural-baked）；Globe label 收敛（Global 默认只显 active/hovered/attention）；Cards issuerVisualProfile 按 §13 synthetic 冻结 + MATTE/GLASS/METAL/MINIMAL perceptual contract + 多层城市天际线；Card Detail Hero（左 42% 大卡舞台 spotlight+floor+soft depth / 右 58% 身份+主操作）；Studio 产品化（对象缩略图、主题大 tile、预览 0.75×/700dp、材质 visual tile）；Number Identity 全球通信身份（NumberIdentitySurface + continuity ring）；Change Phone 独立 ContinuityScene（Compose Canvas，OLD←服务卫星→NEW，Bezier，migrated/waiting/blocked/not_started，after=PLAN PROJECTION）；10 帧证据（2026-10-01-ui-vnext-phase1d，IMAGE_METRICS 0 error/0 empty/0 near-black，meanLum 0.071–0.158）+ SCREENSHOTS_PHASE1D.md + PHASE_1D_IMPLEMENTATION_REPORT.md。`REFERENCE_CONVERGENCE_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`。
 > —— PHASE 1B 记录（历史）：第二轮评审（2026-10-01）：STRUCTURE/功能可接受，**VISUAL FIDELITY = FAIL / REFERENCE PARITY = FAIL** → PHASE 1B 只收敛 Desktop 视觉层：DESIGN_TOKENS v2.2（近黑基底 + 地球材质 token + rail 68 + spatialInspector 320/28 + cardsGrid 3 列）、Globe v2（海洋材质/镜面高光/大陆纹理/云层/大气 rim/方向光；plain sphere 仅 LOW_POWER_FALLBACK）、Overview 浮动空间检查器 + 底部紧凑动作坞、rail subtle glow + 顶部 segmented context rail、CardFace 8 预设 3 布局、Studio 用户语言编辑器 + 视觉缩略图 + spotlight 舞台、Change Phone 空间迁移图（OLD→NEW + 5 状态 icon/label/color）。**15 张关键帧**（2026-10-02-ui-vnext-phase1b，IMAGE_METRICS：0 error / 0 empty / 0 near-black、meanLum 0.126）+ SCREENSHOTS_PHASE1B.md（0 missing）+ REFERENCE_VISUAL_CONTRACT ×4。`VISUAL_FIDELITY_ITERATION_2 = COMPLETE`、`NEEDS_HUMAN_REVIEW = TRUE`、`VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（永不 PASS）。
 > —— 评审结论：旧实现 `VISUAL_DIRECTION = FAIL` / `VISUAL_CONTRACT_IMPLEMENTATION = NOT_ACCEPTED`，定为 `REJECTED_ENGINEERING_PROTOTYPE`（保留为 BEFORE：artifacts/runtime-evidence/2026-09-29-ui-vnext/VISUAL_STATUS.json，不删）。
 > —— 目标 = Global Digital Infrastructure **Spatial Product**（非 admin dashboard）：vector-Earth Globe 签名组件（bundled 简化海岸线 + ~90 城市夜间灯光 + 程序化大气/明暗/星空/跨区弧线；plain sphere 仅保留 LOW_POWER_FALLBACK）、edge-to-edge 空间舞台（globe 52–64% 宽 × 64–78% 高；L0 env → L1 globe → L2 floating chrome → L3 solid data → L4 asset identity → L5 status）、Primary Rail（现在/基础设施/变更/记录 + 数据源/设置；基础设施 8 二级项进 context subnav）、放大字阶（pageTitle 36 / majorNumber 30 / sectionTitle 20 / body 16 / ≤12 仅 metadata）、卡/号码资产身份面（CardFace 1.586 + NumberFace）+ PresentationProfile<Card>/<PhoneNumber> 定制工作室（三栏 22/46/32 对象库/实时预览/分组编辑器、live preview、保存只写 PresentationProfile 绝不写 .depmap）、Change Phone flagship（顶部 6-stage + 中央旧→迁移→新 + 左右迁移列 + migrated/waiting/manual/blocked/not-started 同屏）。
@@ -12,7 +12,9 @@
 > —— 平台冻结（Review §T）：Android/iOS/Harmony 视觉传播等待 Human/Vision 批准 Desktop 参考实现后启动（PHASE 3–5）；既有平台证据保留（Android compile + 设备 5 帧、iOS CI run 36665451395/36667427702 PASS、Harmony HAP 3,758,625 B PASS）。
 > —— core 回归：`npm run check` 全绿（487 tests / architecture circular=0 / network 0 / secrets 0）；Domain/Core/状态机/数据模型/测试零改动。
 > —— 分支纪律：`feat/pdig-ui-vnext` 推送后 STOP；不 merge main、不建 tag、不发布、不进 v0.4；不动 product-v0.3.1 冻结物。
+
 ---
+
 > **（当前）PDIG v0.3.1 UI/UX Visual Design Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）**
 > —— 冻结方向「Quiet Infrastructure / Calm Control Plane」，Signature Motif = Continuity Rail。四平台落地：Desktop（主题+壳+旗舰屏全量重构）、Android（screens 层重构）、iOS（PdigTheme+PdigComponents 源码落地）、Harmony（Index 首页工程化，assembleHap PASS）。spec/ui tokens v1.1 + copy-zh uiuxV031 additive。回归：core 487 tests 全绿（architecture 0 环 / network 0 / secrets 0 / UI gate PASS）、desktop smoke PASS + profiles 80 帧、android compile+unit 绿 + AVD 42 帧、harmony HAP build PASS。外部门禁如实：iOS runtime 走 macOS CI、Harmony runtime 无设备、VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW（诚实门，BEFORE/AFTER 证据齐备待人工复核）。详见 docs/uiux/（10 份）+ artifacts/runtime-evidence/2026-09-28-uiux-{baseline,refinement}/。
 
@@ -1609,7 +1611,7 @@ Human Visual Review 后的强制重做：目标从「深蓝工程后台」改为
 - **G10 Infrastructure Overview**：globe 上直接绘制地区锚点 label（region code + 名称 + 计数，不用 emoji）；
   点击聚焦 → 过滤 → Region Drawer（Cards/Numbers/Accounts/Services + 查看全部/卡片/号码）。
 - **G11 Now**：Globe Context + Need Attention（3 项）+ Active Change（「更换手机号 2/6 · 下一步：验证新号码」）
-  + Upcoming；无 KPI 卡。
+  - Upcoming；无 KPI 卡。
 - **G12 Change Phone flagship**：顶部 6-stage ContinuityRail（completed/verifying/not_started/blocked +
   明文闸门原因）；中央 旧号码→关键服务→新号码；左=仍依赖旧号码、右=等待验证/已迁移；
   状态 migrated/waiting/manual/blocked/not-started 全部支持。

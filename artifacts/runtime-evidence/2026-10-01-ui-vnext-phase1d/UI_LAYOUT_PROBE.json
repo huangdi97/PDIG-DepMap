@@ -1,0 +1,10 @@
+{
+  "spec": "UI_LAYOUT_PROBE.json (v1) — offscreen deterministic render; geometry per LAYOUT_CONTRACT",
+  "entries": [
+    { "testId": "pdig.number.detail.identity", "x": "212", "y": "168", "width": "606", "height": "360", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.number.detail.summary", "x": "842", "y": "168", "width": "538", "height": "360", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.number.detail.relationships", "x": "1404", "y": "168", "width": "538", "height": "360", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.number.detail.summary.minWidth", "check": "summary width >= 300dp @1920", "measured": "538", "minRequired": "300", "passed": "true" },
+    { "testId": "pdig.number.detail.layout", "check": "identity 34-40% / summary+recovery 24-30% each", "identityRatio": "0.360", "summaryRatio": "0.319", "verticalTextRegression": "0", "clippedPrimaryLabels": "0" }
+  ]
+}

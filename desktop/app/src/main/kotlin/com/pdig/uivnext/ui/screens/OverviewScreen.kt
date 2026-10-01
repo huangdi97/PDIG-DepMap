@@ -44,6 +44,7 @@ import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AttentionRow
+import com.pdig.uivnext.ui.components.RegionBadge
 import com.pdig.uivnext.ui.components.RegionListItem
 import com.pdig.uivnext.ui.components.SectionHeader
 
@@ -87,7 +88,7 @@ fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     regions = regions,
                     arcingPairs = arcingPairs,
                     reduceMotion = app.reduceMotion,
-                    showRegionLabels = true,
+                    showRegionLabels = false,
                 )
                 Surface(
                     Modifier.align(Alignment.BottomStart).padding(VSpacing.Lg),
@@ -112,7 +113,10 @@ fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     }
 }
 
-/** Floating spatial inspector：glass 半透明表面，悬浮于 globe 环境（Review §4）。 */
+/**
+ * Floating spatial inspector：轻量 region rows + subtle separator + 小选中面
+ * （PHASE 1D §8：不要每个地区都是巨大 bordered card）。
+ */
 @Composable
 private fun FloatingSpatialInspector(app: VAppState, regions: List<RegionPresentation>) {
     Surface(
@@ -130,16 +134,17 @@ private fun FloatingSpatialInspector(app: VAppState, regions: List<RegionPresent
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(VSpacing.Xl),
-            verticalArrangement = Arrangement.spacedBy(VSpacing.Md),
+            verticalArrangement = Arrangement.spacedBy(VSpacing.Sm),
         ) {
             SectionHeader("地区分布")
             regions.forEach { region ->
-                RegionListItem(
+                LightRegionRow(
                     region = region,
                     selected = app.regionFilter == region.regionCode,
                     onClick = { app.selectRegion(region.regionCode) },
                 )
             }
+            Spacer(Modifier.height(VSpacing.Md))
             SectionHeader("需要处理")
             UiVNextDemoFixture.attentionItems.forEach { item ->
                 AttentionRow(item = item, onClick = { clicked ->
@@ -153,51 +158,106 @@ private fun FloatingSpatialInspector(app: VAppState, regions: List<RegionPresent
     }
 }
 
-/** 底部 compact action dock：悬浮玻璃条，4 个紧凑动作（icon + 短标签）。 */
+/** 轻量地区行：glyph + 名称 + 计数 + subtle separator，选中 = 小高亮面（非大卡片）。 */
+@Composable
+private fun LightRegionRow(
+    region: RegionPresentation,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val containerColor = if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.10f) else Color.Transparent
+    Surface(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        color = containerColor,
+        shape = RoundedCornerShape(VRadius.Sm),
+    ) {
+        Column {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = VSpacing.Sm, vertical = VSpacing.Sm),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RegionBadge(region.regionCode, badgeSize = 28.dp)
+                Spacer(Modifier.width(VSpacing.Md))
+                Text(
+                    region.displayName,
+                    style = VType.Body,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextPrimary,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    "${region.cardCount} 卡 · ${region.phoneCount} 号",
+                    style = VType.Meta,
+                    color = PdigV2Colors.TextMuted,
+                    maxLines = 1,
+                )
+                if (region.attentionCount > 0) {
+                    Spacer(Modifier.width(VSpacing.Sm))
+                    Surface(color = PdigV2Colors.Warning.copy(alpha = 0.16f), shape = RoundedCornerShape(VRadius.Sm)) {
+                        Text(
+                            "${region.attentionCount}",
+                            Modifier.padding(horizontal = 6.dp, vertical = 1.dp),
+                            style = VType.Label,
+                            color = PdigV2Colors.Warning,
+                        )
+                    }
+                }
+            }
+            androidx.compose.material3.HorizontalDivider(color = PdigV2Colors.BorderSubtle.copy(alpha = 0.35f), thickness = 1.dp)
+        }
+    }
+}
+
+/** 底部 floating spatial dock（PHASE 1D §9）：更窄、更低、更浮动、icon 主导、少边框。 */
 @Composable
 private fun CompactActionDock(app: VAppState) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(72.dp)
-            .testTagLocal(VTestIds.OVERVIEW_QUICK),
-        color = PdigV2Colors.SurfaceGlass,
-        shape = RoundedCornerShape(VRadius.Lg),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle.copy(alpha = 0.5f)),
-    ) {
-        Row(
-            Modifier.fillMaxSize().padding(horizontal = VSpacing.Xxl),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(VSpacing.Xl),
+    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth(0.72f)
+                .height(56.dp)
+                .testTagLocal(VTestIds.OVERVIEW_QUICK),
+            color = PdigV2Colors.SurfaceGlass,
+            shape = RoundedCornerShape(VRadius.Pill),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle.copy(alpha = 0.4f)),
         ) {
-            DockAction("查看卡片", Icons.Filled.CreditCard, "全球 ${UiVNextDemoFixture.cards.size} 张卡") { app.navigate(VScreen.CARDS) }
-            DockAction("查看号码", Icons.Filled.Dialpad, "全球 ${UiVNextDemoFixture.numbers.size} 个号码") { app.navigate(VScreen.NUMBERS) }
-            DockAction("更换手机号", Icons.Filled.SyncAlt, "旗舰流程") { app.navigate(VScreen.CHANGE_PHONE) }
-            DockAction("薄弱点", Icons.Filled.Warning, "待确认风险") { app.navigate(VScreen.WEAKNESSES) }
+        Row(
+            Modifier.fillMaxSize().padding(horizontal = VSpacing.Lg),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(VSpacing.Md),
+        ) {
+            DockAction("查看卡片", Icons.Filled.CreditCard) { app.navigate(VScreen.CARDS) }
+            DockAction("查看号码", Icons.Filled.Dialpad) { app.navigate(VScreen.NUMBERS) }
+            DockAction("更换手机号", Icons.Filled.SyncAlt) { app.navigate(VScreen.CHANGE_PHONE) }
+            DockAction("薄弱点", Icons.Filled.Warning) { app.navigate(VScreen.WEAKNESSES) }
+        }
         }
     }
 }
 
 @Composable
-private fun RowScope.DockAction(title: String, icon: ImageVector, hint: String, onClick: () -> Unit) {
+private fun RowScope.DockAction(title: String, icon: ImageVector, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .weight(1f)
-            .fillMaxHeight(0.86f)
+            .fillMaxHeight(0.9f)
             .clickable(onClick = onClick),
         color = Color.Transparent,
         shape = RoundedCornerShape(VRadius.Md),
     ) {
         Row(
-            Modifier.padding(horizontal = VSpacing.Lg),
+            Modifier.padding(horizontal = VSpacing.Md),
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
         ) {
-            Icon(icon, contentDescription = null, tint = PdigV2Colors.PrimaryBright, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(VSpacing.Md))
-            Column {
-                Text(title, color = PdigV2Colors.TextPrimary, style = VType.Label)
-                Text(hint, color = PdigV2Colors.TextMuted, style = VType.Meta)
-            }
+            Icon(icon, contentDescription = null, tint = PdigV2Colors.PrimaryBright, modifier = Modifier.size(22.dp))
+            Spacer(Modifier.width(VSpacing.Sm))
+            Text(title, color = PdigV2Colors.TextPrimary, style = VType.Label, maxLines = 1)
         }
     }
 }

@@ -183,4 +183,8 @@ object VTestIds {
     const val REGION_DRAWER = "pdig.region.drawer"
     const val CHANGE_PROGRESS = "pdig.change.progress"
     const val NUMBER_FACE = "pdig.phone.face"
+    const val NUMBER_DETAIL_LAYOUT = "pdig.number.detail.layout"
+    const val NUMBER_DETAIL_IDENTITY = "pdig.number.detail.identity"
+    const val NUMBER_DETAIL_SUMMARY = "pdig.number.detail.summary"
+    const val NUMBER_DETAIL_RECOVERY = "pdig.number.detail.relationships"
 }

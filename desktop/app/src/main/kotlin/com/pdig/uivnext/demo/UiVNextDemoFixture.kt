@@ -25,15 +25,15 @@ data class CardVisualProfile(
 /** issuer → 默认视觉（PHASE 1C §14；unique accent/material/artwork/layout + region identity）。 */
 val ISSUER_VISUAL_PROFILES: Map<String, CardVisualProfile> = mapOf(
     "招商银行" to CardVisualProfile("matte", "matte", "crimson", "standard"),
-    "中国工商银行" to CardVisualProfile("minimal", "minimal", "warm", "emblem"),
+    "中国工商银行" to CardVisualProfile("minimal", "minimal", "crimson", "emblem"),
     "中国银行" to CardVisualProfile("metal", "metal", "cool", "standard"),
-    "HSBC 汇丰" to CardVisualProfile("city", "glass", "navy", "emblem"),
+    "HSBC 汇丰" to CardVisualProfile("city", "glass", "warm", "emblem"),
     "Monzo" to CardVisualProfile("minimal", "minimal", "coral", "minimal-content"),
-    "Revolut" to CardVisualProfile("deep-space", "glass", "gold", "standard"),
+    "Revolut" to CardVisualProfile("abstract", "glass", "cool", "standard"),
     "Chase" to CardVisualProfile("metal", "metal", "navy", "standard"),
-    "Capital One" to CardVisualProfile("abstract", "matte", "jade", "minimal-content"),
-    "DBS" to CardVisualProfile("region", "matte", "crimson", "emblem"),
-    "中银香港" to CardVisualProfile("city", "glass", "gold", "standard"),
+    "Capital One" to CardVisualProfile("abstract", "matte", "crimson", "minimal-content"),
+    "DBS" to CardVisualProfile("city", "matte", "warm", "emblem"),
+    "中银香港" to CardVisualProfile("region", "glass", "navy", "standard"),
 )
 
 /** 卡 id → PresentationProfile（供 AssetCard 默认与 Studio 初始值；仅呈现层）。 */

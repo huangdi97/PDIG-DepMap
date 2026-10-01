@@ -5,13 +5,14 @@ import java.io.File
 import javax.imageio.ImageIO
 
 /**
- * PHASE 1C OFFLINE_TEXTURE_EARTH —— bundled 本地纹理资产（offline、deterministic）。
+ * PHASE 1D REAL_GEOGRAPHIC_TEXTURE_EARTH —— bundled 本地真实地球纹理资产（offline、deterministic）。
  *
  * 资产：spec/ui-vnext/assets/earth_albedo_2048.png /
  *      earth_night_lights_2048.png / cloud_2048.png
- * 全部由 tools/ui-vnext/assets/gen_earth_assets.py 从仓库自带数据集确定性生成
- * （license-safe 自产资产），SHA256 记录于 ASSET_MANIFEST.json。
- * 加载失败 → renderer 退回 VectorEarthFallbackRenderer。
+ * 来自 NASA Visible Earth（public domain）：Blue Marble Next Generation (albedo) /
+ * Earth at Night 2012 (night lights) / cloud composite；sha256/license/source 记录于
+ * ASSET_MANIFEST.json（specVersion 1.1.0）。加载失败 → renderer 退回 VectorEarthFallbackRenderer
+ * （bundled 简化海岸线，仅 LOW_POWER / 资产缺失 fallback，不再是默认）。
  */
 
 /** 纹理像素容器（ARGB IntArray，行主序）。 */
@@ -40,8 +41,11 @@ class EarthMaterialAssets private constructor(
     companion object {
         private var cached: EarthMaterialAssets? = null
 
-        /** 从 repo 根目录相对路径加载；不存在/损坏 → null。 */
-        fun load(baseDir: File = File(System.getProperty("user.dir"))): EarthMaterialAssets? {
+        /**
+         * 从 repo 根目录相对路径加载；不存在/损坏 → null。
+         * user.dir 可能是 desktop 工程目录（Gradle run），向上找仓库根（含 spec/ui-vnext/assets/）。
+         */
+        fun load(baseDir: File = findRepoRootForAssets()): EarthMaterialAssets? {
             cached?.let { return it }
             val albedo = readTexture(File(baseDir, "spec/ui-vnext/assets/earth_albedo_2048.png")) ?: return null
             val night = readTexture(File(baseDir, "spec/ui-vnext/assets/earth_night_lights_2048.png")) ?: return null
@@ -50,6 +54,12 @@ class EarthMaterialAssets private constructor(
             cached = assets
             return assets
         }
+
+        /** 从当前目录向上找仓库根（含 spec/ui-vnext/assets/ 的目录）。 */
+        private fun findRepoRootForAssets(): File =
+            generateSequence(File(System.getProperty("user.dir"))) { it.parentFile }
+                .firstOrNull { File(it, "spec/ui-vnext/assets/earth_albedo_2048.png").isFile }
+                ?: File(System.getProperty("user.dir"))
 
         private fun readTexture(file: File): EarthTexture? {
             if (!file.isFile) return null

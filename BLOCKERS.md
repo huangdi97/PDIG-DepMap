@@ -1,6 +1,13 @@
 # BLOCKERS.md
 
-> **UI vNext PHASE 1C —— Renderer Upgrade 已完成（2026-10-03），等待 Human/Vision Review：**
+> **UI vNext PHASE 1D —— Desktop Reference Convergence 已完成（2026-10-01），等待 Human/Vision Review：**
+>
+> - PHASE 1D 交付：P0 Number Detail 布局回归修复（UI_LAYOUT_PROBE passed=true）、REAL_EARTH_ASSET_PIPELINE
+>   （NASA Visible Earth public-domain 纹理，ASSET_MANIFEST.json v1.1.0 全记录，runtime 零网络）、
+>   Card Detail Hero、Studio 产品化（对象缩略图/主题大 tile/材质 visual tile）、Number Identity 全球通信身份、
+>   Change Phone ContinuityScene（Compose Canvas + 三态投影 + PLAN PROJECTION 标注）；
+>   **10 帧证据**（2026-10-01-ui-vnext-phase1d，IMAGE_METRICS 0 error/0 empty/0 near-black）+ SCREENSHOTS_PHASE1D.md + PHASE_1D_IMPLEMENTATION_REPORT.md。
+> - `REFERENCE_CONVERGENCE_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`（永不自行 PASS）。
 >
 > - PHASE 1C 交付：OFFLINE_TEXTURE_EARTH（bundled albedo/night/cloud 纹理 + ASSET_MANIFEST.json）、renderer 拆分 7 文件、CardVisualRenderer、LocalLightSource 分页光源、导航单行 chrome 56px、Now 双栏、CardDetail Hero、Studio 20/55/25、ChangePhone 三态投影（After=Plan Projection）；**9 帧关键证据**（2026-10-03-ui-vnext-phase1c，IMAGE_METRICS 0 error/0 empty/0 near-black、meanLum 0.102）+ SCREENSHOTS_PHASE1C.md（0 missing）。
 > - `PHASE_1C_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`（Review §33，永不自行 PASS）。
@@ -11,6 +18,7 @@
 > - 环境注记（非 blocker）：Android AVD `main` 不稳定（qemu 进程消失 → instrumentation `Process crashed` → 完整 connected run 尾段 NOT_RUN 如实）；Harmony runtime 无设备（EXTERNAL_GATE）；iOS 截图仅 CI artifact（需登录）。
 
 ---
+
 > **UI/UX Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）新增/确认的真实外部 Gate（不阻塞本轮，不影响 product-v0.3.1）：**
 >
 > - `IOS_RUNTIME_EXTERNAL_GATE`：本机 Windows 无 Swift/Xcode；iOS 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml）。
