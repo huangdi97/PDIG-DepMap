@@ -172,11 +172,30 @@ public final class PdigImageMetrics {
                 sb.append("[");
                 for (int i = 0; i < ((List<?>) v).size(); i++) {
                     if (i > 0) sb.append(", ");
-                    sb.append("\"").append(((List<?>) v).get(i)).append("\"");
+                    sb.append("\"").append(jsonEscape(((List<?>) v).get(i).toString())).append("\"");
                 }
                 sb.append("]");
-            } else sb.append("\"").append(v).append("\"");
+            } else sb.append("\"").append(jsonEscape(v.toString())).append("\"");
         }
         return sb.append("}").toString();
+    }
+
+    /** JSON 字符串转义（Windows 路径反斜杠 / 引号 / 控制字符；保证 outJson 可被标准解析）。 */
+    private static String jsonEscape(String s) {
+        StringBuilder sb = new StringBuilder(s.length() + 8);
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            switch (c) {
+                case '"': sb.append("\\\""); break;
+                case '\\': sb.append("\\\\"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                case '\t': sb.append("\\t"); break;
+                default:
+                    if (c < 0x20) sb.append(String.format("\\u%04x", (int) c));
+                    else sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 }

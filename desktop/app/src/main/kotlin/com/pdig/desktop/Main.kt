@@ -82,7 +82,22 @@ fun main(args: Array<String>) {
         kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence.runPhase1D(outRoot))
         return
     }
-    // --profiles / --keys：v0.3.0 closure 的桌面分辨率/缩放/键盘取证（见 ProfileDriver.kt / KeyboardDriver.kt）
+    // --vnext-shots-1e：PHASE 1E 关键帧（brief §71：16 张主图 + mechanical profiles + probe）
+    if (args.contains("--vnext-shots-1e")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence1E.run(outRoot))
+        return
+    }
+    // --vnext-journey-1e：PHASE 1E 交互 journey（AC3，15 步 in-process；含键盘日志 + profile 持久化证据）
+    if (args.contains("--vnext-journey-1e")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextJourney1E.run(outRoot))
+        return
+    }
     if (args.contains("--profiles") || args.contains("--keys")) {
         val repo = findRepoRoot(File(".").absoluteFile)
             ?: error("desktop closure 需要在仓库内运行以读取 fixtures/")

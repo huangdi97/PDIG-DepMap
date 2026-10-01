@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -52,11 +52,11 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             subtitle = "全球 ${UiVNextDemoFixture.cards.size} 张卡 · ${UiVNextDemoFixture.numbers.size} 个号码 · 空间上下文",
         )
         Row(Modifier.fillMaxWidth().weight(1f), horizontalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
-            // LEFT：spatial globe + 全局上下文（64%）
+            // LEFT：spatial globe + 全局上下文（64%，高度受 Row 约束）
             Box(
                 Modifier
                     .weight(0.64f)
-                    .fillMaxSize()
+                    .fillMaxHeight()
                     .testTagLocal(VTestIds.NOW_GLOBE),
             ) {
                 VNextGlobe(
@@ -79,15 +79,20 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     )
                 }
             }
-            // RIGHT：Now Stream（36%，纵向）
+            // RIGHT：Now Stream（36%，纵向；scroll 容器高度受 Row 约束，不用 fillMaxSize）
             Column(
                 Modifier
                     .weight(0.36f)
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxHeight()
                     .testTagLocal(VTestIds.NOW_ATTENTION),
                 verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
             ) {
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
+                ) {
                 SectionHeader("需要处理（${UiVNextDemoFixture.attentionItems.size}）")
                 UiVNextDemoFixture.attentionItems.forEach { item ->
                     AttentionRow(item = item, onClick = { clicked ->
@@ -123,12 +128,12 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-}
-
+                }   // close forEach
+                }   // close inner scrollable Column
+            }       // close RIGHT stream Column
+        }           // close Row
+    }               // close root Column
+}                   // close fun
 /** Active Change 卡：「更换手机号 2 / 6 · 下一步：验证新号码」。 */
 @Composable
 private fun ActiveChangeCard(app: VAppState) {
