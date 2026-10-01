@@ -3,17 +3,13 @@ package com.pdig.uivnext.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
@@ -25,11 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -39,7 +31,8 @@ import com.pdig.uivnext.theme.VType
 /**
  * Studio 右侧 Inspector（PHASE 1E §20）：分组折叠（材质 / 背景 / 布局 / 信息 / 隐私），
  * 默认只展开当前编辑组，降低 cognitive load；accent = 6–8 curated swatches（28–32dp）
- * + 自定义框（§21），仅改 PresentationProfile。
+ * + 自定义框（§21）；背景支持导入本地图片（§62，onImportBackground 由宿主提供）。
+ * 仅改 PresentationProfile。
  */
 @Composable
 fun StudioInspector(
@@ -48,6 +41,7 @@ fun StudioInspector(
     materials: List<String>,
     layouts: List<String>,
     currentGroup: String = "卡面",
+    onImportBackground: (() -> Unit)? = null,
 ) {
     var openGroup by remember { mutableStateOf(currentGroup) }
     Column(
@@ -79,9 +73,19 @@ fun StudioInspector(
                     onProfileChange(profile.copy(backgroundKind = "plain", backgroundValue = ""))
                 }
                 ChipRow(label = "导入图片", selected = profile.backgroundKind == "imported", compact = true) {
-                    // 导入背景（PHASE 1E §62）由宿主页面提供文件选择；此处仅切换 kind。
-                    onProfileChange(profile.copy(backgroundKind = "imported"))
+                    if (onImportBackground != null) {
+                        onImportBackground()
+                    } else {
+                        onProfileChange(profile.copy(backgroundKind = "imported"))
+                    }
                 }
+            }
+            if (profile.backgroundKind == "imported") {
+                Text(
+                    "自定义图片已保存到 app-managed storage；只影响显示，不会修改你的基础设施关系。",
+                    style = VType.Meta,
+                    color = PdigV2Colors.TextMuted,
+                )
             }
         }
         InspectorGroup("布局", openGroup == "布局", onToggle = { openGroup = if (openGroup == "布局") "" else "布局" }) {
@@ -116,7 +120,7 @@ fun StudioInspector(
 }
 
 /** 6–8 个 curated swatch（28–32dp，选中 ring；§21）。 */
-private val CURATED_ACCENTS: List<Pair<String, Color>> = listOf(
+private val CURATED_ACCENTS: List<Pair<String, androidx.compose.ui.graphics.Color>> = listOf(
     "primary" to PdigV2Colors.Primary,
     "crimson" to PdigV2Colors.Critical,
     "warm" to PdigV2Colors.Warning,
@@ -135,7 +139,6 @@ private fun AccentSwatches(selected: String, onSelect: (String) -> Unit) {
                 SwatchDot(color, selected = selected == key, onClick = { onSelect(key) }, size = 30.dp)
             }
         }
-        // custom：手动输入 hex（有限验证，演示 seam）。
         Text(
             "自定义（可选）：输入 #RRGGBB",
             style = VType.Meta,
@@ -143,7 +146,6 @@ private fun AccentSwatches(selected: String, onSelect: (String) -> Unit) {
         )
         Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
             ChipRow(label = selected.takeIf { it.startsWith("#") } ?: "自定义", selected = selected.startsWith("#"), compact = true) {
-                // 保持当前自定义值；若未设置则用 swatch 首个色值。
                 onSelect(if (selected.startsWith("#")) selected else CURATED_ACCENTS.first().first)
             }
         }

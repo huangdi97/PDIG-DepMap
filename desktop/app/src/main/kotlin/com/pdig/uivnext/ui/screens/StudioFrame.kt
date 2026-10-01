@@ -69,6 +69,7 @@ fun StudioFrame(
     preview: @Composable (String) -> Unit,
     libraryThumbnail: @Composable (String) -> Unit = {},
     onSave: (() -> Unit)? = null,
+    onImportBackground: (() -> Unit)? = null,
 ) {
     var saved by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(VSpacing.Xxl), verticalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
@@ -178,6 +179,7 @@ fun StudioFrame(
                     materials = materials,
                     layouts = layouts,
                     currentGroup = "卡面",
+                    onImportBackground = onImportBackground,
                 )
             }
         }

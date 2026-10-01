@@ -15,6 +15,8 @@ import com.pdig.uivnext.ui.components.CardFaceThumbnail
 import com.pdig.uivnext.ui.components.NumberFace
 import com.pdig.uivnext.ui.components.NumberFaceThumbnail
 import com.pdig.uivnext.ui.components.cardProfileOf
+import com.pdig.uivnext.persist.LocalBackgroundImporter
+import com.pdig.uivnext.persist.defaultBackgroundDir
 
 /**
  * Card / Number Customization Studio 入口（Review §9–§15）。
@@ -74,6 +76,17 @@ fun CardCustomizationScreen(app: VAppState) {
         onSave = {
             // PresentationProfile 持久化（PHASE 1E §66）；绝不写 .depmap / canonical。
             app.profileStore.save(profile)
+        },
+        onImportBackground = {
+            // Import Local Background（§62）：本地文件 → 校验 → app-managed storage → 保存 profile。
+            val sourcePath = app.lastImportedBackgroundPath
+            if (sourcePath != null) {
+                val imported = LocalBackgroundImporter(defaultBackgroundDir()).import(java.io.File(sourcePath))
+                if (imported != null) {
+                    profile = profile.copy(backgroundKind = "imported", backgroundValue = imported.absolutePath)
+                    app.profileStore.save(profile)
+                }
+            }
         },
     )
 }
