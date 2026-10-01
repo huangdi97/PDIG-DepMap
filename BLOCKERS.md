@@ -148,3 +148,15 @@
 - **Windows 安装包签名**：EXTERNAL_GATE（无 Authenticode 证书）。
 - **真实账单 / 真机**：EXTERNAL_GATE（合成 fixture 全绿；真实数据与真机验证需用户提供）。
 - 最终停止条件：内部 Gate 全部 PASS + GitHub `product-v0.3.0` PUBLISHED；剩余全部为真实外部 Gate（无工程/测试缺口）。
+
+
+---
+
+## 2026-10-05 UI vNext PHASE 1E（Desktop 收口，feat/pdig-ui-vnext）
+
+- 本轮无新增代码级 blocker。
+- 外部/需要 Human 的事项：
+  - **V1（识别为 NEEDS_HUMAN_FINAL_REVIEW）**：DESKTOP_VISUAL_REFERENCE / VISUAL_CRAFT 最终判定必须由 Human 给出（No-Vision 纪律 §56）；本 agent 不得自判 ACCEPTED。
+  - **V2**：Light theme full parity = 暂不宣称（DARK_REFERENCE = PRIMARY；LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER）。
+  - **V3**：PHASE 1E 结束后 ANDROID/IOS/HARMONY UI vNext = HOLD，需 Human 明确 DESKTOP_VISUAL_REFERENCE = ACCEPTED 后才允许跨平台传播。
+  - 既有外部 Gate 保持不变（真实设备、签名、商店、真机 macOS 等，见上文历史记录）。
