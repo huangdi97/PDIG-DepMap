@@ -22,31 +22,40 @@ HARMONY_UI_VNEXT = HOLD
 ## 1. Git
 
 - branch：`feat/pdig-ui-vnext`
-- starting HEAD：`e9fdaf48a53cb1fe15a862982420feb7b694a1fe`（= origin，pre-flight 验证一致）
-- ending HEAD：`caef922e6d36ead8e28bf496aa6a648b960e3b0c`（本轮 commit 序列末尾；push 后 = origin/feat/pdig-ui-vnext）
-- commits：见 §11
+- starting HEAD（本轮 HF 之前）：`e9fdaf48a53cb1fe15a862982420feb7b694a1fe`（pre-flight 验证一致）
+- commit chain（真实 history；每个 SHA 均通过 `git cat-file -e <sha>^{commit}` 验证）：
+  - `9d828e003c3361d380a9b71a12211771ce6b53cc` fix：theme thumbnail artwork overflow + render-level ThemeThumbnailBoundsContractTest
+  - `185c96c2a702afcd69993afa8d3abb6dad6035c8` feat：studio consumer craft / ICBC identity / number identity / continuity weighting / empty-state
+  - `df981352477003474b177004a23931c97453a460` feat：target-bound real-window harness（JNA Win32）+ 12-shot main set / mechanical / probe §4/§8/§11 / metrics
+  - `21de0bfe8e48ec4dba25c7053fdb9a54e92c3a56` docs：implementation report + screenshots index + skill usage + work status + blockers
+- ending HEAD（= DOCUMENTATION_HEAD = REMOTE_HEAD）：`21de0bfe8e48ec4dba25c7053fdb9a54e92c3a56`
+- **provenance 修正**：本文件旧版误写 ending HEAD = `caef922e…`（GitHub 上不存在，`git cat-file -e` 验证失败）；
+  已按真实 history 重建，校验记录见 `PROVENANCE_VALIDATION.txt`（`all_reported_commits_exist = true`）。
+- **证据更正**：HF 轮生成的 `2026-10-02-ui-vnext-phase1f-hf` 12 张主集被 Human 复核发现
+  glass/city 同帧无效（GitHub blob SHA 相同 `b399f884…`，469151 bytes）；有效 Final Review 证据
+  见 closure 轮 `2026-10-02-ui-vnext-phase1f-hf2-final`（glass/city 状态真实，SHA 不同）。
 - 禁令遵守：无 force push / reset --hard / rebase / merge main / tag 移动 / PHASE 1G / v0.4
 
 ## 2. Changed files（production 表现层 + evidence harness，PresentationProfile only）
 
-| 文件 | 变更 |
-| --- | --- |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/CardFace.kt` | §4：CardFaceThumbnail 加 `Modifier.clip` + 高度 104→112dp；`drawCardFaceBackdrop` 内 artwork/material 以 `clipRect` 包裹（本地 bounds 契约） |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/CardIdentityDrawing.kt` | §4/§6：glow/starfield/sweep/contour 半径受本地 bounds 约束（`boundsSafeRadius`）；ICBC RED_LINE 加微弱拉丝（避免「深色矩形 + 一条线」） |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/NumberFaceKit.kt` | §4/§7：NumberFaceThumbnail 加 clip + 高度 84→96dp；backdrop clipRect；新增通信信号母题（信号条 + 拨号弧，本地 bounds） |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/StudioFrame.kt` | §5.A：LEFT 对象列表与 Theme grid 各自独立滚动区（weight 0.44/0.56），互不覆盖 |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/StudioKit.kt` | §5.B：preview stage 增强（背板带 + spotlight 微调 + floor light + 接触阴影） |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/CardsScreen.kt` | §9：Cards Empty 居中于 content stage（Box + Center），非贴左上角 |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/EmptyStates.kt` | §9：空态 480–600px 宽、语义插画 44→64dp + 背光圆盘、motif 按 size 缩放 |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/layout/Phase1FLayout.kt` | §8：路径层级 2.0/1.5/1.0（migrated ≤2 / secondary ≤1.5 / ghost ≤1）；service node 0.085→0.095 |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/ContinuitySceneDrawing.kt` | §8：路径 alpha/宽度降低、control 点更紧凑（减少穿越）、引用 Phase1FLayout 常量 |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/ContinuitySceneNodes.kt` | §8：服务节点强化（glyph 19 / 名称 14sp / role 11sp / pill 加大，node state > line style） |
-| `desktop/app/src/main/kotlin/com/pdig/desktop/Main.kt` | 新增 CLI：`--vnext-shots-1f-hf` / `--vnext-window-smoke-1f-hf`（既有 1f 参数保留） |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/evidence/VNextPhaseEvidence1FHF.kt` | 新：12 张主集 + mechanical + empty + probe（§4/§8/§11 新增检查） |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/evidence/VNextWindowSmoke1FHF.kt` | 新：真实窗口 smoke —— target-bound 截图 + 像素校验 + stale 帧防线 + `REAL_WINDOW_TARGET_VALIDATION.json` |
-| `desktop/app/src/main/kotlin/com/pdig/uivnext/evidence/Win32WindowCapture.kt` | 新：JNA Win32 定向窗口捕获（FindWindowW/GetWindowRect/SetWindowPos TOPMOST/ShowWindow/PrintWindow/InvalidateRect） |
-| `desktop/app/src/test/kotlin/com/pdig/uivnext/ui/ThemeThumbnailBoundsContractTest.kt` | 新：渲染级 bounds 契约测试（Card+Number themes，gap 像素断言） |
-| `desktop/app/src/test/kotlin/com/pdig/uivnext/layout/Phase1FLayoutContractTest.kt` | 契约值随 §8 更新（2.0/1.5/1.0） |
+| 文件                                                                                  | 变更                                                                                                                                         |
+| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/CardFace.kt`              | §4：CardFaceThumbnail 加 `Modifier.clip` + 高度 104→112dp；`drawCardFaceBackdrop` 内 artwork/material 以 `clipRect` 包裹（本地 bounds 契约） |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/CardIdentityDrawing.kt`   | §4/§6：glow/starfield/sweep/contour 半径受本地 bounds 约束（`boundsSafeRadius`）；ICBC RED_LINE 加微弱拉丝（避免「深色矩形 + 一条线」）      |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/NumberFaceKit.kt`         | §4/§7：NumberFaceThumbnail 加 clip + 高度 84→96dp；backdrop clipRect；新增通信信号母题（信号条 + 拨号弧，本地 bounds）                       |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/StudioFrame.kt`              | §5.A：LEFT 对象列表与 Theme grid 各自独立滚动区（weight 0.44/0.56），互不覆盖                                                                |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/StudioKit.kt`                | §5.B：preview stage 增强（背板带 + spotlight 微调 + floor light + 接触阴影）                                                                 |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/CardsScreen.kt`              | §9：Cards Empty 居中于 content stage（Box + Center），非贴左上角                                                                             |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/components/EmptyStates.kt`           | §9：空态 480–600px 宽、语义插画 44→64dp + 背光圆盘、motif 按 size 缩放                                                                       |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/layout/Phase1FLayout.kt`                | §8：路径层级 2.0/1.5/1.0（migrated ≤2 / secondary ≤1.5 / ghost ≤1）；service node 0.085→0.095                                                |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/ContinuitySceneDrawing.kt`   | §8：路径 alpha/宽度降低、control 点更紧凑（减少穿越）、引用 Phase1FLayout 常量                                                               |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/ui/screens/ContinuitySceneNodes.kt`     | §8：服务节点强化（glyph 19 / 名称 14sp / role 11sp / pill 加大，node state > line style）                                                    |
+| `desktop/app/src/main/kotlin/com/pdig/desktop/Main.kt`                                | 新增 CLI：`--vnext-shots-1f-hf` / `--vnext-window-smoke-1f-hf`（既有 1f 参数保留）                                                           |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/evidence/VNextPhaseEvidence1FHF.kt`     | 新：12 张主集 + mechanical + empty + probe（§4/§8/§11 新增检查）                                                                             |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/evidence/VNextWindowSmoke1FHF.kt`       | 新：真实窗口 smoke —— target-bound 截图 + 像素校验 + stale 帧防线 + `REAL_WINDOW_TARGET_VALIDATION.json`                                     |
+| `desktop/app/src/main/kotlin/com/pdig/uivnext/evidence/Win32WindowCapture.kt`         | 新：JNA Win32 定向窗口捕获（FindWindowW/GetWindowRect/SetWindowPos TOPMOST/ShowWindow/PrintWindow/InvalidateRect）                           |
+| `desktop/app/src/test/kotlin/com/pdig/uivnext/ui/ThemeThumbnailBoundsContractTest.kt` | 新：渲染级 bounds 契约测试（Card+Number themes，gap 像素断言）                                                                               |
+| `desktop/app/src/test/kotlin/com/pdig/uivnext/layout/Phase1FLayoutContractTest.kt`    | 契约值随 §8 更新（2.0/1.5/1.0）                                                                                                              |
 
 ## 3. Card Studio overflow —— root cause & exact fix
 
@@ -127,7 +136,7 @@ HARMONY_UI_VNEXT = HOLD
   11 `vnext__change-after__1920x1080@1.0.png`
   12 `vnext__cards-empty__1920x1080@1.0.png`
 - `mechanical/`：1280×720@1.0 / 2560×1440@1.0 / 1920×1080@1.25 / 1920×1080@1.5（每档 5 屏 = 20 帧）
-  + `empty-states/` 4 帧。
+  - `empty-states/` 4 帧。
 - `IMAGE_METRICS.json`：12 帧 meanLum 0.082–0.108，0 error / 0 empty / 0 near-black。
 - `UI_LAYOUT_PROBE.json`：§4/§8/§11 新增检查 12 项（theme tile height/clipped、themeGrid noOverlap、
   stage、inspector defaultOpen、number tile/communication、path ≤2/1.5/1、continuity labels、
@@ -163,11 +172,15 @@ HARMONY_UI_VNEXT = HOLD
    交互桌面/直连显示器）后可在同一 harness 上重跑取得完整 01–14 真实窗口证据。
 5. Light theme：`LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER`（不谎称 full parity）。
 
-## 11. Commits（本轮）
+## 11. Commits（本轮，真实序列；自上而下 = 自旧到新）
 
-见 `git log`：按语义拆分（fix overflow + studio craft / continuity weighting + empty states /
-evidence harness + Win32 capture / contract tests + probe / docs + status）。push 至
-`origin feat/pdig-ui-vnext`（fast-forward only）。
+1. `9d828e003c3361d380a9b71a12211771ce6b53cc` fix(ui-vnext): PHASE 1F-HF P0 — theme thumbnail artwork overflow + ThemeThumbnailBoundsContractTest
+2. `185c96c2a702afcd69993afa8d3abb6dad6035c8` feat(ui-vnext): PHASE 1F-HF — studio consumer craft / identity / continuity / empty-state
+3. `df981352477003474b177004a23931c97453a460` feat(ui-vnext): PHASE 1F-HF evidence — real-window harness + 12-shot main set / mechanical / probe / metrics
+4. `21de0bfe8e48ec4dba25c7053fdb9a54e92c3a56` docs(ui-vnext): PHASE 1F-HF — implementation report + screenshots index + skill usage + work status + blockers
+
+push 至 `origin feat/pdig-ui-vnext`（fast-forward only；ending HEAD = `21de0bfe…`，
+`git log --oneline --decorate` 与 `git rev-list` 核对一致）。
 
 ## 12. 结束语
 

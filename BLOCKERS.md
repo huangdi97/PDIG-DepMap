@@ -1,5 +1,26 @@
 # BLOCKERS.md
-> **UI vNext PHASE 1F-HF（2026-10-02，Human Final Acceptance Fix）：**
+
+> **UI vNext Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口）：**
+>
+> - **P0 关闭**：Card Studio glass/city 截图同帧无效（Human 已核验：GitHub blob SHA 相同
+>   `b399f884…`、469151 bytes）。Root cause = 证据 harness 用 `defaultProfileStore()`（用户主目录
+>   `~/.pdig/presentation-profiles.json` 已有 `card:card-cn-2` 持久化偏好），持久化偏好先于 evidence
+>   `customTheme` → 两帧渲染同一 profile。Fix = 证据 harness 注入隔离确定性 profile store +
+>   `resolveStudioProfile` 共享解析 + expected/actual 截图前门禁（不一致 FAIL 不写 PNG）+ composition
+>   回写 `evidenceThemeId`。新证据 `2026-10-02-ui-vnext-phase1f-hf2-final`：shot5/6 SHA/字节/像素
+>   （12.9% 采样差异）均不同，`FINAL_SCREENSHOT_MANIFEST.json` 12 条 `stateValidation=true`。
+> - 本轮新增 `VisualVariantEvidenceContractTest`（5 项，渲染级语义 + SHA256 truth，全 PASS）。
+> - **无新外部 blocker**；既有环境 Gate 如实保持：
+>   `REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE`（本轮无新工具重跑一次：本会话前台遮挡 →
+>   捕获区亮度 ≈0.99，harness 全部如实拒绝 capture=false，0/16；既有 `01-now.png` 首帧证据保留）、
+>   `REAL_WINDOW_KEYBOARD_HUMAN_GATE`、`IME_RUNTIME_HUMAN_GATE`。
+> - 状态：`DESKTOP_REFERENCE_FREEZE_CANDIDATE = READY`、
+>   `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（禁止 Agent 自行写 ACCEPTED）；
+>   Android/iOS/Harmony 保持 HOLD；不创建 PHASE 1G、不 merge main、不 tag、不进 v0.4。
+> - 文档：`DESKTOP_REFERENCE_FREEZE_CANDIDATE.md`、`PROVENANCE_VALIDATION.txt`、
+>   `PHASE_1F_HF_IMPLEMENTATION_REPORT.md`（provenance 已按真实 history 修正，旧的
+>   `caef922e…` 为不存在 SHA，已排除）。
+>   **UI vNext PHASE 1F-HF（2026-10-02，Human Final Acceptance Fix）：**
 >
 > - 本轮仅关闭 Human Review 暴露的真实 blocker：① real-window 证据完整性（P0）已修复 ——
 >   harness 现在绑定 PDIG 窗口（PID/title/HWND/bounds/screen/method 逐条记录）+ 暗色像素校验 +
@@ -16,7 +37,6 @@
 > - 证据：`artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf/`（12 张主集 + mechanical +
 >   IMAGE_METRICS + UI_LAYOUT_PROBE + REAL_WINDOW_TARGET_VALIDATION）；报告
 >   `PHASE_1F_HF_IMPLEMENTATION_REPORT.md`。
->
 
 > **UI vNext PHASE 1D —— Desktop Reference Convergence 已完成（2026-10-01），等待 Human/Vision Review：**
 >

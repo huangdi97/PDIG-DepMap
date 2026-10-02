@@ -15,14 +15,14 @@
 
 ## 方法/工具使用
 
-| 用途 | 方法/工具 |
-| --- | --- |
-| 布局契约 | `Phase1FLayout.kt` 纯函数（Studio 预览宽、tile 高、continuity 几何、路径层级），probe 共用防漂移 |
-| 渲染级 overflow 回归 | `ThemeThumbnailBoundsContractTest`：ImageComposeScene 并排渲染 + gap 像素断言（修复前 FAIL / 修复后 PASS） |
-| 图像度量 | `tools/ui-vnext/image-metrics/PdigImageMetrics`（meanLuma / darkRatio / content bbox / dominant colors） |
-| 真实窗口证据 | `VNextWindowSmoke1FHF` + `Win32WindowCapture`（JNA：FindWindowW / GetWindowRect / SetWindowPos TOPMOST / ShowWindow / SetForegroundWindow / InvalidateRect / UpdateWindow / PrintWindow），每步 target validation + 像素校验 + stale 帧防线 |
-| 回归门 | `desktop :app:test`（Gradle 8.9 本地缓存，offline）+ `core npm run check`（format/lint/typecheck/487 tests/architecture/network/secrets/UI） |
-| 证据再生 | `--vnext-shots-1f-hf`（12 主集 + 20 mechanical + 4 empty）+ `--vnext-window-smoke-1f-hf`（真实窗口） |
+| 用途                 | 方法/工具                                                                                                                                                                                                                                   |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 布局契约             | `Phase1FLayout.kt` 纯函数（Studio 预览宽、tile 高、continuity 几何、路径层级），probe 共用防漂移                                                                                                                                            |
+| 渲染级 overflow 回归 | `ThemeThumbnailBoundsContractTest`：ImageComposeScene 并排渲染 + gap 像素断言（修复前 FAIL / 修复后 PASS）                                                                                                                                  |
+| 图像度量             | `tools/ui-vnext/image-metrics/PdigImageMetrics`（meanLuma / darkRatio / content bbox / dominant colors）                                                                                                                                    |
+| 真实窗口证据         | `VNextWindowSmoke1FHF` + `Win32WindowCapture`（JNA：FindWindowW / GetWindowRect / SetWindowPos TOPMOST / ShowWindow / SetForegroundWindow / InvalidateRect / UpdateWindow / PrintWindow），每步 target validation + 像素校验 + stale 帧防线 |
+| 回归门               | `desktop :app:test`（Gradle 8.9 本地缓存，offline）+ `core npm run check`（format/lint/typecheck/487 tests/architecture/network/secrets/UI）                                                                                                |
+| 证据再生             | `--vnext-shots-1f-hf`（12 主集 + 20 mechanical + 4 empty）+ `--vnext-window-smoke-1f-hf`（真实窗口）                                                                                                                                        |
 
 ## 禁项确认
 

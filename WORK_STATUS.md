@@ -1,4 +1,31 @@
 # WORK_STATUS.md
+
+> **（当前）PDIG UI vNext · Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口轮）**
+> —— Human Review 核验发现 HF 轮 12 张主集里 Card Studio glass/city 同帧无效（GitHub blob SHA
+> 相同 `b399f884…`、469151 bytes）后，本轮只做证据修复并重生成可信 Final Review Pack，**不是新设计
+> Phase**（无 PHASE 1G / 2）。① **P0 修复**：证据 harness 原用 `defaultProfileStore()`，用户主目录
+> `~/.pdig/presentation-profiles.json` 已存在 `card:card-cn-2` 持久化偏好（themeId=glass + imported
+> 本地背景），持久化偏好先于 evidence `customTheme` → 两帧渲染同一 profile。Fix = harness 注入隔离
+> 确定性 profile store（不读用户主目录）+ 共享 `resolveStudioProfile`（load → override → fallback，
+> UI/evidence 同源防 drift）+ 截图前 expected/actual 门禁（不一致 FAIL 不写 PNG）+ composition 回写
+> `evidenceThemeId`。② 新增 `VisualVariantEvidenceContractTest`（5 项：card glass/city、number
+> country/travel/recovery、change current/transition/after、region global/HK —— semantic + 渲染
+> SHA256 双重断言 + P0 回归）。③ 重生成 **12 张主集 → `2026-10-02-ui-vnext-phase1f-hf2-final`**
+> （shot5 glass SHA `ae378d81…` ≠ shot6 city `17cde3fb…`，字节 553550≠532519，采样像素差异 ≈12.9%，
+> Glass/City 人眼可区分）+ `FINAL_SCREENSHOT_MANIFEST.json`（12 条 stateValidation=true，studio 帧
+> actual=composition-readback）+ IMAGE_METRICS（0 error/0 empty/0 near-black）+ UI_LAYOUT_PROBE（§4/§8/§11
+> 全 passed）+ EVIDENCE_SHA256SUMS（37 帧）+ mechanical 20 + empty 4。④ **Provenance 修正**：
+> `PHASE_1F_HF_IMPLEMENTATION_REPORT.md` 的 ending HEAD 由不存在 SHA `caef922e…` 修正为真实
+> `21de0bfe…`（真实链 e9fdaf4→9d828e0→185c96c→df98135→21de0bfe 全部 `git cat-file -e` 验证）；
+> 新增 `PROVENANCE_VALIDATION.txt`（all_reported_commits_exist = true）。⑤ **Real-window 诚实分层**：
+> freeze 依据 = deterministic render + Human-approved 截图 + probe/test；`REAL_WINDOW_MULTI_FRAME_
+RUNTIME_ACCEPTANCE = ENVIRONMENT_GATE`（本轮无新工具重跑一次：前台遮挡 → 0/16 如实 capture=false，
+> 既有 `01-now.png` 首帧证据保留）；15/16 键盘 + IME Human Gate 保留。证据：
+> `DESKTOP_REFERENCE_FREEZE_CANDIDATE.md`。`desktop :app:test` **61/61 PASS**（含新增 5 项）；
+> core `npm run check` 全绿（core 零改动）。状态：`DESKTOP_REFERENCE_FREEZE_CANDIDATE = READY`、
+> `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（禁止 Agent 自行写 ACCEPTED）、
+> `DESKTOP_REFERENCE_FREEZE = HOLD`；Android/iOS/Harmony 继续 HOLD；不创建 PHASE 1G；等待
+> Human 最终裁决（ACCEPTED → 才启动 Platform Translation）。
 > **（当前）PDIG UI vNext · PHASE 1F-HF —— Human Final Acceptance Fix（2026-10-02）**
 > —— Human/Vision Review 裁决 `DESKTOP_VISUAL_REFERENCE = TARGETED_SCREEN_FIX_REQUIRED`、
 > `VISUAL_CRAFT = NOT_ACCEPTED_YET` 后，本轮只关闭少量真实 blocker 并重生成可信 Desktop 证据。
@@ -22,7 +49,6 @@
 > `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`；
 > Android/iOS/Harmony 继续 HOLD；不创建 PHASE 1G；等待 Human/Vision 最终裁决。详见
 > `PHASE_1F_HF_IMPLEMENTATION_REPORT.md` + `docs/ui-vnext/SCREENSHOTS_PHASE1F_HF.md`。
->
 
 > **（当前）PDIG UI vNext · PHASE 1F Desktop Final Craft, Reference Freeze & Acceptance Candidate（2026-10-02）**
 > —— PHASE 1F：最后一次 broad Desktop 设计迭代（§6–61 全量）。**CardIdentitySystem（§9 issuer 合成身份：CMB 酒红铜环 / ICBC 石墨红线 / BOC 冷石墨拉丝 / HSBC 港夜 / BOCHK 轮廓 / Monzo 深炭珊瑚 / Revolut 玻璃色散 / Chase 海军拉丝 / Capital One 午夜红 sweep / DBS 新加坡夜）** —— 无近黑空占位、每卡 ≥3 身份要素（契约测试）；Card Detail 下区两栏信息工作区；Studio 预览 660–740px + 材质默认展开 + 自定义背景（选择/替换/移除/缩略图）；Number Detail 通信语法（+86 36sp 最强元素、角色簇、唯一恢复路径、continuity ring）；ContinuityScene 新权重（OLD/NEW 252.6px、服务节点 143px 信息盒、路径 2.5/2/1.5px、After 投影徽标「计划完成后的预期状态 / 不代表已经完成或验证」）；空态 6 种（紧凑组合 ≤600px + 语义剪影）+ 诚实健康文案（禁伪安全词）；产品化拷贝（vNext → 个人数字基础设施）；键盘/焦点可达性 + 启动即聚焦;mechanical 五档 + 真实窗口 16 步 smoke。`PHASE_1F_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、`DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`；`REAL_WINDOW_KEYBOARD_HUMAN_GATE` + `IME_RUNTIME_HUMAN_GATE` 如实登记。证据：artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f/（12 主图 + mechanical + journey + real-window + IMAGE_METRICS 0 error/0 empty/0 near-black）+ PHASE_1F_IMPLEMENTATION_REPORT.md + SCREENSHOTS_PHASE1F.md + PHASE1F_SKILL_USAGE.md + gallery-phase1f。desktop :app:test 51/51 PASS；core `npm run check` 全绿。
