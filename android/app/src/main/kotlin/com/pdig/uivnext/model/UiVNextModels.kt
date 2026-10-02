@@ -9,8 +9,8 @@ package com.pdig.uivnext.model
  *  - region 是表现层派生属性（来自 synthetic fixture），不改变 canonical schema。
  */
 
-/** 媒体查询阶段。 */
-enum class MediaBreakpoint { COMPACT, MEDIUM, WIDE }
+/** 媒体查询阶段（任务书 §9：COMPACT / MEDIUM / EXPANDED；≥1200dp = EXPANDED）。 */
+enum class MediaBreakpoint { COMPACT, MEDIUM, EXPANDED }
 
 /** 页面（一级导航 + 基础设施二级 + 变更 + 设置）。 */
 enum class VScreen(val route: String, val titleZh: String, val section: VSection) {
@@ -34,6 +34,7 @@ enum class VScreen(val route: String, val titleZh: String, val section: VSection
     NUMBER_CUSTOMIZATION("number-customization", "号码面定制", VSection.INFRA),
     PERSONALIZATION("personalization", "个性化", VSection.SETTINGS),
     CHANGE_PHONE("change-phone", "更换手机号", VSection.CHANGE),
+    SEARCH("search", "搜索 / 命令", VSection.SECONDARY),
 }
 
 enum class VSection(val labelZh: String) {
@@ -102,6 +103,7 @@ data class UiVNextNumber(
     val status: String,
     val recoveryOnly: Boolean,
     val attention: Boolean,
+    val preset: String = "country", // 呈现层默认主题（PresentationProfile 无关语义）
 )
 
 data class UiVNextService(

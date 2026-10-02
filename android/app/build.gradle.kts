@@ -22,6 +22,8 @@ android {
         versionCode = 2
         versionName = "0.3.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // 证据/取证：注入构建时的 git SHA（BuildConfig.GIT_SHA；供截图 manifest 的 commit 字段）。
+        buildConfigField("String", "GIT_SHA", "\"${providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.get().trim()}\"")
     }
  
      // ---------- Product flavors（ANDROID_VERSIONING_POLICY.md §1.2）----------
@@ -98,6 +100,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {

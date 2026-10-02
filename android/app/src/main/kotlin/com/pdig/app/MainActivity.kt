@@ -11,7 +11,7 @@ import com.pdig.app.ui.theme.PDIGTheme
 import com.pdig.app.workflow.FileWorkflowCoordinator
 import com.pdig.app.workflow.LocalFileWorkflow
 import com.pdig.uivnext.VNextApp
-import com.pdig.uivnext.createVNextAppState
+import com.pdig.uivnext.VNextShellViewModel
 
 /**
  * 单一 Activity + Compose Navigation（spec §53）。无 WebView、无 uni-app runtime。
@@ -77,11 +77,13 @@ class MainActivity : FragmentActivity() {
 
         // vNext 演示壳入口（debug flag，仅 synthetic fixture；不经过锁门 —— 壳内没有任何真实数据可保护）。
         // 正常 launcher 启动不带该 extra，v0.3.1 锁门流程原样保留（并行存在）。
+        // 状态恢复：VNextShellViewModel 在 Activity 重建（旋转等）后保持导航/选择/投影状态（任务书 §32）。
         val vnextDemo = intent?.getBooleanExtra("vnext_demo", false) == true
 
         setContent {
             if (vnextDemo) {
-                VNextApp(createVNextAppState())
+                val vm: VNextShellViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+                VNextApp(vm.app)
             } else {
                 PDIGTheme {
                     androidx.compose.runtime.CompositionLocalProvider(

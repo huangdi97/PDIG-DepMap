@@ -1,9 +1,14 @@
 package com.pdig.uivnext.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -41,11 +46,13 @@ import com.pdig.uivnext.ui.components.MaskEnabledIndicator
  */
 @Composable
 fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
+    // System back：detail/studio/search/change → 返回上一层；region drawer → 关闭；root → 系统退出。
+    BackHandler(enabled = app.canGoBack()) { app.back() }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val viewportWidthDp: Dp = if (forcedViewportWidthDp != null) Dp(forcedViewportWidthDp.toFloat()) else maxWidth
         val wide = viewportWidthDp >= 600.dp
         val breakpoint = when {
-            viewportWidthDp >= 1200.dp -> MediaBreakpoint.WIDE
+            viewportWidthDp >= 1200.dp -> MediaBreakpoint.EXPANDED
             viewportWidthDp >= 700.dp -> MediaBreakpoint.MEDIUM
             else -> MediaBreakpoint.COMPACT
         }
@@ -68,7 +75,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
     }
 }
 
-/** L2 Top Command：状态位 + 隐私遮蔽指示。 */
+/** L2 Top Command：状态位 + 隐私遮蔽指示 + 触控可发现的搜索入口（任务书 §23）。 */
 @Composable
 private fun TopCommandBar(app: VAppState) {
     Surface(
@@ -88,12 +95,21 @@ private fun TopCommandBar(app: VAppState) {
             Text(app.screen.titleZh, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(Modifier.weight(1f))
             Surface(
+                modifier = Modifier
+                    .clickable { app.navigate(VScreen.SEARCH) }
+                    .defaultMinSize(minHeight = 48.dp)
+                    .testTag("pdig.search.entry"),
                 color = PdigV2Colors.SurfaceRaised,
                 shape = RoundedCornerShape(VRadius.Sm),
-                border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
                 Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Filled.Search, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(14.dp))
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = "搜索 / 命令",
+                        tint = PdigV2Colors.TextMuted,
+                        modifier = Modifier.size(14.dp),
+                    )
                     Spacer(Modifier.width(VSpacing.Sm))
                     Text("搜索 / 命令", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                     Spacer(Modifier.width(VSpacing.Lg))
