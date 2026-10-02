@@ -22,6 +22,8 @@ class VAppState(
     var reduceMotion by mutableStateOf(false)
     var railExpanded by mutableStateOf(true)
     var initialCustomTheme by mutableStateOf<String?>(null)
+    /** 证据 seam：CustomizationScreen 渲染后回写实际 selected themeId（expected/actual variant 校验；仅证据用途，不影响产品行为）。 */
+    var evidenceThemeId by mutableStateOf<String?>(null)
     /** 证据 seam（截图/交互日志）：强制空列表渲染（Cards/Numbers 空状态，§45–46）。 */
     var demoEmptyCards by mutableStateOf(false)
     var demoEmptyNumbers by mutableStateOf(false)

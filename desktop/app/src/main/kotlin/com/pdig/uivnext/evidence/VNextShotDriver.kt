@@ -185,17 +185,47 @@ object VNextShotDriver {
 
     internal fun writeSha256(file: File, root: File) {
         val lines = root.walkTopDown().filter { it.isFile && it.extension == "png" }.sortedBy { it.name }
-            .map { f -> f.inputStream().use { ins ->
-                val digest = java.security.MessageDigest.getInstance("SHA-256")
-                val buf = ByteArray(65536)
-                while (true) {
-                    val n = ins.read(buf)
-                    if (n < 0) break
-                    digest.update(buf, 0, n)
-                }
-                digest.digest().joinToString("") { "%02x".format(it) } + "  " + f.name
-            } }
+            .map { f -> sha256Of(f) + "  " + f.name }
         file.writeText(lines.joinToString("\n") + "\n")
+    }
+
+    /** 单文件 SHA-256（hex，小写）。 */
+    internal fun sha256Of(file: File): String {
+        val digest = java.security.MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { ins ->
+            val buf = ByteArray(65536)
+            while (true) {
+                val n = ins.read(buf)
+                if (n < 0) break
+                digest.update(buf, 0, n)
+            }
+        }
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    /**
+     * FINAL_SCREENSHOT_MANIFEST.json —— 12-shot Final Human Review 的可验证状态清单。
+     * 每条含 expectedState / actualState / sha256 / width / height / privacyMask / stateValidation；
+     * Final Evidence 不允许 expected != actual。
+     */
+    internal fun writeFinalManifest(file: File, entries: List<Map<String, Any?>>) {
+        val sb = StringBuilder()
+        sb.append("{\n  \"spec\": \"FINAL_SCREENSHOT_MANIFEST.json (v1) — 12-shot Final Human Review; expectedState == actualState; sha256 per frame\",\n  \"shots\": [\n")
+        entries.forEachIndexed { i, e ->
+            sb.append("    ").append(toJson(e)).append(if (i < entries.lastIndex) ",\n" else "\n")
+        }
+        sb.append("  ]\n}\n")
+        file.writeText(sb.toString())
+    }
+
+    private fun toJson(value: Any?): String = when (value) {
+        null -> "null"
+        is String -> "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
+        is Number -> value.toString()
+        is Boolean -> value.toString()
+        is Map<*, *> -> value.entries.joinToString(", ", "{ ", " }") { (k, v) -> "\"$k\": ${toJson(v)}" }
+        is List<*> -> value.joinToString(", ", "[ ", " ]") { toJson(it) }
+        else -> "\"" + value.toString() + "\""
     }
 }
 

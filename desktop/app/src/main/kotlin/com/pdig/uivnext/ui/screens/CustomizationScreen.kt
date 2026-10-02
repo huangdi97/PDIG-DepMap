@@ -1,6 +1,7 @@
 package com.pdig.uivnext.ui.screens
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -9,15 +10,15 @@ import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.CARD_THEME_PRESETS
 import com.pdig.uivnext.model.NUMBER_THEME_PRESETS
 import com.pdig.uivnext.model.PresentationProfile
+import com.pdig.uivnext.persist.LocalBackgroundImporter
+import com.pdig.uivnext.persist.defaultBackgroundDir
+import com.pdig.uivnext.persist.resolveStudioProfile
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.CardFaceThumbnail
 import com.pdig.uivnext.ui.components.NumberFace
 import com.pdig.uivnext.ui.components.NumberFaceThumbnail
 import com.pdig.uivnext.ui.components.cardProfileOf
-import com.pdig.uivnext.persist.LocalBackgroundImporter
-import com.pdig.uivnext.persist.defaultBackgroundDir
-
 /**
  * Card / Number Customization Studio 入口（Review §9–§15）。
  * 三栏（对象库 22% / 大尺寸实时预览 46% / 分组编辑器 32%）由 StudioFrame 提供；
@@ -31,15 +32,10 @@ fun CardCustomizationScreen(app: VAppState) {
     var selectedId by remember { mutableStateOf(initial.id) }
     val themeOverride = app.initialCustomTheme
     var profile by remember {
-        mutableStateOf(
-            app.profileStore.load("card", initial.id)
-                ?: if (themeOverride != null) {
-                    PresentationProfile.defaultFor("card", initial.id, themeOverride)
-                } else {
-                    cardProfileOf(initial)
-                },
-        )
+        mutableStateOf(resolveStudioProfile(app.profileStore, "card", initial.id, themeOverride) { cardProfileOf(initial) })
     }
+    // 证据回写：composition 提交后记录实际 selected theme（expected/actual 校验；不改变产品行为）。
+    SideEffect { app.evidenceThemeId = profile.themeId }
     StudioFrame(
         title = "卡面定制",
         libraryItems = UiVNextDemoFixture.cards.map { it.id to it.nickname },
@@ -98,10 +94,13 @@ fun NumberCustomizationScreen(app: VAppState) {
     var selectedId by remember { mutableStateOf(initial.id) }
     var profile by remember {
         mutableStateOf(
-            app.profileStore.load("phoneNumber", initial.id)
-                ?: PresentationProfile.defaultFor("phoneNumber", initial.id, app.initialCustomTheme ?: "country"),
+            resolveStudioProfile(app.profileStore, "phoneNumber", initial.id, app.initialCustomTheme) {
+                PresentationProfile.defaultFor("phoneNumber", initial.id, "country")
+            },
         )
     }
+    // 证据回写：composition 提交后记录实际 selected theme（expected/actual 校验；不改变产品行为）。
+    SideEffect { app.evidenceThemeId = profile.themeId }
     StudioFrame(
         title = "号码面定制",
         libraryItems = UiVNextDemoFixture.numbers.map { it.id to it.nickname },

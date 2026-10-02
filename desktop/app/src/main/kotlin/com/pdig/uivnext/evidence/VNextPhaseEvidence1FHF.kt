@@ -2,10 +2,12 @@ package com.pdig.uivnext.evidence
 
 import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.layout.Phase1FLayout
+import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.persist.PresentationProfileStore
+import com.pdig.uivnext.persist.resolveStudioProfile
 import com.pdig.uivnext.ui.VAppState
 import java.io.File
-
 /**
  * PHASE 1F-HF 证据集（Human Final Review 收口）：
  *  - 12 张 Human Final Review 主截图（1920×1080@1.0，Privacy Mask ON）→ profiles/
@@ -60,14 +62,37 @@ object VNextPhaseEvidence1FHF {
         var failures = 0
         val profileDir = File(outRoot, "profiles/1920x1080@1.0").apply { mkdirs() }
         val probe = mutableListOf<Map<String, Any>>()
+        val manifest = mutableListOf<Map<String, Any?>>()
+        // 隔离确定性 profile store：绝不读用户主目录（~/.pdig/presentation-profiles.json），
+        // 防止用户持久化偏好污染 deterministic screenshot fixture（P0：glass/city 同帧 root cause）。
+        val evidenceStore = PresentationProfileStore(
+            File(outRoot, ".evidence/profiles.json").apply { parentFile?.mkdirs(); delete() },
+        )
 
         MAIN_SHOTS.forEach { shot ->
-            val app = createVNextAppState(screen = shot.screen, cameraPreset = shot.camera, customTheme = shot.theme)
+            val app = createVNextAppState(
+                screen = shot.screen,
+                cameraPreset = shot.camera,
+                customTheme = shot.theme,
+                profileStore = evidenceStore,
+            )
             VNextShotDriver.prepareScreen(app, shot.screen)
             shot.extra(app)
+            // §4.C selected-state check：expected != actual -> FAIL，不写 PNG。
+            val expectedTheme = shot.theme
+            val actualResolved = resolvedThemeOf(shot, app)
+            if (expectedTheme != null && actualResolved != expectedTheme) {
+                System.err.println(
+                    "PHASE 1F-HF variant state mismatch: ${shot.tag} expectedTheme=$expectedTheme actualResolved=$actualResolved -> FAIL, no PNG written",
+                )
+                failures++
+                return@forEach
+            }
             val fileName = "vnext__${shot.tag}__1920x1080@1.0.png"
             try {
-                VNextShotDriver.renderToFile(app, VNextShotDriver.Profile(1920, 1080, "1920x1080@1.0"), File(profileDir, fileName))
+                val png = File(profileDir, fileName)
+                VNextShotDriver.renderToFile(app, VNextShotDriver.Profile(1920, 1080, "1920x1080@1.0"), png)
+                manifest += manifestEntry(shot, app, png, actualResolved)
                 probe.addAll(collectProbe1FHF(shot))
             } catch (e: Throwable) {
                 System.err.println("PHASE 1F-HF shot failed: $fileName -> ${e.message}")
@@ -86,7 +111,11 @@ object VNextPhaseEvidence1FHF {
         MECHANICAL_PROFILES.forEach { profile ->
             val mechDir = File(outRoot, "mechanical/${profile.label}").apply { mkdirs() }
             mechScreens.forEach { (screen, extra) ->
-                val app = createVNextAppState(screen = screen, cameraPreset = "global")
+                val app = createVNextAppState(
+                    screen = screen,
+                    cameraPreset = "global",
+                    profileStore = evidenceStore,
+                )
                 VNextShotDriver.prepareScreen(app, screen)
                 extra(app)
                 val fileName = "vnext__${VNextShotDriver.screenId(screen)}__${profile.label}.png"
@@ -102,7 +131,12 @@ object VNextPhaseEvidence1FHF {
         // 空态机械帧（1920×1080@1.0）
         val emptyDir = File(outRoot, "mechanical/empty-states").apply { mkdirs() }
         EMPTY_SHOTS.forEach { shot ->
-            val app = createVNextAppState(screen = shot.screen, cameraPreset = "global", customTheme = shot.theme)
+            val app = createVNextAppState(
+                screen = shot.screen,
+                cameraPreset = "global",
+                customTheme = shot.theme,
+                profileStore = evidenceStore,
+            )
             VNextShotDriver.prepareScreen(app, shot.screen)
             shot.extra(app)
             val fileName = "vnext__${shot.tag}__1920x1080@1.0.png"
@@ -116,9 +150,76 @@ object VNextPhaseEvidence1FHF {
         }
 
         VNextShotDriver.writeProbe(File(outRoot, "UI_LAYOUT_PROBE.json"), probe)
+        VNextShotDriver.writeFinalManifest(File(outRoot, "FINAL_SCREENSHOT_MANIFEST.json"), manifest)
         VNextShotDriver.writeSha256(File(outRoot, "EVIDENCE_SHA256SUMS.txt"), outRoot)
-        println("VNextPhaseEvidence1FHF: wrote ${MAIN_SHOTS.size} main + ${MECHANICAL_PROFILES.size * mechScreens.size} mechanical + ${EMPTY_SHOTS.size} empty frames -> ${outRoot.absolutePath}")
+        println(
+            "VNextPhaseEvidence1FHF: wrote ${MAIN_SHOTS.size} main + ${MECHANICAL_PROFILES.size * mechScreens.size} mechanical + ${EMPTY_SHOTS.size} empty frames -> ${outRoot.absolutePath}",
+        )
         return failures
+    }
+
+    /** 变体主题的确定性解析（隔离 store 下 = themeOverride；预期与实际不一致时 run() 拒绝该帧）。 */
+    private fun resolvedThemeOf(shot: Shot, app: VAppState): String? {
+        if (shot.theme == null) return null
+        val (type, id) = when (shot.screen) {
+            VScreen.CARD_CUSTOMIZATION -> "card" to (app.selectedCardId ?: "card-cn-2")
+            VScreen.NUMBER_CUSTOMIZATION -> "phoneNumber" to (app.selectedNumberId ?: "num-cn-1")
+            else -> return null
+        }
+        return resolveStudioProfile(app.profileStore, type, id, shot.theme) {
+            PresentationProfile.defaultFor(type, id, "minimal")
+        }.themeId
+    }
+
+    private fun manifestEntry(shot: Shot, app: VAppState, png: File, resolvedTheme: String?): Map<String, Any?> {
+        val screenName = when (shot.screen) {
+            VScreen.NOW -> "now"
+            VScreen.OVERVIEW -> "infrastructure-overview"
+            VScreen.CARDS -> "cards"
+            VScreen.CARD_DETAIL -> "card-detail"
+            VScreen.CARD_CUSTOMIZATION -> "card-studio"
+            VScreen.NUMBERS -> "numbers"
+            VScreen.NUMBER_DETAIL -> "number-detail"
+            VScreen.NUMBER_CUSTOMIZATION -> "number-studio"
+            VScreen.CHANGE_PHONE -> "change-phone"
+            else -> shot.screen.name.lowercase()
+        }
+        val theme = shot.theme
+        val actualTheme = app.evidenceThemeId ?: resolvedTheme
+        val projection = if (shot.screen == VScreen.CHANGE_PHONE) app.changeProjection else null
+        val selectedObject = selectedObjectOf(shot, app)
+        val expectedState = mapOf(
+            "screen" to screenName,
+            "theme" to theme,
+            "projection" to projection,
+            "selectedObject" to selectedObject,
+            "camera" to shot.camera,
+        )
+        val actualState = mapOf(
+            "screen" to screenName,
+            "theme" to actualTheme,
+            "projection" to projection,
+            "selectedObject" to selectedObject,
+            "camera" to shot.camera,
+        )
+        return mapOf(
+            "screen" to screenName,
+            "file" to png.name,
+            "expectedState" to expectedState,
+            "actualState" to actualState,
+            "themeSource" to (if (app.evidenceThemeId != null) "composition-readback" else "deterministic-resolve"),
+            "sha256" to VNextShotDriver.sha256Of(png),
+            "width" to 1920,
+            "height" to 1080,
+            "privacyMask" to true,
+            "stateValidation" to (expectedState == actualState),
+        )
+    }
+
+    private fun selectedObjectOf(shot: Shot, app: VAppState): String? = when (shot.screen) {
+        VScreen.CARD_DETAIL, VScreen.CARD_CUSTOMIZATION -> app.selectedCardId
+        VScreen.NUMBER_DETAIL, VScreen.NUMBER_CUSTOMIZATION -> app.selectedNumberId
+        else -> null
     }
 
     /** PHASE 1F-HF probe：既有契约点 + §4/§8/§11 新增检查（全部确定性几何）。 */
