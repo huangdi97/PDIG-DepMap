@@ -14,15 +14,18 @@ import com.pdig.uivnext.theme.PdigV2Colors
  * glow + motif 全部为 token 色、确定性程序化；无远程图片。
  */
 
-/** 身份艺术层：glow + motif。 */
+/** 身份艺术层：glow + motif。PHASE 1F-HF：所有径向几何使用当前 canvas 尺寸裁剪，避免越界。 */
 internal fun DrawScope.drawCardIdentity(identity: CardIdentity, w: Float, h: Float) {
+    // SAFETY: 径向半径受本地 h 约束，防止窄/短画布（如 112dp 主题 tile）下
+    // 大圆几何越出画布；配合渲染器层 clipRect 双保险。
+    val glowRadius = minOf(w * 0.72f, h * 1.10f)
     drawCircle(
         brush = Brush.radialGradient(
             listOf(identity.glow.copy(alpha = 0.45f), Color.Transparent),
             center = Offset(w * 0.5f, h * 0.34f),
-            radius = w * 0.72f,
+            radius = glowRadius,
         ),
-        radius = w * 0.72f,
+        radius = glowRadius,
         center = Offset(w * 0.5f, h * 0.34f),
     )
     when (identity.motif) {
@@ -38,6 +41,10 @@ internal fun DrawScope.drawCardIdentity(identity: CardIdentity, w: Float, h: Flo
         CardMotif.NONE -> Unit
     }
 }
+
+/** 本地约束半径：宽比例几何不得超过短边。 */
+private fun boundsSafeRadius(w: Float, h: Float, wFactor: Float, hFactor: Float): Float =
+    minOf(w * wFactor, h * hFactor)
 
 private fun DrawScope.drawCityNightIdentity(w: Float, h: Float, accent: Color) {
     // 底部城市辉光
@@ -105,9 +112,10 @@ private fun DrawScope.drawContourIdentity(w: Float, h: Float, accent: Color) {
     val cx = w * 0.74f
     val cy = h * 0.34f
     for (ring in 1..5) {
+        val r = boundsSafeRadius(w, h, 0.06f + ring * 0.055f, 0.30f)
         drawCircle(
             color = PdigV2Colors.LandTextureHi.copy(alpha = 0.08f + ring * 0.035f),
-            radius = w * (0.06f + ring * 0.055f),
+            radius = r,
             center = Offset(cx, cy),
             style = Stroke(width = 1.2f),
         )
@@ -149,13 +157,15 @@ private fun DrawScope.drawSweepIdentity(w: Float, h: Float, accent: Color) {
     }
     drawPath(band, color = accent.copy(alpha = 0.16f))
     drawLine(accent.copy(alpha = 0.5f), Offset(w * 0.34f, 0f), Offset(w * 0.74f, h), strokeWidth = 1.2f)
-    drawCircle(accent.copy(alpha = 0.30f), radius = w * 0.18f, center = Offset(w * 0.80f, h * 0.24f))
+    val dotR = boundsSafeRadius(w, h, 0.18f, 0.30f)
+    drawCircle(accent.copy(alpha = 0.30f), radius = dotR, center = Offset(w * 0.80f, h * 0.24f))
 }
 
 private fun DrawScope.drawStarfieldIdentity(w: Float, h: Float, accent: Color) {
+    val halo = boundsSafeRadius(w, h, 0.50f, 0.80f)
     drawCircle(
         brush = Brush.radialGradient(listOf(accent.copy(alpha = 0.55f), Color.Transparent)),
-        radius = w * 0.5f,
+        radius = halo,
         center = Offset(w * 0.30f, h * 0.20f),
     )
     for (i in 0 until 22) {
@@ -172,6 +182,11 @@ private fun DrawScope.drawCopperRingIdentity(w: Float, h: Float, accent: Color) 
 }
 
 private fun DrawScope.drawRedLineIdentity(w: Float, h: Float, accent: Color) {
+    // ICBC（石墨 + 红线）：保持 identity 的同时加入微弱横向拉丝，避免「深色矩形 + 一条线」。
+    for (i in 1 until 14) {
+        val y = h * (0.05f + 0.07f * i)
+        drawLine(PdigV2Colors.TextSecondary.copy(alpha = 0.035f), Offset(0f, y), Offset(w, y), strokeWidth = 0.6f)
+    }
     drawLine(accent.copy(alpha = 0.75f), Offset(0f, h * 0.30f), Offset(w * 0.62f, h * 0.30f), strokeWidth = 2.2f)
     drawRect(
         color = accent.copy(alpha = 0.20f),
@@ -217,3 +232,4 @@ private fun DrawScope.drawChromaticIdentity(w: Float, h: Float) {
         strokeWidth = 1.2f,
     )
 }
+

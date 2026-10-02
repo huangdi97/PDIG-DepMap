@@ -21,10 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -171,13 +174,20 @@ internal fun numberThemeLabel(theme: String): String = when (theme) {
  * 确定性号码面缩略图（Studio 主题选择器用；固定尺寸 76dp、
  * 共享 drawNumberFaceBackdrop 渲染器；避免在滚动容器内使用 aspectRatio）。
  */
+/**
+ * 确定性号码面缩略图（Studio 主题选择器用；固定尺寸、共享
+ * drawNumberFaceBackdrop 渲染器；避免在滚动容器内使用 aspectRatio）。
+ * PHASE 1F-HF：Modifier.clip 在 drawBehind 之前，保证 artwork 越界像素
+ * 被裁切在缩略图圆角边界内（配合渲染器内部 clipRect 双保险）。
+ */
 @Composable
 fun NumberFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
     val profile = PresentationProfile.defaultFor("phoneNumber", "thumb", preset)
     Box(
         modifier
             .fillMaxWidth(0.92f)
-            .height(84.dp)
+            .height(96.dp)
+            .clip(RoundedCornerShape(VRadius.Sm))
             .drawBehind { drawNumberFaceBackdrop(profile) }
             .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
     ) {
@@ -189,7 +199,9 @@ fun NumberFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
     }
 }
 
-/** 号码面背景：theme 预设程序化（全部 token 色）。 */
+/** 号码面背景：theme 预设程序化（全部 token 色）。PHASE 1F-HF：艺术层与强调层
+ *  一律以当前 canvas/local bounds clipRect 裁剪；附加电信信号母题（信号条 + 拨号弧）
+ *  使缩略图呈现「通信身份语言」（非银行卡视觉）。 */
 private fun DrawScope.drawNumberFaceBackdrop(p: PresentationProfile) {
     val w = size.width
     val h = size.height
@@ -204,24 +216,29 @@ private fun DrawScope.drawNumberFaceBackdrop(p: PresentationProfile) {
         else -> Brush.linearGradient(listOf(PdigV2Colors.Surface, PdigV2Colors.CanvasDeep))
     }
     drawRect(base)
-    when (p.themeId) {
-        "city" -> {
-            for (row in 0 until 4) {
-                for (col in 0 until 12) {
-                    val x = 14f + col * ((w - 28f) / 11f)
-                    val y = h * (0.34f + 0.15f * row)
-                    drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.18f + (col % 4) * 0.12f), radius = 1.1f, center = Offset(x, y))
+    clipRect {
+        when (p.themeId) {
+            "city" -> {
+                for (row in 0 until 4) {
+                    for (col in 0 until 12) {
+                        val x = 14f + col * ((w - 28f) / 11f)
+                        val y = h * (0.34f + 0.15f * row)
+                        drawCircle(PdigV2Colors.NightCityLight.copy(alpha = 0.18f + (col % 4) * 0.12f), radius = 1.1f, center = Offset(x, y))
+                    }
                 }
             }
+            "travel" -> {
+                val r1 = minOf(w * 0.32f, h * 0.55f)
+                val r2 = minOf(w * 0.24f, h * 0.45f)
+                drawCircle(PdigV2Colors.AtmosphereRim.copy(alpha = 0.35f), radius = r1, center = Offset(w * 0.82f, h * 0.30f))
+                drawCircle(PdigV2Colors.OceanBase.copy(alpha = 0.6f), radius = r2, center = Offset(w * 0.16f, h * 0.82f))
+            }
+            "banking" -> {
+                drawRect(Brush.horizontalGradient(listOf(PdigV2Colors.NightCityLight.copy(alpha = 0.14f), Color.Transparent)), size = androidx.compose.ui.geometry.Size(w * 0.6f, h))
+            }
+            else -> Unit
         }
-        "travel" -> {
-            drawCircle(PdigV2Colors.AtmosphereRim.copy(alpha = 0.35f), radius = w * 0.32f, center = Offset(w * 0.82f, h * 0.30f))
-            drawCircle(PdigV2Colors.OceanBase.copy(alpha = 0.6f), radius = w * 0.24f, center = Offset(w * 0.16f, h * 0.82f))
-        }
-        "banking" -> {
-            drawRect(Brush.horizontalGradient(listOf(PdigV2Colors.NightCityLight.copy(alpha = 0.14f), Color.Transparent)), size = androidx.compose.ui.geometry.Size(w * 0.6f, h))
-        }
-        else -> Unit
+        drawNumberSignalMotif(w, h, p.themeId)
     }
     // 左缘 accent 洗色
     val accent = accentColorOf(p.accentColor)
@@ -230,3 +247,45 @@ private fun DrawScope.drawNumberFaceBackdrop(p: PresentationProfile) {
         size = androidx.compose.ui.geometry.Size(w * 0.5f, h),
     )
 }
+
+/** 通信身份信号母题：右上角信号条（弱）+ 右下拨号弧（虚线环的一段）。
+ *  全部以本地 bounds 绘制（调用方已在 clipRect 内）。 */
+private fun DrawScope.drawNumberSignalMotif(w: Float, h: Float, theme: String) {
+    val tint = when (theme) {
+        "recovery" -> PdigV2Colors.Warning
+        "banking" -> PdigV2Colors.NightCityLight
+        "travel" -> PdigV2Colors.AtmosphereRim
+        else -> PdigV2Colors.PrimaryBright
+    }
+    // 信号条（右上角，4 条递增；通信强度语义）
+    val barW = w * 0.014f
+    val baseX = w * 0.78f
+    val baseY = h * 0.62f
+    for (i in 0 until 4) {
+        val bh = h * (0.05f + 0.045f * i)
+        drawRoundRect(
+            color = tint.copy(alpha = 0.38f + 0.10f * i),
+            topLeft = Offset(baseX + i * (barW + w * 0.012f), baseY - bh),
+            size = androidx.compose.ui.geometry.Size(barW, bh),
+            cornerRadius = CornerRadius(barW / 2f, barW / 2f),
+        )
+    }
+    // 拨号弧（右下，短弧线；虚线感）
+    val arcR = minOf(w * 0.16f, h * 0.42f)
+    val arcX = w * 0.80f
+    val arcY = h * 0.92f
+    for (seg in 0 until 5) {
+        val a0 = 160f + seg * 8f
+        val a1 = a0 + 4.5f
+        drawArc(
+            color = tint.copy(alpha = 0.35f),
+            startAngle = a0,
+            sweepAngle = a1 - a0,
+            useCenter = false,
+            topLeft = Offset(arcX - arcR, arcY - arcR),
+            size = androidx.compose.ui.geometry.Size(arcR * 2f, arcR * 2f),
+            style = Stroke(width = 1.4f),
+        )
+    }
+}
+

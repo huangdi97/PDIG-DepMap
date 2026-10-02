@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -140,7 +141,10 @@ internal fun DrawScope.drawCardFaceBackdrop(
     val identity = resolveCardIdentity(p, card)
     // 1. Identity base（§9 色板；非 near-black 空占位）
     drawRect(Brush.verticalGradient(listOf(identity.top, identity.bottom)))
-    // 2. 艺术层：导入背景 → 用户图片；否则 → identity motif + glow
+    // 2. 艺术层：导入背景 → 用户图片；否则 → identity motif + glow。
+    //    PHASE 1F-HF（§4）：artwork 一律使用当前 canvas/local bounds，
+    //    clipRect 保证任何几何（circle/glow/arc/contour/city/sweep/ring）都不会
+    //    越出本卡面/缩略图边界（ThemeThumbnailBoundsContractTest 覆盖）。
     if (backgroundBitmap != null) {
         drawImage(
             image = backgroundBitmap,
@@ -149,10 +153,14 @@ internal fun DrawScope.drawCardFaceBackdrop(
         )
         drawRect(PdigV2Colors.CanvasDeep.copy(alpha = 0.18f))
     } else {
-        drawCardIdentity(identity, w, h)
+        clipRect {
+            drawCardIdentity(identity, w, h)
+        }
     }
-    // 3. 材质层
-    CardMaterial.material(this, p, w, h)
+    // 3. 材质层（matte vignette / metal 拉丝 / glass rim 同样以本地 bounds 裁剪）
+    clipRect {
+        CardMaterial.material(this, p, w, h)
+    }
     // 4. 左缘 accent 洗色（克制的品牌强调）
     val accent = identity.accent
     drawRect(
@@ -173,6 +181,8 @@ internal fun DrawScope.drawCardFaceBackdrop(
 /**
  * 确定性视觉缩略图（Studio 主题选择器用；固定尺寸、固定渲染器、
  * 共享 PresentationProfile 渲染；避免在滚动容器内使用 aspectRatio）。
+ * PHASE 1F-HF：Modifier.clip 在 drawBehind 之前，保证 artwork 越界像素
+ * 被裁切在缩略图圆角边界内（配合渲染器内部 clipRect 双保险）。
  */
 @Composable
 fun CardFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
@@ -182,14 +192,15 @@ fun CardFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
     Box(
         modifier
             .fillMaxWidth(0.92f)
-            .height(104.dp)
+            .height(112.dp)
+            .clip(RoundedCornerShape(VRadius.Sm))
             .drawBehind { drawCardFaceBackdrop(profile) }
             .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
     ) {
         Column(Modifier.fillMaxSize().padding(6.dp)) {
             Text(cardThemeLabel(preset), style = VType.Meta, color = PdigV2Colors.TextSecondary, maxLines = 1)
             Spacer(Modifier.weight(1f))
-            Text("•••• ••••", style = VType.Mono, fontSize = 9.sp, color = PdigV2Colors.TextPrimary)
+            Text("•••• •••• •••• ••••", style = VType.Mono, fontSize = 9.sp, color = PdigV2Colors.TextPrimary, maxLines = 1)
         }
     }
 }
