@@ -149,7 +149,6 @@
 - **真实账单 / 真机**：EXTERNAL_GATE（合成 fixture 全绿；真实数据与真机验证需用户提供）。
 - 最终停止条件：内部 Gate 全部 PASS + GitHub `product-v0.3.0` PUBLISHED；剩余全部为真实外部 Gate（无工程/测试缺口）。
 
-
 ---
 
 ## 2026-10-05 UI vNext PHASE 1E（Desktop 收口，feat/pdig-ui-vnext）
@@ -160,3 +159,13 @@
   - **V2**：Light theme full parity = 暂不宣称（DARK_REFERENCE = PRIMARY；LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER）。
   - **V3**：PHASE 1E 结束后 ANDROID/IOS/HARMONY UI vNext = HOLD，需 Human 明确 DESKTOP_VISUAL_REFERENCE = ACCEPTED 后才允许跨平台传播。
   - 既有外部 Gate 保持不变（真实设备、签名、商店、真机 macOS 等，见上文历史记录）。
+
+## 2026-10-02 UI vNext PHASE 1F（Desktop Final Craft, Reference Freeze；feat/pdig-ui-vnext）
+
+- 本轮无新增代码级 blocker（desktop :app:test 51/51 PASS；core `npm run check` 全绿；质量 gate 无新违规）。
+- 需要 Human 的事项：
+  - **F1（NEEDS_HUMAN_FINAL_ACCEPTANCE）**：DESKTOP_VISUAL_REFERENCE / VISUAL_CRAFT 最终判定必须由 Human 给出（No-Vision 纪律 §53）；本 agent 只声明 `PHASE_1F_IMPLEMENTATION = PASS` 与 `DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`，绝不自判视觉 PASS。
+  - **F2（REAL_WINDOW_KEYBOARD_HUMAN_GATE）**：本会话无法把 OS 输入焦点可靠授予真实窗口，Robot Ctrl+K 未能在真实窗口自动验证（14/16 真实窗口步骤 capture=true；键盘功能已由 in-process journey + 契约测试覆盖）；建议 Human 在真实窗口复核键盘/聚焦。
+  - **F3（IME_RUNTIME_HUMAN_GATE）**：中文 IME 组合输入（银行卡/手机号/更换手机号）无法在本会话可靠自动化；需 Human 在真实窗口验证（IME_LOG.txt 如实记录，不伪造 PASS）。
+  - **F4**：Light theme full parity = 暂不宣称（DARK_REFERENCE = PRIMARY；LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER）。
+  - **F5**：PHASE 1F 结束后 ANDROID/IOS/HARMONY UI vNext = HOLD，需 Human 明确 DESKTOP_VISUAL_REFERENCE = ACCEPTED 后才允许跨平台翻译；且不得自动创建 PHASE 1G（brief §61）。

@@ -16,20 +16,20 @@
 
 ## 2. 下载记录表（本轮）
 
-| # | reason | source | version | size | 判定 |
-| --- | --- | --- | --- | --- | --- |
-| — | （无） | — | — | — | 无任何记录 |
+| #   | reason | source | version | size | 判定       |
+| --- | ------ | ------ | ------- | ---- | ---------- |
+| —   | （无） | —      | —       | —    | 无任何记录 |
 
 ## 3. 依赖基线（既有，未变）
 
-| 组件 | 版本 | 是否本轮新增 |
-| --- | --- | --- |
-| Compose Desktop | 1.6.11（BOM 2024.09.02） | 否 |
-| Compose Multiplatform runtime（Skia） | 既有 | 否 |
-| Gradle wrapper | 8.9 | 否 |
-| node | v22.15.0（既有） | 否 |
-| JDK | 21 Temurin（既有） | 否 |
-| core/ node_modules | 既有 | 否 |
+| 组件                                  | 版本                     | 是否本轮新增 |
+| ------------------------------------- | ------------------------ | ------------ |
+| Compose Desktop                       | 1.6.11（BOM 2024.09.02） | 否           |
+| Compose Multiplatform runtime（Skia） | 既有                     | 否           |
+| Gradle wrapper                        | 8.9                      | 否           |
+| node                                  | v22.15.0（既有）         | 否           |
+| JDK                                   | 21 Temurin（既有）       | 否           |
+| core/ node_modules                    | 既有                     | 否           |
 
 ## 4. 网络策略遵守
 

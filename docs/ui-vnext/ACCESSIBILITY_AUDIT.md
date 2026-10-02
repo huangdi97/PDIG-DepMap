@@ -11,13 +11,13 @@
 
 ## 2. 键盘可达（Desktop）
 
-| 键 | 行为 | 实现 |
-| --- | --- | --- |
+| 键              | 行为                                          | 实现                                        |
+| --------------- | --------------------------------------------- | ------------------------------------------- |
 | Tab / Shift+Tab | 焦点循环：rail → top bar → 内容 → region list | focusable 组件链（INTERACTION_CONTRACT §5） |
-| Enter / Space | 激活 | 原生语义 |
-| Escape | globe 回退 / 关抽屉 / 关聚焦 | globe state machine 回退 GLOBAL |
-| Arrow | region list / 表格行导航；globe 微调视角 | 已接入 |
-| Ctrl/Cmd+K | 命令/搜索条 | 契约项（top bar 语义） |
+| Enter / Space   | 激活                                          | 原生语义                                    |
+| Escape          | globe 回退 / 关抽屉 / 关聚焦                  | globe state machine 回退 GLOBAL             |
+| Arrow           | region list / 表格行导航；globe 微调视角      | 已接入                                      |
+| Ctrl/Cmd+K      | 命令/搜索条                                   | 契约项（top bar 语义）                      |
 
 - 焦点可见：primaryBright ring（契约要求任何键盘可达元素必有）；
 - **实测限制**：离屏渲染（ImageComposeScene）无真实窗口焦点系统 → 焦点环的 OS 级验证标记
@@ -25,13 +25,13 @@
 
 ## 3. 对比度（token 深色体系，计算值）
 
-| 前景 | 背景 | 对比（WCAG 2.x 计算） | 阈值 | 用途 |
-| --- | --- | --- | --- | --- |
-| textPrimary #F4F7FF | canvas #061225 | ≈17.5:1 | 正文 ≥4.5:1 ✓ | 页面标题/正文 |
-| textSecondary #A9B8D5 | canvas #061225 | ≈9.4:1 | 正文 ≥4.5:1 ✓ | 次级文本 |
-| textMuted #7383A3 | canvas #061225 | ≈4.9:1 | 正文 ≥4.5:1 ✓（元信息 ≈4.5+） | 元信息/辅助 |
-| textPrimary #F4F7FF | surface #0B1A33 | ≈16.2:1 | ✓ | 面板内正文 |
-| textMuted #7383A3 | surface #0B1A33 | ≈4.6:1 | ✓ | 面板内元信息 |
+| 前景                  | 背景            | 对比（WCAG 2.x 计算） | 阈值                          | 用途          |
+| --------------------- | --------------- | --------------------- | ----------------------------- | ------------- |
+| textPrimary #F4F7FF   | canvas #061225  | ≈17.5:1               | 正文 ≥4.5:1 ✓                 | 页面标题/正文 |
+| textSecondary #A9B8D5 | canvas #061225  | ≈9.4:1                | 正文 ≥4.5:1 ✓                 | 次级文本      |
+| textMuted #7383A3     | canvas #061225  | ≈4.9:1                | 正文 ≥4.5:1 ✓（元信息 ≈4.5+） | 元信息/辅助   |
+| textPrimary #F4F7FF   | surface #0B1A33 | ≈16.2:1               | ✓                             | 面板内正文    |
+| textMuted #7383A3     | surface #0B1A33 | ≈4.6:1                | ✓                             | 面板内元信息  |
 
 契约门槛：contrast.bodyTextMin 4.5:1、largeTextMin 3:1 —— 全部满足。
 （对比为 token 相对亮度计算值；真机渲染（字体渲染/亚像素）需 runtime 复核。）
@@ -50,24 +50,24 @@
 
 ## 6. Reduce Motion（MOTION_CONTRACT.reduceMotion）
 
-| 项 | 常规 | Reduce Motion |
-| --- | --- | --- |
-| idle rotation | 0.8°/s 极慢，交互后暂停 | **off** |
-| camera/focus | ease-in-out，globe focus 620ms | **simplified（translate-only，无 ease spin）** |
-| arc | segment-draw 620ms | **static** |
-| drawer | slide 200ms | 无 slide，instant appear |
+| 项            | 常规                           | Reduce Motion                                  |
+| ------------- | ------------------------------ | ---------------------------------------------- |
+| idle rotation | 0.8°/s 极慢，交互后暂停        | **off**                                        |
+| camera/focus  | ease-in-out，globe focus 620ms | **simplified（translate-only，无 ease spin）** |
+| arc           | segment-draw 620ms             | **static**                                     |
+| drawer        | slide 200ms                    | 无 slide，instant appear                       |
 
 Desktop 已实现：`reduceMotion` 参数关闭 idle rotation（VNextGlobe.kt LaunchedEffect 分支）；
 截图取证固定 reduceMotion 态（确定性帧）。
 
 ## 7. 实测范围与 NEEDS_RUNTIME_VERIFICATION
 
-| 项 | 实测 | 待验证 |
-| --- | --- | --- |
-| 状态三通道代码面 | ✓（StatusBadge icon+label+color） | screen reader 实读 |
-| 键盘焦点链代码面 | ✓（focusable 链） | 真实窗口 OS 焦点环 / focus-visible 渲染 |
-| 对比度（计算） | ✓ 全部 ≥4.5:1 | 真机渲染复核 |
-| Region List 非视觉替代 | ✓ 已实现 | screen reader 实读 |
-| 触控 ≥48/44 | Desktop 桌面端不适用；移动端 | Android/iOS runtime |
-| reduce motion | ✓ 代码 + 确定性帧 | 系统开关联动（Compose LocalReduceMotion / SwiftUI accessibilityReduceMotion / Harmony 系统开关） |
-| 字体缩放（Dynamic Type / fontScale） | 契约项 | iOS/Android runtime |
+| 项                                   | 实测                              | 待验证                                                                                           |
+| ------------------------------------ | --------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 状态三通道代码面                     | ✓（StatusBadge icon+label+color） | screen reader 实读                                                                               |
+| 键盘焦点链代码面                     | ✓（focusable 链）                 | 真实窗口 OS 焦点环 / focus-visible 渲染                                                          |
+| 对比度（计算）                       | ✓ 全部 ≥4.5:1                     | 真机渲染复核                                                                                     |
+| Region List 非视觉替代               | ✓ 已实现                          | screen reader 实读                                                                               |
+| 触控 ≥48/44                          | Desktop 桌面端不适用；移动端      | Android/iOS runtime                                                                              |
+| reduce motion                        | ✓ 代码 + 确定性帧                 | 系统开关联动（Compose LocalReduceMotion / SwiftUI accessibilityReduceMotion / Harmony 系统开关） |
+| 字体缩放（Dynamic Type / fontScale） | 契约项                            | iOS/Android runtime                                                                              |

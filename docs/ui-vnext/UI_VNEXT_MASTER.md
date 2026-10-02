@@ -16,54 +16,54 @@
 
 ## 2. Canonical Authority 阅读清单（全部已读）
 
-| 文档 | 结论要点（本轮引用） |
-| --- | --- |
-| AGENTS.md | §24.5 Native Migration 优先；§17 日志禁令；§19 状态声明不冒充 |
-| CANONICAL_DESIGN.md | Observation ≠ Dependency；Graph 是模型不是主界面；Precision > Recall |
-| GOAL_MVP01.md | MVP 唯一核心 Job = 模拟更换/注销银行卡；双 Gate 前不增业务能力 |
-| WORK_STATUS.md | 历史轮证据基线；v0.3.1 487 tests / conformance 128 |
-| BLOCKERS.md | 外部 Gate 全部为真实 EXTERNAL_BLOCKER；本轮新增见 BLOCKERS.md 顶部 |
-| FINAL_V0_3_1_RELEASE_CLOSURE.md | v0.3.1 冻结 SHA/tag；本轮不触碰 |
-| PRODUCT_V0_3_1_RELEASE_MANIFEST.md | 发布产物清单；本轮零改动 |
-| spec/ui/design-tokens.json | v0.3.1 token 冻结；vNext 不复用、不覆盖 |
-| spec/ui/copy-zh.json | 既有文案层；vNext 文案以 UIVNextDemoFixture + screens 契约为准 |
-| docs/uiux/（10 份） | 上一轮（feat/pdig-uiux-refinement）方向与证据基线 |
-| NATIVE_MIGRATION_STATUS.md | 三端原生路线；spec/ 为最高真相源 |
+| 文档                               | 结论要点（本轮引用）                                                 |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| AGENTS.md                          | §24.5 Native Migration 优先；§17 日志禁令；§19 状态声明不冒充        |
+| CANONICAL_DESIGN.md                | Observation ≠ Dependency；Graph 是模型不是主界面；Precision > Recall |
+| GOAL_MVP01.md                      | MVP 唯一核心 Job = 模拟更换/注销银行卡；双 Gate 前不增业务能力       |
+| WORK_STATUS.md                     | 历史轮证据基线；v0.3.1 487 tests / conformance 128                   |
+| BLOCKERS.md                        | 外部 Gate 全部为真实 EXTERNAL_BLOCKER；本轮新增见 BLOCKERS.md 顶部   |
+| FINAL_V0_3_1_RELEASE_CLOSURE.md    | v0.3.1 冻结 SHA/tag；本轮不触碰                                      |
+| PRODUCT_V0_3_1_RELEASE_MANIFEST.md | 发布产物清单；本轮零改动                                             |
+| spec/ui/design-tokens.json         | v0.3.1 token 冻结；vNext 不复用、不覆盖                              |
+| spec/ui/copy-zh.json               | 既有文案层；vNext 文案以 UIVNextDemoFixture + screens 契约为准       |
+| docs/uiux/（10 份）                | 上一轮（feat/pdig-uiux-refinement）方向与证据基线                    |
+| NATIVE_MIGRATION_STATUS.md         | 三端原生路线；spec/ 为最高真相源                                     |
 
 ## 3. 本轮范围（四端）
 
-| 端 | 范围 | 本机状态 | 证据 |
-| --- | --- | --- | --- |
+| 端                 | 范围                                                                                                                      | 本机状态                 | 证据                                            |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------- |
 | Desktop（Compose） | 10 屏 + VNextShell（rail 80/188 + top 48）+ 2.5D Globe + PresentationProfile + Privacy Mask + `--vnext` / `--vnext-shots` | 实现 + 编译 PASS + 90 帧 | artifacts/runtime-evidence/2026-09-29-ui-vnext/ |
-| Android（Compose） | 同契约；bottom nav ≤5、compact globe hero | 并行 fixer 产出 | PENDING_CONVERGENCE |
-| iOS（SwiftUI） | NavigationStack/SplitView、sheet、Dynamic Type | 并行 fixer 产出 | PENDING_CONVERGENCE |
-| Harmony（ArkUI） | 原生 ArkUI；hvigor 构建可达 | 并行 fixer 产出 | PENDING_CONVERGENCE |
-| 四端 Token | 单一真源 DESIGN_TOKENS.json → codegen 4 产物 | CODEGEN GATE PASS | tools/codegen/generate.mjs --check |
+| Android（Compose） | 同契约；bottom nav ≤5、compact globe hero                                                                                 | 并行 fixer 产出          | PENDING_CONVERGENCE                             |
+| iOS（SwiftUI）     | NavigationStack/SplitView、sheet、Dynamic Type                                                                            | 并行 fixer 产出          | PENDING_CONVERGENCE                             |
+| Harmony（ArkUI）   | 原生 ArkUI；hvigor 构建可达                                                                                               | 并行 fixer 产出          | PENDING_CONVERGENCE                             |
+| 四端 Token         | 单一真源 DESIGN_TOKENS.json → codegen 4 产物                                                                              | CODEGEN GATE PASS        | tools/codegen/generate.mjs --check              |
 
 ## 4. 阶段执行记录（Stage 0–17 ↔ 实际完成情况）
 
 按分支 Goal（`.pi/goal/…ui-vnext…20260929-1800.md`）执行顺序记录；spec §84 Stage 0→17 严格顺序，以 Goal 验收项为清单：
 
-| Stage | 内容（映射 Goal 条目） | 实际完成情况 |
-| --- | --- | --- |
-| Stage 0 | 盘点（只查不改） | DONE → GLOBE_TECH_INVENTORY.md / LOCAL_ENV_INVENTORY.md / LOCAL_DOWNLOAD_AUDIT.md |
-| Stage 1 | Canonical Authority 已读 | DONE → 本文件 §2 |
-| Stage 2 | Skill 真实使用 + 审计 | DONE → SKILL_USAGE_AUDIT.md（ui-ux-pro-max / impeccable / frontend-design，不用于视觉自判） |
-| Stage 3 | Visual Contract 目录完整 | DONE（既有 spec/ui-vnext 29 文件，本轮零改动） |
-| Stage 4 | Token Codegen 单一真源 | DONE → generate.mjs 扩展；`--check` = CODEGEN GATE PASS |
-| Stage 5 | Geometry / testId 契约 | DONE → LAYOUT_CONTRACT.json 既有；Desktop 实现按其落地 |
-| Stage 6 | Geometry Probe | DONE → UI_LAYOUT_PROBE.json（每 profile 输出，testId/x/y/w/h/visible/enabled） |
-| Stage 7 | UIVNextDemoFixture（全 synthetic） | DONE → desktop/app/.../demo/UiVNextDemoFixture.kt（CN/HK/GB/US 卡与号） |
-| Stage 8 | Globe Spike Gate | DONE（桌面证据）→ 见 GLOBE_TECH_INVENTORY.md §5 |
-| Stage 9 | Globe Interaction Contract | DONE → VNextGlobe.kt（GLOBAL/HOVER/SELECTED/DETAIL 状态机、drag/zoom/hover/click/focus/arc） |
-| Stage 10 | 十屏实现 | Desktop DONE（10 屏）；Android/iOS/Harmony PENDING_CONVERGENCE |
-| Stage 11 | PresentationProfile | DONE → model/PresentationProfile + 本地偏好语义，绝不进 .depmap |
-| Stage 12 | Motion / Accessibility / Privacy | DONE（reduceMotion、Privacy Mask、三通道状态）→ ACCESSIBILITY_AUDIT.md |
-| Stage 13 | 四端实现与证据 | Desktop DONE；三端 PENDING_CONVERGENCE（并行 fixer） |
-| Stage 14 | Image Metrics（无眼睛量化取证） | DONE → 90 帧 IMAGE_METRICS.json（JDK ImageIO，零新依赖） |
-| Stage 15 | 回归硬性 0 | DONE → `npm run check` 全绿（487 tests）→ IMPLEMENTATION_REPORT.md |
-| Stage 16 | 最终交付物与 Gate 矩阵 | DONE → docs/ui-vnext/ 10 份 + artifacts/ui-vnext-review/ 5 JSON + desktop 证据副本 |
-| Stage 17 | Push + STOP | 本任务不执行 push；STOP 等待 Human/Vision Review（交付物齐备后由主 agent 执行） |
+| Stage    | 内容（映射 Goal 条目）             | 实际完成情况                                                                                 |
+| -------- | ---------------------------------- | -------------------------------------------------------------------------------------------- |
+| Stage 0  | 盘点（只查不改）                   | DONE → GLOBE_TECH_INVENTORY.md / LOCAL_ENV_INVENTORY.md / LOCAL_DOWNLOAD_AUDIT.md            |
+| Stage 1  | Canonical Authority 已读           | DONE → 本文件 §2                                                                             |
+| Stage 2  | Skill 真实使用 + 审计              | DONE → SKILL_USAGE_AUDIT.md（ui-ux-pro-max / impeccable / frontend-design，不用于视觉自判）  |
+| Stage 3  | Visual Contract 目录完整           | DONE（既有 spec/ui-vnext 29 文件，本轮零改动）                                               |
+| Stage 4  | Token Codegen 单一真源             | DONE → generate.mjs 扩展；`--check` = CODEGEN GATE PASS                                      |
+| Stage 5  | Geometry / testId 契约             | DONE → LAYOUT_CONTRACT.json 既有；Desktop 实现按其落地                                       |
+| Stage 6  | Geometry Probe                     | DONE → UI_LAYOUT_PROBE.json（每 profile 输出，testId/x/y/w/h/visible/enabled）               |
+| Stage 7  | UIVNextDemoFixture（全 synthetic） | DONE → desktop/app/.../demo/UiVNextDemoFixture.kt（CN/HK/GB/US 卡与号）                      |
+| Stage 8  | Globe Spike Gate                   | DONE（桌面证据）→ 见 GLOBE_TECH_INVENTORY.md §5                                              |
+| Stage 9  | Globe Interaction Contract         | DONE → VNextGlobe.kt（GLOBAL/HOVER/SELECTED/DETAIL 状态机、drag/zoom/hover/click/focus/arc） |
+| Stage 10 | 十屏实现                           | Desktop DONE（10 屏）；Android/iOS/Harmony PENDING_CONVERGENCE                               |
+| Stage 11 | PresentationProfile                | DONE → model/PresentationProfile + 本地偏好语义，绝不进 .depmap                              |
+| Stage 12 | Motion / Accessibility / Privacy   | DONE（reduceMotion、Privacy Mask、三通道状态）→ ACCESSIBILITY_AUDIT.md                       |
+| Stage 13 | 四端实现与证据                     | Desktop DONE；三端 PENDING_CONVERGENCE（并行 fixer）                                         |
+| Stage 14 | Image Metrics（无眼睛量化取证）    | DONE → 90 帧 IMAGE_METRICS.json（JDK ImageIO，零新依赖）                                     |
+| Stage 15 | 回归硬性 0                         | DONE → `npm run check` 全绿（487 tests）→ IMPLEMENTATION_REPORT.md                           |
+| Stage 16 | 最终交付物与 Gate 矩阵             | DONE → docs/ui-vnext/ 10 份 + artifacts/ui-vnext-review/ 5 JSON + desktop 证据副本           |
+| Stage 17 | Push + STOP                        | 本任务不执行 push；STOP 等待 Human/Vision Review（交付物齐备后由主 agent 执行）              |
 
 ## 5. 诚实声明（No-Vision）
 

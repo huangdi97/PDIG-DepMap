@@ -6,18 +6,18 @@
 
 ## 1. 模型字段（schema 1.0.0）
 
-| 字段 | 类型/取值 | 语义 |
-| --- | --- | --- |
-| targetType | node \| card \| phoneNumber | 定制对象类型 |
-| targetId | string（UI-facing，可 masked） | 本地对象 id |
-| themeId | string（deep-space / minimal / region / city / glass / metal / abstract / country / banking / travel / recovery / work / private） | 视觉主题 |
-| material | glass \| metal \| matte \| paper \| none | 材质 |
-| accentColor | hex | 强调色（默认 #4D74FF） |
-| background | { kind: preset\|gradient\|procedural\|bundled-image\|user-image, value } | 背景来源 |
-| layout | standard \| minimal \| dense \| editorial | 布局密度 |
-| privacy | { maskSensitive, maskLast4, maskNumber } | 遮蔽偏好 |
-| visibleFields | string[]（空 = 默认集） | 可见字段 |
-| flags | showLogo / showNetwork / showRegion / showCurrency / showStatus / showCarrier / showSimBadge / showRole / showUsageTags / showCountryFlagForNumber | 身份面显示开关 |
+| 字段          | 类型/取值                                                                                                                                          | 语义                   |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| targetType    | node \| card \| phoneNumber                                                                                                                        | 定制对象类型           |
+| targetId      | string（UI-facing，可 masked）                                                                                                                     | 本地对象 id            |
+| themeId       | string（deep-space / minimal / region / city / glass / metal / abstract / country / banking / travel / recovery / work / private）                 | 视觉主题               |
+| material      | glass \| metal \| matte \| paper \| none                                                                                                           | 材质                   |
+| accentColor   | hex                                                                                                                                                | 强调色（默认 #4D74FF） |
+| background    | { kind: preset\|gradient\|procedural\|bundled-image\|user-image, value }                                                                           | 背景来源               |
+| layout        | standard \| minimal \| dense \| editorial                                                                                                          | 布局密度               |
+| privacy       | { maskSensitive, maskLast4, maskNumber }                                                                                                           | 遮蔽偏好               |
+| visibleFields | string[]（空 = 默认集）                                                                                                                            | 可见字段               |
+| flags         | showLogo / showNetwork / showRegion / showCurrency / showStatus / showCarrier / showSimBadge / showRole / showUsageTags / showCountryFlagForNumber | 身份面显示开关         |
 
 Desktop 实现：`desktop/app/src/main/kotlin/com/pdig/uivnext/model/UiVNextModels.kt` `PresentationProfile`
 （targetType/targetId/themeId/material/accentColor/backgroundKind/backgroundValue/layout/maskSensitive；
@@ -38,12 +38,12 @@ Desktop 实现：`desktop/app/src/main/kotlin/com/pdig/uivnext/model/UiVNextMode
 
 ## 4. preset visual ≠ semantic role（防混淆规则）
 
-| 视觉 preset | 可能映射语义 | 铁律 |
-| --- | --- | --- |
-| banking | 银行用途 | 视觉 preset 不改变 role/status/confirmation |
-| travel | 旅行用途 | 同上 |
-| recovery | 恢复用途 | recoveryOnly 是领域事实，preset 只是外观 |
-| private | 隐私强调 | maskSensitive 是本地偏好，不影响领域遮蔽 |
+| 视觉 preset | 可能映射语义 | 铁律                                        |
+| ----------- | ------------ | ------------------------------------------- |
+| banking     | 银行用途     | 视觉 preset 不改变 role/status/confirmation |
+| travel      | 旅行用途     | 同上                                        |
+| recovery    | 恢复用途     | recoveryOnly 是领域事实，preset 只是外观    |
+| private     | 隐私强调     | maskSensitive 是本地偏好，不影响领域遮蔽    |
 
 ## 5. 定制入口（Desktop 已实现）
 
