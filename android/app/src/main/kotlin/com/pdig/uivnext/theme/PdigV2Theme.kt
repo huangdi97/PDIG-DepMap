@@ -57,7 +57,7 @@ object PdigV2Colors {
 /** 语义状态色（icon+label+color 三通道；色仅为第三通道）。 */
 fun statusColor(status: String): Color = when (status) {
     "critical", "blocked", "expiring_soon" -> PdigV2Colors.Critical
-    "warning", "verifying" -> PdigV2Colors.Warning
+    "warning", "verifying", "plan", "unresolved" -> PdigV2Colors.Warning
     "completed", "active", "ok", "verified", "migrated" -> PdigV2Colors.Positive
     else -> PdigV2Colors.TextMuted
 }
@@ -76,8 +76,10 @@ fun statusLabelZh(status: String): String = when (status) {
     "waiting" -> "等待中"
     "migrated" -> "已迁移"
     "plan" -> "计划"
+    "unresolved" -> "待处理"
     else -> "未知"
 }
+
 
 /** 数值间距 token 的 dp 便捷函数。 */
 object VSpacing {

@@ -41,7 +41,7 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForCard(card.id)
-    if (breakpoint == MediaBreakpoint.WIDE || breakpoint == MediaBreakpoint.MEDIUM) {
+    if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
         Row(
             Modifier
                 .fillMaxSize()

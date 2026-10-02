@@ -29,39 +29,52 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextNumber
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.components.EmptyKind
+import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
- * Numbers：号码管理（信息密度高，不硬套卡片）。
+ * Numbers：号码管理（信息密度高，不硬套卡片；communication identity 视觉语言）。
  * 大屏：List + Inspector 并排；手机：List 上 / Inspector 下（LazyColumn 保证滚动）。
+ * 空态：无号码 → honest unknown EmptyState（未记录 ≠ 无风险）。
  */
 @Composable
 fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val all = UiVNextDemoFixture.numbers
+    val all = app.demoNumbers()
     val filtered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
     var selectedId by remember { mutableStateOf(all.firstOrNull()?.id) }
     val selected = filtered.firstOrNull { it.id == selectedId } ?: filtered.firstOrNull()
 
-    if (breakpoint == MediaBreakpoint.WIDE || breakpoint == MediaBreakpoint.MEDIUM) {
+    if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
         Row(Modifier.fillMaxSize().padding(24.dp)) {
-            // 列表
             Column(Modifier.weight(0.55f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 NumbersHeader(app, filtered.size)
                 Spacer(Modifier.height(8.dp))
                 FilterRowNumbers()
                 Spacer(Modifier.height(8.dp))
-                NumberListSurface(filtered, selected?.id, app)
+                if (filtered.isEmpty()) {
+                    EmptyState(
+                        kind = EmptyKind.NUMBERS,
+                        title = "还没有号码",
+                        description = "没有记录 ≠ 没有风险：尚未录入号码时，不推断登录 / 恢复路径存在或不存在。",
+                        primaryCta = "查看卡片",
+                        onPrimary = { app.navigate(VScreen.CARDS) },
+                    )
+                } else {
+                    NumberListSurface(filtered, selected?.id, app)
+                }
             }
             Spacer(Modifier.width(24.dp))
-            // Inspector（详情摘要）
             Surface(
                 modifier = Modifier
                     .weight(0.45f)
@@ -78,16 +91,26 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             NumbersHeader(app, filtered.size)
             FilterRowNumbers()
-            NumberListSurface(filtered, selected?.id, app)
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTagLocal(VTestIds.PHONE_INSPECTOR),
-                color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-                shape = RoundedCornerShape(VRadius.Xl),
-                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-            ) {
-                InspectorContent(app, selected)
+            if (filtered.isEmpty()) {
+                EmptyState(
+                    kind = EmptyKind.NUMBERS,
+                    title = "还没有号码",
+                    description = "没有记录 ≠ 没有风险：尚未录入号码时，不推断登录 / 恢复路径存在或不存在。",
+                    primaryCta = "查看卡片",
+                    onPrimary = { app.navigate(VScreen.CARDS) },
+                )
+            } else {
+                NumberListSurface(filtered, selected?.id, app)
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTagLocal(VTestIds.PHONE_INSPECTOR),
+                    color = PdigV2Colors.Surface.copy(alpha = 0.92f),
+                    shape = RoundedCornerShape(VRadius.Xl),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    InspectorContent(app, selected)
+                }
             }
         }
     }

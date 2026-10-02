@@ -1,6 +1,10 @@
 package com.pdig.uivnext.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -111,7 +115,35 @@ fun AssetCard(
 
 private fun typeLabel(type: String): String = if (type == "credit") "信用卡" else "储蓄卡"
 
-/** NumberFace：号码身份面（mobile 与 detail 顶部共用）。 */
+/** 号码面程序化背景（communication identity 语言；每 preset 确定性可区分，绝不退化为银行卡视觉）。 */
+fun numberFaceBrush(preset: String): Brush = when (preset) {
+    "country" -> Brush.linearGradient(listOf(Color(0xFF15395E), Color(0xFF0A1B33)))
+    "city" -> Brush.linearGradient(listOf(Color(0xFF2A3F66), Color(0xFF101B2E)))
+    "minimal" -> Brush.linearGradient(listOf(Color(0xFF1C2433), Color(0xFF0D141F)))
+    "banking" -> Brush.linearGradient(listOf(Color(0xFF173A45), Color(0xFF0B1F26)))
+    "travel" -> Brush.linearGradient(listOf(Color(0xFF2C3A5E), Color(0xFF16233D), Color(0xFF0B1730)))
+    "recovery" -> Brush.linearGradient(listOf(Color(0xFF3A3A22), Color(0xFF1E1F12), Color(0xFF0F100A)))
+    "work" -> Brush.linearGradient(listOf(Color(0xFF1F3352), Color(0xFF101B2F)))
+    "private" -> Brush.linearGradient(listOf(Color(0xFF3A2C50), Color(0xFF1D1330)))
+    else -> Brush.linearGradient(listOf(Color(0xFF15395E), Color(0xFF0A1B33)))
+}
+
+/** 号码面强调色（每 preset 独立；配合 DialArc / SignalBars 形成 communication identity）。 */
+private fun numberFaceAccent(preset: String): Color = when (preset) {
+    "travel" -> Color(0xFF7FB2FF)
+    "recovery" -> Color(0xFFFFC864)
+    "banking" -> Color(0xFF6FE3D4)
+    "work" -> Color(0xFF9FC7FF)
+    "private" -> Color(0xFFC8A7FF)
+    "city" -> Color(0xFF7FE0FF)
+    "minimal" -> Color(0xFFAEBFDF)
+    else -> PdigV2Colors.PrimaryBright
+}
+
+/**
+ * NumberFace：号码身份面（mobile 与 detail 顶部共用）。
+ * communication identity：拨号弧 + 信号条 + preset 背景；禁止银行卡视觉。
+ */
 @Composable
 fun NumberFace(
     number: UiVNextNumber,
@@ -124,12 +156,18 @@ fun NumberFace(
             .clip(RoundedCornerShape(VRadius.Lg))
             .clickable(onClick = onClick)
             .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Lg)),
-        color = PdigV2Colors.SurfaceRaised,
+        color = Color.Transparent,
         shape = RoundedCornerShape(VRadius.Lg),
     ) {
-        Column(Modifier.padding(VSpacing.Xl)) {
+        Column(
+            Modifier
+                .background(numberFaceBrush(number.preset))
+                .padding(VSpacing.Xl),
+        ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold)
+                DialArc(accent = numberFaceAccent(number.preset))
+                Spacer(Modifier.width(VSpacing.Md))
+                Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 StatusBadge(number.status)
             }
             Spacer(Modifier.height(VSpacing.Md))
@@ -148,13 +186,68 @@ fun NumberFace(
                 if (number.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
             }
             Spacer(Modifier.height(VSpacing.Md))
-            Text(
-                number.usages.joinToString(" · "),
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 12.sp,
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    number.usages.joinToString(" · "),
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 12.sp,
+                    modifier = Modifier.weight(1f),
+                )
+                SignalBars(level = signalLevel(number), accent = numberFaceAccent(number.preset))
+            }
+        }
+    }
+}
+
+/** 拨号弧（communication identity 主 motif）。 */
+@Composable
+private fun DialArc(accent: Color) {
+    Canvas(Modifier.width(44.dp).height(22.dp)) {
+        drawArc(
+            color = accent.copy(alpha = 0.35f),
+            startAngle = 180f,
+            sweepAngle = 180f,
+            useCenter = false,
+            topLeft = Offset(0f, 0f),
+            size = Size(size.width, size.height * 2f),
+            style = Stroke(width = 7.dp.toPx()),
+        )
+        drawArc(
+            color = accent.copy(alpha = 0.9f),
+            startAngle = 180f,
+            sweepAngle = 120f,
+            useCenter = false,
+            topLeft = Offset(0f, 0f),
+            size = Size(size.width, size.height * 2f),
+            style = Stroke(width = 2.dp.toPx()),
+        )
+    }
+}
+
+/** 信号条（communication identity 主 motif；满格按角色）。 */
+@Composable
+private fun SignalBars(level: Int, accent: Color) {
+    Row(horizontalArrangement = Arrangement.spacedBy(3.dp), verticalAlignment = Alignment.Bottom) {
+        listOf(6, 10, 14, 18, 22).forEachIndexed { index, h ->
+            Box(
+                Modifier
+                    .width(4.dp)
+                    .height(h.dp)
+                    .background(
+                        if (index < level) accent.copy(alpha = 0.9f) else accent.copy(alpha = 0.22f),
+                        RoundedCornerShape(1.dp),
+                    ),
             )
         }
     }
+}
+
+/** 信号满格（primary=5 / secondary=3 / keep=2；纯呈现派生，不改变语义角色）。 */
+private fun signalLevel(number: UiVNextNumber): Int = when (number.role) {
+    "primary" -> 5
+    "secondary" -> 3
+    "keep" -> 2
+    else -> 4
 }
 
 private fun roleLabel(role: String): String = when (role) {

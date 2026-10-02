@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.defaultMinSize
+import com.pdig.uivnext.theme.VTouchTarget
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -43,15 +45,24 @@ import com.pdig.uivnext.ui.components.SectionHeader
  * Card Customization Studio / Number Customization Studio。
  * 手机：Preview 在上、编辑面板在下；编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap；素材 bundled local / procedural）。
  */
+/**
+ * Card Customization Studio / Number Customization Studio。
+ * 手机：Preview 在上、编辑面板在下；编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap；素材 bundled local / procedural）。
+ * 证据：`app.evidenceThemeId` 覆盖初始主题并在修改时回写（expected==actual；见 AndroidVisualVariantEvidenceContractTest）。
+ */
 @Composable
 fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
-    var profile by remember { mutableStateOf(PresentationProfile.defaultFor("card", card.id, card.preset)) }
+    val initialTheme = app.evidenceThemeId ?: card.preset
+    var profile by remember(initialTheme) { mutableStateOf(PresentationProfile.defaultFor("card", card.id, initialTheme)) }
     CustomizationFrame(
         title = "卡面定制 · ${card.nickname}",
         presets = CARD_THEME_PRESETS,
         profile = profile,
-        onPreset = { profile = profile.copy(themeId = it, backgroundValue = it) },
+        onPreset = {
+            profile = profile.copy(themeId = it, backgroundValue = it)
+            app.evidenceThemeId = it
+        },
         preview = {
             AssetCard(card = card.copy(preset = profile.themeId), privacyMask = app.privacyMask, onClick = {})
         },
@@ -59,7 +70,6 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             "主题" to profile.themeId,
             "材质" to profile.material,
             "主色" to profile.accentColor,
-            "背景" to profile.backgroundValue,
             "布局" to profile.layout,
             "遮蔽" to (if (profile.maskSensitive) "已开启" else "已关闭"),
         ),
@@ -71,14 +81,18 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 @Composable
 fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
-    var profile by remember { mutableStateOf(PresentationProfile.defaultFor("phoneNumber", number.id, "country")) }
+    val initialTheme = app.evidenceThemeId ?: number.preset
+    var profile by remember(initialTheme) { mutableStateOf(PresentationProfile.defaultFor("phoneNumber", number.id, initialTheme)) }
     CustomizationFrame(
         title = "号码面定制 · ${number.nickname}",
         presets = NUMBER_THEME_PRESETS,
         profile = profile,
-        onPreset = { profile = profile.copy(themeId = it, backgroundValue = it) },
+        onPreset = {
+            profile = profile.copy(themeId = it, backgroundValue = it)
+            app.evidenceThemeId = it
+        },
         preview = {
-            NumberFace(number = number, privacyMask = app.privacyMask, onClick = {})
+            NumberFace(number = number.copy(preset = profile.themeId), privacyMask = app.privacyMask, onClick = {})
         },
         rows = listOf(
             "主题" to profile.themeId,
@@ -121,7 +135,7 @@ private fun CustomizationFrame(
                 )
             }
         }
-        if (breakpoint == MediaBreakpoint.WIDE || breakpoint == MediaBreakpoint.MEDIUM) {
+        if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
             WideCustomization(presets, profile, onPreset, preview, rows, toggles)
         } else {
             CompactCustomization(presets, profile, onPreset, preview, rows, toggles)
@@ -150,7 +164,7 @@ private fun WideCustomization(
             SectionHeader("预设")
             presets.forEach { preset ->
                 Surface(
-                    Modifier.fillMaxWidth().clickable { onPreset(preset) },
+                    Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min).clickable { onPreset(preset) },
                     color = if (profile.themeId == preset) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
                     shape = RoundedCornerShape(VRadius.Md),
                     border = BorderStroke(1.dp, if (profile.themeId == preset) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
@@ -244,7 +258,7 @@ private fun CompactCustomization(
             SectionHeader("预设")
             presets.forEach { preset ->
                 Surface(
-                    Modifier.fillMaxWidth().clickable { onPreset(preset) },
+                    Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min).clickable { onPreset(preset) },
                     color = if (profile.themeId == preset) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
                     shape = RoundedCornerShape(VRadius.Md),
                     border = BorderStroke(1.dp, if (profile.themeId == preset) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),

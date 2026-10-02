@@ -32,18 +32,25 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextCard
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
+import com.pdig.uivnext.ui.components.EmptyKind
+import com.pdig.uivnext.ui.components.EmptyState
 
-/** Cards：过滤（全部/国家）+ Visual Grid / Compact List 切换。 */
+/**
+ * Cards：过滤（全部/国家）+ Visual Grid / Compact List 切换。
+ * 空态：过滤后无卡片 → honest unknown EmptyState（未记录 ≠ 无风险）。
+ */
 @Composable
 fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val all = UiVNextDemoFixture.cards
+    val all = app.demoCards()
     val regionFiltered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
     var gridView by remember { mutableStateOf(true) }
 
@@ -67,7 +74,6 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         }
 
         Spacer(Modifier.height(20.dp))
-        // 过滤行（国家）
         FilterRow(
             regions = UiVNextDemoFixture.regions.map { it.regionCode },
             activeRegion = app.regionFilter,
@@ -76,9 +82,23 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         Spacer(Modifier.height(20.dp))
 
-        if (gridView) {
+        if (regionFiltered.isEmpty()) {
+            EmptyState(
+                kind = EmptyKind.CARDS,
+                title = if (app.regionFilter == null) "还没有卡片" else "该地区没有卡片",
+                description = if (app.regionFilter == null) {
+                    "没有记录 ≠ 没有风险：尚未录入卡片时，不推断任何支付路径存在或不存在。"
+                } else {
+                    "地区 ${app.regionFilter} 暂无卡片记录。没有记录 ≠ 没有风险。"
+                },
+                primaryCta = "查看全部卡片",
+                onPrimary = { app.regionFilter = null },
+                secondaryCta = "查看号码",
+                onSecondary = { app.navigate(VScreen.NUMBERS) },
+            )
+        } else if (gridView) {
             val columns = when (breakpoint) {
-                MediaBreakpoint.WIDE -> 4
+                MediaBreakpoint.EXPANDED -> 4
                 MediaBreakpoint.MEDIUM -> 3
                 MediaBreakpoint.COMPACT -> 2
             }

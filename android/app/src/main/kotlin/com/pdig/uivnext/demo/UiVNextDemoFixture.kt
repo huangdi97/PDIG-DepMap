@@ -40,13 +40,13 @@ object UiVNextDemoFixture {
     )
 
     val numbers: List<UiVNextNumber> = listOf(
-        UiVNextNumber("num-cn-1", "主号 中国移动", "+86 138****8823", "CN", "+86", "中国移动", "SIM", "primary", listOf("银行验证", "注册", "2FA"), "active", true, true),
-        UiVNextNumber("num-cn-2", "工作副号", "+86 137****5510", "CN", "+86", "中国联通", "eSIM", "secondary", listOf("工作"), "active", false, false),
-        UiVNextNumber("num-cn-3", "保号副号", "+86 139****2204", "CN", "+86", "中国移动", "SIM", "secondary", listOf("保号"), "active", false, false),
-        UiVNextNumber("num-hk-1", "香港主号", "+852 9***4321", "HK", "+852", "3HK", "SIM", "primary", listOf("银行验证", "2FA"), "active", true, true),
-        UiVNextNumber("num-gb-1", "英国主号", "+44 7911 182***", "GB", "+44", "Vodafone", "eSIM", "primary", listOf("注册", "旅行", "2FA"), "active", false, false),
-        UiVNextNumber("num-us-1", "美国保号", "+1 415 887 ****", "US", "+1", "T-Mobile", "SIM", "secondary", listOf("恢复"), "active", true, false),
-        UiVNextNumber("num-sg-1", "新加坡主号", "+65 9***2214", "SG", "+65", "Singtel", "eSIM", "primary", listOf("银行验证", "工作"), "active", false, false),
+        UiVNextNumber("num-cn-1", "主号 中国移动", "+86 138****8823", "CN", "+86", "中国移动", "SIM", "primary", listOf("银行验证", "注册", "2FA"), "active", true, true, preset = "country"),
+        UiVNextNumber("num-cn-2", "工作副号", "+86 137****5510", "CN", "+86", "中国联通", "eSIM", "secondary", listOf("工作"), "active", false, false, preset = "work"),
+        UiVNextNumber("num-cn-3", "保号副号", "+86 139****2204", "CN", "+86", "中国移动", "SIM", "secondary", listOf("保号"), "active", false, false, preset = "recovery"),
+        UiVNextNumber("num-hk-1", "香港主号", "+852 9***4321", "HK", "+852", "3HK", "SIM", "primary", listOf("银行验证", "2FA"), "active", true, true, preset = "banking"),
+        UiVNextNumber("num-gb-1", "英国主号", "+44 7911 182***", "GB", "+44", "Vodafone", "eSIM", "primary", listOf("注册", "旅行", "2FA"), "active", false, false, preset = "travel"),
+        UiVNextNumber("num-us-1", "美国保号", "+1 415 887 ****", "US", "+1", "T-Mobile", "SIM", "secondary", listOf("恢复"), "active", true, false, preset = "minimal"),
+        UiVNextNumber("num-sg-1", "新加坡主号", "+65 9***2214", "SG", "+65", "Singtel", "eSIM", "primary", listOf("银行验证", "工作"), "active", false, false, preset = "city"),
     )
 
     val services: List<UiVNextService> = listOf(
