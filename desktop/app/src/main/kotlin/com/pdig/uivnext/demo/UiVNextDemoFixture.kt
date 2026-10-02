@@ -24,12 +24,12 @@ data class CardVisualProfile(
 
 /** issuer → 默认视觉（PHASE 1C §14；unique accent/material/artwork/layout + region identity）。 */
 val ISSUER_VISUAL_PROFILES: Map<String, CardVisualProfile> = mapOf(
-    "招商银行" to CardVisualProfile("matte", "matte", "crimson", "standard"),
+    "招商银行" to CardVisualProfile("matte", "matte", "copper", "standard"),
     "中国工商银行" to CardVisualProfile("minimal", "minimal", "crimson", "emblem"),
     "中国银行" to CardVisualProfile("metal", "metal", "cool", "standard"),
     "HSBC 汇丰" to CardVisualProfile("city", "glass", "warm", "emblem"),
     "Monzo" to CardVisualProfile("minimal", "minimal", "coral", "minimal-content"),
-    "Revolut" to CardVisualProfile("abstract", "glass", "cool", "standard"),
+    "Revolut" to CardVisualProfile("glass", "glass", "cool", "standard"),
     "Chase" to CardVisualProfile("metal", "metal", "navy", "standard"),
     "Capital One" to CardVisualProfile("abstract", "matte", "crimson", "minimal-content"),
     "DBS" to CardVisualProfile("city", "matte", "warm", "emblem"),

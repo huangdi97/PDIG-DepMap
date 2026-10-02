@@ -88,7 +88,7 @@ private fun PlaceholderScreen(screen: VScreen) {
         Text(screen.titleZh, color = PdigV2Colors.TextPrimary, style = VType.PageTitle)
         Surface(color = PdigV2Colors.Surface.copy(alpha = 0.96f), shape = RoundedCornerShape(VRadius.Lg), modifier = Modifier.fillMaxWidth()) {
             Text(
-                "该页面将在后续迭代接入：当前 IA 已包含 ${screen.titleZh}（route=${screen.route}），v0.x 焦点为「卡片」与「号码」。",
+                "该页面将在后续迭代接入。当前版本聚焦「卡片」与「号码」的基础设施管理。",
                 Modifier.padding(VSpacing.Xl),
                 color = PdigV2Colors.TextSecondary,
                 style = VType.Secondary,

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,15 +40,20 @@ import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.theme.statusColor
 
 /**
- * NumberIdentitySurface —— 「全球通信身份」身份面（PHASE 1D §23）。
+ * NumberIdentitySurface —— 「全球通信身份」身份面（PHASE 1D §23 + PHASE 1F §22–24）。
  *
- * 不是 payment card：1.9:1 横版身份面，以 地区身份 / 国际区号 / 号码 /
- * 运营商 / SIM 形态 / 角色 / 连续性状态 构成通信身份语法：
- *   - 左：大号地区 code（RegionBadge 放大）+ 国际区号 + 号码（MajorNumber）；
- *   - 右：continuity ring（连续环，status 语义）+ 状态徽标；
- *   - 底：运营商 / SIM 形态 / 角色 / 用途 chips + 一条「通信线路」视觉基线。
+ * 不是 payment card：不使用卡语法（rounded-rect + 左右色块为主）。
+ * 通信专属语法：
+ *   - 左上：region 标记 + 国家/地区名
+ *   - 主身份：大号国际区号（+86，最强视觉元素）
+ *   - 号码：138 **** 8823（mono 大号）
+ *   - 次要：运营商 · SIM 形态
+ *   - 角色簇：主号 / 银行验证 / 2FA / 注册
+ *   - 恢复：唯一恢复路径
+ *   - 右上：continuity ring（小而有语义）
  * 确定性、全部 token 色、离线。
  */
+
 @Composable
 fun NumberIdentitySurface(
     number: UiVNextNumber,
@@ -64,49 +71,65 @@ fun NumberIdentitySurface(
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Column(Modifier.padding(VSpacing.Xxl), verticalArrangement = Arrangement.spacedBy(VSpacing.Md)) {
+            // 左上 region 标记 + 国家名；右上 continuity ring + status
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.Top) {
-                // Region identity：放大地区码 + 国际区号
                 Column {
-                    RegionBadge(number.region, badgeSize = 44.dp)
+                    RegionBadge(number.region, badgeSize = 40.dp)
                     Spacer(Modifier.height(VSpacing.Sm))
                     Text(
-                        number.countryCode,
-                        style = VType.Secondary,
+                        regionNameZh(number.region),
+                        style = VType.Label,
                         color = PdigV2Colors.TextSecondary,
                         maxLines = 1,
                     )
                 }
-                // Continuity ring + status
                 Column(horizontalAlignment = Alignment.End) {
-                    ContinuityRing(number.status, size = 44.dp)
+                    ContinuityRing(number.status, size = 36.dp)
                     Spacer(Modifier.height(VSpacing.Sm))
                     StatusBadge(number.status)
                 }
             }
-            Spacer(Modifier.height(VSpacing.Xs))
-            // Number（大号，横向，永不竖排）
+            // 主身份：国际区号（最强视觉元素）
+            Text(
+                number.countryCode,
+                style = VType.MajorNumber.copy(fontSize = 36.sp, fontWeight = FontWeight.Bold),
+                color = PdigV2Colors.TextPrimary,
+                maxLines = 1,
+            )
+            // 号码（大号，横向，永不竖排）
             Text(
                 if (privacyMask && p.maskSensitive) maskedFully(number.maskedNumber) else number.maskedNumber,
-                style = VType.MajorNumber.copy(fontSize = 30.sp),
+                style = VType.MajorNumber.copy(fontSize = 24.sp, fontWeight = FontWeight.Bold),
                 fontFamily = FontFamily.Monospace,
                 color = PdigV2Colors.TextPrimary,
                 maxLines = 1,
             )
-            // 通信线路视觉基线 + 运营商/SIM/角色
-            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+            // 通信路径 + 运营商 · SIM 形态
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
                 LabelChip(number.carrier)
                 LabelChip(if (number.simKind == "eSIM") "eSIM" else "实体 SIM")
-                LabelChip(roleLabel(number.role))
-                if (number.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
             }
-            Text(
-                "用途：${number.usages.joinToString(" · ")}",
-                style = VType.Secondary,
-                color = PdigV2Colors.TextSecondary,
-                maxLines = 2,
-            )
+            // 角色簇：主号 / 用途
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                LabelChip(roleLabel(number.role))
+                number.usages.take(3).forEach { usage -> LabelChip(usage) }
+            }
+            // 恢复能力
+            if (number.recoveryOnly) {
+                LabelChip("唯一恢复路径", highlight = true)
+            }
         }
     }
+}
+
+internal fun regionNameZh(region: String): String = when (region) {
+    "CN" -> "中国大陆"
+    "HK" -> "中国香港"
+    "MO" -> "中国澳门"
+    "GB" -> "英国"
+    "US" -> "美国"
+    "SG" -> "新加坡"
+    else -> region
 }
 
 /** 身份面背景：region-tinted 渐变 + 底部通信线路。 */
@@ -142,7 +165,7 @@ private fun DrawScope.drawIdentityBackdrop(p: PresentationProfile, number: UiVNe
     }
 }
 
-/** ContinuityRing：状态语义环（连续性）。 */
+/** ContinuityRing：状态语义环（连续性；小而有意）。 */
 @Composable
 fun ContinuityRing(status: String, size: Dp = 40.dp) {
     val color = statusColor(status)

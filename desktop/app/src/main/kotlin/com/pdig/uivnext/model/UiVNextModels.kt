@@ -154,8 +154,7 @@ data class PresentationProfile(
     }
 }
 
-/** 材料列表（bundled local / procedural，禁远程 URL）。 */
-val CARD_THEME_PRESETS = listOf("minimal", "deep-space", "region", "city", "glass", "metal", "abstract")
+val CARD_THEME_PRESETS = listOf("minimal", "matte", "deep-space", "region", "city", "glass", "metal", "abstract")
 val NUMBER_THEME_PRESETS = listOf("country", "city", "minimal", "banking", "travel", "recovery", "work", "private")
 
 /** 稳定 testId 常量（四端语义一致）。 */

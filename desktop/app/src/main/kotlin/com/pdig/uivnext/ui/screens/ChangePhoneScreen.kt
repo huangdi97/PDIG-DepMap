@@ -104,16 +104,16 @@ fun ChangePhoneScreen(app: VAppState) {
             projection = app.changeProjection,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(430.dp),
+                .height(CONTINUITY_SCENE_HEIGHT_PX.dp),
         )
 
         // 下方详情（默认折叠为 Inspector/Expandable）
         CollapsibleDetails(migrations)
-
         // 风险提示：compact critical notice（§37 不横贯大 banner）
+        // 风险提示：compact notice（§36/§37：不横贯全宽 banner，除非 severity 真正 critical）
         Row(
             Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.72f)
                 .background(PdigV2Colors.Warning.copy(alpha = 0.10f), RoundedCornerShape(VRadius.Md))
                 .padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
             verticalAlignment = Alignment.CenterVertically,

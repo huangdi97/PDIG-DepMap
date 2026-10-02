@@ -25,6 +25,10 @@ class VAppState(
     /** 证据 seam（截图/交互日志）：强制空列表渲染（Cards/Numbers 空状态，§45–46）。 */
     var demoEmptyCards by mutableStateOf(false)
     var demoEmptyNumbers by mutableStateOf(false)
+    /** PHASE 1F 空态证据 seam：Now 需要处理 / 正在进行 / Overview 地区空。 */
+    var demoEmptyAttention by mutableStateOf(false)
+    var demoEmptyChanges by mutableStateOf(false)
+    var demoEmptyRegion by mutableStateOf(false)
     /** Command Palette（PHASE 1E §39）：真实可用键盘/搜索；仅影响导航。 */
     var paletteOpen by mutableStateOf(false)
     var paletteQuery by mutableStateOf("")

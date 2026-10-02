@@ -1,12 +1,8 @@
 package com.pdig.uivnext.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
@@ -29,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.model.AttentionItem
@@ -122,45 +118,6 @@ fun AttentionRow(item: AttentionItem, onClick: (AttentionItem) -> Unit, modifier
     }
 }
 
-@Composable
-fun EmptyState(
-    title: String,
-    body: String,
-    actionLabel: String? = null,
-    modifier: Modifier = Modifier,
-    onAction: (() -> Unit)? = null,
-) {
-    Surface(
-        modifier = modifier.fillMaxWidth().padding(top = VSpacing.Xxl),
-        color = PdigV2Colors.Surface.copy(alpha = 0.96f),
-        shape = RoundedCornerShape(VRadius.Lg),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-    ) {
-        Column(
-            Modifier.padding(horizontal = VSpacing.Xxl, vertical = VSpacing.Xxxl),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(VSpacing.Md),
-        ) {
-            Icon(Icons.Filled.Lock, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(28.dp))
-            Text(title, style = VType.SectionTitle, color = PdigV2Colors.TextPrimary)
-            Text(body, style = VType.Secondary, color = PdigV2Colors.TextSecondary)
-            if (actionLabel != null && onAction != null) {
-                Surface(
-                    color = PdigV2Colors.Primary,
-                    shape = RoundedCornerShape(VRadius.Md),
-                    modifier = Modifier.clickable(onClick = onAction),
-                ) {
-                    Text(
-                        actionLabel,
-                        Modifier.padding(horizontal = VSpacing.Xl, vertical = VSpacing.Md),
-                        color = PdigV2Colors.CanvasDeep,
-                        style = VType.Label,
-                    )
-                }
-            }
-        }
-    }
-}
 
 /** RegionListItem（PHASE 1C）：更大地区身份（flag/region glyph 主、计数次级、lighter chrome）。 */
 @Composable

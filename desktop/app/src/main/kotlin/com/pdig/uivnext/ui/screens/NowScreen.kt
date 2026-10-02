@@ -32,7 +32,7 @@ import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AttentionRow
 import com.pdig.uivnext.ui.components.SectionHeader
-
+import com.pdig.uivnext.ui.components.EmptyState
 /**
  * Now（PHASE 1C §7）：LEFT 60–68% 空间 Globe + 全局上下文；RIGHT 32–40% Now Stream
  * （纵向 需要处理 → 正在进行 → 即将到来）。不再三列等宽 dashboard block；下半屏无空黑。
@@ -94,16 +94,32 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     verticalArrangement = Arrangement.spacedBy(VSpacing.Lg),
                 ) {
                 SectionHeader("需要处理（${UiVNextDemoFixture.attentionItems.size}）")
-                UiVNextDemoFixture.attentionItems.forEach { item ->
-                    AttentionRow(item = item, onClick = { clicked ->
-                        when {
-                            UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
-                            else -> app.openNumber(clicked.target)
-                        }
-                    })
+                if (UiVNextDemoFixture.attentionItems.isEmpty() || app.demoEmptyAttention) {
+                    EmptyState(
+                        title = com.pdig.uivnext.copy.Phase1FEmptyCopy.NO_ATTENTION_TITLE,
+                        body = com.pdig.uivnext.copy.Phase1FEmptyCopy.NO_ATTENTION_BODY,
+                        motif = com.pdig.uivnext.ui.components.EmptyMotif.CHECK,
+                    )
+                } else {
+                    UiVNextDemoFixture.attentionItems.forEach { item ->
+                        AttentionRow(item = item, onClick = { clicked ->
+                            when {
+                                UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
+                                else -> app.openNumber(clicked.target)
+                            }
+                        })
+                    }
                 }
                 SectionHeader("正在进行", trailing = { Text("查看全部", color = PdigV2Colors.PrimaryBright, style = VType.Label) })
-                ActiveChangeCard(app)
+                if (UiVNextDemoFixture.activeChanges.isEmpty() || app.demoEmptyChanges) {
+                    EmptyState(
+                        title = com.pdig.uivnext.copy.Phase1FEmptyCopy.NO_CHANGE_TITLE,
+                        body = com.pdig.uivnext.copy.Phase1FEmptyCopy.NO_CHANGE_BODY,
+                        motif = com.pdig.uivnext.ui.components.EmptyMotif.LIST,
+                    )
+                } else {
+                    ActiveChangeCard(app)
+                }
                 SectionHeader("即将到来")
                 UiVNextDemoFixture.upcoming.forEach { item ->
                     Surface(

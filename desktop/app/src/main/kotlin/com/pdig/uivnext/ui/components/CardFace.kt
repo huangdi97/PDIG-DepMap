@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
@@ -22,6 +23,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
@@ -35,15 +38,15 @@ import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
 import com.pdig.uivnext.ui.components.collectVNextInteraction
 import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
+import java.io.File
 
 /**
- * AssetCard —— 卡面 = 真实支付卡资产身份（PHASE 1D §12–§15）。
+ * AssetCard —— 卡面 = 真实支付卡资产身份（PHASE 1D §12–§15 + PHASE 1F §7–§11）。
  *
- * 视觉语法分层：Background Material → Issuer Identity → Card Identity →
- * Financial Metadata → Status Overlay；内容排版（standard / emblem /
- * minimal-content）拆分在 CardFaceContent.kt（≤300 行）。
- * 8 个视觉预设真实不同（非全蓝渐变）；全部程序化（token 色），零远程图片；
- * 保持 1.586 ratio。
+ * 视觉语法分层：Identity Background（§9 身份色板 + motif）→ Material → Content；
+ * 内容排版（standard / emblem / minimal-content）拆分在 CardFaceContent.kt。
+ * 每张 demo 卡 ≥3 个身份要素（palette / accent geometry / material / artwork），
+ * 永不是「深色矩形 + issuer + PAN」。保持 1.586 ratio。
  */
 
 /** 卡片主题中文名（用户语言；高级内部值不进普通 UI）。 */
@@ -65,17 +68,8 @@ internal fun cardLayoutLabel(layout: String): String = when (layout) {
     else -> "标准"
 }
 
-/** 卡默认视觉（PHASE 1D §13：issuer 差异化，synthetic demo；仅呈现层，绝不写 .depmap）。 */
-fun cardProfileOf(card: UiVNextCard): PresentationProfile {
-    val vp = com.pdig.uivnext.demo.cardVisualProfileFor(card.id)
-    return PresentationProfile.defaultFor("card", card.id, vp.theme).copy(
-        material = vp.material,
-        accentColor = vp.accent,
-        layout = vp.layout,
-        backgroundKind = "preset",
-        backgroundValue = vp.theme,
-    )
-}
+/** 卡默认视觉（PHASE 1D §13 + PHASE 1F §9：issuer 差异化，synthetic demo；仅呈现层）。 */
+fun cardProfileOf(card: UiVNextCard): PresentationProfile = defaultCardProfile(card)
 
 @Composable
 fun AssetCard(
@@ -86,6 +80,14 @@ fun AssetCard(
     profile: PresentationProfile? = null,
 ) {
     val p = profile ?: cardProfileOf(card)
+    // 自定义背景：app-managed 文件 → 解码为位图（缩略图/预览/网格共用；解码失败回退主题）。
+    val backgroundBitmap: ImageBitmap? = remember(p.backgroundKind, p.backgroundValue) {
+        if (p.backgroundKind == "imported" && p.backgroundValue.isNotBlank()) {
+            decodeLocalImage(File(p.backgroundValue))
+        } else {
+            null
+        }
+    }
     val source = rememberVNextInteractionSource()
     val hover = collectVNextInteraction(source).hovered
     Surface(
@@ -107,7 +109,7 @@ fun AssetCard(
         Box(
             Modifier
                 .aspectRatio(1.586f)
-                .drawBehind { drawCardFaceBackdrop(p) }
+                .drawBehind { drawCardFaceBackdrop(p, card, backgroundBitmap) }
                 .border(1.dp, cardFaceBorder(p), RoundedCornerShape(VRadius.Xl))
                 .padding(VSpacing.Xl),
         ) {
@@ -116,38 +118,43 @@ fun AssetCard(
     }
 }
 
+/** 本地图片解码（app-managed storage；解码失败返回 null，回退主题渲染）。 */
+internal fun decodeLocalImage(file: File): ImageBitmap? = try {
+    if (!file.isFile) null
+    else org.jetbrains.skia.Image.makeFromEncoded(file.readBytes())?.toComposeImageBitmap()
+} catch (e: Throwable) {
+    null
+}
+
 /**
- * 卡面背景：theme 底色 + material 质感 + theme 图案（全部 token 色）。
+ * 卡面背景：Identity 基础色对 + motif 艺术层 + 材质层 + accent 洗色 + rim。
  * internal：供 StudioFrame 的确定性视觉缩略图复用同一渲染器。
  */
-internal fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
+internal fun DrawScope.drawCardFaceBackdrop(
+    p: PresentationProfile,
+    card: UiVNextCard? = null,
+    backgroundBitmap: ImageBitmap? = null,
+) {
     val w = size.width
     val h = size.height
-    // 1. Theme base
-    val base: Brush = when (p.themeId) {
-        "minimal" -> Brush.verticalGradient(listOf(PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep))
-        "deep-space" -> Brush.radialGradient(
-            listOf(PdigV2Colors.Surface, PdigV2Colors.CanvasDeep),
-            center = Offset(w * 0.42f, h * 0.34f),
-            radius = w,
+    val identity = resolveCardIdentity(p, card)
+    // 1. Identity base（§9 色板；非 near-black 空占位）
+    drawRect(Brush.verticalGradient(listOf(identity.top, identity.bottom)))
+    // 2. 艺术层：导入背景 → 用户图片；否则 → identity motif + glow
+    if (backgroundBitmap != null) {
+        drawImage(
+            image = backgroundBitmap,
+            dstOffset = androidx.compose.ui.unit.IntOffset.Zero,
+            dstSize = androidx.compose.ui.unit.IntSize(w.toInt(), h.toInt()),
         )
-        "region" -> Brush.linearGradient(listOf(PdigV2Colors.LandHighlight, PdigV2Colors.OceanBase, PdigV2Colors.OceanDeep))
-        "city" -> Brush.linearGradient(listOf(PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep))
-        "glass" -> Brush.linearGradient(listOf(PdigV2Colors.SurfaceGlass, PdigV2Colors.Surface.copy(alpha = 0.65f)))
-        "metal" -> Brush.linearGradient(listOf(PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep, PdigV2Colors.SurfaceRaised))
-        "abstract" -> Brush.linearGradient(
-            listOf(PdigV2Colors.Primary, PdigV2Colors.PrimarySoft, PdigV2Colors.Surface),
-            start = Offset(0f, 0f),
-            end = Offset(w, h),
-        )
-        else -> Brush.linearGradient(listOf(PdigV2Colors.Surface, PdigV2Colors.CanvasDeep))
+        drawRect(PdigV2Colors.CanvasDeep.copy(alpha = 0.18f))
+    } else {
+        drawCardIdentity(identity, w, h)
     }
-    drawRect(base)
-    // 2+3. 委托 CardVisualRenderer（PHASE 1C 拆分：CardArtwork + CardMaterial）
-    CardArtwork.artwork(this, p, w, h)
+    // 3. 材质层
     CardMaterial.material(this, p, w, h)
     // 4. 左缘 accent 洗色（克制的品牌强调）
-    val accent = accentColorOf(p.accentColor)
+    val accent = identity.accent
     drawRect(
         Brush.horizontalGradient(listOf(accent.copy(alpha = 0.16f), Color.Transparent)),
         topLeft = Offset(0f, 0f),
@@ -164,7 +171,7 @@ internal fun DrawScope.drawCardFaceBackdrop(p: PresentationProfile) {
 }
 
 /**
- * 确定性视觉缩略图（Studio 主题选择器用；固定尺寸 76dp、固定渲染器、
+ * 确定性视觉缩略图（Studio 主题选择器用；固定尺寸、固定渲染器、
  * 共享 PresentationProfile 渲染；避免在滚动容器内使用 aspectRatio）。
  */
 @Composable
@@ -175,7 +182,7 @@ fun CardFaceThumbnail(preset: String, modifier: Modifier = Modifier) {
     Box(
         modifier
             .fillMaxWidth(0.92f)
-            .height(84.dp)
+            .height(104.dp)
             .drawBehind { drawCardFaceBackdrop(profile) }
             .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Sm)),
     ) {

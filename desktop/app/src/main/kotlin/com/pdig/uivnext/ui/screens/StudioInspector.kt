@@ -1,8 +1,10 @@
 package com.pdig.uivnext.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,13 +23,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
-
+import com.pdig.uivnext.ui.components.decodeLocalImage
+import java.io.File
 /**
  * Studio 右侧 Inspector（PHASE 1E §20）：分组折叠（材质 / 背景 / 布局 / 信息 / 隐私），
  * 默认只展开当前编辑组，降低 cognitive load；accent = 6–8 curated swatches（28–32dp）
@@ -72,17 +77,43 @@ fun StudioInspector(
                 ChipRow(label = "纯色", selected = profile.backgroundKind == "plain", compact = true) {
                     onProfileChange(profile.copy(backgroundKind = "plain", backgroundValue = ""))
                 }
-                ChipRow(label = "导入图片", selected = profile.backgroundKind == "imported", compact = true) {
-                    if (onImportBackground != null) {
-                        onImportBackground()
-                    } else {
-                        onProfileChange(profile.copy(backgroundKind = "imported"))
+            }
+            // PHASE 1F §20：自定义背景消费者交互（选择 / 替换 / 移除；不暴露 path/hash）。
+            val imported = profile.backgroundKind == "imported"
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                Surface(
+                    color = PdigV2Colors.PrimarySoft,
+                    shape = RoundedCornerShape(VRadius.Md),
+                    modifier = Modifier.clickable { onImportBackground?.invoke() },
+                ) {
+                    Text(
+                        if (imported) "替换图片" else "选择本地图片",
+                        Modifier.padding(horizontal = VSpacing.Md, vertical = 5.dp),
+                        color = PdigV2Colors.PrimaryBright,
+                        style = VType.Label,
+                    )
+                }
+                if (imported) {
+                    Surface(
+                        color = PdigV2Colors.SurfaceRaised,
+                        shape = RoundedCornerShape(VRadius.Md),
+                        modifier = Modifier.clickable {
+                            onProfileChange(profile.copy(backgroundKind = "preset", backgroundValue = profile.themeId))
+                        },
+                    ) {
+                        Text(
+                            "移除",
+                            Modifier.padding(horizontal = VSpacing.Md, vertical = 5.dp),
+                            color = PdigV2Colors.TextSecondary,
+                            style = VType.Label,
+                        )
                     }
                 }
             }
-            if (profile.backgroundKind == "imported") {
+            if (imported) {
+                BackgroundThumbnail(profile.backgroundValue)
                 Text(
-                    "自定义图片已保存到 app-managed storage；只影响显示，不会修改你的基础设施关系。",
+                    "自定义图片已保存到本机存储；只影响显示，不会修改你的基础设施关系。",
                     style = VType.Meta,
                     color = PdigV2Colors.TextMuted,
                 )
@@ -184,5 +215,29 @@ private fun InspectorGroup(
             Spacer(Modifier.height(VSpacing.Sm))
         }
         androidx.compose.material3.HorizontalDivider(color = PdigV2Colors.BorderSubtle.copy(alpha = 0.4f), thickness = 1.dp)
+    }
+}
+/** 自定义背景缩略图（本地 app-managed 文件；解码失败显示中性占位）。 */
+@Composable
+private fun BackgroundThumbnail(path: String) {
+    val bitmap = remember(path) { decodeLocalImage(File(path)) }
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(120.dp)
+            .clip(RoundedCornerShape(VRadius.Md))
+            .drawBehind {
+                if (bitmap != null) {
+                    drawImage(image = bitmap, dstOffset = androidx.compose.ui.unit.IntOffset.Zero, dstSize = androidx.compose.ui.unit.IntSize(size.width.toInt(), size.height.toInt()))
+                } else {
+                    drawRect(PdigV2Colors.SurfaceRaised)
+                }
+            }
+            .border(BorderStroke(1.dp, PdigV2Colors.BorderSubtle), RoundedCornerShape(VRadius.Md)),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (bitmap == null) {
+            Text("背景预览不可用", style = VType.Meta, color = PdigV2Colors.TextMuted)
+        }
     }
 }

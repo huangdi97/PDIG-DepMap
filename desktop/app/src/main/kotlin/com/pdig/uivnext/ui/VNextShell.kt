@@ -33,9 +33,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.isCtrlPressed
@@ -94,9 +97,11 @@ fun VNextShell(app: VAppState, viewportWidth: Int = 1920) {
         else -> MediaBreakpoint.COMPACT
     }
     val focusState = remember { KeyboardFocusState() }
+    val focusRequester = remember { FocusRequester() }
     Row(
         Modifier
             .fillMaxSize()
+            .focusRequester(focusRequester)
             .focusable()
             .onPreviewKeyEvent { event ->
                 if (event.type == androidx.compose.ui.input.key.KeyEventType.KeyDown) {
@@ -124,6 +129,7 @@ fun VNextShell(app: VAppState, viewportWidth: Int = 1920) {
             VNextContentHost(app, breakpoint)
         }
     }
+    androidx.compose.runtime.LaunchedEffect(Unit) { focusRequester.requestFocus() }
 }
 
 /**
@@ -154,7 +160,7 @@ private fun NavigationRail(app: VAppState) {
                     Spacer(Modifier.width(VSpacing.Md))
                     Column {
                         Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold)
-                        Text("vNext", color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+                        Text("个人数字基础设施", color = PdigV2Colors.TextMuted, fontSize = 10.sp)
                     }
                 }
             }

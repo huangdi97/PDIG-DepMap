@@ -41,7 +41,7 @@ fun main(args: Array<String>) {
         application {
             Window(
                 onCloseRequest = ::exitApplication,
-                title = "PDIG vNext Preview",
+                title = "PDIG Preview",
                 state = rememberWindowState(width = 1920.dp, height = 1080.dp),
             ) {
                 com.pdig.uivnext.VNextApp(app)
@@ -96,6 +96,30 @@ fun main(args: Array<String>) {
         val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e")
         outRoot.mkdirs()
         kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextJourney1E.run(outRoot))
+        return
+    }
+    // --vnext-shots-1f：PHASE 1F 关键帧（brief §50：12 张主图 + mechanical + probe + empty-state 帧）
+    if (args.contains("--vnext-shots-1f")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence1F.run(outRoot))
+        return
+    }
+    // --vnext-journey-1f：PHASE 1F 交互 journey（§49 in-process 语义旅程 + §42 IME 尝试记录）
+    if (args.contains("--vnext-journey-1f")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextJourney1F.run(outRoot))
+        return
+    }
+    // --vnext-window-smoke-1f：PHASE 1F §49 真实窗口运行时 smoke（Robot 窗口级截图）
+    if (args.contains("--vnext-window-smoke-1f")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextWindowSmoke1F.run(outRoot))
         return
     }
     if (args.contains("--profiles") || args.contains("--keys")) {

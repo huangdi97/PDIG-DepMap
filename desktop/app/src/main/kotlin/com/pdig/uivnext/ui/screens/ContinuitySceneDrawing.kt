@@ -19,45 +19,59 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.statusColor
 
 /**
- * ContinuityScene 绘制辅助（PHASE 1E 拆分，保持 ContinuityScene.kt ≤300 行）。
- * 全部为纯 DrawScope / TextMeasurer 辅助，无状态。
+ * ContinuityScene 绘制辅助 —— 路径 + 号码身份面（PHASE 1F §31–§34）。
+ * 路径最弱层级：primary active 2.5 / secondary 2.0 / ghost 1.5，无更强辉光。
+ * 服务节点与投影徽标见 ContinuitySceneNodes.kt。
  */
 
-/** OLD ──服务──▶ NEW 的双段 Bezier；waiting=虚线+amber，blocked=红断点。 */
+/** 旧号 ──服务──▶ 新号 的双段 Bezier；waiting=虚线+amber，blocked=红断点。 */
 internal fun DrawScope.drawServicePaths(
-    oldX: Float, oldY: Float,
-    newX: Float, newY: Float,
+    fromX: Float, fromY: Float,
+    toX: Float, toY: Float,
     sx: Float, sy: Float,
+    boxW: Float,
     status: String,
     projection: String,
     w: Float,
 ) {
     val color = statusColor(status)
+    val boxL = sx - boxW * 0.5f
+    val boxR = sx + boxW * 0.5f
     val oldPath = cubicBezier(
-        Offset(oldX + w * 0.08f, oldY),
-        Offset(oldX + w * 0.18f, oldY),
-        Offset(sx - w * 0.12f, sy),
-        Offset(sx - w * 0.06f, sy),
+        Offset(fromX, fromY),
+        Offset(fromX + w * 0.10f, fromY),
+        Offset(boxL - w * 0.12f, sy),
+        Offset(boxL - w * 0.03f, sy),
     )
-    if (projection != "after") {
-        drawCubic(oldPath, color.copy(alpha = if (status == "not_started") 0.35f else 0.85f), 2.2f, dashed = status == "waiting")
+    // 旧号路径：current/transition = 次级实线；after = ghost 强淡出
+    when {
+        projection == "after" -> {
+            drawCubic(oldPath, color.copy(alpha = 0.18f), 1.5f, dashed = false)
+        }
+        status == "blocked" -> {
+            drawCubic(oldPath, color.copy(alpha = 0.9f), 2.0f, dashed = false)
+        }
+        else -> {
+            drawCubic(oldPath, color.copy(alpha = if (status == "not_started") 0.35f else 0.85f), 2.0f, dashed = status == "waiting")
+        }
     }
     val newPath = cubicBezier(
-        Offset(sx + w * 0.06f, sy),
-        Offset(sx + w * 0.12f, sy),
-        Offset(newX - w * 0.18f, newY),
-        Offset(newX - w * 0.08f, newY),
+        Offset(boxR + w * 0.03f, sy),
+        Offset(boxR + w * 0.12f, sy),
+        Offset(toX - w * 0.10f, toY),
+        Offset(toX, toY),
     )
-    val strong = status == "migrated" || status == "blocked" || projection == "after"
-    drawCubic(
-        newPath,
-        color.copy(alpha = if (strong) 1f else if (projection == "current") 0.5f else 0.85f),
-        if (strong) 2.6f else 2.0f,
-        dashed = status == "waiting",
-    )
+    when {
+        // current：新号侧为 ghost 目标（1.5px）
+        projection == "current" -> drawCubic(newPath, color.copy(alpha = 0.35f), 1.5f, dashed = false)
+        // transition：已迁移 = primary 2.5；blocked 留在旧号（新侧不画或 ghost）
+        status == "blocked" -> drawCubic(newPath, color.copy(alpha = 0.25f), 1.5f, dashed = false)
+        status == "migrated" -> drawCubic(newPath, color.copy(alpha = 1f), 2.5f, dashed = false)
+        else -> drawCubic(newPath, color.copy(alpha = if (projection == "after") 0.85f else 0.55f), 2.0f, dashed = status == "waiting")
+    }
     if (status == "blocked") {
-        drawLine(PdigV2Colors.Critical, Offset(sx - 6f, sy - 6f), Offset(sx + 6f, sy + 6f), strokeWidth = 2.4f)
-        drawLine(PdigV2Colors.Critical, Offset(sx - 6f, sy + 6f), Offset(sx + 6f, sy - 6f), strokeWidth = 2.4f)
+        drawLine(PdigV2Colors.Critical, Offset(sx - 7f, sy - 7f), Offset(sx + 7f, sy + 7f), strokeWidth = 2.6f)
+        drawLine(PdigV2Colors.Critical, Offset(sx - 7f, sy + 7f), Offset(sx + 7f, sy - 7f), strokeWidth = 2.6f)
     }
 }
 
@@ -99,6 +113,7 @@ internal fun DrawScope.drawCubic(c: Cubic, color: Color, stroke: Float, dashed: 
     }
 }
 
+/** 号码身份面（旧/新；250–300px 宽、内容层级：title → number → meta）。 */
 internal fun DrawScope.drawNumberNode(
     textMeasurer: TextMeasurer,
     center: Offset,
@@ -114,109 +129,34 @@ internal fun DrawScope.drawNumberNode(
 ) {
     val left = center.x - nodeW / 2f
     val top = center.y - nodeH / 2f
-    drawRoundRect(PdigV2Colors.Surface.copy(alpha = 0.92f * alpha), Offset(left, top), Size(nodeW, nodeH), CornerRadius(16f))
+    drawRoundRect(PdigV2Colors.Surface.copy(alpha = 0.92f * alpha), Offset(left, top), Size(nodeW, nodeH), CornerRadius(18f))
     drawRoundRect(
         border.copy(alpha = border.alpha * alpha),
         Offset(left, top),
         Size(nodeW, nodeH),
-        CornerRadius(16f),
-        style = Stroke(width = 1.4f),
+        CornerRadius(18f),
+        style = Stroke(width = if (emphasis) 2f else 1.4f),
     )
     drawRect(
-        Brush.horizontalGradient(listOf(accent.copy(alpha = 0.18f * alpha), Color.Transparent)),
+        Brush.horizontalGradient(listOf(accent.copy(alpha = 0.20f * alpha), Color.Transparent)),
         topLeft = Offset(left, top),
         size = Size(nodeW * 0.5f, nodeH),
     )
     val tTitle = textMeasurer.measure(
         AnnotatedString(title),
-        style = TextStyle(color = if (emphasis) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary, fontSize = 11.sp, fontWeight = FontWeight.W600),
+        style = TextStyle(color = if (emphasis) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.W600),
     )
     val tNum = textMeasurer.measure(
         AnnotatedString(number),
-        style = TextStyle(color = PdigV2Colors.TextPrimary.copy(alpha = alpha), fontSize = 15.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
+        style = TextStyle(color = PdigV2Colors.TextPrimary.copy(alpha = alpha), fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = FontFamily.Monospace),
     )
     val tMeta = textMeasurer.measure(
         AnnotatedString(meta),
-        style = TextStyle(color = PdigV2Colors.TextMuted.copy(alpha = alpha), fontSize = 10.sp),
+        style = TextStyle(color = PdigV2Colors.TextMuted.copy(alpha = alpha), fontSize = 11.sp),
     )
-    drawText(tTitle, topLeft = Offset(left + 12f, top + 10f))
-    drawText(tNum, topLeft = Offset(left + 12f, top + nodeH * 0.40f))
-    drawText(tMeta, topLeft = Offset(left + 12f, top + nodeH * 0.70f))
-}
-
-internal fun DrawScope.drawServiceNode(
-    textMeasurer: TextMeasurer,
-    sx: Float,
-    sy: Float,
-    name: String,
-    role: String,
-    status: String,
-    projection: String,
-    w: Float,
-    h: Float,
-) {
-    val color = statusColor(status)
-    val alpha = if (projection == "after" && status == "not_started") 0.5f else 1f
-    val nodeW = w * 0.15f
-    val left = sx - nodeW / 2f
-    drawCircle(PdigV2Colors.SurfaceRaised.copy(alpha = alpha), radius = 13f, center = Offset(left + 18f, sy))
-    drawCircle(color.copy(alpha = 0.6f * alpha), radius = 12f, center = Offset(left + 18f, sy), style = Stroke(width = 1.4f))
-    val glyph = name.firstOrNull()?.toString() ?: "?"
-    val g = textMeasurer.measure(
-        AnnotatedString(glyph),
-        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 11.sp, fontWeight = FontWeight.Bold),
-    )
-    drawText(g, topLeft = Offset(left + 18f - g.size.width / 2f, sy - g.size.height / 2f))
-    val tName = textMeasurer.measure(
-        AnnotatedString(name),
-        style = TextStyle(color = PdigV2Colors.TextPrimary.copy(alpha = alpha), fontSize = 12.sp, fontWeight = FontWeight.W600),
-    )
-    drawText(tName, topLeft = Offset(left + 34f, sy - 14f))
-    val roleLine = if (role.isNotEmpty()) role else sceneStatusLabel(status)
-    val tRole = textMeasurer.measure(
-        AnnotatedString(roleLine),
-        style = TextStyle(color = PdigV2Colors.TextMuted.copy(alpha = alpha), fontSize = 10.sp),
-    )
-    drawText(tRole, topLeft = Offset(left + 34f, sy + 2f))
-    val tStatus = textMeasurer.measure(
-        AnnotatedString(sceneStatusLabel(status)),
-        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 10.sp, fontWeight = FontWeight.W600),
-    )
-    drawText(tStatus, topLeft = Offset(left + 34f, sy + 16f))
-}
-
-internal fun DrawScope.drawPlanProjectionBadge(textMeasurer: TextMeasurer, w: Float) {
-    val t = textMeasurer.measure(
-        AnnotatedString("计划投影"),
-        style = TextStyle(color = PdigV2Colors.Warning, fontSize = 12.sp, fontWeight = FontWeight.W600),
-    )
-    val sub = textMeasurer.measure(
-        AnnotatedString("计划完成后的预期状态，不代表已经完成或验证"),
-        style = TextStyle(color = PdigV2Colors.TextSecondary, fontSize = 10.sp),
-    )
-    val chipW = maxOf(t.size.width, sub.size.width) + 16f
-    val chipH = t.size.height + sub.size.height + 12f
-    drawRoundRect(
-        PdigV2Colors.CanvasDeep.copy(alpha = 0.88f),
-        Offset(w - chipW - 16f, 8f),
-        Size(chipW, chipH),
-        CornerRadius(8f),
-    )
-    drawRect(
-        Brush.horizontalGradient(listOf(PdigV2Colors.Warning.copy(alpha = 0.20f), PdigV2Colors.Warning.copy(alpha = 0.02f))),
-        topLeft = Offset(w - chipW - 16f, 8f),
-        size = Size(3f, chipH),
-    )
-    drawText(t, topLeft = Offset(w - chipW - 10f, 12f), color = PdigV2Colors.Warning)
-    drawText(sub, topLeft = Offset(w - chipW - 10f, 12f + t.size.height + 1f), color = PdigV2Colors.TextSecondary)
-}
-
-internal fun sceneStatusLabel(status: String): String = when (status) {
-    "migrated" -> "已迁移接管"
-    "waiting" -> "等待验证"
-    "blocked" -> "不可停用"
-    "not_started" -> "未开始"
-    else -> status
+    drawText(tTitle, topLeft = Offset(left + 14f, top + 12f))
+    drawText(tNum, topLeft = Offset(left + 14f, top + nodeH * 0.40f))
+    drawText(tMeta, topLeft = Offset(left + 14f, top + nodeH * 0.70f))
 }
 
 /** 服务节点迁移数据（Change Phone 场景行；role = 关系角色，§33）。 */

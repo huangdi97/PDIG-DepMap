@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
@@ -79,9 +80,13 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         if (regionFiltered.isEmpty() || app.demoEmptyCards) {
             EmptyState(
-                title = "还没有记录卡片",
-                body = "添加卡片后，PDIG 可以帮助你了解：它在哪里使用、什么时候到期，以及换卡前会影响什么。",
-                actionLabel = "添加卡片",
+                title = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_TITLE,
+                body = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_BODY,
+                actionLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_CTA,
+                onAction = {},
+                secondaryLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_SECONDARY,
+                onSecondary = {},
+                motif = com.pdig.uivnext.ui.components.EmptyMotif.CARD,
             )
             return@Column
         }
@@ -102,6 +107,22 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ) {
                 items(regionFiltered) { card ->
                     AssetCard(card = card, privacyMask = app.privacyMask, onClick = { app.openCard(card.id) })
+                }
+                // PHASE 1F §11：第三行/部分行 = 刻意延续（非意外裁剪感）。
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = VSpacing.Md),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            "共 ${regionFiltered.size} 张卡 · 继续向下滚动查看全部",
+                            style = VType.Meta,
+                            color = PdigV2Colors.TextMuted,
+                        )
+                    }
                 }
             }
         } else {

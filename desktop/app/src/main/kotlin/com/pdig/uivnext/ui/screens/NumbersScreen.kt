@@ -81,9 +81,13 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ) {
                 if (filtered.isEmpty() || app.demoEmptyNumbers) {
                     EmptyState(
-                        title = "还没有记录手机号",
-                        body = "加入常用号码后，可以查看：哪些账户依赖它用于登录、验证或恢复。",
-                        actionLabel = "添加号码",
+                        title = com.pdig.uivnext.copy.Phase1FEmptyCopy.NUMBERS_TITLE,
+                        body = com.pdig.uivnext.copy.Phase1FEmptyCopy.NUMBERS_BODY,
+                        actionLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.NUMBERS_CTA,
+                        onAction = {},
+                        secondaryLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_SECONDARY,
+                        onSecondary = {},
+                        motif = com.pdig.uivnext.ui.components.EmptyMotif.NUMBER,
                     )
                 } else {
                     LazyColumn(Modifier.fillMaxSize().padding(VSpacing.Sm)) {

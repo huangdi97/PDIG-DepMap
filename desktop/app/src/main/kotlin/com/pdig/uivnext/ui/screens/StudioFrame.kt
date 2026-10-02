@@ -70,6 +70,7 @@ fun StudioFrame(
     libraryThumbnail: @Composable (String) -> Unit = {},
     onSave: (() -> Unit)? = null,
     onImportBackground: (() -> Unit)? = null,
+    defaultInspectorGroup: String = "材质",
 ) {
     var saved by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(VSpacing.Xxl), verticalArrangement = Arrangement.spacedBy(VSpacing.Xxl)) {
@@ -148,8 +149,8 @@ fun StudioFrame(
                 ) {
                     Box(
                         Modifier
-                            .fillMaxWidth(0.75f)
-                            .widthIn(max = 700.dp)
+                            .fillMaxWidth(0.72f)
+                            .widthIn(min = 660.dp, max = 740.dp)
                             .graphicsLayer {
                                 rotationX = if (reduceMotion) 0f else 5f
                                 cameraDistance = 24f * density
@@ -178,7 +179,7 @@ fun StudioFrame(
                     onProfileChange = onProfileChange,
                     materials = materials,
                     layouts = layouts,
-                    currentGroup = "卡面",
+                    currentGroup = defaultInspectorGroup,
                     onImportBackground = onImportBackground,
                 )
             }

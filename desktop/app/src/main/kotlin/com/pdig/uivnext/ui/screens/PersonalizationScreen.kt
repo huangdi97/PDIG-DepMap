@@ -39,7 +39,7 @@ fun PersonalizationScreen(app: VAppState) {
         Text("以下均为本地外观偏好；只改变显示方式，不会修改你的基础设施关系或确认状态，也不会写入备份。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
 
         SectionHeader("工作区外观")
-        ToggleRow("Workspace 主题", "深空（vNext）· 系统跟随", enabled = true)
+        ToggleRow("Workspace 主题", "深空 · 系统跟随", enabled = true)
 
         SectionHeader("Globe 主题")
         ToggleRow("极慢空闲旋转", if (app.reduceMotion) "已关闭（减少动效）" else "开启（交互后暂停）", enabled = !app.reduceMotion)

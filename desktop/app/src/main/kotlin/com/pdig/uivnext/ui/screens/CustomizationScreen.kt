@@ -78,7 +78,7 @@ fun CardCustomizationScreen(app: VAppState) {
             app.profileStore.save(profile)
         },
         onImportBackground = {
-            // Import Local Background（§62）：本地文件 → 校验 → app-managed storage → 保存 profile。
+            // Import Local Background（§20/§62）：本地文件 → 校验 → app-managed storage → 保存 profile。
             val sourcePath = app.lastImportedBackgroundPath
             if (sourcePath != null) {
                 val imported = LocalBackgroundImporter(defaultBackgroundDir()).import(java.io.File(sourcePath))
@@ -88,6 +88,7 @@ fun CardCustomizationScreen(app: VAppState) {
                 }
             }
         },
+        defaultInspectorGroup = "材质",
     )
 }
 
@@ -137,5 +138,6 @@ fun NumberCustomizationScreen(app: VAppState) {
         onSave = {
             app.profileStore.save(profile)
         },
+        defaultInspectorGroup = "背景",
     )
 }

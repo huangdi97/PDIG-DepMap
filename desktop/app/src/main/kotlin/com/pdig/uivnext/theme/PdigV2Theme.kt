@@ -187,16 +187,17 @@ object VType {
     )
 }
 
-/** 强调色可选项（全部来自 token palette；PHASE 1C 增加语义命名 accent，无新色值）。 */
+/** 强调色可选项（全部来自 token palette 或 token mix；PHASE 1F 增加 copper/coral 语义）。 */
 val ACCENT_SWATCHES: List<Pair<String, Color>> = listOf(
     "primary" to PdigV2Colors.Primary,
     "primaryBright" to PdigV2Colors.PrimaryBright,
     "navy" to PdigV2Colors.Primary,
     "crimson" to PdigV2Colors.Critical,
     "warm" to PdigV2Colors.Warning,
-    "coral" to PdigV2Colors.TerminatorLight,
+    "coral" to androidx.compose.ui.graphics.lerp(PdigV2Colors.Warning, PdigV2Colors.Critical, 0.55f),
     "cool" to PdigV2Colors.Unknown,
     "gold" to PdigV2Colors.NightCityLight,
+    "copper" to androidx.compose.ui.graphics.lerp(PdigV2Colors.NightCityLight, PdigV2Colors.Warning, 0.45f),
     "jade" to PdigV2Colors.Positive,
     "terminatorLight" to PdigV2Colors.TerminatorLight,
     "nightCityLight" to PdigV2Colors.NightCityLight,

@@ -34,9 +34,9 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VType
+import com.pdig.uivnext.ui.components.resolveCardIdentity
 import com.pdig.uivnext.ui.components.collectVNextInteraction
 import com.pdig.uivnext.ui.components.rememberVNextInteractionSource
-
 /** 材质中文名。 */
 internal fun materialLabel(m: String): String = when (m) {
     "matte" -> "哑光"
@@ -58,6 +58,7 @@ internal fun DrawScope.drawPreviewStage() {
     val w = size.width
     val h = size.height
     drawRect(Brush.verticalGradient(listOf(PdigV2Colors.CanvasDeep.copy(alpha = 0.6f), PdigV2Colors.Canvas)))
+    // 微妙径向/局部光（spotlight；不 heavy neon）
     drawCircle(
         brush = Brush.radialGradient(
             listOf(PdigV2Colors.LocalIllum.copy(alpha = 0.40f), Color.Transparent),
@@ -67,6 +68,7 @@ internal fun DrawScope.drawPreviewStage() {
         radius = w * 0.55f,
         center = Offset(w * 0.5f, h * 0.44f),
     )
+    // 地板光 + 柔和反射（卡片下方）
     drawOval(
         brush = Brush.radialGradient(
             listOf(PdigV2Colors.PrimaryBright.copy(alpha = 0.12f), Color.Transparent),
@@ -75,6 +77,14 @@ internal fun DrawScope.drawPreviewStage() {
         ),
         topLeft = Offset(w * 0.5f - w * 0.30f, h * 0.86f - w * 0.10f),
         size = Size(w * 0.60f, w * 0.20f),
+    )
+    // 微弱环境响应：四周渐暗（vignette），让卡面主导
+    drawRect(
+        Brush.radialGradient(
+            listOf(Color.Transparent, PdigV2Colors.CanvasDeep.copy(alpha = 0.30f)),
+            center = Offset(w * 0.5f, h * 0.46f),
+            radius = w * 0.85f,
+        ),
     )
 }
 
@@ -113,7 +123,8 @@ internal fun MaterialTile(
 private fun DrawScope.drawMaterialTile(p: PresentationProfile) {
     val w = size.width
     val h = size.height
-    drawRect(Brush.linearGradient(listOf(PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep)))
+    val identity = resolveCardIdentity(p, null)
+    drawRect(Brush.linearGradient(listOf(identity.top, identity.bottom)))
     com.pdig.uivnext.ui.components.CardMaterial.material(this, p, w, h)
 }
 
