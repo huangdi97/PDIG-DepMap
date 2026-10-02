@@ -36,6 +36,9 @@ import com.pdig.uivnext.ui.screens.NumbersScreen
 import com.pdig.uivnext.ui.screens.NowScreen
 import com.pdig.uivnext.ui.screens.OverviewScreen
 import com.pdig.uivnext.ui.screens.PersonalizationScreen
+import com.pdig.uivnext.ui.screens.RecordsScreen
+import com.pdig.uivnext.ui.screens.SearchScreen
+import com.pdig.uivnext.ui.screens.SecondaryInfraScreen
 import com.pdig.uivnext.ui.screens.clickableLocal
 import com.pdig.uivnext.ui.screens.testTagLocal
 
@@ -57,6 +60,10 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.NUMBER_DETAIL -> NumberDetailScreen(app)
             VScreen.NUMBER_CUSTOMIZATION -> NumberCustomizationScreen(app, breakpoint)
             VScreen.CHANGE, VScreen.CHANGE_PHONE -> ChangePhoneScreen(app, breakpoint)
+            VScreen.RECORDS -> RecordsScreen(app)
+            VScreen.SEARCH -> SearchScreen(app)
+            VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
+                SecondaryInfraScreen(app, app.screen)
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app)
             else -> PlaceholderScreen(app.screen)
         }

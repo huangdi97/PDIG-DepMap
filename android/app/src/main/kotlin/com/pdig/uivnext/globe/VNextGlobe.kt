@@ -1,5 +1,6 @@
 package com.pdig.uivnext.globe
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -16,16 +17,21 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntSize
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VGlobeState
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlin.math.sqrt
 
 private const val YAW_PER_SEC = 0.8f // idle rotation deg/sec（极慢；交互后暂停）
@@ -83,6 +89,11 @@ private fun anchorScreen(
 
 private fun hitTolerance(radius: Float): Float = (radius * 0.05f).coerceIn(10f, 18f)
 
+/**
+ * Globe：Global Infrastructure Navigator（Android 原生 Compose 渲染）。
+ * 默认纹理地球（bundled NASA 资产，逐像素投影 + day/night/cloud），资产缺失/低功耗 → Vector 回退。
+ * [quality] 控制纹理质量档（HIGH/BALANCED/LOW）；[cameraOverride] 供证据测试冻结相机。
+ */
 @Composable
 fun VNextGlobe(
     controller: GlobeController,
@@ -90,9 +101,14 @@ fun VNextGlobe(
     arcingPairs: List<Pair<String, String>>,
     reduceMotion: Boolean = false,
     cameraOverride: GlobeCamera? = null,
+    quality: EarthQuality = EarthQuality.HIGH,
 ) {
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     var yawBase by remember { mutableStateOf(0f) }
+    val context = LocalContext.current
+    val assets = remember(quality) { EarthMaterialAssets.load(context, quality) }
+    var earthBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var earthKey by remember { mutableStateOf<String?>(null) }
 
     // Idle rotation：极慢、可被交互暂停、reduce motion 或选中地区时关闭。
     LaunchedEffect(controller.interactive, controller.selectedRegion, reduceMotion) {
@@ -103,7 +119,39 @@ fun VNextGlobe(
         }
     }
 
-    Box(Modifier) {
+    // 纹理地球后台渲染：相机/画布/idle 旋转变化时重建；量化缓存避免每帧重算（主线程只 drawBitmap）。
+    LaunchedEffect(
+        canvasSize,
+        controller.camera.yawDeg,
+        controller.camera.pitchDeg,
+        controller.camera.zoom,
+        yawBase,
+        assets,
+        quality,
+    ) {
+        if (canvasSize == IntSize.Zero) return@LaunchedEffect
+        val (center, radius) = globeMetrics(canvasSize, controller.camera.zoom)
+        val rect = earthRenderRect(radius, quality)
+        val displayCam = controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
+        val key = cameraCacheKey(displayCam, rect)
+        if (key == earthKey && earthBitmap != null) return@LaunchedEffect
+        val bmp = if (assets != null && quality != EarthQuality.LOW) {
+            withContext(Dispatchers.Default) {
+                renderEarthBody(assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam)
+            }
+        } else {
+            null
+        }
+        earthBitmap = bmp
+        earthKey = key
+    }
+
+    // 无障碍：Globe 画布声明语义描述；精确探索用 Overview 的 Region List（非视觉替代，任务书 §30）。
+    Box(
+        Modifier.semantics {
+            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；可拖动旋转、点击聚焦地区，地区明细见下方地区列表"
+        },
+    ) {
         Canvas(
             modifier = Modifier
                 .fillMaxSize()
@@ -195,16 +243,23 @@ fun VNextGlobe(
                 radius = radius * 1.7f,
                 center = center,
             )
-            // Sphere（程序化深度着色，无纹理：RENDERER_LIMITATION）
-            drawCircle(
-                brush = Brush.radialGradient(
-                    listOf(Color(0xFF1B3A6B), PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep),
-                    center = Offset(center.x - radius * 0.35f, center.y - radius * 0.35f),
-                    radius = radius * 1.4f,
-                ),
-                radius = radius,
-                center = center,
-            )
+
+            // 地球主体：纹理地球（缓存 Bitmap）或 VectorEarthFallback（资产未就绪/缺失）
+            val bmp = earthBitmap
+            if (bmp != null) {
+                drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt())
+            } else {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        listOf(Color(0xFF1B3A6B), PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep),
+                        center = Offset(center.x - radius * 0.35f, center.y - radius * 0.35f),
+                        radius = radius * 1.4f,
+                    ),
+                    radius = radius,
+                    center = center,
+                )
+            }
+
             // 网格（前半球，按深度淡出）
             val gridColor = PdigV2Colors.TextMuted.copy(alpha = 0.16f)
             val (parallels, meridians) = graticuleLines(30)

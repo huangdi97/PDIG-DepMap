@@ -138,3 +138,14 @@ fun graticuleLines(stepDeg: Int = 30): Pair<List<Pair<Float, Float>>, List<Pair<
     }
     return parallels to meridians
 }
+/** 相机逆旋转（屏幕/相机空间 → 世界空间）；与桌面 GlobeMath 同源（纹理地球逐像素采样用）。 */
+fun inverseRotatePoint(p: Vec3, cam: GlobeCamera): Vec3 {
+    val a = rad(cam.pitchDeg)
+    val c = cos(a)
+    val s = sin(a)
+    val rx = Vec3(p.x, c * p.y + s * p.z, -s * p.y + c * p.z)
+    val b = rad(cam.yawDeg)
+    val c2 = cos(b)
+    val s2 = sin(b)
+    return Vec3(c2 * rx.x - s2 * rx.z, rx.y, s2 * rx.x + c2 * rx.z)
+}

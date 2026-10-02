@@ -26,6 +26,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.demoAttention
+import com.pdig.uivnext.demo.demoCards
+import com.pdig.uivnext.demo.demoNumbers
+import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.globe.VNextGlobe
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.RegionPresentation
@@ -35,19 +39,22 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AttentionRow
+import com.pdig.uivnext.ui.components.EmptyKind
+import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.RegionListItem
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
  * Infrastructure Overview：Globe 舞台（L1）视觉主导 + 右活动轨 + 底部快速入口 + Region List 非视觉替代。
  * 大屏：Globe 左 + 活动轨右 + 底部快速入口；手机：Globe 上 + 活动轨下 + 快速入口（垂直滚动）。
+ * 空态（region-selected / emptyDemo）：Globe 舞台保留，活动轨显示 honest unknown EmptyState。
  * 注意：compact 外层已是 verticalScroll，内层活动轨必须非滚动（嵌套 scrollable 会因无限高度约束崩溃）。
  */
 @Composable
 fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val regions = UiVNextDemoFixture.regionSummaries()
+    val regions = app.demoRegions()
     val arcingPairs = arcPairs()
-    if (breakpoint == MediaBreakpoint.WIDE || breakpoint == MediaBreakpoint.MEDIUM) {
+    if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
         WideOverview(app, regions, arcingPairs, breakpoint)
     } else {
         CompactOverview(app, regions, arcingPairs)
@@ -99,7 +106,7 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
             // Right Activity Rail（L3 Data Surface）
             Surface(
                 modifier = Modifier
-                    .width(if (app.railExpanded && breakpoint == MediaBreakpoint.WIDE) 360.dp else 320.dp)
+                    .width(if (app.railExpanded && breakpoint == MediaBreakpoint.EXPANDED) 360.dp else 320.dp)
                     .fillMaxHeight()
                     .testTagLocal(VTestIds.OVERVIEW_ACTIVITY),
                 color = PdigV2Colors.Surface.copy(alpha = 0.92f),
@@ -171,21 +178,42 @@ private fun ActivityRailContent(app: VAppState, regions: List<RegionPresentation
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         SectionHeader("地区（Region List）")
-        regions.forEach { region ->
-            RegionListItem(
-                region = region,
-                selected = app.regionFilter == region.regionCode,
-                onClick = { app.selectRegion(region.regionCode) },
+        if (regions.isEmpty()) {
+            EmptyState(
+                kind = EmptyKind.REGION,
+                title = "没有可展示的地区",
+                description = "尚未记录任何地区的基础设施。没有记录 ≠ 没有风险：地区数据录入后才会出现在这里。",
+                primaryCta = "查看卡片",
+                onPrimary = { app.navigate(VScreen.CARDS) },
+                secondaryCta = "查看号码",
+                onSecondary = { app.navigate(VScreen.NUMBERS) },
             )
+        } else {
+            regions.forEach { region ->
+                RegionListItem(
+                    region = region,
+                    selected = app.regionFilter == region.regionCode,
+                    onClick = { app.selectRegion(region.regionCode) },
+                )
+            }
         }
         SectionHeader("需要处理")
-        UiVNextDemoFixture.attentionItems.forEach { item ->
-            AttentionRow(item = item, onClick = { clicked ->
-                when {
-                    UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
-                    else -> app.openNumber(clicked.target)
-                }
-            })
+        val attention = app.demoAttention()
+        if (attention.isEmpty()) {
+            Text(
+                "未记录 ≠ 无风险：当前没有可展示的关注事项，不代表一切安全。",
+                color = PdigV2Colors.TextMuted,
+                fontSize = 12.sp,
+            )
+        } else {
+            attention.forEach { item ->
+                AttentionRow(item = item, onClick = { clicked ->
+                    when {
+                        UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
+                        else -> app.openNumber(clicked.target)
+                    }
+                })
+            }
         }
     }
 }
@@ -206,8 +234,8 @@ private fun QuickEntryRow(app: VAppState) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            QuickEntry("查看卡片", "全球 ${UiVNextDemoFixture.cards.size} 张卡") { app.navigate(VScreen.CARDS) }
-            QuickEntry("查看号码", "全球 ${UiVNextDemoFixture.numbers.size} 个号码") { app.navigate(VScreen.NUMBERS) }
+            QuickEntry("查看卡片", "全球 ${app.demoCards().size} 张卡") { app.navigate(VScreen.CARDS) }
+            QuickEntry("查看号码", "全球 ${app.demoNumbers().size} 个号码") { app.navigate(VScreen.NUMBERS) }
             QuickEntry("更换手机号", "旗舰流程") { app.navigate(VScreen.CHANGE_PHONE) }
             QuickEntry("基础设施薄弱点", "待确认风险") { app.navigate(VScreen.WEAKNESSES) }
         }
