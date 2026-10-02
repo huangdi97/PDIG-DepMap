@@ -2,6 +2,12 @@
 
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
+>
+> 2026-10-02 — ANDROID_UI_VNEXT_TRANSLATION（presentation 层演示壳，非生产数据绑定）：
+> 本轮为冻结 Desktop Reference 的 Android 原生翻译（`com.pdig.uivnext.*` 演示壳，
+> Reference Fixture Mode）。Production 三端原生迁移状态不受影响、不做 Parity 变更：
+> Android 侧仅新增 `pdig_tablet_api36` AVD（本机 android-36 系统镜像）用于证据；
+> Domain/Canonical 零改动；`npm run check` 全绿。三端 Native Migration 相关表格保持原值。
 
 > 更新：2026-10-04（**iOS N4 —— PDIGApp SwiftUI 产品 App（v0.3.0）落地**）
 >

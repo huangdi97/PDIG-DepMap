@@ -1,6 +1,25 @@
 # WORK_STATUS.md
 
-> **（当前）PDIG UI vNext · Desktop Reference Freeze（2026-10-02，Human/Vision 正式裁决轮）**
+> **（当前）ANDROID_UI_VNEXT_TRANSLATION（2026-10-02，Android 原生翻译轮）**
+> —— 将冻结 Desktop Reference 翻译为 Android 原生 Compose/Material，产出 Phone + Tablet
+> 运行时证据与 Human Review Candidate。成果：① 自适应壳（COMPACT/MEDIUM/EXPANDED；手机
+> BottomNav + chips；展开 NavigationRail + list-detail）；② 纹理地球（bundled NASA 资产
+> 逐像素投影 + day/night/云层 + 质量档 + 相机缓存）；③ 全部屏幕翻译（Now/Overview/Cards/Detail/
+> 两个 Studio/Numbers/Detail/Change Phone 三投影/记录/账户/邮箱/设备/服务/薄弱点/搜索命令）；
+> ④ 空态 6 类（honest unknown）；⑤ BackHandler + ViewModel 状态恢复；⑥ 无障碍基线；
+> ⑦ Variant Truth（glass≠city、country≠travel≠recovery、current≠transition≠after、
+> global≠region；SHA 互异 + expected==actual）；⑧ 14 屏 Human Main Set phone + tablet
+> （instrumentation captureToImage 真实 runtime；manifest 28 条）；⑨ Desktop Freeze Guard
+> （12/12 PASS）。门禁：core `npm run check` 全绿（487 tests / architecture cycles=0 /
+> network / secrets）；Android unit tests PASS；证据测试 phone+tablet PASS；既有 vNext
+> 截图 + a11y 测试 PASS。状态：`ANDROID_UI_VNEXT_TRANSLATION_IMPLEMENTATION = PASS`、
+> `ANDROID_UI_VNEXT_RUNTIME_CANDIDATE = READY`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（STOP，等待人工验收）；
+> `IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。零漂移：Domain/Canonical 未动、
+> Desktop 冻结 12 SHA 未动、PresentationProfile 不进 .depmap。证据包：
+> `artifacts/runtime-evidence/2026-10-02-android-ui-vnext-translation/`。
+>
+> **（此前）PDIG UI vNext · Desktop Reference Freeze…**
 > —— Human/Vision Final Review 已完成并正式写入：
 > `DESKTOP_VISUAL_REFERENCE = ACCEPTED`、`VISUAL_CRAFT = ACCEPTED_FOR_DESKTOP_REFERENCE`、
 > `DESKTOP_REFERENCE_FREEZE = PASS`（来源：Human/Vision Final Review, 2026-10-02；

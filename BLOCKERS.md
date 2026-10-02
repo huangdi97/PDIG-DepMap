@@ -1,5 +1,16 @@
 # BLOCKERS.md
 
+> **ANDROID_UI_VNEXT_TRANSLATION（2026-10-02）：**
+>
+> - 无新外部 blocker。AVD 环境风险（如实记录，非 blocker）：本机 `main` AVD 在长负载
+>   （>4 分钟 instrument）下偶发崩溃/离线，已通过单次证据运行（~77s）规避并全部通过；
+>   production 21 屏×2 主题 sweep 未在本轮重跑（历史证据存在；本轮无 production 屏改动）。
+> - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （禁止 Agent 自行写 ACCEPTED；Human 判定 ACCEPTED 或 TARGETED_SCREEN_FIX_REQUIRED）。
+> - 保留环境 Gate：`REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE` 等既往人工 Gate 不变。
+> - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动；
+>   PresentationProfile 不进 .depmap。
+>
 > **UI vNext Desktop Reference Freeze（2026-10-02，Human/Vision 正式裁决）：**
 >
 > - Human/Vision Final Review 已正式写入 `DESKTOP_VISUAL_REFERENCE = ACCEPTED`、
