@@ -79,15 +79,19 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         Spacer(Modifier.height(VSpacing.Xxl))
 
         if (regionFiltered.isEmpty() || app.demoEmptyCards) {
-            EmptyState(
-                title = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_TITLE,
-                body = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_BODY,
-                actionLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_CTA,
-                onAction = {},
-                secondaryLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_SECONDARY,
-                onSecondary = {},
-                motif = com.pdig.uivnext.ui.components.EmptyMotif.CARD,
-            )
+            // PHASE 1F-HF（§9）：空态在 content stage 中取得有意的居中位置，
+            // 不再贴左上角；紧凑 480–600px 构图（非 giant panel）。
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                EmptyState(
+                    title = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_TITLE,
+                    body = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_BODY,
+                    actionLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_CTA,
+                    onAction = {},
+                    secondaryLabel = com.pdig.uivnext.copy.Phase1FEmptyCopy.CARDS_SECONDARY,
+                    onSecondary = {},
+                    motif = com.pdig.uivnext.ui.components.EmptyMotif.CARD,
+                )
+            }
             return@Column
         }
 

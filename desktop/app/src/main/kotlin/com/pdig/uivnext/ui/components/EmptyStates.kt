@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -50,14 +52,14 @@ fun EmptyState(
 ) {
     Column(
         modifier
-            .widthIn(max = 600.dp)
+            .widthIn(min = 480.dp, max = 600.dp)
             .padding(top = VSpacing.Xl),
         verticalArrangement = Arrangement.spacedBy(VSpacing.Md),
     ) {
         Box(
             Modifier
-                .size(44.dp)
-                .clip(RoundedCornerShape(VRadius.Md))
+                .size(64.dp)
+                .clip(RoundedCornerShape(VRadius.Lg))
                 .background(PdigV2Colors.SurfaceRaised.copy(alpha = 0.7f))
                 .drawBehind { drawEmptyMotif(motif) },
             contentAlignment = Alignment.Center,
@@ -97,34 +99,54 @@ fun EmptyState(
     }
 }
 
+/** 语义插画：soft glow disc + 资产剪影（按 44dp 设计坐标以 size 比例缩放，
+ *  保证在 64dp 展示盒内同样成立；全部 token 色、无 emoji）。 */
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawEmptyMotif(motif: EmptyMotif) {
-    val stroke = 2f
+    val s = size.width / 44f
+    val stroke = 2f * s
     val c = PdigV2Colors.TextMuted
+    // 柔和背光圆盘（让剪影「站立」在语义背景上）
+    drawCircle(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.PrimaryBright.copy(alpha = 0.12f), Color.Transparent),
+            center = Offset(size.width * 0.5f, size.height * 0.5f),
+            radius = size.width * 0.46f,
+        ),
+        radius = size.width * 0.46f,
+        center = Offset(size.width * 0.5f, size.height * 0.5f),
+    )
+    drawCircle(
+        color = PdigV2Colors.PrimaryBright.copy(alpha = 0.28f),
+        radius = size.width * 0.42f,
+        center = Offset(size.width * 0.5f, size.height * 0.5f),
+        style = Stroke(width = 1f * s),
+    )
     when (motif) {
         EmptyMotif.CARD -> {
-            drawRoundRect(c.copy(alpha = 0.85f), Offset(10f, 12f), Size(24f, 20f), CornerRadius(3f), style = Stroke(width = stroke))
-            drawLine(c.copy(alpha = 0.6f), Offset(14f, 18f), Offset(30f, 18f), strokeWidth = 1.5f)
-            drawLine(c.copy(alpha = 0.4f), Offset(14f, 25f), Offset(26f, 25f), strokeWidth = 1.5f)
+            drawRoundRect(c.copy(alpha = 0.85f), Offset(10f * s, 12f * s), Size(24f * s, 20f * s), CornerRadius(3f * s), style = Stroke(width = stroke))
+            drawLine(c.copy(alpha = 0.6f), Offset(14f * s, 18f * s), Offset(30f * s, 18f * s), strokeWidth = 1.5f * s)
+            drawLine(c.copy(alpha = 0.4f), Offset(14f * s, 25f * s), Offset(26f * s, 25f * s), strokeWidth = 1.5f * s)
         }
         EmptyMotif.NUMBER -> {
-            drawRoundRect(c.copy(alpha = 0.85f), Offset(12f, 10f), Size(20f, 24f), CornerRadius(10f), style = Stroke(width = stroke))
-            drawLine(c.copy(alpha = 0.7f), Offset(17f, 17f), Offset(27f, 17f), strokeWidth = 1.5f)
-            drawLine(c.copy(alpha = 0.7f), Offset(17f, 23f), Offset(27f, 23f), strokeWidth = 1.5f)
+            drawRoundRect(c.copy(alpha = 0.85f), Offset(12f * s, 10f * s), Size(20f * s, 24f * s), CornerRadius(10f * s), style = Stroke(width = stroke))
+            drawLine(c.copy(alpha = 0.7f), Offset(17f * s, 17f * s), Offset(27f * s, 17f * s), strokeWidth = 1.5f * s)
+            drawLine(c.copy(alpha = 0.7f), Offset(17f * s, 23f * s), Offset(27f * s, 23f * s), strokeWidth = 1.5f * s)
         }
         EmptyMotif.REGION -> {
-            drawCircle(c.copy(alpha = 0.85f), radius = 9f, center = Offset(22f, 16f), style = Stroke(width = stroke))
-            drawCircle(c.copy(alpha = 0.6f), radius = 2.5f, center = Offset(22f, 16f))
-            drawLine(c.copy(alpha = 0.7f), Offset(22f, 25f), Offset(22f, 32f), strokeWidth = 1.5f)
+            drawCircle(c.copy(alpha = 0.85f), radius = 9f * s, center = Offset(22f * s, 16f * s), style = Stroke(width = stroke))
+            drawCircle(c.copy(alpha = 0.6f), radius = 2.5f * s, center = Offset(22f * s, 16f * s))
+            drawLine(c.copy(alpha = 0.7f), Offset(22f * s, 25f * s), Offset(22f * s, 32f * s), strokeWidth = 1.5f * s)
         }
         EmptyMotif.CHECK -> {
-            drawCircle(c.copy(alpha = 0.85f), radius = 13f, center = Offset(22f, 22f), style = Stroke(width = stroke))
-            drawLine(c.copy(alpha = 0.9f), Offset(17f, 22f), Offset(21f, 26f), strokeWidth = 2f)
-            drawLine(c.copy(alpha = 0.9f), Offset(21f, 26f), Offset(27f, 17f), strokeWidth = 2f)
+            drawCircle(c.copy(alpha = 0.85f), radius = 13f * s, center = Offset(22f * s, 22f * s), style = Stroke(width = stroke))
+            drawLine(c.copy(alpha = 0.9f), Offset(17f * s, 22f * s), Offset(21f * s, 26f * s), strokeWidth = 2f * s)
+            drawLine(c.copy(alpha = 0.9f), Offset(21f * s, 26f * s), Offset(27f * s, 17f * s), strokeWidth = 2f * s)
         }
         EmptyMotif.LIST -> {
-            drawLine(c.copy(alpha = 0.8f), Offset(12f, 14f), Offset(32f, 14f), strokeWidth = 2f)
-            drawLine(c.copy(alpha = 0.5f), Offset(12f, 20f), Offset(32f, 20f), strokeWidth = 2f)
-            drawLine(c.copy(alpha = 0.5f), Offset(12f, 26f), Offset(32f, 26f), strokeWidth = 2f)
+            drawLine(c.copy(alpha = 0.8f), Offset(12f * s, 14f * s), Offset(32f * s, 14f * s), strokeWidth = 2f * s)
+            drawLine(c.copy(alpha = 0.5f), Offset(12f * s, 20f * s), Offset(32f * s, 20f * s), strokeWidth = 2f * s)
+            drawLine(c.copy(alpha = 0.5f), Offset(12f * s, 26f * s), Offset(32f * s, 26f * s), strokeWidth = 2f * s)
         }
     }
 }
+

@@ -29,27 +29,27 @@ object Phase1FLayout {
     fun studioPreviewWidthPx(centerPaneWidthPx: Float): Float =
         (centerPaneWidthPx * 0.72f).coerceIn(660f, 740f)
 
-    /** ContinuityScene 几何（§29/§30）。 */
+    /** ContinuityScene 几何（§29/§30；PHASE 1F-HF §8：node 强化 10–15%）。 */
     fun continuityScene(): ContinuitySceneMetrics = ContinuitySceneMetrics(
         oldXFraction = 0.155f,
         newXFraction = 0.845f,
         numWFraction = 0.15f,
         numHFraction = 0.42f,
-        nodeWFraction = 0.085f,
-        nodeHFraction = 0.30f,
+        nodeWFraction = 0.095f,
+        nodeHFraction = 0.32f,
         colFractions = listOf(0.375f, 0.625f),
-        rowFractions = listOf(0.20f, 0.72f),
+        rowFractions = listOf(0.18f, 0.72f),
         heightPx = 430,
     )
 
     /** OLD/NEW 号码面宽（§29：250–300px @1920 场景宽 ≈1684px）。 */
     fun sceneNumberWidthPx(sceneWidthPx: Float): Float = sceneWidthPx * 0.15f
 
-    /** 服务节点宽（§29：130–170px @1920）。 */
-    fun sceneNodeWidthPx(sceneWidthPx: Float): Float = sceneWidthPx * 0.085f
+    /** 服务节点宽（§29：130–170px @1920；PHASE 1F-HF node 0.095 → ≈160px）。 */
+    fun sceneNodeWidthPx(sceneWidthPx: Float): Float = sceneWidthPx * 0.095f
 
-    /** 路径层级（§32：primary 2.5 / secondary 2.0 / ghost 1.5）。 */
-    const val PATH_PRIMARY_PX = 2.5f
-    const val PATH_SECONDARY_PX = 2.0f
-    const val PATH_GHOST_PX = 1.5f
+    /** 路径层级（PHASE 1F-HF §8：migrated ≤2 / secondary ≤1.5 / ghost ≤1；无更强 glow）。 */
+    const val PATH_PRIMARY_PX = 2.0f
+    const val PATH_SECONDARY_PX = 1.5f
+    const val PATH_GHOST_PX = 1.0f
 }

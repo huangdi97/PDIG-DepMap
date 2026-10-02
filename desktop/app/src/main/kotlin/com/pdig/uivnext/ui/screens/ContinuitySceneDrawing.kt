@@ -15,6 +15,7 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.layout.Phase1FLayout
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.statusColor
 
@@ -37,37 +38,30 @@ internal fun DrawScope.drawServicePaths(
     val color = statusColor(status)
     val boxL = sx - boxW * 0.5f
     val boxR = sx + boxW * 0.5f
+    // PHASE 1F-HF（§8）：路径更细、更透明（node state > line style），
+    // control 点更紧凑 → 线路尽量在 node 背后垂直 lane 内，减少穿越与遮挡文字。
     val oldPath = cubicBezier(
         Offset(fromX, fromY),
-        Offset(fromX + w * 0.10f, fromY),
-        Offset(boxL - w * 0.12f, sy),
-        Offset(boxL - w * 0.03f, sy),
+        Offset(fromX + w * 0.06f, fromY),
+        Offset(boxL - w * 0.06f, sy),
+        Offset(boxL - w * 0.02f, sy),
     )
-    // 旧号路径：current/transition = 次级实线；after = ghost 强淡出
     when {
-        projection == "after" -> {
-            drawCubic(oldPath, color.copy(alpha = 0.18f), 1.5f, dashed = false)
-        }
-        status == "blocked" -> {
-            drawCubic(oldPath, color.copy(alpha = 0.9f), 2.0f, dashed = false)
-        }
-        else -> {
-            drawCubic(oldPath, color.copy(alpha = if (status == "not_started") 0.35f else 0.85f), 2.0f, dashed = status == "waiting")
-        }
+        projection == "after" -> drawCubic(oldPath, color.copy(alpha = 0.15f), Phase1FLayout.PATH_GHOST_PX, dashed = false)
+        status == "blocked" -> drawCubic(oldPath, color.copy(alpha = 0.75f), Phase1FLayout.PATH_SECONDARY_PX, dashed = false)
+        else -> drawCubic(oldPath, color.copy(alpha = if (status == "not_started") 0.30f else 0.70f), Phase1FLayout.PATH_SECONDARY_PX, dashed = status == "waiting")
     }
     val newPath = cubicBezier(
-        Offset(boxR + w * 0.03f, sy),
-        Offset(boxR + w * 0.12f, sy),
-        Offset(toX - w * 0.10f, toY),
+        Offset(boxR + w * 0.02f, sy),
+        Offset(boxR + w * 0.06f, sy),
+        Offset(toX - w * 0.06f, toY),
         Offset(toX, toY),
     )
     when {
-        // current：新号侧为 ghost 目标（1.5px）
-        projection == "current" -> drawCubic(newPath, color.copy(alpha = 0.35f), 1.5f, dashed = false)
-        // transition：已迁移 = primary 2.5；blocked 留在旧号（新侧不画或 ghost）
-        status == "blocked" -> drawCubic(newPath, color.copy(alpha = 0.25f), 1.5f, dashed = false)
-        status == "migrated" -> drawCubic(newPath, color.copy(alpha = 1f), 2.5f, dashed = false)
-        else -> drawCubic(newPath, color.copy(alpha = if (projection == "after") 0.85f else 0.55f), 2.0f, dashed = status == "waiting")
+        projection == "current" -> drawCubic(newPath, color.copy(alpha = 0.28f), Phase1FLayout.PATH_GHOST_PX, dashed = false)
+        status == "blocked" -> drawCubic(newPath, color.copy(alpha = 0.20f), Phase1FLayout.PATH_GHOST_PX, dashed = false)
+        status == "migrated" -> drawCubic(newPath, color.copy(alpha = 0.90f), Phase1FLayout.PATH_PRIMARY_PX, dashed = false)
+        else -> drawCubic(newPath, color.copy(alpha = if (projection == "after") 0.60f else 0.45f), Phase1FLayout.PATH_SECONDARY_PX, dashed = status == "waiting")
     }
     if (status == "blocked") {
         drawLine(PdigV2Colors.Critical, Offset(sx - 7f, sy - 7f), Offset(sx + 7f, sy + 7f), strokeWidth = 2.6f)

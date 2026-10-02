@@ -36,9 +36,10 @@ class Phase1FLayoutContractTest {
     fun pathHierarchyPrimaryOverSecondaryOverGhost() {
         assertTrue(Phase1FLayout.PATH_PRIMARY_PX > Phase1FLayout.PATH_SECONDARY_PX)
         assertTrue(Phase1FLayout.PATH_SECONDARY_PX > Phase1FLayout.PATH_GHOST_PX)
-        assertEquals(2.5f, Phase1FLayout.PATH_PRIMARY_PX)
-        assertEquals(2.0f, Phase1FLayout.PATH_SECONDARY_PX)
-        assertEquals(1.5f, Phase1FLayout.PATH_GHOST_PX)
+        // PHASE 1F-HF §8：migrated ≤2 / secondary ≤1.5 / ghost ≤1（Human Review 冻结的新层级）
+        assertEquals(2.0f, Phase1FLayout.PATH_PRIMARY_PX)
+        assertEquals(1.5f, Phase1FLayout.PATH_SECONDARY_PX)
+        assertEquals(1.0f, Phase1FLayout.PATH_GHOST_PX)
     }
 
     @Test

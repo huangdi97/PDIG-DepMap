@@ -105,28 +105,46 @@ fun StudioFrame(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 SectionHeader("对象")
-                libraryItems.forEach { (id, label) ->
-                    LibraryItem(
-                        label = label,
-                        selected = selectedLibraryId == id,
-                        thumbnail = { libraryThumbnail(id) },
-                        onClick = { onSelectLibrary(id) },
-                    )
+                // PHASE 1F-HF：对象列表独立滚动区域 —— 与 Theme grid 各自稳定滚动，
+                // 互不覆盖（对象多时不会把主题区挤出左栏 / 压到下方）。
+                Column(
+                    Modifier
+                        .weight(0.44f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    libraryItems.forEach { (id, label) ->
+                        LibraryItem(
+                            label = label,
+                            selected = selectedLibraryId == id,
+                            thumbnail = { libraryThumbnail(id) },
+                            onClick = { onSelectLibrary(id) },
+                        )
+                    }
                 }
                 Spacer(Modifier.height(VSpacing.Sm))
                 SectionHeader("主题")
-                presets.chunked(2).forEach { pair ->
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        pair.forEach { preset ->
-                            ThemeThumb(
-                                thumbnail = thumbnail,
-                                preset = preset,
-                                selected = profile.themeId == preset,
-                                onClick = { onProfileChange(profile.copy(themeId = preset, backgroundValue = preset)) },
-                                modifier = Modifier.weight(1f),
-                            )
+                Column(
+                    Modifier
+                        .weight(0.56f)
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    presets.chunked(2).forEach { pair ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            pair.forEach { preset ->
+                                ThemeThumb(
+                                    thumbnail = thumbnail,
+                                    preset = preset,
+                                    selected = profile.themeId == preset,
+                                    onClick = { onProfileChange(profile.copy(themeId = preset, backgroundValue = preset)) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                            repeat(2 - pair.size) { Spacer(Modifier.weight(1f)) }
                         }
-                        repeat(2 - pair.size) { Spacer(Modifier.weight(1f)) }
                     }
                 }
             }

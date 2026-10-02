@@ -53,30 +53,49 @@ internal fun layoutLabel(l: String): String = when (l) {
     else -> "标准"
 }
 
-/** 舞台绘制：spotlight（中心聚光）+ 卡片下方 soft floor 椭圆反射 + 环境辉光。 */
+/** 舞台绘制（§5.B）：spotlight（中心聚光）+ 卡片下方 soft floor 椭圆反射 +
+ *  接触阴影 + 微弱背板带（hero object stage；不 heavy neon / cyberpunk）。 */
 internal fun DrawScope.drawPreviewStage() {
     val w = size.width
     val h = size.height
     drawRect(Brush.verticalGradient(listOf(PdigV2Colors.CanvasDeep.copy(alpha = 0.6f), PdigV2Colors.Canvas)))
+    // 背板带：卡片高度区域轻微提亮，给出「object on stage」的呼吸空间
+    drawRect(
+        Brush.verticalGradient(
+            listOf(Color.Transparent, PdigV2Colors.Surface.copy(alpha = 0.10f), Color.Transparent),
+            startY = h * 0.30f,
+            endY = h * 0.66f,
+        ),
+    )
     // 微妙径向/局部光（spotlight；不 heavy neon）
     drawCircle(
         brush = Brush.radialGradient(
             listOf(PdigV2Colors.LocalIllum.copy(alpha = 0.40f), Color.Transparent),
-            center = Offset(w * 0.5f, h * 0.44f),
-            radius = w * 0.55f,
+            center = Offset(w * 0.5f, h * 0.42f),
+            radius = w * 0.52f,
         ),
-        radius = w * 0.55f,
-        center = Offset(w * 0.5f, h * 0.44f),
+        radius = w * 0.52f,
+        center = Offset(w * 0.5f, h * 0.42f),
     )
     // 地板光 + 柔和反射（卡片下方）
     drawOval(
         brush = Brush.radialGradient(
             listOf(PdigV2Colors.PrimaryBright.copy(alpha = 0.12f), Color.Transparent),
-            center = Offset(w * 0.5f, h * 0.86f),
+            center = Offset(w * 0.5f, h * 0.84f),
             radius = w * 0.30f,
         ),
-        topLeft = Offset(w * 0.5f - w * 0.30f, h * 0.86f - w * 0.10f),
+        topLeft = Offset(w * 0.5f - w * 0.30f, h * 0.84f - w * 0.10f),
         size = Size(w * 0.60f, w * 0.20f),
+    )
+    // 接触阴影：卡片正下方紧凑椭圆，锚定物体（受控 floor light）
+    drawOval(
+        brush = Brush.radialGradient(
+            listOf(PdigV2Colors.CanvasDeep.copy(alpha = 0.55f), Color.Transparent),
+            center = Offset(w * 0.5f, h * 0.83f),
+            radius = w * 0.16f,
+        ),
+        topLeft = Offset(w * 0.5f - w * 0.16f, h * 0.83f - w * 0.05f),
+        size = Size(w * 0.32f, w * 0.10f),
     )
     // 微弱环境响应：四周渐暗（vignette），让卡面主导
     drawRect(

@@ -37,18 +37,18 @@ internal fun DrawScope.drawServiceNode(
     val alpha = if (projection == "after" && status == "not_started") 0.55f else 1f
     val left = sx - boxW / 2f
     val top = sy - boxH / 2f
-    // 盒体
-    drawRoundRect(PdigV2Colors.Surface.copy(alpha = 0.90f * alpha), Offset(left, top), Size(boxW, boxH), CornerRadius(14f))
+    // 盒体（PHASE 1F-HF：node 强化，状态边框 1.6px）
+    drawRoundRect(PdigV2Colors.Surface.copy(alpha = 0.92f * alpha), Offset(left, top), Size(boxW, boxH), CornerRadius(14f))
     drawRoundRect(
-        color.copy(alpha = 0.55f * alpha),
+        color.copy(alpha = 0.60f * alpha),
         Offset(left, top),
         Size(boxW, boxH),
         CornerRadius(14f),
-        style = Stroke(width = 1.5f),
+        style = Stroke(width = 1.6f),
     )
     // waiting = 虚线边框（未解决），blocked = 红色实框
     if (status == "waiting") {
-        drawDashedRoundRect(offset = Offset(left, top), size = Size(boxW, boxH), radius = 14f, color = color.copy(alpha = 0.8f * alpha), stroke = 1.5f)
+        drawDashedRoundRect(offset = Offset(left, top), size = Size(boxW, boxH), radius = 14f, color = color.copy(alpha = 0.8f * alpha), stroke = 1.6f)
     }
     if (status == "blocked") {
         drawRoundRect(
@@ -56,46 +56,46 @@ internal fun DrawScope.drawServiceNode(
             Offset(left + 1.5f, top + 1.5f),
             Size(boxW - 3f, boxH - 3f),
             CornerRadius(13f),
-            style = Stroke(width = 1.6f),
+            style = Stroke(width = 1.8f),
         )
     }
-    // glyph 圆
-    val gx = left + 22f
-    val gy = top + 22f
-    drawCircle(PdigV2Colors.SurfaceRaised.copy(alpha = alpha), radius = 17f, center = Offset(gx, gy))
-    drawCircle(color.copy(alpha = 0.7f * alpha), radius = 16f, center = Offset(gx, gy), style = Stroke(width = 1.5f))
+    // glyph 圆（加大：r 17→19，glyph 14sp）
+    val gx = left + 24f
+    val gy = top + 24f
+    drawCircle(PdigV2Colors.SurfaceRaised.copy(alpha = alpha), radius = 19f, center = Offset(gx, gy))
+    drawCircle(color.copy(alpha = 0.75f * alpha), radius = 18f, center = Offset(gx, gy), style = Stroke(width = 1.6f))
     val glyph = name.firstOrNull()?.toString() ?: "?"
     val g = textMeasurer.measure(
         AnnotatedString(glyph),
-        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 13.sp, fontWeight = FontWeight.Bold),
+        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 14.sp, fontWeight = FontWeight.Bold),
     )
     drawText(g, topLeft = Offset(gx - g.size.width / 2f, gy - g.size.height / 2f))
-    // 名称 + 关系角色
+    // 名称 + 关系角色（字号 +1sp，更易扫读）
     val tName = textMeasurer.measure(
         AnnotatedString(name),
-        style = TextStyle(color = PdigV2Colors.TextPrimary.copy(alpha = alpha), fontSize = 13.sp, fontWeight = FontWeight.W600),
+        style = TextStyle(color = PdigV2Colors.TextPrimary.copy(alpha = alpha), fontSize = 14.sp, fontWeight = FontWeight.W600),
     )
-    drawText(tName, topLeft = Offset(left + 44f, top + 12f))
+    drawText(tName, topLeft = Offset(left + 46f, top + 12f))
     val roleLine = if (role.isNotEmpty()) role else sceneStatusLabel(status)
     val tRole = textMeasurer.measure(
         AnnotatedString(roleLine),
-        style = TextStyle(color = PdigV2Colors.TextMuted.copy(alpha = alpha), fontSize = 10.sp),
+        style = TextStyle(color = PdigV2Colors.TextMuted.copy(alpha = alpha), fontSize = 11.sp),
     )
-    drawText(tRole, topLeft = Offset(left + 44f, top + 30f))
-    // 状态 pill（底部）
+    drawText(tRole, topLeft = Offset(left + 46f, top + 32f))
+    // 状态 pill（底部；node state > line style）
     val tStatus = textMeasurer.measure(
         AnnotatedString(sceneStatusLabel(status)),
-        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 10.sp, fontWeight = FontWeight.W600),
+        style = TextStyle(color = color.copy(alpha = alpha), fontSize = 10.5.sp, fontWeight = FontWeight.W600),
     )
-    val pillW = tStatus.size.width + 16f
-    val pillH = tStatus.size.height + 6f
+    val pillW = tStatus.size.width + 18f
+    val pillH = tStatus.size.height + 7f
     drawRoundRect(
-        color.copy(alpha = 0.16f * alpha),
+        color.copy(alpha = 0.18f * alpha),
         Offset(left + boxW - pillW - 8f, top + boxH - pillH - 6f),
         Size(pillW, pillH),
         CornerRadius(8f),
     )
-    drawText(tStatus, topLeft = Offset(left + boxW - pillW - 8f + 8f, top + boxH - pillH - 6f + 3f))
+    drawText(tStatus, topLeft = Offset(left + boxW - pillW - 8f + 9f, top + boxH - pillH - 6f + 3.5f))
 }
 
 private fun DrawScope.drawDashedRoundRect(offset: Offset, size: Size, radius: Float, color: androidx.compose.ui.graphics.Color, stroke: Float) {
