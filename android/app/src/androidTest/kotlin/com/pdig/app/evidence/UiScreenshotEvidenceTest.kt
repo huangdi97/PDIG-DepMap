@@ -257,7 +257,15 @@ class UiScreenshotEvidenceTest {
                 compose.waitForIdle()
                 Thread.sleep(1500)
                 compose.waitForIdle()
+                // 窗口测量等待：活动窗口冷启动可能未测量（0 尺寸；实测 AVD 偶发）。
+                for (w in 0 until 20) {
+                    val rootSize = runCatching { compose.onRoot().fetchSemanticsNode().size }.getOrNull()
+                    if (rootSize != null && rootSize.width > 0 && rootSize.height > 0) break
+                    compose.waitForIdle()
+                    Thread.sleep(1000)
+                }
                 val bmp = compose.onRoot().captureToImage().asAndroidBitmap()
+                check(bmp.width > 0 && bmp.height > 0) { "vnext capture zero-size: $pageId" }
                 val name = "android__phone-api36__vnext__dark__${pageId}__%02d.png".format(seq)
                 val f = File(outDir, name)
                 f.outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
