@@ -5,6 +5,10 @@
 > - 无新外部 blocker。AVD 环境风险（如实记录，非 blocker）：本机 `main` AVD 在长负载
 >   （>4 分钟 instrument）下偶发崩溃/离线，已通过单次证据运行（~77s）规避并全部通过；
 >   production 21 屏×2 主题 sweep 未在本轮重跑（历史证据存在；本轮无 production 屏改动）。
+> - **外部 blocker（本轮新增）**：push 到 `origin/feat/android-ui-vnext-translation` 被
+>   GitHub HTTPS 拒绝（HTTP 408 curl 22，4 次重试；已调大 http.postBuffer/lowSpeed 仍失败）。
+>   疑似代理/网络对大 pack（~20MB：6MB 地球纹理 + 8MB 证据 PNG）超时。本地分支已全部
+>   commit 就绪；远端 ref 未建立。可重试或改走 SSH/分次推送。属不可由代码解决的网络 blocker。
 > - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
 >   （禁止 Agent 自行写 ACCEPTED；Human 判定 ACCEPTED 或 TARGETED_SCREEN_FIX_REQUIRED）。
 > - 保留环境 Gate：`REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE` 等既往人工 Gate 不变。
