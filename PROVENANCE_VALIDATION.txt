@@ -19,3 +19,12 @@ notes:
 
 result: all_reported_commits_exist = true
 
+closure-round commits (2026-10-02 Desktop Reference Freeze Closure, branch feat/pdig-ui-vnext):
+EXISTS  858ef648a8db3930613045a91f03c296e0f02a3a
+EXISTS  4862cb42715d45a4325aef6c4d237f8b9182226b
+EXISTS  4163340e3d606bde40ebbef54074ed0b03663057
+EXISTS  18db132fda0847dc71761ca78c0027846db28dce
+
+ending remote HEAD = docs commit（本文件所在 commit；push 后以 git rev-parse origin/feat/pdig-ui-vnext 核对一致）；
+上述全部 SHA 亦通过 git cat-file -e <sha>^{commit}。all_reported_commits_exist = true
+

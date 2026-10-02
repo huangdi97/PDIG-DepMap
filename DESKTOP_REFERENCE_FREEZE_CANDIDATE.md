@@ -36,7 +36,11 @@ Desktop Reference Freeze → Platform Translation Contract → Android → iOS �
    change current/transition/after、region global/HK）
 3. `4163340e3d606bde40ebbef54074ed0b03663057` feat(ui-vnext): regenerate Final Human Review evidence —
    12-shot hf2-final pack（glass != city）、manifest/metrics/probe/sums、CLI outRoot switch
-4. `docs(ui-vnext): correct HF provenance + freeze candidate + status`（本文件所在 commit）
+4. `18db132fda0847dc71761ca78c0027846db28dce` refactor(ui-vnext): split evidence harness by
+   responsibility（VNextPhaseProbe1FHF probe collector / VNextFinalEvidenceManifest recorder；
+   ≤300 行，行为不变）
+5. `docs(ui-vnext): correct HF provenance + freeze candidate + status`（本文件所在 commit，
+   = 本轮 ending remote HEAD）
 
 HF 轮真实链（修正后的 provenance，见 `PROVENANCE_VALIDATION.txt`）：
 `e9fdaf48…` → `9d828e0…` → `185c96c…` → `df98135…` → `21de0bfe…`。
