@@ -122,6 +122,22 @@ fun main(args: Array<String>) {
         kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextWindowSmoke1F.run(outRoot))
         return
     }
+    // --vnext-shots-1f-hf：PHASE 1F-HF 关键帧（Human Final Review 收口：12 张主集 + mechanical + probe §4/§8/§11）
+    if (args.contains("--vnext-shots-1f-hf")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence1FHF.run(outRoot))
+        return
+    }
+    // --vnext-window-smoke-1f-hf：PHASE 1F-HF §3 真实窗口运行时 smoke（target-bound 截图 + target validation）
+    if (args.contains("--vnext-window-smoke-1f-hf")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextWindowSmoke1FHF.run(outRoot))
+        return
+    }
     if (args.contains("--profiles") || args.contains("--keys")) {
         val repo = findRepoRoot(File(".").absoluteFile)
             ?: error("desktop closure 需要在仓库内运行以读取 fixtures/")
