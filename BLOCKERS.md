@@ -1,4 +1,22 @@
 # BLOCKERS.md
+> **UI vNext PHASE 1F-HF（2026-10-02，Human Final Acceptance Fix）：**
+>
+> - 本轮仅关闭 Human Review 暴露的真实 blocker：① real-window 证据完整性（P0）已修复 ——
+>   harness 现在绑定 PDIG 窗口（PID/title/HWND/bounds/screen/method 逐条记录）+ 暗色像素校验 +
+>   stale 帧防线；PHASE 1F 时期「截到 Chrome/Google 却写 capture=true」的错误 target 缺陷已闭环，
+>   任何非 PDIG 或陈旧帧都会被如实 capture=false（不写证据）。② Studio theme thumbnail artwork
+>   overflow（Card/Number）已修复（clip + 本地 bounds + 渲染级契约测试）。③ §5–§9 视觉收口完成。
+> - 新增真实环境 Gate（非伪造）：**`REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE`** —— 本机桌面会话
+>   的 GDI BitBlt 只返回窗口首帧且 Skiko 窗口不响应 WM_PRINT，自动流程只能取得真实首帧
+>   （`01-now.png` 已验证）；02–14 需在暴露实时合成像素的环境（本地交互桌面/直连显示器）重跑
+>   同一 harness。既有 `REAL_WINDOW_KEYBOARD_HUMAN_GATE`、`IME_RUNTIME_HUMAN_GATE` 保留。
+> - 状态：`PHASE_1F_HF_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、
+>   `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （永不自行 PASS）；Android/iOS/Harmony 保持 HOLD；不创建 PHASE 1G、不 merge main、不 tag、不进 v0.4。
+> - 证据：`artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf/`（12 张主集 + mechanical +
+>   IMAGE_METRICS + UI_LAYOUT_PROBE + REAL_WINDOW_TARGET_VALIDATION）；报告
+>   `PHASE_1F_HF_IMPLEMENTATION_REPORT.md`。
+>
 
 > **UI vNext PHASE 1D —— Desktop Reference Convergence 已完成（2026-10-01），等待 Human/Vision Review：**
 >

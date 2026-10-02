@@ -1,4 +1,28 @@
 # WORK_STATUS.md
+> **（当前）PDIG UI vNext · PHASE 1F-HF —— Human Final Acceptance Fix（2026-10-02）**
+> —— Human/Vision Review 裁决 `DESKTOP_VISUAL_REFERENCE = TARGETED_SCREEN_FIX_REQUIRED`、
+> `VISUAL_CRAFT = NOT_ACCEPTED_YET` 后，本轮只关闭少量真实 blocker 并重生成可信 Desktop 证据。
+> ① **P0 修复 real-window 证据完整性**：`VNextWindowSmoke1FHF` + `Win32WindowCapture`（JNA
+> FindWindowW/GetWindowRect/SetWindowPos TOPMOST/ShowWindow/SetForegroundWindow/InvalidateRect/
+> UpdateWindow/PrintWindow）——截图 target 绑定 PDIG 窗口（PID/title/HWND/bounds/screen/method 逐条记录），
+> 捕获后暗色主题像素校验带 + **stale 帧防线**（screen 变化但帧逐字节相同 → capture=false 且不写证据）。
+> 本机实测：窗口身份全命中；但本机桌面会话（GPU/DComp + Skiko 不响应 WM_PRINT）下 GDI 只返回首帧 →
+> `01-now.png` = 真实 PDIG 首帧（已验证），02–14 如实 capture=false，15/16 键盘 Human Gate 保留；
+> 新增 `REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE`（环境性，非伪造）。② **P0 Studio artwork overflow**：
+> 根因 = `drawBehind` 未裁剪 + w 相对大圆半径在 104dp tile 上垂直越界；修复 = `Modifier.clip` +
+> 渲染器 `clipRect` + 半径本地 bounds 约束（Card 104→112dp / Number 84→96dp）；新增渲染级
+> `ThemeThumbnailBoundsContractTest`（5 项，修复前 FAIL）。③ §5 Studio consumer craft（LEFT 双滚动区 /
+> CENTER object stage / RIGHT 材质默认展开）；§6 ICBC 拉丝强化（双尺度成立）；§7 Number 通信身份
+> （信号条+拨号弧，无卡语法）；§8 Continuity node>path（路径 2.0/1.5/1.0、node 强化、更少穿越）；
+> §9 Cards Empty 居中 480–600px 紧凑构图。证据：`artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf/`
+> （12 张主集 + 20 mechanical + 4 empty + IMAGE_METRICS 0 error/0 empty/0 near-black + UI_LAYOUT_PROBE
+> §4/§8/§11 新增检查全 passed + EVIDENCE_SHA256SUMS 37 + REAL_WINDOW_TARGET_VALIDATION）。
+> `desktop :app:test` **56/56 PASS**；core `npm run check` 全绿（487 tests / circular=0 / network 0 / secrets 0）。
+> 状态：`PHASE_1F_HF_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、
+> `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`；
+> Android/iOS/Harmony 继续 HOLD；不创建 PHASE 1G；等待 Human/Vision 最终裁决。详见
+> `PHASE_1F_HF_IMPLEMENTATION_REPORT.md` + `docs/ui-vnext/SCREENSHOTS_PHASE1F_HF.md`。
+>
 
 > **（当前）PDIG UI vNext · PHASE 1F Desktop Final Craft, Reference Freeze & Acceptance Candidate（2026-10-02）**
 > —— PHASE 1F：最后一次 broad Desktop 设计迭代（§6–61 全量）。**CardIdentitySystem（§9 issuer 合成身份：CMB 酒红铜环 / ICBC 石墨红线 / BOC 冷石墨拉丝 / HSBC 港夜 / BOCHK 轮廓 / Monzo 深炭珊瑚 / Revolut 玻璃色散 / Chase 海军拉丝 / Capital One 午夜红 sweep / DBS 新加坡夜）** —— 无近黑空占位、每卡 ≥3 身份要素（契约测试）；Card Detail 下区两栏信息工作区；Studio 预览 660–740px + 材质默认展开 + 自定义背景（选择/替换/移除/缩略图）；Number Detail 通信语法（+86 36sp 最强元素、角色簇、唯一恢复路径、continuity ring）；ContinuityScene 新权重（OLD/NEW 252.6px、服务节点 143px 信息盒、路径 2.5/2/1.5px、After 投影徽标「计划完成后的预期状态 / 不代表已经完成或验证」）；空态 6 种（紧凑组合 ≤600px + 语义剪影）+ 诚实健康文案（禁伪安全词）；产品化拷贝（vNext → 个人数字基础设施）；键盘/焦点可达性 + 启动即聚焦;mechanical 五档 + 真实窗口 16 步 smoke。`PHASE_1F_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、`DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`；`REAL_WINDOW_KEYBOARD_HUMAN_GATE` + `IME_RUNTIME_HUMAN_GATE` 如实登记。证据：artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f/（12 主图 + mechanical + journey + real-window + IMAGE_METRICS 0 error/0 empty/0 near-black）+ PHASE_1F_IMPLEMENTATION_REPORT.md + SCREENSHOTS_PHASE1F.md + PHASE1F_SKILL_USAGE.md + gallery-phase1f。desktop :app:test 51/51 PASS；core `npm run check` 全绿。
