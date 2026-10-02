@@ -3,18 +3,27 @@
 > PDIG UI vNext — Desktop Reference Freeze Closure（2026-10-02）
 > 依据 brief（16 节）执行**证据 / 状态 / 溯源收口**，不是新的设计 Phase。
 
-## 状态（Agent 只允许写到这一档，禁止自行宣布 ACCEPTED）
+## 状态（Human/Vision 正式裁决记录，2026-10-02）
 
 ```text
-DESKTOP_REFERENCE_FREEZE_CANDIDATE = READY
-DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
-VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE（No-Vision Agent 永不自行 PASS）
-PHASE_1F_HF_IMPLEMENTATION = PASS（HF 轮结论；本轮仅收口）
-DESKTOP_REFERENCE_FREEZE = HOLD（等待 Human 明确写入）
+DESKTOP_VISUAL_REFERENCE = ACCEPTED（Human/Vision Final Review, 2026-10-02）
+VISUAL_CRAFT = ACCEPTED_FOR_DESKTOP_REFERENCE
+DESKTOP_REFERENCE_FREEZE = PASS
+DESKTOP_DARK_GOLDEN_BASELINE = ESTABLISHED
+PLATFORM_TRANSLATION_CONTRACT = READY
+DESKTOP_REFERENCE_FREEZE_CANDIDATE = READY（历史档；已被 Acceptance 覆盖）
+PHASE_1F_HF_IMPLEMENTATION = PASS（历史）
 ```
 
-Human 明确回复 `DESKTOP_VISUAL_REFERENCE = ACCEPTED` 后，才允许启动
-Desktop Reference Freeze → Platform Translation Contract → Android → iOS → Harmony。
+**Acceptance 范围（明确限定）**：本次 Acceptance 只针对 **Desktop Dark Reference**。
+不自动代表：Light theme parity、Android parity、iOS parity、Harmony parity、
+Runtime multi-frame acceptance（`REAL_WINDOW_MULTI_FRAME_RUNTIME_ACCEPTANCE` 仍为
+`ENVIRONMENT_GATE`，`REAL_WINDOW_KEYBOARD_HUMAN_GATE` / `IME_RUNTIME_HUMAN_GATE` 仍 OPEN）。
+
+Acceptance 由 Human/Vision Final Review（2026-10-02）正式写入；本文件从此作为
+Acceptance 记录 + Freeze Candidate 历史。跨端翻译合同见 `PLATFORM_TRANSLATION_CONTRACT.md`，
+Freeze 契约见 `spec/ui-vnext/DESKTOP_REFERENCE_FREEZE.md`，不可变标识见
+`DESKTOP_REFERENCE_FREEZE_MANIFEST.json`（= manifest + commit SHA）。
 
 ## 1. Git（exact）
 

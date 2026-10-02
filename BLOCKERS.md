@@ -1,6 +1,22 @@
 # BLOCKERS.md
 
-> **UI vNext Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口）：**
+> **UI vNext Desktop Reference Freeze（2026-10-02，Human/Vision 正式裁决）：**
+>
+> - Human/Vision Final Review 已正式写入 `DESKTOP_VISUAL_REFERENCE = ACCEPTED`、
+>   `VISUAL_CRAFT = ACCEPTED_FOR_DESKTOP_REFERENCE`、`DESKTOP_REFERENCE_FREEZE = PASS`
+>   （仅 Desktop Dark Reference；不自动代表 Light / Android / iOS / Harmony parity 与
+>   runtime multi-frame acceptance）。
+> - **无新 blocker**。既有真实环境/人工 Gate 保持不变，不得反向取消 Freeze：
+>   `REAL_WINDOW_MULTI_FRAME_RUNTIME_ACCEPTANCE = ENVIRONMENT_GATE`（本机合成器
+>   不向 GDI 暴露实时帧 / 前台遮挡时 harness 如实 capture=false）、
+>   `REAL_WINDOW_KEYBOARD_HUMAN_GATE = OPEN`、`IME_RUNTIME_HUMAN_GATE = OPEN`。
+> - 本轮为纯 Freeze/Spec：`DESKTOP_REFERENCE_FREEZE_MANIFEST.json`（FROZEN，12 截图 SHA256）、
+>   `spec/ui-vnext/DESKTOP_REFERENCE_FREEZE.md`、`PLATFORM_TRANSLATION_CONTRACT.md`、
+>   `docs/ui-vnext/DESKTOP_VISUAL_GOLDEN_BASELINE.md`；不实现移动端 UI。
+> - 下一阶段（本轮不启动）：Android → iOS → Harmony Platform Translation；
+>   `ANDROID_UI_VNEXT = READY_FOR_TRANSLATION`，iOS/Harmony HOLD 至 Android reference
+>   translation。
+>   **UI vNext Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口）：**
 >
 > - **P0 关闭**：Card Studio glass/city 截图同帧无效（Human 已核验：GitHub blob SHA 相同
 >   `b399f884…`、469151 bytes）。Root cause = 证据 harness 用 `defaultProfileStore()`（用户主目录

@@ -1,5 +1,36 @@
 # WORK_STATUS.md
 
+> **（当前）PDIG UI vNext · Desktop Reference Freeze（2026-10-02，Human/Vision 正式裁决轮）**
+> —— Human/Vision Final Review 已完成并正式写入：
+> `DESKTOP_VISUAL_REFERENCE = ACCEPTED`、`VISUAL_CRAFT = ACCEPTED_FOR_DESKTOP_REFERENCE`、
+> `DESKTOP_REFERENCE_FREEZE = PASS`（来源：Human/Vision Final Review, 2026-10-02；
+> 记录见 `DESKTOP_REFERENCE_FREEZE_CANDIDATE.md`）。本轮为纯 Freeze/Spec 轮：**不实现
+> 移动端 UI、不 redesign、不创建 PHASE 1G**。产出：① `DESKTOP_REFERENCE_FREEZE_MANIFEST.json`
+> （status=FROZEN，12 张 1920×1080@1.0 截图 + SHA256，acceptedSourceHead
+> `da0937b9…`，designSystem / runtimeGates / platformTranslationAllowed=true，
+> immutable identity = manifest + commit SHA，不建 tag）；② `spec/ui-vnext/DESKTOP_REFERENCE_FREEZE.md`
+> （Freeze 设计契约：Product IA / Primary Nav / Infrastructure Secondary / Globe / Cards /
+> Number / Card Studio / Number Studio / Continuity（After = Plan Projection, NOT reality）/
+> Empty State / Command Palette；Presentation Boundary：
+> PresentationProfile ≠ PersonalReality ≠ Canonical，平台可 translate presentation、
+> 不可 fork domain truth / Canonical / change semantics / recovery semantics）；
+> ③ `PLATFORM_TRANSLATION_CONTRACT.md`（Desktop Reference → Platform Translation，
+> 非 Pixel Copy；保留 information hierarchy / object identity / semantic prominence /
+> color-material family / state semantics / continuity semantics / navigation intent；
+> 允许平台原生 navigation / sheet / bottom bar / gesture / safe area / typography metric /
+> density / interaction convention；优先级 Android → iOS → Harmony，本轮不实现）；
+> ④ `docs/ui-vnext/DESKTOP_VISUAL_GOLDEN_BASELINE.md`（仅 deterministic dark reference 冻结
+> 档为 golden；real-window 不稳定帧不作 pixel golden；unexpected drift → FAIL，
+> intentional change → explicit reference revision）。**Acceptance 只针对 Desktop Dark
+> Reference**：Light parity / Android parity / iOS parity / Harmony parity / Runtime
+> multi-frame acceptance 不自动代表；real-window 三 Gate 保持
+> （`REAL_WINDOW_MULTI_FRAME_RUNTIME_ACCEPTANCE = ENVIRONMENT_GATE`、
+> `REAL_WINDOW_KEYBOARD_HUMAN_GATE = OPEN`、`IME_RUNTIME_HUMAN_GATE = OPEN`）。
+> 门禁：desktop `:app:test` 61/61（含 VisualVariantEvidenceContractTest）；freeze manifest
+> 12 SHA256 与文件逐一核验一致（0 mismatch）；core `npm run check` 引用上一轮全绿证据
+> （487 tests + architecture/network/secrets/UI，core 零改动）并复验 format:docs:check。
+> 状态：`ANDROID_UI_VNEXT = READY_FOR_TRANSLATION`、`IOS_UI_VNEXT = HOLD_UNTIL_ANDROID_REFERENCE_TRANSLATION`、
+> `HARMONY_UI_VNEXT = HOLD_UNTIL_ANDROID_REFERENCE_TRANSLATION`；STOP。
 > **（当前）PDIG UI vNext · Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口轮）**
 > —— Human Review 核验发现 HF 轮 12 张主集里 Card Studio glass/city 同帧无效（GitHub blob SHA
 > 相同 `b399f884…`、469151 bytes）后，本轮只做证据修复并重生成可信 Final Review Pack，**不是新设计
