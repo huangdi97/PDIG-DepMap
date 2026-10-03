@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -170,7 +171,10 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
 
 @Composable
 private fun FilterRow(regions: List<String>, activeRegion: String?, onRegion: (String?) -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         FilterChip("全部", activeRegion == null) { onRegion(null) }
         regions.forEach { code ->
             FilterChip(code, activeRegion == code) { onRegion(code) }

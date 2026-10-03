@@ -271,11 +271,29 @@ fun StudioInspector(
         }
         Spacer(Modifier.height(4.dp))
         Text("信息显示", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-        toggles.forEach { toggle ->
-            InspectorToggle(toggle, on = true)
+        toggles.forEach { label ->
+            DisplayInfoRow(label)
         }
         Text("隐私", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         InspectorToggle("遮蔽敏感信息", on = privacyMasked, onToggle = { onPrivacy(!privacyMasked) })
+    }
+}
+
+@Composable
+private fun DisplayInfoRow(label: String) {
+    Surface(
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
+    ) {
+        Row(
+            Modifier.padding(10.dp),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(label, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+            LabelChip("显示")
+        }
     }
 }
 

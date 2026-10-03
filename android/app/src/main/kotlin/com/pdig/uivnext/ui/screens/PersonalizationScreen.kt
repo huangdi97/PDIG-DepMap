@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
@@ -26,7 +27,7 @@ import com.pdig.uivnext.ui.components.SectionHeader
 
 /** 个性化：只改变本机显示与交互偏好，不改变基础设施事实。 */
 @Composable
-fun PersonalizationScreen(app: VAppState) {
+fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     Column(
         Modifier
             .fillMaxSize()
@@ -55,16 +56,18 @@ fun PersonalizationScreen(app: VAppState) {
         SectionHeader("动效")
         ToggleRow(
             label = "减少动效",
-            value = if (app.reduceMotion) "Globe 与界面动画已简化" else "保留平滑动效",
+            value = if (app.reduceMotion) "地球导航与界面动画已简化" else "保留平滑动效",
             enabled = app.reduceMotion,
         ) { app.reduceMotion = !app.reduceMotion }
 
-        SectionHeader("平板导航")
-        ToggleRow(
-            label = "展开侧栏",
-            value = if (app.railExpanded) "显示完整导航名称" else "仅显示导航图标",
-            enabled = app.railExpanded,
-        ) { app.railExpanded = !app.railExpanded }
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            SectionHeader("平板导航")
+            ToggleRow(
+                label = "展开侧栏",
+                value = if (app.railExpanded) "显示完整导航名称" else "仅显示导航图标",
+                enabled = app.railExpanded,
+            ) { app.railExpanded = !app.railExpanded }
+        }
 
         SectionHeader("首页")
         PreferenceRow("需要你处理", "存在必须处理事项时始终显示", status = "固定")

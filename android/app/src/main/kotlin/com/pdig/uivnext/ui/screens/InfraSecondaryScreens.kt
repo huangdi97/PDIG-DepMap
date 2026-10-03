@@ -260,9 +260,11 @@ private fun WeaknessRow(title: String, hint: String, accent: Color, onClick: () 
 }
 
 private fun serviceKindLabel(kind: String): String = when (kind) {
+    "payment" -> "支付"
+    "banking" -> "银行"
+    "subscription" -> "订阅"
     "funding" -> "资金来源"
     "authenticates" -> "登录验证"
     "twoFA" -> "2FA 验证"
-    "subscription" -> "订阅"
     else -> "关联服务"
 }

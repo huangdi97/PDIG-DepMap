@@ -161,7 +161,7 @@ private fun CompactOverview(app: VAppState, regions: List<RegionPresentation>, a
         ) {
             ActivityRailContent(app, regions, scrollable = false)
         }
-        QuickEntryRow(app)
+        CompactQuickEntries(app)
     }
 }
 
@@ -214,6 +214,37 @@ private fun ActivityRailContent(app: VAppState, regions: List<RegionPresentation
                     }
                 })
             }
+        }
+    }
+}
+
+@Composable
+private fun CompactQuickEntries(app: VAppState) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            CompactQuickEntry("查看卡片", "全球 ${app.demoCards().size} 张卡") { app.navigate(VScreen.CARDS) }
+            CompactQuickEntry("查看号码", "全球 ${app.demoNumbers().size} 个号码") { app.navigate(VScreen.NUMBERS) }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            CompactQuickEntry("更换手机号", "规划与迁移") { app.navigate(VScreen.CHANGE_PHONE) }
+            CompactQuickEntry("薄弱点", "需要优先处理的风险") { app.navigate(VScreen.WEAKNESSES) }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.CompactQuickEntry(title: String, hint: String, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .weight(1f)
+            .clickableLocal(onClick = onClick),
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(title, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+            Text(hint, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
         }
     }
 }
