@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,81 +38,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.ChangeStage
-import com.pdig.uivnext.model.UiVNextCard
 import com.pdig.uivnext.model.UiVNextNumber
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.statusColor
 import com.pdig.uivnext.theme.statusLabelZh
-
-/** 卡面程序化背景（bundled procedural；禁远程图片）。按 preset 确定性生成。 */
-fun cardFaceBrush(preset: String): Brush = when (preset) {
-    "deep-space" -> Brush.radialGradient(
-        listOf(Color(0xFF1B3A6B), Color(0xFF0B1A33), Color(0xFF030A18)),
-        radius = 900f,
-    )
-    "region" -> Brush.linearGradient(listOf(Color(0xFF22427C), Color(0xFF0F2248), Color(0xFF071833)))
-    "city" -> Brush.linearGradient(listOf(Color(0xFF14345E), Color(0xFF0A1B3A)))
-    "glass" -> Brush.linearGradient(listOf(Color(0x99384A6E), Color(0x55202F4E)))
-    "metal" -> Brush.linearGradient(listOf(Color(0xFF3A4A62), Color(0xFF16202F), Color(0xFF3A4A62)))
-    "abstract" -> Brush.linearGradient(listOf(Color(0xFF4D74FF), Color(0xFF22316B), Color(0xFF0B1A33)))
-    else -> Brush.linearGradient(listOf(Color(0xFF12264A), Color(0xFF0A1833)))
-}
-
-/** AssetCard：独立可操作对象卡面（grid/list 共用）。 */
-@Composable
-fun AssetCard(
-    card: UiVNextCard,
-    privacyMask: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier
-            .clip(RoundedCornerShape(VRadius.Lg))
-            .clickable(onClick = onClick)
-            .border(1.dp, PdigV2Colors.BorderSubtle, RoundedCornerShape(VRadius.Lg)),
-        shape = RoundedCornerShape(VRadius.Lg),
-        color = Color.Transparent,
-    ) {
-        Column(
-            Modifier
-                .background(cardFaceBrush(card.preset))
-                .aspectRatio(1.586f)
-                .padding(VSpacing.Xl),
-        ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Column {
-                    Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold)
-                    Text(card.issuer, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-                }
-                Text(
-                    if (card.form == "virtual") "虚拟卡" else "实体卡",
-                    color = PdigV2Colors.TextMuted,
-                    fontSize = 12.sp,
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            Text(
-                if (privacyMask) "•••• •••• •••• ${card.masked.takeLast(4)}" else "•••• •••• •••• ${card.last4}",
-                color = PdigV2Colors.TextPrimary,
-                fontSize = 16.sp,
-                fontFamily = FontFamily.Monospace,
-            )
-            Spacer(Modifier.height(VSpacing.Lg))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column {
-                    Text("${typeLabel(card.type)} · ${card.network}", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-                    Text("地区 ${card.region} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                }
-                StatusBadge(card.status)
-            }
-        }
-    }
-}
-
-private fun typeLabel(type: String): String = if (type == "credit") "信用卡" else "储蓄卡"
 
 /** 号码面程序化背景（communication identity 语言；每 preset 确定性可区分，绝不退化为银行卡视觉）。 */
 fun numberFaceBrush(preset: String): Brush = when (preset) {

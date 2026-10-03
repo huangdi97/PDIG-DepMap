@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
@@ -154,7 +155,7 @@ private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCa
                 )
             }
             Spacer(Modifier.height(8.dp))
-            LabelChip("当前主题：${card.preset} · 素材全部本地")
+            LabelChip("当前主题：${themeLabelZh("card", card.preset)} · 素材全部本地")
             Spacer(Modifier.height(12.dp))
             Text(
                 "Presentation 层：自定义不影响依赖/证据/确认",
