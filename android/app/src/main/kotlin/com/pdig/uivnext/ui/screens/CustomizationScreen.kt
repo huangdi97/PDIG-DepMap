@@ -1,7 +1,5 @@
 package com.pdig.uivnext.ui.screens
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.defaultMinSize
-import com.pdig.uivnext.theme.VTouchTarget
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -33,22 +29,29 @@ import com.pdig.uivnext.model.CARD_THEME_PRESETS
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.NUMBER_THEME_PRESETS
 import com.pdig.uivnext.model.PresentationProfile
+import com.pdig.uivnext.model.hexColorOrNull
+import com.pdig.uivnext.model.layoutLabelZh
+import com.pdig.uivnext.model.materialLabelZh
+import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.model.CARD_MATERIAL_CHOICES
+import com.pdig.uivnext.model.NUMBER_MATERIAL_CHOICES
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.NumberFace
-import com.pdig.uivnext.ui.components.SectionHeader
+import com.pdig.uivnext.ui.components.StudioInspector
+import com.pdig.uivnext.ui.components.StudioKind
+import com.pdig.uivnext.ui.components.StudioPropRow
+import com.pdig.uivnext.ui.components.ThemeTile
 
 /**
- * Card Customization Studio / Number Customization Studio。
- * 手机：Preview 在上、编辑面板在下；编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap；素材 bundled local / procedural）。
- */
-/**
- * Card Customization Studio / Number Customization Studio。
- * 手机：Preview 在上、编辑面板在下；编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap；素材 bundled local / procedural）。
- * 证据：`app.evidenceThemeId` 覆盖初始主题并在修改时回写（expected==actual；见 AndroidVisualVariantEvidenceContractTest）。
+ * Card / Number Customization Studio（brief §13-§16）。
+ * 手机：Preview 在上、编辑面板在下；编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap；
+ * 素材 bundled local / procedural）。主题选择使用真实 visual thumbnail + 用户语言；
+ * Inspector 使用 consumer 语言（外观 / 材质 / 布局 / 信息 / 隐私），不暴露 hex / internal enum / preset id。
+ * 证据：`app.evidenceThemeId` 覆盖初始主题并在修改时回写（expected==actual；见 Variant 契约）。
  */
 @Composable
 fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
@@ -56,6 +59,7 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val initialTheme = app.evidenceThemeId ?: card.preset
     var profile by remember(initialTheme) { mutableStateOf(PresentationProfile.defaultFor("card", card.id, initialTheme)) }
     CustomizationFrame(
+        kind = StudioKind.CARD,
         title = "卡面定制 · ${card.nickname}",
         presets = CARD_THEME_PRESETS,
         profile = profile,
@@ -63,17 +67,15 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             profile = profile.copy(themeId = it, backgroundValue = it)
             app.evidenceThemeId = it
         },
+        onMaterial = { profile = profile.copy(material = it) },
+        materials = CARD_MATERIAL_CHOICES,
         preview = {
             AssetCard(card = card.copy(preset = profile.themeId), privacyMask = app.privacyMask, onClick = {})
         },
-        rows = listOf(
-            "主题" to profile.themeId,
-            "材质" to profile.material,
-            "主色" to profile.accentColor,
-            "布局" to profile.layout,
-            "遮蔽" to (if (profile.maskSensitive) "已开启" else "已关闭"),
-        ),
+        rows = consumerCardRows(profile),
         toggles = listOf("显示昵称", "显示网络", "显示地区", "显示币种", "显示状态"),
+        privacyMasked = profile.maskSensitive,
+        onPrivacy = { profile = profile.copy(maskSensitive = it) },
         breakpoint = breakpoint,
     )
 }
@@ -84,6 +86,7 @@ fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val initialTheme = app.evidenceThemeId ?: number.preset
     var profile by remember(initialTheme) { mutableStateOf(PresentationProfile.defaultFor("phoneNumber", number.id, initialTheme)) }
     CustomizationFrame(
+        kind = StudioKind.NUMBER,
         title = "号码面定制 · ${number.nickname}",
         presets = NUMBER_THEME_PRESETS,
         profile = profile,
@@ -91,30 +94,47 @@ fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             profile = profile.copy(themeId = it, backgroundValue = it)
             app.evidenceThemeId = it
         },
+        onMaterial = { profile = profile.copy(material = it) },
+        materials = NUMBER_MATERIAL_CHOICES,
         preview = {
             NumberFace(number = number.copy(preset = profile.themeId), privacyMask = app.privacyMask, onClick = {})
         },
-        rows = listOf(
-            "主题" to profile.themeId,
-            "布局" to profile.layout,
-            "背景" to profile.backgroundValue,
-            "遮蔽" to (if (profile.maskSensitive) "已开启" else "已关闭"),
-            "提示" to "preset visual ≠ 语义角色",
-        ),
+        rows = consumerNumberRows(profile),
         toggles = listOf("显示昵称", "显示运营商", "SIM 徽标", "主副号", "用途标签"),
+        privacyMasked = profile.maskSensitive,
+        onPrivacy = { profile = profile.copy(maskSensitive = it) },
         breakpoint = breakpoint,
     )
 }
 
+/** Card Studio consumer 属性行（外观 / 背景 / 布局 / 强调色样；禁止 hex 文本）。 */
+private fun consumerCardRows(profile: PresentationProfile): List<StudioPropRow> = listOf(
+    StudioPropRow("外观", themeLabelZh("card", profile.themeId), swatch = hexColorOrNull(profile.accentColor)),
+    StudioPropRow("背景", materialLabelZh(profile.material)),
+    StudioPropRow("布局", layoutLabelZh(profile.layout)),
+)
+
+/** Number Studio consumer 属性行（communication identity；不显示内部 preset id）。 */
+private fun consumerNumberRows(profile: PresentationProfile): List<StudioPropRow> = listOf(
+    StudioPropRow("外观", themeLabelZh("number", profile.themeId), swatch = hexColorOrNull(profile.accentColor)),
+    StudioPropRow("背景", materialLabelZh(profile.material)),
+    StudioPropRow("布局", layoutLabelZh(profile.layout)),
+)
+
 @Composable
 private fun CustomizationFrame(
+    kind: StudioKind,
     title: String,
     presets: List<String>,
     profile: PresentationProfile,
     onPreset: (String) -> Unit,
+    onMaterial: (String) -> Unit,
+    materials: List<String>,
     preview: @Composable () -> Unit,
-    rows: List<Pair<String, String>>,
+    rows: List<StudioPropRow>,
     toggles: List<String>,
+    privacyMasked: Boolean,
+    onPrivacy: (Boolean) -> Unit,
     breakpoint: MediaBreakpoint,
 ) {
     var saved by remember { mutableStateOf(false) }
@@ -124,7 +144,7 @@ private fun CustomizationFrame(
             Surface(
                 color = if (saved) PdigV2Colors.Positive.copy(alpha = 0.2f) else PdigV2Colors.Primary,
                 shape = RoundedCornerShape(VRadius.Md),
-                modifier = Modifier.clickable { saved = true },
+                modifier = Modifier.clickableLocal { saved = true },
             ) {
                 Text(
                     if (saved) "已保存（本地偏好）" else "保存",
@@ -136,24 +156,29 @@ private fun CustomizationFrame(
             }
         }
         if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
-            WideCustomization(presets, profile, onPreset, preview, rows, toggles)
+            WideCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, toggles, privacyMasked, onPrivacy)
         } else {
-            CompactCustomization(presets, profile, onPreset, preview, rows, toggles)
+            CompactCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, toggles, privacyMasked, onPrivacy)
         }
     }
 }
 
 @Composable
 private fun WideCustomization(
+    kind: StudioKind,
     presets: List<String>,
     profile: PresentationProfile,
     onPreset: (String) -> Unit,
+    onMaterial: (String) -> Unit,
+    materials: List<String>,
     preview: @Composable () -> Unit,
-    rows: List<Pair<String, String>>,
+    rows: List<StudioPropRow>,
     toggles: List<String>,
+    privacyMasked: Boolean,
+    onPrivacy: (Boolean) -> Unit,
 ) {
     Row(Modifier.fillMaxSize()) {
-        // Asset Library（左 22%）
+        // Asset Library（左 22%）—— ThemeTile：真实 thumbnail + 用户语言
         Column(
             Modifier
                 .weight(0.22f)
@@ -161,24 +186,14 @@ private fun WideCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_LIBRARY),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            SectionHeader("预设")
+            Text("主题", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             presets.forEach { preset ->
-                Surface(
-                    Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min).clickable { onPreset(preset) },
-                    color = if (profile.themeId == preset) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
-                    shape = RoundedCornerShape(VRadius.Md),
-                    border = BorderStroke(1.dp, if (profile.themeId == preset) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
-                ) {
-                    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            Modifier.width(26.dp).height(18.dp),
-                            color = PdigV2Colors.PrimaryBright.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(4.dp),
-                        ) {}
-                        Spacer(Modifier.width(8.dp))
-                        Text(preset, color = PdigV2Colors.TextPrimary, fontSize = 13.sp)
-                    }
-                }
+                ThemeTile(
+                    kind = kind,
+                    preset = preset,
+                    selected = profile.themeId == preset,
+                    onClick = { onPreset(preset) },
+                )
             }
         }
         Spacer(Modifier.width(16.dp))
@@ -189,7 +204,7 @@ private fun WideCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_PREVIEW),
             verticalArrangement = Arrangement.Top,
         ) {
-            SectionHeader("实时预览")
+            Text("实时预览", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             Surface(
                 Modifier.fillMaxWidth().padding(top = 12.dp),
                 color = PdigV2Colors.Surface.copy(alpha = 0.7f),
@@ -205,7 +220,7 @@ private fun WideCustomization(
             )
         }
         Spacer(Modifier.width(16.dp))
-        // Property Inspector（右 32%）
+        // Property Inspector（右 32%）—— consumer 语言
         Column(
             Modifier
                 .weight(0.32f)
@@ -213,19 +228,24 @@ private fun WideCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            InspectorPanel(rows, toggles)
+            StudioInspector(rows, materials, profile.material, onMaterial, toggles, privacyMasked, onPrivacy)
         }
     }
 }
 
 @Composable
 private fun CompactCustomization(
+    kind: StudioKind,
     presets: List<String>,
     profile: PresentationProfile,
     onPreset: (String) -> Unit,
+    onMaterial: (String) -> Unit,
+    materials: List<String>,
     preview: @Composable () -> Unit,
-    rows: List<Pair<String, String>>,
+    rows: List<StudioPropRow>,
     toggles: List<String>,
+    privacyMasked: Boolean,
+    onPrivacy: (Boolean) -> Unit,
 ) {
     Column(
         Modifier
@@ -240,7 +260,7 @@ private fun CompactCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_PREVIEW),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            SectionHeader("实时预览")
+            Text("实时预览", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             Surface(
                 Modifier.fillMaxWidth(),
                 color = PdigV2Colors.Surface.copy(alpha = 0.7f),
@@ -255,24 +275,14 @@ private fun CompactCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_LIBRARY),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            SectionHeader("预设")
+            Text("主题", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             presets.forEach { preset ->
-                Surface(
-                    Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min).clickable { onPreset(preset) },
-                    color = if (profile.themeId == preset) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
-                    shape = RoundedCornerShape(VRadius.Md),
-                    border = BorderStroke(1.dp, if (profile.themeId == preset) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
-                ) {
-                    Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            Modifier.width(26.dp).height(18.dp),
-                            color = PdigV2Colors.PrimaryBright.copy(alpha = 0.5f),
-                            shape = RoundedCornerShape(4.dp),
-                        ) {}
-                        Spacer(Modifier.width(8.dp))
-                        Text(preset, color = PdigV2Colors.TextPrimary, fontSize = 13.sp)
-                    }
-                }
+                ThemeTile(
+                    kind = kind,
+                    preset = preset,
+                    selected = profile.themeId == preset,
+                    onClick = { onPreset(preset) },
+                )
             }
         }
         Column(
@@ -281,33 +291,7 @@ private fun CompactCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            InspectorPanel(rows, toggles)
-        }
-    }
-}
-
-@Composable
-private fun InspectorPanel(rows: List<Pair<String, String>>, toggles: List<String>) {
-    SectionHeader("属性与样式")
-    rows.forEach { (label, value) ->
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(label, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-            Text(value, color = PdigV2Colors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-        }
-    }
-    Spacer(Modifier.height(8.dp))
-    toggles.forEach { toggle ->
-        Surface(
-            color = PdigV2Colors.SurfaceRaised,
-            shape = RoundedCornerShape(VRadius.Md),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp),
-        ) {
-            Row(Modifier.padding(10.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(toggle, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
-                Surface(color = PdigV2Colors.Primary.copy(alpha = 0.3f), shape = RoundedCornerShape(VRadius.Sm)) {
-                    Text("开", Modifier.padding(horizontal = 10.dp, vertical = 3.dp), color = PdigV2Colors.PrimaryBright, fontSize = 11.sp)
-                }
-            }
+            StudioInspector(rows, materials, profile.material, onMaterial, toggles, privacyMasked, onPrivacy)
         }
     }
 }
