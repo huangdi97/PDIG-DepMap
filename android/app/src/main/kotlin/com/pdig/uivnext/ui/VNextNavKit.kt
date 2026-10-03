@@ -43,9 +43,16 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -106,7 +113,7 @@ internal fun NavigationRail(app: VAppState) {
                     Spacer(Modifier.width(VSpacing.Md))
                     Column {
                         Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold)
-                        Text("vNext", color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+                        Text("个人数字基础设施", color = PdigV2Colors.TextMuted, fontSize = 10.sp)
                     }
                 }
             }
@@ -233,15 +240,28 @@ internal fun BottomNav(app: VAppState) {
     }
 }
 
-/** 手机上的基础设施二级导航（横向滚动 chip 行；与 rail 内嵌小节同语义）。 */
+/** 手机上的基础设施二级导航（横向滚动 chip 行；与 rail 内嵌小节同语义）。
+ *  B17：selected item auto-centering —— 切换到 设备/服务/薄弱点 等靠后项时，
+ *  selected chip 自动滚动到可视区域中心，绝不留在屏幕外。 */
 @Composable
 internal fun InfraChipRow(app: VAppState) {
+    val scrollState = rememberScrollState()
+    val chipOffsets = remember { mutableMapOf<String, Int>() }
+    val containerWidth = remember { mutableStateOf(0) }
+
+    LaunchedEffect(app.screen) {
+        val current = chipOffsets[app.screen.route] ?: return@LaunchedEffect
+        val target = (current - containerWidth.value / 2).coerceAtLeast(0)
+        if (target != scrollState.value) scrollState.animateScrollTo(target)
+    }
+
     Row(
         Modifier
             .fillMaxWidth()
             .background(PdigV2Colors.Surface.copy(alpha = 0.72f))
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = VSpacing.PagePadding, vertical = VSpacing.Sm),
+            .horizontalScroll(scrollState)
+            .padding(horizontal = VSpacing.PagePadding, vertical = VSpacing.Sm)
+            .onGloballyPositioned { containerWidth.value = it.size.width },
         horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm),
     ) {
         INFRA_ENTRIES.forEach { entry ->
@@ -249,6 +269,7 @@ internal fun InfraChipRow(app: VAppState) {
             Surface(
                 modifier = Modifier
                     .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .onGloballyPositioned { chipOffsets[entry.screen.route] = it.positionInRoot().x.toInt() }
                     .clickable { app.navigate(entry.screen) }
                     .testTag("pdig.nav.${entry.screen.route}"),
                 color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,

@@ -88,7 +88,14 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             }
         }
     } else {
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        // B4：COMPACT 使用高密度可滚动号码列表（不嵌 Desktop Inspector）。
+        // 点击行 → Number Detail；MEDIUM/EXPANDED 才允许 List + Inspector 并排。
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
             NumbersHeader(app, filtered.size)
             FilterRowNumbers()
             if (filtered.isEmpty()) {
@@ -100,17 +107,7 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     onPrimary = { app.navigate(VScreen.CARDS) },
                 )
             } else {
-                NumberListSurface(filtered, selected?.id, app)
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTagLocal(VTestIds.PHONE_INSPECTOR),
-                    color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-                    shape = RoundedCornerShape(VRadius.Xl),
-                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                ) {
-                    InspectorContent(app, selected)
-                }
+                NumberListSurface(filtered, null, app)
             }
         }
     }
@@ -214,7 +211,8 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .testTagLocal(VTestIds.NUMBER_ROW),
         color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.18f) else PdigV2Colors.SurfaceRaised.copy(alpha = 0.6f),
         shape = RoundedCornerShape(VRadius.Md),
         border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),

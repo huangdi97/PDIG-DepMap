@@ -1,6 +1,7 @@
 package com.pdig.uivnext.ui
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.pdig.uivnext.globe.GlobeCamera
@@ -11,6 +12,10 @@ import com.pdig.uivnext.model.VScreen
 /**
  * vNext 演示应用状态（Presentation Layer；不触碰真实 domain repos）。
  * 持有导航、Globe、隐私遮蔽、变更投影与证据参数；全部为本地表现状态。
+ *
+ * Back/State（brief §31）：内部层级（detail/studio/search/change）使用 back stack，
+ * 保证「Cards → Detail → Studio → Back → Back → Cards」与「Detail → Studio → Back = Detail」
+ * 同时成立；system back 在 stack 清空后才交回系统退出。
  */
 class VAppState(
     initialScreen: VScreen = VScreen.NOW,
@@ -32,13 +37,21 @@ class VAppState(
     /** 证据参数：空 fixture 模式（空态截图；与真实持久化隔离，绝不读用户 profile）。 */
     var emptyDemo by mutableStateOf(false)
 
-    /** System back 返回目标（detail/studio/search/change 等进入屏的上一层；root 时为 null → 系统退出）。 */
-    var navBackTarget by mutableStateOf<VScreen?>(null)
+    /** System back 返回栈（栈顶 = 下一返回目标；空栈 → 系统退出）。 */
+    private val backStack = mutableStateListOf<VScreen>()
+
+    /** 兼容 API：栈顶或 null。 */
+    var navBackTarget: VScreen?
+        get() = backStack.lastOrNull()
+        set(value) {
+            if (value == null) backStack.clear()
+            else if (backStack.lastOrNull() != value) backStack.add(value)
+        }
 
     var selectedCardId by mutableStateOf<String?>(null)
     var selectedNumberId by mutableStateOf<String?>(null)
 
-    /** 顶层导航/直接切换（bottom nav / rail / chips）：不设置 back target。 */
+    /** 顶层导航/直接切换（bottom nav / rail / chips）：只有 search/change 进栈（保持既有语义）。 */
     fun navigate(next: VScreen) {
         when (next) {
             VScreen.SEARCH, VScreen.CHANGE_PHONE -> {
@@ -62,13 +75,14 @@ class VAppState(
     }
 
     fun openCardCustomization(cardId: String) {
-        navBackTarget = if (screen == VScreen.CARD_DETAIL) VScreen.CARD_DETAIL else VScreen.CARDS
+        // 从 Detail 进入 Studio：把 Detail 也进栈，保证 Studio→Back→Detail→Back→原列表。
+        if (screen == VScreen.CARD_DETAIL) navBackTarget = VScreen.CARD_DETAIL else navBackTarget = screen
         screen = VScreen.CARD_CUSTOMIZATION
         selectedCardId = cardId
     }
 
     fun openNumberCustomization(numberId: String) {
-        navBackTarget = if (screen == VScreen.NUMBER_DETAIL) VScreen.NUMBER_DETAIL else VScreen.NUMBERS
+        if (screen == VScreen.NUMBER_DETAIL) navBackTarget = VScreen.NUMBER_DETAIL else navBackTarget = screen
         screen = VScreen.NUMBER_CUSTOMIZATION
         selectedNumberId = numberId
     }
@@ -95,23 +109,21 @@ class VAppState(
     }
 
     /**
-     * System back：region drawer → 关闭抽屉；detail/studio/search/change → 返回上一层；
-     * root（navBackTarget == null）→ 不做处理，交回系统默认（退出）。
+     * System back：region drawer → 关闭抽屉；back stack 非空 → 弹栈返回；
+     * 空栈 → 不做处理，交回系统默认（退出）。
      */
     fun back() {
         if (globe.state == VGlobeState.REGION_DETAIL) {
             clearRegion()
             return
         }
-        val target = navBackTarget
-        if (target != null) {
-            screen = target
-            navBackTarget = null
+        if (backStack.isNotEmpty()) {
+            screen = backStack.removeAt(backStack.lastIndex)
         }
     }
 
     /** 是否有可返回的内部层级（BackHandler enabled 条件）。 */
-    fun canGoBack(): Boolean = navBackTarget != null || globe.state == VGlobeState.REGION_DETAIL
+    fun canGoBack(): Boolean = backStack.isNotEmpty() || globe.state == VGlobeState.REGION_DETAIL
 
     private fun cameraPreset(preset: String): GlobeCamera {
         if (preset == "global") return GlobeCamera(0f, 30f, 1f)

@@ -57,7 +57,7 @@ private fun ServicesScreen() {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Text("服务", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("已记录的服务与订阅（${UiVNextDemoFixture.services.size} 项；来自演示 fixture）。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+        Text("已记录的服务与订阅（${UiVNextDemoFixture.services.size} 项；来自演示数据）。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
         UiVNextDemoFixture.services.groupBy { it.region }.forEach { (region, services) ->
             SectionHeader("$region · ${services.size} 项")
             services.forEach { service ->

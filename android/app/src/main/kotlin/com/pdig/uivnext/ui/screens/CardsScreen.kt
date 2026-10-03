@@ -91,16 +91,18 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 } else {
                     "地区 ${app.regionFilter} 暂无卡片记录。没有记录 ≠ 没有风险。"
                 },
-                primaryCta = "查看全部卡片",
-                onPrimary = { app.regionFilter = null },
-                secondaryCta = "查看号码",
-                onSecondary = { app.navigate(VScreen.NUMBERS) },
+                primaryCta = "查看号码",
+                onPrimary = { app.navigate(VScreen.NUMBERS) },
+                secondaryCta = "查看基础设施",
+                onSecondary = { app.navigate(VScreen.OVERVIEW) },
             )
         } else if (gridView) {
+            // B1：COMPACT 禁止再强制 2 列（两列卡宽下 nickname/issuer/form/metadata 互相挤压并竖排）。
+            // 列策略：COMPACT=1 列整卡 / MEDIUM=2 列 / EXPANDED=4 列（brief §4；最终以真实设备视觉为准）。
             val columns = when (breakpoint) {
                 MediaBreakpoint.EXPANDED -> 4
-                MediaBreakpoint.MEDIUM -> 3
-                MediaBreakpoint.COMPACT -> 2
+                MediaBreakpoint.MEDIUM -> 2
+                MediaBreakpoint.COMPACT -> 1
             }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(columns),

@@ -25,6 +25,7 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.components.NumberFace
 import com.pdig.uivnext.ui.components.SectionHeader
 
@@ -40,9 +41,16 @@ fun NumberDetailScreen(app: VAppState) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
-        NumberFace(number = number, privacyMask = app.privacyMask, onClick = {})
+        NumberFace(
+            number = number,
+            privacyMask = app.privacyMask,
+            onClick = {},
+            modifier = Modifier.testTagLocal(VTestIds.NUMBER_DETAIL_HERO),
+        )
         Row(
-            Modifier.fillMaxWidth(),
+            Modifier
+                .fillMaxWidth()
+                .testTagLocal(VTestIds.NUMBER_DETAIL_SERVICES),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {

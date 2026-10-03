@@ -41,7 +41,7 @@ fun PersonalizationScreen(app: VAppState) {
         Text("以下均为本地偏好（Presentation Layer）；不影响依赖/证据/确认，也不写入 .depmap 备份。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
 
         SectionHeader("工作区外观")
-        ToggleRow("Workspace 主题", "深空（vNext）· 系统跟随", enabled = true)
+        ToggleRow("Workspace 主题", "深空 · 跟随系统", enabled = true)
 
         SectionHeader("Globe 主题")
         ToggleRow("极慢空闲旋转", if (app.reduceMotion) "已关闭（减少动效）" else "开启（交互后暂停）", enabled = !app.reduceMotion)
