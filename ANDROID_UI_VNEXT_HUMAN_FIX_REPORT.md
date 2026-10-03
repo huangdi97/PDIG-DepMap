@@ -23,8 +23,7 @@
 | 项 | 值 |
 | --- | --- |
 | STARTING_HEAD | `88551e69dd3437d34accad4f3893a4940a87b58a`（feat/android-ui-vnext-translation） |
-| Ending HEAD | `0a3a4b6`（evidence 轮结束时） |
-| 远端 HEAD 同步 | push 前 `git fetch` 核验远端 `origin/feat/android-ui-vnext-translation` = 本地 HEAD（见 §10） |
+| Ending HEAD | push 后 `eda8ea4`（见 §10；push 前 fetch 核验远端 ref = 本地 HEAD） |
 
 本轮 commits（fast-forward only）：
 
@@ -35,6 +34,8 @@ dcec870 fix(android-ui): close tablet globe and continuity adaptive regressions
 2aca40e feat(android-ui): consumerize card and number studios
 eba4aeb test(android-ui): add human-review layout evidence contracts
 0a3a4b6 fix(android-ui): treat globe composition cancellation as clean, not render error
+981b05c docs(android-ui): regenerate human acceptance candidate evidence
+eda8ea4 test(android-ui): harden wide-shell tag probe and run UiScreenshotEvidence on tablet viewport
 ```
 
 ## 2. Root causes 与 exact fixes
@@ -140,8 +141,22 @@ eba4aeb test(android-ui): add human-review layout evidence contracts
 | Android instrumentation（phone） | `com.pdig.uivnext.evidence` 26/26 PASS（含既有 Variant / Translation / A11y + 新增 Human Fix Contracts） |
 | Android instrumentation（tablet） | `com.pdig.uivnext.evidence` 26/26 PASS |
 | 生产 a11y 语义门禁 | `AccessibilitySemanticsTest` 14/14 PASS（phone） |
+| 既有 `UiScreenshotEvidenceTest` | 2/2 PASS（tablet viewport；手机窗口限制见 §5.1 诚实边界） |
 | Variant Truth | glass≠city、country≠travel≠recovery、current≠transition≠after、global≠region（SHA 互异 + expected==actual；StudioThumbnailDistinct 像素级验证） |
 | Back / State 回归 | 5 条 PASS |
+
+### 5.1 诚实边界（UiScreenshotEvidenceTest 与手机窗口）
+
+- `UiScreenshotEvidenceTest#capturesVNextDemoScreens_andProbesKeyTestTags` 的 wide-shell
+  probe 在**手机窗口**（1080×2400 = 411dp）上几何上不可满足：forcedViewportWidthDp=1280
+  只切换 breakpoint（wide shell = rail 188dp + 内容列），实际窗口仍为 411dp；WideOverview
+  的活动轨（railExpanded + EXPANDED = 360dp）无法与 rail 并列 → GLOBE_STAGE 宽度恒为 0。
+- **已证伪是回归**：检出本轮改动前（starting HEAD 的 committed 版本）的同一测试在
+  手机 AVD 上同样 FAIL（`pdig.globe.stage` bounds = 0,0,0,0），即该断言在手机窗口
+  从未可满足（pre-existing test-bed 约束，与本轮代码无关）。
+- **验证方式**：在 tablet AVD（1280dp 真实宽视口）上 `UiScreenshotEvidenceTest`
+  完整通过（OK 2 tests：production 42 屏 sweep + vNext 12 屏 + wide probe）。
+- 本轮同时为 probeTag 增加了有限重试硬化（与既有 capture 重试一致），未弱化任何断言。
 
 ## 6. 零漂移核验
 

@@ -15,7 +15,9 @@
 >   （禁止 Agent 自写 ACCEPTED / CRAFT PASS / REFERENCE_FREEZE PASS；
 >   Human 判定 ACCEPTED 或 TARGETED_SCREEN_FIX_REQUIRED）。
 > - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动。
-
+> - 既有 `UiScreenshotEvidenceTest`：**tablet viewport 2/2 PASS**；手机窗口下其 wide-shell
+>   stage probe 几何不可满足（pre-existing test-bed 约束，已用 starting-HEAD committed 版本
+>   复测同样 FAIL 证伪回归；详见 `ANDROID_UI_VNEXT_HUMAN_FIX_REPORT.md` §5.1）。
 > **ANDROID_UI_VNEXT_TRANSLATION（2026-10-02）：**
 >
 > - 无新外部 blocker。AVD 环境风险（如实记录，非 blocker）：本机 `main` AVD 在长负载
