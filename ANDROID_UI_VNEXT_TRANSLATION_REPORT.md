@@ -168,9 +168,10 @@ AVD `pdig_tablet_api36`（API36 Pixel Tablet, 2560×1600@2.0, landscape，本机
 - AVD 环境稳定性：本机 `main` AVD 在长负载（>4 分钟 instrument）下偶发崩溃/离线；
   已通过单次证据运行（~77s）规避并全部通过；完整 production 21 屏×2 主题 sweep 未在本轮
   重跑（历史证据存在；本轮无 production 屏改动）。
-- **push 外部 blocker**：`git push origin feat/android-ui-vnext-translation` 连续 4 次被
-  GitHub HTTPS HTTP 408（curl 22）拒绝（已调大 http.postBuffer/lowSpeed）；本地分支全部
-  commit 就绪，远端 ref 未建立。见 `BLOCKERS.md`。
+- **push（已解决）**：初版 `git push origin feat/android-ui-vnext-translation` 被 GitHub HTTPS
+  HTTP 408（curl 22）连续拒绝（HTTP/2 大 pack 超时）。解决：强制 HTTP/1.1
+  `git -c http.version=HTTP/1.1 push ...` 一次成功；远端 ref `b95bdb3…` 与本地 HEAD 一致。
+  详见 `BLOCKERS.md`（已标 resolved）。
 - 截图来源为 instrumentation captureToImage（设备内 Compose 实际像素），非 adb screencap；
   属于任务书认可的「instrumentation / adb screenshot」方式。
 - Ctrl+K 物理键盘入口未实现（Android 主入口为触控；任务书允许可选）。
