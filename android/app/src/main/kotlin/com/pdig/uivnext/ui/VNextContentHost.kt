@@ -84,7 +84,7 @@ private fun PlaceholderScreen(screen: VScreen) {
         Text(screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Surface(color = PdigV2Colors.Surface.copy(alpha = 0.9f), shape = RoundedCornerShape(VRadius.Lg), modifier = Modifier.fillMaxWidth()) {
             Text(
-                "该页面将在后续迭代接入：当前 IA 已包含 ${screen.titleZh}（route=${screen.route}），v0.x 焦点为「卡片」与「号码」。",
+                "这里还没有可展示的内容。后续接入数据后，你可以在这里查看和管理${screen.titleZh}。",
                 Modifier.padding(20.dp),
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 14.sp,
@@ -134,7 +134,7 @@ private fun BoxScope.RegionDrawer(app: VAppState) {
             Spacer(Modifier.height(8.dp))
             Surface(Modifier.fillMaxWidth(), color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Md)) {
                 Text(
-                    "Escape 返回全球视图",
+                    "返回全球视图",
                     Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 12.sp,

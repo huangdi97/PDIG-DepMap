@@ -49,7 +49,7 @@ import com.pdig.uivnext.ui.components.ThemeTile
 /**
  * Card / Number Customization Studio（brief §13-§16）。
  * 手机：Preview 在上、编辑面板在下；编辑对象 = PresentationProfile（本地偏好，绝不写 .depmap；
- * 素材 bundled local / procedural）。主题选择使用真实 visual thumbnail + 用户语言；
+ * 外观资源仅用于本机显示）。主题选择使用真实 visual thumbnail + 用户语言；
  * Inspector 使用 consumer 语言（外观 / 材质 / 布局 / 信息 / 隐私），不暴露 hex / internal enum / preset id。
  * 证据：`app.evidenceThemeId` 覆盖初始主题并在修改时回写（expected==actual；见 Variant 契约）。
  */
@@ -213,7 +213,7 @@ private fun WideCustomization(
                 Column(Modifier.padding(20.dp)) { preview() }
             }
             Text(
-                "素材全部来自 bundled local / procedural；不加载远程图片。",
+                "外观素材仅用于本机显示，不会改变实际信息。",
                 color = PdigV2Colors.TextMuted,
                 fontSize = 11.sp,
                 modifier = Modifier.padding(top = 8.dp),

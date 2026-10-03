@@ -129,14 +129,14 @@ private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCa
             DetailRow("有效期", card.expiry)
         }
     }
-    // Presentation 提示（Presentation Layer 铁律）
+    // 外观设置仅影响本机显示，不改变实际卡片信息与关联关系。
     Surface(
         Modifier.fillMaxWidth(),
         color = PdigV2Colors.Surface.copy(alpha = 0.6f),
         shape = RoundedCornerShape(VRadius.Lg),
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("呈现", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+            Text("外观", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
             Spacer(Modifier.height(8.dp))
             Surface(
                 Modifier
@@ -155,10 +155,10 @@ private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCa
                 )
             }
             Spacer(Modifier.height(8.dp))
-            LabelChip("当前主题：${themeLabelZh("card", card.preset)} · 素材全部本地")
+            LabelChip("当前主题：${themeLabelZh("card", card.preset)}")
             Spacer(Modifier.height(12.dp))
             Text(
-                "Presentation 层：自定义不影响依赖/证据/确认",
+                "外观设置只改变显示方式，不会修改实际卡片信息或关联关系。",
                 color = PdigV2Colors.TextMuted,
                 fontSize = 11.sp,
             )
