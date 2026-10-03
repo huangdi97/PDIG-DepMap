@@ -29,6 +29,7 @@ import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.screens.CardCustomizationScreen
 import com.pdig.uivnext.ui.screens.CardDetailScreen
 import com.pdig.uivnext.ui.screens.CardsScreen
+import com.pdig.uivnext.ui.screens.DataSourcesScreen
 import com.pdig.uivnext.ui.screens.ChangePhoneScreen
 import com.pdig.uivnext.ui.screens.NumberCustomizationScreen
 import com.pdig.uivnext.ui.screens.NumberDetailScreen
@@ -62,6 +63,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.CHANGE, VScreen.CHANGE_PHONE -> ChangePhoneScreen(app, breakpoint)
             VScreen.RECORDS -> RecordsScreen(app)
             VScreen.SEARCH -> SearchScreen(app)
+            VScreen.SOURCES -> DataSourcesScreen(app)
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
                 SecondaryInfraScreen(app, app.screen)
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app)
