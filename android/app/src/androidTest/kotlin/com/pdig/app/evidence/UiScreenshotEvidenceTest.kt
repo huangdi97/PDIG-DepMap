@@ -295,10 +295,18 @@ class UiScreenshotEvidenceTest {
         }
     }
 
-    /** testTag geometry probe：boundsInRoot（与 desktop UI_LAYOUT_PROBE 同语义）。 */
+    /** testTag geometry probe：boundsInRoot（与 desktop UI_LAYOUT_PROBE 同语义）。
+     *  带有限重试：慢速 emulator 上导航后的第一帧可能尚未完成 layout（bounds=0），
+     *  最多 10 次 × 500ms 等真实 layout（与既有 capture 重试硬化一致）。 */
     private fun probeTag(tag: String): Rect {
         compose.waitForIdle()
-        val node = compose.onNodeWithTag(tag).fetchSemanticsNode()
+        var node = compose.onNodeWithTag(tag).fetchSemanticsNode()
+        for (attempt in 0 until 10) {
+            if (node.boundsInRoot.width > 0f && node.boundsInRoot.height > 0f) break
+            Thread.sleep(500)
+            compose.waitForIdle()
+            node = compose.onNodeWithTag(tag).fetchSemanticsNode()
+        }
         Log.i("UiVNextEvidence", "probe ${node.boundsInRoot} tag=$tag")
         return node.boundsInRoot
     }
