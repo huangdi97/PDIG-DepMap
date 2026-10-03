@@ -2,18 +2,22 @@ package com.pdig.uivnext.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
@@ -21,6 +25,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,7 +35,7 @@ import com.pdig.uivnext.model.ChangeMigration
 import com.pdig.uivnext.model.ChangeStage
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextNumber
-import androidx.compose.foundation.layout.defaultMinSize
+import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
@@ -81,28 +87,25 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             )
         }
 
-        // 手机宽度不足 6×64dp 节点宽，允许横向滚动；大屏自然铺开。
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-        ) {
-            ContinuityRail(stages = projectionStages(projection))
+        // B11：COMPACT 使用原生 6 步 mini progress（首屏可见全部 6 步 + 当前步骤，不被 clip）；
+        // MEDIUM/EXPANDED 使用完整 ContinuityRail。
+        if (breakpoint == MediaBreakpoint.COMPACT) {
+            CompactStepper(stages = projectionStages(projection))
+        } else {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+            ) {
+                ContinuityRail(stages = projectionStages(projection))
+            }
         }
 
         SectionHeader("旧号码 → 关键服务 → 新号码")
         if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                OldNumberSurface(old, projection)
-                Text("→", color = PdigV2Colors.TextMuted, fontSize = 16.sp)
-                ServicesSurface(projection)
-                Text("→", color = PdigV2Colors.TextMuted, fontSize = 16.sp)
-                NewNumberSurface(new, projection)
-            }
+            // B10：Tablet 使用独立 ExpandedContinuityScene（OLD≈0.24 / SERVICES≈0.42 / NEW≈0.24），
+            // 不再复用 fillMaxWidth 三卡（会造成挤压 + 死空白 + 场景被挤到折叠以下）。
+            ExpandedContinuityScene(old = old, new = new, projection = projection)
         } else {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OldNumberSurface(old, projection)
@@ -198,75 +201,6 @@ internal fun projectionMigrations(projection: String): List<ChangeMigration> {
     }
 }
 
-@Composable
-private fun OldNumberSurface(old: UiVNextNumber?, projection: String) {
-    if (old == null) return
-    val ghost = projection == "after"
-    Surface(
-        Modifier.fillMaxWidth(),
-        color = if (ghost) PdigV2Colors.Surface.copy(alpha = 0.5f) else PdigV2Colors.SurfaceRaised,
-        shape = RoundedCornerShape(VRadius.Lg),
-        border = if (ghost) BorderStroke(1.dp, PdigV2Colors.BorderSubtle) else null,
-    ) {
-        Column(Modifier.padding(14.dp).alpha(if (ghost) 0.55f else 1f)) {
-            LabelChip(if (ghost) "旧号码（已停用·计划）" else "旧号码")
-            Spacer(Modifier.height(8.dp))
-            Text(old.maskedNumber, color = PdigV2Colors.TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Text("${old.carrier} · 主号", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-        }
-    }
-}
-
-@Composable
-private fun ServicesSurface(projection: String) {
-    Surface(
-        Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Surface.copy(alpha = 0.7f),
-        shape = RoundedCornerShape(VRadius.Lg),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-    ) {
-        Column(Modifier.padding(14.dp)) {
-            LabelChip("关键服务与账户")
-            Spacer(Modifier.height(8.dp))
-            projectionMigrations(projection).forEach { m ->
-                Row(
-                    Modifier.fillMaxWidth().padding(vertical = 3.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(m.service, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
-                    StatusBadge(m.status)
-                }
-            }
-            if (projection == "after") {
-                Text(
-                    "未完成的服务保持「待处理」：计划不代表已验证迁移。",
-                    color = PdigV2Colors.TextMuted,
-                    fontSize = 11.sp,
-                    modifier = Modifier.padding(top = 6.dp),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun NewNumberSurface(new: UiVNextNumber?, projection: String) {
-    if (new == null) return
-    val isAfter = projection == "after"
-    Surface(
-        Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Primary.copy(alpha = if (isAfter) 0.22f else 0.14f),
-        shape = RoundedCornerShape(VRadius.Lg),
-        border = BorderStroke(1.dp, if (isAfter) PdigV2Colors.PrimaryBright else PdigV2Colors.PrimaryBright.copy(alpha = 0.6f)),
-    ) {
-        Column(Modifier.padding(14.dp)) {
-            LabelChip(if (isAfter) "新主号（计划）" else "新号码", highlight = true)
-            Spacer(Modifier.height(8.dp))
-            Text(new.maskedNumber, color = PdigV2Colors.TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-            Text("${new.carrier} · 副号", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-        }
-    }
-}
 
 @Composable
 private fun stageDetail(items: List<Pair<String, String>>) {

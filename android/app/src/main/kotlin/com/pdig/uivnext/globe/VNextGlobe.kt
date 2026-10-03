@@ -33,6 +33,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlin.math.sqrt
+/** Globe 渲染就绪状态（brief §10：证据截图前置条件 = TEXTURE_READY；禁止截黑球冒充 PASS）。 */
+enum class GlobeRenderState { LOADING, TEXTURE_READY, FALLBACK, ERROR }
 
 private const val YAW_PER_SEC = 0.8f // idle rotation deg/sec（极慢；交互后暂停）
 private const val MAX_ZOOM = 1.9f
@@ -47,6 +49,16 @@ class GlobeController(
     var selectedRegion: String? by mutableStateOf(null)
     var interactive by mutableStateOf(true)
     var state by mutableStateOf(VGlobeState.GLOBAL)
+
+    /** 纹理地球渲染就绪状态；screenshot 测试必须等到 TEXTURE_READY（合理 timeout）。 */
+    var renderState by mutableStateOf(GlobeRenderState.LOADING)
+
+    /** 渲染几何（画布中心/半径 px；供 GlobeEvidenceContract 计算 mean luminance / non-black ratio）。 */
+    var renderCenterPx by mutableStateOf(Offset.Zero)
+    var renderRadiusPx by mutableStateOf(0f)
+
+    /** 渲染失败原因（GlobeRenderState.ERROR 时供诊断；证据截图只认 TEXTURE_READY）。 */
+    var renderError: String? by mutableStateOf(null)
 
     fun focusRegion(region: RegionPresentation) {
         val target = focusCamera(region.latitude.toFloat(), region.longitude.toFloat())
@@ -120,6 +132,8 @@ fun VNextGlobe(
     }
 
     // 纹理地球后台渲染：相机/画布/idle 旋转变化时重建；量化缓存避免每帧重算（主线程只 drawBitmap）。
+    // GlobeRenderState 由本 effect 驱动（LOADING → TEXTURE_READY / FALLBACK / ERROR），
+    // 证据截图必须等到 TEXTURE_READY —— 禁止截 near-black empty sphere 冒充 PASS。
     LaunchedEffect(
         canvasSize,
         controller.camera.yawDeg,
@@ -129,21 +143,40 @@ fun VNextGlobe(
         assets,
         quality,
     ) {
-        if (canvasSize == IntSize.Zero) return@LaunchedEffect
+        if (canvasSize == IntSize.Zero) {
+            controller.renderState = GlobeRenderState.LOADING
+            return@LaunchedEffect
+        }
         val (center, radius) = globeMetrics(canvasSize, controller.camera.zoom)
+        controller.renderCenterPx = center
+        controller.renderRadiusPx = radius
+        if (assets == null || quality == EarthQuality.LOW) {
+            // 资产缺失 / 低功耗档：有效 fallback 球体（非黑球），并明确标记 FALLBACK。
+            controller.renderState = GlobeRenderState.FALLBACK
+            earthBitmap = null
+            earthKey = null
+            return@LaunchedEffect
+        }
         val rect = earthRenderRect(radius, quality)
         val displayCam = controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
         val key = cameraCacheKey(displayCam, rect)
-        if (key == earthKey && earthBitmap != null) return@LaunchedEffect
-        val bmp = if (assets != null && quality != EarthQuality.LOW) {
+        if (key == earthKey && earthBitmap != null) {
+            controller.renderState = GlobeRenderState.TEXTURE_READY
+            return@LaunchedEffect
+        }
+        val bmp = try {
             withContext(Dispatchers.Default) {
                 renderEarthBody(assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam)
             }
-        } else {
+        } catch (t: Throwable) {
+            controller.renderError = "${t::class.simpleName}: ${t.message}"
+            android.util.Log.e("GlobeRender", "texture earth render failed", t)
+            controller.renderState = GlobeRenderState.ERROR
             null
         }
         earthBitmap = bmp
         earthKey = key
+        if (bmp != null) controller.renderState = GlobeRenderState.TEXTURE_READY
     }
 
     // 无障碍：Globe 画布声明语义描述；精确探索用 Overview 的 Region List（非视觉替代，任务书 §30）。
@@ -233,7 +266,7 @@ fun VNextGlobe(
             val (center, radius) = globeMetrics(size, controller.camera.zoom)
             val cam = cameraOverride ?: controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
 
-            // L1 Atmosphere
+            // L1 Atmosphere：外层光晕（不覆盖地球主体）
             drawCircle(
                 brush = Brush.radialGradient(
                     colors = listOf(PdigV2Colors.AtmosphereInner.copy(alpha = 0.55f), PdigV2Colors.AtmosphereOuter),
@@ -244,14 +277,15 @@ fun VNextGlobe(
                 center = center,
             )
 
-            // 地球主体：纹理地球（缓存 Bitmap）或 VectorEarthFallback（资产未就绪/缺失）
+            // 地球主体：纹理地球（缓存 Bitmap）；LOADING / FALLBACK / ERROR 时绘制
+            // 「地球加载材质」（有效 fallback，禁止 near-black empty sphere，brief §10）。
             val bmp = earthBitmap
             if (bmp != null) {
                 drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt())
             } else {
                 drawCircle(
                     brush = Brush.radialGradient(
-                        listOf(Color(0xFF1B3A6B), PdigV2Colors.SurfaceRaised, PdigV2Colors.CanvasDeep),
+                        listOf(Color(0xFF2E4D7A), Color(0xFF18305A), PdigV2Colors.CanvasDeep),
                         center = Offset(center.x - radius * 0.35f, center.y - radius * 0.35f),
                         radius = radius * 1.4f,
                     ),
