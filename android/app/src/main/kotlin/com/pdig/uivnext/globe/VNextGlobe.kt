@@ -168,6 +168,9 @@ fun VNextGlobe(
             withContext(Dispatchers.Default) {
                 renderEarthBody(assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam)
             }
+        } catch (t: kotlinx.coroutines.CancellationException) {
+            // 组合作用域离开（截图切换 app 时旧组合被取消）：这是干净取消，不是渲染失败。
+            throw t
         } catch (t: Throwable) {
             controller.renderError = "${t::class.simpleName}: ${t.message}"
             android.util.Log.e("GlobeRender", "texture earth render failed", t)
