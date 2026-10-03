@@ -122,7 +122,7 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         SectionHeader("风险提示")
         Surface(color = PdigV2Colors.Warning.copy(alpha = 0.12f), shape = RoundedCornerShape(VRadius.Md), modifier = Modifier.fillMaxWidth()) {
             Text(
-                "旧号码是 2 个账户的唯一恢复路径：迁移完成前不要停用；验证阶段未完成时「停用旧号码」必须保持禁用（Make-Before-Break）。",
+                "旧号码是 2 个账户的唯一恢复路径：新号码完成验证并确认恢复路径前，不要停用旧号码。",
                 Modifier.padding(14.dp),
                 color = PdigV2Colors.TextPrimary,
                 fontSize = 13.sp,
@@ -181,7 +181,7 @@ internal fun projectionStages(projection: String): List<ChangeStage> {
             when (s.stage) {
                 1, 2, 3, 4 -> s.copy(status = "completed")
                 5 -> s.copy(status = "plan", blockReason = null)
-                6 -> s.copy(status = "plan", blockReason = "新号码验证通过后按计划停用（make-before-break）")
+                6 -> s.copy(status = "plan", blockReason = "新号码验证通过并确认恢复路径后按计划停用")
                 else -> s.copy(status = "not_started")
             }
         }
@@ -228,7 +228,7 @@ private fun projectionDetail(projection: String): List<Pair<String, String>> = w
         "3 验证新号码" to "尚未开始（当前投影）。",
         "4 迁移关键账户" to "尚未开始（当前投影）。",
         "5 检查恢复路径" to "尚未开始（当前投影）。",
-        "6 停用旧号码" to "未开始：验证通过前不允许停用（make-before-break）。",
+        "6 停用旧号码" to "未开始：新号码验证完成并确认恢复路径前，不允许停用旧号码。",
     )
     "after" -> listOf(
         "1 影响分析" to "已确认需要迁移的服务：微信支付、支付宝、招商银行网银、腾讯视频；2 个账户以旧号码为登录验证。",
@@ -244,6 +244,6 @@ private fun projectionDetail(projection: String): List<Pair<String, String>> = w
         "3 验证新号码" to "等待接收验证码并确认（正在验证）。",
         "4 迁移关键账户" to "待验证通过后逐个迁移绑定。",
         "5 检查恢复路径" to "确保每个账户存在非旧号码的恢复方式。",
-        "6 停用旧号码" to "阻止执行：新手机号验证通过后才能停用旧手机号（make-before-break）。",
+        "6 停用旧号码" to "暂不可执行：新号码完成验证并确认恢复路径后，才能停用旧号码。",
     )
 }

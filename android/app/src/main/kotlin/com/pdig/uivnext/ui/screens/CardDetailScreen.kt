@@ -187,9 +187,9 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
             ) {
                 Column {
                     Text(service.name, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                    Text("地区 ${service.region} · ${service.kind}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text("地区 ${service.region} · ${cardServiceKindLabel(service.kind)}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
-                LabelChip(if (service.kind == "funding") "资金来源" else "验证方式")
+                LabelChip(cardServiceKindLabel(service.kind))
             }
         }
     }
@@ -208,7 +208,7 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
     }
     SectionHeader("恢复与替代")
     Text(
-        "模拟更换此卡：影响分析由已确认依赖驱动（未知 = 未知，绝不推断）。接入 Impact Kernel 后此处展示「必须处理 / 有备用路径 / 建议检查」分级。",
+        "更换这张卡前，请先检查已经记录的绑定服务和备用支付方式；没有记录的关联仍保持未知。",
         color = PdigV2Colors.TextSecondary,
         fontSize = 13.sp,
     )
@@ -229,4 +229,15 @@ private fun DetailRow(label: String, value: String) {
         Text(label, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
         Text(value, color = PdigV2Colors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
     }
+}
+
+
+private fun cardServiceKindLabel(kind: String): String = when (kind) {
+    "payment" -> "支付"
+    "banking" -> "银行"
+    "subscription" -> "订阅"
+    "funding" -> "资金来源"
+    "authenticates" -> "登录验证"
+    "twoFA" -> "2FA 验证"
+    else -> "关联服务"
 }

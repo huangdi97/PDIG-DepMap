@@ -2,6 +2,7 @@ package com.pdig.uivnext.ui.screens
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,33 +45,25 @@ import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
-/**
- * Numbers：号码管理（信息密度高，不硬套卡片；communication identity 视觉语言）。
- * 大屏：List + Inspector 并排；手机：List 上 / Inspector 下（LazyColumn 保证滚动）。
- * 空态：无号码 → honest unknown EmptyState（未记录 ≠ 无风险）。
- */
+/** 号码：通信身份列表；手机 List→Detail，大屏 List + Inspector。 */
 @Composable
 fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val all = app.demoNumbers()
-    val filtered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
+    val regionScoped = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
+    var filter by remember { mutableStateOf("all") }
+    val filtered = regionScoped.filter { matchesNumberFilter(it, filter) }
     var selectedId by remember { mutableStateOf(all.firstOrNull()?.id) }
     val selected = filtered.firstOrNull { it.id == selectedId } ?: filtered.firstOrNull()
 
     if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
         Row(Modifier.fillMaxSize().padding(24.dp)) {
             Column(Modifier.weight(0.55f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                NumbersHeader(app, filtered.size)
+                NumbersHeader(app, filtered.size, regionScoped.size, filter)
                 Spacer(Modifier.height(8.dp))
-                FilterRowNumbers()
+                FilterRowNumbers(filter) { filter = it }
                 Spacer(Modifier.height(8.dp))
                 if (filtered.isEmpty()) {
-                    EmptyState(
-                        kind = EmptyKind.NUMBERS,
-                        title = "还没有号码",
-                        description = "没有记录 ≠ 没有风险：尚未录入号码时，不推断登录 / 恢复路径存在或不存在。",
-                        primaryCta = "查看卡片",
-                        onPrimary = { app.navigate(VScreen.CARDS) },
-                    )
+                    NumberFilterEmpty(app, filter)
                 } else {
                     NumberListSurface(filtered, selected?.id, app)
                 }
@@ -88,24 +82,16 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             }
         }
     } else {
-        // B4：COMPACT 使用高密度可滚动号码列表（不嵌 Desktop Inspector）。
-        // 点击行 → Number Detail；MEDIUM/EXPANDED 才允许 List + Inspector 并排。
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            NumbersHeader(app, filtered.size)
-            FilterRowNumbers()
+            NumbersHeader(app, filtered.size, regionScoped.size, filter)
+            FilterRowNumbers(filter) { filter = it }
             if (filtered.isEmpty()) {
-                EmptyState(
-                    kind = EmptyKind.NUMBERS,
-                    title = "还没有号码",
-                    description = "没有记录 ≠ 没有风险：尚未录入号码时，不推断登录 / 恢复路径存在或不存在。",
-                    primaryCta = "查看卡片",
-                    onPrimary = { app.navigate(VScreen.CARDS) },
-                )
+                NumberFilterEmpty(app, filter)
             } else {
                 NumberListSurface(filtered, null, app)
             }
@@ -114,12 +100,28 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun NumbersHeader(app: VAppState, count: Int) {
+private fun NumbersHeader(app: VAppState, count: Int, total: Int, filter: String) {
     Text("号码", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+    val scope = if (app.regionFilter == null) "全球" else "地区 ${app.regionFilter}"
     Text(
-        if (app.regionFilter == null) "全球 $count 个号码" else "地区 ${app.regionFilter} · $count 个号码",
+        if (filter == "all") "$scope $total 个号码" else "$scope · 当前显示 $count / $total",
         color = PdigV2Colors.TextSecondary,
         fontSize = 13.sp,
+    )
+}
+
+@Composable
+private fun NumberFilterEmpty(app: VAppState, filter: String) {
+    EmptyState(
+        kind = EmptyKind.NUMBERS,
+        title = if (filter == "all") "还没有号码" else "当前筛选没有号码",
+        description = if (filter == "all") {
+            "没有记录 ≠ 没有风险：尚未记录号码时，不推断登录或恢复路径存在或不存在。"
+        } else {
+            "换一个筛选条件继续查看；没有出现在当前筛选中不代表没有依赖。"
+        },
+        primaryCta = if (filter == "all") "查看卡片" else "查看基础设施",
+        onPrimary = { app.navigate(if (filter == "all") VScreen.CARDS else VScreen.OVERVIEW) },
     )
 }
 
@@ -136,9 +138,7 @@ private fun ColumnScope.NumberListSurface(filtered: List<UiVNextNumber>, selecte
     ) {
         LazyColumn(Modifier.fillMaxSize().padding(8.dp)) {
             items(filtered, key = { it.id }) { number ->
-                NumberRow(number, selectedId == number.id, app) {
-                    app.openNumber(number.id)
-                }
+                NumberRow(number, selectedId == number.id) { app.openNumber(number.id) }
             }
         }
     }
@@ -149,64 +149,96 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
     Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         if (selected == null) {
             Text("选择一个号码查看详情", color = PdigV2Colors.TextMuted, fontSize = 13.sp)
-        } else {
-            SectionHeader("号码详情")
-            Text(selected.nickname, color = PdigV2Colors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            return@Column
+        }
+        SectionHeader("号码详情")
+        Text(selected.nickname, color = PdigV2Colors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(
+            selected.maskedNumber,
+            color = PdigV2Colors.TextPrimary,
+            fontSize = 20.sp,
+            fontFamily = FontFamily.Monospace,
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LabelChip(if (selected.simKind == "eSIM") "eSIM" else "实体 SIM")
+            LabelChip(if (selected.role == "primary") "主号" else "副号")
+            LabelChip(selected.carrier)
+            if (selected.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
+        }
+        Text("用途：${selected.usages.joinToString(" · ")}", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+
+        val services = UiVNextDemoFixture.servicesForNumber(selected.id)
+        SectionHeader("关联服务（${services.size}）")
+        services.forEach { service ->
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(service.name, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+                LabelChip(numberServiceKindLabel(service.kind))
+            }
+        }
+
+        Surface(
+            Modifier
+                .fillMaxWidth()
+                .clickable { app.openNumber(selected.id) },
+            color = PdigV2Colors.PrimarySoft,
+            shape = RoundedCornerShape(VRadius.Md),
+        ) {
             Text(
-                selected.maskedNumber,
-                color = PdigV2Colors.TextPrimary,
-                fontSize = 20.sp,
-                fontFamily = FontFamily.Monospace,
+                "查看完整详情 →",
+                Modifier.padding(12.dp),
+                color = PdigV2Colors.PrimaryBright,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                LabelChip(if (selected.simKind == "eSIM") "eSIM" else "实体 SIM")
-                LabelChip(if (selected.role == "primary") "主号" else "副号")
-                LabelChip("${selected.carrier}")
-                if (selected.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
-            }
-            Text("用途：${selected.usages.joinToString(" · ")}", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
-            val services = UiVNextDemoFixture.servicesForNumber(selected.id)
-            SectionHeader("关联服务（${services.size}）")
-            services.forEach { service ->
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text(service.name, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
-                    LabelChip(if (service.kind == "twoFA") "2FA" else "验证方式")
-                }
-            }
+        }
+    }
+}
+
+@Composable
+private fun FilterRowNumbers(active: String, onFilter: (String) -> Unit) {
+    val filters = listOf(
+        "all" to "全部",
+        "esim" to "eSIM",
+        "sim" to "实体 SIM",
+        "primary" to "主号",
+        "secondary" to "副号",
+        "keep" to "保号",
+    )
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        filters.forEach { (key, label) ->
+            val selected = active == key
             Surface(
-                Modifier.fillMaxWidth(),
-                color = PdigV2Colors.PrimarySoft,
-                shape = RoundedCornerShape(VRadius.Md),
+                modifier = Modifier.clickable { onFilter(key) },
+                color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
+                shape = RoundedCornerShape(VRadius.Sm),
+                border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
             ) {
                 Text(
-                    "查看完整详情 →",
-                    Modifier.padding(12.dp).clickable { app.openNumber(selected.id) },
-                    color = PdigV2Colors.PrimaryBright,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    label,
+                    Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                    fontSize = 12.sp,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                 )
             }
         }
     }
 }
 
-@Composable
-private fun FilterRowNumbers() {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        listOf("全部", "eSIM", "实体 SIM", "主号", "副号", "保号").forEach { label ->
-            Surface(
-                color = PdigV2Colors.SurfaceRaised,
-                shape = RoundedCornerShape(VRadius.Sm),
-                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-            ) {
-                Text(label, Modifier.padding(horizontal = 10.dp, vertical = 5.dp), color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-            }
-        }
-    }
+private fun matchesNumberFilter(number: UiVNextNumber, filter: String): Boolean = when (filter) {
+    "esim" -> number.simKind == "eSIM"
+    "sim" -> number.simKind != "eSIM"
+    "primary" -> number.role == "primary"
+    "secondary" -> number.role == "secondary"
+    "keep" -> number.usages.any { it.contains("保号") } || number.preset == "recovery"
+    else -> true
 }
 
 @Composable
-private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, onClick: () -> Unit) {
+private fun NumberRow(number: UiVNextNumber, selected: Boolean, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -217,11 +249,14 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
         shape = RoundedCornerShape(VRadius.Md),
         border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
     ) {
-        Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text("${number.countryCode}", color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+                    Text(number.countryCode, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
                 }
                 Text(
                     "${number.maskedNumber} · ${number.carrier} · ${if (number.simKind == "eSIM") "eSIM" else "SIM"} · ${if (number.role == "primary") "主号" else "副号"}",
@@ -234,4 +269,12 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
             StatusBadge(number.status)
         }
     }
+}
+
+private fun numberServiceKindLabel(kind: String): String = when (kind) {
+    "payment" -> "支付"
+    "banking" -> "银行"
+    "subscription" -> "订阅"
+    "twoFA" -> "2FA"
+    else -> "关联"
 }

@@ -134,7 +134,7 @@ private fun BoxScope.RegionDrawer(app: VAppState) {
                 app.globe.state = VGlobeState.REGION_SELECTED
             }
             Spacer(Modifier.height(8.dp))
-            Surface(Modifier.fillMaxWidth(), color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Md)) {
+            Surface(Modifier.fillMaxWidth().clickableLocal { app.clearRegion() }, color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Md)) {
                 Text(
                     "返回全球视图",
                     Modifier.padding(horizontal = 12.dp, vertical = 8.dp),

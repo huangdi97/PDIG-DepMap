@@ -163,7 +163,7 @@ private fun ChangesSection(app: VAppState) {
     val changes = app.demoChanges()
     SectionHeader(
         "进行中的变更",
-        trailing = { Text("查看全部", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp) },
+        trailing = { Text("查看全部", Modifier.clickableLocal { app.navigate(VScreen.RECORDS) }, color = PdigV2Colors.PrimaryBright, fontSize = 12.sp) },
     )
     if (changes.isEmpty()) {
         Text(
