@@ -61,12 +61,14 @@ fun SearchScreen(app: VAppState) {
 
         // 导航命令（query 为空时重点展示；触控可发现）
         SectionHeader("前往")
-        CommandRow("基础设施总览", "Globe 与地区活动") { app.navigate(VScreen.OVERVIEW) }
+        CommandRow("基础设施总览", "全球基础设施与地区活动") { app.navigate(VScreen.OVERVIEW) }
         CommandRow("卡片", "全球 ${UiVNextDemoFixture.cards.size} 张卡") { app.navigate(VScreen.CARDS) }
         CommandRow("号码", "全球 ${UiVNextDemoFixture.numbers.size} 个号码") { app.navigate(VScreen.NUMBERS) }
-        CommandRow("更换手机号", "旗舰流程") { app.navigate(VScreen.CHANGE_PHONE) }
-        CommandRow("记录", "变更历史") { app.navigate(VScreen.RECORDS) }
-        CommandRow("设置 · 个性化", "本地偏好") { app.navigate(VScreen.PERSONALIZATION) }
+        CommandRow("更换手机号", "规划并迁移号码") { app.navigate(VScreen.CHANGE_PHONE) }
+        CommandRow("记录", "查看变更、关注与即将发生的事项") { app.navigate(VScreen.RECORDS) }
+        CommandRow("薄弱点", "查看恢复、到期与迁移风险") { app.navigate(VScreen.WEAKNESSES) }
+        CommandRow("数据源", "查看当前工作区的数据边界") { app.navigate(VScreen.SOURCES) }
+        CommandRow("设置 · 个性化", "外观、隐私与动效偏好") { app.navigate(VScreen.PERSONALIZATION) }
 
         // 真实搜索（不匹配时明示，不做假结果）
         val trimmed = query.trim()
@@ -172,7 +174,7 @@ private fun searchResults(q: String): List<SearchResult> {
     }
     UiVNextDemoFixture.services.forEach { s ->
         if (hit(listOf(s.name, s.region, s.kind))) {
-            out.add(SearchResult.ServiceHit(s.id, s.name, "地区 ${s.region} · ${s.kind}"))
+            out.add(SearchResult.ServiceHit(s.id, s.name, "地区 ${s.region} · ${searchServiceKindLabel(s.kind)}"))
         }
     }
     UiVNextDemoFixture.regionSummaries().forEach { r ->
@@ -211,4 +213,13 @@ private fun onClick(result: SearchResult, app: VAppState) {
             app.navigate(VScreen.OVERVIEW)
         }
     }
+}
+
+
+private fun searchServiceKindLabel(kind: String): String = when (kind) {
+    "funding" -> "资金来源"
+    "authenticates" -> "登录验证"
+    "twoFA" -> "2FA 验证"
+    "subscription" -> "订阅"
+    else -> "关联服务"
 }

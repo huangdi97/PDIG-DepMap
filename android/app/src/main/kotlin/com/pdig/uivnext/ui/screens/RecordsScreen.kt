@@ -34,7 +34,7 @@ import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
  * Records（记录，一级导航）：变更历史时间线 + 关注项 + 即将到来。
- * 全部为演示 fixture 派生；历史条目带状态徽标；空态使用 honest unknown 语义。
+ * 历史条目带状态徽标；空态坚持「未记录 ≠ 无风险」语义。
  */
 @Composable
 fun RecordsScreen(app: VAppState) {
@@ -46,7 +46,7 @@ fun RecordsScreen(app: VAppState) {
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Text("记录", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("变更与关注的历史时间线（演示数据；真实记录在接入生产数据源后展示）。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+        Text("查看正在进行的变更、需要关注的事项，以及已经知道的时间节点。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
 
         val changes = app.demoChanges()
         SectionHeader("进行中的变更（${changes.size}）")

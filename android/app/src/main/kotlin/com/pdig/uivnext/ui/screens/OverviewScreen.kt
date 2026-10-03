@@ -97,7 +97,7 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
                 Column(Modifier.align(Alignment.TopStart).padding(20.dp)) {
                     Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text(
-                        "点击地区聚焦 · 滚轮缩放 · 再次点击打开地区抽屉",
+                        "点按地区聚焦 · 捏合缩放 · 再次点按查看地区",
                         color = PdigV2Colors.TextMuted,
                         fontSize = 12.sp,
                     )
@@ -132,7 +132,7 @@ private fun CompactOverview(app: VAppState, regions: List<RegionPresentation>, a
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-        Text("点击地区聚焦 · 再次点击打开地区抽屉", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+        Text("点按地区聚焦 · 再次点按查看地区", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -177,7 +177,7 @@ private fun ActivityRailContent(app: VAppState, regions: List<RegionPresentation
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        SectionHeader("地区（Region List）")
+        SectionHeader("地区")
         if (regions.isEmpty()) {
             EmptyState(
                 kind = EmptyKind.REGION,
@@ -236,7 +236,7 @@ private fun QuickEntryRow(app: VAppState) {
         ) {
             QuickEntry("查看卡片", "全球 ${app.demoCards().size} 张卡") { app.navigate(VScreen.CARDS) }
             QuickEntry("查看号码", "全球 ${app.demoNumbers().size} 个号码") { app.navigate(VScreen.NUMBERS) }
-            QuickEntry("更换手机号", "旗舰流程") { app.navigate(VScreen.CHANGE_PHONE) }
+            QuickEntry("更换手机号", "规划与迁移") { app.navigate(VScreen.CHANGE_PHONE) }
             QuickEntry("基础设施薄弱点", "待确认风险") { app.navigate(VScreen.WEAKNESSES) }
         }
     }
