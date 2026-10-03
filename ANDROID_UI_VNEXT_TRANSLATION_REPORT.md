@@ -206,3 +206,29 @@ AVD `pdig_tablet_api36`（API36 Pixel Tablet, 2560×1600@2.0, landscape，本机
 - Desktop 冻结包：12 张 SHA 与 `DESKTOP_REFERENCE_FREEZE_MANIFEST.json` 逐项一致
   （Freeze Guard PASS）。
 - PresentationProfile：仅呈现层，不进 .depmap；证据与真实持久化隔离（P0 回归测试 PASS）。
+
+---
+
+## 29. Human Fix 轮更新（2026-10-03）
+
+本报告完成后的下一轮（`ANDROID_UI_VNEXT_HUMAN_FIX`，见
+`ANDROID_UI_VNEXT_HUMAN_FIX_REPORT.md`）对下列条目做了定向修复与重新取证：
+
+- §Phone Cards compact 布局：COMPACT 由 2 列改为 1 列整卡（`GridCells.Fixed(1)`），
+  新增 `PhoneCardsLayoutContractTest`（NO_VERTICAL_TEXT / NO_FORM_LABEL_STACK /
+  NO_CRITICAL_CLIP / CARD_MIN_READABLE_WIDTH）。
+- §Card Identity：新增 `CardIdentityProfile`（8 冻结 issuer × ≥3 identity 维度）+
+  唯一 renderer `CardIdentityFace`（Grid/Detail/Studio 复用），
+  新增 `AndroidCardIdentityContractTest`。
+- §Phone Numbers：COMPACT 移除 Desktop Inspector，改为高密度列表；
+  新增 `PhoneNumbersListVisibilityContractTest`。
+- §Tablet Globe：`GlobeRenderState`（TEXTURE_READY 前置，超时 FAIL）+
+  CancellationException 干净取消；`AndroidGlobeEvidenceContractTest` 像素断言；
+  新增 `TabletAdaptiveContractTest` / `PhoneChangeLayoutContractTest` /
+  `StudioThumbnailDistinctTest` / `VNextBackStateRegressionTest`。
+- 新证据包：`artifacts/runtime-evidence/2026-10-03-android-ui-vnext-human-fix/`
+  （phone 14 + tablet 14，commit 0a3a4b6）；
+  `ANDROID_UI_VNEXT_HUMAN_FIX_SCREENSHOT_MANIFEST.json`（28 条）。
+- 门禁结果见 Human Fix 报告 §5（phone/tablet instrumentation 26/26 PASS、
+  AccessibilitySemanticsTest 14/14 PASS、core `npm run check` 全绿、
+  Freeze Guard 12/12、零漂移）。

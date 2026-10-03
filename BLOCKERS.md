@@ -1,4 +1,20 @@
 # BLOCKERS.md
+>
+> **ANDROID UI vNext Human Fix（2026-10-03）：**
+>
+> - 无新外部 blocker。如实记录环境波动（非 blocker）：本机 emulator 在会话隔离下
+>   （每次工具调用结束会回收后台进程）偶发离线/崩溃，已用「单次调用内完成
+>   boot→install→instrument→pull」规避并全部通过；表观证据类失败一次（globe
+>   LeftCompositionCancellationException 误判 ERROR）已在代码层修复
+>   （CancellationException rethrow，非渲染错误），重跑稳定通过。
+> - `REMOTE_CI = NOT_TRIGGERED`：`.github/workflows/ci.yml` 显式列举触发分支
+>   （main、feat/mvp03-living-graph），不覆盖 `feat/android-ui-vnext-translation`；
+>   本地全绿不等于 GitHub CI PASS（如实记录，未冒充）。
+> - push 状态见本轮报告 §1/§10（push 前 fetch 核验远端 ref = 本地 HEAD）。
+> - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （禁止 Agent 自写 ACCEPTED / CRAFT PASS / REFERENCE_FREEZE PASS；
+>   Human 判定 ACCEPTED 或 TARGETED_SCREEN_FIX_REQUIRED）。
+> - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动。
 
 > **ANDROID_UI_VNEXT_TRANSLATION（2026-10-02）：**
 >

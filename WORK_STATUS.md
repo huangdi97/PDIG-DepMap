@@ -1,4 +1,24 @@
 # WORK_STATUS.md
+>
+> **（当前）ANDROID UI vNext · Human Fix（2026-10-03，Human Review 定向修复轮）**
+> —— 关闭 Human Review 已发现的 Android 视觉与 adaptive layout 缺口（Phone Cards 两列挤压/
+> 竖排、Card Identity 退化、Phone Numbers 嵌 Inspector、Tablet Globe 黑球、Tablet Change
+> 死空白、Number Detail 死空白、Phone 6 步 stepper 裁剪、Studio 内部 id/蓝色方块、工程词、
+> Back 层级），新增 9 组 Human Fix 布局契约测试，并在真实 API36 Phone（main）+ Tablet
+> （pdig_tablet_api36）上重跑 runtime evidence（phone 14 + tablet 14 张，commit 0a3a4b6，
+> Globe 前置 TEXTURE_READY、Cards verticalTextRegression=false、Numbers visibleRows>=3、
+> Tablet Change old/services/new 三列可见）。门禁：Android instrumentation
+> `com.pdig.uivnext.evidence` phone + tablet 26/26 PASS；`AccessibilitySemanticsTest`
+> 14/14 PASS；core `npm run check` 全绿（487 tests / cycles=0 / network / secrets）；
+> Android unit PASS；Desktop Freeze Guard 12/12 PASS；零漂移（core/spec/fixtures/
+> conformance 未动）。证据包：
+> `artifacts/runtime-evidence/2026-10-03-android-ui-vnext-human-fix/` +
+> `ANDROID_UI_VNEXT_HUMAN_FIX_SCREENSHOT_MANIFEST.json`（28 条）。
+> 状态：`ANDROID_UI_VNEXT_HUMAN_FIX_IMPLEMENTATION = PASS`、
+> `ANDROID_RUNTIME_EVIDENCE = READY`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（STOP，等待人工验收）、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 详见 `ANDROID_UI_VNEXT_HUMAN_FIX_REPORT.md`。
 
 > **（当前）ANDROID_UI_VNEXT_TRANSLATION（2026-10-02，Android 原生翻译轮）**
 > —— 将冻结 Desktop Reference 翻译为 Android 原生 Compose/Material，产出 Phone + Tablet

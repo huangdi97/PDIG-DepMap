@@ -3,6 +3,13 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 >
+> 2026-10-03 — ANDROID_UI_VNEXT_HUMAN_FIX（presentation 层演示壳定向修复轮，非生产数据绑定）：
+> 本轮为 Human Review 发现缺口的 Android 表现层修复 + 真实 API36 phone/tablet runtime
+> evidence 重生成（phone 14 + tablet 14，commit 0a3a4b6）。Production 三端原生迁移状态
+> 不受影响、不做 Parity 变更；Domain/Canonical 零改动（core/spec/fixtures/conformance
+> 未动）；`npm run check` 全绿（487 tests）；Android instrumentation phone+tablet 26/26
+> PASS。三端 Native Migration 相关表格保持原值。
+>
 > 2026-10-02 — ANDROID_UI_VNEXT_TRANSLATION（presentation 层演示壳，非生产数据绑定）：
 > 本轮为冻结 Desktop Reference 的 Android 原生翻译（`com.pdig.uivnext.*` 演示壳，
 > Reference Fixture Mode）。Production 三端原生迁移状态不受影响、不做 Parity 变更：
