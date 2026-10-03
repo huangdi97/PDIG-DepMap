@@ -73,7 +73,7 @@ class VNextAccessibilityEvidenceTest {
         app.evidenceThemeId = "travel"
         app.openNumberCustomization("num-cn-1")
         compose.waitForIdle()
-        val preset = compose.onAllNodesWithText("travel", useUnmergedTree = true)[0].fetchSemanticsNode()
+        val preset = compose.onAllNodesWithText("旅行", useUnmergedTree = true)[0].fetchSemanticsNode()
         assertTrue("studio preset touch target must be >= 48dp tall", preset.boundsInRoot.height >= 48f)
     }
 }
