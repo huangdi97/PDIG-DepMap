@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,6 +37,7 @@ import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.model.CARD_MATERIAL_CHOICES
 import com.pdig.uivnext.model.NUMBER_MATERIAL_CHOICES
 import com.pdig.uivnext.ui.VAppState
@@ -56,8 +58,12 @@ import com.pdig.uivnext.ui.components.ThemeTile
 @Composable
 fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
-    val initialTheme = app.evidenceThemeId ?: card.preset
-    var profile by remember(initialTheme) { mutableStateOf(PresentationProfile.defaultFor("card", card.id, initialTheme)) }
+    val savedProfile = app.presentationProfile("card", card.id, card.preset)
+    val initialTheme = app.evidenceThemeId ?: savedProfile.themeId
+    var profile by remember(card.id, initialTheme) {
+        mutableStateOf(savedProfile.copy(themeId = initialTheme, backgroundValue = initialTheme))
+    }
+
     CustomizationFrame(
         kind = StudioKind.CARD,
         title = "卡面定制 · ${card.nickname}",
@@ -65,26 +71,37 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         profile = profile,
         onPreset = {
             profile = profile.copy(themeId = it, backgroundValue = it)
-            app.evidenceThemeId = it
+            if (app.evidenceThemeId != null) app.evidenceThemeId = it
         },
         onMaterial = { profile = profile.copy(material = it) },
         materials = CARD_MATERIAL_CHOICES,
         preview = {
-            AssetCard(card = card.copy(preset = profile.themeId), privacyMask = app.privacyMask, onClick = {})
+            AssetCard(
+                card = card.copy(preset = profile.themeId),
+                privacyMask = app.privacyMask || profile.maskSensitive,
+                onClick = {},
+                presentationMaterial = profile.material,
+            )
         },
         rows = consumerCardRows(profile),
-        toggles = listOf("显示昵称", "显示网络", "显示地区", "显示币种", "显示状态"),
+        toggles = listOf("昵称", "卡组织", "地区", "币种", "状态"),
         privacyMasked = profile.maskSensitive,
         onPrivacy = { profile = profile.copy(maskSensitive = it) },
         breakpoint = breakpoint,
+        isDirty = profile != savedProfile,
+        onSave = { app.savePresentationProfile(profile) },
     )
 }
 
 @Composable
 fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
-    val initialTheme = app.evidenceThemeId ?: number.preset
-    var profile by remember(initialTheme) { mutableStateOf(PresentationProfile.defaultFor("phoneNumber", number.id, initialTheme)) }
+    val savedProfile = app.presentationProfile("phoneNumber", number.id, number.preset)
+    val initialTheme = app.evidenceThemeId ?: savedProfile.themeId
+    var profile by remember(number.id, initialTheme) {
+        mutableStateOf(savedProfile.copy(themeId = initialTheme, backgroundValue = initialTheme))
+    }
+
     CustomizationFrame(
         kind = StudioKind.NUMBER,
         title = "号码面定制 · ${number.nickname}",
@@ -92,18 +109,25 @@ fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         profile = profile,
         onPreset = {
             profile = profile.copy(themeId = it, backgroundValue = it)
-            app.evidenceThemeId = it
+            if (app.evidenceThemeId != null) app.evidenceThemeId = it
         },
         onMaterial = { profile = profile.copy(material = it) },
         materials = NUMBER_MATERIAL_CHOICES,
         preview = {
-            NumberFace(number = number.copy(preset = profile.themeId), privacyMask = app.privacyMask, onClick = {})
+            NumberFace(
+                number = number.copy(preset = profile.themeId),
+                privacyMask = app.privacyMask || profile.maskSensitive,
+                onClick = {},
+                presentationMaterial = profile.material,
+            )
         },
         rows = consumerNumberRows(profile),
-        toggles = listOf("显示昵称", "显示运营商", "SIM 徽标", "主副号", "用途标签"),
+        toggles = listOf("昵称", "运营商", "SIM 类型", "主副号", "用途标签"),
         privacyMasked = profile.maskSensitive,
         onPrivacy = { profile = profile.copy(maskSensitive = it) },
         breakpoint = breakpoint,
+        isDirty = profile != savedProfile,
+        onSave = { app.savePresentationProfile(profile) },
     )
 }
 
@@ -136,20 +160,23 @@ private fun CustomizationFrame(
     privacyMasked: Boolean,
     onPrivacy: (Boolean) -> Unit,
     breakpoint: MediaBreakpoint,
+    isDirty: Boolean,
+    onSave: () -> Unit,
 ) {
-    var saved by remember { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(title, color = PdigV2Colors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
             Surface(
-                color = if (saved) PdigV2Colors.Positive.copy(alpha = 0.2f) else PdigV2Colors.Primary,
+                color = if (isDirty) PdigV2Colors.Primary else PdigV2Colors.Positive.copy(alpha = 0.18f),
                 shape = RoundedCornerShape(VRadius.Md),
-                modifier = Modifier.clickableLocal { saved = true },
+                modifier = Modifier
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickableLocal { if (isDirty) onSave() },
             ) {
                 Text(
-                    if (saved) "已保存（本地偏好）" else "保存",
+                    if (isDirty) "保存" else "已保存",
                     Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    color = if (saved) PdigV2Colors.Positive else PdigV2Colors.CanvasDeep,
+                    color = if (isDirty) PdigV2Colors.CanvasDeep else PdigV2Colors.Positive,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
                 )

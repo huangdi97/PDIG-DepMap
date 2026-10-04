@@ -42,6 +42,7 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForCard(card.id)
+    val presentation = app.savedPresentationProfile("card", card.id)
     if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
         Row(
             Modifier
@@ -60,7 +61,7 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         .testTagLocal(VTestIds.CARD_DETAIL_IDENTITY),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    IdentityPanel(app, card, services)
+                    IdentityPanel(app, card, services, presentation)
                 }
             }
             Spacer(Modifier.width(24.dp))
@@ -94,7 +95,7 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     .testTagLocal(VTestIds.CARD_DETAIL_IDENTITY),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
-                IdentityPanel(app, card, services)
+                IdentityPanel(app, card, services, presentation)
             }
             Column(
                 Modifier
@@ -109,7 +110,12 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCard, services: List<com.pdig.uivnext.model.UiVNextService>) {
+private fun IdentityPanel(
+    app: VAppState,
+    card: com.pdig.uivnext.model.UiVNextCard,
+    services: List<com.pdig.uivnext.model.UiVNextService>,
+    presentation: com.pdig.uivnext.model.PresentationProfile?,
+) {
     Surface(
         Modifier
             .fillMaxWidth()
@@ -119,7 +125,12 @@ private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCa
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Column(Modifier.padding(20.dp)) {
-            AssetCard(card = card, privacyMask = app.privacyMask, onClick = {})
+            AssetCard(
+                card = card.copy(preset = presentation?.themeId ?: card.preset),
+                privacyMask = app.privacyMask || (presentation?.maskSensitive == true),
+                onClick = {},
+                presentationMaterial = presentation?.material,
+            )
             Spacer(Modifier.height(16.dp))
             DetailRow("卡组织", card.network)
             DetailRow("地区", regionLabel(card.region))
@@ -155,7 +166,7 @@ private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCa
                 )
             }
             Spacer(Modifier.height(8.dp))
-            LabelChip("当前主题：${themeLabelZh("card", card.preset)}")
+            LabelChip("当前主题：${themeLabelZh("card", presentation?.themeId ?: card.preset)}")
             Spacer(Modifier.height(12.dp))
             Text(
                 "外观设置只改变显示方式，不会修改实际卡片信息或关联关系。",

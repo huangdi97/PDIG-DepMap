@@ -32,6 +32,7 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun NumberDetailScreen(app: VAppState) {
     val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForNumber(number.id)
+    val presentation = app.savedPresentationProfile("phoneNumber", number.id)
 
     Column(
         Modifier
@@ -41,12 +42,13 @@ fun NumberDetailScreen(app: VAppState) {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         NumberFace(
-            number = number,
-            privacyMask = app.privacyMask,
+            number = number.copy(preset = presentation?.themeId ?: number.preset),
+            privacyMask = app.privacyMask || (presentation?.maskSensitive == true),
             onClick = {},
             modifier = Modifier
                 .fillMaxWidth()
                 .testTagLocal(VTestIds.NUMBER_DETAIL_HERO),
+            presentationMaterial = presentation?.material,
         )
 
         SectionHeader(

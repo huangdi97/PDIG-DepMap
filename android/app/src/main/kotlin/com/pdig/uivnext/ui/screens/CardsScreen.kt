@@ -113,8 +113,14 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
-                items(regionFiltered) { card ->
-                    AssetCard(card = card, privacyMask = app.privacyMask, onClick = { app.openCard(card.id) })
+                items(regionFiltered, key = { it.id }) { card ->
+                    val profile = app.savedPresentationProfile("card", card.id)
+                    AssetCard(
+                        card = card.copy(preset = profile?.themeId ?: card.preset),
+                        privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+                        onClick = { app.openCard(card.id) },
+                        presentationMaterial = profile?.material,
+                    )
                 }
             }
         } else {
@@ -133,6 +139,8 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 /** Compact List 行（信息密度优先）。 */
 @Composable
 private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
+    val profile = app.savedPresentationProfile("card", card.id)
+    val maskSensitive = app.privacyMask || (profile?.maskSensitive == true)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -156,7 +164,7 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text(if (app.privacyMask) card.masked else card.last4, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text(if (maskSensitive) card.masked else card.last4, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
                 Text(
                     "${card.issuer} · ${regionLabel(card.region)} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",

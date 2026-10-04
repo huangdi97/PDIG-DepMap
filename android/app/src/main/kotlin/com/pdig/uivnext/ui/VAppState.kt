@@ -2,10 +2,12 @@ package com.pdig.uivnext.ui
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.pdig.uivnext.globe.GlobeCamera
 import com.pdig.uivnext.globe.GlobeController
+import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VGlobeState
 import com.pdig.uivnext.model.VScreen
 
@@ -36,6 +38,9 @@ class VAppState(
 
     /** 证据参数：空 fixture 模式（空态截图；与真实持久化隔离，绝不读用户 profile）。 */
     var emptyDemo by mutableStateOf(false)
+
+    /** 本次运行中的 PresentationProfile；只影响显示，不写入 PersonalReality / Canonical。 */
+    private val presentationProfiles = mutableStateMapOf<String, PresentationProfile>()
 
     /** System back 返回栈（栈顶 = 下一返回目标；空栈 → 系统退出）。 */
     private val backStack = mutableStateListOf<VScreen>()
@@ -70,6 +75,19 @@ class VAppState(
         }
         navBackTarget = VScreen.SEARCH
         screen = next
+    }
+
+    private fun presentationKey(targetType: String, targetId: String): String = targetType + "::" + targetId
+
+    fun presentationProfile(targetType: String, targetId: String, fallbackPreset: String): PresentationProfile =
+        presentationProfiles[presentationKey(targetType, targetId)]
+            ?: PresentationProfile.defaultFor(targetType, targetId, fallbackPreset).copy(maskSensitive = false)
+
+    fun savedPresentationProfile(targetType: String, targetId: String): PresentationProfile? =
+        presentationProfiles[presentationKey(targetType, targetId)]
+
+    fun savePresentationProfile(profile: PresentationProfile) {
+        presentationProfiles[presentationKey(profile.targetType, profile.targetId)] = profile
     }
 
     fun openCard(cardId: String) {
