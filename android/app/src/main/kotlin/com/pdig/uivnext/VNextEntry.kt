@@ -10,6 +10,7 @@ import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.WorkspacePreferences
 import com.pdig.uivnext.ui.VNextShell
 
 /**
@@ -43,12 +44,16 @@ fun createVNextAppState(
     changeProjection: String? = null,
     emptyDemo: Boolean = false,
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
+    initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
+    onWorkspacePreferencesSaved: (WorkspacePreferences) -> Unit = {},
 ): VAppState {
     val app = VAppState(
         initialScreen = screen,
         initialPresentationProfiles = initialPresentationProfiles,
+        initialWorkspacePreferences = initialWorkspacePreferences,
         onPresentationProfileSaved = onPresentationProfileSaved,
+        onWorkspacePreferencesSaved = onWorkspacePreferencesSaved,
     )
     if (cameraPreset != null) app.applyCameraPreset(cameraPreset)
     if (customTheme != null) app.evidenceThemeId = customTheme

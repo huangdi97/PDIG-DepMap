@@ -23,13 +23,46 @@ class VAppState(
     initialScreen: VScreen = VScreen.NOW,
     initialCamera: GlobeCamera = GlobeCamera(0f, 30f, 1f),
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
+    initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     private val onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
+    private val onWorkspacePreferencesSaved: (WorkspacePreferences) -> Unit = {},
 ) {
     var screen by mutableStateOf(initialScreen)
     var regionFilter by mutableStateOf<String?>(null)
-    var privacyMask by mutableStateOf(true)
-    var reduceMotion by mutableStateOf(false)
-    var railExpanded by mutableStateOf(true)
+
+    private var privacyMaskState by mutableStateOf(initialWorkspacePreferences.privacyMask)
+    private var reduceMotionState by mutableStateOf(initialWorkspacePreferences.reduceMotion)
+    private var railExpandedState by mutableStateOf(initialWorkspacePreferences.railExpanded)
+    private var showUpcomingState by mutableStateOf(initialWorkspacePreferences.showUpcoming)
+
+    var privacyMask: Boolean
+        get() = privacyMaskState
+        set(value) {
+            privacyMaskState = value
+            persistWorkspacePreferences()
+        }
+
+    var reduceMotion: Boolean
+        get() = reduceMotionState
+        set(value) {
+            reduceMotionState = value
+            persistWorkspacePreferences()
+        }
+
+    var railExpanded: Boolean
+        get() = railExpandedState
+        set(value) {
+            railExpandedState = value
+            persistWorkspacePreferences()
+        }
+
+    var showUpcoming: Boolean
+        get() = showUpcomingState
+        set(value) {
+            showUpcomingState = value
+            persistWorkspacePreferences()
+        }
+
     val globe = GlobeController(initialCamera)
 
     /** 变更投影（Desktop Continuity 三态）：current / transition / after。After = Plan Projection（非现实）。 */
@@ -103,6 +136,17 @@ class VAppState(
     fun savePresentationProfile(profile: PresentationProfile) {
         presentationProfiles[presentationKey(profile.targetType, profile.targetId)] = profile
         onPresentationProfileSaved(profile)
+    }
+
+    private fun persistWorkspacePreferences() {
+        onWorkspacePreferencesSaved(
+            WorkspacePreferences(
+                privacyMask = privacyMaskState,
+                reduceMotion = reduceMotionState,
+                railExpanded = railExpandedState,
+                showUpcoming = showUpcomingState,
+            ),
+        )
     }
 
     fun openCard(cardId: String) {

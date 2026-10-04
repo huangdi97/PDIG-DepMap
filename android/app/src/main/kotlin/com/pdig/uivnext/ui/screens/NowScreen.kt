@@ -97,13 +97,15 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     ChangesSection(app)
                 }
-                Column(
-                    Modifier
-                        .weight(1f)
-                        .testTagLocal(VTestIds.NOW_UPCOMING),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    UpcomingSection(app)
+                if (app.showUpcoming) {
+                    Column(
+                        Modifier
+                            .weight(1f)
+                            .testTagLocal(VTestIds.NOW_UPCOMING),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        UpcomingSection(app)
+                    }
                 }
             }
         } else {
@@ -119,13 +121,15 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     ChangesSection(app)
                 }
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .testTagLocal(VTestIds.NOW_UPCOMING),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    UpcomingSection(app)
+                if (app.showUpcoming) {
+                    Column(
+                        Modifier
+                            .fillMaxWidth()
+                            .testTagLocal(VTestIds.NOW_UPCOMING),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        UpcomingSection(app)
+                    }
                 }
             }
         }

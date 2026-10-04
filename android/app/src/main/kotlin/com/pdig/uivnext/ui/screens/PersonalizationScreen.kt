@@ -46,8 +46,10 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         )
 
         SectionHeader("外观")
-        PreferenceRow("界面主题", "深色界面")
-        PreferenceRow("卡片与号码外观", "在对应详情页中单独定制")
+        PreferenceRow("界面主题", "深色参考", status = "当前")
+        PreferenceRow("地球外观", "真实地球 · 标准大气", status = "冻结")
+        ActionRow("卡片外观", "在每张卡片详情中单独定制") { app.navigate(VScreen.CARDS) }
+        ActionRow("号码外观", "在号码详情中单独定制") { app.navigate(VScreen.NUMBERS) }
 
         SectionHeader("隐私")
         ToggleRow(
@@ -57,9 +59,14 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         ) { app.privacyMask = !app.privacyMask }
 
         SectionHeader("动效")
+        PreferenceRow(
+            "动效节奏",
+            if (app.reduceMotion) "简化" else "标准",
+            status = if (app.reduceMotion) "减弱" else "标准",
+        )
         ToggleRow(
-            label = "减少动效",
-            value = if (app.reduceMotion) "地球导航与界面动画已简化" else "保留平滑动效",
+            label = "减弱动态效果",
+            value = if (app.reduceMotion) "关闭地球自动旋转并简化界面动画" else "保留标准动效",
             enabled = app.reduceMotion,
         ) { app.reduceMotion = !app.reduceMotion }
 
@@ -74,11 +81,15 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         SectionHeader("首页")
         PreferenceRow("需要你处理", "存在必须处理事项时始终显示", status = "固定")
-        PreferenceRow("进行中的变更", "有变更计划时显示当前阶段", status = "显示")
-        PreferenceRow("即将到来", "显示已知的到期与时间节点", status = "显示")
+        PreferenceRow("进行中的变更", "有变更计划时显示当前阶段", status = "固定")
+        ToggleRow(
+            label = "即将到来",
+            value = if (app.showUpcoming) "显示已知的到期与时间节点" else "已从首页隐藏",
+            enabled = app.showUpcoming,
+        ) { app.showUpcoming = !app.showUpcoming }
 
         SectionHeader("地区")
-        PreferenceRow("地区分组", "中国大陆 / 港澳 / 欧洲 / 北美 / 东南亚")
+        PreferenceRow("地区分组", "按地理区域自动分组", status = "自动")
 
         SectionHeader("数据与来源")
         ActionRow(
