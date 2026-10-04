@@ -2,9 +2,9 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Source-design checkpoint: `35c1103d39026d6a7c68f0ee9755a3c9777279ba`
+> Source-design checkpoint: `c0e5f34e721f22b7765aaafc2a2d374a65e5191e` (post-runtime Human Review polish)
 >
-> Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / READY_FOR_LOCAL_RUNTIME_VALIDATION**
+> Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
 > This document records source/UI completeness only. It does **not** claim the latest runtime screenshots,
 > instrumentation results, or Android visual freeze are valid after this source checkpoint.
@@ -123,7 +123,10 @@ Frozen Globe rendering logic is intentionally not redesigned.
 
 ## 9. What is not allowed to be claimed yet
 
-After source checkpoint `35c1103d39026d6a7c68f0ee9755a3c9777279ba`, previous Android runtime evidence is historical.
+The 2026-10-04 runtime pack was captured from source `4e43511ae9754413ffedeaca9ad21a71b330aa64`.
+Human Review of that pack triggered additional Android-only source/test corrections through
+`c0e5f34e721f22b7765aaafc2a2d374a65e5191e`. Therefore that pack is historical for Freeze purposes,
+even though it remains valid evidence of the older source state.
 
 Until the local toolchain reruns against this exact or later source head, do not claim:
 
@@ -159,3 +162,43 @@ It should only:
 7. push evidence without redesigning or “improving” UI.
 
 Any visual discrepancy found in runtime screenshots should be reported back for source/UI correction before Android freeze.
+
+
+## 11. Post-runtime Human Review closure (2026-10-05)
+
+The first source-complete Phone/Tablet runtime pack was reviewed from actual PNG pixels rather than by
+accepting manifest PASS mechanically. The review found a small set of issues that were safe to close
+directly in Android source without changing Canonical or the frozen Desktop reference:
+
+- compact infrastructure navigation received a complete-chip auto-reveal fix at `67d0ebd`;
+- Region Detail now behaves as a detail layer: system Back closes the detail while preserving the selected
+  region; only the explicit global-reset action clears region context;
+- the compact Region Detail surface is now adapted as a bottom-centered phone surface rather than reusing
+  the wide bottom-end geometry;
+- Wide Overview no longer lets the main Globe/activity row consume all vertical space; the frozen quick-entry
+  row is now reserved and the next runtime pack must prove it is laid out;
+- Change Phone keeps Current / Transition / After semantics, but consumer copy now describes After as
+  `完成后（计划）` / `完成后预览` and explicitly states that projection is not completion or verification;
+- compact Card/Number Studio density was tightened without changing the Desktop/wide composition;
+- two stale accessibility string expectations were updated to the current consumer copy;
+- the legacy Phone screenshot geometry probe no longer pretends that a forced responsive breakpoint enlarges
+  the physical AVD window;
+- source-complete Globe screenshots now require `TEXTURE_READY` before capture and record
+  `globeTextureState` in evidence;
+- Tablet Overview evidence now asserts that `pdig.overview.quick` has non-zero runtime geometry.
+
+These are source and evidence-contract corrections only. They do not authorize Android Freeze.
+
+Current gate:
+
+```
+ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
+ANDROID_REFERENCE_FREEZE = HOLD
+IOS_UI_VNEXT = HOLD
+HARMONY_UI_VNEXT = HOLD
+```
+
+The next local run must build and capture from `c0e5f34e...` or a later exact branch HEAD. If any later
+commit changes Android production UI source, the evidence must be regenerated again.

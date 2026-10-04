@@ -1,5 +1,21 @@
 # ANDROID_UI_VNEXT_SOURCE_COMPLETE_RUNTIME_VALIDATION_REPORT
 
+> **CURRENT EVIDENCE SCOPE NOTE (2026-10-05): HISTORICAL FOR FREEZE**
+>
+> This report remains an accurate record of the run captured from
+> `SOURCE_HEAD = 4e43511ae9754413ffedeaca9ad21a71b330aa64`. It is **not** current Freeze evidence for the
+> branch after Human Review source corrections. The stale accessibility expectations and the Phone
+> forced-wide geometry artifact described in §12 have been corrected in later source/tests, and the Human
+> Review also tightened Region Detail behavior, Wide Overview layout, compact Studio density, Change Phone
+> consumer copy, and Globe screenshot readiness. Current Android source checkpoint:
+> `c0e5f34e721f22b7765aaafc2a2d374a65e5191e`.
+>
+> Required interpretation:
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`,
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`,
+> `ANDROID_REFERENCE_FREEZE = HOLD`. Do not rewrite the results below as if they were rerun on the new head.
+>
+
 > 2026-10-04 · `feat/android-ui-vnext-translation` · SOURCE-COMPLETE 运行时验证与证据收口
 > 角色：本地执行/验证 Agent（BUILD / RUN / TEST / CAPTURE / EVIDENCE ONLY — 未设计/未改 UI）
 
