@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,8 +20,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.MediaBreakpoint
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
@@ -35,7 +38,7 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
-        Text("个性化", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text(if (app.screen == VScreen.SETTINGS) "设置" else "个性化", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Text(
             "这些设置只改变你看到的界面，不会修改卡片、号码、依赖关系或变更记录。",
             color = PdigV2Colors.TextSecondary,
@@ -76,6 +79,12 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         SectionHeader("地区")
         PreferenceRow("地区分组", "中国大陆 / 港澳 / 欧洲 / 北美 / 东南亚")
+
+        SectionHeader("数据与来源")
+        ActionRow(
+            label = "数据源",
+            value = "查看当前工作区覆盖范围、事实边界与已记录对象",
+        ) { app.openUtility(VScreen.SOURCES) }
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -120,6 +129,7 @@ private fun ToggleRow(label: String, value: String, enabled: Boolean, onToggle: 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickableLocal(onClick = onToggle),
         color = PdigV2Colors.SurfaceRaised,
         shape = RoundedCornerShape(VRadius.Md),
@@ -135,6 +145,32 @@ private fun ToggleRow(label: String, value: String, enabled: Boolean, onToggle: 
                 Text(value, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
             }
             LabelChip(if (enabled) "已开启" else "已关闭", highlight = enabled)
+        }
+    }
+}
+
+
+@Composable
+private fun ActionRow(label: String, value: String, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = VTouchTarget.Min)
+            .clickableLocal(onClick = onClick),
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(label, color = PdigV2Colors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                Text(value, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+            }
+            Text("查看 →", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

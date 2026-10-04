@@ -19,7 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -28,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -60,13 +63,13 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
             Row(Modifier.fillMaxSize()) {
                 NavigationRail(app)
                 Column(Modifier.weight(1f)) {
-                    TopCommandBar(app)
+                    TopCommandBar(app, compact = false)
                     VNextContentHost(app, breakpoint)
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                TopCommandBar(app)
+                TopCommandBar(app, compact = true)
                 if (isInfraRootScreen(app.screen)) InfraChipRow(app)
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 BottomNav(app)
@@ -77,7 +80,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
 
 /** L2 Top Command：状态位 + 隐私遮蔽指示 + 触控可发现的搜索入口（任务书 §23）。 */
 @Composable
-private fun TopCommandBar(app: VAppState) {
+private fun TopCommandBar(app: VAppState, compact: Boolean) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,7 +104,9 @@ private fun TopCommandBar(app: VAppState) {
                     shape = RoundedCornerShape(VRadius.Sm),
                 ) {
                     Row(
-                        Modifier.fillMaxSize(),
+                        Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = if (compact) 0.dp else VSpacing.Lg),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
                     ) {
@@ -115,35 +120,80 @@ private fun TopCommandBar(app: VAppState) {
                 }
                 Spacer(Modifier.width(VSpacing.Sm))
             }
-            Text(app.screen.titleZh, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-            Spacer(Modifier.weight(1f))
+            Text(
+                app.screen.titleZh,
+                color = PdigV2Colors.TextPrimary,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
             if (app.screen != VScreen.SEARCH) {
                 Surface(
-                    modifier = Modifier
+                    modifier = (if (compact) Modifier.size(48.dp) else Modifier.defaultMinSize(minHeight = 48.dp))
                         .clickable { app.navigate(VScreen.SEARCH) }
-                        .defaultMinSize(minHeight = 48.dp)
                         .testTag("pdig.search.entry"),
                     color = PdigV2Colors.SurfaceRaised,
                     shape = RoundedCornerShape(VRadius.Sm),
                     border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                 ) {
                     Row(
-                        Modifier.padding(horizontal = VSpacing.Lg, vertical = 6.dp),
+                        Modifier.fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         Icon(
                             Icons.Filled.Search,
                             contentDescription = "搜索与快捷操作",
                             tint = PdigV2Colors.TextMuted,
-                            modifier = Modifier.size(14.dp),
+                            modifier = Modifier.size(18.dp),
                         )
-                        Spacer(Modifier.width(VSpacing.Sm))
-                        Text("搜索", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                        if (!compact) {
+                            Spacer(Modifier.width(VSpacing.Sm))
+                            Text("搜索", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                        }
                     }
                 }
-                Spacer(Modifier.width(VSpacing.Lg))
+                Spacer(Modifier.width(VSpacing.Sm))
             }
-            MaskEnabledIndicator(app.privacyMask)
+
+            if (app.screen != VScreen.SETTINGS && app.screen != VScreen.PERSONALIZATION) {
+                Surface(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable { app.openUtility(VScreen.SETTINGS) }
+                        .testTag("pdig.settings.entry"),
+                    color = PdigV2Colors.SurfaceGlass,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                ) {
+                    Row(
+                        Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "设置",
+                            tint = PdigV2Colors.TextMuted,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
+                Spacer(Modifier.width(VSpacing.Sm))
+            }
+
+            if (compact) {
+                Icon(
+                    Icons.Filled.Lock,
+                    contentDescription = if (app.privacyMask) "隐私遮蔽已开启" else "隐私遮蔽已关闭",
+                    tint = if (app.privacyMask) PdigV2Colors.PrimaryBright else PdigV2Colors.TextMuted,
+                    modifier = Modifier.size(16.dp),
+                )
+            } else {
+                MaskEnabledIndicator(app.privacyMask)
+            }
+
         }
     }
 }

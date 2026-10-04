@@ -297,13 +297,32 @@ internal fun InfraChipRow(app: VAppState) {
     }
 }
 
-internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean =
-    current == entry ||
-        (current == VScreen.CARD_DETAIL && entry == VScreen.CARDS) ||
-        (current == VScreen.NUMBER_DETAIL && entry == VScreen.NUMBERS) ||
-        (current == VScreen.CARD_CUSTOMIZATION && entry == VScreen.CARDS) ||
-        (current == VScreen.NUMBER_CUSTOMIZATION && entry == VScreen.NUMBERS) ||
-        (current == VScreen.CHANGE_PHONE && entry == VScreen.CHANGE)
+internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (entry) {
+    VScreen.INFRASTRUCTURE -> current in setOf(
+        VScreen.INFRASTRUCTURE,
+        VScreen.OVERVIEW,
+        VScreen.CARDS,
+        VScreen.NUMBERS,
+        VScreen.ACCOUNTS,
+        VScreen.EMAILS,
+        VScreen.DEVICES,
+        VScreen.SERVICES,
+        VScreen.WEAKNESSES,
+        VScreen.CARD_DETAIL,
+        VScreen.NUMBER_DETAIL,
+        VScreen.CARD_CUSTOMIZATION,
+        VScreen.NUMBER_CUSTOMIZATION,
+    )
+    VScreen.CARDS -> current == VScreen.CARDS ||
+        current == VScreen.CARD_DETAIL ||
+        current == VScreen.CARD_CUSTOMIZATION
+    VScreen.NUMBERS -> current == VScreen.NUMBERS ||
+        current == VScreen.NUMBER_DETAIL ||
+        current == VScreen.NUMBER_CUSTOMIZATION
+    VScreen.CHANGE -> current == VScreen.CHANGE || current == VScreen.CHANGE_PHONE
+    VScreen.SETTINGS -> current == VScreen.SETTINGS || current == VScreen.PERSONALIZATION
+    else -> current == entry
+}
 
 
 internal fun isInfraRootScreen(screen: VScreen): Boolean = screen in setOf(

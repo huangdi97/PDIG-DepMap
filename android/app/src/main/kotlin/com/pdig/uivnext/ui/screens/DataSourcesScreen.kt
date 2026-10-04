@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
@@ -119,6 +121,7 @@ private fun JumpRow(title: String, description: String, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickableLocal(onClick = onClick),
         color = PdigV2Colors.SurfaceRaised,
         shape = RoundedCornerShape(VRadius.Md),

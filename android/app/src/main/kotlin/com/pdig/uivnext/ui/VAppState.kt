@@ -74,6 +74,13 @@ class VAppState(
         }
     }
 
+    /** 从工具入口进入设置/数据源等辅助页，保留当前页面作为返回目标。 */
+    fun openUtility(next: VScreen) {
+        if (screen == next) return
+        navBackTarget = screen
+        screen = next
+    }
+
     /** 从搜索进入目标页，保留 Search 作为返回目标；普通顶层导航仍保持原语义。 */
     fun navigateFromSearch(next: VScreen) {
         if (screen != VScreen.SEARCH || next == VScreen.SEARCH) {
