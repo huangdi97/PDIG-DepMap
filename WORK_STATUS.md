@@ -1,3 +1,18 @@
+> **（最新）ANDROID UI vNext · Source Design Completion（2026-10-04）**
+> —— ChatGPT 直接在 `feat/android-ui-vnext-translation` 完成 Android UI source-design 收口：
+> 一级/二级 IA、Now/Globe、Cards/Detail/Studio、Numbers/Detail/Studio、Accounts/Emails/Devices/
+> Services/Weaknesses、Change Phone 三投影、Records timeline、Search/Command、Settings/Personalization、
+> Data Sources、Region context 全部具备正式 consumer UI；PresentationProfile 与 workspace preferences
+> 已接入本地表现层持久化，Grid/Detail/Studio 共用保存后的表现状态，仍与 PersonalReality/Canonical
+> 严格隔离；内部 review/engineering 文案、假跳转与地区裸码已清理；大 UI 文件按职责拆分，Globe
+> 冻结 renderer 不改视觉算法。**重要：此前 2026-10-03 runtime evidence 现为历史证据，不能证明
+> 2026-10-04 新 source HEAD 的视觉通过。** 当前状态：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_UI_VNEXT_RUNTIME_VALIDATION = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、iOS/Harmony 继续 HOLD。
+> 详见 `docs/ui-vnext/android/ANDROID_UI_VNEXT_DESIGN_COMPLETION.md`。
+>
 # WORK_STATUS.md
 >
 > **（当前）ANDROID UI vNext · Human Fix（2026-10-03，Human Review 定向修复轮）**
