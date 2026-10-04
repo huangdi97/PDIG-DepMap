@@ -2,6 +2,7 @@ package com.pdig.uivnext.ui.screens
 
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.ui.VAppState
 
 internal data class CommandTarget(
@@ -90,7 +91,7 @@ internal fun searchResults(q: String): List<SearchResult> {
 
     UiVNextDemoFixture.services.forEach { service ->
         val region = regionLabel(service.region)
-        val role = searchServiceKindLabel(service.kind)
+        val role = serviceKindLabelZh(service.kind)
         if (hit(listOf(service.name, service.region, region, service.kind, role))) {
             out.add(SearchResult.ServiceHit(service.id, service.name, "$region · $role"))
         }
@@ -122,14 +123,4 @@ internal fun openSearchResult(result: SearchResult, app: VAppState) {
             app.navigateFromSearch(VScreen.OVERVIEW)
         }
     }
-}
-
-private fun searchServiceKindLabel(kind: String): String = when (kind) {
-    "payment" -> "支付"
-    "banking" -> "银行"
-    "funding" -> "资金来源"
-    "authenticates" -> "登录验证"
-    "twoFA" -> "2FA 验证"
-    "subscription" -> "订阅"
-    else -> "关联服务"
 }

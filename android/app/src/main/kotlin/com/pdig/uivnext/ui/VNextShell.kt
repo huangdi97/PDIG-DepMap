@@ -60,13 +60,13 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
             Row(Modifier.fillMaxSize()) {
                 NavigationRail(app)
                 Column(Modifier.weight(1f)) {
-                    TopCommandBar(app, showKeyboardShortcut = true)
+                    TopCommandBar(app)
                     VNextContentHost(app, breakpoint)
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                TopCommandBar(app, showKeyboardShortcut = false)
+                TopCommandBar(app)
                 if (app.screen.section == VSection.INFRA) InfraChipRow(app)
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 BottomNav(app)
@@ -77,7 +77,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
 
 /** L2 Top Command：状态位 + 隐私遮蔽指示 + 触控可发现的搜索入口（任务书 §23）。 */
 @Composable
-private fun TopCommandBar(app: VAppState, showKeyboardShortcut: Boolean) {
+private fun TopCommandBar(app: VAppState) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -94,38 +94,32 @@ private fun TopCommandBar(app: VAppState, showKeyboardShortcut: Boolean) {
         ) {
             Text(app.screen.titleZh, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(Modifier.weight(1f))
-            Surface(
-                modifier = Modifier
-                    .clickable { app.navigate(VScreen.SEARCH) }
-                    .defaultMinSize(minHeight = 48.dp)
-                    .testTag("pdig.search.entry"),
-                color = PdigV2Colors.SurfaceRaised,
-                shape = RoundedCornerShape(VRadius.Sm),
-                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-            ) {
-                Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Filled.Search,
-                        contentDescription = "搜索与快捷操作",
-                        tint = PdigV2Colors.TextMuted,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Spacer(Modifier.width(VSpacing.Sm))
-                    Text("搜索", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                    if (showKeyboardShortcut) {
-                        Spacer(Modifier.width(VSpacing.Lg))
-                        Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(4.dp)) {
-                            Text(
-                                "Ctrl K",
-                                Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                color = PdigV2Colors.TextSecondary,
-                                fontSize = 10.sp,
-                            )
-                        }
+            if (app.screen != VScreen.SEARCH) {
+                Surface(
+                    modifier = Modifier
+                        .clickable { app.navigate(VScreen.SEARCH) }
+                        .defaultMinSize(minHeight = 48.dp)
+                        .testTag("pdig.search.entry"),
+                    color = PdigV2Colors.SurfaceRaised,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Row(
+                        Modifier.padding(horizontal = VSpacing.Lg, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            Icons.Filled.Search,
+                            contentDescription = "搜索与快捷操作",
+                            tint = PdigV2Colors.TextMuted,
+                            modifier = Modifier.size(14.dp),
+                        )
+                        Spacer(Modifier.width(VSpacing.Sm))
+                        Text("搜索", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                     }
                 }
+                Spacer(Modifier.width(VSpacing.Lg))
             }
-            Spacer(Modifier.width(VSpacing.Lg))
             MaskEnabledIndicator(app.privacyMask)
         }
     }

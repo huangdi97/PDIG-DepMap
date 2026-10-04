@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.relationKindLabelZh
+import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
@@ -76,6 +78,7 @@ fun NumberDetailScreen(app: VAppState) {
         )
 
         services.forEachIndexed { index, service ->
+            val relation = UiVNextDemoFixture.relations.firstOrNull { it.from == number.id && it.to == service.id }
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,15 +99,9 @@ fun NumberDetailScreen(app: VAppState) {
                             fontWeight = FontWeight.Medium,
                             fontSize = 14.sp,
                         )
-                        Text(roleLabel(service.kind), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                        Text(serviceKindLabelZh(service.kind), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                     }
-                    LabelChip(
-                        when (service.kind) {
-                            "twoFA" -> "2FA 验证"
-                            "authenticates" -> "登录验证"
-                            else -> "注册使用"
-                        },
-                    )
+                    LabelChip(relationKindLabelZh(relation?.kind))
                 }
             }
         }
@@ -145,10 +142,4 @@ fun NumberDetailScreen(app: VAppState) {
             fontSize = 12.sp,
         )
     }
-}
-
-private fun roleLabel(kind: String): String = when (kind) {
-    "twoFA" -> "二次验证"
-    "authenticates" -> "登录依据"
-    else -> "注册/验证"
 }

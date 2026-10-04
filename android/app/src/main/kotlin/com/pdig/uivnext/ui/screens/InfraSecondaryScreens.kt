@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
@@ -82,7 +83,7 @@ private fun ServicesScreen() {
                                 fontSize = 12.sp,
                             )
                         }
-                        LabelChip(serviceKindLabel(service.kind))
+                        LabelChip(serviceKindLabelZh(service.kind))
                     }
                 }
             }
@@ -257,14 +258,4 @@ private fun WeaknessRow(title: String, hint: String, accent: Color, onClick: () 
             Text(hint, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
         }
     }
-}
-
-private fun serviceKindLabel(kind: String): String = when (kind) {
-    "payment" -> "支付"
-    "banking" -> "银行"
-    "subscription" -> "订阅"
-    "funding" -> "资金来源"
-    "authenticates" -> "登录验证"
-    "twoFA" -> "2FA 验证"
-    else -> "关联服务"
 }

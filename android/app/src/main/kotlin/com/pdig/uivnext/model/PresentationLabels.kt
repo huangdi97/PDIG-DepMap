@@ -20,3 +20,11 @@ fun serviceKindLabelZh(kind: String): String = when (kind) {
     "twoFA" -> "2FA 验证"
     else -> "关联服务"
 }
+
+
+fun relationKindLabelZh(kind: String?): String = when (kind) {
+    "funding" -> "资金来源"
+    "authenticates" -> "登录验证"
+    "twoFA" -> "2FA 验证"
+    else -> "关联关系"
+}

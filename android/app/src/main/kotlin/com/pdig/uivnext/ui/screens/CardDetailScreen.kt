@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.relationKindLabelZh
+import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -188,6 +190,7 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
     }
     SectionHeader("绑定服务（${services.size}）")
     services.forEach { service ->
+        val relation = UiVNextDemoFixture.relations.firstOrNull { it.from == card.id && it.to == service.id }
         Surface(
             Modifier.fillMaxWidth(),
             color = PdigV2Colors.SurfaceRaised,
@@ -201,9 +204,9 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
             ) {
                 Column {
                     Text(service.name, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                    Text("${regionLabel(service.region)} · ${cardServiceKindLabel(service.kind)}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text("${regionLabel(service.region)} · ${serviceKindLabelZh(service.kind)}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
-                LabelChip(cardServiceKindLabel(service.kind))
+                LabelChip(relationKindLabelZh(relation?.kind))
             }
         }
     }
@@ -245,13 +248,3 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
-
-private fun cardServiceKindLabel(kind: String): String = when (kind) {
-    "payment" -> "支付"
-    "banking" -> "银行"
-    "subscription" -> "订阅"
-    "funding" -> "资金来源"
-    "authenticates" -> "登录验证"
-    "twoFA" -> "2FA 验证"
-    else -> "关联服务"
-}
