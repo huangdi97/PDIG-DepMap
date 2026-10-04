@@ -87,7 +87,14 @@ fun AssetCard(
     privacyMask: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-) = CardIdentityFace(card = card, privacyMask = privacyMask, onClick = onClick, modifier = modifier)
+    presentationMaterial: String? = null,
+) = CardIdentityFace(
+    card = card,
+    privacyMask = privacyMask,
+    onClick = onClick,
+    modifier = modifier,
+    presentationMaterial = presentationMaterial,
+)
 
 /** 卡面 renderer 本体（唯一实现；测试通过 pdig.card.* tags 读取 bounds）。 */
 @Composable
@@ -96,6 +103,7 @@ fun CardIdentityFace(
     privacyMask: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    presentationMaterial: String? = null,
 ) {
     val profile = CardIdentityProfile.forIssuer(card.issuer)
     val theme = cardThemeInfo(card.preset)
@@ -115,7 +123,7 @@ fun CardIdentityFace(
                 .testTag(VTestIds.CARD_FACE),
         ) {
             Canvas(Modifier.fillMaxSize()) {
-                drawCardArtwork(profile, theme)
+                drawCardArtwork(profile, theme, presentationCardMaterial(presentationMaterial))
             }
             Column(Modifier.fillMaxSize()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -152,3 +160,13 @@ fun CardIdentityFace(
 }
 
 internal fun cardTypeLabel(type: String): String = if (type == "credit") "信用卡" else "储蓄卡"
+
+private fun presentationCardMaterial(id: String?): CardMaterial? = when (id) {
+    "glass" -> CardMaterial.GLASS
+    "metal" -> CardMaterial.METAL
+    "brushed" -> CardMaterial.BRUSHED
+    "matte" -> CardMaterial.MATTE
+    "satin" -> CardMaterial.SATIN
+    "translucent" -> CardMaterial.TRANSLUCENT
+    else -> null
+}

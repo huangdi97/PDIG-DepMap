@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.matchParentSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -80,6 +81,7 @@ fun NumberFace(
     privacyMask: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    presentationMaterial: String? = null,
 ) {
     Surface(
         modifier = modifier
@@ -89,41 +91,79 @@ fun NumberFace(
         color = Color.Transparent,
         shape = RoundedCornerShape(VRadius.Lg),
     ) {
-        Column(
-            Modifier
-                .background(numberFaceBrush(number.preset))
-                .padding(VSpacing.Xl),
-        ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                DialArc(accent = numberFaceAccent(number.preset))
-                Spacer(Modifier.width(VSpacing.Md))
-                Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-                StatusBadge(number.status)
+        Box(Modifier.background(numberFaceBrush(number.preset))) {
+            Canvas(Modifier.matchParentSize()) {
+                drawNumberMaterialOverlay(presentationMaterial)
             }
-            Spacer(Modifier.height(VSpacing.Md))
-            Text(
-                number.maskedNumber,
-                color = PdigV2Colors.TextPrimary,
-                fontSize = 20.sp,
-                fontFamily = FontFamily.Monospace,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(Modifier.height(VSpacing.Md))
-            Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
-                LabelChip(if (number.simKind == "eSIM") "eSIM" else "实体 SIM")
-                LabelChip(roleLabel(number.role))
-                LabelChip("${number.countryCode} · ${number.region}")
-                if (number.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
-            }
-            Spacer(Modifier.height(VSpacing.Md))
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.padding(VSpacing.Xl)) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    DialArc(accent = numberFaceAccent(number.preset))
+                    Spacer(Modifier.width(VSpacing.Md))
+                    Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    StatusBadge(number.status)
+                }
+                Spacer(Modifier.height(VSpacing.Md))
                 Text(
-                    number.usages.joinToString(" · "),
-                    color = PdigV2Colors.TextSecondary,
-                    fontSize = 12.sp,
-                    modifier = Modifier.weight(1f),
+                    number.maskedNumber,
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
                 )
-                SignalBars(level = signalLevel(number), accent = numberFaceAccent(number.preset))
+                Spacer(Modifier.height(VSpacing.Md))
+                Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
+                    LabelChip(if (number.simKind == "eSIM") "eSIM" else "实体 SIM")
+                    LabelChip(roleLabel(number.role))
+                    LabelChip(number.countryCode)
+                    if (number.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
+                }
+                Spacer(Modifier.height(VSpacing.Md))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        number.usages.joinToString(" · "),
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 12.sp,
+                        modifier = Modifier.weight(1f),
+                    )
+                    SignalBars(level = signalLevel(number), accent = numberFaceAccent(number.preset))
+                }
+            }
+        }
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawNumberMaterialOverlay(material: String?) {
+    when (material) {
+        "glass" -> {
+            drawRect(
+                Brush.linearGradient(
+                    listOf(Color.White.copy(alpha = 0.18f), Color.Transparent, Color.White.copy(alpha = 0.05f)),
+                    start = Offset(size.width * 0.08f, 0f),
+                    end = Offset(size.width * 0.74f, size.height),
+                ),
+            )
+            drawRect(
+                Color.White.copy(alpha = 0.08f),
+                topLeft = Offset(size.width * 0.18f, 0f),
+                size = Size(size.width * 0.12f, size.height),
+            )
+        }
+        "metal" -> {
+            repeat(12) { i ->
+                val y = size.height * i / 12f
+                drawRect(
+                    Color.White.copy(alpha = if (i % 2 == 0) 0.055f else 0.015f),
+                    topLeft = Offset(0f, y),
+                    size = Size(size.width, size.height / 12f + 1f),
+                )
+            }
+        }
+        "matte" -> {
+            drawRect(Color.Black.copy(alpha = 0.08f))
+            repeat(18) { i ->
+                val x = size.width * ((i * 37) % 97) / 100f
+                val y = size.height * ((i * 53) % 89) / 100f
+                drawCircle(Color.White.copy(alpha = 0.025f), radius = 1.1f, center = Offset(x, y))
             }
         }
     }

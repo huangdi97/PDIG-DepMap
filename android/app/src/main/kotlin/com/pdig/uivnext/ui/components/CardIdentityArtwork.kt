@@ -18,10 +18,14 @@ import com.pdig.uivnext.theme.PdigV2Colors
  */
 
 /** 按 profile + 主题绘制卡面几何（顺序固定：版式带 → motif → 材质 → 主题 artwork）。 */
-internal fun DrawScope.drawCardArtwork(profile: CardIdentityProfile, theme: CardThemeInfo) {
+internal fun DrawScope.drawCardArtwork(
+    profile: CardIdentityProfile,
+    theme: CardThemeInfo,
+    presentationMaterial: CardMaterial? = null,
+) {
     drawLayoutBand(profile)
     drawMotif(profile)
-    drawMaterial(profile)
+    drawMaterial(profile, presentationMaterial)
     drawThemeArtwork(theme)
 }
 
@@ -97,25 +101,74 @@ private fun DrawScope.drawMotif(profile: CardIdentityProfile) {
 
 // ── L4 材质纹理 ────────────────────────────────────────────────────────────
 
-private fun DrawScope.drawMaterial(profile: CardIdentityProfile) {
-    when (profile.material) {
+private fun DrawScope.drawMaterial(
+    profile: CardIdentityProfile,
+    presentationMaterial: CardMaterial? = null,
+) {
+    val material = presentationMaterial ?: profile.material
+    when (material) {
         CardMaterial.BRUSHED -> {
             var x = 2.dp.toPx()
             while (x < size.width) {
-                drawLine(Color.White.copy(alpha = 0.035f), start = Offset(x, 0f), end = Offset(x, size.height), strokeWidth = 1.dp.toPx())
+                drawLine(
+                    Color.White.copy(alpha = 0.045f),
+                    start = Offset(x, 0f),
+                    end = Offset(x, size.height),
+                    strokeWidth = 1.dp.toPx(),
+                )
                 x += 6.dp.toPx()
             }
         }
-        CardMaterial.GLASS, CardMaterial.SATIN -> {
+        CardMaterial.GLASS -> {
             drawRect(
                 Brush.linearGradient(
-                    listOf(Color.White.copy(alpha = 0.14f), Color.Transparent, Color.White.copy(alpha = 0.05f)),
-                    start = Offset(0f, 0f),
-                    end = Offset(size.width, size.height),
+                    listOf(Color.White.copy(alpha = 0.16f), Color.Transparent, Color.White.copy(alpha = 0.055f)),
+                    start = Offset(size.width * 0.05f, 0f),
+                    end = Offset(size.width * 0.8f, size.height),
+                ),
+            )
+            drawRect(
+                Color.White.copy(alpha = 0.07f),
+                topLeft = Offset(size.width * 0.18f, 0f),
+                size = Size(size.width * 0.11f, size.height),
+            )
+        }
+        CardMaterial.SATIN -> {
+            drawRect(
+                Brush.linearGradient(
+                    listOf(Color.White.copy(alpha = 0.10f), Color.Transparent, Color.White.copy(alpha = 0.035f)),
+                    start = Offset(0f, size.height),
+                    end = Offset(size.width, 0f),
                 ),
             )
         }
-        else -> Unit
+        CardMaterial.METAL -> {
+            repeat(16) { i ->
+                val y = size.height * i / 16f
+                drawRect(
+                    Color.White.copy(alpha = if (i % 2 == 0) 0.065f else 0.015f),
+                    topLeft = Offset(0f, y),
+                    size = Size(size.width, size.height / 16f + 1f),
+                )
+            }
+        }
+        CardMaterial.MATTE -> {
+            drawRect(Color.Black.copy(alpha = 0.08f))
+            repeat(24) { i ->
+                val x = size.width * ((i * 37) % 97) / 100f
+                val y = size.height * ((i * 53) % 89) / 100f
+                drawCircle(Color.White.copy(alpha = 0.022f), radius = 1.1f, center = Offset(x, y))
+            }
+        }
+        CardMaterial.TRANSLUCENT -> {
+            drawRect(Color.White.copy(alpha = 0.045f))
+            drawLine(
+                Color.White.copy(alpha = 0.20f),
+                start = Offset(size.width * 0.08f, size.height * 0.08f),
+                end = Offset(size.width * 0.92f, size.height * 0.08f),
+                strokeWidth = 1.dp.toPx(),
+            )
+        }
     }
 }
 
