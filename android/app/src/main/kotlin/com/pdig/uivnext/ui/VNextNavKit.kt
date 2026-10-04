@@ -2,9 +2,9 @@ package com.pdig.uivnext.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,7 +17,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Build
@@ -45,14 +46,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -214,56 +211,55 @@ internal fun BottomNav(app: VAppState) {
 }
 
 /** 手机上的基础设施二级导航（横向滚动 chip 行；与 rail 内嵌小节同语义）。
- *  B17：selected item auto-centering —— 切换到 设备/服务/薄弱点 等靠后项时，
- *  selected chip 自动滚动到可视区域中心，绝不留在屏幕外。 */
+ *  B17：selected item auto-reveal —— 切换到 设备/服务/薄弱点 等靠后项时，
+ *  selected chip 自动滚动到可视区域且完整露出，绝不留在屏幕外或只显示残片。 */
 @Composable
 internal fun InfraChipRow(app: VAppState) {
-    val scrollState = rememberScrollState()
-    val chipOffsets = remember { mutableMapOf<String, Int>() }
-    val containerWidth = remember { mutableStateOf(0) }
+    val listState = rememberLazyListState()
+    val selectedIndex = INFRA_ENTRIES.indexOfFirst { isEntrySelected(it.screen, app.screen) }
 
+    // Always reveal the selected destination as a complete chip. The previous root-coordinate
+    // calculation could leave late entries (服务 / 薄弱点) partially or fully clipped after navigation.
     LaunchedEffect(app.screen) {
-        val current = chipOffsets[app.screen.route] ?: return@LaunchedEffect
-        val target = (current - containerWidth.value / 2).coerceAtLeast(0)
-        if (target != scrollState.value) scrollState.animateScrollTo(target)
+        if (selectedIndex >= 0) listState.animateScrollToItem(selectedIndex)
     }
 
-    Row(
-        Modifier
+    LazyRow(
+        modifier = Modifier
             .fillMaxWidth()
-            .background(PdigV2Colors.Surface.copy(alpha = 0.72f))
-            .horizontalScroll(scrollState)
-            .padding(horizontal = VSpacing.PagePadding, vertical = VSpacing.Sm)
-            .onGloballyPositioned { containerWidth.value = it.size.width },
+            .background(PdigV2Colors.Surface.copy(alpha = 0.72f)),
+        state = listState,
+        contentPadding = PaddingValues(horizontal = VSpacing.PagePadding, vertical = VSpacing.Sm),
         horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm),
     ) {
         INFRA_ENTRIES.forEach { entry ->
-            val selected = isEntrySelected(entry.screen, app.screen)
-            Surface(
-                modifier = Modifier
-                    .defaultMinSize(minHeight = VTouchTarget.Min)
-                    .onGloballyPositioned { chipOffsets[entry.screen.route] = it.positionInRoot().x.toInt() }
-                    .clickable { app.navigate(entry.screen) }
-                    .testTag("pdig.nav.${entry.screen.route}"),
-                color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
-                shape = RoundedCornerShape(VRadius.Sm),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
-                ),
-            ) {
-                Row(
-                    Modifier.padding(horizontal = VSpacing.Md, vertical = VSpacing.Sm),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+            item(key = entry.screen.route) {
+                val selected = isEntrySelected(entry.screen, app.screen)
+                Surface(
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = VTouchTarget.Min)
+                        .clickable { app.navigate(entry.screen) }
+                        .testTag("pdig.nav.${entry.screen.route}"),
+                    color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+                    ),
                 ) {
-                    Icon(entry.icon, contentDescription = null, tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary, modifier = Modifier.size(14.dp))
-                    Text(
-                        entry.screen.titleZh,
-                        color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-                        fontSize = 12.sp,
-                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                    )
+                    Row(
+                        Modifier.padding(horizontal = VSpacing.Md, vertical = VSpacing.Sm),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Icon(entry.icon, contentDescription = null, tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary, modifier = Modifier.size(14.dp))
+                        Text(
+                            entry.screen.titleZh,
+                            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                            fontSize = 12.sp,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                        )
+                    }
                 }
             }
         }

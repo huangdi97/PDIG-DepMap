@@ -109,9 +109,9 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         } else {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OldNumberSurface(old, projection)
-                Text("→", color = PdigV2Colors.TextMuted, fontSize = 16.sp)
+                Text("↓", modifier = Modifier.align(Alignment.CenterHorizontally), color = PdigV2Colors.TextMuted, fontSize = 16.sp)
                 ServicesSurface(projection)
-                Text("→", color = PdigV2Colors.TextMuted, fontSize = 16.sp)
+                Text("↓", modifier = Modifier.align(Alignment.CenterHorizontally), color = PdigV2Colors.TextMuted, fontSize = 16.sp)
                 NewNumberSurface(new, projection)
             }
         }
