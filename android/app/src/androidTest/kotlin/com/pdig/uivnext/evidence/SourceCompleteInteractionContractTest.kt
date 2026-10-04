@@ -41,7 +41,7 @@ import org.junit.runner.RunWith
  * - Search 结果导航 + Back 回 Search；
  * - Region select / filter 传播 / clear；
  * - Card / Number Detail back stack；
- * - Region Drawer Back 关闭；
+ * - Region Drawer Back 仅关闭详情层并保留地区上下文；
  * - Change 三投影（After = Plan Projection）。
  */
 @RunWith(AndroidJUnit4::class)
@@ -238,7 +238,8 @@ class SourceCompleteInteractionContractTest {
         app.openRegionDetail()
         assertEquals(VGlobeState.REGION_DETAIL, app.globe.state)
         app.back()
-        assertEquals(VGlobeState.GLOBAL, app.globe.state)
+        assertEquals(VGlobeState.REGION_SELECTED, app.globe.state)
+        assertEquals("CN", app.regionFilter)
     }
 
     @Test

@@ -346,16 +346,28 @@ class UiScreenshotEvidenceTest {
         seq++
         captureVNext("cards-wide-1280dp", seq)
 
-        // 3) testTag geometry probe（wide 冻结 → NavigationRail 存在）
-        val probeApp = createVNextAppState().apply { reduceMotion = true }
-        vnextSlot = { VNextApp(probeApp, forcedViewportWidthDp = 1280) }
+        // 3) testTag geometry probe。
+        // forcedViewportWidthDp 只选择 responsive branch，并不会把 Phone AVD 的真实窗口变宽；
+        // 因此只用它验证 wide shell 的 NavigationRail。把同一窄窗口强行走 wide content
+        // 会把内容区压成 0 宽，属于 test-bed artifact，不是产品布局回归。
+        val wideShellProbeApp = createVNextAppState().apply { reduceMotion = true }
+        vnextSlot = { VNextApp(wideShellProbeApp, forcedViewportWidthDp = 1280) }
         compose.waitForIdle()
         val rail = probeTag("pdig.nav.rail")
         assertTrue("pdig.nav.rail must be laid out in wide shell", rail.width > 0f && rail.height > 0f)
-        probeApp.navigate(VScreen.OVERVIEW)
+
+        // 内容几何在当前 AVD 的真实 viewport 下验证；真实 expanded viewport 由
+        // SourceCompleteScreenshotEvidenceTest 的 API36 Tablet 运行证据覆盖。
+        val contentProbeApp = createVNextAppState().apply {
+            reduceMotion = true
+            navigate(VScreen.OVERVIEW)
+        }
+        vnextSlot = { VNextApp(contentProbeApp) }
+        compose.waitForIdle()
         val stage = probeTag("pdig.globe.stage")
         assertTrue("pdig.globe.stage must be laid out on overview", stage.width > 0f && stage.height > 0f)
-        probeApp.navigate(VScreen.CARDS)
+        contentProbeApp.navigate(VScreen.CARDS)
+        compose.waitForIdle()
         val grid = probeTag("pdig.card.grid")
         assertTrue("pdig.card.grid must be laid out on cards", grid.width > 0f && grid.height > 0f)
 

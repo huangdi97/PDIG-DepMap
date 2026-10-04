@@ -38,7 +38,7 @@ class VNextAccessibilityEvidenceTest {
         }
         // 搜索入口：可点击 + contentDescription（触控可发现，任务书 §23）
         compose.onNodeWithTag("pdig.search.entry").assertHasClickAction()
-        compose.onNodeWithContentDescription("搜索 / 命令").assertExists()
+        compose.onNodeWithContentDescription("搜索与快捷操作").assertExists()
     }
 
     @Test
@@ -54,7 +54,7 @@ class VNextAccessibilityEvidenceTest {
         ).assertExists()
 
         // Region List 非视觉替代（screen reader / 键盘 / 触屏均可操作）
-        compose.onNode(hasText("地区（Region List）")).assertExists()
+        compose.onNode(hasText("地区", substring = false)).assertExists()
         compose.onNode(hasText("中国大陆")).assertExists()
         compose.onNode(hasText("香港")).assertExists()
     }
