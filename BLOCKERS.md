@@ -1,5 +1,21 @@
 # BLOCKERS.md
 >
+> **ANDROID UI vNext Source-Complete Runtime Validation（2026-10-04）：**
+> - 无新外部 blocker。已如实记录：本轮运行主体全部 PASS，但 **2 条既有
+>   `VNextAccessibilityEvidenceTest` 契约测试在最新 source 上 FAIL**（期望串与新 consumer copy
+>   漂移：`搜索 / 命令` vs 实际 `搜索与快捷操作`；`地区（Region List）` vs 实际 `地区`）。
+>   判定为测试期望过期（无障碍能力未丢失，tag/click/contentDescription 均在），待 ChatGPT
+>   决定更新测试或文案口径 —— 在收口前 `ANDROID_UI_VNEXT_RUNTIME_VALIDATION = BLOCKED`。
+> - `UiScreenshotEvidenceTest`：phone 窗口下 wide-shell stage probe 几何不可满足（pre-existing
+>   test-bed 约束，GLOBE_STAGE tag 存在；tablet 2/2 PASS）—— 非本轮回归。
+> - 运行环境波动记录（非 blocker）：本机 emulator 在会话隔离下需单次调用内完成
+>   boot→install→instrument→pull；本轮已按此执行并全部完成。
+> - `REMOTE_CI`：push 后实际查询 GitHub Actions 记录（见报告 §15/§16），不把本地全绿冒充 CI PASS。
+> - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （禁止 Agent 自写 ACCEPTED / CRAFT PASS / REFERENCE_FREEZE PASS）。
+> - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动；
+>   ios/ 与 harmony/ 未动。
+
 > **ANDROID UI vNext Human Fix（2026-10-03）：**
 >
 > - 无新外部 blocker。如实记录环境波动（非 blocker）：本机 emulator 在会话隔离下
@@ -18,7 +34,7 @@
 > - 既有 `UiScreenshotEvidenceTest`：**tablet viewport 2/2 PASS**；手机窗口下其 wide-shell
 >   stage probe 几何不可满足（pre-existing test-bed 约束，已用 starting-HEAD committed 版本
 >   复测同样 FAIL 证伪回归；详见 `ANDROID_UI_VNEXT_HUMAN_FIX_REPORT.md` §5.1）。
-> **ANDROID_UI_VNEXT_TRANSLATION（2026-10-02）：**
+>   **ANDROID_UI_VNEXT_TRANSLATION（2026-10-02）：**
 >
 > - 无新外部 blocker。AVD 环境风险（如实记录，非 blocker）：本机 `main` AVD 在长负载
 >   （>4 分钟 instrument）下偶发崩溃/离线，已通过单次证据运行（~77s）规避并全部通过；

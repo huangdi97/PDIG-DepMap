@@ -21,42 +21,43 @@
 
 ## 2. Completed primary surfaces
 
-| Surface | Android source status | Notes |
-| --- | --- | --- |
-| 现在 | COMPLETE | Globe hero, attention, active change, upcoming; upcoming visibility is a persisted workspace preference. |
-| 基础设施 | COMPLETE | Routes to Overview and all eight secondary categories. |
-| 变更 | COMPLETE | Change Phone flagship with Current / Transition / After. |
-| 记录 | COMPLETE | Active change card + migration timeline + attention + upcoming records. |
+| Surface  | Android source status | Notes                                                                                                    |
+| -------- | --------------------- | -------------------------------------------------------------------------------------------------------- |
+| 现在     | COMPLETE              | Globe hero, attention, active change, upcoming; upcoming visibility is a persisted workspace preference. |
+| 基础设施 | COMPLETE              | Routes to Overview and all eight secondary categories.                                                   |
+| 变更     | COMPLETE              | Change Phone flagship with Current / Transition / After.                                                 |
+| 记录     | COMPLETE              | Active change card + migration timeline + attention + upcoming records.                                  |
 
 ## 3. Completed infrastructure surfaces
 
-| Surface | Android source status | Notes |
-| --- | --- | --- |
-| 总览 | COMPLETE | Real-Earth Globe + region list + attention rail + quick entries; compact/expanded translation. |
-| 卡片 | COMPLETE | Adaptive card gallery/list, region filtering, issuer identity, privacy mask. |
-| 卡片详情 | COMPLETE | Identity hero, metadata, bound services, risk, replacement guidance, history. |
-| 卡面定制 | COMPLETE | Consumer Studio; theme/material/privacy controls persist via PresentationProfile. |
-| 号码 | COMPLETE | High-density communication identity list; compact List→Detail; expanded list+inspector. |
-| 号码详情 | COMPLETE | Number identity, service dependencies, recovery risk, alternate route, history. |
-| 号码面定制 | COMPLETE | Communication-identity Studio; theme/material/privacy persist locally. |
-| 账户 | COMPLETE | Identity provider, masked identifier, roles, auth methods, recovery route, attention state. |
-| 邮箱 | COMPLETE | Login/recovery roles, linked-service count, unique-recovery warning. |
-| 设备 | COMPLETE | Platform/type, trust state, roles, last-seen, review warning. |
-| 服务 | COMPLETE | Region-scoped service inventory and consumer service-category labels. |
-| 薄弱点 | COMPLETE | Recovery-only numbers/emails, expiring cards, device review, phone-migration blocker. |
+| Surface    | Android source status | Notes                                                                                          |
+| ---------- | --------------------- | ---------------------------------------------------------------------------------------------- |
+| 总览       | COMPLETE              | Real-Earth Globe + region list + attention rail + quick entries; compact/expanded translation. |
+| 卡片       | COMPLETE              | Adaptive card gallery/list, region filtering, issuer identity, privacy mask.                   |
+| 卡片详情   | COMPLETE              | Identity hero, metadata, bound services, risk, replacement guidance, history.                  |
+| 卡面定制   | COMPLETE              | Consumer Studio; theme/material/privacy controls persist via PresentationProfile.              |
+| 号码       | COMPLETE              | High-density communication identity list; compact List→Detail; expanded list+inspector.        |
+| 号码详情   | COMPLETE              | Number identity, service dependencies, recovery risk, alternate route, history.                |
+| 号码面定制 | COMPLETE              | Communication-identity Studio; theme/material/privacy persist locally.                         |
+| 账户       | COMPLETE              | Identity provider, masked identifier, roles, auth methods, recovery route, attention state.    |
+| 邮箱       | COMPLETE              | Login/recovery roles, linked-service count, unique-recovery warning.                           |
+| 设备       | COMPLETE              | Platform/type, trust state, roles, last-seen, review warning.                                  |
+| 服务       | COMPLETE              | Region-scoped service inventory and consumer service-category labels.                          |
+| 薄弱点     | COMPLETE              | Recovery-only numbers/emails, expiring cards, device review, phone-migration blocker.          |
 
 ## 4. Completed utility surfaces
 
-| Surface | Android source status | Notes |
-| --- | --- | --- |
-| 搜索与快捷操作 | COMPLETE | Empty-query commands; card/number/service/region/page search; result navigation returns to Search. |
-| 设置 / 个性化 | COMPLETE | Persisted privacy mask, reduce motion, rail state, upcoming visibility; links to source coverage and asset appearance. |
-| 数据源 | COMPLETE | Workspace coverage, object counts, fact-boundary explanation, direct navigation to each infrastructure family. |
-| 地区抽屉 | COMPLETE | Region context + all/cards/numbers actions + global reset. |
+| Surface        | Android source status | Notes                                                                                                                  |
+| -------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 搜索与快捷操作 | COMPLETE              | Empty-query commands; card/number/service/region/page search; result navigation returns to Search.                     |
+| 设置 / 个性化  | COMPLETE              | Persisted privacy mask, reduce motion, rail state, upcoming visibility; links to source coverage and asset appearance. |
+| 数据源         | COMPLETE              | Workspace coverage, object counts, fact-boundary explanation, direct navigation to each infrastructure family.         |
+| 地区抽屉       | COMPLETE              | Region context + all/cards/numbers actions + global reset.                                                             |
 
 ## 5. Adaptive design complete
 
 ### COMPACT
+
 - Top command bar.
 - Four-item bottom navigation.
 - Scrollable infrastructure secondary navigation with selected-item auto-centering.
@@ -66,6 +67,7 @@
 - Change Phone uses compact stepper + vertical continuity flow.
 
 ### MEDIUM / EXPANDED
+
 - Navigation rail.
 - Overview Globe + activity rail.
 - Card/number list-detail where appropriate.
@@ -77,6 +79,7 @@
 Presentation customization is no longer screenshot-only.
 
 Saved card/number appearance now:
+
 1. stays presentation-only;
 2. is persisted locally through the presentation-profile store;
 3. is reused by Grid / Detail / Studio preview;
@@ -85,6 +88,7 @@ Saved card/number appearance now:
 6. does not write to `.depmap`.
 
 Workspace preferences are also persisted locally:
+
 - privacy mask;
 - reduce motion;
 - rail expanded state;
@@ -93,6 +97,7 @@ Workspace preferences are also persisted locally:
 ## 7. Consumer-language closure
 
 The current source removes consumer-visible internal review/engineering terminology such as:
+
 - vNext;
 - fixture;
 - Presentation layer;
@@ -106,6 +111,7 @@ Region codes remain internal identity; consumer surfaces render region names.
 ## 8. Component/code-structure closure
 
 Large UI files were split by responsibility:
+
 - Navigation config/selection → `NavigationModel.kt`;
 - Empty states → `EmptyState.kt`;
 - Number identity surface separated from generic asset surfaces;
@@ -120,6 +126,7 @@ Frozen Globe rendering logic is intentionally not redesigned.
 After source checkpoint `35c1103d39026d6a7c68f0ee9755a3c9777279ba`, previous Android runtime evidence is historical.
 
 Until the local toolchain reruns against this exact or later source head, do not claim:
+
 - `ANDROID_VISUAL_REFERENCE = ACCEPTED`;
 - `ANDROID_REFERENCE_FREEZE = PASS`;
 - latest phone/tablet screenshot parity;
@@ -142,6 +149,7 @@ HARMONY_UI_VNEXT = HOLD
 The local Agent is now an execution/verification agent, not a UI designer.
 
 It should only:
+
 1. pull the latest `feat/android-ui-vnext-translation`;
 2. compile;
 3. run Android unit/instrumentation/a11y/freeze guards;

@@ -7,43 +7,43 @@
 
 ## Phone（14 张，Pixel 7 / API36 / 1080×2400 portrait / commit 0a3a4b6）
 
-| # | screen | expectedState | renderReadiness | layoutContracts |
-| --- | --- | --- | --- | --- |
-| 01 | now | now | TEXTURE_READY | globeRenderState=TEXTURE_READY |
-| 02 | overview | global | TEXTURE_READY | globeRenderState=TEXTURE_READY |
-| 03 | cards | global | N/A | verticalTextRegression=false |
-| 04 | card-detail | card-cn-2 | N/A | N/A |
-| 05 | card-studio-glass | glass | N/A | N/A |
-| 06 | card-studio-city | city | N/A | N/A |
-| 07 | numbers | global | N/A | visibleRows=6 |
-| 08 | number-detail | num-cn-1 | N/A | N/A |
-| 09 | number-studio-travel | travel | N/A | N/A |
-| 10 | change-current | current | N/A | compact-scene |
-| 11 | change-transition | transition | N/A | compact-scene |
-| 12 | change-after | after | N/A | compact-scene |
-| 13 | cards-empty | empty-cards | N/A | N/A |
-| 14 | search-command | search-command | N/A | N/A |
+| #   | screen               | expectedState  | renderReadiness | layoutContracts                |
+| --- | -------------------- | -------------- | --------------- | ------------------------------ |
+| 01  | now                  | now            | TEXTURE_READY   | globeRenderState=TEXTURE_READY |
+| 02  | overview             | global         | TEXTURE_READY   | globeRenderState=TEXTURE_READY |
+| 03  | cards                | global         | N/A             | verticalTextRegression=false   |
+| 04  | card-detail          | card-cn-2      | N/A             | N/A                            |
+| 05  | card-studio-glass    | glass          | N/A             | N/A                            |
+| 06  | card-studio-city     | city           | N/A             | N/A                            |
+| 07  | numbers              | global         | N/A             | visibleRows=6                  |
+| 08  | number-detail        | num-cn-1       | N/A             | N/A                            |
+| 09  | number-studio-travel | travel         | N/A             | N/A                            |
+| 10  | change-current       | current        | N/A             | compact-scene                  |
+| 11  | change-transition    | transition     | N/A             | compact-scene                  |
+| 12  | change-after         | after          | N/A             | compact-scene                  |
+| 13  | cards-empty          | empty-cards    | N/A             | N/A                            |
+| 14  | search-command       | search-command | N/A             | N/A                            |
 
 文件：`phone/android__phone__api36__<screen>__<state>.png` + `phone/manifest.json`
 
 ## Tablet（14 张，Pixel Tablet / API36 / 2560×1600 landscape / commit 0a3a4b6）
 
-| # | screen | expectedState | renderReadiness | layoutContracts |
-| --- | --- | --- | --- | --- |
-| 01 | now | now | TEXTURE_READY | globeRenderState=TEXTURE_READY |
-| 02 | overview | global | TEXTURE_READY | globeRenderState=TEXTURE_READY |
-| 03 | cards | global | N/A | verticalTextRegression=false |
-| 04 | card-detail | card-cn-2 | N/A | N/A |
-| 05 | card-studio-glass | glass | N/A | N/A |
-| 06 | card-studio-city | city | N/A | N/A |
-| 07 | numbers | global | N/A | visibleRows=7 |
-| 08 | number-detail | num-cn-1 | N/A | N/A |
-| 09 | number-studio-travel | travel | N/A | N/A |
-| 10 | change-current | current | N/A | oldVisible=true;servicesVisible=true;newVisible=true |
-| 11 | change-transition | transition | N/A | oldVisible=true;servicesVisible=true;newVisible=true |
-| 12 | change-after | after | N/A | oldVisible=true;servicesVisible=true;newVisible=true |
-| 13 | cards-empty | empty-cards | N/A | N/A |
-| 14 | search-command | search-command | N/A | N/A |
+| #   | screen               | expectedState  | renderReadiness | layoutContracts                                      |
+| --- | -------------------- | -------------- | --------------- | ---------------------------------------------------- |
+| 01  | now                  | now            | TEXTURE_READY   | globeRenderState=TEXTURE_READY                       |
+| 02  | overview             | global         | TEXTURE_READY   | globeRenderState=TEXTURE_READY                       |
+| 03  | cards                | global         | N/A             | verticalTextRegression=false                         |
+| 04  | card-detail          | card-cn-2      | N/A             | N/A                                                  |
+| 05  | card-studio-glass    | glass          | N/A             | N/A                                                  |
+| 06  | card-studio-city     | city           | N/A             | N/A                                                  |
+| 07  | numbers              | global         | N/A             | visibleRows=7                                        |
+| 08  | number-detail        | num-cn-1       | N/A             | N/A                                                  |
+| 09  | number-studio-travel | travel         | N/A             | N/A                                                  |
+| 10  | change-current       | current        | N/A             | oldVisible=true;servicesVisible=true;newVisible=true |
+| 11  | change-transition    | transition     | N/A             | oldVisible=true;servicesVisible=true;newVisible=true |
+| 12  | change-after         | after          | N/A             | oldVisible=true;servicesVisible=true;newVisible=true |
+| 13  | cards-empty          | empty-cards    | N/A             | N/A                                                  |
+| 14  | search-command       | search-command | N/A             | N/A                                                  |
 
 文件：`tablet/android__tablet__api36__<screen>__<state>.png` + `tablet/manifest.json`
 
