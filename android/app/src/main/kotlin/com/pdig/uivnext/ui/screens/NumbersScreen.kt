@@ -110,6 +110,7 @@ private fun NumbersHeader(app: VAppState, count: Int, total: Int, filter: String
         color = PdigV2Colors.TextSecondary,
         fontSize = 13.sp,
     )
+    if (app.regionFilter != null) RegionScopeBanner(app)
 }
 
 @Composable

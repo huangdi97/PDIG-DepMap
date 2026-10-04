@@ -95,7 +95,7 @@ private fun TopCommandBar(app: VAppState) {
             if (app.canGoBack()) {
                 Surface(
                     modifier = Modifier
-                        .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                        .size(48.dp)
                         .clickable { app.back() },
                     color = PdigV2Colors.SurfaceGlass,
                     shape = RoundedCornerShape(VRadius.Sm),

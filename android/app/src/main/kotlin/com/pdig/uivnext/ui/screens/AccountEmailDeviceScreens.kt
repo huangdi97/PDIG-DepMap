@@ -22,19 +22,26 @@ import com.pdig.uivnext.model.UiVNextEmail
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.components.EmptyKind
+import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
 
 @Composable
-internal fun AccountsScreen() {
-    val accounts = UiVNextDemoFixture.accounts
+internal fun AccountsScreen(app: VAppState) {
+    val accounts = UiVNextDemoFixture.accounts.filter { app.regionFilter == null || it.region == app.regionFilter }
     InfraPage(
         title = "账户",
         subtitle = "账户是服务之上的身份入口：重点关注验证方式、恢复路径和跨地区依赖。",
     ) {
-        SectionHeader("已记录（" + accounts.size + "）")
-        accounts.forEach { AccountRow(it) }
-        UnknownBoundaryNote("未记录的账户、登录名、验证器或恢复方式仍保持未知。")
+        RegionScopeBanner(app)
+        if (accounts.isEmpty()) {
+            ScopedInfrastructureEmpty(app, "当前地区没有账户记录", "没有记录的账户与恢复关系仍保持未知。")
+        } else {
+            SectionHeader("已记录（" + accounts.size + "）")
+            accounts.forEach { AccountRow(it) }
+            UnknownBoundaryNote("未记录的账户、登录名、验证器或恢复方式仍保持未知。")
+        }
     }
 }
 
@@ -70,14 +77,19 @@ private fun AccountRow(account: UiVNextAccount) {
 
 @Composable
 internal fun EmailsScreen(app: VAppState) {
-    val emails = UiVNextDemoFixture.emails
+    val emails = UiVNextDemoFixture.emails.filter { app.regionFilter == null || it.region == app.regionFilter }
     InfraPage(
         title = "邮箱",
         subtitle = "邮箱可能同时承担登录、通知和恢复职责；唯一恢复邮箱必须显式识别。",
     ) {
-        SectionHeader("已记录（" + emails.size + "）")
-        emails.forEach { EmailRow(it) }
-        UnknownBoundaryNote("没有记录的邮箱与恢复关系不会被推断为不存在。")
+        RegionScopeBanner(app)
+        if (emails.isEmpty()) {
+            ScopedInfrastructureEmpty(app, "当前地区没有邮箱记录", "没有记录的邮箱与恢复关系仍保持未知。")
+        } else {
+            SectionHeader("已记录（" + emails.size + "）")
+            emails.forEach { EmailRow(it) }
+            UnknownBoundaryNote("没有记录的邮箱与恢复关系不会被推断为不存在。")
+        }
     }
 }
 
@@ -109,14 +121,19 @@ private fun EmailRow(email: UiVNextEmail) {
 
 @Composable
 internal fun DevicesScreen(app: VAppState) {
-    val devices = UiVNextDemoFixture.devices
+    val devices = UiVNextDemoFixture.devices.filter { app.regionFilter == null || it.region == app.regionFilter }
     InfraPage(
         title = "设备",
         subtitle = "可信设备、验证器和恢复设备构成连续性链路；长期未使用的设备需要人工复核。",
     ) {
-        SectionHeader("已记录（" + devices.size + "）")
-        devices.forEach { DeviceRow(it) }
-        UnknownBoundaryNote("设备未出现于当前列表，不代表它没有登录或恢复权限。")
+        RegionScopeBanner(app)
+        if (devices.isEmpty()) {
+            ScopedInfrastructureEmpty(app, "当前地区没有设备记录", "设备未出现于当前列表，不代表它没有登录或恢复权限。")
+        } else {
+            SectionHeader("已记录（" + devices.size + "）")
+            devices.forEach { DeviceRow(it) }
+            UnknownBoundaryNote("设备未出现于当前列表，不代表它没有登录或恢复权限。")
+        }
     }
 }
 
@@ -147,4 +164,20 @@ private fun ChipLine(labels: List<String>) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         labels.take(3).forEach { LabelChip(it) }
     }
+}
+
+
+@Composable
+private fun ScopedInfrastructureEmpty(app: VAppState, title: String, description: String) {
+    EmptyState(
+        kind = EmptyKind.DEPENDENCIES,
+        title = title,
+        description = description,
+        primaryCta = if (app.regionFilter != null) "查看全球" else "返回基础设施总览",
+        onPrimary = {
+            if (app.regionFilter != null) app.clearRegion() else app.navigate(com.pdig.uivnext.model.VScreen.OVERVIEW)
+        },
+        secondaryCta = "查看薄弱点",
+        onSecondary = { app.navigate(com.pdig.uivnext.model.VScreen.WEAKNESSES) },
+    )
 }
