@@ -145,6 +145,7 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickable { app.openCard(card.id) },
         color = PdigV2Colors.Surface.copy(alpha = 0.92f),
         shape = RoundedCornerShape(VRadius.Md),
@@ -164,7 +165,7 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
             Column(Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text(if (maskSensitive) card.masked else card.last4, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text(if (maskSensitive) "••••" else card.last4, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
                 Text(
                     "${card.issuer} · ${regionLabel(card.region)} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",

@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.UiVNextCard
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.regionLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
@@ -140,7 +141,7 @@ fun CardIdentityFace(
                 }
                 Spacer(Modifier.weight(1f))
                 Text(
-                    if (privacyMask) "•••• •••• •••• ${card.masked.takeLast(4)}" else "•••• •••• •••• ${card.last4}",
+                    if (privacyMask) "•••• •••• •••• ••••" else "•••• •••• •••• ${card.last4}",
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 16.sp,
                     fontFamily = FontFamily.Monospace,
@@ -150,7 +151,7 @@ fun CardIdentityFace(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
                         Text("${cardTypeLabel(card.type)} · ${card.network}", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, modifier = Modifier.testTag(VTestIds.CARD_META))
-                        Text("地区 ${card.region} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                        Text("${regionLabelZh(card.region)} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                     }
                     StatusBadge(card.status)
                 }

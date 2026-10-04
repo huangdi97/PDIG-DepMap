@@ -93,7 +93,7 @@ fun NumberFace(
                 }
                 Spacer(Modifier.height(VSpacing.Md))
                 Text(
-                    number.maskedNumber,
+                    if (privacyMask) maskedNumberForPrivacy(number) else number.maskedNumber,
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 20.sp,
                     fontFamily = FontFamily.Monospace,
@@ -216,3 +216,7 @@ private fun roleLabel(role: String): String = when (role) {
     else -> role
 }
 
+
+
+private fun maskedNumberForPrivacy(number: UiVNextNumber): String =
+    number.countryCode + " •••• ••••"

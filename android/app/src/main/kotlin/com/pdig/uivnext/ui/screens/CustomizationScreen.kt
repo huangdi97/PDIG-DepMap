@@ -45,7 +45,7 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         preview = {
             AssetCard(
                 card = card.copy(preset = profile.themeId),
-                privacyMask = app.privacyMask || profile.maskSensitive,
+                privacyMask = profile.maskSensitive,
                 onClick = {},
                 presentationMaterial = profile.material,
             )
@@ -83,7 +83,7 @@ fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         preview = {
             NumberFace(
                 number = number.copy(preset = profile.themeId),
-                privacyMask = app.privacyMask || profile.maskSensitive,
+                privacyMask = profile.maskSensitive,
                 onClick = {},
                 presentationMaterial = profile.material,
             )
