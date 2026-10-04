@@ -162,15 +162,18 @@ production `android/app/src/main/**` 改动 = **2 个文件 · 3 处纯机械 im
 
 ## 15. Remote CI truth
 
-- push 后查询 GitHub Actions 结果见本报告 §16（或 `REMOTE_CI = NOT_TRIGGERED`）。
+- **`REMOTE_CI = NOT_TRIGGERED`（真实查询）**：push 后以 gh 查询
+  `repos/huangdi97/PDIG-DepMap/actions/runs`，head_sha=`4920949…` 无任何 workflow run；
+  `actions/runs?branch=feat/android-ui-vnext-translation` 同样为空。与仓库已知事实一致
+  （`ci.yml` 触发分支显式列举 main、feat/mvp03-living-graph，不含本分支）。
 - 本地 PASS ≠ GitHub CI PASS（未冒充）。
 
 ## 16. Git / 证据提交
 
 - 分支：`feat/android-ui-vnext-translation`（未新开 branch）。
 - 提交内容：androidTest 证据测试 6 个文件 + 2 个 production 机械 import 修复 + 5 个 docs prettier 修复 + 全部 runtime evidence 产物 + 本报告 + WORK_STATUS/BLOCKERS/NATIVE_MIGRATION_STATUS 更新。
-- push：fast-forward only（remote ref 在 push 前核验 = 本地 HEAD）。
-- ending HEAD：见提交后 `git rev-parse HEAD`（§17）。
+- push 结果：`4e43511..4920949` fast-forward 成功（`-c http.version=HTTP/1.1` 规避大包 408）；push 后核验 `origin/feat/android-ui-vnext-translation == 本地 HEAD`。
+- ending HEAD：`4920949ae8e48778ca2c42845ed0e7bee8b79ba9`。
 
 ## 17. Evidence SHA 锚点
 
