@@ -68,7 +68,11 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
             .fillMaxSize()
             .padding(24.dp),
     ) {
-        Row(Modifier.fillMaxSize()) {
+        Row(
+            Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+        ) {
             // Globe Stage（L1）
             Box(
                 Modifier

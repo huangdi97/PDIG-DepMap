@@ -185,6 +185,15 @@ class VAppState(
         globe.state = VGlobeState.REGION_DETAIL
     }
 
+    /**
+     * 关闭地区详情但保留当前地区上下文。
+     * System Back 应当只退出 detail 层；只有显式“返回全球视图”才清除 regionFilter。
+     */
+    fun closeRegionDetail() {
+        if (globe.state != VGlobeState.REGION_DETAIL) return
+        globe.state = if (regionFilter != null) VGlobeState.REGION_SELECTED else VGlobeState.GLOBAL
+    }
+
     fun clearRegion() {
         regionFilter = null
         globe.backToGlobal()
@@ -196,12 +205,12 @@ class VAppState(
     }
 
     /**
-     * System back：region drawer → 关闭抽屉；back stack 非空 → 弹栈返回；
+     * System back：region drawer → 关闭详情并保留地区筛选；back stack 非空 → 弹栈返回；
      * 空栈 → 不做处理，交回系统默认（退出）。
      */
     fun back() {
         if (globe.state == VGlobeState.REGION_DETAIL) {
-            clearRegion()
+            closeRegionDetail()
             return
         }
         if (backStack.isNotEmpty()) {

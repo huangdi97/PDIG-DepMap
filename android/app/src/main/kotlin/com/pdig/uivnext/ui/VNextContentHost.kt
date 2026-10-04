@@ -72,26 +72,36 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app, breakpoint)
         }
         if (app.globe.state == VGlobeState.REGION_DETAIL) {
-            RegionDrawer(app)
+            RegionDrawer(app, breakpoint)
         }
     }
 }
 
 /** Region Drawer：选中地区后的资产上下文 + 三个动作（查看全部/查看卡片/查看号码）。 */
 @Composable
-private fun BoxScope.RegionDrawer(app: VAppState) {
+private fun BoxScope.RegionDrawer(app: VAppState, breakpoint: MediaBreakpoint) {
     val region = UiVNextDemoFixture.regionSummaries()
         .firstOrNull { it.regionCode == app.regionFilter } ?: return
-    Surface(
-        modifier = Modifier
+    val compact = breakpoint == MediaBreakpoint.COMPACT
+    val drawerModifier = if (compact) {
+        Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 12.dp)
+            .widthIn(max = 440.dp)
+    } else {
+        Modifier
             .align(Alignment.BottomEnd)
             .padding(24.dp)
-            .widthIn(max = 380.dp),
+            .widthIn(max = 380.dp)
+    }
+    Surface(
+        modifier = drawerModifier,
         color = PdigV2Colors.Surface.copy(alpha = 0.95f),
         shape = RoundedCornerShape(VRadius.Xl),
         border = BorderStroke(1.dp, PdigV2Colors.BorderStrong),
     ) {
-        Column(Modifier.padding(20.dp)) {
+        Column(Modifier.padding(if (compact) 16.dp else 20.dp)) {
             Text(region.displayName, color = PdigV2Colors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Text(
                 "${region.cardCount} 张卡 · ${region.phoneCount} 个号码 · ${region.accountCount} 个账户 · ${region.serviceCount} 项服务",
@@ -99,7 +109,7 @@ private fun BoxScope.RegionDrawer(app: VAppState) {
                 fontSize = 13.sp,
             )
             Spacer(Modifier.height(12.dp))
-            Text("查看方式", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+            Text("在该地区查看", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
             Spacer(Modifier.height(8.dp))
             DrawerAction("查看全部", "该地区所有基础设施") {
                 app.regionFilter = region.regionCode
