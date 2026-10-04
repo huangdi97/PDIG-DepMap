@@ -22,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -89,12 +91,16 @@ fun AssetCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     presentationMaterial: String? = null,
+    presentationAccent: Color? = null,
+    presentationLayout: String? = null,
 ) = CardIdentityFace(
     card = card,
     privacyMask = privacyMask,
     onClick = onClick,
     modifier = modifier,
     presentationMaterial = presentationMaterial,
+    presentationAccent = presentationAccent,
+    presentationLayout = presentationLayout,
 )
 
 /** 卡面 renderer 本体（唯一实现；测试通过 pdig.card.* tags 读取 bounds）。 */
@@ -105,9 +111,17 @@ fun CardIdentityFace(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     presentationMaterial: String? = null,
+    presentationAccent: Color? = null,
+    presentationLayout: String? = null,
 ) {
     val profile = CardIdentityProfile.forIssuer(card.issuer)
     val theme = cardThemeInfo(card.preset)
+    val compactLayout = presentationLayout == "compact"
+    val focusedLayout = presentationLayout == "focused"
+    val contentPadding = if (compactLayout) VSpacing.Lg else VSpacing.Xl
+    val nicknameSize = if (focusedLayout) 16.sp else if (compactLayout) 13.sp else 14.sp
+    val numberSize = if (focusedLayout) 19.sp else if (compactLayout) 14.sp else 16.sp
+    val metaSize = if (compactLayout) 11.sp else 12.sp
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(VRadius.Lg))
@@ -120,16 +134,28 @@ fun CardIdentityFace(
             Modifier
                 .background(cardFaceBaseBrush(profile, theme))
                 .aspectRatio(1.586f)
-                .padding(VSpacing.Xl)
+                .padding(contentPadding)
                 .testTag(VTestIds.CARD_FACE),
         ) {
             Canvas(Modifier.fillMaxSize()) {
                 drawCardArtwork(profile, theme, presentationCardMaterial(presentationMaterial))
+                presentationAccent?.let { accent ->
+                    drawRect(
+                        accent.copy(alpha = 0.82f),
+                        topLeft = Offset(0f, size.height - 3.dp.toPx()),
+                        size = Size(size.width, 3.dp.toPx()),
+                    )
+                    drawCircle(
+                        accent.copy(alpha = 0.12f),
+                        radius = size.width * 0.20f,
+                        center = Offset(size.width * 0.88f, size.height * 0.18f),
+                    )
+                }
             }
             Column(Modifier.fillMaxSize()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.testTag(VTestIds.CARD_NICKNAME))
+                        Text(card.nickname, color = PdigV2Colors.TextPrimary, fontSize = nicknameSize, fontWeight = FontWeight.SemiBold, modifier = Modifier.testTag(VTestIds.CARD_NICKNAME))
                         Text(card.issuer, color = PdigV2Colors.TextSecondary, fontSize = 12.sp, modifier = Modifier.testTag(VTestIds.CARD_ISSUER))
                     }
                     Text(
@@ -143,15 +169,15 @@ fun CardIdentityFace(
                 Text(
                     if (privacyMask) "•••• •••• •••• ••••" else "•••• •••• •••• ${card.last4}",
                     color = PdigV2Colors.TextPrimary,
-                    fontSize = 16.sp,
+                    fontSize = numberSize,
                     fontFamily = FontFamily.Monospace,
                     modifier = Modifier.testTag(VTestIds.CARD_MASKED),
                 )
                 Spacer(Modifier.height(VSpacing.Lg))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        Text("${cardTypeLabel(card.type)} · ${card.network}", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, modifier = Modifier.testTag(VTestIds.CARD_META))
-                        Text("${regionLabelZh(card.region)} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                        Text("${cardTypeLabel(card.type)} · ${card.network}", color = PdigV2Colors.TextSecondary, fontSize = metaSize, modifier = Modifier.testTag(VTestIds.CARD_META))
+                        Text("${regionLabelZh(card.region)} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.TextMuted, fontSize = metaSize)
                     }
                     StatusBadge(card.status)
                 }

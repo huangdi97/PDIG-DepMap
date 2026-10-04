@@ -12,6 +12,7 @@ import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.NUMBER_MATERIAL_CHOICES
 import com.pdig.uivnext.model.NUMBER_THEME_PRESETS
 import com.pdig.uivnext.model.PresentationProfile
+import com.pdig.uivnext.model.accentLabelZh
 import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.layoutLabelZh
 import com.pdig.uivnext.model.materialLabelZh
@@ -25,7 +26,8 @@ import com.pdig.uivnext.ui.components.StudioPropRow
 @Composable
 fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
-    val savedProfile = app.presentationProfile("card", card.id, card.preset)
+    val baseProfile = PresentationProfile.defaultFor("card", card.id, card.preset)
+    val savedProfile = app.savedPresentationProfile("card", card.id) ?: baseProfile
     val initialTheme = app.evidenceThemeId ?: savedProfile.themeId
     var profile by remember(card.id, initialTheme) {
         mutableStateOf(savedProfile.copy(themeId = initialTheme, backgroundValue = initialTheme))
@@ -45,17 +47,24 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         preview = {
             AssetCard(
                 card = card.copy(preset = profile.themeId),
-                privacyMask = profile.maskSensitive,
+                privacyMask = app.privacyMask || profile.maskSensitive,
                 onClick = {},
                 presentationMaterial = profile.material,
+                presentationAccent = hexColorOrNull(profile.accentColor),
+                presentationLayout = profile.layout,
             )
         },
         rows = consumerCardRows(profile),
-        toggles = listOf("昵称", "卡组织", "地区", "币种", "状态"),
+        displayFields = listOf("昵称", "卡组织", "地区", "币种", "状态"),
         privacyMasked = profile.maskSensitive,
+        globalPrivacyMask = app.privacyMask,
         onPrivacy = { profile = profile.copy(maskSensitive = it) },
+        onLayout = { profile = profile.copy(layout = it) },
+        onAccent = { profile = profile.copy(accentColor = it) },
         breakpoint = breakpoint,
         isDirty = profile != savedProfile,
+        canReset = profile != baseProfile,
+        onReset = { profile = baseProfile },
         onSave = { app.savePresentationProfile(profile) },
     )
 }
@@ -63,7 +72,8 @@ fun CardCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 @Composable
 fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
-    val savedProfile = app.presentationProfile("phoneNumber", number.id, number.preset)
+    val baseProfile = PresentationProfile.defaultFor("phoneNumber", number.id, number.preset)
+    val savedProfile = app.savedPresentationProfile("phoneNumber", number.id) ?: baseProfile
     val initialTheme = app.evidenceThemeId ?: savedProfile.themeId
     var profile by remember(number.id, initialTheme) {
         mutableStateOf(savedProfile.copy(themeId = initialTheme, backgroundValue = initialTheme))
@@ -83,17 +93,24 @@ fun NumberCustomizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         preview = {
             NumberFace(
                 number = number.copy(preset = profile.themeId),
-                privacyMask = profile.maskSensitive,
+                privacyMask = app.privacyMask || profile.maskSensitive,
                 onClick = {},
                 presentationMaterial = profile.material,
+                presentationAccent = hexColorOrNull(profile.accentColor),
+                presentationLayout = profile.layout,
             )
         },
         rows = consumerNumberRows(profile),
-        toggles = listOf("昵称", "运营商", "SIM 类型", "主副号", "用途标签"),
+        displayFields = listOf("昵称", "运营商", "SIM 类型", "主副号", "用途标签"),
         privacyMasked = profile.maskSensitive,
+        globalPrivacyMask = app.privacyMask,
         onPrivacy = { profile = profile.copy(maskSensitive = it) },
+        onLayout = { profile = profile.copy(layout = it) },
+        onAccent = { profile = profile.copy(accentColor = it) },
         breakpoint = breakpoint,
         isDirty = profile != savedProfile,
+        canReset = profile != baseProfile,
+        onReset = { profile = baseProfile },
         onSave = { app.savePresentationProfile(profile) },
     )
 }
@@ -103,6 +120,7 @@ private fun consumerCardRows(profile: PresentationProfile): List<StudioPropRow> 
     StudioPropRow("外观", themeLabelZh("card", profile.themeId), swatch = hexColorOrNull(profile.accentColor)),
     StudioPropRow("背景", materialLabelZh(profile.material)),
     StudioPropRow("布局", layoutLabelZh(profile.layout)),
+    StudioPropRow("强调", accentLabelZh(profile.accentColor), swatch = hexColorOrNull(profile.accentColor)),
 )
 
 /** Number Studio consumer 属性行（communication identity；不显示内部 preset id）。 */
@@ -110,5 +128,6 @@ private fun consumerNumberRows(profile: PresentationProfile): List<StudioPropRow
     StudioPropRow("外观", themeLabelZh("number", profile.themeId), swatch = hexColorOrNull(profile.accentColor)),
     StudioPropRow("背景", materialLabelZh(profile.material)),
     StudioPropRow("布局", layoutLabelZh(profile.layout)),
+    StudioPropRow("强调", accentLabelZh(profile.accentColor), swatch = hexColorOrNull(profile.accentColor)),
 )
 

@@ -39,6 +39,7 @@ import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextCard
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
@@ -120,6 +121,8 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         privacyMask = app.privacyMask || (profile?.maskSensitive == true),
                         onClick = { app.openCard(card.id) },
                         presentationMaterial = profile?.material,
+                        presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
+                        presentationLayout = profile?.layout,
                     )
                 }
             }

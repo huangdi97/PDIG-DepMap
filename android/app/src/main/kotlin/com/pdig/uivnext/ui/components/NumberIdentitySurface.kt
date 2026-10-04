@@ -71,7 +71,16 @@ fun NumberFace(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     presentationMaterial: String? = null,
+    presentationAccent: Color? = null,
+    presentationLayout: String? = null,
 ) {
+    val compactLayout = presentationLayout == "compact"
+    val focusedLayout = presentationLayout == "focused"
+    val accent = presentationAccent ?: numberFaceAccent(number.preset)
+    val contentPadding = if (compactLayout) VSpacing.Lg else VSpacing.Xl
+    val verticalGap = if (compactLayout) VSpacing.Sm else VSpacing.Md
+    val numberSize = if (focusedLayout) 24.sp else if (compactLayout) 18.sp else 20.sp
+
     Surface(
         modifier = modifier
             .clip(RoundedCornerShape(VRadius.Lg))
@@ -84,29 +93,29 @@ fun NumberFace(
             Canvas(Modifier.matchParentSize()) {
                 drawNumberMaterialOverlay(presentationMaterial)
             }
-            Column(Modifier.padding(VSpacing.Xl)) {
+            Column(Modifier.padding(contentPadding)) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    DialArc(accent = numberFaceAccent(number.preset))
+                    DialArc(accent = accent)
                     Spacer(Modifier.width(VSpacing.Md))
                     Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     StatusBadge(number.status)
                 }
-                Spacer(Modifier.height(VSpacing.Md))
+                Spacer(Modifier.height(verticalGap))
                 Text(
                     if (privacyMask) maskedNumberForPrivacy(number) else number.maskedNumber,
                     color = PdigV2Colors.TextPrimary,
-                    fontSize = 20.sp,
+                    fontSize = numberSize,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
                 )
-                Spacer(Modifier.height(VSpacing.Md))
+                Spacer(Modifier.height(verticalGap))
                 Row(horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm)) {
                     LabelChip(if (number.simKind == "eSIM") "eSIM" else "实体 SIM")
                     LabelChip(roleLabel(number.role))
                     LabelChip(number.countryCode)
                     if (number.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
                 }
-                Spacer(Modifier.height(VSpacing.Md))
+                Spacer(Modifier.height(verticalGap))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         number.usages.joinToString(" · "),
@@ -114,7 +123,7 @@ fun NumberFace(
                         fontSize = 12.sp,
                         modifier = Modifier.weight(1f),
                     )
-                    SignalBars(level = signalLevel(number), accent = numberFaceAccent(number.preset))
+                    SignalBars(level = signalLevel(number), accent = accent)
                 }
             }
         }

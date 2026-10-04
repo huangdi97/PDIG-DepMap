@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.relationKindLabelZh
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -53,6 +54,8 @@ fun NumberDetailScreen(app: VAppState) {
                 .fillMaxWidth()
                 .testTagLocal(VTestIds.NUMBER_DETAIL_HERO),
             presentationMaterial = presentation?.material,
+                presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
+                presentationLayout = presentation?.layout,
         )
 
         SectionHeader(

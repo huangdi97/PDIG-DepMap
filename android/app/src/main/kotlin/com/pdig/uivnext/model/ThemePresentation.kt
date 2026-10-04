@@ -32,6 +32,7 @@ val NUMBER_THEME_LABELS: Map<String, String> = mapOf(
 
 /** 材质（PresentationProfile.material）→ 用户语言；未知保持原样但不暴露 internal id 语义。 */
 fun materialLabelZh(material: String): String = when (material) {
+    "default" -> "原始"
     "glass" -> "玻璃"
     "metal" -> "金属"
     "brushed" -> "拉丝"
@@ -58,5 +59,23 @@ fun hexColorOrNull(value: String): androidx.compose.ui.graphics.Color? =
     runCatching { com.pdig.uivnext.theme.hexColor(value) }.getOrNull()
 
 /** Studio 可选材质（内部 id → materialLabelZh 转用户语言）。 */
-val CARD_MATERIAL_CHOICES = listOf("glass", "metal", "brushed", "matte", "satin")
-val NUMBER_MATERIAL_CHOICES = listOf("matte", "glass", "metal")
+val CARD_MATERIAL_CHOICES = listOf("default", "glass", "metal", "brushed", "matte", "satin")
+val NUMBER_MATERIAL_CHOICES = listOf("default", "matte", "glass", "metal")
+
+
+/** Studio 布局选择；全部真实进入 renderer。 */
+val PRESENTATION_LAYOUT_CHOICES = listOf("standard", "compact", "focused")
+
+/** 强调色预设：value 存入 PresentationProfile，UI 只展示名称与色样。 */
+data class PresentationAccentChoice(val value: String, val label: String)
+
+val PRESENTATION_ACCENT_CHOICES = listOf(
+    PresentationAccentChoice("default", "原始"),
+    PresentationAccentChoice("#4D74FF", "蓝"),
+    PresentationAccentChoice("#63D7C5", "青"),
+    PresentationAccentChoice("#F4B85A", "金"),
+    PresentationAccentChoice("#D06A8C", "玫红"),
+)
+
+fun accentLabelZh(value: String): String =
+    PRESENTATION_ACCENT_CHOICES.firstOrNull { it.value == value }?.label ?: "自定义"

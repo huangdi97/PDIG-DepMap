@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.relationKindLabelZh
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.model.themeLabelZh
@@ -134,6 +135,8 @@ private fun IdentityPanel(
                 privacyMask = app.privacyMask || (presentation?.maskSensitive == true),
                 onClick = {},
                 presentationMaterial = presentation?.material,
+                presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
+                presentationLayout = presentation?.layout,
             )
             Spacer(Modifier.height(16.dp))
             DetailRow("卡组织", card.network)

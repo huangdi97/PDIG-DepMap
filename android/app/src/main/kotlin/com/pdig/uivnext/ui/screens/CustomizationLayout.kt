@@ -21,6 +21,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.MediaBreakpoint
+import com.pdig.uivnext.model.PRESENTATION_ACCENT_CHOICES
+import com.pdig.uivnext.model.PRESENTATION_LAYOUT_CHOICES
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -42,11 +44,16 @@ internal fun CustomizationFrame(
     materials: List<String>,
     preview: @Composable () -> Unit,
     rows: List<StudioPropRow>,
-    toggles: List<String>,
+    displayFields: List<String>,
     privacyMasked: Boolean,
+    globalPrivacyMask: Boolean,
     onPrivacy: (Boolean) -> Unit,
+    onLayout: (String) -> Unit,
+    onAccent: (String) -> Unit,
     breakpoint: MediaBreakpoint,
     isDirty: Boolean,
+    canReset: Boolean,
+    onReset: () -> Unit,
     onSave: () -> Unit,
 ) {
     Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -69,9 +76,9 @@ internal fun CustomizationFrame(
             }
         }
         if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
-            WideCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, toggles, privacyMasked, onPrivacy)
+            WideCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, displayFields, privacyMasked, globalPrivacyMask, onPrivacy, onLayout, onAccent, canReset, onReset)
         } else {
-            CompactCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, toggles, privacyMasked, onPrivacy)
+            CompactCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, displayFields, privacyMasked, globalPrivacyMask, onPrivacy, onLayout, onAccent, canReset, onReset)
         }
     }
 }
@@ -86,9 +93,14 @@ private fun WideCustomization(
     materials: List<String>,
     preview: @Composable () -> Unit,
     rows: List<StudioPropRow>,
-    toggles: List<String>,
+    displayFields: List<String>,
     privacyMasked: Boolean,
+    globalPrivacyMask: Boolean,
     onPrivacy: (Boolean) -> Unit,
+    onLayout: (String) -> Unit,
+    onAccent: (String) -> Unit,
+    canReset: Boolean,
+    onReset: () -> Unit,
 ) {
     Row(Modifier.fillMaxSize()) {
         // Asset Library（左 22%）—— ThemeTile：真实 thumbnail + 用户语言
@@ -141,7 +153,24 @@ private fun WideCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            StudioInspector(rows, materials, profile.material, onMaterial, toggles, privacyMasked, onPrivacy)
+            StudioInspector(
+                rows = rows,
+                materials = materials,
+                currentMaterial = profile.material,
+                onMaterial = onMaterial,
+                layouts = PRESENTATION_LAYOUT_CHOICES,
+                currentLayout = profile.layout,
+                onLayout = onLayout,
+                accents = PRESENTATION_ACCENT_CHOICES,
+                currentAccent = profile.accentColor,
+                onAccent = onAccent,
+                displayFields = displayFields,
+                privacyMasked = privacyMasked,
+                globalPrivacyMask = globalPrivacyMask,
+                onPrivacy = onPrivacy,
+                canReset = canReset,
+                onReset = onReset,
+            )
         }
     }
 }
@@ -156,9 +185,14 @@ private fun CompactCustomization(
     materials: List<String>,
     preview: @Composable () -> Unit,
     rows: List<StudioPropRow>,
-    toggles: List<String>,
+    displayFields: List<String>,
     privacyMasked: Boolean,
+    globalPrivacyMask: Boolean,
     onPrivacy: (Boolean) -> Unit,
+    onLayout: (String) -> Unit,
+    onAccent: (String) -> Unit,
+    canReset: Boolean,
+    onReset: () -> Unit,
 ) {
     Column(
         Modifier
@@ -204,7 +238,24 @@ private fun CompactCustomization(
                 .testTagLocal(VTestIds.CUSTOMIZATION_INSPECTOR),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            StudioInspector(rows, materials, profile.material, onMaterial, toggles, privacyMasked, onPrivacy)
+            StudioInspector(
+                rows = rows,
+                materials = materials,
+                currentMaterial = profile.material,
+                onMaterial = onMaterial,
+                layouts = PRESENTATION_LAYOUT_CHOICES,
+                currentLayout = profile.layout,
+                onLayout = onLayout,
+                accents = PRESENTATION_ACCENT_CHOICES,
+                currentAccent = profile.accentColor,
+                onAccent = onAccent,
+                displayFields = displayFields,
+                privacyMasked = privacyMasked,
+                globalPrivacyMask = globalPrivacyMask,
+                onPrivacy = onPrivacy,
+                canReset = canReset,
+                onReset = onReset,
+            )
         }
     }
 }
