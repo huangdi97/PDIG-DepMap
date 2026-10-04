@@ -52,7 +52,7 @@ private fun ServicesScreen() {
         SectionHeader("已记录（${services.size}）")
         services.groupBy { it.region }.forEach { (region, regionServices) ->
             Text(
-                region,
+                regionLabel(region),
                 color = PdigV2Colors.TextMuted,
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -77,7 +77,7 @@ private fun ServicesScreen() {
                                 fontWeight = FontWeight.Medium,
                             )
                             Text(
-                                "地区 ${service.region}",
+                                regionLabel(service.region),
                                 color = PdigV2Colors.TextMuted,
                                 fontSize = 12.sp,
                             )

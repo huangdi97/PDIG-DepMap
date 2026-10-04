@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +39,7 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.EmptyKind
 import com.pdig.uivnext.ui.components.EmptyState
@@ -102,7 +104,7 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 @Composable
 private fun NumbersHeader(app: VAppState, count: Int, total: Int, filter: String) {
     Text("号码", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-    val scope = if (app.regionFilter == null) "全球" else "地区 ${app.regionFilter}"
+    val scope = if (app.regionFilter == null) "全球" else regionLabel(app.regionFilter!!)
     Text(
         if (filter == "all") "$scope $total 个号码" else "$scope · 当前显示 $count / $total",
         color = PdigV2Colors.TextSecondary,
@@ -211,7 +213,7 @@ private fun FilterRowNumbers(active: String, onFilter: (String) -> Unit) {
         filters.forEach { (key, label) ->
             val selected = active == key
             Surface(
-                modifier = Modifier.clickable { onFilter(key) },
+                modifier = Modifier.defaultMinSize(minHeight = VTouchTarget.Min).clickable { onFilter(key) },
                 color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
                 shape = RoundedCornerShape(VRadius.Sm),
                 border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
@@ -264,7 +266,7 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, onClick: () -> U
                     fontSize = 12.sp,
                 )
             }
-            if (number.recoveryOnly) LabelChip("恢复唯一", highlight = true)
+            if (number.recoveryOnly) LabelChip("唯一恢复", highlight = true)
             Spacer(Modifier.width(8.dp))
             StatusBadge(number.status)
         }

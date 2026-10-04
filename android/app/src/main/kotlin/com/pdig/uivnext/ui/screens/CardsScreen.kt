@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,6 +41,7 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.EmptyKind
@@ -64,19 +66,17 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             Column(Modifier.weight(1f)) {
                 Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    if (app.regionFilter == null) "全球 ${regionFiltered.size} 张卡" else "地区 ${app.regionFilter} · ${regionFiltered.size} 张卡",
+                    if (app.regionFilter == null) "全球 ${regionFiltered.size} 张卡" else "${regionLabel(app.regionFilter!!)} · ${regionFiltered.size} 张卡",
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                 )
             }
-            FilterChip("全部", app.regionFilter == null) { app.regionFilter = null }
-            Spacer(Modifier.width(12.dp))
             ViewToggle(gridView, onToggle = { gridView = !gridView })
         }
 
         Spacer(Modifier.height(20.dp))
         FilterRow(
-            regions = UiVNextDemoFixture.regions.map { it.regionCode },
+            regions = UiVNextDemoFixture.regions.map { it.regionCode to it.displayName },
             activeRegion = app.regionFilter,
             onRegion = { app.regionFilter = it },
         )
@@ -90,7 +90,7 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 description = if (app.regionFilter == null) {
                     "没有记录 ≠ 没有风险：尚未录入卡片时，不推断任何支付路径存在或不存在。"
                 } else {
-                    "地区 ${app.regionFilter} 暂无卡片记录。没有记录 ≠ 没有风险。"
+                    "${regionLabel(app.regionFilter!!)} 暂无卡片记录。没有记录 ≠ 没有风险。"
                 },
                 primaryCta = "查看号码",
                 onPrimary = { app.navigate(VScreen.NUMBERS) },
@@ -159,7 +159,7 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
                     Text(if (app.privacyMask) card.masked else card.last4, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
                 Text(
-                    "${card.issuer} · ${card.region} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",
+                    "${card.issuer} · ${regionLabel(card.region)} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 12.sp,
                 )
@@ -170,14 +170,14 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
 }
 
 @Composable
-private fun FilterRow(regions: List<String>, activeRegion: String?, onRegion: (String?) -> Unit) {
+private fun FilterRow(regions: List<Pair<String, String>>, activeRegion: String?, onRegion: (String?) -> Unit) {
     Row(
         Modifier.horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         FilterChip("全部", activeRegion == null) { onRegion(null) }
-        regions.forEach { code ->
-            FilterChip(code, activeRegion == code) { onRegion(code) }
+        regions.forEach { (code, name) ->
+            FilterChip(name, activeRegion == code) { onRegion(code) }
         }
     }
 }
@@ -185,7 +185,7 @@ private fun FilterRow(regions: List<String>, activeRegion: String?, onRegion: (S
 @Composable
 internal fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
     Surface(
-        modifier = Modifier.clickable(onClick = onClick),
+        modifier = Modifier.defaultMinSize(minHeight = VTouchTarget.Min).clickable(onClick = onClick),
         color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
         shape = RoundedCornerShape(VRadius.Sm),
         border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
@@ -204,12 +204,12 @@ internal fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
 private fun ViewToggle(grid: Boolean, onToggle: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Surface(
-            modifier = Modifier.clickable(onClick = onToggle).testTagLocal(VTestIds.CARD_VIEW_TOGGLE),
+            modifier = Modifier.defaultMinSize(minHeight = VTouchTarget.Min).clickable(onClick = onToggle).testTagLocal(VTestIds.CARD_VIEW_TOGGLE),
             color = PdigV2Colors.SurfaceRaised,
             shape = RoundedCornerShape(VRadius.Sm),
         ) {
             Text(
-                if (grid) "切换：紧凑列表" else "切换：视觉网格",
+                if (grid) "列表" else "卡面",
                 Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 12.sp,

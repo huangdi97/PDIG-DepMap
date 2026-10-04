@@ -122,7 +122,7 @@ private fun IdentityPanel(app: VAppState, card: com.pdig.uivnext.model.UiVNextCa
             AssetCard(card = card, privacyMask = app.privacyMask, onClick = {})
             Spacer(Modifier.height(16.dp))
             DetailRow("卡组织", card.network)
-            DetailRow("地区", card.region)
+            DetailRow("地区", regionLabel(card.region))
             DetailRow("币种", card.currency)
             DetailRow("卡种", if (card.type == "credit") "信用卡" else "储蓄卡")
             DetailRow("形态", if (card.form == "virtual") "虚拟卡" else "实体卡")
@@ -187,7 +187,7 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
             ) {
                 Column {
                     Text(service.name, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                    Text("地区 ${service.region} · ${cardServiceKindLabel(service.kind)}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text("${regionLabel(service.region)} · ${cardServiceKindLabel(service.kind)}", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
                 LabelChip(cardServiceKindLabel(service.kind))
             }
@@ -204,7 +204,7 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
             )
         }
     } else {
-        Text("当前未发现必须处理的风险。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+        Text("在已记录关系中未发现必须立即处理的风险；未记录的关联仍保持未知。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
     }
     SectionHeader("恢复与替代")
     Text(
