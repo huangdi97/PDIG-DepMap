@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Source-design checkpoint: `c0e5f34e721f22b7765aaafc2a2d374a65e5191e` (post-runtime Human Review polish)
+> Android production-UI source checkpoint: `77c7b3692c9b3327331f52af522a2bc65ecf165e` (post-runtime Human Review + adaptive navigation/craft closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -60,15 +60,15 @@
 
 - Top command bar.
 - Four-item bottom navigation.
-- Scrollable infrastructure secondary navigation with selected-item auto-centering.
+- Scrollable, visually lightweight infrastructure sibling navigation with selected-item auto-reveal.
 - Card gallery uses readable full-width presentation.
 - Numbers use List→Detail rather than desktop inspector.
-- Studios use Preview-first vertical layout.
+- Studios use Preview-first layout; compact theme selection is a horizontal visual gallery rather than a full-width settings list.
 - Change Phone uses compact stepper + vertical continuity flow.
 
 ### MEDIUM / EXPANDED
 
-- Navigation rail.
+- Primary navigation rail only; infrastructure object categories stay in a content-level sibling navigation row.
 - Overview Globe + activity rail.
 - Card/number list-detail where appropriate.
 - Consumer Studio multi-column layout.
@@ -125,7 +125,7 @@ Frozen Globe rendering logic is intentionally not redesigned.
 
 The 2026-10-04 runtime pack was captured from source `4e43511ae9754413ffedeaca9ad21a71b330aa64`.
 Human Review of that pack triggered additional Android-only source/test corrections through
-`c0e5f34e721f22b7765aaafc2a2d374a65e5191e`. Therefore that pack is historical for Freeze purposes,
+`77c7b3692c9b3327331f52af522a2bc65ecf165e`. Therefore that pack is historical for Freeze purposes,
 even though it remains valid evidence of the older source state.
 
 Until the local toolchain reruns against this exact or later source head, do not claim:
@@ -200,5 +200,44 @@ IOS_UI_VNEXT = HOLD
 HARMONY_UI_VNEXT = HOLD
 ```
 
-The next local run must build and capture from `c0e5f34e...` or a later exact branch HEAD. If any later
-commit changes Android production UI source, the evidence must be regenerated again.
+The next local run must build and capture from the exact current remote branch HEAD. The latest Android
+production-UI checkpoint is `77c7b369...`; any later Android production-UI commit invalidates the evidence
+and requires regeneration. Documentation-only descendants do not change pixels, but the execution Agent
+should still pull and record the exact remote HEAD it actually validates.
+
+
+## 12. Adaptive navigation & compact craft closure (2026-10-05)
+
+Human pixel review of the first source-complete runtime pack showed that the implementation was functionally
+complete but still carried two desktop/control-panel traits into Android: the Tablet rail mixed four global
+destinations with eight infrastructure object categories, and the Phone Studio rendered theme choices as a
+long vertical settings list.
+
+The Android translation now freezes the following presentation hierarchy:
+
+- **Primary navigation stays primary**: 现在 / 基础设施 / 变更 / 记录 remain the only product-level
+  destinations in Bottom Navigation / wide Navigation Rail.
+- **Infrastructure categories are sibling destinations inside the Infrastructure context**:
+  总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点 live in a scrollable content-level row on
+  both compact and wide Android layouts.
+- **Utilities remain low-frequency**: 数据源 / 设置 stay separated from the four primary destinations.
+- **Compact top chrome is quieter**: search/settings/back retain 48dp interaction geometry without reading
+  as three competing filled dashboard tiles.
+- **Compact Studio is asset-first**: the live asset preview remains first; theme choices are a horizontal
+  visual gallery; material/layout/accent/privacy controls remain secondary inspectors.
+- **Wide Studio remains unchanged**: the Desktop-derived library / preview / inspector composition is still
+  appropriate for wide Android windows and is not pixel-copied into phone UI.
+
+The hierarchy is protected by Android instrumentation contracts, including the Tablet primary-rail +
+content-secondary assertion and the Phone horizontal Studio-gallery assertion.
+
+Research rationale: this follows Android's adaptive navigation model (compact bottom navigation, larger
+windows using a navigation rail) and the Android navigation guidance that treats rail destinations as
+top-level while sibling destinations belong in secondary navigation patterns. Reference material:
+
+- https://developer.android.com/develop/ui/compose/layouts/adaptive
+- https://developer.android.com/develop/ui/compose/layouts/adaptive/build-adaptive-navigation
+- https://developer.android.com/design/ui/mobile/guides/layout-and-content/navigation
+
+This is a presentation-only correction. It does not change Canonical, PersonalReality, Change Phone truth
+semantics, PresentationProfile persistence boundaries, the frozen Desktop reference, or `.depmap`.

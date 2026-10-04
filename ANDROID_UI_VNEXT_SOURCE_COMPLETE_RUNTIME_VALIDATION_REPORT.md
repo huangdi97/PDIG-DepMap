@@ -195,3 +195,32 @@ production `android/app/src/main/**` 改动 = **2 个文件 · 3 处纯机械 im
 
 - `EVIDENCE_SHA256SUMS.txt` 覆盖全部 PNG + manifests + probe（64 条）。
 - 截图 manifest 内每张 PNG 的 `fileSha256 == sha256`（0 mismatch），保证证据可复现审计。
+
+
+## 18. 2026-10-05 Human Review supersession note
+
+This report remains the authoritative record for the runtime execution performed from
+`4e43511ae9754413ffedeaca9ad21a71b330aa64`; it is **not** the runtime acceptance record for current
+Android UI source.
+
+Human pixel review subsequently triggered presentation/test corrections, including Region Detail hierarchy,
+Globe evidence readiness, Change Phone truth copy, compact Studio density, adaptive navigation hierarchy,
+compact top-chrome craft, and compact Studio theme-gallery composition. The latest Android production-UI
+checkpoint after that closure is:
+
+```
+77c7b3692c9b3327331f52af522a2bc65ecf165e
+```
+
+The old a11y-string and forced-wide-phone test-bed failures recorded in §12 were adjudicated and corrected in
+later source/contracts; they are no longer the current blocker. The current blocker is evidence freshness:
+
+```
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
+ANDROID_REFERENCE_FREEZE = HOLD
+IOS_UI_VNEXT = HOLD
+HARMONY_UI_VNEXT = HOLD
+```
+
+No current-head build/runtime PASS is claimed by this historical report.

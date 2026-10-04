@@ -1,5 +1,18 @@
 # BLOCKERS.md
 >
+> **ANDROID UI vNext Current-Head Evidence Gate（2026-10-05）：**
+> - 当前不是代码设计 blocker，而是**证据新鲜度 gate**。Human Review 后 Android production UI
+>   checkpoint 已到 `77c7b3692c9b3327331f52af522a2bc65ecf165e`；2026-10-04 的 Phone/Tablet
+>   runtime pack 来自 `4e43511...`，不能用于 Final Freeze。
+> - 旧报告中的 2 条 a11y 文案期望漂移与 forced-wide Phone geometry probe 已在后续 source/test
+>   中裁决修正，不再作为当前 blocker。
+> - 新的 navigation hierarchy / compact Studio craft 已加 instrumentation contracts，但尚未在
+>   exact current HEAD 的 API36 Phone + Tablet 上重新执行，因此不得写 Runtime PASS。
+> - 保留状态：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> - Local Agent 仍只负责 build/runtime/evidence；UI discrepancy 必须回到 ChatGPT source 修改。
+>
+>
 > **ANDROID UI vNext Source-Complete Runtime Validation（2026-10-04）：**
 > - 无新外部 blocker。已如实记录：本轮运行主体全部 PASS，但 **2 条既有
 >   `VNextAccessibilityEvidenceTest` 契约测试在最新 source 上 FAIL**（期望串与新 consumer copy

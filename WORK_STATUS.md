@@ -1,3 +1,22 @@
+> **（最新）ANDROID UI vNext · Human Pixel Review + Adaptive Craft Closure（2026-10-05）**
+> —— ChatGPT 已直接审阅 2026-10-04 committed Phone 24 + Tablet runtime pixels，并核对 source /
+> manifests / contracts；未机械接受 Agent PASS。该证据包 source = `4e43511...`，Human Review
+> 后 Android presentation source 已继续前进。最新 production-UI checkpoint =
+> `77c7b3692c9b3327331f52af522a2bc65ecf165e`：Region Detail Back 层级、Wide Overview 高度、
+> Change Phone truth copy、Globe TEXTURE_READY evidence、compact Studio density 已收口；进一步把
+> Tablet NavigationRail 恢复为四个 product-level destinations，8 个 Infrastructure categories
+> 移至 content-level sibling navigation；Phone top chrome 降噪；Phone Studio 主题改为横向 visual
+> gallery；新增 Tablet/Phone adaptive craft contracts。Domain/Canonical/PersonalReality/.depmap
+> 与 Desktop Freeze 均未改。
+>
+> **旧 2026-10-04 runtime pack 现在仅为历史证据。** 当前唯一正确 UI gate：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 本地 Agent 只允许 pull exact HEAD → build/test → API36 Phone/Tablet → interaction/screenshots/
+> evidence；不得自行 redesign。
+>
 > **（最新）ANDROID UI vNext · Source-Complete Runtime Validation（2026-10-04）**
 > —— 本地执行/验证 Agent 在 `feat/android-ui-vnext-translation` @ `4e43511` 完成 source-complete
 > 运行时验证与证据收口（BUILD/RUN/TEST/CAPTURE/EVIDENCE ONLY，未设计/未改 UI）。结果：Android

@@ -9,7 +9,7 @@
 >
 > Runtime pack source: `4e43511ae9754413ffedeaca9ad21a71b330aa64`
 >
-> Post-review Android source checkpoint: `c0e5f34e721f22b7765aaafc2a2d374a65e5191e`
+> Post-review Android production-UI checkpoint: `77c7b3692c9b3327331f52af522a2bc65ecf165e`
 >
 > Verdict: **NOT FROZEN — FRESH CURRENT-HEAD RUNTIME EVIDENCE REQUIRED**
 
@@ -102,6 +102,8 @@ Review screenshots themselves represented the texture-ready frame. Current evide
 - `37803b1` — accessibility/interaction/screenshot contract corrections
 - `399fed1` — compact-only Studio density correction
 - `c0e5f34` — texture-ready Globe Human Review evidence + Tablet Overview quick-entry probe
+- `fba91e0` — restore Android navigation hierarchy + compact top-chrome / Studio craft
+- `77c7b36` — guard Tablet primary-rail/content-secondary hierarchy + Phone horizontal Studio gallery
 
 No commit in this sequence changes the frozen Desktop reference, Canonical semantics, PersonalReality, or
 `.depmap`.
@@ -163,3 +165,27 @@ ANDROID_REFERENCE_FREEZE = PASS
 ```
 
 After that, and only after that, iOS Translation may start. Harmony remains separately gated.
+
+
+## 8. Adaptive hierarchy review after the first pixel pass
+
+The first runtime pack proved that Phone and Tablet were genuinely adaptive, but it also exposed a hierarchy
+problem that mechanical PASS could not detect: the Tablet rail contained both product-level destinations and
+all eight Infrastructure object categories. This made the large-screen Android UI read like an admin
+console even though its information architecture was correct.
+
+Current source corrects that without changing product IA:
+
+1. the rail carries the four product-level destinations;
+2. Infrastructure object categories move into a content-level sibling navigation row;
+3. compact uses the same sibling model with lighter visual weight and selected-item auto-reveal;
+4. compact search/settings/back keep accessible touch geometry but no longer compete as filled dashboard
+   tiles;
+5. compact Studio theme choices are a horizontal visual gallery beneath the live preview.
+
+This decision is aligned with Android adaptive navigation guidance: compact windows use bottom navigation,
+larger windows use a navigation rail, and rail destinations are top-level while sibling destinations should
+remain secondary navigation.
+
+The new source has not been runtime-accepted. The exact current remote HEAD must be rebuilt and recaptured;
+the 2026-10-04 pack remains historical.
