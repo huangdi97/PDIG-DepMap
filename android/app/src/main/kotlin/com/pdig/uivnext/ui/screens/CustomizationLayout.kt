@@ -147,7 +147,7 @@ private fun WideCustomization(
                 color = PdigV2Colors.Surface.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(VRadius.Xl),
             ) {
-                Column(Modifier.padding(16.dp)) { preview() }
+                Column(Modifier.padding(20.dp)) { preview() }
             }
             Text(
                 "外观素材仅用于本机显示，不会改变实际信息。",
@@ -225,7 +225,7 @@ private fun CompactCustomization(
                 color = PdigV2Colors.Surface.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(VRadius.Xl),
             ) {
-                Column(Modifier.padding(20.dp)) { preview() }
+                Column(Modifier.padding(16.dp)) { preview() }
             }
         }
         Column(
