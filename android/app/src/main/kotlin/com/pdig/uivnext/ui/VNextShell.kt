@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -32,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
-import com.pdig.uivnext.model.VSection
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -67,7 +67,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
         } else {
             Column(Modifier.fillMaxSize()) {
                 TopCommandBar(app)
-                if (app.screen.section == VSection.INFRA) InfraChipRow(app)
+                if (isInfraRootScreen(app.screen)) InfraChipRow(app)
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 BottomNav(app)
             }
@@ -92,6 +92,29 @@ private fun TopCommandBar(app: VAppState) {
                 .padding(horizontal = VSpacing.Xxl),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            if (app.canGoBack()) {
+                Surface(
+                    modifier = Modifier
+                        .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                        .clickable { app.back() },
+                    color = PdigV2Colors.SurfaceGlass,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                ) {
+                    Row(
+                        Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            Icons.Filled.KeyboardArrowLeft,
+                            contentDescription = "返回",
+                            tint = PdigV2Colors.TextSecondary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+                Spacer(Modifier.width(VSpacing.Sm))
+            }
             Text(app.screen.titleZh, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
             Spacer(Modifier.weight(1f))
             if (app.screen != VScreen.SEARCH) {

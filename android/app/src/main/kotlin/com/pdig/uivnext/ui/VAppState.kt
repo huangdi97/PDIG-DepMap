@@ -63,7 +63,10 @@ class VAppState(
                 if (screen != next) navBackTarget = screen
                 screen = next
             }
-            else -> screen = next
+            else -> {
+                backStack.clear()
+                screen = next
+            }
         }
     }
 

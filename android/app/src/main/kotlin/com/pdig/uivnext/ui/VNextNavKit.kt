@@ -304,3 +304,16 @@ internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean =
         (current == VScreen.CARD_CUSTOMIZATION && entry == VScreen.CARDS) ||
         (current == VScreen.NUMBER_CUSTOMIZATION && entry == VScreen.NUMBERS) ||
         (current == VScreen.CHANGE_PHONE && entry == VScreen.CHANGE)
+
+
+internal fun isInfraRootScreen(screen: VScreen): Boolean = screen in setOf(
+    VScreen.INFRASTRUCTURE,
+    VScreen.OVERVIEW,
+    VScreen.CARDS,
+    VScreen.NUMBERS,
+    VScreen.ACCOUNTS,
+    VScreen.EMAILS,
+    VScreen.DEVICES,
+    VScreen.SERVICES,
+    VScreen.WEAKNESSES,
+)
