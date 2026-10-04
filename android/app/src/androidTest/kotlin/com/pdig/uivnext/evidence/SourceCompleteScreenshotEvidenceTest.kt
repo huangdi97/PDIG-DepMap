@@ -21,7 +21,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.app.BuildConfig
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
+import com.pdig.uivnext.globe.GlobeRenderState
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
 import org.json.JSONArray
 import org.json.JSONObject
@@ -103,6 +105,10 @@ class SourceCompleteScreenshotEvidenceTest {
         post: (() -> Unit)? = null,
     ) {
         val app = createVNextAppState().apply { reduceMotion = true }
+        val isStudio = screen.contains("studio")
+        val isGlobe = screen.startsWith("01-") || screen.startsWith("02-") ||
+            screen.startsWith("03-") || screen.startsWith("04-")
+        val isRegion = screen.startsWith("03-") || screen.startsWith("04-")
         prepare(app)
         if (!contentSet) {
             compose.setContent { slotApp?.let { VNextApp(it) } }
@@ -118,7 +124,22 @@ class SourceCompleteScreenshotEvidenceTest {
                     compose.waitForIdle()
                     Thread.sleep(1000)
                 }
-                Thread.sleep(1200) // 纹理地球稳定窗口
+                if (isGlobe) {
+                    val deadline = System.currentTimeMillis() + 20_000L
+                    while (System.currentTimeMillis() < deadline) {
+                        compose.waitForIdle()
+                        if (app.globe.renderState == GlobeRenderState.TEXTURE_READY) break
+                        Thread.sleep(150)
+                    }
+                    assertTrue(
+                        "globe screenshot requires TEXTURE_READY: screen=$screen state=${app.globe.renderState}",
+                        app.globe.renderState == GlobeRenderState.TEXTURE_READY,
+                    )
+                    // TEXTURE_READY 后再给 Surface/Compose 一小段稳定窗口，避免刚切换状态就截帧。
+                    Thread.sleep(450)
+                } else {
+                    Thread.sleep(600)
+                }
                 compose.waitForIdle()
                 post?.invoke()
                 compose.waitForIdle()
@@ -147,10 +168,6 @@ class SourceCompleteScreenshotEvidenceTest {
         publish(name, bytes)
 
         val resources = ctx().resources
-        val isStudio = screen.contains("studio")
-        val isGlobe = screen.startsWith("01-") || screen.startsWith("02-") ||
-            screen.startsWith("03-") || screen.startsWith("04-")
-        val isRegion = screen.startsWith("03-") || screen.startsWith("04-")
         val record = JSONObject()
             .put("platform", "android")
             .put("device", "${Build.MANUFACTURER} ${Build.MODEL}")
@@ -173,7 +190,10 @@ class SourceCompleteScreenshotEvidenceTest {
             record.put("expectedMaterial", "material-preset-default")
             record.put("actualMaterial", "material-preset-default")
         }
-        if (isGlobe) record.put("globeRenderState", globeStateName(app))
+        if (isGlobe) {
+            record.put("globeRenderState", globeStateName(app))
+            record.put("globeTextureState", app.globe.renderState.name.lowercase(Locale.ROOT))
+        }
         if (isRegion) {
             record.put("expectedRegion", app.regionFilter ?: "none")
             record.put("actualRegion", app.regionFilter ?: "none")
@@ -184,7 +204,20 @@ class SourceCompleteScreenshotEvidenceTest {
     @Test
     fun capturesSourceCompleteHumanSet() {
         capture("01-now", "now", {}, { "now" })
-        capture("02-overview-global", "global", { it.navigate(VScreen.OVERVIEW) }, { globeStateName(it) })
+        capture(
+            "02-overview-global",
+            "global",
+            { it.navigate(VScreen.OVERVIEW) },
+            { globeStateName(it) },
+        ) {
+            if (deviceClass == "tablet") {
+                val quick = compose.onNodeWithTag(VTestIds.OVERVIEW_QUICK, useUnmergedTree = true).fetchSemanticsNode()
+                assertTrue(
+                    "tablet overview quick entries must be laid out",
+                    quick.boundsInRoot.width > 0f && quick.boundsInRoot.height > 0f,
+                )
+            }
+        }
         capture(
             "03-overview-region-selected",
             "region-selected",
