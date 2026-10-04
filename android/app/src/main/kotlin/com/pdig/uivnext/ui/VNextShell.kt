@@ -106,12 +106,12 @@ private fun TopCommandBar(app: VAppState, showKeyboardShortcut: Boolean) {
                 Row(Modifier.padding(horizontal = VSpacing.Lg, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Filled.Search,
-                        contentDescription = "搜索 / 命令",
+                        contentDescription = "搜索与快捷操作",
                         tint = PdigV2Colors.TextMuted,
                         modifier = Modifier.size(14.dp),
                     )
                     Spacer(Modifier.width(VSpacing.Sm))
-                    Text("搜索 / 命令", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text("搜索", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                     if (showKeyboardShortcut) {
                         Spacer(Modifier.width(VSpacing.Lg))
                         Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(4.dp)) {

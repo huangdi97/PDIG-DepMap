@@ -34,7 +34,7 @@ enum class VScreen(val route: String, val titleZh: String, val section: VSection
     NUMBER_CUSTOMIZATION("number-customization", "号码面定制", VSection.INFRA),
     PERSONALIZATION("personalization", "个性化", VSection.SETTINGS),
     CHANGE_PHONE("change-phone", "更换手机号", VSection.CHANGE),
-    SEARCH("search", "搜索 / 命令", VSection.SECONDARY),
+    SEARCH("search", "搜索与快捷操作", VSection.SECONDARY),
 }
 
 enum class VSection(val labelZh: String) {

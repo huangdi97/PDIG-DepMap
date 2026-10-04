@@ -62,6 +62,16 @@ class VAppState(
         }
     }
 
+    /** 从搜索进入目标页，保留 Search 作为返回目标；普通顶层导航仍保持原语义。 */
+    fun navigateFromSearch(next: VScreen) {
+        if (screen != VScreen.SEARCH || next == VScreen.SEARCH) {
+            navigate(next)
+            return
+        }
+        navBackTarget = VScreen.SEARCH
+        screen = next
+    }
+
     fun openCard(cardId: String) {
         navBackTarget = screen
         screen = VScreen.CARD_DETAIL

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
@@ -67,30 +68,9 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
                 SecondaryInfraScreen(app, app.screen)
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app, breakpoint)
-            else -> PlaceholderScreen(app.screen)
         }
         if (app.globe.state == VGlobeState.REGION_DETAIL) {
             RegionDrawer(app)
-        }
-    }
-}
-
-@Composable
-private fun PlaceholderScreen(screen: VScreen) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
-    ) {
-        Text(screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Surface(color = PdigV2Colors.Surface.copy(alpha = 0.9f), shape = RoundedCornerShape(VRadius.Lg), modifier = Modifier.fillMaxWidth()) {
-            Text(
-                "这里还没有可展示的内容。后续接入数据后，你可以在这里查看和管理${screen.titleZh}。",
-                Modifier.padding(20.dp),
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 14.sp,
-            )
         }
     }
 }
@@ -103,7 +83,8 @@ private fun BoxScope.RegionDrawer(app: VAppState) {
     Surface(
         modifier = Modifier
             .align(Alignment.BottomEnd)
-            .padding(24.dp),
+            .padding(24.dp)
+            .widthIn(max = 380.dp),
         color = PdigV2Colors.Surface.copy(alpha = 0.95f),
         shape = RoundedCornerShape(VRadius.Xl),
         border = BorderStroke(1.dp, PdigV2Colors.BorderStrong),

@@ -1,13 +1,20 @@
 package com.pdig.uivnext.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
@@ -22,6 +29,7 @@ import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.demo.demoAttention
 import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.demoUpcoming
+import com.pdig.uivnext.model.ChangeStage
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -32,12 +40,13 @@ import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
-/**
- * Records（记录，一级导航）：变更历史时间线 + 关注项 + 即将到来。
- * 历史条目带状态徽标；空态坚持「未记录 ≠ 无风险」语义。
- */
+/** 记录：把变更过程、关注事项和时间节点放进一条可追溯的连续记录。 */
 @Composable
 fun RecordsScreen(app: VAppState) {
+    val changes = app.demoChanges()
+    val attention = app.demoAttention()
+    val upcoming = app.demoUpcoming()
+
     Column(
         Modifier
             .fillMaxSize()
@@ -46,16 +55,19 @@ fun RecordsScreen(app: VAppState) {
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
         Text("记录", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
-        Text("查看正在进行的变更、需要关注的事项，以及已经知道的时间节点。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+        Text(
+            "追踪正在发生的变更、需要处理的风险，以及接下来已知的时间节点。",
+            color = PdigV2Colors.TextSecondary,
+            fontSize = 13.sp,
+        )
 
-        val changes = app.demoChanges()
-        SectionHeader("进行中的变更（${changes.size}）")
+        SectionHeader("正在进行")
         if (changes.isEmpty()) {
             EmptyState(
                 kind = EmptyKind.CHANGE,
                 title = "没有进行中的变更",
-                description = "当前没有处于执行中的变更计划。没有记录 ≠ 没有风险：新的变更开始后才会出现在这里。",
-                primaryCta = "发起变更",
+                description = "当前没有执行中的变更计划。没有记录 ≠ 没有风险：开始新的变更后会出现在这里。",
+                primaryCta = "规划更换手机号",
                 onPrimary = { app.navigate(VScreen.CHANGE_PHONE) },
                 secondaryCta = "查看基础设施",
                 onSecondary = { app.navigate(VScreen.OVERVIEW) },
@@ -66,44 +78,43 @@ fun RecordsScreen(app: VAppState) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickableLocal { app.navigate(VScreen.CHANGE_PHONE) },
-                    color = PdigV2Colors.SurfaceRaised,
-                    shape = RoundedCornerShape(VRadius.Md),
-                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                    color = PdigV2Colors.PrimarySoft.copy(alpha = 0.72f),
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.38f)),
                 ) {
-                    Column(Modifier.padding(14.dp)) {
-                        Text(change.title, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Medium, fontSize = 14.sp)
-                        Text("阶段：验证新号码", color = PdigV2Colors.Warning, fontSize = 12.sp)
+                    Row(
+                        Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(
+                                change.title,
+                                color = PdigV2Colors.TextPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 15.sp,
+                            )
+                            Text("当前阶段 · 验证新号码", color = PdigV2Colors.Warning, fontSize = 12.sp)
+                        }
+                        Text("继续查看 →", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp)
                     }
                 }
             }
-        }
 
-        SectionHeader("执行步骤（迁移中）")
-        UiVNextDemoFixture.changeStages.forEach { stage ->
-            Surface(
-                color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-                shape = RoundedCornerShape(VRadius.Md),
-                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    Modifier.padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(stageLabel(stage.key), color = PdigV2Colors.TextPrimary, fontSize = 13.sp)
-                    StatusBadge(stage.status)
-                }
+            SectionHeader("迁移进度")
+            UiVNextDemoFixture.changeStages.forEachIndexed { index, stage ->
+                TimelineStage(
+                    stage = stage,
+                    showConnector = index < UiVNextDemoFixture.changeStages.lastIndex,
+                )
             }
         }
 
-        val attention = app.demoAttention()
-        SectionHeader("关注记录（${attention.size}）")
+        SectionHeader("需要关注（${attention.size}）")
         if (attention.isEmpty()) {
             EmptyState(
                 kind = EmptyKind.ATTENTION,
                 title = "没有需要处理的记录",
-                description = "未记录 ≠ 无风险：当前没有可展示的关注事项，不代表一切安全。",
+                description = "当前没有可展示的关注事项；未记录的关系仍然保持未知。",
                 primaryCta = "返回现在",
                 onPrimary = { app.navigate(VScreen.NOW) },
             )
@@ -118,25 +129,103 @@ fun RecordsScreen(app: VAppState) {
             }
         }
 
-        val upcoming = app.demoUpcoming()
         SectionHeader("即将到来（${upcoming.size}）")
-        upcoming.forEach { item ->
-            Surface(color = PdigV2Colors.SurfaceRaised, shape = RoundedCornerShape(VRadius.Md), modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    Modifier.padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
+        if (upcoming.isEmpty()) {
+            Text(
+                "当前没有已知的时间节点；没有记录的到期日仍保持未知。",
+                color = PdigV2Colors.TextMuted,
+                fontSize = 12.sp,
+            )
+        } else {
+            upcoming.forEach { item ->
+                Surface(
+                    color = PdigV2Colors.SurfaceRaised,
+                    shape = RoundedCornerShape(VRadius.Md),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text(item.title, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
-                    Surface(color = PdigV2Colors.Warning.copy(alpha = 0.16f), shape = RoundedCornerShape(VRadius.Sm)) {
-                        Text(
-                            "${item.days} 天后",
-                            Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                            color = PdigV2Colors.Warning,
-                            fontSize = 11.sp,
-                        )
+                    Row(
+                        Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(item.title, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+                        Surface(
+                            color = PdigV2Colors.Warning.copy(alpha = 0.16f),
+                            shape = RoundedCornerShape(VRadius.Sm),
+                        ) {
+                            Text(
+                                "${item.days} 天后",
+                                Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                color = PdigV2Colors.Warning,
+                                fontSize = 11.sp,
+                            )
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimelineStage(stage: ChangeStage, showConnector: Boolean) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Surface(
+                modifier = Modifier.size(24.dp),
+                color = if (stage.status == "completed") PdigV2Colors.Primary else PdigV2Colors.SurfaceRaised,
+                shape = CircleShape,
+                border = BorderStroke(
+                    1.dp,
+                    if (stage.status == "completed") PdigV2Colors.PrimaryBright else PdigV2Colors.BorderStrong,
+                ),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(
+                        stage.stage.toString(),
+                        color = if (stage.status == "completed") PdigV2Colors.CanvasDeep else PdigV2Colors.TextSecondary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+            if (showConnector) {
+                Box(
+                    Modifier
+                        .width(2.dp)
+                        .height(48.dp)
+                        .background(PdigV2Colors.BorderStrong),
+                )
+            }
+        }
+        Spacer(Modifier.width(12.dp))
+        Surface(
+            modifier = Modifier
+                .weight(1f)
+                .padding(bottom = 10.dp),
+            color = PdigV2Colors.Surface.copy(alpha = 0.88f),
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Row(
+                Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stageLabel(stage.key),
+                        color = PdigV2Colors.TextPrimary,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                    stage.blockReason?.let {
+                        Text(it, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+                    }
+                }
+                Spacer(Modifier.width(10.dp))
+                StatusBadge(stage.status)
             }
         }
     }
