@@ -56,9 +56,21 @@ internal fun CustomizationFrame(
     onReset: () -> Unit,
     onSave: () -> Unit,
 ) {
-    Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    val compact = breakpoint == MediaBreakpoint.COMPACT
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(if (compact) 16.dp else 24.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 16.dp),
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(title, color = PdigV2Colors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            Text(
+                title,
+                color = PdigV2Colors.TextPrimary,
+                fontSize = if (compact) 20.sp else 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+            )
             Surface(
                 color = if (isDirty) PdigV2Colors.Primary else PdigV2Colors.Positive.copy(alpha = 0.18f),
                 shape = RoundedCornerShape(VRadius.Md),
@@ -135,7 +147,7 @@ private fun WideCustomization(
                 color = PdigV2Colors.Surface.copy(alpha = 0.7f),
                 shape = RoundedCornerShape(VRadius.Xl),
             ) {
-                Column(Modifier.padding(20.dp)) { preview() }
+                Column(Modifier.padding(16.dp)) { preview() }
             }
             Text(
                 "外观素材仅用于本机显示，不会改变实际信息。",

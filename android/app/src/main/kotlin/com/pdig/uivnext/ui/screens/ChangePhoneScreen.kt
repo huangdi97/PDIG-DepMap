@@ -71,17 +71,17 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         // 投影语义横幅（按投影切换；after 显式 = Plan Projection）
         when (projection) {
             "current" -> InfoBanner(
-                "当前状态：旧号码仍是登录主号，迁移尚未开始；所有服务保持现状。",
+                "当前：旧号码仍是登录主号，迁移尚未开始；服务关系保持现状。",
                 PdigV2Colors.TextMuted,
                 PdigV2Colors.Surface.copy(alpha = 0.6f),
             )
             "after" -> InfoBanner(
-                "计划投影：以下为计划完成后的预期状态，不代表已经完成或验证；未完成服务仍显示「待处理」。",
+                "完成后预览：展示计划执行后的预期状态，不代表已经完成或验证；未完成项仍标记「待处理」。",
                 PdigV2Colors.TextPrimary,
                 PdigV2Colors.Warning.copy(alpha = 0.12f),
             )
             else -> InfoBanner(
-                "计划投影：以下步骤为当前执行计划；完成状态只在实际验证后标记。",
+                "执行计划：以下是当前迁移步骤；只有实际验证完成的步骤才标记为完成。",
                 PdigV2Colors.TextMuted,
                 PdigV2Colors.Surface.copy(alpha = 0.6f),
             )
@@ -138,7 +138,7 @@ private fun ProjectionSelector(projection: String, onSelect: (String) -> Unit) {
         listOf(
             "current" to "当前",
             "transition" to "迁移中",
-            "after" to "计划完成（投影）",
+            "after" to "完成后（计划）",
         ).forEach { (key, label) ->
             val selected = projection == key
             Surface(
