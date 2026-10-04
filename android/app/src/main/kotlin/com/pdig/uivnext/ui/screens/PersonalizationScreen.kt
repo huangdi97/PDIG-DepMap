@@ -46,8 +46,8 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         )
 
         SectionHeader("外观")
-        PreferenceRow("界面主题", "深色参考", status = "当前")
-        PreferenceRow("地球外观", "真实地球 · 标准大气", status = "冻结")
+        PreferenceRow("界面主题", "深色", status = "当前")
+        PreferenceRow("地球外观", "真实地球 · 标准大气", status = "当前")
         ActionRow("卡片外观", "在每张卡片详情中单独定制") { app.navigate(VScreen.CARDS) }
         ActionRow("号码外观", "在号码详情中单独定制") { app.navigate(VScreen.NUMBERS) }
 

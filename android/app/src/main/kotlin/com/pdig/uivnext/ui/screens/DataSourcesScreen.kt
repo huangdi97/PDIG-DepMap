@@ -87,7 +87,9 @@ fun DataSourcesScreen(app: VAppState) {
         JumpRow("基础设施总览", "查看地区、卡片、号码与当前关注项") { app.navigate(VScreen.OVERVIEW) }
         JumpRow("卡片", "查看当前记录的支付基础设施") { app.navigate(VScreen.CARDS) }
         JumpRow("号码", "查看通信身份与恢复依赖") { app.navigate(VScreen.NUMBERS) }
-        JumpRow("账户 / 邮箱 / 设备", "查看身份入口、恢复邮箱和可信设备") { app.navigate(VScreen.ACCOUNTS) }
+        JumpRow("账户", "查看账户身份、验证方式和恢复路径") { app.navigate(VScreen.ACCOUNTS) }
+        JumpRow("邮箱", "查看登录、通知与恢复邮箱") { app.navigate(VScreen.EMAILS) }
+        JumpRow("设备", "查看可信设备、验证器和恢复设备") { app.navigate(VScreen.DEVICES) }
         JumpRow("薄弱点", "查看唯一恢复路径、到期与迁移阻塞") { app.navigate(VScreen.WEAKNESSES) }
     }
 }

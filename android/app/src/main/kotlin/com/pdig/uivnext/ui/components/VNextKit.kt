@@ -109,6 +109,7 @@ fun AttentionRow(item: AttentionItem, onClick: (AttentionItem) -> Unit, modifier
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickable { onClick(item) },
         color = if (item.severity == "critical") PdigV2Colors.Critical.copy(alpha = 0.12f) else PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Md),
@@ -144,6 +145,7 @@ fun RegionListItem(
     Surface(
         modifier = modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickable(onClick = onClick),
         color = containerColor,
         shape = RoundedCornerShape(VRadius.Md),

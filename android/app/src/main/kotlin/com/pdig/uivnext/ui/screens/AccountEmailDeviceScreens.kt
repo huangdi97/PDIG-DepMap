@@ -149,7 +149,7 @@ private fun DeviceRow(device: UiVNextDevice) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
                     Text(device.name, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text(device.platform + " · " + device.kind + " · " + regionLabel(device.region), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                    Text(devicePlatformLabel(device) + " · " + regionLabel(device.region), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
                 }
                 LabelChip(device.trust, highlight = device.attention)
             }
@@ -180,4 +180,12 @@ private fun ScopedInfrastructureEmpty(app: VAppState, title: String, description
         secondaryCta = "查看薄弱点",
         onSecondary = { app.navigate(com.pdig.uivnext.model.VScreen.WEAKNESSES) },
     )
+}
+
+
+private fun devicePlatformLabel(device: UiVNextDevice): String = when {
+    device.kind == "安全密钥" -> "安全密钥"
+    device.kind.isNotBlank() && device.platform.isNotBlank() -> device.platform + " · " + device.kind
+    device.platform.isNotBlank() -> device.platform
+    else -> device.kind
 }
