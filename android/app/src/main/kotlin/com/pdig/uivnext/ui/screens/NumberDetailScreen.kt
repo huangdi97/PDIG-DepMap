@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui.screens
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +23,7 @@ import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.NumberFace
@@ -56,7 +58,9 @@ fun NumberDetailScreen(app: VAppState) {
             modifier = Modifier.testTagLocal(VTestIds.NUMBER_DETAIL_SERVICES),
             trailing = {
                 Surface(
-                    modifier = Modifier.clickableLocal { app.openNumberCustomization(number.id) },
+                    modifier = Modifier
+                        .defaultMinSize(minHeight = VTouchTarget.Min)
+                        .clickableLocal { app.openNumberCustomization(number.id) },
                     color = PdigV2Colors.PrimarySoft,
                     shape = RoundedCornerShape(VRadius.Md),
                 ) {

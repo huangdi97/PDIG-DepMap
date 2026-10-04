@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -29,6 +30,7 @@ import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.LabelChip
@@ -152,6 +154,7 @@ private fun IdentityPanel(
             Surface(
                 Modifier
                     .fillMaxWidth()
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
                     .testTagLocal(VTestIds.CARD_DETAIL_INFO)
                     .clickableLocal { app.openCardCustomization(card.id) },
                 color = PdigV2Colors.PrimarySoft,

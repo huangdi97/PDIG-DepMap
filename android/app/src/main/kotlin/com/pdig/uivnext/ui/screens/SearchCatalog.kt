@@ -26,31 +26,6 @@ internal val commandTargets = listOf(
     CommandTarget(VScreen.PERSONALIZATION, "设置 · 个性化", "外观、隐私与动效偏好", listOf("设置", "隐私", "个性化")),
 )
 
-@Composable
-private fun CommandRow(title: String, hint: String, onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickableLocal(onClick = onClick)
-            .testTagLocal("pdig.search.command.$title"),
-        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-    ) {
-        Row(
-            Modifier.padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-                Text(hint, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
-            }
-            LabelChip("前往")
-        }
-    }
-}
-
 internal sealed class SearchResult {
     abstract val title: String
     abstract val subtitle: String

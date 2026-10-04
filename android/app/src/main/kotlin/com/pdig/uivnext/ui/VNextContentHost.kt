@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import com.pdig.uivnext.model.VGlobeState
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.screens.CardCustomizationScreen
 import com.pdig.uivnext.ui.screens.CardDetailScreen
 import com.pdig.uivnext.ui.screens.CardsScreen
@@ -115,7 +117,7 @@ private fun BoxScope.RegionDrawer(app: VAppState) {
                 app.globe.state = VGlobeState.REGION_SELECTED
             }
             Spacer(Modifier.height(8.dp))
-            Surface(Modifier.fillMaxWidth().clickableLocal { app.clearRegion() }, color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Md)) {
+            Surface(Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min).clickableLocal { app.clearRegion() }, color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Md)) {
                 Text(
                     "返回全球视图",
                     Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
@@ -133,6 +135,7 @@ private fun DrawerAction(label: String, hint: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 3.dp)
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickableLocal(onClick = onClick),
         color = PdigV2Colors.SurfaceRaised,
         shape = RoundedCornerShape(VRadius.Md),

@@ -81,8 +81,8 @@ private fun TopCommandBar(app: VAppState, showKeyboardShortcut: Boolean) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
             .statusBarsPadding()
+            .height(48.dp)
             .testTag(VTestIds.NAV_TOP),
         color = PdigV2Colors.Surface.copy(alpha = 0.9f),
     ) {

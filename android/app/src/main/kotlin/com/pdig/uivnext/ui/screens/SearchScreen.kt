@@ -125,6 +125,31 @@ private fun SearchField(query: String, onQuery: (String) -> Unit) {
 
 
 @Composable
+private fun CommandRow(title: String, hint: String, onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickableLocal(onClick = onClick)
+            .testTagLocal("pdig.search.command.$title"),
+        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Row(
+            Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text(hint, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+            }
+            LabelChip("前往")
+        }
+    }
+}
+
+@Composable
 private fun ResultRow(result: SearchResult, app: VAppState) {
     Surface(
         modifier = Modifier
