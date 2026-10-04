@@ -22,6 +22,8 @@ import com.pdig.uivnext.model.VScreen
 class VAppState(
     initialScreen: VScreen = VScreen.NOW,
     initialCamera: GlobeCamera = GlobeCamera(0f, 30f, 1f),
+    initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
+    private val onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
 ) {
     var screen by mutableStateOf(initialScreen)
     var regionFilter by mutableStateOf<String?>(null)
@@ -40,7 +42,9 @@ class VAppState(
     var emptyDemo by mutableStateOf(false)
 
     /** 本次运行中的 PresentationProfile；只影响显示，不写入 PersonalReality / Canonical。 */
-    private val presentationProfiles = mutableStateMapOf<String, PresentationProfile>()
+    private val presentationProfiles = mutableStateMapOf<String, PresentationProfile>().apply {
+        putAll(initialPresentationProfiles)
+    }
 
     /** System back 返回栈（栈顶 = 下一返回目标；空栈 → 系统退出）。 */
     private val backStack = mutableStateListOf<VScreen>()
@@ -91,6 +95,7 @@ class VAppState(
 
     fun savePresentationProfile(profile: PresentationProfile) {
         presentationProfiles[presentationKey(profile.targetType, profile.targetId)] = profile
+        onPresentationProfileSaved(profile)
     }
 
     fun openCard(cardId: String) {

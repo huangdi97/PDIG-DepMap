@@ -1,17 +1,20 @@
 package com.pdig.uivnext
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.pdig.uivnext.ui.PresentationProfileStore
 
 /**
- * vNext 演示壳状态宿主：Activity 重建（旋转 / 进程保留）后保持导航 / 选择 / 投影状态
- * （任务书 §32 状态恢复；演示壳内无真实数据，ViewModel 生命周期即恢复边界）。
+ * UI vNext 状态宿主。
  *
- * 恢复策略：
- *  - 恢复：selected primary nav、selected infra tab（regionFilter）、selected object、
- *    changeProjection、privacyMask、reduceMotion、railExpanded、globe camera。
- *  - 不恢复：Studio 未保存编辑（remember 局部状态，明确不持久化）、搜索词。
- *  - 需要明确确认：无（演示壳无破坏性写操作）。
+ * Activity 重建期间保持导航/选择/投影；已保存的 PresentationProfile 通过本机 store
+ * 跨进程重启恢复。未保存的 Studio 编辑与搜索词不会持久化。
  */
-class VNextShellViewModel : ViewModel() {
-    val app = createVNextAppState()
+class VNextShellViewModel(application: Application) : AndroidViewModel(application) {
+    private val presentationStore = PresentationProfileStore(application)
+
+    val app = createVNextAppState(
+        initialPresentationProfiles = presentationStore.loadAll(),
+        onPresentationProfileSaved = presentationStore::save,
+    )
 }

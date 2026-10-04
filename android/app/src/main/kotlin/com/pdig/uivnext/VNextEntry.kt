@@ -6,6 +6,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.ui.VAppState
@@ -41,8 +42,14 @@ fun createVNextAppState(
     customTheme: String? = null,
     changeProjection: String? = null,
     emptyDemo: Boolean = false,
+    initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
+    onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
 ): VAppState {
-    val app = VAppState(initialScreen = screen)
+    val app = VAppState(
+        initialScreen = screen,
+        initialPresentationProfiles = initialPresentationProfiles,
+        onPresentationProfileSaved = onPresentationProfileSaved,
+    )
     if (cameraPreset != null) app.applyCameraPreset(cameraPreset)
     if (customTheme != null) app.evidenceThemeId = customTheme
     if (changeProjection != null) app.changeProjection = changeProjection
