@@ -64,13 +64,14 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
                 NavigationRail(app)
                 Column(Modifier.weight(1f)) {
                     TopCommandBar(app, compact = false)
+                    if (isInfraRootScreen(app.screen)) InfraChipRow(app, compact = false)
                     VNextContentHost(app, breakpoint)
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
                 TopCommandBar(app, compact = true)
-                if (isInfraRootScreen(app.screen)) InfraChipRow(app)
+                if (isInfraRootScreen(app.screen)) InfraChipRow(app, compact = true)
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 BottomNav(app)
             }
@@ -92,7 +93,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
         Row(
             Modifier
                 .fillMaxSize()
-                .padding(horizontal = VSpacing.Xxl),
+                .padding(horizontal = if (compact) VSpacing.Lg else VSpacing.Xxl),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             if (app.canGoBack()) {
@@ -100,7 +101,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                     modifier = Modifier
                         .size(48.dp)
                         .clickable { app.back() },
-                    color = PdigV2Colors.SurfaceGlass,
+                    color = if (compact) PdigV2Colors.Surface.copy(alpha = 0f) else PdigV2Colors.SurfaceGlass,
                     shape = RoundedCornerShape(VRadius.Sm),
                 ) {
                     Row(
@@ -134,9 +135,9 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                     modifier = (if (compact) Modifier.size(48.dp) else Modifier.defaultMinSize(minHeight = 48.dp))
                         .clickable { app.navigate(VScreen.SEARCH) }
                         .testTag("pdig.search.entry"),
-                    color = PdigV2Colors.SurfaceRaised,
+                    color = if (compact) PdigV2Colors.Surface.copy(alpha = 0f) else PdigV2Colors.SurfaceRaised,
                     shape = RoundedCornerShape(VRadius.Sm),
-                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                    border = if (compact) null else BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                 ) {
                     Row(
                         Modifier.fillMaxSize(),
@@ -164,7 +165,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                         .size(48.dp)
                         .clickable { app.openUtility(VScreen.SETTINGS) }
                         .testTag("pdig.settings.entry"),
-                    color = PdigV2Colors.SurfaceGlass,
+                    color = if (compact) PdigV2Colors.Surface.copy(alpha = 0f) else PdigV2Colors.SurfaceGlass,
                     shape = RoundedCornerShape(VRadius.Sm),
                 ) {
                     Row(

@@ -61,7 +61,7 @@ import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VTouchTarget
 
-/** L2 Navigation Rail：collapsed 80 / expanded 188；一级 + 二级 + 基础设施二级。 */
+/** Android wide navigation rail：只承载一级目的地与低频工具；基础设施二级留在内容区 sibling navigation。 */
 @Composable
 internal fun NavigationRail(app: VAppState) {
     val width = if (app.railExpanded) 188.dp else 80.dp
@@ -89,12 +89,9 @@ internal fun NavigationRail(app: VAppState) {
             }
             Spacer(Modifier.height(VSpacing.Xxl))
             PRIMARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
-            Spacer(Modifier.height(VSpacing.Xl))
-            RailSectionLabel("基础设施", expanded = app.railExpanded)
-            INFRA_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
-            Spacer(Modifier.height(VSpacing.Xl))
-            SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
             Spacer(Modifier.weight(1f))
+            SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
+            Spacer(Modifier.height(VSpacing.Sm))
             // 折叠/展开开关
             Surface(
                 Modifier
@@ -118,18 +115,6 @@ internal fun NavigationRail(app: VAppState) {
             }
         }
     }
-}
-
-@Composable
-private fun RailSectionLabel(label: String, expanded: Boolean) {
-    if (!expanded) return
-    Text(
-        label,
-        Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
-        color = PdigV2Colors.TextMuted,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.Medium,
-    )
 }
 
 @Composable
@@ -210,11 +195,12 @@ internal fun BottomNav(app: VAppState) {
     }
 }
 
-/** 手机上的基础设施二级导航（横向滚动 chip 行；与 rail 内嵌小节同语义）。
- *  B17：selected item auto-reveal —— 切换到 设备/服务/薄弱点 等靠后项时，
- *  selected chip 自动滚动到可视区域且完整露出，绝不留在屏幕外或只显示残片。 */
+/** 基础设施二级 sibling navigation。
+ *  - Compact：横向可滚动、48dp 触控目标，但视觉上保持轻量，不与一级底栏竞争；
+ *  - Wide：从 rail 移入内容区，避免把对象类别误当成全局一级目的地。
+ *  selected item 会自动 reveal，靠后项不会被截成残片。 */
 @Composable
-internal fun InfraChipRow(app: VAppState) {
+internal fun InfraChipRow(app: VAppState, compact: Boolean) {
     val listState = rememberLazyListState()
     val selectedIndex = INFRA_ENTRIES.indexOfFirst { isEntrySelected(it.screen, app.screen) }
 
@@ -227,10 +213,14 @@ internal fun InfraChipRow(app: VAppState) {
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .background(PdigV2Colors.Surface.copy(alpha = 0.72f)),
+            .background(PdigV2Colors.Surface.copy(alpha = if (compact) 0.72f else 0.48f))
+            .testTag("pdig.nav.infra.secondary"),
         state = listState,
-        contentPadding = PaddingValues(horizontal = VSpacing.PagePadding, vertical = VSpacing.Sm),
-        horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm),
+        contentPadding = PaddingValues(
+            horizontal = if (compact) VSpacing.PagePadding else VSpacing.Xxl,
+            vertical = if (compact) 2.dp else VSpacing.Sm,
+        ),
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 2.dp else VSpacing.Sm),
     ) {
         INFRA_ENTRIES.forEach { entry ->
             item(key = entry.screen.route) {
@@ -240,19 +230,27 @@ internal fun InfraChipRow(app: VAppState) {
                         .defaultMinSize(minHeight = VTouchTarget.Min)
                         .clickable { app.navigate(entry.screen) }
                         .testTag("pdig.nav.${entry.screen.route}"),
-                    color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
+                    color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.22f) else PdigV2Colors.Surface.copy(alpha = 0f),
                     shape = RoundedCornerShape(VRadius.Sm),
                     border = androidx.compose.foundation.BorderStroke(
                         1.dp,
-                        if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+                        if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.9f)
+                        else PdigV2Colors.BorderSubtle.copy(alpha = if (compact) 0f else 0.45f),
                     ),
                 ) {
                     Row(
-                        Modifier.padding(horizontal = VSpacing.Md, vertical = VSpacing.Sm),
+                        Modifier.padding(horizontal = if (compact) VSpacing.Md else VSpacing.Lg, vertical = if (compact) 4.dp else VSpacing.Sm),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Icon(entry.icon, contentDescription = null, tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary, modifier = Modifier.size(14.dp))
+                        if (!compact || selected) {
+                            Icon(
+                                entry.icon,
+                                contentDescription = null,
+                                tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                                modifier = Modifier.size(14.dp),
+                            )
+                        }
                         Text(
                             entry.screen.titleZh,
                             color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,

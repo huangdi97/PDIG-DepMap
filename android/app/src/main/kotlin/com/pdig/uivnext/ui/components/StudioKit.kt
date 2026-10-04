@@ -61,10 +61,10 @@ fun ThemeTile(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    compact: Boolean = false,
 ) {
     Surface(
-        modifier = modifier
-            .fillMaxWidth()
+        modifier = (if (compact) modifier.width(144.dp) else modifier.fillMaxWidth())
             .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickable(onClick = onClick)
             .testTag(VTestIds.STUDIO_THEME_TILE),
@@ -72,9 +72,13 @@ fun ThemeTile(
         shape = RoundedCornerShape(VRadius.Md),
         border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
     ) {
-        Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically) {
-            ThemeThumbnail(kind = kind, preset = preset, modifier = Modifier.size(width = 48.dp, height = 30.dp))
-            Spacer(Modifier.width(10.dp))
+        Row(Modifier.padding(if (compact) 8.dp else 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            ThemeThumbnail(
+                kind = kind,
+                preset = preset,
+                modifier = Modifier.size(width = if (compact) 42.dp else 48.dp, height = if (compact) 28.dp else 30.dp),
+            )
+            Spacer(Modifier.width(if (compact) 8.dp else 10.dp))
             Text(
                 themeLabelZh(if (kind == StudioKind.CARD) "card" else "number", preset),
                 color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextPrimary,

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -235,13 +236,21 @@ private fun CompactCustomization(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text("主题", color = PdigV2Colors.TextSecondary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-            presets.forEach { preset ->
-                ThemeTile(
-                    kind = kind,
-                    preset = preset,
-                    selected = profile.themeId == preset,
-                    onClick = { onPreset(preset) },
-                )
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                presets.forEach { preset ->
+                    item(key = preset) {
+                        ThemeTile(
+                            kind = kind,
+                            preset = preset,
+                            selected = profile.themeId == preset,
+                            onClick = { onPreset(preset) },
+                            compact = true,
+                        )
+                    }
+                }
             }
         }
         Column(

@@ -82,6 +82,17 @@ class TabletAdaptiveContractTest {
     }
 
     @Test
+    fun tabletInfrastructure_keepsPrimaryRailAndContentSecondaryNavigation() {
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+        assumeTrue("tablet-only contract", ctx.resources.configuration.screenWidthDp >= 600)
+
+        renderApp(createVNextAppState().apply { navigate(VScreen.CARDS) })
+        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.cards", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
     fun tabletNumberDetail_noDeadSpace() {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
         assumeTrue("tablet-only contract", ctx.resources.configuration.screenWidthDp >= 600)
