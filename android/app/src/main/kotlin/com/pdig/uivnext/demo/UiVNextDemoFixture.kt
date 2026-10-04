@@ -5,7 +5,10 @@ import com.pdig.uivnext.model.AttentionItem
 import com.pdig.uivnext.model.ChangeMigration
 import com.pdig.uivnext.model.ChangeStage
 import com.pdig.uivnext.model.RegionPresentation
+import com.pdig.uivnext.model.UiVNextAccount
 import com.pdig.uivnext.model.UiVNextCard
+import com.pdig.uivnext.model.UiVNextDevice
+import com.pdig.uivnext.model.UiVNextEmail
 import com.pdig.uivnext.model.UiVNextNumber
 import com.pdig.uivnext.model.UiVNextRelation
 import com.pdig.uivnext.model.UiVNextService
@@ -47,6 +50,27 @@ object UiVNextDemoFixture {
         UiVNextNumber("num-gb-1", "英国主号", "+44 7911 182***", "GB", "+44", "Vodafone", "eSIM", "primary", listOf("注册", "旅行", "2FA"), "active", false, false, preset = "travel"),
         UiVNextNumber("num-us-1", "美国保号", "+1 415 887 ****", "US", "+1", "T-Mobile", "SIM", "secondary", listOf("恢复"), "active", true, false, preset = "minimal"),
         UiVNextNumber("num-sg-1", "新加坡主号", "+65 9***2214", "SG", "+65", "Singtel", "eSIM", "primary", listOf("银行验证", "工作"), "active", false, false, preset = "city"),
+    )
+
+    val accounts: List<UiVNextAccount> = listOf(
+        UiVNextAccount("acc-cn-1", "微信账户", "腾讯", "wxid_••••8823", "CN", listOf("日常身份", "支付"), listOf("主号", "设备确认"), "主号 + 设备确认", "active", false),
+        UiVNextAccount("acc-hk-1", "HSBC 网银", "HSBC", "h••••@mail.com", "HK", listOf("银行", "资产"), listOf("香港主号", "安全设备"), "香港主号", "active", true),
+        UiVNextAccount("acc-gb-1", "Amazon UK", "Amazon", "h••••@mail.com", "GB", listOf("购物", "订阅"), listOf("英国主号", "邮箱"), "邮箱 + 英国主号", "active", false),
+        UiVNextAccount("acc-us-1", "Apple Account", "Apple", "h••••@icloud.com", "US", listOf("设备", "订阅", "恢复"), listOf("美国保号", "受信任设备"), "美国保号", "active", true),
+        UiVNextAccount("acc-sg-1", "DBS digibank", "DBS", "user••••91", "SG", listOf("银行"), listOf("新加坡主号"), "新加坡主号", "active", false),
+    )
+
+    val emails: List<UiVNextEmail> = listOf(
+        UiVNextEmail("email-cn-1", "主邮箱", "h••••@outlook.com", "Outlook", "CN", listOf("登录", "恢复", "通知"), 5, true, "active"),
+        UiVNextEmail("email-gb-1", "海外邮箱", "h••••@gmail.com", "Gmail", "GB", listOf("登录", "订阅"), 4, false, "active"),
+        UiVNextEmail("email-us-1", "Apple 恢复邮箱", "h••••@icloud.com", "iCloud", "US", listOf("恢复", "设备"), 3, false, "active"),
+    )
+
+    val devices: List<UiVNextDevice> = listOf(
+        UiVNextDevice("dev-cn-1", "Pixel 8", "Android", "手机", "CN", listOf("主设备", "验证器"), "受信任", "今天", false),
+        UiVNextDevice("dev-hk-1", "MacBook Pro", "macOS", "电脑", "HK", listOf("工作", "受信任设备"), "受信任", "昨天", false),
+        UiVNextDevice("dev-gb-1", "YubiKey 5C NFC", "Hardware Key", "安全密钥", "GB", listOf("2FA", "恢复"), "备用", "2026-09-29", false),
+        UiVNextDevice("dev-us-1", "旧 iPhone", "iOS", "手机", "US", listOf("恢复设备"), "待检查", "2026-06-18", true),
     )
 
     val services: List<UiVNextService> = listOf(
@@ -121,7 +145,7 @@ object UiVNextDemoFixture {
             cards.any { it.id == item.target && it.region == r.regionCode } ||
                 numbers.any { it.id == item.target && it.region == r.regionCode }
         }
-        val accountsHere = if (r.regionCode == "CN" || r.regionCode == "HK" || r.regionCode == "GB") 1 else 0
+        val accountsHere = accounts.count { it.region == r.regionCode }
         r.copy(
             cardCount = cardsHere,
             phoneCount = phonesHere,

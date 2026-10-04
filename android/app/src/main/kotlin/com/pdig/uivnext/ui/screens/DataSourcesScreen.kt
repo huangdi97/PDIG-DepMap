@@ -63,11 +63,17 @@ fun DataSourcesScreen(app: VAppState) {
                     LabelChip("本机优先", highlight = true)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SourceMetric("${UiVNextDemoFixture.cards.size}", "卡片", Modifier.weight(1f))
-                    SourceMetric("${UiVNextDemoFixture.numbers.size}", "号码", Modifier.weight(1f))
-                    SourceMetric("${UiVNextDemoFixture.services.size}", "服务", Modifier.weight(1f))
+                    SourceMetric(UiVNextDemoFixture.cards.size.toString(), "卡片", Modifier.weight(1f))
+                    SourceMetric(UiVNextDemoFixture.numbers.size.toString(), "号码", Modifier.weight(1f))
+                    SourceMetric(UiVNextDemoFixture.accounts.size.toString(), "账户", Modifier.weight(1f))
                 }
             }
+        }
+
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            SourceMetric(UiVNextDemoFixture.emails.size.toString(), "邮箱", Modifier.weight(1f))
+            SourceMetric(UiVNextDemoFixture.devices.size.toString(), "设备", Modifier.weight(1f))
+            SourceMetric(UiVNextDemoFixture.services.size.toString(), "服务", Modifier.weight(1f))
         }
 
         SectionHeader("事实边界")
@@ -79,6 +85,7 @@ fun DataSourcesScreen(app: VAppState) {
         JumpRow("基础设施总览", "查看地区、卡片、号码与当前关注项") { app.navigate(VScreen.OVERVIEW) }
         JumpRow("卡片", "查看当前记录的支付基础设施") { app.navigate(VScreen.CARDS) }
         JumpRow("号码", "查看通信身份与恢复依赖") { app.navigate(VScreen.NUMBERS) }
+        JumpRow("账户 / 邮箱 / 设备", "查看身份入口、恢复邮箱和可信设备") { app.navigate(VScreen.ACCOUNTS) }
         JumpRow("薄弱点", "查看唯一恢复路径、到期与迁移阻塞") { app.navigate(VScreen.WEAKNESSES) }
     }
 }

@@ -55,6 +55,18 @@ internal sealed class SearchResult {
     data class RegionHit(val code: String, override val title: String, override val subtitle: String) : SearchResult() {
         override val kind = "地区"
     }
+
+    data class AccountHit(override val title: String, override val subtitle: String) : SearchResult() {
+        override val kind = "账户"
+    }
+
+    data class EmailHit(override val title: String, override val subtitle: String) : SearchResult() {
+        override val kind = "邮箱"
+    }
+
+    data class DeviceHit(override val title: String, override val subtitle: String) : SearchResult() {
+        override val kind = "设备"
+    }
 }
 
 internal fun searchResults(q: String): List<SearchResult> {
@@ -97,6 +109,24 @@ internal fun searchResults(q: String): List<SearchResult> {
         }
     }
 
+    UiVNextDemoFixture.accounts.forEach { account ->
+        if (hit(listOf(account.name, account.provider, account.maskedIdentifier, regionLabel(account.region)) + account.roles + account.authMethods)) {
+            out.add(SearchResult.AccountHit(account.name, account.provider + " · " + regionLabel(account.region) + " · " + account.maskedIdentifier))
+        }
+    }
+
+    UiVNextDemoFixture.emails.forEach { email ->
+        if (hit(listOf(email.name, email.provider, email.maskedAddress, regionLabel(email.region)) + email.roles)) {
+            out.add(SearchResult.EmailHit(email.name, email.maskedAddress + " · " + email.provider))
+        }
+    }
+
+    UiVNextDemoFixture.devices.forEach { device ->
+        if (hit(listOf(device.name, device.platform, device.kind, regionLabel(device.region)) + device.roles)) {
+            out.add(SearchResult.DeviceHit(device.name, device.platform + " · " + device.trust + " · " + device.lastSeen))
+        }
+    }
+
     UiVNextDemoFixture.regionSummaries().forEach { region ->
         if (hit(listOf(region.displayName, region.regionCode))) {
             out.add(
@@ -117,6 +147,9 @@ internal fun openSearchResult(result: SearchResult, app: VAppState) {
         is SearchResult.CardHit -> app.openCard(result.id)
         is SearchResult.NumberHit -> app.openNumber(result.id)
         is SearchResult.ServiceHit -> app.navigateFromSearch(VScreen.SERVICES)
+        is SearchResult.AccountHit -> app.navigateFromSearch(VScreen.ACCOUNTS)
+        is SearchResult.EmailHit -> app.navigateFromSearch(VScreen.EMAILS)
+        is SearchResult.DeviceHit -> app.navigateFromSearch(VScreen.DEVICES)
         is SearchResult.NavigationHit -> app.navigateFromSearch(result.screen)
         is SearchResult.RegionHit -> {
             app.selectRegion(result.code)

@@ -118,6 +118,26 @@ private fun WeaknessesScreen(app: VAppState) {
             ) { app.openCard(card.id) }
         }
 
+        val recoveryEmails = UiVNextDemoFixture.emails.filter { it.recoveryOnly }
+        SectionHeader("恢复邮箱（" + recoveryEmails.size + "）")
+        recoveryEmails.forEach { email ->
+            WeaknessRow(
+                email.maskedAddress + " 是唯一恢复邮箱",
+                "停用或更换前，先建立另一条恢复路径。",
+                PdigV2Colors.Critical,
+            ) { app.navigate(VScreen.EMAILS) }
+        }
+
+        val deviceAttention = UiVNextDemoFixture.devices.filter { it.attention }
+        SectionHeader("设备复核（" + deviceAttention.size + "）")
+        deviceAttention.forEach { device ->
+            WeaknessRow(
+                device.name + " 需要确认是否仍应保持信任",
+                "最近记录：" + device.lastSeen + "。未确认前不要把它视为可用恢复设备。",
+                PdigV2Colors.Warning,
+            ) { app.navigate(VScreen.DEVICES) }
+        }
+
         SectionHeader("迁移阻塞")
         WeaknessRow(
             "旧号码暂时不能停用",
@@ -131,84 +151,7 @@ private fun WeaknessesScreen(app: VAppState) {
 }
 
 @Composable
-private fun AccountsScreen() {
-    val regions = UiVNextDemoFixture.regionSummaries().filter { it.accountCount > 0 }
-    InfraPage(
-        title = "账户",
-        subtitle = "按地区查看当前已知的账户规模；未记录的登录和恢复关系保持未知。",
-    ) {
-        SectionHeader("地区分布")
-        regions.forEach { region ->
-            Surface(
-                color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-                shape = RoundedCornerShape(VRadius.Md),
-                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Row(
-                    Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Column(Modifier.weight(1f)) {
-                        Text(
-                            region.displayName,
-                            color = PdigV2Colors.TextPrimary,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium,
-                        )
-                        Text(
-                            "当前只记录了地区级数量",
-                            color = PdigV2Colors.TextMuted,
-                            fontSize = 12.sp,
-                        )
-                    }
-                    LabelChip("${region.accountCount} 个账户")
-                }
-            }
-        }
-        UnknownBoundaryNote("账户明细尚未记录时，不推断登录名、验证方式或恢复路径。")
-    }
-}
-
-@Composable
-private fun EmailsScreen(app: VAppState) {
-    InfraPage(
-        title = "邮箱",
-        subtitle = "邮箱可能承担登录、通知和恢复角色，因此未记录不等于没有依赖。",
-    ) {
-        EmptyState(
-            kind = EmptyKind.DEPENDENCIES,
-            title = "尚未记录邮箱",
-            description = "当前没有可展示的邮箱。相关登录与恢复关系会一直保持未知，直到你记录它们。",
-            primaryCta = "返回基础设施总览",
-            onPrimary = { app.navigate(VScreen.OVERVIEW) },
-            secondaryCta = "查看薄弱点",
-            onSecondary = { app.navigate(VScreen.WEAKNESSES) },
-        )
-    }
-}
-
-@Composable
-private fun DevicesScreen(app: VAppState) {
-    InfraPage(
-        title = "设备",
-        subtitle = "设备可能承担登录、验证和恢复角色；未记录的设备关系保持未知。",
-    ) {
-        EmptyState(
-            kind = EmptyKind.DEPENDENCIES,
-            title = "尚未记录设备",
-            description = "当前没有可展示的设备。验证器、恢复设备和可信终端不会被自动推断。",
-            primaryCta = "返回基础设施总览",
-            onPrimary = { app.navigate(VScreen.OVERVIEW) },
-            secondaryCta = "查看薄弱点",
-            onSecondary = { app.navigate(VScreen.WEAKNESSES) },
-        )
-    }
-}
-
-@Composable
-private fun InfraPage(
+internal fun InfraPage(
     title: String,
     subtitle: String,
     content: @Composable () -> Unit,
@@ -227,7 +170,7 @@ private fun InfraPage(
 }
 
 @Composable
-private fun UnknownBoundaryNote(text: String) {
+internal fun UnknownBoundaryNote(text: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         color = PdigV2Colors.SurfaceRaised.copy(alpha = 0.72f),
