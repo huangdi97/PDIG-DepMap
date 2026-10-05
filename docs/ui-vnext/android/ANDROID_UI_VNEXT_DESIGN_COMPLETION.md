@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `e48e6276dafaf04280b34468d5cb31f6e37b7b6e` (Human-selected light reference + focused Phone IA/craft closure)
+> Android production-UI source checkpoint: `47f6b9c6f592b21bd941092e7855433459a2723f` (Human-selected light reference + focused Phone IA/craft closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
