@@ -175,46 +175,60 @@ private fun ChoiceStrip(content: @Composable RowScope.() -> Unit) {
 
 @Composable
 private fun ChoiceChip(label: String, selected: Boolean, onClick: () -> Unit) {
-    Surface(
+    Box(
         Modifier
             .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.30f) else PdigV2Colors.SurfaceRaised,
-        shape = RoundedCornerShape(VRadius.Sm),
-        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        contentAlignment = Alignment.Center,
     ) {
-        Text(
-            label,
-            Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-            fontSize = 11.sp,
-        )
+        Surface(
+            color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
+            shape = RoundedCornerShape(VRadius.Sm),
+            border = BorderStroke(
+                1.dp,
+                if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.72f) else PdigV2Colors.BorderSubtle,
+            ),
+        ) {
+            Text(
+                label,
+                Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                fontSize = 11.sp,
+            )
+        }
     }
 }
 
 @Composable
 private fun AccentChip(choice: PresentationAccentChoice, selected: Boolean, onClick: () -> Unit) {
-    Surface(
+    Box(
         Modifier
             .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickable(onClick = onClick),
-        color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.30f) else PdigV2Colors.SurfaceRaised,
-        shape = RoundedCornerShape(VRadius.Sm),
-        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
-            Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+        Surface(
+            color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
+            shape = RoundedCornerShape(VRadius.Sm),
+            border = BorderStroke(
+                1.dp,
+                if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.72f) else PdigV2Colors.BorderSubtle,
+            ),
         ) {
-            hexColorOrNull(choice.value)?.let { color ->
-                Box(Modifier.size(12.dp).background(color, RoundedCornerShape(3.dp)))
-                Spacer(Modifier.width(6.dp))
+            Row(
+                Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                hexColorOrNull(choice.value)?.let { color ->
+                    Box(Modifier.size(12.dp).background(color, RoundedCornerShape(3.dp)))
+                    Spacer(Modifier.width(6.dp))
+                }
+                Text(
+                    choice.label,
+                    color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                    fontSize = 11.sp,
+                )
             }
-            Text(
-                choice.label,
-                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-                fontSize = 11.sp,
-            )
         }
     }
 }
