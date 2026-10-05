@@ -69,7 +69,8 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
         } else {
             Column(Modifier.fillMaxSize()) {
                 TopCommandBar(app, compact = true)
-                if (isInfraRootScreen(app.screen)) InfraChipRow(app, compact = true)
+                // Phone stays focused: Infrastructure secondary destinations live in the Overview hub,
+                // not in a persistent horizontal strip above every child screen.
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 if (isCompactRootContext(app.screen)) BottomNav(app)
             }
