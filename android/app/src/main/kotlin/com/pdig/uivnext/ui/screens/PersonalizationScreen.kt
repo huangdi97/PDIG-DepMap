@@ -46,8 +46,7 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         )
 
         SectionHeader("外观")
-        PreferenceRow("界面主题", "亮色", status = "当前")
-        PreferenceRow("地球外观", "真实地球 · 标准大气", status = "当前")
+        AppearancePreview(app)
         ActionRow("卡片外观", "在每张卡片详情中单独定制") { app.navigate(VScreen.CARDS) }
         ActionRow("号码外观", "在号码详情中单独定制") { app.navigate(VScreen.NUMBERS) }
 
@@ -109,6 +108,72 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 12.sp,
             )
+        }
+    }
+}
+
+@Composable
+private fun AppearancePreview(app: VAppState) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTagLocal("pdig.personalization.visual-preview"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.18f)),
+        tonalElevation = 2.dp,
+        shadowElevation = 1.dp,
+    ) {
+        Column(
+            Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column {
+                    Text("亮色 · 当前视觉方向", color = PdigV2Colors.TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+                    Text("浅色空间层级 · 真实地球 · 资产身份优先", color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+                }
+                LabelChip("当前", highlight = true)
+            }
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                VisualPreviewTile("界面", "亮色", PdigV2Colors.SurfaceRaised, Modifier.weight(1f))
+                VisualPreviewTile(
+                    "地球",
+                    if (app.reduceMotion) "真实地球 · 静态" else "真实地球 · 动态",
+                    PdigV2Colors.GlobeDeep,
+                    Modifier.weight(1f),
+                    dark = true,
+                )
+                VisualPreviewTile("资产", "卡片 / 号码", PdigV2Colors.PrimarySoft, Modifier.weight(1f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun VisualPreviewTile(
+    label: String,
+    value: String,
+    color: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier,
+    dark: Boolean = false,
+) {
+    Surface(
+        modifier = modifier,
+        color = color,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(label, color = if (dark) PdigV2Colors.GlobeTextSecondary else PdigV2Colors.TextMuted, fontSize = 10.sp)
+            Text(value, color = if (dark) PdigV2Colors.GlobeTextPrimary else PdigV2Colors.TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
         }
     }
 }
