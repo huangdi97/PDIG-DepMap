@@ -35,6 +35,11 @@ internal fun AccountsScreen(app: VAppState) {
         subtitle = "账户是服务之上的身份入口：重点关注验证方式、恢复路径和跨地区依赖。",
     ) {
         RegionScopeBanner(app)
+        InfraSummaryHero(
+            value = accounts.size.toString(),
+            label = "已记录账户",
+            hint = "身份入口、验证方式与恢复路径",
+        )
         if (accounts.isEmpty()) {
             ScopedInfrastructureEmpty(app, "当前地区没有账户记录", "没有记录的账户与恢复关系仍保持未知。")
         } else {
@@ -83,6 +88,11 @@ internal fun EmailsScreen(app: VAppState) {
         subtitle = "邮箱可能同时承担登录、通知和恢复职责；唯一恢复邮箱必须显式识别。",
     ) {
         RegionScopeBanner(app)
+        InfraSummaryHero(
+            value = emails.size.toString(),
+            label = "已记录邮箱",
+            hint = "登录、通知与恢复职责",
+        )
         if (emails.isEmpty()) {
             ScopedInfrastructureEmpty(app, "当前地区没有邮箱记录", "没有记录的邮箱与恢复关系仍保持未知。")
         } else {
@@ -127,6 +137,11 @@ internal fun DevicesScreen(app: VAppState) {
         subtitle = "可信设备、验证器和恢复设备构成连续性链路；长期未使用的设备需要人工复核。",
     ) {
         RegionScopeBanner(app)
+        InfraSummaryHero(
+            value = devices.size.toString(),
+            label = "已记录设备",
+            hint = "可信终端、验证器与恢复设备",
+        )
         if (devices.isEmpty()) {
             ScopedInfrastructureEmpty(app, "当前地区没有设备记录", "设备未出现于当前列表，不代表它没有登录或恢复权限。")
         } else {
