@@ -180,12 +180,11 @@ internal fun BottomNav(app: VAppState) {
     }
 }
 
-/** 基础设施二级 sibling navigation。
- *  - Compact：横向可滚动、48dp 触控目标，但视觉上保持轻量，不与一级底栏竞争；
- *  - Wide：从 rail 移入内容区，避免把对象类别误当成全局一级目的地。
- *  selected item 会自动 reveal，靠后项不会被截成残片。 */
+/** 大屏基础设施二级 sibling navigation。
+ * Phone 使用 Overview 中的 8 类管理 Hub；Tablet / Expanded 在内容区保留横向 sibling navigation，
+ * 避免把对象类别误当成全局一级目的地。selected item 会自动 reveal。 */
 @Composable
-internal fun InfraChipRow(app: VAppState, compact: Boolean) {
+internal fun InfraChipRow(app: VAppState) {
     val listState = rememberLazyListState()
     val selectedIndex = INFRA_ENTRIES.indexOfFirst { isEntrySelected(it.screen, app.screen) }
 
@@ -198,14 +197,14 @@ internal fun InfraChipRow(app: VAppState, compact: Boolean) {
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .background(PdigV2Colors.Surface.copy(alpha = if (compact) 0.72f else 0.48f))
+            .background(PdigV2Colors.Surface.copy(alpha = 0.48f))
             .testTag("pdig.nav.infra.secondary"),
         state = listState,
         contentPadding = PaddingValues(
-            horizontal = if (compact) VSpacing.PagePadding else VSpacing.Xxl,
-            vertical = if (compact) 2.dp else VSpacing.Sm,
+            horizontal = VSpacing.Xxl,
+            vertical = VSpacing.Sm,
         ),
-        horizontalArrangement = Arrangement.spacedBy(if (compact) 2.dp else VSpacing.Sm),
+        horizontalArrangement = Arrangement.spacedBy(VSpacing.Sm),
     ) {
         INFRA_ENTRIES.forEach { entry ->
             item(key = entry.screen.route) {
@@ -220,22 +219,20 @@ internal fun InfraChipRow(app: VAppState, compact: Boolean) {
                     border = androidx.compose.foundation.BorderStroke(
                         1.dp,
                         if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.9f)
-                        else PdigV2Colors.BorderSubtle.copy(alpha = if (compact) 0f else 0.45f),
+                        else PdigV2Colors.BorderSubtle.copy(alpha = 0.45f),
                     ),
                 ) {
                     Row(
-                        Modifier.padding(horizontal = if (compact) VSpacing.Md else VSpacing.Lg, vertical = if (compact) 4.dp else VSpacing.Sm),
+                        Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        if (!compact || selected) {
-                            Icon(
-                                entry.icon,
-                                contentDescription = null,
-                                tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-                                modifier = Modifier.size(14.dp),
-                            )
-                        }
+                        Icon(
+                            entry.icon,
+                            contentDescription = null,
+                            tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                            modifier = Modifier.size(14.dp),
+                        )
                         Text(
                             entry.screen.titleZh,
                             color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
