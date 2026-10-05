@@ -1,8 +1,8 @@
 # BLOCKERS.md
 >
 > **ANDROID UI vNext Focused Phone Current-Head Gate（2026-10-05）：**
-> - Human-selected 亮色参考已经完成进一步 source translation；最新 Android production-UI checkpoint
->   = `47f6b9c6f592b21bd941092e7855433459a2723f`。
+> - Human-selected 亮色参考已经完成进一步 source translation；最终 pixel-changing Android production-UI checkpoint
+>   = `a03bc11c8bac601f95bf2e070c5f666e2b22d271`；其后为结构契约测试与文档同步。
 > - 当前没有已知必须继续靠 source 猜测的 P0/P1 UI 设计缺口；Phone/Tablet 的下一判定必须来自
 >   exact-current-head runtime pixels。
 > - 本轮新增 Phone Infrastructure 8 类 Hub、Now/Infrastructure Globe 职责分离、compact contextual
