@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -229,19 +230,28 @@ private fun FilterRowNumbers(active: String, onFilter: (String) -> Unit) {
     ) {
         filters.forEach { (key, label) ->
             val selected = active == key
-            Surface(
-                modifier = Modifier.defaultMinSize(minHeight = VTouchTarget.Min).clickable { onFilter(key) },
-                color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.28f) else PdigV2Colors.SurfaceRaised,
-                shape = RoundedCornerShape(VRadius.Sm),
-                border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+            Box(
+                modifier = Modifier
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickable { onFilter(key) },
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    label,
-                    Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-                    fontSize = 12.sp,
-                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                )
+                Surface(
+                    color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                    border = BorderStroke(
+                        1.dp,
+                        if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.72f) else PdigV2Colors.BorderSubtle,
+                    ),
+                ) {
+                    Text(
+                        label,
+                        Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                        color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    )
+                }
             }
         }
     }
