@@ -142,7 +142,8 @@ internal fun BottomNav(app: VAppState) {
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
-            .navigationBarsPadding(),
+            .navigationBarsPadding()
+            .testTag(VTestIds.NAV_BOTTOM),
         containerColor = PdigV2Colors.Surface.copy(alpha = 0.96f),
         tonalElevation = 0.dp,
     ) {

@@ -28,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -54,19 +55,15 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
     BackHandler(enabled = app.canGoBack()) { app.back() }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val viewportWidthDp: Dp = if (forcedViewportWidthDp != null) Dp(forcedViewportWidthDp.toFloat()) else maxWidth
-        val wide = viewportWidthDp >= 600.dp
-        val breakpoint = when {
-            viewportWidthDp >= 1200.dp -> MediaBreakpoint.EXPANDED
-            viewportWidthDp >= 700.dp -> MediaBreakpoint.MEDIUM
-            else -> MediaBreakpoint.COMPACT
-        }
+        val breakpoint = resolveMediaBreakpoint(viewportWidthDp)
+        val wide = breakpoint != MediaBreakpoint.COMPACT
         if (wide) {
             Row(Modifier.fillMaxSize()) {
                 NavigationRail(app)
                 Column(Modifier.weight(1f)) {
                     TopCommandBar(app, compact = false)
                     if (isInfraRootScreen(app.screen)) InfraChipRow(app, compact = false)
-                    VNextContentHost(app, breakpoint)
+                    VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 }
             }
         } else {
@@ -74,7 +71,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
                 TopCommandBar(app, compact = true)
                 if (isInfraRootScreen(app.screen)) InfraChipRow(app, compact = true)
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
-                BottomNav(app)
+                if (isCompactRootContext(app.screen)) BottomNav(app)
             }
         }
     }
@@ -122,16 +119,39 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 }
                 Spacer(Modifier.width(VSpacing.Sm))
             }
-            Text(
-                if (compact && isCompactRootContext(app.screen)) "PDIG" else app.screen.titleZh,
-                color = PdigV2Colors.TextPrimary,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            if (app.screen != VScreen.SEARCH) {
+            if (compact && isCompactRootContext(app.screen)) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Surface(
+                        modifier = Modifier.size(28.dp),
+                        color = PdigV2Colors.Primary,
+                        shape = RoundedCornerShape(VRadius.Sm),
+                    ) {
+                        Row(
+                            Modifier.fillMaxSize(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center,
+                        ) {
+                            Text("P", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        }
+                    }
+                    Spacer(Modifier.width(VSpacing.Sm))
+                    Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                }
+            } else {
+                Text(
+                    app.screen.titleZh,
+                    color = PdigV2Colors.TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+            if ((!compact || isCompactRootContext(app.screen)) && app.screen != VScreen.SEARCH) {
                 Surface(
                     modifier = (if (compact) {
                         Modifier.size(48.dp)
@@ -172,7 +192,11 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 Spacer(Modifier.width(VSpacing.Sm))
             }
 
-            if (app.screen != VScreen.SETTINGS && app.screen != VScreen.PERSONALIZATION) {
+            if (
+                (!compact || isCompactRootContext(app.screen)) &&
+                app.screen != VScreen.SETTINGS &&
+                app.screen != VScreen.PERSONALIZATION
+            ) {
                 Surface(
                     modifier = Modifier
                         .size(48.dp)
@@ -212,9 +236,16 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
     }
 }
 
+internal fun resolveMediaBreakpoint(viewportWidthDp: Dp): MediaBreakpoint = when {
+    viewportWidthDp >= 840.dp -> MediaBreakpoint.EXPANDED
+    viewportWidthDp >= 600.dp -> MediaBreakpoint.MEDIUM
+    else -> MediaBreakpoint.COMPACT
+}
+
 private fun isCompactRootContext(screen: VScreen): Boolean = screen in setOf(
     VScreen.NOW,
     VScreen.INFRASTRUCTURE,
+    VScreen.CHANGE,
     VScreen.OVERVIEW,
     VScreen.CARDS,
     VScreen.NUMBERS,

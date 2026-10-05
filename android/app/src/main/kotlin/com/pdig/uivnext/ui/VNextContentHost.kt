@@ -52,6 +52,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
     Box(
         modifier
             .fillMaxSize()
+            .testTagLocal("pdig.breakpoint.${breakpoint.name.lowercase()}")
             .background(Brush.verticalGradient(listOf(PdigV2Colors.Canvas, PdigV2Colors.CanvasDeep))),
     ) {
         when (app.screen) {

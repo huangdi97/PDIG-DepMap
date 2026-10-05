@@ -9,7 +9,11 @@ package com.pdig.uivnext.model
  *  - region 是表现层派生属性（来自 synthetic fixture），不改变 canonical schema。
  */
 
-/** 媒体查询阶段（任务书 §9：COMPACT / MEDIUM / EXPANDED；≥1200dp = EXPANDED）。 */
+/**
+ * Android adaptive window-width classes.
+ * Compact < 600dp; Medium 600–839dp; Expanded >= 840dp.
+ * Keep navigation and content on the same thresholds so 600–699dp never mixes rail navigation with compact content.
+ */
 enum class MediaBreakpoint { COMPACT, MEDIUM, EXPANDED }
 
 /** 页面（一级导航 + 基础设施二级 + 变更 + 设置）。 */
@@ -163,6 +167,7 @@ val NUMBER_THEME_PRESETS = listOf("country", "city", "minimal", "banking", "trav
 /** 稳定 testId 常量（四端语义一致）。 */
 object VTestIds {
     const val NAV_RAIL = "pdig.nav.rail"
+    const val NAV_BOTTOM = "pdig.nav.bottom"
     const val NAV_TOP = "pdig.nav.top"
     const val GLOBE_STAGE = "pdig.globe.stage"
     const val GLOBE_CANVAS = "pdig.globe.canvas"

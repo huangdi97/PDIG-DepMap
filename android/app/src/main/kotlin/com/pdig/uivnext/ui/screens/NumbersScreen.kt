@@ -69,7 +69,7 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 if (filtered.isEmpty()) {
                     NumberFilterEmpty(app, filter)
                 } else {
-                    NumberListSurface(filtered, selected?.id, app)
+                    NumberListSurface(filtered, selected?.id, app) { selectedId = it.id }
                 }
             }
             Spacer(Modifier.width(24.dp))
@@ -97,7 +97,7 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             if (filtered.isEmpty()) {
                 NumberFilterEmpty(app, filter)
             } else {
-                NumberListSurface(filtered, null, app)
+                NumberListSurface(filtered, null, app) { app.openNumber(it.id) }
             }
         }
     }
@@ -131,7 +131,12 @@ private fun NumberFilterEmpty(app: VAppState, filter: String) {
 }
 
 @Composable
-private fun ColumnScope.NumberListSurface(filtered: List<UiVNextNumber>, selectedId: String?, app: VAppState) {
+private fun ColumnScope.NumberListSurface(
+    filtered: List<UiVNextNumber>,
+    selectedId: String?,
+    app: VAppState,
+    onSelect: (UiVNextNumber) -> Unit,
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -143,7 +148,7 @@ private fun ColumnScope.NumberListSurface(filtered: List<UiVNextNumber>, selecte
     ) {
         LazyColumn(Modifier.fillMaxSize().padding(8.dp)) {
             items(filtered, key = { it.id }) { number ->
-                NumberRow(number, selectedId == number.id, app) { app.openNumber(number.id) }
+                NumberRow(number, selectedId == number.id, app) { onSelect(number) }
             }
         }
     }
@@ -162,7 +167,9 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
             number = selected.copy(preset = profile?.themeId ?: selected.preset),
             privacyMask = app.privacyMask || (profile?.maskSensitive == true),
             onClick = { app.openNumber(selected.id) },
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTagLocal("pdig.phone.inspector.identity.${selected.id}"),
             presentationMaterial = profile?.material,
             presentationAccent = com.pdig.uivnext.model.hexColorOrNull(profile?.accentColor ?: "default"),
             presentationLayout = "compact",
