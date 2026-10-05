@@ -55,7 +55,9 @@ fun RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .padding(pagePadding(breakpoint)),
         verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
     ) {
-        Text("记录", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            Text("记录", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        }
         Text(
             "追踪正在发生的变更、需要处理的风险，以及接下来已知的时间节点。",
             color = PdigV2Colors.TextSecondary,
