@@ -141,11 +141,18 @@ private fun SinglePaneOverview(
         verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
     ) {
         Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
-        Text("点按地区聚焦 · 再次点按查看地区", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+        Text(
+            if (breakpoint == MediaBreakpoint.COMPACT) "按对象管理，按地区查看你的全球基础设施" else "点按地区聚焦 · 再次点按查看地区",
+            color = PdigV2Colors.TextMuted,
+            fontSize = 12.sp,
+        )
+        if (breakpoint == MediaBreakpoint.COMPACT) {
+            CompactInfrastructureHub(app)
+        }
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (breakpoint == MediaBreakpoint.COMPACT) 340.dp else 380.dp)
+                .height(if (breakpoint == MediaBreakpoint.COMPACT) 230.dp else 380.dp)
                 .testTagLocal(VTestIds.GLOBE_STAGE),
             color = PdigV2Colors.SurfaceGlass,
             shape = RoundedCornerShape(VRadius.Xl),
@@ -170,7 +177,9 @@ private fun SinglePaneOverview(
         ) {
             ActivityRailContent(app, regions, scrollable = false)
         }
-        CompactQuickEntries(app)
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            CompactQuickEntries(app)
+        }
     }
 }
 
