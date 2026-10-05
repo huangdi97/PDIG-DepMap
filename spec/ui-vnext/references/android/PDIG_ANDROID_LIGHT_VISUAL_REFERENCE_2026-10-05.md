@@ -74,7 +74,7 @@ ANDROID_REFERENCE_FREEZE = HOLD
 
 Latest reviewed Android production-UI checkpoint for this reference:
 
-`e48e6276dafaf04280b34468d5cb31f6e37b7b6e`
+`47f6b9c6f592b21bd941092e7855433459a2723f`
 
 This checkpoint completes the remaining source-level light-reference translation that was still visibly
 utility/settings-like after the first pass:
