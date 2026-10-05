@@ -54,6 +54,11 @@ fun SearchScreen(app: VAppState) {
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
         )
+        Text(
+            "从一个入口查找卡片、号码、地区、服务与页面；搜索结果只来自已记录的基础设施。",
+            color = PdigV2Colors.TextSecondary,
+            fontSize = 13.sp,
+        )
         SearchField(query, onQuery = { query = it })
 
         if (trimmed.isEmpty()) {
@@ -85,9 +90,11 @@ private fun SearchField(query: String, onQuery: (String) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .testTagLocal("pdig.search.field"),
-        color = PdigV2Colors.SurfaceRaised,
+        color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.20f)),
+        tonalElevation = 2.dp,
+        shadowElevation = 1.dp,
     ) {
         Row(
             Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
