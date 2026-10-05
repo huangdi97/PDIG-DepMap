@@ -1,16 +1,9 @@
 package com.pdig.uivnext.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,7 +14,6 @@ import com.pdig.uivnext.model.UiVNextAccount
 import com.pdig.uivnext.model.UiVNextDevice
 import com.pdig.uivnext.model.UiVNextEmail
 import com.pdig.uivnext.theme.PdigV2Colors
-import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.EmptyKind
 import com.pdig.uivnext.ui.components.EmptyState
@@ -54,31 +46,22 @@ internal fun AccountsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
 @Composable
 private fun AccountRow(account: UiVNextAccount) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(
-            1.dp,
-            if (account.attention) PdigV2Colors.Warning.copy(alpha = 0.55f) else PdigV2Colors.BorderSubtle,
-        ),
+    LightObjectCard(
+        title = account.name,
+        subtitle = account.provider + " · " + account.maskedIdentifier + " · " + regionLabel(account.region),
+        badge = account.provider.take(1).uppercase(),
+        accent = if (account.attention) PdigV2Colors.Warning else PdigV2Colors.Primary,
+        trailing = {
+            if (account.attention) LabelChip("恢复需关注", highlight = true) else LabelChip("已记录")
+        },
     ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(Modifier.weight(1f)) {
-                    Text(account.name, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text(account.provider + " · " + account.maskedIdentifier + " · " + regionLabel(account.region), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                }
-                if (account.attention) LabelChip("恢复需关注", highlight = true) else LabelChip("已记录")
-            }
-            ChipLine(account.roles)
-            Text("验证 · " + account.authMethods.joinToString(" / "), color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-            Text("恢复 · " + account.recoveryRoute, color = if (account.attention) PdigV2Colors.Warning else PdigV2Colors.TextSecondary, fontSize = 12.sp)
-        }
+        ChipLine(account.roles)
+        Text("验证 · " + account.authMethods.joinToString(" / "), color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+        Text(
+            "恢复 · " + account.recoveryRoute,
+            color = if (account.attention) PdigV2Colors.Warning else PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+        )
     }
 }
 
@@ -108,27 +91,24 @@ internal fun EmailsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
 @Composable
 private fun EmailRow(email: UiVNextEmail) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(1.dp, if (email.recoveryOnly) PdigV2Colors.Critical.copy(alpha = 0.45f) else PdigV2Colors.BorderSubtle),
-    ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(email.name, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text(email.maskedAddress + " · " + email.provider + " · " + regionLabel(email.region), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                }
-                LabelChip(if (email.recoveryOnly) "唯一恢复" else email.linkedServiceCount.toString() + " 项关联", highlight = email.recoveryOnly)
-            }
-            ChipLine(email.roles)
-            Text(
-                if (email.recoveryOnly) "更换或停用前，必须先建立另一条恢复路径。" else "已记录 " + email.linkedServiceCount + " 项服务关联。",
-                color = if (email.recoveryOnly) PdigV2Colors.Critical else PdigV2Colors.TextSecondary,
-                fontSize = 12.sp,
+    LightObjectCard(
+        title = email.name,
+        subtitle = email.maskedAddress + " · " + email.provider + " · " + regionLabel(email.region),
+        badge = "@",
+        accent = if (email.recoveryOnly) PdigV2Colors.Critical else PdigV2Colors.Primary,
+        trailing = {
+            LabelChip(
+                if (email.recoveryOnly) "唯一恢复" else email.linkedServiceCount.toString() + " 项关联",
+                highlight = email.recoveryOnly,
             )
-        }
+        },
+    ) {
+        ChipLine(email.roles)
+        Text(
+            if (email.recoveryOnly) "更换或停用前，必须先建立另一条恢复路径。" else "已记录 " + email.linkedServiceCount + " 项服务关联。",
+            color = if (email.recoveryOnly) PdigV2Colors.Critical else PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+        )
     }
 }
 
@@ -158,23 +138,19 @@ internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
 @Composable
 private fun DeviceRow(device: UiVNextDevice) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(1.dp, if (device.attention) PdigV2Colors.Warning.copy(alpha = 0.55f) else PdigV2Colors.BorderSubtle),
+    LightObjectCard(
+        title = device.name,
+        subtitle = devicePlatformLabel(device) + " · " + regionLabel(device.region),
+        badge = device.platform.take(1).uppercase().ifBlank { "D" },
+        accent = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.Primary,
+        trailing = { LabelChip(device.trust, highlight = device.attention) },
     ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(device.name, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text(devicePlatformLabel(device) + " · " + regionLabel(device.region), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                }
-                LabelChip(device.trust, highlight = device.attention)
-            }
-            ChipLine(device.roles)
-            Text("最近记录 · " + device.lastSeen, color = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.TextSecondary, fontSize = 12.sp)
-        }
+        ChipLine(device.roles)
+        Text(
+            "最近记录 · " + device.lastSeen,
+            color = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+        )
     }
 }
 
