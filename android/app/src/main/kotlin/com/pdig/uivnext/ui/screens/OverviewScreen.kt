@@ -140,7 +140,9 @@ private fun SinglePaneOverview(
             .padding(pagePadding(breakpoint)),
         verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
     ) {
-        Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        }
         Text(
             if (breakpoint == MediaBreakpoint.COMPACT) "按对象管理，按地区查看你的全球基础设施" else "点按地区聚焦 · 再次点按查看地区",
             color = PdigV2Colors.TextMuted,
