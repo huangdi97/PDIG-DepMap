@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `77c7b3692c9b3327331f52af522a2bc65ecf165e` (post-runtime Human Review + adaptive navigation/craft closure)
+> Android production-UI source checkpoint: `c753a91c33e7eeea544240525174299234cfb1c8` (Human-selected light reference translation + asset-first Android craft closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -61,10 +61,10 @@
 - Top command bar.
 - Four-item bottom navigation.
 - Scrollable, visually lightweight infrastructure sibling navigation with selected-item auto-reveal.
-- Card gallery uses readable full-width presentation.
-- Numbers use List→Detail rather than desktop inspector.
+- Cards default to an asset-first visual list on Phone, with a full card-face mode still available; type + region browsing stay presentation-only.
+- Numbers use List→Detail rather than desktop inspector; every compact row preserves a communication-identity visual surface rather than a generic address-book row.
 - Studios use Preview-first layout; compact theme selection is a horizontal visual gallery rather than a full-width settings list.
-- Change Phone uses compact stepper + vertical continuity flow.
+- Change Phone uses a compact six-step rail plus a shared old-number → new-number continuity scene; services remain visible inside the migration context.
 
 ### MEDIUM / EXPANDED
 
@@ -241,3 +241,58 @@ top-level while sibling destinations belong in secondary navigation patterns. Re
 
 This is a presentation-only correction. It does not change Canonical, PersonalReality, Change Phone truth
 semantics, PresentationProfile persistence boundaries, the frozen Desktop reference, or `.depmap`.
+
+
+## 13. Human-selected Light Visual Reference translation closure (2026-10-05)
+
+Human selected the Android light visual direction stored at:
+
+- `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
+- `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.md`
+
+The reference is binding for Android presentation hierarchy and mood, but generated brands, counts, old IA
+fragments, and accidental copy are not functional truth.
+
+The Android source translation now includes:
+
+- **Light-first Material shell**: off-white canvas, white / cool-blue raised surfaces, navy text, blue primary
+  actions, semantic positive/warning/critical colors; Globe and asset faces intentionally retain deep local
+  canvases for spatial depth and identity.
+- **Stable Phone brand layer**: compact root screens use `PDIG` in the top bar instead of duplicating each
+  page title; detail / studio / search / change contexts still show contextual titles.
+- **Globe-led Now**: the Globe remains the spatial hero with infrastructure counts attached to it; attention
+  and active change outrank generic statistics.
+- **Asset-first Cards**: Phone defaults to a high-density visual list with real card thumbnails; card-face
+  mode remains available; browsing now supports card type and region without mutating data.
+- **Asset-first Numbers**: Phone list rows now render communication-identity thumbnails; wide inspector uses
+  the real NumberFace rather than plain text. Saved PresentationProfile is reused by list/detail/studio.
+- **Continuity choreography**: compact Change Phone now places old and target number identities in one
+  migration scene with critical services beneath; Tablet keeps the three-column OLD / SERVICES / NEW scene.
+  Current / Transition / After truth semantics are unchanged, and After remains Plan Projection.
+- **Preview-led Studios**: live preview first, horizontal theme gallery on compact, then material / layout /
+  accent / display/privacy controls; current-state properties are a summary rather than the first interaction.
+- **Secondary infrastructure hierarchy**: Accounts / Emails / Devices / Services / Weaknesses receive
+  light-first summary heroes before detailed rows; Unknown remains explicit and is never turned into a safe
+  summary.
+- **Quieter navigation**: only the selected wide rail destination receives a strong surface; unselected
+  primary destinations stay visually quiet. Infrastructure categories remain content-level sibling
+  navigation.
+- **Regression guards**: compact Cards default mode and full-face geometry remain tested; compact Numbers now
+  has a contract requiring communication-identity thumbnails; prior adaptive/Studio/a11y contracts remain.
+
+### Runtime truth after this closure
+
+The latest old runtime pack still comes from `4e43511...` and predates this light-first source translation.
+Therefore it is not visual acceptance evidence for the current source.
+
+```
+ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE
+ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
+ANDROID_REFERENCE_FREEZE = HOLD
+IOS_UI_VNEXT = HOLD
+HARMONY_UI_VNEXT = HOLD
+```
+
+No build, instrumentation, or current-head runtime PASS is claimed by this source-design closure.
