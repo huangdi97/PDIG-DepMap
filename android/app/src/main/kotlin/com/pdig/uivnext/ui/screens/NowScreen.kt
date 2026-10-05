@@ -49,20 +49,32 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val regions = app.demoRegions()
     val arcingPairs = arcPairs()
+    val compact = breakpoint == MediaBreakpoint.COMPACT
+    val cardCount = app.demoCards().size
+    val numberCount = app.demoNumbers().size
+    val accountCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size
+    val serviceCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size
+
     Column(
         Modifier
             .fillMaxSize()
-            .padding(VSpacing.Xxl)
+            .padding(if (compact) 16.dp else VSpacing.Xxl)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 18.dp else 24.dp),
     ) {
-        // Globe context（Now 的 global 语境；compact hero 高度较小）
+        // Globe 是 Now 的空间主角；统计只作为 Globe 上的基础设施摘要，不做独立 dashboard。
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (breakpoint == MediaBreakpoint.EXPANDED) 360.dp else 280.dp)
+                .height(
+                    when (breakpoint) {
+                        MediaBreakpoint.EXPANDED -> 380.dp
+                        MediaBreakpoint.MEDIUM -> 340.dp
+                        MediaBreakpoint.COMPACT -> 320.dp
+                    },
+                )
                 .testTagLocal(VTestIds.NOW_GLOBE),
-            color = PdigV2Colors.SurfaceGlass,
+            color = PdigV2Colors.Surface,
             shape = RoundedCornerShape(VRadius.Xl),
             border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         ) {
@@ -73,13 +85,37 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     arcingPairs = arcingPairs,
                     reduceMotion = app.reduceMotion,
                 )
-                Column(Modifier.align(Alignment.TopStart).padding(20.dp)) {
-                    Text("现在", color = PdigV2Colors.GlobeTextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                Column(Modifier.align(Alignment.TopStart).padding(if (compact) 18.dp else 22.dp)) {
                     Text(
-                        "全球 ${app.demoCards().size} 张卡 · ${app.demoNumbers().size} 个号码",
+                        "你的数字基础设施",
+                        color = PdigV2Colors.GlobeTextPrimary,
+                        fontSize = if (compact) 24.sp else 28.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        if (regions.isEmpty()) "当前没有已记录的地区上下文" else "连接 ${regions.size} 个地区 · 一览全局",
                         color = PdigV2Colors.GlobeTextSecondary,
                         fontSize = 13.sp,
                     )
+                }
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(if (compact) 10.dp else 14.dp),
+                    color = PdigV2Colors.GlobeDeep.copy(alpha = 0.84f),
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderStrong),
+                ) {
+                    Row(
+                        Modifier.padding(horizontal = if (compact) 10.dp else 16.dp, vertical = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        NowMetric(cardCount.toString(), "卡片", Modifier.weight(1f))
+                        NowMetric(numberCount.toString(), "号码", Modifier.weight(1f))
+                        NowMetric(accountCount.toString(), "账户", Modifier.weight(1f))
+                        NowMetric(serviceCount.toString(), "服务", Modifier.weight(1f))
+                    }
                 }
             }
         }
@@ -228,5 +264,14 @@ private fun UpcomingSection(app: VAppState) {
                 }
             }
         }
+    }
+}
+
+
+@Composable
+private fun NowMetric(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(value, color = PdigV2Colors.GlobeTextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = PdigV2Colors.GlobeTextSecondary, fontSize = 10.sp)
     }
 }
