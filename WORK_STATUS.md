@@ -1,3 +1,26 @@
+> **（最新）ANDROID UI vNext · Focused Phone Light Reference Closure（2026-10-05）**
+> —— Human-selected 亮色参考图已作为 Android Visual Direction Reference 入仓，ChatGPT 继续直接在
+> `feat/android-ui-vnext-translation` 完成 Phone 信息架构与视觉密度收口。Android production-UI
+> checkpoint = `e48e6276dafaf04280b34468d5cb31f6e37b7b6e`；其后仅文档同步。
+>
+> 本轮 source 变化：Now 保留大 Globe 世界观入口；Phone Infrastructure 改为 8 类管理 Hub +
+> 小型地区 Globe + Region/Attention 上下文，不再成为第二个 Now；Phone 子页不再常驻 8 项
+> Infrastructure 横向 strip；只有 Now 顶栏显示 PDIG 品牌，其余 Phone 页面使用上下文标题并移除
+> 重复正文标题；Cards/Numbers filter、Change projection、Studio controls 保留 48dp hit target
+> 但视觉 pill 收紧；Medium 保持 rail + single-pane，Expanded 保留 rail + content sibling nav。
+> 对应 `AndroidLightVisualSourceContractTest` / `AndroidAdaptiveShellContractTest` 已增加防回退契约。
+>
+> Product truth 未动：Primary IA、Infrastructure 8 类、PresentationProfile != PersonalReality !=
+> Canonical、Unknown != safe、Change After = Plan Projection、Desktop Dark Reference Freeze 均保持。
+>
+> 当前唯一正确 Gate：`ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 旧 `4e43511...` runtime screenshots 继续仅作历史证据；Local Agent 下一轮只允许 exact-HEAD
+> build/test/API36 Phone+Tablet/runtime screenshot/evidence，不得 redesign。
+>
 > **（最新）ANDROID UI vNext · Selected Light Reference Source Closure（2026-10-05）**
 > —— Human-selected 亮色 Android 参考图已正式入仓：
 > `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg` +
