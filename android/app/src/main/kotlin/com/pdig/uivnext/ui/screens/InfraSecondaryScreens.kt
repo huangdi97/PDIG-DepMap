@@ -53,6 +53,11 @@ private fun ServicesScreen(app: VAppState) {
         subtitle = "查看已经记录的服务，以及它们所在的地区和承担的角色。",
     ) {
         RegionScopeBanner(app)
+        InfraSummaryHero(
+            value = services.size.toString(),
+            label = "已记录服务",
+            hint = if (app.regionFilter == null) "覆盖多个地区的服务与依赖入口" else "当前地区已记录的服务",
+        )
         if (services.isEmpty()) {
             EmptyState(
                 kind = EmptyKind.DEPENDENCIES,
@@ -126,6 +131,13 @@ private fun WeaknessesScreen(app: VAppState) {
         subtitle = "从已确认的恢复路径、到期状态和迁移计划中识别需要优先处理的风险。",
     ) {
         RegionScopeBanner(app)
+        val knownWeaknessCount = numbers.size + cards.size + emails.size + devices.size + if (showPhoneMigration) 1 else 0
+        InfraSummaryHero(
+            value = knownWeaknessCount.toString(),
+            label = "已知薄弱点",
+            hint = "只统计已经记录并可验证的风险事实；未知关系仍保持未知",
+            warning = knownWeaknessCount > 0,
+        )
 
         if (!hasRecordedWeakness) {
             EmptyState(
@@ -214,6 +226,39 @@ internal fun InfraPage(
         Text(title, color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
         Text(subtitle, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
         content()
+    }
+}
+
+@Composable
+internal fun InfraSummaryHero(
+    value: String,
+    label: String,
+    hint: String,
+    warning: Boolean = false,
+) {
+    val accent = if (warning) PdigV2Colors.Warning else PdigV2Colors.Primary
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = if (warning) PdigV2Colors.Warning.copy(alpha = 0.10f) else PdigV2Colors.PrimarySoft.copy(alpha = 0.72f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, accent.copy(alpha = 0.28f)),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Text(
+                value,
+                color = accent,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(label, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text(hint, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+            }
+        }
     }
 }
 
