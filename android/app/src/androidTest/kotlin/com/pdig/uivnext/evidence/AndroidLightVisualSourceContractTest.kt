@@ -130,6 +130,30 @@ class AndroidLightVisualSourceContractTest {
     }
 
     @Test
+    fun secondaryInfrastructure_pagesUseAssetIdentitySurfaces() {
+        val app = createVNextAppState(screen = VScreen.ACCOUNTS)
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        listOf(
+            VScreen.ACCOUNTS,
+            VScreen.EMAILS,
+            VScreen.DEVICES,
+            VScreen.SERVICES,
+            VScreen.WEAKNESSES,
+        ).forEach { screen ->
+            app.navigate(screen)
+            compose.waitForIdle()
+            assertTrue(
+                "$screen must render at least one light-reference infrastructure object card",
+                compose.onAllNodesWithTag("pdig.infra.object-card", useUnmergedTree = true)
+                    .fetchSemanticsNodes()
+                    .isNotEmpty(),
+            )
+        }
+    }
+
+    @Test
     fun personalization_declaresLightThemeAsCurrent() {
         val app = createVNextAppState(screen = VScreen.PERSONALIZATION)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
