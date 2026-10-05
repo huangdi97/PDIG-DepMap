@@ -103,17 +103,12 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         SectionHeader("旧号码 → 关键服务 → 新号码")
         if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
-            // B10：Tablet 使用独立 ExpandedContinuityScene（OLD≈0.24 / SERVICES≈0.42 / NEW≈0.24），
-            // 不再复用 fillMaxWidth 三卡（会造成挤压 + 死空白 + 场景被挤到折叠以下）。
+            // Tablet：OLD / SERVICES / NEW 三列首屏并列，服务节点仍是迁移场景主角。
             ExpandedContinuityScene(old = old, new = new, projection = projection)
         } else {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                OldNumberSurface(old, projection)
-                Text("↓", modifier = Modifier.align(Alignment.CenterHorizontally), color = PdigV2Colors.TextMuted, fontSize = 16.sp)
-                ServicesSurface(projection)
-                Text("↓", modifier = Modifier.align(Alignment.CenterHorizontally), color = PdigV2Colors.TextMuted, fontSize = 16.sp)
-                NewNumberSurface(new, projection)
-            }
+            // Phone：同一 continuity scene 中同时看到旧身份、目标身份与服务迁移，
+            // 避免退化成普通表单的三段纵向卡片。
+            CompactContinuityScene(old = old, new = new, projection = projection)
         }
 
         SectionHeader("阶段明细")
