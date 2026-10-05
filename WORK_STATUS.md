@@ -8,7 +8,7 @@
 > quieter wide primary rail，以及对应防回退 contracts。Canonical / PersonalReality /
 > PresentationProfile 边界、Desktop Dark Freeze、Change After = Plan Projection 均未改变。
 >
-> **当前 production-UI checkpoint = `c753a91c33e7eeea544240525174299234cfb1c8`.**
+> **当前 production-UI checkpoint = `feb110663f19fcca74c0ddc7e3e619fc501474e6`.**
 > 由于 production UI 已继续修改，所有来自 `4e43511...` 的 2026-10-04 Phone/Tablet runtime
 > screenshots 仅为历史证据。当前状态：
 > `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
