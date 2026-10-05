@@ -146,6 +146,7 @@ fun NumberDetailScreen(app: VAppState) {
             fontSize = 12.sp,
         )
     }
+}
 
 @Composable
 private fun NumberSummaryStrip(
@@ -180,4 +181,3 @@ private fun NumberSummaryItem(value: String, label: String, modifier: Modifier =
     }
 }
 
-}
