@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -57,6 +58,76 @@ private fun numberFaceAccent(preset: String): Color = when (preset) {
     "city" -> Color(0xFF7FE0FF)
     "minimal" -> Color(0xFFAEBFDF)
     else -> PdigV2Colors.PrimaryBright
+}
+
+/**
+ * NumberIdentityThumbnail：列表态号码视觉身份。
+ *
+ * 号码不是通讯录条目；即便在 compact 高密度列表中，也保留地区 / communication motif /
+ * presentation preset 的视觉身份。它只表达 Presentation，不改变号码或依赖事实。
+ */
+@Composable
+fun NumberIdentityThumbnail(
+    number: UiVNextNumber,
+    privacyMask: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val accent = numberFaceAccent(number.preset)
+    Surface(
+        modifier = modifier
+            .height(58.dp)
+            .clip(RoundedCornerShape(VRadius.Md)),
+        color = Color.Transparent,
+        shape = RoundedCornerShape(VRadius.Md),
+    ) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(numberFaceBrush(number.preset)),
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                drawArc(
+                    color = accent.copy(alpha = 0.42f),
+                    startAngle = 190f,
+                    sweepAngle = 135f,
+                    useCenter = false,
+                    topLeft = Offset(size.width * 0.40f, -size.height * 0.12f),
+                    size = Size(size.width * 0.68f, size.height * 1.28f),
+                    style = Stroke(width = 2.dp.toPx()),
+                )
+                repeat(4) { index ->
+                    val barHeight = size.height * (0.16f + index * 0.09f)
+                    drawRect(
+                        color = accent.copy(alpha = 0.35f + index * 0.14f),
+                        topLeft = Offset(
+                            size.width * (0.76f + index * 0.045f),
+                            size.height - barHeight - size.height * 0.14f,
+                        ),
+                        size = Size(size.width * 0.025f, barHeight),
+                    )
+                }
+            }
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 9.dp, vertical = 7.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    number.countryCode,
+                    color = PdigV2Colors.AssetTextSecondary,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    if (privacyMask) "•••• ••••" else number.maskedNumber.removePrefix(number.countryCode).trim(),
+                    color = PdigV2Colors.AssetTextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+    }
 }
 
 /**
