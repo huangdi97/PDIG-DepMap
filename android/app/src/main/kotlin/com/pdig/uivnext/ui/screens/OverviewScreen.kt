@@ -45,10 +45,13 @@ import com.pdig.uivnext.ui.components.RegionListItem
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
- * Infrastructure Overview：Globe 舞台（L1）视觉主导 + 右活动轨 + 底部快速入口 + Region List 非视觉替代。
- * 大屏：Globe 左 + 活动轨右 + 底部快速入口；手机：Globe 上 + 活动轨下 + 快速入口（垂直滚动）。
- * 空态（region-selected / emptyDemo）：Globe 舞台保留，活动轨显示 honest unknown EmptyState。
- * 注意：compact 外层已是 verticalScroll，内层活动轨必须非滚动（嵌套 scrollable 会因无限高度约束崩溃）。
+ * Infrastructure Overview：
+ * - Phone = 8 类对象管理 Hub + compact regional Globe + Region/Attention context；
+ * - Medium = single-pane spatial overview；
+ * - Expanded = Globe stage + activity rail + quick entries。
+ *
+ * Now 承担“全球世界观 / 当前最重要任务”的大 Globe；Phone Overview 不再复制第二个 Now。
+ * 空态继续保留 honest unknown；compact 外层已是 verticalScroll，内部活动轨禁止再嵌套滚动。
  */
 @Composable
 fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
