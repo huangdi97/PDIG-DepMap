@@ -3,6 +3,7 @@ package com.pdig.uivnext.evidence
 import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -70,6 +71,9 @@ class AndroidLightVisualSourceContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithText("亮色", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("当前", useUnmergedTree = true).assertExists()
+        assertTrue(
+            "personalization must mark current visual choices",
+            compose.onAllNodesWithText("当前", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty(),
+        )
     }
 }
