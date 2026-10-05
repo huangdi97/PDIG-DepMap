@@ -59,10 +59,10 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     var selectedId by remember { mutableStateOf(all.firstOrNull()?.id) }
     val selected = filtered.firstOrNull { it.id == selectedId } ?: filtered.firstOrNull()
 
-    if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
+    if (breakpoint == MediaBreakpoint.EXPANDED) {
         Row(Modifier.fillMaxSize().padding(24.dp)) {
             Column(Modifier.weight(0.55f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                NumbersHeader(app, filtered.size, regionScoped.size, filter)
+                NumbersHeader(app, filtered.size, regionScoped.size, filter, breakpoint)
                 Spacer(Modifier.height(8.dp))
                 FilterRowNumbers(filter) { filter = it }
                 Spacer(Modifier.height(8.dp))
@@ -89,10 +89,10 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(pagePadding(breakpoint)),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            NumbersHeader(app, filtered.size, regionScoped.size, filter)
+            NumbersHeader(app, filtered.size, regionScoped.size, filter, breakpoint)
             FilterRowNumbers(filter) { filter = it }
             if (filtered.isEmpty()) {
                 NumberFilterEmpty(app, filter)
@@ -104,8 +104,14 @@ fun NumbersScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun NumbersHeader(app: VAppState, count: Int, total: Int, filter: String) {
-    Text("号码", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+private fun NumbersHeader(
+    app: VAppState,
+    count: Int,
+    total: Int,
+    filter: String,
+    breakpoint: MediaBreakpoint,
+) {
+    Text("号码", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
     val scope = if (app.regionFilter == null) "全球" else regionLabel(app.regionFilter!!)
     Text(
         if (filter == "all") "$scope $total 个号码" else "$scope · 当前显示 $count / $total",

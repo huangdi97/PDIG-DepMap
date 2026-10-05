@@ -88,7 +88,7 @@ internal fun CustomizationFrame(
                 )
             }
         }
-        if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
+        if (breakpoint == MediaBreakpoint.EXPANDED) {
             WideCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, displayFields, privacyMasked, globalPrivacyMask, onPrivacy, onLayout, onAccent, canReset, onReset)
         } else {
             CompactCustomization(kind, presets, profile, onPreset, onMaterial, materials, preview, rows, displayFields, privacyMasked, globalPrivacyMask, onPrivacy, onLayout, onAccent, canReset, onReset)

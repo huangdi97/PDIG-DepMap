@@ -49,7 +49,7 @@ class TabletAdaptiveContractTest {
     @Test
     fun tabletChangeProjections_showThreeColumnsOnFirstScreen() {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
-        assumeTrue("tablet-only contract", ctx.resources.configuration.screenWidthDp >= 600)
+        assumeTrue("expanded-only three-pane contract", ctx.resources.configuration.screenWidthDp >= 840)
 
         for (projection in listOf("current", "transition", "after")) {
             val app = createVNextAppState().apply {

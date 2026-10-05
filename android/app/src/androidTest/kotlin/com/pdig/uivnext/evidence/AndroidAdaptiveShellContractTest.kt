@@ -47,6 +47,15 @@ class AndroidAdaptiveShellContractTest {
         compose.onNodeWithTag("pdig.breakpoint.medium", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertExists()
         compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertDoesNotExist()
+
+        app.navigate(VScreen.NUMBERS)
+        compose.waitForIdle()
+        compose.onNodeWithTag(VTestIds.PHONE_LIST, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag(VTestIds.PHONE_INSPECTOR, useUnmergedTree = true).assertDoesNotExist()
+
+        app.navigate(VScreen.CHANGE_PHONE)
+        compose.waitForIdle()
+        compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertExists()
     }
 
     @Test

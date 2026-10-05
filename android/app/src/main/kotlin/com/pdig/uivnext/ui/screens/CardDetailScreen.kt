@@ -41,14 +41,14 @@ import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
  * Card Detail：顶部先看到卡的视觉身份（identity 列 ≈33%），右侧信息工作区（≈67%）。
- * 大屏并排；手机纵向堆叠（identity 在上）。外层 Box 定界避免 weight+verticalScroll 无限高约束。
+ * Expanded 并排；Compact / Medium 纵向单 pane（identity 在上）。外层 Box 定界避免 weight+verticalScroll 无限高约束。
  */
 @Composable
 fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForCard(card.id)
     val presentation = app.savedPresentationProfile("card", card.id)
-    if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
+    if (breakpoint == MediaBreakpoint.EXPANDED) {
         Row(
             Modifier
                 .fillMaxSize()
@@ -91,8 +91,8 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(pagePadding(breakpoint)),
+            verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
         ) {
             Column(
                 Modifier

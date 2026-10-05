@@ -54,10 +54,10 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun OverviewScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val regions = app.demoRegions()
     val arcingPairs = arcPairs()
-    if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
+    if (breakpoint == MediaBreakpoint.EXPANDED) {
         WideOverview(app, regions, arcingPairs, breakpoint)
     } else {
-        CompactOverview(app, regions, arcingPairs)
+        SinglePaneOverview(app, regions, arcingPairs, breakpoint)
     }
 }
 
@@ -127,20 +127,25 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
 }
 
 @Composable
-private fun CompactOverview(app: VAppState, regions: List<RegionPresentation>, arcingPairs: List<Pair<String, String>>) {
+private fun SinglePaneOverview(
+    app: VAppState,
+    regions: List<RegionPresentation>,
+    arcingPairs: List<Pair<String, String>>,
+    breakpoint: MediaBreakpoint,
+) {
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(pagePadding(breakpoint)),
+        verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
     ) {
-        Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
         Text("点按地区聚焦 · 再次点按查看地区", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(340.dp)
+                .height(if (breakpoint == MediaBreakpoint.COMPACT) 340.dp else 380.dp)
                 .testTagLocal(VTestIds.GLOBE_STAGE),
             color = PdigV2Colors.SurfaceGlass,
             shape = RoundedCornerShape(VRadius.Xl),

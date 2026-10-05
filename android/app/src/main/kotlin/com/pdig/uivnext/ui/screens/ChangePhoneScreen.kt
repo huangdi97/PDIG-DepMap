@@ -87,9 +87,9 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             )
         }
 
-        // B11：COMPACT 使用原生 6 步 mini progress（首屏可见全部 6 步 + 当前步骤，不被 clip）；
-        // MEDIUM/EXPANDED 使用完整 ContinuityRail。
-        if (breakpoint == MediaBreakpoint.COMPACT) {
+        // Compact / Medium 保持单 pane：6 步 mini progress 首屏完整可见；
+        // Expanded 才使用完整 ContinuityRail。
+        if (breakpoint != MediaBreakpoint.EXPANDED) {
             CompactStepper(stages = projectionStages(projection))
         } else {
             Row(
@@ -102,8 +102,8 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         }
 
         SectionHeader("旧号码 → 关键服务 → 新号码")
-        if (breakpoint == MediaBreakpoint.EXPANDED || breakpoint == MediaBreakpoint.MEDIUM) {
-            // Tablet：OLD / SERVICES / NEW 三列首屏并列，服务节点仍是迁移场景主角。
+        if (breakpoint == MediaBreakpoint.EXPANDED) {
+            // Expanded：OLD / SERVICES / NEW 三列首屏并列，服务节点仍是迁移场景主角。
             ExpandedContinuityScene(old = old, new = new, projection = projection)
         } else {
             // Phone：同一 continuity scene 中同时看到旧身份、目标身份与服务迁移，
