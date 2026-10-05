@@ -65,6 +65,37 @@ class AndroidLightVisualSourceContractTest {
     }
 
     @Test
+    fun supportingSurfaces_keepLightReferenceHierarchy() {
+        val records = createVNextAppState(screen = VScreen.RECORDS)
+        compose.setContent { VNextApp(records, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.records.summary", useUnmergedTree = true).assertExists()
+
+        val personalization = createVNextAppState(screen = VScreen.PERSONALIZATION)
+        compose.setContent { VNextApp(personalization, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.personalization.visual-preview", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun detailAndTruthSurfaces_areAssetFirstAndExplicit() {
+        val number = createVNextAppState().apply { openNumber("num-cn-1") }
+        compose.setContent { VNextApp(number, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).assertExists()
+
+        val card = createVNextAppState().apply { openCard("card-cn-2") }
+        compose.setContent { VNextApp(card, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true).assertExists()
+
+        val sources = createVNextAppState(screen = VScreen.SOURCES)
+        compose.setContent { VNextApp(sources, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.sources.boundary-hero", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
     fun personalization_declaresLightThemeAsCurrent() {
         val app = createVNextAppState(screen = VScreen.PERSONALIZATION)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
