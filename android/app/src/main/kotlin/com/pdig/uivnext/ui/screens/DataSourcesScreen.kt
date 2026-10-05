@@ -39,7 +39,9 @@ fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .padding(pagePadding(breakpoint)),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("数据源", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            Text("数据源", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        }
         Text(
             "PDIG 只把已记录并确认的信息当作事实；没有来源的数据保持未知。",
             color = PdigV2Colors.TextSecondary,
