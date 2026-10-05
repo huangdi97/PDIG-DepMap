@@ -1,5 +1,19 @@
 # BLOCKERS.md
 >
+> **ANDROID UI vNext Light Reference Current-Head Gate（2026-10-05）：**
+> - Human-selected light visual direction 已进入 Android Compose production UI；当前 source-design
+>   不存在已知待实现的主视觉页面缺口。
+> - 当前唯一 Android UI Freeze 阻塞是 **fresh runtime evidence + Human pixel acceptance**：
+>   最新 production-UI checkpoint = `c753a91c33e7eeea544240525174299234cfb1c8`，旧 evidence
+>   source = `4e43511...`。
+> - 本轮新增/改变了主题、Now、Cards、Numbers、Change Phone、Studio、secondary infrastructure、
+>   shell/navigation，因此旧截图不可用于 Final Freeze。
+> - 不得把 source completeness 写成 build/runtime PASS；Local Agent 必须对 exact remote HEAD
+>   重新 build、instrument、Phone/Tablet 取证。
+> - 保持：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+
+>
 > **ANDROID UI vNext Current-Head Evidence Gate（2026-10-05）：**
 > - 当前不是代码设计 blocker，而是**证据新鲜度 gate**。Human Review 后 Android production UI
 >   checkpoint 已到 `77c7b3692c9b3327331f52af522a2bc65ecf165e`；2026-10-04 的 Phone/Tablet
