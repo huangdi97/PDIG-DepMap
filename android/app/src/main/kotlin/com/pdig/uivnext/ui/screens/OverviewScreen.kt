@@ -99,10 +99,10 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
                     }
                 }
                 Column(Modifier.align(Alignment.TopStart).padding(20.dp)) {
-                    Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    Text("我的基础设施", color = PdigV2Colors.GlobeTextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
                     Text(
                         "点按地区聚焦 · 捏合缩放 · 再次点按查看地区",
-                        color = PdigV2Colors.TextMuted,
+                        color = PdigV2Colors.GlobeTextSecondary,
                         fontSize = 12.sp,
                     )
                 }

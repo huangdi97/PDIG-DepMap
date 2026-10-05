@@ -3,7 +3,7 @@ package com.pdig.uivnext
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.pdig.uivnext.model.PresentationProfile
@@ -21,10 +21,19 @@ import com.pdig.uivnext.ui.VNextShell
 @Composable
 fun VNextApp(app: VAppState, forcedViewportWidthDp: Int? = null) {
     MaterialTheme(
-        colorScheme = darkColorScheme(
+        colorScheme = lightColorScheme(
             primary = PdigV2Colors.Primary,
+            onPrimary = androidx.compose.ui.graphics.Color.White,
+            primaryContainer = PdigV2Colors.PrimarySoft,
+            onPrimaryContainer = PdigV2Colors.TextPrimary,
             background = PdigV2Colors.Canvas,
+            onBackground = PdigV2Colors.TextPrimary,
             surface = PdigV2Colors.Surface,
+            onSurface = PdigV2Colors.TextPrimary,
+            surfaceVariant = PdigV2Colors.SurfaceRaised,
+            onSurfaceVariant = PdigV2Colors.TextSecondary,
+            outline = PdigV2Colors.BorderStrong,
+            error = PdigV2Colors.Critical,
         ),
     ) {
         Surface(

@@ -96,13 +96,13 @@ fun NumberFace(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     DialArc(accent = accent)
                     Spacer(Modifier.width(VSpacing.Md))
-                    Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                    Text(number.nickname, color = PdigV2Colors.AssetTextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     StatusBadge(number.status)
                 }
                 Spacer(Modifier.height(verticalGap))
                 Text(
                     if (privacyMask) maskedNumberForPrivacy(number) else number.maskedNumber,
-                    color = PdigV2Colors.TextPrimary,
+                    color = PdigV2Colors.AssetTextPrimary,
                     fontSize = numberSize,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
@@ -118,7 +118,7 @@ fun NumberFace(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         number.usages.joinToString(" · "),
-                        color = PdigV2Colors.TextSecondary,
+                        color = PdigV2Colors.AssetTextSecondary,
                         fontSize = 12.sp,
                         modifier = Modifier.weight(1f),
                     )

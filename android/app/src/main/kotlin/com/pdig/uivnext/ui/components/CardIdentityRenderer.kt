@@ -155,12 +155,12 @@ fun CardIdentityFace(
             Column(Modifier.fillMaxSize()) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
-                        Text(card.nickname, color = PdigV2Colors.TextPrimary, fontSize = nicknameSize, fontWeight = FontWeight.SemiBold, modifier = Modifier.testTag(VTestIds.CARD_NICKNAME))
-                        Text(card.issuer, color = PdigV2Colors.TextSecondary, fontSize = 12.sp, modifier = Modifier.testTag(VTestIds.CARD_ISSUER))
+                        Text(card.nickname, color = PdigV2Colors.AssetTextPrimary, fontSize = nicknameSize, fontWeight = FontWeight.SemiBold, modifier = Modifier.testTag(VTestIds.CARD_NICKNAME))
+                        Text(card.issuer, color = PdigV2Colors.AssetTextSecondary, fontSize = 12.sp, modifier = Modifier.testTag(VTestIds.CARD_ISSUER))
                     }
                     Text(
                         if (card.form == "virtual") "虚拟卡" else "实体卡",
-                        color = PdigV2Colors.TextMuted,
+                        color = PdigV2Colors.AssetTextMuted,
                         fontSize = 12.sp,
                         modifier = Modifier.testTag(VTestIds.CARD_FORM),
                     )
@@ -168,7 +168,7 @@ fun CardIdentityFace(
                 Spacer(Modifier.weight(1f))
                 Text(
                     if (privacyMask) "•••• •••• •••• ••••" else "•••• •••• •••• ${card.last4}",
-                    color = PdigV2Colors.TextPrimary,
+                    color = PdigV2Colors.AssetTextPrimary,
                     fontSize = numberSize,
                     fontFamily = FontFamily.Monospace,
                     modifier = Modifier.testTag(VTestIds.CARD_MASKED),
@@ -176,8 +176,8 @@ fun CardIdentityFace(
                 Spacer(Modifier.height(VSpacing.Lg))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        Text("${cardTypeLabel(card.type)} · ${card.network}", color = PdigV2Colors.TextSecondary, fontSize = metaSize, modifier = Modifier.testTag(VTestIds.CARD_META))
-                        Text("${regionLabelZh(card.region)} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.TextMuted, fontSize = metaSize)
+                        Text("${cardTypeLabel(card.type)} · ${card.network}", color = PdigV2Colors.AssetTextSecondary, fontSize = metaSize, modifier = Modifier.testTag(VTestIds.CARD_META))
+                        Text("${regionLabelZh(card.region)} · ${card.currency} · 到期 ${card.expiry}", color = PdigV2Colors.AssetTextMuted, fontSize = metaSize)
                     }
                     StatusBadge(card.status)
                 }

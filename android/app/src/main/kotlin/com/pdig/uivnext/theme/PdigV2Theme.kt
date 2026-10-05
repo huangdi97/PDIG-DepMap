@@ -25,32 +25,45 @@ fun rgbaColor(value: String): Color {
     )
 }
 
-/** vNext 环境/数据/状态色（全部来自 GeneratedPdigV2Tokens，页面不得散落魔数颜色）。 */
+/**
+ * Android UI vNext presentation palette.
+ *
+ * Desktop Dark Reference stays frozen in generated tokens. Android translates that reference into the
+ * Human-selected light-first visual direction without changing Canonical/domain semantics.
+ * Earth/space and asset faces retain dark local canvases so Globe and identity surfaces keep depth.
+ */
 object PdigV2Colors {
-    val Canvas = hexColor(T.COLORS_CANVAS)
-    val CanvasDeep = hexColor(T.COLORS_CANVAS_DEEP)
-    val Surface = hexColor(T.COLORS_SURFACE)
-    val SurfaceRaised = hexColor(T.COLORS_SURFACE_RAISED)
-    val SurfaceGlass = rgbaColor(T.COLORS_SURFACE_GLASS)
-    val BorderSubtle = rgbaColor(T.COLORS_BORDER_SUBTLE)
-    val BorderStrong = rgbaColor(T.COLORS_BORDER_STRONG)
-    val Primary = hexColor(T.COLORS_PRIMARY)
-    val PrimaryBright = hexColor(T.COLORS_PRIMARY_BRIGHT)
-    val PrimarySoft = hexColor(T.COLORS_PRIMARY_SOFT)
-    val TextPrimary = hexColor(T.COLORS_TEXT_PRIMARY)
-    val TextSecondary = hexColor(T.COLORS_TEXT_SECONDARY)
-    val TextMuted = hexColor(T.COLORS_TEXT_MUTED)
-    val Positive = hexColor(T.COLORS_POSITIVE)
-    val Warning = hexColor(T.COLORS_WARNING)
-    val Critical = hexColor(T.COLORS_CRITICAL)
-    val Unknown = hexColor(T.COLORS_UNKNOWN)
+    val Canvas = Color(0xFFF5F8FD)
+    val CanvasDeep = Color(0xFFEAF2FF)
+    val Surface = Color(0xFFFFFFFF)
+    val SurfaceRaised = Color(0xFFF3F7FD)
+    val SurfaceGlass = Color(0xE8FFFFFF)
+    val BorderSubtle = Color(0x1F315178)
+    val BorderStrong = Color(0x4D3977E8)
+    val Primary = Color(0xFF2F6BFF)
+    val PrimaryBright = Color(0xFF1769FF)
+    val PrimarySoft = Color(0xFFE8F0FF)
+    val TextPrimary = Color(0xFF10213A)
+    val TextSecondary = Color(0xFF40536F)
+    val TextMuted = Color(0xFF71819A)
+    val Positive = Color(0xFF14966A)
+    val Warning = Color(0xFFD98500)
+    val Critical = Color(0xFFD94552)
+    val Unknown = Color(0xFF7B8799)
+
+    val GlobeDeep = Color(0xFF06162F)
+    val GlobeTextPrimary = Color(0xFFF7FAFF)
+    val GlobeTextSecondary = Color(0xFFC9D8F2)
+    val AssetTextPrimary = Color(0xFFF7FAFF)
+    val AssetTextSecondary = Color(0xFFD4DFF2)
+    val AssetTextMuted = Color(0xFFA6B7D2)
+
     val RegionNodeHi = hexColor(T.COLORS_REGION_NODE_HI)
     val RegionNodeLo = rgbaColor(T.COLORS_REGION_NODE_LO)
     val ArcActive = rgbaColor(T.COLORS_ARC_ACTIVE)
     val ArcQuiet = rgbaColor(T.COLORS_ARC_QUIET)
     val AtmosphereInner = rgbaColor(T.COLORS_ATMOSPHERE_INNER)
     val AtmosphereOuter = rgbaColor(T.COLORS_ATMOSPHERE_OUTER)
-    // semantic.focus = colors.primaryBright（别名；无独立色值）
     val FocusRing = PrimaryBright
 }
 

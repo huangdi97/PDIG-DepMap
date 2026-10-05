@@ -74,10 +74,10 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     reduceMotion = app.reduceMotion,
                 )
                 Column(Modifier.align(Alignment.TopStart).padding(20.dp)) {
-                    Text("现在", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                    Text("现在", color = PdigV2Colors.GlobeTextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                     Text(
                         "全球 ${app.demoCards().size} 张卡 · ${app.demoNumbers().size} 个号码",
-                        color = PdigV2Colors.TextSecondary,
+                        color = PdigV2Colors.GlobeTextSecondary,
                         fontSize = 13.sp,
                     )
                 }
