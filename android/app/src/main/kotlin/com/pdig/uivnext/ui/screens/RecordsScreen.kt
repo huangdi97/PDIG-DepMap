@@ -60,6 +60,11 @@ fun RecordsScreen(app: VAppState) {
             color = PdigV2Colors.TextSecondary,
             fontSize = 13.sp,
         )
+        RecordsSummarySurface(
+            activeChanges = changes.size,
+            attentionCount = attention.size,
+            upcomingCount = upcoming.size,
+        )
 
         SectionHeader("正在进行")
         if (changes.isEmpty()) {
@@ -165,6 +170,37 @@ fun RecordsScreen(app: VAppState) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RecordsSummarySurface(activeChanges: Int, attentionCount: Int, upcomingCount: Int) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTagLocal("pdig.records.summary"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.82f),
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.20f)),
+        tonalElevation = 2.dp,
+        shadowElevation = 1.dp,
+    ) {
+        Row(
+            Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            RecordsMetric(activeChanges.toString(), "进行中的变更", Modifier.weight(1f))
+            RecordsMetric(attentionCount.toString(), "需要处理", Modifier.weight(1f))
+            RecordsMetric(upcomingCount.toString(), "即将到来", Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun RecordsMetric(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(value, color = PdigV2Colors.PrimaryBright, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = PdigV2Colors.TextSecondary, fontSize = 11.sp)
     }
 }
 
