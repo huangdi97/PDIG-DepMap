@@ -80,28 +80,17 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     fontWeight = FontWeight.SemiBold,
                 )
                 regionServices.forEach { service ->
-                    Surface(
-                        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-                        shape = RoundedCornerShape(VRadius.Md),
-                        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                        modifier = Modifier.fillMaxWidth(),
+                    LightObjectCard(
+                        title = service.name,
+                        subtitle = regionLabel(service.region) + " · 已记录服务",
+                        badge = serviceKindLabelZh(service.kind).take(1),
+                        trailing = { LabelChip(serviceKindLabelZh(service.kind)) },
                     ) {
-                        Row(
-                            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Column(Modifier.weight(1f)) {
-                                Text(
-                                    service.name,
-                                    color = PdigV2Colors.TextPrimary,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Medium,
-                                )
-                                Text(regionLabel(service.region), color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                            }
-                            LabelChip(serviceKindLabelZh(service.kind))
-                        }
+                        Text(
+                            "此处只展示已记录关系；未记录的登录、恢复或支付依赖仍保持未知。",
+                            color = PdigV2Colors.TextMuted,
+                            fontSize = 11.sp,
+                        )
                     }
                 }
             }
@@ -287,17 +276,18 @@ internal fun UnknownBoundaryNote(text: String) {
 
 @Composable
 private fun WeaknessRow(title: String, hint: String, accent: Color, onClick: () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickableLocal(onClick = onClick),
-        color = accent.copy(alpha = 0.10f),
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(1.dp, accent.copy(alpha = 0.35f)),
+    LightObjectCard(
+        title = title,
+        subtitle = hint,
+        badge = "!",
+        accent = accent,
+        onClick = onClick,
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
-            Text(hint, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-        }
+        Text(
+            "查看详情与下一步 →",
+            color = accent,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
