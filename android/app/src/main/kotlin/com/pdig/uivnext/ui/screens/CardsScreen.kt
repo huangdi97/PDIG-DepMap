@@ -66,11 +66,11 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(24.dp),
+            .padding(pagePadding(breakpoint)),
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+                Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
                 Text(
                     when {
                         kindFilter != "all" -> {
@@ -133,8 +133,8 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 modifier = Modifier
                     .fillMaxSize()
                     .testTagLocal(VTestIds.CARD_GRID),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (breakpoint == MediaBreakpoint.COMPACT) 12.dp else 20.dp),
+                verticalArrangement = Arrangement.spacedBy(if (breakpoint == MediaBreakpoint.COMPACT) 12.dp else 20.dp),
             ) {
                 items(filteredCards, key = { it.id }) { card ->
                     val profile = app.savedPresentationProfile("card", card.id)
@@ -175,6 +175,8 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
         color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        tonalElevation = 1.dp,
+        shadowElevation = 1.dp,
     ) {
         Row(
             Modifier.padding(horizontal = 12.dp, vertical = 10.dp),

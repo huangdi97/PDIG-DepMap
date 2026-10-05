@@ -60,9 +60,9 @@ fun StatusBadge(status: String, modifier: Modifier = Modifier) {
     }
     Surface(
         modifier = modifier,
-        color = PdigV2Colors.SurfaceRaised,
+        color = color.copy(alpha = 0.10f),
         shape = RoundedCornerShape(VRadius.Sm),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.22f)),
     ) {
         Row(
             Modifier.padding(horizontal = VSpacing.Sm, vertical = 3.dp),

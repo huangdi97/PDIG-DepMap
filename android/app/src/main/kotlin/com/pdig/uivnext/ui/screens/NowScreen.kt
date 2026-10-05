@@ -54,6 +54,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val numberCount = app.demoNumbers().size
     val accountCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size
     val serviceCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size
+    val attentionCount = app.demoAttention().size
 
     Column(
         Modifier
@@ -62,6 +63,44 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(if (compact) 18.dp else 24.dp),
     ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .testTagLocal("pdig.now.intro"),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    "早上好",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = if (compact) 22.sp else 26.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    if (attentionCount > 0) "你有 $attentionCount 件事需要处理" else "当前没有已记录的待处理事项",
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 13.sp,
+                )
+            }
+            Surface(
+                color = if (attentionCount > 0) PdigV2Colors.Critical.copy(alpha = 0.10f) else PdigV2Colors.Positive.copy(alpha = 0.10f),
+                shape = RoundedCornerShape(VRadius.Lg),
+                border = BorderStroke(
+                    1.dp,
+                    (if (attentionCount > 0) PdigV2Colors.Critical else PdigV2Colors.Positive).copy(alpha = 0.22f),
+                ),
+            ) {
+                Text(
+                    if (attentionCount > 0) "需要处理 $attentionCount" else "状态平稳",
+                    Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                    color = if (attentionCount > 0) PdigV2Colors.Critical else PdigV2Colors.Positive,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+
         // Globe 是 Now 的空间主角；统计只作为 Globe 上的基础设施摘要，不做独立 dashboard。
         Surface(
             modifier = Modifier

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -132,7 +133,13 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
             )
             if (app.screen != VScreen.SEARCH) {
                 Surface(
-                    modifier = (if (compact) Modifier.size(48.dp) else Modifier.defaultMinSize(minHeight = 48.dp))
+                    modifier = (if (compact) {
+                        Modifier.size(48.dp)
+                    } else {
+                        Modifier
+                            .widthIn(min = 220.dp, max = 380.dp)
+                            .defaultMinSize(minHeight = 48.dp)
+                    })
                         .clickable { app.navigate(VScreen.SEARCH) }
                         .testTag("pdig.search.entry"),
                     color = if (compact) PdigV2Colors.Surface.copy(alpha = 0f) else PdigV2Colors.SurfaceRaised,
@@ -152,7 +159,13 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                         )
                         if (!compact) {
                             Spacer(Modifier.width(VSpacing.Sm))
-                            Text("搜索", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                            Text(
+                                "搜索卡片、号码、地区或服务",
+                                color = PdigV2Colors.TextMuted,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
                         }
                     }
                 }
