@@ -74,7 +74,7 @@ ANDROID_REFERENCE_FREEZE = HOLD
 
 Latest reviewed Android production-UI checkpoint for this reference:
 
-`94b9445a73c40c11e592ed9fa08d2c55646c3880`
+`e48e6276dafaf04280b34468d5cb31f6e37b7b6e`
 
 This checkpoint completes the remaining source-level light-reference translation that was still visibly
 utility/settings-like after the first pass:
@@ -93,3 +93,23 @@ existing API36 Phone and Tablet AVDs before Human Final Acceptance.
 ## Asset provenance correction
 
 The repository reference path now contains a real compressed copy derived from the Human-selected 1536×1024 light concept board. It is a visual-direction reference, not a pixel golden; runtime Phone + Tablet pixels still require Human final acceptance.
+
+## Focused Phone translation closure
+
+The selected light board is now translated more literally at the information-hierarchy level without copying
+generated data or obsolete IA:
+
+- Phone Now remains the large Globe/world-view entry.
+- Phone Infrastructure becomes an eight-category management Hub plus a smaller regional Globe, rather than a
+  second large-Globe home screen.
+- Phone child surfaces are focused: the wide Infrastructure sibling strip is not permanently mounted above
+  Cards / Numbers / Accounts / Emails / Devices / Services / Weaknesses.
+- Only Now uses the compact PDIG brand layer; other Phone pages use contextual top titles.
+- Duplicate compact in-content titles were removed where the top bar already carries the task/screen title.
+- Filters, projection selectors, and Studio chips retain 48dp interaction targets while rendering visually
+  lighter controls, matching the density of the selected reference.
+- Medium remains rail + single-pane; Expanded retains rail + content-level sibling navigation and wider
+  spatial/list-detail compositions.
+
+This remains a source-design closure, not runtime acceptance. Fresh exact-HEAD Phone + Tablet screenshots are
+still required before Android Reference Freeze.
