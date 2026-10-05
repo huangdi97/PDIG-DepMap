@@ -45,6 +45,7 @@ import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
+import com.pdig.uivnext.ui.components.CardIdentityThumbnail
 import com.pdig.uivnext.ui.components.EmptyKind
 import com.pdig.uivnext.ui.components.EmptyState
 
@@ -56,7 +57,9 @@ import com.pdig.uivnext.ui.components.EmptyState
 fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val all = app.demoCards()
     val regionFiltered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
-    var gridView by remember { mutableStateOf(true) }
+    // Human-selected Android reference: phone defaults to a high-density visual list; wide layouts
+    // default to the card gallery. The user can still switch either presentation.
+    var gridView by remember(breakpoint) { mutableStateOf(breakpoint != MediaBreakpoint.COMPACT) }
 
     Column(
         Modifier
@@ -148,34 +151,36 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp)
-            .defaultMinSize(minHeight = VTouchTarget.Min)
+            .defaultMinSize(minHeight = 84.dp)
             .clickable { app.openCard(card.id) },
-        color = PdigV2Colors.Surface.copy(alpha = 0.92f),
-        shape = RoundedCornerShape(VRadius.Md),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Row(
-            Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Box(
-                Modifier
-                    .width(4.dp)
-                    .height(28.dp)
-                    .background(PdigV2Colors.PrimaryBright, RoundedCornerShape(2.dp)),
+            CardIdentityThumbnail(
+                card = card.copy(preset = profile?.themeId ?: card.preset),
+                privacyMask = maskSensitive,
+                modifier = Modifier.width(96.dp),
             )
             Spacer(Modifier.width(12.dp))
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text(if (maskSensitive) "••••" else card.last4, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
-                }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Text(
-                    "${card.issuer} · ${regionLabel(card.region)} · ${card.currency} · ${if (card.form == "virtual") "虚拟" else "实体"} · 到期 ${card.expiry}",
+                    "${card.issuer} · ${regionLabel(card.region)} · ${card.currency}",
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 12.sp,
                 )
+                Text(
+                    "${if (card.form == "virtual") "虚拟卡" else "实体卡"} · 到期 ${card.expiry}",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
+                )
             }
+            Spacer(Modifier.width(8.dp))
             com.pdig.uivnext.ui.components.StatusBadge(card.status)
         }
     }

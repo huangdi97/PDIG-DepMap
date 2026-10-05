@@ -186,6 +186,55 @@ fun CardIdentityFace(
     }
 }
 
+/**
+ * Compact card thumbnail used by phone list rows.
+ * It reuses the same issuer palette and artwork language as the full identity face without forcing
+ * full card metadata into a narrow miniature.
+ */
+@Composable
+fun CardIdentityThumbnail(
+    card: UiVNextCard,
+    privacyMask: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val profile = CardIdentityProfile.forIssuer(card.issuer)
+    val theme = cardThemeInfo(card.preset)
+    Surface(
+        modifier = modifier
+            .clip(RoundedCornerShape(VRadius.Md))
+            .border(1.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(VRadius.Md)),
+        color = Color.Transparent,
+        shape = RoundedCornerShape(VRadius.Md),
+    ) {
+        Box(
+            Modifier
+                .background(cardFaceBaseBrush(profile, theme))
+                .aspectRatio(1.586f)
+                .padding(10.dp),
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                drawCardArtwork(profile, theme, null)
+            }
+            Column(Modifier.fillMaxSize()) {
+                Text(
+                    card.issuer,
+                    color = PdigV2Colors.AssetTextPrimary,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                )
+                Spacer(Modifier.weight(1f))
+                Text(
+                    if (privacyMask) "••••" else "•••• " + card.last4,
+                    color = PdigV2Colors.AssetTextPrimary,
+                    fontSize = 11.sp,
+                    fontFamily = FontFamily.Monospace,
+                )
+            }
+        }
+    }
+}
+
 internal fun cardTypeLabel(type: String): String = if (type == "credit") "信用卡" else "储蓄卡"
 
 private fun presentationCardMaterial(id: String?): CardMaterial? = when (id) {

@@ -3,6 +3,7 @@ package com.pdig.uivnext.evidence
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -36,6 +37,12 @@ class PhoneCardsLayoutContractTest {
         assumeTrue("phone-only contract", ctx.resources.configuration.screenWidthDp < 600)
         val app = createVNextAppState().apply { navigate(VScreen.CARDS) }
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        // Human-selected light reference defaults compact Cards to the visual list.
+        compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertExists()
+        // Full card-face geometry is still a supported user mode and remains contract-tested.
+        compose.onNodeWithTag(VTestIds.CARD_VIEW_TOGGLE, useUnmergedTree = true).performClick()
         compose.waitForIdle()
 
         val faceNodes = compose.onAllNodesWithTag(VTestIds.CARD_FACE, useUnmergedTree = true).fetchSemanticsNodes()
