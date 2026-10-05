@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `feb110663f19fcca74c0ddc7e3e619fc501474e6` (Human-selected light reference translation + asset-first Android craft closure)
+> Android production-UI source checkpoint: `94b9445a73c40c11e592ed9fa08d2c55646c3880` (Human-selected light reference translation + supporting-surface craft closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -293,3 +293,38 @@ HARMONY_UI_VNEXT = HOLD
 ```
 
 No build, instrumentation, or current-head runtime PASS is claimed by this source-design closure.
+
+
+## 14. Light-reference supporting-surface closure (2026-10-05)
+
+The second Human-reference pass closed the remaining surfaces that still read as generic settings or
+engineering utility pages after the first light translation.
+
+Direct Android source changes now include:
+
+- **Records**: task summary strip for active change / attention / upcoming before the detailed timeline.
+- **Search**: product-level global search statement plus raised tonal search surface.
+- **Data Sources**: explicit fact-boundary hero for 本机优先 / 已确认 / 未知; Unknown remains Unknown.
+- **Personalization**: visual-direction preview first; generic setting rows no longer define the first impression.
+- **Card Detail**: real card face remains hero, followed by a compact identity summary for region / currency /
+  bound-service count before factual metadata.
+- **Number Detail**: communication identity remains hero, followed by role / SIM form / linked-service /
+  recovery summary before dependency details.
+- **Regression protection**: AndroidLightVisualSourceContractTest now asserts these supporting visual
+  hierarchies in addition to Cards / Numbers / Change / light-theme contracts.
+
+The resulting Android source is now treated as **source-design complete for the selected light reference**.
+No further aesthetic changes should be invented from source alone. The next design decision must come from
+fresh current-head Phone + Tablet runtime pixels.
+
+Current gate remains:
+
+```
+ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE
+ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
+ANDROID_REFERENCE_FREEZE = HOLD
+IOS_UI_VNEXT = HOLD
+HARMONY_UI_VNEXT = HOLD
+```
