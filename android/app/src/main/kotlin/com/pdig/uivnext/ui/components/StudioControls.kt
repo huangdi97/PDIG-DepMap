@@ -56,9 +56,6 @@ fun StudioInspector(
     onReset: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        SectionTitle("当前外观")
-        rows.forEach { row -> PropertyRow(row) }
-
         SectionTitle("材质")
         ChoiceStrip {
             materials.forEach { material ->
@@ -81,7 +78,7 @@ fun StudioInspector(
             }
         }
 
-        SectionTitle("强调")
+        SectionTitle("强调色")
         ChoiceStrip {
             accents.forEach { choice ->
                 AccentChip(
@@ -92,10 +89,8 @@ fun StudioInspector(
             }
         }
 
-        SectionTitle("显示内容")
+        SectionTitle("显示与隐私")
         displayFields.forEach { DisplayInfoRow(it) }
-
-        SectionTitle("隐私")
         InspectorToggle(
             label = "对象单独遮蔽",
             on = privacyMasked,
@@ -107,6 +102,21 @@ fun StudioInspector(
                 color = PdigV2Colors.TextMuted,
                 fontSize = 11.sp,
             )
+        }
+
+        SectionTitle("当前设置")
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = PdigV2Colors.PrimarySoft.copy(alpha = 0.58f),
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.18f)),
+        ) {
+            Column(
+                Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                rows.forEach { row -> PropertyRow(row) }
+            }
         }
 
         Surface(
