@@ -69,6 +69,17 @@ class AndroidAdaptiveShellContractTest {
     }
 
     @Test
+    fun compactInfrastructure_usesHubInsteadOfPersistentSecondaryStrip() {
+        val app = createVNextAppState(screen = VScreen.OVERVIEW)
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.overview.infrastructure-hub", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
     fun compactChildFlow_hidesRootNavigationAndGlobalUtilities() {
         val app = createVNextAppState().apply { openCard("card-cn-2") }
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
