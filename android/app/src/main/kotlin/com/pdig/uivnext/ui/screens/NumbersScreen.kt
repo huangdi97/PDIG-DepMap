@@ -44,6 +44,8 @@ import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.EmptyKind
 import com.pdig.uivnext.ui.components.EmptyState
 import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.ui.components.NumberFace
+import com.pdig.uivnext.ui.components.NumberIdentityThumbnail
 import com.pdig.uivnext.ui.components.SectionHeader
 import com.pdig.uivnext.ui.components.StatusBadge
 
@@ -141,7 +143,7 @@ private fun ColumnScope.NumberListSurface(filtered: List<UiVNextNumber>, selecte
     ) {
         LazyColumn(Modifier.fillMaxSize().padding(8.dp)) {
             items(filtered, key = { it.id }) { number ->
-                NumberRow(number, selectedId == number.id) { app.openNumber(number.id) }
+                NumberRow(number, selectedId == number.id, app) { app.openNumber(number.id) }
             }
         }
     }
@@ -155,20 +157,21 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
             return@Column
         }
         SectionHeader("号码详情")
-        Text(selected.nickname, color = PdigV2Colors.TextPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text(
-            selected.maskedNumber,
-            color = PdigV2Colors.TextPrimary,
-            fontSize = 20.sp,
-            fontFamily = FontFamily.Monospace,
+        val profile = app.savedPresentationProfile("phoneNumber", selected.id)
+        NumberFace(
+            number = selected.copy(preset = profile?.themeId ?: selected.preset),
+            privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+            onClick = { app.openNumber(selected.id) },
+            modifier = Modifier.fillMaxWidth(),
+            presentationMaterial = profile?.material,
+            presentationAccent = com.pdig.uivnext.model.hexColorOrNull(profile?.accentColor ?: "default"),
+            presentationLayout = "compact",
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            LabelChip(if (selected.simKind == "eSIM") "eSIM" else "实体 SIM")
-            LabelChip(if (selected.role == "primary") "主号" else "副号")
-            LabelChip(selected.carrier)
-            if (selected.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
-        }
-        Text("用途：${selected.usages.joinToString(" · ")}", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+        Text(
+            "通信身份 · ${selected.carrier} · ${if (selected.simKind == "eSIM") "eSIM" else "实体 SIM"}",
+            color = PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+        )
 
         val services = UiVNextDemoFixture.servicesForNumber(selected.id)
         SectionHeader("关联服务（${services.size}）")
@@ -241,35 +244,52 @@ private fun matchesNumberFilter(number: UiVNextNumber, filter: String): Boolean 
 }
 
 @Composable
-private fun NumberRow(number: UiVNextNumber, selected: Boolean, onClick: () -> Unit) {
+private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, onClick: () -> Unit) {
+    val profile = app.savedPresentationProfile("phoneNumber", number.id)
+    val displayNumber = number.copy(preset = profile?.themeId ?: number.preset)
+    val maskSensitive = app.privacyMask || (profile?.maskSensitive == true)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 3.dp)
+            .padding(vertical = 4.dp)
+            .defaultMinSize(minHeight = 82.dp)
             .clickable(onClick = onClick)
             .testTagLocal(VTestIds.NUMBER_ROW),
-        color = if (selected) PdigV2Colors.Primary.copy(alpha = 0.18f) else PdigV2Colors.SurfaceRaised.copy(alpha = 0.6f),
-        shape = RoundedCornerShape(VRadius.Md),
-        border = BorderStroke(1.dp, if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle),
+        color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(
+            1.dp,
+            if (selected) PdigV2Colors.PrimaryBright.copy(alpha = 0.85f) else PdigV2Colors.BorderSubtle,
+        ),
     ) {
         Row(
-            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                    Text(number.countryCode, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
-                }
+            NumberIdentityThumbnail(
+                number = displayNumber,
+                privacyMask = maskSensitive,
+                modifier = Modifier.width(92.dp),
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Text(
-                    "${number.maskedNumber} · ${number.carrier} · ${if (number.simKind == "eSIM") "eSIM" else "SIM"} · ${if (number.role == "primary") "主号" else "副号"}",
+                    if (maskSensitive) "${number.countryCode} •••• ••••" else number.maskedNumber,
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 12.sp,
+                    fontFamily = FontFamily.Monospace,
+                )
+                Text(
+                    "${if (number.simKind == "eSIM") "eSIM" else "实体 SIM"} · ${if (number.role == "primary") "主号" else if (number.role == "keep") "保号" else "副号"} · ${number.usages.take(2).joinToString(" / ")}",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
                 )
             }
-            if (number.recoveryOnly) LabelChip("唯一恢复", highlight = true)
-            Spacer(Modifier.width(8.dp))
-            StatusBadge(number.status)
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                if (number.recoveryOnly) LabelChip("唯一恢复", highlight = true)
+                StatusBadge(number.status)
+            }
         }
     }
 }
