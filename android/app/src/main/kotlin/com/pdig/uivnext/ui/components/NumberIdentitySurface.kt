@@ -116,7 +116,7 @@ fun NumberIdentityThumbnail(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    number.countryCode,
+                    "${numberRegionFlag(number.region)} ${number.countryCode}",
                     color = PdigV2Colors.AssetTextSecondary,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -169,6 +169,8 @@ fun NumberFace(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     DialArc(accent = accent)
                     Spacer(Modifier.width(VSpacing.Md))
+                    Text(numberRegionFlag(number.region), color = PdigV2Colors.AssetTextPrimary, fontSize = 18.sp)
+                    Spacer(Modifier.width(VSpacing.Sm))
                     Text(number.nickname, color = PdigV2Colors.AssetTextPrimary, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                     StatusBadge(number.status)
                 }
@@ -301,3 +303,12 @@ private fun roleLabel(role: String): String = when (role) {
 
 private fun maskedNumberForPrivacy(number: UiVNextNumber): String =
     number.countryCode + " •••• ••••"
+
+private fun numberRegionFlag(region: String): String = when (region) {
+    "CN" -> "🇨🇳"
+    "HK" -> "🇭🇰"
+    "GB" -> "🇬🇧"
+    "US" -> "🇺🇸"
+    "SG" -> "🇸🇬"
+    else -> "🌐"
+}
