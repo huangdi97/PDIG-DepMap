@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.VAppState
@@ -37,21 +38,21 @@ import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
 
 @Composable
-fun SearchScreen(app: VAppState) {
+fun SearchScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     var query by remember { mutableStateOf("") }
     val trimmed = query.trim()
 
     Column(
         Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(pagePadding(breakpoint))
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             "搜索与快捷操作",
             color = PdigV2Colors.TextPrimary,
-            fontSize = 26.sp,
+            fontSize = pageTitleSize(breakpoint),
             fontWeight = FontWeight.Bold,
         )
         Text(

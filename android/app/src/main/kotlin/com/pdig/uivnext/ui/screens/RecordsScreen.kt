@@ -30,6 +30,7 @@ import com.pdig.uivnext.demo.demoAttention
 import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.demoUpcoming
 import com.pdig.uivnext.model.ChangeStage
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -42,7 +43,7 @@ import com.pdig.uivnext.ui.components.StatusBadge
 
 /** 记录：把变更过程、关注事项和时间节点放进一条可追溯的连续记录。 */
 @Composable
-fun RecordsScreen(app: VAppState) {
+fun RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val changes = app.demoChanges()
     val attention = app.demoAttention()
     val upcoming = app.demoUpcoming()
@@ -51,10 +52,10 @@ fun RecordsScreen(app: VAppState) {
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(pagePadding(breakpoint)),
+        verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
     ) {
-        Text("记录", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text("记录", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
         Text(
             "追踪正在发生的变更、需要处理的风险，以及接下来已知的时间节点。",
             color = PdigV2Colors.TextSecondary,

@@ -64,9 +64,9 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.NUMBER_DETAIL -> NumberDetailScreen(app)
             VScreen.NUMBER_CUSTOMIZATION -> NumberCustomizationScreen(app, breakpoint)
             VScreen.CHANGE, VScreen.CHANGE_PHONE -> ChangePhoneScreen(app, breakpoint)
-            VScreen.RECORDS -> RecordsScreen(app)
-            VScreen.SEARCH -> SearchScreen(app)
-            VScreen.SOURCES -> DataSourcesScreen(app)
+            VScreen.RECORDS -> RecordsScreen(app, breakpoint)
+            VScreen.SEARCH -> SearchScreen(app, breakpoint)
+            VScreen.SOURCES -> DataSourcesScreen(app, breakpoint)
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
                 SecondaryInfraScreen(app, app.screen)
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app, breakpoint)

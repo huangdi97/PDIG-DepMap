@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -30,15 +31,15 @@ import com.pdig.uivnext.ui.components.SectionHeader
 
 /** 数据源：展示当前工作区覆盖范围与事实边界，不伪造尚未接入的来源。 */
 @Composable
-fun DataSourcesScreen(app: VAppState) {
+fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(pagePadding(breakpoint)),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("数据源", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text("数据源", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
         Text(
             "PDIG 只把已记录并确认的信息当作事实；没有来源的数据保持未知。",
             color = PdigV2Colors.TextSecondary,

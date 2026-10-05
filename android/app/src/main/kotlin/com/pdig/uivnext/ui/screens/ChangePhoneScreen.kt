@@ -62,10 +62,10 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+            .padding(pagePadding(breakpoint)),
+        verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
     ) {
-        Text("更换手机号", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text("更换手机号", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
         ProjectionSelector(projection) { app.changeProjection = it }
 
         // 投影语义横幅（按投影切换；after 显式 = Plan Projection）
