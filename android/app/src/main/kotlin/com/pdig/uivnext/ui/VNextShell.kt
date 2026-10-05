@@ -120,7 +120,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 }
                 Spacer(Modifier.width(VSpacing.Sm))
             }
-            if (compact && isCompactRootContext(app.screen)) {
+            if (compact && app.screen == VScreen.NOW) {
                 Row(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.CenterVertically,
