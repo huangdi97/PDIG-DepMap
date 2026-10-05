@@ -30,6 +30,7 @@ import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.ui.components.NumberIdentityThumbnail
 import com.pdig.uivnext.ui.components.StatusBadge
 
 /**
@@ -53,6 +54,85 @@ internal fun ExpandedContinuityScene(old: UiVNextNumber?, new: UiVNextNumber?, p
         ServicesSurface(projection, Modifier.weight(0.42f))
         ContinuityArrow()
         NewNumberSurface(new, projection, Modifier.weight(0.24f))
+    }
+}
+
+
+/**
+ * Phone continuity scene：把旧号码与新号码放进同一身份迁移舞台，再展示关键服务。
+ * 视觉层级来自 Human-selected light reference；事实状态仍由 projection 决定。
+ */
+@Composable
+internal fun CompactContinuityScene(old: UiVNextNumber?, new: UiVNextNumber?, projection: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.46f),
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.22f)),
+    ) {
+        Column(
+            Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                old?.let {
+                    CompactChangeIdentity(
+                        number = it,
+                        label = if (projection == "after") "旧号码 · 计划停用" else "旧号码 · 当前",
+                        dimmed = projection == "after",
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTagLocal(VTestIds.CHANGE_OLD),
+                    )
+                }
+                Text("→", color = PdigV2Colors.PrimaryBright, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                new?.let {
+                    CompactChangeIdentity(
+                        number = it,
+                        label = if (projection == "after") "新主号 · 计划" else "新号码 · 目标",
+                        dimmed = projection == "current",
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTagLocal(VTestIds.CHANGE_NEW),
+                    )
+                }
+            }
+            ServicesSurface(projection)
+        }
+    }
+}
+
+@Composable
+private fun CompactChangeIdentity(
+    number: UiVNextNumber,
+    label: String,
+    dimmed: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(
+            Modifier
+                .alpha(if (dimmed) 0.55f else 1f)
+                .padding(10.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            NumberIdentityThumbnail(
+                number = number,
+                privacyMask = false,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+            Text(number.maskedNumber, color = PdigV2Colors.TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        }
     }
 }
 
