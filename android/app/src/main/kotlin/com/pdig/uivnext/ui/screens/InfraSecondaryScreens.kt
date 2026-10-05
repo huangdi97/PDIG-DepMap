@@ -20,6 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -32,25 +33,26 @@ import com.pdig.uivnext.ui.components.SectionHeader
 
 /** 基础设施二级：账户 / 邮箱 / 设备 / 服务 / 薄弱点。未知永远保持未知。 */
 @Composable
-fun SecondaryInfraScreen(app: VAppState, screen: VScreen) {
+fun SecondaryInfraScreen(app: VAppState, screen: VScreen, breakpoint: MediaBreakpoint) {
     when (screen) {
-        VScreen.SERVICES -> ServicesScreen(app)
-        VScreen.WEAKNESSES -> WeaknessesScreen(app)
-        VScreen.ACCOUNTS -> AccountsScreen(app)
-        VScreen.EMAILS -> EmailsScreen(app)
-        VScreen.DEVICES -> DevicesScreen(app)
-        else -> ServicesScreen(app)
+        VScreen.SERVICES -> ServicesScreen(app, breakpoint)
+        VScreen.WEAKNESSES -> WeaknessesScreen(app, breakpoint)
+        VScreen.ACCOUNTS -> AccountsScreen(app, breakpoint)
+        VScreen.EMAILS -> EmailsScreen(app, breakpoint)
+        VScreen.DEVICES -> DevicesScreen(app, breakpoint)
+        else -> ServicesScreen(app, breakpoint)
     }
 }
 
 @Composable
-private fun ServicesScreen(app: VAppState) {
+private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val services = UiVNextDemoFixture.services
         .filter { app.regionFilter == null || it.region == app.regionFilter }
 
     InfraPage(
         title = "服务",
         subtitle = "查看已经记录的服务，以及它们所在的地区和承担的角色。",
+        breakpoint = breakpoint,
     ) {
         RegionScopeBanner(app)
         InfraSummaryHero(
@@ -109,7 +111,7 @@ private fun ServicesScreen(app: VAppState) {
 }
 
 @Composable
-private fun WeaknessesScreen(app: VAppState) {
+private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val numbers = UiVNextDemoFixture.numbers.filter {
         it.recoveryOnly && (app.regionFilter == null || it.region == app.regionFilter)
     }
@@ -129,6 +131,7 @@ private fun WeaknessesScreen(app: VAppState) {
     InfraPage(
         title = "薄弱点",
         subtitle = "从已确认的恢复路径、到期状态和迁移计划中识别需要优先处理的风险。",
+        breakpoint = breakpoint,
     ) {
         RegionScopeBanner(app)
         val knownWeaknessCount = numbers.size + cards.size + emails.size + devices.size + if (showPhoneMigration) 1 else 0
@@ -214,16 +217,17 @@ private fun WeaknessesScreen(app: VAppState) {
 internal fun InfraPage(
     title: String,
     subtitle: String,
+    breakpoint: MediaBreakpoint,
     content: @Composable () -> Unit,
 ) {
     Column(
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp),
+            .padding(pagePadding(breakpoint)),
+        verticalArrangement = Arrangement.spacedBy(if (breakpoint == MediaBreakpoint.COMPACT) 12.dp else 14.dp),
     ) {
-        Text(title, color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
+        Text(title, color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
         Text(subtitle, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
         content()
     }

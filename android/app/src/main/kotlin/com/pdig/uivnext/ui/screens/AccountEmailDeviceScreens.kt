@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.UiVNextAccount
 import com.pdig.uivnext.model.UiVNextDevice
 import com.pdig.uivnext.model.UiVNextEmail
@@ -28,11 +29,12 @@ import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.SectionHeader
 
 @Composable
-internal fun AccountsScreen(app: VAppState) {
+internal fun AccountsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val accounts = UiVNextDemoFixture.accounts.filter { app.regionFilter == null || it.region == app.regionFilter }
     InfraPage(
         title = "账户",
         subtitle = "账户是服务之上的身份入口：重点关注验证方式、恢复路径和跨地区依赖。",
+        breakpoint = breakpoint,
     ) {
         RegionScopeBanner(app)
         InfraSummaryHero(
@@ -81,11 +83,12 @@ private fun AccountRow(account: UiVNextAccount) {
 }
 
 @Composable
-internal fun EmailsScreen(app: VAppState) {
+internal fun EmailsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val emails = UiVNextDemoFixture.emails.filter { app.regionFilter == null || it.region == app.regionFilter }
     InfraPage(
         title = "邮箱",
         subtitle = "邮箱可能同时承担登录、通知和恢复职责；唯一恢复邮箱必须显式识别。",
+        breakpoint = breakpoint,
     ) {
         RegionScopeBanner(app)
         InfraSummaryHero(
@@ -130,11 +133,12 @@ private fun EmailRow(email: UiVNextEmail) {
 }
 
 @Composable
-internal fun DevicesScreen(app: VAppState) {
+internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val devices = UiVNextDemoFixture.devices.filter { app.regionFilter == null || it.region == app.regionFilter }
     InfraPage(
         title = "设备",
         subtitle = "可信设备、验证器和恢复设备构成连续性链路；长期未使用的设备需要人工复核。",
+        breakpoint = breakpoint,
     ) {
         RegionScopeBanner(app)
         InfraSummaryHero(

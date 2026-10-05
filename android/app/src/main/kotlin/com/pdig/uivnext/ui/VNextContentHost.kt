@@ -68,7 +68,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.SEARCH -> SearchScreen(app, breakpoint)
             VScreen.SOURCES -> DataSourcesScreen(app, breakpoint)
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
-                SecondaryInfraScreen(app, app.screen)
+                SecondaryInfraScreen(app, app.screen, breakpoint)
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app, breakpoint)
         }
         if (app.globe.state == VGlobeState.REGION_DETAIL) {
