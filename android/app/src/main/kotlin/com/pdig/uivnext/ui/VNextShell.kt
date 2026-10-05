@@ -122,7 +122,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 Spacer(Modifier.width(VSpacing.Sm))
             }
             Text(
-                app.screen.titleZh,
+                if (compact && isCompactRootContext(app.screen)) "PDIG" else app.screen.titleZh,
                 color = PdigV2Colors.TextPrimary,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 16.sp,
@@ -198,3 +198,17 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
         }
     }
 }
+
+private fun isCompactRootContext(screen: VScreen): Boolean = screen in setOf(
+    VScreen.NOW,
+    VScreen.INFRASTRUCTURE,
+    VScreen.OVERVIEW,
+    VScreen.CARDS,
+    VScreen.NUMBERS,
+    VScreen.ACCOUNTS,
+    VScreen.EMAILS,
+    VScreen.DEVICES,
+    VScreen.SERVICES,
+    VScreen.WEAKNESSES,
+    VScreen.RECORDS,
+)
