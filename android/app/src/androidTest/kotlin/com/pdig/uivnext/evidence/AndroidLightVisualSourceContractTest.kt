@@ -30,12 +30,18 @@ class AndroidLightVisualSourceContractTest {
     val compose = createComposeRule()
 
     @Test
-    fun compactRoot_usesStablePdigBrandLayer() {
-        val app = createVNextAppState(screen = VScreen.CARDS)
+    fun compactTopBar_usesBrandOnNow_andContextTitleOnFocusedPages() {
+        val app = createVNextAppState(screen = VScreen.NOW)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
+        compose.onNodeWithTag("pdig.nav.top.brand", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("PDIG", useUnmergedTree = true).assertExists()
+
+        app.navigate(VScreen.CARDS)
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.nav.top.title", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("卡片", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertExists()
     }
 
