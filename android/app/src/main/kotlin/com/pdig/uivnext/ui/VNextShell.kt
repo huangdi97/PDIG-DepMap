@@ -145,7 +145,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 }
             } else {
                 Text(
-                    app.screen.titleZh,
+                    if (compact) compactTopTitle(app.screen) else app.screen.titleZh,
                     color = PdigV2Colors.TextPrimary,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 16.sp,
@@ -245,6 +245,12 @@ internal fun resolveMediaBreakpoint(viewportWidthDp: Dp): MediaBreakpoint = when
     viewportWidthDp >= 840.dp -> MediaBreakpoint.EXPANDED
     viewportWidthDp >= 600.dp -> MediaBreakpoint.MEDIUM
     else -> MediaBreakpoint.COMPACT
+}
+
+private fun compactTopTitle(screen: VScreen): String = when (screen) {
+    VScreen.INFRASTRUCTURE, VScreen.OVERVIEW -> "基础设施"
+    VScreen.CHANGE, VScreen.CHANGE_PHONE -> "更换手机号"
+    else -> screen.titleZh
 }
 
 private fun isCompactRootContext(screen: VScreen): Boolean = screen in setOf(
