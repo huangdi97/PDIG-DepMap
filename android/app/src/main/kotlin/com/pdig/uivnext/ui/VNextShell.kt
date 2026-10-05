@@ -62,7 +62,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
                 NavigationRail(app)
                 Column(Modifier.weight(1f)) {
                     TopCommandBar(app, compact = false)
-                    if (isInfraRootScreen(app.screen)) InfraChipRow(app, compact = false)
+                    if (isInfraRootScreen(app.screen)) InfraChipRow(app)
                     VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 }
             }
