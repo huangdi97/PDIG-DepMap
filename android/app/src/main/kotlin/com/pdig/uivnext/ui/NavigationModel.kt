@@ -33,7 +33,7 @@ internal val SECONDARY_ENTRIES = listOf(
     NavEntry(VScreen.SETTINGS, Icons.Filled.Settings),
 )
 
-/** 基础设施二级（rail 内嵌小节 / compact 顶部 chip 行；卡片/号码为最高优先二级页）。 */
+/** 基础设施二级：Phone 由 Overview 管理 Hub 承载；wide 在内容区使用 sibling navigation。 */
 internal val INFRA_ENTRIES = listOf(
     NavEntry(VScreen.OVERVIEW, Icons.Filled.LocationOn),
     NavEntry(VScreen.CARDS, Icons.Filled.ShoppingCart),
