@@ -112,7 +112,9 @@ private fun NumbersHeader(
     filter: String,
     breakpoint: MediaBreakpoint,
 ) {
-    Text("号码", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+    if (breakpoint != MediaBreakpoint.COMPACT) {
+        Text("号码", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+    }
     val scope = if (app.regionFilter == null) "全球" else regionLabel(app.regionFilter!!)
     Text(
         if (filter == "all") "$scope $total 个号码" else "$scope · 当前显示 $count / $total",
