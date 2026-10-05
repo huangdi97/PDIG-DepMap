@@ -49,12 +49,14 @@ fun SearchScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text(
-            "搜索与快捷操作",
-            color = PdigV2Colors.TextPrimary,
-            fontSize = pageTitleSize(breakpoint),
-            fontWeight = FontWeight.Bold,
-        )
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            Text(
+                "搜索与快捷操作",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = pageTitleSize(breakpoint),
+                fontWeight = FontWeight.Bold,
+            )
+        }
         Text(
             "从一个入口查找卡片、号码、地区、服务与页面；搜索结果只来自已记录的基础设施。",
             color = PdigV2Colors.TextSecondary,
