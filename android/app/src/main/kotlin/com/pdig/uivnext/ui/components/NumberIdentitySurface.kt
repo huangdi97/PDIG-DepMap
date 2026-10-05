@@ -26,6 +26,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -76,6 +77,7 @@ fun NumberIdentityThumbnail(
     Surface(
         modifier = modifier
             .height(58.dp)
+            .testTag("pdig.number.identity.thumbnail")
             .clip(RoundedCornerShape(VRadius.Md)),
         color = Color.Transparent,
         shape = RoundedCornerShape(VRadius.Md),
