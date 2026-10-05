@@ -70,7 +70,9 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+                if (breakpoint != MediaBreakpoint.COMPACT) {
+                    Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+                }
                 Text(
                     when {
                         kindFilter != "all" -> {
