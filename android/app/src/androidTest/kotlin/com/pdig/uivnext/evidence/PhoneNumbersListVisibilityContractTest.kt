@@ -46,6 +46,15 @@ class PhoneNumbersListVisibilityContractTest {
         // COMPACT 不嵌 Desktop Inspector
         compose.onNodeWithTag(VTestIds.PHONE_INSPECTOR, useUnmergedTree = true).assertDoesNotExist()
 
+        // Human-selected light reference: Numbers 必须保留 communication-identity visual surface，
+        // 不能退化回纯文本通讯录行。
+        assertTrue(
+            "compact numbers must render identity thumbnails",
+            compose.onAllNodesWithTag("pdig.number.identity.thumbnail", useUnmergedTree = true)
+                .fetchSemanticsNodes()
+                .isNotEmpty(),
+        )
+
         val rows = compose.onAllNodesWithTag(VTestIds.NUMBER_ROW, useUnmergedTree = true).fetchSemanticsNodes()
         // expected count = 7：fixture 数据量为 7（列表懒加载，首屏只组合可视行；数据不得裁剪）
         assertEquals("expected count = 7（fixture 号码数）", 7, app.demoNumbers().size)
