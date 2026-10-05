@@ -1,11 +1,14 @@
 package com.pdig.uivnext
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -36,9 +39,18 @@ fun VNextApp(app: VAppState, forcedViewportWidthDp: Int? = null) {
             error = PdigV2Colors.Critical,
         ),
     ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = PdigV2Colors.Canvas,
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            Color(0xFFF9FBFF),
+                            PdigV2Colors.Canvas,
+                            Color(0xFFEEF5FF),
+                        ),
+                    ),
+                ),
         ) {
             VNextShell(app, forcedViewportWidthDp)
         }
