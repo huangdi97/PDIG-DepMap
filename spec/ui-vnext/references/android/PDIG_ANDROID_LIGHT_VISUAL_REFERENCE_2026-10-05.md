@@ -52,7 +52,10 @@ surfaces:
 - preview-led Card / Number Studio;
 - compact + wide Change Phone continuity scenes;
 - lighter primary navigation and content-level Infrastructure sibling navigation;
-- summary hierarchy for Accounts / Emails / Devices / Services / Weaknesses.
+- summary hierarchy for Accounts / Emails / Devices / Services / Weaknesses;
+- supporting-surface closure for Records, Search, Personalization, Data Sources, Card Detail and Number Detail:
+  task-first summaries, preview-first personalization, explicit fact-boundary visualization and stronger
+  asset identity strips now share the same light tonal hierarchy rather than falling back to settings-page chrome.
 
 This does not mean the reference is visually accepted at runtime. The current source still requires fresh
 Phone + Tablet evidence and Human pixel review before Android Reference Freeze.
@@ -63,3 +66,24 @@ ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
 ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
 ANDROID_REFERENCE_FREEZE = HOLD
 ```
+
+
+## Supporting-surface closure checkpoint
+
+Latest reviewed Android production-UI checkpoint for this reference:
+
+`94b9445a73c40c11e592ed9fa08d2c55646c3880`
+
+This checkpoint completes the remaining source-level light-reference translation that was still visibly
+utility/settings-like after the first pass:
+
+- Records now opens with a light task summary for active changes / attention / upcoming;
+- Search has a raised global-search surface and explicit recorded-data scope;
+- Data Sources makes the fact boundary visible: 本机优先 / 已确认 / 未知，and explicitly preserves
+  “未知绝不自动推断为安全”;
+- Personalization is preview-first instead of beginning with generic preference rows;
+- Card Detail and Number Detail add compact identity summaries directly under the real asset face;
+- structural instrumentation contracts protect these presentation hierarchies from regression.
+
+No runtime visual acceptance is implied. The exact current remote HEAD must be built and captured on the
+existing API36 Phone and Tablet AVDs before Human Final Acceptance.
