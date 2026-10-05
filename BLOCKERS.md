@@ -1,5 +1,21 @@
 # BLOCKERS.md
 >
+> **ANDROID UI vNext Focused Phone Current-Head Gate（2026-10-05）：**
+> - Human-selected 亮色参考已经完成进一步 source translation；最新 Android production-UI checkpoint
+>   = `e48e6276dafaf04280b34468d5cb31f6e37b7b6e`。
+> - 当前没有已知必须继续靠 source 猜测的 P0/P1 UI 设计缺口；Phone/Tablet 的下一判定必须来自
+>   exact-current-head runtime pixels。
+> - 本轮新增 Phone Infrastructure 8 类 Hub、Now/Infrastructure Globe 职责分离、compact contextual
+>   top title、compact duplicate-title cleanup、wide-only Infrastructure sibling nav，以及 visually compact
+>   filters / Change projection / Studio controls；相关 instrumentation contracts 已同步。
+> - 这些生产 UI 变化尚未在 API36 Phone + Tablet exact current HEAD 上重跑，因此不得宣称 Build /
+>   Instrumentation / Runtime / Visual ACCEPTED。
+> - 旧 `4e43511...` evidence 只作为历史证据；Local Agent 仅负责 build/run/test/capture/evidence，
+>   不得重新设计 UI。
+> - 保持：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+>
+>
 > **ANDROID UI vNext Selected Light Reference Current-Head Gate（2026-10-05）：**
 > - Human-selected 亮色视觉参考已经入仓并完成 source-level translation；最新 Android production-UI
 >   checkpoint = `94b9445a73c40c11e592ed9fa08d2c55646c3880`。
