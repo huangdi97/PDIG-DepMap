@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `47f6b9c6f592b21bd941092e7855433459a2723f` (Human-selected light reference + focused Phone IA/craft closure)
+> Android production-UI source checkpoint: `a03bc11c8bac601f95bf2e070c5f666e2b22d271` (Human-selected light reference + focused Phone + secondary-infrastructure asset closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -201,7 +201,7 @@ HARMONY_UI_VNEXT = HOLD
 ```
 
 The next local run must build and capture from the exact current remote branch HEAD. The latest Android
-production-UI checkpoint is `77c7b369...`; any later Android production-UI commit invalidates the evidence
+production-UI checkpoint is `a03bc11c...`; any later Android production-UI commit invalidates the evidence
 and requires regeneration. Documentation-only descendants do not change pixels, but the execution Agent
 should still pull and record the exact remote HEAD it actually validates.
 
