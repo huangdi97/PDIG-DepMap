@@ -135,14 +135,16 @@ internal fun CompactInfrastructureHub(app: VAppState) {
 
 private fun compactInfraHint(screen: VScreen, app: VAppState): String {
     val zeroed = app.emptyDemo
+    val region = app.regionFilter
+    fun matchesRegion(code: String): Boolean = region == null || code == region
     return when (screen) {
-        VScreen.OVERVIEW -> if (app.regionFilter == null) "全球" else regionLabel(app.regionFilter!!)
-        VScreen.CARDS -> "${if (zeroed) 0 else app.demoCards().size} 张"
-        VScreen.NUMBERS -> "${if (zeroed) 0 else app.demoNumbers().size} 个"
-        VScreen.ACCOUNTS -> "${if (zeroed) 0 else UiVNextDemoFixture.accounts.size} 个"
-        VScreen.EMAILS -> "${if (zeroed) 0 else UiVNextDemoFixture.emails.size} 个"
-        VScreen.DEVICES -> "${if (zeroed) 0 else UiVNextDemoFixture.devices.size} 台"
-        VScreen.SERVICES -> "${if (zeroed) 0 else UiVNextDemoFixture.services.size} 项"
+        VScreen.OVERVIEW -> if (region == null) "全球" else regionLabel(region)
+        VScreen.CARDS -> "${if (zeroed) 0 else app.demoCards().count { matchesRegion(it.region) }} 张"
+        VScreen.NUMBERS -> "${if (zeroed) 0 else app.demoNumbers().count { matchesRegion(it.region) }} 个"
+        VScreen.ACCOUNTS -> "${if (zeroed) 0 else UiVNextDemoFixture.accounts.count { matchesRegion(it.region) }} 个"
+        VScreen.EMAILS -> "${if (zeroed) 0 else UiVNextDemoFixture.emails.count { matchesRegion(it.region) }} 个"
+        VScreen.DEVICES -> "${if (zeroed) 0 else UiVNextDemoFixture.devices.count { matchesRegion(it.region) }} 台"
+        VScreen.SERVICES -> "${if (zeroed) 0 else UiVNextDemoFixture.services.count { matchesRegion(it.region) }} 项"
         VScreen.WEAKNESSES -> if (zeroed) "未知" else "查看风险"
         else -> ""
     }
