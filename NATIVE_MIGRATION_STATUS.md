@@ -3,6 +3,18 @@
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
 >
+> 2026-10-05 — ANDROID_UI_VNEXT_FOCUSED_PHONE_LIGHT_REFERENCE_CLOSURE（presentation-only）：
+> Human-selected Android 亮色参考已入仓并完成进一步原生 Compose translation。最终像素/交互呈现
+> production-UI checkpoint = `47f6b9c6f592b21bd941092e7855433459a2723f`；后续仅注释/文档。
+> Phone Now 保留大 Globe 世界观入口；Infrastructure 改为 8 类管理 Hub + 小型地区 Globe；
+> compact child screens 不再常驻 Infrastructure sibling strip；Phone 顶栏改为 Now 品牌 / 其他页面
+> 上下文标题；Cards/Numbers/Change/Studio 的 visual controls 与 48dp hit target 解耦；Medium/Expanded
+> 自适应层级保持。新增/更新 Android presentation contracts 防回退。
+> **Domain / Canonical / fixtures / conformance / `.depmap` / Native parity 均未改变。**
+> 当前 `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`，
+> `ANDROID_REFERENCE_FREEZE = HOLD`，iOS/Harmony UI vNext 继续 HOLD。
+
+>
 > 2026-10-05 — ANDROID_UI_VNEXT_HUMAN_REVIEW_ADAPTIVE_CRAFT_CLOSURE（presentation-only）：
 > Human 已直接审查 source-complete Phone/Tablet runtime pixels；旧 pack source 为 `4e43511...`。
 > Android presentation source 后续收口至 `77c7b3692c9b3327331f52af522a2bc65ecf165e`，包含
