@@ -54,9 +54,10 @@ fun NumberDetailScreen(app: VAppState) {
                 .fillMaxWidth()
                 .testTagLocal(VTestIds.NUMBER_DETAIL_HERO),
             presentationMaterial = presentation?.material,
-                presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
-                presentationLayout = presentation?.layout,
+            presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
+            presentationLayout = presentation?.layout,
         )
+        NumberSummaryStrip(number = number, serviceCount = services.size)
 
         SectionHeader(
             title = "关联服务（${services.size}）",
@@ -145,4 +146,38 @@ fun NumberDetailScreen(app: VAppState) {
             fontSize = 12.sp,
         )
     }
+
+@Composable
+private fun NumberSummaryStrip(
+    number: com.pdig.uivnext.model.UiVNextNumber,
+    serviceCount: Int,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTagLocal("pdig.number.detail.summary"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.64f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.16f)),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            NumberSummaryItem(if (number.role == "primary") "主号" else "副号", "角色", Modifier.weight(1f))
+            NumberSummaryItem(if (number.simKind == "eSIM") "eSIM" else "实体 SIM", "形态", Modifier.weight(1f))
+            NumberSummaryItem(serviceCount.toString(), "关联服务", Modifier.weight(1f))
+            NumberSummaryItem(if (number.recoveryOnly) "唯一" else "多路径", "恢复", Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun NumberSummaryItem(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(value, color = PdigV2Colors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+    }
+}
+
 }
