@@ -227,7 +227,9 @@ internal fun InfraPage(
             .padding(pagePadding(breakpoint)),
         verticalArrangement = Arrangement.spacedBy(if (breakpoint == MediaBreakpoint.COMPACT) 12.dp else 14.dp),
     ) {
-        Text(title, color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            Text(title, color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        }
         Text(subtitle, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
         content()
     }
