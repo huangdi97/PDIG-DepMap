@@ -72,7 +72,14 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             Column(Modifier.weight(1f)) {
                 Text("卡片", color = PdigV2Colors.TextPrimary, fontSize = 26.sp, fontWeight = FontWeight.Bold)
                 Text(
-                    if (app.regionFilter == null) "全球 ${regionFiltered.size} 张卡" else "${regionLabel(app.regionFilter!!)} · ${regionFiltered.size} 张卡",
+                    when {
+                        kindFilter != "all" -> {
+                            val scope = if (app.regionFilter == null) "全球" else regionLabel(app.regionFilter!!)
+                            "$scope · 当前显示 ${filteredCards.size} / ${regionFiltered.size} 张卡"
+                        }
+                        app.regionFilter == null -> "全球 ${regionFiltered.size} 张卡"
+                        else -> "${regionLabel(app.regionFilter!!)} · ${regionFiltered.size} 张卡"
+                    },
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                 )
