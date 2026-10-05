@@ -35,6 +35,14 @@
       "height": 941,
       "purpose": "human-approved visual target 04 (Global Digital Infrastructure spatial product reference)",
       "humanApproved": true
+    },
+    {
+      "filename": "android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg",
+      "sha256": "4b2ca9e059aa9f0d0c4b9e46063c2667b7eee2e50352b80ac795d3f8d77c3caf",
+      "width": 320,
+      "height": 213,
+      "purpose": "human-selected Android light-first visual direction reference; compressed repository copy of the accepted 1536x1024 Phone + Tablet board",
+      "humanApproved": true
     }
   ],
   "goldenNote": "Reference != pixel golden. Golden baseline is established ONLY after Human/Vision approval of production screenshots (spec §54-§55)."

@@ -3,6 +3,8 @@
 This file is the Human-selected visual-direction reference for Android UI vNext.
 
 - Reference asset: `PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
+- Repository reference copy: **320×213 JPEG**, SHA256 `4b2ca9e059aa9f0d0c4b9e46063c2667b7eee2e50352b80ac795d3f8d77c3caf`
+- Human-selected source render: **1536×1024**, light-first Android Phone + Tablet concept board
 - Selection date: 2026-10-05
 - Status: **HUMAN_VISUAL_DIRECTION_REFERENCE = SELECTED**
 - Scope: Android presentation / visual hierarchy / density / light-first craft.
@@ -87,3 +89,7 @@ utility/settings-like after the first pass:
 
 No runtime visual acceptance is implied. The exact current remote HEAD must be built and captured on the
 existing API36 Phone and Tablet AVDs before Human Final Acceptance.
+
+## Asset provenance correction
+
+The repository reference path now contains a real compressed copy derived from the Human-selected 1536×1024 light concept board. It is a visual-direction reference, not a pixel golden; runtime Phone + Tablet pixels still require Human final acceptance.
