@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `94b9445a73c40c11e592ed9fa08d2c55646c3880` (Human-selected light reference translation + supporting-surface craft closure)
+> Android production-UI source checkpoint: `e48e6276dafaf04280b34468d5cb31f6e37b7b6e` (Human-selected light reference + focused Phone IA/craft closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -60,7 +60,7 @@
 
 - Top command bar.
 - Four-item bottom navigation.
-- Scrollable, visually lightweight infrastructure sibling navigation with selected-item auto-reveal.
+- Infrastructure uses a dedicated 8-category management Hub on Phone; the persistent sibling strip is reserved for wider layouts.
 - Cards default to an asset-first visual list on Phone, with a full card-face mode still available; type + region browsing stay presentation-only.
 - Numbers use List→Detail rather than desktop inspector; every compact row preserves a communication-identity visual surface rather than a generic address-book row.
 - Studios use Preview-first layout; compact theme selection is a horizontal visual gallery rather than a full-width settings list.
@@ -328,3 +328,58 @@ ANDROID_REFERENCE_FREEZE = HOLD
 IOS_UI_VNEXT = HOLD
 HARMONY_UI_VNEXT = HOLD
 ```
+
+## 15. Focused Phone information architecture & density closure (2026-10-05)
+
+A further source review against the Human-selected light reference found that the first light translation still
+carried too much wide-screen chrome into Phone:
+
+- Now and Infrastructure Overview both presented a large Globe as the first dominant surface;
+- the eight Infrastructure sibling destinations remained permanently mounted above every Phone child screen;
+- compact root screens kept the PDIG brand title even when the user was already working inside Cards,
+  Numbers, Records, Change or another focused surface;
+- filter / projection / Studio chips used their 48dp accessibility touch target as their full visual height,
+  making the light UI read heavier than the selected reference.
+
+The Android source now closes those issues:
+
+1. **Now = world view.** The large Globe remains the product/world-view hero and the home for current attention.
+2. **Infrastructure = management hub.** Phone Overview now opens with an eight-category object hub
+   (总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点), followed by a smaller regional Globe and
+   Region/Attention context. It is intentionally not a second copy of Now.
+3. **Focused child screens.** Phone no longer mounts the persistent Infrastructure sibling strip above
+   Cards / Numbers / Accounts / Emails / Devices / Services / Weaknesses. Wider layouts retain the content-level
+   sibling navigation row.
+4. **Contextual compact top bar.** Only Now carries the PDIG brand layer. Other Phone surfaces use the current
+   screen/task title; duplicate in-content titles were removed on compact layouts.
+5. **Touch target != visual pill.** Cards/Numbers filters, Change projection controls, and Studio chips preserve
+   the Android 48dp interactive target while rendering a visually lighter inner control.
+6. **Adaptive truth remains unchanged.** Compact uses bottom navigation and focused single-pane flows; Medium
+   uses rail + single-pane content; Expanded uses rail + wider list/detail or spatial compositions.
+
+This closure changes presentation only. It does not modify Canonical, PersonalReality, `.depmap`,
+PresentationProfile persistence semantics, Unknown handling, Change Phone truth semantics, or the frozen
+Desktop reference.
+
+Regression contracts now guard:
+
+- Phone Overview management Hub presence;
+- absence of the wide Infrastructure sibling strip on compact layouts;
+- Now Globe remaining visually larger than the compact Overview regional Globe;
+- PDIG branding on Now and contextual top-title behavior on focused Phone pages;
+- existing Cards/Numbers/Studio/Change/adaptive/accessibility contracts.
+
+Current gate remains:
+
+```
+ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE
+ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
+ANDROID_REFERENCE_FREEZE = HOLD
+IOS_UI_VNEXT = HOLD
+HARMONY_UI_VNEXT = HOLD
+```
+
+The next local execution run must capture the exact current remote HEAD (or a later documented production-UI
+checkpoint). Any further Android production-UI commit invalidates prior runtime acceptance evidence.
