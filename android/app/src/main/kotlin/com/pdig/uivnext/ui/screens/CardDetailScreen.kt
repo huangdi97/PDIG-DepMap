@@ -138,7 +138,9 @@ private fun IdentityPanel(
                 presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
                 presentationLayout = presentation?.layout,
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(14.dp))
+            CardIdentitySummary(card = card, serviceCount = services.size)
+            Spacer(Modifier.height(14.dp))
             DetailRow("卡组织", card.network)
             DetailRow("地区", regionLabel(card.region))
             DetailRow("币种", card.currency)
@@ -182,6 +184,38 @@ private fun IdentityPanel(
                 fontSize = 11.sp,
             )
         }
+    }
+}
+
+@Composable
+private fun CardIdentitySummary(
+    card: com.pdig.uivnext.model.UiVNextCard,
+    serviceCount: Int,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTagLocal("pdig.card.detail.summary"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.62f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.16f)),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            CardSummaryItem(regionLabel(card.region), "地区", Modifier.weight(1f))
+            CardSummaryItem(card.currency, "币种", Modifier.weight(1f))
+            CardSummaryItem(serviceCount.toString(), "绑定服务", Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun CardSummaryItem(value: String, label: String, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(value, color = PdigV2Colors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
     }
 }
 
