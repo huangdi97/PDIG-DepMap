@@ -104,7 +104,7 @@ internal fun NavigationRail(app: VAppState) {
 @Composable
 private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expanded: Boolean) {
     val selected = isEntrySelected(screen, app.screen)
-    val bg = if (selected) PdigV2Colors.Primary.copy(alpha = 0.2f) else PdigV2Colors.SurfaceGlass
+    val bg = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface.copy(alpha = 0f)
     val fg = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary
     Surface(
         modifier = Modifier
