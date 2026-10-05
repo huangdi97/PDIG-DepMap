@@ -1,3 +1,23 @@
+> **（最新）ANDROID UI vNext · Light Visual Reference Source Closure（2026-10-05）**
+> —— Human 已选定亮色 Android 参考图并入仓：
+> `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`。
+> ChatGPT 已直接在 `feat/android-ui-vnext-translation` 完成对应 source translation：
+> light-first Material shell、Globe-led Now、Cards 资产化列表 + 卡种/地区浏览、Numbers
+> communication-identity 缩略面 + wide NumberFace inspector、Phone Change continuity scene、
+> Preview-led Studio、Secondary Infrastructure summary hierarchy、compact PDIG brand top bar、
+> quieter wide primary rail，以及对应防回退 contracts。Canonical / PersonalReality /
+> PresentationProfile 边界、Desktop Dark Freeze、Change After = Plan Projection 均未改变。
+>
+> **当前 production-UI checkpoint = `c753a91c33e7eeea544240525174299234cfb1c8`.**
+> 由于 production UI 已继续修改，所有来自 `4e43511...` 的 2026-10-04 Phone/Tablet runtime
+> screenshots 仅为历史证据。当前状态：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> Local Agent 下一轮仅允许 exact-HEAD build/test/AVD/runtime/evidence，不得自行 redesign。
+>
 > **（最新）ANDROID UI vNext · Human Pixel Review + Adaptive Craft Closure（2026-10-05）**
 > —— ChatGPT 已直接审阅 2026-10-04 committed Phone 24 + Tablet runtime pixels，并核对 source /
 > manifests / contracts；未机械接受 Agent PASS。该证据包 source = `4e43511...`，Human Review
