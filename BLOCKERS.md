@@ -4,7 +4,7 @@
 > - Human-selected light visual direction 已进入 Android Compose production UI；当前 source-design
 >   不存在已知待实现的主视觉页面缺口。
 > - 当前唯一 Android UI Freeze 阻塞是 **fresh runtime evidence + Human pixel acceptance**：
->   最新 production-UI checkpoint = `c753a91c33e7eeea544240525174299234cfb1c8`，旧 evidence
+>   最新 production-UI checkpoint = `feb110663f19fcca74c0ddc7e3e619fc501474e6`，旧 evidence
 >   source = `4e43511...`。
 > - 本轮新增/改变了主题、Now、Cards、Numbers、Change Phone、Studio、secondary infrastructure、
 >   shell/navigation，因此旧截图不可用于 Final Freeze。
