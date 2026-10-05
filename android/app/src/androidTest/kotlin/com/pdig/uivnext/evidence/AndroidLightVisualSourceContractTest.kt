@@ -1,5 +1,6 @@
 package com.pdig.uivnext.evidence
 
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -35,6 +36,33 @@ class AndroidLightVisualSourceContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithText("PDIG", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun compactInfrastructure_isManagementHub_notSecondNow() {
+        val app = createVNextAppState(screen = VScreen.NOW)
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        val nowGlobe = compose.onNodeWithTag(VTestIds.NOW_GLOBE, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+
+        app.navigate(VScreen.OVERVIEW)
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.overview.infrastructure-hub", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertDoesNotExist()
+        val overviewGlobe = compose.onNodeWithTag(VTestIds.GLOBE_STAGE, useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        assertTrue(
+            "Phone Infrastructure should keep a smaller regional globe than Now's world-view hero",
+            overviewGlobe.height < nowGlobe.height,
+        )
+
+        app.navigate(VScreen.CARDS)
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertExists()
     }
 
