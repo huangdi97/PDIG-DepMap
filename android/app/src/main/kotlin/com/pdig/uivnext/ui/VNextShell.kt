@@ -122,7 +122,9 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
             }
             if (compact && app.screen == VScreen.NOW) {
                 Row(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("pdig.nav.top.brand"),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Surface(
@@ -149,7 +151,9 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                     fontSize = 16.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .testTag("pdig.nav.top.title"),
                 )
             }
             if ((!compact || isCompactRootContext(app.screen)) && app.screen != VScreen.SEARCH) {
