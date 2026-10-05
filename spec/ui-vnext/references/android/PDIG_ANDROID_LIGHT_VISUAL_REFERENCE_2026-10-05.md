@@ -38,3 +38,28 @@ When source/runtime appearance conflicts with this reference:
 3. translate this reference's visual hierarchy, light-first palette, asset identity, spatial depth, and product mood;
 4. do **not** copy accidental generated text, counts, brands, or obsolete navigation.
 
+
+
+## Source translation status
+
+The selected direction has now been translated into Android Compose source across the principal visual
+surfaces:
+
+- light-first Material color system and shell;
+- Globe-led Now / Overview hierarchy;
+- asset-first Cards and communication-identity Numbers;
+- Card / Number detail identity surfaces;
+- preview-led Card / Number Studio;
+- compact + wide Change Phone continuity scenes;
+- lighter primary navigation and content-level Infrastructure sibling navigation;
+- summary hierarchy for Accounts / Emails / Devices / Services / Weaknesses.
+
+This does not mean the reference is visually accepted at runtime. The current source still requires fresh
+Phone + Tablet evidence and Human pixel review before Android Reference Freeze.
+
+```
+HUMAN_VISUAL_DIRECTION_REFERENCE = SELECTED
+ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_REFERENCE_FREEZE = HOLD
+```
