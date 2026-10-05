@@ -1,5 +1,18 @@
 # BLOCKERS.md
 >
+> **ANDROID UI vNext Selected Light Reference Current-Head Gate（2026-10-05）：**
+> - Human-selected 亮色视觉参考已经入仓并完成 source-level translation；最新 Android production-UI
+>   checkpoint = `94b9445a73c40c11e592ed9fa08d2c55646c3880`。
+> - 当前没有已知需要继续凭 source 猜测的 UI 设计缺口；**唯一正确的下一 Gate 是 exact-current-head
+>   runtime evidence freshness + Human pixel review**。
+> - 旧 `4e43511...` Phone/Tablet runtime pack 与当前 light source 不同源，只能作为历史证据。
+> - 本轮新增的 Records/Search/Data Sources/Personalization/Card Detail/Number Detail light hierarchy
+>   以及既有 Cards/Numbers/Change/Studio source contracts 均尚未由 API36 Phone+Tablet 当前 HEAD
+>   runtime 重新验证；因此不得写 Android Runtime PASS / Visual ACCEPTED / Freeze PASS。
+> - 保留：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+>
+>
 > **ANDROID UI vNext Light Reference Current-Head Gate（2026-10-05）：**
 > - Human-selected light visual direction 已进入 Android Compose production UI；当前 source-design
 >   不存在已知待实现的主视觉页面缺口。
