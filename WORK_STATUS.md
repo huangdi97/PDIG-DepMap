@@ -1,7 +1,7 @@
 > **（最新）ANDROID UI vNext · Focused Phone Light Reference Closure（2026-10-05）**
 > —— Human-selected 亮色参考图已作为 Android Visual Direction Reference 入仓，ChatGPT 继续直接在
 > `feat/android-ui-vnext-translation` 完成 Phone 信息架构与视觉密度收口。Android production-UI
-> checkpoint = `47f6b9c6f592b21bd941092e7855433459a2723f`；其后仅文档同步。
+> checkpoint = `a03bc11c8bac601f95bf2e070c5f666e2b22d271`；其后为结构契约测试与文档同步。
 >
 > 本轮 source 变化：Now 保留大 Globe 世界观入口；Phone Infrastructure 改为 8 类管理 Hub +
 > 小型地区 Globe + Region/Attention 上下文，不再成为第二个 Now；Phone 子页不再常驻 8 项
