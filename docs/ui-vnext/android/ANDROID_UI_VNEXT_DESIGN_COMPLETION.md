@@ -2,7 +2,7 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `c753a91c33e7eeea544240525174299234cfb1c8` (Human-selected light reference translation + asset-first Android craft closure)
+> Android production-UI source checkpoint: `feb110663f19fcca74c0ddc7e3e619fc501474e6` (Human-selected light reference translation + asset-first Android craft closure)
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -255,17 +255,14 @@ fragments, and accidental copy are not functional truth.
 
 The Android source translation now includes:
 
-- **Light-first Material shell**: off-white canvas, white / cool-blue raised surfaces, navy text, blue primary
-  actions, semantic positive/warning/critical colors; Globe and asset faces intentionally retain deep local
-  canvases for spatial depth and identity.
+- **Light-first Material shell**: off-white canvas with a restrained cool-blue spatial gradient, white / cool-blue raised surfaces, navy text, blue primary actions, semantic positive/warning/critical colors; Globe and asset faces intentionally retain deep local canvases for spatial depth and identity.
 - **Stable Phone brand layer**: compact root screens use `PDIG` in the top bar instead of duplicating each
   page title; detail / studio / search / change contexts still show contextual titles.
 - **Globe-led Now**: the Globe remains the spatial hero with infrastructure counts attached to it; attention
   and active change outrank generic statistics.
 - **Asset-first Cards**: Phone defaults to a high-density visual list with real card thumbnails; card-face
   mode remains available; browsing now supports card type and region without mutating data.
-- **Asset-first Numbers**: Phone list rows now render communication-identity thumbnails; wide inspector uses
-  the real NumberFace rather than plain text. Saved PresentationProfile is reused by list/detail/studio.
+- **Asset-first Numbers**: Phone list rows now render communication-identity thumbnails with visible region identity; wide inspector uses the real NumberFace rather than plain text. Saved PresentationProfile is reused by list/detail/studio.
 - **Continuity choreography**: compact Change Phone now places old and target number identities in one
   migration scene with critical services beneath; Tablet keeps the three-column OLD / SERVICES / NEW scene.
   Current / Transition / After truth semantics are unchanged, and After remains Plan Projection.
