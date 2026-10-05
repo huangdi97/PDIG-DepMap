@@ -1,3 +1,22 @@
+> **（最新）ANDROID UI vNext · Selected Light Reference Source Closure（2026-10-05）**
+> —— Human-selected 亮色 Android 参考图已正式入仓：
+> `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg` +
+> 同名 visual contract。ChatGPT 直接在 GitHub 完成第二轮 light-reference source craft：
+> Now/Overview、Cards/Detail/Studio、Numbers/Detail/Studio、Change Phone、Records、Search、
+> Personalization、Data Sources、secondary infrastructure 与 shell/navigation 统一到 light-first
+> tonal hierarchy；新增 Records task summary、Data Sources fact-boundary hero、Personalization
+> preview-first surface、Card/Number detail identity summary，并扩展
+> `AndroidLightVisualSourceContractTest` 防止回退。最新 Android production-UI checkpoint =
+> `94b9445a73c40c11e592ed9fa08d2c55646c3880`；其后仅文档同步。
+>
+> 当前状态：`ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 旧 `4e43511...` runtime screenshots 继续仅作历史证据；下一步只能由本地执行 Agent 对 exact
+> current remote HEAD 做 build/test/API36 Phone+Tablet/runtime screenshot/evidence，不得 redesign。
+>
 > **（最新）ANDROID UI vNext · Light Visual Reference Source Closure（2026-10-05）**
 > —— Human 已选定亮色 Android 参考图并入仓：
 > `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`。
