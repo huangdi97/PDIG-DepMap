@@ -44,6 +44,7 @@ fun DataSourcesScreen(app: VAppState) {
             color = PdigV2Colors.TextSecondary,
             fontSize = 13.sp,
         )
+        FactBoundaryHero()
 
         SectionHeader("当前工作区")
         Surface(
@@ -91,6 +92,37 @@ fun DataSourcesScreen(app: VAppState) {
         JumpRow("邮箱", "查看登录、通知与恢复邮箱") { app.navigate(VScreen.EMAILS) }
         JumpRow("设备", "查看可信设备、验证器和恢复设备") { app.navigate(VScreen.DEVICES) }
         JumpRow("薄弱点", "查看唯一恢复路径、到期与迁移阻塞") { app.navigate(VScreen.WEAKNESSES) }
+    }
+}
+
+@Composable
+private fun FactBoundaryHero() {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTagLocal("pdig.sources.boundary-hero"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.76f),
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.18f)),
+        tonalElevation = 2.dp,
+    ) {
+        Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            BoundaryPillar("本机优先", "数据留在当前工作区", Modifier.weight(1f))
+            BoundaryPillar("已确认", "才进入依赖分析", Modifier.weight(1f))
+            BoundaryPillar("未知", "绝不自动推断为安全", Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun BoundaryPillar(title: String, body: String, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Text(title, color = PdigV2Colors.PrimaryBright, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
     }
 }
 
