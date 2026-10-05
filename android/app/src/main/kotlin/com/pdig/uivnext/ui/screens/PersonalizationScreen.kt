@@ -38,7 +38,9 @@ fun PersonalizationScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .padding(pagePadding(breakpoint)),
         verticalArrangement = Arrangement.spacedBy(if (breakpoint == MediaBreakpoint.COMPACT) 16.dp else 18.dp),
     ) {
-        Text(if (app.screen == VScreen.SETTINGS) "设置" else "个性化", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            Text(if (app.screen == VScreen.SETTINGS) "设置" else "个性化", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
+        }
         Text(
             "这些设置只改变你看到的界面，不会修改卡片、号码、依赖关系或变更记录。",
             color = PdigV2Colors.TextSecondary,
