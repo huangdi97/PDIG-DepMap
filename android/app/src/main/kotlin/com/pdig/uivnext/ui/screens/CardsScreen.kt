@@ -57,6 +57,8 @@ import com.pdig.uivnext.ui.components.EmptyState
 fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val all = app.demoCards()
     val regionFiltered = if (app.regionFilter == null) all else all.filter { it.region == app.regionFilter }
+    var kindFilter by remember { mutableStateOf("all") }
+    val filteredCards = regionFiltered.filter { matchesCardKind(it, kindFilter) }
     // Human-selected Android reference: phone defaults to a high-density visual list; wide layouts
     // default to the card gallery. The user can still switch either presentation.
     var gridView by remember(breakpoint) { mutableStateOf(breakpoint != MediaBreakpoint.COMPACT) }
@@ -78,23 +80,33 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ViewToggle(gridView, onToggle = { gridView = !gridView })
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
+        CardKindFilterRow(kindFilter) { kindFilter = it }
+        Spacer(Modifier.height(10.dp))
         FilterRow(
             regions = UiVNextDemoFixture.regions.map { it.regionCode to it.displayName },
             activeRegion = app.regionFilter,
             onRegion = { app.regionFilter = it },
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(18.dp))
 
-        if (regionFiltered.isEmpty()) {
+        if (filteredCards.isEmpty()) {
             EmptyState(
                 kind = EmptyKind.CARDS,
-                title = if (app.regionFilter == null) "还没有卡片" else "该地区没有卡片",
-                description = if (app.regionFilter == null) {
-                    "没有记录 ≠ 没有风险：尚未录入卡片时，不推断任何支付路径存在或不存在。"
+                title = if (regionFiltered.isEmpty()) {
+                    if (app.regionFilter == null) "还没有卡片" else "该地区没有卡片"
                 } else {
-                    "${regionLabel(app.regionFilter!!)} 暂无卡片记录。没有记录 ≠ 没有风险。"
+                    "当前筛选没有卡片"
+                },
+                description = if (regionFiltered.isEmpty()) {
+                    if (app.regionFilter == null) {
+                        "没有记录 ≠ 没有风险：尚未录入卡片时，不推断任何支付路径存在或不存在。"
+                    } else {
+                        "${regionLabel(app.regionFilter!!)} 暂无卡片记录。没有记录 ≠ 没有风险。"
+                    }
+                } else {
+                    "换一个卡片类型继续查看；未出现在当前筛选中不代表没有支付依赖。"
                 },
                 primaryCta = "查看号码",
                 onPrimary = { app.navigate(VScreen.NUMBERS) },
@@ -117,7 +129,7 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 horizontalArrangement = Arrangement.spacedBy(20.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
             ) {
-                items(regionFiltered, key = { it.id }) { card ->
+                items(filteredCards, key = { it.id }) { card ->
                     val profile = app.savedPresentationProfile("card", card.id)
                     AssetCard(
                         card = card.copy(preset = profile?.themeId ?: card.preset),
@@ -136,7 +148,7 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     .testTagLocal(VTestIds.CARD_LIST)
                     .verticalScroll(rememberScrollState()),
             ) {
-                regionFiltered.forEach { card -> CompactCardRow(card, app) }
+                filteredCards.forEach { card -> CompactCardRow(card, app) }
             }
         }
     }
@@ -184,6 +196,30 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
             com.pdig.uivnext.ui.components.StatusBadge(card.status)
         }
     }
+}
+
+@Composable
+private fun CardKindFilterRow(active: String, onFilter: (String) -> Unit) {
+    Row(
+        Modifier.horizontalScroll(rememberScrollState()),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        listOf(
+            "all" to "全部",
+            "credit" to "信用卡",
+            "debit" to "储蓄卡",
+            "virtual" to "虚拟卡",
+        ).forEach { (key, label) ->
+            FilterChip(label, active == key) { onFilter(key) }
+        }
+    }
+}
+
+private fun matchesCardKind(card: UiVNextCard, filter: String): Boolean = when (filter) {
+    "credit" -> card.type == "credit"
+    "debit" -> card.type == "debit"
+    "virtual" -> card.form == "virtual"
+    else -> true
 }
 
 @Composable
