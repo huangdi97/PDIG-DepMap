@@ -1,7 +1,7 @@
 package com.pdig.uivnext.evidence
 
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -35,14 +35,14 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.nav.top.brand", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("PDIG", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.top.brand", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("PDIG", useUnmergedTree = true).assertIsDisplayed()
 
         app.navigate(VScreen.CARDS)
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.nav.top.title", useUnmergedTree = true).assertExists()
-        compose.onNodeWithText("卡片", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.top.title", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("卡片", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -57,8 +57,8 @@ class AndroidLightVisualSourceContractTest {
         app.navigate(VScreen.OVERVIEW)
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.overview.infrastructure-hub", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("pdig.overview.infrastructure-hub", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertIsNotDisplayed()
         val overviewGlobe = compose.onNodeWithTag(VTestIds.GLOBE_STAGE, useUnmergedTree = true)
             .fetchSemanticsNode().boundsInRoot
         assertTrue(
@@ -68,8 +68,8 @@ class AndroidLightVisualSourceContractTest {
 
         app.navigate(VScreen.CARDS)
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertIsNotDisplayed()
+        compose.onNodeWithTag(VTestIds.CARD_LIST, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -92,10 +92,10 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag(VTestIds.CHANGE_OLD, useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.CHANGE_SERVICES, useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.CHANGE_NEW, useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag(VTestIds.CHANGE_OLD, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.CHANGE_SERVICES, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.CHANGE_NEW, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -103,11 +103,11 @@ class AndroidLightVisualSourceContractTest {
         val app = createVNextAppState(screen = VScreen.RECORDS)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.records.summary", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.records.summary", useUnmergedTree = true).assertIsDisplayed()
 
         app.navigate(VScreen.PERSONALIZATION)
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.personalization.visual-preview", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.personalization.visual-preview", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -115,15 +115,15 @@ class AndroidLightVisualSourceContractTest {
         val app = createVNextAppState().apply { openNumber("num-cn-1") }
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).assertIsDisplayed()
 
         app.openCard("card-cn-2")
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true).assertIsDisplayed()
 
         app.openUtility(VScreen.SOURCES)
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.sources.boundary-hero", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.sources.boundary-hero", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -156,7 +156,7 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        compose.onNodeWithText("亮色", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("亮色", useUnmergedTree = true).assertIsDisplayed()
         assertTrue(
             "personalization must mark current visual choices",
             compose.onAllNodesWithText("当前", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty(),
