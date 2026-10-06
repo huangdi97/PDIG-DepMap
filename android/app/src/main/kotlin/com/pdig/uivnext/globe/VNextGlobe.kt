@@ -37,6 +37,7 @@ import kotlin.math.sqrt
 enum class GlobeRenderState { LOADING, TEXTURE_READY, FALLBACK, ERROR }
 
 private const val YAW_PER_SEC = 0.8f // idle rotation deg/sec（极慢；交互后暂停）
+private const val IDLE_TEXTURE_REFRESH_MS = 15_000L
 private const val MAX_ZOOM = 1.9f
 private const val MIN_ZOOM = 0.7f
 
@@ -122,12 +123,18 @@ fun VNextGlobe(
     var earthBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var earthKey by remember { mutableStateOf<String?>(null) }
 
-    // Idle rotation：极慢、可被交互暂停、reduce motion 或选中地区时关闭。
+    // Idle rotation：先让首张真实纹理稳定进入 TEXTURE_READY，再低频刷新相机。
+    // 逐像素球面投影是重任务；如果每 50ms 改 yaw，会持续取消后台渲染，最终只剩 fallback 深色球。
+    // 拖拽仍然实时更新 controller.camera；idle 只负责很慢的环境动效，不得牺牲首帧真实性。
     LaunchedEffect(controller.interactive, controller.selectedRegion, reduceMotion) {
         if (!controller.interactive || controller.selectedRegion != null || reduceMotion) return@LaunchedEffect
         while (true) {
-            delay(50)
-            yawBase = (yawBase + YAW_PER_SEC * 0.05f) % 360f
+            while (controller.renderState != GlobeRenderState.TEXTURE_READY) {
+                delay(250)
+            }
+            delay(IDLE_TEXTURE_REFRESH_MS)
+            if (!controller.interactive || controller.selectedRegion != null || reduceMotion) continue
+            yawBase = (yawBase + YAW_PER_SEC * (IDLE_TEXTURE_REFRESH_MS / 1000f)) % 360f
         }
     }
 
