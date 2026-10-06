@@ -124,27 +124,36 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     arcingPairs = arcingPairs,
                     reduceMotion = app.reduceMotion,
                 )
-                Column(Modifier.align(Alignment.TopStart).padding(if (compact) 18.dp else 22.dp)) {
-                    Text(
-                        "你的数字基础设施",
-                        color = PdigV2Colors.GlobeTextPrimary,
-                        fontSize = if (compact) 24.sp else 28.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        if (regions.isEmpty()) "当前没有已记录的地区上下文" else "连接 ${regions.size} 个地区 · 一览全局",
-                        color = PdigV2Colors.GlobeTextSecondary,
-                        fontSize = 13.sp,
-                    )
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(if (compact) 14.dp else 18.dp),
+                    color = PdigV2Colors.Surface.copy(alpha = 0.86f),
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                        Text(
+                            "你的数字基础设施",
+                            color = PdigV2Colors.TextPrimary,
+                            fontSize = if (compact) 22.sp else 26.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            if (regions.isEmpty()) "当前没有已记录的地区上下文" else "连接 ${regions.size} 个地区 · 一览全局",
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 12.sp,
+                        )
+                    }
                 }
                 Surface(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .fillMaxWidth()
                         .padding(if (compact) 10.dp else 14.dp),
-                    color = PdigV2Colors.GlobeDeep.copy(alpha = 0.84f),
+                    color = PdigV2Colors.Surface.copy(alpha = 0.88f),
                     shape = RoundedCornerShape(VRadius.Lg),
-                    border = BorderStroke(1.dp, PdigV2Colors.BorderStrong),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                 ) {
                     Row(
                         Modifier.padding(horizontal = if (compact) 10.dp else 16.dp, vertical = 10.dp),
@@ -310,7 +319,7 @@ private fun UpcomingSection(app: VAppState) {
 @Composable
 private fun NowMetric(value: String, label: String, modifier: Modifier = Modifier) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(value, color = PdigV2Colors.GlobeTextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = PdigV2Colors.GlobeTextSecondary, fontSize = 10.sp)
+        Text(value, color = PdigV2Colors.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
     }
 }
