@@ -48,6 +48,8 @@ import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.CardIdentityThumbnail
 import com.pdig.uivnext.ui.components.EmptyKind
 import com.pdig.uivnext.ui.components.EmptyState
+import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
  * Cards：过滤（全部/国家）+ Visual Grid / Compact List 切换。
@@ -62,6 +64,8 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     // Human-selected Android reference: phone defaults to a high-density visual list; wide layouts
     // default to the card gallery. The user can still switch either presentation.
     var gridView by remember(breakpoint) { mutableStateOf(breakpoint != MediaBreakpoint.COMPACT) }
+    var selectedId by remember { mutableStateOf(filteredCards.firstOrNull()?.id) }
+    val selectedCard = filteredCards.firstOrNull { it.id == selectedId } ?: filteredCards.firstOrNull()
 
     Column(
         Modifier
@@ -122,6 +126,14 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 secondaryCta = "查看基础设施",
                 onSecondary = { app.navigate(VScreen.OVERVIEW) },
             )
+        } else if (breakpoint == MediaBreakpoint.EXPANDED) {
+            ExpandedCardsWorkspace(
+                cards = filteredCards,
+                selected = selectedCard,
+                gridView = gridView,
+                app = app,
+                onSelect = { selectedId = it.id },
+            )
         } else if (gridView) {
             // B1：COMPACT 禁止再强制 2 列（两列卡宽下 nickname/issuer/form/metadata 互相挤压并竖排）。
             // 列策略：COMPACT=1 列整卡 / MEDIUM=2 列 / EXPANDED=4 列（brief §4；最终以真实设备视觉为准）。
@@ -159,6 +171,238 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ) {
                 filteredCards.forEach { card -> CompactCardRow(card, app) }
             }
+        }
+    }
+}
+
+
+/**
+ * Expanded Cards = asset gallery/list + persistent detail inspector.
+ *
+ * Tablet 不能只是把 Phone 卡片网格横向铺宽：选中对象后，右侧必须立即给出资产身份、
+ * 已确认绑定与风险上下文；完整编辑仍进入 focused Card Detail。
+ */
+@Composable
+private fun ExpandedCardsWorkspace(
+    cards: List<UiVNextCard>,
+    selected: UiVNextCard?,
+    gridView: Boolean,
+    app: VAppState,
+    onSelect: (UiVNextCard) -> Unit,
+) {
+    Row(Modifier.fillMaxSize()) {
+        if (gridView) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                modifier = Modifier
+                    .weight(0.62f)
+                    .fillMaxSize()
+                    .testTagLocal(VTestIds.CARD_GRID),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                items(cards, key = { it.id }) { card ->
+                    ExpandedSelectableCard(
+                        card = card,
+                        selected = selected?.id == card.id,
+                        app = app,
+                        onClick = { onSelect(card) },
+                    )
+                }
+            }
+        } else {
+            Column(
+                Modifier
+                    .weight(0.62f)
+                    .fillMaxSize()
+                    .testTagLocal(VTestIds.CARD_LIST)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                cards.forEach { card ->
+                    ExpandedCardListRow(
+                        card = card,
+                        selected = selected?.id == card.id,
+                        app = app,
+                        onClick = { onSelect(card) },
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.width(20.dp))
+
+        Surface(
+            modifier = Modifier
+                .weight(0.38f)
+                .fillMaxSize()
+                .testTagLocal(VTestIds.CARD_INSPECTOR),
+            color = PdigV2Colors.Surface.copy(alpha = 0.92f),
+            shape = RoundedCornerShape(VRadius.Xl),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            ExpandedCardInspector(app, selected)
+        }
+    }
+}
+
+@Composable
+private fun ExpandedSelectableCard(
+    card: UiVNextCard,
+    selected: Boolean,
+    app: VAppState,
+    onClick: () -> Unit,
+) {
+    val profile = app.savedPresentationProfile("card", card.id)
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = if (selected) PdigV2Colors.PrimarySoft.copy(alpha = 0.52f) else PdigV2Colors.SurfaceGlass,
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(
+            if (selected) 2.dp else 1.dp,
+            if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+        ),
+    ) {
+        AssetCard(
+            card = card.copy(preset = profile?.themeId ?: card.preset),
+            privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+            onClick = onClick,
+            modifier = Modifier.padding(6.dp),
+            presentationMaterial = profile?.material,
+            presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
+            presentationLayout = profile?.layout,
+        )
+    }
+}
+
+@Composable
+private fun ExpandedCardListRow(
+    card: UiVNextCard,
+    selected: Boolean,
+    app: VAppState,
+    onClick: () -> Unit,
+) {
+    val profile = app.savedPresentationProfile("card", card.id)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 88.dp)
+            .clickable(onClick = onClick),
+        color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(
+            1.dp,
+            if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+        ),
+    ) {
+        Row(
+            Modifier.padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            CardIdentityThumbnail(
+                card = card.copy(preset = profile?.themeId ?: card.preset),
+                privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+                modifier = Modifier.width(108.dp),
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(card.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text(
+                    "${card.issuer} · ${regionLabel(card.region)} · ${card.currency}",
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 12.sp,
+                )
+                Text(
+                    "${if (card.form == "virtual") "虚拟卡" else "实体卡"} · 到期 ${card.expiry}",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(18.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+    ) {
+        if (card == null) {
+            Text("选择一张卡片查看详情", color = PdigV2Colors.TextMuted, fontSize = 13.sp)
+            return@Column
+        }
+
+        val profile = app.savedPresentationProfile("card", card.id)
+        val services = UiVNextDemoFixture.servicesForCard(card.id)
+
+        SectionHeader("卡片详情")
+        AssetCard(
+            card = card.copy(preset = profile?.themeId ?: card.preset),
+            privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+            onClick = { app.openCard(card.id) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTagLocal("pdig.card.inspector.identity.${card.id}"),
+            presentationMaterial = profile?.material,
+            presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
+            presentationLayout = "compact",
+        )
+
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            LabelChip(regionLabel(card.region))
+            LabelChip(card.currency)
+            LabelChip(if (card.form == "virtual") "虚拟卡" else "实体卡")
+        }
+
+        SectionHeader("关联服务（${services.size}）")
+        if (services.isEmpty()) {
+            Text(
+                "当前没有已确认的绑定服务；未记录关系保持未知。",
+                color = PdigV2Colors.TextSecondary,
+                fontSize = 12.sp,
+            )
+        } else {
+            services.take(4).forEach { service ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(service.name, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
+                    LabelChip(service.kind)
+                }
+            }
+        }
+
+        SectionHeader("风险")
+        Text(
+            if (card.status == "expiring_soon") {
+                "即将到期；已有绑定需要在换卡后重新确认。"
+            } else {
+                "已记录关系中没有必须立即处理的风险；未知关系仍保持未知。"
+            },
+            color = if (card.status == "expiring_soon") PdigV2Colors.Critical else PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+        )
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = VTouchTarget.Min)
+                .clickable { app.openCard(card.id) },
+            color = PdigV2Colors.PrimarySoft,
+            shape = RoundedCornerShape(VRadius.Md),
+        ) {
+            Text(
+                "查看完整详情 →",
+                Modifier.padding(12.dp),
+                color = PdigV2Colors.PrimaryBright,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
