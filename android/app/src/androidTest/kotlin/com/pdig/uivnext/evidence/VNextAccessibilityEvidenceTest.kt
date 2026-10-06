@@ -4,13 +4,16 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.model.VTestIds
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -66,14 +69,15 @@ class VNextAccessibilityEvidenceTest {
         compose.waitForIdle()
 
         // Bottom nav 触控目标由 NavigationBarItem 保证 ≥48dp（bounds 校验）
+        val minTouchPx = with(compose.density) { 48.dp.toPx() }
         val navItem = compose.onNodeWithTag("pdig.nav.now", useUnmergedTree = true).fetchSemanticsNode()
-        assertTrue("bottom nav touch target must be >= 48dp tall", navItem.boundsInRoot.height >= 48f)
+        assertTrue("bottom nav touch target must be >= 48dp tall", navItem.boundsInRoot.height >= minTouchPx)
 
-        // Studio 预设按钮 ≥48dp（号码面定制）
+        // Studio 预设按钮 ≥48dp：测量可点击 ThemeTile，而不是其内部 Text glyph bounds。
         app.evidenceThemeId = "travel"
         app.openNumberCustomization("num-cn-1")
         compose.waitForIdle()
-        val preset = compose.onAllNodesWithText("旅行", useUnmergedTree = true)[0].fetchSemanticsNode()
-        assertTrue("studio preset touch target must be >= 48dp tall", preset.boundsInRoot.height >= 48f)
+        val preset = compose.onAllNodesWithTag(VTestIds.STUDIO_THEME_TILE, useUnmergedTree = true)[0].fetchSemanticsNode()
+        assertTrue("studio preset touch target must be >= 48dp tall", preset.boundsInRoot.height >= minTouchPx)
     }
 }
