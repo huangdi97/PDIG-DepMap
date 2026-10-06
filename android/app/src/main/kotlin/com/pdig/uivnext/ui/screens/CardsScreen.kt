@@ -418,7 +418,8 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .defaultMinSize(minHeight = 84.dp)
-            .clickable { app.openCard(card.id) },
+            .clickable { app.openCard(card.id) }
+            .testTagLocal(VTestIds.CARD_ROW),
         color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
