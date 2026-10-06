@@ -2,6 +2,7 @@ package com.pdig.uivnext.evidence
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -238,6 +239,31 @@ class SourceCompleteInteractionContractTest {
         app.openRegionDetail()
         assertEquals(VGlobeState.REGION_DETAIL, app.globe.state)
         app.back()
+        assertEquals(VGlobeState.REGION_SELECTED, app.globe.state)
+        assertEquals("CN", app.regionFilter)
+    }
+
+    @Test
+    fun regionListSecondTapOpensDrawerAndBackPreservesRegion() {
+        val app = createVNextAppState().apply {
+            reduceMotion = true
+            navigate(VScreen.OVERVIEW)
+        }
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+        assertEquals("CN", app.regionFilter)
+        assertEquals(VGlobeState.REGION_SELECTED, app.globe.state)
+
+        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+        assertEquals(VGlobeState.REGION_DETAIL, app.globe.state)
+        compose.onNodeWithTag("pdig.region.drawer", useUnmergedTree = true).assertIsDisplayed()
+
+        app.back()
+        compose.waitForIdle()
         assertEquals(VGlobeState.REGION_SELECTED, app.globe.state)
         assertEquals("CN", app.regionFilter)
     }

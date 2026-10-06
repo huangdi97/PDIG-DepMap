@@ -234,7 +234,9 @@ class SourceCompleteScreenshotEvidenceTest {
             { it.selectRegion("CN"); it.navigate(VScreen.OVERVIEW); it.openRegionDetail() },
             { globeStateName(it) },
             appOverride = overviewJourney,
-        )
+        ) {
+            compose.onNodeWithTag("pdig.region.drawer", useUnmergedTree = true).fetchSemanticsNode()
+        }
         capture("05-cards", "global", { it.navigate(VScreen.CARDS) }, { "global" })
         capture("06-card-detail", "card-cn-2", { it.openCard("card-cn-2") }, { it.selectedCardId ?: "none" })
         capture("07-card-studio-glass", "glass", { it.evidenceThemeId = "glass"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })

@@ -104,6 +104,8 @@ class AndroidAdaptiveShellContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithTag(VTestIds.CARD_INSPECTOR, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.card.inspector.open-detail", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("工行信用卡", useUnmergedTree = true).performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.card.inspector.identity.card-cn-2", useUnmergedTree = true).assertIsDisplayed()

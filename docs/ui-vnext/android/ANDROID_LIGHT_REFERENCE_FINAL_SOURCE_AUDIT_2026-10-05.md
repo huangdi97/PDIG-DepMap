@@ -2,9 +2,9 @@
 
 > Human-selected visual reference: `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
 >
-> Final pixel-changing Android production-UI checkpoint: `0dd0cee29d3b9410f211942283d96f893149dc39`
+> Final pixel-changing Android production-UI checkpoint: `9f8fb6fb7710b872d0f42c228da1fed8746e759a`
 >
-> Verdict: **SOURCE DESIGN RE-CLOSED AFTER 2026-10-06 HUMAN PIXEL REMEDIATION / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND3 OBJECTIVE-GATE REMEDIATION / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
 >
 > The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
 > rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
@@ -123,6 +123,44 @@ Number Detail probes, Change three-state evidence, accessibility, consumer-copy 
 Guard.
 
 Human review must inspect actual PNG pixels. Agent PASS labels cannot authorize visual acceptance.
+
+## 7.1 Round3 exact-head evidence adjudication (2026-10-06)
+
+The Local Agent recaptured `artifacts/runtime-evidence/2026-10-06-android-light-reference-round3-af25f50/`
+from exact source `af25f50b43e50fc35444a6139ee915e4a83ded30` and committed that pack at `37342cc...`.
+
+That pack is **not eligible for Freeze**, independently of visual taste, because its own report/manifests record
+mandatory acceptance failures:
+
+- official `SourceCompleteScreenshotEvidenceTest` still stops at Globe screen 03 before `TEXTURE_READY`;
+- the required 10 empty states are therefore absent;
+- Region Detail runtime evidence still records `actual=region-selected`, not `region-detail`;
+- Phone accessibility still reports the bottom-navigation target below 48dp because the evidence tag was on
+  the icon glyph rather than the clickable `NavigationBarItem`;
+- Tablet Card Studio was not reachable from the expanded Card inspector;
+- several adaptive/evidence contracts still exercised forced-wide or stale compact expectations.
+
+ChatGPT directly remediated those source/test issues at production checkpoint
+`9f8fb6fb7710b872d0f42c228da1fed8746e759a`:
+
+- bottom-nav semantics now tag the clickable item;
+- Region List supports select → second tap → Region Detail, and the drawer has an explicit runtime tag;
+- Expanded Card inspector exposes both “定制卡面” and “查看完整详情”;
+- the official Overview evidence path reuses the real 02 → 03 → 04 journey so a texture-ready Global frame is
+  not discarded and redundantly re-rendered for Region Selected;
+- expanded interaction contracts run only on a real expanded runtime;
+- stale Tablet/compact geometry expectations were aligned with the frozen adaptive hierarchy.
+
+Additional regression contracts require the Region List UI interaction to open the real drawer and preserve
+region context on Back, require 04 evidence to contain the drawer layer, and require the expanded Card inspector
+to expose both continuation actions.
+
+These changes do **not** relax `TEXTURE_READY`, accessibility, state identity, Unknown semantics, or the
+PresentationProfile/Canonical boundary. They make the evidence path exercise the production choreography that
+the user actually sees.
+
+A new pack from the exact latest remote HEAD is required. The `af25f50...` Round3 screenshots remain historical
+evidence and cannot authorize Android Freeze.
 
 ## 8. Gate
 
