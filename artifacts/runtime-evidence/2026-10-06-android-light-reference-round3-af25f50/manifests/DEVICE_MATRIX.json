@@ -1,0 +1,33 @@
+{
+  "sourceHead": "af25f50b43e50fc35444a6139ee915e4a83ded30",
+  "devices": [
+    {
+      "hardware": "Google Pixel 7",
+      "systemImage": "system-images;android-36;google_apis;x86_64",
+      "abi": "x86_64",
+      "api": 36,
+      "avd": "main",
+      "role": "Phone",
+      "id": "phone",
+      "orientation": "portrait",
+      "density": "420dpi",
+      "resolution": "1080x2400"
+    },
+    {
+      "hardware": "Google Pixel Tablet",
+      "systemImage": "system-images;android-36;google_apis;x86_64",
+      "abi": "x86_64",
+      "api": 36,
+      "avd": "pdig_tablet_api36",
+      "role": "Tablet",
+      "id": "tablet",
+      "orientation": "landscape",
+      "density": "320dpi",
+      "resolution": "2560x1600"
+    }
+  ],
+  "apkPath": "C:\\Users\\Kaiser\\pdig-build\\app\\outputs\\apk\\production\\debug\\app-production-debug.apk",
+  "spec": "DEVICE_MATRIX (ROUND3 recapture, exact head af25f50)",
+  "apkBytes": 44117283,
+  "apkSha256": "584cfb36aae48a380eff81caa7a8f34d5ea78bf48d91446b900fe8a6eddc21c9"
+}
