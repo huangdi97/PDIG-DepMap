@@ -48,6 +48,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
 
 /**
@@ -368,13 +369,13 @@ class UiScreenshotEvidenceTest {
         assertTrue("pdig.globe.stage must be laid out on overview", stage.width > 0f && stage.height > 0f)
         contentProbeApp.navigate(VScreen.CARDS)
         compose.waitForIdle()
-        val grid = probeTag("pdig.card.grid")
-        assertTrue("pdig.card.grid must be laid out on cards", grid.width > 0f && grid.height > 0f)
+        val cardList = probeTag(VTestIds.CARD_LIST)
+        assertTrue("pdig.card.list must be laid out on compact cards", cardList.width > 0f && cardList.height > 0f)
 
         val probeText = buildString {
             appendLine("pdig.nav.rail: x=${rail.left.toInt()} y=${rail.top.toInt()} w=${rail.width.toInt()} h=${rail.height.toInt()}")
             appendLine("pdig.globe.stage: x=${stage.left.toInt()} y=${stage.top.toInt()} w=${stage.width.toInt()} h=${stage.height.toInt()}")
-            appendLine("pdig.card.grid: x=${grid.left.toInt()} y=${grid.top.toInt()} w=${grid.width.toInt()} h=${grid.height.toInt()}")
+            appendLine("pdig.card.list: x=${cardList.left.toInt()} y=${cardList.top.toInt()} w=${cardList.width.toInt()} h=${cardList.height.toInt()}")
         }
         File(File(ctx().filesDir, "ui-shots"), "vnext-testtag-probe.txt").writeText(probeText)
         Log.i("UiVNextEvidence", "vnext testTag probe:\n$probeText")
