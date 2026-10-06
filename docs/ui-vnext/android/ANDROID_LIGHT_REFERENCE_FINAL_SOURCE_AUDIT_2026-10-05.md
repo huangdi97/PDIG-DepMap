@@ -2,9 +2,12 @@
 
 > Human-selected visual reference: `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
 >
-> Final pixel-changing Android production-UI checkpoint: `a03bc11c8bac601f95bf2e070c5f666e2b22d271`
+> Final pixel-changing Android production-UI checkpoint: `0dd0cee29d3b9410f211942283d96f893149dc39`
 >
-> Verdict: **SOURCE DESIGN CLOSED / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+> Verdict: **SOURCE DESIGN RE-CLOSED AFTER 2026-10-06 HUMAN PIXEL REMEDIATION / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+>
+> The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
+> rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
 
 ## 1. Authority
 
@@ -110,7 +113,10 @@ The source audit does not:
 
 ## 7. Remaining work
 
-Further blind source styling without current runtime pixels would now be speculative. The next valid artifact
+The first fresh `b659ae4...` pack exposed real pixel/evidence defects (Global Globe fallback frames, invalid
+Region/Search/Change captures, duplicate Tablet states, sparse Expanded Cards) plus stale instrumentation
+contracts. ChatGPT directly remediated the source through the production checkpoint above. Further blind source
+styling without new runtime pixels would now be speculative. The next valid artifact
 must come from the exact remote HEAD and include Phone + Tablet runtime screenshots, empty states,
 PresentationProfile persistence, workspace persistence, Search/back, Region context, Globe TEXTURE_READY,
 Number Detail probes, Change three-state evidence, accessibility, consumer-copy audit, and Desktop Freeze
