@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
@@ -119,7 +120,9 @@ class AndroidLightVisualSourceContractTest {
 
         app.openCard("card-cn-2")
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
 
         app.openUtility(VScreen.SOURCES)
         compose.waitForIdle()

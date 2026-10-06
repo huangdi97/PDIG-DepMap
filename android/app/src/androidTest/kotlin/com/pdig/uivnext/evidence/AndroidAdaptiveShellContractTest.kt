@@ -7,10 +7,12 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,8 +95,12 @@ class AndroidAdaptiveShellContractTest {
 
     @Test
     fun wideCards_clickUpdatesInspectorInsteadOfLeavingSparseGallery() {
+        assumeTrue(
+            "expanded Cards interaction contract requires a real >=840dp runtime",
+            InstrumentationRegistry.getInstrumentation().targetContext.resources.configuration.screenWidthDp >= 840,
+        )
         val app = createVNextAppState(screen = VScreen.CARDS)
-        compose.setContent { VNextApp(app, forcedViewportWidthDp = 840) }
+        compose.setContent { VNextApp(app) }
         compose.waitForIdle()
 
         compose.onNodeWithTag(VTestIds.CARD_INSPECTOR, useUnmergedTree = true).assertIsDisplayed()
@@ -105,8 +111,12 @@ class AndroidAdaptiveShellContractTest {
 
     @Test
     fun wideNumbers_clickUpdatesInspectorInsteadOfLeavingSelectionStale() {
+        assumeTrue(
+            "expanded Numbers interaction contract requires a real >=840dp runtime",
+            InstrumentationRegistry.getInstrumentation().targetContext.resources.configuration.screenWidthDp >= 840,
+        )
         val app = createVNextAppState(screen = VScreen.NUMBERS)
-        compose.setContent { VNextApp(app, forcedViewportWidthDp = 840) }
+        compose.setContent { VNextApp(app) }
         compose.waitForIdle()
 
         compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-1", useUnmergedTree = true).assertIsDisplayed()

@@ -393,7 +393,27 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
             modifier = Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = VTouchTarget.Min)
-                .clickable { app.openCard(card.id) },
+                .clickable { app.openCardCustomization(card.id) }
+                .testTagLocal("pdig.card.inspector.customize"),
+            color = PdigV2Colors.SurfaceRaised,
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Text(
+                "定制卡面",
+                Modifier.padding(12.dp),
+                color = PdigV2Colors.TextSecondary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = VTouchTarget.Min)
+                .clickable { app.openCard(card.id) }
+                .testTagLocal("pdig.card.inspector.open-detail"),
             color = PdigV2Colors.PrimarySoft,
             shape = RoundedCornerShape(VRadius.Md),
         ) {

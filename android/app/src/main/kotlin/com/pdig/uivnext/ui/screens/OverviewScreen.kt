@@ -223,7 +223,14 @@ private fun ActivityRailContent(app: VAppState, regions: List<RegionPresentation
                 RegionListItem(
                     region = region,
                     selected = app.regionFilter == region.regionCode,
-                    onClick = { app.selectRegion(region.regionCode) },
+                    modifier = Modifier.testTagLocal("pdig.region.${region.regionCode}"),
+                    onClick = {
+                        if (app.regionFilter == region.regionCode) {
+                            app.openRegionDetail()
+                        } else {
+                            app.selectRegion(region.regionCode)
+                        }
+                    },
                 )
             }
         }

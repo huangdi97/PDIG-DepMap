@@ -97,7 +97,7 @@ private fun BoxScope.RegionDrawer(app: VAppState, breakpoint: MediaBreakpoint) {
             .widthIn(max = 380.dp)
     }
     Surface(
-        modifier = drawerModifier,
+        modifier = drawerModifier.testTagLocal("pdig.region.drawer"),
         color = PdigV2Colors.Surface.copy(alpha = 0.95f),
         shape = RoundedCornerShape(VRadius.Xl),
         border = BorderStroke(1.dp, PdigV2Colors.BorderStrong),

@@ -369,13 +369,25 @@ class UiScreenshotEvidenceTest {
         assertTrue("pdig.globe.stage must be laid out on overview", stage.width > 0f && stage.height > 0f)
         contentProbeApp.navigate(VScreen.CARDS)
         compose.waitForIdle()
-        val cardList = probeTag(VTestIds.CARD_LIST)
-        assertTrue("pdig.card.list must be laid out on compact cards", cardList.width > 0f && cardList.height > 0f)
+        val cardProbeText = if (ctx().resources.configuration.screenWidthDp >= 840) {
+            val cardGrid = probeTag(VTestIds.CARD_GRID)
+            val cardInspector = probeTag(VTestIds.CARD_INSPECTOR)
+            assertTrue("pdig.card.grid must be laid out on expanded cards", cardGrid.width > 0f && cardGrid.height > 0f)
+            assertTrue("pdig.card.inspector must be laid out on expanded cards", cardInspector.width > 0f && cardInspector.height > 0f)
+            buildString {
+                appendLine("pdig.card.grid: x=${cardGrid.left.toInt()} y=${cardGrid.top.toInt()} w=${cardGrid.width.toInt()} h=${cardGrid.height.toInt()}")
+                appendLine("pdig.card.inspector: x=${cardInspector.left.toInt()} y=${cardInspector.top.toInt()} w=${cardInspector.width.toInt()} h=${cardInspector.height.toInt()}")
+            }
+        } else {
+            val cardList = probeTag(VTestIds.CARD_LIST)
+            assertTrue("pdig.card.list must be laid out on compact cards", cardList.width > 0f && cardList.height > 0f)
+            "pdig.card.list: x=${cardList.left.toInt()} y=${cardList.top.toInt()} w=${cardList.width.toInt()} h=${cardList.height.toInt()}\n"
+        }
 
         val probeText = buildString {
             appendLine("pdig.nav.rail: x=${rail.left.toInt()} y=${rail.top.toInt()} w=${rail.width.toInt()} h=${rail.height.toInt()}")
             appendLine("pdig.globe.stage: x=${stage.left.toInt()} y=${stage.top.toInt()} w=${stage.width.toInt()} h=${stage.height.toInt()}")
-            appendLine("pdig.card.list: x=${cardList.left.toInt()} y=${cardList.top.toInt()} w=${cardList.width.toInt()} h=${cardList.height.toInt()}")
+            append(cardProbeText)
         }
         File(File(ctx().filesDir, "ui-shots"), "vnext-testtag-probe.txt").writeText(probeText)
         Log.i("UiVNextEvidence", "vnext testTag probe:\n$probeText")

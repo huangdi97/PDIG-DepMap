@@ -150,6 +150,7 @@ internal fun BottomNav(app: VAppState) {
         PRIMARY_ENTRIES.forEach { entry ->
             val selected = isEntrySelected(entry.screen, app.screen)
             NavigationBarItem(
+                modifier = Modifier.testTag("pdig.nav.${entry.screen.route}"),
                 selected = selected,
                 onClick = { app.navigate(entry.screen) },
                 icon = {
@@ -157,7 +158,7 @@ internal fun BottomNav(app: VAppState) {
                         entry.icon,
                         contentDescription = entry.screen.titleZh,
                         tint = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
-                        modifier = Modifier.testTag("pdig.nav.${entry.screen.route}"),
+                        modifier = Modifier.testTag("pdig.nav.${entry.screen.route}.icon"),
                     )
                 },
                 label = {

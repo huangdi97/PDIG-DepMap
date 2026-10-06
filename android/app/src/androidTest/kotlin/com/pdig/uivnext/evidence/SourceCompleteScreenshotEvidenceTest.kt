@@ -102,9 +102,10 @@ class SourceCompleteScreenshotEvidenceTest {
         expectedState: String,
         prepare: (VAppState) -> Unit,
         actual: (VAppState) -> String,
+        appOverride: VAppState? = null,
         post: (() -> Unit)? = null,
     ) {
-        val app = createVNextAppState().apply { reduceMotion = true }
+        val app = (appOverride ?: createVNextAppState()).apply { reduceMotion = true }
         val isStudio = screen.contains("studio")
         val isGlobe = screen.startsWith("01-") || screen.startsWith("02-") ||
             screen.startsWith("03-") || screen.startsWith("04-")
@@ -204,11 +205,13 @@ class SourceCompleteScreenshotEvidenceTest {
     @Test
     fun capturesSourceCompleteHumanSet() {
         capture("01-now", "now", {}, { "now" })
+        val overviewJourney = createVNextAppState().apply { reduceMotion = true }
         capture(
             "02-overview-global",
             "global",
             { it.navigate(VScreen.OVERVIEW) },
             { globeStateName(it) },
+            appOverride = overviewJourney,
         ) {
             if (deviceClass == "tablet") {
                 val quick = compose.onNodeWithTag(VTestIds.OVERVIEW_QUICK, useUnmergedTree = true).fetchSemanticsNode()
@@ -223,12 +226,14 @@ class SourceCompleteScreenshotEvidenceTest {
             "region-selected",
             { it.selectRegion("CN"); it.navigate(VScreen.OVERVIEW) },
             { globeStateName(it) },
+            appOverride = overviewJourney,
         )
         capture(
             "04-region-drawer",
             "region-detail",
             { it.selectRegion("CN"); it.navigate(VScreen.OVERVIEW); it.openRegionDetail() },
             { globeStateName(it) },
+            appOverride = overviewJourney,
         )
         capture("05-cards", "global", { it.navigate(VScreen.CARDS) }, { "global" })
         capture("06-card-detail", "card-cn-2", { it.openCard("card-cn-2") }, { it.selectedCardId ?: "none" })
