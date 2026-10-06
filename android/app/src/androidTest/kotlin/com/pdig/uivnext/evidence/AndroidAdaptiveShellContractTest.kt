@@ -1,7 +1,7 @@
 package com.pdig.uivnext.evidence
 
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -33,9 +33,9 @@ class AndroidAdaptiveShellContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 599) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.breakpoint.compact", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("pdig.breakpoint.compact", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertIsNotDisplayed()
     }
 
     @Test
@@ -44,18 +44,18 @@ class AndroidAdaptiveShellContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 600) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.breakpoint.medium", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("pdig.breakpoint.medium", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsNotDisplayed()
 
         app.navigate(VScreen.NUMBERS)
         compose.waitForIdle()
-        compose.onNodeWithTag(VTestIds.PHONE_LIST, useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.PHONE_INSPECTOR, useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag(VTestIds.PHONE_LIST, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.PHONE_INSPECTOR, useUnmergedTree = true).assertIsNotDisplayed()
 
         app.navigate(VScreen.CHANGE_PHONE)
         compose.waitForIdle()
-        compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -64,8 +64,8 @@ class AndroidAdaptiveShellContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 840) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.breakpoint.expanded", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.breakpoint.expanded", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -74,9 +74,9 @@ class AndroidAdaptiveShellContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.overview.infrastructure-hub", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.overview.infrastructure-hub", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertIsNotDisplayed()
+        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -85,9 +85,9 @@ class AndroidAdaptiveShellContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag("pdig.search.entry", useUnmergedTree = true).assertDoesNotExist()
-        compose.onNodeWithTag("pdig.settings.entry", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsNotDisplayed()
+        compose.onNodeWithTag("pdig.search.entry", useUnmergedTree = true).assertIsNotDisplayed()
+        compose.onNodeWithTag("pdig.settings.entry", useUnmergedTree = true).assertIsNotDisplayed()
     }
 
     @Test
@@ -96,9 +96,9 @@ class AndroidAdaptiveShellContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 840) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-1", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-1", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("工作副号", useUnmergedTree = true).performClick()
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-2", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-2", useUnmergedTree = true).assertIsDisplayed()
     }
 }
