@@ -74,10 +74,10 @@ ANDROID_REFERENCE_FREEZE = HOLD
 
 Latest reviewed Android production-UI checkpoint for this reference:
 
-`a03bc11c8bac601f95bf2e070c5f666e2b22d271`
+`0dd0cee29d3b9410f211942283d96f893149dc39`
 
-This checkpoint completes the remaining source-level light-reference translation that was still visibly
-utility/settings-like after the first pass:
+This checkpoint includes the 2026-10-06 Human pixel-review remediation on top of the earlier source-level
+light-reference translation:
 
 - Records now opens with a light task summary for active changes / attention / upcoming;
 - Search has a raised global-search surface and explicit recorded-data scope;
