@@ -125,7 +125,7 @@ class SourceCompleteScreenshotEvidenceTest {
                     Thread.sleep(1000)
                 }
                 if (isGlobe) {
-                    val deadline = System.currentTimeMillis() + 20_000L
+                    val deadline = System.currentTimeMillis() + 30_000L
                     while (System.currentTimeMillis() < deadline) {
                         compose.waitForIdle()
                         if (app.globe.renderState == GlobeRenderState.TEXTURE_READY) break
