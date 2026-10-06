@@ -90,6 +90,19 @@ class AndroidAdaptiveShellContractTest {
         compose.onNodeWithTag("pdig.settings.entry", useUnmergedTree = true).assertIsNotDisplayed()
     }
 
+
+    @Test
+    fun wideCards_clickUpdatesInspectorInsteadOfLeavingSparseGallery() {
+        val app = createVNextAppState(screen = VScreen.CARDS)
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 840) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag(VTestIds.CARD_INSPECTOR, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("工行信用卡", useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.card.inspector.identity.card-cn-2", useUnmergedTree = true).assertIsDisplayed()
+    }
+
     @Test
     fun wideNumbers_clickUpdatesInspectorInsteadOfLeavingSelectionStale() {
         val app = createVNextAppState(screen = VScreen.NUMBERS)
