@@ -179,6 +179,7 @@ object VTestIds {
     const val CARD_GRID = "pdig.card.grid"
     const val CARD_LIST = "pdig.card.list"
     const val CARD_VIEW_TOGGLE = "pdig.card.viewToggle"
+    const val CARD_INSPECTOR = "pdig.card.inspector"
     const val PHONE_LIST = "pdig.phone.list"
     const val PHONE_INSPECTOR = "pdig.phone.inspector"
     const val CARD_DETAIL_IDENTITY = "pdig.card.detail.identity"
