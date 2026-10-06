@@ -14,7 +14,7 @@ import org.junit.runner.RunWith
 
 /**
  * B5 NumberDetailVerticalFlowContractTest（brief §8/§21）——
- * Identity Hero → 关联服务 必须连续（heroBottom → servicesTop 间距 ≤ token threshold，禁止数百 dp 死空白）。
+ * Identity Hero → Summary → 关联服务 必须连续；Summary 是正式信息层，不应被旧契约误判为死空白。
  */
 @RunWith(AndroidJUnit4::class)
 class NumberDetailVerticalFlowContractTest {
@@ -29,14 +29,20 @@ class NumberDetailVerticalFlowContractTest {
         compose.waitForIdle()
 
         val hero = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_HERO, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val summary = compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val services = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_SERVICES, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        val gap = services.top - hero.bottom
+        val heroToSummary = summary.top - hero.bottom
+        val summaryToServices = services.top - summary.bottom
         val density = compose.density
-        val threshold = with(density) { 48.dp.toPx() }
+        val threshold = with(density) { 32.dp.toPx() }
         assertTrue(
-            "heroBottom→servicesTop gap must be <= 48dp (gap=$gap, threshold=$threshold)",
-            gap <= threshold,
+            "hero→summary gap must stay within 32dp (gap=$heroToSummary, threshold=$threshold)",
+            heroToSummary <= threshold,
         )
-        assertTrue("section order must be preserved (hero above services)", hero.bottom <= services.top)
+        assertTrue(
+            "summary→services gap must stay within 32dp (gap=$summaryToServices, threshold=$threshold)",
+            summaryToServices <= threshold,
+        )
+        assertTrue("section order must be hero → summary → services", hero.bottom <= summary.top && summary.bottom <= services.top)
     }
 }
