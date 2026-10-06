@@ -101,13 +101,20 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
                         )
                     }
                 }
-                Column(Modifier.align(Alignment.TopStart).padding(20.dp)) {
-                    Text("我的基础设施", color = PdigV2Colors.GlobeTextPrimary, fontSize = 24.sp, fontWeight = FontWeight.Bold)
-                    Text(
-                        "点按地区聚焦 · 捏合缩放 · 再次点按查看地区",
-                        color = PdigV2Colors.GlobeTextSecondary,
-                        fontSize = 12.sp,
-                    )
+                Surface(
+                    modifier = Modifier.align(Alignment.TopStart).padding(18.dp),
+                    color = PdigV2Colors.Surface.copy(alpha = 0.86f),
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
+                        Text("我的基础设施", color = PdigV2Colors.TextPrimary, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            "点按地区聚焦 · 捏合缩放 · 再次点按查看地区",
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 12.sp,
+                        )
+                    }
                 }
             }
             // Right Activity Rail（L3 Data Surface）
