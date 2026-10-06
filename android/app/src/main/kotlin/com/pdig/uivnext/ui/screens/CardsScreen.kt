@@ -40,6 +40,7 @@ import com.pdig.uivnext.model.UiVNextCard
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.hexColorOrNull
+import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
@@ -372,7 +373,7 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
             services.take(4).forEach { service ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text(service.name, color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
-                    LabelChip(service.kind)
+                    LabelChip(serviceKindLabelZh(service.kind))
                 }
             }
         }
