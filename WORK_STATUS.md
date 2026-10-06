@@ -1,3 +1,27 @@
+> **（最新）ANDROID UI vNext · Human Pixel Review Round 2 + Source Remediation（2026-10-06）**
+> —— ChatGPT 已直接打开并逐屏审阅 exact-source `b659ae4...` 的 Phone 24 + Tablet 24 runtime PNG，
+> 没有接受 Agent 的 READY/PASS 标签作为视觉结论。该 pack **不允许 Freeze**：Global Globe 仍出现
+> loading/fallback 深色球；Phone Region Detail 与 Search Query 截图状态错误；Phone Change Current
+> 被截成迁移中；Tablet Numbers/Number Detail 与 Change Current/Transition 存在 byte-identical
+> 证据，Number Studio 也未真正进入 Studio；10 个空态未产出。完整审图记录：
+> `docs/ui-vnext/android/ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`。
+>
+> ChatGPT 随后已直接在 GitHub 完成 source remediation：Globe HIGH 纹理预算 768→512、首帧
+> TEXTURE_READY 前禁止 idle-yaw cancellation storm、官方 screenshot gate 30s bounded wait；
+> Now/Overview Globe overlay 与 metrics 恢复 light-first 可读层级；Expanded Cards 改为真正
+> gallery/list + persistent asset inspector；修复 Compose assertion API 漂移、Number Detail
+> Hero→Summary→Services 契约、density-correct accessibility target 测量，并纠正 selected reference
+> SHA provenance。**当前最后 pixel-changing Android production checkpoint =
+> `0dd0cee29d3b9410f211942283d96f893149dc39`.**
+>
+> 当前唯一正确 Gate：`ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_SOURCE_REMEDIATION_AFTER_PIXEL_REVIEW = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> Local Agent 下一轮只允许 pull exact remote HEAD → build/test → official Phone/Tablet 24 + 10 empty
+> states → interaction/probe/manifests/logs/evidence；不得修改 production UI 或自行作视觉结论。
+>
 > **（最新）ANDROID UI vNext · Focused Phone Light Reference Closure（2026-10-05）**
 > —— Human-selected 亮色参考图已作为 Android Visual Direction Reference 入仓，ChatGPT 继续直接在
 > `feat/android-ui-vnext-translation` 完成 Phone 信息架构与视觉密度收口。Android production-UI
