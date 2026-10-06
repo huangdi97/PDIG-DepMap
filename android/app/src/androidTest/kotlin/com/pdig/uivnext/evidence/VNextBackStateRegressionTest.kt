@@ -35,8 +35,8 @@ class VNextBackStateRegressionTest {
     fun cardsDetailBack_drivesRealClick() {
         val app = createVNextAppState().apply { navigate(VScreen.CARDS) }
         render(app)
-        // 真实点击第一张卡 face → Detail
-        compose.onAllNodesWithTag(VTestIds.CARD_FACE, useUnmergedTree = true)[0].performClick()
+        // Compact Cards 默认是高密度资产列表；点击真实 row → Detail。
+        compose.onAllNodesWithTag(VTestIds.CARD_ROW, useUnmergedTree = true)[0].performClick()
         compose.waitForIdle()
         assertEquals(VScreen.CARD_DETAIL, app.screen)
         assertTrue("must have internal back target", app.canGoBack())
