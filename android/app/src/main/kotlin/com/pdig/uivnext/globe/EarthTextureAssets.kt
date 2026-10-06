@@ -12,8 +12,8 @@ import kotlin.math.floor
  * 已随 APK 打包进 `assets/earth/`；加载失败 → 返回 null，Globe 退回 VectorEarthFallback（LOW）。
  *
  * 质量档（任务书 §11）：
- *  - HIGH      albedo + night + cloud，渲染边长 ≤ 768px
- *  - BALANCED  albedo + night，渲染边长 ≤ 512px
+ *  - HIGH      albedo + night + cloud，渲染边长 ≤ 512px
+ *  - BALANCED  albedo + night，渲染边长 ≤ 384px
  *  - LOW       VectorEarthFallback（程序化球体，仅资产缺失/低功耗）
  */
 enum class EarthQuality { HIGH, BALANCED, LOW }
@@ -73,8 +73,14 @@ class EarthMaterialAssets(
     }
 }
 
-/** 纹理渲染边长上限（性能预算；HIGH ≤768 / BALANCED ≤512）。 */
+/** 纹理渲染边长上限（性能预算；HIGH ≤512 / BALANCED ≤384）。
+ *
+ * Android emulator / mid-range device 上逐像素球面反投影包含 atan2/asin 与多纹理采样。
+ * 768px 会让首帧在证据窗口内长期停留 LOADING，也会让 idle yaw 不断取消后台任务。
+ * 512px 已覆盖 Phone 实际球体像素密度，并在 Tablet 上保持足够纹理细节，同时把首帧
+ * TEXTURE_READY 预算压回可交互范围。
+ */
 internal fun earthRenderRect(radiusPx: Float, quality: EarthQuality): Int {
-    val cap = if (quality == EarthQuality.HIGH) 768 else 512
+    val cap = if (quality == EarthQuality.HIGH) 512 else 384
     return (radiusPx * 2f).toInt().coerceIn(8, cap)
 }
