@@ -3,7 +3,7 @@
 This file is the Human-selected visual-direction reference for Android UI vNext.
 
 - Reference asset: `PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
-- Repository reference copy: **320×213 JPEG**, SHA256 `4b2ca9e059aa9f0d0c4b9e46063c2667b7eee2e50352b80ac795d3f8d77c3caf`
+- Repository reference copy: **320×213 JPEG**, SHA256 `3782204282dc81342d8b0311061f9d15c720b7bcd064fd66af78479f6168dbb7`
 - Human-selected source render: **1536×1024**, light-first Android Phone + Tablet concept board
 - Selection date: 2026-10-05
 - Status: **HUMAN_VISUAL_DIRECTION_REFERENCE = SELECTED**
