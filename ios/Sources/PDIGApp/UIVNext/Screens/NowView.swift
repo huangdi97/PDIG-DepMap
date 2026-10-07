@@ -32,7 +32,7 @@ struct NowView: View {
                     globeHero
                     needAttentionSection
                     activeChangesSection
-                    upcomingSection
+                    if model.showUpcoming { upcomingSection }
                     healthyNote
                 }
             }
@@ -68,7 +68,7 @@ struct NowView: View {
                 VNextGlobeView(
                     regions: regions,
                     arcingPairs: VNextDemoFixture.crossRegionPairs(),
-                    reduceMotion: model.reduceMotion,
+                    reduceMotion: model.effectiveReduceMotion,
                     selectedRegion: Binding(
                         get: { model.regionFilter },
                         set: { value in value.map(model.selectRegion) ?? model.clearRegion() }

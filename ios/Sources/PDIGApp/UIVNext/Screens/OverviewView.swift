@@ -51,7 +51,7 @@ struct OverviewView: View {
             VNextGlobeView(
                 regions: regions,
                 arcingPairs: VNextDemoFixture.crossRegionPairs(),
-                reduceMotion: model.reduceMotion,
+                reduceMotion: model.effectiveReduceMotion,
                 selectedRegion: Binding(
                     get: { model.regionFilter },
                     set: { newValue in newValue.map(model.selectRegion) ?? model.clearRegion() }
