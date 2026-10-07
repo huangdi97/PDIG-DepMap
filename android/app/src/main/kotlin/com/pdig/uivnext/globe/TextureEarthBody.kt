@@ -39,11 +39,16 @@ internal fun renderEarthBody(
     radiusPx: Float,
     cam: GlobeCamera,
 ): Bitmap {
-    val inv = 1f / radiusPx
     val albedo = assets.albedo
     val night = assets.nightLights
     val clouds = assets.clouds
     val half = rect / 2
+    // [rect] is deliberately capped (HIGH <= 512) even when the on-screen Globe radius is larger.
+    // Sampling must therefore be normalized in bitmap space, not by the on-screen radiusPx.
+    // Using radiusPx here under-fills the unit disc after the cap and, together with world-z culling,
+    // produces the visibly faceted/octagonal Now Globe seen in Round4 runtime pixels.
+    val sampleRadius = half.toFloat().coerceAtLeast(1f)
+    val inv = 1f / sampleRadius
     val argb = IntArray(rect * rect)
     for (y in 0 until rect) {
         val dy = (y - half) * inv
@@ -53,9 +58,10 @@ internal fun renderEarthBody(
             val r2 = dx * dx + dy * dy
             if (r2 > 1f) continue
             val cz = sqrt(1f - r2)
-            // 相机空间 → 世界
+            // Screen-space (dx,dy,cz) already represents the visible camera hemisphere.
+            // Rotate it back into world space only for texture/lighting lookup. Do not cull by world z:
+            // world z is longitude-facing orientation, not camera visibility.
             val w = inverseRotatePoint(Vec3(dx, dy, cz), cam)
-            if (w.z <= -0.05f) continue
             val day = dayFactor(w.x, w.y, w.z)
             val lat = asin(w.y.coerceIn(-1f, 1f))
             val lon = atan2(w.x, w.z)
