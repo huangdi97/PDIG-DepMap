@@ -1,0 +1,15 @@
+{
+  "repository": "huangdi97/PDIG-DepMap",
+  "branch": "feat/android-ui-vnext-translation",
+  "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+  "sourceTree": "1ff386a45789b1322da3b2af949c12093c2665ce",
+  "finalPixelChangingSource": "a3b3a05580c0cd2ed451e554ba7db3edfd523cc0",
+  "acceptanceJourneyCheckpoint": "b69034d214d6070ea74edd6ed4690bc3061ba873",
+  "round": "round5",
+  "startedAt": "2026-10-07T14:28:00+08:00",
+  "finishedAt": "2026-10-07T16:20:00+08:00",
+  "productionMutation": 0,
+  "testMutation": 0,
+  "docsMutation": 0,
+  "note": "evidence-only round; tracked mutations limited to artifacts/runtime-evidence/2026-10-07-android-light-reference-round5-0b305e4/**"
+}
