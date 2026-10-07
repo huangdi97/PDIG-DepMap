@@ -64,7 +64,7 @@ struct VNextGlobeView: View {
                 toolbarPanels(in: geo.size)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(PdigV2Colors.canvasDeep.opacity(0.4))
+            .background(PdigV2Colors.globeDeep)
             .contentShape(Rectangle())
             // DRAG：旋转球体（水平=经度，垂直=纬度，纬度 clamp ±60°）；交互期间暂停 idle。
             .gesture(

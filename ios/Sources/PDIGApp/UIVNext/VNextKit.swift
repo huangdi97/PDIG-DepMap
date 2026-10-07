@@ -103,7 +103,7 @@ struct VFilterChip: View {
             Text(label)
                 .font(VFont.meta())
                 .fontWeight(selected ? .semibold : .regular)
-                .foregroundColor(selected ? PdigV2Colors.primaryBright : PdigV2Colors.textSecondary)
+                .foregroundColor(selected ? PdigV2Colors.primaryText : PdigV2Colors.textSecondary)
                 .padding(.horizontal, VSpace.md)
                 .frame(minHeight: VTouchTarget.ios)
                 .contentShape(Rectangle())

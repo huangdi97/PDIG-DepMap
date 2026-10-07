@@ -27,16 +27,16 @@ extension VNextGlobeView {
             )
             context.fill(
                 Path(ellipseIn: CGRect(x: 0, y: 0, width: canvasSize.width, height: canvasSize.height)),
-                with: .color(PdigV2Colors.canvasDeep)
+                with: .color(PdigV2Colors.globeDeep)
             )
             context.fill(Path(ellipseIn: circleRect(center: center, radius: radius * 1.7)), with: atmosphere)
 
             // Sphere（程序化深度着色；禁照片纹理；L0）
             let sphereShading = GraphicsContext.Shading.radialGradient(
                 Gradient(colors: [
-                    PdigV2Colors.surfaceRaised,
-                    PdigV2Colors.surface,
-                    PdigV2Colors.canvasDeep,
+                    Color(hex: "#1A4A72"),
+                    Color(hex: "#0D294B"),
+                    Color(hex: "#06162F"),
                 ]),
                 center: CGPoint(x: center.x - radius * 0.35, y: center.y - radius * 0.35),
                 startRadius: 0, endRadius: radius * 1.4
@@ -59,7 +59,7 @@ extension VNextGlobeView {
     }
 
     func drawGraticule(context: inout GraphicsContext, cam: VGlobeCamera, center: CGPoint, radius: CGFloat) {
-        let gridColor = PdigV2Colors.textMuted.opacity(0.16)
+        let gridColor = PdigV2Colors.globeTextSecondary.opacity(0.18)
         let lines = GlobeMath.graticuleLines(stepDeg: 30)
         for (lat, lon) in lines.parallels {
             drawSphericalLine(context: &context, samples: GlobeMath.greatCircleSamples(
