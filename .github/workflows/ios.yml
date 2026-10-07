@@ -10,6 +10,7 @@ on:
     branches:
       - main
       - feat/mvp03-living-graph
+      - feat/ios-ui-vnext-translation
   pull_request:
     branches:
       - main

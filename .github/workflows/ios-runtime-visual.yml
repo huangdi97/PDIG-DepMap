@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - test/multiclient-runtime-visual-sweep
+      - feat/ios-ui-vnext-translation
 
 permissions:
   contents: read

@@ -72,31 +72,62 @@ public enum ScreenshotHarness {
         print("[PDIGApp] screenshots -> \(outputDir)")
     }
 
-    /// vNext 演示屏（Presentation Layer；reduceMotion 冻结相机状态；全 synthetic fixture）。
+    /// vNext presentation evidence. Each screen owns an isolated ephemeral model so a later route
+    /// mutation cannot silently change an earlier captured AnyView.
     @MainActor
     private static func vnextScreens() -> [(name: String, view: AnyView)] {
-        let model = VNextModel()
-        model.reduceMotion = true
-        func stack(_ content: some View) -> AnyView { AnyView(NavigationStack { content }) }
-        var result: [(name: String, view: AnyView)] = [
-            ("VNextNow", stack(NowView(model: model))),
-            ("VNextOverview", stack(OverviewView(model: model))),
-            ("VNextChangePhone", stack(ChangePhoneView(model: model))),
-            ("VNextPersonalization", stack(PersonalizationView(model: model))),
+        func model(_ screen: VScreen) -> VNextModel {
+            let value = VNextModel(preferencesStore: nil)
+            value.reduceMotion = true
+            value.screen = screen
+            return value
+        }
+        func stack(_ content: some View) -> AnyView {
+            AnyView(NavigationStack { content }.preferredColorScheme(.light))
+        }
+
+        let now = model(.now)
+        let hub = model(.infrastructure)
+        let overview = model(.overview)
+        let cards = model(.cards)
+        let cardDetail = model(.cardDetail("card-cn-2"))
+        let cardStudio = model(.cardCustomization("card-cn-1"))
+        let numbers = model(.numbers)
+        let numberDetail = model(.numberDetail("num-cn-1"))
+        let numberStudio = model(.numberCustomization("num-cn-1"))
+        let accounts = model(.accounts)
+        let emails = model(.emails)
+        let devices = model(.devices)
+        let services = model(.services)
+        let weaknesses = model(.weaknesses)
+        let change = model(.changePhone)
+        change.changeProjection = .transition
+        let records = model(.records)
+        let search = model(.search)
+        let sources = model(.sources)
+        let personalization = model(.personalization)
+
+        return [
+            ("VNextNow", stack(NowView(model: now))),
+            ("VNextInfrastructureHub", stack(InfrastructureHubView(model: hub))),
+            ("VNextOverview", stack(OverviewView(model: overview))),
+            ("VNextCards", stack(CardsView(model: cards))),
+            ("VNextCardDetail", stack(CardDetailView(model: cardDetail))),
+            ("VNextCardCustomization", stack(CardCustomizationView(model: cardStudio))),
+            ("VNextNumbers", stack(NumbersView(model: numbers))),
+            ("VNextNumberDetail", stack(NumberDetailView(model: numberDetail))),
+            ("VNextNumberCustomization", stack(NumberCustomizationView(model: numberStudio))),
+            ("VNextAccounts", stack(AccountsView(model: accounts))),
+            ("VNextEmails", stack(EmailsView(model: emails))),
+            ("VNextDevices", stack(DevicesView(model: devices))),
+            ("VNextServices", stack(ServicesView(model: services))),
+            ("VNextWeaknesses", stack(WeaknessesView(model: weaknesses))),
+            ("VNextChangePhone", stack(ChangePhoneView(model: change))),
+            ("VNextRecords", stack(RecordsView(model: records))),
+            ("VNextSearch", stack(SearchView(model: search))),
+            ("VNextSources", stack(DataSourcesView(model: sources))),
+            ("VNextPersonalization", stack(PersonalizationView(model: personalization))),
         ]
-        model.screen = .cards
-        result.append(("VNextCards", stack(CardsView(model: model))))
-        model.screen = .cardDetail("card-cn-2")
-        result.append(("VNextCardDetail", stack(CardDetailView(model: model))))
-        model.screen = .numbers
-        result.append(("VNextNumbers", stack(NumbersView(model: model))))
-        model.screen = .numberDetail("num-cn-1")
-        result.append(("VNextNumberDetail", stack(NumberDetailView(model: model))))
-        model.screen = .cardCustomization("card-cn-1")
-        result.append(("VNextCardCustomization", stack(CardCustomizationView(model: model))))
-        model.screen = .numberCustomization("num-cn-1")
-        result.append(("VNextNumberCustomization", stack(NumberCustomizationView(model: model))))
-        return result
     }
 
     private static func demoSession() -> AppSession {

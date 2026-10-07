@@ -26,17 +26,23 @@ struct PDIGApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(session: session)
-                .onAppear {
-                    // XCUITest 演示模式：注入演示图并直入 ready（模拟器无法
-                    // 通过 LocalAuthentication 解锁）。必须用已安装的 session
-                    // 实例执行（@StateObject 在 init 中访问会创建一次性实例）。
-                    if CommandLine.arguments.contains("--uitest-demo") {
-                        session.seedDemo()
-                    } else if session.phase == .booting {
-                        session.boot(dataDirectory: FileStore.dataDirectory())
-                    }
+            Group {
+                if CommandLine.arguments.contains("--uitest-vnext") {
+                    // UI vNext simulator evidence mode. It uses the synthetic presentation fixture only
+                    // and never replaces the production Canonical-backed router.
+                    VNextAppView()
+                } else {
+                    RootView(session: session)
+                        .onAppear {
+                            // Existing N4 XCUITest demo path remains unchanged.
+                            if CommandLine.arguments.contains("--uitest-demo") {
+                                session.seedDemo()
+                            } else if session.phase == .booting {
+                                session.boot(dataDirectory: FileStore.dataDirectory())
+                            }
+                        }
                 }
+            }
         }
     }
 }
