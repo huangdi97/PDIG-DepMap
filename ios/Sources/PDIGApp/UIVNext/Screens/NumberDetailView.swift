@@ -113,7 +113,7 @@ struct NumberDetailView: View {
                 VDetailNotice(
                     icon: "exclamationmark.triangle.fill",
                     title: "唯一恢复路径",
-                    body: "此号码承担关键账户的唯一已确认恢复路径。更换或注销前，必须先建立并验证新的恢复方式。",
+                    message: "此号码承担关键账户的唯一已确认恢复路径。更换或注销前，必须先建立并验证新的恢复方式。",
                     accent: PdigV2Colors.warning
                 )
             } else {
