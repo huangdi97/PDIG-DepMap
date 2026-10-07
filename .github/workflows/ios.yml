@@ -19,6 +19,12 @@ on:
 permissions:
   contents: read
 
+# Keep only the newest validation for a branch. UI translation commits are intentionally incremental;
+# running superseded simulator matrices wastes macOS capacity and delays exact-HEAD evidence.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 # ---------------------------------------------------------------------------
 # 诚实范围声明（不要删除）
 # ---------------------------------------------------------------------------
