@@ -2,9 +2,9 @@
 
 > Human-selected visual reference: `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
 >
-> Final pixel-changing Android production-UI checkpoint: `9f8fb6fb7710b872d0f42c228da1fed8746e759a`
+> Final pixel-changing Android production-UI checkpoint: `86cbf558d7204b5fa8ccad53f1b115f43f253531`
 >
-> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND3 OBJECTIVE-GATE REMEDIATION / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND4 RUNTIME + PARTIAL HUMAN-PIXEL REVIEW / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
 >
 > The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
 > rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
@@ -161,6 +161,49 @@ the user actually sees.
 
 A new pack from the exact latest remote HEAD is required. The `af25f50...` Round3 screenshots remain historical
 evidence and cannot authorize Android Freeze.
+
+## 7.2 Round4 evidence adjudication and direct remediation (2026-10-07)
+
+`artifacts/runtime-evidence/2026-10-06-android-light-reference-round4-70edd4c/` was captured from
+`70edd4c83639bc52266db35c124db6927f53df52` and committed at `da86d066...`.
+
+Round4 materially improves evidence quality: the official Phone and Tablet screenshot suites each completed
+24 main screens + 5 empty states; 01-04 record `globeTextureState=texture_ready`; 04 records
+`actualState=region-detail`; 22 is a typed Search Query; Phone accessibility now reports the true clickable
+bottom-navigation item.
+
+It is still **not eligible for Freeze**:
+
+- Tablet `regionListSecondTapOpensDrawerAndBackPreservesRegion` failed before first selection (`CN` remained null),
+  because the common test forced a compact viewport inside the landscape Tablet instead of exercising the real
+  device breakpoint and scrolling the real Region row into view;
+- Tablet Card back-state still used the compact `CARD_ROW` path on an expanded Cards workspace;
+- Expanded Cards selection was still driven by a text glyph instead of the clickable asset surface;
+- the official Tablet 07/08 screenshots still entered Studio by direct app-state mutation rather than proving the
+  required real UI path through the Expanded Card inspector;
+- the decoded `contact-empty-10` sheet shows the Phone `no-attention` empty state captured while the Now Globe is
+  still an untextured dark loading/fallback sphere; empty-state Human Review therefore cannot accept that frame;
+- the monolithic Phone/Tablet contact-sheet base64 mirrors are too large for the GitHub connector text transport
+  used for Human Pixel Review, so the 48 main pixels have not yet been fully inspected in this review;
+- Round4 reports the same APK SHA-256 as Round3 despite a pixel-changing production checkpoint between those
+  runs. Raw manifests do embed the new `BuildConfig.GIT_SHA`, but the APK-hash provenance must be re-established
+  by hashing both the exact built APK and the installed `base.apk` pulled from the emulator and requiring equality.
+
+ChatGPT directly remediated the product/test paths at `86cbf558d7204b5fa8ccad53f1b115f43f253531`:
+
+- Expanded Card assets have deterministic clickable per-card tags;
+- Expanded Card inspector moves `定制卡面` + `查看完整详情` above long services/risk content, making the Studio
+  continuation immediately discoverable rather than scroll-hidden;
+- Tablet 07/08 official evidence now must navigate Cards → selected card → inspector `定制卡面` → Studio before
+  capture, and must render the Studio preview;
+- the empty `no-attention` Now screenshot is now a Globe-gated frame and cannot capture before `TEXTURE_READY`;
+- Region UI interaction now uses the real device breakpoint and `performScrollTo()` before the two taps;
+- Cards back-state now uses compact row on compact devices and expanded asset → inspector detail on real Tablets;
+- adaptive Cards selection now targets the clickable asset surface, not a text glyph.
+
+Next Human Review evidence must additionally split Phone/Tablet review imagery into connector-readable chunks
+(recommended 4 screens per sheet, each base64 text file < 900 kB) so all 48 main screens can be decoded and
+visually inspected. Agent PASS labels still cannot authorize visual acceptance.
 
 ## 8. Gate
 
