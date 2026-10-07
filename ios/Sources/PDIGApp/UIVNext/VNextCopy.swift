@@ -33,12 +33,12 @@ enum VCopy {
     // overview / globe
     static let myInfrastructure = "我的基础设施" // uiuxV031.myInfrastructure
     static let globeHint = "点击地区聚焦 · 双指缩放 · 再次点击打开地区抽屉"
-    static let regionListTitle = "地区（Region List）"
+    static let regionListTitle = "地区"
     static let quickCards = "查看卡片" // uiVNext.overview.quick.cards
     static let quickNumbers = "查看号码" // uiVNext.overview.quick.numbers
     static let quickWeaknesses = "查看薄弱点" // uiVNext.overview.quick.weaknesses
     static let quickChangePhone = "更换手机号"
-    static let backToGlobal = "返回全球（Escape）"
+    static let backToGlobal = "返回全球"
     static let drawerViewAll = "查看全部"
     static let drawerViewCards = "查看卡片"
     static let drawerViewNumbers = "查看号码"
@@ -99,7 +99,7 @@ enum VCopy {
 
     // change-phone（scenarioV030.* / changePlanV030.* / uiuxV031.blockedReason 语义）
     static let changePhoneTitle = "更换手机号" // uiVNext.change.title
-    static let planProjectionNote = "计划投影：以下步骤为当前执行计划；完成状态只在实际验证后标记。"
+    static let planProjectionNote = "以下是当前执行计划；只有实际验证完成的步骤才会标记为已完成。"
     static let oldToNewModel = "旧号码 → 关键服务 → 新号码"
     static let oldNumber = "旧手机号" // uiVNext.change.oldNumber
     static let newNumber = "新手机号" // uiVNext.change.newNumber
@@ -133,7 +133,7 @@ enum VCopy {
     static let save = "保存" // common.save
     static let done = "完成" // common.done
     static let reset = "重置为默认" // uiVNext.customization.reset
-    static let presetNote = "素材全部来自 bundled local / procedural；不加载远程图片。主题只影响外观，不影响实际角色。" // uiVNext.customization.presetNote
+    static let presetNote = "所有外观素材都保存在本机，不会从网络加载；主题、材质与布局只改变显示方式，不改变资产角色和依赖关系。" // uiVNext.customization.presetNote
     static let fieldTheme = "主题" // uiVNext.customization.field.theme
     static let fieldMaterial = "材质" // uiVNext.customization.field.material
     static let fieldAccent = "主色" // uiVNext.customization.field.accent
@@ -145,7 +145,7 @@ enum VCopy {
 
     // personalization（personalization-center 建议文案）
     static let personalizationTitle = "个性化" // uiVNext.settings.personalization
-    static let personalizationNote = "以下均为本地偏好（Presentation Layer）；不影响依赖/证据/确认，也不写入 .depmap 备份。"
+    static let personalizationNote = "以下设置只保存在本机，只改变界面显示，不会改变资产事实、依赖关系或确认状态。"
     static let workspaceTheme = "工作区主题" // uiVNext.settings.workspaceTheme
     static let workspaceThemeValue = "亮色 · iOS 原生材质"
     static let globeTheme = "星球主题" // uiVNext.settings.globeTheme
@@ -160,7 +160,7 @@ enum VCopy {
     static let motion = "动效" // uiVNext.settings.motion
     static let reducedEffects = "减弱动态效果" // uiVNext.settings.reducedEffects
     static let p0Protected = "关键操作不可隐藏" // uiVNext.settings.p0Protected
-    static let p0Note = "P0 提示：首页「需要你处理」模块在存在必须处理事项时不可隐藏。"
+    static let p0Note = "存在必须处理事项时，首页「需要你处理」会始终显示。"
 
     // region tooltip（globe.md 建议文案格式「{displayName}，{cardCount} 张卡，{phoneCount} 个号码」）
     static func regionTooltip(_ r: RegionPresentation) -> String {

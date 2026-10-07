@@ -264,12 +264,12 @@ struct VPresentationProfile: Hashable, Codable {
             targetType: targetType,
             targetId: targetId,
             themeId: preset,
-            material: "glass",
-            accentColor: "#4D74FF",
+            material: "default",
+            accentColor: "default",
             backgroundKind: "preset",
             backgroundValue: preset,
             layout: "standard",
-            maskSensitive: true
+            maskSensitive: false
         )
     }
 
