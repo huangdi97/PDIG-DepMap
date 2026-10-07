@@ -7,6 +7,9 @@
 // This file is presentation-only. It does not change Canonical / PersonalReality / .depmap.
 
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
 enum VPrimaryDestination: String, CaseIterable, Hashable {
     case now, infrastructure, change, records
@@ -243,7 +246,13 @@ struct VInfrastructureHost: View {
 
             Group {
                 switch model.screen {
-                case .overview, .infrastructure: OverviewView(model: model)
+                case .infrastructure:
+                    if horizontalSizeClass == .compact {
+                        InfrastructureHubView(model: model)
+                    } else {
+                        OverviewView(model: model)
+                    }
+                case .overview: OverviewView(model: model)
                 case .cards: CardsView(model: model)
                 case .cardDetail: CardDetailView(model: model)
                 case .cardCustomization: CardCustomizationView(model: model)
@@ -296,6 +305,7 @@ struct VInfrastructureSecondaryBar: View {
                     .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
                     .overlay(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous)
                         .stroke(selected ? PdigV2Colors.primary.opacity(0.34) : PdigV2Colors.borderSubtle, lineWidth: 1))
+                    .accessibilityIdentifier("pdig.nav.infra.\(item.2.infrastructureFamily ?? "unknown")")
                 }
             }
         }
