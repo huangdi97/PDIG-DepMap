@@ -11,7 +11,7 @@ struct AccountsView: View {
             let items = VNextDemoFixture.accounts.filter { model.regionFilter == nil || $0.region == model.regionFilter }
             VSummaryHero(value: "\(items.count)", label: "已记录账户", hint: "身份入口、验证方式与恢复路径")
             if items.isEmpty {
-                VInfraEmpty(model: model, title: "当前地区没有账户记录", body: "没有记录的账户与恢复关系仍保持未知。")
+                VInfraEmpty(model: model, title: "当前地区没有账户记录", message: "没有记录的账户与恢复关系仍保持未知。")
             } else {
                 VSectionHeader(title: "已记录（\(items.count)）")
                 ForEach(items) { item in
@@ -40,7 +40,7 @@ struct EmailsView: View {
             let items = VNextDemoFixture.emails.filter { model.regionFilter == nil || $0.region == model.regionFilter }
             VSummaryHero(value: "\(items.count)", label: "已记录邮箱", hint: "登录、通知与恢复职责")
             if items.isEmpty {
-                VInfraEmpty(model: model, title: "当前地区没有邮箱记录", body: "没有记录的邮箱与恢复关系仍保持未知。")
+                VInfraEmpty(model: model, title: "当前地区没有邮箱记录", message: "没有记录的邮箱与恢复关系仍保持未知。")
             } else {
                 VSectionHeader(title: "已记录（\(items.count)）")
                 ForEach(items) { item in
@@ -68,7 +68,7 @@ struct DevicesView: View {
             let items = VNextDemoFixture.devices.filter { model.regionFilter == nil || $0.region == model.regionFilter }
             VSummaryHero(value: "\(items.count)", label: "已记录设备", hint: "可信终端、验证器与恢复设备")
             if items.isEmpty {
-                VInfraEmpty(model: model, title: "当前地区没有设备记录", body: "设备未出现于当前列表，不代表它没有登录或恢复权限。")
+                VInfraEmpty(model: model, title: "当前地区没有设备记录", message: "设备未出现于当前列表，不代表它没有登录或恢复权限。")
             } else {
                 VSectionHeader(title: "已记录（\(items.count)）")
                 ForEach(items) { item in
@@ -97,7 +97,7 @@ struct ServicesView: View {
             VSummaryHero(value: "\(items.count)", label: "已记录服务",
                          hint: model.regionFilter == nil ? "覆盖多个地区的服务与依赖入口" : "当前地区已记录的服务")
             if items.isEmpty {
-                VInfraEmpty(model: model, title: "当前地区没有服务记录", body: "没有记录的服务不会被推断为不存在，也不会被标记为无风险。")
+                VInfraEmpty(model: model, title: "当前地区没有服务记录", message: "没有记录的服务不会被推断为不存在，也不会被标记为无风险。")
             } else {
                 VSectionHeader(title: "已记录（\(items.count)）")
                 ForEach(items) { item in
@@ -132,7 +132,7 @@ struct WeaknessesView: View {
 
             if count == 0 {
                 VInfraEmpty(model: model, title: "当前地区没有已记录的薄弱点",
-                            body: "这只表示当前没有已记录的风险事实；未记录的依赖仍然保持未知。")
+                            message: "这只表示当前没有已记录的风险事实；未记录的依赖仍然保持未知。")
             } else {
                 if !numbers.isEmpty {
                     VSectionHeader(title: "唯一恢复路径（\(numbers.count)）")
@@ -184,7 +184,14 @@ struct VInfraPage<Content: View>: View {
     let title: String
     let subtitle: String
     @ObservedObject var model: VNextModel
-    @ViewBuilder let content: () -> Content
+    private let content: Content
+
+    init(title: String, subtitle: String, model: VNextModel, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.subtitle = subtitle
+        self.model = model
+        self.content = content()
+    }
 
     var body: some View {
         ScrollView {
@@ -196,7 +203,7 @@ struct VInfraPage<Content: View>: View {
                 if let code = model.regionFilter {
                     VRegionScopeBanner(code: code) { model.clearRegion() }
                 }
-                content()
+                content
             }
             .padding(VSpace.pagePadding)
         }
@@ -232,9 +239,25 @@ struct VLightObjectCard<Content: View>: View {
     let title: String
     let subtitle: String
     let badge: String
-    var accent: Color = PdigV2Colors.primary
-    var trailing: String? = nil
-    @ViewBuilder let content: () -> Content
+    var accent: Color
+    var trailing: String?
+    private let content: Content
+
+    init(
+        title: String,
+        subtitle: String,
+        badge: String,
+        accent: Color = PdigV2Colors.primary,
+        trailing: String? = nil,
+        @ViewBuilder content: () -> Content
+    ) {
+        self.title = title
+        self.subtitle = subtitle
+        self.badge = badge
+        self.accent = accent
+        self.trailing = trailing
+        self.content = content()
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: VSpace.md) {
@@ -257,7 +280,7 @@ struct VLightObjectCard<Content: View>: View {
                 }
             }
             VStack(alignment: .leading, spacing: 6) {
-                content()
+                content
                     .font(VFont.meta())
                     .foregroundColor(PdigV2Colors.textSecondary)
             }
@@ -319,15 +342,13 @@ struct VRegionScopeBanner: View {
 struct VInfraEmpty: View {
     @ObservedObject var model: VNextModel
     let title: String
-    let body: String
-    var bodyView: some View {
-        EmptyView()
-    }
+    let message: String
+
     var body: some View {
         VStack(spacing: VSpace.md) {
             Image(systemName: "square.dashed").font(.system(size: 32)).foregroundColor(PdigV2Colors.primary)
             Text(title).font(VFont.body()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
-            Text(body).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary).multilineTextAlignment(.center)
+            Text(message).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary).multilineTextAlignment(.center)
             Button(model.regionFilter == nil ? "返回基础设施总览" : "查看全球") {
                 if model.regionFilter == nil { model.navigate(.overview) } else { model.clearRegion() }
             }
