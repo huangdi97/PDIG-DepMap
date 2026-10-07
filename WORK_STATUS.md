@@ -1,3 +1,15 @@
+> **（最新）ANDROID UI vNext · Round 5 Human Pixel Acceptance（2026-10-07）**
+> —— Local Agent 已从 exact source `0b305e48...` 完成 Round5：Phone 24 + Tablet 24 + Empty 10、
+> Globe TEXTURE_READY、真实 Region/Search/Studio 路径、PresentationProfile / workspace restart persistence、
+> APK built==installed provenance、accessibility、Desktop Freeze Guard；evidence commit = `2d4045c2...`。
+> ChatGPT 已通过 6+6 个分片 contact sheets + empty sheet 实际审完全部 58 张 runtime pixels：Phone 24、
+> Tablet 24、Empty 10 均无剩余 P0/P1 视觉/产品/自适应问题，`ANDROID_VISUAL_REFERENCE = ACCEPTED`。
+> Round5 唯一 FAIL 是旧 `TabletAdaptiveContractTest` 把正式 `NumberSummaryStrip` 误计为 hero→services
+> dead space（212dp）；真实像素并无空白，且 `NumberDetailVerticalFlowContractTest` 已在双设备通过。
+> ChatGPT 已直接纠正该 stale contract 为 Hero→Summary→Services 两段 <=32dp；production pixels 未改。
+> 因此当前 `ANDROID_REFERENCE_FREEZE = HOLD` 仅等待一次 targeted exact-head TabletAdaptive 重跑；
+> 若通过即可 Freeze PASS，无需重抓 58 张像素。iOS/Harmony 继续 HOLD 到 Android Reference Freeze。
+>
 > **（最新）ANDROID UI vNext · Human Pixel Review Round 2 + Source Remediation（2026-10-06）**
 > —— ChatGPT 已直接打开并逐屏审阅 exact-source `b659ae4...` 的 Phone 24 + Tablet 24 runtime PNG，
 > 没有接受 Agent 的 READY/PASS 标签作为视觉结论。该 pack **不允许 Freeze**：Global Globe 仍出现

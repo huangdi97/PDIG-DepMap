@@ -4,7 +4,7 @@
 >
 > Final pixel-changing Android production-UI checkpoint: `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
 >
-> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND4 PIXEL REVIEW + GLOBE / ADAPTIVE / ACCESSIBILITY CRAFT / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+> Verdict: **ROUND5 HUMAN PIXELS ACCEPTED / ONE STALE TABLET CONTRACT CORRECTED / TARGETED EXACT-HEAD REVALIDATION REQUIRED BEFORE REFERENCE FREEZE**
 >
 > The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
 > rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
@@ -271,6 +271,38 @@ Current final pixel-changing Android production checkpoint:
 
 Any Android Freeze evidence captured before that checkpoint is historical only.
 
+## 7.4 Round5 final Human Pixel Review (2026-10-07)
+
+Round5 evidence:
+
+- runtime source: `0b305e48bf4868b1aca2bd39dac720e19f3df7f8`;
+- evidence commit: `2d4045c2b334d4b78d33cc595efbb8626c718e9a`;
+- Phone 24 main frames: inspected via six connector-readable contact sheets;
+- Tablet 24 main frames: inspected via six connector-readable contact sheets;
+- empty states 10/10: inspected via the decoded empty-state sheet;
+- all Globe-bearing frames record `TEXTURE_READY`, including both no-attention states;
+- APK built/installed SHA-256 equality is proven on both AVDs;
+- real Region, Search, Card Studio, Number Studio, persistence, Back, accessibility and Desktop Freeze Guard evidence are present.
+
+Human pixel adjudication:
+
+- **Phone 01-24: ACCEPTED**. Light-first hierarchy is coherent; Now remains task-first; Globe is textured and circular; Cards preserve financial-asset identity; Numbers preserve communication identity; Detail pages are object-first; Studio is preview-first; Change Current/Transition/After are visibly distinct and After remains a plan projection; utility/support pages do not introduce a P0/P1 product-truth defect.
+- **Tablet 01-24: ACCEPTED**. The layout is not a stretched Phone: primary rail is top-level only, Infrastructure siblings remain content-level, Overview keeps spatial depth, Cards/Numbers are genuine list-detail workspaces, Studio uses a wide preview/editor composition, and Change keeps the OLD → SERVICES → NEW continuity scene.
+- **Empty states 10/10: ACCEPTED**. Phone no-attention now contains the real textured Globe; Cards/Numbers empties remain object-specific; Unknown is never presented as Safe.
+
+Round5's only reported mandatory FAIL (`TabletAdaptiveContractTest.tabletNumberDetail_noDeadSpace`) is not a runtime visual defect. The failing legacy assertion measured `hero.bottom → services.top` and therefore counted the intentionally inserted `NumberSummaryStrip` as 212dp of 'dead space'. Round5 pixels show the strip is real content, while `NumberDetailVerticalFlowContractTest` already protects the intended `Hero → Summary → Services` sequence and passed on both devices. The tablet contract has therefore been corrected to measure `hero → summary` and `summary → services` independently (<=32dp) and preserve ordering.
+
+This correction changes test semantics only; no Android production pixel source changed after `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`.
+
+Human visual decision:
+
+```ini
+ANDROID_VISUAL_REFERENCE = ACCEPTED
+ANDROID_REFERENCE_FREEZE = HOLD
+```
+
+`ANDROID_REFERENCE_FREEZE` remains HOLD only until the corrected exact-head TabletAdaptive contract is rerun. No new full 58-frame visual recapture is required unless that targeted revalidation exposes a real production defect, because the production pixel source is unchanged.
+
 ## 8. Gate
 
 ```
@@ -279,7 +311,7 @@ ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE
 ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
 
 ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
-ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE
+ANDROID_VISUAL_REFERENCE = ACCEPTED
 ANDROID_REFERENCE_FREEZE = HOLD
 
 IOS_UI_VNEXT = HOLD

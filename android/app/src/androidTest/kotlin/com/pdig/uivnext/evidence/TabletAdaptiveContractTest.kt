@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
  * B8 TabletAdaptiveContractTest（brief §24/§10/§11）—— EXPANDED tablet-native composition：
  *  - Change Transition/After：OLD / SERVICE / NEW 三区首屏可见（three columns visible、无死空白、
  *    对象不被挤到折叠以下、线路不成为主角）；
- *  - Number Detail 无死空白（hero→services ≤ 48dp）；
+ *  - Number Detail 无死空白（Hero → Summary → Services 连续；Summary 是正式信息层）；
  *  - Cards / Studio / Overview 真实渲染（face / preview / region list 存在）。
  * 仅 tablet 设备运行（phone 由 Phone*ContractTest 覆盖）。
  */
@@ -100,11 +100,25 @@ class TabletAdaptiveContractTest {
         renderApp(app)
 
         val hero = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_HERO, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val summary = compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val services = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_SERVICES, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        val gap = services.top - hero.bottom
+        val heroToSummary = summary.top - hero.bottom
+        val summaryToServices = services.top - summary.bottom
         val density = compose.density
-        val threshold = with(density) { 48.dp.toPx() }
-        assertTrue("tablet number detail hero→services gap must be <= 48dp (gap=$gap)", gap <= threshold)
+        val threshold = with(density) { 32.dp.toPx() }
+
+        assertTrue(
+            "tablet number detail hero→summary gap must stay <=32dp (gap=$heroToSummary)",
+            heroToSummary in 0f..threshold,
+        )
+        assertTrue(
+            "tablet number detail summary→services gap must stay <=32dp (gap=$summaryToServices)",
+            summaryToServices in 0f..threshold,
+        )
+        assertTrue(
+            "tablet number detail order must be Hero → Summary → Services",
+            hero.bottom <= summary.top && summary.bottom <= services.top,
+        )
     }
 
     @Test
