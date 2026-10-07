@@ -206,3 +206,43 @@ struct VNumberFace: View {
             .clipShape(RoundedRectangle(cornerRadius: VRadius.sm, style: .continuous))
     }
 }
+
+
+/// Resolver used outside Studio so saved local PresentationProfile affects every asset surface consistently.
+struct VResolvedAssetCard: View {
+    let card: VCard
+    @ObservedObject var model: VNextModel
+    let onClick: () -> Void
+
+    var body: some View {
+        let profile = model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset)
+        VAssetCard(
+            card: card,
+            privacyMask: model.privacyMask || profile.maskSensitive,
+            presetOverride: profile.themeId,
+            materialOverride: profile.material,
+            accentOverride: profile.accentColor,
+            layoutOverride: profile.layout,
+            onClick: onClick
+        )
+    }
+}
+
+struct VResolvedNumberFace: View {
+    let number: VNumber
+    @ObservedObject var model: VNextModel
+    let onClick: () -> Void
+
+    var body: some View {
+        let profile = model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country")
+        VNumberFace(
+            number: number,
+            privacyMask: model.privacyMask || profile.maskSensitive,
+            presetOverride: profile.themeId,
+            materialOverride: profile.material,
+            accentOverride: profile.accentColor,
+            layoutOverride: profile.layout,
+            onClick: onClick
+        )
+    }
+}

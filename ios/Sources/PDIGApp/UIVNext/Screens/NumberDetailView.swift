@@ -47,12 +47,7 @@ struct NumberDetailView: View {
 
     private func identityColumn(_ number: VNumber) -> some View {
         VStack(alignment: .leading, spacing: VSpace.lg) {
-            VNumberFace(
-                number: number,
-                privacyMask: model.privacyMask,
-                presetOverride: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId,
-                onClick: {}
-            )
+            VResolvedNumberFace(number: number, model: model, onClick: {})
                 .accessibilityIdentifier(VTestIds.phoneDetailIdentity)
 
             HStack(spacing: VSpace.sm) {

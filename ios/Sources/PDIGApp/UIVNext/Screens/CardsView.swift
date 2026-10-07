@@ -104,11 +104,7 @@ struct CardsView: View {
                         }
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: VSpace.gridGap)], spacing: VSpace.gridGap) {
                             ForEach(filtered) { card in
-                                VAssetCard(
-                                    card: card,
-                                    privacyMask: model.privacyMask,
-                                    presetOverride: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset).themeId
-                                ) {
+                                VResolvedAssetCard(card: card, model: model) {
                                     selectedId = card.id
                                 }
                                 .overlay(
@@ -193,12 +189,7 @@ private struct VCardInspector: View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.md) {
                 VSectionHeader(title: "卡片详情")
-                VAssetCard(
-                    card: card,
-                    privacyMask: model.privacyMask,
-                    presetOverride: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset).themeId,
-                    onClick: {}
-                )
+                VResolvedAssetCard(card: card, model: model, onClick: {})
                 HStack {
                     VChip(text: regionName(card.region))
                     VChip(text: card.currency)

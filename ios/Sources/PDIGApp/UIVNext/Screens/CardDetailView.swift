@@ -47,12 +47,7 @@ struct CardDetailView: View {
 
     private func identityColumn(_ card: VCard) -> some View {
         VStack(alignment: .leading, spacing: VSpace.lg) {
-            VAssetCard(
-                card: card,
-                privacyMask: model.privacyMask,
-                presetOverride: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset).themeId,
-                onClick: {}
-            )
+            VResolvedAssetCard(card: card, model: model, onClick: {})
                 .accessibilityIdentifier(VTestIds.cardDetailIdentity)
 
             VStack(spacing: VSpace.sm) {

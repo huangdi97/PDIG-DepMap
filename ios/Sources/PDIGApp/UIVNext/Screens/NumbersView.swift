@@ -188,12 +188,7 @@ private struct VNumberInspector: View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.md) {
                 VSectionHeader(title: "号码详情")
-                VNumberFace(
-                    number: number,
-                    privacyMask: model.privacyMask,
-                    presetOverride: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId,
-                    onClick: {}
-                )
+                VResolvedNumberFace(number: number, model: model, onClick: {})
                 HStack {
                     VChip(text: vSimLabel(number.simKind))
                     VChip(text: vRoleLabel(number.role))
