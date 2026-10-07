@@ -248,7 +248,7 @@ struct VMigration: Hashable {
 }
 
 /// PresentationProfile（本地偏好；绝不进 .depmap；spec PRESENTATION_PROFILE_SCHEMA.json）。
-struct VPresentationProfile: Hashable {
+struct VPresentationProfile: Hashable, Codable {
     let targetType: String
     let targetId: String
     let themeId: String
@@ -270,6 +270,20 @@ struct VPresentationProfile: Hashable {
             backgroundValue: preset,
             layout: "standard",
             maskSensitive: true
+        )
+    }
+
+    func replacingTheme(_ themeId: String) -> VPresentationProfile {
+        VPresentationProfile(
+            targetType: targetType,
+            targetId: targetId,
+            themeId: themeId,
+            material: material,
+            accentColor: accentColor,
+            backgroundKind: backgroundKind,
+            backgroundValue: themeId,
+            layout: layout,
+            maskSensitive: maskSensitive
         )
     }
 }

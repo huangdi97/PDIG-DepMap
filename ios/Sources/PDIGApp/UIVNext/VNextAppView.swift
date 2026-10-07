@@ -21,22 +21,57 @@ final class VNextModel: ObservableObject {
     @Published var primary: VPrimaryDestination = .now
     @Published var regionFilter: String? = nil
     @Published var globeDetailShown = false
-    @Published var privacyMask = true
-    @Published var reduceMotion = false
     @Published var searchQuery = ""
     @Published var changeProjection: VChangeProjection = .current
 
+    @Published var privacyMask: Bool {
+        didSet { persistWorkspace() }
+    }
+    @Published var reduceMotion: Bool {
+        didSet { persistWorkspace() }
+    }
+    @Published var showUpcoming: Bool {
+        didSet { persistWorkspace() }
+    }
+    @Published var systemReduceMotion = false
+
+    /// Screenshot/UI-test-only override. Never persisted and never enters .depmap.
+    @Published var evidenceThemeId: String? = nil
+
+    @Published private(set) var presentationProfiles: [String: VPresentationProfile]
+
+    private var history: [VScreen] = []
+    private let preferencesStore: VNextPreferencesStore?
+
+    init(preferencesStore: VNextPreferencesStore? = .live) {
+        self.preferencesStore = preferencesStore
+        let workspace = preferencesStore?.loadWorkspace() ?? VWorkspacePreferences()
+        self.privacyMask = workspace.privacyMask
+        self.reduceMotion = workspace.reduceMotion
+        self.showUpcoming = workspace.showUpcoming
+        self.presentationProfiles = preferencesStore?.loadProfiles() ?? [:]
+    }
+
+    var effectiveReduceMotion: Bool { reduceMotion || systemReduceMotion }
+
     func selectPrimary(_ next: VPrimaryDestination) {
+        history.removeAll()
         primary = next
         switch next {
         case .now: screen = .now
-        case .infrastructure: screen = .overview
+        case .infrastructure: screen = .infrastructure
         case .change: screen = .changePhone
         case .records: screen = .records
         }
     }
 
     func navigate(_ next: VScreen) {
+        if screen == .search && next != .search {
+            pushHistory(screen)
+        } else if isUtility(next) || (next == .changePhone && screen != .change && screen != .changePhone) {
+            pushHistory(screen)
+        }
+
         screen = next
         switch next {
         case .now: primary = .now
@@ -53,10 +88,29 @@ final class VNextModel: ObservableObject {
         }
     }
 
-    func openCard(_ cardId: String) { navigate(.cardDetail(cardId)) }
-    func openNumber(_ numberId: String) { navigate(.numberDetail(numberId)) }
-    func openCardCustomization(_ cardId: String) { navigate(.cardCustomization(cardId)) }
-    func openNumberCustomization(_ numberId: String) { navigate(.numberCustomization(numberId)) }
+    func openCard(_ cardId: String) {
+        pushHistory(screen)
+        screen = .cardDetail(cardId)
+        primary = .infrastructure
+    }
+
+    func openNumber(_ numberId: String) {
+        pushHistory(screen)
+        screen = .numberDetail(numberId)
+        primary = .infrastructure
+    }
+
+    func openCardCustomization(_ cardId: String) {
+        pushHistory(screen)
+        screen = .cardCustomization(cardId)
+        primary = .infrastructure
+    }
+
+    func openNumberCustomization(_ numberId: String) {
+        pushHistory(screen)
+        screen = .numberCustomization(numberId)
+        primary = .infrastructure
+    }
 
     func selectRegion(_ code: String) {
         regionFilter = code
@@ -75,6 +129,14 @@ final class VNextModel: ObservableObject {
     }
 
     func back() {
+        if globeDetailShown {
+            globeDetailShown = false
+            return
+        }
+        if let prior = history.popLast() {
+            screen = prior
+            return
+        }
         switch screen {
         case .cardCustomization(let id): screen = .cardDetail(id)
         case .numberCustomization(let id): screen = .numberDetail(id)
@@ -86,10 +148,50 @@ final class VNextModel: ObservableObject {
             selectPrimary(primary)
         }
     }
+
+    func presentationProfile(targetType: String, targetId: String, fallbackPreset: String) -> VPresentationProfile {
+        let key = VNextPreferencesStore.profileKey(targetType: targetType, targetId: targetId)
+        if var stored = presentationProfiles[key] {
+            if let evidenceThemeId {
+                stored = stored.replacingTheme(evidenceThemeId)
+            }
+            return stored
+        }
+        let fallback = VPresentationProfile.defaultFor(targetType: targetType, targetId: targetId, preset: evidenceThemeId ?? fallbackPreset)
+        return fallback
+    }
+
+    func savePresentationProfile(_ profile: VPresentationProfile) {
+        let key = VNextPreferencesStore.profileKey(targetType: profile.targetType, targetId: profile.targetId)
+        presentationProfiles[key] = profile
+        preferencesStore?.saveProfiles(presentationProfiles)
+    }
+
+    private func persistWorkspace() {
+        preferencesStore?.saveWorkspace(VWorkspacePreferences(
+            privacyMask: privacyMask,
+            reduceMotion: reduceMotion,
+            showUpcoming: showUpcoming
+        ))
+    }
+
+    private func isUtility(_ screen: VScreen) -> Bool {
+        switch screen {
+        case .search, .sources, .settings, .personalization: return true
+        default: return false
+        }
+    }
+
+    private func pushHistory(_ value: VScreen) {
+        guard history.last != value else { return }
+        history.append(value)
+        if history.count > 16 { history.removeFirst(history.count - 16) }
+    }
 }
 
 public struct VNextAppView: View {
     @StateObject private var model = VNextModel()
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
 
     public init() {}
 
@@ -107,6 +209,8 @@ public struct VNextAppView: View {
         }
         .preferredColorScheme(.light)
         .tint(PdigV2Colors.primaryBright)
+        .onAppear { model.systemReduceMotion = systemReduceMotion }
+        .onChange(of: systemReduceMotion) { model.systemReduceMotion = $0 }
     }
 }
 
