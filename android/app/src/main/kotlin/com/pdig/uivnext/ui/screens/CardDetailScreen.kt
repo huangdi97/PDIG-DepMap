@@ -170,7 +170,7 @@ private fun IdentityPanel(
                 Text(
                     "定制卡面 →",
                     Modifier.padding(12.dp),
-                    color = PdigV2Colors.PrimaryBright,
+                    color = PdigV2Colors.PrimaryText,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                 )

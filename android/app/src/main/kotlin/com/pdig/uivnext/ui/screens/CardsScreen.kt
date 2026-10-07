@@ -400,7 +400,7 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
                 Text(
                     "查看完整详情 →",
                     Modifier.padding(12.dp),
-                    color = PdigV2Colors.PrimaryBright,
+                    color = PdigV2Colors.PrimaryText,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -540,7 +540,7 @@ internal fun FilterChip(label: String, selected: Boolean, onClick: () -> Unit) {
             Text(
                 label,
                 Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
-                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
                 fontSize = 12.sp,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
             )

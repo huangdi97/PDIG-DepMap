@@ -42,6 +42,8 @@ object PdigV2Colors {
     val BorderStrong = Color(0x4D3977E8)
     val Primary = Color(0xFF2F6BFF)
     val PrimaryBright = Color(0xFF1769FF)
+    // Ink for normal-size blue text on light surfaces; keep PrimaryBright for filled actions / icons.
+    val PrimaryText = Color(0xFF0F5CDB)
     val PrimarySoft = Color(0xFFE8F0FF)
     val TextPrimary = Color(0xFF10213A)
     val TextSecondary = Color(0xFF40536F)

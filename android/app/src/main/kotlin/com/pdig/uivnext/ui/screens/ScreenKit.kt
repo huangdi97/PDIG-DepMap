@@ -74,7 +74,7 @@ internal fun RegionScopeBanner(app: VAppState) {
                 fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold,
             )
-            Text("查看全球 →", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp)
+            Text("查看全球 →", color = PdigV2Colors.PrimaryText, fontSize = 12.sp)
         }
     }
 }

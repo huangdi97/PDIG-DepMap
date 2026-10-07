@@ -73,7 +73,7 @@ fun NumberDetailScreen(app: VAppState) {
                     Text(
                         "定制号码面 →",
                         Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                        color = PdigV2Colors.PrimaryBright,
+                        color = PdigV2Colors.PrimaryText,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
