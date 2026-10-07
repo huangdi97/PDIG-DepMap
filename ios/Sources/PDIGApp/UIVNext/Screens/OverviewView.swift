@@ -1,251 +1,164 @@
-// OverviewView —— 基础设施总览（/infrastructure）：Globe 舞台 + Region List + 右活动轨 + 底部快速入口。
-//
-// overview.md / globe.md / region-node.md 契约：
-//  - Globe Stage 视觉主导；Region List 为非视觉替代（驱动 filter，非唯一导航，IA §7）；
-//  - 点地区 → REGION_SELECTED（focus + filter + 上下文抽屉）；抽屉动作 → 带 ?region= 路由；
-//  - Escape 回退：REGION_DETAIL → REGION_SELECTED → GLOBAL（INTERACTION_CONTRACT §1）。
+// OverviewView —— spatial infrastructure overview.
+// iPhone stacks Globe + Region list. iPad keeps Globe spatial stage and Region list side-by-side.
 
 import SwiftUI
 
 struct OverviewView: View {
     @ObservedObject var model: VNextModel
+    @Environment(\.horizontalSizeClass) private var sizeClass
 
     private var regions: [RegionPresentation] { VNextDemoFixture.regionSummaries() }
-    private var arcingPairs: [(String, String)] { VNextDemoFixture.crossRegionPairs() }
-    private var selectedRegion: RegionPresentation? {
-        regions.first { $0.regionCode == model.regionFilter }
-    }
+    private var selectedRegion: RegionPresentation? { regions.first { $0.regionCode == model.regionFilter } }
 
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                VStack(alignment: .leading, spacing: VSpace.sectionGap) {
-                    header
-
-                    // Globe 舞台
-                    globeStage
-                        .accessibilityIdentifier(VTestIds.globeStage)
-
-                    // Region List（非视觉替代）
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.lg) {
+                header
+                if sizeClass == .regular {
+                    HStack(alignment: .top, spacing: VSpace.lg) {
+                        globeStage.frame(minHeight: 460)
+                            .frame(maxWidth: .infinity)
+                        regionList.frame(width: 310)
+                    }
+                } else {
+                    globeStage.frame(height: 340)
                     regionList
-                        .accessibilityIdentifier(VTestIds.regionList)
-
-                    // 快速入口
-                    quickEntry
-                        .accessibilityIdentifier(VTestIds.overviewQuick)
-
-                    Spacer(minLength: 16)
                 }
-                .padding(VSpace.pagePadding)
+                quickEntry
             }
+            .padding(VSpace.pagePadding)
         }
         .vPageBackground()
-        // Region Drawer 覆盖层（REGION_DETAIL）
-        .overlay(alignment: .bottom) {
-            if model.globeDetailShown, let region = selectedRegion {
-                regionDrawer(region)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+        .sheet(isPresented: $model.globeDetailShown) {
+            if let selectedRegion {
+                regionDetail(selectedRegion)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
         }
-        .animation(.easeInOut(duration: VMotion.normal), value: model.globeDetailShown)
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(VCopy.myInfrastructure)
-                .font(VFont.pageTitle())
-                .foregroundColor(PdigV2Colors.textPrimary)
-            Text(VCopy.globeHint)
-                .font(VFont.meta())
-                .foregroundColor(PdigV2Colors.textMuted)
+        VStack(alignment: .leading, spacing: 3) {
+            Text(VCopy.myInfrastructure).font(VFont.pageTitle()).foregroundColor(PdigV2Colors.textPrimary)
+            Text("按对象管理，按地区查看你的全球基础设施")
+                .font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
         }
     }
 
     private var globeStage: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        ZStack(alignment: .topLeading) {
             VNextGlobeView(
                 regions: regions,
-                arcingPairs: arcingPairs,
+                arcingPairs: VNextDemoFixture.crossRegionPairs(),
                 reduceMotion: model.reduceMotion,
                 selectedRegion: Binding(
                     get: { model.regionFilter },
-                    set: { newValue in
-                        if let newValue = newValue {
-                            model.selectRegion(newValue)
-                        } else {
-                            model.backToGlobal()
-                        }
-                    }
+                    set: { newValue in newValue.map(model.selectRegion) ?? model.clearRegion() }
                 ),
                 onOpenRegionDetail: { model.openRegionDetail() },
                 onSelectRegion: { model.selectRegion($0.regionCode) },
-                onBackToGlobal: { model.backToGlobal() }
-            )
-            .frame(height: 420)
-            .clipShape(RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous)
-                    .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
+                onBackToGlobal: { model.clearRegion() }
             )
             .accessibilityIdentifier(VTestIds.globeCanvas)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("我的基础设施").font(VFont.sectionTitle()).foregroundColor(PdigV2Colors.globeTextPrimary)
+                Text("点按地区聚焦 · 再次点按查看地区").font(VFont.meta()).foregroundColor(PdigV2Colors.globeTextSecondary)
+            }
+            .padding(VSpace.md)
+            .background(PdigV2Colors.globeDeep.opacity(0.72))
+            .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+            .padding(VSpace.md)
         }
-        .background(PdigV2Colors.surfaceGlass)
+        .background(PdigV2Colors.globeDeep)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous)
-                .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
-        )
+        .shadow(color: Color.black.opacity(0.10), radius: 14, y: 5)
+        .accessibilityIdentifier(VTestIds.globeStage)
     }
 
-    /// Region List（键盘/读屏可达；interaction-contract §4）。
     private var regionList: some View {
-        VStack(alignment: .leading, spacing: VSpace.md) {
-            VSectionHeader(title: VCopy.regionListTitle)
+        VStack(alignment: .leading, spacing: VSpace.sm) {
+            VSectionHeader(title: "地区")
             ForEach(regions) { region in
-                VRegionListItem(
-                    region: region,
-                    selected: model.regionFilter == region.regionCode,
-                    onClick: {
-                        if model.regionFilter == region.regionCode {
-                            model.backToGlobal()
-                        } else {
-                            model.selectRegion(region.regionCode)
-                        }
+                VRegionListItem(region: region, selected: model.regionFilter == region.regionCode) {
+                    if model.regionFilter == region.regionCode {
+                        model.openRegionDetail()
+                    } else {
+                        model.selectRegion(region.regionCode)
                     }
-                )
+                }
                 .accessibilityIdentifier("\(VTestIds.regionItem).\(region.regionCode)")
             }
         }
-    }
-
-    /// 底部快速入口（pdig.overview.quick）。
-    private var quickEntry: some View {
-        HStack(spacing: VSpace.gridGap) {
-            quickButton(VCopy.quickCards, "全球 \(VNextDemoFixture.cards.count) 张卡") {
-                model.navigate(.cards)
-            }
-            quickButton(VCopy.quickNumbers, "全球 \(VNextDemoFixture.numbers.count) 个号码") {
-                model.navigate(.numbers)
-            }
-            quickButton(VCopy.quickChangePhone, "旗舰流程") {
-                model.navigate(.changePhone)
-            }
-            quickButton(VCopy.quickWeaknesses, "待确认风险") {
-                model.navigate(.weaknesses)
-            }
-        }
-        .padding(VSpace.xl)
-        .frame(maxWidth: .infinity)
-        .background(PdigV2Colors.surface.opacity(0.9))
-        .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous)
-                .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
-        )
-    }
-
-    private func quickButton(_ title: String, _ hint: String, _ action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(VFont.secondary())
-                    .fontWeight(.semibold)
-                    .foregroundColor(PdigV2Colors.textPrimary)
-                Text(hint)
-                    .font(VFont.meta())
-                    .foregroundColor(PdigV2Colors.textMuted)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(VSpace.lg)
-            .frame(minHeight: 60)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .background(PdigV2Colors.surfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: VRadius.md, style: .continuous)
-                .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
-        )
-    }
-
-    /// Region Drawer：地区资产摘要 + 3 个动作（查看全部/查看卡片/查看号码，带 region filter）。
-    private func regionDrawer(_ region: RegionPresentation) -> some View {
-        VStack(alignment: .leading, spacing: VSpace.md) {
-            HStack {
-                Text(region.displayName)
-                    .font(VFont.sectionTitle())
-                    .foregroundColor(PdigV2Colors.textPrimary)
-                Spacer()
-                Button(action: { model.backToGlobal() }) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(PdigV2Colors.textSecondary)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(VCopy.backToGlobal)
-            }
-            Text("\(region.cardCount) 张卡 · \(region.phoneCount) 个号码 · \(region.accountCount) 个账户 · \(region.serviceCount) 项服务")
-                .font(VFont.body())
-                .foregroundColor(PdigV2Colors.textSecondary)
-            Text(VCopy.drawerViewAll)
-                .font(VFont.meta())
-                .foregroundColor(PdigV2Colors.textMuted)
-
-            VStack(spacing: VSpace.sm) {
-                drawerAction(VCopy.drawerViewAll, VCopy.drawerViewHintAll) {
-                    model.selectRegion(region.regionCode)
-                    model.navigate(.overview)
-                }
-                drawerAction(VCopy.drawerViewCards, VCopy.drawerViewHintCards) {
-                    model.selectRegion(region.regionCode)
-                    model.navigate(.cards)
-                }
-                drawerAction(VCopy.drawerViewNumbers, VCopy.drawerViewHintNumbers) {
-                    model.selectRegion(region.regionCode)
-                    model.navigate(.numbers)
-                }
-            }
-
-            Text(VCopy.backToGlobal)
-                .font(VFont.meta())
-                .foregroundColor(PdigV2Colors.textSecondary)
-                .padding(.horizontal, VSpace.md)
-                .padding(.vertical, VSpace.sm)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .background(PdigV2Colors.primarySoft)
-                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-        }
-        .padding(VSpace.xl)
-        .background(PdigV2Colors.surface.opacity(0.97))
+        .padding(VSpace.md)
+        .background(PdigV2Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous)
-                .stroke(PdigV2Colors.borderStrong, lineWidth: 1)
-        )
-        .padding(VSpace.pagePadding)
+        .overlay(RoundedRectangle(cornerRadius: VRadius.xl).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+        .accessibilityIdentifier(VTestIds.regionList)
     }
 
-    private func drawerAction(_ title: String, _ hint: String, _ action: @escaping () -> Void) -> some View {
+    private var quickEntry: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 155), spacing: VSpace.sm)], spacing: VSpace.sm) {
+            quickButton("查看卡片", "全球 \(VNextDemoFixture.cards.count) 张卡", "creditcard.fill") { model.navigate(.cards) }
+            quickButton("查看号码", "全球 \(VNextDemoFixture.numbers.count) 个号码", "phone.fill") { model.navigate(.numbers) }
+            quickButton("更换手机号", "规划与迁移", "arrow.triangle.2.circlepath") { model.navigate(.changePhone) }
+            quickButton("基础设施薄弱点", "待确认风险", "exclamationmark.triangle.fill") { model.navigate(.weaknesses) }
+        }
+        .accessibilityIdentifier(VTestIds.overviewQuick)
+    }
+
+    private func quickButton(_ title: String, _ hint: String, _ icon: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(VFont.secondary())
-                    .fontWeight(.semibold)
-                    .foregroundColor(PdigV2Colors.primaryBright)
-                Text(hint)
-                    .font(VFont.meta())
-                    .foregroundColor(PdigV2Colors.textMuted)
+            HStack(spacing: VSpace.md) {
+                Image(systemName: icon).foregroundColor(PdigV2Colors.primary)
+                    .frame(width: 34, height: 34).background(PdigV2Colors.primarySoft).clipShape(Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                    Text(hint).font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+                }
+                Spacer()
             }
-            .padding(VSpace.md)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: 48)
-            .contentShape(Rectangle())
+            .padding(VSpace.md).frame(minHeight: 58)
         }
         .buttonStyle(.plain)
-        .background(PdigV2Colors.surfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+        .overlay(RoundedRectangle(cornerRadius: VRadius.md).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+    }
+
+    private func regionDetail(_ region: RegionPresentation) -> some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: VSpace.lg) {
+                    Text(region.displayName).font(VFont.pageTitle()).foregroundColor(PdigV2Colors.textPrimary)
+                    Text("\(region.cardCount) 张卡 · \(region.phoneCount) 个号码 · \(region.accountCount) 个账户 · \(region.serviceCount) 项服务")
+                        .font(VFont.body()).foregroundColor(PdigV2Colors.textSecondary)
+
+                    VJumpRow(title: "查看全部", subtitle: "该地区所有基础设施") {
+                        model.selectRegion(region.regionCode); model.navigate(.overview); model.globeDetailShown = false
+                    }
+                    VJumpRow(title: "查看卡片", subtitle: "该地区卡片列表") {
+                        model.selectRegion(region.regionCode); model.navigate(.cards); model.globeDetailShown = false
+                    }
+                    VJumpRow(title: "查看号码", subtitle: "该地区号码列表") {
+                        model.selectRegion(region.regionCode); model.navigate(.numbers); model.globeDetailShown = false
+                    }
+                    Button("返回全球视图") {
+                        model.clearRegion()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(PdigV2Colors.primary)
+                    .frame(minHeight: 44)
+                }
+                .padding(VSpace.pagePadding)
+            }
+            .vPageBackground()
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") { model.globeDetailShown = false }
+                }
+            }
+        }
     }
 }

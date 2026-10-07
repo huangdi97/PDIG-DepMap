@@ -1,202 +1,192 @@
-// NumbersView —— 号码管理（/infrastructure/numbers）：List + Inspector（master-detail）。
-//
-// numbers.md / phone-card.md 契约：
-//  - Desktop 默认 list-table + inspector；Mobile 默认 number-face cards + sections；
-//  - Inspector 只读为主，动作 = 链接去详情页（components/inspector.md）；
-//  - 过滤：国家/区号/SIM eSIM/主副号/用途/状态/恢复用途（与 regionFilter 同步）；
-//  - 号码遮罩默认开（privacyMask.maskPhoneNumbers）；运营商未知不填充。
+// NumbersView —— communication identity collection.
+// iPhone = focused identity list; iPad = persistent list/detail workspace.
 
 import SwiftUI
 
 struct NumbersView: View {
     @ObservedObject var model: VNextModel
+    @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selectedId: String? = VNextDemoFixture.numbers.first?.id
 
     private var filtered: [VNumber] {
-        if let region = model.regionFilter {
-            return VNextDemoFixture.numbers.filter { $0.region == region }
-        }
-        return VNextDemoFixture.numbers
+        VNextDemoFixture.numbers.filter { model.regionFilter == nil || $0.region == model.regionFilter }
     }
 
     private var selected: VNumber? {
-        if let id = selectedId {
-            return filtered.first { $0.id == id } ?? filtered.first
-        }
+        if let selectedId, let match = filtered.first(where: { $0.id == selectedId }) { return match }
         return filtered.first
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: VSpace.sectionGap) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(VCopy.numbersTitle)
-                            .font(VFont.pageTitle())
-                            .foregroundColor(PdigV2Colors.textPrimary)
-                        Text(subtitle)
-                            .font(VFont.secondary())
-                            .foregroundColor(PdigV2Colors.textSecondary)
-                    }
-                    Spacer()
-                }
-
-                filterRow
-
-                // List（pdig.phone.list）
-                listSection
-                    .accessibilityIdentifier(VTestIds.phoneList)
-
-                // Inspector（pdig.phone.inspector）
-                inspectorSection
-                    .accessibilityIdentifier(VTestIds.phoneInspector)
-            }
-            .padding(VSpace.pagePadding)
+        Group {
+            if sizeClass == .regular { expanded } else { compact }
         }
         .vPageBackground()
     }
 
-    private var subtitle: String {
-        if let region = model.regionFilter {
-            return "地区 \(region) · \(filtered.count) 个号码"
+    private var header: some View {
+        VStack(alignment: .leading, spacing: VSpace.md) {
+            Text(VCopy.numbersTitle).font(VFont.pageTitle()).foregroundColor(PdigV2Colors.textPrimary)
+            Text(model.regionFilter == nil ? "全球 \(filtered.count) 个号码" : "\(regionName(model.regionFilter!)) · \(filtered.count) 个号码")
+                .font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
+            filterRow
         }
-        return "全球 \(filtered.count) 个号码"
     }
 
-    // MARK: - Filter row（全部 / SIM 类型 / 主副号）
+    private var compact: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.lg) {
+                header
+                ForEach(filtered) { number in
+                    Button { model.openNumber(number.id) } label: {
+                        HStack(spacing: VSpace.md) {
+                            VNumberMiniFace(number: number).frame(width: 104)
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(number.nickname).font(VFont.body()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                                    Spacer()
+                                    if number.recoveryOnly { VChip(text: VCopy.recoveryOnlyShort, highlight: true) }
+                                }
+                                Text("\(number.maskedNumber) · \(number.carrier)")
+                                    .font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
+                                Text("\(vSimLabel(number.simKind)) · \(vRoleLabel(number.role)) · \(number.usages.joined(separator: " / "))")
+                                    .font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+                            }
+                        }
+                        .padding(VSpace.md).frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.plain)
+                    .background(PdigV2Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: VRadius.lg).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+                    .accessibilityIdentifier("\(VTestIds.phoneRow).\(number.id)")
+                }
+            }
+            .padding(VSpace.pagePadding)
+        }
+    }
+
+    private var expanded: some View {
+        GeometryReader { geo in
+            HStack(alignment: .top, spacing: VSpace.lg) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: VSpace.lg) {
+                        header
+                        VStack(spacing: VSpace.sm) {
+                            ForEach(filtered) { number in
+                                Button {
+                                    selectedId = number.id
+                                } label: {
+                                    HStack(spacing: VSpace.md) {
+                                        VNumberMiniFace(number: number).frame(width: 106)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            Text(number.nickname).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                                            Text(number.maskedNumber).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
+                                            Text("\(vSimLabel(number.simKind)) · \(vRoleLabel(number.role))")
+                                                .font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+                                        }
+                                        Spacer()
+                                        if number.recoveryOnly { VChip(text: "唯一恢复", highlight: true) }
+                                    }
+                                    .padding(VSpace.md)
+                                }
+                                .buttonStyle(.plain)
+                                .background(selected?.id == number.id ? PdigV2Colors.primarySoft : PdigV2Colors.surface)
+                                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+                                .overlay(RoundedRectangle(cornerRadius: VRadius.md)
+                                    .stroke(selected?.id == number.id ? PdigV2Colors.primary : PdigV2Colors.borderSubtle, lineWidth: 1))
+                                .accessibilityIdentifier("\(VTestIds.phoneRow).\(number.id)")
+                            }
+                        }
+                    }
+                    .padding(.leading, VSpace.pagePadding)
+                    .padding(.vertical, VSpace.pagePadding)
+                }
+                .frame(maxWidth: .infinity)
+
+                if let selected {
+                    VNumberInspector(number: selected, model: model)
+                        .frame(width: min(380, geo.size.width * 0.36))
+                        .padding(.trailing, VSpace.pagePadding)
+                        .padding(.vertical, VSpace.pagePadding)
+                }
+            }
+        }
+    }
 
     private var filterRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: VSpace.sm) {
-                VFilterChip(label: VCopy.filterAll, selected: model.regionFilter == nil) {
-                    model.regionFilter = nil
-                }
-                ForEach(VNextDemoFixture.regions) { region in
-                    VFilterChip(
-                        label: region.regionCode,
-                        selected: model.regionFilter == region.regionCode
-                    ) {
-                        model.selectRegion(region.regionCode)
-                    }
-                }
+                VFilterChip(label: VCopy.filterAll, selected: model.regionFilter == nil) { model.clearRegion() }
+                VFilterChip(label: "eSIM", selected: false) {}
+                VFilterChip(label: "实体 SIM", selected: false) {}
+                VFilterChip(label: "主号", selected: false) {}
+                VFilterChip(label: "副号", selected: false) {}
+                VFilterChip(label: "保号", selected: false) {}
             }
         }
     }
+}
 
-    // MARK: - List（行高 40–48；行项 pdig.phone.row）
-
-    private var listSection: some View {
-        VStack(spacing: 0) {
-            ForEach(filtered) { number in
-                Button {
-                    selectedId = number.id
-                    model.openNumber(number.id)
-                } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack(spacing: VSpace.sm) {
-                                Text(number.nickname)
-                                    .font(VFont.secondary())
-                                    .fontWeight(.semibold)
-                                    .foregroundColor(PdigV2Colors.textPrimary)
-                                Text(number.countryCode)
-                                    .font(VFont.meta())
-                                    .foregroundColor(PdigV2Colors.textMuted)
-                            }
-                            Text("\(number.maskedNumber) · \(number.carrier) · \(vSimLabel(number.simKind)) · \(vRoleLabel(number.role))")
-                                .font(VFont.meta())
-                                .foregroundColor(PdigV2Colors.textSecondary)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        if number.recoveryOnly { VChip(text: VCopy.recoveryOnlyShort, highlight: true) }
-                        VStatusBadge(status: number.status)
-                    }
-                    .padding(.horizontal, VSpace.lg)
-                    .frame(minHeight: 48)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .background(
-                    selected?.id == number.id
-                        ? PdigV2Colors.primary.opacity(0.18)
-                        : PdigV2Colors.surfaceRaised.opacity(0.6)
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: VRadius.md, style: .continuous)
-                        .stroke(
-                            selected?.id == number.id ? PdigV2Colors.primaryBright : PdigV2Colors.borderSubtle,
-                            lineWidth: 1
-                        )
-                )
-                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-                .padding(.vertical, 3)
-                .accessibilityIdentifier("\(VTestIds.phoneRow).\(number.id)")
-            }
+private struct VNumberMiniFace: View {
+    let number: VNumber
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            LinearGradient(colors: [Color(hex: "#0B2E58"), Color(hex: "#071A34")],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(number.countryCode).font(.system(size: 9, weight: .bold)).foregroundColor(PdigV2Colors.assetTextPrimary)
+                Text("•••• ••••").font(.system(size: 8, design: .monospaced)).foregroundColor(PdigV2Colors.assetTextSecondary)
+            }.padding(8)
         }
+        .aspectRatio(1.65, contentMode: .fit)
+        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
     }
+}
 
-    // MARK: - Inspector（只读摘要 + 详情链接）
-
-    private var inspectorSection: some View {
-        VStack(alignment: .leading, spacing: VSpace.md) {
-            if let selected = selected {
-                VSectionHeader(title: VCopy.numberDetailTitle)
-                Text(selected.nickname)
-                    .font(VFont.body())
-                    .fontWeight(.bold)
-                    .foregroundColor(PdigV2Colors.textPrimary)
-                Text(selected.maskedNumber)
-                    .font(.system(size: 20, weight: .bold, design: .monospaced))
-                    .foregroundColor(PdigV2Colors.textPrimary)
-                HStack(spacing: VSpace.sm) {
-                    VChip(text: vSimLabel(selected.simKind))
-                    VChip(text: vRoleLabel(selected.role))
-                    VChip(text: selected.carrier)
-                    if selected.recoveryOnly { VChip(text: VCopy.recoveryOnly, highlight: true) }
+private struct VNumberInspector: View {
+    let number: VNumber
+    @ObservedObject var model: VNextModel
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.md) {
+                VSectionHeader(title: "号码详情")
+                VNumberFace(number: number, privacyMask: model.privacyMask, onClick: {})
+                HStack {
+                    VChip(text: vSimLabel(number.simKind))
+                    VChip(text: vRoleLabel(number.role))
+                    if number.recoveryOnly { VChip(text: "唯一恢复路径", highlight: true) }
                 }
-                Text("用途：\(selected.usages.joined(separator: " · "))")
-                    .font(VFont.secondary())
-                    .foregroundColor(PdigV2Colors.textSecondary)
+                Text("用途 · \(number.usages.joined(separator: " / "))")
+                    .font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
 
-                let services = VNextDemoFixture.servicesForNumber(selected.id)
-                VSectionHeader(title: "\(VCopy.relatedServices)（\(services.count)）")
-                ForEach(services) { service in
+                VSectionHeader(title: "关联服务（\(VNextDemoFixture.servicesForNumber(number.id).count)）")
+                ForEach(VNextDemoFixture.servicesForNumber(number.id)) { service in
                     HStack {
-                        Text(service.name)
-                            .font(VFont.secondary())
-                            .foregroundColor(PdigV2Colors.textSecondary)
+                        Text(service.name).font(VFont.secondary()).foregroundColor(PdigV2Colors.textPrimary)
                         Spacer()
-                        VChip(text: vRelationKindLabel(service.kind))
+                        VChip(text: vRelationKindLabel(VNextDemoFixture.relationKind(number.id, service.id) ?? "unknown"))
                     }
                 }
 
-                Button {
-                    model.openNumber(selected.id)
-                } label: {
-                    Text("\(VCopy.viewFullDetail) →")
-                        .font(VFont.secondary())
-                        .fontWeight(.semibold)
-                        .foregroundColor(PdigV2Colors.primaryBright)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(VSpace.md)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
+                if number.recoveryOnly {
+                    Text("此号码承担唯一恢复路径；更换前必须先建立并验证新的恢复方式。")
+                        .font(VFont.meta()).foregroundColor(PdigV2Colors.warning)
+                        .padding(VSpace.md).frame(maxWidth: .infinity, alignment: .leading)
+                        .background(PdigV2Colors.warning.opacity(0.10))
+                        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
                 }
-                .buttonStyle(.plain)
-                .background(PdigV2Colors.primarySoft)
-                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-            } else {
-                Text(VCopy.selectNumberHint)
-                    .font(VFont.secondary())
-                    .foregroundColor(PdigV2Colors.textMuted)
+
+                Button("定制号码面") { model.openNumberCustomization(number.id) }
+                    .buttonStyle(.bordered).tint(PdigV2Colors.primary)
+                Button("查看完整详情") { model.openNumber(number.id) }
+                    .buttonStyle(.borderedProminent).tint(PdigV2Colors.primary)
             }
+            .padding(VSpace.lg)
         }
-        .padding(VSpace.xl)
-        .background(PdigV2Colors.surface.opacity(0.92))
+        .background(PdigV2Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous)
-                .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
-        )
+        .overlay(RoundedRectangle(cornerRadius: VRadius.xl).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+        .accessibilityIdentifier(VTestIds.phoneInspector)
     }
 }
