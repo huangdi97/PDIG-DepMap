@@ -40,7 +40,7 @@ struct NumbersView: View {
                 ForEach(filtered) { number in
                     Button { model.openNumber(number.id) } label: {
                         HStack(spacing: VSpace.md) {
-                            VNumberMiniFace(number: number).frame(width: 104)
+                            VNumberMiniFace(number: number, preset: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId).frame(width: 104)
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Text(number.nickname).font(VFont.body()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
@@ -78,7 +78,7 @@ struct NumbersView: View {
                                     selectedId = number.id
                                 } label: {
                                     HStack(spacing: VSpace.md) {
-                                        VNumberMiniFace(number: number).frame(width: 106)
+                                        VNumberMiniFace(number: number, preset: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId).frame(width: 106)
                                         VStack(alignment: .leading, spacing: 3) {
                                             Text(number.nickname).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
                                             Text(number.maskedNumber).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
@@ -130,10 +130,10 @@ struct NumbersView: View {
 
 private struct VNumberMiniFace: View {
     let number: VNumber
+    let preset: String
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            LinearGradient(colors: [Color(hex: "#0B2E58"), Color(hex: "#071A34")],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
+            numberFaceGradient(preset)
             VStack(alignment: .leading, spacing: 3) {
                 Text(number.countryCode).font(.system(size: 9, weight: .bold)).foregroundColor(PdigV2Colors.assetTextPrimary)
                 Text("•••• ••••").font(.system(size: 8, design: .monospaced)).foregroundColor(PdigV2Colors.assetTextSecondary)
@@ -151,7 +151,12 @@ private struct VNumberInspector: View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.md) {
                 VSectionHeader(title: "号码详情")
-                VNumberFace(number: number, privacyMask: model.privacyMask, onClick: {})
+                VNumberFace(
+                    number: number,
+                    privacyMask: model.privacyMask,
+                    presetOverride: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId,
+                    onClick: {}
+                )
                 HStack {
                     VChip(text: vSimLabel(number.simKind))
                     VChip(text: vRoleLabel(number.role))

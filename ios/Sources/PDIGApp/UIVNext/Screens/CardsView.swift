@@ -50,7 +50,7 @@ struct CardsView: View {
                 ForEach(filtered) { card in
                     Button { model.openCard(card.id) } label: {
                         HStack(spacing: VSpace.md) {
-                            VCardThumbnail(card: card).frame(width: 112)
+                            VCardThumbnail(card: card, preset: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset).themeId).frame(width: 112)
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Text(card.nickname).font(VFont.body()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
@@ -86,7 +86,11 @@ struct CardsView: View {
                         header
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: VSpace.gridGap)], spacing: VSpace.gridGap) {
                             ForEach(filtered) { card in
-                                VAssetCard(card: card, privacyMask: model.privacyMask) {
+                                VAssetCard(
+                                    card: card,
+                                    privacyMask: model.privacyMask,
+                                    presetOverride: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset).themeId
+                                ) {
                                     selectedId = card.id
                                 }
                                 .overlay(
@@ -129,9 +133,10 @@ struct CardsView: View {
 
 private struct VCardThumbnail: View {
     let card: VCard
+    let preset: String
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            cardFaceGradient(card.preset)
+            cardFaceGradient(preset)
             VStack(alignment: .leading, spacing: 2) {
                 Text(card.issuer).font(.system(size: 9, weight: .semibold)).foregroundColor(PdigV2Colors.assetTextPrimary)
                 Text("•••• \(card.last4)").font(.system(size: 9, design: .monospaced)).foregroundColor(PdigV2Colors.assetTextSecondary)
@@ -149,7 +154,12 @@ private struct VCardInspector: View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.md) {
                 VSectionHeader(title: "卡片详情")
-                VAssetCard(card: card, privacyMask: model.privacyMask, onClick: {})
+                VAssetCard(
+                    card: card,
+                    privacyMask: model.privacyMask,
+                    presetOverride: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset).themeId,
+                    onClick: {}
+                )
                 HStack {
                     VChip(text: regionName(card.region))
                     VChip(text: card.currency)

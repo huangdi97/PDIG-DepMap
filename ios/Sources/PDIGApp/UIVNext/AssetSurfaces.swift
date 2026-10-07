@@ -33,6 +33,7 @@ func cardFaceGradient(_ preset: String) -> LinearGradient {
 struct VAssetCard: View {
     let card: VCard
     let privacyMask: Bool
+    var presetOverride: String? = nil
     let onClick: () -> Void
 
     var body: some View {
@@ -67,7 +68,7 @@ struct VAssetCard: View {
                 }
             }
             .padding(VSpace.xl)
-            .background(cardFaceGradient(card.preset))
+            .background(cardFaceGradient(presetOverride ?? card.preset))
             .frame(minHeight: 120)
             .aspectRatio(1.586, contentMode: .fit)
             .contentShape(Rectangle())
@@ -82,9 +83,31 @@ struct VAssetCard: View {
     }
 }
 
+func numberFaceGradient(_ preset: String) -> LinearGradient {
+    switch preset {
+    case "banking":
+        return LinearGradient(colors: [Color(hex: "#163C61"), Color(hex: "#071A34")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    case "travel":
+        return LinearGradient(colors: [Color(hex: "#1B4B69"), Color(hex: "#123354"), Color(hex: "#071A34")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    case "recovery":
+        return LinearGradient(colors: [Color(hex: "#3C315B"), Color(hex: "#161D38")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    case "work":
+        return LinearGradient(colors: [Color(hex: "#164D52"), Color(hex: "#092A37")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    case "private":
+        return LinearGradient(colors: [Color(hex: "#332B4C"), Color(hex: "#10172A")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    case "minimal":
+        return LinearGradient(colors: [Color(hex: "#25364A"), Color(hex: "#111B29")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    case "city":
+        return LinearGradient(colors: [Color(hex: "#183E66"), Color(hex: "#091A34")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    default:
+        return LinearGradient(colors: [Color(hex: "#0B2E58"), Color(hex: "#071A34")], startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+}
+
 struct VNumberFace: View {
     let number: VNumber
     let privacyMask: Bool
+    var presetOverride: String? = nil
     let onClick: () -> Void
 
     var body: some View {
@@ -115,8 +138,7 @@ struct VNumberFace: View {
             }
             .padding(VSpace.xl)
             .background(
-                LinearGradient(colors: [Color(hex: "#0B2E58"), Color(hex: "#071A34")],
-                               startPoint: .topLeading, endPoint: .bottomTrailing)
+                numberFaceGradient(presetOverride ?? "country")
             )
             .contentShape(Rectangle())
         }

@@ -15,16 +15,17 @@ struct CardCustomizationView: View {
             VCustomizationFrame(
                 title: "卡面定制 · \(card.nickname)",
                 presets: CARD_THEME_PRESETS,
-                initial: .defaultFor(targetType: "card", targetId: card.id, preset: card.preset),
+                initial: model.presentationProfile(targetType: "card", targetId: card.id, fallbackPreset: card.preset),
                 preview: { profile in
                     AnyView(VAssetCard(
                         card: VCard(id: card.id, nickname: card.nickname, issuer: card.issuer, last4: card.last4,
                                     masked: card.masked, region: card.region, currency: card.currency, type: card.type,
                                     form: card.form, network: card.network, expiry: card.expiry, status: card.status,
                                     attention: card.attention, usages: card.usages, preset: profile.themeId),
-                        privacyMask: model.privacyMask, onClick: {}
+                        privacyMask: model.privacyMask, presetOverride: profile.themeId, onClick: {}
                     ))
                 },
+                onSave: { model.savePresentationProfile($0) },
                 onBack: { model.back() }
             )
         }
@@ -43,8 +44,11 @@ struct NumberCustomizationView: View {
             VCustomizationFrame(
                 title: "号码面定制 · \(number.nickname)",
                 presets: NUMBER_THEME_PRESETS,
-                initial: .defaultFor(targetType: "phoneNumber", targetId: number.id, preset: "country"),
-                preview: { _ in AnyView(VNumberFace(number: number, privacyMask: model.privacyMask, onClick: {})) },
+                initial: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country"),
+                preview: { profile in
+                    AnyView(VNumberFace(number: number, privacyMask: model.privacyMask, presetOverride: profile.themeId, onClick: {}))
+                },
+                onSave: { model.savePresentationProfile($0) },
                 onBack: { model.back() }
             )
         }
@@ -56,6 +60,7 @@ private struct VCustomizationFrame: View {
     let presets: [String]
     let initial: VPresentationProfile
     let preview: (VPresentationProfile) -> AnyView
+    let onSave: (VPresentationProfile) -> Void
     let onBack: () -> Void
 
     @Environment(\.horizontalSizeClass) private var sizeClass
@@ -196,6 +201,7 @@ private struct VCustomizationFrame: View {
 
     private var saveButton: some View {
         Button {
+            onSave(current)
             saved = true
         } label: {
             Text(saved ? "已保存" : "保存").fontWeight(.semibold)
