@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -73,7 +74,7 @@ internal fun CustomizationFrame(
                 modifier = Modifier.weight(1f),
             )
             Surface(
-                color = if (isDirty) PdigV2Colors.Primary else PdigV2Colors.Positive.copy(alpha = 0.18f),
+                color = if (isDirty) PdigV2Colors.PrimaryBright else PdigV2Colors.Positive.copy(alpha = 0.14f),
                 shape = RoundedCornerShape(VRadius.Md),
                 modifier = Modifier
                     .defaultMinSize(minHeight = VTouchTarget.Min)
@@ -82,7 +83,7 @@ internal fun CustomizationFrame(
                 Text(
                     if (isDirty) "保存" else "已保存",
                     Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    color = if (isDirty) PdigV2Colors.CanvasDeep else PdigV2Colors.Positive,
+                    color = if (isDirty) Color.White else PdigV2Colors.Positive,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
                 )

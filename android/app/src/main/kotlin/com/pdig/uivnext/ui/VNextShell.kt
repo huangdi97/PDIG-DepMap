@@ -129,7 +129,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 ) {
                     Surface(
                         modifier = Modifier.size(28.dp),
-                        color = PdigV2Colors.Primary,
+                        color = PdigV2Colors.PrimaryBright,
                         shape = RoundedCornerShape(VRadius.Sm),
                     ) {
                         Row(

@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -58,9 +59,9 @@ internal fun NavigationRail(app: VAppState) {
     ) {
         Column(Modifier.fillMaxSize().padding(vertical = VSpacing.Lg)) {
             Row(Modifier.padding(horizontal = VSpacing.Lg), verticalAlignment = Alignment.CenterVertically) {
-                Surface(Modifier.size(34.dp), color = PdigV2Colors.Primary, shape = RoundedCornerShape(VRadius.Md)) {
+                Surface(Modifier.size(34.dp), color = PdigV2Colors.PrimaryBright, shape = RoundedCornerShape(VRadius.Md)) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text("P", color = PdigV2Colors.CanvasDeep, fontWeight = FontWeight.Bold)
+                        Text("P", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
                 if (app.railExpanded) {
@@ -81,6 +82,7 @@ internal fun NavigationRail(app: VAppState) {
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = VSpacing.Sm)
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
                     .clickable { app.railExpanded = !app.railExpanded },
                 shape = RoundedCornerShape(VRadius.Md),
             ) {

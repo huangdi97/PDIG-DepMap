@@ -87,13 +87,13 @@ fun EmptyState(
                     .defaultMinSize(minHeight = VTouchTarget.Min)
                     .clickable(onClick = onPrimary)
                     .testTag("pdig.empty.primary"),
-                color = PdigV2Colors.Primary,
+                color = PdigV2Colors.PrimaryBright,
                 shape = RoundedCornerShape(VRadius.Md),
             ) {
                 Text(
                     primaryCta,
                     Modifier.padding(horizontal = VSpacing.Lg, vertical = VSpacing.Sm),
-                    color = PdigV2Colors.CanvasDeep,
+                    color = Color.White,
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 13.sp,
                 )

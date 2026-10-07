@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -165,7 +166,13 @@ private fun ColumnScope.NumberListSurface(
 
 @Composable
 private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
-    Column(Modifier.fillMaxSize().padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
         if (selected == null) {
             Text("选择一个号码查看详情", color = PdigV2Colors.TextMuted, fontSize = 13.sp)
             return@Column
@@ -189,6 +196,47 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
             fontSize = 12.sp,
         )
 
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Surface(
+                modifier = Modifier
+                    .weight(1f)
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickable { app.openNumberCustomization(selected.id) }
+                    .testTagLocal("pdig.phone.inspector.customize"),
+                color = PdigV2Colors.SurfaceRaised,
+                shape = RoundedCornerShape(VRadius.Md),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Text(
+                    "定制号码面",
+                    Modifier.padding(12.dp),
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Surface(
+                modifier = Modifier
+                    .weight(1f)
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickable { app.openNumber(selected.id) }
+                    .testTagLocal("pdig.phone.inspector.open-detail"),
+                color = PdigV2Colors.PrimarySoft,
+                shape = RoundedCornerShape(VRadius.Md),
+            ) {
+                Text(
+                    "查看完整详情 →",
+                    Modifier.padding(12.dp),
+                    color = PdigV2Colors.PrimaryBright,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+
         val services = UiVNextDemoFixture.servicesForNumber(selected.id)
         SectionHeader("关联服务（${services.size}）")
         services.forEach { service ->
@@ -198,21 +246,6 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
             }
         }
 
-        Surface(
-            Modifier
-                .fillMaxWidth()
-                .clickable { app.openNumber(selected.id) },
-            color = PdigV2Colors.PrimarySoft,
-            shape = RoundedCornerShape(VRadius.Md),
-        ) {
-            Text(
-                "查看完整详情 →",
-                Modifier.padding(12.dp),
-                color = PdigV2Colors.PrimaryBright,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
     }
 }
 

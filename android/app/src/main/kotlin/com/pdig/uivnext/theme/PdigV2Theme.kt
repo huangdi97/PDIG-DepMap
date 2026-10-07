@@ -45,11 +45,13 @@ object PdigV2Colors {
     val PrimarySoft = Color(0xFFE8F0FF)
     val TextPrimary = Color(0xFF10213A)
     val TextSecondary = Color(0xFF40536F)
-    val TextMuted = Color(0xFF71819A)
-    val Positive = Color(0xFF14966A)
-    val Warning = Color(0xFFD98500)
-    val Critical = Color(0xFFD94552)
-    val Unknown = Color(0xFF7B8799)
+    // Normal-size text must remain readable on Surface / Canvas / PrimarySoft.
+    // These semantic hues stay restrained while meeting the normal-text contrast floor.
+    val TextMuted = Color(0xFF5A6E89)
+    val Positive = Color(0xFF0B7C57)
+    val Warning = Color(0xFF9A5A00)
+    val Critical = Color(0xFFC23A47)
+    val Unknown = Color(0xFF5D6678)
 
     val GlobeDeep = Color(0xFF06162F)
     val GlobeTextPrimary = Color(0xFFF7FAFF)

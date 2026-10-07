@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,6 +35,7 @@ import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AttentionRow
 import com.pdig.uivnext.ui.components.EmptyKind
@@ -251,7 +253,21 @@ private fun ChangesSection(app: VAppState) {
     val changes = app.demoChanges()
     SectionHeader(
         "进行中的变更",
-        trailing = { Text("查看全部", Modifier.clickableLocal { app.navigate(VScreen.RECORDS) }, color = PdigV2Colors.PrimaryBright, fontSize = 12.sp) },
+        trailing = {
+            Box(
+                modifier = Modifier
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickableLocal { app.navigate(VScreen.RECORDS) },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    "查看全部",
+                    color = PdigV2Colors.PrimaryBright,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        },
     )
     if (changes.isEmpty()) {
         Text(
