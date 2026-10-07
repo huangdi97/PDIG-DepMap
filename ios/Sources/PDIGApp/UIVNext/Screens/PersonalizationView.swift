@@ -1,150 +1,258 @@
-// PersonalizationView —— 个性化中心（/settings/personalization）。
-//
-// personalization-center.md 契约：
-//  - 10 组设置：workspace theme / globe theme / nav density / card defaults / number defaults /
-//    privacy masking / home modules / region grouping / motion / reduced effects；
-//  - P0 critical action 不可隐藏（首页「需要你处理」锁定说明）；
-//  - Reduce Motion 联动四项；所有设置为本地偏好，不写 .depmap。
-//  testId：pdig.settings.personalization.*。
+// PersonalizationView —— iOS-native local presentation preferences.
+// Preferences affect only UI presentation. They never enter PersonalReality, Canonical or .depmap.
 
 import SwiftUI
 
 struct PersonalizationView: View {
     @ObservedObject var model: VNextModel
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: VSpace.sectionGap) {
-                Text(VCopy.personalizationTitle)
-                    .font(VFont.pageTitle())
-                    .foregroundColor(PdigV2Colors.textPrimary)
-                Text(VCopy.personalizationNote)
-                    .font(VFont.secondary())
+            VStack(alignment: .leading, spacing: VSpace.lg) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("个性化")
+                        .font(VFont.pageTitle())
+                        .foregroundColor(PdigV2Colors.textPrimary)
+                    Text("这些设置只改变你看到的界面，不会修改卡片、号码、依赖关系或变更记录。")
+                        .font(VFont.secondary())
+                        .foregroundColor(PdigV2Colors.textSecondary)
+                }
+                .accessibilityIdentifier(VTestIds.settingsPersonalization)
+
+                VSectionHeader(title: "外观")
+                appearancePreview
+                VPreferenceAction(title: "卡片外观", subtitle: "在每张卡片详情中单独定制", icon: "creditcard") {
+                    model.navigate(.cards)
+                }
+                VPreferenceAction(title: "号码外观", subtitle: "在号码详情中单独定制", icon: "phone") {
+                    model.navigate(.numbers)
+                }
+
+                VSectionHeader(title: "隐私")
+                VPreferenceToggle(
+                    title: "隐藏敏感信息",
+                    subtitle: model.privacyMask ? "卡号、号码等敏感字段保持遮罩" : "允许展示已记录的非遮罩字段",
+                    isOn: Binding(get: { model.privacyMask }, set: { model.privacyMask = $0 })
+                )
+
+                VSectionHeader(title: "动效")
+                if systemReduceMotion {
+                    VPreferenceLocked(
+                        title: "系统已开启“减弱动态效果”",
+                        subtitle: "PDIG 会遵循系统设置：停止地球自动旋转并简化大幅空间动画。",
+                        icon: "figure.walk.motion"
+                    )
+                }
+                VPreferenceToggle(
+                    title: "在 PDIG 内减弱动态效果",
+                    subtitle: model.effectiveReduceMotion ? "地球自动旋转关闭，聚焦和抽屉动画简化" : "使用标准、短且可中断的动效",
+                    isOn: Binding(get: { model.reduceMotion }, set: { model.reduceMotion = $0 })
+                )
+
+                VSectionHeader(title: "首页")
+                VPreferenceLocked(
+                    title: "需要你处理",
+                    subtitle: "存在必须处理事项时始终显示，不能被个性化隐藏。",
+                    icon: "lock.fill"
+                )
+                VPreferenceLocked(
+                    title: "进行中的变更",
+                    subtitle: "有正在执行的变更计划时始终显示当前阶段。",
+                    icon: "arrow.triangle.2.circlepath"
+                )
+                VPreferenceToggle(
+                    title: "即将到来",
+                    subtitle: model.showUpcoming ? "显示已知的到期日与时间节点" : "已从“现在”隐藏，可随时恢复",
+                    isOn: Binding(get: { model.showUpcoming }, set: { model.showUpcoming = $0 })
+                )
+
+                VSectionHeader(title: "地区")
+                VPreferenceValue(title: "地区分组", value: "按国家 / 地理区域", subtitle: "中国大陆 · 港澳 · 欧洲 · 北美 · 东南亚")
+
+                VSectionHeader(title: "卡片默认")
+                VPreferenceValue(title: "默认卡面", value: "按卡片当前主题", subtitle: "每张卡可以在详情页覆盖；只影响本机显示")
+
+                VSectionHeader(title: "号码默认")
+                VPreferenceValue(title: "默认号码面", value: "国家 / 地区", subtitle: "号码角色、运营商和恢复状态仍来自事实数据")
+
+                if sizeClass == .regular {
+                    VSectionHeader(title: "平板导航")
+                    VPreferenceValue(title: "导航布局", value: "侧栏 + 内容上下文", subtitle: "四个一级入口保持稳定；基础设施八分类位于内容区")
+                }
+
+                VSectionHeader(title: "数据与来源")
+                VPreferenceAction(title: "数据源", subtitle: "查看当前工作区覆盖范围与事实边界", icon: "externaldrive") {
+                    model.navigate(.sources)
+                }
+
+                Text("重要事项不会因为个性化设置而被隐藏。未记录的信息仍保持未知。")
+                    .font(VFont.meta())
                     .foregroundColor(PdigV2Colors.textSecondary)
-                    .accessibilityIdentifier(VTestIds.settingsPersonalization)
-
-                // workspace theme
-                VSectionHeader(title: VCopy.workspaceTheme)
-                toggleRow(VCopy.workspaceTheme, VCopy.workspaceThemeValue, enabled: true)
-
-                // globe theme
-                VSectionHeader(title: VCopy.globeTheme)
-                toggleRow(VCopy.idleRotation, model.reduceMotion ? "已关闭（减少动效）" : "开启（交互后暂停）", enabled: !model.reduceMotion)
-                toggleRow(VCopy.arcAnimation, model.reduceMotion ? "静态" : "620ms 平滑", enabled: !model.reduceMotion)
-
-                // nav density
-                VSectionHeader(title: VCopy.navDensity)
-                toggleRow("导航栏展开宽度", "iPhone：底部导航 ≤5 项", enabled: true)
-
-                // card / number defaults
-                VSectionHeader(title: VCopy.cardDefaults)
-                toggleRow(VCopy.cardDefaults, "沿用各卡当前 preset，可在卡面定制中修改", enabled: false)
-                VSectionHeader(title: VCopy.numberDefaults)
-                toggleRow(VCopy.numberDefaults, "Country / 可逐号码定制", enabled: false)
-
-                // privacy masking
-                VSectionHeader(title: VCopy.privacyMask)
-                toggleRow(VCopy.privacyMask, model.privacyMask ? "已开启（截图/演示/公共场合推荐）" : "已关闭", enabled: model.privacyMask) {
-                    model.privacyMask.toggle()
-                }
-
-                // home modules（P0 不可隐藏）
-                VSectionHeader(title: VCopy.homeModules)
-                ForEach(["需要你处理", "进行中的变更", "即将到来", "地区快捷访问"], id: \.self) { module in
-                    HStack {
-                        Text(module)
-                            .font(VFont.secondary())
-                            .foregroundColor(PdigV2Colors.textSecondary)
-                        Spacer()
-                        Text("显示 · 可上移/下移")
-                            .font(VFont.meta())
-                            .foregroundColor(PdigV2Colors.textMuted)
-                    }
-                    .padding(VSpace.md)
-                    .frame(minHeight: 44)
-                    .background(PdigV2Colors.surfaceRaised)
-                    .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-                }
-                HStack(spacing: VSpace.sm) {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 11))
-                        .foregroundColor(PdigV2Colors.textMuted)
-                    Text("\(VCopy.p0Protected)：首页「需要你处理」在存在必须处理事项时不可隐藏。")
-                        .font(VFont.meta())
-                        .foregroundColor(PdigV2Colors.textMuted)
-                }
-
-                // region grouping
-                VSectionHeader(title: VCopy.regionGrouping)
-                toggleRow(VCopy.regionGrouping, "按国家 / 按区域组（中国大陆 / 港澳 / 欧洲 / 北美 / 东南亚 / 自定义）", enabled: false)
-
-                // motion
-                VSectionHeader(title: VCopy.motion)
-                toggleRow(VCopy.reducedEffects, model.reduceMotion ? "已开启" : "关闭", enabled: model.reduceMotion) {
-                    model.reduceMotion.toggle()
-                }
-
-                // P0 说明（三通道外提示）
-                Text(VCopy.p0Note)
-                    .font(VFont.secondary())
-                    .foregroundColor(PdigV2Colors.textPrimary)
                     .padding(VSpace.lg)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(PdigV2Colors.critical.opacity(0.1))
-                    .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+                    .background(PdigV2Colors.primarySoft.opacity(0.74))
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+                    .overlay(RoundedRectangle(cornerRadius: VRadius.md).stroke(PdigV2Colors.primary.opacity(0.18), lineWidth: 1))
             }
             .padding(VSpace.pagePadding)
         }
         .vPageBackground()
         .toolbar {
-            ToolbarItem(placement: .cancellationAction) {
-                VBackButton { model.back() }
-            }
+            ToolbarItem(placement: .cancellationAction) { VBackButton { model.back() } }
         }
-            #if os(iOS)
-            .navigationBarBackButtonHidden(true)
-            #endif
+        #if os(iOS)
+        .navigationBarBackButtonHidden(true)
+        #endif
     }
 
-    private func toggleRow(_ label: String, _ value: String, enabled: Bool, onToggle: (() -> Void)? = nil) -> some View {
-        HStack(spacing: VSpace.md) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(label)
-                    .font(VFont.secondary())
-                    .fontWeight(.medium)
-                    .foregroundColor(PdigV2Colors.textPrimary)
-                Text(value)
-                    .font(VFont.meta())
-                    .foregroundColor(PdigV2Colors.textMuted)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            Text(enabled ? "已开启" : "已关闭")
-                .font(VFont.meta())
-                .fontWeight(.semibold)
-                .foregroundColor(enabled ? PdigV2Colors.primaryBright : PdigV2Colors.textMuted)
-                .padding(.horizontal, VSpace.sm)
-                .frame(minHeight: 44)
-                .background(enabled ? PdigV2Colors.primary.opacity(0.3) : PdigV2Colors.surface.opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: VRadius.sm, style: .continuous))
-            if let onToggle = onToggle {
-                Button(action: onToggle) {
-                    Text("点按切换")
-                        .font(VFont.meta())
-                        .fontWeight(.semibold)
-                        .foregroundColor(PdigV2Colors.primaryBright)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
+    private var appearancePreview: some View {
+        VStack(alignment: .leading, spacing: VSpace.md) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("亮色 · 当前视觉方向")
+                        .font(VFont.body()).fontWeight(.semibold)
+                        .foregroundColor(PdigV2Colors.textPrimary)
+                    Text("浅色空间层级 · 深色地球 · 资产身份优先")
+                        .font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(label)，当前\(enabled ? "已开启" : "已关闭")，点按切换")
+                Spacer()
+                VChip(text: "当前", highlight: true)
+            }
+
+            HStack(spacing: VSpace.sm) {
+                VAppearanceTile(title: "界面", value: "亮色", background: PdigV2Colors.surfaceRaised, dark: false)
+                VAppearanceTile(title: "地球", value: model.effectiveReduceMotion ? "深色 · 静态" : "深色 · 动态", background: PdigV2Colors.globeDeep, dark: true)
+                VAppearanceTile(title: "资产", value: "卡片 / 号码", background: PdigV2Colors.primarySoft, dark: false)
             }
         }
-        .padding(.horizontal, VSpace.md)
-        .padding(.vertical, VSpace.sm)
-        .frame(minHeight: 48)
+        .padding(VSpace.lg)
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.xl))
+        .overlay(RoundedRectangle(cornerRadius: VRadius.xl).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+        .accessibilityIdentifier("pdig.personalization.visual-preview")
+    }
+}
+
+private struct VAppearanceTile: View {
+    let title: String
+    let value: String
+    let background: Color
+    let dark: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(title)
+                .font(.system(size: 10))
+                .foregroundColor(dark ? PdigV2Colors.globeTextSecondary : PdigV2Colors.textMuted)
+            Text(value)
+                .font(VFont.meta()).fontWeight(.semibold)
+                .foregroundColor(dark ? PdigV2Colors.globeTextPrimary : PdigV2Colors.textPrimary)
+        }
+        .padding(VSpace.md)
+        .frame(maxWidth: .infinity, minHeight: 66, alignment: .leading)
+        .background(background)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+        .overlay(RoundedRectangle(cornerRadius: VRadius.md).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+    }
+}
+
+private struct VPreferenceToggle: View {
+    let title: String
+    let subtitle: String
+    @Binding var isOn: Bool
+
+    var body: some View {
+        Toggle(isOn: $isOn) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                Text(subtitle).font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+            }
+        }
+        .tint(PdigV2Colors.primary)
+        .padding(VSpace.md)
+        .frame(minHeight: 52)
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+        .overlay(RoundedRectangle(cornerRadius: VRadius.md).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+        .accessibilityIdentifier("\(VTestIds.settingsPersonalization).\(title)")
+    }
+}
+
+private struct VPreferenceLocked: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: VSpace.md) {
+            Image(systemName: icon)
+                .foregroundColor(PdigV2Colors.textMuted)
+                .frame(width: 26, height: 26)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                Text(subtitle).font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+            }
+            Spacer()
+            Text("固定").font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+        }
+        .padding(VSpace.md)
+        .frame(minHeight: 52)
         .background(PdigV2Colors.surfaceRaised)
-        .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-        .accessibilityElement(children: .contain)
-        .accessibilityIdentifier("\(VTestIds.settingsPersonalization).\(label)")
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+    }
+}
+
+private struct VPreferenceValue: View {
+    let title: String
+    let value: String
+    let subtitle: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: VSpace.md) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                Text(subtitle).font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+            }
+            Spacer()
+            Text(value).font(VFont.meta()).fontWeight(.semibold).foregroundColor(PdigV2Colors.primaryText)
+        }
+        .padding(VSpace.md)
+        .frame(minHeight: 52)
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+        .overlay(RoundedRectangle(cornerRadius: VRadius.md).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
+    }
+}
+
+private struct VPreferenceAction: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: VSpace.md) {
+                Image(systemName: icon)
+                    .foregroundColor(PdigV2Colors.primaryText)
+                    .frame(width: 34, height: 34)
+                    .background(PdigV2Colors.primarySoft)
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
+                    Text(subtitle).font(VFont.meta()).foregroundColor(PdigV2Colors.textMuted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).foregroundColor(PdigV2Colors.textMuted)
+            }
+            .padding(VSpace.md)
+            .frame(minHeight: 52)
+        }
+        .buttonStyle(.plain)
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md))
+        .overlay(RoundedRectangle(cornerRadius: VRadius.md).stroke(PdigV2Colors.borderSubtle, lineWidth: 1))
     }
 }
