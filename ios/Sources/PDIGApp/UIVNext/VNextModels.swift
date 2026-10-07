@@ -286,6 +286,42 @@ struct VPresentationProfile: Hashable, Codable {
             maskSensitive: maskSensitive
         )
     }
+
+    func replacingMaterial(_ material: String) -> VPresentationProfile {
+        VPresentationProfile(
+            targetType: targetType, targetId: targetId, themeId: themeId,
+            material: material, accentColor: accentColor,
+            backgroundKind: backgroundKind, backgroundValue: backgroundValue,
+            layout: layout, maskSensitive: maskSensitive
+        )
+    }
+
+    func replacingAccent(_ accentColor: String) -> VPresentationProfile {
+        VPresentationProfile(
+            targetType: targetType, targetId: targetId, themeId: themeId,
+            material: material, accentColor: accentColor,
+            backgroundKind: backgroundKind, backgroundValue: backgroundValue,
+            layout: layout, maskSensitive: maskSensitive
+        )
+    }
+
+    func replacingLayout(_ layout: String) -> VPresentationProfile {
+        VPresentationProfile(
+            targetType: targetType, targetId: targetId, themeId: themeId,
+            material: material, accentColor: accentColor,
+            backgroundKind: backgroundKind, backgroundValue: backgroundValue,
+            layout: layout, maskSensitive: maskSensitive
+        )
+    }
+
+    func replacingMask(_ maskSensitive: Bool) -> VPresentationProfile {
+        VPresentationProfile(
+            targetType: targetType, targetId: targetId, themeId: themeId,
+            material: material, accentColor: accentColor,
+            backgroundKind: backgroundKind, backgroundValue: backgroundValue,
+            layout: layout, maskSensitive: maskSensitive
+        )
+    }
 }
 
 /// 主题 preset 列表（spec asset-card / phone-card 契约；preset visual ≠ semantic role）。
