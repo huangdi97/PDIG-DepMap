@@ -15,6 +15,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -108,7 +109,8 @@ class SourceCompleteScreenshotEvidenceTest {
         val app = (appOverride ?: createVNextAppState()).apply { reduceMotion = true }
         val isStudio = screen.contains("studio")
         val isGlobe = screen.startsWith("01-") || screen.startsWith("02-") ||
-            screen.startsWith("03-") || screen.startsWith("04-")
+            screen.startsWith("03-") || screen.startsWith("04-") ||
+            screen.endsWith("-no-attention")
         val isRegion = screen.startsWith("03-") || screen.startsWith("04-")
         prepare(app)
         if (!contentSet) {
@@ -239,8 +241,42 @@ class SourceCompleteScreenshotEvidenceTest {
         }
         capture("05-cards", "global", { it.navigate(VScreen.CARDS) }, { "global" })
         capture("06-card-detail", "card-cn-2", { it.openCard("card-cn-2") }, { it.selectedCardId ?: "none" })
-        capture("07-card-studio-glass", "glass", { it.evidenceThemeId = "glass"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
-        capture("08-card-studio-city", "city", { it.evidenceThemeId = "city"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
+        if (deviceClass == "tablet") {
+            // Expanded runtime must prove the real user path: Cards -> select card -> inspector -> 定制卡面 -> Studio.
+            capture(
+                "07-card-studio-glass",
+                "glass",
+                { it.evidenceThemeId = "glass"; it.navigate(VScreen.CARDS) },
+                {
+                    if (it.screen == VScreen.CARD_CUSTOMIZATION) it.evidenceThemeId ?: "none"
+                    else "not-studio"
+                },
+            ) {
+                compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+                compose.waitForIdle()
+                compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).performClick()
+                compose.waitForIdle()
+                compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
+            }
+            capture(
+                "08-card-studio-city",
+                "city",
+                { it.evidenceThemeId = "city"; it.navigate(VScreen.CARDS) },
+                {
+                    if (it.screen == VScreen.CARD_CUSTOMIZATION) it.evidenceThemeId ?: "none"
+                    else "not-studio"
+                },
+            ) {
+                compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+                compose.waitForIdle()
+                compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).performClick()
+                compose.waitForIdle()
+                compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
+            }
+        } else {
+            capture("07-card-studio-glass", "glass", { it.evidenceThemeId = "glass"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
+            capture("08-card-studio-city", "city", { it.evidenceThemeId = "city"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
+        }
         capture("09-numbers", "global", { it.navigate(VScreen.NUMBERS) }, { "global" })
         capture("10-number-detail", "num-cn-1", { it.openNumber("num-cn-1") }, { it.selectedNumberId ?: "none" })
         capture("11-number-studio-travel", "travel", { it.evidenceThemeId = "travel"; it.openNumberCustomization("num-cn-1") }, { it.evidenceThemeId ?: "none" })

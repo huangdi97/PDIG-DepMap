@@ -11,6 +11,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -249,15 +250,19 @@ class SourceCompleteInteractionContractTest {
             reduceMotion = true
             navigate(VScreen.OVERVIEW)
         }
-        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.setContent { VNextApp(app) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true).performClick()
+        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
         compose.waitForIdle()
         assertEquals("CN", app.regionFilter)
         assertEquals(VGlobeState.REGION_SELECTED, app.globe.state)
 
-        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true).performClick()
+        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true)
+            .performScrollTo()
+            .performClick()
         compose.waitForIdle()
         assertEquals(VGlobeState.REGION_DETAIL, app.globe.state)
         compose.onNodeWithTag("pdig.region.drawer", useUnmergedTree = true).assertIsDisplayed()

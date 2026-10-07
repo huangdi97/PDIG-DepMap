@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.model.VScreen
@@ -35,8 +36,16 @@ class VNextBackStateRegressionTest {
     fun cardsDetailBack_drivesRealClick() {
         val app = createVNextAppState().apply { navigate(VScreen.CARDS) }
         render(app)
-        // Compact Cards 默认是高密度资产列表；点击真实 row → Detail。
-        compose.onAllNodesWithTag(VTestIds.CARD_ROW, useUnmergedTree = true)[0].performClick()
+        val expanded = InstrumentationRegistry.getInstrumentation()
+            .targetContext.resources.configuration.screenWidthDp >= 840
+        if (expanded) {
+            compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+            compose.waitForIdle()
+            compose.onNodeWithTag("pdig.card.inspector.open-detail", useUnmergedTree = true).performClick()
+        } else {
+            // Compact Cards 默认是高密度资产列表；点击真实 row → Detail。
+            compose.onAllNodesWithTag(VTestIds.CARD_ROW, useUnmergedTree = true)[0].performClick()
+        }
         compose.waitForIdle()
         assertEquals(VScreen.CARD_DETAIL, app.screen)
         assertTrue("must have internal back target", app.canGoBack())

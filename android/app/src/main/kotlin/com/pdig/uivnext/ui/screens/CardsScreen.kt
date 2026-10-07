@@ -268,7 +268,9 @@ private fun ExpandedSelectableCard(
             card = card.copy(preset = profile?.themeId ?: card.preset),
             privacyMask = app.privacyMask || (profile?.maskSensitive == true),
             onClick = onClick,
-            modifier = Modifier.padding(6.dp),
+            modifier = Modifier
+                .padding(6.dp)
+                .testTagLocal("pdig.card.expanded.${card.id}"),
             presentationMaterial = profile?.material,
             presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
             presentationLayout = profile?.layout,
@@ -362,6 +364,49 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
             LabelChip(if (card.form == "virtual") "虚拟卡" else "实体卡")
         }
 
+        // Expanded inspector keeps both user continuations above the fold.
+        // Studio is a first-class preview-first action; detail remains the primary factual continuation.
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Surface(
+                modifier = Modifier
+                    .weight(1f)
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickable { app.openCardCustomization(card.id) }
+                    .testTagLocal("pdig.card.inspector.customize"),
+                color = PdigV2Colors.SurfaceRaised,
+                shape = RoundedCornerShape(VRadius.Md),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Text(
+                    "定制卡面",
+                    Modifier.padding(12.dp),
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Surface(
+                modifier = Modifier
+                    .weight(1f)
+                    .defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickable { app.openCard(card.id) }
+                    .testTagLocal("pdig.card.inspector.open-detail"),
+                color = PdigV2Colors.PrimarySoft,
+                shape = RoundedCornerShape(VRadius.Md),
+            ) {
+                Text(
+                    "查看完整详情 →",
+                    Modifier.padding(12.dp),
+                    color = PdigV2Colors.PrimaryBright,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+
         SectionHeader("关联服务（${services.size}）")
         if (services.isEmpty()) {
             Text(
@@ -389,42 +434,6 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
             fontSize = 12.sp,
         )
 
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = VTouchTarget.Min)
-                .clickable { app.openCardCustomization(card.id) }
-                .testTagLocal("pdig.card.inspector.customize"),
-            color = PdigV2Colors.SurfaceRaised,
-            shape = RoundedCornerShape(VRadius.Md),
-            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-        ) {
-            Text(
-                "定制卡面",
-                Modifier.padding(12.dp),
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .defaultMinSize(minHeight = VTouchTarget.Min)
-                .clickable { app.openCard(card.id) }
-                .testTagLocal("pdig.card.inspector.open-detail"),
-            color = PdigV2Colors.PrimarySoft,
-            shape = RoundedCornerShape(VRadius.Md),
-        ) {
-            Text(
-                "查看完整详情 →",
-                Modifier.padding(12.dp),
-                color = PdigV2Colors.PrimaryBright,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
     }
 }
 
