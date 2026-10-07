@@ -25,6 +25,13 @@ struct ChangePhoneView: View {
             .padding(VSpace.pagePadding)
         }
         .vPageBackground()
+        .toolbar {
+            if model.canGoBack {
+                ToolbarItem(placement: .cancellationAction) {
+                    VBackButton { model.back() }
+                }
+            }
+        }
     }
 
     private var header: some View {

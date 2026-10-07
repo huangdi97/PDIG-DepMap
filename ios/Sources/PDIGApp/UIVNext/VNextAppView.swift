@@ -128,6 +128,8 @@ final class VNextModel: ObservableObject {
         if globeDetailShown { globeDetailShown = false } else { regionFilter = nil }
     }
 
+    var canGoBack: Bool { globeDetailShown || !history.isEmpty }
+
     func back() {
         if globeDetailShown {
             globeDetailShown = false
@@ -135,6 +137,7 @@ final class VNextModel: ObservableObject {
         }
         if let prior = history.popLast() {
             screen = prior
+            syncPrimary(for: prior)
             return
         }
         switch screen {
@@ -179,6 +182,16 @@ final class VNextModel: ObservableObject {
         switch screen {
         case .search, .sources, .settings, .personalization: return true
         default: return false
+        }
+    }
+
+    private func syncPrimary(for screen: VScreen) {
+        switch screen.primaryTab {
+        case .now: primary = .now
+        case .infrastructure: primary = .infrastructure
+        case .change: primary = .change
+        case .records: primary = .records
+        default: break
         }
     }
 
