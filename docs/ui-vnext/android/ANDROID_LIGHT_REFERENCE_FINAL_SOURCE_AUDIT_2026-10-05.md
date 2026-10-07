@@ -2,9 +2,9 @@
 
 > Human-selected visual reference: `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
 >
-> Final pixel-changing Android production-UI checkpoint: `378fab2dac40c4119a81d272678158347ab82fb0`
+> Final pixel-changing Android production-UI checkpoint: `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
 >
-> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND4 MAIN-PIXEL REVIEW + GLOBE SILHOUETTE REMEDIATION / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND4 PIXEL REVIEW + GLOBE / ADAPTIVE / ACCESSIBILITY CRAFT / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
 >
 > The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
 > rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
@@ -244,6 +244,32 @@ Direct remediation checkpoint `378fab2dac40c4119a81d272678158347ab82fb0`:
 This is a pixel-changing production renderer fix. Android remains HOLD until a fresh exact-head Round5 runtime
 pack proves the corrected circular Globe on Phone + Tablet and closes the remaining Round4 Tablet contract
 failures / provenance requirements.
+
+## 7.3 Final light-reference craft after Globe remediation (2026-10-07)
+
+After the Globe silhouette repair, the remaining directly actionable source craft was closed before asking
+the Local Agent for another expensive runtime pass:
+
+- Expanded Number inspector now mirrors the Card list-detail contract: preview identity + immediately discoverable
+  `定制号码面` / `查看完整详情` continuations;
+- Region scope reset is a full >=48dp touch target;
+- selected blue text on light surfaces uses a dedicated accessible `PrimaryText` ink while `PrimaryBright` remains
+  the filled-action/icon blue;
+- bottom-nav labels, infrastructure sibling labels, Studio controls, projection labels, Records links/metrics and
+  other normal-size blue text were translated to the readable ink;
+- completed timeline stages use white text on the strong blue fill;
+- a palette contrast contract guards normal text against the core light surfaces;
+- evidence interactions now target clickable semantics rather than fragile text glyphs or raw pointer injection,
+  and expanded inspector actions may scroll into view before asserting/clicking.
+
+These are presentation/accessibility/evidence-path changes only. They do not alter Canonical, `.depmap`,
+PersonalReality, Unknown semantics, or Change Phone truth.
+
+Current final pixel-changing Android production checkpoint:
+
+`a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
+
+Any Android Freeze evidence captured before that checkpoint is historical only.
 
 ## 8. Gate
 

@@ -1,11 +1,14 @@
 package com.pdig.uivnext.evidence
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.uivnext.VNextApp
@@ -105,9 +108,14 @@ class AndroidAdaptiveShellContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithTag(VTestIds.CARD_INSPECTOR, useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.card.inspector.open-detail", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+        compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.card.inspector.open-detail", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true)
+            .performSemanticsAction(SemanticsActions.OnClick)
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.card.inspector.identity.card-cn-2", useUnmergedTree = true).assertIsDisplayed()
     }
@@ -123,15 +131,22 @@ class AndroidAdaptiveShellContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-1", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.phone.inspector.open-detail", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.phone.inspector.open-detail", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
 
-        // Use the real clickable row semantics, not a text glyph.
-        compose.onAllNodesWithTag(VTestIds.NUMBER_ROW, useUnmergedTree = true)[1].performClick()
+        // Use the real clickable row semantics, not a text glyph or raw pointer injection.
+        compose.onAllNodesWithTag(VTestIds.NUMBER_ROW, useUnmergedTree = true)[1]
+            .performSemanticsAction(SemanticsActions.OnClick)
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-2", useUnmergedTree = true).assertIsDisplayed()
 
-        compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).performClick()
+        compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true)
+            .performScrollTo()
+            .performSemanticsAction(SemanticsActions.OnClick)
         compose.waitForIdle()
         assertEquals(VScreen.NUMBER_CUSTOMIZATION, app.screen)
         compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).assertIsDisplayed()

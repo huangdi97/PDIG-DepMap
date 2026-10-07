@@ -11,11 +11,13 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -226,17 +228,24 @@ class SourceCompleteScreenshotEvidenceTest {
         capture(
             "03-overview-region-selected",
             "region-selected",
-            { it.selectRegion("CN"); it.navigate(VScreen.OVERVIEW) },
-            { globeStateName(it) },
-            appOverride = overviewJourney,
-        )
-        capture(
-            "04-region-drawer",
-            "region-detail",
-            { it.selectRegion("CN"); it.navigate(VScreen.OVERVIEW); it.openRegionDetail() },
+            { it.navigate(VScreen.OVERVIEW) },
             { globeStateName(it) },
             appOverride = overviewJourney,
         ) {
+            compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true)
+                .performSemanticsAction(SemanticsActions.OnClick)
+            compose.waitForIdle()
+        }
+        capture(
+            "04-region-drawer",
+            "region-detail",
+            { it.navigate(VScreen.OVERVIEW) },
+            { globeStateName(it) },
+            appOverride = overviewJourney,
+        ) {
+            compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true)
+                .performSemanticsAction(SemanticsActions.OnClick)
+            compose.waitForIdle()
             compose.onNodeWithTag("pdig.region.drawer", useUnmergedTree = true).fetchSemanticsNode()
         }
         capture("05-cards", "global", { it.navigate(VScreen.CARDS) }, { "global" })
@@ -252,9 +261,9 @@ class SourceCompleteScreenshotEvidenceTest {
                     else "not-studio"
                 },
             ) {
-                compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+                compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performSemanticsAction(SemanticsActions.OnClick)
                 compose.waitForIdle()
-                compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).performClick()
+                compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).performSemanticsAction(SemanticsActions.OnClick)
                 compose.waitForIdle()
                 compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
             }
@@ -267,9 +276,9 @@ class SourceCompleteScreenshotEvidenceTest {
                     else "not-studio"
                 },
             ) {
-                compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+                compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performSemanticsAction(SemanticsActions.OnClick)
                 compose.waitForIdle()
-                compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).performClick()
+                compose.onNodeWithTag("pdig.card.inspector.customize", useUnmergedTree = true).performSemanticsAction(SemanticsActions.OnClick)
                 compose.waitForIdle()
                 compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
             }
@@ -290,7 +299,7 @@ class SourceCompleteScreenshotEvidenceTest {
                     else "not-studio"
                 },
             ) {
-                compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).performClick()
+                compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).performSemanticsAction(SemanticsActions.OnClick)
                 compose.waitForIdle()
                 compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
             }

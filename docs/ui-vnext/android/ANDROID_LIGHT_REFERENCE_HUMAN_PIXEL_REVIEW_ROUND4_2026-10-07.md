@@ -4,7 +4,7 @@
 >
 > Evidence commit: `da86d06661793c2f8b066d3915f60664b1622e43`
 >
-> Direct remediation checkpoints: `86cbf558d7204b5fa8ccad53f1b115f43f253531` → `378fab2dac40c4119a81d272678158347ab82fb0`
+> Direct remediation checkpoints: `86cbf558d7204b5fa8ccad53f1b115f43f253531` → `378fab2dac40c4119a81d272678158347ab82fb0` → `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
 >
 > Verdict: **REJECTED FOR FREEZE / SOURCE REMEDIATION APPLIED / ROUND5 EXACT-HEAD EVIDENCE REQUIRED**
 
@@ -163,6 +163,19 @@ Tablet 02 Overview Global, 03 Region Selected, 04 Region Drawer and 05 Cards are
 decoded through the current single-file connector transport. They are therefore **not** silently treated as
 Human-Pixel PASS. Round5 split sheets must expose those exact frames (no crop / no re-render) in connector-readable
 chunks before Freeze.
+
+## 6.2 Final source craft before Round5
+
+After the Globe fix, final Android-light craft continued through `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`:
+
+- Number expanded inspector continuation hierarchy was brought to parity with Cards;
+- region-scope reset meets the 48dp touch-target contract;
+- light-surface blue text was separated from the brighter filled-action blue to protect normal-text contrast;
+- the updated palette is guarded by `AndroidLightAccessibilityPaletteContractTest`;
+- test paths were hardened around real clickable semantics so Tablet evidence is not invalidated by pointer-injection
+  jitter or hidden inspector actions.
+
+Round5 must therefore be built from the latest exact remote HEAD, not from `378fab2...` or Round4's `70edd4c...`.
 
 ## 7. Gate
 

@@ -1,9 +1,12 @@
 package com.pdig.uivnext.evidence
 
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.uivnext.VNextApp
@@ -39,12 +42,16 @@ class VNextBackStateRegressionTest {
         val expanded = InstrumentationRegistry.getInstrumentation()
             .targetContext.resources.configuration.screenWidthDp >= 840
         if (expanded) {
-            compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true).performClick()
+            compose.onNodeWithTag("pdig.card.expanded.card-cn-2", useUnmergedTree = true)
+                .performSemanticsAction(SemanticsActions.OnClick)
             compose.waitForIdle()
-            compose.onNodeWithTag("pdig.card.inspector.open-detail", useUnmergedTree = true).performClick()
+            compose.onNodeWithTag("pdig.card.inspector.open-detail", useUnmergedTree = true)
+                .performScrollTo()
+                .performSemanticsAction(SemanticsActions.OnClick)
         } else {
             // Compact Cards 默认是高密度资产列表；点击真实 row → Detail。
-            compose.onAllNodesWithTag(VTestIds.CARD_ROW, useUnmergedTree = true)[0].performClick()
+            compose.onAllNodesWithTag(VTestIds.CARD_ROW, useUnmergedTree = true)[0]
+                .performSemanticsAction(SemanticsActions.OnClick)
         }
         compose.waitForIdle()
         assertEquals(VScreen.CARD_DETAIL, app.screen)
