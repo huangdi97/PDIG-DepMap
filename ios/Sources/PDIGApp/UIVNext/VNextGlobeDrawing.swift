@@ -31,17 +31,24 @@ extension VNextGlobeView {
             )
             context.fill(Path(ellipseIn: circleRect(center: center, radius: radius * 1.7)), with: atmosphere)
 
-            // Sphere（程序化深度着色；禁照片纹理；L0）
-            let sphereShading = GraphicsContext.Shading.radialGradient(
-                Gradient(colors: [
-                    Color(hex: "#1A4A72"),
-                    Color(hex: "#0D294B"),
-                    Color(hex: "#06162F"),
-                ]),
-                center: CGPoint(x: center.x - radius * 0.35, y: center.y - radius * 0.35),
-                startRadius: 0, endRadius: radius * 1.4
-            )
-            context.fill(Path(ellipseIn: circleRect(center: center, radius: radius)), with: sphereShading)
+            // Sphere body: bundled real-Earth material when ready; deterministic vector/depth fallback otherwise.
+            if let image = earthRenderer.image {
+                context.draw(
+                    Image(decorative: image, scale: 1, orientation: .up),
+                    in: circleRect(center: center, radius: radius)
+                )
+            } else {
+                let sphereShading = GraphicsContext.Shading.radialGradient(
+                    Gradient(colors: [
+                        Color(hex: "#1A4A72"),
+                        Color(hex: "#0D294B"),
+                        Color(hex: "#06162F"),
+                    ]),
+                    center: CGPoint(x: center.x - radius * 0.35, y: center.y - radius * 0.35),
+                    startRadius: 0, endRadius: radius * 1.4
+                )
+                context.fill(Path(ellipseIn: circleRect(center: center, radius: radius)), with: sphereShading)
+            }
 
             // 经纬网格（borderSubtle；前半球按深度淡出）
             drawGraticule(context: &context, cam: cam, center: center, radius: radius)

@@ -27,6 +27,7 @@ struct VNextGlobeView: View {
     @State var camera: VGlobeCamera
     @State var yawBase: CGFloat = 0
     @State var hoveredRegionCode: String? = nil
+    @StateObject var earthRenderer = VEarthTextureRenderer()
     @State private var interacting = false
     @State private var dragStart: CGSize? = nil
     @State private var dragStartCamera: VGlobeCamera? = nil
@@ -65,6 +66,9 @@ struct VNextGlobeView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(PdigV2Colors.globeDeep)
+            .task(id: earthRenderToken(size: geo.size)) {
+                earthRenderer.request(camera: effectiveCamera, diameter: earthDiameter(size: geo.size))
+            }
             .contentShape(Rectangle())
             // DRAG：旋转球体（水平=经度，垂直=纬度，纬度 clamp ±60°）；交互期间暂停 idle。
             .gesture(
@@ -135,6 +139,25 @@ struct VNextGlobeView: View {
         .onChange(of: selectedRegion) { newValue in
             if newValue == nil { hoveredRegionCode = nil }
         }
+    }
+
+    var effectiveCamera: VGlobeCamera {
+        VGlobeCamera(
+            yawDeg: camera.yawDeg + (isIdle ? yawBase : 0),
+            pitchDeg: camera.pitchDeg,
+            zoom: camera.zoom
+        )
+    }
+
+    func earthDiameter(size: CGSize) -> CGFloat {
+        min(size.width, size.height) * 0.72 * camera.zoom
+    }
+
+    func earthRenderToken(size: CGSize) -> String {
+        VEarthTextureRenderer.cacheKey(
+            camera: effectiveCamera,
+            rect: min(max(Int(earthDiameter(size: size).rounded()), 96), 384)
+        )
     }
 
     private var idleToken: String {

@@ -66,7 +66,8 @@ let package = Package(
         .executableTarget(
             name: "PDIGApp",
             dependencies: ["PDIGCore", "PDIGArgon2", "PDIGConformance", "CSQLite"],
-            path: "Sources/PDIGApp"
+            path: "Sources/PDIGApp",
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "PDIGAppTests",
