@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +30,7 @@ import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.regionLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 
 /** 屏幕共享 UI 助手。 */
@@ -56,6 +58,7 @@ internal fun RegionScopeBanner(app: VAppState) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            .defaultMinSize(minHeight = VTouchTarget.Min)
             .clickableLocal { app.clearRegion() },
         color = PdigV2Colors.PrimarySoft.copy(alpha = 0.72f),
         shape = RoundedCornerShape(VRadius.Md),
