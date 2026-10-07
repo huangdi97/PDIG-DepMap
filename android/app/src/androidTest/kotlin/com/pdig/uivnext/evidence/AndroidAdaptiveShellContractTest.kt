@@ -3,8 +3,8 @@ package com.pdig.uivnext.evidence
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -12,6 +12,7 @@ import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
+import org.junit.Assert.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -122,8 +123,17 @@ class AndroidAdaptiveShellContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-1", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("工作副号", useUnmergedTree = true).performClick()
+        compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.phone.inspector.open-detail", useUnmergedTree = true).assertIsDisplayed()
+
+        // Use the real clickable row semantics, not a text glyph.
+        compose.onAllNodesWithTag(VTestIds.NUMBER_ROW, useUnmergedTree = true)[1].performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.phone.inspector.identity.num-cn-2", useUnmergedTree = true).assertIsDisplayed()
+
+        compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+        assertEquals(VScreen.NUMBER_CUSTOMIZATION, app.screen)
+        compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).assertIsDisplayed()
     }
 }

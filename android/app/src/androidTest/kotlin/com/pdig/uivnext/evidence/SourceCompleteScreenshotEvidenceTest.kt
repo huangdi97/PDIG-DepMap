@@ -279,7 +279,24 @@ class SourceCompleteScreenshotEvidenceTest {
         }
         capture("09-numbers", "global", { it.navigate(VScreen.NUMBERS) }, { "global" })
         capture("10-number-detail", "num-cn-1", { it.openNumber("num-cn-1") }, { it.selectedNumberId ?: "none" })
-        capture("11-number-studio-travel", "travel", { it.evidenceThemeId = "travel"; it.openNumberCustomization("num-cn-1") }, { it.evidenceThemeId ?: "none" })
+        if (deviceClass == "tablet") {
+            // Expanded runtime proves the actual user continuation: Numbers inspector -> 定制号码面 -> Studio.
+            capture(
+                "11-number-studio-travel",
+                "travel",
+                { it.evidenceThemeId = "travel"; it.navigate(VScreen.NUMBERS) },
+                {
+                    if (it.screen == VScreen.NUMBER_CUSTOMIZATION) it.evidenceThemeId ?: "none"
+                    else "not-studio"
+                },
+            ) {
+                compose.onNodeWithTag("pdig.phone.inspector.customize", useUnmergedTree = true).performClick()
+                compose.waitForIdle()
+                compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
+            }
+        } else {
+            capture("11-number-studio-travel", "travel", { it.evidenceThemeId = "travel"; it.openNumberCustomization("num-cn-1") }, { it.evidenceThemeId ?: "none" })
+        }
         capture("12-accounts", "accounts", { it.navigate(VScreen.ACCOUNTS) }, { it.screen.name.lowercase(Locale.ROOT) })
         capture("13-emails", "emails", { it.navigate(VScreen.EMAILS) }, { it.screen.name.lowercase(Locale.ROOT) })
         capture("14-devices", "devices", { it.navigate(VScreen.DEVICES) }, { it.screen.name.lowercase(Locale.ROOT) })
