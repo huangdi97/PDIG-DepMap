@@ -124,7 +124,7 @@ private fun FactBoundaryHero() {
 @Composable
 private fun BoundaryPillar(title: String, body: String, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(title, color = PdigV2Colors.PrimaryBright, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Text(title, color = PdigV2Colors.PrimaryText, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
         Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
     }
 }
@@ -173,7 +173,7 @@ private fun JumpRow(title: String, description: String, onClick: () -> Unit) {
                 Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Medium)
                 Text(description, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
             }
-            Text("查看 →", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Text("查看 →", color = PdigV2Colors.PrimaryText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

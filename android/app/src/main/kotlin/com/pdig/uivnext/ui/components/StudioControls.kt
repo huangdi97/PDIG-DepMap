@@ -192,7 +192,7 @@ private fun ChoiceChip(label: String, selected: Boolean, onClick: () -> Unit) {
             Text(
                 label,
                 Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
                 fontSize = 11.sp,
             )
         }
@@ -225,7 +225,7 @@ private fun AccentChip(choice: PresentationAccentChoice, selected: Boolean, onCl
                 }
                 Text(
                     choice.label,
-                    color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                    color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
                     fontSize = 11.sp,
                 )
             }
@@ -274,7 +274,7 @@ private fun InspectorToggle(label: String, on: Boolean, onToggle: () -> Unit) {
                 Text(
                     if (on) "开" else "关",
                     Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                    color = if (on) PdigV2Colors.PrimaryBright else PdigV2Colors.TextMuted,
+                    color = if (on) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                 )
             }

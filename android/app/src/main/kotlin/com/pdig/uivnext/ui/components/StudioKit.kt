@@ -81,7 +81,7 @@ fun ThemeTile(
             Spacer(Modifier.width(if (compact) 8.dp else 10.dp))
             Text(
                 themeLabelZh(if (kind == StudioKind.CARD) "card" else "number", preset),
-                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextPrimary,
+                color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextPrimary,
                 fontSize = 13.sp,
                 fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
             )

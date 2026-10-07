@@ -248,7 +248,7 @@ private fun ActionRow(label: String, value: String, onClick: () -> Unit) {
                 Text(label, color = PdigV2Colors.TextPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
                 Text(value, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
             }
-            Text("查看 →", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            Text("查看 →", color = PdigV2Colors.PrimaryText, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }

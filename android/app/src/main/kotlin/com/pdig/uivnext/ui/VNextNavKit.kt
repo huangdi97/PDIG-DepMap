@@ -167,14 +167,14 @@ internal fun BottomNav(app: VAppState) {
                     Text(
                         entry.screen.titleZh,
                         fontSize = 10.sp,
-                        color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextMuted,
+                        color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
                         modifier = Modifier.testTag("pdig.nav.${entry.screen.route}.label"),
                     )
                 },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = PdigV2Colors.Primary.copy(alpha = 0.22f),
                     selectedIconColor = PdigV2Colors.PrimaryBright,
-                    selectedTextColor = PdigV2Colors.PrimaryBright,
+                    selectedTextColor = PdigV2Colors.PrimaryText,
                     unselectedIconColor = PdigV2Colors.TextSecondary,
                     unselectedTextColor = PdigV2Colors.TextMuted,
                 ),
@@ -238,7 +238,7 @@ internal fun InfraChipRow(app: VAppState) {
                         )
                         Text(
                             entry.screen.titleZh,
-                            color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.TextSecondary,
+                            color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
                             fontSize = 12.sp,
                             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
                         )

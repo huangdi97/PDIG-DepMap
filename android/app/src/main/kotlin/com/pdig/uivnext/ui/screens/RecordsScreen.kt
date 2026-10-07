@@ -22,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -103,7 +104,7 @@ fun RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                             )
                             Text("当前阶段 · 验证新号码", color = PdigV2Colors.Warning, fontSize = 12.sp)
                         }
-                        Text("继续查看 →", color = PdigV2Colors.PrimaryBright, fontSize = 12.sp)
+                        Text("继续查看 →", color = PdigV2Colors.PrimaryText, fontSize = 12.sp)
                     }
                 }
             }
@@ -202,7 +203,7 @@ private fun RecordsSummarySurface(activeChanges: Int, attentionCount: Int, upcom
 @Composable
 private fun RecordsMetric(value: String, label: String, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(value, color = PdigV2Colors.PrimaryBright, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+        Text(value, color = PdigV2Colors.PrimaryText, fontSize = 22.sp, fontWeight = FontWeight.Bold)
         Text(label, color = PdigV2Colors.TextSecondary, fontSize = 11.sp)
     }
 }
@@ -213,17 +214,17 @@ private fun TimelineStage(stage: ChangeStage, showConnector: Boolean) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Surface(
                 modifier = Modifier.size(24.dp),
-                color = if (stage.status == "completed") PdigV2Colors.Primary else PdigV2Colors.SurfaceRaised,
+                color = if (stage.status == "completed") PdigV2Colors.PrimaryBright else PdigV2Colors.SurfaceRaised,
                 shape = CircleShape,
                 border = BorderStroke(
                     1.dp,
-                    if (stage.status == "completed") PdigV2Colors.PrimaryBright else PdigV2Colors.BorderStrong,
+                    if (stage.status == "completed") PdigV2Colors.PrimaryText else PdigV2Colors.BorderStrong,
                 ),
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(
                         stage.stage.toString(),
-                        color = if (stage.status == "completed") PdigV2Colors.CanvasDeep else PdigV2Colors.TextSecondary,
+                        color = if (stage.status == "completed") Color.White else PdigV2Colors.TextSecondary,
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                     )
