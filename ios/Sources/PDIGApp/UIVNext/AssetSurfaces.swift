@@ -179,7 +179,7 @@ struct VNumberFace: View {
                 }
             }
             .padding(layoutPadding(layoutOverride))
-            .background(numberFaceGradient(presetOverride ?? "country"))
+            .background(numberFaceGradient(presetOverride ?? number.preset))
             .overlay(materialOverlay(materialOverride))
             .overlay(alignment: .top) {
                 if let accent {
@@ -234,7 +234,7 @@ struct VResolvedNumberFace: View {
     let onClick: () -> Void
 
     var body: some View {
-        let profile = model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country")
+        let profile = model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: number.preset)
         VNumberFace(
             number: number,
             privacyMask: model.privacyMask || profile.maskSensitive,

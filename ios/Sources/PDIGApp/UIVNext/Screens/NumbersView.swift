@@ -55,7 +55,7 @@ struct NumbersView: View {
                 ForEach(filtered) { number in
                     Button { model.openNumber(number.id) } label: {
                         HStack(spacing: VSpace.md) {
-                            VNumberMiniFace(number: number, preset: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId).frame(width: 104)
+                            VNumberMiniFace(number: number, preset: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: number.preset).themeId).frame(width: 104)
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack {
                                     Text(number.nickname).font(VFont.body()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
@@ -96,7 +96,7 @@ struct NumbersView: View {
                                     selectedId = number.id
                                 } label: {
                                     HStack(spacing: VSpace.md) {
-                                        VNumberMiniFace(number: number, preset: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country").themeId).frame(width: 106)
+                                        VNumberMiniFace(number: number, preset: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: number.preset).themeId).frame(width: 106)
                                         VStack(alignment: .leading, spacing: 3) {
                                             Text(number.nickname).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
                                             Text(number.maskedNumber).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)

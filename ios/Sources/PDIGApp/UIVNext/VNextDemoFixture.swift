@@ -34,13 +34,13 @@ enum VNextDemoFixture {
     ]
 
     static let numbers: [VNumber] = [
-        VNumber(id: "num-cn-1", nickname: "主号 中国移动", maskedNumber: "+86 138****8823", region: "CN", countryCode: "+86", carrier: "中国移动", simKind: "SIM", role: "primary", usages: ["银行验证", "注册", "2FA"], status: "active", recoveryOnly: true, attention: true),
-        VNumber(id: "num-cn-2", nickname: "工作副号", maskedNumber: "+86 137****5510", region: "CN", countryCode: "+86", carrier: "中国联通", simKind: "eSIM", role: "secondary", usages: ["工作"], status: "active", recoveryOnly: false, attention: false),
-        VNumber(id: "num-cn-3", nickname: "保号副号", maskedNumber: "+86 139****2204", region: "CN", countryCode: "+86", carrier: "中国移动", simKind: "SIM", role: "secondary", usages: ["保号"], status: "active", recoveryOnly: false, attention: false),
-        VNumber(id: "num-hk-1", nickname: "香港主号", maskedNumber: "+852 9***4321", region: "HK", countryCode: "+852", carrier: "3HK", simKind: "SIM", role: "primary", usages: ["银行验证", "2FA"], status: "active", recoveryOnly: true, attention: true),
-        VNumber(id: "num-gb-1", nickname: "英国主号", maskedNumber: "+44 7911 182***", region: "GB", countryCode: "+44", carrier: "Vodafone", simKind: "eSIM", role: "primary", usages: ["注册", "旅行", "2FA"], status: "active", recoveryOnly: false, attention: false),
-        VNumber(id: "num-us-1", nickname: "美国保号", maskedNumber: "+1 415 887 ****", region: "US", countryCode: "+1", carrier: "T-Mobile", simKind: "SIM", role: "secondary", usages: ["恢复"], status: "active", recoveryOnly: true, attention: false),
-        VNumber(id: "num-sg-1", nickname: "新加坡主号", maskedNumber: "+65 9***2214", region: "SG", countryCode: "+65", carrier: "Singtel", simKind: "eSIM", role: "primary", usages: ["银行验证", "工作"], status: "active", recoveryOnly: false, attention: false),
+        VNumber(id: "num-cn-1", nickname: "主号 中国移动", maskedNumber: "+86 138****8823", region: "CN", countryCode: "+86", carrier: "中国移动", simKind: "SIM", role: "primary", usages: ["银行验证", "注册", "2FA"], status: "active", recoveryOnly: true, attention: true, preset: "country"),
+        VNumber(id: "num-cn-2", nickname: "工作副号", maskedNumber: "+86 137****5510", region: "CN", countryCode: "+86", carrier: "中国联通", simKind: "eSIM", role: "secondary", usages: ["工作"], status: "active", recoveryOnly: false, attention: false, preset: "work"),
+        VNumber(id: "num-cn-3", nickname: "保号副号", maskedNumber: "+86 139****2204", region: "CN", countryCode: "+86", carrier: "中国移动", simKind: "SIM", role: "secondary", usages: ["保号"], status: "active", recoveryOnly: false, attention: false, preset: "recovery"),
+        VNumber(id: "num-hk-1", nickname: "香港主号", maskedNumber: "+852 9***4321", region: "HK", countryCode: "+852", carrier: "3HK", simKind: "SIM", role: "primary", usages: ["银行验证", "2FA"], status: "active", recoveryOnly: true, attention: true, preset: "banking"),
+        VNumber(id: "num-gb-1", nickname: "英国主号", maskedNumber: "+44 7911 182***", region: "GB", countryCode: "+44", carrier: "Vodafone", simKind: "eSIM", role: "primary", usages: ["注册", "旅行", "2FA"], status: "active", recoveryOnly: false, attention: false, preset: "travel"),
+        VNumber(id: "num-us-1", nickname: "美国保号", maskedNumber: "+1 415 887 ****", region: "US", countryCode: "+1", carrier: "T-Mobile", simKind: "SIM", role: "secondary", usages: ["恢复"], status: "active", recoveryOnly: true, attention: false, preset: "minimal"),
+        VNumber(id: "num-sg-1", nickname: "新加坡主号", maskedNumber: "+65 9***2214", region: "SG", countryCode: "+65", carrier: "Singtel", simKind: "eSIM", role: "primary", usages: ["银行验证", "工作"], status: "active", recoveryOnly: false, attention: false, preset: "city"),
     ]
 
     static let services: [VService] = [

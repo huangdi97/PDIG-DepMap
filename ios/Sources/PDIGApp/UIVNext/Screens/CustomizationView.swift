@@ -71,14 +71,14 @@ struct NumberCustomizationView: View {
 
     var body: some View {
         if let number {
-            let base = VPresentationProfile.defaultFor(targetType: "phoneNumber", targetId: number.id, preset: "country")
+            let base = VPresentationProfile.defaultFor(targetType: "phoneNumber", targetId: number.id, preset: number.preset)
             VCustomizationFrame(
                 title: "号码面定制 · \(number.nickname)",
                 presets: NUMBER_THEME_PRESETS,
                 materials: vNumberMaterials,
                 displayFields: ["昵称", "运营商", "SIM 类型", "主副号", "用途标签"],
                 base: base,
-                initial: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: "country"),
+                initial: model.presentationProfile(targetType: "phoneNumber", targetId: number.id, fallbackPreset: number.preset),
                 preview: { profile in
                     AnyView(VNumberFace(
                         number: number,

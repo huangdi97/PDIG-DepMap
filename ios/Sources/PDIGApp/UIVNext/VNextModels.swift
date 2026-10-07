@@ -161,6 +161,7 @@ struct VNumber: Identifiable, Hashable {
     let status: String
     let recoveryOnly: Bool
     let attention: Bool
+    let preset: String
 }
 
 struct VService: Identifiable, Hashable {
