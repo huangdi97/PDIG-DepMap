@@ -197,9 +197,9 @@ struct DataSourcesView: View {
                     .font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
 
                 HStack(spacing: VSpace.md) {
-                    VBoundaryPillar(title: "本机优先", body: "数据留在当前工作区")
-                    VBoundaryPillar(title: "已确认", body: "才进入依赖分析")
-                    VBoundaryPillar(title: "未知", body: "绝不自动推断为安全")
+                    VBoundaryPillar(title: "本机优先", message: "数据留在当前工作区")
+                    VBoundaryPillar(title: "已确认", message: "才进入依赖分析")
+                    VBoundaryPillar(title: "未知", message: "绝不自动推断为安全")
                 }
                 .padding(VSpace.lg)
                 .background(PdigV2Colors.primarySoft.opacity(0.76))
@@ -252,11 +252,11 @@ struct DataSourcesView: View {
 
 private struct VBoundaryPillar: View {
     let title: String
-    let body: String
+    let message: String
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.primaryText)
-            Text(body).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
+            Text(message).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

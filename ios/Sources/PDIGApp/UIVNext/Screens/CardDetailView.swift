@@ -114,7 +114,7 @@ struct CardDetailView: View {
                 VDetailNotice(
                     icon: "exclamationmark.triangle.fill",
                     title: "即将到期",
-                    body: "这张卡将在 \(card.expiry) 到期；已记录的 \(services.count) 项关联服务需要逐项确认更新。",
+                    message: "这张卡将在 \(card.expiry) 到期；已记录的 \(services.count) 项关联服务需要逐项确认更新。",
                     accent: PdigV2Colors.critical
                 )
             } else {
@@ -139,7 +139,7 @@ struct CardDetailView: View {
 struct VDetailNotice: View {
     let icon: String
     let title: String
-    let body: String
+    let message: String
     let accent: Color
 
     var body: some View {
@@ -147,7 +147,7 @@ struct VDetailNotice: View {
             Image(systemName: icon).foregroundColor(accent).frame(width: 22)
             VStack(alignment: .leading, spacing: 4) {
                 Text(title).font(VFont.secondary()).fontWeight(.semibold).foregroundColor(PdigV2Colors.textPrimary)
-                Text(body).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
+                Text(message).font(VFont.meta()).foregroundColor(PdigV2Colors.textSecondary)
             }
             Spacer()
         }

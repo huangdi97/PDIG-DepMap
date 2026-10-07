@@ -93,7 +93,7 @@ struct ChangePhoneView: View {
     @ViewBuilder
     private var continuityScene: some View {
         if sizeClass == .regular {
-            HStack(alignment: .stretch, spacing: VSpace.md) {
+            HStack(alignment: .top, spacing: VSpace.md) {
                 numberPanel(label: "旧号码", number: oldNumber, old: true).frame(maxWidth: .infinity)
                 servicesPanel.frame(maxWidth: .infinity)
                 numberPanel(label: "新号码", number: newNumber, old: false).frame(maxWidth: .infinity)
