@@ -2,9 +2,9 @@
 
 > Human-selected visual reference: `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
 >
-> Final pixel-changing Android production-UI checkpoint: `86cbf558d7204b5fa8ccad53f1b115f43f253531`
+> Final pixel-changing Android production-UI checkpoint: `378fab2dac40c4119a81d272678158347ab82fb0`
 >
-> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND4 RUNTIME + PARTIAL HUMAN-PIXEL REVIEW / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
+> Verdict: **SOURCE DESIGN RE-CLOSED AFTER ROUND4 MAIN-PIXEL REVIEW + GLOBE SILHOUETTE REMEDIATION / FRESH EXACT-HEAD RUNTIME EVIDENCE REQUIRED**
 >
 > The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
 > rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
@@ -204,6 +204,46 @@ ChatGPT directly remediated the product/test paths at `86cbf558d7204b5fa8ccad53f
 Next Human Review evidence must additionally split Phone/Tablet review imagery into connector-readable chunks
 (recommended 4 screens per sheet, each base64 text file < 900 kB) so all 48 main screens can be decoded and
 visually inspected. Agent PASS labels still cannot authorize visual acceptance.
+
+## 7.3 Continued Round4 Human Pixel Review and Globe remediation (2026-10-07)
+
+Using repository PNG bytes directly through the GitHub connector, Human Review has now inspected:
+
+- Phone main set: 01-24, individually decoded from the actual Round4 PNG files;
+- Tablet: 01 and 06-24, individually decoded from the actual Round4 PNG files;
+- all 10 empty states via the decoded contact sheet.
+
+Tablet 02-05 remain uninspected at full pixels in this channel because each PNG exceeds the connector's
+single-file content boundary. Round5 must provide split review sheets / connector-readable mirrors so those
+four frames can be reviewed without inference.
+
+The inspected product direction is materially aligned with the selected Light Reference: Cards retain real
+asset identity, Numbers read as communication identity, Studios are preview-first, Change Current / Transition /
+After are visually distinct with After explicitly framed as plan projection, and secondary infrastructure
+surfaces remain light-first without converting Unknown into Safe.
+
+However, Phone 01 Now and Tablet 01 Now both expose a genuine P1 visual defect in the signature Globe:
+the textured Earth body is visibly faceted/octagonal instead of circular. This is not a concept-art mismatch;
+it is a renderer geometry bug that becomes obvious when the on-screen Globe radius is larger than the capped
+texture bitmap.
+
+Root cause in `TextureEarthBody.renderEarthBody`:
+
+- screen-space unit-disc coordinates were normalized by the on-screen `radiusPx` even after the texture render
+  size had been capped to <=512px;
+- the already-visible camera hemisphere was then incorrectly culled again using world-space `w.z`, which is
+  orientation/longitude space rather than visibility space.
+
+Direct remediation checkpoint `378fab2dac40c4119a81d272678158347ab82fb0`:
+
+- normalize the texture sphere in bitmap space (`rect/2`) so cap ratio cannot deform the silhouette;
+- remove world-z visibility culling; screen-space `cz` already selects the visible hemisphere;
+- add `TextureEarthBodySilhouetteContractTest` reproducing a large display radius against a capped bitmap and
+  requiring circular cardinal coverage plus transparent outer diagonals.
+
+This is a pixel-changing production renderer fix. Android remains HOLD until a fresh exact-head Round5 runtime
+pack proves the corrected circular Globe on Phone + Tablet and closes the remaining Round4 Tablet contract
+failures / provenance requirements.
 
 ## 8. Gate
 

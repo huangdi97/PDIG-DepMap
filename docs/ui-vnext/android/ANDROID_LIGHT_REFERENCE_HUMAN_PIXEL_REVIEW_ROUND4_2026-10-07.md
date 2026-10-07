@@ -4,7 +4,7 @@
 >
 > Evidence commit: `da86d06661793c2f8b066d3915f60664b1622e43`
 >
-> Direct remediation checkpoint: `86cbf558d7204b5fa8ccad53f1b115f43f253531`
+> Direct remediation checkpoints: `86cbf558d7204b5fa8ccad53f1b115f43f253531` → `378fab2dac40c4119a81d272678158347ab82fb0`
 >
 > Verdict: **REJECTED FOR FREEZE / SOURCE REMEDIATION APPLIED / ROUND5 EXACT-HEAD EVIDENCE REQUIRED**
 
@@ -128,6 +128,41 @@ Commit `86cbf558d7204b5fa8ccad53f1b115f43f253531`:
 - fixes Region UI interaction to use the real breakpoint + scrolling;
 - makes Cards Back adaptive;
 - removes text-glyph dependence from Expanded Cards selection tests.
+
+## 6.1 Continued main-screen pixel review
+
+After the initial Round4 adjudication, the repository PNG files were decoded directly rather than relying on
+Agent PASS labels. Human Review inspected the complete Phone 01-24 set plus Tablet 01 and 06-24.
+
+Accepted visual/product direction in the inspected frames:
+
+- Phone Cards / Card Detail / Card Studio preserve card identity rather than generic settings/table rows;
+- Phone Numbers / Number Detail / Number Studio preserve communication identity;
+- Tablet Numbers is a real list-detail workspace and the Detail / Studio frames are independent;
+- Change Phone has distinct Current / Transition / After compositions on both form factors;
+- After is visibly and verbally a plan projection, not completed reality;
+- Records, Search, Personalization, Data Sources, Accounts, Emails, Devices, Services and Weaknesses remain
+  light-first and consumer-facing enough for their supporting roles;
+- no inspected supporting screen introduces a new P0 product-truth defect.
+
+### R4-P1 — Signature Globe silhouette is visibly faceted
+
+Phone 01 Now and Tablet 01 Now show the real textured Earth with an obvious octagonal/faceted perimeter.
+The same renderer can look rounder in smaller Overview stages, which initially hid the bug. Because Globe is the
+signature spatial identity of PDIG, the large Now hero cannot be accepted with a polygonal silhouette.
+
+Root cause is renderer coordinate math, not the selected visual direction. The capped texture bitmap was sampled
+using the larger on-screen radius and then culled by world-space z after inverse camera rotation.
+
+Commit `378fab2dac40c4119a81d272678158347ab82fb0` fixes the sphere normalization/culling and adds a regression
+contract for circular silhouette under the exact cap condition that produced Round4's faceting.
+
+### Remaining visual transport gap
+
+Tablet 02 Overview Global, 03 Region Selected, 04 Region Drawer and 05 Cards are each >1 MB and cannot be
+decoded through the current single-file connector transport. They are therefore **not** silently treated as
+Human-Pixel PASS. Round5 split sheets must expose those exact frames (no crop / no re-render) in connector-readable
+chunks before Freeze.
 
 ## 7. Gate
 
