@@ -7,9 +7,21 @@ struct NumbersView: View {
     @ObservedObject var model: VNextModel
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selectedId: String? = VNextDemoFixture.numbers.first?.id
+    @State private var simFilter: String? = nil
+    @State private var roleFilter: String? = nil
+    @State private var recoveryOnlyFilter = false
 
     private var filtered: [VNumber] {
-        VNextDemoFixture.numbers.filter { model.regionFilter == nil || $0.region == model.regionFilter }
+        VNextDemoFixture.numbers.filter { number in
+            (model.regionFilter == nil || number.region == model.regionFilter)
+                && (simFilter == nil || number.simKind == simFilter)
+                && (roleFilter == nil || number.role == roleFilter)
+                && (!recoveryOnlyFilter || number.recoveryOnly)
+        }
+    }
+
+    private var filtersAreClear: Bool {
+        model.regionFilter == nil && simFilter == nil && roleFilter == nil && !recoveryOnlyFilter
     }
 
     private var selected: VNumber? {
@@ -37,6 +49,9 @@ struct NumbersView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.lg) {
                 header
+                if filtered.isEmpty {
+                    VUnknownBoundaryNote("当前筛选条件下没有已记录号码；没有记录不代表不存在。")
+                }
                 ForEach(filtered) { number in
                     Button { model.openNumber(number.id) } label: {
                         HStack(spacing: VSpace.md) {
@@ -72,6 +87,9 @@ struct NumbersView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: VSpace.lg) {
                         header
+                        if filtered.isEmpty {
+                            VUnknownBoundaryNote("当前筛选条件下没有已记录号码；没有记录不代表不存在。")
+                        }
                         VStack(spacing: VSpace.sm) {
                             ForEach(filtered) { number in
                                 Button {
@@ -117,14 +135,33 @@ struct NumbersView: View {
     private var filterRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: VSpace.sm) {
-                VFilterChip(label: VCopy.filterAll, selected: model.regionFilter == nil) { model.clearRegion() }
-                VFilterChip(label: "eSIM", selected: false) {}
-                VFilterChip(label: "实体 SIM", selected: false) {}
-                VFilterChip(label: "主号", selected: false) {}
-                VFilterChip(label: "副号", selected: false) {}
-                VFilterChip(label: "保号", selected: false) {}
+                VFilterChip(label: VCopy.filterAll, selected: filtersAreClear) {
+                    model.clearRegion()
+                    simFilter = nil
+                    roleFilter = nil
+                    recoveryOnlyFilter = false
+                }
+                VFilterChip(label: "eSIM", selected: simFilter == "eSIM") {
+                    simFilter = simFilter == "eSIM" ? nil : "eSIM"
+                }
+                VFilterChip(label: "实体 SIM", selected: simFilter == "SIM") {
+                    simFilter = simFilter == "SIM" ? nil : "SIM"
+                }
+                VFilterChip(label: "主号", selected: roleFilter == "primary") {
+                    roleFilter = roleFilter == "primary" ? nil : "primary"
+                }
+                VFilterChip(label: "副号", selected: roleFilter == "secondary") {
+                    roleFilter = roleFilter == "secondary" ? nil : "secondary"
+                }
+                VFilterChip(label: "保号", selected: roleFilter == "keep") {
+                    roleFilter = roleFilter == "keep" ? nil : "keep"
+                }
+                VFilterChip(label: "唯一恢复", selected: recoveryOnlyFilter) {
+                    recoveryOnlyFilter.toggle()
+                }
             }
         }
+        .accessibilityIdentifier("pdig.phone.filters")
     }
 }
 

@@ -7,9 +7,21 @@ struct CardsView: View {
     @ObservedObject var model: VNextModel
     @Environment(\.horizontalSizeClass) private var sizeClass
     @State private var selectedId: String? = VNextDemoFixture.cards.first?.id
+    @State private var typeFilter: String? = nil
+    @State private var formFilter: String? = nil
+    @State private var statusFilter: String? = nil
 
     private var filtered: [VCard] {
-        VNextDemoFixture.cards.filter { model.regionFilter == nil || $0.region == model.regionFilter }
+        VNextDemoFixture.cards.filter { card in
+            (model.regionFilter == nil || card.region == model.regionFilter)
+                && (typeFilter == nil || card.type == typeFilter)
+                && (formFilter == nil || card.form == formFilter)
+                && (statusFilter == nil || card.status == statusFilter)
+        }
+    }
+
+    private var filtersAreClear: Bool {
+        model.regionFilter == nil && typeFilter == nil && formFilter == nil && statusFilter == nil
     }
 
     private var selected: VCard? {
@@ -47,6 +59,9 @@ struct CardsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.lg) {
                 header
+                if filtered.isEmpty {
+                    VUnknownBoundaryNote("当前筛选条件下没有已记录卡片；没有记录不代表不存在。")
+                }
                 ForEach(filtered) { card in
                     Button { model.openCard(card.id) } label: {
                         HStack(spacing: VSpace.md) {
@@ -84,6 +99,9 @@ struct CardsView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: VSpace.lg) {
                         header
+                        if filtered.isEmpty {
+                            VUnknownBoundaryNote("当前筛选条件下没有已记录卡片；没有记录不代表不存在。")
+                        }
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 230), spacing: VSpace.gridGap)], spacing: VSpace.gridGap) {
                             ForEach(filtered) { card in
                                 VAssetCard(
@@ -120,14 +138,35 @@ struct CardsView: View {
     private var filterRow: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: VSpace.sm) {
-                VFilterChip(label: VCopy.filterAll, selected: model.regionFilter == nil) { model.clearRegion() }
+                VFilterChip(label: VCopy.filterAll, selected: filtersAreClear) {
+                    model.clearRegion()
+                    typeFilter = nil
+                    formFilter = nil
+                    statusFilter = nil
+                }
                 ForEach(VNextDemoFixture.regions) { region in
                     VFilterChip(label: region.displayName, selected: model.regionFilter == region.regionCode) {
                         model.selectRegion(region.regionCode)
                     }
                 }
+                VFilterChip(label: "储蓄", selected: typeFilter == "debit") {
+                    typeFilter = typeFilter == "debit" ? nil : "debit"
+                }
+                VFilterChip(label: "信用", selected: typeFilter == "credit") {
+                    typeFilter = typeFilter == "credit" ? nil : "credit"
+                }
+                VFilterChip(label: "实体", selected: formFilter == "physical") {
+                    formFilter = formFilter == "physical" ? nil : "physical"
+                }
+                VFilterChip(label: "虚拟", selected: formFilter == "virtual") {
+                    formFilter = formFilter == "virtual" ? nil : "virtual"
+                }
+                VFilterChip(label: "即将到期", selected: statusFilter == "expiring_soon") {
+                    statusFilter = statusFilter == "expiring_soon" ? nil : "expiring_soon"
+                }
             }
         }
+        .accessibilityIdentifier("pdig.card.filters")
     }
 }
 
