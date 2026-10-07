@@ -107,14 +107,14 @@ final class VEarthTextureRenderer: ObservableObject {
         }
     }
 
-    static func cacheKey(camera: VGlobeCamera, rect: Int) -> String {
+    nonisolated static func cacheKey(camera: VGlobeCamera, rect: Int) -> String {
         let yaw = (camera.yawDeg / 4).rounded() * 4
         let pitch = (camera.pitchDeg / 3).rounded() * 3
         let zoom = (camera.zoom / 0.05).rounded() * 0.05
         return "\(rect)|\(Int(yaw))|\(Int(pitch))|\(String(format: "%.2f", Double(zoom)))"
     }
 
-    private static func render(camera: VGlobeCamera, rect: Int) -> CGImage? {
+    nonisolated private static func render(camera: VGlobeCamera, rect: Int) -> CGImage? {
         guard let assets = VEarthMaterialAssets.shared else { return nil }
 
         let half = CGFloat(rect) / 2
@@ -198,7 +198,7 @@ final class VEarthTextureRenderer: ObservableObject {
         )
     }
 
-    private static func inverseRotate(_ point: VVec3, camera: VGlobeCamera) -> VVec3 {
+    nonisolated private static func inverseRotate(_ point: VVec3, camera: VGlobeCamera) -> VVec3 {
         // Forward projection is rotateY(yaw) then rotateX(pitch).
         // Inverse therefore applies X(-pitch) then Y(-yaw).
         GlobeMath.rotateY(
