@@ -15,7 +15,12 @@ struct NumbersView: View {
         VNextDemoFixture.numbers.filter { number in
             (model.regionFilter == nil || number.region == model.regionFilter)
                 && (simFilter == nil || number.simKind == simFilter)
-                && (roleFilter == nil || number.role == roleFilter)
+                && (
+                    roleFilter == nil
+                        || (roleFilter == "keep"
+                            ? (number.usages.contains(where: { $0.contains("保号") }) || number.preset == "recovery")
+                            : number.role == roleFilter)
+                )
                 && (!recoveryOnlyFilter || number.recoveryOnly)
         }
     }
