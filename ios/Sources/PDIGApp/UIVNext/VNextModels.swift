@@ -15,6 +15,7 @@ enum VScreen: Hashable {
     case records
     case sources
     case settings
+    case search
     case overview
     case cards
     case numbers
@@ -58,11 +59,52 @@ enum VScreen: Hashable {
         case .records: return "records"
         case .sources: return "sources"
         case .settings: return "settings"
+        case .search: return "search"
         case .accounts: return "infrastructure/accounts"
         case .emails: return "infrastructure/emails"
         case .devices: return "infrastructure/devices"
         case .services: return "infrastructure/services"
         case .weaknesses: return "infrastructure/weaknesses"
+        }
+    }
+
+    /// iPad content-level secondary navigation only. Focused child flows intentionally hide it.
+    var isInfrastructureSibling: Bool {
+        switch self {
+        case .infrastructure, .overview, .cards, .numbers, .accounts, .emails, .devices, .services, .weaknesses:
+            return true
+        default:
+            return false
+        }
+    }
+
+    /// Used only to highlight the correct infrastructure sibling in an expanded workspace.
+    var infrastructureFamily: String? {
+        switch self {
+        case .infrastructure, .overview: return "overview"
+        case .cards, .cardDetail, .cardCustomization: return "cards"
+        case .numbers, .numberDetail, .numberCustomization: return "numbers"
+        case .accounts: return "accounts"
+        case .emails: return "emails"
+        case .devices: return "devices"
+        case .services: return "services"
+        case .weaknesses: return "weaknesses"
+        default: return nil
+        }
+    }
+}
+
+enum VChangeProjection: String, CaseIterable, Identifiable {
+    case current
+    case transition
+    case after
+
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .current: return "当前"
+        case .transition: return "迁移中"
+        case .after: return "完成后（计划）"
         }
     }
 }
@@ -126,6 +168,43 @@ struct VService: Identifiable, Hashable {
     let name: String
     let region: String
     let kind: String
+}
+
+struct VAccount: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let provider: String
+    let maskedIdentifier: String
+    let region: String
+    let roles: [String]
+    let authMethods: [String]
+    let recoveryRoute: String
+    let status: String
+    let attention: Bool
+}
+
+struct VEmail: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let maskedAddress: String
+    let provider: String
+    let region: String
+    let roles: [String]
+    let linkedServiceCount: Int
+    let recoveryOnly: Bool
+    let status: String
+}
+
+struct VDevice: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let platform: String
+    let kind: String
+    let region: String
+    let roles: [String]
+    let trust: String
+    let lastSeen: String
+    let attention: Bool
 }
 
 struct VRelation: Hashable {
@@ -244,6 +323,15 @@ enum VTestIds {
     static let customizationPreview = "pdig.customization.preview"
     static let customizationInspector = "pdig.customization.inspector"
     static let settingsPersonalization = "pdig.settings.personalization"
+    static let search = "pdig.search"
+    static let searchField = "pdig.search.field"
+    static let records = "pdig.records"
+    static let sources = "pdig.sources"
+    static let infraAccountList = "pdig.account.list"
+    static let infraEmailList = "pdig.email.list"
+    static let infraDeviceList = "pdig.device.list"
+    static let infraServiceList = "pdig.service.list"
+    static let infraWeaknessList = "pdig.weakness.list"
 
     static func changePhoneStage(_ n: Int) -> String { "pdig.change.phone.stage\(n)" }
 }

@@ -70,7 +70,7 @@ enum VCopy {
     static let cardDetailHistory = "变更历史"
     static let customizeCardFace = "定制卡面"
     static let currentTheme = "当前主题"
-    static let presentationNote = "Presentation 层：自定义不影响依赖/证据/确认"
+    static let presentationNote = "外观设置只改变显示方式，不会改变卡片事实、依赖关系或确认状态。"
 
     // numbers / phone-card
     static let numbersTitle = "号码"
@@ -147,7 +147,7 @@ enum VCopy {
     static let personalizationTitle = "个性化" // uiVNext.settings.personalization
     static let personalizationNote = "以下均为本地偏好（Presentation Layer）；不影响依赖/证据/确认，也不写入 .depmap 备份。"
     static let workspaceTheme = "工作区主题" // uiVNext.settings.workspaceTheme
-    static let workspaceThemeValue = "深空（vNext）· 系统跟随"
+    static let workspaceThemeValue = "亮色 · iOS 原生材质"
     static let globeTheme = "星球主题" // uiVNext.settings.globeTheme
     static let idleRotation = "极慢空闲旋转"
     static let arcAnimation = "弧线动画"

@@ -56,6 +56,27 @@ enum VNextDemoFixture {
         VService(id: "svc-notion", name: "Notion", region: "GB", kind: "subscription"),
     ]
 
+    static let accounts: [VAccount] = [
+        VAccount(id: "acc-cn-1", name: "微信账户", provider: "腾讯", maskedIdentifier: "wxid_••••8823", region: "CN", roles: ["日常身份", "支付"], authMethods: ["主号", "设备确认"], recoveryRoute: "主号 + 设备确认", status: "active", attention: false),
+        VAccount(id: "acc-hk-1", name: "HSBC 网银", provider: "HSBC", maskedIdentifier: "h••••@mail.com", region: "HK", roles: ["银行", "资产"], authMethods: ["香港主号", "安全设备"], recoveryRoute: "香港主号", status: "active", attention: true),
+        VAccount(id: "acc-gb-1", name: "Amazon UK", provider: "Amazon", maskedIdentifier: "h••••@mail.com", region: "GB", roles: ["购物", "订阅"], authMethods: ["英国主号", "邮箱"], recoveryRoute: "邮箱 + 英国主号", status: "active", attention: false),
+        VAccount(id: "acc-us-1", name: "Apple Account", provider: "Apple", maskedIdentifier: "h••••@icloud.com", region: "US", roles: ["设备", "订阅", "恢复"], authMethods: ["美国保号", "受信任设备"], recoveryRoute: "美国保号", status: "active", attention: true),
+        VAccount(id: "acc-sg-1", name: "DBS digibank", provider: "DBS", maskedIdentifier: "user••••91", region: "SG", roles: ["银行"], authMethods: ["新加坡主号"], recoveryRoute: "新加坡主号", status: "active", attention: false),
+    ]
+
+    static let emails: [VEmail] = [
+        VEmail(id: "email-cn-1", name: "主邮箱", maskedAddress: "h••••@outlook.com", provider: "Outlook", region: "CN", roles: ["登录", "恢复", "通知"], linkedServiceCount: 5, recoveryOnly: true, status: "active"),
+        VEmail(id: "email-gb-1", name: "海外邮箱", maskedAddress: "h••••@gmail.com", provider: "Gmail", region: "GB", roles: ["登录", "订阅"], linkedServiceCount: 4, recoveryOnly: false, status: "active"),
+        VEmail(id: "email-us-1", name: "Apple 恢复邮箱", maskedAddress: "h••••@icloud.com", provider: "iCloud", region: "US", roles: ["恢复", "设备"], linkedServiceCount: 3, recoveryOnly: false, status: "active"),
+    ]
+
+    static let devices: [VDevice] = [
+        VDevice(id: "dev-cn-1", name: "Pixel 8", platform: "Android", kind: "手机", region: "CN", roles: ["主设备", "验证器"], trust: "受信任", lastSeen: "今天", attention: false),
+        VDevice(id: "dev-hk-1", name: "MacBook Pro", platform: "macOS", kind: "电脑", region: "HK", roles: ["工作", "受信任设备"], trust: "受信任", lastSeen: "昨天", attention: false),
+        VDevice(id: "dev-gb-1", name: "YubiKey 5C NFC", platform: "Hardware Key", kind: "安全密钥", region: "GB", roles: ["2FA", "恢复"], trust: "备用", lastSeen: "2026-09-29", attention: false),
+        VDevice(id: "dev-us-1", name: "旧 iPhone", platform: "iOS", kind: "手机", region: "US", roles: ["恢复设备"], trust: "待检查", lastSeen: "2026-06-18", attention: true),
+    ]
+
     static let relations: [VRelation] = [
         VRelation(from: "card-cn-1", to: "svc-wxpay", kind: "funding"),
         VRelation(from: "card-cn-1", to: "svc-tencent", kind: "funding"),
@@ -116,7 +137,7 @@ enum VNextDemoFixture {
                 cards.contains { $0.id == item.target && $0.region == r.regionCode }
                     || numbers.contains { $0.id == item.target && $0.region == r.regionCode }
             }.count
-            let accountsHere = (r.regionCode == "CN" || r.regionCode == "HK" || r.regionCode == "GB") ? 1 : 0
+            let accountsHere = accounts.filter { $0.region == r.regionCode }.count
             return RegionPresentation(
                 regionCode: r.regionCode,
                 displayName: r.displayName,
