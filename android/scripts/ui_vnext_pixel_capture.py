@@ -51,10 +51,29 @@ def tap_match(label, exact=False, prefer_bottom=False):
     if prefer_bottom:
         matches.sort(key=lambda entry: entry[1], reverse=True)
     x, y, desc = matches[0]
-    adb("shell", "input", "tap", x, y)
-    time.sleep(2)
-    print("TAP", repr(label), x, y, repr(desc), flush=True)
-    return True
+    # Emulator ADB input can fail transiently even when the visible window
+    # has a valid hitbox (e.g. guest shell is briefly restarting). Preserve
+    # the real failure mode instead of reporting a misleading UI defect.
+    last_error = ""
+    for attempt in range(1, 5):
+        try:
+            result = subprocess.run(
+                ["adb", "shell", "input", "tap", str(x), str(y)],
+                text=True, capture_output=True, timeout=15,
+            )
+            if result.returncode == 0:
+                time.sleep(2)
+                print("TAP", repr(label), x, y, repr(desc), flush=True)
+                return True
+            last_error = (f"exit={result.returncode} "
+                          f"stderr={result.stderr[:350]!r} stdout={result.stdout[:200]!r}")
+        except subprocess.TimeoutExpired:
+            last_error = "shell input tap timeout"
+        print("ADB_TAP_RETRY", attempt, last_error, flush=True)
+        time.sleep(3)
+    diagnose_navigation("adb-tap-transport-failed")
+    raise RuntimeError(f"Emulator could not dispatch actual tap to {label!r} "
+                       f"at ({x},{y}) after four attempts: {last_error}")
 
 def tap_retry(label, exact=False, prefer_bottom=False, retries=6):
     for attempt in range(retries):
