@@ -23,6 +23,7 @@ import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.demo.demoAttention
 import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoChanges
+import com.pdig.uivnext.demo.demoUpcoming
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.globe.VNextGlobe
@@ -121,6 +122,35 @@ internal fun R9NowScreen(app: VAppState) {
                                 fontSize = 10.sp, color = R9.Muted)
                         }
                         Text("继续 →", fontSize = 11.sp, color = R9.Blue)
+                    }
+                }
+            }
+        }
+        // Display preferences must have a real consumer-facing effect. Upcoming
+        // items belong to the frozen SYNTHETIC fixture, not the user's live calendar.
+        if (app.showUpcoming) {
+            val upcoming = app.demoUpcoming()
+            R9SectionTitle("演示 · 时间节点", "查看记录 →") {
+                app.navigate(VScreen.RECORDS)
+            }
+            if (upcoming.isEmpty()) {
+                Text("没有已记录的时间节点。未知不等于没有风险。",
+                    color = R9.Muted, fontSize = 11.sp)
+            } else {
+                upcoming.take(2).forEach { item ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable { app.navigate(VScreen.RECORDS) },
+                        color = Color.White, shape = RoundedCornerShape(14.dp),
+                        border = BorderStroke(1.dp, R9.Line),
+                    ) {
+                        Row(Modifier.padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                            R9Badge("时间", R9.Amber)
+                            Text(item.title, modifier = Modifier.weight(1f),
+                                color = R9.Ink, fontSize = 11.sp, maxLines = 2)
+                            Text("›", fontSize = 17.sp, color = R9.Blue)
+                        }
                     }
                 }
             }
