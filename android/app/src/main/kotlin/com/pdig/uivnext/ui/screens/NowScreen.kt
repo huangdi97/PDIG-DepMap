@@ -103,8 +103,19 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             }
         }
 
-        // Globe 是 Now 的空间主角；统计只作为 Globe 上的基础设施摘要，不做独立 dashboard。
-        Surface(
+        // Compact phone uses the Human-selected spatial composition, not a generic white dashboard.
+        if (compact) {
+            CompactWorldHero(
+                app = app,
+                regions = regions,
+                arcs = arcingPairs,
+                cards = cardCount,
+                numbers = numberCount,
+                accounts = accountCount,
+                services = serviceCount,
+            )
+        } else {
+            Surface(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(
@@ -185,6 +196,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     }
                 }
             }
+        }
         }
 
         if (breakpoint == MediaBreakpoint.EXPANDED) {
