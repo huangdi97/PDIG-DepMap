@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -75,6 +76,13 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
         // their current behavior until separate device evidence supports translation.
         // This is a new screen implementation, not an R8 style modifier.
         val useR9Phone = BuildConfig.FLAVOR == "preview" && breakpoint == MediaBreakpoint.COMPACT
+        // Read-only, Preview-only route telemetry for exact-SHA device diagnosis.
+        // Logs contain only route names, no object names, numbers or user secrets.
+        LaunchedEffect(app.screen) {
+            if (BuildConfig.FLAVOR == "preview") {
+                android.util.Log.i("PdigPreviewNav", "screen=${app.screen.route}")
+            }
+        }
         when (app.screen) {
             VScreen.NOW -> if (useR9Phone) R9NowScreen(app) else NowScreen(app, breakpoint)
             VScreen.ME -> R10MeScreen(app, onHelp)

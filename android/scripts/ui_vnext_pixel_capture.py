@@ -111,7 +111,10 @@ def diagnose_navigation(name, previous_pid=None):
                                           if "mResumed" in line or "topResumed" in line or PACKAGE in line][:80],
                     "androidRuntimeErrors": [line for line in logs.splitlines()
                                             if "FATAL EXCEPTION" in line or "AndroidRuntime" in line
-                                            or "Process: " + PACKAGE in line][-120:]},
+                                            or "Process: " + PACKAGE in line][-120:],
+                    "routeTrace": [line for line in logs.splitlines()
+                                   if "PdigPreviewNav" in line or "am_proc_died" in line
+                                   or "ActivityManager" in line and PACKAGE in line][-80:]},
                    ensure_ascii=False, indent=2), encoding="utf-8")
     print("NAVIGATION_DIAGNOSIS", name, "pid", previous_pid, "->", pid, flush=True)
 
