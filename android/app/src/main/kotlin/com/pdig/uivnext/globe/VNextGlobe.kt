@@ -238,11 +238,21 @@ fun VNextGlobe(
             val bmp = try {
                 withContext(Dispatchers.Default) {
                     controller.frameMutex.withLock {
-                        renderEarthBody(
+                        val startedAt = android.os.SystemClock.elapsedRealtime()
+                        val frame = renderEarthBody(
                             assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
                             sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
                             previewReferenceLift = BuildConfig.FLAVOR == "preview",
                         )
+                        if (BuildConfig.FLAVOR == "preview") {
+                            android.util.Log.i(
+                                "PdigGlobePerf",
+                                "textureFrame=READY phase=${if(request.manipulating) "DRAG" else "SETTLED"}" +
+                                    " rect=$rect durationMs=${android.os.SystemClock.elapsedRealtime() - startedAt}" +
+                                    " yaw=${displayCam.yawDeg.toInt()} zoom=${displayCam.zoom}",
+                            )
+                        }
+                        frame
                     }
                 }
             } catch (t: kotlinx.coroutines.CancellationException) {

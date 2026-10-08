@@ -559,6 +559,21 @@ def main():
     capture("10-data-sources")
     require_screen("10-data-sources", "当前预览工作区", "SYNTHETIC", "未知")
 
+    # Include real runtime frame-time evidence even when device image comparisons
+    # have already passed. A static circle with rotating lines is not accepted.
+    perf = adb("logcat", "-d", "-s", "PdigGlobePerf:I", "*:S", check=False)
+    (ROOT / "globe-runtime-performance.log").write_text(perf.stdout, encoding="utf-8")
+    timings = []
+    for row in perf.stdout.splitlines():
+        match = re.search(r"phase=(DRAG|SETTLED) rect=(\\d+) durationMs=(\\d+)", row)
+        if match:
+            timings.append({"phase":match.group(1),"rect":int(match.group(2)),
+                            "durationMs":int(match.group(3))})
+    (ROOT / "globe-render-timings.json").write_text(
+        json.dumps({"sourceSha": os.environ.get("GITHUB_SHA"),
+                    "frames":timings, "visualAcceptance":"PENDING"},
+                   indent=2), encoding="utf-8")
+
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),
                     "app": PACKAGE, "activity": ACTIVITY,
