@@ -195,6 +195,7 @@ fun VNextGlobe(
                 renderEarthBody(
                     assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
                     sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
+                    previewReferenceLift = BuildConfig.FLAVOR == "preview",
                 )
             }
         } catch (t: kotlinx.coroutines.CancellationException) {

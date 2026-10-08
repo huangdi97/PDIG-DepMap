@@ -29,6 +29,14 @@ class EarthLongitudeAlignmentTest {
     }
 
     @Test
+    fun PreviewReferenceGradeChangesDarkAlbedoButKeepsWhiteBounded() {
+        val grade = liftChannel(34, 225, 0.24f)
+        org.junit.Assert.assertTrue("Preview must perceptibly lift a dark Earth texture", grade >= 75)
+        assertEquals(255, liftChannel(255, 255, 0.30f))
+        assertEquals(34, liftChannel(34, 225, 0f))
+    }
+
+    @Test
     fun NegativeLongitudeIsPreservedForUnitedStates() {
         assertEquals((-PI / 2).toFloat(), earthLongitudeRad(latLonToVec(0f, -90f)), 0.0001f)
     }

@@ -41,6 +41,7 @@ internal fun renderEarthBody(
     radiusPx: Float,
     cam: GlobeCamera,
     sunDir: Vec3 = SUN_DIR,
+    previewReferenceLift: Boolean = false,
 ): Bitmap {
     val albedo = assets.albedo
     val night = assets.nightLights
@@ -107,6 +108,16 @@ internal fun renderEarthBody(
             rr = (rr * (1f - blueGrade) + 68f * blueGrade).toInt().coerceIn(0, 255)
             gg = (gg * (1f - blueGrade) + 136f * blueGrade).toInt().coerceIn(0, 255)
             bb = (bb * (1f - blueGrade) + 238f * blueGrade).toInt().coerceIn(0, 255)
+            // The NASA albedo is intentionally subdued; R9 light-first Preview needs
+            // a brighter *presentation* grade. Keep production exactly unchanged.
+            // The grade is applied after day/night/cloud compositing; it neither
+            // changes factual dependency edges nor fakes a material texture.
+            if (previewReferenceLift) {
+                val lift = (0.16f + 0.11f * day).coerceIn(0f, 0.35f)
+                rr = liftChannel(rr, 195, lift)
+                gg = liftChannel(gg, 225, lift)
+                bb = liftChannel(bb, 250, lift)
+            }
             argb[rowBase + x] = (0xFF shl 24) or (rr shl 16) or (gg shl 8) or bb
         }
     }
@@ -114,6 +125,10 @@ internal fun renderEarthBody(
     bmp.setPixels(argb, 0, rect, 0, 0, rect, rect)
     return bmp
 }
+
+/** Pure per-channel reference grade; out-of-gamut values never leak to bitmap ARGB. */
+internal fun liftChannel(value: Int, target: Int, strength: Float): Int =
+    (value * (1f - strength) + target * strength).toInt().coerceIn(0, 255)
 
 /** DrawScope 扩展：把已渲染的地球主体 Bitmap 画到屏幕（圆心对齐）。 */
 internal fun DrawScope.drawEarthBitmap(
