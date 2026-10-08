@@ -565,7 +565,7 @@ def main():
     (ROOT / "globe-runtime-performance.log").write_text(perf.stdout, encoding="utf-8")
     timings = []
     for row in perf.stdout.splitlines():
-        match = re.search(r"phase=(DRAG|SETTLED) rect=(\\d+) durationMs=(\\d+)", row)
+        match = re.search(r"phase=(DRAG|SETTLED) rect=(\d+) durationMs=(\d+)", row)
         if match:
             timings.append({"phase":match.group(1),"rect":int(match.group(2)),
                             "durationMs":int(match.group(3))})
