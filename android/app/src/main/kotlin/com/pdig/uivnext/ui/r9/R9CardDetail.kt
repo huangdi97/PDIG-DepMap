@@ -77,65 +77,96 @@ internal fun R9CardDetailScreen(app: VAppState) {
         .padding(horizontal = 13.dp, vertical = 12.dp)
         .testTag("pdig.r9.screen.card-detail"),
         verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            Text(card.nickname, color = R9.Ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            R9Badge("换卡面", R9.Blue, Modifier.defaultMinSize(minHeight = 48.dp)
-                .clickable { picturePicker.launch("image/*") }
-                .testTag("pdig.r11.card.change-image"))
-        }
-        Box(Modifier.testTag(VTestIds.CARD_DETAIL_IDENTITY)) {
-            R10CardFace(card = card,
-                privacyMask = app.privacyMask || (profile?.maskSensitive == true),
-                profile = profile, modifier = Modifier.fillMaxWidth())
-        }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically) {
-            R9Badge("● ${statusLabelZh(card.status)}", r9CardStatusTint(card.status))
-            Text("选预设图片 ›",
-                Modifier.clickable { showSimpleArt = !showSimpleArt }
-                    .padding(horizontal = 5.dp, vertical = 10.dp)
-                    .testTag("pdig.r11.card.presets.toggle"),
-                color = R9.Blue, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-        }
-        if (showSimpleArt) {
-            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                R10_ART_CHOICES.forEach { (art, label) ->
-                    val selected = selectedCardArt(profile) == art
-                    Surface(
-                        modifier = Modifier.defaultMinSize(minHeight = 44.dp)
-                            .clickable {
-                                val current = app.savedPresentationProfile("card", card.id)
-                                    ?: PresentationProfile.defaultFor("card", card.id, card.preset)
-                                app.savePresentationProfile(r10ArtProfile(current, art))
-                                showSimpleArt = false
-                            }.testTag("pdig.r11.card.preset.$art"),
-                        color = if (selected) R9.Mist else Color.White,
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, if(selected) R9.Blue else R9.Line),
+        Text(card.nickname, color = R9.Ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+        // The preset ART gallery belongs to the card-face section itself; it is
+        // deliberately not a full-page studio or a floating unrelated sheet.
+        Surface(
+            color = Color.White,
+            shape = RoundedCornerShape(18.dp),
+            border = BorderStroke(1.dp, R9.Line),
+            modifier = Modifier.fillMaxWidth().testTag(VTestIds.CARD_DETAIL_IDENTITY),
+        ) {
+            Column(Modifier.padding(9.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                R10CardFace(
+                    card = card, privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+                    profile = profile, modifier = Modifier.fillMaxWidth(),
+                )
+                if (showSimpleArt) {
+                    Text("选择卡面 · 仅更换外观", color = R9.Ink,
+                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Row(
+                        Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
+                            .testTag("pdig.r14.card.preset-gallery"),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Text(label, Modifier.padding(horizontal = 13.dp, vertical = 12.dp),
-                            fontSize = 11.sp, color = R9.Ink)
+                        R10_ART_CHOICES.forEach { (art, label) ->
+                            val current = app.savedPresentationProfile("card", card.id)
+                                ?: PresentationProfile.defaultFor("card", card.id, card.preset)
+                            val preview = r10ArtProfile(current, art)
+                            val selected = selectedCardArt(profile) == art
+                            Column(
+                                Modifier.width(116.dp).clickable {
+                                    app.savePresentationProfile(preview)
+                                    showSimpleArt = false
+                                }.testTag("pdig.r11.card.preset.$art"),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                            ) {
+                                Surface(
+                                    color = if (selected) R9.Mist else Color.White,
+                                    border = BorderStroke(if (selected) 2.dp else 1.dp,
+                                        if (selected) R9.Blue else R9.Line),
+                                    shape = RoundedCornerShape(12.dp),
+                                ) {
+                                    R10CardFace(card, app.privacyMask || preview.maskSensitive,
+                                        preview, Modifier.fillMaxWidth(), compact = true)
+                                }
+                                Text(label, color = if(selected) R9.Blue else R9.Muted,
+                                    fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 44.dp)
+                            .clickable { picturePicker.launch("image/*") }
+                            .testTag("pdig.r11.card.change-image"),
+                        color = R9.Mist, shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Box(Modifier.padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                            Text("从相册选择图片 →", color = R9.Blue,
+                                fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
         }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            R9Badge("● ${statusLabelZh(card.status)}", r9CardStatusTint(card.status))
+            Text("卡面图片只影响外观，不影响真实资产", color = R9.Muted, fontSize = 10.sp)
+        }
         if (importFailed) Text("图片读取失败或超过 12MB，请换一张。",
             color = R9.Rose, fontSize = 11.sp)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-            listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, label ->
-                val active = tab == index
+        // Four functional tabs AND the lightweight change-art action share one row.
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("概览", "关联服务", "账单", "安全与风险", "换卡面").forEachIndexed { index, label ->
+                val active = if (index == 4) showSimpleArt else tab == index && !showSimpleArt
                 Surface(
-                    modifier = Modifier.weight(1f).height(48.dp).clickable { tab = index }
-                        .testTag("pdig.card.detail.tab.${index}"),
+                    modifier = Modifier.weight(1f).height(48.dp)
+                        .clickable {
+                            if(index == 4) showSimpleArt = !showSimpleArt
+                            else { tab = index; showSimpleArt = false }
+                        }
+                        .testTag(if (index == 4) "pdig.r11.card.presets.toggle"
+                                 else "pdig.card.detail.tab.${index}"),
                     color = if(active) R9.Mist else Color.White,
-                    shape = RoundedCornerShape(12.dp),
+                    shape = RoundedCornerShape(11.dp),
                     border = BorderStroke(1.dp, if(active) R9.Blue.copy(alpha = .25f) else R9.Line),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(label, color = if(active) R9.Blue else R9.Muted,
-                            fontSize = 10.sp, fontWeight = if(active) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 10.sp,
+                            fontWeight = if(active) FontWeight.Bold else FontWeight.Normal,
                             maxLines = 1)
                     }
                 }
