@@ -101,14 +101,15 @@ internal fun CompactWorldHero(
             // Region identity is derived exclusively from the current data fixture.
             // Asymmetric positions keep the Earth as the hero instead of a list of statistics.
             val positions = listOf(
-                Alignment.CenterStart to (-61).dp,
-                Alignment.CenterEnd to (-49).dp,
-                Alignment.CenterStart to 61.dp,
-                Alignment.CenterEnd to 65.dp,
+                Alignment.CenterStart to (-87).dp,
+                Alignment.CenterEnd to (-80).dp,
+                Alignment.CenterEnd to (-3).dp,
+                Alignment.CenterStart to 48.dp,
+                Alignment.CenterStart to 93.dp,
             )
-            val preferred = listOf("US", "GB", "SG", "HK")
+            val preferred = listOf("US", "GB", "CN", "HK", "SG")
             preferred.mapNotNull { code -> regions.firstOrNull { it.regionCode == code } }
-                .take(4).forEachIndexed { index, region ->
+                .take(5).forEachIndexed { index, region ->
                     val (alignment, y) = positions[index]
                     RegionIdentityChip(
                         region = region,

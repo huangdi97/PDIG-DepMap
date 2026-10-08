@@ -103,6 +103,10 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             }
         }
 
+        if (breakpoint == MediaBreakpoint.COMPACT) {
+            CompactContinuityOrbit(old, projection)
+        }
+
         SectionHeader("旧号码 → 关键服务 → 新号码")
         if (breakpoint == MediaBreakpoint.EXPANDED) {
             // Expanded：OLD / SERVICES / NEW 三列首屏并列，服务节点仍是迁移场景主角。
