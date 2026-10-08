@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "R9.0",
+  "project": "PDIG / DepMap",
+  "sourceReference": "PDIG数字基础设施产品展示板.png",
+  "sourceReferenceDimensions": [
+    1536,
+    1024
+  ],
+  "kind": "human_approved_visual_direction_not_pixel_goldens",
+  "selection": "LIGHT_FIRST_PHONE",
+  "truth": {
+    "previewSyntheticOnly": true,
+    "presentationIsNotPersonalReality": true,
+    "afterIsPlanProjection": true,
+    "unknownIsNotSafe": true,
+    "canonicalUntouched": true
+  },
+  "breakpoints": {
+    "phoneMaxDp": 599,
+    "mediumMinDp": 600,
+    "expandedMinDp": 840
+  },
+  "rules": [
+    "Capture one exact SHA from installable previewDebug, not Compose @Preview.",
+    "Composables and routes must belong to R9 package for phone Preview.",
+    "Onboarding continues to work, but is not used as visual parity proof.",
+    "Do not train/rebaseline against an unapproved result or a tiny collage thumbnail.",
+    "Real screen screenshots and human visual comparison required before freeze.",
+    "Each visual scene uses current fixture data; no fabricated link or safe-status."
+  ],
+  "screens": [
+    {
+      "id": "now",
+      "referencePanel": "1-phone-now",
+      "route": "NOW",
+      "r9File": "R9NowScreen.kt",
+      "designZone": [
+        "TopChrome",
+        "Greeting",
+        "GlobeHero",
+        "RegionIdentityPills",
+        "AssetCounterRail",
+        "AttentionPriority",
+        "BottomNav"
+      ],
+      "visualTarget": {
+        "globeDominant": true,
+        "background": "white/ice/sky",
+        "regions": "chips attached to globe",
+        "attention": "one high priority with summary",
+        "financialIdentity": "counts with semantic colors"
+      },
+      "runtimeGate": [
+        "pdig.r9.screen.now",
+        "pdig.r9.world.stage"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "overview",
+      "referencePanel": "2-phone-infrastructure",
+      "route": "OVERVIEW",
+      "r9File": "R9InfrastructureScreen.kt",
+      "designZone": [
+        "Search",
+        "FourByTwoObjectEntry",
+        "RegionGlobe",
+        "RegionList"
+      ],
+      "runtimeGate": [
+        "pdig.r9.screen.infrastructure",
+        "pdig.r9.infrastructure.categories"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "cards",
+      "referencePanel": "3-phone-cards",
+      "route": "CARDS",
+      "r9File": "R9AssetsScreen.kt",
+      "designZone": [
+        "Filters",
+        "CardIdentityPreview",
+        "IssuerMeta",
+        "RegionCurrency",
+        "ExpiryRisk"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "card-detail",
+      "referencePanel": "4-phone-card-detail",
+      "route": "CARD_DETAIL",
+      "r9File": "R9CardDetail.kt",
+      "designZone": [
+        "CardFace",
+        "State",
+        "FourWorkingTabs",
+        "ServiceIdentity",
+        "Customization"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "change-phone",
+      "referencePanel": "6-phone-change-step1",
+      "route": "CHANGE_PHONE",
+      "r9File": "R9ContinuityScreens.kt",
+      "referenceFlowState": "impact-analysis-step1",
+      "fixtureFlowState": "verify-new-number-step3",
+      "mustCompareSameStage": true,
+      "designZone": [
+        "ProjectionChoice",
+        "SixStageMini",
+        "CentralOldNumber",
+        "OrbitingServices",
+        "NextNumber",
+        "TaskDetails"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "tablet-now",
+      "referencePanel": "7-tablet-now",
+      "route": "NOW",
+      "r9File": "not-yet-translated",
+      "status": "R8_BEHAVIOR_BASELINE_REGRESSION_REQUIRED"
+    },
+    {
+      "id": "desktop-cards",
+      "referencePanel": "8-desktop-cards",
+      "route": "CARDS",
+      "r9File": "not-yet-translated",
+      "status": "R8_BEHAVIOR_BASELINE_REGRESSION_REQUIRED"
+    },
+    {
+      "id": "desktop-change",
+      "referencePanel": "9-desktop-change",
+      "route": "CHANGE_PHONE",
+      "r9File": "not-yet-translated",
+      "status": "R8_BEHAVIOR_BASELINE_REGRESSION_REQUIRED"
+    },
+    {
+      "id": "numbers",
+      "referencePanel": null,
+      "route": "NUMBERS",
+      "r9File": "R9AssetsScreen.kt",
+      "designZone": [
+        "CommunicationIdentity",
+        "Carrier",
+        "Region",
+        "SIM",
+        "Recovery"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "number-detail",
+      "referencePanel": null,
+      "route": "NUMBER_DETAIL",
+      "r9File": "R9NumberDetail.kt",
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "records",
+      "referencePanel": null,
+      "route": "RECORDS",
+      "r9File": "R9ContinuityScreens.kt",
+      "designZone": [
+        "ActiveChange",
+        "CompactTimeline",
+        "Attention",
+        "Upcoming"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    }
+  ]
+}
