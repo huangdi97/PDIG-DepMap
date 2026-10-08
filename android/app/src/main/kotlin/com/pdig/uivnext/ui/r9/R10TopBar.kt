@@ -36,15 +36,15 @@ internal fun R10TopBar(app: VAppState) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(7.dp),
         ) {
-            if (app.canGoBack()) {
+            if (app.canNavigateUp()) {
                 Surface(
-                    modifier = Modifier.size(42.dp).clickable { app.back() }
+                    modifier = Modifier.size(42.dp).clickable { app.navigateUp() }
                         .testTag("pdig.r10.top.back"),
                     color = Color.White,
                     shape = RoundedCornerShape(13.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.ArrowBack, "返回上一页", tint = R9.Ink,
+                        Icon(Icons.Filled.ArrowBack, "返回上一级", tint = R9.Ink,
                             modifier = Modifier.size(22.dp))
                     }
                 }

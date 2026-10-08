@@ -218,6 +218,48 @@ class VAppState(
         }
     }
 
+    /**
+     * The header arrow is hierarchical UP, not chronological system Back.
+     * System Back keeps the true visited-page history. UP always returns to
+     * the stable parent object/section so Card→Studio→UP = Card Detail.
+     */
+    fun upDestination(): VScreen? = when (screen) {
+        VScreen.NOW, VScreen.INFRASTRUCTURE, VScreen.CHANGE, VScreen.RECORDS, VScreen.ME -> null
+        VScreen.CARD_CUSTOMIZATION -> VScreen.CARD_DETAIL
+        VScreen.CARD_DETAIL -> VScreen.CARDS
+        VScreen.NUMBER_CUSTOMIZATION -> VScreen.NUMBER_DETAIL
+        VScreen.NUMBER_DETAIL -> VScreen.NUMBERS
+        VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
+        VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES, VScreen.OVERVIEW -> VScreen.INFRASTRUCTURE
+        VScreen.CHANGE_PHONE -> VScreen.CHANGE
+        VScreen.SETTINGS, VScreen.PERSONALIZATION, VScreen.SOURCES -> VScreen.ME
+        VScreen.SEARCH -> backStack.lastOrNull() ?: VScreen.NOW
+    }
+
+    fun canNavigateUp(): Boolean = upDestination() != null ||
+        globe.state == VGlobeState.REGION_DETAIL
+
+    fun navigateUp() {
+        if (globe.state == VGlobeState.REGION_DETAIL) {
+            closeRegionDetail()
+            return
+        }
+        val parent = upDestination() ?: return
+        if (parent == screen) return
+        val parentIndex = backStack.indexOfLast { it == parent }
+        if (parentIndex >= 0) {
+            // Pop through the parent, preventing a loop where system Back
+            // returns to the child just dismissed with the top arrow.
+            while (backStack.size > parentIndex) backStack.removeAt(backStack.lastIndex)
+        } else {
+            // A detail may have been deep-linked or reached from another section.
+            // Its new parent becomes the current page; prior real history remains.
+            // No instance of the hierarchy parent in the prior history; keep the
+            // actual preceding screen available to Android/system Back.
+        }
+        screen = parent
+    }
+
     /** 是否有可返回的内部层级（BackHandler enabled 条件）。 */
     fun canGoBack(): Boolean = backStack.isNotEmpty() || globe.state == VGlobeState.REGION_DETAIL
 
