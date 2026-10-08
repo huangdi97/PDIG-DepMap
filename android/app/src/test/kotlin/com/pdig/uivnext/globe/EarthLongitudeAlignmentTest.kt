@@ -85,7 +85,9 @@ class EarthLongitudeAlignmentTest {
         latitudeParallelSamples(30f).forEach {
             assertEquals(.5f, it.y, .0001f)
         }
-        longitudeMeridianSamples(90f).forEach {
+        // Geographic longitude is undefined exactly at ±90° latitude;
+        // validate the meridian away from both singular pole points.
+        longitudeMeridianSamples(90f).filter { kotlin.math.abs(it.y) < .9999f }.forEach {
             assertEquals((PI / 2).toFloat(), earthLongitudeRad(it), .0001f)
         }
     }
