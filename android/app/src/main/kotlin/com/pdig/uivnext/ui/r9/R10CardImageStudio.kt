@@ -66,10 +66,27 @@ internal fun R10CardImageStudio(app: VAppState) {
             .testTag("pdig.r10.screen.card-image"),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text("选择卡面图片", color = R9.Ink, fontSize = 21.sp, fontWeight = FontWeight.Bold)
-            Text(card.nickname + " · 选一张喜欢的图片即可",
-                color = R9.Muted, fontSize = 12.sp)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("选择卡面图片", color = R9.Ink, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(card.nickname + " · 一张图片即可",
+                    color = R9.Muted, fontSize = 11.sp, maxLines = 1)
+            }
+            // Always visible above the preview and artwork grid; saving must never
+            // depend on scrolling to an off-screen footer.
+            Surface(
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp)
+                    .clickable {
+                        if(isChanged) app.savePresentationProfile(editing)
+                        app.back()
+                    }.testTag("pdig.r10.card-art.save"),
+                color = R9.Blue, shape = RoundedCornerShape(13.dp),
+            ) {
+                Text(if(isChanged) "保存卡面并返回" else "返回卡片",
+                    Modifier.padding(horizontal = 10.dp, vertical = 13.dp),
+                    color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+            }
         }
         Surface(
             modifier = Modifier.fillMaxWidth().testTag(VTestIds.CUSTOMIZATION_PREVIEW),
@@ -113,19 +130,6 @@ internal fun R10CardImageStudio(app: VAppState) {
         ) { art ->
             editing = r10ArtProfile(editing, art)
             importError = false
-        }
-        Surface(
-            modifier = Modifier.fillMaxWidth().height(51.dp)
-                .clickable {
-                    if(isChanged) app.savePresentationProfile(editing)
-                    app.back()
-                }.testTag("pdig.r10.card-art.save"),
-            color = R9.Blue, shape = RoundedCornerShape(15.dp),
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text(if(isChanged) "保存卡面并返回" else "返回卡片",
-                    color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-            }
         }
         Text("卡面图片仅存储在本机。预览版不同源码版本使用独立安装空间；更换安装包不会自动同步图片。",
             color = R9.Muted, fontSize = 10.sp, lineHeight = 16.sp)
