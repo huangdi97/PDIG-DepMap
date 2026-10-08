@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <application android:label="@string/preview_build_label">
+    <application android:label="@string/preview_build_label" tools:replace="android:label">
         <!-- Prevent the legacy PdigApp launcher from being exported in the preview APK.
              Replace the main-source declaration so the old MAIN/LAUNCHER intent is removed. -->
         <activity
