@@ -12,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -36,6 +37,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.collect
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 /** Globe 渲染就绪状态（brief §10：证据截图前置条件 = TEXTURE_READY；禁止截黑球冒充 PASS）。 */
@@ -119,6 +123,12 @@ class GlobeController(
     }
 }
 
+private data class GlobeRenderRequest(
+    val camera: GlobeCamera,
+    val manipulating: Boolean,
+    val yawBase: Float,
+)
+
 private fun globeMetrics(size: IntSize, zoom: Float): Pair<Offset, Float> {
     val d = minOf(size.width, size.height).toFloat()
     val radius = d * 0.36f * zoom
@@ -184,71 +194,77 @@ fun VNextGlobe(
         }
     }
 
-    // A drag/pinch updates spatial edges every pointer event. The expensive CPU
-    // albedo MUST get fresh interactive frames, rather than canceling a 512px
-    // render on every 60Hz camera update (which leaves just the lines rotating).
-    val desiredCam = controller.camera
-    val interactiveCam = sampledGlobeCamera(desiredCam, controller.isManipulating)
-    LaunchedEffect(
-        interactiveCam.yawDeg, interactiveCam.pitchDeg, interactiveCam.zoom,
-        controller.isManipulating, yawBase, canvasSize, assets, quality,
-    ) {
-        if (canvasSize == IntSize.Zero) {
+    // A *single*, conflated render worker: NEVER restart it on every camera
+    // change. The former key-per-drag LaunchedEffect repeatedly canceled CPU
+    // projection, so region edges moved while the photographed planet stayed
+    // frozen. This worker finishes a fast 144px sphere, then reads the latest
+    // camera and drops intermediate requests. On gesture settle it renders the
+    // full-quality 512px texture again.
+    LaunchedEffect(canvasSize, controller, assets, quality) {
+        snapshotFlow {
+            GlobeRenderRequest(
+                camera = sampledGlobeCamera(controller.camera, controller.isManipulating),
+                manipulating = controller.isManipulating,
+                yawBase = yawBase,
+            )
+        }.distinctUntilChanged().conflate().collect { request ->
+            if (canvasSize == IntSize.Zero) {
+                localRenderState = GlobeRenderState.LOADING
+                controller.renderState = GlobeRenderState.LOADING
+                return@collect
+            }
+            val (center, radius) = globeMetrics(canvasSize, request.camera.zoom)
+            controller.renderCenterPx = center
+            controller.renderRadiusPx = radius
+            if (assets == null || quality == EarthQuality.LOW) {
+                localRenderState = GlobeRenderState.FALLBACK
+                controller.renderState = GlobeRenderState.FALLBACK
+                earthBitmap = null
+                earthKey = null
+                return@collect
+            }
+            val detailedRect = earthRenderRect(radius, quality)
+            val rect = if (request.manipulating) detailedRect.coerceAtMost(DRAG_TEXTURE_MAX_PX)
+                       else detailedRect
+            val displayCam = request.camera.copy(yawDeg = request.camera.yawDeg + request.yawBase)
+            val key = cameraCacheKey(displayCam, rect)
+            if (key == earthKey && earthBitmap != null) {
+                localRenderState = GlobeRenderState.TEXTURE_READY
+                controller.renderState = GlobeRenderState.TEXTURE_READY
+                return@collect
+            }
             localRenderState = GlobeRenderState.LOADING
             controller.renderState = GlobeRenderState.LOADING
-            return@LaunchedEffect
-        }
-        val (center, radius) = globeMetrics(canvasSize, interactiveCam.zoom)
-        controller.renderCenterPx = center
-        controller.renderRadiusPx = radius
-        if (assets == null || quality == EarthQuality.LOW) {
-            localRenderState = GlobeRenderState.FALLBACK
-            controller.renderState = GlobeRenderState.FALLBACK
-            earthBitmap = null
-            earthKey = null
-            return@LaunchedEffect
-        }
-        val detailedRect = earthRenderRect(radius, quality)
-        val rect = if (controller.isManipulating) detailedRect.coerceAtMost(DRAG_TEXTURE_MAX_PX)
-                   else detailedRect
-        val displayCam = interactiveCam.copy(yawDeg = interactiveCam.yawDeg + yawBase)
-        val key = cameraCacheKey(displayCam, rect)
-        if (key == earthKey && earthBitmap != null) {
-            localRenderState = GlobeRenderState.TEXTURE_READY
-            controller.renderState = GlobeRenderState.TEXTURE_READY
-            return@LaunchedEffect
-        }
-        localRenderState = GlobeRenderState.LOADING
-        controller.renderState = GlobeRenderState.LOADING
-        val bmp = try {
-            withContext(Dispatchers.Default) {
-                controller.frameMutex.withLock {
-                    renderEarthBody(
-                        assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
-                        sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
-                        previewReferenceLift = BuildConfig.FLAVOR == "preview",
-                    )
+            val bmp = try {
+                withContext(Dispatchers.Default) {
+                    controller.frameMutex.withLock {
+                        renderEarthBody(
+                            assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
+                            sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
+                            previewReferenceLift = BuildConfig.FLAVOR == "preview",
+                        )
+                    }
                 }
+            } catch (t: kotlinx.coroutines.CancellationException) {
+                throw t
+            } catch (t: Throwable) {
+                controller.renderError = "${t::class.simpleName}: ${t.message}"
+                android.util.Log.e("GlobeRender", "texture earth render failed", t)
+                localRenderState = GlobeRenderState.ERROR
+                controller.renderState = GlobeRenderState.ERROR
+                null
             }
-        } catch (t: kotlinx.coroutines.CancellationException) {
-            throw t
-        } catch (t: Throwable) {
-            controller.renderError = "${t::class.simpleName}: ${t.message}"
-            android.util.Log.e("GlobeRender", "texture earth render failed", t)
-            localRenderState = GlobeRenderState.ERROR
-            controller.renderState = GlobeRenderState.ERROR
-            null
-        }
-        if (bmp != null) {
-            earthBitmap = bmp
-            earthKey = key
-            controller.lastTexturedEarth = bmp
-            controller.lastTexturedKey = key
-            localRenderState = GlobeRenderState.TEXTURE_READY
-            controller.renderState = GlobeRenderState.TEXTURE_READY
-        } else {
-            localRenderState = GlobeRenderState.ERROR
-            controller.renderState = GlobeRenderState.ERROR
+            if (bmp != null) {
+                earthBitmap = bmp
+                earthKey = key
+                controller.lastTexturedEarth = bmp
+                controller.lastTexturedKey = key
+                localRenderState = GlobeRenderState.TEXTURE_READY
+                controller.renderState = GlobeRenderState.TEXTURE_READY
+            } else {
+                localRenderState = GlobeRenderState.ERROR
+                controller.renderState = GlobeRenderState.ERROR
+            }
         }
     }
 
