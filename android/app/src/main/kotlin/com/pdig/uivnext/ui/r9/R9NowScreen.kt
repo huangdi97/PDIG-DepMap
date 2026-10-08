@@ -77,7 +77,7 @@ internal fun R9NowScreen(app: VAppState) {
             }
         }
 
-        R9WorldStage(app, regions, app.demoCards().size, app.demoNumbers().size,
+        R13WorldExperience(app, regions, app.demoCards().size, app.demoNumbers().size,
             if (app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size,
             if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size)
 
