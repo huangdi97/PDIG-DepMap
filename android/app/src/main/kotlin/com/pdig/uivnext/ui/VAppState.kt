@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.pdig.uivnext.globe.GlobeCamera
 import com.pdig.uivnext.globe.GlobeController
+import com.pdig.uivnext.globe.focusCamera
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.VGlobeState
 import com.pdig.uivnext.model.VScreen
@@ -21,7 +22,7 @@ import com.pdig.uivnext.model.VScreen
  */
 class VAppState(
     initialScreen: VScreen = VScreen.NOW,
-    initialCamera: GlobeCamera = GlobeCamera(0f, 30f, 1f),
+    initialCamera: GlobeCamera = focusCamera(16f, 107f),
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
     initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     private val onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
@@ -222,12 +223,12 @@ class VAppState(
     fun canGoBack(): Boolean = backStack.isNotEmpty() || globe.state == VGlobeState.REGION_DETAIL
 
     private fun cameraPreset(preset: String): GlobeCamera {
-        if (preset == "global") return GlobeCamera(0f, 30f, 1f)
+        if (preset == "global") return focusCamera(16f, 107f)
         val region = com.pdig.uivnext.demo.UiVNextDemoFixture.regions.firstOrNull { it.regionCode.equals(preset, ignoreCase = true) }
         if (region != null) {
             val focus = com.pdig.uivnext.globe.focusCamera(region.latitude.toFloat(), region.longitude.toFloat())
             return focus.copy(zoom = 1.35f)
         }
-        return GlobeCamera(0f, 30f, 1f)
+        return focusCamera(16f, 107f)
     }
 }

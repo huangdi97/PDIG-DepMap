@@ -54,7 +54,9 @@ fun RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(pagePadding(breakpoint)),
-        verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
+        verticalArrangement = Arrangement.spacedBy(
+            if (breakpoint == MediaBreakpoint.COMPACT) 12.dp else pageSectionGap(breakpoint),
+        ),
     ) {
         if (breakpoint != MediaBreakpoint.COMPACT) {
             Text("记录", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
@@ -114,6 +116,7 @@ fun RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 TimelineStage(
                     stage = stage,
                     showConnector = index < UiVNextDemoFixture.changeStages.lastIndex,
+                    compact = breakpoint == MediaBreakpoint.COMPACT,
                 )
             }
         }
@@ -190,7 +193,7 @@ private fun RecordsSummarySurface(activeChanges: Int, attentionCount: Int, upcom
         shadowElevation = 1.dp,
     ) {
         Row(
-            Modifier.padding(horizontal = 18.dp, vertical = 16.dp),
+            Modifier.padding(horizontal = 15.dp, vertical = 11.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             RecordsMetric(activeChanges.toString(), "进行中的变更", Modifier.weight(1f))
@@ -209,7 +212,7 @@ private fun RecordsMetric(value: String, label: String, modifier: Modifier = Mod
 }
 
 @Composable
-private fun TimelineStage(stage: ChangeStage, showConnector: Boolean) {
+private fun TimelineStage(stage: ChangeStage, showConnector: Boolean, compact: Boolean) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Surface(
@@ -234,7 +237,7 @@ private fun TimelineStage(stage: ChangeStage, showConnector: Boolean) {
                 Box(
                     Modifier
                         .width(2.dp)
-                        .height(48.dp)
+                        .height(if (compact) 28.dp else 48.dp)
                         .background(PdigV2Colors.BorderStrong),
                 )
             }
@@ -243,13 +246,13 @@ private fun TimelineStage(stage: ChangeStage, showConnector: Boolean) {
         Surface(
             modifier = Modifier
                 .weight(1f)
-                .padding(bottom = 10.dp),
+                .padding(bottom = if (compact) 5.dp else 10.dp),
             color = PdigV2Colors.Surface.copy(alpha = 0.88f),
             shape = RoundedCornerShape(VRadius.Md),
             border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         ) {
             Row(
-                Modifier.padding(horizontal = 14.dp, vertical = 11.dp),
+                Modifier.padding(horizontal = 14.dp, vertical = if (compact) 8.dp else 11.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

@@ -44,7 +44,7 @@ private const val MIN_ZOOM = 0.7f
 
 /** Globe 交互状态（由父级持有，供状态机与截图参数使用）。 */
 class GlobeController(
-    initialCamera: GlobeCamera = GlobeCamera(0f, 30f, 1f),
+    initialCamera: GlobeCamera = focusCamera(16f, 107f),
 ) {
     var camera by mutableStateOf(initialCamera)
     var hoveredRegion: RegionPresentation? by mutableStateOf(null)
@@ -61,6 +61,14 @@ class GlobeController(
 
     /** 渲染失败原因（GlobeRenderState.ERROR 时供诊断；证据截图只认 TEXTURE_READY）。 */
     var renderError: String? by mutableStateOf(null)
+
+    /**
+     * Retain the last *real textured frame* across Now → Infrastructure recomposition.
+     * These fields are presentation cache only, bounded to one bitmap and one camera key;
+     * they are not persisted into Canonical or PersonalReality.
+     */
+    internal var lastTexturedEarth: Bitmap? = null
+    internal var lastTexturedKey: String? = null
 
     fun focusRegion(region: RegionPresentation) {
         val target = focusCamera(region.latitude.toFloat(), region.longitude.toFloat())
@@ -121,8 +129,12 @@ fun VNextGlobe(
     var yawBase by remember { mutableStateOf(0f) }
     val context = LocalContext.current
     val assets = remember(quality) { EarthMaterialAssets.load(context, quality) }
-    var earthBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    var earthKey by remember { mutableStateOf<String?>(null) }
+    // A newly composed Overview must not flash a flat vector sphere after Now.
+    // Reuse the last truthful texture while its own size-specific frame is rebuilt.
+    var earthBitmap by remember(controller) { mutableStateOf(controller.lastTexturedEarth) }
+    var earthKey by remember(controller) { mutableStateOf(controller.lastTexturedKey) }
+    // This is the state of THIS canvas, never the previous screen's shared controller.
+    var localRenderState by remember { mutableStateOf(GlobeRenderState.LOADING) }
 
     // Idle rotation：先让首张真实纹理稳定进入 TEXTURE_READY，再低频刷新相机。
     // 逐像素球面投影是重任务；如果每 50ms 改 yaw，会持续取消后台渲染，最终只剩 fallback 深色球。
@@ -152,6 +164,7 @@ fun VNextGlobe(
         quality,
     ) {
         if (canvasSize == IntSize.Zero) {
+            localRenderState = GlobeRenderState.LOADING
             controller.renderState = GlobeRenderState.LOADING
             return@LaunchedEffect
         }
@@ -160,6 +173,7 @@ fun VNextGlobe(
         controller.renderRadiusPx = radius
         if (assets == null || quality == EarthQuality.LOW) {
             // 资产缺失 / 低功耗档：有效 fallback 球体（非黑球），并明确标记 FALLBACK。
+            localRenderState = GlobeRenderState.FALLBACK
             controller.renderState = GlobeRenderState.FALLBACK
             earthBitmap = null
             earthKey = null
@@ -169,9 +183,12 @@ fun VNextGlobe(
         val displayCam = controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
         val key = cameraCacheKey(displayCam, rect)
         if (key == earthKey && earthBitmap != null) {
+            localRenderState = GlobeRenderState.TEXTURE_READY
             controller.renderState = GlobeRenderState.TEXTURE_READY
             return@LaunchedEffect
         }
+        localRenderState = GlobeRenderState.LOADING
+        controller.renderState = GlobeRenderState.LOADING
         val bmp = try {
             withContext(Dispatchers.Default) {
                 renderEarthBody(assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam)
@@ -182,18 +199,27 @@ fun VNextGlobe(
         } catch (t: Throwable) {
             controller.renderError = "${t::class.simpleName}: ${t.message}"
             android.util.Log.e("GlobeRender", "texture earth render failed", t)
+            localRenderState = GlobeRenderState.ERROR
             controller.renderState = GlobeRenderState.ERROR
             null
         }
-        earthBitmap = bmp
-        earthKey = key
-        if (bmp != null) controller.renderState = GlobeRenderState.TEXTURE_READY
+        if (bmp != null) {
+            earthBitmap = bmp
+            earthKey = key
+            controller.lastTexturedEarth = bmp
+            controller.lastTexturedKey = key
+            localRenderState = GlobeRenderState.TEXTURE_READY
+            controller.renderState = GlobeRenderState.TEXTURE_READY
+        } else {
+            localRenderState = GlobeRenderState.ERROR
+            controller.renderState = GlobeRenderState.ERROR
+        }
     }
 
     // 无障碍：Globe 画布声明语义描述；精确探索用 Overview 的 Region List（非视觉替代，任务书 §30）。
     Box(
         Modifier.semantics {
-            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；纹理状态=${controller.renderState.name}；可拖动旋转、点击聚焦地区"
+            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；纹理状态=${localRenderState.name}；可拖动旋转、点击聚焦地区"
         },
     ) {
         Canvas(
@@ -292,7 +318,7 @@ fun VNextGlobe(
             // 「地球加载材质」（有效 fallback，禁止 near-black empty sphere，brief §10）。
             val bmp = earthBitmap
             if (bmp != null) {
-                drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt())
+                drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt(), (radius * 2f).toInt())
                 // Purely atmospheric light, not a fabricated dependency edge:
                 // the original light-first reference uses a luminous azure limb.
                 drawCircle(

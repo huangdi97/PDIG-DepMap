@@ -113,8 +113,15 @@ internal fun renderEarthBody(
 }
 
 /** DrawScope 扩展：把已渲染的地球主体 Bitmap 画到屏幕（圆心对齐）。 */
-internal fun DrawScope.drawEarthBitmap(bmp: Bitmap, centerX: Int, centerY: Int) {
-    val half = bmp.width / 2
+internal fun DrawScope.drawEarthBitmap(
+    bmp: Bitmap,
+    centerX: Int,
+    centerY: Int,
+    targetDiameterPx: Int = bmp.width,
+) {
+    // The reusable frame can originate from another canvas with a different diameter.
+    // Scale it to the CURRENT sphere instead of rendering an incorrectly sized bitmap.
+    val half = targetDiameterPx.coerceAtLeast(1) / 2
     drawContext.canvas.nativeCanvas.drawBitmap(
         bmp,
         null,
