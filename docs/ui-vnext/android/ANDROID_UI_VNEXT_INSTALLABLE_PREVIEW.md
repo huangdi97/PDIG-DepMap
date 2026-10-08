@@ -44,3 +44,24 @@ user from installing the Preview APK to evaluate the accepted phone UI on real h
 
 This is an evaluation build. Before testing import/restore/delete flows on a personal phone, keep a separate
 backup of any important PDIG data. UI evaluation should preferably begin with synthetic/non-critical data.
+
+## Preview launcher correctness (2026-10-08)
+
+**Critical behavioral distinction:** the original production `MainActivity` only entered `VNextApp` with the
+instrumentation extra `vnext_demo=true`; a directly installed preview would otherwise show the old
+`PdigApp` despite packaging all the new UI classes.
+
+The `preview` flavor now enters `VNextApp` from the normal launcher automatically using
+`shouldLaunchVNext(BuildConfig.FLAVOR, explicitDemo)`. The production flavor without an explicit test
+extra still opens the original lock-gated `PdigApp`. This is not a new production-data integration.
+
+The separate `com.pdig.app.preview` package uses **synthetic reference fixtures** for visual and touch
+evaluation. **It does not display or edit the user's actual PDIG PersonalReality**. Use the production app
+for personal records; do not enter valuable secrets into preview fixtures.
+
+Portable CI runs both `:app:testProductionDebugUnitTest` and `:app:testPreviewDebugUnitTest`, including
+the `VNextLaunchPolicyTest` regression. The release carries `BUILD_PROVENANCE.json` with exact source
+HEAD, tree, APK byte count, SHA-256, version and build variant. A passing hosted build is *not* evidence
+of a real-device launcher or the Android tablet-only freeze contract. The targeted
+`TabletAdaptiveContractTest.tabletNumberDetail_noDeadSpace` still needs a device-backed run before
+`ANDROID_REFERENCE_FREEZE = PASS` may be asserted.

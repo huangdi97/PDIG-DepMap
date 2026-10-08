@@ -49,7 +49,8 @@ jobs:
           ./gradlew --no-daemon --console=plain \
             :core:test \
             :conformance:run \
-            :app:testProductionDebugUnitTest
+            :app:testProductionDebugUnitTest \
+            :app:testPreviewDebugUnitTest
 
       - name: Build installable APKs
         working-directory: android
@@ -99,6 +100,8 @@ jobs:
           PDIG-Android-UI-vNext-Preview.apk
 
           It uses application id com.pdig.app.preview and can coexist with the production application.
+          Normal launcher open starts the accepted UI vNext with SYNTHETIC REFERENCE DATA.
+          This preview is for visual/touch evaluation and is NOT connected to personal production data.
 
           PDIG-Android-UI-vNext-ProductionDebug.apk uses com.pdig.app and is provided only to match the
           production-debug flavor used by the final Android runtime evidence. If another PDIG build with a
@@ -123,8 +126,35 @@ jobs:
           productionApplicationId=com.pdig.app
           EOF
 
+          SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+          BUILD_TIMESTAMP="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          PREVIEW_BYTES="$(stat -c %s "$PREVIEW_APK")"
+          PREVIEW_SHA256="$(sha256sum "$PREVIEW_APK" | cut -d ' ' -f 1)"
+          cat > dist/BUILD_PROVENANCE.json <<EOF
+          {
+            "repository": "$GITHUB_REPOSITORY",
+            "branch": "feat/android-ui-vnext-translation",
+            "sourceHead": "$GITHUB_SHA",
+            "sourceTree": "$SOURCE_TREE",
+            "buildVariant": "previewDebug",
+            "applicationId": "com.pdig.app.preview",
+            "versionName": "0.3.1",
+            "versionCode": 200005,
+            "minSdk": 26,
+            "targetSdk": 36,
+            "compileSdk": 36,
+            "apkFile": "PDIG-Android-UI-vNext-Preview.apk",
+            "apkBytes": $PREVIEW_BYTES,
+            "sha256": "$PREVIEW_SHA256",
+            "buildTimestampUtc": "$BUILD_TIMESTAMP",
+            "signing": "debug",
+            "launchMode": "vnext-synthetic-reference"
+          }
+          EOF
+
           cat dist/SHA256SUMS.txt
           cat dist/BUILD_PROVENANCE.txt
+          cat dist/BUILD_PROVENANCE.json
 
       - name: Upload Actions artifact
         uses: actions/upload-artifact@v4
@@ -135,6 +165,7 @@ jobs:
             dist/PDIG-Android-UI-vNext-ProductionDebug.apk
             dist/SHA256SUMS.txt
             dist/BUILD_PROVENANCE.txt
+            dist/BUILD_PROVENANCE.json
             dist/RELEASE_NOTES.md
           if-no-files-found: error
           retention-days: 30
@@ -154,6 +185,7 @@ jobs:
             "dist/PDIG-Android-UI-vNext-ProductionDebug.apk#PDIG Android UI vNext ProductionDebug APK" \
             "dist/SHA256SUMS.txt#SHA-256 checksums" \
             "dist/BUILD_PROVENANCE.txt#Build provenance" \
+            "dist/BUILD_PROVENANCE.json#Machine-readable build provenance" \
             --repo "$GITHUB_REPOSITORY" \
             --target "$GITHUB_SHA" \
             --prerelease \

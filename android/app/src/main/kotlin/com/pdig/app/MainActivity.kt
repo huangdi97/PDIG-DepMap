@@ -75,10 +75,14 @@ class MainActivity : FragmentActivity() {
         }
         coordinator.attachLauncher { mime -> picker.launch(arrayOf(mime)) }
 
-        // vNext 演示壳入口（debug flag，仅 synthetic fixture；不经过锁门 —— 壳内没有任何真实数据可保护）。
-        // 正常 launcher 启动不带该 extra，v0.3.1 锁门流程原样保留（并行存在）。
-        // 状态恢复：VNextShellViewModel 在 Activity 重建（旋转等）后保持导航/选择/投影状态（任务书 §32）。
-        val vnextDemo = intent?.getBooleanExtra("vnext_demo", false) == true
+        // Preview flavor must open the accepted UI vNext from the normal launcher, without ADB extras.
+        // VNextApp uses synthetic reference fixtures only; no PersonalReality is read or modified.
+        // Production stays on the existing lock-gated PdigApp unless a test explicitly requests the demo.
+        // VNextShellViewModel retains navigation and projection state across Activity recreation.
+        val vnextDemo = shouldLaunchVNext(
+            flavor = BuildConfig.FLAVOR,
+            explicitDemo = intent?.getBooleanExtra("vnext_demo", false) == true,
+        )
 
         setContent {
             if (vnextDemo) {
