@@ -280,6 +280,43 @@ def main():
         raise RuntimeError("No localized greeting is visible in R9 Now")
     assert_home_world_geometry()
     verify_preview_world_light()
+
+    # R14 genuine globe interaction: CAMERA and actual textured frames must
+    # respond together. A drag which only turns graph arcs is not acceptable.
+    def camera_state():
+        labels = [label_of(node) for node in xml_nodes()]
+        globe = next((line for line in labels if "全球基础设施导航器" in line), "")
+        yaw = re.search(r"视角=(-?\d+)度", globe)
+        zoom = re.search(r"缩放=(\d+)%", globe)
+        if not yaw or not zoom:
+            raise RuntimeError("Globe does not expose real camera transform semantics: " + globe)
+        return (int(yaw.group(1)), int(zoom.group(1)))
+
+    yaw0, zoom0 = camera_state()
+    adb("shell", "input", "swipe", "350", "855", "705", "855", "550")
+    time.sleep(4)
+    yaw1, zoom1 = camera_state()
+    if abs(yaw1 - yaw0) < 10:
+        raise RuntimeError(f"Dragging did not orbit the actual globe: {yaw0} -> {yaw1}")
+    capture("01c-world-orbit")
+    require_screen("01c-world-orbit", "全球基础设施导航器")
+    if not tap_retry("放大地球"):
+        raise RuntimeError("R14 explicit globe zoom-in control not accessible")
+    time.sleep(3)
+    yaw2, zoom2 = camera_state()
+    if zoom2 <= zoom1:
+        raise RuntimeError(f"Globe zoom control did not change camera zoom: {zoom1}% -> {zoom2}%")
+    capture("01d-world-zoom-in")
+    if not tap_retry("缩小地球"):
+        raise RuntimeError("Globe zoom-out control not available")
+    if not tap_retry("复位地球"):
+        raise RuntimeError("Globe reset control not available")
+    time.sleep(3)
+    _, zoomReset = camera_state()
+    if abs(zoomReset - 100) > 1:
+        raise RuntimeError(f"Globe reset did not restore 100%: {zoomReset}%")
+    capture("01e-world-reset")
+
     from os import environ
     short_sha = environ.get("GITHUB_SHA", "")[:7]
     if short_sha:
@@ -349,10 +386,10 @@ def main():
         capture(shot)
         require_screen(shot, required)
     # R11: card art is an IN-DETAIL micro action, not a giant Studio.
-    if not tap_retry("选预设图片 ›", exact=True):
-        raise RuntimeError("Compact card artwork controls not accessible")
+    if not tap_retry("换卡面", exact=True):
+        raise RuntimeError("The fifth, inline change-art action beside four detail tabs is missing")
     capture("04e-card-presets-inline")
-    require_screen("04e-card-presets-inline", "原卡面", "海洋")
+    require_screen("04e-card-presets-inline", "选择卡面 · 仅更换外观", "原卡面", "海洋", "从相册选择图片")
     if not tap_retry("海洋", exact=True):
         raise RuntimeError("Compact card artwork option could not be selected")
     # Artwork changes do not reset the actively selected detail tab.

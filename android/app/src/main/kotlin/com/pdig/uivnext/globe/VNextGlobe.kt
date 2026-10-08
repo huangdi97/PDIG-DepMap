@@ -280,7 +280,7 @@ fun VNextGlobe(
     // 无障碍：Globe 画布声明语义描述；精确探索用 Overview 的 Region List（非视觉替代，任务书 §30）。
     Box(
         Modifier.semantics {
-            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；纹理状态=${localRenderState.name}；拖动旋转、双指缩放、点击聚焦地区"
+            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；纹理状态=${localRenderState.name}；视角=${controller.camera.yawDeg.toInt()}度；缩放=${(controller.camera.zoom * 100f).toInt()}%；拖动旋转、双指缩放、点击聚焦地区"
         },
     ) {
         Canvas(
