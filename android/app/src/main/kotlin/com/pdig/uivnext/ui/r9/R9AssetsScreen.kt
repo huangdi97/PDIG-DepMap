@@ -95,8 +95,15 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
     ) {
         Row(Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            CardIdentityThumbnail(card, app.privacyMask,
-                modifier = Modifier.width(114.dp))
+            val saved = app.savedPresentationProfile("card", card.id)
+            if (saved != null) {
+                CardIdentityThumbnail(card.copy(preset = saved.themeId), app.privacyMask,
+                    modifier = Modifier.width(114.dp))
+            } else {
+                R9BankCardFace(card, app.privacyMask,
+                    modifier = Modifier.width(114.dp), compact = true,
+                    onClick = { app.openCard(card.id) })
+            }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(card.nickname, color = R9.Ink, fontWeight = FontWeight.Bold,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)

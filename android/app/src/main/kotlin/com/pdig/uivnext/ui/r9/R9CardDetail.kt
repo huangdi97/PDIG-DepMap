@@ -53,15 +53,25 @@ internal fun R9CardDetailScreen(app: VAppState) {
             R9Badge("编辑", R9.Blue, Modifier.clickable { app.openCardCustomization(card.id) })
         }
         Box(Modifier.testTag(VTestIds.CARD_DETAIL_IDENTITY)) {
-            AssetCard(
-                card = card.copy(preset = profile?.themeId ?: card.preset),
-                privacyMask = app.privacyMask || (profile?.maskSensitive == true),
-                onClick = {},
-                modifier = Modifier.fillMaxWidth(),
-                presentationMaterial = profile?.material,
-                presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
-                presentationLayout = profile?.layout,
-            )
+            if (profile == null) {
+                R9BankCardFace(
+                    card = card,
+                    privacyMask = app.privacyMask,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            } else {
+                // A saved PresentationProfile must actually affect the card face;
+                // do not discard Studio personalization merely for a visual match.
+                AssetCard(
+                    card = card.copy(preset = profile.themeId),
+                    privacyMask = app.privacyMask || profile.maskSensitive,
+                    onClick = {},
+                    modifier = Modifier.fillMaxWidth(),
+                    presentationMaterial = profile.material,
+                    presentationAccent = hexColorOrNull(profile.accentColor),
+                    presentationLayout = profile.layout,
+                )
+            }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             R9Badge("● ${statusLabelZh(card.status)}",
