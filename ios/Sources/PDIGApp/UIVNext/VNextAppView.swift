@@ -265,15 +265,31 @@ struct VNextSplitShell: View {
 
     var body: some View {
         NavigationSplitView {
-            List(selection: Binding(
-                get: { model.primary },
-                set: { if let next = $0 { model.selectPrimary(next) } }
-            )) {
+            List {
                 Section("PDIG") {
-                    Label(VCopy.navNow, systemImage: "house.fill").tag(VPrimaryDestination.now)
-                    Label(VCopy.navInfrastructure, systemImage: "globe.asia.australia.fill").tag(VPrimaryDestination.infrastructure)
-                    Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath").tag(VPrimaryDestination.change)
-                    Label(VCopy.navRecords, systemImage: "clock").tag(VPrimaryDestination.records)
+                    VSidebarDestinationRow(
+                        title: VCopy.navNow,
+                        icon: "house.fill",
+                        selected: model.primary == .now
+                    ) { model.selectPrimary(.now) }
+
+                    VSidebarDestinationRow(
+                        title: VCopy.navInfrastructure,
+                        icon: "globe.asia.australia.fill",
+                        selected: model.primary == .infrastructure
+                    ) { model.selectPrimary(.infrastructure) }
+
+                    VSidebarDestinationRow(
+                        title: VCopy.navChange,
+                        icon: "arrow.triangle.2.circlepath",
+                        selected: model.primary == .change
+                    ) { model.selectPrimary(.change) }
+
+                    VSidebarDestinationRow(
+                        title: VCopy.navRecords,
+                        icon: "clock",
+                        selected: model.primary == .records
+                    ) { model.selectPrimary(.records) }
                 }
                 Section("工具") {
                     Button { model.navigate(.sources) } label: {
@@ -291,6 +307,32 @@ struct VNextSplitShell: View {
             NavigationStack { VRootHost(model: model, root: model.primary) }
         }
         .navigationSplitViewStyle(.balanced)
+    }
+}
+
+struct VSidebarDestinationRow: View {
+    let title: String
+    let icon: String
+    let selected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: VSpace.md) {
+                Image(systemName: icon)
+                    .frame(width: 20)
+                Text(title)
+                Spacer()
+            }
+            .font(VFont.secondary())
+            .fontWeight(selected ? .semibold : .regular)
+            .foregroundColor(selected ? PdigV2Colors.primaryText : PdigV2Colors.textPrimary)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .listRowBackground(selected ? PdigV2Colors.primarySoft : Color.clear)
+        .accessibilityLabel(title)
+        .accessibilityIdentifier("pdig.nav.sidebar.\(title)")
     }
 }
 
