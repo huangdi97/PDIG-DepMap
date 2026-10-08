@@ -8,9 +8,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
@@ -82,7 +82,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
         ) {
             Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-                Icon(Icons.Filled.Shield, contentDescription = null,
+                Icon(Icons.Filled.Lock, contentDescription = null,
                     tint = R9.Blue, modifier = Modifier.size(23.dp))
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     Text("遮蔽敏感信息", color = R9.Ink,
@@ -141,7 +141,7 @@ private fun R10MeAction(title: String, subtitle: String, tag: String, onClick: (
             Text(title, color = R9.Ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
             Text(subtitle, color = R9.Muted, fontSize = 10.sp)
         }
-        Icon(Icons.Filled.ChevronRight, contentDescription = null,
+        Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
             tint = R9.Muted, modifier = Modifier.size(20.dp))
     }
 }

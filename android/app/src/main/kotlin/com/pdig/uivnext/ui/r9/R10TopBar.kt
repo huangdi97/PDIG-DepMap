@@ -6,7 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.PersonOutline
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -92,7 +92,7 @@ internal fun R10TopBar(app: VAppState) {
                     color = R9.Mist, shape = RoundedCornerShape(14.dp),
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.PersonOutline, contentDescription = "我",
+                        Icon(Icons.Filled.Person, contentDescription = "我",
                             tint = R9.Blue, modifier = Modifier.size(22.dp))
                     }
                 }
