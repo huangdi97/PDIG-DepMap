@@ -252,17 +252,33 @@ private fun R9ServiceOrbit(number: String, migrations: List<ChangeMigration>, pr
             }
             val corners = listOf(Alignment.TopStart, Alignment.TopEnd,
                 Alignment.BottomStart, Alignment.BottomEnd)
-            migrations.take(4).forEachIndexed { i,m ->
+            migrations.take(4).forEachIndexed { i, m ->
+                val (monogram, tint) = when {
+                    m.service.contains("微信") -> "微" to Color(0xFF0BB779)
+                    m.service.contains("支付宝") -> "支" to Color(0xFF1687F5)
+                    m.service.contains("招商") -> "招" to Color(0xFFED4953)
+                    m.service.contains("腾讯") -> "▶" to Color(0xFF1BA2E8)
+                    else -> m.service.take(1) to R9.Blue
+                }
                 Surface(
-                    modifier = Modifier.align(corners[i]).padding(horizontal = 7.dp, vertical = 13.dp),
-                    color = Color.White.copy(alpha = .96f),
-                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier.align(corners[i]).padding(horizontal = 6.dp, vertical = 15.dp),
+                    color = Color.White.copy(alpha = .94f),
+                    shape = RoundedCornerShape(16.dp),
                     border = BorderStroke(1.dp, R9.Line),
+                    shadowElevation = 2.dp,
                 ) {
-                    Column(Modifier.width(101.dp).padding(horizontal = 7.dp, vertical = 8.dp),
+                    Column(Modifier.width(91.dp).padding(horizontal = 6.dp, vertical = 7.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                        Text(m.service, color = R9.Ink, fontSize = 10.sp, maxLines = 1,
+                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        // Monograms are presentation icons, not third-party logos.
+                        // Status remains sourced from the actual migration fixture.
+                        Surface(color = tint, shape = RoundedCornerShape(11.dp)) {
+                            Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
+                                Text(monogram, color = Color.White, fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        Text(m.service, color = R9.Ink, fontSize = 9.sp, maxLines = 1,
                             fontWeight = FontWeight.Bold)
                         Text(
                             when(m.status) {
@@ -272,7 +288,9 @@ private fun R9ServiceOrbit(number: String, migrations: List<ChangeMigration>, pr
                                 "plan" -> "计划中"
                                 "unresolved" -> "待解决"
                                 else -> "待确认"
-                            }, color = R9.Muted, fontSize = 9.sp)
+                            },
+                            color = if(m.status == "completed") R9.Green else R9.Muted,
+                            fontSize = 9.sp)
                     }
                 }
             }
