@@ -7,6 +7,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,15 +48,22 @@ internal fun R9NumberDetailScreen(app: VAppState) {
     }
     val related = UiVNextDemoFixture.servicesForNumber(number.id)
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
+    val title = app.numberDisplayName(number.id, number.maskedNumber)
+    var editingName by remember(number.id) { mutableStateOf(false) }
+    var proposedName by remember(number.id) { mutableStateOf(app.numberAlias(number.id)) }
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
             .padding(horizontal = 13.dp, vertical = 12.dp)
             .testTag("pdig.r9.screen.number-detail"),
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
-        R9SectionTitle(number.nickname, "定制 →") { app.openNumberCustomization(number.id) }
+        R9SectionTitle(title, "修改名称 →") {
+            proposedName = app.numberAlias(number.id)
+            editingName = true
+        }
+        Text("未命名时显示记录中的号码", color = R9.Muted, fontSize = 10.sp)
         NumberFace(
-            number = number.copy(preset = profile?.themeId ?: number.preset),
+            number = number.copy(nickname = title, preset = profile?.themeId ?: number.preset),
             privacyMask = app.privacyMask || (profile?.maskSensitive == true),
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(VTestIds.NUMBER_DETAIL_HERO),
@@ -111,6 +125,7 @@ internal fun R9NumberDetailScreen(app: VAppState) {
                 }
             }
         }
+        R9SectionTitle("显示设置", "号码外观 →") { app.openNumberCustomization(number.id) }
         R9SectionTitle("安全与恢复")
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -136,5 +151,33 @@ internal fun R9NumberDetailScreen(app: VAppState) {
             }
         }
         Spacer(Modifier.height(9.dp))
+    }
+    if (editingName) {
+        AlertDialog(
+            onDismissRequest = { editingName = false },
+            title = { Text("给号码命名", color = R9.Ink) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = proposedName, onValueChange = { proposedName = it.take(32) },
+                        label = { Text("自定义名称（可留空）") },
+                        placeholder = { Text("如：香港主号") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth().testTag("pdig.r10.number.alias.input"),
+                    )
+                    Text("留空则显示 ${number.maskedNumber}；名称仅保存在本机。",
+                        color = R9.Muted, fontSize = 11.sp)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    app.renameNumber(number.id, proposedName)
+                    editingName = false
+                }) { Text("保存名称") }
+            },
+            dismissButton = {
+                TextButton(onClick = { editingName = false }) { Text("取消") }
+            },
+        )
     }
 }

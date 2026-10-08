@@ -42,7 +42,7 @@ internal fun R9SearchScreen(app: VAppState) {
             .any { value -> value.contains(q, ignoreCase = true) }
     }
     val filteredNumbers = app.demoNumbers().filter {
-        q.isNotEmpty() && listOf(it.nickname, it.maskedNumber, it.carrier, it.countryCode)
+        q.isNotEmpty() && listOf(app.numberDisplayName(it.id, it.maskedNumber), it.maskedNumber, it.carrier, it.countryCode)
             .any { value -> value.contains(q, ignoreCase = true) }
     }
     val filteredRegions = app.demoRegions().filter {
@@ -128,7 +128,7 @@ internal fun R9SearchScreen(app: VAppState) {
                     "卡片") { app.openCard(card.id) }
             }
             filteredNumbers.forEach { number ->
-                R9SearchResult(number.nickname,
+                R9SearchResult(app.numberDisplayName(number.id, number.maskedNumber),
                     "${r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true)} · ${regionFlag(number.region)} · ${number.carrier}",
                     "号码") { app.openNumber(number.id) }
             }

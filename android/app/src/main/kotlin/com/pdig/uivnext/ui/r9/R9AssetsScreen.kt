@@ -258,9 +258,12 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
     ) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            NumberIdentityThumbnail(number, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true, Modifier.width(107.dp))
+            val display = app.numberDisplayName(number.id, number.maskedNumber)
+            NumberIdentityThumbnail(number.copy(nickname = display),
+                app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true,
+                Modifier.width(107.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(number.nickname, color = R9.Ink, fontWeight = FontWeight.Bold,
+                Text(display, color = R9.Ink, fontWeight = FontWeight.Bold,
                     fontSize = 12.sp, maxLines = 1)
                 Text(r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true), color = R9.Ink, fontSize = 11.sp, maxLines = 1)
                 Text("${regionFlag(number.region)} ${number.carrier} · ${number.simKind}",

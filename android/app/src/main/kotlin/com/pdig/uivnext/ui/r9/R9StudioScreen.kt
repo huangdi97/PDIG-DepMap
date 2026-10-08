@@ -60,7 +60,7 @@ internal fun R9StudioScreen(app: VAppState, isCard: Boolean) {
     val dirty = profile != saved
     val presets = if (isCard) CARD_THEME_PRESETS else NUMBER_THEME_PRESETS
     val materials = if (isCard) CARD_MATERIAL_CHOICES else NUMBER_MATERIAL_CHOICES
-    val display = if (isCard) card!!.nickname else number!!.nickname
+    val display = if (isCard) card!!.nickname else app.numberDisplayName(number!!.id, number.maskedNumber)
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
@@ -117,7 +117,10 @@ internal fun R9StudioScreen(app: VAppState, isCard: Boolean) {
                     }
                 } else if (number != null) {
                     NumberFace(
-                        number = number.copy(preset = profile.themeId),
+                        number = number.copy(
+                            nickname = app.numberDisplayName(number.id, number.maskedNumber),
+                            preset = profile.themeId,
+                        ),
                         privacyMask = app.privacyMask || profile.maskSensitive,
                         onClick = {}, modifier = Modifier.fillMaxWidth(),
                         presentationMaterial = profile.material,
