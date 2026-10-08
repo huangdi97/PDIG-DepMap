@@ -121,30 +121,17 @@ enum VRadius {
 }
 
 enum VFont {
-    static func pageTitle() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyPageTitleSize), weight: .bold, design: .default)
-    }
-    static func sectionTitle() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographySectionTitleSize), weight: .semibold, design: .default)
-    }
-    static func body() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyBodySize), weight: .regular, design: .default)
-    }
-    static func secondary() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographySecondarySize), weight: .regular, design: .default)
-    }
-    static func meta() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyMetaSize), weight: .regular, design: .default)
-    }
-    static func label() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyLabelSize), weight: .semibold, design: .default)
-    }
-    static func displayGlobe() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyDisplayGlobeSize), weight: .semibold, design: .default)
-    }
-    static func mono() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyMonoSize), weight: .regular, design: .monospaced)
-    }
+    // iOS uses semantic text styles so Dynamic Type remains a platform capability.
+    // Token sizes remain the cross-platform visual reference; the native translation
+    // intentionally prefers scalable system typography over fixed desktop pixel sizes.
+    static func pageTitle() -> Font { .title2.weight(.bold) }
+    static func sectionTitle() -> Font { .headline.weight(.semibold) }
+    static func body() -> Font { .body }
+    static func secondary() -> Font { .subheadline }
+    static func meta() -> Font { .caption }
+    static func label() -> Font { .caption.weight(.semibold) }
+    static func displayGlobe() -> Font { .title.weight(.semibold) }
+    static func mono() -> Font { .body.monospaced() }
 }
 
 enum VTouchTarget {

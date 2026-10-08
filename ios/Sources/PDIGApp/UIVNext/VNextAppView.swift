@@ -355,7 +355,9 @@ struct VRootHost: View {
                 Button { model.navigate(.search) } label: {
                     Image(systemName: "magnifyingglass")
                 }
+                .keyboardShortcut("k", modifiers: [.command])
                 .accessibilityLabel("搜索")
+                .accessibilityHint("Command K")
 
                 Menu {
                     Button { model.navigate(.sources) } label: {
