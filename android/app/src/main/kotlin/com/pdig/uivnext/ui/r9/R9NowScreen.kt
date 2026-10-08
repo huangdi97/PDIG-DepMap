@@ -32,6 +32,23 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.screens.arcPairs
+import java.util.Calendar
+
+/** Consumer Earth must be completely framed; 0.72 is the renderer's diameter fraction.
+ * A prior 1.57x transform produced a visually clipped sphere despite passing CI.
+ * Reserve a minimum 12% of the Globe canvas diameter for the visible limb.
+ */
+internal const val R9_WORLD_VISUAL_SCALE: Float = 1.20f
+internal fun r9PlanetDiameterFraction(scale: Float): Float = 0.72f * scale
+
+/** Greeting reflects the actual device clock; it must not say morning at 14:10. */
+internal fun r9Greeting(hour: Int): String = when (hour) {
+    in 5..10 -> "早上好"
+    in 11..12 -> "中午好"
+    in 13..18 -> "下午好"
+    in 19..23 -> "晚上好"
+    else -> "你好"
+}
 
 /**
  * R9 phone NOW is a fresh composition; the R8 NowScreen is deliberately NOT used
@@ -52,7 +69,7 @@ internal fun R9NowScreen(app: VAppState) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("早上好", color = R9.Ink, fontSize = 23.sp, fontWeight = FontWeight.Bold)
+                Text(r9Greeting(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)), color = R9.Ink, fontSize = 23.sp, fontWeight = FontWeight.Bold)
                 Text("你的数字基础设施 · 连接全球，触手可及", color = R9.Muted, fontSize = 11.sp)
             }
             if (attention.isNotEmpty()) {
@@ -193,7 +210,7 @@ internal fun R9WorldStage(
                 .testTag("pdig.r9.world.hero")) {
                 // Only the photographic planet is scaled, not the labels or counter rail.
                 Box(Modifier.fillMaxSize().padding(horizontal = 31.dp)
-                    .graphicsLayer(scaleX = 1.57f, scaleY = 1.57f)) {
+                    .graphicsLayer(scaleX = R9_WORLD_VISUAL_SCALE, scaleY = R9_WORLD_VISUAL_SCALE)) {
                     VNextGlobe(
                         controller = app.globe,
                         regions = regions,
