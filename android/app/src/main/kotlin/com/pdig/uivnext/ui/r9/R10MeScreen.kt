@@ -11,8 +11,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,120 +23,218 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.demoAttention
 import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoNumbers
+import com.pdig.uivnext.demo.demoRegions
+import com.pdig.uivnext.demo.demoUpcoming
+import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.ui.VAppState
 
 /**
- * User-first fifth tab. Personal, local preferences and account-like tasks
- * live here, not in four independent top-bar engineering icons.
+ * R11 consumer "Me" workspace. Not an empty settings list.
+ * Every count comes from the active synthetic fixture; "unknown" remains unknown.
  */
 @Composable
 internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
+    val regions = app.demoRegions()
+    val cards = app.demoCards()
+    val numbers = app.demoNumbers()
+    val accountCount = if(app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size
+    val serviceCount = if(app.emptyDemo) 0 else UiVNextDemoFixture.services.size
+    val attention = app.demoAttention()
+    val changes = app.demoChanges()
+    val upcoming = app.demoUpcoming()
+
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-            .padding(horizontal = 17.dp, vertical = 17.dp)
+            .padding(horizontal = 13.dp, vertical = 12.dp)
             .testTag("pdig.r10.screen.me"),
-        verticalArrangement = Arrangement.spacedBy(17.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        // One clear personal header and high-density factual summary.
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(24.dp),
+            shape = RoundedCornerShape(21.dp),
             color = Color.White,
             border = BorderStroke(1.dp, R9.Line),
         ) {
-            Row(Modifier.padding(17.dp), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(14.dp)) {
-                Surface(color = R9.Mist, shape = CircleShape, modifier = Modifier.size(55.dp)) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Filled.Person, contentDescription = null,
-                            tint = R9.Blue, modifier = Modifier.size(30.dp))
+            Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(11.dp)) {
+                    Surface(color = R9.Mist, shape = CircleShape,
+                        modifier = Modifier.size(52.dp)) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Filled.Person, contentDescription = null,
+                                tint = R9.Blue, modifier = Modifier.size(28.dp))
+                        }
+                    }
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("我的数字生活", color = R9.Ink, fontSize = 19.sp,
+                            fontWeight = FontWeight.Bold)
+                        Text("本机体验空间 · ${regions.size} 个已记录地区",
+                            color = R9.Muted, fontSize = 11.sp)
+                    }
+                    R9Badge("Preview", R9.Blue)
+                }
+                Surface(shape = RoundedCornerShape(13.dp), color = R9.Ice) {
+                    Text("你的账户、号码与设备是一张连续性网络，而不只是资产清单。",
+                        Modifier.fillMaxWidth().padding(11.dp),
+                        fontSize = 11.sp, color = R9.Muted, lineHeight = 18.sp)
+                }
+            }
+        }
+        Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
+            border = BorderStroke(1.dp, R9.Line), modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(horizontal = 7.dp, vertical = 13.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Row(Modifier.fillMaxWidth()) {
+                    R9Counter(cards.size, "银行卡", R9.Amber, "▣", Modifier.weight(1f).clickable { app.navigate(VScreen.CARDS) })
+                    R9Counter(numbers.size, "号码", R9.Green, "▤", Modifier.weight(1f).clickable { app.navigate(VScreen.NUMBERS) })
+                    R9Counter(accountCount, "账户", R9.Blue, "◎", Modifier.weight(1f).clickable { app.navigate(VScreen.ACCOUNTS) })
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                    R9Counter(serviceCount, "服务", Color(0xFF8A71DE), "✧",
+                        Modifier.weight(1f).clickable { app.navigate(VScreen.SERVICES) })
+                    R9Counter(regions.size, "地区", Color(0xFF437CCD), "◉",
+                        Modifier.weight(1f).clickable { app.navigate(VScreen.OVERVIEW) })
+                    R9Counter(attention.size, "待处理", R9.Rose, "!",
+                        Modifier.weight(1f).clickable { app.navigate(VScreen.RECORDS) })
+                }
+            }
+        }
+
+        R9SectionTitle("我的全球分布", "基础设施 →") {
+            app.navigate(VScreen.INFRASTRUCTURE)
+        }
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTag("pdig.r11.me.regions"),
+            color = Color.White, shape = RoundedCornerShape(18.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                if (regions.isEmpty()) {
+                    Text("尚无已记录地区", fontSize = 12.sp, color = R9.Muted)
+                }
+                regions.take(5).forEach { region ->
+                    Row(
+                        Modifier.fillMaxWidth().defaultMinSize(minHeight = 38.dp)
+                            .clickable {
+                                app.selectRegion(region.regionCode)
+                                app.navigate(VScreen.OVERVIEW)
+                            },
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(9.dp),
+                    ) {
+                        Text(regionFlag(region.regionCode), fontSize = 20.sp)
+                        Text(region.displayName, Modifier.weight(1f),
+                            color = R9.Ink, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text("${region.cardCount} 卡 · ${region.phoneCount} 号码",
+                            color = R9.Muted, fontSize = 10.sp)
+                        Text("›", color = R9.Blue, fontSize = 18.sp)
                     }
                 }
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text("我的数字生活", color = R9.Ink, fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold)
-                    Text("本机个人工作区 · 数据仅供当前预览",
-                        color = R9.Muted, fontSize = 11.sp)
+            }
+        }
+
+        R9SectionTitle("连续性概览", "查看记录 →") { app.navigate(VScreen.RECORDS) }
+        Surface(color = R9.Ice, shape = RoundedCornerShape(17.dp),
+            border = BorderStroke(1.dp, R9.Line), modifier = Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    R9Badge("${changes.size} 项变更", R9.Blue)
+                    Spacer(Modifier.width(7.dp))
+                    R9Badge("${attention.size} 项待处理", R9.Rose)
+                    Spacer(Modifier.width(7.dp))
+                    R9Badge("${upcoming.size} 个时间节点", R9.Amber)
+                }
+                if (changes.isEmpty()) {
+                    Text("目前没有已记录的进行中变更。", color = R9.Muted, fontSize = 11.sp)
+                } else {
+                    changes.take(2).forEach { change ->
+                        Row(Modifier.fillMaxWidth()
+                            .clickable { app.navigate(VScreen.CHANGE_PHONE) },
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Text(change.title, Modifier.weight(1f),
+                                color = R9.Ink, fontSize = 11.sp, maxLines = 2)
+                            Text("继续查看 →", color = R9.Blue, fontSize = 10.sp)
+                        }
+                    }
+                }
+                if (attention.isNotEmpty()) {
+                    Text("优先核对 · " + attention.first().title,
+                        fontSize = 11.sp, color = R9.Rose, maxLines = 2,
+                        modifier = Modifier.clickable { app.navigate(VScreen.RECORDS) })
                 }
             }
         }
-        Surface(color = R9.Mist, shape = RoundedCornerShape(19.dp),
-            modifier = Modifier.fillMaxWidth()) {
-            Row(Modifier.padding(vertical = 14.dp)) {
-                R9Counter(app.demoCards().size, "卡片", R9.Amber, "▣", Modifier.weight(1f))
-                R9Counter(app.demoNumbers().size, "号码", R9.Green, "▤", Modifier.weight(1f))
-                R9Counter(if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size,
-                    "服务", R9.Blue, "✧", Modifier.weight(1f))
-            }
-        }
-        R9SectionTitle("隐私")
+
+        R9SectionTitle("隐私与个人偏好", "详细设置 →") { app.navigate(VScreen.SETTINGS) }
         Surface(
             modifier = Modifier.fillMaxWidth().clickable { app.privacyMask = !app.privacyMask }
                 .testTag("pdig.r10.me.privacy"),
-            color = Color.White, shape = RoundedCornerShape(17.dp),
+            color = Color.White, shape = RoundedCornerShape(16.dp),
             border = BorderStroke(1.dp, R9.Line),
         ) {
-            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically,
+            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-                Icon(Icons.Filled.Lock, contentDescription = null,
-                    tint = R9.Blue, modifier = Modifier.size(23.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text("遮蔽敏感信息", color = R9.Ink,
-                        fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                    Text("默认不遮蔽；由你随时决定是否隐藏",
+                Icon(Icons.Filled.Lock, contentDescription = null, tint = R9.Blue,
+                    modifier = Modifier.size(23.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("敏感信息遮蔽", color = R9.Ink,
+                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("初始不遮蔽，开启和关闭由你决定",
                         color = R9.Muted, fontSize = 10.sp)
                 }
                 R9Badge(if(app.privacyMask) "已开启" else "已关闭",
                     if(app.privacyMask) R9.Blue else R9.Muted)
             }
         }
+
         R9SectionTitle("我的管理")
-        Surface(shape = RoundedCornerShape(19.dp), color = Color.White,
+        Surface(shape = RoundedCornerShape(17.dp), color = Color.White,
             border = BorderStroke(1.dp, R9.Line)) {
             Column {
-                R10MeAction("管理银行卡", "查看、选择卡面图片", "cards") {
-                    app.navigate(VScreen.CARDS)
-                }
-                R10MeAction("管理号码", "查看通信身份与恢复关系", "numbers") {
+                R10MeAction("号码与名称", "自定义号码称呼，未命名显示号码", "numbers") {
                     app.navigate(VScreen.NUMBERS)
                 }
-                R10MeAction("偏好设置", "外观、动态效果和隐私", "settings") {
-                    app.navigate(VScreen.SETTINGS)
+                R10MeAction("卡面图片", "简单换图；卡片详情内完成", "cards") {
+                    app.navigate(VScreen.CARDS)
                 }
-                R10MeAction("数据来源", "已记录数据与事实边界", "sources") {
+                R10MeAction("数据源与记录范围", "查看记录来源、关联和未知边界", "sources") {
                     app.navigate(VScreen.SOURCES)
                 }
+                R10MeAction("偏好设置", "隐私、显示、减弱动态效果", "settings") {
+                    app.navigate(VScreen.SETTINGS)
+                }
                 if (onHelp != null) {
-                    R10MeAction("新手引导", "重新查看操作介绍", "guide") { onHelp() }
+                    R10MeAction("新手引导", "重新查看使用说明", "guide") { onHelp() }
                 }
             }
         }
-        Surface(shape = RoundedCornerShape(16.dp), color = R9.Ice,
+        Surface(shape = RoundedCornerShape(14.dp), color = R9.Mist,
             modifier = Modifier.fillMaxWidth()) {
-            Text(
-                "当前为预览数据。更改图片、底栏、隐私或显示偏好不会改变真实身份、账户关系或 .depmap 文件。",
-                Modifier.padding(14.dp),
-                color = R9.Muted, fontSize = 11.sp, lineHeight = 18.sp,
-            )
+            Text("这是预览数据，不是实时账户同步。未知关系仍为未知，计划中的迁移不会伪装成已经完成。",
+                Modifier.padding(13.dp),
+                color = R9.Muted, fontSize = 11.sp, lineHeight = 18.sp)
         }
-        Spacer(Modifier.height(7.dp))
+        Spacer(Modifier.height(6.dp))
     }
 }
 
 @Composable
 private fun R10MeAction(title: String, subtitle: String, tag: String, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().defaultMinSize(minHeight = 61.dp)
-            .clickable(onClick = onClick)
-            .testTag("pdig.r10.me.$tag")
-            .padding(horizontal = 17.dp, vertical = 12.dp),
+        Modifier.fillMaxWidth().defaultMinSize(minHeight = 62.dp)
+            .clickable(onClick = onClick).testTag("pdig.r10.me.$tag")
+            .padding(horizontal = 15.dp, vertical = 11.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(title, color = R9.Ink, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Text(title, color = R9.Ink, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             Text(subtitle, color = R9.Muted, fontSize = 10.sp)
         }
         Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
