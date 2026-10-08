@@ -156,3 +156,24 @@ fun inverseRotatePoint(p: Vec3, cam: GlobeCamera): Vec3 {
     val s2 = sin(b)
     return Vec3(c2 * rx.x - s2 * rx.z, rx.y, s2 * rx.x + c2 * rx.z)
 }
+
+/** These are actual parallel/meridian curves, fixed in world coordinates. */
+fun latitudeParallelSamples(latitude: Float): List<Vec3> =
+    (-180..180 step 6).map { latLonToVec(latitude, it.toFloat()) }
+
+fun longitudeMeridianSamples(longitude: Float): List<Vec3> =
+    (-90..90 step 6).map { latLonToVec(it.toFloat(), longitude) }
+
+/** Clip the segment to the camera-facing hemisphere instead of revealing
+ * rear-side connections through the textured Earth. */
+fun clipFrontHemisphereSegment(a: Projected, b: Projected): Pair<Projected, Projected>? {
+    if (a.zDepth <= 0f && b.zDepth <= 0f) return null
+    if (a.zDepth > 0f && b.zDepth > 0f) return a to b
+    val t = a.zDepth / (a.zDepth - b.zDepth)
+    val edge = Projected(
+        x = a.x + (b.x - a.x) * t,
+        y = a.y + (b.y - a.y) * t,
+        zDepth = 0f,
+    )
+    return if (a.zDepth > 0f) a to edge else edge to b
+}

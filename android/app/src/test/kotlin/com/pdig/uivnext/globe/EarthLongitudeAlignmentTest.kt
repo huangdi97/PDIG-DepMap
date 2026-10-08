@@ -66,8 +66,28 @@ class EarthLongitudeAlignmentTest {
         val start = focusCamera(16f, 107f)
         val zoomed = applyGlobeTransform(start, Offset.Zero, 1.5f)
         assertEquals(start.zoom * 1.5f, zoomed.zoom, 0.0001f)
-        assertEquals(1.9f, applyGlobeTransform(start, Offset.Zero, 99f).zoom, 0.0001f)
-        assertEquals(0.7f, applyGlobeTransform(start, Offset.Zero, .01f).zoom, 0.0001f)
+        assertEquals(3.0f, applyGlobeTransform(start, Offset.Zero, 99f).zoom, 0.0001f)
+        assertEquals(0.65f, applyGlobeTransform(start, Offset.Zero, .01f).zoom, 0.0001f)
+    }
+
+    @Test
+    fun VisibleArcHasNoSegmentsBehindThePlanet() {
+        val hidden = Projected(15f, 33f, -.6f)
+        val front = Projected(35f, 55f, .7f)
+        assertEquals(null, clipFrontHemisphereSegment(hidden, hidden))
+        val clipped = clipFrontHemisphereSegment(hidden, front)!!
+        assertEquals(0f, clipped.first.zDepth, 0.0001f)
+        assertEquals(front, clipped.second)
+    }
+
+    @Test
+    fun LuminousGraticuleIsAnchoredToGeography() {
+        latitudeParallelSamples(30f).forEach {
+            assertEquals(.5f, it.y, .0001f)
+        }
+        longitudeMeridianSamples(90f).forEach {
+            assertEquals((PI / 2).toFloat(), earthLongitudeRad(it), .0001f)
+        }
     }
 
     @Test

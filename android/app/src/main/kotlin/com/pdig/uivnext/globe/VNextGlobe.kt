@@ -425,15 +425,16 @@ fun VNextGlobe(
                 )
             }
 
-            // 网格（前半球，按深度淡出）
-            val gridColor = PdigV2Colors.TextMuted.copy(alpha = 0.16f)
-            val (parallels, meridians) = graticuleLines(30)
-            for (p in parallels) {
-                drawArcPath(center, radius, cam, greatCircleSamples(p.first, p.second, p.first + 20f, p.second + 20f, 24), gridColor)
+            // World-anchored luminous latitude/longitude grid. It rotates with
+            // the photographed continents rather than drifting as a screen HUD.
+            val gridColor = if (BuildConfig.FLAVOR == "preview")
+                Color(0xFFB8EDFF).copy(alpha = .18f)
+                else PdigV2Colors.TextMuted.copy(alpha = .16f)
+            for (lat in listOf(-60f, -30f, 0f, 30f, 60f)) {
+                drawArcPath(center, radius, cam, latitudeParallelSamples(lat), gridColor, .8f)
             }
-            for (m in meridians) {
-                drawArcPath(center, radius, cam, greatCircleSamples(m.first, m.second, m.first + 10f, m.second, 24), gridColor)
-                drawArcPath(center, radius, cam, greatCircleSamples(m.first, m.second, m.first + 10f, m.second + 10f, 24), gridColor)
+            for (lon in -180..150 step 30) {
+                drawArcPath(center, radius, cam, longitudeMeridianSamples(lon.toFloat()), gridColor, .8f)
             }
 
             // 跨区弧线（只有真实跨区关系；绝不装饰性连线）
@@ -510,7 +511,7 @@ fun VNextGlobe(
     }
 }
 
-/** 弧线段：仅绘制前后半球交界、按深度淡出（2.5D 加分项）。 */
+/** Project an arc only onto the front hemisphere with the displayed camera. */
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArcPath(
     center: Offset,
     radius: Float,
@@ -519,21 +520,20 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawArcPath(
     color: Color,
     widthPx: Float = 1.2f,
 ) {
-    var prev = project(path.first(), cam, radius, center.x, center.y)
-    var drawing = prev.zDepth > -0.05f
-    for (v in path.drop(1)) {
-        val cur = project(v, cam, radius, center.x, center.y)
-        val visible = cur.zDepth > -0.05f
-        if (visible || drawing) {
-            val alpha = (cur.zDepth.coerceIn(0f, 1f) * 0.9f + 0.1f).coerceIn(0.08f, 1f)
+    if (path.size < 2) return
+    var prev = project(path[0], cam, radius, center.x, center.y)
+    for (point in path.drop(1)) {
+        val cur = project(point, cam, radius, center.x, center.y)
+        val clipped = clipFrontHemisphereSegment(prev, cur)
+        if (clipped != null) {
+            val alpha = (maxOf(prev.zDepth, cur.zDepth).coerceIn(0f, 1f) * .84f + .16f)
             drawLine(
                 color = color.copy(alpha = color.alpha * alpha),
-                start = Offset(prev.x, prev.y),
-                end = Offset(cur.x, cur.y),
+                start = Offset(clipped.first.x, clipped.first.y),
+                end = Offset(clipped.second.x, clipped.second.y),
                 strokeWidth = widthPx,
             )
         }
-        drawing = visible
         prev = cur
     }
 }
