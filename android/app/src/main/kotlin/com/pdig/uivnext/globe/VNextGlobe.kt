@@ -339,10 +339,17 @@ fun VNextGlobe(
                     a.latitude.toFloat(), a.longitude.toFloat(),
                     b.latitude.toFloat(), b.longitude.toFloat(), 48,
                 )
+                // Light reference: two-pass glow for genuinely recorded cross-region edges.
+                // The edge list is unchanged; ornamental paths are never misrepresented as facts.
                 drawArcPath(
                     center, radius, cam, path,
-                    if (selectedLink) PdigV2Colors.ArcActive else PdigV2Colors.ArcQuiet,
-                    widthPx = if (selectedLink) 1.8f else 1.2f,
+                    Color(0xFF329BEE).copy(alpha = if (selectedLink) 0.32f else 0.19f),
+                    widthPx = if (selectedLink) 7f else 5f,
+                )
+                drawArcPath(
+                    center, radius, cam, path,
+                    if (selectedLink) Color(0xFFFFC65B) else Color(0xFFBDEBFF),
+                    widthPx = if (selectedLink) 2.6f else 2.0f,
                 )
             }
 
@@ -354,8 +361,18 @@ fun VNextGlobe(
                 val isHovered = controller.hoveredRegion?.regionCode == r.regionCode
                 val anchorR = radius * (0.02f + 0.012f * depth) * (if (isSelected) 1.6f else 1f)
                 drawCircle(
-                    color = if (isSelected || isHovered) PdigV2Colors.RegionNodeHi else PdigV2Colors.RegionNodeLo,
+                    color = Color(0xFF5AC0FF).copy(alpha = 0.31f),
+                    radius = anchorR * 2.3f,
+                    center = projected.first,
+                )
+                drawCircle(
+                    color = if (isSelected || isHovered) PdigV2Colors.RegionNodeHi else Color(0xFF288AF4),
                     radius = anchorR,
+                    center = projected.first,
+                )
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.93f),
+                    radius = anchorR * 0.34f,
                     center = projected.first,
                 )
                 if (isSelected || isHovered) {
