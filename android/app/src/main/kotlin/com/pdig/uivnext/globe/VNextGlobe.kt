@@ -3,7 +3,7 @@ package com.pdig.uivnext.globe
 import android.graphics.Bitmap
 import com.pdig.app.BuildConfig
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +34,9 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlin.math.roundToInt
 import kotlin.math.sqrt
 /** Globe 渲染就绪状态（brief §10：证据截图前置条件 = TEXTURE_READY；禁止截黑球冒充 PASS）。 */
 enum class GlobeRenderState { LOADING, TEXTURE_READY, FALLBACK, ERROR }
@@ -42,6 +45,28 @@ private const val YAW_PER_SEC = 0.8f // idle rotation deg/sec（极慢；交互�
 private const val IDLE_TEXTURE_REFRESH_MS = 15_000L
 private const val MAX_ZOOM = 1.9f
 private const val MIN_ZOOM = 0.7f
+private const val DRAG_TEXTURE_MAX_PX = 144
+private const val DRAG_CAMERA_STEP_DEG = 2.5f
+private const val DRAG_COOLDOWN_MS = 180L
+
+/** Return a new camera without treating a multi-touch pinch as a tap on region nodes. */
+internal fun applyGlobeTransform(camera: GlobeCamera, pan: Offset, pinch: Float): GlobeCamera =
+    camera.copy(
+        yawDeg = camera.yawDeg - pan.x * .35f,
+        pitchDeg = (camera.pitchDeg - pan.y * .35f).coerceIn(-60f, 60f),
+        zoom = (camera.zoom * pinch).coerceIn(MIN_ZOOM, MAX_ZOOM),
+    )
+
+private fun sampledGlobeCamera(camera: GlobeCamera, manipulating: Boolean): GlobeCamera {
+    if (!manipulating) return camera
+    fun quantize(v: Float) = (v / DRAG_CAMERA_STEP_DEG).roundToInt() * DRAG_CAMERA_STEP_DEG
+    return camera.copy(
+        yawDeg = quantize(camera.yawDeg),
+        pitchDeg = quantize(camera.pitchDeg),
+        zoom = (camera.zoom * 20f).roundToInt() / 20f,
+    )
+}
+
 
 /** Globe 交互状态（由父级持有，供状态机与截图参数使用）。 */
 class GlobeController(
@@ -52,6 +77,13 @@ class GlobeController(
     var selectedRegion: String? by mutableStateOf(null)
     var interactive by mutableStateOf(true)
     var state by mutableStateOf(VGlobeState.GLOBAL)
+    /** Gesture quality changes within a session, never writes to canonical data. */
+    var isManipulating by mutableStateOf(false)
+    /** Prevent canceled expensive frames from piling up and starving fresh gestures. */
+    internal val frameMutex = Mutex()
+    fun zoomBy(multiplier: Float) {
+        camera = camera.copy(zoom = (camera.zoom * multiplier).coerceIn(MIN_ZOOM, MAX_ZOOM))
+    }
 
     /** 纹理地球渲染就绪状态；screenshot 测试必须等到 TEXTURE_READY（合理 timeout）。 */
     var renderState by mutableStateOf(GlobeRenderState.LOADING)
@@ -152,36 +184,34 @@ fun VNextGlobe(
         }
     }
 
-    // 纹理地球后台渲染：相机/画布/idle 旋转变化时重建；量化缓存避免每帧重算（主线程只 drawBitmap）。
-    // GlobeRenderState 由本 effect 驱动（LOADING → TEXTURE_READY / FALLBACK / ERROR），
-    // 证据截图必须等到 TEXTURE_READY —— 禁止截 near-black empty sphere 冒充 PASS。
+    // A drag/pinch updates spatial edges every pointer event. The expensive CPU
+    // albedo MUST get fresh interactive frames, rather than canceling a 512px
+    // render on every 60Hz camera update (which leaves just the lines rotating).
+    val desiredCam = controller.camera
+    val interactiveCam = sampledGlobeCamera(desiredCam, controller.isManipulating)
     LaunchedEffect(
-        canvasSize,
-        controller.camera.yawDeg,
-        controller.camera.pitchDeg,
-        controller.camera.zoom,
-        yawBase,
-        assets,
-        quality,
+        interactiveCam.yawDeg, interactiveCam.pitchDeg, interactiveCam.zoom,
+        controller.isManipulating, yawBase, canvasSize, assets, quality,
     ) {
         if (canvasSize == IntSize.Zero) {
             localRenderState = GlobeRenderState.LOADING
             controller.renderState = GlobeRenderState.LOADING
             return@LaunchedEffect
         }
-        val (center, radius) = globeMetrics(canvasSize, controller.camera.zoom)
+        val (center, radius) = globeMetrics(canvasSize, interactiveCam.zoom)
         controller.renderCenterPx = center
         controller.renderRadiusPx = radius
         if (assets == null || quality == EarthQuality.LOW) {
-            // 资产缺失 / 低功耗档：有效 fallback 球体（非黑球），并明确标记 FALLBACK。
             localRenderState = GlobeRenderState.FALLBACK
             controller.renderState = GlobeRenderState.FALLBACK
             earthBitmap = null
             earthKey = null
             return@LaunchedEffect
         }
-        val rect = earthRenderRect(radius, quality)
-        val displayCam = controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
+        val detailedRect = earthRenderRect(radius, quality)
+        val rect = if (controller.isManipulating) detailedRect.coerceAtMost(DRAG_TEXTURE_MAX_PX)
+                   else detailedRect
+        val displayCam = interactiveCam.copy(yawDeg = interactiveCam.yawDeg + yawBase)
         val key = cameraCacheKey(displayCam, rect)
         if (key == earthKey && earthBitmap != null) {
             localRenderState = GlobeRenderState.TEXTURE_READY
@@ -192,14 +222,15 @@ fun VNextGlobe(
         controller.renderState = GlobeRenderState.LOADING
         val bmp = try {
             withContext(Dispatchers.Default) {
-                renderEarthBody(
-                    assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
-                    sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
-                    previewReferenceLift = BuildConfig.FLAVOR == "preview",
-                )
+                controller.frameMutex.withLock {
+                    renderEarthBody(
+                        assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
+                        sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
+                        previewReferenceLift = BuildConfig.FLAVOR == "preview",
+                    )
+                }
             }
         } catch (t: kotlinx.coroutines.CancellationException) {
-            // 组合作用域离开（截图切换 app 时旧组合被取消）：这是干净取消，不是渲染失败。
             throw t
         } catch (t: Throwable) {
             controller.renderError = "${t::class.simpleName}: ${t.message}"
@@ -221,10 +252,19 @@ fun VNextGlobe(
         }
     }
 
+    // After the last transform update, replace the low-resolution interaction
+    // texture with the final HIGH frame. No arbitrary taps or gesture end needed.
+    LaunchedEffect(controller.camera, controller.isManipulating) {
+        if (!controller.isManipulating) return@LaunchedEffect
+        delay(DRAG_COOLDOWN_MS)
+        controller.isManipulating = false
+        controller.interactive = true
+    }
+
     // 无障碍：Globe 画布声明语义描述；精确探索用 Overview 的 Region List（非视觉替代，任务书 §30）。
     Box(
         Modifier.semantics {
-            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；纹理状态=${localRenderState.name}；可拖动旋转、点击聚焦地区"
+            contentDescription = "全球基础设施导航器（${regions.size} 个地区）；纹理状态=${localRenderState.name}；拖动旋转、双指缩放、点击聚焦地区"
         },
     ) {
         Canvas(
@@ -232,17 +272,13 @@ fun VNextGlobe(
                 .fillMaxSize()
                 .onSizeChanged { canvasSize = it }
                 .testTag(VTestIds.GLOBE_CANVAS)
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = { controller.interactive = false },
-                        onDragEnd = { controller.interactive = true },
-                        onDragCancel = { controller.interactive = true },
-                    ) { change, dragAmount ->
-                        change.consume()
-                        controller.camera = controller.camera.copy(
-                            yawDeg = controller.camera.yawDeg - dragAmount.x * 0.35f,
-                            pitchDeg = (controller.camera.pitchDeg - dragAmount.y * 0.35f).coerceIn(-60f, 60f),
-                        )
+                .pointerInput(controller) {
+                    // One finger = globe rotation; two fingers = actual zoom + pan.
+                    // No resize-only illusion: camera transform feeds the texture.
+                    detectTransformGestures(panZoomLock = true) { _, pan, zoom, _ ->
+                        controller.interactive = false
+                        controller.isManipulating = true
+                        controller.camera = applyGlobeTransform(controller.camera, pan, zoom)
                     }
                 }
                 .pointerInput(Unit) {
