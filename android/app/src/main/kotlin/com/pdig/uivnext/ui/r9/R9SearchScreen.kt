@@ -52,8 +52,20 @@ internal fun R9SearchScreen(app: VAppState) {
     val filteredServices = if(app.emptyDemo) emptyList() else UiVNextDemoFixture.services.filter {
         q.isNotEmpty() && it.name.contains(q, ignoreCase = true)
     }
-    val total = filteredCards.size + filteredNumbers.size +
-        filteredRegions.size + filteredServices.size
+    val filteredAccounts = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.accounts.filter {
+        q.isNotEmpty() && listOfNotNull(it.name, it.provider, it.maskedIdentifier)
+            .any { value -> value.contains(q, ignoreCase = true) }
+    }
+    val filteredEmails = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.emails.filter {
+        q.isNotEmpty() && listOfNotNull(it.name, it.provider, it.maskedAddress)
+            .any { value -> value.contains(q, ignoreCase = true) }
+    }
+    val filteredDevices = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.devices.filter {
+        q.isNotEmpty() && listOfNotNull(it.name, it.platform, it.kind)
+            .any { value -> value.contains(q, ignoreCase = true) }
+    }
+    val total = filteredCards.size + filteredNumbers.size + filteredRegions.size +
+        filteredServices.size + filteredAccounts.size + filteredEmails.size + filteredDevices.size
 
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
@@ -62,7 +74,7 @@ internal fun R9SearchScreen(app: VAppState) {
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         Text("搜索数字基础设施", color = R9.Ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
-        Text("查找已记录的卡片、号码、地区和服务；没有结果不代表不存在。",
+        Text("查找已记录的卡片、号码、账户、邮箱、设备、地区和服务；未找到不代表不存在。",
             color = R9.Muted, fontSize = 11.sp, lineHeight = 17.sp)
 
         Surface(
@@ -127,10 +139,34 @@ internal fun R9SearchScreen(app: VAppState) {
                     app.navigateFromSearch(VScreen.OVERVIEW)
                 }
             }
+            filteredAccounts.forEach { account ->
+                R9SearchResult(account.name,
+                    "${regionFlag(account.region)} ${account.provider} · ${account.maskedIdentifier}",
+                    "账户") {
+                    app.selectRegion(account.region)
+                    app.navigateFromSearch(VScreen.ACCOUNTS)
+                }
+            }
+            filteredEmails.forEach { mail ->
+                R9SearchResult(mail.name,
+                    "${regionFlag(mail.region)} ${mail.provider} · ${mail.maskedAddress}",
+                    "邮箱") {
+                    app.selectRegion(mail.region)
+                    app.navigateFromSearch(VScreen.EMAILS)
+                }
+            }
+            filteredDevices.forEach { device ->
+                R9SearchResult(device.name,
+                    "${regionFlag(device.region)} ${device.platform} · ${device.kind}",
+                    "设备") {
+                    app.selectRegion(device.region)
+                    app.navigateFromSearch(VScreen.DEVICES)
+                }
+            }
             filteredServices.forEach { service ->
                 R9SearchResult(service.name, regionFlag(service.region) + " · 已记录服务",
                     "服务") {
-                    app.regionFilter = service.region
+                    app.selectRegion(service.region)
                     app.navigateFromSearch(VScreen.SERVICES)
                 }
             }
