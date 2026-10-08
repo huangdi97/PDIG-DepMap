@@ -33,6 +33,11 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pixel inspection dependency
+        run: python3 -m pip install --disable-pip-version-check Pillow==11.3.0
       - name: Enable host KVM
         run: |
           sudo chown "$USER" /dev/kvm || true

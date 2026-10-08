@@ -149,6 +149,35 @@ def assert_home_world_geometry():
     print("PHONE_WORLD_GEOMETRY_LABEL_DISJOINT=PASS", flush=True)
 
 
+def verify_preview_world_light():
+    """Mechanical early-warning gate, NOT human art approval.
+
+    Fixture/device are pinned to 1080x2340. Sample the central unlabelled part
+    of the planet, not the sky background or bright region identity chips.
+    A near-black globe passed previous text/texture gates; it must not pass R9.
+    """
+    from PIL import Image
+    image = Image.open(ROOT / "01-now.png").convert("RGB")
+    width, height = image.size
+    if (width != 1080 or height != 2340):
+        raise RuntimeError(f"World light probe needs pinned 1080x2340, got {width}x{height}")
+    sample = image.crop((int(width * .40), int(height * .34),
+                         int(width * .60), int(height * .42)))
+    pixels = list(sample.getdata())
+    luma = sum(.2126 * r + .7152 * g + .0722 * b for r, g, b in pixels) / len(pixels)
+    low = sum(1 for r, g, b in pixels if (.2126*r + .7152*g + .0722*b) < 55) / len(pixels)
+    summary = {"sourceSha": os.environ.get("GITHUB_SHA"), "box": [.40,.34,.60,.42],
+               "meanLuma": round(luma, 2), "darkPixelFraction": round(low, 4),
+               "evidenceKind": "R9_TEXTURE_GRADE_MECHANICAL_ONLY",
+               "humanVisualParity": "NOT_ACCEPTED"}
+    (ROOT / "01-now-globe-visual-metrics.json").write_text(
+        json.dumps(summary, ensure_ascii=False, indent=2), encoding="utf-8")
+    print("R9_GLOBE_LIGHT_PROBE", summary, flush=True)
+    if luma < 83.0:
+        raise RuntimeError("R9 Globe is still too dark for the light-first Preview; "
+                           f"central mean luma={luma:.1f} < 83.0")
+
+
 def main():
     print(adb("shell", "wm", "size", "1080x2340").stdout)
     print(adb("shell", "wm", "density", "440").stdout)
@@ -172,6 +201,7 @@ def main():
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施", "早上好", "R9 · ")
     assert_home_world_geometry()
+    verify_preview_world_light()
     from os import environ
     short_sha = environ.get("GITHUB_SHA", "")[:7]
     if short_sha:
