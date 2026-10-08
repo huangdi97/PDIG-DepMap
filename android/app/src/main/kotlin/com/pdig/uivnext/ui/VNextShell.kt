@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.app.BuildConfig
+import com.pdig.uivnext.ui.r9.R9BottomNav
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -74,7 +75,9 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -
                 // Phone stays focused: Infrastructure secondary destinations live in the Overview hub,
                 // not in a persistent horizontal strip above every child screen.
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
-                if (isCompactRootContext(app.screen)) BottomNav(app)
+                if (isCompactRootContext(app.screen)) {
+                    if (BuildConfig.FLAVOR == "preview") R9BottomNav(app) else BottomNav(app)
+                }
             }
         }
     }
@@ -162,6 +165,10 @@ private fun TopCommandBar(app: VAppState, compact: Boolean, onHelp: (() -> Unit)
                         .weight(1f)
                         .testTag("pdig.nav.top.title"),
                 )
+                if (compact && BuildConfig.FLAVOR == "preview") {
+                    Text("R9", fontSize = 9.sp, color = PdigV2Colors.PrimaryBright,
+                        fontWeight = FontWeight.Bold, modifier = Modifier.padding(end = 3.dp))
+                }
             }
             if ((!compact || isCompactRootContext(app.screen)) && app.screen != VScreen.SEARCH) {
                 Surface(
