@@ -146,7 +146,7 @@ private fun TopCommandBar(app: VAppState, compact: Boolean, onHelp: (() -> Unit)
                     Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
                         Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
                         if (onHelp != null) {
-                            Text("预览 · ${BuildConfig.GIT_SHA}", color = PdigV2Colors.PrimaryText, fontSize = 9.sp, maxLines = 1)
+                            Text("R9 · ${BuildConfig.GIT_SHA}", color = PdigV2Colors.PrimaryText, fontSize = 9.sp, maxLines = 1)
                         }
                     }
                 }

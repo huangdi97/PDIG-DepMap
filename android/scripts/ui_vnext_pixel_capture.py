@@ -170,7 +170,7 @@ def main():
         raise RuntimeError("Preview first-run onboarding skip could not be activated")
     time.sleep(3)
     capture("01-now")
-    require_screen("01-now", "你的全球数字基础设施")
+    require_screen("01-now", "你的全球数字基础设施", "早上好", "R9 · ")
     assert_home_world_geometry()
     from os import environ
     short_sha = environ.get("GITHUB_SHA", "")[:7]
@@ -183,11 +183,11 @@ def main():
         capture("01-navigation-blocked")
         raise RuntimeError("Could not navigate to 基础设施 after onboarding")
     capture("02-infrastructure")
-    require_screen("02-infrastructure", "8 类资产", "地区分布")
+    require_screen("02-infrastructure", "8 类资产", "地区分布", "管理你的全球数字基础设施")
     if not tap_match("卡片", exact=True):
         raise RuntimeError("Card icon not clickable from infrastructure hub")
     capture("03-cards")
-    require_screen("03-cards", "招行储蓄卡")
+    require_screen("03-cards", "全球支付卡片", "招行储蓄卡")
     if not tap_match("招行储蓄卡"):
         raise RuntimeError("Card detail tap not found")
     capture("04-card-detail")
@@ -208,7 +208,7 @@ def main():
     if not tap_retry("变更", exact=True, prefer_bottom=True):
         raise RuntimeError("Change root navigation unavailable after activity relaunch")
     capture("05-change")
-    require_screen("05-change", "影响分析 · 关键服务")
+    require_screen("05-change", "影响分析 · 关键服务", "旧手机号")
     if not tap_retry("完成后（计划）", exact=True):
         raise RuntimeError("Change Phone plan projection selector missing")
     capture("05b-change-plan")
@@ -216,7 +216,7 @@ def main():
     if not tap_retry("记录", exact=True, prefer_bottom=True):
         raise RuntimeError("Records bottom navigation not found")
     capture("06-records")
-    require_screen("06-records", "迁移进度")
+    require_screen("06-records", "迁移进度", "追踪变更、风险")
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),
                     "app": PACKAGE, "activity": ACTIVITY,

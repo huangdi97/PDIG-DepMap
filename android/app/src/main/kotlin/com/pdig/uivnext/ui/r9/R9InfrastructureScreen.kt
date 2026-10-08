@@ -66,7 +66,11 @@ internal fun R9InfrastructureScreen(app: VAppState) {
         ) {
             Column(Modifier.padding(horizontal = 10.dp, vertical = 14.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                R9SectionTitle("基础设施", "8 类资产") {}
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("基础设施", fontSize = 15.sp, color = R9.Ink, fontWeight = FontWeight.Bold)
+                    Text("8 类资产", fontSize = 11.sp, color = R9.Blue)
+                }
                 INFRA_ENTRIES.chunked(4).forEach { chunk ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
                         chunk.forEach { e ->
@@ -150,7 +154,11 @@ private fun R9RegionDistribution(app: VAppState, regions: List<RegionPresentatio
     ) {
         Column(Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            R9SectionTitle("地区分布", "${regions.size} 个地区") {}
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("地区分布", fontSize = 15.sp, fontWeight = FontWeight.Bold, color = R9.Ink)
+                Text("${regions.size} 个地区", fontSize = 11.sp, color = R9.Muted)
+            }
             Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 Box(
