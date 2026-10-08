@@ -387,6 +387,23 @@ fun VNextGlobe(
                     if (selectedLink) Color(0xFFFFC65B) else Color(0xFFBDEBFF),
                     widthPx = if (selectedLink) 2.6f else 2.0f,
                 )
+                if (BuildConfig.FLAVOR == "preview") {
+                    // Spatial sparkle belongs ONLY to an actual recorded cross-region
+                    // edge, never to a decorative imaginary dependency.
+                    val midpoint = project(path[path.size / 2], cam, radius, center.x, center.y)
+                    if (midpoint.zDepth > .16f) {
+                        val node = Offset(midpoint.x, midpoint.y)
+                        drawCircle(
+                            color = Color(0xFF4BB7FF).copy(alpha = .18f),
+                            radius = radius * .060f, center = node)
+                        drawCircle(
+                            color = Color(0xFFFFD78B).copy(alpha = .52f),
+                            radius = radius * .022f, center = node)
+                        drawCircle(
+                            color = Color.White.copy(alpha = .94f),
+                            radius = radius * .010f, center = node)
+                    }
+                }
             }
 
             // 地区锚点（悬浮/选中时高亮 + 光环）
