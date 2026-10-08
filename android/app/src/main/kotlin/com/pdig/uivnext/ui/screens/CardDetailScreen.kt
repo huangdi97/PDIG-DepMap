@@ -200,10 +200,67 @@ private fun CompactCardDetailReference(
                         Text("关联服务（${services.size}）", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                         if (services.isEmpty()) {
                             Text("尚无已记录关联；未知不等于安全。", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-                        } else services.forEach { service ->
-                            Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                                Text(service.name, Modifier.weight(1f), color = PdigV2Colors.TextPrimary, fontSize = 12.sp, maxLines = 1)
-                                Text(serviceKindLabelZh(service.kind), color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+                        } else {
+                            // Reference: associated services retain distinct icon-like visual
+                            // identities. Monograms are derived from the known names and
+                            // categorical tint is PRESENTATION only, never a risk verdict.
+                            services.chunked(2).forEachIndexed { rowIndex, pair ->
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    pair.forEachIndexed { columnIndex, service ->
+                                        val palette = listOf(
+                                            androidx.compose.ui.graphics.Color(0xFF287AE7),
+                                            androidx.compose.ui.graphics.Color(0xFF141A28),
+                                            androidx.compose.ui.graphics.Color(0xFF0FAF8C),
+                                            androidx.compose.ui.graphics.Color(0xFFF09B30),
+                                        )
+                                        val tint = palette[(rowIndex * 2 + columnIndex) % palette.size]
+                                        Surface(
+                                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 66.dp),
+                                            color = PdigV2Colors.SurfaceRaised,
+                                            shape = RoundedCornerShape(14.dp),
+                                            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                                        ) {
+                                            Column(
+                                                Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+                                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                            ) {
+                                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                                                    Surface(
+                                                        color = tint,
+                                                        shape = RoundedCornerShape(9.dp),
+                                                    ) {
+                                                        Text(
+                                                            service.name.take(1).uppercase(),
+                                                            Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                                                            color = androidx.compose.ui.graphics.Color.White,
+                                                            fontWeight = FontWeight.Bold,
+                                                            fontSize = 12.sp,
+                                                        )
+                                                    }
+                                                    Text(
+                                                        service.name,
+                                                        color = PdigV2Colors.TextPrimary,
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.SemiBold,
+                                                        maxLines = 1,
+                                                        modifier = Modifier.weight(1f),
+                                                    )
+                                                }
+                                                Text(
+                                                    serviceKindLabelZh(service.kind),
+                                                    color = PdigV2Colors.TextSecondary,
+                                                    fontSize = 10.sp,
+                                                )
+                                            }
+                                        }
+                                    }
+                                    if (pair.size == 1) {
+                                        Spacer(Modifier.weight(1f))
+                                    }
+                                }
                             }
                         }
                     }
