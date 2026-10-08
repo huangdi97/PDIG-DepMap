@@ -37,13 +37,15 @@
 
 | 能力         | 契约（RESPONSIVE_CONTRACT ios）                       | 说明          |
 | ------------ | ----------------------------------------------------- | ------------- |
-| 导航         | NavigationStack + List + sheets + toolbar             | 原生形态      |
-| iPad         | NavigationSplitView（Infrastructure）+ expanded globe | tablet 自适应 |
-| Dynamic Type | 不裁切、不隐藏 CTA                                    | 系统字体缩放  |
-| 触控         | ≥44pt（touchTarget.ios = 44）                         | token 一致    |
-| 明暗         | light/dark 双支持                                     | 深浅两套      |
+| 导航         | iPhone 4 项 TabView + NavigationStack + toolbar；工具页低频进入 | 原生形态 |
+| iPad         | NavigationSplitView + primary sidebar + content siblings + expanded globe | tablet 自适应 |
+| Dynamic Type | 核心正文/标题使用语义系统字体；不以桌面固定字号替代 | 平台原生缩放 |
+| 触控         | ≥44pt（touchTarget.ios = 44） | token 一致 |
+| 视觉方向     | Human-selected light-first shell；Globe/Card/Number 保留深色身份画布 | 不复制 Desktop Dark |
+| 动效         | 系统 Reduce Motion + PDIG 本地偏好共同约束 Globe/空间动画 | 无障碍优先 |
 
-状态：实现/证据由并行平台 fixer 产出，汇合后补全（PENDING_CONVERGENCE）。
+状态：**IOS_UI_VNEXT_SOURCE_DESIGN = COMPLETE**。精确运行时状态以当前 HEAD 的 `iOS` 与
+`iOS Runtime Visual` GitHub Actions 为准；旧 SHA 截图不得冒充当前证据。
 
 ## 4. Harmony（ArkUI）
 
@@ -69,3 +71,12 @@
 - L3–L5 数据面任何断点都不得被 glass 覆盖（colorRule）；
 - 触控目标不得低于 48dp（Android）/ 44pt（iOS）；
 - 桌面行高 40–48、键盘可达不可因响应式而丢失。
+
+
+## 7. iOS 2026-10-08 平台翻译收口
+
+完整 iPhone/iPad 源码设计收口见 `docs/ui-vnext/ios/IOS_UI_VNEXT_DESIGN_COMPLETION.md`。
+
+本轮明确采用：四个稳定一级目的地、iPhone focused flows、iPad persistent primary sidebar、
+Real-Earth Globe、asset-first Card/Number、Current/Transition/After continuity、consumer Studio、
+Dynamic Type、system Reduce Motion、Command-K Search。上述均为 Presentation/UI 层，不改变 Canonical。

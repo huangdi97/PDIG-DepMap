@@ -36,7 +36,7 @@
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------- |
 | Desktop（Compose） | 10 屏 + VNextShell（rail 80/188 + top 48）+ 2.5D Globe + PresentationProfile + Privacy Mask + `--vnext` / `--vnext-shots` | 实现 + 编译 PASS + 90 帧 | artifacts/runtime-evidence/2026-09-29-ui-vnext/ |
 | Android（Compose） | 同契约；bottom nav ≤5、compact globe hero                                                                                 | 并行 fixer 产出          | PENDING_CONVERGENCE                             |
-| iOS（SwiftUI）     | NavigationStack/SplitView、sheet、Dynamic Type                                                                            | 并行 fixer 产出          | PENDING_CONVERGENCE                             |
+| iOS（SwiftUI）     | iPhone Tab/Stack、iPad SplitView、Real-Earth Globe、asset-first surfaces、Studio、Dynamic Type/Reduce Motion                     | SOURCE DESIGN COMPLETE   | exact-head Actions / xcresult                   |
 | Harmony（ArkUI）   | 原生 ArkUI；hvigor 构建可达                                                                                               | 并行 fixer 产出          | PENDING_CONVERGENCE                             |
 | 四端 Token         | 单一真源 DESIGN_TOKENS.json → codegen 4 产物                                                                              | CODEGEN GATE PASS        | tools/codegen/generate.mjs --check              |
 
@@ -56,10 +56,10 @@
 | Stage 7  | UIVNextDemoFixture（全 synthetic） | DONE → desktop/app/.../demo/UiVNextDemoFixture.kt（CN/HK/GB/US 卡与号）                      |
 | Stage 8  | Globe Spike Gate                   | DONE（桌面证据）→ 见 GLOBE_TECH_INVENTORY.md §5                                              |
 | Stage 9  | Globe Interaction Contract         | DONE → VNextGlobe.kt（GLOBAL/HOVER/SELECTED/DETAIL 状态机、drag/zoom/hover/click/focus/arc） |
-| Stage 10 | 十屏实现                           | Desktop DONE（10 屏）；Android/iOS/Harmony PENDING_CONVERGENCE                               |
+| Stage 10 | 十屏实现                           | Desktop DONE；Android 已独立翻译；iOS SOURCE DESIGN COMPLETE；Harmony 独立收口                 |
 | Stage 11 | PresentationProfile                | DONE → model/PresentationProfile + 本地偏好语义，绝不进 .depmap                              |
 | Stage 12 | Motion / Accessibility / Privacy   | DONE（reduceMotion、Privacy Mask、三通道状态）→ ACCESSIBILITY_AUDIT.md                       |
-| Stage 13 | 四端实现与证据                     | Desktop DONE；三端 PENDING_CONVERGENCE（并行 fixer）                                         |
+| Stage 13 | 四端实现与证据                     | Desktop DONE；Android/iOS 已进入平台原生翻译与各自证据链；Harmony 单独收口                     |
 | Stage 14 | Image Metrics（无眼睛量化取证）    | DONE → 90 帧 IMAGE_METRICS.json（JDK ImageIO，零新依赖）                                     |
 | Stage 15 | 回归硬性 0                         | DONE → `npm run check` 全绿（487 tests）→ IMPLEMENTATION_REPORT.md                           |
 | Stage 16 | 最终交付物与 Gate 矩阵             | DONE → docs/ui-vnext/ 10 份 + artifacts/ui-vnext-review/ 5 JSON + desktop 证据副本           |
