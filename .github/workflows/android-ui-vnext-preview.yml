@@ -71,18 +71,12 @@ jobs:
           test -f "$PROD_APK"
           test -f "$PREVIEW_APK"
 
-          cp "$PREVIEW_APK" dist/PDIG-Android-UI-vNext-Preview.apk
-          cp "$PROD_APK" dist/PDIG-Android-UI-vNext-ProductionDebug.apk
-
-          (
-            cd dist
-            sha256sum \
-              PDIG-Android-UI-vNext-Preview.apk \
-              PDIG-Android-UI-vNext-ProductionDebug.apk \
-              > SHA256SUMS.txt
-          )
-
           SHORT_SHA="${GITHUB_SHA:0:7}"
+          PREVIEW_FILENAME="PDIG-Android-vNext-Preview-${SHORT_SHA}.apk"
+          cp "$PREVIEW_APK" "dist/$PREVIEW_FILENAME"
+          # The legacy ProductionDebug APK is built for regression checking only.
+          # Do NOT distribute it beside the only consumer-installable UI vNext APK.
+          (cd dist && sha256sum "$PREVIEW_FILENAME" > SHA256SUMS.txt)
 
           cat > dist/RELEASE_NOTES.md <<EOF
           # PDIG Android UI vNext Preview
@@ -96,17 +90,16 @@ jobs:
           - minSdk: 26
           - targetSdk: 36
 
-          Recommended for direct phone evaluation:
-          PDIG-Android-UI-vNext-Preview.apk
+          The ONLY supported phone-install APK in this Release:
+          $PREVIEW_FILENAME
 
-          It uses application id com.pdig.app.preview and can coexist with the production application.
+          Application id: com.pdig.app.preview (can coexist with com.pdig.app).
+          Installed app label: PDIG Preview.
+          Dedicated Android launcher: com.pdig.app.PreviewLauncherActivity.
           Normal launcher open starts the accepted UI vNext with SYNTHETIC REFERENCE DATA.
+          The old PdigApp screen is not a preview launcher.
           This preview is for visual/touch evaluation and is NOT connected to personal production data.
-
-          PDIG-Android-UI-vNext-ProductionDebug.apk uses com.pdig.app and is provided only to match the
-          production-debug flavor used by the final Android runtime evidence. If another PDIG build with a
-          different signing key is already installed, Android may reject an in-place update; uninstall the old
-          package first or use the Preview APK instead.
+          Older releases included an ambiguous second ProductionDebug installer; this release does not.
 
           This is a debug-signed evaluation build, not a Play Store production-signed release.
 
@@ -122,14 +115,16 @@ jobs:
           finalPixelChangingAndroidSource=a3b3a05580c0cd2ed451e554ba7db3edfd523cc0
           androidVisualReference=ACCEPTED
           buildType=debug
+          previewLauncherActivity=com.pdig.app.PreviewLauncherActivity
           previewApplicationId=com.pdig.app.preview
           productionApplicationId=com.pdig.app
           EOF
 
           SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
           BUILD_TIMESTAMP="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
-          PREVIEW_BYTES="$(stat -c %s "$PREVIEW_APK")"
-          PREVIEW_SHA256="$(sha256sum "$PREVIEW_APK" | cut -d ' ' -f 1)"
+          PREVIEW_FILENAME="PDIG-Android-vNext-Preview-${GITHUB_SHA:0:7}.apk"
+          PREVIEW_BYTES="$(stat -c %s "dist/$PREVIEW_FILENAME")"
+          PREVIEW_SHA256="$(sha256sum "dist/$PREVIEW_FILENAME" | cut -d ' ' -f 1)"
           cat > dist/BUILD_PROVENANCE.json <<EOF
           {
             "repository": "$GITHUB_REPOSITORY",
@@ -143,7 +138,8 @@ jobs:
             "minSdk": 26,
             "targetSdk": 36,
             "compileSdk": 36,
-            "apkFile": "PDIG-Android-UI-vNext-Preview.apk",
+            "apkFile": "$PREVIEW_FILENAME",
+            "launcherActivity": "com.pdig.app.PreviewLauncherActivity",
             "apkBytes": $PREVIEW_BYTES,
             "sha256": "$PREVIEW_SHA256",
             "buildTimestampUtc": "$BUILD_TIMESTAMP",
@@ -156,13 +152,30 @@ jobs:
           cat dist/BUILD_PROVENANCE.txt
           cat dist/BUILD_PROVENANCE.json
 
+      - name: Verify actual APK launcher and identity (release blocker)
+        shell: bash
+        run: |
+          set -euo pipefail
+          APK="dist/PDIG-Android-vNext-Preview-${GITHUB_SHA:0:7}.apk"
+          AAPT="$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -type f -name aapt | sort -V | tail -n 1)"
+          test -x "$AAPT"
+          "$AAPT" dump badging "$APK" | tee dist/APK_BADGING.txt
+          grep -q "^package: name='com.pdig.app.preview' " dist/APK_BADGING.txt
+          grep -q "^application-label:'PDIG Preview'$" dist/APK_BADGING.txt
+          grep -q "^launchable-activity: name='com.pdig.app.PreviewLauncherActivity' " dist/APK_BADGING.txt
+          if grep -q "^launchable-activity: name='com.pdig.app.MainActivity' " dist/APK_BADGING.txt; then
+            echo "::error::Legacy launcher escaped into the preview APK"
+            exit 1
+          fi
+          echo "PREVIEW_APK_LAUNCHER_IDENTITY=PASS"
+
       - name: Upload Actions artifact
         uses: actions/upload-artifact@v4
         with:
           name: PDIG-Android-UI-vNext-Preview-${{ github.sha }}
           path: |
-            dist/PDIG-Android-UI-vNext-Preview.apk
-            dist/PDIG-Android-UI-vNext-ProductionDebug.apk
+            dist/PDIG-Android-vNext-Preview-*.apk
+            dist/APK_BADGING.txt
             dist/SHA256SUMS.txt
             dist/BUILD_PROVENANCE.txt
             dist/BUILD_PROVENANCE.json
@@ -180,9 +193,10 @@ jobs:
           SHORT_SHA="${GITHUB_SHA:0:7}"
           TAG="android-ui-vnext-preview-$SHORT_SHA"
 
+          PREVIEW_FILENAME="PDIG-Android-vNext-Preview-${SHORT_SHA}.apk"
           gh release create "$TAG" \
-            "dist/PDIG-Android-UI-vNext-Preview.apk#PDIG Android UI vNext Preview APK" \
-            "dist/PDIG-Android-UI-vNext-ProductionDebug.apk#PDIG Android UI vNext ProductionDebug APK" \
+            "dist/$PREVIEW_FILENAME#PDIG Android UI vNext Preview APK" \
+            "dist/APK_BADGING.txt#Actual APK launcher manifest check" \
             "dist/SHA256SUMS.txt#SHA-256 checksums" \
             "dist/BUILD_PROVENANCE.txt#Build provenance" \
             "dist/BUILD_PROVENANCE.json#Machine-readable build provenance" \

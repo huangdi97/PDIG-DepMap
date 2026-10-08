@@ -65,3 +65,32 @@ HEAD, tree, APK byte count, SHA-256, version and build variant. A passing hosted
 of a real-device launcher or the Android tablet-only freeze contract. The targeted
 `TabletAdaptiveContractTest.tabletNumberDetail_noDeadSpace` still needs a device-backed run before
 `ANDROID_REFERENCE_FREEZE = PASS` may be asserted.
+
+## Dedicated flavor launcher / consumer-download ambiguity resolution (2026-10-08)
+
+A real phone screenshot showed legacy `PdigApp` (vertical "需要你处理" blocks,
+"Legacy WeChat Statement Source", no Globe/no four-way navigation) instead of the accepted UI vNext.
+This visual evidence invalidates the earlier **consumer-entry acceptance**; hosted Gradle PASS did not
+check which installed application the user opened.
+
+The separate `preview` flavor now has a **manifest-level dedicated launcher**:
+`com.pdig.app.PreviewLauncherActivity`, under `src/preview`. Its Compose content can only
+open `VNextApp` and synthetic reference data. The preview manifest replaces and unexports the
+legacy `MainActivity` declaration so the old launcher is not a second home-screen destination.
+The `production` flavor and production lock-gated entry remain unchanged.
+
+The workflow verifies the **built APK**, not just Gradle source assertions: SDK `aapt dump badging`
+must report the preview application ID, `PDIG Preview` app label and dedicated preview launcher;
+the old launcher must not be advertised. Missing SDK tooling or a mismatch fails the release gate.
+It uploads `APK_BADGING.txt` as direct artifact evidence.
+
+Only one installable APK is published on each new Preview Release, with short SHA in the filename.
+ProductionDebug is compiled as a regression check but **is not published to consumer Releases**
+(to eliminate ambiguous choice between old and new UIs). The released Preview is synthetic-only.
+The screenshot alone cannot identify which installed package the user had opened; do not claim it
+proved a defect in the previously uploaded preview binary without verifying package/signature/hash.
+
+Gate meanings: `APK_LAUNCHER_IDENTITY` verifies **merged manifest/packaging**, not real-device
+UI pixels. A real device install → home-screen launch → screenshot remains required before
+`ANDROID_REAL_DEVICE_PREVIEW_ACCEPTED=PASS`. Also keep `ANDROID_REFERENCE_FREEZE=HOLD`
+until the separate targeted Tablet instrumentation test is rerun.

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application>
+        <!-- Prevent the legacy PdigApp launcher from being exported in the preview APK.
+             Replace the main-source declaration so the old MAIN/LAUNCHER intent is removed. -->
+        <activity
+            android:name="com.pdig.app.MainActivity"
+            android:exported="false"
+            tools:node="replace" />
+
+        <activity
+            android:name="com.pdig.app.PreviewLauncherActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.PDIG"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
