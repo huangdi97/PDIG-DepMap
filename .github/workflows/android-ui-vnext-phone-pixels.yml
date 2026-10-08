@@ -56,10 +56,14 @@ jobs:
           arch: x86_64
           profile: pixel_5
           target: google_apis
-          ram-size: 3072M
-          heap-size: 512M
+          ram-size: 2048M
+          heap-size: 384M
           disk-size: 8G
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          pre-emulator-launch-script: |
+            mkdir -p "$HOME/.android"
+            printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
+            cat "$HOME/.android/advancedFeatures.ini"
           disable-animations: true
           script: bash android/scripts/run_globe_pinch_and_capture.sh
       - name: Generate human-review contact and manifest
