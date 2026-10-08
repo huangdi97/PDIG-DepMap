@@ -54,6 +54,16 @@ internal fun CompactInfrastructureHub(app: VAppState) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     rowEntries.forEach { entry ->
                         val selected = entry.screen == VScreen.OVERVIEW
+                        val accent = when (entry.screen) {
+                            VScreen.CARDS -> androidx.compose.ui.graphics.Color(0xFFFF864A)
+                            VScreen.NUMBERS -> androidx.compose.ui.graphics.Color(0xFF13AF88)
+                            VScreen.ACCOUNTS -> androidx.compose.ui.graphics.Color(0xFF3986EE)
+                            VScreen.EMAILS -> androidx.compose.ui.graphics.Color(0xFF926DF0)
+                            VScreen.DEVICES -> androidx.compose.ui.graphics.Color(0xFF3975D4)
+                            VScreen.SERVICES -> androidx.compose.ui.graphics.Color(0xFFFFA343)
+                            VScreen.WEAKNESSES -> androidx.compose.ui.graphics.Color(0xFFE36B63)
+                            else -> PdigV2Colors.PrimaryBright
+                        }
                         Column(
                             modifier = Modifier.weight(1f)
                                 .defaultMinSize(minHeight = 72.dp)
@@ -64,12 +74,12 @@ internal fun CompactInfrastructureHub(app: VAppState) {
                         ) {
                             Surface(
                                 modifier = Modifier.size(35.dp),
-                                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.PrimarySoft,
+                                color = if (selected) accent else accent.copy(alpha = 0.12f),
                                 shape = RoundedCornerShape(12.dp),
                                 border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                             ) {
                                 Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
-                                    Icon(entry.icon, contentDescription = null, tint = if (selected) androidx.compose.ui.graphics.Color.White else PdigV2Colors.PrimaryBright, modifier = Modifier.size(19.dp))
+                                    Icon(entry.icon, contentDescription = null, tint = if (selected) androidx.compose.ui.graphics.Color.White else accent, modifier = Modifier.size(19.dp))
                                 }
                             }
                             Text(entry.screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)

@@ -71,7 +71,7 @@ internal fun CompactWorldHero(
             Box(
                 Modifier.fillMaxSize()
                     .padding(top = 27.dp, bottom = 51.dp)
-                    .graphicsLayer(scaleX = 1.16f, scaleY = 1.16f),
+                    .graphicsLayer(scaleX = 1.61f, scaleY = 1.61f),
             ) {
                 VNextGlobe(
                     controller = app.globe,
@@ -199,8 +199,22 @@ private fun HeroMetric(value: Int, label: String, symbol: String, modifier: Modi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(symbol, color = PdigV2Colors.PrimaryBright, fontSize = 13.sp)
+        val accent = when (label) {
+            "银行卡" -> Color(0xFFFF8B3D)
+            "手机号" -> Color(0xFF14B881)
+            "账户" -> Color(0xFF2887EE)
+            else -> Color(0xFFAB7BFF)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            Surface(
+                modifier = Modifier.size(20.dp),
+                shape = RoundedCornerShape(6.dp),
+                color = accent,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Text(symbol, color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
+            }
             Text(value.toString(), color = PdigV2Colors.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         }
         Text(label, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
