@@ -120,6 +120,9 @@ internal fun R9NowScreen(app: VAppState) {
             }
         }
 
+        // R12: known dependencies, not a phantom safety score.
+        R12ContinuityInsight(app)
+
         R9SectionTitle("进行中的变更", "查看全部 →") { app.navigate(VScreen.RECORDS) }
         if (changes.isEmpty()) {
             Text("没有记录正在执行的变更。", color = R9.Muted, fontSize = 12.sp)
