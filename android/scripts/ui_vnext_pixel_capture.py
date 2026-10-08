@@ -290,12 +290,29 @@ def main():
             raise RuntimeError("R9 Change action to review the active verification checklist unavailable")
     adb("shell", "input", "swipe", "530", "1660", "530", "1080", "400")
     capture("05a-change-checklist")
-    require_screen("05a-change-checklist", "本阶段待办", "不会通过点击自动标记已完成")
-    adb("shell", "input", "swipe", "530", "450", "530", "1800", "360")
-    adb("shell", "input", "swipe", "530", "450", "530", "1800", "360")
-    time.sleep(2)
-    if not tap_retry("完成后（计划）", exact=True):
-        raise RuntimeError("Change Phone plan projection selector missing")
+    require_screen("05a-change-checklist", "本阶段待办")
+    # The disclaimer sits AFTER the four service rows. A real phone viewport
+    # cannot show the expanded heading and its footer simultaneously; asserting
+    # both from the first screenshot was a false visual/e2e failure.
+    for attempt in range(6):
+        if any("不会通过点击自动标记已完成" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1660", "530", "810", "400")
+        time.sleep(2)
+    else:
+        capture("05a-checklist-footer-missing")
+        raise RuntimeError("Expanded checklist footer never became visible after scrolling")
+    capture("05aa-change-checklist-footer")
+    require_screen("05aa-change-checklist-footer", "不会通过点击自动标记已完成")
+    # Return to the top from the actual lower scroll position before switching
+    # the projection; never pass because a static stale button happens to exist.
+    for attempt in range(6):
+        if tap_match("完成后（计划）", exact=True):
+            break
+        adb("shell", "input", "swipe", "530", "480", "530", "1840", "420")
+        time.sleep(2)
+    else:
+        raise RuntimeError("Change Phone plan projection selector missing after return-to-top")
     capture("05b-change-plan")
     require_screen("05b-change-plan", "完成后预览")
     if not tap_retry("记录", exact=True, prefer_bottom=True):
