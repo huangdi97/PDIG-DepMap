@@ -258,20 +258,20 @@ def main():
             raise RuntimeError(f"Missing genuine card-detail tab: {name}")
         capture(shot)
         require_screen(shot, required)
-    # Studio MUST be an interactive surface: entering, changing a theme and
-    # saving PresentationProfile must genuinely update the detail renderer.
-    if not tap_retry("更换卡面图片 →", exact=True):
-        raise RuntimeError("Card Studio CTA did not open")
-    capture("04e-card-studio")
-    require_screen("04e-card-studio", "选择卡面图片", "从手机相册选择图片", "原卡面")
+    # R11: card art is an IN-DETAIL micro action, not a giant Studio.
+    if not tap_retry("选预设图片 ›", exact=True):
+        raise RuntimeError("Compact card artwork controls not accessible")
+    capture("04e-card-presets-inline")
+    require_screen("04e-card-presets-inline", "原卡面", "海洋")
     if not tap_retry("海洋", exact=True):
-        raise RuntimeError("Card image selection was not reachable")
-    capture("04f-card-studio-edited")
-    require_screen("04f-card-studio-edited", "保存卡面并返回")
-    if not tap_retry("保存卡面并返回", exact=True):
-        raise RuntimeError("Card image save button was not functional")
-    capture("04g-card-detail-after-studio")
-    require_screen("04g-card-detail-after-studio", "基本信息")
+        raise RuntimeError("Compact card artwork option could not be selected")
+    capture("04f-card-art-applied")
+    require_screen("04f-card-art-applied", "基本信息")
+    # Top-left UP must be hierarchical, not a chronological jump to Now.
+    if not tap_retry("返回上一级", exact=True):
+        raise RuntimeError("Hierarchical top arrow unavailable on card detail")
+    capture("04g-up-to-cards")
+    require_screen("04g-up-to-cards", "全球支付卡片")
     # Home-screen navigation is still the canonical path for root screens.
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
@@ -344,13 +344,24 @@ def main():
     if not tap_retry("号码", exact=True):
         raise RuntimeError("Number Studio: number category missing")
     capture("08-numbers")
-    require_screen("08-numbers", "号码 · 通信身份", "主号 中国移动")
-    if not tap_retry("主号 中国移动"):
-        raise RuntimeError("Number Studio: opening primary-number detail failed")
+    require_screen("08-numbers", "号码 · 通信身份", "+86 138****8823")
+    if not tap_retry("+86 138****8823"):
+        raise RuntimeError("Recorded number fallback was not selectable")
     capture("08b-number-detail")
     require_screen("08b-number-detail", "安全与恢复", "关联服务")
-    if not tap_retry("定制 →", exact=True):
-        raise RuntimeError("Number Studio: enter customization missing")
+    if not tap_retry("修改名称 →", exact=True):
+        raise RuntimeError("Number alias edit control unavailable")
+    if not any("给号码命名" in label_of(n) for n in xml_nodes()):
+        raise RuntimeError("Number alias dialog did not open")
+    adb("shell", "input", "text", "HK-Main")
+    if not tap_retry("保存名称", exact=True):
+        raise RuntimeError("Number alias could not be saved")
+    capture("08bb-number-renamed")
+    require_screen("08bb-number-renamed", "HK-Main")
+    if not tap_retry("号码外观 →", exact=True):
+        adb("shell", "input", "swipe", 520, 1650, 520, 780, 350)
+        if not tap_retry("号码外观 →", exact=True):
+            raise RuntimeError("Number appearance controls unreachable")
     capture("08c-number-studio")
     require_screen("08c-number-studio", "号码面定制", "实时预览", "选择主题")
     if not tap_retry("城市", exact=True):
@@ -373,8 +384,8 @@ def main():
     if not tap_retry("我", exact=True, prefer_bottom=True):
         raise RuntimeError("Fifth Me tab was not reachable")
     capture("09-me")
-    require_screen("09-me", "我的数字生活", "遮蔽敏感信息", "已关闭")
-    if not tap_retry("遮蔽敏感信息", exact=True):
+    require_screen("09-me", "我的数字生活", "敏感信息遮蔽", "已关闭")
+    if not tap_retry("敏感信息遮蔽", exact=True):
         raise RuntimeError("Me tab privacy control not tappable")
     capture("09a-me-mask-enabled")
     require_screen("09a-me-mask-enabled", "已开启")
