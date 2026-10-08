@@ -57,14 +57,14 @@ internal fun R9CardsScreen(app: VAppState) {
                 Text("全球支付卡片", fontSize = 16.sp, color = R9.Ink, fontWeight = FontWeight.Bold)
                 Text("共 ${scoped.size} 张卡 · 独立资产与关联风险", color = R9.Muted, fontSize = 11.sp)
             }
-            R9Badge("数据源 →", R9.Blue, Modifier.clickable { app.navigate(VScreen.SOURCES) })
+            R9Badge("数据源 →", R9.Blue, Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.navigate(VScreen.SOURCES) })
         }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             listOf("all" to "全部（${scoped.size}）","credit" to "信用卡","debit" to "储蓄卡","virtual" to "虚拟卡")
                 .forEach { (key,label) ->
                     Surface(
-                        modifier = Modifier.clickable { kind = key },
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { kind = key },
                         color = if(key == kind) R9.Blue else Color.White,
                         border = BorderStroke(1.dp, if(key == kind) R9.Blue else R9.Line),
                         shape = RoundedCornerShape(11.dp),
@@ -149,7 +149,7 @@ internal fun R9NumbersScreen(app: VAppState) {
             listOf("all" to "全部","primary" to "主号码","recovery" to "恢复路径","esim" to "eSIM")
                 .forEach { (key,label) ->
                     Surface(
-                        modifier = Modifier.clickable { selected = key },
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { selected = key },
                         color = if(key == selected) R9.Blue else Color.White,
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, if(key == selected) R9.Blue else R9.Line),

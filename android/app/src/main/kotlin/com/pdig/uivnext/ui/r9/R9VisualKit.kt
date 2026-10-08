@@ -59,7 +59,7 @@ internal fun R9SectionTitle(title: String, action: String? = null, onAction: (()
 @Composable
 internal fun R9RegionPill(region: RegionPresentation, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Surface(
-        modifier = modifier.width(120.dp).clickable(onClick = onClick)
+        modifier = modifier.width(120.dp).defaultMinSize(minHeight = 48.dp).clickable(onClick = onClick)
             .testTag("pdig.r9.region.${region.regionCode}"),
         shape = RoundedCornerShape(16.dp), color = Color.White.copy(alpha = 0.95f),
         border = BorderStroke(1.dp, R9.Line), shadowElevation = 3.dp,

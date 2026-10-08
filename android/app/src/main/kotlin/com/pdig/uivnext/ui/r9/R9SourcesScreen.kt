@@ -107,7 +107,7 @@ internal fun R9SourcesScreen(app: VAppState) {
             VScreen.SERVICES, VScreen.WEAKNESSES,
         ).forEach { page ->
             Surface(
-                modifier = Modifier.fillMaxWidth().clickable { app.navigate(page) },
+                modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp).clickable { app.navigate(page) },
                 color = Color.White, shape = RoundedCornerShape(13.dp),
                 border = BorderStroke(1.dp, R9.Line),
             ) {

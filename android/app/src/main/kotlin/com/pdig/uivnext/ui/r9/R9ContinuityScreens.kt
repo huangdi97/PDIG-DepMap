@@ -59,7 +59,7 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
             listOf("current" to "当前", "transition" to "迁移中", "after" to "完成后（计划）")
                 .forEach { (key,label) ->
                     Surface(
-                        modifier = Modifier.clickable { app.changeProjection = key }
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.changeProjection = key }
                             .testTag("pdig.change.projection.${key}"),
                         color = if(projection == key) R9.Mist else Color.White,
                         shape = RoundedCornerShape(11.dp),

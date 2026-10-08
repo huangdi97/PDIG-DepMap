@@ -50,7 +50,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
             Text(card.nickname, color = R9.Ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            R9Badge("编辑", R9.Blue, Modifier.clickable { app.openCardCustomization(card.id) })
+            R9Badge("编辑", R9.Blue, Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.openCardCustomization(card.id) })
         }
         Box(Modifier.testTag(VTestIds.CARD_DETAIL_IDENTITY)) {
             if (profile == null) {
@@ -81,7 +81,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
             listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, label ->
                 val active = tab == index
                 Surface(
-                    modifier = Modifier.weight(1f).height(44.dp).clickable { tab = index }
+                    modifier = Modifier.weight(1f).height(48.dp).clickable { tab = index }
                         .testTag("pdig.card.detail.tab.${index}"),
                     color = if(active) R9.Mist else Color.White,
                     shape = RoundedCornerShape(12.dp),

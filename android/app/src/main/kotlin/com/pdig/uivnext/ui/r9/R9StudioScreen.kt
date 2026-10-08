@@ -76,7 +76,7 @@ internal fun R9StudioScreen(app: VAppState, isCard: Boolean) {
                 Text(display, fontSize = 11.sp, color = R9.Muted)
             }
             Surface(
-                modifier = Modifier.clickable(enabled = dirty) {
+                modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable(enabled = dirty) {
                     if (dirty) app.savePresentationProfile(profile)
                 }.testTag("pdig.r9.studio.save"),
                 color = if(dirty) R9.Blue else R9.Green.copy(alpha = .14f),
@@ -168,7 +168,7 @@ internal fun R9StudioScreen(app: VAppState, isCard: Boolean) {
                 color = R9.Muted, fontSize = 10.sp, lineHeight = 16.sp)
         }
         Surface(
-            modifier = Modifier.fillMaxWidth().clickable { profile = original },
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp).clickable { profile = original },
             color = R9.Mist, shape = RoundedCornerShape(13.dp),
         ) {
             Text("恢复原始外观", Modifier.padding(13.dp),
@@ -195,7 +195,7 @@ private fun R9StudioChoices(
             horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             choices.forEach { (key, label) ->
                 Surface(
-                    modifier = Modifier.clickable { onSelect(key) }
+                    modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { onSelect(key) }
                         .testTag("$testPrefix.$key"),
                     color = if(selected == key) R9.Blue else Color.White,
                     border = BorderStroke(1.dp, if(selected == key) R9.Blue else R9.Line),

@@ -97,7 +97,7 @@ internal fun R9SearchScreen(app: VAppState) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { screen ->
                         Surface(
-                            modifier = Modifier.weight(1f).clickable {
+                            modifier = Modifier.weight(1f).defaultMinSize(minHeight = 48.dp).clickable {
                                 app.navigateFromSearch(screen)
                             }, color = Color.White, shape = RoundedCornerShape(14.dp),
                             border = BorderStroke(1.dp, R9.Line),
