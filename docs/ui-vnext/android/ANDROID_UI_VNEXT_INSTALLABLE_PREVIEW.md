@@ -94,3 +94,35 @@ Gate meanings: `APK_LAUNCHER_IDENTITY` verifies **merged manifest/packaging**, n
 UI pixels. A real device install → home-screen launch → screenshot remains required before
 `ANDROID_REAL_DEVICE_PREVIEW_ACCEPTED=PASS`. Also keep `ANDROID_REFERENCE_FREEZE=HOLD`
 until the separate targeted Tablet instrumentation test is rerun.
+ 
+## First real-device design-feedback corrective pass (2026-10-08)
+
+The user's phone screenshots from the `193dca0` preview show valid four-tab navigation but do not
+match the human-selected Light-first reference: Earth reads too dark/small; Now lacks visible
+region identities; infrastructure tiles dominate; Change/Records still feel like generic forms.
+The original 58-image emulator acceptance must therefore NOT be used as real-device visual parity.
+
+The v2.3-R1 §11.10 requires onboarding in <=3 screens. The Preview now implements:
+1. 看清你的数字生活 — dependency;
+2. 改变之前，先看影响 — safe change;
+3. 你的数据，由你掌握 — local-first and unknown truth.
+
+First launch shows the guide, Skip/Finish persist completion to a **preview-only** preference,
+and the Help icon can reopen it. The synthetic fixture disclosure explicitly says the
+Preview does not read or change real personal data. No personal information is required.
+The production MainActivity remains unchanged, and .depmap/Canonical/PersonalReality is
+unaffected. A production-data onboarding and actual import setup remain separate future work.
+
+This pass also increases ambient texture lighting without removing day/night maps, draws two
+actual fixture-region chips on compact Now, and reduces its overlay/hub density.
+These changes affect Android production UI pixels: old screenshot evidence is superseded and
+fresh Phone/Tablet runtime capture + human review are REQUIRED. No claims of achieved
+pixel parity, completed real-device onboarding tests, or Reference Freeze PASS are made.
+
+Acceptance gates:
+- Preview fresh install: exactly three guide screens; Next/Back/Skip/Finish;
+- second launch skips guide; Help reopens; text declares demo-only;
+- APK release launcher stays `com.pdig.app.PreviewLauncherActivity`;
+- region chips count from actual fixture, no fake unknown -> safe;
+- Android app JVM tests and both preview/production debug builds;
+- actual phone and tablet pixel review before any visual acceptance upgrade.

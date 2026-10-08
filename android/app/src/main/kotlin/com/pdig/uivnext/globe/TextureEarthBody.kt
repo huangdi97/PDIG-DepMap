@@ -28,7 +28,7 @@ internal fun dayFactor(nx: Float, ny: Float, nz: Float): Float {
 
 internal fun nightFactor(day: Float): Float = (1f - day) * (1f - day)
 
-internal fun litScale(day: Float): Float = 0.30f + 0.70f * day
+internal fun litScale(day: Float): Float = 0.58f + 0.42f * day
 
 /** 渲染球形地球主体到 [rect]×[rect] Bitmap（含 night/cloud 层，按 assets 有无取舍）。 */
 internal fun renderEarthBody(
@@ -83,7 +83,7 @@ internal fun renderEarthBody(
                     val nr = (nl shr 16) and 0xFF
                     val ng = (nl shr 8) and 0xFF
                     val nb = nl and 0xFF
-                    val nw = nf * 0.92f
+                    val nw = nf * 0.22f
                     rr = (rr * (1f - nw) + nr * nw).toInt()
                     gg = (gg * (1f - nw) + ng * nw).toInt()
                     bb = (bb * (1f - nw) + nb * nw).toInt()

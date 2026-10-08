@@ -70,7 +70,7 @@ internal fun CompactInfrastructureHub(app: VAppState) {
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
-                                .defaultMinSize(minHeight = 76.dp)
+                                .defaultMinSize(minHeight = 66.dp)
                                 .clickableLocal { app.navigate(entry.screen) },
                             color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
                             shape = RoundedCornerShape(VRadius.Md),
@@ -80,12 +80,12 @@ internal fun CompactInfrastructureHub(app: VAppState) {
                             ),
                         ) {
                             Column(
-                                Modifier.padding(horizontal = 6.dp, vertical = 9.dp),
+                                Modifier.padding(horizontal = 4.dp, vertical = 6.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 Surface(
-                                    modifier = Modifier.size(30.dp),
+                                    modifier = Modifier.size(27.dp),
                                     color = if (selected) PdigV2Colors.Primary else PdigV2Colors.Surface,
                                     shape = RoundedCornerShape(VRadius.Sm),
                                     border = BorderStroke(

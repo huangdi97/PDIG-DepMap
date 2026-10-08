@@ -136,9 +136,9 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 ) {
                     Column(Modifier.padding(horizontal = 14.dp, vertical = 10.dp)) {
                         Text(
-                            "你的数字基础设施",
+                            "你的数字世界",
                             color = PdigV2Colors.TextPrimary,
-                            fontSize = if (compact) 22.sp else 26.sp,
+                            fontSize = if (compact) 17.sp else 23.sp,
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
@@ -147,6 +147,23 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                             fontSize = 12.sp,
                         )
                     }
+                }
+                // Small, data-backed regional identity chips; never invent a new dependency.
+                if (compact && regions.size >= 2) {
+                    listOf(Alignment.CenterStart to regions[0], Alignment.CenterEnd to regions[1])
+                        .forEach { (position, region) ->
+                            Surface(
+                                modifier = Modifier.align(position).padding(horizontal = 6.dp),
+                                color = PdigV2Colors.Surface.copy(alpha = 0.94f),
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                            ) {
+                                Column(Modifier.padding(horizontal = 7.dp, vertical = 6.dp)) {
+                                    Text(region.displayName, color = PdigV2Colors.TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                    Text("${region.cardCount} 卡 · ${region.phoneCount} 号", color = PdigV2Colors.TextSecondary, fontSize = 9.sp)
+                                }
+                            }
+                        }
                 }
                 Surface(
                     modifier = Modifier
