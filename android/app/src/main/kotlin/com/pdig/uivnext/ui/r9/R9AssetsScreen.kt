@@ -30,6 +30,7 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.CardIdentityThumbnail
+import com.pdig.uivnext.theme.statusLabelZh
 import com.pdig.uivnext.ui.components.NumberIdentityThumbnail
 
 /** R9 financial identity list, structurally separate from R8's management rows. */
@@ -113,8 +114,7 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
                     Text("${regionFlag(card.region)} ${card.currency} · ${card.network}",
                         modifier = Modifier.weight(1f), color = R9.Muted, maxLines = 1,
                         fontSize = 9.sp)
-                    R9Badge(if(card.status == "expiring_soon") "将到期" else "已记录",
-                        if(card.status == "expiring_soon") R9.Amber else R9.Green)
+                    R9Badge(statusLabelZh(card.status), r9CardStatusTint(card.status))
                 }
             }
             Text("›", color = R9.Muted, fontSize = 19.sp)

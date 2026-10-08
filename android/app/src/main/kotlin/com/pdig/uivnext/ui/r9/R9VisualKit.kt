@@ -35,6 +35,14 @@ internal object R9 {
     val World = Brush.radialGradient(listOf(Color(0xFFB1D4FF), Color(0xFFDDEEFF), Color(0xFFF6FBFF)))
 }
 
+/** Object status and confidence are separate; unknown MUST NOT use a green success tint. */
+internal fun r9CardStatusTint(status: String): Color = when(status) {
+    "active" -> R9.Green
+    "expiring_soon", "warning", "verifying" -> R9.Amber
+    "expired", "blocked", "critical" -> R9.Rose
+    else -> R9.Muted
+}
+
 internal fun regionFlag(code: String): String = when(code) {
     "CN" -> "🇨🇳"
     "HK" -> "🇭🇰"

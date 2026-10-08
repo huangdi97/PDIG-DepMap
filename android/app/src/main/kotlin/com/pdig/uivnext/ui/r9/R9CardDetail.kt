@@ -74,8 +74,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
             }
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            R9Badge("● ${statusLabelZh(card.status)}",
-                if(card.status == "expiring_soon") R9.Amber else R9.Green)
+            R9Badge("● ${statusLabelZh(card.status)}", r9CardStatusTint(card.status))
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, label ->
