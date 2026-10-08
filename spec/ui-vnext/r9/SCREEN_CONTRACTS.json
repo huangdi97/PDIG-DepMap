@@ -118,7 +118,12 @@
         "NextNumber",
         "TaskDetails"
       ],
-      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING",
+      "reviewChecklist": "Read-only truth-preserving active verification checklist, shown only on request; does not advance state",
+      "runtimeGate": [
+        "pdig.r9.change.review-checklist",
+        "pdig.r9.change.review-contents"
+      ]
     },
     {
       "id": "tablet-now",
@@ -171,9 +176,13 @@
         "ActiveChange",
         "CompactTimeline",
         "Attention",
-        "Upcoming"
+        "Upcoming",
+        "ConnectedVerifiedTimeline"
       ],
-      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING",
+      "runtimeGate": [
+        "pdig.r9.records.timeline"
+      ]
     },
     {
       "id": "accounts",

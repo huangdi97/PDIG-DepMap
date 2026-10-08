@@ -271,6 +271,16 @@ def main():
         raise RuntimeError("Change root navigation unavailable after activity relaunch")
     capture("05-change")
     require_screen("05-change", "影响分析 · 关键服务", "旧手机号")
+    if not tap_retry("查看本阶段核验清单 →", exact=True):
+        adb("shell", "input", "swipe", "530", "1650", "530", "800", "400")
+        if not tap_retry("查看本阶段核验清单 →", exact=True):
+            raise RuntimeError("R9 Change action to review the active verification checklist unavailable")
+    adb("shell", "input", "swipe", "530", "1660", "530", "1080", "400")
+    capture("05a-change-checklist")
+    require_screen("05a-change-checklist", "本阶段待办", "不会通过点击自动标记已完成")
+    adb("shell", "input", "swipe", "530", "450", "530", "1800", "360")
+    adb("shell", "input", "swipe", "530", "450", "530", "1800", "360")
+    time.sleep(2)
     if not tap_retry("完成后（计划）", exact=True):
         raise RuntimeError("Change Phone plan projection selector missing")
     capture("05b-change-plan")
