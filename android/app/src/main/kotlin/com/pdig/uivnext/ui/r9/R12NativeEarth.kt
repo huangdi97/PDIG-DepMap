@@ -95,6 +95,47 @@ private class R12EarthSurface(
         { post { onReady() } }, { post { onFail() } })
     private var x = 0f
     private var y = 0f
+    private var downX = 0f
+    private var downY = 0f
+    private var dragged = false
+
+    /** Project factual region points using the same perspective matrices as the GPU.
+     * A tap focuses a region; a second tap opens its Region Drawer.
+     * Neither movement nor empty-space taps manufacture a dependency edge.
+     */
+    private fun hitRegion(xPixel: Float, yPixel: Float): RegionPresentation? {
+        if(width < 1 || height < 1) return null
+        val camera = controller.camera
+        val m = FloatArray(16)
+        val v = FloatArray(16)
+        val p = FloatArray(16)
+        val vp = FloatArray(16)
+        val mvp = FloatArray(16)
+        Matrix.setIdentityM(m, 0)
+        Matrix.rotateM(m, 0, camera.pitchDeg, 1f,0f,0f)
+        Matrix.rotateM(m, 0, camera.yawDeg, 0f,1f,0f)
+        Matrix.scaleM(m, 0, camera.zoom,camera.zoom,camera.zoom)
+        Matrix.setLookAtM(v,0,0f,0f,3.65f,0f,0f,0f,0f,1f,0f)
+        Matrix.perspectiveM(p,0,39f,width.toFloat()/height,0.5f,16f)
+        Matrix.multiplyMM(vp,0,p,0,v,0)
+        Matrix.multiplyMM(mvp,0,vp,0,m,0)
+        return regions.mapNotNull { region ->
+            val point = latLonToVec(region.latitude.toFloat(), region.longitude.toFloat())
+            val transformed = FloatArray(4)
+            Matrix.multiplyMV(transformed,0,mvp,0,
+                floatArrayOf(point.x*1.028f,point.y*1.028f,point.z*1.028f,1f),0)
+            if(transformed[3] <= 0f) return@mapNotNull null
+            val clipX=transformed[0]/transformed[3]
+            val clipY=transformed[1]/transformed[3]
+            val clipZ=transformed[2]/transformed[3]
+            if(clipZ !in -1f..1f || clipX !in -1f..1f || clipY !in -1f..1f) return@mapNotNull null
+            val screenX=(clipX*.5f+.5f)*width
+            val screenY=(.5f-clipY*.5f)*height
+            val distance=kotlin.math.hypot(xPixel-screenX,yPixel-screenY)
+            if(distance <= 40f*resources.displayMetrics.density) region to distance else null
+        }.minByOrNull { it.second }?.first
+    }
+
     init {
         setEGLContextClientVersion(2)
         setEGLConfigChooser(8,8,8,8,24,0)
@@ -103,11 +144,15 @@ private class R12EarthSurface(
         setOnTouchListener { _, event ->
             when(event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    x=event.x; y=event.y; controller.interactive=false; true
+                    x=event.x; y=event.y
+                    downX=x; downY=y; dragged=false
+                    controller.interactive=false; true
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val dx=event.x-x; val dy=event.y-y
                     x=event.x; y=event.y
+                    if(kotlin.math.hypot(x-downX,y-downY) > 9f*resources.displayMetrics.density) dragged=true
+                    if(!dragged) return@setOnTouchListener true
                     controller.camera=controller.camera.copy(
                         yawDeg=controller.camera.yawDeg-dx*.31f,
                         pitchDeg=(controller.camera.pitchDeg-dy*.31f).coerceIn(-60f,60f))
@@ -115,7 +160,22 @@ private class R12EarthSurface(
                     requestRender()
                     true
                 }
-                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                MotionEvent.ACTION_UP -> {
+                    if(!dragged) {
+                        val hit=hitRegion(event.x,event.y)
+                        if(hit != null) {
+                            if(controller.selectedRegion==hit.regionCode) {
+                                controller.state=com.pdig.uivnext.model.VGlobeState.REGION_DETAIL
+                            } else {
+                                controller.focusRegion(hit)
+                            }
+                            scene.camera=controller.camera
+                            requestRender()
+                        }
+                    }
+                    controller.interactive=true; true
+                }
+                MotionEvent.ACTION_CANCEL -> {
                     controller.interactive=true; true
                 }
                 else -> false
