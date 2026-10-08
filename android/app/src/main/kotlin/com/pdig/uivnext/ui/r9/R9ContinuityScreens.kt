@@ -43,8 +43,8 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
     val projection = app.changeProjection
     val stages = if(app.emptyDemo) emptyList() else UiVNextDemoFixture.changeStages
     val migrations = if(app.emptyDemo) emptyList() else UiVNextDemoFixture.changeMigrations
-    val old = UiVNextDemoFixture.numberById("num-cn-1")
-    val fresh = UiVNextDemoFixture.numberById("num-cn-3")
+    val old = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-1")
+    val fresh = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-3")
     val activeStep = stages.firstOrNull { it.status == "verifying" }
         ?: stages.firstOrNull { it.status != "completed" }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())

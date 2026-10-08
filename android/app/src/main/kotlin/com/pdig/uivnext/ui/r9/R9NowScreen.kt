@@ -167,7 +167,7 @@ internal fun R9WorldStage(
                     VNextGlobe(
                         controller = app.globe,
                         regions = regions,
-                        arcingPairs = arcPairs(),
+                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
                         reduceMotion = app.reduceMotion,
                     )
                 }

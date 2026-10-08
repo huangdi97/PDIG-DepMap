@@ -57,7 +57,7 @@ internal fun R9CardsScreen(app: VAppState) {
                 Text("全球支付卡片", fontSize = 16.sp, color = R9.Ink, fontWeight = FontWeight.Bold)
                 Text("共 ${scoped.size} 张卡 · 独立资产与关联风险", color = R9.Muted, fontSize = 11.sp)
             }
-            R9Badge("＋ 添加卡片", R9.Blue, Modifier.clickable { app.navigate(VScreen.SOURCES) })
+            R9Badge("数据源 →", R9.Blue, Modifier.clickable { app.navigate(VScreen.SOURCES) })
         }
         Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(7.dp)) {

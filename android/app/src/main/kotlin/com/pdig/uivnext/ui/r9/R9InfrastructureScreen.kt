@@ -168,7 +168,7 @@ private fun R9RegionDistribution(app: VAppState, regions: List<RegionPresentatio
                 ) {
                     VNextGlobe(
                         controller = app.globe, regions = regions,
-                        arcingPairs = arcPairs(), reduceMotion = app.reduceMotion,
+                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(), reduceMotion = app.reduceMotion,
                     )
                 }
                 Column(Modifier.weight(.45f),

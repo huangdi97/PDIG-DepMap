@@ -32,6 +32,12 @@ import com.pdig.uivnext.ui.components.AssetCard
 /** R9 card object-first detail. Four tabs are real interactive states, not decoration. */
 @Composable
 internal fun R9CardDetailScreen(app: VAppState) {
+    if (app.emptyDemo) {
+        Column(Modifier.fillMaxSize().padding(20.dp)) {
+            Text("没有已记录卡片。未知不等于安全。", color = R9.Muted, fontSize = 12.sp)
+        }
+        return
+    }
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForCard(card.id)
     val profile = app.savedPresentationProfile("card", card.id)

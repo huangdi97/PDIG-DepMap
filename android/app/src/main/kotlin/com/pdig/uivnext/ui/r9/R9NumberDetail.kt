@@ -27,6 +27,12 @@ import com.pdig.uivnext.ui.components.NumberFace
 /** R9 communication-identity detail; never conflates account recovery with payment assets. */
 @Composable
 internal fun R9NumberDetailScreen(app: VAppState) {
+    if (app.emptyDemo) {
+        Column(Modifier.fillMaxSize().padding(20.dp)) {
+            Text("没有已记录号码。未知不等于安全。", color = R9.Muted, fontSize = 12.sp)
+        }
+        return
+    }
     val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
     val related = UiVNextDemoFixture.servicesForNumber(number.id)
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
