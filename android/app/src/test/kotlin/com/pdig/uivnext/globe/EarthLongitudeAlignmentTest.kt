@@ -37,6 +37,16 @@ class EarthLongitudeAlignmentTest {
     }
 
     @Test
+    fun PreviewOceanSpecularIsWaterOnlyAndDaylit() {
+        val ocean = oceanSpecularStrength(25, 62, 129, 1f, 1f)
+        org.junit.Assert.assertTrue("Sunlit ocean should have a visible glint", ocean > .30f)
+        assertEquals(0f, oceanSpecularStrength(190, 115, 65, 1f, 1f), 0.00001f)
+        org.junit.Assert.assertTrue("Glint must remain narrow",
+            oceanSpecularStrength(25, 62, 129, .75f, 1f) < .001f)
+        assertEquals(0f, oceanSpecularStrength(25, 62, 129, 1f, 0f), 0.00001f)
+    }
+
+    @Test
     fun NegativeLongitudeIsPreservedForUnitedStates() {
         assertEquals((-PI / 2).toFloat(), earthLongitudeRad(latLonToVec(0f, -90f)), 0.0001f)
     }

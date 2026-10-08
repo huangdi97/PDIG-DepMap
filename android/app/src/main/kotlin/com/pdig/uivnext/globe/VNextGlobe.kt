@@ -324,20 +324,25 @@ fun VNextGlobe(
             val bmp = earthBitmap
             if (bmp != null) {
                 drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt(), (radius * 2f).toInt())
-                // Purely atmospheric light, not a fabricated dependency edge:
-                // the original light-first reference uses a luminous azure limb.
-                drawCircle(
-                    color = Color(0xFF5EB7FF).copy(alpha = 0.33f),
-                    radius = radius * 1.003f,
-                    center = center,
-                    style = Stroke(width = radius * 0.018f),
-                )
-                drawCircle(
-                    color = Color(0xFF8BCCFF).copy(alpha = 0.15f),
-                    radius = radius * 1.033f,
-                    center = center,
-                    style = Stroke(width = radius * 0.032f),
-                )
+                // Atmosphere, not an invented dependency edge. Production stays subtle.
+                if (BuildConfig.FLAVOR == "preview") {
+                    drawCircle(color = Color(0xFF62BAFF).copy(alpha = .17f),
+                        radius = radius * 1.050f, center = center,
+                        style = Stroke(width = radius * .093f))
+                    drawCircle(color = Color(0xFF90D9FF).copy(alpha = .34f),
+                        radius = radius * 1.019f, center = center,
+                        style = Stroke(width = radius * .038f))
+                    drawCircle(color = Color.White.copy(alpha = .49f),
+                        radius = radius * 1.002f, center = center,
+                        style = Stroke(width = radius * .009f))
+                } else {
+                    drawCircle(color = Color(0xFF5EB7FF).copy(alpha = .33f),
+                        radius = radius * 1.003f, center = center,
+                        style = Stroke(width = radius * .018f))
+                    drawCircle(color = Color(0xFF8BCCFF).copy(alpha = .15f),
+                        radius = radius * 1.033f, center = center,
+                        style = Stroke(width = radius * .032f))
+                }
             } else {
                 drawCircle(
                     brush = Brush.radialGradient(

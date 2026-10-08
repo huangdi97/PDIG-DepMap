@@ -38,7 +38,7 @@ import java.util.Calendar
  * A prior 1.57x transform produced a visually clipped sphere despite passing CI.
  * Reserve a minimum 12% of the Globe canvas diameter for the visible limb.
  */
-internal const val R9_WORLD_VISUAL_SCALE: Float = 1.20f
+internal const val R9_WORLD_VISUAL_SCALE: Float = 1.27f
 internal fun r9PlanetDiameterFraction(scale: Float): Float = 0.72f * scale
 
 /** Greeting reflects the actual device clock; it must not say morning at 14:10. */

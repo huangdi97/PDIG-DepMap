@@ -53,6 +53,14 @@ internal fun renderEarthBody(
     // produces the visibly faceted/octagonal Now Globe seen in Round4 runtime pixels.
     val sampleRadius = half.toFloat().coerceAtLeast(1f)
     val inv = 1f / sampleRadius
+    // Camera-space halfway vector: preview ocean sheen is narrow and sun-dependent.
+    val sunOnCamera = rotatePoint(sunDir, cam)
+    val halfLength = sqrt(sunOnCamera.x * sunOnCamera.x +
+        sunOnCamera.y * sunOnCamera.y +
+        (sunOnCamera.z + 1f) * (sunOnCamera.z + 1f)).coerceAtLeast(0.0001f)
+    val halfX = sunOnCamera.x / halfLength
+    val halfY = sunOnCamera.y / halfLength
+    val halfZ = (sunOnCamera.z + 1f) / halfLength
     val argb = IntArray(rect * rect)
     for (y in 0 until rect) {
         val dy = (y - half) * inv
@@ -117,6 +125,17 @@ internal fun renderEarthBody(
                 rr = liftChannel(rr, 195, lift)
                 gg = liftChannel(gg, 225, lift)
                 bb = liftChannel(bb, 250, lift)
+                val nDotH = (dx * halfX + dy * halfY + cz * halfZ).coerceIn(0f, 1f)
+                val glint = oceanSpecularStrength(ar, ag, ab, nDotH, day)
+                if (glint > 0f) {
+                    rr = liftChannel(rr, 250, glint)
+                    gg = liftChannel(gg, 251, glint)
+                    bb = liftChannel(bb, 255, glint)
+                }
+                val edge = (1f - cz).let { it * it } * .19f
+                rr = liftChannel(rr, 105, edge)
+                gg = liftChannel(gg, 204, edge)
+                bb = liftChannel(bb, 255, edge)
             }
             argb[rowBase + x] = (0xFF shl 24) or (rr shl 16) or (gg shl 8) or bb
         }
@@ -124,6 +143,17 @@ internal fun renderEarthBody(
     val bmp = Bitmap.createBitmap(rect, rect, Bitmap.Config.ARGB_8888)
     bmp.setPixels(argb, 0, rect, 0, 0, rect, rect)
     return bmp
+}
+
+/** Preview-only photographic sheen: albedo classifies water; this never fabricates relationships. */
+internal fun oceanSpecularStrength(red: Int, green: Int, blue: Int, nDotH: Float, day: Float): Float {
+    if (blue <= red + 15 || blue <= green + 3 || green < red * .75f) return 0f
+    val n2 = nDotH.coerceIn(0f, 1f).let { it * it }
+    val n4 = n2 * n2
+    val n8 = n4 * n4
+    val n16 = n8 * n8
+    val n32 = n16 * n16
+    return (.33f * day.coerceIn(0f, 1f) * n32 * n32).coerceIn(0f, .33f)
 }
 
 /** Pure per-channel reference grade; out-of-gamut values never leak to bitmap ARGB. */

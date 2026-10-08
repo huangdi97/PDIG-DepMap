@@ -8,8 +8,8 @@ class R9WorldFramingTest {
     @Test
     fun fullEarthFitsStageAfterVisualScale() {
         val occupied = r9PlanetDiameterFraction(R9_WORLD_VISUAL_SCALE)
-        assertTrue("Planet must not be cropped to an oversized hemisphere", occupied <= .88f)
-        assertTrue("Planet still needs to dominate the world identity scene", occupied >= .77f)
+        assertTrue("Planet must be complete with a thin atmospheric margin", occupied <= .94f)
+        assertTrue("Planet must occupy the flagship stage, not appear like an icon", occupied >= .90f)
     }
 
     @Test
