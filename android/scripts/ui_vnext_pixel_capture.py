@@ -237,6 +237,22 @@ def main():
         ui = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
         if not any(short_sha in line for line in ui):
             raise RuntimeError(f"Displayed preview source SHA {short_sha} missing from 01-now UI XML")
+    # The user's fifth root tab is a real workspace, not a decorative icon.
+    # Check it *before* later Studio interaction to distinguish ME route bugs
+    # from bugs caused by leaving a child customization screen.
+    if not tap_retry("我", exact=True, prefer_bottom=True):
+        raise RuntimeError("The fifth primary navigation item (我) is not clickable")
+    capture("01a-me-from-primary-nav")
+    try:
+        require_screen("01a-me-from-primary-nav", "我的数字生活", "隐私与个人偏好")
+    except RuntimeError:
+        diagnose_navigation("me-from-primary-nav")
+        raise
+    if not tap_retry("现在", exact=True, prefer_bottom=True):
+        raise RuntimeError("Could not return from 我 to 现在 through root navigation")
+    capture("01b-now-returned-from-me")
+    require_screen("01b-now-returned-from-me", "你的全球数字基础设施")
+
     if not tap_match("基础设施", exact=True, prefer_bottom=True):
         # Keep failure evidenced; top-level root may be hidden behind onboarding.
         capture("01-navigation-blocked")
