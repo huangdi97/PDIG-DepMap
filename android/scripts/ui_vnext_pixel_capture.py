@@ -319,6 +319,20 @@ def main():
     require_screen("08d-number-studio-edited", "保存外观")
     if not tap_retry("保存外观", exact=True):
         raise RuntimeError("Number Studio: saving presentation profile failed")
+    # Supporting screens must also be the new R9 renderer and expose actual
+    # persisted settings/source truth. Avoid static source-only acceptance.
+    adb("shell", "input", "keyevent", "4")
+    time.sleep(2)
+    adb("shell", "input", "keyevent", "4")
+    time.sleep(2)
+    if not tap_retry("设置", exact=True):
+        raise RuntimeError("R9 settings entry unreachable from Numbers")
+    capture("09-personalization")
+    require_screen("09-personalization", "显示与个性化", "隐藏敏感信息", "数据源")
+    if not tap_retry("数据源", exact=True):
+        raise RuntimeError("R9 data-source entry unavailable")
+    capture("10-data-sources")
+    require_screen("10-data-sources", "当前预览工作区", "SYNTHETIC", "未知")
 
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),
