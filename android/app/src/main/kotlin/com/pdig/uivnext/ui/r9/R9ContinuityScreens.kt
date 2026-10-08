@@ -12,6 +12,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -51,6 +55,7 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
     val fresh = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-3")
     val activeStep = stages.firstOrNull { it.status == "verifying" }
         ?: stages.firstOrNull { it.status != "completed" }
+    var checklistOpen by rememberSaveable { mutableStateOf(false) }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
         .padding(horizontal = 13.dp, vertical = 12.dp)
         .testTag("pdig.r9.screen.change"),
@@ -112,7 +117,63 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
             R9NumberNode("新手机号 · 目标", fresh?.maskedNumber ?: "未记录",
                 Color(0xFF1683CF), Modifier.weight(1f))
         }
-        R9SectionTitle("阶段明细", "查看记录 →") { app.navigate(VScreen.RECORDS) }
+        Surface(
+            modifier = Modifier.fillMaxWidth()
+                .clickable { checklistOpen = !checklistOpen }
+                .testTag("pdig.r9.change.review-checklist"),
+            color = R9.Blue,
+            shape = RoundedCornerShape(15.dp),
+        ) {
+            Row(Modifier.padding(horizontal = 15.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    if (checklistOpen) "收起本阶段核验清单" else "查看本阶段核验清单 →",
+                    color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold,
+                )
+                Text(if(checklistOpen) "⌃" else "›", color = Color.White, fontSize = 18.sp)
+            }
+        }
+        if (checklistOpen) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().testTag("pdig.r9.change.review-contents"),
+                color = Color.White,
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, R9.Line),
+            ) {
+                Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                    Text("本阶段待办 · 已记录服务", color = R9.Ink,
+                        fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    if (migrations.isEmpty()) {
+                        Text("暂无已记录服务关系，未知不等于没有依赖。",
+                            color = R9.Muted, fontSize = 11.sp)
+                    } else {
+                        migrations.forEach { migration ->
+                            val status = when(migration.status) {
+                                "completed" -> "已验证"
+                                "waiting", "verifying" -> "待验证"
+                                "not_started" -> "未开始"
+                                "plan" -> "仅计划"
+                                "unresolved" -> "待解决"
+                                else -> "待核对"
+                            }
+                            Row(Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically) {
+                                Text(migration.service, Modifier.weight(1f),
+                                    color = R9.Ink, fontSize = 11.sp, maxLines = 1)
+                                R9Badge(status, if(migration.status == "completed") R9.Green
+                                    else if(migration.status == "unresolved") R9.Rose
+                                    else R9.Amber)
+                            }
+                        }
+                    }
+                    Text("这里只能查阅计划和当前记录；不会通过点击自动标记已完成。完成迁移仍需实际验证。",
+                        color = R9.Muted, fontSize = 10.sp, lineHeight = 16.sp)
+                }
+            }
+        }
+                R9SectionTitle("阶段明细", "查看记录 →") { app.navigate(VScreen.RECORDS) }
         stages.forEach { stage -> R9StageRow(stage) }
         Spacer(Modifier.height(12.dp))
     }
