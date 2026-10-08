@@ -65,6 +65,8 @@ fun createVNextAppState(
     changeProjection: String? = null,
     emptyDemo: Boolean = false,
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
+    initialNumberDisplayNames: Map<String, String> = emptyMap(),
+    onNumberDisplayNameSaved: (String, String) -> Unit = {},
     initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
     onWorkspacePreferencesSaved: (WorkspacePreferences) -> Unit = {},
@@ -72,6 +74,8 @@ fun createVNextAppState(
     val app = VAppState(
         initialScreen = screen,
         initialPresentationProfiles = initialPresentationProfiles,
+        initialNumberDisplayNames = initialNumberDisplayNames,
+        onNumberDisplayNameSaved = onNumberDisplayNameSaved,
         initialWorkspacePreferences = initialWorkspacePreferences,
         onPresentationProfileSaved = onPresentationProfileSaved,
         onWorkspacePreferencesSaved = onWorkspacePreferencesSaved,

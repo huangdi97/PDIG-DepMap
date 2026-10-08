@@ -3,6 +3,7 @@ package com.pdig.uivnext
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import com.pdig.uivnext.ui.PresentationProfileStore
+import com.pdig.uivnext.ui.NumberDisplayNameStore
 import com.pdig.uivnext.ui.WorkspacePreferenceStore
 
 /**
@@ -14,9 +15,12 @@ import com.pdig.uivnext.ui.WorkspacePreferenceStore
 class VNextShellViewModel(application: Application) : AndroidViewModel(application) {
     private val presentationStore = PresentationProfileStore(application)
     private val workspaceStore = WorkspacePreferenceStore(application)
+    private val numberDisplayNames = NumberDisplayNameStore(application)
 
     val app = createVNextAppState(
         initialPresentationProfiles = presentationStore.loadAll(),
+        initialNumberDisplayNames = numberDisplayNames.loadAll(),
+        onNumberDisplayNameSaved = numberDisplayNames::save,
         initialWorkspacePreferences = workspaceStore.load(),
         onPresentationProfileSaved = presentationStore::save,
         onWorkspacePreferencesSaved = workspaceStore::save,

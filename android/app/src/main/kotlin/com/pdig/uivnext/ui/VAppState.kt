@@ -24,6 +24,8 @@ class VAppState(
     initialScreen: VScreen = VScreen.NOW,
     initialCamera: GlobeCamera = focusCamera(16f, 107f),
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
+    initialNumberDisplayNames: Map<String, String> = emptyMap(),
+    private val onNumberDisplayNameSaved: (String, String) -> Unit = {},
     initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     private val onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
     private val onWorkspacePreferencesSaved: (WorkspacePreferences) -> Unit = {},
@@ -78,6 +80,23 @@ class VAppState(
     /** 本次运行中的 PresentationProfile；只影响显示，不写入 PersonalReality / Canonical。 */
     private val presentationProfiles = mutableStateMapOf<String, PresentationProfile>().apply {
         putAll(initialPresentationProfiles)
+    }
+
+    /** Local presentation aliases: the source number identity is never changed. */
+    private val numberDisplayNames = mutableStateMapOf<String, String>().apply {
+        putAll(initialNumberDisplayNames)
+    }
+
+    fun numberDisplayName(numberId: String, recordedNumber: String): String =
+        displayNameForNumber(recordedNumber, numberDisplayNames[numberId])
+
+    fun numberAlias(numberId: String): String = numberDisplayNames[numberId].orEmpty()
+
+    fun renameNumber(numberId: String, input: String) {
+        val alias = input.trim().take(32)
+        if (alias.isEmpty()) numberDisplayNames.remove(numberId)
+        else numberDisplayNames[numberId] = alias
+        onNumberDisplayNameSaved(numberId, alias)
     }
 
     /** System back 返回栈（栈顶 = 下一返回目标；空栈 → 系统退出）。 */
