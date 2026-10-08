@@ -22,6 +22,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.app.BuildConfig
+import com.pdig.uivnext.ui.r9.R9NowScreen
+import com.pdig.uivnext.ui.r9.R9InfrastructureScreen
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VGlobeState
@@ -55,9 +58,14 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             .testTagLocal("pdig.breakpoint.${breakpoint.name.lowercase()}")
             .background(Brush.verticalGradient(listOf(PdigV2Colors.Canvas, PdigV2Colors.CanvasDeep))),
     ) {
+        // R9 is an explicit Preview-only renderer; production and tablet retain
+        // their current behavior until separate device evidence supports translation.
+        // This is a new screen implementation, not an R8 style modifier.
+        val useR9Phone = BuildConfig.FLAVOR == "preview" && breakpoint == MediaBreakpoint.COMPACT
         when (app.screen) {
-            VScreen.NOW -> NowScreen(app, breakpoint)
-            VScreen.OVERVIEW, VScreen.INFRASTRUCTURE -> OverviewScreen(app, breakpoint)
+            VScreen.NOW -> if (useR9Phone) R9NowScreen(app) else NowScreen(app, breakpoint)
+            VScreen.OVERVIEW, VScreen.INFRASTRUCTURE ->
+                if (useR9Phone) R9InfrastructureScreen(app) else OverviewScreen(app, breakpoint)
             VScreen.CARDS -> CardsScreen(app, breakpoint)
             VScreen.CARD_DETAIL -> CardDetailScreen(app, breakpoint)
             VScreen.CARD_CUSTOMIZATION -> CardCustomizationScreen(app, breakpoint)
