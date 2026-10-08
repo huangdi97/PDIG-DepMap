@@ -30,6 +30,7 @@ import com.pdig.uivnext.ui.r9.R9NumbersScreen
 import com.pdig.uivnext.ui.r9.R9NumberDetailScreen
 import com.pdig.uivnext.ui.r9.R9StudioScreen
 import com.pdig.uivnext.ui.r9.R9SearchScreen
+import com.pdig.uivnext.ui.r9.R9PreferencesScreen
 import com.pdig.uivnext.ui.r9.R9SecondaryScreen
 import com.pdig.uivnext.ui.r9.R9CardDetailScreen
 import com.pdig.uivnext.ui.r9.R9ChangePhoneScreen
@@ -87,7 +88,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.SOURCES -> DataSourcesScreen(app, breakpoint)
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
                 if (useR9Phone) R9SecondaryScreen(app, app.screen) else SecondaryInfraScreen(app, app.screen, breakpoint)
-            VScreen.PERSONALIZATION, VScreen.SETTINGS -> PersonalizationScreen(app, breakpoint)
+            VScreen.PERSONALIZATION, VScreen.SETTINGS -> if (useR9Phone) R9PreferencesScreen(app) else PersonalizationScreen(app, breakpoint)
         }
         if (app.globe.state == VGlobeState.REGION_DETAIL) {
             RegionDrawer(app, breakpoint)
