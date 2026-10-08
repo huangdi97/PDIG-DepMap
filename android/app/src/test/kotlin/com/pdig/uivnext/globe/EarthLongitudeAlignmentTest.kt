@@ -1,5 +1,6 @@
 package com.pdig.uivnext.globe
 
+import androidx.compose.ui.geometry.Offset
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import kotlin.math.PI
@@ -49,6 +50,24 @@ class EarthLongitudeAlignmentTest {
     @Test
     fun NegativeLongitudeIsPreservedForUnitedStates() {
         assertEquals((-PI / 2).toFloat(), earthLongitudeRad(latLonToVec(0f, -90f)), 0.0001f)
+    }
+
+    @Test
+    fun ActualGlobePanTurnsYawAndPitchInsteadOfOnlyEdges() {
+        val start = focusCamera(16f, 107f)
+        val moved = applyGlobeTransform(start, Offset(100f, 40f), 1f)
+        assertEquals(start.yawDeg - 35f, moved.yawDeg, 0.0001f)
+        assertEquals(start.pitchDeg - 14f, moved.pitchDeg, 0.0001f)
+        assertEquals(start.zoom, moved.zoom, 0.0001f)
+    }
+
+    @Test
+    fun PinchChangesActualCameraZoomAndRespectsBounds() {
+        val start = focusCamera(16f, 107f)
+        val zoomed = applyGlobeTransform(start, Offset.Zero, 1.5f)
+        assertEquals(start.zoom * 1.5f, zoomed.zoom, 0.0001f)
+        assertEquals(1.9f, applyGlobeTransform(start, Offset.Zero, 99f).zoom, 0.0001f)
+        assertEquals(0.7f, applyGlobeTransform(start, Offset.Zero, .01f).zoom, 0.0001f)
     }
 
     @Test
