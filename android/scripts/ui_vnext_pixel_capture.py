@@ -99,11 +99,29 @@ def capture(name):
     observed.append({"name": name, "size": path.stat().st_size, "labels": len(labels)})
     print("CAPTURE", name, path.stat().st_size, flush=True)
 
+def diagnose_navigation(name, previous_pid=None):
+    """Keep device facts for every failed page transition; never reclassify as PASS."""
+    pid = adb("shell", "pidof", PACKAGE, check=False).stdout.strip()
+    activity = adb("shell", "dumpsys", "activity", "activities", check=False).stdout
+    logs = adb("logcat", "-d", "-t", "750", check=False).stdout
+    (ROOT / (name + "-diagnosis.json")).write_text(
+        json.dumps({"previousPid": previous_pid, "currentPid": pid,
+                    "package": PACKAGE, "sha": os.environ.get("GITHUB_SHA"),
+                    "resumedActivities": [line.strip() for line in activity.splitlines()
+                                          if "mResumed" in line or "topResumed" in line or PACKAGE in line][:80],
+                    "androidRuntimeErrors": [line for line in logs.splitlines()
+                                            if "FATAL EXCEPTION" in line or "AndroidRuntime" in line
+                                            or "Process: " + PACKAGE in line][-120:]},
+                   ensure_ascii=False, indent=2), encoding="utf-8")
+    print("NAVIGATION_DIAGNOSIS", name, "pid", previous_pid, "->", pid, flush=True)
+
+
 def require_screen(name, *texts):
     data = json.loads((ROOT / (name + ".json")).read_text(encoding="utf-8"))
     labels = data.get("uiText", [])
     for required in texts:
         if not any(required in label for label in labels):
+            diagnose_navigation("screen-" + name + "-missing")
             raise RuntimeError(f"Screen {name} did not show {required!r}; captured wrong page")
 
 
@@ -277,13 +295,19 @@ def main():
         raise RuntimeError("Hierarchical top arrow unavailable on card detail")
     capture("04g-up-to-cards")
     require_screen("04g-up-to-cards", "全球支付卡片")
-    # Home-screen navigation is still the canonical path for root screens.
-    adb("shell", "am", "force-stop", PACKAGE)
-    adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
-    time.sleep(3)
+    # Navigate directly from the real Cards list to Change. The previous
+    # script force-stopped/relaunched the app before tapping the root tab,
+    # changing the system/back-stack scenario and producing a false Now image.
+    # Cold-start behavior is already separately covered by 00-first-launch.
+    before_pid = adb("shell", "pidof", PACKAGE, check=False).stdout.strip()
     if not tap_retry("变更", exact=True, prefer_bottom=True):
-        raise RuntimeError("Change root navigation unavailable after activity relaunch")
+        diagnose_navigation("05-change-tap-missing", before_pid)
+        raise RuntimeError("Change root navigation unavailable directly after Cards")
     capture("05-change")
+    after_pid = adb("shell", "pidof", PACKAGE, check=False).stdout.strip()
+    if not before_pid or before_pid != after_pid:
+        diagnose_navigation("05-change-process-restarted", before_pid)
+        raise RuntimeError(f"PDIG process restarted when navigating to Change: {before_pid} -> {after_pid}")
     require_screen("05-change", "影响分析 · 关键服务", "旧手机号")
     if not tap_retry("查看本阶段核验清单 →", exact=True):
         adb("shell", "input", "swipe", "530", "1650", "530", "800", "400")
