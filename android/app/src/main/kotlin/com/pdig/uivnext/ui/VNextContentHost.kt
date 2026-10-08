@@ -31,6 +31,7 @@ import com.pdig.uivnext.ui.r9.R9NumberDetailScreen
 import com.pdig.uivnext.ui.r9.R9StudioScreen
 import com.pdig.uivnext.ui.r9.R9SearchScreen
 import com.pdig.uivnext.ui.r9.R9PreferencesScreen
+import com.pdig.uivnext.ui.r9.R9SourcesScreen
 import com.pdig.uivnext.ui.r9.R9SecondaryScreen
 import com.pdig.uivnext.ui.r9.R9CardDetailScreen
 import com.pdig.uivnext.ui.r9.R9ChangePhoneScreen
@@ -85,7 +86,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.CHANGE, VScreen.CHANGE_PHONE -> if (useR9Phone) R9ChangePhoneScreen(app) else ChangePhoneScreen(app, breakpoint)
             VScreen.RECORDS -> if (useR9Phone) R9RecordsScreen(app) else RecordsScreen(app, breakpoint)
             VScreen.SEARCH -> if (useR9Phone) R9SearchScreen(app) else SearchScreen(app, breakpoint)
-            VScreen.SOURCES -> DataSourcesScreen(app, breakpoint)
+            VScreen.SOURCES -> if (useR9Phone) R9SourcesScreen(app) else DataSourcesScreen(app, breakpoint)
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
                 if (useR9Phone) R9SecondaryScreen(app, app.screen) else SecondaryInfraScreen(app, app.screen, breakpoint)
             VScreen.PERSONALIZATION, VScreen.SETTINGS -> if (useR9Phone) R9PreferencesScreen(app) else PersonalizationScreen(app, breakpoint)
