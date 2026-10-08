@@ -32,6 +32,8 @@ import com.pdig.uivnext.model.ChangeStage
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.screens.projectionStages
+import com.pdig.uivnext.ui.screens.projectionMigrations
 
 /**
  * R9 continuity choreography. Three projections remain distinct:
@@ -41,8 +43,10 @@ import com.pdig.uivnext.ui.VAppState
 @Composable
 internal fun R9ChangePhoneScreen(app: VAppState) {
     val projection = app.changeProjection
-    val stages = if(app.emptyDemo) emptyList() else UiVNextDemoFixture.changeStages
-    val migrations = if(app.emptyDemo) emptyList() else UiVNextDemoFixture.changeMigrations
+    // Reuse the canonical R8 presentation projection rules. The same stage
+    // cannot be COMPLETED in Current and only PLANNED in After by accident.
+    val stages = if(app.emptyDemo) emptyList() else projectionStages(projection)
+    val migrations = if(app.emptyDemo) emptyList() else projectionMigrations(projection)
     val old = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-1")
     val fresh = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-3")
     val activeStep = stages.firstOrNull { it.status == "verifying" }
@@ -70,9 +74,19 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
         R9StepCircles(stages)
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("第 ${activeStep?.stage ?: 0}/6 步 · ${r9StageLabel(activeStep?.key ?: "")}",
-                color = R9.Ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-            R9Badge(if(projection == "after") "计划投影" else "待验证", R9.Amber)
+            Text(
+                when (projection) {
+                    "after" -> "完成后 · 预期状态（未执行）"
+                    "current" -> "当前 · 迁移前的已记录状态"
+                    else -> "第 ${activeStep?.stage ?: 0}/6 步 · ${r9StageLabel(activeStep?.key ?: "")}"
+                },
+                color = R9.Ink, fontSize = 13.sp, fontWeight = FontWeight.Bold,
+            )
+            R9Badge(when(projection) {
+                "after" -> "计划投影"
+                "current" -> "当前"
+                else -> "待验证"
+            }, if(projection == "current") R9.Blue else R9.Amber)
         }
         R9SectionTitle("影响分析 · 关键服务")
         R9ServiceOrbit(
@@ -194,6 +208,8 @@ private fun R9ServiceOrbit(number: String, migrations: List<ChangeMigration>, pr
                                 "completed" -> "已验证"
                                 "waiting", "verifying" -> "待验证"
                                 "not_started" -> "未开始"
+                                "plan" -> "计划中"
+                                "unresolved" -> "待解决"
                                 else -> "待确认"
                             }, color = R9.Muted, fontSize = 9.sp)
                     }
@@ -245,11 +261,13 @@ private fun R9StageRow(stage: ChangeStage) {
                 "completed" -> "已完成"
                 "verifying" -> "待验证"
                 "blocked" -> "被阻断"
+                "plan" -> "计划中"
                 else -> "未开始"
             }, when(stage.status) {
                 "completed" -> R9.Green
                 "blocked" -> R9.Rose
                 "verifying" -> R9.Amber
+                "plan" -> R9.Blue
                 else -> R9.Muted
             })
         }
