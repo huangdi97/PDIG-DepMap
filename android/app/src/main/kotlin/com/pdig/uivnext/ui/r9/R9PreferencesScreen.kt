@@ -69,7 +69,7 @@ internal fun R9PreferencesScreen(app: VAppState) {
             app.showUpcoming, "upcoming") { app.showUpcoming = !app.showUpcoming }
 
         R9SectionTitle("对象外观")
-        R9PreferencesAction("银行卡定制", "为每张卡单独设置材质与主题", "cards") {
+        R9PreferencesAction("卡面图片", "从相册选择或使用简洁卡面", "cards") {
             app.navigate(VScreen.CARDS)
         }
         R9PreferencesAction("手机号定制", "通信身份不套用银行卡面", "numbers") {
