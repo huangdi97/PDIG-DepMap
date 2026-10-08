@@ -58,25 +58,9 @@ internal fun R9CardDetailScreen(app: VAppState) {
             R9Badge("编辑", R9.Blue, Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.openCardCustomization(card.id) })
         }
         Box(Modifier.testTag(VTestIds.CARD_DETAIL_IDENTITY)) {
-            if (profile == null) {
-                R9BankCardFace(
-                    card = card,
-                    privacyMask = app.privacyMask,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            } else {
-                // A saved PresentationProfile must actually affect the card face;
-                // do not discard Studio personalization merely for a visual match.
-                AssetCard(
-                    card = card.copy(preset = profile.themeId),
-                    privacyMask = app.privacyMask || profile.maskSensitive,
-                    onClick = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    presentationMaterial = profile.material,
-                    presentationAccent = hexColorOrNull(profile.accentColor),
-                    presentationLayout = profile.layout,
-                )
-            }
+            R10CardFace(card = card,
+                privacyMask = app.privacyMask || (profile?.maskSensitive == true),
+                profile = profile, modifier = Modifier.fillMaxWidth())
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             R9Badge("● ${statusLabelZh(card.status)}", r9CardStatusTint(card.status))
@@ -166,7 +150,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
             shape = RoundedCornerShape(15.dp), color = R9.Blue,
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Text("定制这张卡的外观 →", color = Color.White, fontSize = 13.sp,
+                Text("更换卡面图片 →", color = Color.White, fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold)
             }
         }
