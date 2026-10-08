@@ -26,6 +26,7 @@ internal val PRIMARY_ENTRIES = listOf(
     NavEntry(VScreen.INFRASTRUCTURE, Icons.Filled.Place),
     NavEntry(VScreen.CHANGE, Icons.Filled.Refresh),
     NavEntry(VScreen.RECORDS, Icons.Filled.DateRange),
+    NavEntry(VScreen.ME, Icons.Filled.Person),
 )
 
 internal val SECONDARY_ENTRIES = listOf(
@@ -70,6 +71,7 @@ internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (
         current == VScreen.NUMBER_DETAIL ||
         current == VScreen.NUMBER_CUSTOMIZATION
     VScreen.CHANGE -> current == VScreen.CHANGE || current == VScreen.CHANGE_PHONE
+    VScreen.ME -> current == VScreen.ME || current == VScreen.SETTINGS || current == VScreen.PERSONALIZATION || current == VScreen.SOURCES
     VScreen.SETTINGS -> current == VScreen.SETTINGS || current == VScreen.PERSONALIZATION
     else -> current == entry
 }

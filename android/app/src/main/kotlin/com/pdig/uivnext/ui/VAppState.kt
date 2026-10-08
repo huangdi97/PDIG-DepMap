@@ -94,18 +94,16 @@ class VAppState(
     var selectedCardId by mutableStateOf<String?>(null)
     var selectedNumberId by mutableStateOf<String?>(null)
 
-    /** 顶层导航/直接切换（bottom nav / rail / chips）：只有 search/change 进栈（保持既有语义）。 */
+    /**
+     * Every forward navigation records the actual screen of departure.
+     * Android/system/header Back always returns to the preceding screen, including
+     * changes between bottom tabs. Initial app root alone delegates to system exit.
+     * Canonical/PersonalReality are completely unaffected.
+     */
     fun navigate(next: VScreen) {
-        when (next) {
-            VScreen.SEARCH, VScreen.CHANGE_PHONE -> {
-                if (screen != next) navBackTarget = screen
-                screen = next
-            }
-            else -> {
-                backStack.clear()
-                screen = next
-            }
-        }
+        if (screen == next) return
+        backStack.add(screen)
+        screen = next
     }
 
     /** 从工具入口进入设置/数据源等辅助页，保留当前页面作为返回目标。 */
@@ -121,7 +119,8 @@ class VAppState(
             navigate(next)
             return
         }
-        navBackTarget = VScreen.SEARCH
+        // Search remains the immediate predecessor; its predecessor is retained.
+        backStack.add(VScreen.SEARCH)
         screen = next
     }
 

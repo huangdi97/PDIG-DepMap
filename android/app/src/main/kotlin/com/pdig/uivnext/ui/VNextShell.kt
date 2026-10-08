@@ -298,4 +298,5 @@ private fun isCompactRootContext(screen: VScreen): Boolean = screen in setOf(
     VScreen.SERVICES,
     VScreen.WEAKNESSES,
     VScreen.RECORDS,
+    VScreen.ME,
 )

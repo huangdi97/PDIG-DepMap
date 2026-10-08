@@ -11,7 +11,7 @@ internal class WorkspacePreferenceStore(context: Context) {
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     fun load(): WorkspacePreferences = WorkspacePreferences(
-        privacyMask = prefs.getBoolean(KEY_PRIVACY, true),
+        privacyMask = prefs.getBoolean(KEY_PRIVACY, false),
         reduceMotion = prefs.getBoolean(KEY_REDUCE_MOTION, false),
         railExpanded = prefs.getBoolean(KEY_RAIL_EXPANDED, true),
         showUpcoming = prefs.getBoolean(KEY_SHOW_UPCOMING, true),
