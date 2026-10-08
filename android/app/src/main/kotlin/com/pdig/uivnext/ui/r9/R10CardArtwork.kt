@@ -52,8 +52,7 @@ internal fun selectedCardArt(profile: PresentationProfile?): String =
 internal fun r10ArtProfile(profile: PresentationProfile, art: String) = profile.copy(
     backgroundKind = if(art == R10_DEFAULT_ART) "preset" else "r10-art",
     backgroundValue = if(art == R10_DEFAULT_ART) profile.themeId else art,
-    maskSensitive = false,
-)
+ )
 
 private const val MAX_IMPORT_BYTES = 12 * 1024 * 1024
 private const val ART_FOLDER = "pdig_r10_card_art"
