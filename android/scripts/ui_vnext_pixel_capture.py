@@ -224,7 +224,7 @@ def main():
         raise RuntimeError("Preview first-run onboarding skip could not be activated")
     time.sleep(3)
     capture("01-now")
-    require_screen("01-now", "你的全球数字基础设施", "预览 · ")
+    require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "预览 · ")
     now_labels = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
     if not any(any(greeting in label for greeting in ("早上好", "中午好", "下午好", "晚上好", "你好"))
                for label in now_labels):
