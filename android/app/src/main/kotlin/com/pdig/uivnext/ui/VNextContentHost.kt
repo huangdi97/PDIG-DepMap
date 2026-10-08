@@ -64,7 +64,7 @@ import com.pdig.uivnext.ui.screens.testTagLocal
 
 /** 内容宿主：路由 L0 环境背景 + 屏幕分发 + 地区抽屉（REGION_DETAIL）。 */
 @Composable
-fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modifier = Modifier) {
+fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modifier = Modifier, onHelp: (() -> Unit)? = null) {
     Box(
         modifier
             .fillMaxSize()
@@ -77,7 +77,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
         val useR9Phone = BuildConfig.FLAVOR == "preview" && breakpoint == MediaBreakpoint.COMPACT
         when (app.screen) {
             VScreen.NOW -> if (useR9Phone) R9NowScreen(app) else NowScreen(app, breakpoint)
-            VScreen.ME -> R10MeScreen(app)
+            VScreen.ME -> R10MeScreen(app, onHelp)
             VScreen.OVERVIEW, VScreen.INFRASTRUCTURE ->
                 if (useR9Phone) R9InfrastructureScreen(app) else OverviewScreen(app, breakpoint)
             VScreen.CARDS -> if (useR9Phone) R9CardsScreen(app) else CardsScreen(app, breakpoint)

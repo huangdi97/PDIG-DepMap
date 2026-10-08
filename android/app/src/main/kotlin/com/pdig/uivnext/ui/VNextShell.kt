@@ -67,7 +67,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -
                 Column(Modifier.weight(1f)) {
                     TopCommandBar(app, compact = false, onHelp = onHelp)
                     if (isInfraRootScreen(app.screen)) InfraChipRow(app)
-                    VNextContentHost(app, breakpoint, Modifier.weight(1f))
+                    VNextContentHost(app, breakpoint, Modifier.weight(1f), onHelp = onHelp)
                 }
             }
         } else {
@@ -76,7 +76,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -
                 else TopCommandBar(app, compact = true, onHelp = onHelp)
                 // Phone stays focused: Infrastructure secondary destinations live in the Overview hub,
                 // not in a persistent horizontal strip above every child screen.
-                VNextContentHost(app, breakpoint, Modifier.weight(1f))
+                VNextContentHost(app, breakpoint, Modifier.weight(1f), onHelp = onHelp)
                 if (isCompactRootContext(app.screen)) {
                     if (BuildConfig.FLAVOR == "preview") R9BottomNav(app) else BottomNav(app)
                 }
