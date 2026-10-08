@@ -126,3 +126,35 @@ Acceptance gates:
 - region chips count from actual fixture, no fake unknown -> safe;
 - Android app JVM tests and both preview/production debug builds;
 - actual phone and tablet pixel review before any visual acceptance upgrade.
+
+## Real-phone parity remediation R7 (2026-10-08) — NOT ACCEPTED YET
+
+**User evidence:** replacing the prior preview APK did not produce an experience visibly close to
+`PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`. Code-path presence, CI PASS and release
+upload must NEVER be equated with perceived visual fidelity. Treat the selected 1536×1024
+nine-panel board and the user's real-phone screenshots as the two comparison inputs.
+
+Current discrepancy / required reference translation:
+
+| Scope | Real issue | R7 source response | Acceptance evidence |
+|---|---|---|---|
+| Now first fold | giant dashboard-like globe card and long attention list | Globe-first stage, region context chips, lower fold density, one attention priority | phone screenshot at launcher, region chip tap |
+| Infrastructure | giant admin tiles and a second big globe | compact 4x2 icon grid, searchable content, smaller region-distribution panel | phone screenshot, navigate cards |
+| Cards list | issuer labels lack financial face detail | consistent network/EMV/contactless materials, real issuer identity | phone card-list screenshot |
+| Card detail | detail data presented as stacked property panels | asset face first, four live tabs with honest bill unknown and risk state | phone detail and tab interaction |
+| Change Phone | spatial visual buried below banner/form; duplicate identity panels | visible progress and service orbit before verbose details | phone change screenshot and projection switching |
+| Records | timeline information exists but reference-quality craft not yet measured | pending phone pixel review | 2026 Phone runtime pixels |
+| Tablet | frozen reference not to be regressed | no R7 compact-only layout port | tablet evidence required before Freeze |
+
+The Preview app chrome now exposes `BuildConfig.GIT_SHA` beside the app identity. A
+distinct runtime screenshot workflow installs the **exact** APK into an API35 Android
+emulator, captures launcher/onboarding/Now/Infrastructure/Cards/CardDetail/Change/Records
+and exports PNG/UI-tree manifests to an Actions artifact. It asserts that **the screen's**
+visible SHA matches the workflow source, making a stale app immediately diagnosable.
+The runtime workflow runs separately from unit/conformance/build: **one passing workflow
+does not supersede user real-device feedback**.
+
+Closure requires exact SHA match, fresh phone evidence, visual human comparison with
+reference, no clipped nav/content at supported densities, followed by tablet re-check.
+Unknown remains Unknown; preview only uses synthetic fixtures, After remains plan projection.
+A visual claim cannot be PASS based on changed source alone.

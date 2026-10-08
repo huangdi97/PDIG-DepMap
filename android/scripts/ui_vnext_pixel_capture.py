@@ -35,7 +35,7 @@ def xml_nodes():
 def label_of(node):
     return (node.get("text") or "") + " " + (node.get("content-desc") or "")
 
-def tap_match(label, exact=False):
+def tap_match(label, exact=False, prefer_bottom=False):
     matches = []
     for node in xml_nodes():
         desc = label_of(node)
@@ -47,6 +47,8 @@ def tap_match(label, exact=False):
                     matches.append(((x1 + x2) // 2, (y1 + y2) // 2, desc))
     if not matches:
         return False
+    if prefer_bottom:
+        matches.sort(key=lambda entry: entry[1], reverse=True)
     x, y, desc = matches[0]
     adb("shell", "input", "tap", x, y)
     time.sleep(2)
@@ -80,7 +82,13 @@ def main():
     tap_match("跳过")
     time.sleep(3)
     capture("01-now")
-    if not tap_match("基础设施", exact=True):
+    from os import environ
+    short_sha = environ.get("GITHUB_SHA", "")[:7]
+    if short_sha:
+        ui = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
+        if not any(short_sha in line for line in ui):
+            raise RuntimeError(f"Displayed preview source SHA {short_sha} missing from 01-now UI XML")
+    if not tap_match("基础设施", exact=True, prefer_bottom=True):
         # Keep failure evidenced; top-level root may be hidden behind onboarding.
         capture("01-navigation-blocked")
         raise RuntimeError("Could not navigate to 基础设施 after onboarding")
@@ -93,9 +101,9 @@ def main():
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "monkey", "-p", PACKAGE, "1")
     time.sleep(3)
-    tap_match("变更", exact=True)
+    tap_match("变更", exact=True, prefer_bottom=True)
     capture("05-change")
-    tap_match("记录", exact=True)
+    tap_match("记录", exact=True, prefer_bottom=True)
     capture("06-records")
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),
