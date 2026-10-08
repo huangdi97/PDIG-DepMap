@@ -159,24 +159,27 @@ private fun SinglePaneOverview(
             fontSize = 12.sp,
         )
         if (breakpoint == MediaBreakpoint.COMPACT) {
+            CompactInfrastructureSearch(app)
             CompactInfrastructureHub(app)
-        }
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(if (breakpoint == MediaBreakpoint.COMPACT) 230.dp else 380.dp)
-                .testTagLocal(VTestIds.GLOBE_STAGE),
-            color = PdigV2Colors.SurfaceGlass,
-            shape = RoundedCornerShape(VRadius.Xl),
-            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-        ) {
-            Box(Modifier.padding(12.dp)) {
-                VNextGlobe(
-                    controller = app.globe,
-                    regions = regions,
-                    arcingPairs = arcingPairs,
-                    reduceMotion = app.reduceMotion,
-                )
+            CompactInfrastructureRegionPanel(app, regions, arcingPairs)
+        } else {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(380.dp)
+                    .testTagLocal(VTestIds.GLOBE_STAGE),
+                color = PdigV2Colors.SurfaceGlass,
+                shape = RoundedCornerShape(VRadius.Xl),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Box(Modifier.padding(12.dp)) {
+                    VNextGlobe(
+                        controller = app.globe,
+                        regions = regions,
+                        arcingPairs = arcingPairs,
+                        reduceMotion = app.reduceMotion,
+                    )
+                }
             }
         }
         Surface(
