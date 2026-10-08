@@ -13,7 +13,8 @@ import xml.etree.ElementTree as ET
 
 ROOT = Path("artifacts/runtime-evidence/preview-phone")
 ROOT.mkdir(parents=True, exist_ok=True)
-PACKAGE = "com.pdig.app.preview"
+import os
+PACKAGE = "com.pdig.app.preview.p" + os.environ["GITHUB_SHA"][:7] if os.environ.get("GITHUB_SHA") else "com.pdig.app.preview"
 ACTIVITY = "com.pdig.app.PreviewLauncherActivity"
 observed = []
 
@@ -110,10 +111,21 @@ def main():
     print(adb("shell", "wm", "size", "1080x2340").stdout)
     print(adb("shell", "wm", "density", "440").stdout)
     adb("shell", "am", "force-stop", PACKAGE, check=False)
-    adb("shell", "monkey", "-p", PACKAGE, "1")
+    # Pixel Launcher may display an emulator-only ANR dialog during first boot.
+    # Explicit Activity launch avoids waiting for the home launcher to handle intents.
+    adb("shell", "settings", "put", "global", "window_animation_scale", "0", check=False)
+    adb("shell", "settings", "put", "global", "transition_animation_scale", "0", check=False)
+    adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
     time.sleep(10)
+    # An emulator-only launcher ANR may cover the actual PDIG guide even when the
+    # Activity is healthy. Dismiss the OS dialog, never treat the dialog as PDIG pixels.
+    if any("Pixel Launcher isn't responding" in label_of(n) for n in xml_nodes()):
+        if not tap_match("Close app", exact=True):
+            raise RuntimeError("Emulator launcher ANR could not be dismissed")
+        time.sleep(2)
     capture("00-first-launch")
-    tap_match("跳过")
+    if not tap_retry("跳过", exact=True):
+        raise RuntimeError("Preview first-run onboarding skip could not be activated")
     time.sleep(3)
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施")
@@ -148,7 +160,7 @@ def main():
         require_screen(shot, required)
     # Home-screen navigation is still the canonical path for root screens.
     adb("shell", "am", "force-stop", PACKAGE)
-    adb("shell", "monkey", "-p", PACKAGE, "1")
+    adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
     time.sleep(3)
     if not tap_retry("变更", exact=True, prefer_bottom=True):
         raise RuntimeError("Change root navigation unavailable after activity relaunch")

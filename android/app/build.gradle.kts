@@ -37,7 +37,15 @@ android {
          }
          create("preview") {
              dimension = "tier"
-             applicationIdSuffix = ".preview"
+             val previewSourceSuffix = (project.findProperty("pdigPreviewBuildSha") as String?)?.trim()
+             require(previewSourceSuffix == null || Regex("[a-f0-9]{7}").matches(previewSourceSuffix)) {
+                 "pdigPreviewBuildSha must be the exact seven-character lowercase hex source HEAD"
+             }
+             // Hosted CI debug keys are ephemeral: install each exact-source preview beside older
+             // ones instead of silently attempting an incompatible in-place signature update.
+             applicationIdSuffix = if (previewSourceSuffix == null) ".preview" else ".preview.p$previewSourceSuffix"
+             resValue("string", "preview_build_label",
+                 if (previewSourceSuffix == null) "PDIG Preview" else "PDIG Preview $previewSourceSuffix")
             versionCode = 200005
             versionName = "0.3.1"
          }

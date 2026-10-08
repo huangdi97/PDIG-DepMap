@@ -50,14 +50,16 @@ jobs:
             :core:test \
             :conformance:run \
             :app:testProductionDebugUnitTest \
-            :app:testPreviewDebugUnitTest
+            :app:testPreviewDebugUnitTest \
+            -PpdigPreviewBuildSha="${GITHUB_SHA:0:7}"
 
       - name: Build installable APKs
         working-directory: android
         run: |
           ./gradlew --no-daemon --console=plain \
             :app:assembleProductionDebug \
-            :app:assemblePreviewDebug
+            :app:assemblePreviewDebug \
+            -PpdigPreviewBuildSha="${GITHUB_SHA:0:7}"
 
       - name: Package preview distribution
         shell: bash
@@ -72,6 +74,8 @@ jobs:
           test -f "$PREVIEW_APK"
 
           SHORT_SHA="${GITHUB_SHA:0:7}"
+          APPLICATION_ID="com.pdig.app.preview.p$SHORT_SHA"
+          APP_LABEL="PDIG Preview $SHORT_SHA"
           PREVIEW_FILENAME="PDIG-Android-vNext-Preview-${SHORT_SHA}.apk"
           cp "$PREVIEW_APK" "dist/$PREVIEW_FILENAME"
           # The legacy ProductionDebug APK is built for regression checking only.
@@ -81,20 +85,21 @@ jobs:
           cat > dist/RELEASE_NOTES.md <<EOF
           # PDIG Android UI vNext Preview
 
-          This is an installable preview build of the accepted Android Light-first UI vNext.
+          This is an installable review candidate of the Android Light-first UI vNext (visual parity NOT YET ACCEPTED).
 
           - branch: feat/android-ui-vnext-translation
           - build source: $GITHUB_SHA
-          - final pixel-changing Android UI source: a3b3a05580c0cd2ed451e554ba7db3edfd523cc0
-          - Android visual reference: ACCEPTED
+          - visual design/source HEAD for this build: $GITHUB_SHA
+          - Android visual target selected; real-device visual parity: PENDING
           - minSdk: 26
           - targetSdk: 36
 
           The ONLY supported phone-install APK in this Release:
           $PREVIEW_FILENAME
 
-          Application id: com.pdig.app.preview (can coexist with com.pdig.app).
-          Installed app label: PDIG Preview.
+          Application id: $APPLICATION_ID (unique per exact source HEAD to avoid ephemeral debug signing conflicts).
+          Installed app label: $APP_LABEL (check this exact version on your phone).
+          Previous preview versions can remain installed: choose the exact SHA-labelled icon. Preview is isolated synthetic-only.
           Dedicated Android launcher: com.pdig.app.PreviewLauncherActivity.
           Normal launcher open starts the accepted UI vNext with SYNTHETIC REFERENCE DATA.
           The old PdigApp screen is not a preview launcher.
@@ -112,11 +117,12 @@ jobs:
           sourceHead=$GITHUB_SHA
           shortHead=$SHORT_SHA
           workflowRun=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
-          finalPixelChangingAndroidSource=a3b3a05580c0cd2ed451e554ba7db3edfd523cc0
-          androidVisualReference=ACCEPTED
+          sourceExactHead=$GITHUB_SHA
+          androidVisualParity=PENDING
           buildType=debug
           previewLauncherActivity=com.pdig.app.PreviewLauncherActivity
-          previewApplicationId=com.pdig.app.preview
+          previewApplicationId=$APPLICATION_ID
+          previewAppLabel=$APP_LABEL
           productionApplicationId=com.pdig.app
           EOF
 
@@ -132,7 +138,8 @@ jobs:
             "sourceHead": "$GITHUB_SHA",
             "sourceTree": "$SOURCE_TREE",
             "buildVariant": "previewDebug",
-            "applicationId": "com.pdig.app.preview",
+            "applicationId": "$APPLICATION_ID",
+            "appLabel": "$APP_LABEL",
             "versionName": "0.3.1",
             "versionCode": 200005,
             "minSdk": 26,
@@ -160,8 +167,9 @@ jobs:
           AAPT="$(find "$ANDROID_HOME/build-tools" -mindepth 2 -maxdepth 2 -type f -name aapt | sort -V | tail -n 1)"
           test -x "$AAPT"
           "$AAPT" dump badging "$APK" | tee dist/APK_BADGING.txt
-          grep -q "^package: name='com.pdig.app.preview' " dist/APK_BADGING.txt
-          grep -q "^application-label:'PDIG Preview'$" dist/APK_BADGING.txt
+          SHORT_SHA="${GITHUB_SHA:0:7}"
+          grep -q "^package: name='com.pdig.app.preview.p$SHORT_SHA' " dist/APK_BADGING.txt
+          grep -q "^application-label:'PDIG Preview $SHORT_SHA'$" dist/APK_BADGING.txt
           grep -q "^launchable-activity: name='com.pdig.app.PreviewLauncherActivity' " dist/APK_BADGING.txt
           if grep -q "^launchable-activity: name='com.pdig.app.MainActivity' " dist/APK_BADGING.txt; then
             echo "::error::Legacy launcher escaped into the preview APK"

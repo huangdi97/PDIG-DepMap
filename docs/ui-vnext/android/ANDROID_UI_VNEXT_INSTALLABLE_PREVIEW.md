@@ -158,3 +158,24 @@ Closure requires exact SHA match, fresh phone evidence, visual human comparison 
 reference, no clipped nav/content at supported densities, followed by tablet re-check.
 Unknown remains Unknown; preview only uses synthetic fixtures, After remains plan projection.
 A visual claim cannot be PASS based on changed source alone.
+
+## SHA-isolated preview installations (2026-10-08)
+
+GitHub ephemeral runner debug-keystores are not persistent across workflow runs.
+Using the same `com.pdig.app.preview` applicationId while uploading a different debug
+certificate can make Android reject a supposed "update" with
+`INSTALL_FAILED_UPDATE_INCOMPATIBLE`; a user can then reopen the old installed icon
+and see no visible changes. Source/release SHA alone was not sufficient evidence.
+
+The hosted Preview APK **now uses** `com.pdig.app.preview.p<seven-hex-SHA>` and sets its
+launchable Android app label to `PDIG Preview <seven-hex-SHA>` from the actual exact-HEAD
+Gradle build property. CI validates the **packaged** applicationId and display label.
+Each evaluation install is isolated from the previous ones and from production `com.pdig.app`.
+This is **intentional** for development builds; old variants must be removed manually
+when no longer needed, and synthetic preview preferences do not transfer across SHAs.
+Developer local builds without `-PpdigPreviewBuildSha` remain `com.pdig.app.preview`.
+
+The real-runtime screenshot runner uses the **same** SHA-qualified package and launches
+its explicit `PreviewLauncherActivity`, eliminating launcher-dependent ambiguity.
+Do not represent this as a stable production app update channel or signed release.
+Real-phone pixel parity remains HOLD pending human acceptance.

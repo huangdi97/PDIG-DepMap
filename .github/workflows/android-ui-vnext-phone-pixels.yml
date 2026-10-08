@@ -12,6 +12,7 @@ on:
       - 'android/scripts/ui_vnext_pixel_capture.py'
       - 'android/app/src/**/uivnext/**'
       - 'android/app/src/preview/**'
+      - 'android/app/build.gradle.kts'
       - 'android/app/src/main/kotlin/com/pdig/app/**'
 
 permissions:
@@ -40,7 +41,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          ./gradlew :app:assemblePreviewDebug --no-daemon --stacktrace
+          ./gradlew :app:assemblePreviewDebug --no-daemon --stacktrace -PpdigPreviewBuildSha="${GITHUB_SHA:0:7}"
           sha256sum app/build/outputs/apk/preview/debug/app-preview-debug.apk
       - name: Install, launch and capture actual phone runtime pixels
         uses: reactivecircus/android-emulator-runner@v2

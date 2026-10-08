@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <application>
+    <application android:label="@string/preview_build_label">
         <!-- Prevent the legacy PdigApp launcher from being exported in the preview APK.
              Replace the main-source declaration so the old MAIN/LAUNCHER intent is removed. -->
         <activity
@@ -13,7 +13,7 @@
         <activity
             android:name="com.pdig.app.PreviewLauncherActivity"
             android:exported="true"
-            android:label="@string/app_name"
+            android:label="@string/preview_build_label"
             android:theme="@style/Theme.PDIG"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
