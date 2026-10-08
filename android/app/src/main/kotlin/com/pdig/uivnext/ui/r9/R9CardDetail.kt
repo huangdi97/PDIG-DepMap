@@ -1,7 +1,10 @@
 package com.pdig.uivnext.ui.r9
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,11 +13,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.VTestIds
+import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.model.regionLabelZh
@@ -47,6 +54,24 @@ internal fun R9CardDetailScreen(app: VAppState) {
     val services = UiVNextDemoFixture.servicesForCard(card.id)
     val profile = app.savedPresentationProfile("card", card.id)
     var tab by rememberSaveable(card.id) { mutableIntStateOf(0) }
+    var showSimpleArt by rememberSaveable(card.id) { mutableStateOf(false) }
+    var importFailed by remember(card.id) { mutableStateOf(false) }
+    val ctx = LocalContext.current
+    val picturePicker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            val name = importCardArt(ctx, uri)
+            if (name == null) {
+                importFailed = true
+            } else {
+                val current = app.savedPresentationProfile("card", card.id)
+                    ?: PresentationProfile.defaultFor("card", card.id, card.preset)
+                app.savePresentationProfile(current.copy(
+                    backgroundKind = "local-image", backgroundValue = name,
+                ))
+                importFailed = false
+            }
+        }
+    }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
         .padding(horizontal = 13.dp, vertical = 12.dp)
@@ -55,16 +80,49 @@ internal fun R9CardDetailScreen(app: VAppState) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
             Text(card.nickname, color = R9.Ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
-            R9Badge("编辑", R9.Blue, Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.openCardCustomization(card.id) })
+            R9Badge("换卡面", R9.Blue, Modifier.defaultMinSize(minHeight = 48.dp)
+                .clickable { picturePicker.launch("image/*") }
+                .testTag("pdig.r11.card.change-image"))
         }
         Box(Modifier.testTag(VTestIds.CARD_DETAIL_IDENTITY)) {
             R10CardFace(card = card,
                 privacyMask = app.privacyMask || (profile?.maskSensitive == true),
                 profile = profile, modifier = Modifier.fillMaxWidth())
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
             R9Badge("● ${statusLabelZh(card.status)}", r9CardStatusTint(card.status))
+            Text("选预设图片 ›",
+                Modifier.clickable { showSimpleArt = !showSimpleArt }
+                    .padding(horizontal = 5.dp, vertical = 10.dp)
+                    .testTag("pdig.r11.card.presets.toggle"),
+                color = R9.Blue, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
+        if (showSimpleArt) {
+            Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                R10_ART_CHOICES.forEach { (art, label) ->
+                    val selected = selectedCardArt(profile) == art
+                    Surface(
+                        modifier = Modifier.defaultMinSize(minHeight = 44.dp)
+                            .clickable {
+                                val current = app.savedPresentationProfile("card", card.id)
+                                    ?: PresentationProfile.defaultFor("card", card.id, card.preset)
+                                app.savePresentationProfile(r10ArtProfile(current, art))
+                                showSimpleArt = false
+                            }.testTag("pdig.r11.card.preset.$art"),
+                        color = if (selected) R9.Mist else Color.White,
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, if(selected) R9.Blue else R9.Line),
+                    ) {
+                        Text(label, Modifier.padding(horizontal = 13.dp, vertical = 12.dp),
+                            fontSize = 11.sp, color = R9.Ink)
+                    }
+                }
+            }
+        }
+        if (importFailed) Text("图片读取失败或超过 12MB，请换一张。",
+            color = R9.Rose, fontSize = 11.sp)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, label ->
                 val active = tab == index
@@ -144,16 +202,8 @@ internal fun R9CardDetailScreen(app: VAppState) {
                 }
             }
         }
-        Surface(
-            modifier = Modifier.fillMaxWidth().height(49.dp)
-                .clickable { app.openCardCustomization(card.id) },
-            shape = RoundedCornerShape(15.dp), color = R9.Blue,
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Text("更换卡面图片 →", color = Color.White, fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold)
-            }
-        }
+        // Image selection is a minor card feature, not a second full-screen product.
+        // Editing stays in the current detail workspace with an inline action.
     }
 }
 
