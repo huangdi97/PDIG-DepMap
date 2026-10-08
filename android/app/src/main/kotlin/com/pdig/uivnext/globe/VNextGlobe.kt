@@ -47,8 +47,8 @@ enum class GlobeRenderState { LOADING, TEXTURE_READY, FALLBACK, ERROR }
 
 private const val YAW_PER_SEC = 0.8f // idle rotation deg/sec（极慢；交互后暂停）
 private const val IDLE_TEXTURE_REFRESH_MS = 15_000L
-private const val MAX_ZOOM = 1.9f
-private const val MIN_ZOOM = 0.7f
+private const val MAX_ZOOM = 3.0f
+private const val MIN_ZOOM = 0.65f
 private const val DRAG_TEXTURE_MAX_PX = 144
 private const val DRAG_CAMERA_STEP_DEG = 2.5f
 private const val DRAG_COOLDOWN_MS = 180L
@@ -104,8 +104,7 @@ class GlobeController(
      * These fields are presentation cache only, bounded to one bitmap and one camera key;
      * they are not persisted into Canonical or PersonalReality.
      */
-    internal var lastTexturedEarth: Bitmap? = null
-    internal var lastTexturedKey: String? = null
+    internal var lastTexturedFrame: GlobeRenderedFrame? = null
 
     fun focusRegion(region: RegionPresentation) {
         val target = focusCamera(region.latitude.toFloat(), region.longitude.toFloat())
@@ -127,6 +126,13 @@ private data class GlobeRenderRequest(
     val camera: GlobeCamera,
     val manipulating: Boolean,
     val yawBase: Float,
+)
+
+/** Bitmap, render camera, and key must enter Compose as one coherent frame. */
+internal data class GlobeRenderedFrame(
+    val bitmap: Bitmap,
+    val key: String,
+    val camera: GlobeCamera,
 )
 
 private fun globeMetrics(size: IntSize, zoom: Float): Pair<Offset, Float> {
@@ -174,8 +180,7 @@ fun VNextGlobe(
     val assets = remember(quality) { EarthMaterialAssets.load(context, quality) }
     // A newly composed Overview must not flash a flat vector sphere after Now.
     // Reuse the last truthful texture while its own size-specific frame is rebuilt.
-    var earthBitmap by remember(controller) { mutableStateOf(controller.lastTexturedEarth) }
-    var earthKey by remember(controller) { mutableStateOf(controller.lastTexturedKey) }
+    var renderedFrame by remember(controller) { mutableStateOf(controller.lastTexturedFrame) }
     // This is the state of THIS canvas, never the previous screen's shared controller.
     var localRenderState by remember { mutableStateOf(GlobeRenderState.LOADING) }
 
@@ -200,10 +205,10 @@ fun VNextGlobe(
     // frozen. This worker finishes a fast 144px sphere, then reads the latest
     // camera and drops intermediate requests. On gesture settle it renders the
     // full-quality 512px texture again.
-    LaunchedEffect(canvasSize, controller, assets, quality) {
+    LaunchedEffect(canvasSize, controller, assets, quality, cameraOverride) {
         snapshotFlow {
             GlobeRenderRequest(
-                camera = sampledGlobeCamera(controller.camera, controller.isManipulating),
+                camera = sampledGlobeCamera(cameraOverride ?: controller.camera, controller.isManipulating),
                 manipulating = controller.isManipulating,
                 yawBase = yawBase,
             )
@@ -219,8 +224,8 @@ fun VNextGlobe(
             if (assets == null || quality == EarthQuality.LOW) {
                 localRenderState = GlobeRenderState.FALLBACK
                 controller.renderState = GlobeRenderState.FALLBACK
-                earthBitmap = null
-                earthKey = null
+                renderedFrame = null
+                controller.lastTexturedFrame = null
                 return@collect
             }
             val detailedRect = earthRenderRect(radius, quality)
@@ -228,7 +233,7 @@ fun VNextGlobe(
                        else detailedRect
             val displayCam = request.camera.copy(yawDeg = request.camera.yawDeg + request.yawBase)
             val key = cameraCacheKey(displayCam, rect)
-            if (key == earthKey && earthBitmap != null) {
+            if (key == renderedFrame?.key) {
                 localRenderState = GlobeRenderState.TEXTURE_READY
                 controller.renderState = GlobeRenderState.TEXTURE_READY
                 return@collect
@@ -265,10 +270,9 @@ fun VNextGlobe(
                 null
             }
             if (bmp != null) {
-                earthBitmap = bmp
-                earthKey = key
-                controller.lastTexturedEarth = bmp
-                controller.lastTexturedKey = key
+                val frame = GlobeRenderedFrame(bmp, key, displayCam)
+                renderedFrame = frame
+                controller.lastTexturedFrame = frame
                 localRenderState = GlobeRenderState.TEXTURE_READY
                 controller.renderState = GlobeRenderState.TEXTURE_READY
             } else {
@@ -321,7 +325,8 @@ fun VNextGlobe(
                             }
                             if (event.type == PointerEventType.Move && canvasSize != IntSize.Zero) {
                                 val (center, radius) = globeMetrics(canvasSize, controller.camera.zoom)
-                                val cam = cameraOverride ?: controller.camera
+                                val cam = renderedFrame?.camera ?: cameraOverride
+                                    ?: controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
                                 val pos = event.changes.firstOrNull()?.position ?: continue
                                 val hovered = regions.firstNotNullOfOrNull { r ->
                                     anchorScreen(r, cam, center, radius)?.let {
@@ -345,7 +350,8 @@ fun VNextGlobe(
                     detectTapGestures { position ->
                         if (canvasSize == IntSize.Zero) return@detectTapGestures
                         val (center, radius) = globeMetrics(canvasSize, controller.camera.zoom)
-                        val cam = cameraOverride ?: controller.camera
+                        val cam = renderedFrame?.camera ?: cameraOverride
+                            ?: controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
                         val hit = regions
                             .mapNotNull { r ->
                                 anchorScreen(r, cam, center, radius)?.let { (pos, _) ->
@@ -368,7 +374,9 @@ fun VNextGlobe(
                 },
         ) {
             val (center, radius) = globeMetrics(size, controller.camera.zoom)
-            val cam = cameraOverride ?: controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
+            // Rendered texture and world-space overlays MUST share one camera.
+            val cam = renderedFrame?.camera ?: cameraOverride
+                ?: controller.camera.copy(yawDeg = controller.camera.yawDeg + yawBase)
 
             // L1 Atmosphere：外层光晕（不覆盖地球主体）
             drawCircle(
@@ -383,7 +391,7 @@ fun VNextGlobe(
 
             // 地球主体：纹理地球（缓存 Bitmap）；LOADING / FALLBACK / ERROR 时绘制
             // 「地球加载材质」（有效 fallback，禁止 near-black empty sphere，brief §10）。
-            val bmp = earthBitmap
+            val bmp = renderedFrame?.bitmap
             if (bmp != null) {
                 drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt(), (radius * 2f).toInt())
                 // Atmosphere, not an invented dependency edge. Production stays subtle.
