@@ -166,6 +166,18 @@ fun CardIdentityFace(
                     )
                 }
                 Spacer(Modifier.weight(1f))
+                // Material identity: a visible EMV/contactless motif, rendered locally and
+                // independently of sensitive card data. The network label remains factual.
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Surface(
+                        color = Color(0xFFD9B979).copy(alpha = 0.91f),
+                        shape = RoundedCornerShape(5.dp),
+                    ) {
+                        Text("▤", Modifier.padding(horizontal = 9.dp, vertical = 2.dp), color = Color(0xFF604620), fontSize = 16.sp)
+                    }
+                    Text(")))", color = PdigV2Colors.AssetTextSecondary, fontSize = 17.sp)
+                }
+                Spacer(Modifier.height(8.dp))
                 Text(
                     if (privacyMask) "•••• •••• •••• ••••" else "•••• •••• •••• ${card.last4}",
                     color = PdigV2Colors.AssetTextPrimary,
@@ -216,20 +228,34 @@ fun CardIdentityThumbnail(
                 drawCardArtwork(profile, theme, null)
             }
             Column(Modifier.fillMaxSize()) {
-                Text(
-                    card.issuer,
-                    color = PdigV2Colors.AssetTextPrimary,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                )
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text(
+                        card.issuer,
+                        color = PdigV2Colors.AssetTextPrimary,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(")))", color = PdigV2Colors.AssetTextSecondary, fontSize = 9.sp)
+                }
                 Spacer(Modifier.weight(1f))
-                Text(
-                    if (privacyMask) "••••" else "•••• " + card.last4,
-                    color = PdigV2Colors.AssetTextPrimary,
-                    fontSize = 11.sp,
-                    fontFamily = FontFamily.Monospace,
-                )
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        if (privacyMask) "••••" else "•••• " + card.last4,
+                        color = PdigV2Colors.AssetTextPrimary,
+                        fontSize = 10.sp,
+                        fontFamily = FontFamily.Monospace,
+                        maxLines = 1,
+                    )
+                    Text(
+                        card.network,
+                        color = PdigV2Colors.AssetTextPrimary,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                    )
+                }
             }
         }
     }
