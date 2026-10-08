@@ -328,9 +328,18 @@ def main():
     if not tap_retry("设置", exact=True):
         raise RuntimeError("R9 settings entry unreachable from Numbers")
     capture("09-personalization")
-    require_screen("09-personalization", "显示与个性化", "隐藏敏感信息", "数据源")
-    if not tap_retry("数据源", exact=True):
-        raise RuntimeError("R9 data-source entry unavailable")
+    # Data Sources is intentionally below the first fold on compact phones.
+    # The old test falsely failed a valid scrollable Settings page by demanding
+    # that its bottom action appear in the *initial* 2340px screenshot.
+    require_screen("09-personalization", "显示与个性化", "隐藏敏感信息")
+    for attempt in range(5):
+        if tap_match("数据源", exact=True):
+            break
+        adb("shell", "input", "swipe", 520, 1850, 520, 700, 400)
+        time.sleep(2)
+    else:
+        capture("09-settings-source-unreachable")
+        raise RuntimeError("R9 Data Sources entry unreachable after actual scrolling")
     capture("10-data-sources")
     require_screen("10-data-sources", "当前预览工作区", "SYNTHETIC", "未知")
 
