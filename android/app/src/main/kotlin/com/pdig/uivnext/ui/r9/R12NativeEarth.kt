@@ -87,8 +87,8 @@ internal fun R12NativeEarth(
 }
 
 private class R12EarthSurface(
-    ctx: Context, controller: GlobeController,
-    regions: List<RegionPresentation>, links: List<Pair<String,String>>,
+    ctx: Context, private val controller: GlobeController,
+    private val regions: List<RegionPresentation>, links: List<Pair<String,String>>,
     onReady: () -> Unit, onFail: () -> Unit,
 ) : GLSurfaceView(ctx) {
     val scene = R12Scene(ctx.applicationContext, regions, links,
