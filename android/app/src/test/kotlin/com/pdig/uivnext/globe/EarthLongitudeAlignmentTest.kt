@@ -22,4 +22,19 @@ class EarthLongitudeAlignmentTest {
     fun NegativeLongitudeIsPreservedForUnitedStates() {
         assertEquals((-PI / 2).toFloat(), earthLongitudeRad(latLonToVec(0f, -90f)), 0.0001f)
     }
+
+    @Test
+    fun DefaultAsiaPacificCameraIsNotAccidentallyPolar() {
+        val camera = focusCamera(16f, 107f)
+        val focalPoint = project(latLonToVec(16f, 107f), camera, 200f, 200f, 200f)
+        assertEquals(200f, focalPoint.x, 0.2f)
+        assertEquals(200f, focalPoint.y, 0.2f)
+        org.junit.Assert.assertTrue("East Asia must be front-facing", focalPoint.zDepth > 0.99f)
+
+        val northPole = project(latLonToVec(90f, 0f), camera, 200f, 200f, 200f)
+        org.junit.Assert.assertTrue(
+            "The selected direction must not center the north pole",
+            kotlin.math.abs(northPole.y - 200f) > 100f,
+        )
+    }
 }
