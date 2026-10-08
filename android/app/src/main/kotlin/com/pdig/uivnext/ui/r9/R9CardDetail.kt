@@ -38,7 +38,12 @@ internal fun R9CardDetailScreen(app: VAppState) {
         }
         return
     }
-    val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
+    val card = app.selectedCardId?.let { UiVNextDemoFixture.cardById(it) }
+    if (card == null) {
+        Text("未选择有效的卡片对象。请从卡片列表进入详情。", 
+            Modifier.fillMaxWidth().padding(20.dp), color = R9.Muted, fontSize = 12.sp)
+        return
+    }
     val services = UiVNextDemoFixture.servicesForCard(card.id)
     val profile = app.savedPresentationProfile("card", card.id)
     var tab by rememberSaveable(card.id) { mutableIntStateOf(0) }

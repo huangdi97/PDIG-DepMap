@@ -33,7 +33,12 @@ internal fun R9NumberDetailScreen(app: VAppState) {
         }
         return
     }
-    val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
+    val number = app.selectedNumberId?.let { UiVNextDemoFixture.numberById(it) }
+    if (number == null) {
+        Text("未选择有效的号码对象。请从号码列表进入详情。",
+            Modifier.fillMaxWidth().padding(20.dp), color = R9.Muted, fontSize = 12.sp)
+        return
+    }
     val related = UiVNextDemoFixture.servicesForNumber(number.id)
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
     Column(

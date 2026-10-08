@@ -47,8 +47,8 @@ internal fun R9StudioScreen(app: VAppState, isCard: Boolean) {
             Modifier.fillMaxWidth().padding(20.dp), color = R9.Muted, fontSize = 12.sp)
         return
     }
-    val card = if (isCard) UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") else null
-    val number = if (!isCard) UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") else null
+    val card = if (isCard) app.selectedCardId?.let { UiVNextDemoFixture.cardById(it) } else null
+    val number = if (!isCard) app.selectedNumberId?.let { UiVNextDemoFixture.numberById(it) } else null
     val id = if (isCard) card?.id else number?.id
     if (id == null) {
         Text("找不到当前对象。", Modifier.padding(18.dp), color = R9.Muted)
