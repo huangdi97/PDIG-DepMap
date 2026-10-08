@@ -239,6 +239,30 @@
         "RegionContext"
       ],
       "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "card-studio",
+      "route": "CARD_CUSTOMIZATION",
+      "r9File": "R9StudioScreen.kt",
+      "requiredInteractions": [
+        "select-theme",
+        "re-render-preview",
+        "save-presentation",
+        "return-to-card-detail"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "number-studio",
+      "route": "NUMBER_CUSTOMIZATION",
+      "r9File": "R9StudioScreen.kt",
+      "requiredInteractions": [
+        "select-theme",
+        "re-render-preview",
+        "save-presentation",
+        "return-to-number-detail"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     }
   ]
 }

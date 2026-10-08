@@ -231,6 +231,24 @@ def main():
             raise RuntimeError(f"Missing genuine card-detail tab: {name}")
         capture(shot)
         require_screen(shot, required)
+    # Studio MUST be an interactive surface: entering, changing a theme and
+    # saving PresentationProfile must genuinely update the detail renderer.
+    if not tap_retry("定制这张卡的外观 →", exact=True):
+        raise RuntimeError("Card Studio CTA did not open")
+    capture("04e-card-studio")
+    require_screen("04e-card-studio", "卡面定制", "实时预览", "选择主题")
+    if not tap_retry("极简", exact=True):
+        raise RuntimeError("Card Studio theme control was not reachable")
+    capture("04f-card-studio-edited")
+    require_screen("04f-card-studio-edited", "保存外观")
+    if not tap_retry("保存外观", exact=True):
+        raise RuntimeError("Card Studio failed to persist PresentationProfile")
+    if not any("已保存" in label_of(n) for n in xml_nodes()):
+        raise RuntimeError("Saved card presentation profile did not show confirmed state")
+    adb("shell", "input", "keyevent", "4")
+    time.sleep(2)
+    capture("04g-card-detail-after-studio")
+    require_screen("04g-card-detail-after-studio", "基本信息")
     # Home-screen navigation is still the canonical path for root screens.
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
@@ -270,6 +288,27 @@ def main():
             # Compose test tags are not always surfaced as Android resource IDs,
             # therefore screen-content assertion above remains the hard gate.
             print("CATEGORY_CONTENT_VERIFIED", slug, flush=True)
+
+    if not tap_retry("基础设施", exact=True, prefer_bottom=True):
+        raise RuntimeError("Number Studio: return to Infrastructure failed")
+    if not tap_retry("号码", exact=True):
+        raise RuntimeError("Number Studio: number category missing")
+    capture("08-numbers")
+    require_screen("08-numbers", "号码 · 通信身份", "主号 中国移动")
+    if not tap_retry("主号 中国移动"):
+        raise RuntimeError("Number Studio: opening primary-number detail failed")
+    capture("08b-number-detail")
+    require_screen("08b-number-detail", "安全与恢复", "关联服务")
+    if not tap_retry("定制 →", exact=True):
+        raise RuntimeError("Number Studio: enter customization missing")
+    capture("08c-number-studio")
+    require_screen("08c-number-studio", "号码面定制", "实时预览", "选择主题")
+    if not tap_retry("城市", exact=True):
+        raise RuntimeError("Number Studio: theme selection unavailable")
+    capture("08d-number-studio-edited")
+    require_screen("08d-number-studio-edited", "保存外观")
+    if not tap_retry("保存外观", exact=True):
+        raise RuntimeError("Number Studio: saving presentation profile failed")
 
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),
