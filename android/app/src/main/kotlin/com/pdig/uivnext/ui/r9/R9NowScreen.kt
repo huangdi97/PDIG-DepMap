@@ -27,6 +27,11 @@ import com.pdig.uivnext.demo.demoUpcoming
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.globe.VNextGlobe
+import com.pdig.app.BuildConfig
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -209,14 +214,22 @@ internal fun R9WorldStage(
             Box(Modifier.fillMaxWidth().weight(1f)
                 .testTag("pdig.r9.world.hero")) {
                 // Only the photographic planet is scaled, not the labels or counter rail.
-                Box(Modifier.fillMaxSize().padding(horizontal = 31.dp)
-                    .graphicsLayer(scaleX = R9_WORLD_VISUAL_SCALE, scaleY = R9_WORLD_VISUAL_SCALE)) {
-                    VNextGlobe(
-                        controller = app.globe,
-                        regions = regions,
-                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
-                        reduceMotion = app.reduceMotion,
-                    )
+                var gpuFailed by remember { mutableStateOf(false) }
+                Box(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+                    if (BuildConfig.FLAVOR == "preview" && !gpuFailed) {
+                        R12NativeEarth(
+                            controller = app.globe, regions = regions,
+                            links = if(app.emptyDemo) emptyList() else arcPairs(),
+                            onFailure = { gpuFailed = true },
+                        )
+                    } else {
+                        VNextGlobe(
+                            controller = app.globe,
+                            regions = regions,
+                            arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
+                            reduceMotion = app.reduceMotion,
+                        )
+                    }
                 }
                 val named = regions.associateBy { it.regionCode }
                 listOf(

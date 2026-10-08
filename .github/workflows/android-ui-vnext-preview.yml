@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - feat/android-ui-vnext-translation
+      - feat/android-gpu-globe-r12
     paths:
       - "android/**"
       - ".github/workflows/android-ui-vnext-preview.yml"
@@ -14,7 +15,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: android-ui-vnext-preview
+  group: android-ui-vnext-preview-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:

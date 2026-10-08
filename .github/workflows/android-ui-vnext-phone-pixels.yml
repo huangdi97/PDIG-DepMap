@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - feat/android-ui-vnext-translation
+      - feat/android-gpu-globe-r12
     paths:
       - '.github/workflows/android-ui-vnext-phone-pixels.yml'
       - 'docs/ui-vnext/android/ANDROID_R8_REFERENCE_PARITY_AND_RUNTIME_TRUTH_2026-10-08.md'

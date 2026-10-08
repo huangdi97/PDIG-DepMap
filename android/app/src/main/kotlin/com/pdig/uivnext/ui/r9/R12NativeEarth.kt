@@ -44,6 +44,7 @@ internal fun R12NativeEarth(
     regions: List<RegionPresentation>,
     links: List<Pair<String, String>>,
     modifier: Modifier = Modifier,
+    onFailure: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val owner = LocalLifecycleOwner.current
@@ -59,6 +60,7 @@ internal fun R12NativeEarth(
             onFail = {
                 failed = true
                 controller.renderState = GlobeRenderState.ERROR
+                onFailure()
             },
         )
     }
@@ -90,7 +92,7 @@ private class R12EarthSurface(
     onReady: () -> Unit, onFail: () -> Unit,
 ) : GLSurfaceView(ctx) {
     val scene = R12Scene(ctx.applicationContext, regions, links,
-        { post(onReady) }, { post(onFail) })
+        { post { onReady() } }, { post { onFail() } })
     private var x = 0f
     private var y = 0f
     init {

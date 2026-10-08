@@ -27,6 +27,11 @@ import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.globe.VNextGlobe
+import com.pdig.app.BuildConfig
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -188,10 +193,20 @@ private fun R9RegionDistribution(app: VAppState, regions: List<RegionPresentatio
                         .clip(RoundedCornerShape(17.dp)).background(R9.World)
                         .testTag("pdig.r9.infrastructure.world"),
                 ) {
-                    VNextGlobe(
-                        controller = app.globe, regions = regions,
-                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(), reduceMotion = app.reduceMotion,
-                    )
+                    var gpuFailed by remember { mutableStateOf(false) }
+                    if (BuildConfig.FLAVOR == "preview" && !gpuFailed) {
+                        R12NativeEarth(
+                            controller = app.globe, regions = regions,
+                            links = if(app.emptyDemo) emptyList() else arcPairs(),
+                            onFailure = { gpuFailed = true },
+                        )
+                    } else {
+                        VNextGlobe(
+                            controller = app.globe, regions = regions,
+                            arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
+                            reduceMotion = app.reduceMotion,
+                        )
+                    }
                 }
                 Column(Modifier.weight(.45f),
                     verticalArrangement = Arrangement.spacedBy(4.dp)) {
