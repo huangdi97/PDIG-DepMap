@@ -22,7 +22,7 @@ import com.pdig.uivnext.ui.VNextShell
  * [forcedViewportWidthDp] 供证据测试冻结宽度（rail/bottom-nav 分支判定），不参与截图像素。
  */
 @Composable
-fun VNextApp(app: VAppState, forcedViewportWidthDp: Int? = null) {
+fun VNextApp(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -> Unit)? = null) {
     MaterialTheme(
         colorScheme = lightColorScheme(
             primary = PdigV2Colors.Primary,
@@ -52,7 +52,7 @@ fun VNextApp(app: VAppState, forcedViewportWidthDp: Int? = null) {
                     ),
                 ),
         ) {
-            VNextShell(app, forcedViewportWidthDp)
+            VNextShell(app, forcedViewportWidthDp, onHelp)
         }
     }
 }

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Search
@@ -50,7 +51,7 @@ import com.pdig.uivnext.ui.components.MaskEnabledIndicator
  * [forcedViewportWidthDp] 供证据测试冻结宽度（决定 rail/bottom-nav 分支），不参与截图像素。
  */
 @Composable
-fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
+fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -> Unit)? = null) {
     // System back：detail/studio/search/change → 返回上一层；region drawer → 关闭；root → 系统退出。
     BackHandler(enabled = app.canGoBack()) { app.back() }
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -61,14 +62,14 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
             Row(Modifier.fillMaxSize()) {
                 NavigationRail(app)
                 Column(Modifier.weight(1f)) {
-                    TopCommandBar(app, compact = false)
+                    TopCommandBar(app, compact = false, onHelp = onHelp)
                     if (isInfraRootScreen(app.screen)) InfraChipRow(app)
                     VNextContentHost(app, breakpoint, Modifier.weight(1f))
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                TopCommandBar(app, compact = true)
+                TopCommandBar(app, compact = true, onHelp = onHelp)
                 // Phone stays focused: Infrastructure secondary destinations live in the Overview hub,
                 // not in a persistent horizontal strip above every child screen.
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
@@ -80,7 +81,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null) {
 
 /** L2 Top Command：状态位 + 隐私遮蔽指示 + 触控可发现的搜索入口（任务书 §23）。 */
 @Composable
-private fun TopCommandBar(app: VAppState, compact: Boolean) {
+private fun TopCommandBar(app: VAppState, compact: Boolean, onHelp: (() -> Unit)?) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -226,6 +227,24 @@ private fun TopCommandBar(app: VAppState, compact: Boolean) {
                 Spacer(Modifier.width(VSpacing.Sm))
             }
 
+            if (onHelp != null && (!compact || isCompactRootContext(app.screen))) {
+                Surface(
+                    modifier = Modifier.size(48.dp)
+                        .clickable(onClick = onHelp)
+                        .testTag("pdig.onboarding.reopen"),
+                    color = Color.Transparent,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                ) {
+                    androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Filled.Info,
+                            contentDescription = "重新查看新手引导",
+                            tint = PdigV2Colors.PrimaryText,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+                }
+            }
             if (compact) {
                 Icon(
                     Icons.Filled.Lock,

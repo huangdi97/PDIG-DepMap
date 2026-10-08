@@ -2,6 +2,8 @@ package com.pdig.app
 
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,9 +21,20 @@ class PreviewLauncherActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        val prefs = getSharedPreferences("pdig_preview_guide", MODE_PRIVATE)
         setContent {
             val model: VNextShellViewModel = viewModel()
-            VNextApp(model.app)
+            var showGuide by androidx.compose.runtime.saveable.rememberSaveable {
+                androidx.compose.runtime.mutableStateOf(shouldShowPreviewGuide(prefs.getInt("completed_version", 0)))
+            }
+            if (showGuide) {
+                PreviewWelcomeFlow(onFinish = {
+                    prefs.edit().putInt("completed_version", PREVIEW_GUIDE_VERSION).apply()
+                    showGuide = false
+                })
+            } else {
+                VNextApp(model.app, onHelp = { showGuide = true })
+            }
         }
     }
 }
