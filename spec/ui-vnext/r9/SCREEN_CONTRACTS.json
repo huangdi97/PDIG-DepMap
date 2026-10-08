@@ -84,9 +84,20 @@
         "CardIdentityPreview",
         "IssuerMeta",
         "RegionCurrency",
-        "ExpiryRisk"
+        "ExpiryRisk",
+        "RegionStatusNetworkFilterBar"
       ],
-      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING",
+      "runtimeGate": [
+        "pdig.r9.cards.filters.options"
+      ],
+      "behaviorGate": [
+        "select-expiring-status",
+        "only-expiring-card-visible",
+        "clear-status",
+        "all-cards-visible",
+        "region-and-network-sourced-from-current-data"
+      ]
     },
     {
       "id": "card-detail",

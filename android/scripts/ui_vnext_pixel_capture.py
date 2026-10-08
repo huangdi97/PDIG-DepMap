@@ -231,7 +231,20 @@ def main():
     if not tap_match("卡片", exact=True):
         raise RuntimeError("Card icon not clickable from infrastructure hub")
     capture("03-cards")
-    require_screen("03-cards", "全球支付卡片", "招行储蓄卡")
+    require_screen("03-cards", "全球支付卡片", "招行储蓄卡",
+                   "全部地区", "全部状态", "全部卡组织")
+    if not tap_retry("全部状态", exact=True):
+        raise RuntimeError("R9 card status filter not interactive")
+    if not tap_retry("即将到期", exact=True):
+        raise RuntimeError("R9 card status options cannot select expiring cards")
+    capture("03a-card-expiry-filter")
+    require_screen("03a-card-expiry-filter", "工行信用卡", "即将到期")
+    if not tap_retry("即将到期", exact=True):
+        raise RuntimeError("R9 status filter cannot reopen to clear")
+    if not tap_retry("全部状态", exact=True):
+        raise RuntimeError("R9 status filter cannot reset to all records")
+    capture("03b-card-filter-cleared")
+    require_screen("03b-card-filter-cleared", "招行储蓄卡", "全部状态")
     if not tap_match("招行储蓄卡"):
         raise RuntimeError("Card detail tap not found")
     capture("04-card-detail")
