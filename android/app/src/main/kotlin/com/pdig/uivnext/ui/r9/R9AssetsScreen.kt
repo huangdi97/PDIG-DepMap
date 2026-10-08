@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,13 +33,20 @@ import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.CardIdentityThumbnail
 import com.pdig.uivnext.theme.statusLabelZh
 import com.pdig.uivnext.ui.components.NumberIdentityThumbnail
+import com.pdig.uivnext.demo.demoRegions
 
 /** R9 financial identity list, structurally separate from R8's management rows. */
 @Composable
 internal fun R9CardsScreen(app: VAppState) {
-    var kind by remember { mutableStateOf("all") }
+    var kind by rememberSaveable { mutableStateOf("all") }
+    var statusFilter by rememberSaveable { mutableStateOf("all") }
+    var networkFilter by rememberSaveable { mutableStateOf("all") }
+    var openFilter by remember { mutableStateOf<String?>(null) }
     val scoped = app.demoCards().filter { app.regionFilter == null || it.region == app.regionFilter }
     val filtered = scoped.filter {
+        (statusFilter == "all" || it.status == statusFilter) &&
+        (networkFilter == "all" || it.network == networkFilter)
+    }.filter {
         when(kind) {
             "credit" -> it.type == "credit"
             "debit" -> it.type == "debit"
@@ -76,6 +84,60 @@ internal fun R9CardsScreen(app: VAppState) {
                     }
                 }
         }
+        // Actual saved region context + local status/network filters.
+        // This is presentation-only filtering and never changes PersonalReality.
+        Row(Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            R9FilterChip(
+                text = app.demoRegions().firstOrNull { it.regionCode == app.regionFilter }?.displayName ?: "全部地区",
+                active = openFilter == "region",
+                modifier = Modifier.weight(1f)
+            ) { openFilter = if(openFilter == "region") null else "region" }
+            R9FilterChip(
+                text = if(statusFilter == "all") "全部状态" else statusLabelZh(statusFilter),
+                active = openFilter == "status",
+                modifier = Modifier.weight(1f)
+            ) { openFilter = if(openFilter == "status") null else "status" }
+            R9FilterChip(
+                text = if(networkFilter == "all") "全部卡组织" else networkFilter,
+                active = openFilter == "network",
+                modifier = Modifier.weight(1f)
+            ) { openFilter = if(openFilter == "network") null else "network" }
+        }
+        val options: List<Pair<String, String>> = when(openFilter) {
+            "region" -> listOf("all" to "全部地区") +
+                app.demoRegions().map { it.regionCode to it.displayName }
+            "status" -> listOf("all" to "全部状态") +
+                app.demoCards().map { it.status }.distinct().map { it to statusLabelZh(it) }
+            "network" -> listOf("all" to "全部卡组织") +
+                app.demoCards().map { it.network }.distinct().map { it to it }
+            else -> emptyList()
+        }
+        if(options.isNotEmpty()) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().testTag("pdig.r9.cards.filters.options"),
+                color = Color.White, shape = RoundedCornerShape(15.dp),
+                border = BorderStroke(1.dp, R9.Line),
+            ) {
+                Column(Modifier.padding(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    options.forEach { (id, label) ->
+                        Text(label,
+                            Modifier.fillMaxWidth().defaultMinSize(minHeight = 43.dp)
+                                .clickable {
+                                    when(openFilter) {
+                                        "region" -> if(id == "all") app.clearRegion() else app.selectRegion(id)
+                                        "status" -> statusFilter = id
+                                        "network" -> networkFilter = id
+                                    }
+                                    openFilter = null
+                                }.padding(horizontal = 11.dp, vertical = 11.dp)
+                                .testTag("pdig.r9.cards.filter.${openFilter}.$id"),
+                            fontSize = 11.sp, color = R9.Ink)
+                    }
+                }
+            }
+        }
         if (filtered.isEmpty()) {
             Text("当前筛选没有已记录的卡片；未知不代表安全。",
                 color = R9.Muted, fontSize = 12.sp, modifier = Modifier.padding(vertical = 23.dp))
@@ -83,6 +145,30 @@ internal fun R9CardsScreen(app: VAppState) {
             filtered.forEach { card -> R9CardRow(card, app) }
         }
         Spacer(Modifier.height(12.dp))
+    }
+}
+
+@Composable
+private fun R9FilterChip(
+    text: String,
+    active: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = modifier.defaultMinSize(minHeight = 48.dp).clickable(onClick = onClick),
+        color = if(active) R9.Mist else Color.White,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, if(active) R9.Blue else R9.Line),
+    ) {
+        Row(Modifier.fillMaxSize().padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Text(text, modifier = Modifier.weight(1f), fontSize = 10.sp,
+                color = if(active) R9.Blue else R9.Muted,
+                maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("⌄", color = R9.Muted, fontSize = 12.sp)
+        }
     }
 }
 
