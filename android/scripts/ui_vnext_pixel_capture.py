@@ -217,6 +217,30 @@ def main():
         raise RuntimeError("Records bottom navigation not found")
     capture("06-records")
     require_screen("06-records", "迁移进度", "追踪变更、风险")
+    # R9 parity requires that every 4x2 category opens a real R9 object workspace;
+    # source-only composable existence is not accepted evidence.
+    for category, slug, expected in (
+        ("账户", "accounts", "已记录账户"),
+        ("邮箱", "emails", "已记录邮箱"),
+        ("设备", "devices", "已记录设备"),
+        ("服务", "services", "已记录服务"),
+        ("薄弱点", "weaknesses", "已记录关注项"),
+    ):
+        if not tap_retry("基础设施", exact=True, prefer_bottom=True):
+            raise RuntimeError(f"Cannot navigate from Records to Infrastructure for {category}")
+        require_screen_if_navigated = [label_of(n) for n in xml_nodes()]
+        if not any("基础设施" in label for label in require_screen_if_navigated):
+            raise RuntimeError("Infrastructure root context missing")
+        if not tap_retry(category, exact=True):
+            raise RuntimeError(f"Cannot open R9 infrastructure category {category}")
+        name = f"07-{slug}"
+        capture(name)
+        require_screen(name, expected)
+        if not any(f"pdig.r9.screen.{slug}" in (node.get("resource-id") or "") for node in xml_nodes()):
+            # Compose test tags are not always surfaced as Android resource IDs,
+            # therefore screen-content assertion above remains the hard gate.
+            print("CATEGORY_CONTENT_VERIFIED", slug, flush=True)
+
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),
                     "app": PACKAGE, "activity": ACTIVITY,

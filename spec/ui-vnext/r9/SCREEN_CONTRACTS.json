@@ -26,7 +26,8 @@
     "Onboarding continues to work, but is not used as visual parity proof.",
     "Do not train/rebaseline against an unapproved result or a tiny collage thumbnail.",
     "Real screen screenshots and human visual comparison required before freeze.",
-    "Each visual scene uses current fixture data; no fabricated link or safe-status."
+    "Each visual scene uses current fixture data; no fabricated link or safe-status.",
+    "R9 pixel proof must visit all five infrastructure secondary destinations and see the distinct R9 page text."
   ],
   "screens": [
     {
@@ -171,6 +172,71 @@
         "CompactTimeline",
         "Attention",
         "Upcoming"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "accounts",
+      "route": "ACCOUNTS",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "emails",
+      "route": "EMAILS",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "devices",
+      "route": "DEVICES",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "services",
+      "route": "SERVICES",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "weaknesses",
+      "route": "WEAKNESSES",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
       ],
       "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     }
