@@ -310,7 +310,7 @@ fun VNextGlobe(
             } else {
                 drawCircle(
                     brush = Brush.radialGradient(
-                        listOf(Color(0xFF2E4D7A), Color(0xFF18305A), PdigV2Colors.GlobeDeep),
+                        listOf(Color(0xFF83C9FF), Color(0xFF328BDE), Color(0xFF124C9A)),
                         center = Offset(center.x - radius * 0.35f, center.y - radius * 0.35f),
                         radius = radius * 1.4f,
                     ),
