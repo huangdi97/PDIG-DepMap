@@ -1,0 +1,58 @@
+name: Fix Android UI Preview Release Metadata
+
+on:
+  push:
+    branches:
+      - feat/android-ui-vnext-translation
+    paths:
+      - ".github/workflows/android-ui-vnext-preview-metadata-fix.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repair prerelease notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          cat > /tmp/notes.md <<'EOF'
+          # PDIG Android UI vNext Preview
+
+          This is an **installable preview build** of the accepted Android Light-first UI vNext.
+
+          - branch: feat/android-ui-vnext-translation
+          - build source: 85f9b4609d7880f5dd30ca892dbec73614a73ca2
+          - final pixel-changing Android UI source: a3b3a05580c0cd2ed451e554ba7db3edfd523cc0
+          - Android visual reference: **ACCEPTED**
+          - minSdk: 26
+          - targetSdk: 36
+
+          ## Which APK should I install?
+
+          **Recommended for direct phone evaluation:**
+
+          PDIG-Android-UI-vNext-Preview.apk
+
+          It uses application id com.pdig.app.preview and can coexist with the production application.
+
+          PDIG-Android-UI-vNext-ProductionDebug.apk uses com.pdig.app and is provided only to match the
+          production-debug flavor used by the final Android runtime evidence. If another PDIG build with a
+          different signing key is already installed, Android may reject an in-place update; uninstall the old
+          package first or use the Preview APK instead.
+
+          This is a **debug-signed evaluation build**, not a Play Store production-signed release.
+
+          Preview APK SHA-256:
+          3ac5e83ee48111f259fa2b446b458dd2c5a43cea446dfcaac84934d5a3e3cb85
+
+          ProductionDebug APK SHA-256:
+          09dec04fb397da824095437802a18790d07b5b049710d4fdae1ab5bd8a17ee38
+          EOF
+
+          gh release edit android-ui-vnext-preview-85f9b46             --repo "$GITHUB_REPOSITORY"             --notes-file /tmp/notes.md
+
+          gh release view android-ui-vnext-preview-85f9b46             --repo "$GITHUB_REPOSITORY"             --json url,tagName,name,isPrerelease,body
