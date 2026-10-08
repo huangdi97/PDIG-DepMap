@@ -77,7 +77,7 @@ def wait_globe_texture(max_wait=65):
         if any("纹理状态=TEXTURE_READY" in line for line in found):
             return "TEXTURE_READY"
         time.sleep(2)
-    raise RuntimeError(f"Globe texture did not become TEXTURE_READY: ${seen[-3:]}")
+    raise RuntimeError(f"Globe texture did not become TEXTURE_READY: {seen[-3:]}")
 
 
 def capture(name):
@@ -104,7 +104,49 @@ def require_screen(name, *texts):
     labels = data.get("uiText", [])
     for required in texts:
         if not any(required in label for label in labels):
-            raise RuntimeError(f"Screen ${name} did not show ${required!r}; captured wrong page")
+            raise RuntimeError(f"Screen {name} did not show {required!r}; captured wrong page")
+
+
+def _bounds_for_exact(label):
+    for node in xml_nodes():
+        if label_of(node).strip() != label:
+            continue
+        bounds = re.findall(r"\d+", node.get("bounds") or "")
+        if len(bounds) == 4:
+            rect = tuple(map(int, bounds))
+            if rect[2] > rect[0] and rect[3] > rect[1]:
+                return rect
+    return None
+
+
+def assert_home_world_geometry():
+    """P0 readable layers: title, real region identities, then 4-asset footer.
+
+    A first-fold consumer reference is invalid when metrics cover region chips or
+    region labels overprint the heading. Test the actual UI bounds, not merely Kotlin
+    component existence. This does not claim pixel-perfect artistic parity.
+    """
+    header = _bounds_for_exact("你的全球数字基础设施")
+    footer = _bounds_for_exact("银行卡")
+    regions = {
+        name: _bounds_for_exact(name)
+        for name in ("美国", "英国", "中国大陆", "香港", "新加坡")
+    }
+    if header is None or footer is None or any(x is None for x in regions.values()):
+        raise RuntimeError(f"World hero labels missing: title={header}, footer={footer}, regions={regions}")
+    if header[3] >= min(rect[1] for rect in regions.values()):
+        raise RuntimeError(f"World hero title overlaps region identities: title={header}, regions={regions}")
+    if max(rect[3] for rect in regions.values()) >= footer[1]:
+        raise RuntimeError(f"World hero region identities overlap metric strip: footer={footer}, regions={regions}")
+    for a, b in (("美国", "香港"), ("英国", "中国大陆"), ("中国大陆", "新加坡")):
+        x, y = regions[a], regions[b]
+        if min(x[2], y[2]) > max(x[0], y[0]) and min(x[3], y[3]) > max(x[1], y[1]):
+            raise RuntimeError(f"Overlapping region identity labels: {a}={x}, {b}={y}")
+    (ROOT / "01-now-layout-bounds.json").write_text(
+        json.dumps({"title": header, "metric": footer, "regions": regions,
+                    "result": "DISJOINT_LABEL_BOUNDS_ONLY_NOT_HUMAN_VISUAL_ACCEPTANCE"},
+                   ensure_ascii=False, indent=2), encoding="utf-8")
+    print("PHONE_WORLD_GEOMETRY_LABEL_DISJOINT=PASS", flush=True)
 
 
 def main():
@@ -129,6 +171,7 @@ def main():
     time.sleep(3)
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施")
+    assert_home_world_geometry()
     from os import environ
     short_sha = environ.get("GITHUB_SHA", "")[:7]
     if short_sha:
