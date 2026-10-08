@@ -138,33 +138,40 @@ def _bounds_for_exact(label):
 
 
 def assert_home_world_geometry():
-    """P0 readable layers: title, real region identities, then 4-asset footer.
+    """R13 visual hierarchy: heading -> actual Earth -> factual regions -> asset rail.
 
-    A first-fold consumer reference is invalid when metrics cover region chips or
-    region labels overprint the heading. Test the actual UI bounds, not merely Kotlin
-    component existence. This does not claim pixel-perfect artistic parity.
+    The earlier R9 test demanded five absolutely positioned chips even after
+    those chips were explicitly removed to prevent occluding the continents.
+    This test asserts real visible region labels, readable heading and the
+    separate asset rail, without imposing obsolete design structure.
     """
     header = _bounds_for_exact("你的全球数字基础设施")
     footer = _bounds_for_exact("银行卡")
-    regions = {
-        name: _bounds_for_exact(name)
-        for name in ("美国", "英国", "中国大陆", "香港", "新加坡")
-    }
-    if header is None or footer is None or any(x is None for x in regions.values()):
-        raise RuntimeError(f"World hero labels missing: title={header}, footer={footer}, regions={regions}")
-    if header[3] >= min(rect[1] for rect in regions.values()):
-        raise RuntimeError(f"World hero title overlaps region identities: title={header}, regions={regions}")
-    if max(rect[3] for rect in regions.values()) >= footer[1]:
-        raise RuntimeError(f"World hero region identities overlap metric strip: footer={footer}, regions={regions}")
-    for a, b in (("美国", "香港"), ("英国", "中国大陆"), ("中国大陆", "新加坡")):
-        x, y = regions[a], regions[b]
-        if min(x[2], y[2]) > max(x[0], y[0]) and min(x[3], y[3]) > max(x[1], y[1]):
-            raise RuntimeError(f"Overlapping region identity labels: {a}={x}, {b}={y}")
+    if header is None or footer is None:
+        raise RuntimeError(f"World title or asset rail missing: title={header}, metric={footer}")
+    labels = ("美国", "英国", "中国大陆", "香港", "新加坡")
+    visible = {name: rect for name in labels
+               if (rect := _bounds_for_exact(name)) is not None}
+    if not visible:
+        raise RuntimeError("World scene has no visible, factual region identity labels")
+    if header[3] >= footer[1]:
+        raise RuntimeError(f"R13 world heading and metric rail overlap: {header}, {footer}")
+    if any(rect[1] <= header[3] or rect[3] >= footer[1]
+           for rect in visible.values()):
+        raise RuntimeError(f"Region control entered reserved heading/metric layer: {visible}")
+    # All the simultaneously visible region labels must remain disjoint,
+    # regardless of whether they belong to floating identities or the
+    # horizontally scrollable accessible regional strip.
+    for i, (name_a, a) in enumerate(visible.items()):
+        for name_b, b in list(visible.items())[i + 1:]:
+            if min(a[2], b[2]) > max(a[0], b[0]) and min(a[3], b[3]) > max(a[1], b[1]):
+                raise RuntimeError(f"Overlapping region identities: {name_a}={a}, {name_b}={b}")
     (ROOT / "01-now-layout-bounds.json").write_text(
-        json.dumps({"title": header, "metric": footer, "regions": regions,
-                    "result": "DISJOINT_LABEL_BOUNDS_ONLY_NOT_HUMAN_VISUAL_ACCEPTANCE"},
+        json.dumps({"title": header, "metric": footer, "visibleRegions": visible,
+                    "layout": "R13_OPEN_WORLD",
+                    "result": "VISIBLE_LABELS_DISJOINT_NOT_HUMAN_VISUAL_ACCEPTANCE"},
                    ensure_ascii=False, indent=2), encoding="utf-8")
-    print("PHONE_WORLD_GEOMETRY_LABEL_DISJOINT=PASS", flush=True)
+    print("R13_OPEN_WORLD_GEOMETRY=PASS", flush=True)
 
 
 def verify_preview_world_light():
