@@ -58,7 +58,9 @@ class VNextBackStateRegressionTest {
         assertTrue("must have internal back target", app.canGoBack())
         app.back()
         assertEquals(VScreen.CARDS, app.screen)
-        assertTrue("root after back must be non-null-free (no system exit)", !app.canGoBack())
+        assertTrue("Cards was opened from Now; prior screen must remain in Back history", app.canGoBack())
+        app.back()
+        assertEquals(VScreen.NOW, app.screen)
     }
 
     @Test
@@ -109,4 +111,34 @@ class VNextBackStateRegressionTest {
         app.back()
         assertEquals(VScreen.NOW, app.screen)
     }
+    @Test
+    fun fiveTabNavigationBackFollowsActualHistory_notHomeReset() {
+        val app = createVNextAppState()
+        render(app)
+        app.navigate(VScreen.INFRASTRUCTURE)
+        app.navigate(VScreen.CHANGE)
+        app.navigate(VScreen.RECORDS)
+        app.navigate(VScreen.ME)
+        assertEquals(VScreen.ME, app.screen)
+        app.back()
+        assertEquals(VScreen.RECORDS, app.screen)
+        app.back()
+        assertEquals(VScreen.CHANGE, app.screen)
+        app.back()
+        assertEquals(VScreen.INFRASTRUCTURE, app.screen)
+        app.back()
+        assertEquals(VScreen.NOW, app.screen)
+        assertTrue("Initial root returns system control to exit", !app.canGoBack())
+    }
+
+    @Test
+    fun newWorkspaceIsVisibleByDefault_butUserCanChooseMask() {
+        val app = createVNextAppState()
+        assertEquals(false, app.privacyMask)
+        app.privacyMask = true
+        assertEquals(true, app.privacyMask)
+        app.privacyMask = false
+        assertEquals(false, app.privacyMask)
+    }
+
 }

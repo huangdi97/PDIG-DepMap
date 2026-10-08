@@ -199,7 +199,7 @@ def main():
         raise RuntimeError("Preview first-run onboarding skip could not be activated")
     time.sleep(3)
     capture("01-now")
-    require_screen("01-now", "你的全球数字基础设施", "R9 · ")
+    require_screen("01-now", "你的全球数字基础设施", "预览 · ")
     now_labels = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
     if not any(any(greeting in label for greeting in ("早上好", "中午好", "下午好", "晚上好", "你好"))
                for label in now_labels):
@@ -260,20 +260,16 @@ def main():
         require_screen(shot, required)
     # Studio MUST be an interactive surface: entering, changing a theme and
     # saving PresentationProfile must genuinely update the detail renderer.
-    if not tap_retry("定制这张卡的外观 →", exact=True):
+    if not tap_retry("更换卡面图片 →", exact=True):
         raise RuntimeError("Card Studio CTA did not open")
     capture("04e-card-studio")
-    require_screen("04e-card-studio", "卡面定制", "实时预览", "选择主题")
-    if not tap_retry("极简", exact=True):
-        raise RuntimeError("Card Studio theme control was not reachable")
+    require_screen("04e-card-studio", "选择卡面图片", "从手机相册选择图片", "原卡面")
+    if not tap_retry("海洋", exact=True):
+        raise RuntimeError("Card image selection was not reachable")
     capture("04f-card-studio-edited")
-    require_screen("04f-card-studio-edited", "保存外观")
-    if not tap_retry("保存外观", exact=True):
-        raise RuntimeError("Card Studio failed to persist PresentationProfile")
-    if not any("已保存" in label_of(n) for n in xml_nodes()):
-        raise RuntimeError("Saved card presentation profile did not show confirmed state")
-    adb("shell", "input", "keyevent", "4")
-    time.sleep(2)
+    require_screen("04f-card-studio-edited", "保存卡面并返回")
+    if not tap_retry("保存卡面并返回", exact=True):
+        raise RuntimeError("Card image save button was not functional")
     capture("04g-card-detail-after-studio")
     require_screen("04g-card-detail-after-studio", "基本信息")
     # Home-screen navigation is still the canonical path for root screens.
@@ -369,8 +365,25 @@ def main():
     time.sleep(2)
     adb("shell", "input", "keyevent", "4")
     time.sleep(2)
-    if not tap_retry("设置", exact=True):
-        raise RuntimeError("R9 settings entry unreachable from Numbers")
+    # Fifth tab replaces the four-icon engineering toolbar. Verify user
+    # privacy control and previous-screen back navigation from the actual app.
+    adb("shell", "am", "force-stop", PACKAGE)
+    adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
+    time.sleep(3)
+    if not tap_retry("我", exact=True, prefer_bottom=True):
+        raise RuntimeError("Fifth Me tab was not reachable")
+    capture("09-me")
+    require_screen("09-me", "我的数字生活", "遮蔽敏感信息", "已关闭")
+    if not tap_retry("遮蔽敏感信息", exact=True):
+        raise RuntimeError("Me tab privacy control not tappable")
+    capture("09a-me-mask-enabled")
+    require_screen("09a-me-mask-enabled", "已开启")
+    if not tap_retry("遮蔽敏感信息", exact=True):
+        raise RuntimeError("Me tab privacy control could not be disabled again")
+    capture("09b-me-mask-disabled")
+    require_screen("09b-me-mask-disabled", "已关闭")
+    if not tap_retry("偏好设置", exact=True):
+        raise RuntimeError("Personal preference panel unreachable from Me")
     capture("09-personalization")
     # Data Sources is intentionally below the first fold on compact phones.
     # The old test falsely failed a valid scrollable Settings page by demanding
