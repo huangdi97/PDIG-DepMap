@@ -28,7 +28,7 @@ internal fun dayFactor(nx: Float, ny: Float, nz: Float): Float {
 
 internal fun nightFactor(day: Float): Float = (1f - day) * (1f - day)
 
-internal fun litScale(day: Float): Float = 0.58f + 0.42f * day
+internal fun litScale(day: Float): Float = 0.73f + 0.27f * day
 
 /** 渲染球形地球主体到 [rect]×[rect] Bitmap（含 night/cloud 层，按 assets 有无取舍）。 */
 internal fun renderEarthBody(
@@ -83,7 +83,7 @@ internal fun renderEarthBody(
                     val nr = (nl shr 16) and 0xFF
                     val ng = (nl shr 8) and 0xFF
                     val nb = nl and 0xFF
-                    val nw = nf * 0.22f
+                    val nw = nf * 0.16f
                     rr = (rr * (1f - nw) + nr * nw).toInt()
                     gg = (gg * (1f - nw) + ng * nw).toInt()
                     bb = (bb * (1f - nw) + nb * nw).toInt()
@@ -98,6 +98,12 @@ internal fun renderEarthBody(
                 gg = (gg * (1f - cw) + 236f * cw).toInt()
                 bb = (bb * (1f - cw) + 252f * cw).toInt()
             }
+            // Light-first World: retain source albedo/terminator, but lift dark pixels
+            // and give water/atmosphere a restrained cool-blue photographic grade.
+            val blueGrade = 0.10f + 0.10f * (1f - day)
+            rr = (rr * (1f - blueGrade) + 68f * blueGrade).toInt().coerceIn(0, 255)
+            gg = (gg * (1f - blueGrade) + 136f * blueGrade).toInt().coerceIn(0, 255)
+            bb = (bb * (1f - blueGrade) + 238f * blueGrade).toInt().coerceIn(0, 255)
             argb[rowBase + x] = (0xFF shl 24) or (rr shl 16) or (gg shl 8) or bb
         }
     }

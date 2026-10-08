@@ -34,98 +34,47 @@ import com.pdig.uivnext.ui.VAppState
 
 @Composable
 internal fun CompactInfrastructureHub(app: VAppState) {
+    // Reference: eight icon-forward categories in a compact 4x2 field, not eight admin cards.
+    // Data hints are read from the existing scoped fixture; no new object is manufactured.
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTagLocal("pdig.overview.infrastructure-hub"),
+        modifier = Modifier.fillMaxWidth().testTagLocal("pdig.overview.infrastructure-hub"),
         color = PdigV2Colors.Surface,
-        shape = RoundedCornerShape(VRadius.Xl),
+        shape = RoundedCornerShape(21.dp),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-        tonalElevation = 1.dp,
-        shadowElevation = 1.dp,
     ) {
         Column(
-            Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            Modifier.padding(horizontal = 10.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text("管理基础设施", color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text("按对象进入；地区上下文会继续保留", color = PdigV2Colors.TextMuted, fontSize = 10.sp)
-                }
-                Text("8 类", color = PdigV2Colors.PrimaryBright, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                Text("基础设施", color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text("8 类资产", color = PdigV2Colors.PrimaryText, fontSize = 11.sp)
             }
-
-            INFRA_ENTRIES.chunked(4).forEach { entries ->
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    entries.forEach { entry ->
+            INFRA_ENTRIES.chunked(4).forEach { rowEntries ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    rowEntries.forEach { entry ->
                         val selected = entry.screen == VScreen.OVERVIEW
-                        Surface(
-                            modifier = Modifier
-                                .weight(1f)
-                                .defaultMinSize(minHeight = 66.dp)
-                                .clickableLocal { app.navigate(entry.screen) },
-                            color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
-                            shape = RoundedCornerShape(VRadius.Md),
-                            border = BorderStroke(
-                                1.dp,
-                                if (selected) PdigV2Colors.Primary.copy(alpha = 0.34f) else PdigV2Colors.BorderSubtle,
-                            ),
+                        Column(
+                            modifier = Modifier.weight(1f)
+                                .defaultMinSize(minHeight = 72.dp)
+                                .clickableLocal { app.navigate(entry.screen) }
+                                .padding(vertical = 4.dp),
+                            verticalArrangement = Arrangement.spacedBy(3.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            Column(
-                                Modifier.padding(horizontal = 4.dp, vertical = 6.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            Surface(
+                                modifier = Modifier.size(35.dp),
+                                color = if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.PrimarySoft,
+                                shape = RoundedCornerShape(12.dp),
+                                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                             ) {
-                                Surface(
-                                    modifier = Modifier.size(27.dp),
-                                    color = if (selected) PdigV2Colors.Primary else PdigV2Colors.Surface,
-                                    shape = RoundedCornerShape(VRadius.Sm),
-                                    border = BorderStroke(
-                                        1.dp,
-                                        if (selected) PdigV2Colors.Primary else PdigV2Colors.BorderSubtle,
-                                    ),
-                                ) {
-                                    Row(
-                                        Modifier.fillMaxSize(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.Center,
-                                    ) {
-                                        Icon(
-                                            entry.icon,
-                                            contentDescription = null,
-                                            tint = if (selected) androidx.compose.ui.graphics.Color.White else PdigV2Colors.PrimaryBright,
-                                            modifier = Modifier.size(16.dp),
-                                        )
-                                    }
+                                Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                                    Icon(entry.icon, contentDescription = null, tint = if (selected) androidx.compose.ui.graphics.Color.White else PdigV2Colors.PrimaryBright, modifier = Modifier.size(19.dp))
                                 }
-                                Text(
-                                    entry.screen.titleZh,
-                                    color = PdigV2Colors.TextPrimary,
-                                    fontSize = 11.sp,
-                                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
-                                )
-                                Text(
-                                    compactInfraHint(entry.screen, app),
-                                    color = PdigV2Colors.TextMuted,
-                                    fontSize = 9.sp,
-                                    maxLines = 1,
-                                )
                             }
+                            Text(entry.screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                            Text(compactInfraHint(entry.screen, app), color = PdigV2Colors.TextMuted, fontSize = 9.sp, maxLines = 1)
                         }
-                    }
-                    repeat(4 - entries.size) {
-                        Surface(
-                            modifier = Modifier.weight(1f),
-                            color = androidx.compose.ui.graphics.Color.Transparent,
-                        ) {}
                     }
                 }
             }

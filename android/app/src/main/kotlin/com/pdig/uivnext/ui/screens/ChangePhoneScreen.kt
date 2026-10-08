@@ -70,6 +70,31 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         }
         ProjectionSelector(projection) { app.changeProjection = it }
 
+        // Compact / Medium 保持单 pane：6 步 mini progress 首屏完整可见；
+        // Expanded 才使用完整 ContinuityRail。
+        if (breakpoint != MediaBreakpoint.EXPANDED) {
+            CompactStepper(stages = projectionStages(projection))
+        } else {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+            ) {
+                ContinuityRail(stages = projectionStages(projection))
+            }
+        }
+
+
+        if (breakpoint == MediaBreakpoint.COMPACT) {
+            Text(
+                "影响分析 · 关键服务",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            CompactContinuityOrbit(old, projection)
+        }
+        // The projection truth remains visible, but cannot bury the spatial scene on phone.
         // 投影语义横幅（按投影切换；after 显式 = Plan Projection）
         when (projection) {
             "current" -> InfoBanner(
@@ -89,32 +114,13 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             )
         }
 
-        // Compact / Medium 保持单 pane：6 步 mini progress 首屏完整可见；
-        // Expanded 才使用完整 ContinuityRail。
-        if (breakpoint != MediaBreakpoint.EXPANDED) {
-            CompactStepper(stages = projectionStages(projection))
-        } else {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState()),
-            ) {
-                ContinuityRail(stages = projectionStages(projection))
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            SectionHeader("旧号码 → 关键服务 → 新号码")
+            if (breakpoint == MediaBreakpoint.EXPANDED) {
+                ExpandedContinuityScene(old = old, new = new, projection = projection)
+            } else {
+                CompactContinuityScene(old = old, new = new, projection = projection)
             }
-        }
-
-        if (breakpoint == MediaBreakpoint.COMPACT) {
-            CompactContinuityOrbit(old, projection)
-        }
-
-        SectionHeader("旧号码 → 关键服务 → 新号码")
-        if (breakpoint == MediaBreakpoint.EXPANDED) {
-            // Expanded：OLD / SERVICES / NEW 三列首屏并列，服务节点仍是迁移场景主角。
-            ExpandedContinuityScene(old = old, new = new, projection = projection)
-        } else {
-            // Phone：同一 continuity scene 中同时看到旧身份、目标身份与服务迁移，
-            // 避免退化成普通表单的三段纵向卡片。
-            CompactContinuityScene(old = old, new = new, projection = projection)
         }
 
         SectionHeader("阶段明细")

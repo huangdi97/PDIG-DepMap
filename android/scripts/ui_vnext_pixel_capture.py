@@ -80,12 +80,12 @@ def main():
     tap_match("跳过")
     time.sleep(3)
     capture("01-now")
-    if not tap_match("基础设施"):
+    if not tap_match("基础设施", exact=True):
         # Keep failure evidenced; top-level root may be hidden behind onboarding.
         capture("01-navigation-blocked")
         raise RuntimeError("Could not navigate to 基础设施 after onboarding")
     capture("02-infrastructure")
-    if tap_match("卡片"):
+    if tap_match("卡片", exact=True):
         capture("03-cards")
         tap_match("招行储蓄卡")
         capture("04-card-detail")
@@ -93,9 +93,9 @@ def main():
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "monkey", "-p", PACKAGE, "1")
     time.sleep(3)
-    tap_match("变更")
+    tap_match("变更", exact=True)
     capture("05-change")
-    tap_match("记录")
+    tap_match("记录", exact=True)
     capture("06-records")
     (ROOT / "manifest.json").write_text(
         json.dumps({"sha": __import__("os").environ.get("GITHUB_SHA"),

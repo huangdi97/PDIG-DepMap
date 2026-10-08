@@ -61,9 +61,9 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     Column(
         Modifier
             .fillMaxSize()
-            .padding(if (compact) 16.dp else VSpacing.Xxl)
+            .padding(if (compact) 12.dp else VSpacing.Xxl)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(if (compact) 18.dp else 24.dp),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 24.dp),
     ) {
         Row(
             Modifier
@@ -231,7 +231,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         .testTagLocal(VTestIds.NOW_ATTENTION),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    AttentionSection(app)
+                    AttentionSection(app, maxVisible = 1)
                 }
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     ChangesSection(app)
@@ -252,7 +252,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun AttentionSection(app: VAppState) {
+private fun AttentionSection(app: VAppState, maxVisible: Int = Int.MAX_VALUE) {
     val items = app.demoAttention()
     SectionHeader("需要你处理（${items.size}）")
     if (items.isEmpty()) {
@@ -266,13 +266,28 @@ private fun AttentionSection(app: VAppState) {
             onSecondary = { app.navigate(VScreen.WEAKNESSES) },
         )
     } else {
-        items.forEach { item ->
+        items.take(maxVisible).forEach { item ->
             AttentionRow(item = item, onClick = { clicked ->
                 when {
                     UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
                     else -> app.openNumber(clicked.target)
                 }
             })
+        }
+        if (items.size > maxVisible) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().clickableLocal { app.navigate(VScreen.RECORDS) },
+                color = PdigV2Colors.PrimarySoft,
+                shape = RoundedCornerShape(VRadius.Md),
+            ) {
+                Text(
+                    "还有 ${items.size - maxVisible} 项待处理 · 查看全部 →",
+                    Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    color = PdigV2Colors.PrimaryText,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
     }
 }

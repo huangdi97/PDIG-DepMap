@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.app.BuildConfig
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -142,7 +143,12 @@ private fun TopCommandBar(app: VAppState, compact: Boolean, onHelp: (() -> Unit)
                         }
                     }
                     Spacer(Modifier.width(VSpacing.Sm))
-                    Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                        Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        if (onHelp != null) {
+                            Text("预览 · ${BuildConfig.GIT_SHA}", color = PdigV2Colors.PrimaryText, fontSize = 9.sp, maxLines = 1)
+                        }
+                    }
                 }
             } else {
                 Text(
