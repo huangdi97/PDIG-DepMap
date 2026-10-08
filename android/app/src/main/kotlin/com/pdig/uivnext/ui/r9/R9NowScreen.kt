@@ -163,7 +163,7 @@ internal fun R9WorldStage(
                 .testTag("pdig.r9.world.hero")) {
                 // Only the photographic planet is scaled, not the labels or counter rail.
                 Box(Modifier.fillMaxSize().padding(horizontal = 31.dp)
-                    .graphicsLayer(scaleX = 1.18f, scaleY = 1.18f)) {
+                    .graphicsLayer(scaleX = 1.44f, scaleY = 1.44f)) {
                     VNextGlobe(
                         controller = app.globe,
                         regions = regions,

@@ -20,9 +20,11 @@ import kotlin.math.sqrt
 
 /** 世界空间太阳方向（固定；与桌面 EarthLighting.SUN_DIR 同源）。 */
 internal val SUN_DIR: Vec3 = latLonToVec(14f, -12f)
+/** Fixed display-light reference for R9 Preview, NOT a live solar ephemeris. */
+internal val R9_REFERENCE_SUN_DIR: Vec3 = latLonToVec(18f, 92f)
 
-internal fun dayFactor(nx: Float, ny: Float, nz: Float): Float {
-    val lit = (nx * SUN_DIR.x + ny * SUN_DIR.y + nz * SUN_DIR.z).coerceIn(-1f, 1f)
+internal fun dayFactor(nx: Float, ny: Float, nz: Float, sunDir: Vec3 = SUN_DIR): Float {
+    val lit = (nx * sunDir.x + ny * sunDir.y + nz * sunDir.z).coerceIn(-1f, 1f)
     return ((lit + 0.30f) / 1.30f).coerceIn(0f, 1f)
 }
 
@@ -38,6 +40,7 @@ internal fun renderEarthBody(
     centerY: Int,
     radiusPx: Float,
     cam: GlobeCamera,
+    sunDir: Vec3 = SUN_DIR,
 ): Bitmap {
     val albedo = assets.albedo
     val night = assets.nightLights
@@ -62,7 +65,7 @@ internal fun renderEarthBody(
             // Rotate it back into world space only for texture/lighting lookup. Do not cull by world z:
             // world z is longitude-facing orientation, not camera visibility.
             val w = inverseRotatePoint(Vec3(dx, dy, cz), cam)
-            val day = dayFactor(w.x, w.y, w.z)
+            val day = dayFactor(w.x, w.y, w.z, sunDir)
             val lat = asin(w.y.coerceIn(-1f, 1f))
             val lon = earthLongitudeRad(w)
             val u = ((lon / PI.toFloat()) + 1f) / 2f

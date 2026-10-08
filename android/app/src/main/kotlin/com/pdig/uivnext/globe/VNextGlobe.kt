@@ -1,6 +1,7 @@
 package com.pdig.uivnext.globe
 
 import android.graphics.Bitmap
+import com.pdig.app.BuildConfig
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -191,7 +192,10 @@ fun VNextGlobe(
         controller.renderState = GlobeRenderState.LOADING
         val bmp = try {
             withContext(Dispatchers.Default) {
-                renderEarthBody(assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam)
+                renderEarthBody(
+                    assets, rect, center.x.toInt(), center.y.toInt(), radius, displayCam,
+                    sunDir = if (BuildConfig.FLAVOR == "preview") R9_REFERENCE_SUN_DIR else SUN_DIR,
+                )
             }
         } catch (t: kotlinx.coroutines.CancellationException) {
             // 组合作用域离开（截图切换 app 时旧组合被取消）：这是干净取消，不是渲染失败。

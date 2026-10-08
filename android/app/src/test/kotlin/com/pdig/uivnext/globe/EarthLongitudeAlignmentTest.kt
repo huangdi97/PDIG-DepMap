@@ -19,6 +19,16 @@ class EarthLongitudeAlignmentTest {
     }
 
     @Test
+    fun PreviewAsiaSunGivesLightToActualAsiaCameraCenter() {
+        val eastAsia = latLonToVec(16f, 107f)
+        val asiaDay = dayFactor(eastAsia.x, eastAsia.y, eastAsia.z, R9_REFERENCE_SUN_DIR)
+        val west = latLonToVec(16f, -90f)
+        val westDay = dayFactor(west.x, west.y, west.z, R9_REFERENCE_SUN_DIR)
+        org.junit.Assert.assertTrue("R9 should illuminate East Asia", asiaDay > 0.82f)
+        org.junit.Assert.assertTrue("R9 still has a night hemisphere", westDay < 0.32f)
+    }
+
+    @Test
     fun NegativeLongitudeIsPreservedForUnitedStates() {
         assertEquals((-PI / 2).toFloat(), earthLongitudeRad(latLonToVec(0f, -90f)), 0.0001f)
     }
