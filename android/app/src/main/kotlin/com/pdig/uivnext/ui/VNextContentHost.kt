@@ -28,6 +28,7 @@ import com.pdig.uivnext.ui.r9.R9InfrastructureScreen
 import com.pdig.uivnext.ui.r9.R9CardsScreen
 import com.pdig.uivnext.ui.r9.R9NumbersScreen
 import com.pdig.uivnext.ui.r9.R9NumberDetailScreen
+import com.pdig.uivnext.ui.r9.R9StudioScreen
 import com.pdig.uivnext.ui.r9.R9SecondaryScreen
 import com.pdig.uivnext.ui.r9.R9CardDetailScreen
 import com.pdig.uivnext.ui.r9.R9ChangePhoneScreen
@@ -75,10 +76,10 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
                 if (useR9Phone) R9InfrastructureScreen(app) else OverviewScreen(app, breakpoint)
             VScreen.CARDS -> if (useR9Phone) R9CardsScreen(app) else CardsScreen(app, breakpoint)
             VScreen.CARD_DETAIL -> if (useR9Phone) R9CardDetailScreen(app) else CardDetailScreen(app, breakpoint)
-            VScreen.CARD_CUSTOMIZATION -> CardCustomizationScreen(app, breakpoint)
+            VScreen.CARD_CUSTOMIZATION -> if (useR9Phone) R9StudioScreen(app, true) else CardCustomizationScreen(app, breakpoint)
             VScreen.NUMBERS -> if (useR9Phone) R9NumbersScreen(app) else NumbersScreen(app, breakpoint)
             VScreen.NUMBER_DETAIL -> if (useR9Phone) R9NumberDetailScreen(app) else NumberDetailScreen(app)
-            VScreen.NUMBER_CUSTOMIZATION -> NumberCustomizationScreen(app, breakpoint)
+            VScreen.NUMBER_CUSTOMIZATION -> if (useR9Phone) R9StudioScreen(app, false) else NumberCustomizationScreen(app, breakpoint)
             VScreen.CHANGE, VScreen.CHANGE_PHONE -> if (useR9Phone) R9ChangePhoneScreen(app) else ChangePhoneScreen(app, breakpoint)
             VScreen.RECORDS -> if (useR9Phone) R9RecordsScreen(app) else RecordsScreen(app, breakpoint)
             VScreen.SEARCH -> SearchScreen(app, breakpoint)
