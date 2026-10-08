@@ -161,7 +161,8 @@ private fun R9FilterChip(
         shape = RoundedCornerShape(12.dp),
         border = BorderStroke(1.dp, if(active) R9.Blue else R9.Line),
     ) {
-        Row(Modifier.fillMaxSize().padding(horizontal = 8.dp),
+        Row(Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
+            .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
             Text(text, modifier = Modifier.weight(1f), fontSize = 10.sp,
