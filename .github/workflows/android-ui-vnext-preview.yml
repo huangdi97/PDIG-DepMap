@@ -6,9 +6,6 @@ on:
       - feat/android-ui-vnext-translation
     paths:
       - "android/**"
-      - ".github/workflows/android-ui-vnext-preview.yml"
-      - "spec/ui-vnext/**"
-      - "docs/ui-vnext/android/**"
   workflow_dispatch:
 
 permissions:
@@ -73,39 +70,44 @@ jobs:
           test -f "$PROD_APK"
           test -f "$PREVIEW_APK"
 
-          cp "$PREVIEW_APK" "dist/PDIG-Android-UI-vNext-Preview.apk"
-          cp "$PROD_APK" "dist/PDIG-Android-UI-vNext-ProductionDebug.apk"
+          cp "$PREVIEW_APK" dist/PDIG-Android-UI-vNext-Preview.apk
+          cp "$PROD_APK" dist/PDIG-Android-UI-vNext-ProductionDebug.apk
 
           (
             cd dist
-            sha256sum               PDIG-Android-UI-vNext-Preview.apk               PDIG-Android-UI-vNext-ProductionDebug.apk               > SHA256SUMS.txt
+            sha256sum \
+              PDIG-Android-UI-vNext-Preview.apk \
+              PDIG-Android-UI-vNext-ProductionDebug.apk \
+              > SHA256SUMS.txt
           )
 
           SHORT_SHA="${GITHUB_SHA:0:7}"
+
           cat > dist/RELEASE_NOTES.md <<EOF
           # PDIG Android UI vNext Preview
 
-          This is an **installable preview build** of the accepted Android Light-first UI vNext.
+          This is an installable preview build of the accepted Android Light-first UI vNext.
 
-          - branch: `feat/android-ui-vnext-translation`
-          - build source: `$GITHUB_SHA`
-          - final pixel-changing Android UI source: `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
-          - Android visual reference: **ACCEPTED**
+          - branch: feat/android-ui-vnext-translation
+          - build source: $GITHUB_SHA
+          - final pixel-changing Android UI source: a3b3a05580c0cd2ed451e554ba7db3edfd523cc0
+          - Android visual reference: ACCEPTED
           - minSdk: 26
           - targetSdk: 36
 
-          ## Which APK should I install?
+          Recommended for direct phone evaluation:
+          PDIG-Android-UI-vNext-Preview.apk
 
-          **Recommended for direct phone evaluation:**
-          `PDIG-Android-UI-vNext-Preview.apk`
+          It uses application id com.pdig.app.preview and can coexist with the production application.
 
-          It uses the preview application id and can coexist with the production application.
+          PDIG-Android-UI-vNext-ProductionDebug.apk uses com.pdig.app and is provided only to match the
+          production-debug flavor used by the final Android runtime evidence. If another PDIG build with a
+          different signing key is already installed, Android may reject an in-place update; uninstall the old
+          package first or use the Preview APK instead.
 
-          `PDIG-Android-UI-vNext-ProductionDebug.apk` uses `com.pdig.app` and is provided only to match the production-debug flavor used by the final Android runtime evidence. If another PDIG build with a different signing key is already installed, Android may reject an in-place update; uninstall the old package first or use the Preview APK instead.
+          This is a debug-signed evaluation build, not a Play Store production-signed release.
 
-          This is a **debug-signed evaluation build**, not a Play Store production-signed release.
-
-          SHA-256 hashes are included in `SHA256SUMS.txt`.
+          SHA-256 hashes are included in SHA256SUMS.txt.
           EOF
 
           cat > dist/BUILD_PROVENANCE.txt <<EOF
@@ -147,7 +149,16 @@ jobs:
           SHORT_SHA="${GITHUB_SHA:0:7}"
           TAG="android-ui-vnext-preview-$SHORT_SHA"
 
-          gh release create "$TAG"             "dist/PDIG-Android-UI-vNext-Preview.apk#PDIG Android UI vNext Preview APK"             "dist/PDIG-Android-UI-vNext-ProductionDebug.apk#PDIG Android UI vNext ProductionDebug APK"             "dist/SHA256SUMS.txt#SHA-256 checksums"             "dist/BUILD_PROVENANCE.txt#Build provenance"             --repo "$GITHUB_REPOSITORY"             --target "$GITHUB_SHA"             --prerelease             --title "PDIG Android UI vNext Preview · $SHORT_SHA"             --notes-file dist/RELEASE_NOTES.md
+          gh release create "$TAG" \
+            "dist/PDIG-Android-UI-vNext-Preview.apk#PDIG Android UI vNext Preview APK" \
+            "dist/PDIG-Android-UI-vNext-ProductionDebug.apk#PDIG Android UI vNext ProductionDebug APK" \
+            "dist/SHA256SUMS.txt#SHA-256 checksums" \
+            "dist/BUILD_PROVENANCE.txt#Build provenance" \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --prerelease \
+            --title "PDIG Android UI vNext Preview · $SHORT_SHA" \
+            --notes-file dist/RELEASE_NOTES.md
 
           echo "releaseTag=$TAG"
           gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url,tagName,name,isPrerelease,assets
