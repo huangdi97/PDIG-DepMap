@@ -396,12 +396,20 @@ def main():
         raise RuntimeError("Me tab privacy control not tappable")
     capture("09a-me-mask-enabled")
     require_screen("09a-me-mask-enabled", "已开启")
-    if not tap_retry("遮蔽敏感信息", exact=True):
+    if not tap_retry("敏感信息遮蔽", exact=True):
         raise RuntimeError("Me tab privacy control could not be disabled again")
     capture("09b-me-mask-disabled")
     require_screen("09b-me-mask-disabled", "已关闭")
-    if not tap_retry("偏好设置", exact=True):
-        raise RuntimeError("Personal preference panel unreachable from Me")
+    # The rich Me page intentionally extends past the first fold. Scroll to the
+    # real Settings action; absence from a screenshot is NOT a missing route.
+    for attempt in range(8):
+        if tap_match("偏好设置", exact=True):
+            break
+        adb("shell", "input", "swipe", 520, 1880, 520, 770, 330)
+        time.sleep(1)
+    else:
+        capture("09-me-settings-unreachable")
+        raise RuntimeError("Personal preference panel unreachable after scrolling Me")
     capture("09-personalization")
     # Data Sources is intentionally below the first fold on compact phones.
     # The old test falsely failed a valid scrollable Settings page by demanding

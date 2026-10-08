@@ -105,6 +105,28 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
             }
         }
 
+        R9SectionTitle("隐私与个人偏好", "详细设置 →") { app.navigate(VScreen.SETTINGS) }
+        Surface(
+            modifier = Modifier.fillMaxWidth().clickable { app.privacyMask = !app.privacyMask }
+                .testTag("pdig.r10.me.privacy"),
+            color = Color.White, shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(11.dp)) {
+                Icon(Icons.Filled.Lock, contentDescription = null, tint = R9.Blue,
+                    modifier = Modifier.size(23.dp))
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("敏感信息遮蔽", color = R9.Ink,
+                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text("初始不遮蔽，开启和关闭由你决定",
+                        color = R9.Muted, fontSize = 10.sp)
+                }
+                R9Badge(if(app.privacyMask) "已开启" else "已关闭",
+                    if(app.privacyMask) R9.Blue else R9.Muted)
+            }
+        }
+
         R9SectionTitle("我的全球分布", "基础设施 →") {
             app.navigate(VScreen.INFRASTRUCTURE)
         }
@@ -168,28 +190,6 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                         fontSize = 11.sp, color = R9.Rose, maxLines = 2,
                         modifier = Modifier.clickable { app.navigate(VScreen.RECORDS) })
                 }
-            }
-        }
-
-        R9SectionTitle("隐私与个人偏好", "详细设置 →") { app.navigate(VScreen.SETTINGS) }
-        Surface(
-            modifier = Modifier.fillMaxWidth().clickable { app.privacyMask = !app.privacyMask }
-                .testTag("pdig.r10.me.privacy"),
-            color = Color.White, shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, R9.Line),
-        ) {
-            Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-                Icon(Icons.Filled.Lock, contentDescription = null, tint = R9.Blue,
-                    modifier = Modifier.size(23.dp))
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("敏感信息遮蔽", color = R9.Ink,
-                        fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                    Text("初始不遮蔽，开启和关闭由你决定",
-                        color = R9.Muted, fontSize = 10.sp)
-                }
-                R9Badge(if(app.privacyMask) "已开启" else "已关闭",
-                    if(app.privacyMask) R9.Blue else R9.Muted)
             }
         }
 
