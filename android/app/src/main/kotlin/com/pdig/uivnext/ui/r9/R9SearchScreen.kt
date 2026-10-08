@@ -124,12 +124,12 @@ internal fun R9SearchScreen(app: VAppState) {
         } else {
             R9SectionTitle("搜索结果（$total）")
             filteredCards.forEach { card ->
-                R9SearchResult(card.nickname, "${card.issuer} · ${regionFlag(card.region)} · ${card.last4}",
+                R9SearchResult(card.nickname, "${card.issuer} · ${regionFlag(card.region)} · ${r9VisibleLast4(card.last4, app.privacyMask || app.savedPresentationProfile("card", card.id)?.maskSensitive == true)}",
                     "卡片") { app.openCard(card.id) }
             }
             filteredNumbers.forEach { number ->
                 R9SearchResult(number.nickname,
-                    "${number.maskedNumber} · ${regionFlag(number.region)} · ${number.carrier}",
+                    "${r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true)} · ${regionFlag(number.region)} · ${number.carrier}",
                     "号码") { app.openNumber(number.id) }
             }
             filteredRegions.forEach { region ->

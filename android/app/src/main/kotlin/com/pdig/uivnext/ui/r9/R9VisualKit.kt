@@ -108,3 +108,7 @@ internal fun R9Badge(text: String, color: Color, modifier: Modifier = Modifier) 
             color = color, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
     }
 }
+
+/** Display-only privacy protection; never mutates PersonalReality or the stored value. */
+internal fun r9VisibleLast4(last4: String, hidden: Boolean): String = if (hidden) "••••" else last4
+internal fun r9VisibleNumber(number: String, hidden: Boolean): String = if (hidden) "号码已遮蔽" else number

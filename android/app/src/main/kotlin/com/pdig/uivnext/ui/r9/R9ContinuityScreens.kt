@@ -95,7 +95,7 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
         }
         R9SectionTitle("影响分析 · 关键服务")
         R9ServiceOrbit(
-            number = old?.maskedNumber ?: "号码未记录",
+            number = old?.let { r9VisibleNumber(it.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", it.id)?.maskSensitive == true) } ?: "号码未记录",
             migrations = migrations,
             projection = projection,
         )
@@ -111,10 +111,10 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
         }
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp),
             verticalAlignment = Alignment.CenterVertically) {
-            R9NumberNode("旧手机号", old?.maskedNumber ?: "未记录", Color(0xFF1B417B),
+            R9NumberNode("旧手机号", old?.let { r9VisibleNumber(it.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", it.id)?.maskSensitive == true) } ?: "未记录", Color(0xFF1B417B),
                 Modifier.weight(1f))
             Text("→", color = R9.Blue, fontSize = 18.sp)
-            R9NumberNode("新手机号 · 目标", fresh?.maskedNumber ?: "未记录",
+            R9NumberNode("新手机号 · 目标", fresh?.let { r9VisibleNumber(it.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", it.id)?.maskSensitive == true) } ?: "未记录",
                 Color(0xFF1683CF), Modifier.weight(1f))
         }
         Surface(

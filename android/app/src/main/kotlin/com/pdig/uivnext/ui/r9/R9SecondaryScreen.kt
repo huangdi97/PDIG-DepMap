@@ -107,7 +107,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                         "核对已记录扣款与绑定", regionFlag(a.region), "▣", "临近到期", R9.Amber)
                 }
                 recoveryPhones.forEach { a ->
-                    R9ObjectRow(a.nickname, a.maskedNumber, "恢复路径：号码",
+                    R9ObjectRow(a.nickname, r9VisibleNumber(a.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", a.id)?.maskSensitive == true), "恢复路径：号码",
                         "更换前确认替代路径", regionFlag(a.region), "☎", "需要核对", R9.Amber)
                 }
                 recoveryEmails.forEach { a ->

@@ -111,7 +111,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
                         R9DetailLine("发卡机构", card.issuer)
                         R9DetailLine("卡片类型", if(card.type == "credit") "信用卡" else "储蓄卡")
                         R9DetailLine("国家 / 地区", "${regionFlag(card.region)} ${regionLabelZh(card.region)} · ${card.currency}")
-                        R9DetailLine("卡号后四位", card.last4)
+                        R9DetailLine("卡号后四位", r9VisibleLast4(card.last4, app.privacyMask || profile?.maskSensitive == true))
                         R9DetailLine("有效期", card.expiry)
                         R9DetailLine("已记录服务", "${services.size} 项")
                     }

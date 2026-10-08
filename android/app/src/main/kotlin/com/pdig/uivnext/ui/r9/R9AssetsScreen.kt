@@ -185,7 +185,7 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
             val saved = app.savedPresentationProfile("card", card.id)
             if (saved != null) {
-                CardIdentityThumbnail(card.copy(preset = saved.themeId), app.privacyMask,
+                CardIdentityThumbnail(card.copy(preset = saved.themeId), app.privacyMask || saved.maskSensitive,
                     modifier = Modifier.width(114.dp))
             } else {
                 R9BankCardFace(card, app.privacyMask,
@@ -195,7 +195,7 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 Text(card.nickname, color = R9.Ink, fontWeight = FontWeight.Bold,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 12.sp)
-                Text("${card.issuer} · ${card.last4}", color = R9.Muted,
+                Text("${card.issuer} · ${r9VisibleLast4(card.last4, app.privacyMask || app.savedPresentationProfile("card", card.id)?.maskSensitive == true)}", color = R9.Muted,
                     maxLines = 1, overflow = TextOverflow.Ellipsis, fontSize = 10.sp)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text("${regionFlag(card.region)} ${card.currency} · ${card.network}",
@@ -263,11 +263,11 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
     ) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            NumberIdentityThumbnail(number, app.privacyMask, Modifier.width(107.dp))
+            NumberIdentityThumbnail(number, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true, Modifier.width(107.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text(number.nickname, color = R9.Ink, fontWeight = FontWeight.Bold,
                     fontSize = 12.sp, maxLines = 1)
-                Text(number.maskedNumber, color = R9.Ink, fontSize = 11.sp, maxLines = 1)
+                Text(r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true), color = R9.Ink, fontSize = 11.sp, maxLines = 1)
                 Text("${regionFlag(number.region)} ${number.carrier} · ${number.simKind}",
                     color = R9.Muted, fontSize = 9.sp, maxLines = 1)
                 if(number.recoveryOnly) R9Badge("恢复依赖 · 待核实", R9.Amber)
