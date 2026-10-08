@@ -265,6 +265,11 @@ def main():
     require_screen("04e-card-presets-inline", "原卡面", "海洋")
     if not tap_retry("海洋", exact=True):
         raise RuntimeError("Compact card artwork option could not be selected")
+    # Artwork changes do not reset the actively selected detail tab.
+    # Switch to Overview before asserting "基本信息" rather than mistaking a
+    # preserved Safety tab for a regression.
+    if not tap_retry("概览", exact=True):
+        raise RuntimeError("Card detail Overview tab unavailable after artwork change")
     capture("04f-card-art-applied")
     require_screen("04f-card-art-applied", "基本信息")
     # Top-left UP must be hierarchical, not a chronological jump to Now.
