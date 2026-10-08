@@ -61,17 +61,7 @@ jobs:
           disk-size: 8G
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
           disable-animations: true
-          script: |
-            set -e
-            adb install -r android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
-            adb install -r android/app/build/outputs/apk/androidTest/preview/debug/app-preview-debug-androidTest.apk
-            mkdir -p artifacts/runtime-evidence/preview-phone
-            APP_ID="com.pdig.app.preview.p${GITHUB_SHA:0:7}"
-            adb shell am instrument -w -e class com.pdig.uivnext.evidence.AndroidGlobeGestureContractTest \
-              "$APP_ID.test/androidx.test.runner.AndroidJUnitRunner" \
-              | tee artifacts/runtime-evidence/preview-phone/pinch-gesture-instrumentation.txt
-            grep -q "OK (1 test)" artifacts/runtime-evidence/preview-phone/pinch-gesture-instrumentation.txt
-            python3 android/scripts/ui_vnext_pixel_capture.py
+          script: bash android/scripts/run_globe_pinch_and_capture.sh
       - name: Generate human-review contact and manifest
         if: always()
         run: python3 android/scripts/r9_visual_report.py
