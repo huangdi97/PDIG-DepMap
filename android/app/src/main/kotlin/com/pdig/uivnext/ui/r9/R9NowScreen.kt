@@ -169,7 +169,7 @@ internal fun R9WorldStage(
     services: Int,
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth().height(409.dp)
+        modifier = Modifier.fillMaxWidth().height(432.dp)
             .testTag(VTestIds.NOW_GLOBE)
             .testTag("pdig.r9.world.stage"),
         shape = RoundedCornerShape(24.dp),
@@ -193,7 +193,7 @@ internal fun R9WorldStage(
                 .testTag("pdig.r9.world.hero")) {
                 // Only the photographic planet is scaled, not the labels or counter rail.
                 Box(Modifier.fillMaxSize().padding(horizontal = 31.dp)
-                    .graphicsLayer(scaleX = 1.44f, scaleY = 1.44f)) {
+                    .graphicsLayer(scaleX = 1.57f, scaleY = 1.57f)) {
                     VNextGlobe(
                         controller = app.globe,
                         regions = regions,

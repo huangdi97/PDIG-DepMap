@@ -45,6 +45,28 @@ internal fun R9InfrastructureScreen(app: VAppState) {
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         Text("管理你的全球数字基础设施", color = R9.Muted, fontSize = 12.sp)
+        app.regionFilter?.let { selected ->
+            val regionName = regions.firstOrNull { it.regionCode == selected }?.displayName
+                ?: selected
+            Surface(
+                modifier = Modifier.fillMaxWidth()
+                    .testTag("pdig.r9.infrastructure.selected-region"),
+                color = R9.Mist,
+                shape = RoundedCornerShape(13.dp),
+                border = BorderStroke(1.dp, R9.Line),
+            ) {
+                Row(Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("已选地区：$regionName", color = R9.Ink,
+                        fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                    Text("查看全球 →", color = R9.Blue, fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable { app.clearRegion() }
+                            .testTag("pdig.r9.infrastructure.clear-region"))
+                }
+            }
+        }
         Surface(
             modifier = Modifier.fillMaxWidth().height(45.dp).clickable { app.navigate(VScreen.SEARCH) }
                 .testTag("pdig.r9.infrastructure.search"),
@@ -176,7 +198,8 @@ private fun R9RegionDistribution(app: VAppState, regions: List<RegionPresentatio
                     if (regions.isEmpty()) Text("暂无地区", fontSize = 12.sp, color = R9.Muted)
                     regions.take(5).forEach { r ->
                         Row(Modifier.fillMaxWidth().height(29.dp)
-                            .clickable { app.selectRegion(r.regionCode) },
+                            .clickable { app.selectRegion(r.regionCode) }
+                            .testTag("pdig.r9.infrastructure.region.${r.regionCode}"),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                             Text(regionFlag(r.regionCode), fontSize = 13.sp)

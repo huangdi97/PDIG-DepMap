@@ -214,6 +214,16 @@ def main():
         raise RuntimeError("Could not navigate to 基础设施 after onboarding")
     capture("02-infrastructure")
     require_screen("02-infrastructure", "8 类资产", "地区分布", "管理你的全球数字基础设施")
+    if not tap_retry("美国", exact=True):
+        raise RuntimeError("Selecting a concrete region from the infrastructure overview failed")
+    capture("02a-infrastructure-selected-us")
+    require_screen("02a-infrastructure-selected-us", "已选地区：美国", "查看全球")
+    if not tap_retry("查看全球 →", exact=True):
+        raise RuntimeError("Clearing the selected region failed")
+    capture("02b-infrastructure-global-restored")
+    if any("已选地区：" in text for text in
+           json.loads((ROOT / "02b-infrastructure-global-restored.json").read_text(encoding="utf-8"))["uiText"]):
+        raise RuntimeError("Region context was not cleared before continuing to Cards")
     if not tap_match("卡片", exact=True):
         raise RuntimeError("Card icon not clickable from infrastructure hub")
     capture("03-cards")
