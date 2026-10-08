@@ -122,30 +122,52 @@ internal fun CompactContinuityOrbit(number: UiVNextNumber?, projection: String) 
             )
             items.forEachIndexed { i, migration ->
                 val (alignment, y) = positions[i]
+                val (symbol, tint) = when {
+                    migration.service.contains("微信") -> "微" to Color(0xFF0CB778)
+                    migration.service.contains("支付宝") -> "支" to Color(0xFF178EFF)
+                    migration.service.contains("招商") -> "招" to Color(0xFFEE424A)
+                    migration.service.contains("腾讯") -> "▶" to Color(0xFF24A9E4)
+                    else -> migration.service.take(1) to Color(0xFF6885AC)
+                }
                 Surface(
                     modifier = Modifier.align(alignment).offset(y = y)
-                        .padding(horizontal = 8.dp, vertical = 17.dp),
+                        .padding(horizontal = 7.dp, vertical = 17.dp),
                     color = Color.White.copy(alpha = 0.97f),
                     shape = RoundedCornerShape(14.dp),
                     border = BorderStroke(1.dp, Color(0xFFD7E5F7)),
                     shadowElevation = 1.dp,
                 ) {
-                    Column(
-                        Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(1.dp),
+                    Row(
+                        Modifier.padding(horizontal = 7.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        Text(migration.service, color = PdigV2Colors.TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                        Text(
-                            when (migration.status) {
-                                "completed" -> "已验证"
-                                "waiting", "verifying" -> "待验证"
-                                "not_started" -> "未开始"
-                                else -> "待确认"
-                            },
-                            color = PdigV2Colors.TextSecondary,
-                            fontSize = 9.sp,
-                        )
+                        // These are in-app initials/marks, not downloaded or fabricated provider logos.
+                        // Only the known migration items are shown; color never implies a safe status.
+                        Surface(
+                            modifier = Modifier.size(29.dp),
+                            color = tint,
+                            shape = RoundedCornerShape(9.dp),
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(symbol, color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(migration.service, color = PdigV2Colors.TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                            Text(
+                                when (migration.status) {
+                                    "completed" -> "已验证"
+                                    "waiting", "verifying" -> "待验证"
+                                    "not_started" -> "未开始"
+                                    "plan" -> "计划中"
+                                    "unresolved" -> "待解决"
+                                    else -> "待确认"
+                                },
+                                color = PdigV2Colors.TextSecondary,
+                                fontSize = 9.sp,
+                            )
+                        }
                     }
                 }
             }
