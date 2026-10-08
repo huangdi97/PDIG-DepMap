@@ -18,6 +18,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -136,12 +138,53 @@ internal fun R13WorldExperience(
                     app.navigate(VScreen.OVERVIEW)
                 }
             }
+            // Accessible explicit zoom actions complement one-finger orbit and two-finger
+            // pinch on the globe itself. Buttons change the SAME controller camera.
+            Column(
+                modifier = Modifier.align(Alignment.CenterEnd)
+                    .padding(end = 7.dp)
+                    .testTag("pdig.r14.globe.controls"),
+                verticalArrangement = Arrangement.spacedBy(7.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                listOf(
+                    Triple("+", "放大地球", "zoom-in"),
+                    Triple("−", "缩小地球", "zoom-out"),
+                    Triple("↺", "复位地球", "reset"),
+                ).forEach { (symbol, label, action) ->
+                    Surface(
+                        modifier = Modifier.size(43.dp)
+                            .clickable {
+                                when (action) {
+                                    "zoom-in" -> app.globe.zoomBy(1.20f)
+                                    "zoom-out" -> app.globe.zoomBy(1f / 1.20f)
+                                    "reset" -> {
+                                        app.globe.backToGlobal()
+                                        app.globe.camera = com.pdig.uivnext.globe.focusCamera(16f, 107f)
+                                    }
+                                }
+                            }
+                            .testTag("pdig.r14.globe.$action"),
+                        color = Color.White.copy(alpha = .94f),
+                        shape = RoundedCornerShape(14.dp),
+                        border = BorderStroke(1.dp, R9.Line),
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Text(symbol, fontSize = if (action == "reset") 19.sp else 23.sp,
+                                color = R9.Blue, fontWeight = FontWeight.Bold,
+                                modifier = Modifier.semantics {
+                                    contentDescription = label
+                                })
+                        }
+                    }
+                }
+            }
             Surface(
                 modifier = Modifier.align(Alignment.BottomStart).padding(start = 11.dp, bottom = 12.dp),
                 color = Color.White.copy(alpha = .86f),
                 shape = RoundedCornerShape(12.dp),
             ) {
-                Text("可旋转 · 点击地区节点", Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
+                Text("拖动旋转 · 双指缩放", Modifier.padding(horizontal = 9.dp, vertical = 6.dp),
                     color = R9.Muted, fontSize = 9.sp)
             }
         }
