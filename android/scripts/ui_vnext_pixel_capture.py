@@ -137,6 +137,15 @@ def main():
         raise RuntimeError("Card detail tap not found")
     capture("04-card-detail")
     require_screen("04-card-detail", "基本信息")
+    for name, shot, required in (
+        ("关联服务", "04b-card-services", "关联服务"),
+        ("账单", "04c-card-statements", "尚未导入可核验的账单"),
+        ("安全与风险", "04d-card-risk", "安全与风险"),
+    ):
+        if not tap_retry(name, exact=True):
+            raise RuntimeError(f"Missing genuine card-detail tab: {name}")
+        capture(shot)
+        require_screen(shot, required)
     # Home-screen navigation is still the canonical path for root screens.
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "monkey", "-p", PACKAGE, "1")
@@ -145,7 +154,11 @@ def main():
         raise RuntimeError("Change root navigation unavailable after activity relaunch")
     capture("05-change")
     require_screen("05-change", "影响分析 · 关键服务")
-    if not tap_match("记录", exact=True, prefer_bottom=True):
+    if not tap_retry("完成后（计划）", exact=True):
+        raise RuntimeError("Change Phone plan projection selector missing")
+    capture("05b-change-plan")
+    require_screen("05b-change-plan", "完成后预览")
+    if not tap_retry("记录", exact=True, prefer_bottom=True):
         raise RuntimeError("Records bottom navigation not found")
     capture("06-records")
     require_screen("06-records", "迁移进度")
