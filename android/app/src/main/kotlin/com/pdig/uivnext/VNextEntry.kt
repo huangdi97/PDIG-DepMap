@@ -66,7 +66,7 @@ fun createVNextAppState(
     emptyDemo: Boolean = false,
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
     initialNumberDisplayNames: Map<String, String> = emptyMap(),
-    onNumberDisplayNameSaved: (String, String) -> Unit = {},
+    onNumberDisplayNameSaved: (String, String) -> Unit = { _, _ -> },
     initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
     onWorkspacePreferencesSaved: (WorkspacePreferences) -> Unit = {},

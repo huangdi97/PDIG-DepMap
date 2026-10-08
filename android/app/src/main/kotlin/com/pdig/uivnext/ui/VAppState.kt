@@ -25,7 +25,7 @@ class VAppState(
     initialCamera: GlobeCamera = focusCamera(16f, 107f),
     initialPresentationProfiles: Map<String, PresentationProfile> = emptyMap(),
     initialNumberDisplayNames: Map<String, String> = emptyMap(),
-    private val onNumberDisplayNameSaved: (String, String) -> Unit = {},
+    private val onNumberDisplayNameSaved: (String, String) -> Unit = { _, _ -> },
     initialWorkspacePreferences: WorkspacePreferences = WorkspacePreferences(),
     private val onPresentationProfileSaved: (PresentationProfile) -> Unit = {},
     private val onWorkspacePreferencesSaved: (WorkspacePreferences) -> Unit = {},
