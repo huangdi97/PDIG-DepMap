@@ -84,11 +84,25 @@ def capture(name):
     texture_state = wait_globe_texture() if name in ("01-now", "02-infrastructure") else "NOT_REQUIRED"
     time.sleep(2)
     path = ROOT / (name + ".png")
-    with path.open("wb") as f:
-        proc = subprocess.run(["adb", "exec-out", "screencap", "-p"],
-                              stdout=f, stderr=subprocess.PIPE, timeout=40)
-    if proc.returncode or path.stat().st_size < 10000:
-        raise RuntimeError(f"Empty/unavailable screenshot: {path}")
+    # Pixel Emulator sometimes returns an empty PNG while composition and GPU
+    # capture race on its first textured frame. Retry the *same real screenshot*
+    # rather than treating one empty adb pipe as a user-interface defect.
+    last_error = "none"
+    for attempt in range(1, 5):
+        try:
+            with path.open("wb") as f:
+                proc = subprocess.run(["adb", "exec-out", "screencap", "-p"],
+                                      stdout=f, stderr=subprocess.PIPE, timeout=50)
+            size = path.stat().st_size
+            if proc.returncode == 0 and size >= 10000:
+                break
+            last_error = f"attempt={attempt}, adb_exit={proc.returncode}, bytes={size}, stderr={proc.stderr[:220]!r}"
+        except subprocess.TimeoutExpired:
+            last_error = f"attempt={attempt}, adb screencap timed out"
+        time.sleep(3)
+    else:
+        diagnose_navigation(f"{name}-empty-screenshot")
+        raise RuntimeError(f"Empty/unavailable screenshot after four attempts: {path}; {last_error}")
     nodes = xml_nodes()
     labels = [label_of(n).strip() for n in nodes if label_of(n).strip()]
     (ROOT / (name + ".json")).write_text(
