@@ -17,6 +17,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
@@ -292,6 +293,20 @@ fun VNextGlobe(
             val bmp = earthBitmap
             if (bmp != null) {
                 drawEarthBitmap(bmp, center.x.toInt(), center.y.toInt())
+                // Purely atmospheric light, not a fabricated dependency edge:
+                // the original light-first reference uses a luminous azure limb.
+                drawCircle(
+                    color = Color(0xFF5EB7FF).copy(alpha = 0.33f),
+                    radius = radius * 1.003f,
+                    center = center,
+                    style = Stroke(width = radius * 0.018f),
+                )
+                drawCircle(
+                    color = Color(0xFF8BCCFF).copy(alpha = 0.15f),
+                    radius = radius * 1.033f,
+                    center = center,
+                    style = Stroke(width = radius * 0.032f),
+                )
             } else {
                 drawCircle(
                     brush = Brush.radialGradient(
