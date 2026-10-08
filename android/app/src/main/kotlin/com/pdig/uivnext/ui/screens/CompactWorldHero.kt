@@ -52,95 +52,96 @@ internal fun CompactWorldHero(
     accounts: Int,
     services: Int,
 ) {
+    // Phone reference has three discrete vertical layers; unlike the old one-Box
+    // construction this never allows oversized globe art or region chips to cover
+    // the title / bottom metrics. All chip facts come from current regions.
     Surface(
         modifier = Modifier.fillMaxWidth().height(382.dp).testTag(VTestIds.NOW_GLOBE),
         color = Color(0xFFF1F7FF),
         shape = RoundedCornerShape(28.dp),
         border = BorderStroke(1.dp, Color(0xFFD7E7FC)),
     ) {
-        Box(
-            Modifier
-                .fillMaxSize()
+        Column(
+            Modifier.fillMaxSize()
                 .clip(RoundedCornerShape(28.dp))
                 .background(
                     Brush.verticalGradient(
-                        listOf(Color(0xFFF9FCFF), Color(0xFFDFEDFF), Color(0xFFCADEF9), Color(0xFFEEF6FF)),
+                        listOf(Color(0xFFF8FBFF), Color(0xFFDDEEFF), Color(0xFFC5DEFA), Color(0xFFEDF6FF)),
                     ),
-                ),
-        ) {
-            Box(
-                Modifier.fillMaxSize()
-                    .padding(top = 27.dp, bottom = 51.dp)
-                    .graphicsLayer(scaleX = 1.61f, scaleY = 1.61f),
-            ) {
-                VNextGlobe(
-                    controller = app.globe,
-                    regions = regions,
-                    arcingPairs = arcs,
-                    reduceMotion = app.reduceMotion,
                 )
-            }
-
-            Surface(
-                modifier = Modifier.align(Alignment.TopStart)
-                    .padding(start = 13.dp, top = 12.dp),
-                color = Color.White.copy(alpha = 0.88f),
-                shape = RoundedCornerShape(14.dp),
-                border = BorderStroke(1.dp, Color(0xFFDAE9FC)),
-            ) {
+                .padding(horizontal = 11.dp, vertical = 9.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
             Column(
-                Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                Modifier.fillMaxWidth().height(53.dp)
+                    .testTag("pdig.now.world-title"),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
             ) {
                 Text(
                     "你的全球数字基础设施",
                     color = PdigV2Colors.TextPrimary,
-                    fontSize = 16.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
                 )
                 Text(
-                    if (regions.isEmpty()) "暂无已记录的地区" else "连接 ${regions.size} 个地区 · 触手可及",
+                    if (regions.isEmpty()) "暂无已记录的地区" else "连接 ${regions.size} 个地区 · 一览全局",
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 11.sp,
+                    maxLines = 1,
                 )
             }
-            }
 
-            // Region identity is derived exclusively from the current data fixture.
-            // Asymmetric positions keep the Earth as the hero instead of a list of statistics.
-            val positions = listOf(
-                Alignment.CenterStart to (-88).dp,
-                Alignment.CenterEnd to (-76).dp,
-                Alignment.CenterEnd to (6).dp,
-                Alignment.CenterStart to 12.dp,
-                Alignment.CenterStart to 80.dp,
-            )
-            val preferred = listOf("US", "GB", "CN", "HK", "SG")
-            preferred.mapNotNull { code -> regions.firstOrNull { it.regionCode == code } }
-                .take(5).forEachIndexed { index, region ->
-                    val (alignment, y) = positions[index]
+            Box(Modifier.fillMaxWidth().weight(1f).testTag("pdig.now.world-stage")) {
+                Box(
+                    Modifier.fillMaxSize()
+                        .padding(horizontal = 17.dp)
+                        .graphicsLayer(scaleX = 1.32f, scaleY = 1.32f),
+                ) {
+                    VNextGlobe(
+                        controller = app.globe,
+                        regions = regions,
+                        arcingPairs = arcs,
+                        reduceMotion = app.reduceMotion,
+                    )
+                }
+                val byCode = regions.associateBy { it.regionCode }
+                val placements = listOf(
+                    Triple("US", Alignment.TopStart, 27.dp),
+                    Triple("GB", Alignment.TopEnd, 16.dp),
+                    Triple("CN", Alignment.CenterEnd, 0.dp),
+                    Triple("HK", Alignment.BottomStart, 31.dp),
+                    Triple("SG", Alignment.BottomEnd, 15.dp),
+                )
+                placements.forEach { (code, position, inset) ->
+                    val region = byCode[code] ?: return@forEach
+                    val spacing = when (position) {
+                        Alignment.TopStart, Alignment.TopEnd -> Modifier.padding(top = inset)
+                        Alignment.BottomStart, Alignment.BottomEnd -> Modifier.padding(bottom = inset)
+                        else -> Modifier
+                    }
                     RegionIdentityChip(
                         region = region,
-                        modifier = Modifier.align(alignment)
-                            .offset(y = y)
-                            .padding(horizontal = 7.dp),
+                        modifier = spacing.align(position).padding(horizontal = 1.dp),
                         onClick = {
                             app.selectRegion(region.regionCode)
                             app.navigate(VScreen.OVERVIEW)
                         },
                     )
                 }
+            }
 
             Surface(
-                modifier = Modifier.align(Alignment.BottomCenter)
-                    .fillMaxWidth().padding(start = 10.dp, end = 10.dp, bottom = 10.dp),
-                color = Color.White.copy(alpha = 0.94f),
-                shape = RoundedCornerShape(19.dp),
+                modifier = Modifier.fillMaxWidth().height(59.dp)
+                    .testTag("pdig.now.world-metrics"),
+                color = Color.White.copy(alpha = 0.96f),
+                shape = RoundedCornerShape(18.dp),
                 border = BorderStroke(1.dp, Color(0xFFD4E4F9)),
             ) {
                 Row(
-                    Modifier.fillMaxWidth().padding(vertical = 9.dp, horizontal = 4.dp),
+                    Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(2.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     HeroMetric(cards, "银行卡", "▣", Modifier.weight(1f))
                     HeroMetric(numbers, "手机号", "▤", Modifier.weight(1f))
@@ -168,7 +169,7 @@ private fun RegionIdentityChip(
         else -> "🌐"
     }
     Surface(
-        modifier = modifier.clickable(onClick = onClick)
+        modifier = modifier.width(114.dp).clickable(onClick = onClick)
             .testTag("pdig.now.region-chip.${region.regionCode}"),
         color = Color.White.copy(alpha = 0.95f),
         shape = RoundedCornerShape(16.dp),
