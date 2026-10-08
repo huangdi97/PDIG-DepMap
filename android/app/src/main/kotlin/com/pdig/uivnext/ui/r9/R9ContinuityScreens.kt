@@ -274,6 +274,64 @@ private fun R9StageRow(stage: ChangeStage) {
     }
 }
 
+/**
+ * A real continuity timeline is not six disconnected management rows.
+ * The connector runs through every known step, while the badge distinguishes
+ * verified, waiting, blocked and plan-only states (never auto-completes).
+ */
+@Composable
+private fun R9TimelineStageRow(stage: ChangeStage, first: Boolean, last: Boolean) {
+    val statusColor = when(stage.status) {
+        "completed" -> R9.Green
+        "verifying" -> R9.Amber
+        "blocked" -> R9.Rose
+        "plan" -> R9.Blue
+        else -> R9.Muted
+    }
+    val statusText = when(stage.status) {
+        "completed" -> "已完成"
+        "verifying" -> "待验证"
+        "blocked" -> "被阻断"
+        "plan" -> "仅计划"
+        else -> "未开始"
+    }
+    Row(Modifier.fillMaxWidth().height(68.dp)
+            .testTag("pdig.r9.records.timeline.${stage.stage}"),
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Canvas(Modifier.width(33.dp).fillMaxHeight()) {
+            val x = size.width / 2f
+            val cy = 27.dp.toPx()
+            if (!first) drawLine(R9.Line, Offset(x, 0f), Offset(x, cy),
+                strokeWidth = 1.8.dp.toPx())
+            if (!last) drawLine(R9.Line, Offset(x, cy), Offset(x, size.height),
+                strokeWidth = 1.8.dp.toPx())
+            drawCircle(statusColor.copy(alpha = if(stage.status == "completed") 1f else .15f),
+                radius = 13.dp.toPx(), center = Offset(x, cy))
+            if (stage.status != "completed") {
+                drawCircle(statusColor, radius = 13.dp.toPx(), center = Offset(x, cy),
+                    style = Stroke(width = 1.7.dp.toPx()))
+            }
+        }
+        Surface(
+            modifier = Modifier.weight(1f).height(57.dp),
+            color = Color.White,
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(9.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(stage.stage.toString(), color = statusColor,
+                    fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                Text(r9StageLabel(stage.key), Modifier.weight(1f), color = R9.Ink,
+                    fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                R9Badge(statusText, statusColor)
+            }
+        }
+    }
+}
+
 /** R9 records: meaningful continuity timeline, not a huge generic statistics pane. */
 @Composable
 internal fun R9RecordsScreen(app: VAppState) {
@@ -316,7 +374,11 @@ internal fun R9RecordsScreen(app: VAppState) {
         }
         if(changes.isEmpty()) Text("暂无已记录的进行中变更。", color = R9.Muted, fontSize = 12.sp)
         R9SectionTitle("迁移进度")
-        stages.forEach { stage -> R9StageRow(stage) }
+        Column(Modifier.fillMaxWidth().testTag("pdig.r9.records.timeline")) {
+            stages.forEachIndexed { index, stage ->
+                R9TimelineStageRow(stage, first = index == 0, last = index == stages.lastIndex)
+            }
+        }
         if(stages.isEmpty()) Text("尚无已记录迁移步骤。", color = R9.Muted, fontSize = 12.sp)
         R9SectionTitle("需要处理（${attention.size}）")
         attention.take(3).forEach { item ->
