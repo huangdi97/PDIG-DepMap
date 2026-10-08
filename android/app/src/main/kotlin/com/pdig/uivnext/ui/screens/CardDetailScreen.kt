@@ -19,6 +19,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -32,6 +36,7 @@ import com.pdig.uivnext.model.relationKindLabelZh
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
+import com.pdig.uivnext.theme.statusLabelZh
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
@@ -86,6 +91,8 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 }
             }
         }
+    } else if (breakpoint == MediaBreakpoint.COMPACT) {
+        CompactCardDetailReference(app, card, services, presentation)
     } else {
         Column(
             Modifier
@@ -95,20 +102,137 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             verticalArrangement = Arrangement.spacedBy(pageSectionGap(breakpoint)),
         ) {
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .testTagLocal(VTestIds.CARD_DETAIL_IDENTITY),
+                Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_IDENTITY),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                IdentityPanel(app, card, services, presentation)
-            }
+            ) { IdentityPanel(app, card, services, presentation) }
             Column(
-                Modifier
-                    .fillMaxWidth()
-                    .testTagLocal(VTestIds.CARD_DETAIL_INFO),
+                Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_INFO),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
+            ) { InfoPanel(card, services) }
+        }
+    }
+}
+
+/**
+ * Phone reference: asset face first, followed by a real, switchable four-tab
+ * detail workspace. "账单" never fabricates a statement which has not been imported.
+ * This is purely presentation: it cannot mutate stored card identity or relations.
+ */
+@Composable
+private fun CompactCardDetailReference(
+    app: VAppState,
+    card: com.pdig.uivnext.model.UiVNextCard,
+    services: List<com.pdig.uivnext.model.UiVNextService>,
+    presentation: com.pdig.uivnext.model.PresentationProfile?,
+) {
+    var tab by rememberSaveable(card.id) { mutableIntStateOf(0) }
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 15.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
+        Box(Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_IDENTITY)) {
+            AssetCard(
+                card = card.copy(preset = presentation?.themeId ?: card.preset),
+                privacyMask = app.privacyMask || (presentation?.maskSensitive == true),
+                onClick = {},
+                modifier = Modifier.fillMaxWidth(),
+                presentationMaterial = presentation?.material,
+                presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
+                presentationLayout = presentation?.layout,
+            )
+        }
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                color = if (card.status == "expiring_soon") PdigV2Colors.Warning.copy(alpha = 0.13f)
+                else PdigV2Colors.Positive.copy(alpha = 0.11f),
+                shape = RoundedCornerShape(30.dp),
             ) {
-                InfoPanel(card, services)
+                Text(
+                    "●  " + statusLabelZh(card.status),
+                    Modifier.padding(horizontal = 15.dp, vertical = 7.dp),
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (card.status == "expiring_soon") PdigV2Colors.Warning else PdigV2Colors.Positive,
+                )
+            }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, title ->
+                Surface(
+                    modifier = Modifier.weight(1f).defaultMinSize(minHeight = VTouchTarget.Min)
+                        .clickableLocal { tab = index }
+                        .testTagLocal("pdig.card.detail.tab.$index"),
+                    color = if (tab == index) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+                    shape = RoundedCornerShape(12.dp),
+                    border = BorderStroke(1.dp, if (tab == index) PdigV2Colors.Primary.copy(alpha = 0.23f) else PdigV2Colors.BorderSubtle),
+                ) {
+                    Row(
+                        Modifier.fillMaxWidth().padding(horizontal = 2.dp, vertical = 13.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) { Text(title, color = if (tab == index) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
+                        fontSize = 10.sp, fontWeight = if (tab == index) FontWeight.Bold else FontWeight.Medium, maxLines = 1) }
+                }
+            }
+        }
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_INFO),
+            color = PdigV2Colors.Surface,
+            shape = RoundedCornerShape(20.dp),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Column(Modifier.padding(horizontal = 16.dp, vertical = 13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                when (tab) {
+                    0 -> {
+                        Text("基本信息", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        DetailRow("发卡机构", card.issuer)
+                        DetailRow("卡片类型", if (card.type == "credit") "信用卡" else "储蓄卡")
+                        DetailRow("国家 / 地区", regionLabel(card.region) + " · " + card.currency)
+                        DetailRow("卡号后四位", card.last4)
+                        DetailRow("有效期", card.expiry)
+                        CardIdentitySummary(card, services.size)
+                    }
+                    1 -> {
+                        Text("关联服务（${services.size}）", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        if (services.isEmpty()) {
+                            Text("尚无已记录关联；未知不等于安全。", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+                        } else services.forEach { service ->
+                            Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Text(service.name, Modifier.weight(1f), color = PdigV2Colors.TextPrimary, fontSize = 12.sp, maxLines = 1)
+                                Text(serviceKindLabelZh(service.kind), color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+                            }
+                        }
+                    }
+                    2 -> {
+                        Text("账单与到期", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("尚未导入可核验的账单，不推断交易、余额或扣款金额。", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+                        DetailRow("已记录有效期", card.expiry)
+                    }
+                    else -> {
+                        Text("安全与风险", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text(
+                            if (card.status == "expiring_soon") "到期风险：这张卡可能影响 ${services.size} 项已记录的绑定服务。"
+                            else "当前状态：${statusLabelZh(card.status)}。未录入的依赖关系仍保持未知。",
+                            color = PdigV2Colors.TextSecondary, fontSize = 12.sp,
+                        )
+                        DetailRow("关联服务", "${services.size} 项")
+                    }
+                }
+            }
+        }
+        Surface(
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min)
+                .clickableLocal { app.openCardCustomization(card.id) },
+            color = PdigV2Colors.PrimarySoft,
+            shape = RoundedCornerShape(15.dp),
+        ) {
+            Row(Modifier.fillMaxWidth().padding(13.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text("定制这张卡的外观", color = PdigV2Colors.PrimaryText, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                Text("→", color = PdigV2Colors.PrimaryText, fontSize = 14.sp)
             }
         }
     }
