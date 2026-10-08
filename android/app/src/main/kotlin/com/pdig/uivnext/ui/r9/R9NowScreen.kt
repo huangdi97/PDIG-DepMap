@@ -230,10 +230,10 @@ internal fun R9WorldStage(
             ) {
                 Row(Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically) {
-                    R9Counter(cards, "银行卡", R9.Amber, "▣", Modifier.weight(1f))
-                    R9Counter(numbers, "手机号", R9.Green, "▤", Modifier.weight(1f))
-                    R9Counter(accounts, "账户", R9.Blue, "◎", Modifier.weight(1f))
-                    R9Counter(services, "服务", Color(0xFFA47FFF), "✧", Modifier.weight(1f))
+                    R9Counter(cards, "银行卡", R9.Amber, "▣", Modifier.weight(1f).clickable { app.navigate(VScreen.CARDS) }.testTag("pdig.r9.now.cards"))
+                    R9Counter(numbers, "手机号", R9.Green, "▤", Modifier.weight(1f).clickable { app.navigate(VScreen.NUMBERS) }.testTag("pdig.r9.now.numbers"))
+                    R9Counter(accounts, "账户", R9.Blue, "◎", Modifier.weight(1f).clickable { app.navigate(VScreen.ACCOUNTS) }.testTag("pdig.r9.now.accounts"))
+                    R9Counter(services, "服务", Color(0xFFA47FFF), "✧", Modifier.weight(1f).clickable { app.navigate(VScreen.SERVICES) }.testTag("pdig.r9.now.services"))
                 }
             }
         }
