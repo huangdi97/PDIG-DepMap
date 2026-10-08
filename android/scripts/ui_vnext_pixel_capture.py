@@ -55,6 +55,14 @@ def tap_match(label, exact=False, prefer_bottom=False):
     print("TAP", repr(label), x, y, repr(desc), flush=True)
     return True
 
+def tap_retry(label, exact=False, prefer_bottom=False, retries=6):
+    for attempt in range(retries):
+        if tap_match(label, exact=exact, prefer_bottom=prefer_bottom):
+            return True
+        time.sleep(2)
+    return False
+
+
 def wait_globe_texture(max_wait=65):
     # A near-black placeholder is NOT accepted as proof of the designed Earth.
     end = time.monotonic() + max_wait
@@ -133,7 +141,8 @@ def main():
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "monkey", "-p", PACKAGE, "1")
     time.sleep(3)
-    tap_match("变更", exact=True, prefer_bottom=True)
+    if not tap_retry("变更", exact=True, prefer_bottom=True):
+        raise RuntimeError("Change root navigation unavailable after activity relaunch")
     capture("05-change")
     require_screen("05-change", "影响分析 · 关键服务")
     if not tap_match("记录", exact=True, prefer_bottom=True):
