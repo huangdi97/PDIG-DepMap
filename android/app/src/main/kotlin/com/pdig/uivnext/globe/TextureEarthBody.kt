@@ -64,7 +64,7 @@ internal fun renderEarthBody(
             val w = inverseRotatePoint(Vec3(dx, dy, cz), cam)
             val day = dayFactor(w.x, w.y, w.z)
             val lat = asin(w.y.coerceIn(-1f, 1f))
-            val lon = atan2(w.x, w.z)
+            val lon = earthLongitudeRad(w)
             val u = ((lon / PI.toFloat()) + 1f) / 2f
             val v = 0.5f - lat / PI.toFloat()
             val alb = albedo.sample(u, v)

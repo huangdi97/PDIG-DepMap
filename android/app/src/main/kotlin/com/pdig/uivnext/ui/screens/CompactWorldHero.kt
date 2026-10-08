@@ -81,8 +81,15 @@ internal fun CompactWorldHero(
                 )
             }
 
+            Surface(
+                modifier = Modifier.align(Alignment.TopStart)
+                    .padding(start = 13.dp, top = 12.dp),
+                color = Color.White.copy(alpha = 0.88f),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, Color(0xFFDAE9FC)),
+            ) {
             Column(
-                Modifier.align(Alignment.TopStart).padding(start = 16.dp, top = 15.dp),
+                Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 Text(
@@ -97,15 +104,16 @@ internal fun CompactWorldHero(
                     fontSize = 11.sp,
                 )
             }
+            }
 
             // Region identity is derived exclusively from the current data fixture.
             // Asymmetric positions keep the Earth as the hero instead of a list of statistics.
             val positions = listOf(
-                Alignment.CenterStart to (-87).dp,
-                Alignment.CenterEnd to (-80).dp,
-                Alignment.CenterEnd to (-3).dp,
-                Alignment.CenterStart to 48.dp,
-                Alignment.CenterStart to 93.dp,
+                Alignment.CenterStart to (-88).dp,
+                Alignment.CenterEnd to (-76).dp,
+                Alignment.CenterEnd to (6).dp,
+                Alignment.CenterStart to 12.dp,
+                Alignment.CenterStart to 80.dp,
             )
             val preferred = listOf("US", "GB", "CN", "HK", "SG")
             preferred.mapNotNull { code -> regions.firstOrNull { it.regionCode == code } }

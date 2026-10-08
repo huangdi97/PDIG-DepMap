@@ -24,6 +24,13 @@ data class Projected(val x: Float, val y: Float, val zDepth: Float)
 private fun rad(d: Float) = d / 180f * PI.toFloat()
 
 /** 经纬度 → 单位球向量（y 向上，z 朝初始观察者）。 */
+/**
+ * MUST match latLonToVec: x=cos(latitude)*cos(longitude),
+ * z=cos(latitude)*sin(longitude). Rendered Earth UV and region-anchor world
+ * coordinates therefore share atan2(z, x), not atan2(x, z).
+ */
+internal fun earthLongitudeRad(point: Vec3): Float = atan2(point.z, point.x)
+
 fun latLonToVec(latDeg: Float, lonDeg: Float): Vec3 {
     val phi = rad(latDeg)
     val lambda = rad(lonDeg)
