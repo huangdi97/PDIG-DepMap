@@ -183,6 +183,18 @@ fun VNextGlobe(
     var renderedFrame by remember(controller) { mutableStateOf(controller.lastTexturedFrame) }
     // This is the state of THIS canvas, never the previous screen's shared controller.
     var localRenderState by remember { mutableStateOf(GlobeRenderState.LOADING) }
+    // UI-only photons travel along known dependency arcs; the arcs themselves
+    // stay anchored to real world coordinates. 16fps keeps CPU Canvas affordable.
+    var signalPhase by remember { mutableStateOf(0f) }
+    LaunchedEffect(reduceMotion, arcingPairs.isNotEmpty()) {
+        signalPhase = 0f
+        if (!reduceMotion && arcingPairs.isNotEmpty()) {
+            while (true) {
+                delay(64L)
+                signalPhase = (signalPhase + .013f) % 1f
+            }
+        }
+    }
 
     // Idle rotation：先让首张真实纹理稳定进入 TEXTURE_READY，再低频刷新相机。
     // 逐像素球面投影是重任务；如果每 50ms 改 yaw，会持续取消后台渲染，最终只剩 fallback 深色球。
@@ -459,20 +471,20 @@ fun VNextGlobe(
                     widthPx = if (selectedLink) 2.6f else 2.0f,
                 )
                 if (BuildConfig.FLAVOR == "preview") {
-                    // Spatial sparkle belongs ONLY to an actual recorded cross-region
-                    // edge, never to a decorative imaginary dependency.
-                    val midpoint = project(path[path.size / 2], cam, radius, center.x, center.y)
-                    if (midpoint.zDepth > .16f) {
-                        val node = Offset(midpoint.x, midpoint.y)
-                        drawCircle(
-                            color = Color(0xFF4BB7FF).copy(alpha = .18f),
-                            radius = radius * .060f, center = node)
-                        drawCircle(
-                            color = Color(0xFFFFD78B).copy(alpha = .52f),
-                            radius = radius * .022f, center = node)
-                        drawCircle(
-                            color = Color.White.copy(alpha = .94f),
-                            radius = radius * .010f, center = node)
+                    // Fixed geography, moving LIGHT: no arbitrary independent screen
+                    // coordinates. Trail is drawn only on visible actual relations.
+                    val edgeOrdinal = arcingPairs.indexOf(aCode to bCode).coerceAtLeast(0)
+                    val phase = (signalPhase + edgeOrdinal * .23f) % 1f
+                    val sample = (phase * (path.size - 1)).toInt().coerceIn(0, path.lastIndex)
+                    val active = project(path[sample], cam, radius, center.x, center.y)
+                    if (active.zDepth > .07f) {
+                        val pt = Offset(active.x, active.y)
+                        drawCircle(Color(0xFF33A9FF).copy(alpha = .20f),
+                            radius = radius * .075f, center = pt)
+                        drawCircle(Color(0xFFBCEBFF).copy(alpha = .53f),
+                            radius = radius * .028f, center = pt)
+                        drawCircle(Color.White.copy(alpha = .98f),
+                            radius = radius * .011f, center = pt)
                     }
                 }
             }
