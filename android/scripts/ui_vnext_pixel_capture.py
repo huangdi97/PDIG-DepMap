@@ -206,6 +206,9 @@ def main():
         raise RuntimeError("No localized greeting is visible in R9 Now")
     assert_home_world_geometry()
     verify_preview_world_light()
+    if not any("渲染器=GPU_3D" in label_of(n) and "TEXTURE_READY" in label_of(n)
+               for n in xml_nodes()):
+        raise RuntimeError("R12 globe must be GPU_3D and TEXTURE_READY, not a Canvas fallback")
     from os import environ
     short_sha = environ.get("GITHUB_SHA", "")[:7]
     if short_sha:
@@ -218,6 +221,9 @@ def main():
         raise RuntimeError("Could not navigate to 基础设施 after onboarding")
     capture("02-infrastructure")
     require_screen("02-infrastructure", "8 类资产", "地区分布", "管理你的全球数字基础设施")
+    if not any("渲染器=GPU_3D" in label_of(n) and "TEXTURE_READY" in label_of(n)
+               for n in xml_nodes()):
+        raise RuntimeError("R12 infrastructure GPU globe unavailable or fell back to Canvas")
     if not tap_retry("美国", exact=True):
         raise RuntimeError("Selecting a concrete region from the infrastructure overview failed")
     capture("02a-infrastructure-selected-us")
