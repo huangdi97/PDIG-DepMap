@@ -67,19 +67,19 @@ internal fun R9SectionTitle(title: String, action: String? = null, onAction: (()
 @Composable
 internal fun R9RegionPill(region: RegionPresentation, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Surface(
-        modifier = modifier.width(120.dp).defaultMinSize(minHeight = 48.dp).clickable(onClick = onClick)
+        modifier = modifier.width(111.dp).defaultMinSize(minHeight = 48.dp).clickable(onClick = onClick)
             .testTag("pdig.r9.region.${region.regionCode}"),
-        shape = RoundedCornerShape(16.dp), color = Color.White.copy(alpha = 0.95f),
-        border = BorderStroke(1.dp, R9.Line), shadowElevation = 3.dp,
+        shape = RoundedCornerShape(15.dp), color = Color.White.copy(alpha = 0.91f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.85f)), shadowElevation = 2.dp,
     ) {
-        Row(Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
+        Row(Modifier.padding(horizontal = 7.dp, vertical = 7.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(regionFlag(region.regionCode), fontSize = 21.sp)
+            Text(regionFlag(region.regionCode), fontSize = 18.sp)
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(region.displayName, fontSize = 11.sp, fontWeight = FontWeight.Bold,
+                Text(region.displayName, fontSize = 10.sp, fontWeight = FontWeight.Bold,
                     color = R9.Ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 Text("${region.cardCount} 张卡 · ${region.phoneCount} 个号",
-                    fontSize = 9.sp, color = R9.Muted, maxLines = 1)
+                    fontSize = 8.sp, color = R9.Muted, maxLines = 1)
             }
         }
     }

@@ -193,7 +193,7 @@ internal fun R9WorldStage(
         border = BorderStroke(1.dp, R9.Line),
         color = R9.Ice,
     ) {
-        Column(Modifier.fillMaxSize().background(R9.Sky).padding(9.dp),
+        Column(Modifier.fillMaxSize().background(R9.World).padding(9.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)) {
             Column(Modifier.padding(horizontal = 7.dp, vertical = 6.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp)) {
@@ -204,9 +204,9 @@ internal fun R9WorldStage(
                     fontSize = 11.sp, color = R9.Muted)
             }
 
+            // The light-first world is one continuous space, not a framed
+            // 3D widget pasted into a nested gradient rectangle.
             Box(Modifier.fillMaxWidth().weight(1f)
-                .clip(RoundedCornerShape(16.dp))
-                .background(R9.World)
                 .testTag("pdig.r9.world.hero")) {
                 // Only the photographic planet is scaled, not the labels or counter rail.
                 Box(Modifier.fillMaxSize().padding(horizontal = 31.dp)
