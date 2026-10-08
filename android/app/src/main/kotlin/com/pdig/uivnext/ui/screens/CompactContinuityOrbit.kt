@@ -103,7 +103,7 @@ internal fun CompactContinuityOrbit(number: UiVNextNumber?, projection: String) 
                     verticalArrangement = Arrangement.spacedBy(6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text("▥    ${number?.dialCode ?: "—"}", color = Color(0xFFBBDEFF), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text("▥    ${number?.countryCode ?: "—"}", color = Color(0xFFBBDEFF), fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                     Text(
                         number?.maskedNumber ?: "号码未记录",
                         color = Color.White,
