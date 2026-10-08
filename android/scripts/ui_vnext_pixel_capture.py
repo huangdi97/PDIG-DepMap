@@ -239,7 +239,20 @@ def main():
     capture("00-first-launch")
     if not tap_retry("跳过", exact=True):
         raise RuntimeError("Preview first-run onboarding skip could not be activated")
-    time.sleep(3)
+    # A real 3D/textured stage can take longer than a fixed 3s after Skip.
+    # Never call screencap while the onboarding UI is still being dismissed.
+    entered_now = False
+    for attempt in range(24):
+        visible = [label_of(node) for node in xml_nodes()]
+        if any("你的全球数字基础设施" in text for text in visible):
+            entered_now = True
+            break
+        if attempt in (5, 11) and any("跳过" in text for text in visible):
+            tap_match("跳过", exact=True)
+        time.sleep(2)
+    if not entered_now:
+        diagnose_navigation("onboarding-to-now-timeout")
+        raise RuntimeError("Onboarding did not reach the R13 Now screen within 48s")
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "预览 · ")
     now_labels = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
