@@ -353,6 +353,8 @@ def main():
         raise RuntimeError("Number alias edit control unavailable")
     if not any("给号码命名" in label_of(n) for n in xml_nodes()):
         raise RuntimeError("Number alias dialog did not open")
+    if not tap_retry("自定义名称（可留空）", exact=True):
+        raise RuntimeError("Number alias text input was not focusable")
     adb("shell", "input", "text", "HK-Main")
     if not tap_retry("保存名称", exact=True):
         raise RuntimeError("Number alias could not be saved")
