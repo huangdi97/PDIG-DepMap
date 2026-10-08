@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.app.BuildConfig
 import com.pdig.uivnext.ui.r9.R9NowScreen
+import com.pdig.uivnext.ui.r9.R10MeScreen
 import com.pdig.uivnext.ui.r9.R9InfrastructureScreen
 import com.pdig.uivnext.ui.r9.R9CardsScreen
 import com.pdig.uivnext.ui.r9.R9NumbersScreen
@@ -75,6 +76,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
         val useR9Phone = BuildConfig.FLAVOR == "preview" && breakpoint == MediaBreakpoint.COMPACT
         when (app.screen) {
             VScreen.NOW -> if (useR9Phone) R9NowScreen(app) else NowScreen(app, breakpoint)
+            VScreen.ME -> R10MeScreen(app)
             VScreen.OVERVIEW, VScreen.INFRASTRUCTURE ->
                 if (useR9Phone) R9InfrastructureScreen(app) else OverviewScreen(app, breakpoint)
             VScreen.CARDS -> if (useR9Phone) R9CardsScreen(app) else CardsScreen(app, breakpoint)

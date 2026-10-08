@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.app.BuildConfig
 import com.pdig.uivnext.ui.r9.R9BottomNav
+import com.pdig.uivnext.ui.r9.R10TopBar
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -71,7 +72,8 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -
             }
         } else {
             Column(Modifier.fillMaxSize()) {
-                TopCommandBar(app, compact = true, onHelp = onHelp)
+                if (BuildConfig.FLAVOR == "preview") R10TopBar(app)
+                else TopCommandBar(app, compact = true, onHelp = onHelp)
                 // Phone stays focused: Infrastructure secondary destinations live in the Overview hub,
                 // not in a persistent horizontal strip above every child screen.
                 VNextContentHost(app, breakpoint, Modifier.weight(1f))
