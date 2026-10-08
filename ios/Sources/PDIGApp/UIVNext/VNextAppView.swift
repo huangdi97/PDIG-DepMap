@@ -262,9 +262,10 @@ struct VNextTabShell: View {
 
 struct VNextSplitShell: View {
     @ObservedObject var model: VNextModel
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             List {
                 Section("PDIG") {
                     VSidebarDestinationRow(
@@ -307,6 +308,11 @@ struct VNextSplitShell: View {
             NavigationStack { VRootHost(model: model, root: model.primary) }
         }
         .navigationSplitViewStyle(.balanced)
+        .onAppear {
+            // iPad is a management workspace: keep the four primary destinations visible
+            // instead of launching into an anonymous detail pane with a hidden sidebar.
+            columnVisibility = .all
+        }
     }
 }
 
