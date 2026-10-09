@@ -310,6 +310,11 @@ truth-bounded consumer inventory projection and conservative object-surface mapp
 `identity_anchor` remains generic until an explicit phone subtype is governed.
 Canonical `issuer` / `last4` are carried directly from Reality where present.
 
+The authoritative write-side seam is also implemented:
+`ProductionVNextActions.kt` delegates plan creation/completion/verification to
+`AppContainer` and re-reads `planDetail` after every mutation, preserving
+`done != verified`.
+
 Production screen binding, phone/email subtype normalization, lifecycle persistence,
 and runtime/security validation remain gated by the ADR acceptance chain.
 
