@@ -77,6 +77,20 @@ class AndroidAdaptiveShellContractTest {
     }
 
     @Test
+    fun mediumAndExpanded_meIsAFirstClassAdaptiveWorkspace() {
+        for (width in listOf(600, 840)) {
+            val app = createVNextAppState(screen = VScreen.ME)
+            compose.setContent { VNextApp(app, forcedViewportWidthDp = width) }
+            compose.waitForIdle()
+
+            compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertIsDisplayed()
+            compose.onNodeWithTag("pdig.r19.me.workspace", useUnmergedTree = true).assertIsDisplayed()
+            compose.onNodeWithTag("pdig.r19.me.identity", useUnmergedTree = true).assertIsDisplayed()
+            compose.onNodeWithTag("pdig.r19.me.continuity", useUnmergedTree = true).assertIsDisplayed()
+        }
+    }
+
+    @Test
     fun compactInfrastructure_usesHubInsteadOfPersistentSecondaryStrip() {
         val app = createVNextAppState(screen = VScreen.OVERVIEW)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
