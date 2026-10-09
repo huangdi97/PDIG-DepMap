@@ -226,6 +226,14 @@ Production APIs already exist:
 The cutover architecture is frozen in
 `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`.
 
+Source progress now also includes:
+- Canonical `issuer` / `last4` projected from production nodes without parsing free-form fields;
+- conservative production surface classification;
+- `identity_anchor` remains a generic identity until an explicit governed phone subtype exists;
+- a consumer inventory projection with confirmed-dependency counts and pending-review/source coverage.
+
+These are read-only seams. They do not switch the launcher or claim R19 lifecycle persistence.
+
 ## 10. Canonical boundary
 
 Current Canonical schema does **not** yet define R19 card/number lifecycle fields as
