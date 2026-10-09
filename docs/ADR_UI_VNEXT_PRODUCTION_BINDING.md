@@ -337,6 +337,11 @@ done != verified
 The UI may animate a completed action, but cannot advance verification unless the
 production plan says it is verified.
 
+R21 also implements `VNextReadModelSource.records()` over authoritative
+`PlanDetailView` actions. It preserves verification Evidence refs and deliberately
+leaves occurrence time unknown when the Android domain projection does not expose
+`doneAt/verifiedAt`; `effectiveDate` must never be substituted as history.
+
 ## 9. Cutover phases
 
 ### P0 — Reference freeze
@@ -352,6 +357,7 @@ Implemented:
 - production ImpactResult mapping;
 - derived Timeline mapping;
 - ChangePlan / PlanDetail mapping;
+- Records action/completion/verification/evidence projection;
 - pending proposal/candidate/drift counts kept separate from confirmed Reality;
 - source coverage counts.
 
