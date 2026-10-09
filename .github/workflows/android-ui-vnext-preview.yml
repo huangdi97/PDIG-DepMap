@@ -103,7 +103,7 @@ jobs:
           Installed app label: $APP_LABEL (check this exact version on your phone).
           Previous preview versions can remain installed: choose the exact SHA-labelled icon. Preview is isolated synthetic-only.
           Dedicated Android launcher: com.pdig.app.PreviewLauncherActivity.
-          Normal launcher open starts the accepted UI vNext with SYNTHETIC REFERENCE DATA.
+          Normal launcher open starts the R19 UI vNext review candidate with SYNTHETIC REFERENCE DATA.
           The old PdigApp screen is not a preview launcher.
           This preview is for visual/touch evaluation and is NOT connected to personal production data.
           Older releases included an ambiguous second ProductionDebug installer; this release does not.
