@@ -367,7 +367,38 @@ Identity
 
 but new executable CTAs remain gated by production ChangePrimitive support.
 
-## 13. Search
+## 13. Me — Personal Digital Life Workspace
+
+`我` is the fifth primary destination, not a utility downgrade.
+
+### COMPACT
+- consumer feed composition;
+- key identities first;
+- continuity summary;
+- privacy toggle;
+- global distribution;
+- personal management actions.
+
+### MEDIUM
+- compact 80dp primary rail;
+- bounded single-column Me workspace to protect reading width;
+- all five primary destinations remain directly reachable.
+
+### EXPANDED
+- dedicated two-column workspace;
+- critical identities + continuity as the first row;
+- infrastructure summary;
+- global distribution + personal management;
+- Settings / Sources remain children of the Me context.
+
+### FORBIDDEN
+- avatar-only Me;
+- Up arrow on the Me root;
+- stretching the phone feed across a wide tablet;
+- turning Me into a generic settings list;
+- inferring account completeness or safety from summary counts.
+
+## 14. Search
 
 Search is lookup over **recorded** infrastructure, not a discovery engine.
 
@@ -379,7 +410,7 @@ R19 indexes:
 
 No match means “not found among recorded data,” not “does not exist.”
 
-## 14. Back / Up semantics
+## 15. Back / Up semantics
 
 Two different operations remain distinct:
 
@@ -393,12 +424,14 @@ Examples:
 ```text
 Card Detail → Up → Cards → Up → Infrastructure
 Number Studio → Up → Number Detail
-Me → Up → invoking context (or Now when deep-linked)
+Me root → no Header Up
+Me → Settings → Up → Me
+Me → Sources → Up → Me
 ```
 
 The header must never be relabeled as “Back to desktop/home.”
 
-## 15. Privacy / masking
+## 16. Privacy / masking
 
 Default is **not masked** unless the user enables masking.
 
@@ -411,7 +444,7 @@ Masking is:
 A user-defined number alias may remain visible when it is non-sensitive; an alias
 that itself looks like a phone number must still be protected by masking logic.
 
-## 16. Android Light visual language
+## 17. Android Light visual language
 
 Android is **light-first**.
 
@@ -434,7 +467,7 @@ Avoid:
 - KPI walls;
 - desktop pixel copying.
 
-## 17. Runtime / Freeze boundary
+## 18. Runtime / Freeze boundary
 
 R19 source completeness is not Reference Freeze.
 
