@@ -102,13 +102,15 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 @Composable
 private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val numbers = UiVNextDemoFixture.numbers.filter {
-        it.recoveryOnly && (app.regionFilter == null || it.region == app.regionFilter)
+        it.uniqueRecoveryPath == true &&
+            (app.regionFilter == null || it.region == app.regionFilter)
     }
     val cards = UiVNextDemoFixture.cards.filter {
         it.status == "expiring_soon" && (app.regionFilter == null || it.region == app.regionFilter)
     }
     val emails = UiVNextDemoFixture.emails.filter {
-        it.recoveryOnly && (app.regionFilter == null || it.region == app.regionFilter)
+        it.uniqueRecoveryPath == true &&
+            (app.regionFilter == null || it.region == app.regionFilter)
     }
     val devices = UiVNextDemoFixture.devices.filter {
         it.attention && (app.regionFilter == null || it.region == app.regionFilter)
