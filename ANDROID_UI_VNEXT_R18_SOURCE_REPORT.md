@@ -196,3 +196,38 @@ R18 source work can only advance to `ANDROID_REFERENCE_FREEZE = PASS` after the
 fresh phone/tablet runtime set is produced from the exact remote head and receives
 human visual acceptance. A source commit, unit test or old screenshot cannot
 substitute for that gate.
+
+
+## 9. R18 semantic correction — keep-number != migration target
+
+A final source audit found a real modeling conflict: the original change-phone fixture
+used `num-cn-3` as the target new number, while R18 had correctly promoted that same
+object to the long-lived `keep` role. One object cannot simultaneously represent the
+user's retained keep-alive number and the transitional replacement target without
+making the continuity UI ambiguous.
+
+R18 therefore separates them:
+
+- `num-cn-3` = 保号副号, role = `keep`;
+- `num-cn-4` = 新号（迁移中）, role = `secondary`, dedicated change target;
+- both compact R9 and adaptive Change Phone screens use `num-cn-4` as the target;
+- projection copy is updated to the new target number;
+- unit tests assert the two objects remain distinct.
+
+The change screen also no longer needs showcase-only hard-coded impact counts.
+`changeImpactSummary(projection)` derives:
+
+```text
+已记录关联
+需要核对
+阻断 / 待解决
+```
+
+from the actual projection migrations/stages. This keeps the visual density of the
+reference board while preserving PDIG's core rule that presentation must not invent
+dependency or risk truth.
+
+Evidence tags/tests:
+- `pdig.r18.change.impact-summary`
+- `ChangeImpactSummaryTest`
+- Android Light visual contract now requires the summary on compact Change Phone.
