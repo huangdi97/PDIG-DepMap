@@ -1,6 +1,6 @@
 {
-  "$comment": "PDIG UI vNext PresentationProfile Schema (spec §29-§31, §33, §35). Presentation Layer ONLY: never changes node identity / dependencies / evidence / confirmation. Stored as local app preference; NEVER written into .depmap frozen payload. Schema v4 Canonical untouched.",
-  "specVersion": "1.0.0",
+  "$comment": "PDIG UI vNext PresentationProfile Schema v1.1. Presentation Layer ONLY: never changes node identity / dependencies / evidence / confirmation. Stored as local app preference; NEVER written into .depmap frozen payload. Android R10/R19 product decision: privacy masking defaults OFF; card customization may use R10 built-in art (r10-art) or an app-private sanitized local image filename (local-image). Canonical untouched.",
+  "specVersion": "1.1.0",
   "targetType": { "oneOf": ["node", "card", "phoneNumber"], "description": "which object this profile customizes" },
   "targetId": { "type": "string", "description": "local node id (UI-facing, may be masked)" },
   "$schema": {
@@ -15,8 +15,8 @@
       "background": {
         "type": "object",
         "properties": {
-          "kind": { "enum": ["preset", "gradient", "procedural", "bundled-image", "user-image"] },
-          "value": { "type": "string", "description": "preset id / gradient spec / procedural seed / bundled asset key / imported image key" }
+          "kind": { "enum": ["preset", "gradient", "procedural", "bundled-image", "user-image", "r10-art", "local-image"] },
+          "value": { "type": "string", "description": "preset id / gradient spec / procedural seed / bundled asset key / R10 built-in art id / app-private sanitized image filename" }
         },
         "required": ["kind", "value"]
       },
@@ -24,7 +24,7 @@
       "privacy": {
         "type": "object",
         "properties": {
-          "maskSensitive": { "type": "boolean", "default": true },
+          "maskSensitive": { "type": "boolean", "default": false },
           "maskLast4": { "type": "boolean" },
           "maskNumber": { "type": "boolean" }
         }
