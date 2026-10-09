@@ -184,6 +184,7 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
         Row(Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
             val saved = app.savedPresentationProfile("card", card.id)
+            val lifecycle = com.pdig.uivnext.demo.UiVNextDemoFixture.cardLifecycleFor(card.id)
             // Same image composable for list, detail and editor: no fake preview.
             R10CardFace(card, app.privacyMask || (saved?.maskSensitive == true),
                 profile = saved, modifier = Modifier.width(114.dp), compact = true)
@@ -197,6 +198,17 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
                         modifier = Modifier.weight(1f), color = R9.Muted, maxLines = 1,
                         fontSize = 9.sp)
                     R9Badge(statusLabelZh(card.status), r9CardStatusTint(card.status))
+                }
+                if (lifecycle != null) {
+                    Text(
+                        listOfNotNull(
+                            lifecycle.annualFee?.let { "年费 $it" },
+                            lifecycle.billingDay?.let { "账单 $it" },
+                        ).joinToString(" · "),
+                        color = R9.Muted, fontSize = 9.sp, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.testTag("pdig.r18.card-row.lifecycle"),
+                    )
                 }
             }
             Text("›", color = R9.Muted, fontSize = 19.sp)
@@ -259,6 +271,7 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
             val display = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
+            val lifecycle = com.pdig.uivnext.demo.UiVNextDemoFixture.numberLifecycleFor(number.id)
             NumberIdentityThumbnail(number.copy(nickname = display),
                 app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true,
                 Modifier.width(107.dp))
@@ -268,6 +281,17 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
                 Text(r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true), color = R9.Ink, fontSize = 11.sp, maxLines = 1)
                 Text("${regionFlag(number.region)} ${number.carrier} · ${number.simKind}",
                     color = R9.Muted, fontSize = 9.sp, maxLines = 1)
+                lifecycle?.let {
+                    Text(
+                        listOfNotNull(
+                            it.planCost?.let { cost -> "资费 $cost" },
+                            it.keepAliveDue?.let { due -> "保号 $due" },
+                        ).joinToString(" · "),
+                        color = R9.Muted, fontSize = 9.sp, maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.testTag("pdig.r18.number-row.lifecycle"),
+                    )
+                }
                 if(number.recoveryOnly) R9Badge("恢复依赖 · 待核实", R9.Amber)
             }
             Text("›", color = R9.Muted, fontSize = 20.sp)
