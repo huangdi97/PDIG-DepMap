@@ -4,8 +4,8 @@
 
 ## 1. 职责与位置
 
-- **职责**：设置 → 个性化的集中页面（goal §12）——workspace theme / globe theme / nav density / card defaults / number defaults / privacy masking / home modules 显隐重排 / region grouping / motion / reduced effects。
-- **路由**：`/settings/personalization`（IA.md §4，二级导航 设置 `pdig.nav.settings` 之下）。
+- **职责**：我 → 设置 → 个性化的集中页面（goal §12）——workspace theme / globe theme / nav density / card defaults / number defaults / privacy masking / home modules 显隐重排 / region grouping / motion / reduced effects。
+- **路由**：`/me/settings/personalization`（IA.md §4；`我` 为一级父上下文，设置为低频子工具）。
 - **P0 原则**：**P0 critical action 不可隐藏**（goal §12）——即使 home modules 允许显隐，P0 关键动作入口（如处理 must-change 事项）永不隐藏。
 - **边界**：所有设置均为本地偏好，不改变领域数据、不写 .depmap（goal §13）。
 
