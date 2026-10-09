@@ -64,11 +64,10 @@ class SourceCompleteInteractionContractTest {
             .edit().clear().commit()
     }
 
-    private fun cardCityProfile(): PresentationProfile =
+    private fun cardOceanProfile(): PresentationProfile =
         PresentationProfile.defaultFor("card", "card-cn-2", "region").copy(
-            themeId = "city",
-            backgroundValue = "city",
-            material = "frosted",
+            backgroundKind = "r10-art",
+            backgroundValue = "ocean",
             maskSensitive = true,
         )
 
@@ -84,21 +83,21 @@ class SourceCompleteInteractionContractTest {
     fun cardProfileSavePersistsAcrossRecreationAndRenders() {
         clearStores()
         val vm1 = VNextShellViewModel(app())
-        vm1.app.savePresentationProfile(cardCityProfile())
+        vm1.app.savePresentationProfile(cardOceanProfile())
 
         // 1) 保存后立即存在于真实 store
         val saved = PresentationProfileStore(target()).loadAll()["card::card-cn-2"]
         assertNotNull("profile must be in store after save", saved)
-        assertEquals("city", saved!!.themeId)
-        assertEquals("frosted", saved.material)
+        assertEquals("r10-art", saved!!.backgroundKind)
+        assertEquals("ocean", saved.backgroundValue)
         assertTrue("mask must persist", saved.maskSensitive)
 
         // 2) 全新 ViewModel（= 进程重启后从磁盘重建）恢复同一 profile
         val vm2 = VNextShellViewModel(app())
         val restored = vm2.app.savedPresentationProfile("card", "card-cn-2")
         assertNotNull("restart must restore card profile", restored)
-        assertEquals("city", restored!!.themeId)
-        assertEquals("frosted", restored.material)
+        assertEquals("r10-art", restored!!.backgroundKind)
+        assertEquals("ocean", restored.backgroundValue)
         assertTrue(restored.maskSensitive)
 
         // 3) 重启后的 Card Detail 渲染不崩溃且使用保存后的主题（identity 节点存在）
@@ -108,7 +107,7 @@ class SourceCompleteInteractionContractTest {
         val identityNodes = compose.onAllNodesWithTag(VTestIds.CARD_DETAIL_IDENTITY, useUnmergedTree = true)
             .fetchSemanticsNodes()
         assertTrue("card detail identity must render", identityNodes.isNotEmpty())
-        assertEquals("city", vm2.app.presentationProfile("card", "card-cn-2", "region").themeId)
+        assertEquals("ocean", vm2.app.presentationProfile("card", "card-cn-2", "region").backgroundValue)
     }
 
     @Test
@@ -155,24 +154,26 @@ class SourceCompleteInteractionContractTest {
     }
 
     @Test
-    fun studioUISaveFlowPersistsThroughSaveButton() {
+    fun cardImageSaveFlowPersistsThroughSaveButton() {
         clearStores()
         val vm = VNextShellViewModel(app())
-        vm.app.evidenceThemeId = "city"
+        vm.app.evidenceThemeId = "ocean"
         vm.app.openCardCustomization("card-cn-2")
         compose.setContent { VNextApp(vm.app) }
         compose.waitForIdle()
 
-        val tiles = compose.onAllNodesWithTag(VTestIds.STUDIO_THEME_TILE, useUnmergedTree = true)
-            .fetchSemanticsNodes()
-        assertTrue("studio theme tiles must render", tiles.isNotEmpty())
+        compose.onNodeWithTag("pdig.r10.card-art.choice.ocean", useUnmergedTree = true)
+            .fetchSemanticsNode()
+        compose.onNodeWithTag("pdig.r10.card-art.choose-photo", useUnmergedTree = true)
+            .fetchSemanticsNode()
 
-        compose.onNodeWithText("保存", useUnmergedTree = true).performClick()
+        compose.onNodeWithText("保存卡面并返回", useUnmergedTree = true).performClick()
         compose.waitForIdle()
 
         val saved = PresentationProfileStore(target()).loadAll()["card::card-cn-2"]
         assertNotNull("save button must persist profile", saved)
-        assertEquals("city", saved!!.themeId)
+        assertEquals("r10-art", saved!!.backgroundKind)
+        assertEquals("ocean", saved.backgroundValue)
     }
 
     @Test
