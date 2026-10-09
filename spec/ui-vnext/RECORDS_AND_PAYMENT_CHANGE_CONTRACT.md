@@ -161,6 +161,24 @@ verification = pending
 
 这必须可表达。
 
+R21 Android source now implements the first authoritative production trace over
+`PlanDetailView` actions:
+
+```text
+done + no verification             → RECORDED_COMPLETE
+verification = verified            → VERIFIED
+verification = pending/suggested   → PENDING_VERIFICATION
+verification = failed              → VERIFICATION_FAILED
+untouched future action            → excluded
+```
+
+Verification `evidenceRefs` are preserved as references. The current Android
+`PlanAction` model does not expose `doneAt/verifiedAt`, so
+`VNextProductionRecordItem.occurredAt` intentionally remains null. The plan's
+`effectiveDate` is **not** reused as a fake event timestamp.
+
+This is still a source/read-model seam; production UI binding remains gated.
+
 ## 5. Payment Change 为什么现在可以进入 UI
 
 Canonical/production ScenarioRegistry 已有 active：
@@ -457,7 +475,7 @@ expanded source contract
 R21_REFERENCE_RECORDS = IMPLEMENTED_SOURCE
 R21_REFERENCE_CARD_CHANGE = IMPLEMENTED_SOURCE
 
-PRODUCTION_RECORDS_READ_MODEL = PARTIAL / TODO
+PRODUCTION_RECORDS_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_CARD_CHANGE_GATEWAY = SOURCE_AVAILABLE
 PRODUCTION_CARD_CHANGE_SCREEN_BINDING = HOLD
 
