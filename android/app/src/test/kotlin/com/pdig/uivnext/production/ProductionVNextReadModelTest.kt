@@ -203,6 +203,77 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun productionRecordsKeepCompletionVerificationAndEvidenceDistinct() {
+        fun planAction(
+            id: String,
+            done: Boolean,
+            verification: String?,
+            evidenceRefs: List<String> = emptyList(),
+        ) = VNextProductionPlanAction(
+            id = id,
+            title = id,
+            phase = "verify",
+            done = done,
+            verificationStatus = verification,
+            verificationEvidenceRefs = evidenceRefs,
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
+
+        val plan = VNextProductionPlan(
+            id = "plan-1",
+            scenario = "replace_payment_card",
+            title = "更换银行卡",
+            workflowState = "verifying",
+            effectiveState = "verifying",
+            baselineGraphRevision = 3,
+            lastAnalyzedGraphRevision = 3,
+            currentGraphRevision = 3,
+            targetNodeId = "card-1",
+            targetNodeName = "主卡",
+            effectiveDate = "2026-11-10T00:00:00Z",
+            readiness = "ready_with_known_scope",
+            affectedServiceCount = 2,
+            mustChangeKeys = emptyList(),
+            unresolvedMustChangeKeys = emptyList(),
+            actions = listOf(
+                planAction("done-no-verification", done = true, verification = null),
+                planAction("verified", done = true, verification = "verified",
+                    evidenceRefs = listOf("ev-1")),
+                planAction("pending", done = true, verification = "pending"),
+                planAction("failed", done = true, verification = "failed",
+                    evidenceRefs = listOf("ev-failed")),
+                planAction("future", done = false, verification = null),
+            ),
+        )
+
+        val records = buildProductionRecordTrace(listOf(plan))
+        assertEquals(4, records.size)
+        assertEquals(
+            VNextProductionRecordState.RECORDED_COMPLETE,
+            records.first { it.actionId == "done-no-verification" }.state,
+        )
+        assertEquals(
+            VNextProductionRecordState.VERIFIED,
+            records.first { it.actionId == "verified" }.state,
+        )
+        assertEquals(
+            listOf("ev-1"),
+            records.first { it.actionId == "verified" }.evidenceRefs,
+        )
+        assertEquals(
+            VNextProductionRecordState.PENDING_VERIFICATION,
+            records.first { it.actionId == "pending" }.state,
+        )
+        assertEquals(
+            VNextProductionRecordState.VERIFICATION_FAILED,
+            records.first { it.actionId == "failed" }.state,
+        )
+        assertTrue(records.all { it.occurredAt == null })
+        assertFalse(records.any { it.actionId == "future" })
+    }
+
+    @Test
     fun productionPlanPreservesDoneNotVerified() {
         val detail = PlanDetailView(
             id = "plan-phone",
@@ -225,6 +296,7 @@ class ProductionVNextReadModelTest {
                     verification = ActionVerification(
                         method = ActionVerificationMethod.MANUAL_CONFIRMATION,
                         status = ActionVerificationStatus.PENDING,
+                        evidenceRefs = listOf("ev-pending-1"),
                     ),
                     prerequisiteActionIds = listOf("prepare-1"),
                 ),
@@ -240,6 +312,7 @@ class ProductionVNextReadModelTest {
 
         assertTrue(action.done)
         assertEquals("pending", action.verificationStatus)
+        assertEquals(listOf("ev-pending-1"), action.verificationEvidenceRefs)
         assertEquals("change", action.phase)
         assertEquals("review_required", mapped.readiness)
         assertEquals(listOf("svc-1|payment"), mapped.unresolvedMustChangeKeys)
