@@ -2,6 +2,7 @@ package com.pdig.uivnext.globe
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -107,10 +108,22 @@ internal fun R15WorldScene(
                         }
                     }
                 }
+                // Single-finger orbit must work in its own gesture recognizer.
+                // A previous transform-only handler often failed to activate on
+                // real single-pointer Android swipes (Pixel Proof 37866791152).
+                .pointerInput(controller) {
+                    detectDragGestures { change, amount ->
+                        change.consume()
+                        controller.interactive = false
+                        controller.camera = applyGlobeTransform(controller.camera, amount, 1f)
+                    }
+                }
                 .pointerInput(controller) {
                     detectTransformGestures { _, pan, zoom, _ ->
-                        controller.interactive = false
-                        controller.camera = applyGlobeTransform(controller.camera, pan, zoom)
+                        if (zoom != 1f) {
+                            controller.interactive = false
+                            controller.camera = applyGlobeTransform(controller.camera, pan, zoom)
+                        }
                     }
                 },
         ) {

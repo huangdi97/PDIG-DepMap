@@ -303,7 +303,19 @@ def main():
         return (int(yaw.group(1)), int(zoom.group(1)))
 
     yaw0, zoom0 = camera_state()
-    adb("shell", "input", "swipe", "350", "855", "705", "855", "550")
+    # Derive the drag position from the *actual* globe surface bounds.
+    # A hard-coded screen y=855 could land on a floating region chip or below
+    # the stage after redesign, giving a false "gesture broken" diagnosis.
+    globe_nodes = [n for n in xml_nodes() if "全球基础设施导航器" in label_of(n)]
+    bounds = re.findall(r"\\d+", globe_nodes[0].get("bounds", "")) if globe_nodes else []
+    if len(bounds) != 4:
+        raise RuntimeError("Cannot locate real globe bounds for drag evidence")
+    x0, y0, x1, y1 = map(int, bounds)
+    swipe_y = int(y0 + (y1-y0)*0.56)
+    swipe_from = int(x0 + (x1-x0)*0.34)
+    swipe_to = int(x0 + (x1-x0)*0.68)
+    adb("shell", "input", "swipe", str(swipe_from), str(swipe_y),
+        str(swipe_to), str(swipe_y), "650")
     time.sleep(4)
     yaw1, zoom1 = camera_state()
     if abs(yaw1 - yaw0) < 10:
