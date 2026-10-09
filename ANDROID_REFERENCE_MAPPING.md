@@ -21,6 +21,9 @@
 
 ## 0. Frozen Android information architecture
 
+**R19 product decision override:** `我` is an intentional fifth primary destination.
+Do not demote it to a toolbar/avatar-only utility in later cleanup.
+
 Primary navigation is exactly:
 
 ```text
@@ -28,12 +31,12 @@ Primary navigation is exactly:
 基础设施
 变更
 记录
+我
 ```
 
-`我` is a utility/account workspace:
-- phone: entered from the top-right avatar;
-- Medium/Expanded: lower utility rail;
-- it is **not** a fifth primary destination.
+Phone uses five equal primary destinations in the bottom navigation. Medium/Expanded
+use the same five destinations in the primary rail. The top-right avatar may remain
+as a convenience shortcut, but it does not replace the primary `我` destination.
 
 Infrastructure secondary destinations remain:
 
