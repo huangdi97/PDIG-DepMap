@@ -39,6 +39,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -48,8 +49,13 @@ import com.pdig.uivnext.theme.VTouchTarget
 
 /** Android wide navigation rail：只承载一级目的地与低频工具；基础设施二级留在内容区 sibling navigation。 */
 @Composable
-internal fun NavigationRail(app: VAppState) {
-    val width = if (app.railExpanded) 188.dp else 80.dp
+internal fun NavigationRail(app: VAppState, breakpoint: MediaBreakpoint) {
+    // At the 600dp Medium boundary, a 188dp expanded rail leaves too little
+    // content width. Keep Medium ergonomic and icon-first; the user's persisted
+    // expanded preference is honored only when the window is truly Expanded.
+    val canExpand = breakpoint == MediaBreakpoint.EXPANDED
+    val expanded = canExpand && app.railExpanded
+    val width = if (expanded) 188.dp else 80.dp
     Surface(
         modifier = Modifier
             .width(width)
@@ -64,7 +70,7 @@ internal fun NavigationRail(app: VAppState) {
                         Text("P", color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
-                if (app.railExpanded) {
+                if (expanded) {
                     Spacer(Modifier.width(VSpacing.Md))
                     Column {
                         Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold)
@@ -73,30 +79,32 @@ internal fun NavigationRail(app: VAppState) {
                 }
             }
             Spacer(Modifier.height(VSpacing.Xxl))
-            PRIMARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
+            PRIMARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = expanded) }
             Spacer(Modifier.weight(1f))
-            SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = app.railExpanded) }
-            Spacer(Modifier.height(VSpacing.Sm))
-            // 折叠/展开开关
-            Surface(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = VSpacing.Sm)
-                    .defaultMinSize(minHeight = VTouchTarget.Min)
-                    .clickable { app.railExpanded = !app.railExpanded },
-                shape = RoundedCornerShape(VRadius.Md),
-            ) {
-                Row(
-                    Modifier.padding(10.dp),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
+            SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = expanded) }
+            if (canExpand) {
+                Spacer(Modifier.height(VSpacing.Sm))
+                // Expanded only: Medium intentionally keeps the 80dp ergonomic rail.
+                Surface(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = VSpacing.Sm)
+                        .defaultMinSize(minHeight = VTouchTarget.Min)
+                        .clickable { app.railExpanded = !app.railExpanded },
+                    shape = RoundedCornerShape(VRadius.Md),
                 ) {
-                    Icon(
-                        if (app.railExpanded) Icons.Filled.KeyboardArrowLeft else Icons.Filled.KeyboardArrowRight,
-                        contentDescription = null,
-                        tint = PdigV2Colors.TextMuted,
-                        modifier = Modifier.size(18.dp),
-                    )
+                    Row(
+                        Modifier.padding(10.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Icon(
+                            if (expanded) Icons.Filled.KeyboardArrowLeft else Icons.Filled.KeyboardArrowRight,
+                            contentDescription = null,
+                            tint = PdigV2Colors.TextMuted,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
                 }
             }
         }
