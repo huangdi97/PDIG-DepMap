@@ -46,7 +46,6 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VTouchTarget
-import com.pdig.uivnext.ui.screens.CardCustomizationScreen
 import com.pdig.uivnext.ui.screens.CardDetailScreen
 import com.pdig.uivnext.ui.screens.CardsScreen
 import com.pdig.uivnext.ui.screens.DataSourcesScreen
@@ -57,6 +56,7 @@ import com.pdig.uivnext.ui.screens.NumbersScreen
 import com.pdig.uivnext.ui.screens.NowScreen
 import com.pdig.uivnext.ui.screens.OverviewScreen
 import com.pdig.uivnext.ui.screens.R19AdaptiveMeScreen
+import com.pdig.uivnext.ui.screens.R19CardImageStudio
 import com.pdig.uivnext.ui.screens.R19MediumMeScreen
 import com.pdig.uivnext.ui.screens.PersonalizationScreen
 import com.pdig.uivnext.ui.screens.RecordsScreen
@@ -96,7 +96,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
                 if (useR9Phone) R9InfrastructureScreen(app) else OverviewScreen(app, breakpoint)
             VScreen.CARDS -> if (useR9Phone) R9CardsScreen(app) else CardsScreen(app, breakpoint)
             VScreen.CARD_DETAIL -> if (useR9Phone) R9CardDetailScreen(app) else CardDetailScreen(app, breakpoint)
-            VScreen.CARD_CUSTOMIZATION -> if (useR9Phone) R10CardImageStudio(app) else CardCustomizationScreen(app, breakpoint)
+            VScreen.CARD_CUSTOMIZATION -> R19CardImageStudio(app, breakpoint)
             VScreen.NUMBERS -> if (useR9Phone) R9NumbersScreen(app) else NumbersScreen(app, breakpoint)
             VScreen.NUMBER_DETAIL -> if (useR9Phone) R9NumberDetailScreen(app) else NumberDetailScreen(app)
             VScreen.NUMBER_CUSTOMIZATION -> if (useR9Phone) R9StudioScreen(app, false) else NumberCustomizationScreen(app, breakpoint)
