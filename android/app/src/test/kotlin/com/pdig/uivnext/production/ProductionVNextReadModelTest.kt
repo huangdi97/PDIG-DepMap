@@ -126,6 +126,7 @@ class ProductionVNextReadModelTest {
         assertEquals(listOf("card-1"), snapshot.objects.map { it.id })
         assertEquals("示例银行", snapshot.objects.single().issuer)
         assertEquals("8823", snapshot.objects.single().last4)
+        assertEquals(VNextProductionSurfaceKind.PAYMENT_ASSET, snapshot.objects.single().surfaceKind)
         assertEquals(listOf("dep-active"), snapshot.confirmedDependencies.map { it.id })
         assertTrue(snapshot.confirmedDependencies.all { it.truth == VNextProjectionTruth.CONFIRMED })
         assertEquals(VNextProjectionTruth.DERIVED, snapshot.timeline.single().truth)
@@ -137,6 +138,18 @@ class ProductionVNextReadModelTest {
 
         // Pending proposals are counted as pending review, never promoted into Reality edges.
         assertFalse(snapshot.confirmedDependencies.any { it.toId == "svc-proposed" })
+    }
+
+    @Test
+    fun identityAnchorIsNotSilentlyPromotedToPhoneNumber() {
+        assertEquals(
+            VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+            productionSurfaceKind("identity_anchor"),
+        )
+        assertEquals(
+            VNextProductionSurfaceKind.CUSTOM_GENERIC,
+            productionSurfaceKind("unknown_future_kind"),
+        )
     }
 
     @Test
