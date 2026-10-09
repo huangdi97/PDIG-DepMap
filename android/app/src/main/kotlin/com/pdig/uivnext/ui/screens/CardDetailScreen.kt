@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.cardImpactLens
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.hexColorOrNull
@@ -42,6 +43,7 @@ import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.AssetCard
 import com.pdig.uivnext.ui.components.LabelChip
+import com.pdig.uivnext.ui.components.ObjectImpactLens
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /**
@@ -52,6 +54,8 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val card = UiVNextDemoFixture.cardById(app.selectedCardId ?: "card-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForCard(card.id)
+    val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
+    val impact = cardImpactLens(card.id)
     val presentation = app.savedPresentationProfile("card", card.id)
     if (breakpoint == MediaBreakpoint.EXPANDED) {
         Row(
@@ -87,7 +91,7 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         .testTagLocal(VTestIds.CARD_DETAIL_INFO),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    InfoPanel(card, services)
+                    InfoPanel(card, services, lifecycle, impact)
                 }
             }
         }
@@ -108,7 +112,7 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             Column(
                 Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_INFO),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
-            ) { InfoPanel(card, services) }
+            ) { InfoPanel(card, services, lifecycle, impact) }
         }
     }
 }
@@ -160,6 +164,28 @@ private fun CompactCardDetailReference(
                 )
             }
         }
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTagLocal("pdig.r19.card.lifecycle.adaptive"),
+            color = PdigV2Colors.Surface,
+            shape = RoundedCornerShape(VRadius.Lg),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Column(
+                Modifier.padding(horizontal = 13.dp, vertical = 11.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("用卡周期", color = PdigV2Colors.TextPrimary,
+                    fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    CardLifecycleFact("年费", lifecycle?.annualFee, Modifier.weight(1f))
+                    CardLifecycleFact("账单日", lifecycle?.billingDay, Modifier.weight(1f))
+                    CardLifecycleFact("分期", lifecycle?.installmentSummary, Modifier.weight(1f))
+                }
+                Text("仅展示已记录资料；缺失字段保持“未记录”。",
+                    color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+            }
+        }
+
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, title ->
                 Surface(
@@ -194,6 +220,10 @@ private fun CompactCardDetailReference(
                         DetailRow("国家 / 地区", regionLabel(card.region) + " · " + card.currency)
                         DetailRow("卡号后四位", card.last4)
                         DetailRow("有效期", card.expiry)
+                        DetailRow("年费", lifecycle?.annualFee ?: "未记录")
+                        DetailRow("年费节点", lifecycle?.annualFeeDue ?: "未记录")
+                        DetailRow("账单日", lifecycle?.billingDay ?: "未记录")
+                        DetailRow("还款日", lifecycle?.paymentDueDay ?: "未记录")
                         CardIdentitySummary(card, services.size)
                     }
                     1 -> {
@@ -265,9 +295,15 @@ private fun CompactCardDetailReference(
                         }
                     }
                     2 -> {
-                        Text("账单与到期", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                        Text("尚未导入可核验的账单，不推断交易、余额或扣款金额。", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-                        DetailRow("已记录有效期", card.expiry)
+                        Text("账单与分期", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        Text("没有账单证据时，不推断交易、余额、最低还款额或实际扣款。", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+                        DetailRow("账单日", lifecycle?.billingDay ?: "未记录")
+                        DetailRow("还款日", lifecycle?.paymentDueDay ?: "未记录")
+                        DetailRow("年费", lifecycle?.annualFee ?: "未记录")
+                        DetailRow("年费节点", lifecycle?.annualFeeDue ?: "未记录")
+                        DetailRow("分期", lifecycle?.installmentSummary ?: "未记录")
+                        DetailRow("自动还款", lifecycle?.autoPaySummary ?: "未记录")
+                        DetailRow("卡片有效期", card.expiry)
                     }
                     else -> {
                         Text("安全与风险", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 14.sp)
@@ -281,6 +317,8 @@ private fun CompactCardDetailReference(
                 }
             }
         }
+        ObjectImpactLens(impact = impact)
+
         Surface(
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min)
                 .clickableLocal { app.openCardCustomization(card.id) },
@@ -401,7 +439,31 @@ private fun CardSummaryItem(value: String, label: String, modifier: Modifier = M
 }
 
 @Composable
-private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<com.pdig.uivnext.model.UiVNextService>) {
+private fun InfoPanel(
+    card: com.pdig.uivnext.model.UiVNextCard,
+    services: List<com.pdig.uivnext.model.UiVNextService>,
+    lifecycle: com.pdig.uivnext.model.UiVNextCardLifecycle?,
+    impact: com.pdig.uivnext.demo.UiImpactLens,
+) {
+    SectionHeader("用卡周期")
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTagLocal("pdig.r19.card.lifecycle.workspace"),
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            DetailRow("年费", lifecycle?.annualFee ?: "未记录")
+            DetailRow("年费节点", lifecycle?.annualFeeDue ?: "未记录")
+            DetailRow("账单日", lifecycle?.billingDay ?: "未记录")
+            DetailRow("还款日", lifecycle?.paymentDueDay ?: "未记录")
+            DetailRow("分期", lifecycle?.installmentSummary ?: "未记录")
+            DetailRow("自动还款", lifecycle?.autoPaySummary ?: "未记录")
+            Text("这些字段只表示已记录资料，不代表银行实时账单。",
+                color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+        }
+    }
+
     SectionHeader("使用场景")
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         card.usages.forEach { LabelChip(it) }
@@ -441,17 +503,14 @@ private fun InfoPanel(card: com.pdig.uivnext.model.UiVNextCard, services: List<c
     } else {
         Text("在已记录关系中未发现必须立即处理的风险；未记录的关联仍保持未知。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
     }
+    SectionHeader("影响")
+    ObjectImpactLens(impact = impact)
+
     SectionHeader("恢复与替代")
     Text(
-        "更换这张卡前，请先检查已经记录的绑定服务和备用支付方式；没有记录的关联仍保持未知。",
+        "尚未记录独立备用支付路径时，界面不会推断存在替代方案；更换前应先核对已确认绑定服务。",
         color = PdigV2Colors.TextSecondary,
         fontSize = 13.sp,
-    )
-    SectionHeader("变更历史")
-    Text(
-        "最近记录：2026-06 补充账单日资料；2025-11 更新卡片昵称。",
-        color = PdigV2Colors.TextMuted,
-        fontSize = 12.sp,
     )
 }
 
@@ -466,3 +525,28 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
+
+
+@Composable
+private fun CardLifecycleFact(
+    label: String,
+    value: String?,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+        ) {
+            Text(label, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+            Text(value?.takeIf { it.isNotBlank() } ?: "未记录",
+                color = PdigV2Colors.TextPrimary, fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold, maxLines = 2)
+        }
+    }
+}
