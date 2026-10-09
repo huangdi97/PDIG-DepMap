@@ -143,7 +143,7 @@ internal fun R19AdaptiveMeScreen(
                     shape = RoundedCornerShape(999.dp),
                 ) {
                     Text(
-                        "Preview · 本机",
+                        "本机预览",
                         Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
                         color = PdigV2Colors.PrimaryText,
                         fontSize = 11.sp,
