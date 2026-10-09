@@ -90,7 +90,7 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         .testTagLocal(VTestIds.CARD_DETAIL_INFO),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    InfoPanel(card, services, lifecycle, impact)
+                    InfoPanel(app, card, services, lifecycle, impact)
                 }
             }
         }
@@ -111,7 +111,7 @@ fun CardDetailScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             Column(
                 Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_INFO),
                 verticalArrangement = Arrangement.spacedBy(20.dp),
-            ) { InfoPanel(card, services, lifecycle, impact) }
+            ) { InfoPanel(app, card, services, lifecycle, impact) }
         }
     }
 }
@@ -316,7 +316,11 @@ private fun CompactCardDetailReference(
                 }
             }
         }
-        ObjectImpactLens(impact = impact)
+        ObjectImpactLens(
+            impact = impact,
+            actionLabel = "分析更换此卡的影响",
+            onAction = { app.openCardChange(card.id) },
+        )
 
         Row(
             Modifier.fillMaxWidth(),
@@ -434,6 +438,7 @@ private fun CardSummaryItem(value: String, label: String, modifier: Modifier = M
 
 @Composable
 private fun InfoPanel(
+    app: VAppState,
     card: com.pdig.uivnext.model.UiVNextCard,
     services: List<com.pdig.uivnext.model.UiVNextService>,
     lifecycle: com.pdig.uivnext.model.UiVNextCardLifecycle?,
@@ -498,7 +503,11 @@ private fun InfoPanel(
         Text("在已记录关系中未发现必须立即处理的风险；未记录的关联仍保持未知。", color = PdigV2Colors.TextSecondary, fontSize = 13.sp)
     }
     SectionHeader("影响")
-    ObjectImpactLens(impact = impact)
+    ObjectImpactLens(
+        impact = impact,
+        actionLabel = "分析更换此卡的影响",
+        onAction = { app.openCardChange(card.id) },
+    )
 
     SectionHeader("恢复与替代")
     Text(
