@@ -2,8 +2,10 @@ package com.pdig.uivnext.globe
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -17,6 +19,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
@@ -76,6 +79,29 @@ internal fun R15WorldScene(
 
     Box(
         Modifier.fillMaxSize()
+            // A GLSurfaceView is an Android child view; process motion on its
+            // Compose parent at Initial pass, before AndroidView and foreground
+            // tap layers can compete for Main-pass gesture consumption.
+            // One recognizer handles both single-pointer orbit and pinch zoom.
+            .pointerInput(controller) {
+                awaitEachGesture {
+                    awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    do {
+                        val event = awaitPointerEvent(PointerEventPass.Initial)
+                        val pan = event.calculatePan()
+                        val zoom = if (event.changes.count { it.pressed } >= 2) {
+                            event.calculateZoom()
+                        } else 1f
+                        if (pan.x != 0f || pan.y != 0f || kotlin.math.abs(zoom - 1f) > 0.001f) {
+                            controller.interactive = false
+                            controller.camera = applyGlobeTransform(controller.camera, pan, zoom)
+                            event.changes.forEach { change ->
+                                if (change.positionChanged()) change.consume()
+                            }
+                        }
+                    } while (event.changes.any { it.pressed })
+                }
+            }
             .testTag("pdig.r15.scene")
             .semantics {
                 contentDescription = "全球基础设施导航器；纹理状态=" +
@@ -108,24 +134,7 @@ internal fun R15WorldScene(
                         }
                     }
                 }
-                // Single-finger orbit must work in its own gesture recognizer.
-                // A previous transform-only handler often failed to activate on
-                // real single-pointer Android swipes (Pixel Proof 37866791152).
-                .pointerInput(controller) {
-                    detectDragGestures { change, amount ->
-                        change.consume()
-                        controller.interactive = false
-                        controller.camera = applyGlobeTransform(controller.camera, amount, 1f)
-                    }
-                }
-                .pointerInput(controller) {
-                    detectTransformGestures { _, pan, zoom, _ ->
-                        if (zoom != 1f) {
-                            controller.interactive = false
-                            controller.camera = applyGlobeTransform(controller.camera, pan, zoom)
-                        }
-                    }
-                },
+                ,
         ) {
             val radius = min(size.width * .42f, size.height * .47f) * camera.zoom
             val cx = size.width / 2f
