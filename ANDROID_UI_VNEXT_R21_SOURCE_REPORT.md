@@ -355,13 +355,13 @@ Already source-implemented:
 - conservative object surface classification;
 - production Impact projection;
 - production Plan projection;
+- production Records completion/verification/evidence projection;
 - authoritative change-action gateway.
 
 Still intentionally gated:
 - production VNext screen injection;
 - lifecycle Canonical persistence;
 - identity-anchor subtype Canonical migration;
-- production Records read-model normalization;
 - production launcher cutover.
 
 ## 12. Future Lens architecture is now design-complete
