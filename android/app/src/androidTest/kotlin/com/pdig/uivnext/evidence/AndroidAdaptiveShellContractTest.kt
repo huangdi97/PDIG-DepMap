@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.uivnext.VNextApp
@@ -55,6 +56,14 @@ class AndroidAdaptiveShellContractTest {
         compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsNotDisplayed()
         compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertIsDisplayed()
+        val mediumRail = compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).fetchSemanticsNode()
+        val mediumRailMax = with(compose.density) { 90.dp.toPx() }
+        assertTrue("Medium rail must stay compact (width=${mediumRail.boundsInRoot.width})",
+            mediumRail.boundsInRoot.width <= mediumRailMax)
+
+        app.navigate(VScreen.ME)
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.r19.me.medium", useUnmergedTree = true).assertIsDisplayed()
 
         app.navigate(VScreen.NUMBERS)
         compose.waitForIdle()
