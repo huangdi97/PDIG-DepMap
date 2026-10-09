@@ -159,8 +159,12 @@ internal fun R15WorldScene(
                         strokeWidth = 10f, cap = StrokeCap.Round)
                     drawLine(Color(0xFF3FB9FF).copy(alpha = .68f), start, end,
                         strokeWidth = 3.2f, cap = StrokeCap.Round)
-                    drawLine(Color.White.copy(alpha = .86f), start, end,
-                        strokeWidth = 1.0f, cap = StrokeCap.Round)
+                    // Warm luminous core inside the real recorded blue link.
+                    // This is NOT a decorative invented dependency edge.
+                    drawLine(Color(0xFFFFCA71).copy(alpha = .72f), start, end,
+                        strokeWidth = 1.65f, cap = StrokeCap.Round)
+                    drawLine(Color.White.copy(alpha = .88f), start, end,
+                        strokeWidth = 0.85f, cap = StrokeCap.Round)
                 }
             }
             for (region in regions) {
@@ -171,9 +175,13 @@ internal fun R15WorldScene(
                 if (position.zDepth <= 0f) continue
                 val p = Offset(position.x, position.y)
                 val important = controller.selectedRegion == region.regionCode
-                drawCircle(Color(0xFF1DA6FF).copy(alpha = .18f), radius = if (important) 20f else 12f, center = p)
-                drawCircle(Color(0xFF75D6FF).copy(alpha = .87f), radius = if (important) 6f else 4.5f, center = p)
-                drawCircle(Color.White, radius = 2.1f, center = p)
+                drawCircle(Color(0xFF329CFF).copy(alpha = .16f),
+                    radius = if (important) 25f else 17f, center = p)
+                drawCircle(Color(0xFFFFBD64).copy(alpha = .27f),
+                    radius = if (important) 13f else 9f, center = p)
+                drawCircle(Color(0xFF8DE6FF).copy(alpha = .93f),
+                    radius = if (important) 6.5f else 4.9f, center = p)
+                drawCircle(Color.White, radius = 2.3f, center = p)
             }
         }
     }

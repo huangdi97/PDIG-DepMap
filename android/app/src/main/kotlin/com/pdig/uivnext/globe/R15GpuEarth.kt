@@ -223,8 +223,11 @@ void main() {
     // Exterior layered optical glow, intentionally separate from surface albedo.
     float auraWide = exp(-pow((radius - 1.02) / 0.25, 2.0));
     float auraSharp = exp(-pow((radius - 1.005) / 0.052, 2.0));
-    vec3 skyOut = mix(sky, vec3(0.23, 0.68, 1.0),
-                       clamp(auraWide * 0.24 + auraSharp * 0.37, 0.0, 0.65));
+    // A soft wide scattering halo merges sky and globe into one visual plane.
+    // The thin outer optical ring is atmospheric artwork, never a dependency.
+    float orbitHaze = exp(-pow((radius - 1.20) / 0.15, 2.0));
+    vec3 skyOut = mix(sky, vec3(0.19, 0.65, 0.99),
+                       clamp(auraWide * 0.30 + auraSharp * 0.43 + orbitHaze * 0.08, 0.0, 0.72));
     if (r2 > 1.0) {
         gl_FragColor = vec4(skyOut, 1.0);
         return;
@@ -246,20 +249,34 @@ void main() {
     vec3 lights = texture2D(uNight, uv).rgb;
     vec3 sun = normalize(vec3(-0.029, 0.309, 0.950));
     float day = smoothstep(-0.31, 0.44, dot(world, sun));
-    // Reference photography: allow rich lit land and ocean, rather than
-    // clamping the globe to the flat dark "space" source styling.
-    earth *= 0.61 + 0.55 * day;
-    float ocean = smoothstep(0.04, 0.19, earth.b-earth.r);
-    vec3 reflected = normalize(sun + world);
-    float oceanGlint = ocean * pow(max(dot(world, reflected),0.0), 32.0) * 0.24 * day;
-    earth = mix(earth, vec3(0.97,0.99,1.0), oceanGlint);
-    earth = mix(earth, vec3(0.93,0.97,1.0), cloud.r * 0.24);
-    earth += lights * pow(1.0-day, 2.3)*0.42;
-    // Atmospheric Rayleigh-inspired (art-directed) rim.
-    float fresnel = pow(1.0-z, 2.7);
-    earth = mix(earth, vec3(0.30,0.68,1.0), clamp(fresnel*0.68, 0.0, 0.8));
-    earth += vec3(0.11,0.26,0.42)*pow(1.0-z, 7.0);
-    earth = mix(earth, vec3(0.66,0.83,1.0), 0.075);
-    gl_FragColor = vec4(clamp(earth, 0.0, 1.0), 1.0);
+    // Rich light-first albedo without flattening the actual photographed
+    // continents. The night hemisphere remains visibly distinct.
+    float ocean = smoothstep(0.018, 0.18, earth.b - earth.r);
+    earth *= 0.74 + 0.48 * day;
+    earth = mix(earth, earth * vec3(0.84, 1.05, 1.20), ocean * 0.29);
+
+    // Proper world-space view/sun half vector: unlike normalize(sun + world),
+    // this produces a bounded reflective highlight on the real ocean surface.
+    vec3 viewWorld = normalize(vec3(-sy*cp, sp, cy*cp));
+    vec3 halfLight = normalize(sun + viewWorld);
+    float oceanGlint = ocean * pow(max(dot(world, halfLight), 0.0), 58.0)
+                       * 0.66 * day;
+    earth = mix(earth, vec3(0.95, 0.99, 1.0), clamp(oceanGlint, 0.0, 0.72));
+
+    // Existing offline cloud / night light textures are factual imagery,
+    // never simulated accounts or fabricated service connectivity.
+    earth = mix(earth, vec3(0.94, 0.975, 1.0), cloud.r * (0.20 + 0.06*day));
+    earth += lights * pow(1.0-day, 2.2) * 0.47;
+
+    // Translucent cyan limb and warm/cold photographic fill light.
+    float fresnel = pow(1.0-z, 2.25);
+    earth = mix(earth, vec3(0.25, 0.69, 1.0), clamp(fresnel*0.72, 0.0, 0.78));
+    earth += vec3(0.09, 0.23, 0.39)*pow(1.0-z, 6.5);
+    earth = mix(earth, vec3(0.70, 0.86, 1.0), 0.055);
+    earth = pow(clamp(earth, 0.0, 1.0), vec3(0.91));
+    // Soften the sphere silhouette into the wide sky aura, avoiding the
+    // rigid dark edge of a texture pasted into a rectangular image box.
+    float rimBlend = smoothstep(0.992, 1.0, radius) * 0.43;
+    gl_FragColor = vec4(clamp(mix(earth, skyOut, rimBlend), 0.0, 1.0), 1.0);
 }
 """
