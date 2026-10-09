@@ -69,7 +69,7 @@ internal sealed class SearchResult {
     }
 }
 
-internal fun searchResults(q: String): List<SearchResult> {
+internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult> {
     val query = q.lowercase()
     fun hit(values: List<String>): Boolean = values.any { it.lowercase().contains(query) }
 
@@ -83,18 +83,53 @@ internal fun searchResults(q: String): List<SearchResult> {
 
     UiVNextDemoFixture.cards.forEach { card ->
         val region = regionLabel(card.region)
-        if (hit(listOf(card.nickname, card.issuer, card.region, region, card.masked, card.network, card.currency))) {
-            out.add(SearchResult.CardHit(card.id, card.nickname, "${card.issuer} · $region · ${card.masked}"))
+        val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
+        val lifecycleTerms = listOfNotNull(
+            lifecycle?.annualFee,
+            lifecycle?.annualFeeDue,
+            lifecycle?.billingDay,
+            lifecycle?.paymentDueDay,
+            lifecycle?.installmentSummary,
+            lifecycle?.autoPaySummary,
+        )
+        if (hit(
+                listOf(card.nickname, card.issuer, card.region, region, card.masked,
+                    card.network, card.currency) + lifecycleTerms,
+            )
+        ) {
+            out.add(SearchResult.CardHit(card.id, card.nickname,
+                "${card.issuer} · $region · ${card.masked}"))
         }
     }
 
     UiVNextDemoFixture.numbers.forEach { number ->
         val region = regionLabel(number.region)
-        if (hit(listOf(number.nickname, number.carrier, number.region, region, number.countryCode, number.maskedNumber))) {
+        val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
+        val displayName = app?.numberDisplayNameForScreen(number.id, number.maskedNumber)
+            ?: number.nickname
+        val roleLabel = when (number.role) {
+            "primary" -> "主号"
+            "keep" -> "保号"
+            "secondary" -> "副号"
+            else -> number.role
+        }
+        val lifecycleTerms = listOfNotNull(
+            lifecycle?.billingMode,
+            lifecycle?.planCost,
+            lifecycle?.keepAliveDue,
+            lifecycle?.keepAliveCycle,
+            lifecycle?.lastKeepAlive,
+            lifecycle?.renewalMethod,
+        )
+        if (hit(
+                listOf(displayName, number.nickname, number.carrier, number.region, region,
+                    number.countryCode, number.maskedNumber, roleLabel) + lifecycleTerms,
+            )
+        ) {
             out.add(
                 SearchResult.NumberHit(
                     number.id,
-                    number.nickname,
+                    displayName,
                     "${number.countryCode} · ${number.carrier} · ${number.maskedNumber}",
                 ),
             )
