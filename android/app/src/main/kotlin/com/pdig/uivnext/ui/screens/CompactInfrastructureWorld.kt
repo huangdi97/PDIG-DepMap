@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoNumbers
-import com.pdig.uivnext.globe.VNextGlobe
+import com.pdig.uivnext.globe.R15WorldScene
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -90,11 +90,14 @@ internal fun CompactInfrastructureRegionPanel(
                         .clip(RoundedCornerShape(18.dp))
                         .background(Brush.radialGradient(listOf(Color(0xFFB7D5FE), Color(0xFFEAF4FF), Color(0xFFF7FBFF)))),
                 ) {
-                    VNextGlobe(
+                    R15WorldScene(
                         controller = app.globe,
                         regions = regions,
-                        arcingPairs = arcs,
+                        arcingPairs = if (app.emptyDemo) emptyList() else arcs,
                         reduceMotion = app.reduceMotion,
+                        onRegionChosen = { region ->
+                            app.selectRegion(region.regionCode)
+                        },
                     )
                 }
                 Column(
