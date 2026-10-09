@@ -66,7 +66,11 @@ internal fun r16ProjectedRegionLabels(
     val mergeDistance = (50f * pxPerDp).coerceAtMost(radius * .52f)
     for (anchor in candidates) {
         val near = groups.firstOrNull { members ->
-            members.any { hypot(it.x - anchor.x, it.y - anchor.y) < mergeDistance }
+            // Do not chain distant countries through intermediate neighbors:
+            // clustering is limited to the original projected representative.
+            // A capped group can still be disambiguated in the chooser.
+            members.size < 5 &&
+                hypot(members.first().x - anchor.x, members.first().y - anchor.y) < mergeDistance
         }
         if (near != null) near.add(anchor) else groups.add(mutableListOf(anchor))
     }
