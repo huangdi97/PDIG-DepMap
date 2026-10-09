@@ -286,6 +286,7 @@ private fun ExpandedCardListRow(
     onClick: () -> Unit,
 ) {
     val profile = app.savedPresentationProfile("card", card.id)
+    val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -320,6 +321,17 @@ private fun ExpandedCardListRow(
                     color = PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                 )
+                if (lifecycle != null) {
+                    Text(
+                        listOfNotNull(
+                            lifecycle.annualFee?.let { "年费 $it" },
+                            lifecycle.billingDay?.let { "账单 $it" },
+                        ).joinToString(" · "),
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                    )
+                }
             }
         }
     }
@@ -341,6 +353,7 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
 
         val profile = app.savedPresentationProfile("card", card.id)
         val services = UiVNextDemoFixture.servicesForCard(card.id)
+        val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
 
         SectionHeader("卡片详情")
         AssetCard(
@@ -407,6 +420,20 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
             }
         }
 
+        SectionHeader("用卡周期")
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTagLocal("pdig.r19.card.inspector.lifecycle"),
+            color = PdigV2Colors.SurfaceRaised,
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                InspectorFact("年费", lifecycle?.annualFee ?: "未记录")
+                InspectorFact("账单日", lifecycle?.billingDay ?: "未记录")
+                InspectorFact("分期", lifecycle?.installmentSummary ?: "未记录")
+            }
+        }
+
         SectionHeader("关联服务（${services.size}）")
         if (services.isEmpty()) {
             Text(
@@ -441,6 +468,7 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
 @Composable
 private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
     val profile = app.savedPresentationProfile("card", card.id)
+    val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
     val maskSensitive = app.privacyMask || (profile?.maskSensitive == true)
     Surface(
         modifier = Modifier
@@ -477,6 +505,17 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
                     color = PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                 )
+                if (lifecycle != null) {
+                    Text(
+                        listOfNotNull(
+                            lifecycle.annualFee?.let { "年费 $it" },
+                            lifecycle.billingDay?.let { "账单 $it" },
+                        ).joinToString(" · "),
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                    )
+                }
             }
             Spacer(Modifier.width(8.dp))
             com.pdig.uivnext.ui.components.StatusBadge(card.status)
@@ -563,5 +602,19 @@ private fun ViewToggle(grid: Boolean, onToggle: () -> Unit) {
                 fontSize = 12.sp,
             )
         }
+    }
+}
+
+
+@Composable
+private fun InspectorFact(label: String, value: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+        Text(value, color = PdigV2Colors.TextPrimary, fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold, maxLines = 1)
     }
 }
