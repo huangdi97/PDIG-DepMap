@@ -35,7 +35,6 @@ import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.relationKindLabelZh
 import com.pdig.uivnext.model.serviceKindLabelZh
-import com.pdig.uivnext.model.themeLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.statusLabelZh
 import com.pdig.uivnext.theme.VRadius
@@ -381,7 +380,7 @@ private fun IdentityPanel(
         horizontalArrangement = Arrangement.End,
     ) {
         Surface(
-            Modifier
+            modifier = Modifier
                 .defaultMinSize(minHeight = VTouchTarget.Min)
                 .testTagLocal("pdig.card.detail.change-art")
                 .clickableLocal { app.openCardCustomization(card.id) },
@@ -393,17 +392,8 @@ private fun IdentityPanel(
                 "更换卡面图片 →",
                 Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
                 color = PdigV2Colors.PrimaryText,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-            Spacer(Modifier.height(8.dp))
-            LabelChip("当前主题：${themeLabelZh("card", presentation?.themeId ?: card.preset)}")
-            Spacer(Modifier.height(12.dp))
-            Text(
-                "外观设置只改变显示方式，不会修改实际卡片信息或关联关系。",
-                color = PdigV2Colors.TextMuted,
                 fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }
