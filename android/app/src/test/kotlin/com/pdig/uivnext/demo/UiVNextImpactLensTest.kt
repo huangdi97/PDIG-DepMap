@@ -22,11 +22,18 @@ class UiVNextImpactLensTest {
     }
 
     @Test
-    fun ExplicitRecoveryOnlyNumberCanConfirmPositiveButNeverInventAlternatives() {
-        val impact = numberImpactLens("num-us-1")
+    fun ExplicitUniquenessEvidenceCanConfirmPositiveButNeverInventAlternatives() {
+        val impact = numberImpactLens("num-cn-1")
         assertEquals(UiImpactTruth.CONFIRMED, impact.uniqueRecoveryPath)
         assertNull(impact.criticalAccounts)
         assertNull(impact.independentAlternatives)
+        assertTrue(impact.unknownRelationsRemain)
+    }
+
+    @Test
+    fun RecoveryUseAloneDoesNotBecomeUniqueRecoveryEvidence() {
+        val impact = numberImpactLens("num-us-1")
+        assertEquals(UiImpactTruth.UNKNOWN, impact.uniqueRecoveryPath)
         assertTrue(impact.unknownRelationsRemain)
     }
 
