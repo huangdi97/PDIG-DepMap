@@ -71,8 +71,15 @@ private class R15GpuEarthRenderer(
         .order(ByteOrder.nativeOrder()).asFloatBuffer()
         .apply { put(floatArrayOf(-1f, -1f, 1f, -1f, -1f, 1f, 1f, 1f)); position(0) }
     private var initialized = false
+    /** True only after the first *drawn* frame without a GL error. Texture upload
+     * alone is not an on-screen ready signal. Reset on EGL context recreation. */
+    private var firstFrameReported = false
+    private var firstFrameFailed = false
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        firstFrameReported = false
+        firstFrameFailed = false
+        initialized = false
         try {
             program = linkProgram(VERTEX, FRAGMENT)
             GLES20.glGenTextures(3, textures, 0)
@@ -80,8 +87,7 @@ private class R15GpuEarthRenderer(
             uploadTexture(1, "earth/earth_night_lights_2048.png")
             uploadTexture(2, "earth/cloud_2048.png")
             initialized = true
-            Log.i("PDIG_R15", "R15_GPU_TEXTURES_READY")
-            ready()
+            Log.i("PDIG_R15", "R15_GPU_TEXTURES_READY_AWAITING_FIRST_FRAME")
         } catch (t: Throwable) {
             initialized = false
             Log.e("PDIG_R15", "R15_GPU_INIT_FAILED", t)
@@ -122,6 +128,19 @@ private class R15GpuEarthRenderer(
         }
         GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4)
         GLES20.glDisableVertexAttribArray(coord)
+        if (!firstFrameReported && !firstFrameFailed) {
+            val error = GLES20.glGetError()
+            if (error == GLES20.GL_NO_ERROR) {
+                firstFrameReported = true
+                Log.i("PDIG_R15", "R15_GPU_FIRST_FRAME_DRAWN")
+                ready()
+            } else {
+                firstFrameFailed = true
+                initialized = false
+                Log.e("PDIG_R15", "R15_GPU_FIRST_FRAME_FAILED glError=" + error)
+                failure()
+            }
+        }
     }
 
     private fun uploadTexture(slot: Int, filename: String) {
