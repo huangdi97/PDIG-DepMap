@@ -117,11 +117,13 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                     "已记录关注项", "未知关系不包含在计数内")
                 riskyCards.forEach { a ->
                     R9ObjectRow(a.nickname, a.issuer, "有效期：${a.expiry}",
-                        "核对已记录扣款与绑定", regionFlag(a.region), "▣", "临近到期", R9.Amber)
+                        "核对已记录扣款与绑定", regionFlag(a.region), "▣", "临近到期", R9.Amber,
+                        onClick = { app.openCard(a.id) })
                 }
                 recoveryPhones.forEach { a ->
                     R9ObjectRow(a.nickname, r9VisibleNumber(a.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", a.id)?.maskSensitive == true), "恢复路径：号码",
-                        "更换前确认替代路径", regionFlag(a.region), "☎", "需要核对", R9.Amber)
+                        "更换前确认替代路径", regionFlag(a.region), "☎", "需要核对", R9.Amber,
+                        onClick = { app.openNumber(a.id) })
                 }
                 recoveryEmails.forEach { a ->
                     R9ObjectRow(a.name, if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress, "恢复路径：邮箱",
