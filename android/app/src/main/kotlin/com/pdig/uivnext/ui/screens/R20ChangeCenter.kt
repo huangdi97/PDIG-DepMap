@@ -76,7 +76,7 @@ internal fun R20ChangeCenter(app: VAppState, breakpoint: MediaBreakpoint) {
                 )
             }
 
-            ChangeSectionHeading("正在进行的变更", "Current work")
+            ChangeSectionHeading("正在进行的变更", "进行中")
             if (changes.isEmpty()) {
                 ChangeBoundaryCard("当前没有已记录的进行中变更。没有记录不代表没有需要处理的事情。")
             } else {
@@ -94,7 +94,7 @@ internal fun R20ChangeCenter(app: VAppState, breakpoint: MediaBreakpoint) {
                 }
             }
 
-            ChangeSectionHeading("准备改变", "Prepare")
+            ChangeSectionHeading("准备改变", "准备阶段")
             ChangeWorkCard(
                 title = "更换手机号",
                 subtitle = "检查认证、恢复、关键服务与旧号停用条件。",
@@ -112,7 +112,7 @@ internal fun R20ChangeCenter(app: VAppState, breakpoint: MediaBreakpoint) {
                 app.navigate(VScreen.CARDS)
             }
 
-            ChangeSectionHeading("维护与核对", "Maintain")
+            ChangeSectionHeading("维护与核对", "日常维护")
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
