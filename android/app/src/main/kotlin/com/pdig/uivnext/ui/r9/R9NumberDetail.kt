@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.numberImpactLens
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.relationKindLabelZh
@@ -48,6 +49,7 @@ internal fun R9NumberDetailScreen(app: VAppState) {
     }
     val related = UiVNextDemoFixture.servicesForNumber(number.id)
     val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
+    val impact = numberImpactLens(number.id)
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
     val title = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
     var editingName by remember(number.id) { mutableStateOf(false) }
@@ -191,6 +193,8 @@ internal fun R9NumberDetailScreen(app: VAppState) {
                 Modifier.padding(14.dp), color = R9.Ink, fontSize = 12.sp, lineHeight = 20.sp,
             )
         }
+        R19ImpactLens(impact)
+
         Surface(
             modifier = Modifier.fillMaxWidth().height(48.dp)
                 .clickable { app.navigate(com.pdig.uivnext.model.VScreen.CHANGE_PHONE) },
