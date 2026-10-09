@@ -187,7 +187,10 @@ fun NumberFace(
                     LabelChip(if (number.simKind == "eSIM") "eSIM" else "实体 SIM")
                     LabelChip(roleLabel(number.role))
                     LabelChip(number.countryCode)
-                    if (number.recoveryOnly) LabelChip("唯一恢复路径", highlight = true)
+                    when {
+                        number.uniqueRecoveryPath == true -> LabelChip("唯一恢复路径", highlight = true)
+                        number.recoveryOnly -> LabelChip("恢复用途")
+                    }
                 }
                 Spacer(Modifier.height(verticalGap))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
