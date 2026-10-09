@@ -26,7 +26,7 @@ import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
-import com.pdig.uivnext.globe.VNextGlobe
+import com.pdig.uivnext.globe.R15WorldScene
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -188,9 +188,14 @@ private fun R9RegionDistribution(app: VAppState, regions: List<RegionPresentatio
                         .clip(RoundedCornerShape(17.dp)).background(R9.World)
                         .testTag("pdig.r9.infrastructure.world"),
                 ) {
-                    VNextGlobe(
-                        controller = app.globe, regions = regions,
-                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(), reduceMotion = app.reduceMotion,
+                    R15WorldScene(
+                        controller = app.globe,
+                        regions = regions,
+                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
+                        reduceMotion = app.reduceMotion,
+                        onRegionChosen = { region ->
+                            app.selectRegion(region.regionCode)
+                        },
                     )
                 }
                 Column(Modifier.weight(.45f),
