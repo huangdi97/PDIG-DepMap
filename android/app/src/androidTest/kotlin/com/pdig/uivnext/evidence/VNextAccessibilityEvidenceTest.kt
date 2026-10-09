@@ -35,10 +35,13 @@ class VNextAccessibilityEvidenceTest {
         compose.setContent { VNextApp(app) }
         compose.waitForIdle()
 
-        // 一级导航 4 项：label 文本（merged tree 内）存在
-        listOf("现在", "基础设施", "变更", "记录").forEach { label ->
+        // 一级导航 5 项：产品明确要求“我”保持一级入口，不得降级为头像/工具项。
+        listOf("现在", "基础设施", "变更", "记录", "我").forEach { label ->
             compose.onAllNodesWithText(label, substring = false)[0].assertExists()
         }
+        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true)
+            .assertExists()
+            .assertHasClickAction()
         // 搜索入口：可点击 + contentDescription（触控可发现，任务书 §23）
         compose.onNodeWithTag("pdig.search.entry").assertHasClickAction()
         compose.onNodeWithContentDescription("搜索与快捷操作").assertExists()
