@@ -102,30 +102,17 @@ internal fun R15CinematicHero(
                     },
                 )
 
-                val byCode = regions.associateBy { it.regionCode }
-                val placements = listOf(
-                    Triple("US", Alignment.TopStart, 25.dp),
-                    Triple("GB", Alignment.TopEnd, 10.dp),
-                    Triple("CN", Alignment.CenterEnd, 0.dp),
-                    Triple("HK", Alignment.BottomStart, 29.dp),
-                    Triple("SG", Alignment.BottomEnd, 12.dp),
+                // Camera-locked geographic annotations: no fixed five-country
+                // corner cards. 68dp compact labels, front hemisphere and +N
+                // clustering are computed from the SAME R15 GPU camera.
+                R16ProjectedRegionOverlay(
+                    controller = app.globe,
+                    regions = regions,
+                    onRegionChosen = { region ->
+                        app.selectRegion(region.regionCode)
+                        app.navigate(VScreen.OVERVIEW)
+                    },
                 )
-                placements.forEach { (code, align, verticalInset) ->
-                    val region = byCode[code] ?: return@forEach
-                    val verticalModifier = when (align) {
-                        Alignment.TopStart, Alignment.TopEnd -> Modifier.padding(top = verticalInset)
-                        Alignment.BottomStart, Alignment.BottomEnd -> Modifier.padding(bottom = verticalInset)
-                        else -> Modifier
-                    }
-                    R15RegionOverlay(
-                        region,
-                        modifier = verticalModifier.align(align).padding(horizontal = 3.dp),
-                        onClick = {
-                            app.selectRegion(region.regionCode)
-                            app.navigate(VScreen.OVERVIEW)
-                        },
-                    )
-                }
             }
 
             Surface(
@@ -147,35 +134,6 @@ internal fun R15CinematicHero(
                     R9Counter(services, "服务", Color(0xFF926CE5), "✧",
                         Modifier.weight(1f).clickable { app.navigate(VScreen.SERVICES) })
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun R15RegionOverlay(region: RegionPresentation, modifier: Modifier, onClick: () -> Unit) {
-    Surface(
-        modifier = modifier.width(110.dp).clickable(onClick = onClick)
-            .testTag("pdig.r15.hero.region." + region.regionCode),
-        color = Color.White.copy(alpha = .94f),
-        shape = RoundedCornerShape(13.dp),
-        border = BorderStroke(1.dp, Color(0xFFD0E3F9)),
-        shadowElevation = 2.dp,
-    ) {
-        Row(
-            Modifier.padding(horizontal = 7.dp, vertical = 7.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            Text(regionFlag(region.regionCode), fontSize = 16.sp)
-            Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                Text(region.displayName, color = R9.Ink,
-                    fontWeight = FontWeight.Bold, fontSize = 10.sp,
-                    maxLines = 1, overflow = TextOverflow.Ellipsis)
-                Text(
-                    region.cardCount.toString() + " 张卡 · " + region.phoneCount + " 号",
-                    fontSize = 8.sp, color = R9.Muted, maxLines = 1,
-                )
             }
         }
     }

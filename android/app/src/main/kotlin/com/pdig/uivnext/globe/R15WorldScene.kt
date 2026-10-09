@@ -122,7 +122,7 @@ internal fun R15WorldScene(
                 .testTag("pdig.r15.actual-links")
                 .pointerInput(controller, regions) {
                     detectTapGestures { tap ->
-                        val radius = min(size.width * .42f, size.height * .47f) * controller.camera.zoom
+                        val radius = r16SceneRadius(size.width.toFloat(), size.height.toFloat(), controller.camera.zoom)
                         val center = Offset(size.width * .5f, size.height * .5f)
                         val hit = regions.firstOrNull { region ->
                             val position = project(
@@ -138,7 +138,7 @@ internal fun R15WorldScene(
                     }
                 },
         ) {
-            val radius = min(size.width * .42f, size.height * .47f) * camera.zoom
+            val radius = r16SceneRadius(size.width, size.height, camera.zoom)
             val cx = size.width / 2f
             val cy = size.height / 2f
             val indexed = regions.associateBy { it.regionCode }
