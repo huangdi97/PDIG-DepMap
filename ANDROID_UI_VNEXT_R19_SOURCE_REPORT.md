@@ -3,8 +3,8 @@
 > 2026-10-09 · `feat/android-ui-vnext-translation`
 >
 > R19 is the source/design closure after R18 lifecycle density. It adds the
-> product-level Impact Lens, repairs recovery semantics, restores the frozen four-item
-> primary IA, closes adaptive phone/tablet/expanded parity for lifecycle facts, and
+> product-level Impact Lens, repairs recovery semantics, preserves the intentional
+> five-item primary IA, closes adaptive phone/tablet/expanded parity for lifecycle facts, and
 > freezes the production-binding architecture.
 >
 > This report **does not claim fresh runtime PASS**.
@@ -17,7 +17,7 @@ R19_IMPACT_LENS = IMPLEMENTED_IN_REFERENCE_UI
 R19_CARD_LIFECYCLE = IMPLEMENTED_IN_REFERENCE_UI
 R19_NUMBER_LIFECYCLE = IMPLEMENTED_IN_REFERENCE_UI
 R19_KEEP_NUMBER_ROLE = IMPLEMENTED_IN_REFERENCE_UI
-R19_FOUR_ITEM_PRIMARY_IA = RESTORED
+R19_FIVE_ITEM_PRIMARY_IA = PRESERVED
 R19_RECOVERY_UNIQUENESS_SEMANTICS = CORRECTED
 R19_ADAPTIVE_PARITY = SOURCE_COMPLETE
 R19_PRODUCTION_BINDING_ARCHITECTURE = DESIGN_FROZEN
@@ -110,25 +110,27 @@ Consequences:
 This is a product correctness change in the reference presentation model only; it
 does not change Canonical schema.
 
-## 4. Four-item primary navigation restored
+## 4. Five-item primary navigation is a product decision
 
-v2.3 freezes:
+The Android product decision is:
 
 ```text
-现在 / 基础设施 / 变更 / 记录
+现在 / 基础设施 / 变更 / 记录 / 我
 ```
 
-The branch still contained `我` inside `PRIMARY_ENTRIES`, despite comments and
-reference visuals describing four items.
+`我` is intentionally promoted, not an accidental extra tab. It owns personal
+preferences, privacy, sources/settings entry context, and the user's digital-life
+workspace.
 
-R19 fixes:
-- primary bottom navigation = exactly four destinations;
-- `我` moves to the utility/account surface;
-- phone enters it through the avatar;
-- wide layouts keep it in the lower utility rail;
-- Up from `我` returns to the invoking context.
+R19 therefore:
+- keeps exactly five primary destinations on phone;
+- keeps the same five destinations in the wide primary rail;
+- treats `我` as a root destination with no hierarchical Up parent;
+- may retain a top-right avatar as a shortcut, but never as a substitute;
+- keeps Settings / Personalization / Sources semantically under the `我` primary
+  selection on wide navigation.
 
-Unit contracts pin the IA so a fifth primary tab cannot silently return.
+Unit and runtime contracts pin the five-item IA so cleanup cannot silently demote it.
 
 ## 5. Card lifecycle parity
 
