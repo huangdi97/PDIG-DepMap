@@ -102,11 +102,13 @@ private fun TopCommandBar(app: VAppState, compact: Boolean, onHelp: (() -> Unit)
                 .padding(horizontal = if (compact) VSpacing.Lg else VSpacing.Xxl),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (app.canGoBack()) {
+            // Up in the app bar follows PRODUCT HIERARCHY on every Android
+            // viewport. System back still uses chronological app.back() history.
+            if (app.canNavigateUp()) {
                 Surface(
                     modifier = Modifier
                         .size(48.dp)
-                        .clickable { app.back() },
+                        .clickable { app.navigateUp() },
                     color = if (compact) PdigV2Colors.Surface.copy(alpha = 0f) else PdigV2Colors.SurfaceGlass,
                     shape = RoundedCornerShape(VRadius.Sm),
                 ) {
