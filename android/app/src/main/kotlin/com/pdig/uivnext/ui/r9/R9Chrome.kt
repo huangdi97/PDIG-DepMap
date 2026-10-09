@@ -20,7 +20,7 @@ import com.pdig.uivnext.ui.PRIMARY_ENTRIES
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.isEntrySelected
 
-/** R9 phone primary nav: compact 4-item reference shell, 48dp hit targets. */
+/** R19 phone primary nav: intentional 5-item consumer shell, 48dp hit targets. */
 @Composable
 internal fun R9BottomNav(app: VAppState) {
     Surface(
