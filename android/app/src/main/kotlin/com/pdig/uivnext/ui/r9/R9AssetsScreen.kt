@@ -294,7 +294,10 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
                     )
                 }
                 if(number.role == "keep") R9Badge("保号", R9.Amber)
-                if(number.recoveryOnly) R9Badge("恢复依赖 · 待核实", R9.Amber)
+                when {
+                    number.uniqueRecoveryPath == true -> R9Badge("唯一恢复", R9.Rose)
+                    number.recoveryOnly -> R9Badge("恢复用途 · 唯一性未知", R9.Amber)
+                }
             }
             Text("›", color = R9.Muted, fontSize = 20.sp)
         }
