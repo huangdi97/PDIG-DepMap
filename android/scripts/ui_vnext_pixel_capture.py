@@ -471,8 +471,6 @@ def main():
     else:
         raise RuntimeError("The compact inline card-art utility is missing")
     # R11: card art is an IN-DETAIL micro action, not a giant Studio.
-
-        raise RuntimeError("The compact inline card-art utility is missing")
     capture("04e-card-presets-inline")
     require_screen("04e-card-presets-inline", "选择内置卡面", "原卡面", "海洋", "相册换图")
     if not tap_retry("海洋", exact=True):
