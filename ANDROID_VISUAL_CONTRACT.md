@@ -57,15 +57,16 @@
 - **Reference**：Desktop Card Detail。
 - **Rationale**：COMPACT 纵向堆叠；EXPANDED/MEDIUM 两栏（Identity 33% / Info 67%）。
 
-## 05-card-studio-glass / 06-card-studio-city（卡面定制）
+## 05-card-image-ocean / 06-card-image-night（更换卡面图片）
 
 - **Primary object**：Live Preview（实时卡面）。
-- **Secondary object**：预设库（glass/city/…）、属性与遮蔽 Inspector。
-- **Hierarchy**：标题 → Preview（始终可达）→ 预设 → 属性。
-- **Required states**：glass != city（视觉 + SHA 互异，Variant Truth）；保存=本地偏好（不写 .depmap）。
-- **Forbidden**：文件名 glass 渲染 city；Preview 被编辑面板遮挡。
-- **Reference**：Desktop Card Studio Glass / City。
-- **Rationale**：手机 Preview-first（上预览下编辑）；大屏三栏（预设/预览/属性）。
+- **Secondary object**：系统相册入口 + 少量内置图片（原卡面 / 海洋 / 云蓝 / 霞光 / 星夜）。
+- **Hierarchy**：标题 / 保存 → Preview → 选择图片；这是小功能，不是工程 Studio。
+- **Required states**：ocean != night（视觉 + SHA 互异）；保存后 List / Inspector / Detail / Preview 同一图片；保存仅写本机 PresentationProfile。
+- **Privacy**：初始不遮蔽；是否遮蔽由用户控制。相册图片转存为 app-private 安全 JPEG filename，不保存任意 URI/path。
+- **Forbidden**：material / layout / hex / internal preset id；宽屏恢复三栏 Inspector；Preview 被图片选择区遮挡；图片写入 .depmap。
+- **Reference**：Android R10/R19 consumer card-image decision（Desktop old Studio 仅为历史视觉参考，不再控制 Android Card UX）。
+- **Rationale**：COMPACT 填充内容宽；MEDIUM 居中 ≤680dp；EXPANDED 居中 ≤760dp，只增加留白，不增加工程控制。
 
 ## 07-numbers（号码）
 
