@@ -52,7 +52,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 val items = if(zero) emptyList() else UiVNextDemoFixture.accounts.filter { scoped(it.region) }
                 R9CounterBanner(items.size, "账户", "身份与恢复入口")
                 items.forEach { a ->
-                    R9ObjectRow(a.name, "${a.provider} · ${a.maskedIdentifier}",
+                    R9ObjectRow(a.name, "${a.provider} · ${if (app.privacyMask) "标识已遮蔽" else a.maskedIdentifier}",
                         "验证：${a.authMethods.joinToString(" / ")}",
                         "恢复：${a.recoveryRoute}", regionFlag(a.region), a.provider.take(1),
                         if(a.attention) "恢复需关注" else "已记录",
@@ -64,7 +64,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 val items = if(zero) emptyList() else UiVNextDemoFixture.emails.filter { scoped(it.region) }
                 R9CounterBanner(items.size, "邮箱", "登录 · 通知 · 恢复")
                 items.forEach { a ->
-                    R9ObjectRow(a.name, "${a.maskedAddress} · ${a.provider}",
+                    R9ObjectRow(a.name, "${if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress} · ${a.provider}",
                         "角色：${a.roles.joinToString(" / ")}",
                         "关联：${a.linkedServiceCount} 项", regionFlag(a.region), "@",
                         if(a.recoveryOnly) "唯一恢复" else "已记录",
@@ -111,7 +111,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                         "更换前确认替代路径", regionFlag(a.region), "☎", "需要核对", R9.Amber)
                 }
                 recoveryEmails.forEach { a ->
-                    R9ObjectRow(a.name, a.maskedAddress, "恢复路径：邮箱",
+                    R9ObjectRow(a.name, if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress, "恢复路径：邮箱",
                         "停用前确认替代路径", regionFlag(a.region), "@", "唯一恢复", R9.Rose)
                 }
                 devices.forEach { a ->

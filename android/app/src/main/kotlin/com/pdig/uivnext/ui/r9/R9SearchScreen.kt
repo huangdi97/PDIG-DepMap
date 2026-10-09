@@ -128,7 +128,7 @@ internal fun R9SearchScreen(app: VAppState) {
                     "卡片") { app.openCard(card.id) }
             }
             filteredNumbers.forEach { number ->
-                R9SearchResult(app.numberDisplayName(number.id, number.maskedNumber),
+                R9SearchResult(app.numberDisplayNameForScreen(number.id, number.maskedNumber),
                     "${r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true)} · ${regionFlag(number.region)} · ${number.carrier}",
                     "号码") { app.openNumber(number.id) }
             }
@@ -141,7 +141,7 @@ internal fun R9SearchScreen(app: VAppState) {
             }
             filteredAccounts.forEach { account ->
                 R9SearchResult(account.name,
-                    "${regionFlag(account.region)} ${account.provider} · ${account.maskedIdentifier}",
+                    "${regionFlag(account.region)} ${account.provider} · ${if (app.privacyMask) "标识已遮蔽" else account.maskedIdentifier}",
                     "账户") {
                     app.selectRegion(account.region)
                     app.navigateFromSearch(VScreen.ACCOUNTS)
@@ -149,7 +149,7 @@ internal fun R9SearchScreen(app: VAppState) {
             }
             filteredEmails.forEach { mail ->
                 R9SearchResult(mail.name,
-                    "${regionFlag(mail.region)} ${mail.provider} · ${mail.maskedAddress}",
+                    "${regionFlag(mail.region)} ${mail.provider} · ${if (app.privacyMask) "邮箱已遮蔽" else mail.maskedAddress}",
                     "邮箱") {
                     app.selectRegion(mail.region)
                     app.navigateFromSearch(VScreen.EMAILS)
