@@ -290,7 +290,7 @@ def main():
         time.sleep(2)
     if not entered_now:
         diagnose_navigation("onboarding-to-now-timeout")
-        raise RuntimeError("Onboarding did not reach the R13 Now screen within 48s")
+        raise RuntimeError("Onboarding did not reach the R19 Now screen within 48s")
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "· R19")
     # An existing CPU fallback showing a photograph is not proof of R15.
@@ -389,19 +389,18 @@ def main():
         ui = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
         if not any(short_sha in line for line in ui):
             raise RuntimeError(f"Displayed preview source SHA {short_sha} missing from 01-now UI XML")
-    # The user's fifth root tab is a real workspace, not a decorative icon.
-    # Check it *before* later Studio interaction to distinguish ME route bugs
-    # from bugs caused by leaving a child customization screen.
-    if not tap_retry("我", exact=True, prefer_bottom=True):
-        raise RuntimeError("The fifth primary navigation item (我) is not clickable")
-    capture("01a-me-from-primary-nav")
+    # R19 freezes four primary destinations. "我" is a utility workspace opened
+    # from the top-right avatar, never a fifth bottom-nav item.
+    if not tap_retry("我", exact=True):
+        raise RuntimeError("The top-right profile/avatar entry (我) is not clickable")
+    capture("01a-me-from-avatar")
     try:
-        require_screen("01a-me-from-primary-nav", "我的数字生活", "隐私与个人偏好")
+        require_screen("01a-me-from-avatar", "我的数字生活", "隐私与个人偏好")
     except RuntimeError:
-        diagnose_navigation("me-from-primary-nav")
+        diagnose_navigation("me-from-avatar")
         raise
-    if not tap_retry("现在", exact=True, prefer_bottom=True):
-        raise RuntimeError("Could not return from 我 to 现在 through root navigation")
+    if not tap_retry("返回上一级", exact=True):
+        raise RuntimeError("Profile workspace did not expose hierarchical Up")
     capture("01b-now-returned-from-me")
     require_screen("01b-now-returned-from-me", "你的全球数字基础设施")
 
@@ -444,15 +443,35 @@ def main():
     require_screen("04-card-detail", "基本信息")
     for name, shot, required in (
         ("关联服务", "04b-card-services", "关联服务"),
-        ("账单", "04c-card-statements", "尚未导入可核验的账单"),
+        ("账单", "04c-card-statements", "账单与分期"),
         ("安全与风险", "04d-card-risk", "安全与风险"),
     ):
         if not tap_retry(name, exact=True):
             raise RuntimeError(f"Missing genuine card-detail tab: {name}")
         capture(shot)
         require_screen(shot, required)
+    # R19 Impact Lens is part of focused object detail and must preserve
+    # unknown-vs-confirmed semantics at runtime.
+    for attempt in range(6):
+        if any("如果它发生变化？" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1760", "530", "760", "360")
+        time.sleep(1)
+    else:
+        capture("04dd-card-impact-missing")
+        raise RuntimeError("R19 Card Impact Lens is unreachable")
+    capture("04dd-card-impact")
+    require_screen("04dd-card-impact", "如果它发生变化？", "已确认依赖", "未确认关系")
+    # Return toward the card face before testing the minor artwork utility.
+    for attempt in range(6):
+        if tap_match("内置卡面", exact=True):
+            break
+        adb("shell", "input", "swipe", "530", "760", "530", "1820", "360")
+        time.sleep(1)
+    else:
+        raise RuntimeError("The compact inline card-art utility is missing")
     # R11: card art is an IN-DETAIL micro action, not a giant Studio.
-    if not tap_retry("内置卡面", exact=True):
+
         raise RuntimeError("The compact inline card-art utility is missing")
     capture("04e-card-presets-inline")
     require_screen("04e-card-presets-inline", "选择内置卡面", "原卡面", "海洋", "相册换图")
@@ -552,7 +571,7 @@ def main():
     if not tap_retry("+86 138****8823"):
         raise RuntimeError("Recorded number fallback was not selectable")
     capture("08b-number-detail")
-    require_screen("08b-number-detail", "安全与恢复", "关联服务")
+    require_screen("08b-number-detail", "号码生命周期", "关联服务")
     if not tap_retry("修改名称 →", exact=True):
         raise RuntimeError("Number alias edit control unavailable")
     if not any("给号码命名" in label_of(n) for n in xml_nodes()):
@@ -576,32 +595,41 @@ def main():
     require_screen("08d-number-studio-edited", "保存外观")
     if not tap_retry("保存外观", exact=True):
         raise RuntimeError("Number Studio: saving presentation profile failed")
-    # Supporting screens must also be the new R9 renderer and expose actual
-    # persisted settings/source truth. Avoid static source-only acceptance.
+    # Return to the actual Number Detail and prove the R19 Impact Lens there.
     adb("shell", "input", "keyevent", "4")
     time.sleep(2)
+    for attempt in range(7):
+        if any("如果它发生变化？" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1760", "530", "720", "360")
+        time.sleep(1)
+    else:
+        capture("08e-number-impact-missing")
+        raise RuntimeError("R19 Number Impact Lens is unreachable")
+    capture("08e-number-impact")
+    require_screen("08e-number-impact", "如果它发生变化？", "唯一恢复路径", "未确认关系")
     adb("shell", "input", "keyevent", "4")
     time.sleep(2)
-    # Fifth tab replaces the four-icon engineering toolbar. Verify user
-    # privacy control and previous-screen back navigation from the actual app.
+
+    # Supporting screens must also be the new R19 renderer and expose actual
+    # persisted settings/source truth. "我" is an avatar utility route, not a
+    # fifth primary destination.
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
     time.sleep(3)
-    if not tap_retry("我", exact=True, prefer_bottom=True):
-        raise RuntimeError("Fifth Me bottom-navigation label was not yet composed")
-    # Dispatch success is not route success. The live content must change to
-    # the Me workspace; retry the actual *bottom* tab, not the header shortcut.
+    if not tap_retry("我", exact=True):
+        raise RuntimeError("Profile/avatar entry was not composed after cold start")
     for me_attempt in range(4):
         labels = [label_of(node) for node in xml_nodes()]
         if any("我的数字生活" in label for label in labels):
             break
         print("ME_NAV_RETRY", me_attempt + 1, "Me content not yet visible", flush=True)
         time.sleep(2)
-        if not tap_retry("我", exact=True, prefer_bottom=True, retries=2):
+        if not tap_retry("我", exact=True, retries=2):
             break
     else:
         diagnose_navigation("me-route-not-rendered")
-        raise RuntimeError("Bottom Me tab dispatched but R10MeScreen did not render")
+        raise RuntimeError("Profile avatar dispatched but R10MeScreen did not render")
     capture("09-me")
     require_screen("09-me", "我的数字生活", "敏感信息遮蔽", "已关闭")
     if not tap_retry("敏感信息遮蔽", exact=True):
