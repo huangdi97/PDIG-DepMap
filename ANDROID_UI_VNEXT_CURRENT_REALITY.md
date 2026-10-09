@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-09 · R19**
+> **Current reality · 2026-10-09 · R20**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,7 +13,7 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R19
+ANDROID_UI_VNEXT_SOURCE = R20
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
@@ -22,12 +22,12 @@ PRODUCTION_VNEXT_CUTOVER = HOLD
 CANONICAL_SCHEMA_CHANGE_FOR_R19_UI = NONE
 DEPMAP_PAYLOAD_CHANGE_FOR_R19_UI = NONE
 
-FRESH_R19_BUILD = NOT_RUN
-FRESH_R19_UNIT_TESTS = NOT_RUN
-FRESH_R19_INSTRUMENTATION = NOT_RUN
-FRESH_R19_PHONE_PIXELS = NOT_RUN
-FRESH_R19_TABLET_PIXELS = NOT_RUN
-FRESH_R19_HUMAN_ACCEPTANCE = NOT_RUN
+FRESH_R20_BUILD = NOT_RUN
+FRESH_R20_UNIT_TESTS = NOT_RUN
+FRESH_R20_INSTRUMENTATION = NOT_RUN
+FRESH_R20_PHONE_PIXELS = NOT_RUN
+FRESH_R20_TABLET_PIXELS = NOT_RUN
+FRESH_R20_HUMAN_ACCEPTANCE = NOT_RUN
 ```
 
 Do not reuse pre-R19 screenshots or old PASS statements as proof of the current
@@ -75,10 +75,10 @@ Globe tethers are geographic annotation tethers only. They are not graph edges.
 | Numbers | **IMPLEMENTED_SOURCE** |
 | Number Detail | **IMPLEMENTED_SOURCE** |
 | Number appearance customization | **IMPLEMENTED_SOURCE** |
-| Accounts | **IMPLEMENTED_SOURCE** |
-| Emails | **IMPLEMENTED_SOURCE** |
-| Devices | **IMPLEMENTED_SOURCE** |
-| Services | **IMPLEMENTED_SOURCE** |
+| Accounts | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens |
+| Emails | **IMPLEMENTED_SOURCE** — collection + recovery-aware focused detail + Impact Lens |
+| Devices | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens |
+| Services | **IMPLEMENTED_SOURCE** — collection + recorded incoming relations + Impact Lens |
 | Weaknesses | **IMPLEMENTED_SOURCE** |
 | Search | **IMPLEMENTED_SOURCE** |
 | Empty states | **IMPLEMENTED_SOURCE** |
@@ -181,7 +181,30 @@ The synthetic reference lens is not the production Continuity engine. Production
 binding must consume `AppContainer.impactFor(nodeId)` and future failure-domain-aware
 analysis.
 
-## 8. Search
+## 8. Secondary object detail closure
+
+R20 closes the remaining focused-detail gap for long-tail Infrastructure objects:
+
+```text
+Account = access / control identity
+Email   = communication / recovery identity
+Device  = physical access endpoint
+Service = dependency endpoint
+```
+
+Each now has:
+- direct collection-row entry;
+- direct Search entry;
+- object-specific identity/context;
+- truth-bounded Impact Lens;
+- explicit unknown semantics;
+- stable Header Up parent;
+- no executable Change CTA unless production supports that primitive.
+
+Adaptive Account/Email collections and Search subtitles also respect the workspace
+privacy mask.
+
+## 9. Search
 
 Source search now covers:
 - card/number names;
@@ -194,7 +217,7 @@ Source search now covers:
 
 Search only searches recorded/reference data; absence is not proof of nonexistence.
 
-## 9. Production binding
+## 10. Production binding
 
 Current reference route:
 ```text
@@ -234,7 +257,7 @@ Source progress now also includes:
 
 These are read-only seams. They do not switch the launcher or claim R19 lifecycle persistence.
 
-## 10. Canonical boundary
+## 11. Canonical boundary
 
 Current Canonical schema does **not** yet define R19 card/number lifecycle fields as
 cross-platform semantic fields.
@@ -256,9 +279,9 @@ Spec
 → UI
 ```
 
-## 11. Tests / evidence present in source
+## 12. Tests / evidence present in source
 
-R19 has source contracts for:
+R20 has source contracts for:
 - lifecycle fixture truth/unknown behavior;
 - Impact Lens unknown/evidence boundaries;
 - keep-number identity;
@@ -274,7 +297,7 @@ R19 has source contracts for:
 These tests are **present**. They are not called PASS until run on the current
 exact head.
 
-## 12. Current remaining evidence gates
+## 13. Current remaining evidence gates
 
 ```text
 1. exact-head build
@@ -290,15 +313,16 @@ exact head.
 
 Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 
-## 13. Source/design closure documents
+## 14. Source/design closure documents
 
 - `ANDROID_UI_VNEXT_R19_SOURCE_REPORT.md`
+- `ANDROID_UI_VNEXT_R20_SOURCE_REPORT.md`
 - `ANDROID_REFERENCE_MAPPING.md`
 - `ANDROID_VISUAL_CONTRACT.md`
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
 - `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
 
-## 14. Honest stop line
+## 15. Honest stop line
 
 ```text
 SOURCE_DESIGN = COMPLETE
@@ -307,5 +331,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head runtime
+The next blocker is no longer “missing UI design.” It is fresh exact-head R20 runtime
 verification and, after reference acceptance, production read-model binding.
