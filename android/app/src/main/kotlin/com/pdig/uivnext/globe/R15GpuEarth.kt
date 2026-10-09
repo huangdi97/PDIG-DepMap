@@ -33,10 +33,13 @@ internal fun supportsR15GpuEarth(context: Context): Boolean {
 internal class R15GpuEarthView(
     context: Context,
     onFailure: () -> Unit,
+    onReady: () -> Unit,
 ) : GLSurfaceView(context) {
-    private val worldRenderer = R15GpuEarthRenderer(context.applicationContext) {
-        post { onFailure() }
-    }
+    private val worldRenderer = R15GpuEarthRenderer(
+        context.applicationContext,
+        failure = { post { onFailure() } },
+        ready = { post { onReady() } },
+    )
 
     init {
         setEGLContextClientVersion(2)
@@ -57,6 +60,7 @@ internal class R15GpuEarthView(
 private class R15GpuEarthRenderer(
     private val context: Context,
     private val failure: () -> Unit,
+    private val ready: () -> Unit,
 ) : GLSurfaceView.Renderer {
     @Volatile var camera: GlobeCamera = focusCamera(16f, 107f)
     private var width = 1
@@ -77,6 +81,7 @@ private class R15GpuEarthRenderer(
             uploadTexture(2, "earth/cloud_2048.png")
             ready = true
             Log.i("PDIG_R15", "R15_GPU_TEXTURES_READY")
+            ready()
         } catch (t: Throwable) {
             ready = false
             Log.e("PDIG_R15", "R15_GPU_INIT_FAILED", t)
