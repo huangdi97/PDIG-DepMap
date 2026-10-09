@@ -37,7 +37,7 @@ source.
 | Area | Current reality |
 | --- | --- |
 | Primary IA | **IMPLEMENTED_SOURCE** — exactly Now / Infrastructure / Change / Records / Me |
-| Me | **IMPLEMENTED_SOURCE** — intentional fifth primary destination; avatar may remain as shortcut |
+| Me | **IMPLEMENTED_SOURCE** — intentional fifth primary destination; compact consumer workspace + dedicated Medium/Expanded adaptive workspace; avatar may remain as shortcut |
 | Infrastructure secondary | **IMPLEMENTED_SOURCE** — Overview/Cards/Numbers/Accounts/Emails/Devices/Services/Weaknesses |
 | Breakpoints | **IMPLEMENTED_SOURCE** — Compact <600dp, Medium 600–839dp, Expanded >=840dp |
 | System Back | **IMPLEMENTED_SOURCE** — chronological stack |
