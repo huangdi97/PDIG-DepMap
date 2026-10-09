@@ -292,7 +292,7 @@ def main():
         diagnose_navigation("onboarding-to-now-timeout")
         raise RuntimeError("Onboarding did not reach the R13 Now screen within 48s")
     capture("01-now")
-    require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "· R18")
+    require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "· R19")
     # An existing CPU fallback showing a photograph is not proof of R15.
     # Exact-head Preview MUST initialize the independent GPU shader.
     globe_labels = [label_of(n) for n in xml_nodes() if "全球基础设施导航器" in label_of(n)]
