@@ -36,8 +36,8 @@ source.
 
 | Area | Current reality |
 | --- | --- |
-| Primary IA | **IMPLEMENTED_SOURCE** — exactly Now / Infrastructure / Change / Records |
-| Me | **IMPLEMENTED_SOURCE** — utility/account workspace, phone avatar + wide lower rail |
+| Primary IA | **IMPLEMENTED_SOURCE** — exactly Now / Infrastructure / Change / Records / Me |
+| Me | **IMPLEMENTED_SOURCE** — intentional fifth primary destination; avatar may remain as shortcut |
 | Infrastructure secondary | **IMPLEMENTED_SOURCE** — Overview/Cards/Numbers/Accounts/Emails/Devices/Services/Weaknesses |
 | Breakpoints | **IMPLEMENTED_SOURCE** — Compact <600dp, Medium 600–839dp, Expanded >=840dp |
 | System Back | **IMPLEMENTED_SOURCE** — chronological stack |
@@ -256,7 +256,7 @@ R19 has source contracts for:
 - separate migration target;
 - Change impact summary;
 - aliases/navigation hierarchy;
-- four-item primary IA;
+- five-item primary IA;
 - search lifecycle/alias semantics;
 - projected region label geometry;
 - compact visual hierarchy;
