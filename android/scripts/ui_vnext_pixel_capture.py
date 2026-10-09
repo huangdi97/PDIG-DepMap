@@ -505,11 +505,21 @@ def main():
     if not tap_retry("变更", exact=True, prefer_bottom=True):
         diagnose_navigation("05-change-tap-missing", before_pid)
         raise RuntimeError("Change root navigation unavailable directly after Cards")
-    capture("05-change")
+    capture("05-change-center")
     after_pid = adb("shell", "pidof", PACKAGE, check=False).stdout.strip()
     if not before_pid or before_pid != after_pid:
         diagnose_navigation("05-change-process-restarted", before_pid)
         raise RuntimeError(f"PDIG process restarted when navigating to Change: {before_pid} -> {after_pid}")
+    require_screen(
+        "05-change-center",
+        "正在进行的变更",
+        "准备改变",
+        "更换手机号（进行中）",
+        "更换银行卡",
+    )
+    if not tap_retry("更换手机号（进行中）", exact=True):
+        raise RuntimeError("Change Center did not open the active phone change")
+    capture("05-change")
     require_screen("05-change", "影响分析 · 关键服务", "旧手机号")
     if not tap_retry("查看本阶段核验清单 →", exact=True):
         adb("shell", "input", "swipe", "530", "1650", "530", "800", "400")
