@@ -389,6 +389,16 @@ def main():
         ui = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
         if not any(short_sha in line for line in ui):
             raise RuntimeError(f"Displayed preview source SHA {short_sha} missing from 01-now UI XML")
+    primary_ui = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
+    missing_primary = [
+        label for label in ("现在", "基础设施", "变更", "记录", "我")
+        if not any(label == line.strip() for line in primary_ui)
+    ]
+    if missing_primary:
+        raise RuntimeError(
+            "R19 five-primary navigation missing from actual phone pixels: " +
+            ", ".join(missing_primary)
+        )
     # Product decision: "我" is the intentional fifth primary destination.
     # Prove the bottom-nav item itself, not merely a top-right avatar shortcut.
     if not tap_retry("我", exact=True, prefer_bottom=True):
