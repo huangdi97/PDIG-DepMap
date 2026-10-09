@@ -390,7 +390,29 @@ Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
 - `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
 
-## 16. Honest stop line
+## 16. Identity / Recovery future-lens closure
+
+R21 closes the **design** of the two remaining long-term lenses without exposing
+ghost capabilities.
+
+Identity:
+- governed proposal complete: `spec/proposals/identity-context-v1.md`;
+- membership is a reviewed grouping primitive, not a Dependency;
+- Canonical schema/repository/conformance not implemented;
+- visible selector = HOLD.
+
+Recovery:
+- incident/solver proposal complete: `spec/proposals/recovery-incident-mode-v1.md`;
+- composes existing FailureDomain, RecoveryCycle and ProviderPolicy semantics;
+- requires explicit unavailable-state authority and surviving-path solver;
+- visible Recovery UI = FORBIDDEN until solver/conformance/runtime support.
+
+Shared UX:
+- `spec/ui-vnext/RECOVERY_AND_IDENTITY_LENS_UX_CONTRACT.md`;
+- neither becomes a sixth/seventh primary tab;
+- Android `VNextLensAvailability` makes the HOLD executable.
+
+## 17. Honest stop line
 
 ```text
 SOURCE_DESIGN = COMPLETE
