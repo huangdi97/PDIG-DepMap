@@ -92,7 +92,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
                     profile = profile, modifier = Modifier.fillMaxWidth(),
                 )
                 if (showSimpleArt) {
-                    Text("选择卡面 · 仅更换外观", color = R9.Ink,
+                    Text("选择内置卡面", color = R9.Ink,
                         fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     Row(
                         Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())
@@ -105,7 +105,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
                             val preview = r10ArtProfile(current, art)
                             val selected = selectedCardArt(profile) == art
                             Column(
-                                Modifier.width(116.dp).clickable {
+                                Modifier.width(92.dp).clickable {
                                     app.savePresentationProfile(preview)
                                     showSimpleArt = false
                                 }.testTag("pdig.r11.card.preset.$art"),
@@ -126,39 +126,38 @@ internal fun R9CardDetailScreen(app: VAppState) {
                             }
                         }
                     }
-                    Surface(
-                        modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 44.dp)
-                            .clickable { picturePicker.launch("image/*") }
-                            .testTag("pdig.r11.card.change-image"),
-                        color = R9.Mist, shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Box(Modifier.padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                            Text("从相册选择图片 →", color = R9.Blue,
-                                fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-                        }
-                    }
                 }
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+        // Card art is deliberately a MINOR inline utility, never a fifth information
+        // tab or a full-page editing workbench. Gallery is hidden until requested.
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically) {
             R9Badge("● ${statusLabelZh(card.status)}", r9CardStatusTint(card.status))
-            Text("卡面图片只影响外观，不影响真实资产", color = R9.Muted, fontSize = 10.sp)
+            Spacer(Modifier.weight(1f))
+            Text(if (showSimpleArt) "收起卡面" else "内置卡面",
+                modifier = Modifier.defaultMinSize(minHeight = 44.dp)
+                    .clickable { showSimpleArt = !showSimpleArt }
+                    .padding(horizontal = 3.dp, vertical = 13.dp)
+                    .testTag("pdig.r11.card.presets.toggle"),
+                color = R9.Muted, fontSize = 11.sp)
+            Text("相册换图",
+                modifier = Modifier.defaultMinSize(minHeight = 44.dp)
+                    .clickable { picturePicker.launch("image/*") }
+                    .padding(horizontal = 3.dp, vertical = 13.dp)
+                    .testTag("pdig.r11.card.change-image"),
+                color = R9.Blue, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
         if (importFailed) Text("图片读取失败或超过 12MB，请换一张。",
             color = R9.Rose, fontSize = 11.sp)
-        // Four functional tabs AND the lightweight change-art action share one row.
+        // Four task-oriented tabs. Artwork selection is not a fifth task.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            listOf("概览", "关联服务", "账单", "安全与风险", "换卡面").forEachIndexed { index, label ->
-                val active = if (index == 4) showSimpleArt else tab == index && !showSimpleArt
+            listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, label ->
+                val active = tab == index
                 Surface(
                     modifier = Modifier.weight(1f).height(48.dp)
-                        .clickable {
-                            if(index == 4) showSimpleArt = !showSimpleArt
-                            else { tab = index; showSimpleArt = false }
-                        }
-                        .testTag(if (index == 4) "pdig.r11.card.presets.toggle"
-                                 else "pdig.card.detail.tab.${index}"),
+                        .clickable { tab = index; showSimpleArt = false }
+                        .testTag("pdig.card.detail.tab.${index}"),
                     color = if(active) R9.Mist else Color.White,
                     shape = RoundedCornerShape(11.dp),
                     border = BorderStroke(1.dp, if(active) R9.Blue.copy(alpha = .25f) else R9.Line),

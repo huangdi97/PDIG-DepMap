@@ -408,10 +408,10 @@ def main():
         capture(shot)
         require_screen(shot, required)
     # R11: card art is an IN-DETAIL micro action, not a giant Studio.
-    if not tap_retry("换卡面", exact=True):
-        raise RuntimeError("The fifth, inline change-art action beside four detail tabs is missing")
+    if not tap_retry("内置卡面", exact=True):
+        raise RuntimeError("The compact inline card-art utility is missing")
     capture("04e-card-presets-inline")
-    require_screen("04e-card-presets-inline", "选择卡面 · 仅更换外观", "原卡面", "海洋", "从相册选择图片")
+    require_screen("04e-card-presets-inline", "选择内置卡面", "原卡面", "海洋", "相册换图")
     if not tap_retry("海洋", exact=True):
         raise RuntimeError("Compact card artwork option could not be selected")
     # Artwork changes do not reset the actively selected detail tab.
