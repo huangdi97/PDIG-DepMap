@@ -364,7 +364,48 @@ Still intentionally gated:
 - production Records read-model normalization;
 - production launcher cutover.
 
-## 12. Remaining Android closure
+## 12. Future Lens architecture is now design-complete
+
+R21 also closes the remaining architecture/design gaps without exposing unsupported
+screens.
+
+### Identity Context
+
+`spec/proposals/identity-context-v1.md` freezes:
+- context as governed grouping/query primitive, not NodeKind/Dependency;
+- first-class reviewable membership recommendation;
+- Region × Identity as query intersection;
+- migration/conformance/privacy rules;
+- no inference from region/provider/search similarity.
+
+### Recovery Incident Mode
+
+`spec/proposals/recovery-incident-mode-v1.md` freezes:
+- explicit incident authority;
+- available/unavailable/degraded/unknown factor state;
+- surviving roots and viable/blocked paths;
+- FailureDomain-aware independence;
+- RecoveryCycle and ProviderPolicy composition;
+- no score and no path-count shortcut;
+- explicit recovery verification/resolution;
+- secret-handling boundary.
+
+### Visibility gate
+
+`VNextLensAvailability` currently enforces:
+
+```text
+Region      visible
+Dependency  visible
+Change      visible
+Identity    hidden until Canonical
+Recovery    hidden until solver
+```
+
+Tests also pin that Lens growth cannot create a sixth/seventh primary tab or
+searchable ghost capability.
+
+## 13. Remaining Android closure
 
 Remaining work after current-head compile/tests:
 
@@ -384,7 +425,7 @@ human pixel review
 
 No pre-R21 screenshot can certify this head.
 
-## 13. Stop line
+## 14. Stop line
 
 ```text
 PRODUCT_DESIGN_GAPS_FOUND_IN_R21 = CLOSED_AT_SOURCE
