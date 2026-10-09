@@ -45,7 +45,7 @@ object UiVNextDemoFixture {
     )
 
     val numbers: List<UiVNextNumber> = listOf(
-        UiVNextNumber("num-cn-1", "主号 中国移动", "+86 138****8823", "CN", "+86", "中国移动", "SIM", "primary", listOf("银行验证", "注册", "2FA"), "active", true, true, preset = "country"),
+        UiVNextNumber("num-cn-1", "主号 中国移动", "+86 138****8823", "CN", "+86", "中国移动", "SIM", "primary", listOf("银行验证", "注册", "2FA"), "active", true, true, preset = "country", uniqueRecoveryPath = true),
         UiVNextNumber("num-cn-2", "工作副号", "+86 137****5510", "CN", "+86", "中国联通", "eSIM", "secondary", listOf("工作"), "active", false, false, preset = "work"),
         UiVNextNumber("num-cn-3", "保号副号", "+86 139****2204", "CN", "+86", "中国移动", "SIM", "keep", listOf("保号"), "active", false, false, preset = "recovery"),
         UiVNextNumber("num-cn-4", "新号（迁移中）", "+86 139****6421", "CN", "+86", "中国联通", "eSIM", "secondary", listOf("迁移目标"), "active", false, false, preset = "country"),
