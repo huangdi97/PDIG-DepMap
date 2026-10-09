@@ -119,6 +119,7 @@ class VAppState(
 
     var selectedCardId by mutableStateOf<String?>(null)
     var selectedNumberId by mutableStateOf<String?>(null)
+    var selectedSecondaryObjectId by mutableStateOf<String?>(null)
 
     /**
      * Every forward navigation records the actual screen of departure.
@@ -185,6 +186,20 @@ class VAppState(
         navBackTarget = screen
         screen = VScreen.NUMBER_DETAIL
         selectedNumberId = numberId
+    }
+
+    fun openSecondaryObject(detailScreen: VScreen, objectId: String) {
+        require(
+            detailScreen in setOf(
+                VScreen.ACCOUNT_DETAIL,
+                VScreen.EMAIL_DETAIL,
+                VScreen.DEVICE_DETAIL,
+                VScreen.SERVICE_DETAIL,
+            ),
+        ) { "Unsupported secondary detail route: $detailScreen" }
+        navBackTarget = screen
+        selectedSecondaryObjectId = objectId
+        screen = detailScreen
     }
 
     fun openCardCustomization(cardId: String) {
@@ -255,6 +270,10 @@ class VAppState(
         VScreen.CARD_DETAIL -> VScreen.CARDS
         VScreen.NUMBER_CUSTOMIZATION -> VScreen.NUMBER_DETAIL
         VScreen.NUMBER_DETAIL -> VScreen.NUMBERS
+        VScreen.ACCOUNT_DETAIL -> VScreen.ACCOUNTS
+        VScreen.EMAIL_DETAIL -> VScreen.EMAILS
+        VScreen.DEVICE_DETAIL -> VScreen.DEVICES
+        VScreen.SERVICE_DETAIL -> VScreen.SERVICES
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
         VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES, VScreen.OVERVIEW -> VScreen.INFRASTRUCTURE
         VScreen.CHANGE_PHONE -> VScreen.CHANGE
