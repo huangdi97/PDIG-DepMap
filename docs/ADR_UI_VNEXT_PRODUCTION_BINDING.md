@@ -1,7 +1,7 @@
 # ADR — UI vNext Production Binding
 
 > Date: 2026-10-09  
-> Status: **DESIGN_FROZEN / NOT_CUT_OVER**  
+> Status: **READ_ONLY_ADAPTER_SOURCE_IMPLEMENTED / NOT_CUT_OVER**  
 > Scope: Android UI vNext → existing Android production domain/runtime  
 > Canonical change: **NONE**
 
@@ -115,8 +115,11 @@ NOT production persistence semantics
 
 ## 3. Production read-model interface
 
-The production seam should expose an immutable snapshot rather than leaking
-repositories into Composables:
+The read-only source seam is now implemented at:
+
+`android/app/src/main/kotlin/com/pdig/uivnext/production/ProductionVNextReadModel.kt`
+
+It exposes an immutable snapshot rather than leaking repositories into Composables:
 
 ```kotlin
 interface VNextReadModelSource {
@@ -314,15 +317,25 @@ production plan says it is verified.
 - human visual acceptance;
 - Android Reference Freeze.
 
-### P1 — Read-only production adapter
-Bind:
+### P1 — Read-only production adapter — SOURCE IMPLEMENTED
+Implemented:
 - node inventory;
-- confirmed dependencies;
-- impact;
-- timeline;
-- plans.
+- active confirmed dependencies;
+- production ImpactResult mapping;
+- derived Timeline mapping;
+- ChangePlan / PlanDetail mapping;
+- pending proposal/candidate/drift counts kept separate from confirmed Reality;
+- source coverage counts.
 
-No lifecycle editing yet.
+Unit contracts ensure pending proposals are not promoted into confirmed edges and
+`done != verified` survives projection.
+
+Still not done in P1:
+- production launcher/UI binding;
+- object-specific identity normalization;
+- lifecycle editing.
+
+No lifecycle editing is enabled.
 
 ### P2 — Object identity normalization
 Add governed mapping for:
