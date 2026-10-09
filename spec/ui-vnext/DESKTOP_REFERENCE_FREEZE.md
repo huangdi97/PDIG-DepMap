@@ -3,12 +3,20 @@
 > Desktop Reference Freeze — 冻结设计契约（Human/Vision Final Review，2026-10-02，ACCEPTED）。
 > 本文件是跨端翻译（Platform Translation）的 spec 层依据；不可变标识见
 > `DESKTOP_REFERENCE_FREEZE_MANIFEST.json`（manifest + commit SHA，不建 tag）。
+>
+> **Post-freeze product IA revision（2026-10-09）**：本文件冻结的是 2026-10-02 的
+> Desktop visual baseline；其中“四个 Primary Nav”的产品 IA 条目已被更晚的产品决策覆盖。
+> 当前产品一级导航为 **现在 / 基础设施 / 变更 / 记录 / 我**。这不自动重写旧 Desktop
+> pixel golden；跨端实现与后续 Desktop revision 必须以
+> `spec/ui-vnext/IA.md` 和 `spec/ui-vnext/FIVE_PRIMARY_NAVIGATION_DECISION.md`
+> 的五项 IA 为准。
 
 ## 1. 冻结范围（FROZEN）
 
 以下设计方向已 Human 验收并冻结；任何平台翻译不得 redesign：
 
-- **Product IA**：Primary Nav = 现在 / 基础设施 / 变更 / 记录；
+- **Historical Desktop visual baseline IA**：截图冻结时 Primary Nav = 现在 / 基础设施 / 变更 / 记录；
+  **当前产品 IA 已在 freeze 后 revision 为五项并覆盖本条的产品语义**；
   Infrastructure Secondary = 总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点
 - **Globe**：Global Infrastructure Navigator（确定性渲染；真实地球资产；非纯装饰）
 - **Cards**：asset identity language（CardIdentitySystem；Grid / Detail 双尺度同渲染器）
