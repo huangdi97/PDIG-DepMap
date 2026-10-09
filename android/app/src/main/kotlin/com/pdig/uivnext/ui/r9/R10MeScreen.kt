@@ -77,7 +77,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                         Text("本机体验空间 · ${regions.size} 个已记录地区",
                             color = R9.Muted, fontSize = 11.sp)
                     }
-                    R9Badge("Preview", R9.Blue)
+                    R9Badge("本机", R9.Blue)
                 }
                 Surface(shape = RoundedCornerShape(13.dp), color = R9.Ice) {
                     Text("你的账户、号码与设备是一张连续性网络，而不只是资产清单。",
