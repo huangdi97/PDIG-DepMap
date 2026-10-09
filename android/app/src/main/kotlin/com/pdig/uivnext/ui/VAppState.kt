@@ -68,8 +68,11 @@ class VAppState(
 
     val globe = GlobeController(initialCamera)
 
-    /** 变更投影（Desktop Continuity 三态）：current / transition / after。After = Plan Projection（非现实）。 */
+    /** 手机号变更投影：current / transition / after。After = Plan Projection（非现实）。 */
     var changeProjection by mutableStateOf("transition")
+
+    /** 银行卡变更投影独立保存，避免两个场景切换时互相污染。 */
+    var cardChangeProjection by mutableStateOf("current")
 
     /** 证据参数：Studio 主题覆盖 + 实际渲染回读（expected==actual 校验）。 */
     var evidenceThemeId by mutableStateOf<String?>(null)
