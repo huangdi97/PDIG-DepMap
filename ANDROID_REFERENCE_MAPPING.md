@@ -1,6 +1,6 @@
 # ANDROID_REFERENCE_MAPPING.md
 
-> **R19 · 2026-10-09 · Android Light Reference source contract**
+> **R21 · 2026-10-09 · Android Light Reference source contract**
 >
 > This file maps the v2.3 product architecture and the human-selected light reference
 > board to Android native layouts. It is a **source/design contract**, not proof of
@@ -180,9 +180,10 @@ real source/timeline record exists.
 - unique recovery facts;
 - a safety score.
 
-Card vNext currently keeps the Impact Lens read-only. A new card-change CTA must
-bind the existing production payment REPLACE scenario rather than creating a
-parallel demo workflow.
+Because `replace_payment_card` is an active production scenario, R21 Card Detail
+exposes **分析更换此卡的影响** and enters the focused Change Card route. Preview
+remains projection-only; production execution must bind the existing payment
+scenario rather than creating a parallel demo workflow.
 
 ## 6. Card appearance customization
 
@@ -339,8 +340,7 @@ R20 source composition:
 Reference actions:
 - active Replace Phone → focused Change Phone choreography;
 - Prepare Replace Phone → focused Change Phone choreography;
-- Replace Card → choose the concrete Card and inspect Impact first; R20 does not
-  invent a disconnected card-plan workflow.
+- Replace Card → select a concrete Card → inspect Impact → focused R21 Change Card choreography.
 
 The Change root may describe a supported scenario, but executable mutation remains
 bound to production `ChangePrimitive / Scenario / ChangePlan` capability.
@@ -351,7 +351,37 @@ bound to production `ChangePrimitive / Scenario / ChangePlan` capability.
 - marking a plan executed because the user opened the Change Center;
 - treating Prepare / Change / Records as the same state.
 
-## 12. Change Phone — Continuity choreography
+## 12. Change Card — Payment continuity
+
+R21 adds the supported payment replacement reference.
+
+Hierarchy:
+
+```text
+Card Detail Impact Lens
+→ Change Card
+→ Current / Transition / After
+→ OLD CARD → recorded payment relations → optional NEW CARD
+→ 3-stage Continuity
+```
+
+Stages mirror production `replace_payment_card`:
+
+```text
+检查支付依赖
+迁移支付关系
+验证支付路径
+```
+
+Truth rules:
+- candidate replacement != recommendation;
+- migration complete != payment path verified;
+- verification requires real evidence in production;
+- After = Plan Projection only;
+- Change Card Up → Change;
+- Search “换卡” first routes to Cards so the user selects a target.
+
+## 13. Change Phone — Continuity choreography
 
 Three projections remain semantically distinct:
 
@@ -380,7 +410,7 @@ It does not copy showcase-only hard-coded numbers.
 
 `done != verified` remains mandatory.
 
-## 13. Accounts / Emails / Devices / Services / Weaknesses
+## 14. Accounts / Emails / Devices / Services / Weaknesses
 
 These remain Infrastructure secondary objects rather than new primary tabs.
 
@@ -416,7 +446,7 @@ The R20 focused details remain read-only when no production ChangePrimitive exis
 They must not invent a generic “开始变更” CTA merely to make every detail page look
 symmetric.
 
-## 14. Me — Personal Digital Life Workspace
+## 15. Me — Personal Digital Life Workspace
 
 `我` is the fifth primary destination, not a utility downgrade.
 
@@ -447,7 +477,34 @@ symmetric.
 - turning Me into a generic settings list;
 - inferring account completeness or safety from summary counts.
 
-## 15. Search
+## 16. Records — evidence trace
+
+Records answers:
+
+> **发生过什么、验证过什么、依据是什么？**
+
+R21 hierarchy:
+
+```text
+已记录完成 / 已验证 / 待验证
+→ recorded change trace
+→ verification boundary
+→ active-plan context links
+→ evidence/source boundary
+```
+
+Attention and Upcoming remain on Now; they are not duplicated into Records.
+
+Permanent rule:
+
+```text
+done != verified
+```
+
+Production Records must bind Timeline / ChangePlan / Review / Verification /
+Evidence instead of reverse-engineering historical truth from Attention.
+
+## 17. Search
 
 Search is lookup over **recorded** infrastructure, not a discovery engine.
 
@@ -459,7 +516,7 @@ R20 indexes:
 
 No match means “not found among recorded data,” not “does not exist.”
 
-## 16. Back / Up semantics
+## 18. Back / Up semantics
 
 Two different operations remain distinct:
 
@@ -480,7 +537,7 @@ Me → Sources → Up → Me
 
 The header must never be relabeled as “Back to desktop/home.”
 
-## 17. Privacy / masking
+## 19. Privacy / masking
 
 Default is **not masked** unless the user enables masking.
 
@@ -493,7 +550,7 @@ Masking is:
 A user-defined number alias may remain visible when it is non-sensitive; an alias
 that itself looks like a phone number must still be protected by masking logic.
 
-## 18. Android Light visual language
+## 20. Android Light visual language
 
 Android is **light-first**.
 
@@ -516,7 +573,7 @@ Avoid:
 - KPI walls;
 - desktop pixel copying.
 
-## 19. Runtime / Freeze boundary
+## 21. Runtime / Freeze boundary
 
 R19 source completeness is not Reference Freeze.
 
