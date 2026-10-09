@@ -108,12 +108,12 @@ private fun AccountDetail(app: VAppState, id: String) {
         status = if (account.attention) "需要核对" else "已记录",
         statusColor = if (account.attention) PdigV2Colors.Warning else PdigV2Colors.PrimaryBright,
     )
-    DetailSection("账户身份", "Account = access / control identity") {
+    DetailSection("账户身份", "登录入口、控制权限与恢复方式") {
         DetailFact("登录标识", if (app.privacyMask) "标识已遮蔽" else account.maskedIdentifier)
         DetailFact("角色", account.roles.joinToString(" / ").ifBlank { "未记录" })
         DetailFact("状态", account.status)
     }
-    DetailSection("验证与恢复", "只展示 fixture 中明确记录的信息") {
+    DetailSection("验证与恢复", "只展示当前明确记录的信息") {
         DetailFact("验证方式", account.authMethods.joinToString(" / ").ifBlank { "未记录" })
         DetailFact("恢复路径", account.recoveryRoute.ifBlank { "未记录" })
         DetailFact("唯一恢复", "未知")
@@ -145,7 +145,7 @@ private fun EmailDetail(app: VAppState, id: String) {
             else -> PdigV2Colors.PrimaryBright
         },
     )
-    DetailSection("通信 / 恢复身份", "Email = communication / recovery identity") {
+    DetailSection("通信 / 恢复身份", "登录、通知与恢复职责") {
         DetailFact("邮箱", if (app.privacyMask) "邮箱已遮蔽" else email.maskedAddress)
         DetailFact("角色", email.roles.joinToString(" / ").ifBlank { "未记录" })
         DetailFact("已记录关联", "${email.linkedServiceCount} 项")
@@ -176,7 +176,7 @@ private fun DeviceDetail(app: VAppState, id: String) {
         status = if (device.attention) "待检查" else device.trust,
         statusColor = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.PrimaryBright,
     )
-    DetailSection("物理访问端点", "Device = physical access endpoint") {
+    DetailSection("设备身份", "设备、验证与恢复权限") {
         DetailFact("平台", device.platform)
         DetailFact("类型", device.kind)
         DetailFact("角色", device.roles.joinToString(" / ").ifBlank { "未记录" })
@@ -207,12 +207,12 @@ private fun ServiceDetail(app: VAppState, id: String) {
         status = "已记录",
         statusColor = PdigV2Colors.PrimaryBright,
     )
-    DetailSection("依赖端点", "Service = dependency endpoint") {
+    DetailSection("服务身份", "服务与已记录依赖入口") {
         DetailFact("服务类型", serviceKindLabelZh(service.kind))
         DetailFact("地区", detailRegionName(service.region))
         DetailFact("已记录关系", "${incoming.size} 条")
     }
-    DetailSection("谁依赖它", "只列出 synthetic fixture 中存在的关系") {
+    DetailSection("谁依赖它", "只列出当前已经记录的关系") {
         if (incoming.isEmpty()) {
             DetailTruthNote("没有已记录关系；这不代表真实世界中不存在依赖。")
         } else {
