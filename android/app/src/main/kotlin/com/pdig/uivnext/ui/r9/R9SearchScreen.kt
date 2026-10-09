@@ -37,13 +37,31 @@ import com.pdig.uivnext.ui.VAppState
 internal fun R9SearchScreen(app: VAppState) {
     var query by remember { mutableStateOf("") }
     val q = query.trim()
-    val filteredCards = app.demoCards().filter {
-        q.isNotEmpty() && listOf(it.nickname, it.issuer, it.last4, it.currency)
-            .any { value -> value.contains(q, ignoreCase = true) }
+    val filteredCards = app.demoCards().filter { card ->
+        val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
+        q.isNotEmpty() && (
+            listOf(card.nickname, card.issuer, card.last4, card.currency) +
+                listOfNotNull(
+                    lifecycle?.annualFee, lifecycle?.annualFeeDue, lifecycle?.billingDay,
+                    lifecycle?.paymentDueDay, lifecycle?.installmentSummary,
+                )
+            ).any { value -> value.contains(q, ignoreCase = true) }
     }
-    val filteredNumbers = app.demoNumbers().filter {
-        q.isNotEmpty() && listOf(app.numberDisplayName(it.id, it.maskedNumber), it.maskedNumber, it.carrier, it.countryCode)
-            .any { value -> value.contains(q, ignoreCase = true) }
+    val filteredNumbers = app.demoNumbers().filter { number ->
+        val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
+        val role = when(number.role) {
+            "primary" -> "主号"
+            "keep" -> "保号"
+            else -> "副号"
+        }
+        q.isNotEmpty() && (
+            listOf(app.numberDisplayName(number.id, number.maskedNumber), number.maskedNumber,
+                number.carrier, number.countryCode, role) +
+                listOfNotNull(
+                    lifecycle?.billingMode, lifecycle?.planCost, lifecycle?.keepAliveDue,
+                    lifecycle?.keepAliveCycle, lifecycle?.lastKeepAlive, lifecycle?.renewalMethod,
+                )
+            ).any { value -> value.contains(q, ignoreCase = true) }
     }
     val filteredRegions = app.demoRegions().filter {
         q.isNotEmpty() && (it.displayName.contains(q, ignoreCase = true) ||
