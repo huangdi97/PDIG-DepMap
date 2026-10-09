@@ -356,16 +356,29 @@ Only explicit `uniqueRecoveryPath == true` may render **唯一恢复**.
 Only evidence-backed findings belong here. Merely having a recovery role is not
 itself a weakness.
 
-Long-term focused details for these objects should reuse the same hierarchy:
+R20 source now gives Account / Email / Device / Service focused details the same
+consumer hierarchy:
 
 ```text
-Identity
-→ Confirmed Dependencies
+Object Identity
+→ Recorded Context / Confirmed Relations
 → Impact Lens
-→ Change / Recovery
+→ Change / Recovery (only when a production primitive exists)
 ```
 
-but new executable CTAs remain gated by production ChangePrimitive support.
+Specific object identity remains distinct:
+- Account = access / control identity;
+- Email = communication / recovery identity;
+- Device = physical access endpoint;
+- Service = dependency endpoint.
+
+Rows and Search results open the focused object directly. System Back returns to the
+actual previous page; Header Up returns to the corresponding Infrastructure
+collection.
+
+The R20 focused details remain read-only when no production ChangePrimitive exists.
+They must not invent a generic “开始变更” CTA merely to make every detail page look
+symmetric.
 
 ## 13. Me — Personal Digital Life Workspace
 
@@ -402,7 +415,7 @@ but new executable CTAs remain gated by production ChangePrimitive support.
 
 Search is lookup over **recorded** infrastructure, not a discovery engine.
 
-R19 indexes:
+R20 indexes:
 - object names and user number aliases;
 - issuer/carrier/region;
 - lifecycle facts such as annual fee, billing day and keep-alive due date;
