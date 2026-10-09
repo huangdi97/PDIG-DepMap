@@ -56,15 +56,15 @@ internal sealed class SearchResult {
         override val kind = "地区"
     }
 
-    data class AccountHit(override val title: String, override val subtitle: String) : SearchResult() {
+    data class AccountHit(val id: String, override val title: String, override val subtitle: String) : SearchResult() {
         override val kind = "账户"
     }
 
-    data class EmailHit(override val title: String, override val subtitle: String) : SearchResult() {
+    data class EmailHit(val id: String, override val title: String, override val subtitle: String) : SearchResult() {
         override val kind = "邮箱"
     }
 
-    data class DeviceHit(override val title: String, override val subtitle: String) : SearchResult() {
+    data class DeviceHit(val id: String, override val title: String, override val subtitle: String) : SearchResult() {
         override val kind = "设备"
     }
 }
@@ -146,19 +146,39 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
 
     UiVNextDemoFixture.accounts.forEach { account ->
         if (hit(listOf(account.name, account.provider, account.maskedIdentifier, regionLabel(account.region)) + account.roles + account.authMethods)) {
-            out.add(SearchResult.AccountHit(account.name, account.provider + " · " + regionLabel(account.region) + " · " + account.maskedIdentifier))
+            out.add(
+                SearchResult.AccountHit(
+                    account.id,
+                    account.name,
+                    account.provider + " · " + regionLabel(account.region) + " · " +
+                        if (app?.privacyMask == true) "标识已遮蔽" else account.maskedIdentifier,
+                ),
+            )
         }
     }
 
     UiVNextDemoFixture.emails.forEach { email ->
         if (hit(listOf(email.name, email.provider, email.maskedAddress, regionLabel(email.region)) + email.roles)) {
-            out.add(SearchResult.EmailHit(email.name, email.maskedAddress + " · " + email.provider))
+            out.add(
+                SearchResult.EmailHit(
+                    email.id,
+                    email.name,
+                    (if (app?.privacyMask == true) "邮箱已遮蔽" else email.maskedAddress) +
+                        " · " + email.provider,
+                ),
+            )
         }
     }
 
     UiVNextDemoFixture.devices.forEach { device ->
         if (hit(listOf(device.name, device.platform, device.kind, regionLabel(device.region)) + device.roles)) {
-            out.add(SearchResult.DeviceHit(device.name, device.platform + " · " + device.trust + " · " + device.lastSeen))
+            out.add(
+                SearchResult.DeviceHit(
+                    device.id,
+                    device.name,
+                    device.platform + " · " + device.trust + " · " + device.lastSeen,
+                ),
+            )
         }
     }
 
@@ -181,10 +201,10 @@ internal fun openSearchResult(result: SearchResult, app: VAppState) {
     when (result) {
         is SearchResult.CardHit -> app.openCard(result.id)
         is SearchResult.NumberHit -> app.openNumber(result.id)
-        is SearchResult.ServiceHit -> app.navigateFromSearch(VScreen.SERVICES)
-        is SearchResult.AccountHit -> app.navigateFromSearch(VScreen.ACCOUNTS)
-        is SearchResult.EmailHit -> app.navigateFromSearch(VScreen.EMAILS)
-        is SearchResult.DeviceHit -> app.navigateFromSearch(VScreen.DEVICES)
+        is SearchResult.ServiceHit -> app.openSecondaryObject(VScreen.SERVICE_DETAIL, result.id)
+        is SearchResult.AccountHit -> app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, result.id)
+        is SearchResult.EmailHit -> app.openSecondaryObject(VScreen.EMAIL_DETAIL, result.id)
+        is SearchResult.DeviceHit -> app.openSecondaryObject(VScreen.DEVICE_DETAIL, result.id)
         is SearchResult.NavigationHit -> app.navigateFromSearch(result.screen)
         is SearchResult.RegionHit -> {
             app.selectRegion(result.code)
