@@ -306,6 +306,45 @@ class SourceCompleteInteractionContractTest {
     }
 
     @Test
+    fun cardChangeFlowUsesSupportedScenarioShapeWithoutPretendingExecution() {
+        val app = createVNextAppState().apply {
+            navigate(VScreen.CARDS)
+            openCard("card-cn-2")
+            openCardChange("card-cn-2")
+        }
+        assertEquals(VScreen.CHANGE_CARD, app.screen)
+        assertEquals(VScreen.CHANGE, app.upDestination())
+        assertNull(app.selectedReplacementCardId)
+
+        app.chooseReplacementCard("card-cn-3")
+        app.cardChangeProjection = "after"
+
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.r21.change-card", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("更换银行卡", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("完成后（计划）", useUnmergedTree = true).assertIsDisplayed()
+        assertEquals("card-cn-3", app.selectedReplacementCardId)
+        assertEquals("after", app.cardChangeProjection)
+    }
+
+    @Test
+    fun recordsIsEvidenceTraceRatherThanSecondAttentionFeed() {
+        val app = createVNextAppState().apply { navigate(VScreen.RECORDS) }
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.r21.records", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("已记录完成", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("已验证", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("待验证", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("done ≠ verified", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
     fun changeProjectionStatesAreDistinctAndRender() {
         val app = createVNextAppState()
         app.changeProjection = "current"
