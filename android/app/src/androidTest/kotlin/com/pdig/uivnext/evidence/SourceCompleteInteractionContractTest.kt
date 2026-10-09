@@ -296,6 +296,16 @@ class SourceCompleteInteractionContractTest {
     }
 
     @Test
+    fun changePrimaryRootIsAWorkCenterNotPhoneFlowAlias() {
+        val app = createVNextAppState().apply { navigate(VScreen.CHANGE) }
+        compose.setContent { VNextApp(app) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.r20.change-center", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("正在进行的变更", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("准备改变", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
     fun changeProjectionStatesAreDistinctAndRender() {
         val app = createVNextAppState()
         app.changeProjection = "current"
