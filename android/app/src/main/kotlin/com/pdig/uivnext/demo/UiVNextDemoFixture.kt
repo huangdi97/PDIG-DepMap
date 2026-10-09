@@ -7,9 +7,11 @@ import com.pdig.uivnext.model.ChangeStage
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.UiVNextAccount
 import com.pdig.uivnext.model.UiVNextCard
+import com.pdig.uivnext.model.UiVNextCardLifecycle
 import com.pdig.uivnext.model.UiVNextDevice
 import com.pdig.uivnext.model.UiVNextEmail
 import com.pdig.uivnext.model.UiVNextNumber
+import com.pdig.uivnext.model.UiVNextNumberLifecycle
 import com.pdig.uivnext.model.UiVNextRelation
 import com.pdig.uivnext.model.UiVNextService
 import com.pdig.uivnext.model.UpcomingItem
@@ -50,6 +52,94 @@ object UiVNextDemoFixture {
         UiVNextNumber("num-gb-1", "英国主号", "+44 7911 182***", "GB", "+44", "Vodafone", "eSIM", "primary", listOf("注册", "旅行", "2FA"), "active", false, false, preset = "travel"),
         UiVNextNumber("num-us-1", "美国保号", "+1 415 887 ****", "US", "+1", "T-Mobile", "SIM", "secondary", listOf("恢复"), "active", true, false, preset = "minimal"),
         UiVNextNumber("num-sg-1", "新加坡主号", "+65 9***2214", "SG", "+65", "Singtel", "eSIM", "primary", listOf("银行验证", "工作"), "active", false, false, preset = "city"),
+    )
+
+    /**
+     * Recorded lifecycle metadata used by the UI reference.
+     * Values are synthetic and intentionally live outside Canonical truth.
+     */
+    val cardLifecycle: Map<String, UiVNextCardLifecycle> = mapOf(
+        "card-cn-1" to UiVNextCardLifecycle(
+            annualFee = "免年费",
+            billingDay = "每月 8 日",
+            paymentDueDay = "每月 26 日",
+            installmentSummary = "无已记录分期",
+            autoPaySummary = "已记录：自动还款",
+        ),
+        "card-cn-2" to UiVNextCardLifecycle(
+            annualFee = "¥100 / 年",
+            annualFeeDue = "2026-11",
+            billingDay = "每月 12 日",
+            paymentDueDay = "每月 30 日",
+            installmentSummary = "2 笔 · ¥3,280 剩余",
+            autoPaySummary = "已记录：储蓄卡自动还款",
+        ),
+        "card-hk-1" to UiVNextCardLifecycle(
+            annualFee = "HK$1,800 / 年",
+            annualFeeDue = "2027-02",
+            billingDay = "每月 18 日",
+            paymentDueDay = "账单后 23 天",
+            installmentSummary = "1 笔 · HK$4,200 剩余",
+            autoPaySummary = "未记录",
+        ),
+        "card-gb-2" to UiVNextCardLifecycle(
+            annualFee = "未记录",
+            billingDay = "每月 21 日",
+            paymentDueDay = "每月 7 日",
+            installmentSummary = "无已记录分期",
+            autoPaySummary = "未记录",
+        ),
+        "card-us-1" to UiVNextCardLifecycle(
+            annualFee = "US$95 / 年",
+            annualFeeDue = "2027-01",
+            billingDay = "每月 3 日",
+            paymentDueDay = "每月 28 日",
+            installmentSummary = "无已记录分期",
+            autoPaySummary = "已记录：自动还款",
+        ),
+    )
+
+    val numberLifecycle: Map<String, UiVNextNumberLifecycle> = mapOf(
+        "num-cn-1" to UiVNextNumberLifecycle(
+            billingMode = "后付费",
+            planCost = "¥59 / 月",
+            keepAliveDue = "无需单独保号",
+            keepAliveCycle = "持续在用",
+            lastKeepAlive = "今天",
+            renewalMethod = "运营商套餐",
+        ),
+        "num-cn-3" to UiVNextNumberLifecycle(
+            billingMode = "保号套餐",
+            planCost = "¥8 / 月",
+            keepAliveDue = "2026-11-18",
+            keepAliveCycle = "每 90 天检查",
+            lastKeepAlive = "2026-08-20",
+            renewalMethod = "充值 / 短信（已记录）",
+        ),
+        "num-hk-1" to UiVNextNumberLifecycle(
+            billingMode = "月费套餐",
+            planCost = "HK$68 / 月",
+            keepAliveDue = "无需单独保号",
+            keepAliveCycle = "持续在用",
+            lastKeepAlive = "今天",
+            renewalMethod = "运营商套餐",
+        ),
+        "num-gb-1" to UiVNextNumberLifecycle(
+            billingMode = "eSIM 月包",
+            planCost = "£10 / 月",
+            keepAliveDue = "2026-11-01",
+            keepAliveCycle = "每月续费",
+            lastKeepAlive = "2026-10-01",
+            renewalMethod = "运营商 App（已记录）",
+        ),
+        "num-us-1" to UiVNextNumberLifecycle(
+            billingMode = "预付费保号",
+            planCost = "US$5 / 90 天",
+            keepAliveDue = "2026-11-05",
+            keepAliveCycle = "每 90 天",
+            lastKeepAlive = "2026-08-07",
+            renewalMethod = "充值（已记录）",
+        ),
     )
 
     val accounts: List<UiVNextAccount> = listOf(
@@ -117,7 +207,8 @@ object UiVNextDemoFixture {
 
     val upcoming: List<UpcomingItem> = listOf(
         UpcomingItem("upc-1", "工行信用卡 2026-11-15 到期", 47),
-        UpcomingItem("upc-2", "Revolut 卡 2026-07-20 到期", 20),
+        UpcomingItem("upc-2", "美国保号 2026-11-05 需要完成保号操作", 27),
+        UpcomingItem("upc-3", "Revolut 卡 2026-07-20 到期", 20),
     )
 
     val changeStages: List<ChangeStage> = listOf(
@@ -157,7 +248,11 @@ object UiVNextDemoFixture {
 
     fun cardById(id: String): UiVNextCard? = cards.firstOrNull { it.id == id }
 
+    fun cardLifecycleFor(id: String): UiVNextCardLifecycle? = cardLifecycle[id]
+
     fun numberById(id: String): UiVNextNumber? = numbers.firstOrNull { it.id == id }
+
+    fun numberLifecycleFor(id: String): UiVNextNumberLifecycle? = numberLifecycle[id]
 
     fun servicesForCard(cardId: String): List<UiVNextService> = relations
         .filter { it.from == cardId }
