@@ -73,9 +73,9 @@ class R16RegionLabelLayoutTest {
 
     @Test
     fun RendererAndCountryAnchorsUseExactlyTheSameZoomClamp() {
-        assertEquals(1080f * .42f * .70f,
+        assertEquals(660f * .47f * .70f,
             r16SceneRadius(1080f, 660f, .65f), .0001f)
-        assertEquals(1080f * .42f * 1.9f,
+        assertEquals(660f * .47f * 1.9f,
             r16SceneRadius(1080f, 660f, 3f), .0001f)
     }
 
