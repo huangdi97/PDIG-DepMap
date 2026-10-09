@@ -91,6 +91,16 @@ class R11NavigationAndAliasesTest {
         assertEquals(VScreen.ACCOUNTS, app.screen)
     }
 
+    @Test fun focusedPhoneChangeHasChangeRootAsHierarchyParent() {
+        val app = VAppState()
+        app.navigate(VScreen.CHANGE)
+        app.navigate(VScreen.CHANGE_PHONE)
+        assertEquals(VScreen.CHANGE, app.upDestination())
+        assertTrue(isEntrySelected(VScreen.CHANGE, app.screen))
+        app.navigateUp()
+        assertEquals(VScreen.CHANGE, app.screen)
+    }
+
     @Test fun studioUpGoesToObjectDetail() {
         val app = VAppState()
         app.navigate(VScreen.CARDS)
