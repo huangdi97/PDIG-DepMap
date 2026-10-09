@@ -60,6 +60,10 @@
 
 ## 4. 视觉
 
+> 下表是 Desktop/raw token 基线。**Android R19 使用 light-first semantic translation**：
+> Canvas/Surface 为浅色，选中态使用受控蓝色，数据区保持白/浅灰高对比；不得因 raw token 为
+> deep navy 就把 Android primary shell 恢复成全局暗色。Globe/资产身份面可保留局部深色以维持空间与材质深度。
+
 | 元素 | token 键 | token 值 |
 | --- | --- | --- |
 | Rail / Top Command 背景 | `semantic.env.glass = colors.surfaceGlass`（L2 允许 blur） | `rgba(28,56,96,0.54)` |
