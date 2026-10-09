@@ -11,26 +11,20 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pdig.uivnext.globe.VNextGlobe
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -93,42 +87,19 @@ internal fun CompactWorldHero(
             }
 
             Box(Modifier.fillMaxWidth().weight(1f).testTag("pdig.now.world-stage")) {
-                Box(
-                    Modifier.fillMaxSize()
-                        .padding(horizontal = 17.dp)
-                        .graphicsLayer(scaleX = 1.32f, scaleY = 1.32f),
-                ) {
-                    VNextGlobe(
-                        controller = app.globe,
-                        regions = regions,
-                        arcingPairs = arcs,
-                        reduceMotion = app.reduceMotion,
-                    )
-                }
-                val byCode = regions.associateBy { it.regionCode }
-                val placements = listOf(
-                    Triple("US", Alignment.TopStart, 27.dp),
-                    Triple("GB", Alignment.TopEnd, 16.dp),
-                    Triple("CN", Alignment.CenterEnd, 0.dp),
-                    Triple("HK", Alignment.BottomStart, 31.dp),
-                    Triple("SG", Alignment.BottomEnd, 15.dp),
+                // R19 uses the same GPU Earth + live camera-projected region
+                // annotations as the accepted Preview direction. No fixed-corner
+                // country pills: labels remain attached to geographic anchors.
+                R19AdaptiveWorldScene(
+                    app = app,
+                    regions = regions,
+                    arcingPairs = arcs,
+                    modifier = Modifier.fillMaxSize().padding(horizontal = 5.dp),
+                    onRegionChosen = { region ->
+                        app.selectRegion(region.regionCode)
+                        app.navigate(VScreen.OVERVIEW)
+                    },
                 )
-                placements.forEach { (code, position, inset) ->
-                    val region = byCode[code] ?: return@forEach
-                    val spacing = when (position) {
-                        Alignment.TopStart, Alignment.TopEnd -> Modifier.padding(top = inset)
-                        Alignment.BottomStart, Alignment.BottomEnd -> Modifier.padding(bottom = inset)
-                        else -> Modifier
-                    }
-                    RegionIdentityChip(
-                        region = region,
-                        modifier = spacing.align(position).padding(horizontal = 1.dp),
-                        onClick = {
-                            app.selectRegion(region.regionCode)
-                            app.navigate(VScreen.OVERVIEW)
-                        },
-                    )
-                }
             }
 
             Surface(
@@ -148,54 +119,6 @@ internal fun CompactWorldHero(
                     HeroMetric(accounts, "账户", "◎", Modifier.weight(1f))
                     HeroMetric(services, "服务", "✧", Modifier.weight(1f))
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RegionIdentityChip(
-    region: RegionPresentation,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-) {
-    val flag = when (region.regionCode) {
-        "US" -> "🇺🇸"
-        "GB" -> "🇬🇧"
-        "CN" -> "🇨🇳"
-        "HK" -> "🇭🇰"
-        "SG" -> "🇸🇬"
-        "MO" -> "🇲🇴"
-        else -> "🌐"
-    }
-    Surface(
-        modifier = modifier.width(114.dp).clickable(onClick = onClick)
-            .testTag("pdig.now.region-chip.${region.regionCode}"),
-        color = Color.White.copy(alpha = 0.95f),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, Color(0xFFC5DDF7)),
-        shadowElevation = 2.dp,
-    ) {
-        Row(
-            Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            Text(flag, fontSize = 17.sp)
-            Column {
-                Text(
-                    region.displayName,
-                    fontSize = 11.sp,
-                    color = PdigV2Colors.TextPrimary,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    "${region.cardCount} 张卡 · ${region.phoneCount} 个号",
-                    color = PdigV2Colors.TextSecondary,
-                    fontSize = 9.sp,
-                )
             }
         }
     }
