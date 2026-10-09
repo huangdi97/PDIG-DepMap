@@ -85,6 +85,7 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         subtitle = regionLabel(service.region) + " · 已记录服务",
                         badge = serviceKindLabelZh(service.kind).take(1),
                         trailing = { LabelChip(serviceKindLabelZh(service.kind)) },
+                        onClick = { app.openSecondaryObject(VScreen.SERVICE_DETAIL, service.id) },
                     ) {
                         Text(
                             "此处只展示已记录关系；未记录的登录、恢复或支付依赖仍保持未知。",
@@ -175,7 +176,7 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     email.maskedAddress + " 是唯一恢复邮箱",
                     "停用或更换前，先建立另一条恢复路径。",
                     PdigV2Colors.Critical,
-                ) { app.navigate(VScreen.EMAILS) }
+                ) { app.openSecondaryObject(VScreen.EMAIL_DETAIL, email.id) }
             }
         }
 
@@ -186,7 +187,7 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     device.name + " 需要确认是否仍应保持信任",
                     "最近记录：" + device.lastSeen + "。未确认前不要把它视为可用恢复设备。",
                     PdigV2Colors.Warning,
-                ) { app.navigate(VScreen.DEVICES) }
+                ) { app.openSecondaryObject(VScreen.DEVICE_DETAIL, device.id) }
             }
         }
 
