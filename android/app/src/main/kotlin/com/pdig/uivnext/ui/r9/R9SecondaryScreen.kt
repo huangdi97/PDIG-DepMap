@@ -56,7 +56,8 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                         "验证：${a.authMethods.joinToString(" / ")}",
                         "恢复：${a.recoveryRoute}", regionFlag(a.region), a.provider.take(1),
                         if(a.attention) "恢复需关注" else "已记录",
-                        if(a.attention) R9.Amber else R9.Green)
+                        if(a.attention) R9.Amber else R9.Green,
+                        onClick = { app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, a.id) })
                 }
                 if(items.isEmpty()) R9UnknownEmpty("账户")
             }
@@ -73,7 +74,8 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                             else -> "已记录"
                         },
                         if(a.uniqueRecoveryPath == true) R9.Rose
-                        else if(a.recoveryOnly) R9.Amber else R9.Green)
+                        else if(a.recoveryOnly) R9.Amber else R9.Green,
+                        onClick = { app.openSecondaryObject(VScreen.EMAIL_DETAIL, a.id) })
                 }
                 if(items.isEmpty()) R9UnknownEmpty("邮箱")
             }
@@ -84,7 +86,8 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                     R9ObjectRow(a.name, "${a.platform} · ${a.kind}",
                         "角色：${a.roles.joinToString(" / ")}",
                         "最后记录：${a.lastSeen}", regionFlag(a.region), "▤",
-                        a.trust, if(a.attention) R9.Amber else R9.Blue)
+                        a.trust, if(a.attention) R9.Amber else R9.Blue,
+                        onClick = { app.openSecondaryObject(VScreen.DEVICE_DETAIL, a.id) })
                 }
                 if(items.isEmpty()) R9UnknownEmpty("设备")
             }
@@ -96,7 +99,8 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                     R9ObjectRow(a.name, serviceKindLabelZh(a.kind),
                         "已记录关系：${linkCount} 条",
                         "未录入关系仍为未知", regionFlag(a.region), a.name.take(1),
-                        "已记录", R9.Blue)
+                        "已记录", R9.Blue,
+                        onClick = { app.openSecondaryObject(VScreen.SERVICE_DETAIL, a.id) })
                 }
                 if(items.isEmpty()) R9UnknownEmpty("服务")
             }
@@ -121,11 +125,13 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 }
                 recoveryEmails.forEach { a ->
                     R9ObjectRow(a.name, if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress, "恢复路径：邮箱",
-                        "停用前确认替代路径", regionFlag(a.region), "@", "唯一恢复", R9.Rose)
+                        "停用前确认替代路径", regionFlag(a.region), "@", "唯一恢复", R9.Rose,
+                        onClick = { app.openSecondaryObject(VScreen.EMAIL_DETAIL, a.id) })
                 }
                 devices.forEach { a ->
                     R9ObjectRow(a.name, a.platform, "设备状态：${a.trust}",
-                        "检查恢复权限", regionFlag(a.region), "▤", "待核对", R9.Amber)
+                        "检查恢复权限", regionFlag(a.region), "▤", "待核对", R9.Amber,
+                        onClick = { app.openSecondaryObject(VScreen.DEVICE_DETAIL, a.id) })
                 }
                 if(riskyCards.isEmpty()&&recoveryPhones.isEmpty()&&recoveryEmails.isEmpty()&&devices.isEmpty())
                     R9UnknownEmpty("薄弱点")
@@ -179,8 +185,14 @@ private fun R9ObjectRow(
     glyph: String,
     status: String,
     color: Color,
+    onClick: (() -> Unit)? = null,
 ) {
-    Surface(modifier = Modifier.fillMaxWidth(), color = Color.White,
+    val rowModifier = if (onClick != null) {
+        Modifier.fillMaxWidth().clickable(onClick = onClick)
+    } else {
+        Modifier.fillMaxWidth()
+    }
+    Surface(modifier = rowModifier, color = Color.White,
         shape = RoundedCornerShape(16.dp), border = BorderStroke(1.dp, R9.Line)) {
         Row(Modifier.padding(horizontal = 11.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
