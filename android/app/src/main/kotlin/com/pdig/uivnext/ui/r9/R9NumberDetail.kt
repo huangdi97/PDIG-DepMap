@@ -47,6 +47,7 @@ internal fun R9NumberDetailScreen(app: VAppState) {
         return
     }
     val related = UiVNextDemoFixture.servicesForNumber(number.id)
+    val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
     val title = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
     var editingName by remember(number.id) { mutableStateOf(false) }
@@ -96,6 +97,47 @@ internal fun R9NumberDetailScreen(app: VAppState) {
                 }
             }
         }
+
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTag("pdig.r18.number.lifecycle"),
+            color = Color.White,
+            shape = RoundedCornerShape(17.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Column(
+                Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("号码生命周期", color = R9.Ink, fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold)
+                    Text("已记录资料", color = R9.Muted, fontSize = 9.sp)
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    R18NumberFact("资费", lifecycle?.planCost, Modifier.weight(1f))
+                    R18NumberFact("下次保号", lifecycle?.keepAliveDue, Modifier.weight(1f))
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    R18NumberFact("保号周期", lifecycle?.keepAliveCycle, Modifier.weight(1f))
+                    R18NumberFact("最近操作", lifecycle?.lastKeepAlive, Modifier.weight(1f))
+                }
+                lifecycle?.billingMode?.let { R9DetailLineNumber("计费方式", it) }
+                lifecycle?.renewalMethod?.let { R9DetailLineNumber("续费 / 保号方式", it) }
+                Text("保号日期来自用户记录，不代表运营商实时状态；未知字段保持“未记录”。",
+                    color = R9.Muted, fontSize = 9.sp, lineHeight = 14.sp)
+            }
+        }
+
         R9SectionTitle("关联服务（${related.size}）")
         if (related.isEmpty()) {
             Text("没有已核验的服务关联，不代表该号码没有依赖。",
@@ -179,5 +221,42 @@ internal fun R9NumberDetailScreen(app: VAppState) {
                 TextButton(onClick = { editingName = false }) { Text("取消") }
             },
         )
+    }
+}
+
+@Composable
+private fun R18NumberFact(
+    label: String,
+    value: String?,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.heightIn(min = 55.dp),
+        color = R9.Ice,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, R9.Line.copy(alpha = .75f)),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(label, color = R9.Muted, fontSize = 9.sp)
+            Text(value?.takeIf { it.isNotBlank() } ?: "未记录",
+                color = R9.Ink, fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+                maxLines = 2, lineHeight = 13.sp)
+        }
+    }
+}
+
+@Composable
+private fun R9DetailLineNumber(key: String, value: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(key, color = R9.Muted, fontSize = 10.sp)
+        Text(value, color = R9.Ink, fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+            maxLines = 2)
     }
 }
