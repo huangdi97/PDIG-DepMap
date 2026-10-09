@@ -55,7 +55,7 @@ def tap_match(label, exact=False, prefer_bottom=False):
         # wrong surface and then incorrectly claiming Me has broken routing.
         # The pixel runner pins a 2340px emulator; derive threshold from the
         # physical display rather than fixed y-coordinate clicks.
-        match = re.search(r"(\\d+)x(\\d+)", adb("shell", "wm", "size").stdout)
+        match = re.search(r"(\d+)x(\d+)", adb("shell", "wm", "size").stdout)
         display_height = int(match.group(2)) if match else 2340
         matches = [hit for hit in matches if hit[1] >= display_height * 0.70]
         if not matches:
