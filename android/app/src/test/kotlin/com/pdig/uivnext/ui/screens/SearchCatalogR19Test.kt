@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui.screens
 
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.ui.VAppState
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,6 +25,18 @@ class SearchCatalogR19Test {
                 it.id == "num-hk-1" &&
                 it.title == "香港银行主号"
         })
+    }
+
+    @Test
+    fun SecondarySearchHitOpensFocusedObjectDetail() {
+        val app = VAppState()
+        app.navigate(VScreen.SEARCH)
+        val hit = searchResults("Pixel 8", app)
+            .filterIsInstance<SearchResult.DeviceHit>()
+            .first()
+        openSearchResult(hit, app)
+        assertTrue(app.screen == VScreen.DEVICE_DETAIL)
+        assertTrue(app.selectedSecondaryObjectId == "dev-cn-1")
     }
 
     @Test
