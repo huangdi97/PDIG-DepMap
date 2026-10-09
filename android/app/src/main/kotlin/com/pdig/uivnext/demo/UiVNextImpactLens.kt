@@ -53,3 +53,56 @@ fun numberImpactLens(numberId: String): UiImpactLens {
         unknownRelationsRemain = true,
     )
 }
+
+fun accountImpactLens(accountId: String): UiImpactLens {
+    val account = UiVNextDemoFixture.accounts.firstOrNull { it.id == accountId }
+    return UiImpactLens(
+        confirmedDependencies = 0,
+        attentionFindings = if (account?.attention == true) 1 else 0,
+        criticalAccounts = null,
+        uniqueRecoveryPath = UiImpactTruth.UNKNOWN,
+        independentAlternatives = null,
+        unknownRelationsRemain = true,
+    )
+}
+
+fun emailImpactLens(emailId: String): UiImpactLens {
+    val email = UiVNextDemoFixture.emails.firstOrNull { it.id == emailId }
+    return UiImpactLens(
+        confirmedDependencies = email?.linkedServiceCount ?: 0,
+        attentionFindings = if (email?.uniqueRecoveryPath == true) 1 else 0,
+        criticalAccounts = null,
+        uniqueRecoveryPath = if (email?.uniqueRecoveryPath == true) {
+            UiImpactTruth.CONFIRMED
+        } else {
+            UiImpactTruth.UNKNOWN
+        },
+        independentAlternatives = null,
+        unknownRelationsRemain = true,
+    )
+}
+
+fun deviceImpactLens(deviceId: String): UiImpactLens {
+    val device = UiVNextDemoFixture.devices.firstOrNull { it.id == deviceId }
+    return UiImpactLens(
+        confirmedDependencies = 0,
+        attentionFindings = if (device?.attention == true) 1 else 0,
+        criticalAccounts = null,
+        uniqueRecoveryPath = UiImpactTruth.UNKNOWN,
+        independentAlternatives = null,
+        unknownRelationsRemain = true,
+    )
+}
+
+fun serviceImpactLens(serviceId: String): UiImpactLens {
+    val dependencyCount = UiVNextDemoFixture.relations.count { it.to == serviceId }
+    return UiImpactLens(
+        confirmedDependencies = dependencyCount,
+        attentionFindings = 0,
+        criticalAccounts = null,
+        uniqueRecoveryPath = UiImpactTruth.UNKNOWN,
+        independentAlternatives = null,
+        unknownRelationsRemain = true,
+    )
+}
+
