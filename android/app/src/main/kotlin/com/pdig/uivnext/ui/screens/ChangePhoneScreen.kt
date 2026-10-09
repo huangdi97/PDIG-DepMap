@@ -57,7 +57,7 @@ import com.pdig.uivnext.ui.components.StatusBadge
 fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val projection = app.changeProjection
     val old = UiVNextDemoFixture.numberById("num-cn-1")
-    val new = UiVNextDemoFixture.numberById("num-cn-3")
+    val new = UiVNextDemoFixture.numberById("num-cn-4")
     Column(
         Modifier
             .fillMaxSize()
@@ -249,7 +249,7 @@ private fun projectionDetail(projection: String): List<Pair<String, String>> = w
     )
     "after" -> listOf(
         "1 影响分析" to "已确认需要迁移的服务：微信支付、支付宝、招商银行网银、腾讯视频；2 个账户以旧号码为登录验证。",
-        "2 建立新号码" to "计划：新号码 +86 139****2204 已加入（保号副号）。",
+        "2 建立新号码" to "计划：新号码 +86 139****6421 已加入（迁移目标）。",
         "3 验证新号码" to "计划：验证通过（投影）。",
         "4 迁移关键账户" to "计划：逐个迁移绑定（投影）。",
         "5 检查恢复路径" to "计划：确保每个账户存在非旧号码的恢复方式（投影）。",
@@ -257,7 +257,7 @@ private fun projectionDetail(projection: String): List<Pair<String, String>> = w
     )
     else -> listOf(
         "1 影响分析" to "已确认需要迁移的服务：微信支付、支付宝、招商银行网银、腾讯视频；2 个账户以旧号码为登录验证。",
-        "2 建立新号码" to "新号码 +86 139****2204 已加入（保号副号）。",
+        "2 建立新号码" to "新号码 +86 139****6421 已加入（迁移目标）。",
         "3 验证新号码" to "等待接收验证码并确认（正在验证）。",
         "4 迁移关键账户" to "待验证通过后逐个迁移绑定。",
         "5 检查恢复路径" to "确保每个账户存在非旧号码的恢复方式。",
