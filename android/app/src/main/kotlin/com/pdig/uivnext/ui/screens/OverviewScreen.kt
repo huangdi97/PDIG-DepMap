@@ -30,7 +30,6 @@ import com.pdig.uivnext.demo.demoAttention
 import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
-import com.pdig.uivnext.globe.VNextGlobe
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
@@ -92,14 +91,18 @@ private fun WideOverview(app: VAppState, regions: List<RegionPresentation>, arci
                     shape = RoundedCornerShape(VRadius.Xl),
                     border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                 ) {
-                    Box(Modifier.padding(12.dp)) {
-                        VNextGlobe(
-                            controller = app.globe,
-                            regions = regions,
-                            arcingPairs = arcingPairs,
-                            reduceMotion = app.reduceMotion,
-                        )
-                    }
+                    R19AdaptiveWorldScene(
+                        app = app,
+                        regions = regions,
+                        arcingPairs = arcingPairs,
+                        modifier = Modifier.fillMaxSize()
+                            .padding(start = 12.dp, end = 12.dp, top = 62.dp, bottom = 12.dp),
+                        onRegionChosen = { region ->
+                            val alreadySelected = app.regionFilter == region.regionCode
+                            app.selectRegion(region.regionCode)
+                            if (alreadySelected) app.openRegionDetail()
+                        },
+                    )
                 }
                 Surface(
                     modifier = Modifier.align(Alignment.TopStart).padding(18.dp),
@@ -172,14 +175,17 @@ private fun SinglePaneOverview(
                 shape = RoundedCornerShape(VRadius.Xl),
                 border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
-                Box(Modifier.padding(12.dp)) {
-                    VNextGlobe(
-                        controller = app.globe,
-                        regions = regions,
-                        arcingPairs = arcingPairs,
-                        reduceMotion = app.reduceMotion,
-                    )
-                }
+                R19AdaptiveWorldScene(
+                    app = app,
+                    regions = regions,
+                    arcingPairs = arcingPairs,
+                    modifier = Modifier.fillMaxSize().padding(10.dp),
+                    onRegionChosen = { region ->
+                        val alreadySelected = app.regionFilter == region.regionCode
+                        app.selectRegion(region.regionCode)
+                        if (alreadySelected) app.openRegionDetail()
+                    },
+                )
             }
         }
         Surface(
