@@ -168,8 +168,14 @@ Safe today:
 - stable node id;
 - name;
 - archived state;
+- Canonical `issuer` when present;
+- Canonical `last4` when present;
 - fields explicitly recognized by current Canonical semantics;
 - confirmed dependency count via production dependencies/impact.
+
+The Android production read projection now carries `issuer` and `last4` directly
+from the existing `nodes` table. This is not a new schema field and does not parse
+free-form `fields_json`.
 
 Do not infer:
 - issuer from name;
@@ -190,6 +196,10 @@ Node.kind = identity_anchor
 
 Only an identity anchor that is explicitly typed/recognized as a phone number may
 be projected as a Number asset.
+
+Until that governed subtype exists, the production adapter classifies
+`identity_anchor` as `IDENTITY_ANCHOR_GENERIC`. It must render a generic identity
+surface rather than silently adopting the Number/phone UI.
 
 Do not infer:
 - phone role from country;
