@@ -20,8 +20,8 @@
 - **Primary object**：Globe Stage（L1 视觉主导）。
 - **Secondary object**：活动轨（Region List 非视觉替代 + 需要处理）、底部快速入口。
 - **Hierarchy**：Globe → 活动轨 → 快速入口。
-- **Required states**：global；region-selected（filter 生效 + REGION_SELECTED）；无地区数据空态。
-- **Forbidden**：纯二维地图替代 Globe；地区列表消失（无障碍替代必须保留）。
+- **Required states**：global；region-selected（filter 生效 + REGION_SELECTED）；无地区数据空态；地球上的地区 callout 必须来自实时相机投影并显示已记录资产 footprint。
+- **Forbidden**：纯二维地图替代 Globe；固定角落假标签；地区列表消失（无障碍替代必须保留）。
 - **Reference**：Desktop Infrastructure Overview。
 - **Rationale**：手机 Globe 上 / 活动轨下 / 快速入口底部；EXPANDED 左右分栏。
 
@@ -38,9 +38,10 @@
 ## 04-card-detail（卡片详情）
 
 - **Primary object**：卡片视觉身份（Hero AssetCard）。
-- **Secondary object**：Identity/状态 → Actions（定制入口）→ 绑定服务 → 备用支付/影响与风险 → 变更历史。
-- **Hierarchy**：身份最上；风险语义中段；历史末段。
-- **Required states**：active 卡；expiring_soon 卡（风险条）；Unknown != safe 文案。
+- **Secondary object**：Identity/状态 → 用卡周期（年费 / 账单日 / 还款日 / 分期）→ 绑定服务 → 影响与风险 → 变更入口。
+- **Hierarchy**：身份最上；生命周期是资产事实层；依赖/风险语义中段；操作末段。
+- **Required states**：active 卡；expiring_soon 卡（风险条）；年费/账单/分期有值与“未记录”两种 truth state；Unknown != safe 文案。
+- **Truth boundary**：生命周期字段是用户已记录资料；缺值必须显示“未记录”，不得从交易、Provider 通用规则或 UI preset 推断。
 - **Forbidden**：Desktop 左右两栏在手机压缩成不可读双栏；把「未发现风险」写成「安全」。
 - **Reference**：Desktop Card Detail。
 - **Rationale**：COMPACT 纵向堆叠；EXPANDED/MEDIUM 两栏（Identity 33% / Info 67%）。
@@ -68,9 +69,10 @@
 ## 08-number-detail（号码详情）
 
 - **Primary object**：NumberFace（Dial Code 最强）。
-- **Secondary object**：状态/角色/用途 → 恢复能力 → 关联服务（登录/2FA/恢复依赖）→ 历史。
-- **Hierarchy**：身份 hero → 风险语义（唯一恢复路径）→ 服务依赖 → 历史。
-- **Required states**：recoveryOnly 高风险横幅；非 recoveryOnly 显示「未发现唯一恢复路径」。
+- **Secondary object**：状态/角色/用途 → 号码生命周期（资费 / 保号日期 / 保号周期 / 最近操作）→ 恢复能力 → 关联服务（登录/2FA/恢复依赖）→ 变更入口。
+- **Hierarchy**：身份 hero → 生命周期 → 风险语义（唯一恢复路径）→ 服务依赖 → 变更。
+- **Required states**：recoveryOnly 高风险横幅；非 recoveryOnly 显示「未发现唯一恢复路径」；保号资料有值与“未记录”两种 truth state。
+- **Truth boundary**：保号日期/资费属于已记录资料，不代表运营商实时状态，不得把“没有保号日期”渲染成“无需保号”。
 - **Forbidden**：重设计 Number Identity；恢复语义被弱化。
 - **Reference**：Desktop Number Detail。
 - **Rationale**：保持冻结 identity hierarchy，不压缩为桌面双栏。
