@@ -85,9 +85,15 @@ internal fun r16ProjectedRegionLabels(
         if (placed.size >= budget) break
         val anchor = group.first()
         val primary = anchor.region
-        val labelWidth = (if (group.size > 1) 87f else if (primary.regionCode == selectedCode) 83f else 68f) * pxPerDp
-        // 43dp touch hitbox, only a 26dp actual visible pill inside it.
-        val hitHeight = 43f * pxPerDp
+        // R18 uses a two-line callout (region + asset footprint), closer to the
+        // product reference while remaining camera-anchored and collision bounded.
+        val labelWidth = (
+            if (group.size > 1) 116f
+            else if (primary.regionCode == selectedCode) 108f
+            else 96f
+        ) * pxPerDp
+        // 48dp touch hitbox; the visible glass label is 36dp high.
+        val hitHeight = 48f * pxPerDp
         if (widthPx < labelWidth + gap * 2f || heightPx < hitHeight + gap * 2f) break
         val horizontal = listOf(0f, -22f * pxPerDp, 22f * pxPerDp)
         val vertical = listOf(-38f * pxPerDp, 10f * pxPerDp, -66f * pxPerDp)
