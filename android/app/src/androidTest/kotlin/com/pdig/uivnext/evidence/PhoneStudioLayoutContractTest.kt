@@ -15,11 +15,11 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Compact Studio craft contract.
+ * Compact card-image craft contract.
  *
- * The phone Studio must remain preview-first and use a horizontally browsable theme gallery.
- * This prevents a regression back to the tall full-width settings-list presentation that consumed
- * most of the first viewport in the first source-complete runtime pack.
+ * Card personalization is intentionally a small consumer feature: one preview,
+ * local gallery/built-in pictures, Save & return. Engineering theme/material/layout
+ * controls must not reappear.
  */
 @RunWith(AndroidJUnit4::class)
 class PhoneStudioLayoutContractTest {
