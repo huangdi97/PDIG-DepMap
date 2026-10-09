@@ -132,7 +132,12 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         SectionHeader("风险提示")
         Surface(color = PdigV2Colors.Warning.copy(alpha = 0.12f), shape = RoundedCornerShape(VRadius.Md), modifier = Modifier.fillMaxWidth()) {
             Text(
-                "旧号码是 2 个账户的唯一恢复路径：新号码完成验证并确认恢复路径前，不要停用旧号码。",
+                if (old.uniqueRecoveryPath == true)
+                    "已确认旧号码是唯一恢复路径：新号码完成验证并建立独立替代恢复路径前，不要停用旧号码。"
+                else if (old.recoveryOnly)
+                    "旧号码承担已记录恢复用途，但唯一性仍未知：停用前必须逐项核对并验证替代恢复路径。"
+                else
+                    "旧号码的恢复关系仍有未知项：停用前先核对已记录依赖，并验证新的恢复路径。",
                 Modifier.padding(14.dp),
                 color = PdigV2Colors.TextPrimary,
                 fontSize = 13.sp,
