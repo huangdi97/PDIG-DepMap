@@ -179,8 +179,10 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
         }
         SectionHeader("号码详情")
         val profile = app.savedPresentationProfile("phoneNumber", selected.id)
+        val lifecycle = UiVNextDemoFixture.numberLifecycleFor(selected.id)
+        val displayName = app.numberDisplayNameForScreen(selected.id, selected.maskedNumber)
         NumberFace(
-            number = selected.copy(preset = profile?.themeId ?: selected.preset),
+            number = selected.copy(nickname = displayName, preset = profile?.themeId ?: selected.preset),
             privacyMask = app.privacyMask || (profile?.maskSensitive == true),
             onClick = { app.openNumber(selected.id) },
             modifier = Modifier
@@ -191,10 +193,28 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
             presentationLayout = "compact",
         )
         Text(
-            "通信身份 · ${selected.carrier} · ${if (selected.simKind == "eSIM") "eSIM" else "实体 SIM"}",
+            "通信身份 · ${selected.carrier} · " +
+                when (selected.role) {
+                    "primary" -> "主号"
+                    "keep" -> "保号"
+                    else -> "副号"
+                } + " · " + if (selected.simKind == "eSIM") "eSIM" else "实体 SIM",
             color = PdigV2Colors.TextSecondary,
             fontSize = 12.sp,
         )
+
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTagLocal("pdig.r19.number.inspector.lifecycle"),
+            color = PdigV2Colors.SurfaceRaised,
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                NumberInspectorFact("资费", lifecycle?.planCost ?: "未记录")
+                NumberInspectorFact("下次保号", lifecycle?.keepAliveDue ?: "未记录")
+                NumberInspectorFact("保号周期", lifecycle?.keepAliveCycle ?: "未记录")
+            }
+        }
 
         Row(
             Modifier.fillMaxWidth(),
@@ -297,14 +317,16 @@ private fun matchesNumberFilter(number: UiVNextNumber, filter: String): Boolean 
     "sim" -> number.simKind != "eSIM"
     "primary" -> number.role == "primary"
     "secondary" -> number.role == "secondary"
-    "keep" -> number.usages.any { it.contains("保号") } || number.preset == "recovery"
+    "keep" -> number.role == "keep"
     else -> true
 }
 
 @Composable
 private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, onClick: () -> Unit) {
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
-    val displayNumber = number.copy(preset = profile?.themeId ?: number.preset)
+    val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
+    val displayName = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
+    val displayNumber = number.copy(nickname = displayName, preset = profile?.themeId ?: number.preset)
     val maskSensitive = app.privacyMask || (profile?.maskSensitive == true)
     Surface(
         modifier = Modifier
@@ -331,7 +353,7 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
             )
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(number.nickname, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text(displayName, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
                 Text(
                     if (maskSensitive) "${number.countryCode} •••• ••••" else number.maskedNumber,
                     color = PdigV2Colors.TextSecondary,
@@ -343,6 +365,17 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
                     color = PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                 )
+                if (lifecycle != null) {
+                    Text(
+                        listOfNotNull(
+                            lifecycle.planCost?.let { "资费 $it" },
+                            lifecycle.keepAliveDue?.let { "保号 $it" },
+                        ).joinToString(" · "),
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 10.sp,
+                        maxLines = 1,
+                    )
+                }
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (number.recoveryOnly) LabelChip("唯一恢复", highlight = true)
@@ -358,4 +391,18 @@ private fun numberServiceKindLabel(kind: String): String = when (kind) {
     "subscription" -> "订阅"
     "twoFA" -> "2FA"
     else -> "关联"
+}
+
+
+@Composable
+private fun NumberInspectorFact(label: String, value: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+        Text(value, color = PdigV2Colors.TextPrimary, fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold, maxLines = 1)
+    }
 }
