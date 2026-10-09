@@ -63,6 +63,10 @@ internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (
         VScreen.WEAKNESSES,
         VScreen.CARD_DETAIL,
         VScreen.NUMBER_DETAIL,
+        VScreen.ACCOUNT_DETAIL,
+        VScreen.EMAIL_DETAIL,
+        VScreen.DEVICE_DETAIL,
+        VScreen.SERVICE_DETAIL,
         VScreen.CARD_CUSTOMIZATION,
         VScreen.NUMBER_CUSTOMIZATION,
     )
@@ -72,6 +76,10 @@ internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (
     VScreen.NUMBERS -> current == VScreen.NUMBERS ||
         current == VScreen.NUMBER_DETAIL ||
         current == VScreen.NUMBER_CUSTOMIZATION
+    VScreen.ACCOUNTS -> current == VScreen.ACCOUNTS || current == VScreen.ACCOUNT_DETAIL
+    VScreen.EMAILS -> current == VScreen.EMAILS || current == VScreen.EMAIL_DETAIL
+    VScreen.DEVICES -> current == VScreen.DEVICES || current == VScreen.DEVICE_DETAIL
+    VScreen.SERVICES -> current == VScreen.SERVICES || current == VScreen.SERVICE_DETAIL
     VScreen.CHANGE -> current == VScreen.CHANGE || current == VScreen.CHANGE_PHONE
     VScreen.ME -> current == VScreen.ME || current == VScreen.SETTINGS ||
         current == VScreen.PERSONALIZATION || current == VScreen.SOURCES
