@@ -79,7 +79,7 @@ internal fun R9NowScreen(app: VAppState) {
 
         // R15 changes the entire hero composition, not only the Earth shader.
         // All five known region and four asset surfaces belong to ONE spatial stage.
-        R15CinematicHero(app, regions, app.demoCards().size, app.demoNumbers().size,
+        R17FramelessWorldHero(app, regions, app.demoCards().size, app.demoNumbers().size,
             if (app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size,
             if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size)
 
