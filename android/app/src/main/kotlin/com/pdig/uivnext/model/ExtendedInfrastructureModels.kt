@@ -29,6 +29,7 @@ data class UiVNextEmail(
     val linkedServiceCount: Int,
     val recoveryOnly: Boolean,
     val status: String,
+    val uniqueRecoveryPath: Boolean? = null, // null = 未知；恢复用途不等于唯一恢复
 )
 
 data class UiVNextDevice(
