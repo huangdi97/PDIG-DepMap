@@ -197,7 +197,7 @@ object UiVNextDemoFixture {
     )
 
     val attentionItems: List<AttentionItem> = listOf(
-        AttentionItem("att-1", "critical", "工行信用卡 11 月到期，绑定 2 项自动扣款", "card-cn-2"),
+        AttentionItem("att-1", "critical", "工行信用卡 11 月到期，换卡前需核对已确认绑定", "card-cn-2"),
         AttentionItem("att-2", "warning", "美国保号 11 月需完成保号，且承担账户恢复依赖", "num-us-1"),
         AttentionItem("att-3", "warning", "+86 138****8823 已确认是唯一恢复路径，停用前需建立替代路径", "num-cn-1"),
     )
@@ -207,7 +207,7 @@ object UiVNextDemoFixture {
     )
 
     val upcoming: List<UpcomingItem> = listOf(
-        UpcomingItem("upc-1", "工行信用卡 2026-11-15 到期", 47),
+        UpcomingItem("upc-1", "工行信用卡 2026-11-15 到期", 37),
         UpcomingItem("upc-2", "美国保号 2026-11-05 需要完成保号操作", 27),
     )
 
