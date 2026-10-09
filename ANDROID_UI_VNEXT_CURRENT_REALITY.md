@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-09 · R20**
+> **Current reality · 2026-10-09 · R21**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,7 +13,7 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R20
+ANDROID_UI_VNEXT_SOURCE = R21
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
@@ -22,12 +22,12 @@ PRODUCTION_VNEXT_CUTOVER = HOLD
 CANONICAL_SCHEMA_CHANGE_FOR_R19_UI = NONE
 DEPMAP_PAYLOAD_CHANGE_FOR_R19_UI = NONE
 
-FRESH_R20_BUILD = NOT_RUN
-FRESH_R20_UNIT_TESTS = NOT_RUN
-FRESH_R20_INSTRUMENTATION = NOT_RUN
-FRESH_R20_PHONE_PIXELS = NOT_RUN
-FRESH_R20_TABLET_PIXELS = NOT_RUN
-FRESH_R20_HUMAN_ACCEPTANCE = NOT_RUN
+FRESH_R21_BUILD = NOT_RUN
+FRESH_R21_UNIT_TESTS = NOT_RUN
+FRESH_R21_INSTRUMENTATION = NOT_RUN
+FRESH_R21_PHONE_PIXELS = NOT_RUN
+FRESH_R21_TABLET_PIXELS = NOT_RUN
+FRESH_R21_HUMAN_ACCEPTANCE = NOT_RUN
 ```
 
 Do not reuse pre-R19 screenshots or old PASS statements as proof of the current
@@ -60,7 +60,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **NOT_RUN on current R19 head** |
+| Exact-head GPU runtime proof | **NOT_RUN on current R21 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -140,9 +140,9 @@ recoveryOnly != uniqueRecoveryPath
 
 A recovery role is not automatically a single point of failure.
 
-## 6. Change Center + Change Phone
+## 6. Change Center + supported focused changes
 
-Primary `变更` is now a distinct R20 work center:
+Primary `变更` is a distinct work center:
 - active changes first;
 - Prepare entries second;
 - maintenance/review entry points;
@@ -169,6 +169,36 @@ num-cn-4 migration target
 ```
 
 These IDs are synthetic only; the identity separation is the product invariant.
+
+### Change Card — R21
+
+Because `replace_payment_card` is already an active production scenario, R21 adds
+the missing focused card-replacement reference:
+
+```text
+Current
+→ old card + recorded payment relations
+
+Transition
+→ dependency review complete
+→ migrate payment relations
+→ verification blocked until migration/evidence prerequisites
+
+After
+→ plan projection only
+```
+
+Card Detail now exposes **分析更换此卡的影响**. Replacement cards are user-selected
+reference plan targets, never automatic recommendations or inferred independent
+backups.
+
+Route hierarchy:
+
+```text
+Change Card → Up → Change
+System Back → actual previous page
+```
+
 
 ## 7. Impact Lens
 
@@ -213,7 +243,32 @@ Each now has:
 Adaptive Account/Email collections and Search subtitles also respect the workspace
 privacy mask.
 
-## 9. Search
+## 9. Records — evidence / verification trace
+
+R21 replaces the old “second Now” Records presentation.
+
+Records now answers:
+
+> **发生过什么、验证过什么、依据是什么？**
+
+Reference projection:
+- completed ChangeStage → **已记录完成**, never auto-verified;
+- verifying ChangeStage → **待验证**;
+- not-started / future blocked stages are not history;
+- Attention / Upcoming remain on Now and are not copied into Records;
+- active plan cards are navigation context only.
+
+Current reference fixture intentionally shows:
+
+```text
+已记录完成 = 2
+已验证 = 0
+待验证 = 1
+```
+
+This is fixture projection, not a production-user history claim.
+
+## 10. Search
 
 Source search now covers:
 - card/number names;
@@ -226,7 +281,7 @@ Source search now covers:
 
 Search only searches recorded/reference data; absence is not proof of nonexistence.
 
-## 10. Production binding
+## 11. Production binding
 
 Current reference route:
 ```text
@@ -266,7 +321,7 @@ Source progress now also includes:
 
 These are read-only seams. They do not switch the launcher or claim R19 lifecycle persistence.
 
-## 11. Canonical boundary
+## 12. Canonical boundary
 
 Current Canonical schema does **not** yet define R19 card/number lifecycle fields as
 cross-platform semantic fields.
@@ -288,14 +343,16 @@ Spec
 → UI
 ```
 
-## 12. Tests / evidence present in source
+## 13. Tests / evidence present in source
 
-R20 has source contracts for:
+R21 has source contracts for:
 - lifecycle fixture truth/unknown behavior;
 - Impact Lens unknown/evidence boundaries;
 - keep-number identity;
 - separate migration target;
 - Change impact summary;
+- payment-card Current / Transition / After semantics;
+- Records completed-vs-verified projection;
 - aliases/navigation hierarchy;
 - five-item primary IA;
 - search lifecycle/alias semantics;
@@ -306,7 +363,7 @@ R20 has source contracts for:
 These tests are **present**. They are not called PASS until run on the current
 exact head.
 
-## 13. Current remaining evidence gates
+## 14. Current remaining evidence gates
 
 ```text
 1. exact-head build
@@ -322,16 +379,18 @@ exact head.
 
 Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 
-## 14. Source/design closure documents
+## 15. Source/design closure documents
 
 - `ANDROID_UI_VNEXT_R19_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R20_SOURCE_REPORT.md`
+- `ANDROID_UI_VNEXT_R21_SOURCE_REPORT.md`
+- `spec/ui-vnext/RECORDS_AND_PAYMENT_CHANGE_CONTRACT.md`
 - `ANDROID_REFERENCE_MAPPING.md`
 - `ANDROID_VISUAL_CONTRACT.md`
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
 - `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
 
-## 15. Honest stop line
+## 16. Honest stop line
 
 ```text
 SOURCE_DESIGN = COMPLETE
@@ -340,5 +399,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R20 runtime
+The next blocker is no longer “missing UI design.” It is fresh exact-head R21 runtime
 verification and, after reference acceptance, production read-model binding.
