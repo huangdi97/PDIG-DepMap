@@ -1,0 +1,96 @@
+name: Android UI vNext Tablet Pixel Proof
+
+# Exact-head API36 tablet evidence for the adaptive R19 source.
+# This complements the phone adb pixel journey; it is evidence, not self-approval.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/android-ui-vnext-translation
+    paths:
+      - '.github/workflows/android-ui-vnext-tablet-pixels.yml'
+      - 'android/app/src/**/uivnext/**'
+      - 'android/app/src/preview/**'
+      - 'android/app/build.gradle.kts'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-vnext-tablet-pixels-${{ github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  tablet-runtime-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Enable host KVM
+        run: |
+          sudo chown "$USER" /dev/kvm || true
+          ls -l /dev/kvm || true
+      - name: Build exact previewDebug + androidTest
+        working-directory: android
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:assemblePreviewDebug :app:assemblePreviewDebugAndroidTest \
+            --no-daemon --stacktrace -PpdigPreviewBuildSha="${GITHUB_SHA:0:7}"
+      - name: Run API36 tablet contracts and capture Human Review set
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          profile: Nexus 10
+          target: google_apis
+          ram-size: 3072M
+          heap-size: 512M
+          disk-size: 8G
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          pre-emulator-launch-script: |
+            mkdir -p "$HOME/.android"
+            printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            adb shell settings put system accelerometer_rotation 0
+            adb shell settings put system user_rotation 1
+            adb shell wm size 1920x1200
+            adb shell wm density 240
+            sleep 3
+
+            mkdir -p artifacts/runtime-evidence/preview-tablet
+            {
+              echo "source_sha=${GITHUB_SHA}"
+              adb shell wm size
+              adb shell wm density
+              adb shell dumpsys display | grep -E 'mCurrentDisplayRect|DisplayInfo|logicalWidth|logicalHeight' | head -40 || true
+            } > artifacts/runtime-evidence/preview-tablet/device-profile.txt
+
+            cd android
+            ./gradlew :app:connectedPreviewDebugAndroidTest --no-daemon --stacktrace \
+              -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.TabletAdaptiveContractTest
+
+            adb shell rm -rf /sdcard/Download/ui-shots || true
+            ./gradlew :app:connectedPreviewDebugAndroidTest --no-daemon --stacktrace \
+              -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.SourceCompleteScreenshotEvidenceTest
+            cd ..
+
+            adb pull /sdcard/Download/ui-shots artifacts/runtime-evidence/preview-tablet/ui-shots
+            find artifacts/runtime-evidence/preview-tablet -maxdepth 3 -type f -print | sort
+      - name: Upload tablet pixels, manifests and profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-tablet-actual-pixels-${{ github.sha }}
+          path: |
+            artifacts/runtime-evidence/preview-tablet/
+            android/app/build/reports/androidTests/
+            android/app/build/outputs/androidTest-results/
+          if-no-files-found: warn
+          retention-days: 21
