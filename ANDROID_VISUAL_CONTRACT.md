@@ -5,6 +5,17 @@
 > Forbidden regressions / Reference desktop screen / Android translation rationale。
 > 证据：`artifacts/runtime-evidence/2026-10-02-android-ui-vnext-translation/`（phone + tablet）。
 
+## 00-shell（全局导航）
+
+- **Primary object**：五个一级目的地 `现在 / 基础设施 / 变更 / 记录 / 我`。
+- **Hierarchy**：五项均为 root；`我` 不是设置快捷方式，而是「我的数字生活」一级工作区。
+- **Phone**：bottom navigation 五项全部直接可见；头像可以作为快捷入口，但不得替代「我」Tab。
+- **Medium / Expanded**：primary rail 同样保留五项；数据源/设置是「我」的低频子工具。
+- **Back / Up**：System Back = 真实访问历史；Header Up = 产品层级；五个 root 不显示 Header Up。
+- **Required states**：`我` 选中态；Settings/Sources 打开时保留「我」父级上下文；详情聚焦流返回 root 后五项恢复。
+- **Forbidden**：把「我」降级为头像-only、overflow、二级工具；手机四项/平板五项的不一致 IA。
+
+
 ## 01-now（现在）
 
 - **Primary object**：Global Infrastructure Navigator（纹理地球 Globe hero，强主角，非装饰）。
