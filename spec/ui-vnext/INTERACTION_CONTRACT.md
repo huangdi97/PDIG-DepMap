@@ -57,7 +57,11 @@ REGION_SELECTED/DETAIL ──Escape──▶ GLOBAL
 
 ## 6. 屏幕间导航
 
-- 一级导航切换 = 全应用状态切换；返回当前页语义。
+- 一级导航固定为 **现在 / 基础设施 / 变更 / 记录 / 我** 五项；`我` 是产品一级目的地，不是头像-only 工具。
+- 五个一级页均为 hierarchy root；Header Up 在一级页不出现。
+- 一级导航切换 = 全应用状态切换；System Back 仍按真实访问历史返回上一个页面/Tab。
+- 设置 / 个性化 / 数据源以「我」为 hierarchy parent；从这些子页 Header Up → 我。
+- 手机详情 / Studio / 搜索可临时隐藏 bottom nav 形成聚焦流程，但返回后必须恢复五项一级导航。
 - 卡片网格项 → 卡详情（identity 优先）→（可选）卡定制工作室。
 - 号码列表行 → 号码详情（identity 优先）→（可选）号码定制工作室。
 - 抽屉「查看卡片」→ 进入 `/infrastructure/cards?region=HK` 带过滤状态。
