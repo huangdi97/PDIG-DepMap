@@ -42,6 +42,7 @@ class AndroidAdaptiveShellContractTest {
         compose.onNodeWithTag("pdig.breakpoint.compact", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertIsNotDisplayed()
+        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
@@ -53,6 +54,7 @@ class AndroidAdaptiveShellContractTest {
         compose.onNodeWithTag("pdig.breakpoint.medium", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.NAV_BOTTOM, useUnmergedTree = true).assertIsNotDisplayed()
+        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertIsDisplayed()
 
         app.navigate(VScreen.NUMBERS)
         compose.waitForIdle()
