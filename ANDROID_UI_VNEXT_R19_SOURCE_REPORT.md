@@ -363,15 +363,17 @@ The next exact-head local run should include at least:
 09 Change Phone Current
 10 Change Phone Transition
 11 Change Phone After / Plan Projection
-12 Me — utility route, not primary bottom tab
-13 Tablet Cards list-detail
-14 Tablet Number detail hierarchy
-15 Tablet Change Phone
+12 Me — fifth primary destination, directly reachable from bottom nav
+13 Me → Settings / Sources — Me remains the parent primary context
+14 Tablet/Medium Me — bounded/adaptive first-class workspace
+15 Tablet Cards list-detail
+16 Tablet Number detail hierarchy
+17 Tablet Change Phone
 ```
 
 Review both content and geometry:
 - no stale R17/R18 build;
-- no fifth primary tab;
+- no regression that removes/demotes the fifth `我` primary tab;
 - no label collision;
 - no `recoveryOnly → unique` regression;
 - no lifecycle value invented for an unknown asset;
