@@ -108,8 +108,10 @@ internal fun R16ProjectedRegionOverlay(
                     .semantics {
                         val footprint = tag.primary.cardCount + tag.primary.phoneCount +
                             tag.primary.accountCount + tag.primary.serviceCount
+                        val attention = if (tag.primary.attentionCount > 0)
+                            "，${tag.primary.attentionCount} 项需要处理" else ""
                         contentDescription = if (all.size == 1)
-                            "地球地区：${tag.primary.displayName}，已记录 ${footprint} 项基础设施"
+                            "地球地区：${tag.primary.displayName}，已记录 ${footprint} 项基础设施$attention"
                         else "地球地区组：${tag.primary.displayName}等${all.size}个地区，点击选择"
                     }
                     .testTag("pdig.r16.geo-region.${tag.primary.regionCode}"),
@@ -143,11 +145,17 @@ internal fun R16ProjectedRegionOverlay(
                                 color = R9.Ink, maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
-                            val footprint = tag.primary.cardCount + tag.primary.phoneCount +
-                                tag.primary.accountCount + tag.primary.serviceCount
                             Text(
-                                "${footprint} 项 · ${tag.primary.phoneCount} 号",
+                                "${tag.primary.cardCount} 卡 · ${tag.primary.phoneCount} 号",
                                 fontSize = 7.sp, color = R9.Muted, maxLines = 1,
+                            )
+                        }
+                        if (tag.primary.attentionCount > 0) {
+                            Text(
+                                "!${tag.primary.attentionCount}",
+                                fontSize = 8.sp,
+                                color = R9.Rose,
+                                fontWeight = FontWeight.Bold,
                             )
                         }
                         if (all.size > 1) {
