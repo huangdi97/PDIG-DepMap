@@ -2,6 +2,7 @@ package com.pdig.uivnext.evidence
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
@@ -26,6 +27,27 @@ class PhoneStudioLayoutContractTest {
 
     @get:Rule
     val compose = createComposeRule()
+
+    @Test
+    fun compactCardDetail_keepsArtworkAsSecondaryMicroAction() {
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+        assumeTrue("phone-only contract", ctx.resources.configuration.screenWidthDp < 600)
+
+        val app = createVNextAppState().apply { openCard("card-cn-1") }
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        val root = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        val action = compose.onNodeWithTag("pdig.card.detail.change-art", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val minTouch = with(compose.density) { 48.dp.toPx() }
+
+        assertTrue("card-art action must keep >=48dp touch height", action.height >= minTouch)
+        assertTrue(
+            "card-art action must remain a minor action, not a full-width hero",
+            action.width < root.width * 0.72f,
+        )
+    }
 
     @Test
     fun compactCardCustomization_staysASimpleImageFeature() {
