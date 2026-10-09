@@ -101,9 +101,11 @@ class TabletAdaptiveContractTest {
 
         val hero = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_HERO, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val summary = compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val lifecycle = compose.onNodeWithTag("pdig.r19.number.lifecycle.adaptive", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val services = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_SERVICES, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val heroToSummary = summary.top - hero.bottom
-        val summaryToServices = services.top - summary.bottom
+        val summaryToLifecycle = lifecycle.top - summary.bottom
+        val lifecycleToServices = services.top - lifecycle.bottom
         val density = compose.density
         val threshold = with(density) { 32.dp.toPx() }
 
@@ -112,12 +114,17 @@ class TabletAdaptiveContractTest {
             heroToSummary in 0f..threshold,
         )
         assertTrue(
-            "tablet number detail summary→services gap must stay <=32dp (gap=$summaryToServices)",
-            summaryToServices in 0f..threshold,
+            "tablet number detail summary→lifecycle gap must stay <=32dp (gap=$summaryToLifecycle)",
+            summaryToLifecycle in 0f..threshold,
         )
         assertTrue(
-            "tablet number detail order must be Hero → Summary → Services",
-            hero.bottom <= summary.top && summary.bottom <= services.top,
+            "tablet number detail lifecycle→services gap must stay <=32dp (gap=$lifecycleToServices)",
+            lifecycleToServices in 0f..threshold,
+        )
+        assertTrue(
+            "tablet number detail order must be Hero → Summary → Lifecycle → Services",
+            hero.bottom <= summary.top && summary.bottom <= lifecycle.top &&
+                lifecycle.bottom <= services.top,
         )
     }
 
@@ -135,6 +142,13 @@ class TabletAdaptiveContractTest {
         assertTrue(
             "tablet card detail identity column must render",
             compose.onAllNodesWithTag(VTestIds.CARD_DETAIL_IDENTITY, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty(),
+        )
+        compose.onNodeWithTag("pdig.r19.card.lifecycle.workspace", useUnmergedTree = true)
+            .assertExists()
+        assertTrue(
+            "tablet card detail must expose the shared impact lens",
+            compose.onAllNodesWithTag("pdig.r19.impact-lens", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty(),
         )
 
         // Card Studio（glass）：preview + library 存在
