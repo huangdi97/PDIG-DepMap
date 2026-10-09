@@ -389,18 +389,18 @@ def main():
         ui = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
         if not any(short_sha in line for line in ui):
             raise RuntimeError(f"Displayed preview source SHA {short_sha} missing from 01-now UI XML")
-    # R19 freezes four primary destinations. "我" is a utility workspace opened
-    # from the top-right avatar, never a fifth bottom-nav item.
-    if not tap_retry("我", exact=True):
-        raise RuntimeError("The top-right profile/avatar entry (我) is not clickable")
-    capture("01a-me-from-avatar")
+    # Product decision: "我" is the intentional fifth primary destination.
+    # Prove the bottom-nav item itself, not merely a top-right avatar shortcut.
+    if not tap_retry("我", exact=True, prefer_bottom=True):
+        raise RuntimeError("The fifth primary navigation item (我) is not clickable")
+    capture("01a-me-from-primary-nav")
     try:
-        require_screen("01a-me-from-avatar", "我的数字生活", "隐私与个人偏好")
+        require_screen("01a-me-from-primary-nav", "我的数字生活", "隐私与个人偏好")
     except RuntimeError:
-        diagnose_navigation("me-from-avatar")
+        diagnose_navigation("me-from-primary-nav")
         raise
-    if not tap_retry("返回上一级", exact=True):
-        raise RuntimeError("Profile workspace did not expose hierarchical Up")
+    if not tap_retry("现在", exact=True, prefer_bottom=True):
+        raise RuntimeError("Could not return from 我 to 现在 through primary navigation")
     capture("01b-now-returned-from-me")
     require_screen("01b-now-returned-from-me", "你的全球数字基础设施")
 
@@ -610,24 +610,23 @@ def main():
     time.sleep(2)
 
     # Supporting screens must also be the new R19 renderer and expose actual
-    # persisted settings/source truth. "我" is an avatar utility route, not a
-    # fifth primary destination.
+    # persisted settings/source truth. Cold-start and enter the fifth primary tab.
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
     time.sleep(3)
-    if not tap_retry("我", exact=True):
-        raise RuntimeError("Profile/avatar entry was not composed after cold start")
+    if not tap_retry("我", exact=True, prefer_bottom=True):
+        raise RuntimeError("Fifth Me bottom-navigation label was not composed after cold start")
     for me_attempt in range(4):
         labels = [label_of(node) for node in xml_nodes()]
         if any("我的数字生活" in label for label in labels):
             break
         print("ME_NAV_RETRY", me_attempt + 1, "Me content not yet visible", flush=True)
         time.sleep(2)
-        if not tap_retry("我", exact=True, retries=2):
+        if not tap_retry("我", exact=True, prefer_bottom=True, retries=2):
             break
     else:
         diagnose_navigation("me-route-not-rendered")
-        raise RuntimeError("Profile avatar dispatched but R10MeScreen did not render")
+        raise RuntimeError("Bottom Me tab dispatched but R10MeScreen did not render")
     capture("09-me")
     require_screen("09-me", "我的数字生活", "敏感信息遮蔽", "已关闭")
     if not tap_retry("敏感信息遮蔽", exact=True):
