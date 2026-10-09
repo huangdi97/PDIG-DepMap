@@ -472,6 +472,34 @@ def main():
         raise RuntimeError("Card Impact Lens is unreachable in the current source")
     capture("04dd-card-impact")
     require_screen("04dd-card-impact", "如果它发生变化？", "已确认依赖", "未确认关系")
+
+    # R21: replace_payment_card is a real production-supported scenario. Prove the
+    # Preview continuity surface without pretending local projection state executed.
+    if not tap_retry("分析更换此卡的影响", exact=True):
+        raise RuntimeError("R21 Card Detail did not expose the supported replacement entry")
+    capture("04h-card-change-current")
+    require_screen("04h-card-change-current", "更换银行卡", "当前卡片", "已记录支付关系",
+                   "尚未选择替代卡片")
+    if not tap_retry("迁移中", exact=True):
+        raise RuntimeError("R21 Card Change transition projection unavailable")
+    capture("04i-card-change-transition-blocked")
+    require_screen("04i-card-change-transition-blocked", "尚未选择替代卡片，迁移阶段保持阻断")
+    if not tap_retry("工行信用卡", exact=True):
+        # Candidate strip can be horizontally clipped on compact phones.
+        adb("shell", "input", "swipe", "930", "1950", "250", "1950", "360")
+        if not tap_retry("工行信用卡", exact=True):
+            raise RuntimeError("R21 Card Change replacement candidate could not be selected")
+    capture("04j-card-change-transition-target")
+    require_screen("04j-card-change-transition-target", "工行信用卡", "已选计划目标")
+    if not tap_retry("完成后（计划）", exact=True):
+        raise RuntimeError("R21 Card Change After projection unavailable")
+    capture("04k-card-change-after")
+    require_screen("04k-card-change-after", "完成后是计划投影", "计划迁移")
+    adb("shell", "input", "keyevent", "4")
+    time.sleep(2)
+    if not any("基本信息" in label_of(n) for n in xml_nodes()):
+        raise RuntimeError("System Back from R21 Card Change did not return to Card Detail")
+
     # Return toward the card face before testing the minor artwork utility.
     for attempt in range(6):
         if tap_match("内置卡面", exact=True):
@@ -555,7 +583,17 @@ def main():
     if not tap_retry("记录", exact=True, prefer_bottom=True):
         raise RuntimeError("Records bottom navigation not found")
     capture("06-records")
-    require_screen("06-records", "迁移进度", "追踪变更、风险")
+    require_screen(
+        "06-records",
+        "发生过什么、验证过什么、依据是什么",
+        "已记录完成",
+        "已验证",
+        "待验证",
+        "done ≠ verified",
+    )
+    records_text = json.loads((ROOT / "06-records.json").read_text(encoding="utf-8"))["uiText"]
+    if any("需要关注" in row or "即将到来" in row for row in records_text):
+        raise RuntimeError("R21 Records regressed into a second Now/attention feed")
     # R9 parity requires that every 4x2 category opens a real R9 object workspace;
     # source-only composable existence is not accepted evidence.
     for category, slug, expected in (
