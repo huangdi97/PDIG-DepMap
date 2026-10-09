@@ -90,6 +90,7 @@ class TabletAdaptiveContractTest {
         compose.onNodeWithTag(VTestIds.NAV_RAIL, useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("pdig.nav.cards", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertExists()
     }
 
     @Test
@@ -163,6 +164,7 @@ class TabletAdaptiveContractTest {
         // Overview：Region List 非视觉替代存在（Globe marker 的可访问等价物）
         renderApp(createVNextAppState().apply { navigate(VScreen.OVERVIEW) })
         compose.onNodeWithTag(VTestIds.GLOBE_STAGE).assertExists()
+        compose.onNodeWithTag("pdig.r19.adaptive-world-stage", useUnmergedTree = true).assertExists()
         compose.onNode(androidx.compose.ui.test.hasText("中国大陆")).assertExists()
     }
 }
