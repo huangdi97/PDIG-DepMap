@@ -1,6 +1,7 @@
 name: Android UI vNext Phone Pixel Proof
 
 # Real runtime evidence is intentionally separate from the fast APK packaging gate.
+# R19 target: API 36, matching the current Android reference/runtime acceptance line.
 # No visual PASS can be granted on source, compile or manifest checks alone.
 on:
   workflow_dispatch:
@@ -52,9 +53,9 @@ jobs:
       - name: Install, launch and capture actual phone runtime pixels
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 35
+          api-level: 36
           arch: x86_64
-          profile: pixel_5
+          profile: pixel_7
           target: google_apis
           ram-size: 2048M
           heap-size: 384M
