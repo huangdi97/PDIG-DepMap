@@ -18,8 +18,11 @@
 | 2 | 基础设施 | infrastructure | `pdig.nav.infrastructure` |
 | 3 | 变更 | change | `pdig.nav.change` |
 | 4 | 记录 | records | `pdig.nav.records` |
+| 5 | 我 | me | `pdig.nav.me` |
 
-二级导航（IA.md §2）：数据源 `pdig.nav.sources`；设置 `pdig.nav.settings`。
+> `我` 是产品明确新增的第五个一级目的地。头像可作为快捷入口，但不得替代 bottom nav / primary rail 中的 `我`。
+
+二级导航（IA.md §2）：数据源 `pdig.nav.sources`；设置 `pdig.nav.settings`。它们是「我」的低频子工具/快捷入口，不是新的一级目的地。
 
 基础设施二级（IA.md §3）：
 
@@ -34,7 +37,7 @@
 | 服务 | services | `pdig.nav.infra.services` | 中（占位） |
 | 薄弱点 | weaknesses | `pdig.nav.infra.weaknesses` | 中 |
 
-- **建议文案**（不修改 copy-zh.json）：新增 copy key `uiVNext.nav.now = 现在`、`uiVNext.nav.infrastructure = 基础设施`、`uiVNext.nav.change = 变更`、`uiVNext.nav.records = 记录`、`uiVNext.nav.sources = 数据源`、`uiVNext.nav.settings = 设置`、`uiVNext.nav.infra.overview = 总览`、`uiVNext.nav.infra.cards = 卡片`、`uiVNext.nav.infra.numbers = 号码`、`uiVNext.nav.infra.accounts = 账户`、`uiVNext.nav.infra.emails = 邮箱`、`uiVNext.nav.infra.devices = 设备`、`uiVNext.nav.infra.services = 服务`、`uiVNext.nav.infra.weaknesses = 薄弱点`。
+- **建议文案**（不修改 copy-zh.json）：新增 copy key `uiVNext.nav.now = 现在`、`uiVNext.nav.infrastructure = 基础设施`、`uiVNext.nav.change = 变更`、`uiVNext.nav.records = 记录`、`uiVNext.nav.me = 我`、`uiVNext.nav.sources = 数据源`、`uiVNext.nav.settings = 设置`、`uiVNext.nav.infra.overview = 总览`、`uiVNext.nav.infra.cards = 卡片`、`uiVNext.nav.infra.numbers = 号码`、`uiVNext.nav.infra.accounts = 账户`、`uiVNext.nav.infra.emails = 邮箱`、`uiVNext.nav.infra.devices = 设备`、`uiVNext.nav.infra.services = 服务`、`uiVNext.nav.infra.weaknesses = 薄弱点`。
 
 ## 3. 几何
 
@@ -50,7 +53,7 @@
 | Rail 宽度范围 token | `DESIGN_TOKENS.json components.nav.railWidthRange` | `{min:76, max:188}` |
 | Top Command 高 token | `components.nav.topCommandHeight` | `48` |
 | 内容最大宽 | `RESPONSIVE_CONTRACT.json desktop.contentMaxWidth` / `DESIGN_TOKENS.json components.page.maxWidth` | `1400` |
-| 移动端 | `RESPONSIVE_CONTRACT.json android.phone` | bottom nav ≤ 5 项 |
+| 移动端 | `RESPONSIVE_CONTRACT.json android.phone` | bottom nav = 5 个一级目的地（Material 允许 3–5） |
 | 触控 | `DESIGN_TOKENS.json components.touchTarget` | Android 48 / iOS 44 |
 
 - Rail 折叠/展开动画：`MOTION_CONTRACT.json microInteractions.railStateChangeMs = 180`；导航切换 `navigationSwitchMs = 200`。
@@ -85,7 +88,7 @@
 
 ## 7. 验收自检
 
-- [ ] testId 全量存在：`pdig.nav.rail`、`pdig.nav.top`、一级 4 个（now/infrastructure/change/records）、二级 2 个（sources/settings）、基础设施二级 8 个（overview/cards/numbers/accounts/emails/devices/services/weaknesses）。
+- [ ] testId 全量存在：`pdig.nav.rail`、`pdig.nav.top`、一级 5 个（now/infrastructure/change/records/me）、二级 2 个（sources/settings）、基础设施二级 8 个（overview/cards/numbers/accounts/emails/devices/services/weaknesses）。
 - [ ] 卡片/号码是二级页且非一级导航（IA.md §3）。
 - [ ] 几何符合：rail 80 → 188（范围 76–88 / max 188）、top command 48（44–52）、页面 padding 24（24–32）、主 gap 20（16–24）。
 - [ ] Ctrl/Cmd+K 打开命令条可测（`pdig.nav.top`）。
