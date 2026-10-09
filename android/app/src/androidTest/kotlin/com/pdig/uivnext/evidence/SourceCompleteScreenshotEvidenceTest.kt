@@ -44,7 +44,7 @@ import java.util.Locale
  * Source-complete runtime screenshot evidence（任务书 §16/§17/§18/§34）。
  *
  * 在真实 API36 Phone（AVD main）/ Tablet（AVD pdig_tablet_api36）emulator 上运行时，
- * 捕获 24 屏完整 Human Review 集合 + 空态集合。文件名与任务书一致：
+ * 捕获 R19 完整 Human Review 集合 + 空态集合（含第五一级「我」）。文件名与任务书一致：
  * 01-now.png … 24-data-sources.png；空态 <phone|tablet>-cards-empty.png 等。
  * 捕获为设备内 Compose 实际像素（captureToImage），非 offscreen / preview / desktop render。
  *
@@ -253,9 +253,9 @@ class SourceCompleteScreenshotEvidenceTest {
         if (deviceClass == "tablet") {
             // Expanded runtime must prove the real user path: Cards -> select card -> inspector -> 定制卡面 -> Studio.
             capture(
-                "07-card-studio-glass",
-                "glass",
-                { it.evidenceThemeId = "glass"; it.navigate(VScreen.CARDS) },
+                "07-card-art-ocean",
+                "ocean",
+                { it.evidenceThemeId = "ocean"; it.navigate(VScreen.CARDS) },
                 {
                     if (it.screen == VScreen.CARD_CUSTOMIZATION) it.evidenceThemeId ?: "none"
                     else "not-studio"
@@ -268,9 +268,9 @@ class SourceCompleteScreenshotEvidenceTest {
                 compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
             }
             capture(
-                "08-card-studio-city",
-                "city",
-                { it.evidenceThemeId = "city"; it.navigate(VScreen.CARDS) },
+                "08-card-art-night",
+                "night",
+                { it.evidenceThemeId = "night"; it.navigate(VScreen.CARDS) },
                 {
                     if (it.screen == VScreen.CARD_CUSTOMIZATION) it.evidenceThemeId ?: "none"
                     else "not-studio"
@@ -283,8 +283,8 @@ class SourceCompleteScreenshotEvidenceTest {
                 compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).fetchSemanticsNode()
             }
         } else {
-            capture("07-card-studio-glass", "glass", { it.evidenceThemeId = "glass"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
-            capture("08-card-studio-city", "city", { it.evidenceThemeId = "city"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
+            capture("07-card-art-ocean", "ocean", { it.evidenceThemeId = "ocean"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
+            capture("08-card-art-night", "night", { it.evidenceThemeId = "night"; it.openCardCustomization("card-cn-2") }, { it.evidenceThemeId ?: "none" })
         }
         capture("09-numbers", "global", { it.navigate(VScreen.NUMBERS) }, { "global" })
         capture("10-number-detail", "num-cn-1", { it.openNumber("num-cn-1") }, { it.selectedNumberId ?: "none" })
