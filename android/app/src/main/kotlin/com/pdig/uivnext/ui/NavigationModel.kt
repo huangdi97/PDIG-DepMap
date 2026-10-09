@@ -80,7 +80,9 @@ internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (
     VScreen.EMAILS -> current == VScreen.EMAILS || current == VScreen.EMAIL_DETAIL
     VScreen.DEVICES -> current == VScreen.DEVICES || current == VScreen.DEVICE_DETAIL
     VScreen.SERVICES -> current == VScreen.SERVICES || current == VScreen.SERVICE_DETAIL
-    VScreen.CHANGE -> current == VScreen.CHANGE || current == VScreen.CHANGE_PHONE
+    VScreen.CHANGE -> current == VScreen.CHANGE ||
+        current == VScreen.CHANGE_PHONE ||
+        current == VScreen.CHANGE_CARD
     VScreen.ME -> current == VScreen.ME || current == VScreen.SETTINGS ||
         current == VScreen.PERSONALIZATION || current == VScreen.SOURCES
     VScreen.SETTINGS -> current == VScreen.SETTINGS || current == VScreen.PERSONALIZATION
