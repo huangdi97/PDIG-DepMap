@@ -122,6 +122,11 @@ class AndroidLightVisualSourceContractTest {
         compose.onNodeWithTag("pdig.r18.number.lifecycle", useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
+        assertTrue(
+            "number detail must expose an impact lens",
+            compose.onAllNodesWithTag("pdig.r19.impact-lens", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty(),
+        )
 
         app.openCard("card-cn-2")
         compose.waitForIdle()
@@ -131,6 +136,11 @@ class AndroidLightVisualSourceContractTest {
         compose.onNodeWithTag("pdig.r18.card.lifecycle", useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
+        assertTrue(
+            "card detail must expose an impact lens",
+            compose.onAllNodesWithTag("pdig.r19.impact-lens", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty(),
+        )
 
         app.openUtility(VScreen.SOURCES)
         compose.waitForIdle()
