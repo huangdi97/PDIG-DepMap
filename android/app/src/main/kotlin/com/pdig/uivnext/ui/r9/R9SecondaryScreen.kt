@@ -67,8 +67,13 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                     R9ObjectRow(a.name, "${if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress} · ${a.provider}",
                         "角色：${a.roles.joinToString(" / ")}",
                         "关联：${a.linkedServiceCount} 项", regionFlag(a.region), "@",
-                        if(a.recoveryOnly) "唯一恢复" else "已记录",
-                        if(a.recoveryOnly) R9.Rose else R9.Green)
+                        when {
+                            a.uniqueRecoveryPath == true -> "唯一恢复"
+                            a.recoveryOnly -> "恢复用途"
+                            else -> "已记录"
+                        },
+                        if(a.uniqueRecoveryPath == true) R9.Rose
+                        else if(a.recoveryOnly) R9.Amber else R9.Green)
                 }
                 if(items.isEmpty()) R9UnknownEmpty("邮箱")
             }
