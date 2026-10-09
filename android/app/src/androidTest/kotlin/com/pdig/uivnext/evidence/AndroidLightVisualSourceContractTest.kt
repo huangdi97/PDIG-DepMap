@@ -117,10 +117,16 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.r18.number.lifecycle", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
 
         app.openCard("card-cn-2")
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.r18.card.lifecycle", useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
 
