@@ -2,7 +2,9 @@
 
 > Branch: `feat/android-ui-vnext-translation`
 >
-> Android production-UI source checkpoint: `a03bc11c8bac601f95bf2e070c5f666e2b22d271` (Human-selected light reference + focused Phone + secondary-infrastructure asset closure)
+> Historical source checkpoint: `a03bc11c8bac601f95bf2e070c5f666e2b22d271`.
+>
+> **R19 override (2026-10-09):** current branch truth supersedes the 2026-10-05 four-tab wording below where they conflict. The product now intentionally has **five** primary destinations: 现在 / 基础设施 / 变更 / 记录 / 我. See `spec/ui-vnext/FIVE_PRIMARY_NAVIGATION_DECISION.md`.
 >
 > Status: **ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE / CURRENT_HEAD_RUNTIME_RERUN_REQUIRED**
 >
@@ -12,7 +14,7 @@
 ## 1. Product contract preserved
 
 - Product: Personal Digital Infrastructure Change & Continuity Management.
-- Primary navigation: 现在 / 基础设施 / 变更 / 记录.
+- Primary navigation: 现在 / 基础设施 / 变更 / 记录 / 我（五个一级目的地；`我` 不得降级）。
 - Infrastructure secondary: 总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点.
 - Globe remains the Global Infrastructure Navigator.
 - PresentationProfile remains presentation-only and never mutates PersonalReality / Canonical.
@@ -27,6 +29,7 @@
 | 基础设施 | COMPLETE              | Routes to Overview and all eight secondary categories.                                                   |
 | 变更     | COMPLETE              | Change Phone flagship with Current / Transition / After.                                                 |
 | 记录     | COMPLETE              | Active change card + migration timeline + attention + upcoming records.                                  |
+| 我       | COMPLETE              | 我的数字生活、关键身份、连续性概览、隐私/偏好与个人管理入口；一级 root。                                |
 
 ## 3. Completed infrastructure surfaces
 
@@ -34,16 +37,16 @@
 | ---------- | --------------------- | ---------------------------------------------------------------------------------------------- |
 | 总览       | COMPLETE              | Real-Earth Globe + region list + attention rail + quick entries; compact/expanded translation. |
 | 卡片       | COMPLETE              | Adaptive card gallery/list, region filtering, issuer identity, privacy mask.                   |
-| 卡片详情   | COMPLETE              | Identity hero, metadata, bound services, risk, replacement guidance, history.                  |
+| 卡片详情   | COMPLETE              | Identity hero, recorded lifecycle, confirmed dependencies, truth-bounded Impact Lens, appearance action. |
 | 卡面定制   | COMPLETE              | Consumer Studio; theme/material/privacy controls persist via PresentationProfile.              |
 | 号码       | COMPLETE              | High-density communication identity list; compact List→Detail; expanded list+inspector.        |
-| 号码详情   | COMPLETE              | Number identity, service dependencies, recovery risk, alternate route, history.                |
+| 号码详情   | COMPLETE              | Number identity, lifecycle/keep-alive, recovery-use vs explicit-unique truth, dependencies, Impact Lens. |
 | 号码面定制 | COMPLETE              | Communication-identity Studio; theme/material/privacy persist locally.                         |
 | 账户       | COMPLETE              | Identity provider, masked identifier, roles, auth methods, recovery route, attention state.    |
 | 邮箱       | COMPLETE              | Login/recovery roles, linked-service count, unique-recovery warning.                           |
 | 设备       | COMPLETE              | Platform/type, trust state, roles, last-seen, review warning.                                  |
 | 服务       | COMPLETE              | Region-scoped service inventory and consumer service-category labels.                          |
-| 薄弱点     | COMPLETE              | Recovery-only numbers/emails, expiring cards, device review, phone-migration blocker.          |
+| 薄弱点     | COMPLETE              | Explicit unique-recovery findings, expiring cards, device review, phone-migration blockers; recovery use alone is not a weakness. |
 
 ## 4. Completed utility surfaces
 
@@ -59,7 +62,7 @@
 ### COMPACT
 
 - Top command bar.
-- Four-item bottom navigation.
+- Five-item bottom navigation: 现在 / 基础设施 / 变更 / 记录 / 我.
 - Infrastructure uses a dedicated 8-category management Hub on Phone; the persistent sibling strip is reserved for wider layouts.
 - Cards default to an asset-first visual list on Phone, with a full card-face mode still available; type + region browsing stay presentation-only.
 - Numbers use List→Detail rather than desktop inspector; every compact row preserves a communication-identity visual surface rather than a generic address-book row.
@@ -68,7 +71,7 @@
 
 ### MEDIUM / EXPANDED
 
-- Primary navigation rail only; infrastructure object categories stay in a content-level sibling navigation row.
+- Five-item primary navigation rail; infrastructure object categories stay in a content-level sibling navigation row.
 - Overview Globe + activity rail.
 - Card/number list-detail where appropriate.
 - Consumer Studio multi-column layout.
@@ -200,27 +203,25 @@ IOS_UI_VNEXT = HOLD
 HARMONY_UI_VNEXT = HOLD
 ```
 
-The next local run must build and capture from the exact current remote branch HEAD. The latest Android
-production-UI checkpoint is `a03bc11c...`; any later Android production-UI commit invalidates the evidence
-and requires regeneration. Documentation-only descendants do not change pixels, but the execution Agent
-should still pull and record the exact remote HEAD it actually validates.
+The next local run must build and capture from the exact current remote branch HEAD. The historical `a03bc11c...` evidence is not proof for R19. Any current acceptance run must pull and record the
+exact remote R19 HEAD; all pre-R19 pixel/runtime evidence is historical only.
 
 
 ## 12. Adaptive navigation & compact craft closure (2026-10-05)
 
 Human pixel review of the first source-complete runtime pack showed that the implementation was functionally
-complete but still carried two desktop/control-panel traits into Android: the Tablet rail mixed four global
-destinations with eight infrastructure object categories, and the Phone Studio rendered theme choices as a
-long vertical settings list.
+complete but still carried desktop/control-panel traits into Android. The 2026-10-05 pass separated global
+navigation from Infrastructure siblings. **R19 later adds `我` as an intentional fifth global destination; this
+is a product decision, not a regression to the older mixed rail.**
 
 The Android translation now freezes the following presentation hierarchy:
 
-- **Primary navigation stays primary**: 现在 / 基础设施 / 变更 / 记录 remain the only product-level
-  destinations in Bottom Navigation / wide Navigation Rail.
+- **Primary navigation stays primary**: 现在 / 基础设施 / 变更 / 记录 / 我 are the five product-level
+  destinations in Bottom Navigation / wide Navigation Rail. `我` owns the personal digital-life workspace.
 - **Infrastructure categories are sibling destinations inside the Infrastructure context**:
   总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点 live in a scrollable content-level row on
   both compact and wide Android layouts.
-- **Utilities remain low-frequency**: 数据源 / 设置 stay separated from the four primary destinations.
+- **Utilities remain low-frequency**: 数据源 / 设置 stay separated from the five primary destinations and remain under the `我` context.
 - **Compact top chrome is quieter**: search/settings/back retain 48dp interaction geometry without reading
   as three competing filled dashboard tiles.
 - **Compact Studio is asset-first**: the live asset preview remains first; theme choices are a horizontal
