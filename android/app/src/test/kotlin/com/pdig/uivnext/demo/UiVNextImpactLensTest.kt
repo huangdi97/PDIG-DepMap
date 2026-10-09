@@ -38,6 +38,27 @@ class UiVNextImpactLensTest {
     }
 
     @Test
+    fun SecondaryObjectImpactLensesRemainEvidenceBounded() {
+        val account = accountImpactLens("acc-hk-1")
+        assertEquals(1, account.attentionFindings)
+        assertEquals(UiImpactTruth.UNKNOWN, account.uniqueRecoveryPath)
+        assertNull(account.independentAlternatives)
+
+        val email = emailImpactLens("email-cn-1")
+        assertEquals(5, email.confirmedDependencies)
+        assertEquals(UiImpactTruth.UNKNOWN, email.uniqueRecoveryPath)
+
+        val device = deviceImpactLens("dev-us-1")
+        assertEquals(1, device.attentionFindings)
+        assertEquals(UiImpactTruth.UNKNOWN, device.uniqueRecoveryPath)
+
+        val service = serviceImpactLens("svc-wxpay")
+        assertTrue(service.confirmedDependencies > 0)
+        assertEquals(UiImpactTruth.UNKNOWN, service.uniqueRecoveryPath)
+        assertTrue(service.unknownRelationsRemain)
+    }
+
+    @Test
     fun NonRecoveryOnlyDoesNotBecomeConfirmedSafe() {
         val impact = numberImpactLens("num-hk-1")
         assertEquals(UiImpactTruth.UNKNOWN, impact.uniqueRecoveryPath)
