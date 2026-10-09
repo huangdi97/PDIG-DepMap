@@ -70,7 +70,7 @@ internal fun R10TopBar(app: VAppState) {
                     maxLines = 1,
                 )
                 if (app.screen == VScreen.NOW) {
-                    Text("预览 · ${BuildConfig.GIT_SHA} · R19", color = R9.Muted, fontSize = 9.sp)
+                    Text("本机预览 · ${BuildConfig.GIT_SHA}", color = R9.Muted, fontSize = 9.sp)
                 }
             }
             if (app.screen != VScreen.SEARCH) {
