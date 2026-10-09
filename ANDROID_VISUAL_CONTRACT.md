@@ -112,7 +112,33 @@
 - **Reference**：Desktop Change Phone Transition / After。
 - **Rationale**：手机纵向连续性流；服务节点 > 路径；三投影语义经变体 SHA 验证互异。
 
-## 13-cards-empty（卡片空态）
+## 13-change-card（更换银行卡）
+
+- **Primary object**：旧卡 → 已记录支付关系 → 替代卡（可选计划目标）的 Continuity 场景。
+- **Secondary object**：Current / Transition / After 选择器、3 阶段 Rail、Impact Lens、替代卡片选择。
+- **Hierarchy**：场景标题/边界 → 投影 → OLD/relations/NEW → 连续性步骤 → Impact → 替代对象选择。
+- **Required states**：
+  - current：旧卡 + 当前已记录支付依赖，全部阶段未执行；
+  - transition/no replacement：依赖检查已完成，迁移因未选替代卡而阻断；
+  - transition/with replacement：迁移中，验证阶段仍阻断；
+  - after：三个阶段均为 Plan Projection，不显示成实际完成。
+- **Truth boundary**：候选替代卡不是推荐；候选卡不是独立备用路径；迁移完成 ≠ 支付路径已验证。
+- **Forbidden**：把“换卡面图片”与“更换银行卡”混为一件事；自动挑选替代卡；点击即 verified；After 显示“迁移成功”。
+- **Reference**：生产 `replace_payment_card` 场景语义 + Android R21 consumer translation。
+- **Rationale**：COMPACT 为 OLD↓relations↓NEW；MEDIUM/EXPANDED 为 OLD→relations→NEW，语义不变。
+
+## 14-records（记录）
+
+- **Primary object**：Evidence / Verification Trace，而不是 Attention feed。
+- **Secondary object**：已记录完成 / 已验证 / 待验证摘要、变更轨迹、关联计划上下文、记录边界。
+- **Hierarchy**：问题定义 → truth summary → 已发生/待验证轨迹 → 验证规则 → 关联计划 → 依据边界。
+- **Required states**：reference fixture = 2 已记录完成 / 0 已验证 / 1 待验证；empty trace；active plan context。
+- **Truth boundary**：`done != verified`；not_started / future blocked 不进入历史；Attention / Upcoming 留在 Now。
+- **Forbidden**：第二个 Now；把待办当历史；completed 自动变 verified；伪造时间戳/证据来源。
+- **Reference**：v2.3 Product Lenses Records boundary + R21 reference projection。
+- **Rationale**：Phone/Tablet/Expanded 共用同一 Records renderer，只改变 max-width/spacing，避免语义分叉。
+
+## 15-cards-empty（卡片空态）
 
 - **Primary object**：EmptyState（semantic illustration + title + description + CTA）。
 - **Secondary object**：主 CTA（查看全部卡片）/ 次 CTA（查看号码）。
@@ -122,10 +148,10 @@
 - **Reference**：Desktop Cards Empty。
 - **Rationale**：按手机空间重新构图（图标 96dp、文案 ≤85% 宽）。
 
-## 14-search-command（搜索 / 命令）
+## 16-search-command（搜索 / 命令）
 
 - **Primary object**：搜索字段（真实搜索 card/number/region/service）。
-- **Secondary object**：导航命令（Cards/Numbers/Overview/Change Phone/Records/Settings）。
+- **Secondary object**：导航命令（Cards/Numbers/Overview/Change Phone/Replace Card discovery/Records/Settings）。
 - **Hierarchy**：字段 → 命令 → 结果。
 - **Required states**：空查询（命令常驻）；无匹配（「没有匹配…未记录 ≠ 无风险」，不做假结果）。
 - **Forbidden**：假搜索 UI；Ctrl+K 作为唯一入口。
