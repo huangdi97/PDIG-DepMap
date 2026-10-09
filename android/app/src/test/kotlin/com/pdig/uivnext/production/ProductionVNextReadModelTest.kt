@@ -28,7 +28,15 @@ class ProductionVNextReadModelTest {
         val snapshot = buildProductionSnapshot(
             revision = 7,
             nodes = listOf(
-                NodeRow("card-1", "payment_instrument", "主卡", false, "{}"),
+                NodeRow(
+                    id = "card-1",
+                    kind = "payment_instrument",
+                    name = "主卡",
+                    archived = false,
+                    fieldsJson = "{}",
+                    issuer = "示例银行",
+                    last4 = "8823",
+                ),
                 NodeRow("old-1", "account", "已归档", true, "{}"),
             ),
             dependencies = listOf(
@@ -116,6 +124,8 @@ class ProductionVNextReadModelTest {
 
         assertEquals(7, snapshot.revision)
         assertEquals(listOf("card-1"), snapshot.objects.map { it.id })
+        assertEquals("示例银行", snapshot.objects.single().issuer)
+        assertEquals("8823", snapshot.objects.single().last4)
         assertEquals(listOf("dep-active"), snapshot.confirmedDependencies.map { it.id })
         assertTrue(snapshot.confirmedDependencies.all { it.truth == VNextProjectionTruth.CONFIRMED })
         assertEquals(VNextProjectionTruth.DERIVED, snapshot.timeline.single().truth)
