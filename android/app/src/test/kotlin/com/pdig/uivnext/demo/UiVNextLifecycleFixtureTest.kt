@@ -28,6 +28,7 @@ class UiVNextLifecycleFixtureTest {
         assertEquals("2026-11-05", facts!!.keepAliveDue)
         assertEquals("每 90 天", facts.keepAliveCycle)
         assertTrue(facts.renewalMethod!!.contains("已记录"))
+        assertEquals("keep", UiVNextDemoFixture.numberById("num-us-1")!!.role)
     }
 
     @Test
