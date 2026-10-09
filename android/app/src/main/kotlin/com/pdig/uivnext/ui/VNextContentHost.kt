@@ -56,6 +56,7 @@ import com.pdig.uivnext.ui.screens.NumberDetailScreen
 import com.pdig.uivnext.ui.screens.NumbersScreen
 import com.pdig.uivnext.ui.screens.NowScreen
 import com.pdig.uivnext.ui.screens.OverviewScreen
+import com.pdig.uivnext.ui.screens.R19AdaptiveMeScreen
 import com.pdig.uivnext.ui.screens.PersonalizationScreen
 import com.pdig.uivnext.ui.screens.RecordsScreen
 import com.pdig.uivnext.ui.screens.SearchScreen
@@ -85,7 +86,11 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
         }
         when (app.screen) {
             VScreen.NOW -> if (useR9Phone) R9NowScreen(app) else NowScreen(app, breakpoint)
-            VScreen.ME -> R10MeScreen(app, onHelp)
+            VScreen.ME -> if (breakpoint == MediaBreakpoint.COMPACT) {
+                R10MeScreen(app, onHelp)
+            } else {
+                R19AdaptiveMeScreen(app, breakpoint, onHelp)
+            }
             VScreen.OVERVIEW, VScreen.INFRASTRUCTURE ->
                 if (useR9Phone) R9InfrastructureScreen(app) else OverviewScreen(app, breakpoint)
             VScreen.CARDS -> if (useR9Phone) R9CardsScreen(app) else CardsScreen(app, breakpoint)
