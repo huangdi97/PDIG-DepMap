@@ -322,14 +322,22 @@ class UiScreenshotEvidenceTest {
             "card-detail" to { app -> app.openCard("card-cn-2") },
             "numbers" to { app -> app.navigate(VScreen.NUMBERS) },
             "number-detail" to { app -> app.openNumber("num-cn-1") },
+            "change" to { app -> app.navigate(VScreen.CHANGE) },
             "change-phone" to { app -> app.navigate(VScreen.CHANGE_PHONE) },
+            "change-card" to { app ->
+                app.openCardChange("card-cn-2")
+                app.chooseReplacementCard("card-cn-3")
+                app.cardChangeProjection = "transition"
+            },
+            "records" to { app -> app.navigate(VScreen.RECORDS) },
+            "me" to { app -> app.navigate(VScreen.ME) },
             "card-customization" to { app -> app.openCardCustomization("card-cn-1") },
             "number-customization" to { app -> app.openNumberCustomization("num-cn-1") },
             "personalization" to { app -> app.navigate(VScreen.PERSONALIZATION) },
         )
         compose.setContent { vnextSlot?.invoke() }
         compose.waitForIdle()
-        // 1) 手机（compact）10 屏截图
+        // 1) 手机（compact）核心产品面截图（含五一级入口、两类变更、Records）
         for ((pageId, prepare) in screens) {
             val app = createVNextAppState().apply { reduceMotion = true }
             prepare(app)
