@@ -146,25 +146,42 @@ fun NumberDetailScreen(app: VAppState) {
         }
 
         SectionHeader("风险与恢复")
-        if (number.recoveryOnly) {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                color = PdigV2Colors.Warning.copy(alpha = 0.14f),
-                shape = RoundedCornerShape(VRadius.Md),
-            ) {
+        when {
+            number.uniqueRecoveryPath == true -> {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PdigV2Colors.Critical.copy(alpha = 0.11f),
+                    shape = RoundedCornerShape(VRadius.Md),
+                ) {
+                    Text(
+                        "已确认：这个号码是唯一恢复路径。更换或注销前，必须先建立并验证独立替代路径；这里不推断未记录账户数量。",
+                        Modifier.padding(14.dp),
+                        color = PdigV2Colors.TextPrimary,
+                        fontSize = 13.sp,
+                    )
+                }
+            }
+            number.recoveryOnly -> {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PdigV2Colors.Warning.copy(alpha = 0.14f),
+                    shape = RoundedCornerShape(VRadius.Md),
+                ) {
+                    Text(
+                        "已记录：这个号码承担恢复用途，但是否唯一仍未知。更换或注销前，需要逐项核对恢复关系。",
+                        Modifier.padding(14.dp),
+                        color = PdigV2Colors.TextPrimary,
+                        fontSize = 13.sp,
+                    )
+                }
+            }
+            else -> {
                 Text(
-                    "已记录：这个号码承担恢复用途。更换或注销前，需要逐项验证替代恢复路径；这里不推断未记录账户。",
-                    Modifier.padding(14.dp),
-                    color = PdigV2Colors.TextPrimary,
+                    "没有足够证据判断是否存在恢复或唯一恢复路径；未记录关系继续保持未知。",
+                    color = PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                 )
             }
-        } else {
-            Text(
-                "没有足够证据判断是否存在唯一恢复路径；未记录关系继续保持未知。",
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 13.sp,
-            )
         }
 
         ObjectImpactLens(
@@ -204,7 +221,15 @@ private fun NumberSummaryStrip(
             )
             NumberSummaryItem(if (number.simKind == "eSIM") "eSIM" else "实体 SIM", "形态", Modifier.weight(1f))
             NumberSummaryItem(serviceCount.toString(), "关联服务", Modifier.weight(1f))
-            NumberSummaryItem(if (number.recoveryOnly) "已记录恢复" else "未知", "恢复", Modifier.weight(1f))
+            NumberSummaryItem(
+                when {
+                    number.uniqueRecoveryPath == true -> "唯一恢复"
+                    number.recoveryOnly -> "恢复用途"
+                    else -> "未知"
+                },
+                "恢复",
+                Modifier.weight(1f),
+            )
         }
     }
 }
