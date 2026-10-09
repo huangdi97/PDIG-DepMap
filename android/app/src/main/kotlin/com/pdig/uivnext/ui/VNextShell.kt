@@ -50,7 +50,7 @@ import com.pdig.uivnext.ui.components.MaskEnabledIndicator
 
 /**
  * vNext 演示壳（Android 原生 Compose）。
- * 大屏（≥600dp）：NavigationRail + TopCommandBar；手机：TopCommandBar + 底部导航（4 项 ≤5）。
+ * 大屏（≥600dp）：NavigationRail + TopCommandBar；手机：TopCommandBar + 底部导航（5 项）。
  * [forcedViewportWidthDp] 供证据测试冻结宽度（决定 rail/bottom-nav 分支），不参与截图像素。
  */
 @Composable
@@ -302,4 +302,5 @@ private fun isCompactRootContext(screen: VScreen): Boolean = screen in setOf(
     VScreen.SERVICES,
     VScreen.WEAKNESSES,
     VScreen.RECORDS,
+    VScreen.ME,
 )
