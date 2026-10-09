@@ -173,41 +173,49 @@ def _bounds_for_exact(label):
     return None
 
 
-def assert_home_world_geometry():
-    """R13 visual hierarchy: heading -> actual Earth -> factual regions -> asset rail.
+def projected_region_bounds():
+    """Real Compose geographic annotations; NOT fixed R15 corner cards."""
+    found = {}
+    for node in xml_nodes():
+        label = label_of(node).strip()
+        if not label.startswith(("地球地区：", "地球地区组：")):
+            continue
+        bounds = re.findall(r"\\d+", node.get("bounds") or "")
+        if len(bounds) != 4:
+            continue
+        rect = tuple(map(int, bounds))
+        if rect[2] > rect[0] and rect[3] > rect[1]:
+            found[label] = rect
+    return found
 
-    The earlier R9 test demanded five absolutely positioned chips even after
-    those chips were explicitly removed to prevent occluding the continents.
-    This test asserts real visible region labels, readable heading and the
-    separate asset rail, without imposing obsolete design structure.
-    """
+
+def assert_home_world_geometry():
+    """R16: small geography-locked regions cannot invade title or asset rail."""
     header = _bounds_for_exact("你的全球数字基础设施")
     footer = _bounds_for_exact("银行卡")
     if header is None or footer is None:
-        raise RuntimeError(f"World title or asset rail missing: title={header}, metric={footer}")
-    labels = ("美国", "英国", "中国大陆", "香港", "新加坡")
-    visible = {name: rect for name in labels
-               if (rect := _bounds_for_exact(name)) is not None}
-    if not visible:
-        raise RuntimeError("World scene has no visible, factual region identity labels")
+        raise RuntimeError(f"World title/asset rail not found: {header}, {footer}")
+    tags = projected_region_bounds()
+    if not tags:
+        raise RuntimeError("R16 projected front-side geographic annotations missing")
+    if len(tags) > 4:
+        raise RuntimeError(f"R16 phone label budget exceeded: {len(tags)}")
     if header[3] >= footer[1]:
-        raise RuntimeError(f"R13 world heading and metric rail overlap: {header}, {footer}")
-    if any(rect[1] <= header[3] or rect[3] >= footer[1]
-           for rect in visible.values()):
-        raise RuntimeError(f"Region control entered reserved heading/metric layer: {visible}")
-    # All the simultaneously visible region labels must remain disjoint,
-    # regardless of whether they belong to floating identities or the
-    # horizontally scrollable accessible regional strip.
-    for i, (name_a, a) in enumerate(visible.items()):
-        for name_b, b in list(visible.items())[i + 1:]:
+        raise RuntimeError(f"World title and asset rail overlap: {header}, {footer}")
+    for name, rect in tags.items():
+        if rect[1] < header[3] or rect[3] > footer[1]:
+            raise RuntimeError(f"R16 geography chip covers reserved header/asset rail: {name}: {rect}")
+    for i, (name_a, a) in enumerate(tags.items()):
+        for name_b, b in list(tags.items())[i+1:]:
             if min(a[2], b[2]) > max(a[0], b[0]) and min(a[3], b[3]) > max(a[1], b[1]):
-                raise RuntimeError(f"Overlapping region identities: {name_a}={a}, {name_b}={b}")
+                raise RuntimeError(f"Overlapping R16 geo hit targets: {name_a}={a}, {name_b}={b}")
     (ROOT / "01-now-layout-bounds.json").write_text(
-        json.dumps({"title": header, "metric": footer, "visibleRegions": visible,
-                    "layout": "R13_OPEN_WORLD",
-                    "result": "VISIBLE_LABELS_DISJOINT_NOT_HUMAN_VISUAL_ACCEPTANCE"},
+        json.dumps({"title": header, "metric": footer, "geoLabels": tags,
+                    "labelBudget": 4, "layout": "R16_CAMERA_PROJECTED",
+                    "humanVisualParity": "PENDING"},
                    ensure_ascii=False, indent=2), encoding="utf-8")
-    print("R13_OPEN_WORLD_GEOMETRY=PASS", flush=True)
+    print("R16_GEO_HERO_GEOMETRY=PASS", flush=True)
+
 
 
 def verify_preview_world_light():
@@ -302,6 +310,9 @@ def main():
             raise RuntimeError("Globe does not expose real camera transform semantics: " + globe)
         return (int(yaw.group(1)), int(zoom.group(1)))
 
+    before_geo = projected_region_bounds()
+    if not before_geo:
+        raise RuntimeError("No projected region tags before rotation")
     yaw0, zoom0 = camera_state()
     # Derive the drag position from the *actual* globe surface bounds.
     # A hard-coded screen y=855 could land on a floating region chip or below
@@ -322,6 +333,28 @@ def main():
         raise RuntimeError(f"Dragging did not orbit the actual globe: {yaw0} -> {yaw1}")
     capture("01c-world-orbit")
     require_screen("01c-world-orbit", "全球基础设施导航器")
+    after_geo = projected_region_bounds()
+    if not after_geo:
+        raise RuntimeError("R16 geo labels all disappeared after globe rotation")
+    if before_geo == after_geo:
+        raise RuntimeError("R16 region chips stayed at fixed screen coordinates after true camera orbit")
+    shared = set(before_geo) & set(after_geo)
+    if shared:
+        shifted = any(
+            abs(before_geo[name][0] - after_geo[name][0]) > 12 or
+            abs(before_geo[name][1] - after_geo[name][1]) > 12
+            for name in shared
+        )
+        if not shifted and set(before_geo) == set(after_geo):
+            raise RuntimeError("Camera moved, but matching geographic pills did not")
+    (ROOT / "01c-world-orbit-label-motion.json").write_text(
+        json.dumps({"sourceSha": os.environ.get("GITHUB_SHA"),
+                    "beforeYaw": yaw0, "afterYaw": yaw1,
+                    "before": before_geo, "after": after_geo,
+                    "result": "CAMERA_LINKED_LABEL_MOVEMENT",
+                    "humanVisualParity": "PENDING"},
+                   ensure_ascii=False, indent=2), encoding="utf-8")
+    print("R16_GEO_LABEL_ORBIT=PASS", flush=True)
     if not tap_retry("放大地球"):
         raise RuntimeError("R14 explicit globe zoom-in control not accessible")
     time.sleep(3)
