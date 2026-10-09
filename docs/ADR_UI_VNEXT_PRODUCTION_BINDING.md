@@ -215,6 +215,10 @@ Until that governed subtype exists, the production adapter classifies
 `identity_anchor` as `IDENTITY_ANCHOR_GENERIC`. It must render a generic identity
 surface rather than silently adopting the Number/phone UI.
 
+The schema-level follow-up is designed in
+`spec/proposals/identity-anchor-subtype-v1.md`. Existing anchors migrate to
+unknown/null; no name/regex/provider heuristic is allowed.
+
 Do not infer:
 - phone role from country;
 - keep-number role from inactivity;
