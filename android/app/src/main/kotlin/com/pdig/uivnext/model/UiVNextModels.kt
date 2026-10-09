@@ -111,6 +111,31 @@ data class UiVNextNumber(
     val preset: String = "country", // 呈现层默认主题（PresentationProfile 无关语义）
 )
 
+/**
+ * Lifecycle facts shown by the consumer UI.
+ *
+ * These are presentation-layer records for the UI vNext synthetic fixture. They are
+ * deliberately separate from Canonical dependency truth: a recorded fee/due date is
+ * not provider truth, and an absent value must render as "未记录" rather than "无".
+ */
+data class UiVNextCardLifecycle(
+    val annualFee: String? = null,
+    val annualFeeDue: String? = null,
+    val billingDay: String? = null,
+    val paymentDueDay: String? = null,
+    val installmentSummary: String? = null,
+    val autoPaySummary: String? = null,
+)
+
+data class UiVNextNumberLifecycle(
+    val billingMode: String? = null,
+    val planCost: String? = null,
+    val keepAliveDue: String? = null,
+    val keepAliveCycle: String? = null,
+    val lastKeepAlive: String? = null,
+    val renewalMethod: String? = null,
+)
+
 data class UiVNextService(
     val id: String,
     val name: String,
