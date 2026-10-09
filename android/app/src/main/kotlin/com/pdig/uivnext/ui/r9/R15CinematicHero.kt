@@ -13,6 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.pdig.uivnext.globe.focusCamera
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -70,14 +73,14 @@ internal fun R15CinematicHero(
                         else "连接 " + regions.size + " 个地区 · 轻触地球探索",
                         color = R9.Muted, fontSize = 10.sp, maxLines = 1)
                 }
-                Surface(
-                    color = Color.White.copy(alpha = 0.88f),
-                    shape = RoundedCornerShape(11.dp),
-                    border = BorderStroke(1.dp, R9.Line),
-                    modifier = Modifier.clickable { app.navigate(VScreen.OVERVIEW) },
-                ) {
-                    Text("总览 ›", Modifier.padding(horizontal = 8.dp, vertical = 9.dp),
-                        color = R9.Blue, fontSize = 10.sp)
+                Row(horizontalArrangement = Arrangement.spacedBy(3.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    R15HeroControl("+", "放大地球", "zoom-in") { app.globe.zoomBy(1.20f) }
+                    R15HeroControl("−", "缩小地球", "zoom-out") { app.globe.zoomBy(1f / 1.20f) }
+                    R15HeroControl("↺", "复位地球", "reset") {
+                        app.globe.backToGlobal()
+                        app.globe.camera = focusCamera(16f, 107f)
+                    }
                 }
             }
 
@@ -174,6 +177,22 @@ private fun R15RegionOverlay(region: RegionPresentation, modifier: Modifier, onC
                     fontSize = 8.sp, color = R9.Muted, maxLines = 1,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun R15HeroControl(symbol: String, label: String, id: String, action: () -> Unit) {
+    Surface(
+        modifier = Modifier.size(35.dp).clickable { action() }
+            .testTag("pdig.r14.globe." + id),
+        color = Color.White.copy(alpha = .91f),
+        shape = RoundedCornerShape(11.dp),
+        border = BorderStroke(1.dp, R9.Line),
+    ) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(symbol, color = R9.Blue, fontSize = 18.sp, fontWeight = FontWeight.Bold,
+                modifier = Modifier.semantics { contentDescription = label })
         }
     }
 }
