@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.pdig.uivnext.globe.VNextGlobe
+import com.pdig.uivnext.globe.R15WorldScene
 import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -105,11 +105,19 @@ internal fun R13WorldExperience(
                 Modifier.fillMaxSize().padding(horizontal = 13.dp)
                     .graphicsLayer(scaleX = 1.27f, scaleY = 1.27f),
             ) {
-                VNextGlobe(
+                // R15 is not a style pass on the CPU globe. It owns a distinct
+                // OpenGL ES surface with true spherical shading, atmosphere
+                // and a camera-projected real-link foreground. The old pipeline
+                // is only a runtime fallback if GPU initialization fails.
+                R15WorldScene(
                     controller = app.globe,
                     regions = regions,
                     arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
                     reduceMotion = app.reduceMotion,
+                    onRegionChosen = { region ->
+                        app.selectRegion(region.regionCode)
+                        app.navigate(VScreen.OVERVIEW)
+                    },
                 )
             }
             // Two labels only: the old five freely floating labels hid continents
