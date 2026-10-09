@@ -26,10 +26,12 @@ internal val PRIMARY_ENTRIES = listOf(
     NavEntry(VScreen.INFRASTRUCTURE, Icons.Filled.Place),
     NavEntry(VScreen.CHANGE, Icons.Filled.Refresh),
     NavEntry(VScreen.RECORDS, Icons.Filled.DateRange),
-    NavEntry(VScreen.ME, Icons.Filled.Person),
 )
 
+// "我" is a utility/account workspace, not a fifth primary destination.
+// Phone enters it from the avatar; wide layouts keep it in the lower utility rail.
 internal val SECONDARY_ENTRIES = listOf(
+    NavEntry(VScreen.ME, Icons.Filled.Person),
     NavEntry(VScreen.SOURCES, Icons.Filled.List),
     NavEntry(VScreen.SETTINGS, Icons.Filled.Settings),
 )
