@@ -159,7 +159,7 @@ public enum GeneratedPdigV2Tokens {
     public static let componentsNavTopCommandHeight = 48
     public static let componentsNavRailWidthRangeMin = 64
     public static let componentsNavRailWidthRangeMax = 188
-    public static let componentsNavPrimaryOnly = "primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar"
+    public static let componentsNavPrimaryOnly = "primary destinations = 现在/基础设施/变更/记录/我; 数据源/设置 are low-frequency Me child utilities; infrastructure secondary = content-level sibling navigation, never permanent equal primary items"
     public static let componentsPagePadding = 24
     public static let componentsPagePaddingNarrow = 16
     public static let componentsPageMaxWidth = 1400
