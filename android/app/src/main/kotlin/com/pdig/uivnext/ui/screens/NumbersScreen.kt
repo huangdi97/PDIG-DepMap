@@ -192,13 +192,15 @@ private fun InspectorContent(app: VAppState, selected: UiVNextNumber?) {
             presentationAccent = com.pdig.uivnext.model.hexColorOrNull(profile?.accentColor ?: "default"),
             presentationLayout = "compact",
         )
+        val roleLabel = when (selected.role) {
+            "primary" -> "主号"
+            "keep" -> "保号"
+            "secondary" -> "副号"
+            else -> selected.role
+        }
+        val simLabel = if (selected.simKind == "eSIM") "eSIM" else "实体 SIM"
         Text(
-            "通信身份 · ${selected.carrier} · " +
-                when (selected.role) {
-                    "primary" -> "主号"
-                    "keep" -> "保号"
-                    else -> "副号"
-                } + " · " + if (selected.simKind == "eSIM") "eSIM" else "实体 SIM",
+            "通信身份 · ${selected.carrier} · $roleLabel · $simLabel",
             color = PdigV2Colors.TextSecondary,
             fontSize = 12.sp,
         )
