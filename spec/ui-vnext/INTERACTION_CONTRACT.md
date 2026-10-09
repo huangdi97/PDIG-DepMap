@@ -77,11 +77,23 @@ REGION_SELECTED/DETAIL ──Escape──▶ GLOBAL
 - 迁移项状态：migrated / waiting / not started / blocked。
 - 视觉模型：`OLD NUMBER → services/accounts → NEW NUMBER`；projection 态（plan）必须带「计划」label，不得伪造已完成。
 
-## 8. Customization Studio 交互
+## 8. Presentation Customization 交互
 
-- Desktop 三栏：Asset Library（可编辑对象 + 素材）→ Live Preview（实时大图）→ Property Inspector（属性编辑）。
-- Mobile：Preview 在上，bottom-sheet 编辑在下（不复制 Desktop inspector）。
-- 编辑以 PresentationProfile 为对象；保存 = 本地 preference；不改变 node 领域数据。
+### Card Image（Android）
+- 选择相册图片 / 内置图片 → Live Preview 立即更新 → 保存并返回。
+- 三种 Android width class 都保持“小功能”；Medium/Expanded 只扩大留白与 Preview，不恢复工程 Inspector。
+- 保存 = 本地 PresentationProfile；`r10-art` / `local-image` 必须在 List / Inspector / Detail / Preview 复用。
+- 默认不遮蔽；用户的全局 privacy 选择优先。
+- local image 只存 app-private 安全 filename，不持久化任意 content URI / filesystem path。
+
+### Number Appearance
+- Mobile：Preview-first；主题 / 呈现选项位于其后。
+- Wider window 可使用更丰富的 library / preview / inspector 组合。
+- preset visual ≠ semantic role；“恢复”主题绝不创建恢复依赖。
+
+### Shared
+- 编辑以 PresentationProfile 为对象；保存 = 本地 preference。
+- 不改变 node / Dependency / evidence / confirmation；不写 .depmap。
 
 ## 9. 状态反馈原则
 
