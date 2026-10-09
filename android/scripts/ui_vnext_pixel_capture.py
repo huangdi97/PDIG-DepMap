@@ -180,7 +180,7 @@ def projected_region_bounds():
         label = label_of(node).strip()
         if not label.startswith(("地球地区：", "地球地区组：")):
             continue
-        bounds = re.findall(r"\\d+", node.get("bounds") or "")
+        bounds = re.findall(r"\d+", node.get("bounds") or "")
         if len(bounds) != 4:
             continue
         rect = tuple(map(int, bounds))
