@@ -3,6 +3,14 @@
 > 状态：**Human Direction 冻结 → Visual Contract**（No-Vision 模式，2026-09-29，feature branch `feat/pdig-ui-vnext`）
 > 本文件是视觉方向的机器可执行转译源；实现以本文件 + `DESIGN_TOKENS.json` + `LAYOUT_CONTRACT.json` 为准，
 > 不以任何参考图为实现指令（spec §16）。
+>
+> **Android R10/R19 translation override（2026-10-09）**：本文的 deep-navy / dark-spatial
+> palette 继续作为 Desktop/跨端空间语义参考，但 Android consumer UI 已由人工方向明确为
+> **light-first**。Android 不得把本文 L0 深空画布机械复制成全局暗色主题；应使用浅色 Canvas /
+> 白色数据 Surface / sky-ice 空间背景，并仅在 Globe 本体、卡片身份面等需要深度的局部保留暗色。
+> 五个一级目的地固定为「现在 / 基础设施 / 变更 / 记录 / 我」。详见
+> `spec/ui-vnext/r10/CONSUMER_PRODUCT_DIRECTION_2026-10-08.md`、
+> `spec/ui-vnext/FIVE_PRIMARY_NAVIGATION_DECISION.md` 与 Android mapping。
 
 ## 1. 定位一句话
 
