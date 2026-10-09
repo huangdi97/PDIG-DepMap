@@ -153,6 +153,7 @@ Current Android status:
 ```text
 CHANGE_CENTER_REFERENCE = IMPLEMENTED
 REPLACE_PHONE_REFERENCE = IMPLEMENTED
+REPLACE_PAYMENT_CARD_REFERENCE = R21_IMPLEMENTED
 PRODUCTION_CHANGE_GATEWAY = SOURCE_IMPLEMENTED
 PRODUCTION_SCREEN_BINDING = HOLD
 ```
@@ -360,8 +361,15 @@ It should prefer:
 
 It should not become a second Now page full of unhandled attention.
 
-Current synthetic reference may still show limited active context for continuity,
-but the production target is an evidence/verification trace.
+R21 makes the synthetic reference itself follow this boundary:
+- Attention / Upcoming are no longer rendered as Records sections;
+- completed plan stages are shown as **已记录完成**, not verified;
+- verifying stages are shown as **待验证**;
+- future not-started/blocked stages are not promoted into historical events;
+- active plans may appear only as navigation context.
+
+The production target remains an authoritative evidence/verification trace sourced
+from Timeline / ChangePlan / Review / Verification / Evidence.
 
 ## 9. Change Center boundary
 
@@ -378,11 +386,24 @@ Change Center
   maintenance/review links
       │
       ├─ Replace Phone
-      ├─ Replace Payment Card (production scenario)
+      ├─ Replace Payment Card (R21 reference + production scenario)
       └─ future supported scenario
 ```
 
 Opening Change Center never mutates Reality.
+
+R21 payment-card flow reuses the production scenario grammar:
+
+```text
+检查支付依赖
+→ 迁移必要支付关系
+→ 用真实支付 / 账单证据验证关键路径
+```
+
+Card Detail may expose **分析更换此卡的影响** because
+`replace_payment_card` is already an active production scenario. Preview still
+renders projections only and never writes ChangePlan state.
+
 
 ## 10. Region × Identity
 
