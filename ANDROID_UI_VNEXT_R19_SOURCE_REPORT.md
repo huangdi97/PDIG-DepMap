@@ -304,9 +304,14 @@ plans, pending-review/source coverage) and deliberately omits R19 reference-only
 lifecycle fields. Unit tests pin proposal-vs-Reality separation and
 `done != verified`.
 
-This does **not** cut over the production launcher. Production screen binding,
-object-specific identity normalization, and runtime/security validation remain
-gated by the ADR acceptance chain.
+This does **not** cut over the production launcher. The source now also includes a
+truth-bounded consumer inventory projection and conservative object-surface mapping:
+`payment_instrument` can use a payment-asset surface, while coarse
+`identity_anchor` remains generic until an explicit phone subtype is governed.
+Canonical `issuer` / `last4` are carried directly from Reality where present.
+
+Production screen binding, phone/email subtype normalization, lifecycle persistence,
+and runtime/security validation remain gated by the ADR acceptance chain.
 
 This is the required path to production cutover.
 
