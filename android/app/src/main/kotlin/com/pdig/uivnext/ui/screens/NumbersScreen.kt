@@ -380,7 +380,11 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
                 }
             }
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                if (number.recoveryOnly) LabelChip("唯一恢复", highlight = true)
+                if (number.uniqueRecoveryPath == true) {
+                    LabelChip("唯一恢复", highlight = true)
+                } else if (number.recoveryOnly) {
+                    LabelChip("恢复用途")
+                }
                 StatusBadge(number.status)
             }
         }
