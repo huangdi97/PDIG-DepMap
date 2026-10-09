@@ -1,7 +1,6 @@
 package com.pdig.uivnext.evidence
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -29,12 +28,12 @@ class PhoneStudioLayoutContractTest {
     val compose = createComposeRule()
 
     @Test
-    fun compactCardStudio_usesHorizontalThemeGallery() {
+    fun compactCardCustomization_staysASimpleImageFeature() {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
         assumeTrue("phone-only contract", ctx.resources.configuration.screenWidthDp < 600)
 
         val app = createVNextAppState().apply {
-            evidenceThemeId = "glass"
+            evidenceThemeId = "ocean"
             openCardCustomization("card-cn-2")
         }
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
@@ -42,23 +41,14 @@ class PhoneStudioLayoutContractTest {
 
         compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW, useUnmergedTree = true).assertExists()
         compose.onNodeWithTag(VTestIds.CUSTOMIZATION_LIBRARY, useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r10.card-art.choose-photo", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r10.card-art.choice.original", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r10.card-art.choice.ocean", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r10.card-art.choice.night", useUnmergedTree = true).assertExists()
 
-        val tiles = compose.onAllNodesWithTag(VTestIds.STUDIO_THEME_TILE, useUnmergedTree = true)
-            .fetchSemanticsNodes()
-            .filter { it.boundsInRoot.width > 0f && it.boundsInRoot.height > 0f }
-        assertTrue("compact gallery must lay out at least two theme tiles", tiles.size >= 2)
-
-        val first = tiles[0].boundsInRoot
-        val second = tiles[1].boundsInRoot
-        val density = compose.density
-        val sameRowTolerance = with(density) { 8.dp.toPx() }
-        val maxTileWidth = with(density) { 180.dp.toPx() }
-
-        assertTrue(
-            "first two compact theme tiles must share one horizontal row",
-            kotlin.math.abs(first.top - second.top) <= sameRowTolerance,
-        )
-        assertTrue("second tile must be to the right of first", second.left > first.left)
-        assertTrue("compact theme tile must stay card-like rather than full-width", first.width <= maxTileWidth)
+        val photo = compose.onNodeWithTag("pdig.r10.card-art.choose-photo", useUnmergedTree = true)
+            .fetchSemanticsNode()
+        val minTouch = with(compose.density) { 48.dp.toPx() }
+        assertTrue("gallery picker must keep >=48dp touch target", photo.boundsInRoot.height >= minTouch)
     }
 }
