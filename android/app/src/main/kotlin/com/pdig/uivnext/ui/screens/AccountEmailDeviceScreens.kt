@@ -38,22 +38,31 @@ internal fun AccountsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ScopedInfrastructureEmpty(app, "当前地区没有账户记录", "没有记录的账户与恢复关系仍保持未知。")
         } else {
             SectionHeader("已记录（" + accounts.size + "）")
-            accounts.forEach { AccountRow(it) }
+            accounts.forEach { account ->
+                AccountRow(
+                    account = account,
+                    privacyMask = app.privacyMask,
+                    onClick = { app.openSecondaryObject(com.pdig.uivnext.model.VScreen.ACCOUNT_DETAIL, account.id) },
+                )
+            }
             UnknownBoundaryNote("未记录的账户、登录名、验证器或恢复方式仍保持未知。")
         }
     }
 }
 
 @Composable
-private fun AccountRow(account: UiVNextAccount) {
+private fun AccountRow(account: UiVNextAccount, privacyMask: Boolean, onClick: () -> Unit) {
     LightObjectCard(
         title = account.name,
-        subtitle = account.provider + " · " + account.maskedIdentifier + " · " + regionLabel(account.region),
+        subtitle = account.provider + " · " +
+            (if (privacyMask) "标识已遮蔽" else account.maskedIdentifier) +
+            " · " + regionLabel(account.region),
         badge = account.provider.take(1).uppercase(),
         accent = if (account.attention) PdigV2Colors.Warning else PdigV2Colors.Primary,
         trailing = {
             if (account.attention) LabelChip("恢复需关注", highlight = true) else LabelChip("已记录")
         },
+        onClick = onClick,
     ) {
         ChipLine(account.roles)
         Text("验证 · " + account.authMethods.joinToString(" / "), color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
@@ -83,17 +92,24 @@ internal fun EmailsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ScopedInfrastructureEmpty(app, "当前地区没有邮箱记录", "没有记录的邮箱与恢复关系仍保持未知。")
         } else {
             SectionHeader("已记录（" + emails.size + "）")
-            emails.forEach { EmailRow(it) }
+            emails.forEach { email ->
+                EmailRow(
+                    email = email,
+                    privacyMask = app.privacyMask,
+                    onClick = { app.openSecondaryObject(com.pdig.uivnext.model.VScreen.EMAIL_DETAIL, email.id) },
+                )
+            }
             UnknownBoundaryNote("没有记录的邮箱与恢复关系不会被推断为不存在。")
         }
     }
 }
 
 @Composable
-private fun EmailRow(email: UiVNextEmail) {
+private fun EmailRow(email: UiVNextEmail, privacyMask: Boolean, onClick: () -> Unit) {
     LightObjectCard(
         title = email.name,
-        subtitle = email.maskedAddress + " · " + email.provider + " · " + regionLabel(email.region),
+        subtitle = (if (privacyMask) "邮箱已遮蔽" else email.maskedAddress) +
+            " · " + email.provider + " · " + regionLabel(email.region),
         badge = "@",
         accent = when {
             email.uniqueRecoveryPath == true -> PdigV2Colors.Critical
@@ -110,6 +126,7 @@ private fun EmailRow(email: UiVNextEmail) {
                 highlight = email.uniqueRecoveryPath == true,
             )
         },
+        onClick = onClick,
     ) {
         ChipLine(email.roles)
         Text(
@@ -143,20 +160,26 @@ internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ScopedInfrastructureEmpty(app, "当前地区没有设备记录", "设备未出现于当前列表，不代表它没有登录或恢复权限。")
         } else {
             SectionHeader("已记录（" + devices.size + "）")
-            devices.forEach { DeviceRow(it) }
+            devices.forEach { device ->
+                DeviceRow(
+                    device = device,
+                    onClick = { app.openSecondaryObject(com.pdig.uivnext.model.VScreen.DEVICE_DETAIL, device.id) },
+                )
+            }
             UnknownBoundaryNote("设备未出现于当前列表，不代表它没有登录或恢复权限。")
         }
     }
 }
 
 @Composable
-private fun DeviceRow(device: UiVNextDevice) {
+private fun DeviceRow(device: UiVNextDevice, onClick: () -> Unit) {
     LightObjectCard(
         title = device.name,
         subtitle = devicePlatformLabel(device) + " · " + regionLabel(device.region),
         badge = device.platform.take(1).uppercase().ifBlank { "D" },
         accent = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.Primary,
         trailing = { LabelChip(device.trust, highlight = device.attention) },
+        onClick = onClick,
     ) {
         ChipLine(device.roles)
         Text(
