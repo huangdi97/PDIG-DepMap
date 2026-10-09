@@ -21,6 +21,7 @@ R19_FIVE_ITEM_PRIMARY_IA = PRESERVED
 R19_RECOVERY_UNIQUENESS_SEMANTICS = CORRECTED
 R19_ADAPTIVE_PARITY = SOURCE_COMPLETE
 R19_PRODUCTION_BINDING_ARCHITECTURE = DESIGN_FROZEN
+R19_PRODUCTION_READ_MODEL_ADAPTER = SOURCE_IMPLEMENTED
 
 CANONICAL_SCHEMA_CHANGE = NONE
 DEPMAP_PAYLOAD_CHANGE = NONE
@@ -295,6 +296,17 @@ Decision:
 - Change must use existing `createPlanForScenario / planDetail / completeAction / verifyAction`;
 - lifecycle reference fields must not be shoved into `fields_json` or
   PresentationProfile as an Android-only side channel.
+
+The first read-only production seam is now implemented in
+`uivnext/production/ProductionVNextReadModel.kt`. It projects only existing
+AppContainer truth (inventory, active confirmed dependencies, timeline, impact,
+plans, pending-review/source coverage) and deliberately omits R19 reference-only
+lifecycle fields. Unit tests pin proposal-vs-Reality separation and
+`done != verified`.
+
+This does **not** cut over the production launcher. Production screen binding,
+object-specific identity normalization, and runtime/security validation remain
+gated by the ADR acceptance chain.
 
 This is the required path to production cutover.
 
