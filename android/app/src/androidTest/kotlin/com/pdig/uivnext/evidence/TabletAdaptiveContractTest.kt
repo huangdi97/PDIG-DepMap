@@ -152,14 +152,14 @@ class TabletAdaptiveContractTest {
                 .fetchSemanticsNodes().isNotEmpty(),
         )
 
-        // Card Studio（glass）：preview + library 存在
-        renderApp(createVNextAppState().apply { evidenceThemeId = "glass"; openCardCustomization("card-cn-2") })
+        // Card image remains a minor consumer feature on Tablet too:
+        // preview + built-in pictures / gallery, never the retired engineering Studio.
+        renderApp(createVNextAppState().apply { evidenceThemeId = "ocean"; openCardCustomization("card-cn-2") })
+        compose.onNodeWithTag("pdig.r19.card-image.workspace", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag(VTestIds.CUSTOMIZATION_PREVIEW).assertExists()
         compose.onNodeWithTag(VTestIds.CUSTOMIZATION_LIBRARY).assertExists()
-        assertTrue(
-            "studio theme tiles must use consumer thumbnails",
-            compose.onAllNodesWithTag(VTestIds.STUDIO_THEME_TILE, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty(),
-        )
+        compose.onNodeWithTag("pdig.r10.card-art.choose-photo", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r10.card-art.choice.ocean", useUnmergedTree = true).assertExists()
 
         // Overview：Region List 非视觉替代存在（Globe marker 的可访问等价物）
         renderApp(createVNextAppState().apply { navigate(VScreen.OVERVIEW) })
