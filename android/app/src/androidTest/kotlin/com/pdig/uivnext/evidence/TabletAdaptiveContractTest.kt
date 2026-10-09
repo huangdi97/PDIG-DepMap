@@ -161,6 +161,15 @@ class TabletAdaptiveContractTest {
         compose.onNodeWithTag("pdig.r10.card-art.choose-photo", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("pdig.r10.card-art.choice.ocean", useUnmergedTree = true).assertExists()
 
+        // Long-tail infrastructure objects also have focused detail + Impact Lens;
+        // tablet must not collapse them back into settings-like rows.
+        renderApp(createVNextAppState().apply {
+            navigate(VScreen.EMAILS)
+            openSecondaryObject(VScreen.EMAIL_DETAIL, "email-cn-1")
+        })
+        compose.onNodeWithTag("pdig.r20.secondary-detail.email-detail", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r19.impact-lens", useUnmergedTree = true).assertExists()
+
         // Overview：Region List 非视觉替代存在（Globe marker 的可访问等价物）
         renderApp(createVNextAppState().apply { navigate(VScreen.OVERVIEW) })
         compose.onNodeWithTag(VTestIds.GLOBE_STAGE).assertExists()
