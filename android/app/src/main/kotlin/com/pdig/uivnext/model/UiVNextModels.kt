@@ -109,6 +109,7 @@ data class UiVNextNumber(
     val recoveryOnly: Boolean,
     val attention: Boolean,
     val preset: String = "country", // 呈现层默认主题（PresentationProfile 无关语义）
+    val uniqueRecoveryPath: Boolean? = null, // null = 未知；不得由 recoveryOnly 推断
 )
 
 /**
