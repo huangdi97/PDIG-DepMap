@@ -42,9 +42,9 @@ fun numberImpactLens(numberId: String): UiImpactLens {
         confirmedDependencies = dependencies,
         attentionFindings = findings,
         criticalAccounts = null,
-        // recoveryOnly=true is an explicit positive fixture fact. false is NOT
-        // enough evidence to claim there is no unique recovery path.
-        uniqueRecoveryPath = if (number?.recoveryOnly == true) {
+        // Recovery use and path uniqueness are independent facts.
+        // Only explicit uniqueness evidence may produce a positive claim.
+        uniqueRecoveryPath = if (number?.uniqueRecoveryPath == true) {
             UiImpactTruth.CONFIRMED
         } else {
             UiImpactTruth.UNKNOWN
