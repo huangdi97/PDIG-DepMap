@@ -38,7 +38,6 @@ import com.pdig.uivnext.ui.r9.R9SourcesScreen
 import com.pdig.uivnext.ui.r9.R9SecondaryScreen
 import com.pdig.uivnext.ui.r9.R9CardDetailScreen
 import com.pdig.uivnext.ui.r9.R9ChangePhoneScreen
-import com.pdig.uivnext.ui.r9.R9RecordsScreen
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VGlobeState
@@ -61,8 +60,8 @@ import com.pdig.uivnext.ui.screens.R19MediumMeScreen
 import com.pdig.uivnext.ui.screens.R20ChangeCenter
 import com.pdig.uivnext.ui.screens.R20SecondaryObjectDetail
 import com.pdig.uivnext.ui.screens.R21ChangeCardScreen
+import com.pdig.uivnext.ui.screens.R21RecordsScreen
 import com.pdig.uivnext.ui.screens.PersonalizationScreen
-import com.pdig.uivnext.ui.screens.RecordsScreen
 import com.pdig.uivnext.ui.screens.SearchScreen
 import com.pdig.uivnext.ui.screens.SecondaryInfraScreen
 import com.pdig.uivnext.ui.screens.clickableLocal
@@ -108,7 +107,7 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.CHANGE -> R20ChangeCenter(app, breakpoint)
             VScreen.CHANGE_PHONE -> if (useR9Phone) R9ChangePhoneScreen(app) else ChangePhoneScreen(app, breakpoint)
             VScreen.CHANGE_CARD -> R21ChangeCardScreen(app, breakpoint)
-            VScreen.RECORDS -> if (useR9Phone) R9RecordsScreen(app) else RecordsScreen(app, breakpoint)
+            VScreen.RECORDS -> R21RecordsScreen(app, breakpoint)
             VScreen.SEARCH -> if (useR9Phone) R9SearchScreen(app) else SearchScreen(app, breakpoint)
             VScreen.SOURCES -> if (useR9Phone) R9SourcesScreen(app) else DataSourcesScreen(app, breakpoint)
             VScreen.ACCOUNTS, VScreen.EMAILS, VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
