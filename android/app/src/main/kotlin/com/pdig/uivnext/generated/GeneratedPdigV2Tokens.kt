@@ -161,7 +161,7 @@ public object GeneratedPdigV2Tokens {
     public const val COMPONENTS_NAV_TOP_COMMAND_HEIGHT: Int = 48
     public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: Int = 64
     public const val COMPONENTS_NAV_RAIL_WIDTH_RANGE_MAX: Int = 188
-    public const val COMPONENTS_NAV_PRIMARY_ONLY: String = "primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar"
+    public const val COMPONENTS_NAV_PRIMARY_ONLY: String = "primary destinations = 现在/基础设施/变更/记录/我; 数据源/设置 are low-frequency Me child utilities; infrastructure secondary = content-level sibling navigation, never permanent equal primary items"
     public const val COMPONENTS_PAGE_PADDING: Int = 24
     public const val COMPONENTS_PAGE_PADDING_NARROW: Int = 16
     public const val COMPONENTS_PAGE_MAX_WIDTH: Int = 1400
