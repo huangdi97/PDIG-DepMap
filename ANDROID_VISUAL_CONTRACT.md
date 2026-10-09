@@ -38,9 +38,9 @@
 ## 04-card-detail（卡片详情）
 
 - **Primary object**：卡片视觉身份（Hero AssetCard）。
-- **Secondary object**：Identity/状态 → 用卡周期（年费 / 账单日 / 还款日 / 分期）→ 绑定服务 → 影响与风险 → 变更入口。
-- **Hierarchy**：身份最上；生命周期是资产事实层；依赖/风险语义中段；操作末段。
-- **Required states**：active 卡；expiring_soon 卡（风险条）；年费/账单/分期有值与“未记录”两种 truth state；Unknown != safe 文案。
+- **Secondary object**：Identity/状态 → 用卡周期（年费 / 账单日 / 还款日 / 分期）→ 绑定服务 → Impact Lens（如果它发生变化？）→ 变更入口。
+- **Hierarchy**：身份最上；生命周期是资产事实层；依赖/Impact 语义中段；操作末段。
+- **Required states**：active 卡；expiring_soon 卡（风险条）；年费/账单/分期有值与“未记录”两种 truth state；Impact Lens 必须区分已确认依赖与未知；Unknown != safe 文案。
 - **Truth boundary**：生命周期字段是用户已记录资料；缺值必须显示“未记录”，不得从交易、Provider 通用规则或 UI preset 推断。
 - **Forbidden**：Desktop 左右两栏在手机压缩成不可读双栏；把「未发现风险」写成「安全」。
 - **Reference**：Desktop Card Detail。
@@ -60,19 +60,19 @@
 
 - **Primary object**：号码行（dial code / carrier / role / recovery / dependency / status 一眼可见）。
 - **Secondary object**：List + Inspector 摘要。
-- **Hierarchy**：dial code 最强；恢复唯一等高危语义徽标突出。
-- **Required states**：global；region 过滤；Numbers Empty（未记录 ≠ 无风险）。
-- **Forbidden**：号码设计成银行卡；recoveryOnly 丢失。
+- **Hierarchy**：dial code 最强；角色 / 恢复用途 / 明确的唯一恢复证据分层展示。
+- **Required states**：global；region 过滤；保号 role；Numbers Empty（未记录 ≠ 无风险）。
+- **Forbidden**：号码设计成银行卡；把 recoveryOnly（恢复用途）直接解释成唯一恢复路径。
 - **Reference**：Desktop Numbers。
 - **Rationale**：communication identity（拨号弧/信号条在详情与 Studio）；高密度列表非卡面。
 
 ## 08-number-detail（号码详情）
 
 - **Primary object**：NumberFace（Dial Code 最强）。
-- **Secondary object**：状态/角色/用途 → 号码生命周期（资费 / 保号日期 / 保号周期 / 最近操作）→ 恢复能力 → 关联服务（登录/2FA/恢复依赖）→ 变更入口。
-- **Hierarchy**：身份 hero → 生命周期 → 风险语义（唯一恢复路径）→ 服务依赖 → 变更。
-- **Required states**：recoveryOnly 高风险横幅；非 recoveryOnly 显示「未发现唯一恢复路径」；保号资料有值与“未记录”两种 truth state。
-- **Truth boundary**：保号日期/资费属于已记录资料，不代表运营商实时状态，不得把“没有保号日期”渲染成“无需保号”。
+- **Secondary object**：状态/角色/用途 → 号码生命周期（资费 / 保号日期 / 保号周期 / 最近操作）→ 恢复用途 → 关联服务 → Impact Lens → 变更入口。
+- **Hierarchy**：身份 hero → 生命周期 → 已记录恢复语义 → 服务依赖 → Impact Lens → 变更。
+- **Required states**：recoveryOnly 只表示已记录恢复用途；uniqueRecoveryPath 只有显式证据时才显示“唯一恢复”；否则显示“未知”；保号资料有值与“未记录”两种 truth state。
+- **Truth boundary**：保号日期/资费属于已记录资料，不代表运营商实时状态；recoveryOnly != uniqueRecoveryPath；缺失事实不得反向渲染成安全结论。
 - **Forbidden**：重设计 Number Identity；恢复语义被弱化。
 - **Reference**：Desktop Number Detail。
 - **Rationale**：保持冻结 identity hierarchy，不压缩为桌面双栏。
