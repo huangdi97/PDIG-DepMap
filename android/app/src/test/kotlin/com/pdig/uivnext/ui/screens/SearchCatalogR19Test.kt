@@ -40,6 +40,14 @@ class SearchCatalogR19Test {
     }
 
     @Test
+    fun CardReplacementSearchRequiresTargetSelectionInsteadOfOpeningEmptyFlow() {
+        val hit = searchResults("换卡")
+            .filterIsInstance<SearchResult.NavigationHit>()
+            .first { it.title == "更换银行卡" }
+        assertEquals(com.pdig.uivnext.model.VScreen.CARDS, hit.screen)
+    }
+
+    @Test
     fun KeepRoleIsSearchableAsConsumerLanguage() {
         val results = searchResults("保号")
         assertTrue(results.any { it is SearchResult.NumberHit && it.id == "num-cn-3" })
