@@ -14,7 +14,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,12 +25,9 @@ import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.demoUpcoming
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
-import com.pdig.uivnext.globe.VNextGlobe
-import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
-import com.pdig.uivnext.ui.screens.arcPairs
 import java.util.Calendar
 
 /** Consumer Earth must be completely framed; 0.72 is the renderer's diameter fraction.
@@ -181,83 +177,3 @@ internal fun R9NowScreen(app: VAppState) {
     }
 }
 
-@Composable
-internal fun R9WorldStage(
-    app: VAppState,
-    regions: List<RegionPresentation>,
-    cards: Int,
-    numbers: Int,
-    accounts: Int,
-    services: Int,
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth().height(432.dp)
-            .testTag(VTestIds.NOW_GLOBE)
-            .testTag("pdig.r9.world.stage"),
-        shape = RoundedCornerShape(24.dp),
-        border = BorderStroke(1.dp, R9.Line),
-        color = R9.Ice,
-    ) {
-        Column(Modifier.fillMaxSize().background(R9.World).padding(9.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Column(Modifier.padding(horizontal = 7.dp, vertical = 6.dp),
-                verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("你的全球数字基础设施", fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold, color = R9.Ink)
-                Text(
-                    if (regions.isEmpty()) "尚无地区信息" else "连接 ${regions.size} 个地区 · 一览全局",
-                    fontSize = 11.sp, color = R9.Muted)
-            }
-
-            // The light-first world is one continuous space, not a framed
-            // 3D widget pasted into a nested gradient rectangle.
-            Box(Modifier.fillMaxWidth().weight(1f)
-                .testTag("pdig.r9.world.hero")) {
-                // Only the photographic planet is scaled, not the labels or counter rail.
-                Box(Modifier.fillMaxSize().padding(horizontal = 31.dp)
-                    .graphicsLayer(scaleX = R9_WORLD_VISUAL_SCALE, scaleY = R9_WORLD_VISUAL_SCALE)) {
-                    VNextGlobe(
-                        controller = app.globe,
-                        regions = regions,
-                        arcingPairs = if (app.emptyDemo) emptyList() else arcPairs(),
-                        reduceMotion = app.reduceMotion,
-                    )
-                }
-                val named = regions.associateBy { it.regionCode }
-                listOf(
-                    Triple("US", Alignment.TopStart, 16.dp),
-                    Triple("GB", Alignment.TopEnd, 6.dp),
-                    Triple("CN", Alignment.CenterEnd, 0.dp),
-                    Triple("HK", Alignment.BottomStart, 27.dp),
-                    Triple("SG", Alignment.BottomEnd, 12.dp),
-                ).forEach { (code, align, offset) ->
-                    val region = named[code] ?: return@forEach
-                    val position = when(align) {
-                        Alignment.TopStart, Alignment.TopEnd -> Modifier.padding(top = offset)
-                        Alignment.BottomStart, Alignment.BottomEnd -> Modifier.padding(bottom = offset)
-                        else -> Modifier
-                    }
-                    R9RegionPill(region, position.align(align).padding(horizontal = 3.dp)) {
-                        app.selectRegion(region.regionCode)
-                        app.navigate(VScreen.OVERVIEW)
-                    }
-                }
-            }
-
-            Surface(
-                modifier = Modifier.fillMaxWidth().height(59.dp),
-                color = Color.White.copy(alpha = 0.97f),
-                shape = RoundedCornerShape(17.dp),
-                border = BorderStroke(1.dp, R9.Line),
-            ) {
-                Row(Modifier.fillMaxSize().padding(horizontal = 4.dp, vertical = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically) {
-                    R9Counter(cards, "银行卡", R9.Amber, "▣", Modifier.weight(1f).clickable { app.navigate(VScreen.CARDS) }.testTag("pdig.r9.now.cards"))
-                    R9Counter(numbers, "手机号", R9.Green, "▤", Modifier.weight(1f).clickable { app.navigate(VScreen.NUMBERS) }.testTag("pdig.r9.now.numbers"))
-                    R9Counter(accounts, "账户", R9.Blue, "◎", Modifier.weight(1f).clickable { app.navigate(VScreen.ACCOUNTS) }.testTag("pdig.r9.now.accounts"))
-                    R9Counter(services, "服务", Color(0xFFA47FFF), "✧", Modifier.weight(1f).clickable { app.navigate(VScreen.SERVICES) }.testTag("pdig.r9.now.services"))
-                }
-            }
-        }
-    }
-}
