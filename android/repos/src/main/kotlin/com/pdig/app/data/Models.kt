@@ -6,7 +6,15 @@ import com.pdig.core.sources.Observation
 // 只读投影行（UI 与 Repository 共用的贫血模型；SQL 语义见各 Repository）
 // ---------------------------------------------------------------------------
 
-data class NodeRow(val id: String, val kind: String, val name: String, val archived: Boolean, val fieldsJson: String)
+data class NodeRow(
+    val id: String,
+    val kind: String,
+    val name: String,
+    val archived: Boolean,
+    val fieldsJson: String,
+    val issuer: String? = null,
+    val last4: String? = null,
+)
 data class DependencyRow(
     val id: String,
     val from: String,
