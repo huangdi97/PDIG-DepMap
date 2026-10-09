@@ -38,6 +38,7 @@ import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.screens.projectionStages
 import com.pdig.uivnext.ui.screens.projectionMigrations
+import com.pdig.uivnext.ui.screens.changeImpactSummary
 
 /**
  * R9 continuity choreography. Three projections remain distinct:
@@ -51,6 +52,7 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
     // cannot be COMPLETED in Current and only PLANNED in After by accident.
     val stages = if(app.emptyDemo) emptyList() else projectionStages(projection)
     val migrations = if(app.emptyDemo) emptyList() else projectionMigrations(projection)
+    val impact = if(app.emptyDemo) null else changeImpactSummary(projection)
     val old = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-1")
     val fresh = if(app.emptyDemo) null else UiVNextDemoFixture.numberById("num-cn-4")
     val activeStep = stages.firstOrNull { it.status == "verifying" }
@@ -92,6 +94,36 @@ internal fun R9ChangePhoneScreen(app: VAppState) {
                 "current" -> "当前"
                 else -> "待验证"
             }, if(projection == "current") R9.Blue else R9.Amber)
+        }
+        if (impact != null) {
+            Surface(
+                modifier = Modifier.fillMaxWidth().testTag("pdig.r18.change.impact-summary"),
+                color = Color.White,
+                shape = RoundedCornerShape(15.dp),
+                border = BorderStroke(1.dp, R9.Line),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 11.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    listOf(
+                        Triple(impact.linkedServices, "已记录关联", R9.Blue),
+                        Triple(impact.needsReview, "需要核对", R9.Amber),
+                        Triple(impact.blockerCount, "阻断 / 待解决", R9.Rose),
+                    ).forEach { (value, label, tint) ->
+                        Column(
+                            Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(value.toString(), color = tint, fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold)
+                            Text(label, color = R9.Muted, fontSize = 9.sp,
+                                textAlign = TextAlign.Center, maxLines = 2)
+                        }
+                    }
+                }
+            }
         }
         R9SectionTitle("影响分析 · 关键服务")
         R9ServiceOrbit(
