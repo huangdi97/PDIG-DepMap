@@ -63,7 +63,7 @@ fun VNextShell(app: VAppState, forcedViewportWidthDp: Int? = null, onHelp: (() -
         val wide = breakpoint != MediaBreakpoint.COMPACT
         if (wide) {
             Row(Modifier.fillMaxSize()) {
-                NavigationRail(app)
+                NavigationRail(app, breakpoint)
                 Column(Modifier.weight(1f)) {
                     TopCommandBar(app, compact = false, onHelp = onHelp)
                     if (isInfraRootScreen(app.screen)) InfraChipRow(app)
