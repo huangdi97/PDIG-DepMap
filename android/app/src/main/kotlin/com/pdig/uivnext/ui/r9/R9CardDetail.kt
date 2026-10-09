@@ -280,6 +280,23 @@ internal fun R9CardDetailScreen(app: VAppState) {
             }
         }
         R19ImpactLens(impact)
+        Surface(
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                .clickable { app.openCardChange(card.id) }
+                .testTag("pdig.r21.card.change-entry"),
+            color = R9.Blue,
+            shape = RoundedCornerShape(15.dp),
+        ) {
+            Row(
+                Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("分析更换此卡的影响", color = Color.White, fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold)
+                Text("→", color = Color.White, fontSize = 15.sp)
+            }
+        }
 
         // Image selection is a minor card feature, not a second full-screen product.
         // Editing stays in the current detail workspace with an inline action.
