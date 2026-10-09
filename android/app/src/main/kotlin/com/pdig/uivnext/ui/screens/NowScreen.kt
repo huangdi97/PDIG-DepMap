@@ -28,7 +28,6 @@ import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.demo.demoUpcoming
-import com.pdig.uivnext.globe.VNextGlobe
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -131,11 +130,17 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         ) {
             Box {
-                VNextGlobe(
-                    controller = app.globe,
+                // Keep title/metric rails outside the spatial hit plane so wide
+                // region callouts cannot cover them.
+                R19AdaptiveWorldScene(
+                    app = app,
                     regions = regions,
                     arcingPairs = arcingPairs,
-                    reduceMotion = app.reduceMotion,
+                    modifier = Modifier.fillMaxSize().padding(top = 54.dp, bottom = 62.dp),
+                    onRegionChosen = { region ->
+                        app.selectRegion(region.regionCode)
+                        app.navigate(VScreen.OVERVIEW)
+                    },
                 )
                 Surface(
                     modifier = Modifier
@@ -159,23 +164,6 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         )
                     }
                 }
-                // Small, data-backed regional identity chips; never invent a new dependency.
-                if (compact && regions.size >= 2) {
-                    listOf(Alignment.CenterStart to regions[0], Alignment.CenterEnd to regions[1])
-                        .forEach { (position, region) ->
-                            Surface(
-                                modifier = Modifier.align(position).padding(horizontal = 6.dp),
-                                color = PdigV2Colors.Surface.copy(alpha = 0.94f),
-                                shape = RoundedCornerShape(12.dp),
-                                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                            ) {
-                                Column(Modifier.padding(horizontal = 7.dp, vertical = 6.dp)) {
-                                    Text(region.displayName, color = PdigV2Colors.TextPrimary, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                    Text("${region.cardCount} 卡 · ${region.phoneCount} 号", color = PdigV2Colors.TextSecondary, fontSize = 9.sp)
-                                }
-                            }
-                        }
-                }
                 Surface(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -189,8 +177,8 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         Modifier.padding(horizontal = if (compact) 10.dp else 16.dp, vertical = 10.dp),
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
-                        NowMetric(cardCount.toString(), "卡片", Modifier.weight(1f))
-                        NowMetric(numberCount.toString(), "号码", Modifier.weight(1f))
+                        NowMetric(cardCount.toString(), "银行卡", Modifier.weight(1f))
+                        NowMetric(numberCount.toString(), "手机号", Modifier.weight(1f))
                         NowMetric(accountCount.toString(), "账户", Modifier.weight(1f))
                         NowMetric(serviceCount.toString(), "服务", Modifier.weight(1f))
                     }
