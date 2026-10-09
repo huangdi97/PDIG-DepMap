@@ -140,9 +140,18 @@ recoveryOnly != uniqueRecoveryPath
 
 A recovery role is not automatically a single point of failure.
 
-## 6. Change Phone
+## 6. Change Center + Change Phone
 
-Source implementation:
+Primary `变更` is now a distinct R20 work center:
+- active changes first;
+- Prepare entries second;
+- maintenance/review entry points;
+- no mutation implied by opening the page;
+- no unsupported generic Change CTA.
+
+The focused Replace Phone flow remains a child of `变更`.
+
+Change Phone source implementation:
 - Current / Transition / After;
 - After explicitly remains Plan Projection;
 - six-stage choreography;
