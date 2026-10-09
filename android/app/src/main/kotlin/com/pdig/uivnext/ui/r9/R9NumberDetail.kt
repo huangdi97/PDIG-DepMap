@@ -179,17 +179,31 @@ internal fun R9NumberDetailScreen(app: VAppState) {
         }
         R9SectionTitle("显示设置", "号码外观 →") { app.openNumberCustomization(number.id) }
         R9SectionTitle("安全与恢复")
+        val recoveryAccent = when {
+            number.uniqueRecoveryPath == true -> Color(0xFFFFE9E9)
+            number.recoveryOnly -> Color(0xFFFFF1E4)
+            else -> R9.Ice
+        }
+        val recoveryBorder = when {
+            number.uniqueRecoveryPath == true -> Color(0xFFF1BFC3)
+            number.recoveryOnly -> Color(0xFFF1D3AE)
+            else -> R9.Line
+        }
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = if(number.recoveryOnly) Color(0xFFFFF1E4) else R9.Ice,
+            color = recoveryAccent,
             shape = RoundedCornerShape(16.dp),
-            border = BorderStroke(1.dp, if(number.recoveryOnly) Color(0xFFF1D3AE) else R9.Line),
+            border = BorderStroke(1.dp, recoveryBorder),
         ) {
             Text(
-                if(number.recoveryOnly)
-                    "该号码承担恢复功能；注销或迁移之前必须逐项验证替代恢复路径。不能因已添加新号码而自动标记安全。"
-                else
-                    "尚未确认的恢复关系仍为未知。请先检查已记录的关联服务，再执行停用或转移。",
+                when {
+                    number.uniqueRecoveryPath == true ->
+                        "已确认该号码是唯一恢复路径；更换或注销前，必须先建立并验证独立替代路径。"
+                    number.recoveryOnly ->
+                        "已记录该号码承担恢复用途，但是否唯一仍未知；停用前需要逐项核对恢复关系。"
+                    else ->
+                        "尚未确认该号码是否承担恢复关系。请先检查已记录的关联服务，再执行停用或转移。"
+                },
                 Modifier.padding(14.dp), color = R9.Ink, fontSize = 12.sp, lineHeight = 20.sp,
             )
         }
