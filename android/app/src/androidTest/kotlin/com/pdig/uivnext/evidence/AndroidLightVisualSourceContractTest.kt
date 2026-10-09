@@ -97,6 +97,8 @@ class AndroidLightVisualSourceContractTest {
         compose.onNodeWithTag(VTestIds.CHANGE_SERVICES, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.CHANGE_NEW, useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.r18.change.impact-summary", useUnmergedTree = true)
+            .assertIsDisplayed()
     }
 
     @Test
