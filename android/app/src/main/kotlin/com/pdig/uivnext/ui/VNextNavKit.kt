@@ -138,7 +138,7 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
     }
 }
 
-/** 手机底部导航（一级 4 项 ≤5；触控目标由 NavigationBarItem 保证 ≥48dp）。 */
+/** 手机底部导航（一级 5 项；触控目标由 NavigationBarItem 保证 ≥48dp）。 */
 @Composable
 internal fun BottomNav(app: VAppState) {
     NavigationBar(
