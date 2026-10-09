@@ -137,14 +137,12 @@ private fun CompactCardDetailReference(
         verticalArrangement = Arrangement.spacedBy(13.dp),
     ) {
         Box(Modifier.fillMaxWidth().testTagLocal(VTestIds.CARD_DETAIL_IDENTITY)) {
-            AssetCard(
-                card = card.copy(preset = presentation?.themeId ?: card.preset),
+            R19PresentedCardFace(
+                card = card,
+                profile = presentation,
                 privacyMask = app.privacyMask || (presentation?.maskSensitive == true),
                 onClick = {},
                 modifier = Modifier.fillMaxWidth(),
-                presentationMaterial = presentation?.material,
-                presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
-                presentationLayout = presentation?.layout,
             )
         }
         Row(
@@ -351,13 +349,11 @@ private fun IdentityPanel(
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Column(Modifier.padding(20.dp)) {
-            AssetCard(
-                card = card.copy(preset = presentation?.themeId ?: card.preset),
+            R19PresentedCardFace(
+                card = card,
+                profile = presentation,
                 privacyMask = app.privacyMask || (presentation?.maskSensitive == true),
                 onClick = {},
-                presentationMaterial = presentation?.material,
-                presentationAccent = hexColorOrNull(presentation?.accentColor ?: "default"),
-                presentationLayout = presentation?.layout,
             )
             Spacer(Modifier.height(14.dp))
             CardIdentitySummary(card = card, serviceCount = services.size)
@@ -389,7 +385,7 @@ private fun IdentityPanel(
                 shape = RoundedCornerShape(VRadius.Md),
             ) {
                 Text(
-                    "定制卡面 →",
+                    "更换卡面图片 →",
                     Modifier.padding(12.dp),
                     color = PdigV2Colors.PrimaryText,
                     fontSize = 13.sp,
