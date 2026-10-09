@@ -140,22 +140,48 @@
       "id": "tablet-now",
       "referencePanel": "7-tablet-now",
       "route": "NOW",
-      "r9File": "not-yet-translated",
-      "status": "R8_BEHAVIOR_BASELINE_REGRESSION_REQUIRED"
+      "r9File": "R19AdaptiveWorldScene.kt + NowScreen.kt",
+      "designZone": [
+        "FivePrimaryRail",
+        "GpuWorldStage",
+        "CameraProjectedRegionLabels",
+        "Attention",
+        "ActiveChanges",
+        "Upcoming"
+      ],
+      "runtimeGate": [
+        "pdig.r19.adaptive-world-stage",
+        "pdig.nav.me"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
       "id": "desktop-cards",
       "referencePanel": "8-desktop-cards",
       "route": "CARDS",
-      "r9File": "not-yet-translated",
-      "status": "R8_BEHAVIOR_BASELINE_REGRESSION_REQUIRED"
+      "r9File": "CardsScreen.kt",
+      "designZone": [
+        "FivePrimaryRail",
+        "DenseAssetList",
+        "SelectedCardInspector",
+        "LifecycleFacts",
+        "FocusedDetailEntry"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
       "id": "desktop-change",
       "referencePanel": "9-desktop-change",
       "route": "CHANGE_PHONE",
-      "r9File": "not-yet-translated",
-      "status": "R8_BEHAVIOR_BASELINE_REGRESSION_REQUIRED"
+      "r9File": "ChangePhoneScreen.kt",
+      "designZone": [
+        "FivePrimaryRail",
+        "ProjectionChoice",
+        "ContinuityRail",
+        "OldServiceNewThreePane",
+        "TruthBoundedImpactSummary"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
       "id": "numbers",
