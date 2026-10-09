@@ -315,7 +315,43 @@ unknown relations          = still possible / none only if proven
 - `recovery use → unique recovery`;
 - proposals/candidates presented as confirmed Reality.
 
-## 11. Change Phone — Continuity choreography
+## 11. Change — Primary work center
+
+The primary `变更` destination is **not** an alias for one hard-coded phone flow.
+
+It answers:
+
+> **我正在改变什么？我准备改变什么？**
+
+R20 source composition:
+
+```text
+正在进行的变更
+→ exact active Change entry
+
+准备改变
+→ supported/scoped entry points
+
+维护与核对
+→ Weaknesses / Records
+```
+
+Reference actions:
+- active Replace Phone → focused Change Phone choreography;
+- Prepare Replace Phone → focused Change Phone choreography;
+- Replace Card → choose the concrete Card and inspect Impact first; R20 does not
+  invent a disconnected card-plan workflow.
+
+The Change root may describe a supported scenario, but executable mutation remains
+bound to production `ChangePrimitive / Scenario / ChangePlan` capability.
+
+### FORBIDDEN
+- `变更` root immediately rendering one specific object's detail flow;
+- a generic “start change” button for unsupported primitives;
+- marking a plan executed because the user opened the Change Center;
+- treating Prepare / Change / Records as the same state.
+
+## 12. Change Phone — Continuity choreography
 
 Three projections remain semantically distinct:
 
@@ -344,7 +380,7 @@ It does not copy showcase-only hard-coded numbers.
 
 `done != verified` remains mandatory.
 
-## 12. Accounts / Emails / Devices / Services / Weaknesses
+## 13. Accounts / Emails / Devices / Services / Weaknesses
 
 These remain Infrastructure secondary objects rather than new primary tabs.
 
@@ -380,7 +416,7 @@ The R20 focused details remain read-only when no production ChangePrimitive exis
 They must not invent a generic “开始变更” CTA merely to make every detail page look
 symmetric.
 
-## 13. Me — Personal Digital Life Workspace
+## 14. Me — Personal Digital Life Workspace
 
 `我` is the fifth primary destination, not a utility downgrade.
 
@@ -411,7 +447,7 @@ symmetric.
 - turning Me into a generic settings list;
 - inferring account completeness or safety from summary counts.
 
-## 14. Search
+## 15. Search
 
 Search is lookup over **recorded** infrastructure, not a discovery engine.
 
@@ -423,7 +459,7 @@ R20 indexes:
 
 No match means “not found among recorded data,” not “does not exist.”
 
-## 15. Back / Up semantics
+## 16. Back / Up semantics
 
 Two different operations remain distinct:
 
@@ -444,7 +480,7 @@ Me → Sources → Up → Me
 
 The header must never be relabeled as “Back to desktop/home.”
 
-## 16. Privacy / masking
+## 17. Privacy / masking
 
 Default is **not masked** unless the user enables masking.
 
@@ -457,7 +493,7 @@ Masking is:
 A user-defined number alias may remain visible when it is non-sensitive; an alias
 that itself looks like a phone number must still be protected by masking logic.
 
-## 17. Android Light visual language
+## 18. Android Light visual language
 
 Android is **light-first**.
 
@@ -480,7 +516,7 @@ Avoid:
 - KPI walls;
 - desktop pixel copying.
 
-## 18. Runtime / Freeze boundary
+## 19. Runtime / Freeze boundary
 
 R19 source completeness is not Reference Freeze.
 
