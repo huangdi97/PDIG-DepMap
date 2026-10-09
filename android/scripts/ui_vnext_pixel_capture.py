@@ -49,6 +49,17 @@ def tap_match(label, exact=False, prefer_bottom=False):
     if not matches:
         return False
     if prefer_bottom:
+        # A toolbar Person icon also has content-desc="我". A cold launch can
+        # expose it before the bottom navigation subtree is fully composed.
+        # Reject top-bar matches instead of dispatching a real tap to the
+        # wrong surface and then incorrectly claiming Me has broken routing.
+        # The pixel runner pins a 2340px emulator; derive threshold from the
+        # physical display rather than fixed y-coordinate clicks.
+        match = re.search(r"(\\d+)x(\\d+)", adb("shell", "wm", "size").stdout)
+        display_height = int(match.group(2)) if match else 2340
+        matches = [hit for hit in matches if hit[1] >= display_height * 0.70]
+        if not matches:
+            return False
         matches.sort(key=lambda entry: entry[1], reverse=True)
     x, y, desc = matches[0]
     # Emulator ADB input can fail transiently even when the visible window
@@ -577,7 +588,20 @@ def main():
     adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
     time.sleep(3)
     if not tap_retry("我", exact=True, prefer_bottom=True):
-        raise RuntimeError("Fifth Me tab was not reachable")
+        raise RuntimeError("Fifth Me bottom-navigation label was not yet composed")
+    # Dispatch success is not route success. The live content must change to
+    # the Me workspace; retry the actual *bottom* tab, not the header shortcut.
+    for me_attempt in range(4):
+        labels = [label_of(node) for node in xml_nodes()]
+        if any("我的数字生活" in label for label in labels):
+            break
+        print("ME_NAV_RETRY", me_attempt + 1, "Me content not yet visible", flush=True)
+        time.sleep(2)
+        if not tap_retry("我", exact=True, prefer_bottom=True, retries=2):
+            break
+    else:
+        diagnose_navigation("me-route-not-rendered")
+        raise RuntimeError("Bottom Me tab dispatched but R10MeScreen did not render")
     capture("09-me")
     require_screen("09-me", "我的数字生活", "敏感信息遮蔽", "已关闭")
     if not tap_retry("敏感信息遮蔽", exact=True):
