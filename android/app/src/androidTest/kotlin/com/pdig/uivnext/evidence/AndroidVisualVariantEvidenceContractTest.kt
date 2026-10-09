@@ -88,16 +88,16 @@ class AndroidVisualVariantEvidenceContractTest {
         assertEquals("$label: deterministic state must equal expected", expected, readback)
     }
 
-    // ── 1. Card Studio：glass != city ─────────────────────────────────────────
+    // ── 1. Card image：ocean != night ──────────────────────────────────────────
     @Test
-    fun cardStudioGlassDiffersFromCity() {
-        val glassApp = createVNextAppState(customTheme = "glass").apply { openCardCustomization("card-cn-2") }
-        val cityApp = createVNextAppState(customTheme = "city").apply { openCardCustomization("card-cn-2") }
-        val shaGlass = sha256Of(renderApp(glassApp))
-        val shaCity = sha256Of(renderApp(cityApp))
-        assertState(glassApp.evidenceThemeId, "glass", "card studio")
-        assertState(cityApp.evidenceThemeId, "city", "card studio")
-        assertNotEquals("card studio glass frame SHA256 must differ from city frame", shaGlass, shaCity)
+    fun cardImageOceanDiffersFromNight() {
+        val oceanApp = createVNextAppState(customTheme = "ocean").apply { openCardCustomization("card-cn-2") }
+        val nightApp = createVNextAppState(customTheme = "night").apply { openCardCustomization("card-cn-2") }
+        val shaOcean = sha256Of(renderApp(oceanApp))
+        val shaNight = sha256Of(renderApp(nightApp))
+        assertState(oceanApp.evidenceThemeId, "ocean", "card image")
+        assertState(nightApp.evidenceThemeId, "night", "card image")
+        assertNotEquals("card image ocean frame SHA256 must differ from night frame", shaOcean, shaNight)
     }
 
     // ── 2. Number Studio：country != travel != recovery ───────────────────────
@@ -144,9 +144,9 @@ class AndroidVisualVariantEvidenceContractTest {
     // ── 5. P0 回归：证据绝不触碰用户持久化 profile ───────────────────────────
     @Test
     fun evidenceIsolation_noPersistedProfileReadOrWrite() {
-        val app = createVNextAppState(customTheme = "glass").apply { openCardCustomization("card-cn-2") }
+        val app = createVNextAppState(customTheme = "ocean").apply { openCardCustomization("card-cn-2") }
         renderApp(app)
-        assertState(app.evidenceThemeId, "glass", "evidence isolation")
+        assertState(app.evidenceThemeId, "ocean", "evidence isolation")
         // Android 演示壳从不写 profile：渲染前后不存在 presentation/profile 持久化文件。
         val ctx = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
         // 精确判定：presentation 持久化或 profile JSON（排除生产 app 的 profileInstalled 安装标记）。
