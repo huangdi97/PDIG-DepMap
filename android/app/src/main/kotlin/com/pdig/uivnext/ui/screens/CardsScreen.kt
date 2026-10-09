@@ -153,13 +153,11 @@ fun CardsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ) {
                 items(filteredCards, key = { it.id }) { card ->
                     val profile = app.savedPresentationProfile("card", card.id)
-                    AssetCard(
-                        card = card.copy(preset = profile?.themeId ?: card.preset),
+                    R19PresentedCardFace(
+                        card = card,
+                        profile = profile,
                         privacyMask = app.privacyMask || (profile?.maskSensitive == true),
                         onClick = { app.openCard(card.id) },
-                        presentationMaterial = profile?.material,
-                        presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
-                        presentationLayout = profile?.layout,
                     )
                 }
             }
@@ -264,16 +262,14 @@ private fun ExpandedSelectableCard(
             if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
         ),
     ) {
-        AssetCard(
-            card = card.copy(preset = profile?.themeId ?: card.preset),
+        R19PresentedCardFace(
+            card = card,
+            profile = profile,
             privacyMask = app.privacyMask || (profile?.maskSensitive == true),
             onClick = onClick,
             modifier = Modifier
                 .padding(6.dp)
                 .testTagLocal("pdig.card.expanded.${card.id}"),
-            presentationMaterial = profile?.material,
-            presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
-            presentationLayout = profile?.layout,
         )
     }
 }
@@ -303,8 +299,9 @@ private fun ExpandedCardListRow(
             Modifier.padding(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CardIdentityThumbnail(
-                card = card.copy(preset = profile?.themeId ?: card.preset),
+            R19PresentedCardThumbnail(
+                card = card,
+                profile = profile,
                 privacyMask = app.privacyMask || (profile?.maskSensitive == true),
                 modifier = Modifier.width(108.dp),
             )
@@ -356,15 +353,14 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
         val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
 
         SectionHeader("卡片详情")
-        AssetCard(
-            card = card.copy(preset = profile?.themeId ?: card.preset),
+        R19PresentedCardFace(
+            card = card,
+            profile = profile,
             privacyMask = app.privacyMask || (profile?.maskSensitive == true),
             onClick = { app.openCard(card.id) },
             modifier = Modifier
                 .fillMaxWidth()
                 .testTagLocal("pdig.card.inspector.identity.${card.id}"),
-            presentationMaterial = profile?.material,
-            presentationAccent = hexColorOrNull(profile?.accentColor ?: "default"),
             presentationLayout = "compact",
         )
 
@@ -394,7 +390,7 @@ private fun ExpandedCardInspector(app: VAppState, card: UiVNextCard?) {
                 border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
                 Text(
-                    "定制卡面",
+                    "更换卡面图片",
                     Modifier.padding(12.dp),
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
@@ -487,8 +483,9 @@ private fun CompactCardRow(card: UiVNextCard, app: VAppState) {
             Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            CardIdentityThumbnail(
-                card = card.copy(preset = profile?.themeId ?: card.preset),
+            R19PresentedCardThumbnail(
+                card = card,
+                profile = profile,
                 privacyMask = maskSensitive,
                 modifier = Modifier.width(96.dp),
             )
