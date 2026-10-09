@@ -321,6 +321,17 @@ class SourceCompleteScreenshotEvidenceTest {
         }
         capture("23-personalization", "personalization", { it.openUtility(VScreen.PERSONALIZATION) }, { it.screen.name.lowercase(Locale.ROOT) })
         capture("24-data-sources", "sources", { it.openUtility(VScreen.SOURCES) }, { it.screen.name.lowercase(Locale.ROOT) })
+        // R19: "我" is an intentional fifth primary destination and must have
+        // independent phone/tablet visual evidence rather than being inferred
+        // from an avatar shortcut or Settings screenshots.
+        capture("25-me", "me", { it.navigate(VScreen.ME) }, { it.screen.name.lowercase(Locale.ROOT) }) {
+            compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).fetchSemanticsNode()
+            if (deviceClass == "tablet") {
+                compose.onNodeWithTag("pdig.r19.me.workspace", useUnmergedTree = true).fetchSemanticsNode()
+            } else {
+                compose.onNodeWithTag("pdig.r10.screen.me", useUnmergedTree = true).fetchSemanticsNode()
+            }
+        }
 
         // 空态（任务书 §18）：state correct + CTA exists；unknown 语义保持（未记录 ≠ 无风险）。
         capture("${deviceClass}-cards-empty", "empty-cards", { it.emptyDemo = true; it.navigate(VScreen.CARDS) }, { "empty-cards" })
@@ -332,6 +343,6 @@ class SourceCompleteScreenshotEvidenceTest {
         val manifestFile = File(ctx().filesDir, "source-complete-raw-manifest.json")
         manifestFile.writeText(shots.toString(2))
         publish("source-complete-raw-manifest.json", shots.toString(2).toByteArray())
-        assertTrue("expected >= 29 shots, found ${shots.length()}", shots.length() >= 29)
+        assertTrue("expected >= 30 shots, found ${shots.length()}", shots.length() >= 30)
     }
 }
