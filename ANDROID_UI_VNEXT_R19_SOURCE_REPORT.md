@@ -130,8 +130,8 @@ R19 therefore:
 - may retain a top-right avatar as a shortcut, but never as a substitute;
 - keeps Settings / Personalization / Sources semantically under the `我` primary
   selection on wide navigation;
-- gives Medium / Expanded a dedicated `R19AdaptiveMeScreen` instead of stretching
-  the compact phone feed.
+- gives Medium a bounded `R19MediumMeScreen` and Expanded a dedicated
+  `R19AdaptiveMeScreen`, instead of stretching one phone feed across every width.
 
 Unit and runtime contracts pin the five-item IA so cleanup cannot silently demote it.
 
