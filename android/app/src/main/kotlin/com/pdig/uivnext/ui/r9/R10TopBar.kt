@@ -62,7 +62,9 @@ internal fun R10TopBar(app: VAppState) {
                     when(app.screen) {
                         VScreen.NOW -> "PDIG"
                         VScreen.ME -> "我"
-                        VScreen.CHANGE, VScreen.CHANGE_PHONE -> "更换手机号"
+                        VScreen.CHANGE -> "变更"
+                        VScreen.CHANGE_PHONE -> "更换手机号"
+                        VScreen.CHANGE_CARD -> "更换银行卡"
                         VScreen.OVERVIEW, VScreen.INFRASTRUCTURE -> "基础设施"
                         else -> app.screen.titleZh
                     },
