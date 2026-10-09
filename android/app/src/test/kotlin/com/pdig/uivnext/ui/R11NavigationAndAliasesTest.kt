@@ -58,6 +58,19 @@ class R11NavigationAndAliasesTest {
         assertEquals(VScreen.CARD_DETAIL, app.screen)
     }
 
+    @Test fun maskingControlsIdentityLabelsWithoutChangingSavedAliases() {
+        val number = "+852 9***4321"
+        assertEquals(number, visibleNumberDisplayName(number, null, false))
+        assertEquals("号码已遮蔽", visibleNumberDisplayName(number, null, true))
+        assertEquals("香港主号", visibleNumberDisplayName(number, "香港主号", true))
+        assertEquals("号码已遮蔽", visibleNumberDisplayName(number, "13812345678", true))
+        val app = VAppState()
+        app.renameNumber("num-hk-1", "香港主号")
+        app.privacyMask = true
+        assertEquals("香港主号", app.numberDisplayNameForScreen("num-hk-1", number))
+        assertEquals("香港主号", app.numberAlias("num-hk-1"))
+    }
+
     @Test fun privacyInitiallyVisibleUnlessUserChoosesOtherwise() {
         val app = VAppState()
         assertFalse(app.privacyMask)

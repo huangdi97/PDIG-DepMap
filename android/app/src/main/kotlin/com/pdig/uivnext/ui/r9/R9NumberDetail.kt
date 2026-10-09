@@ -48,7 +48,7 @@ internal fun R9NumberDetailScreen(app: VAppState) {
     }
     val related = UiVNextDemoFixture.servicesForNumber(number.id)
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
-    val title = app.numberDisplayName(number.id, number.maskedNumber)
+    val title = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
     var editingName by remember(number.id) { mutableStateOf(false) }
     var proposedName by remember(number.id) { mutableStateOf(app.numberAlias(number.id)) }
     Column(

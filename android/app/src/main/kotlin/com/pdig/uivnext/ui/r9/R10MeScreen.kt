@@ -117,7 +117,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                         fontWeight = FontWeight.SemiBold)
                     Text(
                         if (leadNumber != null)
-                            app.numberDisplayName(leadNumber.id, leadNumber.maskedNumber)
+                            app.numberDisplayNameForScreen(leadNumber.id, leadNumber.maskedNumber)
                         else "尚未记录",
                         color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold,
                         maxLines = 2,

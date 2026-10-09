@@ -258,7 +258,7 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
     ) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            val display = app.numberDisplayName(number.id, number.maskedNumber)
+            val display = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
             NumberIdentityThumbnail(number.copy(nickname = display),
                 app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true,
                 Modifier.width(107.dp))

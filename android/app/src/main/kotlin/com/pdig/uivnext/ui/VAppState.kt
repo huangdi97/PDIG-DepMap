@@ -90,6 +90,13 @@ class VAppState(
     fun numberDisplayName(numberId: String, recordedNumber: String): String =
         displayNameForNumber(recordedNumber, numberDisplayNames[numberId])
 
+    fun numberDisplayNameForScreen(numberId: String, recordedNumber: String): String =
+        visibleNumberDisplayName(
+            recordedNumber, numberDisplayNames[numberId],
+            privacyMaskState ||
+                (presentationProfiles[presentationKey("phoneNumber", numberId)]?.maskSensitive == true),
+        )
+
     fun numberAlias(numberId: String): String = numberDisplayNames[numberId].orEmpty()
 
     fun renameNumber(numberId: String, input: String) {

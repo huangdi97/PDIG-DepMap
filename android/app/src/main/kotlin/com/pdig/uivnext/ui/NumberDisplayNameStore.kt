@@ -25,3 +25,12 @@ internal class NumberDisplayNameStore(context: Context) {
 /** Do not replace an unlabelled number with a made-up "primary" fixture nickname. */
 internal fun displayNameForNumber(recordedNumber: String, alias: String?): String =
     alias?.trim()?.takeIf { it.isNotEmpty() } ?: recordedNumber
+
+// Privacy applies to displayed identity labels as well as the number face.
+// Human-readable aliases remain visible only when they are not phone-like.
+// The stored alias/number are never changed by masking.
+internal fun visibleNumberDisplayName(recordedNumber: String, alias: String?, hidden: Boolean): String {
+    val name = alias?.trim()?.takeIf(String::isNotEmpty)
+    if (!hidden) return displayNameForNumber(recordedNumber, name)
+    return if (name != null && name.count(Char::isDigit) < 4) name else "号码已遮蔽"
+}
