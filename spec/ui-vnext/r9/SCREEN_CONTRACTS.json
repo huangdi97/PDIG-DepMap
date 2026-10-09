@@ -205,6 +205,33 @@
       "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
+      "id": "me",
+      "referencePanel": null,
+      "route": "ME",
+      "r9File": "R10MeScreen.kt",
+      "adaptiveFile": "R19MeWorkspace.kt",
+      "designZone": [
+        "FifthPrimaryDestination",
+        "KeyIdentity",
+        "ContinuitySummary",
+        "Privacy",
+        "GlobalDistribution",
+        "PersonalManagement"
+      ],
+      "runtimeGate": [
+        "pdig.nav.me",
+        "pdig.r10.screen.me",
+        "pdig.r19.me.medium",
+        "pdig.r19.me.workspace"
+      ],
+      "truthRules": [
+        "recovery use is not unique recovery",
+        "summary counts never imply completeness or safety",
+        "Me is a root destination and has no hierarchical Up"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
       "id": "records",
       "referencePanel": null,
       "route": "RECORDS",
