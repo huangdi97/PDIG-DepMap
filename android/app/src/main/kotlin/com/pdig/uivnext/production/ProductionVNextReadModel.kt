@@ -23,6 +23,7 @@ internal interface VNextReadModelSource {
     fun snapshot(nowIso: String? = null): VNextProductionSnapshot
     fun impact(targetNodeId: String): VNextProductionImpact
     fun plan(planId: String): VNextProductionPlan?
+    fun records(): List<VNextProductionRecordItem>
 }
 
 internal enum class VNextProjectionTruth {
@@ -139,8 +140,33 @@ internal data class VNextProductionPlanAction(
     val phase: String,
     val done: Boolean,
     val verificationStatus: String?,
+    val verificationEvidenceRefs: List<String>,
     val prerequisiteActionIds: List<String>,
     val resolvesImpactKeys: List<String>,
+)
+
+internal enum class VNextProductionRecordState {
+    RECORDED_COMPLETE,
+    VERIFIED,
+    PENDING_VERIFICATION,
+    VERIFICATION_FAILED,
+}
+
+internal data class VNextProductionRecordItem(
+    val id: String,
+    val planId: String,
+    val planTitle: String,
+    val scenario: String,
+    val actionId: String,
+    val actionTitle: String,
+    val phase: String,
+    val state: VNextProductionRecordState,
+    val evidenceRefs: List<String>,
+    /**
+     * Current Android PlanAction model does not expose doneAt / verifiedAt.
+     * Null is intentional: never substitute effectiveDate as an occurrence time.
+     */
+    val occurredAt: String? = null,
 )
 
 internal data class VNextProductionPlan(
@@ -190,6 +216,13 @@ internal class AppContainerVNextReadModelSource(
 
     override fun plan(planId: String): VNextProductionPlan? =
         app.planDetail(planId)?.let(::mapProductionPlan)
+
+    override fun records(): List<VNextProductionRecordItem> =
+        buildProductionRecordTrace(
+            app.plans().mapNotNull { row ->
+                app.planDetail(row.id)?.let(::mapProductionPlan)
+            },
+        )
 }
 
 internal fun productionSurfaceKind(kind: String): VNextProductionSurfaceKind = when (kind) {
@@ -341,8 +374,46 @@ internal fun mapProductionPlan(detail: PlanDetailView): VNextProductionPlan =
                 phase = action.phase.wire,
                 done = action.done,
                 verificationStatus = action.verification?.status?.wire,
+                verificationEvidenceRefs = action.verification?.evidenceRefs ?: emptyList(),
                 prerequisiteActionIds = action.prerequisiteActionIds,
                 resolvesImpactKeys = action.resolvesImpactKeys,
             )
         },
+    )
+
+
+internal fun buildProductionRecordTrace(
+    plans: List<VNextProductionPlan>,
+): List<VNextProductionRecordItem> =
+    plans.flatMap { plan ->
+        plan.actions.mapNotNull { action ->
+            val state = when {
+                action.verificationStatus == "verified" ->
+                    VNextProductionRecordState.VERIFIED
+                action.verificationStatus == "failed" ->
+                    VNextProductionRecordState.VERIFICATION_FAILED
+                action.verificationStatus == "pending" ||
+                    action.verificationStatus == "evidence_suggested" ->
+                    VNextProductionRecordState.PENDING_VERIFICATION
+                action.done ->
+                    VNextProductionRecordState.RECORDED_COMPLETE
+                else -> null
+            } ?: return@mapNotNull null
+
+            VNextProductionRecordItem(
+                id = "plan:${plan.id}:action:${action.id}",
+                planId = plan.id,
+                planTitle = plan.title,
+                scenario = plan.scenario,
+                actionId = action.id,
+                actionTitle = action.title,
+                phase = action.phase,
+                state = state,
+                evidenceRefs = action.verificationEvidenceRefs,
+                occurredAt = null,
+            )
+        }
+    }.sortedWith(
+        compareBy<VNextProductionRecordItem> { it.planId }
+            .thenBy { it.actionId },
     )
