@@ -250,7 +250,8 @@ class VAppState(
      * the stable parent object/section so Card→Studio→UP = Card Detail.
      */
     fun upDestination(): VScreen? = when (screen) {
-        VScreen.NOW, VScreen.INFRASTRUCTURE, VScreen.CHANGE, VScreen.RECORDS, VScreen.ME -> null
+        VScreen.NOW, VScreen.INFRASTRUCTURE, VScreen.CHANGE, VScreen.RECORDS -> null
+        VScreen.ME -> backStack.lastOrNull() ?: VScreen.NOW
         VScreen.CARD_CUSTOMIZATION -> VScreen.CARD_DETAIL
         VScreen.CARD_DETAIL -> VScreen.CARDS
         VScreen.NUMBER_CUSTOMIZATION -> VScreen.NUMBER_DETAIL
