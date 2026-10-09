@@ -95,18 +95,31 @@ private fun EmailRow(email: UiVNextEmail) {
         title = email.name,
         subtitle = email.maskedAddress + " · " + email.provider + " · " + regionLabel(email.region),
         badge = "@",
-        accent = if (email.recoveryOnly) PdigV2Colors.Critical else PdigV2Colors.Primary,
+        accent = when {
+            email.uniqueRecoveryPath == true -> PdigV2Colors.Critical
+            email.recoveryOnly -> PdigV2Colors.Warning
+            else -> PdigV2Colors.Primary
+        },
         trailing = {
             LabelChip(
-                if (email.recoveryOnly) "唯一恢复" else email.linkedServiceCount.toString() + " 项关联",
-                highlight = email.recoveryOnly,
+                when {
+                    email.uniqueRecoveryPath == true -> "唯一恢复"
+                    email.recoveryOnly -> "恢复用途"
+                    else -> email.linkedServiceCount.toString() + " 项关联"
+                },
+                highlight = email.uniqueRecoveryPath == true,
             )
         },
     ) {
         ChipLine(email.roles)
         Text(
-            if (email.recoveryOnly) "更换或停用前，必须先建立另一条恢复路径。" else "已记录 " + email.linkedServiceCount + " 项服务关联。",
-            color = if (email.recoveryOnly) PdigV2Colors.Critical else PdigV2Colors.TextSecondary,
+            when {
+                email.uniqueRecoveryPath == true -> "已确认唯一恢复路径：停用前必须先建立并验证替代路径。"
+                email.recoveryOnly -> "已记录恢复用途；是否唯一仍未知，停用前需要核对恢复关系。"
+                else -> "已记录 " + email.linkedServiceCount + " 项服务关联。"
+            },
+            color = if (email.uniqueRecoveryPath == true) PdigV2Colors.Critical
+            else if (email.recoveryOnly) PdigV2Colors.Warning else PdigV2Colors.TextSecondary,
             fontSize = 12.sp,
         )
     }
