@@ -86,6 +86,7 @@ internal fun R15WorldScene(
             .pointerInput(controller) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                    var pointersDown: Boolean
                     do {
                         val event = awaitPointerEvent(PointerEventPass.Initial)
                         val pan = event.calculatePan()
@@ -99,7 +100,8 @@ internal fun R15WorldScene(
                                 if (change.positionChanged()) change.consume()
                             }
                         }
-                    } while (event.changes.any { it.pressed })
+                        pointersDown = event.changes.any { it.pressed }
+                    } while (pointersDown)
                 }
             }
             .testTag("pdig.r15.scene")
@@ -133,8 +135,7 @@ internal fun R15WorldScene(
                             onRegionChosen(hit)
                         }
                     }
-                }
-                ,
+                },
         ) {
             val radius = min(size.width * .42f, size.height * .47f) * camera.zoom
             val cx = size.width / 2f
