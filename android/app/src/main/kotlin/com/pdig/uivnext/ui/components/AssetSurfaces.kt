@@ -141,5 +141,8 @@ private fun stageLabel(key: String): String = when (key) {
     "migrate-key-accounts" -> "迁移关键账户"
     "check-recovery-paths" -> "检查恢复路径"
     "retire-old-number" -> "停用旧号码"
+    "review-payment-dependencies" -> "检查支付依赖"
+    "migrate-payment-relations" -> "迁移支付关系"
+    "verify-payment-path" -> "验证支付路径"
     else -> key
 }
