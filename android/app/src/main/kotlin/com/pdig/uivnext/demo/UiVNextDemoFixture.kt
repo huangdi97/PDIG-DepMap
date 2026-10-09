@@ -38,7 +38,7 @@ object UiVNextDemoFixture {
         UiVNextCard("card-hk-1", "汇丰卓越理財", "HSBC 汇丰", "7351", "****7351", "HK", "HKD", "credit", "physical", "Visa", "2027-03", "active", false, listOf("国际消费", "自动扣款"), "city"),
         UiVNextCard("card-hk-2", "中银香港储蓄", "中银香港", "1188", "****1188", "HK", "HKD", "debit", "physical", "银通", "2030-09", "active", false, listOf("本地日常"), "glass"),
         UiVNextCard("card-gb-1", "Monzo 账户卡", "Monzo", "4602", "****4602", "GB", "GBP", "debit", "virtual", "Mastercard", "2029-01", "active", false, listOf("日常消费"), "metal"),
-        UiVNextCard("card-gb-2", "Revolut 多币种", "Revolut", "0047", "****0047", "GB", "GBP", "credit", "virtual", "Mastercard", "2026-07", "expiring_soon", true, listOf("多币种", "订阅"), "abstract"),
+        UiVNextCard("card-gb-2", "Revolut 多币种", "Revolut", "0047", "****0047", "GB", "GBP", "credit", "virtual", "Mastercard", "2027-07", "active", false, listOf("多币种", "订阅"), "abstract"),
         UiVNextCard("card-us-1", "Chase Sapphire", "Chase", "8220", "****8220", "US", "USD", "credit", "physical", "Visa", "2028-12", "active", false, listOf("旅行", "订阅"), "city"),
         UiVNextCard("card-us-2", "虚拟卡 0109", "Capital One", "0109", "****0109", "US", "USD", "credit", "virtual", "Visa", "2027-06", "active", false, listOf("网络订阅"), "minimal"),
         UiVNextCard("card-sg-1", "DBS 银行卡", "DBS", "3391", "****3391", "SG", "SGD", "credit", "physical", "Visa", "2027-08", "active", false, listOf("本地消费"), "glass"),
@@ -197,7 +197,7 @@ object UiVNextDemoFixture {
 
     val attentionItems: List<AttentionItem> = listOf(
         AttentionItem("att-1", "critical", "工行信用卡 11 月到期，绑定 2 项自动扣款", "card-cn-2"),
-        AttentionItem("att-2", "warning", "Revolut 多币种卡 7 月到期，建议更新订阅支付方式", "card-gb-2"),
+        AttentionItem("att-2", "warning", "美国保号 11 月需完成保号，且承担账户恢复依赖", "num-us-1"),
         AttentionItem("att-3", "warning", "+86 138****8823 是 2 个账户的唯一恢复路径", "num-cn-1"),
     )
 
@@ -208,7 +208,6 @@ object UiVNextDemoFixture {
     val upcoming: List<UpcomingItem> = listOf(
         UpcomingItem("upc-1", "工行信用卡 2026-11-15 到期", 47),
         UpcomingItem("upc-2", "美国保号 2026-11-05 需要完成保号操作", 27),
-        UpcomingItem("upc-3", "Revolut 卡 2026-07-20 到期", 20),
     )
 
     val changeStages: List<ChangeStage> = listOf(
