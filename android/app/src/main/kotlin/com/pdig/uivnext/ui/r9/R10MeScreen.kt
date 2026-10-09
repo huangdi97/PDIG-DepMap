@@ -132,8 +132,13 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
             }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 R16MeIdentityMini(
-                    "恢复邮箱", leadEmail?.maskedAddress ?: "尚未记录",
-                    if (leadEmail?.recoveryOnly == true) "需核验替代恢复路径" else "查看已记录邮箱",
+                    "恢复邮箱",
+                    leadEmail?.maskedAddress ?: "尚未记录",
+                    when {
+                        leadEmail?.uniqueRecoveryPath == true -> "唯一恢复 · 需建立替代路径"
+                        leadEmail?.recoveryOnly == true -> "恢复用途 · 唯一性未知"
+                        else -> "查看已记录邮箱"
+                    },
                     R9.Amber,
                 ) { app.navigate(VScreen.EMAILS) }
                 R16MeIdentityMini(
