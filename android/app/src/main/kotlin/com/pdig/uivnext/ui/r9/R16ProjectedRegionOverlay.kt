@@ -38,7 +38,8 @@ import kotlin.math.roundToInt
 /**
  * R16: a country chip is a live geographic annotation, not a corner badge.
  * Every frame uses the GPU renderer's camera, radius, viewport and front-face
- * convention. 68dp baseline chip; grouped nodes show +N and open a chooser.
+ * convention. R18 uses a compact two-line glass callout with factual asset
+ * footprint; grouped nodes show +N and open a chooser.
  *
  * The GPU Earth and its gesture recognizer are unchanged and remain fluid.
  */
@@ -71,10 +72,20 @@ internal fun R16ProjectedRegionOverlay(
                 val centerY = tag.top + tag.height / 2f
                 if (abs(centerX - tag.anchorX) + abs(centerY - tag.anchorY) > 17f * pxPerDp) {
                     drawLine(
-                        color = Color(0xFF349CEA).copy(alpha = .55f),
+                        color = Color(0xFF349CEA).copy(alpha = .42f),
                         start = Offset(tag.anchorX, tag.anchorY),
                         end = Offset(centerX, centerY),
                         strokeWidth = 1.dp.toPx(),
+                    )
+                    drawCircle(
+                        color = Color(0xFF34A7F4).copy(alpha = .23f),
+                        radius = 5.dp.toPx(),
+                        center = Offset(tag.anchorX, tag.anchorY),
+                    )
+                    drawCircle(
+                        color = Color.White.copy(alpha = .96f),
+                        radius = 1.8.dp.toPx(),
+                        center = Offset(tag.anchorX, tag.anchorY),
                     )
                 }
             }
@@ -95,36 +106,50 @@ internal fun R16ProjectedRegionOverlay(
                         else pendingGroup = all
                     }
                     .semantics {
+                        val footprint = tag.primary.cardCount + tag.primary.phoneCount +
+                            tag.primary.accountCount + tag.primary.serviceCount
                         contentDescription = if (all.size == 1)
-                            "地球地区：${tag.primary.displayName}"
+                            "地球地区：${tag.primary.displayName}，已记录 ${footprint} 项基础设施"
                         else "地球地区组：${tag.primary.displayName}等${all.size}个地区，点击选择"
                     }
                     .testTag("pdig.r16.geo-region.${tag.primary.regionCode}"),
                 contentAlignment = Alignment.Center,
             ) {
                 Surface(
-                    modifier = Modifier.fillMaxWidth().height(26.dp),
-                    color = Color.White.copy(alpha = .96f),
-                    shape = RoundedCornerShape(13.dp),
+                    modifier = Modifier.fillMaxWidth().height(36.dp),
+                    color = Color.White.copy(alpha = .91f),
+                    shape = RoundedCornerShape(15.dp),
                     border = BorderStroke(
                         1.dp,
-                        if (controller.selectedRegion == tag.primary.regionCode) R9.Blue else R9.Line,
+                        if (controller.selectedRegion == tag.primary.regionCode)
+                            R9.Blue.copy(alpha = .78f)
+                        else Color.White.copy(alpha = .86f),
                     ),
-                    shadowElevation = 2.dp,
+                    shadowElevation = 3.dp,
                 ) {
                     Row(
-                        Modifier.fillMaxSize().padding(horizontal = 5.dp),
-                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                        Modifier.fillMaxSize().padding(horizontal = 7.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(regionFlag(tag.primary.regionCode), fontSize = 12.sp, maxLines = 1)
-                        Text(
-                            tag.primary.displayName.take(if (all.size > 1) 2 else 3),
-                            modifier = Modifier.weight(1f, fill = false),
-                            fontSize = 9.sp, fontWeight = FontWeight.SemiBold,
-                            color = R9.Ink, maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
+                        Text(regionFlag(tag.primary.regionCode), fontSize = 14.sp, maxLines = 1)
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(1.dp),
+                        ) {
+                            Text(
+                                tag.primary.displayName,
+                                fontSize = 9.sp, fontWeight = FontWeight.Bold,
+                                color = R9.Ink, maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            val footprint = tag.primary.cardCount + tag.primary.phoneCount +
+                                tag.primary.accountCount + tag.primary.serviceCount
+                            Text(
+                                "${footprint} 项 · ${tag.primary.phoneCount} 号",
+                                fontSize = 7.sp, color = R9.Muted, maxLines = 1,
+                            )
+                        }
                         if (all.size > 1) {
                             Text("+${all.size - 1}", fontSize = 9.sp,
                                 color = R9.Blue, fontWeight = FontWeight.Bold)
