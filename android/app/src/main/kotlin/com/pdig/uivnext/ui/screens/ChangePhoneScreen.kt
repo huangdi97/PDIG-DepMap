@@ -58,6 +58,7 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val projection = app.changeProjection
     val old = UiVNextDemoFixture.numberById("num-cn-1")
     val new = UiVNextDemoFixture.numberById("num-cn-4")
+    val impact = changeImpactSummary(projection)
     Column(
         Modifier
             .fillMaxSize()
@@ -84,6 +85,7 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             }
         }
 
+        ChangeImpactSummaryStrip(impact)
 
         if (breakpoint == MediaBreakpoint.COMPACT) {
             Text(
@@ -263,4 +265,53 @@ private fun projectionDetail(projection: String): List<Pair<String, String>> = w
         "5 检查恢复路径" to "确保每个账户存在非旧号码的恢复方式。",
         "6 停用旧号码" to "暂不可执行：新号码完成验证并确认恢复路径后，才能停用旧号码。",
     )
+}
+
+internal data class ChangeImpactSummary(
+    val linkedServices: Int,
+    val needsReview: Int,
+    val blockerCount: Int,
+)
+
+internal fun changeImpactSummary(projection: String): ChangeImpactSummary {
+    val migrations = projectionMigrations(projection)
+    val stages = projectionStages(projection)
+    return ChangeImpactSummary(
+        linkedServices = migrations.size,
+        needsReview = migrations.count { it.status != "completed" },
+        blockerCount = stages.count { it.status == "blocked" } +
+            migrations.count { it.status == "unresolved" },
+    )
+}
+
+@Composable
+private fun ChangeImpactSummaryStrip(summary: ChangeImpactSummary) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTagLocal("pdig.r18.change.impact-summary"),
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            listOf(
+                Triple(summary.linkedServices, "已记录关联", PdigV2Colors.PrimaryBright),
+                Triple(summary.needsReview, "需要核对", PdigV2Colors.Warning),
+                Triple(summary.blockerCount, "阻断 / 待解决", PdigV2Colors.Critical),
+            ).forEach { (value, label, tint) ->
+                Column(
+                    Modifier.weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                ) {
+                    Text(value.toString(), color = tint, fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold)
+                    Text(label, color = PdigV2Colors.TextMuted, fontSize = 9.sp,
+                        textAlign = TextAlign.Center, maxLines = 2)
+                }
+            }
+        }
+    }
 }
