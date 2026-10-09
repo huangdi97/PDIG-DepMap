@@ -290,9 +290,9 @@ def main():
         time.sleep(2)
     if not entered_now:
         diagnose_navigation("onboarding-to-now-timeout")
-        raise RuntimeError("Onboarding did not reach the R19 Now screen within 48s")
+        raise RuntimeError("Onboarding did not reach the current Now screen within 48s")
     capture("01-now")
-    require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "· R19")
+    require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "本机预览")
     # An existing CPU fallback showing a photograph is not proof of R15.
     # Exact-head Preview MUST initialize the independent GPU shader.
     globe_labels = [label_of(n) for n in xml_nodes() if "全球基础设施导航器" in label_of(n)]
@@ -396,7 +396,7 @@ def main():
     ]
     if missing_primary:
         raise RuntimeError(
-            "R19 five-primary navigation missing from actual phone pixels: " +
+            "R21 five-primary navigation missing from actual phone pixels: " +
             ", ".join(missing_primary)
         )
     # Product decision: "我" is the intentional fifth primary destination.
@@ -460,7 +460,7 @@ def main():
             raise RuntimeError(f"Missing genuine card-detail tab: {name}")
         capture(shot)
         require_screen(shot, required)
-    # R19 Impact Lens is part of focused object detail and must preserve
+    # R21 retains the Impact Lens as part of focused object detail and must preserve
     # unknown-vs-confirmed semantics at runtime.
     for attempt in range(6):
         if any("如果它发生变化？" in label_of(n) for n in xml_nodes()):
@@ -469,7 +469,7 @@ def main():
         time.sleep(1)
     else:
         capture("04dd-card-impact-missing")
-        raise RuntimeError("R19 Card Impact Lens is unreachable")
+        raise RuntimeError("Card Impact Lens is unreachable in the current source")
     capture("04dd-card-impact")
     require_screen("04dd-card-impact", "如果它发生变化？", "已确认依赖", "未确认关系")
     # Return toward the card face before testing the minor artwork utility.
@@ -632,7 +632,7 @@ def main():
     require_screen("08d-number-studio-edited", "保存外观")
     if not tap_retry("保存外观", exact=True):
         raise RuntimeError("Number Studio: saving presentation profile failed")
-    # Return to the actual Number Detail and prove the R19 Impact Lens there.
+    # Return to the actual Number Detail and prove the current Impact Lens there.
     adb("shell", "input", "keyevent", "4")
     time.sleep(2)
     for attempt in range(7):
@@ -642,13 +642,13 @@ def main():
         time.sleep(1)
     else:
         capture("08e-number-impact-missing")
-        raise RuntimeError("R19 Number Impact Lens is unreachable")
+        raise RuntimeError("Number Impact Lens is unreachable in the current source")
     capture("08e-number-impact")
     require_screen("08e-number-impact", "如果它发生变化？", "唯一恢复路径", "未确认关系")
     adb("shell", "input", "keyevent", "4")
     time.sleep(2)
 
-    # Supporting screens must also be the new R19 renderer and expose actual
+    # Supporting screens must also be the current renderer and expose actual
     # persisted settings/source truth. Cold-start and enter the fifth primary tab.
     adb("shell", "am", "force-stop", PACKAGE)
     adb("shell", "am", "start", "-n", PACKAGE + "/" + ACTIVITY)
