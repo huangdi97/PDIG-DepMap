@@ -72,6 +72,7 @@
 ### MEDIUM / EXPANDED
 
 - Five-item primary navigation rail; infrastructure object categories stay in a content-level sibling navigation row.
+- `我` uses a dedicated adaptive workspace (critical identities / continuity / infrastructure / regions / personal management), not a stretched phone feed.
 - Overview Globe + activity rail.
 - Card/number list-detail where appropriate.
 - Consumer Studio multi-column layout.
