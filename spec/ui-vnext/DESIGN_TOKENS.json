@@ -164,7 +164,7 @@
       "railExpandedMax": 188,
       "topCommandHeight": 48,
       "railWidthRange": { "min": 64, "max": 188 },
-      "primaryOnly": "primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar"
+      "primaryOnly": "primary destinations = 现在/基础设施/变更/记录/我; 数据源/设置 are low-frequency Me child utilities; infrastructure secondary = content-level sibling navigation, never permanent equal primary items"
     },
     "page": {
       "padding": 24,
