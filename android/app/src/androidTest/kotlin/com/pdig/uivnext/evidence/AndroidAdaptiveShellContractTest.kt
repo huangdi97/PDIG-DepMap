@@ -17,6 +17,7 @@ import com.pdig.uivnext.createVNextAppState
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
