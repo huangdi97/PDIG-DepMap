@@ -324,6 +324,7 @@ private fun CompactCardDetailReference(
         ) {
             Surface(
                 modifier = Modifier.defaultMinSize(minHeight = VTouchTarget.Min)
+                    .testTagLocal("pdig.card.detail.change-art")
                     .clickableLocal { app.openCardCustomization(card.id) },
                 color = PdigV2Colors.SurfaceRaised,
                 shape = RoundedCornerShape(12.dp),
