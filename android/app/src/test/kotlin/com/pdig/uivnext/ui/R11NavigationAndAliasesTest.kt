@@ -24,6 +24,14 @@ class R11NavigationAndAliasesTest {
         assertEquals(VScreen.CARDS, app.screen)
     }
 
+    @Test fun utilityRailNeverMarksMeAndSettingsOrSourcesActiveTogether() {
+        assertTrue(isEntrySelected(VScreen.ME, VScreen.ME))
+        assertFalse(isEntrySelected(VScreen.ME, VScreen.SETTINGS))
+        assertFalse(isEntrySelected(VScreen.ME, VScreen.SOURCES))
+        assertTrue(isEntrySelected(VScreen.SETTINGS, VScreen.PERSONALIZATION))
+        assertTrue(isEntrySelected(VScreen.SOURCES, VScreen.SOURCES))
+    }
+
     @Test fun unlabelledNumberUsesRecordedNumberInsteadOfPresetName() {
         val demo = "+852 6*** 2748"
         assertEquals(demo, displayNameForNumber(demo, null))
