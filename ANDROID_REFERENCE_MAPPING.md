@@ -1,147 +1,459 @@
 # ANDROID_REFERENCE_MAPPING.md
 
-> Desktop Frozen Reference → Android 翻译映射（任务书 §43）。
-> 每屏：PRESERVE / TRANSLATE / DROP / PLATFORM-ADAPT 四项判定 + 理由。
-> 依据：`DESKTOP_REFERENCE_FREEZE_MANIFEST.json`（12 屏冻结）、`spec/ui-vnext/`、`ANDROID_VISUAL_CONTRACT.md`。
-> 原则：保留 information hierarchy / object identity / semantic prominence / material family /
-> state semantics / continuity semantics / navigation intent；Android 原生化交互与排版。
+> **R19 · 2026-10-09 · Android Light Reference source contract**
+>
+> This file maps the v2.3 product architecture and the human-selected light reference
+> board to Android native layouts. It is a **source/design contract**, not proof of
+> runtime pixel acceptance.
+>
+> Truth order:
+>
+> ```text
+> Canonical spec / invariants
+> → confirmed runtime domain facts
+> → v2.3 product architecture
+> → this Android translation contract
+> → synthetic reference fixture
+> → screenshots
+> ```
+>
+> Screenshots and fixture data never override Canonical truth.
 
-## 1. Now（现在）
+## 0. Frozen Android information architecture
 
-- Desktop Now → Android Phone Now → Android Tablet Now
-- Globe hero（Global Infrastructure Navigator）+ 需要处理 + 进行中的变更 + 即将到来。
+Primary navigation is exactly:
 
-| 项                               | 判定           | 说明                                                                      |
-| -------------------------------- | -------------- | ------------------------------------------------------------------------- |
-| Globe 主舞台（强主角）           | PRESERVE       | 纹理地球 + region markers + 弧线 + 大气；手机 hero 高度 280dp，展开 360dp |
-| 需要处理列表                     | PRESERVE       | AttentionRow（icon+label+color 三通道），critical 最突出                  |
-| 进行中的变更                     | PRESERVE       | ActiveChange 卡 + 阶段标签                                                |
-| 即将到来                         | PRESERVE       | 到期提醒行 + 天数徽标                                                     |
-| 三列并排                         | PLATFORM-ADAPT | EXPANDED（≥1200dp）三列；COMPACT/MEDIUM 纵向 feed                         |
-| 空态（无关注/无变更/无即将到来） | TRANSLATE      | honest unknown 空态（未记录 ≠ 无风险）                                    |
+```text
+现在
+基础设施
+变更
+记录
+```
 
-## 2. Infrastructure Overview（总览）
+`我` is a utility/account workspace:
+- phone: entered from the top-right avatar;
+- Medium/Expanded: lower utility rail;
+- it is **not** a fifth primary destination.
 
-- Desktop Overview → Android Phone Overview → Android Tablet Overview
-- Globe Stage + 活动轨（Region List 非视觉替代 + 需要处理）+ 快速入口。
+Infrastructure secondary destinations remain:
 
-| 项                                    | 判定      | 说明                                       |
-| ------------------------------------- | --------- | ------------------------------------------ |
-| Globe Stage（L1 视觉主导）            | PRESERVE  | 点击聚焦 / 再次点击抽屉 / 滚轮缩放（触控） |
-| 活动轨（Region List + 需要处理）      | PRESERVE  | RegionListItem 同时是无障碍非视觉替代      |
-| 快速入口（查看卡片/号码/更换/薄弱点） | TRANSLATE | 从桌面横排条目改为触控大按钮行             |
-| 地区选中态（region-selected）         | PRESERVE  | globe.REGION_SELECTED + regionFilter       |
-| 空态（无地区数据）                    | TRANSLATE | EmptyState(REGION)，不伪造地区             |
+```text
+总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点
+```
 
-## 3. Cards（卡片）
+Phone exposes these from the Infrastructure management hub. Medium/Expanded may
+use content-level sibling navigation. They must not become global primary nav.
 
-- Desktop Cards Grid → Android Phone Cards → Android Tablet Cards
+Android window classes follow the actual source contract:
 
-| 项                                                     | 判定           | 说明                                                              |
-| ------------------------------------------------------ | -------------- | ----------------------------------------------------------------- |
-| CardIdentitySystem（issuer identity/材质/状态/遮蔽）   | PRESERVE       | AssetCard 程序化卡面，preset 驱动                                 |
-| issuer 可区分（CMB/ICBC/BOC/HSBC/BOCHK/Monzo/Revolut） | PRESERVE       | fixture 含全部 7 家，卡面按 issuer 语义配色                       |
-| Grid/List 切换                                         | PLATFORM-ADAPT | 桌面网格；手机默认 2 列，MEDIUM 3 列，EXPANDED 4 列；列表视图保留 |
-| 地区过滤                                               | TRANSLATE      | 桌面顶部过滤；手机 FilterChip 行                                  |
-| Cards Empty                                            | TRANSLATE      | 语义空态（未记录 ≠ 无风险；绝不推断）                             |
+```text
+COMPACT  < 600dp
+MEDIUM   600–839dp
+EXPANDED >= 840dp
+```
 
-## 4. Card Detail（卡片详情）
+## 1. Now
 
-| 项                    | 判定           | 说明                                   |
-| --------------------- | -------------- | -------------------------------------- |
-| 顶部先见卡片视觉身份  | PRESERVE       | Hero AssetCard + identity 列           |
-| Identity/状态/Actions | PRESERVE       | 卡组织/地区/币种/卡种/形态/有效期/状态 |
-| 绑定服务              | PRESERVE       | servicesForCard（真实关系）            |
-| 备用支付 / 影响与风险 | TRANSLATE      | 手机纵向堆叠；Unknown != safe 文案保留 |
-| 变更历史              | PRESERVE       | 最近记录摘要                           |
-| 两栏（33/67）         | PLATFORM-ADAPT | EXPANDED/MEDIUM 两栏；COMPACT 纵向     |
+### PRESERVE
+- task-first hierarchy: attention before generic statistics;
+- signature Globe as spatial context;
+- active Change state;
+- upcoming/maintenance records;
+- explicit unknown states.
 
-## 5. Card Studio（卡面定制）
+### TRANSLATE
+- phone: vertical consumer feed with a frameless world hero;
+- wider screens: more spatial room, without converting the page to a KPI wall.
 
-| 项                                                          | 判定      | 说明                                            |
-| ----------------------------------------------------------- | --------- | ----------------------------------------------- |
-| Live Preview 优先                                           | PRESERVE  | 手机 Preview 在上；大屏三栏（预设/预览/属性）   |
-| 预设（glass/city/deep-space/region/metal/abstract/minimal） | PRESERVE  | 程序化背景按 preset 确定性差异                  |
-| PresentationProfile 边界                                    | PRESERVE  | 仅呈现层；绝不写 .depmap；保存=本地偏好         |
-| 属性/遮蔽/布局                                              | TRANSLATE | 手机为行式 Inspector，不复制桌面 Inspector 面板 |
-| 证据回读                                                    | PRESERVE  | evidenceThemeId 覆盖 + 回读（expected==actual） |
+### R19 reference details
+- GPU Earth remains the preferred renderer;
+- projected region callouts follow the live camera;
+- callouts show factual card/number context and an attention marker only when
+  recorded attention exists;
+- the asset rail opens Cards / Numbers / Accounts / Services.
 
-## 6. Numbers（号码）
+### FORBIDDEN
+- decorative fake graph edges;
+- fixed-corner country labels that do not follow the camera;
+- “0 issues = safe”;
+- synthetic counts presented as production reality.
 
-| 项                                                          | 判定           | 说明                                                                |
-| ----------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
-| 与 Cards 视觉语言明显不同                                   | PRESERVE       | NumberFace：拨号弧 + 信号条 + preset 背景（communication identity） |
-| 一眼可见：dial code/carrier/role/recovery/dependency/status | PRESERVE       | 高密度行式列表                                                      |
-| List + Inspector                                            | PLATFORM-ADAPT | EXPANDED/MEDIUM 两栏；COMPACT 列表+摘要                             |
-| Numbers Empty                                               | TRANSLATE      | 空态（未记录 ≠ 无风险）                                             |
+## 2. Infrastructure Overview
 
-## 7. Number Detail（号码详情）
+### PRESERVE
+- eight-category management hub;
+- region distribution;
+- region selection as a real filter;
+- accessible region list in addition to the Globe.
 
-| 项                         | 判定     | 说明                                          |
-| -------------------------- | -------- | --------------------------------------------- |
-| Dial Code 最强             | PRESERVE | NumberFace hero（mono 号码 + dial code chip） |
-| 状态/角色/用途             | PRESERVE | 徽标行 + 用途                                 |
-| 恢复能力                   | PRESERVE | recoveryOnly →「唯一恢复路径」高风险语义      |
-| 关联服务/登录/2FA/恢复依赖 | PRESERVE | 关系列表（authenticates/twoFA）               |
-| 历史                       | PRESERVE | 摘要行                                        |
+### PLATFORM-ADAPT
+- phone: search → 8-category hub → compact region distribution;
+- Medium: single-pane spatial overview;
+- Expanded: spatial stage + activity rail + quick entries.
 
-## 8. Number Studio（号码面定制）
+### FORBIDDEN
+- copying Now as a second giant dashboard;
+- persistent horizontal Infrastructure tabs on phone;
+- interpreting an empty region as “no risk”.
 
-| 项                             | 判定     | 说明                                                                                |
-| ------------------------------ | -------- | ----------------------------------------------------------------------------------- |
-| communication identity 语言    | PRESERVE | 拨号弧/信号条/预设背景（country/city/minimal/banking/travel/recovery/work/private） |
-| Travel/Banking/… = 呈现 preset | PRESERVE | 绝不改变 PersonalReality role truth（提示文案显式）                                 |
-| 证据变体                       | PRESERVE | country != travel != recovery（SHA 互异已测）                                       |
+## 3. Globe
 
-## 9. Change Phone（更换手机号）
+The Globe is a **spatial context object**, not a background illustration.
 
-| 项                                           | 判定      | 说明                                                            |
-| -------------------------------------------- | --------- | --------------------------------------------------------------- |
-| Current / Transition / After                 | PRESERVE  | 三投影选择器 + 语义横幅                                         |
-| Old → Service Nodes → New（服务节点 > 连线） | PRESERVE  | 纵向连续性流；不做 spaghetti lines                              |
-| Make-Before-Break                            | PRESERVE  | 阶段 6 阻塞 + 明文原因                                          |
-| After = Plan Projection                      | PRESERVE  | 显式「计划投影 ≠ 现实」横幅；旧号 ghost；未完成服务仍「待处理」 |
-| ContinuityRail 6 节点                        | TRANSLATE | 桌面横向 rail；手机允许横向滚动                                 |
+### Renderer
+- bundled albedo / night-lights / cloud textures;
+- spherical GPU shading;
+- atmosphere / limb / exterior haze;
+- day/night distinction;
+- ocean highlight;
+- CPU fallback if GPU initialization fails.
 
-## 10. Empty States（空态）
+### Region annotations
+- geographic anchors use the same live camera/projection as the Earth;
+- visible labels are collision-budgeted;
+- dense nearby regions may cluster and open a chooser;
+- a tether connects a label to its geographic anchor only;
+- the tether is **not** a dependency edge;
+- labels may show card count, number count and recorded attention.
 
-| 项                                                                      | 判定     | 说明                                  |
-| ----------------------------------------------------------------------- | -------- | ------------------------------------- |
-| semantic illustration + title + description + CTA                       | PRESERVE | EmptyState 组件（6 类语义图标）       |
-| honest unknown 文案                                                     | PRESERVE | 无「一切安全 / 100% safe / 没有问题」 |
-| 覆盖：Cards/Numbers/Region/No Change/No Attention/No Known Dependencies | PRESERVE | 已接线                                |
+### Required runtime states
+```text
+loading
+GPU ready / TEXTURE_READY
+fallback
+error
+```
 
-## 11. Search / Command
+A source implementation cannot claim the runtime state without fresh evidence.
 
-| 项                    | 判定             | 说明                                                                 |
-| --------------------- | ---------------- | -------------------------------------------------------------------- |
-| command/search intent | PRESERVE         | 触控入口（TopCommandBar）→ SearchScreen                              |
-| 真实搜索范围          | PRESERVE         | card/number/region/service；导航命令常驻                             |
-| Ctrl+K                | DROP（可选保留） | 桌面键盘 primitive；Android 主入口为触控（物理键盘可选支持，未实现） |
+## 4. Cards — Financial Asset Identity
 
-## 12. Navigation / Shell
+### PRESERVE
+- strong card identity / collection feeling;
+- issuer, region, currency, type, form, network, expiry;
+- confirmed service dependencies;
+- local presentation customization.
 
-| 项                                  | 判定           | 说明                                                                 |
-| ----------------------------------- | -------------- | -------------------------------------------------------------------- |
-| 一级导航（现在/基础设施/变更/记录） | PLATFORM-ADAPT | 手机 BottomNav（4 项 ≤5）；展开 NavigationRail                       |
-| 基础设施二级（8 项）                | PLATFORM-ADAPT | 手机 InfraChipRow（横向滚动）；rail 内嵌小节                         |
-| Window Size Class                   | PLATFORM-ADAPT | COMPACT(<700dp) / MEDIUM(700–1199) / EXPANDED(≥1200)；≥600dp 用 rail |
-| System back                         | PLATFORM-ADAPT | BackHandler：detail/studio/search → 返回上一层；region drawer → 关闭 |
-| 状态恢复                            | PLATFORM-ADAPT | VNextShellViewModel（旋转/重建保留导航/选择/投影）                   |
+### R19 lifecycle density
+List/detail may show recorded:
+```text
+annual fee
+annual-fee checkpoint
+billing day
+payment due day
+installment summary
+recorded autopay summary
+```
 
-## 13. 视觉 / 主题
+Missing = `未记录`.
 
-| 项                                                  | 判定           | 说明                                                    |
-| --------------------------------------------------- | -------------- | ------------------------------------------------------- |
-| deep navy/black foundation + controlled blue accent | PRESERVE       | PdigV2Colors 全 token 映射                              |
-| 语义绿/琥珀/红                                      | PRESERVE       | Positive/Warning/Critical（icon+label+color 三通道）    |
-| 低噪声 surface                                      | PRESERVE       | 无 generic Material 卡片堆砌                            |
-| Globe 真实地球视觉                                  | PRESERVE       | bundled NASA 纹理（albedo/night/cloud）+ day/night/云层 |
-| Material 交互基座                                   | PLATFORM-ADAPT | NavigationBar/手势/触控目标 ≥48dp                       |
+### PLATFORM-ADAPT
+- phone: dense vertical asset list;
+- Medium/Expanded: list + inspector, with focused detail still available.
 
-## 14. DROP 清单（本轮明确不搬）
+### FORBIDDEN
+- rewards optimization becoming the product;
+- inventing a statement balance or minimum payment;
+- treating PresentationProfile as financial truth.
 
-- Desktop 左 rail + 顶部二级导航布局（手机）→ 底部导航 + chips（导航语义保留）
-- Desktop Studio 三栏 inspector 布局（手机）→ 预览优先纵向（编辑能力保留）
-- Ctrl+K 作为唯一入口 → 触控搜索入口
-- 桌面精确 1920×1080 排版 → Android 度量体系（display/headline/body/label）
+## 5. Card Detail
+
+Hierarchy:
+
+```text
+Card Identity
+→ Lifecycle
+→ Confirmed Dependencies
+→ Impact Lens
+→ Actions / Presentation
+```
+
+The former fake static “history” copy is removed. History may only return when a
+real source/timeline record exists.
+
+`Impact Lens` answers **“如果它发生变化？”** but does not invent:
+- critical accounts;
+- independent alternatives;
+- unique recovery facts;
+- a safety score.
+
+Card vNext currently keeps the Impact Lens read-only. A new card-change CTA must
+bind the existing production payment REPLACE scenario rather than creating a
+parallel demo workflow.
+
+## 6. Card appearance customization
+
+Card appearance is a small presentation feature, not a separate financial product.
+
+### PRESERVE
+- same card renderer in list/detail/editor;
+- local image import;
+- bundled presets;
+- local masking preference;
+- live preview.
+
+### Boundary
+```text
+PresentationProfile != PersonalReality != Canonical
+```
+
+Changing art, material, accent, layout or masking never changes dependencies,
+risk, lifecycle or .depmap truth.
+
+## 7. Numbers — Communication Identity
+
+Numbers are communication/authentication/recovery infrastructure, not contacts and
+not bank-card-shaped objects.
+
+### Roles
+```text
+primary
+secondary
+keep
+```
+
+`keep` is a real consumer role, not a visual theme.
+
+### Dense list facts
+- user-visible alias;
+- masked number;
+- region/carrier;
+- SIM/eSIM;
+- role;
+- recorded recovery use;
+- explicit unique-recovery evidence when it exists;
+- lifecycle/keep-alive summary.
+
+### Critical truth rule
+```text
+recoveryOnly != uniqueRecoveryPath
+```
+
+A number can be used for recovery without being proven to be the only recovery
+path.
+
+## 8. Number Detail
+
+Hierarchy:
+
+```text
+Communication Identity
+→ Lifecycle / Keep-alive
+→ Recorded Recovery Semantics
+→ Confirmed Service Dependencies
+→ Impact Lens
+→ Change
+```
+
+Lifecycle may show:
+```text
+billing mode
+plan cost
+keep-alive due
+keep-alive cycle
+last action
+renewal / keep-alive method
+```
+
+The detail distinguishes:
+- **已确认唯一恢复路径** — only with explicit evidence;
+- **恢复用途，唯一性未知**;
+- **恢复关系未知**.
+
+No path-count or “safe alternative” is fabricated.
+
+Because `replace_phone_number` is a production REPLACE scenario, Number Detail may
+offer **分析更换号码影响**. The reference UI still must not claim the synthetic
+plan is the user's real plan.
+
+## 9. Keep-number management
+
+A long-lived keep-number asset and a new migration target are different objects.
+
+Reference invariant:
+
+```text
+old active number != keep-number asset != new migration target
+```
+
+R19 fixture demonstrates:
+```text
+num-cn-1 old active
+num-cn-3 keep-number
+num-cn-4 migration target
+```
+
+These IDs are fixture-only; the separation is permanent product semantics.
+
+Keep-alive due dates are recorded facts, not carrier live-state assertions.
+Completion of a carrier action must require an explicit user/runtime event.
+
+## 10. Impact Lens
+
+Every focused core-object detail should converge on:
+
+> **如果它发生变化？**
+
+Current reference fields:
+
+```text
+confirmed dependencies
+attention findings
+critical accounts          = value / 未记录
+unique recovery path       = 已确认 / 未知
+independent alternatives   = value / 未记录
+unknown relations          = still possible / none only if proven
+```
+
+### FORBIDDEN
+- health/safety percentage;
+- degree-count shortcuts for path independence;
+- `null → 0`;
+- `recovery use → unique recovery`;
+- proposals/candidates presented as confirmed Reality.
+
+## 11. Change Phone — Continuity choreography
+
+Three projections remain semantically distinct:
+
+```text
+Current
+Transition
+After = Plan Projection
+```
+
+### PRESERVE
+- Make-Before-Break;
+- old number → affected services → new number;
+- six-stage continuity sequence;
+- explicit verification;
+- blocked retirement when prerequisites are unmet.
+
+R19 derives the compact impact summary from the actual projection state:
+
+```text
+已记录关联
+需要核对
+阻断 / 待解决
+```
+
+It does not copy showcase-only hard-coded numbers.
+
+`done != verified` remains mandatory.
+
+## 12. Accounts / Emails / Devices / Services / Weaknesses
+
+These remain Infrastructure secondary objects rather than new primary tabs.
+
+### Emails
+`recoveryOnly` renders as **恢复用途**.
+Only explicit `uniqueRecoveryPath == true` may render **唯一恢复**.
+
+### Weaknesses
+Only evidence-backed findings belong here. Merely having a recovery role is not
+itself a weakness.
+
+Long-term focused details for these objects should reuse the same hierarchy:
+
+```text
+Identity
+→ Confirmed Dependencies
+→ Impact Lens
+→ Change / Recovery
+```
+
+but new executable CTAs remain gated by production ChangePrimitive support.
+
+## 13. Search
+
+Search is lookup over **recorded** infrastructure, not a discovery engine.
+
+R19 indexes:
+- object names and user number aliases;
+- issuer/carrier/region;
+- lifecycle facts such as annual fee, billing day and keep-alive due date;
+- consumer role labels such as “保号”.
+
+No match means “not found among recorded data,” not “does not exist.”
+
+## 14. Back / Up semantics
+
+Two different operations remain distinct:
+
+```text
+Android system Back = chronological previous screen
+Header Up          = product hierarchy parent
+```
+
+Examples:
+
+```text
+Card Detail → Up → Cards → Up → Infrastructure
+Number Studio → Up → Number Detail
+Me → Up → invoking context (or Now when deep-linked)
+```
+
+The header must never be relabeled as “Back to desktop/home.”
+
+## 15. Privacy / masking
+
+Default is **not masked** unless the user enables masking.
+
+Masking is:
+- a local presentation preference;
+- independent of card/number artwork;
+- never a mutation of canonical identity;
+- applied consistently to list/detail/search.
+
+A user-defined number alias may remain visible when it is non-sensitive; an alias
+that itself looks like a phone number must still be protected by masking logic.
+
+## 16. Android Light visual language
+
+Android is **light-first**.
+
+Target character:
+
+```text
+consumer-facing
+quiet
+precise
+asset-first
+spatial only where meaningful
+high information density without admin-console feel
+```
+
+Avoid:
+- global dark/cosmic background;
+- generic gray Material rows everywhere;
+- engineering vocabulary;
+- giant empty wide panes;
+- KPI walls;
+- desktop pixel copying.
+
+## 17. Runtime / Freeze boundary
+
+R19 source completeness is not Reference Freeze.
+
+The acceptance chain is:
+
+```text
+exact remote HEAD
+→ fresh build
+→ unit / instrumentation gates
+→ API36 phone capture
+→ tablet capture
+→ GPU/runtime-state evidence
+→ human pixel review against reference board
+→ ANDROID_REFERENCE_FREEZE decision
+```
+
+Old R17/R18 screenshots cannot prove R19.
+
+Until that chain finishes:
+
+```text
+ANDROID_REFERENCE_FREEZE = HOLD
+iOS/Harmony UI translation = HOLD
+Production launcher cutover = HOLD
+```
