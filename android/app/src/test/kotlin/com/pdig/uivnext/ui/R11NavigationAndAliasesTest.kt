@@ -7,27 +7,32 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class R11NavigationAndAliasesTest {
-    @Test fun frozenPrimaryNavigationHasExactlyFourDestinations() {
+    @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
-            listOf(VScreen.NOW, VScreen.INFRASTRUCTURE, VScreen.CHANGE, VScreen.RECORDS),
+            listOf(
+                VScreen.NOW,
+                VScreen.INFRASTRUCTURE,
+                VScreen.CHANGE,
+                VScreen.RECORDS,
+                VScreen.ME,
+            ),
             PRIMARY_ENTRIES.map { it.screen },
         )
-        assertTrue(SECONDARY_ENTRIES.any { it.screen == VScreen.ME })
+        assertFalse(SECONDARY_ENTRIES.any { it.screen == VScreen.ME })
     }
 
-    @Test fun profileWorkspaceReturnsToTheInvokingContext() {
+    @Test fun profileWorkspaceIsAPrimaryRoot() {
         val app = VAppState()
         app.navigate(VScreen.CARDS)
         app.navigate(VScreen.ME)
-        assertEquals(VScreen.CARDS, app.upDestination())
-        app.navigateUp()
-        assertEquals(VScreen.CARDS, app.screen)
+        assertEquals(null, app.upDestination())
+        assertEquals(VScreen.ME, app.screen)
     }
 
-    @Test fun utilityRailNeverMarksMeAndSettingsOrSourcesActiveTogether() {
+    @Test fun meRemainsSelectedAcrossItsChildUtilities() {
         assertTrue(isEntrySelected(VScreen.ME, VScreen.ME))
-        assertFalse(isEntrySelected(VScreen.ME, VScreen.SETTINGS))
-        assertFalse(isEntrySelected(VScreen.ME, VScreen.SOURCES))
+        assertTrue(isEntrySelected(VScreen.ME, VScreen.SETTINGS))
+        assertTrue(isEntrySelected(VScreen.ME, VScreen.SOURCES))
         assertTrue(isEntrySelected(VScreen.SETTINGS, VScreen.PERSONALIZATION))
         assertTrue(isEntrySelected(VScreen.SOURCES, VScreen.SOURCES))
     }
