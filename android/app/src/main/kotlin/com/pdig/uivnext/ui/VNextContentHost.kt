@@ -58,6 +58,7 @@ import com.pdig.uivnext.ui.screens.OverviewScreen
 import com.pdig.uivnext.ui.screens.R19AdaptiveMeScreen
 import com.pdig.uivnext.ui.screens.R19CardImageStudio
 import com.pdig.uivnext.ui.screens.R19MediumMeScreen
+import com.pdig.uivnext.ui.screens.R20ChangeCenter
 import com.pdig.uivnext.ui.screens.R20SecondaryObjectDetail
 import com.pdig.uivnext.ui.screens.PersonalizationScreen
 import com.pdig.uivnext.ui.screens.RecordsScreen
@@ -103,7 +104,8 @@ fun VNextContentHost(app: VAppState, breakpoint: MediaBreakpoint, modifier: Modi
             VScreen.ACCOUNT_DETAIL, VScreen.EMAIL_DETAIL, VScreen.DEVICE_DETAIL, VScreen.SERVICE_DETAIL ->
                 R20SecondaryObjectDetail(app, app.screen, breakpoint)
             VScreen.NUMBER_CUSTOMIZATION -> if (useR9Phone) R9StudioScreen(app, false) else NumberCustomizationScreen(app, breakpoint)
-            VScreen.CHANGE, VScreen.CHANGE_PHONE -> if (useR9Phone) R9ChangePhoneScreen(app) else ChangePhoneScreen(app, breakpoint)
+            VScreen.CHANGE -> R20ChangeCenter(app, breakpoint)
+            VScreen.CHANGE_PHONE -> if (useR9Phone) R9ChangePhoneScreen(app) else ChangePhoneScreen(app, breakpoint)
             VScreen.RECORDS -> if (useR9Phone) R9RecordsScreen(app) else RecordsScreen(app, breakpoint)
             VScreen.SEARCH -> if (useR9Phone) R9SearchScreen(app) else SearchScreen(app, breakpoint)
             VScreen.SOURCES -> if (useR9Phone) R9SourcesScreen(app) else DataSourcesScreen(app, breakpoint)
