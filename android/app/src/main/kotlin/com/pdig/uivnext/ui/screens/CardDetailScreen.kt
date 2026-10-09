@@ -129,6 +129,8 @@ private fun CompactCardDetailReference(
     services: List<com.pdig.uivnext.model.UiVNextService>,
     presentation: com.pdig.uivnext.model.PresentationProfile?,
 ) {
+    val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
+    val impact = cardImpactLens(card.id)
     var tab by rememberSaveable(card.id) { mutableIntStateOf(0) }
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 15.dp, vertical = 12.dp),
