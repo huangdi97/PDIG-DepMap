@@ -195,6 +195,18 @@ while still:
 
 This improves ownership/context without turning the globe into an inaccurate graph.
 
+R19 also closes renderer parity across width classes:
+- phone Now uses the R15/R16/R17 GPU world family;
+- compact Infrastructure region distribution uses the same R15 GPU Earth;
+- Medium / Expanded Now and Overview use `R19AdaptiveWorldScene`, which composes
+  the same R15 GPU Earth with R16 camera-projected region annotations;
+- wider layouts keep their own information hierarchy instead of stretching the phone screen.
+
+The legacy `VNextGlobe` remains only as the governed CPU/failure fallback and in
+non-reference legacy helpers; it is no longer the intended renderer for the active
+R19 spatial surfaces.
+
+
 ## 8. Change Phone
 
 R18 already separated:
