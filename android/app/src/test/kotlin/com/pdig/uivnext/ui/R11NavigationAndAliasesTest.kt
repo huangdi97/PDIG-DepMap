@@ -7,6 +7,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class R11NavigationAndAliasesTest {
+    @Test fun frozenPrimaryNavigationHasExactlyFourDestinations() {
+        assertEquals(
+            listOf(VScreen.NOW, VScreen.INFRASTRUCTURE, VScreen.CHANGE, VScreen.RECORDS),
+            PRIMARY_ENTRIES.map { it.screen },
+        )
+        assertTrue(SECONDARY_ENTRIES.any { it.screen == VScreen.ME })
+    }
+
+    @Test fun profileWorkspaceReturnsToTheInvokingContext() {
+        val app = VAppState()
+        app.navigate(VScreen.CARDS)
+        app.navigate(VScreen.ME)
+        assertEquals(VScreen.CARDS, app.upDestination())
+        app.navigateUp()
+        assertEquals(VScreen.CARDS, app.screen)
+    }
+
     @Test fun unlabelledNumberUsesRecordedNumberInsteadOfPresetName() {
         val demo = "+852 6*** 2748"
         assertEquals(demo, displayNameForNumber(demo, null))
