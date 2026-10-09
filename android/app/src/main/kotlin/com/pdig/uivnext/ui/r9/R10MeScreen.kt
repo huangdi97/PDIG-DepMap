@@ -1,6 +1,7 @@
 package com.pdig.uivnext.ui.r9
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -85,6 +86,64 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                 }
             }
         }
+        // Identity comes first, not an anonymous wall of aggregate KPIs.
+        // These are already-recorded objects, never inferred security claims.
+        val leadNumber = numbers.firstOrNull { it.role == "primary" } ?: numbers.firstOrNull()
+        val leadEmail = if (app.emptyDemo) null
+            else UiVNextDemoFixture.emails.firstOrNull { it.recoveryOnly }
+                ?: UiVNextDemoFixture.emails.firstOrNull()
+        val leadDevice = if (app.emptyDemo) null
+            else UiVNextDemoFixture.devices.firstOrNull { "主设备" in it.roles }
+                ?: UiVNextDemoFixture.devices.firstOrNull()
+        R9SectionTitle("我的关键身份", "查看全部 →") { app.navigate(VScreen.INFRASTRUCTURE) }
+        Row(
+            Modifier.fillMaxWidth().testTag("pdig.r16.me.identity-workspace"),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Surface(
+                modifier = Modifier.weight(1.12f).height(140.dp)
+                    .clickable {
+                        if (leadNumber != null) app.openNumber(leadNumber.id)
+                        else app.navigate(VScreen.NUMBERS)
+                    },
+                color = Color(0xFF16376D),
+                shape = RoundedCornerShape(18.dp),
+            ) {
+                Column(
+                    Modifier.fillMaxSize().padding(13.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("▤   我的号码", color = Color(0xFFC7E3FF), fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Text(
+                        if (leadNumber != null)
+                            app.numberDisplayName(leadNumber.id, leadNumber.maskedNumber)
+                        else "尚未记录",
+                        color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                    )
+                    Text(
+                        if (leadNumber != null)
+                            regionFlag(leadNumber.region) + " " + leadNumber.carrier + " · 查看恢复依赖 →"
+                        else "添加或核对你的通信身份 →",
+                        color = Color(0xFFBDDAF7), fontSize = 9.sp, maxLines = 2,
+                    )
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                R16MeIdentityMini(
+                    "恢复邮箱", leadEmail?.maskedAddress ?: "尚未记录",
+                    if (leadEmail?.recoveryOnly == true) "需核验替代恢复路径" else "查看已记录邮箱",
+                    R9.Amber,
+                ) { app.navigate(VScreen.EMAILS) }
+                R16MeIdentityMini(
+                    "常用设备", leadDevice?.name ?: "尚未记录",
+                    leadDevice?.trust ?: "查看已记录设备",
+                    R9.Green,
+                ) { app.navigate(VScreen.DEVICES) }
+            }
+        }
+
         Surface(color = Color.White, shape = RoundedCornerShape(19.dp),
             border = BorderStroke(1.dp, R9.Line), modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(horizontal = 7.dp, vertical = 13.dp),
@@ -239,5 +298,29 @@ private fun R10MeAction(title: String, subtitle: String, tag: String, onClick: (
         }
         Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null,
             tint = R9.Muted, modifier = Modifier.size(20.dp))
+    }
+}
+
+/** Deliberately compact, meaningful digital identity rather than KPI-only rows. */
+@Composable
+private fun R16MeIdentityMini(
+    title: String, value: String, hint: String, color: Color, action: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().height(66.dp).clickable { action() },
+        color = Color.White, shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.dp, R9.Line),
+    ) {
+        Row(Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(6.dp).background(color, CircleShape))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, color = R9.Muted, fontSize = 9.sp)
+                Text(value, color = R9.Ink, fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold, maxLines = 1)
+                Text(hint, color = R9.Muted, fontSize = 8.sp, maxLines = 1)
+            }
+        }
     }
 }
