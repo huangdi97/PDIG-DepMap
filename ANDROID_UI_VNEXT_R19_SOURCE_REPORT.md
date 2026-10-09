@@ -315,8 +315,12 @@ The authoritative write-side seam is also implemented:
 `AppContainer` and re-reads `planDetail` after every mutation, preserving
 `done != verified`.
 
-Production screen binding, phone/email subtype normalization, lifecycle persistence,
-and runtime/security validation remain gated by the ADR acceptance chain.
+The schema-level identity normalization follow-up is now explicitly designed in
+`spec/proposals/identity-anchor-subtype-v1.md`: production `identity_anchor`
+remains generic until a confirmed subtype exists; phone-looking text is not evidence.
+
+Production screen binding, Canonical identity-subtype implementation, lifecycle
+persistence, and runtime/security validation remain gated by the ADR acceptance chain.
 
 This is the required path to production cutover.
 
