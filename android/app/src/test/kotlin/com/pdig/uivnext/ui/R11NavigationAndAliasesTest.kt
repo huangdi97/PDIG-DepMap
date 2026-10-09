@@ -79,6 +79,18 @@ class R11NavigationAndAliasesTest {
         assertEquals(VScreen.ME, app.screen)
     }
 
+    @Test fun secondaryObjectDetailUsesStableInfrastructureHierarchy() {
+        val app = VAppState()
+        app.navigate(VScreen.ACCOUNTS)
+        app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, "acc-hk-1")
+        assertEquals("acc-hk-1", app.selectedSecondaryObjectId)
+        assertEquals(VScreen.ACCOUNTS, app.upDestination())
+        assertTrue(isEntrySelected(VScreen.INFRASTRUCTURE, app.screen))
+        assertTrue(isEntrySelected(VScreen.ACCOUNTS, app.screen))
+        app.navigateUp()
+        assertEquals(VScreen.ACCOUNTS, app.screen)
+    }
+
     @Test fun studioUpGoesToObjectDetail() {
         val app = VAppState()
         app.navigate(VScreen.CARDS)
