@@ -118,6 +118,7 @@ class VAppState(
         }
 
     var selectedCardId by mutableStateOf<String?>(null)
+    var selectedReplacementCardId by mutableStateOf<String?>(null)
     var selectedNumberId by mutableStateOf<String?>(null)
     var selectedSecondaryObjectId by mutableStateOf<String?>(null)
 
@@ -186,6 +187,17 @@ class VAppState(
         navBackTarget = screen
         screen = VScreen.NUMBER_DETAIL
         selectedNumberId = numberId
+    }
+
+    fun openCardChange(cardId: String) {
+        navBackTarget = screen
+        selectedCardId = cardId
+        selectedReplacementCardId = null
+        screen = VScreen.CHANGE_CARD
+    }
+
+    fun chooseReplacementCard(cardId: String?) {
+        selectedReplacementCardId = cardId
     }
 
     fun openSecondaryObject(detailScreen: VScreen, objectId: String) {
@@ -276,7 +288,7 @@ class VAppState(
         VScreen.SERVICE_DETAIL -> VScreen.SERVICES
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
         VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES, VScreen.OVERVIEW -> VScreen.INFRASTRUCTURE
-        VScreen.CHANGE_PHONE -> VScreen.CHANGE
+        VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> VScreen.CHANGE
         VScreen.SETTINGS, VScreen.PERSONALIZATION, VScreen.SOURCES -> VScreen.ME
         VScreen.SEARCH -> backStack.lastOrNull() ?: VScreen.NOW
     }
