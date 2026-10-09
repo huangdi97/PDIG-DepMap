@@ -285,7 +285,8 @@ internal fun resolveMediaBreakpoint(viewportWidthDp: Dp): MediaBreakpoint = when
 
 private fun compactTopTitle(screen: VScreen): String = when (screen) {
     VScreen.INFRASTRUCTURE, VScreen.OVERVIEW -> "基础设施"
-    VScreen.CHANGE, VScreen.CHANGE_PHONE -> "更换手机号"
+    VScreen.CHANGE -> "变更"
+    VScreen.CHANGE_PHONE -> "更换手机号"
     else -> screen.titleZh
 }
 
