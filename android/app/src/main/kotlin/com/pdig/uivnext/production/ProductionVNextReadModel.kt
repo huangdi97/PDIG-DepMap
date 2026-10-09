@@ -31,10 +31,21 @@ internal enum class VNextProjectionTruth {
     PENDING_REVIEW,
 }
 
+internal enum class VNextProductionSurfaceKind {
+    PAYMENT_ASSET,
+    ACCOUNT,
+    SERVICE,
+    DEVICE,
+    MEMBERSHIP,
+    IDENTITY_ANCHOR_GENERIC,
+    CUSTOM_GENERIC,
+}
+
 internal data class VNextProductionObject(
     val id: String,
     val kind: String,
     val name: String,
+    val surfaceKind: VNextProductionSurfaceKind,
     val issuer: String? = null,
     val last4: String? = null,
     val truth: VNextProjectionTruth = VNextProjectionTruth.CONFIRMED,
@@ -181,6 +192,18 @@ internal class AppContainerVNextReadModelSource(
         app.planDetail(planId)?.let(::mapProductionPlan)
 }
 
+internal fun productionSurfaceKind(kind: String): VNextProductionSurfaceKind = when (kind) {
+    "payment_instrument" -> VNextProductionSurfaceKind.PAYMENT_ASSET
+    "account" -> VNextProductionSurfaceKind.ACCOUNT
+    "service" -> VNextProductionSurfaceKind.SERVICE
+    "device" -> VNextProductionSurfaceKind.DEVICE
+    "membership" -> VNextProductionSurfaceKind.MEMBERSHIP
+    // Canonical identity_anchor is deliberately NOT treated as a phone number.
+    // A governed subtype/field is required before the phone-number surface may bind.
+    "identity_anchor" -> VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC
+    else -> VNextProductionSurfaceKind.CUSTOM_GENERIC
+}
+
 internal fun buildProductionSnapshot(
     revision: Int,
     nodes: List<NodeRow>,
@@ -199,6 +222,7 @@ internal fun buildProductionSnapshot(
                 id = it.id,
                 kind = it.kind,
                 name = it.name,
+                surfaceKind = productionSurfaceKind(it.kind),
                 issuer = it.issuer,
                 last4 = it.last4,
             )
