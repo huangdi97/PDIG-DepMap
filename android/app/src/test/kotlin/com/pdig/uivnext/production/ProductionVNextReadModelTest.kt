@@ -153,6 +153,56 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun consumerInventoryKeepsGenericIdentitySeparateFromPhoneSurface() {
+        val snapshot = VNextProductionSnapshot(
+            revision = 9,
+            objects = listOf(
+                VNextProductionObject(
+                    id = "card-1",
+                    kind = "payment_instrument",
+                    name = "主卡",
+                    surfaceKind = VNextProductionSurfaceKind.PAYMENT_ASSET,
+                    issuer = "示例银行",
+                    last4 = "8823",
+                ),
+                VNextProductionObject(
+                    id = "identity-1",
+                    kind = "identity_anchor",
+                    name = "登录身份",
+                    surfaceKind = VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+                ),
+            ),
+            confirmedDependencies = listOf(
+                VNextProductionDependency(
+                    id = "dep-1",
+                    fromId = "card-1",
+                    fromName = "主卡",
+                    relation = "funding_source",
+                    toId = "svc-1",
+                    toName = "服务",
+                    capability = "payment",
+                    criticality = "required",
+                ),
+            ),
+            timeline = emptyList(),
+            plans = emptyList(),
+            pendingReview = VNextPendingReviewSummary(1, 2, 3),
+            sourceCoverage = VNextSourceCoverageSummary(2, 1),
+        )
+
+        val projected = buildProductionConsumerInventory(snapshot)
+
+        assertEquals(1, projected.counts.paymentAssets)
+        assertEquals(1, projected.counts.genericIdentityAnchors)
+        assertEquals("示例银行", projected.paymentAssets.single().issuer)
+        assertEquals("8823", projected.paymentAssets.single().last4)
+        assertEquals(1, projected.paymentAssets.single().confirmedDependencyCount)
+        assertEquals("identity-1", projected.genericIdentityAnchors.single().id)
+        assertEquals(6, projected.pendingReviewCount)
+        assertEquals(1, projected.activeSourceCount)
+    }
+
+    @Test
     fun productionPlanPreservesDoneNotVerified() {
         val detail = PlanDetailView(
             id = "plan-phone",
