@@ -360,24 +360,40 @@ Unit contracts ensure pending proposals are not promoted into confirmed edges an
 
 Still not done in P1:
 - production launcher/UI binding;
-- object-specific identity normalization;
 - lifecycle editing.
 
 No lifecycle editing is enabled.
 
-### P2 — Object identity normalization
-Add governed mapping for:
-- payment instrument fields;
-- phone identity fields;
-- region/context metadata;
-- object-specific display names.
+### P2 — Object identity normalization — PARTIAL SOURCE IMPLEMENTED
+
+Implemented safely:
+- `payment_instrument` → payment-asset surface;
+- Canonical `issuer` / `last4` carried from Reality;
+- account/service/device/membership mapped only by confirmed NodeKind;
+- `identity_anchor` remains `IDENTITY_ANCHOR_GENERIC` rather than being guessed as phone;
+- truth-bounded consumer inventory projection with confirmed-dependency counts.
+
+Still gated:
+- phone/email subtype mapping until the governed subtype proposal is implemented;
+- region/context metadata where Canonical has no confirmed owner;
+- lifecycle-specific presentation fields.
 
 Unknown remains unknown.
 
-### P3 — Change binding
-Replace synthetic Change Phone projection with actual `PlanDetailView`.
+### P3 — Change binding — ACTION GATEWAY SOURCE IMPLEMENTED / SCREEN BINDING HOLD
 
-Use existing production scenario creation and verification.
+Implemented:
+- authoritative `VNextChangeActionGateway`;
+- plan creation delegates to `createPlanForScenario`;
+- completion delegates to `completeAction`;
+- verification delegates to `verifyAction`;
+- every mutation re-reads `planDetail`.
+
+Still gated:
+- replacing the synthetic Change Phone reference screen with actual `PlanDetailView`
+  projection after Android Reference Freeze and production-source injection.
+
+The UI must never infer verification from local presentation state.
 
 ### P4 — Lifecycle Canonical proposal
 Only if product decision remains positive:
