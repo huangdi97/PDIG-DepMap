@@ -224,6 +224,7 @@ internal fun R9NumbersScreen(app: VAppState) {
     val filtered = scoped.filter {
         when(selected) {
             "primary" -> it.role == "primary"
+            "keep" -> it.role == "keep"
             "recovery" -> it.recoveryOnly
             "esim" -> it.simKind == "eSIM"
             else -> true
@@ -240,7 +241,7 @@ internal fun R9NumbersScreen(app: VAppState) {
             color = R9.Muted, fontSize = 11.sp)
         Row(Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            listOf("all" to "全部","primary" to "主号码","recovery" to "恢复路径","esim" to "eSIM")
+            listOf("all" to "全部","primary" to "主号码","keep" to "保号","recovery" to "恢复路径","esim" to "eSIM")
                 .forEach { (key,label) ->
                     Surface(
                         modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { selected = key },
@@ -292,6 +293,7 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
                         modifier = Modifier.testTag("pdig.r18.number-row.lifecycle"),
                     )
                 }
+                if(number.role == "keep") R9Badge("保号", R9.Amber)
                 if(number.recoveryOnly) R9Badge("恢复依赖 · 待核实", R9.Amber)
             }
             Text("›", color = R9.Muted, fontSize = 20.sp)
