@@ -36,9 +36,9 @@ class GraphRepository(
 
     fun nodes(includeArchived: Boolean = false): List<NodeRow> {
         val sql = if (includeArchived) {
-            "SELECT id, kind, name, archived, fields_json FROM nodes ORDER BY name"
+            "SELECT id, kind, name, issuer, last4, archived, fields_json FROM nodes ORDER BY name"
         } else {
-            "SELECT id, kind, name, archived, fields_json FROM nodes WHERE archived = 0 ORDER BY name"
+            "SELECT id, kind, name, issuer, last4, archived, fields_json FROM nodes WHERE archived = 0 ORDER BY name"
         }
         return driver.prepare(sql).all().map {
             NodeRow(
@@ -47,6 +47,8 @@ class GraphRepository(
                 name = it.str("name") ?: "",
                 archived = (it.long("archived") ?: 0L) != 0L,
                 fieldsJson = it.str("fields_json") ?: "{}",
+                issuer = it.str("issuer"),
+                last4 = it.str("last4"),
             )
         }
     }
