@@ -76,6 +76,20 @@ domain implementation.
 The production adapter must call these APIs. It must **not** reimplement impact,
 readiness, graph revision, or verification logic in Compose.
 
+R19 now also defines an authoritative mutation gateway at
+`uivnext/production/ProductionVNextActions.kt`:
+
+```text
+createPlan
+completeAction
+verifyAction
+→ delegate to AppContainer
+→ immediately re-read planDetail
+→ render authoritative result
+```
+
+The UI must never toggle a local "done" flag and then infer verification from it.
+
 ## 2. Why a direct fixture → production swap is unsafe
 
 Current UI vNext reference models include presentation facts that the Canonical
