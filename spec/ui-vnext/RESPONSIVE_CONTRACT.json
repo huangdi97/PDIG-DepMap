@@ -18,7 +18,7 @@
     "contentMaxWidth": 1400
   },
   "android": {
-    "phone": "bottom nav <=5; compact globe hero; region swipe; attention list; active change",
+    "phone": "bottom nav =5 primary destinations (Now/Infrastructure/Change/Records/Me); compact globe hero; region swipe; attention list; active change",
     "tabletLarge": "expanded globe",
     "lightDark": "light/dark both",
     "fontScale": "no clip, no hidden CTA"
