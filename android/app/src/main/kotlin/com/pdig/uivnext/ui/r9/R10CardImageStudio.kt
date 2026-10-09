@@ -43,7 +43,14 @@ internal fun R10CardImageStudio(app: VAppState) {
     val ctx = LocalContext.current
     val saved = app.savedPresentationProfile("card", card.id)
         ?: PresentationProfile.defaultFor("card", card.id, card.preset)
-    var editing by remember(card.id) { mutableStateOf(saved) }
+    // Evidence harness may seed one of the actual consumer art choices. Legacy
+    // engineering theme ids (glass/city/material/layout) are intentionally ignored.
+    val evidenceArt = app.evidenceThemeId?.takeIf { id ->
+        R10_ART_CHOICES.any { it.first == id }
+    }
+    var editing by remember(card.id, evidenceArt) {
+        mutableStateOf(if (evidenceArt != null) r10ArtProfile(saved, evidenceArt) else saved)
+    }
     var importError by remember(card.id) { mutableStateOf(false) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
