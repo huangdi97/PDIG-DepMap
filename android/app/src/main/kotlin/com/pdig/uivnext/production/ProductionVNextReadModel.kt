@@ -35,6 +35,8 @@ internal data class VNextProductionObject(
     val id: String,
     val kind: String,
     val name: String,
+    val issuer: String? = null,
+    val last4: String? = null,
     val truth: VNextProjectionTruth = VNextProjectionTruth.CONFIRMED,
 )
 
@@ -197,6 +199,8 @@ internal fun buildProductionSnapshot(
                 id = it.id,
                 kind = it.kind,
                 name = it.name,
+                issuer = it.issuer,
+                last4 = it.last4,
             )
         }
 
