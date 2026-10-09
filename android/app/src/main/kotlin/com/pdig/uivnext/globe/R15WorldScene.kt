@@ -70,6 +70,8 @@ internal fun R15WorldScene(
     }
     DisposableEffect(view) { onDispose { view.onPause() } }
     val camera = controller.camera
+    val cameraDesc = "；视角=" + camera.yawDeg.toInt() + "度；缩放=" +
+        (camera.zoom * 100f).toInt() + "%"
 
     Box(
         Modifier.fillMaxSize()
@@ -77,7 +79,7 @@ internal fun R15WorldScene(
             .semantics {
                 contentDescription = "全球基础设施导航器；纹理状态=" +
                     (if (ready) "TEXTURE_READY" else "LOADING") +
-                    "；R15_GPU；拖动旋转、双指缩放、点击地区"
+                    "；R15_GPU" + cameraDesc + "；拖动旋转、双指缩放、点击地区"
             },
     ) {
         AndroidView(

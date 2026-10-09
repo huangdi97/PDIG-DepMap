@@ -77,7 +77,7 @@ internal fun R13WorldExperience(
 
         // This is one spatial plane; no inset widget/card-on-card presentation.
         Box(
-            Modifier.fillMaxWidth().height(290.dp)
+            Modifier.fillMaxWidth().height(346.dp)
                 .clip(RoundedCornerShape(25.dp))
                 .background(
                     Brush.radialGradient(listOf(
@@ -102,8 +102,7 @@ internal fun R13WorldExperience(
                 )
             }
             Box(
-                Modifier.fillMaxSize().padding(horizontal = 13.dp)
-                    .graphicsLayer(scaleX = 1.27f, scaleY = 1.27f),
+                Modifier.fillMaxSize(),
             ) {
                 // R15 is not a style pass on the CPU globe. It owns a distinct
                 // OpenGL ES surface with true spherical shading, atmosphere

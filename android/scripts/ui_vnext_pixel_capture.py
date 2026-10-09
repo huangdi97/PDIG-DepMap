@@ -274,6 +274,16 @@ def main():
         raise RuntimeError("Onboarding did not reach the R13 Now screen within 48s")
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "预览 · ")
+    # An existing CPU fallback showing a photograph is not proof of R15.
+    # Exact-head Preview MUST initialize the independent GPU shader.
+    globe_labels = [label_of(n) for n in xml_nodes() if "全球基础设施导航器" in label_of(n)]
+    if not any("R15_GPU" in text and "纹理状态=TEXTURE_READY" in text
+               for text in globe_labels):
+        raise RuntimeError("R15 GPU shader never became active; cannot certify a CPU fallback")
+    gl_log = adb("logcat", "-d", "-s", "PDIG_R15:I", "*:S", check=False).stdout
+    (ROOT / "01-r15-gl-driver.log").write_text(gl_log, encoding="utf-8")
+    if "R15_GPU_TEXTURES_READY" not in gl_log:
+        raise RuntimeError("R15 GPU textures missing from actual Android GL initialization logs")
     now_labels = json.loads((ROOT / "01-now.json").read_text(encoding="utf-8"))["uiText"]
     if not any(any(greeting in label for greeting in ("早上好", "中午好", "下午好", "晚上好", "你好"))
                for label in now_labels):
