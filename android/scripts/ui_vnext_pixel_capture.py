@@ -570,6 +570,25 @@ def main():
             # therefore screen-content assertion above remains the hard gate.
             print("CATEGORY_CONTENT_VERIFIED", slug, flush=True)
 
+        detail_targets = {
+            "accounts": ("微信账户", "账户身份"),
+            "emails": ("主邮箱", "通信 / 恢复身份"),
+            "devices": ("Pixel 8", "物理访问端点"),
+            "services": ("微信支付", "依赖端点"),
+        }
+        if slug in detail_targets:
+            object_title, detail_heading = detail_targets[slug]
+            if not tap_retry(object_title, exact=True):
+                raise RuntimeError(f"R20 focused detail unavailable for {category}: {object_title}")
+            detail_name = f"07-{slug}-detail"
+            capture(detail_name)
+            require_screen(detail_name, detail_heading, "如果它发生变化？", "未确认关系")
+            if not tap_retry("返回上一级", exact=True):
+                raise RuntimeError(f"R20 {category} detail did not expose hierarchical Up")
+            require_screen_if_navigated = [label_of(n) for n in xml_nodes()]
+            if not any(expected in label for label in require_screen_if_navigated):
+                raise RuntimeError(f"R20 {category} Up did not return to its collection")
+
     if not tap_retry("基础设施", exact=True, prefer_bottom=True):
         raise RuntimeError("Number Studio: return to Infrastructure failed")
     if not tap_retry("号码", exact=True):
