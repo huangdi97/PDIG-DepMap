@@ -307,7 +307,7 @@ def main():
     # A hard-coded screen y=855 could land on a floating region chip or below
     # the stage after redesign, giving a false "gesture broken" diagnosis.
     globe_nodes = [n for n in xml_nodes() if "全球基础设施导航器" in label_of(n)]
-    bounds = re.findall(r"\\d+", globe_nodes[0].get("bounds", "")) if globe_nodes else []
+    bounds = re.findall(r"\d+", globe_nodes[0].get("bounds", "")) if globe_nodes else []
     if len(bounds) != 4:
         raise RuntimeError("Cannot locate real globe bounds for drag evidence")
     x0, y0, x1, y1 = map(int, bounds)
