@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.numberImpactLens
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.hexColorOrNull
 import com.pdig.uivnext.model.relationKindLabelZh
@@ -30,6 +32,7 @@ import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.LabelChip
 import com.pdig.uivnext.ui.components.NumberFace
+import com.pdig.uivnext.ui.components.ObjectImpactLens
 import com.pdig.uivnext.ui.components.SectionHeader
 
 /** Number Detail：号码身份 → 关联服务 → 风险 → 备用路径 → 历史，保持紧凑连续的语义流。 */
@@ -37,6 +40,8 @@ import com.pdig.uivnext.ui.components.SectionHeader
 fun NumberDetailScreen(app: VAppState) {
     val number = UiVNextDemoFixture.numberById(app.selectedNumberId ?: "num-cn-1") ?: return
     val services = UiVNextDemoFixture.servicesForNumber(number.id)
+    val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
+    val impact = numberImpactLens(number.id)
     val presentation = app.savedPresentationProfile("phoneNumber", number.id)
 
     Column(
@@ -58,6 +63,36 @@ fun NumberDetailScreen(app: VAppState) {
             presentationLayout = presentation?.layout,
         )
         NumberSummaryStrip(number = number, serviceCount = services.size)
+
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTagLocal("pdig.r19.number.lifecycle.adaptive"),
+            color = PdigV2Colors.Surface,
+            shape = RoundedCornerShape(VRadius.Lg),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Column(
+                Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text("号码生命周期", color = PdigV2Colors.TextPrimary,
+                    fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LifecycleFact("资费", lifecycle?.planCost, Modifier.weight(1f))
+                    LifecycleFact("下次保号", lifecycle?.keepAliveDue, Modifier.weight(1f))
+                }
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    LifecycleFact("保号周期", lifecycle?.keepAliveCycle, Modifier.weight(1f))
+                    LifecycleFact("最近操作", lifecycle?.lastKeepAlive, Modifier.weight(1f))
+                }
+                DetailTruthLine("计费方式", lifecycle?.billingMode ?: "未记录")
+                DetailTruthLine("续费 / 保号方式", lifecycle?.renewalMethod ?: "未记录")
+                Text(
+                    "这些是用户已记录资料，不代表运营商实时状态；缺失信息保持“未记录”。",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                )
+            }
+        }
 
         SectionHeader(
             title = "关联服务（${services.size}）",
@@ -110,7 +145,7 @@ fun NumberDetailScreen(app: VAppState) {
             }
         }
 
-        SectionHeader("风险")
+        SectionHeader("风险与恢复")
         if (number.recoveryOnly) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
@@ -118,7 +153,7 @@ fun NumberDetailScreen(app: VAppState) {
                 shape = RoundedCornerShape(VRadius.Md),
             ) {
                 Text(
-                    "此号码是 2 个账户的唯一恢复路径：更换或注销前，必须先建立新的恢复方式。",
+                    "已记录：这个号码承担恢复用途。更换或注销前，需要逐项验证替代恢复路径；这里不推断未记录账户。",
                     Modifier.padding(14.dp),
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 13.sp,
@@ -126,24 +161,16 @@ fun NumberDetailScreen(app: VAppState) {
             }
         } else {
             Text(
-                "当前记录中未发现该号码承担唯一恢复路径；未记录的关联仍保持为未知。",
+                "没有足够证据判断是否存在唯一恢复路径；未记录关系继续保持未知。",
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 13.sp,
             )
         }
 
-        SectionHeader("备用路径")
-        Text(
-            "已确认的登录用途存在其他验证渠道；尚未记录的关联保持为未知。",
-            color = PdigV2Colors.TextSecondary,
-            fontSize = 13.sp,
-        )
-
-        SectionHeader("历史")
-        Text(
-            "2026-08 更新运营商资料；2026-03 加入 2FA 用途。",
-            color = PdigV2Colors.TextMuted,
-            fontSize = 12.sp,
+        ObjectImpactLens(
+            impact = impact,
+            actionLabel = "分析更换号码影响",
+            onAction = { app.navigate(VScreen.CHANGE_PHONE) },
         )
     }
 }
@@ -165,10 +192,19 @@ private fun NumberSummaryStrip(
             Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            NumberSummaryItem(if (number.role == "primary") "主号" else "副号", "角色", Modifier.weight(1f))
+            NumberSummaryItem(
+                when (number.role) {
+                    "primary" -> "主号"
+                    "keep" -> "保号"
+                    "secondary" -> "副号"
+                    else -> number.role
+                },
+                "角色",
+                Modifier.weight(1f),
+            )
             NumberSummaryItem(if (number.simKind == "eSIM") "eSIM" else "实体 SIM", "形态", Modifier.weight(1f))
             NumberSummaryItem(serviceCount.toString(), "关联服务", Modifier.weight(1f))
-            NumberSummaryItem(if (number.recoveryOnly) "唯一" else "多路径", "恢复", Modifier.weight(1f))
+            NumberSummaryItem(if (number.recoveryOnly) "已记录恢复" else "未知", "恢复", Modifier.weight(1f))
         }
     }
 }
@@ -181,3 +217,45 @@ private fun NumberSummaryItem(value: String, label: String, modifier: Modifier =
     }
 }
 
+
+
+@Composable
+private fun LifecycleFact(
+    label: String,
+    value: String?,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier,
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 10.dp, vertical = 9.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+        ) {
+            Text(label, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+            Text(
+                value?.takeIf { it.isNotBlank() } ?: "未记录",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 2,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailTruthLine(label: String, value: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+        Text(value, color = PdigV2Colors.TextPrimary, fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold, maxLines = 2)
+    }
+}
