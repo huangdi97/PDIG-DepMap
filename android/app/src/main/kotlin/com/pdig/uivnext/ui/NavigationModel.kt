@@ -26,12 +26,12 @@ internal val PRIMARY_ENTRIES = listOf(
     NavEntry(VScreen.INFRASTRUCTURE, Icons.Filled.Place),
     NavEntry(VScreen.CHANGE, Icons.Filled.Refresh),
     NavEntry(VScreen.RECORDS, Icons.Filled.DateRange),
+    NavEntry(VScreen.ME, Icons.Filled.Person),
 )
 
-// "我" is a utility/account workspace, not a fifth primary destination.
-// Phone enters it from the avatar; wide layouts keep it in the lower utility rail.
+// Product decision: "我" is an intentional fifth primary destination.
+// Low-frequency utilities remain below the primary rail on wide layouts.
 internal val SECONDARY_ENTRIES = listOf(
-    NavEntry(VScreen.ME, Icons.Filled.Person),
     NavEntry(VScreen.SOURCES, Icons.Filled.List),
     NavEntry(VScreen.SETTINGS, Icons.Filled.Settings),
 )
@@ -73,7 +73,8 @@ internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (
         current == VScreen.NUMBER_DETAIL ||
         current == VScreen.NUMBER_CUSTOMIZATION
     VScreen.CHANGE -> current == VScreen.CHANGE || current == VScreen.CHANGE_PHONE
-    VScreen.ME -> current == VScreen.ME
+    VScreen.ME -> current == VScreen.ME || current == VScreen.SETTINGS ||
+        current == VScreen.PERSONALIZATION || current == VScreen.SOURCES
     VScreen.SETTINGS -> current == VScreen.SETTINGS || current == VScreen.PERSONALIZATION
     else -> current == entry
 }
