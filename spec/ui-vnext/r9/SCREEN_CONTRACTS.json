@@ -314,16 +314,38 @@
       "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
-      "id": "card-studio",
+      "id": "card-image",
       "route": "CARD_CUSTOMIZATION",
-      "r9File": "R9StudioScreen.kt",
-      "requiredInteractions": [
-        "select-theme",
-        "re-render-preview",
-        "save-presentation",
-        "return-to-card-detail"
+      "r9File": "R10CardImageStudio.kt",
+      "adaptiveFile": "R19CardImageStudio.kt",
+      "designZone": [
+        "LiveCardPreview",
+        "SystemGalleryPicker",
+        "BuiltInPictureGrid",
+        "SaveAndReturn"
       ],
-      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+      "requiredInteractions": [
+        "select-built-in-picture",
+        "pick-local-picture",
+        "re-render-preview",
+        "save-local-presentation",
+        "return-to-card-detail",
+        "reuse-saved-picture-in-list-inspector-detail"
+      ],
+      "forbiddenControls": [
+        "material",
+        "layout",
+        "hex-color",
+        "internal-preset-id"
+      ],
+      "runtimeGate": [
+        "pdig.r19.card-image.workspace",
+        "pdig.customization.preview",
+        "pdig.r10.card-art.choose-photo",
+        "pdig.r10.card-art.choice.ocean",
+        "pdig.r10.card-art.save"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
       "id": "number-studio",
