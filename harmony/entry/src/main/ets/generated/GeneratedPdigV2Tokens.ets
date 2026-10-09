@@ -159,7 +159,7 @@ export class GeneratedPdigV2Tokens {
   static readonly COMPONENTS_NAV_TOP_COMMAND_HEIGHT: number = 48;
   static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MIN: number = 64;
   static readonly COMPONENTS_NAV_RAIL_WIDTH_RANGE_MAX: number = 188;
-  static readonly COMPONENTS_NAV_PRIMARY_ONLY: string = 'primary rail = 现在/基础设施/变更/记录 only + 数据源/设置 at rail bottom; infrastructure secondary = top segmented context rail, never permanent equal row in sidebar';
+  static readonly COMPONENTS_NAV_PRIMARY_ONLY: string = 'primary destinations = 现在/基础设施/变更/记录/我; 数据源/设置 are low-frequency Me child utilities; infrastructure secondary = content-level sibling navigation, never permanent equal primary items';
   static readonly COMPONENTS_PAGE_PADDING: number = 24;
   static readonly COMPONENTS_PAGE_PADDING_NARROW: number = 16;
   static readonly COMPONENTS_PAGE_MAX_WIDTH: number = 1400;
