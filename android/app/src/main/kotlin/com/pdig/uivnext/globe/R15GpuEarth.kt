@@ -70,7 +70,7 @@ private class R15GpuEarthRenderer(
     private val quad: FloatBuffer = ByteBuffer.allocateDirect(8 * 4)
         .order(ByteOrder.nativeOrder()).asFloatBuffer()
         .apply { put(floatArrayOf(-1f, -1f, 1f, -1f, -1f, 1f, 1f, 1f)); position(0) }
-    private var ready = false
+    private var initialized = false
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         try {
@@ -79,11 +79,11 @@ private class R15GpuEarthRenderer(
             uploadTexture(0, "earth/earth_albedo_2048.png")
             uploadTexture(1, "earth/earth_night_lights_2048.png")
             uploadTexture(2, "earth/cloud_2048.png")
-            ready = true
+            initialized = true
             Log.i("PDIG_R15", "R15_GPU_TEXTURES_READY")
             ready()
         } catch (t: Throwable) {
-            ready = false
+            initialized = false
             Log.e("PDIG_R15", "R15_GPU_INIT_FAILED", t)
             failure()
         }
@@ -99,7 +99,7 @@ private class R15GpuEarthRenderer(
         GLES20.glViewport(0, 0, width, height)
         GLES20.glClearColor(0.94f, 0.977f, 1f, 1f)
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
-        if (!ready) return
+        if (!initialized) return
         GLES20.glUseProgram(program)
         val coord = GLES20.glGetAttribLocation(program, "aPosition")
         GLES20.glEnableVertexAttribArray(coord)
@@ -243,3 +243,4 @@ void main() {
     earth = mix(earth, vec3(0.66,0.83,1.0), 0.075);
     gl_FragColor = vec4(clamp(earth, 0.0, 1.0), 1.0);
 }
+"""
