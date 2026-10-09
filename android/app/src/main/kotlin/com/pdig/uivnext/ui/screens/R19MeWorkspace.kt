@@ -37,6 +37,29 @@ import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.theme.VSpacing
 import com.pdig.uivnext.theme.VTouchTarget
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.r9.R10MeScreen
+
+/**
+ * Medium keeps the same consumer information order as phone but gives it a
+ * bounded reading column beside the compact rail. It avoids a 2-column layout
+ * in the narrow 600–839dp band.
+ */
+@Composable
+internal fun R19MediumMeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
+    Box(
+        Modifier.fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Box(
+            Modifier
+                .fillMaxHeight()
+                .widthIn(max = 620.dp)
+                .testTag("pdig.r19.me.medium"),
+        ) {
+            R10MeScreen(app, onHelp)
+        }
+    }
+}
 
 /**
  * R19 Medium / Expanded "Me" workspace.
