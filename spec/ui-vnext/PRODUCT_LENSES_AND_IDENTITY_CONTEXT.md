@@ -91,13 +91,16 @@ those objects.
 Current status:
 
 ```text
-DESIGN_FROZEN
-CANONICAL_IDENTITY_CONTEXT = NOT_IMPLEMENTED
+IDENTITY_CONTEXT_DESIGN = COMPLETE
+IDENTITY_CONTEXT_CANONICAL = NOT_IMPLEMENTED
 ANDROID_VISIBLE_SELECTOR = HOLD
 ```
 
+The full governed proposal is:
+`spec/proposals/identity-context-v1.md`.
+
 Do not display an Identity Lens selector until context membership has a governed
-source.
+source. Android enforces this with `VNextLensAvailability`.
 
 ### Dependency Lens
 
@@ -176,12 +179,20 @@ It requires:
 Current status:
 
 ```text
-DESIGN_FROZEN
+RECOVERY_INCIDENT_DESIGN = COMPLETE
+RECOVERY_SOLVER = NOT_IMPLEMENTED
 PRODUCTION_RECOVERY_MODE = NOT_IMPLEMENTED
 ANDROID_VISIBLE_RECOVERY_MODE = FORBIDDEN_UNTIL_RUNTIME_SUPPORT
 ```
 
+The full incident/solver proposal is:
+`spec/proposals/recovery-incident-mode-v1.md`.
+
+The future consumer UX is frozen in:
+`spec/ui-vnext/RECOVERY_AND_IDENTITY_LENS_UX_CONTRACT.md`.
+
 No fake Emergency/Recovery page should appear merely to fill the architecture.
+Android source explicitly gates Recovery as hidden until the solver exists.
 
 ## 2. Identity Context
 
@@ -279,6 +290,19 @@ Lens entry belongs where the user's question occurs:
 
 This prevents a sixth/seventh top-level tab from appearing every time analysis
 capability grows.
+
+Current Android gate table:
+
+```text
+Region      VISIBLE
+Dependency  VISIBLE
+Change      VISIBLE
+Identity    HIDDEN_UNTIL_CANONICAL
+Recovery    HIDDEN_UNTIL_SOLVER
+```
+
+The gate is executable source, not documentation-only:
+`android/app/src/main/kotlin/com/pdig/uivnext/lens/VNextLensAvailability.kt`.
 
 ## 6. Object-detail convergence
 
