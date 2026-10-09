@@ -102,8 +102,12 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
             }
             VScreen.WEAKNESSES -> {
                 val riskyCards = if(zero) emptyList() else UiVNextDemoFixture.cards.filter { scoped(it.region) && it.status == "expiring_soon" }
-                val recoveryPhones = if(zero) emptyList() else UiVNextDemoFixture.numbers.filter { scoped(it.region) && it.recoveryOnly }
-                val recoveryEmails = if(zero) emptyList() else UiVNextDemoFixture.emails.filter { scoped(it.region) && it.recoveryOnly }
+                val recoveryPhones = if(zero) emptyList() else UiVNextDemoFixture.numbers.filter {
+                    scoped(it.region) && it.uniqueRecoveryPath == true
+                }
+                val recoveryEmails = if(zero) emptyList() else UiVNextDemoFixture.emails.filter {
+                    scoped(it.region) && it.uniqueRecoveryPath == true
+                }
                 val devices = if(zero) emptyList() else UiVNextDemoFixture.devices.filter { scoped(it.region) && it.attention }
                 R9CounterBanner(riskyCards.size+recoveryPhones.size+recoveryEmails.size+devices.size,
                     "已记录关注项", "未知关系不包含在计数内")
