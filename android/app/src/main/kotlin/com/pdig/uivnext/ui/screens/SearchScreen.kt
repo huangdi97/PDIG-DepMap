@@ -73,7 +73,7 @@ fun SearchScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             }
         } else {
             SectionHeader("搜索结果")
-            val results = searchResults(trimmed)
+            val results = searchResults(trimmed, app)
             if (results.isEmpty()) {
                 Text(
                     "没有匹配「$trimmed」。未记录 ≠ 无风险：可以换个关键词继续搜索。",
