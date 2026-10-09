@@ -237,6 +237,25 @@ class SourceCompleteInteractionContractTest {
     }
 
     @Test
+    fun secondaryObjectDetailBackStackFlow() {
+        val app = createVNextAppState().apply { navigate(VScreen.ACCOUNTS) }
+        app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, "acc-hk-1")
+        assertEquals(VScreen.ACCOUNT_DETAIL, app.screen)
+        assertEquals("acc-hk-1", app.selectedSecondaryObjectId)
+
+        compose.setContent { VNextApp(app) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.r20.secondary-detail.account-detail", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.r19.impact-lens", useUnmergedTree = true)
+            .assertIsDisplayed()
+
+        app.back()
+        compose.waitForIdle()
+        assertEquals(VScreen.ACCOUNTS, app.screen)
+    }
+
+    @Test
     fun regionDrawerBackClosesDetail() {
         val app = createVNextAppState().apply { navigate(VScreen.OVERVIEW) }
         app.selectRegion("CN")
