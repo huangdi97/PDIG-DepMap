@@ -52,6 +52,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
         return
     }
     val services = UiVNextDemoFixture.servicesForCard(card.id)
+    val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
     val profile = app.savedPresentationProfile("card", card.id)
     var tab by rememberSaveable(card.id) { mutableIntStateOf(0) }
     var showSimpleArt by rememberSaveable(card.id) { mutableStateOf(false) }
@@ -150,6 +151,39 @@ internal fun R9CardDetailScreen(app: VAppState) {
         }
         if (importFailed) Text("图片读取失败或超过 12MB，请换一张。",
             color = R9.Rose, fontSize = 11.sp)
+
+        Surface(
+            modifier = Modifier.fillMaxWidth().testTag("pdig.r18.card.lifecycle"),
+            color = Color.White,
+            shape = RoundedCornerShape(17.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Column(
+                Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+            ) {
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text("用卡周期", color = R9.Ink, fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold)
+                    Text("已记录资料", color = R9.Muted, fontSize = 9.sp)
+                }
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                ) {
+                    R18CardFact("年费", lifecycle?.annualFee, Modifier.weight(1f))
+                    R18CardFact("账单日", lifecycle?.billingDay, Modifier.weight(1f))
+                    R18CardFact("分期", lifecycle?.installmentSummary, Modifier.weight(1f))
+                }
+                Text("账单金额、交易与分期不会因缺少数据被自动推断。",
+                    color = R9.Muted, fontSize = 9.sp, lineHeight = 14.sp)
+            }
+        }
+
         // Four task-oriented tabs. Artwork selection is not a fifth task.
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             listOf("概览", "关联服务", "账单", "安全与风险").forEachIndexed { index, label ->
@@ -185,6 +219,10 @@ internal fun R9CardDetailScreen(app: VAppState) {
                         R9DetailLine("国家 / 地区", "${regionFlag(card.region)} ${regionLabelZh(card.region)} · ${card.currency}")
                         R9DetailLine("卡号后四位", r9VisibleLast4(card.last4, app.privacyMask || profile?.maskSensitive == true))
                         R9DetailLine("有效期", card.expiry)
+                        R9DetailLine("年费", lifecycle?.annualFee ?: "未记录")
+                        R9DetailLine("年费节点", lifecycle?.annualFeeDue ?: "未记录")
+                        R9DetailLine("账单日", lifecycle?.billingDay ?: "未记录")
+                        R9DetailLine("还款日", lifecycle?.paymentDueDay ?: "未记录")
                         R9DetailLine("已记录服务", "${services.size} 项")
                     }
                     1 -> {
@@ -216,10 +254,17 @@ internal fun R9CardDetailScreen(app: VAppState) {
                         }
                     }
                     2 -> {
-                        Text("账单", color = R9.Ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                        Text("尚未导入可核验的账单，不推断交易、余额或扣款金额。",
-                            color = R9.Muted, fontSize = 12.sp, lineHeight = 19.sp)
-                        R9DetailLine("已记录有效期", card.expiry)
+                        Text("账单与分期", color = R9.Ink, fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold)
+                        Text("这里展示用户已记录的周期信息；没有账单证据时，不推断交易、余额、最低还款额或实际扣款。",
+                            color = R9.Muted, fontSize = 11.sp, lineHeight = 18.sp)
+                        R9DetailLine("账单日", lifecycle?.billingDay ?: "未记录")
+                        R9DetailLine("还款日", lifecycle?.paymentDueDay ?: "未记录")
+                        R9DetailLine("年费", lifecycle?.annualFee ?: "未记录")
+                        R9DetailLine("年费节点", lifecycle?.annualFeeDue ?: "未记录")
+                        R9DetailLine("分期", lifecycle?.installmentSummary ?: "未记录")
+                        R9DetailLine("自动还款", lifecycle?.autoPaySummary ?: "未记录")
+                        R9DetailLine("卡片有效期", card.expiry)
                     }
                     else -> {
                         Text("安全与风险", color = R9.Ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
@@ -234,6 +279,30 @@ internal fun R9CardDetailScreen(app: VAppState) {
         }
         // Image selection is a minor card feature, not a second full-screen product.
         // Editing stays in the current detail workspace with an inline action.
+    }
+}
+
+@Composable
+private fun R18CardFact(
+    label: String,
+    value: String?,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.heightIn(min = 54.dp),
+        color = R9.Ice,
+        shape = RoundedCornerShape(12.dp),
+        border = BorderStroke(1.dp, R9.Line.copy(alpha = .75f)),
+    ) {
+        Column(
+            Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(label, color = R9.Muted, fontSize = 9.sp)
+            Text(value?.takeIf { it.isNotBlank() } ?: "未记录",
+                color = R9.Ink, fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+                maxLines = 2, lineHeight = 13.sp)
+        }
     }
 }
 
