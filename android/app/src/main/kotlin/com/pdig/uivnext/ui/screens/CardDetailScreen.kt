@@ -319,15 +319,24 @@ private fun CompactCardDetailReference(
         }
         ObjectImpactLens(impact = impact)
 
-        Surface(
-            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min)
-                .clickableLocal { app.openCardCustomization(card.id) },
-            color = PdigV2Colors.PrimarySoft,
-            shape = RoundedCornerShape(15.dp),
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End,
         ) {
-            Row(Modifier.fillMaxWidth().padding(13.dp), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("定制这张卡的外观", color = PdigV2Colors.PrimaryText, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                Text("→", color = PdigV2Colors.PrimaryText, fontSize = 14.sp)
+            Surface(
+                modifier = Modifier.defaultMinSize(minHeight = VTouchTarget.Min)
+                    .clickableLocal { app.openCardCustomization(card.id) },
+                color = PdigV2Colors.SurfaceRaised,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Text(
+                    "更换卡面图片 →",
+                    Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                    color = PdigV2Colors.PrimaryText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
     }
@@ -366,28 +375,24 @@ private fun IdentityPanel(
             DetailRow("有效期", card.expiry)
         }
     }
-    // 外观设置仅影响本机显示，不改变实际卡片信息与关联关系。
-    Surface(
+    // 外观设置是次要微功能：保持 48dp 可触控，但不占用独立大面板。
+    Row(
         Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Surface.copy(alpha = 0.6f),
-        shape = RoundedCornerShape(VRadius.Lg),
+        horizontalArrangement = Arrangement.End,
     ) {
-        Column(Modifier.padding(16.dp)) {
-            Text("外观", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
-            Spacer(Modifier.height(8.dp))
-            Surface(
-                Modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(minHeight = VTouchTarget.Min)
-                    .testTagLocal(VTestIds.CARD_DETAIL_INFO)
-                    .clickableLocal { app.openCardCustomization(card.id) },
-                color = PdigV2Colors.PrimarySoft,
-                shape = RoundedCornerShape(VRadius.Md),
-            ) {
-                Text(
-                    "更换卡面图片 →",
-                    Modifier.padding(12.dp),
-                    color = PdigV2Colors.PrimaryText,
+        Surface(
+            Modifier
+                .defaultMinSize(minHeight = VTouchTarget.Min)
+                .testTagLocal("pdig.card.detail.change-art")
+                .clickableLocal { app.openCardCustomization(card.id) },
+            color = PdigV2Colors.SurfaceRaised,
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Text(
+                "更换卡面图片 →",
+                Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                color = PdigV2Colors.PrimaryText,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
