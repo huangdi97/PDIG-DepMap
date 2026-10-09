@@ -85,9 +85,17 @@ internal fun R9NumberDetailScreen(app: VAppState) {
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("SIM 类型", color = R9.Muted, fontSize = 10.sp)
-                    Text(number.simKind, color = R9.Ink, fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold)
+                    Text("角色 / SIM", color = R9.Muted, fontSize = 10.sp)
+                    Text(
+                        (when(number.role) {
+                            "primary" -> "主号码"
+                            "keep" -> "保号"
+                            "secondary" -> "副号"
+                            else -> number.role
+                        }) + " · " + number.simKind,
+                        color = R9.Ink, fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
                 Column(horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.spacedBy(4.dp)) {
