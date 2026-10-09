@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.cardImpactLens
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.model.hexColorOrNull
@@ -53,6 +54,7 @@ internal fun R9CardDetailScreen(app: VAppState) {
     }
     val services = UiVNextDemoFixture.servicesForCard(card.id)
     val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
+    val impact = cardImpactLens(card.id)
     val profile = app.savedPresentationProfile("card", card.id)
     var tab by rememberSaveable(card.id) { mutableIntStateOf(0) }
     var showSimpleArt by rememberSaveable(card.id) { mutableStateOf(false) }
@@ -277,6 +279,8 @@ internal fun R9CardDetailScreen(app: VAppState) {
                 }
             }
         }
+        R19ImpactLens(impact)
+
         // Image selection is a minor card feature, not a second full-screen product.
         // Editing stays in the current detail workspace with an inline action.
     }
