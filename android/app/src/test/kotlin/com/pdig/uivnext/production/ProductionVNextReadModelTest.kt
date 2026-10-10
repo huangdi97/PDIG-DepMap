@@ -440,6 +440,66 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun maintenanceUpcomingUsesCanonicalTimelineBucketsWithoutOutrankingAttention() {
+        val fields = """
+            {
+              "maintenance_profile": {
+                "version": 1,
+                "facts": [],
+                "schedules": [
+                  {
+                    "id": "annual",
+                    "kind": "card_annual_fee_checkpoint",
+                    "state": "active",
+                    "cadence": {
+                      "kind": "one_time",
+                      "due_at": "2026-10-15"
+                    },
+                    "verification_basis_type": "user_confirmed",
+                    "confirmed_at": "2026-10-10T00:00:00Z"
+                  }
+                ]
+              }
+            }
+        """.trimIndent()
+
+        val snapshot = buildProductionSnapshot(
+            revision = 30,
+            nodes = listOf(
+                NodeRow("card-1", "payment_instrument", "主卡", false, fields),
+            ),
+            dependencies = emptyList(),
+            timeline = listOf(
+                TimelineItem(
+                    id = "attention-first",
+                    kind = "drift_review",
+                    title = "需要人工确认",
+                    subtitle = "已确认 attention",
+                    scheduledAt = null,
+                    bucket = "attention",
+                    priority = 3,
+                    sourceType = "reality_drift",
+                    sourceId = "drift-1",
+                    actionTarget = "card-1",
+                    status = "open",
+                ),
+            ),
+            plans = emptyList(),
+            proposals = emptyList(),
+            candidates = emptyList(),
+            drifts = emptyList(),
+            sources = emptyList(),
+            maintenanceTodayIso = "2026-10-10",
+        )
+
+        assertEquals("attention-first", snapshot.timeline.first().id)
+        val maintenance = snapshot.timeline.single { it.sourceType == "maintenance_schedule" }
+        assertEquals("7d", maintenance.bucket)
+        assertEquals("upcoming", maintenance.status)
+        assertEquals("2026-10-15T00:00:00Z", maintenance.scheduledAt)
+    }
+
+    @Test
     fun productionRecordsKeepCompletionVerificationAndEvidenceDistinct() {
         fun planAction(
             id: String,
