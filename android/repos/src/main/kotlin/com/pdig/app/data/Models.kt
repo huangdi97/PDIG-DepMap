@@ -27,6 +27,22 @@ data class ManualNodeCreateResult(
     val node: NodeRow,
     val graphRevision: Int,
 )
+data class ManualDependencyCreateRequest(
+    val fromNodeId: String,
+    val relation: com.pdig.core.generated.Relation,
+    val toNodeId: String,
+    val capability: com.pdig.core.generated.Capability,
+    /** false = keep/default unknown; true = explicit human confirmation of required. */
+    val required: Boolean = false,
+)
+
+data class ManualDependencyCreateResult(
+    val dependency: DependencyRow,
+    val graphRevision: Int,
+    val created: Boolean,
+    val reactivated: Boolean,
+)
+
 data class DependencyRow(
     val id: String,
     val from: String,
