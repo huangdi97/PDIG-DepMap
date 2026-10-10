@@ -1,0 +1,68 @@
+package com.pdig.uivnext.capability
+
+import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.ui.PRIMARY_ENTRIES
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class VNextCapabilityMatrixTest {
+    @Test
+    fun visibleReferenceCapabilitiesMatchCurrentProductSurface() {
+        assertEquals(
+            setOf(
+                VNextCapability.FILE_IMPORT,
+                VNextCapability.MANUAL_CREATE,
+                VNextCapability.HUMAN_REVIEW,
+                VNextCapability.CHANGE_PHONE,
+                VNextCapability.CHANGE_PAYMENT_CARD,
+                VNextCapability.LIFECYCLE_PERSISTENCE,
+            ),
+            visibleReferenceCapabilities(),
+        )
+    }
+
+    @Test
+    fun productionAuthorityIsNarrowerThanReferenceVisibility() {
+        assertTrue(hasProductionAuthority(VNextCapability.FILE_IMPORT))
+        assertTrue(hasProductionAuthority(VNextCapability.HUMAN_REVIEW))
+        assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PHONE))
+        assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PAYMENT_CARD))
+
+        assertFalse(hasProductionAuthority(VNextCapability.MANUAL_CREATE))
+        assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
+        assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
+        assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_INCIDENT))
+    }
+
+    @Test
+    fun hiddenFutureLensesCannotLeakIntoVisibleProduct() {
+        assertFalse(canShowReference(VNextCapability.IDENTITY_CONTEXT))
+        assertEquals(
+            VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+            capabilityGate(VNextCapability.IDENTITY_CONTEXT).visibility,
+        )
+
+        assertFalse(canShowReference(VNextCapability.RECOVERY_INCIDENT))
+        assertEquals(
+            VNextCapabilityVisibility.HIDDEN_UNTIL_SOLVER,
+            capabilityGate(VNextCapability.RECOVERY_INCIDENT).visibility,
+        )
+    }
+
+    @Test
+    fun capabilityGrowthNeverCreatesMorePrimaryTabs() {
+        assertEquals(
+            listOf(
+                VScreen.NOW,
+                VScreen.INFRASTRUCTURE,
+                VScreen.CHANGE,
+                VScreen.RECORDS,
+                VScreen.ME,
+            ),
+            PRIMARY_ENTRIES.map { it.screen },
+        )
+        assertTrue(V_NEXT_CAPABILITY_MATRIX.none { it.requiresNewPrimaryDestination })
+    }
+}
