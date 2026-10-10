@@ -12,7 +12,7 @@
     "baseline": "Test Files 43 passed, Tests 453 passed"
   },
   "counts": {
-    "cases": 137,
+    "cases": 153,
     "byCategory": {
       "impact": 13,
       "readiness": 16,
@@ -33,7 +33,8 @@
       "temporal-change": 4,
       "provider-policy": 4,
       "identity-relations": 6,
-      "identity-profile": 9
+      "identity-profile": 9,
+      "region-fact": 16
     }
   },
   "importFixtures": {
@@ -1029,6 +1030,118 @@
       "path": "fixtures/identity-profile/identity-profile-other-identity-ignores-identifier.json",
       "sha256": "f575fe01a6ae2a67044dd0a526542a027bc8c7b441ac657f44d145260d56bb59",
       "description": "identifier payload is ignored for non phone/email subtype"
+    },
+    {
+      "id": "region-fact-rg01-confirmed-cn",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg01-confirmed-cn.json",
+      "sha256": "aeeb0b8cef1027902972ae781f23fb174c6246a7371f6dedc6bf589c4eba1c6f",
+      "description": "RG-01 confirmed CN territory fact round-trips"
+    },
+    {
+      "id": "region-fact-rg02-confirmed-hk",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg02-confirmed-hk.json",
+      "sha256": "553d8a392173ba3e82e1b6006847e8a8b74a9f665b91962d8a78c8c89d189360",
+      "description": "RG-02 confirmed HK territory fact round-trips"
+    },
+    {
+      "id": "region-fact-rg03-subdivision",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg03-subdivision.json",
+      "sha256": "549d5c488a0caff2ebb053e29a37d323b5b8acfc39a085842c7bfeafd8251a86",
+      "description": "RG-03 ISO-3166-2-shaped subdivision round-trips"
+    },
+    {
+      "id": "region-fact-rg04-proposal-excluded",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg04-proposal-excluded.json",
+      "sha256": "4f40cd35a42923ec168e4ca08a73b715b74958d7af5b5d84afc04390a0fa80fc",
+      "description": "RG-04 proposal is not confirmed Node Reality and is rejected by RegionFact decoder"
+    },
+    {
+      "id": "region-fact-rg05-retired-excluded-current",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg05-retired-excluded-current.json",
+      "sha256": "d94f2f9675a2ebd36cae0c8afb96ce8d0453d11df3b8cc22543c5899349635ac",
+      "description": "RG-05 retired fact stays historical but is excluded from current lens"
+    },
+    {
+      "id": "region-fact-rg06-two-facets-separate",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg06-two-facets-separate.json",
+      "sha256": "81ec4edb4938143118b54dd2cf060bf7006016444bb5dd1a2607b967ff4e322e",
+      "description": "RG-06 two confirmed facets on one object remain separate"
+    },
+    {
+      "id": "region-fact-rg07-same-priority-conflict",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg07-same-priority-conflict.json",
+      "sha256": "709f49c7d58428f7a3fcce2f6aa853733f4936d334eb778d59f919333a70244a",
+      "description": "RG-07 conflicting same-priority confirmed facts require review"
+    },
+    {
+      "id": "region-fact-rg08-currency-no-inference",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg08-currency-no-inference.json",
+      "sha256": "c289bd80ac892fa6ea55dd5f25d65c75c3f559f54bdc86116724016100ddb14c",
+      "description": "RG-08 currency metadata does not infer region"
+    },
+    {
+      "id": "region-fact-rg09-provider-name-no-inference",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg09-provider-name-no-inference.json",
+      "sha256": "51d2c1986b823a032f22e492493ded271d49d4ee93b16bc58e82b41af3bacfcd",
+      "description": "RG-09 provider/issuer name does not infer region"
+    },
+    {
+      "id": "region-fact-rg10-phone-lookalike-no-region",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg10-phone-lookalike-no-region.json",
+      "sha256": "a05713202413120cdd599ff9e810ccb8295d02a881f4d5b753250786c13e594e",
+      "description": "RG-10 phone-looking identity data does not infer RegionFact"
+    },
+    {
+      "id": "region-fact-rg11-old-payload-zero",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg11-old-payload-zero.json",
+      "sha256": "2e7a2020171c4ec660c91acd1608dcfb20892490cd6b89043d9809d15c6c9e46",
+      "description": "RG-11 old payload migrates semantically to zero confirmed RegionFacts"
+    },
+    {
+      "id": "region-fact-rg12-display-name-independent",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg12-display-name-independent.json",
+      "sha256": "bd6a4b51557d68a715b53aa59547a5449f3d68fb3b11c5955b7bc1ad3fed5ae1",
+      "description": "RG-12 localized display wording does not mutate canonical code"
+    },
+    {
+      "id": "region-fact-rg13-filter-is-query-only",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg13-filter-is-query-only.json",
+      "sha256": "56dde9bf1a0929176a94c72c2960522ed53a5f698a65b36110155a2ec05e087c",
+      "description": "RG-13 UI Region filter metadata does not mutate governed RegionFact"
+    },
+    {
+      "id": "region-fact-rg14-context-intersection-no-mutation",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg14-context-intersection-no-mutation.json",
+      "sha256": "b79e086fe70ad46071d2a63c2d9cde07d254317522f18b62df2dcd575dd7c7f8",
+      "description": "RG-14 Identity Context labels do not create or rewrite RegionFact"
+    },
+    {
+      "id": "region-fact-rg15-physical-not-inferred",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg15-physical-not-inferred.json",
+      "sha256": "54592585980d7a5ad56a40f1263230a40ed48383a2032a864dfabf5110e28e22",
+      "description": "RG-15 IP/locale/current-location-looking metadata does not create PHYSICAL_LOCATION"
+    },
+    {
+      "id": "region-fact-rg16-future-facet-fails-closed",
+      "category": "region-fact",
+      "path": "fixtures/region-fact/region-fact-rg16-future-facet-fails-closed.json",
+      "sha256": "78f825733e75a86d52d6795f67a6c231514e06724547d5cba208c948d26e896b",
+      "description": "RG-16 unknown future facet fails closed while valid sibling survives"
     }
   ]
 }
