@@ -202,6 +202,8 @@ class TabletAdaptiveContractTest {
         renderApp(createVNextAppState().apply { navigate(VScreen.OVERVIEW) })
         compose.onNodeWithTag(VTestIds.GLOBE_STAGE).assertExists()
         compose.onNodeWithTag("pdig.r19.adaptive-world-stage", useUnmergedTree = true).assertExists()
-        compose.onNode(androidx.compose.ui.test.hasText("中国大陆")).assertExists()
+        // Both the projected globe chip and accessible region list legitimately
+        // show the same name. Assert the specific region-list surface, not uniqueness.
+        compose.onNodeWithTag("pdig.region.CN", useUnmergedTree = true).assertExists()
     }
 }
