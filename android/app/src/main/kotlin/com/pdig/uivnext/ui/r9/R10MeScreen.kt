@@ -267,6 +267,12 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                 R10MeAction("卡面图片", "简单换图；卡片详情内完成", "cards") {
                     app.navigate(VScreen.CARDS)
                 }
+                R10MeAction("建立基础设施", "导入文件或手工记录新的对象", "establish") {
+                    app.navigate(VScreen.IMPORT)
+                }
+                R10MeAction("待复核", "确认关系建议、对象候选与现实漂移", "review") {
+                    app.navigate(VScreen.REVIEW)
+                }
                 R10MeAction("数据源与记录范围", "查看记录来源、关联和未知边界", "sources") {
                     app.navigate(VScreen.SOURCES)
                 }
