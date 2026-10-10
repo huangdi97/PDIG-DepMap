@@ -39,26 +39,26 @@ internal data class ProductionSourceView(
 
 internal data class ProductionInventoryCounts(
     val paymentAssets: Int,
-    val phoneIdentities: Int,
-    val emailIdentities: Int,
     val genericIdentityAnchors: Int,
     val accounts: Int,
     val services: Int,
     val devices: Int,
     val memberships: Int,
     val customObjects: Int,
+    val phoneIdentities: Int = 0,
+    val emailIdentities: Int = 0,
 )
 
 internal data class ProductionConsumerInventory(
     val revision: Int,
     val counts: ProductionInventoryCounts,
     val paymentAssets: List<ProductionPaymentAssetView>,
-    val phoneIdentities: List<ProductionIdentityView>,
-    val emailIdentities: List<ProductionIdentityView>,
     val genericIdentityAnchors: List<ProductionGenericIdentityView>,
     val pendingReviewCount: Int,
     val activeSourceCount: Int,
     val sources: List<ProductionSourceView>,
+    val phoneIdentities: List<ProductionIdentityView> = emptyList(),
+    val emailIdentities: List<ProductionIdentityView> = emptyList(),
 )
 
 /**
