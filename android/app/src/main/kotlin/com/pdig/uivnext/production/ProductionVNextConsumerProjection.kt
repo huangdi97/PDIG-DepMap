@@ -20,6 +20,13 @@ internal data class ProductionGenericIdentityView(
     val confirmedDependencyCount: Int,
 )
 
+internal data class ProductionSourceView(
+    val id: String,
+    val label: String,
+    val state: String,
+    val lastIngestedAt: String?,
+)
+
 internal data class ProductionInventoryCounts(
     val paymentAssets: Int,
     val genericIdentityAnchors: Int,
@@ -37,6 +44,7 @@ internal data class ProductionConsumerInventory(
     val genericIdentityAnchors: List<ProductionGenericIdentityView>,
     val pendingReviewCount: Int,
     val activeSourceCount: Int,
+    val sources: List<ProductionSourceView>,
 )
 
 /**
@@ -96,5 +104,13 @@ internal fun buildProductionConsumerInventory(
             snapshot.pendingReview.candidateCount +
             snapshot.pendingReview.driftCount,
         activeSourceCount = snapshot.sourceCoverage.activeSourceCount,
+        sources = snapshot.sources.map {
+            ProductionSourceView(
+                id = it.id,
+                label = it.label,
+                state = it.state,
+                lastIngestedAt = it.lastIngestedAt,
+            )
+        },
     )
 }
