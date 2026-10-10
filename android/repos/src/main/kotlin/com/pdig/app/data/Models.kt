@@ -27,6 +27,13 @@ data class ManualNodeCreateResult(
     val node: NodeRow,
     val graphRevision: Int,
 )
+
+data class ManualIdentityAnchorCreateRequest(
+    val subtype: com.pdig.core.generated.IdentityAnchorSubtype,
+    val name: String,
+    val identifierValue: String,
+)
+
 data class ManualDependencyCreateRequest(
     val fromNodeId: String,
     val relation: com.pdig.core.generated.Relation,
