@@ -2,6 +2,7 @@ package com.pdig.uivnext.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -127,7 +128,9 @@ private fun ProductionContent(
     when (app.screen) {
         VScreen.NOW -> ProductionNow(snapshot, inventory, modifier)
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
-            ProductionInfrastructure(inventory, modifier)
+            ProductionInfrastructure(app, inventory, modifier)
+        VScreen.CARD_DETAIL ->
+            ProductionCardDetail(session, inventory, app.selectedCardId, modifier)
         VScreen.CHANGE -> ProductionChange(snapshot, modifier)
         VScreen.RECORDS -> ProductionRecords(session, modifier)
         VScreen.ME -> ProductionMe(snapshot, inventory, modifier)
@@ -175,6 +178,7 @@ private fun ProductionNow(
 
 @Composable
 private fun ProductionInfrastructure(
+    app: VAppState,
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
@@ -193,6 +197,7 @@ private fun ProductionInfrastructure(
                         card.last4?.let { "•••• $it" },
                     ).joinToString(" · ").ifBlank { "已确认支付工具" },
                     meta = "${card.confirmedDependencyCount} 条已确认关系",
+                    onClick = { app.openCard(card.id) },
                 )
             }
         }
@@ -209,6 +214,70 @@ private fun ProductionInfrastructure(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ProductionCardDetail(
+    session: ProductionVNextSession,
+    inventory: ProductionConsumerInventory,
+    cardId: String?,
+    modifier: Modifier,
+) {
+    val card = inventory.paymentAssets.firstOrNull { it.id == cardId }
+    if (card == null) {
+        ProductionUnavailable(
+            "未找到该生产支付工具",
+            "对象不存在、已归档或当前 Canonical 投影不足；不会回退到参考卡片。",
+            modifier,
+        )
+        return
+    }
+    val impact = session.dataSource.productionImpact(card.id)
+    ProductionPage(modifier, card.name, "支付工具 · 已确认 Reality") {
+        ProductionFactCard(
+            title = card.issuer ?: "发行方未记录",
+            subtitle = card.last4?.let { "尾号 $it" } ?: "尾号未记录",
+            meta = "${card.confirmedDependencyCount} 条已确认关系",
+        )
+
+        ProductionSection("如果它发生变化？")
+        if (impact == null) {
+            ProductionEmpty("当前无法获得权威 Impact；不会以关系数量代替影响分析。")
+        } else {
+            val grouped = impact.targets.groupingBy { it.status }.eachCount()
+            val ordered = listOf(
+                "must_change" to "必须处理",
+                "needs_review" to "需要核对",
+                "degraded" to "能力下降",
+                "backup_path" to "有备用路径",
+                "unaffected" to "当前确认范围未受影响",
+                "unknown" to "未知",
+            )
+            val facts = ordered.mapNotNull { (status, label) ->
+                grouped[status]?.let { it to label }
+            }
+            if (facts.isEmpty()) {
+                ProductionEmpty("Impact 当前没有可展示 target；这不等于安全。")
+            } else {
+                facts.chunked(3).forEach { ProductionMetricRow(it) }
+            }
+
+            if (impact.checklist.isNotEmpty()) {
+                ProductionSection("核对清单")
+                impact.checklist.take(8).forEach { item ->
+                    ProductionFactCard(
+                        title = item.title,
+                        subtitle = item.detail,
+                        meta = item.level,
+                    )
+                }
+            }
+        }
+
+        ProductionBoundaryNote(
+            "R18/R19 的年费、账单日、分期等 Reference 生命周期字段尚未进入 Canonical，因此生产详情不会伪造这些字段。"
+        )
     }
 }
 
@@ -380,9 +449,16 @@ private fun ProductionSection(title: String) {
 }
 
 @Composable
-private fun ProductionFactCard(title: String, subtitle: String, meta: String) {
+private fun ProductionFactCard(
+    title: String,
+    subtitle: String,
+    meta: String,
+    onClick: (() -> Unit)? = null,
+) {
+    val cardModifier = if (onClick == null) Modifier.fillMaxWidth()
+    else Modifier.fillMaxWidth().clickable(onClick = onClick)
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = cardModifier,
         color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
