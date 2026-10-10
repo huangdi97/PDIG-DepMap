@@ -20,6 +20,7 @@ ANDROID_LIGHT_DIRECTION = DESIGN_FROZEN
 
 PRODUCTION_VNEXT_DEBUG_REHEARSAL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_SECURE_RUNTIME_GATE = WORKFLOW_IMPLEMENTED
+PRODUCTION_VNEXT_FLAG_SECURE_PARITY = SOURCE_IMPLEMENTED
 PRODUCTION_RELEASE_DEFAULT = LEGACY_LOCK_GATED
 PRODUCTION_RELEASE_INTENT_OVERRIDE = FORBIDDEN
 
@@ -184,6 +185,43 @@ This cross-checks:
 - no Preview fixture fallback.
 
 The real MainActivity proof then validates launcher/security integration.
+
+## 5. Sensitive-page screenshot / Recents protection
+
+R33 found a second security-parity requirement beyond the lock gate:
+
+```text
+same LockGate
+!=
+same sensitive-window protection
+```
+
+Legacy production already uses Android `FLAG_SECURE` for concrete dependency,
+import/review, timeline, source and plan surfaces. Production VNext originally reused
+the lock lifecycle but did not call that window guard.
+
+R33 now:
+- refactors `SecureWindow` so non-legacy route models can reuse the same
+  WindowManager implementation;
+- adds an explicit `productionVNextRequiresSecureWindow(VScreen)` policy;
+- applies it at the Production VNext shell root;
+- pins the policy with JVM tests.
+
+Protected Production VNext classes include:
+- Infrastructure and concrete object categories/details;
+- Records;
+- Review;
+- Sources;
+- Establish / Manual Establish / Manual Relationship;
+- Change plan execution;
+- Reality search;
+- appearance editors that can contain real identifiers/background images.
+
+High-level Now / Me / Settings / Change Center remain aligned with the legacy
+overview usability policy and do not force `FLAG_SECURE`.
+
+This closes screenshot/recording + Recents-thumbnail parity at source level; runtime
+evidence still belongs to the exact-head rehearsal/acceptance pass.
 
 ## 5. Release boundary remains unchanged
 
