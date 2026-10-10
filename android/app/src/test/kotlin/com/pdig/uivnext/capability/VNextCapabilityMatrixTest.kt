@@ -33,6 +33,7 @@ class VNextCapabilityMatrixTest {
 
         assertFalse(hasProductionAuthority(VNextCapability.MANUAL_CREATE))
         assertFalse(hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP))
+        assertFalse(hasProductionAuthority(VNextCapability.DEVICE_CONTINUITY))
         assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
         assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_INCIDENT))
@@ -51,6 +52,16 @@ class VNextCapabilityMatrixTest {
             VNextCapabilityVisibility.HIDDEN_UNTIL_SOLVER,
             capabilityGate(VNextCapability.RECOVERY_INCIDENT).visibility,
         )
+    }
+
+    @Test
+    fun plannedDeviceContinuityStaysHiddenUntilItsCanonicalPrerequisitesExist() {
+        assertFalse(canShowReference(VNextCapability.DEVICE_CONTINUITY))
+        assertEquals(
+            VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+            capabilityGate(VNextCapability.DEVICE_CONTINUITY).visibility,
+        )
+        assertFalse(hasProductionAuthority(VNextCapability.DEVICE_CONTINUITY))
     }
 
     @Test
