@@ -47,6 +47,25 @@ export function nodeKindFromWire(value: string): NodeKind | undefined {
   return undefined;
 }
 
+export enum IdentityAnchorSubtype {
+  PHONE_NUMBER = 'phone_number',
+  EMAIL_ADDRESS = 'email_address',
+  OTHER_IDENTITY = 'other_identity'
+}
+
+export function identityAnchorSubtypeFromWire(value: string): IdentityAnchorSubtype | undefined {
+  if (value === IdentityAnchorSubtype.PHONE_NUMBER) {
+    return IdentityAnchorSubtype.PHONE_NUMBER;
+  }
+  if (value === IdentityAnchorSubtype.EMAIL_ADDRESS) {
+    return IdentityAnchorSubtype.EMAIL_ADDRESS;
+  }
+  if (value === IdentityAnchorSubtype.OTHER_IDENTITY) {
+    return IdentityAnchorSubtype.OTHER_IDENTITY;
+  }
+  return undefined;
+}
+
 export enum Relation {
   FUNDING_SOURCE = 'funding_source',
   MERCHANT_AGREEMENT = 'merchant_agreement',
