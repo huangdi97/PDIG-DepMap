@@ -523,3 +523,43 @@ as confirmation before the AppContainer call succeeds.
 Review source/action binding may be implemented before launcher cutover behind a
 production-source test harness, but synthetic Preview items and production queue
 items must never share mutation handlers.
+
+
+## 14. Establish / Import production binding
+
+R23 does not create a new ingestion stack.
+
+Production VNext must reuse:
+
+~~~text
+FileWorkflowCoordinator
+→ existing Activity-scoped picker
+→ LockGate / re-auth lifecycle
+→ AppContainer.parseFile
+→ AppContainer.previewImport
+→ AppContainer.commitImport
+~~~
+
+VNext-specific source added:
+
+- ProductionVNextImport.kt — consumer-safe Preview/Commit projections.
+
+The file workflow itself remains the existing production implementation.
+
+Required future cutover sequence:
+
+~~~text
+VNext user opens Establish
+→ existing FileWorkflowCoordinator begins IMPORT
+→ picker result survives lock
+→ re-auth
+→ existing parser
+→ VNext renders consumer preview projection
+→ explicit Confirm Import
+→ existing AppContainer.commitImport
+→ VNext renders authoritative commit projection
+→ if proposals exist, route to Human Review
+~~~
+
+Never duplicate ActivityResult launchers, parser logic, URI retention, or import SQL
+inside UI vNext.
