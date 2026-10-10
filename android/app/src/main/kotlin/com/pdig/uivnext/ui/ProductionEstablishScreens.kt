@@ -50,7 +50,7 @@ internal fun ProductionEstablishScreen(
                 Text("建立基础设施", color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
                     fontWeight = FontWeight.Bold)
                 Text(
-                    "对象建立、文件导入与关系确认保持为不同 authority。",
+                    "对象建立、文件导入与关系确认是三个独立步骤。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -60,8 +60,8 @@ internal fun ProductionEstablishScreen(
         item {
             EstablishEntry(
                 title = "手工记录",
-                body = "只创建受当前 Canonical runtime policy 支持的对象；不会同时创建依赖关系。",
-                state = "正式 authority 可用",
+                body = "只创建当前正式规则允许直接建立的对象；不会同时创建依赖关系。",
+                state = "正式创建能力可用",
                 enabled = session.authorities?.manualEstablish != null,
             ) {
                 app.navigate(VScreen.MANUAL_ADD)
@@ -72,8 +72,8 @@ internal fun ProductionEstablishScreen(
             val requestImport = session.hostActions.requestFileImport
             EstablishEntry(
                 title = "文件导入",
-                body = "真实文件 picker / lock-re-auth 生命周期继续由现有 FileWorkflowCoordinator 持有；VNext 只请求 Host 启动该流程。",
-                state = if (requestImport != null) "可启动正式导入" else "Host binding 待接",
+                body = "真实文件选择与重新解锁继续由现有安全导入流程负责；新版界面只请求应用启动该流程。",
+                state = if (requestImport != null) "可启动正式导入" else "正式入口待接",
                 enabled = requestImport != null,
             ) {
                 requestImport?.invoke()
@@ -82,7 +82,7 @@ internal fun ProductionEstablishScreen(
 
         item {
             EstablishBoundary(
-                "Import commit != Dependency confirmation；手工创建对象 != 手工确认关系。"
+                "导入完成不等于依赖已确认；手工创建对象也不等于手工确认关系。"
             )
         }
     }
@@ -234,7 +234,7 @@ internal fun ProductionManualEstablishScreen(
                     shape = RoundedCornerShape(VRadius.Lg),
                 ) {
                     Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text("已写入 Reality", color = PdigV2Colors.PrimaryText,
+                        Text("已写入已确认数据", color = PdigV2Colors.PrimaryText,
                             fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         Text(created.name, color = PdigV2Colors.TextPrimary, fontSize = 12.sp)
                         Text(
@@ -243,7 +243,7 @@ internal fun ProductionManualEstablishScreen(
                             fontSize = 10.sp,
                         )
                         Text(
-                            "没有自动创建关系。下一步如需连接对象，必须走独立的关系确认 authority。",
+                            "没有自动创建关系。下一步如需连接对象，必须单独确认关系。",
                             color = PdigV2Colors.TextSecondary,
                             fontSize = 10.sp,
                         )
@@ -277,7 +277,7 @@ internal fun ProductionManualEstablishScreen(
                                     last4 = ""
                                 }
                             } catch (t: Throwable) {
-                                error = "创建未完成；没有在 UI 本地伪造 Reality。请检查输入或生产 authority。"
+                                error = "创建未完成；界面没有自行伪造已确认数据。请检查输入或正式创建能力。"
                             }
                         } else Modifier
                     ),
@@ -286,7 +286,7 @@ internal fun ProductionManualEstablishScreen(
                 border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
                 Text(
-                    if (canSave) "确认对象存在并写入 Reality" else "填写名称后可提交",
+                    if (canSave) "确认对象存在并保存" else "填写名称后可提交",
                     Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
                     color = if (canSave) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
@@ -299,8 +299,8 @@ internal fun ProductionManualEstablishScreen(
             item {
                 EstablishEntry(
                     title = "手工记录关系",
-                    body = "对象已建立；关系仍是独立 authority。当前 Native Schema v3 不支持完整 runtime relation vocabulary 的安全写入。",
-                    state = "Schema v4 前 HOLD",
+                    body = "对象已建立；关系仍需单独确认。当前原生数据格式尚不能安全写入完整关系词汇。",
+                    state = "底层格式升级前暂不可提交",
                     enabled = true,
                 ) {
                     app.navigate(VScreen.MANUAL_RELATION)
@@ -310,7 +310,7 @@ internal fun ProductionManualEstablishScreen(
 
         item {
             EstablishBoundary(
-                "identity_anchor / device / membership / custom 不会因为 UI 能画出来就被偷偷开放；必须服从 generated runtime-creatable policy。"
+                "身份对象、设备、会员与自定义对象不会因为界面能显示就擅自开放手工创建；必须遵守当前正式创建规则。"
             )
         }
     }
@@ -336,7 +336,7 @@ internal fun ProductionManualRelationshipHoldScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "设计已完成；生产写入必须等 Native Schema v4 完整关系词汇与跨端 conformance。",
+                    "关系录入设计已完成；正式写入必须等新数据格式和跨端一致性验证完成。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -358,8 +358,8 @@ internal fun ProductionManualRelationshipHoldScreen(
             "From / Relation / To" to "关系必须连接两个已确认对象",
             "Capability" to "payment / access / authentication / recovery / communication",
             "Criticality" to "默认 unknown；机器不能擅自设为 required",
-            "Origin" to "明确人工陈述 = manual；模型/来源建议必须先 Proposal → Review",
-            "Verification" to "关系确认后才能进入 Reality；未确认建议不是 Dependency",
+            "来源" to "明确人工陈述可作为手工确认；模型或数据来源给出的建议必须先进入待复核",
+            "确认" to "只有明确确认后的关系才能进入已确认数据；未确认建议不是正式依赖",
         ).forEach { (title, body) ->
             item {
                 Surface(
@@ -379,7 +379,7 @@ internal fun ProductionManualRelationshipHoldScreen(
 
         item {
             EstablishBoundary(
-                "解锁条件：Native Schema v4 migration + runtime validator + golden/negative fixtures + Android/iOS/Harmony conformance + authoritative relationship gateway。缺一项都不开放。"
+                "开放条件：新数据格式迁移、运行时校验、正反例测试、Android/iOS/Harmony 一致性验证，以及正式关系写入能力全部完成。缺一项都不开放。"
             )
         }
     }
@@ -431,7 +431,7 @@ private fun ProductionManualUnavailable(modifier: Modifier) {
         modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("手工建立 authority 未绑定", color = PdigV2Colors.TextPrimary,
+        Text("手工创建能力尚未接入", color = PdigV2Colors.TextPrimary,
             fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.padding(4.dp))
         Text("不会提供假的保存按钮。", color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
