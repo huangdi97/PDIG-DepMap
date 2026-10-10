@@ -12,6 +12,27 @@ internal fun productionObjectKindLabel(kind: String): String = when (kind) {
     else -> "未知类型（$kind）"
 }
 
+internal fun productionObjectSurfaceLabel(
+    item: com.pdig.uivnext.production.VNextProductionObject,
+): String = when (item.surfaceKind) {
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.PAYMENT_ASSET -> "支付工具"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY -> "手机号身份"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY -> "邮箱身份"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.ACCOUNT -> "账户"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.SERVICE -> "服务"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.DEVICE -> "设备"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.MEMBERSHIP -> "会员 / 资格"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC -> "通用身份对象"
+    com.pdig.uivnext.production.VNextProductionSurfaceKind.CUSTOM_GENERIC -> "自定义对象"
+}
+
+internal fun productionIdentityBasisLabel(basis: String?): String = when (basis) {
+    "user_confirmed" -> "用户已确认"
+    "authoritative_source" -> "权威来源已确认"
+    null -> "确认依据未知"
+    else -> "确认依据未知（$basis）"
+}
+
 internal fun productionRelationLabel(relation: String): String = when (relation) {
     "funding_source" -> "资金来源"
     "merchant_agreement" -> "商户 / 扣款约定"
@@ -151,8 +172,14 @@ internal fun productionVisibleObjectName(
     item: com.pdig.uivnext.production.VNextProductionObject,
     privacyMask: Boolean,
 ): String = when {
-    privacyMask &&
-        item.surfaceKind == com.pdig.uivnext.production.VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC ->
-        "身份对象（已遮蔽）"
+    privacyMask && item.surfaceKind in setOf(
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY,
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY,
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+    ) -> when (item.surfaceKind) {
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY -> "手机号身份（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY -> "邮箱身份（已遮蔽）"
+        else -> "身份对象（已遮蔽）"
+    }
     else -> item.name
 }
