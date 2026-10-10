@@ -6,6 +6,10 @@ import com.pdig.core.domain.DependencyGroup
 import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.domain.ImpactProposalInput
 import com.pdig.core.domain.validateRelationUse
+import com.pdig.core.domain.MaintenanceFactWrite
+import com.pdig.core.domain.MaintenanceScheduleWrite
+import com.pdig.core.domain.upsertConfirmedMaintenanceFact
+import com.pdig.core.domain.upsertConfirmedMaintenanceSchedule
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.CanonicalSpec
 import com.pdig.core.generated.Criticality
@@ -228,6 +232,77 @@ class GraphRepository(
             "manual identity anchor disappeared after authoritative commit: $id"
         }
         return ManualNodeCreateResult(node = node, graphRevision = graphRevision())
+    }
+
+    /**
+     * Explicit user confirmation of a governed maintenance fact.
+     *
+     * Canonical construction/validation happens in core; repository owns the
+     * encrypted Reality mutation and graphRevision transaction.
+     */
+    fun confirmMaintenanceFact(
+        nodeId: String,
+        request: MaintenanceFactWrite,
+    ): MaintenanceWriteResult {
+        val current = requireNotNull(nodeById(nodeId)) {
+            "maintenance target node does not exist: $nodeId"
+        }
+        require(!current.archived) { "maintenance target node is archived: $nodeId" }
+        val kind = requireNotNull(NodeKind.fromWire(current.kind)) {
+            "unknown maintenance target node kind: ${current.kind}"
+        }
+        val now = Instant.now().toString()
+        val nextFields = upsertConfirmedMaintenanceFact(
+            nodeKind = kind,
+            fieldsJson = current.fieldsJson,
+            request = request,
+            confirmedAt = now,
+        )
+        driver.transaction {
+            driver.prepare(
+                "UPDATE nodes SET fields_json = ?, updated_at = ? WHERE id = ?",
+            ).run(nextFields, now, nodeId)
+            bumpRevision()
+        }
+        return MaintenanceWriteResult(
+            node = requireNotNull(nodeById(nodeId)) {
+                "maintenance target disappeared after authoritative commit: $nodeId"
+            },
+            graphRevision = graphRevision(),
+        )
+    }
+
+    /** Explicit user/authority confirmation of a governed maintenance schedule. */
+    fun confirmMaintenanceSchedule(
+        nodeId: String,
+        request: MaintenanceScheduleWrite,
+    ): MaintenanceWriteResult {
+        val current = requireNotNull(nodeById(nodeId)) {
+            "maintenance target node does not exist: $nodeId"
+        }
+        require(!current.archived) { "maintenance target node is archived: $nodeId" }
+        val kind = requireNotNull(NodeKind.fromWire(current.kind)) {
+            "unknown maintenance target node kind: ${current.kind}"
+        }
+        val now = Instant.now().toString()
+        val nextFields = upsertConfirmedMaintenanceSchedule(
+            nodeKind = kind,
+            fieldsJson = current.fieldsJson,
+            request = request,
+            confirmedAt = now,
+        )
+        driver.transaction {
+            driver.prepare(
+                "UPDATE nodes SET fields_json = ?, updated_at = ? WHERE id = ?",
+            ).run(nextFields, now, nodeId)
+            bumpRevision()
+        }
+        return MaintenanceWriteResult(
+            node = requireNotNull(nodeById(nodeId)) {
+                "maintenance target disappeared after authoritative commit: $nodeId"
+            },
+            graphRevision = graphRevision(),
+        )
     }
 
     /**
