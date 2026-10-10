@@ -100,6 +100,30 @@ internal fun R9SourcesScreen(app: VAppState) {
                 }
             }
         }
+        R9SectionTitle("人工确认")
+        Surface(
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
+                .clickable { app.navigate(VScreen.REVIEW) }
+                .testTag("pdig.r22.sources.review"),
+            color = Color.White,
+            shape = RoundedCornerShape(13.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Row(
+                Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("待复核", color = R9.Ink, fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Text("Proposal / Candidate / Drift 必须由你确认后才进入 Reality",
+                        color = R9.Muted, fontSize = 9.sp, lineHeight = 14.sp)
+                }
+                Text("查看 →", color = R9.Blue, fontSize = 11.sp)
+            }
+        }
+
         R9SectionTitle("查看基础设施")
         listOf(
             VScreen.OVERVIEW, VScreen.CARDS, VScreen.NUMBERS,
