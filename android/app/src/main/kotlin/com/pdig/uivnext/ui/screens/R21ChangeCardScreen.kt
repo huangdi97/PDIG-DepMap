@@ -368,9 +368,17 @@ private fun ReplacementChoice(
             )
             Text(card.nickname, color = PdigV2Colors.TextPrimary, fontSize = 10.sp,
                 fontWeight = FontWeight.SemiBold, maxLines = 1)
-            Text(if (selected) "已选计划目标" else "选择为计划目标",
+            Text(
+                "${card.currency} · ${card.network} · 到期 ${card.expiry}",
+                color = PdigV2Colors.TextMuted,
+                fontSize = 8.sp,
+                maxLines = 1,
+            )
+            Text(
+                "仅表示已记录候选 · " + if (selected) "已选计划目标" else "点击选择",
                 color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
-                fontSize = 9.sp)
+                fontSize = 9.sp,
+            )
         }
     }
 }
