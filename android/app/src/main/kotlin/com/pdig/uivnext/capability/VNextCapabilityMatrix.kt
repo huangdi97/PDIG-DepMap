@@ -10,6 +10,7 @@ package com.pdig.uivnext.capability
 internal enum class VNextCapability {
     FILE_IMPORT,
     MANUAL_CREATE,
+    MANUAL_RELATIONSHIP,
     HUMAN_REVIEW,
     CHANGE_PHONE,
     CHANGE_PAYMENT_CARD,
@@ -51,6 +52,12 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
         productionAuthority = VNextProductionAuthority.NOT_EXPOSED,
         reason = "Canonical can store supported node kinds, but VNext has no reviewed AppContainer-facing manual-create authority yet.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.MANUAL_RELATIONSHIP,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.NOT_EXPOSED,
+        reason = "Canonical supports DependencyOrigin.MANUAL, but VNext has no reviewed AppContainer manual-dependency creation authority yet.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.HUMAN_REVIEW,
