@@ -1,5 +1,5 @@
 {
-  "$comment": "PDIG Logical Schema v4 (Canonical vNext, v0.3.0). ADDITIVE superset of v3 (see logical-schema.json, which remains the frozen v3 record that legacy conformance fixtures read verbatim). Schema v4 adds Identity & Recovery persistence without breaking payment v3 truth: no v3 table/column is dropped or semantically changed; migration v1->v2->v3->v4 is chain-preserving. DEPMAP_CONTAINER_V1 and .depmap payload version stay at their v1/v3 values; this file describes the internal logical DB schema, not the payload format.",
+  "$comment": "PDIG Logical Schema v4 (Canonical vNext internal DB proposal). ADDITIVE superset of v3. R37 reconciles identity subtype storage with the newer authority contract: a bare fields_json.subtype string is NOT Canonical confirmation authority. Identity subtype is encoded only inside a governed fields_json.identity_anchor_profile object carrying version, subtype, verification_basis_type and confirmed_at. Existing ungoverned subtype-like strings are not auto-promoted. No v3 table/column is dropped; DEPMAP_CONTAINER_V1 and graph payload v3 remain physically compatible because fields_json is already an opaque payload column. This file describes internal DB semantics and does not by itself activate Native schema v4.",
   "logicalSchemaVersion": 4,
   "basedOn": "logical-schema.json (v3)",
   "migrations": [1, 2, 3, 4],
@@ -46,7 +46,20 @@
         { "name": "updated_at", "type": "TEXT", "nullable": false }
       ],
       "indexes": [{ "name": "idx_nodes_kind", "columns": ["kind"] }],
-      "v4Subtype": "identity_anchor subtype (phone_number/email) and account subtype (platform_account/email_account/password_manager_account), device subtype (phone/computer/security_key) live in fields_json.subtype; no new columns required."
+      "governedStructuredFields": {
+        "identity_anchor_profile": {
+          "appliesWhen": { "kind": "identity_anchor" },
+          "storagePath": "fields_json.identity_anchor_profile",
+          "profileVersion": 1,
+          "requiredConfirmedFields": ["version", "subtype", "verification_basis_type", "confirmed_at"],
+          "subtypeEnum": ["phone_number", "email_address", "other_identity"],
+          "verificationBasisEnum": ["user_confirmed", "authoritative_source"],
+          "legacyBareSubtypePolicy": "fields_json.subtype is ungoverned legacy/prototype metadata and MUST NOT be interpreted as confirmed subtype",
+          "absentOrInvalid": "generic_identity",
+          "payloadCompatibility": "graph payload v3 carries fields_json opaquely; older runtimes may preserve but must not infer the governed profile"
+        }
+      },
+      "v4Subtype": "R37 supersedes the old bare fields_json.subtype prototype. Only governed identity_anchor_profile semantics are recognized. Account/device subtype vocabularies remain separate future proposals and are not activated by this contract."
     },
     {
       "name": "dependencies",
