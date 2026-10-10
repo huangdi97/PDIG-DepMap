@@ -6,6 +6,7 @@ import com.pdig.core.domain.DependencyGroup
 import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.domain.ImpactProposalInput
 import com.pdig.core.generated.Capability
+import com.pdig.core.generated.CanonicalSpec
 import com.pdig.core.generated.Criticality
 import com.pdig.core.generated.DependencyOrigin
 import com.pdig.core.generated.DependencyState
@@ -19,6 +20,7 @@ import com.pdig.core.serialize.checkGraphIntegrity
 import com.pdig.core.timeline.TimelineItem
 import com.pdig.core.timeline.buildTimeline
 import java.time.Instant
+import java.util.UUID
 
 /**
  * 图（nodes / dependencies / dependency_groups）与 graph_revision 的读写。
@@ -53,6 +55,21 @@ class GraphRepository(
         }
     }
 
+    fun nodeById(id: String): NodeRow? {
+        val row = driver.prepare(
+            "SELECT id, kind, name, issuer, last4, archived, fields_json FROM nodes WHERE id = ?",
+        ).get(id) ?: return null
+        return NodeRow(
+            id = row.str("id") ?: "",
+            kind = row.str("kind") ?: "",
+            name = row.str("name") ?: "",
+            archived = (row.long("archived") ?: 0L) != 0L,
+            fieldsJson = row.str("fields_json") ?: "{}",
+            issuer = row.str("issuer"),
+            last4 = row.str("last4"),
+        )
+    }
+
     fun dependencies(): List<DependencyRow> = driver.prepare(
         """
         SELECT d.id, d.from_node, d.relation, d.to_node, d.capability, d.criticality, d.state,
@@ -82,6 +99,54 @@ class GraphRepository(
 
     fun timeline(nowIso: String = Instant.now().toString()): List<TimelineItem> =
         buildTimeline(driver, nowIso)
+
+    /**
+     * 显式用户手工建立 Reality 对象。
+     *
+     * 仅允许 spec/domain/domain.json constants.runtimeCreatableNodeKinds；
+     * 这是产品 authority，而不是导入去重路径，因此使用随机 UUID，不按 name 合并对象。
+     * Node 写入与 graphRevision bump 保持同一事务。
+     */
+    fun createManualNode(request: ManualNodeCreateRequest): ManualNodeCreateResult {
+        require(request.kind.wire in CanonicalSpec.RUNTIME_CREATABLE_NODE_KINDS) {
+            "node kind '${request.kind.wire}' is not runtime-creatable"
+        }
+        val name = request.name.trim()
+        require(name.isNotEmpty()) { "manual node name must not be blank" }
+
+        if (request.kind != NodeKind.PAYMENT_INSTRUMENT) {
+            require(request.issuer.isNullOrBlank() && request.last4.isNullOrBlank()) {
+                "issuer/last4 are only accepted for payment_instrument manual creation"
+            }
+        }
+
+        val id = UUID.randomUUID().toString()
+        val now = Instant.now().toString()
+        driver.transaction {
+            driver.prepare(
+                """
+                INSERT INTO nodes
+                  (id, kind, template_id, name, issuer, last4, owner, archived,
+                   fields_json, vault_ref, wallet_ref, created_at, updated_at)
+                VALUES (?, ?, NULL, ?, ?, ?, 'self', 0, '{}', NULL, NULL, ?, ?)
+                """.trimIndent(),
+            ).run(
+                id,
+                request.kind.wire,
+                name,
+                request.issuer?.trim()?.takeIf { it.isNotEmpty() },
+                request.last4?.trim()?.takeIf { it.isNotEmpty() },
+                now,
+                now,
+            )
+            bumpRevision()
+        }
+
+        val node = requireNotNull(nodeById(id)) {
+            "manual node disappeared after authoritative commit: $id"
+        }
+        return ManualNodeCreateResult(node = node, graphRevision = graphRevision())
+    }
 
     // ------------------------------------------------------------------
     // Impact（复用 core.impact，UI 不自行推导）
