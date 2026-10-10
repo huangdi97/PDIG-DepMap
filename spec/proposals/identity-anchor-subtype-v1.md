@@ -268,3 +268,202 @@ CANONICAL_CHANGE = NOT_IMPLEMENTED
 ANDROID_REFERENCE = MAY_DEMONSTRATE_SYNTHETIC_PHONE_UI
 PRODUCTION_IDENTITY_ANCHOR = GENERIC_UNTIL_CONFIRMED
 ```
+
+
+## 14. Identifier value is separate from subtype
+
+Subtype answers **what kind of anchor this is**. It must not be overloaded with the
+identifier value itself.
+
+Recommended future typed profile shape:
+
+~~~text
+IdentityAnchorProfile
+  nodeId
+  subtype
+  identifierState
+  identifierValue?
+  comparisonKey?
+  providerLabel?
+  regionCode?
+  source
+  evidenceRefs[]
+  confirmedAt?
+  updatedAt
+~~~
+
+`identifierState`:
+
+~~~text
+CONFIRMED_VALUE
+CONFIRMED_SUBTYPE_ONLY
+UNKNOWN
+~~~
+
+This lets a user confirm “this object is a phone identity” without being forced to
+store the raw number.
+
+The final schema review may choose a first-class profile table or typed Node
+substructure. The invariant is mandatory:
+
+~~~text
+free-form Android fields_json
+!= Canonical subtype/value authority
+~~~
+
+## 15. Normalization and duplicate review
+
+### Phone
+
+- preserve the user-confirmed value separately from any comparison form;
+- E.164 normalization is allowed only when enough confirmed dialing context exists;
+- locale/current SIM/provider lookup must not silently supply missing Reality;
+- number recycling means equal values do not prove continuous ownership.
+
+### Email
+
+- preserve the user-confirmed address;
+- domain comparison may be case-insensitive;
+- do not globally rewrite the local part;
+- provider-specific dot/plus alias rules are Provider Knowledge, not universal
+  Canonical semantics.
+
+Do not enforce silent semantic merging on a normalized value.
+
+~~~text
+same subtype + same comparison key
+→ duplicate candidate / Human Review
+→ user decides merge / keep separate
+~~~
+
+## 16. Recovery semantics are not subtype semantics
+
+Permanent rule:
+
+~~~text
+PHONE_NUMBER / EMAIL_ADDRESS
+!= recovery role
+!= unique recovery path
+!= current availability
+~~~
+
+A confirmed `recovers` edge can establish a recovery relationship. It still does
+not prove uniqueness or path independence.
+
+Likewise, during a Recovery Incident:
+
+~~~text
+PHONE_NUMBER
+!= SMS currently reachable
+
+EMAIL_ADDRESS
+!= mailbox currently accessible
+~~~
+
+Availability belongs to explicit incident/runtime evidence.
+
+## 17. Manual Establish unlock
+
+R24 correctly keeps Number/Email manual creation non-executable while subtype is
+ungoverned.
+
+After Canonical implementation, the authoritative transaction should be:
+
+~~~text
+Manual Number
+→ create Node(identity_anchor)
+→ create confirmed subtype PHONE_NUMBER
+→ graphRevision bump once
+→ no Dependency auto-created
+
+Manual Email
+→ create Node(identity_anchor)
+→ create confirmed subtype EMAIL_ADDRESS
+→ graphRevision bump once
+→ no Dependency auto-created
+~~~
+
+Node creation and subtype confirmation must be atomic at the logical Reality
+boundary. A half-created generic node must not be presented as a successfully saved
+Number/Email.
+
+## 18. Lifecycle / Identity Context composition
+
+Subtype does not own lifecycle or personal grouping.
+
+~~~text
+IdentityAnchorProfile(PHONE_NUMBER)
++
+MaintenanceSchedule(NUMBER_KEEP_ALIVE)
++
+confirmed Dependency graph
++
+IdentityContext membership
++
+FailureDomain
+= richer Number experience
+~~~
+
+Each layer retains separate authority.
+
+Example query:
+
+~~~text
+subtype = PHONE_NUMBER
+∩ IdentityContext = UK Financial
+∩ Region = GB
+~~~
+
+is a query intersection, not a new NodeKind or Dependency.
+
+## 19. External security research alignment
+
+External guidance supports keeping identifier type, authenticator lifecycle and
+recovery authority separate.
+
+- NIST SP 800-63-4 (final July 2025) treats authenticator management and recovery as
+  explicit identity lifecycle processes:
+  https://csrc.nist.gov/pubs/sp/800/63/4/final
+- FIDO guidance distinguishes synced passkeys, device-bound credentials, backup
+  authenticators and account recovery:
+  https://fidoalliance.org/white-paper-displace-password-otp-authentication-with-passkeys/
+- Apple Recovery Contacts have provider-specific establishment and recovery
+  semantics beyond an email/phone label:
+  https://support.apple.com/guide/security/account-recovery-contact-security-secafa525057/web
+- Google explicitly treats recovery phone/email as maintained recovery information:
+  https://support.google.com/accounts/answer/17299765
+
+These sources are design inputs only. They do not create PDIG Reality.
+
+## 20. Expanded acceptance matrix
+
+Additional required cases:
+
+~~~text
+IAS-01 confirmed PHONE_NUMBER maps to Number surface
+IAS-02 confirmed EMAIL_ADDRESS maps to Email surface
+IAS-03 null subtype stays Generic Identity
+IAS-04 proposal subtype never changes production surface
+IAS-05 CONFIRMED_SUBTYPE_ONLY is valid without raw identifier
+IAS-06 phone comparison normalization requires confirmed dialing context
+IAS-07 email local part is not globally rewritten
+IAS-08 duplicate comparison creates review, not silent merge
+IAS-09 subtype profile on non-identity node is rejected
+IAS-10 phone/email subtype creates no recovery edge
+IAS-11 recovery edge creates no unique-recovery finding
+IAS-12 presentation alias rename changes no subtype/value
+IAS-13 legacy migration performs zero heuristic classification
+IAS-14 manual Node + subtype confirmation is atomic
+IAS-15 confirmed subtype mutation bumps graphRevision exactly once
+IAS-16 raw identifier is absent from logs/analytics evidence
+~~~
+
+Updated stop line:
+
+~~~text
+IDENTITY_SUBTYPE_DESIGN = COMPLETE
+IDENTITY_VALUE_NORMALIZATION_DESIGN = COMPLETE
+MANUAL_NUMBER_EMAIL_CREATE_DESIGN = COMPLETE
+CANONICAL_IMPLEMENTATION = HOLD
+PRODUCTION_PHONE_EMAIL_MAPPING = HOLD
+~~~
