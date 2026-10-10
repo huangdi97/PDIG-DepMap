@@ -81,6 +81,7 @@ data class RegionPresentation(
     val phoneCount: Int = 0,
     val accountCount: Int = 0,
     val serviceCount: Int = 0,
+    val otherCount: Int = 0,
     val attentionCount: Int = 0,
 )
 
