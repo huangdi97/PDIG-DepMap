@@ -9,6 +9,7 @@ on:
     branches:
       - feat/android-ui-vnext-translation
     paths:
+      - 'android/scripts/ci_emulator_production_rehearsal.sh'
       - '.github/workflows/android-ui-vnext-production-rehearsal.yml'
       - 'android/app/src/main/kotlin/com/pdig/app/**'
       - 'android/app/src/main/kotlin/com/pdig/uivnext/**'
@@ -69,42 +70,7 @@ jobs:
             mkdir -p "$HOME/.android"
             printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
           disable-animations: true
-          script: |
-            # The emulator-runner invokes its script with /usr/bin/sh, not bash.
-            # dash supports set -eu but not pipefail; keep strict failures portable.
-            set -eu
-            mkdir -p artifacts/runtime-evidence/production-vnext-rehearsal
-            {
-              echo "source_sha=${GITHUB_SHA}"
-              adb shell getprop ro.build.version.sdk
-              adb shell wm size
-              adb shell wm density
-            } > artifacts/runtime-evidence/production-vnext-rehearsal/device-profile.txt
-
-            adb install -r android/app/build/outputs/apk/production/debug/app-production-debug.apk
-
-            # Consumer-shell contracts use source-bound fake production data and
-            # verify five-primary IA / truth boundaries without touching Preview fixtures.
-            cd android
-            ./gradlew :app:connectedProductionDebugAndroidTest --no-daemon --stacktrace               -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.ProductionVNextShellContractTest
-
-            ./gradlew :app:connectedProductionDebugAndroidTest --no-daemon --stacktrace               -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.ProductionManualRelationshipContractTest
-            cd ..
-
-            # Real MainActivity + real AppContainer + same fail-closed LockGate.
-            # First prove the repository-default build still fails closed to legacy.
-            python3 android/scripts/production_vnext_secure_rehearsal.py
-
-            # Then build the exact future release-default route with BOTH build-time
-            # cutover keys. No Intent extra is used by the second proof.
-            cd android
-            ./gradlew :app:assembleProductionDebug --no-daemon --stacktrace \
-              -PpdigProductionUiGeneration=vnext \
-              -PpdigProductionVNextCutoverApproved=true
-            cd ..
-            adb install -r android/app/build/outputs/apk/production/debug/app-production-debug.apk
-            python3 android/scripts/production_vnext_release_default_rehearsal.py
-
+          script: bash android/scripts/ci_emulator_production_rehearsal.sh
       - name: Upload secure rehearsal evidence
         if: always()
         uses: actions/upload-artifact@v4
