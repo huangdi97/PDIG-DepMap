@@ -5,6 +5,7 @@ import com.pdig.core.domain.Dependency
 import com.pdig.core.domain.DependencyGroup
 import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.domain.ImpactProposalInput
+import com.pdig.core.domain.validateRelationUse
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.CanonicalSpec
 import com.pdig.core.generated.Criticality
@@ -146,6 +147,149 @@ class GraphRepository(
             "manual node disappeared after authoritative commit: $id"
         }
         return ManualNodeCreateResult(node = node, graphRevision = graphRevision())
+    }
+
+    /**
+     * Confirm a manual Dependency using only the current Canonical v3 runtime
+     * relation registry. This does not widen schema or enable storage-only
+     * verifies / bound_to relations.
+     */
+    fun createManualDependency(
+        request: ManualDependencyCreateRequest,
+    ): ManualDependencyCreateResult {
+        val fromNode = requireNotNull(nodeById(request.fromNodeId)) {
+            "from node does not exist: ${request.fromNodeId}"
+        }
+        val toNode = requireNotNull(nodeById(request.toNodeId)) {
+            "to node does not exist: ${request.toNodeId}"
+        }
+        require(!fromNode.archived && !toNode.archived) {
+            "manual dependency cannot target archived nodes"
+        }
+
+        val fromKind = requireNotNull(NodeKind.fromWire(fromNode.kind)) {
+            "unknown from node kind: ${fromNode.kind}"
+        }
+        val toKind = requireNotNull(NodeKind.fromWire(toNode.kind)) {
+            "unknown to node kind: ${toNode.kind}"
+        }
+        val validation = validateRelationUse(
+            fromKind = fromKind,
+            relation = request.relation.wire,
+            toKind = toKind,
+            capability = request.capability.wire,
+        )
+        require(validation.ok) {
+            validation.reason ?: "manual dependency does not match runtime relation registry"
+        }
+
+        val now = Instant.now().toString()
+        var created = false
+        var reactivated = false
+        var dependencyId = ""
+
+        driver.transaction {
+            val existing = driver.prepare(
+                """
+                SELECT id, state, criticality
+                  FROM dependencies
+                 WHERE from_node = ? AND relation = ? AND to_node = ? AND capability = ?
+                """.trimIndent(),
+            ).get(
+                request.fromNodeId,
+                request.relation.wire,
+                request.toNodeId,
+                request.capability.wire,
+            )
+
+            if (existing == null) {
+                dependencyId = UUID.randomUUID().toString()
+                driver.prepare(
+                    """
+                    INSERT INTO dependencies
+                      (id, from_node, relation, to_node, capability, criticality, group_id,
+                       state, origin, confirmed_at, last_verified_at, retired_at,
+                       evidence_refs_json, verification_basis_type, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, ?, ?, NULL, 'active', 'manual', ?, ?, NULL,
+                            '[]', 'user_confirmed', ?, ?)
+                    """.trimIndent(),
+                ).run(
+                    dependencyId,
+                    request.fromNodeId,
+                    request.relation.wire,
+                    request.toNodeId,
+                    request.capability.wire,
+                    if (request.required) Criticality.REQUIRED.wire else Criticality.UNKNOWN.wire,
+                    now,
+                    now,
+                    now,
+                    now,
+                )
+                created = true
+            } else {
+                dependencyId = existing.str("id") ?: error("existing dependency missing id")
+                val wasRetired =
+                    (existing.str("state") ?: DependencyState.ACTIVE.wire) ==
+                        DependencyState.RETIRED.wire
+                val currentCriticality =
+                    existing.str("criticality") ?: Criticality.UNKNOWN.wire
+                val nextCriticality = if (request.required) {
+                    Criticality.REQUIRED.wire
+                } else {
+                    currentCriticality
+                }
+                driver.prepare(
+                    """
+                    UPDATE dependencies
+                       SET state = 'active',
+                           retired_at = NULL,
+                           criticality = ?,
+                           last_verified_at = ?,
+                           updated_at = ?
+                     WHERE id = ?
+                    """.trimIndent(),
+                ).run(nextCriticality, now, now, dependencyId)
+                reactivated = wasRetired
+            }
+
+            // Confirmation / re-confirmation mutates Reality and therefore shares
+            // the same transaction with exactly one graphRevision bump.
+            bumpRevision()
+        }
+
+        val dependency = requireNotNull(dependencyById(dependencyId)) {
+            "manual dependency disappeared after authoritative commit: $dependencyId"
+        }
+        return ManualDependencyCreateResult(
+            dependency = dependency,
+            graphRevision = graphRevision(),
+            created = created,
+            reactivated = reactivated,
+        )
+    }
+
+    private fun dependencyById(id: String): DependencyRow? {
+        val row = driver.prepare(
+            """
+            SELECT d.id, d.from_node, d.relation, d.to_node, d.capability,
+                   d.criticality, d.state, f.name AS from_name, t.name AS to_name
+              FROM dependencies d
+              LEFT JOIN nodes f ON f.id = d.from_node
+              LEFT JOIN nodes t ON t.id = d.to_node
+             WHERE d.id = ?
+            """.trimIndent(),
+        ).get(id) ?: return null
+        return DependencyRow(
+            id = row.str("id") ?: "",
+            from = row.str("from_node") ?: "",
+            fromName = row.str("from_name") ?: row.str("from_node") ?: "",
+            relation = row.str("relation") ?: "",
+            to = row.str("to_node") ?: "",
+            toName = row.str("to_name") ?: row.str("to_node") ?: "",
+            capability = row.str("capability") ?: "payment",
+            criticality = row.str("criticality") ?: "unknown",
+            state = row.str("state") ?: "active",
+        )
     }
 
     // ------------------------------------------------------------------
