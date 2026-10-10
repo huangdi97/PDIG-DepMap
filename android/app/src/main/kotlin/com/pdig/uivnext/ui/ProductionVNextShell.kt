@@ -429,11 +429,13 @@ private fun ProductionInfrastructure(
             )
         } else {
             visiblePaymentAssets.forEach { card ->
+                val cardMasked = app.privacyMask ||
+                    (app.savedPresentationProfile("card", card.id)?.maskSensitive == true)
                 ProductionFactCard(
-                    title = card.name,
+                    title = if (cardMasked) "支付工具（已遮蔽）" else card.name,
                     subtitle = listOfNotNull(
-                        card.issuer,
-                        productionPaymentCompactTailLabel(card.last4, app.privacyMask),
+                        if (cardMasked) "发行方已遮蔽" else card.issuer,
+                        productionPaymentCompactTailLabel(card.last4, cardMasked),
                     ).joinToString(" · ").ifBlank { "已确认支付工具" },
                     meta = "${card.confirmedDependencyCount} 条已确认关系",
                     onClick = { app.openCard(card.id) },
@@ -512,7 +514,7 @@ private fun ProductionCardDetail(
     val related = snapshot?.confirmedDependencies.orEmpty().filter {
         it.fromId == card.id || it.toId == card.id
     }
-    ProductionPage(modifier, card.name, "支付工具 · 已确认数据") {
+    ProductionPage(modifier, if (cardPrivacyMask) "支付工具（已遮蔽）" else card.name, "支付工具 · 已确认数据") {
         if (cardObject != null) {
             ProductionPaymentAssetFace(
                 asset = cardObject,
@@ -526,7 +528,7 @@ private fun ProductionCardDetail(
         }
 
         ProductionFactCard(
-            title = card.issuer ?: "发行方未记录",
+            title = if (cardPrivacyMask) "发行方已遮蔽" else card.issuer ?: "发行方未记录",
             subtitle = productionPaymentTailLabel(card.last4, cardPrivacyMask),
             meta = "${card.confirmedDependencyCount} 条已确认关系",
         )
