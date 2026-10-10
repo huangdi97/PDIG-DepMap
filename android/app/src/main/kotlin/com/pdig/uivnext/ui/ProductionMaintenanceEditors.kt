@@ -93,14 +93,16 @@ internal fun ProductionCardMaintenanceControls(
                             value = amountInput,
                             onValueChange = { amountInput = it.take(32) },
                             label = { Text("年费金额") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .testTag("pdig.production-vnext.card.maintenance.amount"),
                             singleLine = true,
                         )
                         OutlinedTextField(
                             value = currencyInput,
                             onValueChange = { currencyInput = it.take(3).uppercase() },
                             label = { Text("币种") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .testTag("pdig.production-vnext.card.maintenance.currency"),
                             singleLine = true,
                         )
                     }
@@ -109,14 +111,16 @@ internal fun ProductionCardMaintenanceControls(
                             value = billingInput,
                             onValueChange = { billingInput = it.take(2) },
                             label = { Text("账单日 1–31") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .testTag("pdig.production-vnext.card.maintenance.billing-day"),
                             singleLine = true,
                         )
                         OutlinedTextField(
                             value = dueInput,
                             onValueChange = { dueInput = it.take(2) },
                             label = { Text("还款日 1–31") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .testTag("pdig.production-vnext.card.maintenance.payment-day"),
                             singleLine = true,
                         )
                     }
@@ -124,7 +128,8 @@ internal fun ProductionCardMaintenanceControls(
                         value = autopayInput,
                         onValueChange = { autopayInput = it.take(120) },
                         label = { Text("自动还款方式") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.production-vnext.card.maintenance.autopay"),
                         singleLine = true,
                     )
                     error?.let { Text(it, color = PdigV2Colors.Critical, fontSize = 11.sp) }
@@ -308,14 +313,16 @@ internal fun ProductionPhoneMaintenanceControls(
                             value = costInput,
                             onValueChange = { costInput = it.take(32) },
                             label = { Text("套餐费用") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .testTag("pdig.production-vnext.phone.maintenance.cost"),
                             singleLine = true,
                         )
                         OutlinedTextField(
                             value = currencyInput,
                             onValueChange = { currencyInput = it.take(3).uppercase() },
                             label = { Text("币种") },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .testTag("pdig.production-vnext.phone.maintenance.currency"),
                             singleLine = true,
                         )
                     }
@@ -323,14 +330,16 @@ internal fun ProductionPhoneMaintenanceControls(
                         value = billingInput,
                         onValueChange = { billingInput = it.take(120) },
                         label = { Text("计费方式") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.production-vnext.phone.maintenance.billing-mode"),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = renewalInput,
                         onValueChange = { renewalInput = it.take(120) },
                         label = { Text("续费 / 保号方式") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.production-vnext.phone.maintenance.renewal-method"),
                         singleLine = true,
                     )
                     error?.let { Text(it, color = PdigV2Colors.Critical, fontSize = 11.sp) }
@@ -399,21 +408,24 @@ internal fun ProductionPhoneMaintenanceControls(
                         value = intervalInput,
                         onValueChange = { intervalInput = it.take(4) },
                         label = { Text("保号周期（天）") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.production-vnext.phone.maintenance.keepalive-interval"),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = anchorInput,
                         onValueChange = { anchorInput = it.take(10) },
                         label = { Text("保号锚点 YYYY-MM-DD") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.production-vnext.phone.maintenance.keepalive-anchor"),
                         singleLine = true,
                     )
                     OutlinedTextField(
                         value = renewalDayInput,
                         onValueChange = { renewalDayInput = it.take(2) },
                         label = { Text("每月续费日（可选，1–31）") },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.production-vnext.phone.maintenance.renewal-day"),
                         singleLine = true,
                     )
                     Text(
