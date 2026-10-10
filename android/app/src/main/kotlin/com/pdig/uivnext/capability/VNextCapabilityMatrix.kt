@@ -17,6 +17,7 @@ internal enum class VNextCapability {
     DEVICE_CONTINUITY,
     LIFECYCLE_PERSISTENCE,
     IDENTITY_CONTEXT,
+    RECOVERY_PREPAREDNESS,
     RECOVERY_INCIDENT,
 }
 
@@ -95,6 +96,12 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
         visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
         productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
         reason = "Identity Context proposal is design-complete but membership has no Canonical authority yet.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.RECOVERY_PREPAREDNESS,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Recovery Preparedness UX is frozen but requires governed Factor/SecretLocator projections before the route may appear.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.RECOVERY_INCIDENT,
