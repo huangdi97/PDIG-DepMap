@@ -154,15 +154,24 @@ private fun runIdentityProfile(input: Json.Obj): Json {
         ?: return Json.Obj(listOf("confirmed" to Json.Bool(false)))
     val profile = confirmedIdentityAnchorProfile(kind, str(input, "fieldsJson"))
         ?: return Json.Obj(listOf("confirmed" to Json.Bool(false)))
-    return Json.Obj(
-        listOf(
-            "confirmed" to Json.Bool(true),
-            "subtype" to Json.Str(profile.subtype.wire),
-            "verificationBasisType" to Json.Str(profile.verificationBasisType.wire),
-            "confirmedAt" to Json.Str(profile.confirmedAt),
-            "evidenceRefs" to Json.Arr(profile.evidenceRefs.map { Json.Str(it) }),
-        ),
+    val fields = mutableListOf<Pair<String, Json>>(
+        "confirmed" to Json.Bool(true),
+        "subtype" to Json.Str(profile.subtype.wire),
+        "verificationBasisType" to Json.Str(profile.verificationBasisType.wire),
+        "confirmedAt" to Json.Str(profile.confirmedAt),
+        "evidenceRefs" to Json.Arr(profile.evidenceRefs.map { Json.Str(it) }),
     )
+    profile.identifier?.let { identifier ->
+        fields += "identifier" to Json.Obj(
+            listOf(
+                "value" to Json.Str(identifier.value),
+                "verificationBasisType" to Json.Str(identifier.verificationBasisType.wire),
+                "confirmedAt" to Json.Str(identifier.confirmedAt),
+                "evidenceRefs" to Json.Arr(identifier.evidenceRefs.map { Json.Str(it) }),
+            ),
+        )
+    }
+    return Json.Obj(fields)
 }
 
 
