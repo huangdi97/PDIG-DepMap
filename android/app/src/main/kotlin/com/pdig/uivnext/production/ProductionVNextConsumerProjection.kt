@@ -12,6 +12,12 @@ internal data class ProductionPaymentAssetView(
     val issuer: String?,
     val last4: String?,
     val confirmedDependencyCount: Int,
+    val annualFeeAmount: String? = null,
+    val annualFeeCurrency: String? = null,
+    val billingDay: Int? = null,
+    val paymentDueDay: Int? = null,
+    val autopayMode: String? = null,
+    val annualFeeSchedule: VNextProductionMaintenanceSchedule? = null,
 )
 
 internal data class ProductionIdentityView(
@@ -22,6 +28,12 @@ internal data class ProductionIdentityView(
     val confirmedAt: String?,
     val evidenceRefCount: Int,
     val confirmedDependencyCount: Int,
+    val billingMode: String? = null,
+    val planCost: String? = null,
+    val planCurrency: String? = null,
+    val renewalMethod: String? = null,
+    val keepAliveSchedule: VNextProductionMaintenanceSchedule? = null,
+    val planRenewalSchedule: VNextProductionMaintenanceSchedule? = null,
 )
 
 internal data class ProductionGenericIdentityView(
@@ -97,6 +109,14 @@ internal fun buildProductionConsumerInventory(
         .groupingBy { it }
         .eachCount()
 
+    fun VNextProductionObject.fact(kind: String): String? =
+        maintenanceFacts.firstOrNull { it.kind == kind && it.state == "confirmed" }?.value
+
+    fun VNextProductionObject.schedule(kind: String): VNextProductionMaintenanceSchedule? =
+        maintenanceSchedules.firstOrNull {
+            it.kind == kind && (it.state == "active" || it.state == "needs_review")
+        }
+
     val paymentAssets = snapshot.objects
         .filter { it.surfaceKind == VNextProductionSurfaceKind.PAYMENT_ASSET }
         .map {
@@ -106,6 +126,12 @@ internal fun buildProductionConsumerInventory(
                 issuer = it.issuer,
                 last4 = it.last4,
                 confirmedDependencyCount = incomingOrOutgoing[it.id] ?: 0,
+                annualFeeAmount = it.fact("card_annual_fee_amount"),
+                annualFeeCurrency = it.fact("card_annual_fee_currency"),
+                billingDay = it.fact("card_billing_day")?.toIntOrNull(),
+                paymentDueDay = it.fact("card_payment_due_day")?.toIntOrNull(),
+                autopayMode = it.fact("card_autopay_mode"),
+                annualFeeSchedule = it.schedule("card_annual_fee_checkpoint"),
             )
         }
 
@@ -121,6 +147,18 @@ internal fun buildProductionConsumerInventory(
                     confirmedAt = it.identityConfirmedAt,
                     evidenceRefCount = it.identityEvidenceRefs.size,
                     confirmedDependencyCount = incomingOrOutgoing[it.id] ?: 0,
+                    billingMode = if (kind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                        it.fact("number_billing_mode") else null,
+                    planCost = if (kind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                        it.fact("number_plan_cost") else null,
+                    planCurrency = if (kind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                        it.fact("number_plan_currency") else null,
+                    renewalMethod = if (kind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                        it.fact("number_renewal_method") else null,
+                    keepAliveSchedule = if (kind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                        it.schedule("number_keep_alive") else null,
+                    planRenewalSchedule = if (kind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                        it.schedule("number_plan_renewal") else null,
                 )
             }
 
