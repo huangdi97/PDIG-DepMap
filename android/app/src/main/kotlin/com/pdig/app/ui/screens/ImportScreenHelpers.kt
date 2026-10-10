@@ -103,6 +103,25 @@ internal suspend fun readAndParse(
     uri: Uri,
     container: AppContainer,
     fallbackLabel: String,
+): ImportFileResult = readAndParse(
+    context = context,
+    uri = uri,
+    fallbackLabel = fallbackLabel,
+    parser = { bytes, adapterId, mapping ->
+        container.parseFile(bytes, adapterId, mapping)
+    },
+)
+
+/**
+ * Shared host-safe parser entry used by both the legacy Import screen and
+ * Production VNext. File selection remains Activity-owned; this overload only
+ * consumes the already-granted Uri after the normal re-auth boundary.
+ */
+internal suspend fun readAndParse(
+    context: android.content.Context,
+    uri: Uri,
+    fallbackLabel: String,
+    parser: suspend (ByteArray, String, MappingProfile?) -> ParseOutcome,
 ): ImportFileResult {
     val bytes = try {
         context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
@@ -119,7 +138,7 @@ internal suspend fun readAndParse(
     }
     val mapping = if (adapter == "generic_csv") defaultCsvMapping(head) else null
     val outcome = try {
-        container.parseFile(bytes, adapter, mapping)
+        parser(bytes, adapter, mapping)
     } catch (_: Throwable) {
         return ImportFileResult.Failed(ImportFailReason.UNPARSEABLE)
     }
