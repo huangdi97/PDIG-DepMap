@@ -11,6 +11,8 @@ import com.pdig.core.generated.NodeKind
 import com.pdig.core.generated.VerificationBasisType
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
+import java.time.LocalDate
+import java.time.YearMonth
 
 data class ConfirmedMaintenanceFact(
     val id: String,
@@ -691,4 +693,213 @@ private fun maintenanceCadenceJson(write: MaintenanceCadenceWrite): Json.Obj {
         MaintenanceCadenceKind.MANUAL_ONLY -> Unit
     }
     return Json.Obj(fields)
+}
+
+
+enum class MaintenanceOccurrenceStatus {
+    UPCOMING,
+    DUE,
+    OVERDUE,
+    NEEDS_REVIEW,
+}
+
+data class MaintenanceOccurrence(
+    val scheduleId: String,
+    val scheduleKind: MaintenanceScheduleKind,
+    val dueDate: String?,
+    val status: MaintenanceOccurrenceStatus,
+    val explanation: String,
+)
+
+/**
+ * Derive the next actionable occurrence without mutating Reality.
+ *
+ * Crucial invariant: an elapsed due date becomes OVERDUE, never COMPLETED. Only an
+ * explicit authority write may move lastCompletedAt / durable schedule state.
+ */
+fun nextMaintenanceOccurrence(
+    schedule: ConfirmedMaintenanceSchedule,
+    todayIso: String,
+): MaintenanceOccurrence? {
+    if (schedule.state == MaintenanceScheduleState.PAUSED ||
+        schedule.state == MaintenanceScheduleState.RETIRED
+    ) {
+        return null
+    }
+    val today = parseDateOnly(todayIso) ?: return reviewOccurrence(
+        schedule,
+        "当前日期无法解析，需要人工核对维护节点",
+    )
+    if (schedule.state == MaintenanceScheduleState.NEEDS_REVIEW) {
+        return reviewOccurrence(schedule, "维护计划已标记为需要核对")
+    }
+
+    val due = when (schedule.cadence.kind) {
+        MaintenanceCadenceKind.ONE_TIME ->
+            schedule.cadence.dueAt?.let(::parseDateOnly)
+                ?: return reviewOccurrence(schedule, "一次性维护日期缺失或无效")
+
+        MaintenanceCadenceKind.INTERVAL_DAYS -> {
+            val interval = schedule.cadence.intervalDays
+                ?: return reviewOccurrence(schedule, "维护间隔缺失")
+            val base = schedule.lastCompletedAt?.let(::parseDateOnly)
+                ?: schedule.cadence.anchorDate?.let(::parseDateOnly)
+                ?: return reviewOccurrence(schedule, "维护周期锚点缺失")
+            base.plusDays(interval.toLong())
+        }
+
+        MaintenanceCadenceKind.MONTHLY_DAY ->
+            nextMonthlyOccurrence(
+                today = today,
+                day = schedule.cadence.dayOfMonth
+                    ?: return reviewOccurrence(schedule, "每月维护日缺失"),
+                overflow = schedule.cadence.overflowPolicy
+                    ?: return reviewOccurrence(schedule, "每月溢出策略缺失"),
+            ) ?: return reviewOccurrence(schedule, "本周期日期需要人工确认")
+
+        MaintenanceCadenceKind.YEARLY_MONTH_DAY ->
+            nextYearlyOccurrence(
+                today = today,
+                month = schedule.cadence.month
+                    ?: return reviewOccurrence(schedule, "年度维护月缺失"),
+                day = schedule.cadence.day
+                    ?: return reviewOccurrence(schedule, "年度维护日缺失"),
+                overflow = schedule.cadence.overflowPolicy
+                    ?: return reviewOccurrence(schedule, "年度溢出策略缺失"),
+            ) ?: return reviewOccurrence(schedule, "本周期日期需要人工确认")
+
+        MaintenanceCadenceKind.MANUAL_ONLY -> return null
+    }
+
+    val status = when {
+        due.isBefore(today) -> MaintenanceOccurrenceStatus.OVERDUE
+        due.isEqual(today) -> MaintenanceOccurrenceStatus.DUE
+        else -> MaintenanceOccurrenceStatus.UPCOMING
+    }
+    return MaintenanceOccurrence(
+        scheduleId = schedule.id,
+        scheduleKind = schedule.kind,
+        dueDate = due.toString(),
+        status = status,
+        explanation = occurrenceExplanation(schedule, due),
+    )
+}
+
+fun maintenanceOccurrences(
+    profile: ConfirmedMaintenanceProfile,
+    todayIso: String,
+): List<MaintenanceOccurrence> =
+    profile.schedules
+        .mapNotNull { nextMaintenanceOccurrence(it, todayIso) }
+        .sortedWith(
+            compareBy<MaintenanceOccurrence> {
+                when (it.status) {
+                    MaintenanceOccurrenceStatus.OVERDUE -> 0
+                    MaintenanceOccurrenceStatus.DUE -> 1
+                    MaintenanceOccurrenceStatus.NEEDS_REVIEW -> 2
+                    MaintenanceOccurrenceStatus.UPCOMING -> 3
+                }
+            }.thenBy { it.dueDate ?: "9999-12-31" }
+                .thenBy { it.scheduleId },
+        )
+
+private fun nextMonthlyOccurrence(
+    today: LocalDate,
+    day: Int,
+    overflow: MaintenanceOverflowPolicy,
+): LocalDate? {
+    var cursor = YearMonth.from(today)
+    repeat(24) {
+        val resolved = resolveDay(cursor.year, cursor.monthValue, day, overflow)
+        if (resolved.needsReview) return null
+        val date = resolved.date
+        if (date != null && !date.isBefore(today)) return date
+        cursor = cursor.plusMonths(1)
+    }
+    return null
+}
+
+private fun nextYearlyOccurrence(
+    today: LocalDate,
+    month: Int,
+    day: Int,
+    overflow: MaintenanceOverflowPolicy,
+): LocalDate? {
+    var year = today.year
+    repeat(8) {
+        val resolved = resolveDay(year, month, day, overflow)
+        if (resolved.needsReview) return null
+        val date = resolved.date
+        if (date != null && !date.isBefore(today)) return date
+        year += 1
+    }
+    return null
+}
+
+private data class ResolvedMaintenanceDate(
+    val date: LocalDate?,
+    val needsReview: Boolean = false,
+)
+
+private fun resolveDay(
+    year: Int,
+    month: Int,
+    requestedDay: Int,
+    overflow: MaintenanceOverflowPolicy,
+): ResolvedMaintenanceDate {
+    if (month !in 1..12 || requestedDay !in 1..31) {
+        return ResolvedMaintenanceDate(null, needsReview = true)
+    }
+    val ym = runCatching { YearMonth.of(year, month) }.getOrNull()
+        ?: return ResolvedMaintenanceDate(null, needsReview = true)
+    val maxDay = ym.lengthOfMonth()
+    if (requestedDay <= maxDay) {
+        return ResolvedMaintenanceDate(LocalDate.of(year, month, requestedDay))
+    }
+    return when (overflow) {
+        MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY ->
+            ResolvedMaintenanceDate(LocalDate.of(year, month, maxDay))
+        MaintenanceOverflowPolicy.SKIP_OCCURRENCE ->
+            ResolvedMaintenanceDate(null)
+        MaintenanceOverflowPolicy.USER_CONFIRM ->
+            ResolvedMaintenanceDate(null, needsReview = true)
+    }
+}
+
+private fun parseDateOnly(raw: String): LocalDate? {
+    val value = raw.trim().take(10)
+    if (!DATE_ONLY.matches(value)) return null
+    return runCatching { LocalDate.parse(value) }.getOrNull()
+}
+
+private fun reviewOccurrence(
+    schedule: ConfirmedMaintenanceSchedule,
+    explanation: String,
+): MaintenanceOccurrence =
+    MaintenanceOccurrence(
+        scheduleId = schedule.id,
+        scheduleKind = schedule.kind,
+        dueDate = null,
+        status = MaintenanceOccurrenceStatus.NEEDS_REVIEW,
+        explanation = explanation,
+    )
+
+private fun occurrenceExplanation(
+    schedule: ConfirmedMaintenanceSchedule,
+    due: LocalDate,
+): String = when (schedule.kind) {
+    MaintenanceScheduleKind.CARD_ANNUAL_FEE_CHECKPOINT ->
+        "依据已确认年费维护计划，下一检查节点为 $due"
+    MaintenanceScheduleKind.CARD_BILLING_CHECKPOINT ->
+        "依据已确认账单周期，下一账单节点为 $due"
+    MaintenanceScheduleKind.CARD_PAYMENT_DUE_CHECKPOINT ->
+        "依据已确认还款周期，下一还款节点为 $due"
+    MaintenanceScheduleKind.NUMBER_KEEP_ALIVE ->
+        "依据已确认保号周期，下一保号节点为 $due"
+    MaintenanceScheduleKind.NUMBER_PLAN_RENEWAL ->
+        "依据已确认号码套餐周期，下一续费节点为 $due"
+    MaintenanceScheduleKind.FACT_FRESHNESS_REVIEW ->
+        "依据资料新鲜度计划，下一复核节点为 $due"
+    MaintenanceScheduleKind.CUSTOM_MAINTENANCE ->
+        "依据用户确认的维护计划，下一节点为 $due"
 }
