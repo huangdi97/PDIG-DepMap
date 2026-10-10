@@ -22,7 +22,9 @@ import com.pdig.uivnext.ui.components.SectionHeader
 
 @Composable
 internal fun AccountsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val accounts = UiVNextDemoFixture.accounts.filter { app.regionFilter == null || it.region == app.regionFilter }
+    val accounts = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.accounts.filter {
+        app.regionFilter == null || it.region == app.regionFilter
+    }
     InfraPage(
         title = "账户",
         subtitle = "账户是服务之上的身份入口：重点关注验证方式、恢复路径和跨地区依赖。",
@@ -76,7 +78,9 @@ private fun AccountRow(account: UiVNextAccount, privacyMask: Boolean, onClick: (
 
 @Composable
 internal fun EmailsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val emails = UiVNextDemoFixture.emails.filter { app.regionFilter == null || it.region == app.regionFilter }
+    val emails = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.emails.filter {
+        app.regionFilter == null || it.region == app.regionFilter
+    }
     InfraPage(
         title = "邮箱",
         subtitle = "邮箱可能同时承担登录、通知和恢复职责；唯一恢复邮箱必须显式识别。",
@@ -144,7 +148,9 @@ private fun EmailRow(email: UiVNextEmail, privacyMask: Boolean, onClick: () -> U
 
 @Composable
 internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val devices = UiVNextDemoFixture.devices.filter { app.regionFilter == null || it.region == app.regionFilter }
+    val devices = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.devices.filter {
+        app.regionFilter == null || it.region == app.regionFilter
+    }
     InfraPage(
         title = "设备",
         subtitle = "可信设备、验证器和恢复设备构成连续性链路；长期未使用的设备需要人工复核。",
