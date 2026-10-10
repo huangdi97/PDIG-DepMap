@@ -98,8 +98,10 @@ Proposal:
 
 | Capability | Design | UI | Gate |
 | --- | --- | --- | --- |
-| identity_anchor subtype | complete proposal | reference Number/Email exist | Canonical not implemented |
-| phone/email conservative normalization | complete | hidden production mapping | Canonical required |
+| identity_anchor subtype | complete + R37 Canonical contract | Production Number/Email read surfaces source-bound | exact-head CI/runtime evidence |
+| phone/email conservative normalization | complete | governed profile only; invalid/bare stays generic | raw identifier value still HOLD |
+| replace_phone_number subtype authority | complete | Production Number → ChangePlan source-bound | PlanRepository re-validates governed PHONE_NUMBER |
+| manual Number/Email create | complete design | not executable | atomic Node + governed profile authority still HOLD |
 | user alias | complete | implemented | Presentation only |
 | IdentityContext | complete proposal | hidden | Canonical membership required |
 | Context × Region intersections | complete | hidden | no graph-edge inference |
@@ -380,7 +382,7 @@ Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R36
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R37
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
 PRODUCTION_VNEXT_CUTOVER_POLICY = SOURCE_IMPLEMENTED_FAIL_CLOSED
 FIVE_PRIMARY_IA = FROZEN
