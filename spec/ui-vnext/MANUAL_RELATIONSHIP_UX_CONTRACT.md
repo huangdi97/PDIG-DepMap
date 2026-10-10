@@ -178,9 +178,14 @@ Required message:
 
 This is an authority gate, not an incomplete form.
 
-## 9. Future production authority
+## 9. Production authority prerequisites
 
-A production gateway must:
+Before a production gateway is enabled, Native clients must first adopt the shared
+Schema v4 DDL/check widening already present in the TS reference. Partial exposure
+of only the old v3 SQL CHECK vocabulary is forbidden because the R25 product
+contract presents the current runtime relation registry as one governed set.
+
+After Schema v4 parity, the production gateway must:
 1. validate From/To exist and are active;
 2. validate relation/capability pair via canonical registry;
 3. set origin=manual;
@@ -258,6 +263,7 @@ Future production:
 ~~~text
 MANUAL_RELATIONSHIP_UX = DESIGN_FROZEN
 MANUAL_RELATIONSHIP_PREVIEW = SOURCE_IMPLEMENTED_READ_ONLY
-PRODUCTION_MANUAL_DEPENDENCY_AUTHORITY = NOT_EXPOSED
+PRODUCTION_MANUAL_DEPENDENCY_AUTHORITY = REQUIRES_NATIVE_SCHEMA_V4
+PARTIAL_V3_RELATION_GATEWAY = FORBIDDEN
 NO_DEGREE_COUNT_INDEPENDENCE = REQUIRED
 ~~~
