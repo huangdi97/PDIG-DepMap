@@ -88,7 +88,7 @@ internal fun ProductionEstablishScreen(
                 state = if (requestImport != null) "可启动正式导入" else "正式入口待接",
                 enabled = requestImport != null,
             ) {
-                requestImport?.invoke()
+                requestImport?.invoke("文件导入")
             }
         }
 
