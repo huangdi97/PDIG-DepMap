@@ -1,6 +1,7 @@
 package com.pdig.uivnext.ui
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -127,6 +128,20 @@ class VAppState(
 
     /** Production VNext only: selected authoritative ChangePlan id. */
     var selectedProductionPlanId by mutableStateOf<String?>(null)
+
+    /**
+     * Production Reality refresh signal.
+     *
+     * Mutations remain owned by AppContainer/repositories. UI increments this only
+     * after an authoritative commit so ProductionContent re-reads a fresh snapshot.
+     * It carries no domain truth itself.
+     */
+    var realityRefreshVersion by mutableIntStateOf(0)
+        private set
+
+    fun requestRealityRefresh() {
+        realityRefreshVersion += 1
+    }
 
     /**
      * Every forward navigation records the actual screen of departure.
