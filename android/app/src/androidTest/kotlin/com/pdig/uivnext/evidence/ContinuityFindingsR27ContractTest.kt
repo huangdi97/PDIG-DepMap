@@ -1,5 +1,6 @@
 package com.pdig.uivnext.evidence
 
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -29,6 +30,20 @@ class ContinuityFindingsR27ContractTest {
         compose.onNodeWithText("单点路径", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("共享故障点", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("恢复循环", useUnmergedTree = true).assertExists()
+    }
+
+    @Test
+    fun emptyReferenceDoesNotInventFindingsOrMigrationBlockers() {
+        val app = createVNextAppState(screen = VScreen.WEAKNESSES).apply {
+            emptyDemo = true
+        }
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.r27.finding.finding-spof-cn-main", useUnmergedTree = true)
+            .assertDoesNotExist()
+        compose.onNodeWithText("查看更换手机号的影响分析 →", useUnmergedTree = true)
+            .assertDoesNotExist()
     }
 
     @Test
