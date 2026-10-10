@@ -134,13 +134,17 @@ class EmbeddedTextSource implements ConformanceTextSource {
  * GraphStore 上真跑迁移链（runMigrationV1ToV3Host）；backup 在主机面断言 11 表 payload
  * 导出→恢复→再导出逐字节相同（runBackupHost，T2 同口径；容器半程仍属 H1/H2 设备门禁）。
  * 账目推进为 **126 已执行 + 0 未移植 + 0 环境缺失 + 2 设备运行时**。
+ *
+ * 2026-10-10（R37）：5 条 identity-profile fixture 已进入 manifest / embedded bundle。
+ * 本轮把 Harmony runner 的漏接类别补上，真实走 IdentityAnchorProfile.ets 的 fail-closed
+ * decoder；账目推进为 **131 已执行 + 0 未移植 + 0 环境缺失 + 2 设备运行时 = 133**。
  */
-const EXPECTED_TOTAL = 128;
+const EXPECTED_TOTAL = 133;
 const EXPECTED_BLOCKED_BY_RUNTIME = 2;
 const EXPECTED_BLOCKED_BY_ENVIRONMENT = 0;
 const EXPECTED_HOST_IMPL_MISSING = 0;
 const EXPECTED_NOT_IMPLEMENTED = 0;
-const EXPECTED_PASSED = 126;
+const EXPECTED_PASSED = 131;
 const EXPECTED_FAILED = 0;
 
 export default function conformanceHostTest() {
@@ -164,7 +168,7 @@ export default function conformanceHostTest() {
   const report: ConformanceReport = buildReport();
 
   describe('harmonyConformanceHost', () => {
-    // 先用一条测试钉住"确实跑到 91 条用例"，
+    // 先用一条测试钉住"确实跑到 manifest 全量用例"，
     // 否则 runner 早退（例如 manifest 读空）会生成 0 个 it() 并显示成全绿。
     it('runnerProducedAllOutcomes', 0, () => {
       expect(report.outcomes.length).assertEqual(EXPECTED_TOTAL);
@@ -198,7 +202,7 @@ export default function conformanceHostTest() {
       expect(report.passed.size).assertEqual(EXPECTED_PASSED);
       expect(report.failed.length).assertEqual(EXPECTED_FAILED);
       expect(report.notRun.length).assertEqual(0);
-      // 五个分支必须刚好把 91 分完，不留缝隙也不重复计数。
+      // 六类账目必须刚好把 manifest 全量分完，不留缝隙也不重复计数。
       expect(report.blockedByRuntime.length + report.blockedByEnvironment.length +
         report.hostImplMissing.length + report.notImplemented.length +
         report.passed.size + report.failed.length).assertEqual(EXPECTED_TOTAL);
