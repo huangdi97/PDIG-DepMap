@@ -1,5 +1,7 @@
 # ANDROID_UI_VNEXT_R25_SOURCE_REPORT
 
+> **R31 supersession note (2026-10-10):** the historical statement that all Manual Relationship production mutation must wait for Native Schema v4 is superseded. Current Canonical v3 already governs the five active runtime relations and Production VNext now has an authoritative gateway for exactly that set. `verifies` / `bound_to` remain unavailable. This report otherwise remains a historical record of its original checkpoint.
+
 > 2026-10-10 · feat/android-ui-vnext-translation
 >
 > R25 closes the **Manual Relationship design gap** after R24 Manual Establish.
