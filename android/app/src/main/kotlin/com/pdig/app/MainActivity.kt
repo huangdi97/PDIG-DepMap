@@ -118,11 +118,11 @@ class MainActivity : FragmentActivity() {
                             appContainer = AppContainer.get(this@MainActivity),
                             appState = vm.app,
                             hostActions = ProductionVNextHostActions(
-                                requestFileImport = { rawLabel ->
+                                requestFileImport = { sourceId, rawLabel ->
                                     val label = rawLabel.trim().ifBlank { "文件导入" }
                                     coordinator.beginImport(
                                         resumeRoute = "vnext/import",
-                                        sourceId = null,
+                                        sourceId = sourceId,
                                         sourceLabel = label,
                                     )
                                     coordinator.launchPicker("*/*")
