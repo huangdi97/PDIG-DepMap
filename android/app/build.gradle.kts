@@ -15,6 +15,18 @@ android {
     namespace = "com.pdig.app"
     compileSdk = 36
 
+    val productionUiGeneration =
+        ((project.findProperty("pdigProductionUiGeneration") as String?) ?: "legacy")
+            .trim()
+            .lowercase()
+    require(productionUiGeneration in setOf("legacy", "vnext")) {
+        "pdigProductionUiGeneration must be exactly legacy or vnext"
+    }
+    val productionVNextCutoverApproved =
+        ((project.findProperty("pdigProductionVNextCutoverApproved") as String?) ?: "false")
+            .toBooleanStrictOrNull()
+            ?: error("pdigProductionVNextCutoverApproved must be exactly true or false")
+
     defaultConfig {
         applicationId = "com.pdig.app"
         minSdk = 26
@@ -24,6 +36,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         // 证据/取证：注入构建时的 git SHA（BuildConfig.GIT_SHA；供截图 manifest 的 commit 字段）。
         buildConfigField("String", "GIT_SHA", "\"${providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.get().trim()}\"")
+        // R36 production UI generation is BUILD-TIME authority. Intent/runtime
+        // preferences cannot change it. Default remains legacy until release cutover.
+        buildConfigField("String", "PRODUCTION_UI_GENERATION", "\"$productionUiGeneration\"")
+        buildConfigField("boolean", "PRODUCTION_VNEXT_CUTOVER_APPROVED", productionVNextCutoverApproved.toString())
     }
  
      // ---------- Product flavors（ANDROID_VERSIONING_POLICY.md §1.2）----------
