@@ -69,12 +69,15 @@ internal fun ProductionEstablishScreen(
         }
 
         item {
+            val requestImport = session.hostActions.requestFileImport
             EstablishEntry(
                 title = "文件导入",
-                body = "生产 Import authority 已存在，但真实文件 picker / lock-re-auth 生命周期仍由现有 FileWorkflowCoordinator 持有。",
-                state = "Host binding 待接",
-                enabled = false,
-            ) {}
+                body = "真实文件 picker / lock-re-auth 生命周期继续由现有 FileWorkflowCoordinator 持有；VNext 只请求 Host 启动该流程。",
+                state = if (requestImport != null) "可启动正式导入" else "Host binding 待接",
+                enabled = requestImport != null,
+            ) {
+                requestImport?.invoke()
+            }
         }
 
         item {
