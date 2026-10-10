@@ -12,9 +12,13 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.weight
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -87,15 +91,36 @@ private fun ProductionTopBar(app: VAppState) {
         border = BorderStroke(0.5.dp, PdigV2Colors.BorderSubtle),
     ) {
         Row(
-            Modifier.fillMaxSize().padding(horizontal = 16.dp),
+            Modifier.fillMaxSize().padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
+            if (app.canNavigateUp()) {
+                Surface(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable { app.navigateUp() }
+                        .testTag("pdig.production-vnext.up"),
+                    color = androidx.compose.ui.graphics.Color.Transparent,
+                    shape = RoundedCornerShape(VRadius.Sm),
+                ) {
+                    androidx.compose.foundation.layout.Box(
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            Icons.Filled.KeyboardArrowLeft,
+                            contentDescription = "返回上一级",
+                            tint = PdigV2Colors.TextSecondary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
+            }
             Text(
                 app.screen.titleZh,
                 color = PdigV2Colors.TextPrimary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
             Text(
                 "已确认 Reality",
@@ -355,6 +380,12 @@ private fun ProductionMe(
         )
         ProductionBoundaryNote(
             "号码 / 邮箱在 subtype Canonical 化前仍按通用 identity_anchor 处理，不会根据名称或号码格式推断。"
+        )
+        ProductionFactCard(
+            title = "数据源",
+            subtitle = "${inventory.activeSourceCount} 个活跃数据源",
+            meta = "查看生产 SourceInstance 记录",
+            onClick = { app.navigate(VScreen.SOURCES) },
         )
     }
 }
