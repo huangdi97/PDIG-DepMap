@@ -354,6 +354,92 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun governedMaintenanceFlowsIntoConsumerInventoryAndNowTimeline() {
+        val phoneFields = """
+            {
+              "identity_anchor_profile": {
+                "version": 1,
+                "subtype": "phone_number",
+                "verification_basis_type": "user_confirmed",
+                "confirmed_at": "2026-08-07T00:00:00Z"
+              },
+              "maintenance_profile": {
+                "version": 1,
+                "facts": [
+                  {
+                    "id": "cost",
+                    "kind": "number_plan_cost",
+                    "value_type": "decimal_string",
+                    "value": "5",
+                    "state": "confirmed",
+                    "verification_basis_type": "user_confirmed",
+                    "confirmed_at": "2026-08-07T00:00:00Z"
+                  },
+                  {
+                    "id": "currency",
+                    "kind": "number_plan_currency",
+                    "value_type": "currency_code",
+                    "value": "USD",
+                    "state": "confirmed",
+                    "verification_basis_type": "user_confirmed",
+                    "confirmed_at": "2026-08-07T00:00:00Z"
+                  }
+                ],
+                "schedules": [
+                  {
+                    "id": "keep",
+                    "kind": "number_keep_alive",
+                    "state": "active",
+                    "cadence": {
+                      "kind": "interval_days",
+                      "interval_days": 90,
+                      "anchor_date": "2026-08-07"
+                    },
+                    "verification_basis_type": "user_confirmed",
+                    "confirmed_at": "2026-08-07T00:00:00Z",
+                    "last_completed_at": "2026-08-07T00:00:00Z"
+                  }
+                ]
+              }
+            }
+        """.trimIndent()
+
+        val snapshot = buildProductionSnapshot(
+            revision = 21,
+            nodes = listOf(
+                NodeRow("phone-1", "identity_anchor", "美国保号", false, phoneFields),
+            ),
+            dependencies = emptyList(),
+            timeline = emptyList(),
+            plans = emptyList(),
+            proposals = emptyList(),
+            candidates = emptyList(),
+            drifts = emptyList(),
+            sources = emptyList(),
+            maintenanceTodayIso = "2026-11-10",
+        )
+
+        val obj = snapshot.objects.single()
+        assertEquals(2, obj.maintenanceFacts.size)
+        assertEquals(1, obj.maintenanceSchedules.size)
+        assertEquals("overdue", obj.maintenanceOccurrences.single().status)
+        assertEquals("2026-11-05", obj.maintenanceOccurrences.single().dueDate)
+
+        val inventory = buildProductionConsumerInventory(snapshot)
+        val phone = inventory.phoneIdentities.single()
+        assertEquals("5", phone.planCost)
+        assertEquals("USD", phone.planCurrency)
+        assertEquals("number_keep_alive", phone.keepAliveSchedule?.kind)
+
+        val timelineItem = snapshot.timeline.single()
+        assertEquals("number_keep_alive", timelineItem.kind)
+        assertEquals("overdue", timelineItem.bucket)
+        assertEquals("overdue", timelineItem.status)
+        assertEquals("phone-1", timelineItem.actionTarget)
+        assertTrue(timelineItem.subtitle.contains("保号"))
+    }
+
+    @Test
     fun productionRecordsKeepCompletionVerificationAndEvidenceDistinct() {
         fun planAction(
             id: String,
