@@ -176,6 +176,9 @@ internal fun productionVisibleObjectName(
     item: com.pdig.uivnext.production.VNextProductionObject,
     privacyMask: Boolean,
 ): String = when {
+    privacyMask &&
+        item.surfaceKind == com.pdig.uivnext.production.VNextProductionSurfaceKind.PAYMENT_ASSET ->
+        "支付工具（已遮蔽）"
     privacyMask && item.surfaceKind in setOf(
         com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY,
         com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY,
