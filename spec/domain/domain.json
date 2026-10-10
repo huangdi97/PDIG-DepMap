@@ -806,6 +806,7 @@
       "later": [91, null]
     },
     "runtimeCreatableNodeKinds": ["payment_instrument", "account", "service"],
+    "runtimeCreatableIdentityAnchorSubtypes": ["phone_number", "email_address"],
     "impactPropagationCapability": "payment",
     "impactPropagationCapabilitiesV030": [
       "payment",
