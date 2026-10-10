@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R32 DESIGN CLOSED / PRODUCTION SOURCE-BINDING INDEX**
+> Status: **R33 DESIGN CLOSED / PRODUCTION SOURCE-BINDING + SECURE REHEARSAL INDEX**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -194,15 +194,16 @@ Current source includes:
 - authoritative Manual Establish gateway + production form;
 - authoritative Manual Relationship for the current five Canonical v3 runtime relations; future/storage-only relation widening remains HOLD.
 
-R32 launcher/security source state:
+R32/R33 launcher/security source state:
 - reusable fail-closed `PdigSecureContent` extracted from the current production app;
 - `ProductionVNextSecureHost` uses that exact security gate;
 - productionDebug can explicitly rehearse real-Reality VNext through `vnext_production`;
 - productionRelease ignores both `vnext_demo` and `vnext_production` extras;
-- default production route remains legacy until acceptance.
+- default production route remains legacy until acceptance;
+- R33 adds an API36 runtime workflow that proves locked-before-Reality, five-primary Production VNext after explicit unlock, background/process relock, and default productionDebug remaining legacy.
 
 Still required before release cutover:
-- exact-head productionDebug restart/security/runtime E2E;
+- R33 exact-head secure rehearsal workflow PASS on the final candidate;
 - explicit release cutover decision / rollback switch;
 - generic identity subtype implementation for phone/email;
 - subtype-aware phone/email after Canonical;
