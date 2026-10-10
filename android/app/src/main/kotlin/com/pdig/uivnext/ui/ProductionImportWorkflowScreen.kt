@@ -73,6 +73,15 @@ internal fun ProductionImportWorkflowScreen(
             ?.trim()
             ?.ifBlank { null }
             ?: "文件导入"
+        val requestedSourceId = workflow.workflow?.requestedSourceId
+        val selectedSource = requestedSourceId?.let { id ->
+            session.dataSource.productionSnapshot()?.sources?.firstOrNull { it.id == id }
+        }
+        if (requestedSourceId != null && selectedSource == null) {
+            workflow.statusText = "已选择的来源当前已不存在或不可读取。请重新选择来源和文件。"
+            workflow.markReview(null)
+            return@LaunchedEffect
+        }
 
         workflow.busy = true
         workflow.statusText = null
@@ -101,16 +110,28 @@ internal fun ProductionImportWorkflowScreen(
                 }
 
                 is ImportFileResult.Ok -> {
-                    pendingHead = parsed.parsed.head
-                    pendingBytes = parsed.parsed.bytes
-                    val (domainPreview, _) = importAuthority.preview(
-                        observations = parsed.parsed.outcome.observations,
-                        errors = parsed.parsed.outcome.errors,
-                        adapterId = parsed.parsed.adapterId,
-                        sourceLabel = parsed.parsed.sourceLabel,
-                    )
-                    workflow.publishImportPreview(domainPreview)
-                    workflow.markReview(parsed.parsed.mapping)
+                    if (
+                        selectedSource != null &&
+                        selectedSource.adapterId != parsed.parsed.adapterId
+                    ) {
+                        pendingHead = null
+                        pendingBytes = null
+                        workflow.publishImportPreview(null)
+                        workflow.statusText =
+                            "文件格式与所选已有来源不一致。请重新选择同类型文件，或返回并新建来源名称。"
+                        workflow.markReview(null)
+                    } else {
+                        pendingHead = parsed.parsed.head
+                        pendingBytes = parsed.parsed.bytes
+                        val (domainPreview, _) = importAuthority.preview(
+                            observations = parsed.parsed.outcome.observations,
+                            errors = parsed.parsed.outcome.errors,
+                            adapterId = parsed.parsed.adapterId,
+                            sourceLabel = parsed.parsed.sourceLabel,
+                        )
+                        workflow.publishImportPreview(domainPreview)
+                        workflow.markReview(parsed.parsed.mapping)
+                    }
                 }
             }
         }
@@ -175,6 +196,7 @@ internal fun ProductionImportWorkflowScreen(
                     testTag = "pdig.production-vnext.import.retry",
                 ) {
                     session.hostActions.requestFileImport?.invoke(
+                        workflow.workflow?.requestedSourceId,
                         workflow.workflow?.requestedSourceLabel ?: "文件导入",
                     )
                 }
@@ -221,7 +243,17 @@ internal fun ProductionImportWorkflowScreen(
                 )
             }
 
-            if (preview.adapterId == "generic_csv") {
+            if (preview.adapterId == "generic_csv" && pendingHead == null) {
+                item {
+                    ImportInfoCard(
+                        title = "字段对应需要重新载入",
+                        body = "原始 CSV 只保留在内存；如果你在解析后再次离开应用并回锁，需要重新选择文件才能调整日期/金额列。当前预览仍可查看，但不要在无法核对字段时确认导入。",
+                        warning = true,
+                    )
+                }
+            }
+
+            if (preview.adapterId == "generic_csv" && pendingHead != null) {
                 item {
                     CsvMappingStepWithParser(
                         head = pendingHead,
@@ -271,7 +303,9 @@ internal fun ProductionImportWorkflowScreen(
             item {
                 ImportAction(
                     label = "确认导入",
-                    enabled = authority != null && !workflow.busy,
+                    enabled = authority != null &&
+                        !workflow.busy &&
+                        (preview.adapterId != "generic_csv" || pendingHead != null),
                     testTag = "pdig.production-vnext.import.confirm",
                 ) {
                     val importAuthority = authority ?: return@ImportAction
@@ -280,7 +314,10 @@ internal fun ProductionImportWorkflowScreen(
                     workflow.launch {
                         val result = runCatching {
                             withContext(Dispatchers.IO) {
-                                importAuthority.commitAuthoritative(preview)
+                                importAuthority.commitAuthoritative(
+                                    preview = preview,
+                                    existingSourceId = workflow.workflow?.requestedSourceId,
+                                )
                             }
                         }
                         workflow.busy = false
@@ -310,6 +347,7 @@ internal fun ProductionImportWorkflowScreen(
                     testTag = "pdig.production-vnext.import.pick-again",
                 ) {
                     session.hostActions.requestFileImport?.invoke(
+                        workflow.workflow?.requestedSourceId,
                         workflow.workflow?.requestedSourceLabel ?: "文件导入",
                     )
                 }
