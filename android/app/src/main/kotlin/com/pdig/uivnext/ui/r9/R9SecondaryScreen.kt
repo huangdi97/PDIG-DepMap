@@ -16,7 +16,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.demo.UI_CONTINUITY_REFERENCE_FINDINGS
+import com.pdig.uivnext.demo.UiContinuityFinding
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.continuityFindingLabel
+import com.pdig.uivnext.demo.continuityFindingSeverity
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.ui.VAppState
@@ -105,6 +109,17 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 if(items.isEmpty()) R9UnknownEmpty("服务")
             }
             VScreen.WEAKNESSES -> {
+                if (!zero) {
+                    R9SectionTitle("连续性 Findings（参考）")
+                    Text(
+                        "完整覆盖 v0.3 Finding 语法；这里是隔离参考，不从演示关系数量临时推断正式结论。",
+                        color = R9.Muted, fontSize = 10.sp, lineHeight = 15.sp,
+                    )
+                    UI_CONTINUITY_REFERENCE_FINDINGS.forEach { finding ->
+                        R27FindingCard(app, finding)
+                    }
+                }
+
                 val riskyCards = if(zero) emptyList() else UiVNextDemoFixture.cards.filter { scoped(it.region) && it.status == "expiring_soon" }
                 val recoveryPhones = if(zero) emptyList() else UiVNextDemoFixture.numbers.filter {
                     scoped(it.region) && it.uniqueRecoveryPath == true
@@ -210,6 +225,56 @@ private fun R9ObjectRow(
                 Text(detail, color = R9.Muted, fontSize = 10.sp)
             }
             R9Badge(status, color)
+        }
+    }
+}
+
+
+@Composable
+private fun R27FindingCard(app: VAppState, finding: UiContinuityFinding) {
+    val critical = continuityFindingSeverity(finding.kind) == "critical"
+    val tint = if (critical) R9.Rose else R9.Amber
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.r27.finding.${finding.id}")
+            .clickable {
+                when (finding.targetKind) {
+                    "number" -> finding.targetId?.let(app::openNumber)
+                    "device" -> finding.targetId?.let {
+                        app.openSecondaryObject(VScreen.DEVICE_DETAIL, it)
+                    }
+                    "change" -> app.navigate(VScreen.CHANGE)
+                    else -> Unit
+                }
+            },
+        color = if (critical) Color(0xFFFFF3F3) else Color(0xFFFFF8EE),
+        shape = RoundedCornerShape(15.dp),
+        border = BorderStroke(1.dp, tint.copy(alpha = .28f)),
+    ) {
+        Column(
+            Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                R9Badge(continuityFindingLabel(finding.kind), tint)
+                Text(if (critical) "已确认事实" else "需要核对",
+                    color = tint, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Text(finding.title, color = R9.Ink, fontSize = 12.sp,
+                fontWeight = FontWeight.Bold)
+            Text("为什么 · ${finding.why}", color = R9.Muted, fontSize = 9.sp,
+                lineHeight = 14.sp)
+            Text("依据 · ${finding.confirmedBasis}", color = R9.Ink, fontSize = 9.sp,
+                lineHeight = 14.sp)
+            Text("仍未知 · ${finding.unknowns}", color = R9.Muted, fontSize = 9.sp,
+                lineHeight = 14.sp)
+            Text("下一步 · ${finding.nextAction}", color = R9.Blue, fontSize = 9.sp,
+                fontWeight = FontWeight.SemiBold, lineHeight = 14.sp)
         }
     }
 }
