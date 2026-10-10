@@ -659,7 +659,7 @@ private fun ProductionMe(
                 ) {
                     ProductionMeControlPanel(app, inventory)
                     ProductionBoundaryNote(
-                        "地区、号码、邮箱专用身份仍受 Canonical 能力门控制；当前不会用名称、号码格式、币种或 Provider 猜测。"
+                        "地区仍受 Canonical 能力门控制；号码 / 邮箱只在受治理 subtype 已确认时进入专用身份面，仍不会用名称、格式、币种或 Provider 猜测。"
                     )
                 }
             }
@@ -749,7 +749,7 @@ private fun ProductionMeInfrastructurePanel(
             ProductionFactCard(
                 title = "管理基础设施",
                 subtitle = "进入已确认对象、关系与影响分析",
-                meta = "号码 / 邮箱 subtype 未确认时仍按通用身份对象处理",
+                meta = "已确认 PHONE_NUMBER / EMAIL_ADDRESS 进入专用身份面；其他仍按通用身份对象处理",
                 onClick = { app.navigate(VScreen.INFRASTRUCTURE) },
             )
         }
