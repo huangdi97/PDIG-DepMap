@@ -9,6 +9,7 @@ import com.pdig.core.domain.validateRelationUse
 import com.pdig.core.domain.MaintenanceFactWrite
 import com.pdig.core.domain.MaintenanceScheduleWrite
 import com.pdig.core.domain.upsertConfirmedMaintenanceFact
+import com.pdig.core.domain.upsertConfirmedMaintenanceFacts
 import com.pdig.core.domain.upsertConfirmedMaintenanceSchedule
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.CanonicalSpec
@@ -256,6 +257,39 @@ class GraphRepository(
             nodeKind = kind,
             fieldsJson = current.fieldsJson,
             request = request,
+            confirmedAt = now,
+        )
+        driver.transaction {
+            driver.prepare(
+                "UPDATE nodes SET fields_json = ?, updated_at = ? WHERE id = ?",
+            ).run(nextFields, now, nodeId)
+            bumpRevision()
+        }
+        return MaintenanceWriteResult(
+            node = requireNotNull(nodeById(nodeId)) {
+                "maintenance target disappeared after authoritative commit: $nodeId"
+            },
+            graphRevision = graphRevision(),
+        )
+    }
+
+    /** Confirm multiple coupled maintenance facts with exactly one Reality revision bump. */
+    fun confirmMaintenanceFacts(
+        nodeId: String,
+        requests: List<MaintenanceFactWrite>,
+    ): MaintenanceWriteResult {
+        val current = requireNotNull(nodeById(nodeId)) {
+            "maintenance target node does not exist: $nodeId"
+        }
+        require(!current.archived) { "maintenance target node is archived: $nodeId" }
+        val kind = requireNotNull(NodeKind.fromWire(current.kind)) {
+            "unknown maintenance target node kind: ${current.kind}"
+        }
+        val now = Instant.now().toString()
+        val nextFields = upsertConfirmedMaintenanceFacts(
+            nodeKind = kind,
+            fieldsJson = current.fieldsJson,
+            requests = requests,
             confirmedAt = now,
         )
         driver.transaction {
