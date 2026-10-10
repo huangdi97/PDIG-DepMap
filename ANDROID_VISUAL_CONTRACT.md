@@ -195,3 +195,17 @@ display count, but each item routes to its real owner.
 
 Records must not absorb pending or future tasks merely to provide a convenient
 “查看全部” route.
+
+
+## R23 — Establish / Import visual contract
+
+- **Primary object**: a local-first three-step establishment flow, not a file manager.
+- **Hierarchy**: truth boundary → source → local parse → object confirmation → continuation.
+- **Required language**: 建立基础设施 / 文件留在本机 · 发现不等于依赖 /
+  选择数据来源 / 选择文件并在本机解析 / 确认要记录的对象 / 当前是隔离预览.
+- **Preview state**: no picker, no progress spinner implying real parsing, no fake success.
+- **Production result state**: counts may show observations / unique / duplicate / object /
+  proposal / skipped-error facts from authoritative ImportCommitResult.
+- **Continuation**: generated Proposal work routes to Human Review.
+- **Forbidden**: raw statement-table UI as the product, technical parser console,
+  full sensitive values, Proposal presented as Dependency.
