@@ -55,10 +55,59 @@ public enum Evaluators {
         case "identity-relations": return .value(try relations(input))
         case "identity-profile": return .value(identityProfile(input))
         case "region-fact": return .value(regionFact(input))
+        case "maintenance-profile": return .value(maintenanceProfile(input))
         default: return .notImplemented
         }
     }
 
+
+    // ------------------------------------------------------ maintenance-profile
+
+    private static func maintenanceProfile(_ input: JsonObject) -> Json {
+        guard
+            let kindRaw = input["kind"]?.stringValue,
+            let kind = NodeKind(rawValue: kindRaw)
+        else {
+            return .obj(JsonObject([
+                ("facts", .arr([])),
+                ("currentFactIds", .arr([])),
+                ("schedules", .arr([])),
+                ("currentScheduleIds", .arr([])),
+            ]))
+        }
+        let fieldsJson = input["fieldsJson"]?.stringValue ?? "{}"
+        let profile = governedMaintenanceProfile(kind: kind, fieldsJson: fieldsJson)
+        let currentFacts = currentMaintenanceFacts(kind: kind, fieldsJson: fieldsJson)
+        let currentSchedules = currentMaintenanceSchedules(kind: kind, fieldsJson: fieldsJson)
+
+        return .obj(JsonObject([
+            (
+                "facts",
+                .arr(profile.facts.map { fact in
+                    .obj(JsonObject([
+                        ("id", .str(fact.id)),
+                        ("kind", .str(fact.kind.rawValue)),
+                        ("valueType", .str(fact.valueType.rawValue)),
+                        ("value", .str(fact.value)),
+                        ("state", .str(fact.state.rawValue)),
+                    ]))
+                })
+            ),
+            ("currentFactIds", .arr(currentFacts.map { .str($0.id) })),
+            (
+                "schedules",
+                .arr(profile.schedules.map { schedule in
+                    .obj(JsonObject([
+                        ("id", .str(schedule.id)),
+                        ("kind", .str(schedule.kind.rawValue)),
+                        ("state", .str(schedule.state.rawValue)),
+                        ("cadenceKind", .str(schedule.cadence.kind.rawValue)),
+                    ]))
+                })
+            ),
+            ("currentScheduleIds", .arr(currentSchedules.map { .str($0.id) })),
+        ]))
+    }
 
     // ------------------------------------------------------------ region-fact
 
