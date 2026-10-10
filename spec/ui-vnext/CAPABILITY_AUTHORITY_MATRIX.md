@@ -44,6 +44,7 @@ production solver = no
 | --- | --- | --- | --- |
 | File Import | visible reference | available | Preview explains flow; Production must reuse FileWorkflowCoordinator/AppContainer |
 | Manual Create | visible reference | not exposed | no Save button until an AppContainer-facing authority exists |
+| Manual Relationship | visible reference | not exposed | no Confirm Relation button until a tested manual Dependency authority exists |
 | Human Review | visible reference | available | Preview read-only; Production decisions go through Proposal/Candidate/Drift gateways |
 | Replace Phone | visible reference | available | execute only through ChangePlan gateway |
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
