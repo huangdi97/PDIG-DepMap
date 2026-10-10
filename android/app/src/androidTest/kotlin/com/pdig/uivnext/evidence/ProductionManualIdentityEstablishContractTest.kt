@@ -2,6 +2,7 @@ package com.pdig.uivnext.evidence
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -87,6 +88,63 @@ class ProductionManualIdentityEstablishContractTest {
             requireNotNull(profile)
             assertEquals(IdentityAnchorSubtype.PHONE_NUMBER, profile.subtype)
             assertEquals("+852 6123 4567", profile.identifier?.value)
+            assertEquals(1, app.graphRevision())
+            assertTrue(app.dependencies().isEmpty())
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun emailFormPersistsExactConfirmedValueButMasksResultPresentation() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val dbFile = File(context.filesDir, "r38-production-manual-email-ui.db")
+            .apply { if (exists()) delete() }
+        val driver = AndroidSqliteDriver.open(dbFile, "r38-production-manual-email-ui")
+        migrate(driver, "2026-10-10T00:00:00.000Z")
+        val app = AppContainer.forDriver(driver)
+        val session = createProductionVNextSession(app).also {
+            it.appState.privacyMask = true
+        }
+
+        try {
+            compose.setContent {
+                MaterialTheme(colorScheme = lightColorScheme()) {
+                    ProductionManualEstablishScreen(session)
+                }
+            }
+            compose.waitForIdle()
+
+            compose.onNodeWithTag(
+                "pdig.production-vnext.manual.kind.email_address",
+                useUnmergedTree = true,
+            ).performClick()
+            compose.onNodeWithTag(
+                "pdig.production-vnext.manual.name",
+                useUnmergedTree = true,
+            ).performTextInput("恢复邮箱")
+            compose.onNodeWithTag(
+                "pdig.production-vnext.manual.identity.value",
+                useUnmergedTree = true,
+            ).performTextInput("user@example.com")
+            compose.onNodeWithTag(
+                "pdig.production-vnext.manual.save",
+                useUnmergedTree = true,
+            ).performClick()
+            compose.waitForIdle()
+
+            compose.onNodeWithText("邮箱身份").assertIsDisplayed()
+            compose.onNodeWithText("标识值已遮蔽").assertIsDisplayed()
+            compose.onNodeWithText("user@example.com").assertDoesNotExist()
+
+            val node = app.nodes().single()
+            val profile = confirmedIdentityAnchorProfile(
+                NodeKind.IDENTITY_ANCHOR,
+                node.fieldsJson,
+            )
+            requireNotNull(profile)
+            assertEquals(IdentityAnchorSubtype.EMAIL_ADDRESS, profile.subtype)
+            assertEquals("user@example.com", profile.identifier?.value)
             assertEquals(1, app.graphRevision())
             assertTrue(app.dependencies().isEmpty())
         } finally {
