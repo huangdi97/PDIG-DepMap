@@ -317,3 +317,54 @@ BUILD_PASS != HUMAN_ACCEPTANCE
 REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
 ```
+
+
+## 11. Presentation privacy and persistence closure
+
+A production-cutover audit separated three different privacy mechanisms:
+
+```text
+LockGate
+!=
+FLAG_SECURE
+!=
+user-selected privacy masking
+```
+
+R33 now covers all three independently.
+
+### User-selected masking
+
+The existing Production card face already respected `app.privacyMask`, but card
+tail digits could still appear in:
+- Infrastructure payment-asset summaries;
+- Card Detail metadata;
+- Production Search result subtitles.
+
+R33 centralizes production card-tail labels and applies masking consistently.
+Search can still match the local confirmed tail value while masking is enabled,
+but the result never echoes the digits back to the visible UI.
+
+### Local persistence
+
+Production VNext already receives `VNextShellViewModel.app` from MainActivity.
+That ViewModel loads and persists:
+- workspace preferences;
+- PresentationProfile;
+- number display aliases.
+
+Therefore privacy/motion/upcoming/rail preferences are already store-backed in the
+Production rehearsal path. They are Presentation state only and never mutate
+Canonical / Personal Reality.
+
+`ProductionPresentationPersistenceContractTest` now pins the workspace preference
+round-trip across fresh ViewModel instances and restores the test-app's original
+preferences afterward.
+
+Permanent boundary:
+
+```text
+local presentation persistence
+!=
+Canonical persistence
+```
