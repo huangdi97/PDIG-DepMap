@@ -212,7 +212,9 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.card.choose-photo", useUnmergedTree = true)
             .assertExists()
         compose.onNodeWithText("从相册更换卡面").assertExists()
-        compose.onNodeWithText("图片仅保存在本机应用私有目录", substring = true)
+        compose.onNodeWithTag("pdig.production-vnext.card.mask", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithText("图片、主题与单独遮蔽只保存在本机 Presentation", substring = true)
             .assertExists()
     }
 
@@ -235,6 +237,16 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("+86 138 0000 8823").assertIsDisplayed()
         compose.onNodeWithText("用户已确认", substring = true).assertExists()
         compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithTag("pdig.production-vnext.phone.presentation-entry", useUnmergedTree = true)
+            .assertExists()
+            .performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.phone.customization", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.phone.identity-face", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithTag("pdig.production-vnext.phone.alias", useUnmergedTree = true)
             .assertExists()
 
         compose.runOnIdle { session.appState.navigate(VScreen.EMAILS) }
