@@ -3,7 +3,8 @@
 > Android Human Main Set 视觉契约（任务书 §42）：无眼 Agent 按契约实现，不自评美感。
 > 每屏：Primary object / Secondary object / Information hierarchy / Required visible states /
 > Forbidden regressions / Reference desktop screen / Android translation rationale。
-> 历史视觉证据：`artifacts/runtime-evidence/2026-10-02-android-ui-vnext-translation/`（phone + tablet）。\n> **R27 exact-head runtime/pixel evidence pending；历史截图不能作为 R27 Human Acceptance。**
+> 历史视觉证据：`artifacts/runtime-evidence/2026-10-02-android-ui-vnext-translation/`（phone + tablet）。
+> **R27 是最后一次 Reference 视觉语义扩展；当前分支已到 R29。R29 exact-head runtime/pixel evidence 仍 pending，任何旧截图都不能作为当前 Human Acceptance。**
 
 ## 00-shell（全局导航）
 
