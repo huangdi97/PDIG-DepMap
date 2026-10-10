@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -31,6 +32,13 @@ import com.pdig.uivnext.ui.components.ProductionPaymentAssetFace
 import com.pdig.uivnext.ui.components.ProductionPhonePresentationEditor
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+
+/** Human light reference: phone rows, medium pairs, expanded four-card gallery. */
+internal fun productionCardCollectionColumns(widthDp: Float): Int = when {
+    widthDp < 600f -> 1
+    widthDp < 840f -> 2
+    else -> 4
+}
 
 @Composable
 internal fun ProductionInventoryCategoryScreen(
@@ -74,11 +82,7 @@ internal fun ProductionInventoryCategoryScreen(
     // A confirmed payment instrument is a visual asset, not a generic settings row.
     // Keep the same Reality-driven filters and detail actions at every breakpoint.
     BoxWithConstraints(modifier.fillMaxSize()) {
-        val galleryColumns = when {
-            maxWidth < 600.dp -> 2
-            maxWidth < 840.dp -> 3
-            else -> 4
-        }
+        val galleryColumns = productionCardCollectionColumns(maxWidth.value)
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag("pdig.production-vnext.inventory-category"),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -124,43 +128,100 @@ internal fun ProductionInventoryCategoryScreen(
                 )
             }
         } else if (screen == VScreen.CARDS) {
-            // Gallery is the consumer object-identity surface; source-owned
-            // local images/themes remain PresentationProfile only.
-            items(objects.chunked(galleryColumns), key = { row -> row.first().id }) { row ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    row.forEach { card ->
-                        val profile = session.appState.savedPresentationProfile("card", card.id)
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .clickable { session.appState.openCard(card.id) }
-                                .testTag("pdig.production-vnext.card.gallery-item"),
-                            verticalArrangement = Arrangement.spacedBy(5.dp),
+            if (galleryColumns == 1) {
+                // Phone human reference uses a legible, one-card-per-row
+                // collector, not two narrow billboard cards.
+                items(objects, key = { it.id }) { card ->
+                    val profile = session.appState.savedPresentationProfile("card", card.id)
+                    val masked = session.appState.privacyMask || profile?.maskSensitive == true
+                    Surface(
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable { session.appState.openCard(card.id) }
+                            .testTag("pdig.production-vnext.card.gallery-item"),
+                        color = PdigV2Colors.Surface,
+                        shape = RoundedCornerShape(VRadius.Lg),
+                        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                    ) {
+                        Row(
+                            Modifier.fillMaxWidth().padding(10.dp),
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             ProductionPaymentAssetFace(
                                 asset = card,
                                 presentation = profile,
-                                privacyMask = session.appState.privacyMask ||
-                                    (profile?.maskSensitive == true),
+                                privacyMask = masked,
+                                modifier = Modifier.width(128.dp),
                             )
-                            Text(
-                                card.name,
-                                color = PdigV2Colors.TextPrimary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                            )
-                            Text(
-                                "${dependencyCount(snapshot, card.id)} 条已确认关系",
-                                color = PdigV2Colors.TextMuted,
-                                fontSize = 9.sp,
-                            )
+                            Column(
+                                Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                            ) {
+                                Text(
+                                    productionVisibleObjectName(card, masked),
+                                    color = PdigV2Colors.TextPrimary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    if (masked) "发行方已遮蔽"
+                                    else card.issuer?.takeIf { it.isNotBlank() } ?: "发行方未记录",
+                                    color = PdigV2Colors.TextSecondary,
+                                    fontSize = 11.sp,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    productionPaymentTailLabel(card.last4, masked),
+                                    color = PdigV2Colors.TextSecondary,
+                                    fontSize = 10.sp,
+                                )
+                                Text(
+                                    "${dependencyCount(snapshot, card.id)} 条已确认关系",
+                                    color = PdigV2Colors.TextMuted,
+                                    fontSize = 10.sp,
+                                )
+                            }
                         }
                     }
-                    repeat(galleryColumns - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            } else {
+                // Tablet and expanded workspaces retain the visual asset gallery.
+                items(objects.chunked(galleryColumns), key = { row -> row.first().id }) { row ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        row.forEach { card ->
+                            val profile = session.appState.savedPresentationProfile("card", card.id)
+                            val masked = session.appState.privacyMask || profile?.maskSensitive == true
+                            Column(
+                                modifier = Modifier.weight(1f)
+                                    .clickable { session.appState.openCard(card.id) }
+                                    .testTag("pdig.production-vnext.card.gallery-item"),
+                                verticalArrangement = Arrangement.spacedBy(5.dp),
+                            ) {
+                                ProductionPaymentAssetFace(
+                                    asset = card,
+                                    presentation = profile,
+                                    privacyMask = masked,
+                                )
+                                Text(
+                                    productionVisibleObjectName(card, masked),
+                                    color = PdigV2Colors.TextPrimary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                )
+                                Text(
+                                    "${dependencyCount(snapshot, card.id)} 条已确认关系",
+                                    color = PdigV2Colors.TextMuted,
+                                    fontSize = 9.sp,
+                                )
+                            }
+                        }
+                        repeat(galleryColumns - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
         } else {
