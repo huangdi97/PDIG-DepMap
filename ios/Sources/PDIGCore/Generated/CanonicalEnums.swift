@@ -12,6 +12,7 @@ public enum CanonicalSpec {
     public static let graphPayloadKind = "depmap-logical-graph"
     public static let graphPayloadVersion = 3
     public static let runtimeCreatableNodeKinds: Set<String> = ["payment_instrument", "account", "service"]
+    public static let runtimeCreatableIdentityAnchorSubtypes: Set<String> = ["phone_number", "email_address"]
 }
 
 public enum NodeKind: String, CaseIterable, Sendable, Equatable {
