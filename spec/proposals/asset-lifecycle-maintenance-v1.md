@@ -1,24 +1,33 @@
 # Asset Lifecycle & Maintenance v1 — Canonical Proposal
 
-> Status: **DESIGN_FROZEN / CANONICAL_CONTRACT_NEXT**
+> Status: **R40 CANONICAL CONTRACT SOURCE-IMPLEMENTED / WRITE + RUNTIME ACCEPTANCE STILL GATED**
 >
-> Date: 2026-10-09
+> Date: 2026-10-10
 >
-> This proposal exists because R18/R19 proved a real consumer need for card/number
-> lifecycle maintenance, but current Canonical semantics do not yet define those
-> fields. It does **not** modify the current `.depmap` format or runtime schema.
+> R18/R19 established the product need; R40 now registers the governed v1 lifecycle
+> contract inside the existing cross-platform `Node.fields` envelope.
 >
-> Required implementation order remains:
+> Important scope:
+> - semantic Canonical contract = source-implemented;
+> - appSchemaVersion / graph payload version = unchanged;
+> - Kotlin / Swift / ArkTS fail-closed decoders = source-implemented;
+> - conformance fixtures = registered;
+> - Production VNext read projection = source-implemented;
+> - direct lifecycle write/edit authority, automatic occurrence completion and final
+>   runtime/release activation = **not** claimed.
+>
+> The remaining activation chain is:
 >
 > ```text
-> Spec decision
-> → schema/version allocation
-> → migration
-> → golden + negative fixtures
-> → conformance expected results
-> → Android / iOS / Harmony / Desktop
-> → production UI
+> exact-head cross-platform conformance green
+> → production write/review authority (separate gate)
+> → occurrence/timeline derivation where applicable
+> → Android runtime/security/pixel acceptance
+> → release cutover decision
 > ```
+>
+> R40 deliberately reuses the existing fields envelope and therefore does not silently
+> bump physical payload/schema versions.
 
 ## 1. Problem
 
