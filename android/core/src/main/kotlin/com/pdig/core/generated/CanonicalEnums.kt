@@ -12,6 +12,7 @@ public object CanonicalSpec {
     public const val GRAPH_PAYLOAD_KIND: String = "depmap-logical-graph"
     public const val GRAPH_PAYLOAD_VERSION: Int = 3
     public val RUNTIME_CREATABLE_NODE_KINDS: Set<String> = setOf("payment_instrument", "account", "service")
+    public val RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: Set<String> = setOf("phone_number", "email_address")
 }
 
 public enum class NodeKind(public val wire: String) {
