@@ -1,6 +1,7 @@
 package com.pdig.uivnext.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.globe.R15WorldScene
+import com.pdig.uivnext.model.RegionPresentation
 import com.pdig.uivnext.production.ProductionConsumerInventory
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -62,15 +64,12 @@ internal fun ProductionWorldContext(
                     regions = projection.regions,
                     arcingPairs = projection.arcingPairs,
                     reduceMotion = app.reduceMotion,
-                    onRegionChosen = { },
+                    onRegionChosen = { region -> selectProductionWorldRegion(app, region) },
                 )
                 ProductionProjectedRegionOverlay(
                     controller = app.globe,
                     regions = projection.regions,
-                    onRegionChosen = { region ->
-                        // Focus is a presentation action. It does not mutate RegionFact.
-                        app.globe.focusRegion(region)
-                    },
+                    onRegionChosen = { region -> selectProductionWorldRegion(app, region) },
                 )
             }
 
@@ -88,6 +87,17 @@ internal fun ProductionWorldContext(
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                     )
+                    app.regionFilter?.let { selectedCode ->
+                        Text(
+                            "当前聚焦：${TerritoryPresentationCatalog.displayName(selectedCode)} · 点按返回全球",
+                            modifier = Modifier
+                                .clickable { app.clearRegion() }
+                                .padding(vertical = 5.dp)
+                                .testTag("pdig.production-vnext.world.clear-region"),
+                            color = PdigV2Colors.PrimaryText,
+                            fontSize = 10.sp,
+                        )
+                    }
                     val line = when {
                         inventory.regions.isEmpty() ->
                             "尚无已确认 RegionFact · 不从币种、号码前缀、品牌或位置推测"
@@ -120,4 +130,11 @@ internal fun ProductionWorldContext(
             }
         }
     }
+}
+
+
+/** Region lens is presentation state; selecting it never edits RegionFact. */
+internal fun selectProductionWorldRegion(app: VAppState, region: RegionPresentation) {
+    app.selectRegion(region.regionCode)
+    app.globe.focusRegion(region)
 }
