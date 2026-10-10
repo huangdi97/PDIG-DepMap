@@ -58,9 +58,32 @@ IdentityAnchorSubtype
   OTHER_IDENTITY
 ```
 
-The final schema may encode this as a general `NodeSubtype` union if other
-NodeKinds later need typed subcategories. The semantic rule is more important
-than the storage representation.
+R37 freezes the storage representation without adding a platform-private column:
+
+~~~text
+logical field:
+  Node.identityAnchorProfile.subtype : IdentityAnchorSubtype
+
+physical storage:
+  nodes.fields_json.identity_anchor_profile = {
+    "version": 1,
+    "subtype": "phone_number | email_address | other_identity",
+    "verification_basis_type": "user_confirmed | authoritative_source",
+    "confirmed_at": "ISO-8601",
+    "evidence_refs": []
+  }
+~~~
+
+This is a **Canonical governed structured field** inside the existing cross-platform
+`Node.fields` object. It is not a free-form Android convention.
+
+A bare legacy/prototype key such as:
+
+~~~json
+{"subtype":"phone_number"}
+~~~
+
+is **not confirmation authority** and must never activate the Number surface.
 
 ## 3. Truth rules
 
@@ -111,15 +134,28 @@ but cannot write the confirmed subtype by itself.
 
 Existing databases:
 
-```text
+~~~text
 all existing identity_anchor nodes
-→ subtype = null
-```
+without a valid governed identity_anchor_profile
+→ subtype = unknown
+→ generic identity surface
+~~~
 
-No migration may inspect names or `fields_json` and auto-classify them.
+Migration/activation MUST NOT inspect:
+- node name;
+- provider/carrier-like text;
+- phone/email syntax;
+- edges;
+- legacy bare `fields_json.subtype`.
 
-This is intentionally conservative. Users can later confirm subtype through a
-review flow.
+Historical prototype data may contain `fields_json.subtype`. R37 treats that key
+as ungoverned metadata. It may become a **review candidate**, but it cannot be
+silently copied into `identity_anchor_profile`.
+
+Because the governed profile lives inside the existing `fields_json` payload
+column, no physical column migration is required solely for subtype. The activation
+still requires Canonical/codegen/conformance/runtime gates because the **meaning**
+is new even when the bytes fit the existing storage envelope.
 
 ## 6. Change primitive integration
 
@@ -303,12 +339,27 @@ UNKNOWN
 This lets a user confirm “this object is a phone identity” without being forced to
 store the raw number.
 
-The final schema review may choose a first-class profile table or typed Node
-substructure. The invariant is mandatory:
+R37 chooses the typed Node substructure for v1:
 
 ~~~text
-free-form Android fields_json
-!= Canonical subtype/value authority
+Node.fields.identity_anchor_profile
+~~~
+
+The physical JSON envelope is shared by all runtimes and already round-trips in
+graph payload v3; the **profile schema and provenance requirements** are the
+Canonical contract.
+
+Permanent invariant:
+
+~~~text
+bare/free-form fields_json subtype
+!= Canonical subtype authority
+
+governed identity_anchor_profile
++ valid enum
++ confirmation basis
++ confirmed_at
+= subtype Reality
 ~~~
 
 ## 15. Normalization and duplicate review
@@ -462,8 +513,11 @@ Updated stop line:
 
 ~~~text
 IDENTITY_SUBTYPE_DESIGN = COMPLETE
+IDENTITY_SUBTYPE_STORAGE_MAPPING = FROZEN_R37
+IDENTITY_SUBTYPE_ENUM = REGISTERED_IN_CANONICAL_SPEC
 IDENTITY_VALUE_NORMALIZATION_DESIGN = COMPLETE
 MANUAL_NUMBER_EMAIL_CREATE_DESIGN = COMPLETE
-CANONICAL_IMPLEMENTATION = HOLD
+BARE_FIELDS_JSON_SUBTYPE = NOT_AUTHORITY
+CANONICAL_RUNTIME_ACTIVATION = HOLD
 PRODUCTION_PHONE_EMAIL_MAPPING = HOLD
 ~~~
