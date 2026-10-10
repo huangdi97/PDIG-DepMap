@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R27**
+> **Current reality · 2026-10-10 · R29**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,24 +13,24 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R27
+ANDROID_UI_VNEXT_SOURCE = R29
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_CUTOVER = HOLD
 
-CANONICAL_SCHEMA_CHANGE_FOR_R27_SOURCE = NONE
-DEPMAP_PAYLOAD_CHANGE_FOR_R27_SOURCE = NONE
+CANONICAL_SCHEMA_CHANGE_FOR_R29_SOURCE = NONE
+DEPMAP_PAYLOAD_CHANGE_FOR_R29_SOURCE = NONE
 
-FRESH_R27_BUILD = PENDING
-FRESH_R27_UNIT_TESTS = PENDING
-FRESH_R27_INSTRUMENTATION = PENDING
-FRESH_R27_PHONE_PIXELS = PENDING
-FRESH_R27_TABLET_PIXELS = PENDING
-FRESH_R27_HUMAN_ACCEPTANCE = PENDING
+FRESH_R29_BUILD = PENDING
+FRESH_R29_UNIT_TESTS = PENDING
+FRESH_R29_INSTRUMENTATION = PENDING
+FRESH_R29_PHONE_PIXELS = PENDING
+FRESH_R29_TABLET_PIXELS = PENDING
+FRESH_R29_HUMAN_ACCEPTANCE = PENDING
 ```
 
-Do not reuse pre-R27 screenshots or old PASS statements as proof of the current
+Do not reuse pre-R29 screenshots or old PASS statements as proof of the current
 source.
 
 ## 1. Navigation / shell
@@ -60,7 +60,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **NOT_RUN on current R26 head** |
+| Exact-head GPU runtime proof | **PENDING on current R29 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -377,6 +377,42 @@ The inventory/impact projections are read-only seams. Separate authoritative mut
 gateways now exist for Change, Human Review and Manual Establish. None of these
 switches the launcher, makes Preview writable, or claims R19 lifecycle persistence.
 
+### R28/R29 production VNext source binding
+
+R28/R29 now adds a dedicated `ProductionVNextShell` that is structurally unable to
+fall back to `ReferenceVNextRuntimeDataSource`.
+
+Source-bound production surfaces now include:
+- Now from production Timeline / Review counts / ChangePlan counts;
+- Infrastructure overview;
+- payment-instrument category + focused Card detail + confirmed relation list + authoritative Impact;
+- account / device / service categories + focused generic details + authoritative Impact;
+- explicit HOLD surfaces for Number / Email subtype and Weaknesses Finding projection;
+- Change Center over actual ChangePlan rows;
+- ChangePlan action completion / verification through AppContainer authority;
+- explicit card-detail entry to create or continue `replace_payment_card` ChangePlan;
+- Records from authoritative action completion / verification / evidence refs;
+- Human Review with post-mutation authoritative re-read;
+- Sources;
+- Establish hub + production Manual Establish;
+- host-owned FileWorkflowCoordinator handoff for real file import;
+- explicit Native Schema v4 HOLD for manual relationship mutation;
+- production Reality-only Search;
+- fifth-primary `我` production personal control surface;
+- local Presentation privacy/motion/upcoming/rail preferences;
+- context-sensitive authority badge so Review / Presentation / Reality are not conflated.
+
+Production app-state construction now accepts an injected store-backed `VAppState`
+so local Presentation preferences can persist without entering Canonical Reality.
+
+Still HOLD:
+- MainActivity / lock-gate launcher cutover;
+- phone/email production subtype binding;
+- authoritative production Finding projection for Weaknesses;
+- R19 lifecycle persistence;
+- Native Schema v4 manual Dependency mutation;
+- exact-head production/security/runtime E2E.
+
 R22 production governance source now additionally includes:
 - `AppContainerVNextReviewSource`;
 - `ProductionReviewConsumerProjection`;
@@ -538,7 +574,7 @@ source/model suggestion → Proposal → Review → origin=proposal
 
 ## 17. Tests / evidence present in source
 
-R26 has source contracts for:
+R29 has source contracts for:
 - lifecycle fixture truth/unknown behavior;
 - Impact Lens unknown/evidence boundaries;
 - keep-number identity;
@@ -560,7 +596,12 @@ R26 has source contracts for:
 - authoritative manual Node mutation source + device evidence test;
 - generated runtime-creatable Node policy;
 - Manual Relationship route, runtime relation vocabulary and unknown/required boundary;
-- explicit Native Schema v4 gate for production manual relation mutation.
+- explicit Native Schema v4 gate for production manual relation mutation;
+- production session rejects Reference data source;
+- production shell five-primary navigation / category / detail / Search / Presentation preference contracts;
+- production Reality-only search projection;
+- production ChangePlan verification control semantics;
+- production category binding never coerces generic identity_anchor into Number / Email.
 
 These tests are **present**. They are not called PASS until run on the current
 exact head.
@@ -591,6 +632,7 @@ Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 - `ANDROID_UI_VNEXT_R24_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R25_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R26_SOURCE_REPORT.md`
+- `ANDROID_UI_VNEXT_R29_SOURCE_REPORT.md`
 - `spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md`
 - `spec/ui-vnext/CAPABILITY_AUTHORITY_MATRIX.md`
 - `spec/proposals/access-recovery-factor-v1.md`
@@ -735,5 +777,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R26 runtime
-verification and, after reference acceptance, production read-model binding.
+The next blocker is no longer “missing UI design.” It is fresh exact-head R29 runtime
+verification, launcher/security integration and the Canonical migrations that remain explicitly gated.
