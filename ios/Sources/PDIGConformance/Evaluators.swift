@@ -54,8 +54,49 @@ public enum Evaluators {
         case "provider-policy": return .value(try providerPolicy(input))
         case "identity-relations": return .value(try relations(input))
         case "identity-profile": return .value(identityProfile(input))
+        case "region-fact": return .value(regionFact(input))
         default: return .notImplemented
         }
+    }
+
+
+    // ------------------------------------------------------------ region-fact
+
+    private static func regionFact(_ input: JsonObject) -> Json {
+        let fieldsJson = input["fieldsJson"]?.stringValue ?? "{}"
+        let facts = governedRegionFacts(fieldsJson: fieldsJson)
+        let current = currentConfirmedRegionFacts(fieldsJson: fieldsJson)
+        let lens = defaultRegionLensSelection(fieldsJson: fieldsJson)
+
+        var lensFields: [(String, Json)] = [
+            ("status", .str(lens.status.rawValue)),
+        ]
+        if let territory = lens.territoryCode {
+            lensFields.append(("territoryCode", .str(territory)))
+        }
+        if let facet = lens.facet {
+            lensFields.append(("facet", .str(facet.rawValue)))
+        }
+
+        return .obj(JsonObject([
+            (
+                "facts",
+                .arr(facts.map { fact in
+                    var fields: [(String, Json)] = [
+                        ("id", .str(fact.id)),
+                        ("facet", .str(fact.facet.rawValue)),
+                        ("territoryCode", .str(fact.territoryCode)),
+                    ]
+                    if let subdivision = fact.subdivisionCode {
+                        fields.append(("subdivisionCode", .str(subdivision)))
+                    }
+                    fields.append(("state", .str(fact.state.rawValue)))
+                    return .obj(JsonObject(fields))
+                })
+            ),
+            ("currentIds", .arr(current.map { .str($0.id) })),
+            ("lens", .obj(JsonObject(lensFields))),
+        ]))
     }
 
     // -------------------------------------------------------- identity-profile
