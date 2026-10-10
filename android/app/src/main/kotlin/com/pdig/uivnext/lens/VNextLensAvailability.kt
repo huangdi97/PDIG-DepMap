@@ -70,5 +70,5 @@ internal fun canRenderLensEntry(lens: VNextLens): Boolean = when (lens) {
 
 internal fun visibleLenses(): Set<VNextLens> =
     V_NEXT_LENS_GATES
-        .filter { it.availability == VNextLensAvailability.VISIBLE }
+        .filter { canRenderLensEntry(it.lens) }
         .mapTo(linkedSetOf()) { it.lens }
