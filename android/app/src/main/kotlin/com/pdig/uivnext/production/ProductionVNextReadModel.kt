@@ -10,6 +10,8 @@ import com.pdig.app.data.PlanRow
 import com.pdig.app.data.ProposalRow
 import com.pdig.app.data.SourceRow
 import com.pdig.core.domain.confirmedIdentityAnchorProfile
+import com.pdig.core.domain.defaultRegionLensSelection
+import com.pdig.core.domain.governedRegionFacts
 import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
@@ -48,6 +50,23 @@ internal enum class VNextProductionSurfaceKind {
     CUSTOM_GENERIC,
 }
 
+internal data class VNextProductionRegionFact(
+    val id: String,
+    val facet: String,
+    val territoryCode: String,
+    val subdivisionCode: String?,
+    val state: String,
+    val verificationBasisType: String,
+    val confirmedAt: String,
+    val evidenceRefs: List<String>,
+)
+
+internal data class VNextProductionRegionLens(
+    val status: String,
+    val territoryCode: String?,
+    val facet: String?,
+)
+
 internal data class VNextProductionObject(
     val id: String,
     val kind: String,
@@ -64,6 +83,9 @@ internal data class VNextProductionObject(
     val identityIdentifierVerificationBasisType: String? = null,
     val identityIdentifierConfirmedAt: String? = null,
     val identityIdentifierEvidenceRefs: List<String> = emptyList(),
+    val regionFacts: List<VNextProductionRegionFact> = emptyList(),
+    val regionLens: VNextProductionRegionLens =
+        VNextProductionRegionLens(status = "unknown", territoryCode = null, facet = null),
 )
 
 internal data class VNextProductionDependency(
@@ -296,6 +318,9 @@ internal fun buildProductionSnapshot(
                 ?.takeIf { it == NodeKind.IDENTITY_ANCHOR }
                 ?.let { confirmedIdentityAnchorProfile(it, node.fieldsJson) }
 
+            val regionFacts = governedRegionFacts(node.fieldsJson)
+            val regionLens = defaultRegionLensSelection(node.fieldsJson)
+
             VNextProductionObject(
                 id = node.id,
                 kind = node.kind,
@@ -313,6 +338,23 @@ internal fun buildProductionSnapshot(
                 identityIdentifierConfirmedAt = identityProfile?.identifier?.confirmedAt,
                 identityIdentifierEvidenceRefs =
                     identityProfile?.identifier?.evidenceRefs ?: emptyList(),
+                regionFacts = regionFacts.map { fact ->
+                    VNextProductionRegionFact(
+                        id = fact.id,
+                        facet = fact.facet.wire,
+                        territoryCode = fact.territoryCode,
+                        subdivisionCode = fact.subdivisionCode,
+                        state = fact.state.wire,
+                        verificationBasisType = fact.verificationBasisType.wire,
+                        confirmedAt = fact.confirmedAt,
+                        evidenceRefs = fact.evidenceRefs,
+                    )
+                },
+                regionLens = VNextProductionRegionLens(
+                    status = regionLens.status.name.lowercase(),
+                    territoryCode = regionLens.territoryCode,
+                    facet = regionLens.facet?.wire,
+                ),
             )
         }
 
