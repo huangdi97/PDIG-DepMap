@@ -6,12 +6,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.compose.runtime.remember
+import com.pdig.app.data.AppContainer
 import com.pdig.app.ui.PdigApp
 import com.pdig.app.ui.theme.PDIGTheme
 import com.pdig.app.workflow.FileWorkflowCoordinator
 import com.pdig.app.workflow.LocalFileWorkflow
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.VNextShellViewModel
+import com.pdig.uivnext.production.createProductionVNextSession
+import com.pdig.uivnext.ui.ProductionVNextSecureHost
 
 /**
  * 单一 Activity + Compose Navigation（spec §53）。无 WebView、无 uni-app runtime。
@@ -79,22 +83,51 @@ class MainActivity : FragmentActivity() {
         // VNextApp uses synthetic reference fixtures only; no PersonalReality is read or modified.
         // Production stays on the existing lock-gated PdigApp unless a test explicitly requests the demo.
         // VNextShellViewModel retains navigation and projection state across Activity recreation.
-        val vnextDemo = shouldLaunchVNext(
+        val vnextTarget = resolveVNextLaunchTarget(
             flavor = BuildConfig.FLAVOR,
             explicitDemo = intent?.getBooleanExtra("vnext_demo", false) == true,
+            explicitProductionVNext =
+                intent?.getBooleanExtra("vnext_production", false) == true,
             debugBuild = BuildConfig.DEBUG,
         )
 
         setContent {
-            if (vnextDemo) {
-                val vm: VNextShellViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
-                VNextApp(vm.app)
-            } else {
-                PDIGTheme {
-                    androidx.compose.runtime.CompositionLocalProvider(
-                        LocalFileWorkflow provides coordinator,
-                    ) {
-                        PdigApp()
+            when (vnextTarget) {
+                VNextLaunchTarget.REFERENCE_PREVIEW -> {
+                    val vm: VNextShellViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel()
+                    VNextApp(vm.app)
+                }
+
+                VNextLaunchTarget.PRODUCTION_REALITY_DEBUG -> {
+                    // Debug-only cutover rehearsal:
+                    // real encrypted Reality + real AppContainer authorities +
+                    // the exact same fail-closed security host as production.
+                    // No synthetic fixture can enter this branch.
+                    val vm: VNextShellViewModel =
+                        androidx.lifecycle.viewmodel.compose.viewModel()
+                    val session = remember {
+                        createProductionVNextSession(
+                            appContainer = AppContainer.get(this@MainActivity),
+                            appState = vm.app,
+                        )
+                    }
+                    PDIGTheme {
+                        androidx.compose.runtime.CompositionLocalProvider(
+                            LocalFileWorkflow provides coordinator,
+                        ) {
+                            ProductionVNextSecureHost(session)
+                        }
+                    }
+                }
+
+                VNextLaunchTarget.LEGACY_PRODUCTION -> {
+                    PDIGTheme {
+                        androidx.compose.runtime.CompositionLocalProvider(
+                            LocalFileWorkflow provides coordinator,
+                        ) {
+                            PdigApp()
+                        }
                     }
                 }
             }
