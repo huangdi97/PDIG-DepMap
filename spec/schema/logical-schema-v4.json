@@ -87,9 +87,51 @@
           "currentLens": "only state=confirmed participates; physical_location is excluded from default consumer precedence unless explicitly requested",
           "temporalPolicy": "valid_from/valid_until are metadata; elapsed time never silently changes state",
           "payloadCompatibility": "graph payload v3 carries fields_json opaquely; old payloads migrate semantically to zero confirmed RegionFacts"
+        },
+        "maintenance_profile": {
+          "appliesWhen": "all node kinds with per-kind applicability checks",
+          "storagePath": "fields_json.maintenance_profile",
+          "containerVersion": 1,
+          "shape": {
+            "version": "INTEGER(1)",
+            "facts": "MaintenanceFactV1[]",
+            "schedules": "MaintenanceScheduleV1[]"
+          },
+          "facts": {
+            "requiredFields": ["id", "kind", "value_type", "value", "state", "verification_basis_type", "confirmed_at"],
+            "optionalFields": ["evidence_refs", "valid_from", "valid_until", "retired_at"],
+            "kindEnum": ["card_annual_fee_amount", "card_annual_fee_currency", "card_billing_day", "card_payment_due_day", "card_autopay_mode", "number_billing_mode", "number_plan_cost", "number_plan_currency", "number_renewal_method"],
+            "stateEnum": ["confirmed", "retired"],
+            "valueTypeEnum": ["decimal_string", "currency_code", "integer", "text", "boolean"],
+            "verificationBasisEnum": ["user_confirmed", "authoritative_source"],
+            "invalidItemBehavior": "ignore invalid item while preserving other valid items"
+          },
+          "schedules": {
+            "requiredFields": ["id", "kind", "state", "cadence", "verification_basis_type", "confirmed_at"],
+            "optionalFields": ["evidence_refs", "last_completed_at", "retired_at"],
+            "kindEnum": ["card_annual_fee_checkpoint", "card_billing_checkpoint", "card_payment_due_checkpoint", "number_keep_alive", "number_plan_renewal", "fact_freshness_review", "custom_maintenance"],
+            "stateEnum": ["active", "paused", "needs_review", "retired"],
+            "verificationBasisEnum": ["user_confirmed", "authoritative_source"],
+            "invalidItemBehavior": "ignore invalid item while preserving other valid items"
+          },
+          "cadence": {
+            "kindEnum": ["one_time", "monthly_day", "yearly_month_day", "interval_days", "manual_only"],
+            "overflowPolicyEnum": ["clamp_to_last_day", "skip_occurrence", "user_confirm"],
+            "one_time": ["due_at"],
+            "monthly_day": ["day_of_month", "overflow_policy"],
+            "yearly_month_day": ["month", "day", "overflow_policy"],
+            "interval_days": ["interval_days", "anchor_date"],
+            "manual_only": []
+          },
+          "cardExpiryOwner": "nodes.expiry_date / Node.expiryDate",
+          "installmentPolicy": "no Canonical CARD_INSTALLMENT_SUMMARY in v1",
+          "numberAuthority": "identity_anchor requires valid confirmed identity_anchor_profile phone_number subtype",
+          "proposalPolicy": "provider/extracted/unconfirmed claims MUST remain outside confirmed maintenance_profile until review",
+          "temporalPolicy": "elapsed time may derive occurrences but never auto-completes or mutates durable Reality",
+          "payloadCompatibility": "graph payload v3 carries fields_json opaquely; old runtimes preserve unknown structured data but must not infer lifecycle semantics"
         }
       },
-      "v4Subtype": "R37 identity_anchor_profile supersedes the old bare fields_json.subtype prototype. R39 additionally governs fields_json.region_facts for all node kinds without inferring geography from legacy names/currency/provider strings. Account/device subtype vocabularies remain separate future proposals and are not activated by this contract."
+      "v4Subtype": "R37 identity_anchor_profile supersedes the old bare fields_json.subtype prototype. R39 governs fields_json.region_facts. R40 registers fields_json.maintenance_profile for governed lifecycle facts/schedules without silently activating a physical schema or payload bump. Account/device subtype vocabularies remain separate future proposals."
     },
     {
       "name": "dependencies",
