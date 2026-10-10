@@ -83,7 +83,7 @@ internal fun ProductionChangePlanScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "${current.scenario} · ${current.workflowState}",
+                    "${productionScenarioLabel(current.scenario)} · ${productionWorkflowStateLabel(current.workflowState)}",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                 )
@@ -92,6 +92,10 @@ internal fun ProductionChangePlanScreen(
 
         item {
             ChangePlanTruthStrip(current)
+        }
+
+        item {
+            ChangePlanAuthorityState(current)
         }
 
         if (current.unresolvedMustChangeKeys.isNotEmpty()) {
@@ -109,7 +113,7 @@ internal fun ProductionChangePlanScreen(
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            current.unresolvedMustChangeKeys.joinToString("、"),
+                            "还有 ${current.unresolvedMustChangeKeys.size} 项权威 Impact 必须先解决；内部 impact key 不作为消费者文案展示。",
                             color = PdigV2Colors.TextSecondary,
                             fontSize = 10.sp,
                         )
@@ -206,6 +210,45 @@ private fun ChangePlanTruthStrip(plan: VNextProductionPlan) {
 }
 
 @Composable
+private fun ChangePlanAuthorityState(plan: VNextProductionPlan) {
+    val stale = plan.effectiveState == "needs_revalidation" ||
+        plan.currentGraphRevision != plan.lastAnalyzedGraphRevision
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = if (stale || plan.readiness == "blocked") {
+            PdigV2Colors.Critical.copy(alpha = 0.07f)
+        } else {
+            PdigV2Colors.PrimarySoft.copy(alpha = 0.62f)
+        },
+        shape = RoundedCornerShape(VRadius.Lg),
+    ) {
+        Column(
+            Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                "准备状态：${productionReadinessLabel(plan.readiness)}",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                "分析时图谱修订 ${plan.lastAnalyzedGraphRevision} · 当前图谱修订 ${plan.currentGraphRevision}",
+                color = PdigV2Colors.TextSecondary,
+                fontSize = 10.sp,
+            )
+            if (stale) {
+                Text(
+                    "Reality 已变化；在 authority 重新分析/确认前，界面不会继续记录新的执行完成。",
+                    color = PdigV2Colors.Critical,
+                    fontSize = 10.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun ProductionActionCard(
     action: VNextProductionPlanAction,
     plan: VNextProductionPlan,
@@ -218,7 +261,9 @@ private fun ProductionActionCard(
         actionsById[id]?.done == true
     }
     val verified = action.verificationStatus == "verified"
-    val canComplete = canMutate && !action.done && prerequisitesMet
+    val planExecutable = plan.readiness != "blocked" &&
+        plan.effectiveState != "needs_revalidation"
+    val canComplete = canMutate && planExecutable && !action.done && prerequisitesMet
     val canVerify = canMutate && action.done && !verified
 
     val stateLabel = when {
@@ -245,7 +290,8 @@ private fun ProductionActionCard(
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(action.title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
                         fontWeight = FontWeight.Bold)
-                    Text(action.phase, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                    Text(productionActionPhaseLabel(action.phase),
+                        color = PdigV2Colors.TextMuted, fontSize = 9.sp)
                 }
                 Text(
                     stateLabel,
@@ -255,8 +301,11 @@ private fun ProductionActionCard(
             }
 
             if (action.prerequisiteActionIds.isNotEmpty()) {
+                val prerequisiteTitles = action.prerequisiteActionIds.map { id ->
+                    actionsById[id]?.title ?: "未识别前置步骤"
+                }
                 Text(
-                    "前置：${action.prerequisiteActionIds.joinToString("、")}",
+                    "前置：${prerequisiteTitles.joinToString("、")}",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 9.sp,
                 )
