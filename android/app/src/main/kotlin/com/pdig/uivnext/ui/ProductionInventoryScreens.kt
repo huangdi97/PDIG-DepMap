@@ -41,7 +41,7 @@ internal fun ProductionInventoryCategoryScreen(
     }
 
     if (screen == VScreen.WEAKNESSES) {
-        ProductionWeaknessesHoldScreen(modifier)
+        ProductionWeaknessesScreen(session, modifier)
         return
     }
 
@@ -258,11 +258,23 @@ internal fun ProductionGenericObjectDetailScreen(
 }
 
 @Composable
-private fun ProductionWeaknessesHoldScreen(modifier: Modifier = Modifier) {
+private fun ProductionWeaknessesScreen(
+    session: ProductionVNextSession,
+    modifier: Modifier = Modifier,
+) {
+    val report = session.dataSource.productionFindings()
+    if (report == null) {
+        ProductionObjectUnavailable(
+            "当前无法读取权威连续性发现；不会回退到 Preview 演示结果。",
+            modifier,
+        )
+        return
+    }
+
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .testTag("pdig.production-vnext.weaknesses-hold"),
+            .testTag("pdig.production-vnext.weaknesses"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -275,35 +287,21 @@ private fun ProductionWeaknessesHoldScreen(modifier: Modifier = Modifier) {
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "不把“部分可分析”冒充“完整连续性分析”。",
+                    "只展示当前 Android 正式数据链能够证明的连续性发现；未覆盖类型保持明确未知。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
             }
         }
 
-        item {
-            ProductionObjectBoundary(
-                "现有 Android 底层已经能从已确认关系分析：单一路径、共享故障点、恢复循环三类问题；但旧实现仍在旧界面层，尚不是新版可直接消费的完整权威投影。"
-            )
-        }
-
-        item {
-            Text(
-                "完整薄弱点模型还要求",
-                color = PdigV2Colors.TextPrimary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
-
-        listOf(
-            "未确认的备用路径" to "备用可能存在，但还没有足够证据确认可用。",
-            "过期的恢复信息" to "恢复/认证信息需要重新确认，不能默认仍然有效。",
-            "关键路径影响未知" to "关键关系存在，但失效后的真实影响还没有确认。",
-            "待验证的变更" to "动作已记录完成，但结果还没有验证。",
-        ).forEach { (title, body) ->
+        if (report.findings.isEmpty()) {
             item {
+                ProductionObjectBoundary(
+                    "当前受支持的发现类型里没有产生结果。这里不能解释成“基础设施安全”，因为仍有未覆盖类型和未记录关系。"
+                )
+            }
+        } else {
+            items(report.findings, key = { it.id }) { finding ->
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = PdigV2Colors.Surface,
@@ -312,26 +310,108 @@ private fun ProductionWeaknessesHoldScreen(modifier: Modifier = Modifier) {
                 ) {
                     Column(
                         Modifier.padding(13.dp),
-                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
                         Text(
-                            title,
+                            finding.title,
                             color = PdigV2Colors.TextPrimary,
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                         )
-                        Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
+                        Text(
+                            productionFindingTypeLabel(finding.type.name) +
+                                " · " + productionFindingTruthLabel(finding.truth.name),
+                            color = PdigV2Colors.TextMuted,
+                            fontSize = 9.sp,
+                        )
+                        Text(
+                            finding.why,
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 10.sp,
+                        )
+                        Text(
+                            "依据：${finding.confirmedBasis}",
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 10.sp,
+                        )
+                        Text(
+                            "未知：${finding.unknowns}",
+                            color = PdigV2Colors.TextMuted,
+                            fontSize = 10.sp,
+                        )
+                        Text(
+                            "下一步：${finding.recommendedNextAction}",
+                            color = PdigV2Colors.PrimaryText,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        if (finding.evidenceRefs.isNotEmpty()) {
+                            Text(
+                                "证据引用 ${finding.evidenceRefs.size} 项",
+                                color = PdigV2Colors.TextMuted,
+                                fontSize = 9.sp,
+                            )
+                        }
                     }
                 }
             }
         }
 
         item {
+            Text(
+                "当前权威覆盖",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+        item {
             ProductionObjectBoundary(
-                "在七类结果都由可复用的底层连续性分析统一产出之前，新版正式界面不会显示一个缩减版“安全清单”，也不会用关系数量生成健康分。"
+                report.supportedTypes.joinToString(" · ") { productionFindingTypeLabel(it) }
+            )
+        }
+
+        if (report.unsupportedTypes.isNotEmpty()) {
+            item {
+                Text(
+                    "尚未接入权威输入",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            item {
+                ProductionObjectBoundary(
+                    report.unsupportedTypes.joinToString(" · ") { productionFindingTypeLabel(it) } +
+                        "。这些类型不会由关系数量、名称或 UI 侧启发式补出来。"
+                )
+            }
+        }
+
+        item {
+            ProductionObjectBoundary(
+                "薄弱点不是健康分。单一路径、恢复循环、待复核候选和待验证变更都保留各自证据与未知边界。"
             )
         }
     }
+}
+
+private fun productionFindingTypeLabel(type: String): String = when (type) {
+    "SINGLE_POINT_OF_FAILURE" -> "单一路径"
+    "SHARED_FAILURE_DOMAIN" -> "共享故障域"
+    "RECOVERY_CYCLE" -> "恢复循环"
+    "UNCONFIRMED_FALLBACK" -> "未确认备用"
+    "STALE_RECOVERY_INFORMATION" -> "恢复信息过期"
+    "UNKNOWN_CRITICAL_PATH" -> "关键路径影响未知"
+    "PENDING_VERIFICATION" -> "待验证变更"
+    else -> "连续性发现"
+}
+
+private fun productionFindingTruthLabel(truth: String): String = when (truth) {
+    "CONFIRMED" -> "已确认事实"
+    "PENDING_REVIEW" -> "待复核"
+    "DERIVED" -> "基于已确认数据的派生分析"
+    else -> "未知"
 }
 
 @Composable
