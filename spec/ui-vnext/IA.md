@@ -46,6 +46,7 @@
 | sources | /me/sources | 数据源与事实边界 |
 | establish-import | /me/sources/import | 建立基础设施：本机导入参考；Up → 数据源 |
 | manual-establish | /me/sources/import/manual | 手工记录设计参考；Up → 建立基础设施 |
+| manual-relationship | /me/sources/import/manual/relation | 手工记录关系设计参考；Up → 手工记录 |
 | settings | /me/settings | 隐私、显示与工作区偏好 |
 | personalization-center | /me/settings/personalization | 个性化中心 |
 | infrastructure-overview | /infrastructure | Globe 舞台 + 地区资产 + 右活动轨 + 快速入口 |
@@ -78,6 +79,7 @@
 | 待复核 | 现在 | Now task / Data Sources / Search |
 | 建立基础设施 | 数据源 | Data Sources / Search |
 | 手工记录 | 建立基础设施 | Establish / Search |
+| 手工记录关系 | 手工记录 | Manual Establish / Search |
 | Card/Number/Object Detail | 对应 Infrastructure collection | 列表 / Search |
 | Change Phone / Card | 变更 | Change Center / object Impact CTA |
 | Studio / Appearance | 对象详情 | 小型 presentation action |
