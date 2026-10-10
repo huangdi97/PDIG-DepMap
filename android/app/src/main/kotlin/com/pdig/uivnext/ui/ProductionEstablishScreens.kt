@@ -25,8 +25,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ManualEstablishInput
+import com.pdig.uivnext.production.ManualIdentityEstablishInput
 import com.pdig.uivnext.production.ManualEstablishResultView
 import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.supportedManualEstablishKinds
@@ -123,6 +125,7 @@ internal fun ProductionManualEstablishScreen(
     var name by rememberSaveable { mutableStateOf("") }
     var issuer by rememberSaveable { mutableStateOf("") }
     var last4 by rememberSaveable { mutableStateOf("") }
+    var identifierValue by rememberSaveable { mutableStateOf("") }
     var result by remember { mutableStateOf<ManualEstablishResultView?>(null) }
     var error by remember { mutableStateOf<String?>(null) }
 
@@ -187,6 +190,52 @@ internal fun ProductionManualEstablishScreen(
         }
 
         item {
+            Text(
+                "身份对象",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+        item {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(
+                    "phone_number" to "手机号",
+                    "email_address" to "邮箱",
+                ).forEach { (kind, label) ->
+                    val selected = selectedKind == kind
+                    Surface(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                selectedKind = kind
+                                issuer = ""
+                                last4 = ""
+                                result = null
+                                error = null
+                            }
+                            .testTag("pdig.production-vnext.manual.kind.$kind"),
+                        color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+                        shape = RoundedCornerShape(VRadius.Md),
+                        border = BorderStroke(
+                            1.dp,
+                            if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+                        ),
+                    ) {
+                        Text(
+                            label,
+                            Modifier.padding(horizontal = 10.dp, vertical = 11.dp),
+                            color = PdigV2Colors.TextPrimary,
+                            fontSize = 11.sp,
+                            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    }
+                }
+            }
+        }
+
+        item {
             OutlinedTextField(
                 value = name,
                 onValueChange = {
@@ -223,6 +272,35 @@ internal fun ProductionManualEstablishScreen(
             }
         }
 
+        if (selectedKind == "phone_number" || selectedKind == "email_address") {
+            item {
+                OutlinedTextField(
+                    value = identifierValue,
+                    onValueChange = {
+                        identifierValue = it.take(320)
+                        result = null
+                        error = null
+                    },
+                    label = {
+                        Text(
+                            if (selectedKind == "phone_number")
+                                "号码（按你确认的原始值保存）"
+                            else
+                                "邮箱地址（按你确认的原始值保存）"
+                        )
+                    },
+                    supportingText = {
+                        Text(
+                            "这里确认的是标识值本身；不会据此推断运营商、地区、恢复角色或唯一恢复路径。"
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                        .testTag("pdig.production-vnext.manual.identity.value"),
+                    singleLine = true,
+                )
+            }
+        }
+
         error?.let { message ->
             item {
                 Surface(
@@ -247,10 +325,25 @@ internal fun ProductionManualEstablishScreen(
                         Text("已写入已确认数据", color = PdigV2Colors.PrimaryText,
                             fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         Text(created.name, color = PdigV2Colors.TextPrimary, fontSize = 12.sp)
+                        created.identitySubtype?.let { subtype ->
+                            Text(
+                                if (subtype == "phone_number") "手机号身份" else "邮箱身份",
+                                color = PdigV2Colors.TextSecondary,
+                                fontSize = 10.sp,
+                            )
+                            created.identityIdentifierValue?.let { value ->
+                                Text(
+                                    if (app.privacyMask) "标识值已遮蔽" else value,
+                                    color = PdigV2Colors.TextPrimary,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                            }
+                        }
                         Text(
-                            "kind=${created.kind} · graphRevision=${created.graphRevision}",
+                            "graphRevision=${created.graphRevision}",
                             color = PdigV2Colors.TextMuted,
-                            fontSize = 10.sp,
+                            fontSize = 9.sp,
                         )
                         Text(
                             "没有自动创建关系。下一步如需连接对象，必须单独确认关系。",
@@ -263,7 +356,11 @@ internal fun ProductionManualEstablishScreen(
         }
 
         item {
-            val canSave = name.trim().isNotEmpty() && selectedKind in supported
+            val isIdentity = selectedKind == "phone_number" || selectedKind == "email_address"
+            val canSave = name.trim().isNotEmpty() && (
+                selectedKind in supported ||
+                    (isIdentity && identifierValue.trim().isNotEmpty())
+                )
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -273,18 +370,35 @@ internal fun ProductionManualEstablishScreen(
                             error = null
                             result = null
                             try {
-                                result = gateway.create(
-                                    ManualEstablishInput(
-                                        kind = selectedKind,
-                                        name = name.trim(),
-                                        issuer = issuer.trim().takeIf { it.isNotEmpty() },
-                                        last4 = last4.takeIf { it.isNotEmpty() },
-                                    ),
-                                )
+                                result = when (selectedKind) {
+                                    "phone_number" -> gateway.createIdentity(
+                                        ManualIdentityEstablishInput(
+                                            subtype = IdentityAnchorSubtype.PHONE_NUMBER,
+                                            name = name.trim(),
+                                            identifierValue = identifierValue.trim(),
+                                        ),
+                                    )
+                                    "email_address" -> gateway.createIdentity(
+                                        ManualIdentityEstablishInput(
+                                            subtype = IdentityAnchorSubtype.EMAIL_ADDRESS,
+                                            name = name.trim(),
+                                            identifierValue = identifierValue.trim(),
+                                        ),
+                                    )
+                                    else -> gateway.create(
+                                        ManualEstablishInput(
+                                            kind = selectedKind,
+                                            name = name.trim(),
+                                            issuer = issuer.trim().takeIf { it.isNotEmpty() },
+                                            last4 = last4.takeIf { it.isNotEmpty() },
+                                        ),
+                                    )
+                                }
                                 if (result != null) {
                                     name = ""
                                     issuer = ""
                                     last4 = ""
+                                    identifierValue = ""
                                 }
                             } catch (t: Throwable) {
                                 error = "创建未完成；界面没有自行伪造已确认数据。请检查输入或正式创建能力。"
@@ -296,7 +410,9 @@ internal fun ProductionManualEstablishScreen(
                 border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
                 Text(
-                    if (canSave) "确认对象存在并保存" else "填写名称后可提交",
+                    if (canSave) "确认对象与已填写事实并保存"
+                    else if (isIdentity) "填写名称与标识值后可提交"
+                    else "填写名称后可提交",
                     Modifier.padding(horizontal = 14.dp, vertical = 13.dp),
                     color = if (canSave) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
@@ -320,7 +436,7 @@ internal fun ProductionManualEstablishScreen(
 
         item {
             EstablishBoundary(
-                "身份对象、设备、会员与自定义对象不会因为界面能显示就擅自开放手工创建；必须遵守当前正式创建规则。"
+                "手机号/邮箱仅在 subtype 与 identifier 同一次权威事务中被用户确认后开放；其他通用身份、设备、会员与自定义对象仍不会因为界面能显示就擅自开放创建。"
             )
         }
     }
