@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: android-vnext-tablet-pixels-${{ github.sha }}
+  group: android-vnext-tablet-pixels-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
