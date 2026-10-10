@@ -118,12 +118,41 @@ class ProductionVNextShellContractTest {
 
         compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("个人控制面").assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.me.continuity", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.me.infrastructure", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.me.controls", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("我的管理").assertIsDisplayed()
 
         compose.onNodeWithContentDescription("搜索").performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.search", useUnmergedTree = true)
             .assertIsDisplayed()
+    }
+
+    @Test
+    fun expandedMeRemainsAFirstClassPrimaryWorkspace() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 1000)
+            }
+        }
+        compose.runOnIdle { session.appState.navigate(VScreen.ME) }
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.me.continuity", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithTag("pdig.production-vnext.me.infrastructure", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithTag("pdig.production-vnext.me.controls", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithText("我的数字生活", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("号码 / 邮箱 subtype", substring = true).assertExists()
     }
 
     @Test
