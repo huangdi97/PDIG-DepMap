@@ -253,7 +253,11 @@ class ProductionVNextShellContractTest {
             .assertIsDisplayed()
         compose.onNodeWithText("手机号身份").assertIsDisplayed()
         compose.onAllNodesWithText("+86 138 0000 8823")[0].assertIsDisplayed()
-        compose.onNodeWithText("用户已确认", substring = true).assertExists()
+        // Identity-subtype and identifier have separate confirmed evidence.
+        // A generic text matcher is ambiguous when both correctly show the
+        // same confirmation label. Assert their distinct proof surfaces.
+        compose.onNodeWithText("证据引用 1 项", substring = true).assertExists()
+        compose.onNodeWithText("标识证据 1 项", substring = true).assertExists()
         compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
             .assertExists()
         compose.onNodeWithTag("pdig.production-vnext.phone.presentation-entry", useUnmergedTree = true)
