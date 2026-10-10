@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38**
+> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38 + Region/World R39 + Maintenance Canonical R40**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -18,6 +18,8 @@ PDIG_PRODUCT_ARCHITECTURE_CONTROL = R35
 ANDROID_RELEASE_CUTOVER_CONTROL = R36
 IDENTITY_ANCHOR_PROFILE_CONTROL = R37
 IDENTITY_IDENTIFIER_AND_MANUAL_CREATE_CONTROL = R38
+REGION_FACT_CANONICAL_CONTROL = R39
+MAINTENANCE_PROFILE_CANONICAL_CONTROL = R40
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_MACHINE_GATED
 PRODUCTION_VNEXT_TWO_KEY_CUTOVER = SOURCE_IMPLEMENTED
 CURRENT_RELEASE_DEFAULT = LEGACY
@@ -36,7 +38,12 @@ PRODUCTION_PHONE_EMAIL_MAPPING = SOURCE_IMPLEMENTED_R37
 REPLACE_PHONE_SUBTYPE_AUTHORITY_GATE = SOURCE_IMPLEMENTED_R37
 RAW_IDENTITY_IDENTIFIER_VALUE = SOURCE_IMPLEMENTED_R38
 MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = SOURCE_IMPLEMENTED_R38
+REGION_FACT_CANONICAL_READ = SOURCE_IMPLEMENTED_R39
+PRODUCTION_REGION_MAPPING = SOURCE_IMPLEMENTED_R39
 LIFECYCLE_DESIGN = COMPLETE
+MAINTENANCE_PROFILE_CANONICAL_READ = SOURCE_IMPLEMENTED_R40
+PRODUCTION_CARD_NUMBER_MAINTENANCE_READ = SOURCE_IMPLEMENTED_R40
+MAINTENANCE_WRITE_AUTHORITY = HOLD
 
 FRESH_EXACT_HEAD_BUILD = PENDING
 FRESH_EXACT_HEAD_UNIT_TESTS = PENDING
@@ -568,25 +575,38 @@ work before they become confirmed relations.
 
 ## 14. Canonical boundary
 
-Current Canonical schema does **not** yet define R19 card/number lifecycle fields as
-cross-platform semantic fields.
+R40 now registers a governed cross-platform `Node.fields.maintenance_profile`
+contract **inside the existing Node fields envelope**. This is a semantic Canonical
+expansion without silently bumping appSchemaVersion / graph payload version.
 
-Therefore R19 does not:
-- add lifecycle fields to .depmap;
-- write them into `PresentationProfile`;
-- smuggle them through Android-only `fields_json`;
-- claim lifecycle persistence is production-ready.
+Implemented source:
+- shared maintenance vocab in Canonical domain/codegen;
+- fail-closed Kotlin / Swift / ArkTS decoders;
+- card maintenance facts;
+- governed PHONE_NUMBER maintenance facts/schedules;
+- cross-platform conformance fixtures;
+- Production VNext read projection into card/number lifecycle surfaces.
 
-A future lifecycle persistence feature must go through:
+Still intentionally not claimed:
+- direct production write/edit authority for MaintenanceFact / MaintenanceSchedule;
+- automatic occurrence completion;
+- provider policy → Reality without Human Review;
+- installment summary as Canonical v1;
+- a transaction ledger / personal-finance subsystem;
+- release cutover/runtime acceptance.
+
+Permanent rules remain:
 
 ```text
-Spec
-→ schema/migration decision
-→ golden/negative fixtures
-→ conformance
-→ all platform runtimes
-→ UI
+time passed != completed
+notification delivered != completed
+provider policy != Personal Reality
+reference fixture != Production Reality
+missing lifecycle != zero / free / safe
 ```
+
+Production UI may display only facts/schedules that pass the governed decoder.
+Unknown fields remain `未记录`; Preview reference values never backfill Production.
 
 ## 15. Manual Establish
 
@@ -869,7 +889,7 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R38 runtime/conformance evidence, release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
+The next blocker is no longer “missing UI design.” It is fresh exact-head R40 runtime/conformance evidence, release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
 
 R32 removes two former launcher ambiguities:
 - productionRelease ignores both synthetic-reference and production-VNext Intent extras;
