@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.production.ProductionVNextSession
+import com.pdig.uivnext.production.VNextMaintenanceActionGateway
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import com.pdig.uivnext.theme.PdigV2Colors
@@ -35,8 +36,21 @@ internal fun ProductionCardMaintenanceControls(
     session: ProductionVNextSession,
     item: VNextProductionObject,
 ) {
-    if (item.surfaceKind != VNextProductionSurfaceKind.PAYMENT_ASSET) return
     val authority = session.authorities?.maintenance ?: return
+    ProductionCardMaintenanceControls(
+        appState = session.appState,
+        authority = authority,
+        item = item,
+    )
+}
+
+@Composable
+internal fun ProductionCardMaintenanceControls(
+    appState: VAppState,
+    authority: VNextMaintenanceActionGateway,
+    item: VNextProductionObject,
+) {
+    if (item.surfaceKind != VNextProductionSurfaceKind.PAYMENT_ASSET) return
 
     val fee = item.maintenanceFactValue("card_annual_fee_amount")
     val currency = item.maintenanceFactValue("card_annual_fee_currency")
@@ -147,7 +161,7 @@ internal fun ProductionCardMaintenanceControls(
                             if (result.isSuccess) {
                                 feedback = "已记录到本机 Reality"
                                 editFacts = false
-                                session.appState.requestRealityRefresh()
+                                appState.requestRealityRefresh()
                             } else {
                                 error = "保存失败，请检查输入是否符合受治理规则。"
                             }
@@ -218,7 +232,7 @@ internal fun ProductionCardMaintenanceControls(
                             if (result.isSuccess) {
                                 feedback = "年费节点已记录到本机 Reality"
                                 editAnnual = false
-                                session.appState.requestRealityRefresh()
+                                appState.requestRealityRefresh()
                             } else {
                                 error = "保存失败，请检查日期是否符合受治理规则。"
                             }
@@ -238,8 +252,21 @@ internal fun ProductionPhoneMaintenanceControls(
     session: ProductionVNextSession,
     item: VNextProductionObject,
 ) {
-    if (item.surfaceKind != VNextProductionSurfaceKind.PHONE_IDENTITY) return
     val authority = session.authorities?.maintenance ?: return
+    ProductionPhoneMaintenanceControls(
+        appState = session.appState,
+        authority = authority,
+        item = item,
+    )
+}
+
+@Composable
+internal fun ProductionPhoneMaintenanceControls(
+    appState: VAppState,
+    authority: VNextMaintenanceActionGateway,
+    item: VNextProductionObject,
+) {
+    if (item.surfaceKind != VNextProductionSurfaceKind.PHONE_IDENTITY) return
 
     val planCost = item.maintenanceFactValue("number_plan_cost")
     val planCurrency = item.maintenanceFactValue("number_plan_currency")
@@ -335,7 +362,7 @@ internal fun ProductionPhoneMaintenanceControls(
                             if (result.isSuccess) {
                                 feedback = "套餐资料已记录到本机 Reality"
                                 editPlan = false
-                                session.appState.requestRealityRefresh()
+                                appState.requestRealityRefresh()
                             } else {
                                 error = "保存失败，请检查输入是否符合受治理规则。"
                             }
@@ -418,7 +445,7 @@ internal fun ProductionPhoneMaintenanceControls(
                                 }
                                 if (result.isSuccess) {
                                     feedback = "保号计划已记录到本机 Reality"
-                                    session.appState.requestRealityRefresh()
+                                    appState.requestRealityRefresh()
                                 } else {
                                     error = "保存失败，请检查输入是否符合受治理规则。"
                                 }
@@ -437,7 +464,7 @@ internal fun ProductionPhoneMaintenanceControls(
                                     }
                                     if (result.isSuccess) {
                                         feedback = "套餐续费节点已记录到本机 Reality"
-                                        session.appState.requestRealityRefresh()
+                                        appState.requestRealityRefresh()
                                     } else {
                                         error = "续费节点保存失败。"
                                     }
@@ -459,7 +486,7 @@ internal fun ProductionPhoneMaintenanceControls(
                                 if (result.isSuccess) {
                                     feedback = "本次保号已明确记录完成"
                                     editKeepAlive = false
-                                    session.appState.requestRealityRefresh()
+                                    appState.requestRealityRefresh()
                                 } else {
                                     error = "完成记录失败；不会自动标记完成。"
                                 }
