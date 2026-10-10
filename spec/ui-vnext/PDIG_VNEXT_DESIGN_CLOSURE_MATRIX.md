@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R34 DESIGN CLOSED / PRODUCTION SOURCE-BINDING + SECURE REHEARSAL INDEX**
+> Status: **R35 DESIGN CLOSED / MACHINE-GATED CANONICAL EXPANSION + R34 PRODUCTION SOURCE INDEX**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -335,7 +335,7 @@ iOS/Harmony UI translation after Android freeze
 real-user/real-data/store gates when reopened
 ~~~
 
-## 15. Design closure assertion + R34 production source progress
+## 15. Design closure assertion + R35 Canonical execution control
 
 Within the product scope and roadmap explicitly described by v2.3-R1, the remaining
 major concepts now have one of three explicit outcomes:
@@ -348,10 +348,34 @@ C. unsafe/out-of-scope behavior → explicitly forbidden
 
 No known v2.3 roadmap concept is allowed to exist only as an ambiguous UI idea.
 
+R35 additionally freezes the implementation dependency graph for future Canonical
+packages:
+
+- `spec/roadmap/canonical-v4-expansion-plan.json`
+- `spec/roadmap/CANONICAL_V4_EXPANSION_EXECUTION_PLAN.md`
+- `tools/validate-canonical-v4-expansion-plan.mjs`
+
+The Canonical CI job now validates package IDs, dependency references, hard-edge
+acyclicity/stage order, proposal ownership, required artifact declarations, safety
+invariants and the permanent five-primary shell.
+
+Recommended first expansion vertical slice:
+
+~~~text
+Identity Anchor Subtype
+→ Production Number / Email identity
+→ subjectSubtype enforcement for replace_phone_number
+~~~
+
+RegionFact, Asset Lifecycle/Maintenance and SecretLocator can then advance as
+parallel Stage-1 foundations. Factor, Device Continuity, Recovery, Digital
+Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
+
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R34
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R35
+CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
 FIVE_PRIMARY_IA = FROZEN
 FUTURE_CAPABILITIES = GATED
 GHOST_CAPABILITIES = FORBIDDEN
