@@ -14,6 +14,7 @@ internal enum class VNextCapability {
     HUMAN_REVIEW,
     CHANGE_PHONE,
     CHANGE_PAYMENT_CARD,
+    DEVICE_CONTINUITY,
     LIFECYCLE_PERSISTENCE,
     IDENTITY_CONTEXT,
     RECOVERY_INCIDENT,
@@ -76,6 +77,12 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
         productionAuthority = VNextProductionAuthority.AVAILABLE,
         reason = "replace_payment_card is an active production scenario and must execute only through the authoritative change gateway.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.DEVICE_CONTINUITY,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Planned replace_device design requires governed factor/device-subtype semantics and a production scenario before UI exposure.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.LIFECYCLE_PERSISTENCE,
