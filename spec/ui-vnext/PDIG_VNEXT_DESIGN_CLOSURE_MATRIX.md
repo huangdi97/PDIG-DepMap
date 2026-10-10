@@ -65,7 +65,7 @@ No roadmap capability creates a sixth primary destination.
 | --- | --- | --- | --- |
 | File Import | complete | R23 read-only | production Host handoff source-bound to existing FileWorkflowCoordinator; launcher host injection pending |
 | Manual Establish object | complete | R24 reference + production form | AppContainer authority + production VNext form source-bound; launcher cutover still gated |
-| Manual Relationship | complete | R25 read-only | requires Native Schema v4 before full production authority; partial v3-only UI forbidden |
+| Manual Relationship | complete | R25 Preview read-only + R31 Production executable | current Canonical v3 runtime registry is authoritative; verifies/bound_to remain future/storage-only |
 | Human Review | complete | R22 reference + production inbox | production Proposal/Candidate/Drift source/action UI bound with authoritative re-read |
 | Proposal != Reality | frozen | enforced in UX | canonical |
 | Candidate != Node | frozen | enforced in UX | canonical |
@@ -192,7 +192,7 @@ Current source includes:
 - authoritative Import projection/authority seam;
 - host-owned FileWorkflowCoordinator request seam;
 - authoritative Manual Establish gateway + production form;
-- explicit Native Schema v4 HOLD surface for Manual Relationship.
+- authoritative Manual Relationship for the current five Canonical v3 runtime relations; future/storage-only relation widening remains HOLD.
 
 Still required before launcher cutover:
 - MainActivity / lock-gate production shell injection;
@@ -246,7 +246,7 @@ GPU runtime evidence
 human pixel acceptance
 Android Reference Freeze
 production VNext screen binding
-manual Dependency gateway (Native Schema v4 prerequisite)
+manual Dependency gateway (R31 implemented for current Canonical v3 runtime relation set)
 Canonical implementations for proposed schemas
 cross-platform conformance for future schemas
 production launcher cutover
