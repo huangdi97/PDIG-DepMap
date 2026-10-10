@@ -333,6 +333,54 @@ class SourceCompleteScreenshotEvidenceTest {
             }
         }
 
+        // R21 Change Center + Replace Payment Card are first-class Human Review
+        // evidence. Preview captures projection truth only; it never executes a
+        // production ChangePlan.
+        capture(
+            "26-change-center",
+            "change",
+            { it.navigate(VScreen.CHANGE) },
+            { it.screen.name.lowercase(Locale.ROOT) },
+        ) {
+            compose.onNodeWithTag("pdig.r20.change-center", useUnmergedTree = true).fetchSemanticsNode()
+        }
+        capture(
+            "27-card-change-current",
+            "current:none",
+            {
+                it.openCardChange("card-cn-2")
+                it.cardChangeProjection = "current"
+                it.chooseReplacementCard(null)
+            },
+            { "${it.cardChangeProjection}:${it.selectedReplacementCardId ?: "none"}" },
+        ) {
+            compose.onNodeWithTag("pdig.r21.change-card", useUnmergedTree = true).fetchSemanticsNode()
+        }
+        capture(
+            "28-card-change-transition-blocked",
+            "transition:none",
+            {
+                it.openCardChange("card-cn-2")
+                it.cardChangeProjection = "transition"
+                it.chooseReplacementCard(null)
+            },
+            { "${it.cardChangeProjection}:${it.selectedReplacementCardId ?: "none"}" },
+        ) {
+            compose.onNodeWithTag("pdig.r21.change-card", useUnmergedTree = true).fetchSemanticsNode()
+        }
+        capture(
+            "29-card-change-after-plan",
+            "after:card-cn-3",
+            {
+                it.openCardChange("card-cn-2")
+                it.chooseReplacementCard("card-cn-3")
+                it.cardChangeProjection = "after"
+            },
+            { "${it.cardChangeProjection}:${it.selectedReplacementCardId ?: "none"}" },
+        ) {
+            compose.onNodeWithTag("pdig.r21.change-card", useUnmergedTree = true).fetchSemanticsNode()
+        }
+
         // 空态（任务书 §18）：state correct + CTA exists；unknown 语义保持（未记录 ≠ 无风险）。
         capture("${deviceClass}-cards-empty", "empty-cards", { it.emptyDemo = true; it.navigate(VScreen.CARDS) }, { "empty-cards" })
         capture("${deviceClass}-numbers-empty", "empty-numbers", { it.emptyDemo = true; it.navigate(VScreen.NUMBERS) }, { "empty-numbers" })
@@ -343,6 +391,6 @@ class SourceCompleteScreenshotEvidenceTest {
         val manifestFile = File(ctx().filesDir, "source-complete-raw-manifest.json")
         manifestFile.writeText(shots.toString(2))
         publish("source-complete-raw-manifest.json", shots.toString(2).toByteArray())
-        assertTrue("expected >= 30 shots, found ${shots.length()}", shots.length() >= 30)
+        assertTrue("expected >= 34 shots, found ${shots.length()}", shots.length() >= 34)
     }
 }
