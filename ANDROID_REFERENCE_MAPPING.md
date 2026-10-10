@@ -735,3 +735,35 @@ Forbidden:
 - relationship creation as a side effect of object creation;
 - fifth-primary IA changes;
 - fake Save button in Preview.
+
+
+## 22. R25 Manual Relationship
+
+Manual graph construction remains a focused Establish child.
+
+~~~text
+confirmed From
+→ runtime-valid Relation
+→ confirmed To
+→ Capability
+→ Criticality
+~~~
+
+Reference defaults criticality to `unknown`. `required` is an explicit human
+decision only.
+
+Current runtime relations:
+- funding_source;
+- merchant_agreement;
+- recovers;
+- authenticates;
+- controls.
+
+Storage-only legacy/future verifies/bound_to remain HOLD.
+
+The Preview has no confirm mutation. Production binding must use a future
+AppContainer-facing manual Dependency authority that validates the canonical
+relation/capability registry and bumps graphRevision transactionally.
+
+Independent-path judgment remains Continuity-engine work, never a checkbox or
+degree count in this page.
