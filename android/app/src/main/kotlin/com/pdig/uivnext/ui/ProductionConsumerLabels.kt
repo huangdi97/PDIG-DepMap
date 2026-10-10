@@ -183,3 +183,23 @@ internal fun productionVisibleObjectName(
     }
     else -> item.name
 }
+
+
+/**
+ * Visible identifier value for governed PHONE / EMAIL identity profiles.
+ *
+ * The value is already subtype-governed Reality. Masking remains a presentation
+ * choice and must never destroy or rewrite the stored identifier.
+ */
+internal fun productionIdentityIdentifierLabel(
+    item: com.pdig.uivnext.production.VNextProductionObject,
+    privacyMask: Boolean,
+): String? {
+    val value = item.identityIdentifierValue?.takeIf { it.isNotBlank() } ?: return null
+    if (!privacyMask) return value
+    return when (item.surfaceKind) {
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY -> "号码已遮蔽"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY -> "邮箱已遮蔽"
+        else -> "标识已遮蔽"
+    }
+}
