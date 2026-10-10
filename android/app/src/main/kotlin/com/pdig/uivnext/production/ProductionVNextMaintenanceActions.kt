@@ -7,6 +7,7 @@ import com.pdig.core.domain.MaintenanceFactWrite
 import com.pdig.core.domain.MaintenanceScheduleWrite
 import com.pdig.core.generated.MaintenanceCadenceKind
 import com.pdig.core.generated.MaintenanceFactKind
+import com.pdig.core.generated.MaintenanceOverflowPolicy
 import com.pdig.core.generated.MaintenanceScheduleKind
 import com.pdig.core.generated.MaintenanceValueType
 
@@ -26,6 +27,12 @@ internal interface VNextMaintenanceActionGateway {
         autopayMode: String? = null,
     ): MaintenanceWriteResult
 
+    fun confirmCardAnnualFeeCheckpoint(
+        nodeId: String,
+        month: Int,
+        day: Int,
+    ): MaintenanceWriteResult
+
     fun confirmPhonePlan(
         nodeId: String,
         planCost: String? = null,
@@ -39,6 +46,11 @@ internal interface VNextMaintenanceActionGateway {
         intervalDays: Int,
         anchorDate: String,
         lastCompletedAt: String? = null,
+    ): MaintenanceWriteResult
+
+    fun confirmPhonePlanRenewalMonthly(
+        nodeId: String,
+        dayOfMonth: Int,
     ): MaintenanceWriteResult
 }
 
@@ -109,6 +121,25 @@ internal class AppContainerVNextMaintenanceActionGateway(
         require(facts.isNotEmpty()) { "no card lifecycle fact supplied" }
         return app.confirmMaintenanceFacts(nodeId, facts)
     }
+
+    override fun confirmCardAnnualFeeCheckpoint(
+        nodeId: String,
+        month: Int,
+        day: Int,
+    ): MaintenanceWriteResult =
+        app.confirmMaintenanceSchedule(
+            nodeId,
+            MaintenanceScheduleWrite(
+                id = stableScheduleId(MaintenanceScheduleKind.CARD_ANNUAL_FEE_CHECKPOINT),
+                kind = MaintenanceScheduleKind.CARD_ANNUAL_FEE_CHECKPOINT,
+                cadence = MaintenanceCadenceWrite(
+                    kind = MaintenanceCadenceKind.YEARLY_MONTH_DAY,
+                    month = month,
+                    day = day,
+                    overflowPolicy = MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY,
+                ),
+            ),
+        )
 
     override fun confirmPhonePlan(
         nodeId: String,
@@ -181,6 +212,23 @@ internal class AppContainerVNextMaintenanceActionGateway(
                     anchorDate = anchorDate.trim(),
                 ),
                 lastCompletedAt = lastCompletedAt?.trim()?.takeIf { it.isNotEmpty() },
+            ),
+        )
+
+    override fun confirmPhonePlanRenewalMonthly(
+        nodeId: String,
+        dayOfMonth: Int,
+    ): MaintenanceWriteResult =
+        app.confirmMaintenanceSchedule(
+            nodeId,
+            MaintenanceScheduleWrite(
+                id = stableScheduleId(MaintenanceScheduleKind.NUMBER_PLAN_RENEWAL),
+                kind = MaintenanceScheduleKind.NUMBER_PLAN_RENEWAL,
+                cadence = MaintenanceCadenceWrite(
+                    kind = MaintenanceCadenceKind.MONTHLY_DAY,
+                    dayOfMonth = dayOfMonth,
+                    overflowPolicy = MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY,
+                ),
             ),
         )
 }
