@@ -26,6 +26,7 @@ internal val commandTargets = listOf(
     CommandTarget(VScreen.RECORDS, "记录", "已发生事件、验证状态与依据", listOf("历史", "时间线", "验证", "证据")),
     CommandTarget(VScreen.REVIEW, "待复核", "确认系统发现的关系、对象候选与现实漂移", listOf("复核", "确认", "建议", "proposal", "candidate", "drift")),
     CommandTarget(VScreen.IMPORT, "建立基础设施", "本机导入并确认要记录的对象", listOf("导入", "账单", "文件", "建立", "新增来源")),
+    CommandTarget(VScreen.MANUAL_ADD, "手工记录", "手工建立明确存在的基础设施对象", listOf("手工", "添加", "新建对象", "录入")),
     CommandTarget(VScreen.SOURCES, "数据源", "当前工作区的数据边界", listOf("来源", "数据")),
     CommandTarget(VScreen.PERSONALIZATION, "设置 · 个性化", "外观、隐私与动效偏好", listOf("设置", "隐私", "个性化")),
 )
