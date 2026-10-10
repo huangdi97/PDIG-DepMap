@@ -27,7 +27,7 @@
 
     "IdentityAnchorSubtype": {
       "values": ["phone_number", "email_address", "other_identity"],
-      "note": "Governed subtype vocabulary for Node.kind=identity_anchor. Storage mapping is Node.fields.subtype / physical fields_json.subtype. Presence in the enum registry does not by itself authorize inference or production Number/Email projection; confirmed Reality authority is required."
+      "note": "Governed subtype vocabulary for Node.kind=identity_anchor. Authoritative storage is inside the governed Node.fields.identity_anchor_profile structure, not a bare free-form fields_json.subtype key. Presence in the enum registry does not by itself authorize inference or production Number/Email projection; confirmed Reality authority is required."
     },
 
     "Relation": {
@@ -316,24 +316,30 @@
       },
       "structuredFieldContracts": {
         "identity_anchor": {
-          "subtype": {
-            "type": "IdentityAnchorSubtype|null",
-            "logicalPath": "Node.fields.subtype",
-            "physicalStorage": "nodes.fields_json.subtype",
+          "identity_anchor_profile": {
+            "type": "IdentityAnchorProfileV1|null",
+            "logicalPath": "Node.fields.identity_anchor_profile",
+            "physicalStorage": "nodes.fields_json.identity_anchor_profile",
             "default": null,
             "authority": "confirmed_reality",
-            "unknownBehavior": "absent_or_null_stays_generic_identity",
+            "requiredConfirmedFields": ["version", "subtype", "verification_basis_type", "confirmed_at"],
+            "profileVersion": 1,
+            "subtypeType": "IdentityAnchorSubtype",
+            "verificationBasisType": "VerificationBasisType",
+            "unknownBehavior": "absent_invalid_or_unconfirmed_profile_stays_generic_identity",
+            "legacyBareSubtypePolicy": "fields_json.subtype is never confirmation authority and may at most become a review candidate",
             "forbiddenInference": [
               "name_regex",
               "phone_prefix_or_country_code",
               "provider_or_carrier_label",
               "email_shaped_string",
+              "legacy_bare_fields_json_subtype",
               "dependency_relation",
               "scenario_entry",
               "presentation_theme",
               "locale_or_region"
             ],
-            "note": "This is a Canonical governed structured field carried inside the existing cross-platform Node.fields object. It is not an Android-only free-form convention."
+            "note": "Canonical governed structured profile carried inside the existing cross-platform Node.fields object. It is not an Android-only free-form convention; confirmation provenance is mandatory."
           }
         }
       },
