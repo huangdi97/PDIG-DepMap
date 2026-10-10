@@ -37,6 +37,8 @@ import com.pdig.uivnext.production.ProductionConsumerInventory
 import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.VNextProductionRecordState
 import com.pdig.uivnext.production.VNextProductionSnapshot
+import com.pdig.uivnext.ui.components.ProductionCardAppearanceStrip
+import com.pdig.uivnext.ui.components.ProductionPaymentAssetFace
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
@@ -346,12 +348,34 @@ private fun ProductionCardDetail(
         )
         return
     }
+    val app = session.appState
     val snapshot = session.dataSource.productionSnapshot()
+    val cardObject = snapshot?.objects?.firstOrNull { it.id == card.id }
+    val presentation = app.savedPresentationProfile("card", card.id)
     val impact = session.dataSource.productionImpact(card.id)
     val related = snapshot?.confirmedDependencies.orEmpty().filter {
         it.fromId == card.id || it.toId == card.id
     }
     ProductionPage(modifier, card.name, "支付工具 · 已确认数据") {
+        if (cardObject != null) {
+            ProductionPaymentAssetFace(
+                asset = cardObject,
+                presentation = presentation,
+                privacyMask = app.privacyMask,
+            )
+            ProductionCardAppearanceStrip(
+                selectedTheme = presentation?.themeId ?: "minimal",
+                onSelect = { theme ->
+                    val next = app.presentationProfile("card", card.id, theme).copy(
+                        themeId = theme,
+                        backgroundKind = "preset",
+                        backgroundValue = theme,
+                    )
+                    app.savePresentationProfile(next)
+                },
+            )
+        }
+
         ProductionFactCard(
             title = card.issuer ?: "发行方未记录",
             subtitle = card.last4?.let { "尾号 $it" } ?: "尾号未记录",
