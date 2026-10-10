@@ -1,5 +1,8 @@
 package com.pdig.uivnext.ui.screens
 
+import com.pdig.uivnext.capability.VNextCapability
+import com.pdig.uivnext.capability.hasProductionAuthority
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +47,7 @@ internal fun R23ImportReferenceScreen(
     app: VAppState,
     breakpoint: MediaBreakpoint,
 ) {
+    val productionImportReady = hasProductionAuthority(VNextCapability.FILE_IMPORT)
     val maxWidth = when (breakpoint) {
         MediaBreakpoint.COMPACT -> 640.dp
         MediaBreakpoint.MEDIUM -> 820.dp
@@ -101,7 +105,7 @@ internal fun R23ImportReferenceScreen(
                 number = "1",
                 title = "选择数据来源",
                 detail = "使用已有 SourceInstance，或为新的账单/导出文件命名来源。",
-                state = "正式工作区",
+                state = if (productionImportReady) "正式 authority 已存在" else "正式 authority HOLD",
                 tint = PdigV2Colors.PrimaryBright,
             )
             ImportReferenceStep(
@@ -129,8 +133,12 @@ internal fun R23ImportReferenceScreen(
                     Text("当前是隔离预览", color = PdigV2Colors.TextPrimary,
                         fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Text(
-                        "为了不把设计演示伪装成真实导入，这里不拉起文件选择器、不读取文件、" +
-                            "不创建 SourceInstance，也不提交任何 Proposal。",
+                        if (productionImportReady)
+                            "正式工作区已经有受治理的文件选择/解析/提交 authority；Preview 仍不调用它，" +
+                                "因此这里不拉起文件选择器、不读取文件，也不写入 Reality。"
+                        else
+                            "为了不把设计演示伪装成真实导入，这里不拉起文件选择器、不读取文件、" +
+                                "不创建 SourceInstance，也不提交任何 Proposal。",
                         color = PdigV2Colors.TextMuted,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,
