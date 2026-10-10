@@ -144,7 +144,7 @@ private fun ProductionTopBar(app: VAppState) {
                 }
             }
             Text(
-                "已确认 Reality",
+                productionBoundaryBadge(app.screen),
                 color = PdigV2Colors.PrimaryText,
                 fontSize = 10.sp,
                 modifier = Modifier.testTag("pdig.production-vnext.truth-badge"),
@@ -731,6 +731,15 @@ private fun ProductionUnavailable(title: String, body: String, modifier: Modifie
         Spacer(Modifier.height(8.dp))
         Text(body, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
     }
+}
+
+private fun productionBoundaryBadge(screen: VScreen): String = when (screen) {
+    VScreen.REVIEW -> "待复核 · 未进入 Reality"
+    VScreen.SETTINGS, VScreen.PERSONALIZATION -> "本机呈现偏好"
+    VScreen.IMPORT, VScreen.MANUAL_ADD, VScreen.MANUAL_RELATION -> "建立 · Authority"
+    VScreen.SEARCH -> "生产数据搜索"
+    VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> "ChangePlan Authority"
+    else -> "生产 Reality"
 }
 
 private fun isProductionRoot(screen: VScreen): Boolean =
