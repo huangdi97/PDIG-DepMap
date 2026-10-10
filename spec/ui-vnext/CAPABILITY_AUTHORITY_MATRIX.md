@@ -1,7 +1,7 @@
 # PDIG UI vNext — Capability / Authority Matrix
 
 > Date: 2026-10-10  
-> Status: **R34 CURRENT NORMATIVE CONTRACT**
+> Status: **R38 CURRENT NORMATIVE CONTRACT**
 >
 > Purpose: prevent a valid design/reference surface from being mistaken for an
 > executable production capability.
@@ -43,14 +43,15 @@ production solver = no
 | Capability | Reference visibility | Production authority | Current rule |
 | --- | --- | --- | --- |
 | File Import | visible reference | available | Preview explains flow; Production must reuse FileWorkflowCoordinator/AppContainer |
-| Manual Create | visible reference | available | AppContainer authority exists; Preview remains read-only; production screen binding still gated |
+| Manual Create | visible reference | available | Production supports generic runtime-creatable Nodes plus governed atomic phone/email identity establishment; Preview remains read-only |
 | Manual Relationship | visible reference | available for current v3 runtime set | Production may create only funding_source / merchant_agreement / recovers / authenticates / controls via canonical relation validation; verifies / bound_to remain unavailable |
 | Human Review | visible reference | available | Preview read-only; Production decisions go through Proposal/Candidate/Drift gateways |
 | Replace Phone | visible reference | available | execute only through ChangePlan gateway |
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
 | Lifecycle Persistence | visible reference | requires Canonical | R19 lifecycle facts are synthetic/reference until shared schema exists |
 | RegionFact | visible reference | requires Canonical | Preview Region/Globe valid; Production geography remains zero-label until governed RegionFact exists |
-| Identity Anchor Subtype | visible when governed profile is confirmed | available for read/classification | Production VNext maps valid PHONE_NUMBER/EMAIL_ADDRESS profiles; missing/invalid/bare subtype stays generic |
+| Identity Anchor Subtype | visible when governed profile is confirmed | available | Production VNext maps valid PHONE_NUMBER/EMAIL_ADDRESS profiles; missing/invalid/bare subtype stays generic |
+| Identity Identifier | visible when independently confirmed | available | exact confirmed phone/email identifier is projected/searchable with privacy masking; invalid identifier fails closed without erasing valid subtype |
 | Identity Context | hidden | requires Canonical | no selector/search ghost capability before governed membership |
 | Device Continuity | hidden | requires Canonical | future replace-device flow needs governed device/factor semantics |
 | Digital Resource Continuity | hidden | requires Canonical | future domain/DNS/repository/cloud continuity remains gated |
@@ -96,10 +97,13 @@ A Compose screen is never authority.
 
 ## 5. Canonical-required capabilities
 
-Lifecycle Persistence, RegionFact, Identity Context, raw identity identifier value / manual Number-Email creation,
+Lifecycle Persistence, RegionFact, Identity Context,
 Device/Digital Resource/Trusted Handoff future semantics and Recovery Preparedness
-need shared schema/version/migration/fixtures/conformance before Production can own
+still need their own shared Canonical/runtime activation before Production can own
 them.
+
+Phone/email subtype, independently confirmed identifier value, and atomic manual
+Number/Email creation are no longer in this HOLD list: R37/R38 govern them.
 
 Do not route around those gates through `fields_json`, local preferences or
 Android-only tables.
