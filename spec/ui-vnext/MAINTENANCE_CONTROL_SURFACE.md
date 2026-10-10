@@ -231,9 +231,11 @@ exists. Missing lifecycle should leave the row clean rather than adding “0”.
 
 ## 10. Timeline / Now
 
-R40 durable schedules are not themselves proof of an occurrence engine.
+R40 durable schedules are not themselves proof of completion. R41 now implements the
+derived occurrence engine and binds its next actionable occurrences into Production
+Timeline / Now.
 
-Future/current occurrence projection must remain derived:
+Occurrence projection remains derived:
 
 ```text
 MaintenanceSchedule
@@ -293,7 +295,9 @@ Runtime:
 MAINTENANCE_UX_DESIGN = FROZEN
 R40_CANONICAL_READ = SOURCE_IMPLEMENTED
 R40_CANONICAL_WRITE_AUTHORITY = SOURCE_IMPLEMENTED
-R41_PRODUCTION_EDITOR = SOURCE_IMPLEMENTATION_TARGET
+R41_PRODUCTION_EDITOR = SOURCE_IMPLEMENTED
+R41_MAINTENANCE_OCCURRENCE_TO_NOW = SOURCE_IMPLEMENTED
+R41_EXPLICIT_KEEP_ALIVE_COMPLETION = SOURCE_IMPLEMENTED
 RUNTIME_ACCEPTANCE = PENDING
 RELEASE_CUTOVER = HOLD
 ```
