@@ -217,10 +217,15 @@ internal fun productionSearchHits(
         ) return@mapNotNull null
         ProductionSearchHit.ObjectHit(
             item = item,
-            title = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY)
-                visibleNumberDisplayName(item.name, numberAlias, effectivePrivacyMask)
-            else
-                productionVisibleObjectName(item, effectivePrivacyMask),
+            title = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY) {
+                // Global privacy hides the identity label as well as its identifier.
+                // Object-local masking retains the independently configured alias
+                // unless the alias itself resembles a sensitive number.
+                if (privacyMask) "手机号身份（已遮蔽）"
+                else visibleNumberDisplayName(item.name, numberAlias, effectivePrivacyMask)
+            } else {
+                productionVisibleObjectName(item, effectivePrivacyMask)
+            },
             subtitle = listOfNotNull(
                 kindLabel,
                 item.issuer,
