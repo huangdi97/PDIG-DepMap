@@ -260,20 +260,36 @@ private fun ProductionActionCard(
     val prerequisitesMet = action.prerequisiteActionIds.all { id ->
         actionsById[id]?.done == true
     }
-    val verified = action.verificationStatus == "verified"
+    val verificationStatus = action.verificationStatus
+    val verified = verificationStatus == "verified"
+    val verificationPending = verificationStatus == "pending" ||
+        verificationStatus == "evidence_suggested"
+    val verificationNotRequired = verificationStatus == null ||
+        verificationStatus == "not_required"
     val planExecutable = plan.readiness != "blocked" &&
         plan.effectiveState != "needs_revalidation"
     val canComplete = canMutate && planExecutable && !action.done && prerequisitesMet
-    val canVerify = canMutate && action.done && !verified
+    // Match the authoritative legacy plan UI: only pending/evidence_suggested
+    // verification states expose confirmation. Failed/not-required are not
+    // locally converted into a retry/success state.
+    val canVerify = canMutate && action.done && verificationPending
 
     val stateLabel = when {
         verified -> "已验证"
-        action.verificationStatus == "failed" -> "验证失败"
-        action.verificationStatus == "pending" ||
-            action.verificationStatus == "evidence_suggested" -> "待验证"
-        action.done -> "已记录完成 · 尚未验证"
+        verificationStatus == "failed" -> "验证未通过"
+        action.done && verificationPending -> "已完成 · 待验证"
+        action.done && verificationNotRequired -> "已完成 · 无需验证"
+        verificationPending -> "待验证"
         !prerequisitesMet -> "等待前置步骤"
         else -> "待执行"
+    }
+
+    val verifyLabel = when {
+        verified -> "已验证"
+        verificationStatus == "failed" -> "验证未通过"
+        verificationNotRequired -> "无需验证"
+        verificationPending -> "确认验证"
+        else -> "验证"
     }
 
     Surface(
@@ -319,7 +335,7 @@ private fun ProductionActionCard(
                     modifier = Modifier.weight(1f),
                 )
                 ChangeActionButton(
-                    label = if (verified) "已验证" else "验证",
+                    label = verifyLabel,
                     enabled = canVerify,
                     onClick = onVerify,
                     modifier = Modifier.weight(1f),
