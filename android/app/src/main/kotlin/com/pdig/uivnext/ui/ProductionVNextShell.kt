@@ -570,7 +570,10 @@ private fun ProductionCardDetail(
             related.forEach { dep ->
                 val outward = dep.fromId == card.id
                 ProductionFactCard(
-                    title = if (outward) dep.toName else dep.fromName,
+                    title = productionVisibleRelationPeerName(
+                        snapshot, if (outward) dep.toId else dep.fromId,
+                        if (outward) dep.toName else dep.fromName, app,
+                    ),
                     subtitle = listOf(
                         if (outward) "从此卡指向" else "指向此卡",
                         productionRelationLabel(dep.relation),
