@@ -313,8 +313,8 @@ ANDROID_REFERENCE = MAY_DEMONSTRATE_RICHER_SYNTHETIC_PHONE_UI
 PRODUCTION_CONFIRMED_PHONE = PHONE_IDENTITY
 PRODUCTION_CONFIRMED_EMAIL = EMAIL_IDENTITY
 PRODUCTION_UNCONFIRMED_OR_INVALID = GENERIC_IDENTITY
-RAW_IDENTIFIER_VALUE = NOT_YET_CANONICAL
-MANUAL_NUMBER_EMAIL_CREATE = NOT_YET_EXECUTABLE
+RAW_IDENTIFIER_VALUE = R38_GOVERNED_NESTED_IDENTIFIER
+MANUAL_NUMBER_EMAIL_CREATE = R38_SOURCE_IMPLEMENTED_ANDROID_AUTHORITY
 ```
 
 
@@ -323,39 +323,35 @@ MANUAL_NUMBER_EMAIL_CREATE = NOT_YET_EXECUTABLE
 Subtype answers **what kind of anchor this is**. It must not be overloaded with the
 identifier value itself.
 
-Recommended future typed profile shape:
-
-~~~text
-IdentityAnchorProfile
-  nodeId
-  subtype
-  identifierState
-  identifierValue?
-  comparisonKey?
-  providerLabel?
-  regionCode?
-  source
-  evidenceRefs[]
-  confirmedAt?
-  updatedAt
-~~~
-
-`identifierState`:
-
-~~~text
-CONFIRMED_VALUE
-CONFIRMED_SUBTYPE_ONLY
-UNKNOWN
-~~~
-
-This lets a user confirm “this object is a phone identity” without being forced to
-store the raw number.
-
-R37 chooses the typed Node substructure for v1:
+R38 keeps the R37 profile version and adds an **optional independently confirmed**
+nested identifier:
 
 ~~~text
 Node.fields.identity_anchor_profile
+  version
+  subtype
+  verification_basis_type
+  confirmed_at
+  evidence_refs[]
+  identifier?:
+    value
+    verification_basis_type
+    confirmed_at
+    evidence_refs[]
 ~~~
+
+This intentionally supports two valid states:
+
+~~~text
+confirmed subtype only
+confirmed subtype + confirmed identifier value
+~~~
+
+A malformed/missing nested identifier does **not** destroy a valid confirmed subtype;
+it simply leaves the raw value unavailable.
+
+No comparisonKey/providerLabel/regionCode is introduced in R38. Those remain separate
+future/governed facts rather than being inferred from the identifier.
 
 The physical JSON envelope is shared by all runtimes and already round-trips in
 graph payload v3; the **profile schema and provenance requirements** are the
@@ -427,28 +423,36 @@ Availability belongs to explicit incident/runtime evidence.
 
 ## 17. Manual Establish unlock
 
-R24 correctly keeps Number/Email manual creation non-executable while subtype is
-ungoverned.
+R24 correctly kept Number/Email manual creation non-executable while subtype was
+ungoverned. R37/R38 now satisfy that specific authority prerequisite.
 
-After Canonical implementation, the authoritative transaction should be:
+The authoritative R38 transaction is:
 
 ~~~text
 Manual Number
 → create Node(identity_anchor)
-→ create confirmed subtype PHONE_NUMBER
-→ graphRevision bump once
+→ write confirmed subtype PHONE_NUMBER
+→ write independently confirmed exact identifier value
+→ graphRevision bump exactly once
 → no Dependency auto-created
 
 Manual Email
 → create Node(identity_anchor)
-→ create confirmed subtype EMAIL_ADDRESS
-→ graphRevision bump once
+→ write confirmed subtype EMAIL_ADDRESS
+→ write independently confirmed exact identifier value
+→ graphRevision bump exactly once
 → no Dependency auto-created
 ~~~
 
-Node creation and subtype confirmation must be atomic at the logical Reality
-boundary. A half-created generic node must not be presented as a successfully saved
-Number/Email.
+Android Production VNext now binds this transaction through
+`AppContainer.createManualIdentityAnchor` and the Manual Establish gateway/form.
+
+Node creation, subtype confirmation and identifier confirmation are atomic at the
+logical Reality boundary. A half-created generic node must not be presented as a
+successfully saved Number/Email.
+
+Equal identifier values do not silently merge objects; duplicate review remains a
+future Human Review capability.
 
 ## 18. Lifecycle / Identity Context composition
 
@@ -535,6 +539,8 @@ BARE_FIELDS_JSON_SUBTYPE = NOT_AUTHORITY
 CANONICAL_RUNTIME_PROFILE_READ = SOURCE_IMPLEMENTED
 PRODUCTION_PHONE_EMAIL_MAPPING = SOURCE_IMPLEMENTED
 REPLACE_PHONE_TARGET_SUBTYPE_GATE = SOURCE_IMPLEMENTED
-RAW_IDENTIFIER_VALUE_CANONICAL = HOLD
-MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = HOLD
+RAW_IDENTIFIER_VALUE_CANONICAL = SOURCE_IMPLEMENTED_R38
+MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = SOURCE_IMPLEMENTED_R38
+IDENTIFIER_PROVIDER_REGION_INFERENCE = FORBIDDEN
+IDENTIFIER_DUPLICATE_AUTO_MERGE = FORBIDDEN
 ~~~
