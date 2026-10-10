@@ -113,6 +113,9 @@ internal fun ProductionSearchScreen(
             numberMaskLookup = { id ->
                 app.savedPresentationProfile("phoneNumber", id)?.maskSensitive == true
             },
+            cardMaskLookup = { id ->
+                app.savedPresentationProfile("card", id)?.maskSensitive == true
+            },
         )
     }
 
@@ -165,6 +168,7 @@ internal fun productionSearchHits(
     privacyMask: Boolean = false,
     numberAliasLookup: (String) -> String? = { null },
     numberMaskLookup: (String) -> Boolean = { false },
+    cardMaskLookup: (String) -> Boolean = { false },
 ): List<ProductionSearchHit> {
     val normalized = query.trim()
     if (normalized.isEmpty()) return emptyList()
@@ -177,9 +181,11 @@ internal fun productionSearchHits(
         val numberAlias = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY)
             numberAliasLookup(item.id)?.trim()?.takeIf { it.isNotEmpty() }
         else null
-        val effectivePrivacyMask = privacyMask ||
-            (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY &&
-                numberMaskLookup(item.id))
+        val effectivePrivacyMask = privacyMask || when (item.surfaceKind) {
+            VNextProductionSurfaceKind.PHONE_IDENTITY -> numberMaskLookup(item.id)
+            VNextProductionSurfaceKind.PAYMENT_ASSET -> cardMaskLookup(item.id)
+            else -> false
+        }
         val maintenanceTerms = buildList<String?> {
             item.maintenanceFacts.forEach { fact ->
                 add(fact.kind)
