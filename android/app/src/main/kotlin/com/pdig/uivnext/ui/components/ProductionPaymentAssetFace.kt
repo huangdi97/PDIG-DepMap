@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -91,11 +92,14 @@ internal fun ProductionPaymentAssetFace(
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.25f)),
         shadowElevation = 2.dp,
     ) {
-        Box(
+        BoxWithConstraints(
             Modifier
                 .aspectRatio(1.586f)
                 .background(cardFaceBaseBrush(identity, theme)),
         ) {
+            // A 2-column consumer card on a phone is ~160dp wide, not a
+            // full-width card detail. Adapt the identity typography in place.
+            val compactFace = maxWidth < 220.dp
             if (localArt != null) {
                 Image(
                     bitmap = localArt.asImageBitmap(),
@@ -121,7 +125,7 @@ internal fun ProductionPaymentAssetFace(
                     drawCardArtwork(identity, theme, material)
                 }
             }
-            Column(Modifier.fillMaxSize().padding(18.dp)) {
+            Column(Modifier.fillMaxSize().padding(if (compactFace) 9.dp else 18.dp)) {
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -129,23 +133,23 @@ internal fun ProductionPaymentAssetFace(
                 ) {
                     Column(
                         Modifier.weight(1f),
-                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                        verticalArrangement = Arrangement.spacedBy(if (compactFace) 1.dp else 3.dp),
                     ) {
                         Text(
                             asset.name,
                             color = PdigV2Colors.AssetTextPrimary,
-                            fontSize = 16.sp,
+                            fontSize = if (compactFace) 11.sp else 16.sp,
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
                         )
                         Text(
                             issuer,
                             color = PdigV2Colors.AssetTextSecondary,
-                            fontSize = 12.sp,
+                            fontSize = if (compactFace) 9.sp else 12.sp,
                             maxLines = 1,
                         )
                     }
-                    Text(
+                    if (!compactFace) Text(
                         "支付工具",
                         color = PdigV2Colors.AssetTextMuted,
                         fontSize = 10.sp,
@@ -161,11 +165,11 @@ internal fun ProductionPaymentAssetFace(
                         else -> "••••  ${asset.last4}"
                     },
                     color = PdigV2Colors.AssetTextPrimary,
-                    fontSize = 19.sp,
+                    fontSize = if (compactFace) 12.sp else 19.sp,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.SemiBold,
                 )
-                Text(
+                if (!compactFace) Text(
                     "只显示已确认身份字段",
                     color = PdigV2Colors.AssetTextMuted,
                     fontSize = 9.sp,
