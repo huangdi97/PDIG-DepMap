@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R29**
+> **Current reality · 2026-10-10 · R30**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,24 +13,24 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R29
+ANDROID_UI_VNEXT_SOURCE = R30
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_CUTOVER = HOLD
 
-CANONICAL_SCHEMA_CHANGE_FOR_R29_SOURCE = NONE
-DEPMAP_PAYLOAD_CHANGE_FOR_R29_SOURCE = NONE
+CANONICAL_SCHEMA_CHANGE_FOR_R30_SOURCE = NONE
+DEPMAP_PAYLOAD_CHANGE_FOR_R30_SOURCE = NONE
 
-FRESH_R29_BUILD = PENDING
-FRESH_R29_UNIT_TESTS = PENDING
-FRESH_R29_INSTRUMENTATION = PENDING
-FRESH_R29_PHONE_PIXELS = PENDING
-FRESH_R29_TABLET_PIXELS = PENDING
-FRESH_R29_HUMAN_ACCEPTANCE = PENDING
+FRESH_R30_BUILD = PENDING
+FRESH_R30_UNIT_TESTS = PENDING
+FRESH_R30_INSTRUMENTATION = PENDING
+FRESH_R30_PHONE_PIXELS = PENDING
+FRESH_R30_TABLET_PIXELS = PENDING
+FRESH_R30_HUMAN_ACCEPTANCE = PENDING
 ```
 
-Do not reuse pre-R29 screenshots or old PASS statements as proof of the current
+Do not reuse pre-R30 screenshots or old PASS statements as proof of the current
 source.
 
 ## 1. Navigation / shell
@@ -92,7 +92,7 @@ maintenance remains on Now. Records keeps its evidence/history boundary.
 | Emails | **IMPLEMENTED_SOURCE** — collection + recovery-aware focused detail + Impact Lens |
 | Devices | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens |
 | Services | **IMPLEMENTED_SOURCE** — collection + recorded incoming relations + Impact Lens |
-| Weaknesses | **IMPLEMENTED_SOURCE** |
+| Weaknesses | **IMPLEMENTED_SOURCE** — Preview has full seven-class grammar; Production now renders authority-bounded Findings + explicit unsupported coverage |
 | Search | **IMPLEMENTED_SOURCE** |
 | Empty states | **IMPLEMENTED_SOURCE** |
 
@@ -376,6 +376,24 @@ Source progress now also includes:
 The inventory/impact projections are read-only seams. Separate authoritative mutation
 gateways now exist for Change, Human Review and Manual Establish. None of these
 switches the launcher, makes Preview writable, or claims R19 lifecycle persistence.
+
+### R30 production Findings
+
+Production Weaknesses is no longer an all-or-nothing HOLD.
+
+Current authoritative production coverage:
+- single confirmed recovery source;
+- confirmed recovery cycle via shared core detector;
+- pending recovery Proposal as Pending Review;
+- done-but-unverified Change action as Pending Verification.
+
+Still explicit HOLD:
+- shared failure domain;
+- stale recovery information;
+- unknown critical path.
+
+The UI shows that coverage boundary directly. It does not import R27 synthetic
+findings and does not treat an empty supported result set as “safe”.
 
 ### R28/R29 production VNext source binding
 
