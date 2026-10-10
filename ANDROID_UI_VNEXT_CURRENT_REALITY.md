@@ -389,6 +389,7 @@ Production APIs already exist:
 - `completeAction()`
 - `verifyAction()`
 - `createManualNode()`
+- `createManualIdentityAnchor()`
 - Proposal / Candidate / Drift review authorities
 - import preview / commit authorities
 
@@ -468,7 +469,7 @@ Source-bound production surfaces now include:
 - Infrastructure overview;
 - payment-instrument category + focused Card detail + confirmed relation list + authoritative Impact;
 - account / device / service categories + focused generic details + authoritative Impact;
-- explicit HOLD surfaces for Number / Email subtype and Weaknesses Finding projection;
+- governed Number / Email subtype + confirmed identifier surfaces; Weaknesses still exposes only the authoritative Finding classes currently available;
 - Change Center over actual ChangePlan rows;
 - ChangePlan action completion / verification through AppContainer authority;
 - explicit card-detail entry to create or continue `replace_payment_card` ChangePlan;
@@ -488,12 +489,12 @@ Production app-state construction now accepts an injected store-backed `VAppStat
 so local Presentation preferences can persist without entering Canonical Reality.
 
 Still HOLD:
-- MainActivity / lock-gate launcher cutover;
-- phone/email production subtype binding;
-- authoritative production Finding projection for Weaknesses;
+- productionRelease default cutover / final release activation;
+- provider/carrier/SIM/region and number keep-alive authority beyond R38 identifier Reality;
+- the Finding classes whose authoritative inputs remain unavailable;
 - R19 lifecycle persistence;
 - future/storage relation widening beyond the current v3 runtime registry;
-- exact-head production/security/runtime E2E.
+- exact-head production/security/runtime/human acceptance.
 
 R22 production governance source now additionally includes:
 - `AppContainerVNextReviewSource`;
@@ -600,17 +601,23 @@ Data Sources
 ~~~
 
 The Preview screen explicitly separates:
-- current Canonical runtime creation set: payment_instrument / account / service;
-- storage-known but not safely exposed manual-create types;
-- identity_anchor, which is too coarse to infer Number vs Email.
+- generic runtime creation set: payment_instrument / account / service;
+- governed identity creation: phone_number / email_address;
+- storage-known types that still are not safely exposed for creation.
 
-R26 now exposes a governed source authority through
-`AppContainer.createManualNode` / `GraphRepository.createManualNode`. It validates
-the generated Canonical runtime-creatable policy, performs Node + graphRevision in
-one transaction, and creates no Dependency.
+R26 generic authority remains:
+`AppContainer.createManualNode` / `GraphRepository.createManualNode`.
 
-The Preview still intentionally shows no Save button. Production screen binding and
-fresh exact-head runtime evidence remain separate gates.
+R38 adds a dedicated identity authority:
+`AppContainer.createManualIdentityAnchor` /
+`GraphRepository.createManualIdentityAnchor`.
+
+Phone/email creation is atomic:
+`Node(identity_anchor) + confirmed subtype + confirmed exact identifier + one graphRevision bump`.
+It creates no Dependency and does not silently merge equal identifiers.
+
+The Preview still intentionally shows no Save button. The **Production VNext form is
+source-bound and executable**; fresh exact-head runtime evidence remains a separate gate.
 
 Permanent rule:
 
@@ -618,7 +625,7 @@ Permanent rule:
 confirm object exists != confirm dependency
 ~~~
 
-This is a production-screen-binding HOLD, not an unfinished visual form or missing mutation authority.
+Manual Establish presentation and mutation authority are source-implemented. The remaining gate is exact-head runtime/security/release acceptance, not a missing save path.
 
 ## 16. Manual Relationship
 
@@ -862,8 +869,7 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R32 runtime
-verification, release cutover acceptance and the Canonical migrations that remain explicitly gated.
+The next blocker is no longer “missing UI design.” It is fresh exact-head R38 runtime/conformance evidence, release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
 
 R32 removes two former launcher ambiguities:
 - productionRelease ignores both synthetic-reference and production-VNext Intent extras;
