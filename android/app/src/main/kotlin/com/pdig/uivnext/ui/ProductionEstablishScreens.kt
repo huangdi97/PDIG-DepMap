@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.core.generated.IdentityAnchorSubtype
+import com.pdig.app.workflow.LocalFileWorkflow
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ManualEstablishInput
 import com.pdig.uivnext.production.ManualIdentityEstablishInput
@@ -41,6 +42,19 @@ internal fun ProductionEstablishScreen(
     modifier: Modifier = Modifier,
 ) {
     val app = session.appState
+    val fileWorkflow = LocalFileWorkflow.current
+    if (
+        isProductionImportWorkflowActive(
+            purpose = fileWorkflow.workflow?.purpose,
+            step = fileWorkflow.workflow?.step,
+            hasPreview = fileWorkflow.importPreview != null,
+            hasResult = fileWorkflow.importResult != null,
+        )
+    ) {
+        ProductionImportWorkflowScreen(session = session, modifier = modifier)
+        return
+    }
+
     LazyColumn(
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.establish"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
