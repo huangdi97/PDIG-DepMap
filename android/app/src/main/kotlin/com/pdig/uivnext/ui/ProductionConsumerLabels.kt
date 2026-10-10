@@ -69,6 +69,13 @@ internal fun productionReadinessLabel(readiness: String): String = when (readine
     else -> "未知准备状态（$readiness）"
 }
 
+internal fun productionActionPhaseLabel(phase: String): String = when (phase) {
+    "prepare" -> "准备"
+    "change" -> "变更"
+    "verify" -> "验证"
+    else -> "未知阶段（$phase）"
+}
+
 internal fun productionScenarioLabel(scenario: String): String = when (scenario) {
     "replace_payment_card" -> "更换支付卡"
     "replace_phone_number" -> "更换手机号"
