@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui
 
+import com.pdig.uivnext.model.VGlobeState
 import com.pdig.uivnext.production.VNextPendingReviewSummary
 import com.pdig.uivnext.production.VNextProductionDependency
 import com.pdig.uivnext.production.VNextProductionObject
@@ -9,6 +10,7 @@ import com.pdig.uivnext.production.VNextSourceCoverageSummary
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import com.pdig.uivnext.production.buildProductionConsumerInventory
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -108,6 +110,30 @@ class ProductionWorldProjectionR39Test {
         assertTrue(world.regions.isEmpty())
         assertTrue(world.arcingPairs.isEmpty())
         assertEquals(1, world.unknownObjectCount)
+    }
+
+    @Test
+    fun productionGlobeClickSelectsSameRegionLensAsInventoryAndCanReset() {
+        val snapshot = snapshot(
+            listOf(objectAt("card-hk", VNextProductionSurfaceKind.PAYMENT_ASSET, "HK")),
+        )
+        val region = buildProductionWorldProjection(
+            snapshot,
+            buildProductionConsumerInventory(snapshot),
+        ).regions.single()
+        val app = VAppState()
+
+        selectProductionWorldRegion(app, region)
+        assertEquals("HK", app.regionFilter)
+        assertEquals("HK", app.globe.selectedRegion)
+        assertEquals(VGlobeState.REGION_SELECTED, app.globe.state)
+
+        app.clearRegion()
+        assertNull(app.regionFilter)
+        assertNull(app.globe.selectedRegion)
+        assertEquals(VGlobeState.GLOBAL, app.globe.state)
+        // The interaction acts only on presentation state, not the source snapshot.
+        assertEquals("HK", snapshot.objects.single().regionLens.territoryCode)
     }
 
     private fun objectAt(
