@@ -43,8 +43,8 @@ production solver = no
 | Capability | Reference visibility | Production authority | Current rule |
 | --- | --- | --- | --- |
 | File Import | visible reference | available | Preview explains flow; Production must reuse FileWorkflowCoordinator/AppContainer |
-| Manual Create | visible reference | not exposed | no Save button until an AppContainer-facing authority exists |
-| Manual Relationship | visible reference | not exposed | no Confirm Relation button until a tested manual Dependency authority exists |
+| Manual Create | visible reference | available | AppContainer authority exists; Preview remains read-only; production screen binding still gated |
+| Manual Relationship | visible reference | requires Native Schema v4 | TS v4 exists; Native v3 SQL CHECK cannot support full R25 runtime relation set |
 | Human Review | visible reference | available | Preview read-only; Production decisions go through Proposal/Candidate/Drift gateways |
 | Replace Phone | visible reference | available | execute only through ChangePlan gateway |
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
@@ -165,3 +165,30 @@ path count != independent path count
 provider support != user configuration
 five-primary IA remains five
 ~~~
+
+
+## 11. R26 concrete authority split
+
+Manual Establish is no longer a generic authority HOLD:
+
+~~~text
+Canonical runtime-creatable policy
+→ generated native constant
+→ GraphRepository.createManualNode
+→ AppContainer.createManualNode
+→ exact transaction + graphRevision
+~~~
+
+Preview still has no Save button.
+
+Manual Relationship remains gated for a different reason:
+
+~~~text
+TS reference Schema v4 = designed/implemented reference
+Native production schema = v3
+R25 relation registry includes authenticates / controls
+v3 SQL CHECK does not
+→ production relationship mutation remains disabled
+~~~
+
+Do not implement a partial v3-only relationship UI.
