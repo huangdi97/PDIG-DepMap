@@ -34,10 +34,27 @@ class VNextCapabilityMatrixTest {
         assertFalse(hasProductionAuthority(VNextCapability.MANUAL_CREATE))
         assertFalse(hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP))
         assertFalse(hasProductionAuthority(VNextCapability.DEVICE_CONTINUITY))
+        assertFalse(hasProductionAuthority(VNextCapability.DIGITAL_RESOURCE_CONTINUITY))
+        assertFalse(hasProductionAuthority(VNextCapability.TRUSTED_HANDOFF))
         assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
         assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_PREPAREDNESS))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_INCIDENT))
+    }
+
+    @Test
+    fun futureDigitalContinuityAndTrustedHandoffStayHidden() {
+        for (capability in listOf(
+            VNextCapability.DIGITAL_RESOURCE_CONTINUITY,
+            VNextCapability.TRUSTED_HANDOFF,
+        )) {
+            assertFalse(canShowReference(capability))
+            assertFalse(hasProductionAuthority(capability))
+            assertEquals(
+                VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+                capabilityGate(capability).visibility,
+            )
+        }
     }
 
     @Test
