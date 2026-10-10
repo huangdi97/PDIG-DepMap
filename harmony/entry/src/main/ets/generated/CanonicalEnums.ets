@@ -10,6 +10,7 @@ export class CanonicalSpec {
   static readonly GRAPH_PAYLOAD_KIND: string = 'depmap-logical-graph'
   static readonly GRAPH_PAYLOAD_VERSION: number = 3
   static readonly RUNTIME_CREATABLE_NODE_KINDS: string[] = ['payment_instrument', 'account', 'service']
+  static readonly RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: string[] = ['phone_number', 'email_address']
 }
 
 export enum NodeKind {
