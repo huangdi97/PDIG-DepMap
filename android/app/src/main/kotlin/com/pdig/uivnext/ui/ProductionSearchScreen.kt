@@ -158,8 +158,17 @@ internal fun productionSearchHits(
         values.filterNotNull().any { it.contains(normalized, ignoreCase = true) }
 
     val objectHits = snapshot.objects.mapNotNull { item ->
-        val kindLabel = productionObjectKindLabel(item.kind)
-        if (!matches(item.name, item.kind, kindLabel, item.issuer, item.last4)) return@mapNotNull null
+        val kindLabel = productionObjectSurfaceLabel(item)
+        if (!matches(
+                item.name,
+                item.kind,
+                kindLabel,
+                item.issuer,
+                item.last4,
+                item.identitySubtype,
+                item.identityVerificationBasisType,
+            )
+        ) return@mapNotNull null
         ProductionSearchHit.ObjectHit(
             item = item,
             title = productionVisibleObjectName(item, privacyMask),
@@ -167,6 +176,7 @@ internal fun productionSearchHits(
                 kindLabel,
                 item.issuer,
                 item.last4?.let { productionPaymentTailLabel(it, privacyMask) },
+                item.identityVerificationBasisType?.let(::productionIdentityBasisLabel),
             ).joinToString(" · "),
         )
     }
@@ -215,6 +225,8 @@ private fun ProductionSearchResult(
     val clickable = when (hit) {
         is ProductionSearchHit.ObjectHit -> hit.item.surfaceKind in setOf(
             VNextProductionSurfaceKind.PAYMENT_ASSET,
+            VNextProductionSurfaceKind.PHONE_IDENTITY,
+            VNextProductionSurfaceKind.EMAIL_IDENTITY,
             VNextProductionSurfaceKind.ACCOUNT,
             VNextProductionSurfaceKind.DEVICE,
             VNextProductionSurfaceKind.SERVICE,
@@ -256,6 +268,9 @@ private fun openProductionSearchHit(
     when (hit) {
         is ProductionSearchHit.ObjectHit -> when (hit.item.surfaceKind) {
             VNextProductionSurfaceKind.PAYMENT_ASSET -> app.openCard(hit.item.id)
+            VNextProductionSurfaceKind.PHONE_IDENTITY -> app.openNumber(hit.item.id)
+            VNextProductionSurfaceKind.EMAIL_IDENTITY ->
+                app.openSecondaryObject(VScreen.EMAIL_DETAIL, hit.item.id)
             VNextProductionSurfaceKind.ACCOUNT ->
                 app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, hit.item.id)
             VNextProductionSurfaceKind.DEVICE ->
