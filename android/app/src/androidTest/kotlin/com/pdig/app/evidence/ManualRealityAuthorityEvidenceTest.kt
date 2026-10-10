@@ -3,9 +3,12 @@ package com.pdig.app.evidence
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.app.data.AppContainer
+import com.pdig.app.data.ManualDependencyCreateRequest
 import com.pdig.app.data.ManualNodeCreateRequest
 import com.pdig.app.platform.AndroidSqliteDriver
+import com.pdig.core.generated.Capability
 import com.pdig.core.generated.NodeKind
+import com.pdig.core.generated.Relation
 import com.pdig.core.schema.migrate
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -66,6 +69,134 @@ class ManualRealityAuthorityEvidenceTest {
             )
             assertEquals(before + 2, second.graphRevision)
             assertEquals(0, app.dependencies().size)
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun manualRelationshipUsesV3RuntimeRegistryAndBumpsOnce() {
+        val (app, driver) = tempContainer("r31-manual-relationship.db")
+        try {
+            val card = app.createManualNode(
+                ManualNodeCreateRequest(
+                    kind = NodeKind.PAYMENT_INSTRUMENT,
+                    name = "主卡",
+                ),
+            ).node
+            val service = app.createManualNode(
+                ManualNodeCreateRequest(
+                    kind = NodeKind.SERVICE,
+                    name = "视频服务",
+                ),
+            ).node
+            val before = app.graphRevision()
+
+            val created = app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = card.id,
+                    relation = Relation.MERCHANT_AGREEMENT,
+                    toNodeId = service.id,
+                    capability = Capability.PAYMENT,
+                ),
+            )
+
+            assertEquals(before + 1, created.graphRevision)
+            assertTrue(created.created)
+            assertTrue(!created.reactivated)
+            assertEquals("merchant_agreement", created.dependency.relation)
+            assertEquals("payment", created.dependency.capability)
+            assertEquals("unknown", created.dependency.criticality)
+            assertEquals("active", created.dependency.state)
+
+            val raw = driver.prepare(
+                "SELECT origin, verification_basis_type FROM dependencies WHERE id = ?",
+            ).get(created.dependency.id)
+            assertEquals("manual", raw?.str("origin"))
+            assertEquals("user_confirmed", raw?.str("verification_basis_type"))
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun manualRelationshipReconfirmKeepsLogicalRowAndExplicitRequiredCanUpgrade() {
+        val (app, driver) = tempContainer("r31-manual-relationship-reconfirm.db")
+        try {
+            val account = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "账户"),
+            ).node
+            val service = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.SERVICE, "服务"),
+            ).node
+
+            val first = app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = account.id,
+                    relation = Relation.MERCHANT_AGREEMENT,
+                    toNodeId = service.id,
+                    capability = Capability.PAYMENT,
+                ),
+            )
+            val revisionAfterFirst = first.graphRevision
+            val second = app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = account.id,
+                    relation = Relation.MERCHANT_AGREEMENT,
+                    toNodeId = service.id,
+                    capability = Capability.PAYMENT,
+                    required = true,
+                ),
+            )
+
+            assertEquals(first.dependency.id, second.dependency.id)
+            assertTrue(!second.created)
+            assertEquals("required", second.dependency.criticality)
+            assertEquals(revisionAfterFirst + 1, second.graphRevision)
+            assertEquals(1, app.dependencies().count { it.id == first.dependency.id })
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun manualRelationshipRejectsCapabilityMismatchAndStorageOnlyRelation() {
+        val (app, driver) = tempContainer("r31-manual-relationship-invalid.db")
+        try {
+            val account = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "账户"),
+            ).node
+            val service = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.SERVICE, "服务"),
+            ).node
+            val before = app.graphRevision()
+
+            val mismatch = runCatching {
+                app.createManualDependency(
+                    ManualDependencyCreateRequest(
+                        fromNodeId = account.id,
+                        relation = Relation.MERCHANT_AGREEMENT,
+                        toNodeId = service.id,
+                        capability = Capability.RECOVERY,
+                    ),
+                )
+            }.exceptionOrNull()
+            assertTrue(mismatch is IllegalArgumentException)
+            assertEquals(before, app.graphRevision())
+
+            val storageOnly = runCatching {
+                app.createManualDependency(
+                    ManualDependencyCreateRequest(
+                        fromNodeId = account.id,
+                        relation = Relation.VERIFIES,
+                        toNodeId = service.id,
+                        capability = Capability.AUTHENTICATION,
+                    ),
+                )
+            }.exceptionOrNull()
+            assertTrue(storageOnly is IllegalArgumentException)
+            assertEquals(before, app.graphRevision())
+            assertTrue(app.dependencies().isEmpty())
         } finally {
             driver.close()
         }
