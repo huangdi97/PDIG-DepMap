@@ -670,3 +670,36 @@ Pending/current/future items must not use Records as a generic “查看全部�
 
 Active Change links go to Change Center. Human Review links go to Review. Upcoming
 maintenance remains in Now until it becomes an actual recorded occurrence.
+
+
+## 20. R23 Establish / Import
+
+R23 maps v2.3's **建立** capability into a focused Evidence-plane workflow.
+
+~~~text
+Data Sources
+→ 建立基础设施
+→ local parse / object confirmation
+→ Proposal / Candidate / Drift
+→ Human Review
+→ Reality
+~~~
+
+Preview only explains the flow. It does not open a file or fabricate an import.
+
+Production translation must reuse the existing Android file workflow and import
+repositories. Import commit may create review work, but never a confirmed
+Dependency directly.
+
+Required visual hierarchy:
+- local-first/truth hero;
+- three clear steps;
+- explicit Preview-disabled boundary;
+- Data Sources / Human Review continuation links.
+
+Forbidden:
+- sixth primary tab;
+- "sync" vocabulary for one-time file import;
+- fake successful import in Preview;
+- Proposal shown as confirmed relation;
+- new VNext parser/picker that bypasses existing lock/re-auth behavior.
