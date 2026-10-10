@@ -222,3 +222,14 @@ Records must not absorb pending or future tasks merely to provide a convenient
   runtime creation set; generic identity/device/membership/custom remain visibly gated.
 - **Forbidden**: form fields that imply unsupported subtype persistence, direct
   relationship editing inside object creation, fake local success state.
+
+
+## R25 — Manual Relationship visual contract
+
+- **Primary object**: a semantic relationship statement, not a graph-editor canvas.
+- **Hierarchy**: Reality warning → five semantic steps → example direction → runtime
+  vocabulary → authority HOLD → path-independence warning.
+- **Required states**: criticality unknown; runtime-valid vs HOLD relation vocabulary.
+- **Preview**: no “确认关系” success action.
+- **Forbidden**: arbitrary free-text relation, auto-required, Proposal-as-Reality,
+  independent-backup checkbox, technical node IDs as main UI.
