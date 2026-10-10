@@ -181,7 +181,10 @@ Current source includes:
 - impact projection;
 - review projection;
 - plan projection;
-- authoritative Change action gateway.
+- authoritative Change action gateway;
+- authoritative Human Review source/action gateway;
+- authoritative Import projection/authority seam;
+- authoritative Manual Establish gateway.
 
 Still required before launcher cutover:
 - screen-level production-source injection;
@@ -234,7 +237,7 @@ GPU runtime evidence
 human pixel acceptance
 Android Reference Freeze
 production VNext screen binding
-manual Node/Dependency gateways
+manual Dependency gateway (Native Schema v4 prerequisite)
 Canonical implementations for proposed schemas
 cross-platform conformance for future schemas
 production launcher cutover
