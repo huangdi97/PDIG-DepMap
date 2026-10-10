@@ -246,7 +246,12 @@ fun ImportScreen(nav: NavController) {
                         wf.busy = true
                         // viewModelScope：即使提交过程中被切到后台也不会被取消
                         wf.launch {
-                            val applied = withContext(Dispatchers.IO) { container.commitImport(p) }
+                            val applied = withContext(Dispatchers.IO) {
+                                container.commitImport(
+                                    preview = p,
+                                    existingSourceId = wf.workflow?.requestedSourceId,
+                                )
+                            }
                             wf.busy = false
                             wf.publishImportResult(applied)
                         }
