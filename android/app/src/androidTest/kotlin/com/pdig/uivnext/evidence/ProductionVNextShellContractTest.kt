@@ -213,6 +213,22 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun cardCollectionDoesNotAdvertiseCreationWithoutProductionAuthority() {
+        val session = session() // Source-only fixture, no manual-establish authority.
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.runOnIdle { session.appState.navigate(VScreen.CARDS) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.inventory-category", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.card.add", useUnmergedTree = true)
+            .assertDoesNotExist()
+    }
+
+    @Test
     fun productionCardDetailKeepsAppearanceAsSmallLocalPresentationFeature() {
         val session = session()
         compose.setContent {
