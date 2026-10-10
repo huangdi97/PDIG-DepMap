@@ -33,6 +33,16 @@ No roadmap capability creates a sixth primary destination.
 | Me | complete | implemented, fifth primary | production personal control surface + store-backed local Presentation preferences wired through VNextShellViewModel |
 | Search | complete | implemented | production Reality-only object / plan / source / route search source-bound |
 
+## 1.1 Typed Control Graph
+
+Core graph semantics are design-frozen in:
+- `spec/proposals/typed-control-graph-v1.md`.
+
+The contract freezes capability-aware state keys, the current v0.3 runtime relation
+registry, criticality authority, DependencyGroup semantics, FailureDomain /
+RecoveryCycle separation, graphRevision behavior and the rule that PDIG must never
+regress to a generic `linked_to` graph.
+
 ## 2. Object understanding
 
 | Capability | Design | Source | Gate |
@@ -151,6 +161,7 @@ No new UI scoring layer is permitted.
 | Cross-platform recovery control-surface independence | complete principle | future runtime/evidence gate; does not imply cloud sync |
 
 Contracts:
+- `spec/proposals/generic-change-kernel-v1.md`
 - `spec/proposals/continuity-analysis-modes-v1.md`
 - `spec/proposals/infrastructure-findings-vnext.md`
 
