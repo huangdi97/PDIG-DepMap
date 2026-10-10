@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.weight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -125,6 +126,23 @@ private fun ProductionTopBar(app: VAppState) {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
             )
+            Surface(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clickable { app.navigate(VScreen.SEARCH) }
+                    .testTag("pdig.production-vnext.search.open"),
+                color = androidx.compose.ui.graphics.Color.Transparent,
+                shape = RoundedCornerShape(VRadius.Sm),
+            ) {
+                androidx.compose.foundation.layout.Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Filled.Search,
+                        contentDescription = "搜索",
+                        tint = PdigV2Colors.TextSecondary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
             Text(
                 "已确认 Reality",
                 color = PdigV2Colors.PrimaryText,
@@ -178,6 +196,7 @@ private fun ProductionContent(
         VScreen.REVIEW -> ProductionReviewScreen(session, modifier)
         VScreen.IMPORT -> ProductionEstablishScreen(session, modifier)
         VScreen.MANUAL_ADD -> ProductionManualEstablishScreen(session, modifier)
+        VScreen.SEARCH -> ProductionSearchScreen(session, modifier)
         else -> ProductionUnavailable(
             title = "该页面尚未完成生产数据绑定",
             body = "当前页面不会使用 Synthetic Reference 代替真实 Reality。返回五个一级入口继续查看已绑定内容。",
