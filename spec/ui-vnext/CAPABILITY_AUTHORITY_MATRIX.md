@@ -1,7 +1,7 @@
 # PDIG UI vNext — Capability / Authority Matrix
 
 > Date: 2026-10-10  
-> Status: **R41 CURRENT NORMATIVE CONTRACT**
+> Status: **R43 CURRENT NORMATIVE CONTRACT**
 >
 > Purpose: prevent a valid design/reference surface from being mistaken for an
 > executable production capability.
@@ -42,7 +42,7 @@ production solver = no
 
 | Capability | Reference visibility | Production authority | Current rule |
 | --- | --- | --- | --- |
-| File Import | visible reference | available | Preview explains flow; Production must reuse FileWorkflowCoordinator/AppContainer |
+| File Import | visible reference | available | R43 Production VNext reuses Activity-scoped FileWorkflowCoordinator/OpenDocument + AppContainer parse/preview/commit, resumes after re-auth, preserves explicit existing SourceInstance identity, and fails closed on adapter mismatch; Preview remains read-only |
 | Manual Create | visible reference | available | Production supports generic runtime-creatable Nodes plus governed atomic phone/email identity establishment; Preview remains read-only |
 | Manual Relationship | visible reference | available for current v3 runtime set | Production may create only funding_source / merchant_agreement / recovers / authenticates / controls via canonical relation validation; verifies / bound_to remain unavailable |
 | Human Review | visible reference | available | Preview read-only; Production decisions go through Proposal/Candidate/Drift gateways |
@@ -80,8 +80,14 @@ Production execution requires an authoritative lower-layer owner.
 
 ~~~text
 Import
-→ FileWorkflowCoordinator
-→ AppContainer.previewImport / commitImport
+→ Production Establish intent
+→ Activity-scoped FileWorkflowCoordinator / OpenDocument
+→ lock / re-auth
+→ one-shot pending URI consume
+→ AppContainer.parseFile / previewImport
+→ human mapping/object review
+→ AppContainer.commitImport(existingSourceId?)
+→ Human Review when Proposal exists
 
 Human Review
 → AppContainer proposal/candidate/drift actions
