@@ -25,6 +25,7 @@ import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
+import com.pdig.uivnext.ui.components.ProductionPhonePresentationEditor
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
@@ -116,7 +117,7 @@ internal fun ProductionInventoryCategoryScreen(
                 ProductionObjectRow(
                     item = item,
                     dependencyCount = dependencyCount(snapshot, item.id),
-                    privacyMask = session.appState.privacyMask,
+                    app = session.appState,
                 ) {
                     when (screen) {
                         VScreen.CARDS -> session.appState.openCard(item.id)
@@ -188,6 +189,10 @@ internal fun ProductionGenericObjectDetailScreen(
         return
     }
 
+    val app = session.appState
+    val phoneProfile = if (detailScreen == VScreen.NUMBER_DETAIL)
+        app.savedPresentationProfile("phoneNumber", item.id) else null
+    val effectivePrivacyMask = app.privacyMask || (phoneProfile?.maskSensitive == true)
     val impact = session.dataSource.productionImpact(item.id)
     val related = snapshot.confirmedDependencies.filter {
         it.fromId == item.id || it.toId == item.id
@@ -201,7 +206,10 @@ internal fun ProductionGenericObjectDetailScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    productionVisibleObjectName(item, session.appState.privacyMask),
+                    if (detailScreen == VScreen.NUMBER_DETAIL)
+                        app.numberDisplayNameForScreen(item.id, item.name)
+                    else
+                        productionVisibleObjectName(item, effectivePrivacyMask),
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
@@ -224,7 +232,7 @@ internal fun ProductionGenericObjectDetailScreen(
                     )
                     productionIdentityIdentifierLabel(
                         item,
-                        session.appState.privacyMask,
+                        effectivePrivacyMask,
                     )?.let { identifier ->
                         Text(
                             identifier,
@@ -249,6 +257,12 @@ internal fun ProductionGenericObjectDetailScreen(
         }
 
         if (detailScreen == VScreen.NUMBER_DETAIL) {
+            item {
+                ProductionPhonePresentationEditor(
+                    item = item,
+                    app = app,
+                )
+            }
             item {
                 Text(
                     "号码生命周期",
@@ -616,9 +630,20 @@ private fun productionMaintenanceScheduleSummary(
 private fun ProductionObjectRow(
     item: VNextProductionObject,
     dependencyCount: Int,
-    privacyMask: Boolean,
+    app: VAppState,
     onClick: () -> Unit,
 ) {
+    val presentationMask = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY) {
+        app.savedPresentationProfile("phoneNumber", item.id)?.maskSensitive == true
+    } else {
+        false
+    }
+    val privacyMask = app.privacyMask || presentationMask
+    val visibleName = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY) {
+        app.numberDisplayNameForScreen(item.id, item.name)
+    } else {
+        productionVisibleObjectName(item, privacyMask)
+    }
     Surface(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         color = PdigV2Colors.Surface,
@@ -631,7 +656,7 @@ private fun ProductionObjectRow(
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
-                    productionVisibleObjectName(item, privacyMask),
+                    visibleName,
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
