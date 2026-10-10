@@ -61,6 +61,10 @@ import com.pdig.uivnext.ui.screens.R20ChangeCenter
 import com.pdig.uivnext.ui.screens.R20SecondaryObjectDetail
 import com.pdig.uivnext.ui.screens.R21ChangeCardScreen
 import com.pdig.uivnext.ui.screens.R21RecordsScreen
+import com.pdig.uivnext.ui.screens.R22ReviewInboxScreen
+import com.pdig.uivnext.ui.screens.R23ImportReferenceScreen
+import com.pdig.uivnext.ui.screens.R24ManualEstablishScreen
+import com.pdig.uivnext.ui.screens.R25ManualRelationshipScreen
 import com.pdig.uivnext.ui.screens.PersonalizationScreen
 import com.pdig.uivnext.ui.screens.SearchScreen
 import com.pdig.uivnext.ui.screens.SecondaryInfraScreen
