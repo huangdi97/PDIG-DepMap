@@ -129,6 +129,9 @@ jobs:
       - name: 1. CODEGEN GATE (spec → generated)
         run: node tools/codegen/generate.mjs --check
 
+      - name: 1b. CANONICAL V4 EXPANSION DAG GATE
+        run: node tools/validate-canonical-v4-expansion-plan.mjs
+
       - name: 2-4. Conformance orchestrator
         run: node tools/conformance/run.mjs
 
