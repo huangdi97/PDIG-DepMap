@@ -81,7 +81,9 @@ class MainActivity : FragmentActivity() {
 
         // Preview flavor must open the current UI vNext review candidate from the normal launcher, without ADB extras.
         // VNextApp uses synthetic reference fixtures only; no PersonalReality is read or modified.
-        // Production stays on the existing lock-gated PdigApp unless a test explicitly requests the demo.
+        // Production release/default stays on the existing lock-gated PdigApp.
+        // productionDebug may explicitly request either the synthetic reference path
+        // or the real-Reality VNext rehearsal; release builds ignore both extras.
         // VNextShellViewModel retains navigation and projection state across Activity recreation.
         val vnextTarget = resolveVNextLaunchTarget(
             flavor = BuildConfig.FLAVOR,
