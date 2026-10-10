@@ -556,6 +556,9 @@ private fun ProductionCardDetail(
                 )
             }
         }
+        if (cardObject != null) {
+            ProductionCardMaintenanceControls(session, cardObject)
+        }
 
         ProductionSection("已确认关系")
         if (related.isEmpty()) {
