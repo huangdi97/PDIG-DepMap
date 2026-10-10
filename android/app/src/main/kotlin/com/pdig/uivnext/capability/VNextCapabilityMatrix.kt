@@ -53,7 +53,7 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
         capability = VNextCapability.FILE_IMPORT,
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
         productionAuthority = VNextProductionAuthority.AVAILABLE,
-        reason = "Production already owns FileWorkflowCoordinator + AppContainer import authority; Preview stays isolated/read-only.",
+        reason = "R43 binds Production VNext to the Activity-owned FileWorkflowCoordinator + AppContainer authority across lock/re-auth, preview, mapping review and explicit commit; Preview stays isolated/read-only.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.MANUAL_CREATE,
