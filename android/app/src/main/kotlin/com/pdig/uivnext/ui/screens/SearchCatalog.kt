@@ -25,6 +25,7 @@ internal val commandTargets = listOf(
     CommandTarget(VScreen.CARDS, "更换银行卡", "先选择具体卡片，再核对支付依赖与迁移计划", listOf("换卡", "银行卡", "支付迁移")),
     CommandTarget(VScreen.RECORDS, "记录", "已发生事件、验证状态与依据", listOf("历史", "时间线", "验证", "证据")),
     CommandTarget(VScreen.REVIEW, "待复核", "确认系统发现的关系、对象候选与现实漂移", listOf("复核", "确认", "建议", "proposal", "candidate", "drift")),
+    CommandTarget(VScreen.IMPORT, "建立基础设施", "本机导入并确认要记录的对象", listOf("导入", "账单", "文件", "建立", "新增来源")),
     CommandTarget(VScreen.SOURCES, "数据源", "当前工作区的数据边界", listOf("来源", "数据")),
     CommandTarget(VScreen.PERSONALIZATION, "设置 · 个性化", "外观、隐私与动效偏好", listOf("设置", "隐私", "个性化")),
 )
