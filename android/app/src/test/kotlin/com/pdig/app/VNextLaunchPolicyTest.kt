@@ -1,45 +1,72 @@
 package com.pdig.app
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class VNextLaunchPolicyTest {
     @Test
-    fun previewOpensCurrentReviewCandidateFromLauncherWithoutIntentExtras() {
-        assertTrue(
-            shouldLaunchVNext(
+    fun previewAlwaysOpensReferenceCandidate() {
+        assertEquals(
+            VNextLaunchTarget.REFERENCE_PREVIEW,
+            resolveVNextLaunchTarget(
                 flavor = "preview",
                 explicitDemo = false,
+                explicitProductionVNext = false,
                 debugBuild = false,
             ),
         )
     }
 
     @Test
-    fun productionReleaseRemainsOnLockGatedApplication() {
-        assertFalse(
-            shouldLaunchVNext(
+    fun productionReleaseIgnoresAllVNextIntentExtras() {
+        listOf(
+            false to false,
+            true to false,
+            false to true,
+            true to true,
+        ).forEach { (demo, production) ->
+            assertEquals(
+                VNextLaunchTarget.LEGACY_PRODUCTION,
+                resolveVNextLaunchTarget(
+                    flavor = "production",
+                    explicitDemo = demo,
+                    explicitProductionVNext = production,
+                    debugBuild = false,
+                ),
+            )
+        }
+    }
+
+    @Test
+    fun productionDebugCanOpenRealRealityVNextRehearsal() {
+        assertEquals(
+            VNextLaunchTarget.PRODUCTION_REALITY_DEBUG,
+            resolveVNextLaunchTarget(
                 flavor = "production",
                 explicitDemo = false,
-                debugBuild = false,
+                explicitProductionVNext = true,
+                debugBuild = true,
             ),
         )
     }
 
     @Test
-    fun productionReleaseIgnoresSyntheticDemoExtra() {
-        assertFalse(
-            shouldLaunchVNext(
+    fun productionRealityDebugWinsOverReferenceExtraWhenBothArePresent() {
+        assertEquals(
+            VNextLaunchTarget.PRODUCTION_REALITY_DEBUG,
+            resolveVNextLaunchTarget(
                 flavor = "production",
                 explicitDemo = true,
-                debugBuild = false,
+                explicitProductionVNext = true,
+                debugBuild = true,
             ),
         )
     }
 
     @Test
-    fun productionDebugMayRetainExplicitInstrumentationDemoExtra() {
+    fun productionDebugRetainsReferenceEvidenceExtra() {
         assertTrue(
             shouldLaunchVNext(
                 flavor = "production",
@@ -50,10 +77,10 @@ class VNextLaunchPolicyTest {
     }
 
     @Test
-    fun unknownFlavorCannotUseDemoExtraInRelease() {
+    fun productionReleaseNeverLaunchesReferenceFixture() {
         assertFalse(
             shouldLaunchVNext(
-                flavor = "unknown",
+                flavor = "production",
                 explicitDemo = true,
                 debugBuild = false,
             ),
