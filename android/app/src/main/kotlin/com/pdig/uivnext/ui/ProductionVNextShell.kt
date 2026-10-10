@@ -505,6 +505,7 @@ private fun ProductionCardDetail(
     val snapshot = session.dataSource.productionSnapshot()
     val cardObject = snapshot?.objects?.firstOrNull { it.id == card.id }
     val presentation = app.savedPresentationProfile("card", card.id)
+    val cardPrivacyMask = app.privacyMask || (presentation?.maskSensitive == true)
     val impact = session.dataSource.productionImpact(card.id)
     val related = snapshot?.confirmedDependencies.orEmpty().filter {
         it.fromId == card.id || it.toId == card.id
@@ -514,7 +515,7 @@ private fun ProductionCardDetail(
             ProductionPaymentAssetFace(
                 asset = cardObject,
                 presentation = presentation,
-                privacyMask = app.privacyMask,
+                privacyMask = cardPrivacyMask,
             )
             ProductionCardAppearanceEditor(
                 profile = presentation ?: app.presentationProfile("card", card.id, "minimal"),
@@ -524,7 +525,7 @@ private fun ProductionCardDetail(
 
         ProductionFactCard(
             title = card.issuer ?: "发行方未记录",
-            subtitle = productionPaymentTailLabel(card.last4, app.privacyMask),
+            subtitle = productionPaymentTailLabel(card.last4, cardPrivacyMask),
             meta = "${card.confirmedDependencyCount} 条已确认关系",
         )
 
