@@ -54,6 +54,14 @@
           "requiredConfirmedFields": ["version", "subtype", "verification_basis_type", "confirmed_at"],
           "subtypeEnum": ["phone_number", "email_address", "other_identity"],
           "verificationBasisEnum": ["user_confirmed", "authoritative_source"],
+          "optionalConfirmedIdentifier": {
+            "storagePath": "fields_json.identity_anchor_profile.identifier",
+            "appliesToSubtypes": ["phone_number", "email_address"],
+            "requiredFields": ["value", "verification_basis_type", "confirmed_at"],
+            "verificationBasisEnum": ["user_confirmed", "authoritative_source"],
+            "invalidBehavior": "identifier unavailable while valid subtype remains confirmed",
+            "normalizationPolicy": "preserve exact confirmed value; do not infer locale/provider normalization or auto-merge"
+          },
           "legacyBareSubtypePolicy": "fields_json.subtype is ungoverned legacy/prototype metadata and MUST NOT be interpreted as confirmed subtype",
           "absentOrInvalid": "generic_identity",
           "payloadCompatibility": "graph payload v3 carries fields_json opaquely; older runtimes may preserve but must not infer the governed profile"
