@@ -61,8 +61,8 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
     VNextCapabilityGate(
         capability = VNextCapability.MANUAL_RELATIONSHIP,
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
-        productionAuthority = VNextProductionAuthority.REQUIRES_NATIVE_SCHEMA,
-        reason = "TS reference has Schema v4 relation/capability widening, but Native production schema is still v3; full R25 runtime relation creation must wait for cross-platform v4 cutover.",
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "Current Canonical v3 already governs five runtime relations and the existing Dependency table can persist them. Production VNext now delegates manual confirmation to AppContainer/GraphRepository; storage-only verifies/bound_to remain unavailable.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.HUMAN_REVIEW,
