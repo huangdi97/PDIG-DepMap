@@ -19,6 +19,8 @@ import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.timeline.TimelineItem
 import java.time.Instant
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 /**
  * Production-facing VNext seam.
@@ -485,11 +487,15 @@ internal fun buildProductionSnapshot(
         )
     } + objects.flatMap { obj ->
         obj.maintenanceOccurrences.map { occurrence ->
-            val (bucket, priority) = when (occurrence.status) {
-                "overdue" -> "overdue" to 95
-                "due" -> "today" to 90
-                "needs_review" -> "attention" to 88
-                else -> "upcoming" to 55
+            val bucket = productionMaintenanceTimelineBucket(
+                occurrenceStatus = occurrence.status,
+                dueDate = occurrence.dueDate,
+                todayIso = maintenanceTodayIso,
+            )
+            val priority = when (occurrence.status) {
+                "overdue", "needs_review" -> 3
+                "due" -> 2
+                else -> 1
             }
             VNextProductionTimelineItem(
                 id = "maintenance:${obj.id}:${occurrence.scheduleId}:${occurrence.dueDate ?: "review"}",
@@ -506,8 +512,9 @@ internal fun buildProductionSnapshot(
             )
         }
     }.sortedWith(
-        compareByDescending<VNextProductionTimelineItem> { it.priority }
-            .thenBy { it.scheduledAt ?: "9999-12-31T00:00:00Z" }
+        compareBy<VNextProductionTimelineItem> { productionTimelineBucketOrder(it.bucket) }
+            .thenByDescending { it.priority }
+            .thenBy { it.scheduledAt ?: "" }
             .thenBy { it.id },
     )
 
@@ -547,6 +554,41 @@ internal fun buildProductionSnapshot(
             )
         },
     )
+}
+
+private fun productionMaintenanceTimelineBucket(
+    occurrenceStatus: String,
+    dueDate: String?,
+    todayIso: String?,
+): String {
+    if (occurrenceStatus == "needs_review") return "attention"
+    if (occurrenceStatus == "overdue") return "overdue"
+    if (occurrenceStatus == "due") return "today"
+
+    val due = dueDate?.let { runCatching { LocalDate.parse(it.take(10)) }.getOrNull() }
+        ?: return "later"
+    val today = todayIso?.let { runCatching { LocalDate.parse(it.take(10)) }.getOrNull() }
+        ?: return "later"
+    val days = ChronoUnit.DAYS.between(today, due)
+    return when {
+        days < 0 -> "overdue"
+        days == 0L -> "today"
+        days <= 7L -> "7d"
+        days <= 30L -> "30d"
+        days <= 90L -> "90d"
+        else -> "later"
+    }
+}
+
+private fun productionTimelineBucketOrder(bucket: String): Int = when (bucket) {
+    "attention" -> 0
+    "overdue" -> 1
+    "today" -> 2
+    "7d" -> 3
+    "30d" -> 4
+    "90d" -> 5
+    "later" -> 6
+    else -> 7
 }
 
 private fun productionMaintenanceTimelineTitle(
