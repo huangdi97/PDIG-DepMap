@@ -97,10 +97,23 @@ internal fun ProductionSearchScreen(
 
     var query by remember { mutableStateOf("") }
     val normalized = query.trim()
-    val privacyMask = session.appState.privacyMask
-    val hits = remember(snapshot, normalized, privacyMask) {
-        if (normalized.isBlank()) emptyList()
-        else productionSearchHits(snapshot, normalized, privacyMask)
+    val app = session.appState
+    val privacyMask = app.privacyMask
+    // Number aliases and per-object masks are Compose state. Recompute the small
+    // local search projection so edits are reflected immediately without
+    // pretending aliases are Production Reality.
+    val hits = if (normalized.isBlank()) {
+        emptyList()
+    } else {
+        productionSearchHits(
+            snapshot = snapshot,
+            query = normalized,
+            privacyMask = privacyMask,
+            numberAliasLookup = app::numberAlias,
+            numberMaskLookup = { id ->
+                app.savedPresentationProfile("phoneNumber", id)?.maskSensitive == true
+            },
+        )
     }
 
     LazyColumn(
@@ -150,6 +163,8 @@ internal fun productionSearchHits(
     snapshot: com.pdig.uivnext.production.VNextProductionSnapshot,
     query: String,
     privacyMask: Boolean = false,
+    numberAliasLookup: (String) -> String? = { null },
+    numberMaskLookup: (String) -> Boolean = { false },
 ): List<ProductionSearchHit> {
     val normalized = query.trim()
     if (normalized.isEmpty()) return emptyList()
@@ -159,6 +174,12 @@ internal fun productionSearchHits(
 
     val objectHits = snapshot.objects.mapNotNull { item ->
         val kindLabel = productionObjectSurfaceLabel(item)
+        val numberAlias = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+            numberAliasLookup(item.id)?.trim()?.takeIf { it.isNotEmpty() }
+        else null
+        val effectivePrivacyMask = privacyMask ||
+            (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY &&
+                numberMaskLookup(item.id))
         val maintenanceTerms = buildList<String?> {
             item.maintenanceFacts.forEach { fact ->
                 add(fact.kind)
@@ -176,6 +197,7 @@ internal fun productionSearchHits(
         }
         if (!matches(
                 item.name,
+                numberAlias,
                 item.kind,
                 kindLabel,
                 item.issuer,
@@ -189,12 +211,15 @@ internal fun productionSearchHits(
         ) return@mapNotNull null
         ProductionSearchHit.ObjectHit(
             item = item,
-            title = productionVisibleObjectName(item, privacyMask),
+            title = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY)
+                visibleNumberDisplayName(item.name, numberAlias, effectivePrivacyMask)
+            else
+                productionVisibleObjectName(item, effectivePrivacyMask),
             subtitle = listOfNotNull(
                 kindLabel,
                 item.issuer,
-                item.last4?.let { productionPaymentTailLabel(it, privacyMask) },
-                productionIdentityIdentifierLabel(item, privacyMask),
+                item.last4?.let { productionPaymentTailLabel(it, effectivePrivacyMask) },
+                productionIdentityIdentifierLabel(item, effectivePrivacyMask),
                 item.identityVerificationBasisType?.let(::productionIdentityBasisLabel),
             ).joinToString(" · "),
         )
