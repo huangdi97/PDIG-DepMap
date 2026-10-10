@@ -93,7 +93,7 @@ internal fun R24ManualEstablishScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "记录“有这张卡 / 这个账户 / 这个服务”不等于自动记录它与其他对象的依赖关系。",
+                        "记录“有这个对象”不等于自动记录它与其他对象的依赖关系；手机号/邮箱的 subtype 与 identifier 也不会自动变成恢复语义。",
                         color = PdigV2Colors.TextSecondary,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,
@@ -124,13 +124,23 @@ internal fun R24ManualEstablishScreen(
                 if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
             )
 
+            ManualSectionTitle("受治理身份对象", "R37 subtype + R38 identifier")
+            ManualTypeCard(
+                "手机号 / 邮箱",
+                "identity_anchor + governed profile",
+                "正式生产 authority 已支持把 Node、受治理 subtype 与用户确认的 identifier value 在同一事务中建立；Preview 仍保持只读，不会写入 Reality。",
+                PdigV2Colors.PrimaryBright,
+                if (productionAuthorityReady) "正式 authority 已就绪 · Preview 只读"
+                else "正式 authority 待接 · Preview 只读",
+            )
+
             ManualSectionTitle("其他已知对象类型", "不要制造 ghost capability")
             ManualTypeCard(
-                "号码 / 邮箱 / 身份",
-                "identity_anchor",
-                "当前 Canonical kind 过于粗，不能安全地把每个 identity_anchor 自动当成手机号或邮箱。",
+                "其他身份",
+                "identity_anchor(other_identity / unknown)",
+                "未确认手机号/邮箱 subtype 与 identifier 的通用身份仍保持通用对象，不会靠名称、格式或关系猜测。",
                 PdigV2Colors.Warning,
-                "等待 governed subtype / mapping",
+                "HOLD",
             )
             ManualTypeCard(
                 "设备",
@@ -198,9 +208,9 @@ internal fun R24ManualEstablishScreen(
 
             ManualSectionTitle("正式版提交语义", "production binding")
             ManualFlowLine("1", "选择受支持对象类型")
-            ManualFlowLine("2", "填写最小身份字段，并明确哪些字段是未知")
-            ManualFlowLine("3", "确认“这个对象存在”")
-            ManualFlowLine("4", "通过 authoritative Reality transaction 创建 Node 并 bump graphRevision")
+            ManualFlowLine("2", "填写最小身份字段；手机号/邮箱同时明确确认 subtype 与 identifier value")
+            ManualFlowLine("3", "确认“这个对象存在”以及你明确填写的事实")
+            ManualFlowLine("4", "通过 authoritative Reality transaction 原子创建 Node / governed profile 并 bump graphRevision")
             ManualFlowLine("5", "任何依赖关系继续走单独确认 / Human Review")
 
             Spacer(Modifier.height(8.dp))
