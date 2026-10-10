@@ -14,6 +14,7 @@ import com.pdig.app.workflow.FileWorkflowCoordinator
 import com.pdig.app.workflow.LocalFileWorkflow
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.VNextShellViewModel
+import com.pdig.uivnext.production.ProductionVNextHostActions
 import com.pdig.uivnext.production.createProductionVNextSession
 import com.pdig.uivnext.ui.ProductionVNextSecureHost
 
@@ -116,6 +117,17 @@ class MainActivity : FragmentActivity() {
                         createProductionVNextSession(
                             appContainer = AppContainer.get(this@MainActivity),
                             appState = vm.app,
+                            hostActions = ProductionVNextHostActions(
+                                requestFileImport = { rawLabel ->
+                                    val label = rawLabel.trim().ifBlank { "文件导入" }
+                                    coordinator.beginImport(
+                                        resumeRoute = "vnext/import",
+                                        sourceId = null,
+                                        sourceLabel = label,
+                                    )
+                                    coordinator.launchPicker("*/*")
+                                },
+                            ),
                         )
                     }
                     PDIGTheme {
