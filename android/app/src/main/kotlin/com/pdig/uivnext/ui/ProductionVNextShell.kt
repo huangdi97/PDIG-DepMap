@@ -156,7 +156,9 @@ private fun ProductionContent(
             ProductionInfrastructure(app, inventory, modifier)
         VScreen.CARD_DETAIL ->
             ProductionCardDetail(session, inventory, app.selectedCardId, modifier)
-        VScreen.CHANGE -> ProductionChange(snapshot, modifier)
+        VScreen.CHANGE -> ProductionChange(app, snapshot, modifier)
+        VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD ->
+            ProductionChangePlanScreen(session, app.selectedProductionPlanId, modifier)
         VScreen.RECORDS -> ProductionRecords(session, modifier)
         VScreen.ME -> ProductionMe(snapshot, inventory, modifier)
         VScreen.SOURCES -> ProductionSources(app, inventory, modifier)
@@ -321,6 +323,7 @@ private fun ProductionCardDetail(
 
 @Composable
 private fun ProductionChange(
+    app: VAppState,
     snapshot: VNextProductionSnapshot,
     modifier: Modifier,
 ) {
@@ -336,6 +339,7 @@ private fun ProductionChange(
                         "图谱修订 ${plan.lastAnalyzedRevision}",
                         plan.effectiveDate,
                     ).joinToString(" · "),
+                    onClick = { app.openProductionPlan(plan.id, plan.scenario) },
                 )
             }
         }
