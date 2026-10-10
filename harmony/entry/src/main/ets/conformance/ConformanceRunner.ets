@@ -1420,10 +1420,18 @@ function runIdentityProfile(jt: JsonText): string {
     if (profile === undefined) {
       return '{"confirmed":false}';
     }
-    return '{"confirmed":true,"subtype":' + jsonEscape(profile.subtype) +
+    let out = '{"confirmed":true,"subtype":' + jsonEscape(profile.subtype) +
       ',"verificationBasisType":' + jsonEscape(profile.verificationBasisType) +
       ',"confirmedAt":' + jsonEscape(profile.confirmedAt) +
-      ',"evidenceRefs":' + serializeStrings(profile.evidenceRefs) + '}';
+      ',"evidenceRefs":' + serializeStrings(profile.evidenceRefs);
+    if (profile.identifier !== undefined) {
+      const identifier = profile.identifier;
+      out += ',"identifier":{"value":' + jsonEscape(identifier.value) +
+        ',"verificationBasisType":' + jsonEscape(identifier.verificationBasisType) +
+        ',"confirmedAt":' + jsonEscape(identifier.confirmedAt) +
+        ',"evidenceRefs":' + serializeStrings(identifier.evidenceRefs) + '}';
+    }
+    return out + '}';
   } finally {
     jt.resetWindow();
   }
