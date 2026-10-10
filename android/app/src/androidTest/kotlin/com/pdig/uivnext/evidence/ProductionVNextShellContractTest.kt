@@ -13,6 +13,9 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.VNextPendingReviewSummary
 import com.pdig.uivnext.production.VNextProductionDependency
+import com.pdig.uivnext.production.VNextProductionFinding
+import com.pdig.uivnext.production.VNextProductionFindingReport
+import com.pdig.uivnext.production.VNextProductionFindingType
 import com.pdig.uivnext.production.VNextProductionImpact
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionPlan
@@ -20,6 +23,7 @@ import com.pdig.uivnext.production.VNextProductionRecordItem
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSourceItem
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
+import com.pdig.uivnext.production.VNextProjectionTruth
 import com.pdig.uivnext.production.VNextRuntimeDataMode
 import com.pdig.uivnext.production.VNextRuntimeDataSource
 import com.pdig.uivnext.production.VNextSourceCoverageSummary
@@ -140,6 +144,24 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun productionWeaknessesShowAuthoritativeFindingsAndCoverageBoundary() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.navigate(VScreen.WEAKNESSES) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.weaknesses", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("生产恢复单一路径", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("尚未接入权威输入").assertIsDisplayed()
+        compose.onNodeWithText("共享故障域", substring = true).assertIsDisplayed()
+    }
+
+    @Test
     fun productionPreferencesMutatePresentationStateOnly() {
         val session = session()
         compose.setContent {
@@ -177,5 +199,24 @@ class ProductionVNextShellContractTest {
         override fun productionPlan(planId: String): VNextProductionPlan? = null
 
         override fun productionRecords(): List<VNextProductionRecordItem> = emptyList()
+
+        override fun productionFindings(): VNextProductionFindingReport =
+            VNextProductionFindingReport(
+                findings = listOf(
+                    VNextProductionFinding(
+                        id = "spof:account-1",
+                        type = VNextProductionFindingType.SINGLE_POINT_OF_FAILURE,
+                        title = "生产恢复单一路径",
+                        why = "当前已确认 Reality 只有一条恢复来源。",
+                        confirmedBasis = "dep-recovery-1",
+                        unknowns = "未记录路径仍可能存在。",
+                        recommendedNextAction = "核对并验证备用恢复方式。",
+                        evidenceRefs = listOf("dep-recovery-1"),
+                        truth = VNextProjectionTruth.DERIVED,
+                    ),
+                ),
+                supportedTypes = listOf("SINGLE_POINT_OF_FAILURE"),
+                unsupportedTypes = listOf("SHARED_FAILURE_DOMAIN"),
+            )
     }
 }
