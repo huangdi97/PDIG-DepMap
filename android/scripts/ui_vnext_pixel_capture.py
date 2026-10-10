@@ -490,8 +490,16 @@ def main():
 
     # R21: replace_payment_card is a real production-supported scenario. Prove the
     # Preview continuity surface without pretending local projection state executed.
-    if not tap_retry("分析更换此卡的影响", exact=True):
-        raise RuntimeError("R21 Card Detail did not expose the supported replacement entry")
+    # The genuine card-change CTA follows the Impact Lens (below its last
+    # unknown-relationship row). Do not demand that both are in one viewport.
+    for attempt in range(8):
+        if tap_retry("分析更换此卡的影响", exact=True, retries=1):
+            break
+        adb("shell", "input", "swipe", "530", "1770", "530", "1080", "380")
+        time.sleep(1)
+    else:
+        capture("04dg-card-change-entry-missing")
+        raise RuntimeError("R21 Card Detail replacement CTA not reachable after real scrolling")
     capture("04h-card-change-current")
     require_screen("04h-card-change-current", "更换银行卡", "当前卡片", "已记录支付关系",
                    "尚未选择替代卡片")
