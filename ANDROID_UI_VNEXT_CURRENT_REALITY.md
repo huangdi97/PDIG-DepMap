@@ -15,7 +15,10 @@
 ```text
 ANDROID_UI_VNEXT_SOURCE = R34
 PDIG_PRODUCT_ARCHITECTURE_CONTROL = R35
+ANDROID_RELEASE_CUTOVER_CONTROL = R36
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_MACHINE_GATED
+PRODUCTION_VNEXT_TWO_KEY_CUTOVER = SOURCE_IMPLEMENTED
+CURRENT_RELEASE_DEFAULT = LEGACY
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
@@ -922,3 +925,69 @@ valid proposals
 
 Current Canonical remains app/payload v3 until an actual package goes through the
 full Spec → Schema → Migration → Fixture → Conformance → Runtime chain.
+
+
+## 36. R36 Production VNext release cutover / rollback control
+
+R36 closes the release-routing design without changing the current default.
+
+Build-time keys:
+
+~~~text
+pdigProductionUiGeneration = legacy | vnext
+pdigProductionVNextCutoverApproved = true | false
+~~~
+
+Production VNext release activates only when:
+
+~~~text
+generation == vnext
+AND cutoverApproved == true
+~~~
+
+All other combinations remain legacy. Invalid Gradle values fail configuration.
+Unknown runtime generation strings fail closed to legacy.
+
+Production release continues to ignore `vnext_demo` and `vnext_production`
+Intent extras.
+
+Both debug rehearsal and future release use:
+
+~~~text
+AppContainer
+→ Production VNext session
+→ ProductionVNextSecureHost
+→ PdigSecureContent / LockGate
+~~~
+
+No separate release lock exists.
+
+New runtime evidence path:
+
+~~~text
+android/scripts/production_vnext_release_default_rehearsal.py
+~~~
+
+It builds productionDebug with both cutover keys, launches **without Intent extras**
+and proves fail-closed lock, five-primary Production Reality, background relock and
+process-restart relock.
+
+Operational contract:
+
+~~~text
+docs/ANDROID_PRODUCTION_VNEXT_CUTOVER_RUNBOOK.md
+ANDROID_UI_VNEXT_R36_SOURCE_REPORT.md
+~~~
+
+Permanent distinction:
+
+~~~text
+UI rollback != schema downgrade
+~~~
+
+Repository default remains:
+
+~~~text
+CURRENT_PRODUCTION_RELEASE_DEFAULT = LEGACY
+PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
+~~~
