@@ -100,6 +100,29 @@ internal fun ProductionInventoryCategoryScreen(
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
+                // Reference-board "添加卡片" is a real governed action, not
+                // an inert showcase CTA. Hide it when authoritative creation
+                // is unavailable; the establishment flow defaults to payment.
+                if (screen == VScreen.CARDS &&
+                    session.authorities?.manualEstablish != null
+                ) {
+                    Surface(
+                        modifier = Modifier.padding(top = 4.dp)
+                            .clickable { session.appState.navigate(VScreen.MANUAL_ADD) }
+                            .testTag("pdig.production-vnext.card.add"),
+                        color = PdigV2Colors.PrimarySoft,
+                        shape = RoundedCornerShape(VRadius.Md),
+                        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                    ) {
+                        Text(
+                            "+ 添加卡片",
+                            Modifier.padding(horizontal = 13.dp, vertical = 10.dp),
+                            color = PdigV2Colors.PrimaryText,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
                 if (selectedRegion != null) {
                     Surface(
                         modifier = Modifier
