@@ -162,7 +162,7 @@ internal fun productionSearchHits(
         if (!matches(item.name, item.kind, kindLabel, item.issuer, item.last4)) return@mapNotNull null
         ProductionSearchHit.ObjectHit(
             item = item,
-            title = item.name,
+            title = productionVisibleObjectName(item, privacyMask),
             subtitle = listOfNotNull(
                 kindLabel,
                 item.issuer,
