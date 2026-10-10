@@ -42,11 +42,15 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
 /**
- * Read-only production-bound UI vNext shell.
+ * Production-bound UI vNext shell.
  *
  * IMPORTANT:
- * - this shell is NOT wired into MainActivity yet;
- * - it never imports UiVNextDemoFixture;
+ * - R32 wires this shell into MainActivity only through the explicit
+ *   productionDebug `vnext_production` rehearsal target;
+ * - productionRelease still routes to the legacy lock-gated app;
+ * - this shell never imports UiVNextDemoFixture;
+ * - write controls exist only where a session authority is present and always
+ *   delegate to AppContainer/domain owners before re-reading authoritative state;
  * - unsupported production routes render an explicit capability hold instead of
  *   silently falling back to Preview/reference data.
  */
