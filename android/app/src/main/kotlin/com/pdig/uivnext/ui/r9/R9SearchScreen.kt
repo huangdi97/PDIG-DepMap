@@ -31,12 +31,20 @@ import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.ui.VAppState
+import com.pdig.uivnext.ui.screens.SearchResult
+import com.pdig.uivnext.ui.screens.openSearchResult
+import com.pdig.uivnext.ui.screens.searchResults
 
 /** Preview-only global lookup of recorded synthetic objects, not a discovery engine. */
 @Composable
 internal fun R9SearchScreen(app: VAppState) {
     var query by remember { mutableStateOf("") }
     val q = query.trim()
+    val navigationHits = if (q.isEmpty()) {
+        emptyList()
+    } else {
+        searchResults(q, app).filterIsInstance<SearchResult.NavigationHit>()
+    }
     val filteredCards = app.demoCards().filter { card ->
         val lifecycle = UiVNextDemoFixture.cardLifecycleFor(card.id)
         q.isNotEmpty() && (
@@ -82,7 +90,7 @@ internal fun R9SearchScreen(app: VAppState) {
         q.isNotEmpty() && listOfNotNull(it.name, it.platform, it.kind)
             .any { value -> value.contains(q, ignoreCase = true) }
     }
-    val total = filteredCards.size + filteredNumbers.size + filteredRegions.size +
+    val total = navigationHits.size + filteredCards.size + filteredNumbers.size + filteredRegions.size +
         filteredServices.size + filteredAccounts.size + filteredEmails.size + filteredDevices.size
 
     Column(
@@ -141,6 +149,13 @@ internal fun R9SearchScreen(app: VAppState) {
             }
         } else {
             R9SectionTitle("搜索结果（$total）")
+            navigationHits.forEach { hit ->
+                R9SearchResult(
+                    hit.title,
+                    hit.subtitle,
+                    "页面",
+                ) { openSearchResult(hit, app) }
+            }
             filteredCards.forEach { card ->
                 R9SearchResult(card.nickname, "${card.issuer} · ${regionFlag(card.region)} · ${r9VisibleLast4(card.last4, app.privacyMask || app.savedPresentationProfile("card", card.id)?.maskSensitive == true)}",
                     "卡片") { app.openCard(card.id) }
