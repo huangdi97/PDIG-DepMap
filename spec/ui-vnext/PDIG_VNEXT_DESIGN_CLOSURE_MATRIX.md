@@ -64,8 +64,8 @@ No roadmap capability creates a sixth primary destination.
 | Capability | Design | Reference | Production authority |
 | --- | --- | --- | --- |
 | File Import | complete | R23 read-only | existing FileWorkflowCoordinator/AppContainer |
-| Manual Establish object | complete | R24 read-only | VNext gateway not exposed |
-| Manual Relationship | complete | R25 read-only | VNext gateway not exposed |
+| Manual Establish object | complete | R24 read-only reference + production gateway | AppContainer authority and VNext production gateway available; Preview remains read-only; production screen binding/cutover still gated |
+| Manual Relationship | complete | R25 read-only | requires Native Schema v4 before full production authority; partial v3-only UI forbidden |
 | Human Review | complete | R22 read-only | production Proposal/Candidate/Drift authorities exist |
 | Proposal != Reality | frozen | enforced in UX | canonical |
 | Candidate != Node | frozen | enforced in UX | canonical |
