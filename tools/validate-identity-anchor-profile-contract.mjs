@@ -15,9 +15,16 @@ function fail(message) {
 }
 
 const expectedSubtype = ['phone_number', 'email_address', 'other_identity']
+const expectedCreatableIdentitySubtype = ['phone_number', 'email_address']
 const actualSubtype = DOMAIN.enums?.IdentityAnchorSubtype?.values
 if (JSON.stringify(actualSubtype) !== JSON.stringify(expectedSubtype)) {
   fail(`IdentityAnchorSubtype mismatch: ${JSON.stringify(actualSubtype)}`)
+}
+if (
+  JSON.stringify(DOMAIN.constants?.runtimeCreatableIdentityAnchorSubtypes) !==
+  JSON.stringify(expectedCreatableIdentitySubtype)
+) {
+  fail('runtimeCreatableIdentityAnchorSubtypes must be exactly phone_number,email_address')
 }
 
 const domainContract =
