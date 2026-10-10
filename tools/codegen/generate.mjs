@@ -151,6 +151,7 @@ function emitKotlin() {
   L.push(`    public const val GRAPH_PAYLOAD_VERSION: Int = ${spec.graphPayload.version}`)
   L.push(`    public val RUNTIME_CREATABLE_NODE_KINDS: Set<String> = setOf(${spec.constants.runtimeCreatableNodeKinds.map(dq).join(', ')})`)
   L.push(`    public val RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: Set<String> = setOf(${spec.constants.runtimeCreatableIdentityAnchorSubtypes.map(dq).join(', ')})`)
+  L.push(`    public val ISO_3166_ALPHA2_TERRITORY_CODES: Set<String> = setOf(${spec.constants.iso3166Alpha2TerritoryCodes.map(dq).join(', ')})`)
   L.push('}')
   L.push('')
 
@@ -228,6 +229,7 @@ function emitSwift() {
   L.push(`    public static let graphPayloadVersion = ${spec.graphPayload.version}`)
   L.push(`    public static let runtimeCreatableNodeKinds: Set<String> = [${spec.constants.runtimeCreatableNodeKinds.map(dq).join(', ')}]`)
   L.push(`    public static let runtimeCreatableIdentityAnchorSubtypes: Set<String> = [${spec.constants.runtimeCreatableIdentityAnchorSubtypes.map(dq).join(', ')}]`)
+  L.push(`    public static let iso3166Alpha2TerritoryCodes: Set<String> = [${spec.constants.iso3166Alpha2TerritoryCodes.map(dq).join(', ')}]`)
   L.push('}')
   L.push('')
 
@@ -344,6 +346,7 @@ function emitArkTS() {
   L.push(`  static readonly GRAPH_PAYLOAD_VERSION: number = ${spec.graphPayload.version}`)
   L.push(`  static readonly RUNTIME_CREATABLE_NODE_KINDS: string[] = [${spec.constants.runtimeCreatableNodeKinds.map(quote).join(', ')}]`)
   L.push(`  static readonly RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: string[] = [${spec.constants.runtimeCreatableIdentityAnchorSubtypes.map(quote).join(', ')}]`)
+  L.push(`  static readonly ISO_3166_ALPHA2_TERRITORY_CODES: string[] = [${spec.constants.iso3166Alpha2TerritoryCodes.map(quote).join(', ')}]`)
   L.push('}')
   L.push('')
 
