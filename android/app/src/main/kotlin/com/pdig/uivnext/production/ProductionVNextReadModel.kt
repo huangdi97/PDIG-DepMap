@@ -100,6 +100,15 @@ internal data class VNextSourceCoverageSummary(
     val activeSourceCount: Int,
 )
 
+internal data class VNextProductionSourceItem(
+    val id: String,
+    val label: String,
+    val adapterId: String,
+    val state: String,
+    val lastIngestedAt: String?,
+    val truth: VNextProjectionTruth = VNextProjectionTruth.CONFIRMED,
+)
+
 internal data class VNextProductionSnapshot(
     val revision: Int,
     val objects: List<VNextProductionObject>,
@@ -108,6 +117,7 @@ internal data class VNextProductionSnapshot(
     val plans: List<VNextProductionPlanSummary>,
     val pendingReview: VNextPendingReviewSummary,
     val sourceCoverage: VNextSourceCoverageSummary,
+    val sources: List<VNextProductionSourceItem> = emptyList(),
 )
 
 internal data class VNextProductionImpactTarget(
@@ -320,6 +330,15 @@ internal fun buildProductionSnapshot(
             sourceCount = sources.size,
             activeSourceCount = sources.count { it.state == "active" },
         ),
+        sources = sources.map {
+            VNextProductionSourceItem(
+                id = it.id,
+                label = it.label,
+                adapterId = it.adapterId,
+                state = it.state,
+                lastIngestedAt = it.lastIngestedAt,
+            )
+        },
     )
 }
 
