@@ -20,7 +20,15 @@ internal val commandTargets = listOf(
     CommandTarget(VScreen.EMAILS, "邮箱", "邮箱身份与恢复角色", listOf("邮件", "email")),
     CommandTarget(VScreen.DEVICES, "设备", "验证器、可信终端与恢复设备", listOf("手机", "电脑")),
     CommandTarget(VScreen.SERVICES, "服务", "订阅、支付与验证服务", listOf("订阅")),
-    CommandTarget(VScreen.WEAKNESSES, "薄弱点", "恢复、到期与迁移风险", listOf("风险", "恢复")),
+    CommandTarget(
+        VScreen.WEAKNESSES,
+        "薄弱点",
+        "连续性 Findings、恢复、到期与迁移提醒",
+        listOf(
+            "风险", "恢复", "单点路径", "单点故障", "共享故障点", "故障域",
+            "恢复循环", "备用待确认", "关键路径", "待验证", "finding", "spof",
+        ),
+    ),
     CommandTarget(VScreen.CHANGE_PHONE, "更换手机号", "规划并迁移号码", listOf("变更", "迁移", "换号")),
     CommandTarget(VScreen.CARDS, "更换银行卡", "先选择具体卡片，再核对支付依赖与迁移计划", listOf("换卡", "银行卡", "支付迁移")),
     CommandTarget(VScreen.RECORDS, "记录", "已发生事件、验证状态与依据", listOf("历史", "时间线", "验证", "证据")),
