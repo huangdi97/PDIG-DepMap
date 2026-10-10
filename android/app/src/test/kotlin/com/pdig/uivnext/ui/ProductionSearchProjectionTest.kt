@@ -108,6 +108,24 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
+    fun privacyMaskHidesGenericIdentityNameWithoutGuessingItsSubtype() {
+        val masked = productionSearchHits(snapshot(), "登录身份", privacyMask = true)
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "identity-1" }
+
+        assertEquals("身份对象（已遮蔽）", masked.title)
+        assertTrue(!masked.title.contains("登录身份"))
+        assertEquals(
+            "身份对象（已遮蔽）",
+            productionVisibleObjectName(masked.item, privacyMask = true),
+        )
+        assertEquals(
+            "登录身份",
+            productionVisibleObjectName(masked.item, privacyMask = false),
+        )
+    }
+
+    @Test
     fun emptyQueryNeverReturnsImplicitEverything() {
         assertTrue(productionSearchHits(snapshot(), "").isEmpty())
         assertTrue(productionSearchHits(snapshot(), "   ").isEmpty())
