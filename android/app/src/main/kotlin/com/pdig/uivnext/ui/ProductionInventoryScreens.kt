@@ -779,7 +779,10 @@ private fun ProductionObjectRow(
     }
     val privacyMask = app.privacyMask || presentationMask
     val visibleName = if (item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY) {
-        app.numberDisplayNameForScreen(item.id, item.name)
+        // Global and object-local masking hide the identity title, not only the
+        // separately confirmed raw number. Never echo a sensitive saved alias.
+        if (privacyMask) "手机号身份（已遮蔽）"
+        else app.numberDisplayNameForScreen(item.id, item.name)
     } else {
         productionVisibleObjectName(item, privacyMask)
     }
