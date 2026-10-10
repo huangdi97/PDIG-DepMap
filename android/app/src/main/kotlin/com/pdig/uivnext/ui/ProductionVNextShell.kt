@@ -171,6 +171,7 @@ private fun ProductionContent(
     val app = session.appState
     val snapshot = session.dataSource.productionSnapshot()
     val inventory = session.dataSource.productionInventory()
+    val findings = session.dataSource.productionFindings()
 
     if (snapshot == null || inventory == null) {
         ProductionUnavailable(
@@ -184,7 +185,7 @@ private fun ProductionContent(
     when (app.screen) {
         VScreen.NOW -> ProductionNow(app, snapshot, inventory, modifier)
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
-            ProductionInfrastructure(app, snapshot, inventory, modifier)
+            ProductionInfrastructure(app, snapshot, inventory, findings, modifier)
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
         VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
             ProductionInventoryCategoryScreen(session, app.screen, modifier)
@@ -291,6 +292,7 @@ private fun ProductionInfrastructure(
     app: VAppState,
     snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
+    findings: com.pdig.uivnext.production.VNextProductionFindingReport?,
     modifier: Modifier,
 ) {
     ProductionPage(modifier, "基础设施", "只展示当前正式数据模型能够明确识别的对象类型") {
@@ -299,28 +301,27 @@ private fun ProductionInfrastructure(
 
         ProductionSection("管理分类")
         listOf(
-            Triple(VScreen.CARDS, inventory.counts.paymentAssets, "已绑定"),
-            Triple(VScreen.NUMBERS, inventory.counts.genericIdentityAnchors, "等待 phone subtype"),
-            Triple(VScreen.ACCOUNTS, inventory.counts.accounts, "已绑定"),
-            Triple(VScreen.EMAILS, inventory.counts.genericIdentityAnchors, "等待 email subtype"),
-            Triple(VScreen.DEVICES, inventory.counts.devices, "已绑定"),
-            Triple(VScreen.SERVICES, inventory.counts.services, "已绑定"),
-            Triple(VScreen.WEAKNESSES, 0, "等待 Finding projection"),
+            Triple(VScreen.CARDS, inventory.counts.paymentAssets as Int?, "已绑定"),
+            Triple(VScreen.NUMBERS, null, "等待 phone subtype"),
+            Triple(VScreen.ACCOUNTS, inventory.counts.accounts as Int?, "已绑定"),
+            Triple(VScreen.EMAILS, null, "等待 email subtype"),
+            Triple(VScreen.DEVICES, inventory.counts.devices as Int?, "已绑定"),
+            Triple(VScreen.SERVICES, inventory.counts.services as Int?, "已绑定"),
+            Triple(
+                VScreen.WEAKNESSES,
+                findings?.findings?.size,
+                if (findings == null) "权威 Finding 暂不可用"
+                else "${findings.supportedTypes.size} 类权威输入",
+            ),
         ).chunked(2).forEach { row ->
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 row.forEach { (screen, count, state) ->
-                    val bound = screen in setOf(
-                        VScreen.CARDS,
-                        VScreen.ACCOUNTS,
-                        VScreen.DEVICES,
-                        VScreen.SERVICES,
-                    )
                     ProductionCategoryEntry(
                         title = screen.titleZh,
-                        count = if (bound) count else null,
+                        count = count,
                         state = state,
                         enabled = true,
                         onClick = { app.navigate(screen) },
