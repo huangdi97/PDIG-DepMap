@@ -125,6 +125,9 @@ class VAppState(
     var selectedNumberId by mutableStateOf<String?>(null)
     var selectedSecondaryObjectId by mutableStateOf<String?>(null)
 
+    /** Production VNext only: selected authoritative ChangePlan id. */
+    var selectedProductionPlanId by mutableStateOf<String?>(null)
+
     /**
      * Every forward navigation records the actual screen of departure.
      * Android/system/header Back always returns to the preceding screen, including
@@ -197,6 +200,20 @@ class VAppState(
         selectedCardId = cardId
         selectedReplacementCardId = null
         screen = VScreen.CHANGE_CARD
+    }
+
+    /**
+     * Production read/action binding: open an existing authoritative ChangePlan.
+     * Reference flows do not use this id.
+     */
+    fun openProductionPlan(planId: String, scenario: String) {
+        navBackTarget = screen
+        selectedProductionPlanId = planId
+        screen = when (scenario) {
+            "replace_payment_card" -> VScreen.CHANGE_CARD
+            "replace_phone_number" -> VScreen.CHANGE_PHONE
+            else -> VScreen.CHANGE
+        }
     }
 
     fun chooseReplacementCard(cardId: String?) {
