@@ -15,6 +15,7 @@ on:
       - 'android/app/src/androidTest/kotlin/com/pdig/app/**'
       - 'android/app/src/androidTest/kotlin/com/pdig/uivnext/**'
       - 'android/scripts/production_vnext_secure_rehearsal.py'
+      - 'android/scripts/production_vnext_release_default_rehearsal.py'
       - 'android/app/build.gradle.kts'
 
 permissions:
@@ -89,7 +90,18 @@ jobs:
             cd ..
 
             # Real MainActivity + real AppContainer + same fail-closed LockGate.
+            # First prove the repository-default build still fails closed to legacy.
             python3 android/scripts/production_vnext_secure_rehearsal.py
+
+            # Then build the exact future release-default route with BOTH build-time
+            # cutover keys. No Intent extra is used by the second proof.
+            cd android
+            ./gradlew :app:assembleProductionDebug --no-daemon --stacktrace \
+              -PpdigProductionUiGeneration=vnext \
+              -PpdigProductionVNextCutoverApproved=true
+            cd ..
+            adb install -r android/app/build/outputs/apk/production/debug/app-production-debug.apk
+            python3 android/scripts/production_vnext_release_default_rehearsal.py
 
       - name: Upload secure rehearsal evidence
         if: always()
@@ -98,6 +110,7 @@ jobs:
           name: android-production-vnext-rehearsal-${{ github.sha }}
           path: |
             artifacts/runtime-evidence/production-vnext-rehearsal/
+            artifacts/runtime-evidence/production-vnext-release-default/
             android/app/build/reports/androidTests/
             android/app/build/outputs/androidTest-results/
           if-no-files-found: warn
