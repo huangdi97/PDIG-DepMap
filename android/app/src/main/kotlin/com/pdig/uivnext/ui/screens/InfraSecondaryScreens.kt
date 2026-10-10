@@ -152,16 +152,16 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         val knownWeaknessCount = numbers.size + cards.size + emails.size + devices.size + if (showPhoneMigration) 1 else 0
         InfraSummaryHero(
             value = knownWeaknessCount.toString(),
-            label = "已知薄弱点",
-            hint = "只统计已经记录并可验证的风险事实；未知关系仍保持未知",
+            label = "维护 / 迁移提醒",
+            hint = "与上方 Continuity Findings 分开统计；这里只计算到期、设备复核与迁移阻塞",
             warning = knownWeaknessCount > 0,
         )
 
         if (!hasRecordedWeakness) {
             EmptyState(
                 kind = EmptyKind.DEPENDENCIES,
-                title = "当前地区没有已记录的薄弱点",
-                description = "这只表示当前没有已记录的风险事实；未记录的依赖仍然保持未知。",
+                title = "当前地区没有已记录的维护 / 迁移提醒",
+                description = "这只表示当前没有这类提醒；Continuity Findings 与未记录依赖仍需分别查看。",
                 primaryCta = "查看全球",
                 onPrimary = { app.clearRegion() },
                 secondaryCta = "返回基础设施",
