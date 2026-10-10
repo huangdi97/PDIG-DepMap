@@ -240,8 +240,12 @@ private fun ProductionNow(
             snapshot.timeline.take(8).forEach { item ->
                 ProductionFactCard(
                     title = item.title,
-                    subtitle = item.subtitle.ifBlank { item.status },
-                    meta = listOfNotNull(item.scheduledAt, item.bucket).joinToString(" · "),
+                    subtitle = item.subtitle.ifBlank { productionTimelineStatusLabel(item.status) },
+                    meta = listOfNotNull(
+                        item.scheduledAt?.take(10),
+                        productionTimelineBucketLabel(item.bucket),
+                        productionTimelineStatusLabel(item.status),
+                    ).joinToString(" · "),
                 )
             }
         }
@@ -480,7 +484,11 @@ private fun ProductionRecords(
                 ProductionFactCard(
                     title = record.actionTitle,
                     subtitle = "${record.planTitle} · $state",
-                    meta = record.phase,
+                    meta = listOf(
+                        productionActionPhaseLabel(record.phase),
+                        if (record.evidenceRefs.isEmpty()) "无验证证据引用" else "验证证据 ${record.evidenceRefs.size} 项",
+                        record.occurredAt?.take(10) ?: "发生时间未记录",
+                    ).joinToString(" · "),
                 )
             }
         }
@@ -559,8 +567,8 @@ private fun ProductionSources(
             inventory.sources.forEach { source ->
                 ProductionFactCard(
                     title = source.label,
-                    subtitle = source.state,
-                    meta = source.lastIngestedAt ?: "最近导入时间未记录",
+                    subtitle = productionSourceStateLabel(source.state),
+                    meta = source.lastIngestedAt?.take(10) ?: "最近导入时间未记录",
                 )
             }
         }
