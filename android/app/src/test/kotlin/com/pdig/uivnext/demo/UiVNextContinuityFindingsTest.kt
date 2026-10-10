@@ -9,7 +9,7 @@ class UiVNextContinuityFindingsTest {
     @Test
     fun referenceCoversEveryCanonicalV03FindingClass() {
         assertEquals(
-            UiContinuityFindingKind.entries.toSet(),
+            UiContinuityFindingKind.values().toSet(),
             UI_CONTINUITY_REFERENCE_FINDINGS.map { it.kind }.toSet(),
         )
     }
