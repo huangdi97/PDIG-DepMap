@@ -8,6 +8,7 @@ on:
     branches:
       - feat/android-ui-vnext-translation
     paths:
+      - 'android/scripts/ci_emulator_tablet_proof.sh'
       - '.github/workflows/android-ui-vnext-tablet-pixels.yml'
       - 'android/app/src/**/uivnext/**'
       - 'android/app/src/preview/**'
@@ -56,35 +57,7 @@ jobs:
             mkdir -p "$HOME/.android"
             printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
           disable-animations: true
-          script: |
-            # The emulator-runner invokes its script with /usr/bin/sh, not bash.
-            # dash supports set -eu but not pipefail; keep strict failures portable.
-            set -eu
-            adb shell settings put system accelerometer_rotation 0
-            adb shell settings put system user_rotation 1
-            adb shell wm size 1920x1200
-            adb shell wm density 240
-            sleep 3
-
-            mkdir -p artifacts/runtime-evidence/preview-tablet
-            {
-              echo "source_sha=${GITHUB_SHA}"
-              adb shell wm size
-              adb shell wm density
-              adb shell dumpsys display | grep -E 'mCurrentDisplayRect|DisplayInfo|logicalWidth|logicalHeight' | head -40 || true
-            } > artifacts/runtime-evidence/preview-tablet/device-profile.txt
-
-            cd android
-            ./gradlew :app:connectedPreviewDebugAndroidTest --no-daemon --stacktrace \
-              -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.TabletAdaptiveContractTest
-
-            adb shell rm -rf /sdcard/Download/ui-shots || true
-            ./gradlew :app:connectedPreviewDebugAndroidTest --no-daemon --stacktrace \
-              -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.SourceCompleteScreenshotEvidenceTest
-            cd ..
-
-            adb pull /sdcard/Download/ui-shots artifacts/runtime-evidence/preview-tablet/ui-shots
-            find artifacts/runtime-evidence/preview-tablet -maxdepth 3 -type f -print | sort
+          script: bash android/scripts/ci_emulator_tablet_proof.sh
       - name: Upload tablet pixels, manifests and profile
         if: always()
         uses: actions/upload-artifact@v4
