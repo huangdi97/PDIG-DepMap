@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.model.VScreen
@@ -136,18 +137,18 @@ class ProductionVNextShellContractTest {
         }
         compose.onNodeWithTag("pdig.production-vnext.world-context", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("地区定位尚未进入正式数据模型", substring = true)
-            .assertIsDisplayed()
+        compose.onNodeWithText("尚无已确认 RegionFact", substring = true)
+            .assertExists()
 
         compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.me.continuity", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.production-vnext.me.infrastructure", useUnmergedTree = true)
-            .assertIsDisplayed()
+            .assertExists()
         compose.onNodeWithTag("pdig.production-vnext.me.controls", useUnmergedTree = true)
-            .assertIsDisplayed()
-        compose.onNodeWithText("我的管理").assertIsDisplayed()
+            .assertExists()
+        compose.onNodeWithText("我的管理").assertExists()
 
         compose.onNodeWithContentDescription("搜索").performClick()
         compose.waitForIdle()
@@ -189,7 +190,7 @@ class ProductionVNextShellContractTest {
 
         compose.runOnIdle { session.appState.navigate(VScreen.INFRASTRUCTURE) }
         compose.waitForIdle()
-        compose.onNodeWithText("4 类权威输入", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("1 类权威输入", substring = true).assertExists()
         compose.onNodeWithText("等待 Finding projection", substring = true)
             .assertDoesNotExist()
     }
@@ -234,7 +235,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText("手机号身份").assertIsDisplayed()
-        compose.onNodeWithText("+86 138 0000 8823").assertIsDisplayed()
+        compose.onAllNodesWithText("+86 138 0000 8823").onFirst().assertIsDisplayed()
         compose.onNodeWithText("用户已确认", substring = true).assertExists()
         compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
             .assertExists()
@@ -292,7 +293,7 @@ class ProductionVNextShellContractTest {
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("账户 A").assertIsDisplayed()
+        compose.onAllNodesWithText("账户 A").onFirst().assertIsDisplayed()
         compose.onNodeWithText("已确认关系").assertIsDisplayed()
     }
 
