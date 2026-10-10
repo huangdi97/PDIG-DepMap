@@ -75,7 +75,7 @@ class MainActivity : FragmentActivity() {
         }
         coordinator.attachLauncher { mime -> picker.launch(arrayOf(mime)) }
 
-        // Preview flavor must open the accepted UI vNext from the normal launcher, without ADB extras.
+        // Preview flavor must open the current UI vNext review candidate from the normal launcher, without ADB extras.
         // VNextApp uses synthetic reference fixtures only; no PersonalReality is read or modified.
         // Production stays on the existing lock-gated PdigApp unless a test explicitly requests the demo.
         // VNextShellViewModel retains navigation and projection state across Activity recreation.
