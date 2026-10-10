@@ -160,6 +160,20 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
+    fun perCardPresentationMaskHidesTailWithoutRemovingLocalSearchMatch() {
+        val masked = productionSearchHits(
+            snapshot = snapshot(),
+            query = "8823",
+            privacyMask = false,
+            cardMaskLookup = { id -> id == "card-1" },
+        ).filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "card-1" }
+
+        assertTrue(masked.subtitle.contains("••••"))
+        assertTrue(!masked.subtitle.contains("8823"))
+    }
+
+    @Test
     fun confirmedIdentityValueIsSearchableButMaskingNeverEchoesIt() {
         val visible = productionSearchHits(snapshot(), "+852 6123", privacyMask = false)
             .filterIsInstance<ProductionSearchHit.ObjectHit>()
