@@ -251,7 +251,10 @@ private fun ChangeCardNode(
 ) {
     val profile = app.savedPresentationProfile("card", card.id)
     Surface(
-        modifier = modifier,
+        modifier = modifier.testTag(
+            if (label.startsWith("当前")) "pdig.r21.change-card.old"
+            else "pdig.r21.change-card.new",
+        ),
         color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Xl),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
@@ -280,7 +283,7 @@ private fun ChangeCardServices(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier = modifier,
+        modifier = modifier.testTag("pdig.r21.change-card.services"),
         color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Xl),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
