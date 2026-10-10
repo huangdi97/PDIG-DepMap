@@ -7,9 +7,10 @@ import com.pdig.uivnext.production.ProductionVNextSession
 /**
  * Security-preserving host for the production-bound VNext shell.
  *
- * This is intentionally NOT selected by MainActivity yet. It exists so the final
- * cutover can reuse the exact same fail-closed AppLock lifecycle as the current
- * production app instead of inventing a second security gate.
+ * R32 selects this host only for the explicit productionDebug Reality rehearsal.
+ * The release/default production route still uses the legacy shell. Both paths
+ * reuse the exact same fail-closed AppLock lifecycle, so final cutover changes the
+ * unlocked content rather than inventing a second security gate.
  */
 @Composable
 internal fun ProductionVNextSecureHost(
