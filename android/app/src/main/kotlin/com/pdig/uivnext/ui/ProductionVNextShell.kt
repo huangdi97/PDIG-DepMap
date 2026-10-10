@@ -37,7 +37,7 @@ import com.pdig.uivnext.production.ProductionConsumerInventory
 import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.VNextProductionRecordState
 import com.pdig.uivnext.production.VNextProductionSnapshot
-import com.pdig.uivnext.ui.components.ProductionCardAppearanceStrip
+import com.pdig.uivnext.ui.components.ProductionCardAppearanceEditor
 import com.pdig.uivnext.ui.components.ProductionPaymentAssetFace
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -402,16 +402,9 @@ private fun ProductionCardDetail(
                 presentation = presentation,
                 privacyMask = app.privacyMask,
             )
-            ProductionCardAppearanceStrip(
-                selectedTheme = presentation?.themeId ?: "minimal",
-                onSelect = { theme ->
-                    val next = app.presentationProfile("card", card.id, theme).copy(
-                        themeId = theme,
-                        backgroundKind = "preset",
-                        backgroundValue = theme,
-                    )
-                    app.savePresentationProfile(next)
-                },
+            ProductionCardAppearanceEditor(
+                profile = presentation ?: app.presentationProfile("card", card.id, "minimal"),
+                onSave = app::savePresentationProfile,
             )
         }
 
