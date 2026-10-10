@@ -1,6 +1,9 @@
 package com.pdig.conformance
 
 import com.pdig.core.domain.confirmedIdentityAnchorProfile
+import com.pdig.core.domain.currentConfirmedRegionFacts
+import com.pdig.core.domain.defaultRegionLensSelection
+import com.pdig.core.domain.governedRegionFacts
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.json.Json
@@ -144,9 +147,45 @@ private fun compute(category: String, id: String, input: Json): Json = when (cat
     "provider-policy" -> runProviderPolicy(requireObj(input))
     "identity-relations" -> runIdentityRelations(requireObj(input))
     "identity-profile" -> runIdentityProfile(requireObj(input))
+    "region-fact" -> runRegionFact(requireObj(input))
     else -> throw NotImplementedError("no runner for category $category")
 }
 
+
+
+private fun runRegionFact(input: Json.Obj): Json {
+    val fieldsJson = str(input, "fieldsJson")
+    val facts = governedRegionFacts(fieldsJson)
+    val current = currentConfirmedRegionFacts(fieldsJson)
+    val lens = defaultRegionLensSelection(fieldsJson)
+
+    val lensFields = mutableListOf<Pair<String, Json>>(
+        "status" to Json.Str(lens.status.name.lowercase()),
+    )
+    lens.territoryCode?.let { lensFields += "territoryCode" to Json.Str(it) }
+    lens.facet?.let { lensFields += "facet" to Json.Str(it.wire) }
+
+    return Json.Obj(
+        listOf(
+            "facts" to Json.Arr(
+                facts.map { fact ->
+                    val fields = mutableListOf<Pair<String, Json>>(
+                        "id" to Json.Str(fact.id),
+                        "facet" to Json.Str(fact.facet.wire),
+                        "territoryCode" to Json.Str(fact.territoryCode),
+                    )
+                    fact.subdivisionCode?.let {
+                        fields += "subdivisionCode" to Json.Str(it)
+                    }
+                    fields += "state" to Json.Str(fact.state.wire)
+                    Json.Obj(fields)
+                },
+            ),
+            "currentIds" to Json.Arr(current.map { Json.Str(it.id) }),
+            "lens" to Json.Obj(lensFields),
+        ),
+    )
+}
 
 
 private fun runIdentityProfile(input: Json.Obj): Json {
