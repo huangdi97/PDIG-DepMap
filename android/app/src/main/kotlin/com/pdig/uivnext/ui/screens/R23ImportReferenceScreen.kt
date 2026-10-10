@@ -138,6 +138,11 @@ internal fun R23ImportReferenceScreen(
                 }
             }
 
+            ImportReferenceLink(
+                title = "没有文件？手工记录",
+                modifier = Modifier.fillMaxWidth(),
+            ) { app.navigate(VScreen.MANUAL_ADD) }
+
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ImportReferenceLink(
                     title = "数据与来源",
