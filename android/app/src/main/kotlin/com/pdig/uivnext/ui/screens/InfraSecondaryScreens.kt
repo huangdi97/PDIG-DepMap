@@ -122,7 +122,8 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val devices = UiVNextDemoFixture.devices.filter {
         it.attention && (app.regionFilter == null || it.region == app.regionFilter)
     }
-    val showPhoneMigration = app.regionFilter == null || app.regionFilter == "CN"
+    val showPhoneMigration = !app.emptyDemo &&
+        (app.regionFilter == null || app.regionFilter == "CN")
     val hasRecordedWeakness = numbers.isNotEmpty() || cards.isNotEmpty() || emails.isNotEmpty() ||
         devices.isNotEmpty() || showPhoneMigration
 
