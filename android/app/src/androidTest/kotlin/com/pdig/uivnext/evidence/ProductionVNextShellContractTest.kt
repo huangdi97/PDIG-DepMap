@@ -172,6 +172,28 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun productionCardDetailKeepsAppearanceAsSmallLocalPresentationFeature() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.openCard("card-1") }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.card.face", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.card.appearance-editor", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithTag("pdig.production-vnext.card.choose-photo", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithText("从相册更换卡面").assertExists()
+        compose.onNodeWithText("图片仅保存在本机应用私有目录", substring = true)
+            .assertExists()
+    }
+
+    @Test
     fun productionInventoryCategoryAndDetailUseProductionObjects() {
         val session = session()
         compose.setContent {
