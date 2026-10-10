@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38 + Region/World R39 + Maintenance Canonical R40**
+> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38 + Region/World R39 + Maintenance Canonical R40 + Occurrence/Control Surface R41**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
