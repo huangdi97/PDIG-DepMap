@@ -368,3 +368,40 @@ local presentation persistence
 !=
 Canonical persistence
 ```
+
+
+## 12. Production spatial identity without fake geography
+
+Production VNext previously had correct Reality binding but visually lost one of the
+product's strongest identity elements: the world stage.
+
+R33 now reuses the same R15 GPU Earth family on Production Now / Infrastructure,
+but with a deliberately **truth-empty geographic projection**:
+
+```text
+GPU Earth = visible
+confirmed region labels = none
+asset pins = none
+region arcs = none
+```
+
+The overlay states:
+
+```text
+地区定位尚未进入正式数据模型 · 不显示推测资产位置
+```
+
+This preserves spatial product identity without converting synthetic fixture
+regions into Production Reality.
+
+Permanent rule:
+
+```text
+spatial visual context
+!=
+confirmed geographic fact
+```
+
+Once governed region semantics exist, Production may add confirmed projected
+labels. Until then, the correct state is a real Earth with an honest empty
+geographic data layer.
