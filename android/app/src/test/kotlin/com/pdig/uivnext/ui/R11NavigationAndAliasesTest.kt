@@ -56,6 +56,9 @@ class R11NavigationAndAliasesTest {
         assertTrue(isEntrySelected(VScreen.ME, VScreen.ME))
         assertTrue(isEntrySelected(VScreen.ME, VScreen.SETTINGS))
         assertTrue(isEntrySelected(VScreen.ME, VScreen.SOURCES))
+        assertTrue(isEntrySelected(VScreen.ME, VScreen.IMPORT))
+        assertTrue(isEntrySelected(VScreen.ME, VScreen.MANUAL_ADD))
+        assertTrue(isEntrySelected(VScreen.ME, VScreen.MANUAL_RELATION))
         assertTrue(isEntrySelected(VScreen.SETTINGS, VScreen.PERSONALIZATION))
         assertTrue(isEntrySelected(VScreen.SOURCES, VScreen.SOURCES))
     }
