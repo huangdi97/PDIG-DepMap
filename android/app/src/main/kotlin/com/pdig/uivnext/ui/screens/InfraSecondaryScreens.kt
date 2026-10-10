@@ -16,10 +16,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.demo.UI_CONTINUITY_REFERENCE_FINDINGS
+import com.pdig.uivnext.demo.UiContinuityFinding
+import com.pdig.uivnext.demo.UiContinuityFindingKind
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.continuityFindingLabel
+import com.pdig.uivnext.demo.continuityFindingSeverity
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.serviceKindLabelZh
@@ -126,6 +132,23 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         breakpoint = breakpoint,
     ) {
         RegionScopeBanner(app)
+
+        if (!app.emptyDemo) {
+            SectionHeader("连续性 Findings（参考）")
+            Text(
+                "这里覆盖 v0.3 的完整 Finding 语法。内容来自隔离的 Synthetic Reference，" +
+                    "不是由当前演示边数量临时推导；正式版必须由 Continuity engine 提供。",
+                color = PdigV2Colors.TextMuted,
+                fontSize = 10.sp,
+            )
+            UI_CONTINUITY_REFERENCE_FINDINGS.forEach { finding ->
+                ContinuityFindingCard(
+                    finding = finding,
+                    onOpen = { openFindingTarget(app, finding) },
+                )
+            }
+        }
+
         val knownWeaknessCount = numbers.size + cards.size + emails.size + devices.size + if (showPhoneMigration) 1 else 0
         InfraSummaryHero(
             value = knownWeaknessCount.toString(),
@@ -292,5 +315,77 @@ private fun WeaknessRow(title: String, hint: String, accent: Color, onClick: () 
             fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
         )
+    }
+}
+
+
+@Composable
+private fun ContinuityFindingCard(
+    finding: UiContinuityFinding,
+    onOpen: () -> Unit,
+) {
+    val critical = continuityFindingSeverity(finding.kind) == "critical"
+    val tint = if (critical) PdigV2Colors.Critical else PdigV2Colors.Warning
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.r27.finding.${finding.id}"),
+        color = tint.copy(alpha = 0.075f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, tint.copy(alpha = 0.22f)),
+        onClick = onOpen,
+    ) {
+        Column(
+            Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                LabelChip(continuityFindingLabel(finding.kind), highlight = critical)
+                Text(
+                    if (critical) "已确认事实" else "需要核对",
+                    color = tint,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Text(finding.title, color = PdigV2Colors.TextPrimary, fontSize = 13.sp,
+                fontWeight = FontWeight.Bold)
+            FindingFactLine("为什么", finding.why)
+            FindingFactLine("确认依据", finding.confirmedBasis)
+            FindingFactLine("仍未知", finding.unknowns)
+            Text(
+                "下一步 · " + finding.nextAction,
+                color = PdigV2Colors.PrimaryText,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun FindingFactLine(label: String, value: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 9.sp,
+            modifier = Modifier.padding(top = 1.dp))
+        Text(value, color = PdigV2Colors.TextSecondary, fontSize = 10.sp,
+            lineHeight = 15.sp, modifier = Modifier.weight(1f))
+    }
+}
+
+private fun openFindingTarget(app: VAppState, finding: UiContinuityFinding) {
+    when (finding.targetKind) {
+        "number" -> finding.targetId?.let(app::openNumber)
+        "device" -> finding.targetId?.let { app.openSecondaryObject(VScreen.DEVICE_DETAIL, it) }
+        "change" -> app.navigate(VScreen.CHANGE)
+        else -> Unit
     }
 }
