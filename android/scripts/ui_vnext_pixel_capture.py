@@ -470,8 +470,23 @@ def main():
     else:
         capture("04dd-card-impact-missing")
         raise RuntimeError("Card Impact Lens is unreachable in the current source")
+    # The Impact Lens spans beyond one physical 1080x2340 viewport: the heading
+    # can enter view before its fact tiles and the final unknowns row. Verify
+    # those elements on genuine scrolled pixels, not in an offscreen model tree.
     capture("04dd-card-impact")
-    require_screen("04dd-card-impact", "如果它发生变化？", "已确认依赖", "未确认关系")
+    require_screen("04dd-card-impact", "如果它发生变化？")
+    required_impact = ("已确认依赖", "未确认关系")
+    for attempt in range(7):
+        labels = [label_of(node) for node in xml_nodes()]
+        if all(any(term in label for label in labels) for term in required_impact):
+            break
+        adb("shell", "input", "swipe", "530", "1720", "530", "1090", "350")
+        time.sleep(1)
+    else:
+        capture("04de-card-impact-facts-missing")
+        raise RuntimeError("Impact Lens fact tiles/unknown relation row did not become visible after genuine scrolling")
+    capture("04de-card-impact-facts")
+    require_screen("04de-card-impact-facts", *required_impact)
 
     # R21: replace_payment_card is a real production-supported scenario. Prove the
     # Preview continuity surface without pretending local projection state executed.
