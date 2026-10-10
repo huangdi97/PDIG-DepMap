@@ -170,6 +170,9 @@ private fun ProductionContent(
     modifier: Modifier = Modifier,
 ) {
     val app = session.appState
+    // Read Compose state so authoritative writes can request a fresh production
+    // projection without storing Reality in presentation state.
+    app.realityRefreshVersion
     val snapshot = session.dataSource.productionSnapshot()
     val inventory = session.dataSource.productionInventory()
     val findings = session.dataSource.productionFindings()
