@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,7 @@ import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import com.pdig.uivnext.ui.components.ProductionPhoneIdentityFace
+import com.pdig.uivnext.ui.components.ProductionPaymentAssetFace
 import com.pdig.uivnext.ui.components.ProductionPhonePresentationEditor
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -69,11 +71,19 @@ internal fun ProductionInventoryCategoryScreen(
         it.surfaceKind == surfaceKind &&
             (regionMemberIds == null || it.id in regionMemberIds)
     }
-    LazyColumn(
-        modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.inventory-category"),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
+    // A confirmed payment instrument is a visual asset, not a generic settings row.
+    // Keep the same Reality-driven filters and detail actions at every breakpoint.
+    BoxWithConstraints(modifier.fillMaxSize()) {
+        val galleryColumns = when {
+            maxWidth < 600.dp -> 2
+            maxWidth < 840.dp -> 3
+            else -> 4
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().testTag("pdig.production-vnext.inventory-category"),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
@@ -113,6 +123,46 @@ internal fun ProductionInventoryCategoryScreen(
                     "当前没有该类型的已确认对象。空列表不代表外部不存在，只表示这里尚未记录。"
                 )
             }
+        } else if (screen == VScreen.CARDS) {
+            // Gallery is the consumer object-identity surface; source-owned
+            // local images/themes remain PresentationProfile only.
+            items(objects.chunked(galleryColumns), key = { row -> row.first().id }) { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    row.forEach { card ->
+                        val profile = session.appState.savedPresentationProfile("card", card.id)
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .clickable { session.appState.openCard(card.id) }
+                                .testTag("pdig.production-vnext.card.gallery-item"),
+                            verticalArrangement = Arrangement.spacedBy(5.dp),
+                        ) {
+                            ProductionPaymentAssetFace(
+                                asset = card,
+                                presentation = profile,
+                                privacyMask = session.appState.privacyMask ||
+                                    (profile?.maskSensitive == true),
+                            )
+                            Text(
+                                card.name,
+                                color = PdigV2Colors.TextPrimary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                            )
+                            Text(
+                                "${dependencyCount(snapshot, card.id)} 条已确认关系",
+                                color = PdigV2Colors.TextMuted,
+                                fontSize = 9.sp,
+                            )
+                        }
+                    }
+                    repeat(galleryColumns - row.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
         } else {
             items(objects, key = { it.id }) { item ->
                 ProductionObjectRow(
@@ -121,16 +171,11 @@ internal fun ProductionInventoryCategoryScreen(
                     app = session.appState,
                 ) {
                     when (screen) {
-                        VScreen.CARDS -> session.appState.openCard(item.id)
                         VScreen.NUMBERS -> session.appState.openNumber(item.id)
-                        VScreen.EMAILS ->
-                            session.appState.openSecondaryObject(VScreen.EMAIL_DETAIL, item.id)
-                        VScreen.ACCOUNTS ->
-                            session.appState.openSecondaryObject(VScreen.ACCOUNT_DETAIL, item.id)
-                        VScreen.DEVICES ->
-                            session.appState.openSecondaryObject(VScreen.DEVICE_DETAIL, item.id)
-                        VScreen.SERVICES ->
-                            session.appState.openSecondaryObject(VScreen.SERVICE_DETAIL, item.id)
+                        VScreen.EMAILS -> session.appState.openSecondaryObject(VScreen.EMAIL_DETAIL, item.id)
+                        VScreen.ACCOUNTS -> session.appState.openSecondaryObject(VScreen.ACCOUNT_DETAIL, item.id)
+                        VScreen.DEVICES -> session.appState.openSecondaryObject(VScreen.DEVICE_DETAIL, item.id)
+                        VScreen.SERVICES -> session.appState.openSecondaryObject(VScreen.SERVICE_DETAIL, item.id)
                         else -> Unit
                     }
                 }
@@ -155,6 +200,7 @@ internal fun ProductionInventoryCategoryScreen(
                     "关系数只是已确认关系数量，不代表独立恢复路径数量，也不产生安全分数。"
                 )
             }
+        }
         }
     }
 }
