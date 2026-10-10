@@ -35,6 +35,23 @@ class R11NavigationAndAliasesTest {
         assertFalse(isEntrySelected(VScreen.RECORDS, VScreen.REVIEW))
     }
 
+    @Test fun establishAndReviewHaveStableHierarchyParents() {
+        val app = VAppState()
+        app.navigate(VScreen.ME)
+        app.navigate(VScreen.SOURCES)
+        app.navigate(VScreen.IMPORT)
+        assertEquals(VScreen.SOURCES, app.upDestination())
+
+        app.navigate(VScreen.MANUAL_ADD)
+        assertEquals(VScreen.IMPORT, app.upDestination())
+
+        app.navigate(VScreen.MANUAL_RELATION)
+        assertEquals(VScreen.MANUAL_ADD, app.upDestination())
+
+        app.navigate(VScreen.REVIEW)
+        assertEquals(VScreen.NOW, app.upDestination())
+    }
+
     @Test fun meRemainsSelectedAcrossItsChildUtilities() {
         assertTrue(isEntrySelected(VScreen.ME, VScreen.ME))
         assertTrue(isEntrySelected(VScreen.ME, VScreen.SETTINGS))
