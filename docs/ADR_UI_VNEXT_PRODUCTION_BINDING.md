@@ -208,16 +208,19 @@ Production source:
 Node.kind = identity_anchor
 ```
 
-Only an identity anchor that is explicitly typed/recognized as a phone number may
-be projected as a Number asset.
+Only an identity anchor with a valid governed `identity_anchor_profile` subtype may
+be projected as a Number or Email asset.
 
-Until that governed subtype exists, the production adapter classifies
-`identity_anchor` as `IDENTITY_ANCHOR_GENERIC`. It must render a generic identity
-surface rather than silently adopting the Number/phone UI.
+R37/R38 now implement:
+- confirmed `PHONE_NUMBER` → Number surface;
+- confirmed `EMAIL_ADDRESS` → Email surface;
+- missing/malformed/bare subtype → Generic Identity;
+- optional independently confirmed nested identifier value;
+- invalid identifier → value unavailable while a valid subtype remains confirmed.
 
-The schema-level follow-up is designed in
-`spec/proposals/identity-anchor-subtype-v1.md`. Existing anchors migrate to
-unknown/null; no name/regex/provider heuristic is allowed.
+The governed contract is in `spec/proposals/identity-anchor-subtype-v1.md`.
+Existing anchors without a valid profile remain generic; no name/regex/provider
+heuristic is allowed.
 
 Do not infer:
 - phone role from country;
@@ -388,26 +391,30 @@ R28/R29 additionally implements screen-level source binding inside a dedicated
 - Me / local Presentation preferences.
 
 Still not done in P1:
-- MainActivity / lock-gate launcher cutover;
+- productionRelease default cutover;
 - lifecycle editing/persistence;
-- phone/email subtype-specific screens;
-- production Finding-backed Weaknesses.
+- region/provider/SIM/keep-alive authority beyond the governed identifier;
+- exact-head release/runtime acceptance.
 
 No lifecycle editing is enabled.
 
-### P2 — Object identity normalization — PARTIAL SOURCE IMPLEMENTED
+### P2 — Object identity normalization — R38 SOURCE IMPLEMENTED FOR PHONE/EMAIL
 
 Implemented safely:
 - `payment_instrument` → payment-asset surface;
 - Canonical `issuer` / `last4` carried from Reality;
 - account/service/device/membership mapped only by confirmed NodeKind;
-- `identity_anchor` remains `IDENTITY_ANCHOR_GENERIC` rather than being guessed as phone;
+- governed `PHONE_NUMBER` / `EMAIL_ADDRESS` subtype mapping;
+- independently confirmed raw phone/email identifier projection;
+- invalid/missing identifier preserves subtype but renders value as unknown;
+- privacy-safe list/detail/search presentation;
+- generic/bare/malformed identity profile remains Generic Identity;
 - truth-bounded consumer inventory projection with confirmed-dependency counts.
 
 Still gated:
-- phone/email subtype mapping until the governed subtype proposal is implemented;
-- region/context metadata where Canonical has no confirmed owner;
-- lifecycle-specific presentation fields.
+- provider/carrier/SIM/region authority;
+- keep-alive/lifecycle persistence;
+- IdentityContext/recovery semantics not proven by subtype/value.
 
 Unknown remains unknown.
 
@@ -430,7 +437,7 @@ Implemented in the production shell:
 
 Still gated:
 - production launcher injection;
-- starting `replace_phone_number` from a production phone object until identity subtype exists;
+- no longer gated: confirmed Production Number objects may enter `replace_phone_number`; PlanRepository independently re-validates PHONE_NUMBER subtype before plan creation;
 - new scenario primitives beyond Canonical runtime availability.
 
 The UI must never infer verification from local presentation state.
@@ -668,18 +675,24 @@ inside UI vNext.
 R24/R25 freeze the consumer UX for manual object and relationship establishment,
 but production VNext must not implement them through direct Compose/SQL writes.
 
-### Manual object authority
+### Manual object authority — SOURCE IMPLEMENTED
 
-Required future domain API:
-- validate kind against runtime-creatable Canonical policy;
-- normalize identity/name through domain policy;
-- insert Node;
-- bump graphRevision in the same transaction;
-- return authoritative Node/revision state.
+Generic object creation:
+- validates against `runtimeCreatableNodeKinds`;
+- creates payment/account/service only;
+- writes Node + one graphRevision bump;
+- creates no Dependency.
 
-Until that exists:
-- Preview has no Save action;
-- generic identity_anchor cannot be promoted to Number/Email.
+R38 governed phone/email creation uses a **separate authority**, not a widened generic
+identity button:
+- Canonical `runtimeCreatableIdentityAnchorSubtypes` = phone_number/email_address;
+- one transaction creates `identity_anchor` + confirmed subtype + confirmed exact identifier;
+- one graphRevision bump;
+- no Dependency side effect;
+- duplicate identifier values do not silently merge;
+- Preview remains read-only.
+
+Generic identity/device/membership/custom remain gated.
 
 ### Manual Dependency authority
 
@@ -738,5 +751,7 @@ duplicate logical rows
 Preview stays read-only even though Production owns this authority.
 
 This narrows the remaining cutover blockers to capabilities that genuinely still
-lack shared authority: identity subtype, lifecycle persistence, complete seven-class
-Finding inputs, and exact-head security/runtime acceptance.
+lack shared authority: lifecycle/region/provider context persistence, remaining
+Finding inputs, release-default activation, and exact-head security/runtime/human
+acceptance. Identity subtype + raw phone/email identifier authority is now R38
+source-implemented.
