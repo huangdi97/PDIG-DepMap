@@ -112,3 +112,29 @@ internal fun productionSourceStateLabel(state: String): String = when (state) {
     "retired" -> "已停用"
     else -> "未知状态（$state）"
 }
+
+
+/**
+ * Presentation-only label for a confirmed payment-instrument tail.
+ *
+ * Search may still match the local confirmed value while masking is enabled, but
+ * no visible Production VNext surface may echo that value back to the screen.
+ */
+internal fun productionPaymentTailLabel(
+    last4: String?,
+    privacyMask: Boolean,
+    missingLabel: String = "尾号未记录",
+): String = when {
+    last4.isNullOrBlank() -> missingLabel
+    privacyMask -> "尾号 ••••"
+    else -> "尾号 $last4"
+}
+
+internal fun productionPaymentCompactTailLabel(
+    last4: String?,
+    privacyMask: Boolean,
+): String? = when {
+    last4.isNullOrBlank() -> null
+    privacyMask -> "••••"
+    else -> "•••• $last4"
+}
