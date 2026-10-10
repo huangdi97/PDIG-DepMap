@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiRecordTraceItem
-import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.UiRecordTraceState
 import com.pdig.uivnext.demo.referenceRecordTrace
 import com.pdig.uivnext.demo.referenceRecordTraceSummary
@@ -124,9 +124,9 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 }
             }
 
-            if (!app.emptyDemo && UiVNextDemoFixture.activeChanges.isNotEmpty()) {
+            if (!app.emptyDemo && app.demoChanges().isNotEmpty()) {
                 SectionTitle("关联计划", "继续处理")
-                UiVNextDemoFixture.activeChanges.forEach { change ->
+                app.demoChanges().forEach { change ->
                     Surface(
                         modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min)
                             .clickable {
