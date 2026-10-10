@@ -26,6 +26,14 @@ public enum NodeKind: String, CaseIterable, Sendable, Equatable {
     public var wire: String { rawValue }
 }
 
+public enum IdentityAnchorSubtype: String, CaseIterable, Sendable, Equatable {
+    case phoneNumber = "phone_number"
+    case emailAddress = "email_address"
+    case otherIdentity = "other_identity"
+
+    public var wire: String { rawValue }
+}
+
 public enum Relation: String, CaseIterable, Sendable, Equatable {
     case fundingSource = "funding_source"
     case merchantAgreement = "merchant_agreement"
