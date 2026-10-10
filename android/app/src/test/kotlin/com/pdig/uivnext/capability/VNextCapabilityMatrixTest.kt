@@ -19,6 +19,7 @@ class VNextCapabilityMatrixTest {
                 VNextCapability.CHANGE_PHONE,
                 VNextCapability.CHANGE_PAYMENT_CARD,
                 VNextCapability.LIFECYCLE_PERSISTENCE,
+                VNextCapability.REGION_FACT,
             ),
             visibleReferenceCapabilities(),
         )
@@ -41,6 +42,8 @@ class VNextCapabilityMatrixTest {
         assertFalse(hasProductionAuthority(VNextCapability.DIGITAL_RESOURCE_CONTINUITY))
         assertFalse(hasProductionAuthority(VNextCapability.TRUSTED_HANDOFF))
         assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
+        assertFalse(hasProductionAuthority(VNextCapability.REGION_FACT))
+        assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_SUBTYPE))
         assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_PREPAREDNESS))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_INCIDENT))
@@ -67,6 +70,20 @@ class VNextCapabilityMatrixTest {
         assertEquals(
             VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
             capabilityGate(VNextCapability.RECOVERY_PREPAREDNESS).visibility,
+        )
+    }
+
+    @Test
+    fun productionGeographyAndIdentitySubtypeStayTruthGated() {
+        assertTrue(canShowReference(VNextCapability.REGION_FACT))
+        assertEquals(
+            VNextProductionAuthority.REQUIRES_CANONICAL,
+            capabilityGate(VNextCapability.REGION_FACT).productionAuthority,
+        )
+        assertFalse(canShowReference(VNextCapability.IDENTITY_SUBTYPE))
+        assertEquals(
+            VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+            capabilityGate(VNextCapability.IDENTITY_SUBTYPE).visibility,
         )
     }
 
