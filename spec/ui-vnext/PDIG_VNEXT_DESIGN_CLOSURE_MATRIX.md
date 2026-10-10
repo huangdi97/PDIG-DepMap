@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R33 DESIGN CLOSED / PRODUCTION SOURCE-BINDING + SECURE REHEARSAL INDEX**
+> Status: **R34 DESIGN CLOSED / PRODUCTION SOURCE-BINDING + SECURE REHEARSAL INDEX**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -22,7 +22,7 @@ No roadmap capability creates a sixth primary destination.
 | --- | --- | --- | --- |
 | Now / attention | complete | implemented | existing production projection still needs final VNext cutover |
 | Infrastructure inventory | complete | implemented | existing production nodes available |
-| Region / Globe | complete | implemented | Production reuses GPU Earth with zero inferred regions; confirmed geographic projection waits governed region semantics; runtime pixel/GPU evidence still gates freeze |
+| Region / Globe | complete | implemented | RegionFact v1 design complete; Production reuses GPU Earth with zero inferred regions until governed RegionFact Canonical exists; runtime pixel/GPU evidence still gates freeze |
 | Cards | complete | implemented | production category/detail/relations/Impact + replace-card ChangePlan entry source-bound; launcher cutover pending |
 | Numbers | complete | implemented reference | production phone mapping waits identity subtype |
 | Accounts | complete | implemented | production category + focused generic detail + Impact source-bound |
@@ -97,6 +97,7 @@ Proposal:
 Proposals:
 - spec/proposals/identity-anchor-subtype-v1.md
 - spec/proposals/identity-context-v1.md
+- spec/proposals/region-facts-v1.md
 
 ## 7. Authentication / recovery substrate
 
@@ -236,7 +237,7 @@ R32/R33 launcher/security source state:
 - R33 also reuses the canonical `FLAG_SECURE` window implementation for sensitive Production VNext Reality/review/history/change/search surfaces.
 
 Still required before release cutover:
-- R33 exact-head secure rehearsal workflow PASS on the final candidate;
+- latest exact-head secure rehearsal workflow PASS on the final candidate;
 - explicit release cutover decision / rollback switch;
 - generic identity subtype implementation for phone/email;
 - subtype-aware phone/email after Canonical;
@@ -293,7 +294,7 @@ iOS/Harmony UI translation after Android freeze
 real-user/real-data/store gates when reopened
 ~~~
 
-## 15. R26 design closure assertion + R29 production source progress
+## 15. Design closure assertion + R34 production source progress
 
 Within the product scope and roadmap explicitly described by v2.3-R1, the remaining
 major concepts now have one of three explicit outcomes:
@@ -309,7 +310,7 @@ No known v2.3 roadmap concept is allowed to exist only as an ambiguous UI idea.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AT_R26
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R34
 FIVE_PRIMARY_IA = FROZEN
 FUTURE_CAPABILITIES = GATED
 GHOST_CAPABILITIES = FORBIDDEN
