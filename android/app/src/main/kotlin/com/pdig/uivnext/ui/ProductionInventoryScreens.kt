@@ -248,6 +248,47 @@ internal fun ProductionGenericObjectDetailScreen(
             }
         }
 
+        if (detailScreen == VScreen.NUMBER_DETAIL) {
+            item {
+                Text(
+                    "号码生命周期",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            val currentFacts = item.maintenanceFacts.filter { it.state == "confirmed" }
+            val currentSchedules = item.maintenanceSchedules.filter {
+                it.state == "active" || it.state == "needs_review"
+            }
+            if (currentFacts.isEmpty() && currentSchedules.isEmpty()) {
+                item {
+                    ProductionObjectBoundary(
+                        "尚未记录受治理的号码生命周期资料；不会从运营商名称、号码前缀或参考数据推断资费/保号状态。"
+                    )
+                }
+            } else {
+                items(currentFacts, key = { "maintenance-fact:" + it.id }) { fact ->
+                    ProductionFactCard(
+                        title = productionMaintenanceFactLabel(fact.kind),
+                        subtitle = productionMaintenanceFactValue(fact.kind, fact.value),
+                        meta = "已确认 Maintenance Reality · " +
+                            productionIdentityBasisLabel(fact.verificationBasisType),
+                    )
+                }
+                items(currentSchedules, key = { "maintenance-schedule:" + it.id }) { schedule ->
+                    ProductionFactCard(
+                        title = productionMaintenanceScheduleTitle(schedule.kind),
+                        subtitle = productionMaintenanceScheduleSummary(schedule),
+                        meta = if (schedule.state == "needs_review")
+                            "需要核对 · 时间经过不会自动完成"
+                        else
+                            "已记录计划 · 时间经过不会自动完成",
+                    )
+                }
+            }
+        }
+
         item {
             ProductionObjectBoundary(
                 "${related.size} 条已确认关系 · 未确认关系仍可能存在"
@@ -345,9 +386,9 @@ internal fun ProductionGenericObjectDetailScreen(
             when (detailScreen) {
                 VScreen.NUMBER_DETAIL -> ProductionObjectBoundary(
                     if (item.identityIdentifierValue != null)
-                        "号码值来自独立确认的 identifier Reality；运营商、SIM/eSIM、地区、保号或恢复路径仍必须来自各自的受治理事实。"
+                        "号码值来自独立确认的 identifier Reality；资费/保号只读取 maintenance_profile；运营商、SIM/eSIM、恢复路径仍必须来自各自的受治理事实。"
                     else
-                        "当前只确认“这是手机号身份”，具体号码值仍未记录；不会从名称、地区或 Provider 猜测。"
+                        "当前只确认“这是手机号身份”，具体号码值仍未记录；即使存在维护计划，也不会从名称、地区或 Provider 猜测号码值。"
                 )
                 VScreen.EMAIL_DETAIL -> ProductionObjectBoundary(
                     if (item.identityIdentifierValue != null)
@@ -521,6 +562,51 @@ private fun productionFindingTruthLabel(truth: String): String = when (truth) {
     "PENDING_REVIEW" -> "待复核"
     "DERIVED" -> "基于已确认数据的派生分析"
     else -> "未知"
+}
+
+private fun productionMaintenanceFactLabel(kind: String): String = when (kind) {
+    "number_billing_mode" -> "计费方式"
+    "number_plan_cost" -> "套餐费用"
+    "number_plan_currency" -> "费用币种"
+    "number_renewal_method" -> "续费 / 保号方式"
+    "card_annual_fee_amount" -> "年费"
+    "card_annual_fee_currency" -> "年费币种"
+    "card_billing_day" -> "账单日"
+    "card_payment_due_day" -> "还款日"
+    "card_autopay_mode" -> "自动还款"
+    else -> "维护事实"
+}
+
+private fun productionMaintenanceFactValue(kind: String, value: String): String = when (kind) {
+    "card_billing_day", "card_payment_due_day" -> "每月 $value 日"
+    else -> value
+}
+
+private fun productionMaintenanceScheduleTitle(kind: String): String = when (kind) {
+    "number_keep_alive" -> "保号节点"
+    "number_plan_renewal" -> "套餐续费"
+    "card_annual_fee_checkpoint" -> "年费检查节点"
+    "card_billing_checkpoint" -> "账单节点"
+    "card_payment_due_checkpoint" -> "还款节点"
+    "fact_freshness_review" -> "资料新鲜度复核"
+    "custom_maintenance" -> "自定义维护"
+    else -> "维护计划"
+}
+
+private fun productionMaintenanceScheduleSummary(
+    schedule: com.pdig.uivnext.production.VNextProductionMaintenanceSchedule,
+): String = when (schedule.cadenceKind) {
+    "one_time" -> schedule.dueAt ?: "日期未记录"
+    "monthly_day" -> schedule.dayOfMonth?.let { "每月 $it 日" } ?: "每月节点"
+    "yearly_month_day" -> if (schedule.month != null && schedule.day != null)
+        "每年 ${schedule.month} 月 ${schedule.day} 日"
+    else "年度节点"
+    "interval_days" -> if (schedule.intervalDays != null)
+        "每 ${schedule.intervalDays} 天" +
+            (schedule.anchorDate?.let { " · 锚点 $it" } ?: "")
+    else "周期节点"
+    "manual_only" -> "手动维护"
+    else -> "已记录维护计划"
 }
 
 @Composable
