@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R40 DESIGN CLOSED / MACHINE-GATED CANONICAL EXPANSION + GOVERNED IDENTITY + REGION + MAINTENANCE AUTHORITY**
+> Status: **R41 DESIGN CLOSED / GOVERNED MAINTENANCE READ + WRITE + OCCURRENCE CONTROL SURFACE**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -85,10 +85,11 @@ regress to a generic `linked_to` graph.
 
 | Capability | Design | UI | Gate |
 | --- | --- | --- | --- |
-| MaintenanceFact | complete + governed v1 | reference + Production read surface | R40 Canonical decoder/conformance implemented; write authority HOLD |
-| MaintenanceSchedule | complete + governed v1 | reference + Production read surface | R40 Canonical decoder/conformance implemented; direct edit/completion authority HOLD |
-| annual fee / billing checkpoints | complete | reference + Production read rendering | governed maintenance_profile source implemented; occurrence/write runtime still gated |
-| number keep-alive | complete | reference + Production read rendering | governed PHONE_NUMBER + maintenance_profile source implemented; completion/write authority HOLD |
+| MaintenanceFact | complete + governed v1 | reference + Production read/edit surface | R40 Canonical decoder + authoritative manual write source implemented; exact-head runtime acceptance pending |
+| MaintenanceSchedule | complete + governed v1 | reference + Production read/edit surface | R40 schedule write authority + R41 occurrence derivation source implemented; no automatic completion |
+| annual fee / billing checkpoints | complete | reference + Production read/edit rendering | governed facts + annual-fee checkpoint source implemented; runtime acceptance pending |
+| number keep-alive | complete | reference + Production read/edit rendering | governed PHONE_NUMBER schedule + explicit completion action + Now occurrence source implemented |
+| maintenance occurrence / Now | complete | Production Timeline / Now | R41 deterministic derived occurrence; bucket ordering fixed; elapsed time never marks completion |
 | stale recovery info | semantics complete | future preparedness | freshness schedule vocabulary exists; authoritative stale-recovery Finding input remains future-gated |
 
 Proposal:
@@ -382,7 +383,7 @@ Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R40
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R41
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
 PRODUCTION_VNEXT_CUTOVER_POLICY = SOURCE_IMPLEMENTED_FAIL_CLOSED
 FIVE_PRIMARY_IA = FROZEN
