@@ -525,6 +525,35 @@ private fun ProductionCardDetail(
             meta = "${card.confirmedDependencyCount} 条已确认关系",
         )
 
+        ProductionSection("用卡周期")
+        val lifecycleFacts = listOfNotNull(
+            card.annualFeeAmount?.let { amount ->
+                val currency = card.annualFeeCurrency ?: "币种未记录"
+                "年费" to "$currency $amount"
+            },
+            card.billingDay?.let { "账单日" to "每月 $it 日" },
+            card.paymentDueDay?.let { "还款日" to "每月 $it 日" },
+            card.autopayMode?.let { "自动还款" to it },
+        )
+        if (lifecycleFacts.isEmpty() && card.annualFeeSchedule == null) {
+            ProductionEmpty("尚未记录受治理的卡片生命周期资料；未知字段保持未记录。")
+        } else {
+            lifecycleFacts.forEach { (label, value) ->
+                ProductionFactCard(
+                    title = label,
+                    subtitle = value,
+                    meta = "已确认 Maintenance Reality",
+                )
+            }
+            card.annualFeeSchedule?.let { schedule ->
+                ProductionFactCard(
+                    title = "年费检查节点",
+                    subtitle = productionMaintenanceScheduleLabel(schedule),
+                    meta = if (schedule.state == "needs_review") "需要核对" else "已记录计划",
+                )
+            }
+        }
+
         ProductionSection("已确认关系")
         if (related.isEmpty()) {
             ProductionEmpty("当前没有已确认关系；这不表示外部没有关联，只表示这里尚未记录。")
@@ -585,9 +614,25 @@ private fun ProductionCardDetail(
         )
 
         ProductionBoundaryNote(
-            "年费、账单日、分期等生命周期字段尚未进入正式数据模型，因此这里不会伪造这些信息。"
+            "年费、账单日、还款日与自动还款只来自受治理 maintenance_profile；分期摘要仍不属于 Canonical v1，不会从账单/交易或参考图推断。"
         )
     }
+}
+
+private fun productionMaintenanceScheduleLabel(
+    schedule: com.pdig.uivnext.production.VNextProductionMaintenanceSchedule,
+): String = when (schedule.cadenceKind) {
+    "one_time" -> schedule.dueAt ?: "日期未记录"
+    "monthly_day" -> schedule.dayOfMonth?.let { "每月 $it 日" } ?: "每月节点"
+    "yearly_month_day" -> if (schedule.month != null && schedule.day != null)
+        "每年 ${schedule.month} 月 ${schedule.day} 日"
+    else "年度节点"
+    "interval_days" -> if (schedule.intervalDays != null)
+        "每 ${schedule.intervalDays} 天" +
+            (schedule.anchorDate?.let { " · 锚点 $it" } ?: "")
+    else "周期节点"
+    "manual_only" -> "手动维护"
+    else -> "已记录维护计划"
 }
 
 @Composable
