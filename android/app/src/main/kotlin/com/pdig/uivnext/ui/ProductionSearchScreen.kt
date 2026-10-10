@@ -167,6 +167,8 @@ internal fun productionSearchHits(
                 item.last4,
                 item.identitySubtype,
                 item.identityVerificationBasisType,
+                item.identityIdentifierValue,
+                item.identityIdentifierVerificationBasisType,
             )
         ) return@mapNotNull null
         ProductionSearchHit.ObjectHit(
@@ -176,6 +178,7 @@ internal fun productionSearchHits(
                 kindLabel,
                 item.issuer,
                 item.last4?.let { productionPaymentTailLabel(it, privacyMask) },
+                productionIdentityIdentifierLabel(item, privacyMask),
                 item.identityVerificationBasisType?.let(::productionIdentityBasisLabel),
             ).joinToString(" · "),
         )
