@@ -128,7 +128,10 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     ): ImportPreview = sourceRepo.previewImport(observations, errors, adapterId, sourceLabel)
 
     /** 用户确认后提交：一次事务内完成，失败整体回滚。 */
-    fun commitImport(preview: ImportPreview): ImportCommitResult = sourceRepo.commitImport(preview)
+    fun commitImport(
+        preview: ImportPreview,
+        existingSourceId: String? = null,
+    ): ImportCommitResult = sourceRepo.commitImport(preview, existingSourceId)
 
     // ------------------------------------------------------------------
     // Manual Establish（显式用户 Reality mutation；Preview 仍不调用）
