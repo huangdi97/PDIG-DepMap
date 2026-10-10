@@ -202,6 +202,8 @@ private fun ProductionContent(
                 objectId = app.selectedNumberId,
                 modifier = modifier,
             )
+        VScreen.NUMBER_CUSTOMIZATION ->
+            ProductionNumberCustomizationScreen(session, modifier)
         VScreen.ACCOUNT_DETAIL, VScreen.EMAIL_DETAIL, VScreen.DEVICE_DETAIL, VScreen.SERVICE_DETAIL ->
             ProductionGenericObjectDetailScreen(
                 session = session,
