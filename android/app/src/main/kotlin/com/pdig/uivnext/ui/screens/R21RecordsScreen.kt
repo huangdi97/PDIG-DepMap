@@ -108,7 +108,7 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 }
             }
 
-            SectionTitle("验证状态", "done ≠ verified")
+            SectionTitle("验证状态", "完成 ≠ 已验证")
             Surface(
                 modifier = Modifier.fillMaxWidth().testTag("pdig.r21.records.verification"),
                 color = PdigV2Colors.PrimarySoft.copy(alpha = 0.62f),
@@ -155,8 +155,8 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
             SectionTitle("记录边界", "依据")
             BoundarySurface(
-                "生产版记录必须来自 Timeline / ChangePlan / Review / Verification / Evidence。" +
-                    "未处理的 Attention、未来到期提醒和推测结果不会因为出现在界面里就成为历史事实。",
+                "正式版记录必须来自已记录时间线、变更计划、复核、验证或证据。" +
+                    "未处理的关注项、未来到期提醒和推测结果不会因为出现在界面里就成为历史事实。",
             )
             Spacer(Modifier.height(8.dp))
         }
