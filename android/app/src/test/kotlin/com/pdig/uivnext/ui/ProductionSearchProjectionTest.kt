@@ -24,6 +24,18 @@ class ProductionSearchProjectionTest {
                 last4 = "8823",
             ),
             VNextProductionObject(
+                id = "phone-1",
+                kind = "identity_anchor",
+                name = "香港主号",
+                surfaceKind = VNextProductionSurfaceKind.PHONE_IDENTITY,
+                identitySubtype = "phone_number",
+                identityVerificationBasisType = "user_confirmed",
+                identityConfirmedAt = "2026-10-10T00:00:00Z",
+                identityIdentifierValue = "+852 6123 4567",
+                identityIdentifierVerificationBasisType = "user_confirmed",
+                identityIdentifierConfirmedAt = "2026-10-10T02:00:00Z",
+            ),
+            VNextProductionObject(
                 id = "identity-1",
                 kind = "identity_anchor",
                 name = "登录身份",
@@ -85,6 +97,29 @@ class ProductionSearchProjectionTest {
             .single { it.item.id == "card-1" }
         assertTrue(masked.subtitle.contains("••••"))
         assertTrue(!masked.subtitle.contains("8823"))
+    }
+
+    @Test
+    fun confirmedIdentityValueIsSearchableButMaskingNeverEchoesIt() {
+        val visible = productionSearchHits(snapshot(), "+852 6123", privacyMask = false)
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "phone-1" }
+        assertTrue(visible.subtitle.contains("+852 6123 4567"))
+        assertEquals(
+            "+852 6123 4567",
+            productionIdentityIdentifierLabel(visible.item, privacyMask = false),
+        )
+
+        val masked = productionSearchHits(snapshot(), "+852 6123", privacyMask = true)
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "phone-1" }
+        assertEquals("手机号身份（已遮蔽）", masked.title)
+        assertTrue(masked.subtitle.contains("号码已遮蔽"))
+        assertTrue(!masked.subtitle.contains("+852 6123 4567"))
+        assertEquals(
+            "号码已遮蔽",
+            productionIdentityIdentifierLabel(masked.item, privacyMask = true),
+        )
     }
 
     @Test
