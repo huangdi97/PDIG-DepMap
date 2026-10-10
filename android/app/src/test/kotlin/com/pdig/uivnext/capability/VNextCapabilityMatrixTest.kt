@@ -14,6 +14,7 @@ class VNextCapabilityMatrixTest {
             setOf(
                 VNextCapability.FILE_IMPORT,
                 VNextCapability.MANUAL_CREATE,
+                VNextCapability.MANUAL_RELATIONSHIP,
                 VNextCapability.HUMAN_REVIEW,
                 VNextCapability.CHANGE_PHONE,
                 VNextCapability.CHANGE_PAYMENT_CARD,
@@ -31,6 +32,7 @@ class VNextCapabilityMatrixTest {
         assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PAYMENT_CARD))
 
         assertFalse(hasProductionAuthority(VNextCapability.MANUAL_CREATE))
+        assertFalse(hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP))
         assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
         assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_INCIDENT))
