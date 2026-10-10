@@ -15,6 +15,18 @@ data class NodeRow(
     val issuer: String? = null,
     val last4: String? = null,
 )
+
+data class ManualNodeCreateRequest(
+    val kind: com.pdig.core.generated.NodeKind,
+    val name: String,
+    val issuer: String? = null,
+    val last4: String? = null,
+)
+
+data class ManualNodeCreateResult(
+    val node: NodeRow,
+    val graphRevision: Int,
+)
 data class DependencyRow(
     val id: String,
     val from: String,
