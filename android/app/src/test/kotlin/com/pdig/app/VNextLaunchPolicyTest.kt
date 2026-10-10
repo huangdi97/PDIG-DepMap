@@ -6,7 +6,7 @@ import org.junit.Test
 
 class VNextLaunchPolicyTest {
     @Test
-    fun previewOpensAcceptedUiFromLauncherWithoutIntentExtras() {
+    fun previewOpensCurrentReviewCandidateFromLauncherWithoutIntentExtras() {
         assertTrue(shouldLaunchVNext(flavor = "preview", explicitDemo = false))
     }
 
