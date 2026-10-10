@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiRecordTraceItem
+import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.demo.UiRecordTraceState
 import com.pdig.uivnext.demo.referenceRecordTrace
 import com.pdig.uivnext.demo.referenceRecordTraceSummary
@@ -124,9 +124,9 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 }
             }
 
-            if (!app.emptyDemo && app.demoChanges().isNotEmpty()) {
+            if (!app.emptyDemo && UiVNextDemoFixture.activeChanges.isNotEmpty()) {
                 SectionTitle("关联计划", "继续处理")
-                app.demoChanges().forEach { change ->
+                UiVNextDemoFixture.activeChanges.forEach { change ->
                     Surface(
                         modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = VTouchTarget.Min)
                             .clickable {
