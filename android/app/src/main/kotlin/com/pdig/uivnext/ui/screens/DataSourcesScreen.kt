@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.app.BuildConfig
 import com.pdig.uivnext.demo.UiVNextDemoFixture
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
@@ -32,6 +33,14 @@ import com.pdig.uivnext.ui.components.SectionHeader
 /** 数据源：展示当前工作区覆盖范围与事实边界，不伪造尚未接入的来源。 */
 @Composable
 fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
+    val previewReference = BuildConfig.FLAVOR == "preview"
+    fun countOrBoundary(value: Int): String =
+        if (previewReference) {
+            if (app.emptyDemo) "0" else value.toString()
+        } else {
+            "—"
+        }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -43,7 +52,10 @@ fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             Text("数据源", color = PdigV2Colors.TextPrimary, fontSize = pageTitleSize(breakpoint), fontWeight = FontWeight.Bold)
         }
         Text(
-            "PDIG 只把已记录并确认的信息当作事实；没有来源的数据保持未知。",
+            if (previewReference)
+                "当前展示隔离的预览参考工作区，不代表真实账户同步状态；没有来源的数据保持未知。"
+            else
+                "当前界面尚未接入生产数据读模型；未接入的数据保持未知，不使用演示对象替代。",
             color = PdigV2Colors.TextSecondary,
             fontSize = 13.sp,
         )
@@ -63,23 +75,33 @@ fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column {
-                        Text("本机数据", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-                        Text("用于当前工作区的已记录基础设施", color = PdigV2Colors.TextMuted, fontSize = 12.sp)
+                        Text(
+                            if (previewReference) "预览参考数据" else "生产数据连接",
+                            color = PdigV2Colors.TextPrimary,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 15.sp,
+                        )
+                        Text(
+                            if (previewReference) "隔离的参考数据，不读取真实用户账户"
+                            else "尚未切换到 VNext 生产读模型",
+                            color = PdigV2Colors.TextMuted,
+                            fontSize = 12.sp,
+                        )
                     }
-                    LabelChip("本机优先", highlight = true)
+                    LabelChip(if (previewReference) "演示数据" else "未接入", highlight = true)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    SourceMetric(UiVNextDemoFixture.cards.size.toString(), "卡片", Modifier.weight(1f))
-                    SourceMetric(UiVNextDemoFixture.numbers.size.toString(), "号码", Modifier.weight(1f))
-                    SourceMetric(UiVNextDemoFixture.accounts.size.toString(), "账户", Modifier.weight(1f))
+                    SourceMetric(countOrBoundary(UiVNextDemoFixture.cards.size), "卡片", Modifier.weight(1f))
+                    SourceMetric(countOrBoundary(UiVNextDemoFixture.numbers.size), "号码", Modifier.weight(1f))
+                    SourceMetric(countOrBoundary(UiVNextDemoFixture.accounts.size), "账户", Modifier.weight(1f))
                 }
             }
         }
 
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            SourceMetric(UiVNextDemoFixture.emails.size.toString(), "邮箱", Modifier.weight(1f))
-            SourceMetric(UiVNextDemoFixture.devices.size.toString(), "设备", Modifier.weight(1f))
-            SourceMetric(UiVNextDemoFixture.services.size.toString(), "服务", Modifier.weight(1f))
+            SourceMetric(countOrBoundary(UiVNextDemoFixture.emails.size), "邮箱", Modifier.weight(1f))
+            SourceMetric(countOrBoundary(UiVNextDemoFixture.devices.size), "设备", Modifier.weight(1f))
+            SourceMetric(countOrBoundary(UiVNextDemoFixture.services.size), "服务", Modifier.weight(1f))
         }
 
         SectionHeader("事实边界")
