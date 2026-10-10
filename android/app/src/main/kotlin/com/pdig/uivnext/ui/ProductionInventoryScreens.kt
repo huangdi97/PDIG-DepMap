@@ -395,6 +395,9 @@ internal fun ProductionGenericObjectDetailScreen(
 
         if (related.isNotEmpty()) {
             item {
+                ProductionRelationshipConstellation(snapshot, item, app)
+            }
+            item {
                 Text("已确认关系", color = PdigV2Colors.TextPrimary, fontSize = 14.sp,
                     fontWeight = FontWeight.Bold)
             }
