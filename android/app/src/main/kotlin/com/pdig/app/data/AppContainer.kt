@@ -161,6 +161,12 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
         request: com.pdig.core.domain.MaintenanceFactWrite,
     ): MaintenanceWriteResult = graphRepo.confirmMaintenanceFact(nodeId, request)
 
+    /** Confirm coupled governed facts with one graphRevision mutation. */
+    fun confirmMaintenanceFacts(
+        nodeId: String,
+        requests: List<com.pdig.core.domain.MaintenanceFactWrite>,
+    ): MaintenanceWriteResult = graphRepo.confirmMaintenanceFacts(nodeId, requests)
+
     /** Confirm a governed node maintenance schedule in encrypted Personal Reality. */
     fun confirmMaintenanceSchedule(
         nodeId: String,
