@@ -494,7 +494,49 @@ production launcher cutover
 
 These are no longer undefined designs; they are explicit engineering/schema gates.
 
-## 18. Current evidence gates
+## 18. Manual Reality authority progress
+
+R26 goes beyond UX design for one capability that does **not** require new schema:
+manual creation of the current Canonical runtime-creatable Node kinds.
+
+Source now includes:
+
+~~~text
+spec constants.runtimeCreatableNodeKinds
+→ codegen native policy
+→ GraphRepository.createManualNode
+→ AppContainer.createManualNode
+~~~
+
+Properties:
+- current allowed kinds are generated from Canonical spec, not retyped in Compose;
+- IDs follow authoritative random identity policy, so equal display names do not
+  silently merge;
+- blank names fail closed;
+- issuer/last4 cannot leak onto non-payment objects;
+- Node write and graphRevision bump share one transaction;
+- no Dependency is created;
+- Preview remains read-only.
+
+Device evidence:
+- `ManualRealityAuthorityEvidenceTest`.
+
+Manual Relationship remains disabled for a concrete cross-platform reason:
+
+~~~text
+TS reference Schema v4
+  supports authenticates / controls
+  supports authentication / communication
+
+Native production schema v3
+  SQL CHECK does not yet support full registry
+
+→ Manual Dependency authority = REQUIRES_NATIVE_SCHEMA_V4
+~~~
+
+A partial v3-only production relationship UI is forbidden.
+
+## 19. Current evidence gates
 
 Still required:
 
@@ -513,7 +555,7 @@ exact remote R26 HEAD
 
 Old R19–R25 screenshots cannot prove R26.
 
-## 19. Stop line
+## 20. Stop line
 
 ~~~text
 PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AT_R26
