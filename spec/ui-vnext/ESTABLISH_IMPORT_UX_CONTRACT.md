@@ -1,6 +1,6 @@
 # PDIG Establish / Import UX Contract
 
-> Status: **DESIGN_FROZEN / R23**
+> Status: **DESIGN_FROZEN / R23 REFERENCE + R43 PRODUCTION BINDING**
 >
 > Scope: user capability **建立** — local file import → object confirmation →
 > governed review work.
@@ -84,6 +84,29 @@ FileWorkflowCoordinator
 
 VNext must **reuse this pipeline**.
 
+R43 source now binds the full Production VNext host path:
+
+~~~text
+Production 建立基础设施
+→ choose existing SourceInstance or name a new source context
+→ MainActivity-owned OpenDocument launcher
+→ app moves to lock state when picker leaves foreground
+→ ActivityResult only records URI
+→ user re-authenticates
+→ same Establish workspace resumes
+→ consume pending URI exactly once
+→ existing parser / CSV mapping review
+→ ImportPreview
+→ explicit “确认导入”
+→ AppContainer.commitImport
+→ generated Proposal → Human Review
+~~~
+
+The selected existing SourceInstance id is now carried through the workflow and
+authoritative commit. Reusing an existing source requires its parsed adapter to
+match; a format mismatch fails closed instead of silently creating a different
+source under the same display label.
+
 Forbidden:
 - a second ActivityResult launcher inside the VNext screen;
 - a second CSV/OFX/WeChat parser;
@@ -96,10 +119,24 @@ Forbidden:
 ### Step 1 — 选择数据来源
 
 User can:
-- choose an existing SourceInstance;
+- choose an existing active SourceInstance;
 - create/name a new source context for the import.
 
+R43 Production VNext lists authoritative existing sources from the production
+snapshot. Selecting one carries both its id and label through the Activity-scoped
+workflow. Editing the label clears that selection and becomes a new-source intent.
+
 The source label describes provenance. It is not a bank connection status.
+
+Current SourceRepository identity semantics remain:
+
+~~~text
+new source      → adapter + label determines stable source id
+existing source → explicit existing source id + adapter/label validation
+~~~
+
+The UI must not claim that two same-label sources using different adapters are the
+same source.
 
 ### Step 2 — 选择文件并在本机解析
 
@@ -252,12 +289,19 @@ Exact-head acceptance should prove:
 - truth-boundary copy is visible;
 - production adapter unit tests preserve Proposal boundary.
 
-Production cutover later additionally requires:
-- real ACTION_OPEN_DOCUMENT;
+Production exact-head acceptance additionally requires:
+- real ACTION_OPEN_DOCUMENT from Production VNext;
 - background lock/re-auth;
 - file result delivered once;
+- same Establish workspace resumes after unlock;
+- existing SourceInstance selection survives lock/re-auth;
+- mismatched adapter for an explicitly selected source fails closed;
+- generic CSV field mapping can be reviewed/corrected while raw bytes remain in memory;
+- a second relock after parsing does not persist raw bytes and therefore requires
+  re-selection before mapping-sensitive commit;
 - parse preview;
-- confirm commit;
+- explicit confirm commit;
+- selected existing source id remains the committed SourceInstance when valid;
 - generated Proposal appears in Human Review;
 - no direct confirmed Dependency.
 
@@ -268,5 +312,6 @@ ESTABLISH_IMPORT_UX = DESIGN_FROZEN
 PREVIEW_IMPORT_REFERENCE = SOURCE_IMPLEMENTED_READ_ONLY
 PRODUCTION_IMPORT_PIPELINE = EXISTING_AND_REUSED
 PRODUCTION_VNEXT_IMPORT_PROJECTION = SOURCE_IMPLEMENTED
-PRODUCTION_VNEXT_FILE_WORKFLOW_BINDING = GATED_UNTIL_CUTOVER
+PRODUCTION_VNEXT_FILE_WORKFLOW_BINDING = SOURCE_IMPLEMENTED_R43
+PRODUCTION_VNEXT_FILE_WORKFLOW_RUNTIME = PENDING_EXACT_HEAD_EVIDENCE
 ~~~
