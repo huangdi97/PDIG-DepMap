@@ -765,35 +765,49 @@ def main():
         "服务",
         "当前 Preview 不提供“保存”按钮",
     )
+    if not tap_retry("已经有对象？设计一条关系", exact=True):
+        raise RuntimeError("R25 Manual Relationship entry is unreachable from Manual Establish")
+    capture("10c-manual-relationship")
+    require_screen(
+        "10c-manual-relationship",
+        "手工记录关系",
+        "关系是 Reality，不是标签",
+        "默认 unknown；required 只能由用户显式确认，机器不能设置。",
+        "当前 Preview 不提供“确认关系”按钮",
+    )
+    if not tap_retry("返回上一级", exact=True):
+        raise RuntimeError("R25 Manual Relationship did not return to Manual Establish")
+    capture("10d-relation-up-manual")
+    require_screen("10d-relation-up-manual", "手工记录", "当前 Preview 不提供“保存”按钮")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R24 Manual Establish did not return to Establish Import")
-    capture("10c-manual-up-import")
-    require_screen("10c-manual-up-import", "建立基础设施", "当前是隔离预览")
+    capture("10e-manual-up-import")
+    require_screen("10e-manual-up-import", "建立基础设施", "当前是隔离预览")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R23 Establish Import did not expose hierarchical Up")
-    capture("10d-import-up-sources")
-    require_screen("10d-import-up-sources", "当前预览工作区", "事实边界")
+    capture("10f-import-up-sources")
+    require_screen("10f-import-up-sources", "当前预览工作区", "事实边界")
 
     # R22: Observation/Proposal/Candidate/Drift requires a real Human Review
     # workspace, but Preview must remain read-only and cannot mutate Reality.
     if not tap_retry("待复核", exact=True):
         raise RuntimeError("R22 Human Review entry is unreachable from Data Sources")
-    capture("10e-human-review")
+    capture("10g-human-review")
     require_screen(
-        "10e-human-review",
+        "10g-human-review",
         "发现 ≠ 事实",
         "关系建议",
         "对象候选",
         "现实漂移",
         "Preview 不执行",
     )
-    review_text = json.loads((ROOT / "10e-human-review.json").read_text(encoding="utf-8"))["uiText"]
+    review_text = json.loads((ROOT / "10g-human-review.json").read_text(encoding="utf-8"))["uiText"]
     if any("已确认现实" in row or "自动确认" in row for row in review_text):
         raise RuntimeError("R22 Human Review copy crossed the confirmation authority boundary")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R22 Human Review did not expose hierarchical Up")
-    capture("10f-review-up-now")
-    require_screen("10f-review-up-now", "你的全球数字基础设施")
+    capture("10h-review-up-now")
+    require_screen("10h-review-up-now", "你的全球数字基础设施")
 
     # Include real runtime frame-time evidence even when device image comparisons
     # have already passed. A static circle with rotating lines is not accepted.
