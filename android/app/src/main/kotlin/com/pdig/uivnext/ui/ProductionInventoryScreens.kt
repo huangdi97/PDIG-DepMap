@@ -165,8 +165,7 @@ internal fun ProductionInventoryCategoryScreen(
                                     maxLines = 1,
                                 )
                                 Text(
-                                    if (masked) "发行方已遮蔽"
-                                    else card.issuer?.takeIf { it.isNotBlank() } ?: "发行方未记录",
+                                    productionVisibleCardIssuer(card.issuer, masked),
                                     color = PdigV2Colors.TextSecondary,
                                     fontSize = 11.sp,
                                     maxLines = 1,
