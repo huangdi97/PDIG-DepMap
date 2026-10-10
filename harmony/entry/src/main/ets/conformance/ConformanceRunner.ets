@@ -83,6 +83,11 @@ import {
   defaultRegionLensSelection,
   governedRegionFacts,
 } from '../domain/RegionFacts';
+import {
+  currentMaintenanceFacts,
+  currentMaintenanceSchedules,
+  governedMaintenanceProfile,
+} from '../domain/MaintenanceProfile';
 import { simulateScenario, ImpactResult, ImpactTargetResult, ImpactChecklistItem } from '../domain/ImpactKernel';
 import { computePlanReadiness } from '../domain/PlanReadiness';
 import { computeScenarioCoverage } from '../domain/ScenarioCoverage';
@@ -715,6 +720,9 @@ export function computeCase(
   }
   if (category === 'region-fact') {
     return runRegionFact(jt);
+  }
+  if (category === 'maintenance-profile') {
+    return runMaintenanceProfile(jt);
   }
   return '';
 }
@@ -1412,6 +1420,69 @@ function runRelations(jt: JsonText): string {
   }
 }
 
+
+function runMaintenanceProfile(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const kind = nodeKindFromWire(jt.requireString('kind'));
+    if (kind === undefined) {
+      return '{"facts":[],"currentFactIds":[],"schedules":[],"currentScheduleIds":[]}';
+    }
+    const fieldsJson = jt.requireString('fieldsJson');
+    const profile = governedMaintenanceProfile(kind, fieldsJson);
+    const currentFacts = currentMaintenanceFacts(kind, fieldsJson);
+    const currentSchedules = currentMaintenanceSchedules(kind, fieldsJson);
+
+    let factsJson = '[';
+    for (let i = 0; i < profile.facts.length; i++) {
+      const fact = profile.facts[i];
+      if (i > 0) {
+        factsJson += ',';
+      }
+      factsJson += '{"id":' + jsonEscape(fact.id) +
+        ',"kind":' + jsonEscape(fact.kind) +
+        ',"valueType":' + jsonEscape(fact.valueType) +
+        ',"value":' + jsonEscape(fact.value) +
+        ',"state":' + jsonEscape(fact.state) + '}';
+    }
+    factsJson += ']';
+
+    const currentFactIds: string[] = [];
+    for (const fact of currentFacts) {
+      currentFactIds.push(fact.id);
+    }
+
+    let schedulesJson = '[';
+    for (let i = 0; i < profile.schedules.length; i++) {
+      const schedule = profile.schedules[i];
+      if (i > 0) {
+        schedulesJson += ',';
+      }
+      schedulesJson += '{"id":' + jsonEscape(schedule.id) +
+        ',"kind":' + jsonEscape(schedule.kind) +
+        ',"state":' + jsonEscape(schedule.state) +
+        ',"cadenceKind":' + jsonEscape(schedule.cadence.kind) + '}';
+    }
+    schedulesJson += ']';
+
+    const currentScheduleIds: string[] = [];
+    for (const schedule of currentSchedules) {
+      currentScheduleIds.push(schedule.id);
+    }
+
+    return '{"facts":' + factsJson +
+      ',"currentFactIds":' + serializeStrings(currentFactIds) +
+      ',"schedules":' + schedulesJson +
+      ',"currentScheduleIds":' + serializeStrings(currentScheduleIds) + '}';
+  } finally {
+    jt.resetWindow();
+  }
+}
 
 function runRegionFact(jt: JsonText): string {
   const inputIdx = jt.findField('input');
