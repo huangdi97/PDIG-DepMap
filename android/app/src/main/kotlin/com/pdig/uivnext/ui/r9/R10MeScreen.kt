@@ -164,7 +164,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                     R9Counter(regions.size, "地区", Color(0xFF437CCD), "◉",
                         Modifier.weight(1f).clickable { app.navigate(VScreen.OVERVIEW) })
                     R9Counter(attention.size, "待处理", R9.Rose, "!",
-                        Modifier.weight(1f).clickable { app.navigate(VScreen.RECORDS) })
+                        Modifier.weight(1f).clickable { app.navigate(VScreen.NOW) })
                 }
             }
         }
@@ -224,7 +224,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
             }
         }
 
-        R9SectionTitle("连续性概览", "查看记录 →") { app.navigate(VScreen.RECORDS) }
+        R9SectionTitle("连续性概览", "查看现在 →") { app.navigate(VScreen.NOW) }
         Surface(color = R9.Ice, shape = RoundedCornerShape(17.dp),
             border = BorderStroke(1.dp, R9.Line), modifier = Modifier.fillMaxWidth()) {
             Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(11.dp)) {
@@ -240,7 +240,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                 } else {
                     changes.take(2).forEach { change ->
                         Row(Modifier.fillMaxWidth()
-                            .clickable { app.navigate(VScreen.CHANGE_PHONE) },
+                            .clickable { app.navigate(VScreen.CHANGE) },
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically) {
                             Text(change.title, Modifier.weight(1f),
@@ -252,7 +252,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                 if (attention.isNotEmpty()) {
                     Text("优先核对 · " + attention.first().title,
                         fontSize = 11.sp, color = R9.Rose, maxLines = 2,
-                        modifier = Modifier.clickable { app.navigate(VScreen.RECORDS) })
+                        modifier = Modifier.clickable { app.navigate(VScreen.NOW) })
                 }
             }
         }
