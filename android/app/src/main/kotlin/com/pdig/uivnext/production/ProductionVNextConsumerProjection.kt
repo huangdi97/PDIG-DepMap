@@ -37,6 +37,11 @@ internal data class ProductionRegionView(
     val phoneIdentityCount: Int,
     val accountCount: Int,
     val serviceCount: Int,
+    val emailIdentityCount: Int,
+    val deviceCount: Int,
+    val membershipCount: Int,
+    val genericIdentityCount: Int,
+    val customObjectCount: Int,
     val otherObjectCount: Int,
     val memberObjectIds: List<String>,
 )
@@ -144,19 +149,31 @@ internal fun buildProductionConsumerInventory(
         .map { (territoryCode, members) ->
             fun memberCount(kind: VNextProductionSurfaceKind): Int =
                 members.count { it.surfaceKind == kind }
-            val typedCount =
-                memberCount(VNextProductionSurfaceKind.PAYMENT_ASSET) +
-                memberCount(VNextProductionSurfaceKind.PHONE_IDENTITY) +
-                memberCount(VNextProductionSurfaceKind.ACCOUNT) +
-                memberCount(VNextProductionSurfaceKind.SERVICE)
+            val paymentAssetCount = memberCount(VNextProductionSurfaceKind.PAYMENT_ASSET)
+            val phoneIdentityCount = memberCount(VNextProductionSurfaceKind.PHONE_IDENTITY)
+            val emailIdentityCount = memberCount(VNextProductionSurfaceKind.EMAIL_IDENTITY)
+            val accountCount = memberCount(VNextProductionSurfaceKind.ACCOUNT)
+            val serviceCount = memberCount(VNextProductionSurfaceKind.SERVICE)
+            val deviceCount = memberCount(VNextProductionSurfaceKind.DEVICE)
+            val membershipCount = memberCount(VNextProductionSurfaceKind.MEMBERSHIP)
+            val genericIdentityCount =
+                memberCount(VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC)
+            val customObjectCount = memberCount(VNextProductionSurfaceKind.CUSTOM_GENERIC)
+            val primaryVisualCount =
+                paymentAssetCount + phoneIdentityCount + accountCount + serviceCount
             ProductionRegionView(
                 territoryCode = territoryCode,
                 objectCount = members.size,
-                paymentAssetCount = memberCount(VNextProductionSurfaceKind.PAYMENT_ASSET),
-                phoneIdentityCount = memberCount(VNextProductionSurfaceKind.PHONE_IDENTITY),
-                accountCount = memberCount(VNextProductionSurfaceKind.ACCOUNT),
-                serviceCount = memberCount(VNextProductionSurfaceKind.SERVICE),
-                otherObjectCount = members.size - typedCount,
+                paymentAssetCount = paymentAssetCount,
+                phoneIdentityCount = phoneIdentityCount,
+                accountCount = accountCount,
+                serviceCount = serviceCount,
+                emailIdentityCount = emailIdentityCount,
+                deviceCount = deviceCount,
+                membershipCount = membershipCount,
+                genericIdentityCount = genericIdentityCount,
+                customObjectCount = customObjectCount,
+                otherObjectCount = members.size - primaryVisualCount,
                 memberObjectIds = members.map { it.id }.sorted(),
             )
         }
