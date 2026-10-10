@@ -164,10 +164,9 @@ class GraphRepository(
         request: ManualIdentityAnchorCreateRequest,
     ): ManualNodeCreateResult {
         require(
-            request.subtype == IdentityAnchorSubtype.PHONE_NUMBER ||
-                request.subtype == IdentityAnchorSubtype.EMAIL_ADDRESS
+            request.subtype.wire in CanonicalSpec.RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES
         ) {
-            "manual identity creation supports only phone_number/email_address"
+            "identity subtype '${request.subtype.wire}' is not runtime-creatable"
         }
 
         val name = request.name.trim()
