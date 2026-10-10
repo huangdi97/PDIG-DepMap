@@ -267,6 +267,24 @@ internal fun ProductionGenericObjectDetailScreen(
             }
         }
 
+        if (detailScreen == VScreen.NUMBER_DETAIL) {
+            item {
+                Text(
+                    "变更",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            item {
+                ProductionPhoneChangeEntry(
+                    session = session,
+                    phoneId = item.id,
+                    plans = snapshot.plans,
+                )
+            }
+        }
+
         item {
             when (detailScreen) {
                 VScreen.NUMBER_DETAIL -> ProductionObjectBoundary(
