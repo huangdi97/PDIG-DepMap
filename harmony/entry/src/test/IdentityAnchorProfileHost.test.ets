@@ -23,6 +23,37 @@ export default function identityAnchorProfileHostTest() {
       }
     });
 
+    it('confirmedIdentifierHasIndependentAuthority', 0, () => {
+      const profile = confirmedIdentityAnchorProfile(
+        NodeKind.IDENTITY_ANCHOR,
+        '{"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T00:00:00Z","identifier":{"value":"+86 138 0000 8823","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T02:00:00Z","evidence_refs":["ev-phone"]}}}',
+      );
+      expect(profile !== undefined).assertTrue();
+      if (profile !== undefined) {
+        expect(profile.identifier !== undefined).assertTrue();
+        if (profile.identifier !== undefined) {
+          expect(profile.identifier.value).assertEqual('+86 138 0000 8823');
+          expect(profile.identifier.verificationBasisType).assertEqual(
+            VerificationBasisType.USER_CONFIRMED,
+          );
+          expect(profile.identifier.confirmedAt).assertEqual('2026-10-10T02:00:00Z');
+          expect(profile.identifier.evidenceRefs.length).assertEqual(1);
+        }
+      }
+    });
+
+    it('malformedIdentifierPreservesSubtypeButFailsValueClosed', 0, () => {
+      const profile = confirmedIdentityAnchorProfile(
+        NodeKind.IDENTITY_ANCHOR,
+        '{"identity_anchor_profile":{"version":1,"subtype":"email_address","verification_basis_type":"user_confirmed","confirmed_at":"t","identifier":{"value":"","verification_basis_type":"machine_guess","confirmed_at":""}}}',
+      );
+      expect(profile !== undefined).assertTrue();
+      if (profile !== undefined) {
+        expect(profile.subtype).assertEqual(IdentityAnchorSubtype.EMAIL_ADDRESS);
+        expect(profile.identifier === undefined).assertTrue();
+      }
+    });
+
     it('bareLegacySubtypeNeverBecomesAuthority', 0, () => {
       const profile = confirmedIdentityAnchorProfile(
         NodeKind.IDENTITY_ANCHOR,
