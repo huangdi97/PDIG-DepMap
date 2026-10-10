@@ -414,3 +414,255 @@ private fun containsControl(value: String): Boolean =
 private val DECIMAL_STRING = Regex("""^(0|[1-9][0-9]*)(\.[0-9]+)?$""")
 private val CURRENCY_CODE = Regex("""^[A-Z]{3}$""")
 private val DATE_ONLY = Regex("""^[0-9]{4}-[0-9]{2}-[0-9]{2}$""")
+
+
+data class MaintenanceFactWrite(
+    val id: String,
+    val kind: MaintenanceFactKind,
+    val valueType: MaintenanceValueType,
+    val value: String,
+    val verificationBasisType: VerificationBasisType = VerificationBasisType.USER_CONFIRMED,
+    val evidenceRefs: List<String> = emptyList(),
+)
+
+data class MaintenanceCadenceWrite(
+    val kind: MaintenanceCadenceKind,
+    val dueAt: String? = null,
+    val dayOfMonth: Int? = null,
+    val month: Int? = null,
+    val day: Int? = null,
+    val overflowPolicy: MaintenanceOverflowPolicy? = null,
+    val intervalDays: Int? = null,
+    val anchorDate: String? = null,
+)
+
+data class MaintenanceScheduleWrite(
+    val id: String,
+    val kind: MaintenanceScheduleKind,
+    val cadence: MaintenanceCadenceWrite,
+    val state: MaintenanceScheduleState = MaintenanceScheduleState.ACTIVE,
+    val verificationBasisType: VerificationBasisType = VerificationBasisType.USER_CONFIRMED,
+    val evidenceRefs: List<String> = emptyList(),
+    val lastCompletedAt: String? = null,
+)
+
+/**
+ * Canonical writer for an explicitly confirmed maintenance fact.
+ *
+ * Unknown future maintenance container versions are never overwritten. Raw sibling
+ * items are preserved byte-semantically as Json values; only the item with the same
+ * id is replaced. The newly built document is decoded again before being returned.
+ */
+fun upsertConfirmedMaintenanceFact(
+    nodeKind: NodeKind,
+    fieldsJson: String,
+    request: MaintenanceFactWrite,
+    confirmedAt: String,
+): String {
+    require(request.id.isNotBlank() && request.id.length <= 160) { "invalid maintenance fact id" }
+    require(request.evidenceRefs.all { validBoundedText(it, 512) }) {
+        "invalid maintenance fact evidence ref"
+    }
+    require(validBoundedText(confirmedAt, 96)) { "invalid confirmedAt" }
+
+    val root = parseWritableRoot(fieldsJson)
+    val existing = writableMaintenanceContainer(root)
+    val facts = rawArray(existing, "facts").toMutableList()
+    val replacement = Json.Obj(
+        listOf(
+            "id" to Json.Str(request.id),
+            "kind" to Json.Str(request.kind.wire),
+            "value_type" to Json.Str(request.valueType.wire),
+            "value" to Json.Str(request.value),
+            "state" to Json.Str(MaintenanceFactState.CONFIRMED.wire),
+            "verification_basis_type" to Json.Str(request.verificationBasisType.wire),
+            "confirmed_at" to Json.Str(confirmedAt),
+            "evidence_refs" to Json.Arr(request.evidenceRefs.map { Json.Str(it) }),
+        ),
+    )
+    replaceRawItemById(facts, request.id, replacement)
+
+    val nextContainer = replaceObjectField(
+        replaceObjectField(existing, "version", Json.Num("1")),
+        "facts",
+        Json.Arr(facts),
+    )
+    val nextRoot = replaceObjectField(root, "maintenance_profile", nextContainer)
+    val output = JsonWriter.write(nextRoot)
+
+    val decoded = governedMaintenanceProfile(nodeKind, output)
+        .facts
+        .firstOrNull { it.id == request.id && it.state == MaintenanceFactState.CONFIRMED }
+        ?: error("maintenance fact failed Canonical applicability/value validation")
+    require(
+        decoded.kind == request.kind &&
+            decoded.valueType == request.valueType &&
+            decoded.value == request.value
+    ) {
+        "maintenance fact did not round-trip through Canonical decoder"
+    }
+    return output
+}
+
+/**
+ * Canonical writer for a user/authority-confirmed maintenance schedule.
+ *
+ * Passing time is never treated as completion. A completion timestamp is written only
+ * when explicitly supplied by the authority layer.
+ */
+fun upsertConfirmedMaintenanceSchedule(
+    nodeKind: NodeKind,
+    fieldsJson: String,
+    request: MaintenanceScheduleWrite,
+    confirmedAt: String,
+): String {
+    require(request.id.isNotBlank() && request.id.length <= 160) { "invalid maintenance schedule id" }
+    require(request.evidenceRefs.all { validBoundedText(it, 512) }) {
+        "invalid maintenance schedule evidence ref"
+    }
+    require(validBoundedText(confirmedAt, 96)) { "invalid confirmedAt" }
+
+    val root = parseWritableRoot(fieldsJson)
+    val existing = writableMaintenanceContainer(root)
+    val schedules = rawArray(existing, "schedules").toMutableList()
+
+    val cadence = maintenanceCadenceJson(request.cadence)
+    val fields = mutableListOf<Pair<String, Json>>(
+        "id" to Json.Str(request.id),
+        "kind" to Json.Str(request.kind.wire),
+        "state" to Json.Str(request.state.wire),
+        "cadence" to cadence,
+        "verification_basis_type" to Json.Str(request.verificationBasisType.wire),
+        "confirmed_at" to Json.Str(confirmedAt),
+        "evidence_refs" to Json.Arr(request.evidenceRefs.map { Json.Str(it) }),
+    )
+    request.lastCompletedAt?.let {
+        require(validBoundedText(it, 128)) { "invalid lastCompletedAt" }
+        fields += "last_completed_at" to Json.Str(it)
+    }
+    replaceRawItemById(schedules, request.id, Json.Obj(fields))
+
+    val nextContainer = replaceObjectField(
+        replaceObjectField(existing, "version", Json.Num("1")),
+        "schedules",
+        Json.Arr(schedules),
+    )
+    val nextRoot = replaceObjectField(root, "maintenance_profile", nextContainer)
+    val output = JsonWriter.write(nextRoot)
+
+    val decoded = governedMaintenanceProfile(nodeKind, output)
+        .schedules
+        .firstOrNull { it.id == request.id }
+        ?: error("maintenance schedule failed Canonical applicability/cadence validation")
+    require(decoded.kind == request.kind && decoded.state == request.state) {
+        "maintenance schedule did not round-trip through Canonical decoder"
+    }
+    return output
+}
+
+private fun parseWritableRoot(fieldsJson: String): Json.Obj =
+    runCatching { JsonParser.parse(fieldsJson) as? Json.Obj }
+        .getOrNull()
+        ?: error("node fields_json is not a writable object")
+
+private fun writableMaintenanceContainer(root: Json.Obj): Json.Obj {
+    val raw = root["maintenance_profile"] ?: return Json.Obj(emptyList())
+    val container = raw as? Json.Obj ?: error("maintenance_profile is not an object")
+    val version = container["version"]
+    if (version != null) {
+        val n = (version as? Json.Num)?.runCatching { asLong() }?.getOrNull()
+            ?: error("maintenance_profile version is invalid")
+        require(n == 1L) {
+            "refusing to overwrite unsupported maintenance_profile version $n"
+        }
+    }
+    return container
+}
+
+private fun rawArray(container: Json.Obj, key: String): List<Json> {
+    val raw = container[key] ?: return emptyList()
+    return (raw as? Json.Arr)?.items
+        ?: error("maintenance_profile.$key must be an array")
+}
+
+private fun replaceRawItemById(
+    items: MutableList<Json>,
+    id: String,
+    replacement: Json.Obj,
+) {
+    var replaced = false
+    for (i in items.indices) {
+        val obj = items[i] as? Json.Obj ?: continue
+        if ((obj["id"] as? Json.Str)?.value == id) {
+            if (!replaced) {
+                items[i] = replacement
+                replaced = true
+            } else {
+                // Duplicate ids are not allowed to survive an authoritative upsert.
+                items[i] = Json.Null
+            }
+        }
+    }
+    items.removeAll { it === Json.Null }
+    if (!replaced) items += replacement
+}
+
+private fun replaceObjectField(obj: Json.Obj, key: String, value: Json): Json.Obj {
+    val out = mutableListOf<Pair<String, Json>>()
+    var replaced = false
+    obj.fields.forEach { (name, existing) ->
+        if (name == key) {
+            if (!replaced) {
+                out += key to value
+                replaced = true
+            }
+        } else {
+            out += name to existing
+        }
+    }
+    if (!replaced) out += key to value
+    return Json.Obj(out)
+}
+
+private fun maintenanceCadenceJson(write: MaintenanceCadenceWrite): Json.Obj {
+    val fields = mutableListOf<Pair<String, Json>>(
+        "kind" to Json.Str(write.kind.wire),
+    )
+    when (write.kind) {
+        MaintenanceCadenceKind.ONE_TIME -> {
+            val dueAt = requireNotNull(write.dueAt) { "one_time requires dueAt" }
+            require(validBoundedText(dueAt, 96)) { "invalid one_time dueAt" }
+            fields += "due_at" to Json.Str(dueAt)
+        }
+        MaintenanceCadenceKind.MONTHLY_DAY -> {
+            val day = requireNotNull(write.dayOfMonth) { "monthly_day requires dayOfMonth" }
+            require(day in 1..31) { "monthly day out of range" }
+            val overflow = requireNotNull(write.overflowPolicy) {
+                "monthly_day requires overflowPolicy"
+            }
+            fields += "day_of_month" to Json.Num(day.toString())
+            fields += "overflow_policy" to Json.Str(overflow.wire)
+        }
+        MaintenanceCadenceKind.YEARLY_MONTH_DAY -> {
+            val month = requireNotNull(write.month) { "yearly_month_day requires month" }
+            val day = requireNotNull(write.day) { "yearly_month_day requires day" }
+            require(month in 1..12 && day in 1..31) { "yearly month/day out of range" }
+            val overflow = requireNotNull(write.overflowPolicy) {
+                "yearly_month_day requires overflowPolicy"
+            }
+            fields += "month" to Json.Num(month.toString())
+            fields += "day" to Json.Num(day.toString())
+            fields += "overflow_policy" to Json.Str(overflow.wire)
+        }
+        MaintenanceCadenceKind.INTERVAL_DAYS -> {
+            val interval = requireNotNull(write.intervalDays) { "interval_days requires intervalDays" }
+            require(interval in 1..3660) { "intervalDays out of range" }
+            val anchor = requireNotNull(write.anchorDate) { "interval_days requires anchorDate" }
+            require(DATE_ONLY.matches(anchor)) { "invalid interval anchorDate" }
+            fields += "interval_days" to Json.Num(interval.toString())
+            fields += "anchor_date" to Json.Str(anchor)
+        }
+        MaintenanceCadenceKind.MANUAL_ONLY -> Unit
+    }
+    return Json.Obj(fields)
+}
