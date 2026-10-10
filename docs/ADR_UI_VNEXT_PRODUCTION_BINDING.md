@@ -563,3 +563,40 @@ VNext user opens Establish
 
 Never duplicate ActivityResult launchers, parser logic, URI retention, or import SQL
 inside UI vNext.
+
+
+## 15. Manual Reality mutation gates
+
+R24/R25 freeze the consumer UX for manual object and relationship establishment,
+but production VNext must not implement them through direct Compose/SQL writes.
+
+### Manual object authority
+
+Required future domain API:
+- validate kind against runtime-creatable Canonical policy;
+- normalize identity/name through domain policy;
+- insert Node;
+- bump graphRevision in the same transaction;
+- return authoritative Node/revision state.
+
+Until that exists:
+- Preview has no Save action;
+- generic identity_anchor cannot be promoted to Number/Email.
+
+### Manual Dependency authority
+
+Required future domain API:
+- confirmed From/To only;
+- validate relation/capability via runtime registry;
+- origin = manual;
+- default criticality = unknown;
+- required only from explicit human action;
+- graphRevision bump in the same transaction;
+- deterministic duplicate logical-key behavior;
+- return authoritative Dependency/revision state.
+
+Until that exists:
+- Preview has no Confirm Relationship action;
+- UI must not fake success locally.
+
+These are production authority gates, not missing presentation designs.
