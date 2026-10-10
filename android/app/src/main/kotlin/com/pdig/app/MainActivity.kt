@@ -82,6 +82,7 @@ class MainActivity : FragmentActivity() {
         val vnextDemo = shouldLaunchVNext(
             flavor = BuildConfig.FLAVOR,
             explicitDemo = intent?.getBooleanExtra("vnext_demo", false) == true,
+            debugBuild = BuildConfig.DEBUG,
         )
 
         setContent {
