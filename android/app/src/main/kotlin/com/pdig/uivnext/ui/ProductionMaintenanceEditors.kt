@@ -207,8 +207,8 @@ internal fun ProductionCardMaintenanceControls(
                         val month = monthInput.toIntOrNull()
                         val day = dayInput.toIntOrNull()
                         error = when {
-                            month !in 1..12 -> "月份必须是 1–12。"
-                            day !in 1..31 -> "日期必须是 1–31。"
+                            month == null || month !in 1..12 -> "月份必须是 1–12。"
+                            day == null || day !in 1..31 -> "日期必须是 1–31。"
                             else -> null
                         }
                         if (error == null) {
@@ -404,7 +404,7 @@ internal fun ProductionPhoneMaintenanceControls(
                             val interval = intervalInput.toIntOrNull()
                             val anchor = anchorInput.trim()
                             error = when {
-                                interval !in 1..3660 -> "保号周期必须是 1–3660 天。"
+                                interval == null || interval !in 1..3660 -> "保号周期必须是 1–3660 天。"
                                 !DATE_ONLY.matches(anchor) -> "锚点日期格式必须是 YYYY-MM-DD。"
                                 else -> null
                             }
@@ -430,7 +430,7 @@ internal fun ProductionPhoneMaintenanceControls(
                         OutlinedButton(
                             onClick = {
                                 val day = renewalDayInput.toIntOrNull()
-                                error = if (day !in 1..31) "续费日必须是 1–31。" else null
+                                error = if (day == null || day !in 1..31) "续费日必须是 1–31。" else null
                                 if (error == null) {
                                     val result = runCatching {
                                         authority.confirmPhonePlanRenewalMonthly(item.id, day!!)
