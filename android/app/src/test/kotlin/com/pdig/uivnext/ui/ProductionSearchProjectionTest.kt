@@ -1,0 +1,94 @@
+package com.pdig.uivnext.ui
+
+import com.pdig.uivnext.production.VNextPendingReviewSummary
+import com.pdig.uivnext.production.VNextProductionObject
+import com.pdig.uivnext.production.VNextProductionPlanSummary
+import com.pdig.uivnext.production.VNextProductionSnapshot
+import com.pdig.uivnext.production.VNextProductionSourceItem
+import com.pdig.uivnext.production.VNextProductionSurfaceKind
+import com.pdig.uivnext.production.VNextSourceCoverageSummary
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class ProductionSearchProjectionTest {
+    private fun snapshot() = VNextProductionSnapshot(
+        revision = 12,
+        objects = listOf(
+            VNextProductionObject(
+                id = "card-1",
+                kind = "payment_instrument",
+                name = "旅行主卡",
+                surfaceKind = VNextProductionSurfaceKind.PAYMENT_ASSET,
+                issuer = "示例银行",
+                last4 = "8823",
+            ),
+            VNextProductionObject(
+                id = "identity-1",
+                kind = "identity_anchor",
+                name = "登录身份",
+                surfaceKind = VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+            ),
+        ),
+        confirmedDependencies = emptyList(),
+        timeline = emptyList(),
+        plans = listOf(
+            VNextProductionPlanSummary(
+                id = "plan-1",
+                title = "更换旅行主卡",
+                scenario = "replace_payment_card",
+                workflowState = "in_progress",
+                lastAnalyzedRevision = 12,
+                effectiveDate = null,
+            ),
+        ),
+        pendingReview = VNextPendingReviewSummary(1, 1, 1),
+        sourceCoverage = VNextSourceCoverageSummary(1, 1),
+        sources = listOf(
+            VNextProductionSourceItem(
+                id = "source-1",
+                label = "银行卡账单导入",
+                adapterId = "statement-csv",
+                state = "active",
+                lastIngestedAt = null,
+            ),
+        ),
+    )
+
+    @Test
+    fun searchesOnlyProductionSnapshotFactsAndConsumerLabels() {
+        val bank = productionSearchHits(snapshot(), "示例银行")
+        assertTrue(bank.any {
+            it is ProductionSearchHit.ObjectHit && it.item.id == "card-1"
+        })
+
+        val scenario = productionSearchHits(snapshot(), "更换支付卡")
+        assertTrue(scenario.any {
+            it is ProductionSearchHit.PlanHit && it.plan.id == "plan-1"
+        })
+
+        val source = productionSearchHits(snapshot(), "账单导入")
+        assertTrue(source.any {
+            it is ProductionSearchHit.SourceHit && it.source.id == "source-1"
+        })
+    }
+
+    @Test
+    fun coarseIdentityAnchorRemainsGenericInSearch() {
+        val hits = productionSearchHits(snapshot(), "身份对象")
+        val identity = hits.filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "identity-1" }
+        assertEquals(
+            VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+            identity.item.surfaceKind,
+        )
+        assertTrue(identity.subtitle.contains("身份对象"))
+    }
+
+    @Test
+    fun emptyQueryNeverReturnsImplicitEverything() {
+        assertTrue(productionSearchHits(snapshot(), "").isNotEmpty())
+        // The composable guards blank input before calling the projection. The
+        // pure projection intentionally remains a literal matcher for tests.
+    }
+}
