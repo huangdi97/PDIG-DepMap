@@ -198,6 +198,7 @@ private fun ProductionContent(
         VScreen.REVIEW -> ProductionReviewScreen(session, modifier)
         VScreen.IMPORT -> ProductionEstablishScreen(session, modifier)
         VScreen.MANUAL_ADD -> ProductionManualEstablishScreen(session, modifier)
+        VScreen.MANUAL_RELATION -> ProductionManualRelationshipHoldScreen(modifier)
         VScreen.SEARCH -> ProductionSearchScreen(session, modifier)
         else -> ProductionUnavailable(
             title = "该页面尚未完成生产数据绑定",
