@@ -1,0 +1,36 @@
+{
+  "id": "region-fact-rg06-two-facets-separate",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-06 two confirmed facets on one object remain separate",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-provider\",\"facet\":\"provider_jurisdiction\",\"territory_code\":\"US\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"},{\"id\":\"rf-market\",\"facet\":\"service_market\",\"territory_code\":\"GB\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-provider",
+        "facet": "provider_jurisdiction",
+        "territoryCode": "US",
+        "state": "confirmed"
+      },
+      {
+        "id": "rf-market",
+        "facet": "service_market",
+        "territoryCode": "GB",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-provider",
+      "rf-market"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "GB",
+      "facet": "service_market"
+    }
+  }
+}
