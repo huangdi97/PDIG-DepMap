@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R32**
+> **Current reality · 2026-10-10 · R34**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,24 +13,28 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R32
+ANDROID_UI_VNEXT_SOURCE = R34
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_CUTOVER = HOLD
 
-CANONICAL_SCHEMA_CHANGE_FOR_R32_SOURCE = NONE
-DEPMAP_PAYLOAD_CHANGE_FOR_R32_SOURCE = NONE
+CANONICAL_SCHEMA_CHANGE_FOR_R34_SOURCE = NONE
+DEPMAP_PAYLOAD_CHANGE_FOR_R34_SOURCE = NONE
 
-FRESH_R32_BUILD = PENDING
-FRESH_R32_UNIT_TESTS = PENDING
-FRESH_R32_INSTRUMENTATION = PENDING
-FRESH_R32_PHONE_PIXELS = PENDING
-FRESH_R32_TABLET_PIXELS = PENDING
-FRESH_R32_HUMAN_ACCEPTANCE = PENDING
+REGION_FACT_DESIGN = COMPLETE
+IDENTITY_SUBTYPE_DESIGN = COMPLETE
+LIFECYCLE_DESIGN = COMPLETE
+
+FRESH_R34_BUILD = PENDING
+FRESH_R34_UNIT_TESTS = PENDING
+FRESH_R34_INSTRUMENTATION = PENDING
+FRESH_R34_PHONE_PIXELS = PENDING
+FRESH_R34_TABLET_PIXELS = PENDING
+FRESH_R34_HUMAN_ACCEPTANCE = PENDING
 ```
 
-Do not reuse pre-R32 screenshots or old PASS statements as proof of the current
+Do not reuse pre-R34 screenshots or old PASS statements as proof of the current
 source.
 
 ## 1. Navigation / shell
@@ -60,9 +64,21 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **PENDING on current R32 head** |
+| Exact-head GPU runtime proof | **PENDING on current R34 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
+
+Production Globe has a different truth state from Preview:
+- Production reuses the same GPU Earth visual family;
+- Production currently renders **zero** asset region labels/pins/arcs because
+  RegionFact is not yet Canonical;
+- the governed geographic design is now complete in
+  `spec/proposals/region-facts-v1.md`;
+- territory display codes/names/centroids are representation/presentation
+  infrastructure and never prove which region applies to a user object.
+
+The correct Production state is therefore a real world stage with an honest empty
+geographic data layer, not copied Preview geography.
 
 ### Now task ownership — R22
 
