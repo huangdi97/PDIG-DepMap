@@ -345,7 +345,7 @@ internal fun ProductionManualRelationshipHoldScreen(
 
         item {
             EstablishBoundary(
-                "当前 Native production schema = v3。只开放一小部分 v3 关系会制造平台分叉，因此这里不会提供“确认关系”按钮。"
+                "当前原生数据格式仍是第 3 版。只开放一小部分旧版关系会制造平台分叉，因此这里不会提供“确认关系”按钮。"
             )
         }
 
