@@ -1,7 +1,10 @@
 package com.pdig.uivnext.production
 
 import com.pdig.app.data.AppContainer
+import com.pdig.app.data.PlanDetailView
+import com.pdig.app.data.ProposalRow
 import com.pdig.core.domain.Dependency
+import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.DependencyState
 import com.pdig.core.impact.RecoveryCycleInput
@@ -34,8 +37,18 @@ internal data class VNextProductionFindingReport(
 
 internal fun buildProductionContinuityFindings(
     app: AppContainer,
+): VNextProductionFindingReport =
+    buildProductionContinuityFindings(
+        graph = app.loadImpactGraph(),
+        proposals = app.pendingProposals(),
+        plans = app.plans().mapNotNull { app.planDetail(it.id) },
+    )
+
+internal fun buildProductionContinuityFindings(
+    graph: ImpactGraph,
+    proposals: List<ProposalRow>,
+    plans: List<PlanDetailView>,
 ): VNextProductionFindingReport {
-    val graph = app.loadImpactGraph()
     val activeRecovery = graph.dependencies
         .filter {
             it.capability == Capability.RECOVERY &&
@@ -89,7 +102,7 @@ internal fun buildProductionContinuityFindings(
         )
     }
 
-    app.pendingProposals()
+    proposals
         .filter { it.capability == Capability.RECOVERY.wire }
         .sortedBy { it.id }
         .forEach { proposal ->
@@ -108,10 +121,9 @@ internal fun buildProductionContinuityFindings(
             )
         }
 
-    app.plans()
+    plans
         .sortedBy { it.id }
-        .forEach { row ->
-            val detail = app.planDetail(row.id) ?: return@forEach
+        .forEach { detail ->
             detail.actions
                 .filter { action ->
                     action.done && (
