@@ -295,6 +295,7 @@ class VAppState(
         VScreen.REVIEW -> VScreen.NOW
         VScreen.IMPORT -> VScreen.SOURCES
         VScreen.MANUAL_ADD -> VScreen.IMPORT
+        VScreen.MANUAL_RELATION -> VScreen.MANUAL_ADD
         VScreen.SETTINGS, VScreen.PERSONALIZATION, VScreen.SOURCES -> VScreen.ME
         VScreen.SEARCH -> backStack.lastOrNull() ?: VScreen.NOW
     }
