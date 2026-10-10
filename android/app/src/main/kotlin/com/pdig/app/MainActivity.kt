@@ -91,6 +91,8 @@ class MainActivity : FragmentActivity() {
             explicitProductionVNext =
                 intent?.getBooleanExtra("vnext_production", false) == true,
             debugBuild = BuildConfig.DEBUG,
+            productionUiGeneration = BuildConfig.PRODUCTION_UI_GENERATION,
+            productionVNextCutoverApproved = BuildConfig.PRODUCTION_VNEXT_CUTOVER_APPROVED,
         )
 
         setContent {
@@ -101,10 +103,12 @@ class MainActivity : FragmentActivity() {
                     VNextApp(vm.app)
                 }
 
-                VNextLaunchTarget.PRODUCTION_REALITY_DEBUG -> {
-                    // Debug-only cutover rehearsal:
-                    // real encrypted Reality + real AppContainer authorities +
-                    // the exact same fail-closed security host as production.
+                VNextLaunchTarget.PRODUCTION_REALITY_DEBUG,
+                VNextLaunchTarget.PRODUCTION_REALITY_RELEASE -> {
+                    // Both rehearsal and future release cutover use the exact same
+                    // real encrypted Reality + AppContainer authority + fail-closed
+                    // security host. The only difference is launch authority:
+                    // debug Intent vs two-key build-time release decision.
                     // No synthetic fixture can enter this branch.
                     val vm: VNextShellViewModel =
                         androidx.lifecycle.viewmodel.compose.viewModel()
