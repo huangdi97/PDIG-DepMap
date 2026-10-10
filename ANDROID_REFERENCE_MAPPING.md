@@ -1,10 +1,10 @@
 # ANDROID_REFERENCE_MAPPING.md
 
-> **R27 Reference visual semantics · current branch source = R29**
+> **R27 Reference visual semantics · current branch source includes R45 Production extensions**
 >
 > R27 is the last Reference-visual semantic expansion. R28/R29 add production-source
 > binding without redefining the selected Android Light visual direction. Any fresh
-> acceptance, however, must run from the exact **current R29 remote HEAD**.
+> acceptance, however, must run from the exact **current remote HEAD**.
 >
 > This file maps the v2.3 product architecture and the human-selected light reference
 > board to Android native layouts. It is a **source/design contract**, not proof of
