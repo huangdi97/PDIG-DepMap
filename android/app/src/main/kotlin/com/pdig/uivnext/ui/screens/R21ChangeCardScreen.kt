@@ -185,8 +185,8 @@ internal fun R21ChangeCardScreen(
                 shape = RoundedCornerShape(VRadius.Lg),
             ) {
                 Text(
-                    "生产版必须复用 replace_payment_card → ChangePlan → completeAction → verifyAction。" +
-                        "参考 UI 不在本地切换 done/verified，也不会把候选替代卡写入 Canonical。",
+                    "正式版会通过受控变更计划执行并单独验证每一步。" +
+                        "预览不会把步骤在本地直接标记为“完成/已验证”，也不会把候选替代卡写成事实。",
                     Modifier.padding(13.dp),
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 10.sp,
