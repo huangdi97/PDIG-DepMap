@@ -5,7 +5,7 @@ import com.pdig.uivnext.production.VNextProductionDependency
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionRegionLens
 import com.pdig.uivnext.production.VNextProductionSnapshot
-import com.pdig.uivnext.production.VNextProductionSourceCoverageSummary
+import com.pdig.uivnext.production.VNextSourceCoverageSummary
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import com.pdig.uivnext.production.buildProductionConsumerInventory
 import org.junit.Assert.assertEquals
@@ -140,6 +140,6 @@ class ProductionWorldProjectionR39Test {
         timeline = emptyList(),
         plans = emptyList(),
         pendingReview = VNextPendingReviewSummary(0, 0, 0),
-        sourceCoverage = VNextProductionSourceCoverageSummary(0, 0),
+        sourceCoverage = VNextSourceCoverageSummary(0, 0),
     )
 }
