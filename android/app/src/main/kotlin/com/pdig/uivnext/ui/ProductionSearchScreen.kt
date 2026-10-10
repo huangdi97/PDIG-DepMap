@@ -87,9 +87,9 @@ internal fun ProductionSearchScreen(
             modifier.fillMaxSize().padding(24.dp),
             verticalArrangement = Arrangement.Center,
         ) {
-            Text("生产 Reality 暂不可搜索", color = PdigV2Colors.TextPrimary,
+            Text("当前已确认数据暂不可搜索", color = PdigV2Colors.TextPrimary,
                 fontSize = 18.sp, fontWeight = FontWeight.Bold)
-            Text("不会回退到 Synthetic Reference 搜索结果。",
+            Text("不会用演示数据补出搜索结果。",
                 color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
         }
         return
@@ -111,7 +111,7 @@ internal fun ProductionSearchScreen(
                 Text("搜索", color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
                     fontWeight = FontWeight.Bold)
                 Text(
-                    "只搜索当前已确认 Reality、ChangePlan 与 SourceInstance。",
+                    "只搜索当前已确认对象、已记录变更计划与数据来源。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -130,10 +130,10 @@ internal fun ProductionSearchScreen(
 
         when {
             normalized.isBlank() -> item {
-                SearchBoundary("输入关键词后开始搜索；不会搜索未确认 Proposal/Candidate 内容。")
+                SearchBoundary("输入关键词后开始搜索；待复核建议和候选对象不会混入已确认搜索结果。")
             }
             hits.isEmpty() -> item {
-                SearchBoundary("当前 Reality 中没有匹配项。未找到不等于外部不存在。")
+                SearchBoundary("当前已确认数据中没有匹配项。未找到不等于外部不存在。")
             }
             else -> items(hits, key = { it.stableKey }) { hit ->
                 ProductionSearchResult(hit) {
@@ -190,7 +190,7 @@ internal fun productionSearchHits(
 
     val routes = listOf(
         VScreen.INFRASTRUCTURE to "基础设施对象管理",
-        VScreen.CHANGE to "变更与 ChangePlan",
+        VScreen.CHANGE to "变更与已记录计划",
         VScreen.RECORDS to "完成与验证记录",
         VScreen.REVIEW to "待复核建议、候选与漂移",
         VScreen.SOURCES to "数据源",
