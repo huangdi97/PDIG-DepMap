@@ -11,6 +11,7 @@ import com.pdig.core.generated.NodeKind
 import com.pdig.core.generated.VerificationBasisType
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
+import com.pdig.core.json.JsonWriter
 import java.time.LocalDate
 import java.time.YearMonth
 
