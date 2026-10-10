@@ -127,6 +127,22 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun productionInfrastructureShowsRealFindingCoverageInsteadOfStaleHold() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.navigate(VScreen.INFRASTRUCTURE) }
+        compose.waitForIdle()
+        compose.onNodeWithText("4 类权威输入", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("等待 Finding projection", substring = true)
+            .assertDoesNotExist()
+    }
+
+    @Test
     fun productionInventoryCategoryAndDetailUseProductionObjects() {
         val session = session()
         compose.setContent {
