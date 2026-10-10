@@ -50,7 +50,7 @@ production solver = no
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
 | Lifecycle Persistence | visible reference | requires Canonical | R19 lifecycle facts are synthetic/reference until shared schema exists |
 | RegionFact | visible reference | requires Canonical | Preview Region/Globe valid; Production geography remains zero-label until governed RegionFact exists |
-| Identity Anchor Subtype | hidden | requires Canonical | production identity_anchor stays generic; no phone/email inference |
+| Identity Anchor Subtype | visible when governed profile is confirmed | available for read/classification | Production VNext maps valid PHONE_NUMBER/EMAIL_ADDRESS profiles; missing/invalid/bare subtype stays generic |
 | Identity Context | hidden | requires Canonical | no selector/search ghost capability before governed membership |
 | Device Continuity | hidden | requires Canonical | future replace-device flow needs governed device/factor semantics |
 | Digital Resource Continuity | hidden | requires Canonical | future domain/DNS/repository/cloud continuity remains gated |
@@ -96,7 +96,7 @@ A Compose screen is never authority.
 
 ## 5. Canonical-required capabilities
 
-Lifecycle Persistence, RegionFact, Identity Context, Identity Anchor Subtype,
+Lifecycle Persistence, RegionFact, Identity Context, raw identity identifier value / manual Number-Email creation,
 Device/Digital Resource/Trusted Handoff future semantics and Recovery Preparedness
 need shared schema/version/migration/fixtures/conformance before Production can own
 them.
@@ -169,11 +169,51 @@ proposal != Reality
 done != verified
 recovery use != unique recovery
 identity subtype != availability
+confirmed PHONE_NUMBER subtype != confirmed phone identifier value
+confirmed EMAIL_ADDRESS subtype != confirmed email identifier value
 path count != independent path count
 provider support != user configuration
 five-primary IA remains five
 ~~~
 
+
+## 10.1 R37 governed identity subtype authority
+
+R37 closes the earlier read/classification HOLD without weakening fail-closed behavior:
+
+~~~text
+Node.kind = identity_anchor
++
+valid fields_json.identity_anchor_profile
++
+version = 1
++
+subtype ∈ {phone_number, email_address, other_identity}
++
+verification_basis_type ∈ {user_confirmed, authoritative_source}
++
+confirmed_at present
+→ confirmed subtype Reality
+~~~
+
+Production consequences:
+
+~~~text
+PHONE_NUMBER → Production Number list/detail/search + replace-phone entry
+EMAIL_ADDRESS → Production Email list/detail/search
+OTHER / missing / malformed → Generic Identity
+bare fields_json.subtype → Generic Identity
+~~~
+
+The UI is not authority. `PlanRepository.createPlanForScenario` independently re-checks
+the target kind and governed PHONE_NUMBER subtype before creating
+`replace_phone_number`.
+
+Still unavailable:
+- raw phone/email identifier value as a governed typed field;
+- automatic carrier/provider inference;
+- automatic recovery-role inference;
+- manual Number/Email creation until Node + governed profile can be committed atomically.
 
 ## 11. R26 concrete authority split
 
