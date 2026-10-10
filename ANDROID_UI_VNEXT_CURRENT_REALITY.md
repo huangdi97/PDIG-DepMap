@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R24**
+> **Current reality · 2026-10-10 · R25**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,7 +13,7 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R24
+ANDROID_UI_VNEXT_SOURCE = R25
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
@@ -22,12 +22,12 @@ PRODUCTION_VNEXT_CUTOVER = HOLD
 CANONICAL_SCHEMA_CHANGE_FOR_R19_UI = NONE
 DEPMAP_PAYLOAD_CHANGE_FOR_R19_UI = NONE
 
-FRESH_R24_BUILD = NOT_RUN
-FRESH_R24_UNIT_TESTS = NOT_RUN
-FRESH_R24_INSTRUMENTATION = NOT_RUN
-FRESH_R24_PHONE_PIXELS = NOT_RUN
-FRESH_R24_TABLET_PIXELS = NOT_RUN
-FRESH_R24_HUMAN_ACCEPTANCE = NOT_RUN
+FRESH_R25_BUILD = NOT_RUN
+FRESH_R25_UNIT_TESTS = NOT_RUN
+FRESH_R25_INSTRUMENTATION = NOT_RUN
+FRESH_R25_PHONE_PIXELS = NOT_RUN
+FRESH_R25_TABLET_PIXELS = NOT_RUN
+FRESH_R25_HUMAN_ACCEPTANCE = NOT_RUN
 ```
 
 Do not reuse pre-R19 screenshots or old PASS statements as proof of the current
@@ -60,7 +60,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **NOT_RUN on current R24 head** |
+| Exact-head GPU runtime proof | **NOT_RUN on current R25 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -462,7 +462,39 @@ confirm object exists != confirm dependency
 
 This is a production-authority HOLD, not an unfinished visual form.
 
-## 16. Tests / evidence present in source
+## 16. Manual Relationship
+
+R25 closes the remaining manual-graph UX gap.
+
+Hierarchy:
+
+~~~text
+Data Sources
+→ 建立基础设施
+  → 手工记录
+    → 手工记录关系
+~~~
+
+The reference freezes:
+- From / Relation / To;
+- capability;
+- criticality default = unknown;
+- explicit human-only required semantics;
+- current runtime relation vocabulary;
+- storage-known but runtime-HOLD relations;
+- no degree-count shortcut for independent paths.
+
+Preview exposes no “确认关系” mutation because production VNext has no tested
+manual Dependency authority yet.
+
+Permanent provenance split:
+
+~~~text
+explicit user statement → origin=manual
+source/model suggestion → Proposal → Review → origin=proposal
+~~~
+
+## 17. Tests / evidence present in source
 
 R22 has source contracts for:
 - lifecycle fixture truth/unknown behavior;
@@ -482,12 +514,13 @@ R22 has source contracts for:
 - Preview review authority boundary;
 - production review consumer projection;
 - Establish Import hierarchy/projection;
-- Manual Establish route, truth boundary and no-ghost-save state.
+- Manual Establish route, truth boundary and no-ghost-save state;
+- Manual Relationship route, runtime relation vocabulary and unknown/required boundary.
 
 These tests are **present**. They are not called PASS until run on the current
 exact head.
 
-## 17. Current remaining evidence gates
+## 18. Current remaining evidence gates
 
 ```text
 1. exact-head build
@@ -503,7 +536,7 @@ exact head.
 
 Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 
-## 18. Source/design closure documents
+## 19. Source/design closure documents
 
 - `ANDROID_UI_VNEXT_R19_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R20_SOURCE_REPORT.md`
@@ -511,6 +544,8 @@ Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 - `ANDROID_UI_VNEXT_R22_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R23_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R24_SOURCE_REPORT.md`
+- `ANDROID_UI_VNEXT_R25_SOURCE_REPORT.md`
+- `spec/ui-vnext/MANUAL_RELATIONSHIP_UX_CONTRACT.md`
 - `spec/ui-vnext/MANUAL_ESTABLISH_UX_CONTRACT.md`
 - `spec/ui-vnext/ESTABLISH_IMPORT_UX_CONTRACT.md`
 - `spec/ui-vnext/RECORDS_AND_PAYMENT_CHANGE_CONTRACT.md`
@@ -520,7 +555,7 @@ Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
 - `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
 
-## 19. Identity / Recovery future-lens closure
+## 20. Identity / Recovery future-lens closure
 
 R21 closes the **design** of the two remaining long-term lenses without exposing
 ghost capabilities.
@@ -542,7 +577,7 @@ Shared UX:
 - neither becomes a sixth/seventh primary tab;
 - Android `VNextLensAvailability` makes the HOLD executable.
 
-## 20. Honest stop line
+## 21. Honest stop line
 
 ```text
 SOURCE_DESIGN = COMPLETE
@@ -551,5 +586,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R24 runtime
+The next blocker is no longer “missing UI design.” It is fresh exact-head R25 runtime
 verification and, after reference acceptance, production read-model binding.
