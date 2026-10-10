@@ -43,6 +43,12 @@ internal fun ProductionEstablishScreen(
 ) {
     val app = session.appState
     var importSourceLabel by rememberSaveable { mutableStateOf("文件导入") }
+    app.realityRefreshVersion
+    val knownImportSources = session.dataSource
+        .productionSnapshot()
+        ?.sources
+        .orEmpty()
+        .filter { it.state == "active" }
     val fileWorkflow = LocalFileWorkflow.current
     if (
         isProductionImportWorkflowActive(
@@ -95,13 +101,40 @@ internal fun ProductionEstablishScreen(
             }
         }
 
+        if (knownImportSources.isNotEmpty()) {
+            item {
+                Text(
+                    "已有来源",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            knownImportSources.take(5).forEach { source ->
+                item {
+                    EstablishSourceChoice(
+                        label = source.label,
+                        adapter = source.adapterId,
+                        lastIngestedAt = source.lastIngestedAt,
+                        selected = importSourceLabel == source.label,
+                        onClick = { importSourceLabel = source.label },
+                    )
+                }
+            }
+        }
+
         item {
             OutlinedTextField(
                 value = importSourceLabel,
                 onValueChange = { importSourceLabel = it.take(80) },
                 label = { Text("导入来源名称") },
                 supportingText = {
-                    Text("用于标识这次记录来源；不会根据文件名自动推断账户或依赖。")
+                    Text(
+                        if (knownImportSources.any { it.label == importSourceLabel.trim() })
+                            "将继续使用这个已记录来源；来源身份由正式导入管道按 adapter + 名称治理。"
+                        else
+                            "用于标识新的记录来源；不会根据文件名自动推断账户、地区或依赖。"
+                    )
                 },
                 singleLine = true,
                 modifier = Modifier
@@ -496,6 +529,52 @@ private fun EstablishEntry(
                     fontSize = 9.sp)
             }
             Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
+        }
+    }
+}
+
+@Composable
+private fun EstablishSourceChoice(
+    label: String,
+    adapter: String,
+    lastIngestedAt: String?,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .testTag("pdig.production-vnext.import.source-choice"),
+        color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Md),
+        border = BorderStroke(
+            1.dp,
+            if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+        ),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(label, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold)
+                Text(
+                    listOfNotNull(
+                        adapter.takeIf { it.isNotBlank() },
+                        lastIngestedAt?.take(10)?.let { "最近导入 $it" },
+                    ).joinToString(" · ").ifBlank { "已记录来源" },
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                )
+            }
+            Text(
+                if (selected) "已选择" else "选择",
+                color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
