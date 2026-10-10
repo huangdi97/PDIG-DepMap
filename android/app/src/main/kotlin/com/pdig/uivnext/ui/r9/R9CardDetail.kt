@@ -89,10 +89,17 @@ internal fun R9CardDetailScreen(app: VAppState) {
             border = BorderStroke(1.dp, R9.Line),
             modifier = Modifier.fillMaxWidth().testTag(VTestIds.CARD_DETAIL_IDENTITY),
         ) {
-            Column(Modifier.padding(9.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            Column(
+                Modifier.padding(9.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                // Human reference: the card is a contained financial identity,
+                // not an edge-to-edge billboard that pushes the four actual
+                // information tabs far beneath the first viewport.
                 R10CardFace(
                     card = card, privacyMask = app.privacyMask || (profile?.maskSensitive == true),
-                    profile = profile, modifier = Modifier.fillMaxWidth(),
+                    profile = profile, modifier = Modifier.fillMaxWidth(0.90f),
                 )
                 if (showSimpleArt) {
                     Text("选择内置卡面", color = R9.Ink,
