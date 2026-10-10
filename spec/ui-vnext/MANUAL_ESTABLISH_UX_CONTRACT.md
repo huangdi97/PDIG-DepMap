@@ -99,9 +99,12 @@ and:
 
 This prevents a ghost capability.
 
-## 5. Future production authority
+## 5. Production authority
 
-A production Manual Establish authority must:
+R26 source now exposes the governed authority through
+`AppContainer.createManualNode(ManualNodeCreateRequest)`.
+
+The production Manual Establish authority:
 
 1. validate the requested type against canonical runtime-creatable kinds;
 2. validate/normalize the user-visible name without inferring hidden identity;
@@ -111,11 +114,23 @@ A production Manual Establish authority must:
 6. never create a Dependency as a side effect;
 7. never claim a phone/email subtype from a generic identity_anchor unless governed subtype evidence exists.
 
-Compose must not:
+Current implementation:
+- validates kind against generated Canonical `runtimeCreatableNodeKinds`;
+- uses authoritative UUID identity policy rather than import-name dedupe;
+- trims/rejects blank names;
+- permits issuer/last4 only for payment instruments;
+- writes Node + graphRevision in one transaction;
+- re-reads authoritative Node/revision;
+- creates no Dependency.
+
+Compose still must not:
 - generate SQL;
 - choose IDs independently of domain policy;
 - bump graphRevision itself;
 - save into PresentationProfile as a substitute for Reality.
+
+The R24 Preview remains read-only even though production authority now exists.
+Production screen binding is a separate gate.
 
 ## 6. Minimal consumer fields
 
@@ -204,19 +219,21 @@ Source:
 - no Save button in Preview;
 - unsupported subtype state visible.
 
-Future production:
+Production evidence contract:
 - creation uses authoritative domain/repository API;
-- graphRevision bump verified;
-- duplicate identity behavior defined;
-- dependency count unchanged after object-only create;
-- exact type preserved across export/restore/all platforms.
+- graphRevision bumps exactly once;
+- duplicate display names do not silently merge;
+- dependency count stays unchanged after object-only create;
+- unsupported runtime kinds fail closed;
+- exact type must preserve across export/restore/all platforms.
 
 ## 11. Stop line
 
 ~~~text
 MANUAL_ESTABLISH_UX = DESIGN_FROZEN
 MANUAL_ESTABLISH_PREVIEW = SOURCE_IMPLEMENTED_READ_ONLY
-PRODUCTION_MANUAL_CREATE_AUTHORITY = NOT_EXPOSED_TO_VNEXT
+PRODUCTION_MANUAL_CREATE_AUTHORITY = SOURCE_IMPLEMENTED
+PRODUCTION_MANUAL_CREATE_RUNTIME_EVIDENCE = PENDING_CURRENT_HEAD
 IDENTITY_SUBTYPE_MANUAL_CREATE = HOLD
 NO_GHOST_SAVE_ACTION = REQUIRED
 ~~~
