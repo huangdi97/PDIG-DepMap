@@ -43,6 +43,7 @@ internal fun ProductionEstablishScreen(
 ) {
     val app = session.appState
     var importSourceLabel by rememberSaveable { mutableStateOf("文件导入") }
+    var selectedImportSourceId by rememberSaveable { mutableStateOf<String?>(null) }
     app.realityRefreshVersion
     val knownImportSources = session.dataSource
         .productionSnapshot()
@@ -116,8 +117,11 @@ internal fun ProductionEstablishScreen(
                         label = source.label,
                         adapter = source.adapterId,
                         lastIngestedAt = source.lastIngestedAt,
-                        selected = importSourceLabel == source.label,
-                        onClick = { importSourceLabel = source.label },
+                        selected = selectedImportSourceId == source.id,
+                        onClick = {
+                            selectedImportSourceId = source.id
+                            importSourceLabel = source.label
+                        },
                     )
                 }
             }
@@ -126,12 +130,15 @@ internal fun ProductionEstablishScreen(
         item {
             OutlinedTextField(
                 value = importSourceLabel,
-                onValueChange = { importSourceLabel = it.take(80) },
+                onValueChange = {
+                    importSourceLabel = it.take(80)
+                    selectedImportSourceId = null
+                },
                 label = { Text("导入来源名称") },
                 supportingText = {
                     Text(
-                        if (knownImportSources.any { it.label == importSourceLabel.trim() })
-                            "将继续使用这个已记录来源；来源身份由正式导入管道按 adapter + 名称治理。"
+                        if (selectedImportSourceId != null)
+                            "已选择现有来源；解析后的 adapter 必须与该来源一致，否则会要求重新选择。"
                         else
                             "用于标识新的记录来源；不会根据文件名自动推断账户、地区或依赖。"
                     )
@@ -151,7 +158,10 @@ internal fun ProductionEstablishScreen(
                 state = if (requestImport != null) "可启动正式导入" else "正式入口待接",
                 enabled = requestImport != null,
             ) {
-                requestImport?.invoke(importSourceLabel.trim().ifBlank { "文件导入" })
+                requestImport?.invoke(
+                    selectedImportSourceId,
+                    importSourceLabel.trim().ifBlank { "文件导入" },
+                )
             }
         }
 
