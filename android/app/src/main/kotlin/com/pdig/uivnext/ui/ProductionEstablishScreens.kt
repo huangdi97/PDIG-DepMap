@@ -93,6 +93,7 @@ internal fun ProductionManualEstablishScreen(
     session: ProductionVNextSession,
     modifier: Modifier = Modifier,
 ) {
+    val app = session.appState
     val gateway = session.authorities?.manualEstablish
     if (gateway == null) {
         ProductionManualUnavailable(modifier)
@@ -294,9 +295,91 @@ internal fun ProductionManualEstablishScreen(
             }
         }
 
+        if (result != null) {
+            item {
+                EstablishEntry(
+                    title = "手工记录关系",
+                    body = "对象已建立；关系仍是独立 authority。当前 Native Schema v3 不支持完整 runtime relation vocabulary 的安全写入。",
+                    state = "Schema v4 前 HOLD",
+                    enabled = true,
+                ) {
+                    app.navigate(VScreen.MANUAL_RELATION)
+                }
+            }
+        }
+
         item {
             EstablishBoundary(
                 "identity_anchor / device / membership / custom 不会因为 UI 能画出来就被偷偷开放；必须服从 generated runtime-creatable policy。"
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ProductionManualRelationshipHoldScreen(
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .testTag("pdig.production-vnext.manual-relation-hold"),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "手工记录关系",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    "设计已完成；生产写入必须等 Native Schema v4 完整关系词汇与跨端 conformance。",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 12.sp,
+                )
+            }
+        }
+
+        item {
+            EstablishBoundary(
+                "当前 Native production schema = v3。只开放一小部分 v3 关系会制造平台分叉，因此这里不会提供“确认关系”按钮。"
+            )
+        }
+
+        item {
+            Text("已冻结的关系输入", color = PdigV2Colors.TextPrimary,
+                fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        }
+
+        listOf(
+            "From / Relation / To" to "关系必须连接两个已确认对象",
+            "Capability" to "payment / access / authentication / recovery / communication",
+            "Criticality" to "默认 unknown；机器不能擅自设为 required",
+            "Origin" to "明确人工陈述 = manual；模型/来源建议必须先 Proposal → Review",
+            "Verification" to "关系确认后才能进入 Reality；未确认建议不是 Dependency",
+        ).forEach { (title, body) ->
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PdigV2Colors.Surface,
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold)
+                        Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
+                    }
+                }
+            }
+        }
+
+        item {
+            EstablishBoundary(
+                "解锁条件：Native Schema v4 migration + runtime validator + golden/negative fixtures + Android/iOS/Harmony conformance + authoritative relationship gateway。缺一项都不开放。"
             )
         }
     }
