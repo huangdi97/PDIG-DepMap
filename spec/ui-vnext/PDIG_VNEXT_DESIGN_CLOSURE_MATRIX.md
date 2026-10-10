@@ -150,8 +150,14 @@ No new UI scoring layer is permitted.
 | Freshness | complete semantics | partial; future fact/schedule Canonical expands Maintain |
 | Cross-platform recovery control-surface independence | complete principle | future runtime/evidence gate; does not imply cloud sync |
 
-Contract:
+Contracts:
 - `spec/proposals/continuity-analysis-modes-v1.md`
+- `spec/proposals/infrastructure-findings-vnext.md`
+
+The latter keeps the current seven v0.3 Finding types frozen while mapping the
+wider v2.3 vocabulary (high blast radius / no independent root / correlated paths /
+minimal-cut fragility / temporal pending / unverified-after-change / secret-location
+unknown) to either an existing Finding or a future gated continuity result.
 
 Permanent rule:
 
@@ -163,6 +169,30 @@ Prepare / Change / Recover / Maintain
 Blast Radius / Minimal Cut
 = authoritative continuity analysis
 != UI degree counting / heuristic score
+~~~
+
+## 8.2 Evidence epistemology / automated discovery
+
+| Capability | Design | Authority |
+| --- | --- | --- |
+| Observation / Proposal / Candidate / Drift boundary | frozen | current Canonical |
+| SourceKind / CoverageMode semantics | complete | current Canonical + adapter contract |
+| negative evidence | complete design | only scope-bounded complete sources may support it; normally review before Reality mutation |
+| multi-source evidence | frozen | provenance, not automatic authority |
+| AI/LLM extraction | complete | Observation/Proposal only |
+| provider official documentation | complete | Knowledge Plane only |
+| freshness | complete semantics | does not auto-retire Reality |
+| future adapter epistemic declaration | complete | mandatory before a new adapter is authoritative |
+
+Contract:
+- `spec/proposals/evidence-epistemology-v1.md`
+
+Permanent rule:
+
+~~~text
+more evidence != more authority
+high confidence != Reality
+absence != non-existence
 ~~~
 
 ## 9. Provider / digital resources
