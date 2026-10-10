@@ -106,7 +106,7 @@ class AndroidLightVisualSourceContractTest {
         val app = createVNextAppState(screen = VScreen.RECORDS)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
-        compose.onNodeWithTag("pdig.records.summary", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("pdig.r21.records.summary", useUnmergedTree = true).assertIsDisplayed()
 
         app.navigate(VScreen.PERSONALIZATION)
         compose.waitForIdle()
