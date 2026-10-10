@@ -117,7 +117,7 @@ private fun decodeRegionFact(item: Json.Obj): ConfirmedRegionFact? {
 
     val facet = (item["facet"] as? Json.Str)
         ?.value
-        ?.let(RegionFacet::fromWire)
+        ?.let { RegionFacet.fromWire(it) }
         ?: return null
 
     val territory = requiredText(item, "territory_code")?.uppercase() ?: return null
@@ -132,12 +132,12 @@ private fun decodeRegionFact(item: Json.Obj): ConfirmedRegionFact? {
 
     val state = (item["state"] as? Json.Str)
         ?.value
-        ?.let(RegionFactState::fromWire)
+        ?.let { RegionFactState.fromWire(it) }
         ?: return null
 
     val basis = (item["verification_basis_type"] as? Json.Str)
         ?.value
-        ?.let(VerificationBasisType::fromWire)
+        ?.let { VerificationBasisType.fromWire(it) }
         ?: return null
 
     val confirmedAt = requiredText(item, "confirmed_at") ?: return null
