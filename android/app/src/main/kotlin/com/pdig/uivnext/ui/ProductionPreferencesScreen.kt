@@ -48,7 +48,7 @@ internal fun ProductionPreferencesScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "这些设置只改变本机呈现，不修改已确认 Reality。",
+                    "这些设置只改变本机显示方式，不修改已确认的基础设施数据。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -93,7 +93,7 @@ internal fun ProductionPreferencesScreen(
 
         item {
             PresentationBoundary(
-                "Presentation preference != PersonalReality != Canonical。生产 launcher 接入时必须注入 store-backed VAppState 才能提供跨启动持久化；UI 不得把临时状态冒充已保存。"
+                "这些都是本机显示偏好，不属于基础设施事实。正式入口接入持久化存储后才能承诺跨启动保存；临时状态不能冒充“已保存”。"
             )
         }
     }
