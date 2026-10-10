@@ -1,0 +1,22 @@
+{
+  "id": "maintenance-mp01-card-confirmed",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-01 confirmed card maintenance facts and annual checkpoint",
+  "input": {
+    "kind": "payment_instrument",
+    "fieldsJson": "{\"maintenance_profile\":{\"version\":1,\"facts\":[{\"id\":\"fee\",\"kind\":\"card_annual_fee_amount\",\"value_type\":\"decimal_string\",\"value\":\"100\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"},{\"id\":\"currency\",\"kind\":\"card_annual_fee_currency\",\"value_type\":\"currency_code\",\"value\":\"CNY\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"},{\"id\":\"billing\",\"kind\":\"card_billing_day\",\"value_type\":\"integer\",\"value\":\"12\",\"state\":\"confirmed\",\"verification_basis_type\":\"authoritative_source\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}],\"schedules\":[{\"id\":\"annual\",\"kind\":\"card_annual_fee_checkpoint\",\"state\":\"active\",\"cadence\":{\"kind\":\"yearly_month_day\",\"month\":11,\"day\":20,\"overflow_policy\":\"clamp_to_last_day\"},\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {"id": "fee", "kind": "card_annual_fee_amount", "valueType": "decimal_string", "value": "100", "state": "confirmed"},
+      {"id": "currency", "kind": "card_annual_fee_currency", "valueType": "currency_code", "value": "CNY", "state": "confirmed"},
+      {"id": "billing", "kind": "card_billing_day", "valueType": "integer", "value": "12", "state": "confirmed"}
+    ],
+    "currentFactIds": ["fee", "currency", "billing"],
+    "schedules": [{"id": "annual", "kind": "card_annual_fee_checkpoint", "state": "active", "cadenceKind": "yearly_month_day"}],
+    "currentScheduleIds": ["annual"]
+  }
+}
