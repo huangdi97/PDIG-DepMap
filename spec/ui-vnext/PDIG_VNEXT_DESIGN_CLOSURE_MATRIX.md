@@ -132,6 +132,38 @@ Proposals/contracts:
 
 No new UI scoring layer is permitted.
 
+## 8.1 Product modes / temporal / evidence / advanced continuity
+
+| Capability | Design | Runtime / authority |
+| --- | --- | --- |
+| Prepare | complete | contextual Object Detail / Impact / ChangePlan entry |
+| Change | complete | authoritative ChangePlan / Action DAG / Verification |
+| Recover | complete design | gated by Recovery Incident / Solver |
+| Maintain | complete | Findings / Review / Timeline / Verification; lifecycle freshness expands after Canonical |
+| Blast Radius | complete design | current Impact Kernel is partial capability-aware primitive; generic/failure-domain removal extension pending |
+| Minimal Cut Set | complete design | proposed; must be FailureDomain-aware and bounded/deterministic |
+| Temporal Change | frozen | core runtime implemented |
+| waiting / verification window / retire gate | frozen | TemporalChange runtime; consumer projection may expand wording |
+| ProviderPolicy revision | frozen | core runtime implemented; Knowledge never overwrites Reality |
+| Evidence multi-source authority | frozen | implemented/tested |
+| Freshness | complete semantics | partial; future fact/schedule Canonical expands Maintain |
+| Cross-platform recovery control-surface independence | complete principle | future runtime/evidence gate; does not imply cloud sync |
+
+Contract:
+- `spec/proposals/continuity-analysis-modes-v1.md`
+
+Permanent rule:
+
+~~~text
+Prepare / Change / Recover / Maintain
+= contextual modes over the same Reality
+!= four new primary tabs
+
+Blast Radius / Minimal Cut
+= authoritative continuity analysis
+!= UI degree counting / heuristic score
+~~~
+
 ## 9. Provider / digital resources
 
 | Capability | Design | Visibility |
