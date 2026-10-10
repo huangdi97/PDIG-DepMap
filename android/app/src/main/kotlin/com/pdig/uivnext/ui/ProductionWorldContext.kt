@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,13 +54,15 @@ internal fun ProductionWorldContext(
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Column {
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-                    .testTag("pdig.production-vnext.world-stage"),
-            ) {
-                R15WorldScene(
+            BoxWithConstraints(Modifier.fillMaxWidth()) {
+                val heroHeight = if (maxWidth < 600.dp) 280.dp else 360.dp
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(heroHeight)
+                        .testTag("pdig.production-vnext.world-stage"),
+                ) {
+                    R15WorldScene(
                     controller = app.globe,
                     regions = projection.regions,
                     arcingPairs = projection.arcingPairs,
@@ -71,6 +74,7 @@ internal fun ProductionWorldContext(
                     regions = projection.regions,
                     onRegionChosen = { region -> selectProductionWorldRegion(app, region) },
                 )
+                }
             }
 
             Surface(
