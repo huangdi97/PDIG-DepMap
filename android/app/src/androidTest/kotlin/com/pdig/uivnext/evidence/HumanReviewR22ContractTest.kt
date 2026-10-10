@@ -50,7 +50,7 @@ class HumanReviewR22ContractTest {
         compose.waitForIdle()
 
         compose.onNodeWithTag("pdig.r10.top.back", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("待复核", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r22.review.summary", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
