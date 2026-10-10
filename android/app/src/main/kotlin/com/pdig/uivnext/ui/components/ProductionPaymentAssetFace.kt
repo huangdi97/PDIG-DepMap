@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.production.VNextProductionObject
+import com.pdig.uivnext.ui.productionVisibleCardIssuer
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 import com.pdig.uivnext.ui.r9.importCardArt
@@ -61,7 +62,7 @@ internal fun ProductionPaymentAssetFace(
     privacyMask: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val issuer = if (privacyMask) "发行方已遮蔽" else asset.issuer?.takeIf { it.isNotBlank() } ?: "发行方未记录"
+    val issuer = productionVisibleCardIssuer(asset.issuer, privacyMask)
     val identity = CardIdentityProfile.forIssuer(if (privacyMask) "" else asset.issuer.orEmpty())
     val theme = cardThemeInfo(presentation?.themeId ?: "minimal")
     val material = when (presentation?.material) {
