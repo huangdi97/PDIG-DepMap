@@ -294,6 +294,7 @@ class VAppState(
         VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> VScreen.CHANGE
         VScreen.REVIEW -> VScreen.NOW
         VScreen.IMPORT -> VScreen.SOURCES
+        VScreen.MANUAL_ADD -> VScreen.IMPORT
         VScreen.SETTINGS, VScreen.PERSONALIZATION, VScreen.SOURCES -> VScreen.ME
         VScreen.SEARCH -> backStack.lastOrNull() ?: VScreen.NOW
     }
