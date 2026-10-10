@@ -2,6 +2,7 @@ package com.pdig.uivnext.ui.screens
 
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.ui.VAppState
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
