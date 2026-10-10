@@ -73,6 +73,13 @@ internal fun mapImportCommit(result: ImportCommitResult): VNextImportCommitView 
 internal class AppContainerVNextImportAuthority(
     private val app: AppContainer,
 ) {
+    suspend fun parseFile(
+        bytes: ByteArray,
+        adapterId: String,
+        mapping: com.pdig.core.sources.MappingProfile?,
+    ): com.pdig.app.data.ParseOutcome =
+        app.parseFile(bytes, adapterId, mapping)
+
     fun preview(
         observations: List<Observation>,
         errors: List<String>,
@@ -88,6 +95,13 @@ internal class AppContainerVNextImportAuthority(
         return domainPreview to mapImportPreview(domainPreview)
     }
 
+    fun commitAuthoritative(
+        preview: ImportPreview,
+    ): Pair<ImportCommitResult, VNextImportCommitView> {
+        val result = app.commitImport(preview)
+        return result to mapImportCommit(result)
+    }
+
     fun commit(preview: ImportPreview): VNextImportCommitView =
-        mapImportCommit(app.commitImport(preview))
+        commitAuthoritative(preview).second
 }
