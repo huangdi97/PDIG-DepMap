@@ -1109,7 +1109,7 @@ private fun ProductionSection(title: String) {
 }
 
 @Composable
-private fun ProductionFactCard(
+internal fun ProductionFactCard(
     title: String,
     subtitle: String,
     meta: String,
