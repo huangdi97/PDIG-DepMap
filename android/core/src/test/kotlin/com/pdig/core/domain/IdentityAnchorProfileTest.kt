@@ -31,6 +31,45 @@ class IdentityAnchorProfileTest {
     }
 
     @Test
+    fun confirmedIdentifierHasIndependentAuthorityInsideConfirmedSubtype() {
+        val fields = """
+            {
+              "identity_anchor_profile": {
+                "version": 1,
+                "subtype": "phone_number",
+                "verification_basis_type": "user_confirmed",
+                "confirmed_at": "2026-10-10T00:00:00Z",
+                "identifier": {
+                  "value": "+86 138 0000 8823",
+                  "verification_basis_type": "user_confirmed",
+                  "confirmed_at": "2026-10-10T02:00:00Z",
+                  "evidence_refs": ["ev-phone-value"]
+                }
+              }
+            }
+        """.trimIndent()
+
+        val profile = confirmedIdentityAnchorProfile(NodeKind.IDENTITY_ANCHOR, fields)
+        requireNotNull(profile)
+        assertEquals(IdentityAnchorSubtype.PHONE_NUMBER, profile.subtype)
+        requireNotNull(profile.identifier)
+        assertEquals("+86 138 0000 8823", profile.identifier?.value)
+        assertEquals(VerificationBasisType.USER_CONFIRMED, profile.identifier?.verificationBasisType)
+        assertEquals("2026-10-10T02:00:00Z", profile.identifier?.confirmedAt)
+        assertEquals(listOf("ev-phone-value"), profile.identifier?.evidenceRefs)
+    }
+
+    @Test
+    fun malformedIdentifierFailsClosedWithoutDestroyingValidSubtype() {
+        val fields =
+            """{"identity_anchor_profile":{"version":1,"subtype":"email_address","verification_basis_type":"user_confirmed","confirmed_at":"t","identifier":{"value":"","verification_basis_type":"machine_guess","confirmed_at":""}}}"""
+        val profile = confirmedIdentityAnchorProfile(NodeKind.IDENTITY_ANCHOR, fields)
+        requireNotNull(profile)
+        assertEquals(IdentityAnchorSubtype.EMAIL_ADDRESS, profile.subtype)
+        assertNull(profile.identifier)
+    }
+
+    @Test
     fun bareLegacySubtypeNeverBecomesAuthority() {
         assertNull(
             confirmedIdentityAnchorProfile(
