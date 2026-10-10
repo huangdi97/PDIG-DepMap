@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R30**
+> **Current reality · 2026-10-10 · R31**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,24 +13,24 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R30
+ANDROID_UI_VNEXT_SOURCE = R31
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_CUTOVER = HOLD
 
-CANONICAL_SCHEMA_CHANGE_FOR_R30_SOURCE = NONE
-DEPMAP_PAYLOAD_CHANGE_FOR_R30_SOURCE = NONE
+CANONICAL_SCHEMA_CHANGE_FOR_R31_SOURCE = NONE
+DEPMAP_PAYLOAD_CHANGE_FOR_R31_SOURCE = NONE
 
-FRESH_R30_BUILD = PENDING
-FRESH_R30_UNIT_TESTS = PENDING
-FRESH_R30_INSTRUMENTATION = PENDING
-FRESH_R30_PHONE_PIXELS = PENDING
-FRESH_R30_TABLET_PIXELS = PENDING
-FRESH_R30_HUMAN_ACCEPTANCE = PENDING
+FRESH_R31_BUILD = PENDING
+FRESH_R31_UNIT_TESTS = PENDING
+FRESH_R31_INSTRUMENTATION = PENDING
+FRESH_R31_PHONE_PIXELS = PENDING
+FRESH_R31_TABLET_PIXELS = PENDING
+FRESH_R31_HUMAN_ACCEPTANCE = PENDING
 ```
 
-Do not reuse pre-R30 screenshots or old PASS statements as proof of the current
+Do not reuse pre-R31 screenshots or old PASS statements as proof of the current
 source.
 
 ## 1. Navigation / shell
@@ -377,6 +377,34 @@ The inventory/impact projections are read-only seams. Separate authoritative mut
 gateways now exist for Change, Human Review and Manual Establish. None of these
 switches the launcher, makes Preview writable, or claims R19 lifecycle persistence.
 
+### R31 Manual Relationship authority
+
+Production VNext now supports authoritative manual confirmation of the complete
+**current Canonical v3 runtime relation set**:
+
+```text
+funding_source
+merchant_agreement
+recovers
+authenticates
+controls
+```
+
+The production form:
+- selects only confirmed Reality endpoints;
+- derives capability from the canonical relation definition;
+- validates endpoint kinds through `validateRelationUse`;
+- defaults criticality to `unknown`;
+- allows `required` only by explicit user choice;
+- writes `origin=manual` + `user_confirmed`;
+- preserves/reactivates the same logical Dependency row;
+- bumps graphRevision in the authoritative transaction;
+- re-reads the committed relation.
+
+`verifies` and `bound_to` remain storage-known/future only and cannot be created.
+
+Preview R25 remains intentionally read-only.
+
 ### R30 production Findings
 
 Production Weaknesses is no longer an all-or-nothing HOLD.
@@ -428,7 +456,7 @@ Still HOLD:
 - phone/email production subtype binding;
 - authoritative production Finding projection for Weaknesses;
 - R19 lifecycle persistence;
-- Native Schema v4 manual Dependency mutation;
+- future/storage relation widening beyond the current v3 runtime registry;
 - exact-head production/security/runtime E2E.
 
 R22 production governance source now additionally includes:
