@@ -67,6 +67,10 @@ class ProductionVNextShellContractTest {
                     identityVerificationBasisType = "user_confirmed",
                     identityConfirmedAt = "2026-10-10T00:00:00Z",
                     identityEvidenceRefs = listOf("ev-phone"),
+                    identityIdentifierValue = "+86 138 0000 8823",
+                    identityIdentifierVerificationBasisType = "user_confirmed",
+                    identityIdentifierConfirmedAt = "2026-10-10T02:00:00Z",
+                    identityIdentifierEvidenceRefs = listOf("ev-phone-value"),
                 ),
                 VNextProductionObject(
                     id = "email-1",
@@ -228,6 +232,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText("手机号身份").assertIsDisplayed()
+        compose.onNodeWithText("+86 138 0000 8823").assertIsDisplayed()
         compose.onNodeWithText("用户已确认", substring = true).assertExists()
         compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
             .assertExists()
@@ -253,7 +258,9 @@ class ProductionVNextShellContractTest {
         compose.runOnIdle { session.appState.navigate(VScreen.NUMBERS) }
         compose.waitForIdle()
         compose.onNodeWithText("+86 138****8823").assertDoesNotExist()
+        compose.onNodeWithText("+86 138 0000 8823").assertDoesNotExist()
         compose.onNodeWithText("手机号身份（已遮蔽）").assertExists()
+        compose.onNodeWithText("号码已遮蔽").assertExists()
     }
 
     @Test
