@@ -422,6 +422,30 @@ Only explicit `uniqueRecoveryPath == true` may render **唯一恢复**.
 Only evidence-backed findings belong here. Merely having a recovery role is not
 itself a weakness.
 
+R27 separates two consumer layers:
+
+```text
+Continuity Findings
+  single point
+  shared failure domain
+  recovery cycle
+  unconfirmed fallback
+  stale recovery information
+  unknown critical path
+  pending verification
+
+Maintenance / migration reminders
+  expiry
+  explicit unique-recovery object
+  device review
+  active migration blocker
+```
+
+Preview uses an explicitly isolated Synthetic Reference Finding set so every v0.3
+state can be visually reviewed. Production must bind the authoritative
+FailureDomain / RecoveryCycle / Finding engine; Compose must never infer structural
+Findings from edge counts.
+
 R20 source now gives Account / Email / Device / Service focused details the same
 consumer hierarchy:
 
