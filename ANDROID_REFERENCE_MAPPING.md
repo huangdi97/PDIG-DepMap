@@ -789,9 +789,23 @@ Current runtime relations:
 
 Storage-only legacy/future verifies/bound_to remain HOLD.
 
-The Preview has no confirm mutation. Production binding must use a future
-AppContainer-facing manual Dependency authority that validates the canonical
-relation/capability registry and bumps graphRevision transactionally.
+The Preview has no confirm mutation.
+
+R31 Production now has the authoritative path for the complete current v3 runtime
+registry:
+
+~~~text
+ProductionManualRelationshipScreen
+→ canonical RelationDefinition
+→ AppContainerVNextManualRelationshipGateway
+→ AppContainer.createManualDependency
+→ GraphRepository.createManualDependency
+→ validateRelationUse
+→ transaction + graphRevision
+→ re-read Dependency
+~~~
+
+It does not enable storage-only `verifies` / `bound_to`.
 
 Independent-path judgment remains Continuity-engine work, never a checkbox or
 degree count in this page.
