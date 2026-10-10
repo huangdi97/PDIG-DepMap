@@ -49,6 +49,25 @@ class SearchCatalogR19Test {
     }
 
     @Test
+    fun ContinuityAndEstablishCapabilitiesAreSearchableAsConsumerLanguage() {
+        assertTrue(searchResults("恢复循环").any {
+            it is SearchResult.NavigationHit && it.screen == com.pdig.uivnext.model.VScreen.WEAKNESSES
+        })
+        assertTrue(searchResults("共享故障点").any {
+            it is SearchResult.NavigationHit && it.screen == com.pdig.uivnext.model.VScreen.WEAKNESSES
+        })
+        assertTrue(searchResults("待复核").any {
+            it is SearchResult.NavigationHit && it.screen == com.pdig.uivnext.model.VScreen.REVIEW
+        })
+        assertTrue(searchResults("导入").any {
+            it is SearchResult.NavigationHit && it.screen == com.pdig.uivnext.model.VScreen.IMPORT
+        })
+        assertTrue(searchResults("手工记录").any {
+            it is SearchResult.NavigationHit && it.screen == com.pdig.uivnext.model.VScreen.MANUAL_ADD
+        })
+    }
+
+    @Test
     fun KeepRoleIsSearchableAsConsumerLanguage() {
         val results = searchResults("保号")
         assertTrue(results.any { it is SearchResult.NumberHit && it.id == "num-cn-3" })
