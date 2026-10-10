@@ -243,11 +243,20 @@ private fun ProductionNow(
             )
         }
 
-        ProductionSection("近期记录 / 计划")
-        if (snapshot.timeline.isEmpty()) {
-            ProductionEmpty("当前没有可投影的 Timeline 项；这不表示没有风险或依赖。")
+        val visibleTimeline = productionNowTimeline(
+            snapshot = snapshot,
+            showUpcoming = app.showUpcoming,
+        )
+        ProductionSection(if (app.showUpcoming) "近期记录 / 计划" else "当前需要处理")
+        if (visibleTimeline.isEmpty()) {
+            ProductionEmpty(
+                if (app.showUpcoming)
+                    "当前没有可投影的 Timeline 项；这不表示没有风险或依赖。"
+                else
+                    "已隐藏未来时间节点；当前没有 attention / overdue / today 项。这不表示没有未来事项。"
+            )
         } else {
-            snapshot.timeline.take(8).forEach { item ->
+            visibleTimeline.take(8).forEach { item ->
                 ProductionFactCard(
                     title = item.title,
                     subtitle = item.subtitle.ifBlank { productionTimelineStatusLabel(item.status) },
@@ -262,6 +271,17 @@ private fun ProductionNow(
 
         ProductionSection("基础设施")
         ProductionInventorySummary(inventory)
+    }
+}
+
+internal fun productionNowTimeline(
+    snapshot: VNextProductionSnapshot,
+    showUpcoming: Boolean,
+) = if (showUpcoming) {
+    snapshot.timeline
+} else {
+    snapshot.timeline.filter { item ->
+        item.bucket in setOf("attention", "overdue", "today")
     }
 }
 
