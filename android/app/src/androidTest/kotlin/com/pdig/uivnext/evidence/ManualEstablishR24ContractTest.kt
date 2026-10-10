@@ -38,14 +38,18 @@ class ManualEstablishR24ContractTest {
     }
 
     @Test
-    fun mediumManualRecordDoesNotPretendUnsupportedIdentitySubtypeExists() {
+    fun mediumManualRecordShowsGovernedIdentityAuthorityButKeepsPreviewReadOnly() {
         val app = createVNextAppState(screen = VScreen.MANUAL_ADD)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 700) }
         compose.waitForIdle()
 
-        compose.onNodeWithText("号码 / 邮箱 / 身份", useUnmergedTree = true)
+        compose.onNodeWithText("手机号 / 邮箱", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("等待 governed subtype / mapping", useUnmergedTree = true)
+        compose.onNodeWithText(
+            "正式 authority 已就绪 · Preview 只读",
+            useUnmergedTree = true,
+        ).assertIsDisplayed()
+        compose.onNodeWithText("其他身份", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText("当前 Preview 不提供“保存”按钮", useUnmergedTree = true)
             .assertIsDisplayed()
