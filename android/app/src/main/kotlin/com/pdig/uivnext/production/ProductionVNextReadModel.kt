@@ -12,6 +12,7 @@ import com.pdig.app.data.SourceRow
 import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.domain.defaultRegionLensSelection
 import com.pdig.core.domain.governedRegionFacts
+import com.pdig.core.domain.governedMaintenanceProfile
 import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
@@ -67,6 +68,35 @@ internal data class VNextProductionRegionLens(
     val facet: String?,
 )
 
+internal data class VNextProductionMaintenanceFact(
+    val id: String,
+    val kind: String,
+    val valueType: String,
+    val value: String,
+    val state: String,
+    val verificationBasisType: String,
+    val confirmedAt: String,
+    val evidenceRefs: List<String>,
+)
+
+internal data class VNextProductionMaintenanceSchedule(
+    val id: String,
+    val kind: String,
+    val state: String,
+    val cadenceKind: String,
+    val dueAt: String?,
+    val dayOfMonth: Int?,
+    val month: Int?,
+    val day: Int?,
+    val overflowPolicy: String?,
+    val intervalDays: Int?,
+    val anchorDate: String?,
+    val verificationBasisType: String,
+    val confirmedAt: String,
+    val evidenceRefs: List<String>,
+    val lastCompletedAt: String?,
+)
+
 internal data class VNextProductionObject(
     val id: String,
     val kind: String,
@@ -86,6 +116,8 @@ internal data class VNextProductionObject(
     val regionFacts: List<VNextProductionRegionFact> = emptyList(),
     val regionLens: VNextProductionRegionLens =
         VNextProductionRegionLens(status = "unknown", territoryCode = null, facet = null),
+    val maintenanceFacts: List<VNextProductionMaintenanceFact> = emptyList(),
+    val maintenanceSchedules: List<VNextProductionMaintenanceSchedule> = emptyList(),
 )
 
 internal data class VNextProductionDependency(
@@ -320,6 +352,8 @@ internal fun buildProductionSnapshot(
 
             val regionFacts = governedRegionFacts(node.fieldsJson)
             val regionLens = defaultRegionLensSelection(node.fieldsJson)
+            val maintenance = nodeKind
+                ?.let { governedMaintenanceProfile(it, node.fieldsJson) }
 
             VNextProductionObject(
                 id = node.id,
@@ -355,6 +389,37 @@ internal fun buildProductionSnapshot(
                     territoryCode = regionLens.territoryCode,
                     facet = regionLens.facet?.wire,
                 ),
+                maintenanceFacts = maintenance?.facts?.map { fact ->
+                    VNextProductionMaintenanceFact(
+                        id = fact.id,
+                        kind = fact.kind.wire,
+                        valueType = fact.valueType.wire,
+                        value = fact.value,
+                        state = fact.state.wire,
+                        verificationBasisType = fact.verificationBasisType.wire,
+                        confirmedAt = fact.confirmedAt,
+                        evidenceRefs = fact.evidenceRefs,
+                    )
+                } ?: emptyList(),
+                maintenanceSchedules = maintenance?.schedules?.map { schedule ->
+                    VNextProductionMaintenanceSchedule(
+                        id = schedule.id,
+                        kind = schedule.kind.wire,
+                        state = schedule.state.wire,
+                        cadenceKind = schedule.cadence.kind.wire,
+                        dueAt = schedule.cadence.dueAt,
+                        dayOfMonth = schedule.cadence.dayOfMonth,
+                        month = schedule.cadence.month,
+                        day = schedule.cadence.day,
+                        overflowPolicy = schedule.cadence.overflowPolicy?.wire,
+                        intervalDays = schedule.cadence.intervalDays,
+                        anchorDate = schedule.cadence.anchorDate,
+                        verificationBasisType = schedule.verificationBasisType.wire,
+                        confirmedAt = schedule.confirmedAt,
+                        evidenceRefs = schedule.evidenceRefs,
+                        lastCompletedAt = schedule.lastCompletedAt,
+                    )
+                } ?: emptyList(),
             )
         }
 
