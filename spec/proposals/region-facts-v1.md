@@ -1,7 +1,7 @@
 # Region Facts v1 — Canonical Proposal
 
 > Date: 2026-10-10  
-> Status: **DESIGN_COMPLETE / PROPOSED_SCHEMA / NOT_IMPLEMENTED**
+> Status: **R39 CANONICAL READ CONTRACT IN IMPLEMENTATION / DESIGN COMPLETE**
 >
 > Goal: give the PDIG Region Lens and Globe a governed production source without
 > collapsing several different meanings of “region” into one inferred `regionCode`.
@@ -93,15 +93,17 @@ RegionFact
   updatedAt
 ```
 
-Recommended `state`:
+R39 Reality storage uses:
 
 ```text
-proposal
 confirmed
 retired
 ```
 
-Only `confirmed` participates in normal Production Region Lens aggregation.
+A `proposal` is deliberately **not** a RegionFact inside confirmed Node Reality.
+Unconfirmed geographic claims remain Proposal/Review state outside the Node until
+authority confirms them. Only `confirmed` participates in normal Production
+Region Lens aggregation.
 
 ---
 
@@ -674,8 +676,8 @@ They do not answer which RegionFact applies to a user object.
 
 ```text
 approve RegionFact vocabulary
-→ schema/version allocation
-→ migration
+→ choose additive structured-field storage in the existing Node.fields envelope
+→ semantic migration = old payload has zero confirmed RegionFacts
 → codegen
 → fixtures + negative fixtures
 → conformance
@@ -697,8 +699,9 @@ REGION_FACT_DESIGN = COMPLETE
 REGION_LENS_PRODUCTION_QUERY_DESIGN = COMPLETE
 GLOBE_PRODUCTION_TRUTH_BOUNDARY = COMPLETE
 
-CANONICAL_REGION_FACT = NOT_IMPLEMENTED
-PRODUCTION_REGION_MEMBERSHIP = HOLD
+CANONICAL_REGION_FACT_DESIGN = COMPLETE
+R39_REGION_FACT_CANONICAL_READ = IN_IMPLEMENTATION
+PRODUCTION_REGION_MEMBERSHIP = HOLD_UNTIL_R39_READ_PROJECTION
 PRODUCTION_GLOBE_LABELS = HOLD_UNTIL_CONFIRMED_REGION_FACTS
 
 GPU_EARTH_VISUAL_CONTEXT = ALLOWED_WITH_ZERO_FACT_LABELS
