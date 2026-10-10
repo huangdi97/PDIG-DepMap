@@ -66,6 +66,97 @@ public enum class RegionFactState(public val wire: String) {
     }
 }
 
+public enum class MaintenanceFactKind(public val wire: String) {
+    CARD_ANNUAL_FEE_AMOUNT("card_annual_fee_amount"),
+    CARD_ANNUAL_FEE_CURRENCY("card_annual_fee_currency"),
+    CARD_BILLING_DAY("card_billing_day"),
+    CARD_PAYMENT_DUE_DAY("card_payment_due_day"),
+    CARD_AUTOPAY_MODE("card_autopay_mode"),
+    NUMBER_BILLING_MODE("number_billing_mode"),
+    NUMBER_PLAN_COST("number_plan_cost"),
+    NUMBER_PLAN_CURRENCY("number_plan_currency"),
+    NUMBER_RENEWAL_METHOD("number_renewal_method")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceFactKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceScheduleKind(public val wire: String) {
+    CARD_ANNUAL_FEE_CHECKPOINT("card_annual_fee_checkpoint"),
+    CARD_BILLING_CHECKPOINT("card_billing_checkpoint"),
+    CARD_PAYMENT_DUE_CHECKPOINT("card_payment_due_checkpoint"),
+    NUMBER_KEEP_ALIVE("number_keep_alive"),
+    NUMBER_PLAN_RENEWAL("number_plan_renewal"),
+    FACT_FRESHNESS_REVIEW("fact_freshness_review"),
+    CUSTOM_MAINTENANCE("custom_maintenance")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceScheduleKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceFactState(public val wire: String) {
+    CONFIRMED("confirmed"),
+    RETIRED("retired")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceFactState? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceScheduleState(public val wire: String) {
+    ACTIVE("active"),
+    PAUSED("paused"),
+    NEEDS_REVIEW("needs_review"),
+    RETIRED("retired")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceScheduleState? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceValueType(public val wire: String) {
+    DECIMAL_STRING("decimal_string"),
+    CURRENCY_CODE("currency_code"),
+    INTEGER("integer"),
+    TEXT("text"),
+    BOOLEAN("boolean")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceValueType? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceCadenceKind(public val wire: String) {
+    ONE_TIME("one_time"),
+    MONTHLY_DAY("monthly_day"),
+    YEARLY_MONTH_DAY("yearly_month_day"),
+    INTERVAL_DAYS("interval_days"),
+    MANUAL_ONLY("manual_only")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceCadenceKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceOverflowPolicy(public val wire: String) {
+    CLAMP_TO_LAST_DAY("clamp_to_last_day"),
+    SKIP_OCCURRENCE("skip_occurrence"),
+    USER_CONFIRM("user_confirm")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceOverflowPolicy? = entries.firstOrNull { it.wire == value }
+    }
+}
+
 public enum class Relation(public val wire: String) {
     FUNDING_SOURCE("funding_source"),
     MERCHANT_AGREEMENT("merchant_agreement"),
