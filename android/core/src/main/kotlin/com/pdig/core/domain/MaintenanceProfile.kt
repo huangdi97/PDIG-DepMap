@@ -505,6 +505,32 @@ fun upsertConfirmedMaintenanceFact(
 }
 
 /**
+ * Atomically constructs a set of confirmed maintenance facts in memory.
+ *
+ * Repository callers commit the returned document once, so grouped facts such as
+ * amount+currency never become an observable half-written Reality state.
+ */
+fun upsertConfirmedMaintenanceFacts(
+    nodeKind: NodeKind,
+    fieldsJson: String,
+    requests: List<MaintenanceFactWrite>,
+    confirmedAt: String,
+): String {
+    require(requests.isNotEmpty()) { "maintenance fact batch must not be empty" }
+    require(requests.map { it.id }.distinct().size == requests.size) {
+        "maintenance fact batch contains duplicate ids"
+    }
+    return requests.fold(fieldsJson) { current, request ->
+        upsertConfirmedMaintenanceFact(
+            nodeKind = nodeKind,
+            fieldsJson = current,
+            request = request,
+            confirmedAt = confirmedAt,
+        )
+    }
+}
+
+/**
  * Canonical writer for a user/authority-confirmed maintenance schedule.
  *
  * Passing time is never treated as completion. A completion timestamp is written only
