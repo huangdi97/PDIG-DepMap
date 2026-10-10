@@ -107,7 +107,7 @@ internal fun R16ProjectedRegionOverlay(
                     }
                     .semantics {
                         val footprint = tag.primary.cardCount + tag.primary.phoneCount +
-                            tag.primary.accountCount + tag.primary.serviceCount
+                            tag.primary.accountCount + tag.primary.serviceCount + tag.primary.otherCount
                         val attention = if (tag.primary.attentionCount > 0)
                             "，${tag.primary.attentionCount} 项需要处理" else ""
                         contentDescription = if (all.size == 1)
@@ -145,8 +145,11 @@ internal fun R16ProjectedRegionOverlay(
                                 color = R9.Ink, maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
+                            val total = tag.primary.cardCount + tag.primary.phoneCount +
+                                tag.primary.accountCount + tag.primary.serviceCount +
+                                tag.primary.otherCount
                             Text(
-                                "${tag.primary.cardCount} 卡 · ${tag.primary.phoneCount} 号",
+                                "${total} 项 · ${tag.primary.cardCount} 卡 · ${tag.primary.phoneCount} 号",
                                 fontSize = 7.sp, color = R9.Muted, maxLines = 1,
                             )
                         }
@@ -191,7 +194,9 @@ internal fun R16ProjectedRegionOverlay(
                             Text(regionFlag(region.regionCode), fontSize = 18.sp)
                             Text(region.displayName, Modifier.weight(1f),
                                 color = R9.Ink, fontSize = 13.sp)
-                            Text("${region.cardCount} 卡 · ${region.phoneCount} 号",
+                            val total = region.cardCount + region.phoneCount +
+                                region.accountCount + region.serviceCount + region.otherCount
+                            Text("${total} 项 · ${region.cardCount} 卡 · ${region.phoneCount} 号",
                                 fontSize = 10.sp, color = R9.Muted)
                         }
                     }
