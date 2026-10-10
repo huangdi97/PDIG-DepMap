@@ -209,3 +209,16 @@ Records must not absorb pending or future tasks merely to provide a convenient
 - **Continuation**: generated Proposal work routes to Human Review.
 - **Forbidden**: raw statement-table UI as the product, technical parser console,
   full sensitive values, Proposal presented as Dependency.
+
+
+## R24 — Manual Establish visual contract
+
+- **Primary object**: explicit user knowledge about object existence.
+- **Hierarchy**: identity truth boundary → available canonical types → gated types →
+  production authority explanation.
+- **Required language**: 手工记录 / 你确认的对象可以成为 Reality；关系仍要单独确认 /
+  当前 Preview 不提供“保存”按钮.
+- **Type semantics**: payment instrument / account / service are shown as the current
+  runtime creation set; generic identity/device/membership/custom remain visibly gated.
+- **Forbidden**: form fields that imply unsupported subtype persistence, direct
+  relationship editing inside object creation, fake local success state.
