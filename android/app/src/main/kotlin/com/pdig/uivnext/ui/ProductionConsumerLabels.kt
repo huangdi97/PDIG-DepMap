@@ -138,3 +138,21 @@ internal fun productionPaymentCompactTailLabel(
     privacyMask -> "••••"
     else -> "•••• $last4"
 }
+
+
+/**
+ * Unknown identity subtype is itself a privacy boundary.
+ *
+ * An identity_anchor name may contain a phone number, email address or another
+ * identifier. While subtype is intentionally unclassified, privacy masking must
+ * not regex-guess what it is; it hides the whole presentation name instead.
+ */
+internal fun productionVisibleObjectName(
+    item: com.pdig.uivnext.production.VNextProductionObject,
+    privacyMask: Boolean,
+): String = when {
+    privacyMask &&
+        item.surfaceKind == com.pdig.uivnext.production.VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC ->
+        "身份对象（已遮蔽）"
+    else -> item.name
+}
