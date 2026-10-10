@@ -97,11 +97,15 @@ internal class AppContainerVNextImportAuthority(
 
     fun commitAuthoritative(
         preview: ImportPreview,
+        existingSourceId: String? = null,
     ): Pair<ImportCommitResult, VNextImportCommitView> {
-        val result = app.commitImport(preview)
+        val result = app.commitImport(preview, existingSourceId)
         return result to mapImportCommit(result)
     }
 
-    fun commit(preview: ImportPreview): VNextImportCommitView =
-        commitAuthoritative(preview).second
+    fun commit(
+        preview: ImportPreview,
+        existingSourceId: String? = null,
+    ): VNextImportCommitView =
+        commitAuthoritative(preview, existingSourceId).second
 }
