@@ -1,0 +1,29 @@
+{
+  "id": "region-fact-rg12-display-name-independent",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-12 localized display wording does not mutate canonical code",
+  "input": {
+    "fieldsJson": "{\"displayName\":\"Hong Kong\",\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-hk\",\"facet\":\"user_confirmed_context\",\"territory_code\":\"HK\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-hk",
+        "facet": "user_confirmed_context",
+        "territoryCode": "HK",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-hk"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "HK",
+      "facet": "user_confirmed_context"
+    }
+  }
+}
