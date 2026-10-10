@@ -55,11 +55,11 @@ internal data class VNextProductionObject(
     val surfaceKind: VNextProductionSurfaceKind,
     val issuer: String? = null,
     val last4: String? = null,
+    val truth: VNextProjectionTruth = VNextProjectionTruth.CONFIRMED,
     val identitySubtype: String? = null,
     val identityVerificationBasisType: String? = null,
     val identityConfirmedAt: String? = null,
     val identityEvidenceRefs: List<String> = emptyList(),
-    val truth: VNextProjectionTruth = VNextProjectionTruth.CONFIRMED,
 )
 
 internal data class VNextProductionDependency(
