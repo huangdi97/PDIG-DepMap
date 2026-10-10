@@ -121,6 +121,10 @@ internal fun productionTimelineStatusLabel(status: String): String = when (statu
     "stale" -> "需要刷新"
     "pending" -> "待验证"
     "evidence_suggested" -> "发现待核验证据"
+    "upcoming" -> "即将到来"
+    "due" -> "今天到期"
+    "overdue" -> "已逾期"
+    "needs_review" -> "需要核对"
     "verified" -> "已验证"
     "failed" -> "验证未通过"
     "draft", "analyzed", "review_required", "ready", "in_progress",
