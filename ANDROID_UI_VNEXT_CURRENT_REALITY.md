@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R34**
+> **Current reality · 2026-10-10 · Android UI R34 + Product Architecture Control R35**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -14,6 +14,8 @@
 
 ```text
 ANDROID_UI_VNEXT_SOURCE = R34
+PDIG_PRODUCT_ARCHITECTURE_CONTROL = R35
+CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_MACHINE_GATED
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
@@ -712,6 +714,9 @@ Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 - `ANDROID_VISUAL_CONTRACT.md`
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
 - `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
+- `spec/roadmap/canonical-v4-expansion-plan.json`
+- `spec/roadmap/CANONICAL_V4_EXPANSION_EXECUTION_PLAN.md`
+- `PDIG_R35_CANONICAL_EXPANSION_EXECUTION_REPORT.md`
 
 ## 20. Identity / Recovery future-lens closure
 
@@ -852,3 +857,68 @@ R32 removes two former launcher ambiguities:
 Therefore “launcher/security integration” is now source-implemented for rehearsal;
 the remaining launcher gate is release activation + restart/security/runtime evidence,
 not a missing host architecture.
+
+
+## 35. R35 Canonical expansion execution control
+
+R35 does not change Android pixels or current Canonical v3 semantics.
+
+It closes the ordering problem between future design-complete proposals by making
+their implementation dependencies executable as a CI-gated DAG.
+
+~~~text
+Stage 1
+  Identity Anchor Subtype
+  RegionFact
+  Asset Lifecycle / Maintenance
+  SecretLocator
+
+Stage 2
+  Access / Recovery Factor
+  Identity Context
+
+Stage 3
+  Maintenance runtime
+  Device Continuity
+
+Stage 4
+  Recovery Preparedness
+  Recovery Incident
+  Advanced Continuity Analysis
+
+Stage 5
+  Digital Resource Continuity
+
+Stage 6
+  Trusted Handoff
+~~~
+
+The roadmap intentionally rejects a big-bang v4 migration. Physical schema/payload
+versions remain monotonic and each product train must be the smallest coherent
+cross-platform vertical slice.
+
+The machine gate is:
+
+~~~text
+node tools/validate-canonical-v4-expansion-plan.mjs
+~~~
+
+It is now part of the Canonical CI job.
+
+R35 therefore changes the status of future architecture from:
+
+~~~text
+many individually valid proposals
+~~~
+
+to:
+
+~~~text
+valid proposals
++ explicit hard/optional dependency graph
++ stage order
++ CI-enforced no-cycle/no-ghost/no-sixth-tab invariants
+~~~
+
+Current Canonical remains app/payload v3 until an actual package goes through the
+full Spec → Schema → Migration → Fixture → Conformance → Runtime chain.
