@@ -184,7 +184,7 @@ private fun ProductionContent(
     when (app.screen) {
         VScreen.NOW -> ProductionNow(app, snapshot, inventory, modifier)
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
-            ProductionInfrastructure(app, inventory, modifier)
+            ProductionInfrastructure(app, snapshot, inventory, modifier)
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
         VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
             ProductionInventoryCategoryScreen(session, app.screen, modifier)
@@ -289,6 +289,7 @@ internal fun productionNowTimeline(
 @Composable
 private fun ProductionInfrastructure(
     app: VAppState,
+    snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
