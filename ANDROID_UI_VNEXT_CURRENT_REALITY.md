@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38 + Region/World R39 + Maintenance Canonical R40 + Occurrence/Control Surface R41**
+> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38 + Region/World R39 + Maintenance R40/R41 + Secure Production Import R42/R43**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -46,6 +46,10 @@ PRODUCTION_CARD_NUMBER_MAINTENANCE_READ = SOURCE_IMPLEMENTED_R40
 MAINTENANCE_WRITE_AUTHORITY = SOURCE_IMPLEMENTED_R40
 MAINTENANCE_OCCURRENCE_PROJECTION = SOURCE_IMPLEMENTED_R41
 PRODUCTION_MAINTENANCE_EDITOR = SOURCE_IMPLEMENTED_R41
+PRODUCTION_IMPORT_ACTIVITY_PICKER_BINDING = SOURCE_IMPLEMENTED_R42
+PRODUCTION_IMPORT_REAUTH_RESUME = SOURCE_IMPLEMENTED_R43
+PRODUCTION_IMPORT_PREVIEW_COMMIT = SOURCE_IMPLEMENTED_R43
+EXISTING_SOURCE_IDENTITY_PRESERVATION = SOURCE_IMPLEMENTED_R43
 
 FRESH_EXACT_HEAD_BUILD = PENDING
 FRESH_EXACT_HEAD_UNIT_TESTS = PENDING
@@ -486,7 +490,7 @@ Source-bound production surfaces now include:
 - Human Review with post-mutation authoritative re-read;
 - Sources;
 - Establish hub + production Manual Establish;
-- host-owned FileWorkflowCoordinator handoff for real file import;
+- R42/R43 real file-import path: host-owned ActivityResult/OpenDocument + FileWorkflowCoordinator → lock/re-auth → one-shot URI consume → local parser → optional CSV mapping review → authoritative preview/commit → Human Review;
 - authoritative Manual Relationship for the current Canonical v3 runtime registry;
 - storage-only/future verifies/bound_to remain HOLD;
 - production Reality-only Search;
@@ -560,10 +564,25 @@ The Preview route is explanatory/read-only and visibly states:
 
 > 文件留在本机 · 发现不等于依赖
 
-Production VNext must reuse the existing hardened
-`FileWorkflowCoordinator → AppContainer.parseFile / previewImport / commitImport`
-pipeline. R23 adds a consumer-safe production projection, but does not create a
-second picker/parser or enable real file access in Preview.
+Production VNext reuses the existing hardened pipeline:
+
+~~~text
+MainActivity OpenDocument
+→ FileWorkflowCoordinator
+→ lock / re-auth
+→ consume pending URI exactly once
+→ AppContainer.parseFile
+→ optional CSV mapping correction
+→ AppContainer.previewImport
+→ explicit confirm
+→ AppContainer.commitImport(existingSourceId?)
+→ Human Review
+~~~
+
+R42 wires the Activity-owned picker into Production VNext. R43 closes the return
+path after re-auth, Preview/commit UI, existing SourceInstance preservation and
+adapter-mismatch fail-closed behavior. Preview still cannot access a real picker
+or production Reality.
 
 Permanent import truth rule:
 
@@ -898,7 +917,7 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R41 runtime/conformance evidence, release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
+The next blocker is no longer “missing UI design.” It is fresh exact-head R43 compile/runtime/conformance evidence (including the real picker → lock/re-auth → preview/commit chain), release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
 
 R32 removes two former launcher ambiguities:
 - productionRelease ignores both synthetic-reference and production-VNext Intent extras;
