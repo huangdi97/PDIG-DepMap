@@ -77,6 +77,7 @@ import {
   CoverageCounts,
 } from '../domain/Entities';
 import { RelationValidationResult } from '../domain/Relations';
+import { confirmedIdentityAnchorProfile } from '../domain/IdentityAnchorProfile';
 import { simulateScenario, ImpactResult, ImpactTargetResult, ImpactChecklistItem } from '../domain/ImpactKernel';
 import { computePlanReadiness } from '../domain/PlanReadiness';
 import { computeScenarioCoverage } from '../domain/ScenarioCoverage';
@@ -703,6 +704,9 @@ export function computeCase(
     // 这些 relation 的运行时定义已在 generated/CanonicalRelations.ets 中注册，
     // 因此走与 relations 相同的 validateRelationUse 路径即可，无需第二份实现。
     return runRelations(jt);
+  }
+  if (category === 'identity-profile') {
+    return runIdentityProfile(jt);
   }
   return '';
 }
@@ -1395,6 +1399,31 @@ function runRelations(jt: JsonText): string {
     const toKind = jt.optionalString('toKind');
     const capability = jt.requireString('capability');
     return normalizeResult(validateRelationUse(fromKind, relation, toKind, capability));
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+function runIdentityProfile(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const kind = nodeKindFromWire(jt.requireString('kind'));
+    if (kind === undefined) {
+      return '{"confirmed":false}';
+    }
+    const profile = confirmedIdentityAnchorProfile(kind, jt.requireString('fieldsJson'));
+    if (profile === undefined) {
+      return '{"confirmed":false}';
+    }
+    return '{"confirmed":true,"subtype":' + jsonEscape(profile.subtype) +
+      ',"verificationBasisType":' + jsonEscape(profile.verificationBasisType) +
+      ',"confirmedAt":' + jsonEscape(profile.confirmedAt) +
+      ',"evidenceRefs":' + serializeStrings(profile.evidenceRefs) + '}';
   } finally {
     jt.resetWindow();
   }
