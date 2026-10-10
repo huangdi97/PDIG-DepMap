@@ -1,6 +1,6 @@
 # ANDROID_REFERENCE_MAPPING.md
 
-> **R21 · 2026-10-09 · Android Light Reference source contract**
+> **R27 · 2026-10-10 · Android Light Reference source contract**
 >
 > This file maps the v2.3 product architecture and the human-selected light reference
 > board to Android native layouts. It is a **source/design contract**, not proof of
