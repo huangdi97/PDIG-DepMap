@@ -753,31 +753,47 @@ def main():
         "确认要记录的对象",
         "当前是隔离预览",
     )
+    if not tap_retry("没有文件？手工记录", exact=True):
+        raise RuntimeError("R24 Manual Establish entry is unreachable from Establish Import")
+    capture("10b-manual-establish")
+    require_screen(
+        "10b-manual-establish",
+        "手工记录",
+        "你确认的对象可以成为 Reality；关系仍要单独确认",
+        "支付工具",
+        "账户",
+        "服务",
+        "当前 Preview 不提供“保存”按钮",
+    )
+    if not tap_retry("返回上一级", exact=True):
+        raise RuntimeError("R24 Manual Establish did not return to Establish Import")
+    capture("10c-manual-up-import")
+    require_screen("10c-manual-up-import", "建立基础设施", "当前是隔离预览")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R23 Establish Import did not expose hierarchical Up")
-    capture("10b-import-up-sources")
-    require_screen("10b-import-up-sources", "当前预览工作区", "事实边界")
+    capture("10d-import-up-sources")
+    require_screen("10d-import-up-sources", "当前预览工作区", "事实边界")
 
     # R22: Observation/Proposal/Candidate/Drift requires a real Human Review
     # workspace, but Preview must remain read-only and cannot mutate Reality.
     if not tap_retry("待复核", exact=True):
         raise RuntimeError("R22 Human Review entry is unreachable from Data Sources")
-    capture("10c-human-review")
+    capture("10e-human-review")
     require_screen(
-        "10c-human-review",
+        "10e-human-review",
         "发现 ≠ 事实",
         "关系建议",
         "对象候选",
         "现实漂移",
         "Preview 不执行",
     )
-    review_text = json.loads((ROOT / "10c-human-review.json").read_text(encoding="utf-8"))["uiText"]
+    review_text = json.loads((ROOT / "10e-human-review.json").read_text(encoding="utf-8"))["uiText"]
     if any("已确认现实" in row or "自动确认" in row for row in review_text):
         raise RuntimeError("R22 Human Review copy crossed the confirmation authority boundary")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R22 Human Review did not expose hierarchical Up")
-    capture("10d-review-up-now")
-    require_screen("10d-review-up-now", "你的全球数字基础设施")
+    capture("10f-review-up-now")
+    require_screen("10f-review-up-now", "你的全球数字基础设施")
 
     # Include real runtime frame-time evidence even when device image comparisons
     # have already passed. A static circle with rotating lines is not accepted.
