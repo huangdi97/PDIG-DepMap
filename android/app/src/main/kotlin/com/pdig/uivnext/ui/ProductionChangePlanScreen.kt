@@ -46,8 +46,8 @@ internal fun ProductionChangePlanScreen(
 ) {
     if (planId.isNullOrBlank()) {
         ChangePlanUnavailable(
-            "没有选择生产 ChangePlan",
-            "请从“变更”一级页选择一个已记录计划。",
+            "没有选择更换计划",
+            "请从“变更”一级页选择一个已记录的变更计划。",
             modifier,
         )
         return
@@ -62,8 +62,8 @@ internal fun ProductionChangePlanScreen(
     val current = plan
     if (current == null) {
         ChangePlanUnavailable(
-            "ChangePlan 不存在或无法读取",
-            "不会回退到 Synthetic Reference 计划。",
+            "变更计划不存在或暂时无法读取",
+            "不会用演示计划替代真实记录。",
             modifier,
         )
         return
@@ -113,7 +113,7 @@ internal fun ProductionChangePlanScreen(
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            "还有 ${current.unresolvedMustChangeKeys.size} 项权威 Impact 必须先解决；内部 impact key 不作为消费者文案展示。",
+                            "还有 ${current.unresolvedMustChangeKeys.size} 项必须处理的影响尚未解决；完成这些事项前不会把计划显示为可安全继续。",
                             color = PdigV2Colors.TextSecondary,
                             fontSize = 10.sp,
                         )
@@ -176,7 +176,7 @@ internal fun ProductionChangePlanScreen(
 
         item {
             ChangeBoundaryNote(
-                "每次操作后都重新读取 planDetail。按钮状态只是交互约束，真正 authority 仍在 AppContainer / ChangePlan engine。"
+                "每次操作后都会重新读取权威计划状态；界面按钮不会自行把动作标记为已完成或已验证。"
             )
         }
     }
@@ -239,7 +239,7 @@ private fun ChangePlanAuthorityState(plan: VNextProductionPlan) {
             )
             if (stale) {
                 Text(
-                    "Reality 已变化；在 authority 重新分析/确认前，界面不会继续记录新的执行完成。",
+                    "基础设施已发生变化；重新分析并确认当前影响范围前，不会继续记录新的执行完成。",
                     color = PdigV2Colors.Critical,
                     fontSize = 10.sp,
                 )
