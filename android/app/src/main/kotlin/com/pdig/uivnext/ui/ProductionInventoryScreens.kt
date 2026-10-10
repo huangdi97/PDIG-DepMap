@@ -138,10 +138,10 @@ internal fun ProductionInventoryCategoryScreen(
         item {
             when (screen) {
                 VScreen.CARDS -> ProductionObjectBoundary(
-                    "年费、账单日、分期等生命周期字段尚未进入正式数据模型；当前只展示已确认的支付工具身份。"
+                    "年费、账单日、还款日、自动还款与维护节点只展示受治理 maintenance_profile 的已确认 Reality；分期摘要仍不属于 Canonical v1。"
                 )
                 VScreen.NUMBERS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。若 nested identifier 也已确认，可显示真实号码值；地区只来自已确认 RegionFact，运营商、SIM/eSIM、保号与恢复语义仍不会由号码或名称推断。"
+                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。套餐、续费与保号节点只来自该号码的 maintenance_profile；运营商、SIM/eSIM 与恢复语义仍不会由号码、名称或维护资料推断。"
                 )
                 VScreen.EMAILS -> ProductionObjectBoundary(
                     "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。若 nested identifier 也已确认，可显示真实邮箱值；地区只来自已确认 RegionFact，Provider 与恢复语义仍不会由邮箱或名称推断。"
