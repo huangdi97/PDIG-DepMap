@@ -29,6 +29,12 @@ class R11NavigationAndAliasesTest {
         assertEquals(VScreen.ME, app.screen)
     }
 
+    @Test fun reviewKeepsNowAsItsPrimaryParentContext() {
+        assertTrue(isEntrySelected(VScreen.NOW, VScreen.REVIEW))
+        assertFalse(isEntrySelected(VScreen.ME, VScreen.REVIEW))
+        assertFalse(isEntrySelected(VScreen.RECORDS, VScreen.REVIEW))
+    }
+
     @Test fun meRemainsSelectedAcrossItsChildUtilities() {
         assertTrue(isEntrySelected(VScreen.ME, VScreen.ME))
         assertTrue(isEntrySelected(VScreen.ME, VScreen.SETTINGS))
