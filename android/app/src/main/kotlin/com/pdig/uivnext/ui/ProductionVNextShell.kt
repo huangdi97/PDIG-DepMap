@@ -80,13 +80,13 @@ internal fun ProductionVNextShell(
                     if (isInfraRootScreen(app.screen)) {
                         InfraChipRow(app)
                     }
-                    ProductionContent(session, Modifier.weight(1f))
+                    ProductionContent(session, breakpoint, Modifier.weight(1f))
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
                 ProductionTopBar(app)
-                ProductionContent(session, Modifier.weight(1f))
+                ProductionContent(session, breakpoint, Modifier.weight(1f))
                 if (isProductionRoot(app.screen)) BottomNav(app)
             }
         }
@@ -166,6 +166,7 @@ private fun ProductionTopBar(app: VAppState) {
 @Composable
 private fun ProductionContent(
     session: ProductionVNextSession,
+    breakpoint: MediaBreakpoint,
     modifier: Modifier = Modifier,
 ) {
     val app = session.appState
@@ -202,7 +203,7 @@ private fun ProductionContent(
         VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD ->
             ProductionChangePlanScreen(session, app.selectedProductionPlanId, modifier)
         VScreen.RECORDS -> ProductionRecords(session, modifier)
-        VScreen.ME -> ProductionMe(app, snapshot, inventory, modifier)
+        VScreen.ME -> ProductionMe(session, snapshot, inventory, findings, breakpoint, modifier)
         VScreen.SETTINGS, VScreen.PERSONALIZATION ->
             ProductionPreferencesScreen(app, modifier)
         VScreen.SOURCES -> ProductionSources(app, inventory, modifier)
@@ -560,59 +561,251 @@ private fun ProductionRecords(
 
 @Composable
 private fun ProductionMe(
-    app: VAppState,
+    session: ProductionVNextSession,
     snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
+    findings: com.pdig.uivnext.production.VNextProductionFindingReport?,
+    breakpoint: MediaBreakpoint,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "我", "个人数字生活 · 生产数据边界") {
+    val app = session.appState
+    val records = session.dataSource.productionRecords()
+    val activePlans = snapshot.plans.count { it.workflowState != "closed" }
+    val pendingVerification = records.count {
+        it.state == VNextProductionRecordState.PENDING_VERIFICATION ||
+            it.state == VNextProductionRecordState.VERIFICATION_FAILED
+    }
+    val findingCount = findings?.findings?.size
+
+    ProductionPage(modifier, "我", "我的数字生活 · 生产 Reality 工作区") {
         ProductionMetricRow(
             listOf(
                 snapshot.revision to "图谱修订",
-                inventory.activeSourceCount to "活跃数据源",
+                activePlans to "进行中变更",
                 inventory.pendingReviewCount to "待复核",
             ),
         )
-        ProductionSection("数据边界")
+
+        if (breakpoint == MediaBreakpoint.COMPACT) {
+            Column(
+                Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                ProductionMeContinuityPanel(
+                    app = app,
+                    activePlans = activePlans,
+                    pendingReview = inventory.pendingReviewCount,
+                    pendingVerification = pendingVerification,
+                    findingCount = findingCount,
+                    supportedFindingTypes = findings?.supportedTypes?.size,
+                )
+                ProductionMeInfrastructurePanel(app, inventory)
+                ProductionMeControlPanel(app, inventory)
+            }
+        } else {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Column(
+                    Modifier.weight(1.15f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    ProductionMeContinuityPanel(
+                        app = app,
+                        activePlans = activePlans,
+                        pendingReview = inventory.pendingReviewCount,
+                        pendingVerification = pendingVerification,
+                        findingCount = findingCount,
+                        supportedFindingTypes = findings?.supportedTypes?.size,
+                    )
+                    ProductionMeInfrastructurePanel(app, inventory)
+                }
+                Column(
+                    Modifier.weight(0.85f),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    ProductionMeControlPanel(app, inventory)
+                    ProductionBoundaryNote(
+                        "地区、号码、邮箱专用身份仍受 Canonical 能力门控制；当前不会用名称、号码格式、币种或 Provider 猜测。"
+                    )
+                }
+            }
+        }
+
         ProductionBoundaryNote(
-            "这里展示的对象、关系、计划与记录来自当前已确认数据；演示生命周期字段不会混入正式数据。"
+            "这里展示的对象、关系、计划、发现与记录来自当前正式数据链；Preview 生命周期和地区 fixture 不会混入 Production Reality。"
         )
-        ProductionBoundaryNote(
-            "号码 / 邮箱类型完成底层确认前仍按通用身份对象处理，不会根据名称或号码格式猜测。"
-        )
-        ProductionSection("个人控制面")
-        if (inventory.pendingReviewCount > 0) {
-            ProductionFactCard(
+    }
+}
+
+@Composable
+private fun ProductionMeContinuityPanel(
+    app: VAppState,
+    activePlans: Int,
+    pendingReview: Int,
+    pendingVerification: Int,
+    findingCount: Int?,
+    supportedFindingTypes: Int?,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("pdig.production-vnext.me.continuity"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            ProductionSection("连续性工作")
+            ProductionMeLine(
+                value = activePlans.toString(),
+                title = "进行中的变更",
+                detail = if (activePlans == 0) "当前没有已记录进行中计划" else "查看正式 ChangePlan",
+                onClick = { app.navigate(VScreen.CHANGE) },
+            )
+            ProductionMeLine(
+                value = pendingReview.toString(),
                 title = "待复核",
-                subtitle = "${inventory.pendingReviewCount} 项等待人工决定",
-                meta = "建议 / 候选 / 可能变化不会自动进入已确认数据",
+                detail = if (pendingReview == 0) "当前没有待人工决定项" else "Proposal / Candidate / Drift 等待决定",
                 onClick = { app.navigate(VScreen.REVIEW) },
             )
+            ProductionMeLine(
+                value = pendingVerification.toString(),
+                title = "待验证 / 验证失败",
+                detail = "完成不等于验证",
+                onClick = { app.navigate(VScreen.RECORDS) },
+            )
+            ProductionMeLine(
+                value = findingCount?.toString() ?: "—",
+                title = "连续性发现",
+                detail = if (findingCount == null)
+                    "权威 Finding 当前不可读取"
+                else "${supportedFindingTypes ?: 0} 类权威输入 · 不产生健康分",
+                onClick = { app.navigate(VScreen.WEAKNESSES) },
+            )
         }
-        ProductionFactCard(
-            title = "数据源",
-            subtitle = "${inventory.activeSourceCount} 个活跃数据源",
-            meta = "查看已记录的数据来源",
-            onClick = { app.navigate(VScreen.SOURCES) },
-        )
-        ProductionFactCard(
-            title = "建立基础设施",
-            subtitle = "手工记录与文件导入 authority",
-            meta = "建立对象不自动确认关系",
-            onClick = { app.navigate(VScreen.IMPORT) },
-        )
-        ProductionFactCard(
-            title = "隐私与偏好",
-            subtitle = if (app.privacyMask) "敏感信息遮蔽：已开启" else "敏感信息遮蔽：已关闭",
-            meta = "本机显示偏好，不修改已确认数据",
-            onClick = { app.navigate(VScreen.SETTINGS) },
-        )
-        ProductionFactCard(
-            title = "搜索",
-            subtitle = "搜索当前已确认对象 / 变更计划 / 数据来源",
-            meta = "未找到不等于外部不存在",
-            onClick = { app.navigate(VScreen.SEARCH) },
-        )
+    }
+}
+
+@Composable
+private fun ProductionMeInfrastructurePanel(
+    app: VAppState,
+    inventory: ProductionConsumerInventory,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("pdig.production-vnext.me.infrastructure"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            ProductionSection("我的基础设施")
+            ProductionMetricRow(
+                listOf(
+                    inventory.counts.paymentAssets to "支付工具",
+                    inventory.counts.genericIdentityAnchors to "身份对象",
+                    inventory.counts.accounts to "账户",
+                ),
+            )
+            ProductionMetricRow(
+                listOf(
+                    inventory.counts.devices to "设备",
+                    inventory.counts.services to "服务",
+                    inventory.counts.memberships + inventory.counts.customObjects to "其他",
+                ),
+            )
+            ProductionFactCard(
+                title = "管理基础设施",
+                subtitle = "进入已确认对象、关系与影响分析",
+                meta = "号码 / 邮箱 subtype 未确认时仍按通用身份对象处理",
+                onClick = { app.navigate(VScreen.INFRASTRUCTURE) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProductionMeControlPanel(
+    app: VAppState,
+    inventory: ProductionConsumerInventory,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("pdig.production-vnext.me.controls"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+            ProductionSection("我的管理")
+            if (inventory.pendingReviewCount > 0) {
+                ProductionFactCard(
+                    title = "待复核",
+                    subtitle = "${inventory.pendingReviewCount} 项等待人工决定",
+                    meta = "确认前不会进入已确认数据",
+                    onClick = { app.navigate(VScreen.REVIEW) },
+                )
+            }
+            ProductionFactCard(
+                title = "数据源",
+                subtitle = "${inventory.activeSourceCount} 个活跃数据源",
+                meta = "查看已记录来源与边界",
+                onClick = { app.navigate(VScreen.SOURCES) },
+            )
+            ProductionFactCard(
+                title = "建立基础设施",
+                subtitle = "手工记录对象 / 关系或导入文件",
+                meta = "所有写入走正式 authority",
+                onClick = { app.navigate(VScreen.IMPORT) },
+            )
+            ProductionFactCard(
+                title = "隐私与偏好",
+                subtitle = if (app.privacyMask) "敏感信息遮蔽：已开启" else "敏感信息遮蔽：已关闭",
+                meta = "本机 Presentation 偏好，不修改 Reality",
+                onClick = { app.navigate(VScreen.SETTINGS) },
+            )
+            ProductionFactCard(
+                title = "搜索",
+                subtitle = "搜索已确认对象 / 计划 / 数据来源",
+                meta = "未找到不等于外部不存在",
+                onClick = { app.navigate(VScreen.SEARCH) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProductionMeLine(
+    value: String,
+    title: String,
+    detail: String,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 62.dp)
+            .clickable(onClick = onClick),
+        color = PdigV2Colors.SurfaceRaised,
+        shape = RoundedCornerShape(VRadius.Md),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(11.dp),
+        ) {
+            Text(
+                value,
+                color = PdigV2Colors.PrimaryText,
+                fontSize = 19.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(title, color = PdigV2Colors.TextPrimary, fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold)
+                Text(detail, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+            }
+            Text("›", color = PdigV2Colors.PrimaryBright, fontSize = 17.sp)
+        }
     }
 }
 
