@@ -157,6 +157,23 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun productionNowShowsAuthoritativeWeaknessesAsAttentionNotHealthScore() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.waitForIdle()
+
+        // The fake source supplies exactly one governed Finding report entry.
+        // The app must not replace it with an inferred health percentage.
+        compose.onNodeWithText("基础设施薄弱点").assertExists()
+        compose.onNodeWithText("1 项权威连续性发现值得关注").assertExists()
+        compose.onNodeWithText("100%", substring = true).assertDoesNotExist()
+    }
+
+    @Test
     fun expandedMeRemainsAFirstClassPrimaryWorkspace() {
         val session = session()
         compose.setContent {
