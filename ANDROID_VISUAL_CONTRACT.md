@@ -4,7 +4,7 @@
 > 每屏：Primary object / Secondary object / Information hierarchy / Required visible states /
 > Forbidden regressions / Reference desktop screen / Android translation rationale。
 > 历史视觉证据：`artifacts/runtime-evidence/2026-10-02-android-ui-vnext-translation/`（phone + tablet）。
-> **R27 是最后一次 Reference 视觉语义扩展；当前分支已到 R29。R29 exact-head runtime/pixel evidence 仍 pending，任何旧截图都不能作为当前 Human Acceptance。**
+> **R27 是最后一次 Reference 视觉语义扩展；当前分支源码继续推进至 R45（Production 地区联动、卡片 Identity Gallery、关系隐私防护）。R45 exact-head runtime/pixel evidence 未完成前，任何旧截图不能作为当前 Human Acceptance。**
 
 ## 00-shell（全局导航）
 
