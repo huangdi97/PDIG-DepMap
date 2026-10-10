@@ -155,6 +155,18 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     ): ManualDependencyCreateResult =
         graphRepo.createManualDependency(request)
 
+    /** Confirm a governed node maintenance fact in encrypted Personal Reality. */
+    fun confirmMaintenanceFact(
+        nodeId: String,
+        request: com.pdig.core.domain.MaintenanceFactWrite,
+    ): MaintenanceWriteResult = graphRepo.confirmMaintenanceFact(nodeId, request)
+
+    /** Confirm a governed node maintenance schedule in encrypted Personal Reality. */
+    fun confirmMaintenanceSchedule(
+        nodeId: String,
+        request: com.pdig.core.domain.MaintenanceScheduleWrite,
+    ): MaintenanceWriteResult = graphRepo.confirmMaintenanceSchedule(nodeId, request)
+
 
     // ------------------------------------------------------------------
     // Impacts（复用 core.impact，UI 不自行推导）
