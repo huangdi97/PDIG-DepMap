@@ -45,8 +45,8 @@ internal fun ProductionInventoryCategoryScreen(
     if (surfaceKind == null) {
         ProductionObjectUnavailable(
             when (screen) {
-                VScreen.NUMBERS -> "号码生产绑定等待 identity subtype Canonical"
-                VScreen.EMAILS -> "邮箱生产绑定等待 identity subtype Canonical"
+                VScreen.NUMBERS -> "号码类型尚未完成底层确认，因此暂不把通用身份对象当作手机号"
+                VScreen.EMAILS -> "邮箱类型尚未完成底层确认，因此暂不把通用身份对象当作邮箱"
                 VScreen.WEAKNESSES -> "薄弱点生产绑定等待 authoritative Finding projection"
                 else -> "该分类尚未完成生产映射"
             },
@@ -66,7 +66,7 @@ internal fun ProductionInventoryCategoryScreen(
                 Text(screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
                     fontWeight = FontWeight.Bold)
                 Text(
-                    "只显示当前生产 Reality 可以明确分类的对象。",
+                    "只显示当前已确认数据中能够明确分类的对象。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -76,7 +76,7 @@ internal fun ProductionInventoryCategoryScreen(
         if (objects.isEmpty()) {
             item {
                 ProductionObjectBoundary(
-                    "当前没有该类型的已确认对象。空列表不代表外部世界不存在，只表示 Reality 中没有记录。"
+                    "当前没有该类型的已确认对象。空列表不代表外部不存在，只表示这里尚未记录。"
                 )
             }
         } else {
@@ -102,10 +102,10 @@ internal fun ProductionInventoryCategoryScreen(
         item {
             when (screen) {
                 VScreen.CARDS -> ProductionObjectBoundary(
-                    "卡片生命周期 Reference 字段尚未 Canonical 化；生产列表只展示已确认支付工具身份。"
+                    "年费、账单日、分期等生命周期字段尚未进入正式数据模型；当前只展示已确认的支付工具身份。"
                 )
                 VScreen.DEVICES -> ProductionObjectBoundary(
-                    "设备 factor / recovery 能力尚未 Canonical 化；不会从设备名称推断认证能力。"
+                    "设备的认证/恢复能力尚未进入正式数据模型；不会根据设备名称猜测它具备哪些能力。"
                 )
                 else -> ProductionObjectBoundary(
                     "关系数只是已确认关系数量，不代表独立恢复路径数量，也不产生安全分数。"
@@ -197,7 +197,7 @@ internal fun ProductionGenericObjectDetailScreen(
         if (impact == null) {
             item {
                 ProductionObjectBoundary(
-                    "当前无法读取权威 Impact；不会以关系数量代替 continuity analysis。"
+                    "当前无法读取权威影响分析；不会用关系数量代替连续性判断。"
                 )
             }
         } else {
@@ -247,7 +247,7 @@ internal fun ProductionGenericObjectDetailScreen(
                     "当前 device 详情不会推断 passkey、TOTP、SMS、RecoveryFactor 或 SecretLocator；这些必须来自未来 governed factor semantics。"
                 )
                 else -> ProductionObjectBoundary(
-                    "详情只使用 production Node / Dependency / Impact；Reference fixture 不可达。"
+                    "详情只使用正式数据中的对象、已确认关系和权威影响分析；不会混入演示数据。"
                 )
             }
         }
