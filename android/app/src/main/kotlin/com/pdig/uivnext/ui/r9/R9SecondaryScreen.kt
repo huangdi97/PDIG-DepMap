@@ -152,11 +152,20 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 }
                 if(riskyCards.isEmpty()&&recoveryPhones.isEmpty()&&recoveryEmails.isEmpty()&&devices.isEmpty())
                     R9UnknownEmpty("薄弱点")
-                Surface(
-                    modifier = Modifier.fillMaxWidth().clickable { app.navigate(VScreen.CHANGE_PHONE) },
-                    color = R9.Mist, shape = RoundedCornerShape(14.dp),
-                ) { Text("查看更换手机号的影响分析 →", Modifier.padding(14.dp),
-                        color = R9.Blue, fontSize = 12.sp, fontWeight = FontWeight.SemiBold) }
+                if (!zero && (selectedRegion == null || selectedRegion == "CN")) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().clickable { app.navigate(VScreen.CHANGE_PHONE) },
+                        color = R9.Mist, shape = RoundedCornerShape(14.dp),
+                    ) {
+                        Text(
+                            "查看更换手机号的影响分析 →",
+                            Modifier.padding(14.dp),
+                            color = R9.Blue,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
             else -> {}
         }
