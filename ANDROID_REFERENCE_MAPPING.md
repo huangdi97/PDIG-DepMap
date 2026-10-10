@@ -754,9 +754,12 @@ Reference hierarchy:
 The current runtime creation set is narrower than storage NodeKind. VNext must not
 turn storage support into a ghost consumer capability.
 
-Identity rule:
-- identity_anchor stays generic;
-- no manual Number/Email creation until governed subtype mapping exists.
+Identity rule (R37):
+- valid governed `identity_anchor_profile` + PHONE_NUMBER → Production Number surface;
+- valid governed profile + EMAIL_ADDRESS → Production Email surface;
+- missing / malformed / legacy bare subtype → Generic Identity;
+- manual Number/Email creation is still unavailable until Node + governed profile can be committed atomically;
+- subtype confirmation does not create recovery/authentication relationships.
 
 Forbidden:
 - local Compose save into Reality;
