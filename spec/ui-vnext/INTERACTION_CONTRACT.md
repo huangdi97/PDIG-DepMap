@@ -62,7 +62,7 @@ REGION_SELECTED/DETAIL ──Escape──▶ GLOBAL
 - 一级导航切换 = 全应用状态切换；System Back 仍按真实访问历史返回上一个页面/Tab。
 - 设置 / 个性化 / 数据源以「我」为 hierarchy parent；从这些子页 Header Up → 我。
 - 待复核以「现在」为 hierarchy parent；Header Up → 现在。
-- 建立基础设施以「数据源」为 hierarchy parent；手工记录以「建立基础设施」为 parent。
+- 建立基础设施以「数据源」为 hierarchy parent；手工记录以「建立基础设施」为 parent；手工记录关系以「手工记录」为 parent。
 - Establish / Review / Detail / Studio 都是聚焦子流程，不增加第六个一级 Tab。
 - 手机详情 / Studio / 搜索可临时隐藏 bottom nav 形成聚焦流程，但返回后必须恢复五项一级导航。
 - 卡片网格项 → 卡详情（identity 优先）→（可选）卡定制工作室。
