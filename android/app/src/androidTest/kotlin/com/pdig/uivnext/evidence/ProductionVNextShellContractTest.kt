@@ -243,7 +243,7 @@ class ProductionVNextShellContractTest {
     @Test
     fun privacyMaskHidesGovernedIdentityNamesWithoutRemovingSubtype() {
         val session = session()
-        compose.runOnIdle { session.appState.setPrivacyMask(true) }
+        session.appState.setPrivacyMask(true)
         compose.setContent {
             MaterialTheme(colorScheme = lightColorScheme()) {
                 ProductionVNextShell(session, forcedViewportWidthDp = 390)
