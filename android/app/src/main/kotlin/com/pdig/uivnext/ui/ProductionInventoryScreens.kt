@@ -401,7 +401,10 @@ internal fun ProductionGenericObjectDetailScreen(
             items(related, key = { it.id }) { dep ->
                 val outward = dep.fromId == item.id
                 ProductionRelationCard(
-                    title = if (outward) dep.toName else dep.fromName,
+                    title = productionVisibleRelationPeerName(
+                        snapshot, if (outward) dep.toId else dep.fromId,
+                        if (outward) dep.toName else dep.fromName, app,
+                    ),
                     relation = dep.relation,
                     capability = dep.capability,
                     criticality = dep.criticality,
