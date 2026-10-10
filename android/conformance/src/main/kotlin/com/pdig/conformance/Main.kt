@@ -4,6 +4,9 @@ import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.domain.currentConfirmedRegionFacts
 import com.pdig.core.domain.defaultRegionLensSelection
 import com.pdig.core.domain.governedRegionFacts
+import com.pdig.core.domain.governedMaintenanceProfile
+import com.pdig.core.domain.currentMaintenanceFacts
+import com.pdig.core.domain.currentMaintenanceSchedules
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.json.Json
@@ -148,6 +151,7 @@ private fun compute(category: String, id: String, input: Json): Json = when (cat
     "identity-relations" -> runIdentityRelations(requireObj(input))
     "identity-profile" -> runIdentityProfile(requireObj(input))
     "region-fact" -> runRegionFact(requireObj(input))
+    "maintenance-profile" -> runMaintenanceProfile(requireObj(input))
     else -> throw NotImplementedError("no runner for category $category")
 }
 
@@ -183,6 +187,54 @@ private fun runRegionFact(input: Json.Obj): Json {
             ),
             "currentIds" to Json.Arr(current.map { Json.Str(it.id) }),
             "lens" to Json.Obj(lensFields),
+        ),
+    )
+}
+
+
+private fun runMaintenanceProfile(input: Json.Obj): Json {
+    val kind = NodeKind.fromWire(str(input, "kind"))
+        ?: return Json.Obj(
+            listOf(
+                "facts" to Json.Arr(emptyList()),
+                "currentFactIds" to Json.Arr(emptyList()),
+                "schedules" to Json.Arr(emptyList()),
+                "currentScheduleIds" to Json.Arr(emptyList()),
+            ),
+        )
+    val fieldsJson = str(input, "fieldsJson")
+    val profile = governedMaintenanceProfile(kind, fieldsJson)
+    val currentFacts = currentMaintenanceFacts(kind, fieldsJson)
+    val currentSchedules = currentMaintenanceSchedules(kind, fieldsJson)
+    return Json.Obj(
+        listOf(
+            "facts" to Json.Arr(
+                profile.facts.map { fact ->
+                    Json.Obj(
+                        listOf(
+                            "id" to Json.Str(fact.id),
+                            "kind" to Json.Str(fact.kind.wire),
+                            "valueType" to Json.Str(fact.valueType.wire),
+                            "value" to Json.Str(fact.value),
+                            "state" to Json.Str(fact.state.wire),
+                        ),
+                    )
+                },
+            ),
+            "currentFactIds" to Json.Arr(currentFacts.map { Json.Str(it.id) }),
+            "schedules" to Json.Arr(
+                profile.schedules.map { schedule ->
+                    Json.Obj(
+                        listOf(
+                            "id" to Json.Str(schedule.id),
+                            "kind" to Json.Str(schedule.kind.wire),
+                            "state" to Json.Str(schedule.state.wire),
+                            "cadenceKind" to Json.Str(schedule.cadence.kind.wire),
+                        ),
+                    )
+                },
+            ),
+            "currentScheduleIds" to Json.Arr(currentSchedules.map { Json.Str(it.id) }),
         ),
     )
 }
