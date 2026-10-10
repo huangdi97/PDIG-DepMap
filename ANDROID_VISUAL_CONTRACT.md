@@ -16,6 +16,15 @@
 - **Required states**：`我` 选中态；Settings/Sources 打开时保留「我」父级上下文；详情聚焦流返回 root 后五项恢复。
 - **Forbidden**：把「我」降级为头像-only、overflow、二级工具；手机四项/平板五项的不一致 IA。
 
+## 00b-me（我的数字生活）
+
+- **Primary object**：个人数字生活工作区，不是 Settings 列表。
+- **Secondary object**：连续性工作（进行中变更 / 待复核 / 待验证 / Findings）→ 我的基础设施 → 我的管理。
+- **Production truth**：只显示正式 Reality/Plan/Review/Finding/Source 能证明的数量；通用 identity_anchor 不冒充手机号/邮箱；无 RegionFact 时不显示假“全球分布”。
+- **Phone**：单列、任务优先；**Medium/Expanded**：连续性+基础设施主列 / 管理控制辅列。
+- **Required states**：五级主导航中的「我」选中；无 pending work；有 pending review；Finding authority unavailable；privacy mask on/off。
+- **Forbidden**：把「我」退化成设置菜单；用 Preview 身份对象填充 Production；用 0 伪装 unknown；生成健康分。
+
 
 ## 01-now（现在）
 
@@ -68,6 +77,8 @@
 - **Forbidden**：material / layout / hex / internal preset id；宽屏恢复三栏 Inspector；Preview 被图片选择区遮挡；图片写入 .depmap。
 - **Reference**：Android R10/R19 consumer card-image decision（Desktop old Studio 仅为历史视觉参考，不再控制 Android Card UX）。
 - **Rationale**：COMPACT 填充内容宽；MEDIUM 居中 ≤680dp；EXPANDED 居中 ≤760dp，只增加留白，不增加工程控制。
+
+- **Production translation**：正式卡详情可把换图入口进一步压缩为详情内的小型「卡面外观」区（少量主题 +「从相册更换卡面」），无需再进入大型 Studio；仍复用相同的 app-private 图片导入与 PresentationProfile 边界。
 
 ## 07-numbers（号码）
 
