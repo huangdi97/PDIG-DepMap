@@ -30,6 +30,17 @@ internal data class ProductionGenericIdentityView(
     val confirmedDependencyCount: Int,
 )
 
+internal data class ProductionRegionView(
+    val territoryCode: String,
+    val objectCount: Int,
+    val paymentAssetCount: Int,
+    val phoneIdentityCount: Int,
+    val accountCount: Int,
+    val serviceCount: Int,
+    val otherObjectCount: Int,
+    val memberObjectIds: List<String>,
+)
+
 internal data class ProductionSourceView(
     val id: String,
     val label: String,
@@ -57,6 +68,9 @@ internal data class ProductionConsumerInventory(
     val pendingReviewCount: Int,
     val activeSourceCount: Int,
     val sources: List<ProductionSourceView>,
+    val regions: List<ProductionRegionView> = emptyList(),
+    val regionNeedsReviewObjectCount: Int = 0,
+    val regionUnknownObjectCount: Int = 0,
     val phoneIdentities: List<ProductionIdentityView> = emptyList(),
     val emailIdentities: List<ProductionIdentityView> = emptyList(),
 )
@@ -121,6 +135,32 @@ internal fun buildProductionConsumerInventory(
     fun count(kind: VNextProductionSurfaceKind): Int =
         snapshot.objects.count { it.surfaceKind == kind }
 
+    val regionMembers = snapshot.objects
+        .filter { it.regionLens.status == "selected" && it.regionLens.territoryCode != null }
+        .groupBy { requireNotNull(it.regionLens.territoryCode) }
+
+    val regions = regionMembers.entries
+        .sortedBy { it.key }
+        .map { (territoryCode, members) ->
+            fun memberCount(kind: VNextProductionSurfaceKind): Int =
+                members.count { it.surfaceKind == kind }
+            val typedCount =
+                memberCount(VNextProductionSurfaceKind.PAYMENT_ASSET) +
+                memberCount(VNextProductionSurfaceKind.PHONE_IDENTITY) +
+                memberCount(VNextProductionSurfaceKind.ACCOUNT) +
+                memberCount(VNextProductionSurfaceKind.SERVICE)
+            ProductionRegionView(
+                territoryCode = territoryCode,
+                objectCount = members.size,
+                paymentAssetCount = memberCount(VNextProductionSurfaceKind.PAYMENT_ASSET),
+                phoneIdentityCount = memberCount(VNextProductionSurfaceKind.PHONE_IDENTITY),
+                accountCount = memberCount(VNextProductionSurfaceKind.ACCOUNT),
+                serviceCount = memberCount(VNextProductionSurfaceKind.SERVICE),
+                otherObjectCount = members.size - typedCount,
+                memberObjectIds = members.map { it.id }.sorted(),
+            )
+        }
+
     return ProductionConsumerInventory(
         revision = snapshot.revision,
         counts = ProductionInventoryCounts(
@@ -150,5 +190,10 @@ internal fun buildProductionConsumerInventory(
                 lastIngestedAt = it.lastIngestedAt,
             )
         },
+        regions = regions,
+        regionNeedsReviewObjectCount =
+            snapshot.objects.count { it.regionLens.status == "needs_review" },
+        regionUnknownObjectCount =
+            snapshot.objects.count { it.regionLens.status == "unknown" },
     )
 }
