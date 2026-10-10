@@ -1,8 +1,17 @@
 package com.pdig.app
 
 /**
- * Preview is deliberately a separate, synthetic-data UI evaluation package.
- * Production launch remains lock-gated; the explicit demo extra is retained for instrumentation.
+ * UI vNext launch policy.
+ *
+ * - Preview flavor always opens the synthetic reference candidate.
+ * - Production release must never expose synthetic reference data, even if an
+ *   external caller supplies the historical instrumentation extra.
+ * - Production DEBUG builds may retain the explicit demo extra for local/device
+ *   evidence only.
  */
-internal fun shouldLaunchVNext(flavor: String, explicitDemo: Boolean): Boolean =
-    flavor == "preview" || explicitDemo
+internal fun shouldLaunchVNext(
+    flavor: String,
+    explicitDemo: Boolean,
+    debugBuild: Boolean,
+): Boolean =
+    flavor == "preview" || (explicitDemo && debugBuild)
