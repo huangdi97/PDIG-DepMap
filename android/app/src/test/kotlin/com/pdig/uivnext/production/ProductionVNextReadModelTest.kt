@@ -135,6 +135,13 @@ class ProductionVNextReadModelTest {
         assertEquals(1, snapshot.pendingReview.driftCount)
         assertEquals(2, snapshot.sourceCoverage.sourceCount)
         assertEquals(1, snapshot.sourceCoverage.activeSourceCount)
+        assertEquals(2, snapshot.sources.size)
+        assertEquals("账单", snapshot.sources.first { it.id == "src-1" }.label)
+        assertEquals("2026-10-01T00:00:00Z", snapshot.sources.first { it.id == "src-1" }.lastIngestedAt)
+        assertEquals(null, snapshot.sources.first { it.id == "src-2" }.lastIngestedAt)
+
+        // No generic "stale after N days" verdict is invented here; the adapter
+        // carries source facts and leaves freshness policy to governed semantics.
 
         // Pending proposals are counted as pending review, never promoted into Reality edges.
         assertFalse(snapshot.confirmedDependencies.any { it.toId == "svc-proposed" })
