@@ -159,7 +159,7 @@ internal fun ProductionGenericObjectDetailScreen(
                 Text(item.name, color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
                     fontWeight = FontWeight.Bold)
                 Text(
-                    item.kind,
+                    productionObjectKindLabel(item.kind),
                     color = PdigV2Colors.TextMuted,
                     fontSize = 10.sp,
                 )
@@ -273,7 +273,7 @@ private fun ProductionObjectRow(
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(item.name, color = PdigV2Colors.TextPrimary, fontSize = 13.sp,
                     fontWeight = FontWeight.Bold)
-                Text(item.kind, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Text(productionObjectKindLabel(item.kind), color = PdigV2Colors.TextMuted, fontSize = 9.sp)
             }
             Text(
                 "$dependencyCount 关系",
@@ -302,12 +302,12 @@ private fun ProductionRelationCard(
             Text(title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
                 fontWeight = FontWeight.SemiBold)
             Text(
-                "$direction · $relation · $capability",
+                "$direction · ${productionRelationLabel(relation)} · ${productionCapabilityLabel(capability)}",
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 10.sp,
             )
             Text(
-                "criticality=$criticality",
+                productionCriticalityLabel(criticality),
                 color = PdigV2Colors.TextMuted,
                 fontSize = 9.sp,
             )
