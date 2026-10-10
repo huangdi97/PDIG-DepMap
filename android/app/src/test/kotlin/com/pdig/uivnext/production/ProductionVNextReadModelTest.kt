@@ -160,6 +160,77 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun governedIdentityProfileActivatesOnlyItsConfirmedProductionSurface() {
+        val snapshot = buildProductionSnapshot(
+            revision = 11,
+            nodes = listOf(
+                NodeRow(
+                    id = "phone-1",
+                    kind = "identity_anchor",
+                    name = "+86 138****8823",
+                    archived = false,
+                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T00:00:00Z","evidence_refs":["ev-phone"]}}""",
+                ),
+                NodeRow(
+                    id = "email-1",
+                    kind = "identity_anchor",
+                    name = "m***@example.com",
+                    archived = false,
+                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"email_address","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-10T01:00:00Z","evidence_refs":[]}}""",
+                ),
+                NodeRow(
+                    id = "bare-legacy",
+                    kind = "identity_anchor",
+                    name = "+1 415 ...",
+                    archived = false,
+                    fieldsJson = """{"subtype":"phone_number"}""",
+                ),
+                NodeRow(
+                    id = "invalid-profile",
+                    kind = "identity_anchor",
+                    name = "looks-like-email@example.com",
+                    archived = false,
+                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"sms","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T00:00:00Z"}}""",
+                ),
+            ),
+            dependencies = emptyList(),
+            timeline = emptyList(),
+            plans = emptyList(),
+            proposals = emptyList(),
+            candidates = emptyList(),
+            drifts = emptyList(),
+            sources = emptyList(),
+        )
+
+        assertEquals(
+            VNextProductionSurfaceKind.PHONE_IDENTITY,
+            snapshot.objects.first { it.id == "phone-1" }.surfaceKind,
+        )
+        assertEquals("phone_number", snapshot.objects.first { it.id == "phone-1" }.identitySubtype)
+        assertEquals(
+            "user_confirmed",
+            snapshot.objects.first { it.id == "phone-1" }.identityVerificationBasisType,
+        )
+        assertEquals(
+            listOf("ev-phone"),
+            snapshot.objects.first { it.id == "phone-1" }.identityEvidenceRefs,
+        )
+
+        assertEquals(
+            VNextProductionSurfaceKind.EMAIL_IDENTITY,
+            snapshot.objects.first { it.id == "email-1" }.surfaceKind,
+        )
+        assertEquals(
+            VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+            snapshot.objects.first { it.id == "bare-legacy" }.surfaceKind,
+        )
+        assertEquals(
+            VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+            snapshot.objects.first { it.id == "invalid-profile" }.surfaceKind,
+        )
+    }
+
+    @Test
     fun consumerInventoryKeepsGenericIdentitySeparateFromPhoneSurface() {
         val snapshot = VNextProductionSnapshot(
             revision = 9,
@@ -200,6 +271,8 @@ class ProductionVNextReadModelTest {
         val projected = buildProductionConsumerInventory(snapshot)
 
         assertEquals(1, projected.counts.paymentAssets)
+        assertEquals(0, projected.counts.phoneIdentities)
+        assertEquals(0, projected.counts.emailIdentities)
         assertEquals(1, projected.counts.genericIdentityAnchors)
         assertEquals("示例银行", projected.paymentAssets.single().issuer)
         assertEquals("8823", projected.paymentAssets.single().last4)
@@ -207,6 +280,56 @@ class ProductionVNextReadModelTest {
         assertEquals("identity-1", projected.genericIdentityAnchors.single().id)
         assertEquals(6, projected.pendingReviewCount)
         assertEquals(1, projected.activeSourceCount)
+    }
+
+    @Test
+    fun consumerInventorySeparatesConfirmedPhoneEmailFromGenericIdentity() {
+        val snapshot = VNextProductionSnapshot(
+            revision = 12,
+            objects = listOf(
+                VNextProductionObject(
+                    id = "phone-1",
+                    kind = "identity_anchor",
+                    name = "主号",
+                    surfaceKind = VNextProductionSurfaceKind.PHONE_IDENTITY,
+                    identitySubtype = "phone_number",
+                    identityVerificationBasisType = "user_confirmed",
+                    identityConfirmedAt = "2026-10-10T00:00:00Z",
+                    identityEvidenceRefs = listOf("ev-1"),
+                ),
+                VNextProductionObject(
+                    id = "email-1",
+                    kind = "identity_anchor",
+                    name = "恢复邮箱",
+                    surfaceKind = VNextProductionSurfaceKind.EMAIL_IDENTITY,
+                    identitySubtype = "email_address",
+                    identityVerificationBasisType = "authoritative_source",
+                    identityConfirmedAt = "2026-10-10T01:00:00Z",
+                ),
+                VNextProductionObject(
+                    id = "identity-generic",
+                    kind = "identity_anchor",
+                    name = "未分类身份",
+                    surfaceKind = VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+                ),
+            ),
+            confirmedDependencies = emptyList(),
+            timeline = emptyList(),
+            plans = emptyList(),
+            pendingReview = VNextPendingReviewSummary(0, 0, 0),
+            sourceCoverage = VNextSourceCoverageSummary(0, 0),
+        )
+
+        val projected = buildProductionConsumerInventory(snapshot)
+
+        assertEquals(1, projected.counts.phoneIdentities)
+        assertEquals(1, projected.counts.emailIdentities)
+        assertEquals(1, projected.counts.genericIdentityAnchors)
+        assertEquals("phone-1", projected.phoneIdentities.single().id)
+        assertEquals("user_confirmed", projected.phoneIdentities.single().verificationBasisType)
+        assertEquals(1, projected.phoneIdentities.single().evidenceRefCount)
+        assertEquals("email-1", projected.emailIdentities.single().id)
+        assertEquals("identity-generic", projected.genericIdentityAnchors.single().id)
     }
 
     @Test
