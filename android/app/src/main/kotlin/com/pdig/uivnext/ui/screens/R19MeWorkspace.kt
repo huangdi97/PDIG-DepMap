@@ -371,6 +371,8 @@ internal fun R19AdaptiveMeScreen(
                     }
                     MeActionRow("号码与名称", "自定义号码称呼") { app.navigate(VScreen.NUMBERS) }
                     MeActionRow("卡面图片", "在卡片详情中更换") { app.navigate(VScreen.CARDS) }
+                    MeActionRow("建立基础设施", "导入文件或手工记录新的对象") { app.navigate(VScreen.IMPORT) }
+                    MeActionRow("待复核", "确认关系建议、对象候选与现实漂移") { app.navigate(VScreen.REVIEW) }
                     MeActionRow("数据源与记录范围", "查看来源与未知边界") { app.navigate(VScreen.SOURCES) }
                     MeActionRow("偏好设置", "隐私、显示、减弱动态效果") { app.navigate(VScreen.SETTINGS) }
                     if (onHelp != null) {
