@@ -13,6 +13,7 @@ public enum CanonicalSpec {
     public static let graphPayloadVersion = 3
     public static let runtimeCreatableNodeKinds: Set<String> = ["payment_instrument", "account", "service"]
     public static let runtimeCreatableIdentityAnchorSubtypes: Set<String> = ["phone_number", "email_address"]
+    public static let iso3166Alpha2TerritoryCodes: Set<String> = ["AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"]
 }
 
 public enum NodeKind: String, CaseIterable, Sendable, Equatable {
@@ -31,6 +32,24 @@ public enum IdentityAnchorSubtype: String, CaseIterable, Sendable, Equatable {
     case phoneNumber = "phone_number"
     case emailAddress = "email_address"
     case otherIdentity = "other_identity"
+
+    public var wire: String { rawValue }
+}
+
+public enum RegionFacet: String, CaseIterable, Sendable, Equatable {
+    case issuanceJurisdiction = "issuance_jurisdiction"
+    case numberingTerritory = "numbering_territory"
+    case providerJurisdiction = "provider_jurisdiction"
+    case serviceMarket = "service_market"
+    case physicalLocation = "physical_location"
+    case userConfirmedContext = "user_confirmed_context"
+
+    public var wire: String { rawValue }
+}
+
+public enum RegionFactState: String, CaseIterable, Sendable, Equatable {
+    case confirmed = "confirmed"
+    case retired = "retired"
 
     public var wire: String { rawValue }
 }
