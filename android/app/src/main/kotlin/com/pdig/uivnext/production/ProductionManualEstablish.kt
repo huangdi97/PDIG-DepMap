@@ -1,8 +1,11 @@
 package com.pdig.uivnext.production
 
 import com.pdig.app.data.AppContainer
+import com.pdig.app.data.ManualIdentityAnchorCreateRequest
 import com.pdig.app.data.ManualNodeCreateRequest
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.generated.CanonicalSpec
+import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 
 /**
@@ -19,6 +22,12 @@ internal data class ManualEstablishInput(
     val last4: String? = null,
 )
 
+internal data class ManualIdentityEstablishInput(
+    val subtype: IdentityAnchorSubtype,
+    val name: String,
+    val identifierValue: String,
+)
+
 internal data class ManualEstablishResultView(
     val objectId: String,
     val kind: String,
@@ -26,6 +35,8 @@ internal data class ManualEstablishResultView(
     val graphRevision: Int,
     val issuer: String?,
     val last4: String?,
+    val identitySubtype: String? = null,
+    val identityIdentifierValue: String? = null,
 )
 
 internal fun supportedManualEstablishKinds(): Set<String> =
@@ -57,6 +68,47 @@ internal class AppContainerVNextManualEstablishGateway(
             graphRevision = result.graphRevision,
             issuer = result.node.issuer,
             last4 = result.node.last4,
+        )
+    }
+
+    fun createIdentity(input: ManualIdentityEstablishInput): ManualEstablishResultView {
+        require(
+            input.subtype == IdentityAnchorSubtype.PHONE_NUMBER ||
+                input.subtype == IdentityAnchorSubtype.EMAIL_ADDRESS
+        ) {
+            "Production manual identity establish supports phone/email only"
+        }
+
+        val result = app.createManualIdentityAnchor(
+            ManualIdentityAnchorCreateRequest(
+                subtype = input.subtype,
+                name = input.name,
+                identifierValue = input.identifierValue,
+            ),
+        )
+        val profile = confirmedIdentityAnchorProfile(
+            NodeKind.IDENTITY_ANCHOR,
+            result.node.fieldsJson,
+        )
+        requireNotNull(profile) {
+            "Governed identity profile missing after authoritative create"
+        }
+        require(profile.subtype == input.subtype) {
+            "Identity subtype drifted during authoritative create"
+        }
+        val identifier = requireNotNull(profile.identifier) {
+            "Confirmed identifier missing after authoritative create"
+        }
+
+        return ManualEstablishResultView(
+            objectId = result.node.id,
+            kind = result.node.kind,
+            name = result.node.name,
+            graphRevision = result.graphRevision,
+            issuer = null,
+            last4 = null,
+            identitySubtype = profile.subtype.wire,
+            identityIdentifierValue = identifier.value,
         )
     }
 }
