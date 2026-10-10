@@ -1,11 +1,11 @@
 # PDIG Manual Relationship UX Contract
 
-> Status: **DESIGN_FROZEN / R25**
+> Status: **DESIGN_FROZEN / R31 AUTHORITY UPDATE**
 >
 > Scope: explicit human recording of a relation between confirmed Reality objects.
 >
-> The current production VNext cutover does not yet expose a manual Dependency
-> creation authority, so Preview remains read-only.
+> Preview remains read-only. Production VNext now exposes an authoritative manual
+> Dependency path for the **current Canonical v3 runtime relation registry only**.
 
 ## 1. Product role
 
@@ -178,28 +178,45 @@ Required message:
 
 This is an authority gate, not an incomplete form.
 
-## 9. Production authority prerequisites
+## 9. Production authority — R31
 
-Before a production gateway is enabled, Native clients must first adopt the shared
-Schema v4 DDL/check widening already present in the TS reference. Partial exposure
-of only the old v3 SQL CHECK vocabulary is forbidden because the R25 product
-contract presents the current runtime relation registry as one governed set.
+R31 supersedes the earlier “wait for Native Schema v4 before any manual relationship”
+assumption.
 
-After Schema v4 parity, the production gateway must:
-1. validate From/To exist and are active;
-2. validate relation/capability pair via canonical registry;
-3. set origin=manual;
-4. default criticality=unknown unless user explicitly confirms required;
-5. insert the Dependency in an authoritative transaction;
-6. bump graphRevision in the same transaction;
-7. return the re-read dependency / graph revision;
-8. trigger normal impact/readiness invalidation by revision, not local UI state.
+Current Canonical v3 already governs the complete current runtime registry:
 
-Do not implement this as:
-- direct SQL in Compose;
-- a fake Proposal acceptance;
-- PresentationProfile metadata;
-- a sidecar Android-only graph.
+~~~text
+funding_source
+merchant_agreement
+recovers
+authenticates
+controls
+~~~
+
+The Production gateway is therefore enabled for exactly that set.
+
+It must:
+1. pick From/To from confirmed, non-archived Reality Nodes;
+2. derive Relation + Capability from `RelationDefinitionRegistry`;
+3. validate endpoint kinds and relation/capability via `validateRelationUse`;
+4. set `origin=manual`;
+5. default `criticality=unknown`; only an explicit human choice may set `required`;
+6. insert/reactivate/reconfirm the logical Dependency in one authoritative transaction;
+7. bump `graphRevision` exactly once for that confirmation;
+8. preserve the existing logical row instead of creating duplicates;
+9. return the re-read Dependency and graph revision.
+
+Still forbidden:
+
+~~~text
+verifies
+bound_to
+~~~
+
+Those are storage-known/future relations and are not in the runtime registry.
+
+Preview still exposes **no** production mutation button. The executable form exists
+only in the production-bound tree.
 
 ## 10. Independent path boundary
 
@@ -263,7 +280,8 @@ Future production:
 ~~~text
 MANUAL_RELATIONSHIP_UX = DESIGN_FROZEN
 MANUAL_RELATIONSHIP_PREVIEW = SOURCE_IMPLEMENTED_READ_ONLY
-PRODUCTION_MANUAL_DEPENDENCY_AUTHORITY = REQUIRES_NATIVE_SCHEMA_V4
-PARTIAL_V3_RELATION_GATEWAY = FORBIDDEN
+PRODUCTION_MANUAL_DEPENDENCY_AUTHORITY = AVAILABLE_CURRENT_V3_RUNTIME_SET
+STORAGE_ONLY_RELATIONS = HOLD
+AD_HOC_RELATION_WIDENING = FORBIDDEN
 NO_DEGREE_COUNT_INDEPENDENCE = REQUIRED
 ~~~
