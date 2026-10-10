@@ -149,6 +149,7 @@ function emitKotlin() {
   L.push(`    public const val APP_SCHEMA_VERSION: Int = ${spec.appSchemaVersion}`)
   L.push(`    public const val GRAPH_PAYLOAD_KIND: String = ${dq(spec.graphPayload.kind)}`)
   L.push(`    public const val GRAPH_PAYLOAD_VERSION: Int = ${spec.graphPayload.version}`)
+  L.push(`    public val RUNTIME_CREATABLE_NODE_KINDS: Set<String> = setOf(${spec.constants.runtimeCreatableNodeKinds.map(dq).join(', ')})`)
   L.push('}')
   L.push('')
 
@@ -224,6 +225,7 @@ function emitSwift() {
   L.push(`    public static let appSchemaVersion = ${spec.appSchemaVersion}`)
   L.push(`    public static let graphPayloadKind = ${dq(spec.graphPayload.kind)}`)
   L.push(`    public static let graphPayloadVersion = ${spec.graphPayload.version}`)
+  L.push(`    public static let runtimeCreatableNodeKinds: Set<String> = [${spec.constants.runtimeCreatableNodeKinds.map(dq).join(', ')}]`)
   L.push('}')
   L.push('')
 
@@ -338,6 +340,7 @@ function emitArkTS() {
   L.push(`  static readonly APP_SCHEMA_VERSION: number = ${spec.appSchemaVersion}`)
   L.push(`  static readonly GRAPH_PAYLOAD_KIND: string = ${quote(spec.graphPayload.kind)}`)
   L.push(`  static readonly GRAPH_PAYLOAD_VERSION: number = ${spec.graphPayload.version}`)
+  L.push(`  static readonly RUNTIME_CREATABLE_NODE_KINDS: string[] = [${spec.constants.runtimeCreatableNodeKinds.map(quote).join(', ')}]`)
   L.push('}')
   L.push('')
 
