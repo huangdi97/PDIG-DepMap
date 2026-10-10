@@ -12,7 +12,7 @@
     "baseline": "Test Files 43 passed, Tests 453 passed"
   },
   "counts": {
-    "cases": 128,
+    "cases": 133,
     "byCategory": {
       "impact": 13,
       "readiness": 16,
@@ -32,7 +32,8 @@
       "make-before-break": 3,
       "temporal-change": 4,
       "provider-policy": 4,
-      "identity-relations": 6
+      "identity-relations": 6,
+      "identity-profile": 5
     }
   },
   "importFixtures": {
@@ -965,6 +966,41 @@
       "path": "fixtures/identity-relations/rel-verifies-still-not-runtime.json",
       "sha256": "2584d0d5991b225f358f08366a82184a60fbe0313981bf3c9b5168c916d2f706",
       "description": "verifies 仍不进入 runtime registry（v0.3.0 保持）"
+    },
+    {
+      "id": "identity-profile-confirmed-phone",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-confirmed-phone.json",
+      "sha256": "5e76631595ceb27d139474fb631f34f8b6ba9c84bcecab4ce5f12d53ca65feca",
+      "description": "governed profile + user_confirmed → confirmed PHONE_NUMBER"
+    },
+    {
+      "id": "identity-profile-confirmed-email-authoritative",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-confirmed-email-authoritative.json",
+      "sha256": "34c658e3c5c7792a8a04e925a1313666c028e7f79b06eef553d8675c2d2a646e",
+      "description": "governed profile + authoritative_source → confirmed EMAIL_ADDRESS"
+    },
+    {
+      "id": "identity-profile-bare-subtype-rejected",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-bare-subtype-rejected.json",
+      "sha256": "e9c2370fd5fc55d86b7a14a13bfca9f05eb68b4035c7e2d9ed5c3484f3e334ad",
+      "description": "bare fields_json.subtype is never confirmation authority"
+    },
+    {
+      "id": "identity-profile-invalid-subtype-rejected",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-invalid-subtype-rejected.json",
+      "sha256": "070817a0abacfa5a0a0e1c9ad8776cc0534fca19c8dfb9240a29f7d595cf5153",
+      "description": "unknown subtype fails closed to generic identity"
+    },
+    {
+      "id": "identity-profile-nonidentity-rejected",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-nonidentity-rejected.json",
+      "sha256": "017c9a3ffc537d6a4917b009c48fa26e3dbc2a910dbfbbe2a6ab823c1efe50e0",
+      "description": "profile on non-identity node is rejected"
     }
   ]
 }
