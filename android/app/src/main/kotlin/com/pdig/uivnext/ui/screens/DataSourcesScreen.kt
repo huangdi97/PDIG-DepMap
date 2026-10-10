@@ -109,6 +109,12 @@ fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         BoundaryRow("未知", "没有记录的信息不会被推断为安全、存在或不存在。")
         BoundaryRow("外观", "卡面与号码面的个性化只改变显示，不改变事实。")
 
+        SectionHeader("建立与发现")
+        JumpRow(
+            "建立基础设施",
+            "本机导入并确认要记录的对象；关系仍需后续人工复核",
+        ) { app.navigate(VScreen.IMPORT) }
+
         SectionHeader("人工确认")
         JumpRow(
             "待复核",
