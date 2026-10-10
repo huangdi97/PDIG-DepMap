@@ -740,6 +740,27 @@ def main():
     capture("10-data-sources")
     require_screen("10-data-sources", "当前预览工作区", "演示数据", "未知")
 
+    # R22: Observation/Proposal/Candidate/Drift requires a real Human Review
+    # workspace, but Preview must remain read-only and cannot mutate Reality.
+    if not tap_retry("待复核", exact=True):
+        raise RuntimeError("R22 Human Review entry is unreachable from Data Sources")
+    capture("10a-human-review")
+    require_screen(
+        "10a-human-review",
+        "发现 ≠ 事实",
+        "关系建议",
+        "对象候选",
+        "现实漂移",
+        "Preview 不执行",
+    )
+    review_text = json.loads((ROOT / "10a-human-review.json").read_text(encoding="utf-8"))["uiText"]
+    if any("已确认现实" in row or "自动确认" in row for row in review_text):
+        raise RuntimeError("R22 Human Review copy crossed the confirmation authority boundary")
+    if not tap_retry("返回上一级", exact=True):
+        raise RuntimeError("R22 Human Review did not expose hierarchical Up")
+    capture("10b-review-up-now")
+    require_screen("10b-review-up-now", "你的全球数字基础设施")
+
     # Include real runtime frame-time evidence even when device image comparisons
     # have already passed. A static circle with rotating lines is not accepted.
     perf = adb("logcat", "-d", "-s", "PdigGlobePerf:I", "*:S", check=False)
