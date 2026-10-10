@@ -253,6 +253,100 @@ class MaintenanceProfileTest {
     }
 
     @Test
+    fun intervalOccurrenceBecomesOverdueButNeverCompletedByTime() {
+        val schedule = ConfirmedMaintenanceSchedule(
+            id = "keep",
+            kind = MaintenanceScheduleKind.NUMBER_KEEP_ALIVE,
+            state = MaintenanceScheduleState.ACTIVE,
+            cadence = ConfirmedMaintenanceCadence(
+                kind = MaintenanceCadenceKind.INTERVAL_DAYS,
+                intervalDays = 90,
+                anchorDate = "2026-08-07",
+            ),
+            verificationBasisType = com.pdig.core.generated.VerificationBasisType.USER_CONFIRMED,
+            confirmedAt = "t",
+            evidenceRefs = emptyList(),
+            lastCompletedAt = "2026-08-07T00:00:00Z",
+            retiredAt = null,
+        )
+
+        val occurrence = requireNotNull(nextMaintenanceOccurrence(schedule, "2026-11-10"))
+        assertEquals("2026-11-05", occurrence.dueDate)
+        assertEquals(MaintenanceOccurrenceStatus.OVERDUE, occurrence.status)
+        assertTrue(occurrence.explanation.contains("保号"))
+        assertEquals("2026-08-07T00:00:00Z", schedule.lastCompletedAt)
+    }
+
+    @Test
+    fun monthlyOverflowPoliciesAreExplicit() {
+        fun schedule(policy: com.pdig.core.generated.MaintenanceOverflowPolicy) =
+            ConfirmedMaintenanceSchedule(
+                id = "bill-" + policy.wire,
+                kind = MaintenanceScheduleKind.CARD_BILLING_CHECKPOINT,
+                state = MaintenanceScheduleState.ACTIVE,
+                cadence = ConfirmedMaintenanceCadence(
+                    kind = MaintenanceCadenceKind.MONTHLY_DAY,
+                    dayOfMonth = 31,
+                    overflowPolicy = policy,
+                ),
+                verificationBasisType = com.pdig.core.generated.VerificationBasisType.USER_CONFIRMED,
+                confirmedAt = "t",
+                evidenceRefs = emptyList(),
+                lastCompletedAt = null,
+                retiredAt = null,
+            )
+
+        val clamp = requireNotNull(
+            nextMaintenanceOccurrence(
+                schedule(com.pdig.core.generated.MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY),
+                "2026-02-10",
+            ),
+        )
+        assertEquals("2026-02-28", clamp.dueDate)
+        assertEquals(MaintenanceOccurrenceStatus.UPCOMING, clamp.status)
+
+        val skip = requireNotNull(
+            nextMaintenanceOccurrence(
+                schedule(com.pdig.core.generated.MaintenanceOverflowPolicy.SKIP_OCCURRENCE),
+                "2026-02-10",
+            ),
+        )
+        assertEquals("2026-03-31", skip.dueDate)
+
+        val review = requireNotNull(
+            nextMaintenanceOccurrence(
+                schedule(com.pdig.core.generated.MaintenanceOverflowPolicy.USER_CONFIRM),
+                "2026-02-10",
+            ),
+        )
+        assertEquals(null, review.dueDate)
+        assertEquals(MaintenanceOccurrenceStatus.NEEDS_REVIEW, review.status)
+    }
+
+    @Test
+    fun pausedAndManualOnlySchedulesDoNotInventTimelineOccurrences() {
+        val paused = ConfirmedMaintenanceSchedule(
+            id = "paused",
+            kind = MaintenanceScheduleKind.CUSTOM_MAINTENANCE,
+            state = MaintenanceScheduleState.PAUSED,
+            cadence = ConfirmedMaintenanceCadence(kind = MaintenanceCadenceKind.ONE_TIME, dueAt = "2026-10-10"),
+            verificationBasisType = com.pdig.core.generated.VerificationBasisType.USER_CONFIRMED,
+            confirmedAt = "t",
+            evidenceRefs = emptyList(),
+            lastCompletedAt = null,
+            retiredAt = null,
+        )
+        val manual = paused.copy(
+            id = "manual",
+            state = MaintenanceScheduleState.ACTIVE,
+            cadence = ConfirmedMaintenanceCadence(kind = MaintenanceCadenceKind.MANUAL_ONLY),
+        )
+
+        assertEquals(null, nextMaintenanceOccurrence(paused, "2026-10-10"))
+        assertEquals(null, nextMaintenanceOccurrence(manual, "2026-10-10"))
+    }
+
+    @Test
     fun lookalikeProviderAndReferenceMetadataNeverCreateLifecycle() {
         val fields = """
             {
