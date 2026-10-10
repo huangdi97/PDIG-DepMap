@@ -131,6 +131,18 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     fun commitImport(preview: ImportPreview): ImportCommitResult = sourceRepo.commitImport(preview)
 
     // ------------------------------------------------------------------
+    // Manual Establish（显式用户 Reality mutation；Preview 仍不调用）
+    // ------------------------------------------------------------------
+
+    /**
+     * 手工建立一个 Canonical runtime-creatable Node。
+     *
+     * 仅创建对象，不创建任何 Dependency；Repository 在同一事务内 bump graphRevision。
+     */
+    fun createManualNode(request: ManualNodeCreateRequest): ManualNodeCreateResult =
+        graphRepo.createManualNode(request)
+
+    // ------------------------------------------------------------------
     // Impacts（复用 core.impact，UI 不自行推导）
     // ------------------------------------------------------------------
 
