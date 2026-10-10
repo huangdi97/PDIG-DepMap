@@ -38,6 +38,11 @@ internal interface VNextRuntimeDataSource {
      * Production-only authoritative record trace.
      */
     fun productionRecords(): List<VNextProductionRecordItem>
+
+    /**
+     * Production-only continuity findings with explicit source coverage.
+     */
+    fun productionFindings(): VNextProductionFindingReport?
 }
 
 internal object ReferenceVNextRuntimeDataSource : VNextRuntimeDataSource {
@@ -48,6 +53,7 @@ internal object ReferenceVNextRuntimeDataSource : VNextRuntimeDataSource {
     override fun productionImpact(targetNodeId: String): VNextProductionImpact? = null
     override fun productionPlan(planId: String): VNextProductionPlan? = null
     override fun productionRecords(): List<VNextProductionRecordItem> = emptyList()
+    override fun productionFindings(): VNextProductionFindingReport? = null
 }
 
 internal class ProductionVNextRuntimeDataSource(
@@ -71,4 +77,7 @@ internal class ProductionVNextRuntimeDataSource(
 
     override fun productionRecords(): List<VNextProductionRecordItem> =
         source.records()
+
+    override fun productionFindings(): VNextProductionFindingReport =
+        source.findings()
 }
