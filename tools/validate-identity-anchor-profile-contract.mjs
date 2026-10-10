@@ -35,6 +35,29 @@ if (domainContract.verificationBasisType !== 'VerificationBasisType') {
   fail('identity_anchor_profile must reuse VerificationBasisType')
 }
 
+const identifierContract = domainContract.optionalIdentifier
+if (!identifierContract) fail('identity_anchor_profile optionalIdentifier contract is missing')
+if (identifierContract.storagePath !== 'identity_anchor_profile.identifier') {
+  fail('Unexpected identifier storage path')
+}
+if (
+  JSON.stringify(identifierContract.appliesToSubtypes) !==
+  JSON.stringify(['phone_number', 'email_address'])
+) {
+  fail('identifier must apply only to governed phone/email subtypes')
+}
+for (const field of ['value', 'verification_basis_type', 'confirmed_at']) {
+  if (!(identifierContract.requiredConfirmedFields ?? []).includes(field)) {
+    fail('Missing confirmed identifier field: ' + field)
+  }
+}
+if (identifierContract.verificationBasisType !== 'VerificationBasisType') {
+  fail('identifier must reuse VerificationBasisType')
+}
+if (!String(identifierContract.invalidBehavior ?? '').includes('preserve')) {
+  fail('invalid identifier must fail closed without destroying valid subtype authority')
+}
+
 const requiredConfirmed = domainContract.requiredConfirmedFields ?? []
 for (const field of ['version', 'subtype', 'verification_basis_type', 'confirmed_at']) {
   if (!requiredConfirmed.includes(field)) fail(`Missing confirmed profile field: ${field}`)
@@ -63,6 +86,22 @@ if (v4Contract.storagePath !== 'fields_json.identity_anchor_profile') {
 if (JSON.stringify(v4Contract.subtypeEnum) !== JSON.stringify(expectedSubtype)) {
   fail('logical-schema-v4 subtype enum drifted from domain.json')
 }
+const v4Identifier = v4Contract.optionalConfirmedIdentifier
+if (!v4Identifier) fail('logical-schema-v4 optionalConfirmedIdentifier missing')
+if (v4Identifier.storagePath !== 'fields_json.identity_anchor_profile.identifier') {
+  fail('logical-schema-v4 identifier storage mismatch')
+}
+if (
+  JSON.stringify(v4Identifier.appliesToSubtypes) !==
+  JSON.stringify(['phone_number', 'email_address'])
+) {
+  fail('logical-schema-v4 identifier subtype scope drifted from domain contract')
+}
+for (const field of ['value', 'verification_basis_type', 'confirmed_at']) {
+  if (!(v4Identifier.requiredFields ?? []).includes(field)) {
+    fail('logical-schema-v4 missing identifier field: ' + field)
+  }
+}
 if (!String(v4Contract.legacyBareSubtypePolicy ?? '').includes('MUST NOT')) {
   fail('logical-schema-v4 must explicitly reject bare fields_json.subtype as authority')
 }
@@ -75,9 +114,9 @@ if (!subtypeNote.includes('supersedes') || !subtypeNote.includes('identity_ancho
 // The current physical envelope remains v3; this gate is intentionally semantic.
 // A future version bump may be added by a separate approved release train.
 if (DOMAIN.appSchemaVersion !== 3 || DOMAIN.graphPayload?.version !== 3) {
-  fail('R37 profile registration must not silently activate a schema/payload version bump')
+  fail('R37/R38 profile registration must not silently activate a schema/payload version bump')
 }
 
 console.log(
-  `IDENTITY_ANCHOR_PROFILE_CONTRACT=PASS values=${actualSubtype.join(',')} storage=${v4Contract.storagePath}`,
+  `IDENTITY_ANCHOR_PROFILE_CONTRACT=PASS values=${actualSubtype.join(',')} storage=${v4Contract.storagePath} identifier=${v4Identifier.storagePath}`,
 )
