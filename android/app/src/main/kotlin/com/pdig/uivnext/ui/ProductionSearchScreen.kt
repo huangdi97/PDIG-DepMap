@@ -251,7 +251,6 @@ private fun productionMaintenanceSearchAlias(kind: String): String = when (kind)
 }
 
 @Composable
-@Composable
 private fun ProductionSearchResult(
     hit: ProductionSearchHit,
     onClick: () -> Unit,
