@@ -13,10 +13,12 @@ import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.domain.defaultRegionLensSelection
 import com.pdig.core.domain.governedRegionFacts
 import com.pdig.core.domain.governedMaintenanceProfile
+import com.pdig.core.domain.maintenanceOccurrences
 import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.timeline.TimelineItem
+import java.time.Instant
 
 /**
  * Production-facing VNext seam.
@@ -97,6 +99,14 @@ internal data class VNextProductionMaintenanceSchedule(
     val lastCompletedAt: String?,
 )
 
+internal data class VNextProductionMaintenanceOccurrence(
+    val scheduleId: String,
+    val scheduleKind: String,
+    val dueDate: String?,
+    val status: String,
+    val explanation: String,
+)
+
 internal data class VNextProductionObject(
     val id: String,
     val kind: String,
@@ -118,6 +128,7 @@ internal data class VNextProductionObject(
         VNextProductionRegionLens(status = "unknown", territoryCode = null, facet = null),
     val maintenanceFacts: List<VNextProductionMaintenanceFact> = emptyList(),
     val maintenanceSchedules: List<VNextProductionMaintenanceSchedule> = emptyList(),
+    val maintenanceOccurrences: List<VNextProductionMaintenanceOccurrence> = emptyList(),
 )
 
 internal data class VNextProductionDependency(
@@ -276,18 +287,21 @@ internal data class VNextProductionPlan(
 internal class AppContainerVNextReadModelSource(
     private val app: AppContainer,
 ) : VNextReadModelSource {
-    override fun snapshot(nowIso: String?): VNextProductionSnapshot =
-        buildProductionSnapshot(
+    override fun snapshot(nowIso: String?): VNextProductionSnapshot {
+        val effectiveNow = nowIso ?: Instant.now().toString()
+        return buildProductionSnapshot(
             revision = app.graphRevision(),
             nodes = app.nodes(),
             dependencies = app.dependencies(),
-            timeline = if (nowIso == null) app.timeline() else app.timeline(nowIso),
+            timeline = app.timeline(effectiveNow),
             plans = app.plans(),
             proposals = app.pendingProposals(),
             candidates = app.pendingCandidates(),
             drifts = app.openDrifts(),
             sources = app.sourceInstances(),
+            maintenanceTodayIso = effectiveNow.take(10),
         )
+    }
 
     override fun impact(targetNodeId: String): VNextProductionImpact =
         mapProductionImpact(targetNodeId, app.impactFor(targetNodeId))
@@ -341,6 +355,7 @@ internal fun buildProductionSnapshot(
     candidates: List<CandidateRow>,
     drifts: List<DriftRow>,
     sources: List<SourceRow>,
+    maintenanceTodayIso: String? = null,
 ): VNextProductionSnapshot {
     val objects = nodes
         .filterNot { it.archived }
@@ -420,6 +435,20 @@ internal fun buildProductionSnapshot(
                         lastCompletedAt = schedule.lastCompletedAt,
                     )
                 } ?: emptyList(),
+                maintenanceOccurrences =
+                    if (maintenance != null && maintenanceTodayIso != null) {
+                        maintenanceOccurrences(maintenance, maintenanceTodayIso).map { occurrence ->
+                            VNextProductionMaintenanceOccurrence(
+                                scheduleId = occurrence.scheduleId,
+                                scheduleKind = occurrence.scheduleKind.wire,
+                                dueDate = occurrence.dueDate,
+                                status = occurrence.status.name.lowercase(),
+                                explanation = occurrence.explanation,
+                            )
+                        }
+                    } else {
+                        emptyList()
+                    },
             )
         }
 
@@ -454,7 +483,33 @@ internal fun buildProductionSnapshot(
             actionTarget = it.actionTarget,
             status = it.status,
         )
-    }
+    } + objects.flatMap { obj ->
+        obj.maintenanceOccurrences.map { occurrence ->
+            val (bucket, priority) = when (occurrence.status) {
+                "overdue" -> "overdue" to 95
+                "due" -> "today" to 90
+                "needs_review" -> "attention" to 88
+                else -> "upcoming" to 55
+            }
+            VNextProductionTimelineItem(
+                id = "maintenance:${obj.id}:${occurrence.scheduleId}:${occurrence.dueDate ?: "review"}",
+                kind = occurrence.scheduleKind,
+                title = productionMaintenanceTimelineTitle(obj.name, occurrence.scheduleKind),
+                subtitle = occurrence.explanation,
+                scheduledAt = occurrence.dueDate?.let { "${it}T00:00:00Z" },
+                bucket = bucket,
+                priority = priority,
+                sourceType = "maintenance_schedule",
+                sourceId = occurrence.scheduleId,
+                actionTarget = obj.id,
+                status = occurrence.status,
+            )
+        }
+    }.sortedWith(
+        compareByDescending<VNextProductionTimelineItem> { it.priority }
+            .thenBy { it.scheduledAt ?: "9999-12-31T00:00:00Z" }
+            .thenBy { it.id },
+    )
 
     val planProjection = plans.map {
         VNextProductionPlanSummary(
@@ -492,6 +547,19 @@ internal fun buildProductionSnapshot(
             )
         },
     )
+}
+
+private fun productionMaintenanceTimelineTitle(
+    objectName: String,
+    scheduleKind: String,
+): String = when (scheduleKind) {
+    "card_annual_fee_checkpoint" -> "$objectName · 年费检查"
+    "card_billing_checkpoint" -> "$objectName · 账单节点"
+    "card_payment_due_checkpoint" -> "$objectName · 还款节点"
+    "number_keep_alive" -> "$objectName · 保号"
+    "number_plan_renewal" -> "$objectName · 套餐续费"
+    "fact_freshness_review" -> "$objectName · 资料复核"
+    else -> "$objectName · 维护"
 }
 
 internal fun mapProductionImpact(
