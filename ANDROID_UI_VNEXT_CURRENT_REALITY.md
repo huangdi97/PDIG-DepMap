@@ -256,6 +256,32 @@ Each now has:
 Adaptive Account/Email collections and Search subtitles also respect the workspace
 privacy mask.
 
+## 8.1 Continuity Findings — full v0.3 consumer grammar
+
+R27 closes the remaining visible gap between the v0.3 continuity engine vocabulary
+and the vNext Weaknesses screen.
+
+Preview now has explicit review states for all seven Infrastructure Finding classes:
+
+```text
+single point of failure
+shared failure domain
+recovery cycle
+unconfirmed fallback
+stale recovery information
+unknown critical path
+pending verification
+```
+
+Each card includes what / why / confirmed basis / unknowns / next action.
+
+The reference list is synthetic and intentionally **not** derived by counting
+`UiVNextDemoFixture.relations`. Production must use authoritative continuity
+analysis; path count is never treated as independent-path count.
+
+Weaknesses also keeps expiry/device/migration reminders, but they are presented as
+a separate maintenance/operation layer rather than merged into a fake risk score.
+
 ## 9. Records — evidence / verification trace
 
 R21 replaces the old “second Now” Records presentation.
