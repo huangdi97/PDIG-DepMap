@@ -320,7 +320,11 @@ private fun ProductionCardDetail(
         )
         return
     }
+    val snapshot = session.dataSource.productionSnapshot()
     val impact = session.dataSource.productionImpact(card.id)
+    val related = snapshot?.confirmedDependencies.orEmpty().filter {
+        it.fromId == card.id || it.toId == card.id
+    }
     ProductionPage(modifier, card.name, "支付工具 · 已确认 Reality") {
         ProductionFactCard(
             title = card.issuer ?: "发行方未记录",
@@ -328,18 +332,36 @@ private fun ProductionCardDetail(
             meta = "${card.confirmedDependencyCount} 条已确认关系",
         )
 
+        ProductionSection("已确认关系")
+        if (related.isEmpty()) {
+            ProductionEmpty("当前没有已确认关系；这不表示外部没有关联，只表示 Reality 尚未记录。")
+        } else {
+            related.forEach { dep ->
+                val outward = dep.fromId == card.id
+                ProductionFactCard(
+                    title = if (outward) dep.toName else dep.fromName,
+                    subtitle = listOf(
+                        if (outward) "从此卡指向" else "指向此卡",
+                        productionRelationLabel(dep.relation),
+                        productionCapabilityLabel(dep.capability),
+                    ).joinToString(" · "),
+                    meta = productionCriticalityLabel(dep.criticality),
+                )
+            }
+        }
+
         ProductionSection("如果它发生变化？")
         if (impact == null) {
             ProductionEmpty("当前无法获得权威 Impact；不会以关系数量代替影响分析。")
         } else {
             val grouped = impact.targets.groupingBy { it.status }.eachCount()
             val ordered = listOf(
-                "must_change" to "必须处理",
-                "needs_review" to "需要核对",
-                "degraded" to "能力下降",
-                "backup_path" to "有备用路径",
-                "unaffected" to "当前确认范围未受影响",
-                "unknown" to "未知",
+                "must_change" to productionImpactStatusLabel("must_change"),
+                "needs_review" to productionImpactStatusLabel("needs_review"),
+                "degraded" to productionImpactStatusLabel("degraded"),
+                "backup_path" to productionImpactStatusLabel("backup_path"),
+                "unaffected" to productionImpactStatusLabel("unaffected"),
+                "unknown" to productionImpactStatusLabel("unknown"),
             )
             val facts = ordered.mapNotNull { (status, label) ->
                 grouped[status]?.let { it to label }
