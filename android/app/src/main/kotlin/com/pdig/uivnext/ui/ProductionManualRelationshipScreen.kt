@@ -143,7 +143,7 @@ internal fun ProductionManualRelationshipScreen(
         if (relation != null) {
             item {
                 ManualRelationBoundary(
-                    "能力由关系定义确定：${productionCapabilityLabel(relation.capability)}（${relation.capability}）。UI 不能另选一个不匹配的 capability。"
+                    "能力由关系定义确定：${productionCapabilityLabel(confirmedRelation.capability)}（${relation.capability}）。UI 不能另选一个不匹配的 capability。"
                 )
             }
             item { ManualRelationSection("3 · 指向哪个已确认对象？") }
@@ -167,7 +167,9 @@ internal fun ProductionManualRelationshipScreen(
             }
         }
 
-        if (to != null && relation != null) {
+        val confirmedTo = to
+        val confirmedRelation = relation
+        if (confirmedTo != null && confirmedRelation != null) {
             item { ManualRelationSection("4 · 关键性") }
             item {
                 Row(
@@ -209,12 +211,12 @@ internal fun ProductionManualRelationshipScreen(
                         Text("确认预览", color = PdigV2Colors.TextPrimary,
                             fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Text(
-                            "${from.name} → ${productionRelationLabel(relation.relation)} → ${to.name}",
+                            "${from.name} → ${productionRelationLabel(confirmedRelation.relation)} → ${confirmedTo.name}",
                             color = PdigV2Colors.TextPrimary,
                             fontSize = 11.sp,
                         )
                         Text(
-                            "能力：${productionCapabilityLabel(relation.capability)} · 关键性：${if (required) "已确认必需" else "未知"} · 来源：手工确认",
+                            "能力：${productionCapabilityLabel(confirmedRelation.capability)} · 关键性：${if (required) "已确认必需" else "未知"} · 来源：手工确认",
                             color = PdigV2Colors.TextMuted,
                             fontSize = 9.sp,
                         )
