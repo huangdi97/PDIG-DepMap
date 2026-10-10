@@ -13,6 +13,7 @@ public object CanonicalSpec {
     public const val GRAPH_PAYLOAD_VERSION: Int = 3
     public val RUNTIME_CREATABLE_NODE_KINDS: Set<String> = setOf("payment_instrument", "account", "service")
     public val RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: Set<String> = setOf("phone_number", "email_address")
+    public val ISO_3166_ALPHA2_TERRITORY_CODES: Set<String> = setOf("AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW")
 }
 
 public enum class NodeKind(public val wire: String) {
@@ -38,6 +39,30 @@ public enum class IdentityAnchorSubtype(public val wire: String) {
 
     public companion object {
         public fun fromWire(value: String): IdentityAnchorSubtype? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class RegionFacet(public val wire: String) {
+    ISSUANCE_JURISDICTION("issuance_jurisdiction"),
+    NUMBERING_TERRITORY("numbering_territory"),
+    PROVIDER_JURISDICTION("provider_jurisdiction"),
+    SERVICE_MARKET("service_market"),
+    PHYSICAL_LOCATION("physical_location"),
+    USER_CONFIRMED_CONTEXT("user_confirmed_context")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): RegionFacet? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class RegionFactState(public val wire: String) {
+    CONFIRMED("confirmed"),
+    RETIRED("retired")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): RegionFactState? = entries.firstOrNull { it.wire == value }
     }
 }
 
