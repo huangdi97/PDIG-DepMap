@@ -25,6 +25,7 @@ import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
+import com.pdig.uivnext.ui.components.ProductionPhoneIdentityFace
 import com.pdig.uivnext.ui.components.ProductionPhonePresentationEditor
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
@@ -258,10 +259,44 @@ internal fun ProductionGenericObjectDetailScreen(
 
         if (detailScreen == VScreen.NUMBER_DETAIL) {
             item {
-                ProductionPhonePresentationEditor(
+                val phonePresentation = app.savedPresentationProfile("phoneNumber", item.id)
+                    ?: app.presentationProfile("phoneNumber", item.id, "minimal")
+                ProductionPhoneIdentityFace(
                     item = item,
                     app = app,
+                    profile = phonePresentation,
                 )
+            }
+            item {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { app.openNumberCustomization(item.id) }
+                        .testTag("pdig.production-vnext.phone.presentation-entry"),
+                    color = PdigV2Colors.PrimarySoft,
+                    shape = RoundedCornerShape(VRadius.Md),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Row(
+                        Modifier.padding(horizontal = 13.dp, vertical = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(
+                                "名称与号码外观",
+                                color = PdigV2Colors.PrimaryText,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                "本机 Presentation · 不修改号码 Reality",
+                                color = PdigV2Colors.TextMuted,
+                                fontSize = 9.sp,
+                            )
+                        }
+                        Text("→", color = PdigV2Colors.PrimaryText, fontSize = 14.sp)
+                    }
+                }
             }
             item {
                 Text(
@@ -420,6 +455,58 @@ internal fun ProductionGenericObjectDetailScreen(
                     "详情只使用正式数据中的对象、已确认关系和权威影响分析；不会混入演示数据。"
                 )
             }
+        }
+    }
+}
+
+@Composable
+internal fun ProductionNumberCustomizationScreen(
+    session: ProductionVNextSession,
+    modifier: Modifier = Modifier,
+) {
+    val app = session.appState
+    val objectId = app.selectedNumberId
+    val item = session.dataSource.productionSnapshot()
+        ?.objects
+        ?.firstOrNull {
+            it.id == objectId &&
+                it.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY
+        }
+    if (item == null) {
+        ProductionObjectUnavailable(
+            "没有可定制的已确认手机号身份；不会用 Preview 号码替代。",
+            modifier,
+        )
+        return
+    }
+
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .testTag("pdig.production-vnext.phone.customization"),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(
+                    "号码名称与外观",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    "只编辑本机显示名称、主题、材质、布局和遮蔽；不改变手机号身份或关系。",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
+                )
+            }
+        }
+        item {
+            ProductionPhonePresentationEditor(
+                item = item,
+                app = app,
+            )
         }
     }
 }
