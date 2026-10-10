@@ -9,6 +9,9 @@ import com.pdig.app.data.PlanDetailView
 import com.pdig.app.data.PlanRow
 import com.pdig.app.data.ProposalRow
 import com.pdig.app.data.SourceRow
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
+import com.pdig.core.generated.IdentityAnchorSubtype
+import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.timeline.TimelineItem
 
@@ -35,6 +38,8 @@ internal enum class VNextProjectionTruth {
 
 internal enum class VNextProductionSurfaceKind {
     PAYMENT_ASSET,
+    PHONE_IDENTITY,
+    EMAIL_IDENTITY,
     ACCOUNT,
     SERVICE,
     DEVICE,
@@ -50,6 +55,10 @@ internal data class VNextProductionObject(
     val surfaceKind: VNextProductionSurfaceKind,
     val issuer: String? = null,
     val last4: String? = null,
+    val identitySubtype: String? = null,
+    val identityVerificationBasisType: String? = null,
+    val identityConfirmedAt: String? = null,
+    val identityEvidenceRefs: List<String> = emptyList(),
     val truth: VNextProjectionTruth = VNextProjectionTruth.CONFIRMED,
 )
 
@@ -245,10 +254,23 @@ internal fun productionSurfaceKind(kind: String): VNextProductionSurfaceKind = w
     "service" -> VNextProductionSurfaceKind.SERVICE
     "device" -> VNextProductionSurfaceKind.DEVICE
     "membership" -> VNextProductionSurfaceKind.MEMBERSHIP
-    // Canonical identity_anchor is deliberately NOT treated as a phone number.
-    // A governed subtype/field is required before the phone-number surface may bind.
+    // Kind alone never proves phone/email. This overload intentionally stays generic.
     "identity_anchor" -> VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC
     else -> VNextProductionSurfaceKind.CUSTOM_GENERIC
+}
+
+internal fun productionSurfaceKind(node: NodeRow): VNextProductionSurfaceKind {
+    val kind = NodeKind.fromWire(node.kind) ?: return productionSurfaceKind(node.kind)
+    if (kind != NodeKind.IDENTITY_ANCHOR) return productionSurfaceKind(node.kind)
+
+    val profile = confirmedIdentityAnchorProfile(kind, node.fieldsJson)
+        ?: return VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC
+
+    return when (profile.subtype) {
+        IdentityAnchorSubtype.PHONE_NUMBER -> VNextProductionSurfaceKind.PHONE_IDENTITY
+        IdentityAnchorSubtype.EMAIL_ADDRESS -> VNextProductionSurfaceKind.EMAIL_IDENTITY
+        IdentityAnchorSubtype.OTHER_IDENTITY -> VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC
+    }
 }
 
 internal fun buildProductionSnapshot(
@@ -264,14 +286,23 @@ internal fun buildProductionSnapshot(
 ): VNextProductionSnapshot {
     val objects = nodes
         .filterNot { it.archived }
-        .map {
+        .map { node ->
+            val nodeKind = NodeKind.fromWire(node.kind)
+            val identityProfile = nodeKind
+                ?.takeIf { it == NodeKind.IDENTITY_ANCHOR }
+                ?.let { confirmedIdentityAnchorProfile(it, node.fieldsJson) }
+
             VNextProductionObject(
-                id = it.id,
-                kind = it.kind,
-                name = it.name,
-                surfaceKind = productionSurfaceKind(it.kind),
-                issuer = it.issuer,
-                last4 = it.last4,
+                id = node.id,
+                kind = node.kind,
+                name = node.name,
+                surfaceKind = productionSurfaceKind(node),
+                issuer = node.issuer,
+                last4 = node.last4,
+                identitySubtype = identityProfile?.subtype?.wire,
+                identityVerificationBasisType = identityProfile?.verificationBasisType?.wire,
+                identityConfirmedAt = identityProfile?.confirmedAt,
+                identityEvidenceRefs = identityProfile?.evidenceRefs ?: emptyList(),
             )
         }
 
