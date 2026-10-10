@@ -4,10 +4,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.app.data.AppContainer
 import com.pdig.app.data.ManualDependencyCreateRequest
+import com.pdig.app.data.ManualIdentityAnchorCreateRequest
 import com.pdig.app.data.ManualNodeCreateRequest
 import com.pdig.app.platform.AndroidSqliteDriver
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.generated.Capability
+import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
+import com.pdig.core.generated.VerificationBasisType
 import com.pdig.core.generated.Relation
 import com.pdig.core.schema.migrate
 import org.junit.Assert.assertEquals
@@ -69,6 +73,118 @@ class ManualRealityAuthorityEvidenceTest {
             )
             assertEquals(before + 2, second.graphRevision)
             assertEquals(0, app.dependencies().size)
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun manualPhoneIdentityCreatesNodeProfileAndIdentifierAtomically() {
+        val (app, driver) = tempContainer("r38-manual-phone.db")
+        try {
+            val before = app.graphRevision()
+            val result = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    subtype = IdentityAnchorSubtype.PHONE_NUMBER,
+                    name = "香港主号",
+                    identifierValue = "  +852 6123 4567  ",
+                ),
+            )
+
+            assertEquals(before + 1, result.graphRevision)
+            assertEquals(result.graphRevision, app.graphRevision())
+            assertEquals("identity_anchor", result.node.kind)
+            assertEquals("香港主号", result.node.name)
+            assertTrue(app.dependencies().isEmpty())
+
+            val profile = confirmedIdentityAnchorProfile(
+                NodeKind.IDENTITY_ANCHOR,
+                result.node.fieldsJson,
+            )
+            requireNotNull(profile)
+            assertEquals(IdentityAnchorSubtype.PHONE_NUMBER, profile.subtype)
+            assertEquals(VerificationBasisType.USER_CONFIRMED, profile.verificationBasisType)
+            requireNotNull(profile.identifier)
+            assertEquals("+852 6123 4567", profile.identifier?.value)
+            assertEquals(
+                VerificationBasisType.USER_CONFIRMED,
+                profile.identifier?.verificationBasisType,
+            )
+            assertTrue(profile.identifier?.confirmedAt?.isNotBlank() == true)
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun manualIdentityDoesNotSilentlyMergeSameConfirmedIdentifier() {
+        val (app, driver) = tempContainer("r38-manual-identity-duplicate.db")
+        try {
+            val first = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    IdentityAnchorSubtype.EMAIL_ADDRESS,
+                    "主邮箱",
+                    "user@example.com",
+                ),
+            )
+            val second = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    IdentityAnchorSubtype.EMAIL_ADDRESS,
+                    "备用记录",
+                    "user@example.com",
+                ),
+            )
+
+            assertNotEquals(first.node.id, second.node.id)
+            assertEquals(first.graphRevision + 1, second.graphRevision)
+            assertEquals(2, app.nodes().count { it.kind == "identity_anchor" })
+            assertTrue(app.dependencies().isEmpty())
+        } finally {
+            driver.close()
+        }
+    }
+
+    @Test
+    fun invalidManualIdentityFailsClosedWithoutRevisionMutation() {
+        val (app, driver) = tempContainer("r38-manual-identity-invalid.db")
+        try {
+            val before = app.graphRevision()
+
+            val otherSubtype = runCatching {
+                app.createManualIdentityAnchor(
+                    ManualIdentityAnchorCreateRequest(
+                        IdentityAnchorSubtype.OTHER_IDENTITY,
+                        "不应创建",
+                        "identifier",
+                    ),
+                )
+            }.exceptionOrNull()
+            assertTrue(otherSubtype is IllegalArgumentException)
+
+            val blankIdentifier = runCatching {
+                app.createManualIdentityAnchor(
+                    ManualIdentityAnchorCreateRequest(
+                        IdentityAnchorSubtype.PHONE_NUMBER,
+                        "空号码",
+                        "   ",
+                    ),
+                )
+            }.exceptionOrNull()
+            assertTrue(blankIdentifier is IllegalArgumentException)
+
+            val controlIdentifier = runCatching {
+                app.createManualIdentityAnchor(
+                    ManualIdentityAnchorCreateRequest(
+                        IdentityAnchorSubtype.EMAIL_ADDRESS,
+                        "控制字符",
+                        "a@example.com\u0000",
+                    ),
+                )
+            }.exceptionOrNull()
+            assertTrue(controlIdentifier is IllegalArgumentException)
+
+            assertEquals(before, app.graphRevision())
+            assertTrue(app.nodes().isEmpty())
         } finally {
             driver.close()
         }
