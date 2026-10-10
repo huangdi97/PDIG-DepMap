@@ -109,6 +109,12 @@ fun DataSourcesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         BoundaryRow("未知", "没有记录的信息不会被推断为安全、存在或不存在。")
         BoundaryRow("外观", "卡面与号码面的个性化只改变显示，不改变事实。")
 
+        SectionHeader("人工确认")
+        JumpRow(
+            "待复核",
+            "确认系统发现的关系建议、对象候选与现实漂移",
+        ) { app.navigate(VScreen.REVIEW) }
+
         SectionHeader("快速查看")
         JumpRow("基础设施总览", "查看地区、卡片、号码与当前关注项") { app.navigate(VScreen.OVERVIEW) }
         JumpRow("卡片", "查看当前记录的支付基础设施") { app.navigate(VScreen.CARDS) }
