@@ -26,6 +26,7 @@ enum class VScreen(val route: String, val titleZh: String, val section: VSection
     REVIEW("review", "待复核", VSection.SECONDARY),
     IMPORT("import", "建立基础设施", VSection.SECONDARY),
     MANUAL_ADD("manual-add", "手工记录", VSection.SECONDARY),
+    MANUAL_RELATION("manual-relation", "手工记录关系", VSection.SECONDARY),
     SOURCES("sources", "数据源", VSection.SECONDARY),
     SETTINGS("settings", "设置", VSection.SECONDARY),
     OVERVIEW("overview", "总览", VSection.INFRA),
