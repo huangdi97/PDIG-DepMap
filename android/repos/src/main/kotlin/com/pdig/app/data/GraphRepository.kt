@@ -13,8 +13,12 @@ import com.pdig.core.generated.DependencyOrigin
 import com.pdig.core.generated.DependencyState
 import com.pdig.core.generated.GroupMode
 import com.pdig.core.generated.GroupState
+import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.generated.Relation
+import com.pdig.core.generated.VerificationBasisType
+import com.pdig.core.json.Json
+import com.pdig.core.json.JsonWriter
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.impact.simulateDisable
 import com.pdig.core.serialize.checkGraphIntegrity
@@ -145,6 +149,84 @@ class GraphRepository(
 
         val node = requireNotNull(nodeById(id)) {
             "manual node disappeared after authoritative commit: $id"
+        }
+        return ManualNodeCreateResult(node = node, graphRevision = graphRevision())
+    }
+
+    /**
+     * Atomically create a governed phone/email identity anchor.
+     *
+     * This is intentionally separate from createManualNode(): generic runtime-creatable
+     * kinds stay narrow, while identity creation requires subtype + independently
+     * confirmed identifier Reality in the same transaction as the Node itself.
+     */
+    fun createManualIdentityAnchor(
+        request: ManualIdentityAnchorCreateRequest,
+    ): ManualNodeCreateResult {
+        require(
+            request.subtype == IdentityAnchorSubtype.PHONE_NUMBER ||
+                request.subtype == IdentityAnchorSubtype.EMAIL_ADDRESS
+        ) {
+            "manual identity creation supports only phone_number/email_address"
+        }
+
+        val name = request.name.trim()
+        require(name.isNotEmpty()) { "manual identity name must not be blank" }
+
+        val identifierValue = request.identifierValue.trim()
+        require(identifierValue.isNotEmpty()) {
+            "manual identity identifier value must not be blank"
+        }
+        require(identifierValue.length <= 320) {
+            "manual identity identifier value is too long"
+        }
+        require(identifierValue.none { it.code < 0x20 || it.code == 0x7F }) {
+            "manual identity identifier value contains control characters"
+        }
+
+        val id = UUID.randomUUID().toString()
+        val now = Instant.now().toString()
+        val fieldsJson = JsonWriter.write(
+            Json.Obj(
+                listOf(
+                    "identity_anchor_profile" to Json.Obj(
+                        listOf(
+                            "version" to Json.Num("1"),
+                            "subtype" to Json.Str(request.subtype.wire),
+                            "verification_basis_type" to
+                                Json.Str(VerificationBasisType.USER_CONFIRMED.wire),
+                            "confirmed_at" to Json.Str(now),
+                            "evidence_refs" to Json.Arr(emptyList()),
+                            "identifier" to Json.Obj(
+                                listOf(
+                                    "value" to Json.Str(identifierValue),
+                                    "verification_basis_type" to
+                                        Json.Str(VerificationBasisType.USER_CONFIRMED.wire),
+                                    "confirmed_at" to Json.Str(now),
+                                    "evidence_refs" to Json.Arr(emptyList()),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        driver.transaction {
+            driver.prepare(
+                """
+                INSERT INTO nodes
+                  (id, kind, template_id, name, issuer, last4, owner, archived,
+                   fields_json, vault_ref, wallet_ref, created_at, updated_at)
+                VALUES (?, 'identity_anchor', NULL, ?, NULL, NULL, 'self', 0,
+                        ?, NULL, NULL, ?, ?)
+                """.trimIndent(),
+            ).run(id, name, fieldsJson, now, now)
+            bumpRevision()
+        }
+
+        val node = requireNotNull(nodeById(id)) {
+            "manual identity anchor disappeared after authoritative commit: $id"
         }
         return ManualNodeCreateResult(node = node, graphRevision = graphRevision())
     }
