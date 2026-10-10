@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.pdig.uivnext.model.MediaBreakpoint
+import com.pdig.app.ui.SecureWindow
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ProductionConsumerInventory
 import com.pdig.uivnext.production.ProductionVNextSession
@@ -60,6 +61,10 @@ internal fun ProductionVNextShell(
     forcedViewportWidthDp: Int? = null,
 ) {
     val app = session.appState
+    // Same WindowManager FLAG_SECURE implementation as legacy production.
+    // Only the screen-classification policy differs because VNext does not use
+    // legacy Route strings.
+    SecureWindow(sensitive = productionVNextRequiresSecureWindow(app.screen))
     BackHandler(enabled = app.canGoBack()) { app.back() }
 
     BoxWithConstraints(Modifier.fillMaxSize().testTag("pdig.production-vnext.shell")) {
