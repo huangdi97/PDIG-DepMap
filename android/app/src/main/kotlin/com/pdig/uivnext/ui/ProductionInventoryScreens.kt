@@ -54,7 +54,19 @@ internal fun ProductionInventoryCategoryScreen(
         return
     }
 
-    val objects = snapshot.objects.filter { it.surfaceKind == surfaceKind }
+    val selectedRegion = session.appState.regionFilter
+    val regionMemberIds = selectedRegion?.let { code ->
+        session.dataSource.productionInventory()
+            ?.regions
+            ?.firstOrNull { it.territoryCode == code }
+            ?.memberObjectIds
+            ?.toSet()
+            ?: emptySet()
+    }
+    val objects = snapshot.objects.filter {
+        it.surfaceKind == surfaceKind &&
+            (regionMemberIds == null || it.id in regionMemberIds)
+    }
     LazyColumn(
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.inventory-category"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -65,10 +77,31 @@ internal fun ProductionInventoryCategoryScreen(
                 Text(screen.titleZh, color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
                     fontWeight = FontWeight.Bold)
                 Text(
-                    "只显示当前已确认数据中能够明确分类的对象。",
+                    if (selectedRegion == null)
+                        "只显示当前已确认数据中能够明确分类的对象。"
+                    else
+                        "地区筛选：${TerritoryPresentationCatalog.displayName(selectedRegion)} · 只使用已确认 RegionFact 成员关系。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
+                if (selectedRegion != null) {
+                    Surface(
+                        modifier = Modifier
+                            .padding(top = 4.dp)
+                            .clickable { session.appState.clearRegion() }
+                            .testTag("pdig.production-vnext.region.clear"),
+                        color = PdigV2Colors.PrimarySoft,
+                        shape = RoundedCornerShape(VRadius.Md),
+                    ) {
+                        Text(
+                            "查看全球",
+                            Modifier.padding(horizontal = 11.dp, vertical = 8.dp),
+                            color = PdigV2Colors.PrimaryText,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
         }
 
@@ -108,10 +141,10 @@ internal fun ProductionInventoryCategoryScreen(
                     "年费、账单日、分期等生命周期字段尚未进入正式数据模型；当前只展示已确认的支付工具身份。"
                 )
                 VScreen.NUMBERS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。若 nested identifier 也已确认，可显示真实号码值；运营商、SIM/eSIM、地区、保号与恢复语义仍不会由号码或名称推断。"
+                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。若 nested identifier 也已确认，可显示真实号码值；地区只来自已确认 RegionFact，运营商、SIM/eSIM、保号与恢复语义仍不会由号码或名称推断。"
                 )
                 VScreen.EMAILS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。若 nested identifier 也已确认，可显示真实邮箱值；Provider 与恢复语义仍不会由邮箱或名称推断。"
+                    "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。若 nested identifier 也已确认，可显示真实邮箱值；地区只来自已确认 RegionFact，Provider 与恢复语义仍不会由邮箱或名称推断。"
                 )
                 VScreen.DEVICES -> ProductionObjectBoundary(
                     "设备的认证/恢复能力尚未进入正式数据模型；不会根据设备名称猜测它具备哪些能力。"
