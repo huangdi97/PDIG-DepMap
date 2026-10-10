@@ -42,6 +42,7 @@ internal fun ProductionEstablishScreen(
     modifier: Modifier = Modifier,
 ) {
     val app = session.appState
+    var importSourceLabel by rememberSaveable { mutableStateOf("文件导入") }
     val fileWorkflow = LocalFileWorkflow.current
     if (
         isProductionImportWorkflowActive(
@@ -95,14 +96,29 @@ internal fun ProductionEstablishScreen(
         }
 
         item {
+            OutlinedTextField(
+                value = importSourceLabel,
+                onValueChange = { importSourceLabel = it.take(80) },
+                label = { Text("导入来源名称") },
+                supportingText = {
+                    Text("用于标识这次记录来源；不会根据文件名自动推断账户或依赖。")
+                },
+                singleLine = true,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("pdig.production-vnext.import.source-label"),
+            )
+        }
+
+        item {
             val requestImport = session.hostActions.requestFileImport
             EstablishEntry(
                 title = "文件导入",
-                body = "真实文件选择与重新解锁继续由现有安全导入流程负责；新版界面只请求应用启动该流程。",
+                body = "文件选择由现有安全工作流负责；选择后应用会回锁，重新认证后回到本页解析与预览。",
                 state = if (requestImport != null) "可启动正式导入" else "正式入口待接",
                 enabled = requestImport != null,
             ) {
-                requestImport?.invoke("文件导入")
+                requestImport?.invoke(importSourceLabel.trim().ifBlank { "文件导入" })
             }
         }
 
