@@ -1,0 +1,18 @@
+{
+  "id": "maintenance-mp02-phone-confirmed",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-02 number maintenance requires governed phone subtype",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"phone_number\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},\"maintenance_profile\":{\"version\":1,\"facts\":[{\"id\":\"cost\",\"kind\":\"number_plan_cost\",\"value_type\":\"decimal_string\",\"value\":\"5\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"}],\"schedules\":[{\"id\":\"keep\",\"kind\":\"number_keep_alive\",\"state\":\"active\",\"cadence\":{\"kind\":\"interval_days\",\"interval_days\":90,\"anchor_date\":\"2026-08-07\"},\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\",\"last_completed_at\":\"2026-08-07T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [{"id": "cost", "kind": "number_plan_cost", "valueType": "decimal_string", "value": "5", "state": "confirmed"}],
+    "currentFactIds": ["cost"],
+    "schedules": [{"id": "keep", "kind": "number_keep_alive", "state": "active", "cadenceKind": "interval_days"}],
+    "currentScheduleIds": ["keep"]
+  }
+}
