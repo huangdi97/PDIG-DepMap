@@ -138,13 +138,17 @@ class EmbeddedTextSource implements ConformanceTextSource {
  * 2026-10-10（R37）：5 条 identity-profile fixture 已进入 manifest / embedded bundle。
  * 本轮把 Harmony runner 的漏接类别补上，真实走 IdentityAnchorProfile.ets 的 fail-closed
  * decoder；账目推进为 **131 已执行 + 0 未移植 + 0 环境缺失 + 2 设备运行时 = 133**。
+ *
+ * 2026-10-10（R38）：新增 4 条 identifier authority fixture（phone/email 正例、
+ * malformed identifier 保留 subtype、other_identity 忽略 identifier），三端 evaluator
+ * 使用同一输出形状；账目推进为 **135 已执行 + 0 未移植 + 0 环境缺失 + 2 设备运行时 = 137**。
  */
-const EXPECTED_TOTAL = 133;
+const EXPECTED_TOTAL = 137;
 const EXPECTED_BLOCKED_BY_RUNTIME = 2;
 const EXPECTED_BLOCKED_BY_ENVIRONMENT = 0;
 const EXPECTED_HOST_IMPL_MISSING = 0;
 const EXPECTED_NOT_IMPLEMENTED = 0;
-const EXPECTED_PASSED = 131;
+const EXPECTED_PASSED = 135;
 const EXPECTED_FAILED = 0;
 
 export default function conformanceHostTest() {
