@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R35 DESIGN CLOSED / MACHINE-GATED CANONICAL EXPANSION + R34 PRODUCTION SOURCE INDEX**
+> Status: **R38 DESIGN CLOSED / MACHINE-GATED CANONICAL EXPANSION + GOVERNED IDENTITY AUTHORITY**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -24,9 +24,9 @@ No roadmap capability creates a sixth primary destination.
 | Infrastructure inventory | complete | implemented | existing production nodes available |
 | Region / Globe | complete | implemented | RegionFact v1 design complete; Production reuses GPU Earth with zero inferred regions until governed RegionFact Canonical exists; runtime pixel/GPU evidence still gates freeze |
 | Cards | complete | implemented | production category/detail/relations/Impact + replace-card ChangePlan entry source-bound; launcher cutover pending |
-| Numbers | complete | implemented reference | production phone mapping waits identity subtype |
+| Numbers | complete | implemented reference | governed PHONE_NUMBER subtype + confirmed identifier are Production-bound; runtime evidence/cutover still gated |
 | Accounts | complete | implemented | production category + focused generic detail + Impact source-bound |
-| Emails | complete | implemented reference | production email mapping waits identity subtype |
+| Emails | complete | implemented reference | governed EMAIL_ADDRESS subtype + confirmed identifier are Production-bound; runtime evidence/cutover still gated |
 | Devices | complete | implemented reference | production generic detail source-bound; factor enrichment remains future-gated |
 | Services | complete | implemented | production category + focused generic detail + Impact source-bound |
 | Weaknesses / Infrastructure Findings | complete | R27 full seven-class grammar implemented | production findings must come from authoritative continuity analysis; reference findings never enter Reality |
@@ -99,9 +99,10 @@ Proposal:
 | Capability | Design | UI | Gate |
 | --- | --- | --- | --- |
 | identity_anchor subtype | complete + R37 Canonical contract | Production Number/Email read surfaces source-bound | exact-head CI/runtime evidence |
-| phone/email conservative normalization | complete | governed profile only; invalid/bare stays generic | raw identifier value still HOLD |
+| phone/email confirmed identifier | complete + R38 Canonical contract | privacy-safe Production list/detail/search | invalid/missing identifier fails closed while valid subtype survives |
+| phone/email conservative normalization | complete | governed profile only; invalid/bare stays generic | no provider/region/carrier inference from identifier |
 | replace_phone_number subtype authority | complete | Production Number → ChangePlan source-bound | PlanRepository re-validates governed PHONE_NUMBER |
-| manual Number/Email create | complete design | not executable | atomic Node + governed profile authority still HOLD |
+| manual Number/Email create | complete + R38 authority | Production form executable | Node + subtype + identifier atomically committed; exactly one graphRevision bump; no Dependency side effect |
 | user alias | complete | implemented | Presentation only |
 | IdentityContext | complete proposal | hidden | Canonical membership required |
 | Context × Region intersections | complete | hidden | no graph-edge inference |
@@ -255,7 +256,7 @@ Current source includes:
 - payment asset issuer/last4 projection;
 - consumer inventory projection;
 - production category/detail binding for payment/account/device/service;
-- explicit phone/email/finding HOLD surfaces rather than subtype inference;
+- governed phone/email surfaces from confirmed identity profile authority; invalid/bare identity anchors remain generic;
 - authoritative Impact projection;
 - production Reality-only global Search;
 - production Records projection with completion / verification / evidence separation;
@@ -288,10 +289,9 @@ Still required before release cutover:
 - latest exact-head secure rehearsal workflow PASS on the final candidate;
 - explicit release cutover approval using the already-source-implemented two-key policy;
 - rollback candidate build/install proof;
-- generic identity subtype implementation for phone/email;
-- subtype-aware phone/email after Canonical;
-- lock/security parity evidence;
-- persistence/restart/E2E.
+- lock/security parity evidence on the exact release candidate;
+- persistence/restart/E2E for the final Production VNext candidate;
+- Android visual/runtime acceptance and Reference Freeze.
 
 ## 12. Capability / authority matrix
 
@@ -382,7 +382,7 @@ Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R37
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R38
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
 PRODUCTION_VNEXT_CUTOVER_POLICY = SOURCE_IMPLEMENTED_FAIL_CLOSED
 FIVE_PRIMARY_IA = FROZEN
