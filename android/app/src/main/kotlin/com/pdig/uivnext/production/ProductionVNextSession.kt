@@ -19,10 +19,21 @@ internal data class ProductionVNextAuthorities(
     val import: AppContainerVNextImportAuthority,
 )
 
+/**
+ * Host-owned UI actions that must remain outside Compose/domain adapters.
+ *
+ * File picker / lock re-auth is Activity-scoped and already hardened by
+ * FileWorkflowCoordinator, so VNext only requests that host workflow.
+ */
+internal data class ProductionVNextHostActions(
+    val requestFileImport: (() -> Unit)? = null,
+)
+
 internal data class ProductionVNextSession(
     val appState: VAppState,
     val dataSource: VNextRuntimeDataSource,
     val authorities: ProductionVNextAuthorities? = null,
+    val hostActions: ProductionVNextHostActions = ProductionVNextHostActions(),
 ) {
     init {
         require(dataSource.mode == VNextRuntimeDataMode.PRODUCTION_REALITY) {
@@ -36,6 +47,7 @@ internal fun createProductionVNextSession(
     initialScreen: VScreen = VScreen.NOW,
     nowIso: String? = null,
     appState: VAppState? = null,
+    hostActions: ProductionVNextHostActions = ProductionVNextHostActions(),
 ): ProductionVNextSession {
     val source = AppContainerVNextReadModelSource(appContainer)
     val reviewSource = AppContainerVNextReviewSource(appContainer)
@@ -51,5 +63,6 @@ internal fun createProductionVNextSession(
             manualEstablish = AppContainerVNextManualEstablishGateway(appContainer),
             import = AppContainerVNextImportAuthority(appContainer),
         ),
+        hostActions = hostActions,
     )
 }
