@@ -1,6 +1,6 @@
 # Asset Lifecycle & Maintenance v1 — Canonical Proposal
 
-> Status: **PROPOSED_SCHEMA / NOT_IMPLEMENTED**
+> Status: **DESIGN_FROZEN / CANONICAL_CONTRACT_NEXT**
 >
 > Date: 2026-10-09
 >
@@ -455,21 +455,287 @@ Therefore:
 - no secret/PIN/password/recovery-code storage;
 - exported .depmap semantics must be explicit if/when lifecycle enters the format.
 
-## 17. Decision required before implementation
+## 17. Product / schema decisions — FROZEN
 
-The product/schema review must decide:
+The six previously open decisions are now resolved.
 
-1. Is `MaintenanceFact/Schedule` first-class, or represented as typed Node facts?
-2. Does `expiryDate` migrate into the schedule engine or stay dual-owned?
-3. Is `CARD_INSTALLMENT_SUMMARY` in scope for production?
-4. Which maintenance facts are user-editable vs source-proposed?
-5. Which schedule kinds can generate Attention?
-6. Which lifecycle facts export in .depmap?
+### 17.1 Storage owner
 
-Until that decision:
+v1 uses one governed structured field inside the existing cross-platform Node fields envelope:
 
 ```text
-R19 lifecycle production persistence = NOT_IMPLEMENTED
-reference UI semantics = VALID
+Node.fields.maintenance_profile
+→ nodes.fields_json.maintenance_profile
+```
+
+It is **not** a new NodeKind and does not create a second graph.
+
+Conceptual container:
+
+```text
+MaintenanceProfileV1
+  version = 1
+  facts[]
+  schedules[]
+```
+
+The envelope choice is consistent with governed `identity_anchor_profile` and
+`region_facts`: semantic authority is Canonical even though the physical
+`fields_json` column already exists.
+
+No Android-only free-form key is allowed.
+
+### 17.2 Card expiry owner
+
+Existing card `expiryDate` remains the single Canonical owner of card expiry.
+
+`CARD_EXPIRY` is therefore **not** duplicated as a MaintenanceSchedule kind in v1.
+Timeline may project an expiry occurrence from `expiryDate`, but there is one
+durable source of truth.
+
+### 17.3 Installment scope
+
+`CARD_INSTALLMENT_SUMMARY` remains **presentation/reference-only** in v1.
+
+Reason:
+- a summary cannot be verified without defining ledger/statement semantics;
+- including it would drag PDIG toward personal finance;
+- it is not required for continuity/change correctness.
+
+Production UI must render it as unavailable until a future explicit finance-scope
+decision exists.
+
+### 17.4 Write authority
+
+Direct writes:
+- manual user confirmation may create/update a MaintenanceFact or Schedule;
+- an already-authoritative local source may create a Proposal, never confirmed
+  Reality directly unless its adapter is explicitly authorized by Canonical policy.
+
+Automatic extraction path:
+
+```text
+Observation
+→ Proposal
+→ Human Review
+→ confirmed maintenance_profile
+```
+
+Provider Knowledge follows the same rule. Provider policy is never Personal Reality.
+
+### 17.5 Attention-capable schedule kinds
+
+The following schedule kinds may generate **candidate attention**:
+
+```text
+CARD_ANNUAL_FEE_CHECKPOINT
+CARD_BILLING_CHECKPOINT
+CARD_PAYMENT_DUE_CHECKPOINT
+NUMBER_KEEP_ALIVE
+NUMBER_PLAN_RENEWAL
+FACT_FRESHNESS_REVIEW
+CUSTOM_MAINTENANCE
+```
+
+But schedule time alone does not determine severity.
+
+Severity requires a separate projection over:
+- due/overdue state;
+- confirmed dependency impact;
+- path independence when available;
+- unknown scope.
+
+No health/safety score is introduced.
+
+### 17.6 Export / .depmap behavior
+
+Confirmed `maintenance_profile` lives in the existing Node fields envelope and is
+therefore preserved by graph payload v3 as opaque structured JSON.
+
+That does **not** mean old runtimes understand the semantics.
+
+Compatibility rule:
+
+```text
+new runtime → may interpret governed profile
+old runtime → must preserve unknown fields but must not infer semantics
+missing profile → unknown, not zero / free / no-maintenance
+```
+
+A physical payload/schema version bump is a separate release decision and is not
+implicitly activated by this v1 contract.
+
+---
+
+## 18. Frozen v1 vocabulary
+
+### 18.1 MaintenanceFactKind
+
+```text
+card_annual_fee_amount
+card_annual_fee_currency
+card_billing_day
+card_payment_due_day
+card_autopay_mode
+number_billing_mode
+number_plan_cost
+number_plan_currency
+number_renewal_method
+```
+
+### 18.2 MaintenanceScheduleKind
+
+```text
+card_annual_fee_checkpoint
+card_billing_checkpoint
+card_payment_due_checkpoint
+number_keep_alive
+number_plan_renewal
+fact_freshness_review
+custom_maintenance
+```
+
+### 18.3 Fact state
+
+```text
+confirmed
+retired
+```
+
+Proposal is deliberately absent.
+
+### 18.4 Schedule state
+
+```text
+active
+paused
+needs_review
+retired
+```
+
+Elapsed time never changes this durable state automatically.
+
+### 18.5 Value types
+
+```text
+decimal_string
+currency_code
+integer
+text
+boolean
+```
+
+Amounts are canonical decimal **strings**, never binary floating-point.
+
+### 18.6 Cadence kinds
+
+```text
+one_time
+monthly_day
+yearly_month_day
+interval_days
+manual_only
+```
+
+Provider-specific cadence is intentionally not a cadence kind. A provider rule may
+propose one of the governed user schedules after an anchor is confirmed.
+
+Overflow:
+
+```text
+clamp_to_last_day
+skip_occurrence
+user_confirm
+```
+
+---
+
+## 19. Frozen field shape
+
+```json
+{
+  "maintenance_profile": {
+    "version": 1,
+    "facts": [
+      {
+        "id": "fact-id",
+        "kind": "card_billing_day",
+        "value_type": "integer",
+        "value": "18",
+        "state": "confirmed",
+        "verification_basis_type": "user_confirmed",
+        "confirmed_at": "2026-10-10T00:00:00Z",
+        "evidence_refs": []
+      }
+    ],
+    "schedules": [
+      {
+        "id": "schedule-id",
+        "kind": "number_keep_alive",
+        "state": "active",
+        "cadence": {
+          "kind": "interval_days",
+          "interval_days": 90,
+          "anchor_date": "2026-08-07"
+        },
+        "verification_basis_type": "user_confirmed",
+        "confirmed_at": "2026-08-07T00:00:00Z",
+        "evidence_refs": [],
+        "last_completed_at": "2026-08-07T00:00:00Z"
+      }
+    ]
+  }
+}
+```
+
+Unknown or invalid individual items fail closed independently and do not destroy
+valid siblings.
+
+---
+
+## 20. Kind applicability
+
+Card-only facts/schedules require:
+
+```text
+Node.kind == payment_instrument
+```
+
+Number-only facts/schedules require:
+
+```text
+Node.kind == identity_anchor
+AND confirmed identity_anchor_profile.subtype == phone_number
+```
+
+A generic identity anchor or email cannot acquire number lifecycle semantics by
+name, prefix, provider text or UI route.
+
+Cross-kind invalid items are ignored and surfaced for review; they are not coerced.
+
+---
+
+## 21. Production activation boundary
+
+This document now closes product/schema design, but the capability becomes Production
+Reality only after:
+
+```text
+domain registration
+→ logical-schema registration
+→ cross-platform fail-closed decoders
+→ golden + negative conformance
+→ production read projection
+→ manual/review write authority
+→ maintenance occurrence runtime
+→ exact-head runtime evidence
+```
+
+Until that implementation chain lands:
+
+```text
+MAINTENANCE_DESIGN = FROZEN
+MAINTENANCE_PRODUCTION_PERSISTENCE = NOT_YET_IMPLEMENTED
+R19 reference lifecycle semantics = VALID
 ad-hoc Android persistence = FORBIDDEN
 ```
