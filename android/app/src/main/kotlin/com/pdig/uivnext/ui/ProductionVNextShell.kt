@@ -564,6 +564,9 @@ private fun ProductionCardDetail(
         }
 
         ProductionSection("已确认关系")
+        if (cardObject != null && snapshot != null && related.isNotEmpty()) {
+            ProductionRelationshipConstellation(snapshot, cardObject, app)
+        }
         if (related.isEmpty()) {
             ProductionEmpty("当前没有已确认关系；这不表示外部没有关联，只表示这里尚未记录。")
         } else {
