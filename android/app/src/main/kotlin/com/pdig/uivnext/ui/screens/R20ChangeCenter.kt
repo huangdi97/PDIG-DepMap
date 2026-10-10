@@ -135,7 +135,7 @@ internal fun R20ChangeCenter(app: VAppState, breakpoint: MediaBreakpoint) {
                 shape = RoundedCornerShape(VRadius.Lg),
             ) {
                 Text(
-                    "Current / Transition / After 是不同状态：完成后视图只是计划投影，" +
+                    "“当前 / 迁移中 / 完成后”是不同状态：完成后视图只是计划投影，" +
                         "不会因为点击或时间经过就自动成为已执行、已验证的现实。",
                     Modifier.padding(13.dp),
                     color = PdigV2Colors.TextSecondary,
