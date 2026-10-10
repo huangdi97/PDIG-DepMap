@@ -451,8 +451,13 @@ The Preview screen explicitly separates:
 - storage-known but not safely exposed manual-create types;
 - identity_anchor, which is too coarse to infer Number vs Email.
 
-No Save button is shown because VNext does not yet have an AppContainer-facing,
-tested manual Reality mutation authority.
+R26 now exposes a governed source authority through
+`AppContainer.createManualNode` / `GraphRepository.createManualNode`. It validates
+the generated Canonical runtime-creatable policy, performs Node + graphRevision in
+one transaction, and creates no Dependency.
+
+The Preview still intentionally shows no Save button. Production screen binding and
+fresh exact-head runtime evidence remain separate gates.
 
 Permanent rule:
 
@@ -484,8 +489,10 @@ The reference freezes:
 - storage-known but runtime-HOLD relations;
 - no degree-count shortcut for independent paths.
 
-Preview exposes no “确认关系” mutation because production VNext has no tested
-manual Dependency authority yet.
+Preview exposes no “确认关系” mutation. R26 identified the concrete prerequisite:
+the TS reference has Schema v4 widening for the full runtime relation/capability
+vocabulary, while Native production schema is still v3. A partial v3-only
+relationship gateway is forbidden.
 
 Permanent provenance split:
 
@@ -515,7 +522,10 @@ R26 has source contracts for:
 - production review consumer projection;
 - Establish Import hierarchy/projection;
 - Manual Establish route, truth boundary and no-ghost-save state;
-- Manual Relationship route, runtime relation vocabulary and unknown/required boundary.
+- authoritative manual Node mutation source + device evidence test;
+- generated runtime-creatable Node policy;
+- Manual Relationship route, runtime relation vocabulary and unknown/required boundary;
+- explicit Native Schema v4 gate for production manual relation mutation.
 
 These tests are **present**. They are not called PASS until run on the current
 exact head.
@@ -545,6 +555,14 @@ Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 - `ANDROID_UI_VNEXT_R23_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R24_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R25_SOURCE_REPORT.md`
+- `ANDROID_UI_VNEXT_R26_SOURCE_REPORT.md`
+- `spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md`
+- `spec/ui-vnext/CAPABILITY_AUTHORITY_MATRIX.md`
+- `spec/proposals/access-recovery-factor-v1.md`
+- `spec/proposals/secret-locator-v1.md`
+- `spec/proposals/device-continuity-v1.md`
+- `spec/proposals/digital-resource-continuity-v1.md`
+- `spec/proposals/trusted-handoff-v1.md`
 - `spec/ui-vnext/MANUAL_RELATIONSHIP_UX_CONTRACT.md`
 - `spec/ui-vnext/MANUAL_ESTABLISH_UX_CONTRACT.md`
 - `spec/ui-vnext/ESTABLISH_IMPORT_UX_CONTRACT.md`
