@@ -151,7 +151,7 @@ private fun ProductionContent(
     }
 
     when (app.screen) {
-        VScreen.NOW -> ProductionNow(snapshot, inventory, modifier)
+        VScreen.NOW -> ProductionNow(app, snapshot, inventory, modifier)
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
             ProductionInfrastructure(app, inventory, modifier)
         VScreen.CARD_DETAIL ->
@@ -171,6 +171,7 @@ private fun ProductionContent(
 
 @Composable
 private fun ProductionNow(
+    app: VAppState,
     snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
@@ -189,7 +190,7 @@ private fun ProductionNow(
                 title = "待复核",
                 subtitle = "${inventory.pendingReviewCount} 项建议 / 候选 / Reality 漂移等待人工决定",
                 meta = "确认前不会进入已确认 Reality",
-                onClick = { /* route injected below by caller wrapper */ },
+                onClick = { app.navigate(VScreen.REVIEW) },
             )
         }
 
