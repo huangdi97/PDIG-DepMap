@@ -341,7 +341,7 @@ class SourceCompleteInteractionContractTest {
         compose.onNodeWithText("已记录完成", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("已验证", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithText("待验证", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("done ≠ verified", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("完成 ≠ 已验证", useUnmergedTree = true).assertIsDisplayed()
     }
 
     @Test
