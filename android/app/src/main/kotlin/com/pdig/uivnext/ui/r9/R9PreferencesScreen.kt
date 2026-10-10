@@ -42,10 +42,10 @@ internal fun R9PreferencesScreen(app: VAppState) {
                         Text("真实地球 · 金融资产身份 · 连续性变更",
                             color = R9.Muted, fontSize = 10.sp)
                     }
-                    R9Badge("Preview", R9.Blue)
+                    R9Badge("预览版", R9.Blue)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    R9PrefsTile("界面", "Light-first", Color.White, Modifier.weight(1f))
+                    R9PrefsTile("界面", "亮色优先", Color.White, Modifier.weight(1f))
                     R9PrefsTile("地球", if(app.reduceMotion) "静态" else "动态",
                         R9.Mist, Modifier.weight(1f))
                     R9PrefsTile("资产", "独立卡面", R9.Ice, Modifier.weight(1f))
