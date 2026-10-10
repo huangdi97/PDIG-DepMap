@@ -41,14 +41,18 @@ internal fun ProductionInventoryCategoryScreen(
         return
     }
 
+    if (screen == VScreen.WEAKNESSES) {
+        ProductionWeaknessesHoldScreen(modifier)
+        return
+    }
+
     val surfaceKind = productionSurfaceForScreen(screen)
     if (surfaceKind == null) {
         ProductionObjectUnavailable(
             when (screen) {
                 VScreen.NUMBERS -> "号码类型尚未完成底层确认，因此暂不把通用身份对象当作手机号"
                 VScreen.EMAILS -> "邮箱类型尚未完成底层确认，因此暂不把通用身份对象当作邮箱"
-                VScreen.WEAKNESSES -> "薄弱点生产绑定等待 authoritative Finding projection"
-                else -> "该分类尚未完成生产映射"
+                else -> "该分类尚未完成正式数据映射"
             },
             modifier,
         )
@@ -244,12 +248,89 @@ internal fun ProductionGenericObjectDetailScreen(
         item {
             when (detailScreen) {
                 VScreen.DEVICE_DETAIL -> ProductionObjectBoundary(
-                    "当前 device 详情不会推断 passkey、TOTP、SMS、RecoveryFactor 或 SecretLocator；这些必须来自未来 governed factor semantics。"
+                    "当前设备详情不会猜测通行密钥、动态验证码、短信验证、恢复因子或秘密位置；这些能力必须来自未来正式的数据语义。"
                 )
                 else -> ProductionObjectBoundary(
                     "详情只使用正式数据中的对象、已确认关系和权威影响分析；不会混入演示数据。"
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ProductionWeaknessesHoldScreen(modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .testTag("pdig.production-vnext.weaknesses-hold"),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        item {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "薄弱点",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    "不把“部分可分析”冒充“完整连续性分析”。",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 12.sp,
+                )
+            }
+        }
+
+        item {
+            ProductionObjectBoundary(
+                "现有 Android 底层已经能从已确认关系分析：单一路径、共享故障点、恢复循环三类问题；但旧实现仍在旧界面层，尚不是新版可直接消费的完整权威投影。"
+            )
+        }
+
+        item {
+            Text(
+                "完整薄弱点模型还要求",
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+            )
+        }
+
+        listOf(
+            "未确认的备用路径" to "备用可能存在，但还没有足够证据确认可用。",
+            "过期的恢复信息" to "恢复/认证信息需要重新确认，不能默认仍然有效。",
+            "关键路径影响未知" to "关键关系存在，但失效后的真实影响还没有确认。",
+            "待验证的变更" to "动作已记录完成，但结果还没有验证。",
+        ).forEach { (title, body) ->
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = PdigV2Colors.Surface,
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Column(
+                        Modifier.padding(13.dp),
+                        verticalArrangement = Arrangement.spacedBy(3.dp),
+                    ) {
+                        Text(
+                            title,
+                            color = PdigV2Colors.TextPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
+                    }
+                }
+            }
+        }
+
+        item {
+            ProductionObjectBoundary(
+                "在七类结果都由可复用的底层连续性分析统一产出之前，新版正式界面不会显示一个缩减版“安全清单”，也不会用关系数量生成健康分。"
+            )
         }
     }
 }
