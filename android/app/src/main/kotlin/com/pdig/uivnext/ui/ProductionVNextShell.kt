@@ -191,7 +191,9 @@ private fun ProductionContent(
         VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD ->
             ProductionChangePlanScreen(session, app.selectedProductionPlanId, modifier)
         VScreen.RECORDS -> ProductionRecords(session, modifier)
-        VScreen.ME -> ProductionMe(snapshot, inventory, modifier)
+        VScreen.ME -> ProductionMe(app, snapshot, inventory, modifier)
+        VScreen.SETTINGS, VScreen.PERSONALIZATION ->
+            ProductionPreferencesScreen(app, modifier)
         VScreen.SOURCES -> ProductionSources(app, inventory, modifier)
         VScreen.REVIEW -> ProductionReviewScreen(session, modifier)
         VScreen.IMPORT -> ProductionEstablishScreen(session, modifier)
@@ -467,6 +469,7 @@ private fun ProductionRecords(
 
 @Composable
 private fun ProductionMe(
+    app: VAppState,
     snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
@@ -486,11 +489,38 @@ private fun ProductionMe(
         ProductionBoundaryNote(
             "号码 / 邮箱在 subtype Canonical 化前仍按通用 identity_anchor 处理，不会根据名称或号码格式推断。"
         )
+        ProductionSection("个人控制面")
+        if (inventory.pendingReviewCount > 0) {
+            ProductionFactCard(
+                title = "待复核",
+                subtitle = "${inventory.pendingReviewCount} 项等待人工决定",
+                meta = "建议 / 候选 / Reality 漂移不会自动进入已确认 Reality",
+                onClick = { app.navigate(VScreen.REVIEW) },
+            )
+        }
         ProductionFactCard(
             title = "数据源",
             subtitle = "${inventory.activeSourceCount} 个活跃数据源",
             meta = "查看生产 SourceInstance 记录",
             onClick = { app.navigate(VScreen.SOURCES) },
+        )
+        ProductionFactCard(
+            title = "建立基础设施",
+            subtitle = "手工记录与文件导入 authority",
+            meta = "建立对象不自动确认关系",
+            onClick = { app.navigate(VScreen.IMPORT) },
+        )
+        ProductionFactCard(
+            title = "隐私与偏好",
+            subtitle = if (app.privacyMask) "敏感信息遮蔽：已开启" else "敏感信息遮蔽：已关闭",
+            meta = "本机 Presentation 偏好，不修改 Reality",
+            onClick = { app.navigate(VScreen.SETTINGS) },
+        )
+        ProductionFactCard(
+            title = "搜索",
+            subtitle = "搜索当前已确认 Reality / ChangePlan / SourceInstance",
+            meta = "未找到不等于外部不存在",
+            onClick = { app.navigate(VScreen.SEARCH) },
         )
     }
 }
