@@ -169,14 +169,14 @@ class ProductionVNextReadModelTest {
                     kind = "identity_anchor",
                     name = "+86 138****8823",
                     archived = false,
-                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T00:00:00Z","evidence_refs":["ev-phone"]}}""",
+                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T00:00:00Z","evidence_refs":["ev-phone"],"identifier":{"value":"+86 138 0000 8823","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-10T02:00:00Z","evidence_refs":["ev-value"]}}}""",
                 ),
                 NodeRow(
                     id = "email-1",
                     kind = "identity_anchor",
                     name = "m***@example.com",
                     archived = false,
-                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"email_address","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-10T01:00:00Z","evidence_refs":[]}}""",
+                    fieldsJson = """{"identity_anchor_profile":{"version":1,"subtype":"email_address","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-10T01:00:00Z","evidence_refs":[],"identifier":{"value":"","verification_basis_type":"machine_guess","confirmed_at":""}}}""",
                 ),
                 NodeRow(
                     id = "bare-legacy",
@@ -215,10 +215,31 @@ class ProductionVNextReadModelTest {
             listOf("ev-phone"),
             snapshot.objects.first { it.id == "phone-1" }.identityEvidenceRefs,
         )
+        assertEquals(
+            "+86 138 0000 8823",
+            snapshot.objects.first { it.id == "phone-1" }.identityIdentifierValue,
+        )
+        assertEquals(
+            "user_confirmed",
+            snapshot.objects.first { it.id == "phone-1" }
+                .identityIdentifierVerificationBasisType,
+        )
+        assertEquals(
+            "2026-10-10T02:00:00Z",
+            snapshot.objects.first { it.id == "phone-1" }.identityIdentifierConfirmedAt,
+        )
+        assertEquals(
+            listOf("ev-value"),
+            snapshot.objects.first { it.id == "phone-1" }.identityIdentifierEvidenceRefs,
+        )
 
         assertEquals(
             VNextProductionSurfaceKind.EMAIL_IDENTITY,
             snapshot.objects.first { it.id == "email-1" }.surfaceKind,
+        )
+        assertEquals(
+            null,
+            snapshot.objects.first { it.id == "email-1" }.identityIdentifierValue,
         )
         assertEquals(
             VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
