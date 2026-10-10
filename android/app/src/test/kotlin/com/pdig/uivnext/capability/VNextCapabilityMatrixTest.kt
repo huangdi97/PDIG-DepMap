@@ -27,12 +27,16 @@ class VNextCapabilityMatrixTest {
     @Test
     fun productionAuthorityIsNarrowerThanReferenceVisibility() {
         assertTrue(hasProductionAuthority(VNextCapability.FILE_IMPORT))
+        assertTrue(hasProductionAuthority(VNextCapability.MANUAL_CREATE))
         assertTrue(hasProductionAuthority(VNextCapability.HUMAN_REVIEW))
         assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PHONE))
         assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PAYMENT_CARD))
 
-        assertFalse(hasProductionAuthority(VNextCapability.MANUAL_CREATE))
         assertFalse(hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP))
+        assertEquals(
+            VNextProductionAuthority.REQUIRES_NATIVE_SCHEMA,
+            capabilityGate(VNextCapability.MANUAL_RELATIONSHIP).productionAuthority,
+        )
         assertFalse(hasProductionAuthority(VNextCapability.DEVICE_CONTINUITY))
         assertFalse(hasProductionAuthority(VNextCapability.DIGITAL_RESOURCE_CONTINUITY))
         assertFalse(hasProductionAuthority(VNextCapability.TRUSTED_HANDOFF))
