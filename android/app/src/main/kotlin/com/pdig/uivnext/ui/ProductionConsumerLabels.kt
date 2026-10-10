@@ -224,12 +224,13 @@ internal fun productionVisibleRelationPeerName(
     fallbackName: String,
     app: VAppState,
 ): String {
+    // Dependency copies of names are not a privacy exception. Resolve the
+    // object's saved local masking even if its source node is now missing.
+    val phoneMask = app.savedPresentationProfile("phoneNumber", peerId)?.maskSensitive == true
+    val cardMask = app.savedPresentationProfile("card", peerId)?.maskSensitive == true
+    val mask = app.privacyMask || phoneMask || cardMask
     val peer = snapshot?.objects?.firstOrNull { it.id == peerId }
-        ?: return if (app.privacyMask) "关联对象（已遮蔽）" else fallbackName
-    val phoneMask = peer.surfaceKind ==
-        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY &&
-        (app.savedPresentationProfile("phoneNumber", peer.id)?.maskSensitive == true)
-    val mask = app.privacyMask || phoneMask
+        ?: return if (mask) "关联对象（已遮蔽）" else fallbackName
     return if (peer.surfaceKind ==
         com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY
     ) {
