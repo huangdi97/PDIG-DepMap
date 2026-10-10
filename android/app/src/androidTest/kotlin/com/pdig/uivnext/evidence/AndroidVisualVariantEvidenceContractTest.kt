@@ -128,7 +128,41 @@ class AndroidVisualVariantEvidenceContractTest {
         assertNotEquals("change-phone current != after", hashes["current"], hashes["after"])
     }
 
-    // ── 4. Region：global != HK（cameraPreset 语义 + 渲染）────────────────────
+    // ── 4. Change Card：current != blocked transition != after plan ───────────
+    @Test
+    fun changeCardCurrentTransitionAfterAreDistinct() {
+        val current = createVNextAppState().apply {
+            openCardChange("card-cn-2")
+            cardChangeProjection = "current"
+            chooseReplacementCard(null)
+        }
+        val transition = createVNextAppState().apply {
+            openCardChange("card-cn-2")
+            cardChangeProjection = "transition"
+            chooseReplacementCard(null)
+        }
+        val after = createVNextAppState().apply {
+            openCardChange("card-cn-2")
+            chooseReplacementCard("card-cn-3")
+            cardChangeProjection = "after"
+        }
+
+        assertEquals("current", current.cardChangeProjection)
+        assertEquals("transition", transition.cardChangeProjection)
+        assertEquals("after", after.cardChangeProjection)
+        assertEquals(null, transition.selectedReplacementCardId)
+        assertEquals("card-cn-3", after.selectedReplacementCardId)
+
+        val currentSha = sha256Of(renderApp(current))
+        val transitionSha = sha256Of(renderApp(transition))
+        val afterSha = sha256Of(renderApp(after))
+
+        assertNotEquals("change-card current != transition", currentSha, transitionSha)
+        assertNotEquals("change-card transition != after", transitionSha, afterSha)
+        assertNotEquals("change-card current != after", currentSha, afterSha)
+    }
+
+    // ── 5. Region：global != HK（cameraPreset 语义 + 渲染）────────────────────
     @Test
     fun regionGlobalDiffersFromHk() {
         val global = createVNextAppState(screen = VScreen.OVERVIEW, cameraPreset = "global")
@@ -141,7 +175,7 @@ class AndroidVisualVariantEvidenceContractTest {
         )
     }
 
-    // ── 5. P0 回归：证据绝不触碰用户持久化 profile ───────────────────────────
+    // ── 6. P0 回归：证据绝不触碰用户持久化 profile ───────────────────────────
     @Test
     fun evidenceIsolation_noPersistedProfileReadOrWrite() {
         val app = createVNextAppState(customTheme = "ocean").apply { openCardCustomization("card-cn-2") }
