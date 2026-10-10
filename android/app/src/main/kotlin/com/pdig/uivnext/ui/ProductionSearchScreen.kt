@@ -228,7 +228,11 @@ internal fun productionSearchHits(
             },
             subtitle = listOfNotNull(
                 kindLabel,
-                item.issuer,
+                item.issuer?.let {
+                    if (effectivePrivacyMask && item.surfaceKind ==
+                        VNextProductionSurfaceKind.PAYMENT_ASSET
+                    ) "发行方已遮蔽" else it
+                },
                 item.last4?.let { productionPaymentTailLabel(it, effectivePrivacyMask) },
                 productionIdentityIdentifierLabel(item, effectivePrivacyMask),
                 item.identityVerificationBasisType?.let(::productionIdentityBasisLabel),
