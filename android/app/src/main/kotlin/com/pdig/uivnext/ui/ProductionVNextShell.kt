@@ -351,8 +351,14 @@ private fun ProductionInfrastructure(
         } else {
             inventory.genericIdentityAnchors.forEach { identity ->
                 ProductionFactCard(
-                    title = identity.name,
-                    subtitle = "通用身份对象 · 手机/邮箱类型尚未完成底层确认",
+                    title = productionVisibleObjectName(
+                        item = snapshot.objects.first { it.id == identity.id },
+                        privacyMask = app.privacyMask,
+                    ),
+                    subtitle = if (app.privacyMask)
+                        "通用身份对象 · 标识已按本机偏好遮蔽"
+                    else
+                        "通用身份对象 · 手机/邮箱类型尚未完成底层确认",
                     meta = "${identity.confirmedDependencyCount} 条已确认关系",
                 )
             }
