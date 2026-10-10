@@ -13,6 +13,9 @@ import com.pdig.core.json.JsonWriter
 import com.pdig.core.plan.computePlanReadiness
 import com.pdig.core.plan.countUnresolvedMustChange
 import com.pdig.core.scenario.ScenarioRegistry
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
+import com.pdig.core.generated.IdentityAnchorSubtype
+import com.pdig.core.generated.NodeKind
 import com.pdig.core.statemachine.ChangePlanMachine
 import com.pdig.core.statemachine.VerificationMachine
 import java.time.Instant
@@ -44,10 +47,42 @@ class PlanRepository(
         )
     }
 
+    /**
+     * Fail closed before plan creation. Scenario intent must never coerce a generic
+     * identity anchor into a phone number (or a non-payment node into a card).
+     */
+    private fun validateScenarioTarget(req: ScenarioPlanRequest) {
+        val template = ScenarioRegistry.get(req.scenarioId)
+            ?: error("scenario_not_found: ${req.scenarioId}")
+        val target = graph.nodes(includeArchived = true).firstOrNull { it.id == req.targetNodeId }
+            ?: error("scenario_target_not_found: ${req.targetNodeId}")
+
+        require(!target.archived) { "scenario_target_archived: ${req.targetNodeId}" }
+
+        template.subjectKind?.let { requiredKind ->
+            require(target.kind == requiredKind) {
+                "scenario_target_kind_mismatch: expected=$requiredKind actual=${target.kind}"
+            }
+        }
+
+        template.subjectSubtype?.let { requiredSubtype ->
+            val nodeKind = NodeKind.fromWire(target.kind)
+                ?: error("scenario_target_kind_unknown: ${target.kind}")
+            val profile = confirmedIdentityAnchorProfile(nodeKind, target.fieldsJson)
+                ?: error("scenario_target_subtype_unconfirmed: ${target.id}")
+            require(
+                profile.subtype == IdentityAnchorSubtype.fromWire(requiredSubtype),
+            ) {
+                "scenario_target_subtype_mismatch: expected=$requiredSubtype actual=${profile.subtype.wire}"
+            }
+        }
+    }
+
     /** 从 scenario 创建真实变更计划：must_change 每条生成一个显式 CHANGE 动作。 */
     fun createPlanForScenario(req: ScenarioPlanRequest): String {
         // planned 模板没有 factory，必须拒绝（ScenarioRegistry 策略 gate）
         require(ScenarioRegistry.isExecutable(req.scenarioId)) { "scenario_not_executable: ${req.scenarioId}" }
+        validateScenarioTarget(req)
         val now = Instant.now().toString()
         val planId = "plan-" + sha256Hex(req.scenarioId + "|" + req.targetNodeId + "|" + now).take(16)
         val revision = graph.graphRevision()
