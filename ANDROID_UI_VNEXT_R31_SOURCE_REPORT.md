@@ -250,6 +250,13 @@ R31 adds/updates:
 - `VNextCapabilityMatrixTest`
   - Manual Relationship Production authority = AVAILABLE.
 
+- `ProductionManualRelationshipContractTest`
+  - creates real confirmed Nodes in a temporary migrated Android DB;
+  - renders the Production VNext shell at the Manual Relationship route;
+  - selects From / relation / To through the consumer UI;
+  - clicks the production Save control;
+  - asserts the committed Dependency, origin, verification basis and revision.
+
 Production Compose screen is source-bound to the same gateway and contains no
 direct SQL/domain mutation.
 
