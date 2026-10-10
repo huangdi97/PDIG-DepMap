@@ -145,6 +145,13 @@ internal fun productionSourceStateLabel(state: String): String = when (state) {
  * Search may still match the local confirmed value while masking is enabled, but
  * no visible Production VNext surface may echo that value back to the screen.
  */
+/** Payment issuer is nullable Reality: masking must not create a fact. */
+internal fun productionVisibleCardIssuer(issuer: String?, masked: Boolean): String = when {
+    issuer.isNullOrBlank() -> "发行方未记录"
+    masked -> "发行方已遮蔽"
+    else -> issuer
+}
+
 internal fun productionPaymentTailLabel(
     last4: String?,
     privacyMask: Boolean,
