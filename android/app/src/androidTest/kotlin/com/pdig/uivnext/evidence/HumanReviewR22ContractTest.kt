@@ -29,21 +29,28 @@ class HumanReviewR22ContractTest {
         compose.onNodeWithTag("pdig.r22.review.truth-boundary", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText("发现 ≠ 事实", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("关系建议", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("对象候选", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("现实漂移", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag(
+            "pdig.r22.review.item.review-proposal-notion-revolut",
+            useUnmergedTree = true,
+        ).assertExists()
+        compose.onNodeWithTag(
+            "pdig.r22.review.item.review-candidate-adobe",
+            useUnmergedTree = true,
+        ).assertExists()
+        compose.onNodeWithTag(
+            "pdig.r22.review.item.review-drift-netflix",
+            useUnmergedTree = true,
+        ).assertExists()
     }
 
     @Test
-    fun reviewRemainsSecondaryAndFivePrimaryNavSurvives() {
+    fun reviewIsFocusedSecondaryRouteWithHierarchicalUp() {
         val app = createVNextAppState(screen = VScreen.REVIEW)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        listOf("现在", "基础设施", "变更", "记录", "我").forEach { label ->
-            compose.onNodeWithText(label, useUnmergedTree = true).assertExists()
-        }
-        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("pdig.r10.top.back", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithText("待复核", useUnmergedTree = true).assertExists()
     }
 
     @Test
