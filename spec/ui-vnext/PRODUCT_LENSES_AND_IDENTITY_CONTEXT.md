@@ -63,10 +63,18 @@ Current Android status:
 
 ```text
 REFERENCE_UI = IMPLEMENTED
-PRODUCTION_REGION_SEMANTICS = PARTIAL / GATED
+REGION_FACT_DESIGN = COMPLETE
+PRODUCTION_REGION_FACT_CANONICAL = NOT_IMPLEMENTED
+PRODUCTION_GLOBE = GPU_CONTEXT_ONLY / ZERO_SYNTHETIC_LABELS
 ```
 
-The Globe is the spatial entry to Region Lens, not the truth owner.
+The governed semantic design is frozen in:
+`spec/proposals/region-facts-v1.md`.
+
+Production must keep the Earth visually present but its asset geography truth-empty
+until confirmed RegionFacts exist. The Globe is the spatial entry to Region Lens,
+not the truth owner. Territory coordinates/centroids are presentation infrastructure,
+not object physical-location claims.
 
 ### Identity Lens
 
