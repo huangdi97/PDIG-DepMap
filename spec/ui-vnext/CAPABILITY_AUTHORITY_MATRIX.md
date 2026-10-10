@@ -1,7 +1,7 @@
 # PDIG UI vNext — Capability / Authority Matrix
 
 > Date: 2026-10-10  
-> Status: **R31 CURRENT NORMATIVE CONTRACT**
+> Status: **R33 CURRENT NORMATIVE CONTRACT**
 >
 > Purpose: prevent a valid design/reference surface from being mistaken for an
 > executable production capability.
@@ -229,3 +229,38 @@ Preview remains read-only.
 This is **not** a partial ad-hoc v3 fork: the production form exposes the entire
 current Canonical runtime registry and nothing outside it. Any future relation
 widening still requires the normal shared Canonical/codegen/conformance path.
+
+
+## 12. R32/R33 launcher authority boundary
+
+Production VNext source authority now has a debug-only real-Reality rehearsal route,
+but that does not change release authority.
+
+```text
+productionDebug + explicit vnext_production
+→ real AppContainer
+→ same PdigSecureContent / LockGate
+→ ProductionVNextShell
+
+productionRelease
+→ legacy production shell
+→ VNext intent extras ignored
+```
+
+R33 adds an API36 runtime proof for this boundary. A passing rehearsal proves the
+debug cutover path is structurally viable and fail-closed; it does **not** grant
+release cutover authority.
+
+Release activation remains a separate decision requiring:
+- exact-head security/runtime evidence;
+- rollback path;
+- persistence/restart parity;
+- Android Reference Freeze / human acceptance as applicable.
+
+Permanent rule:
+
+```text
+debug rehearsal available
+!=
+release cutover approved
+```
