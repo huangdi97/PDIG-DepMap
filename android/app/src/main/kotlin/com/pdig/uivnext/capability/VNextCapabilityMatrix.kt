@@ -106,14 +106,14 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
     VNextCapabilityGate(
         capability = VNextCapability.LIFECYCLE_PERSISTENCE,
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
-        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
-        reason = "R19 lifecycle fields are valid product/reference semantics but are not yet governed cross-platform Canonical persistence.",
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R40 governs cross-platform maintenance_profile read/write authority; R41 binds Production Card/Number editors and derived occurrences. Unsupported lifecycle concepts such as installment summary remain unavailable.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.REGION_FACT,
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
-        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
-        reason = "Region Lens / GPU Globe are valid reference UX, but production asset geography remains truth-empty until governed RegionFact authority exists.",
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R39 governs RegionFact cross-platform and Production VNext consumes it fail-closed; currency/provider/identifier/locale never infer geography.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.IDENTITY_SUBTYPE,
