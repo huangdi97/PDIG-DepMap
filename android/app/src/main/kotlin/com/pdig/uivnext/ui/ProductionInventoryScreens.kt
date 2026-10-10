@@ -287,6 +287,9 @@ internal fun ProductionGenericObjectDetailScreen(
                     )
                 }
             }
+            item {
+                ProductionPhoneMaintenanceControls(session, item)
+            }
         }
 
         item {
