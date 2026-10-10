@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R29 DESIGN CLOSED / PRODUCTION SOURCE-BINDING INDEX**
+> Status: **R32 DESIGN CLOSED / PRODUCTION SOURCE-BINDING INDEX**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -194,15 +194,20 @@ Current source includes:
 - authoritative Manual Establish gateway + production form;
 - authoritative Manual Relationship for the current five Canonical v3 runtime relations; future/storage-only relation widening remains HOLD.
 
-Still required before launcher cutover:
-- MainActivity / lock-gate production shell injection;
-- exact-head restart/security E2E;
+R32 launcher/security source state:
+- reusable fail-closed `PdigSecureContent` extracted from the current production app;
+- `ProductionVNextSecureHost` uses that exact security gate;
+- productionDebug can explicitly rehearse real-Reality VNext through `vnext_production`;
+- productionRelease ignores both `vnext_demo` and `vnext_production` extras;
+- default production route remains legacy until acceptance.
+
+Still required before release cutover:
+- exact-head productionDebug restart/security/runtime E2E;
+- explicit release cutover decision / rollback switch;
 - generic identity subtype implementation for phone/email;
 - subtype-aware phone/email after Canonical;
-- no synthetic fixture reachable in production;
-- lock/security parity;
-- persistence/restart/E2E;
-- rollback.
+- lock/security parity evidence;
+- persistence/restart/E2E.
 
 ## 12. Capability / authority matrix
 
@@ -245,7 +250,7 @@ tablet runtime/pixels
 GPU runtime evidence
 human pixel acceptance
 Android Reference Freeze
-production VNext screen binding
+production VNext release activation after debug rehearsal
 manual Dependency gateway (R31 implemented for current Canonical v3 runtime relation set)
 Canonical implementations for proposed schemas
 cross-platform conformance for future schemas
