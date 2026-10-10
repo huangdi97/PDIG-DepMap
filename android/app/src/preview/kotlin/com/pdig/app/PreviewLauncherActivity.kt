@@ -13,7 +13,7 @@ import com.pdig.uivnext.VNextShellViewModel
 /**
  * Dedicated launcher for the preview flavor.
  *
- * Normal home-screen launch ALWAYS enters the accepted Light-first UI vNext.
+ * Normal home-screen launch ALWAYS enters the current Light-first UI vNext review candidate.
  * This is an isolated synthetic-reference experience; production PersonalReality
  * and the existing lock-gated MainActivity are not entry points in this flavor.
  */
