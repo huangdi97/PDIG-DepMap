@@ -3,14 +3,13 @@ package com.pdig.uivnext.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
@@ -31,8 +30,8 @@ import com.pdig.uivnext.ui.r9.R16ProjectedRegionOverlay
  * - RegionFact is the only geographic authority;
  * - same-priority conflicts are not silently assigned;
  * - only presentation anchors with known coordinates are plotted;
- * - cross-region arcs require an actual confirmed Dependency with both endpoints
- *   already carrying unambiguous Region Lens selection;
+ * - cross-region arcs require a confirmed Dependency and unambiguous regions on
+ *   both endpoints;
  * - missing geography remains unknown rather than inferred.
  */
 @Composable
@@ -56,83 +55,24 @@ internal fun ProductionWorldContext(
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .weight(1f, fill = false)
-                    .testTag("pdig.production-vnext.governed-world"),
+                    .height(250.dp)
+                    .testTag("pdig.production-vnext.world-stage"),
             ) {
-                androidx.compose.foundation.layout.Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .then(Modifier),
-                ) {
-                    androidx.compose.foundation.layout.Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(0.dp),
-                    ) {
-                        androidx.compose.foundation.layout.Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .testTag("pdig.production-vnext.world-stage"),
-                        ) {
-                            // The explicit height lives at the stage so the explanatory
-                            // truth strip below remains outside the camera viewport.
-                            Box(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(0.dp),
-                            ) {
-                                Surface(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .testTag("pdig.production-vnext.world-canvas"),
-                                    color = PdigV2Colors.Surface,
-                                ) {
-                                    Box(
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(0.dp),
-                                    ) {
-                                        androidx.compose.foundation.layout.Box(
-                                            Modifier
-                                                .fillMaxWidth()
-                                                .padding(0.dp),
-                                        ) {
-                                            // Size is applied through the outer world scene
-                                            // modifier to keep GLSurfaceView and annotation
-                                            // viewport identical.
-                                            Box(
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(0.dp),
-                                            ) {
-                                                androidx.compose.foundation.layout.Box(
-                                                    Modifier
-                                                        .fillMaxWidth()
-                                                        .testTag("pdig.production-vnext.world-r39"),
-                                                ) {
-                                                    R15WorldScene(
-                                                        controller = app.globe,
-                                                        regions = projection.regions,
-                                                        arcingPairs = projection.arcingPairs,
-                                                        reduceMotion = app.reduceMotion,
-                                                        onRegionChosen = { },
-                                                    )
-                                                    R16ProjectedRegionOverlay(
-                                                        controller = app.globe,
-                                                        regions = projection.regions,
-                                                        onRegionChosen = { region ->
-                                                            app.globe.focusRegion(region)
-                                                        },
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                R15WorldScene(
+                    controller = app.globe,
+                    regions = projection.regions,
+                    arcingPairs = projection.arcingPairs,
+                    reduceMotion = app.reduceMotion,
+                    onRegionChosen = { },
+                )
+                R16ProjectedRegionOverlay(
+                    controller = app.globe,
+                    regions = projection.regions,
+                    onRegionChosen = { region ->
+                        // Focus is a presentation action. It does not mutate RegionFact.
+                        app.globe.focusRegion(region)
+                    },
+                )
             }
 
             Surface(
