@@ -434,7 +434,7 @@ private fun ProductionInfrastructure(
                 ProductionFactCard(
                     title = if (cardMasked) "支付工具（已遮蔽）" else card.name,
                     subtitle = listOfNotNull(
-                        if (cardMasked) "发行方已遮蔽" else card.issuer,
+                        productionVisibleCardIssuer(card.issuer, cardMasked),
                         productionPaymentCompactTailLabel(card.last4, cardMasked),
                     ).joinToString(" · ").ifBlank { "已确认支付工具" },
                     meta = "${card.confirmedDependencyCount} 条已确认关系",
@@ -528,7 +528,7 @@ private fun ProductionCardDetail(
         }
 
         ProductionFactCard(
-            title = if (cardPrivacyMask) "发行方已遮蔽" else card.issuer ?: "发行方未记录",
+            title = productionVisibleCardIssuer(card.issuer, cardPrivacyMask),
             subtitle = productionPaymentTailLabel(card.last4, cardPrivacyMask),
             meta = "${card.confirmedDependencyCount} 条已确认关系",
         )
