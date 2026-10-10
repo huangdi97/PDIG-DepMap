@@ -28,6 +28,11 @@ data class ManualNodeCreateResult(
     val graphRevision: Int,
 )
 
+data class MaintenanceWriteResult(
+    val node: NodeRow,
+    val graphRevision: Int,
+)
+
 data class ManualIdentityAnchorCreateRequest(
     val subtype: com.pdig.core.generated.IdentityAnchorSubtype,
     val name: String,
