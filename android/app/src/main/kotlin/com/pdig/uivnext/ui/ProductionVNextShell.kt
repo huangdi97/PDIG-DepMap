@@ -317,7 +317,7 @@ private fun ProductionInfrastructure(
                     title = card.name,
                     subtitle = listOfNotNull(
                         card.issuer,
-                        card.last4?.let { "•••• $it" },
+                        productionPaymentCompactTailLabel(card.last4, app.privacyMask),
                     ).joinToString(" · ").ifBlank { "已确认支付工具" },
                     meta = "${card.confirmedDependencyCount} 条已确认关系",
                     onClick = { app.openCard(card.id) },
@@ -386,7 +386,7 @@ private fun ProductionCardDetail(
 
         ProductionFactCard(
             title = card.issuer ?: "发行方未记录",
-            subtitle = card.last4?.let { "尾号 $it" } ?: "尾号未记录",
+            subtitle = productionPaymentTailLabel(card.last4, app.privacyMask),
             meta = "${card.confirmedDependencyCount} 条已确认关系",
         )
 
