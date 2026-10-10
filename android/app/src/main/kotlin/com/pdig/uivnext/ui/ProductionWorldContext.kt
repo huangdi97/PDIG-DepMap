@@ -20,7 +20,6 @@ import com.pdig.uivnext.production.ProductionConsumerInventory
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
-import com.pdig.uivnext.ui.r9.R16ProjectedRegionOverlay
 
 /**
  * Production Reality world context.
@@ -65,7 +64,7 @@ internal fun ProductionWorldContext(
                     reduceMotion = app.reduceMotion,
                     onRegionChosen = { },
                 )
-                R16ProjectedRegionOverlay(
+                ProductionProjectedRegionOverlay(
                     controller = app.globe,
                     regions = projection.regions,
                     onRegionChosen = { region ->
