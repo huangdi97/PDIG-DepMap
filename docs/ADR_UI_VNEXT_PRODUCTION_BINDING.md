@@ -458,12 +458,30 @@ Only after:
 
 ## 10. Flavor rule
 
-Current behavior is intentionally retained:
+R32 behavior:
 
 ```text
-preview     → VNext reference UI
-production  → lock-gated existing PdigApp
+preview
+→ VNext synthetic reference UI
+
+productionRelease
+→ lock-gated existing PdigApp
+→ ignores vnext_demo / vnext_production extras
+
+productionDebug default
+→ lock-gated existing PdigApp
+
+productionDebug + vnext_demo
+→ synthetic reference evidence path (debug only)
+
+productionDebug + vnext_production
+→ AppContainer Reality
+→ createProductionVNextSession
+→ PdigSecureContent / LockGate
+→ ProductionVNextShell
 ```
+
+The productionDebug Reality path is a cutover rehearsal, not release activation.
 
 Do not change this to:
 
@@ -473,6 +491,25 @@ production → synthetic VNext
 
 A future production cutover must instantiate VNext with a real production source,
 not merely flip `shouldLaunchVNext()`.
+
+## 10.1 R32 secure production rehearsal
+
+R32 extracts the existing production lock lifecycle into `PdigSecureContent`.
+Both the legacy production application and the debug Production VNext host reuse
+that same fail-closed gate.
+
+```text
+Production Reality UI
+→ LockChecking
+→ LockScreen
+→ explicit unlock
+→ content composition
+```
+
+There is no Production VNext branch that composes encrypted Reality before unlock.
+Release builds cannot enable either VNext debug route through Intent extras.
+Final release cutover therefore changes the selected **unlocked content**, not the
+security architecture.
 
 ## 11. Security / privacy
 
@@ -507,8 +544,10 @@ re-authentication path.
 If the host action is absent, the UI renders `Host binding 待接` and the import
 entry is disabled. It must not fake a file picker.
 
-Manual Relationship remains an explicit Native Schema v4 HOLD page; partial
-v3-only relationship mutation is forbidden.
+R31 supersedes the old Native-Schema-v4 blanket HOLD for Manual Relationship.
+Production may authoritatively create the complete **current Canonical v3 runtime
+registry** through `AppContainer.createManualDependency`; storage-only/future
+`verifies` / `bound_to` remain gated. Preview stays read-only.
 
 ## 12. Acceptance gates
 
