@@ -246,14 +246,24 @@ fun ImportScreen(nav: NavController) {
                         wf.busy = true
                         // viewModelScope：即使提交过程中被切到后台也不会被取消
                         wf.launch {
-                            val applied = withContext(Dispatchers.IO) {
-                                container.commitImport(
-                                    preview = p,
-                                    existingSourceId = wf.workflow?.requestedSourceId,
-                                )
+                            val applied = runCatching {
+                                withContext(Dispatchers.IO) {
+                                    container.commitImport(
+                                        preview = p,
+                                        existingSourceId = wf.workflow?.requestedSourceId,
+                                    )
+                                }
                             }
                             wf.busy = false
-                            wf.publishImportResult(applied)
+                            applied.onSuccess {
+                                wf.publishImportResult(it)
+                            }.onFailure {
+                                // Repository validation failures are consumer-safe failures:
+                                // no partial transaction is treated as success and no raw
+                                // exception / stack is exposed to the user.
+                                wf.statusText =
+                                    "导入未完成。请确认所选来源与文件类型一致后重试。"
+                            }
                         }
                     },
                     modifier = Modifier
