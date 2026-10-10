@@ -238,6 +238,40 @@ private fun ProductionInfrastructure(
     ProductionPage(modifier, "基础设施", "只展示当前 Canonical 可以证明的对象类型") {
         ProductionInventorySummary(inventory)
 
+        ProductionSection("管理分类")
+        listOf(
+            Triple(VScreen.CARDS, inventory.counts.paymentAssets, "已绑定"),
+            Triple(VScreen.NUMBERS, inventory.counts.genericIdentityAnchors, "等待 phone subtype"),
+            Triple(VScreen.ACCOUNTS, inventory.counts.accounts, "已绑定"),
+            Triple(VScreen.EMAILS, inventory.counts.genericIdentityAnchors, "等待 email subtype"),
+            Triple(VScreen.DEVICES, inventory.counts.devices, "已绑定"),
+            Triple(VScreen.SERVICES, inventory.counts.services, "已绑定"),
+            Triple(VScreen.WEAKNESSES, 0, "等待 Finding projection"),
+        ).chunked(2).forEach { row ->
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                row.forEach { (screen, count, state) ->
+                    val bound = screen in setOf(
+                        VScreen.CARDS,
+                        VScreen.ACCOUNTS,
+                        VScreen.DEVICES,
+                        VScreen.SERVICES,
+                    )
+                    ProductionCategoryEntry(
+                        title = screen.titleZh,
+                        count = if (bound) count else null,
+                        state = state,
+                        enabled = true,
+                        onClick = { app.navigate(screen) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (row.size == 1) Spacer(Modifier.weight(1f))
+            }
+        }
+
         ProductionSection("支付工具")
         if (inventory.paymentAssets.isEmpty()) {
             ProductionEmpty("没有已确认的 payment_instrument。")
@@ -447,6 +481,56 @@ private fun ProductionSources(
             meta = "对象建立不自动创建依赖关系",
             onClick = { app.navigate(VScreen.IMPORT) },
         )
+    }
+}
+
+@Composable
+private fun ProductionCategoryEntry(
+    title: String,
+    count: Int?,
+    state: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier
+            .defaultMinSize(minHeight = 78.dp)
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(
+            Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    title,
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (count != null) {
+                    Text(
+                        count.toString(),
+                        color = PdigV2Colors.PrimaryText,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+            Text(
+                state,
+                color = if (count != null) PdigV2Colors.TextSecondary else PdigV2Colors.TextMuted,
+                fontSize = 9.sp,
+            )
+        }
     }
 }
 
