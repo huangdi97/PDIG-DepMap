@@ -148,8 +148,11 @@ internal fun productionSearchHits(
     snapshot: com.pdig.uivnext.production.VNextProductionSnapshot,
     query: String,
 ): List<ProductionSearchHit> {
+    val normalized = query.trim()
+    if (normalized.isEmpty()) return emptyList()
+
     fun matches(vararg values: String?): Boolean =
-        values.filterNotNull().any { it.contains(query, ignoreCase = true) }
+        values.filterNotNull().any { it.contains(normalized, ignoreCase = true) }
 
     val objectHits = snapshot.objects.mapNotNull { item ->
         val kindLabel = productionObjectKindLabel(item.kind)
