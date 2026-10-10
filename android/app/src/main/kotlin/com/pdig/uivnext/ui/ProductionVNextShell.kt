@@ -239,16 +239,20 @@ private fun ProductionNow(
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "现在", "基于当前加密数据的概览") {
+    val activePlans = snapshot.plans.count { it.workflowState != "closed" }
+    val greeting = com.pdig.uivnext.ui.r9.r9Greeting(
+        java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY),
+    )
+    ProductionPage(
+        modifier,
+        greeting,
+        "你的数字基础设施 · 已记录的全球上下文",
+    ) {
+        // The globe is the product's spatial context. Do not bury it under
+        // a 9-count KPI wall: the complete classified inventory lives in Infrastructure.
         ProductionWorldContext(app, snapshot, inventory)
-        ProductionMetricRow(
-            listOf(
-                inventory.pendingReviewCount to "待复核",
-                snapshot.plans.count { it.workflowState != "closed" } to "进行中变更",
-                inventory.activeSourceCount to "活跃数据源",
-            ),
-        )
 
+        ProductionSection("现在需要处理")
         if (inventory.pendingReviewCount > 0) {
             ProductionFactCard(
                 title = "待复核",
@@ -257,18 +261,29 @@ private fun ProductionNow(
                 onClick = { app.navigate(VScreen.REVIEW) },
             )
         }
+        if (activePlans > 0) {
+            ProductionFactCard(
+                title = "进行中的变更",
+                subtitle = "$activePlans 个已记录计划需要继续核对和验证",
+                meta = "已记录完成 ≠ 验证完成",
+                onClick = { app.navigate(VScreen.CHANGE) },
+            )
+        }
+        if (inventory.pendingReviewCount == 0 && activePlans == 0) {
+            ProductionEmpty("当前没有已记录的待处理复核或进行中计划；未知不等于安全。")
+        }
 
         val visibleTimeline = productionNowTimeline(
             snapshot = snapshot,
             showUpcoming = app.showUpcoming,
         )
-        ProductionSection(if (app.showUpcoming) "近期记录 / 计划" else "当前需要处理")
+        ProductionSection(if (app.showUpcoming) "接下来 / 时间节点" else "当前关键记录")
         if (visibleTimeline.isEmpty()) {
             ProductionEmpty(
                 if (app.showUpcoming)
-                    "当前没有可投影的 Timeline 项；这不表示没有风险或依赖。"
+                    "当前没有可投影的 Timeline 项；不表示没有未来事项。"
                 else
-                    "已隐藏未来时间节点；当前没有 attention / overdue / today 项。这不表示没有未来事项。"
+                    "尚无 attention / overdue / today 记录；不表示没有未来事项。"
             )
         } else {
             visibleTimeline.take(8).forEach { item ->
@@ -284,8 +299,37 @@ private fun ProductionNow(
             }
         }
 
-        ProductionSection("基础设施")
-        ProductionInventorySummary(inventory)
+        ProductionSection("你的基础设施")
+        // Four contextual asset entries, not an administrative statistics grid.
+        val entries = listOf(
+            Triple(VScreen.CARDS, inventory.counts.paymentAssets, "支付工具"),
+            Triple(VScreen.NUMBERS, inventory.counts.phoneIdentities, "手机号"),
+            Triple(VScreen.ACCOUNTS, inventory.counts.accounts, "账户"),
+            Triple(VScreen.SERVICES, inventory.counts.services, "服务"),
+        )
+        entries.chunked(2).forEach { row ->
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                row.forEach { (screen, count, label) ->
+                    ProductionCategoryEntry(
+                        title = label,
+                        count = count,
+                        state = "已确认资产 · 查看对象",
+                        enabled = true,
+                        onClick = { app.navigate(screen) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+        ProductionFactCard(
+            title = "查看全部基础设施",
+            subtitle = "资产、通信身份、关系与弱点统一查看",
+            meta = "以已确认 Reality 为准；搜索不到不代表不存在",
+            onClick = { app.navigate(VScreen.INFRASTRUCTURE) },
+        )
     }
 }
 
