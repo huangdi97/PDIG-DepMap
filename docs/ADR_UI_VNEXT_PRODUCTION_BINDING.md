@@ -473,3 +473,53 @@ Until all are true:
 ```text
 PRODUCTION_VNEXT_CUTOVER = HOLD
 ```
+
+## 13. Human Review production binding
+
+R22 adds the consumer Human Review surface but keeps Preview read-only.
+
+Production source:
+
+```text
+AppContainer.pendingProposals()
+AppContainer.pendingCandidates()
+AppContainer.openDrifts()
+→ AppContainerVNextReviewSource
+→ VNextProductionReviewQueue
+→ ProductionReviewConsumerInbox
+```
+
+Production mutations:
+
+```text
+Proposal
+  acceptProposal / rejectProposal
+
+Candidate
+  acceptCandidate / dismissCandidate
+
+Drift
+  resolveDriftAsReplacement
+  resolveDriftAsAdditionalPath
+  dismissDrift
+```
+
+`稍后确认` performs no domain mutation.
+
+Required interaction architecture:
+
+```text
+user chooses decision
+→ VNextReviewActionGateway
+→ AppContainer authoritative mutation
+→ re-read review queue
+→ re-read production snapshot / revision where relevant
+→ render authoritative result
+```
+
+The production screen must never optimistically remove a review card and treat that
+as confirmation before the AppContainer call succeeds.
+
+Review source/action binding may be implemented before launcher cutover behind a
+production-source test harness, but synthetic Preview items and production queue
+items must never share mutation handlers.
