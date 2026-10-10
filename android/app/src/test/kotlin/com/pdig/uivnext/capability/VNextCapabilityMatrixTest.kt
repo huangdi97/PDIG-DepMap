@@ -20,6 +20,8 @@ class VNextCapabilityMatrixTest {
                 VNextCapability.CHANGE_PAYMENT_CARD,
                 VNextCapability.LIFECYCLE_PERSISTENCE,
                 VNextCapability.REGION_FACT,
+                VNextCapability.IDENTITY_SUBTYPE,
+                VNextCapability.IDENTITY_IDENTIFIER,
             ),
             visibleReferenceCapabilities(),
         )
@@ -43,7 +45,8 @@ class VNextCapabilityMatrixTest {
         assertFalse(hasProductionAuthority(VNextCapability.TRUSTED_HANDOFF))
         assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
         assertFalse(hasProductionAuthority(VNextCapability.REGION_FACT))
-        assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_SUBTYPE))
+        assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_SUBTYPE))
+        assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_IDENTIFIER))
         assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_PREPAREDNESS))
         assertFalse(hasProductionAuthority(VNextCapability.RECOVERY_INCIDENT))
@@ -74,17 +77,16 @@ class VNextCapabilityMatrixTest {
     }
 
     @Test
-    fun productionGeographyAndIdentitySubtypeStayTruthGated() {
+    fun productionGeographyStaysGatedWhileGovernedIdentityIsAvailable() {
         assertTrue(canShowReference(VNextCapability.REGION_FACT))
         assertEquals(
             VNextProductionAuthority.REQUIRES_CANONICAL,
             capabilityGate(VNextCapability.REGION_FACT).productionAuthority,
         )
-        assertFalse(canShowReference(VNextCapability.IDENTITY_SUBTYPE))
-        assertEquals(
-            VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
-            capabilityGate(VNextCapability.IDENTITY_SUBTYPE).visibility,
-        )
+        assertTrue(canShowReference(VNextCapability.IDENTITY_SUBTYPE))
+        assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_SUBTYPE))
+        assertTrue(canShowReference(VNextCapability.IDENTITY_IDENTIFIER))
+        assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_IDENTIFIER))
     }
 
     @Test
