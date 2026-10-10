@@ -56,6 +56,57 @@ class ProductionVNextReviewTest {
     }
 
     @Test
+    fun consumerProjectionKeepsReviewKindsAndAuthorityBoundaryExplicit() {
+        val queue = VNextProductionReviewQueue(
+            proposals = listOf(
+                VNextProposalReviewItem(
+                    id = "p1",
+                    fromId = "card-1",
+                    fromName = "主卡",
+                    toId = "svc-1",
+                    toName = "视频服务",
+                    relation = "funding_source",
+                    capability = "payment",
+                    confidence = 0.97,
+                    observationCount = 3,
+                ),
+            ),
+            candidates = listOf(
+                VNextCandidateReviewItem(
+                    id = "c1",
+                    candidateKind = "service",
+                    label = "候选服务",
+                    observationCount = 2,
+                ),
+            ),
+            drifts = listOf(
+                VNextDriftReviewItem(
+                    id = "d1",
+                    kind = "replacement",
+                    targetNodeId = "card-1",
+                    targetNodeName = "主卡",
+                    capability = "payment",
+                    candidateRelation = "funding_source",
+                    observationCount = 1,
+                    detectedAt = "2026-10-10T00:00:00Z",
+                ),
+            ),
+        )
+
+        val inbox = buildProductionReviewConsumerInbox(queue)
+
+        assertEquals(3, inbox.total)
+        assertEquals(listOf("确认关系", "拒绝"), inbox.proposals.single().decisions)
+        assertTrue(inbox.proposals.single().summary.contains("确认前不会进入依赖图"))
+        assertEquals(listOf("确认对象", "忽略"), inbox.candidates.single().decisions)
+        assertTrue(inbox.drifts.single().summary.contains("只有明确确认后才修改 Reality"))
+        assertEquals(
+            listOf("已替换", "两个都在用", "没有变化", "稍后确认"),
+            inbox.drifts.single().decisions,
+        )
+    }
+
+    @Test
     fun unknownNodeNamesStayHonestInsteadOfLeakingInternalIds() {
         val queue = buildProductionReviewQueue(
             nodes = emptyList(),
