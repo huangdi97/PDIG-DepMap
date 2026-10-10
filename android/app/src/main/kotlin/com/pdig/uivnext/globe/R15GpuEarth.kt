@@ -216,7 +216,7 @@ void main() {
     vec3 sky = mix(vec3(0.90, 0.960, 1.00), vec3(0.976, 0.993, 1.00),
                    smoothstep(0.0, 1.0, uvScreen.y));
     vec2 pixel = gl_FragCoord.xy - uViewport * 0.5;
-    float rPx = min(uViewport.x * 0.42, uViewport.y * 0.47) * clamp(uCamera.z, 0.70, 1.9);
+    float rPx = min(uViewport.x * 0.45, uViewport.y * 0.47) * clamp(uCamera.z, 0.70, 1.9);
     vec2 p = pixel / rPx;
     float r2 = dot(p, p);
     float radius = sqrt(r2);
