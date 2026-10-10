@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -108,8 +109,8 @@ internal fun ProductionManualEstablishScreen(
     var name by rememberSaveable { mutableStateOf("") }
     var issuer by rememberSaveable { mutableStateOf("") }
     var last4 by rememberSaveable { mutableStateOf("") }
-    var result by rememberSaveable { mutableStateOf<ManualEstablishResultView?>(null) }
-    var error by rememberSaveable { mutableStateOf<String?>(null) }
+    var result by remember { mutableStateOf<ManualEstablishResultView?>(null) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.manual-establish"),
