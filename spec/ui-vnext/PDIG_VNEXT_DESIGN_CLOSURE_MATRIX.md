@@ -22,7 +22,7 @@ No roadmap capability creates a sixth primary destination.
 | --- | --- | --- | --- |
 | Now / attention | complete | implemented | existing production projection still needs final VNext cutover |
 | Infrastructure inventory | complete | implemented | existing production nodes available |
-| Region / Globe | complete | implemented | runtime pixel/GPU evidence still gates freeze |
+| Region / Globe | complete | implemented | Production reuses GPU Earth with zero inferred regions; confirmed geographic projection waits governed region semantics; runtime pixel/GPU evidence still gates freeze |
 | Cards | complete | implemented | production category/detail/relations/Impact + replace-card ChangePlan entry source-bound; launcher cutover pending |
 | Numbers | complete | implemented reference | production phone mapping waits identity subtype |
 | Accounts | complete | implemented | production category + focused generic detail + Impact source-bound |
