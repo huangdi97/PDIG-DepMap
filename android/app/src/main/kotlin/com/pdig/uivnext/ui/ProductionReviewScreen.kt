@@ -69,7 +69,7 @@ internal fun ProductionReviewScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "建议、候选对象与 Reality 漂移只有经过明确人工决定才会改变已确认 Reality。",
+                    "关系建议、候选对象与可能发生的变化只有经过你的明确决定，才会进入已确认数据。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -121,7 +121,7 @@ internal fun ProductionReviewScreen(
                         try {
                             inbox = coordinator.decide(item.kind, item.id, decision)
                         } catch (t: Throwable) {
-                            error = "复核操作未完成；Reality 未在本地伪造更新。"
+                            error = "复核操作未完成；已确认数据没有被界面自行修改。"
                         }
                     }
                 }
@@ -142,14 +142,14 @@ internal fun ProductionReviewScreen(
             }
 
             if (inbox.drifts.isNotEmpty()) {
-                item { ReviewSectionTitle("Reality 漂移") }
+                item { ReviewSectionTitle("可能发生的变化") }
                 items(inbox.drifts, key = { "drift:" + it.id }) { item ->
                     ReviewItemCard(item) { decision ->
                         error = null
                         try {
                             inbox = coordinator.decide(item.kind, item.id, decision)
                         } catch (t: Throwable) {
-                            error = "漂移决定未完成；现有 Reality 保持不变。"
+                            error = "处理未完成；现有已确认数据保持不变。"
                         }
                     }
                 }
@@ -167,7 +167,7 @@ private fun ReviewCountStrip(inbox: ProductionReviewConsumerInbox) {
         listOf(
             inbox.proposals.size to "关系建议",
             inbox.candidates.size to "对象候选",
-            inbox.drifts.size to "Reality 漂移",
+            inbox.drifts.size to "可能发生的变化",
         ).forEach { (count, label) ->
             Surface(
                 modifier = Modifier.weight(1f),
