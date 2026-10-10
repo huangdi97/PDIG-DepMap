@@ -12,7 +12,7 @@
     "baseline": "Test Files 43 passed, Tests 453 passed"
   },
   "counts": {
-    "cases": 153,
+    "cases": 161,
     "byCategory": {
       "impact": 13,
       "readiness": 16,
@@ -34,7 +34,8 @@
       "provider-policy": 4,
       "identity-relations": 6,
       "identity-profile": 9,
-      "region-fact": 16
+      "region-fact": 16,
+      "maintenance-profile": 8
     }
   },
   "importFixtures": {
@@ -1142,6 +1143,62 @@
       "path": "fixtures/region-fact/region-fact-rg16-future-facet-fails-closed.json",
       "sha256": "78f825733e75a86d52d6795f67a6c231514e06724547d5cba208c948d26e896b",
       "description": "RG-16 unknown future facet fails closed while valid sibling survives"
+    },
+    {
+      "id": "maintenance-mp01-card-confirmed",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp01-card-confirmed.json",
+      "sha256": "e081cf8061e7104013524de8752de59f1ef86f851b19506a7a8bdd5e03e4312e",
+      "description": "MP-01 confirmed card maintenance facts and annual checkpoint"
+    },
+    {
+      "id": "maintenance-mp02-phone-confirmed",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp02-phone-confirmed.json",
+      "sha256": "58fc7a7fd230a038099760925dbcf917030e05ceada36ea6d9e07863c473fc7a",
+      "description": "MP-02 number maintenance requires governed phone subtype"
+    },
+    {
+      "id": "maintenance-mp03-generic-identity-rejected",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp03-generic-identity-rejected.json",
+      "sha256": "c438029b807d140bf76b0f37827c3302c48a5e9810490ebd6d321afb437d6e8e",
+      "description": "MP-03 generic identity cannot acquire number lifecycle by lookalike metadata"
+    },
+    {
+      "id": "maintenance-mp04-email-number-fact-rejected",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp04-email-number-fact-rejected.json",
+      "sha256": "d2eb286214f2c0189a183008eb13717833350e118a2969fcfd7c4632ede430a7",
+      "description": "MP-04 email identity cannot receive number lifecycle"
+    },
+    {
+      "id": "maintenance-mp05-invalid-sibling-fail-closed",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp05-invalid-sibling-fail-closed.json",
+      "sha256": "8470f593b1aedf660cc252dd71ffb3979ade08245607b28e0586eb57b54899ec",
+      "description": "MP-05 malformed/proposal items fail closed while valid siblings survive"
+    },
+    {
+      "id": "maintenance-mp06-retired-paused-not-current",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp06-retired-paused-not-current.json",
+      "sha256": "7ffe734f2a18dcf49e42a5d84f7836a07397126d14af47bf6f2217f426f3bada",
+      "description": "MP-06 retired and paused stay historical but leave current projection"
+    },
+    {
+      "id": "maintenance-mp07-lookalike-no-inference",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp07-lookalike-no-inference.json",
+      "sha256": "527aa1af842e1c0652a87890c2b443d64271cc172e25b0025165c219384db3c4",
+      "description": "MP-07 provider/reference lookalikes never infer maintenance Reality"
+    },
+    {
+      "id": "maintenance-mp08-value-types-strict",
+      "category": "maintenance-profile",
+      "path": "fixtures/maintenance-profile/maintenance-mp08-value-types-strict.json",
+      "sha256": "1fc2948c20d17b4e63322e58f706730f6c8ebb31188de77e2299a4a3ae2c6e39",
+      "description": "MP-08 value type and canonical value syntax are kind-specific"
     }
   ]
 }
