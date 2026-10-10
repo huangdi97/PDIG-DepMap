@@ -1,0 +1,29 @@
+{
+  "id": "region-fact-rg14-context-intersection-no-mutation",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-14 Identity Context labels do not create or rewrite RegionFact",
+  "input": {
+    "fieldsJson": "{\"identityContext\":\"英国金融\",\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-cn\",\"facet\":\"provider_jurisdiction\",\"territory_code\":\"CN\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-cn",
+        "facet": "provider_jurisdiction",
+        "territoryCode": "CN",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-cn"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "CN",
+      "facet": "provider_jurisdiction"
+    }
+  }
+}
