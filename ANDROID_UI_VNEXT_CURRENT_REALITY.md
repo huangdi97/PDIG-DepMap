@@ -60,7 +60,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **PENDING on current R29 head** |
+| Exact-head GPU runtime proof | **PENDING on current R31 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -442,7 +442,8 @@ Source-bound production surfaces now include:
 - Sources;
 - Establish hub + production Manual Establish;
 - host-owned FileWorkflowCoordinator handoff for real file import;
-- explicit Native Schema v4 HOLD for manual relationship mutation;
+- authoritative Manual Relationship for the current Canonical v3 runtime registry;
+- storage-only/future verifies/bound_to remain HOLD;
 - production Reality-only Search;
 - fifth-primary `我` production personal control surface;
 - local Presentation privacy/motion/upcoming/rail preferences;
@@ -642,7 +643,7 @@ R29 has source contracts for:
 - authoritative manual Node mutation source + device evidence test;
 - generated runtime-creatable Node policy;
 - Manual Relationship route, runtime relation vocabulary and unknown/required boundary;
-- explicit Native Schema v4 gate for production manual relation mutation;
+- authoritative current-v3 manual relation mutation + explicit future/storage relation gate;
 - production session rejects Reference data source;
 - production shell five-primary navigation / category / detail / Search / Presentation preference contracts;
 - production Reality-only search projection;
@@ -823,5 +824,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R29 runtime
+The next blocker is no longer “missing UI design.” It is fresh exact-head R31 runtime
 verification, launcher/security integration and the Canonical migrations that remain explicitly gated.
