@@ -61,8 +61,8 @@ internal fun ProductionPaymentAssetFace(
     privacyMask: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val issuer = asset.issuer?.takeIf { it.isNotBlank() } ?: "发行方未记录"
-    val identity = CardIdentityProfile.forIssuer(asset.issuer.orEmpty())
+    val issuer = if (privacyMask) "发行方已遮蔽" else asset.issuer?.takeIf { it.isNotBlank() } ?: "发行方未记录"
+    val identity = CardIdentityProfile.forIssuer(if (privacyMask) "" else asset.issuer.orEmpty())
     val theme = cardThemeInfo(presentation?.themeId ?: "minimal")
     val material = when (presentation?.material) {
         "glass" -> CardMaterial.GLASS
@@ -100,7 +100,7 @@ internal fun ProductionPaymentAssetFace(
             // A 2-column consumer card on a phone is ~160dp wide, not a
             // full-width card detail. Adapt the identity typography in place.
             val compactFace = maxWidth < 220.dp
-            if (localArt != null) {
+            if (localArt != null && !privacyMask) {
                 Image(
                     bitmap = localArt.asImageBitmap(),
                     contentDescription = "本机卡面图片",
@@ -136,7 +136,7 @@ internal fun ProductionPaymentAssetFace(
                         verticalArrangement = Arrangement.spacedBy(if (compactFace) 1.dp else 3.dp),
                     ) {
                         Text(
-                            asset.name,
+                            if (privacyMask) "支付工具（已遮蔽）" else asset.name,
                             color = PdigV2Colors.AssetTextPrimary,
                             fontSize = if (compactFace) 11.sp else 16.sp,
                             fontWeight = FontWeight.Bold,
