@@ -65,7 +65,7 @@ internal fun ProductionCardChangeEntry(
                         )
                         app.openProductionPlan(plan.id, plan.scenario)
                     } catch (t: Throwable) {
-                        error = "未能建立或读取更换计划；界面没有在本地伪造 ChangePlan。"
+                        error = "未能建立或读取更换计划；界面没有在本地伪造计划状态。"
                     }
                 } else Modifier
             )
@@ -86,9 +86,9 @@ internal fun ProductionCardChangeEntry(
             )
             Text(
                 if (existing != null) {
-                    "已有未结束的 replace_payment_card ChangePlan；继续使用同一权威计划。"
+                    "已有未结束的更换支付卡计划；继续使用同一份已记录计划。"
                 } else {
-                    "显式创建生产 ChangePlan；不会自动选择替代卡，也不会把 Impact 结果当作已执行。"
+                    "显式建立更换计划；不会自动选择替代卡，也不会把影响分析结果当作已经执行。"
                 },
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 10.sp,
