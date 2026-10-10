@@ -304,14 +304,33 @@
       "id": "weaknesses",
       "route": "WEAKNESSES",
       "r9File": "R9SecondaryScreen.kt",
+      "adaptiveFile": "InfraSecondaryScreens.kt",
       "referencePanel": null,
       "designZone": [
-        "ObjectIdentity",
-        "KnownRelations",
-        "RiskOrUnknown",
+        "ContinuityFindingGrammar",
+        "ConfirmedBasis",
+        "ExplicitUnknowns",
+        "RecommendedNextAction",
+        "MaintenanceAndMigrationReminders",
         "RegionContext"
       ],
-      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+      "requiredStates": [
+        "single-point-of-failure",
+        "shared-failure-domain",
+        "recovery-cycle",
+        "unconfirmed-fallback",
+        "stale-recovery-information",
+        "unknown-critical-path",
+        "pending-verification",
+        "honest-empty"
+      ],
+      "forbidden": [
+        "global-health-score",
+        "path-count-as-independent-path-count",
+        "compose-edge-count-as-failure-domain-solver",
+        "unknown-as-safe"
+      ],
+      "status": "R27_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
     },
     {
       "id": "card-image",
