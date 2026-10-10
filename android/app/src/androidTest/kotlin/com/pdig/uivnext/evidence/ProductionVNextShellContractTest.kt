@@ -59,6 +59,25 @@ class ProductionVNextShellContractTest {
                     surfaceKind = VNextProductionSurfaceKind.ACCOUNT,
                 ),
                 VNextProductionObject(
+                    id = "phone-1",
+                    kind = "identity_anchor",
+                    name = "+86 138****8823",
+                    surfaceKind = VNextProductionSurfaceKind.PHONE_IDENTITY,
+                    identitySubtype = "phone_number",
+                    identityVerificationBasisType = "user_confirmed",
+                    identityConfirmedAt = "2026-10-10T00:00:00Z",
+                    identityEvidenceRefs = listOf("ev-phone"),
+                ),
+                VNextProductionObject(
+                    id = "email-1",
+                    kind = "identity_anchor",
+                    name = "m***@example.com",
+                    surfaceKind = VNextProductionSurfaceKind.EMAIL_IDENTITY,
+                    identitySubtype = "email_address",
+                    identityVerificationBasisType = "authoritative_source",
+                    identityConfirmedAt = "2026-10-10T01:00:00Z",
+                ),
+                VNextProductionObject(
                     id = "identity-1",
                     kind = "identity_anchor",
                     name = "通用身份",
@@ -152,7 +171,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.me.controls", useUnmergedTree = true)
             .assertExists()
         compose.onNodeWithText("我的数字生活", substring = true).assertIsDisplayed()
-        compose.onNodeWithText("号码 / 邮箱 subtype", substring = true).assertExists()
+        compose.onNodeWithText("号码 / 邮箱只在受治理 subtype", substring = true).assertExists()
     }
 
     @Test
@@ -191,6 +210,50 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("从相册更换卡面").assertExists()
         compose.onNodeWithText("图片仅保存在本机应用私有目录", substring = true)
             .assertExists()
+    }
+
+    @Test
+    fun governedPhoneAndEmailAppearInProductionCategoriesAndDetails() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.navigate(VScreen.NUMBERS) }
+        compose.waitForIdle()
+        compose.onNodeWithText("+86 138****8823").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("手机号身份").assertIsDisplayed()
+        compose.onNodeWithText("用户已确认", substring = true).assertExists()
+        compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
+            .assertExists()
+
+        compose.runOnIdle { session.appState.navigate(VScreen.EMAILS) }
+        compose.waitForIdle()
+        compose.onNodeWithText("m***@example.com").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("邮箱身份").assertIsDisplayed()
+        compose.onNodeWithText("权威来源已确认", substring = true).assertExists()
+    }
+
+    @Test
+    fun privacyMaskHidesGovernedIdentityNamesWithoutRemovingSubtype() {
+        val session = session()
+        compose.runOnIdle { session.appState.setPrivacyMask(true) }
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.navigate(VScreen.NUMBERS) }
+        compose.waitForIdle()
+        compose.onNodeWithText("+86 138****8823").assertDoesNotExist()
+        compose.onNodeWithText("手机号身份（已遮蔽）").assertExists()
     }
 
     @Test
