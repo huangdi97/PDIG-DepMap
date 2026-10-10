@@ -1,6 +1,10 @@
 # ANDROID_REFERENCE_MAPPING.md
 
-> **R27 · 2026-10-10 · Android Light Reference source contract**
+> **R27 Reference visual semantics · current branch source = R29**
+>
+> R27 is the last Reference-visual semantic expansion. R28/R29 add production-source
+> binding without redefining the selected Android Light visual direction. Any fresh
+> acceptance, however, must run from the exact **current R29 remote HEAD**.
 >
 > This file maps the v2.3 product architecture and the human-selected light reference
 > board to Android native layouts. It is a **source/design contract**, not proof of
@@ -599,7 +603,7 @@ Avoid:
 
 ## 21. Runtime / Freeze boundary
 
-R19 source completeness is not Reference Freeze.
+Reference source completeness and R29 production binding are not Reference Freeze.
 
 The acceptance chain is:
 
@@ -614,7 +618,7 @@ exact remote HEAD
 → ANDROID_REFERENCE_FREEZE decision
 ```
 
-Old R17/R18 screenshots cannot prove R19.
+Any pre-R29 screenshots or PASS statements cannot prove the current R29 branch.
 
 Until that chain finishes:
 
