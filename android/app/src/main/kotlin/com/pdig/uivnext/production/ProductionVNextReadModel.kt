@@ -24,6 +24,7 @@ internal interface VNextReadModelSource {
     fun impact(targetNodeId: String): VNextProductionImpact
     fun plan(planId: String): VNextProductionPlan?
     fun records(): List<VNextProductionRecordItem>
+    fun findings(): VNextProductionFindingReport
 }
 
 internal enum class VNextProjectionTruth {
@@ -233,6 +234,9 @@ internal class AppContainerVNextReadModelSource(
                 app.planDetail(row.id)?.let(::mapProductionPlan)
             },
         )
+
+    override fun findings(): VNextProductionFindingReport =
+        buildProductionContinuityFindings(app)
 }
 
 internal fun productionSurfaceKind(kind: String): VNextProductionSurfaceKind = when (kind) {
