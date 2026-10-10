@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R31**
+> **Current reality · 2026-10-10 · R32**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,24 +13,24 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R31
+ANDROID_UI_VNEXT_SOURCE = R32
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_CUTOVER = HOLD
 
-CANONICAL_SCHEMA_CHANGE_FOR_R31_SOURCE = NONE
-DEPMAP_PAYLOAD_CHANGE_FOR_R31_SOURCE = NONE
+CANONICAL_SCHEMA_CHANGE_FOR_R32_SOURCE = NONE
+DEPMAP_PAYLOAD_CHANGE_FOR_R32_SOURCE = NONE
 
-FRESH_R31_BUILD = PENDING
-FRESH_R31_UNIT_TESTS = PENDING
-FRESH_R31_INSTRUMENTATION = PENDING
-FRESH_R31_PHONE_PIXELS = PENDING
-FRESH_R31_TABLET_PIXELS = PENDING
-FRESH_R31_HUMAN_ACCEPTANCE = PENDING
+FRESH_R32_BUILD = PENDING
+FRESH_R32_UNIT_TESTS = PENDING
+FRESH_R32_INSTRUMENTATION = PENDING
+FRESH_R32_PHONE_PIXELS = PENDING
+FRESH_R32_TABLET_PIXELS = PENDING
+FRESH_R32_HUMAN_ACCEPTANCE = PENDING
 ```
 
-Do not reuse pre-R31 screenshots or old PASS statements as proof of the current
+Do not reuse pre-R32 screenshots or old PASS statements as proof of the current
 source.
 
 ## 1. Navigation / shell
@@ -45,7 +45,7 @@ source.
 | Header Up | **IMPLEMENTED_SOURCE** — hierarchical parent |
 | State host | **IMPLEMENTED_SOURCE** — `VNextShellViewModel` |
 | Persistent presentation prefs | **IMPLEMENTED_SOURCE** — local stores, outside Canonical |
-| Production launch | **HOLD** — production still lock-gated legacy application |
+| Production launch | **DEFAULT HOLD** — production release still opens the lock-gated legacy application; productionDebug now has an explicit real-Reality VNext rehearsal path behind the same LockGate |
 
 ## 2. Now / Globe
 
@@ -60,7 +60,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **PENDING on current R31 head** |
+| Exact-head GPU runtime proof | **PENDING on current R32 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -377,7 +377,7 @@ The inventory/impact projections are read-only seams. Separate authoritative mut
 gateways now exist for Change, Human Review and Manual Establish. None of these
 switches the launcher, makes Preview writable, or claims R19 lifecycle persistence.
 
-### R31 Manual Relationship authority
+### R32 Manual Relationship authority
 
 Production VNext now supports authoritative manual confirmation of the complete
 **current Canonical v3 runtime relation set**:
@@ -824,5 +824,15 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R31 runtime
-verification, launcher/security integration and the Canonical migrations that remain explicitly gated.
+The next blocker is no longer “missing UI design.” It is fresh exact-head R32 runtime
+verification, release cutover acceptance and the Canonical migrations that remain explicitly gated.
+
+R32 removes two former launcher ambiguities:
+- productionRelease ignores both synthetic-reference and production-VNext Intent extras;
+- productionDebug may explicitly open a real `AppContainer`-backed VNext rehearsal,
+  but only behind the same extracted fail-closed `PdigSecureContent` used by the
+  current production app.
+
+Therefore “launcher/security integration” is now source-implemented for rehearsal;
+the remaining launcher gate is release activation + restart/security/runtime evidence,
+not a missing host architecture.
