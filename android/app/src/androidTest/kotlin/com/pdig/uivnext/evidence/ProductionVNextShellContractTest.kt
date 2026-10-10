@@ -1,0 +1,181 @@
+package com.pdig.uivnext.evidence
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.production.ProductionVNextSession
+import com.pdig.uivnext.production.VNextPendingReviewSummary
+import com.pdig.uivnext.production.VNextProductionDependency
+import com.pdig.uivnext.production.VNextProductionImpact
+import com.pdig.uivnext.production.VNextProductionObject
+import com.pdig.uivnext.production.VNextProductionPlan
+import com.pdig.uivnext.production.VNextProductionRecordItem
+import com.pdig.uivnext.production.VNextProductionSnapshot
+import com.pdig.uivnext.production.VNextProductionSourceItem
+import com.pdig.uivnext.production.VNextProductionSurfaceKind
+import com.pdig.uivnext.production.VNextRuntimeDataMode
+import com.pdig.uivnext.production.VNextRuntimeDataSource
+import com.pdig.uivnext.production.VNextSourceCoverageSummary
+import com.pdig.uivnext.production.buildProductionConsumerInventory
+import com.pdig.uivnext.ui.ProductionVNextShell
+import com.pdig.uivnext.ui.VAppState
+import org.junit.Assert.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class ProductionVNextShellContractTest {
+    @get:Rule
+    val compose = createComposeRule()
+
+    private fun session(): ProductionVNextSession {
+        val snapshot = VNextProductionSnapshot(
+            revision = 21,
+            objects = listOf(
+                VNextProductionObject(
+                    id = "card-1",
+                    kind = "payment_instrument",
+                    name = "生产主卡",
+                    surfaceKind = VNextProductionSurfaceKind.PAYMENT_ASSET,
+                    issuer = "生产银行",
+                    last4 = "8823",
+                ),
+                VNextProductionObject(
+                    id = "account-1",
+                    kind = "account",
+                    name = "账户 A",
+                    surfaceKind = VNextProductionSurfaceKind.ACCOUNT,
+                ),
+                VNextProductionObject(
+                    id = "identity-1",
+                    kind = "identity_anchor",
+                    name = "通用身份",
+                    surfaceKind = VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
+                ),
+            ),
+            confirmedDependencies = listOf(
+                VNextProductionDependency(
+                    id = "dep-1",
+                    fromId = "card-1",
+                    fromName = "生产主卡",
+                    relation = "funding_source",
+                    toId = "account-1",
+                    toName = "账户 A",
+                    capability = "payment",
+                    criticality = "required",
+                ),
+            ),
+            timeline = emptyList(),
+            plans = emptyList(),
+            pendingReview = VNextPendingReviewSummary(1, 0, 0),
+            sourceCoverage = VNextSourceCoverageSummary(1, 1),
+            sources = listOf(
+                VNextProductionSourceItem(
+                    id = "source-1",
+                    label = "生产账单",
+                    adapterId = "statement",
+                    state = "active",
+                    lastIngestedAt = null,
+                ),
+            ),
+        )
+        return ProductionVNextSession(
+            appState = VAppState(),
+            dataSource = FakeProductionSource(snapshot),
+        )
+    }
+
+    @Test
+    fun compactShellKeepsFivePrimaryMeAndRealitySearch() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.waitForIdle()
+
+        listOf("now", "infrastructure", "change", "records", "me").forEach { route ->
+            compose.onNodeWithTag("pdig.nav.$route", useUnmergedTree = true)
+                .assertIsDisplayed()
+        }
+
+        compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithText("个人控制面").assertIsDisplayed()
+
+        compose.onNodeWithContentDescription("搜索").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.search", useUnmergedTree = true)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun productionInventoryCategoryAndDetailUseProductionObjects() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.navigate(VScreen.ACCOUNTS) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.inventory-category", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("账户 A").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("账户 A").assertIsDisplayed()
+        compose.onNodeWithText("已确认关系").assertIsDisplayed()
+    }
+
+    @Test
+    fun productionPreferencesMutatePresentationStateOnly() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle { session.appState.navigate(VScreen.SETTINGS) }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.preferences", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.preference.privacy", useUnmergedTree = true)
+            .performClick()
+        compose.runOnIdle {
+            assertTrue(session.appState.privacyMask)
+        }
+    }
+
+    private class FakeProductionSource(
+        private val snapshot: VNextProductionSnapshot,
+    ) : VNextRuntimeDataSource {
+        override val mode: VNextRuntimeDataMode = VNextRuntimeDataMode.PRODUCTION_REALITY
+
+        override fun productionSnapshot(): VNextProductionSnapshot = snapshot
+
+        override fun productionInventory() = buildProductionConsumerInventory(snapshot)
+
+        override fun productionImpact(targetNodeId: String) = VNextProductionImpact(
+            targetNodeId = targetNodeId,
+            targets = emptyList(),
+            checklist = emptyList(),
+        )
+
+        override fun productionPlan(planId: String): VNextProductionPlan? = null
+
+        override fun productionRecords(): List<VNextProductionRecordItem> = emptyList()
+    }
+}
