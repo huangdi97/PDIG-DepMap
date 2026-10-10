@@ -1,6 +1,8 @@
 package com.pdig.uivnext.ui
 
 import com.pdig.uivnext.production.VNextPendingReviewSummary
+import com.pdig.uivnext.production.VNextProductionMaintenanceFact
+import com.pdig.uivnext.production.VNextProductionMaintenanceSchedule
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionPlanSummary
 import com.pdig.uivnext.production.VNextProductionSnapshot
@@ -22,6 +24,18 @@ class ProductionSearchProjectionTest {
                 surfaceKind = VNextProductionSurfaceKind.PAYMENT_ASSET,
                 issuer = "示例银行",
                 last4 = "8823",
+                maintenanceFacts = listOf(
+                    VNextProductionMaintenanceFact(
+                        id = "fee",
+                        kind = "card_annual_fee_amount",
+                        valueType = "decimal_string",
+                        value = "100",
+                        state = "confirmed",
+                        verificationBasisType = "user_confirmed",
+                        confirmedAt = "2026-10-10T00:00:00Z",
+                        evidenceRefs = emptyList(),
+                    ),
+                ),
             ),
             VNextProductionObject(
                 id = "phone-1",
@@ -34,6 +48,37 @@ class ProductionSearchProjectionTest {
                 identityIdentifierValue = "+852 6123 4567",
                 identityIdentifierVerificationBasisType = "user_confirmed",
                 identityIdentifierConfirmedAt = "2026-10-10T02:00:00Z",
+                maintenanceFacts = listOf(
+                    VNextProductionMaintenanceFact(
+                        id = "cost",
+                        kind = "number_plan_cost",
+                        valueType = "decimal_string",
+                        value = "68",
+                        state = "confirmed",
+                        verificationBasisType = "user_confirmed",
+                        confirmedAt = "2026-10-10T02:10:00Z",
+                        evidenceRefs = emptyList(),
+                    ),
+                ),
+                maintenanceSchedules = listOf(
+                    VNextProductionMaintenanceSchedule(
+                        id = "keep",
+                        kind = "number_keep_alive",
+                        state = "active",
+                        cadenceKind = "interval_days",
+                        dueAt = null,
+                        dayOfMonth = null,
+                        month = null,
+                        day = null,
+                        overflowPolicy = null,
+                        intervalDays = 90,
+                        anchorDate = "2026-08-07",
+                        verificationBasisType = "user_confirmed",
+                        confirmedAt = "2026-10-10T02:10:00Z",
+                        evidenceRefs = emptyList(),
+                        lastCompletedAt = null,
+                    ),
+                ),
             ),
             VNextProductionObject(
                 id = "identity-1",
@@ -83,6 +128,21 @@ class ProductionSearchProjectionTest {
         assertTrue(source.any {
             it is ProductionSearchHit.SourceHit && it.source.id == "source-1"
         })
+    }
+
+    @Test
+    fun governedMaintenanceFactsAndSchedulesAreSearchable() {
+        val fee = productionSearchHits(snapshot(), "年费")
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+        assertTrue(fee.any { it.item.id == "card-1" })
+
+        val keep = productionSearchHits(snapshot(), "保号")
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+        assertTrue(keep.any { it.item.id == "phone-1" })
+
+        val planCost = productionSearchHits(snapshot(), "68")
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+        assertTrue(planCost.any { it.item.id == "phone-1" })
     }
 
     @Test
