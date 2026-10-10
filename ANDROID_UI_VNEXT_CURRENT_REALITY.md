@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37**
+> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -17,6 +17,7 @@ ANDROID_UI_VNEXT_REFERENCE_SOURCE = R34
 PDIG_PRODUCT_ARCHITECTURE_CONTROL = R35
 ANDROID_RELEASE_CUTOVER_CONTROL = R36
 IDENTITY_ANCHOR_PROFILE_CONTROL = R37
+IDENTITY_IDENTIFIER_AND_MANUAL_CREATE_CONTROL = R38
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_MACHINE_GATED
 PRODUCTION_VNEXT_TWO_KEY_CUTOVER = SOURCE_IMPLEMENTED
 CURRENT_RELEASE_DEFAULT = LEGACY
@@ -33,8 +34,8 @@ IDENTITY_SUBTYPE_DESIGN = COMPLETE
 IDENTITY_SUBTYPE_CANONICAL_READ = SOURCE_IMPLEMENTED_R37
 PRODUCTION_PHONE_EMAIL_MAPPING = SOURCE_IMPLEMENTED_R37
 REPLACE_PHONE_SUBTYPE_AUTHORITY_GATE = SOURCE_IMPLEMENTED_R37
-RAW_IDENTITY_IDENTIFIER_VALUE = HOLD
-MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = HOLD
+RAW_IDENTITY_IDENTIFIER_VALUE = SOURCE_IMPLEMENTED_R38
+MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = SOURCE_IMPLEMENTED_R38
 LIFECYCLE_DESIGN = COMPLETE
 
 FRESH_EXACT_HEAD_BUILD = PENDING
@@ -398,13 +399,14 @@ Source progress now also includes:
 - Canonical `issuer` / `last4` projected from production nodes without parsing free-form fields;
 - R37 governed `identity_anchor_profile` contract in Canonical spec/logical schema;
 - Kotlin / Swift / ArkTS fail-closed profile decoders;
-- five identity-profile conformance fixtures;
+- identity-profile conformance expanded through R38 for subtype + independently confirmed identifier semantics across Kotlin / Swift / ArkTS;
 - Production VNext classification: confirmed PHONE_NUMBER → Number, confirmed EMAIL_ADDRESS → Email, invalid/missing/bare subtype → Generic Identity;
-- confirmation basis / confirmed_at / evidence refs carried into the read projection;
-- Production Number/Email list/detail/search routes source-bound;
+- confirmation basis / confirmed_at / evidence refs + confirmed identifier carried into the read projection;
+- Production Number/Email list/detail/search routes source-bound with privacy-safe identifier presentation/search;
 - `replace_phone_number` entry source-bound from confirmed phone identities;
 - PlanRepository independently re-validates scenario target kind + governed PHONE_NUMBER subtype;
-- a consumer inventory projection with confirmed-dependency counts and pending-review/source coverage.
+- a consumer inventory projection with confirmed-dependency counts and pending-review/source coverage;
+- atomic Production Number/Email manual establish authority: Node + governed subtype + exact confirmed identifier in one transaction, one graphRevision bump, zero implicit Dependencies.
 
 The inventory/impact projections are read-only seams. Separate authoritative mutation
 gateways now exist for Change, Human Review and Manual Establish. None of these
