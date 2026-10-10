@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -221,33 +222,24 @@ private fun ProductionChangeChoreography(plan: VNextProductionPlan) {
             fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
         )
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            listOf(
-                "当前" to summary.current,
-                "过渡中" to summary.transition,
-                "完成后（计划）" to summary.after,
-            ).forEachIndexed { index, stage ->
-                Surface(
-                    modifier = Modifier.weight(1f),
-                    color = if (index == 1) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
-                    shape = RoundedCornerShape(VRadius.Lg),
-                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                ) {
-                    Column(
-                        Modifier.padding(9.dp),
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                    ) {
-                        Text(
-                            stage.first,
-                            color = PdigV2Colors.TextPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 11.sp,
-                        )
-                        Text(
-                            stage.second,
-                            color = PdigV2Colors.TextSecondary,
-                            fontSize = 9.sp,
-                        )
+        val stages = listOf(
+            "当前" to summary.current,
+            "过渡中" to summary.transition,
+            "完成后（计划）" to summary.after,
+        )
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            if (maxWidth < 600.dp) {
+                // Reference: phone uses a readable guided journey, not three
+                // tiny 110dp cards with 9sp authority/truth text.
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    stages.forEachIndexed { index, (title, detail) ->
+                        ProductionChangeStageCard(index, title, detail, Modifier.fillMaxWidth(), true)
+                    }
+                }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    stages.forEachIndexed { index, (title, detail) ->
+                        ProductionChangeStageCard(index, title, detail, Modifier.weight(1f), false)
                     }
                 }
             }
@@ -257,6 +249,41 @@ private fun ProductionChangeChoreography(plan: VNextProductionPlan) {
             color = PdigV2Colors.TextMuted,
             fontSize = 10.sp,
         )
+    }
+}
+
+@Composable
+private fun ProductionChangeStageCard(
+    index: Int,
+    title: String,
+    description: String,
+    modifier: Modifier,
+    phone: Boolean,
+) {
+    Surface(
+        modifier = modifier.testTag("pdig.production-vnext.change.stage.$index"),
+        color = if (index == 1) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Row(
+            Modifier.padding(if (phone) 12.dp else 9.dp),
+            horizontalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Text(
+                "${index + 1}",
+                color = if (index == 1) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
+                fontSize = if (phone) 14.sp else 11.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(title, color = PdigV2Colors.TextPrimary,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = if (phone) 13.sp else 11.sp)
+                Text(description, color = PdigV2Colors.TextSecondary,
+                    fontSize = if (phone) 11.sp else 10.sp)
+            }
+        }
     }
 }
 
