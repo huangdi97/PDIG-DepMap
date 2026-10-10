@@ -164,3 +164,34 @@
 - **无障碍**：nav contentDescription；Globe 语义描述 + Region List 非视觉替代（a11y 测试断言）。
 - **状态三通道**：icon + label + color（StatusBadge / AttentionRow）。
 - **Presentation 边界**：PresentationProfile 只落呈现层；测试 fixture 与真实持久化隔离。
+
+## R22 — Human Review visual contract
+
+### Review Inbox
+
+- **Primary object**: a human decision queue, not a notification feed.
+- **Hierarchy**: truth-boundary hero → three review counts → Proposal / Candidate /
+  Drift groups → production decision-boundary explanation.
+- **Light-first**: white/raised surfaces with restrained blue/amber/critical
+  semantics; no admin-console table.
+- **Required copy/state**: `待复核`, `发现 ≠ 事实`, `关系建议`, `对象候选`,
+  `现实漂移`, `Preview 不执行`.
+- **Evidence**: explain basis and observation count/context without exposing secrets.
+- **Confidence**: labels such as “机器建议”; no “97% true” visual.
+- **Actions in Preview**: describe formal decisions, but do not render a local
+  success state that implies Reality mutation.
+- **Empty state**: “当前没有待复核项” plus explicit incompleteness boundary.
+- **Navigation**: child of Now; not a primary tab.
+
+### Now ownership
+
+The Now task summary may aggregate current attention + pending Human Review for
+display count, but each item routes to its real owner.
+
+- Review → Review Inbox.
+- Active changes → Change Center / focused Change.
+- Infrastructure attention → concrete object or Weaknesses when no direct target.
+- Upcoming → remains future maintenance in Now.
+
+Records must not absorb pending or future tasks merely to provide a convenient
+“查看全部” route.
