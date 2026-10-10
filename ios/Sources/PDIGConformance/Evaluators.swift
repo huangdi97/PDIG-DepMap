@@ -53,8 +53,32 @@ public enum Evaluators {
         case "temporal-change": return .value(try temporalChange(input))
         case "provider-policy": return .value(try providerPolicy(input))
         case "identity-relations": return .value(try relations(input))
+        case "identity-profile": return .value(identityProfile(input))
         default: return .notImplemented
         }
+    }
+
+    // -------------------------------------------------------- identity-profile
+
+    private static func identityProfile(_ input: JsonObject) -> Json {
+        guard
+            let kindRaw = input["kind"]?.stringValue,
+            let kind = NodeKind(rawValue: kindRaw),
+            let fieldsJson = input["fieldsJson"]?.stringValue,
+            let profile = confirmedIdentityAnchorProfile(kind: kind, fieldsJson: fieldsJson)
+        else {
+            return .obj(JsonObject([
+                ("confirmed", .bool(false)),
+            ]))
+        }
+
+        return .obj(JsonObject([
+            ("confirmed", .bool(true)),
+            ("subtype", .str(profile.subtype.wire)),
+            ("verificationBasisType", .str(profile.verificationBasisType.wire)),
+            ("confirmedAt", .str(profile.confirmedAt)),
+            ("evidenceRefs", .arr(profile.evidenceRefs.map { .str($0) })),
+        ]))
     }
 
     // ---------------------------------------------------------------- relations
