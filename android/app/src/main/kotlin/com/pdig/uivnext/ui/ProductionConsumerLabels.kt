@@ -82,6 +82,31 @@ internal fun productionScenarioLabel(scenario: String): String = when (scenario)
     else -> "变更场景（$scenario）"
 }
 
+internal fun productionTimelineBucketLabel(bucket: String): String = when (bucket) {
+    "attention" -> "需要关注"
+    "overdue" -> "已逾期"
+    "today" -> "今天"
+    "7d" -> "7 天内"
+    "30d" -> "30 天内"
+    "90d" -> "90 天内"
+    "later" -> "更晚"
+    else -> "时间范围未知"
+}
+
+internal fun productionTimelineStatusLabel(status: String): String = when (status) {
+    "needs_revalidation" -> "需要重新检查"
+    "scheduled" -> "已安排"
+    "open" -> "待处理"
+    "stale" -> "需要刷新"
+    "pending" -> "待验证"
+    "evidence_suggested" -> "发现待核验证据"
+    "verified" -> "已验证"
+    "failed" -> "验证未通过"
+    "draft", "analyzed", "review_required", "ready", "in_progress",
+    "verifying", "completed", "cancelled" -> productionWorkflowStateLabel(status)
+    else -> "状态已记录"
+}
+
 internal fun productionSourceStateLabel(state: String): String = when (state) {
     "active" -> "使用中"
     "retired" -> "已停用"
