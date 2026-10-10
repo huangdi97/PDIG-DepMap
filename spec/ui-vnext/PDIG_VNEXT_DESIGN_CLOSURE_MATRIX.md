@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R41 DESIGN CLOSED / GOVERNED MAINTENANCE READ + WRITE + OCCURRENCE CONTROL SURFACE**
+> Status: **R43 DESIGN CLOSED / PRODUCTION IMPORT HOST + REAUTH + PREVIEW + COMMIT CLOSURE**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -73,7 +73,7 @@ regress to a generic `linked_to` graph.
 
 | Capability | Design | Reference | Production authority |
 | --- | --- | --- | --- |
-| File Import | complete | R23 read-only | production Host handoff source-bound to existing FileWorkflowCoordinator; launcher host injection pending |
+| File Import | complete | R23 read-only reference + R43 Production executable flow | Activity-scoped OpenDocument → lock/re-auth → one-shot URI consume → parser → CSV mapping review → preview → authoritative commit → Human Review; existing SourceInstance identity preserved when explicitly selected; exact-head runtime evidence pending |
 | Manual Establish object | complete | R24 reference + production form | AppContainer authority + production VNext form source-bound; launcher cutover still gated |
 | Manual Relationship | complete | R25 Preview read-only + R31 Production executable | current Canonical v3 runtime registry is authoritative; verifies/bound_to remain future/storage-only |
 | Human Review | complete | R22 reference + production inbox | production Proposal/Candidate/Drift source/action UI bound with authoritative re-read |
@@ -268,7 +268,8 @@ Current source includes:
 - card-detail → create/continue replace_payment_card ChangePlan;
 - authority-aware ChangePlan execution screen with readiness/staleness gates;
 - authoritative Import projection/authority seam;
-- host-owned FileWorkflowCoordinator request seam;
+- R43 Activity-owned FileWorkflowCoordinator host binding with source identity, lock/re-auth resume, local parse, CSV mapping review, explicit preview/commit, and Human Review handoff;
+- explicit existing SourceInstance selection is preserved into commit and adapter mismatches fail closed;
 - authoritative Manual Establish gateway + production form;
 - authoritative Manual Relationship for the current five Canonical v3 runtime relations; future/storage-only relation widening remains HOLD.
 
@@ -337,7 +338,7 @@ human pixel acceptance
 Android Reference Freeze
 production VNext release activation after debug rehearsal
 manual Dependency gateway (R31 implemented for current Canonical v3 runtime relation set)
-remaining Canonical implementations for still-gated proposals (R37–R40 first foundations already source-implemented)
+remaining Canonical implementations for still-gated proposals (R37–R41 foundations already source-implemented; R43 closes Production file-import UI authority wiring)
 cross-platform conformance for future schemas
 production launcher cutover
 iOS/Harmony UI translation after Android freeze
@@ -383,7 +384,7 @@ Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R41
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R43
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
 PRODUCTION_VNEXT_CUTOVER_POLICY = SOURCE_IMPLEMENTED_FAIL_CLOSED
 FIVE_PRIMARY_IA = FROZEN
