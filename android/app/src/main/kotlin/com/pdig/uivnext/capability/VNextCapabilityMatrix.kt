@@ -18,6 +18,8 @@ internal enum class VNextCapability {
     DIGITAL_RESOURCE_CONTINUITY,
     TRUSTED_HANDOFF,
     LIFECYCLE_PERSISTENCE,
+    REGION_FACT,
+    IDENTITY_SUBTYPE,
     IDENTITY_CONTEXT,
     RECOVERY_PREPAREDNESS,
     RECOVERY_INCIDENT,
@@ -105,6 +107,18 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
         productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
         reason = "R19 lifecycle fields are valid product/reference semantics but are not yet governed cross-platform Canonical persistence.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.REGION_FACT,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Region Lens / GPU Globe are valid reference UX, but production asset geography remains truth-empty until governed RegionFact authority exists.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.IDENTITY_SUBTYPE,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Production identity_anchor cannot become Number or Email until a governed subtype is persisted and conformance-tested.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.IDENTITY_CONTEXT,
