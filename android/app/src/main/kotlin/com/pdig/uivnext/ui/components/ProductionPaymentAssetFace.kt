@@ -1,8 +1,12 @@
 package com.pdig.uivnext.ui.components
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,10 +21,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,6 +41,8 @@ import com.pdig.uivnext.model.PresentationProfile
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.ui.r9.importCardArt
+import com.pdig.uivnext.ui.r9.loadCardArt
 
 /**
  * Production payment-asset identity face.
@@ -59,6 +73,15 @@ internal fun ProductionPaymentAssetFace(
         else -> null
     }
 
+    val context = LocalContext.current
+    val localArt = remember(presentation?.backgroundKind, presentation?.backgroundValue) {
+        if (presentation?.backgroundKind == "local-image") {
+            loadCardArt(context, presentation.backgroundValue)
+        } else {
+            null
+        }
+    }
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -71,13 +94,34 @@ internal fun ProductionPaymentAssetFace(
         Box(
             Modifier
                 .aspectRatio(1.586f)
-                .background(cardFaceBaseBrush(identity, theme))
-                .padding(18.dp),
+                .background(cardFaceBaseBrush(identity, theme)),
         ) {
-            Canvas(Modifier.fillMaxSize()) {
-                drawCardArtwork(identity, theme, material)
+            if (localArt != null) {
+                Image(
+                    bitmap = localArt.asImageBitmap(),
+                    contentDescription = "本机卡面图片",
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop,
+                )
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                listOf(
+                                    Color.Black.copy(alpha = 0.30f),
+                                    Color.Transparent,
+                                    Color.Black.copy(alpha = 0.46f),
+                                ),
+                            ),
+                        ),
+                )
+            } else {
+                Canvas(Modifier.fillMaxSize()) {
+                    drawCardArtwork(identity, theme, material)
+                }
             }
-            Column(Modifier.fillMaxSize()) {
+            Column(Modifier.fillMaxSize().padding(18.dp)) {
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -196,6 +240,95 @@ internal fun ProductionCardAppearanceStrip(
         }
         Text(
             "仅改变本机呈现；不会修改卡片身份、关系或影响分析。",
+            color = PdigV2Colors.TextMuted,
+            fontSize = 9.sp,
+        )
+    }
+}
+
+
+/**
+ * Small Production appearance utility.
+ *
+ * Presets and local photos are Presentation only. Selecting a local photo copies
+ * the user-picked content into app-private storage through the same hardened
+ * import path as Preview; no content:// URI or arbitrary path is persisted.
+ */
+@Composable
+internal fun ProductionCardAppearanceEditor(
+    profile: PresentationProfile,
+    onSave: (PresentationProfile) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val context = LocalContext.current
+    var importError by remember(profile.targetId) { mutableStateOf(false) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        if (uri != null) {
+            val localName = importCardArt(context, uri)
+            if (localName == null) {
+                importError = true
+            } else {
+                importError = false
+                onSave(
+                    profile.copy(
+                        backgroundKind = "local-image",
+                        backgroundValue = localName,
+                    ),
+                )
+            }
+        }
+    }
+
+    Column(
+        modifier = modifier.fillMaxWidth().testTag("pdig.production-vnext.card.appearance-editor"),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        ProductionCardAppearanceStrip(
+            selectedTheme = profile.themeId,
+            onSelect = { theme ->
+                importError = false
+                onSave(
+                    profile.copy(
+                        themeId = theme,
+                        backgroundKind = "preset",
+                        backgroundValue = theme,
+                    ),
+                )
+            },
+        )
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 48.dp)
+                .clickable { picker.launch("image/*") }
+                .testTag("pdig.production-vnext.card.choose-photo"),
+            color = PdigV2Colors.PrimarySoft,
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Row(
+                Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "从相册更换卡面",
+                    color = PdigV2Colors.PrimaryText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text("＋", color = PdigV2Colors.PrimaryText, fontSize = 16.sp)
+            }
+        }
+        if (importError) {
+            Text(
+                "图片无法读取或超过 12MB，请换一张照片。",
+                color = PdigV2Colors.Critical,
+                fontSize = 10.sp,
+            )
+        }
+        Text(
+            "图片仅保存在本机应用私有目录；更换卡面不会改变卡片身份、依赖或影响分析。",
             color = PdigV2Colors.TextMuted,
             fontSize = 9.sp,
         )
