@@ -160,6 +160,7 @@ private fun ProductionContent(
         VScreen.RECORDS -> ProductionRecords(session, modifier)
         VScreen.ME -> ProductionMe(snapshot, inventory, modifier)
         VScreen.SOURCES -> ProductionSources(inventory, modifier)
+        VScreen.REVIEW -> ProductionReviewScreen(session, modifier)
         else -> ProductionUnavailable(
             title = "该页面尚未完成生产数据绑定",
             body = "当前页面不会使用 Synthetic Reference 代替真实 Reality。返回五个一级入口继续查看已绑定内容。",
@@ -182,6 +183,15 @@ private fun ProductionNow(
                 inventory.activeSourceCount to "活跃数据源",
             ),
         )
+
+        if (inventory.pendingReviewCount > 0) {
+            ProductionFactCard(
+                title = "待复核",
+                subtitle = "${inventory.pendingReviewCount} 项建议 / 候选 / Reality 漂移等待人工决定",
+                meta = "确认前不会进入已确认 Reality",
+                onClick = { /* route injected below by caller wrapper */ },
+            )
+        }
 
         ProductionSection("近期记录 / 计划")
         if (snapshot.timeline.isEmpty()) {
