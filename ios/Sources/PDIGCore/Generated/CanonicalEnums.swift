@@ -54,6 +54,76 @@ public enum RegionFactState: String, CaseIterable, Sendable, Equatable {
     public var wire: String { rawValue }
 }
 
+public enum MaintenanceFactKind: String, CaseIterable, Sendable, Equatable {
+    case cardAnnualFeeAmount = "card_annual_fee_amount"
+    case cardAnnualFeeCurrency = "card_annual_fee_currency"
+    case cardBillingDay = "card_billing_day"
+    case cardPaymentDueDay = "card_payment_due_day"
+    case cardAutopayMode = "card_autopay_mode"
+    case numberBillingMode = "number_billing_mode"
+    case numberPlanCost = "number_plan_cost"
+    case numberPlanCurrency = "number_plan_currency"
+    case numberRenewalMethod = "number_renewal_method"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceScheduleKind: String, CaseIterable, Sendable, Equatable {
+    case cardAnnualFeeCheckpoint = "card_annual_fee_checkpoint"
+    case cardBillingCheckpoint = "card_billing_checkpoint"
+    case cardPaymentDueCheckpoint = "card_payment_due_checkpoint"
+    case numberKeepAlive = "number_keep_alive"
+    case numberPlanRenewal = "number_plan_renewal"
+    case factFreshnessReview = "fact_freshness_review"
+    case customMaintenance = "custom_maintenance"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceFactState: String, CaseIterable, Sendable, Equatable {
+    case confirmed = "confirmed"
+    case retired = "retired"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceScheduleState: String, CaseIterable, Sendable, Equatable {
+    case active = "active"
+    case paused = "paused"
+    case needsReview = "needs_review"
+    case retired = "retired"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceValueType: String, CaseIterable, Sendable, Equatable {
+    case decimalString = "decimal_string"
+    case currencyCode = "currency_code"
+    case integer = "integer"
+    case text = "text"
+    case boolean = "boolean"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceCadenceKind: String, CaseIterable, Sendable, Equatable {
+    case oneTime = "one_time"
+    case monthlyDay = "monthly_day"
+    case yearlyMonthDay = "yearly_month_day"
+    case intervalDays = "interval_days"
+    case manualOnly = "manual_only"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceOverflowPolicy: String, CaseIterable, Sendable, Equatable {
+    case clampToLastDay = "clamp_to_last_day"
+    case skipOccurrence = "skip_occurrence"
+    case userConfirm = "user_confirm"
+
+    public var wire: String { rawValue }
+}
+
 public enum Relation: String, CaseIterable, Sendable, Equatable {
     case fundingSource = "funding_source"
     case merchantAgreement = "merchant_agreement"
