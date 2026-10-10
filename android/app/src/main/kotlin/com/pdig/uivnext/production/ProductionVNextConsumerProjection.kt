@@ -14,6 +14,16 @@ internal data class ProductionPaymentAssetView(
     val confirmedDependencyCount: Int,
 )
 
+internal data class ProductionIdentityView(
+    val id: String,
+    val name: String,
+    val subtype: String,
+    val verificationBasisType: String?,
+    val confirmedAt: String?,
+    val evidenceRefCount: Int,
+    val confirmedDependencyCount: Int,
+)
+
 internal data class ProductionGenericIdentityView(
     val id: String,
     val name: String,
@@ -29,6 +39,8 @@ internal data class ProductionSourceView(
 
 internal data class ProductionInventoryCounts(
     val paymentAssets: Int,
+    val phoneIdentities: Int,
+    val emailIdentities: Int,
     val genericIdentityAnchors: Int,
     val accounts: Int,
     val services: Int,
@@ -41,6 +53,8 @@ internal data class ProductionConsumerInventory(
     val revision: Int,
     val counts: ProductionInventoryCounts,
     val paymentAssets: List<ProductionPaymentAssetView>,
+    val phoneIdentities: List<ProductionIdentityView>,
+    val emailIdentities: List<ProductionIdentityView>,
     val genericIdentityAnchors: List<ProductionGenericIdentityView>,
     val pendingReviewCount: Int,
     val activeSourceCount: Int,
@@ -52,7 +66,9 @@ internal data class ProductionConsumerInventory(
  *
  * Important asymmetry:
  * - payment_instrument is a Canonical type, so it may use the financial-asset surface;
- * - identity_anchor is too coarse to mean "phone number", so it remains generic.
+ * - identity_anchor stays generic unless the governed identity_anchor_profile is valid;
+ * - a confirmed governed PHONE_NUMBER / EMAIL_ADDRESS profile may bind its typed surface;
+ * - names, regexes, edges, locale and provider-looking text never classify subtype.
  */
 internal fun buildProductionConsumerInventory(
     snapshot: VNextProductionSnapshot,
@@ -74,6 +90,24 @@ internal fun buildProductionConsumerInventory(
             )
         }
 
+    fun typedIdentities(kind: VNextProductionSurfaceKind): List<ProductionIdentityView> =
+        snapshot.objects
+            .filter { it.surfaceKind == kind }
+            .map {
+                ProductionIdentityView(
+                    id = it.id,
+                    name = it.name,
+                    subtype = it.identitySubtype ?: "unknown",
+                    verificationBasisType = it.identityVerificationBasisType,
+                    confirmedAt = it.identityConfirmedAt,
+                    evidenceRefCount = it.identityEvidenceRefs.size,
+                    confirmedDependencyCount = incomingOrOutgoing[it.id] ?: 0,
+                )
+            }
+
+    val phoneIdentities = typedIdentities(VNextProductionSurfaceKind.PHONE_IDENTITY)
+    val emailIdentities = typedIdentities(VNextProductionSurfaceKind.EMAIL_IDENTITY)
+
     val genericIdentities = snapshot.objects
         .filter { it.surfaceKind == VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC }
         .map {
@@ -91,6 +125,8 @@ internal fun buildProductionConsumerInventory(
         revision = snapshot.revision,
         counts = ProductionInventoryCounts(
             paymentAssets = paymentAssets.size,
+            phoneIdentities = phoneIdentities.size,
+            emailIdentities = emailIdentities.size,
             genericIdentityAnchors = genericIdentities.size,
             accounts = count(VNextProductionSurfaceKind.ACCOUNT),
             services = count(VNextProductionSurfaceKind.SERVICE),
@@ -99,6 +135,8 @@ internal fun buildProductionConsumerInventory(
             customObjects = count(VNextProductionSurfaceKind.CUSTOM_GENERIC),
         ),
         paymentAssets = paymentAssets,
+        phoneIdentities = phoneIdentities,
+        emailIdentities = emailIdentities,
         genericIdentityAnchors = genericIdentities,
         pendingReviewCount = snapshot.pendingReview.proposalCount +
             snapshot.pendingReview.candidateCount +
