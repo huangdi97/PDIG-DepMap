@@ -15,6 +15,8 @@ internal enum class VNextCapability {
     CHANGE_PHONE,
     CHANGE_PAYMENT_CARD,
     DEVICE_CONTINUITY,
+    DIGITAL_RESOURCE_CONTINUITY,
+    TRUSTED_HANDOFF,
     LIFECYCLE_PERSISTENCE,
     IDENTITY_CONTEXT,
     RECOVERY_PREPAREDNESS,
@@ -84,6 +86,18 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
         visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
         productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
         reason = "Planned replace_device design requires governed factor/device-subtype semantics and a production scenario before UI exposure.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.DIGITAL_RESOURCE_CONTINUITY,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Future digital-resource continuity design is frozen but its resource types/capabilities/relations are not current Canonical.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.TRUSTED_HANDOFF,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Trusted Handoff design is future-only; provider arrangements, trusted-party authority and export semantics are not Canonical.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.LIFECYCLE_PERSISTENCE,
