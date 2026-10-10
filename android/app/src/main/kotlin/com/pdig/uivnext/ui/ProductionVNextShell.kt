@@ -66,6 +66,9 @@ internal fun ProductionVNextShell(
                 NavigationRail(app, breakpoint)
                 Column(Modifier.weight(1f)) {
                     ProductionTopBar(app)
+                    if (isInfraRootScreen(app.screen)) {
+                        InfraChipRow(app)
+                    }
                     ProductionContent(session, Modifier.weight(1f))
                 }
             }
@@ -154,8 +157,18 @@ private fun ProductionContent(
         VScreen.NOW -> ProductionNow(app, snapshot, inventory, modifier)
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
             ProductionInfrastructure(app, inventory, modifier)
+        VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
+        VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES ->
+            ProductionInventoryCategoryScreen(session, app.screen, modifier)
         VScreen.CARD_DETAIL ->
             ProductionCardDetail(session, inventory, app.selectedCardId, modifier)
+        VScreen.ACCOUNT_DETAIL, VScreen.DEVICE_DETAIL, VScreen.SERVICE_DETAIL ->
+            ProductionGenericObjectDetailScreen(
+                session = session,
+                detailScreen = app.screen,
+                objectId = app.selectedSecondaryObjectId,
+                modifier = modifier,
+            )
         VScreen.CHANGE -> ProductionChange(app, snapshot, modifier)
         VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD ->
             ProductionChangePlanScreen(session, app.selectedProductionPlanId, modifier)
