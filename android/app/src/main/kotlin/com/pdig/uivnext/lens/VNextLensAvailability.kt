@@ -1,5 +1,8 @@
 package com.pdig.uivnext.lens
 
+import com.pdig.uivnext.capability.VNextCapability
+import com.pdig.uivnext.capability.canShowReference
+
 /**
  * Product-Lens capability gates.
  *
@@ -59,8 +62,11 @@ internal val V_NEXT_LENS_GATES: List<VNextLensGate> = listOf(
 internal fun lensGate(lens: VNextLens): VNextLensGate =
     V_NEXT_LENS_GATES.first { it.lens == lens }
 
-internal fun canRenderLensEntry(lens: VNextLens): Boolean =
-    lensGate(lens).availability == VNextLensAvailability.VISIBLE
+internal fun canRenderLensEntry(lens: VNextLens): Boolean = when (lens) {
+    VNextLens.IDENTITY -> canShowReference(VNextCapability.IDENTITY_CONTEXT)
+    VNextLens.RECOVERY -> canShowReference(VNextCapability.RECOVERY_INCIDENT)
+    else -> lensGate(lens).availability == VNextLensAvailability.VISIBLE
+}
 
 internal fun visibleLenses(): Set<VNextLens> =
     V_NEXT_LENS_GATES
