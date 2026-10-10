@@ -159,8 +159,10 @@ private fun ProductionContent(
         VScreen.CHANGE -> ProductionChange(snapshot, modifier)
         VScreen.RECORDS -> ProductionRecords(session, modifier)
         VScreen.ME -> ProductionMe(snapshot, inventory, modifier)
-        VScreen.SOURCES -> ProductionSources(inventory, modifier)
+        VScreen.SOURCES -> ProductionSources(app, inventory, modifier)
         VScreen.REVIEW -> ProductionReviewScreen(session, modifier)
+        VScreen.IMPORT -> ProductionEstablishScreen(session, modifier)
+        VScreen.MANUAL_ADD -> ProductionManualEstablishScreen(session, modifier)
         else -> ProductionUnavailable(
             title = "该页面尚未完成生产数据绑定",
             body = "当前页面不会使用 Synthetic Reference 代替真实 Reality。返回五个一级入口继续查看已绑定内容。",
@@ -403,6 +405,7 @@ private fun ProductionMe(
 
 @Composable
 private fun ProductionSources(
+    app: VAppState,
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
@@ -420,6 +423,12 @@ private fun ProductionSources(
         }
         ProductionBoundaryNote(
             "数据源存在不等于依赖已确认；Import 产生的 Proposal/Candidate/Drift 仍需 Human Review。"
+        )
+        ProductionFactCard(
+            title = "建立基础设施",
+            subtitle = "手工记录 / 文件导入 authority 边界",
+            meta = "对象建立不自动创建依赖关系",
+            onClick = { app.navigate(VScreen.IMPORT) },
         )
     }
 }
