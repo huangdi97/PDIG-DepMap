@@ -1,4 +1,5 @@
 import {
+  IdentityAnchorSubtype,
   MaintenanceCadenceKind,
   MaintenanceFactKind,
   MaintenanceFactState,
@@ -98,7 +99,7 @@ export function governedMaintenanceProfile(
   const phoneAuthority =
     kind === NodeKind.IDENTITY_ANCHOR &&
     confirmedIdentityAnchorProfile(kind, fieldsJson)?.subtype ===
-      'phone_number';
+      IdentityAnchorSubtype.PHONE_NUMBER;
 
   const rawFacts: Object = container['facts'];
   if (rawFacts instanceof Array) {
