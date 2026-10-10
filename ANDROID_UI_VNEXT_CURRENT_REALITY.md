@@ -43,7 +43,9 @@ PRODUCTION_REGION_MAPPING = SOURCE_IMPLEMENTED_R39
 LIFECYCLE_DESIGN = COMPLETE
 MAINTENANCE_PROFILE_CANONICAL_READ = SOURCE_IMPLEMENTED_R40
 PRODUCTION_CARD_NUMBER_MAINTENANCE_READ = SOURCE_IMPLEMENTED_R40
-MAINTENANCE_WRITE_AUTHORITY = HOLD
+MAINTENANCE_WRITE_AUTHORITY = SOURCE_IMPLEMENTED_R40
+MAINTENANCE_OCCURRENCE_PROJECTION = SOURCE_IMPLEMENTED_R41
+PRODUCTION_MAINTENANCE_EDITOR = SOURCE_IMPLEMENTED_R41
 
 FRESH_EXACT_HEAD_BUILD = PENDING
 FRESH_EXACT_HEAD_UNIT_TESTS = PENDING
@@ -587,12 +589,19 @@ Implemented source:
 - cross-platform conformance fixtures;
 - Production VNext read projection into card/number lifecycle surfaces.
 
+R40/R41 source now also implements:
+- explicit user-confirmed MaintenanceFact / MaintenanceSchedule write authority;
+- atomic paired fact writes for amount + currency;
+- Production Card / Number lifecycle editors through a dedicated authority gateway;
+- derived MaintenanceOccurrence projection into Production Timeline / Now;
+- explicit keep-alive completion action that writes `lastCompletedAt` only on user action.
+
 Still intentionally not claimed:
-- direct production write/edit authority for MaintenanceFact / MaintenanceSchedule;
 - automatic occurrence completion;
 - provider policy → Reality without Human Review;
 - installment summary as Canonical v1;
 - a transaction ledger / personal-finance subsystem;
+- runtime success of the new editors/occurrence path on the current exact head;
 - release cutover/runtime acceptance.
 
 Permanent rules remain:
@@ -889,7 +898,7 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R40 runtime/conformance evidence, release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
+The next blocker is no longer “missing UI design.” It is fresh exact-head R41 runtime/conformance evidence, release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
 
 R32 removes two former launcher ambiguities:
 - productionRelease ignores both synthetic-reference and production-VNext Intent extras;
