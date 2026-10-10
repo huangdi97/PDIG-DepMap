@@ -207,3 +207,32 @@ internal fun productionIdentityIdentifierLabel(
         else -> "标识已遮蔽"
     }
 }
+
+
+/**
+ * A confirmed dependency contains snapshots of peer names. They are not a
+ * privacy exception: identities can still have sensitive names or local aliases.
+ * Resolve a current governed peer object before rendering. If it is unavailable,
+ * never echo the dependency's stale copy while global privacy masking is on.
+ */
+internal fun productionVisibleRelationPeerName(
+    snapshot: com.pdig.uivnext.production.VNextProductionSnapshot?,
+    peerId: String,
+    fallbackName: String,
+    app: VAppState,
+): String {
+    val peer = snapshot?.objects?.firstOrNull { it.id == peerId }
+        ?: return if (app.privacyMask) "关联对象（已遮蔽）" else fallbackName
+    val phoneMask = peer.surfaceKind ==
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY &&
+        (app.savedPresentationProfile("phoneNumber", peer.id)?.maskSensitive == true)
+    val mask = app.privacyMask || phoneMask
+    return if (peer.surfaceKind ==
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY
+    ) {
+        if (mask) "手机号身份（已遮蔽）"
+        else app.numberDisplayNameForScreen(peer.id, peer.name)
+    } else {
+        productionVisibleObjectName(peer, mask)
+    }
+}
