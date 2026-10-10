@@ -1,5 +1,8 @@
 package com.pdig.uivnext.ui.screens
 
+import com.pdig.uivnext.capability.VNextCapability
+import com.pdig.uivnext.capability.hasProductionAuthority
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -39,6 +42,7 @@ import com.pdig.uivnext.theme.VRadius
 internal fun R25ManualRelationshipScreen(
     breakpoint: MediaBreakpoint,
 ) {
+    val productionAuthorityReady = hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP)
     val maxWidth = when (breakpoint) {
         MediaBreakpoint.COMPACT -> 640.dp
         MediaBreakpoint.MEDIUM -> 820.dp
@@ -128,8 +132,11 @@ internal fun R25ManualRelationshipScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "正式 VNext 仍缺少 AppContainer-facing 的 manual Dependency authority。" +
-                            "在 authority 和 revision/conformance 测试完成之前，本页只冻结交互与文案。",
+                        if (productionAuthorityReady)
+                            "正式 authority 已存在，但 Preview 仍不会执行关系写入；生产 UI 必须走 authoritative gateway 并回读 Reality。"
+                        else
+                            "正式 VNext 仍缺少 AppContainer-facing 的 manual Dependency authority。" +
+                                "在 authority 和 revision/conformance 测试完成之前，本页只冻结交互与文案。",
                         color = PdigV2Colors.TextMuted,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,
