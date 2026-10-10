@@ -235,7 +235,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText("手机号身份").assertIsDisplayed()
-        compose.onAllNodesWithText("+86 138 0000 8823").onFirst().assertIsDisplayed()
+        compose.onAllNodesWithText("+86 138 0000 8823")[0].assertIsDisplayed()
         compose.onNodeWithText("用户已确认", substring = true).assertExists()
         compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
             .assertExists()
@@ -293,7 +293,7 @@ class ProductionVNextShellContractTest {
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onAllNodesWithText("账户 A").onFirst().assertIsDisplayed()
+        compose.onAllNodesWithText("账户 A")[0].assertIsDisplayed()
         compose.onNodeWithText("已确认关系").assertIsDisplayed()
     }
 
