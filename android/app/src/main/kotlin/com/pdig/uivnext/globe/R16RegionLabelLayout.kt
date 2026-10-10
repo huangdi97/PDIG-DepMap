@@ -33,7 +33,7 @@ private data class R16Anchor(
 )
 
 internal fun r16SceneRadius(widthPx: Float, heightPx: Float, zoom: Float): Float =
-    min(widthPx * 0.42f, heightPx * 0.47f) * zoom.coerceIn(0.70f, 1.90f)
+    min(widthPx * 0.45f, heightPx * 0.47f) * zoom.coerceIn(0.70f, 1.90f)
 
 internal fun r16ProjectedRegionLabels(
     regions: List<RegionPresentation>,
