@@ -474,7 +474,7 @@ Permanent rule:
 confirm object exists != confirm dependency
 ~~~
 
-This is a production-authority HOLD, not an unfinished visual form.
+This is a production-screen-binding HOLD, not an unfinished visual form or missing mutation authority.
 
 ## 16. Manual Relationship
 
