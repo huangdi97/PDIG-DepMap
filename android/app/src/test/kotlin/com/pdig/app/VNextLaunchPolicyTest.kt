@@ -7,21 +7,56 @@ import org.junit.Test
 class VNextLaunchPolicyTest {
     @Test
     fun previewOpensCurrentReviewCandidateFromLauncherWithoutIntentExtras() {
-        assertTrue(shouldLaunchVNext(flavor = "preview", explicitDemo = false))
+        assertTrue(
+            shouldLaunchVNext(
+                flavor = "preview",
+                explicitDemo = false,
+                debugBuild = false,
+            ),
+        )
     }
 
     @Test
-    fun productionLauncherRemainsOnLockGatedLegacyApplication() {
-        assertFalse(shouldLaunchVNext(flavor = "production", explicitDemo = false))
+    fun productionReleaseRemainsOnLockGatedApplication() {
+        assertFalse(
+            shouldLaunchVNext(
+                flavor = "production",
+                explicitDemo = false,
+                debugBuild = false,
+            ),
+        )
     }
 
     @Test
-    fun explicitInstrumentationDemoExtraStillOpensVNext() {
-        assertTrue(shouldLaunchVNext(flavor = "production", explicitDemo = true))
+    fun productionReleaseIgnoresSyntheticDemoExtra() {
+        assertFalse(
+            shouldLaunchVNext(
+                flavor = "production",
+                explicitDemo = true,
+                debugBuild = false,
+            ),
+        )
     }
 
     @Test
-    fun unknownFlavorDoesNotSilentlyBypassProductionRouting() {
-        assertFalse(shouldLaunchVNext(flavor = "unknown", explicitDemo = false))
+    fun productionDebugMayRetainExplicitInstrumentationDemoExtra() {
+        assertTrue(
+            shouldLaunchVNext(
+                flavor = "production",
+                explicitDemo = true,
+                debugBuild = true,
+            ),
+        )
+    }
+
+    @Test
+    fun unknownFlavorCannotUseDemoExtraInRelease() {
+        assertFalse(
+            shouldLaunchVNext(
+                flavor = "unknown",
+                explicitDemo = true,
+                debugBuild = false,
+            ),
+        )
     }
 }
