@@ -1,7 +1,7 @@
 # ADR — UI vNext Production Binding
 
 > Date: 2026-10-09  
-> Status: **READ_ONLY_ADAPTER_SOURCE_IMPLEMENTED / NOT_CUT_OVER**  
+> Status: **R29 PRODUCTION_SHELL_SOURCE_IMPLEMENTED / NOT_CUT_OVER**  
 > Scope: Android UI vNext → existing Android production domain/runtime  
 > Canonical change: **NONE**
 
@@ -345,8 +345,9 @@ leaves occurrence time unknown when the Android domain projection does not expos
 ## 9. Cutover phases
 
 ### P0 — Reference freeze
-- exact-head R19 build;
-- phone/tablet runtime evidence;
+- exact-current-head build/test;
+- API36 phone/tablet runtime evidence;
+- GPU runtime evidence;
 - human visual acceptance;
 - Android Reference Freeze.
 
@@ -364,9 +365,33 @@ Implemented:
 Unit contracts ensure pending proposals are not promoted into confirmed edges and
 `done != verified` survives projection.
 
+R29 also makes authority boundaries explicit in UI chrome:
+- confirmed Reality pages → `生产 Reality`;
+- Review → `待复核 · 未进入 Reality`;
+- Settings → `本机呈现偏好`;
+- Establish → `建立 · Authority`;
+- ChangePlan → `ChangePlan Authority`.
+
+A single global "confirmed" badge is forbidden because it would misclassify
+Proposal/Candidate/Drift and local Presentation state.
+
+R28/R29 additionally implements screen-level source binding inside a dedicated
+`ProductionVNextShell` for:
+- Now;
+- Infrastructure overview + safe categories/details;
+- Card Impact / confirmed relations;
+- Change Center / plan detail;
+- Records;
+- Review;
+- Sources / Establish / Manual Establish;
+- Reality-only Search;
+- Me / local Presentation preferences.
+
 Still not done in P1:
-- production launcher/UI binding;
-- lifecycle editing.
+- MainActivity / lock-gate launcher cutover;
+- lifecycle editing/persistence;
+- phone/email subtype-specific screens;
+- production Finding-backed Weaknesses.
 
 No lifecycle editing is enabled.
 
@@ -386,7 +411,7 @@ Still gated:
 
 Unknown remains unknown.
 
-### P3 — Change binding — ACTION GATEWAY SOURCE IMPLEMENTED / SCREEN BINDING HOLD
+### P3 — Change binding — ACTION + SCREEN SOURCE IMPLEMENTED / LAUNCHER HOLD
 
 Implemented:
 - authoritative `VNextChangeActionGateway`;
@@ -395,9 +420,18 @@ Implemented:
 - verification delegates to `verifyAction`;
 - every mutation re-reads `planDetail`.
 
+Implemented in the production shell:
+- existing authoritative ChangePlan list;
+- `PlanDetailView` action rendering;
+- readiness + graph-revision stale boundary;
+- complete/verify actions re-read authoritative `planDetail`;
+- Card Detail can create or continue `replace_payment_card` explicitly;
+- internal action IDs / wire states are not used as primary consumer copy.
+
 Still gated:
-- replacing the synthetic Change Phone reference screen with actual `PlanDetailView`
-  projection after Android Reference Freeze and production-source injection.
+- production launcher injection;
+- starting `replace_phone_number` from a production phone object until identity subtype exists;
+- new scenario primitives beyond Canonical runtime availability.
 
 The UI must never infer verification from local presentation state.
 
@@ -450,6 +484,31 @@ The production adapter:
 - must never copy secrets, recovery codes, passwords or private keys into the
   VNext read model;
 - may expose only labels/metadata that the existing product is permitted to show.
+
+## 11.1 Host / file workflow boundary — R29
+
+The production session now accepts optional host-owned actions. File import uses:
+
+```text
+VNext Establish
+→ requestFileImport()
+→ existing Activity-scoped FileWorkflowCoordinator
+→ OpenDocument
+→ lock / re-auth
+→ parse / preview
+→ AppContainerVNextImportAuthority
+→ commit
+→ Human Review for proposals/candidates/drifts
+```
+
+VNext does not own a second ActivityResult launcher, URI lifetime, parser, or
+re-authentication path.
+
+If the host action is absent, the UI renders `Host binding 待接` and the import
+entry is disabled. It must not fake a file picker.
+
+Manual Relationship remains an explicit Native Schema v4 HOLD page; partial
+v3-only relationship mutation is forbidden.
 
 ## 12. Acceptance gates
 
