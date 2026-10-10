@@ -90,6 +90,10 @@ internal fun ProductionChangePlanScreen(
         }
 
         item {
+            ProductionChangeChoreography(current)
+        }
+
+        item {
             ChangePlanTruthStrip(current)
         }
 
@@ -178,6 +182,81 @@ internal fun ProductionChangePlanScreen(
                 "每次操作后都会重新读取权威计划状态；界面按钮不会自行把动作标记为已完成或已验证。"
             )
         }
+    }
+}
+
+/**
+ * Current is an authoritative plan read; Transition is action progress; After is
+ * explicitly an uncommitted expectation. No synthetic after-graph is manufactured.
+ */
+internal data class ProductionChangeStageSummary(
+    val current: String,
+    val transition: String,
+    val after: String,
+)
+
+internal fun productionChangeStageSummary(plan: VNextProductionPlan): ProductionChangeStageSummary {
+    val verified = plan.actions.count { it.verificationStatus == "verified" }
+    val finished = plan.actions.count { it.done }
+    return ProductionChangeStageSummary(
+        current = "当前图谱修订 ${plan.currentGraphRevision} · 分析基线 ${plan.lastAnalyzedGraphRevision}",
+        transition = "${finished}/${plan.actions.size} 步已记录完成 · ${verified} 步已验证",
+        after = if (plan.unresolvedMustChangeKeys.isNotEmpty())
+            "${plan.unresolvedMustChangeKeys.size} 项必须处理事项未解决 · 仅计划预期"
+        else
+            "计划预期 · 完成并验证前不代表现实",
+    )
+}
+
+@Composable
+private fun ProductionChangeChoreography(plan: VNextProductionPlan) {
+    val summary = productionChangeStageSummary(plan)
+    Column(
+        Modifier.fillMaxWidth().testTag("pdig.production-vnext.change.choreography"),
+        verticalArrangement = Arrangement.spacedBy(7.dp),
+    ) {
+        Text(
+            "变更全程",
+            color = PdigV2Colors.TextPrimary,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            listOf(
+                "当前" to summary.current,
+                "过渡中" to summary.transition,
+                "完成后（计划）" to summary.after,
+            ).forEachIndexed { index, stage ->
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    color = if (index == 1) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                ) {
+                    Column(
+                        Modifier.padding(9.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                    ) {
+                        Text(
+                            stage.first,
+                            color = PdigV2Colors.TextPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 11.sp,
+                        )
+                        Text(
+                            stage.second,
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 9.sp,
+                        )
+                    }
+                }
+            }
+        }
+        Text(
+            "完成后是 Plan Projection，不是 Reality。记录完成 ≠ 验证完成；旧路径仍需按正式计划安全退休。",
+            color = PdigV2Colors.TextMuted,
+            fontSize = 10.sp,
+        )
     }
 }
 
