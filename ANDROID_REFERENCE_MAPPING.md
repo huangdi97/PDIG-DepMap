@@ -703,3 +703,35 @@ Forbidden:
 - fake successful import in Preview;
 - Proposal shown as confirmed relation;
 - new VNext parser/picker that bypasses existing lock/re-auth behavior.
+
+
+## 21. R24 Manual Establish
+
+Manual establishment is a focused child of Establish, not another primary mode.
+
+~~~text
+Data Sources
+→ 建立基础设施
+  → 文件导入
+  → 手工记录
+~~~
+
+Reference hierarchy:
+- object-existence truth boundary;
+- currently runtime-creatable Canonical kinds;
+- known but gated kinds;
+- explicit no-Save Preview boundary;
+- future authoritative mutation sequence.
+
+The current runtime creation set is narrower than storage NodeKind. VNext must not
+turn storage support into a ghost consumer capability.
+
+Identity rule:
+- identity_anchor stays generic;
+- no manual Number/Email creation until governed subtype mapping exists.
+
+Forbidden:
+- local Compose save into Reality;
+- relationship creation as a side effect of object creation;
+- fifth-primary IA changes;
+- fake Save button in Preview.
