@@ -32,9 +32,9 @@ class VNextCapabilityMatrixTest {
         assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PHONE))
         assertTrue(hasProductionAuthority(VNextCapability.CHANGE_PAYMENT_CARD))
 
-        assertFalse(hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP))
+        assertTrue(hasProductionAuthority(VNextCapability.MANUAL_RELATIONSHIP))
         assertEquals(
-            VNextProductionAuthority.REQUIRES_NATIVE_SCHEMA,
+            VNextProductionAuthority.AVAILABLE,
             capabilityGate(VNextCapability.MANUAL_RELATIONSHIP).productionAuthority,
         )
         assertFalse(hasProductionAuthority(VNextCapability.DEVICE_CONTINUITY))
