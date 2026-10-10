@@ -1,6 +1,6 @@
 # PDIG Manual Establish UX Contract
 
-> Status: **DESIGN_FROZEN / R24**
+> Status: **DESIGN_FROZEN / R24 + R38 identity authority revision**
 >
 > Scope: v2.3 user capability **建立** — manual recording when no importable source
 > exists.
@@ -60,7 +60,7 @@ Canonical NodeKind can store:
 - device;
 - custom.
 
-However the current canonical runtime creation set is narrower:
+The generic Canonical runtime creation set remains narrower:
 
 ~~~text
 payment_instrument
@@ -68,9 +68,18 @@ account
 service
 ~~~
 
-VNext must respect that difference.
+R38 does **not** widen that generic set. Instead, phone/email establishment uses a
+dedicated governed authority:
 
-A storage-allowed kind is not automatically a production-supported manual-create
+~~~text
+identity_anchor
++ confirmed subtype = phone_number | email_address
++ independently confirmed identifier value
+→ atomic manual identity-anchor creation
+~~~
+
+This prevents a generic identity_anchor button from becoming an ungoverned shortcut.
+A storage-allowed kind is still not automatically a production-supported manual-create
 surface.
 
 ## 4. R24 Preview
@@ -82,8 +91,12 @@ The reference screen groups:
 - 账户;
 - 服务.
 
+### Governed identity objects
+- 手机号 / 邮箱 → R37 subtype + R38 independently confirmed identifier authority exists in Production;
+- Preview shows the design/state but remains read-only.
+
 ### Other known kinds
-- 号码 / 邮箱 / 身份 → identity_anchor is currently too coarse for safe consumer subtype mapping;
+- 其他身份 → stays generic unless governed subtype/value authority exists;
 - 设备 → storage-known but not in current generic runtime creation set;
 - 会员 / 自定义 → require explicit product semantics before consumer creation.
 
@@ -112,7 +125,9 @@ The production Manual Establish authority:
 4. bump graphRevision in the same authoritative mutation;
 5. return authoritative Node/revision state;
 6. never create a Dependency as a side effect;
-7. never claim a phone/email subtype from a generic identity_anchor unless governed subtype evidence exists.
+7. never claim a phone/email subtype from a generic identity_anchor unless governed subtype authority exists;
+8. for phone/email manual establishment, commit Node + subtype + identifier in one authoritative transaction;
+9. never infer carrier/provider/region/recovery role/unique recovery from the identifier value.
 
 Current implementation:
 - validates kind against generated Canonical `runtimeCreatableNodeKinds`;
@@ -158,25 +173,35 @@ Service:
 - no subscription-active claim unless separately evidenced;
 - no payment or authentication relation inferred.
 
-## 7. Identity subtype boundary
+## 7. Identity subtype + identifier boundary — R38
 
-Current identity_anchor is insufficient to automatically mean:
-- phone number;
-- email;
-- passkey;
-- recovery identity.
-
-Therefore R24 must not implement:
+R37 established governed subtype authority and R38 adds a separate confirmed
+identifier value. The semantics are deliberately non-equivalent:
 
 ~~~text
-manual identity_anchor
-→ choose “phone”
-→ VNext Number object
+confirmed subtype
+!= confirmed identifier value
+!= recovery use
+!= unique recovery path
 ~~~
 
-until the governed Identity Context/subtype proposal is implemented cross-platform.
+Production may now implement:
 
-This is a semantic gate, not a visual TODO.
+~~~text
+user chooses 手机号 / 邮箱
+→ enters display name + exact identifier value
+→ one authoritative transaction creates identity_anchor
+→ writes governed subtype + nested confirmed identifier
+→ bumps graphRevision exactly once
+→ creates no Dependency
+~~~
+
+The identifier is preserved as the exact confirmed value. The UI/Repository must not
+silently normalize, deduplicate or infer provider/region. Duplicate values therefore
+remain separate explicit Reality objects until a future review/dedup capability is
+governed.
+
+Generic other_identity, device, membership and custom creation remain gated.
 
 ## 8. Relationship entry
 
@@ -217,7 +242,8 @@ Source:
 - Up → IMPORT;
 - five primary IA unchanged;
 - no Save button in Preview;
-- unsupported subtype state visible.
+- governed phone/email state visible;
+- Preview remains read-only even though Production authority exists.
 
 Production evidence contract:
 - creation uses authoritative domain/repository API;
@@ -234,6 +260,7 @@ MANUAL_ESTABLISH_UX = DESIGN_FROZEN
 MANUAL_ESTABLISH_PREVIEW = SOURCE_IMPLEMENTED_READ_ONLY
 PRODUCTION_MANUAL_CREATE_AUTHORITY = SOURCE_IMPLEMENTED
 PRODUCTION_MANUAL_CREATE_RUNTIME_EVIDENCE = PENDING_CURRENT_HEAD
-IDENTITY_SUBTYPE_MANUAL_CREATE = HOLD
+IDENTITY_SUBTYPE_MANUAL_CREATE = SOURCE_IMPLEMENTED_R38
+IDENTITY_IDENTIFIER_MANUAL_CREATE = SOURCE_IMPLEMENTED_R38
 NO_GHOST_SAVE_ACTION = REQUIRED
 ~~~
