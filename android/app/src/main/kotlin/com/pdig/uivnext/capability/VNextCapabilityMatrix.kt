@@ -20,6 +20,7 @@ internal enum class VNextCapability {
     LIFECYCLE_PERSISTENCE,
     REGION_FACT,
     IDENTITY_SUBTYPE,
+    IDENTITY_IDENTIFIER,
     IDENTITY_CONTEXT,
     RECOVERY_PREPAREDNESS,
     RECOVERY_INCIDENT,
@@ -116,9 +117,15 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
     ),
     VNextCapabilityGate(
         capability = VNextCapability.IDENTITY_SUBTYPE,
-        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
-        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
-        reason = "Production identity_anchor cannot become Number or Email until a governed subtype is persisted and conformance-tested.",
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R37 governed identity_anchor_profile subtype is Canonical, cross-platform decoded/conformance-gated, and Production VNext consumes it fail-closed.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.IDENTITY_IDENTIFIER,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R38 governs an independently confirmed phone/email identifier inside identity_anchor_profile and binds atomic Android production establishment; missing/invalid identifier remains unknown without destroying subtype.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.IDENTITY_CONTEXT,
