@@ -111,6 +111,10 @@ class ProductionVNextShellContractTest {
             compose.onNodeWithTag("pdig.nav.$route", useUnmergedTree = true)
                 .assertIsDisplayed()
         }
+        compose.onNodeWithTag("pdig.production-vnext.world-context", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("地区定位尚未进入正式数据模型", substring = true)
+            .assertIsDisplayed()
 
         compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).performClick()
         compose.waitForIdle()
