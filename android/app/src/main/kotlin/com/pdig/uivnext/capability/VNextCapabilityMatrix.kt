@@ -32,6 +32,7 @@ internal enum class VNextCapabilityVisibility {
 internal enum class VNextProductionAuthority {
     AVAILABLE,
     NOT_EXPOSED,
+    REQUIRES_NATIVE_SCHEMA,
     REQUIRES_CANONICAL,
     REQUIRES_SOLVER,
 }
@@ -54,14 +55,14 @@ internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
     VNextCapabilityGate(
         capability = VNextCapability.MANUAL_CREATE,
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
-        productionAuthority = VNextProductionAuthority.NOT_EXPOSED,
-        reason = "Canonical can store supported node kinds, but VNext has no reviewed AppContainer-facing manual-create authority yet.",
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "AppContainer now exposes a governed runtime-creatable Node mutation; Preview remains read-only and production UI binding is still separate.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.MANUAL_RELATIONSHIP,
         visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
-        productionAuthority = VNextProductionAuthority.NOT_EXPOSED,
-        reason = "Canonical supports DependencyOrigin.MANUAL, but VNext has no reviewed AppContainer manual-dependency creation authority yet.",
+        productionAuthority = VNextProductionAuthority.REQUIRES_NATIVE_SCHEMA,
+        reason = "TS reference has Schema v4 relation/capability widening, but Native production schema is still v3; full R25 runtime relation creation must wait for cross-platform v4 cutover.",
     ),
     VNextCapabilityGate(
         capability = VNextCapability.HUMAN_REVIEW,
