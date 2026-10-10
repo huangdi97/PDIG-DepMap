@@ -268,18 +268,24 @@ Current source includes:
 - authoritative Manual Establish gateway + production form;
 - authoritative Manual Relationship for the current five Canonical v3 runtime relations; future/storage-only relation widening remains HOLD.
 
-R32/R33 launcher/security source state:
+R32–R36 launcher/security/cutover source state:
 - reusable fail-closed `PdigSecureContent` extracted from the current production app;
 - `ProductionVNextSecureHost` uses that exact security gate;
 - productionDebug can explicitly rehearse real-Reality VNext through `vnext_production`;
 - productionRelease ignores both `vnext_demo` and `vnext_production` extras;
 - default production route remains legacy until acceptance;
 - R33 adds an API36 runtime workflow that proves locked-before-Reality, five-primary Production VNext after explicit unlock, background/process relock, and default productionDebug remaining legacy;
-- R33 also reuses the canonical `FLAG_SECURE` window implementation for sensitive Production VNext Reality/review/history/change/search surfaces.
+- R33 also reuses the canonical `FLAG_SECURE` window implementation for sensitive Production VNext Reality/review/history/change/search surfaces;
+- R36 adds a fail-closed two-key build-time release-generation policy;
+- release Intent extras remain ignored;
+- both debug and future release VNext targets use the exact same `ProductionVNextSecureHost`;
+- R36 adds a no-extra API36 release-default rehearsal and an explicit rollback runbook;
+- repository defaults remain legacy until acceptance/approval.
 
 Still required before release cutover:
 - latest exact-head secure rehearsal workflow PASS on the final candidate;
-- explicit release cutover decision / rollback switch;
+- explicit release cutover approval using the already-source-implemented two-key policy;
+- rollback candidate build/install proof;
 - generic identity subtype implementation for phone/email;
 - subtype-aware phone/email after Canonical;
 - lock/security parity evidence;
@@ -374,8 +380,9 @@ Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R35
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R36
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
+PRODUCTION_VNEXT_CUTOVER_POLICY = SOURCE_IMPLEMENTED_FAIL_CLOSED
 FIVE_PRIMARY_IA = FROZEN
 FUTURE_CAPABILITIES = GATED
 GHOST_CAPABILITIES = FORBIDDEN
