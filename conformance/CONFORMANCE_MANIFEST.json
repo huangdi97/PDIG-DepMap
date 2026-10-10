@@ -12,7 +12,7 @@
     "baseline": "Test Files 43 passed, Tests 453 passed"
   },
   "counts": {
-    "cases": 133,
+    "cases": 137,
     "byCategory": {
       "impact": 13,
       "readiness": 16,
@@ -33,7 +33,7 @@
       "temporal-change": 4,
       "provider-policy": 4,
       "identity-relations": 6,
-      "identity-profile": 5
+      "identity-profile": 9
     }
   },
   "importFixtures": {
@@ -1001,6 +1001,34 @@
       "path": "fixtures/identity-profile/identity-profile-nonidentity-rejected.json",
       "sha256": "017c9a3ffc537d6a4917b009c48fa26e3dbc2a910dbfbbe2a6ab823c1efe50e0",
       "description": "profile on non-identity node is rejected"
+    },
+    {
+      "id": "identity-profile-confirmed-phone-identifier",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-confirmed-phone-identifier.json",
+      "sha256": "d6a59e4338f8155cf293d3e74c62c9a445df29795c427fe0edefb6fe6ed77387",
+      "description": "confirmed phone subtype + independently confirmed identifier value"
+    },
+    {
+      "id": "identity-profile-confirmed-email-identifier",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-confirmed-email-identifier.json",
+      "sha256": "9c24b3da524b7c71a11ab808234326f50620ba39a2cdbc22337d9b79730a95d2",
+      "description": "confirmed email subtype + independently confirmed identifier value"
+    },
+    {
+      "id": "identity-profile-invalid-identifier-preserves-subtype",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-invalid-identifier-preserves-subtype.json",
+      "sha256": "174e9b728dadcc6994cc711d1534bcc6b0434dbc9d31e6609e77a0e3298c44fa",
+      "description": "malformed identifier fails closed while valid confirmed subtype remains active"
+    },
+    {
+      "id": "identity-profile-other-identity-ignores-identifier",
+      "category": "identity-profile",
+      "path": "fixtures/identity-profile/identity-profile-other-identity-ignores-identifier.json",
+      "sha256": "f575fe01a6ae2a67044dd0a526542a027bc8c7b441ac657f44d145260d56bb59",
+      "description": "identifier payload is ignored for non phone/email subtype"
     }
   ]
 }
