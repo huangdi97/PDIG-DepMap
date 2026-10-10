@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · R25**
+> **Current reality · 2026-10-10 · R26**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,24 +13,24 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R25
+ANDROID_UI_VNEXT_SOURCE = R26
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
 PRODUCTION_VNEXT_CUTOVER = HOLD
 
-CANONICAL_SCHEMA_CHANGE_FOR_R19_UI = NONE
-DEPMAP_PAYLOAD_CHANGE_FOR_R19_UI = NONE
+CANONICAL_SCHEMA_CHANGE_FOR_R26_SOURCE = NONE
+DEPMAP_PAYLOAD_CHANGE_FOR_R26_SOURCE = NONE
 
-FRESH_R25_BUILD = NOT_RUN
-FRESH_R25_UNIT_TESTS = NOT_RUN
-FRESH_R25_INSTRUMENTATION = NOT_RUN
-FRESH_R25_PHONE_PIXELS = NOT_RUN
-FRESH_R25_TABLET_PIXELS = NOT_RUN
-FRESH_R25_HUMAN_ACCEPTANCE = NOT_RUN
+FRESH_R26_BUILD = NOT_RUN
+FRESH_R26_UNIT_TESTS = NOT_RUN
+FRESH_R26_INSTRUMENTATION = NOT_RUN
+FRESH_R26_PHONE_PIXELS = NOT_RUN
+FRESH_R26_TABLET_PIXELS = NOT_RUN
+FRESH_R26_HUMAN_ACCEPTANCE = NOT_RUN
 ```
 
-Do not reuse pre-R19 screenshots or old PASS statements as proof of the current
+Do not reuse pre-R26 screenshots or old PASS statements as proof of the current
 source.
 
 ## 1. Navigation / shell
@@ -60,7 +60,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **NOT_RUN on current R25 head** |
+| Exact-head GPU runtime proof | **NOT_RUN on current R26 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -496,7 +496,7 @@ source/model suggestion → Proposal → Review → origin=proposal
 
 ## 17. Tests / evidence present in source
 
-R22 has source contracts for:
+R26 has source contracts for:
 - lifecycle fixture truth/unknown behavior;
 - Impact Lens unknown/evidence boundaries;
 - keep-number identity;
@@ -577,7 +577,103 @@ Shared UX:
 - neither becomes a sixth/seventh primary tab;
 - Android `VNextLensAvailability` makes the HOLD executable.
 
-## 21. Honest stop line
+## 21. R26 continuity-substrate design closure
+
+R26 closes the remaining v2.3 roadmap concepts that previously existed only as
+high-level master-document vocabulary.
+
+### Access / Recovery Factor
+
+`spec/proposals/access-recovery-factor-v1.md` freezes:
+- factors as substrate, not NodeKinds or primary UI categories;
+- factor count != independent path count;
+- device-bound / provider-synced / roaming / offline / human-assisted semantics;
+- confirmed FactorBinding to actual Dependencies;
+- enrollment != current incident availability;
+- passkey/provider FailureDomain boundary;
+- no secret material.
+
+### SecretLocator
+
+`spec/proposals/secret-locator-v1.md` freezes:
+- metadata-only secret location;
+- no passwords/TOTP seeds/recovery codes/private keys/seed phrases/CVV/session tokens;
+- locator != factor != recovery path;
+- masking/export/privacy boundary;
+- no “copy secret” product behavior.
+
+### Recovery Preparedness
+
+`spec/ui-vnext/RECOVERY_PREPAREDNESS_UX_CONTRACT.md` freezes a future `我` child
+workspace while keeping the route hidden until Factor Canonical exists.
+
+It uses no health/safety score and never converts multiple factors into independent
+recovery claims.
+
+### Device Continuity
+
+`spec/proposals/device-continuity-v1.md` freezes the planned v0.4
+`REPLACE × device` architecture:
+- passkey / TOTP / push / eSIM / password-manager continuity;
+- provider-synced vs device-bound distinction;
+- Make-Before-Break;
+- explicit Action DAG;
+- old-device retirement only after capability verification.
+
+Reference/production UI remains hidden until prerequisites exist.
+
+### Digital Resource Continuity
+
+`spec/proposals/digital-resource-continuity-v1.md` freezes future v0.6+ domain,
+DNS, repository, cloud/hosting/data continuity without turning PDIG into a provider
+control panel or storing transfer/admin secrets.
+
+### Trusted Handoff
+
+`spec/proposals/trusted-handoff-v1.md` freezes future v0.7+ trusted continuity:
+- provider-specific legacy/successor arrangements;
+- scoped handoff;
+- metadata-only instructions;
+- no credential/secret escrow;
+- no autonomous dead-man switch;
+- no legal-will claim.
+
+### Unified capability/authority gate
+
+R25/R26 adds:
+- `VNextCapabilityMatrix.kt`;
+- `spec/ui-vnext/CAPABILITY_AUTHORITY_MATRIX.md`.
+
+The matrix distinguishes:
+
+```text
+design complete
+!= reference visible
+!= production executable
+```
+
+and keeps Device Continuity, Recovery Preparedness, Digital Resource Continuity,
+Identity Context, Recovery Incident and Trusted Handoff hidden until their actual
+authority prerequisites exist.
+
+### Navigation and task ownership correction
+
+R26 also re-audited the `我` workspace against the R22 Records boundary:
+- active/current attention and upcoming maintenance route to Now;
+- active changes route to Change;
+- Records stays evidence/history/verification;
+- `我` remains the fifth primary root.
+
+### Design closure index
+
+The authoritative index is:
+- `spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md`.
+
+Within the scope and roadmap explicitly described by v2.3-R1, remaining gaps are now
+classified as runtime/production/Canonical implementation work rather than ambiguous
+product design.
+
+## 22. Honest stop line
 
 ```text
 SOURCE_DESIGN = COMPLETE
@@ -586,5 +682,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R25 runtime
+The next blocker is no longer “missing UI design.” It is fresh exact-head R26 runtime
 verification and, after reference acceptance, production read-model binding.
