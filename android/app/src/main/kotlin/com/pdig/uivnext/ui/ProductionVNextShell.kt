@@ -192,7 +192,14 @@ private fun ProductionContent(
             ProductionInventoryCategoryScreen(session, app.screen, modifier)
         VScreen.CARD_DETAIL ->
             ProductionCardDetail(session, inventory, app.selectedCardId, modifier)
-        VScreen.ACCOUNT_DETAIL, VScreen.DEVICE_DETAIL, VScreen.SERVICE_DETAIL ->
+        VScreen.NUMBER_DETAIL ->
+            ProductionGenericObjectDetailScreen(
+                session = session,
+                detailScreen = app.screen,
+                objectId = app.selectedNumberId,
+                modifier = modifier,
+            )
+        VScreen.ACCOUNT_DETAIL, VScreen.EMAIL_DETAIL, VScreen.DEVICE_DETAIL, VScreen.SERVICE_DETAIL ->
             ProductionGenericObjectDetailScreen(
                 session = session,
                 detailScreen = app.screen,
@@ -303,9 +310,17 @@ private fun ProductionInfrastructure(
         ProductionSection("管理分类")
         listOf(
             Triple(VScreen.CARDS, inventory.counts.paymentAssets as Int?, "已绑定"),
-            Triple(VScreen.NUMBERS, null, "等待 phone subtype"),
+            Triple(
+                VScreen.NUMBERS,
+                inventory.counts.phoneIdentities as Int?,
+                if (inventory.counts.phoneIdentities > 0) "已确认 subtype" else "暂无已确认 phone subtype",
+            ),
             Triple(VScreen.ACCOUNTS, inventory.counts.accounts as Int?, "已绑定"),
-            Triple(VScreen.EMAILS, null, "等待 email subtype"),
+            Triple(
+                VScreen.EMAILS,
+                inventory.counts.emailIdentities as Int?,
+                if (inventory.counts.emailIdentities > 0) "已确认 subtype" else "暂无已确认 email subtype",
+            ),
             Triple(VScreen.DEVICES, inventory.counts.devices as Int?, "已绑定"),
             Triple(VScreen.SERVICES, inventory.counts.services as Int?, "已绑定"),
             Triple(
@@ -351,9 +366,31 @@ private fun ProductionInfrastructure(
         }
 
         ProductionSection("身份对象")
-        if (inventory.genericIdentityAnchors.isEmpty()) {
-            ProductionEmpty("没有已确认的通用身份对象。")
+        if (
+            inventory.phoneIdentities.isEmpty() &&
+            inventory.emailIdentities.isEmpty() &&
+            inventory.genericIdentityAnchors.isEmpty()
+        ) {
+            ProductionEmpty("没有已确认的身份对象。")
         } else {
+            inventory.phoneIdentities.forEach { identity ->
+                val item = snapshot.objects.first { it.id == identity.id }
+                ProductionFactCard(
+                    title = productionVisibleObjectName(item, app.privacyMask),
+                    subtitle = "手机号身份 · ${productionIdentityBasisLabel(identity.verificationBasisType)}",
+                    meta = "${identity.confirmedDependencyCount} 条已确认关系",
+                    onClick = { app.openNumber(identity.id) },
+                )
+            }
+            inventory.emailIdentities.forEach { identity ->
+                val item = snapshot.objects.first { it.id == identity.id }
+                ProductionFactCard(
+                    title = productionVisibleObjectName(item, app.privacyMask),
+                    subtitle = "邮箱身份 · ${productionIdentityBasisLabel(identity.verificationBasisType)}",
+                    meta = "${identity.confirmedDependencyCount} 条已确认关系",
+                    onClick = { app.openSecondaryObject(VScreen.EMAIL_DETAIL, identity.id) },
+                )
+            }
             inventory.genericIdentityAnchors.forEach { identity ->
                 ProductionFactCard(
                     title = productionVisibleObjectName(
@@ -363,7 +400,7 @@ private fun ProductionInfrastructure(
                     subtitle = if (app.privacyMask)
                         "通用身份对象 · 标识已按本机偏好遮蔽"
                     else
-                        "通用身份对象 · 手机/邮箱类型尚未完成底层确认",
+                        "通用身份对象 · subtype 未确认或无效",
                     meta = "${identity.confirmedDependencyCount} 条已确认关系",
                 )
             }
@@ -510,8 +547,9 @@ private fun ProductionChange(
         )
         ProductionFactCard(
             title = "更换手机号",
-            subtitle = "手机号类型完成底层确认后再开放正式对象选择",
-            meta = "不会把通用身份对象猜成手机号",
+            subtitle = "从“号码”进入已确认手机号身份后分析影响并建立计划",
+            meta = "仅受治理 PHONE_NUMBER subtype 可进入；不会把通用身份对象猜成手机号",
+            onClick = { app.navigate(VScreen.NUMBERS) },
         )
 
         ProductionBoundaryNote(
@@ -696,7 +734,8 @@ private fun ProductionMeInfrastructurePanel(
             ProductionMetricRow(
                 listOf(
                     inventory.counts.paymentAssets to "支付工具",
-                    inventory.counts.genericIdentityAnchors to "身份对象",
+                    (inventory.counts.phoneIdentities + inventory.counts.emailIdentities +
+                        inventory.counts.genericIdentityAnchors) to "身份对象",
                     inventory.counts.accounts to "账户",
                 ),
             )
@@ -886,7 +925,9 @@ private fun ProductionCategoryEntry(
 private fun ProductionInventorySummary(inventory: ProductionConsumerInventory) {
     val facts = listOf(
         inventory.counts.paymentAssets to "支付工具",
-        inventory.counts.genericIdentityAnchors to "身份对象",
+        inventory.counts.phoneIdentities to "号码",
+        inventory.counts.emailIdentities to "邮箱",
+        inventory.counts.genericIdentityAnchors to "通用身份",
         inventory.counts.accounts to "账户",
         inventory.counts.services to "服务",
         inventory.counts.devices to "设备",
