@@ -10,6 +10,7 @@ import com.pdig.core.generated.MaintenanceFactKind
 import com.pdig.core.generated.MaintenanceOverflowPolicy
 import com.pdig.core.generated.MaintenanceScheduleKind
 import com.pdig.core.generated.MaintenanceValueType
+import java.time.Instant
 
 /**
  * Consumer-facing maintenance write authority.
@@ -51,6 +52,12 @@ internal interface VNextMaintenanceActionGateway {
     fun confirmPhonePlanRenewalMonthly(
         nodeId: String,
         dayOfMonth: Int,
+    ): MaintenanceWriteResult
+
+    fun markPhoneKeepAliveCompleted(
+        nodeId: String,
+        intervalDays: Int,
+        anchorDate: String,
     ): MaintenanceWriteResult
 }
 
@@ -230,6 +237,18 @@ internal class AppContainerVNextMaintenanceActionGateway(
                     overflowPolicy = MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY,
                 ),
             ),
+        )
+
+    override fun markPhoneKeepAliveCompleted(
+        nodeId: String,
+        intervalDays: Int,
+        anchorDate: String,
+    ): MaintenanceWriteResult =
+        confirmPhoneKeepAliveInterval(
+            nodeId = nodeId,
+            intervalDays = intervalDays,
+            anchorDate = anchorDate,
+            lastCompletedAt = Instant.now().toString(),
         )
 }
 
