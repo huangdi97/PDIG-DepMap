@@ -74,6 +74,28 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
+    fun privacyMaskKeepsConfirmedTailSearchableButNeverEchoesItVisibly() {
+        val visible = productionSearchHits(snapshot(), "8823", privacyMask = false)
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "card-1" }
+        assertTrue(visible.subtitle.contains("8823"))
+
+        val masked = productionSearchHits(snapshot(), "8823", privacyMask = true)
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "card-1" }
+        assertTrue(masked.subtitle.contains("••••"))
+        assertTrue(!masked.subtitle.contains("8823"))
+    }
+
+    @Test
+    fun cardTailLabelsTreatPrivacyAsPresentationOnly() {
+        assertEquals("尾号未记录", productionPaymentTailLabel(null, privacyMask = false))
+        assertEquals("尾号 8823", productionPaymentTailLabel("8823", privacyMask = false))
+        assertEquals("尾号 ••••", productionPaymentTailLabel("8823", privacyMask = true))
+        assertEquals("••••", productionPaymentCompactTailLabel("8823", privacyMask = true))
+    }
+
+    @Test
     fun coarseIdentityAnchorRemainsGenericInSearch() {
         val hits = productionSearchHits(snapshot(), "身份对象")
         val identity = hits.filterIsInstance<ProductionSearchHit.ObjectHit>()
