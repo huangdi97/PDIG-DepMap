@@ -68,6 +68,17 @@ internal fun ProductionEstablishScreen(
         }
 
         item {
+            EstablishEntry(
+                title = "手工记录关系",
+                body = "在两个已确认对象之间明确确认当前 runtime registry 支持的关系；不会自动判断独立路径。",
+                state = if (session.authorities?.manualRelationship != null) "正式关系能力可用" else "正式关系能力待接",
+                enabled = session.authorities?.manualRelationship != null,
+            ) {
+                app.navigate(VScreen.MANUAL_RELATION)
+            }
+        }
+
+        item {
             val requestImport = session.hostActions.requestFileImport
             EstablishEntry(
                 title = "文件导入",
@@ -81,7 +92,7 @@ internal fun ProductionEstablishScreen(
 
         item {
             EstablishBoundary(
-                "导入完成不等于依赖已确认；手工创建对象也不等于手工确认关系。"
+                "导入完成不等于依赖已确认；对象建立与关系确认仍是两个独立 Reality 动作。"
             )
         }
     }
@@ -297,10 +308,10 @@ internal fun ProductionManualEstablishScreen(
         if (result != null) {
             item {
                 EstablishEntry(
-                    title = "手工记录关系",
-                    body = "对象已建立；关系仍需单独确认。当前原生数据格式尚不能安全写入完整关系词汇。",
-                    state = "底层格式升级前暂不可提交",
-                    enabled = true,
+                    title = "继续记录关系",
+                    body = "对象已建立。关系仍需单独确认，并且只允许当前 Canonical runtime registry 已正式支持的关系。",
+                    state = if (session.authorities?.manualRelationship != null) "可进入正式关系确认" else "关系 authority 待接",
+                    enabled = session.authorities?.manualRelationship != null,
                 ) {
                     app.navigate(VScreen.MANUAL_RELATION)
                 }
@@ -310,75 +321,6 @@ internal fun ProductionManualEstablishScreen(
         item {
             EstablishBoundary(
                 "身份对象、设备、会员与自定义对象不会因为界面能显示就擅自开放手工创建；必须遵守当前正式创建规则。"
-            )
-        }
-    }
-}
-
-@Composable
-internal fun ProductionManualRelationshipHoldScreen(
-    modifier: Modifier = Modifier,
-) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .testTag("pdig.production-vnext.manual-relation-hold"),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    "手工记录关系",
-                    color = PdigV2Colors.TextPrimary,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    "关系录入设计已完成；正式写入必须等新数据格式和跨端一致性验证完成。",
-                    color = PdigV2Colors.TextMuted,
-                    fontSize = 12.sp,
-                )
-            }
-        }
-
-        item {
-            EstablishBoundary(
-                "当前原生数据格式仍是第 3 版。只开放一小部分旧版关系会制造平台分叉，因此这里不会提供“确认关系”按钮。"
-            )
-        }
-
-        item {
-            Text("已冻结的关系输入", color = PdigV2Colors.TextPrimary,
-                fontSize = 13.sp, fontWeight = FontWeight.Bold)
-        }
-
-        listOf(
-            "From / Relation / To" to "关系必须连接两个已确认对象",
-            "Capability" to "payment / access / authentication / recovery / communication",
-            "Criticality" to "默认 unknown；机器不能擅自设为 required",
-            "来源" to "明确人工陈述可作为手工确认；模型或数据来源给出的建议必须先进入待复核",
-            "确认" to "只有明确确认后的关系才能进入已确认数据；未确认建议不是正式依赖",
-        ).forEach { (title, body) ->
-            item {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    color = PdigV2Colors.Surface,
-                    shape = RoundedCornerShape(VRadius.Lg),
-                    border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                ) {
-                    Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                        Text(title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold)
-                        Text(body, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
-                    }
-                }
-            }
-        }
-
-        item {
-            EstablishBoundary(
-                "开放条件：新数据格式迁移、运行时校验、正反例测试、Android/iOS/Harmony 一致性验证，以及正式关系写入能力全部完成。缺一项都不开放。"
             )
         }
     }
