@@ -100,6 +100,30 @@ internal fun R9SourcesScreen(app: VAppState) {
                 }
             }
         }
+        R9SectionTitle("建立与发现")
+        Surface(
+            modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
+                .clickable { app.navigate(VScreen.IMPORT) }
+                .testTag("pdig.r23.sources.import"),
+            color = Color.White,
+            shape = RoundedCornerShape(13.dp),
+            border = BorderStroke(1.dp, R9.Line),
+        ) {
+            Row(
+                Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text("建立基础设施", color = R9.Ink, fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold)
+                    Text("本机导入 → 确认对象 → 生成待复核关系；不会直接生成 Dependency",
+                        color = R9.Muted, fontSize = 9.sp, lineHeight = 14.sp)
+                }
+                Text("查看 →", color = R9.Blue, fontSize = 11.sp)
+            }
+        }
+
         R9SectionTitle("人工确认")
         Surface(
             modifier = Modifier.fillMaxWidth().defaultMinSize(minHeight = 48.dp)
