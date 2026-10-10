@@ -740,26 +740,44 @@ def main():
     capture("10-data-sources")
     require_screen("10-data-sources", "当前预览工作区", "演示数据", "未知")
 
+    # R23: Establish/Import belongs to the Evidence plane. Preview proves the
+    # hierarchy and truth boundary but must never open a file picker or mutate Reality.
+    if not tap_retry("建立基础设施", exact=True):
+        raise RuntimeError("R23 Establish Import entry is unreachable from Data Sources")
+    capture("10a-establish-import")
+    require_screen(
+        "10a-establish-import",
+        "文件留在本机 · 发现不等于依赖",
+        "选择数据来源",
+        "选择文件并在本机解析",
+        "确认要记录的对象",
+        "当前是隔离预览",
+    )
+    if not tap_retry("返回上一级", exact=True):
+        raise RuntimeError("R23 Establish Import did not expose hierarchical Up")
+    capture("10b-import-up-sources")
+    require_screen("10b-import-up-sources", "当前预览工作区", "事实边界")
+
     # R22: Observation/Proposal/Candidate/Drift requires a real Human Review
     # workspace, but Preview must remain read-only and cannot mutate Reality.
     if not tap_retry("待复核", exact=True):
         raise RuntimeError("R22 Human Review entry is unreachable from Data Sources")
-    capture("10a-human-review")
+    capture("10c-human-review")
     require_screen(
-        "10a-human-review",
+        "10c-human-review",
         "发现 ≠ 事实",
         "关系建议",
         "对象候选",
         "现实漂移",
         "Preview 不执行",
     )
-    review_text = json.loads((ROOT / "10a-human-review.json").read_text(encoding="utf-8"))["uiText"]
+    review_text = json.loads((ROOT / "10c-human-review.json").read_text(encoding="utf-8"))["uiText"]
     if any("已确认现实" in row or "自动确认" in row for row in review_text):
         raise RuntimeError("R22 Human Review copy crossed the confirmation authority boundary")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R22 Human Review did not expose hierarchical Up")
-    capture("10b-review-up-now")
-    require_screen("10b-review-up-now", "你的全球数字基础设施")
+    capture("10d-review-up-now")
+    require_screen("10d-review-up-now", "你的全球数字基础设施")
 
     # Include real runtime frame-time evidence even when device image comparisons
     # have already passed. A static circle with rotating lines is not accepted.
