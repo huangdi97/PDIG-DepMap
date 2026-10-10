@@ -28,7 +28,13 @@ internal data class ProductionVNextAuthorities(
  * FileWorkflowCoordinator, so VNext only requests that host workflow.
  */
 internal data class ProductionVNextHostActions(
-    val requestFileImport: (() -> Unit)? = null,
+    /**
+     * Request the Activity-owned hardened file workflow.
+     *
+     * The callback owns beginImport + stable ActivityResult launcher dispatch and
+     * returns false only when the host launcher is unavailable.
+     */
+    val requestFileImport: ((sourceLabel: String) -> Boolean)? = null,
 )
 
 internal data class ProductionVNextSession(
