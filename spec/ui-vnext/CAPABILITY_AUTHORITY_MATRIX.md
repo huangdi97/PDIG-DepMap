@@ -1,7 +1,7 @@
 # PDIG UI vNext — Capability / Authority Matrix
 
 > Date: 2026-10-10  
-> Status: **R38 CURRENT NORMATIVE CONTRACT**
+> Status: **R41 CURRENT NORMATIVE CONTRACT**
 >
 > Purpose: prevent a valid design/reference surface from being mistaken for an
 > executable production capability.
@@ -48,8 +48,8 @@ production solver = no
 | Human Review | visible reference | available | Preview read-only; Production decisions go through Proposal/Candidate/Drift gateways |
 | Replace Phone | visible reference | available | execute only through ChangePlan gateway |
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
-| Lifecycle Persistence | visible reference | requires Canonical | R19 lifecycle facts are synthetic/reference until shared schema exists |
-| RegionFact | visible reference | requires Canonical | Preview Region/Globe valid; Production geography remains zero-label until governed RegionFact exists |
+| Lifecycle Persistence | visible reference + Production | available | R40 governs maintenance_profile read/write; R41 exposes authoritative Card/Number editors and derived occurrence projection; unsupported lifecycle concepts remain unavailable |
+| RegionFact | visible reference + Production | available | R39 governs RegionFact; Production geography uses confirmed facts only and never infers from currency/provider/number prefix/locale |
 | Identity Anchor Subtype | visible when governed profile is confirmed | available | Production VNext maps valid PHONE_NUMBER/EMAIL_ADDRESS profiles; missing/invalid/bare subtype stays generic |
 | Identity Identifier | visible when independently confirmed | available | exact confirmed phone/email identifier is projected/searchable with privacy masking; invalid identifier fails closed without erasing valid subtype |
 | Identity Context | hidden | requires Canonical | no selector/search ghost capability before governed membership |
@@ -97,16 +97,53 @@ A Compose screen is never authority.
 
 ## 5. Canonical-required capabilities
 
-Lifecycle Persistence, RegionFact, Identity Context,
-Device/Digital Resource/Trusted Handoff future semantics and Recovery Preparedness
-still need their own shared Canonical/runtime activation before Production can own
-them.
+Identity Context, Device/Digital Resource/Trusted Handoff future semantics and
+Recovery Preparedness still need their own shared Canonical/runtime activation before
+Production can own them.
 
-Phone/email subtype, independently confirmed identifier value, and atomic manual
-Number/Email creation are no longer in this HOLD list: R37/R38 govern them.
+The following are no longer in this HOLD list:
+- R37 identity subtype;
+- R38 confirmed identifier + atomic Number/Email establishment;
+- R39 RegionFact;
+- R40 maintenance_profile read/write;
+- R41 maintenance occurrence/control-surface binding.
 
 Do not route around those gates through `fields_json`, local preferences or
 Android-only tables.
+
+## 5.1 R39–R41 authority advancement
+
+### RegionFact
+
+```text
+confirmed governed RegionFact
+→ Production region grouping / world context
+
+currency / issuer / carrier / number prefix / locale / current location
+!= RegionFact authority
+```
+
+### Lifecycle / maintenance
+
+```text
+maintenance_profile
+→ fail-closed Canonical decoder
+→ confirmed fact/schedule writer
+→ encrypted Reality + graphRevision
+→ Production lifecycle read/edit surface
+→ derived occurrence → Now / Timeline
+```
+
+Permanent rule:
+
+```text
+schedule due != completed
+explicit completion action → lastCompletedAt
+```
+
+Production authority being AVAILABLE does not mean every imagined lifecycle field is
+supported. Installment summary, transaction ledger and automatic provider actions
+remain outside Canonical v1.
 
 ## 6. Solver-required capability
 
