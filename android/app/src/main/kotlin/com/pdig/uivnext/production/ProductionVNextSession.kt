@@ -35,12 +35,15 @@ internal fun createProductionVNextSession(
     appContainer: AppContainer,
     initialScreen: VScreen = VScreen.NOW,
     nowIso: String? = null,
+    appState: VAppState? = null,
 ): ProductionVNextSession {
     val source = AppContainerVNextReadModelSource(appContainer)
     val reviewSource = AppContainerVNextReviewSource(appContainer)
     val reviewGateway = AppContainerVNextReviewActionGateway(appContainer)
     return ProductionVNextSession(
-        appState = VAppState(initialScreen = initialScreen),
+        // Launcher binding may inject a store-backed VAppState so privacy /
+        // presentation preferences persist without entering Canonical Reality.
+        appState = appState ?: VAppState(initialScreen = initialScreen),
         dataSource = ProductionVNextRuntimeDataSource(source, nowIso),
         authorities = ProductionVNextAuthorities(
             review = ProductionReviewCoordinator(reviewSource, reviewGateway),
