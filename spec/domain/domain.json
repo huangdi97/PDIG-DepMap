@@ -47,6 +47,57 @@
       "note": "Only confirmed/retired Reality facts live in Node.fields.region_facts. Region proposals stay outside confirmed Node Reality until human/authoritative review."
     },
 
+    "MaintenanceFactKind": {
+      "values": [
+        "card_annual_fee_amount",
+        "card_annual_fee_currency",
+        "card_billing_day",
+        "card_payment_due_day",
+        "card_autopay_mode",
+        "number_billing_mode",
+        "number_plan_cost",
+        "number_plan_currency",
+        "number_renewal_method"
+      ],
+      "note": "R40 governed node-attached maintenance fact vocabulary. CARD_INSTALLMENT_SUMMARY is intentionally excluded from Canonical v1."
+    },
+
+    "MaintenanceScheduleKind": {
+      "values": [
+        "card_annual_fee_checkpoint",
+        "card_billing_checkpoint",
+        "card_payment_due_checkpoint",
+        "number_keep_alive",
+        "number_plan_renewal",
+        "fact_freshness_review",
+        "custom_maintenance"
+      ],
+      "note": "R40 governed maintenance schedule vocabulary. Card expiry remains owned by Node.expiryDate rather than duplicated here."
+    },
+
+    "MaintenanceFactState": {
+      "values": ["confirmed", "retired"],
+      "note": "Proposal is deliberately absent; proposals stay outside confirmed Node Reality until review."
+    },
+
+    "MaintenanceScheduleState": {
+      "values": ["active", "paused", "needs_review", "retired"],
+      "note": "Elapsed time never mutates durable schedule state automatically."
+    },
+
+    "MaintenanceValueType": {
+      "values": ["decimal_string", "currency_code", "integer", "text", "boolean"]
+    },
+
+    "MaintenanceCadenceKind": {
+      "values": ["one_time", "monthly_day", "yearly_month_day", "interval_days", "manual_only"],
+      "note": "Provider-specific cadence is not a Reality cadence kind; provider policy may only propose a governed schedule."
+    },
+
+    "MaintenanceOverflowPolicy": {
+      "values": ["clamp_to_last_day", "skip_occurrence", "user_confirm"]
+    },
+
     "Relation": {
       "values": [
         "funding_source",
@@ -403,6 +454,64 @@
               "ui_theme"
             ],
             "note": "R39 first-class RegionFact semantics are carried in the existing cross-platform Node.fields envelope, so graph payload v3 can preserve them without an Android-only table. Node identity supplies nodeId. Proposal state is deliberately not stored inside confirmed Node Reality."
+          },
+          "maintenance_profile": {
+            "type": "MaintenanceProfileV1|null",
+            "logicalPath": "Node.fields.maintenance_profile",
+            "physicalStorage": "nodes.fields_json.maintenance_profile",
+            "default": null,
+            "authority": "confirmed_reality",
+            "containerVersion": 1,
+            "factKindType": "MaintenanceFactKind",
+            "scheduleKindType": "MaintenanceScheduleKind",
+            "factStateType": "MaintenanceFactState",
+            "scheduleStateType": "MaintenanceScheduleState",
+            "valueType": "MaintenanceValueType",
+            "cadenceKindType": "MaintenanceCadenceKind",
+            "overflowPolicyType": "MaintenanceOverflowPolicy",
+            "verificationBasisType": "VerificationBasisType",
+            "cardExpiryOwner": "Node.expiryDate",
+            "installmentPolicy": "CARD_INSTALLMENT_SUMMARY is presentation/reference-only and not Canonical v1",
+            "facts": {
+              "requiredFields": ["id", "kind", "value_type", "value", "state", "verification_basis_type", "confirmed_at"],
+              "optionalFields": ["evidence_refs", "valid_from", "valid_until", "retired_at"],
+              "proposalPolicy": "proposal/unconfirmed maintenance claims MUST NOT be stored as confirmed maintenance facts",
+              "invalidItemBehavior": "drop_invalid_item_fail_closed_preserve_other_valid_items"
+            },
+            "schedules": {
+              "requiredFields": ["id", "kind", "state", "cadence", "verification_basis_type", "confirmed_at"],
+              "optionalFields": ["evidence_refs", "last_completed_at", "retired_at"],
+              "proposalPolicy": "provider policy or extracted schedule candidates MUST remain Proposal until reviewed/confirmed",
+              "invalidItemBehavior": "drop_invalid_item_fail_closed_preserve_other_valid_items"
+            },
+            "cadence": {
+              "one_time": ["due_at"],
+              "monthly_day": ["day_of_month", "overflow_policy"],
+              "yearly_month_day": ["month", "day", "overflow_policy"],
+              "interval_days": ["interval_days", "anchor_date"],
+              "manual_only": []
+            },
+            "applicability": {
+              "cardFacts": ["card_annual_fee_amount", "card_annual_fee_currency", "card_billing_day", "card_payment_due_day", "card_autopay_mode"],
+              "cardSchedules": ["card_annual_fee_checkpoint", "card_billing_checkpoint", "card_payment_due_checkpoint"],
+              "numberFacts": ["number_billing_mode", "number_plan_cost", "number_plan_currency", "number_renewal_method"],
+              "numberSchedules": ["number_keep_alive", "number_plan_renewal"],
+              "numberAuthority": "Node.kind=identity_anchor AND confirmed identity_anchor_profile.subtype=phone_number",
+              "sharedSchedules": ["fact_freshness_review", "custom_maintenance"]
+            },
+            "temporalPolicy": "time passage may derive occurrence state but MUST NOT auto-complete, auto-retire, or rewrite confirmed Reality",
+            "forbiddenInference": [
+              "provider_policy_without_review",
+              "statement_date_pattern_without_review",
+              "transaction_pattern",
+              "card_product_name",
+              "phone_carrier_label",
+              "elapsed_time_as_completion",
+              "notification_delivery_as_completion",
+              "ui_presentation_value",
+              "reference_fixture_value"
+            ],
+            "note": "R40 governed lifecycle/maintenance semantics use the existing cross-platform Node.fields envelope. Old runtimes may preserve the structured JSON but must not infer its semantics."
           }
         }
       },
