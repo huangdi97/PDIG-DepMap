@@ -1,7 +1,7 @@
 # PDIG UI vNext — Capability / Authority Matrix
 
 > Date: 2026-10-10  
-> Status: **R33 CURRENT NORMATIVE CONTRACT**
+> Status: **R34 CURRENT NORMATIVE CONTRACT**
 >
 > Purpose: prevent a valid design/reference surface from being mistaken for an
 > executable production capability.
@@ -49,7 +49,13 @@ production solver = no
 | Replace Phone | visible reference | available | execute only through ChangePlan gateway |
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
 | Lifecycle Persistence | visible reference | requires Canonical | R19 lifecycle facts are synthetic/reference until shared schema exists |
+| RegionFact | visible reference | requires Canonical | Preview Region/Globe valid; Production geography remains zero-label until governed RegionFact exists |
+| Identity Anchor Subtype | hidden | requires Canonical | production identity_anchor stays generic; no phone/email inference |
 | Identity Context | hidden | requires Canonical | no selector/search ghost capability before governed membership |
+| Device Continuity | hidden | requires Canonical | future replace-device flow needs governed device/factor semantics |
+| Digital Resource Continuity | hidden | requires Canonical | future domain/DNS/repository/cloud continuity remains gated |
+| Trusted Handoff | hidden | requires Canonical | no trusted-party/handoff execution without governed authority |
+| Recovery Preparedness | hidden | requires Canonical | no preparedness UI before Factor/SecretLocator semantics |
 | Recovery Incident | hidden | requires solver | no Recovery Mode before explicit incident + solver |
 
 Source of truth:
@@ -90,8 +96,10 @@ A Compose screen is never authority.
 
 ## 5. Canonical-required capabilities
 
-Lifecycle Persistence, Identity Context and Identity Anchor Subtype need shared
-schema/version/migration/fixtures/conformance before Production can own them.
+Lifecycle Persistence, RegionFact, Identity Context, Identity Anchor Subtype,
+Device/Digital Resource/Trusted Handoff future semantics and Recovery Preparedness
+need shared schema/version/migration/fixtures/conformance before Production can own
+them.
 
 Do not route around those gates through `fields_json`, local preferences or
 Android-only tables.
