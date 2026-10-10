@@ -51,6 +51,7 @@ internal val INFRA_ENTRIES = listOf(
 
 
 internal fun isEntrySelected(entry: VScreen, current: VScreen): Boolean = when (entry) {
+    VScreen.NOW -> current == VScreen.NOW || current == VScreen.REVIEW
     VScreen.INFRASTRUCTURE -> current in setOf(
         VScreen.INFRASTRUCTURE,
         VScreen.OVERVIEW,
