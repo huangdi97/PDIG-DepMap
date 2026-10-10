@@ -292,6 +292,7 @@ class VAppState(
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
         VScreen.DEVICES, VScreen.SERVICES, VScreen.WEAKNESSES, VScreen.OVERVIEW -> VScreen.INFRASTRUCTURE
         VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> VScreen.CHANGE
+        VScreen.REVIEW -> VScreen.NOW
         VScreen.SETTINGS, VScreen.PERSONALIZATION, VScreen.SOURCES -> VScreen.ME
         VScreen.SEARCH -> backStack.lastOrNull() ?: VScreen.NOW
     }
