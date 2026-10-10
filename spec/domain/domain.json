@@ -25,6 +25,11 @@
       "note": "Runtime MVP creation set is narrower than this enum; see runtimeCreatableNodeKinds in constants."
     },
 
+    "IdentityAnchorSubtype": {
+      "values": ["phone_number", "email_address", "other_identity"],
+      "note": "Governed subtype vocabulary for Node.kind=identity_anchor. Storage mapping is Node.fields.subtype / physical fields_json.subtype. Presence in the enum registry does not by itself authorize inference or production Number/Email projection; confirmed Reality authority is required."
+    },
+
     "Relation": {
       "values": [
         "funding_source",
@@ -308,6 +313,29 @@
         "walletRef": "string|null",
         "createdAt": "timestamp",
         "updatedAt": "timestamp"
+      },
+      "structuredFieldContracts": {
+        "identity_anchor": {
+          "subtype": {
+            "type": "IdentityAnchorSubtype|null",
+            "logicalPath": "Node.fields.subtype",
+            "physicalStorage": "nodes.fields_json.subtype",
+            "default": null,
+            "authority": "confirmed_reality",
+            "unknownBehavior": "absent_or_null_stays_generic_identity",
+            "forbiddenInference": [
+              "name_regex",
+              "phone_prefix_or_country_code",
+              "provider_or_carrier_label",
+              "email_shaped_string",
+              "dependency_relation",
+              "scenario_entry",
+              "presentation_theme",
+              "locale_or_region"
+            ],
+            "note": "This is a Canonical governed structured field carried inside the existing cross-platform Node.fields object. It is not an Android-only free-form convention."
+          }
+        }
       },
       "realityClass": "confirmed_reality",
       "bumpsGraphRevisionOn": ["create", "update", "archive"]
