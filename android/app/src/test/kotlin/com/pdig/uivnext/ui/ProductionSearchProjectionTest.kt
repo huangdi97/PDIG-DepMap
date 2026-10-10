@@ -87,8 +87,7 @@ class ProductionSearchProjectionTest {
 
     @Test
     fun emptyQueryNeverReturnsImplicitEverything() {
-        assertTrue(productionSearchHits(snapshot(), "").isNotEmpty())
-        // The composable guards blank input before calling the projection. The
-        // pure projection intentionally remains a literal matcher for tests.
+        assertTrue(productionSearchHits(snapshot(), "").isEmpty())
+        assertTrue(productionSearchHits(snapshot(), "   ").isEmpty())
     }
 }
