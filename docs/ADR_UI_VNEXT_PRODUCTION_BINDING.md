@@ -1,7 +1,7 @@
 # ADR — UI vNext Production Binding
 
 > Date: 2026-10-09  
-> Status: **R29 PRODUCTION_SHELL_SOURCE_IMPLEMENTED / NOT_CUT_OVER**  
+> Status: **R31 PRODUCTION_SHELL_SOURCE_IMPLEMENTED / NOT_CUT_OVER**  
 > Scope: Android UI vNext → existing Android production domain/runtime  
 > Canonical change: **NONE**
 
@@ -659,3 +659,45 @@ Until that exists:
 - UI must not fake success locally.
 
 These are production authority gates, not missing presentation designs.
+
+
+## 13. R31 Manual Relationship authority
+
+The Production VNext binding now includes a write-side relation authority:
+
+```text
+ProductionManualRelationshipScreen
+→ AppContainerVNextManualRelationshipGateway
+→ AppContainer.createManualDependency
+→ GraphRepository.createManualDependency
+→ validateRelationUse
+→ DB transaction + graphRevision
+→ authoritative re-read
+```
+
+Allowed today:
+
+```text
+funding_source      / payment
+merchant_agreement  / payment
+recovers            / recovery
+authenticates       / authentication
+controls            / access
+```
+
+Forbidden today:
+
+```text
+verifies
+bound_to
+arbitrary relation/capability pairs
+UI-side SQL
+silent required criticality
+duplicate logical rows
+```
+
+Preview stays read-only even though Production owns this authority.
+
+This narrows the remaining cutover blockers to capabilities that genuinely still
+lack shared authority: identity subtype, lifecycle persistence, complete seven-class
+Finding inputs, and exact-head security/runtime acceptance.
