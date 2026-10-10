@@ -43,8 +43,8 @@ class VNextCapabilityMatrixTest {
         assertFalse(hasProductionAuthority(VNextCapability.DEVICE_CONTINUITY))
         assertFalse(hasProductionAuthority(VNextCapability.DIGITAL_RESOURCE_CONTINUITY))
         assertFalse(hasProductionAuthority(VNextCapability.TRUSTED_HANDOFF))
-        assertFalse(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
-        assertFalse(hasProductionAuthority(VNextCapability.REGION_FACT))
+        assertTrue(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
+        assertTrue(hasProductionAuthority(VNextCapability.REGION_FACT))
         assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_SUBTYPE))
         assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_IDENTIFIER))
         assertFalse(hasProductionAuthority(VNextCapability.IDENTITY_CONTEXT))
@@ -77,12 +77,15 @@ class VNextCapabilityMatrixTest {
     }
 
     @Test
-    fun productionGeographyStaysGatedWhileGovernedIdentityIsAvailable() {
+    fun governedRegionAndIdentityCapabilitiesAreProductionAvailable() {
         assertTrue(canShowReference(VNextCapability.REGION_FACT))
         assertEquals(
-            VNextProductionAuthority.REQUIRES_CANONICAL,
+            VNextProductionAuthority.AVAILABLE,
             capabilityGate(VNextCapability.REGION_FACT).productionAuthority,
         )
+        assertTrue(hasProductionAuthority(VNextCapability.REGION_FACT))
+        assertTrue(canShowReference(VNextCapability.LIFECYCLE_PERSISTENCE))
+        assertTrue(hasProductionAuthority(VNextCapability.LIFECYCLE_PERSISTENCE))
         assertTrue(canShowReference(VNextCapability.IDENTITY_SUBTYPE))
         assertTrue(hasProductionAuthority(VNextCapability.IDENTITY_SUBTYPE))
         assertTrue(canShowReference(VNextCapability.IDENTITY_IDENTIFIER))
