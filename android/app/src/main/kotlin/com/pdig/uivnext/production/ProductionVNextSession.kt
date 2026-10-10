@@ -12,9 +12,17 @@ import com.pdig.uivnext.ui.VAppState
  * an authoritative production read source so production-bound Composables cannot
  * accidentally reach UiVNextDemoFixture.
  */
+internal data class ProductionVNextAuthorities(
+    val review: ProductionReviewCoordinator,
+    val change: VNextChangeActionGateway,
+    val manualEstablish: AppContainerVNextManualEstablishGateway,
+    val import: AppContainerVNextImportAuthority,
+)
+
 internal data class ProductionVNextSession(
     val appState: VAppState,
     val dataSource: VNextRuntimeDataSource,
+    val authorities: ProductionVNextAuthorities? = null,
 ) {
     init {
         require(dataSource.mode == VNextRuntimeDataMode.PRODUCTION_REALITY) {
@@ -29,8 +37,16 @@ internal fun createProductionVNextSession(
     nowIso: String? = null,
 ): ProductionVNextSession {
     val source = AppContainerVNextReadModelSource(appContainer)
+    val reviewSource = AppContainerVNextReviewSource(appContainer)
+    val reviewGateway = AppContainerVNextReviewActionGateway(appContainer)
     return ProductionVNextSession(
         appState = VAppState(initialScreen = initialScreen),
         dataSource = ProductionVNextRuntimeDataSource(source, nowIso),
+        authorities = ProductionVNextAuthorities(
+            review = ProductionReviewCoordinator(reviewSource, reviewGateway),
+            change = AppContainerVNextChangeActionGateway(appContainer),
+            manualEstablish = AppContainerVNextManualEstablishGateway(appContainer),
+            import = AppContainerVNextImportAuthority(appContainer),
+        ),
     )
 }
