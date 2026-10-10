@@ -303,26 +303,94 @@ private fun ProductionInfrastructure(
     findings: com.pdig.uivnext.production.VNextProductionFindingReport?,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "基础设施", "只展示当前正式数据模型能够明确识别的对象类型") {
+    val selectedRegion = app.regionFilter?.let { code ->
+        inventory.regions.firstOrNull { it.territoryCode == code }
+    }
+    val selectedMemberIds = selectedRegion?.memberObjectIds?.toSet()
+    val visiblePaymentAssets = inventory.paymentAssets.filter {
+        selectedMemberIds == null || it.id in selectedMemberIds
+    }
+    val visiblePhoneIdentities = inventory.phoneIdentities.filter {
+        selectedMemberIds == null || it.id in selectedMemberIds
+    }
+    val visibleEmailIdentities = inventory.emailIdentities.filter {
+        selectedMemberIds == null || it.id in selectedMemberIds
+    }
+    val visibleGenericIdentities = inventory.genericIdentityAnchors.filter {
+        selectedMemberIds == null || it.id in selectedMemberIds
+    }
+
+    ProductionPage(
+        modifier,
+        "基础设施",
+        if (selectedRegion == null)
+            "只展示当前正式数据模型能够明确识别的对象类型"
+        else
+            "地区筛选：${TerritoryPresentationCatalog.displayName(selectedRegion.territoryCode)} · 来自已确认 RegionFact",
+    ) {
         ProductionWorldContext(app, snapshot, inventory)
         ProductionInventorySummary(inventory)
 
+        ProductionSection("地区事实")
+        if (inventory.regions.isEmpty()) {
+            ProductionEmpty("尚无已确认 RegionFact；不会从币种、号码前缀、品牌或位置推测地区。")
+        } else {
+            if (selectedRegion != null) {
+                ProductionFactCard(
+                    title = "已选：${TerritoryPresentationCatalog.displayName(selectedRegion.territoryCode)}",
+                    subtitle = "${selectedRegion.objectCount} 项已确认基础设施",
+                    meta = "点击返回全球范围",
+                    onClick = { app.clearRegion() },
+                )
+            }
+            inventory.regions.forEach { region ->
+                ProductionFactCard(
+                    title = TerritoryPresentationCatalog.displayName(region.territoryCode),
+                    subtitle = "${region.objectCount} 项 · ${region.paymentAssetCount} 卡 · " +
+                        "${region.phoneIdentityCount} 号 · ${region.accountCount} 账户",
+                    meta = if (TerritoryPresentationCatalog.anchor(region.territoryCode) != null)
+                        "已确认地区 · 可在地球定位"
+                    else
+                        "已确认地区 · 当前仅文字展示，不伪造坐标",
+                    onClick = { app.selectRegion(region.territoryCode) },
+                )
+            }
+        }
+
         ProductionSection("管理分类")
         listOf(
-            Triple(VScreen.CARDS, inventory.counts.paymentAssets as Int?, "已绑定"),
+            Triple(
+                VScreen.CARDS,
+                (selectedRegion?.paymentAssetCount ?: inventory.counts.paymentAssets) as Int?,
+                "已绑定",
+            ),
             Triple(
                 VScreen.NUMBERS,
-                inventory.counts.phoneIdentities as Int?,
-                if (inventory.counts.phoneIdentities > 0) "已确认 subtype" else "暂无已确认 phone subtype",
+                (selectedRegion?.phoneIdentityCount ?: inventory.counts.phoneIdentities) as Int?,
+                if ((selectedRegion?.phoneIdentityCount ?: inventory.counts.phoneIdentities) > 0)
+                    "已确认 subtype" else "暂无已确认 phone subtype",
             ),
-            Triple(VScreen.ACCOUNTS, inventory.counts.accounts as Int?, "已绑定"),
+            Triple(
+                VScreen.ACCOUNTS,
+                (selectedRegion?.accountCount ?: inventory.counts.accounts) as Int?,
+                "已绑定",
+            ),
             Triple(
                 VScreen.EMAILS,
-                inventory.counts.emailIdentities as Int?,
-                if (inventory.counts.emailIdentities > 0) "已确认 subtype" else "暂无已确认 email subtype",
+                (selectedRegion?.emailIdentityCount ?: inventory.counts.emailIdentities) as Int?,
+                if ((selectedRegion?.emailIdentityCount ?: inventory.counts.emailIdentities) > 0)
+                    "已确认 subtype" else "暂无已确认 email subtype",
             ),
-            Triple(VScreen.DEVICES, inventory.counts.devices as Int?, "已绑定"),
-            Triple(VScreen.SERVICES, inventory.counts.services as Int?, "已绑定"),
+            Triple(
+                VScreen.DEVICES,
+                (selectedRegion?.deviceCount ?: inventory.counts.devices) as Int?,
+                "已绑定",
+            ),
+            Triple(
+                VScreen.SERVICES,
+                (selectedRegion?.serviceCount ?: inventory.counts.services) as Int?,
+                "已绑定",
+            ),
             Triple(
                 VScreen.WEAKNESSES,
                 findings?.findings?.size,
@@ -349,10 +417,13 @@ private fun ProductionInfrastructure(
         }
 
         ProductionSection("支付工具")
-        if (inventory.paymentAssets.isEmpty()) {
-            ProductionEmpty("没有已确认的 payment_instrument。")
+        if (visiblePaymentAssets.isEmpty()) {
+            ProductionEmpty(
+                if (selectedRegion == null) "没有已确认的 payment_instrument。"
+                else "该地区当前没有已确认的 payment_instrument。"
+            )
         } else {
-            inventory.paymentAssets.forEach { card ->
+            visiblePaymentAssets.forEach { card ->
                 ProductionFactCard(
                     title = card.name,
                     subtitle = listOfNotNull(
@@ -367,13 +438,16 @@ private fun ProductionInfrastructure(
 
         ProductionSection("身份对象")
         if (
-            inventory.phoneIdentities.isEmpty() &&
-            inventory.emailIdentities.isEmpty() &&
-            inventory.genericIdentityAnchors.isEmpty()
+            visiblePhoneIdentities.isEmpty() &&
+            visibleEmailIdentities.isEmpty() &&
+            visibleGenericIdentities.isEmpty()
         ) {
-            ProductionEmpty("没有已确认的身份对象。")
+            ProductionEmpty(
+                if (selectedRegion == null) "没有已确认的身份对象。"
+                else "该地区当前没有已确认的身份对象。"
+            )
         } else {
-            inventory.phoneIdentities.forEach { identity ->
+            visiblePhoneIdentities.forEach { identity ->
                 val item = snapshot.objects.first { it.id == identity.id }
                 ProductionFactCard(
                     title = productionVisibleObjectName(item, app.privacyMask),
@@ -382,7 +456,7 @@ private fun ProductionInfrastructure(
                     onClick = { app.openNumber(identity.id) },
                 )
             }
-            inventory.emailIdentities.forEach { identity ->
+            visibleEmailIdentities.forEach { identity ->
                 val item = snapshot.objects.first { it.id == identity.id }
                 ProductionFactCard(
                     title = productionVisibleObjectName(item, app.privacyMask),
@@ -391,7 +465,7 @@ private fun ProductionInfrastructure(
                     onClick = { app.openSecondaryObject(VScreen.EMAIL_DETAIL, identity.id) },
                 )
             }
-            inventory.genericIdentityAnchors.forEach { identity ->
+            visibleGenericIdentities.forEach { identity ->
                 ProductionFactCard(
                     title = productionVisibleObjectName(
                         item = snapshot.objects.first { it.id == identity.id },
