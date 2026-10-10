@@ -327,8 +327,38 @@ internal fun ProductionCardAppearanceEditor(
                 fontSize = 10.sp,
             )
         }
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minHeight = 48.dp)
+                .clickable {
+                    onSave(profile.copy(maskSensitive = !profile.maskSensitive))
+                }
+                .testTag("pdig.production-vnext.card.mask"),
+            color = PdigV2Colors.Surface,
+            shape = RoundedCornerShape(VRadius.Md),
+            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        ) {
+            Row(
+                Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "单独遮蔽敏感信息",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    if (profile.maskSensitive) "已开启" else "未开启",
+                    color = if (profile.maskSensitive) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                )
+            }
+        }
         Text(
-            "图片仅保存在本机应用私有目录；更换卡面不会改变卡片身份、依赖或影响分析。",
+            "图片、主题与单独遮蔽只保存在本机 Presentation；不会改变卡片身份、依赖或影响分析。",
             color = PdigV2Colors.TextMuted,
             fontSize = 9.sp,
         )
