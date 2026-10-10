@@ -1,6 +1,8 @@
 package com.pdig.conformance
 
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.generated.Capability
+import com.pdig.core.generated.NodeKind
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
 import com.pdig.core.json.JsonWriter
@@ -141,7 +143,26 @@ private fun compute(category: String, id: String, input: Json): Json = when (cat
     "temporal-change" -> runTemporalChange(requireObj(input))
     "provider-policy" -> runProviderPolicy(requireObj(input))
     "identity-relations" -> runIdentityRelations(requireObj(input))
+    "identity-profile" -> runIdentityProfile(requireObj(input))
     else -> throw NotImplementedError("no runner for category $category")
+}
+
+
+
+private fun runIdentityProfile(input: Json.Obj): Json {
+    val kind = NodeKind.fromWire(str(input, "kind"))
+        ?: return Json.Obj(listOf("confirmed" to Json.Bool(false)))
+    val profile = confirmedIdentityAnchorProfile(kind, str(input, "fieldsJson"))
+        ?: return Json.Obj(listOf("confirmed" to Json.Bool(false)))
+    return Json.Obj(
+        listOf(
+            "confirmed" to Json.Bool(true),
+            "subtype" to Json.Str(profile.subtype.wire),
+            "verificationBasisType" to Json.Str(profile.verificationBasisType.wire),
+            "confirmedAt" to Json.Str(profile.confirmedAt),
+            "evidenceRefs" to Json.Arr(profile.evidenceRefs.map { Json.Str(it) }),
+        ),
+    )
 }
 
 
