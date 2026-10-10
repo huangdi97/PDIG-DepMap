@@ -52,8 +52,12 @@ fun SecondaryInfraScreen(app: VAppState, screen: VScreen, breakpoint: MediaBreak
 
 @Composable
 private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val services = UiVNextDemoFixture.services
-        .filter { app.regionFilter == null || it.region == app.regionFilter }
+    val services = if (app.emptyDemo) {
+        emptyList()
+    } else {
+        UiVNextDemoFixture.services
+            .filter { app.regionFilter == null || it.region == app.regionFilter }
+    }
 
     InfraPage(
         title = "服务",
@@ -108,18 +112,18 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
 @Composable
 private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
-    val numbers = UiVNextDemoFixture.numbers.filter {
+    val numbers = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.numbers.filter {
         it.uniqueRecoveryPath == true &&
             (app.regionFilter == null || it.region == app.regionFilter)
     }
-    val cards = UiVNextDemoFixture.cards.filter {
+    val cards = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.cards.filter {
         it.status == "expiring_soon" && (app.regionFilter == null || it.region == app.regionFilter)
     }
-    val emails = UiVNextDemoFixture.emails.filter {
+    val emails = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.emails.filter {
         it.uniqueRecoveryPath == true &&
             (app.regionFilter == null || it.region == app.regionFilter)
     }
-    val devices = UiVNextDemoFixture.devices.filter {
+    val devices = if (app.emptyDemo) emptyList() else UiVNextDemoFixture.devices.filter {
         it.attention && (app.regionFilter == null || it.region == app.regionFilter)
     }
     val showPhoneMigration = !app.emptyDemo &&
