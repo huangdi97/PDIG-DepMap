@@ -259,13 +259,13 @@ internal fun R19AdaptiveMeScreen(
                         label = "待处理",
                         detail = attention.firstOrNull()?.title ?: "暂无已记录待处理事项",
                         tint = if (attention.isEmpty()) PdigV2Colors.TextMuted else PdigV2Colors.Critical,
-                    ) { app.navigate(VScreen.RECORDS) }
+                    ) { app.navigate(VScreen.NOW) }
                     MeContinuityRow(
                         value = upcoming.size.toString(),
                         label = "时间节点",
                         detail = upcoming.firstOrNull()?.title ?: "暂无已记录时间节点",
                         tint = PdigV2Colors.Warning,
-                    ) { app.navigate(VScreen.RECORDS) }
+                    ) { app.navigate(VScreen.NOW) }
                 }
             }
         }
