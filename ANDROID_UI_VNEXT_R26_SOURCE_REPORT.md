@@ -313,11 +313,13 @@ File Import
 
 Manual Create
   reference visible
-  production authority not exposed
+  production authority exists
+  VNext production gateway exists
+  Preview stays read-only
 
 Manual Relationship
   reference visible
-  production authority not exposed
+  production authority requires Native Schema v4
 
 Identity Context
   hidden until Canonical
@@ -407,19 +409,20 @@ File Import
 
 Manual Object
   UX complete
-  production VNext authority not exposed
+  AppContainer authority exists
+  VNext production gateway exists
+  production screen binding still gated
 
 Manual Relationship
   UX complete
-  production VNext authority not exposed
+  production authority requires Native Schema v4
 
 Human Review
   UX complete
   production authority existing
 ~~~
 
-The missing object/relation gateways are engineering authority gaps, not unresolved
-consumer UX.
+Manual object authority is no longer an engineering-authority gap: the VNext production gateway now delegates to the existing AppContainer mutation and returns the authoritative post-commit node/revision. Manual Relationship remains a schema gate, not an unresolved consumer UX problem.
 
 ## 14. Five-primary IA remains permanent
 
@@ -487,7 +490,6 @@ digital_resource NodeKind/subtypes
 future control/hosting/data capabilities
 Trusted Handoff storage
 server relay
-manual Node production VNext gateway
 manual Dependency production VNext gateway
 production launcher cutover
 ~~~
@@ -517,6 +519,17 @@ Properties:
 - Node write and graphRevision bump share one transaction;
 - no Dependency is created;
 - Preview remains read-only.
+
+VNext production binding now also includes:
+
+~~~text
+AppContainerVNextManualEstablishGateway
+→ validate Canonical runtime-creatable kind
+→ AppContainer.createManualNode
+→ authoritative NodeRow + graphRevision result
+~~~
+
+This does not make Preview writable and does not combine object creation with relationship creation.
 
 Device evidence:
 - `ManualRealityAuthorityEvidenceTest`.
