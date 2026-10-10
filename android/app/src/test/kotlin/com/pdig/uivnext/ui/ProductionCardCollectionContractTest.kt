@@ -18,6 +18,15 @@ class ProductionCardCollectionContractTest {
     }
 
     @Test
+    fun issuerMaskingCannotTurnUnrecordedDataIntoKnownHiddenData() {
+        assertEquals("发行方未记录", productionVisibleCardIssuer(null, false))
+        assertEquals("发行方未记录", productionVisibleCardIssuer(null, true))
+        assertEquals("发行方未记录", productionVisibleCardIssuer("   ", true))
+        assertEquals("发行方已遮蔽", productionVisibleCardIssuer("示例银行", true))
+        assertEquals("示例银行", productionVisibleCardIssuer("示例银行", false))
+    }
+
+    @Test
     fun maskingNeverRevealsUserProvidedPaymentAssetName() {
         val asset = VNextProductionObject(
             id = "card-secret",
