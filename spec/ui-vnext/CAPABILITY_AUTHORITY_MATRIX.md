@@ -1,7 +1,7 @@
 # PDIG UI vNext — Capability / Authority Matrix
 
 > Date: 2026-10-10  
-> Status: **R25 DESIGN FROZEN**
+> Status: **R31 CURRENT NORMATIVE CONTRACT**
 >
 > Purpose: prevent a valid design/reference surface from being mistaken for an
 > executable production capability.
@@ -24,7 +24,7 @@ Examples:
 Manual Establish
 design = yes
 reference = yes
-production save authority = no
+production save authority = yes
 
 File Import
 design = yes
@@ -44,7 +44,7 @@ production solver = no
 | --- | --- | --- | --- |
 | File Import | visible reference | available | Preview explains flow; Production must reuse FileWorkflowCoordinator/AppContainer |
 | Manual Create | visible reference | available | AppContainer authority exists; Preview remains read-only; production screen binding still gated |
-| Manual Relationship | visible reference | requires Native Schema v4 | TS v4 exists; Native v3 SQL CHECK cannot support full R25 runtime relation set |
+| Manual Relationship | visible reference | available for current v3 runtime set | Production may create only funding_source / merchant_agreement / recovers / authenticates / controls via canonical relation validation; verifies / bound_to remain unavailable |
 | Human Review | visible reference | available | Preview read-only; Production decisions go through Proposal/Candidate/Drift gateways |
 | Replace Phone | visible reference | available | execute only through ChangePlan gateway |
 | Replace Payment Card | visible reference | available | execute only through ChangePlan gateway |
@@ -181,14 +181,51 @@ Canonical runtime-creatable policy
 
 Preview still has no Save button.
 
-Manual Relationship remains gated for a different reason:
+## 11. R31 Manual Relationship authority correction
+
+A fresh repository audit supersedes the earlier R25/R26 Native-Schema-v4 HOLD for
+the **current runtime relation set**.
+
+Current Canonical v3 already has:
+- the five runtime relation values in `domain.json`;
+- the same five entries in `RelationDefinitionRegistry`;
+- capability and endpoint-kind validation;
+- a Dependency table capable of persisting them;
+- cross-platform/conformance coverage for those runtime relations.
+
+Therefore Production VNext may authoritatively confirm exactly:
 
 ~~~text
-TS reference Schema v4 = designed/implemented reference
-Native production schema = v3
-R25 relation registry includes authenticates / controls
-v3 SQL CHECK does not
-→ production relationship mutation remains disabled
+funding_source      → payment
+merchant_agreement  → payment
+recovers            → recovery
+authenticates       → authentication
+controls            → access
 ~~~
 
-Do not implement a partial v3-only relationship UI.
+Production still MUST NOT create the storage-known/future relations:
+
+~~~text
+verifies
+bound_to
+~~~
+
+The R31 authority path is:
+
+~~~text
+Production form
+→ relation definition from canonical runtime registry
+→ AppContainerVNextManualRelationshipGateway
+→ AppContainer.createManualDependency
+→ GraphRepository.createManualDependency
+→ validateRelationUse
+→ one authoritative transaction
+→ graphRevision bump
+→ re-read Dependency
+~~~
+
+Preview remains read-only.
+
+This is **not** a partial ad-hoc v3 fork: the production form exposes the entire
+current Canonical runtime registry and nothing outside it. Any future relation
+widening still requires the normal shared Canonical/codegen/conformance path.
