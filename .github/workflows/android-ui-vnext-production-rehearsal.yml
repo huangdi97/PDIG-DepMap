@@ -70,7 +70,9 @@ jobs:
             printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
           disable-animations: true
           script: |
-            set -euo pipefail
+            # The emulator-runner invokes its script with /usr/bin/sh, not bash.
+            # dash supports set -eu but not pipefail; keep strict failures portable.
+            set -eu
             mkdir -p artifacts/runtime-evidence/production-vnext-rehearsal
             {
               echo "source_sha=${GITHUB_SHA}"
