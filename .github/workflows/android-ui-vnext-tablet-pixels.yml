@@ -57,7 +57,9 @@ jobs:
             printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
           disable-animations: true
           script: |
-            set -euo pipefail
+            # The emulator-runner invokes its script with /usr/bin/sh, not bash.
+            # dash supports set -eu but not pipefail; keep strict failures portable.
+            set -eu
             adb shell settings put system accelerometer_rotation 0
             adb shell settings put system user_rotation 1
             adb shell wm size 1920x1200
