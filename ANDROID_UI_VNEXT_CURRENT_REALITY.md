@@ -301,6 +301,10 @@ R22 also makes Human Review discoverable through:
 
 Search opens Review only; it never performs a review decision.
 
+Me/Data Sources also expose consumer navigation into 建立基础设施 and 待复核. On
+wide layouts these focused routes retain the `我` or `现在` primary parent context
+instead of appearing as orphan screens.
+
 
 ## 11. Production binding
 
@@ -330,6 +334,9 @@ Production APIs already exist:
 - `createPlanForScenario()`
 - `completeAction()`
 - `verifyAction()`
+- `createManualNode()`
+- Proposal / Candidate / Drift review authorities
+- import preview / commit authorities
 
 The cutover architecture is frozen in
 `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`.
@@ -340,7 +347,9 @@ Source progress now also includes:
 - `identity_anchor` remains a generic identity until an explicit governed phone subtype exists;
 - a consumer inventory projection with confirmed-dependency counts and pending-review/source coverage.
 
-These are read-only seams. They do not switch the launcher or claim R19 lifecycle persistence.
+The inventory/impact projections are read-only seams. Separate authoritative mutation
+gateways now exist for Change, Human Review and Manual Establish. None of these
+switches the launcher, makes Preview writable, or claims R19 lifecycle persistence.
 
 R22 production governance source now additionally includes:
 - `AppContainerVNextReviewSource`;
