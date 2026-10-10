@@ -135,6 +135,9 @@ jobs:
       - name: 1c. IDENTITY ANCHOR PROFILE CONTRACT GATE
         run: node tools/validate-identity-anchor-profile-contract.mjs
 
+      - name: 1d. REGION FACT CONTRACT GATE
+        run: node tools/validate-region-fact-contract.mjs
+
       - name: 2-4. Conformance orchestrator
         run: node tools/conformance/run.mjs
 
