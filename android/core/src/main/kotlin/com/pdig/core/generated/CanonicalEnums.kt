@@ -29,6 +29,17 @@ public enum class NodeKind(public val wire: String) {
     }
 }
 
+public enum class IdentityAnchorSubtype(public val wire: String) {
+    PHONE_NUMBER("phone_number"),
+    EMAIL_ADDRESS("email_address"),
+    OTHER_IDENTITY("other_identity")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): IdentityAnchorSubtype? = entries.firstOrNull { it.wire == value }
+    }
+}
+
 public enum class Relation(public val wire: String) {
     FUNDING_SOURCE("funding_source"),
     MERCHANT_AGREEMENT("merchant_agreement"),
