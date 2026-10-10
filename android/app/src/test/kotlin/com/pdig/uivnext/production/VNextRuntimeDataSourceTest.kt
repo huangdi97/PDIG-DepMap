@@ -20,6 +20,7 @@ class VNextRuntimeDataSourceTest {
         assertNull(ReferenceVNextRuntimeDataSource.productionImpact("anything"))
         assertNull(ReferenceVNextRuntimeDataSource.productionPlan("anything"))
         assertTrue(ReferenceVNextRuntimeDataSource.productionRecords().isEmpty())
+        assertNull(ReferenceVNextRuntimeDataSource.productionFindings())
     }
 
     @Test
@@ -34,6 +35,10 @@ class VNextRuntimeDataSourceTest {
         assertEquals("card-1", runtime.productionImpact("card-1").targetNodeId)
         assertEquals("plan-1", runtime.productionPlan("plan-1")?.id)
         assertEquals(1, runtime.productionRecords().size)
+        assertEquals(
+            listOf("SINGLE_POINT_OF_FAILURE"),
+            runtime.productionFindings().supportedTypes,
+        )
     }
 
     @Test
@@ -121,6 +126,13 @@ class VNextRuntimeDataSourceTest {
                     state = VNextProductionRecordState.PENDING_VERIFICATION,
                     evidenceRefs = emptyList(),
                 ),
+            )
+
+        override fun findings(): VNextProductionFindingReport =
+            VNextProductionFindingReport(
+                findings = emptyList(),
+                supportedTypes = listOf("SINGLE_POINT_OF_FAILURE"),
+                unsupportedTypes = listOf("SHARED_FAILURE_DOMAIN"),
             )
     }
 }
