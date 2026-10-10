@@ -599,3 +599,74 @@ ANDROID_REFERENCE_FREEZE = HOLD
 iOS/Harmony UI translation = HOLD
 Production launcher cutover = HOLD
 ```
+
+## 18. R22 Human Review
+
+Human Review closes the governed discovery→Reality boundary.
+
+Route:
+```text
+/review
+```
+
+Information architecture:
+```text
+Now → 待复核
+Data Sources → 待复核
+Search → 待复核
+Review → Up → Now
+```
+
+Review is not a sixth primary destination. The five primary destinations remain:
+
+```text
+现在 / 基础设施 / 变更 / 记录 / 我
+```
+
+The surface contains three distinct classes:
+
+```text
+关系建议      = Dependency Proposal
+对象候选      = Discovery Candidate
+现实漂移      = Reality Drift
+```
+
+Preview is read-only and must visibly explain `发现 ≠ 事实`.
+
+Production binding:
+```text
+AppContainerVNextReviewSource
+→ VNextProductionReviewQueue
+→ ProductionReviewConsumerInbox
+→ Review UI
+
+formal decision
+→ AppContainerVNextReviewActionGateway
+→ re-read authoritative queue
+```
+
+Forbidden:
+- numeric confidence presented as truth probability;
+- Proposal counted as confirmed Dependency;
+- Candidate rendered as confirmed Node;
+- Drift silently modifying Reality;
+- empty Review presented as “graph complete”;
+- Review becoming a sixth primary tab.
+
+## 19. R22 Now / Records boundary
+
+```text
+Now
+  pending review
+  current attention
+  active changes
+  upcoming maintenance
+
+Records
+  occurred / completed / verified / pending-verification evidence trace
+```
+
+Pending/current/future items must not use Records as a generic “查看全部” bucket.
+
+Active Change links go to Change Center. Human Review links go to Review. Upcoming
+maintenance remains in Now until it becomes an actual recorded occurrence.
