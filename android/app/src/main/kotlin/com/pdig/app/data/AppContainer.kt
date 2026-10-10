@@ -142,6 +142,12 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     fun createManualNode(request: ManualNodeCreateRequest): ManualNodeCreateResult =
         graphRepo.createManualNode(request)
 
+    fun createManualDependency(
+        request: ManualDependencyCreateRequest,
+    ): ManualDependencyCreateResult =
+        graphRepo.createManualDependency(request)
+
+
     // ------------------------------------------------------------------
     // Impacts（复用 core.impact，UI 不自行推导）
     // ------------------------------------------------------------------
