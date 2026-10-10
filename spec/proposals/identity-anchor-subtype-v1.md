@@ -1,6 +1,6 @@
 # Identity Anchor Subtype v1 — Canonical Proposal
 
-> Status: **PROPOSED_SCHEMA / NOT_IMPLEMENTED**
+> Status: **R37 CANONICAL CONTRACT IMPLEMENTED / IDENTIFIER VALUE + MANUAL CREATE STILL GATED**
 >
 > Date: 2026-10-09
 >
@@ -204,31 +204,36 @@ PHONE_NUMBER failure domain
 
 The domain still requires explicit confirmed Reality.
 
-## 8. Android R19 production binding
+## 8. Android Production VNext binding — R37 implemented
 
-Until this proposal is accepted and implemented:
-
-```text
-ProductionVNextReadModel
-identity_anchor → IDENTITY_ANCHOR_GENERIC
-```
-
-After implementation:
+R37 now consumes the governed profile directly from production Reality:
 
 ```text
-identity_anchor + PHONE_NUMBER
-→ ProductionNumberIdentity
-→ Number list/detail/Impact Lens/change entry
+identity_anchor + valid governed PHONE_NUMBER profile
+→ PHONE_IDENTITY production surface
+→ Number list/detail/search/Impact
+→ replace_phone_number entry
 
-identity_anchor + EMAIL_ADDRESS
-→ ProductionEmailIdentity
+identity_anchor + valid governed EMAIL_ADDRESS profile
+→ EMAIL_IDENTITY production surface
+→ Email list/detail/search
 
-identity_anchor + null
-→ generic identity
+identity_anchor + missing/invalid profile
+→ IDENTITY_ANCHOR_GENERIC
+
+bare fields_json.subtype
+→ IDENTITY_ANCHOR_GENERIC
 ```
 
-R19 synthetic reference fixtures may continue to demonstrate the intended phone
-experience, but they are not production subtype evidence.
+The production read model carries confirmation basis / confirmed_at / evidence refs
+without inventing an identifier value.
+
+The write path also fails closed: `PlanRepository.createPlanForScenario` re-validates
+the scenario target kind and governed PHONE_NUMBER subtype before creating a
+`replace_phone_number` plan. UI routing is therefore not subtype authority.
+
+R19/R37 synthetic reference fixtures may demonstrate richer Number visuals, but
+fixture values remain separate from production Reality.
 
 ## 9. Privacy
 
@@ -515,9 +520,14 @@ Updated stop line:
 IDENTITY_SUBTYPE_DESIGN = COMPLETE
 IDENTITY_SUBTYPE_STORAGE_MAPPING = FROZEN_R37
 IDENTITY_SUBTYPE_ENUM = REGISTERED_IN_CANONICAL_SPEC
+IDENTITY_PROFILE_DECODERS = IMPLEMENTED_KOTLIN_SWIFT_ARKTS
+IDENTITY_PROFILE_CONFORMANCE = 5_CASES_REGISTERED
 IDENTITY_VALUE_NORMALIZATION_DESIGN = COMPLETE
 MANUAL_NUMBER_EMAIL_CREATE_DESIGN = COMPLETE
 BARE_FIELDS_JSON_SUBTYPE = NOT_AUTHORITY
-CANONICAL_RUNTIME_ACTIVATION = HOLD
-PRODUCTION_PHONE_EMAIL_MAPPING = HOLD
+CANONICAL_RUNTIME_PROFILE_READ = SOURCE_IMPLEMENTED
+PRODUCTION_PHONE_EMAIL_MAPPING = SOURCE_IMPLEMENTED
+REPLACE_PHONE_TARGET_SUBTYPE_GATE = SOURCE_IMPLEMENTED
+RAW_IDENTIFIER_VALUE_CANONICAL = HOLD
+MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = HOLD
 ~~~
