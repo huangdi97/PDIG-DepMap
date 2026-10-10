@@ -164,8 +164,8 @@ private fun ProductionContent(
 
     if (snapshot == null || inventory == null) {
         ProductionUnavailable(
-            "生产 Reality 暂不可读取",
-            "没有权威快照时不会回退到参考 Fixture。",
+            "当前已确认数据暂不可读取",
+            "没有权威数据快照时不会用演示数据替代。",
             modifier,
         )
         return
@@ -202,7 +202,7 @@ private fun ProductionContent(
         VScreen.SEARCH -> ProductionSearchScreen(session, modifier)
         else -> ProductionUnavailable(
             title = "该页面尚未完成生产数据绑定",
-            body = "当前页面不会使用 Synthetic Reference 代替真实 Reality。返回五个一级入口继续查看已绑定内容。",
+            body = "当前页面不会用演示数据替代正式记录。返回五个一级入口继续查看已接入内容。",
             modifier = modifier,
         )
     }
@@ -215,7 +215,7 @@ private fun ProductionNow(
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "现在", "基于当前加密 Reality 的只读概览") {
+    ProductionPage(modifier, "现在", "基于当前加密数据的概览") {
         ProductionMetricRow(
             listOf(
                 inventory.pendingReviewCount to "待复核",
@@ -227,8 +227,8 @@ private fun ProductionNow(
         if (inventory.pendingReviewCount > 0) {
             ProductionFactCard(
                 title = "待复核",
-                subtitle = "${inventory.pendingReviewCount} 项建议 / 候选 / Reality 漂移等待人工决定",
-                meta = "确认前不会进入已确认 Reality",
+                subtitle = "${inventory.pendingReviewCount} 项建议 / 候选 / 可能变化等待人工决定",
+                meta = "确认前不会进入已确认数据",
                 onClick = { app.navigate(VScreen.REVIEW) },
             )
         }
@@ -261,7 +261,7 @@ private fun ProductionInfrastructure(
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "基础设施", "只展示当前 Canonical 可以证明的对象类型") {
+    ProductionPage(modifier, "基础设施", "只展示当前正式数据模型能够明确识别的对象类型") {
         ProductionInventorySummary(inventory)
 
         ProductionSection("管理分类")
@@ -317,12 +317,12 @@ private fun ProductionInfrastructure(
 
         ProductionSection("身份对象")
         if (inventory.genericIdentityAnchors.isEmpty()) {
-            ProductionEmpty("没有已确认的 identity_anchor。")
+            ProductionEmpty("没有已确认的通用身份对象。")
         } else {
             inventory.genericIdentityAnchors.forEach { identity ->
                 ProductionFactCard(
                     title = identity.name,
-                    subtitle = "通用身份对象 · 具体 phone/email subtype 尚未 Canonical 化",
+                    subtitle = "通用身份对象 · 手机/邮箱类型尚未完成底层确认",
                     meta = "${identity.confirmedDependencyCount} 条已确认关系",
                 )
             }
@@ -341,7 +341,7 @@ private fun ProductionCardDetail(
     if (card == null) {
         ProductionUnavailable(
             "未找到该生产支付工具",
-            "对象不存在、已归档或当前 Canonical 投影不足；不会回退到参考卡片。",
+            "对象不存在、已归档或当前正式数据不足；不会用演示卡片替代。",
             modifier,
         )
         return
@@ -351,7 +351,7 @@ private fun ProductionCardDetail(
     val related = snapshot?.confirmedDependencies.orEmpty().filter {
         it.fromId == card.id || it.toId == card.id
     }
-    ProductionPage(modifier, card.name, "支付工具 · 已确认 Reality") {
+    ProductionPage(modifier, card.name, "支付工具 · 已确认数据") {
         ProductionFactCard(
             title = card.issuer ?: "发行方未记录",
             subtitle = card.last4?.let { "尾号 $it" } ?: "尾号未记录",
@@ -360,7 +360,7 @@ private fun ProductionCardDetail(
 
         ProductionSection("已确认关系")
         if (related.isEmpty()) {
-            ProductionEmpty("当前没有已确认关系；这不表示外部没有关联，只表示 Reality 尚未记录。")
+            ProductionEmpty("当前没有已确认关系；这不表示外部没有关联，只表示这里尚未记录。")
         } else {
             related.forEach { dep ->
                 val outward = dep.fromId == card.id
@@ -378,7 +378,7 @@ private fun ProductionCardDetail(
 
         ProductionSection("如果它发生变化？")
         if (impact == null) {
-            ProductionEmpty("当前无法获得权威 Impact；不会以关系数量代替影响分析。")
+            ProductionEmpty("当前无法获得权威影响分析；不会以关系数量代替连续性判断。")
         } else {
             val grouped = impact.targets.groupingBy { it.status }.eachCount()
             val ordered = listOf(
@@ -393,7 +393,7 @@ private fun ProductionCardDetail(
                 grouped[status]?.let { it to label }
             }
             if (facts.isEmpty()) {
-                ProductionEmpty("Impact 当前没有可展示 target；这不等于安全。")
+                ProductionEmpty("当前影响分析没有可展示的受影响对象；这不等于安全。")
             } else {
                 facts.chunked(3).forEach { ProductionMetricRow(it) }
             }
@@ -418,7 +418,7 @@ private fun ProductionCardDetail(
         )
 
         ProductionBoundaryNote(
-            "R18/R19 的年费、账单日、分期等 Reference 生命周期字段尚未进入 Canonical，因此生产详情不会伪造这些字段。"
+            "年费、账单日、分期等生命周期字段尚未进入正式数据模型，因此这里不会伪造这些信息。"
         )
     }
 }
@@ -429,9 +429,9 @@ private fun ProductionChange(
     snapshot: VNextProductionSnapshot,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "变更", "真实 ChangePlan 只读投影") {
+    ProductionPage(modifier, "变更", "已记录变更计划") {
         if (snapshot.plans.isEmpty()) {
-            ProductionEmpty("当前没有已记录 ChangePlan。")
+            ProductionEmpty("当前没有已记录变更计划。")
         } else {
             snapshot.plans.forEach { plan ->
                 ProductionFactCard(
@@ -448,14 +448,14 @@ private fun ProductionChange(
         ProductionSection("准备新变更")
         ProductionFactCard(
             title = "更换支付卡",
-            subtitle = "先选择一张已确认支付工具，查看 Impact 后显式建立 ChangePlan",
-            meta = "REPLACE × payment_instrument · production authority 已接",
+            subtitle = "先选择一张已确认支付工具，查看影响后明确建立更换计划",
+            meta = "更换支付卡 · 正式执行能力已接入",
             onClick = { app.navigate(VScreen.CARDS) },
         )
         ProductionFactCard(
             title = "更换手机号",
-            subtitle = "等待 identity_anchor phone subtype Canonical 后再开放生产对象选择",
-            meta = "不会把通用 identity_anchor 猜成手机号",
+            subtitle = "手机号类型完成底层确认后再开放正式对象选择",
+            meta = "不会把通用身份对象猜成手机号",
         )
 
         ProductionBoundaryNote(
@@ -470,7 +470,7 @@ private fun ProductionRecords(
     modifier: Modifier,
 ) {
     val records = session.dataSource.productionRecords()
-    ProductionPage(modifier, "记录", "来自权威 ChangePlan action / verification 状态") {
+    ProductionPage(modifier, "记录", "来自已记录变更步骤与验证状态") {
         if (records.isEmpty()) {
             ProductionEmpty("当前没有已完成或待验证的生产记录。")
         } else {
@@ -513,24 +513,24 @@ private fun ProductionMe(
         )
         ProductionSection("数据边界")
         ProductionBoundaryNote(
-            "这里展示的对象、关系、计划与记录来自当前生产 Reality；参考生命周期字段不会混入生产数据。"
+            "这里展示的对象、关系、计划与记录来自当前已确认数据；演示生命周期字段不会混入正式数据。"
         )
         ProductionBoundaryNote(
-            "号码 / 邮箱在 subtype Canonical 化前仍按通用 identity_anchor 处理，不会根据名称或号码格式推断。"
+            "号码 / 邮箱类型完成底层确认前仍按通用身份对象处理，不会根据名称或号码格式猜测。"
         )
         ProductionSection("个人控制面")
         if (inventory.pendingReviewCount > 0) {
             ProductionFactCard(
                 title = "待复核",
                 subtitle = "${inventory.pendingReviewCount} 项等待人工决定",
-                meta = "建议 / 候选 / Reality 漂移不会自动进入已确认 Reality",
+                meta = "建议 / 候选 / 可能变化不会自动进入已确认数据",
                 onClick = { app.navigate(VScreen.REVIEW) },
             )
         }
         ProductionFactCard(
             title = "数据源",
             subtitle = "${inventory.activeSourceCount} 个活跃数据源",
-            meta = "查看生产 SourceInstance 记录",
+            meta = "查看已记录的数据来源",
             onClick = { app.navigate(VScreen.SOURCES) },
         )
         ProductionFactCard(
@@ -542,12 +542,12 @@ private fun ProductionMe(
         ProductionFactCard(
             title = "隐私与偏好",
             subtitle = if (app.privacyMask) "敏感信息遮蔽：已开启" else "敏感信息遮蔽：已关闭",
-            meta = "本机 Presentation 偏好，不修改 Reality",
+            meta = "本机显示偏好，不修改已确认数据",
             onClick = { app.navigate(VScreen.SETTINGS) },
         )
         ProductionFactCard(
             title = "搜索",
-            subtitle = "搜索当前已确认 Reality / ChangePlan / SourceInstance",
+            subtitle = "搜索当前已确认对象 / 变更计划 / 数据来源",
             meta = "未找到不等于外部不存在",
             onClick = { app.navigate(VScreen.SEARCH) },
         )
@@ -560,7 +560,7 @@ private fun ProductionSources(
     inventory: ProductionConsumerInventory,
     modifier: Modifier,
 ) {
-    ProductionPage(modifier, "数据源", "只读生产 SourceInstance 投影") {
+    ProductionPage(modifier, "数据源", "已记录数据来源") {
         if (inventory.sources.isEmpty()) {
             ProductionEmpty("当前没有已记录生产数据源。")
         } else {
@@ -573,7 +573,7 @@ private fun ProductionSources(
             }
         }
         ProductionBoundaryNote(
-            "数据源存在不等于依赖已确认；Import 产生的 Proposal/Candidate/Drift 仍需 Human Review。"
+            "数据来源存在不等于依赖已确认；导入产生的建议、候选对象和可能变化仍需人工复核。"
         )
         ProductionFactCard(
             title = "建立基础设施",
@@ -763,12 +763,12 @@ private fun ProductionUnavailable(title: String, body: String, modifier: Modifie
 }
 
 private fun productionBoundaryBadge(screen: VScreen): String = when (screen) {
-    VScreen.REVIEW -> "待复核 · 未进入 Reality"
+    VScreen.REVIEW -> "待复核 · 未进入已确认数据"
     VScreen.SETTINGS, VScreen.PERSONALIZATION -> "本机呈现偏好"
-    VScreen.IMPORT, VScreen.MANUAL_ADD, VScreen.MANUAL_RELATION -> "建立 · Authority"
+    VScreen.IMPORT, VScreen.MANUAL_ADD, VScreen.MANUAL_RELATION -> "建立 · 需明确确认"
     VScreen.SEARCH -> "生产数据搜索"
-    VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> "ChangePlan Authority"
-    else -> "生产 Reality"
+    VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> "变更计划 · 正式状态"
+    else -> "已确认数据"
 }
 
 private fun isProductionRoot(screen: VScreen): Boolean =
