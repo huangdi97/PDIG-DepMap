@@ -738,7 +738,7 @@ def main():
         capture("09-settings-source-unreachable")
         raise RuntimeError("R9 Data Sources entry unreachable after actual scrolling")
     capture("10-data-sources")
-    require_screen("10-data-sources", "当前预览工作区", "SYNTHETIC", "未知")
+    require_screen("10-data-sources", "当前预览工作区", "演示数据", "未知")
 
     # Include real runtime frame-time evidence even when device image comparisons
     # have already passed. A static circle with rotating lines is not accepted.
