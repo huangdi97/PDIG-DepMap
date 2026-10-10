@@ -235,7 +235,7 @@ private fun ProductionNow(
     modifier: Modifier,
 ) {
     ProductionPage(modifier, "现在", "基于当前加密数据的概览") {
-        ProductionWorldContext(app)
+        ProductionWorldContext(app, snapshot, inventory)
         ProductionMetricRow(
             listOf(
                 inventory.pendingReviewCount to "待复核",
@@ -304,7 +304,7 @@ private fun ProductionInfrastructure(
     modifier: Modifier,
 ) {
     ProductionPage(modifier, "基础设施", "只展示当前正式数据模型能够明确识别的对象类型") {
-        ProductionWorldContext(app)
+        ProductionWorldContext(app, snapshot, inventory)
         ProductionInventorySummary(inventory)
 
         ProductionSection("管理分类")
