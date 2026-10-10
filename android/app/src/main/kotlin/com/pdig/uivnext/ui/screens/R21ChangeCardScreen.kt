@@ -164,11 +164,13 @@ internal fun R21ChangeCardScreen(
                 horizontalArrangement = Arrangement.spacedBy(9.dp),
             ) {
                 candidates.forEach { candidate ->
+                    val candidateProfile = app.savedPresentationProfile("card", candidate.id)
                     ReplacementChoice(
                         card = candidate,
+                        profile = candidateProfile,
                         selected = candidate.id == replacement?.id,
                         privacyMask = app.privacyMask ||
-                            (app.savedPresentationProfile("card", candidate.id)?.maskSensitive == true),
+                            (candidateProfile?.maskSensitive == true),
                     ) {
                         app.chooseReplacementCard(
                             if (candidate.id == replacement?.id) null else candidate.id,
@@ -340,6 +342,7 @@ private fun ChangeCardEmptyTarget(modifier: Modifier = Modifier) {
 @Composable
 private fun ReplacementChoice(
     card: UiVNextCard,
+    profile: com.pdig.uivnext.model.PresentationProfile?,
     selected: Boolean,
     privacyMask: Boolean,
     onClick: () -> Unit,
@@ -359,7 +362,7 @@ private fun ReplacementChoice(
         Column(Modifier.padding(9.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             R19PresentedCardThumbnail(
                 card = card,
-                profile = null,
+                profile = profile,
                 privacyMask = privacyMask,
                 modifier = Modifier.fillMaxWidth(),
             )
