@@ -70,7 +70,7 @@ internal fun R9SourcesScreen(app: VAppState) {
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("已记录演示对象", color = R9.Ink, fontSize = 13.sp,
                         fontWeight = FontWeight.Bold)
-                    R9Badge("SYNTHETIC", R9.Blue)
+                    R9Badge("演示数据", R9.Blue)
                 }
                 Row(Modifier.fillMaxWidth()) {
                     R9Counter(cards, "银行卡", R9.Amber, "▣", Modifier.weight(1f))
@@ -88,7 +88,7 @@ internal fun R9SourcesScreen(app: VAppState) {
         listOf(
             Triple("已记录", "仅已明确录入的信息才能作为依赖分析依据。", R9.Green),
             Triple("未知", "未录入的银行卡、验证方式和恢复路径均不得推断为安全。", R9.Amber),
-            Triple("仅外观", "Studio 主题、材质和隐私遮蔽只改变显示，不改变任何 Canonical 数据。", R9.Blue),
+            Triple("仅外观", "外观主题、卡面和隐私遮蔽只改变显示，不改变任何核心事实。", R9.Blue),
         ).forEach { (title, detail, tint) ->
             Surface(color = Color.White, shape = RoundedCornerShape(14.dp),
                 border = BorderStroke(1.dp, R9.Line), modifier = Modifier.fillMaxWidth()) {
