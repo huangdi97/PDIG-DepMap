@@ -385,7 +385,7 @@ class SourceCompleteScreenshotEvidenceTest {
         capture("${deviceClass}-cards-empty", "empty-cards", { it.emptyDemo = true; it.navigate(VScreen.CARDS) }, { "empty-cards" })
         capture("${deviceClass}-numbers-empty", "empty-numbers", { it.emptyDemo = true; it.navigate(VScreen.NUMBERS) }, { "empty-numbers" })
         capture("${deviceClass}-no-attention", "no-attention", { it.emptyDemo = true; it.navigate(VScreen.NOW) }, { "no-attention" })
-        capture("${deviceClass}-no-active-change", "no-active-change", { it.emptyDemo = true; it.navigate(VScreen.RECORDS) }, { "no-active-change" })
+        capture("${deviceClass}-records-empty", "records-empty", { it.emptyDemo = true; it.navigate(VScreen.RECORDS) }, { "records-empty" })
         capture("${deviceClass}-no-known-dependencies", "no-known-dependencies", { it.emptyDemo = true; it.navigate(VScreen.WEAKNESSES) }, { "no-known-dependencies" })
 
         val manifestFile = File(ctx().filesDir, "source-complete-raw-manifest.json")
