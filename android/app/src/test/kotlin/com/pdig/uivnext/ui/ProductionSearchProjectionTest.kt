@@ -157,6 +157,10 @@ class ProductionSearchProjectionTest {
             .single { it.item.id == "card-1" }
         assertTrue(masked.subtitle.contains("••••"))
         assertTrue(!masked.subtitle.contains("8823"))
+        assertEquals("支付工具（已遮蔽）", masked.title)
+        assertTrue(masked.subtitle.contains("发行方已遮蔽"))
+        assertTrue(!masked.subtitle.contains("示例银行"))
+        assertEquals("旅行主卡", visible.title)
     }
 
     @Test
@@ -171,6 +175,9 @@ class ProductionSearchProjectionTest {
 
         assertTrue(masked.subtitle.contains("••••"))
         assertTrue(!masked.subtitle.contains("8823"))
+        assertEquals("支付工具（已遮蔽）", masked.title)
+        assertTrue(!masked.subtitle.contains("示例银行"))
+        assertTrue(!masked.title.contains("旅行主卡"))
     }
 
     @Test
