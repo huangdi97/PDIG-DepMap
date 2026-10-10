@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · Android UI R34 + Product Architecture Control R35**
+> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,9 +13,10 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R34
+ANDROID_UI_VNEXT_REFERENCE_SOURCE = R34
 PDIG_PRODUCT_ARCHITECTURE_CONTROL = R35
 ANDROID_RELEASE_CUTOVER_CONTROL = R36
+IDENTITY_ANCHOR_PROFILE_CONTROL = R37
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_MACHINE_GATED
 PRODUCTION_VNEXT_TWO_KEY_CUTOVER = SOURCE_IMPLEMENTED
 CURRENT_RELEASE_DEFAULT = LEGACY
@@ -29,14 +30,19 @@ DEPMAP_PAYLOAD_CHANGE_FOR_R34_SOURCE = NONE
 
 REGION_FACT_DESIGN = COMPLETE
 IDENTITY_SUBTYPE_DESIGN = COMPLETE
+IDENTITY_SUBTYPE_CANONICAL_READ = SOURCE_IMPLEMENTED_R37
+PRODUCTION_PHONE_EMAIL_MAPPING = SOURCE_IMPLEMENTED_R37
+REPLACE_PHONE_SUBTYPE_AUTHORITY_GATE = SOURCE_IMPLEMENTED_R37
+RAW_IDENTITY_IDENTIFIER_VALUE = HOLD
+MANUAL_NUMBER_EMAIL_CREATE_AUTHORITY = HOLD
 LIFECYCLE_DESIGN = COMPLETE
 
-FRESH_R34_BUILD = PENDING
-FRESH_R34_UNIT_TESTS = PENDING
-FRESH_R34_INSTRUMENTATION = PENDING
-FRESH_R34_PHONE_PIXELS = PENDING
-FRESH_R34_TABLET_PIXELS = PENDING
-FRESH_R34_HUMAN_ACCEPTANCE = PENDING
+FRESH_EXACT_HEAD_BUILD = PENDING
+FRESH_EXACT_HEAD_UNIT_TESTS = PENDING
+FRESH_EXACT_HEAD_INSTRUMENTATION = PENDING
+FRESH_EXACT_HEAD_PHONE_PIXELS = PENDING
+FRESH_EXACT_HEAD_TABLET_PIXELS = PENDING
+FRESH_EXACT_HEAD_HUMAN_ACCEPTANCE = PENDING
 ```
 
 Do not reuse pre-R34 screenshots or old PASS statements as proof of the current
@@ -69,7 +75,7 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **PENDING on current R34 head** |
+| Exact-head GPU runtime proof | **PENDING on current branch head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
@@ -390,8 +396,14 @@ The cutover architecture is frozen in
 
 Source progress now also includes:
 - Canonical `issuer` / `last4` projected from production nodes without parsing free-form fields;
-- conservative production surface classification;
-- `identity_anchor` remains a generic identity until an explicit governed phone subtype exists;
+- R37 governed `identity_anchor_profile` contract in Canonical spec/logical schema;
+- Kotlin / Swift / ArkTS fail-closed profile decoders;
+- five identity-profile conformance fixtures;
+- Production VNext classification: confirmed PHONE_NUMBER → Number, confirmed EMAIL_ADDRESS → Email, invalid/missing/bare subtype → Generic Identity;
+- confirmation basis / confirmed_at / evidence refs carried into the read projection;
+- Production Number/Email list/detail/search routes source-bound;
+- `replace_phone_number` entry source-bound from confirmed phone identities;
+- PlanRepository independently re-validates scenario target kind + governed PHONE_NUMBER subtype;
 - a consumer inventory projection with confirmed-dependency counts and pending-review/source coverage.
 
 The inventory/impact projections are read-only seams. Separate authoritative mutation
