@@ -78,6 +78,11 @@ import {
 } from '../domain/Entities';
 import { RelationValidationResult } from '../domain/Relations';
 import { confirmedIdentityAnchorProfile } from '../domain/IdentityAnchorProfile';
+import {
+  currentConfirmedRegionFacts,
+  defaultRegionLensSelection,
+  governedRegionFacts,
+} from '../domain/RegionFacts';
 import { simulateScenario, ImpactResult, ImpactTargetResult, ImpactChecklistItem } from '../domain/ImpactKernel';
 import { computePlanReadiness } from '../domain/PlanReadiness';
 import { computeScenarioCoverage } from '../domain/ScenarioCoverage';
@@ -707,6 +712,9 @@ export function computeCase(
   }
   if (category === 'identity-profile') {
     return runIdentityProfile(jt);
+  }
+  if (category === 'region-fact') {
+    return runRegionFact(jt);
   }
   return '';
 }
@@ -1399,6 +1407,58 @@ function runRelations(jt: JsonText): string {
     const toKind = jt.optionalString('toKind');
     const capability = jt.requireString('capability');
     return normalizeResult(validateRelationUse(fromKind, relation, toKind, capability));
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+
+function runRegionFact(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const fieldsJson = jt.requireString('fieldsJson');
+    const facts = governedRegionFacts(fieldsJson);
+    const current = currentConfirmedRegionFacts(fieldsJson);
+    const lens = defaultRegionLensSelection(fieldsJson);
+
+    let factsJson = '[';
+    for (let i = 0; i < facts.length; i++) {
+      const fact = facts[i];
+      if (i > 0) {
+        factsJson += ',';
+      }
+      factsJson += '{"id":' + jsonEscape(fact.id) +
+        ',"facet":' + jsonEscape(fact.facet) +
+        ',"territoryCode":' + jsonEscape(fact.territoryCode);
+      if (fact.subdivisionCode !== undefined) {
+        factsJson += ',"subdivisionCode":' + jsonEscape(fact.subdivisionCode);
+      }
+      factsJson += ',"state":' + jsonEscape(fact.state) + '}';
+    }
+    factsJson += ']';
+
+    const currentIds: string[] = [];
+    for (const fact of current) {
+      currentIds.push(fact.id);
+    }
+
+    let lensJson = '{"status":' + jsonEscape(lens.status);
+    if (lens.territoryCode !== undefined) {
+      lensJson += ',"territoryCode":' + jsonEscape(lens.territoryCode);
+    }
+    if (lens.facet !== undefined) {
+      lensJson += ',"facet":' + jsonEscape(lens.facet);
+    }
+    lensJson += '}';
+
+    return '{"facts":' + factsJson +
+      ',"currentIds":' + serializeStrings(currentIds) +
+      ',"lens":' + lensJson + '}';
   } finally {
     jt.resetWindow();
   }
