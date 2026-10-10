@@ -1,0 +1,19 @@
+{
+  "id": "identity-profile-confirmed-email-authoritative",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R37 governed identity-anchor-profile contract",
+  "description": "confirmed email subtype may use authoritative_source provenance",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"email_address\",\"verification_basis_type\":\"authoritative_source\",\"confirmed_at\":\"2026-10-10T01:00:00Z\",\"evidence_refs\":[]}}"
+  },
+  "expected": {
+    "confirmed": true,
+    "subtype": "email_address",
+    "verificationBasisType": "authoritative_source",
+    "confirmedAt": "2026-10-10T01:00:00Z",
+    "evidenceRefs": []
+  }
+}
