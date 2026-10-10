@@ -406,6 +406,13 @@ private fun ProductionCardDetail(
             }
         }
 
+        ProductionSection("变更")
+        ProductionCardChangeEntry(
+            session = session,
+            cardId = card.id,
+            plans = snapshot?.plans.orEmpty(),
+        )
+
         ProductionBoundaryNote(
             "R18/R19 的年费、账单日、分期等 Reference 生命周期字段尚未进入 Canonical，因此生产详情不会伪造这些字段。"
         )
@@ -425,7 +432,7 @@ private fun ProductionChange(
             snapshot.plans.forEach { plan ->
                 ProductionFactCard(
                     title = plan.title,
-                    subtitle = "${plan.scenario} · ${plan.workflowState}",
+                    subtitle = "${productionScenarioLabel(plan.scenario)} · ${productionWorkflowStateLabel(plan.workflowState)}",
                     meta = listOfNotNull(
                         "图谱修订 ${plan.lastAnalyzedRevision}",
                         plan.effectiveDate,
@@ -434,8 +441,21 @@ private fun ProductionChange(
                 )
             }
         }
+        ProductionSection("准备新变更")
+        ProductionFactCard(
+            title = "更换支付卡",
+            subtitle = "先选择一张已确认支付工具，查看 Impact 后显式建立 ChangePlan",
+            meta = "REPLACE × payment_instrument · production authority 已接",
+            onClick = { app.navigate(VScreen.CARDS) },
+        )
+        ProductionFactCard(
+            title = "更换手机号",
+            subtitle = "等待 identity_anchor phone subtype Canonical 后再开放生产对象选择",
+            meta = "不会把通用 identity_anchor 猜成手机号",
+        )
+
         ProductionBoundaryNote(
-            "执行动作必须走 AppContainer Change authority；此只读入口不会本地伪造完成或验证。"
+            "执行动作必须走 AppContainer Change authority；打开页面不会本地伪造完成或验证。"
         )
     }
 }
