@@ -159,6 +159,21 @@ internal fun productionSearchHits(
 
     val objectHits = snapshot.objects.mapNotNull { item ->
         val kindLabel = productionObjectSurfaceLabel(item)
+        val maintenanceTerms = buildList<String?> {
+            item.maintenanceFacts.forEach { fact ->
+                add(fact.kind)
+                add(fact.value)
+                add(productionMaintenanceSearchAlias(fact.kind))
+            }
+            item.maintenanceSchedules.forEach { schedule ->
+                add(schedule.kind)
+                add(productionMaintenanceSearchAlias(schedule.kind))
+                add(schedule.dueAt)
+                add(schedule.dayOfMonth?.toString())
+                add(schedule.intervalDays?.toString())
+                add(schedule.anchorDate)
+            }
+        }
         if (!matches(
                 item.name,
                 item.kind,
@@ -169,6 +184,7 @@ internal fun productionSearchHits(
                 item.identityVerificationBasisType,
                 item.identityIdentifierValue,
                 item.identityIdentifierVerificationBasisType,
+                *maintenanceTerms.toTypedArray(),
             )
         ) return@mapNotNull null
         ProductionSearchHit.ObjectHit(
@@ -220,6 +236,21 @@ internal fun productionSearchHits(
     return (objectHits + planHits + sourceHits + routes).take(50)
 }
 
+private fun productionMaintenanceSearchAlias(kind: String): String = when (kind) {
+    "card_annual_fee_amount", "card_annual_fee_currency", "card_annual_fee_checkpoint" -> "年费"
+    "card_billing_day", "card_billing_checkpoint" -> "账单日 账单"
+    "card_payment_due_day", "card_payment_due_checkpoint" -> "还款日"
+    "card_autopay_mode" -> "自动还款"
+    "number_billing_mode" -> "计费方式"
+    "number_plan_cost", "number_plan_currency" -> "套餐 资费"
+    "number_renewal_method", "number_plan_renewal" -> "续费"
+    "number_keep_alive" -> "保号"
+    "fact_freshness_review" -> "资料复核"
+    "custom_maintenance" -> "维护"
+    else -> kind
+}
+
+@Composable
 @Composable
 private fun ProductionSearchResult(
     hit: ProductionSearchHit,
