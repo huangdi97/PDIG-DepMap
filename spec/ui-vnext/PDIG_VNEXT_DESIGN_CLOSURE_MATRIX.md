@@ -200,7 +200,8 @@ R32/R33 launcher/security source state:
 - productionDebug can explicitly rehearse real-Reality VNext through `vnext_production`;
 - productionRelease ignores both `vnext_demo` and `vnext_production` extras;
 - default production route remains legacy until acceptance;
-- R33 adds an API36 runtime workflow that proves locked-before-Reality, five-primary Production VNext after explicit unlock, background/process relock, and default productionDebug remaining legacy.
+- R33 adds an API36 runtime workflow that proves locked-before-Reality, five-primary Production VNext after explicit unlock, background/process relock, and default productionDebug remaining legacy;
+- R33 also reuses the canonical `FLAG_SECURE` window implementation for sensitive Production VNext Reality/review/history/change/search surfaces.
 
 Still required before release cutover:
 - R33 exact-head secure rehearsal workflow PASS on the final candidate;
