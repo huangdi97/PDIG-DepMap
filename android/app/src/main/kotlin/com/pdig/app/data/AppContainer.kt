@@ -142,6 +142,14 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     fun createManualNode(request: ManualNodeCreateRequest): ManualNodeCreateResult =
         graphRepo.createManualNode(request)
 
+    /**
+     * Phone/email establishment is a dedicated authority: Node + governed subtype +
+     * confirmed identifier are committed atomically with one graphRevision bump.
+     */
+    fun createManualIdentityAnchor(
+        request: ManualIdentityAnchorCreateRequest,
+    ): ManualNodeCreateResult = graphRepo.createManualIdentityAnchor(request)
+
     fun createManualDependency(
         request: ManualDependencyCreateRequest,
     ): ManualDependencyCreateResult =
