@@ -83,6 +83,7 @@ internal fun ProductionInventoryCategoryScreen(
                 ProductionObjectRow(
                     item = item,
                     dependencyCount = dependencyCount(snapshot, item.id),
+                    privacyMask = session.appState.privacyMask,
                 ) {
                     when (screen) {
                         VScreen.CARDS -> session.appState.openCard(item.id)
@@ -107,10 +108,10 @@ internal fun ProductionInventoryCategoryScreen(
                     "年费、账单日、分期等生命周期字段尚未进入正式数据模型；当前只展示已确认的支付工具身份。"
                 )
                 VScreen.NUMBERS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。号码值、运营商、SIM/eSIM、地区、保号与恢复语义不会由名称或关系推断。"
+                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。若 nested identifier 也已确认，可显示真实号码值；运营商、SIM/eSIM、地区、保号与恢复语义仍不会由号码或名称推断。"
                 )
                 VScreen.EMAILS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。邮箱值、Provider 与恢复语义不会由名称或关系推断。"
+                    "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。若 nested identifier 也已确认，可显示真实邮箱值；Provider 与恢复语义仍不会由邮箱或名称推断。"
                 )
                 VScreen.DEVICES -> ProductionObjectBoundary(
                     "设备的认证/恢复能力尚未进入正式数据模型；不会根据设备名称猜测它具备哪些能力。"
@@ -188,6 +189,28 @@ internal fun ProductionGenericObjectDetailScreen(
                         color = PdigV2Colors.TextMuted,
                         fontSize = 9.sp,
                     )
+                    productionIdentityIdentifierLabel(
+                        item,
+                        session.appState.privacyMask,
+                    )?.let { identifier ->
+                        Text(
+                            identifier,
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            listOfNotNull(
+                                item.identityIdentifierVerificationBasisType
+                                    ?.let(::productionIdentityBasisLabel),
+                                item.identityIdentifierConfirmedAt?.take(10),
+                                item.identityIdentifierEvidenceRefs.takeIf { it.isNotEmpty() }
+                                    ?.let { "标识证据 ${it.size} 项" },
+                            ).joinToString(" · "),
+                            color = PdigV2Colors.TextMuted,
+                            fontSize = 9.sp,
+                        )
+                    }
                 }
             }
         }
@@ -288,10 +311,16 @@ internal fun ProductionGenericObjectDetailScreen(
         item {
             when (detailScreen) {
                 VScreen.NUMBER_DETAIL -> ProductionObjectBoundary(
-                    "已确认的是“这是手机号身份”这一 subtype Reality；当前正式模型尚未因此自动获得号码值、运营商、SIM/eSIM、地区、保号或恢复路径。"
+                    if (item.identityIdentifierValue != null)
+                        "号码值来自独立确认的 identifier Reality；运营商、SIM/eSIM、地区、保号或恢复路径仍必须来自各自的受治理事实。"
+                    else
+                        "当前只确认“这是手机号身份”，具体号码值仍未记录；不会从名称、地区或 Provider 猜测。"
                 )
                 VScreen.EMAIL_DETAIL -> ProductionObjectBoundary(
-                    "已确认的是“这是邮箱身份”这一 subtype Reality；当前正式模型尚未因此自动获得邮箱值、Provider 或恢复路径。"
+                    if (item.identityIdentifierValue != null)
+                        "邮箱值来自独立确认的 identifier Reality；Provider 与恢复路径仍必须来自各自的受治理事实。"
+                    else
+                        "当前只确认“这是邮箱身份”，具体邮箱值仍未记录；不会从名称或关系猜测。"
                 )
                 VScreen.DEVICE_DETAIL -> ProductionObjectBoundary(
                     "当前设备详情不会猜测通行密钥、动态验证码、短信验证、恢复因子或秘密位置；这些能力必须来自未来正式的数据语义。"
@@ -465,6 +494,7 @@ private fun productionFindingTruthLabel(truth: String): String = when (truth) {
 private fun ProductionObjectRow(
     item: VNextProductionObject,
     dependencyCount: Int,
+    privacyMask: Boolean,
     onClick: () -> Unit,
 ) {
     Surface(
@@ -478,9 +508,16 @@ private fun ProductionObjectRow(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(item.name, color = PdigV2Colors.TextPrimary, fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold)
-                Text(productionObjectKindLabel(item.kind), color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Text(
+                    productionVisibleObjectName(item, privacyMask),
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                productionIdentityIdentifierLabel(item, privacyMask)?.let { identifier ->
+                    Text(identifier, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
+                }
+                Text(productionObjectSurfaceLabel(item), color = PdigV2Colors.TextMuted, fontSize = 9.sp)
             }
             Text(
                 "$dependencyCount 关系",
