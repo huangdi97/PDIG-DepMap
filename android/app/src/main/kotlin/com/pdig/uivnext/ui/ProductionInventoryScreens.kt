@@ -48,11 +48,7 @@ internal fun ProductionInventoryCategoryScreen(
     val surfaceKind = productionSurfaceForScreen(screen)
     if (surfaceKind == null) {
         ProductionObjectUnavailable(
-            when (screen) {
-                VScreen.NUMBERS -> "号码类型尚未完成底层确认，因此暂不把通用身份对象当作手机号"
-                VScreen.EMAILS -> "邮箱类型尚未完成底层确认，因此暂不把通用身份对象当作邮箱"
-                else -> "该分类尚未完成正式数据映射"
-            },
+            "该分类尚未完成正式数据映射；不会强制转换对象类型。",
             modifier,
         )
         return
@@ -90,6 +86,9 @@ internal fun ProductionInventoryCategoryScreen(
                 ) {
                     when (screen) {
                         VScreen.CARDS -> session.appState.openCard(item.id)
+                        VScreen.NUMBERS -> session.appState.openNumber(item.id)
+                        VScreen.EMAILS ->
+                            session.appState.openSecondaryObject(VScreen.EMAIL_DETAIL, item.id)
                         VScreen.ACCOUNTS ->
                             session.appState.openSecondaryObject(VScreen.ACCOUNT_DETAIL, item.id)
                         VScreen.DEVICES ->
@@ -106,6 +105,12 @@ internal fun ProductionInventoryCategoryScreen(
             when (screen) {
                 VScreen.CARDS -> ProductionObjectBoundary(
                     "年费、账单日、分期等生命周期字段尚未进入正式数据模型；当前只展示已确认的支付工具身份。"
+                )
+                VScreen.NUMBERS -> ProductionObjectBoundary(
+                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。号码值、运营商、SIM/eSIM、地区、保号与恢复语义不会由名称或关系推断。"
+                )
+                VScreen.EMAILS -> ProductionObjectBoundary(
+                    "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。邮箱值、Provider 与恢复语义不会由名称或关系推断。"
                 )
                 VScreen.DEVICES -> ProductionObjectBoundary(
                     "设备的认证/恢复能力尚未进入正式数据模型；不会根据设备名称猜测它具备哪些能力。"
@@ -137,6 +142,8 @@ internal fun ProductionGenericObjectDetailScreen(
     }
 
     val expected = when (detailScreen) {
+        VScreen.NUMBER_DETAIL -> VNextProductionSurfaceKind.PHONE_IDENTITY
+        VScreen.EMAIL_DETAIL -> VNextProductionSurfaceKind.EMAIL_IDENTITY
         VScreen.ACCOUNT_DETAIL -> VNextProductionSurfaceKind.ACCOUNT
         VScreen.DEVICE_DETAIL -> VNextProductionSurfaceKind.DEVICE
         VScreen.SERVICE_DETAIL -> VNextProductionSurfaceKind.SERVICE
@@ -159,13 +166,29 @@ internal fun ProductionGenericObjectDetailScreen(
     ) {
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(item.name, color = PdigV2Colors.TextPrimary, fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold)
                 Text(
-                    productionObjectKindLabel(item.kind),
+                    productionVisibleObjectName(item, session.appState.privacyMask),
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 23.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    productionObjectSurfaceLabel(item),
                     color = PdigV2Colors.TextMuted,
                     fontSize = 10.sp,
                 )
+                if (item.identitySubtype != null) {
+                    Text(
+                        listOfNotNull(
+                            productionIdentityBasisLabel(item.identityVerificationBasisType),
+                            item.identityConfirmedAt?.take(10),
+                            item.identityEvidenceRefs.takeIf { it.isNotEmpty() }
+                                ?.let { "证据引用 ${it.size} 项" },
+                        ).joinToString(" · "),
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 9.sp,
+                    )
+                }
             }
         }
 
@@ -246,6 +269,12 @@ internal fun ProductionGenericObjectDetailScreen(
 
         item {
             when (detailScreen) {
+                VScreen.NUMBER_DETAIL -> ProductionObjectBoundary(
+                    "已确认的是“这是手机号身份”这一 subtype Reality；当前正式模型尚未因此自动获得号码值、运营商、SIM/eSIM、地区、保号或恢复路径。"
+                )
+                VScreen.EMAIL_DETAIL -> ProductionObjectBoundary(
+                    "已确认的是“这是邮箱身份”这一 subtype Reality；当前正式模型尚未因此自动获得邮箱值、Provider 或恢复路径。"
+                )
                 VScreen.DEVICE_DETAIL -> ProductionObjectBoundary(
                     "当前设备详情不会猜测通行密钥、动态验证码、短信验证、恢复因子或秘密位置；这些能力必须来自未来正式的数据语义。"
                 )
@@ -501,6 +530,8 @@ private fun ProductionObjectUnavailable(text: String, modifier: Modifier) {
 
 private fun productionSurfaceForScreen(screen: VScreen): VNextProductionSurfaceKind? = when (screen) {
     VScreen.CARDS -> VNextProductionSurfaceKind.PAYMENT_ASSET
+    VScreen.NUMBERS -> VNextProductionSurfaceKind.PHONE_IDENTITY
+    VScreen.EMAILS -> VNextProductionSurfaceKind.EMAIL_IDENTITY
     VScreen.ACCOUNTS -> VNextProductionSurfaceKind.ACCOUNT
     VScreen.DEVICES -> VNextProductionSurfaceKind.DEVICE
     VScreen.SERVICES -> VNextProductionSurfaceKind.SERVICE
