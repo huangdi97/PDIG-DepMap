@@ -14,7 +14,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.demo.UI_CONTINUITY_REFERENCE_FINDINGS
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.demo.UiContinuityFindingKind
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.ui.VAppState
@@ -24,6 +26,12 @@ import com.pdig.uivnext.ui.VAppState
 internal fun R12ContinuityInsight(app: VAppState) {
     val relationCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.relations.size
     val recoveryNumbers = app.demoNumbers().filter { it.recoveryOnly }
+    val referenceFindings = if (app.emptyDemo) emptyList() else UI_CONTINUITY_REFERENCE_FINDINGS
+    val structuralFindings = referenceFindings.count {
+        it.kind == UiContinuityFindingKind.SINGLE_POINT_OF_FAILURE ||
+            it.kind == UiContinuityFindingKind.SHARED_FAILURE_DOMAIN ||
+            it.kind == UiContinuityFindingKind.RECOVERY_CYCLE
+    }
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         R9SectionTitle("关联与恢复", "查看薄弱点 →") { app.navigate(VScreen.WEAKNESSES) }
         Surface(
@@ -43,8 +51,14 @@ internal fun R12ContinuityInsight(app: VAppState) {
                         Text("已记录 ${relationCount} 条对象关联",
                             color = R9.Ink, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         Text(
-                            if (recoveryNumbers.isEmpty()) "暂无已记录的恢复专用号码"
-                            else "其中 ${recoveryNumbers.size} 个号码具有恢复用途，迁移前需逐项核对",
+                            when {
+                                app.emptyDemo -> "暂无已记录连续性上下文"
+                                structuralFindings > 0 ->
+                                    "参考场景含 $structuralFindings 项结构性 Finding；路径数不等于独立路径数"
+                                recoveryNumbers.isNotEmpty() ->
+                                    "其中 ${recoveryNumbers.size} 个号码具有恢复用途，迁移前需逐项核对"
+                                else -> "暂无已记录的恢复用途对象"
+                            },
                             color = R9.Muted, fontSize = 10.sp, lineHeight = 15.sp,
                         )
                     }
@@ -65,7 +79,24 @@ internal fun R12ContinuityInsight(app: VAppState) {
                         if (recoveryNumbers.size == 1) Spacer(Modifier.weight(1f))
                     }
                 }
-                Text("只展示已记录事实；未知关系不能视为安全。",
+                if (referenceFindings.isNotEmpty()) {
+                    val first = referenceFindings.first()
+                    Surface(
+                        modifier = Modifier.fillMaxWidth()
+                            .clickable { app.navigate(VScreen.WEAKNESSES) },
+                        color = R9.Mist,
+                        shape = RoundedCornerShape(11.dp),
+                    ) {
+                        Column(Modifier.padding(horizontal = 9.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text("连续性提示 · ${first.title}", color = R9.Ink,
+                                fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+                                maxLines = 2)
+                            Text("查看完整 Findings →", color = R9.Blue, fontSize = 9.sp)
+                        }
+                    }
+                }
+                Text("只展示已记录/参考事实；未知关系不能视为安全，也不能用路径数量替代独立性分析。",
                     color = R9.Muted, fontSize = 9.sp)
             }
         }
