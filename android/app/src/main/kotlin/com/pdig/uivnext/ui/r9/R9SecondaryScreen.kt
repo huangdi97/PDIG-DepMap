@@ -129,7 +129,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 }
                 val devices = if(zero) emptyList() else UiVNextDemoFixture.devices.filter { scoped(it.region) && it.attention }
                 R9CounterBanner(riskyCards.size+recoveryPhones.size+recoveryEmails.size+devices.size,
-                    "已记录关注项", "未知关系不包含在计数内")
+                    "维护 / 迁移提醒", "与上方 Continuity Findings 分开；未知关系不包含在计数内")
                 riskyCards.forEach { a ->
                     R9ObjectRow(a.nickname, a.issuer, "有效期：${a.expiry}",
                         "核对已记录扣款与绑定", regionFlag(a.region), "▣", "临近到期", R9.Amber,
