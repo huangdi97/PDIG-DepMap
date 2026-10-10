@@ -1,6 +1,7 @@
 package com.pdig.uivnext.ui.screens
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.MediaBreakpoint
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
@@ -36,6 +38,7 @@ import com.pdig.uivnext.theme.VRadius
  */
 @Composable
 internal fun R24ManualEstablishScreen(
+    app: com.pdig.uivnext.ui.VAppState,
     breakpoint: MediaBreakpoint,
 ) {
     val maxWidth = when (breakpoint) {
@@ -138,6 +141,29 @@ internal fun R24ManualEstablishScreen(
                 PdigV2Colors.TextMuted,
                 "HOLD",
             )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth()
+                    .testTag("pdig.r25.manual-relation.entry")
+                    .clickable { app.navigate(VScreen.MANUAL_RELATION) },
+                color = PdigV2Colors.Surface,
+                shape = RoundedCornerShape(VRadius.Lg),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Row(
+                    Modifier.padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text("已经有对象？设计一条关系", color = PdigV2Colors.TextPrimary,
+                            fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("From → Relation → To；关系确认与对象创建保持分离",
+                            color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                    }
+                    Text("查看 →", color = PdigV2Colors.PrimaryText, fontSize = 10.sp)
+                }
+            }
 
             Surface(
                 modifier = Modifier.fillMaxWidth().testTag("pdig.r24.manual.preview-disabled"),
