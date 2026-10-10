@@ -60,6 +60,10 @@ internal data class VNextProductionObject(
     val identityVerificationBasisType: String? = null,
     val identityConfirmedAt: String? = null,
     val identityEvidenceRefs: List<String> = emptyList(),
+    val identityIdentifierValue: String? = null,
+    val identityIdentifierVerificationBasisType: String? = null,
+    val identityIdentifierConfirmedAt: String? = null,
+    val identityIdentifierEvidenceRefs: List<String> = emptyList(),
 )
 
 internal data class VNextProductionDependency(
@@ -303,6 +307,12 @@ internal fun buildProductionSnapshot(
                 identityVerificationBasisType = identityProfile?.verificationBasisType?.wire,
                 identityConfirmedAt = identityProfile?.confirmedAt,
                 identityEvidenceRefs = identityProfile?.evidenceRefs ?: emptyList(),
+                identityIdentifierValue = identityProfile?.identifier?.value,
+                identityIdentifierVerificationBasisType =
+                    identityProfile?.identifier?.verificationBasisType?.wire,
+                identityIdentifierConfirmedAt = identityProfile?.identifier?.confirmedAt,
+                identityIdentifierEvidenceRefs =
+                    identityProfile?.identifier?.evidenceRefs ?: emptyList(),
             )
         }
 
