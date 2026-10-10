@@ -25,6 +25,7 @@ import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.demoUpcoming
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
+import com.pdig.uivnext.demo.reviewReferenceSummary
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.VAppState
@@ -55,6 +56,10 @@ internal fun r9Greeting(hour: Int): String = when (hour) {
 internal fun R9NowScreen(app: VAppState) {
     val regions = app.demoRegions()
     val attention = app.demoAttention()
+    val review = reviewReferenceSummary(
+        if (app.emptyDemo) emptyList() else com.pdig.uivnext.demo.UI_REVIEW_REFERENCE_ITEMS,
+    )
+    val taskCount = attention.size + review.total
     val changes = app.demoChanges()
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState())
@@ -68,8 +73,8 @@ internal fun R9NowScreen(app: VAppState) {
                 Text(r9Greeting(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)), color = R9.Ink, fontSize = 23.sp, fontWeight = FontWeight.Bold)
                 Text("你的数字基础设施 · 连接全球，触手可及", color = R9.Muted, fontSize = 11.sp)
             }
-            if (attention.isNotEmpty()) {
-                R9Badge("需要处理 ${attention.size}", R9.Rose)
+            if (taskCount > 0) {
+                R9Badge("需要处理 $taskCount", R9.Rose)
             }
         }
 
@@ -79,49 +84,83 @@ internal fun R9NowScreen(app: VAppState) {
             if (app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size,
             if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size)
 
-        R9SectionTitle("需要处理（${attention.size}）", if (attention.size > 1) "查看全部 →" else null) {
-            app.navigate(VScreen.RECORDS)
+        if (review.total > 0) {
+            R9SectionTitle("待复核（${review.total}）")
+            Surface(
+                modifier = Modifier.fillMaxWidth()
+                    .clickable { app.navigate(VScreen.REVIEW) }
+                    .testTag("pdig.r22.now.review"),
+                color = Color(0xFFF3F8FF),
+                shape = RoundedCornerShape(15.dp),
+                border = BorderStroke(1.dp, Color(0xFFC9DDF5)),
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 13.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    R9Badge("${review.total}", R9.Blue)
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text("系统发现了需要你确认的信息", color = R9.Ink,
+                            fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "${review.proposals} 关系建议 · ${review.candidates} 对象候选 · ${review.drifts} 现实漂移",
+                            color = R9.Muted,
+                            fontSize = 9.sp,
+                        )
+                    }
+                    Text("复核 →", color = R9.Blue, fontSize = 10.sp)
+                }
+            }
         }
+
+        R9SectionTitle("其他需要处理（${attention.size}）")
         if (attention.isEmpty()) {
             Surface(shape = RoundedCornerShape(15.dp), color = Color.White) {
                 Text("暂无已记录事项；未知不等于安全。", Modifier.padding(16.dp),
                     color = R9.Muted, fontSize = 12.sp)
             }
         } else {
-            val item = attention.first()
-            Surface(
-                modifier = Modifier.fillMaxWidth().clickable {
-                    if (UiVNextDemoFixture.cardById(item.target) != null) app.openCard(item.target)
-                    else if (app.demoNumbers().any { it.id == item.target }) app.openNumber(item.target)
-                    else app.navigate(VScreen.RECORDS)
-                }.testTag(VTestIds.NOW_ATTENTION),
-                shape = RoundedCornerShape(15.dp),
-                color = Color(0xFFFFF4F2),
-                border = BorderStroke(1.dp, Color(0xFFF4C8CE)),
-            ) {
-                Row(Modifier.padding(horizontal = 13.dp, vertical = 13.dp),
-                    verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.size(30.dp).background(R9.Rose, RoundedCornerShape(9.dp)),
-                        contentAlignment = Alignment.Center) {
-                        Text("!", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            attention.forEachIndexed { index, item ->
+                Surface(
+                    modifier = Modifier.fillMaxWidth().clickable {
+                        if (UiVNextDemoFixture.cardById(item.target) != null) app.openCard(item.target)
+                        else if (app.demoNumbers().any { it.id == item.target }) app.openNumber(item.target)
+                        else app.navigate(VScreen.WEAKNESSES)
+                    }.then(if (index == 0) Modifier.testTag(VTestIds.NOW_ATTENTION) else Modifier),
+                    shape = RoundedCornerShape(15.dp),
+                    color = Color(0xFFFFF4F2),
+                    border = BorderStroke(1.dp, Color(0xFFF4C8CE)),
+                ) {
+                    Row(
+                        Modifier.padding(horizontal = 13.dp, vertical = 13.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Box(
+                            Modifier.size(30.dp).background(R9.Rose, RoundedCornerShape(9.dp)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text("!", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        }
+                        Text(
+                            item.title,
+                            Modifier.weight(1f),
+                            color = R9.Ink,
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
+                            maxLines = 3,
+                        )
+                        Text("›", color = R9.Muted, fontSize = 22.sp)
                     }
-                    Text(item.title, Modifier.weight(1f), color = R9.Ink, fontSize = 12.sp,
-                        lineHeight = 18.sp, maxLines = 3)
-                    Text("›", color = R9.Muted, fontSize = 22.sp)
                 }
-            }
-            if (attention.size > 1) {
-                Text("还有 ${attention.size - 1} 项待处理 · 查看全部 →",
-                    Modifier.fillMaxWidth().clickable { app.navigate(VScreen.RECORDS) }
-                        .padding(vertical = 6.dp),
-                    color = R9.Blue, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
             }
         }
 
         // R12: known dependencies, not a phantom safety score.
         R12ContinuityInsight(app)
 
-        R9SectionTitle("进行中的变更", "查看全部 →") { app.navigate(VScreen.RECORDS) }
+        R9SectionTitle("进行中的变更", "变更中心 →") { app.navigate(VScreen.CHANGE) }
         if (changes.isEmpty()) {
             Text("没有记录正在执行的变更。", color = R9.Muted, fontSize = 12.sp)
         } else {
@@ -148,16 +187,14 @@ internal fun R9NowScreen(app: VAppState) {
         // items belong to the frozen SYNTHETIC fixture, not the user's live calendar.
         if (app.showUpcoming) {
             val upcoming = app.demoUpcoming()
-            R9SectionTitle("演示 · 时间节点", "查看记录 →") {
-                app.navigate(VScreen.RECORDS)
-            }
+            R9SectionTitle("演示 · 时间节点")
             if (upcoming.isEmpty()) {
                 Text("没有已记录的时间节点。未知不等于没有风险。",
                     color = R9.Muted, fontSize = 11.sp)
             } else {
                 upcoming.take(2).forEach { item ->
                     Surface(
-                        modifier = Modifier.fillMaxWidth().clickable { app.navigate(VScreen.RECORDS) },
+                        modifier = Modifier.fillMaxWidth(),
                         color = Color.White, shape = RoundedCornerShape(14.dp),
                         border = BorderStroke(1.dp, R9.Line),
                     ) {
