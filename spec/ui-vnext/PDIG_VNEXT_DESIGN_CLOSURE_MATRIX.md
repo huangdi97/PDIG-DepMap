@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R38 DESIGN CLOSED / MACHINE-GATED CANONICAL EXPANSION + GOVERNED IDENTITY AUTHORITY**
+> Status: **R40 DESIGN CLOSED / MACHINE-GATED CANONICAL EXPANSION + GOVERNED IDENTITY + REGION + MAINTENANCE AUTHORITY**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -85,11 +85,11 @@ regress to a generic `linked_to` graph.
 
 | Capability | Design | UI | Gate |
 | --- | --- | --- | --- |
-| MaintenanceFact | complete proposal | lifecycle reference only | Canonical not implemented |
-| MaintenanceSchedule | complete proposal | upcoming reference only | Canonical not implemented |
-| annual fee / billing checkpoints | complete | reference rendered | persistence HOLD |
-| number keep-alive | complete | reference rendered | persistence HOLD |
-| stale recovery info | semantics complete | future preparedness | factor/lifecycle Canonical |
+| MaintenanceFact | complete + governed v1 | reference + Production read surface | R40 Canonical decoder/conformance implemented; write authority HOLD |
+| MaintenanceSchedule | complete + governed v1 | reference + Production read surface | R40 Canonical decoder/conformance implemented; direct edit/completion authority HOLD |
+| annual fee / billing checkpoints | complete | reference + Production read rendering | governed maintenance_profile source implemented; occurrence/write runtime still gated |
+| number keep-alive | complete | reference + Production read rendering | governed PHONE_NUMBER + maintenance_profile source implemented; completion/write authority HOLD |
+| stale recovery info | semantics complete | future preparedness | freshness schedule vocabulary exists; authoritative stale-recovery Finding input remains future-gated |
 
 Proposal:
 - spec/proposals/asset-lifecycle-maintenance-v1.md
@@ -336,7 +336,7 @@ human pixel acceptance
 Android Reference Freeze
 production VNext release activation after debug rehearsal
 manual Dependency gateway (R31 implemented for current Canonical v3 runtime relation set)
-Canonical implementations for proposed schemas
+remaining Canonical implementations for still-gated proposals (R37–R40 first foundations already source-implemented)
 cross-platform conformance for future schemas
 production launcher cutover
 iOS/Harmony UI translation after Android freeze
@@ -382,7 +382,7 @@ Resources and Trusted Handoff remain dependency-gated rather than roadmap prose.
 ## 16. Stop line
 
 ~~~text
-PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R38
+PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AND_EXTENDED_THROUGH_R40
 CANONICAL_V4_EXPANSION_DAG = DESIGN_FROZEN_AND_MACHINE_GATED
 PRODUCTION_VNEXT_CUTOVER_POLICY = SOURCE_IMPLEMENTED_FAIL_CLOSED
 FIVE_PRIMARY_IA = FROZEN
