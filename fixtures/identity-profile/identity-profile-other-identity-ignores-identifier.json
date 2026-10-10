@@ -1,0 +1,19 @@
+{
+  "id": "identity-profile-other-identity-ignores-identifier",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R38 governed identity identifier contract",
+  "description": "identifier payload is ignored for non phone/email subtype",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"other_identity\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\",\"identifier\":{\"value\":\"should-be-ignored\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}}}"
+  },
+  "expected": {
+    "confirmed": true,
+    "subtype": "other_identity",
+    "verificationBasisType": "user_confirmed",
+    "confirmedAt": "2026-10-10T00:00:00Z",
+    "evidenceRefs": []
+  }
+}

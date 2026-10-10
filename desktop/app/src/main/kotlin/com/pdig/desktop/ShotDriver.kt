@@ -21,6 +21,7 @@ import com.pdig.desktop.security.WindowsDpapiSecurityPort
 import com.pdig.desktop.ui.PDIGAppShell
 import com.pdig.desktop.ui.Screen
 import com.pdig.desktop.ui.UiState
+import com.pdig.desktop.ui.theme.PDIGTheme
 import java.awt.Rectangle
 import java.awt.Robot
 import java.awt.image.BufferedImage
@@ -144,7 +145,9 @@ object ShotDriver {
                     winRef.set(window)
                     stateRef.set(windowState)
                 }
-                PDIGAppShell(ui)
+                PDIGTheme {
+                    PDIGAppShell(ui)
+                }
             }
         }
         return if (failures.get() == 0) 0 else 1

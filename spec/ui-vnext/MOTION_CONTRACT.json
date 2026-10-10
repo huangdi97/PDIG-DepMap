@@ -1,0 +1,39 @@
+{
+  "$comment": "PDIG UI vNext Motion Contract. Tokens: fast 120-160ms, normal 180-240ms, slow >260ms, globe focus 500-750ms. Respect reduced-motion everywhere. No decorative loop animations.",
+  "specVersion": "2.0.0",
+  "tokens": {
+    "fastMs": { "min": 120, "max": 160, "applied": 140 },
+    "normalMs": { "min": 180, "max": 240, "applied": 200 },
+    "slowMs": { "min": 260, "max": 320, "applied": 260 },
+    "globeFocusMs": { "min": 500, "max": 750, "applied": 620 },
+    "easing": "easeInOutCubic"
+  },
+  "globe": {
+    "idleRotation": { "degPerSec": 0.8, "comment": "very slow; pauses on user interaction" },
+    "regionFocus": "ease-in-out",
+    "forbidden": "fast continuous spin",
+    "arcAnimation": "segment-draw 620ms normal; static when reduced motion"
+  },
+  "microInteractions": {
+    "railStateChangeMs": 180,
+    "navigationSwitchMs": 200,
+    "drawerOpenMs": 200,
+    "statusChangeMs": 180,
+    "checkPopMs": 220
+  },
+  "reduceMotion": {
+    "idleRotation": "off",
+    "cameraAnimation": "simplified (translate-only, no ease spin)",
+    "arcAnimation": "static",
+    "drawer": "no slide, instant appear",
+    "source": "Compose LocalReduceMotion / SwiftUI accessibilityReduceMotion / Harmony system switch"
+  },
+  "rules": [
+    "meaningful short interruptible native",
+    "no decorative constant animation",
+    "no parallax",
+    "no scroll hijack",
+    "no entrance-effect stacking",
+    "screenshots freeze globe animation or set deterministic camera state"
+  ]
+}

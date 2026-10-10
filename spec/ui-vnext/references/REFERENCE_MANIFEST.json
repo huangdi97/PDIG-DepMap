@@ -1,0 +1,49 @@
+{
+  "specVersion": "1.0.0",
+  "policy": "reference images are HUMAN-APPROVED VISUAL TARGETS for future Human/Vision Review; they are NOT machine design instructions (spec §16) — implementation continues to be driven by the Visual Contract, and this Agent does not claim to understand the images. Do not move or duplicate this pack.",
+  "status": "human-approved",
+  "approvedAt": "2026-09-30",
+  "entries": [
+    {
+      "filename": "032912cc-aacd-44bf-a9ad-dd90018301f4.png",
+      "sha256": "befc1ea84739e616433213ee02fd23830fdef932285f5dc87c1dd23b50e796dc",
+      "width": 1672,
+      "height": 941,
+      "purpose": "human-approved visual target 01 (Global Digital Infrastructure spatial product reference)",
+      "humanApproved": true
+    },
+    {
+      "filename": "5c0bf689-331b-4a4a-aed9-3c214c1a73e4.png",
+      "sha256": "b0998c1e973fac6bd67dbc08061429a3de534b4c527bba62d0aa8be8f366cfbc",
+      "width": 1672,
+      "height": 941,
+      "purpose": "human-approved visual target 02 (Global Digital Infrastructure spatial product reference)",
+      "humanApproved": true
+    },
+    {
+      "filename": "85c03f6c-9039-4486-bad6-32a72f1553a3.png",
+      "sha256": "e61e3d89fc7c0a51e4fe0454b51bf7fe330c138a0ee0218b67309001c07d1824",
+      "width": 1672,
+      "height": 941,
+      "purpose": "human-approved visual target 03 (Global Digital Infrastructure spatial product reference)",
+      "humanApproved": true
+    },
+    {
+      "filename": "91de8ead-e858-4e69-bb98-6887ce6c9b1e.png",
+      "sha256": "0a81a0dbdee51b38faa8fe417e10fdae0230545d0c4f313feda9064b7a76f4f6",
+      "width": 1672,
+      "height": 941,
+      "purpose": "human-approved visual target 04 (Global Digital Infrastructure spatial product reference)",
+      "humanApproved": true
+    },
+    {
+      "filename": "android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg",
+      "sha256": "3782204282dc81342d8b0311061f9d15c720b7bcd064fd66af78479f6168dbb7",
+      "width": 320,
+      "height": 213,
+      "purpose": "human-selected Android light-first visual direction reference; compressed repository copy of the accepted 1536x1024 Phone + Tablet board",
+      "humanApproved": true
+    }
+  ],
+  "goldenNote": "Reference != pixel golden. Golden baseline is established ONLY after Human/Vision approval of production screenshots (spec §54-§55)."
+}

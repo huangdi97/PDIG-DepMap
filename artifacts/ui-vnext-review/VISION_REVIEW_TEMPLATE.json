@@ -1,0 +1,224 @@
+{
+  "$comment": "PDIG UI vNext Vision Review Template（No-Vision 轮的人审/Vision-model 输入格式）。verdict: PASS | FAIL；issue severity: P0 | P1 | P2 | P3。issues 为占位示例（empty），由审核者填写实际结论后回写。",
+  "spec": "spec/ui-vnext/VISUAL_DNA.md + DESIGN_TOKENS.json + LAYOUT_CONTRACT.json + MOTION_CONTRACT.json（Global Digital Infrastructure：dark spatial · deep navy · subtle glass · premium · calm）",
+  "evidenceRoot": "artifacts/ui-vnext-review/desktop/profiles/",
+  "reviewDate": "",
+  "reviewer": "",
+  "entries": [
+    {
+      "screen": "now",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__now__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "infrastructure-overview",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__infrastructure-overview__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": [
+        {
+          "severity": "P3",
+          "component": "globe stage",
+          "problem": "示例占位：待人工填写",
+          "expected": "",
+          "actual": "",
+          "fix": ""
+        },
+        {
+          "severity": "P2",
+          "component": "quick entry",
+          "problem": "示例占位：待人工填写",
+          "expected": "",
+          "actual": "",
+          "fix": ""
+        }
+      ]
+    },
+    {
+      "screen": "cards",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__cards__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "card-detail",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__card-detail__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "numbers",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__numbers__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "number-detail",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__number-detail__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "change-phone",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__change-phone__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "card-customization",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__card-customization__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "number-customization",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__number-customization__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "personalization-center",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.0/vnext__personalization-center__camera-global__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "infrastructure-overview",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "cn",
+      "file": "profiles/1920x1080@1.0/vnext__infrastructure-overview__camera-cn__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "infrastructure-overview",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "hk",
+      "file": "profiles/1920x1080@1.0/vnext__infrastructure-overview__camera-hk__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "infrastructure-overview",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "gb",
+      "file": "profiles/1920x1080@1.0/vnext__infrastructure-overview__camera-gb__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "infrastructure-overview",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "us",
+      "file": "profiles/1920x1080@1.0/vnext__infrastructure-overview__camera-us__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "now",
+      "platform": "desktop",
+      "profile": "1920x1080@1.0",
+      "camera": "cn",
+      "file": "profiles/1920x1080@1.0/vnext__now__camera-cn__1920x1080@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "cards",
+      "platform": "desktop",
+      "profile": "1280x720@1.0",
+      "camera": "global",
+      "file": "profiles/1280x720@1.0/vnext__cards__camera-global__1280x720@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "cards",
+      "platform": "desktop",
+      "profile": "2560x1440@1.0",
+      "camera": "global",
+      "file": "profiles/2560x1440@1.0/vnext__cards__camera-global__2560x1440@1.0.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "now",
+      "platform": "desktop",
+      "profile": "1920x1080@1.25",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.25/vnext__now__camera-global__1920x1080@1.25.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "now",
+      "platform": "desktop",
+      "profile": "1920x1080@1.5",
+      "camera": "global",
+      "file": "profiles/1920x1080@1.5/vnext__now__camera-global__1920x1080@1.5.png",
+      "verdict": "",
+      "issues": []
+    },
+    {
+      "screen": "change-phone",
+      "platform": "desktop",
+      "profile": "2560x1440@1.0",
+      "camera": "global",
+      "file": "profiles/2560x1440@1.0/vnext__change-phone__camera-global__2560x1440@1.0.png",
+      "verdict": "",
+      "issues": []
+    }
+  ],
+  "schema": {
+    "screen": "string (screen id)",
+    "platform": "string (desktop | android | ios | harmony)",
+    "profile": "string (viewport@scale)",
+    "camera": "string (global | cn | hk | gb | us)",
+    "file": "string (path relative to evidenceRoot)",
+    "verdict": "PASS | FAIL",
+    "issues": [
+      {
+        "severity": "P0 | P1 | P2 | P3",
+        "component": "string",
+        "problem": "string",
+        "expected": "string",
+        "actual": "string",
+        "fix": "string"
+      }
+    ]
+  }
+}

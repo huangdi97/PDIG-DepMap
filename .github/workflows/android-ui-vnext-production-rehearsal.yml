@@ -1,0 +1,85 @@
+name: Android UI vNext Production Rehearsal
+
+# Debug-only proof of the real-Reality VNext cutover path.
+# This workflow never changes productionRelease routing and never self-approves
+# release cutover. It proves security/authority wiring on an API36 emulator.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/android-ui-vnext-translation
+    paths:
+      - 'android/scripts/ci_emulator_production_rehearsal.sh'
+      - '.github/workflows/android-ui-vnext-production-rehearsal.yml'
+      - 'android/app/src/main/kotlin/com/pdig/app/**'
+      - 'android/app/src/main/kotlin/com/pdig/uivnext/**'
+      - 'android/app/src/androidTest/kotlin/com/pdig/app/**'
+      - 'android/app/src/androidTest/kotlin/com/pdig/uivnext/**'
+      - 'android/scripts/production_vnext_secure_rehearsal.py'
+      - 'android/scripts/production_vnext_release_default_rehearsal.py'
+      - 'android/app/build.gradle.kts'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-vnext-production-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  production-reality-rehearsal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Enable host KVM
+        run: |
+          sudo chown "$USER" /dev/kvm || true
+          ls -l /dev/kvm || true
+
+      - name: Build exact productionDebug + androidTest
+        working-directory: android
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew             :app:assembleProductionDebug             :app:assembleProductionDebugAndroidTest             --no-daemon --stacktrace
+          sha256sum app/build/outputs/apk/production/debug/app-production-debug.apk
+
+      - name: Prove lock-gated real-Reality VNext rehearsal on API36
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          profile: pixel_7
+          target: google_apis
+          ram-size: 3072M
+          heap-size: 512M
+          disk-size: 8G
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          pre-emulator-launch-script: |
+            mkdir -p "$HOME/.android"
+            printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
+          disable-animations: true
+          script: bash android/scripts/ci_emulator_production_rehearsal.sh
+      - name: Upload secure rehearsal evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-production-vnext-rehearsal-${{ github.sha }}
+          path: |
+            artifacts/runtime-evidence/production-vnext-rehearsal/
+            artifacts/runtime-evidence/production-vnext-release-default/
+            android/app/build/reports/androidTests/
+            android/app/build/outputs/androidTest-results/
+          if-no-files-found: warn
+          retention-days: 21

@@ -1,0 +1,9 @@
+{
+  "device": "tablet",
+  "builtApk": "C:\\Users\\Kaiser\\pdig-build\\app\\outputs\\apk\\production\\debug\\app-production-debug.apk",
+  "builtApkSha256": "d800c84799bc50fa4bbc44b4be7fcc624bdaa11d5725003a94cc6574e3704482",
+  "builtApkBytes": 44216739,
+  "pmPath": "package:/data/app/~~MTrt1PE8x94sd3TXTI2vOA==/com.pdig.app-8js0YOe2gHlSQo05ZgHAVA==/base.apk",
+  "pulledBaseApkSha256": "d800c84799bc50fa4bbc44b4be7fcc624bdaa11d5725003a94cc6574e3704482",
+  "match": "BUILT == INSTALLED"
+}

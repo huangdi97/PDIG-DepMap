@@ -1,0 +1,205 @@
+{
+  "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+  "items": {
+    "card_profile_restart_persistence": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Cards -> 工行信用卡 detail -> 定制卡面 -> Studio -> theme 极简 -> 保存",
+        "shared_prefs/pdig_ui_vnext_presentation.xml card::card-cn-2 themeId=minimal written",
+        "force-stop -> relaunch -> Card Detail shows 当前主题：极简; XML unchanged"
+      ],
+      "evidence": [
+        "logs/phone-card-prefs-saved.xml",
+        "logs/tablet-card-prefs-saved.xml"
+      ]
+    },
+    "number_profile_restart_persistence": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Numbers -> 主号 中国移动 detail -> 定制号码面 -> Studio -> theme 极简 -> 保存",
+        "XML phoneNumber::num-cn-1 themeId=minimal written (phone+tablet)",
+        "force-stop -> relaunch -> XML persisted; NUMBER_DETAIL_HERO renders"
+      ],
+      "evidence": [
+        "logs/phone-number-prefs-saved.xml",
+        "logs/tablet-number-prefs-saved.xml"
+      ]
+    },
+    "workspace_preferences": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Settings/个性化 -> 隐藏敏感信息 toggle off -> privacy_mask=false on disk",
+        "force-stop -> relaunch -> XML privacy_mask=false; UI shows 敏感字段当前可见"
+      ],
+      "evidence": [
+        "logs/phone-workspace-mid.xml",
+        "logs/phone-workspace-after.xml",
+        "logs/tablet-workspace-mid.xml",
+        "logs/tablet-workspace-after.xml"
+      ]
+    },
+    "search_result_back": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Search entry -> EditableText typed (phone: 招商 via official suite performTextInput; real-UI: HSBC on phone+tablet)",
+        "Search Results appear -> tap result (汇丰卓越理財) -> target screen",
+        "System Back -> Search screen restored (phone+tablet)"
+      ],
+      "evidence": [
+        "logs/phone-search-real.png",
+        "logs/phone-search-result.png",
+        "logs/phone-search-back.png",
+        "logs/tablet-search-real.png",
+        "logs/tablet-search-result.png",
+        "logs/tablet-search-back.png",
+        "manifests/phone-raw-manifest.json",
+        "manifests/tablet-raw-manifest.json"
+      ]
+    },
+    "region_select_detail_back_global": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Overview -> real clickable pdig.region.CN row tap -> REGION_SELECTED (CN, counts filtered)",
+        "second tap on region row -> REGION_DETAIL (drawer with 查看卡片/查看号码/返回全球视图)",
+        "System Back -> REGION_SELECTED, CN preserved (phone+tablet)",
+        "返回全球视图 -> regionFilter null, GLOBAL (phone+tablet)"
+      ],
+      "evidence": [
+        "logs/phone-region-selected.png",
+        "logs/phone-region-detail.png",
+        "logs/phone-region-back.png",
+        "logs/phone-region-global.png",
+        "logs/tablet-region-selected.png",
+        "logs/tablet-region-detail.png",
+        "logs/tablet-region-back.png",
+        "logs/tablet-region-global.png",
+        "manifests/phone-raw-manifest.json",
+        "manifests/tablet-raw-manifest.json"
+      ]
+    },
+    "system_back": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "VNextBackStateRegressionTest OK(5) + SourceCompleteInteractionContractTest back flows OK(12) on both devices",
+        "Tablet expanded Cards: asset -> inspector -> 查看完整详情 -> Detail -> Back -> workspace (screenshots)",
+        "Change root back -> launcher (root-tab normal exit); in-app back stacks verified by contracts"
+      ],
+      "evidence": [
+        "logs/tablet-card-inspector.png",
+        "logs/tablet-card-detail-backpath.png",
+        "logs/tablet-card-back-workspace.png"
+      ]
+    },
+    "change_projection_truth": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Official 17/18/19 distinct SHAs phone+tablet; After wording 完成后（计划）",
+        "Change screen copy: 只有实际验证完成的步骤才标记为完成 (no unfinished marked done)"
+      ],
+      "evidence": [
+        "manifests/phone-raw-manifest.json",
+        "manifests/tablet-raw-manifest.json",
+        "logs/tablet-change-current.png"
+      ]
+    },
+    "number_detail_probe": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "NumberDetailLayoutProbeTest OK phone+tablet; probe JSON positive gaps (hero->services 106.3dp phone, 16dp service gaps)"
+      ],
+      "evidence": [
+        "probes/NUMBER_DETAIL_LAYOUT_PROBE_phone.json",
+        "probes/NUMBER_DETAIL_LAYOUT_PROBE_tablet.json"
+      ]
+    },
+    "tablet_card_real_studio_path": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Official Tablet 07/08: Cards -> clickable expanded asset pdig.card.expanded.card-cn-2 -> inspector 定制卡面 -> Studio preview; glass/city distinct SHAs"
+      ],
+      "evidence": [
+        "manifests/tablet-raw-manifest.json",
+        "tablet/07-card-studio-glass.png",
+        "tablet/08-card-studio-city.png"
+      ]
+    },
+    "tablet_number_real_studio_path": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "Official Tablet 11: Numbers -> asset -> inspector 定制号码面 -> Studio travel preset -> preview"
+      ],
+      "evidence": [
+        "manifests/tablet-raw-manifest.json",
+        "tablet/11-number-studio-travel.png"
+      ]
+    },
+    "apk_provenance": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "built apk sha256 = installed base.apk sha256 on phone AND tablet (D800C847...)"
+      ],
+      "evidence": [
+        "apk-provenance/phone.json",
+        "apk-provenance/tablet.json"
+      ]
+    },
+    "globe_signature_regression": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "TextureEarthBodySilhouetteContractTest OK(1) (cardinal coverage + transparent diagonals under capped-texture condition)",
+        "official 01-04 + no-attention globeTextureState=texture_ready on both devices"
+      ],
+      "evidence": [
+        "manifests/phone-raw-manifest.json",
+        "manifests/tablet-raw-manifest.json"
+      ]
+    },
+    "accessibility_touch_targets": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "VNextAccessibilityEvidenceTest OK(3): bottom nav NavigationBarItem >=48dp, Studio preset >=48dp, region reset >=48dp (bounds-validated)"
+      ],
+      "evidence": []
+    },
+    "palette_contrast": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "AndroidLightAccessibilityPaletteContractTest OK(1): text colors on surface/canvas/raised/soft >=4.5:1; white on PrimaryBright >=4.5:1"
+      ],
+      "evidence": []
+    },
+    "desktop_freeze_guard": {
+      "result": "PASS",
+      "programmatic": false,
+      "steps": [
+        "node tools/freeze/desktop-reference-freeze-guard.mjs -> PASS 12/12 SHA256 verified, exit 0"
+      ],
+      "evidence": [
+        "logs/desktop-freeze-guard.log"
+      ]
+    },
+    "tablet_adaptive_layout": {
+      "result": "FAIL",
+      "programmatic": false,
+      "steps": [
+        "TabletAdaptiveContractTest.tabletNumberDetail_noDeadSpace FAIL: hero->services gap must be <=48dp, actual gap=212.0 (TabletAdaptiveContractTest.kt:107)",
+        "Recorded for ChatGPT source remediation; not fixed by agent"
+      ],
+      "evidence": []
+    }
+  }
+}

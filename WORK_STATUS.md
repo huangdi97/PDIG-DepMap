@@ -1,7 +1,296 @@
+> **（最新）ANDROID UI vNext · Round 5 Human Pixel Acceptance（2026-10-07）**
+> —— Local Agent 已从 exact source `0b305e48...` 完成 Round5：Phone 24 + Tablet 24 + Empty 10、
+> Globe TEXTURE_READY、真实 Region/Search/Studio 路径、PresentationProfile / workspace restart persistence、
+> APK built==installed provenance、accessibility、Desktop Freeze Guard；evidence commit = `2d4045c2...`。
+> ChatGPT 已通过 6+6 个分片 contact sheets + empty sheet 实际审完全部 58 张 runtime pixels：Phone 24、
+> Tablet 24、Empty 10 均无剩余 P0/P1 视觉/产品/自适应问题，`ANDROID_VISUAL_REFERENCE = ACCEPTED`。
+> Round5 唯一 FAIL 是旧 `TabletAdaptiveContractTest` 把正式 `NumberSummaryStrip` 误计为 hero→services
+> dead space（212dp）；真实像素并无空白，且 `NumberDetailVerticalFlowContractTest` 已在双设备通过。
+> ChatGPT 已直接纠正该 stale contract 为 Hero→Summary→Services 两段 <=32dp；production pixels 未改。
+> 因此当前 `ANDROID_REFERENCE_FREEZE = HOLD` 仅等待一次 targeted exact-head TabletAdaptive 重跑；
+> 若通过即可 Freeze PASS，无需重抓 58 张像素。iOS/Harmony 继续 HOLD 到 Android Reference Freeze。
+>
+> **（最新）ANDROID UI vNext · Human Pixel Review Round 2 + Source Remediation（2026-10-06）**
+> —— ChatGPT 已直接打开并逐屏审阅 exact-source `b659ae4...` 的 Phone 24 + Tablet 24 runtime PNG，
+> 没有接受 Agent 的 READY/PASS 标签作为视觉结论。该 pack **不允许 Freeze**：Global Globe 仍出现
+> loading/fallback 深色球；Phone Region Detail 与 Search Query 截图状态错误；Phone Change Current
+> 被截成迁移中；Tablet Numbers/Number Detail 与 Change Current/Transition 存在 byte-identical
+> 证据，Number Studio 也未真正进入 Studio；10 个空态未产出。完整审图记录：
+> `docs/ui-vnext/android/ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`。
+>
+> ChatGPT 随后已直接在 GitHub 完成 source remediation：Globe HIGH 纹理预算 768→512、首帧
+> TEXTURE_READY 前禁止 idle-yaw cancellation storm、官方 screenshot gate 30s bounded wait；
+> Now/Overview Globe overlay 与 metrics 恢复 light-first 可读层级；Expanded Cards 改为真正
+> gallery/list + persistent asset inspector；修复 Compose assertion API 漂移、Number Detail
+> Hero→Summary→Services 契约、density-correct accessibility target 测量，并纠正 selected reference
+> SHA provenance。**当前最后 pixel-changing Android production checkpoint =
+> `0dd0cee29d3b9410f211942283d96f893149dc39`.**
+>
+> 当前唯一正确 Gate：`ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_SOURCE_REMEDIATION_AFTER_PIXEL_REVIEW = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> Local Agent 下一轮只允许 pull exact remote HEAD → build/test → official Phone/Tablet 24 + 10 empty
+> states → interaction/probe/manifests/logs/evidence；不得修改 production UI 或自行作视觉结论。
+>
+> **（最新）ANDROID UI vNext · Focused Phone Light Reference Closure（2026-10-05）**
+> —— Human-selected 亮色参考图已作为 Android Visual Direction Reference 入仓，ChatGPT 继续直接在
+> `feat/android-ui-vnext-translation` 完成 Phone 信息架构与视觉密度收口。Android production-UI
+> checkpoint = `a03bc11c8bac601f95bf2e070c5f666e2b22d271`；其后为结构契约测试与文档同步。
+>
+> 本轮 source 变化：Now 保留大 Globe 世界观入口；Phone Infrastructure 改为 8 类管理 Hub +
+> 小型地区 Globe + Region/Attention 上下文，不再成为第二个 Now；Phone 子页不再常驻 8 项
+> Infrastructure 横向 strip；只有 Now 顶栏显示 PDIG 品牌，其余 Phone 页面使用上下文标题并移除
+> 重复正文标题；Cards/Numbers filter、Change projection、Studio controls 保留 48dp hit target
+> 但视觉 pill 收紧；Medium 保持 rail + single-pane，Expanded 保留 rail + content sibling nav。
+> 对应 `AndroidLightVisualSourceContractTest` / `AndroidAdaptiveShellContractTest` 已增加防回退契约。
+>
+> Product truth 未动：Primary IA、Infrastructure 8 类、PresentationProfile != PersonalReality !=
+> Canonical、Unknown != safe、Change After = Plan Projection、Desktop Dark Reference Freeze 均保持。
+>
+> 当前唯一正确 Gate：`ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 旧 `4e43511...` runtime screenshots 继续仅作历史证据；Local Agent 下一轮只允许 exact-HEAD
+> build/test/API36 Phone+Tablet/runtime screenshot/evidence，不得 redesign。
+>
+> **（最新）ANDROID UI vNext · Selected Light Reference Source Closure（2026-10-05）**
+> —— Human-selected 亮色 Android 参考图已正式入仓：
+> `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg` +
+> 同名 visual contract。ChatGPT 直接在 GitHub 完成第二轮 light-reference source craft：
+> Now/Overview、Cards/Detail/Studio、Numbers/Detail/Studio、Change Phone、Records、Search、
+> Personalization、Data Sources、secondary infrastructure 与 shell/navigation 统一到 light-first
+> tonal hierarchy；新增 Records task summary、Data Sources fact-boundary hero、Personalization
+> preview-first surface、Card/Number detail identity summary，并扩展
+> `AndroidLightVisualSourceContractTest` 防止回退。最新 Android production-UI checkpoint =
+> `94b9445a73c40c11e592ed9fa08d2c55646c3880`；其后仅文档同步。
+>
+> 当前状态：`ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 旧 `4e43511...` runtime screenshots 继续仅作历史证据；下一步只能由本地执行 Agent 对 exact
+> current remote HEAD 做 build/test/API36 Phone+Tablet/runtime screenshot/evidence，不得 redesign。
+>
+> **（最新）ANDROID UI vNext · Light Visual Reference Source Closure（2026-10-05）**
+> —— Human 已选定亮色 Android 参考图并入仓：
+> `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`。
+> ChatGPT 已直接在 `feat/android-ui-vnext-translation` 完成对应 source translation：
+> light-first Material shell、Globe-led Now、Cards 资产化列表 + 卡种/地区浏览、Numbers
+> communication-identity 缩略面 + wide NumberFace inspector、Phone Change continuity scene、
+> Preview-led Studio、Secondary Infrastructure summary hierarchy、compact PDIG brand top bar、
+> quieter wide primary rail，以及对应防回退 contracts。Canonical / PersonalReality /
+> PresentationProfile 边界、Desktop Dark Freeze、Change After = Plan Projection 均未改变。
+>
+> **当前 production-UI checkpoint = `feb110663f19fcca74c0ddc7e3e619fc501474e6`.**
+> 由于 production UI 已继续修改，所有来自 `4e43511...` 的 2026-10-04 Phone/Tablet runtime
+> screenshots 仅为历史证据。当前状态：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> Local Agent 下一轮仅允许 exact-HEAD build/test/AVD/runtime/evidence，不得自行 redesign。
+>
+> **（最新）ANDROID UI vNext · Human Pixel Review + Adaptive Craft Closure（2026-10-05）**
+> —— ChatGPT 已直接审阅 2026-10-04 committed Phone 24 + Tablet runtime pixels，并核对 source /
+> manifests / contracts；未机械接受 Agent PASS。该证据包 source = `4e43511...`，Human Review
+> 后 Android presentation source 已继续前进。最新 production-UI checkpoint =
+> `77c7b3692c9b3327331f52af522a2bc65ecf165e`：Region Detail Back 层级、Wide Overview 高度、
+> Change Phone truth copy、Globe TEXTURE_READY evidence、compact Studio density 已收口；进一步把
+> Tablet NavigationRail 恢复为四个 product-level destinations，8 个 Infrastructure categories
+> 移至 content-level sibling navigation；Phone top chrome 降噪；Phone Studio 主题改为横向 visual
+> gallery；新增 Tablet/Phone adaptive craft contracts。Domain/Canonical/PersonalReality/.depmap
+> 与 Desktop Freeze 均未改。
+>
+> **旧 2026-10-04 runtime pack 现在仅为历史证据。** 当前唯一正确 UI gate：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 本地 Agent 只允许 pull exact HEAD → build/test → API36 Phone/Tablet → interaction/screenshots/
+> evidence；不得自行 redesign。
+>
+> **（最新）ANDROID UI vNext · Source-Complete Runtime Validation（2026-10-04）**
+> —— 本地执行/验证 Agent 在 `feat/android-ui-vnext-translation` @ `4e43511` 完成 source-complete
+> 运行时验证与证据收口（BUILD/RUN/TEST/CAPTURE/EVIDENCE ONLY，未设计/未改 UI）。结果：Android
+> build PASS（APK SHA `76df2dda…`）；core `npm run check` 全绿（487 tests / cycles=0 / network /
+> secrets）；Desktop Freeze Guard 12/12 PASS；Android JVM unit 98/98 PASS；真实 API36 Phone(main)
+> + Tablet(pdig_tablet_api36) runtime：24 屏 ×2 + 10 空态 + Number Detail dp probe + 15 项交互
+> 契约 + PresentationProfile/workspace 磁盘持久化（force-stop 后 XML 仍在）全 PASS；搜索/地区/
+> System Back/Change 三态/Globe TEXTURE_READY/Records/长尾基础设施/个性化/数据源全部验证。
+> **已知待收口**：2 条既有 `VNextAccessibilityEvidenceTest` 期望串与新 consumer copy 漂移
+> （phone+tablet 均 FAIL，无障碍能力未丢失）；`UiScreenshotEvidenceTest` phone 侧为 pre-existing
+> test-bed 约束（tablet 2/2 PASS）。证据：
+> `artifacts/runtime-evidence/2026-10-04-android-ui-vnext-source-complete-validation/` +
+> `ANDROID_UI_VNEXT_SOURCE_COMPLETE_RUNTIME_VALIDATION_REPORT.md`。状态：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、`ANDROID_UI_VNEXT_RUNTIME_VALIDATION = BLOCKED`
+> （2 条 a11y 契约漂移待 ChatGPT 收口）、`ANDROID_RUNTIME_EVIDENCE = READY`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`ANDROID_REFERENCE_FREEZE = HOLD`、
+> `IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+>
+> **（最新）ANDROID UI vNext · Source Design Completion（2026-10-04）**
+> —— ChatGPT 直接在 `feat/android-ui-vnext-translation` 完成 Android UI source-design 收口：
+> 一级/二级 IA、Now/Globe、Cards/Detail/Studio、Numbers/Detail/Studio、Accounts/Emails/Devices/
+> Services/Weaknesses、Change Phone 三投影、Records timeline、Search/Command、Settings/Personalization、
+> Data Sources、Region context 全部具备正式 consumer UI；PresentationProfile 与 workspace preferences
+> 已接入本地表现层持久化，Grid/Detail/Studio 共用保存后的表现状态，仍与 PersonalReality/Canonical
+> 严格隔离；内部 review/engineering 文案、假跳转与地区裸码已清理；大 UI 文件按职责拆分，Globe
+> 冻结 renderer 不改视觉算法。**重要：此前 2026-10-03 runtime evidence 现为历史证据，不能证明
+> 2026-10-04 新 source HEAD 的视觉通过。** 当前状态：
+> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、
+> `ANDROID_UI_VNEXT_RUNTIME_VALIDATION = REQUIRED`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、iOS/Harmony 继续 HOLD。
+> 详见 `docs/ui-vnext/android/ANDROID_UI_VNEXT_DESIGN_COMPLETION.md`。
+
 # WORK_STATUS.md
 
-> **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
+> **（当前）ANDROID UI vNext · Human Fix（2026-10-03，Human Review 定向修复轮）**
+> —— 关闭 Human Review 已发现的 Android 视觉与 adaptive layout 缺口（Phone Cards 两列挤压/
+> 竖排、Card Identity 退化、Phone Numbers 嵌 Inspector、Tablet Globe 黑球、Tablet Change
+> 死空白、Number Detail 死空白、Phone 6 步 stepper 裁剪、Studio 内部 id/蓝色方块、工程词、
+> Back 层级），新增 9 组 Human Fix 布局契约测试，并在真实 API36 Phone（main）+ Tablet
+> （pdig_tablet_api36）上重跑 runtime evidence（phone 14 + tablet 14 张，commit 0a3a4b6，
+> Globe 前置 TEXTURE_READY、Cards verticalTextRegression=false、Numbers visibleRows>=3、
+> Tablet Change old/services/new 三列可见）。门禁：Android instrumentation
+> `com.pdig.uivnext.evidence` phone + tablet 26/26 PASS；`AccessibilitySemanticsTest`
+> 14/14 PASS；core `npm run check` 全绿（487 tests / cycles=0 / network / secrets）；
+> Android unit PASS；Desktop Freeze Guard 12/12 PASS；零漂移（core/spec/fixtures/
+> conformance 未动）。证据包：
+> `artifacts/runtime-evidence/2026-10-03-android-ui-vnext-human-fix/` +
+> `ANDROID_UI_VNEXT_HUMAN_FIX_SCREENSHOT_MANIFEST.json`（28 条）。
+> 状态：`ANDROID_UI_VNEXT_HUMAN_FIX_IMPLEMENTATION = PASS`、
+> `ANDROID_RUNTIME_EVIDENCE = READY`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（STOP，等待人工验收）、
+> `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> 详见 `ANDROID_UI_VNEXT_HUMAN_FIX_REPORT.md`。
+
+> **（当前）ANDROID_UI_VNEXT_TRANSLATION（2026-10-02，Android 原生翻译轮）**
+> —— 将冻结 Desktop Reference 翻译为 Android 原生 Compose/Material，产出 Phone + Tablet
+> 运行时证据与 Human Review Candidate。成果：① 自适应壳（COMPACT/MEDIUM/EXPANDED；手机
+> BottomNav + chips；展开 NavigationRail + list-detail）；② 纹理地球（bundled NASA 资产
+> 逐像素投影 + day/night/云层 + 质量档 + 相机缓存）；③ 全部屏幕翻译（Now/Overview/Cards/Detail/
+> 两个 Studio/Numbers/Detail/Change Phone 三投影/记录/账户/邮箱/设备/服务/薄弱点/搜索命令）；
+> ④ 空态 6 类（honest unknown）；⑤ BackHandler + ViewModel 状态恢复；⑥ 无障碍基线；
+> ⑦ Variant Truth（glass≠city、country≠travel≠recovery、current≠transition≠after、
+> global≠region；SHA 互异 + expected==actual）；⑧ 14 屏 Human Main Set phone + tablet
+> （instrumentation captureToImage 真实 runtime；manifest 28 条）；⑨ Desktop Freeze Guard
+> （12/12 PASS）。门禁：core `npm run check` 全绿（487 tests / architecture cycles=0 /
+> network / secrets）；Android unit tests PASS；证据测试 phone+tablet PASS；既有 vNext
+> 截图 + a11y 测试 PASS。状态：`ANDROID_UI_VNEXT_TRANSLATION_IMPLEMENTATION = PASS`、
+> `ANDROID_UI_VNEXT_RUNTIME_CANDIDATE = READY`、
+> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（STOP，等待人工验收）；
+> `IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。零漂移：Domain/Canonical 未动、
+> Desktop 冻结 12 SHA 未动、PresentationProfile 不进 .depmap。证据包：
+> `artifacts/runtime-evidence/2026-10-02-android-ui-vnext-translation/`。
 >
+> **（此前）PDIG UI vNext · Desktop Reference Freeze…**
+> —— Human/Vision Final Review 已完成并正式写入：
+> `DESKTOP_VISUAL_REFERENCE = ACCEPTED`、`VISUAL_CRAFT = ACCEPTED_FOR_DESKTOP_REFERENCE`、
+> `DESKTOP_REFERENCE_FREEZE = PASS`（来源：Human/Vision Final Review, 2026-10-02；
+> 记录见 `DESKTOP_REFERENCE_FREEZE_CANDIDATE.md`）。本轮为纯 Freeze/Spec 轮：**不实现
+> 移动端 UI、不 redesign、不创建 PHASE 1G**。产出：① `DESKTOP_REFERENCE_FREEZE_MANIFEST.json`
+> （status=FROZEN，12 张 1920×1080@1.0 截图 + SHA256，acceptedSourceHead
+> `da0937b9…`，designSystem / runtimeGates / platformTranslationAllowed=true，
+> immutable identity = manifest + commit SHA，不建 tag）；② `spec/ui-vnext/DESKTOP_REFERENCE_FREEZE.md`
+> （Freeze 设计契约：Product IA / Primary Nav / Infrastructure Secondary / Globe / Cards /
+> Number / Card Studio / Number Studio / Continuity（After = Plan Projection, NOT reality）/
+> Empty State / Command Palette；Presentation Boundary：
+> PresentationProfile ≠ PersonalReality ≠ Canonical，平台可 translate presentation、
+> 不可 fork domain truth / Canonical / change semantics / recovery semantics）；
+> ③ `PLATFORM_TRANSLATION_CONTRACT.md`（Desktop Reference → Platform Translation，
+> 非 Pixel Copy；保留 information hierarchy / object identity / semantic prominence /
+> color-material family / state semantics / continuity semantics / navigation intent；
+> 允许平台原生 navigation / sheet / bottom bar / gesture / safe area / typography metric /
+> density / interaction convention；优先级 Android → iOS → Harmony，本轮不实现）；
+> ④ `docs/ui-vnext/DESKTOP_VISUAL_GOLDEN_BASELINE.md`（仅 deterministic dark reference 冻结
+> 档为 golden；real-window 不稳定帧不作 pixel golden；unexpected drift → FAIL，
+> intentional change → explicit reference revision）。**Acceptance 只针对 Desktop Dark
+> Reference**：Light parity / Android parity / iOS parity / Harmony parity / Runtime
+> multi-frame acceptance 不自动代表；real-window 三 Gate 保持
+> （`REAL_WINDOW_MULTI_FRAME_RUNTIME_ACCEPTANCE = ENVIRONMENT_GATE`、
+> `REAL_WINDOW_KEYBOARD_HUMAN_GATE = OPEN`、`IME_RUNTIME_HUMAN_GATE = OPEN`）。
+> 门禁：desktop `:app:test` 61/61（含 VisualVariantEvidenceContractTest）；freeze manifest
+> 12 SHA256 与文件逐一核验一致（0 mismatch）；core `npm run check` 引用上一轮全绿证据
+> （487 tests + architecture/network/secrets/UI，core 零改动）并复验 format:docs:check。
+> 状态：`ANDROID_UI_VNEXT = READY_FOR_TRANSLATION`、`IOS_UI_VNEXT = HOLD_UNTIL_ANDROID_REFERENCE_TRANSLATION`、
+> `HARMONY_UI_VNEXT = HOLD_UNTIL_ANDROID_REFERENCE_TRANSLATION`；STOP。
+> **（当前）PDIG UI vNext · Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口轮）**
+> —— Human Review 核验发现 HF 轮 12 张主集里 Card Studio glass/city 同帧无效（GitHub blob SHA
+> 相同 `b399f884…`、469151 bytes）后，本轮只做证据修复并重生成可信 Final Review Pack，**不是新设计
+> Phase**（无 PHASE 1G / 2）。① **P0 修复**：证据 harness 原用 `defaultProfileStore()`，用户主目录
+> `~/.pdig/presentation-profiles.json` 已存在 `card:card-cn-2` 持久化偏好（themeId=glass + imported
+> 本地背景），持久化偏好先于 evidence `customTheme` → 两帧渲染同一 profile。Fix = harness 注入隔离
+> 确定性 profile store（不读用户主目录）+ 共享 `resolveStudioProfile`（load → override → fallback，
+> UI/evidence 同源防 drift）+ 截图前 expected/actual 门禁（不一致 FAIL 不写 PNG）+ composition 回写
+> `evidenceThemeId`。② 新增 `VisualVariantEvidenceContractTest`（5 项：card glass/city、number
+> country/travel/recovery、change current/transition/after、region global/HK —— semantic + 渲染
+> SHA256 双重断言 + P0 回归）。③ 重生成 **12 张主集 → `2026-10-02-ui-vnext-phase1f-hf2-final`**
+> （shot5 glass SHA `ae378d81…` ≠ shot6 city `17cde3fb…`，字节 553550≠532519，采样像素差异 ≈12.9%，
+> Glass/City 人眼可区分）+ `FINAL_SCREENSHOT_MANIFEST.json`（12 条 stateValidation=true，studio 帧
+> actual=composition-readback）+ IMAGE_METRICS（0 error/0 empty/0 near-black）+ UI_LAYOUT_PROBE（§4/§8/§11
+> 全 passed）+ EVIDENCE_SHA256SUMS（37 帧）+ mechanical 20 + empty 4。④ **Provenance 修正**：
+> `PHASE_1F_HF_IMPLEMENTATION_REPORT.md` 的 ending HEAD 由不存在 SHA `caef922e…` 修正为真实
+> `21de0bfe…`（真实链 e9fdaf4→9d828e0→185c96c→df98135→21de0bfe 全部 `git cat-file -e` 验证）；
+> 新增 `PROVENANCE_VALIDATION.txt`（all_reported_commits_exist = true）。⑤ **Real-window 诚实分层**：
+> freeze 依据 = deterministic render + Human-approved 截图 + probe/test；`REAL_WINDOW_MULTI_FRAME_
+RUNTIME_ACCEPTANCE = ENVIRONMENT_GATE`（本轮无新工具重跑一次：前台遮挡 → 0/16 如实 capture=false，
+> 既有 `01-now.png` 首帧证据保留）；15/16 键盘 + IME Human Gate 保留。证据：
+> `DESKTOP_REFERENCE_FREEZE_CANDIDATE.md`。`desktop :app:test` **61/61 PASS**（含新增 5 项）；
+> core `npm run check` 全绿（core 零改动）。状态：`DESKTOP_REFERENCE_FREEZE_CANDIDATE = READY`、
+> `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（禁止 Agent 自行写 ACCEPTED）、
+> `DESKTOP_REFERENCE_FREEZE = HOLD`；Android/iOS/Harmony 继续 HOLD；不创建 PHASE 1G；等待
+> Human 最终裁决（ACCEPTED → 才启动 Platform Translation）。
+> **（当前）PDIG UI vNext · PHASE 1F-HF —— Human Final Acceptance Fix（2026-10-02）**
+> —— Human/Vision Review 裁决 `DESKTOP_VISUAL_REFERENCE = TARGETED_SCREEN_FIX_REQUIRED`、
+> `VISUAL_CRAFT = NOT_ACCEPTED_YET` 后，本轮只关闭少量真实 blocker 并重生成可信 Desktop 证据。
+> ① **P0 修复 real-window 证据完整性**：`VNextWindowSmoke1FHF` + `Win32WindowCapture`（JNA
+> FindWindowW/GetWindowRect/SetWindowPos TOPMOST/ShowWindow/SetForegroundWindow/InvalidateRect/
+> UpdateWindow/PrintWindow）——截图 target 绑定 PDIG 窗口（PID/title/HWND/bounds/screen/method 逐条记录），
+> 捕获后暗色主题像素校验带 + **stale 帧防线**（screen 变化但帧逐字节相同 → capture=false 且不写证据）。
+> 本机实测：窗口身份全命中；但本机桌面会话（GPU/DComp + Skiko 不响应 WM_PRINT）下 GDI 只返回首帧 →
+> `01-now.png` = 真实 PDIG 首帧（已验证），02–14 如实 capture=false，15/16 键盘 Human Gate 保留；
+> 新增 `REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE`（环境性，非伪造）。② **P0 Studio artwork overflow**：
+> 根因 = `drawBehind` 未裁剪 + w 相对大圆半径在 104dp tile 上垂直越界；修复 = `Modifier.clip` +
+> 渲染器 `clipRect` + 半径本地 bounds 约束（Card 104→112dp / Number 84→96dp）；新增渲染级
+> `ThemeThumbnailBoundsContractTest`（5 项，修复前 FAIL）。③ §5 Studio consumer craft（LEFT 双滚动区 /
+> CENTER object stage / RIGHT 材质默认展开）；§6 ICBC 拉丝强化（双尺度成立）；§7 Number 通信身份
+> （信号条+拨号弧，无卡语法）；§8 Continuity node>path（路径 2.0/1.5/1.0、node 强化、更少穿越）；
+> §9 Cards Empty 居中 480–600px 紧凑构图。证据：`artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf/`
+> （12 张主集 + 20 mechanical + 4 empty + IMAGE_METRICS 0 error/0 empty/0 near-black + UI_LAYOUT_PROBE
+> §4/§8/§11 新增检查全 passed + EVIDENCE_SHA256SUMS 37 + REAL_WINDOW_TARGET_VALIDATION）。
+> `desktop :app:test` **56/56 PASS**；core `npm run check` 全绿（487 tests / circular=0 / network 0 / secrets 0）。
+> 状态：`PHASE_1F_HF_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、
+> `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`；
+> Android/iOS/Harmony 继续 HOLD；不创建 PHASE 1G；等待 Human/Vision 最终裁决。详见
+> `PHASE_1F_HF_IMPLEMENTATION_REPORT.md` + `docs/ui-vnext/SCREENSHOTS_PHASE1F_HF.md`。
+
+> **（当前）PDIG UI vNext · PHASE 1F Desktop Final Craft, Reference Freeze & Acceptance Candidate（2026-10-02）**
+> —— PHASE 1F：最后一次 broad Desktop 设计迭代（§6–61 全量）。**CardIdentitySystem（§9 issuer 合成身份：CMB 酒红铜环 / ICBC 石墨红线 / BOC 冷石墨拉丝 / HSBC 港夜 / BOCHK 轮廓 / Monzo 深炭珊瑚 / Revolut 玻璃色散 / Chase 海军拉丝 / Capital One 午夜红 sweep / DBS 新加坡夜）** —— 无近黑空占位、每卡 ≥3 身份要素（契约测试）；Card Detail 下区两栏信息工作区；Studio 预览 660–740px + 材质默认展开 + 自定义背景（选择/替换/移除/缩略图）；Number Detail 通信语法（+86 36sp 最强元素、角色簇、唯一恢复路径、continuity ring）；ContinuityScene 新权重（OLD/NEW 252.6px、服务节点 143px 信息盒、路径 2.5/2/1.5px、After 投影徽标「计划完成后的预期状态 / 不代表已经完成或验证」）；空态 6 种（紧凑组合 ≤600px + 语义剪影）+ 诚实健康文案（禁伪安全词）；产品化拷贝（vNext → 个人数字基础设施）；键盘/焦点可达性 + 启动即聚焦;mechanical 五档 + 真实窗口 16 步 smoke。`PHASE_1F_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、`DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`；`REAL_WINDOW_KEYBOARD_HUMAN_GATE` + `IME_RUNTIME_HUMAN_GATE` 如实登记。证据：artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f/（12 主图 + mechanical + journey + real-window + IMAGE_METRICS 0 error/0 empty/0 near-black）+ PHASE_1F_IMPLEMENTATION_REPORT.md + SCREENSHOTS_PHASE1F.md + PHASE1F_SKILL_USAGE.md + gallery-phase1f。desktop :app:test 51/51 PASS；core `npm run check` 全绿。
+> —— PHASE 1D：只做 Desktop 参考图收敛 + 视觉产品化。**P0 Number Detail 布局回归修复**（三栏 identity 36%/summary 32%/recovery 32%，UI_LAYOUT_PROBE summary 538px ≥300dp passed=true、verticalTextRegression=0、clippedPrimaryLabels=0）；**REAL_EARTH_ASSET_PIPELINE**（NASA Visible Earth public-domain albedo/night/cloud → 2048×1024，ASSET_MANIFEST.json specVersion 1.1.0 记录 source/license/sha256/resolution/retrievedAt/usage，runtime 零网络；默认 Earth 不再 procedural-baked）；Globe label 收敛（Global 默认只显 active/hovered/attention）；Cards issuerVisualProfile 按 §13 synthetic 冻结 + MATTE/GLASS/METAL/MINIMAL perceptual contract + 多层城市天际线；Card Detail Hero（左 42% 大卡舞台 spotlight+floor+soft depth / 右 58% 身份+主操作）；Studio 产品化（对象缩略图、主题大 tile、预览 0.75×/700dp、材质 visual tile）；Number Identity 全球通信身份（NumberIdentitySurface + continuity ring）；Change Phone 独立 ContinuityScene（Compose Canvas，OLD←服务卫星→NEW，Bezier，migrated/waiting/blocked/not_started，after=PLAN PROJECTION）；10 帧证据（2026-10-01-ui-vnext-phase1d，IMAGE_METRICS 0 error/0 empty/0 near-black，meanLum 0.071–0.158）+ SCREENSHOTS_PHASE1D.md + PHASE_1D_IMPLEMENTATION_REPORT.md。`REFERENCE_CONVERGENCE_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`。
+> —— PHASE 1B 记录（历史）：第二轮评审（2026-10-01）：STRUCTURE/功能可接受，**VISUAL FIDELITY = FAIL / REFERENCE PARITY = FAIL** → PHASE 1B 只收敛 Desktop 视觉层：DESIGN_TOKENS v2.2（近黑基底 + 地球材质 token + rail 68 + spatialInspector 320/28 + cardsGrid 3 列）、Globe v2（海洋材质/镜面高光/大陆纹理/云层/大气 rim/方向光；plain sphere 仅 LOW_POWER_FALLBACK）、Overview 浮动空间检查器 + 底部紧凑动作坞、rail subtle glow + 顶部 segmented context rail、CardFace 8 预设 3 布局、Studio 用户语言编辑器 + 视觉缩略图 + spotlight 舞台、Change Phone 空间迁移图（OLD→NEW + 5 状态 icon/label/color）。**15 张关键帧**（2026-10-02-ui-vnext-phase1b，IMAGE_METRICS：0 error / 0 empty / 0 near-black、meanLum 0.126）+ SCREENSHOTS_PHASE1B.md（0 missing）+ REFERENCE_VISUAL_CONTRACT ×4。`VISUAL_FIDELITY_ITERATION_2 = COMPLETE`、`NEEDS_HUMAN_REVIEW = TRUE`、`VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（永不 PASS）。
+> —— 评审结论：旧实现 `VISUAL_DIRECTION = FAIL` / `VISUAL_CONTRACT_IMPLEMENTATION = NOT_ACCEPTED`，定为 `REJECTED_ENGINEERING_PROTOTYPE`（保留为 BEFORE：artifacts/runtime-evidence/2026-09-29-ui-vnext/VISUAL_STATUS.json，不删）。
+> —— 目标 = Global Digital Infrastructure **Spatial Product**（非 admin dashboard）：vector-Earth Globe 签名组件（bundled 简化海岸线 + ~90 城市夜间灯光 + 程序化大气/明暗/星空/跨区弧线；plain sphere 仅保留 LOW_POWER_FALLBACK）、edge-to-edge 空间舞台（globe 52–64% 宽 × 64–78% 高；L0 env → L1 globe → L2 floating chrome → L3 solid data → L4 asset identity → L5 status）、Primary Rail（现在/基础设施/变更/记录 + 数据源/设置；基础设施 8 二级项进 context subnav）、放大字阶（pageTitle 36 / majorNumber 30 / sectionTitle 20 / body 16 / ≤12 仅 metadata）、卡/号码资产身份面（CardFace 1.586 + NumberFace）+ PresentationProfile<Card>/<PhoneNumber> 定制工作室（三栏 22/46/32 对象库/实时预览/分组编辑器、live preview、保存只写 PresentationProfile 绝不写 .depmap）、Change Phone flagship（顶部 6-stage + 中央旧→迁移→新 + 左右迁移列 + migrated/waiting/manual/blocked/not-started 同屏）。
+> —— 交付（PHASE 1 Desktop 9 屏完成，STOP）：`artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1/` **100 帧**（9 核心屏 + overview/now × 5 相机 global/cn/hk/gb/us + card/number customization before+customized 变体 + 5 分辨率档案）+ UI_LAYOUT_PROBE.json + EVIDENCE_SHA256SUMS.txt + IMAGE_METRICS.json（100 帧：0 error / 0 empty bbox / 0 near-black；meanLum 0.18）；gallery 重建 docs/ui-vnext/gallery/index.html + SCREENSHOTS.md（0 missing）。
+> —— 本机闭环：`gradlew :app:compileKotlin` BUILD SUCCESSFUL（仅既有 ArrowForward deprecation 警告）；新增 globe/WorldCoastlines.kt、WorldCityLights.kt、EarthScene.kt、EarthOverlay.kt、EnvironmentBackdrop.kt、components/CardFace.kt、NumberFaceKit.kt、screens/PageChrome.kt、StudioFrame.kt；DESIGN_TOKENS.json v2.1.0 → tools/codegen 四端零漂移（CODEGEN GATE PASS）。
+> —— Gate（Review §V）：LAYOUT_CONTRACT / TOKENS / FUNCTIONAL_INTERACTION / GLOBE_INTERACTION / SCREENSHOTS_GENERATED = **PASS**；**VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW（永不自行改 PASS）**。
+> —— 参考图 = HUMAN-APPROVED VISUAL TARGET（spec/ui-vnext/references/ 4 张，REFERENCE_MANIFEST.json humanApproved=true，1672×941）；Golden 只在 production 截图获批准后建立。
+> —— 平台冻结（Review §T）：Android/iOS/Harmony 视觉传播等待 Human/Vision 批准 Desktop 参考实现后启动（PHASE 3–5）；既有平台证据保留（Android compile + 设备 5 帧、iOS CI run 36665451395/36667427702 PASS、Harmony HAP 3,758,625 B PASS）。
+> —— core 回归：`npm run check` 全绿（487 tests / architecture circular=0 / network 0 / secrets 0）；Domain/Core/状态机/数据模型/测试零改动。
+> —— 分支纪律：`feat/pdig-ui-vnext` 推送后 STOP；不 merge main、不建 tag、不发布、不进 v0.4；不动 product-v0.3.1 冻结物。
+
+---
+
+> **（当前）PDIG v0.3.1 UI/UX Visual Design Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）**
+> —— 冻结方向「Quiet Infrastructure / Calm Control Plane」，Signature Motif = Continuity Rail。四平台落地：Desktop（主题+壳+旗舰屏全量重构）、Android（screens 层重构）、iOS（PdigTheme+PdigComponents 源码落地）、Harmony（Index 首页工程化，assembleHap PASS）。spec/ui tokens v1.1 + copy-zh uiuxV031 additive。回归：core 487 tests 全绿（architecture 0 环 / network 0 / secrets 0 / UI gate PASS）、desktop smoke PASS + profiles 80 帧、android compile+unit 绿 + AVD 42 帧、harmony HAP build PASS。外部门禁如实：iOS runtime 走 macOS CI、Harmony runtime 无设备、VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW（诚实门，BEFORE/AFTER 证据齐备待人工复核）。详见 docs/uiux/（10 份）+ artifacts/runtime-evidence/2026-09-28-uiux-{baseline,refinement}/。
+
+---
+
 > - 基线：`5781ce6`（= 进入本轮的 HEAD/main/origin/main）；release 分支 `release/product-v0.3.1`。
 > - 变更审计：`V0_3_0_TO_V0_3_1_CHANGE_AUDIT.md`（187 文件分类；NO_V0_4_SCOPE / NO_NEW_SCENARIO / NO_NEW_CAPABILITY / NO_DOMAIN_SCOPE_EXPANSION = PASS）；`PRE_RELEASE_BASELINE.md`。
 > - 四端版本对齐：Android production versionCode 2 / 0.3.1（Play 定案前占位，正式上传码待用户 R-3 决策）、preview 200005/0.3.1；iOS MARKETING_VERSION 0.3.1 / CURRENT_PROJECT_VERSION 2；Harmony 1000001 / 0.3.1；Desktop 0.3.1。
@@ -10,7 +299,7 @@
 > - **desktop --keys 本轮受环境限制**（本会话窗口无法获焦，Robot 注入无效 → 11 项 FAIL）：production tree 零行为变化（本轮 desktop 仅版本常量 0.3.0→0.3.1），回退既有证据 `desktop__keys__focus-visible.png` + provenance（v0.3.0 closure）。**stability 3×green 复跑受本机高负载（两个遗留 qemu 模拟器占用 CPU 68–100%）影响**：perf large-synthetic 隔离复跑 6951/7017/3851ms 均 < 10s 阈值，判定为环境性而非回归；既有 stability 3×green 证据留档。
 > - 网站：product/support 页更新为 0.3.1 + corrective 说明；gh-pages 已推送（38f7aab）；Pages + haoleilab 自定义域 200 复验。
 > - 完成（2026-09-28）：RC SHA 8805486 冻结 → ff-only 合回 main → annotated tag product-v0.3.1（582edb9）→ push → RC SHA 重生成制品（Windows/APK/AAB/HAP/SHA256SUMS/SBOM/THIRD-PARTY-NOTICES）→ GitHub Release 发布（13 assets，isDraft=false / isPrerelease=true）→ 下载 smoke PASS（SHA256 MATCH + 品牌核验 + 便携启动）→ PRODUCT_V0_3_1_RELEASE_MANIFEST.md / FINAL_V0_3_1_RELEASE_CLOSURE.md 已提交（post-tag docs，tag 未动）。
-> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
+>   **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
 >
 > - P0 三版本语义 RESOLVED：DEPMAP_CONTAINER_VERSION=1 / 逻辑 Schema v4（DB 级）/ PAYLOAD_SCHEMA_VERSION=3
 >   （spec payloadNote 明示元数据表不导出；.depmap 图载荷 11 表字节兼容 + 容器 V1 冻结）。
@@ -1552,3 +1841,95 @@ HARMONY_DEVICE_RUNTIME              = NOT_RUN
 - 报告：MULTI_CLIENT_RUNTIME_ACCEPTANCE / FUNCTIONAL_MATRIX / VISUAL_ACCEPTANCE / CROSS_PLATFORM_RUNTIME_DIFF / RUNTIME_EVIDENCE_INDEX + DESKTOP/ANDROID/HARMONY/IOS_SIMULATOR FINAL_REPORT + IOS_RUNTIME_BASELINE_AUDIT。
 - 机器可读单源：runtime/RUNTIME_ACCEPTANCE_MATRIX.json（292 行 = 73 特征 × 4 平台，25 字段/行；evidence overlays 为 runtime/evidence/*.json）。
 - NATIVE_PARITY_MATRIX 首次引入 Desktop 列（仅本注记，不动 73 行口径）；详细证据见上述报告与 Evidence Index。
+
+---
+
+## 本轮：UI vNext PHASE 1 Desktop 视觉重建（2026-10-01，分支 feat/pdig-ui-vnext）
+
+Human Visual Review 后的强制重做：目标从「深蓝工程后台」改为 **Global Digital Infrastructure Spatial Product**。
+只重构 PRESENTATION / LAYOUT / SPATIAL UI；功能/状态机/数据模型/测试/导航能力全部保留。
+
+### 视觉重建（G1–G13 逐条）
+
+- **G1 Globe = SIGNATURE**：默认渲染器 = 真实地球感 vector Earth。新增 bundled 数据
+  `globe/WorldCoastlines.kt`（9 块简化海岸线：北美/南美/非洲/欧亚/澳洲 + 格陵兰/马达加斯加/英伦/日本/新西兰）
+  与 `globe/WorldCityLights.kt`（约 90 个主要城市坐标）。渲染分层（`globe/EarthScene.kt` +
+  `globe/EarthOverlay.kt`）：海洋径向（oceanBase/oceanDeep）、大陆多边形按深度+terminator 着色、
+  夜间城市灯光（nightCityLight+光晕，暗面增强）、大气 rim、sunlight/terminator 暗面、确定性星点、
+  极淡经纬网格、地区锚点+label、连接弧。旧 plain sphere 保留为 LOW_POWER_FALLBACK（lowPower 开关）。
+  全部 token 色、零网络、零远程 tiles。
+- **G2 Globe 舞台**：Overview = LEFT rail / CENTER globe 舞台（62% 宽、填充主行高，edge-to-edge 无卡片 chrome）/
+  RIGHT activity rail（300–380px，solid）/ BOTTOM 快捷动作（glass 96px）+ Region Drawer。
+- **G3 去 Dashboard**：`ui/EnvironmentBackdrop.kt`（L0：canvas→canvasDeep 深空渐变 + 大气辉光 + earth light +
+  subtle 星点）；数据面板 solid 高可读；glass 仅用于导航/浮动控制/区域抽屉。
+- **G4 字阶与留白**：`theme/PdigV2Theme.kt` 新增 VType（pageTitle 36 / majorNumber 30 / sectionTitle 20 /
+  body 16 / secondary 14 / label 13 / meta 12 / mono 14，含 line-height）与 VSpacing 扩展
+  （xxxl/xxxxl/sectionGapWide/gridGapWide）；`PageChrome.PageHeader` 统一各屏标题。
+- **G5 导航重做**：Primary Rail 只保留 现在/基础设施/变更/记录，Secondary 数据源/设置；
+  基础设施二级（总览/卡片/号码/账户/邮箱/设备/服务/薄弱点）移到 ContextSubnav 窄条（152px，
+  仅进入基础设施时显示）。
+- **G6 Cards**：`components/CardFace.kt` — 卡面=真实支付卡资产身份：1.586 ratio、issuer/nickname/
+  masked number/network/category 明确位置、region/currency/status 在 metadata 层、实体/虚拟克制区分、
+  7 个 preset 各有底色/材质/图案（glass/metal/abstract/region/city/deep-space/minimal），
+  由 PresentationProfile 驱动（含 accent、mask、layout）。
+- **G7 Card Customization Studio**：`screens/StudioFrame.kt` 三栏（对象库 22% / 大尺寸实时预览 46% /
+  属性编辑器 32%）；编辑器分组：卡面设计（材质/主题/布局/强调色/遮蔽）/内容信息/样式/高级；
+  每次修改 live preview；保存=本地偏好（绝不写 .depmap）。
+- **G8 Numbers**：桌面高密度 list + inspector；`components/NumberFaceKit.kt` NUMBER IDENTITY FACE
+  （region code 色块 flag、masked number 大号、carrier、SIM/eSIM、role、usage、recovery、status）。
+- **G9 Number Customization Studio**：三栏同构；Preset Country/City/Minimal/Banking/Travel/Recovery/Work/Private；
+  界面注明「视觉预设 ≠ 语义角色」。
+- **G10 Infrastructure Overview**：globe 上直接绘制地区锚点 label（region code + 名称 + 计数，不用 emoji）；
+  点击聚焦 → 过滤 → Region Drawer（Cards/Numbers/Accounts/Services + 查看全部/卡片/号码）。
+- **G11 Now**：Globe Context + Need Attention（3 项）+ Active Change（「更换手机号 2/6 · 下一步：验证新号码」）
+  - Upcoming；无 KPI 卡。
+- **G12 Change Phone flagship**：顶部 6-stage ContinuityRail（completed/verifying/not_started/blocked +
+  明文闸门原因）；中央 旧号码→关键服务→新号码；左=仍依赖旧号码、右=等待验证/已迁移；
+  状态 migrated/waiting/manual/blocked/not-started 全部支持。
+- **G13 Glass 规则**：glass 仅用于导航/顶部指令条/快捷入口/Region Drawer；数据面板 solid。
+
+### 证据
+
+- 编译：`android\gradlew.bat -p desktop --no-daemon --offline :app:compileKotlin` → **BUILD SUCCESSFUL**。
+- 截图：`:app:run --args=--vnext-shots` → **90 帧**写至
+  `artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1/`（5 profiles × 18 屏；
+  overview/now 各 5 camera 预设）；含 `UI_LAYOUT_PROBE.json` + `EVIDENCE_SHA256SUMS.txt`。
+  旧 `2026-09-29-ui-vnext` 目录保留为 REJECTED baseline，未覆盖。
+- 像素取证（1920×1080 采样）：overview-global 帧 globe 中心为 landHighlight 色（陆地）、
+  海洋/陆地/大气/星点色值命中；cards 帧不同网格单元卡面底色各异（preset 差异可见）；
+  暖色城市灯光在 globe 帧可检出。
+- 未改动：spec/、fixtures/、core/、canonical、数据层/状态机/模型语义、测试；
+  无新依赖；Desktop 仅限（Android/iOS/Harmony 未动）。
+
+---
+
+## ���֣�UI vNext PHASE 1E �� Desktop Final Visual Acceptance & Interaction Closure��2026-10-05��feat/pdig-ui-vnext��
+
+### ״̬
+
+- PHASE_1E_IMPLEMENTATION = PASS��DESKTOP_REFERENCE_CANDIDATE = READY��
+- DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_REVIEW��VISUAL_CRAFT = NEEDS_HUMAN_FINAL_REVIEW��No-Vision ���ɣ������� ACCEPTED����
+
+### �������
+
+- Command Palette��Ctrl+K ��ʵ���ã�������Ƭ/���롢�򿪻�����ʩ�������ֻ��š����Ի���+ ��������·�ɣ�routeKey / KeyboardFocusState��Tab/Shift+Tab/Enter/Space/Escape 7 ����
+- PresentationProfile �־û� store + 4 ����ԣ��༭��������ؿ�������canonical .depmap ��仯��
+- �Զ��屳������ LocalBackgroundImporter + 7 �ȫ���ԣ�SVG/α��չ��/����/���ߴ�ܾ����� app-managed storage��
+- Interaction states��Card hover tilt��NumberRow / DockAction / MaterialTile / ThemeThumb / ProjectionSelector hover/pressed/selected
+- ��״̬��Cards ��45 / Numbers ��46 �İ�����UI copy �Ϲ棨�Ƴ� PresentationProfile/PersonalReality/make-before-break/PLAN PROJECTION ���ڲ����
+- ContinuityScene ����ڵ㺬��ɫ+״̬��compact risk notice���ƻ�ͶӰ�� After
+- Studio �۵� inspector ���顢6�C8 curated accent swatches��30dp ring��������Ԥ�� 620�C720px @1920
+- Numbers ���˹��ܻ���ʵ��/���⿨�������֣�chip vs VirtualMark��
+- ֤�ݣ�16 ������ͼ + mechanical��1280/2560/1.25/1.5��+ 15 �� journey + keyboard log + persistence evidence + IMAGE_METRICS��0 error/0 empty/0 near-black��+ layout probe
+- �޸� NowScreen ���޸߶�Լ���ع飨1C ��������PdigImageMetrics JSON ת���޸�
+- ���ԣ�desktop :app:test ȫ PASS������ 17 ���core 487 PASS��architecture/secrets/network ��
+- �ĵ���SCREENSHOTS_PHASE1E.md��gallery-phase1e/index.html��PHASE1E_SKILL_USAGE.md��PHASE_1E_IMPLEMENTATION_REPORT.md
+
+### ֤��Ŀ¼
+
+- artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e/
+
+### ƽ̨״̬
+
+- ANDROID/IOS/HARMONY UI vNext = HOLD���ȴ� Human DESKTOP_VISUAL_REFERENCE = ACCEPTED��
+- Light theme��DARK_REFERENCE = PRIMARY��LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER��δ�ѳ� full parity��

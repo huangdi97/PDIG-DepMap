@@ -31,7 +31,7 @@ struct OnboardingView: View {
             HStack(spacing: 8) {
                 ForEach(0..<pages.count, id: \.self) { i in
                     Circle()
-                        .fill(i == page ? Color.accentColor : Color.gray.opacity(0.4))
+                        .fill(i == page ? PdigTheme.Color.primary : PdigTheme.Color.textTertiary.opacity(0.35))
                         .frame(width: 8, height: 8)
                 }
             }
@@ -68,7 +68,7 @@ struct LockView: View {
             Text(CopyZh.lockTitle).font(.title2.bold())
             Text(CopyZh.lockPrompt).foregroundStyle(.secondary)
             if let message = message {
-                Text(message).font(.footnote).foregroundStyle(.red)
+                Text(message).font(.footnote).foregroundStyle(PdigTheme.Color.danger)
             }
             Button {
                 Task {

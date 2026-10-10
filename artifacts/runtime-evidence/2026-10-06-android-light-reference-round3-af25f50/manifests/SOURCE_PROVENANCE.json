@@ -1,0 +1,11 @@
+{
+  "repository": "huangdi97/PDIG-DepMap",
+  "sourceTree": "3993cffdd2fe7894c9920e0c6393020cad510c41",
+  "startedAt": "2026-10-06T13:08:53+08:00",
+  "sourceHead": "af25f50b43e50fc35444a6139ee915e4a83ded30",
+  "workingTreeClean": true,
+  "round": "ROUND3_RECAPTURE",
+  "note": "user untracked IMAGE_METRICS.json untouched",
+  "basis": "docs/ui-vnext/android/ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md §7 Required next pack",
+  "branch": "feat/android-ui-vnext-translation"
+}

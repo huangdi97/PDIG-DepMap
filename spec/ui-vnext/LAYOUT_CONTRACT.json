@@ -1,0 +1,89 @@
+{
+  "$comment": "PDIG UI vNext Layout Contract (No-Vision Blind Agent geometry truth). Reference: spec/ui-vnext goal §20-§21, §42-§43, §61-§66. Desktop anchor viewport 1920x1080; adapt 1280x720 / 2560x1440 / 125% / 150%. Every component MUST have testId + minWidth + maxWidth + height + padding + alignment + priority. Geometry probe outputs UI_LAYOUT_PROBE.json per platform.",
+  "specVersion": "2.0.0",
+  "desktopShell": {
+    "navigationRail": {
+      "collapsedWidthPx": 80,
+      "collapsedRangePx": { "min": 76, "max": 88 },
+      "expandedWidthPx": 188,
+      "expandedMaxPx": 188,
+      "testId": "pdig.nav.rail"
+    },
+    "topCommandBar": {
+      "heightPx": 48,
+      "rangePx": { "min": 44, "max": 52 },
+      "testId": "pdig.nav.top"
+    },
+    "pagePaddingPx": 24,
+    "pagePaddingRangePx": { "min": 24, "max": 32 },
+    "mainGapPx": 20,
+    "mainGapRangePx": { "min": 16, "max": 24 }
+  },
+  "overview1920": {
+    "$comment": "1920x1080 content area after rail+top bar.",
+    "globeStage": {
+      "widthRatio": { "min": 0.55, "max": 0.65 },
+      "heightRatio": { "min": 0.65, "max": 0.78 },
+      "minWidth": 860,
+      "minHeight": 650,
+      "testId": "pdig.globe.stage"
+    },
+    "activityRail": {
+      "widthPx": { "min": 300, "max": 380 },
+      "testId": "pdig.overview.activity"
+    },
+    "quickEntry": {
+      "heightPx": { "min": 88, "max": 120 },
+      "testId": "pdig.overview.quick"
+    }
+  },
+  "cards": {
+    "desktopGrid1920": { "columns": 4, "gapPx": { "min": 16, "max": 20 }, "cardAspectRatio": 1.586 },
+    "desktopGrid1280": { "columns": 3 },
+    "desktopGridSmall": { "columns": 2 },
+    "gridDefault": "visual-grid",
+    "alternate": "compact-list",
+    "testIds": {
+      "grid": "pdig.card.grid",
+      "list": "pdig.card.list",
+      "viewToggle": "pdig.card.viewToggle"
+    }
+  },
+  "cardDetail": {
+    "desktopIdentityColumnRatio": { "min": 0.3, "max": 0.36 },
+    "desktopInfoColumnRatio": { "min": 0.64, "max": 0.7 },
+    "mobile": "stack",
+    "testIds": {
+      "identity": "pdig.card.detail.identity",
+      "info": "pdig.card.detail.info"
+    }
+  },
+  "numbers": {
+    "desktopDefault": "list-table + inspector",
+    "mobileDefault": "number-face cards + sections",
+    "inspectorTestId": "pdig.phone.inspector",
+    "listTestId": "pdig.phone.list"
+  },
+  "customization": {
+    "desktopColumns": [
+      { "name": "asset-library", "widthRatio": 0.22, "testId": "pdig.customization.library" },
+      { "name": "live-preview", "widthRatio": 0.46, "testId": "pdig.customization.preview" },
+      { "name": "property-inspector", "widthRatio": 0.32, "testId": "pdig.customization.inspector" }
+    ],
+    "mobile": "preview on top, bottom-sheet editor below"
+  },
+  "now": {
+    "blocks": ["globe-context", "need-attention", "active-changes", "upcoming", "region-quick-access"],
+    "forbidden": ["8-stat-card-row"],
+    "testIds": {
+      "attention": "pdig.now.attention",
+      "changes": "pdig.now.changes",
+      "upcoming": "pdig.now.upcoming",
+      "globe": "pdig.now.globe"
+    }
+  },
+  "geometryProbe": {
+    "fields": ["testId", "x", "y", "width", "height", "visible", "enabled"],
+    "output": "UI_LAYOUT_PROBE.json"
+  }
+}

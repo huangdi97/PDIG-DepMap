@@ -1,0 +1,4 @@
+IME_ATTEMPT: 目标输入「银行卡」「手机号」「更换手机号」
+IME_ATTEMPT: in-process 只验证 search-as-you-type 累积（字素级，已由 palette 键盘证据覆盖）
+IME_ATTEMPT: OS 级 IME 组合输入（Microsoft Pinyin）无法在 in-process harness 中可靠驱动
+IME_RUNTIME_HUMAN_GATE: 中文 IME 组合输入需 Human 在真实窗口验证；本轮如实登记，不伪造 PASS

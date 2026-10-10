@@ -77,10 +77,40 @@ class SourceRepository(
         return ImportPreview(observations, errors, adapterId, sourceLabel, instruments, counterparties)
     }
 
-    /** 用户确认后提交：一次事务内完成，失败整体回滚。 */
-    fun commitImport(preview: ImportPreview): ImportCommitResult {
+    /**
+     * 用户确认后提交：一次事务内完成，失败整体回滚。
+     *
+     * [existingSourceId] 只在用户明确选择现有 SourceInstance 时使用：
+     * - 必须真实存在；
+     * - adapter 必须与当前解析结果一致；
+     * - label 必须与当前预览来源名一致；
+     * - 不允许用一个已有来源 id 偷换成另一种来源类型。
+     *
+     * 未指定时保持历史行为：按 adapter + label 生成稳定 SourceInstance id。
+     */
+    fun commitImport(
+        preview: ImportPreview,
+        existingSourceId: String? = null,
+    ): ImportCommitResult {
         val now = Instant.now().toString()
-        val sourceInstanceId = "src-" + sha256Hex(preview.adapterId + "|" + preview.sourceLabel).take(16)
+        val existingSource = existingSourceId?.let { id ->
+            driver.prepare(
+                "SELECT id, adapter_id, label, state FROM source_instances WHERE id = ?",
+            ).get(id) ?: error("selected source no longer exists")
+        }
+        if (existingSource != null) {
+            require(existingSource.str("adapter_id") == preview.adapterId) {
+                "selected source adapter does not match parsed file"
+            }
+            require(existingSource.str("label") == preview.sourceLabel) {
+                "selected source label changed before commit"
+            }
+            require(existingSource.str("state") == "active") {
+                "selected source is not active"
+            }
+        }
+        val sourceInstanceId = existingSourceId
+            ?: ("src-" + sha256Hex(preview.adapterId + "|" + preview.sourceLabel).take(16))
         val sessionId = "imp-" + sha256Hex(sourceInstanceId + "|" + now).take(16)
         val observedActions = LinkedHashSet<Pair<String, String>>()
         var newUnique = 0
@@ -89,15 +119,25 @@ class SourceRepository(
         val keys = LinkedHashSet<String>()
 
         driver.transaction {
-            driver.prepare(
-                """
-                INSERT INTO source_instances
-                  (id, adapter_id, adapter_version, source_kind, label, currencies_json, state, created_at, updated_at, last_ingested_at)
-                VALUES (?, ?, 1, 'statement_file', ?, '[]', 'active', ?, ?, ?)
-                ON CONFLICT(id) DO UPDATE SET last_ingested_at = excluded.last_ingested_at,
-                                              updated_at = excluded.updated_at
-                """.trimIndent(),
-            ).run(sourceInstanceId, preview.adapterId, preview.sourceLabel, now, now, now)
+            if (existingSourceId == null) {
+                driver.prepare(
+                    """
+                    INSERT INTO source_instances
+                      (id, adapter_id, adapter_version, source_kind, label, currencies_json, state, created_at, updated_at, last_ingested_at)
+                    VALUES (?, ?, 1, 'statement_file', ?, '[]', 'active', ?, ?, ?)
+                    ON CONFLICT(id) DO UPDATE SET last_ingested_at = excluded.last_ingested_at,
+                                                  updated_at = excluded.updated_at
+                    """.trimIndent(),
+                ).run(sourceInstanceId, preview.adapterId, preview.sourceLabel, now, now, now)
+            } else {
+                driver.prepare(
+                    """
+                    UPDATE source_instances
+                       SET last_ingested_at = ?, updated_at = ?
+                     WHERE id = ?
+                    """.trimIndent(),
+                ).run(now, now, sourceInstanceId)
+            }
 
             driver.prepare(
                 """

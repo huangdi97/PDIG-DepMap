@@ -1,0 +1,152 @@
+{
+  "spec": "ANDROID_UI_VNEXT_INTERACTION_VALIDATION",
+  "sourceHead": "b659ae4b60f95d52c222ed107ace39e53b6db48e",
+  "apkSha256": "584cfb36aae48a380eff81caa7a8f34d5ea78bf48d91446b900fe8a6eddc21c9",
+  "generatedAt": "2026-10-06T01:11:51+08:00",
+  "count": 15,
+  "items": [
+    {
+      "id": "card_profile_save",
+      "evidence": [
+        "logs/phone-prefs-after-ui.xml",
+        "logs/phone-prefs-mid-v12.xml",
+        "phone/card-studio-theme-saved.png",
+        "tablet/tablet-card-studio-saved.png"
+      ],
+      "steps": "Real UI: Card Detail -> 定制卡面 -> studio -> theme tile (最小/极简) -> 保存; disk shared_prefs pdig_ui_vnext_presentation.xml contains card::card-cn-2 themeId minimal (phone V11/V12, tablet T1)",
+      "result": "PASS"
+    },
+    {
+      "id": "card_profile_restart_persistence",
+      "evidence": [
+        "phone/card-restart-theme.png",
+        "logs/phone-prefs-final.xml",
+        "tablet/tablet-card-restart-detail.png"
+      ],
+      "steps": "am force-stop com.pdig.app -> relaunch with --ez vnext_demo -> navigate Card Detail -> 当前主题：极简 rendered (phone V12 True); prefs XML unchanged after restart",
+      "result": "PASS"
+    },
+    {
+      "id": "number_profile_save",
+      "evidence": [
+        "logs/phone-seed-number.log",
+        "logs/tablet-seed-number.log",
+        "logs/phone-prefs-before.xml"
+      ],
+      "steps": "Targeted instrumentation numberProfileSavePersistsAcrossRecreationAndRenders (OK 1 test) -> real PresentationProfileStore disk write phoneNumber::num-cn-1 themeId travel",
+      "result": "PASS"
+    },
+    {
+      "id": "number_profile_restart_persistence",
+      "evidence": [
+        "logs/phone-prefs-final.xml",
+        "logs/tablet-prefs-final.xml",
+        "phone/number-restart-detail.png"
+      ],
+      "steps": "force-stop -> relaunch -> prefs XML persists num-cn-1 travel on phone and tablet after restart",
+      "result": "PASS"
+    },
+    {
+      "id": "workspace_preferences",
+      "evidence": [
+        "logs/phone-workspace-mid.xml",
+        "logs/phone-workspace-after.xml",
+        "phone/personalization-restart.png"
+      ],
+      "steps": "Real UI: 设置 -> Personalization -> 即将到来 toggle -> XML pdig_ui_vnext_workspace show_upcoming=true -> force-stop -> relaunch -> XML still true + settings shows 即将到来 (phone V11); WorkspacePreferenceDiskPersistenceTest part of connected + tablet runs",
+      "result": "PASS"
+    },
+    {
+      "id": "search_query",
+      "evidence": [
+        "phone/22-search-query.png",
+        "tablet/22-search-query.png"
+      ],
+      "steps": "searchQueryShowsCardResult (query 招商 -> pdig.search.result nodes) PASS in connected run and tablet interaction suite; real-UI 22-search-query = catalog 卡片 result navigation",
+      "result": "PASS"
+    },
+    {
+      "id": "search_result_navigation",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-suite-interaction.log"
+      ],
+      "steps": "searchResultNavigationAndBackToSearch PASS (suites); real UI catalog tap navigates",
+      "result": "PASS"
+    },
+    {
+      "id": "search_back",
+      "evidence": [
+        "phone/search-back.png"
+      ],
+      "steps": "Real UI: search -> system Back -> 现在 root (phone V12 True)",
+      "result": "PASS"
+    },
+    {
+      "id": "region_select",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-suite-interaction.log",
+        "phone/03-overview-region-selected.png",
+        "tablet/03-overview-region-selected.png"
+      ],
+      "steps": "regionSelectPropagatesAndClears PASS (interaction suite 11/11 on phone+tablet); real UI 中国 row tap on overview selects region",
+      "result": "PASS"
+    },
+    {
+      "id": "region_back_preserve",
+      "evidence": [
+        "logs/tablet-suite-interaction.log"
+      ],
+      "steps": "regionDrawerBackClosesDetail PASS (11/11 suites): back closes detail layer and PRESERVES region; System Back != Clear Region",
+      "result": "PASS"
+    },
+    {
+      "id": "region_cards_propagation",
+      "evidence": [
+        "phone/region-cards.png",
+        "tablet/region-cards.png"
+      ],
+      "steps": "State-level: region filter persists into CARDS (test). Real UI: cards screen has no region banner by design (header filter); captured 05-card after region select",
+      "result": "PASS"
+    },
+    {
+      "id": "region_numbers_propagation",
+      "evidence": [
+        "tablet/tablet-region-numbers.png",
+        "logs/tablet-run.log"
+      ],
+      "steps": "Real UI tablet: 中国 -> 号码 -> 当前地区 banner visible (True); phone state-level via suites",
+      "result": "PASS"
+    },
+    {
+      "id": "global_reset",
+      "evidence": [
+        "tablet/tablet-region-reset.png"
+      ],
+      "steps": "Real UI tablet: 查看全球 -> banner cleared (True)",
+      "result": "PASS"
+    },
+    {
+      "id": "system_back",
+      "evidence": [
+        "phone/back-cards.png",
+        "phone/back-numbers.png"
+      ],
+      "steps": "Phone real UI: Card Detail -> Back -> CARDS (True); Number Detail -> Back -> NUMBERS (True)",
+      "result": "PASS"
+    },
+    {
+      "id": "change_projection_truth",
+      "evidence": [
+        "phone/17-change-current.png",
+        "phone/18-change-transition.png",
+        "phone/19-change-after.png",
+        "tablet/17-change-current.png",
+        "tablet/19-change-after.png"
+      ],
+      "steps": "Projections distinct on phone (17 vs 18 vs 19 bytes differ); After = 完成后（计划） plan-projection semantics confirmed in source+UI; 18 shows 第 3/6 步·验证新号码 (transition); suites changeProjectionStatesAreDistinctAndRender PASS",
+      "result": "PASS"
+    }
+  ]
+}

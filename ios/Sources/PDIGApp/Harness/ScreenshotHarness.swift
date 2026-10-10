@@ -6,6 +6,7 @@
 //
 // 诚实口径：这些是 **macOS 上渲染的 SwiftUI 捕获**（MACOS_RENDER），
 // 不是模拟器/真机截图；没有跑 XCUITest。证据索引里逐项标注 IOS_VISUAL。
+// vNext 演示屏（Presentation Layer）额外标注 IOS_VNEXT_DEMO；reduceMotion 冻结相机状态。
 
 import SwiftUI
 import PDIGCore
@@ -27,6 +28,7 @@ public enum ScreenshotHarness {
         guard let i = args.firstIndex(of: flag), i + 1 < args.count else { return nil }
         return args[i + 1]
     }
+
     @MainActor
     private static func renderAll(runId: String, outputDir: String) {
         let session = demoSession()
@@ -40,7 +42,7 @@ public enum ScreenshotHarness {
             ("Backup", AnyView(BackupScreen(session: session))),
             ("Import", AnyView(ImportScreen(session: session))),
             ("Timeline", AnyView(TimelineScreen(session: session))),
-        ]
+        ] + vnextScreens()
 
         var indexFields: [(String, Json)] = [
             ("runId", .str(runId)),
@@ -64,9 +66,37 @@ public enum ScreenshotHarness {
             ("IOS_VISUAL", .str("MacOSRender (MACOS_RENDER) — not simulator, not device, no XCUITest")),
             ("IOS_SQLCIPHER_PERSISTENCE", .str("NOT_RUN")),
             ("IOS_DEVICE_RUNTIME", .str("NOT_RUN")),
+            ("IOS_VNEXT_DEMO", .str("MACOS_RENDER — vNext presentation demo, synthetic fixture, reduceMotion on")),
         ]))))
         writeIndex(JsonWriter.write(.obj(JsonObject(indexFields))), dir: outputDir)
         print("[PDIGApp] screenshots -> \(outputDir)")
+    }
+
+    /// vNext 演示屏（Presentation Layer；reduceMotion 冻结相机状态；全 synthetic fixture）。
+    @MainActor
+    private static func vnextScreens() -> [(name: String, view: AnyView)] {
+        let model = VNextModel()
+        model.reduceMotion = true
+        func stack(_ content: some View) -> AnyView { AnyView(NavigationStack { content }) }
+        var result: [(name: String, view: AnyView)] = [
+            ("VNextNow", stack(NowView(model: model))),
+            ("VNextOverview", stack(OverviewView(model: model))),
+            ("VNextChangePhone", stack(ChangePhoneView(model: model))),
+            ("VNextPersonalization", stack(PersonalizationView(model: model))),
+        ]
+        model.screen = .cards
+        result.append(("VNextCards", stack(CardsView(model: model))))
+        model.screen = .cardDetail("card-cn-2")
+        result.append(("VNextCardDetail", stack(CardDetailView(model: model))))
+        model.screen = .numbers
+        result.append(("VNextNumbers", stack(NumbersView(model: model))))
+        model.screen = .numberDetail("num-cn-1")
+        result.append(("VNextNumberDetail", stack(NumberDetailView(model: model))))
+        model.screen = .cardCustomization("card-cn-1")
+        result.append(("VNextCardCustomization", stack(CardCustomizationView(model: model))))
+        model.screen = .numberCustomization("num-cn-1")
+        result.append(("VNextNumberCustomization", stack(NumberCustomizationView(model: model))))
+        return result
     }
 
     private static func demoSession() -> AppSession {
@@ -85,12 +115,7 @@ public enum ScreenshotHarness {
                 .frame(width: 420, height: 640)
         )
         renderer.scale = 2
-        #if os(macOS)
         return renderer.cgImage
-        #else
-        // iOS 上 ImageRenderer 的 cgImage 也可用（本包只在 macOS 上运行 harness）。
-        return renderer.cgImage
-        #endif
     }
 
     private static func writePNG(_ image: CGImage, name: String, dir: String) -> String {

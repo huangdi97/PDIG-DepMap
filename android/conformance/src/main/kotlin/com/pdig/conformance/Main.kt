@@ -1,6 +1,14 @@
 package com.pdig.conformance
 
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
+import com.pdig.core.domain.currentConfirmedRegionFacts
+import com.pdig.core.domain.defaultRegionLensSelection
+import com.pdig.core.domain.governedRegionFacts
+import com.pdig.core.domain.governedMaintenanceProfile
+import com.pdig.core.domain.currentMaintenanceFacts
+import com.pdig.core.domain.currentMaintenanceSchedules
 import com.pdig.core.generated.Capability
+import com.pdig.core.generated.NodeKind
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
 import com.pdig.core.json.JsonWriter
@@ -141,7 +149,120 @@ private fun compute(category: String, id: String, input: Json): Json = when (cat
     "temporal-change" -> runTemporalChange(requireObj(input))
     "provider-policy" -> runProviderPolicy(requireObj(input))
     "identity-relations" -> runIdentityRelations(requireObj(input))
+    "identity-profile" -> runIdentityProfile(requireObj(input))
+    "region-fact" -> runRegionFact(requireObj(input))
+    "maintenance-profile" -> runMaintenanceProfile(requireObj(input))
     else -> throw NotImplementedError("no runner for category $category")
+}
+
+
+
+private fun runRegionFact(input: Json.Obj): Json {
+    val fieldsJson = str(input, "fieldsJson")
+    val facts = governedRegionFacts(fieldsJson)
+    val current = currentConfirmedRegionFacts(fieldsJson)
+    val lens = defaultRegionLensSelection(fieldsJson)
+
+    val lensFields = mutableListOf<Pair<String, Json>>(
+        "status" to Json.Str(lens.status.name.lowercase()),
+    )
+    lens.territoryCode?.let { lensFields += "territoryCode" to Json.Str(it) }
+    lens.facet?.let { lensFields += "facet" to Json.Str(it.wire) }
+
+    return Json.Obj(
+        listOf(
+            "facts" to Json.Arr(
+                facts.map { fact ->
+                    val fields = mutableListOf<Pair<String, Json>>(
+                        "id" to Json.Str(fact.id),
+                        "facet" to Json.Str(fact.facet.wire),
+                        "territoryCode" to Json.Str(fact.territoryCode),
+                    )
+                    fact.subdivisionCode?.let {
+                        fields += "subdivisionCode" to Json.Str(it)
+                    }
+                    fields += "state" to Json.Str(fact.state.wire)
+                    Json.Obj(fields)
+                },
+            ),
+            "currentIds" to Json.Arr(current.map { Json.Str(it.id) }),
+            "lens" to Json.Obj(lensFields),
+        ),
+    )
+}
+
+
+private fun runMaintenanceProfile(input: Json.Obj): Json {
+    val kind = NodeKind.fromWire(str(input, "kind"))
+        ?: return Json.Obj(
+            listOf(
+                "facts" to Json.Arr(emptyList()),
+                "currentFactIds" to Json.Arr(emptyList()),
+                "schedules" to Json.Arr(emptyList()),
+                "currentScheduleIds" to Json.Arr(emptyList()),
+            ),
+        )
+    val fieldsJson = str(input, "fieldsJson")
+    val profile = governedMaintenanceProfile(kind, fieldsJson)
+    val currentFacts = currentMaintenanceFacts(kind, fieldsJson)
+    val currentSchedules = currentMaintenanceSchedules(kind, fieldsJson)
+    return Json.Obj(
+        listOf(
+            "facts" to Json.Arr(
+                profile.facts.map { fact ->
+                    Json.Obj(
+                        listOf(
+                            "id" to Json.Str(fact.id),
+                            "kind" to Json.Str(fact.kind.wire),
+                            "valueType" to Json.Str(fact.valueType.wire),
+                            "value" to Json.Str(fact.value),
+                            "state" to Json.Str(fact.state.wire),
+                        ),
+                    )
+                },
+            ),
+            "currentFactIds" to Json.Arr(currentFacts.map { Json.Str(it.id) }),
+            "schedules" to Json.Arr(
+                profile.schedules.map { schedule ->
+                    Json.Obj(
+                        listOf(
+                            "id" to Json.Str(schedule.id),
+                            "kind" to Json.Str(schedule.kind.wire),
+                            "state" to Json.Str(schedule.state.wire),
+                            "cadenceKind" to Json.Str(schedule.cadence.kind.wire),
+                        ),
+                    )
+                },
+            ),
+            "currentScheduleIds" to Json.Arr(currentSchedules.map { Json.Str(it.id) }),
+        ),
+    )
+}
+
+
+private fun runIdentityProfile(input: Json.Obj): Json {
+    val kind = NodeKind.fromWire(str(input, "kind"))
+        ?: return Json.Obj(listOf("confirmed" to Json.Bool(false)))
+    val profile = confirmedIdentityAnchorProfile(kind, str(input, "fieldsJson"))
+        ?: return Json.Obj(listOf("confirmed" to Json.Bool(false)))
+    val fields = mutableListOf<Pair<String, Json>>(
+        "confirmed" to Json.Bool(true),
+        "subtype" to Json.Str(profile.subtype.wire),
+        "verificationBasisType" to Json.Str(profile.verificationBasisType.wire),
+        "confirmedAt" to Json.Str(profile.confirmedAt),
+        "evidenceRefs" to Json.Arr(profile.evidenceRefs.map { Json.Str(it) }),
+    )
+    profile.identifier?.let { identifier ->
+        fields += "identifier" to Json.Obj(
+            listOf(
+                "value" to Json.Str(identifier.value),
+                "verificationBasisType" to Json.Str(identifier.verificationBasisType.wire),
+                "confirmedAt" to Json.Str(identifier.confirmedAt),
+                "evidenceRefs" to Json.Arr(identifier.evidenceRefs.map { Json.Str(it) }),
+            ),
+        )
+    }
+    return Json.Obj(fields)
 }
 
 

@@ -56,15 +56,15 @@ describe('Schema v4 persistence closure (v0.3.0)', () => {
     const t = (n: number) => `2026-09-${String(n).padStart(2, '0')}T00:00:00.000Z`
     d.prepare(
       `INSERT INTO nodes (id, kind, name, owner, fields_json, created_at, updated_at)
-       VALUES ('phone', 'identity_anchor', '13800000000', 'self', '{"subtype":"phone_number"}', ?, ?)`,
+       VALUES ('phone', 'identity_anchor', '13800000000', 'self', '{"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-09-01T00:00:00.000Z","evidence_refs":[]}}', ?, ?)`,
     ).run(t(1), t(1))
     d.prepare(
       `INSERT INTO nodes (id, kind, name, owner, fields_json, created_at, updated_at)
-       VALUES ('wechat', 'account', '微信支付', 'self', '{"subtype":"platform_account"}', ?, ?)`,
+       VALUES ('wechat', 'account', '微信支付', 'self', '{}', ?, ?)`,
     ).run(t(1), t(1))
     d.prepare(
       `INSERT INTO nodes (id, kind, name, owner, fields_json, created_at, updated_at)
-       VALUES ('device', 'device', '主力手机', 'self', '{"subtype":"phone"}', ?, ?)`,
+       VALUES ('device', 'device', '主力手机', 'self', '{}', ?, ?)`,
     ).run(t(1), t(1))
     d.prepare(
       `INSERT INTO nodes (id, kind, name, last4, owner, fields_json, created_at, updated_at)
@@ -129,6 +129,17 @@ describe('Schema v4 persistence closure (v0.3.0)', () => {
       .get()
     expect((pp as Record<string, unknown>)['policy_revision']).toBe(3)
     expect((pp as Record<string, unknown>)['state']).toBe('effective')
+    const phone = d2
+      .prepare(`SELECT fields_json FROM nodes WHERE id = 'phone'`)
+      .get()
+    const phoneFields = JSON.parse(
+      String((phone as Record<string, unknown>)['fields_json']),
+    ) as Record<string, unknown>
+    const identityProfile = phoneFields['identity_anchor_profile'] as Record<string, unknown>
+    expect(identityProfile['subtype']).toBe('phone_number')
+    expect(identityProfile['verification_basis_type']).toBe('user_confirmed')
+    expect(identityProfile['confirmed_at']).toBe('2026-09-01T00:00:00.000Z')
+    expect(phoneFields['subtype']).toBeUndefined()
     const plan = d2
       .prepare(
         `SELECT change_primitive, baseline_policy_revision, temporal_retire_old_path_after, action_items_json
@@ -345,7 +356,7 @@ describe('Schema v4 persistence closure (v0.3.0)', () => {
       .prepare(`UPDATE nodes SET name = ?, fields_json = ? WHERE id = 'wechat'`)
       .run(
         '微信支付（Unicode 测试）',
-        JSON.stringify({ subtype: 'platform_account', blob: bigText }),
+        JSON.stringify({ blob: bigText }),
       )
     const e1 = exportGraph(driver)
     const d2 = new NodeSqliteDriver(join(dir, 'uni.db'))

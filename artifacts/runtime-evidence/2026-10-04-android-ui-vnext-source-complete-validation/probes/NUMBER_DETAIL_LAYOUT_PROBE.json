@@ -1,0 +1,30 @@
+{
+  "spec": "NUMBER_DETAIL_LAYOUT_PROBE (2026-10-04; real dp values from instrumented runtime geometry; sections in strict order hero→services header→service0→service1→risk)",
+  "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64",
+  "phone": {
+    "screen": "number-detail",
+    "deviceClass": "phone",
+    "api": 36,
+    "viewport": "1080x2400",
+    "density": 2.625,
+    "orientation": "portrait",
+    "pxDensity": 2.625,
+    "heroBottom_to_servicesHeaderTop_dp": 16,
+    "servicesHeaderBottom_to_firstServiceTop_dp": 16,
+    "service1Bottom_to_service2Top_dp": 16,
+    "service2Bottom_to_riskHeaderTop_dp": 16
+  },
+  "tablet": {
+    "screen": "number-detail",
+    "deviceClass": "tablet",
+    "api": 36,
+    "viewport": "2560x1600",
+    "density": 2,
+    "orientation": "landscape",
+    "pxDensity": 2,
+    "heroBottom_to_servicesHeaderTop_dp": 16,
+    "servicesHeaderBottom_to_firstServiceTop_dp": 16,
+    "service1Bottom_to_service2Top_dp": 16,
+    "service2Bottom_to_riskHeaderTop_dp": 16
+  }
+}

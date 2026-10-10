@@ -1,0 +1,112 @@
+{
+  "$comment": "PDIG UI vNext Demo Fixture — single source of truth for the vNext presentation demo & screenshot determinism. ALL data is synthetic (no real card numbers, phone numbers, emails, accounts). Regions are UI-layer presentation attributes derived from synthetic fixture data; they do NOT alter canonical node schema. Platforms port this JSON into native fixture code (UIVNextDemoFixture.kt / .swift / .ets). Frozen for screenshot determinism: same fixture + same time + same locale + same animation state + same scale.",
+  "specVersion": "1.0.0",
+  "producedAt": "2026-09-29T00:00:00Z",
+  "locale": "zh-CN",
+  "privacyMask": { "maskCardLast4": true, "maskPhoneNumbers": true, "maskAccountNames": true },
+
+  "regions": [
+    { "code": "CN", "displayName": "中国大陆", "latitude": 35.86, "longitude": 104.19 },
+    { "code": "HK", "displayName": "香港", "latitude": 22.32, "longitude": 114.17 },
+    { "code": "MO", "displayName": "澳门", "latitude": 22.2, "longitude": 113.55 },
+    { "code": "GB", "displayName": "英国", "latitude": 54.0, "longitude": -2.5 },
+    { "code": "US", "displayName": "美国", "latitude": 39.0, "longitude": -98.0 },
+    { "code": "SG", "displayName": "新加坡", "latitude": 1.35, "longitude": 103.82 }
+  ],
+
+  "cards": [
+    { "id": "card-cn-1", "nickname": "招行储蓄卡", "issuer": "招商银行", "last4": "4417", "masked": "****4417", "region": "CN", "currency": "CNY", "type": "debit", "form": "physical", "network": "银联", "expiry": "2028-05", "status": "active", "attention": false, "usages": ["日常消费", "工资入账", "自动扣款"], "preset": "deep-space" },
+    { "id": "card-cn-2", "nickname": "工行信用卡", "issuer": "中国工商银行", "last4": "9023", "masked": "****9023", "region": "CN", "currency": "CNY", "type": "credit", "form": "physical", "network": "银联", "expiry": "2026-11", "status": "expiring_soon", "attention": true, "usages": ["订阅扣款", "旅行"], "preset": "region" },
+    { "id": "card-cn-3", "nickname": "中行数字卡", "issuer": "中国银行", "last4": "6048", "masked": "****6048", "region": "CN", "currency": "CNY", "type": "debit", "form": "virtual", "network": "银联", "expiry": "2030-01", "status": "active", "attention": false, "usages": ["数字支付"], "preset": "minimal" },
+    { "id": "card-hk-1", "nickname": "汇丰卓越理財", "issuer": "HSBC 汇丰", "last4": "7351", "masked": "****7351", "region": "HK", "currency": "HKD", "type": "credit", "form": "physical", "network": "Visa", "expiry": "2027-03", "status": "active", "attention": false, "usages": ["国际消费", "自动扣款"], "preset": "city" },
+    { "id": "card-hk-2", "nickname": "中银香港储蓄", "issuer": "中银香港", "last4": "1188", "masked": "****1188", "region": "HK", "currency": "HKD", "type": "debit", "form": "physical", "network": "银通", "expiry": "2030-09", "status": "active", "attention": false, "usages": ["本地日常"], "preset": "glass" },
+    { "id": "card-gb-1", "nickname": "Monzo 账户卡", "issuer": "Monzo", "last4": "4602", "masked": "****4602", "region": "GB", "currency": "GBP", "type": "debit", "form": "virtual", "network": "Mastercard", "expiry": "2029-01", "status": "active", "attention": false, "usages": ["日常消费"], "preset": "metal" },
+    { "id": "card-gb-2", "nickname": "Revolut 多币种", "issuer": "Revolut", "last4": "0047", "masked": "****0047", "region": "GB", "currency": "GBP", "type": "credit", "form": "virtual", "network": "Mastercard", "expiry": "2026-07", "status": "expiring_soon", "attention": true, "usages": ["多币种", "订阅"], "preset": "abstract" },
+    { "id": "card-us-1", "nickname": "Chase Sapphire", "issuer": "Chase", "last4": "8220", "masked": "****8220", "region": "US", "currency": "USD", "type": "credit", "form": "physical", "network": "Visa", "expiry": "2028-12", "status": "active", "attention": false, "usages": ["旅行", "订阅"], "preset": "city" },
+    { "id": "card-us-2", "nickname": "虚拟卡 0109", "issuer": "Capital One", "last4": "0109", "masked": "****0109", "region": "US", "currency": "USD", "type": "credit", "form": "virtual", "network": "Visa", "expiry": "2027-06", "status": "active", "attention": false, "usages": ["网络订阅"], "preset": "minimal" },
+    { "id": "card-sg-1", "nickname": "DBS 银行卡", "issuer": "DBS", "last4": "3391", "masked": "****3391", "region": "SG", "currency": "SGD", "type": "credit", "form": "physical", "network": "Visa", "expiry": "2027-08", "status": "active", "attention": false, "usages": ["本地消费"], "preset": "glass" }
+  ],
+
+  "numbers": [
+    { "id": "num-cn-1", "nickname": "主号 中国移动", "maskedNumber": "+86 138****8823", "region": "CN", "countryCode": "+86", "carrier": "中国移动", "simKind": "SIM", "role": "primary", "usages": ["银行验证", "注册", "2FA"], "status": "active", "recoveryOnly": true, "attention": true },
+    { "id": "num-cn-2", "nickname": "工作副号", "maskedNumber": "+86 137****5510", "region": "CN", "countryCode": "+86", "carrier": "中国联通", "simKind": "eSIM", "role": "secondary", "usages": ["工作"], "status": "active", "recoveryOnly": false, "attention": false },
+    { "id": "num-cn-3", "nickname": "保号副号", "maskedNumber": "+86 139****2204", "region": "CN", "countryCode": "+86", "carrier": "中国移动", "simKind": "SIM", "role": "secondary", "usages": ["保号"], "status": "active", "recoveryOnly": false, "attention": false },
+    { "id": "num-hk-1", "nickname": "香港主号", "maskedNumber": "+852 9***4321", "region": "HK", "countryCode": "+852", "carrier": "3HK", "simKind": "SIM", "role": "primary", "usages": ["银行验证", "2FA"], "status": "active", "recoveryOnly": true, "attention": true },
+    { "id": "num-gb-1", "nickname": "英国主号", "maskedNumber": "+44 7911 182***", "region": "GB", "countryCode": "+44", "carrier": "Vodafone", "simKind": "eSIM", "role": "primary", "usages": ["注册", "旅行", "2FA"], "status": "active", "recoveryOnly": false, "attention": false },
+    { "id": "num-us-1", "nickname": "美国保号", "maskedNumber": "+1 415 887 ****", "region": "US", "countryCode": "+1", "carrier": "T-Mobile", "simKind": "SIM", "role": "secondary", "usages": ["恢复"], "status": "active", "recoveryOnly": true, "attention": false },
+    { "id": "num-sg-1", "nickname": "新加坡主号", "maskedNumber": "+65 9***2214", "region": "SG", "countryCode": "+65", "carrier": "Singtel", "simKind": "eSIM", "role": "primary", "usages": ["银行验证", "工作"], "status": "active", "recoveryOnly": false, "attention": false }
+  ],
+
+  "services": [
+    { "id": "svc-wxpay", "name": "微信支付", "region": "CN", "kind": "payment" },
+    { "id": "svc-alipay", "name": "支付宝", "region": "CN", "kind": "payment" },
+    { "id": "svc-tencent", "name": "腾讯视频", "region": "CN", "kind": "subscription" },
+    { "id": "svc-hsbc", "name": "HSBC 网银", "region": "HK", "kind": "banking" },
+    { "id": "svc-apple", "name": "Apple 订阅", "region": "US", "kind": "subscription" },
+    { "id": "svc-netflix", "name": "Netflix", "region": "US", "kind": "subscription" },
+    { "id": "svc-amazon", "name": "亚马逊", "region": "GB", "kind": "subscription" },
+    { "id": "svc-microsoft", "name": "Microsoft 365", "region": "US", "kind": "subscription" },
+    { "id": "svc-dbs", "name": "DBS 网银", "region": "SG", "kind": "banking" },
+    { "id": "svc-notion", "name": "Notion", "region": "GB", "kind": "subscription" }
+  ],
+
+  "relations": [
+    { "from": "card-cn-1", "to": "svc-wxpay", "kind": "funding" },
+    { "from": "card-cn-1", "to": "svc-tencent", "kind": "funding" },
+    { "from": "card-cn-2", "to": "svc-tencent", "kind": "funding" },
+    { "from": "card-hk-1", "to": "svc-hsbc", "kind": "funding" },
+    { "from": "card-hk-1", "to": "svc-apple", "kind": "funding" },
+    { "from": "card-us-1", "to": "svc-netflix", "kind": "funding" },
+    { "from": "card-us-1", "to": "svc-microsoft", "kind": "funding" },
+    { "from": "card-us-2", "to": "svc-apple", "kind": "funding" },
+    { "from": "card-gb-2", "to": "svc-amazon", "kind": "funding" },
+    { "from": "num-cn-1", "to": "svc-wxpay", "kind": "authenticates" },
+    { "from": "num-cn-1", "to": "svc-alipay", "kind": "authenticates" },
+    { "from": "num-hk-1", "to": "svc-hsbc", "kind": "twoFA" },
+    { "from": "num-gb-1", "to": "svc-amazon", "kind": "authenticates" },
+    { "from": "num-us-1", "to": "svc-apple", "kind": "twoFA" },
+    { "from": "num-sg-1", "to": "svc-hsbc", "kind": "authenticates" },
+    { "from": "num-sg-1", "to": "svc-dbs", "kind": "twoFA" }
+  ],
+
+  "attentionItems": [
+    { "id": "att-1", "severity": "critical", "title": "工行信用卡 11 月到期，绑定 2 项自动扣款", "target": "card-cn-2" },
+    { "id": "att-2", "severity": "warning", "title": "Revolut 多币种卡 7 月到期，建议更新订阅支付方式", "target": "card-gb-2" },
+    { "id": "att-3", "severity": "warning", "title": "+86 138****8823 是 2 个账户的唯一恢复路径", "target": "num-cn-1" }
+  ],
+
+  "activeChanges": [
+    { "id": "chg-1", "title": "更换手机号（进行中）", "phase": "verify_new_phone", "target": "change-phone" }
+  ],
+
+  "upcoming": [
+    { "id": "upc-1", "title": "工行信用卡 2026-11-15 到期", "days": 47 },
+    { "id": "upc-2", "title": "Revolut 卡 2026-07-20 到期", "days": 20 }
+  ],
+
+  "changePhone": {
+    "oldNumberId": "num-cn-1",
+    "newNumberId": "num-cn-3",
+    "stages": [
+      { "stage": 1, "key": "impact-analysis", "status": "completed" },
+      { "stage": 2, "key": "establish-new-number", "status": "completed" },
+      { "stage": 3, "key": "verify-new-number", "status": "verifying" },
+      { "stage": 4, "key": "migrate-key-accounts", "status": "not_started" },
+      { "stage": 5, "key": "check-recovery-paths", "status": "not_started" },
+      { "stage": 6, "key": "retire-old-number", "status": "blocked", "blockReason": "新手机号验证通过后才能停用旧手机号" }
+    ],
+    "migrations": [
+      { "service": "微信支付", "status": "waiting" },
+      { "service": "支付宝", "status": "waiting" },
+      { "service": "招商银行网银", "status": "not_started" },
+      { "service": "腾讯视频", "status": "waiting" }
+    ]
+  },
+
+  "globe": {
+    "cameraPresets": ["global", "cn", "hk", "gb", "us"],
+    "idleRotationDegPerSec": 0.8,
+    "zoomMax": 1.9,
+    "zoomMin": 0.7
+  }
+}

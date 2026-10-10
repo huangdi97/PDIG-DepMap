@@ -1,0 +1,319 @@
+# ANDROID_LIGHT_REFERENCE_FINAL_SOURCE_AUDIT_2026-10-05
+
+> Human-selected visual reference: `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
+>
+> Final pixel-changing Android production-UI checkpoint: `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
+>
+> Verdict: **ROUND5 HUMAN PIXELS ACCEPTED / ONE STALE TABLET CONTRACT CORRECTED / TARGETED EXACT-HEAD REVALIDATION REQUIRED BEFORE REFERENCE FREEZE**
+>
+> The `b659ae4...` runtime pack committed at `6cb48868...` was actually reviewed pixel-by-pixel and was
+> rejected for Freeze. See `ANDROID_LIGHT_REFERENCE_HUMAN_PIXEL_REVIEW_ROUND2_2026-10-06.md`.
+
+## 1. Authority
+
+The selected light board is the Android visual-direction reference. It controls hierarchy, light-first tonal
+language, asset identity, spatial depth, density, and product mood. It does not override product truth.
+
+Non-negotiable truth remains:
+
+- Primary IA: 现在 / 基础设施 / 变更 / 记录;
+- Infrastructure siblings: 总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点;
+- PresentationProfile != PersonalReality != Canonical;
+- PresentationProfile never mutates `.depmap` / Canonical;
+- Unknown never becomes safe by inference;
+- Change Phone = Current / Transition / After; After = Plan Projection;
+- frozen Desktop Dark Reference remains unchanged.
+
+Generated brands, counts, dates, copy, and obsolete IA fragments inside concept art are illustrative only.
+
+## 2. Android adaptive research applied
+
+The source translates the visual reference instead of shrinking Desktop.
+
+- Compact uses a four-destination bottom navigation.
+- Larger windows use a navigation rail for top-level destinations.
+- Infrastructure object families remain sibling/secondary navigation inside the content context.
+- Compact list/detail flows remain focused single-pane flows.
+- Expanded Cards/Numbers may use simultaneous list/detail composition.
+- Focused child flows can hide root navigation so the task owns the viewport.
+
+Authoritative references:
+
+- https://developer.android.com/design/ui/mobile/guides/layout-and-content/layout-and-nav-patterns
+- https://developer.android.com/develop/ui/compose/components/navigation-bar
+- https://developer.android.com/develop/ui/compose/components/navigation-rail
+- https://developer.android.com/develop/ui/compose/components/tabs
+- https://developer.android.com/develop/adaptive-apps/guides/list-detail
+- https://developer.android.com/jetpack/androidx/releases/compose-material3-adaptive
+
+## 3. Visual system closure
+
+Android source now uses a coherent light-first system:
+
+- off-white / cool-blue canvas;
+- white and soft-blue raised surfaces;
+- restrained borders and shadows;
+- strong blue primary actions;
+- dark navy text hierarchy;
+- semantic green / amber / red states;
+- dark local canvases only where darkness communicates identity or spatial depth: Globe, Card faces and
+  Number identity artwork.
+
+This removes the old generic dark engineering/control-panel presentation while preserving the spatial
+identity of the product.
+
+## 4. Screen closure matrix
+
+| Surface | Status | Reference intent |
+| --- | --- | --- |
+| Now | CLOSED | Greeting/task priority + large Globe world-view |
+| Infrastructure Overview | CLOSED | Phone 8-category Hub + smaller regional Globe; Expanded spatial overview |
+| Cards | CLOSED | Asset-first identities; compact visual list; optional full card-face view |
+| Card Detail | CLOSED | Card identity first; facts/dependencies/risk subordinate |
+| Card Studio | CLOSED | Preview-first + compact horizontal visual theme gallery |
+| Numbers | CLOSED | Communication-identity surfaces, not generic phonebook rows |
+| Number Detail | CLOSED | Number identity first; dependencies/recovery/history below |
+| Number Studio | CLOSED | Preview-first presentation-only customization |
+| Accounts / Emails / Devices | CLOSED | Light asset identity + explicit recovery/trust facts |
+| Services | CLOSED | Region-grouped asset surfaces; missing relations remain unknown |
+| Weaknesses | CLOSED | Confirmed-risk hierarchy; Unknown remains Unknown |
+| Change Phone | CLOSED | Six-step continuity choreography; compact old→new scene; expanded 3-part scene |
+| Records | CLOSED | Active change / attention / upcoming summary + timeline |
+| Search | CLOSED | One recorded-data search surface preserving object identity |
+| Personalization | CLOSED | Visual preview first; presentation boundary explicit |
+| Data Sources | CLOSED | Coverage + explicit fact boundary |
+| Region Context | CLOSED | Select/detail/back/global-reset hierarchy |
+| Adaptive shell | CLOSED | <600 compact; 600–839 medium; >=840 expanded |
+
+## 5. Regression guards
+
+Source contracts now protect the selected direction:
+
+- `AndroidLightVisualSourceContractTest`;
+- `AndroidAdaptiveShellContractTest`;
+- `PhoneStudioLayoutContractTest`;
+- `PhoneCardsLayoutContractTest`;
+- `PhoneNumbersListVisibilityContractTest`;
+- `TabletAdaptiveContractTest`.
+
+They protect structure and semantics; they are not pixel acceptance.
+
+## 6. Deliberately rejected changes
+
+The source audit does not:
+
+- restore obsolete concept-image primary navigation;
+- put all eight Infrastructure categories into the global rail;
+- add decorative space backgrounds to every data page;
+- make product rendering depend on real financial-brand assets;
+- let Card/Number Studio modify Canonical truth;
+- depict After as completed reality;
+- infer unrecorded relationships as safe;
+- pixel-copy Desktop onto Android.
+
+## 7. Remaining work
+
+The first fresh `b659ae4...` pack exposed real pixel/evidence defects (Global Globe fallback frames, invalid
+Region/Search/Change captures, duplicate Tablet states, sparse Expanded Cards) plus stale instrumentation
+contracts. ChatGPT directly remediated the source through the production checkpoint above. Further blind source
+styling without new runtime pixels would now be speculative. The next valid artifact
+must come from the exact remote HEAD and include Phone + Tablet runtime screenshots, empty states,
+PresentationProfile persistence, workspace persistence, Search/back, Region context, Globe TEXTURE_READY,
+Number Detail probes, Change three-state evidence, accessibility, consumer-copy audit, and Desktop Freeze
+Guard.
+
+Human review must inspect actual PNG pixels. Agent PASS labels cannot authorize visual acceptance.
+
+## 7.1 Round3 exact-head evidence adjudication (2026-10-06)
+
+The Local Agent recaptured `artifacts/runtime-evidence/2026-10-06-android-light-reference-round3-af25f50/`
+from exact source `af25f50b43e50fc35444a6139ee915e4a83ded30` and committed that pack at `37342cc...`.
+
+That pack is **not eligible for Freeze**, independently of visual taste, because its own report/manifests record
+mandatory acceptance failures:
+
+- official `SourceCompleteScreenshotEvidenceTest` still stops at Globe screen 03 before `TEXTURE_READY`;
+- the required 10 empty states are therefore absent;
+- Region Detail runtime evidence still records `actual=region-selected`, not `region-detail`;
+- Phone accessibility still reports the bottom-navigation target below 48dp because the evidence tag was on
+  the icon glyph rather than the clickable `NavigationBarItem`;
+- Tablet Card Studio was not reachable from the expanded Card inspector;
+- several adaptive/evidence contracts still exercised forced-wide or stale compact expectations.
+
+ChatGPT directly remediated those source/test issues at production checkpoint
+`9f8fb6fb7710b872d0f42c228da1fed8746e759a`:
+
+- bottom-nav semantics now tag the clickable item;
+- Region List supports select → second tap → Region Detail, and the drawer has an explicit runtime tag;
+- Expanded Card inspector exposes both “定制卡面” and “查看完整详情”;
+- the official Overview evidence path reuses the real 02 → 03 → 04 journey so a texture-ready Global frame is
+  not discarded and redundantly re-rendered for Region Selected;
+- expanded interaction contracts run only on a real expanded runtime;
+- stale Tablet/compact geometry expectations were aligned with the frozen adaptive hierarchy.
+
+Additional regression contracts require the Region List UI interaction to open the real drawer and preserve
+region context on Back, require 04 evidence to contain the drawer layer, and require the expanded Card inspector
+to expose both continuation actions.
+
+These changes do **not** relax `TEXTURE_READY`, accessibility, state identity, Unknown semantics, or the
+PresentationProfile/Canonical boundary. They make the evidence path exercise the production choreography that
+the user actually sees.
+
+A new pack from the exact latest remote HEAD is required. The `af25f50...` Round3 screenshots remain historical
+evidence and cannot authorize Android Freeze.
+
+## 7.2 Round4 evidence adjudication and direct remediation (2026-10-07)
+
+`artifacts/runtime-evidence/2026-10-06-android-light-reference-round4-70edd4c/` was captured from
+`70edd4c83639bc52266db35c124db6927f53df52` and committed at `da86d066...`.
+
+Round4 materially improves evidence quality: the official Phone and Tablet screenshot suites each completed
+24 main screens + 5 empty states; 01-04 record `globeTextureState=texture_ready`; 04 records
+`actualState=region-detail`; 22 is a typed Search Query; Phone accessibility now reports the true clickable
+bottom-navigation item.
+
+It is still **not eligible for Freeze**:
+
+- Tablet `regionListSecondTapOpensDrawerAndBackPreservesRegion` failed before first selection (`CN` remained null),
+  because the common test forced a compact viewport inside the landscape Tablet instead of exercising the real
+  device breakpoint and scrolling the real Region row into view;
+- Tablet Card back-state still used the compact `CARD_ROW` path on an expanded Cards workspace;
+- Expanded Cards selection was still driven by a text glyph instead of the clickable asset surface;
+- the official Tablet 07/08 screenshots still entered Studio by direct app-state mutation rather than proving the
+  required real UI path through the Expanded Card inspector;
+- the decoded `contact-empty-10` sheet shows the Phone `no-attention` empty state captured while the Now Globe is
+  still an untextured dark loading/fallback sphere; empty-state Human Review therefore cannot accept that frame;
+- the monolithic Phone/Tablet contact-sheet base64 mirrors are too large for the GitHub connector text transport
+  used for Human Pixel Review, so the 48 main pixels have not yet been fully inspected in this review;
+- Round4 reports the same APK SHA-256 as Round3 despite a pixel-changing production checkpoint between those
+  runs. Raw manifests do embed the new `BuildConfig.GIT_SHA`, but the APK-hash provenance must be re-established
+  by hashing both the exact built APK and the installed `base.apk` pulled from the emulator and requiring equality.
+
+ChatGPT directly remediated the product/test paths at `86cbf558d7204b5fa8ccad53f1b115f43f253531`:
+
+- Expanded Card assets have deterministic clickable per-card tags;
+- Expanded Card inspector moves `定制卡面` + `查看完整详情` above long services/risk content, making the Studio
+  continuation immediately discoverable rather than scroll-hidden;
+- Tablet 07/08 official evidence now must navigate Cards → selected card → inspector `定制卡面` → Studio before
+  capture, and must render the Studio preview;
+- the empty `no-attention` Now screenshot is now a Globe-gated frame and cannot capture before `TEXTURE_READY`;
+- Region UI interaction now uses the real device breakpoint and `performScrollTo()` before the two taps;
+- Cards back-state now uses compact row on compact devices and expanded asset → inspector detail on real Tablets;
+- adaptive Cards selection now targets the clickable asset surface, not a text glyph.
+
+Next Human Review evidence must additionally split Phone/Tablet review imagery into connector-readable chunks
+(recommended 4 screens per sheet, each base64 text file < 900 kB) so all 48 main screens can be decoded and
+visually inspected. Agent PASS labels still cannot authorize visual acceptance.
+
+## 7.3 Continued Round4 Human Pixel Review and Globe remediation (2026-10-07)
+
+Using repository PNG bytes directly through the GitHub connector, Human Review has now inspected:
+
+- Phone main set: 01-24, individually decoded from the actual Round4 PNG files;
+- Tablet: 01 and 06-24, individually decoded from the actual Round4 PNG files;
+- all 10 empty states via the decoded contact sheet.
+
+Tablet 02-05 remain uninspected at full pixels in this channel because each PNG exceeds the connector's
+single-file content boundary. Round5 must provide split review sheets / connector-readable mirrors so those
+four frames can be reviewed without inference.
+
+The inspected product direction is materially aligned with the selected Light Reference: Cards retain real
+asset identity, Numbers read as communication identity, Studios are preview-first, Change Current / Transition /
+After are visually distinct with After explicitly framed as plan projection, and secondary infrastructure
+surfaces remain light-first without converting Unknown into Safe.
+
+However, Phone 01 Now and Tablet 01 Now both expose a genuine P1 visual defect in the signature Globe:
+the textured Earth body is visibly faceted/octagonal instead of circular. This is not a concept-art mismatch;
+it is a renderer geometry bug that becomes obvious when the on-screen Globe radius is larger than the capped
+texture bitmap.
+
+Root cause in `TextureEarthBody.renderEarthBody`:
+
+- screen-space unit-disc coordinates were normalized by the on-screen `radiusPx` even after the texture render
+  size had been capped to <=512px;
+- the already-visible camera hemisphere was then incorrectly culled again using world-space `w.z`, which is
+  orientation/longitude space rather than visibility space.
+
+Direct remediation checkpoint `378fab2dac40c4119a81d272678158347ab82fb0`:
+
+- normalize the texture sphere in bitmap space (`rect/2`) so cap ratio cannot deform the silhouette;
+- remove world-z visibility culling; screen-space `cz` already selects the visible hemisphere;
+- add `TextureEarthBodySilhouetteContractTest` reproducing a large display radius against a capped bitmap and
+  requiring circular cardinal coverage plus transparent outer diagonals.
+
+This is a pixel-changing production renderer fix. Android remains HOLD until a fresh exact-head Round5 runtime
+pack proves the corrected circular Globe on Phone + Tablet and closes the remaining Round4 Tablet contract
+failures / provenance requirements.
+
+## 7.3 Final light-reference craft after Globe remediation (2026-10-07)
+
+After the Globe silhouette repair, the remaining directly actionable source craft was closed before asking
+the Local Agent for another expensive runtime pass:
+
+- Expanded Number inspector now mirrors the Card list-detail contract: preview identity + immediately discoverable
+  `定制号码面` / `查看完整详情` continuations;
+- Region scope reset is a full >=48dp touch target;
+- selected blue text on light surfaces uses a dedicated accessible `PrimaryText` ink while `PrimaryBright` remains
+  the filled-action/icon blue;
+- bottom-nav labels, infrastructure sibling labels, Studio controls, projection labels, Records links/metrics and
+  other normal-size blue text were translated to the readable ink;
+- completed timeline stages use white text on the strong blue fill;
+- a palette contrast contract guards normal text against the core light surfaces;
+- evidence interactions now target clickable semantics rather than fragile text glyphs or raw pointer injection,
+  and expanded inspector actions may scroll into view before asserting/clicking.
+
+These are presentation/accessibility/evidence-path changes only. They do not alter Canonical, `.depmap`,
+PersonalReality, Unknown semantics, or Change Phone truth.
+
+Current final pixel-changing Android production checkpoint:
+
+`a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`
+
+Any Android Freeze evidence captured before that checkpoint is historical only.
+
+## 7.4 Round5 final Human Pixel Review (2026-10-07)
+
+Round5 evidence:
+
+- runtime source: `0b305e48bf4868b1aca2bd39dac720e19f3df7f8`;
+- evidence commit: `2d4045c2b334d4b78d33cc595efbb8626c718e9a`;
+- Phone 24 main frames: inspected via six connector-readable contact sheets;
+- Tablet 24 main frames: inspected via six connector-readable contact sheets;
+- empty states 10/10: inspected via the decoded empty-state sheet;
+- all Globe-bearing frames record `TEXTURE_READY`, including both no-attention states;
+- APK built/installed SHA-256 equality is proven on both AVDs;
+- real Region, Search, Card Studio, Number Studio, persistence, Back, accessibility and Desktop Freeze Guard evidence are present.
+
+Human pixel adjudication:
+
+- **Phone 01-24: ACCEPTED**. Light-first hierarchy is coherent; Now remains task-first; Globe is textured and circular; Cards preserve financial-asset identity; Numbers preserve communication identity; Detail pages are object-first; Studio is preview-first; Change Current/Transition/After are visibly distinct and After remains a plan projection; utility/support pages do not introduce a P0/P1 product-truth defect.
+- **Tablet 01-24: ACCEPTED**. The layout is not a stretched Phone: primary rail is top-level only, Infrastructure siblings remain content-level, Overview keeps spatial depth, Cards/Numbers are genuine list-detail workspaces, Studio uses a wide preview/editor composition, and Change keeps the OLD → SERVICES → NEW continuity scene.
+- **Empty states 10/10: ACCEPTED**. Phone no-attention now contains the real textured Globe; Cards/Numbers empties remain object-specific; Unknown is never presented as Safe.
+
+Round5's only reported mandatory FAIL (`TabletAdaptiveContractTest.tabletNumberDetail_noDeadSpace`) is not a runtime visual defect. The failing legacy assertion measured `hero.bottom → services.top` and therefore counted the intentionally inserted `NumberSummaryStrip` as 212dp of 'dead space'. Round5 pixels show the strip is real content, while `NumberDetailVerticalFlowContractTest` already protects the intended `Hero → Summary → Services` sequence and passed on both devices. The tablet contract has therefore been corrected to measure `hero → summary` and `summary → services` independently (<=32dp) and preserve ordering.
+
+This correction changes test semantics only; no Android production pixel source changed after `a3b3a05580c0cd2ed451e554ba7db3edfd523cc0`.
+
+Human visual decision:
+
+```ini
+ANDROID_VISUAL_REFERENCE = ACCEPTED
+ANDROID_REFERENCE_FREEZE = HOLD
+```
+
+`ANDROID_REFERENCE_FREEZE` remains HOLD only until the corrected exact-head TabletAdaptive contract is rerun. No new full 58-frame visual recapture is required unless that targeted revalidation exposes a real production defect, because the production pixel source is unchanged.
+
+## 8. Gate
+
+```
+HUMAN_VISUAL_DIRECTION_REFERENCE = SELECTED
+ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE
+ANDROID_LIGHT_VISUAL_TRANSLATION_SOURCE = COMPLETE
+
+ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED
+ANDROID_VISUAL_REFERENCE = ACCEPTED
+ANDROID_REFERENCE_FREEZE = HOLD
+
+IOS_UI_VNEXT = HOLD
+HARMONY_UI_VNEXT = HOLD
+```

@@ -1,0 +1,217 @@
+{
+ "platform": "android",
+ "label": "refinement-desktop",
+ "count": 42,
+ "screenshots": [
+  {
+   "file": "android__phone-api36__dark__about__populated__37.png",
+   "theme": "dark",
+   "page": "about"
+  },
+  {
+   "file": "android__phone-api36__dark__backup__populated__33.png",
+   "theme": "dark",
+   "page": "backup"
+  },
+  {
+   "file": "android__phone-api36__dark__candidates__populated__27.png",
+   "theme": "dark",
+   "page": "candidates"
+  },
+  {
+   "file": "android__phone-api36__dark__drift__populated__26.png",
+   "theme": "dark",
+   "page": "drift"
+  },
+  {
+   "file": "android__phone-api36__dark__findings__populated__29.png",
+   "theme": "dark",
+   "page": "findings"
+  },
+  {
+   "file": "android__phone-api36__dark__graph__populated__30.png",
+   "theme": "dark",
+   "page": "graph"
+  },
+  {
+   "file": "android__phone-api36__dark__home__populated__22.png",
+   "theme": "dark",
+   "page": "home"
+  },
+  {
+   "file": "android__phone-api36__dark__impact__populated__38.png",
+   "theme": "dark",
+   "page": "impact"
+  },
+  {
+   "file": "android__phone-api36__dark__import__populated__32.png",
+   "theme": "dark",
+   "page": "import"
+  },
+  {
+   "file": "android__phone-api36__dark__infrastructure__populated__28.png",
+   "theme": "dark",
+   "page": "infrastructure"
+  },
+  {
+   "file": "android__phone-api36__dark__node__populated__42.png",
+   "theme": "dark",
+   "page": "node"
+  },
+  {
+   "file": "android__phone-api36__dark__plan__populated__41.png",
+   "theme": "dark",
+   "page": "plan"
+  },
+  {
+   "file": "android__phone-api36__dark__privacy__populated__36.png",
+   "theme": "dark",
+   "page": "privacy"
+  },
+  {
+   "file": "android__phone-api36__dark__restore__populated__34.png",
+   "theme": "dark",
+   "page": "restore"
+  },
+  {
+   "file": "android__phone-api36__dark__review__populated__25.png",
+   "theme": "dark",
+   "page": "review"
+  },
+  {
+   "file": "android__phone-api36__dark__scenario-setup-phone__populated__40.png",
+   "theme": "dark",
+   "page": "scenario-setup-phone"
+  },
+  {
+   "file": "android__phone-api36__dark__scenario-setup__populated__39.png",
+   "theme": "dark",
+   "page": "scenario-setup"
+  },
+  {
+   "file": "android__phone-api36__dark__scenarios__populated__23.png",
+   "theme": "dark",
+   "page": "scenarios"
+  },
+  {
+   "file": "android__phone-api36__dark__settings__populated__35.png",
+   "theme": "dark",
+   "page": "settings"
+  },
+  {
+   "file": "android__phone-api36__dark__sources__populated__31.png",
+   "theme": "dark",
+   "page": "sources"
+  },
+  {
+   "file": "android__phone-api36__dark__timeline__populated__24.png",
+   "theme": "dark",
+   "page": "timeline"
+  },
+  {
+   "file": "android__phone-api36__light__about__populated__16.png",
+   "theme": "light",
+   "page": "about"
+  },
+  {
+   "file": "android__phone-api36__light__backup__populated__12.png",
+   "theme": "light",
+   "page": "backup"
+  },
+  {
+   "file": "android__phone-api36__light__candidates__populated__06.png",
+   "theme": "light",
+   "page": "candidates"
+  },
+  {
+   "file": "android__phone-api36__light__drift__populated__05.png",
+   "theme": "light",
+   "page": "drift"
+  },
+  {
+   "file": "android__phone-api36__light__findings__populated__08.png",
+   "theme": "light",
+   "page": "findings"
+  },
+  {
+   "file": "android__phone-api36__light__graph__populated__09.png",
+   "theme": "light",
+   "page": "graph"
+  },
+  {
+   "file": "android__phone-api36__light__home__populated__01.png",
+   "theme": "light",
+   "page": "home"
+  },
+  {
+   "file": "android__phone-api36__light__impact__populated__17.png",
+   "theme": "light",
+   "page": "impact"
+  },
+  {
+   "file": "android__phone-api36__light__import__populated__11.png",
+   "theme": "light",
+   "page": "import"
+  },
+  {
+   "file": "android__phone-api36__light__infrastructure__populated__07.png",
+   "theme": "light",
+   "page": "infrastructure"
+  },
+  {
+   "file": "android__phone-api36__light__node__populated__21.png",
+   "theme": "light",
+   "page": "node"
+  },
+  {
+   "file": "android__phone-api36__light__plan__populated__20.png",
+   "theme": "light",
+   "page": "plan"
+  },
+  {
+   "file": "android__phone-api36__light__privacy__populated__15.png",
+   "theme": "light",
+   "page": "privacy"
+  },
+  {
+   "file": "android__phone-api36__light__restore__populated__13.png",
+   "theme": "light",
+   "page": "restore"
+  },
+  {
+   "file": "android__phone-api36__light__review__populated__04.png",
+   "theme": "light",
+   "page": "review"
+  },
+  {
+   "file": "android__phone-api36__light__scenario-setup-phone__populated__19.png",
+   "theme": "light",
+   "page": "scenario-setup-phone"
+  },
+  {
+   "file": "android__phone-api36__light__scenario-setup__populated__18.png",
+   "theme": "light",
+   "page": "scenario-setup"
+  },
+  {
+   "file": "android__phone-api36__light__scenarios__populated__02.png",
+   "theme": "light",
+   "page": "scenarios"
+  },
+  {
+   "file": "android__phone-api36__light__settings__populated__14.png",
+   "theme": "light",
+   "page": "settings"
+  },
+  {
+   "file": "android__phone-api36__light__sources__populated__10.png",
+   "theme": "light",
+   "page": "sources"
+  },
+  {
+   "file": "android__phone-api36__light__timeline__populated__03.png",
+   "theme": "light",
+   "page": "timeline"
+  }
+ ]
+}

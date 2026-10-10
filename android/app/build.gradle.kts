@@ -15,6 +15,18 @@ android {
     namespace = "com.pdig.app"
     compileSdk = 36
 
+    val productionUiGeneration =
+        ((project.findProperty("pdigProductionUiGeneration") as String?) ?: "legacy")
+            .trim()
+            .lowercase()
+    require(productionUiGeneration in setOf("legacy", "vnext")) {
+        "pdigProductionUiGeneration must be exactly legacy or vnext"
+    }
+    val productionVNextCutoverApproved =
+        ((project.findProperty("pdigProductionVNextCutoverApproved") as String?) ?: "false")
+            .toBooleanStrictOrNull()
+            ?: error("pdigProductionVNextCutoverApproved must be exactly true or false")
+
     defaultConfig {
         applicationId = "com.pdig.app"
         minSdk = 26
@@ -22,6 +34,12 @@ android {
         versionCode = 2
         versionName = "0.3.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // 证据/取证：注入构建时的 git SHA（BuildConfig.GIT_SHA；供截图 manifest 的 commit 字段）。
+        buildConfigField("String", "GIT_SHA", "\"${providers.exec { commandLine("git", "rev-parse", "--short", "HEAD") }.standardOutput.asText.get().trim()}\"")
+        // R36 production UI generation is BUILD-TIME authority. Intent/runtime
+        // preferences cannot change it. Default remains legacy until release cutover.
+        buildConfigField("String", "PRODUCTION_UI_GENERATION", "\"$productionUiGeneration\"")
+        buildConfigField("boolean", "PRODUCTION_VNEXT_CUTOVER_APPROVED", productionVNextCutoverApproved.toString())
     }
  
      // ---------- Product flavors（ANDROID_VERSIONING_POLICY.md §1.2）----------
@@ -35,7 +53,15 @@ android {
          }
          create("preview") {
              dimension = "tier"
-             applicationIdSuffix = ".preview"
+             val previewSourceSuffix = (project.findProperty("pdigPreviewBuildSha") as String?)?.trim()
+             require(previewSourceSuffix == null || Regex("[a-f0-9]{7}").matches(previewSourceSuffix)) {
+                 "pdigPreviewBuildSha must be the exact seven-character lowercase hex source HEAD"
+             }
+             // Hosted CI debug keys are ephemeral: install each exact-source preview beside older
+             // ones instead of silently attempting an incompatible in-place signature update.
+             applicationIdSuffix = if (previewSourceSuffix == null) ".preview" else ".preview.p$previewSourceSuffix"
+             resValue("string", "preview_build_label",
+                 if (previewSourceSuffix == null) "PDIG Preview" else "PDIG Preview $previewSourceSuffix")
             versionCode = 200005
             versionName = "0.3.1"
          }
@@ -98,6 +124,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     packaging {

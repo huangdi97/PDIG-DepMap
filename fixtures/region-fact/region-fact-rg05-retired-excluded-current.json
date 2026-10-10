@@ -1,0 +1,25 @@
+{
+  "id": "region-fact-rg05-retired-excluded-current",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-05 retired fact stays historical but is excluded from current lens",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-retired\",\"facet\":\"issuance_jurisdiction\",\"territory_code\":\"CN\",\"state\":\"retired\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\",\"retired_at\":\"2026-10-10T01:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-retired",
+        "facet": "issuance_jurisdiction",
+        "territoryCode": "CN",
+        "state": "retired"
+      }
+    ],
+    "currentIds": [],
+    "lens": {
+      "status": "unknown"
+    }
+  }
+}

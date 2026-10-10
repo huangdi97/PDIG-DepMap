@@ -1,0 +1,86 @@
+name: Android UI vNext Phone Pixel Proof
+
+# Real runtime evidence is intentionally separate from the fast APK packaging gate.
+# R19 target: API 36, matching the current Android reference/runtime acceptance line.
+# No visual PASS can be granted on source, compile or manifest checks alone.
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feat/android-ui-vnext-translation
+    paths:
+      - '.github/workflows/android-ui-vnext-phone-pixels.yml'
+      - 'docs/ui-vnext/android/ANDROID_R8_REFERENCE_PARITY_AND_RUNTIME_TRUTH_2026-10-08.md'
+      - 'android/scripts/ui_vnext_pixel_capture.py'
+      - 'android/app/src/**/uivnext/**'
+      - 'android/app/src/preview/**'
+      - 'android/app/build.gradle.kts'
+      - 'android/app/src/main/kotlin/com/pdig/app/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-vnext-phone-pixels-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phone-runtime-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install pixel inspection dependency
+        run: python3 -m pip install --disable-pip-version-check Pillow==11.3.0
+      - name: Enable host KVM
+        run: |
+          sudo chown "$USER" /dev/kvm || true
+          ls -l /dev/kvm || true
+      - name: Build exact previewDebug APK
+        working-directory: android
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :app:assemblePreviewDebug --no-daemon --stacktrace -PpdigPreviewBuildSha="${GITHUB_SHA:0:7}"
+          sha256sum app/build/outputs/apk/preview/debug/app-preview-debug.apk
+      - name: Install, launch and capture actual phone runtime pixels
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          profile: pixel_7
+          target: google_apis
+          ram-size: 2048M
+          heap-size: 384M
+          disk-size: 8G
+          emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
+          pre-emulator-launch-script: |
+            mkdir -p "$HOME/.android"
+            printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
+            cat "$HOME/.android/advancedFeatures.ini"
+          disable-animations: true
+          script: |
+            set -e
+            mkdir -p artifacts/runtime-evidence/preview-phone
+            adb install -r android/app/build/outputs/apk/preview/debug/app-preview-debug.apk
+            python3 android/scripts/ui_vnext_pixel_capture.py
+      # Emulator screenshot proof must not be held hostage by a GPU/CPU-intensive
+      # instrumentation gesture; real pinch remains a separate contract test.
+      - name: Generate human-review contact and manifest
+        if: always()
+        run: python3 android/scripts/r9_visual_report.py
+      - name: Upload phone pixels and observed UI XML
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-phone-actual-pixels-${{ github.sha }}
+          path: artifacts/runtime-evidence/preview-phone/
+          if-no-files-found: error
+          retention-days: 21

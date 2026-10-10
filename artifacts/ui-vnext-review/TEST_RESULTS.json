@@ -1,0 +1,64 @@
+{
+  "$comment": "PDIG UI vNext Test Results（2026-09-29，feature branch feat/pdig-ui-vnext）。全部为本机实测；NOT_RUN / PENDING 如实标注，不冒充 PASS。",
+  "generated": "2026-09-29",
+  "results": {
+    "CODEGEN_GATE": {
+      "status": "PASS",
+      "command": "node tools/codegen/generate.mjs --check",
+      "detail": "CODEGEN GATE PASS：spec/ui-vnext/DESIGN_TOKENS.json → 四端 GeneratedPdigV2Tokens（desktop+android kt / ios swift / harmony ets）零漂移；既有 canonical 产物零漂移"
+    },
+    "CORE_CHECK": {
+      "status": "PASS",
+      "command": "npm run check（core/）",
+      "detail": "format:check + lint + typecheck + 487 tests 全绿 + architecture circular=0 + network gate 0 + secrets 0 + UI gate PASS"
+    },
+    "DESKTOP_COMPILE": {
+      "status": "PASS",
+      "command": "gradlew :app:compileKotlin",
+      "detail": "BUILD SUCCESSFUL（Desktop Compose，含 com/pdig/uivnext/** 全量）"
+    },
+    "DESKTOP_FRAMES": {
+      "status": "PASS",
+      "count": 90,
+      "detail": "10 屏 × 5 分辨率档案（1280x720 / 1920x1080 / 2560x1440 / 1920x1080@1.25 / 1920x1080@1.5）；overview+now 各 5 个 --globe-camera 预设（global/cn/hk/gb/us）。证据：artifacts/runtime-evidence/2026-09-29-ui-vnext/ 与 artifacts/ui-vnext-review/desktop/"
+    },
+    "IMAGE_METRICS": {
+      "status": "PASS",
+      "framesAnalyzed": 90,
+      "summary": {
+        "meanLuminanceRange": [0.073, 0.135],
+        "darkPixelRatioRange": [0.952, 0.995],
+        "blankAreaRatioRange": [0.430, 0.963],
+        "emptyContentBbox": 0,
+        "allBlackOrUnreadableFrames": 0,
+        "note": "9 帧 blankAreaRatio > 0.9 属深色画布 + 低内容密度设计预期（customization / personalization / number-detail 等），留人审；tool: tools/ui-vnext/image-metrics/PdigImageMetrics.java（JDK ImageIO，零新依赖）"
+      }
+    },
+    "SECRET_SCAN": {
+      "status": "PASS",
+      "detail": "core/scripts/check-secrets.mjs 全绿；新增精确豁免 /^spec\\/ui-vnext\\/DESIGN_TOKENS\\.json$/（与既有 spec/ui/design-tokens.json 同类惯例）"
+    },
+    "ANDROID_LAYOUT_CONTRACT": {
+      "status": "PENDING_CONVERGENCE",
+      "detail": "实现/证据由并行平台 fixer 产出，汇合后补全"
+    },
+    "IOS_LAYOUT_CONTRACT": {
+      "status": "PENDING_CONVERGENCE",
+      "detail": "实现/证据由并行平台 fixer 产出，汇合后补全"
+    },
+    "HARMONY_LAYOUT_CONTRACT": {
+      "status": "PENDING_CONVERGENCE",
+      "detail": "实现/证据由并行平台 fixer 产出，汇合后补全"
+    },
+    "VISION_REVIEW": {
+      "status": "NEEDS_HUMAN_OR_VISION_MODEL",
+      "detail": "No-Vision 轮禁止视觉自判；90 帧 PNG + UI_LAYOUT_PROBE.json + IMAGE_METRICS.json 已备，等待人工/Vision 模型审核"
+    }
+  },
+  "evidence": {
+    "desktop": "artifacts/ui-vnext-review/desktop/",
+    "metrics": "artifacts/ui-vnext-review/IMAGE_METRICS.json",
+    "tokenManifest": "artifacts/ui-vnext-review/TOKEN_MANIFEST.json",
+    "referenceManifest": "artifacts/ui-vnext-review/REFERENCE_MANIFEST.json"
+  }
+}

@@ -38,7 +38,7 @@ fun SecurityScreen(ui: UiState) {
         Column {
             SectionDivider("本机解锁")
             InfoRow("平台保护", "Windows DPAPI（CurrentUser 作用域，操作系统持钥）")
-            InfoRow("状态", if (storeEnabled) "已启用（存在 device-unlock.blob）" else "未启用")
+            InfoRow("状态", if (storeEnabled) "已启用（本机解锁凭据已保存）" else "未启用")
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Checkbox(
                     checked = storeEnabled,

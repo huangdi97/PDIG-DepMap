@@ -27,6 +27,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 # ---------------------------------------------------------------------------
 # 诚实范围声明（不要删除）
 # ---------------------------------------------------------------------------
@@ -124,6 +128,18 @@ jobs:
 
       - name: 1. CODEGEN GATE (spec → generated)
         run: node tools/codegen/generate.mjs --check
+
+      - name: 1b. CANONICAL V4 EXPANSION DAG GATE
+        run: node tools/validate-canonical-v4-expansion-plan.mjs
+
+      - name: 1c. IDENTITY ANCHOR PROFILE CONTRACT GATE
+        run: node tools/validate-identity-anchor-profile-contract.mjs
+
+      - name: 1d. REGION FACT CONTRACT GATE
+        run: node tools/validate-region-fact-contract.mjs
+
+      - name: 1e. MAINTENANCE PROFILE CONTRACT GATE
+        run: node tools/validate-maintenance-profile-contract.mjs
 
       - name: 2-4. Conformance orchestrator
         run: node tools/conformance/run.mjs

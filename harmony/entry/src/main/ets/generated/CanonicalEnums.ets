@@ -9,6 +9,9 @@ export class CanonicalSpec {
   static readonly APP_SCHEMA_VERSION: number = 3
   static readonly GRAPH_PAYLOAD_KIND: string = 'depmap-logical-graph'
   static readonly GRAPH_PAYLOAD_VERSION: number = 3
+  static readonly RUNTIME_CREATABLE_NODE_KINDS: string[] = ['payment_instrument', 'account', 'service']
+  static readonly RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: string[] = ['phone_number', 'email_address']
+  static readonly ISO_3166_ALPHA2_TERRITORY_CODES: string[] = ['AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AW', 'AX', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BL', 'BM', 'BN', 'BO', 'BQ', 'BR', 'BS', 'BT', 'BV', 'BW', 'BY', 'BZ', 'CA', 'CC', 'CD', 'CF', 'CG', 'CH', 'CI', 'CK', 'CL', 'CM', 'CN', 'CO', 'CR', 'CU', 'CV', 'CW', 'CX', 'CY', 'CZ', 'DE', 'DJ', 'DK', 'DM', 'DO', 'DZ', 'EC', 'EE', 'EG', 'EH', 'ER', 'ES', 'ET', 'FI', 'FJ', 'FK', 'FM', 'FO', 'FR', 'GA', 'GB', 'GD', 'GE', 'GF', 'GG', 'GH', 'GI', 'GL', 'GM', 'GN', 'GP', 'GQ', 'GR', 'GS', 'GT', 'GU', 'GW', 'GY', 'HK', 'HM', 'HN', 'HR', 'HT', 'HU', 'ID', 'IE', 'IL', 'IM', 'IN', 'IO', 'IQ', 'IR', 'IS', 'IT', 'JE', 'JM', 'JO', 'JP', 'KE', 'KG', 'KH', 'KI', 'KM', 'KN', 'KP', 'KR', 'KW', 'KY', 'KZ', 'LA', 'LB', 'LC', 'LI', 'LK', 'LR', 'LS', 'LT', 'LU', 'LV', 'LY', 'MA', 'MC', 'MD', 'ME', 'MF', 'MG', 'MH', 'MK', 'ML', 'MM', 'MN', 'MO', 'MP', 'MQ', 'MR', 'MS', 'MT', 'MU', 'MV', 'MW', 'MX', 'MY', 'MZ', 'NA', 'NC', 'NE', 'NF', 'NG', 'NI', 'NL', 'NO', 'NP', 'NR', 'NU', 'NZ', 'OM', 'PA', 'PE', 'PF', 'PG', 'PH', 'PK', 'PL', 'PM', 'PN', 'PR', 'PS', 'PT', 'PW', 'PY', 'QA', 'RE', 'RO', 'RS', 'RU', 'RW', 'SA', 'SB', 'SC', 'SD', 'SE', 'SG', 'SH', 'SI', 'SJ', 'SK', 'SL', 'SM', 'SN', 'SO', 'SR', 'SS', 'ST', 'SV', 'SX', 'SY', 'SZ', 'TC', 'TD', 'TF', 'TG', 'TH', 'TJ', 'TK', 'TL', 'TM', 'TN', 'TO', 'TR', 'TT', 'TV', 'TW', 'TZ', 'UA', 'UG', 'UM', 'US', 'UY', 'UZ', 'VA', 'VC', 'VE', 'VG', 'VI', 'VN', 'VU', 'WF', 'WS', 'YE', 'YT', 'ZA', 'ZM', 'ZW']
 }
 
 export enum NodeKind {
@@ -42,6 +45,260 @@ export function nodeKindFromWire(value: string): NodeKind | undefined {
   }
   if (value === NodeKind.CUSTOM) {
     return NodeKind.CUSTOM;
+  }
+  return undefined;
+}
+
+export enum IdentityAnchorSubtype {
+  PHONE_NUMBER = 'phone_number',
+  EMAIL_ADDRESS = 'email_address',
+  OTHER_IDENTITY = 'other_identity'
+}
+
+export function identityAnchorSubtypeFromWire(value: string): IdentityAnchorSubtype | undefined {
+  if (value === IdentityAnchorSubtype.PHONE_NUMBER) {
+    return IdentityAnchorSubtype.PHONE_NUMBER;
+  }
+  if (value === IdentityAnchorSubtype.EMAIL_ADDRESS) {
+    return IdentityAnchorSubtype.EMAIL_ADDRESS;
+  }
+  if (value === IdentityAnchorSubtype.OTHER_IDENTITY) {
+    return IdentityAnchorSubtype.OTHER_IDENTITY;
+  }
+  return undefined;
+}
+
+export enum RegionFacet {
+  ISSUANCE_JURISDICTION = 'issuance_jurisdiction',
+  NUMBERING_TERRITORY = 'numbering_territory',
+  PROVIDER_JURISDICTION = 'provider_jurisdiction',
+  SERVICE_MARKET = 'service_market',
+  PHYSICAL_LOCATION = 'physical_location',
+  USER_CONFIRMED_CONTEXT = 'user_confirmed_context'
+}
+
+export function regionFacetFromWire(value: string): RegionFacet | undefined {
+  if (value === RegionFacet.ISSUANCE_JURISDICTION) {
+    return RegionFacet.ISSUANCE_JURISDICTION;
+  }
+  if (value === RegionFacet.NUMBERING_TERRITORY) {
+    return RegionFacet.NUMBERING_TERRITORY;
+  }
+  if (value === RegionFacet.PROVIDER_JURISDICTION) {
+    return RegionFacet.PROVIDER_JURISDICTION;
+  }
+  if (value === RegionFacet.SERVICE_MARKET) {
+    return RegionFacet.SERVICE_MARKET;
+  }
+  if (value === RegionFacet.PHYSICAL_LOCATION) {
+    return RegionFacet.PHYSICAL_LOCATION;
+  }
+  if (value === RegionFacet.USER_CONFIRMED_CONTEXT) {
+    return RegionFacet.USER_CONFIRMED_CONTEXT;
+  }
+  return undefined;
+}
+
+export enum RegionFactState {
+  CONFIRMED = 'confirmed',
+  RETIRED = 'retired'
+}
+
+export function regionFactStateFromWire(value: string): RegionFactState | undefined {
+  if (value === RegionFactState.CONFIRMED) {
+    return RegionFactState.CONFIRMED;
+  }
+  if (value === RegionFactState.RETIRED) {
+    return RegionFactState.RETIRED;
+  }
+  return undefined;
+}
+
+export enum MaintenanceFactKind {
+  CARD_ANNUAL_FEE_AMOUNT = 'card_annual_fee_amount',
+  CARD_ANNUAL_FEE_CURRENCY = 'card_annual_fee_currency',
+  CARD_BILLING_DAY = 'card_billing_day',
+  CARD_PAYMENT_DUE_DAY = 'card_payment_due_day',
+  CARD_AUTOPAY_MODE = 'card_autopay_mode',
+  NUMBER_BILLING_MODE = 'number_billing_mode',
+  NUMBER_PLAN_COST = 'number_plan_cost',
+  NUMBER_PLAN_CURRENCY = 'number_plan_currency',
+  NUMBER_RENEWAL_METHOD = 'number_renewal_method'
+}
+
+export function maintenanceFactKindFromWire(value: string): MaintenanceFactKind | undefined {
+  if (value === MaintenanceFactKind.CARD_ANNUAL_FEE_AMOUNT) {
+    return MaintenanceFactKind.CARD_ANNUAL_FEE_AMOUNT;
+  }
+  if (value === MaintenanceFactKind.CARD_ANNUAL_FEE_CURRENCY) {
+    return MaintenanceFactKind.CARD_ANNUAL_FEE_CURRENCY;
+  }
+  if (value === MaintenanceFactKind.CARD_BILLING_DAY) {
+    return MaintenanceFactKind.CARD_BILLING_DAY;
+  }
+  if (value === MaintenanceFactKind.CARD_PAYMENT_DUE_DAY) {
+    return MaintenanceFactKind.CARD_PAYMENT_DUE_DAY;
+  }
+  if (value === MaintenanceFactKind.CARD_AUTOPAY_MODE) {
+    return MaintenanceFactKind.CARD_AUTOPAY_MODE;
+  }
+  if (value === MaintenanceFactKind.NUMBER_BILLING_MODE) {
+    return MaintenanceFactKind.NUMBER_BILLING_MODE;
+  }
+  if (value === MaintenanceFactKind.NUMBER_PLAN_COST) {
+    return MaintenanceFactKind.NUMBER_PLAN_COST;
+  }
+  if (value === MaintenanceFactKind.NUMBER_PLAN_CURRENCY) {
+    return MaintenanceFactKind.NUMBER_PLAN_CURRENCY;
+  }
+  if (value === MaintenanceFactKind.NUMBER_RENEWAL_METHOD) {
+    return MaintenanceFactKind.NUMBER_RENEWAL_METHOD;
+  }
+  return undefined;
+}
+
+export enum MaintenanceScheduleKind {
+  CARD_ANNUAL_FEE_CHECKPOINT = 'card_annual_fee_checkpoint',
+  CARD_BILLING_CHECKPOINT = 'card_billing_checkpoint',
+  CARD_PAYMENT_DUE_CHECKPOINT = 'card_payment_due_checkpoint',
+  NUMBER_KEEP_ALIVE = 'number_keep_alive',
+  NUMBER_PLAN_RENEWAL = 'number_plan_renewal',
+  FACT_FRESHNESS_REVIEW = 'fact_freshness_review',
+  CUSTOM_MAINTENANCE = 'custom_maintenance'
+}
+
+export function maintenanceScheduleKindFromWire(value: string): MaintenanceScheduleKind | undefined {
+  if (value === MaintenanceScheduleKind.CARD_ANNUAL_FEE_CHECKPOINT) {
+    return MaintenanceScheduleKind.CARD_ANNUAL_FEE_CHECKPOINT;
+  }
+  if (value === MaintenanceScheduleKind.CARD_BILLING_CHECKPOINT) {
+    return MaintenanceScheduleKind.CARD_BILLING_CHECKPOINT;
+  }
+  if (value === MaintenanceScheduleKind.CARD_PAYMENT_DUE_CHECKPOINT) {
+    return MaintenanceScheduleKind.CARD_PAYMENT_DUE_CHECKPOINT;
+  }
+  if (value === MaintenanceScheduleKind.NUMBER_KEEP_ALIVE) {
+    return MaintenanceScheduleKind.NUMBER_KEEP_ALIVE;
+  }
+  if (value === MaintenanceScheduleKind.NUMBER_PLAN_RENEWAL) {
+    return MaintenanceScheduleKind.NUMBER_PLAN_RENEWAL;
+  }
+  if (value === MaintenanceScheduleKind.FACT_FRESHNESS_REVIEW) {
+    return MaintenanceScheduleKind.FACT_FRESHNESS_REVIEW;
+  }
+  if (value === MaintenanceScheduleKind.CUSTOM_MAINTENANCE) {
+    return MaintenanceScheduleKind.CUSTOM_MAINTENANCE;
+  }
+  return undefined;
+}
+
+export enum MaintenanceFactState {
+  CONFIRMED = 'confirmed',
+  RETIRED = 'retired'
+}
+
+export function maintenanceFactStateFromWire(value: string): MaintenanceFactState | undefined {
+  if (value === MaintenanceFactState.CONFIRMED) {
+    return MaintenanceFactState.CONFIRMED;
+  }
+  if (value === MaintenanceFactState.RETIRED) {
+    return MaintenanceFactState.RETIRED;
+  }
+  return undefined;
+}
+
+export enum MaintenanceScheduleState {
+  ACTIVE = 'active',
+  PAUSED = 'paused',
+  NEEDS_REVIEW = 'needs_review',
+  RETIRED = 'retired'
+}
+
+export function maintenanceScheduleStateFromWire(value: string): MaintenanceScheduleState | undefined {
+  if (value === MaintenanceScheduleState.ACTIVE) {
+    return MaintenanceScheduleState.ACTIVE;
+  }
+  if (value === MaintenanceScheduleState.PAUSED) {
+    return MaintenanceScheduleState.PAUSED;
+  }
+  if (value === MaintenanceScheduleState.NEEDS_REVIEW) {
+    return MaintenanceScheduleState.NEEDS_REVIEW;
+  }
+  if (value === MaintenanceScheduleState.RETIRED) {
+    return MaintenanceScheduleState.RETIRED;
+  }
+  return undefined;
+}
+
+export enum MaintenanceValueType {
+  DECIMAL_STRING = 'decimal_string',
+  CURRENCY_CODE = 'currency_code',
+  INTEGER = 'integer',
+  TEXT = 'text',
+  BOOLEAN = 'boolean'
+}
+
+export function maintenanceValueTypeFromWire(value: string): MaintenanceValueType | undefined {
+  if (value === MaintenanceValueType.DECIMAL_STRING) {
+    return MaintenanceValueType.DECIMAL_STRING;
+  }
+  if (value === MaintenanceValueType.CURRENCY_CODE) {
+    return MaintenanceValueType.CURRENCY_CODE;
+  }
+  if (value === MaintenanceValueType.INTEGER) {
+    return MaintenanceValueType.INTEGER;
+  }
+  if (value === MaintenanceValueType.TEXT) {
+    return MaintenanceValueType.TEXT;
+  }
+  if (value === MaintenanceValueType.BOOLEAN) {
+    return MaintenanceValueType.BOOLEAN;
+  }
+  return undefined;
+}
+
+export enum MaintenanceCadenceKind {
+  ONE_TIME = 'one_time',
+  MONTHLY_DAY = 'monthly_day',
+  YEARLY_MONTH_DAY = 'yearly_month_day',
+  INTERVAL_DAYS = 'interval_days',
+  MANUAL_ONLY = 'manual_only'
+}
+
+export function maintenanceCadenceKindFromWire(value: string): MaintenanceCadenceKind | undefined {
+  if (value === MaintenanceCadenceKind.ONE_TIME) {
+    return MaintenanceCadenceKind.ONE_TIME;
+  }
+  if (value === MaintenanceCadenceKind.MONTHLY_DAY) {
+    return MaintenanceCadenceKind.MONTHLY_DAY;
+  }
+  if (value === MaintenanceCadenceKind.YEARLY_MONTH_DAY) {
+    return MaintenanceCadenceKind.YEARLY_MONTH_DAY;
+  }
+  if (value === MaintenanceCadenceKind.INTERVAL_DAYS) {
+    return MaintenanceCadenceKind.INTERVAL_DAYS;
+  }
+  if (value === MaintenanceCadenceKind.MANUAL_ONLY) {
+    return MaintenanceCadenceKind.MANUAL_ONLY;
+  }
+  return undefined;
+}
+
+export enum MaintenanceOverflowPolicy {
+  CLAMP_TO_LAST_DAY = 'clamp_to_last_day',
+  SKIP_OCCURRENCE = 'skip_occurrence',
+  USER_CONFIRM = 'user_confirm'
+}
+
+export function maintenanceOverflowPolicyFromWire(value: string): MaintenanceOverflowPolicy | undefined {
+  if (value === MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY) {
+    return MaintenanceOverflowPolicy.CLAMP_TO_LAST_DAY;
+  }
+  if (value === MaintenanceOverflowPolicy.SKIP_OCCURRENCE) {
+    return MaintenanceOverflowPolicy.SKIP_OCCURRENCE;
+  }
+  if (value === MaintenanceOverflowPolicy.USER_CONFIRM) {
+    return MaintenanceOverflowPolicy.USER_CONFIRM;
   }
   return undefined;
 }

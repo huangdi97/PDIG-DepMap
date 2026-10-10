@@ -1,5 +1,6 @@
-// 导入流程（task #5）：选文件 → 解析预览 → CSV 映射 → 节点解析 →
-// 复查 → 建议复查 → 候选复查 → 漂移复查。解析走 PDIGCore Parsers。
+// 导入流程：选文件 → 解析预览 → CSV 映射 → 节点解析 → 复查 → 建议复查 →
+// 候选复查 → 漂移复查（Quiet Infrastructure）。解析走 PDIGCore Parsers。
+// 铁律：原始 Swift Error / 固定假时间 禁止进入生产 UI；时间用 PdigClock.nowIso()。
 
 import SwiftUI
 import PDIGCore
@@ -59,8 +60,8 @@ struct ImportScreen: View {
                         stepHeader("8. 可能发生了变化（漂移复查）")
                         driftSection
                     }
-                    if state.mappingError != nil {
-                        Text(CopyZh.mappingMissing).font(.footnote).foregroundStyle(.red)
+                    if let mappingError = state.mappingError {
+                        NoticeBanner(icon: "exclamationmark.triangle.fill", text: mappingError, color: PdigTheme.Color.danger)
                     }
                 }
                 .padding()
@@ -70,7 +71,7 @@ struct ImportScreen: View {
     }
 
     private func stepHeader(_ text: String) -> some View {
-        Text(text).font(.headline)
+        SectionHeader(text)
     }
 
     private var filePickerRow: some View {
@@ -110,7 +111,8 @@ struct ImportScreen: View {
             state.stage = .parsePreview
             session.setImportState(state)
         } catch {
-            state = ImportState(stage: .parsePreview, mappingError: CopyZh.parseFailed + " \(error)")
+            // 原始 Error 不上屏：统一人话。
+            state = ImportState(stage: .parsePreview, mappingError: CopyZh.parseFailed)
         }
     }
 
@@ -122,7 +124,7 @@ struct ImportScreen: View {
                     .font(.caption).foregroundStyle(.secondary)
                 if !s.errors.isEmpty {
                     Text("解析错误 \(s.errors.count) 条：\(s.errors.prefix(3).joined(separator: "；"))")
-                        .font(.caption).foregroundStyle(.orange)
+                        .font(.caption).foregroundStyle(PdigTheme.Color.warning)
                 }
                 if kind == "csv" {
                     Button {
@@ -171,14 +173,15 @@ struct ImportScreen: View {
             Text("已解析 \(resolved.resolutions.count - resolved.candidates.count) / \(resolved.resolutions.count) 个商户")
                 .font(.caption).foregroundStyle(.secondary)
             ForEach(resolved.resolutions.prefix(8), id: \.id) { r in
-                HStack {
-                    Text(r.merchantRaw).font(.footnote).lineLimit(1)
-                    Spacer()
-                    Text(r.resolution == "candidate" ? CopyZh.pendingService : (r.matchedNodeName ?? ""))
-                        .font(.caption).foregroundStyle(r.resolution == "candidate" ? .orange : .green)
+                PdigCard {
+                    HStack {
+                        Text(r.merchantRaw).font(.footnote).lineLimit(1)
+                        Spacer()
+                        Text(r.resolution == "candidate" ? CopyZh.pendingService : (r.matchedNodeName ?? ""))
+                            .font(.caption)
+                            .foregroundStyle(r.resolution == "candidate" ? PdigTheme.Color.warning : PdigTheme.Color.success)
+                    }
                 }
-                .padding(6)
-                .background(Color.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
             }
             Button {
                 advance(to: .review)
@@ -190,14 +193,14 @@ struct ImportScreen: View {
     private var reviewSection: some View {
         VStack(alignment: .leading, spacing: 6) {
             ForEach(state.rows.prefix(6), id: \.line) { r in
-                HStack {
-                    Text(String(r.occurredAt.prefix(10))).font(.caption)
-                    Text(r.merchantRaw).font(.footnote).lineLimit(1)
-                    Spacer()
-                    Text(String(format: "¥%.2f", r.amount)).font(.caption)
+                PdigCard {
+                    HStack {
+                        Text(String(r.occurredAt.prefix(10))).font(.caption)
+                        Text(r.merchantRaw).font(.footnote).lineLimit(1)
+                        Spacer()
+                        Text(String(format: "¥%.2f", r.amount)).font(.caption)
+                    }
                 }
-                .padding(6)
-                .background(Color.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
             }
             Button {
                 advance(to: .proposals)
@@ -213,17 +216,17 @@ struct ImportScreen: View {
                 Text("未发现周期扣款建议。").foregroundStyle(.secondary)
             } else {
                 ForEach(proposals) { p in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(p.merchant).font(.footnote)
-                            Text("\(p.months) 个月 \(p.observations) 笔 · \(p.paymentMethod)")
-                                .font(.caption2).foregroundStyle(.secondary)
+                    PdigCard {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(p.merchant).font(.footnote)
+                                Text("\(p.months) 个月 \(p.observations) 笔 · \(p.paymentMethod)")
+                                    .font(.caption2).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Text(String(format: "%.0f%%", p.confidence * 100)).font(.caption)
                         }
-                        Spacer()
-                        Text(String(format: "%.0f%%", p.confidence * 100)).font(.caption)
                     }
-                    .padding(6)
-                    .background(Color.gray.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
                 }
                 Text(CopyZh.proposalBasis).font(.caption2).foregroundStyle(.secondary)
             }
@@ -259,13 +262,15 @@ struct ImportScreen: View {
                 Text("未发现支付路径变化。").foregroundStyle(.secondary)
             } else {
                 ForEach(drifts) { d in
-                    HStack {
-                        Text(d.merchant).font(.footnote)
-                        Spacer()
-                        Text("\(d.oldMethod) → \(d.newMethod)").font(.caption).foregroundStyle(.orange)
+                    PdigCard {
+                        HStack {
+                            Text(d.merchant).font(.footnote)
+                            Spacer()
+                            Text("\(d.oldMethod) → \(d.newMethod)")
+                                .font(.caption)
+                                .foregroundStyle(PdigTheme.Color.warning)
+                        }
                     }
-                    .padding(6)
-                    .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 6))
                 }
                 Text(CopyZh.driftPossibleChange).font(.caption2).foregroundStyle(.secondary)
             }
@@ -286,13 +291,14 @@ struct ImportScreen: View {
     private func commitImport() {
         guard let repo = session.repository else { return }
         do {
+            let now = PdigClock.nowIso()
             let source = SourceInstanceRow(
                 id: "src-\(kind)-\(Int(Date().timeIntervalSince1970))",
                 adapterId: kind,
                 adapterVersion: 1,
                 sourceKind: SourceKind.statementFile.wire,
                 label: selectedFile?.lastPathComponent ?? kind,
-                lastIngestedAt: "2030-01-15T00:00:00+00:00"
+                lastIngestedAt: now
             )
             let proposals = ImportFlow.detectProposals(rows: state.rows).map { p in
                 PendingProposal(
@@ -304,8 +310,8 @@ struct ImportScreen: View {
                     capability: .payment,
                     confidenceScore: p.confidence,
                     observationCount: p.observations,
-                    createdAt: "2030-01-15T00:00:00+00:00",
-                    updatedAt: "2030-01-15T00:00:00+00:00"
+                    createdAt: now,
+                    updatedAt: now
                 )
             }
             let snapshot = GraphSnapshot(
@@ -319,8 +325,9 @@ struct ImportScreen: View {
             try repo.replaceGraph(snapshot)
             session.refresh()
             session.root()
-        } catch let e {
-            state = ImportState(stage: .drift, mappingError: "导入失败：\(e)")
+        } catch {
+            // 原始 Swift Error 禁止上屏：统一人话 + 重试。
+            state = ImportState(stage: .drift, mappingError: CopyZh.importFailed)
         }
     }
 }

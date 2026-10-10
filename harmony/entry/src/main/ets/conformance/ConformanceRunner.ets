@@ -77,6 +77,17 @@ import {
   CoverageCounts,
 } from '../domain/Entities';
 import { RelationValidationResult } from '../domain/Relations';
+import { confirmedIdentityAnchorProfile } from '../domain/IdentityAnchorProfile';
+import {
+  currentConfirmedRegionFacts,
+  defaultRegionLensSelection,
+  governedRegionFacts,
+} from '../domain/RegionFacts';
+import {
+  currentMaintenanceFacts,
+  currentMaintenanceSchedules,
+  governedMaintenanceProfile,
+} from '../domain/MaintenanceProfile';
 import { simulateScenario, ImpactResult, ImpactTargetResult, ImpactChecklistItem } from '../domain/ImpactKernel';
 import { computePlanReadiness } from '../domain/PlanReadiness';
 import { computeScenarioCoverage } from '../domain/ScenarioCoverage';
@@ -703,6 +714,15 @@ export function computeCase(
     // 这些 relation 的运行时定义已在 generated/CanonicalRelations.ets 中注册，
     // 因此走与 relations 相同的 validateRelationUse 路径即可，无需第二份实现。
     return runRelations(jt);
+  }
+  if (category === 'identity-profile') {
+    return runIdentityProfile(jt);
+  }
+  if (category === 'region-fact') {
+    return runRegionFact(jt);
+  }
+  if (category === 'maintenance-profile') {
+    return runMaintenanceProfile(jt);
   }
   return '';
 }
@@ -1395,6 +1415,154 @@ function runRelations(jt: JsonText): string {
     const toKind = jt.optionalString('toKind');
     const capability = jt.requireString('capability');
     return normalizeResult(validateRelationUse(fromKind, relation, toKind, capability));
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+
+function runMaintenanceProfile(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const kind = nodeKindFromWire(jt.requireString('kind'));
+    if (kind === undefined) {
+      return '{"facts":[],"currentFactIds":[],"schedules":[],"currentScheduleIds":[]}';
+    }
+    const fieldsJson = jt.requireString('fieldsJson');
+    const profile = governedMaintenanceProfile(kind, fieldsJson);
+    const currentFacts = currentMaintenanceFacts(kind, fieldsJson);
+    const currentSchedules = currentMaintenanceSchedules(kind, fieldsJson);
+
+    let factsJson = '[';
+    for (let i = 0; i < profile.facts.length; i++) {
+      const fact = profile.facts[i];
+      if (i > 0) {
+        factsJson += ',';
+      }
+      factsJson += '{"id":' + jsonEscape(fact.id) +
+        ',"kind":' + jsonEscape(fact.kind) +
+        ',"valueType":' + jsonEscape(fact.valueType) +
+        ',"value":' + jsonEscape(fact.value) +
+        ',"state":' + jsonEscape(fact.state) + '}';
+    }
+    factsJson += ']';
+
+    const currentFactIds: string[] = [];
+    for (const fact of currentFacts) {
+      currentFactIds.push(fact.id);
+    }
+
+    let schedulesJson = '[';
+    for (let i = 0; i < profile.schedules.length; i++) {
+      const schedule = profile.schedules[i];
+      if (i > 0) {
+        schedulesJson += ',';
+      }
+      schedulesJson += '{"id":' + jsonEscape(schedule.id) +
+        ',"kind":' + jsonEscape(schedule.kind) +
+        ',"state":' + jsonEscape(schedule.state) +
+        ',"cadenceKind":' + jsonEscape(schedule.cadence.kind) + '}';
+    }
+    schedulesJson += ']';
+
+    const currentScheduleIds: string[] = [];
+    for (const schedule of currentSchedules) {
+      currentScheduleIds.push(schedule.id);
+    }
+
+    return '{"facts":' + factsJson +
+      ',"currentFactIds":' + serializeStrings(currentFactIds) +
+      ',"schedules":' + schedulesJson +
+      ',"currentScheduleIds":' + serializeStrings(currentScheduleIds) + '}';
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+function runRegionFact(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const fieldsJson = jt.requireString('fieldsJson');
+    const facts = governedRegionFacts(fieldsJson);
+    const current = currentConfirmedRegionFacts(fieldsJson);
+    const lens = defaultRegionLensSelection(fieldsJson);
+
+    let factsJson = '[';
+    for (let i = 0; i < facts.length; i++) {
+      const fact = facts[i];
+      if (i > 0) {
+        factsJson += ',';
+      }
+      factsJson += '{"id":' + jsonEscape(fact.id) +
+        ',"facet":' + jsonEscape(fact.facet) +
+        ',"territoryCode":' + jsonEscape(fact.territoryCode);
+      if (fact.subdivisionCode !== undefined) {
+        factsJson += ',"subdivisionCode":' + jsonEscape(fact.subdivisionCode);
+      }
+      factsJson += ',"state":' + jsonEscape(fact.state) + '}';
+    }
+    factsJson += ']';
+
+    const currentIds: string[] = [];
+    for (const fact of current) {
+      currentIds.push(fact.id);
+    }
+
+    let lensJson = '{"status":' + jsonEscape(lens.status);
+    if (lens.territoryCode !== undefined) {
+      lensJson += ',"territoryCode":' + jsonEscape(lens.territoryCode);
+    }
+    if (lens.facet !== undefined) {
+      lensJson += ',"facet":' + jsonEscape(lens.facet);
+    }
+    lensJson += '}';
+
+    return '{"facts":' + factsJson +
+      ',"currentIds":' + serializeStrings(currentIds) +
+      ',"lens":' + lensJson + '}';
+  } finally {
+    jt.resetWindow();
+  }
+}
+
+function runIdentityProfile(jt: JsonText): string {
+  const inputIdx = jt.findField('input');
+  if (inputIdx < 0 || jt.getSource().charAt(inputIdx) !== '{') {
+    return '';
+  }
+  const close = jt.matchBracket(inputIdx);
+  jt.setWindow(inputIdx, close);
+  try {
+    const kind = nodeKindFromWire(jt.requireString('kind'));
+    if (kind === undefined) {
+      return '{"confirmed":false}';
+    }
+    const profile = confirmedIdentityAnchorProfile(kind, jt.requireString('fieldsJson'));
+    if (profile === undefined) {
+      return '{"confirmed":false}';
+    }
+    let out = '{"confirmed":true,"subtype":' + jsonEscape(profile.subtype) +
+      ',"verificationBasisType":' + jsonEscape(profile.verificationBasisType) +
+      ',"confirmedAt":' + jsonEscape(profile.confirmedAt) +
+      ',"evidenceRefs":' + serializeStrings(profile.evidenceRefs);
+    if (profile.identifier !== undefined) {
+      const identifier = profile.identifier;
+      out += ',"identifier":{"value":' + jsonEscape(identifier.value) +
+        ',"verificationBasisType":' + jsonEscape(identifier.verificationBasisType) +
+        ',"confirmedAt":' + jsonEscape(identifier.confirmedAt) +
+        ',"evidenceRefs":' + serializeStrings(identifier.evidenceRefs) + '}';
+    }
+    return out + '}';
   } finally {
     jt.resetWindow();
   }

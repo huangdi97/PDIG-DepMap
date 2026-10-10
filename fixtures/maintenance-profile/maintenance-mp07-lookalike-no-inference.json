@@ -1,0 +1,13 @@
+{
+  "id": "maintenance-mp07-lookalike-no-inference",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-07 provider/reference lookalikes never infer maintenance Reality",
+  "input": {
+    "kind": "payment_instrument",
+    "fieldsJson": "{\"issuer\":\"Some Bank\",\"carrier\":\"Some Telco\",\"annual_fee\":\"100\",\"billing_day\":\"8\",\"keep_alive_due\":\"2026-11-05\",\"reference_fixture\":true}"
+  },
+  "expected": {"facts": [], "currentFactIds": [], "schedules": [], "currentScheduleIds": []}
+}

@@ -20,3 +20,5 @@
 | S-13 | 机器推断写入 required                             | **NO** | RelationRegistry `defaultCriticality: 'unknown'`；registry 测试；INV5；eslint+DB CHECK      |
 | S-14 | Proposal 直接转 Reality                           | **NO** | 仅 ConfirmationService 写路径；INV11/INV12；kernel P4/P5                                    |
 | S-15 | `.depmap` V1 协议静默变更                         | **NO** | golden vector 回归（crypto/depmap.test.ts + container-mutation F6）；formatVersion 边界拒绝 |
+| S-16 | Production VNext 绕过应用锁                         | **NO** | R32 `PdigSecureContent` 复用同一 LockGate；productionRelease 忽略 VNext extras；R33 API36 secure rehearsal |
+| S-17 | Production VNext 敏感 Reality 页面可被截屏/录屏      | **NO** | R33 `productionVNextRequiresSecureWindow` → canonical `SecureWindow` / `FLAG_SECURE`；JVM policy contract |

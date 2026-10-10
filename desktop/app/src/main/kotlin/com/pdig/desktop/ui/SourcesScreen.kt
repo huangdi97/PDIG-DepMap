@@ -1,15 +1,17 @@
 package com.pdig.desktop.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.pdig.desktop.ui.components.ChipTone
 import com.pdig.desktop.ui.components.EmptyState
 import com.pdig.desktop.ui.components.PdigCard
 import com.pdig.desktop.ui.components.PdigPage
-import com.pdig.desktop.ui.components.SectionDivider
+import com.pdig.desktop.ui.components.SectionHeader
 import com.pdig.desktop.ui.components.StatusChip
 
-/** 数据来源：已配置的账单导入源列表。 */
+/** 数据来源：已配置的账单导入源列表（不泄漏 adapterId 内部标识）。 */
 @Composable
 fun SourcesScreen(ui: UiState) {
     val sources = ui.session.sources.sourceInstances()
@@ -21,23 +23,23 @@ fun SourcesScreen(ui: UiState) {
         onDismissNotice = { ui.notice = null },
         onDismissError = { ui.error = null },
     ) {
-        Column {
+        Column(Modifier.fillMaxWidth()) {
             if (sources.isEmpty()) {
                 EmptyState("还没有任何数据来源。请前往「数据来源 → 导入」添加微信账单、通用 CSV 或 OFX/QFX。")
             } else {
-                SectionDivider("已配置来源（${sources.size}）")
+                SectionHeader("已配置来源（${sources.size}）")
                 sources.forEach { s ->
                     PdigCard(
                         title = s.label,
                         subtitle = listOfNotNull(
-                            "适配器: ${s.adapterId}",
+                            "来源类型：${sourceTypeLabel(s.adapterId)}",
                             s.lastIngestedAt?.let { "最近导入：${it.take(19)}" },
                         ).joinToString(" · "),
                         trailing = { StatusChip(stateLabel(s.state), toneFor(s.state)) },
                     )
                 }
             }
-            SectionDivider("入口")
+            SectionHeader("入口")
             PdigCard(
                 title = "导入账单",
                 subtitle = "微信账单 CSV、通用 CSV（先映射列）或 OFX/QFX",
@@ -67,4 +69,11 @@ private fun stateLabel(state: String): String = when (state) {
 private fun toneFor(state: String): ChipTone = when (state) {
     "error" -> ChipTone.BAD
     else -> ChipTone.NEUTRAL
+}
+
+private fun sourceTypeLabel(adapterId: String): String = when (adapterId) {
+    "wechat_statement" -> "微信账单"
+    "generic_csv" -> "通用 CSV"
+    "ofx" -> "OFX / QFX"
+    else -> "账单来源"
 }

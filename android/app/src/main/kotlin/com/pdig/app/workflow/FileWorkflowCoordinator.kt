@@ -207,6 +207,10 @@ class FileWorkflowCoordinator(
     fun publishImportResult(result: ImportCommitResult?) {
         importResult = result
         if (result != null) {
+            // Import no longer needs the external document after the authoritative
+            // transaction finishes. Return the persistable read grant immediately
+            // instead of waiting for navigation/onCleared.
+            engine.releaseHeldUri()
             val current = workflow
             if (current != null) engine.update(FileWorkflowReducer.markDone(current))
         }
