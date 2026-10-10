@@ -126,7 +126,7 @@ internal fun ProductionRelationshipConstellation(
                         val destination = Offset(
                             if (leftSide) bubbleWidth.toPx() / 2f
                             else size.width - bubbleWidth.toPx() / 2f,
-                            (8.dp + row * 89.dp + bubbleHeight / 2).toPx(),
+                            (8.dp + 89.dp * row + bubbleHeight / 2).toPx(),
                         )
                         drawLine(
                             Color(0xFF529AE9).copy(alpha = 0.38f),
@@ -146,7 +146,7 @@ internal fun ProductionRelationshipConstellation(
                         modifier = Modifier
                             .offset(
                                 x = if (leftSide) 0.dp else maxWidth - bubbleWidth,
-                                y = 8.dp + row * 89.dp,
+                                y = 8.dp + 89.dp * row,
                             )
                             .width(bubbleWidth)
                             .height(bubbleHeight)
