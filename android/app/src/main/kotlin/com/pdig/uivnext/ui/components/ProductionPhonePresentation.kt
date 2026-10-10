@@ -69,7 +69,7 @@ internal fun ProductionPhoneIdentityFace(
     modifier: Modifier = Modifier,
 ) {
     val hidden = app.privacyMask || profile.maskSensitive
-    val displayName = app.numberDisplayNameForScreen(item.id, item.name)
+    val displayName = if (hidden) "手机号身份（已遮蔽）" else app.numberDisplayNameForScreen(item.id, item.name)
     val identifier = productionIdentityIdentifierLabel(item, hidden) ?: "号码值未记录"
     val accent = hexColorOrNull(profile.accentColor) ?: productionPhoneAccent(profile.themeId)
     val compact = profile.layout == "compact"
