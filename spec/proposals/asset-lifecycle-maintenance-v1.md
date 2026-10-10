@@ -1,6 +1,6 @@
 # Asset Lifecycle & Maintenance v1 — Canonical Proposal
 
-> Status: **R40 CANONICAL CONTRACT SOURCE-IMPLEMENTED / WRITE + RUNTIME ACCEPTANCE STILL GATED**
+> Status: **R41 CANONICAL READ/WRITE + DERIVED OCCURRENCE SOURCE-IMPLEMENTED / RUNTIME ACCEPTANCE GATED**
 >
 > Date: 2026-10-10
 >
@@ -13,16 +13,18 @@
 > - Kotlin / Swift / ArkTS fail-closed decoders = source-implemented;
 > - conformance fixtures = registered;
 > - Production VNext read projection = source-implemented;
-> - direct lifecycle write/edit authority, automatic occurrence completion and final
->   runtime/release activation = **not** claimed.
+> - explicit user-confirmed lifecycle write/edit authority = source-implemented;
+> - deterministic derived occurrence projection = source-implemented;
+> - automatic occurrence completion = **forbidden / not implemented**;
+> - final runtime/release activation = **not** claimed.
 >
 > The remaining activation chain is:
 >
 > ```text
 > exact-head cross-platform conformance green
-> → production write/review authority (separate gate)
-> → occurrence/timeline derivation where applicable
-> → Android runtime/security/pixel acceptance
+> → production write/editor runtime verification
+> → occurrence/timeline runtime verification
+> → Android security/pixel acceptance
 > → release cutover decision
 > ```
 >
@@ -744,7 +746,7 @@ Until that implementation chain lands:
 
 ```text
 MAINTENANCE_DESIGN = FROZEN
-MAINTENANCE_PRODUCTION_PERSISTENCE = NOT_YET_IMPLEMENTED
+MAINTENANCE_PRODUCTION_PERSISTENCE = SOURCE_IMPLEMENTED_R40
 R19 reference lifecycle semantics = VALID
 ad-hoc Android persistence = FORBIDDEN
 ```
