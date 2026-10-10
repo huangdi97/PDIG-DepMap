@@ -34,7 +34,7 @@ internal data class ProductionVNextHostActions(
      * The callback owns beginImport + stable ActivityResult launcher dispatch and
      * returns false only when the host launcher is unavailable.
      */
-    val requestFileImport: ((sourceLabel: String) -> Boolean)? = null,
+    val requestFileImport: ((sourceId: String?, sourceLabel: String) -> Boolean)? = null,
 )
 
 internal data class ProductionVNextSession(
