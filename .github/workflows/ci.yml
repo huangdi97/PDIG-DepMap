@@ -138,6 +138,9 @@ jobs:
       - name: 1d. REGION FACT CONTRACT GATE
         run: node tools/validate-region-fact-contract.mjs
 
+      - name: 1e. MAINTENANCE PROFILE CONTRACT GATE
+        run: node tools/validate-maintenance-profile-contract.mjs
+
       - name: 2-4. Conformance orchestrator
         run: node tools/conformance/run.mjs
 
