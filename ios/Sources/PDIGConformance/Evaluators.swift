@@ -72,13 +72,25 @@ public enum Evaluators {
             ]))
         }
 
-        return .obj(JsonObject([
+        var fields: [(String, Json)] = [
             ("confirmed", .bool(true)),
             ("subtype", .str(profile.subtype.wire)),
             ("verificationBasisType", .str(profile.verificationBasisType.wire)),
             ("confirmedAt", .str(profile.confirmedAt)),
             ("evidenceRefs", .arr(profile.evidenceRefs.map { .str($0) })),
-        ]))
+        ]
+        if let identifier = profile.identifier {
+            fields.append((
+                "identifier",
+                .obj(JsonObject([
+                    ("value", .str(identifier.value)),
+                    ("verificationBasisType", .str(identifier.verificationBasisType.wire)),
+                    ("confirmedAt", .str(identifier.confirmedAt)),
+                    ("evidenceRefs", .arr(identifier.evidenceRefs.map { .str($0) })),
+                ]))
+            ))
+        }
+        return .obj(JsonObject(fields))
     }
 
     // ---------------------------------------------------------------- relations
