@@ -120,7 +120,7 @@ class MaintenanceProfileTest {
         assertEquals(listOf(MaintenanceFactKind.NUMBER_PLAN_COST), phoneProfile.facts.map { it.kind })
         assertEquals(listOf(MaintenanceScheduleKind.NUMBER_KEEP_ALIVE), phoneProfile.schedules.map { it.kind })
 
-        val email = phone.replace(""phone_number"", ""email_address"")
+        val email = phone.replace("\"phone_number\"", "\"email_address\"")
         assertTrue(governedMaintenanceProfile(NodeKind.IDENTITY_ANCHOR, email).facts.isEmpty())
         assertTrue(governedMaintenanceProfile(NodeKind.IDENTITY_ANCHOR, email).schedules.isEmpty())
     }
