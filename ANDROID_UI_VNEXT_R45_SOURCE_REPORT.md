@@ -26,6 +26,7 @@
 | Relation privacy regression | Masked phone/generic/absent peers, unmasked saved alias, missing-peer fallback | `ccb6648001ac` |
 | Current-reality / visual mapping | Replace obsolete R29/R43 assertions with an explicit R45 source-only delta and exact-head pending gate language | `a4024d6edcff`, `24e568d3759b`, `6d42e50d982` |
 | Production Globe layout | Phone hero is 280dp; wider surface 360dp. Continues to use the same GPU family and governed regions | `9f5ad541ebc8` |
+| Production Change choreography | Current/Transition/After read-only three-stage summary from authoritative plan revisions, actions and unresolved impacts; After explicitly remains Plan Projection | `82f86893a63a`, `29a0f8dba819` |
 
 The 2026-10-10 baseline immediately preceding these patches was an R44 branch. The old failure at `a13cbdbf` was `ProductionSearchProjectionTest` global-masking behavior (previous fixes `cd7e456efc` and `6eff7b6cdf`). The first R44 Pixel/Rehearsal failures at `6eff7b6c` shared the compile-time invalid test import above.
 
