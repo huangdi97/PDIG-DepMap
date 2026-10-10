@@ -384,7 +384,35 @@ No external standard is used to infer a user's asset geography.
 
 ---
 
-## 11. Remaining non-design gates
+## 11. Findings and Evidence Epistemology closure
+
+R34 also closes two v2.3 design gaps that were previously spread across the master
+and machine-readable invariants.
+
+### Personal Infrastructure Findings
+
+`spec/proposals/infrastructure-findings-vnext.md` now:
+- preserves the exact seven current v0.3 Finding types;
+- maps wider v2.3 concepts to existing types or future gated algorithms rather than
+  casually widening Canonical;
+- freezes explainable truth classes, severity inputs, dedup/lifecycle, and
+  Production authority boundaries;
+- forbids health/risk scores.
+
+### Evidence Epistemology
+
+`spec/proposals/evidence-epistemology-v1.md` now freezes:
+- SourceKind vs CoverageMode vs Authority vs Freshness as separate axes;
+- event-stream / partial / complete-snapshot negative-evidence semantics;
+- fact-class-specific authoritative-source boundaries;
+- AI as Observation/Proposal only;
+- Provider documentation as Knowledge Plane only;
+- multi-source evidence as provenance rather than automatic authority;
+- future adapter epistemic declaration requirements.
+
+No current v0.3 schema is changed by either document.
+
+## 12. Remaining non-design gates
 
 At R34, the remaining blockers fall into three classes.
 
@@ -448,7 +476,7 @@ These are not missing design.
 
 ---
 
-## 12. Stop line
+## 13. Stop line
 
 ```text
 PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED
