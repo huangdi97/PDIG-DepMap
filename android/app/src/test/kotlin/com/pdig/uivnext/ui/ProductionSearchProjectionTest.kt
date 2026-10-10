@@ -266,6 +266,36 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
+    fun confirmedRelationPeersRespectPrivacyEvenWhenDependencyCachesNames() {
+        val app = VAppState()
+        val current = snapshot()
+        app.privacyMask = true
+        assertEquals(
+            "手机号身份（已遮蔽）",
+            productionVisibleRelationPeerName(current, "phone-1", "+852 6123 4567", app),
+        )
+        assertEquals(
+            "身份对象（已遮蔽）",
+            productionVisibleRelationPeerName(current, "identity-1", "登录身份", app),
+        )
+        assertEquals(
+            "关联对象（已遮蔽）",
+            productionVisibleRelationPeerName(current, "absent", "sensitive@example.com", app),
+        )
+
+        app.privacyMask = false
+        app.renameNumber("phone-1", "常用香港号")
+        assertEquals(
+            "常用香港号",
+            productionVisibleRelationPeerName(current, "phone-1", "原始名称", app),
+        )
+        assertEquals(
+            "当前缺失对象",
+            productionVisibleRelationPeerName(current, "absent", "当前缺失对象", app),
+        )
+    }
+
+    @Test
     fun emptyQueryNeverReturnsImplicitEverything() {
         assertTrue(productionSearchHits(snapshot(), "").isEmpty())
         assertTrue(productionSearchHits(snapshot(), "   ").isEmpty())
