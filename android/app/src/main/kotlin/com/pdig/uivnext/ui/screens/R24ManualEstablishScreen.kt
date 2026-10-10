@@ -1,5 +1,8 @@
 package com.pdig.uivnext.ui.screens
 
+import com.pdig.uivnext.capability.VNextCapability
+import com.pdig.uivnext.capability.hasProductionAuthority
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -41,6 +44,7 @@ internal fun R24ManualEstablishScreen(
     app: com.pdig.uivnext.ui.VAppState,
     breakpoint: MediaBreakpoint,
 ) {
+    val productionAuthorityReady = hasProductionAuthority(VNextCapability.MANUAL_CREATE)
     val maxWidth = when (breakpoint) {
         MediaBreakpoint.COMPACT -> 640.dp
         MediaBreakpoint.MEDIUM -> 820.dp
@@ -102,21 +106,21 @@ internal fun R24ManualEstablishScreen(
                 "payment_instrument",
                 "可表达卡片/支付工具的基础身份；详细生命周期字段仍按 R19 proposal 治理。",
                 PdigV2Colors.PrimaryBright,
-                "生产 authority 尚未接到 VNext",
+                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
             )
             ManualTypeCard(
                 "账户",
                 "account",
                 "记录一个访问/控制对象；认证与恢复关系必须单独确认。",
                 PdigV2Colors.Positive,
-                "生产 authority 尚未接到 VNext",
+                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
             )
             ManualTypeCard(
                 "服务",
                 "service",
                 "记录订阅、银行网银或其他依赖端点；存在对象不证明当前仍订阅。",
                 PdigV2Colors.Warning,
-                "生产 authority 尚未接到 VNext",
+                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
             )
 
             ManualSectionTitle("其他已知对象类型", "不要制造 ghost capability")
@@ -179,8 +183,11 @@ internal fun R24ManualEstablishScreen(
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "原因不是 UI 没画完，而是正式 VNext 还没有经过 AppContainer 暴露并测试的手工 Reality mutation authority。" +
-                            "在 authority 落地前，添加一个可点击的“保存”会制造假能力。",
+                        if (productionAuthorityReady)
+                            "正式 authority 已存在，但 Preview 仍保持只读，不能把参考环境当成生产 Reality。"
+                        else
+                            "原因不是 UI 没画完，而是正式 VNext 还没有经过 AppContainer 暴露并测试的手工 Reality mutation authority。" +
+                                "在 authority 落地前，添加一个可点击的“保存”会制造假能力。",
                         color = PdigV2Colors.TextMuted,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,
