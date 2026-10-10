@@ -28,6 +28,7 @@ import com.pdig.uivnext.demo.demoChanges
 import com.pdig.uivnext.demo.demoNumbers
 import com.pdig.uivnext.demo.demoRegions
 import com.pdig.uivnext.demo.demoUpcoming
+import com.pdig.uivnext.demo.reviewReferenceSummary
 import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
@@ -56,6 +57,10 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
     val accountCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.accounts.size
     val serviceCount = if (app.emptyDemo) 0 else UiVNextDemoFixture.services.size
     val attentionCount = app.demoAttention().size
+    val reviewSummary = reviewReferenceSummary(
+        if (app.emptyDemo) emptyList() else com.pdig.uivnext.demo.UI_REVIEW_REFERENCE_ITEMS,
+    )
+    val taskCount = attentionCount + reviewSummary.total
 
     Column(
         Modifier
@@ -79,23 +84,23 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    if (attentionCount > 0) "你有 $attentionCount 件事需要处理" else "当前没有已记录的待处理事项",
+                    if (taskCount > 0) "你有 $taskCount 件事需要处理" else "当前没有已记录的待处理事项",
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                 )
             }
             Surface(
-                color = if (attentionCount > 0) PdigV2Colors.Critical.copy(alpha = 0.10f) else PdigV2Colors.PrimarySoft,
+                color = if (taskCount > 0) PdigV2Colors.Critical.copy(alpha = 0.10f) else PdigV2Colors.PrimarySoft,
                 shape = RoundedCornerShape(VRadius.Lg),
                 border = BorderStroke(
                     1.dp,
-                    if (attentionCount > 0) PdigV2Colors.Critical.copy(alpha = 0.22f) else PdigV2Colors.BorderSubtle,
+                    if (taskCount > 0) PdigV2Colors.Critical.copy(alpha = 0.22f) else PdigV2Colors.BorderSubtle,
                 ),
             ) {
                 Text(
-                    if (attentionCount > 0) "需要处理 $attentionCount" else "暂无已记录待处理",
+                    if (taskCount > 0) "需要处理 $taskCount" else "暂无已记录待处理",
                     Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
-                    color = if (attentionCount > 0) PdigV2Colors.Critical else PdigV2Colors.TextSecondary,
+                    color = if (taskCount > 0) PdigV2Colors.Critical else PdigV2Colors.TextSecondary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -187,6 +192,8 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         }
         }
 
+        ReviewInboxEntry(app, reviewSummary.total, reviewSummary.proposals, reviewSummary.candidates, reviewSummary.drifts)
+
         if (breakpoint == MediaBreakpoint.EXPANDED) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Column(
@@ -219,7 +226,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         .testTagLocal(VTestIds.NOW_ATTENTION),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    AttentionSection(app, maxVisible = 1)
+                    AttentionSection(app)
                 }
                 Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     ChangesSection(app)
@@ -240,13 +247,13 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun AttentionSection(app: VAppState, maxVisible: Int = Int.MAX_VALUE) {
+private fun AttentionSection(app: VAppState) {
     val items = app.demoAttention()
-    SectionHeader("需要你处理（${items.size}）")
+    SectionHeader("其他需要你处理（${items.size}）")
     if (items.isEmpty()) {
         EmptyState(
             kind = EmptyKind.ATTENTION,
-            title = "没有需要处理的项",
+            title = "没有其他已记录待处理项",
             description = "未记录 ≠ 无风险：当前没有可展示的关注事项，不代表一切安全。",
             primaryCta = "查看基础设施",
             onPrimary = { app.navigate(VScreen.OVERVIEW) },
@@ -254,28 +261,64 @@ private fun AttentionSection(app: VAppState, maxVisible: Int = Int.MAX_VALUE) {
             onSecondary = { app.navigate(VScreen.WEAKNESSES) },
         )
     } else {
-        items.take(maxVisible).forEach { item ->
+        items.forEach { item ->
             AttentionRow(item = item, onClick = { clicked ->
                 when {
                     UiVNextDemoFixture.cardById(clicked.target) != null -> app.openCard(clicked.target)
-                    else -> app.openNumber(clicked.target)
+                    app.demoNumbers().any { it.id == clicked.target } -> app.openNumber(clicked.target)
+                    else -> app.navigate(VScreen.WEAKNESSES)
                 }
             })
         }
-        if (items.size > maxVisible) {
+    }
+}
+
+@Composable
+private fun ReviewInboxEntry(
+    app: VAppState,
+    total: Int,
+    proposals: Int,
+    candidates: Int,
+    drifts: Int,
+) {
+    if (total == 0) return
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickableLocal { app.navigate(VScreen.REVIEW) }
+            .testTagLocal("pdig.r22.now.review"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.62f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.16f)),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Surface(
-                modifier = Modifier.fillMaxWidth().clickableLocal { app.navigate(VScreen.RECORDS) },
-                color = PdigV2Colors.PrimarySoft,
+                color = PdigV2Colors.PrimaryBright.copy(alpha = 0.12f),
                 shape = RoundedCornerShape(VRadius.Md),
             ) {
                 Text(
-                    "还有 ${items.size - maxVisible} 项待处理 · 查看全部 →",
-                    Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                    total.toString(),
+                    Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
                     color = PdigV2Colors.PrimaryText,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
                 )
             }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("待复核 · 需要你的确认", color = PdigV2Colors.TextPrimary,
+                    fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    "$proposals 关系建议 · $candidates 对象候选 · $drifts 现实漂移",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 9.sp,
+                )
+            }
+            Text("复核 →", color = PdigV2Colors.PrimaryText, fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -289,7 +332,7 @@ private fun ChangesSection(app: VAppState) {
             Box(
                 modifier = Modifier
                     .defaultMinSize(minHeight = VTouchTarget.Min)
-                    .clickableLocal { app.navigate(VScreen.RECORDS) },
+                    .clickableLocal { app.navigate(VScreen.CHANGE) },
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
