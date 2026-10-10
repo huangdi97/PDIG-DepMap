@@ -187,7 +187,7 @@ private fun ProductionContent(
     }
 
     when (app.screen) {
-        VScreen.NOW -> ProductionNow(app, snapshot, inventory, modifier)
+        VScreen.NOW -> ProductionNow(app, snapshot, inventory, findings, modifier)
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
             ProductionInfrastructure(app, snapshot, inventory, findings, modifier)
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
@@ -237,6 +237,7 @@ private fun ProductionNow(
     app: VAppState,
     snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
+    findings: com.pdig.uivnext.production.VNextProductionFindingReport?,
     modifier: Modifier,
 ) {
     val activePlans = snapshot.plans.count { it.workflowState != "closed" }
@@ -269,8 +270,23 @@ private fun ProductionNow(
                 onClick = { app.navigate(VScreen.CHANGE) },
             )
         }
-        if (inventory.pendingReviewCount == 0 && activePlans == 0) {
-            ProductionEmpty("当前没有已记录的待处理复核或进行中计划；未知不等于安全。")
+        if (findings != null && findings.findings.isNotEmpty()) {
+            ProductionFactCard(
+                title = "基础设施薄弱点",
+                subtitle = "${findings.findings.size} 项权威连续性发现值得关注",
+                meta = "查看证据、未知边界与下一步；不是健康评分",
+                onClick = { app.navigate(VScreen.WEAKNESSES) },
+            )
+        }
+        if (inventory.pendingReviewCount == 0 && activePlans == 0 &&
+            findings?.findings.isNullOrEmpty()
+        ) {
+            ProductionEmpty(
+                if (findings == null)
+                    "当前没有已记录的复核或进行中计划；Finding 暂不可读取，不能据此判断安全。"
+                else
+                    "当前没有已记录的复核、进行中计划或已报告薄弱点；未知不等于安全。"
+            )
         }
 
         val visibleTimeline = productionNowTimeline(
@@ -316,7 +332,7 @@ private fun ProductionNow(
                     ProductionCategoryEntry(
                         title = label,
                         count = count,
-                        state = "已确认资产 · 查看对象",
+                        state = if (count > 0) "已确认对象 · 点击查看" else "当前未记录 · 点击查看",
                         enabled = true,
                         onClick = { app.navigate(screen) },
                         modifier = Modifier.weight(1f),
