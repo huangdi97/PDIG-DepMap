@@ -29,7 +29,7 @@ No roadmap capability creates a sixth primary destination.
 | Emails | complete | implemented reference | production email mapping waits identity subtype |
 | Devices | complete | implemented reference | production subtype/factor enrichment future |
 | Services | complete | implemented | production mapping available |
-| Weaknesses | complete | implemented | production findings must remain evidence-backed |
+| Weaknesses / Infrastructure Findings | complete | R27 full seven-class grammar implemented | production findings must come from authoritative continuity analysis; reference findings never enter Reality |
 | Me | complete | implemented, fifth primary | production read model cutover pending |
 | Search | complete | implemented | production source binding pending |
 
@@ -126,7 +126,7 @@ Proposals/contracts:
 | RecoveryCycle | frozen | implemented in core |
 | confirmed vs potential cycle | frozen | core/fixtures |
 | ProviderPolicy != PersonalReality | frozen | core service/fixtures |
-| Infrastructure Finding | frozen | existing / future projections |
+| Infrastructure Finding | frozen | R27 full consumer grammar; production projection must remain engine-backed |
 | no global health score | frozen | UI contract |
 | unknown != safe | frozen | UI/domain contract |
 
