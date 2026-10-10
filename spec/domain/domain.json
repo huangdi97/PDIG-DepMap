@@ -326,6 +326,15 @@
             "profileVersion": 1,
             "subtypeType": "IdentityAnchorSubtype",
             "verificationBasisType": "VerificationBasisType",
+            "optionalIdentifier": {
+              "storagePath": "identity_anchor_profile.identifier",
+              "appliesToSubtypes": ["phone_number", "email_address"],
+              "requiredConfirmedFields": ["value", "verification_basis_type", "confirmed_at"],
+              "verificationBasisType": "VerificationBasisType",
+              "valueSemantics": "exact_user_or_authoritative_confirmed_identifier_value_no_implicit_normalization",
+              "invalidBehavior": "ignore_identifier_value_but_preserve_valid_confirmed_subtype",
+              "comparisonPolicy": "no_silent_merge_or_provider_specific_normalization"
+            },
             "unknownBehavior": "absent_invalid_or_unconfirmed_profile_stays_generic_identity",
             "legacyBareSubtypePolicy": "fields_json.subtype is never confirmation authority and may at most become a review candidate",
             "forbiddenInference": [
@@ -339,7 +348,7 @@
               "presentation_theme",
               "locale_or_region"
             ],
-            "note": "Canonical governed structured profile carried inside the existing cross-platform Node.fields object. It is not an Android-only free-form convention; confirmation provenance is mandatory."
+            "note": "Canonical governed structured profile carried inside the existing cross-platform Node.fields object. It is not an Android-only free-form convention; subtype confirmation provenance is mandatory. R38 additionally allows an independently confirmed nested identifier value for phone/email; subtype-only remains valid when that nested value is absent or invalid."
           }
         }
       },
