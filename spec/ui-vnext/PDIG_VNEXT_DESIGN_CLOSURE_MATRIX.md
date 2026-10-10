@@ -1,7 +1,7 @@
 # PDIG vNext — Product / UX / Canonical Design Closure Matrix
 
 > Date: 2026-10-10
-> Status: **R26 DESIGN CLOSURE INDEX**
+> Status: **R29 DESIGN CLOSED / PRODUCTION SOURCE-BINDING INDEX**
 >
 > This matrix distinguishes design completeness from runtime/production authority.
 > It is an index, not a replacement for the canonical spec/proposals.
@@ -23,15 +23,15 @@ No roadmap capability creates a sixth primary destination.
 | Now / attention | complete | implemented | existing production projection still needs final VNext cutover |
 | Infrastructure inventory | complete | implemented | existing production nodes available |
 | Region / Globe | complete | implemented | runtime pixel/GPU evidence still gates freeze |
-| Cards | complete | implemented | payment_instrument production mapping partly available |
+| Cards | complete | implemented | production category/detail/relations/Impact + replace-card ChangePlan entry source-bound; launcher cutover pending |
 | Numbers | complete | implemented reference | production phone mapping waits identity subtype |
-| Accounts | complete | implemented | production mapping available at generic level |
+| Accounts | complete | implemented | production category + focused generic detail + Impact source-bound |
 | Emails | complete | implemented reference | production email mapping waits identity subtype |
-| Devices | complete | implemented reference | production subtype/factor enrichment future |
-| Services | complete | implemented | production mapping available |
+| Devices | complete | implemented reference | production generic detail source-bound; factor enrichment remains future-gated |
+| Services | complete | implemented | production category + focused generic detail + Impact source-bound |
 | Weaknesses / Infrastructure Findings | complete | R27 full seven-class grammar implemented | production findings must come from authoritative continuity analysis; reference findings never enter Reality |
-| Me | complete | implemented, fifth primary | production read model cutover pending |
-| Search | complete | implemented | production source binding pending |
+| Me | complete | implemented, fifth primary | production personal control surface + local Presentation preferences source-bound; launcher persistence injection pending |
+| Search | complete | implemented | production Reality-only object / plan / source / route search source-bound |
 
 ## 2. Object understanding
 
@@ -50,7 +50,7 @@ No roadmap capability creates a sixth primary destination.
 | --- | --- | --- | --- |
 | Change Center | complete | R20/R21 | source implemented |
 | replace_phone_number | complete | reference flow implemented | production scenario exists; VNext binding pending |
-| replace_payment_card | complete | reference flow implemented | production scenario exists; VNext binding pending |
+| replace_payment_card | complete | reference flow implemented | production card detail can create/continue authoritative ChangePlan; action/verification screen source-bound |
 | Current / Transition / After | complete | implemented | After always Plan Projection |
 | Make-Before-Break | complete | implemented semantics | production authoritative plan required |
 | Action DAG | complete | core implemented | existing |
@@ -63,10 +63,10 @@ No roadmap capability creates a sixth primary destination.
 
 | Capability | Design | Reference | Production authority |
 | --- | --- | --- | --- |
-| File Import | complete | R23 read-only | existing FileWorkflowCoordinator/AppContainer |
-| Manual Establish object | complete | R24 read-only reference + production gateway | AppContainer authority and VNext production gateway available; Preview remains read-only; production screen binding/cutover still gated |
+| File Import | complete | R23 read-only | production Host handoff source-bound to existing FileWorkflowCoordinator; launcher host injection pending |
+| Manual Establish object | complete | R24 reference + production form | AppContainer authority + production VNext form source-bound; launcher cutover still gated |
 | Manual Relationship | complete | R25 read-only | requires Native Schema v4 before full production authority; partial v3-only UI forbidden |
-| Human Review | complete | R22 read-only | production Proposal/Candidate/Drift authorities exist |
+| Human Review | complete | R22 reference + production inbox | production Proposal/Candidate/Drift source/action UI bound with authoritative re-read |
 | Proposal != Reality | frozen | enforced in UX | canonical |
 | Candidate != Node | frozen | enforced in UX | canonical |
 | Drift decision | complete | read-only reference | production authority exists |
@@ -174,21 +174,30 @@ Canonical / encrypted Reality
 ~~~
 
 Current source includes:
-- production snapshot;
+- production snapshot and strict Reference-vs-Reality mode boundary;
 - conservative surface classification;
 - payment asset issuer/last4 projection;
 - consumer inventory projection;
-- impact projection;
-- review projection;
-- plan projection;
-- authoritative Change action gateway;
-- authoritative Human Review source/action gateway;
+- production category/detail binding for payment/account/device/service;
+- explicit phone/email/finding HOLD surfaces rather than subtype inference;
+- authoritative Impact projection;
+- production Reality-only global Search;
+- production Records projection with completion / verification / evidence separation;
+- fifth-primary Me production control surface;
+- local Presentation preference screen with store-backed VAppState injection seam;
+- review projection + authoritative Human Review source/action gateway;
+- plan projection + authoritative Change action gateway;
+- card-detail → create/continue replace_payment_card ChangePlan;
+- authority-aware ChangePlan execution screen with readiness/staleness gates;
 - authoritative Import projection/authority seam;
-- authoritative Manual Establish gateway.
+- host-owned FileWorkflowCoordinator request seam;
+- authoritative Manual Establish gateway + production form;
+- explicit Native Schema v4 HOLD surface for Manual Relationship.
 
 Still required before launcher cutover:
-- screen-level production-source injection;
-- generic identity handling;
+- MainActivity / lock-gate production shell injection;
+- exact-head restart/security E2E;
+- generic identity subtype implementation for phone/email;
 - subtype-aware phone/email after Canonical;
 - no synthetic fixture reachable in production;
 - lock/security parity;
@@ -245,7 +254,7 @@ iOS/Harmony UI translation after Android freeze
 real-user/real-data/store gates when reopened
 ~~~
 
-## 15. R26 design closure assertion
+## 15. R26 design closure assertion + R29 production source progress
 
 Within the product scope and roadmap explicitly described by v2.3-R1, the remaining
 major concepts now have one of three explicit outcomes:
