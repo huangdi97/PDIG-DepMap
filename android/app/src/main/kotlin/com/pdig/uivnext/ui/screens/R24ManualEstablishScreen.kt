@@ -36,8 +36,9 @@ import com.pdig.uivnext.theme.VRadius
 /**
  * R24 Manual Establish reference.
  *
- * This screen freezes the consumer design but exposes no save button because
- * production VNext does not yet own a governed manual-node creation authority.
+ * This screen freezes the consumer design and intentionally exposes no Save button
+ * in Preview. Production now has a governed manual-node authority/gateway, but
+ * Preview stays isolated and production screen binding is a separate cutover gate.
  */
 @Composable
 internal fun R24ManualEstablishScreen(
@@ -195,7 +196,7 @@ internal fun R24ManualEstablishScreen(
                 }
             }
 
-            ManualSectionTitle("正式版提交语义", "未来 binding")
+            ManualSectionTitle("正式版提交语义", "production binding")
             ManualFlowLine("1", "选择受支持对象类型")
             ManualFlowLine("2", "填写最小身份字段，并明确哪些字段是未知")
             ManualFlowLine("3", "确认“这个对象存在”")
