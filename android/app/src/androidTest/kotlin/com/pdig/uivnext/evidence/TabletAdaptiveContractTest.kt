@@ -82,6 +82,34 @@ class TabletAdaptiveContractTest {
     }
 
     @Test
+    fun tabletCardChange_keepsOldRelationsNewAsOneContinuityScene() {
+        val ctx = InstrumentationRegistry.getInstrumentation().targetContext
+        assumeTrue("expanded-only card continuity contract", ctx.resources.configuration.screenWidthDp >= 840)
+
+        val app = createVNextAppState().apply {
+            openCardChange("card-cn-2")
+            chooseReplacementCard("card-cn-3")
+            cardChangeProjection = "after"
+        }
+        renderApp(app)
+
+        val rootHeight = compose.onRoot().fetchSemanticsNode().size.height.toFloat()
+        val old = compose.onNodeWithTag("pdig.r21.change-card.old", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val services = compose.onNodeWithTag("pdig.r21.change-card.services", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+        val new = compose.onNodeWithTag("pdig.r21.change-card.new", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+
+        assertTrue("card change OLD must be left of relations", old.right <= services.left)
+        assertTrue("card change relations must be left of NEW", services.right <= new.left)
+        assertTrue("card change OLD must be visible in first viewport", old.bottom <= rootHeight)
+        assertTrue("card change relations must be visible in first viewport", services.bottom <= rootHeight)
+        assertTrue("card change NEW must be visible in first viewport", new.bottom <= rootHeight)
+        assertTrue("payment relations must remain visually central", services.width >= old.width)
+    }
+
+    @Test
     fun tabletInfrastructure_keepsPrimaryRailAndContentSecondaryNavigation() {
         val ctx = InstrumentationRegistry.getInstrumentation().targetContext
         assumeTrue("tablet-only contract", ctx.resources.configuration.screenWidthDp >= 600)
