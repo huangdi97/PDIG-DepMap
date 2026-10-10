@@ -16,6 +16,7 @@ internal data class ProductionVNextAuthorities(
     val review: ProductionReviewCoordinator,
     val change: VNextChangeActionGateway,
     val manualEstablish: AppContainerVNextManualEstablishGateway,
+    val manualRelationship: AppContainerVNextManualRelationshipGateway,
     val import: AppContainerVNextImportAuthority,
 )
 
@@ -61,6 +62,7 @@ internal fun createProductionVNextSession(
             review = ProductionReviewCoordinator(reviewSource, reviewGateway),
             change = AppContainerVNextChangeActionGateway(appContainer),
             manualEstablish = AppContainerVNextManualEstablishGateway(appContainer),
+            manualRelationship = AppContainerVNextManualRelationshipGateway(appContainer),
             import = AppContainerVNextImportAuthority(appContainer),
         ),
         hostActions = hostActions,
