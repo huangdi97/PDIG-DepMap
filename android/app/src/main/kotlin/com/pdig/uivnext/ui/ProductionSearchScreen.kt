@@ -97,8 +97,10 @@ internal fun ProductionSearchScreen(
 
     var query by remember { mutableStateOf("") }
     val normalized = query.trim()
-    val hits = remember(snapshot, normalized) {
-        if (normalized.isBlank()) emptyList() else productionSearchHits(snapshot, normalized)
+    val privacyMask = session.appState.privacyMask
+    val hits = remember(snapshot, normalized, privacyMask) {
+        if (normalized.isBlank()) emptyList()
+        else productionSearchHits(snapshot, normalized, privacyMask)
     }
 
     LazyColumn(
@@ -147,6 +149,7 @@ internal fun ProductionSearchScreen(
 internal fun productionSearchHits(
     snapshot: com.pdig.uivnext.production.VNextProductionSnapshot,
     query: String,
+    privacyMask: Boolean = false,
 ): List<ProductionSearchHit> {
     val normalized = query.trim()
     if (normalized.isEmpty()) return emptyList()
@@ -163,7 +166,7 @@ internal fun productionSearchHits(
             subtitle = listOfNotNull(
                 kindLabel,
                 item.issuer,
-                item.last4?.let { "尾号 $it" },
+                item.last4?.let { productionPaymentTailLabel(it, privacyMask) },
             ).joinToString(" · "),
         )
     }
