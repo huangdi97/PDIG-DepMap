@@ -30,7 +30,7 @@ No roadmap capability creates a sixth primary destination.
 | Devices | complete | implemented reference | production generic detail source-bound; factor enrichment remains future-gated |
 | Services | complete | implemented | production category + focused generic detail + Impact source-bound |
 | Weaknesses / Infrastructure Findings | complete | R27 full seven-class grammar implemented | production findings must come from authoritative continuity analysis; reference findings never enter Reality |
-| Me | complete | implemented, fifth primary | production personal control surface + local Presentation preferences source-bound; launcher persistence injection pending |
+| Me | complete | implemented, fifth primary | production personal control surface + store-backed local Presentation preferences wired through VNextShellViewModel |
 | Search | complete | implemented | production Reality-only object / plan / source / route search source-bound |
 
 ## 2. Object understanding
@@ -184,7 +184,7 @@ Current source includes:
 - production Reality-only global Search;
 - production Records projection with completion / verification / evidence separation;
 - fifth-primary Me production control surface;
-- local Presentation preference screen with store-backed VAppState injection seam;
+- local Presentation preference screen with store-backed VAppState; MainActivity Production rehearsal injects the same VNextShellViewModel state, so workspace preferences survive ViewModel/process recreation without entering Canonical;
 - review projection + authoritative Human Review source/action gateway;
 - plan projection + authoritative Change action gateway;
 - card-detail → create/continue replace_payment_card ChangePlan;
