@@ -56,7 +56,7 @@ internal fun R17FramelessWorldHero(
             }
         }
         // An open GPU sky replaces the old bordered 435dp administration card.
-        Box(Modifier.fillMaxWidth().height(338.dp)
+        Box(Modifier.fillMaxWidth().height(374.dp)
             .testTag("pdig.r9.world.hero")
             .testTag("pdig.r15.hero.spatial-stage")
             .testTag("pdig.r17.planet-plane")) {
