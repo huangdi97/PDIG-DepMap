@@ -183,6 +183,37 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
+    fun localPhoneAliasIsSearchableWithoutBecomingReality() {
+        val hits = productionSearchHits(
+            snapshot = snapshot(),
+            query = "香港银行主号",
+            numberAliasLookup = { id -> if (id == "phone-1") "香港银行主号" else null },
+        )
+        val phone = hits.filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "phone-1" }
+
+        assertEquals("香港银行主号", phone.title)
+        assertEquals("香港主号", phone.item.name)
+    }
+
+    @Test
+    fun phoneLikeAliasCanMatchLocallyButIsNotEchoedWhenObjectMaskIsEnabled() {
+        val hits = productionSearchHits(
+            snapshot = snapshot(),
+            query = "13800138000",
+            privacyMask = false,
+            numberAliasLookup = { id -> if (id == "phone-1") "13800138000" else null },
+            numberMaskLookup = { id -> id == "phone-1" },
+        )
+        val phone = hits.filterIsInstance<ProductionSearchHit.ObjectHit>()
+            .single { it.item.id == "phone-1" }
+
+        assertEquals("号码已遮蔽", phone.title)
+        assertTrue(!phone.title.contains("13800138000"))
+        assertTrue(phone.subtitle.contains("号码已遮蔽"))
+    }
+
+    @Test
     fun cardTailLabelsTreatPrivacyAsPresentationOnly() {
         assertEquals("尾号未记录", productionPaymentTailLabel(null, privacyMask = false))
         assertEquals("尾号 8823", productionPaymentTailLabel("8823", privacyMask = false))
