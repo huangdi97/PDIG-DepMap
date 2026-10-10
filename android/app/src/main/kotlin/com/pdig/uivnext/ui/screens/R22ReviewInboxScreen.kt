@@ -1,5 +1,8 @@
 package com.pdig.uivnext.ui.screens
 
+import com.pdig.uivnext.capability.VNextCapability
+import com.pdig.uivnext.capability.hasProductionAuthority
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +52,7 @@ internal fun R22ReviewInboxScreen(
     app: VAppState,
     breakpoint: MediaBreakpoint,
 ) {
+    val productionReviewReady = hasProductionAuthority(VNextCapability.HUMAN_REVIEW)
     val items = if (app.emptyDemo) emptyList() else UI_REVIEW_REFERENCE_ITEMS
     val summary = reviewReferenceSummary(items)
     val maxWidth = when (breakpoint) {
@@ -128,8 +132,11 @@ internal fun R22ReviewInboxScreen(
 
             ReviewSectionTitle("正式工作区的决策边界", "Preview 不执行")
             ReviewBoundaryCard(
-                "正式版会把“确认 / 拒绝 / 忽略 / 已替换 / 两个都在用 / 没有变化”交给现有生产 authority。" +
-                    "本预览页不会因为点击、滚动或高置信度自动修改任何节点、依赖或 graphRevision。",
+                if (productionReviewReady)
+                    "正式版已有 Proposal / Candidate / Drift 决策 authority；Preview 仍保持只读，" +
+                        "不会因为点击、滚动或高置信度自动修改节点、依赖或 graphRevision。"
+                else
+                    "正式版决策 authority 尚未就绪；Preview 不会用本地状态模拟确认、拒绝或 Reality mutation。",
             )
 
             Surface(
