@@ -32,7 +32,7 @@ import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
-private sealed interface ProductionSearchHit {
+internal sealed interface ProductionSearchHit {
     val stableKey: String
     val title: String
     val subtitle: String
@@ -144,7 +144,7 @@ internal fun ProductionSearchScreen(
     }
 }
 
-private fun productionSearchHits(
+internal fun productionSearchHits(
     snapshot: com.pdig.uivnext.production.VNextProductionSnapshot,
     query: String,
 ): List<ProductionSearchHit> {
