@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-10 · Android UI R34 + Architecture R35 + Cutover R36 + Governed Identity R37/R38 + Region/World R39 + Maintenance R40/R41 + Secure Production Import R42/R43**
+> **Current reality · 2026-10-10 · R34 Light UI → R43 governed Production import → R44 object masking → R45 Production Globe / Card Gallery / relation privacy fixes (source only; fresh exact-head gates pending)**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -9,6 +9,16 @@
 >
 > Status vocabulary:
 > `IMPLEMENTED_SOURCE / DESIGN_FROZEN / NOT_CONNECTED / NOT_RUN / HOLD`.
+
+## R45 source-only extension (2026-10-10)
+
+- R44 mask/search: global masked phone search title and identity face are source-fixed; no new Reality authority.
+- Instrumentation compilation: invalid `assertDoesNotExist` import removed; prior tablet/rehearsal compile failure requires fresh CI proof.
+- Production Region Lens: GPU hit target and projected geographic callout now both select the governed region filter; explicit global reset available.
+- Production Cards: responsive 2/3/4-column asset identity gallery replaces generic row for payment instruments; private imagery and presentation remain local.
+- Confirmed relationship peers: phone/identity names are resolved through current privacy projection; stale dependency-name fallback is redacted while masked.
+- Regression source: region filter selection/reset and privacy-safe relation peers have JVM tests.
+- **Do not infer exact-head CI / phone / tablet / GPU / human acceptance / production cutover PASS from these source edits.**
 
 ## 0. Executive state
 
