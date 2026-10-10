@@ -1,6 +1,6 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
-> **Current reality · 2026-10-09 · R21**
+> **Current reality · 2026-10-10 · R22**
 >
 > Branch: `feat/android-ui-vnext-translation`
 >
@@ -13,7 +13,7 @@
 ## 0. Executive state
 
 ```text
-ANDROID_UI_VNEXT_SOURCE = R21
+ANDROID_UI_VNEXT_SOURCE = R22
 ANDROID_LIGHT_REFERENCE_DIRECTION = DESIGN_FROZEN
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_READ_MODEL = SOURCE_IMPLEMENTED
@@ -22,12 +22,12 @@ PRODUCTION_VNEXT_CUTOVER = HOLD
 CANONICAL_SCHEMA_CHANGE_FOR_R19_UI = NONE
 DEPMAP_PAYLOAD_CHANGE_FOR_R19_UI = NONE
 
-FRESH_R21_BUILD = NOT_RUN
-FRESH_R21_UNIT_TESTS = NOT_RUN
-FRESH_R21_INSTRUMENTATION = NOT_RUN
-FRESH_R21_PHONE_PIXELS = NOT_RUN
-FRESH_R21_TABLET_PIXELS = NOT_RUN
-FRESH_R21_HUMAN_ACCEPTANCE = NOT_RUN
+FRESH_R22_BUILD = NOT_RUN
+FRESH_R22_UNIT_TESTS = NOT_RUN
+FRESH_R22_INSTRUMENTATION = NOT_RUN
+FRESH_R22_PHONE_PIXELS = NOT_RUN
+FRESH_R22_TABLET_PIXELS = NOT_RUN
+FRESH_R22_HUMAN_ACCEPTANCE = NOT_RUN
 ```
 
 Do not reuse pre-R19 screenshots or old PASS statements as proof of the current
@@ -60,9 +60,22 @@ source.
 | Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
 | Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
 | Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **NOT_RUN on current R21 head** |
+| Exact-head GPU runtime proof | **NOT_RUN on current R22 head** |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
+
+### Now task ownership — R22
+
+Now now owns pending work explicitly:
+- Human Review;
+- current attention;
+- active changes;
+- upcoming maintenance.
+
+R22 removes stale links that treated Records as a generic "查看全部" page. Active
+changes route to Change Center; pending review routes to Human Review; future
+maintenance remains on Now. Records keeps its evidence/history boundary.
+
 
 ## 3. Infrastructure
 
@@ -281,6 +294,14 @@ Source search now covers:
 
 Search only searches recorded/reference data; absence is not proof of nonexistence.
 
+R22 also makes Human Review discoverable through:
+- 待复核;
+- 复核 / 确认 / 建议;
+- proposal / candidate / drift.
+
+Search opens Review only; it never performs a review decision.
+
+
 ## 11. Production binding
 
 Current reference route:
@@ -321,7 +342,46 @@ Source progress now also includes:
 
 These are read-only seams. They do not switch the launcher or claim R19 lifecycle persistence.
 
-## 12. Canonical boundary
+R22 production governance source now additionally includes:
+- `AppContainerVNextReviewSource`;
+- `ProductionReviewConsumerProjection`;
+- `AppContainerVNextReviewActionGateway`.
+
+Proposal / Candidate / Drift remain outside Reality until the authoritative gateway
+is called. After every production review mutation the queue must be re-read; a local
+UI dismissal is never sufficient.
+
+
+## 12. Human Review — truth authority
+
+R22 closes the missing visible step between discovery and Personal Reality.
+
+```text
+Observation
+→ Proposal / Candidate / Drift
+→ Human Review
+→ Confirmed Reality
+```
+
+UI route:
+- `VScreen.REVIEW`;
+- label = `待复核`;
+- parent = Now;
+- not a sixth primary tab.
+
+Preview has one isolated reference example for each review class and is read-only.
+Production already has source/action seams but screen injection remains gated by the
+VNext production cutover.
+
+Permanent rules:
+- machine confidence != truth;
+- Review visibility != confirmation;
+- Proposal is not a Dependency;
+- Candidate is not a Node;
+- Drift is not a graph mutation;
+- empty Review != complete graph.
+
+## 13. Canonical boundary
 
 Current Canonical schema does **not** yet define R19 card/number lifecycle fields as
 cross-platform semantic fields.
@@ -343,9 +403,9 @@ Spec
 → UI
 ```
 
-## 13. Tests / evidence present in source
+## 14. Tests / evidence present in source
 
-R21 has source contracts for:
+R22 has source contracts for:
 - lifecycle fixture truth/unknown behavior;
 - Impact Lens unknown/evidence boundaries;
 - keep-number identity;
@@ -358,12 +418,15 @@ R21 has source contracts for:
 - search lifecycle/alias semantics;
 - projected region label geometry;
 - compact visual hierarchy;
-- tablet adaptive hierarchy.
+- tablet adaptive hierarchy;
+- Human Review route / Up hierarchy / Search discovery;
+- Preview review authority boundary;
+- production review consumer projection.
 
 These tests are **present**. They are not called PASS until run on the current
 exact head.
 
-## 14. Current remaining evidence gates
+## 15. Current remaining evidence gates
 
 ```text
 1. exact-head build
@@ -379,18 +442,20 @@ exact head.
 
 Only after Android Reference Freeze may iOS/Harmony UI translation leave HOLD.
 
-## 15. Source/design closure documents
+## 16. Source/design closure documents
 
 - `ANDROID_UI_VNEXT_R19_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R20_SOURCE_REPORT.md`
 - `ANDROID_UI_VNEXT_R21_SOURCE_REPORT.md`
+- `ANDROID_UI_VNEXT_R22_SOURCE_REPORT.md`
 - `spec/ui-vnext/RECORDS_AND_PAYMENT_CHANGE_CONTRACT.md`
+- `spec/ui-vnext/HUMAN_REVIEW_UX_CONTRACT.md`
 - `ANDROID_REFERENCE_MAPPING.md`
 - `ANDROID_VISUAL_CONTRACT.md`
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
 - `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
 
-## 16. Identity / Recovery future-lens closure
+## 17. Identity / Recovery future-lens closure
 
 R21 closes the **design** of the two remaining long-term lenses without exposing
 ghost capabilities.
@@ -412,7 +477,7 @@ Shared UX:
 - neither becomes a sixth/seventh primary tab;
 - Android `VNextLensAvailability` makes the HOLD executable.
 
-## 17. Honest stop line
+## 18. Honest stop line
 
 ```text
 SOURCE_DESIGN = COMPLETE
@@ -421,5 +486,5 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_CUTOVER = HOLD
 ```
 
-The next blocker is no longer “missing UI design.” It is fresh exact-head R21 runtime
+The next blocker is no longer “missing UI design.” It is fresh exact-head R22 runtime
 verification and, after reference acceptance, production read-model binding.
