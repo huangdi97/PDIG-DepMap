@@ -65,6 +65,18 @@ class SourceCompleteScreenshotEvidenceTest {
         if (ctx().resources.configuration.screenWidthDp >= 600) "tablet" else "phone"
     }
 
+    /**
+     * The expanded Cards / Numbers inspector workspaces only exist at the EXPANDED breakpoint,
+     * while `deviceClass == "tablet"` is true for every viewport >= 600dp. The CI tablet
+     * configuration is 1920x1200 @240dpi with user_rotation=1, i.e. 800x1280dp => MEDIUM: it
+     * renders the real 2-column card grid plus the focused card / number detail and deliberately
+     * has no inspector pane. Branching on the breakpoint keeps tablet evidence on the real user
+     * path for that viewport instead of demanding a workspace the product does not render there.
+     */
+    private val expandedWorkspace: Boolean by lazy {
+        ctx().resources.configuration.screenWidthDp >= 840
+    }
+
     private var contentSet = false
     private var slotApp by mutableStateOf<VAppState?>(null)
 
@@ -218,9 +230,17 @@ class SourceCompleteScreenshotEvidenceTest {
             appOverride = overviewJourney,
         ) {
             if (deviceClass == "tablet") {
-                val quick = compose.onNodeWithTag(VTestIds.OVERVIEW_QUICK, useUnmergedTree = true).fetchSemanticsNode()
+                val quick = compose.onNodeWithTag(VTestIds.OVERVIEW_QUICK, useUnmergedTree = true)
+                    .fetchSemanticsNode()
+                // Diagnostics: a bare "must be laid out" message hid whether the row was clipped
+                // by an ancestor, never composed, or measured to zero on this viewport. Report the
+                // real measured geometry and resolved viewport so the failure is actionable.
                 assertTrue(
-                    "tablet overview quick entries must be laid out",
+                    "tablet overview quick entries must be laid out" +
+                        " (boundsInRoot=${quick.boundsInRoot}, size=${quick.size}," +
+                        " screenWidthDp=${ctx().resources.configuration.screenWidthDp}," +
+                        " screenHeightDp=${ctx().resources.configuration.screenHeightDp}," +
+                        " deviceClass=$deviceClass)",
                     quick.boundsInRoot.width > 0f && quick.boundsInRoot.height > 0f,
                 )
             }
@@ -250,7 +270,7 @@ class SourceCompleteScreenshotEvidenceTest {
         }
         capture("05-cards", "global", { it.navigate(VScreen.CARDS) }, { "global" })
         capture("06-card-detail", "card-cn-2", { it.openCard("card-cn-2") }, { it.selectedCardId ?: "none" })
-        if (deviceClass == "tablet") {
+        if (expandedWorkspace) {
             // Expanded runtime must prove the real user path: Cards -> select card -> inspector -> 定制卡面 -> Studio.
             capture(
                 "07-card-art-ocean",
@@ -288,7 +308,7 @@ class SourceCompleteScreenshotEvidenceTest {
         }
         capture("09-numbers", "global", { it.navigate(VScreen.NUMBERS) }, { "global" })
         capture("10-number-detail", "num-cn-1", { it.openNumber("num-cn-1") }, { it.selectedNumberId ?: "none" })
-        if (deviceClass == "tablet") {
+        if (expandedWorkspace) {
             // Expanded runtime proves the actual user continuation: Numbers inspector -> 定制号码面 -> Studio.
             capture(
                 "11-number-studio-travel",
@@ -326,7 +346,7 @@ class SourceCompleteScreenshotEvidenceTest {
         // from an avatar shortcut or Settings screenshots.
         capture("25-me", "me", { it.navigate(VScreen.ME) }, { it.screen.name.lowercase(Locale.ROOT) }) {
             compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).fetchSemanticsNode()
-            if (deviceClass == "tablet") {
+            if (expandedWorkspace) {
                 compose.onNodeWithTag("pdig.r19.me.workspace", useUnmergedTree = true).fetchSemanticsNode()
             } else {
                 compose.onNodeWithTag("pdig.r10.screen.me", useUnmergedTree = true).fetchSemanticsNode()

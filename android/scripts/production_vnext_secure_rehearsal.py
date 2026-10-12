@@ -29,6 +29,14 @@ ACTIVITY = "com.pdig.app.MainActivity"
 OUT = Path("artifacts/runtime-evidence/production-vnext-rehearsal")
 OUT.mkdir(parents=True, exist_ok=True)
 
+# The unlocked Production VNext Reality shell's own consumer-facing marker.
+# "生产 Reality" is no longer on the Reality Now screen: it now appears only on the Me workspace
+# page (ProductionVNextShell.kt "我的数字生活 · 生产 Reality 工作区"), so it cannot prove that the
+# Reality shell itself is on screen. This marker is the Production Now surface's own title and is
+# additionally forbidden while locked and on the legacy route, which keeps the fail-closed and
+# no-silent-cutover boundaries strictly enforced.
+REALITY_MARKER = "你的数字基础设施 · 已记录的全球上下文"
+
 
 def adb(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -101,7 +109,7 @@ def tap_text(text: str, timeout: float = 15.0) -> None:
 
 def assert_locked(name: str) -> list[dict[str, str]]:
     nodes = wait_for("PDIG 已锁定", snapshot=name)
-    forbidden = ["生产 Reality", "个人控制面", "建立基础设施"]
+    forbidden = ["生产 Reality", "个人控制面", "建立基础设施", REALITY_MARKER, "已确认数据"]
     leaked = [x for x in forbidden if has(nodes, x)]
     if leaked:
         raise RuntimeError(f"Reality/VNext UI leaked while locked: {leaked}")
@@ -119,7 +127,7 @@ def unlock_clean_emulator() -> list[dict[str, str]]:
         )
     else:
         raise RuntimeError(f"No recognized unlock action; labels={labels(nodes)[:80]}")
-    return wait_for("生产 Reality", timeout=25, snapshot="production-vnext-unlocked")
+    return wait_for(REALITY_MARKER, timeout=25, snapshot="production-vnext-unlocked")
 
 
 def assert_five_primary(nodes: list[dict[str, str]]) -> None:
@@ -161,7 +169,7 @@ def main() -> None:
     # 2. Clean emulator explicit acknowledgement -> real Production VNext.
     unlocked = unlock_clean_emulator()
     assert_five_primary(unlocked)
-    if not has(unlocked, "生产 Reality"):
+    if not has(unlocked, REALITY_MARKER):
         raise RuntimeError("Production truth badge missing after unlock")
     dump("02-reality-debug-unlocked")
     evidence["checks"].append("REALITY_DEBUG_FIVE_PRIMARY")
@@ -188,7 +196,7 @@ def main() -> None:
     start(extra=False)
     assert_locked("06-default-production-locked")
     nodes = dump("06-default-production-locked")
-    if has(nodes, "生产 Reality"):
+    if has(nodes, REALITY_MARKER):
         raise RuntimeError("Default production route exposed Production VNext before unlock")
     # Unlock and prove legacy content, not Production VNext.
     current = dump("06-default-unlock-capability")
@@ -197,7 +205,7 @@ def main() -> None:
     else:
         raise RuntimeError("Default production clean emulator did not expose explicit acknowledgement")
     legacy = wait_for("我的基础设施", timeout=25, snapshot="07-default-production-legacy")
-    if has(legacy, "生产 Reality"):
+    if has(legacy, REALITY_MARKER):
         raise RuntimeError("Default productionDebug silently cut over to Production VNext")
     evidence["checks"].append("DEFAULT_PRODUCTION_REMAINS_LEGACY")
 

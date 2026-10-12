@@ -188,6 +188,16 @@ private fun SinglePaneOverview(
                 )
             }
         }
+        // R48 tablet/medium: the quick entries must belong to the FIRST viewport, not be appended
+        // after an already-full single-pane column. On the CI tablet configuration
+        // (1920x1200 @240dpi with user_rotation=1 => 800x1280dp => MEDIUM) the row was composed and
+        // measured (1008x255px) but entirely below the fold, so its clipped boundsInRoot was
+        // Rect.Zero: a real tablet user never saw 查看卡片 / 查看号码 / 更换手机号 / 薄弱点.
+        // Placing them directly under the globe stage puts the task actions where they belong and
+        // keeps them inside the first screen at every non-compact breakpoint.
+        if (breakpoint != MediaBreakpoint.COMPACT) {
+            CompactQuickEntries(app)
+        }
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -197,9 +207,6 @@ private fun SinglePaneOverview(
             border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         ) {
             ActivityRailContent(app, regions, scrollable = false)
-        }
-        if (breakpoint != MediaBreakpoint.COMPACT) {
-            CompactQuickEntries(app)
         }
     }
 }

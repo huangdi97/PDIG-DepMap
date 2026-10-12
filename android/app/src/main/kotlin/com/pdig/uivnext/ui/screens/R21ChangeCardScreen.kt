@@ -214,7 +214,7 @@ private fun CompactCardChangeFlow(
     if (replacement != null) {
         ChangeCardNode("替代卡片 · 计划目标", replacement, app, Modifier.fillMaxWidth())
     } else {
-        ChangeCardEmptyTarget(Modifier.fillMaxWidth())
+        ChangeCardEmptyTarget(app.cardChangeProjection, Modifier.fillMaxWidth())
     }
 }
 
@@ -237,7 +237,7 @@ private fun WideCardChangeFlow(
         if (replacement != null) {
             ChangeCardNode("替代卡片 · 计划目标", replacement, app, Modifier.weight(0.29f))
         } else {
-            ChangeCardEmptyTarget(Modifier.weight(0.29f))
+            ChangeCardEmptyTarget(app.cardChangeProjection, Modifier.weight(0.29f))
         }
     }
 }
@@ -324,7 +324,10 @@ private fun ChangeCardServices(
 }
 
 @Composable
-private fun ChangeCardEmptyTarget(modifier: Modifier = Modifier) {
+private fun ChangeCardEmptyTarget(
+    projection: String,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         modifier = modifier.defaultMinSize(minHeight = 110.dp),
         color = PdigV2Colors.SurfaceRaised,
@@ -333,7 +336,14 @@ private fun ChangeCardEmptyTarget(modifier: Modifier = Modifier) {
     ) {
         Box(Modifier.fillMaxSize().padding(14.dp), contentAlignment = Alignment.Center) {
             Text(
-                "尚未选择替代卡片\n替代对象是可选计划输入",
+                if (projection == "transition") {
+                    // R49: the blocking reason must be visible inside the stage the user tapped,
+                    // not only in the stage-explanation panel mounted below the whole flow
+                    // (off-screen on compact phones). Same two-line height: no layout displacement.
+                    "尚未选择替代卡片，迁移阶段保持阻断。\n替代对象是可选计划输入"
+                } else {
+                    "尚未选择替代卡片\n替代对象是可选计划输入"
+                },
                 color = PdigV2Colors.TextMuted,
                 fontSize = 10.sp,
                 lineHeight = 16.sp,

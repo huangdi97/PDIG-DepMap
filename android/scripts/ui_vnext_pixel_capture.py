@@ -172,6 +172,23 @@ def require_screen(name, *texts):
             raise RuntimeError(f"Screen {name} did not show {required!r}; captured wrong page")
 
 
+def require_across(names, *texts):
+    """Assert every text appears somewhere across the given real scroll positions.
+
+    A compact phone cannot show a long Preview surface in one viewport, so demanding all copy
+    from a single screenshot was a false failure. The union of the surface's real captures is
+    the correct assertion surface; no requirement is dropped, and each capture is a genuine
+    runtime screenshot of the same screen at a real scroll position.
+    """
+    pool = []
+    for name in names:
+        pool.extend(json.loads((ROOT / (name + ".json")).read_text(encoding="utf-8"))["uiText"])
+    for required in texts:
+        if not any(required in label for label in pool):
+            diagnose_navigation("screen-" + names[0] + "-missing")
+            raise RuntimeError(f"Surface {names} did not show {required!r}; captured wrong page")
+
+
 def _bounds_for_exact(label):
     for node in xml_nodes():
         if label_of(node).strip() != label:
@@ -182,6 +199,36 @@ def _bounds_for_exact(label):
             if rect[2] > rect[0] and rect[3] > rect[1]:
                 return rect
     return None
+
+
+def bottom_nav_hit(label):
+    """Primary destinations exist ONLY in the bottom-navigation strip.
+
+    Content surfaces legitimately reuse the same words: the Change Center renders its own
+    "记录" shortcut tile. An exact-label match must therefore be constrained to the real
+    bottom-navigation hit region instead of matching any content node.
+    """
+    match = re.search(r"(\d+)x(\d+)", adb("shell", "wm", "size").stdout)
+    display_height = int(match.group(2)) if match else 2340
+    for node in xml_nodes():
+        if label_of(node).strip() != label:
+            continue
+        bounds = re.findall(r"\d+", node.get("bounds") or "")
+        if len(bounds) != 4:
+            continue
+        x1, y1, x2, y2 = map(int, bounds)
+        if x2 > x1 and y2 > y1 and ((y1 + y2) // 2) >= display_height * 0.88:
+            return ((x1 + x2) // 2, (y1 + y2) // 2)
+    return None
+
+
+def tap_bottom_nav(label):
+    hit = bottom_nav_hit(label)
+    if hit is None:
+        return False
+    adb("shell", "input", "tap", str(hit[0]), str(hit[1]))
+    time.sleep(1)
+    return True
 
 
 def projected_region_bounds():
@@ -507,15 +554,59 @@ def main():
         raise RuntimeError("R21 Card Change transition projection unavailable")
     capture("04i-card-change-transition-blocked")
     require_screen("04i-card-change-transition-blocked", "尚未选择替代卡片，迁移阶段保持阻断")
-    if not tap_retry("工行信用卡", exact=True):
-        # Candidate strip can be horizontally clipped on compact phones.
+    # R48: the replacement selector is mounted below the continuity panel AND below the
+    # Impact Lens, so on a compact phone it is not inside the initial viewport. Scroll the
+    # real scroll container until the candidate is really visible instead of assuming a
+    # fixed y-coordinate that only worked before that content existed.
+    #
+    # The target must be an *active* recorded card. The screen states that rule in its own
+    # copy ("其他已记录且处于 active 的卡片"), and ANDROID_UI_VNEXT_R21_SOURCE_REPORT.md
+    # records "The reference UI lists other recorded active cards". 工行信用卡 is
+    # `expiring_soon`, so it is correctly NOT offered as a migration target; asserting on it
+    # was stale. The business assertion below is unchanged in strength: a real recorded active
+    # card must become a real, selectable plan target and be reported as 已选计划目标.
+    target_candidate = "中行数字卡"
+    for attempt in range(10):
+        if any(target_candidate in label_of(node) for node in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1100", "340")
+        time.sleep(1)
+    if not tap_retry(target_candidate, exact=True):
+        # Candidate strip can also be horizontally clipped on compact phones.
         adb("shell", "input", "swipe", "930", "1950", "250", "1950", "360")
-        if not tap_retry("工行信用卡", exact=True):
+        if not tap_retry(target_candidate, exact=True):
+            capture("04j-card-change-target-unreachable")
             raise RuntimeError("R21 Card Change replacement candidate could not be selected")
+    # Confirming a target swaps the short empty-target placeholder for a taller
+    # 替代卡片 · 计划目标 node, which pushes the candidate strip's own selected-state footer
+    # just below the fold on a 1080x2340 phone. Scroll the real scroll container until the
+    # confirmed selected state is inside the viewport; the assertion is unchanged.
+    for attempt in range(8):
+        if any("已选计划目标" in label_of(node) for node in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1300", "340")
+        time.sleep(1)
     capture("04j-card-change-transition-target")
-    require_screen("04j-card-change-transition-target", "工行信用卡", "已选计划目标")
-    if not tap_retry("完成后（计划）", exact=True):
+    require_screen("04j-card-change-transition-target", target_candidate, "已选计划目标")
+    # The projection selector lives at the top of the page; the selected-target confirmation
+    # just scrolled it out of the viewport. Return to the top from the real lower scroll
+    # position before switching the projection, mirroring the Change Phone flow's pattern;
+    # never pass because a static stale button happens to exist.
+    for attempt in range(6):
+        if tap_match("完成后（计划）", exact=True):
+            break
+        adb("shell", "input", "swipe", "530", "480", "530", "1840", "420")
+        time.sleep(2)
+    else:
+        capture("04k-card-change-after-selector-missing")
         raise RuntimeError("R21 Card Change After projection unavailable")
+    # Switching the projection keeps the scroll position at the top, so the After plan-projection
+    # statement (mounted below the flow) is below the fold again. Scroll to it, then assert.
+    for attempt in range(8):
+        if any("完成后是计划投影" in label_of(node) for node in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1300", "340")
+        time.sleep(1)
     capture("04k-card-change-after")
     require_screen("04k-card-change-after", "完成后是计划投影", "计划迁移")
     adb("shell", "input", "keyevent", "4")
@@ -603,7 +694,20 @@ def main():
         raise RuntimeError("Change Phone plan projection selector missing after return-to-top")
     capture("05b-change-plan")
     require_screen("05b-change-plan", "完成后预览")
-    if not tap_retry("记录", exact=True, prefer_bottom=True):
+    # R48: the phone bottom navigation is intentionally mounted ONLY in a compact ROOT context
+    # (VNextShell.kt `isCompactRootContext`; the reference explicitly asks for focused
+    # single-pane child flows). The Change Phone After plan projection is a child flow, so the
+    # primary destinations are reached by stepping back to a root — exactly what a user does.
+    # The Change Center also renders its OWN "记录" shortcut tile, so an unconstrained
+    # exact-label tap can hit content instead of the primary destination. Require a real
+    # bottom-navigation hit region before dispatching.
+    for attempt in range(6):
+        if bottom_nav_hit("记录") is not None:
+            break
+        adb("shell", "input", "keyevent", "4")
+        time.sleep(2)
+    if not tap_bottom_nav("记录"):
+        capture("06-records-nav-missing")
         raise RuntimeError("Records bottom navigation not found")
     capture("06-records")
     require_screen(
@@ -612,7 +716,7 @@ def main():
         "已记录完成",
         "已验证",
         "待验证",
-        "done ≠ verified",
+        "完成 ≠ 已验证",
     )
     records_text = json.loads((ROOT / "06-records.json").read_text(encoding="utf-8"))["uiText"]
     if any("需要关注" in row or "即将到来" in row for row in records_text):
@@ -624,7 +728,11 @@ def main():
         ("邮箱", "emails", "已记录邮箱"),
         ("设备", "devices", "已记录设备"),
         ("服务", "services", "已记录服务"),
-        ("薄弱点", "weaknesses", "已记录关注项"),
+        # R48: the compact Infrastructure hub renders the R9 weaknesses workspace
+        # (VNextContentHost routes WEAKNESSES there), not InfraSecondaryScreens.WeaknessesScreen.
+        # Assert the copy that is actually on screen, including the real Finding structure
+        # (为什么 / 依据 / 仍未知 / 下一步), so the gate still proves the collection rendered.
+        ("薄弱点", "weaknesses", "从已记录的到期和恢复关系识别薄弱点"),
     ):
         if not tap_retry("基础设施", exact=True, prefer_bottom=True):
             raise RuntimeError(f"Cannot navigate from Records to Infrastructure for {category}")
@@ -644,14 +752,29 @@ def main():
         detail_targets = {
             "accounts": ("微信账户", "账户身份"),
             "emails": ("主邮箱", "通信 / 恢复身份"),
-            "devices": ("Pixel 8", "物理访问端点"),
-            "services": ("微信支付", "依赖端点"),
+            "devices": ("Pixel 8", "设备身份"),
+            # R48: the service detail's identity section is titled 服务身份 in
+            # R20SecondaryObjectDetail.kt; "依赖端点" only appears in the R24 manual-establish copy
+            # and was never a service-detail heading, so the old expectation was stale.
+            "services": ("微信支付", "服务身份"),
         }
         if slug in detail_targets:
             object_title, detail_heading = detail_targets[slug]
             if not tap_retry(object_title, exact=True):
                 raise RuntimeError(f"R20 focused detail unavailable for {category}: {object_title}")
             detail_name = f"07-{slug}-detail"
+            # The Impact Lens keeps rendering its fact rows below the first fold on a compact
+            # phone: 独立备用方式 and 未确认关系 follow 关键账户. Scroll the real scroll
+            # container until the full fact set is inside the viewport, then assert. The
+            # gate keeps requiring the truth-boundary row instead of being relaxed.
+            for attempt in range(8):
+                if any("未确认关系" in label_of(node) for node in xml_nodes()):
+                    break
+                # Small steps: the assertion needs the section heading AND the last Impact
+                # Lens row inside one 2340px viewport, so a large fling would push the
+                # heading off-screen.
+                adb("shell", "input", "swipe", "530", "1900", "530", "1550", "400")
+                time.sleep(1)
             capture(detail_name)
             require_screen(detail_name, detail_heading, "如果它发生变化？", "未确认关系")
             if not tap_retry("返回上一级", exact=True):
@@ -696,10 +819,13 @@ def main():
     # Return to the actual Number Detail and prove the current Impact Lens there.
     adb("shell", "input", "keyevent", "4")
     time.sleep(2)
-    for attempt in range(7):
-        if any("如果它发生变化？" in label_of(n) for n in xml_nodes()):
+    # Hunt the LAST Impact Lens fact row rather than only the lens title: the assertion below
+    # needs 唯一恢复路径 and 未确认关系 inside the same viewport, and a large fling would push
+    # the earlier rows off-screen. Small steps keep the contiguous fact set together.
+    for attempt in range(10):
+        if any("未确认关系" in label_of(n) for n in xml_nodes()):
             break
-        adb("shell", "input", "swipe", "530", "1760", "530", "720", "360")
+        adb("shell", "input", "swipe", "530", "1900", "530", "1500", "400")
         time.sleep(1)
     else:
         capture("08e-number-impact-missing")
@@ -776,7 +902,9 @@ def main():
         "确认要记录的对象",
         "当前是隔离预览",
     )
-    if not tap_retry("没有文件？手工记录", exact=True):
+    # R23ImportReferenceScreen renders every row title as `title + " →"` (line 233), so the
+    # real tappable label carries the arrow. Keep the match exact rather than loosening it.
+    if not tap_retry("没有文件？手工记录 →", exact=True):
         raise RuntimeError("R24 Manual Establish entry is unreachable from Establish Import")
     capture("10b-manual-establish")
     require_screen(
@@ -786,9 +914,29 @@ def main():
         "支付工具",
         "账户",
         "服务",
-        "当前 Preview 不提供“保存”按钮",
     )
-    if not tap_retry("已经有对象？设计一条关系", exact=True):
+    # The read-only boundary card sits below the fold on a compact phone. Follow the existing
+    # 05a/05aa split: capture it as its own real scrolled screenshot instead of demanding an
+    # entire long surface inside one viewport. The authority boundary is still asserted, and is
+    # now paired with the sentence that explains WHY Preview stays read-only.
+    for attempt in range(8):
+        # Stop only once the explanatory paragraph under the bold title is on screen too, so the
+        # real capture carries the card's full authority statement and not just its headline.
+        if any("不能把参考环境当成生产 Reality" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1350", "400")
+        time.sleep(1)
+    else:
+        capture("10bb-manual-establish-boundary-missing")
+        raise RuntimeError("R24 read-only boundary card never became visible")
+    capture("10bb-manual-establish-boundary")
+    # Return to the top of the real scroll position before tapping the relationship entry.
+    for attempt in range(6):
+        if tap_match("已经有对象？设计一条关系", exact=True):
+            break
+        adb("shell", "input", "swipe", "530", "600", "530", "1900", "400")
+        time.sleep(1)
+    else:
         raise RuntimeError("R25 Manual Relationship entry is unreachable from Manual Establish")
     capture("10c-manual-relationship")
     require_screen(
@@ -796,12 +944,44 @@ def main():
         "手工记录关系",
         "关系是 Reality，不是标签",
         "默认 unknown；required 只能由用户显式确认，机器不能设置。",
-        "当前 Preview 不提供“确认关系”按钮",
     )
+    for attempt in range(8):
+        if any("当前 Preview 不提供" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1350", "400")
+        time.sleep(1)
+    else:
+        capture("10cc-manual-relationship-boundary-missing")
+        raise RuntimeError("R25 read-only boundary card never became visible")
+    capture("10cc-manual-relationship-boundary")
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R25 Manual Relationship did not return to Manual Establish")
     capture("10d-relation-up-manual")
-    require_screen("10d-relation-up-manual", "手工记录", "当前 Preview 不提供“保存”按钮")
+    # The boundary card is asserted again after Up, from its own scrolled screenshot, so Up is
+    # proven to land on the real Manual Establish surface rather than merely on its title.
+    for attempt in range(8):
+        if any("当前 Preview 不提供" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1350", "400")
+        time.sleep(1)
+    else:
+        capture("10dd-relation-up-boundary-missing")
+        raise RuntimeError("R24 read-only boundary card missing after Up")
+    capture("10dd-relation-up-boundary")
+    require_across(
+        ("10b-manual-establish", "10bb-manual-establish-boundary"),
+        "当前 Preview 不提供“保存”按钮",
+        "不能把参考环境当成生产 Reality",
+    )
+    require_across(
+        ("10c-manual-relationship", "10cc-manual-relationship-boundary"),
+        "当前 Preview 不提供“确认关系”按钮",
+    )
+    require_across(
+        ("10d-relation-up-manual", "10dd-relation-up-boundary"),
+        "手工记录",
+        "当前 Preview 不提供“保存”按钮",
+    )
     if not tap_retry("返回上一级", exact=True):
         raise RuntimeError("R24 Manual Establish did not return to Establish Import")
     capture("10e-manual-up-import")
@@ -813,7 +993,15 @@ def main():
 
     # R22: Observation/Proposal/Candidate/Drift requires a real Human Review
     # workspace, but Preview must remain read-only and cannot mutate Reality.
-    if not tap_retry("待复核", exact=True):
+    # Data Sources lists the 待复核 jump row below 建立基础设施, past the first fold on a
+    # compact phone. Scroll the real list until the row is a genuine tappable target.
+    for attempt in range(8):
+        if tap_match("待复核", exact=True):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1400", "400")
+        time.sleep(1)
+    else:
+        capture("10g-human-review-entry-missing")
         raise RuntimeError("R22 Human Review entry is unreachable from Data Sources")
     capture("10g-human-review")
     require_screen(
@@ -822,9 +1010,28 @@ def main():
         "关系建议",
         "对象候选",
         "现实漂移",
+    )
+    # The 正式工作区的决策边界 note (which states that Preview does not execute) sits past the
+    # first fold, after the two review cards. Capture it from its own real scrolled screenshot.
+    for attempt in range(8):
+        if any("Preview 不执行" in label_of(n) for n in xml_nodes()):
+            break
+        adb("shell", "input", "swipe", "530", "1900", "530", "1350", "400")
+        time.sleep(1)
+    else:
+        capture("10gg-human-review-boundary-missing")
+        raise RuntimeError("R22 review decision-boundary note never became visible")
+    capture("10gg-human-review-boundary")
+    require_across(
+        ("10g-human-review", "10gg-human-review-boundary"),
         "Preview 不执行",
     )
-    review_text = json.loads((ROOT / "10g-human-review.json").read_text(encoding="utf-8"))["uiText"]
+    # The authority check reads the whole review surface, across both real scroll positions,
+    # so a forbidden claim cannot hide below the fold.
+    review_text = []
+    for review_shot in ("10g-human-review", "10gg-human-review-boundary"):
+        review_text.extend(
+            json.loads((ROOT / (review_shot + ".json")).read_text(encoding="utf-8"))["uiText"])
     if any("已确认现实" in row or "自动确认" in row for row in review_text):
         raise RuntimeError("R22 Human Review copy crossed the confirmation authority boundary")
     if not tap_retry("返回上一级", exact=True):

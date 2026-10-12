@@ -24,6 +24,12 @@ adb install -r android/app/build/outputs/apk/production/debug/app-production-deb
     -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.ProductionManualRelationshipContractTest
 )
 
+# AGP uninstalls both APKs after every connectedAndroidTest run, so the app is NOT on the device
+# at this point. Without an explicit reinstall the rehearsal dies immediately with
+#   Error: Activity class {com.pdig.app/com.pdig.app.MainActivity} does not exist.
+# (`am start -W` exits 1), so the lock-gated real-Reality path is never actually proven.
+adb install -r android/app/build/outputs/apk/production/debug/app-production-debug.apk
+
 # Repository-default ProductionDebug still opens lock-gated LEGACY.
 python3 android/scripts/production_vnext_secure_rehearsal.py
 

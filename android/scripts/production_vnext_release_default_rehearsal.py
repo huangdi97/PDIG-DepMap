@@ -31,6 +31,12 @@ ACTIVITY = "com.pdig.app.MainActivity"
 OUT = Path("artifacts/runtime-evidence/production-vnext-release-default")
 OUT.mkdir(parents=True, exist_ok=True)
 
+# The unlocked Production VNext Reality shell's own consumer-facing marker. "生产 Reality" moved to
+# the Me workspace page and no longer appears on the Reality Now screen, so it cannot prove that the
+# Reality shell is on screen. This marker is the Production Now surface's own title and is also
+# forbidden while locked, which keeps the fail-closed boundary strictly enforced.
+REALITY_MARKER = "你的数字基础设施 · 已记录的全球上下文"
+
 
 def adb(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
@@ -111,7 +117,7 @@ def start_default() -> None:
 
 def assert_locked(name: str) -> None:
     nodes = wait_for("PDIG 已锁定", snapshot=name)
-    for forbidden in ("生产 Reality", "个人控制面", "建立基础设施"):
+    for forbidden in ("生产 Reality", "个人控制面", "建立基础设施", REALITY_MARKER, "已确认数据"):
         if has(nodes, forbidden):
             raise RuntimeError(f"Reality leaked while locked: {forbidden}")
 
@@ -127,7 +133,7 @@ def unlock() -> list[dict[str, str]]:
         )
     else:
         raise RuntimeError(f"No recognized unlock action; labels={labels(nodes)[:80]}")
-    return wait_for("生产 Reality", snapshot="production-vnext-default-unlocked")
+    return wait_for(REALITY_MARKER, snapshot="production-vnext-default-unlocked")
 
 
 def assert_five_primary(nodes: list[dict[str, str]]) -> None:

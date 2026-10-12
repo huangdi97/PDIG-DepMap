@@ -6,6 +6,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.pdig.app.data.AppContainer
@@ -27,6 +29,22 @@ import org.junit.runner.RunWith
 class ProductionManualRelationshipContractTest {
     @get:Rule
     val compose = createComposeRule()
+
+    /**
+     * The form is a LazyColumn, so it only composes its *visible* items: on a compact phone the
+     * "3 · 指向哪个已确认对象？" choices and the save button sit below the fold and therefore have no
+     * semantics node at all until the list is scrolled. Clicking a real option the user would
+     * scroll to is the honest user path; the authority assertions below are unchanged.
+     */
+    private fun scrollToAndClick(tag: String) {
+        compose.onNodeWithTag(
+            "pdig.production-vnext.manual-relationship",
+            useUnmergedTree = true,
+        ).performScrollToNode(hasTestTag(tag))
+        compose.waitForIdle()
+        compose.onNodeWithTag(tag, useUnmergedTree = true).performClick()
+        compose.waitForIdle()
+    }
 
     @Test
     fun productionFormCommitsCurrentRuntimeRelationThroughAuthority() {
@@ -63,30 +81,17 @@ class ProductionManualRelationshipContractTest {
                 useUnmergedTree = true,
             ).assertIsDisplayed()
 
-            compose.onNodeWithTag(
-                "pdig.production-vnext.manual-relation.from.${account.id}",
-                useUnmergedTree = true,
-            ).performClick()
-            compose.waitForIdle()
+
+            scrollToAndClick("pdig.production-vnext.manual-relation.from.${account.id}")
+            scrollToAndClick("pdig.production-vnext.manual-relation.relation.merchant_agreement")
+            scrollToAndClick("pdig.production-vnext.manual-relation.to.${service.id}")
+            scrollToAndClick("pdig.production-vnext.manual-relation.save")
 
             compose.onNodeWithTag(
-                "pdig.production-vnext.manual-relation.relation.merchant_agreement",
+                "pdig.production-vnext.manual-relationship",
                 useUnmergedTree = true,
-            ).performClick()
+            ).performScrollToNode(hasTestTag("pdig.production-vnext.manual-relation.result"))
             compose.waitForIdle()
-
-            compose.onNodeWithTag(
-                "pdig.production-vnext.manual-relation.to.${service.id}",
-                useUnmergedTree = true,
-            ).performClick()
-            compose.waitForIdle()
-
-            compose.onNodeWithTag(
-                "pdig.production-vnext.manual-relation.save",
-                useUnmergedTree = true,
-            ).performClick()
-            compose.waitForIdle()
-
             compose.onNodeWithTag(
                 "pdig.production-vnext.manual-relation.result",
                 useUnmergedTree = true,
