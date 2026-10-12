@@ -217,9 +217,12 @@ private fun ServiceDetail(app: VAppState, id: String) {
             DetailTruthNote("没有已记录关系；这不代表真实世界中不存在依赖。")
         } else {
             incoming.forEach { relation ->
-                val source = UiVNextDemoFixture.cards.firstOrNull { it.id == relation.from }?.nickname
-                    ?: UiVNextDemoFixture.numbers.firstOrNull { it.id == relation.from }?.nickname
-                    ?: relation.from
+                val source = r20VisibleServiceRelationSource(
+                    cardName = UiVNextDemoFixture.cards.firstOrNull { it.id == relation.from }?.nickname,
+                    numberName = UiVNextDemoFixture.numbers.firstOrNull { it.id == relation.from }?.nickname,
+                    fallbackId = relation.from,
+                    privacyMask = app.privacyMask,
+                )
                 DetailFact(source, detailRelationLabel(relation.kind))
             }
         }
@@ -386,6 +389,22 @@ private fun R20MissingDetail(message: String) {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(message, color = PdigV2Colors.TextMuted, fontSize = 12.sp)
     }
+}
+
+/**
+ * A dependency label is still an identity display surface. When global privacy
+ * is enabled, do not leak the source card/number nickname or unknown raw ID.
+ */
+internal fun r20VisibleServiceRelationSource(
+    cardName: String?,
+    numberName: String?,
+    fallbackId: String,
+    privacyMask: Boolean,
+): String = when {
+    privacyMask && cardName != null -> "支付工具（已遮蔽）"
+    privacyMask && numberName != null -> "手机号身份（已遮蔽）"
+    privacyMask -> "关联对象（已遮蔽）"
+    else -> cardName ?: numberName ?: fallbackId
 }
 
 private fun detailRelationLabel(kind: String): String = when (kind) {
