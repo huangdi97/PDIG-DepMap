@@ -336,10 +336,14 @@ internal fun ProductionGenericObjectDetailScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    if (detailScreen == VScreen.NUMBER_DETAIL)
-                        app.numberDisplayNameForScreen(item.id, item.name)
-                    else
-                        productionVisibleObjectName(item, effectivePrivacyMask),
+                    if (detailScreen == VScreen.NUMBER_DETAIL) {
+                        // Mask the identity heading as well as the number face:
+                        // user-defined aliases can themselves expose personal data.
+                        if (effectivePrivacyMask) "手机号身份（已遮蔽）"
+                        else app.numberDisplayNameForScreen(item.id, item.name)
+                    } else {
+                        productionVisibleObjectName(item, effectivePrivacyMask)
+                    },
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
