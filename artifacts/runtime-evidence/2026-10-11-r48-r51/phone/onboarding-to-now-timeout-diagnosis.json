@@ -1,0 +1,33 @@
+{
+  "previousPid": null,
+  "currentPid": "1977",
+  "package": "com.pdig.app.preview.p5a09185",
+  "sha": "5a0918546461273efcf99684cf0c1302bc0b89b8",
+  "resumedActivities": [
+    "topResumedActivity=ActivityRecord{155594124 u0 com.zhishen.prototype/.MainActivity t56}",
+    "* Task{1f4b436 #54 type=standard A=10217:com.pdig.app.preview.p5a09185 U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=1}",
+    "mLastPausedActivity: ActivityRecord{41308625 u0 com.pdig.app.preview.p5a09185/com.pdig.app.PreviewLauncherActivity t54}",
+    "* Hist  #0: ActivityRecord{41308625 u0 com.pdig.app.preview.p5a09185/com.pdig.app.PreviewLauncherActivity t54}",
+    "packageName=com.pdig.app.preview.p5a09185 processName=com.pdig.app.preview.p5a09185",
+    "app=ProcessRecord{20f631a 1977:com.pdig.app.preview.p5a09185/u0a217}",
+    "Intent { flg=0x10000000 xflg=0x5 cmp=com.pdig.app.preview.p5a09185/com.pdig.app.PreviewLauncherActivity }",
+    "rootOfTask=true task=Task{1f4b436 #54 type=standard A=10217:com.pdig.app.preview.p5a09185}",
+    "taskAffinity=10217:com.pdig.app.preview.p5a09185",
+    "mActivityComponent=com.pdig.app.preview.p5a09185/com.pdig.app.PreviewLauncherActivity",
+    "baseDir=/data/app/~~pvqy8v3lZFHhF78s_FT9tw==/com.pdig.app.preview.p5a09185-xJBkjWhsrnmc2PLQ9ACuRQ==/base.apk",
+    "dataDir=/data/user/0/com.pdig.app.preview.p5a09185",
+    "windows=[Window{4a0f045 u0 com.pdig.app.preview.p5a09185/com.pdig.app.PreviewLauncherActivity}]",
+    "* Task{1f4b436 #54 type=standard A=10217:com.pdig.app.preview.p5a09185 U=0 visible=false visibleRequested=false mode=fullscreen translucent=true sz=1}",
+    "* ActivityRecord{41308625 u0 com.pdig.app.preview.p5a09185/com.pdig.app.PreviewLauncherActivity t54}",
+    "(fullscreen) Task{1f4b436 #54 type=standard A=10217:com.pdig.app.preview.p5a09185}"
+  ],
+  "androidRuntimeErrors": [
+    "10-11 14:19:13.443  4179  4179 D AndroidRuntime: Shutting down VM",
+    "10-11 14:19:16.452  4206  4206 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<",
+    "10-11 14:19:16.457  4206  4206 I AndroidRuntime: Using default boot image",
+    "10-11 14:19:16.457  4206  4206 I AndroidRuntime: Leaving lock profiling enabled",
+    "10-11 14:19:16.563  4206  4206 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher",
+    "10-11 14:19:17.612  4206  4206 D AndroidRuntime: Shutting down VM"
+  ],
+  "routeTrace": []
+}
