@@ -61,5 +61,34 @@ class ProductionChangeStageSummaryTest {
             plan.copy(unresolvedMustChangeKeys = emptyList()),
         )
         assertEquals("计划预期 · 完成并验证前不代表现实", readyProjection.after)
+
+        val change = plan.actions.last()
+        val freshReady = plan.copy(
+            lastAnalyzedGraphRevision = 9,
+            currentGraphRevision = 9,
+            readiness = "ready",
+            unresolvedMustChangeKeys = emptyList(),
+        )
+        assertTrue(productionPlanActionGuidance(change, plan, true).contains("重新核对影响范围"))
+        assertTrue(productionPlanActionGuidance(change, freshReady.copy(readiness = "blocked"), true)
+            .contains("阻断事项"))
+        assertTrue(productionPlanActionGuidance(change, freshReady, false).contains("只有查看权限"))
+        assertTrue(productionPlanActionGuidance(change, freshReady, true).contains("不等于结果已验证"))
+
+        val waiting = freshReady.copy(
+            actions = listOf(
+                freshReady.actions.first().copy(done = false),
+                change,
+            ),
+        )
+        assertTrue(productionPlanActionGuidance(change, waiting, true).contains("准备备用路径"))
+        assertTrue(productionPlanActionGuidance(change.copy(done = true), freshReady, true)
+            .contains("结果尚未验证"))
+        assertTrue(productionPlanActionGuidance(
+            change.copy(done = true, verificationStatus = "failed"), freshReady, true,
+        ).contains("不会自动重试"))
+        assertTrue(productionPlanActionGuidance(
+            change.copy(done = true, verificationStatus = "verified"), freshReady, true,
+        ).contains("已完成并验证"))
     }
 }
