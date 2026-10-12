@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -196,6 +197,39 @@ internal data class ProductionChangeStageSummary(
     val after: String,
 )
 
+/**
+ * Consumer next-step explanation, derived exclusively from the authoritative
+ * plan. Disabled controls must never leave their blocker unexplained.
+ * This function neither predicts domain eligibility nor performs an action.
+ */
+internal fun productionPlanActionGuidance(
+    action: VNextProductionPlanAction,
+    plan: VNextProductionPlan,
+    canMutate: Boolean,
+): String {
+    if (!canMutate) return "当前只有查看权限，操作需要正式变更权限。"
+    if (action.done) return when (action.verificationStatus) {
+        "verified" -> "本步骤已完成并验证；可继续查看后续步骤。"
+        "pending", "evidence_suggested" ->
+            "动作已记录完成，结果尚未验证。请核对实际证据后再确认验证。"
+        "failed" -> "验证未通过；请核对证据与正式计划，不会自动重试或标记通过。"
+        else -> "动作已记录完成；当前不需要额外验证。"
+    }
+    val actionsById = plan.actions.associateBy { it.id }
+    val pending = action.prerequisiteActionIds.filter { actionsById[it]?.done != true }
+    if (pending.isNotEmpty()) {
+        val names = pending.map { actionsById[it]?.title ?: "未识别的前置步骤" }
+        return "必须先完成：${names.joinToString("、")}。"
+    }
+    if (plan.effectiveState == "needs_revalidation" ||
+        plan.currentGraphRevision != plan.lastAnalyzedGraphRevision
+    ) return "基础设施已变化；必须重新核对影响范围，不能继续记录完成。"
+    if (plan.readiness == "blocked") {
+        return "仍有阻断事项，必须先处理并确认计划准备状态。"
+    }
+    return "可记录这一步的完成情况；记录完成不等于结果已验证。"
+}
+
 internal fun productionChangeStageSummary(plan: VNextProductionPlan): ProductionChangeStageSummary {
     val verified = plan.actions.count { it.verificationStatus == "verified" }
     val finished = plan.actions.count { it.done }
@@ -379,6 +413,7 @@ private fun ProductionActionCard(
     // locally converted into a retry/success state.
     val canVerify = canMutate && action.done && verificationPending
 
+    val guidance = productionPlanActionGuidance(action, plan, canMutate)
     val stateLabel = when {
         verified -> "已验证"
         verificationStatus == "failed" -> "验证未通过"
@@ -409,15 +444,16 @@ private fun ProductionActionCard(
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(action.title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
+                    Text(action.title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp,
                         fontWeight = FontWeight.Bold)
                     Text(productionActionPhaseLabel(action.phase),
-                        color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                        color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
                 }
                 Text(
                     stateLabel,
                     color = if (verified) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
-                    fontSize = 9.sp,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
                 )
             }
 
@@ -428,9 +464,21 @@ private fun ProductionActionCard(
                 Text(
                     "前置：${prerequisiteTitles.joinToString("、")}",
                     color = PdigV2Colors.TextMuted,
-                    fontSize = 9.sp,
+                    fontSize = 11.sp,
                 )
             }
+
+            Text(
+                guidance,
+                color = if (!action.done && (!prerequisitesMet || !planExecutable)) {
+                    PdigV2Colors.Critical
+                } else {
+                    PdigV2Colors.TextSecondary
+                },
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                modifier = Modifier.testTag("pdig.production-vnext.change.action-guidance"),
+            )
 
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ChangeActionButton(
@@ -459,6 +507,7 @@ private fun ChangeActionButton(
 ) {
     Surface(
         modifier = modifier
+            .defaultMinSize(minHeight = 48.dp)
             .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
             .testTag("pdig.production-vnext.change.action"),
         color = if (enabled) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
@@ -466,9 +515,9 @@ private fun ChangeActionButton(
     ) {
         Text(
             label,
-            Modifier.padding(horizontal = 10.dp, vertical = 10.dp),
+            Modifier.padding(horizontal = 10.dp, vertical = 14.dp),
             color = if (enabled) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
-            fontSize = 10.sp,
+            fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
         )
     }
