@@ -178,3 +178,48 @@ both APKs after a connected run.
 | HUMAN_ACCEPTED           | **PENDING** — requires the user's visual review                                            |
 | ANDROID_REFERENCE_FREEZE | **HOLD**                                                                                   |
 | PRODUCTION_CUTOVER       | **HOLD** — never attempted; the default production route is unchanged and still legacy     |
+
+---
+
+## 8. FINAL CI CLOSURE (recorded after the runs completed)
+
+The three workflows that were red when this round started are all **green** on the current branch
+head `51b546cc8556e56c8a8f4521c703a7cc0c9ef4f8` (which contains this round's commits plus a concurrent
+agent's follow-up commits):
+
+| Workflow | Round start `5a09185` | `bc39a2f2` | Current head `51b546cc` |
+| --- | --- | --- | --- |
+| CI | success | success | **success** |
+| iOS | success | success | **success** |
+| Android UI vNext Preview APK | success | success | **success** |
+| Android UI vNext Phone Pixel Proof | failure | **success** | **success** |
+| Android UI vNext Tablet Pixel Proof | failure | **success** | **success** |
+| Android UI vNext Production Rehearsal | failure | failure | **success** |
+
+Two clarifications so this is not misread:
+
+1. §4 above describes the state at `86c482e4` and is kept as the historical record. The production
+   job's remaining sub-step was subsequently closed by a concurrent agent's commits
+   (`29f47af9 fix(ci): isolate production cutover build from previously inlined legacy BuildConfig`,
+   `f50d145b`, `d47db375`, `e9409274`) which addressed the build-authority inlining that §4 could not
+   pin down from the logs available at the time. That fix is **not** this round's work.
+2. On the first run at `51b546cc`, the Tablet Pixel Proof failed in the runner's own SDK setup step,
+   not in any test:
+
+   ```
+   Warning: An error occurred while preparing SDK package Android Emulator: Error on ZipFile unknown archive.
+   error: could not connect to TCP port 5554: Connection refused
+   ##[error]The process '/usr/bin/sh' failed with exit code 1
+   ```
+
+   That is a corrupt emulator download on the hosted runner (no emulator ever started). Re-running the
+   failed job produced **success**, so it was transient infrastructure, not a regression. The tablet
+   fix in this round (§4.2 of the R48 report) was already green at `bc39a2f2`.
+
+## 9. Concurrency handling
+
+While this round was running, another agent pushed to the same branch. The push was rejected rather
+than forced; the remote was fetched and integrated with `git merge` (11 remote commits, clean merge,
+no conflict, no history rewrite, no force push), after which all of this round's fixes were verified
+still present and the merged tree was re-verified with `:core:test`, `:app:testDebugUnitTest`,
+`:app:assemblePreviewDebug` and `:app:assembleProductionDebugAndroidTest` (all pass).

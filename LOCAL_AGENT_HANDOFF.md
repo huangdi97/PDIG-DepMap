@@ -119,3 +119,31 @@ locally created _fresh_ AVD (the round created `pdig_evi_phone_api36`) against t
   everywhere this round touched it.
 - No real user data, real bill, key, or credential entered the worktree or the evidence.
 - Existing AVDs, evidence directories, branches, and other agents' commits were left intact.
+
+---
+
+## 7. FINAL STATE (updated after the CI runs completed)
+
+All six workflows are **green** on the current remote branch head
+`51b546cc8556e56c8a8f4521c703a7cc0c9ef4f8`:
+CI · iOS · Android UI vNext Preview APK · **Phone Pixel Proof** · **Tablet Pixel Proof** ·
+**Production Rehearsal**.
+
+Attribution so the result is not misread:
+
+- Phone Pixel Proof and Tablet Pixel Proof were fixed **by this round** (see §2) and were already green
+  at `bc39a2f2`.
+- The Production Rehearsal's last sub-step was closed **by a concurrent agent's commits**
+  (`29f47af9 fix(ci): isolate production cutover build from previously inlined legacy BuildConfig` and
+  its follow-ups), which addressed the build-authority inlining that §4 could not pin down from the
+  logs available here. That fix is not this round's work — §4 is kept as the historical record.
+- The first Tablet run at `51b546cc` failed in the runner's own SDK setup
+  (`Error on ZipFile unknown archive` while installing the emulator; no emulator ever started).
+  Re-running the failed job returned success, so it was transient hosted-runner infrastructure.
+
+Remaining items are unchanged and are all human/external: human visual acceptance (`PENDING`), the
+1536×1024 reference board, the v2.3-R1 master document, and the explicit decisions for
+`ANDROID_REFERENCE_FREEZE` / `PRODUCTION_CUTOVER` (both `HOLD`).
+
+The branch is shared: a subsequent push by another agent is expected. This round's commits are
+`d3c6f459`, `bc39a2f2`, `86c482e4`, `7a331a47`, `9f4d3ad4` and the merge `7aab2b7d`.
