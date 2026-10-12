@@ -1933,3 +1933,79 @@ Human Visual Review 后的强制重做：目标从「深蓝工程后台」改为
 
 - ANDROID/IOS/HARMONY UI vNext = HOLD���ȴ� Human DESKTOP_VISUAL_REFERENCE = ACCEPTED��
 - Light theme��DARK_REFERENCE = PRIMARY��LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER��δ�ѳ� full parity��
+
+---
+
+## Android R48–R51 本地执行轮（2026-10-11/12，feat/android-ui-vnext-translation）
+
+### 起点事实（核验，不沿用历史状态）
+
+- 本机 HEAD 曾为 `2d4045c`（2026-10-07），实测为远端 `5a09185` 的**严格祖先**：`compare` →
+  `status=ahead, behind_by=0, merge_base=2d4045c`，即 **1182 提交的纯 fast-forward**。已用
+  `git fetch --prune` + `git merge --ff-only` 同步；stash `user-doc-changes-preserved-20261004`
+  保留未动；未重建 SDK/AVD/证据目录；未 force push、未 merge PR #1。
+- 轮次起点 CI（`5a09185`）实测：CI / iOS / Preview APK = success；
+  **Phone Pixel Proof / Tablet Pixel Proof / Production Rehearsal = failure**。
+
+### 已修复（源码）
+
+- `R21ChangeCardScreen`：迁移阶段的阻断原因原先只挂在整条变更流程**下方**的说明面板，在紧凑手机上
+  不可见；现在该原因出现在用户点开的阶段内（同样两行高度，零布局位移）。
+- `SinglePaneOverview`：平板/Medium 的快速入口原先被追加在已占满视口的列之后，实测
+  `size=1008x255px` 但 `boundsInRoot=Rect.Zero`（完全在首屏之外），真实平板用户看不到
+  查看卡片 / 查看号码 / 更换手机号 / 薄弱点；现在位于地球舞台正下方、任何非紧凑断点的首屏内。
+
+### 已修复（测试与证据工具，未削弱任何断言）
+
+- `SourceCompleteScreenshotEvidenceTest`：按真实断点（EXPANDED ≥840dp）而非 ≥600dp 的
+  `deviceClass` 分支；其 quick-entry 断言现在打印实测几何与视口，便于定位。
+- `ProductionManualRelationshipContractTest`：先对真实 `LazyColumn` 执行
+  `performScrollToNode` 再点击（首屏外的 lazy 项根本没有 semantics 节点）。
+- `ui_vnext_pixel_capture.py`：以真实滚动替代固定坐标；断言改为源码当前文案；迁移目标必须是真正
+  `active` 的卡；底部导航必须命中真实底部栏热区。
+- 两个 production rehearsal 脚本：等待真正标识“已解锁 Reality 外壳”的标记，并把该标记同时加入
+  锁定态与 legacy 路由的禁止列表（更严格）。
+- `ci_emulator_production_rehearsal.sh`：`connectedAndroidTest` 后重新安装 APK（AGP 会卸载），
+  并在解释 cutover 界面之前比对设备 `base.apk` 与本地构建 APK 的 SHA-256。
+
+### 本机 exact-HEAD 通过
+
+`:core:test`、`:app:testDebugUnitTest`、Debug/Preview/Production 三套 assembly 与测试 APK、
+`ui_vnext_pixel_capture.py`（65 张真实 PNG）、`TabletAdaptiveContractTest` 5/5、
+`SourceCompleteScreenshotEvidenceTest`（35 张）、`ProductionVNextShellContractTest` 11/11、
+`ProductionManualRelationshipContractTest` 1/1、`PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`、
+`PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`。全部日志见
+`artifacts/runtime-evidence/2026-10-11-r48-r51/logs/`。
+
+### 远端同 SHA 结果
+
+- `bc39a2f2`：CI / iOS / Preview APK / **Phone Pixel Proof / Tablet Pixel Proof** = success；
+  Production Rehearsal = failure。
+- `86c482e4`：CI / iOS / Preview APK = success；Production Rehearsal = failure。该提交不触发
+  phone/tablet 工作流路径过滤，因此这两条工作流未在其上重跑。
+- Production 作业内部：11/11 与 1/1 测试、secure rehearsal 均通过；仅最后一步
+  `production_vnext_release_default_rehearsal.py` 仍观测到 legacy 外壳，而同 SHA 本机该步骤 PASS，
+  且 CI 日志已证明安装的 APK SHA 与本地构建一致（`688adf74…`）。已按**未通过**记录。
+
+### 平台状态（本轮）
+
+```
+SOURCE_IMPLEMENTED          = YES（本轮列出的缺陷均已在源码修复）
+EXACT_HEAD_TESTED           = YES（bc39a2f2 本机全部门禁）
+RUNTIME_VERIFIED            = YES（手机 / 平板 / Production 锁定-授权-secure rehearsal 路径）
+VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
+HUMAN_ACCEPTED              = PENDING
+ANDROID_REFERENCE_FREEZE    = HOLD
+PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 legacy 未变）
+```
+
+### 交付物
+
+- `docs/ui-vnext/R48_ASSET_EXPERIENCE_IMPLEMENTATION_REPORT.md`
+- `docs/ui-vnext/R49_CONTINUITY_CHANGE_IMPLEMENTATION_REPORT.md`
+- `docs/ui-vnext/R50_ME_SEARCH_IMPLEMENTATION_REPORT.md`
+- `docs/ui-vnext/R51_ANDROID_EXACT_HEAD_RUNTIME_REPORT.md`
+- `docs/ui-vnext/R48_R51_VISUAL_ACCEPTANCE_MATRIX.md`
+- `LOCAL_AGENT_HANDOFF.md`
+- `artifacts/runtime-evidence/2026-10-11-r48-r51/`（BASELINE.md + phone/ + tablet/ + production/
+  + logs/ + EVIDENCE_SHA256SUMS.txt，264 项哈希）

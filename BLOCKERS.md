@@ -329,3 +329,45 @@
   - **F3（IME_RUNTIME_HUMAN_GATE）**：中文 IME 组合输入（银行卡/手机号/更换手机号）无法在本会话可靠自动化；需 Human 在真实窗口验证（IME_LOG.txt 如实记录，不伪造 PASS）。
   - **F4**：Light theme full parity = 暂不宣称（DARK_REFERENCE = PRIMARY；LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER）。
   - **F5**：PHASE 1F 结束后 ANDROID/IOS/HARMONY UI vNext = HOLD，需 Human 明确 DESKTOP_VISUAL_REFERENCE = ACCEPTED 后才允许跨平台翻译；且不得自动创建 PHASE 1G（brief §61）。
+
+---
+
+## Android R48–R51 轮新增/更新（2026-10-12）
+
+> 本轮把轮次起点三条非绿 CI 中的两条变为绿（Phone Pixel Proof、Tablet Pixel Proof），并把
+> Production Rehearsal 收窄到**最后一个子步骤**。以下每条都附实测证据，不把 NOT_RUN 写成 PASS。
+
+### 1. Production Rehearsal 仍非绿（CI-only，本机 PASS）— 需要继续定位
+
+- 状态：`PRODUCTION_REHEARSAL = LOCALLY_PASS / CI_RED`
+- 证据：CI run `38262734593`（SHA `86c482e4`）日志显示
+  `local_apk_sha256 == device_apk_sha256 == 688adf74…`（安装的确是 vnext + cutoverApproved 构建），
+  `ProductionVNextShellContractTest` 11/11、`ProductionManualRelationshipContractTest` 1/1、
+  `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS` 全部通过；仅
+  `production_vnext_release_default_rehearsal.py` 仍观测到 legacy 外壳（labels 含
+  `我的基础设施` / `需要处理` / `共 0 个对象`）。
+- 反证：同一 SHA 在**本机**该脚本 PASS，且已排除“残留安装/空库/无设备凭据”三项差异
+  （uninstall → install，空 Reality 库；本机 `locksettings get-disabled` = `true`，与 CI 同等）。
+- 归属：这是产品默认路由选择逻辑的潜在缺口，**不是** Windows 环境问题，也不属于外部阻塞。
+- 建议下一步：审读 `MainActivity` / `PdigApp` 的默认路由外壳选择，确认是否存在
+  `BuildConfig.PRODUCTION_UI_GENERATION` / `PRODUCTION_VNEXT_CUTOVER_APPROVED` 之外的输入；
+  并用本机新建的干净 AVD（`pdig_evi_phone_api36`）与 CI 新模拟器做对照。
+
+### 2. 亮色参考板分辨率不足（Human Review 输入缺口）
+
+- 仓库内 `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
+  实测 **320×213**（自述原图 1536×1024 未入库），无法支撑逐屏像素级 diff。
+- 需要 owner 提供原始 1536×1024 板，或明确接受“按结构/层级/密度/色彩族对照”的评审方式。
+- 影响：`ANDROID_REFERENCE_FREEZE` 保持 HOLD。
+
+### 3. 任务书母版文档缺失（输入缺口）
+
+- `PDIG_v2.3-R1_个人数字基础设施图谱与连续性系统_ProductArchitectureVNext_统一全量母版_2026-10-07.md`
+  在本机与远端 `86c482e4` 树中**均不存在**。本轮以仓库内既有冻结规范替代，并已在
+  `BASELINE.md` §6 与 `LOCAL_AGENT_HANDOFF.md` §5 记录。
+
+### 4. 人为视觉验收（保持 PENDING）
+
+- `HUMAN_ACCEPTED = PENDING`；`ANDROID_REFERENCE_FREEZE = HOLD`；`PRODUCTION_CUTOVER = HOLD`。
+- 待审阅截图清单见 `docs/ui-vnext/R48_R51_VISUAL_ACCEPTANCE_MATRIX.md` 与
+  `LOCAL_AGENT_HANDOFF.md` §5。
