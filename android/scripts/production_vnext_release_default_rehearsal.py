@@ -108,11 +108,39 @@ def tap_text(text: str) -> None:
 
 def start_default() -> None:
     adb("shell", "am", "force-stop", PACKAGE)
+    # Each cold start gets its own launch proof; never conflate a prior app
+    # process with the newly installed APK or a different Intent extra.
+    adb("logcat", "-c")
     adb(
         "shell", "am", "start", "-W",
         "-n", f"{PACKAGE}/{ACTIVITY}",
     )
     time.sleep(1.5)
+
+
+def assert_launch_target(expected: str) -> None:
+    """Fail on compiled route mismatch before blaming the UI or LockGate."""
+    raw = adb("logcat", "-d", "-s", "PDIGLaunchProof:I", "*:S").stdout
+    (OUT / "debug-launch-proof.log").write_text(raw, encoding="utf-8")
+    matching = [line for line in raw.splitlines() if "PDIGLaunchProof:" in line]
+    if not matching:
+        raise RuntimeError(
+            "No debug Production launch provenance emitted. "
+            "Cannot establish which BuildConfig flags/target the running APK used."
+        )
+    actual = matching[-1]
+    if (
+        f"target={expected}" not in actual or
+        "flavor=production" not in actual or
+        "generation=vnext" not in actual or
+        "approved=true" not in actual or
+        "debug=true" not in actual
+    ):
+        raise RuntimeError(
+            f"PRODUCTION_LAUNCH_TARGET_MISMATCH expected={expected} "
+            f"actual={actual.strip()}"
+        )
+    print("PRODUCTION_LAUNCH_PROOF=PASS", flush=True)
 
 
 def assert_locked(name: str) -> None:
@@ -158,6 +186,7 @@ def main() -> None:
     }
 
     start_default()
+    assert_launch_target("PRODUCTION_REALITY_RELEASE")
     assert_locked("01-default-cutover-locked")
     evidence["checks"].append("DEFAULT_CUTOVER_FAIL_CLOSED")
 

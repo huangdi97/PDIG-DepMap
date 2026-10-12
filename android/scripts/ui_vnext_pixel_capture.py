@@ -667,7 +667,27 @@ def main():
         adb("shell", "input", "swipe", "530", "1650", "530", "800", "400")
         if not tap_retry("查看本阶段核验清单 →", exact=True):
             raise RuntimeError("R9 Change action to review the active verification checklist unavailable")
-    adb("shell", "input", "swipe", "530", "1660", "530", "1080", "400")
+    # After expanding the real checklist, the phone may preserve a scroll
+    # offset from the long continuity panel. A blind extra swipe can move its
+    # heading OFF screen; assert the actual expanded heading on a real frame
+    # after a bounded bidirectional viewport search instead.
+    # This preserves the business assertion rather than deleting it.
+    checklist_visible = False
+    for direction in ("current", "down", "up"):
+        for _ in range(1 if direction == "current" else 7):
+            if any("本阶段待办" in label_of(n) for n in xml_nodes()):
+                checklist_visible = True
+                break
+            if direction == "down":
+                adb("shell", "input", "swipe", "530", "1700", "530", "1000", "350")
+            elif direction == "up":
+                adb("shell", "input", "swipe", "530", "650", "530", "1700", "350")
+            time.sleep(0.9)
+        if checklist_visible:
+            break
+    if not checklist_visible:
+        capture("05a-change-checklist-heading-missing")
+        raise RuntimeError("Expanded Change Phone checklist heading is unreachable after genuine scrolling")
     capture("05a-change-checklist")
     require_screen("05a-change-checklist", "本阶段待办")
     # The disclaimer sits AFTER the four service rows. A real phone viewport

@@ -760,29 +760,22 @@ private fun ProductionRecords(
     modifier: Modifier,
 ) {
     val records = session.dataSource.productionRecords()
-    ProductionPage(modifier, "记录", "来自已记录变更步骤与验证状态") {
+    ProductionPage(modifier, "记录", "已记录的操作与验证证据 · 按计划分组") {
+        ProductionBoundaryNote(
+            "记录按计划和动作分组，不代表按事件发生时间排序。" +
+                "“已记录完成”和“已验证”是两个独立状态，缺少证据引用时如实说明。"
+        )
         if (records.isEmpty()) {
-            ProductionEmpty("当前没有已完成或待验证的生产记录。")
+            ProductionEmpty("当前没有已完成或待验证的生产记录。没有记录不代表没有历史。")
         } else {
-            records.forEach { record ->
-                val state = when (record.state) {
-                    VNextProductionRecordState.RECORDED_COMPLETE -> "已记录完成"
-                    VNextProductionRecordState.VERIFIED -> "已验证"
-                    VNextProductionRecordState.PENDING_VERIFICATION -> "待验证"
-                    VNextProductionRecordState.VERIFICATION_FAILED -> "验证失败"
-                }
-                ProductionFactCard(
-                    title = record.actionTitle,
-                    subtitle = "${record.planTitle} · $state",
-                    meta = listOf(
-                        productionActionPhaseLabel(record.phase),
-                        if (record.evidenceRefs.isEmpty()) "无验证证据引用" else "验证证据 ${record.evidenceRefs.size} 项",
-                        record.occurredAt?.take(10) ?: "发生时间未记录",
-                    ).joinToString(" · "),
-                )
+            ProductionSection("验证轨迹")
+            productionRecordsByPlan(records).forEach { group ->
+                ProductionRecordPlanGroup(group)
             }
         }
-        ProductionBoundaryNote("完成与验证是两个不同状态；done != verified。")
+        ProductionBoundaryNote(
+            "发生时间未记录不等于今天；未来事项与尚未处理的关注项留在“现在”。"
+        )
     }
 }
 

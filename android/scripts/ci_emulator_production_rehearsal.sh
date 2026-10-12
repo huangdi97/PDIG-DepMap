@@ -35,12 +35,38 @@ python3 android/scripts/production_vnext_secure_rehearsal.py
 
 # Exercise only the debug rehearsal variant using BOTH explicit build-time keys.
 # This MUST NOT mutate ProductionRelease's default or merge the Draft PR.
+# IMPORTANT: this single CI workspace previously compiled productionDebug with
+# legacy/false. BuildConfig.java can regenerate to vnext/true while Kotlin's
+# already-compiled MainActivity still carries INLINED legacy constants. This
+# produced an APK whose hash matched the installed file while logcat proved
+# target=LEGACY_PRODUCTION. A clean *app* compilation is essential between
+# these mutually exclusive build-time authority variants.
+# Preserve the previous instrumentation reports before removing app/build.
+mkdir -p artifacts/runtime-evidence/production-vnext-rehearsal/pre-cutover
+for d in android/app/build/reports/androidTests android/app/build/outputs/androidTest-results; do
+  if [ -d "$d" ]; then
+    cp -a "$d" artifacts/runtime-evidence/production-vnext-rehearsal/pre-cutover/
+  fi
+done
 (
   cd android
-  ./gradlew :app:assembleProductionDebug --no-daemon --stacktrace \
+  ./gradlew :app:clean :app:assembleProductionDebug --no-daemon --stacktrace \
     -PpdigProductionUiGeneration=vnext \
     -PpdigProductionVNextCutoverApproved=true
 )
+# Two-key activation is a compiled fact, not an assumption inferred from
+# Gradle command arguments or an APK hash. Verify generated BuildConfig before
+# interpreting any launch or lock UI on the CI emulator.
+CONFIG=android/app/build/generated/source/buildConfig/production/debug/com/pdig/app/BuildConfig.java
+if [ ! -f "$CONFIG" ]; then
+  echo "CUTOVER_BUILD_CONFIG_MISSING: $CONFIG"; exit 1
+fi
+grep -F 'PRODUCTION_UI_GENERATION = "vnext";' "$CONFIG" >/dev/null ||
+  { echo "CUTOVER_GENERATION_NOT_COMPILED"; exit 1; }
+grep -F 'PRODUCTION_VNEXT_CUTOVER_APPROVED = true;' "$CONFIG" >/dev/null ||
+  { echo "CUTOVER_APPROVAL_NOT_COMPILED"; exit 1; }
+echo "CUTOVER_BUILD_CONFIG_VERIFIED=PASS (productionDebug only)"
+
 # The cutover proof must run against a genuinely fresh install of THIS build. A residual
 # installation (or package state left by the earlier legacy rehearsal) can otherwise leave the
 # default launcher path on the previous variant even though `install -r` printed Success, which

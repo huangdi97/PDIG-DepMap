@@ -314,6 +314,26 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun maskedProductionNumberDetailNeverLeaksSavedAliasInPageHeading() {
+        val session = session()
+        session.appState.renameNumber("phone-1", "超敏感主号")
+        session.appState.privacyMask = true
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.runOnIdle { session.appState.openNumber("phone-1") }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
+            .assertIsDisplayed()
+        compose.onNodeWithText("超敏感主号").assertDoesNotExist()
+        compose.onNodeWithText("+86 138****8823").assertDoesNotExist()
+        compose.onNodeWithText("+86 138 0000 8823").assertDoesNotExist()
+        compose.onAllNodesWithText("手机号身份（已遮蔽）")[0].assertExists()
+    }
+
+    @Test
     fun productionInventoryCategoryAndDetailUseProductionObjects() {
         val session = session()
         compose.setContent {
