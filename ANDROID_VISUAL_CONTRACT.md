@@ -25,7 +25,6 @@
 - **Required states**：五级主导航中的「我」选中；无 pending work；有 pending review；Finding authority unavailable；privacy mask on/off。
 - **Forbidden**：把「我」退化成设置菜单；用 Preview 身份对象填充 Production；用 0 伪装 unknown；生成健康分。
 
-
 ## 01-now（现在）
 
 - **Primary object**：Global Infrastructure Navigator（纹理地球 Globe hero，强主角，非装饰）。
@@ -208,7 +207,6 @@ display count, but each item routes to its real owner.
 Records must not absorb pending or future tasks merely to provide a convenient
 “查看全部” route.
 
-
 ## R23 — Establish / Import visual contract
 
 - **Primary object**: a local-first three-step establishment flow, not a file manager.
@@ -222,7 +220,6 @@ Records must not absorb pending or future tasks merely to provide a convenient
 - **Forbidden**: raw statement-table UI as the product, technical parser console,
   full sensitive values, Proposal presented as Dependency.
 
-
 ## R24 — Manual Establish visual contract
 
 - **Primary object**: explicit user knowledge about object existence.
@@ -234,7 +231,6 @@ Records must not absorb pending or future tasks merely to provide a convenient
   runtime creation set; generic identity/device/membership/custom remain visibly gated.
 - **Forbidden**: form fields that imply unsupported subtype persistence, direct
   relationship editing inside object creation, fake local success state.
-
 
 ## R25 — Manual Relationship visual contract
 

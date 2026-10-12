@@ -62,6 +62,7 @@ risk copy.
 ## 2. Impact Lens
 
 Reference projection:
+
 - confirmed dependency count;
 - recorded attention findings;
 - critical-account count when actually known, otherwise `未记录`;
@@ -70,6 +71,7 @@ Reference projection:
 - explicit “未确认关系仍可能存在”.
 
 Files:
+
 - `android/app/src/main/kotlin/com/pdig/uivnext/demo/UiVNextImpactLens.kt`
 - `android/app/src/main/kotlin/com/pdig/uivnext/ui/components/ObjectImpactLens.kt`
 - `android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R19ImpactLens.kt`
@@ -101,6 +103,7 @@ null
 ```
 
 Consequences:
+
 - Number rows show “恢复用途” unless uniqueness is explicit;
 - Email rows do the same;
 - Weaknesses only count explicitly unique paths;
@@ -124,6 +127,7 @@ preferences, privacy, sources/settings entry context, and the user's digital-lif
 workspace.
 
 R19 therefore:
+
 - keeps exactly five primary destinations on phone;
 - keeps the same five destinations in the wide primary rail;
 - treats `我` as a root destination with no hierarchical Up parent;
@@ -138,6 +142,7 @@ Unit and runtime contracts pin the five-item IA so cleanup cannot silently demot
 ## 5. Card lifecycle parity
 
 R18 card lifecycle is now consistently represented in:
+
 - compact R9 detail;
 - adaptive phone detail;
 - Medium/Expanded detail;
@@ -146,6 +151,7 @@ R18 card lifecycle is now consistently represented in:
 - wide inspector.
 
 Recorded fields:
+
 ```text
 annual fee
 annual-fee checkpoint
@@ -163,6 +169,7 @@ must come from an actual timeline/source before it returns.
 ## 6. Number lifecycle / keep-number parity
 
 R19 keeps:
+
 - primary / secondary / keep roles;
 - plan cost;
 - keep-alive due date;
@@ -174,6 +181,7 @@ R19 keeps:
 Adaptive lists and inspectors now use the same saved alias logic as compact R9.
 
 Search also indexes:
+
 - saved alias;
 - keep role;
 - annual-fee/billing facts;
@@ -191,6 +199,7 @@ N cards · M numbers   !attention
 ```
 
 while still:
+
 - following live camera projection;
 - remaining collision-budgeted;
 - using geographic anchor tethers only;
@@ -199,6 +208,7 @@ while still:
 This improves ownership/context without turning the globe into an inaccurate graph.
 
 R19 also closes renderer parity across width classes:
+
 - phone Now uses the R15/R16/R17 GPU world family;
 - compact Infrastructure region distribution uses the same R15 GPU Earth;
 - Medium / Expanded Now and Overview use `R19AdaptiveWorldScene`, which composes
@@ -208,7 +218,6 @@ R19 also closes renderer parity across width classes:
 The legacy `VNextGlobe` remains only as the governed CPU/failure fallback and in
 non-reference legacy helpers; it is no longer the intended renderer for the active
 R19 spatial surfaces.
-
 
 ## 8. Change Phone
 
@@ -239,6 +248,7 @@ R19 explicitly closes the source-level gap where lifecycle/aliases were richer i
 the compact reference than in tablet/expanded layouts.
 
 Tablet/expanded now preserve:
+
 - card lifecycle in list/detail/inspector;
 - number lifecycle in detail/inspector;
 - user-visible number aliases;
@@ -252,7 +262,9 @@ No pixel-copy of desktop is introduced.
 R19 deliberately takes only adjacent-product interaction lessons:
 
 ### SIM / eSIM lifecycle
+
 Current products such as KeepSim and SimAlive show that multi-number users need:
+
 - renewal/keep-alive cycles;
 - due dates;
 - reminders;
@@ -264,7 +276,9 @@ PDIG absorbs the lifecycle pattern but adds dependency/continuity semantics. It 
 not become a carrier-management utility and does not auto-send SMS/calls.
 
 ### Card lifecycle
+
 Current card-management tools expose:
+
 - annual fee;
 - statement/due dates;
 - renewal reminders.
@@ -273,7 +287,9 @@ PDIG uses those maintenance facts, but its focus remains “what depends on this
 card and what breaks if it changes,” not rewards optimization or personal finance.
 
 ### Recovery mapping
+
 Current recovery/dependency-map tools reinforce:
+
 - single points of failure;
 - cycles;
 - independent recovery routes;
@@ -289,6 +305,7 @@ R19 adds:
 `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`
 
 Decision:
+
 - Preview remains synthetic reference UI;
 - Production remains the existing lock-gated application;
 - production VNext requires a real read-model adapter over `AppContainer`;
@@ -327,6 +344,7 @@ This is the required path to production cutover.
 ## 12. Contracts added or extended
 
 Unit/source:
+
 - `UiVNextLifecycleFixtureTest`
 - `UiVNextImpactLensTest`
 - `ChangeImpactSummaryTest`
@@ -335,10 +353,12 @@ Unit/source:
 - `R16RegionLabelLayoutTest`
 
 Instrumentation/source:
+
 - `AndroidLightVisualSourceContractTest`
 - `TabletAdaptiveContractTest`
 
 Design:
+
 - `ANDROID_VISUAL_CONTRACT.md`
 - `ANDROID_REFERENCE_MAPPING.md`
 - `spec/ui-vnext/ASSET_CONTINUITY_UX_CONTRACT.md`
@@ -349,6 +369,7 @@ The capture script and visible preview marker now require **R19**.
 ## 13. What is intentionally not claimed
 
 R19 does not claim:
+
 - a fresh APK assembled from this exact head;
 - Kotlin/Compose compilation after the latest source edits;
 - API36 runtime success;
@@ -386,6 +407,7 @@ The next exact-head local run should include at least:
 ```
 
 Review both content and geometry:
+
 - no stale R17/R18 build;
 - no regression that removes/demotes the fifth `我` primary tab;
 - no label collision;

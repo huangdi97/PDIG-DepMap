@@ -21,16 +21,16 @@
 
 ## 原始设计板的八个实际画面 + 手机上必须实现的对应交互
 
-| 原始参考板 | 路由/入口 | 主要形态验收 | 状态 |
-|---|---|---|---|
-| 1 手机·现在 | 四 tab / Now | 自然地球与地区标签占主视觉，标题无遮挡，底部四资产统计不压住 Globe，优先任务突出 | R8 source updated; pixel **PENDING** |
-| 2 手机·基础设施总览 | Infrastructure / Overview | 4x2 彩色小图标 + 搜索 + 地区分布；不做巨型 Material 管理台 | R7 source updated; pixel **PENDING** |
-| 3 手机·卡片列表 | Infrastructure / Cards | issuer 不同真实材质、卡片缩略图与状态；地区/种类筛选可用 | R7 source updated; pixel **PENDING** |
-| 4 手机·卡片详情 | Cards / Card Detail | 全尺寸卡面、状态、概览/关联/账单/风险切换与服务身份，不以未导入账单虚构金额 | R8 source updated; pixel **PENDING** |
-| 6 手机·更换手机号步骤1 | Change / Change Phone | 当前/迁移中/完成后区别明显，号码中心 + 已记录服务环绕，六步进度真实 | R7 source updated; pixel **PENDING** |
-| 7 平板/桌面·现在 | adaptive layout | 大面积世界舞台与资产数据对齐，保留平板语义与主导航 | Historical source only; fresh medium/tablet regression **PENDING** |
-| 8 桌面·基础设施卡片 | expanded Card workspace | 密集展示物件卡面，不把 Desktop Dark Reference 翻为 Phone | Historical source only; regression **PENDING** |
-| 9 桌面·更换手机号 | expanded Change workspace | 旧号码→服务→新号码并列，未来计划不能呈现为完成事实 | Historical source only; regression **PENDING** |
+| 原始参考板             | 路由/入口                 | 主要形态验收                                                                     | 状态                                                               |
+| ---------------------- | ------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| 1 手机·现在            | 四 tab / Now              | 自然地球与地区标签占主视觉，标题无遮挡，底部四资产统计不压住 Globe，优先任务突出 | R8 source updated; pixel **PENDING**                               |
+| 2 手机·基础设施总览    | Infrastructure / Overview | 4x2 彩色小图标 + 搜索 + 地区分布；不做巨型 Material 管理台                       | R7 source updated; pixel **PENDING**                               |
+| 3 手机·卡片列表        | Infrastructure / Cards    | issuer 不同真实材质、卡片缩略图与状态；地区/种类筛选可用                         | R7 source updated; pixel **PENDING**                               |
+| 4 手机·卡片详情        | Cards / Card Detail       | 全尺寸卡面、状态、概览/关联/账单/风险切换与服务身份，不以未导入账单虚构金额      | R8 source updated; pixel **PENDING**                               |
+| 6 手机·更换手机号步骤1 | Change / Change Phone     | 当前/迁移中/完成后区别明显，号码中心 + 已记录服务环绕，六步进度真实              | R7 source updated; pixel **PENDING**                               |
+| 7 平板/桌面·现在       | adaptive layout           | 大面积世界舞台与资产数据对齐，保留平板语义与主导航                               | Historical source only; fresh medium/tablet regression **PENDING** |
+| 8 桌面·基础设施卡片    | expanded Card workspace   | 密集展示物件卡面，不把 Desktop Dark Reference 翻为 Phone                         | Historical source only; regression **PENDING**                     |
+| 9 桌面·更换手机号      | expanded Change workspace | 旧号码→服务→新号码并列，未来计划不能呈现为完成事实                               | Historical source only; regression **PENDING**                     |
 
 ## 为什么过去频繁出现「源码改了，安装却没变化」
 

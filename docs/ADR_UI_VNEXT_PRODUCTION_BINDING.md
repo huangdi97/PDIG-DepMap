@@ -96,6 +96,7 @@ Current UI vNext reference models include presentation facts that the Canonical
 schema does not yet define as semantic fields:
 
 ### Card lifecycle reference
+
 ```text
 annualFee
 annualFeeDue
@@ -106,6 +107,7 @@ autoPaySummary
 ```
 
 ### Number lifecycle reference
+
 ```text
 billingMode
 planCost
@@ -179,6 +181,7 @@ Node.kind = payment_instrument
 ```
 
 Safe today:
+
 - stable node id;
 - name;
 - archived state;
@@ -192,6 +195,7 @@ from the existing `nodes` table. This is not a new schema field and does not par
 free-form `fields_json`.
 
 Do not infer:
+
 - issuer from name;
 - region from currency;
 - network from last four digits;
@@ -212,6 +216,7 @@ Only an identity anchor with a valid governed `identity_anchor_profile` subtype 
 be projected as a Number or Email asset.
 
 R37/R38 now implement:
+
 - confirmed `PHONE_NUMBER` → Number surface;
 - confirmed `EMAIL_ADDRESS` → Email surface;
 - missing/malformed/bare subtype → Generic Identity;
@@ -223,6 +228,7 @@ Existing anchors without a valid profile remain generic; no name/regex/provider
 heuristic is allowed.
 
 Do not infer:
+
 - phone role from country;
 - keep-number role from inactivity;
 - unique recovery from `recovers` edge count;
@@ -304,6 +310,7 @@ freshness review
 ```
 
 Each item requires:
+
 - stable source id;
 - source type;
 - due/effective time;
@@ -348,6 +355,7 @@ leaves occurrence time unknown when the Android domain projection does not expos
 ## 9. Cutover phases
 
 ### P0 — Reference freeze
+
 - exact-current-head build/test;
 - API36 phone/tablet runtime evidence;
 - GPU runtime evidence;
@@ -355,7 +363,9 @@ leaves occurrence time unknown when the Android domain projection does not expos
 - Android Reference Freeze.
 
 ### P1 — Read-only production adapter — SOURCE IMPLEMENTED
+
 Implemented:
+
 - node inventory;
 - active confirmed dependencies;
 - production ImpactResult mapping;
@@ -369,6 +379,7 @@ Unit contracts ensure pending proposals are not promoted into confirmed edges an
 `done != verified` survives projection.
 
 R29 also makes authority boundaries explicit in UI chrome:
+
 - confirmed Reality pages → `生产 Reality`;
 - Review → `待复核 · 未进入 Reality`;
 - Settings → `本机呈现偏好`;
@@ -380,6 +391,7 @@ Proposal/Candidate/Drift and local Presentation state.
 
 R28/R29 additionally implements screen-level source binding inside a dedicated
 `ProductionVNextShell` for:
+
 - Now;
 - Infrastructure overview + safe categories/details;
 - Card Impact / confirmed relations;
@@ -391,6 +403,7 @@ R28/R29 additionally implements screen-level source binding inside a dedicated
 - Me / local Presentation preferences.
 
 Still not done in P1:
+
 - productionRelease default cutover;
 - lifecycle editing/persistence;
 - region/provider/SIM/keep-alive authority beyond the governed identifier;
@@ -401,6 +414,7 @@ No lifecycle editing is enabled.
 ### P2 — Object identity normalization — R38 SOURCE IMPLEMENTED FOR PHONE/EMAIL
 
 Implemented safely:
+
 - `payment_instrument` → payment-asset surface;
 - Canonical `issuer` / `last4` carried from Reality;
 - account/service/device/membership mapped only by confirmed NodeKind;
@@ -412,6 +426,7 @@ Implemented safely:
 - truth-bounded consumer inventory projection with confirmed-dependency counts.
 
 Still gated:
+
 - provider/carrier/SIM/region authority;
 - keep-alive/lifecycle persistence;
 - IdentityContext/recovery semantics not proven by subtype/value.
@@ -421,6 +436,7 @@ Unknown remains unknown.
 ### P3 — Change binding — ACTION + SCREEN SOURCE IMPLEMENTED / LAUNCHER HOLD
 
 Implemented:
+
 - authoritative `VNextChangeActionGateway`;
 - plan creation delegates to `createPlanForScenario`;
 - completion delegates to `completeAction`;
@@ -428,6 +444,7 @@ Implemented:
 - every mutation re-reads `planDetail`.
 
 Implemented in the production shell:
+
 - existing authoritative ChangePlan list;
 - `PlanDetailView` action rendering;
 - readiness + graph-revision stale boundary;
@@ -436,6 +453,7 @@ Implemented in the production shell:
 - internal action IDs / wire states are not used as primary consumer copy.
 
 Still gated:
+
 - production launcher injection;
 - no longer gated: confirmed Production Number objects may enter `replace_phone_number`; PlanRepository independently re-validates PHONE_NUMBER subtype before plan creation;
 - new scenario primitives beyond Canonical runtime availability.
@@ -443,6 +461,7 @@ Still gated:
 The UI must never infer verification from local presentation state.
 
 ### P4 — Lifecycle Canonical proposal
+
 Only if product decision remains positive:
 
 ```text
@@ -455,7 +474,9 @@ Spec
 ```
 
 ### P5 — Production launcher cutover
+
 Only after:
+
 - read-model parity;
 - persistence migration tests;
 - no synthetic fixture reachable in production;
@@ -521,6 +542,7 @@ security architecture.
 ## 11. Security / privacy
 
 The production adapter:
+
 - reads through the existing encrypted database path;
 - does not bypass lock state;
 - does not log names, numbers, identifiers or graph content;
@@ -629,21 +651,20 @@ Review source/action binding may be implemented before launcher cutover behind a
 production-source test harness, but synthetic Preview items and production queue
 items must never share mutation handlers.
 
-
 ## 14. Establish / Import production binding
 
 R23 does not create a new ingestion stack.
 
 Production VNext must reuse:
 
-~~~text
+```text
 FileWorkflowCoordinator
 → existing Activity-scoped picker
 → LockGate / re-auth lifecycle
 → AppContainer.parseFile
 → AppContainer.previewImport
 → AppContainer.commitImport
-~~~
+```
 
 VNext-specific source added:
 
@@ -653,7 +674,7 @@ The file workflow itself remains the existing production implementation.
 
 Required future cutover sequence:
 
-~~~text
+```text
 VNext user opens Establish
 → existing FileWorkflowCoordinator begins IMPORT
 → picker result survives lock
@@ -664,11 +685,10 @@ VNext user opens Establish
 → existing AppContainer.commitImport
 → VNext renders authoritative commit projection
 → if proposals exist, route to Human Review
-~~~
+```
 
 Never duplicate ActivityResult launchers, parser logic, URI retention, or import SQL
 inside UI vNext.
-
 
 ## 15. Manual Reality mutation gates
 
@@ -678,6 +698,7 @@ but production VNext must not implement them through direct Compose/SQL writes.
 ### Manual object authority — SOURCE IMPLEMENTED
 
 Generic object creation:
+
 - validates against `runtimeCreatableNodeKinds`;
 - creates payment/account/service only;
 - writes Node + one graphRevision bump;
@@ -685,6 +706,7 @@ Generic object creation:
 
 R38 governed phone/email creation uses a **separate authority**, not a widened generic
 identity button:
+
 - Canonical `runtimeCreatableIdentityAnchorSubtypes` = phone_number/email_address;
 - one transaction creates `identity_anchor` + confirmed subtype + confirmed exact identifier;
 - one graphRevision bump;
@@ -697,6 +719,7 @@ Generic identity/device/membership/custom remain gated.
 ### Manual Dependency authority
 
 Required future domain API:
+
 - confirmed From/To only;
 - validate relation/capability via runtime registry;
 - origin = manual;
@@ -707,11 +730,11 @@ Required future domain API:
 - return authoritative Dependency/revision state.
 
 Until that exists:
+
 - Preview has no Confirm Relationship action;
 - UI must not fake success locally.
 
 These are production authority gates, not missing presentation designs.
-
 
 ## 13. R31 Manual Relationship authority
 

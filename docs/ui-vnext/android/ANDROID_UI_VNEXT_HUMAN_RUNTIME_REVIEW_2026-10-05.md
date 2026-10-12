@@ -166,7 +166,6 @@ ANDROID_REFERENCE_FREEZE = PASS
 
 After that, and only after that, iOS Translation may start. Harmony remains separately gated.
 
-
 ## 8. Adaptive hierarchy review after the first pixel pass
 
 The first runtime pack proved that Phone and Tablet were genuinely adaptive, but it also exposed a hierarchy

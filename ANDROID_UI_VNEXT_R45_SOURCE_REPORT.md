@@ -16,29 +16,29 @@
 
 ## 2. This execution's verified source changes
 
-| Area | Result | Commit |
-| --- | --- | --- |
-| Compose androidTest compilation | Remove nonexistent top-level `assertDoesNotExist` import; method invocation remains intact | `a7c579e364` |
-| Production world geographic interaction | GPU anchor click **and** projected callout update the same Region Lens filter, while only moving the presentation camera; explicit global reset | `da7d5b3c806` |
-| Region filter regression | JVM test selects a confirmed region, asserts `REGION_SELECTED`, clears to `GLOBAL`, checks underlying snapshot unchanged | `63301a3cf510` |
-| Production financial asset collection | Adaptive 2/3/4-column visual card gallery; true payment instruments, saved local art/masking, authoritative detail navigation | `f3d0cff37b96` |
-| Confirmed relation labels | Resolve current source peer objects and mask identity names before rendering; masked missing peers never fall back to cached dependency labels | `5679c3ca5aae`, `a3d36023ea2b`, `9a9efbed1d6f` |
-| Relation privacy regression | Masked phone/generic/absent peers, unmasked saved alias, missing-peer fallback | `ccb6648001ac` |
-| Current-reality / visual mapping | Replace obsolete R29/R43 assertions with an explicit R45 source-only delta and exact-head pending gate language | `a4024d6edcff`, `24e568d3759b`, `6d42e50d982` |
-| Production Globe layout | Phone hero is 280dp; wider surface 360dp. Continues to use the same GPU family and governed regions | `9f5ad541ebc8` |
-| Production Change choreography | Current/Transition/After read-only three-stage summary from authoritative plan revisions, actions and unresolved impacts; After explicitly remains Plan Projection | `82f86893a63a`, `29a0f8dba819` |
+| Area                                    | Result                                                                                                                                                             | Commit                                         |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| Compose androidTest compilation         | Remove nonexistent top-level `assertDoesNotExist` import; method invocation remains intact                                                                         | `a7c579e364`                                   |
+| Production world geographic interaction | GPU anchor click **and** projected callout update the same Region Lens filter, while only moving the presentation camera; explicit global reset                    | `da7d5b3c806`                                  |
+| Region filter regression                | JVM test selects a confirmed region, asserts `REGION_SELECTED`, clears to `GLOBAL`, checks underlying snapshot unchanged                                           | `63301a3cf510`                                 |
+| Production financial asset collection   | Adaptive 2/3/4-column visual card gallery; true payment instruments, saved local art/masking, authoritative detail navigation                                      | `f3d0cff37b96`                                 |
+| Confirmed relation labels               | Resolve current source peer objects and mask identity names before rendering; masked missing peers never fall back to cached dependency labels                     | `5679c3ca5aae`, `a3d36023ea2b`, `9a9efbed1d6f` |
+| Relation privacy regression             | Masked phone/generic/absent peers, unmasked saved alias, missing-peer fallback                                                                                     | `ccb6648001ac`                                 |
+| Current-reality / visual mapping        | Replace obsolete R29/R43 assertions with an explicit R45 source-only delta and exact-head pending gate language                                                    | `a4024d6edcff`, `24e568d3759b`, `6d42e50d982`  |
+| Production Globe layout                 | Phone hero is 280dp; wider surface 360dp. Continues to use the same GPU family and governed regions                                                                | `9f5ad541ebc8`                                 |
+| Production Change choreography          | Current/Transition/After read-only three-stage summary from authoritative plan revisions, actions and unresolved impacts; After explicitly remains Plan Projection | `82f86893a63a`, `29a0f8dba819`                 |
 
 The 2026-10-10 baseline immediately preceding these patches was an R44 branch. The old failure at `a13cbdbf` was `ProductionSearchProjectionTest` global-masking behavior (previous fixes `cd7e456efc` and `6eff7b6cdf`). The first R44 Pixel/Rehearsal failures at `6eff7b6c` shared the compile-time invalid test import above.
 
 ## 3. Reference-screen alignment
 
-| Reference | Source outcome | Not yet proven |
-| --- | --- | --- |
-| Now globe / infrastructure region context | R15 GPU renderer reused in Production; region selection is now a real Region Lens | Current phone/tablet pixel quality, camera motion and GPU texture readiness |
-| Financial cards | Card-identity gallery replaces generic card rows; card face and local art are reused | 2-column actual-device clipping, brand legibility, material quality, screenshot approval |
-| Number communication identity | Existing governed number face and local alias controls remain; R44 masking corrections retained | Human pixel review and whole-app privacy behavior |
-| Change choreography | Production ChangePlan actions continue behind AppContainer authority; no synthetic completion | Exact-head runtime action/verification/readback and Current/Transition/After visual acceptance |
-| Me fifth root | Existing source contract unchanged | Compact/Medium/Expanded navigation acceptance |
+| Reference                                 | Source outcome                                                                                  | Not yet proven                                                                                 |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Now globe / infrastructure region context | R15 GPU renderer reused in Production; region selection is now a real Region Lens               | Current phone/tablet pixel quality, camera motion and GPU texture readiness                    |
+| Financial cards                           | Card-identity gallery replaces generic card rows; card face and local art are reused            | 2-column actual-device clipping, brand legibility, material quality, screenshot approval       |
+| Number communication identity             | Existing governed number face and local alias controls remain; R44 masking corrections retained | Human pixel review and whole-app privacy behavior                                              |
+| Change choreography                       | Production ChangePlan actions continue behind AppContainer authority; no synthetic completion   | Exact-head runtime action/verification/readback and Current/Transition/After visual acceptance |
+| Me fifth root                             | Existing source contract unchanged                                                              | Compact/Medium/Expanded navigation acceptance                                                  |
 
 ## 4. Mandatory fresh gates — do not claim PASS from source review
 

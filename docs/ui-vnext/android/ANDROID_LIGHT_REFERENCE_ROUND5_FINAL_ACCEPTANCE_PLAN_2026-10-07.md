@@ -147,6 +147,7 @@ Do not reuse a previous run's APK hash.
 The monolithic Round4 base64 files were too large for the GitHub connector. Round5 must emit:
 
 ### Phone
+
 - 6 sheets × 4 screens;
 - screen order 01–24;
 - full frame, no crop;
@@ -154,10 +155,12 @@ The monolithic Round4 base64 files were too large for the GitHub connector. Roun
 - each `.b64.txt` < 900 kB.
 
 ### Tablet
+
 - 6 sheets × 4 screens;
 - same requirements.
 
 ### Empty states
+
 - 1 sheet × 10 is acceptable if its base64 remains <900 kB.
 
 Also keep original per-screen PNGs.

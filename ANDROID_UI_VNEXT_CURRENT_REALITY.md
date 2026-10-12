@@ -74,36 +74,37 @@ source.
 
 ## 1. Navigation / shell
 
-| Area | Current reality |
-| --- | --- |
-| Primary IA | **IMPLEMENTED_SOURCE** — exactly Now / Infrastructure / Change / Records / Me |
-| Me | **IMPLEMENTED_SOURCE** — intentional fifth primary destination; compact consumer workspace + dedicated Medium/Expanded adaptive workspace; avatar may remain as shortcut |
-| Infrastructure secondary | **IMPLEMENTED_SOURCE** — Overview/Cards/Numbers/Accounts/Emails/Devices/Services/Weaknesses |
-| Breakpoints | **IMPLEMENTED_SOURCE** — Compact <600dp, Medium 600–839dp, Expanded >=840dp |
-| System Back | **IMPLEMENTED_SOURCE** — chronological stack |
-| Header Up | **IMPLEMENTED_SOURCE** — hierarchical parent |
-| State host | **IMPLEMENTED_SOURCE** — `VNextShellViewModel` |
-| Persistent presentation prefs | **IMPLEMENTED_SOURCE** — local stores, outside Canonical |
-| Production launch | **DEFAULT HOLD** — production release still opens the lock-gated legacy application; productionDebug now has an explicit real-Reality VNext rehearsal path behind the same LockGate |
+| Area                          | Current reality                                                                                                                                                                     |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Primary IA                    | **IMPLEMENTED_SOURCE** — exactly Now / Infrastructure / Change / Records / Me                                                                                                       |
+| Me                            | **IMPLEMENTED_SOURCE** — intentional fifth primary destination; compact consumer workspace + dedicated Medium/Expanded adaptive workspace; avatar may remain as shortcut            |
+| Infrastructure secondary      | **IMPLEMENTED_SOURCE** — Overview/Cards/Numbers/Accounts/Emails/Devices/Services/Weaknesses                                                                                         |
+| Breakpoints                   | **IMPLEMENTED_SOURCE** — Compact <600dp, Medium 600–839dp, Expanded >=840dp                                                                                                         |
+| System Back                   | **IMPLEMENTED_SOURCE** — chronological stack                                                                                                                                        |
+| Header Up                     | **IMPLEMENTED_SOURCE** — hierarchical parent                                                                                                                                        |
+| State host                    | **IMPLEMENTED_SOURCE** — `VNextShellViewModel`                                                                                                                                      |
+| Persistent presentation prefs | **IMPLEMENTED_SOURCE** — local stores, outside Canonical                                                                                                                            |
+| Production launch             | **DEFAULT HOLD** — production release still opens the lock-gated legacy application; productionDebug now has an explicit real-Reality VNext rehearsal path behind the same LockGate |
 
 ## 2. Now / Globe
 
-| Area | Current reality |
-| --- | --- |
-| Light-first Now composition | **IMPLEMENTED_SOURCE** |
-| GPU Earth | **IMPLEMENTED_SOURCE** — separate OpenGL path |
-| Albedo/night/cloud textures | **IMPLEMENTED_SOURCE** |
-| Atmosphere/day-night/ocean glint | **IMPLEMENTED_SOURCE** |
-| CPU fallback | **IMPLEMENTED_SOURCE** |
-| Drag/zoom/reset | **IMPLEMENTED_SOURCE** |
-| Projected region labels | **IMPLEMENTED_SOURCE** — live camera projection |
-| Region grouping/collision budget | **IMPLEMENTED_SOURCE** |
-| Region card/number/attention context | **IMPLEMENTED_SOURCE** |
-| Exact-head GPU runtime proof | **PENDING on current branch head** |
+| Area                                 | Current reality                                 |
+| ------------------------------------ | ----------------------------------------------- |
+| Light-first Now composition          | **IMPLEMENTED_SOURCE**                          |
+| GPU Earth                            | **IMPLEMENTED_SOURCE** — separate OpenGL path   |
+| Albedo/night/cloud textures          | **IMPLEMENTED_SOURCE**                          |
+| Atmosphere/day-night/ocean glint     | **IMPLEMENTED_SOURCE**                          |
+| CPU fallback                         | **IMPLEMENTED_SOURCE**                          |
+| Drag/zoom/reset                      | **IMPLEMENTED_SOURCE**                          |
+| Projected region labels              | **IMPLEMENTED_SOURCE** — live camera projection |
+| Region grouping/collision budget     | **IMPLEMENTED_SOURCE**                          |
+| Region card/number/attention context | **IMPLEMENTED_SOURCE**                          |
+| Exact-head GPU runtime proof         | **PENDING on current branch head**              |
 
 Globe tethers are geographic annotation tethers only. They are not graph edges.
 
 Production Globe has a different truth state from Preview:
+
 - Production reuses the same GPU Earth visual family;
 - Production currently renders **zero** asset region labels/pins/arcs because
   RegionFact is not yet Canonical;
@@ -118,6 +119,7 @@ geographic data layer, not copied Preview geography.
 ### Now task ownership — R22
 
 Now now owns pending work explicitly:
+
 - Human Review;
 - current attention;
 - active changes;
@@ -127,25 +129,24 @@ R22 removes stale links that treated Records as a generic "查看全部" page. A
 changes route to Change Center; pending review routes to Human Review; future
 maintenance remains on Now. Records keeps its evidence/history boundary.
 
-
 ## 3. Infrastructure
 
-| Screen | Current reality |
-| --- | --- |
-| Overview | **IMPLEMENTED_SOURCE** |
-| Cards | **IMPLEMENTED_SOURCE** |
-| Card Detail | **IMPLEMENTED_SOURCE** |
-| Card appearance customization | **IMPLEMENTED_SOURCE** |
-| Numbers | **IMPLEMENTED_SOURCE** |
-| Number Detail | **IMPLEMENTED_SOURCE** |
-| Number appearance customization | **IMPLEMENTED_SOURCE** |
-| Accounts | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens |
-| Emails | **IMPLEMENTED_SOURCE** — collection + recovery-aware focused detail + Impact Lens |
-| Devices | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens |
-| Services | **IMPLEMENTED_SOURCE** — collection + recorded incoming relations + Impact Lens |
-| Weaknesses | **IMPLEMENTED_SOURCE** — Preview has full seven-class grammar; Production now renders authority-bounded Findings + explicit unsupported coverage |
-| Search | **IMPLEMENTED_SOURCE** |
-| Empty states | **IMPLEMENTED_SOURCE** |
+| Screen                          | Current reality                                                                                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Overview                        | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Cards                           | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Card Detail                     | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Card appearance customization   | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Numbers                         | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Number Detail                   | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Number appearance customization | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Accounts                        | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens                                                                               |
+| Emails                          | **IMPLEMENTED_SOURCE** — collection + recovery-aware focused detail + Impact Lens                                                                |
+| Devices                         | **IMPLEMENTED_SOURCE** — collection + focused detail + Impact Lens                                                                               |
+| Services                        | **IMPLEMENTED_SOURCE** — collection + recorded incoming relations + Impact Lens                                                                  |
+| Weaknesses                      | **IMPLEMENTED_SOURCE** — Preview has full seven-class grammar; Production now renders authority-bounded Findings + explicit unsupported coverage |
+| Search                          | **IMPLEMENTED_SOURCE**                                                                                                                           |
+| Empty states                    | **IMPLEMENTED_SOURCE**                                                                                                                           |
 
 These are reference/presentation implementations. That does not mean every field is
 yet backed by production Canonical persistence.
@@ -155,6 +156,7 @@ yet backed by production Canonical persistence.
 R19 Card = **Financial Asset Identity**.
 
 Implemented at source:
+
 - strong card identity/collection feeling;
 - region/currency/type/form/network/expiry;
 - status;
@@ -171,6 +173,7 @@ Implemented at source:
 - list/detail/inspector adaptive parity.
 
 Truth boundary:
+
 - missing lifecycle = `未记录`;
 - no statement balance/transaction/minimum-payment inference;
 - lifecycle fixture is synthetic reference data, not .depmap truth.
@@ -180,6 +183,7 @@ Truth boundary:
 R19 Number = **Communication Identity**.
 
 Implemented at source:
+
 - local user display alias;
 - blank alias fallback to recorded/masked number;
 - role = primary / secondary / keep;
@@ -207,6 +211,7 @@ A recovery role is not automatically a single point of failure.
 ## 6. Change Center + supported focused changes
 
 Primary `变更` is a distinct work center:
+
 - active changes first;
 - Prepare entries second;
 - maintenance/review entry points;
@@ -216,6 +221,7 @@ Primary `变更` is a distinct work center:
 The focused Replace Phone flow remains a child of `变更`.
 
 Change Phone source implementation:
+
 - Current / Transition / After;
 - After explicitly remains Plan Projection;
 - six-stage choreography;
@@ -226,6 +232,7 @@ Change Phone source implementation:
 - impact summary derived from actual projection state.
 
 Reference IDs:
+
 ```text
 num-cn-1 old active
 num-cn-3 keep
@@ -263,7 +270,6 @@ Change Card → Up → Change
 System Back → actual previous page
 ```
 
-
 ## 7. Impact Lens
 
 R19 source introduces a shared consumer answer to:
@@ -271,6 +277,7 @@ R19 source introduces a shared consumer answer to:
 > **如果它发生变化？**
 
 Reference lens can show:
+
 - confirmed dependency count;
 - recorded attention findings;
 - critical accounts when known;
@@ -296,6 +303,7 @@ Service = dependency endpoint
 ```
 
 Each now has:
+
 - direct collection-row entry;
 - direct Search entry;
 - object-specific identity/context;
@@ -342,6 +350,7 @@ Records now answers:
 > **发生过什么、验证过什么、依据是什么？**
 
 Reference projection:
+
 - completed ChangeStage → **已记录完成**, never auto-verified;
 - verifying ChangeStage → **待验证**;
 - not-started / future blocked stages are not history;
@@ -361,6 +370,7 @@ This is fixture projection, not a production-user history claim.
 ## 10. Search
 
 Source search now covers:
+
 - card/number names;
 - saved number aliases;
 - region/carrier/issuer;
@@ -372,6 +382,7 @@ Source search now covers:
 Search only searches recorded/reference data; absence is not proof of nonexistence.
 
 R22 also makes Human Review discoverable through:
+
 - 待复核;
 - 复核 / 确认 / 建议;
 - proposal / candidate / drift.
@@ -382,10 +393,10 @@ Me/Data Sources also expose consumer navigation into 建立基础设施 and 待�
 wide layouts these focused routes retain the `我` or `现在` primary parent context
 instead of appearing as orphan screens.
 
-
 ## 11. Production binding
 
 Current reference route:
+
 ```text
 Preview flavor
 → VNext
@@ -393,6 +404,7 @@ Preview flavor
 ```
 
 Current production route:
+
 ```text
 Production flavor
 → lock-gated PdigApp
@@ -402,6 +414,7 @@ Production flavor
 They are intentionally not merged yet.
 
 Production APIs already exist:
+
 - `nodes()`
 - `dependencies()`
 - `timeline()`
@@ -420,6 +433,7 @@ The cutover architecture is frozen in
 `docs/ADR_UI_VNEXT_PRODUCTION_BINDING.md`.
 
 Source progress now also includes:
+
 - Canonical `issuer` / `last4` projected from production nodes without parsing free-form fields;
 - R37 governed `identity_anchor_profile` contract in Canonical spec/logical schema;
 - Kotlin / Swift / ArkTS fail-closed profile decoders;
@@ -450,6 +464,7 @@ controls
 ```
 
 The production form:
+
 - selects only confirmed Reality endpoints;
 - derives capability from the canonical relation definition;
 - validates endpoint kinds through `validateRelationUse`;
@@ -469,12 +484,14 @@ Preview R25 remains intentionally read-only.
 Production Weaknesses is no longer an all-or-nothing HOLD.
 
 Current authoritative production coverage:
+
 - single confirmed recovery source;
 - confirmed recovery cycle via shared core detector;
 - pending recovery Proposal as Pending Review;
 - done-but-unverified Change action as Pending Verification.
 
 Still explicit HOLD:
+
 - shared failure domain;
 - stale recovery information;
 - unknown critical path.
@@ -488,6 +505,7 @@ R28/R29 now adds a dedicated `ProductionVNextShell` that is structurally unable 
 fall back to `ReferenceVNextRuntimeDataSource`.
 
 Source-bound production surfaces now include:
+
 - Now from production Timeline / Review counts / ChangePlan counts;
 - Infrastructure overview;
 - payment-instrument category + focused Card detail + confirmed relation list + authoritative Impact;
@@ -512,6 +530,7 @@ Production app-state construction now accepts an injected store-backed `VAppStat
 so local Presentation preferences can persist without entering Canonical Reality.
 
 Still HOLD:
+
 - productionRelease default cutover / final release activation;
 - provider/carrier/SIM/region and number keep-alive authority beyond R38 identifier Reality;
 - the Finding classes whose authoritative inputs remain unavailable;
@@ -520,6 +539,7 @@ Still HOLD:
 - exact-head production/security/runtime/human acceptance.
 
 R22 production governance source now additionally includes:
+
 - `AppContainerVNextReviewSource`;
 - `ProductionReviewConsumerProjection`;
 - `AppContainerVNextReviewActionGateway`.
@@ -527,7 +547,6 @@ R22 production governance source now additionally includes:
 Proposal / Candidate / Drift remain outside Reality until the authoritative gateway
 is called. After every production review mutation the queue must be re-read; a local
 UI dismissal is never sufficient.
-
 
 ## 12. Human Review — truth authority
 
@@ -541,6 +560,7 @@ Observation
 ```
 
 UI route:
+
 - `VScreen.REVIEW`;
 - label = `待复核`;
 - parent = Now;
@@ -551,6 +571,7 @@ Production already has source/action seams but screen injection remains gated by
 VNext production cutover.
 
 Permanent rules:
+
 - machine confidence != truth;
 - Review visibility != confirmation;
 - Proposal is not a Dependency;
@@ -564,11 +585,11 @@ R23 closes the missing **建立** surface.
 
 Information architecture:
 
-~~~text
+```text
 Data Sources → 建立基础设施
 Search → 建立基础设施
 建立基础设施 → Up → Data Sources
-~~~
+```
 
 The Preview route is explanatory/read-only and visibly states:
 
@@ -576,7 +597,7 @@ The Preview route is explanatory/read-only and visibly states:
 
 Production VNext reuses the existing hardened pipeline:
 
-~~~text
+```text
 MainActivity OpenDocument
 → FileWorkflowCoordinator
 → lock / re-auth
@@ -587,7 +608,7 @@ MainActivity OpenDocument
 → explicit confirm
 → AppContainer.commitImport(existingSourceId?)
 → Human Review
-~~~
+```
 
 R42 wires the Activity-owned picker into Production VNext. R43 closes the return
 path after re-auth, Preview/commit UI, existing SourceInstance preservation and
@@ -596,9 +617,9 @@ or production Reality.
 
 Permanent import truth rule:
 
-~~~text
+```text
 Import commit != Dependency confirmation
-~~~
+```
 
 The production import transaction can create Source/Evidence/objects and
 Proposal/Candidate/Drift review work. Generated proposals remain R22 Human Review
@@ -611,6 +632,7 @@ contract **inside the existing Node fields envelope**. This is a semantic Canoni
 expansion without silently bumping appSchemaVersion / graph payload version.
 
 Implemented source:
+
 - shared maintenance vocab in Canonical domain/codegen;
 - fail-closed Kotlin / Swift / ArkTS decoders;
 - card maintenance facts;
@@ -619,6 +641,7 @@ Implemented source:
 - Production VNext read projection into card/number lifecycle surfaces.
 
 R40/R41 source now also implements:
+
 - explicit user-confirmed MaintenanceFact / MaintenanceSchedule write authority;
 - atomic paired fact writes for amount + currency;
 - Production Card / Number lifecycle editors through a dedicated authority gateway;
@@ -626,6 +649,7 @@ R40/R41 source now also implements:
 - explicit keep-alive completion action that writes `lastCompletedAt` only on user action.
 
 Still intentionally not claimed:
+
 - automatic occurrence completion;
 - provider policy → Reality without Human Review;
 - installment summary as Canonical v1;
@@ -652,13 +676,14 @@ R24 closes the v2.3 **手工录入** design surface without inventing a mutation
 
 Hierarchy:
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
   → 手工记录
-~~~
+```
 
 The Preview screen explicitly separates:
+
 - generic runtime creation set: payment_instrument / account / service;
 - governed identity creation: phone_number / email_address;
 - storage-known types that still are not safely exposed for creation.
@@ -679,9 +704,9 @@ source-bound and executable**; fresh exact-head runtime evidence remains a separ
 
 Permanent rule:
 
-~~~text
+```text
 confirm object exists != confirm dependency
-~~~
+```
 
 Manual Establish presentation and mutation authority are source-implemented. The remaining gate is exact-head runtime/security/release acceptance, not a missing save path.
 
@@ -691,14 +716,15 @@ R25 closes the remaining manual-graph UX gap.
 
 Hierarchy:
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
   → 手工记录
     → 手工记录关系
-~~~
+```
 
 The reference freezes:
+
 - From / Relation / To;
 - capability;
 - criticality default = unknown;
@@ -714,14 +740,15 @@ relationship gateway is forbidden.
 
 Permanent provenance split:
 
-~~~text
+```text
 explicit user statement → origin=manual
 source/model suggestion → Proposal → Review → origin=proposal
-~~~
+```
 
 ## 17. Tests / evidence present in source
 
 R29 has source contracts for:
+
 - lifecycle fixture truth/unknown behavior;
 - Impact Lens unknown/evidence boundaries;
 - keep-number identity;
@@ -806,18 +833,21 @@ R21 closes the **design** of the two remaining long-term lenses without exposing
 ghost capabilities.
 
 Identity:
+
 - governed proposal complete: `spec/proposals/identity-context-v1.md`;
 - membership is a reviewed grouping primitive, not a Dependency;
 - Canonical schema/repository/conformance not implemented;
 - visible selector = HOLD.
 
 Recovery:
+
 - incident/solver proposal complete: `spec/proposals/recovery-incident-mode-v1.md`;
 - composes existing FailureDomain, RecoveryCycle and ProviderPolicy semantics;
 - requires explicit unavailable-state authority and surviving-path solver;
 - visible Recovery UI = FORBIDDEN until solver/conformance/runtime support.
 
 Shared UX:
+
 - `spec/ui-vnext/RECOVERY_AND_IDENTITY_LENS_UX_CONTRACT.md`;
 - neither becomes a sixth/seventh primary tab;
 - Android `VNextLensAvailability` makes the HOLD executable.
@@ -830,6 +860,7 @@ high-level master-document vocabulary.
 ### Access / Recovery Factor
 
 `spec/proposals/access-recovery-factor-v1.md` freezes:
+
 - factors as substrate, not NodeKinds or primary UI categories;
 - factor count != independent path count;
 - device-bound / provider-synced / roaming / offline / human-assisted semantics;
@@ -841,6 +872,7 @@ high-level master-document vocabulary.
 ### SecretLocator
 
 `spec/proposals/secret-locator-v1.md` freezes:
+
 - metadata-only secret location;
 - no passwords/TOTP seeds/recovery codes/private keys/seed phrases/CVV/session tokens;
 - locator != factor != recovery path;
@@ -859,6 +891,7 @@ recovery claims.
 
 `spec/proposals/device-continuity-v1.md` freezes the planned v0.4
 `REPLACE × device` architecture:
+
 - passkey / TOTP / push / eSIM / password-manager continuity;
 - provider-synced vs device-bound distinction;
 - Make-Before-Break;
@@ -876,6 +909,7 @@ control panel or storing transfer/admin secrets.
 ### Trusted Handoff
 
 `spec/proposals/trusted-handoff-v1.md` freezes future v0.7+ trusted continuity:
+
 - provider-specific legacy/successor arrangements;
 - scoped handoff;
 - metadata-only instructions;
@@ -886,6 +920,7 @@ control panel or storing transfer/admin secrets.
 ### Unified capability/authority gate
 
 R25/R26 adds:
+
 - `VNextCapabilityMatrix.kt`;
 - `spec/ui-vnext/CAPABILITY_AUTHORITY_MATRIX.md`.
 
@@ -904,6 +939,7 @@ authority prerequisites exist.
 ### Navigation and task ownership correction
 
 R26 also re-audited the `我` workspace against the R22 Records boundary:
+
 - active/current attention and upcoming maintenance route to Now;
 - active changes route to Change;
 - Records stays evidence/history/verification;
@@ -912,6 +948,7 @@ R26 also re-audited the `我` workspace against the R22 Records boundary:
 ### Design closure index
 
 The authoritative index is:
+
 - `spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md`.
 
 Within the scope and roadmap explicitly described by v2.3-R1, remaining gaps are now
@@ -930,6 +967,7 @@ PRODUCTION_CUTOVER = HOLD
 The next blocker is no longer “missing UI design.” It is fresh exact-head R43 compile/runtime/conformance evidence (including the real picker → lock/re-auth → preview/commit chain), release cutover acceptance, Android Reference Freeze, and the separate Canonical expansions that remain explicitly gated.
 
 R32 removes two former launcher ambiguities:
+
 - productionRelease ignores both synthetic-reference and production-VNext Intent extras;
 - productionDebug may explicitly open a real `AppContainer`-backed VNext rehearsal,
   but only behind the same extracted fail-closed `PdigSecureContent` used by the
@@ -939,7 +977,6 @@ Therefore “launcher/security integration” is now source-implemented for rehe
 the remaining launcher gate is release activation + restart/security/runtime evidence,
 not a missing host architecture.
 
-
 ## 35. R35 Canonical expansion execution control
 
 R35 does not change Android pixels or current Canonical v3 semantics.
@@ -947,7 +984,7 @@ R35 does not change Android pixels or current Canonical v3 semantics.
 It closes the ordering problem between future design-complete proposals by making
 their implementation dependencies executable as a CI-gated DAG.
 
-~~~text
+```text
 Stage 1
   Identity Anchor Subtype
   RegionFact
@@ -972,7 +1009,7 @@ Stage 5
 
 Stage 6
   Trusted Handoff
-~~~
+```
 
 The roadmap intentionally rejects a big-bang v4 migration. Physical schema/payload
 versions remain monotonic and each product train must be the smallest coherent
@@ -980,30 +1017,29 @@ cross-platform vertical slice.
 
 The machine gate is:
 
-~~~text
+```text
 node tools/validate-canonical-v4-expansion-plan.mjs
-~~~
+```
 
 It is now part of the Canonical CI job.
 
 R35 therefore changes the status of future architecture from:
 
-~~~text
+```text
 many individually valid proposals
-~~~
+```
 
 to:
 
-~~~text
+```text
 valid proposals
 + explicit hard/optional dependency graph
 + stage order
 + CI-enforced no-cycle/no-ghost/no-sixth-tab invariants
-~~~
+```
 
 Current Canonical remains app/payload v3 until an actual package goes through the
 full Spec → Schema → Migration → Fixture → Conformance → Runtime chain.
-
 
 ## 36. R36 Production VNext release cutover / rollback control
 
@@ -1011,17 +1047,17 @@ R36 closes the release-routing design without changing the current default.
 
 Build-time keys:
 
-~~~text
+```text
 pdigProductionUiGeneration = legacy | vnext
 pdigProductionVNextCutoverApproved = true | false
-~~~
+```
 
 Production VNext release activates only when:
 
-~~~text
+```text
 generation == vnext
 AND cutoverApproved == true
-~~~
+```
 
 All other combinations remain legacy. Invalid Gradle values fail configuration.
 Unknown runtime generation strings fail closed to legacy.
@@ -1031,20 +1067,20 @@ Intent extras.
 
 Both debug rehearsal and future release use:
 
-~~~text
+```text
 AppContainer
 → Production VNext session
 → ProductionVNextSecureHost
 → PdigSecureContent / LockGate
-~~~
+```
 
 No separate release lock exists.
 
 New runtime evidence path:
 
-~~~text
+```text
 android/scripts/production_vnext_release_default_rehearsal.py
-~~~
+```
 
 It builds productionDebug with both cutover keys, launches **without Intent extras**
 and proves fail-closed lock, five-primary Production Reality, background relock and
@@ -1052,20 +1088,20 @@ process-restart relock.
 
 Operational contract:
 
-~~~text
+```text
 docs/ANDROID_PRODUCTION_VNEXT_CUTOVER_RUNBOOK.md
 ANDROID_UI_VNEXT_R36_SOURCE_REPORT.md
-~~~
+```
 
 Permanent distinction:
 
-~~~text
+```text
 UI rollback != schema downgrade
-~~~
+```
 
 Repository default remains:
 
-~~~text
+```text
 CURRENT_PRODUCTION_RELEASE_DEFAULT = LEGACY
 PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
-~~~
+```

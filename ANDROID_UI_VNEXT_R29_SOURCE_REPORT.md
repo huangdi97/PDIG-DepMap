@@ -64,6 +64,7 @@ The product decision remains:
 ```
 
 `我` is an intentional fifth primary destination and MUST NOT be downgraded to:
+
 - avatar only;
 - overflow;
 - Settings;
@@ -91,6 +92,7 @@ Inventory
 ```
 
 The reference UI still includes:
+
 - light-first consumer visual system;
 - shared GPU Earth family;
 - camera-projected region context;
@@ -134,9 +136,11 @@ NEVER
 This is the central anti-demo-leak invariant.
 
 Existing unit contract:
+
 - `productionSessionRejectsReferenceSource`.
 
 Production-only Compose contract:
+
 - `ProductionVNextShellContractTest`.
 
 ---
@@ -155,6 +159,7 @@ encrypted Canonical Reality
 ```
 
 The read model projects only existing authoritative facts:
+
 - graph revision;
 - non-archived Nodes;
 - active confirmed Dependencies;
@@ -192,6 +197,7 @@ identity_anchor != email
 ```
 
 R29 continues to forbid:
+
 - phone-looking string → phone subtype;
 - email-looking string → email subtype;
 - country prefix → carrier;
@@ -209,12 +215,14 @@ R28/R29 closes the source routing gap.
 Production Infrastructure now provides a real category hub.
 
 Source-bound:
+
 - Cards;
 - Accounts;
 - Devices;
 - Services.
 
 Explicit HOLD:
+
 - Numbers — waits phone subtype authority;
 - Emails — waits email subtype authority;
 - Weaknesses — waits authoritative Finding consumer projection.
@@ -235,6 +243,7 @@ not:
 ## 7. Production Card
 
 Production card identity uses only current Canonical facts:
+
 - node id;
 - name;
 - issuer when recorded;
@@ -243,6 +252,7 @@ Production card identity uses only current Canonical facts:
 - authoritative Impact.
 
 Focused card detail now shows:
+
 - identity;
 - confirmed relation list;
 - consumer relation/capability/criticality wording;
@@ -250,6 +260,7 @@ Focused card detail now shows:
 - explicit Change entry.
 
 Reference-only lifecycle remains absent in production:
+
 - annual fee;
 - billing day;
 - payment due day;
@@ -286,6 +297,7 @@ The UI does not interpret Impact analysis as execution.
 Production Change Center reads real ChangePlan summaries.
 
 The focused plan screen reads `PlanDetailView` and provides:
+
 - affected service count;
 - unresolved must-change count;
 - action DAG prerequisites;
@@ -314,6 +326,7 @@ done != verified
 ```
 
 Verification UI now distinguishes:
+
 - no verification required;
 - pending;
 - evidence suggested;
@@ -339,12 +352,14 @@ currentGraphRevision != lastAnalyzedGraphRevision
 Records is not a second Now page.
 
 It projects only actionable historical/verification state from production plans:
+
 - recorded complete;
 - verified;
 - pending verification;
 - verification failed.
 
 It preserves:
+
 - action phase in consumer wording;
 - evidence-ref count;
 - unknown occurrence timestamp as unknown.
@@ -384,6 +399,7 @@ An empty review inbox does not mean the graph is complete.
 R29 adds Reality-only global search.
 
 Search indexes:
+
 - confirmed production objects;
 - object consumer type label;
 - issuer / last4 where confirmed;
@@ -392,6 +408,7 @@ Search indexes:
 - safe application routes.
 
 It does NOT index:
+
 - synthetic fixture lifecycle facts;
 - unconfirmed review objects as confirmed assets;
 - inferred phone/email subtype.
@@ -407,6 +424,7 @@ Generic identity anchors remain generic and do not open Number/Email detail.
 `我` is not “Settings”.
 
 Production Me now owns:
+
 - graph revision/context summary;
 - active source count;
 - pending-review entry;
@@ -416,6 +434,7 @@ Production Me now owns:
 - production Search.
 
 Presentation preferences:
+
 - privacy mask;
 - reduce motion;
 - show upcoming;
@@ -447,11 +466,13 @@ persistence.
 Production Manual Establish is now source-bound to the existing authority.
 
 Current directly creatable set follows generated runtime policy:
+
 - payment_instrument;
 - account;
 - service.
 
 Creating a Node:
+
 - creates that confirmed object;
 - bumps graphRevision through the authoritative transaction;
 - creates no Dependency.
@@ -491,6 +512,7 @@ VNext Establish
 ```
 
 If the host callback is not injected:
+
 - File Import shows that the formal entry is not connected;
 - no fake picker is displayed.
 
@@ -504,6 +526,7 @@ Current native production schema is still v3 while the complete intended relatio
 vocabulary requires the next schema line.
 
 R29 provides a dedicated HOLD screen explaining:
+
 - From / Relation / To;
 - Capability;
 - Criticality;
@@ -512,6 +535,7 @@ R29 provides a dedicated HOLD screen explaining:
 - why partial v3-only mutation is forbidden.
 
 Unlock requires:
+
 - Native Schema v4 migration;
 - runtime validation;
 - golden/negative fixtures;
@@ -566,6 +590,7 @@ active source      → 使用中
 ```
 
 Internal wire strings may remain in:
+
 - domain data;
 - tests;
 - logs;
@@ -616,6 +641,7 @@ MainActivity
 ```
 
 R29 does not bypass or weaken:
+
 - LockGate;
 - device authentication;
 - secure-window behavior;

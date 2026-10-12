@@ -17,14 +17,14 @@ found. Nothing here rebuilds the model, and no assertion was relaxed.
 `ProductionManualRelationshipContractTest.productionFormCommitsCurrentRuntimeRelationThroughAuthority`
 runs the real authority chain on isolated test data and now **passes**:
 
-| Step | Evidence |
-| --- | --- |
-| manual object creation through `AppContainer.createManualNode` | account + service nodes created via the governed manual-create authority |
-| form commit through the relationship authority | `pdig.production-vnext.manual-relation.save` produces a `result` node |
-| authoritative read-back | `app.dependencies().single()`; `from`, `to`, `relation=merchant_agreement`, `capability=payment`, `criticality=unknown` |
-| graph revision | `graphRevision()` advanced by exactly 1 |
-| raw row provenance | `origin='manual'`, `verification_basis_type='user_confirmed'` |
-| count invariant | `dependencies().size == 1` |
+| Step                                                           | Evidence                                                                                                                |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| manual object creation through `AppContainer.createManualNode` | account + service nodes created via the governed manual-create authority                                                |
+| form commit through the relationship authority                 | `pdig.production-vnext.manual-relation.save` produces a `result` node                                                   |
+| authoritative read-back                                        | `app.dependencies().single()`; `from`, `to`, `relation=merchant_agreement`, `capability=payment`, `criticality=unknown` |
+| graph revision                                                 | `graphRevision()` advanced by exactly 1                                                                                 |
+| raw row provenance                                             | `origin='manual'`, `verification_basis_type='user_confirmed'`                                                           |
+| count invariant                                                | `dependencies().size == 1`                                                                                              |
 
 `ProductionVNextShellContractTest`: **11 tests, 0 failures** on the API36 emulator.
 
@@ -66,12 +66,12 @@ line `只基于已记录关系；未确认内容不会被推断为安全或必�
 
 Concrete observed values:
 
-| Object | Facts |
-| --- | --- |
-| 招行储蓄卡 | `2 已确认依赖`, `0 需要关注`, `未知 唯一恢复路径`, `关键账户 未记录`, `独立备用方式 未记录`, `未确认关系 仍可能存在` |
-| 微信账户 | `0 / 0 / 未知 / 关键账户 未记录`, plus `唯一恢复 未知` |
-| 微信支付 | `2 已确认依赖`, `未确认关系 仍可能存在` |
-| 主号 中国移动 | `唯一恢复路径` present, `未确认关系 仍可能存在` |
+| Object        | Facts                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------- |
+| 招行储蓄卡    | `2 已确认依赖`, `0 需要关注`, `未知 唯一恢复路径`, `关键账户 未记录`, `独立备用方式 未记录`, `未确认关系 仍可能存在` |
+| 微信账户      | `0 / 0 / 未知 / 关键账户 未记录`, plus `唯一恢复 未知`                                                               |
+| 微信支付      | `2 已确认依赖`, `未确认关系 仍可能存在`                                                                              |
+| 主号 中国移动 | `唯一恢复路径` present, `未确认关系 仍可能存在`                                                                      |
 
 The lens never prints a health score or a self-invented percentage, and a `未记录` state is shown as
 `未记录`, never as zero-risk.
@@ -101,7 +101,7 @@ Human-Review workspace lands on Now (`10h-review-up-now`).
    the real list to the option (`performScrollToNode`) before clicking — the honest user path — and
    every authority assertion is unchanged. The previous failure was
    `java.lang.AssertionError: Failed to inject touch input. Reason: Expected exactly '1' node but
-   could not find any node that satisfies: (TestTag = 'pdig.production-vnext.manual-relation.to.<id>')`.
+could not find any node that satisfies: (TestTag = 'pdig.production-vnext.manual-relation.to.<id>')`.
 3. **`ci_emulator_production_rehearsal.sh` never reinstalled the app** after `connectedAndroidTest`
    (AGP uninstalls both APKs after a connected run), so the lock-gated rehearsal step died with
    `Error: Activity class {com.pdig.app/com.pdig.app.MainActivity} does not exist.` and never ran.

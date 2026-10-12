@@ -53,6 +53,7 @@ Service  = dependency endpoint
 ```
 
 Before R20:
+
 - Card: focused detail + lifecycle + Impact Lens;
 - Number: focused detail + lifecycle + recovery semantics + Impact Lens;
 - Account/Email/Device/Service: collection rows only.
@@ -73,6 +74,7 @@ This removes the product-level asymmetry without fabricating domain capability.
 Account remains an **access / control identity**.
 
 The detail shows only recorded fixture facts:
+
 - provider;
 - masked login identifier;
 - roles;
@@ -81,6 +83,7 @@ The detail shows only recorded fixture facts:
 - attention state.
 
 It explicitly says that a recorded recovery route does **not** prove:
+
 - uniqueness;
 - path independence;
 - safety.
@@ -115,6 +118,7 @@ surfaces.
 Device remains a **physical access endpoint**.
 
 The page shows:
+
 - platform;
 - device kind;
 - roles;
@@ -137,6 +141,7 @@ judgment.
 Service remains a **dependency endpoint**.
 
 The page shows:
+
 - consumer service type;
 - region context;
 - recorded incoming relations;
@@ -148,6 +153,7 @@ Only fixture relations are shown. Zero recorded incoming edges does not become
 ## 6. Impact Lens parity
 
 R20 extends the same read-only Impact Lens model to:
+
 - Account;
 - Email;
 - Device;
@@ -171,6 +177,7 @@ production `AppContainer.impactFor(nodeId)`.
 Collection rows now open focused details directly.
 
 Search results for:
+
 - Account;
 - Email;
 - Device;
@@ -195,6 +202,7 @@ on wider layouts.
 ## 8. Privacy
 
 R20 fixes a cross-width privacy gap:
+
 - Account identifiers respect workspace masking on adaptive collection surfaces;
 - Email addresses respect workspace masking on adaptive collection surfaces;
 - Search result subtitles respect masking;
@@ -221,16 +229,19 @@ corresponding ChangePrimitive / Scenario is production-supported
 ## 10. Runtime contracts added
 
 Source/unit:
+
 - secondary-object Impact Lens tests;
 - secondary detail hierarchy/selection test;
 - Search → exact secondary detail test.
 
 Instrumentation:
+
 - focused secondary detail runtime + Back flow;
 - tablet secondary detail + Impact Lens;
 - phone pixel journey captures Account / Email / Device / Service details.
 
 The phone evidence journey now requires:
+
 - object-specific identity heading;
 - Impact Lens;
 - explicit unknown-relations language;
@@ -241,12 +252,14 @@ The phone evidence journey now requires:
 R20 details still render synthetic reference models in Preview.
 
 Production VNext remains gated behind:
+
 - production source injection;
 - governed identity subtype mapping;
 - Android Reference Freeze;
 - security/runtime validation.
 
 The production read seam already carries:
+
 - confirmed inventory;
 - confirmed active dependencies;
 - timeline;

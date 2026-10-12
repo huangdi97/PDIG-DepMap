@@ -120,18 +120,19 @@
 > 运行时验证与证据收口（BUILD/RUN/TEST/CAPTURE/EVIDENCE ONLY，未设计/未改 UI）。结果：Android
 > build PASS（APK SHA `76df2dda…`）；core `npm run check` 全绿（487 tests / cycles=0 / network /
 > secrets）；Desktop Freeze Guard 12/12 PASS；Android JVM unit 98/98 PASS；真实 API36 Phone(main)
-> + Tablet(pdig_tablet_api36) runtime：24 屏 ×2 + 10 空态 + Number Detail dp probe + 15 项交互
-> 契约 + PresentationProfile/workspace 磁盘持久化（force-stop 后 XML 仍在）全 PASS；搜索/地区/
-> System Back/Change 三态/Globe TEXTURE_READY/Records/长尾基础设施/个性化/数据源全部验证。
-> **已知待收口**：2 条既有 `VNextAccessibilityEvidenceTest` 期望串与新 consumer copy 漂移
-> （phone+tablet 均 FAIL，无障碍能力未丢失）；`UiScreenshotEvidenceTest` phone 侧为 pre-existing
-> test-bed 约束（tablet 2/2 PASS）。证据：
-> `artifacts/runtime-evidence/2026-10-04-android-ui-vnext-source-complete-validation/` +
-> `ANDROID_UI_VNEXT_SOURCE_COMPLETE_RUNTIME_VALIDATION_REPORT.md`。状态：
-> `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、`ANDROID_UI_VNEXT_RUNTIME_VALIDATION = BLOCKED`
-> （2 条 a11y 契约漂移待 ChatGPT 收口）、`ANDROID_RUNTIME_EVIDENCE = READY`、
-> `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`ANDROID_REFERENCE_FREEZE = HOLD`、
-> `IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+>
+> - Tablet(pdig_tablet_api36) runtime：24 屏 ×2 + 10 空态 + Number Detail dp probe + 15 项交互
+>   契约 + PresentationProfile/workspace 磁盘持久化（force-stop 后 XML 仍在）全 PASS；搜索/地区/
+>   System Back/Change 三态/Globe TEXTURE_READY/Records/长尾基础设施/个性化/数据源全部验证。
+>   **已知待收口**：2 条既有 `VNextAccessibilityEvidenceTest` 期望串与新 consumer copy 漂移
+>   （phone+tablet 均 FAIL，无障碍能力未丢失）；`UiScreenshotEvidenceTest` phone 侧为 pre-existing
+>   test-bed 约束（tablet 2/2 PASS）。证据：
+>   `artifacts/runtime-evidence/2026-10-04-android-ui-vnext-source-complete-validation/` +
+>   `ANDROID_UI_VNEXT_SOURCE_COMPLETE_RUNTIME_VALIDATION_REPORT.md`。状态：
+>   `ANDROID_UI_VNEXT_SOURCE_DESIGN = COMPLETE`、`ANDROID_UI_VNEXT_RUNTIME_VALIDATION = BLOCKED`
+>   （2 条 a11y 契约漂移待 ChatGPT 收口）、`ANDROID_RUNTIME_EVIDENCE = READY`、
+>   `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`ANDROID_REFERENCE_FREEZE = HOLD`、
+>   `IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
 >
 > **（最新）ANDROID UI vNext · Source Design Completion（2026-10-04）**
 > —— ChatGPT 直接在 `feat/android-ui-vnext-translation` 完成 Android UI source-design 收口：
@@ -2008,4 +2009,4 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - `docs/ui-vnext/R48_R51_VISUAL_ACCEPTANCE_MATRIX.md`
 - `LOCAL_AGENT_HANDOFF.md`
 - `artifacts/runtime-evidence/2026-10-11-r48-r51/`（BASELINE.md + phone/ + tablet/ + production/
-  + logs/ + EVIDENCE_SHA256SUMS.txt，264 项哈希）
+  - logs/ + EVIDENCE_SHA256SUMS.txt，264 项哈希）

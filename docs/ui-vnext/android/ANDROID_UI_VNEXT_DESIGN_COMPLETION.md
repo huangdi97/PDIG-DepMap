@@ -29,23 +29,23 @@
 | 基础设施 | COMPLETE              | Routes to Overview and all eight secondary categories.                                                   |
 | 变更     | COMPLETE              | Change Phone flagship with Current / Transition / After.                                                 |
 | 记录     | COMPLETE              | Active change card + migration timeline + attention + upcoming records.                                  |
-| 我       | COMPLETE              | 我的数字生活、关键身份、连续性概览、隐私/偏好与个人管理入口；一级 root。                                |
+| 我       | COMPLETE              | 我的数字生活、关键身份、连续性概览、隐私/偏好与个人管理入口；一级 root。                                 |
 
 ## 3. Completed infrastructure surfaces
 
-| Surface    | Android source status | Notes                                                                                          |
-| ---------- | --------------------- | ---------------------------------------------------------------------------------------------- |
-| 总览       | COMPLETE              | Real-Earth Globe + region list + attention rail + quick entries; compact/expanded translation. |
-| 卡片       | COMPLETE              | Adaptive card gallery/list, region filtering, issuer identity, privacy mask.                   |
-| 卡片详情   | COMPLETE              | Identity hero, recorded lifecycle, confirmed dependencies, truth-bounded Impact Lens, appearance action. |
-| 卡面定制   | COMPLETE              | Consumer Studio; theme/material/privacy controls persist via PresentationProfile.              |
-| 号码       | COMPLETE              | High-density communication identity list; compact List→Detail; expanded list+inspector.        |
-| 号码详情   | COMPLETE              | Number identity, lifecycle/keep-alive, recovery-use vs explicit-unique truth, dependencies, Impact Lens. |
-| 号码面定制 | COMPLETE              | Communication-identity Studio; theme/material/privacy persist locally.                         |
-| 账户       | COMPLETE              | Identity provider, masked identifier, roles, auth methods, recovery route, attention state.    |
-| 邮箱       | COMPLETE              | Login/recovery roles, linked-service count, unique-recovery warning.                           |
-| 设备       | COMPLETE              | Platform/type, trust state, roles, last-seen, review warning.                                  |
-| 服务       | COMPLETE              | Region-scoped service inventory and consumer service-category labels.                          |
+| Surface    | Android source status | Notes                                                                                                                             |
+| ---------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 总览       | COMPLETE              | Real-Earth Globe + region list + attention rail + quick entries; compact/expanded translation.                                    |
+| 卡片       | COMPLETE              | Adaptive card gallery/list, region filtering, issuer identity, privacy mask.                                                      |
+| 卡片详情   | COMPLETE              | Identity hero, recorded lifecycle, confirmed dependencies, truth-bounded Impact Lens, appearance action.                          |
+| 卡面定制   | COMPLETE              | Consumer Studio; theme/material/privacy controls persist via PresentationProfile.                                                 |
+| 号码       | COMPLETE              | High-density communication identity list; compact List→Detail; expanded list+inspector.                                           |
+| 号码详情   | COMPLETE              | Number identity, lifecycle/keep-alive, recovery-use vs explicit-unique truth, dependencies, Impact Lens.                          |
+| 号码面定制 | COMPLETE              | Communication-identity Studio; theme/material/privacy persist locally.                                                            |
+| 账户       | COMPLETE              | Identity provider, masked identifier, roles, auth methods, recovery route, attention state.                                       |
+| 邮箱       | COMPLETE              | Login/recovery roles, linked-service count, unique-recovery warning.                                                              |
+| 设备       | COMPLETE              | Platform/type, trust state, roles, last-seen, review warning.                                                                     |
+| 服务       | COMPLETE              | Region-scoped service inventory and consumer service-category labels.                                                             |
 | 薄弱点     | COMPLETE              | Explicit unique-recovery findings, expiring cards, device review, phone-migration blockers; recovery use alone is not a weakness. |
 
 ## 4. Completed utility surfaces
@@ -167,7 +167,6 @@ It should only:
 
 Any visual discrepancy found in runtime screenshots should be reported back for source/UI correction before Android freeze.
 
-
 ## 11. Post-runtime Human Review closure (2026-10-05)
 
 The first source-complete Phone/Tablet runtime pack was reviewed from actual PNG pixels rather than by
@@ -207,7 +206,6 @@ HARMONY_UI_VNEXT = HOLD
 The next local run must build and capture from the exact current remote branch HEAD. The historical `a03bc11c...` evidence is not proof for R19. Any current acceptance run must pull and record the
 exact remote R19 HEAD; all pre-R19 pixel/runtime evidence is historical only.
 
-
 ## 12. Adaptive navigation & compact craft closure (2026-10-05)
 
 Human pixel review of the first source-complete runtime pack showed that the implementation was functionally
@@ -243,7 +241,6 @@ top-level while sibling destinations belong in secondary navigation patterns. Re
 
 This is a presentation-only correction. It does not change Canonical, PersonalReality, Change Phone truth
 semantics, PresentationProfile persistence boundaries, the frozen Desktop reference, or `.depmap`.
-
 
 ## 13. Human-selected Light Visual Reference translation closure (2026-10-05)
 
@@ -295,7 +292,6 @@ HARMONY_UI_VNEXT = HOLD
 ```
 
 No build, instrumentation, or current-head runtime PASS is claimed by this source-design closure.
-
 
 ## 14. Light-reference supporting-surface closure (2026-10-05)
 

@@ -102,6 +102,7 @@ am start ... --ez vnext_production true
 ```
 
 Forbidden while locked:
+
 - `生产 Reality`;
 - `个人控制面`;
 - `建立基础设施`.
@@ -179,6 +180,7 @@ Before the real-Activity rehearsal, the workflow also runs:
 - `ProductionManualRelationshipContractTest`
 
 This cross-checks:
+
 - five-primary Production shell;
 - Reality-only data projection;
 - authoritative manual relationship save;
@@ -201,6 +203,7 @@ import/review, timeline, source and plan surfaces. Production VNext originally r
 the lock lifecycle but did not call that window guard.
 
 R33 now:
+
 - refactors `SecureWindow` so non-legacy route models can reuse the same
   WindowManager implementation;
 - adds an explicit `productionVNextRequiresSecureWindow(VScreen)` policy;
@@ -208,6 +211,7 @@ R33 now:
 - pins the policy with JVM tests.
 
 Protected Production VNext classes include:
+
 - Infrastructure and concrete object categories/details;
 - Records;
 - Review;
@@ -263,10 +267,12 @@ or utility shortcut.
 R33 does not route around the remaining shared-schema gates.
 
 Still HOLD:
+
 - Identity Anchor subtype → Production Number / Email specialization;
 - Asset Lifecycle & Maintenance → Production fee/billing/keep-number persistence.
 
 Current Production behavior remains conservative:
+
 - coarse `identity_anchor` stays Generic Identity;
 - lifecycle values absent from Canonical remain absent/unknown.
 
@@ -318,7 +324,6 @@ REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
 ```
 
-
 ## 11. Presentation privacy and persistence closure
 
 A production-cutover audit separated three different privacy mechanisms:
@@ -337,6 +342,7 @@ R33 now covers all three independently.
 
 The existing Production card face already respected `app.privacyMask`, but card
 tail digits could still appear in:
+
 - Infrastructure payment-asset summaries;
 - Card Detail metadata;
 - Production Search result subtitles.
@@ -349,6 +355,7 @@ but the result never echoes the digits back to the visible UI.
 
 Production VNext already receives `VNextShellViewModel.app` from MainActivity.
 That ViewModel loads and persists:
+
 - workspace preferences;
 - PresentationProfile;
 - number display aliases.
@@ -368,7 +375,6 @@ local presentation persistence
 !=
 Canonical persistence
 ```
-
 
 ## 12. Production spatial identity without fake geography
 

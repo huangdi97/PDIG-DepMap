@@ -8,7 +8,7 @@
 
 ## 0. Truth status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R25
 
 FIVE_PRIMARY_IA = PRESERVED
@@ -34,7 +34,7 @@ FRESH_R25_HUMAN_ACCEPTANCE = NOT_RUN
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```
 
 ## 1. Why R25 exists
 
@@ -48,10 +48,10 @@ But a dependency graph also needs:
 
 Canonical already distinguishes Dependency origin:
 
-~~~text
+```text
 manual
 proposal
-~~~
+```
 
 R25 freezes the consumer UX for the manual path without bypassing the domain
 authority that production VNext still lacks.
@@ -60,22 +60,23 @@ authority that production VNext still lacks.
 
 Route label:
 
-~~~text
+```text
 手工记录关系
-~~~
+```
 
 Hierarchy:
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
   → 手工记录
     → 手工记录关系
-~~~
+```
 
 Up returns to Manual Establish.
 
 Search can find the route through:
+
 - 关系;
 - 依赖;
 - 手工关系;
@@ -85,20 +86,20 @@ Search can find the route through:
 
 The sequence is:
 
-~~~text
+```text
 From
 → Relation
 → To
 → Capability
 → Criticality
 → explicit confirmation
-~~~
+```
 
 The UI never asks the user to type a node ID.
 
 Preview explains direction using a non-mutating example:
 
-~~~text
+```text
 支付工具
 → 支付绑定
 → 服务
@@ -106,26 +107,26 @@ Preview explains direction using a non-mutating example:
 capability = payment
 criticality = unknown
 origin = manual
-~~~
+```
 
 ## 4. Runtime relation vocabulary
 
 R25 aligns to the current runtime relation registry:
 
-~~~text
+```text
 funding_source
 merchant_agreement
 recovers
 authenticates
 controls
-~~~
+```
 
 Storage-known but runtime-gated:
 
-~~~text
+```text
 verifies
 bound_to
-~~~
+```
 
 The screen visibly labels those as HOLD rather than offering them as valid
 production choices.
@@ -134,17 +135,17 @@ production choices.
 
 R25 makes this explicit:
 
-~~~text
+```text
 default = unknown
 required = explicit human confirmation only
-~~~
+```
 
 and:
 
-~~~text
+```text
 unknown != optional
 unknown != safe
-~~~
+```
 
 No model, provider rule or convenience UI may silently set required.
 
@@ -154,6 +155,7 @@ The relationship page explicitly refuses to model path independence as an edge
 checkbox.
 
 It reminds the user that:
+
 - two edges may share one provider;
 - two factors may share one device;
 - two recovery routes may be in one FailureDomain.
@@ -168,6 +170,7 @@ Required Preview state:
 > 当前 Preview 不提供“确认关系”按钮
 
 Reason:
+
 - AppContainer does not yet expose a tested manual Dependency creation authority
   for VNext;
 - direct SQL / local state would violate graphRevision and domain validation.
@@ -178,32 +181,33 @@ This is an authority HOLD, not missing visual design.
 
 R25 preserves two legitimate paths:
 
-~~~text
+```text
 source/model discovery
 → Proposal
 → Human Review
 → Dependency origin=proposal
-~~~
+```
 
 and:
 
-~~~text
+```text
 explicit user knowledge
 → Manual Relationship
 → Dependency origin=manual
-~~~
+```
 
 Both converge on Confirmed Reality only after authoritative domain mutation.
 
 ## 9. Tests / pixel source
 
 Added:
+
 - ManualRelationshipR25Test;
 - ManualRelationshipR25ContractTest.
 
 Phone pixel journey extends:
 
-~~~text
+```text
 建立基础设施
 → 手工记录
 → 手工记录关系
@@ -211,13 +215,13 @@ Phone pixel journey extends:
 → Up → 手工记录
 → Up → 建立基础设施
 → Up → 数据源
-~~~
+```
 
 ## 10. Design coverage after R25
 
 The Establish capability is now source-designed as:
 
-~~~text
+```text
 file import
 → proposals/review
 
@@ -229,13 +233,14 @@ manual relationship recording
 
 source/discovery
 → Human Review
-~~~
+```
 
 The missing work is production authority implementation, not consumer UX design.
 
 ## 11. Remaining gates
 
 Still not claimed:
+
 - exact-head compile/test PASS;
 - exact-head runtime/pixels;
 - Human Visual Acceptance;
@@ -247,7 +252,7 @@ Still not claimed:
 
 ## 12. Stop line
 
-~~~text
+```text
 R25_MANUAL_RELATIONSHIP_DESIGN_GAP = CLOSED
 ESTABLISH_CAPABILITY_UX = COMPLETE_AT_SOURCE
 
@@ -255,4 +260,4 @@ SOURCE_COMPLETE != RUNTIME_VERIFIED != HUMAN_ACCEPTED
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```

@@ -64,26 +64,26 @@ identity of the product.
 
 ## 4. Screen closure matrix
 
-| Surface | Status | Reference intent |
-| --- | --- | --- |
-| Now | CLOSED | Greeting/task priority + large Globe world-view |
-| Infrastructure Overview | CLOSED | Phone 8-category Hub + smaller regional Globe; Expanded spatial overview |
-| Cards | CLOSED | Asset-first identities; compact visual list; optional full card-face view |
-| Card Detail | CLOSED | Card identity first; facts/dependencies/risk subordinate |
-| Card Studio | CLOSED | Preview-first + compact horizontal visual theme gallery |
-| Numbers | CLOSED | Communication-identity surfaces, not generic phonebook rows |
-| Number Detail | CLOSED | Number identity first; dependencies/recovery/history below |
-| Number Studio | CLOSED | Preview-first presentation-only customization |
-| Accounts / Emails / Devices | CLOSED | Light asset identity + explicit recovery/trust facts |
-| Services | CLOSED | Region-grouped asset surfaces; missing relations remain unknown |
-| Weaknesses | CLOSED | Confirmed-risk hierarchy; Unknown remains Unknown |
-| Change Phone | CLOSED | Six-step continuity choreography; compact old→new scene; expanded 3-part scene |
-| Records | CLOSED | Active change / attention / upcoming summary + timeline |
-| Search | CLOSED | One recorded-data search surface preserving object identity |
-| Personalization | CLOSED | Visual preview first; presentation boundary explicit |
-| Data Sources | CLOSED | Coverage + explicit fact boundary |
-| Region Context | CLOSED | Select/detail/back/global-reset hierarchy |
-| Adaptive shell | CLOSED | <600 compact; 600–839 medium; >=840 expanded |
+| Surface                     | Status | Reference intent                                                               |
+| --------------------------- | ------ | ------------------------------------------------------------------------------ |
+| Now                         | CLOSED | Greeting/task priority + large Globe world-view                                |
+| Infrastructure Overview     | CLOSED | Phone 8-category Hub + smaller regional Globe; Expanded spatial overview       |
+| Cards                       | CLOSED | Asset-first identities; compact visual list; optional full card-face view      |
+| Card Detail                 | CLOSED | Card identity first; facts/dependencies/risk subordinate                       |
+| Card Studio                 | CLOSED | Preview-first + compact horizontal visual theme gallery                        |
+| Numbers                     | CLOSED | Communication-identity surfaces, not generic phonebook rows                    |
+| Number Detail               | CLOSED | Number identity first; dependencies/recovery/history below                     |
+| Number Studio               | CLOSED | Preview-first presentation-only customization                                  |
+| Accounts / Emails / Devices | CLOSED | Light asset identity + explicit recovery/trust facts                           |
+| Services                    | CLOSED | Region-grouped asset surfaces; missing relations remain unknown                |
+| Weaknesses                  | CLOSED | Confirmed-risk hierarchy; Unknown remains Unknown                              |
+| Change Phone                | CLOSED | Six-step continuity choreography; compact old→new scene; expanded 3-part scene |
+| Records                     | CLOSED | Active change / attention / upcoming summary + timeline                        |
+| Search                      | CLOSED | One recorded-data search surface preserving object identity                    |
+| Personalization             | CLOSED | Visual preview first; presentation boundary explicit                           |
+| Data Sources                | CLOSED | Coverage + explicit fact boundary                                              |
+| Region Context              | CLOSED | Select/detail/back/global-reset hierarchy                                      |
+| Adaptive shell              | CLOSED | <600 compact; 600–839 medium; >=840 expanded                                   |
 
 ## 5. Regression guards
 

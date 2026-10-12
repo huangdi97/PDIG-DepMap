@@ -108,6 +108,7 @@ VerificationBasisType
 ```
 
 The structured contract is declared in:
+
 - `spec/domain/domain.json`
 - `spec/schema/logical-schema-v4.json`
 
@@ -129,6 +130,7 @@ Canonical and codegen/conformance-gated.
 ## 3. Cross-platform fail-closed decoders
 
 Implemented source:
+
 - Kotlin: `android/core/.../IdentityAnchorProfile.kt`
 - Swift: `ios/Sources/PDIGCore/Domain/IdentityAnchorProfile.swift`
 - ArkTS: `harmony/.../domain/IdentityAnchorProfile.ets`
@@ -204,12 +206,14 @@ identity_anchor + OTHER / missing / invalid / legacy bare subtype
 ```
 
 The production projection carries:
+
 - subtype;
 - confirmation basis;
 - confirmed_at;
 - evidence refs.
 
 It does **not** invent:
+
 - raw phone/email identifier value;
 - carrier/provider;
 - SIM/eSIM;
@@ -223,10 +227,12 @@ It does **not** invent:
 ## 6. Production Number / Email UX unlocked safely
 
 Production Infrastructure can now show real counts for:
+
 - Numbers;
 - Emails.
 
 Production Number:
+
 - list from confirmed PHONE_NUMBER profiles only;
 - detail uses real object + confirmed relationships + authoritative Impact;
 - privacy masking hides the visible identity name;
@@ -234,6 +240,7 @@ Production Number:
 - Replace Phone entry is available.
 
 Production Email:
+
 - list from confirmed EMAIL_ADDRESS profiles only;
 - detail uses real object + confirmed relationships + authoritative Impact;
 - privacy masking hides the visible identity name;
@@ -250,6 +257,7 @@ This is not Preview fixture reuse.
 Production search now understands the authoritative surface classification.
 
 Search result labels can distinguish:
+
 - 支付工具;
 - 手机号身份;
 - 邮箱身份;
@@ -294,6 +302,7 @@ confirmed identity_anchor_profile.subtype == PHONE_NUMBER
 ```
 
 The PlanRepository rejects:
+
 - missing target;
 - archived target;
 - wrong Node kind;
@@ -303,6 +312,7 @@ The PlanRepository rejects:
 Thus even a UI bug cannot coerce a generic identity into a phone plan.
 
 The same subject-kind contract is now explicit in `ScenarioRegistry`:
+
 - payment scenarios → payment_instrument;
 - replace_phone_number → identity_anchor(phone_number).
 
@@ -323,6 +333,7 @@ confirmed subtype
 ```
 
 Production privacy masking applies to:
+
 - confirmed phone identities;
 - confirmed email identities;
 - generic identities.
@@ -353,14 +364,17 @@ The R37 identity work is an Infrastructure/Change capability expansion only.
 ## 11. Tests added/updated
 
 Source/unit:
+
 - `IdentityAnchorProfileTest`
 - `ScenarioSubjectContractTest`
 - `ProductionVNextReadModelTest`
 
 Instrumentation contract:
+
 - `ProductionVNextShellContractTest`
 
 New/updated assertions cover:
+
 - confirmed phone classification;
 - confirmed email classification;
 - bare subtype rejection;
@@ -372,6 +386,7 @@ New/updated assertions cover:
 - scenario subject-kind/subtype metadata.
 
 Conformance:
+
 - 5 new identity-profile fixtures;
 - Swift/ArkTS/Kotlin execution path.
 
@@ -416,6 +431,7 @@ The existing runtime-creatable Node set must not be widened with a UI-only short
 ### 12.3 Identity Context / Region / Lifecycle
 
 Still separate Canonical layers:
+
 - IdentityContext membership;
 - RegionFact;
 - MaintenanceFact / MaintenanceSchedule;

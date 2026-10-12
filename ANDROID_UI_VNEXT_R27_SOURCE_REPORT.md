@@ -11,7 +11,7 @@
 
 ## 0. Truth status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R27
 FIVE_PRIMARY_IA = PRESERVED
 
@@ -40,14 +40,14 @@ FRESH_R27_HUMAN_ACCEPTANCE = PENDING
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```
 
 ## 1. Why R27 exists
 
 v2.3 v0.3.0 explicitly requires the product to make continuity structure
 understandable:
 
-~~~text
+```text
 single point / no confirmed backup
 shared failure domain
 recovery cycle
@@ -55,12 +55,13 @@ unconfirmed fallback
 stale recovery information
 unknown critical path
 pending verification
-~~~
+```
 
 The old production Findings page already expressed part of this grammar, and the
 core/runtime already owns FailureDomain / RecoveryCycle behavior.
 
 The UI vNext Weaknesses page, however, still concentrated on:
+
 - explicit unique-recovery objects;
 - expiring cards;
 - device review;
@@ -79,7 +80,7 @@ New:
 
 Reference kinds:
 
-~~~text
+```text
 SINGLE_POINT_OF_FAILURE
 SHARED_FAILURE_DOMAIN
 RECOVERY_CYCLE
@@ -87,17 +88,17 @@ UNCONFIRMED_FALLBACK
 STALE_RECOVERY_INFORMATION
 UNKNOWN_CRITICAL_PATH
 PENDING_VERIFICATION
-~~~
+```
 
 Every item must provide:
 
-~~~text
+```text
 what / title
 why
 confirmed basis
 unknowns
 recommended next action
-~~~
+```
 
 That matches the v0.3 Infrastructure Finding epistemic shape without creating a
 health score.
@@ -109,11 +110,11 @@ FailureDomain solver.
 
 Therefore R27 explicitly does **not** do:
 
-~~~text
+```text
 Compose edge count
 → infer shared failure domain
 → claim independent path count
-~~~
+```
 
 Instead, Preview carries a clearly isolated **Synthetic Reference Finding** set so
 all product states can receive visual/human review.
@@ -129,7 +130,7 @@ The screen now separates:
 
 Structural/reasoning output:
 
-~~~text
+```text
 单点路径
 共享故障点
 恢复循环
@@ -137,18 +138,18 @@ Structural/reasoning output:
 信息需复核
 关键性未知
 等待验证
-~~~
+```
 
 ### B. Maintenance / migration reminders
 
 Operational records:
 
-~~~text
+```text
 card expiry
 explicit unique recovery object
 device review
 phone migration blocker
-~~~
+```
 
 These counts are not added together into a fake “risk total”.
 
@@ -156,18 +157,19 @@ These counts are not added together into a fake “risk total”.
 
 Every structural Finding card answers:
 
-~~~text
+```text
 类型
 → 发生了什么
 → 为什么
 → 确认依据
 → 仍未知什么
 → 下一步
-~~~
+```
 
 This is intentionally explanation-first.
 
 Forbidden:
+
 - “Infrastructure Health = 86”;
 - percent-safe badges;
 - “2 methods = 2 independent paths”;
@@ -179,6 +181,7 @@ Forbidden:
 Compact Now still stays task-first.
 
 The Continuity Insight now exposes:
+
 - recorded relation context;
 - structural Finding count in the reference;
 - one top continuity prompt;
@@ -192,6 +195,7 @@ into an engineering dashboard.
 ## 7. Target routing
 
 Where a reference Finding has an actual referenced object:
+
 - number Finding → Number Detail;
 - device Finding → Device Detail;
 - pending Change verification → Change Center.
@@ -203,10 +207,12 @@ The UI never creates a fake graph object merely to make every card clickable.
 ## 8. Tests
 
 New:
+
 - `UiVNextContinuityFindingsTest`
 - `ContinuityFindingsR27ContractTest`
 
 They guard:
+
 - all seven v0.3 Finding classes exist in the reference grammar;
 - every item includes basis / unknown / next action;
 - review-only classes do not become critical facts;
@@ -219,12 +225,12 @@ R27 does not create a second continuity engine.
 
 Production binding remains:
 
-~~~text
+```text
 Confirmed Reality
 → authoritative Impact / FailureDomain / RecoveryCycle / Finding engine
 → production consumer projection
 → VNext Finding presentation
-~~~
+```
 
 The production seam must not import `UI_CONTINUITY_REFERENCE_FINDINGS`.
 
@@ -234,6 +240,7 @@ that capability as unavailable/unknown rather than substituting reference data.
 ## 10. R26 authority work retained
 
 R27 preserves the R26 work completed immediately before it:
+
 - Human Review production authority seam;
 - Import production authority seam;
 - Manual Establish AppContainer authority;
@@ -245,7 +252,7 @@ R27 preserves the R26 work completed immediately before it:
 
 ## 11. Remaining evidence gates
 
-~~~text
+```text
 exact remote R27 HEAD
 → codegen/checks
 → core/app unit tests
@@ -256,13 +263,13 @@ exact remote R27 HEAD
 → GPU runtime evidence
 → human visual review
 → Android Reference Freeze
-~~~
+```
 
 A green build alone is not Human Acceptance.
 
 ## 12. Stop line
 
-~~~text
+```text
 V0_3_CONTINUITY_FINDING_UX = CLOSED_AT_R27
 R27_SOURCE_DESIGN = COMPLETE
 
@@ -270,4 +277,4 @@ SOURCE_COMPLETE != RUNTIME_VERIFIED != HUMAN_ACCEPTED
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```

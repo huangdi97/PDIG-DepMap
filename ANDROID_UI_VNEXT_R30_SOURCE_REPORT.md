@@ -100,6 +100,7 @@ Production Weaknesses
 ```
 
 Every result keeps:
+
 - title / what;
 - why;
 - confirmed basis;
@@ -198,6 +199,7 @@ UNKNOWN_CRITICAL_PATH
 Reasons:
 
 ### Shared Failure Domain
+
 Current production Finding seam does not yet expose a reusable failure-domain result
 that is safe to consume as a full Finding.
 
@@ -214,12 +216,14 @@ edge count
 for failure-domain independence.
 
 ### Stale Recovery Information
+
 A governed freshness policy / threshold is not yet exposed as a reusable Finding
 authority.
 
 Blank or old-looking timestamps are not enough for UI to invent “stale”.
 
 ### Unknown Critical Path
+
 The current Android read seam does not expose the complete critical-path input
 required by the seven-class v0.3 Finding generator.
 
@@ -230,6 +234,7 @@ Unknown remains explicit.
 The previous full-screen HOLD is removed.
 
 Production Weaknesses now shows:
+
 - authoritative findings currently available;
 - finding truth state;
 - basis;
@@ -250,6 +255,7 @@ and explicitly does **not** say:
 ## 6. Reference / Production isolation remains intact
 
 R30 production code does not import:
+
 - `UiVNextDemoFixture`;
 - `UI_CONTINUITY_REFERENCE_FINDINGS`;
 - R27 synthetic finding fixture;
@@ -272,6 +278,7 @@ Reference mode returns null.
 Production mode delegates to the authoritative read-model source.
 
 This keeps the same anti-demo-leak rule as:
+
 - snapshot;
 - inventory;
 - impact;
@@ -306,14 +313,17 @@ Cannot access RowColumnParentData?.weight
 ```
 
 Cause:
+
 - explicit import of Compose internal/scoped `weight` symbol under the repository's
   Compose/Kotlin version.
 
 Repair:
+
 - remove the direct import;
 - use the normal RowScope / ColumnScope scoped `Modifier.weight(...)` calls.
 
 Files repaired:
+
 - ProductionChangePlanScreen;
 - ProductionEstablishScreens;
 - ProductionInventoryScreens;

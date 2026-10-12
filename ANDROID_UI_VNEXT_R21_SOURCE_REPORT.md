@@ -57,6 +57,7 @@ The five primary destinations remain:
 ```
 
 R21 does not add:
+
 - a sixth “Lens” tab;
 - a separate “Recovery” tab;
 - a separate “Card Change” primary tab.
@@ -66,6 +67,7 @@ Focused change routes remain children of `变更`.
 ## 2. Records boundary repaired
 
 Before R21, Records still contained:
+
 - active changes;
 - migration progress;
 - Attention;
@@ -126,6 +128,7 @@ done != verified
 No fake timestamp or evidence source is generated.
 
 Files:
+
 - `demo/UiVNextRecordTrace.kt`
 - `screens/R21RecordsScreen.kt`
 - `RecordsProjectionR21Test.kt`
@@ -152,6 +155,7 @@ replace_phone_number
 Therefore a card-change continuity surface is not ghost capability.
 
 What would still be ghost capability:
+
 - executing the plan in Preview;
 - marking verification locally;
 - inventing a replacement card recommendation;
@@ -258,6 +262,7 @@ This list means only:
 > objects the user may choose as a plan target in Preview.
 
 It does **not** mean:
+
 - recommended;
 - compatible;
 - independent;
@@ -323,6 +328,7 @@ This avoids an empty/ambiguous change plan.
 ## 9. Adaptive parity
 
 R21 uses one Records renderer across:
+
 - Compact;
 - Medium;
 - Expanded.
@@ -330,6 +336,7 @@ R21 uses one Records renderer across:
 Only max-width/spacing changes. The truth grammar does not fork.
 
 Change Card adapts geometry:
+
 - Compact vertical continuity;
 - Medium/Expanded horizontal OLD→relations→NEW.
 
@@ -338,6 +345,7 @@ Five-primary navigation remains unchanged.
 ## 10. Tests / evidence source
 
 Added:
+
 - `CardChangeR21Test`
 - `RecordsProjectionR21Test`
 - SourceComplete interaction coverage for Change Card and Records
@@ -350,6 +358,7 @@ uses the visible exact Git SHA as the authoritative build identity.
 ## 11. Production binding status
 
 Already source-implemented:
+
 - production inventory snapshot;
 - canonical card `issuer` / `last4`;
 - conservative object surface classification;
@@ -359,6 +368,7 @@ Already source-implemented:
 - authoritative change-action gateway.
 
 Still intentionally gated:
+
 - production VNext screen injection;
 - lifecycle Canonical persistence;
 - identity-anchor subtype Canonical migration;
@@ -372,6 +382,7 @@ screens.
 ### Identity Context
 
 `spec/proposals/identity-context-v1.md` freezes:
+
 - context as governed grouping/query primitive, not NodeKind/Dependency;
 - first-class reviewable membership recommendation;
 - Region × Identity as query intersection;
@@ -381,6 +392,7 @@ screens.
 ### Recovery Incident Mode
 
 `spec/proposals/recovery-incident-mode-v1.md` freezes:
+
 - explicit incident authority;
 - available/unavailable/degraded/unknown factor state;
 - surviving roots and viable/blocked paths;

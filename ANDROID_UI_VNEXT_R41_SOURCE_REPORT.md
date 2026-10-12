@@ -42,6 +42,7 @@ Phone bottom navigation and Medium/Expanded primary rail keep the same five root
 ## 2. Region / world context
 
 R39 governs RegionFact rather than inferring geography from:
+
 - currency;
 - issuer/provider name;
 - phone number prefix;
@@ -116,6 +117,7 @@ Compose
 ```
 
 Consumer gateway supports:
+
 - atomic card amount + currency;
 - card billing/payment/autopay;
 - annual-fee checkpoint;
@@ -133,6 +135,7 @@ Production Card Detail now contains a governed maintenance editor.
 Production Number Detail now contains a governed plan / keep-alive editor.
 
 The editors:
+
 - show explicit Reality boundary copy;
 - reject incomplete amount/currency pairs;
 - perform convenience validation;
@@ -187,12 +190,13 @@ later
 Maintenance does not use a private `upcoming` bucket and does not bypass the
 existing Timeline ordering.
 
-Priority is interpreted *inside* bucket order, so a future maintenance reminder
+Priority is interpreted _inside_ bucket order, so a future maintenance reminder
 cannot outrank an attention/overdue item merely because it is maintenance.
 
 ## 9. Production search
 
 Production search may match governed maintenance Reality:
+
 - 年费;
 - 账单 / 账单日;
 - 还款;
@@ -222,6 +226,7 @@ These are not hidden TODOs.
 ## 11. Test/evidence source
 
 Source now includes contracts for:
+
 - maintenance decoder/writer;
 - cross-platform maintenance fixtures;
 - occurrence derivation;

@@ -99,11 +99,13 @@ Compose owns no graph mutation semantics.
 ## 3. Endpoint and relation validation
 
 From / To:
+
 - must exist in confirmed Reality;
 - must not be archived;
 - are selected by object identity, never typed as raw node IDs.
 
 Relation:
+
 - comes from `RELATION_DEFINITIONS`;
 - allowed From/To NodeKinds come from the same definition;
 - capability is derived from the relation definition;
@@ -111,13 +113,13 @@ Relation:
 
 Executable relations:
 
-| relation | capability |
-| --- | --- |
-| funding_source | payment |
-| merchant_agreement | payment |
-| recovers | recovery |
-| authenticates | authentication |
-| controls | access |
+| relation           | capability     |
+| ------------------ | -------------- |
+| funding_source     | payment        |
+| merchant_agreement | payment        |
+| recovers           | recovery       |
+| authenticates      | authentication |
+| controls           | access         |
 
 Not executable:
 
@@ -159,6 +161,7 @@ from | relation | to | capability
 ```
 
 New logical relation:
+
 - create one row;
 - `origin=manual`;
 - `state=active`;
@@ -166,6 +169,7 @@ New logical relation:
 - graphRevision +1.
 
 Existing active relation:
+
 - re-confirm the same row;
 - refresh verification time;
 - explicit required may upgrade criticality;
@@ -173,6 +177,7 @@ Existing active relation:
 - graphRevision +1 because Reality was re-confirmed/updated.
 
 Retired logical relation:
+
 - reactivate the same row;
 - clear retired state;
 - re-confirm;
@@ -213,6 +218,7 @@ FailureDomain / RecoveryCycle / ProviderPolicy remain Continuity responsibilitie
 ## 7. Preview remains read-only
 
 R25 reference screen still demonstrates:
+
 - relation vocabulary;
 - direction;
 - unknown vs required;
@@ -263,6 +269,7 @@ direct SQL/domain mutation.
 ## 9. R30 retained
 
 R31 keeps the R30 Production Findings closure:
+
 - single confirmed recovery source;
 - confirmed recovery cycle;
 - pending recovery Proposal;

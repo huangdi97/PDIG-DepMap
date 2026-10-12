@@ -16,8 +16,8 @@ Inventory → Typed Dependency → Continuity Analysis → Change Orchestration
 ```
 
 - Android 亮色优先；第三张深色展板是另一种材质与桌面参考，不是 Android 切暗的授权。
-- 首页是 *Living Spatial Context*；地球纹理、大气、昼夜、城市灯光、真实摄像机投影、地区标签构成一个空间舞台。地理标签连接线不等于 dependency edge。
-- 卡片表达 *Financial Asset Identity*，号码表达 *Communication Identity*。外观与本机别名从不代替经治理 Reality。
+- 首页是 _Living Spatial Context_；地球纹理、大气、昼夜、城市灯光、真实摄像机投影、地区标签构成一个空间舞台。地理标签连接线不等于 dependency edge。
+- 卡片表达 _Financial Asset Identity_，号码表达 _Communication Identity_。外观与本机别名从不代替经治理 Reality。
 - Current / Transition / After 必须分开；After 是 Plan Projection。完成 != 验证，恢复用途 != 唯一恢复路径，关系数量 != 独立恢复路径。
 - 五个正式一级入口包括「我」，在 compact 底栏与 expanded rail 必须同时成立。
 - 参考图只表达体验目标；不得将示例的 18/3/2、地区、银行或手机服务填入加密 Production。
@@ -27,19 +27,19 @@ Inventory → Typed Dependency → Continuity Analysis → Change Orchestration
 
 标记：**OBSERVED** = 已实际读取 GitHub Actions 生成的截图；**SOURCE** = 已核对实际 Compose 源码；**GATE** = 仍须从完整最新 HEAD 运行后人工复核。
 
-| 页面 | 参考图意图 | 4a9669e 实际观察与源码 | 缺口/下一验收 |
-| --- | --- | --- | --- |
-| Phone Now | 球体占据视觉重心，真实地区悬浮，资产入口与待办连贯 | **OBSERVED** `01-now.png`：light sky + GPU Earth + China/Singapore camera-projected glass labels + four mini asset entry cards；5 根导航直见；Greeting 按设备时刻 | 真实展示已有；标题/工具与空间还不如参考融合，证据仅 4a，当前 HEAD 需重新截图 |
-| Phone Infrastructure | 8 类对象入口、地区筛选、资产上下文 | **OBSERVED** `02-infrastructure.png`、`02a-infrastructure-selected-us.png`、`02b-infrastructure-global-restored.png`；存在地区 selection/reset | 参考是更明显的信息层次与区域分布视觉；需宽屏与空态检查 |
-| Phone Cards | 不同发行方可识别的卡面图像、状态/账期/年费、筛选 | **OBSERVED** `03-cards.png`、`03a-card-expiry-filter.png`：已具真实视觉身份缩略卡、筛选/到期；**SOURCE** Production 2/3/4 列真实 payment asset gallery | 产品感依然弱于参考的高密度卡片摄影/材质；不得猜 network/type，生产生命周期仅 confirmed maintenance |
-| Card Detail | 大卡身份 + 基本资料 + 关联服务 + Impact + 变更 | **OBSERVED** `04-card-detail.png`、`04b-card-services.png`、`04c-card-statements.png`、`04d-card-risk.png`、`04de-card-impact-facts.png`；真实手机滚动后确认 `已确认依赖` 和 `未确认关系` | 不能要求 heading/facts/CTA 同在一屏；实际已发现取证脚本错误并修正；后续必须跑到 Change Card |
-| Card appearance | 仅本机小功能、可选图片，不膨胀成 Studio | **SOURCE** R10/R19 消费者卡面微操作，Production private image import | 需要 exact-head 图片选择后 list/detail 一致和权限安全测试 |
-| Numbers/Number Detail | 通信身份、用户别名、保号、依赖、恢复未知区分 | **SOURCE** governed identity subtype/identifier + Profile presentation + maintenance；新 Production relation constellation 只使用确认的 edge | 手机截图尚未在已通过的 4a Pixel journey 覆盖；不得从手机号前缀推地区/运营商 |
-| Change Phone/Card | 当前→过渡→完成后，依赖对象、操作进度、阻断事项 | **SOURCE** ChangePlan authority + Current/Transition/After read-only summary；实际 Preview Phone journey 仍未全流程走完 | 需要 exact-head 动作、验证、变更前后画面与 Android 截图；After 仍非 Reality |
-| Records | 可追溯的完成/验证/证据 | **SOURCE** authoritative Production records projection；区分 done/verified | 新截图与生产 secure rehearsal 未完成 |
-| Me | 正式第五一级入口，个人数字生活而非 Settings | **OBSERVED** `01a-me-from-primary-nav.png` 确证通过底栏点击进入；**SOURCE** medium/expanded adaptive Me | compact/medium/expanded 信息密度、面板滚动及隐私状态需 runtime 人工确认 |
-| Wide tablet/desktop | 平板复用 GPU globe，但布局是独立响应式组织 | **SOURCE** 3 个 breakpoint，R19AdaptiveWorldScene GPU family | R46 exact-head API36 tablet pixel + Human Acceptance 未完成；不可拿手机像素证明平板 |
-| Production | 用真实加密 Reality，未知不渲染为 0/免费/安全 | **SOURCE** RegionFact, governed identity, MaintenanceProfile, Impact/Findings + object constellation | 加密环境真实 write/readback/lock gate 仍须 runtime；不能以 fixture 测试模拟发布许可 |
+| 页面                  | 参考图意图                                         | 4a9669e 实际观察与源码                                                                                                                                                                    | 缺口/下一验收                                                                                      |
+| --------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Phone Now             | 球体占据视觉重心，真实地区悬浮，资产入口与待办连贯 | **OBSERVED** `01-now.png`：light sky + GPU Earth + China/Singapore camera-projected glass labels + four mini asset entry cards；5 根导航直见；Greeting 按设备时刻                         | 真实展示已有；标题/工具与空间还不如参考融合，证据仅 4a，当前 HEAD 需重新截图                       |
+| Phone Infrastructure  | 8 类对象入口、地区筛选、资产上下文                 | **OBSERVED** `02-infrastructure.png`、`02a-infrastructure-selected-us.png`、`02b-infrastructure-global-restored.png`；存在地区 selection/reset                                            | 参考是更明显的信息层次与区域分布视觉；需宽屏与空态检查                                             |
+| Phone Cards           | 不同发行方可识别的卡面图像、状态/账期/年费、筛选   | **OBSERVED** `03-cards.png`、`03a-card-expiry-filter.png`：已具真实视觉身份缩略卡、筛选/到期；**SOURCE** Production 2/3/4 列真实 payment asset gallery                                    | 产品感依然弱于参考的高密度卡片摄影/材质；不得猜 network/type，生产生命周期仅 confirmed maintenance |
+| Card Detail           | 大卡身份 + 基本资料 + 关联服务 + Impact + 变更     | **OBSERVED** `04-card-detail.png`、`04b-card-services.png`、`04c-card-statements.png`、`04d-card-risk.png`、`04de-card-impact-facts.png`；真实手机滚动后确认 `已确认依赖` 和 `未确认关系` | 不能要求 heading/facts/CTA 同在一屏；实际已发现取证脚本错误并修正；后续必须跑到 Change Card        |
+| Card appearance       | 仅本机小功能、可选图片，不膨胀成 Studio            | **SOURCE** R10/R19 消费者卡面微操作，Production private image import                                                                                                                      | 需要 exact-head 图片选择后 list/detail 一致和权限安全测试                                          |
+| Numbers/Number Detail | 通信身份、用户别名、保号、依赖、恢复未知区分       | **SOURCE** governed identity subtype/identifier + Profile presentation + maintenance；新 Production relation constellation 只使用确认的 edge                                              | 手机截图尚未在已通过的 4a Pixel journey 覆盖；不得从手机号前缀推地区/运营商                        |
+| Change Phone/Card     | 当前→过渡→完成后，依赖对象、操作进度、阻断事项     | **SOURCE** ChangePlan authority + Current/Transition/After read-only summary；实际 Preview Phone journey 仍未全流程走完                                                                   | 需要 exact-head 动作、验证、变更前后画面与 Android 截图；After 仍非 Reality                        |
+| Records               | 可追溯的完成/验证/证据                             | **SOURCE** authoritative Production records projection；区分 done/verified                                                                                                                | 新截图与生产 secure rehearsal 未完成                                                               |
+| Me                    | 正式第五一级入口，个人数字生活而非 Settings        | **OBSERVED** `01a-me-from-primary-nav.png` 确证通过底栏点击进入；**SOURCE** medium/expanded adaptive Me                                                                                   | compact/medium/expanded 信息密度、面板滚动及隐私状态需 runtime 人工确认                            |
+| Wide tablet/desktop   | 平板复用 GPU globe，但布局是独立响应式组织         | **SOURCE** 3 个 breakpoint，R19AdaptiveWorldScene GPU family                                                                                                                              | R46 exact-head API36 tablet pixel + Human Acceptance 未完成；不可拿手机像素证明平板                |
+| Production            | 用真实加密 Reality，未知不渲染为 0/免费/安全       | **SOURCE** RegionFact, governed identity, MaintenanceProfile, Impact/Findings + object constellation                                                                                      | 加密环境真实 write/readback/lock gate 仍须 runtime；不能以 fixture 测试模拟发布许可                |
 
 ## C. 机械证据，不是审美判定
 

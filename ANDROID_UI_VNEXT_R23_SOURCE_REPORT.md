@@ -10,7 +10,7 @@
 
 ## 0. Truth status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R23
 
 FIVE_PRIMARY_IA = PRESERVED
@@ -39,21 +39,22 @@ FRESH_R23_HUMAN_ACCEPTANCE = NOT_RUN
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```
 
 ## 1. Why R23 exists
 
 v2.3 defines five user-layer capabilities:
 
-~~~text
+```text
 建立
 确认
 理解
 变更
 维持
-~~~
+```
 
 Before R23, VNext already had:
+
 - 确认: R22 Human Review;
 - 理解: object identity + Impact Lens;
 - 变更: Change Center + focused Change scenarios;
@@ -70,25 +71,26 @@ R23 does not create a sixth primary tab.
 
 Primary remains:
 
-~~~text
+```text
 现在 / 基础设施 / 变更 / 记录 / 我
-~~~
+```
 
 Establish route:
 
-~~~text
+```text
 /import
-~~~
+```
 
 Entry points:
+
 - Data Sources → 建立基础设施;
 - Search → 建立基础设施.
 
 Hierarchy:
 
-~~~text
+```text
 建立基础设施 → Up → 数据源 → Up → 我
-~~~
+```
 
 ## 3. Preview surface
 
@@ -98,11 +100,11 @@ android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R23ImportReferenceScreen
 
 The page shows the product flow:
 
-~~~text
+```text
 1 选择数据来源
 2 选择文件并在本机解析
 3 确认要记录的对象
-~~~
+```
 
 It also shows the permanent truth boundary:
 
@@ -113,6 +115,7 @@ and the Preview boundary:
 > 当前是隔离预览
 
 Preview deliberately does not:
+
 - open ACTION_OPEN_DOCUMENT;
 - read a user file;
 - create SourceInstance;
@@ -126,7 +129,7 @@ This avoids presenting a design reference as a working production ingestion path
 
 The current Android production app already has a hardened flow:
 
-~~~text
+```text
 FileWorkflowCoordinator
 → external picker
 → background lock / re-auth survival
@@ -134,9 +137,10 @@ FileWorkflowCoordinator
 → AppContainer.previewImport
 → Node Resolution / CSV mapping
 → AppContainer.commitImport
-~~~
+```
 
 Important existing security/correctness behavior:
+
 - ActivityResult launcher lifetime is Activity-scoped;
 - picker result does not unlock the app;
 - parsing/commit work survives the NavHost lock transition correctly;
@@ -150,7 +154,7 @@ R23 does not replace any of this with a new VNext-specific implementation.
 
 The existing SourceRepository already enforces:
 
-~~~text
+```text
 commitImport
 → SourceInstance
 → ImportSession
@@ -160,13 +164,13 @@ commitImport
 
 NOT:
 → confirmed Dependency
-~~~
+```
 
 Therefore:
 
-~~~text
+```text
 Import commit != Dependency confirmation
-~~~
+```
 
 Generated relation proposals remain R22 Human Review work.
 
@@ -177,10 +181,12 @@ R23 adds:
 production/ProductionVNextImport.kt
 
 It exposes consumer-safe projections for:
+
 - ImportPreview;
 - ImportCommitResult.
 
 Preview projection includes:
+
 - source label;
 - adapter;
 - observation count;
@@ -189,6 +195,7 @@ Preview projection includes:
 - detected counterparties.
 
 Commit projection includes:
+
 - raw count;
 - new unique count;
 - duplicate count;
@@ -197,6 +204,7 @@ Commit projection includes:
 - error count.
 
 Navigation guidance:
+
 - proposalCount > 0 → Review;
 - proposalCount == 0 → Sources.
 
@@ -205,6 +213,7 @@ Internal importSessionId is not promoted as a consumer-facing field.
 ## 7. No second parser / picker
 
 Production VNext cutover must not introduce:
+
 - another CSV parser;
 - another OFX/QFX parser;
 - another WeChat parser;
@@ -227,18 +236,19 @@ alongside:
 
 This makes the evidence loop understandable:
 
-~~~text
+```text
 数据与来源
 → 建立基础设施
 → 待复核
 → Confirmed Reality
-~~~
+```
 
 without turning Data Sources into an admin console.
 
 ## 9. Search
 
 Search recognizes:
+
 - 建立基础设施;
 - 导入;
 - 账单;
@@ -251,11 +261,13 @@ Search opens the Establish reference only. It never launches a picker automatica
 ## 10. Tests / runtime proof source
 
 Added:
+
 - ProductionVNextImportTest;
 - EstablishImportR23Test;
 - EstablishImportR23ContractTest.
 
 Phone pixel proof now requires:
+
 - Data Sources → 建立基础设施;
 - 文件留在本机 · 发现不等于依赖;
 - the three steps;
@@ -267,7 +279,7 @@ Phone pixel proof now requires:
 
 The visible source architecture now covers:
 
-~~~text
+```text
 建立
 Source / Import
 → discovered objects / proposals
@@ -289,7 +301,7 @@ Change Center
 维持
 Now / Weaknesses / lifecycle
 → Records evidence trace
-~~~
+```
 
 This is the first UI vNext source state where the v2.3 five user-layer capabilities
 all have a defined consumer surface or governed child flow.
@@ -297,6 +309,7 @@ all have a defined consumer surface or governed child flow.
 ## 12. Still intentionally gated
 
 Not claimed:
+
 - exact-head compile/test PASS;
 - API36 phone/tablet runtime;
 - Human Pixel Acceptance;
@@ -308,7 +321,7 @@ Not claimed:
 
 ## 13. Stop line
 
-~~~text
+```text
 R23_ESTABLISH_DESIGN_GAP = CLOSED_AT_SOURCE
 R23_IMPORT_AUTHORITY_BOUNDARY = CLOSED_AT_SOURCE
 R23_FIVE_CAPABILITY_PRODUCT_LOOP = SOURCE_COMPLETE
@@ -319,4 +332,4 @@ HUMAN_VISUAL_ACCEPTANCE = REQUIRED
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```

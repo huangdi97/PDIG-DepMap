@@ -5,6 +5,7 @@
 > R22 closes the Human Confirmation gap on top of R21.
 >
 > R21 already closed:
+>
 > - five-primary IA;
 > - core object details + Impact Lens;
 > - Change Center;
@@ -93,6 +94,7 @@ UI label:
 It is a secondary/focused screen, not a sixth primary destination.
 
 Entry points:
+
 - Now → 待复核;
 - Data Sources → 人工确认 / 待复核;
 - Search → 待复核.
@@ -119,11 +121,13 @@ Consumer meaning:
 > 系统建议确认一条关系。
 
 Before confirmation:
+
 - not a confirmed dependency;
 - not authoritative Reality;
 - must not be used as a confirmed Impact relation.
 
 Formal choices:
+
 - 确认关系;
 - 拒绝.
 
@@ -134,10 +138,12 @@ Consumer meaning:
 > 系统发现了一个可能的新基础设施对象。
 
 Before confirmation:
+
 - not a confirmed Node;
 - not authoritative Reality.
 
 Formal choices:
+
 - 确认对象;
 - 忽略.
 
@@ -150,6 +156,7 @@ Consumer meaning:
 Drift itself does not modify the graph.
 
 Formal choices:
+
 - 已替换;
 - 两个都在用;
 - 没有变化;
@@ -175,6 +182,7 @@ and:
 > Preview 不执行
 
 No Preview interaction:
+
 - accepts a Proposal;
 - creates a Candidate Node;
 - resolves a Drift;
@@ -187,18 +195,22 @@ would be.
 ## 5. Production review seam
 
 Already present before the screen:
+
 - `AppContainerVNextReviewSource`;
 - `AppContainerVNextReviewActionGateway`.
 
 R22 adds:
+
 - `ProductionReviewConsumerProjection.kt`.
 
 Production projection converts raw queue rows into consumer-safe review items:
+
 - relation proposal;
 - object candidate;
 - reality drift.
 
 It intentionally:
+
 - does not expose internal IDs as user labels;
 - does not turn confidence into truth;
 - translates raw relation/capability vocabulary;
@@ -230,6 +242,7 @@ R21 made Records:
 
 A source audit found stale R9/R8 Now links still used Records as a generic
 “查看全部” destination for:
+
 - current attention;
 - active changes;
 - upcoming future items.
@@ -237,6 +250,7 @@ A source audit found stale R9/R8 Now links still used Records as a generic
 That violated the new Records boundary.
 
 R22 fixes:
+
 - Human Review appears directly in Now;
 - compact current attention is shown in Now instead of hiding extra items behind Records;
 - active Change “查看全部” goes to Change Center;
@@ -247,6 +261,7 @@ Records remains historical/evidence-oriented.
 ## 7. Search
 
 Search now recognizes:
+
 - 待复核;
 - 复核;
 - 确认;
@@ -276,12 +291,14 @@ It does not claim provider sync that Preview does not have.
 ## 9. Tests / evidence source
 
 Added:
+
 - `HumanReviewR22Test`;
 - `HumanReviewR22ContractTest`;
 - production Review consumer-projection assertions;
 - phone pixel journey for Human Review.
 
 Pixel proof must include:
+
 - 待复核;
 - 发现 ≠ 事实;
 - 关系建议;
@@ -321,6 +338,7 @@ Human Review does not create a new top-level mode. It is a truth-governance task
 ## 11. Remaining gated work
 
 Still intentionally not claimed:
+
 - exact-head Kotlin/Compose build PASS;
 - exact-head API36 phone/tablet runtime;
 - exact-head GPU first-frame evidence;

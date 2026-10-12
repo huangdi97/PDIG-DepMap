@@ -8,7 +8,7 @@
 
 ## 0. Truth status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R24
 
 FIVE_PRIMARY_IA = PRESERVED
@@ -39,17 +39,17 @@ FRESH_R24_HUMAN_ACCEPTANCE = NOT_RUN
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```
 
 ## 1. Why R24 exists
 
 v2.3 describes Establish as broader than file import:
 
-~~~text
+```text
 导入
 + 手工录入
 + future discovery
-~~~
+```
 
 R23 closed file import and R22 closed discovery review, but Manual Establish still
 had no VNext consumer surface.
@@ -60,31 +60,32 @@ R24 closes the design/reference surface without bypassing domain authority.
 
 Route:
 
-~~~text
+```text
 /manual-add
-~~~
+```
 
 Label:
 
-~~~text
+```text
 手工记录
-~~~
+```
 
 Hierarchy:
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
   → 手工记录
-~~~
+```
 
 Up:
 
-~~~text
+```text
 手工记录 → 建立基础设施
-~~~
+```
 
 Search aliases:
+
 - 手工;
 - 添加;
 - 新建对象;
@@ -98,11 +99,11 @@ Canonical storage supports more NodeKind values than current runtime creation.
 
 Current runtime creation set in canonical spec:
 
-~~~text
+```text
 payment_instrument
 account
 service
-~~~
+```
 
 R24 exposes that difference in the design rather than pretending every VNext object
 type can be safely created manually today.
@@ -110,11 +111,13 @@ type can be safely created manually today.
 Reference groups:
 
 ### Current runtime creation set
+
 - 支付工具;
 - 账户;
 - 服务.
 
 ### Known but not production-ready as generic manual-create surfaces
+
 - identity_anchor → phone/email subtype ambiguous;
 - device;
 - membership;
@@ -132,6 +135,7 @@ There is currently no AppContainer-facing manual-create authority designed/teste
 for the VNext production cutover.
 
 Adding a local Compose Save button would create a false product capability and risk:
+
 - Android-only semantics;
 - incorrect identity subtype;
 - missing graphRevision mutation;
@@ -144,13 +148,14 @@ R24 therefore freezes the UX first and keeps mutation HOLD.
 
 Permanent rule:
 
-~~~text
+```text
 manual object confirmation
 !=
 manual dependency confirmation
-~~~
+```
 
 Recording “this account exists” must not automatically create:
+
 - authenticates;
 - recovers;
 - funding_source;
@@ -163,11 +168,12 @@ Relationship confirmation remains separately governed.
 
 The existing Canonical kind:
 
-~~~text
+```text
 identity_anchor
-~~~
+```
 
 is deliberately not enough to infer:
+
 - Number;
 - Email;
 - Passkey;
@@ -175,10 +181,10 @@ is deliberately not enough to infer:
 
 This matches the production VNext surface classification already implemented:
 
-~~~text
+```text
 identity_anchor
 → IDENTITY_ANCHOR_GENERIC
-~~~
+```
 
 until a governed subtype / Identity Context implementation lands.
 
@@ -186,27 +192,29 @@ until a governed subtype / Identity Context implementation lands.
 
 The consumer Establish hierarchy now supports:
 
-~~~text
+```text
 建立基础设施
 ├─ 文件导入
 │  └─ local parse → confirm objects → review proposals
 └─ 手工记录
    └─ governed object-only creation design
-~~~
+```
 
 The current Preview:
+
 - demonstrates both;
 - mutates neither.
 
 ## 8. Tests / pixel source
 
 Added:
+
 - ManualEstablishR24Test;
 - ManualEstablishR24ContractTest.
 
 Pixel journey now checks:
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
 → 手工记录
@@ -215,13 +223,13 @@ Data Sources
 → Up to 建立基础设施
 → Up to Data Sources
 → Human Review
-~~~
+```
 
 ## 9. User-layer capability coverage
 
 After R24 the v2.3 user-layer design is source-covered:
 
-~~~text
+```text
 建立
   file import + manual reference + discovery source plane
 
@@ -236,7 +244,7 @@ After R24 the v2.3 user-layer design is source-covered:
 
 维持
   Now + lifecycle + Weaknesses + Records
-~~~
+```
 
 This is design/source coverage. It is not a production cutover claim.
 
@@ -245,6 +253,7 @@ This is design/source coverage. It is not a production cutover claim.
 The remaining work is no longer a missing consumer design surface.
 
 Remaining gates are implementation/evidence classes:
+
 - current exact-head compile/tests;
 - API36 runtime and pixel evidence;
 - Human Visual Acceptance;
@@ -257,7 +266,7 @@ Remaining gates are implementation/evidence classes:
 
 ## 11. Stop line
 
-~~~text
+```text
 R24_MANUAL_ESTABLISH_DESIGN_GAP = CLOSED
 V23_USER_CAPABILITY_DESIGN_COVERAGE = COMPLETE_AT_SOURCE
 
@@ -265,4 +274,4 @@ SOURCE_COMPLETE != RUNTIME_VERIFIED != HUMAN_ACCEPTED
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```

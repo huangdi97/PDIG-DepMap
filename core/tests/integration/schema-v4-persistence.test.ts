@@ -129,9 +129,7 @@ describe('Schema v4 persistence closure (v0.3.0)', () => {
       .get()
     expect((pp as Record<string, unknown>)['policy_revision']).toBe(3)
     expect((pp as Record<string, unknown>)['state']).toBe('effective')
-    const phone = d2
-      .prepare(`SELECT fields_json FROM nodes WHERE id = 'phone'`)
-      .get()
+    const phone = d2.prepare(`SELECT fields_json FROM nodes WHERE id = 'phone'`).get()
     const phoneFields = JSON.parse(
       String((phone as Record<string, unknown>)['fields_json']),
     ) as Record<string, unknown>
@@ -354,10 +352,7 @@ describe('Schema v4 persistence closure (v0.3.0)', () => {
     const bigText = '长'.repeat(4096)
     driver
       .prepare(`UPDATE nodes SET name = ?, fields_json = ? WHERE id = 'wechat'`)
-      .run(
-        '微信支付（Unicode 测试）',
-        JSON.stringify({ blob: bigText }),
-      )
+      .run('微信支付（Unicode 测试）', JSON.stringify({ blob: bigText }))
     const e1 = exportGraph(driver)
     const d2 = new NodeSqliteDriver(join(dir, 'uni.db'))
     d2.open()

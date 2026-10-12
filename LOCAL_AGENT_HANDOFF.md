@@ -6,15 +6,15 @@
 
 ## 1. Exact references
 
-| Item | Value |
-| --- | --- |
-| Local branch HEAD (after this round's commits) | `86c482e4ef0f5dab800924ef8b0b6a60d62aa828` |
-| Remote branch HEAD | `86c482e4ef0f5dab800924ef8b0b6a60d62aa828` (pushed, fast-forward only — no force push) |
-| Commit before this round | `5a0918546461273efcf99684cf0c1302bc0b89b8` (PR #1 head when the round started) |
-| Commits added | `d3c6f459` fix(android) three runtime proof blockers · `bc39a2f2` evidence(r48-r51) · `86c482e4` fix(ci) APK identity + R48–R50 reports |
-| PR #1 | https://github.com/huangdi97/PDIG-DepMap/pull/1 — `OPEN`, `Draft`, `MERGEABLE`, base `main` |
-| Evidence directory | `artifacts/runtime-evidence/2026-10-11-r48-r51/` (264 hashed artifacts) |
-| Runtime source SHA recorded in every capture | `5a0918546461273efcf99684cf0c1302bc0b89b8` |
+| Item                                           | Value                                                                                                                                   |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Local branch HEAD (after this round's commits) | `86c482e4ef0f5dab800924ef8b0b6a60d62aa828`                                                                                              |
+| Remote branch HEAD                             | `86c482e4ef0f5dab800924ef8b0b6a60d62aa828` (pushed, fast-forward only — no force push)                                                  |
+| Commit before this round                       | `5a0918546461273efcf99684cf0c1302bc0b89b8` (PR #1 head when the round started)                                                          |
+| Commits added                                  | `d3c6f459` fix(android) three runtime proof blockers · `bc39a2f2` evidence(r48-r51) · `86c482e4` fix(ci) APK identity + R48–R50 reports |
+| PR #1                                          | https://github.com/huangdi97/PDIG-DepMap/pull/1 — `OPEN`, `Draft`, `MERGEABLE`, base `main`                                             |
+| Evidence directory                             | `artifacts/runtime-evidence/2026-10-11-r48-r51/` (264 hashed artifacts)                                                                 |
+| Runtime source SHA recorded in every capture   | `5a0918546461273efcf99684cf0c1302bc0b89b8`                                                                                              |
 
 The worktree was synchronised at the start of the round with
 `git fetch origin --prune` + `git merge --ff-only` (local was a strict ancestor, 1182 commits behind).
@@ -24,6 +24,7 @@ dropped, and no pre-existing AVD or evidence directory was modified.
 ## 2. What was actually done
 
 ### Fixed (source)
+
 1. `R21ChangeCardScreen` — the transition stage's blocking reason is now visible inside the stage the
    user tapped (it previously sat below the whole flow, off-screen on a compact phone).
 2. `SinglePaneOverview` — the tablet/medium quick entries now sit inside the first viewport. Before,
@@ -31,6 +32,7 @@ dropped, and no pre-existing AVD or evidence directory was modified.
    so a tablet user never saw them.
 
 ### Fixed (tests / evidence tooling — no assertion was weakened)
+
 3. `SourceCompleteScreenshotEvidenceTest` — branches on the real breakpoint instead of the ≥600dp
    device class (the expanded inspector workspaces only exist at EXPANDED; the CI tablet viewport is
    MEDIUM), and its quick-entry assertion now reports measured geometry and viewport.
@@ -47,6 +49,7 @@ dropped, and no pre-existing AVD or evidence directory was modified.
    verifies the installed APK's SHA-256 against the built APK before interpreting the cutover UI.
 
 ### Verified locally at exact HEAD (all logs in `logs/`)
+
 `:core:test`, `:app:testDebugUnitTest`, `:app:assembleDebug/PreviewDebug/ProductionDebug`,
 `:app:assemblePreviewDebugAndroidTest`, `:app:assembleProductionDebugAndroidTest`,
 `ui_vnext_pixel_capture.py` (65 real PNGs), `TabletAdaptiveContractTest` (5/5),
@@ -56,14 +59,14 @@ dropped, and no pre-existing AVD or evidence directory was modified.
 
 ## 3. Remote CI status — observed per SHA
 
-| Workflow | `5a09185` (round start) | `bc39a2f2` (fix + evidence) |
-| --- | --- | --- |
-| CI | success | **success** |
-| iOS | success | **success** |
-| Android UI vNext Preview APK | success | **success** |
-| Android UI vNext Phone Pixel Proof | failure | **success** |
-| Android UI vNext Tablet Pixel Proof | failure | **success** |
-| Android UI vNext Production Rehearsal | failure | **failure** (see §4) |
+| Workflow                              | `5a09185` (round start) | `bc39a2f2` (fix + evidence) |
+| ------------------------------------- | ----------------------- | --------------------------- |
+| CI                                    | success                 | **success**                 |
+| iOS                                   | success                 | **success**                 |
+| Android UI vNext Preview APK          | success                 | **success**                 |
+| Android UI vNext Phone Pixel Proof    | failure                 | **success**                 |
+| Android UI vNext Tablet Pixel Proof   | failure                 | **success**                 |
+| Android UI vNext Production Rehearsal | failure                 | **failure** (see §4)        |
 
 `86c482e4` re-ran CI / iOS / Preview APK (**all success**) and the Production Rehearsal (**failure**).
 It does not touch the phone/tablet workflow path filters, so those gates were not re-triggered for it.
@@ -89,7 +92,7 @@ This is reported as **unmet**, with the CI evidence recorded in
 `docs/ui-vnext/R51_ANDROID_EXACT_HEAD_RUNTIME_REPORT.md` §4. Suggested next steps: read
 `MainActivity` / `PdigApp`'s default-route shell selection for any input outside
 `BuildConfig.PRODUCTION_UI_GENERATION` and `PRODUCTION_VNEXT_CUTOVER_APPROVED`, and compare a
-locally created *fresh* AVD (the round created `pdig_evi_phone_api36`) against the CI emulator.
+locally created _fresh_ AVD (the round created `pdig_evi_phone_api36`) against the CI emulator.
 
 ## 5. What the user needs to do (the only genuinely blocking items)
 

@@ -10,7 +10,7 @@
 
 ## 0. Status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R34
 PDIG_PRODUCT_ARCHITECTURE_CONTROL = R35
 
@@ -27,7 +27,7 @@ NEW_DEPMAP_PAYLOAD_ACTIVATED_BY_R35 = NO
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_RELEASE_CUTOVER = HOLD
-~~~
+```
 
 ---
 
@@ -38,7 +38,7 @@ still separate files.
 
 That left a coordination risk:
 
-~~~text
+```text
 valid future proposal A
 valid future proposal B
 valid future proposal C
@@ -49,7 +49,7 @@ which must ship first?
 which may run in parallel?
 which is optional composition?
 which UI gate may open when?
-~~~
+```
 
 For a multi-platform local-first system with strict Reality authority, this is not
 just project management. Wrong ordering can create semantic forks.
@@ -62,9 +62,9 @@ R35 therefore makes the future Canonical implementation order machine-readable.
 
 New:
 
-~~~text
+```text
 spec/roadmap/canonical-v4-expansion-plan.json
-~~~
+```
 
 It describes:
 
@@ -81,7 +81,7 @@ It describes:
 
 Packages covered:
 
-~~~text
+```text
 typed_control_graph
 generic_change_kernel
 identity_anchor_subtype
@@ -97,7 +97,7 @@ recovery_incident
 advanced_continuity_analysis
 digital_resource_continuity
 trusted_handoff
-~~~
+```
 
 No v2.3 future product family is left as an unordered design island.
 
@@ -107,9 +107,9 @@ No v2.3 future product family is left as an unordered design island.
 
 New:
 
-~~~text
+```text
 tools/validate-canonical-v4-expansion-plan.mjs
-~~~
+```
 
 The validator fails when:
 
@@ -126,9 +126,9 @@ The validator fails when:
 
 The validator also pins the five-primary product shell:
 
-~~~text
+```text
 NOW / INFRASTRUCTURE / CHANGE / RECORDS / ME
-~~~
+```
 
 ---
 
@@ -136,11 +136,11 @@ NOW / INFRASTRUCTURE / CHANGE / RECORDS / ME
 
 The main Canonical CI job now runs:
 
-~~~text
+```text
 CODEGEN GATE
 → CANONICAL V4 EXPANSION DAG GATE
 → Conformance orchestrator
-~~~
+```
 
 Therefore future edits to the roadmap are reviewed as executable architecture
 constraints rather than prose-only intent.
@@ -154,55 +154,55 @@ invalid ordering/authority claims.
 
 ### Stage 0 — existing v3 baseline
 
-~~~text
+```text
 Typed Control Graph
 REPLACE-only Generic Change Kernel
 Evidence / Proposal / Review boundary
 FailureDomain / RecoveryCycle primitives
-~~~
+```
 
 ### Stage 1 — parallel foundations
 
-~~~text
+```text
 Identity Anchor Subtype
 RegionFact
 Asset Lifecycle / Maintenance
 SecretLocator
-~~~
+```
 
 ### Stage 2 — semantic substrate
 
-~~~text
+```text
 Access / Recovery Factor
 Identity Context
-~~~
+```
 
 ### Stage 3 — living maintenance and device change
 
-~~~text
+```text
 Maintenance runtime
 Device Continuity
-~~~
+```
 
 ### Stage 4 — recovery / advanced continuity
 
-~~~text
+```text
 Recovery Preparedness
 Recovery Incident
 Advanced Continuity Analysis
-~~~
+```
 
 ### Stage 5 — digital resources
 
-~~~text
+```text
 Digital Resource Continuity
-~~~
+```
 
 ### Stage 6 — extreme continuity
 
-~~~text
+```text
 Trusted Handoff
-~~~
+```
 
 This is a dependency order, not a promise that every stage is a single release.
 
@@ -212,9 +212,9 @@ This is a dependency order, not a promise that every stage is a single release.
 
 R35 recommends the first real Canonical expansion vertical slice be:
 
-~~~text
+```text
 Identity Anchor Subtype
-~~~
+```
 
 Reasons:
 
@@ -227,10 +227,10 @@ Reasons:
 
 Required migration remains conservative:
 
-~~~text
+```text
 existing identity_anchor
 → subtype = unknown/null
-~~~
+```
 
 No automatic regex/name/provider classification.
 
@@ -246,11 +246,11 @@ Factor is not just another form field.
 A factor such as SMS OTP or recovery email needs a governed carrier identity.
 Therefore:
 
-~~~text
+```text
 Access / Recovery Factor
 hard-depends on
 Identity Anchor Subtype
-~~~
+```
 
 This prevents a generic identity string from silently becoming a phone/email factor.
 
@@ -264,7 +264,7 @@ Recovery Incident is intentionally not exposed merely because its UX is designed
 
 It still requires:
 
-~~~text
+```text
 explicit incident authority
 factor availability
 FailureDomain-aware surviving roots
@@ -272,15 +272,15 @@ RecoveryCycle handling
 provider/temporal constraints
 deterministic solver
 authoritative actions / verification
-~~~
+```
 
 Only then may Recovery Lens become visible.
 
 R35 preserves:
 
-~~~text
+```text
 DESIGN_COMPLETE != PRODUCTION_EXECUTABLE
-~~~
+```
 
 ---
 
@@ -293,14 +293,14 @@ versions remain monotonic and can advance package by package.
 
 A package should ship as the smallest coherent vertical slice with:
 
-~~~text
+```text
 schema/migration
 + fixtures
 + conformance
 + all-platform semantic readers/writers
 + consumer projection
 + real product use
-~~~
+```
 
 This reduces rollback and cross-platform compatibility risk.
 
@@ -310,9 +310,9 @@ This reduces rollback and cross-platform compatibility risk.
 
 Future Canonical growth does not create new root navigation.
 
-~~~text
+```text
 现在 / 基础设施 / 变更 / 记录 / 我
-~~~
+```
 
 Mapping stays contextual:
 
@@ -336,7 +336,7 @@ R35 closes implementation-order design, not implementation itself.
 
 Still real:
 
-~~~text
+```text
 Canonical package implementation
 cross-platform migration/conformance
 Android exact-head runtime/pixels
@@ -347,13 +347,13 @@ Android Reference Freeze
 Production release cutover
 iOS/Harmony platform translation after Android freeze
 real-user/real-data/store gates when reopened
-~~~
+```
 
 ---
 
 ## 12. Stop line
 
-~~~text
+```text
 R35_FUTURE_CANONICAL_ORDER = CLOSED
 R35_EXECUTION_GRAPH = MACHINE_READABLE
 R35_EXECUTION_GRAPH_CI_GATE = IMPLEMENTED
@@ -366,4 +366,4 @@ FIVE_PRIMARY_IA = PERMANENT
 DESIGN_COMPLETE != IMPLEMENTED
 IMPLEMENTED != CONFORMANCE_PASS
 CONFORMANCE_PASS != RUNTIME_VERIFIED
-~~~
+```

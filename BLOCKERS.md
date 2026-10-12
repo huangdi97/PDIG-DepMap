@@ -1,6 +1,7 @@
 # BLOCKERS.md
->
+
 > **ANDROID UI vNext Focused Phone Current-Head Gate（2026-10-05）：**
+>
 > - Human-selected 亮色参考已经完成进一步 source translation；最终 pixel-changing Android production-UI checkpoint
 >   = `a03bc11c8bac601f95bf2e070c5f666e2b22d271`；其后为结构契约测试与文档同步。
 > - 当前没有已知必须继续靠 source 猜测的 P0/P1 UI 设计缺口；Phone/Tablet 的下一判定必须来自
@@ -15,8 +16,8 @@
 > - 保持：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
 >   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
 >
->
 > **ANDROID UI vNext Selected Light Reference Current-Head Gate（2026-10-05）：**
+>
 > - Human-selected 亮色视觉参考已经入仓并完成 source-level translation；最新 Android production-UI
 >   checkpoint = `94b9445a73c40c11e592ed9fa08d2c55646c3880`。
 > - 当前没有已知需要继续凭 source 猜测的 UI 设计缺口；**唯一正确的下一 Gate 是 exact-current-head
@@ -28,8 +29,8 @@
 > - 保留：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
 >   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
 >
->
 > **ANDROID UI vNext Light Reference Current-Head Gate（2026-10-05）：**
+>
 > - Human-selected light visual direction 已进入 Android Compose production UI；当前 source-design
 >   不存在已知待实现的主视觉页面缺口。
 > - 当前唯一 Android UI Freeze 阻塞是 **fresh runtime evidence + Human pixel acceptance**：
@@ -42,8 +43,8 @@
 > - 保持：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
 >   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
 
->
 > **ANDROID UI vNext Current-Head Evidence Gate（2026-10-05）：**
+>
 > - 当前不是代码设计 blocker，而是**证据新鲜度 gate**。Human Review 后 Android production UI
 >   checkpoint 已到 `77c7b3692c9b3327331f52af522a2bc65ecf165e`；2026-10-04 的 Phone/Tablet
 >   runtime pack 来自 `4e43511...`，不能用于 Final Freeze。
@@ -55,8 +56,8 @@
 >   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
 > - Local Agent 仍只负责 build/runtime/evidence；UI discrepancy 必须回到 ChatGPT source 修改。
 >
->
 > **ANDROID UI vNext Source-Complete Runtime Validation（2026-10-04）：**
+>
 > - 无新外部 blocker。已如实记录：本轮运行主体全部 PASS，但 **2 条既有
 >   `VNextAccessibilityEvidenceTest` 契约测试在最新 source 上 FAIL**（期望串与新 consumer copy
 >   漂移：`搜索 / 命令` vs 实际 `搜索与快捷操作`；`地区（Region List）` vs 实际 `地区`）。

@@ -10,7 +10,7 @@
 
 ## 0. Current truth
 
-~~~text
+```text
 ANDROID_UI_VNEXT_REFERENCE_SOURCE = R34
 CANONICAL_EXPANSION_CONTROL = R35
 ANDROID_RELEASE_CUTOVER_CONTROL = R36
@@ -24,7 +24,7 @@ RELEASE_CUTOVER_APPROVED = NO
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
-~~~
+```
 
 ---
 
@@ -32,14 +32,15 @@ PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
 
 Before R36:
 
-~~~text
+```text
 preview → Reference VNext
 productionDebug + Intent extra → real-Reality VNext rehearsal
 production default/release → legacy
-~~~
+```
 
 That was secure, but the eventual release operation was unspecified. A future agent
 could have implemented release activation as:
+
 - a user Setting;
 - an Intent extra;
 - remote config;
@@ -56,14 +57,15 @@ Production UI generation is now a build-time release decision.
 
 The release target requires both:
 
-~~~text
+```text
 pdigProductionUiGeneration = vnext
 pdigProductionVNextCutoverApproved = true
-~~~
+```
 
 Any incomplete state remains legacy.
 
 This separates:
+
 - desired generation;
 - explicit release approval.
 
@@ -71,10 +73,10 @@ A stale/inherited generation property cannot cut over by itself.
 
 Gradle accepts only:
 
-~~~text
+```text
 pdigProductionUiGeneration = legacy | vnext
 pdigProductionVNextCutoverApproved = true | false
-~~~
+```
 
 Invalid build properties fail configuration.
 
@@ -87,10 +89,10 @@ decision remains fail-closed.
 
 Production release ignores:
 
-~~~text
+```text
 vnext_demo
 vnext_production
-~~~
+```
 
 Intent/deep-link state never owns release authority.
 
@@ -104,25 +106,25 @@ Preview continues to use synthetic reference state.
 
 New launch target:
 
-~~~text
+```text
 PRODUCTION_REALITY_RELEASE
-~~~
+```
 
 Both:
 
-~~~text
+```text
 PRODUCTION_REALITY_DEBUG
 PRODUCTION_REALITY_RELEASE
-~~~
+```
 
 enter the same implementation:
 
-~~~text
+```text
 real AppContainer
 → createProductionVNextSession
 → ProductionVNextSecureHost
 → PdigSecureContent / LockGate
-~~~
+```
 
 There is no second release-specific lock implementation.
 
@@ -132,35 +134,36 @@ There is no second release-specific lock implementation.
 
 New script:
 
-~~~text
+```text
 android/scripts/production_vnext_release_default_rehearsal.py
-~~~
+```
 
 The production rehearsal workflow now tests two configurations.
 
 ### Default repository productionDebug
 
-~~~text
+```text
 default no-extra launch → legacy
 explicit vnext_production → real VNext rehearsal
-~~~
+```
 
 ### Two-key productionDebug
 
 Build:
 
-~~~text
+```text
 -PpdigProductionUiGeneration=vnext
 -PpdigProductionVNextCutoverApproved=true
-~~~
+```
 
 Then launch with:
 
-~~~text
+```text
 NO Intent extras
-~~~
+```
 
 Required proof:
+
 - first frame remains behind the canonical lock;
 - no Reality content leaks before unlock;
 - unlock enters Production VNext;
@@ -177,10 +180,10 @@ This rehearses the future release-default routing path without approving a relea
 
 Rollback is another build decision:
 
-~~~text
+```text
 generation = legacy
 approval = false
-~~~
+```
 
 or repository defaults.
 
@@ -188,9 +191,9 @@ No Personal Reality mutation occurs merely because the UI generation changes.
 
 Permanent distinction:
 
-~~~text
+```text
 UI rollback != schema downgrade
-~~~
+```
 
 If a future VNext release activates a schema that the legacy shell cannot read,
 legacy UI rollback can no longer be assumed safe. That compatibility must be
@@ -204,6 +207,7 @@ rollback can be proven separately from future Canonical expansion.
 ## 7. Tests
 
 VNextLaunchPolicyTest now pins:
+
 - Preview always wins as Reference;
 - production defaults to legacy;
 - release Intent extras cannot cut over;
@@ -223,11 +227,12 @@ Runtime rehearsal separately proves MainActivity + LockGate behavior.
 
 Normative operational document:
 
-~~~text
+```text
 docs/ANDROID_PRODUCTION_VNEXT_CUTOVER_RUNBOOK.md
-~~~
+```
 
 It defines:
+
 - build commands;
 - acceptance preconditions;
 - artifact evidence;
@@ -240,14 +245,14 @@ It defines:
 
 ## 9. What R36 does not claim
 
-~~~text
+```text
 Android Reference Freeze = not claimed
 human pixel acceptance = not claimed
 Production VNext release approved = no
 Play/store readiness = not claimed
 production signing = unchanged / external
 new Canonical schema = no
-~~~
+```
 
 CI/rehearsal PASS is required but cannot self-approve release.
 
@@ -255,7 +260,7 @@ CI/rehearsal PASS is required but cannot self-approve release.
 
 ## 10. Stop line
 
-~~~text
+```text
 R36_PRODUCTION_CUTOVER_DESIGN = CLOSED
 R36_TWO_KEY_POLICY = SOURCE_IMPLEMENTED
 R36_RELEASE_DEFAULT_REHEARSAL = SOURCE_IMPLEMENTED
@@ -263,4 +268,4 @@ R36_ROLLBACK_RUNBOOK = FROZEN
 
 CURRENT_PRODUCTION_RELEASE_DEFAULT = LEGACY
 PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
-~~~
+```

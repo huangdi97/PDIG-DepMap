@@ -38,11 +38,11 @@ design and is now asserted explicitly by the harness instead of being assumed aw
 Observed at runtime: key identity, cross-region digital presence, continuity summary, personal
 preferences, privacy masking and data-source entry. Privacy is exercised end-to-end:
 
-| State | Capture | Observed |
-| --- | --- | --- |
-| masking off (default) | `phone/09-me.png` | `敏感信息遮蔽` shows `已关闭` |
-| masking on | `phone/09a-me-mask-enabled.png` | `已开启` |
-| masking off again | `phone/09b-me-mask-disabled.png` | `已关闭` |
+| State                 | Capture                          | Observed                      |
+| --------------------- | -------------------------------- | ----------------------------- |
+| masking off (default) | `phone/09-me.png`                | `敏感信息遮蔽` shows `已关闭` |
+| masking on            | `phone/09a-me-mask-enabled.png`  | `已开启`                      |
+| masking off again     | `phone/09b-me-mask-disabled.png` | `已关闭`                      |
 
 Default is **off**, the user can toggle it in both directions, and the toggle takes effect on the
 same screen. `phone/09-personalization.png` reaches `显示与个性化` with `隐藏敏感信息`.
@@ -80,14 +80,14 @@ onboarding is skippable and lands on the real product surface.
 
 ## 7. Empty, unknown and locked states — no fake counts
 
-| State | Capture | Observed |
-| --- | --- | --- |
-| empty cards | `tablet/tablet-cards-empty.png` | empty-state surface, not a fabricated count |
-| empty numbers | `tablet/tablet-numbers-empty.png` | same |
-| no attention | `tablet/tablet-no-attention.png` | `当前没有已记录的复核、进行中计划或已报告薄弱点；未知不等于安全。` |
-| no known dependencies | `tablet/tablet-no-known-dependencies.png` | empty dependencies state |
-| records empty | `tablet/tablet-records-empty.png` | explicit "no recorded events" boundary |
-| production, locked | `production/01-reality-debug-locked` (`manifest.json`, XML dumps) | only `PDIG 已锁定` + capability explanation; the Reality/Now markers are explicitly forbidden and were absent |
+| State                 | Capture                                                           | Observed                                                                                                      |
+| --------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| empty cards           | `tablet/tablet-cards-empty.png`                                   | empty-state surface, not a fabricated count                                                                   |
+| empty numbers         | `tablet/tablet-numbers-empty.png`                                 | same                                                                                                          |
+| no attention          | `tablet/tablet-no-attention.png`                                  | `当前没有已记录的复核、进行中计划或已报告薄弱点；未知不等于安全。`                                            |
+| no known dependencies | `tablet/tablet-no-known-dependencies.png`                         | empty dependencies state                                                                                      |
+| records empty         | `tablet/tablet-records-empty.png`                                 | explicit "no recorded events" boundary                                                                        |
+| production, locked    | `production/01-reality-debug-locked` (`manifest.json`, XML dumps) | only `PDIG 已锁定` + capability explanation; the Reality/Now markers are explicitly forbidden and were absent |
 
 The production lock screen states the encryption/identity boundary itself
 (`数据只保存在这台设备上，进入前需要验证身份。`) and, on a device with no biometrics or lock

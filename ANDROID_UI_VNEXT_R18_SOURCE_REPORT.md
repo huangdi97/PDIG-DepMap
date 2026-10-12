@@ -43,6 +43,7 @@ same spatial stage: geographic callouts now carry factual asset footprint instea
 of behaving like tiny corner-style country chips.
 
 External product research only validates the need, not PDIG truth:
+
 - CardPointers explicitly supports annual-fee reminders and renewal-oriented card
   management: https://cardpointers.com/pro/
 - KeepSim demonstrates a local-first number keep-alive model based on cycles, due
@@ -57,6 +58,7 @@ automatic telecom actions.
 ## 2. Card lifecycle — implemented
 
 Presentation model:
+
 - `UiVNextCardLifecycle`
 - annual fee
 - annual-fee checkpoint
@@ -66,6 +68,7 @@ Presentation model:
 - recorded autopay summary
 
 Consumer UI:
+
 - card rows surface compact annual-fee/billing context;
 - card detail adds a dedicated **用卡周期** surface;
 - Overview includes lifecycle facts;
@@ -74,12 +77,14 @@ Consumer UI:
 - transaction amount/balance/minimum-payment values are never inferred.
 
 Stable evidence tags:
+
 - `pdig.r18.card.lifecycle`
 - `pdig.r18.card-row.lifecycle`
 
 ## 3. Number lifecycle / keep-number — implemented
 
 Presentation model:
+
 - `UiVNextNumberLifecycle`
 - billing mode
 - plan cost
@@ -89,6 +94,7 @@ Presentation model:
 - recorded renewal method
 
 Consumer UI:
+
 - number rows show plan/keep-alive context;
 - Number Detail adds **号码生命周期**;
 - role is visible together with SIM type;
@@ -99,6 +105,7 @@ Consumer UI:
 - copy explicitly says recorded dates are not live carrier state.
 
 Stable evidence tags:
+
 - `pdig.r18.number.lifecycle`
 - `pdig.r18.number-row.lifecycle`
 
@@ -141,6 +148,7 @@ Source contracts now protect:
 - existing R16 geographic projection/collision budget remains intact.
 
 Files:
+
 - `android/app/src/test/kotlin/com/pdig/uivnext/demo/UiVNextLifecycleFixtureTest.kt`
 - `android/app/src/androidTest/kotlin/com/pdig/uivnext/evidence/AndroidLightVisualSourceContractTest.kt`
 
@@ -183,6 +191,7 @@ Human review set must include at minimum:
 ```
 
 For the globe, review the actual frame for:
+
 - round/non-faceted silhouette;
 - atmospheric integration rather than a pasted rectangle;
 - readable day/night texture;
@@ -196,7 +205,6 @@ R18 source work can only advance to `ANDROID_REFERENCE_FREEZE = PASS` after the
 fresh phone/tablet runtime set is produced from the exact remote head and receives
 human visual acceptance. A source commit, unit test or old screenshot cannot
 substitute for that gate.
-
 
 ## 9. R18 semantic correction — keep-number != migration target
 
@@ -228,6 +236,7 @@ reference board while preserving PDIG's core rule that presentation must not inv
 dependency or risk truth.
 
 Evidence tags/tests:
+
 - `pdig.r18.change.impact-summary`
 - `ChangeImpactSummaryTest`
 - Android Light visual contract now requires the summary on compact Change Phone.

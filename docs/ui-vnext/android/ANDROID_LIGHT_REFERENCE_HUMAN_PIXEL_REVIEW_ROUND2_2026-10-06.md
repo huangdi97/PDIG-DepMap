@@ -40,27 +40,27 @@ The repository declaration has now been corrected to the actual content hash.
 
 ## 3. Phone pixel review
 
-| Screen | Human result | Finding |
-| --- | --- | --- |
-| 01 Now | **REJECT** | Light shell/task hierarchy is directionally correct, but the Globe frame is still the dark loading/fallback sphere; headline contrast was also weak on the light surface. |
-| 02 Overview Global | **REJECT** | Infrastructure Hub is correct; Global Globe is still a dark loading/fallback sphere. |
-| 03 Overview Region | ACCEPTABLE DIRECTION | Textured Earth and region state are visibly present. |
-| 04 Region Detail | **INVALID EVIDENCE** | PNG remains Region Selected; manifest itself records expected `region-detail` but actual `region-selected`. |
-| 05 Cards | ACCEPTABLE | Asset identity and compact density are materially aligned with the selected direction. |
-| 06 Card Detail | ACCEPTABLE | Asset-first detail hierarchy is clear. |
-| 07/08 Card Studio | ACCEPTABLE DIRECTION | Preview-first composition is correct; exact-head a11y contract still required. |
-| 09 Numbers | ACCEPTABLE | Reads as communication identity rather than a generic phonebook. |
-| 10 Number Detail | ACCEPTABLE | Identity-first hierarchy and Unknown semantics are clear. |
-| 11 Number Studio | ACCEPTABLE DIRECTION | Preview-first; requires fresh exact-head accessibility validation. |
-| 12–16 secondary infrastructure | ACCEPTABLE WITH P2 CRAFT DEBT | Readable/light and semantically correct, but intentionally lower visual richness than Cards/Numbers. No freeze-blocking product-truth defect found. |
-| 17 Change Current | **INVALID EVIDENCE** | Captured frame visibly has 迁移中 selected. |
-| 18 Change Transition | **INVALID EVIDENCE** | Same visible state as 17; cannot establish Current vs Transition distinction. |
-| 19 Change After | ACCEPTABLE | Plan projection is explicit and does not claim completed reality. |
-| 20 Records | ACCEPTABLE | Task/progress hierarchy is clear. |
-| 21 Search Empty | ACCEPTABLE | Search scope and quick navigation are clear. |
-| 22 Search Query | **INVALID EVIDENCE** | PNG is a Cards surface rather than Search Query results. |
-| 23 Personalization | ACCEPTABLE | Preview-first and presentation-only boundary are explicit. |
-| 24 Data Sources | ACCEPTABLE | 本机优先 / 已确认 / 未知 boundary is clear and Unknown remains Unknown. |
+| Screen                         | Human result                  | Finding                                                                                                                                                                   |
+| ------------------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 01 Now                         | **REJECT**                    | Light shell/task hierarchy is directionally correct, but the Globe frame is still the dark loading/fallback sphere; headline contrast was also weak on the light surface. |
+| 02 Overview Global             | **REJECT**                    | Infrastructure Hub is correct; Global Globe is still a dark loading/fallback sphere.                                                                                      |
+| 03 Overview Region             | ACCEPTABLE DIRECTION          | Textured Earth and region state are visibly present.                                                                                                                      |
+| 04 Region Detail               | **INVALID EVIDENCE**          | PNG remains Region Selected; manifest itself records expected `region-detail` but actual `region-selected`.                                                               |
+| 05 Cards                       | ACCEPTABLE                    | Asset identity and compact density are materially aligned with the selected direction.                                                                                    |
+| 06 Card Detail                 | ACCEPTABLE                    | Asset-first detail hierarchy is clear.                                                                                                                                    |
+| 07/08 Card Studio              | ACCEPTABLE DIRECTION          | Preview-first composition is correct; exact-head a11y contract still required.                                                                                            |
+| 09 Numbers                     | ACCEPTABLE                    | Reads as communication identity rather than a generic phonebook.                                                                                                          |
+| 10 Number Detail               | ACCEPTABLE                    | Identity-first hierarchy and Unknown semantics are clear.                                                                                                                 |
+| 11 Number Studio               | ACCEPTABLE DIRECTION          | Preview-first; requires fresh exact-head accessibility validation.                                                                                                        |
+| 12–16 secondary infrastructure | ACCEPTABLE WITH P2 CRAFT DEBT | Readable/light and semantically correct, but intentionally lower visual richness than Cards/Numbers. No freeze-blocking product-truth defect found.                       |
+| 17 Change Current              | **INVALID EVIDENCE**          | Captured frame visibly has 迁移中 selected.                                                                                                                               |
+| 18 Change Transition           | **INVALID EVIDENCE**          | Same visible state as 17; cannot establish Current vs Transition distinction.                                                                                             |
+| 19 Change After                | ACCEPTABLE                    | Plan projection is explicit and does not claim completed reality.                                                                                                         |
+| 20 Records                     | ACCEPTABLE                    | Task/progress hierarchy is clear.                                                                                                                                         |
+| 21 Search Empty                | ACCEPTABLE                    | Search scope and quick navigation are clear.                                                                                                                              |
+| 22 Search Query                | **INVALID EVIDENCE**          | PNG is a Cards surface rather than Search Query results.                                                                                                                  |
+| 23 Personalization             | ACCEPTABLE                    | Preview-first and presentation-only boundary are explicit.                                                                                                                |
+| 24 Data Sources                | ACCEPTABLE                    | 本机优先 / 已确认 / 未知 boundary is clear and Unknown remains Unknown.                                                                                                   |
 
 ## 4. Tablet pixel review
 

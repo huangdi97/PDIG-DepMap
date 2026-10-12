@@ -14,7 +14,6 @@
 > `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`,
 > `ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`,
 > `ANDROID_REFERENCE_FREEZE = HOLD`. Do not rewrite the results below as if they were rerun on the new head.
->
 
 > 2026-10-04 · `feat/android-ui-vnext-translation` · SOURCE-COMPLETE 运行时验证与证据收口
 > 角色：本地执行/验证 Agent（BUILD / RUN / TEST / CAPTURE / EVIDENCE ONLY — 未设计/未改 UI）
@@ -44,14 +43,14 @@ HARMONY_UI_VNEXT = HOLD
 
 ## 2. Build 结果
 
-| 项 | 值 |
-| --- | --- |
-| BUILD_STATUS | **PASS**（`assembleProductionDebug` BUILD SUCCESSFUL，53s） |
-| 变体 | production/debug（仓库真实 flavor；AGP 8.5.2 / Kotlin 2.0.0 / Compose BOM 2024.09.02） |
-| APK_PATH | `C:\Users\Kaiser\pdig-build\app\outputs\apk\production\debug\app-production-debug.apk`（仓库将 build 输出重定向到 ASCII 根，见 `android/settings.gradle.kts`） |
-| APK_SHA256 | `76df2dda5791886736a7ff88c8ad05a9cb5ae586e9d812763a3b54274851fded`（41.77 MB） |
-| BUILD_DURATION | 53s（clean 后全量） |
-| 首次编译阻塞 | 首轮 `compileProductionDebugKotlin` 失败：2 个新文件缺 import + 1 个无效 import（详见 §13），属 source 侧零语义机械问题，已按任务书 §2 例外修复并报告。 |
+| 项             | 值                                                                                                                                                             |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| BUILD_STATUS   | **PASS**（`assembleProductionDebug` BUILD SUCCESSFUL，53s）                                                                                                    |
+| 变体           | production/debug（仓库真实 flavor；AGP 8.5.2 / Kotlin 2.0.0 / Compose BOM 2024.09.02）                                                                         |
+| APK_PATH       | `C:\Users\Kaiser\pdig-build\app\outputs\apk\production\debug\app-production-debug.apk`（仓库将 build 输出重定向到 ASCII 根，见 `android/settings.gradle.kts`） |
+| APK_SHA256     | `76df2dda5791886736a7ff88c8ad05a9cb5ae586e9d812763a3b54274851fded`（41.77 MB）                                                                                 |
+| BUILD_DURATION | 53s（clean 后全量）                                                                                                                                            |
+| 首次编译阻塞   | 首轮 `compileProductionDebugKotlin` 失败：2 个新文件缺 import + 1 个无效 import（详见 §13），属 source 侧零语义机械问题，已按任务书 §2 例外修复并报告。        |
 
 ## 3. Toolchain（DEVICE_MATRIX.json 同步记录）
 
@@ -65,10 +64,10 @@ HARMONY_UI_VNEXT = HOLD
 
 ## 4. AVD（DEVICE_MATRIX.json）
 
-| 设备 | AVD | API | 分辨率 | density | 方向 |
-| --- | --- | --- | --- | --- | --- |
-| Phone | `main`（pixel_7） | 36 | 1080×2400 | 420dpi（2.625） | portrait |
-| Tablet | `pdig_tablet_api36`（pixel_tablet） | 36 | 2560×1600 | 320dpi（2.0） | landscape（运行时旋转 user_rotation=1） |
+| 设备   | AVD                                 | API | 分辨率    | density         | 方向                                    |
+| ------ | ----------------------------------- | --- | --------- | --------------- | --------------------------------------- |
+| Phone  | `main`（pixel_7）                   | 36  | 1080×2400 | 420dpi（2.625） | portrait                                |
+| Tablet | `pdig_tablet_api36`（pixel_tablet） | 36  | 2560×1600 | 320dpi（2.0）   | landscape（运行时旋转 user_rotation=1） |
 
 均为既有 AVD（未新建、未下载镜像）；冷启动（-no-snapshot）；未 wipe data。
 
@@ -95,12 +94,12 @@ HARMONY_UI_VNEXT = HOLD
 
 ### 8.1 本轮新增证据测试（androidTest，`com.pdig.uivnext.evidence`）
 
-| 测试 | Phone | Tablet |
-| --- | --- | --- |
-| SourceCompleteScreenshotEvidenceTest（24 屏 + 5 空态，29 captures，expected==actual 断言） | PASS | PASS |
-| NumberDetailLayoutProbeTest（真实 dp 探针） | PASS | PASS |
-| SourceCompleteInteractionContractTest（11 项交互契约） | PASS | PASS |
-| WorkspacePreferenceDiskPersistenceTest（磁盘持久化） | PASS | —（同一机制，Phone 为代表） |
+| 测试                                                                                       | Phone | Tablet                      |
+| ------------------------------------------------------------------------------------------ | ----- | --------------------------- |
+| SourceCompleteScreenshotEvidenceTest（24 屏 + 5 空态，29 captures，expected==actual 断言） | PASS  | PASS                        |
+| NumberDetailLayoutProbeTest（真实 dp 探针）                                                | PASS  | PASS                        |
+| SourceCompleteInteractionContractTest（11 项交互契约）                                     | PASS  | PASS                        |
+| WorkspacePreferenceDiskPersistenceTest（磁盘持久化）                                       | PASS  | —（同一机制，Phone 为代表） |
 
 ### 8.2 既有契约测试（全量重跑最新 head）
 
@@ -139,6 +138,7 @@ HARMONY_UI_VNEXT = HOLD
 ## 12. 已知运行时差异 / 待 ChatGPT 收口
 
 ### 12.1 VNextAccessibilityEvidenceTest（phone + tablet 均 FAIL，2 条）
+
 - `bottomNavAndSearchHaveAccessibleSemantics`：期望 contentDescription `搜索 / 命令`。
   **新 source 实际为 `搜索与快捷操作`（`VNextShell.kt:148`），tag `pdig.search.entry` + click 均在** → 无障碍能力未丢失，**测试期望串过期**。
 - `globeHasAccessibleDescription_andRegionListFallbackExists`：期望文本 `地区（Region List）`。
@@ -148,16 +148,17 @@ HARMONY_UI_VNEXT = HOLD
 ### 12.2 （无其他新的契约回归）—— 其余 40/42（phone）、40/42（tablet）全 PASS。
 
 ### 12.3 UiScreenshotEvidenceTest（仅 Phone FAIL；Tablet 2/2 PASS）
+
 - `capturesVNextDemoScreens_andProbesKeyTestTags`：`pdig.globe.stage must be laid out on overview` —— 手机窗口下该 test-bed 的 wide-shell stage probe 几何不可满足。**为 pre-existing 约束**（BLOCKERS 已记录：starting-HEAD 复测同样 FAIL，非本轮回归；GLOBE_STAGE tag 在新 source 中存在，`UiVNextModels.kt:167`）。
 
 ## 13. 本地 Agent 对 production 的改动（任务书 §39 报告）
 
 production `android/app/src/main/**` 改动 = **2 个文件 · 3 处纯机械 import 修复**（任务书 §2 唯一例外，已报告，未擅自 commit 语义）：
 
-| 文件 | 行 | 修复 | 语义影响 |
-| --- | --- | --- | --- |
-| `ui/components/NumberIdentitySurface.kt` | 14 | 删除无效顶层 import `androidx.compose.foundation.layout.matchParentSize`（foundation-layout 1.7.x 中为 BoxScope 成员扩展，调用点在 Box 作用域内，无需 import） | 零 |
-| `ui/screens/OverviewQuickEntries.kt` | 13/16 | 补 `import androidx.compose.foundation.shape.RoundedCornerShape`、`import androidx.compose.ui.Alignment` | 零 |
+| 文件                                     | 行    | 修复                                                                                                                                                           | 语义影响 |
+| ---------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| `ui/components/NumberIdentitySurface.kt` | 14    | 删除无效顶层 import `androidx.compose.foundation.layout.matchParentSize`（foundation-layout 1.7.x 中为 BoxScope 成员扩展，调用点在 Box 作用域内，无需 import） | 零       |
+| `ui/screens/OverviewQuickEntries.kt`     | 13/16 | 补 `import androidx.compose.foundation.shape.RoundedCornerShape`、`import androidx.compose.ui.Alignment`                                                       | 零       |
 
 若不修则 `assembleProductionDebug` 无法编译（SOURCE_COMPILE_BLOCKER）；修复后全部 gate 绿。另：5 个 docs 由仓库标准 prettier 格式化（零语义）。
 
@@ -195,7 +196,6 @@ production `android/app/src/main/**` 改动 = **2 个文件 · 3 处纯机械 im
 
 - `EVIDENCE_SHA256SUMS.txt` 覆盖全部 PNG + manifests + probe（64 条）。
 - 截图 manifest 内每张 PNG 的 `fileSha256 == sha256`（0 mismatch），保证证据可复现审计。
-
 
 ## 18. 2026-10-05 Human Review supersession note
 

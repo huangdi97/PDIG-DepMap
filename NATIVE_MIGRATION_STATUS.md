@@ -14,7 +14,6 @@
 > 当前 `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`，
 > `ANDROID_REFERENCE_FREEZE = HOLD`，iOS/Harmony UI vNext 继续 HOLD。
 
->
 > 2026-10-05 — ANDROID_UI_VNEXT_HUMAN_REVIEW_ADAPTIVE_CRAFT_CLOSURE（presentation-only）：
 > Human 已直接审查 source-complete Phone/Tablet runtime pixels；旧 pack source 为 `4e43511...`。
 > Android presentation source 后续收口至 `77c7b3692c9b3327331f52af522a2bc65ecf165e`，包含
@@ -24,7 +23,6 @@
 > parity 均未改。** 当前 `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`；
 > `ANDROID_REFERENCE_FREEZE = HOLD`，iOS/Harmony UI vNext 继续 HOLD。
 
->
 > 2026-10-04 — ANDROID_UI_VNEXT_SOURCE_COMPLETE_RUNTIME_VALIDATION（presentation 层演示壳，
 > 非生产数据绑定）：本地执行/验证 Agent 在 `4e43511` 完成 source-complete 运行时验证与证据
 > 收口（BUILD/RUN/TEST/CAPTURE/EVIDENCE ONLY）。Production 三端原生迁移状态不受影响、不做

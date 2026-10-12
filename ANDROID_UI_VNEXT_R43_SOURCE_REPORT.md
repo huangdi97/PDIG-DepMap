@@ -164,6 +164,7 @@ resumeRoute
 as non-sensitive workflow metadata.
 
 It does **not** persist:
+
 - raw statement bytes;
 - Observation payloads;
 - decrypted content;
@@ -185,6 +186,7 @@ CsvMappingStepWithParser
 ```
 
 The user can review/change:
+
 - date/time column;
 - amount column.
 
@@ -253,6 +255,7 @@ If no Proposal was generated, the next navigation target is Data Sources.
 ## 9. Failure behavior
 
 R43 distinguishes:
+
 - selected source disappeared;
 - selected source adapter mismatch;
 - unreadable file;
@@ -283,6 +286,7 @@ This narrows the external-document access window without changing Reality semant
 ## 11. Preview remains isolated
 
 Reference Preview still:
+
 - shows Establish hierarchy;
 - explains local import and Proposal boundaries;
 - never opens the real file picker;
@@ -307,6 +311,7 @@ SourceRepository existing-source validation path
 ```
 
 R43 also updates:
+
 - `spec/ui-vnext/ESTABLISH_IMPORT_UX_CONTRACT.md`;
 - `spec/ui-vnext/CAPABILITY_AUTHORITY_MATRIX.md`;
 - `spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md`;

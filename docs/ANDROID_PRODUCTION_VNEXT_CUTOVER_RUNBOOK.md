@@ -11,14 +11,14 @@
 
 ## 0. Current release state
 
-~~~text
+```text
 repository default:
 pdigProductionUiGeneration = legacy
 pdigProductionVNextCutoverApproved = false
 
 therefore:
 productionRelease default = LEGACY_PRODUCTION
-~~~
+```
 
 R36 does **not** change the current shipping default.
 
@@ -29,6 +29,7 @@ R36 does **not** change the current shipping default.
 Production UI generation is not a user preference.
 
 It must not be controlled by:
+
 - Intent extras;
 - deep links;
 - PresentationProfile;
@@ -39,10 +40,10 @@ It must not be controlled by:
 
 Reason:
 
-~~~text
+```text
 legacy vs VNext
 changes which production control surface owns real Personal Reality
-~~~
+```
 
 That is a release-authority decision.
 
@@ -55,36 +56,36 @@ trusted with this decision.
 
 Production VNext release requires both:
 
-~~~text
+```text
 -PpdigProductionUiGeneration=vnext
 -PpdigProductionVNextCutoverApproved=true
-~~~
+```
 
 Any other state fails closed to legacy.
 
 Truth table:
 
-| generation | approval | release default |
-| --- | --- | --- |
-| legacy | false | legacy |
-| legacy | true | legacy |
-| vnext | false | legacy |
-| vnext | true | Production VNext |
-| unknown/typo | any | build fails or policy falls back legacy |
+| generation   | approval | release default                         |
+| ------------ | -------- | --------------------------------------- |
+| legacy       | false    | legacy                                  |
+| legacy       | true     | legacy                                  |
+| vnext        | false    | legacy                                  |
+| vnext        | true     | Production VNext                        |
+| unknown/typo | any      | build fails or policy falls back legacy |
 
 Gradle accepts only:
 
-~~~text
+```text
 legacy
 vnext
-~~~
+```
 
 Approval accepts only:
 
-~~~text
+```text
 true
 false
-~~~
+```
 
 The Kotlin launch policy still parses unknown runtime strings as legacy as an
 additional fail-closed layer.
@@ -95,14 +96,15 @@ additional fail-closed layer.
 
 Production release ignores:
 
-~~~text
+```text
 vnext_demo
 vnext_production
-~~~
+```
 
 They cannot cut over release behavior.
 
 Debug retains:
+
 - vnext_demo → Reference Preview;
 - vnext_production → real-Reality VNext rehearsal.
 
@@ -115,18 +117,19 @@ keys and launching with no extras.
 
 Both future release VNext and current debug reality rehearsal use:
 
-~~~text
+```text
 MainActivity
 → AppContainer
 → createProductionVNextSession
 → ProductionVNextSecureHost
 → PdigSecureContent
 → LockGate
-~~~
+```
 
 There is no second VNext-specific lock implementation.
 
 Required invariants:
+
 - first Reality frame never renders while locked;
 - background → relock;
 - resume → capability refresh + relock;
@@ -140,19 +143,19 @@ Required invariants:
 
 ### Legacy-default control build
 
-~~~bash
+```bash
 cd android
 ./gradlew :app:assembleProductionRelease
-~~~
+```
 
 ### VNext-default candidate
 
-~~~bash
+```bash
 cd android
 ./gradlew :app:assembleProductionRelease \
   -PpdigProductionUiGeneration=vnext \
   -PpdigProductionVNextCutoverApproved=true
-~~~
+```
 
 Production signing remains governed by the existing signing policy. This runbook
 does not introduce or store signing credentials.
@@ -163,15 +166,16 @@ does not introduce or store signing credentials.
 
 Workflow:
 
-~~~text
+```text
 .github/workflows/android-ui-vnext-production-rehearsal.yml
-~~~
+```
 
 It proves two configurations.
 
 ### A. Repository-default productionDebug
 
 Expected:
+
 - explicit vnext_production debug extra can enter real Reality VNext after unlock;
 - default no-extra launch stays legacy;
 - both fail closed before unlock.
@@ -179,6 +183,7 @@ Expected:
 ### B. Two-key VNext-default productionDebug
 
 Expected:
+
 - no Intent extras;
 - default launcher fails closed behind LockGate;
 - unlock enters real Reality Production VNext;
@@ -189,10 +194,10 @@ Expected:
 
 Evidence:
 
-~~~text
+```text
 artifacts/runtime-evidence/production-vnext-rehearsal/
 artifacts/runtime-evidence/production-vnext-release-default/
-~~~
+```
 
 A debug rehearsal is still not release approval.
 
@@ -202,7 +207,7 @@ A debug rehearsal is still not release approval.
 
 All must be explicitly satisfied:
 
-~~~text
+```text
 [ ] exact candidate CI pass
 [ ] Canonical/conformance pass for current schema
 [ ] API36 Preview phone runtime pass
@@ -218,7 +223,7 @@ All must be explicitly satisfied:
 [ ] backup/restore/security regression unchanged
 [ ] rollback build produced and install-tested
 [ ] release signing/store prerequisites explicitly reopened
-~~~
+```
 
 A missing line means cutover remains HOLD.
 
@@ -230,12 +235,13 @@ When the release decision is approved, do not change source routing logic.
 
 Build the release with the two keys:
 
-~~~text
+```text
 generation = vnext
 approval = true
-~~~
+```
 
 Record:
+
 - exact source SHA;
 - exact Gradle command;
 - APK/AAB hash;
@@ -255,10 +261,10 @@ Rollback does not mutate Personal Reality.
 
 Build/release:
 
-~~~text
+```text
 generation = legacy
 approval = false
-~~~
+```
 
 or simply use repository defaults.
 
@@ -271,11 +277,11 @@ runbook must be revised before the schema release.
 
 Permanent rule:
 
-~~~text
+```text
 UI rollback
 !=
 schema downgrade
-~~~
+```
 
 Never attempt to downgrade an encrypted user database merely to restore the old UI.
 
@@ -285,19 +291,20 @@ Never attempt to downgrade an encrypted user database merely to restore the old 
 
 Before any future Canonical expansion ships together with VNext:
 
-~~~text
+```text
 legacy reader compatibility?
 VNext reader compatibility?
 migration forward-only?
 export/import compatibility?
 rollback UI still able to open Reality?
-~~~
+```
 
 If legacy cannot safely read the post-migration database, the rollback strategy must
 be:
+
 - previous signed app only if compatible, or
 - a VNext hotfix release,
-not a blind legacy switch.
+  not a blind legacy switch.
 
 R36 cutover design therefore intentionally happens before new v4 persistence.
 
@@ -308,6 +315,7 @@ R36 cutover design therefore intentionally happens before new v4 persistence.
 PDIG does not add analytics merely for cutover.
 
 Release evidence may use:
+
 - local diagnostic status;
 - explicit source SHA;
 - build generation marker;
@@ -321,7 +329,7 @@ to an analytics backend.
 
 ## 12. Forbidden shortcuts
 
-~~~text
+```text
 Intent extra enables Production VNext release         FORBIDDEN
 Settings toggle changes production UI generation      FORBIDDEN
 remote config changes Reality control surface         FORBIDDEN
@@ -329,13 +337,13 @@ synthetic fixture enters production branch            FORBIDDEN
 VNext bypasses PdigSecureContent                      FORBIDDEN
 cutover approval inferred from CI green               FORBIDDEN
 UI rollback silently downgrades schema                FORBIDDEN
-~~~
+```
 
 ---
 
 ## 13. Stop line
 
-~~~text
+```text
 R36_PRODUCTION_UI_GENERATION_POLICY = SOURCE_IMPLEMENTED
 R36_TWO_KEY_CUTOVER = SOURCE_IMPLEMENTED
 R36_RELEASE_DEFAULT_REHEARSAL = SOURCE_IMPLEMENTED
@@ -343,4 +351,4 @@ CURRENT_RELEASE_DEFAULT = LEGACY
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_RELEASE_CUTOVER = HOLD
-~~~
+```

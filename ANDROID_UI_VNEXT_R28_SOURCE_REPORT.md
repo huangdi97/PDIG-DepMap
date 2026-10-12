@@ -12,7 +12,7 @@
 
 ## 0. Truth status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R28
 
 REFERENCE_PREVIEW_SOURCE = EXPLICIT
@@ -40,11 +40,12 @@ PRODUCTION_CHANGE_MUTATION_UI_BINDING = HOLD
 
 PRODUCTION_LAUNCHER_CUTOVER = HOLD
 ANDROID_REFERENCE_FREEZE = HOLD
-~~~
+```
 
 ## 1. Problem R28 closes
 
 Before R28, the repository already had:
+
 - production snapshot/read-model projections;
 - production impact projection;
 - production records projection;
@@ -55,11 +56,11 @@ Before R28, the repository already had:
 
 But UI vNext still had one dangerous architectural gap:
 
-~~~text
+```text
 production data APIs exist
 !=
 screens have a strict production source boundary
-~~~
+```
 
 Without a source boundary, a future cutover could accidentally instantiate the
 reference UI and let it reach `UiVNextDemoFixture` while running under production.
@@ -74,25 +75,27 @@ New:
 
 Two explicit modes:
 
-~~~text
+```text
 REFERENCE_PREVIEW
 PRODUCTION_REALITY
-~~~
+```
 
 Reference mode:
+
 - cannot return a production snapshot;
 - cannot return production impact;
 - cannot return production plan;
 - cannot return production records.
 
 Production mode:
+
 - wraps `VNextReadModelSource`;
 - projects only authoritative AppContainer-owned data;
 - never substitutes synthetic fixture facts for missing Reality.
 
 Permanent rule:
 
-~~~text
+```text
 Production missing data
 → render unknown / unavailable
 
@@ -100,7 +103,7 @@ NOT
 
 Production missing data
 → borrow Preview fixture
-~~~
+```
 
 ## 3. Production session
 
@@ -109,6 +112,7 @@ New:
 `ProductionVNextSession`
 
 It packages:
+
 - normal VAppState navigation / presentation state;
 - a required `PRODUCTION_REALITY` runtime data source.
 
@@ -116,9 +120,9 @@ The constructor rejects a Reference data source.
 
 This gives the future launcher a single object that proves:
 
-~~~text
+```text
 this VNext tree is production-bound
-~~~
+```
 
 without changing the current launch policy.
 
@@ -132,19 +136,20 @@ The file intentionally has no import/reference to `UiVNextDemoFixture`.
 
 It preserves the five primary product destinations:
 
-~~~text
+```text
 现在
 基础设施
 变更
 记录
 我
-~~~
+```
 
 and binds root content only from the production runtime source.
 
 ### Now
 
 Shows only:
+
 - pending Human Review count;
 - active ChangePlan count;
 - active Source count;
@@ -156,19 +161,20 @@ An empty Timeline explicitly does not mean safe.
 ### Infrastructure
 
 Shows:
+
 - production `payment_instrument` as payment assets;
 - generic `identity_anchor` as generic identities;
 - account/service/device/membership/custom counts.
 
 Important:
 
-~~~text
+```text
 identity_anchor
 !=
 phone number
 !=
 email
-~~~
+```
 
 until subtype Canonical exists.
 
@@ -182,22 +188,23 @@ It does not create/complete/verify actions locally.
 
 Shows authoritative plan action / verification record states:
 
-~~~text
+```text
 已记录完成
 已验证
 待验证
 验证失败
-~~~
+```
 
 and keeps:
 
-~~~text
+```text
 done != verified
-~~~
+```
 
 ### Me
 
 Shows production Reality boundary:
+
 - graph revision;
 - active source count;
 - pending review count;
@@ -218,13 +225,13 @@ It does not call the reference ContentHost.
 
 This is deliberate.
 
-~~~text
+```text
 unsupported production screen
 → visible HOLD state
 
 NOT
 → synthetic Preview fallback
-~~~
+```
 
 ## 6. What R28 intentionally does not coerce
 
@@ -232,17 +239,20 @@ The production shell does not create a fake `UiVNextCard` or
 `UiVNextNumber` merely to reuse Preview screens.
 
 For payment assets, only facts already proven by production are shown:
+
 - name;
 - issuer when present;
 - last4 when present;
 - confirmed relationship count.
 
 For identity anchors:
+
 - name;
 - confirmed relationship count;
 - generic identity status.
 
 It does not invent:
+
 - card region;
 - currency;
 - network;
@@ -262,6 +272,7 @@ New:
 `VNextRuntimeDataSourceTest`
 
 It proves:
+
 - Reference cannot return Production Reality;
 - Production projects only its supplied authoritative source;
 - Production Session rejects a Reference source.
@@ -275,28 +286,28 @@ R28 does not modify MainActivity routing.
 
 Current production stays:
 
-~~~text
+```text
 Production flavor
 → lock / security gate
 → existing PdigApp
-~~~
+```
 
 Current Preview stays:
 
-~~~text
+```text
 Preview flavor
 → UI vNext reference
 → Synthetic Reference data
-~~~
+```
 
 Future cutover candidate:
 
-~~~text
+```text
 Production flavor
 → existing lock / security gate
 → createProductionVNextSession(AppContainer)
 → ProductionVNextShell
-~~~
+```
 
 Only after all detailed production screen bindings and runtime/security gates pass.
 
@@ -306,7 +317,7 @@ Root source injection is no longer an unimplemented concept.
 
 Remaining concrete work is now narrower:
 
-~~~text
+```text
 A. Card focused detail
    production payment asset + impact + real replace_payment_card plan
 
@@ -327,11 +338,11 @@ F. Change execution
 
 G. Persistence / restart / security / rollback
    full production E2E before launcher cutover
-~~~
+```
 
 ## 10. Stop line
 
-~~~text
+```text
 R28_PRODUCTION_SOURCE_BOUNDARY = CLOSED
 R28_PRODUCTION_ROOT_READ_BINDING = CLOSED
 
@@ -342,4 +353,4 @@ PRODUCTION_MUTATION_UI_BINDING = HOLD
 PRODUCTION_LAUNCHER_CUTOVER = HOLD
 
 ANDROID_REFERENCE_FREEZE = HOLD
-~~~
+```

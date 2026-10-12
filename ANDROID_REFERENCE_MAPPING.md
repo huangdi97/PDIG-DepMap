@@ -62,6 +62,7 @@ EXPANDED >= 840dp
 ## 1. Now
 
 ### PRESERVE
+
 - task-first hierarchy: attention before generic statistics;
 - signature Globe as spatial context;
 - active Change state;
@@ -69,10 +70,12 @@ EXPANDED >= 840dp
 - explicit unknown states.
 
 ### TRANSLATE
+
 - phone: vertical consumer feed with a frameless world hero;
 - wider screens: more spatial room, without converting the page to a KPI wall.
 
 ### R19 reference details
+
 - GPU Earth remains the preferred renderer;
 - projected region callouts follow the live camera;
 - callouts show factual card/number context and an attention marker only when
@@ -80,6 +83,7 @@ EXPANDED >= 840dp
 - the asset rail opens Cards / Numbers / Accounts / Services.
 
 ### FORBIDDEN
+
 - decorative fake graph edges;
 - fixed-corner country labels that do not follow the camera;
 - “0 issues = safe”;
@@ -88,17 +92,20 @@ EXPANDED >= 840dp
 ## 2. Infrastructure Overview
 
 ### PRESERVE
+
 - eight-category management hub;
 - region distribution;
 - region selection as a real filter;
 - accessible region list in addition to the Globe.
 
 ### PLATFORM-ADAPT
+
 - phone: search → 8-category hub → compact region distribution;
 - Medium: single-pane spatial overview;
 - Expanded: spatial stage + activity rail + quick entries.
 
 ### FORBIDDEN
+
 - copying Now as a second giant dashboard;
 - persistent horizontal Infrastructure tabs on phone;
 - interpreting an empty region as “no risk”.
@@ -108,6 +115,7 @@ EXPANDED >= 840dp
 The Globe is a **spatial context object**, not a background illustration.
 
 ### Renderer
+
 - bundled albedo / night-lights / cloud textures;
 - spherical GPU shading;
 - atmosphere / limb / exterior haze;
@@ -116,6 +124,7 @@ The Globe is a **spatial context object**, not a background illustration.
 - CPU fallback if GPU initialization fails.
 
 ### Region annotations
+
 - geographic anchors use the same live camera/projection as the Earth;
 - visible labels are collision-budgeted;
 - dense nearby regions may cluster and open a chooser;
@@ -124,6 +133,7 @@ The Globe is a **spatial context object**, not a background illustration.
 - labels may show card count, number count and recorded attention.
 
 ### Required runtime states
+
 ```text
 loading
 GPU ready / TEXTURE_READY
@@ -136,13 +146,16 @@ A source implementation cannot claim the runtime state without fresh evidence.
 ## 4. Cards — Financial Asset Identity
 
 ### PRESERVE
+
 - strong card identity / collection feeling;
 - issuer, region, currency, type, form, network, expiry;
 - confirmed service dependencies;
 - local presentation customization.
 
 ### R19 lifecycle density
+
 List/detail may show recorded:
+
 ```text
 annual fee
 annual-fee checkpoint
@@ -155,10 +168,12 @@ recorded autopay summary
 Missing = `未记录`.
 
 ### PLATFORM-ADAPT
+
 - phone: dense vertical asset list;
 - Medium/Expanded: list + inspector, with focused detail still available.
 
 ### FORBIDDEN
+
 - rewards optimization becoming the product;
 - inventing a statement balance or minimum payment;
 - treating PresentationProfile as financial truth.
@@ -179,6 +194,7 @@ The former fake static “history” copy is removed. History may only return wh
 real source/timeline record exists.
 
 `Impact Lens` answers **“如果它发生变化？”** but does not invent:
+
 - critical accounts;
 - independent alternatives;
 - unique recovery facts;
@@ -194,6 +210,7 @@ scenario rather than creating a parallel demo workflow.
 Card appearance is a small presentation feature, not a separate financial product.
 
 ### PRESERVE
+
 - same card renderer in list/detail/editor;
 - local image import;
 - bundled presets;
@@ -201,6 +218,7 @@ Card appearance is a small presentation feature, not a separate financial produc
 - live preview.
 
 ### Boundary
+
 ```text
 PresentationProfile != PersonalReality != Canonical
 ```
@@ -214,6 +232,7 @@ Numbers are communication/authentication/recovery infrastructure, not contacts a
 not bank-card-shaped objects.
 
 ### Roles
+
 ```text
 primary
 secondary
@@ -223,6 +242,7 @@ keep
 `keep` is a real consumer role, not a visual theme.
 
 ### Dense list facts
+
 - user-visible alias;
 - masked number;
 - region/carrier;
@@ -233,6 +253,7 @@ keep
 - lifecycle/keep-alive summary.
 
 ### Critical truth rule
+
 ```text
 recoveryOnly != uniqueRecoveryPath
 ```
@@ -254,6 +275,7 @@ Communication Identity
 ```
 
 Lifecycle may show:
+
 ```text
 billing mode
 plan cost
@@ -264,6 +286,7 @@ renewal / keep-alive method
 ```
 
 The detail distinguishes:
+
 - **已确认唯一恢复路径** — only with explicit evidence;
 - **恢复用途，唯一性未知**;
 - **恢复关系未知**.
@@ -285,6 +308,7 @@ old active number != keep-number asset != new migration target
 ```
 
 R19 fixture demonstrates:
+
 ```text
 num-cn-1 old active
 num-cn-3 keep-number
@@ -314,6 +338,7 @@ unknown relations          = still possible / none only if proven
 ```
 
 ### FORBIDDEN
+
 - health/safety percentage;
 - degree-count shortcuts for path independence;
 - `null → 0`;
@@ -342,6 +367,7 @@ R20 source composition:
 ```
 
 Reference actions:
+
 - active Replace Phone → focused Change Phone choreography;
 - Prepare Replace Phone → focused Change Phone choreography;
 - Replace Card → select a concrete Card → inspect Impact → focused R21 Change Card choreography.
@@ -350,6 +376,7 @@ The Change root may describe a supported scenario, but executable mutation remai
 bound to production `ChangePrimitive / Scenario / ChangePlan` capability.
 
 ### FORBIDDEN
+
 - `变更` root immediately rendering one specific object's detail flow;
 - a generic “start change” button for unsupported primitives;
 - marking a plan executed because the user opened the Change Center;
@@ -378,6 +405,7 @@ Stages mirror production `replace_payment_card`:
 ```
 
 Truth rules:
+
 - candidate replacement != recommendation;
 - migration complete != payment path verified;
 - verification requires real evidence in production;
@@ -396,6 +424,7 @@ After = Plan Projection
 ```
 
 ### PRESERVE
+
 - Make-Before-Break;
 - old number → affected services → new number;
 - six-stage continuity sequence;
@@ -419,10 +448,12 @@ It does not copy showcase-only hard-coded numbers.
 These remain Infrastructure secondary objects rather than new primary tabs.
 
 ### Emails
+
 `recoveryOnly` renders as **恢复用途**.
 Only explicit `uniqueRecoveryPath == true` may render **唯一恢复**.
 
 ### Weaknesses
+
 Only evidence-backed findings belong here. Merely having a recovery role is not
 itself a weakness.
 
@@ -461,6 +492,7 @@ Object Identity
 ```
 
 Specific object identity remains distinct:
+
 - Account = access / control identity;
 - Email = communication / recovery identity;
 - Device = physical access endpoint;
@@ -479,6 +511,7 @@ symmetric.
 `我` is the fifth primary destination, not a utility downgrade.
 
 ### COMPACT
+
 - consumer feed composition;
 - key identities first;
 - continuity summary;
@@ -487,11 +520,13 @@ symmetric.
 - personal management actions.
 
 ### MEDIUM
+
 - compact 80dp primary rail;
 - bounded single-column Me workspace to protect reading width;
 - all five primary destinations remain directly reachable.
 
 ### EXPANDED
+
 - dedicated two-column workspace;
 - critical identities + continuity as the first row;
 - infrastructure summary;
@@ -499,6 +534,7 @@ symmetric.
 - Settings / Sources remain children of the Me context.
 
 ### FORBIDDEN
+
 - avatar-only Me;
 - Up arrow on the Me root;
 - stretching the phone feed across a wide tablet;
@@ -537,6 +573,7 @@ Evidence instead of reverse-engineering historical truth from Attention.
 Search is lookup over **recorded** infrastructure, not a discovery engine.
 
 R20 indexes:
+
 - object names and user number aliases;
 - issuer/carrier/region;
 - lifecycle facts such as annual fee, billing day and keep-alive due date;
@@ -570,6 +607,7 @@ The header must never be relabeled as “Back to desktop/home.”
 Default is **not masked** unless the user enables masking.
 
 Masking is:
+
 - a local presentation preference;
 - independent of card/number artwork;
 - never a mutation of canonical identity;
@@ -594,6 +632,7 @@ high information density without admin-console feel
 ```
 
 Avoid:
+
 - global dark/cosmic background;
 - generic gray Material rows everywhere;
 - engineering vocabulary;
@@ -633,11 +672,13 @@ Production launcher cutover = HOLD
 Human Review closes the governed discovery→Reality boundary.
 
 Route:
+
 ```text
 /review
 ```
 
 Information architecture:
+
 ```text
 Now → 待复核
 Data Sources → 待复核
@@ -662,6 +703,7 @@ The surface contains three distinct classes:
 Preview is read-only and must visibly explain `发现 ≠ 事实`.
 
 Production binding:
+
 ```text
 AppContainerVNextReviewSource
 → VNextProductionReviewQueue
@@ -674,6 +716,7 @@ formal decision
 ```
 
 Forbidden:
+
 - numeric confidence presented as truth probability;
 - Proposal counted as confirmed Dependency;
 - Candidate rendered as confirmed Node;
@@ -699,19 +742,18 @@ Pending/current/future items must not use Records as a generic “查看全部�
 Active Change links go to Change Center. Human Review links go to Review. Upcoming
 maintenance remains in Now until it becomes an actual recorded occurrence.
 
-
 ## 20. R23 Establish / Import
 
 R23 maps v2.3's **建立** capability into a focused Evidence-plane workflow.
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
 → local parse / object confirmation
 → Proposal / Candidate / Drift
 → Human Review
 → Reality
-~~~
+```
 
 Preview only explains the flow. It does not open a file or fabricate an import.
 
@@ -720,31 +762,33 @@ repositories. Import commit may create review work, but never a confirmed
 Dependency directly.
 
 Required visual hierarchy:
+
 - local-first/truth hero;
 - three clear steps;
 - explicit Preview-disabled boundary;
 - Data Sources / Human Review continuation links.
 
 Forbidden:
+
 - sixth primary tab;
 - "sync" vocabulary for one-time file import;
 - fake successful import in Preview;
 - Proposal shown as confirmed relation;
 - new VNext parser/picker that bypasses existing lock/re-auth behavior.
 
-
 ## 21. R24 Manual Establish
 
 Manual establishment is a focused child of Establish, not another primary mode.
 
-~~~text
+```text
 Data Sources
 → 建立基础设施
   → 文件导入
   → 手工记录
-~~~
+```
 
 Reference hierarchy:
+
 - object-existence truth boundary;
 - currently runtime-creatable Canonical kinds;
 - known but gated kinds;
@@ -755,6 +799,7 @@ The current runtime creation set is narrower than storage NodeKind. VNext must n
 turn storage support into a ghost consumer capability.
 
 Identity rule (R37/R38):
+
 - valid governed `identity_anchor_profile` + PHONE_NUMBER → Production Number surface;
 - valid governed profile + EMAIL_ADDRESS → Production Email surface;
 - optional nested confirmed identifier → exact phone/email value may be displayed/searchable under privacy masking;
@@ -765,28 +810,29 @@ Identity rule (R37/R38):
 - subtype/value confirmation does not create recovery/authentication relationships or provider/region facts.
 
 Forbidden:
+
 - local Compose save into Reality;
 - relationship creation as a side effect of object creation;
 - fifth-primary IA changes;
 - fake Save button in Preview.
 
-
 ## 22. R25 Manual Relationship
 
 Manual graph construction remains a focused Establish child.
 
-~~~text
+```text
 confirmed From
 → runtime-valid Relation
 → confirmed To
 → Capability
 → Criticality
-~~~
+```
 
 Reference defaults criticality to `unknown`. `required` is an explicit human
 decision only.
 
 Current runtime relations:
+
 - funding_source;
 - merchant_agreement;
 - recovers;
@@ -800,7 +846,7 @@ The Preview has no confirm mutation.
 R31 Production now has the authoritative path for the complete current v3 runtime
 registry:
 
-~~~text
+```text
 ProductionManualRelationshipScreen
 → canonical RelationDefinition
 → AppContainerVNextManualRelationshipGateway
@@ -809,7 +855,7 @@ ProductionManualRelationshipScreen
 → validateRelationUse
 → transaction + graphRevision
 → re-read Dependency
-~~~
+```
 
 It does not enable storage-only `verifies` / `bound_to`.
 

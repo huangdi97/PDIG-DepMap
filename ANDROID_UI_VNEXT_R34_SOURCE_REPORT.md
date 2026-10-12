@@ -59,6 +59,7 @@ Unresolved reference: snapshot
 ```
 
 Cause:
+
 - Production Infrastructure began using the authoritative object snapshot when
   rendering generic identity names;
 - the composable signature still received only `app + inventory`.
@@ -173,6 +174,7 @@ currency/provider/name/locale/IP != confirmed RegionFact
 ### Standard identifiers
 
 The proposal recommends:
+
 - ISO 3166-1 alpha-2 for territory-level facts;
 - ISO 3166-2 when subdivision granularity is actually required;
 - Unicode CLDR for localized display names.
@@ -216,6 +218,7 @@ Production authority = REQUIRES_CANONICAL
 ```
 
 Meaning:
+
 - the Region Lens / Globe is a valid product/reference experience;
 - Production asset geography remains truth-empty until shared Canonical RegionFact
   semantics are implemented.
@@ -228,6 +231,7 @@ Production authority = REQUIRES_CANONICAL
 ```
 
 Meaning:
+
 - a production `identity_anchor` remains generic;
 - no name/prefix/provider/edge heuristic may promote it into Number or Email.
 
@@ -349,6 +353,7 @@ Lens growth remains contextual.
 `spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md`
 
 is now indexed as R34 and includes:
+
 - RegionFact proposal;
 - latest production-source progress;
 - five-primary permanence;
@@ -392,6 +397,7 @@ and machine-readable invariants.
 ### Personal Infrastructure Findings
 
 `spec/proposals/infrastructure-findings-vnext.md` now:
+
 - preserves the exact seven current v0.3 Finding types;
 - maps wider v2.3 concepts to existing types or future gated algorithms rather than
   casually widening Canonical;
@@ -402,6 +408,7 @@ and machine-readable invariants.
 ### Evidence Epistemology
 
 `spec/proposals/evidence-epistemology-v1.md` now freezes:
+
 - SourceKind vs CoverageMode vs Authority vs Freshness as separate axes;
 - event-stream / partial / complete-snapshot negative-evidence semantics;
 - fact-class-specific authoritative-source boundaries;

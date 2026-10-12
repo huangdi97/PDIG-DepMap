@@ -13,7 +13,7 @@
 
 ## 0. Truth status
 
-~~~text
+```text
 ANDROID_UI_VNEXT_SOURCE = R26
 FIVE_PRIMARY_IA = PRESERVED
 
@@ -43,13 +43,13 @@ FRESH_R26_HUMAN_ACCEPTANCE = NOT_RUN
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```
 
 ## 1. Why R26 exists
 
 R20–R25 closed the visible consumer loop:
 
-~~~text
+```text
 Understand objects
 → Impact
 → Change
@@ -58,18 +58,18 @@ Understand objects
 → Import
 → Manual Establish
 → Manual Relationship
-~~~
+```
 
 But v2.3-R1 also froze deeper continuity concepts:
 
-~~~text
+```text
 AccessFactor / RecoveryFactor
 SecretLocator
 Device Continuity
 Incident Recovery
 Digital Resource Continuity
 Trusted Handoff
-~~~
+```
 
 Several of those existed only as master-document paragraphs/roadmap lines. If left
 that way, future implementation could invent incompatible local models.
@@ -79,20 +79,22 @@ R26 converts them into governed proposals and explicit capability gates.
 ## 2. AccessFactor / RecoveryFactor
 
 New:
+
 - \`spec/proposals/access-recovery-factor-v1.md\`
 
 Key decision:
 
-~~~text
+```text
 Factor != Node
 Factor != Dependency
 Factor != FailureDomain
 Factor != current availability
-~~~
+```
 
 Factors explain **how** authentication/recovery capability is carried.
 
 Initial design handles:
+
 - password metadata;
 - passkey;
 - TOTP;
@@ -107,9 +109,9 @@ No secret value is stored.
 
 ### Independence boundary
 
-~~~text
+```text
 factor count != independent path count
-~~~
+```
 
 SMS, TOTP and a passkey can all share the same physical device/provider failure
 domain.
@@ -117,6 +119,7 @@ domain.
 ### Passkey boundary
 
 R26 distinguishes:
+
 - device-bound;
 - provider-synced;
 - roaming hardware;
@@ -127,19 +130,20 @@ A synced passkey can survive device loss while still sharing provider-account ri
 ## 3. SecretLocator
 
 New:
+
 - \`spec/proposals/secret-locator-v1.md\`
 
 PDIG may store:
 
-~~~text
+```text
 Recovery code exists
 Stored in password manager
 Last verified at ...
-~~~
+```
 
 PDIG must not store:
 
-~~~text
+```text
 password
 TOTP seed
 full recovery code
@@ -147,32 +151,34 @@ private key
 seed phrase
 CVV
 session/API token
-~~~
+```
 
 Permanent rule:
 
-~~~text
+```text
 SecretLocator != Secret Store
 SecretLocator != Recovery Path
-~~~
+```
 
 No current/future UI is allowed to expose “copy secret” from PDIG.
 
 ## 4. Recovery Preparedness
 
 New:
+
 - \`spec/ui-vnext/RECOVERY_PREPAREDNESS_UX_CONTRACT.md\`
 
 Future hierarchy:
 
-~~~text
+```text
 我
 → 恢复准备
-~~~
+```
 
 It is a child workspace, not a sixth primary destination.
 
 The UX is frozen around:
+
 - confirmed factors;
 - shared failure domains;
 - stale/needs-review information;
@@ -186,16 +192,18 @@ The route stays hidden until Factor Canonical exists.
 ## 5. Device Continuity
 
 New:
+
 - \`spec/proposals/device-continuity-v1.md\`
 
 Future primitive:
 
-~~~text
+```text
 replace_device
 = REPLACE × device
-~~~
+```
 
 The design covers:
+
 - passkeys;
 - TOTP;
 - push approval;
@@ -211,10 +219,10 @@ The design covers:
 
 Planned device replacement remains separate from:
 
-~~~text
+```text
 lose_device
 compromise_device
-~~~
+```
 
 which belong to Incident Recovery.
 
@@ -223,9 +231,11 @@ No reference route is exposed yet.
 ## 6. Digital Resource Continuity
 
 New:
+
 - \`spec/proposals/digital-resource-continuity-v1.md\`
 
 Future v0.6+ design now covers:
+
 - domain registration/control;
 - DNS;
 - source repositories / organizations;
@@ -241,18 +251,20 @@ plaintext storage.
 ## 7. Trusted Handoff
 
 New:
+
 - \`spec/proposals/trusted-handoff-v1.md\`
 
 Future v0.7+ design now distinguishes:
 
-~~~text
+```text
 TrustedParty
 ProviderHandoffArrangement
 TrustedHandoffPlan
 HandoffPackage
-~~~
+```
 
 from:
+
 - credentials;
 - recovery factors;
 - legal authority;
@@ -262,6 +274,7 @@ External provider programs such as legacy/successor/inactivity arrangements are
 ProviderPolicy/Personal Reality inputs; provider support never proves user setup.
 
 Permanent exclusions:
+
 - secret escrow;
 - master-password handoff;
 - autonomous dead-man switch;
@@ -270,9 +283,11 @@ Permanent exclusions:
 ## 8. Identity-anchor subtype design completed
 
 Existing:
+
 - \`spec/proposals/identity-anchor-subtype-v1.md\`
 
 R26 audit expanded/finalized:
+
 - subtype separate from identifier value;
 - subtype-only confirmation allowed;
 - conservative phone/email normalization;
@@ -283,31 +298,32 @@ R26 audit expanded/finalized:
 
 Current production mapping remains:
 
-~~~text
+```text
 identity_anchor
 → generic identity
-~~~
+```
 
 until Canonical subtype authority exists.
 
 ## 9. Capability / authority matrix
 
 New source:
+
 - \`android/app/src/main/kotlin/com/pdig/uivnext/capability/VNextCapabilityMatrix.kt\`
 - \`android/app/src/test/kotlin/com/pdig/uivnext/capability/VNextCapabilityMatrixTest.kt\`
 - \`spec/ui-vnext/CAPABILITY_AUTHORITY_MATRIX.md\`
 
 It freezes three different questions:
 
-~~~text
+```text
 design valid?
 reference visible?
 production executable?
-~~~
+```
 
 Current examples:
 
-~~~text
+```text
 File Import
   reference visible
   production authority exists
@@ -340,13 +356,14 @@ Digital Resource Continuity
 
 Trusted Handoff
   hidden until future Canonical
-~~~
+```
 
 This prevents source/design progress from producing ghost buttons.
 
 ## 10. Existing visible screens now consume authority truth
 
 R26 wires the capability matrix into explanatory authority copy for:
+
 - R22 Human Review;
 - R23 Import;
 - R24 Manual Establish;
@@ -356,21 +373,22 @@ Preview remains isolated/read-only even when a production authority already exis
 
 This is intentional:
 
-~~~text
+```text
 Production authority available
 != Preview may execute it
-~~~
+```
 
 ## 11. Me / Now / Records boundary correction
 
 A fresh product-ownership audit found stale R19 Me links:
+
 - “待处理” routed to Records;
 - “时间节点” routed to Records;
 - active change row jumped directly to Change Phone.
 
 R22 had already redefined:
 
-~~~text
+```text
 Now
 = current attention / upcoming / active work
 
@@ -379,9 +397,10 @@ Change
 
 Records
 = happened / verified / evidence
-~~~
+```
 
 R26 repairs Me accordingly:
+
 - attention → Now;
 - upcoming → Now;
 - active changes → Change;
@@ -391,6 +410,7 @@ R26 repairs Me accordingly:
 ## 12. No redesign of already-implemented continuity algorithms
 
 Repository audit confirms current core already has:
+
 - FailureDomain;
 - RecoveryCycle;
 - ProviderPolicy;
@@ -404,7 +424,7 @@ New substrate proposals must compose with them.
 
 ## 13. Establish capability state after R26
 
-~~~text
+```text
 File Import
   UX complete
   production authority existing
@@ -422,23 +442,24 @@ Manual Relationship
 Human Review
   UX complete
   production authority existing
-~~~
+```
 
 Manual object authority is no longer an engineering-authority gap: the VNext production gateway now delegates to the existing AppContainer mutation and returns the authoritative post-commit node/revision. Manual Relationship remains a schema gate, not an unresolved consumer UX problem.
 
 ## 14. Five-primary IA remains permanent
 
-~~~text
+```text
 现在
 基础设施
 变更
 记录
 我
-~~~
+```
 
 R26 adds no root.
 
 Future features enter contextually:
+
 - Recovery Preparedness → 我;
 - Device Continuity → Device Detail / Change;
 - Recovery Incident → contextual incident entry;
@@ -450,9 +471,11 @@ Capability-growth tests keep the primary list fixed at five.
 ## 15. Design closure index
 
 New:
+
 - \`spec/ui-vnext/PDIG_VNEXT_DESIGN_CLOSURE_MATRIX.md\`
 
 It maps every major v2.3 current/future concept to:
+
 - current source implementation;
 - frozen future design;
 - Canonical gate;
@@ -468,6 +491,7 @@ R26 design uses external official material only as constraint/reference, never a
 Personal Reality.
 
 Relevant categories:
+
 - NIST authenticator/recovery lifecycle;
 - FIDO passkey/device-bound/synced recovery properties;
 - Apple recovery/legacy-contact provider semantics;
@@ -480,7 +504,7 @@ user configuration.
 
 ## 17. What R26 intentionally does not implement
 
-~~~text
+```text
 Factor Canonical tables
 SecretLocator Canonical table
 identity subtype schema
@@ -494,7 +518,7 @@ Trusted Handoff storage
 server relay
 manual Dependency production VNext gateway
 production launcher cutover
-~~~
+```
 
 These are no longer undefined designs; they are explicit engineering/schema gates.
 
@@ -505,14 +529,15 @@ manual creation of the current Canonical runtime-creatable Node kinds.
 
 Source now includes:
 
-~~~text
+```text
 spec constants.runtimeCreatableNodeKinds
 → codegen native policy
 → GraphRepository.createManualNode
 → AppContainer.createManualNode
-~~~
+```
 
 Properties:
+
 - current allowed kinds are generated from Canonical spec, not retyped in Compose;
 - IDs follow authoritative random identity policy, so equal display names do not
   silently merge;
@@ -524,21 +549,22 @@ Properties:
 
 VNext production binding now also includes:
 
-~~~text
+```text
 AppContainerVNextManualEstablishGateway
 → validate Canonical runtime-creatable kind
 → AppContainer.createManualNode
 → authoritative NodeRow + graphRevision result
-~~~
+```
 
 This does not make Preview writable and does not combine object creation with relationship creation.
 
 Device evidence:
+
 - `ManualRealityAuthorityEvidenceTest`.
 
 Manual Relationship remains disabled for a concrete cross-platform reason:
 
-~~~text
+```text
 TS reference Schema v4
   supports authenticates / controls
   supports authentication / communication
@@ -547,7 +573,7 @@ Native production schema v3
   SQL CHECK does not yet support full registry
 
 → Manual Dependency authority = REQUIRES_NATIVE_SCHEMA_V4
-~~~
+```
 
 A partial v3-only production relationship UI is forbidden.
 
@@ -555,7 +581,7 @@ A partial v3-only production relationship UI is forbidden.
 
 Still required:
 
-~~~text
+```text
 exact remote R26 HEAD
 → codegen/checks
 → core/app unit tests
@@ -566,13 +592,13 @@ exact remote R26 HEAD
 → GPU runtime proof
 → human pixel review
 → Android Reference Freeze
-~~~
+```
 
 Old R19–R25 screenshots cannot prove R26.
 
 ## 20. Stop line
 
-~~~text
+```text
 PDIG_VNEXT_PRODUCT_UX_DESIGN = CLOSED_AT_R26
 PDIG_V2_3_ROADMAP_DESIGN = CLOSED_AT_R26
 FIVE_PRIMARY_IA = FROZEN
@@ -584,4 +610,4 @@ SOURCE_COMPLETE != RUNTIME_VERIFIED != HUMAN_ACCEPTED
 
 ANDROID_REFERENCE_FREEZE = HOLD
 PRODUCTION_VNEXT_CUTOVER = HOLD
-~~~
+```

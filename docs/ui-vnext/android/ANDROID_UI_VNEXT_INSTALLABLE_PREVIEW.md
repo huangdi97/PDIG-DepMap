@@ -61,7 +61,7 @@ for personal records; do not enter valuable secrets into preview fixtures.
 
 Portable CI runs both `:app:testProductionDebugUnitTest` and `:app:testPreviewDebugUnitTest`, including
 the `VNextLaunchPolicyTest` regression. The release carries `BUILD_PROVENANCE.json` with exact source
-HEAD, tree, APK byte count, SHA-256, version and build variant. A passing hosted build is *not* evidence
+HEAD, tree, APK byte count, SHA-256, version and build variant. A passing hosted build is _not_ evidence
 of a real-device launcher or the Android tablet-only freeze contract. The targeted
 `TabletAdaptiveContractTest.tabletNumberDetail_noDeadSpace` still needs a device-backed run before
 `ANDROID_REFERENCE_FREEZE = PASS` may be asserted.
@@ -94,7 +94,7 @@ Gate meanings: `APK_LAUNCHER_IDENTITY` verifies **merged manifest/packaging**, n
 UI pixels. A real device install → home-screen launch → screenshot remains required before
 `ANDROID_REAL_DEVICE_PREVIEW_ACCEPTED=PASS`. Also keep `ANDROID_REFERENCE_FREEZE=HOLD`
 until the separate targeted Tablet instrumentation test is rerun.
- 
+
 ## First real-device design-feedback corrective pass (2026-10-08)
 
 The user's phone screenshots from the `193dca0` preview show valid four-tab navigation but do not
@@ -103,6 +103,7 @@ region identities; infrastructure tiles dominate; Change/Records still feel like
 The original 58-image emulator acceptance must therefore NOT be used as real-device visual parity.
 
 The v2.3-R1 §11.10 requires onboarding in <=3 screens. The Preview now implements:
+
 1. 看清你的数字生活 — dependency;
 2. 改变之前，先看影响 — safe change;
 3. 你的数据，由你掌握 — local-first and unknown truth.
@@ -120,6 +121,7 @@ fresh Phone/Tablet runtime capture + human review are REQUIRED. No claims of ach
 pixel parity, completed real-device onboarding tests, or Reference Freeze PASS are made.
 
 Acceptance gates:
+
 - Preview fresh install: exactly three guide screens; Next/Back/Skip/Finish;
 - second launch skips guide; Help reopens; text declares demo-only;
 - APK release launcher stays `com.pdig.app.PreviewLauncherActivity`;
@@ -136,15 +138,15 @@ nine-panel board and the user's real-phone screenshots as the two comparison inp
 
 Current discrepancy / required reference translation:
 
-| Scope | Real issue | R7 source response | Acceptance evidence |
-|---|---|---|---|
-| Now first fold | giant dashboard-like globe card and long attention list | Globe-first stage, region context chips, lower fold density, one attention priority | phone screenshot at launcher, region chip tap |
-| Infrastructure | giant admin tiles and a second big globe | compact 4x2 icon grid, searchable content, smaller region-distribution panel | phone screenshot, navigate cards |
-| Cards list | issuer labels lack financial face detail | consistent network/EMV/contactless materials, real issuer identity | phone card-list screenshot |
-| Card detail | detail data presented as stacked property panels | asset face first, four live tabs with honest bill unknown and risk state | phone detail and tab interaction |
-| Change Phone | spatial visual buried below banner/form; duplicate identity panels | visible progress and service orbit before verbose details | phone change screenshot and projection switching |
-| Records | timeline information exists but reference-quality craft not yet measured | pending phone pixel review | 2026 Phone runtime pixels |
-| Tablet | frozen reference not to be regressed | no R7 compact-only layout port | tablet evidence required before Freeze |
+| Scope          | Real issue                                                               | R7 source response                                                                  | Acceptance evidence                              |
+| -------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------ |
+| Now first fold | giant dashboard-like globe card and long attention list                  | Globe-first stage, region context chips, lower fold density, one attention priority | phone screenshot at launcher, region chip tap    |
+| Infrastructure | giant admin tiles and a second big globe                                 | compact 4x2 icon grid, searchable content, smaller region-distribution panel        | phone screenshot, navigate cards                 |
+| Cards list     | issuer labels lack financial face detail                                 | consistent network/EMV/contactless materials, real issuer identity                  | phone card-list screenshot                       |
+| Card detail    | detail data presented as stacked property panels                         | asset face first, four live tabs with honest bill unknown and risk state            | phone detail and tab interaction                 |
+| Change Phone   | spatial visual buried below banner/form; duplicate identity panels       | visible progress and service orbit before verbose details                           | phone change screenshot and projection switching |
+| Records        | timeline information exists but reference-quality craft not yet measured | pending phone pixel review                                                          | 2026 Phone runtime pixels                        |
+| Tablet         | frozen reference not to be regressed                                     | no R7 compact-only layout port                                                      | tablet evidence required before Freeze           |
 
 The Preview app chrome now exposes `BuildConfig.GIT_SHA` beside the app identity. A
 distinct runtime screenshot workflow installs the **exact** APK into an API35 Android
