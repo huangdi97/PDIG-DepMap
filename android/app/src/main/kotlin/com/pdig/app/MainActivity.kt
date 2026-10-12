@@ -1,6 +1,7 @@
 package com.pdig.app
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -95,6 +96,19 @@ class MainActivity : FragmentActivity() {
             productionUiGeneration = BuildConfig.PRODUCTION_UI_GENERATION,
             productionVNextCutoverApproved = BuildConfig.PRODUCTION_VNEXT_CUTOVER_APPROVED,
         )
+
+        // Debug-only route provenance: release-default CI must distinguish a
+        // wrongly compiled launch policy from a real encrypted-Reality UI bug.
+        // Logs contain *only* public build variant flags, never Reality or credentials.
+        if (BuildConfig.DEBUG) {
+            Log.i(
+                "PDIGLaunchProof",
+                "target=${vnextTarget.name} flavor=${BuildConfig.FLAVOR} " +
+                    "generation=${BuildConfig.PRODUCTION_UI_GENERATION} " +
+                    "approved=${BuildConfig.PRODUCTION_VNEXT_CUTOVER_APPROVED} " +
+                    "debug=${BuildConfig.DEBUG}",
+            )
+        }
 
         setContent {
             when (vnextTarget) {
