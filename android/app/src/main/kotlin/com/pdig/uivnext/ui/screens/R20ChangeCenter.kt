@@ -63,16 +63,20 @@ internal fun R20ChangeCenter(app: VAppState, breakpoint: MediaBreakpoint) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text(
-                    "变更",
-                    color = PdigV2Colors.TextPrimary,
-                    fontSize = if (breakpoint == MediaBreakpoint.COMPACT) 22.sp else 27.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                // Compact root title is already provided by the app shell.
+                if (breakpoint != MediaBreakpoint.COMPACT) {
+                    Text(
+                        "变更",
+                        color = PdigV2Colors.TextPrimary,
+                        fontSize = 27.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
                 Text(
                     "先看影响，再开始迁移；完成必须经过实际验证。",
                     color = PdigV2Colors.TextSecondary,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
+                    lineHeight = 19.sp,
                 )
             }
 
@@ -156,7 +160,7 @@ private fun ChangeSectionHeading(title: String, english: String) {
         verticalAlignment = Alignment.Bottom,
     ) {
         Text(title, color = PdigV2Colors.TextPrimary, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-        Text(english, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+        Text(english, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
     }
 }
 
@@ -198,8 +202,8 @@ private fun ChangeWorkCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                Text(subtitle, color = PdigV2Colors.TextMuted, fontSize = 10.sp, lineHeight = 15.sp)
-                Text(action, color = accent, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                Text(subtitle, color = PdigV2Colors.TextSecondary, fontSize = 12.sp, lineHeight = 17.sp)
+                Text(action, color = accent, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
             }
         }
     }
@@ -225,7 +229,7 @@ private fun ChangeMiniAction(
             verticalArrangement = Arrangement.spacedBy(3.dp),
         ) {
             Text(title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
-            Text(subtitle, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+            Text(subtitle, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
         }
     }
 }
