@@ -41,5 +41,28 @@ python3 android/scripts/production_vnext_secure_rehearsal.py
     -PpdigProductionUiGeneration=vnext \
     -PpdigProductionVNextCutoverApproved=true
 )
-adb install -r android/app/build/outputs/apk/production/debug/app-production-debug.apk
+# The cutover proof must run against a genuinely fresh install of THIS build. A residual
+# installation (or package state left by the earlier legacy rehearsal) can otherwise leave the
+# default launcher path on the previous variant even though `install -r` printed Success, which
+# shows up as a confusing "the Reality shell never appeared" timeout instead of a build problem.
+adb uninstall com.pdig.app >/dev/null 2>&1 || true
+
+APK=android/app/build/outputs/apk/production/debug/app-production-debug.apk
+adb install "$APK"
+
+# Prove the device really runs the APK we just built, so a cutover failure can never be confused
+# with "the wrong APK was installed".
+LOCAL_SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+INSTALLED_PATH=$(adb shell pm path com.pdig.app | tr -d '\r' | sed 's/^package://' | head -n1)
+if [ -z "$INSTALLED_PATH" ]; then
+  echo "com.pdig.app is not installed after adb install"; exit 1
+fi
+DEVICE_SHA=$(adb shell "sha256sum '$INSTALLED_PATH'" 2>/dev/null | awk '{print $1}' | tr -d '\r')
+echo "local_apk_sha256=$LOCAL_SHA"
+echo "device_apk_sha256=$DEVICE_SHA"
+echo "device_apk_path=$INSTALLED_PATH"
+if [ -n "$DEVICE_SHA" ] && [ "$DEVICE_SHA" != "$LOCAL_SHA" ]; then
+  echo "INSTALLED APK DOES NOT MATCH THE BUILT APK; refusing to interpret the cutover rehearsal"; exit 1
+fi
+
 python3 android/scripts/production_vnext_release_default_rehearsal.py
