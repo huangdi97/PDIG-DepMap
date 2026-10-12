@@ -69,12 +69,17 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             verticalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    "记录",
-                    color = PdigV2Colors.TextPrimary,
-                    fontSize = if (breakpoint == MediaBreakpoint.COMPACT) 22.sp else 27.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                // The compact shell already owns the "记录" page title.
+                // Repeating it in content consumes critical first-viewport
+                // space and pushes verification truth below the fold.
+                if (breakpoint != MediaBreakpoint.COMPACT) {
+                    Text(
+                        "记录",
+                        color = PdigV2Colors.TextPrimary,
+                        fontSize = 27.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
                 Text(
                     "发生过什么、验证过什么、依据是什么。关注事项和未来维护留在“现在”。",
                     color = PdigV2Colors.TextSecondary,
@@ -89,13 +94,27 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 shape = RoundedCornerShape(VRadius.Xl),
                 border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             ) {
-                Row(
+                Column(
                     Modifier.padding(horizontal = 10.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    RecordMetric(summary.recordedComplete, "已记录完成", PdigV2Colors.PrimaryBright, Modifier.weight(1f))
-                    RecordMetric(summary.verified, "已验证", PdigV2Colors.Positive, Modifier.weight(1f))
-                    RecordMetric(summary.pendingVerification, "待验证", PdigV2Colors.Warning, Modifier.weight(1f))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        RecordMetric(summary.recordedComplete, "已记录完成", PdigV2Colors.PrimaryBright, Modifier.weight(1f))
+                        RecordMetric(summary.verified, "已验证", PdigV2Colors.Positive, Modifier.weight(1f))
+                        RecordMetric(summary.pendingVerification, "待验证", PdigV2Colors.Warning, Modifier.weight(1f))
+                    }
+                    // This is a permanent evidence boundary, not an inferred
+                    // score or an assertion that the change is already safe.
+                    Text(
+                        "完成 ≠ 已验证 · 只有独立验证证据才能确认结果",
+                        modifier = Modifier.fillMaxWidth()
+                            .testTag("pdig.r21.records.verification-boundary"),
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 11.sp,
+                        lineHeight = 16.sp,
+                    )
                 }
             }
 
