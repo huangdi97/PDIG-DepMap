@@ -78,8 +78,8 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 Text(
                     "发生过什么、验证过什么、依据是什么。关注事项和未来维护留在“现在”。",
                     color = PdigV2Colors.TextSecondary,
-                    fontSize = 11.sp,
-                    lineHeight = 17.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp,
                 )
             }
 
@@ -119,7 +119,7 @@ internal fun R21RecordsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         fontSize = 12.sp, fontWeight = FontWeight.Bold)
                     Text(
                         "只有显式验证结果与证据才能进入“已验证”。页面打开、时间经过、计划进入下一阶段都不能替代验证。",
-                        color = PdigV2Colors.TextSecondary, fontSize = 10.sp, lineHeight = 16.sp,
+                        color = PdigV2Colors.TextSecondary, fontSize = 12.sp, lineHeight = 18.sp,
                     )
                 }
             }
@@ -168,7 +168,7 @@ private fun RecordMetric(value: Int, label: String, tint: Color, modifier: Modif
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(value.toString(), color = tint, fontSize = 20.sp, fontWeight = FontWeight.Bold)
-        Text(label, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+        Text(label, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
     }
 }
 
@@ -184,17 +184,26 @@ private fun RecordTraceRow(item: UiRecordTraceItem, first: Boolean, last: Boolea
         UiRecordTraceState.VERIFIED -> "已验证"
         UiRecordTraceState.PENDING_VERIFICATION -> "待验证"
     }
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.Top) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (!first) Surface(Modifier.height(11.dp).widthIn(min = 2.dp, max = 2.dp), color = PdigV2Colors.BorderStrong) {}
+            if (!first) Surface(
+                Modifier.height(11.dp).widthIn(min = 2.dp, max = 2.dp),
+                color = PdigV2Colors.BorderStrong,
+            ) {}
             Surface(
                 modifier = Modifier.defaultMinSize(minWidth = 22.dp, minHeight = 22.dp),
                 color = tint.copy(alpha = 0.14f),
                 shape = CircleShape,
                 border = BorderStroke(1.dp, tint),
             ) {}
-            if (!last) Surface(Modifier.height(48.dp).widthIn(min = 2.dp, max = 2.dp), color = PdigV2Colors.BorderStrong) {}
+            if (!last) Surface(
+                Modifier.height(63.dp).widthIn(min = 2.dp, max = 2.dp),
+                color = PdigV2Colors.BorderStrong,
+            ) {}
         }
         Surface(
             modifier = Modifier.weight(1f),
@@ -202,15 +211,47 @@ private fun RecordTraceRow(item: UiRecordTraceItem, first: Boolean, last: Boolea
             shape = RoundedCornerShape(VRadius.Lg),
             border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
         ) {
-            Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically) {
-                    Text(item.title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold)
-                    Text(stateLabel, color = tint, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
+            Column(
+                Modifier.padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    item.title,
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 2,
+                )
+                Row(
+                    Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(9.dp),
+                ) {
+                    Surface(
+                        color = tint.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, tint.copy(alpha = 0.4f)),
+                    ) {
+                        Text(
+                            stateLabel,
+                            Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                            color = tint,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    Text(
+                        item.context,
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 11.sp,
+                    )
                 }
-                Text(item.context, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
-                Text(item.detail, color = PdigV2Colors.TextSecondary, fontSize = 10.sp, lineHeight = 16.sp)
+                Text(
+                    item.detail,
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 12.sp,
+                    lineHeight = 18.sp,
+                )
             }
         }
     }
@@ -221,7 +262,7 @@ private fun SectionTitle(title: String, subtitle: String) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Bottom) {
         Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-        Text(subtitle, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+        Text(subtitle, color = PdigV2Colors.TextSecondary, fontSize = 11.sp)
     }
 }
 
@@ -234,6 +275,6 @@ private fun BoundarySurface(text: String) {
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Text(text, Modifier.padding(13.dp), color = PdigV2Colors.TextSecondary,
-            fontSize = 10.sp, lineHeight = 16.sp)
+            fontSize = 12.sp, lineHeight = 18.sp)
     }
 }
