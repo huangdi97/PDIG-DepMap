@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui
 import com.pdig.uivnext.production.VNextProductionPlan
 import com.pdig.uivnext.production.VNextProductionPlanAction
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -69,6 +70,12 @@ class ProductionChangeStageSummaryTest {
             readiness = "ready",
             unresolvedMustChangeKeys = emptyList(),
         )
+        assertFalse(productionPlanExecutable(plan))
+        assertTrue(productionPlanExecutable(freshReady))
+        assertFalse(productionPlanExecutable(freshReady.copy(readiness = "blocked")))
+        assertFalse(productionPlanExecutable(freshReady.copy(effectiveState = "needs_revalidation")))
+        // Readiness alone cannot override a changed authoritative graph revision.
+        assertFalse(productionPlanExecutable(plan.copy(readiness = "ready", effectiveState = null)))
         assertTrue(productionPlanActionGuidance(change, plan, true).contains("重新核对影响范围"))
         assertTrue(productionPlanActionGuidance(change, freshReady.copy(readiness = "blocked"), true)
             .contains("阻断事项"))
