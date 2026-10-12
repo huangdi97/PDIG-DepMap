@@ -41,6 +41,19 @@ python3 android/scripts/production_vnext_secure_rehearsal.py
     -PpdigProductionUiGeneration=vnext \
     -PpdigProductionVNextCutoverApproved=true
 )
+# Two-key activation is a compiled fact, not an assumption inferred from
+# Gradle command arguments or an APK hash. Verify generated BuildConfig before
+# interpreting any launch or lock UI on the CI emulator.
+CONFIG=android/app/build/generated/source/buildConfig/production/debug/com/pdig/app/BuildConfig.java
+if [ ! -f "$CONFIG" ]; then
+  echo "CUTOVER_BUILD_CONFIG_MISSING: $CONFIG"; exit 1
+fi
+grep -F 'PRODUCTION_UI_GENERATION = "vnext";' "$CONFIG" >/dev/null ||
+  { echo "CUTOVER_GENERATION_NOT_COMPILED"; exit 1; }
+grep -F 'PRODUCTION_VNEXT_CUTOVER_APPROVED = true;' "$CONFIG" >/dev/null ||
+  { echo "CUTOVER_APPROVAL_NOT_COMPILED"; exit 1; }
+echo "CUTOVER_BUILD_CONFIG_VERIFIED=PASS (productionDebug only)"
+
 # The cutover proof must run against a genuinely fresh install of THIS build. A residual
 # installation (or package state left by the earlier legacy rehearsal) can otherwise leave the
 # default launcher path on the previous variant even though `install -r` printed Success, which
