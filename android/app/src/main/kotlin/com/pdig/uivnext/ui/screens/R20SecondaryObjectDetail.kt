@@ -265,7 +265,7 @@ private fun DetailHero(
                 Text(
                     title,
                     color = PdigV2Colors.TextPrimary,
-                    fontSize = 19.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -273,7 +273,8 @@ private fun DetailHero(
                 Text(
                     subtitle,
                     color = PdigV2Colors.TextMuted,
-                    fontSize = 11.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 17.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -286,7 +287,7 @@ private fun DetailHero(
                     status,
                     modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
                     color = statusColor,
-                    fontSize = 9.sp,
+                    fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
@@ -312,7 +313,7 @@ private fun DetailSection(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                Text(subtitle, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Text(subtitle, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
             }
             content()
         }
@@ -323,15 +324,22 @@ private fun DetailSection(
 private fun DetailFact(label: String, value: String) {
     Row(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        Text(label, color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+        Text(
+            label,
+            modifier = Modifier.widthIn(min = 84.dp, max = 108.dp),
+            color = PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+        )
         Text(
             value,
-            modifier = Modifier.widthIn(max = 520.dp),
+            modifier = Modifier.weight(1f),
             color = PdigV2Colors.TextPrimary,
-            fontSize = 11.sp,
+            fontSize = 13.sp,
+            lineHeight = 19.sp,
             fontWeight = FontWeight.SemiBold,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,
@@ -350,8 +358,8 @@ private fun DetailTruthNote(text: String) {
             text,
             modifier = Modifier.padding(horizontal = 11.dp, vertical = 9.dp),
             color = PdigV2Colors.TextSecondary,
-            fontSize = 10.sp,
-            lineHeight = 16.sp,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
         )
     }
 }
