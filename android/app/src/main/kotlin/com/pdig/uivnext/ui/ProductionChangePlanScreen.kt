@@ -202,6 +202,12 @@ internal data class ProductionChangeStageSummary(
  * plan. Disabled controls must never leave their blocker unexplained.
  * This function neither predicts domain eligibility nor performs an action.
  */
+/** Matches the same graph-freshness condition as the authoritative plan banner. */
+internal fun productionPlanExecutable(plan: VNextProductionPlan): Boolean =
+    plan.readiness != "blocked" &&
+        plan.effectiveState != "needs_revalidation" &&
+        plan.currentGraphRevision == plan.lastAnalyzedGraphRevision
+
 internal fun productionPlanActionGuidance(
     action: VNextProductionPlanAction,
     plan: VNextProductionPlan,
@@ -405,8 +411,7 @@ private fun ProductionActionCard(
         verificationStatus == "evidence_suggested"
     val verificationNotRequired = verificationStatus == null ||
         verificationStatus == "not_required"
-    val planExecutable = plan.readiness != "blocked" &&
-        plan.effectiveState != "needs_revalidation"
+    val planExecutable = productionPlanExecutable(plan)
     val canComplete = canMutate && planExecutable && !action.done && prerequisitesMet
     // Match the authoritative legacy plan UI: only pending/evidence_suggested
     // verification states expose confirmation. Failed/not-required are not
