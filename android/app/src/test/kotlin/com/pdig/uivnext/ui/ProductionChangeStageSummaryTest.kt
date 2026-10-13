@@ -21,6 +21,24 @@ class ProductionChangeStageSummaryTest {
     }
 
     @Test
+    fun localCardAndPhoneMasksBlockNewPlanButLeaveExistingPlanBrowsable() {
+        assertFalse(productionChangeMask("replace_payment_card", false, false, false))
+        assertFalse(productionChangeMask("replace_phone_number", false, false, false))
+        assertTrue(productionChangeMask("replace_payment_card", false, true, false))
+        assertFalse(productionChangeMask("replace_payment_card", false, false, true))
+        assertTrue(productionChangeMask("replace_phone_number", false, false, true))
+        assertFalse(productionChangeMask("replace_phone_number", false, true, false))
+        assertTrue(productionChangeMask("replace_phone_number", true, false, false))
+        assertTrue(productionChangeMask("replace_payment_card", true, false, false))
+        val cardMasked = productionChangeMask("replace_payment_card", false, true, false)
+        val numberMasked = productionChangeMask("replace_phone_number", false, false, true)
+        assertFalse(productionChangeEntryEnabled(false, true, cardMasked))
+        assertFalse(productionChangeEntryEnabled(false, true, numberMasked))
+        assertTrue(productionChangeEntryEnabled(true, false, cardMasked))
+        assertTrue(productionChangeEntryEnabled(true, false, numberMasked))
+    }
+
+    @Test
     fun maskedStepsCannotBeCompletedOrVerifiedBlindly() {
         assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = false))
         assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = true))
