@@ -23,6 +23,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.core.generated.IdentityAnchorSubtype
@@ -179,6 +181,10 @@ internal fun ProductionManualEstablishScreen(
     modifier: Modifier = Modifier,
 ) {
     val app = session.appState
+    // Creating a NEW object remains possible with privacy on: the user knows
+    // the entered values. Mask only their on-screen presentation, not the
+    // authoritative values that the user intentionally confirms.
+    val privateInput = if (app.privacyMask) PasswordVisualTransformation() else VisualTransformation.None
     val gateway = session.authorities?.manualEstablish
     if (gateway == null) {
         ProductionManualUnavailable(modifier)
@@ -318,6 +324,7 @@ internal fun ProductionManualEstablishScreen(
                 },
                 label = { Text("名称") },
                 modifier = Modifier.fillMaxWidth().testTag("pdig.production-vnext.manual.name"),
+                visualTransformation = privateInput,
                 singleLine = true,
             )
         }
@@ -329,6 +336,7 @@ internal fun ProductionManualEstablishScreen(
                     onValueChange = { issuer = it.take(80) },
                     label = { Text("发行方（可留空）") },
                     modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = privateInput,
                     singleLine = true,
                 )
             }
@@ -340,6 +348,7 @@ internal fun ProductionManualEstablishScreen(
                     },
                     label = { Text("尾号（可留空，最多 4 位数字）") },
                     modifier = Modifier.fillMaxWidth(),
+                    visualTransformation = privateInput,
                     singleLine = true,
                 )
             }
@@ -369,6 +378,7 @@ internal fun ProductionManualEstablishScreen(
                     },
                     modifier = Modifier.fillMaxWidth()
                         .testTag("pdig.production-vnext.manual.identity.value"),
+                    visualTransformation = privateInput,
                     singleLine = true,
                 )
             }
@@ -397,7 +407,11 @@ internal fun ProductionManualEstablishScreen(
                     Column(Modifier.padding(13.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("已写入已确认数据", color = PdigV2Colors.PrimaryText,
                             fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                        Text(created.name, color = PdigV2Colors.TextPrimary, fontSize = 12.sp)
+                        Text(
+                            if (app.privacyMask) "对象名称已遮蔽" else created.name,
+                            color = PdigV2Colors.TextPrimary,
+                            fontSize = 12.sp,
+                        )
                         created.identitySubtype?.let { subtype ->
                             Text(
                                 if (subtype == "phone_number") "手机号身份" else "邮箱身份",
