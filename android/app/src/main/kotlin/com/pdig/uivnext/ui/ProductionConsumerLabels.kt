@@ -274,3 +274,19 @@ internal fun productionVisibleRelationPeerName(
         productionVisibleObjectName(peer, mask)
     }
 }
+
+/**
+ * A governed Finding's existence/type/truth/evidence count remain visible, but
+ * its explanatory strings may embed personal graph node names, plan titles or
+ * raw evidence IDs. A privacy choice must redact those strings consistently.
+ * Empty evidence text must stay "unrecorded", not become a fabricated hidden fact.
+ */
+internal fun productionVisibleFindingText(
+    value: String,
+    privacyMask: Boolean,
+    maskedLabel: String,
+): String = when {
+    value.isBlank() -> "未记录"
+    privacyMask -> maskedLabel
+    else -> value
+}
