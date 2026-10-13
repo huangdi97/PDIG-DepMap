@@ -319,7 +319,7 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
-    fun emptyQueryNeverReturnsImplicitEverything()
+    fun emptyQueryNeverReturnsImplicitEverything() {
         assertTrue(productionSearchHits(snapshot(), "").isEmpty())
         assertTrue(productionSearchHits(snapshot(), "   ").isEmpty())
     }
