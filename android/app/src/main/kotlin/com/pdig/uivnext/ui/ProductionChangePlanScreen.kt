@@ -426,6 +426,17 @@ internal fun productionChangeActionMutationEnabled(
     privacyMask: Boolean,
 ): Boolean = authorityAvailable && !privacyMask
 
+/**
+ * Verification is an authoritative write, not a read-only annotation.
+ * Neither an invalidated graph revision nor a blocked plan can advertise it.
+ */
+internal fun productionPlanVerificationEnabled(
+    plan: VNextProductionPlan,
+    action: VNextProductionPlanAction,
+    canMutate: Boolean,
+): Boolean = canMutate && productionPlanExecutable(plan) && action.done &&
+    action.verificationStatus in setOf("pending", "evidence_suggested")
+
 @Composable
 private fun ProductionActionCard(
     action: VNextProductionPlanAction,
@@ -452,7 +463,7 @@ private fun ProductionActionCard(
     // locally converted into a retry/success state.
     // Verification is a Reality mutation too: a stale/blocked plan must not
     // advertise authoritative action buttons merely because a step was done.
-    val canVerify = canMutate && planExecutable && action.done && verificationPending
+    val canVerify = productionPlanVerificationEnabled(plan, action, canMutate)
 
     val guidance = if (privacyMask) {
         "当前步骤内容已遮蔽。请关闭遮蔽、核对对象及执行证据后再操作。"
