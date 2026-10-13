@@ -448,7 +448,9 @@ private fun ProductionActionCard(
     // Match the authoritative legacy plan UI: only pending/evidence_suggested
     // verification states expose confirmation. Failed/not-required are not
     // locally converted into a retry/success state.
-    val canVerify = canMutate && action.done && verificationPending
+    // Verification is a Reality mutation too: a stale/blocked plan must not
+    // advertise authoritative action buttons merely because a step was done.
+    val canVerify = canMutate && planExecutable && action.done && verificationPending
 
     val guidance = if (privacyMask) {
         "当前步骤内容已遮蔽。请关闭遮蔽、核对对象及执行证据后再操作。"
