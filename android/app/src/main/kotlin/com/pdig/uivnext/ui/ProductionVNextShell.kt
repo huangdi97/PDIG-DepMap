@@ -211,7 +211,7 @@ private fun ProductionContent(
                 objectId = app.selectedSecondaryObjectId,
                 modifier = modifier,
             )
-        VScreen.CHANGE -> ProductionChange(app, snapshot, modifier)
+        VScreen.CHANGE -> ProductionChange(session, snapshot, modifier)
         VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD ->
             ProductionChangePlanScreen(session, app.selectedProductionPlanId, modifier)
         VScreen.RECORDS -> ProductionRecords(session, modifier)
@@ -718,17 +718,23 @@ private fun productionMaintenanceScheduleLabel(
 
 @Composable
 private fun ProductionChange(
-    app: VAppState,
+    session: ProductionVNextSession,
     snapshot: VNextProductionSnapshot,
     modifier: Modifier,
 ) {
+    val app = session.appState
     ProductionPage(modifier, "变更", "已记录变更计划") {
         if (snapshot.plans.isEmpty()) {
             ProductionEmpty("当前没有已记录变更计划。")
         } else {
             snapshot.plans.forEach { plan ->
+                val detail = session.dataSource.productionPlan(plan.id)
+                val targetMasked = detail == null || productionChangeTargetMasked(
+                    app, detail.scenario, detail.targetNodeId,
+                )
                 ProductionFactCard(
-                    title = productionVisiblePlanTitle(plan.title, app.privacyMask),
+                    title = if (detail == null) "变更计划详情暂不可读取"
+                    else productionVisiblePlanTitle(plan.title, targetMasked),
                     subtitle = "${productionScenarioLabel(plan.scenario)} · ${productionWorkflowStateLabel(plan.workflowState)}",
                     meta = listOfNotNull(
                         "图谱修订 ${plan.lastAnalyzedRevision}",
