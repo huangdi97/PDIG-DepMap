@@ -45,6 +45,14 @@ internal fun ProductionManualRelationshipScreen(
     session: ProductionVNextSession,
     modifier: Modifier = Modifier,
 ) {
+    // Confirming a dependency while identities are hidden is ambiguous:
+    // block the entire form rather than rendering source object names or
+    // permitting a blind authoritative write. The existing authority path
+    // is retained unchanged when the user explicitly turns masking off.
+    if (!productionManualRelationshipEditingEnabled(session.appState.privacyMask)) {
+        ProductionManualRelationshipMasked(modifier)
+        return
+    }
     val gateway = session.authorities?.manualRelationship
     val snapshot = session.dataSource.productionSnapshot()
     if (gateway == null || snapshot == null) {
@@ -440,6 +448,32 @@ private fun ProductionManualRelationshipUnavailable(modifier: Modifier) {
             "不会提供假的确认按钮，也不会直接写 SQL。",
             color = PdigV2Colors.TextSecondary,
             fontSize = 12.sp,
+        )
+    }
+}
+
+
+/** Display masking is a presentation safety gate, not a persisted graph fact. */
+internal fun productionManualRelationshipEditingEnabled(privacyMask: Boolean): Boolean = !privacyMask
+
+@Composable
+private fun ProductionManualRelationshipMasked(modifier: Modifier) {
+    Column(
+        modifier = modifier.fillMaxSize()
+            .padding(24.dp)
+            .testTag("pdig.production-vnext.manual-relation.masked-gate"),
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            "手工关系暂不可编辑",
+            color = PdigV2Colors.TextPrimary,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            "敏感信息遮蔽已开启。为避免在对象名称不可见时误选关联对象，请先到「我」关闭遮蔽，核对双方身份后再确认写入。",
+            color = PdigV2Colors.TextSecondary,
+            fontSize = 13.sp,
         )
     }
 }
