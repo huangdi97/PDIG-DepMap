@@ -69,6 +69,11 @@ internal fun ProductionChangePlanScreen(
         )
         return
     }
+    // A locally masked target can reveal itself through step names and
+    // prerequisite descriptions even if global privacy is off.
+    val targetMasked = productionChangeTargetMasked(
+        session.appState, current.scenario, current.targetNodeId,
+    )
 
     LazyColumn(
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.change-plan"),
@@ -78,7 +83,7 @@ internal fun ProductionChangePlanScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    productionVisiblePlanTitle(current.title, session.appState.privacyMask),
+                    productionVisiblePlanTitle(current.title, targetMasked),
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
@@ -144,7 +149,7 @@ internal fun ProductionChangePlanScreen(
             }
         }
 
-        if (session.appState.privacyMask) {
+        if (targetMasked) {
             item {
                 ChangeBoundaryNote(
                     "敏感信息遮蔽已开启。步骤身份和前置对象不可核对，因此暂不能记录完成或确认验证。请先到「我」关闭遮蔽并核对实际证据。"
@@ -167,12 +172,12 @@ internal fun ProductionChangePlanScreen(
                 plan = current,
                 canMutate = productionChangeActionMutationEnabled(
                     authorityAvailable = gateway != null,
-                    privacyMask = session.appState.privacyMask,
+                    privacyMask = targetMasked,
                 ),
-                privacyMask = session.appState.privacyMask,
+                privacyMask = targetMasked,
                 onComplete = {
                     error = null
-                    if (session.appState.privacyMask) {
+                    if (targetMasked) {
                         error = "敏感信息遮蔽已开启，请核对步骤内容后再记录完成。"
                     } else {
                         // The plan may have changed since this Composable drew its
@@ -182,6 +187,12 @@ internal fun ProductionChangePlanScreen(
                         val liveStep = latest?.actions?.firstOrNull { it.id == action.id }
                         when {
                             latest == null -> error = "正式计划暂不可读取；不会记录完成。"
+                            productionChangeTargetMasked(
+                                session.appState, latest.scenario, latest.targetNodeId,
+                            ) -> {
+                                plan = latest
+                                error = "目标对象已被遮蔽；请先核对最新对象身份。"
+                            }
                             liveStep == null -> {
                                 plan = latest
                                 error = "步骤已发生变化，请核对最新计划后再操作。"
@@ -202,13 +213,19 @@ internal fun ProductionChangePlanScreen(
                 },
                 onVerify = {
                     error = null
-                    if (session.appState.privacyMask) {
+                    if (targetMasked) {
                         error = "敏感信息遮蔽已开启，请查看并确认实际验证证据。"
                     } else {
                         val latest = session.dataSource.productionPlan(current.id)
                         val liveStep = latest?.actions?.firstOrNull { it.id == action.id }
                         when {
                             latest == null -> error = "正式计划暂不可读取；不会确认验证。"
+                            productionChangeTargetMasked(
+                                session.appState, latest.scenario, latest.targetNodeId,
+                            ) -> {
+                                plan = latest
+                                error = "目标对象已被遮蔽；请先核对最新对象身份。"
+                            }
                             liveStep == null -> {
                                 plan = latest
                                 error = "步骤已发生变化，请核对最新计划后再验证。"
