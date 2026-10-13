@@ -58,6 +58,16 @@ internal fun productionVisibleActionTitle(title: String, privacyMask: Boolean): 
 internal fun productionVisibleSourceTitle(title: String, privacyMask: Boolean): String =
     if (privacyMask) "数据源（已遮蔽）" else title
 
+/**
+ * Verified records remain inspectable while identity-bearing titles are hidden.
+ * If the current governed plan cannot be read, fail closed instead of trusting
+ * a cached historical title from the record projection.
+ */
+internal fun productionRecordPlanMask(
+    planReadable: Boolean,
+    targetMasked: Boolean,
+): Boolean = !planReadable || targetMasked
+
 internal fun productionRecordsByPlan(
     records: List<VNextProductionRecordItem>,
 ): List<List<VNextProductionRecordItem>> =
