@@ -133,7 +133,9 @@ class ProductionManualIdentityEstablishContractTest {
             compose.waitForIdle()
 
             compose.onNodeWithText("邮箱身份").assertIsDisplayed()
+            compose.onNodeWithText("对象名称已遮蔽").assertIsDisplayed()
             compose.onNodeWithText("标识值已遮蔽").assertIsDisplayed()
+            compose.onNodeWithText("恢复邮箱").assertDoesNotExist()
             compose.onNodeWithText("user@example.com").assertDoesNotExist()
 
             val node = app.nodes().single()
