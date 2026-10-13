@@ -5,6 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.performScrollToNode
@@ -89,6 +90,8 @@ class ProductionManualRelationshipContractTest {
                 "pdig.production-vnext.manual-relationship",
                 useUnmergedTree = true,
             ).assertDoesNotExist()
+            compose.onNodeWithText("主账户").assertDoesNotExist()
+            compose.onNodeWithText("视频服务").assertDoesNotExist()
             assertEquals(0, app.dependencies().size)
 
             compose.runOnIdle { session.appState.privacyMask = false }
