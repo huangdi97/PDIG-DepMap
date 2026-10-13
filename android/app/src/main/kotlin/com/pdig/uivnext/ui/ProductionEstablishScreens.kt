@@ -44,6 +44,7 @@ internal fun ProductionEstablishScreen(
     modifier: Modifier = Modifier,
 ) {
     val app = session.appState
+    val privateSourceInput = if (app.privacyMask) PasswordVisualTransformation() else VisualTransformation.None
     var importSourceLabel by rememberSaveable { mutableStateOf("文件导入") }
     var selectedImportSourceId by rememberSaveable { mutableStateOf<String?>(null) }
     app.realityRefreshVersion
@@ -104,7 +105,14 @@ internal fun ProductionEstablishScreen(
             }
         }
 
-        if (knownImportSources.isNotEmpty()) {
+        if (knownImportSources.isNotEmpty() && app.privacyMask) {
+            item {
+                EstablishBoundary(
+                    "已记录来源的名称与选择已隐藏。关闭遮蔽并核对来源身份后，才能向现有来源继续导入。"
+                )
+            }
+        }
+        if (knownImportSources.isNotEmpty() && !app.privacyMask) {
             item {
                 Text(
                     "已有来源",
@@ -146,6 +154,7 @@ internal fun ProductionEstablishScreen(
                     )
                 },
                 singleLine = true,
+                visualTransformation = privateSourceInput,
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag("pdig.production-vnext.import.source-label"),
@@ -157,8 +166,16 @@ internal fun ProductionEstablishScreen(
             EstablishEntry(
                 title = "文件导入",
                 body = "文件选择由现有安全工作流负责；选择后应用会回锁，重新认证后回到本页解析与预览。",
-                state = if (requestImport != null) "可启动正式导入" else "正式入口待接",
-                enabled = requestImport != null,
+                state = when {
+                    requestImport == null -> "正式入口待接"
+                    app.privacyMask && selectedImportSourceId != null -> "需关闭遮蔽核对已有来源"
+                    else -> "可启动正式导入"
+                },
+                enabled = productionSourceImportStartAllowed(
+                    app.privacyMask,
+                    selectedImportSourceId != null,
+                    requestImport != null,
+                ),
             ) {
                 requestImport?.invoke(
                     selectedImportSourceId,
@@ -174,6 +191,13 @@ internal fun ProductionEstablishScreen(
         }
     }
 }
+
+/** Existing-source import requires the user to identify the source before writing. */
+internal fun productionSourceImportStartAllowed(
+    privacyMask: Boolean,
+    existingSourceSelected: Boolean,
+    requestAvailable: Boolean,
+): Boolean = requestAvailable && (!privacyMask || !existingSourceSelected)
 
 @Composable
 internal fun ProductionManualEstablishScreen(
