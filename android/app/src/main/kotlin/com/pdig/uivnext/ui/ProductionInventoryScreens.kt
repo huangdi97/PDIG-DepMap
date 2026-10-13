@@ -706,7 +706,7 @@ private fun ProductionWeaknessesScreen(
                         verticalArrangement = Arrangement.spacedBy(5.dp),
                     ) {
                         Text(
-                            finding.title,
+                            productionVisibleFindingText(finding.title, session.appState.privacyMask, "连续性发现（已遮蔽）"),
                             color = PdigV2Colors.TextPrimary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
@@ -718,22 +718,22 @@ private fun ProductionWeaknessesScreen(
                             fontSize = 9.sp,
                         )
                         Text(
-                            finding.why,
+                            productionVisibleFindingText(finding.why, session.appState.privacyMask, "原因说明已遮蔽"),
                             color = PdigV2Colors.TextSecondary,
                             fontSize = 10.sp,
                         )
                         Text(
-                            "依据：${finding.confirmedBasis}",
+                            "依据：" + productionVisibleFindingText(finding.confirmedBasis, session.appState.privacyMask, "证据摘要已遮蔽"),
                             color = PdigV2Colors.TextSecondary,
                             fontSize = 10.sp,
                         )
                         Text(
-                            "未知：${finding.unknowns}",
+                            "未知：" + productionVisibleFindingText(finding.unknowns, session.appState.privacyMask, "未知项说明已遮蔽"),
                             color = PdigV2Colors.TextMuted,
                             fontSize = 10.sp,
                         )
                         Text(
-                            "下一步：${finding.recommendedNextAction}",
+                            "下一步：" + productionVisibleFindingText(finding.recommendedNextAction, session.appState.privacyMask, "操作建议已遮蔽"),
                             color = PdigV2Colors.PrimaryText,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.SemiBold,
