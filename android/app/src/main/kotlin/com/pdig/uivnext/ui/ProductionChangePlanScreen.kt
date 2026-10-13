@@ -174,24 +174,57 @@ internal fun ProductionChangePlanScreen(
                     error = null
                     if (session.appState.privacyMask) {
                         error = "敏感信息遮蔽已开启，请核对步骤内容后再记录完成。"
-                    } else try {
-                        plan = gateway?.completeAction(current.id, action.id)
-                            ?: current
-                    } catch (t: Throwable) {
-                        error = "动作未能记录完成；界面没有本地伪造状态。"
+                    } else {
+                        // The plan may have changed since this Composable drew its
+                        // button. Re-read authoritative Reality immediately before
+                        // committing. A stale click is never an execution permit.
+                        val latest = session.dataSource.productionPlan(current.id)
+                        val liveStep = latest?.actions?.firstOrNull { it.id == action.id }
+                        when {
+                            latest == null -> error = "正式计划暂不可读取；不会记录完成。"
+                            liveStep == null -> {
+                                plan = latest
+                                error = "步骤已发生变化，请核对最新计划后再操作。"
+                            }
+                            !productionPlanCompletionEnabled(
+                                latest, liveStep, gateway != null,
+                            ) -> {
+                                plan = latest
+                                error = "计划状态或前置步骤已变化，暂不能记录完成。"
+                            }
+                            else -> try {
+                                plan = gateway!!.completeAction(latest.id, liveStep.id)
+                            } catch (t: Throwable) {
+                                error = "动作未能记录完成；界面没有本地伪造状态。"
+                            }
+                        }
                     }
                 },
                 onVerify = {
                     error = null
                     if (session.appState.privacyMask) {
                         error = "敏感信息遮蔽已开启，请查看并确认实际验证证据。"
-                    } else if (!productionPlanExecutable(current)) {
-                        error = "当前变更计划需要重新分析或仍存在阻断，暂不能验证。"
-                    } else try {
-                        plan = gateway?.verifyAction(current.id, action.id)
-                            ?: current
-                    } catch (t: Throwable) {
-                        error = "验证未完成；done 与 verified 仍保持分离。"
+                    } else {
+                        val latest = session.dataSource.productionPlan(current.id)
+                        val liveStep = latest?.actions?.firstOrNull { it.id == action.id }
+                        when {
+                            latest == null -> error = "正式计划暂不可读取；不会确认验证。"
+                            liveStep == null -> {
+                                plan = latest
+                                error = "步骤已发生变化，请核对最新计划后再验证。"
+                            }
+                            !productionPlanVerificationEnabled(
+                                latest, liveStep, gateway != null,
+                            ) -> {
+                                plan = latest
+                                error = "计划或验证资格已变化，请核对最新状态后再确认。"
+                            }
+                            else -> try {
+                                plan = gateway!!.verifyAction(latest.id, liveStep.id)
+                            } catch (t: Throwable) {
+                                error = "验证未完成；done 与 verified 仍保持分离。"
+                            }
+                        }
                     }
                 },
             )
@@ -430,6 +463,16 @@ internal fun productionChangeActionMutationEnabled(
  * Verification is an authoritative write, not a read-only annotation.
  * Neither an invalidated graph revision nor a blocked plan can advertise it.
  */
+/** A freshly read step must still be executable before recording completion. */
+internal fun productionPlanCompletionEnabled(
+    plan: VNextProductionPlan,
+    action: VNextProductionPlanAction,
+    canMutate: Boolean,
+): Boolean = canMutate && productionPlanExecutable(plan) && !action.done &&
+    action.prerequisiteActionIds.all { id ->
+        plan.actions.firstOrNull { it.id == id }?.done == true
+    }
+
 internal fun productionPlanVerificationEnabled(
     plan: VNextProductionPlan,
     action: VNextProductionPlanAction,
@@ -457,7 +500,7 @@ private fun ProductionActionCard(
     val verificationNotRequired = verificationStatus == null ||
         verificationStatus == "not_required"
     val planExecutable = productionPlanExecutable(plan)
-    val canComplete = canMutate && planExecutable && !action.done && prerequisitesMet
+    val canComplete = productionPlanCompletionEnabled(plan, action, canMutate)
     // Match the authoritative legacy plan UI: only pending/evidence_suggested
     // verification states expose confirmation. Failed/not-required are not
     // locally converted into a retry/success state.
