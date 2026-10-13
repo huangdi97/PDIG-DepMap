@@ -116,6 +116,13 @@ internal fun ProductionSearchScreen(
             cardMaskLookup = { id ->
                 app.savedPresentationProfile("card", id)?.maskSensitive == true
             },
+            planMaskLookup = { summary ->
+                // The summary has no governed target subtype. Resolve the
+                // authoritative detail rather than guessing from its title.
+                session.dataSource.productionPlan(summary.id)?.let { detail ->
+                    productionChangeTargetMasked(app, detail.scenario, detail.targetNodeId)
+                }
+            },
         )
     }
 
@@ -169,6 +176,9 @@ internal fun productionSearchHits(
     numberAliasLookup: (String) -> String? = { null },
     numberMaskLookup: (String) -> Boolean = { false },
     cardMaskLookup: (String) -> Boolean = { false },
+    // null = the authoritative plan detail was unavailable; never echo a
+    // potentially sensitive cached summary title in that case.
+    planMaskLookup: (VNextProductionPlanSummary) -> Boolean? = { false },
 ): List<ProductionSearchHit> {
     val normalized = query.trim()
     if (normalized.isEmpty()) return emptyList()
@@ -244,9 +254,11 @@ internal fun productionSearchHits(
         val scenario = productionScenarioLabel(plan.scenario)
         val state = productionWorkflowStateLabel(plan.workflowState)
         if (!matches(plan.title, plan.scenario, scenario, plan.workflowState, state)) return@mapNotNull null
+        val locallyMasked = planMaskLookup(plan)
         ProductionSearchHit.PlanHit(
             plan = plan,
-            title = productionVisiblePlanTitle(plan.title, privacyMask),
+            title = if (locallyMasked == null) "变更计划详情暂不可读取"
+                else productionVisiblePlanTitle(plan.title, privacyMask || locallyMasked),
             subtitle = "$scenario · $state",
         )
     }
