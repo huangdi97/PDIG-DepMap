@@ -780,7 +780,19 @@ private fun ProductionRecords(
         } else {
             ProductionSection("验证轨迹")
             productionRecordsByPlan(records).forEach { group ->
-                ProductionRecordPlanGroup(group, session.appState.privacyMask)
+                // Records are another view of the same governed ChangePlan.
+                // Global-only masking would leak a locally masked phone/card
+                // through the plan's cached title and action labels.
+                val detail = session.dataSource.productionPlan(group.first().planId)
+                val masked = productionRecordPlanMask(
+                    planReadable = detail != null,
+                    targetMasked = detail?.let {
+                        productionChangeTargetMasked(
+                            session.appState, it.scenario, it.targetNodeId,
+                        )
+                    } ?: false,
+                )
+                ProductionRecordPlanGroup(group, masked)
             }
         }
         ProductionBoundaryNote(
