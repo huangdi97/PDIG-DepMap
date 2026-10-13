@@ -36,6 +36,36 @@ internal fun productionChangeEntryEnabled(
 ): Boolean = hasExistingPlan || (authorityAvailable && !privacyMask)
 
 /**
+ * Object-local masking is as binding for change authorization as global masking.
+ * Only the known card/phone scenarios have governed local presentation keys.
+ * Unknown scenarios never grant extra visibility by guessing target subtype.
+ */
+internal fun productionChangeMask(
+    scenario: String,
+    globalMask: Boolean,
+    localCardMask: Boolean,
+    localPhoneMask: Boolean,
+): Boolean = globalMask || when (scenario) {
+    "replace_payment_card" -> localCardMask
+    "replace_phone_number" -> localPhoneMask
+    else -> false
+}
+
+internal fun productionChangeTargetMasked(
+    app: VAppState,
+    scenario: String,
+    targetId: String?,
+): Boolean {
+    val cardMask = targetId?.let {
+        app.savedPresentationProfile("card", it)?.maskSensitive == true
+    } == true
+    val phoneMask = targetId?.let {
+        app.savedPresentationProfile("phoneNumber", it)?.maskSensitive == true
+    } == true
+    return productionChangeMask(scenario, app.privacyMask, cardMask, phoneMask)
+}
+
+/**
  * Explicit production transition from a confirmed payment asset into the existing
  * replace_payment_card ChangePlan authority.
  */
@@ -62,10 +92,11 @@ internal fun ProductionCardChangeEntry(
         }
         .firstOrNull()
 
+    val targetMasked = productionChangeTargetMasked(app, "replace_payment_card", cardId)
     val canOpen = productionChangeEntryEnabled(
         hasExistingPlan = existing != null,
         authorityAvailable = gateway != null,
-        privacyMask = app.privacyMask,
+        privacyMask = targetMasked,
     )
     Surface(
         modifier = modifier
@@ -76,7 +107,7 @@ internal fun ProductionCardChangeEntry(
                     // An existing plan may be opened read-only while masked.
                     // Creating a new authoritative plan requires identifying its
                     // target; recheck the latest mask state inside the callback.
-                    if (existing == null && app.privacyMask) {
+                    if (existing == null && productionChangeTargetMasked(app, "replace_payment_card", cardId)) {
                         error = "已开启敏感信息遮蔽。请先核对目标对象后再建立计划。"
                     } else try {
                         val plan = existing ?: gateway!!.createPlan(
@@ -118,7 +149,7 @@ internal fun ProductionCardChangeEntry(
             }
             if (!canOpen) {
                 Text(
-                    if (app.privacyMask && existing == null)
+                    if (targetMasked && existing == null)
                         "敏感信息已遮蔽 · 请关闭遮蔽并核对目标后建立"
                     else
                         "Change authority 未绑定",
@@ -163,10 +194,11 @@ internal fun ProductionPhoneChangeEntry(
         }
         .firstOrNull()
 
+    val targetMasked = productionChangeTargetMasked(app, "replace_phone_number", phoneId)
     val canOpen = productionChangeEntryEnabled(
         hasExistingPlan = existing != null,
         authorityAvailable = gateway != null,
-        privacyMask = app.privacyMask,
+        privacyMask = targetMasked,
     )
     Surface(
         modifier = modifier
@@ -177,7 +209,7 @@ internal fun ProductionPhoneChangeEntry(
                     // An existing plan may be opened read-only while masked.
                     // Creating a new authoritative plan requires identifying its
                     // target; recheck the latest mask state inside the callback.
-                    if (existing == null && app.privacyMask) {
+                    if (existing == null && productionChangeTargetMasked(app, "replace_phone_number", phoneId)) {
                         error = "已开启敏感信息遮蔽。请先核对目标对象后再建立计划。"
                     } else try {
                         val plan = existing ?: gateway!!.createPlan(
@@ -219,7 +251,7 @@ internal fun ProductionPhoneChangeEntry(
             }
             if (!canOpen) {
                 Text(
-                    if (app.privacyMask && existing == null)
+                    if (targetMasked && existing == null)
                         "敏感信息已遮蔽 · 请关闭遮蔽并核对目标后建立"
                     else
                         "Change authority 未绑定",
