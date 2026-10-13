@@ -19,7 +19,7 @@ adb install -r android/app/build/outputs/apk/production/debug/app-production-deb
 (
   cd android
   ./gradlew :app:connectedProductionDebugAndroidTest --no-daemon --stacktrace \
-    -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.ProductionVNextShellContractTest
+    -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.ProductionVNextShellContractTest,com.pdig.uivnext.evidence.ProductionRecordNavigationContractTest
   ./gradlew :app:connectedProductionDebugAndroidTest --no-daemon --stacktrace \
     -Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.ProductionManualRelationshipContractTest
 )
