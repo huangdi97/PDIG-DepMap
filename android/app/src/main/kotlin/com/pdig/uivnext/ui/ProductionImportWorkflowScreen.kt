@@ -238,9 +238,19 @@ internal fun ProductionImportWorkflowScreen(
             item {
                 ImportInfoCard(
                     title = "解析预览",
-                    body = "来源：${view.sourceLabel} · ${view.observationCount} 条记录" +
+                    body = "来源：${productionVisibleSourceTitle(view.sourceLabel, app.privacyMask)} · ${view.observationCount} 条记录" +
                         if (view.skippedRowCount > 0) " · ${view.skippedRowCount} 行跳过" else "",
                 )
+            }
+
+            if (app.privacyMask) {
+                item {
+                    ImportInfoCard(
+                        title = "待人工核对",
+                        body = "敏感信息遮蔽已开启；来源、对象与 CSV 字段映射不能完整核对。关闭遮蔽后再确认导入。",
+                        warning = true,
+                    )
+                }
             }
 
             if (preview.adapterId == "generic_csv" && pendingHead == null) {
@@ -253,7 +263,7 @@ internal fun ProductionImportWorkflowScreen(
                 }
             }
 
-            if (preview.adapterId == "generic_csv" && pendingHead != null) {
+            if (preview.adapterId == "generic_csv" && pendingHead != null && !app.privacyMask) {
                 item {
                     CsvMappingStepWithParser(
                         head = pendingHead,
@@ -287,12 +297,14 @@ internal fun ProductionImportWorkflowScreen(
                 ImportDetectedObjects(
                     title = "支付工具",
                     values = view.detectedPaymentInstruments,
+                    privacyMask = app.privacyMask,
                 )
             }
             item {
                 ImportDetectedObjects(
                     title = "收款对象",
                     values = view.detectedCounterparties,
+                    privacyMask = app.privacyMask,
                 )
             }
             item {
@@ -302,12 +314,16 @@ internal fun ProductionImportWorkflowScreen(
             }
             item {
                 ImportAction(
-                    label = "确认导入",
-                    enabled = authority != null &&
-                        !workflow.busy &&
-                        (preview.adapterId != "generic_csv" || pendingHead != null),
+                    label = if (app.privacyMask) "关闭遮蔽并核对后确认导入" else "确认导入",
+                    enabled = productionImportConfirmationAllowed(
+                        privacyMask = app.privacyMask,
+                        authorityAvailable = authority != null,
+                        busy = workflow.busy,
+                        mappingReady = preview.adapterId != "generic_csv" || pendingHead != null,
+                    ),
                     testTag = "pdig.production-vnext.import.confirm",
                 ) {
+                    if (app.privacyMask) return@ImportAction
                     val importAuthority = authority ?: return@ImportAction
                     workflow.busy = true
                     workflow.statusText = null
@@ -356,6 +372,17 @@ internal fun ProductionImportWorkflowScreen(
     }
 }
 
+/**
+ * Import confirmation is an irreversible authoritative action. Masking may
+ * preserve counts and a safe preview, but never authorizes blind confirmation.
+ */
+internal fun productionImportConfirmationAllowed(
+    privacyMask: Boolean,
+    authorityAvailable: Boolean,
+    busy: Boolean,
+    mappingReady: Boolean,
+): Boolean = !privacyMask && authorityAvailable && !busy && mappingReady
+
 internal fun isProductionImportWorkflowActive(
     purpose: FileWorkflowPurpose?,
     step: FileWorkflowStep?,
@@ -369,6 +396,7 @@ internal fun isProductionImportWorkflowActive(
 private fun ImportDetectedObjects(
     title: String,
     values: List<String>,
+    privacyMask: Boolean,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -388,6 +416,12 @@ private fun ImportDetectedObjects(
             )
             if (values.isEmpty()) {
                 Text("未从当前文件确认此类对象。", color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+            } else if (privacyMask) {
+                Text(
+                    "对象名称已遮蔽；关闭遮蔽核对后才可确认导入。",
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 11.sp,
+                )
             } else {
                 values.take(8).forEach {
                     Text("· $it", color = PdigV2Colors.TextSecondary, fontSize = 11.sp)
