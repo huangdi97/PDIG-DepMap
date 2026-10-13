@@ -69,6 +69,30 @@ class ProductionRecordTraceTest {
     }
 
     @Test
+    fun localTargetMaskOrUnreadablePlanNeverLeaksRecordTitles() {
+        // Global masking and per-object masking are combined upstream using
+        // the authoritative ChangePlan target, not cached record text.
+        assertEquals(false, productionRecordPlanMask(planReadable = true, targetMasked = false))
+        assertEquals(true, productionRecordPlanMask(planReadable = true, targetMasked = true))
+        assertEquals(true, productionRecordPlanMask(planReadable = false, targetMasked = false))
+        assertEquals(true, productionRecordPlanMask(planReadable = false, targetMasked = true))
+
+        val phoneTitle = "验证 +852 6123 4567 的恢复路径"
+        val cardTitle = "迁移支付工具尾号 8823"
+        assertEquals("变更计划（已遮蔽）",
+            productionVisiblePlanTitle(phoneTitle, productionRecordPlanMask(true, true)))
+        assertEquals("操作步骤（已遮蔽）",
+            productionVisibleActionTitle(cardTitle, productionRecordPlanMask(false, false)))
+
+        // Privacy only affects rendered titles: the verification authority and
+        // evidence truth are unchanged.
+        val item = record("verified", state = VNextProductionRecordState.VERIFIED,
+            evidence = listOf("evidence-1"))
+        assertEquals("已验证", productionRecordPresentation(item).stateLabel)
+        assertEquals("验证证据 1 项", productionRecordPresentation(item).evidenceLabel)
+    }
+
+    @Test
     fun traceGroupsOnlyByActualPlanWithoutInventingChronologicalOrder() {
         val first = record("a1", planId = "a", state = VNextProductionRecordState.RECORDED_COMPLETE)
         val second = record("b1", planId = "b", state = VNextProductionRecordState.VERIFIED)
