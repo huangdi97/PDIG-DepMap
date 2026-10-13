@@ -319,6 +319,31 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
+    fun locallyMaskedChangePlanTitleNeverLeaksInSearchResults() {
+        val hidden = productionSearchHits(
+            snapshot = snapshot(),
+            query = "更换旅行主卡",
+            planMaskLookup = { it.id == "plan-1" },
+        ).filterIsInstance<ProductionSearchHit.PlanHit>().single()
+        assertEquals("变更计划（已遮蔽）", hidden.title)
+        assertTrue(!hidden.title.contains("旅行主卡"))
+        // If authoritative plan detail disappears while the summary remains,
+        // a cached name must not masquerade as current readable identity.
+        val unreadable = productionSearchHits(
+            snapshot = snapshot(),
+            query = "更换旅行主卡",
+            planMaskLookup = { null },
+        ).filterIsInstance<ProductionSearchHit.PlanHit>().single()
+        assertEquals("变更计划详情暂不可读取", unreadable.title)
+        val shown = productionSearchHits(
+            snapshot = snapshot(),
+            query = "更换旅行主卡",
+            planMaskLookup = { false },
+        ).filterIsInstance<ProductionSearchHit.PlanHit>().single()
+        assertEquals("更换旅行主卡", shown.title)
+    }
+
+    @Test
     fun emptyQueryNeverReturnsImplicitEverything() {
         assertTrue(productionSearchHits(snapshot(), "").isEmpty())
         assertTrue(productionSearchHits(snapshot(), "   ").isEmpty())
