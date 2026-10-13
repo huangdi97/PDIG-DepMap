@@ -59,6 +59,24 @@ class ProductionNowPreferenceTest {
     }
 
     @Test
+    fun globalMaskCoversTimelineNamesAndImpactDescriptionsWithoutErasingStatus() {
+        assertEquals("时间节点（已遮蔽）", productionVisibleTimelineTitle("工资卡 8823 续费", true))
+        assertEquals("工资卡 8823 续费", productionVisibleTimelineTitle("工资卡 8823 续费", false))
+        assertEquals("时间节点标题未记录", productionVisibleTimelineTitle("", true))
+        assertEquals("说明已遮蔽",
+            productionVisibleTimelineDetail("手机号 +852 6123 4567", "待复核", true))
+        assertEquals("手机号 +852 6123 4567",
+            productionVisibleTimelineDetail("手机号 +852 6123 4567", "待复核", false))
+        assertEquals("待复核", productionVisibleTimelineDetail("", "待复核", true))
+        assertEquals("核对项（已遮蔽）",
+            productionVisibleImpactText("验证 8823 新支付路径", true, isTitle = true))
+        assertEquals("核对说明已遮蔽",
+            productionVisibleImpactText("先停用 138****8823", true, isTitle = false))
+        assertEquals("核对原路径",
+            productionVisibleImpactText("核对原路径", false, isTitle = true))
+    }
+
+    @Test
     fun hidingUpcomingNeverInventsAnAllClearState() {
         val futureOnly = snapshot.copy(
             timeline = listOf(item("week", "7d"), item("later", "later")),

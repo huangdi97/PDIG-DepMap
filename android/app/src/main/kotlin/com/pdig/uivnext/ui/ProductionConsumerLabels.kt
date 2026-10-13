@@ -1,6 +1,33 @@
 package com.pdig.uivnext.ui
 
 /** Consumer wording for production wire values. Unknown values remain explicit. */
+
+/** Timeline title/description can be user-supplied maintenance and plan text. */
+internal fun productionVisibleTimelineTitle(title: String, privacyMask: Boolean): String = when {
+    title.isBlank() -> "时间节点标题未记录"
+    privacyMask -> "时间节点（已遮蔽）"
+    else -> title
+}
+
+internal fun productionVisibleTimelineDetail(
+    detail: String,
+    statusLabel: String,
+    privacyMask: Boolean,
+): String = when {
+    detail.isBlank() -> statusLabel
+    privacyMask -> "说明已遮蔽"
+    else -> detail
+}
+
+/** Impact checklist details may contain object names or identifiers. */
+internal fun productionVisibleImpactText(
+    value: String,
+    privacyMask: Boolean,
+    isTitle: Boolean,
+): String = if (privacyMask) {
+    if (isTitle) "核对项（已遮蔽）" else "核对说明已遮蔽"
+} else value
+
 internal fun productionObjectKindLabel(kind: String): String = when (kind) {
     "payment_instrument" -> "支付工具"
     "identity_anchor" -> "身份对象"

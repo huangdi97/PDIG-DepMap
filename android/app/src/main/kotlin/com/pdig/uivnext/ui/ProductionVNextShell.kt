@@ -304,8 +304,12 @@ private fun ProductionNow(
         } else {
             visibleTimeline.take(8).forEach { item ->
                 ProductionFactCard(
-                    title = item.title,
-                    subtitle = item.subtitle.ifBlank { productionTimelineStatusLabel(item.status) },
+                    title = productionVisibleTimelineTitle(item.title, app.privacyMask),
+                    subtitle = productionVisibleTimelineDetail(
+                        item.subtitle,
+                        productionTimelineStatusLabel(item.status),
+                        app.privacyMask,
+                    ),
                     meta = listOfNotNull(
                         item.scheduledAt?.take(10),
                         productionTimelineBucketLabel(item.bucket),
@@ -675,8 +679,8 @@ private fun ProductionCardDetail(
                 ProductionSection("核对清单")
                 impact.checklist.take(8).forEach { item ->
                     ProductionFactCard(
-                        title = item.title,
-                        subtitle = item.detail,
+                        title = productionVisibleImpactText(item.title, cardPrivacyMask, isTitle = true),
+                        subtitle = productionVisibleImpactText(item.detail, cardPrivacyMask, isTitle = false),
                         meta = item.level,
                     )
                 }
@@ -1042,7 +1046,7 @@ private fun ProductionSources(
         } else {
             inventory.sources.forEach { source ->
                 ProductionFactCard(
-                    title = source.label,
+                    title = productionVisibleSourceTitle(source.label, app.privacyMask),
                     subtitle = productionSourceStateLabel(source.state),
                     meta = source.lastIngestedAt?.take(10) ?: "最近导入时间未记录",
                 )
