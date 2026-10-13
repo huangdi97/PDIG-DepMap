@@ -9,6 +9,14 @@ import org.junit.Test
 
 class ProductionChangeStageSummaryTest {
     @Test
+    fun maskedStepsCannotBeCompletedOrVerifiedBlindly() {
+        assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = false))
+        assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = true))
+        assertFalse(productionChangeActionMutationEnabled(authorityAvailable = true, privacyMask = true))
+        assertTrue(productionChangeActionMutationEnabled(authorityAvailable = true, privacyMask = false))
+    }
+
+    @Test
     fun currentAndTransitionFollowAuthoritativePlanWhileAfterRemainsOnlyProjection() {
         val plan = VNextProductionPlan(
             id = "plan-1",
