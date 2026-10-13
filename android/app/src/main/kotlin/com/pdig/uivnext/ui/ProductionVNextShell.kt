@@ -792,7 +792,19 @@ private fun ProductionRecords(
                         )
                     } ?: false,
                 )
-                ProductionRecordPlanGroup(group, masked)
+                ProductionRecordPlanGroup(
+                    items = group,
+                    privacyMask = masked,
+                    onOpenPlan = if (detail != null) {
+                        {
+                            // The record is not the source of plan authority:
+                            // re-read the real plan before routing to details.
+                            session.dataSource.productionPlan(group.first().planId)?.let {
+                                session.appState.openProductionPlan(it.id, it.scenario)
+                            }
+                        }
+                    } else null,
+                )
             }
         }
         ProductionBoundaryNote(
