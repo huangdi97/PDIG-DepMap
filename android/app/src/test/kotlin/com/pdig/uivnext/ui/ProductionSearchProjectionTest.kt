@@ -303,7 +303,23 @@ class ProductionSearchProjectionTest {
     }
 
     @Test
-    fun emptyQueryNeverReturnsImplicitEverything() {
+    fun searchMatchesRealPlanAndSourceTextWithoutEchoingItWhenMasked() {
+        val plan = productionSearchHits(snapshot(), "更换旅行主卡", privacyMask = true)
+            .filterIsInstance<ProductionSearchHit.PlanHit>()
+            .single()
+        assertEquals("变更计划（已遮蔽）", plan.title)
+        assertEquals("更换旅行主卡", plan.plan.title)
+        val source = productionSearchHits(snapshot(), "银行卡账单导入", privacyMask = true)
+            .filterIsInstance<ProductionSearchHit.SourceHit>()
+            .single()
+        assertEquals("数据源（已遮蔽）", source.title)
+        assertEquals("银行卡账单导入", source.source.label)
+        assertEquals("更换旅行主卡", productionSearchHits(snapshot(), "更换旅行主卡")
+            .filterIsInstance<ProductionSearchHit.PlanHit>().single().title)
+    }
+
+    @Test
+    fun emptyQueryNeverReturnsImplicitEverything()
         assertTrue(productionSearchHits(snapshot(), "").isEmpty())
         assertTrue(productionSearchHits(snapshot(), "   ").isEmpty())
     }

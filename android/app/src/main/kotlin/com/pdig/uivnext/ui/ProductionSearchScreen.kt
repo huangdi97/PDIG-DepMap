@@ -246,7 +246,7 @@ internal fun productionSearchHits(
         if (!matches(plan.title, plan.scenario, scenario, plan.workflowState, state)) return@mapNotNull null
         ProductionSearchHit.PlanHit(
             plan = plan,
-            title = plan.title,
+            title = productionVisiblePlanTitle(plan.title, privacyMask),
             subtitle = "$scenario · $state",
         )
     }
@@ -255,7 +255,7 @@ internal fun productionSearchHits(
         if (!matches(source.label, source.adapterId, source.state)) return@mapNotNull null
         ProductionSearchHit.SourceHit(
             source = source,
-            title = source.label,
+            title = productionVisibleSourceTitle(source.label, privacyMask),
             subtitle = "数据源 · ${productionSourceStateLabel(source.state)}",
         )
     }

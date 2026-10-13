@@ -48,13 +48,26 @@ internal fun productionRecordPresentation(item: VNextProductionRecordItem): Prod
             ?: "发生时间未记录",
     )
 
+/** A plan/action title is user-controlled text and may contain card/phone secrets. */
+internal fun productionVisiblePlanTitle(title: String, privacyMask: Boolean): String =
+    if (privacyMask) "变更计划（已遮蔽）" else title
+
+internal fun productionVisibleActionTitle(title: String, privacyMask: Boolean): String =
+    if (privacyMask) "操作步骤（已遮蔽）" else title
+
+internal fun productionVisibleSourceTitle(title: String, privacyMask: Boolean): String =
+    if (privacyMask) "数据源（已遮蔽）" else title
+
 internal fun productionRecordsByPlan(
     records: List<VNextProductionRecordItem>,
 ): List<List<VNextProductionRecordItem>> =
     records.groupBy { it.planId }.values.map { it.toList() }
 
 @Composable
-internal fun ProductionRecordPlanGroup(items: List<VNextProductionRecordItem>) {
+internal fun ProductionRecordPlanGroup(
+    items: List<VNextProductionRecordItem>,
+    privacyMask: Boolean = false,
+) {
     if (items.isEmpty()) return
     val plan = items.first()
     Column(
@@ -67,7 +80,7 @@ internal fun ProductionRecordPlanGroup(items: List<VNextProductionRecordItem>) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                plan.planTitle,
+                productionVisiblePlanTitle(plan.planTitle, privacyMask),
                 modifier = Modifier.weight(1f),
                 color = PdigV2Colors.TextPrimary,
                 fontSize = 15.sp,
@@ -80,12 +93,15 @@ internal fun ProductionRecordPlanGroup(items: List<VNextProductionRecordItem>) {
                 fontSize = 12.sp,
             )
         }
-        items.forEach { record -> ProductionRecordTraceItem(record) }
+        items.forEach { record -> ProductionRecordTraceItem(record, privacyMask) }
     }
 }
 
 @Composable
-private fun ProductionRecordTraceItem(item: VNextProductionRecordItem) {
+private fun ProductionRecordTraceItem(
+    item: VNextProductionRecordItem,
+    privacyMask: Boolean,
+) {
     val display = productionRecordPresentation(item)
     val tint: Color = when (item.state) {
         VNextProductionRecordState.RECORDED_COMPLETE -> PdigV2Colors.PrimaryBright
@@ -116,7 +132,7 @@ private fun ProductionRecordTraceItem(item: VNextProductionRecordItem) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Text(
-                    item.actionTitle,
+                    productionVisibleActionTitle(item.actionTitle, privacyMask),
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,

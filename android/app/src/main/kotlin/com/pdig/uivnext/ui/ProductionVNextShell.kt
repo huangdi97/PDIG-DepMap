@@ -724,7 +724,7 @@ private fun ProductionChange(
         } else {
             snapshot.plans.forEach { plan ->
                 ProductionFactCard(
-                    title = plan.title,
+                    title = productionVisiblePlanTitle(plan.title, app.privacyMask),
                     subtitle = "${productionScenarioLabel(plan.scenario)} · ${productionWorkflowStateLabel(plan.workflowState)}",
                     meta = listOfNotNull(
                         "图谱修订 ${plan.lastAnalyzedRevision}",
@@ -770,7 +770,7 @@ private fun ProductionRecords(
         } else {
             ProductionSection("验证轨迹")
             productionRecordsByPlan(records).forEach { group ->
-                ProductionRecordPlanGroup(group)
+                ProductionRecordPlanGroup(group, session.appState.privacyMask)
             }
         }
         ProductionBoundaryNote(

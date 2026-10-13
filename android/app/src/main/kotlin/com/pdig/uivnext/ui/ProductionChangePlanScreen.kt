@@ -78,7 +78,7 @@ internal fun ProductionChangePlanScreen(
         item {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    current.title,
+                    productionVisiblePlanTitle(current.title, session.appState.privacyMask),
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 23.sp,
                     fontWeight = FontWeight.Bold,
@@ -158,6 +158,7 @@ internal fun ProductionChangePlanScreen(
                 action = action,
                 plan = current,
                 canMutate = gateway != null,
+                privacyMask = session.appState.privacyMask,
                 onComplete = {
                     error = null
                     try {
@@ -212,6 +213,7 @@ internal fun productionPlanActionGuidance(
     action: VNextProductionPlanAction,
     plan: VNextProductionPlan,
     canMutate: Boolean,
+    privacyMask: Boolean = false,
 ): String {
     if (!canMutate) return "当前只有查看权限，操作需要正式变更权限。"
     if (action.done) return when (action.verificationStatus) {
@@ -224,7 +226,11 @@ internal fun productionPlanActionGuidance(
     val actionsById = plan.actions.associateBy { it.id }
     val pending = action.prerequisiteActionIds.filter { actionsById[it]?.done != true }
     if (pending.isNotEmpty()) {
-        val names = pending.map { actionsById[it]?.title ?: "未识别的前置步骤" }
+        val names = pending.map {
+            actionsById[it]?.title?.let { title ->
+                productionVisibleActionTitle(title, privacyMask)
+            } ?: "未识别的前置步骤"
+        }
         return "必须先完成：${names.joinToString("、")}。"
     }
     if (plan.effectiveState == "needs_revalidation" ||
@@ -398,6 +404,7 @@ private fun ProductionActionCard(
     action: VNextProductionPlanAction,
     plan: VNextProductionPlan,
     canMutate: Boolean,
+    privacyMask: Boolean,
     onComplete: () -> Unit,
     onVerify: () -> Unit,
 ) {
@@ -418,7 +425,7 @@ private fun ProductionActionCard(
     // locally converted into a retry/success state.
     val canVerify = canMutate && action.done && verificationPending
 
-    val guidance = productionPlanActionGuidance(action, plan, canMutate)
+    val guidance = productionPlanActionGuidance(action, plan, canMutate, privacyMask)
     val stateLabel = when {
         verified -> "已验证"
         verificationStatus == "failed" -> "验证未通过"
@@ -449,7 +456,7 @@ private fun ProductionActionCard(
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(action.title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp,
+                    Text(productionVisibleActionTitle(action.title, privacyMask), color = PdigV2Colors.TextPrimary, fontSize = 14.sp,
                         fontWeight = FontWeight.Bold)
                     Text(productionActionPhaseLabel(action.phase),
                         color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
@@ -464,7 +471,9 @@ private fun ProductionActionCard(
 
             if (action.prerequisiteActionIds.isNotEmpty()) {
                 val prerequisiteTitles = action.prerequisiteActionIds.map { id ->
-                    actionsById[id]?.title ?: "未识别前置步骤"
+                    actionsById[id]?.title?.let {
+                        productionVisibleActionTitle(it, privacyMask)
+                    } ?: "未识别前置步骤"
                 }
                 Text(
                     "前置：${prerequisiteTitles.joinToString("、")}",

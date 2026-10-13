@@ -54,6 +54,21 @@ class ProductionRecordTraceTest {
     }
 
     @Test
+    fun maskingHidesUserSuppliedPlanAndStepNamesWithoutChangingAuthority() {
+        val planTitle = "把 +852 6123 4567 从工资卡切走"
+        val actionTitle = "验证工行尾号 8823 的支付路径"
+        assertEquals(planTitle, productionVisiblePlanTitle(planTitle, false))
+        assertEquals(actionTitle, productionVisibleActionTitle(actionTitle, false))
+        assertEquals("变更计划（已遮蔽）", productionVisiblePlanTitle(planTitle, true))
+        assertEquals("操作步骤（已遮蔽）", productionVisibleActionTitle(actionTitle, true))
+        assertEquals("数据源（已遮蔽）", productionVisibleSourceTitle("个人工资导入", true))
+        val record = record("secret", state = VNextProductionRecordState.VERIFIED)
+        assertEquals("已验证", productionRecordPresentation(record).stateLabel)
+        assertEquals("发生时间未记录", productionRecordPresentation(record).timeLabel)
+        assertTrue(productionRecordsByPlan(listOf(record)).single().single() === record)
+    }
+
+    @Test
     fun traceGroupsOnlyByActualPlanWithoutInventingChronologicalOrder() {
         val first = record("a1", planId = "a", state = VNextProductionRecordState.RECORDED_COMPLETE)
         val second = record("b1", planId = "b", state = VNextProductionRecordState.VERIFIED)
