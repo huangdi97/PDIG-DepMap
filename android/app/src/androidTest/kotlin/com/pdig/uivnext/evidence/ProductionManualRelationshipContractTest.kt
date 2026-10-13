@@ -76,11 +76,27 @@ class ProductionManualRelationshipContractTest {
             }
             compose.waitForIdle()
 
+            // A masked user must never see the private object picker or
+            // commit an unverifiable relationship. The same screen must
+            // restore its real authority-backed form when unmasked.
+            compose.runOnIdle { session.appState.privacyMask = true }
+            compose.waitForIdle()
+            compose.onNodeWithTag(
+                "pdig.production-vnext.manual-relation.masked-gate",
+                useUnmergedTree = true,
+            ).assertIsDisplayed()
+            compose.onNodeWithTag(
+                "pdig.production-vnext.manual-relationship",
+                useUnmergedTree = true,
+            ).assertDoesNotExist()
+            assertEquals(0, app.dependencies().size)
+
+            compose.runOnIdle { session.appState.privacyMask = false }
+            compose.waitForIdle()
             compose.onNodeWithTag(
                 "pdig.production-vnext.manual-relationship",
                 useUnmergedTree = true,
             ).assertIsDisplayed()
-
 
             scrollToAndClick("pdig.production-vnext.manual-relation.from.${account.id}")
             scrollToAndClick("pdig.production-vnext.manual-relation.relation.merchant_agreement")
