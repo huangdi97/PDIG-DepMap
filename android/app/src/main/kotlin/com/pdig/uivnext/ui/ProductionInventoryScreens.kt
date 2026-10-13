@@ -702,47 +702,47 @@ private fun ProductionWeaknessesScreen(
                     border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
                 ) {
                     Column(
-                        Modifier.padding(13.dp),
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
+                        Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         Text(
                             productionVisibleFindingText(finding.title, session.appState.privacyMask, "连续性发现（已遮蔽）"),
                             color = PdigV2Colors.TextPrimary,
-                            fontSize = 13.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
                             productionFindingTypeLabel(finding.type.name) +
                                 " · " + productionFindingTruthLabel(finding.truth.name),
                             color = PdigV2Colors.TextMuted,
-                            fontSize = 9.sp,
+                            fontSize = 11.sp,
                         )
                         Text(
                             productionVisibleFindingText(finding.why, session.appState.privacyMask, "原因说明已遮蔽"),
                             color = PdigV2Colors.TextSecondary,
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                         )
                         Text(
                             "依据：" + productionVisibleFindingText(finding.confirmedBasis, session.appState.privacyMask, "证据摘要已遮蔽"),
                             color = PdigV2Colors.TextSecondary,
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                         )
                         Text(
                             "未知：" + productionVisibleFindingText(finding.unknowns, session.appState.privacyMask, "未知项说明已遮蔽"),
                             color = PdigV2Colors.TextMuted,
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                         )
                         Text(
                             "下一步：" + productionVisibleFindingText(finding.recommendedNextAction, session.appState.privacyMask, "操作建议已遮蔽"),
                             color = PdigV2Colors.PrimaryText,
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
                         if (finding.evidenceRefs.isNotEmpty()) {
                             Text(
                                 "证据引用 ${finding.evidenceRefs.size} 项",
                                 color = PdigV2Colors.TextMuted,
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                             )
                         }
                     }
