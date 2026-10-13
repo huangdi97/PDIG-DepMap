@@ -115,7 +115,7 @@ internal fun ProductionReviewScreen(
             if (inbox.proposals.isNotEmpty()) {
                 item { ReviewSectionTitle("关系建议") }
                 items(inbox.proposals, key = { "proposal:" + it.id }) { item ->
-                    ReviewItemCard(item) { decision ->
+                    ReviewItemCard(item, session.appState.privacyMask) { decision ->
                         error = null
                         try {
                             inbox = coordinator.decide(item.kind, item.id, decision)
@@ -201,6 +201,7 @@ private fun ReviewSectionTitle(title: String) {
 @Composable
 private fun ReviewItemCard(
     item: ProductionReviewConsumerItem,
+    privacyMask: Boolean,
     onDecision: (ProductionReviewDecision) -> Unit,
 ) {
     Surface(
@@ -214,13 +215,23 @@ private fun ReviewItemCard(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Text(
-                item.title,
+                productionVisibleReviewText(item.title, privacyMask, "待复核对象（已遮蔽）"),
                 color = PdigV2Colors.TextPrimary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
             )
-            Text(item.summary, color = PdigV2Colors.TextSecondary, fontSize = 11.sp)
-            Text(item.evidenceSummary, color = PdigV2Colors.TextMuted, fontSize = 10.sp)
+            Text(productionVisibleReviewText(item.summary, privacyMask, "复核内容已遮蔽"),
+                color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+            Text(productionVisibleReviewText(item.evidenceSummary, privacyMask, "证据摘要已遮蔽"),
+                color = PdigV2Colors.TextMuted, fontSize = 11.sp)
+            if (privacyMask) {
+                Text(
+                    "请先关闭敏感信息遮蔽，核对对象和依据后再作出正式复核决定。",
+                    color = PdigV2Colors.Critical,
+                    fontSize = 12.sp,
+                    modifier = Modifier.testTag("pdig.production-vnext.review.masked-disabled"),
+                )
+            }
 
             item.decisions.chunked(2).forEach { row ->
                 Row(
@@ -232,9 +243,13 @@ private fun ReviewItemCard(
                         Surface(
                             modifier = Modifier
                                 .weight(1f)
-                                .clickable { onDecision(decision) }
+                                .then(if (productionReviewActionEnabled(privacyMask)) {
+                                    Modifier.clickable { onDecision(decision) }
+                                } else Modifier)
                                 .testTag("pdig.production-vnext.review.action"),
-                            color = if (isPositiveReviewDecision(decision)) {
+                            color = if (privacyMask) {
+                                PdigV2Colors.SurfaceRaised
+                            } else if (isPositiveReviewDecision(decision)) {
                                 PdigV2Colors.PrimarySoft
                             } else {
                                 PdigV2Colors.SurfaceRaised
@@ -258,6 +273,20 @@ private fun ReviewItemCard(
         }
     }
 }
+
+/** Review text can contain unconfirmed personal nodes and raw source evidence. */
+internal fun productionVisibleReviewText(
+    value: String,
+    privacyMask: Boolean,
+    maskedLabel: String,
+): String = when {
+    value.isBlank() -> "未记录"
+    privacyMask -> maskedLabel
+    else -> value
+}
+
+/** An irreversible review decision requires that the item and evidence be visible. */
+internal fun productionReviewActionEnabled(privacyMask: Boolean): Boolean = !privacyMask
 
 private fun reviewDecision(
     kind: ProductionReviewConsumerKind,
