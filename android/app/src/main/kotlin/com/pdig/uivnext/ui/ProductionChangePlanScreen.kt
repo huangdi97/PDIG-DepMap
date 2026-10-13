@@ -185,6 +185,8 @@ internal fun ProductionChangePlanScreen(
                     error = null
                     if (session.appState.privacyMask) {
                         error = "敏感信息遮蔽已开启，请查看并确认实际验证证据。"
+                    } else if (!productionPlanExecutable(current)) {
+                        error = "当前变更计划需要重新分析或仍存在阻断，暂不能验证。"
                     } else try {
                         plan = gateway?.verifyAction(current.id, action.id)
                             ?: current
