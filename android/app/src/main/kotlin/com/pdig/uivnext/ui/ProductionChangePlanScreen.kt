@@ -144,6 +144,14 @@ internal fun ProductionChangePlanScreen(
             }
         }
 
+        if (session.appState.privacyMask) {
+            item {
+                ChangeBoundaryNote(
+                    "敏感信息遮蔽已开启。步骤身份和前置对象不可核对，因此暂不能记录完成或确认验证。请先到「我」关闭遮蔽并核对实际证据。"
+                )
+            }
+        }
+
         item {
             Text(
                 "执行步骤",
@@ -157,11 +165,16 @@ internal fun ProductionChangePlanScreen(
             ProductionActionCard(
                 action = action,
                 plan = current,
-                canMutate = gateway != null,
+                canMutate = productionChangeActionMutationEnabled(
+                    authorityAvailable = gateway != null,
+                    privacyMask = session.appState.privacyMask,
+                ),
                 privacyMask = session.appState.privacyMask,
                 onComplete = {
                     error = null
-                    try {
+                    if (session.appState.privacyMask) {
+                        error = "敏感信息遮蔽已开启，请核对步骤内容后再记录完成。"
+                    } else try {
                         plan = gateway?.completeAction(current.id, action.id)
                             ?: current
                     } catch (t: Throwable) {
@@ -170,7 +183,9 @@ internal fun ProductionChangePlanScreen(
                 },
                 onVerify = {
                     error = null
-                    try {
+                    if (session.appState.privacyMask) {
+                        error = "敏感信息遮蔽已开启，请查看并确认实际验证证据。"
+                    } else try {
                         plan = gateway?.verifyAction(current.id, action.id)
                             ?: current
                     } catch (t: Throwable) {
@@ -399,6 +414,16 @@ private fun ChangePlanAuthorityState(plan: VNextProductionPlan) {
     }
 }
 
+/**
+ * Masked ChangePlan action titles hide identity-bearing instructions.
+ * A user must be able to inspect each step before any authoritative mutation.
+ * This is a presentation gate, not a substitute for AppContainer eligibility.
+ */
+internal fun productionChangeActionMutationEnabled(
+    authorityAvailable: Boolean,
+    privacyMask: Boolean,
+): Boolean = authorityAvailable && !privacyMask
+
 @Composable
 private fun ProductionActionCard(
     action: VNextProductionPlanAction,
@@ -425,7 +450,11 @@ private fun ProductionActionCard(
     // locally converted into a retry/success state.
     val canVerify = canMutate && action.done && verificationPending
 
-    val guidance = productionPlanActionGuidance(action, plan, canMutate, privacyMask)
+    val guidance = if (privacyMask) {
+        "当前步骤内容已遮蔽。请关闭遮蔽、核对对象及执行证据后再操作。"
+    } else {
+        productionPlanActionGuidance(action, plan, canMutate, privacyMask)
+    }
     val stateLabel = when {
         verified -> "已验证"
         verificationStatus == "failed" -> "验证未通过"
