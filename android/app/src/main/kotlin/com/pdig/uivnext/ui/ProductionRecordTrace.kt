@@ -1,8 +1,10 @@
 package com.pdig.uivnext.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -77,6 +79,7 @@ internal fun productionRecordsByPlan(
 internal fun ProductionRecordPlanGroup(
     items: List<VNextProductionRecordItem>,
     privacyMask: Boolean = false,
+    onOpenPlan: (() -> Unit)? = null,
 ) {
     if (items.isEmpty()) return
     val plan = items.first()
@@ -85,7 +88,10 @@ internal fun ProductionRecordPlanGroup(
         verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Row(
-            Modifier.fillMaxWidth().padding(top = 6.dp),
+            Modifier.fillMaxWidth().padding(top = 6.dp)
+                .defaultMinSize(minHeight = 48.dp)
+                .then(if (onOpenPlan != null) Modifier.clickable(onClick = onOpenPlan) else Modifier)
+                .testTag("pdig.production-vnext.records.plan-header"),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -97,11 +103,21 @@ internal fun ProductionRecordPlanGroup(
                 fontWeight = FontWeight.Bold,
                 maxLines = 2,
             )
-            Text(
-                "${items.size} 项记录",
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 12.sp,
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "${items.size} 项记录",
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 12.sp,
+                )
+                if (onOpenPlan != null) {
+                    Text(
+                        "查看计划 →",
+                        color = PdigV2Colors.PrimaryText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
         }
         items.forEach { record -> ProductionRecordTraceItem(record, privacyMask) }
     }
