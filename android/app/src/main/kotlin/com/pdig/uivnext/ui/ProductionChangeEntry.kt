@@ -25,6 +25,17 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
 /**
+ * Existing plans can be inspected while privacy is on; creation requires a
+ * visible target identity and a production authority. This UI gate never
+ * replaces AppContainer target and eligibility validation.
+ */
+internal fun productionChangeEntryEnabled(
+    hasExistingPlan: Boolean,
+    authorityAvailable: Boolean,
+    privacyMask: Boolean,
+): Boolean = hasExistingPlan || (authorityAvailable && !privacyMask)
+
+/**
  * Explicit production transition from a confirmed payment asset into the existing
  * replace_payment_card ChangePlan authority.
  */
@@ -51,14 +62,23 @@ internal fun ProductionCardChangeEntry(
         }
         .firstOrNull()
 
-    val canOpen = existing != null || gateway != null
+    val canOpen = productionChangeEntryEnabled(
+        hasExistingPlan = existing != null,
+        authorityAvailable = gateway != null,
+        privacyMask = app.privacyMask,
+    )
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .then(
                 if (canOpen) Modifier.clickable {
                     error = null
-                    try {
+                    // An existing plan may be opened read-only while masked.
+                    // Creating a new authoritative plan requires identifying its
+                    // target; recheck the latest mask state inside the callback.
+                    if (existing == null && app.privacyMask) {
+                        error = "已开启敏感信息遮蔽。请先核对目标对象后再建立计划。"
+                    } else try {
                         val plan = existing ?: gateway!!.createPlan(
                             scenarioId = "replace_payment_card",
                             targetNodeId = cardId,
@@ -97,7 +117,15 @@ internal fun ProductionCardChangeEntry(
                 Text(it, color = PdigV2Colors.Critical, fontSize = 10.sp)
             }
             if (!canOpen) {
-                Text("Change authority 未绑定", color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Text(
+                    if (app.privacyMask && existing == null)
+                        "敏感信息已遮蔽 · 请关闭遮蔽并核对目标后建立"
+                    else
+                        "Change authority 未绑定",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
+                    modifier = Modifier.testTag("pdig.production-vnext.change.entry.masked"),
+                )
             }
         }
     }
@@ -135,14 +163,23 @@ internal fun ProductionPhoneChangeEntry(
         }
         .firstOrNull()
 
-    val canOpen = existing != null || gateway != null
+    val canOpen = productionChangeEntryEnabled(
+        hasExistingPlan = existing != null,
+        authorityAvailable = gateway != null,
+        privacyMask = app.privacyMask,
+    )
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .then(
                 if (canOpen) Modifier.clickable {
                     error = null
-                    try {
+                    // An existing plan may be opened read-only while masked.
+                    // Creating a new authoritative plan requires identifying its
+                    // target; recheck the latest mask state inside the callback.
+                    if (existing == null && app.privacyMask) {
+                        error = "已开启敏感信息遮蔽。请先核对目标对象后再建立计划。"
+                    } else try {
                         val plan = existing ?: gateway!!.createPlan(
                             scenarioId = "replace_phone_number",
                             targetNodeId = phoneId,
@@ -181,7 +218,15 @@ internal fun ProductionPhoneChangeEntry(
                 Text(it, color = PdigV2Colors.Critical, fontSize = 10.sp)
             }
             if (!canOpen) {
-                Text("Change authority 未绑定", color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Text(
+                    if (app.privacyMask && existing == null)
+                        "敏感信息已遮蔽 · 请关闭遮蔽并核对目标后建立"
+                    else
+                        "Change authority 未绑定",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
+                    modifier = Modifier.testTag("pdig.production-vnext.change.entry.masked"),
+                )
             }
         }
     }
