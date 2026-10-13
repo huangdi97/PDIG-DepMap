@@ -129,7 +129,7 @@ internal fun ProductionReviewScreen(
             if (inbox.candidates.isNotEmpty()) {
                 item { ReviewSectionTitle("对象候选") }
                 items(inbox.candidates, key = { "candidate:" + it.id }) { item ->
-                    ReviewItemCard(item) { decision ->
+                    ReviewItemCard(item, session.appState.privacyMask) { decision ->
                         error = null
                         try {
                             inbox = coordinator.decide(item.kind, item.id, decision)
@@ -143,7 +143,7 @@ internal fun ProductionReviewScreen(
             if (inbox.drifts.isNotEmpty()) {
                 item { ReviewSectionTitle("可能发生的变化") }
                 items(inbox.drifts, key = { "drift:" + it.id }) { item ->
-                    ReviewItemCard(item) { decision ->
+                    ReviewItemCard(item, session.appState.privacyMask) { decision ->
                         error = null
                         try {
                             inbox = coordinator.decide(item.kind, item.id, decision)
