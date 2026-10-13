@@ -92,6 +92,23 @@ class ProductionChangeStageSummaryTest {
         )
         assertFalse(productionPlanExecutable(plan))
         assertTrue(productionPlanExecutable(freshReady))
+
+        // UI eligibility is advisory, but must fail closed on every stale
+        // re-read before calling the authoritative AppContainer gateway.
+        assertTrue(productionPlanCompletionEnabled(freshReady, change, true))
+        assertFalse(productionPlanCompletionEnabled(freshReady, change, false))
+        assertFalse(productionPlanCompletionEnabled(plan, change, true))
+        assertFalse(productionPlanCompletionEnabled(freshReady.copy(readiness = "blocked"), change, true))
+        assertFalse(productionPlanCompletionEnabled(freshReady.copy(effectiveState = "needs_revalidation"), change, true))
+        assertFalse(productionPlanCompletionEnabled(freshReady.copy(currentGraphRevision = 10), change, true))
+        assertFalse(productionPlanCompletionEnabled(freshReady, change.copy(done = true), true))
+        assertFalse(productionPlanCompletionEnabled(
+            freshReady.copy(actions = listOf(freshReady.actions.first().copy(done = false), change)),
+            change, true,
+        ))
+        assertFalse(productionPlanCompletionEnabled(
+            freshReady.copy(actions = listOf(change)), change, true,
+        )) // a missing prerequisite is not an implicitly satisfied prerequisite
         val completedPending = change.copy(done = true, verificationStatus = "pending")
         val suggested = completedPending.copy(verificationStatus = "evidence_suggested")
         assertTrue(productionPlanVerificationEnabled(freshReady, completedPending, true))
@@ -104,6 +121,12 @@ class ProductionChangeStageSummaryTest {
         assertFalse(productionPlanVerificationEnabled(freshReady, change, true))
         assertFalse(productionPlanVerificationEnabled(freshReady, completedPending.copy(verificationStatus = "verified"), true))
         assertFalse(productionPlanVerificationEnabled(freshReady, completedPending.copy(verificationStatus = "failed"), true))
+        assertFalse(productionPlanVerificationEnabled(
+            freshReady, completedPending.copy(done = false), true,
+        ))
+        assertFalse(productionPlanVerificationEnabled(
+            freshReady.copy(readiness = "blocked"), completedPending, true,
+        ))
 
         assertFalse(productionPlanExecutable(freshReady.copy(readiness = "blocked")))
         assertFalse(productionPlanExecutable(freshReady.copy(effectiveState = "needs_revalidation")))
