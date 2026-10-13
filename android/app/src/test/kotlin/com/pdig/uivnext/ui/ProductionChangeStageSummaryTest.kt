@@ -9,6 +9,18 @@ import org.junit.Test
 
 class ProductionChangeStageSummaryTest {
     @Test
+    fun maskedTargetBlocksNewCardOrPhonePlanButCanOpenExistingPlanReadOnly() {
+        assertFalse(productionChangeEntryEnabled(false, false, false))
+        assertFalse(productionChangeEntryEnabled(false, true, true))
+        assertFalse(productionChangeEntryEnabled(false, false, true))
+        assertTrue(productionChangeEntryEnabled(false, true, false))
+        // Existing ChangePlan detail remains viewable, while its commands
+        // independently respect the privacy gate tested below.
+        assertTrue(productionChangeEntryEnabled(true, false, true))
+        assertTrue(productionChangeEntryEnabled(true, true, true))
+    }
+
+    @Test
     fun maskedStepsCannotBeCompletedOrVerifiedBlindly() {
         assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = false))
         assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = true))
