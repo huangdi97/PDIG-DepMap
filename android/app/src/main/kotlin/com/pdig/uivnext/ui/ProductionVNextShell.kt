@@ -3,6 +3,7 @@ package com.pdig.uivnext.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -809,7 +811,11 @@ private fun ProductionRecords(
                     val selected = option == scope
                     Surface(
                         modifier = Modifier.defaultMinSize(minHeight = 48.dp)
-                            .clickable { scope = option }
+                            .selectable(
+                                selected = selected,
+                                role = Role.Tab,
+                                onClick = { scope = option },
+                            )
                             .testTag("pdig.production-vnext.records.scope.${option.name.lowercase()}"),
                         color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
                         shape = RoundedCornerShape(VRadius.Md),
