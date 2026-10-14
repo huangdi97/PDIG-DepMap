@@ -23,6 +23,7 @@ import com.pdig.uivnext.production.VNextProductionFindingType
 import com.pdig.uivnext.production.VNextProductionImpact
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionPlan
+import com.pdig.uivnext.production.VNextProductionPlanAction
 import com.pdig.uivnext.production.VNextProductionRecordItem
 import com.pdig.uivnext.production.VNextProductionRecordState
 import com.pdig.uivnext.production.VNextProductionSnapshot
@@ -45,7 +46,10 @@ class ProductionVNextShellContractTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private fun session(records: List<VNextProductionRecordItem> = emptyList()): ProductionVNextSession {
+    private fun session(
+        records: List<VNextProductionRecordItem> = emptyList(),
+        plan: VNextProductionPlan? = null,
+    ): ProductionVNextSession {
         val snapshot = VNextProductionSnapshot(
             revision = 21,
             objects = listOf(
@@ -121,7 +125,7 @@ class ProductionVNextShellContractTest {
         )
         return ProductionVNextSession(
             appState = VAppState(),
-            dataSource = FakeProductionSource(snapshot, records),
+            dataSource = FakeProductionSource(snapshot, records, plan),
         )
     }
 
@@ -430,6 +434,75 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun verificationRecordOpensExactGovernedPlanActionAndBackKeepsAttentionScope() {
+        val action = VNextProductionPlanAction(
+            id = "verify-path",
+            title = "核对备用恢复路径",
+            phase = "verify",
+            done = true,
+            verificationStatus = "pending",
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
+        val plan = VNextProductionPlan(
+            id = "plan-focused",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 21,
+            lastAnalyzedGraphRevision = 21,
+            currentGraphRevision = 21,
+            targetNodeId = "phone-1",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "ready",
+            affectedServiceCount = 1,
+            mustChangeKeys = emptyList(),
+            unresolvedMustChangeKeys = emptyList(),
+            actions = listOf(action),
+        )
+        val sourceRecord = VNextProductionRecordItem(
+            id = "record-verify-path",
+            planId = plan.id,
+            planTitle = plan.title,
+            scenario = plan.scenario,
+            actionId = action.id,
+            actionTitle = action.title,
+            phase = action.phase,
+            state = VNextProductionRecordState.PENDING_VERIFICATION,
+            evidenceRefs = emptyList(),
+            occurredAt = null,
+        )
+        val session = session(listOf(sourceRecord), plan)
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.onNodeWithTag("pdig.production-vnext.now.verification-attention")
+            .performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.records.scope.attention")
+            .assertIsSelected()
+        compose.onNodeWithTag("pdig.production-vnext.records.open-action")
+            .performScrollTo().performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.change.action.verify-path")
+            .assertIsDisplayed()
+        compose.onNodeWithText("从记录定位 · 请核对当前步骤").assertExists()
+        compose.runOnIdle {
+            session.appState.back()
+            assertTrue(session.appState.screen == VScreen.RECORDS)
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.records.scope.attention")
+            .assertIsSelected()
+        compose.onNodeWithText("验证轨迹 · 1 项").assertExists()
+    }
+
+    @Test
     fun productionInventoryCategoryAndDetailUseProductionObjects() {
         val session = session()
         compose.setContent {
@@ -491,6 +564,7 @@ class ProductionVNextShellContractTest {
     private class FakeProductionSource(
         private val snapshot: VNextProductionSnapshot,
         private val records: List<VNextProductionRecordItem>,
+        private val plan: VNextProductionPlan?,
     ) : VNextRuntimeDataSource {
         override val mode: VNextRuntimeDataMode = VNextRuntimeDataMode.PRODUCTION_REALITY
 
@@ -504,7 +578,8 @@ class ProductionVNextShellContractTest {
             checklist = emptyList(),
         )
 
-        override fun productionPlan(planId: String): VNextProductionPlan? = null
+        override fun productionPlan(planId: String): VNextProductionPlan? =
+            plan?.takeIf { it.id == planId }
 
         override fun productionRecords(): List<VNextProductionRecordItem> = records
 
