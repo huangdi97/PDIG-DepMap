@@ -79,6 +79,7 @@ internal enum class ProductionRecordScope(
     val state: VNextProductionRecordState?,
 ) {
     ALL("全部", null),
+    ATTENTION("需处理", null),
     NEEDS_VERIFICATION("待验证", VNextProductionRecordState.PENDING_VERIFICATION),
     COMPLETED("已记录完成", VNextProductionRecordState.RECORDED_COMPLETE),
     VERIFIED("已验证", VNextProductionRecordState.VERIFIED),
@@ -89,7 +90,14 @@ internal fun productionRecordsForScope(
     records: List<VNextProductionRecordItem>,
     scope: ProductionRecordScope,
 ): List<VNextProductionRecordItem> =
-    if (scope.state == null) records else records.filter { it.state == scope.state }
+    when (scope) {
+        ProductionRecordScope.ALL -> records
+        ProductionRecordScope.ATTENTION -> records.filter {
+            it.state == VNextProductionRecordState.PENDING_VERIFICATION ||
+                it.state == VNextProductionRecordState.VERIFICATION_FAILED
+        }
+        else -> records.filter { it.state == scope.state }
+    }
 
 internal fun productionRecordScopeCount(
     records: List<VNextProductionRecordItem>,
@@ -122,7 +130,7 @@ internal fun productionRecordsByPlan(
 internal fun productionRecordGroupStatusText(
     items: List<VNextProductionRecordItem>,
 ): String = ProductionRecordScope.entries
-    .filter { it != ProductionRecordScope.ALL }
+    .filter { it != ProductionRecordScope.ALL && it != ProductionRecordScope.ATTENTION }
     .mapNotNull { scope ->
         val count = productionRecordScopeCount(items, scope)
         if (count == 0) null else "${scope.label} ${count}"
