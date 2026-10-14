@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -142,6 +143,7 @@ internal fun ProductionRecordPlanGroup(
     items: List<VNextProductionRecordItem>,
     privacyMask: Boolean = false,
     onOpenPlan: (() -> Unit)? = null,
+    onOpenAction: ((String) -> Unit)? = null,
 ) {
     if (items.isEmpty()) return
     val plan = items.first()
@@ -187,7 +189,7 @@ internal fun ProductionRecordPlanGroup(
             fontSize = 12.sp,
             modifier = Modifier.testTag("pdig.production-vnext.records.plan-status"),
         )
-        items.forEach { record -> ProductionRecordTraceItem(record, privacyMask) }
+        items.forEach { record -> ProductionRecordTraceItem(record, privacyMask, onOpenAction) }
     }
 }
 
@@ -195,6 +197,7 @@ internal fun ProductionRecordPlanGroup(
 private fun ProductionRecordTraceItem(
     item: VNextProductionRecordItem,
     privacyMask: Boolean,
+    onOpenAction: ((String) -> Unit)?,
 ) {
     val display = productionRecordPresentation(item)
     val tint: Color = when (item.state) {
@@ -216,7 +219,15 @@ private fun ProductionRecordTraceItem(
             androidx.compose.foundation.layout.Box(Modifier.padding(5.dp))
         }
         Surface(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(1f)
+                .defaultMinSize(minHeight = 48.dp)
+                .then(
+                    if (onOpenAction != null) Modifier.clickable(
+                        role = Role.Button,
+                        onClick = { onOpenAction(item.actionId) },
+                    ) else Modifier
+                )
+                .testTag("pdig.production-vnext.records.open-action"),
             color = PdigV2Colors.Surface,
             border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
             shape = RoundedCornerShape(VRadius.Lg),
@@ -260,6 +271,14 @@ private fun ProductionRecordTraceItem(
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 12.sp,
                 )
+                if (onOpenAction != null) {
+                    Text(
+                        "查看对应步骤 →",
+                        color = PdigV2Colors.PrimaryText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
     }
