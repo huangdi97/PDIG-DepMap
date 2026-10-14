@@ -287,7 +287,7 @@ private fun ProductionNow(
                 title = "需要验证的操作",
                 subtitle = verificationAttention,
                 meta = "来自已记录的操作状态 · 完成不等于验证",
-                onClick = { app.navigate(VScreen.RECORDS) },
+                onClick = { app.openProductionVerificationAttention() },
             )
         }
         if (findings != null && findings.findings.isNotEmpty()) {
@@ -790,7 +790,8 @@ private fun ProductionRecords(
     modifier: Modifier,
 ) {
     val records = session.dataSource.productionRecords()
-    var scope by remember(session) { mutableStateOf(ProductionRecordScope.ALL) }
+    val app = session.appState
+    val scope = app.productionRecordsScope
     val visibleRecords = productionRecordsForScope(records, scope)
     ProductionPage(modifier, "记录", "已记录的操作与验证证据 · 按计划分组") {
         ProductionBoundaryNote(
@@ -814,7 +815,7 @@ private fun ProductionRecords(
                             .selectable(
                                 selected = selected,
                                 role = Role.Tab,
-                                onClick = { scope = option },
+                                onClick = { app.productionRecordsScope = option },
                             )
                             .testTag("pdig.production-vnext.records.scope.${option.name.lowercase()}"),
                         color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
