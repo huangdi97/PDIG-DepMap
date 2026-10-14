@@ -193,7 +193,9 @@ private fun ProductionContent(
     }
 
     when (app.screen) {
-        VScreen.NOW -> ProductionNow(app, snapshot, inventory, findings, modifier)
+        VScreen.NOW -> ProductionNow(
+            app, snapshot, inventory, findings, session.dataSource.productionRecords(), modifier,
+        )
         VScreen.INFRASTRUCTURE, VScreen.OVERVIEW ->
             ProductionInfrastructure(app, snapshot, inventory, findings, modifier)
         VScreen.CARDS, VScreen.NUMBERS, VScreen.ACCOUNTS, VScreen.EMAILS,
@@ -244,9 +246,11 @@ private fun ProductionNow(
     snapshot: VNextProductionSnapshot,
     inventory: ProductionConsumerInventory,
     findings: com.pdig.uivnext.production.VNextProductionFindingReport?,
+    records: List<com.pdig.uivnext.production.VNextProductionRecordItem>,
     modifier: Modifier,
 ) {
     val activePlans = snapshot.plans.count { it.workflowState != "closed" }
+    val verificationAttention = productionVerificationAttentionText(records)
     val greeting = com.pdig.uivnext.ui.r9.r9Greeting(
         java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY),
     )
@@ -276,6 +280,14 @@ private fun ProductionNow(
                 onClick = { app.navigate(VScreen.CHANGE) },
             )
         }
+        if (verificationAttention != null) {
+            ProductionFactCard(
+                title = "需要验证的操作",
+                subtitle = verificationAttention,
+                meta = "来自已记录的操作状态 · 完成不等于验证",
+                onClick = { app.navigate(VScreen.RECORDS) },
+            )
+        }
         if (findings != null && findings.findings.isNotEmpty()) {
             ProductionFactCard(
                 title = "基础设施薄弱点",
@@ -285,13 +297,13 @@ private fun ProductionNow(
             )
         }
         if (inventory.pendingReviewCount == 0 && activePlans == 0 &&
-            findings?.findings.isNullOrEmpty()
+            verificationAttention == null && findings?.findings.isNullOrEmpty()
         ) {
             ProductionEmpty(
                 if (findings == null)
-                    "当前没有已记录的复核或进行中计划；Finding 暂不可读取，不能据此判断安全。"
+                    "当前没有已记录的待处理复核、进行中计划或待验证操作；Finding 暂不可读取，不能据此判断安全。"
                 else
-                    "当前没有已记录的复核、进行中计划或已报告薄弱点；未知不等于安全。"
+                    "当前没有已记录的复核、进行中计划、待验证操作或已报告薄弱点；未知不等于安全。"
             )
         }
 
