@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ProductionVNextSession
@@ -167,6 +168,53 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag(all).assertIsNotSelected()
         compose.onNodeWithTag(waiting).assertIsSelected()
         compose.onNodeWithText("验证轨迹 · 1 项").assertExists()
+    }
+
+    @Test
+    fun nowVerificationAttentionOpensOnlyPendingAndFailedRecordsThenNormalRootShowsAll() {
+        fun item(id: String, state: VNextProductionRecordState) = VNextProductionRecordItem(
+            id = id,
+            planId = "plan-r59",
+            planTitle = "更换手机号",
+            scenario = "replace_phone_number",
+            actionId = id,
+            actionTitle = "需要人工核对的步骤",
+            phase = "verify",
+            state = state,
+            evidenceRefs = emptyList(),
+            occurredAt = null,
+        )
+        val session = session(listOf(
+            item("pending", VNextProductionRecordState.PENDING_VERIFICATION),
+            item("verified", VNextProductionRecordState.VERIFIED),
+            item("failed", VNextProductionRecordState.VERIFICATION_FAILED),
+        ))
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.now.verification-attention")
+            .performScrollTo()
+            .performClick()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("pdig.production-vnext.records.scope.attention").assertIsSelected()
+        compose.onNodeWithTag("pdig.production-vnext.records.scope.all").assertIsNotSelected()
+        compose.onNodeWithText("验证轨迹 · 2 项").assertExists()
+        compose.onNodeWithText("发生时间未记录", substring = true).assertExists()
+        compose.onNodeWithText("100%", substring = true).assertDoesNotExist()
+
+        // A direct primary-root visit intentionally resets the one-shot
+        // attention entry, not the original source action states.
+        compose.runOnIdle {
+            session.appState.navigate(VScreen.NOW)
+            session.appState.navigate(VScreen.RECORDS)
+        }
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.production-vnext.records.scope.all").assertIsSelected()
+        compose.onNodeWithText("验证轨迹 · 3 项").assertExists()
     }
 
     @Test
