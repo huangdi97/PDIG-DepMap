@@ -794,11 +794,13 @@ private fun ProductionRecords(
     val app = session.appState
     val scope = app.productionRecordsScope
     val visibleRecords = productionRecordsForScope(records, scope)
+    var navigationNotice by remember(session, scope) { mutableStateOf<String?>(null) }
     ProductionPage(modifier, "记录", "已记录的操作与验证证据 · 按计划分组") {
         ProductionBoundaryNote(
             "记录按计划和动作分组，不代表按事件发生时间排序。" +
                 "“已记录完成”和“已验证”是两个独立状态，缺少证据引用时如实说明。"
         )
+        navigationNotice?.let { ProductionBoundaryNote(it) }
         if (records.isEmpty()) {
             ProductionEmpty("当前没有已完成或待验证的生产记录。没有记录不代表没有历史。")
         } else {
@@ -863,11 +865,15 @@ private fun ProductionRecords(
                         {
                             // The record is not the source of plan authority:
                             // re-read the real plan before routing to details.
-                            session.dataSource.productionPlan(group.first().planId)?.let {
-                                session.appState.openProductionPlan(it.id, it.scenario)
+                            val latest = session.dataSource.productionPlan(group.first().planId)
+                            if (latest != null) {
+                                session.appState.openProductionPlan(latest.id, latest.scenario)
+                            } else {
+                                navigationNotice = "该变更计划目前无法读取；记录仍保留，但不能从旧标题进入。"
                             }
                         }
                     } else null,
+                    openableActionIds = detail?.actions?.map { it.id }?.toSet() ?: emptySet(),
                     onOpenAction = if (detail != null) {
                         { actionId ->
                             // Re-read both plan and action at tap time: a cached
@@ -877,6 +883,8 @@ private fun ProductionRecords(
                                 session.appState.openProductionPlan(
                                     latest.id, latest.scenario, focusActionId = actionId,
                                 )
+                            } else {
+                                navigationNotice = "这条记录对应的步骤已变化或无法读取；请重新核对当前正式计划。"
                             }
                         }
                     } else null,
