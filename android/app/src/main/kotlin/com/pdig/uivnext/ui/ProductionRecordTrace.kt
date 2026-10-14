@@ -96,6 +96,23 @@ internal fun productionRecordScopeCount(
     scope: ProductionRecordScope,
 ): Int = productionRecordsForScope(records, scope).size
 
+/**
+ * A small Now-page action hint derived strictly from the same authoritative
+ * PlanAction records that drive the Records status chips. The null case means
+ * no attention state was reported, NOT that the system has been proven safe.
+ */
+internal fun productionVerificationAttentionText(
+    records: List<VNextProductionRecordItem>,
+): String? {
+    val pending = productionRecordScopeCount(records, ProductionRecordScope.NEEDS_VERIFICATION)
+    val failed = productionRecordScopeCount(records, ProductionRecordScope.FAILED)
+    if (pending == 0 && failed == 0) return null
+    return listOfNotNull(
+        if (pending > 0) "${pending} 项待验证" else null,
+        if (failed > 0) "${failed} 项验证失败" else null,
+    ).joinToString(" · ")
+}
+
 internal fun productionRecordsByPlan(
     records: List<VNextProductionRecordItem>,
 ): List<List<VNextProductionRecordItem>> =
