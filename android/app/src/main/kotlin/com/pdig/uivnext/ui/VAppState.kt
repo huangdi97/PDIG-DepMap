@@ -38,7 +38,7 @@ class VAppState(
      * Records verification lens is ephemeral consumer navigation state.
      * It never changes the authoritative PlanAction, evidence or timeline.
      */
-    var productionRecordsScope by mutableStateOf(ProductionRecordScope.ALL)
+    internal var productionRecordsScope by mutableStateOf(ProductionRecordScope.ALL)
 
 
     private var privacyMaskState by mutableStateOf(initialWorkspacePreferences.privacyMask)
