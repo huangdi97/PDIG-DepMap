@@ -36,16 +36,39 @@ def xml_nodes():
 def label_of(node):
     return (node.get("text") or "") + " " + (node.get("content-desc") or "")
 
+def parse_android_bounds(raw):
+    """Only accept a real, non-empty Android UIAutomator rect [x1,y1][x2,y2].
+
+    UIAutomator exposes Compose text inputs as android.widget.EditText while
+    labels are children: never target a label or guess a fixed screen point.
+    """
+    match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", raw or "")
+    if match is None:
+        return None
+    x1, y1, x2, y2 = map(int, match.groups())
+    return (x1, y1, x2, y2) if x2 > x1 and y2 > y1 else None
+
+
+def find_single_alias_editor(nodes):
+    """Return the only actual editable field and its bounds; fail closed otherwise."""
+    editors = [
+        (node, parse_android_bounds(node.get("bounds")))
+        for node in nodes
+        if node.get("class") == "android.widget.EditText"
+    ]
+    valid = [(node, bounds) for node, bounds in editors if bounds is not None]
+    return valid[0] if len(editors) == 1 and len(valid) == 1 else None
+
+
 def tap_match(label, exact=False, prefer_bottom=False):
     matches = []
     for node in xml_nodes():
         desc = label_of(node)
         if (desc.strip() == label if exact else label in desc):
-            bounds = re.findall(r"\d+", node.get("bounds") or "")
-            if len(bounds) == 4:
-                x1, y1, x2, y2 = map(int, bounds)
-                if x2 > x1 and y2 > y1:
-                    matches.append(((x1 + x2) // 2, (y1 + y2) // 2, desc))
+            bounds = parse_android_bounds(node.get("bounds"))
+            if bounds is not None:
+                x1, y1, x2, y2 = bounds
+                matches.append(((x1 + x2) // 2, (y1 + y2) // 2, desc))
     if not matches:
         return False
     if prefer_bottom:
@@ -102,18 +125,14 @@ def enter_dialog_text_verified(value, evidence_name):
     tap on the label can leave the field unfocused, silently saving an empty
     alias. Only actual UI read-back permits committing the dialog.
     """
-    editors = [
-        node for node in xml_nodes()
-        if node.get("class") == "android.widget.EditText"
-        and len(re.findall(r"\\d+", node.get("bounds") or "")) == 4
-    ]
-    if len(editors) != 1:
+    editor = find_single_alias_editor(xml_nodes())
+    if editor is None:
         capture(evidence_name + "-editor-unavailable")
         raise RuntimeError(
-            f"Expected exactly one editable alias field, got {len(editors)}; "
-            "refusing to claim a successful rename"
+            "Expected exactly one Android EditText with a valid UIAutomator "
+            "bounds rect; refusing to claim a successful rename"
         )
-    x1, y1, x2, y2 = map(int, re.findall(r"\\d+", editors[0].get("bounds")))
+    _, (x1, y1, x2, y2) = editor
     adb("shell", "input", "tap", (x1+x2)//2, (y1+y2)//2)
     time.sleep(0.8)
     focused = [
