@@ -101,6 +101,17 @@ internal fun productionRecordsByPlan(
 ): List<List<VNextProductionRecordItem>> =
     records.groupBy { it.planId }.values.map { it.toList() }
 
+/** Scan-friendly per-plan counts; never a temporal ordering or a health score. */
+internal fun productionRecordGroupStatusText(
+    items: List<VNextProductionRecordItem>,
+): String = ProductionRecordScope.entries
+    .filter { it != ProductionRecordScope.ALL }
+    .mapNotNull { scope ->
+        val count = productionRecordScopeCount(items, scope)
+        if (count == 0) null else "${scope.label} ${count}"
+    }
+    .joinToString(" · ")
+
 @Composable
 internal fun ProductionRecordPlanGroup(
     items: List<VNextProductionRecordItem>,
@@ -145,6 +156,12 @@ internal fun ProductionRecordPlanGroup(
                 }
             }
         }
+        Text(
+            productionRecordGroupStatusText(items),
+            color = PdigV2Colors.TextSecondary,
+            fontSize = 12.sp,
+            modifier = Modifier.testTag("pdig.production-vnext.records.plan-status"),
+        )
         items.forEach { record -> ProductionRecordTraceItem(record, privacyMask) }
     }
 }
