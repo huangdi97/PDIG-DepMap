@@ -7,6 +7,29 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class R11NavigationAndAliasesTest {
+    @Test fun recordAttentionEntryIsFocusedWhileNormalRootBrowsingRemainsComplete() {
+        val app = VAppState()
+        app.openProductionVerificationAttention()
+        assertEquals(VScreen.RECORDS, app.screen)
+        assertEquals(ProductionRecordScope.ATTENTION, app.productionRecordsScope)
+
+        app.productionRecordsScope = ProductionRecordScope.FAILED
+        app.openProductionPlan("plan-1", "replace_phone_number")
+        assertEquals(VScreen.CHANGE_PHONE, app.screen)
+        app.back()
+        assertEquals(VScreen.RECORDS, app.screen)
+        assertEquals(ProductionRecordScope.FAILED, app.productionRecordsScope)
+
+        app.navigate(VScreen.NOW)
+        app.navigate(VScreen.RECORDS)
+        assertEquals(ProductionRecordScope.ALL, app.productionRecordsScope)
+
+        app.openProductionVerificationAttention()
+        assertEquals(ProductionRecordScope.ATTENTION, app.productionRecordsScope)
+        app.navigate(VScreen.RECORDS)
+        assertEquals(ProductionRecordScope.ALL, app.productionRecordsScope)
+    }
+
     @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
             listOf(
