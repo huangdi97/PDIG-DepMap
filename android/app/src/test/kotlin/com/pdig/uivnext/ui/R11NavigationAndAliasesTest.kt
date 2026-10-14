@@ -30,6 +30,27 @@ class R11NavigationAndAliasesTest {
         assertEquals(ProductionRecordScope.ALL, app.productionRecordsScope)
     }
 
+    @Test fun focusedRecordActionReturnsToItsOriginalFilterAndCannotNavigateUnsupportedPlan() {
+        val app = VAppState()
+        app.openProductionVerificationAttention()
+        app.productionRecordsScope = ProductionRecordScope.FAILED
+        app.openProductionPlan("governed-plan", "replace_phone_number", "verify-step")
+        assertEquals(VScreen.CHANGE_PHONE, app.screen)
+        assertEquals("governed-plan", app.selectedProductionPlanId)
+        assertEquals("verify-step", app.selectedProductionActionId)
+        app.back()
+        assertEquals(VScreen.RECORDS, app.screen)
+        assertEquals(ProductionRecordScope.FAILED, app.productionRecordsScope)
+        // Reopen without specific-record focus: no sticky/hidden selected step.
+        app.openProductionPlan("governed-plan", "replace_phone_number")
+        assertEquals(null, app.selectedProductionActionId)
+        app.back()
+        assertEquals(VScreen.RECORDS, app.screen)
+        app.openProductionPlan("invalid", "unsupported_scenario", "not-an-action")
+        assertEquals(VScreen.RECORDS, app.screen)
+        assertEquals("governed-plan", app.selectedProductionPlanId)
+    }
+
     @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
             listOf(
