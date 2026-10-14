@@ -150,6 +150,31 @@ class ProductionRecordTraceTest {
     }
 
     @Test
+    fun attentionLensCombinesOnlyGenuinelyPendingOrFailedStatesInSourceOrder() {
+        val original = listOf(
+            record("verified-a", state = VNextProductionRecordState.VERIFIED),
+            record("pending-a", state = VNextProductionRecordState.PENDING_VERIFICATION),
+            record("complete-a", state = VNextProductionRecordState.RECORDED_COMPLETE),
+            record("failed-a", state = VNextProductionRecordState.VERIFICATION_FAILED),
+            record("pending-b", planId = "plan-b",
+                state = VNextProductionRecordState.PENDING_VERIFICATION),
+        )
+        assertEquals(
+            listOf("pending-a", "failed-a", "pending-b"),
+            productionRecordsForScope(original, ProductionRecordScope.ATTENTION).map { it.id },
+        )
+        assertEquals(3, productionRecordScopeCount(original, ProductionRecordScope.ATTENTION))
+        assertEquals(5, productionRecordScopeCount(original, ProductionRecordScope.ALL))
+        assertEquals(0, productionRecordScopeCount(emptyList(), ProductionRecordScope.ATTENTION))
+        assertEquals(5, original.size)
+        assertTrue(original.all { it.occurredAt == null && it.evidenceRefs.isEmpty() })
+        assertEquals(
+            "待验证 2 · 验证失败 1",
+            productionRecordGroupStatusText(productionRecordsForScope(original, ProductionRecordScope.ATTENTION)),
+        )
+    }
+
+    @Test
     fun traceGroupsOnlyByActualPlanWithoutInventingChronologicalOrder() {
         val first = record("a1", planId = "a", state = VNextProductionRecordState.RECORDED_COMPLETE)
         val second = record("b1", planId = "b", state = VNextProductionRecordState.VERIFIED)
