@@ -70,6 +70,32 @@ internal fun productionRecordPlanMask(
     targetMasked: Boolean,
 ): Boolean = !planReadable || targetMasked
 
+/**
+ * Read-only verification status lens. These are states of real PlanActions,
+ * not a synthetic chronological timeline or risk/health scores.
+ */
+internal enum class ProductionRecordScope(
+    val label: String,
+    val state: VNextProductionRecordState?,
+) {
+    ALL("全部", null),
+    NEEDS_VERIFICATION("待验证", VNextProductionRecordState.PENDING_VERIFICATION),
+    COMPLETED("已记录完成", VNextProductionRecordState.RECORDED_COMPLETE),
+    VERIFIED("已验证", VNextProductionRecordState.VERIFIED),
+    FAILED("验证失败", VNextProductionRecordState.VERIFICATION_FAILED),
+}
+
+internal fun productionRecordsForScope(
+    records: List<VNextProductionRecordItem>,
+    scope: ProductionRecordScope,
+): List<VNextProductionRecordItem> =
+    if (scope.state == null) records else records.filter { it.state == scope.state }
+
+internal fun productionRecordScopeCount(
+    records: List<VNextProductionRecordItem>,
+    scope: ProductionRecordScope,
+): Int = productionRecordsForScope(records, scope).size
+
 internal fun productionRecordsByPlan(
     records: List<VNextProductionRecordItem>,
 ): List<List<VNextProductionRecordItem>> =
