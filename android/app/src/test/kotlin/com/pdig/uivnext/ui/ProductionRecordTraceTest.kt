@@ -130,6 +130,26 @@ class ProductionRecordTraceTest {
     }
 
     @Test
+    fun nowShowsOnlyAuthoritativePendingAndFailedVerificationAttention() {
+        val none = listOf(
+            record("done", state = VNextProductionRecordState.RECORDED_COMPLETE),
+            record("verified", state = VNextProductionRecordState.VERIFIED),
+        )
+        assertEquals(null, productionVerificationAttentionText(emptyList()))
+        assertEquals(null, productionVerificationAttentionText(none))
+
+        val pending = record("waiting", state = VNextProductionRecordState.PENDING_VERIFICATION)
+        val failed = record("retry", state = VNextProductionRecordState.VERIFICATION_FAILED)
+        val mixed = listOf(none.first(), pending, failed, none.last())
+        assertEquals("1 项待验证 · 1 项验证失败", productionVerificationAttentionText(mixed))
+        assertEquals("1 项待验证", productionVerificationAttentionText(listOf(pending)))
+        assertEquals("1 项验证失败", productionVerificationAttentionText(listOf(failed)))
+        // This consumer projection must not append records, timestamps or evidence.
+        assertEquals(4, mixed.size)
+        assertTrue(mixed.all { it.occurredAt == null && it.evidenceRefs.isEmpty() })
+    }
+
+    @Test
     fun traceGroupsOnlyByActualPlanWithoutInventingChronologicalOrder() {
         val first = record("a1", planId = "a", state = VNextProductionRecordState.RECORDED_COMPLETE)
         val second = record("b1", planId = "b", state = VNextProductionRecordState.VERIFIED)
