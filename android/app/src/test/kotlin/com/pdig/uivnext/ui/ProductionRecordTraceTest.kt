@@ -93,6 +93,38 @@ class ProductionRecordTraceTest {
     }
 
     @Test
+    fun verificationStatusFiltersOnlyReadGovernedActionState() {
+        val source = listOf(
+            record("done", state = VNextProductionRecordState.RECORDED_COMPLETE),
+            record("pending", state = VNextProductionRecordState.PENDING_VERIFICATION),
+            record("verified", state = VNextProductionRecordState.VERIFIED),
+            record("failed", state = VNextProductionRecordState.VERIFICATION_FAILED),
+        )
+        assertEquals(4, productionRecordScopeCount(source, ProductionRecordScope.ALL))
+        assertEquals(
+            listOf("pending"),
+            productionRecordsForScope(source, ProductionRecordScope.NEEDS_VERIFICATION).map { it.id },
+        )
+        assertEquals(
+            listOf("done"),
+            productionRecordsForScope(source, ProductionRecordScope.COMPLETED).map { it.id },
+        )
+        assertEquals(
+            listOf("verified"),
+            productionRecordsForScope(source, ProductionRecordScope.VERIFIED).map { it.id },
+        )
+        assertEquals(
+            listOf("failed"),
+            productionRecordsForScope(source, ProductionRecordScope.FAILED).map { it.id },
+        )
+        assertEquals(0, productionRecordScopeCount(emptyList(), ProductionRecordScope.FAILED))
+        // Status filtering does not create verification evidence or occurrence times.
+        assertTrue(source.all { it.occurredAt == null && it.evidenceRefs.isEmpty() })
+        assertEquals(4, source.size)
+        assertTrue(productionRecordsByPlan(source).single().size == 4)
+    }
+
+    @Test
     fun traceGroupsOnlyByActualPlanWithoutInventingChronologicalOrder() {
         val first = record("a1", planId = "a", state = VNextProductionRecordState.RECORDED_COMPLETE)
         val second = record("b1", planId = "b", state = VNextProductionRecordState.VERIFIED)
