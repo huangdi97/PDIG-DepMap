@@ -94,6 +94,49 @@ def tap_retry(label, exact=False, prefer_bottom=False, retries=6):
     return False
 
 
+def enter_dialog_text_verified(value, evidence_name):
+    """Type into the actual editable Compose field, not its decorative label.
+
+    ADB returning exit code 0 only proves an input event was dispatched. In an
+    AlertDialog the label and EditText may be separate accessibility nodes; a
+    tap on the label can leave the field unfocused, silently saving an empty
+    alias. Only actual UI read-back permits committing the dialog.
+    """
+    editors = [
+        node for node in xml_nodes()
+        if node.get("class") == "android.widget.EditText"
+        and len(re.findall(r"\\d+", node.get("bounds") or "")) == 4
+    ]
+    if len(editors) != 1:
+        capture(evidence_name + "-editor-unavailable")
+        raise RuntimeError(
+            f"Expected exactly one editable alias field, got {len(editors)}; "
+            "refusing to claim a successful rename"
+        )
+    x1, y1, x2, y2 = map(int, re.findall(r"\\d+", editors[0].get("bounds")))
+    adb("shell", "input", "tap", (x1+x2)//2, (y1+y2)//2)
+    time.sleep(0.8)
+    focused = [
+        node for node in xml_nodes()
+        if node.get("class") == "android.widget.EditText" and node.get("focused") == "true"
+    ]
+    if len(focused) != 1:
+        capture(evidence_name + "-unfocused")
+        raise RuntimeError("Alias editor never gained input focus")
+    adb("shell", "input", "text", value)
+    time.sleep(1.2)
+    current = [
+        node.get("text", "") for node in xml_nodes()
+        if node.get("class") == "android.widget.EditText"
+    ]
+    if current != [value]:
+        capture(evidence_name + "-text-not-entered")
+        raise RuntimeError(
+            f"Alias editor read-back differs from requested value: "
+            f"expected={value!r} got={current!r}"
+        )
+    print("EDITABLE_VALUE_VERIFIED", evidence_name, repr(value), flush=True)
+
 def wait_globe_texture(max_wait=65):
     # A near-black placeholder is NOT accepted as proof of the designed Earth.
     end = time.monotonic() + max_wait
@@ -817,11 +860,27 @@ def main():
         raise RuntimeError("Number alias edit control unavailable")
     if not any("给号码命名" in label_of(n) for n in xml_nodes()):
         raise RuntimeError("Number alias dialog did not open")
-    if not tap_retry("自定义名称（可留空）", exact=True):
-        raise RuntimeError("Number alias text input was not focusable")
-    adb("shell", "input", "text", "HK-Main")
+    enter_dialog_text_verified("HK-Main", "08ba-number-alias")
     if not tap_retry("保存名称", exact=True):
-        raise RuntimeError("Number alias could not be saved")
+        raise RuntimeError("Number alias save action was not reachable")
+    # A successful ADB tap does NOT guarantee an accepted Compose save. Wait
+    # until the dialog is gone and the edited identity is displayed by the
+    # actual detail screen; keep both failure screenshot and semantics if not.
+    for _ in range(8):
+        nodes = xml_nodes()
+        labels = [label_of(n) for n in nodes]
+        if not any("给号码命名" in x for x in labels) and any(
+            "HK-Main" in x for x in labels
+        ):
+            break
+        time.sleep(0.7)
+    else:
+        capture("08bb-number-rename-save-not-reflected")
+        diagnose_navigation("08bb-number-rename-save-not-reflected")
+        raise RuntimeError(
+            "Number alias was verified in the editor but did not appear "
+            "in the detail after saving"
+        )
     capture("08bb-number-renamed")
     require_screen("08bb-number-renamed", "HK-Main")
     if not tap_retry("号码外观 →", exact=True):
