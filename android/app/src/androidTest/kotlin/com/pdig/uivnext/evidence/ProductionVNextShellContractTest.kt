@@ -3,6 +3,8 @@ package com.pdig.uivnext.evidence
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -152,6 +154,19 @@ class ProductionVNextShellContractTest {
         // The Now projection cannot invent a timestamp, a success or an evidence ref.
         compose.onNodeWithText("100%", substring = true).assertDoesNotExist()
         compose.onNodeWithText("全部安全", substring = true).assertDoesNotExist()
+
+        // The selected state is exposed semantically, not just by blue pixels.
+        compose.runOnIdle { session.appState.navigate(VScreen.RECORDS) }
+        compose.waitForIdle()
+        val all = "pdig.production-vnext.records.scope.all"
+        val waiting = "pdig.production-vnext.records.scope.needs_verification"
+        compose.onNodeWithTag(all).assertIsSelected()
+        compose.onNodeWithTag(waiting).assertIsNotSelected()
+        compose.onNodeWithTag(waiting).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag(all).assertIsNotSelected()
+        compose.onNodeWithTag(waiting).assertIsSelected()
+        compose.onNodeWithText("验证轨迹 · 1 项").assertExists()
     }
 
     @Test
