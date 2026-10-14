@@ -21,6 +21,7 @@ import com.pdig.uivnext.production.VNextProductionImpact
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionPlan
 import com.pdig.uivnext.production.VNextProductionRecordItem
+import com.pdig.uivnext.production.VNextProductionRecordState
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSourceItem
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
@@ -41,7 +42,7 @@ class ProductionVNextShellContractTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private fun session(): ProductionVNextSession {
+    private fun session(records: List<VNextProductionRecordItem> = emptyList()): ProductionVNextSession {
         val snapshot = VNextProductionSnapshot(
             revision = 21,
             objects = listOf(
@@ -117,8 +118,40 @@ class ProductionVNextShellContractTest {
         )
         return ProductionVNextSession(
             appState = VAppState(),
-            dataSource = FakeProductionSource(snapshot),
+            dataSource = FakeProductionSource(snapshot, records),
         )
+    }
+
+    @Test
+    fun productionNowShowsRecordedVerificationWorkWithoutInventingAnAllClear() {
+        val records = listOf(
+            VNextProductionRecordItem(
+                id = "waiting", planId = "plan-a", planTitle = "迁移手机号",
+                scenario = "replace_phone_number", actionId = "waiting",
+                actionTitle = "验证恢复路径", phase = "verify",
+                state = VNextProductionRecordState.PENDING_VERIFICATION,
+                evidenceRefs = emptyList(), occurredAt = null,
+            ),
+            VNextProductionRecordItem(
+                id = "failed", planId = "plan-a", planTitle = "迁移手机号",
+                scenario = "replace_phone_number", actionId = "failed",
+                actionTitle = "测试登录", phase = "verify",
+                state = VNextProductionRecordState.VERIFICATION_FAILED,
+                evidenceRefs = emptyList(), occurredAt = null,
+            ),
+        )
+        val session = session(records)
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+        compose.waitForIdle()
+        compose.onNodeWithText("需要验证的操作").assertExists()
+        compose.onNodeWithText("1 项待验证 · 1 项验证失败").assertExists()
+        // The Now projection cannot invent a timestamp, a success or an evidence ref.
+        compose.onNodeWithText("100%", substring = true).assertDoesNotExist()
+        compose.onNodeWithText("全部安全", substring = true).assertDoesNotExist()
     }
 
     @Test
@@ -394,6 +427,7 @@ class ProductionVNextShellContractTest {
 
     private class FakeProductionSource(
         private val snapshot: VNextProductionSnapshot,
+        private val records: List<VNextProductionRecordItem>,
     ) : VNextRuntimeDataSource {
         override val mode: VNextRuntimeDataMode = VNextRuntimeDataMode.PRODUCTION_REALITY
 
@@ -409,7 +443,7 @@ class ProductionVNextShellContractTest {
 
         override fun productionPlan(planId: String): VNextProductionPlan? = null
 
-        override fun productionRecords(): List<VNextProductionRecordItem> = emptyList()
+        override fun productionRecords(): List<VNextProductionRecordItem> = records
 
         override fun productionFindings(): VNextProductionFindingReport =
             VNextProductionFindingReport(
