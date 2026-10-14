@@ -12,11 +12,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -74,8 +76,17 @@ internal fun ProductionChangePlanScreen(
     val targetMasked = productionChangeTargetMasked(
         session.appState, current.scenario, current.targetNodeId,
     )
+    val requestedActionId = session.appState.selectedProductionActionId
+    val focusedIndex = productionFocusedActionLazyIndex(current, requestedActionId, targetMasked)
+    val listState = rememberLazyListState()
+    LaunchedEffect(planId, requestedActionId) {
+        // Navigation focus is UI-only. It scrolls to a still-authoritative
+        // PlanAction and never calls completeAction / verifyAction.
+        if (focusedIndex != null) listState.scrollToItem(focusedIndex)
+    }
 
     LazyColumn(
+        state = listState,
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.change-plan"),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -165,6 +176,11 @@ internal fun ProductionChangePlanScreen(
                 fontWeight = FontWeight.Bold,
             )
         }
+        if (requestedActionId != null && focusedIndex == null) {
+            item {
+                ChangeBoundaryNote("此前选择的步骤已不在当前正式计划中；请重新核对当前权威步骤。")
+            }
+        }
 
         items(current.actions, key = { it.id }) { action ->
             ProductionActionCard(
@@ -175,6 +191,7 @@ internal fun ProductionChangePlanScreen(
                     privacyMask = targetMasked,
                 ),
                 privacyMask = targetMasked,
+                focusedFromRecords = requestedActionId == action.id,
                 onComplete = {
                     error = null
                     if (targetMasked) {
@@ -259,6 +276,24 @@ internal fun ProductionChangePlanScreen(
  * Current is an authoritative plan read; Transition is action progress; After is
  * explicitly an uncommitted expectation. No synthetic after-graph is manufactured.
  */
+/**
+ * Index of the requested live action in the LazyColumn at initial navigation.
+ * No stale record action can be focused or treated as an execution permit.
+ */
+internal fun productionFocusedActionLazyIndex(
+    plan: VNextProductionPlan,
+    actionId: String?,
+    targetMasked: Boolean,
+): Int? {
+    if (actionId.isNullOrBlank()) return null
+    val position = plan.actions.indexOfFirst { it.id == actionId }
+    if (position < 0) return null
+    // Title + stage choreography + truth strip + authority banner + action
+    // section. An unresolved-impact banner and a masking note are optional.
+    return 5 + (if (plan.unresolvedMustChangeKeys.isNotEmpty()) 1 else 0) +
+        (if (targetMasked) 1 else 0) + position
+}
+
 internal data class ProductionChangeStageSummary(
     val current: String,
     val transition: String,
@@ -503,6 +538,7 @@ private fun ProductionActionCard(
     plan: VNextProductionPlan,
     canMutate: Boolean,
     privacyMask: Boolean,
+    focusedFromRecords: Boolean,
     onComplete: () -> Unit,
     onVerify: () -> Unit,
 ) {
@@ -549,15 +585,27 @@ private fun ProductionActionCard(
     }
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
-        color = PdigV2Colors.Surface,
+        modifier = Modifier.fillMaxWidth()
+            .testTag("pdig.production-vnext.change.action.${action.id}"),
+        color = if (focusedFromRecords) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        border = BorderStroke(
+            if (focusedFromRecords) 2.dp else 1.dp,
+            if (focusedFromRecords) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+        ),
     ) {
         Column(
             Modifier.padding(13.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (focusedFromRecords) {
+                Text(
+                    "从记录定位 · 请核对当前步骤",
+                    color = PdigV2Colors.PrimaryText,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(productionVisibleActionTitle(action.title, privacyMask), color = PdigV2Colors.TextPrimary, fontSize = 14.sp,
