@@ -34,6 +34,13 @@ class VAppState(
     var screen by mutableStateOf(initialScreen)
     var regionFilter by mutableStateOf<String?>(null)
 
+    /**
+     * Records verification lens is ephemeral consumer navigation state.
+     * It never changes the authoritative PlanAction, evidence or timeline.
+     */
+    var productionRecordsScope by mutableStateOf(ProductionRecordScope.ALL)
+
+
     private var privacyMaskState by mutableStateOf(initialWorkspacePreferences.privacyMask)
     private var reduceMotionState by mutableStateOf(initialWorkspacePreferences.reduceMotion)
     private var railExpandedState by mutableStateOf(initialWorkspacePreferences.railExpanded)
@@ -150,9 +157,18 @@ class VAppState(
      * Canonical/PersonalReality are completely unaffected.
      */
     fun navigate(next: VScreen) {
+        // A normal first-class Records entry means the complete record collection.
+        // An explicit Now attention shortcut uses openProductionVerificationAttention.
+        if (next == VScreen.RECORDS) productionRecordsScope = ProductionRecordScope.ALL
         if (screen == next) return
         backStack.add(screen)
         screen = next
+    }
+
+    /** Drill straight from a real Now attention into all pending/failed steps. */
+    fun openProductionVerificationAttention() {
+        navigate(VScreen.RECORDS)
+        productionRecordsScope = ProductionRecordScope.ATTENTION
     }
 
     /** 从工具入口进入设置/数据源等辅助页，保留当前页面作为返回目标。 */
