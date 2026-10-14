@@ -144,6 +144,7 @@ internal fun ProductionRecordPlanGroup(
     privacyMask: Boolean = false,
     onOpenPlan: (() -> Unit)? = null,
     onOpenAction: ((String) -> Unit)? = null,
+    openableActionIds: Set<String> = emptySet(),
 ) {
     if (items.isEmpty()) return
     val plan = items.first()
@@ -189,7 +190,14 @@ internal fun ProductionRecordPlanGroup(
             fontSize = 12.sp,
             modifier = Modifier.testTag("pdig.production-vnext.records.plan-status"),
         )
-        items.forEach { record -> ProductionRecordTraceItem(record, privacyMask, onOpenAction) }
+        // A cached historical action without a current governed PlanAction
+        // remains readable but is not presented as a clickable ghost route.
+        items.forEach { record ->
+            ProductionRecordTraceItem(
+                record, privacyMask,
+                if (record.actionId in openableActionIds) onOpenAction else null,
+            )
+        }
     }
 }
 
