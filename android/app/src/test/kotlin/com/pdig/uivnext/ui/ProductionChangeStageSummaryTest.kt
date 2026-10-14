@@ -88,6 +88,18 @@ class ProductionChangeStageSummaryTest {
             ),
         )
 
+        // A focused record must land on exactly its live action, including
+        // every conditional header before the LazyColumn actions. It is only a
+        // scroll target, not an execution permit or an invented action.
+        assertEquals(6, productionFocusedActionLazyIndex(plan, "prepare", false))
+        assertEquals(7, productionFocusedActionLazyIndex(plan, "change", false))
+        assertEquals(8, productionFocusedActionLazyIndex(plan, "change", true))
+        assertEquals(null, productionFocusedActionLazyIndex(plan, "deleted", false))
+        assertEquals(null, productionFocusedActionLazyIndex(plan, null, false))
+        assertEquals(6, productionFocusedActionLazyIndex(
+            plan.copy(unresolvedMustChangeKeys = emptyList()), "change", false,
+        ))
+
         val summary = productionChangeStageSummary(plan)
         assertTrue(summary.current.contains("当前图谱修订 9"))
         assertTrue(summary.current.contains("分析基线 8"))
