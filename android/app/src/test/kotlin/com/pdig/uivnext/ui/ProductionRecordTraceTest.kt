@@ -117,6 +117,11 @@ class ProductionRecordTraceTest {
             listOf("failed"),
             productionRecordsForScope(source, ProductionRecordScope.FAILED).map { it.id },
         )
+        assertEquals(
+            "待验证 1 · 已记录完成 1 · 已验证 1 · 验证失败 1",
+            productionRecordGroupStatusText(source),
+        )
+        assertEquals("", productionRecordGroupStatusText(emptyList()))
         assertEquals(0, productionRecordScopeCount(emptyList(), ProductionRecordScope.FAILED))
         // Status filtering does not create verification evidence or occurrence times.
         assertTrue(source.all { it.occurredAt == null && it.evidenceRefs.isEmpty() })
