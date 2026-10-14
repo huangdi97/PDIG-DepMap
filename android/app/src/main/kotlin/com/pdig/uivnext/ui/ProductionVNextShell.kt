@@ -3,6 +3,8 @@ package com.pdig.uivnext.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -770,6 +776,8 @@ private fun ProductionRecords(
     modifier: Modifier,
 ) {
     val records = session.dataSource.productionRecords()
+    var scope by remember(session) { mutableStateOf(ProductionRecordScope.ALL) }
+    val visibleRecords = productionRecordsForScope(records, scope)
     ProductionPage(modifier, "记录", "已记录的操作与验证证据 · 按计划分组") {
         ProductionBoundaryNote(
             "记录按计划和动作分组，不代表按事件发生时间排序。" +
@@ -778,8 +786,44 @@ private fun ProductionRecords(
         if (records.isEmpty()) {
             ProductionEmpty("当前没有已完成或待验证的生产记录。没有记录不代表没有历史。")
         } else {
-            ProductionSection("验证轨迹")
-            productionRecordsByPlan(records).forEach { group ->
+            ProductionSection("验证状态")
+            Row(
+                Modifier.fillMaxWidth()
+                    .horizontalScroll(rememberScrollState())
+                    .testTag("pdig.production-vnext.records.status-filters"),
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
+            ) {
+                ProductionRecordScope.entries.forEach { option ->
+                    val selected = option == scope
+                    Surface(
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp)
+                            .clickable { scope = option }
+                            .testTag("pdig.production-vnext.records.scope.${option.name.lowercase()}"),
+                        color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+                        shape = RoundedCornerShape(VRadius.Md),
+                        border = BorderStroke(
+                            1.dp,
+                            if (selected) PdigV2Colors.PrimaryBright
+                            else PdigV2Colors.BorderSubtle,
+                        ),
+                    ) {
+                        Text(
+                            "${option.label} ${productionRecordScopeCount(records, option)}",
+                            Modifier.padding(horizontal = 12.dp, vertical = 13.dp),
+                            color = if (selected) PdigV2Colors.PrimaryText
+                                else PdigV2Colors.TextSecondary,
+                            fontSize = 12.sp,
+                            fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                        )
+                    }
+                }
+            }
+            if (visibleRecords.isEmpty()) {
+                ProductionEmpty("当前筛选下没有已记录的操作；不表示其他状态或未记录历史不存在。")
+            } else {
+                ProductionSection("验证轨迹 · ${visibleRecords.size} 项")
+            }
+            productionRecordsByPlan(visibleRecords).forEach { group ->
                 // Records are another view of the same governed ChangePlan.
                 // Global-only masking would leak a locally masked phone/card
                 // through the plan's cached title and action labels.
