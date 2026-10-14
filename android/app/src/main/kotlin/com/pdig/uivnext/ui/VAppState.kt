@@ -136,6 +136,9 @@ class VAppState(
     /** Production VNext only: selected authoritative ChangePlan id. */
     var selectedProductionPlanId by mutableStateOf<String?>(null)
 
+    /** UI-only action focus from Records; never a completed/verified domain fact. */
+    internal var selectedProductionActionId by mutableStateOf<String?>(null)
+
     /**
      * Production Reality refresh signal.
      *
@@ -237,14 +240,23 @@ class VAppState(
      * Production read/action binding: open an existing authoritative ChangePlan.
      * Reference flows do not use this id.
      */
-    fun openProductionPlan(planId: String, scenario: String) {
-        navBackTarget = screen
-        selectedProductionPlanId = planId
-        screen = when (scenario) {
+    fun openProductionPlan(
+        planId: String,
+        scenario: String,
+        focusActionId: String? = null,
+    ) {
+        val destination = when (scenario) {
             "replace_payment_card" -> VScreen.CHANGE_CARD
             "replace_phone_number" -> VScreen.CHANGE_PHONE
-            else -> VScreen.CHANGE
+            else -> return // Unsupported scenario cannot silently masquerade as a plan.
         }
+        // Opening a governed plan is real chronological navigation. Merely
+        // storing navBackTarget would make system Back jump over Records.
+        if (screen != destination) backStack.add(screen)
+        navBackTarget = screen
+        selectedProductionPlanId = planId
+        selectedProductionActionId = focusActionId
+        screen = destination
     }
 
     fun chooseReplacementCard(cardId: String?) {
