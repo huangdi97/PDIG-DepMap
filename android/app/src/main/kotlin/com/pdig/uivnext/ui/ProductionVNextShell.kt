@@ -868,6 +868,18 @@ private fun ProductionRecords(
                             }
                         }
                     } else null,
+                    onOpenAction = if (detail != null) {
+                        { actionId ->
+                            // Re-read both plan and action at tap time: a cached
+                            // record may outlive the current governed plan.
+                            val latest = session.dataSource.productionPlan(group.first().planId)
+                            if (latest?.actions?.any { it.id == actionId } == true) {
+                                session.appState.openProductionPlan(
+                                    latest.id, latest.scenario, focusActionId = actionId,
+                                )
+                            }
+                        }
+                    } else null,
                 )
             }
         }
