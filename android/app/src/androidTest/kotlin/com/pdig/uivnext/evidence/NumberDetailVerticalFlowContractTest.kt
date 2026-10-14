@@ -1,7 +1,6 @@
 package com.pdig.uivnext.evidence
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
