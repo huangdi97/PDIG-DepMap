@@ -288,6 +288,7 @@ private fun ProductionNow(
                 subtitle = verificationAttention,
                 meta = "来自已记录的操作状态 · 完成不等于验证",
                 onClick = { app.openProductionVerificationAttention() },
+                testTag = "pdig.production-vnext.now.verification-attention",
             )
         }
         if (findings != null && findings.findings.isNotEmpty()) {
@@ -1281,9 +1282,13 @@ internal fun ProductionFactCard(
     subtitle: String,
     meta: String,
     onClick: (() -> Unit)? = null,
+    testTag: String? = null,
 ) {
-    val cardModifier = if (onClick == null) Modifier.fillMaxWidth()
-    else Modifier.fillMaxWidth().clickable(onClick = onClick)
+    val cardModifier = Modifier
+        .fillMaxWidth()
+        .defaultMinSize(minHeight = 48.dp)
+        .then(if (onClick == null) Modifier else Modifier.clickable(onClick = onClick))
+        .then(if (testTag == null) Modifier else Modifier.testTag(testTag))
     Surface(
         modifier = cardModifier,
         color = PdigV2Colors.Surface,
