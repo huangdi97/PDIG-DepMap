@@ -12,6 +12,7 @@ on:
       - '.github/workflows/android-ui-vnext-phone-pixels.yml'
       - 'docs/ui-vnext/android/ANDROID_R8_REFERENCE_PARITY_AND_RUNTIME_TRUTH_2026-10-08.md'
       - 'android/scripts/ui_vnext_pixel_capture.py'
+      - 'android/scripts/tests/**'
       - 'android/app/src/**/uivnext/**'
       - 'android/app/src/preview/**'
       - 'android/app/build.gradle.kts'
@@ -37,6 +38,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Verify UIAutomator alias editor geometry parser
+        run: python3 -m unittest discover -s android/scripts/tests -p 'test_*.py' -v
       - name: Install pixel inspection dependency
         run: python3 -m pip install --disable-pip-version-check Pillow==11.3.0
       - name: Enable host KVM
