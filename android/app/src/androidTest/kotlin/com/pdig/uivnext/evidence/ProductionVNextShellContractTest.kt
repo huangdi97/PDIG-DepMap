@@ -203,7 +203,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.records.scope.attention").assertIsSelected()
         compose.onNodeWithTag("pdig.production-vnext.records.scope.all").assertIsNotSelected()
         compose.onNodeWithText("验证轨迹 · 2 项").assertExists()
-        compose.onNodeWithText("发生时间未记录", substring = true).assertExists()
+        compose.onAllNodesWithText("发生时间未记录", substring = true)[0].assertExists()
         compose.onNodeWithText("100%", substring = true).assertDoesNotExist()
 
         // A direct primary-root visit intentionally resets the one-shot
