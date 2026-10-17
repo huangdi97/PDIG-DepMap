@@ -293,7 +293,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.me.controls", useUnmergedTree = true)
             .assertExists()
         compose.onNodeWithText("我的数字生活", substring = true).assertIsDisplayed()
-        compose.onNodeWithText("号码 / 邮箱只在受治理 subtype", substring = true).assertExists()
+        compose.onNodeWithText("号码 / 邮箱只在已确认的类型范围内", substring = true).assertExists()
     }
 
     @Test

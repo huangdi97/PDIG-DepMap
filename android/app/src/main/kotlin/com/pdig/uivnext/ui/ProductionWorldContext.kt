@@ -104,9 +104,9 @@ internal fun ProductionWorldContext(
                     }
                     val line = when {
                         inventory.regions.isEmpty() ->
-                            "尚无已确认 RegionFact · 不从币种、号码前缀、品牌或位置推测"
+                            "尚无已确认地区 · 不从币种、号码前缀、品牌或位置推测"
                         projection.unplottableTerritoryCodes.isEmpty() ->
-                            "${inventory.regions.size} 个地区已进入 Region Lens · 地图只显示受治理事实"
+                            "${inventory.regions.size} 个地区已进入地区视图 · 地图只显示已确认事实"
                         else ->
                             "${inventory.regions.size} 个已确认地区 · 地图定位 ${projection.regions.size} 个 · " +
                                 "${projection.unplottableTerritoryCodes.size} 个仅文字展示"
