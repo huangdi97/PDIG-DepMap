@@ -139,10 +139,10 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         RegionScopeBanner(app)
 
         if (!app.emptyDemo) {
-            SectionHeader("连续性 Findings（参考）")
+            SectionHeader("连续性薄弱点（参考）")
             Text(
-                "这里覆盖 v0.3 的完整 Finding 语法。内容来自隔离的 Synthetic Reference，" +
-                    "不是由当前演示边数量临时推导；正式版必须由 Continuity engine 提供。",
+                "以下是隔离预览中的参考薄弱点，用来展示完整的解释结构；" +
+                    "正式版会由连续性分析根据你的已确认关系生成，不会用演示关系数量临时推断。",
                 color = PdigV2Colors.TextMuted,
                 fontSize = 10.sp,
             )
@@ -158,7 +158,7 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
         InfraSummaryHero(
             value = knownWeaknessCount.toString(),
             label = "维护 / 迁移提醒",
-            hint = "与上方 Continuity Findings 分开统计；这里只计算到期、设备复核与迁移阻塞",
+            hint = "与上方连续性薄弱点分开统计；这里只计算到期、设备复核与迁移阻塞",
             warning = knownWeaknessCount > 0,
         )
 
@@ -166,7 +166,7 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             EmptyState(
                 kind = EmptyKind.DEPENDENCIES,
                 title = "当前地区没有已记录的维护 / 迁移提醒",
-                description = "这只表示当前没有这类提醒；Continuity Findings 与未记录依赖仍需分别查看。",
+                description = "这只表示当前没有这类提醒；连续性薄弱点与未记录依赖仍需分别查看。",
                 primaryCta = "查看全球",
                 onPrimary = { app.clearRegion() },
                 secondaryCta = "返回基础设施",
@@ -351,7 +351,7 @@ private fun ContinuityFindingCard(
             ) {
                 LabelChip(continuityFindingLabel(finding.kind), highlight = critical)
                 Text(
-                    if (critical) "已确认事实" else "需要核对",
+                    if (critical) "参考事实" else "需要核对",
                     color = tint,
                     fontSize = 9.sp,
                     fontWeight = FontWeight.SemiBold,

@@ -54,7 +54,7 @@ internal fun R12ContinuityInsight(app: VAppState) {
                             when {
                                 app.emptyDemo -> "暂无已记录连续性上下文"
                                 structuralFindings > 0 ->
-                                    "参考场景含 $structuralFindings 项结构性 Finding；路径数不等于独立路径数"
+                                    "参考记录含 $structuralFindings 项结构性薄弱点；路径数不等于独立路径数"
                                 recoveryNumbers.isNotEmpty() ->
                                     "其中 ${recoveryNumbers.size} 个号码具有恢复用途，迁移前需逐项核对"
                                 else -> "暂无已记录的恢复用途对象"
@@ -92,7 +92,7 @@ internal fun R12ContinuityInsight(app: VAppState) {
                             Text("连续性提示 · ${first.title}", color = R9.Ink,
                                 fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
                                 maxLines = 2)
-                            Text("查看完整 Findings →", color = R9.Blue, fontSize = 9.sp)
+                            Text("查看完整薄弱点 →", color = R9.Blue, fontSize = 9.sp)
                         }
                     }
                 }

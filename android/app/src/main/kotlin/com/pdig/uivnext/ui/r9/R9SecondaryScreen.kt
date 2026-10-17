@@ -110,9 +110,9 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
             }
             VScreen.WEAKNESSES -> {
                 if (!zero) {
-                    R9SectionTitle("连续性 Findings（参考）")
+                    R9SectionTitle("连续性薄弱点（参考）")
                     Text(
-                        "完整覆盖 v0.3 Finding 语法；这里是隔离参考，不从演示关系数量临时推断正式结论。",
+                        "展示完整的连续性解释结构；这里是隔离参考，不从演示关系数量临时推断正式结论。",
                         color = R9.Muted, fontSize = 10.sp, lineHeight = 15.sp,
                     )
                     UI_CONTINUITY_REFERENCE_FINDINGS.forEach { finding ->
@@ -129,7 +129,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 }
                 val devices = if(zero) emptyList() else UiVNextDemoFixture.devices.filter { scoped(it.region) && it.attention }
                 R9CounterBanner(riskyCards.size+recoveryPhones.size+recoveryEmails.size+devices.size,
-                    "维护 / 迁移提醒", "与上方 Continuity Findings 分开；未知关系不包含在计数内")
+                    "维护 / 迁移提醒", "与上方连续性薄弱点分开；未知关系不包含在计数内")
                 riskyCards.forEach { a ->
                     R9ObjectRow(a.nickname, a.issuer, "有效期：${a.expiry}",
                         "核对已记录扣款与绑定", regionFlag(a.region), "▣", "临近到期", R9.Amber,
@@ -271,7 +271,7 @@ private fun R27FindingCard(app: VAppState, finding: UiContinuityFinding) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 R9Badge(continuityFindingLabel(finding.kind), tint)
-                Text(if (critical) "已确认事实" else "需要核对",
+                Text(if (critical) "参考事实" else "需要核对",
                     color = tint, fontSize = 9.sp, fontWeight = FontWeight.SemiBold)
             }
             Text(finding.title, color = R9.Ink, fontSize = 12.sp,

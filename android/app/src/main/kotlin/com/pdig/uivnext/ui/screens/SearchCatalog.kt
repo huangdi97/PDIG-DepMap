@@ -23,7 +23,7 @@ internal val commandTargets = listOf(
     CommandTarget(
         VScreen.WEAKNESSES,
         "薄弱点",
-        "连续性 Findings、恢复、到期与迁移提醒",
+        "连续性薄弱点、恢复、到期与迁移提醒",
         listOf(
             "风险", "恢复", "单点路径", "单点故障", "共享故障点", "故障域",
             "恢复循环", "备用待确认", "关键路径", "待验证", "finding", "spof",

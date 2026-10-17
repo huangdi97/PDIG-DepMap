@@ -39,6 +39,19 @@ class UiVNextContinuityFindingsTest {
     }
 
     @Test
+    fun referenceFindingCopyUsesConsumerChineseWithoutDomainJargon() {
+        val text = UI_CONTINUITY_REFERENCE_FINDINGS.joinToString(" ") {
+            listOf(it.title, it.why, it.confirmedBasis, it.unknowns, it.nextAction).joinToString(" ")
+        }
+        listOf(
+            "Reality", "FailureDomain", "RecoveryCycle", "criticality", "required",
+            "unknown", "done", "verified", "Finding", "Synthetic", "Provider", "Confirmed",
+        ).forEach { term ->
+            assertFalse("consumer copy must not leak '$term': $text", text.contains(term, ignoreCase = true))
+        }
+    }
+
+    @Test
     fun findingGrammarContainsNoHealthScore() {
         val text = UI_CONTINUITY_REFERENCE_FINDINGS.joinToString(" ") {
             listOf(it.title, it.why, it.confirmedBasis, it.unknowns, it.nextAction).joinToString(" ")

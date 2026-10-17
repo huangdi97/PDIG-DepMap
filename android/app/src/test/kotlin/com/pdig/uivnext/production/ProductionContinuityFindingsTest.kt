@@ -117,6 +117,48 @@ class ProductionContinuityFindingsTest {
         assertFalse(report.findings.any { it.id.endsWith(":verified") })
     }
 
+    @Test
+    fun consumerCopyNeverExposesEngineeringJargon() {
+        val report = buildProductionContinuityFindings(
+            graph = ImpactGraph(
+                dependencies = listOf(
+                    recovery("dep-spof", "phone-1", "account-1"),
+                    recovery("dep-a", "a", "b"),
+                    recovery("dep-b", "b", "a"),
+                ),
+                nodeNames = mapOf(
+                    "phone-1" to "主号",
+                    "account-1" to "核心账户",
+                    "a" to "A",
+                    "b" to "B",
+                ),
+            ),
+            proposals = listOf(
+                ProposalRow(
+                    id = "proposal-1",
+                    key = "k",
+                    from = "a",
+                    to = "b",
+                    relation = "recovers",
+                    capability = "recovery",
+                    confidence = 0.99,
+                    observationCount = 9,
+                ),
+            ),
+            plans = listOf(plan(actions = listOf(action("pending", ActionVerificationStatus.PENDING)))),
+        )
+        assertTrue(report.findings.isNotEmpty())
+        val copy = report.findings.flatMap {
+            listOf(it.title, it.why, it.confirmedBasis, it.unknowns, it.recommendedNextAction)
+        }.joinToString(" ")
+        listOf(
+            "Reality", "active recovery", "confirmed cycle", "done=true",
+            "Proposal", "ChangePlan", "core ", "Finding", "Action ",
+        ).forEach { term ->
+            assertFalse("consumer copy must not leak '$term': $copy", copy.contains(term, ignoreCase = true))
+        }
+    }
+
     private fun recovery(id: String, from: String, to: String) = Dependency(
         id = id,
         from = from,

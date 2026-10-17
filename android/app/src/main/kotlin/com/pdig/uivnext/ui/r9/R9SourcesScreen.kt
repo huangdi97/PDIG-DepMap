@@ -117,7 +117,7 @@ internal fun R9SourcesScreen(app: VAppState) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("建立基础设施", color = R9.Ink, fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold)
-                    Text("本机导入 → 确认对象 → 生成待复核关系；不会直接生成 Dependency",
+                    Text("本机导入 → 确认对象 → 生成待复核关系；不会直接生成已确认依赖",
                         color = R9.Muted, fontSize = 9.sp, lineHeight = 14.sp)
                 }
                 Text("查看 →", color = R9.Blue, fontSize = 11.sp)
@@ -141,7 +141,7 @@ internal fun R9SourcesScreen(app: VAppState) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                     Text("待复核", color = R9.Ink, fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold)
-                    Text("Proposal / Candidate / Drift 必须由你确认后才进入 Reality",
+                    Text("关系建议、对象候选与现状漂移必须由你确认后才进入已确认记录",
                         color = R9.Muted, fontSize = 9.sp, lineHeight = 14.sp)
                 }
                 Text("查看 →", color = R9.Blue, fontSize = 11.sp)
