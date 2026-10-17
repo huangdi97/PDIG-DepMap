@@ -876,7 +876,9 @@ private fun ProductionRecords(
                             }
                         }
                     } else null,
-                    openableActionIds = if (supportedRoute) detail?.actions?.map { it.id }?.toSet() ?: emptySet(),
+                    openableActionIds = if (supportedRoute) {
+                        detail?.actions?.map { it.id }?.toSet() ?: emptySet()
+                    } else emptySet(),
                     unavailableActionExplanation = { actionId ->
                         productionRecordNavigationNote(
                             planReadable = detail != null,
