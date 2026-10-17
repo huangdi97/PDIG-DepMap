@@ -237,7 +237,7 @@ class ProductionVNextShellContractTest {
         }
         compose.onNodeWithTag("pdig.production-vnext.world-context", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("尚无已确认 RegionFact", substring = true)
+        compose.onNodeWithText("尚无已确认地区", substring = true)
             .assertExists()
 
         compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).performClick()

@@ -304,7 +304,7 @@ private fun ProductionNow(
         ) {
             ProductionEmpty(
                 if (findings == null)
-                    "当前没有已记录的待处理复核、进行中计划或待验证操作；Finding 暂不可读取，不能据此判断安全。"
+                    "当前没有已记录的待处理复核、进行中计划或待验证操作；连续性发现暂不可读取，不能据此判断安全。"
                 else
                     "当前没有已记录的复核、进行中计划、待验证操作或已报告薄弱点；未知不等于安全。"
             )
@@ -318,9 +318,9 @@ private fun ProductionNow(
         if (visibleTimeline.isEmpty()) {
             ProductionEmpty(
                 if (app.showUpcoming)
-                    "当前没有可投影的 Timeline 项；不表示没有未来事项。"
+                    "当前没有可展示的时间节点；不表示没有未来事项。"
                 else
-                    "尚无 attention / overdue / today 记录；不表示没有未来事项。"
+                    "尚无需要关注、已逾期或今天的记录；不表示没有未来事项。"
             )
         } else {
             visibleTimeline.take(8).forEach { item ->
@@ -368,7 +368,7 @@ private fun ProductionNow(
         ProductionFactCard(
             title = "查看全部基础设施",
             subtitle = "资产、通信身份、关系与弱点统一查看",
-            meta = "以已确认 Reality 为准；搜索不到不代表不存在",
+            meta = "以已确认记录为准；搜索不到不代表不存在",
             onClick = { app.navigate(VScreen.INFRASTRUCTURE) },
         )
     }
@@ -416,14 +416,14 @@ private fun ProductionInfrastructure(
         if (selectedRegion == null)
             "只展示当前正式数据模型能够明确识别的对象类型"
         else
-            "地区筛选：${TerritoryPresentationCatalog.displayName(selectedRegion.territoryCode)} · 来自已确认 RegionFact",
+            "地区筛选：${TerritoryPresentationCatalog.displayName(selectedRegion.territoryCode)} · 来自已确认地区记录",
     ) {
         ProductionWorldContext(app, snapshot, inventory)
         ProductionInventorySummary(inventory)
 
         ProductionSection("地区事实")
         if (inventory.regions.isEmpty()) {
-            ProductionEmpty("尚无已确认 RegionFact；不会从币种、号码前缀、品牌或位置推测地区。")
+            ProductionEmpty("尚无已确认地区；不会从币种、号码前缀、品牌或位置推测地区。")
         } else {
             if (selectedRegion != null) {
                 ProductionFactCard(
@@ -484,7 +484,7 @@ private fun ProductionInfrastructure(
             Triple(
                 VScreen.WEAKNESSES,
                 findings?.findings?.size,
-                if (findings == null) "权威 Finding 暂不可用"
+                if (findings == null) "权威连续性发现暂不可用"
                 else "${findings.supportedTypes.size} 类权威输入",
             ),
         ).chunked(2).forEach { row ->
@@ -635,7 +635,7 @@ private fun ProductionCardDetail(
                 ProductionFactCard(
                     title = label,
                     subtitle = value,
-                    meta = "已确认 Maintenance Reality",
+                    meta = "已确认的维护资料",
                 )
             }
             card.annualFeeSchedule?.let { schedule ->
@@ -716,7 +716,7 @@ private fun ProductionCardDetail(
         )
 
         ProductionBoundaryNote(
-            "年费、账单日、还款日与自动还款只来自受治理 maintenance_profile；分期摘要仍不属于 Canonical v1，不会从账单/交易或参考图推断。"
+            "年费、账单日、还款日与自动还款只来自已确认的维护资料；分期摘要仍不在正式数据范围内，不会从账单、交易或参考图推断。"
         )
     }
 }
@@ -948,7 +948,7 @@ private fun ProductionMe(
     }
     val findingCount = findings?.findings?.size
 
-    ProductionPage(modifier, "我", "我的数字生活 · 生产 Reality 工作区") {
+    ProductionPage(modifier, "我", "我的数字生活 · 正式数据工作区") {
         ProductionMetricRow(
             listOf(
                 snapshot.revision to "图谱修订",
@@ -999,14 +999,14 @@ private fun ProductionMe(
                 ) {
                     ProductionMeControlPanel(app, inventory)
                     ProductionBoundaryNote(
-                        "地区仍受 Canonical 能力门控制；号码 / 邮箱只在受治理 subtype 已确认时进入专用身份面，仍不会用名称、格式、币种或 Provider 猜测。"
+                        "地区仍受正式能力范围限制；号码 / 邮箱只在已确认的类型范围内进入专用身份面，仍不会用名称、格式、币种或服务商猜测。"
                     )
                 }
             }
         }
 
         ProductionBoundaryNote(
-            "这里展示的对象、关系、计划、发现与记录来自当前正式数据链；Preview 生命周期和地区 fixture 不会混入 Production Reality。"
+            "这里展示的对象、关系、计划、发现与记录来自当前正式数据链；预览用的生命周期和地区演示数据不会混入正式记录。"
         )
     }
 }
@@ -1037,7 +1037,7 @@ private fun ProductionMeContinuityPanel(
             ProductionMeLine(
                 value = pendingReview.toString(),
                 title = "待复核",
-                detail = if (pendingReview == 0) "当前没有待人工决定项" else "Proposal / Candidate / Drift 等待决定",
+                detail = if (pendingReview == 0) "当前没有待人工决定项" else "关系建议 / 对象候选 / 现状漂移等待决定",
                 onClick = { app.navigate(VScreen.REVIEW) },
             )
             ProductionMeLine(
@@ -1050,7 +1050,7 @@ private fun ProductionMeContinuityPanel(
                 value = findingCount?.toString() ?: "—",
                 title = "连续性发现",
                 detail = if (findingCount == null)
-                    "权威 Finding 当前不可读取"
+                    "权威连续性发现当前不可读取"
                 else "${supportedFindingTypes ?: 0} 类权威输入 · 不产生健康分",
                 onClick = { app.navigate(VScreen.WEAKNESSES) },
             )
@@ -1132,7 +1132,7 @@ private fun ProductionMeControlPanel(
             ProductionFactCard(
                 title = "隐私与偏好",
                 subtitle = if (app.privacyMask) "敏感信息遮蔽：已开启" else "敏感信息遮蔽：已关闭",
-                meta = "本机 Presentation 偏好，不修改 Reality",
+                meta = "本机显示偏好，不修改已确认记录",
                 onClick = { app.navigate(VScreen.SETTINGS) },
             )
             ProductionFactCard(

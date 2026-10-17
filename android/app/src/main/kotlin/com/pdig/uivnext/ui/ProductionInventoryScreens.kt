@@ -96,7 +96,7 @@ internal fun ProductionInventoryCategoryScreen(
                     if (selectedRegion == null)
                         "只显示当前已确认数据中能够明确分类的对象。"
                     else
-                        "地区筛选：${TerritoryPresentationCatalog.displayName(selectedRegion)} · 只使用已确认 RegionFact 成员关系。",
+                        "地区筛选：${TerritoryPresentationCatalog.displayName(selectedRegion)} · 只使用已确认的地区成员关系。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -268,13 +268,13 @@ internal fun ProductionInventoryCategoryScreen(
         item {
             when (screen) {
                 VScreen.CARDS -> ProductionObjectBoundary(
-                    "年费、账单日、还款日、自动还款与维护节点只展示受治理 maintenance_profile 的已确认 Reality；分期摘要仍不属于 Canonical v1。"
+                    "年费、账单日、还款日、自动还款与维护节点只展示已确认的维护资料；分期摘要仍不在正式数据范围内。"
                 )
                 VScreen.NUMBERS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 PHONE_NUMBER 的对象。套餐、续费与保号节点只来自该号码的 maintenance_profile；运营商、SIM/eSIM 与恢复语义仍不会由号码、名称或维护资料推断。"
+                    "这里只有已确认手机号类型的对象。套餐、续费与保号节点只来自该号码已确认的维护资料；运营商、SIM/eSIM 与恢复语义仍不会由号码、名称或维护资料推断。"
                 )
                 VScreen.EMAILS -> ProductionObjectBoundary(
-                    "这里只有受治理 identity_anchor_profile 已确认 EMAIL_ADDRESS 的对象。若 nested identifier 也已确认，可显示真实邮箱值；地区只来自已确认 RegionFact，Provider 与恢复语义仍不会由邮箱或名称推断。"
+                    "这里只有已确认邮箱类型的对象。若具体邮箱地址也已确认，可显示真实值；地区只来自已确认的地区记录，服务商与恢复语义仍不会由邮箱或名称推断。"
                 )
                 VScreen.DEVICES -> ProductionObjectBoundary(
                     "设备的认证/恢复能力尚未进入正式数据模型；不会根据设备名称猜测它具备哪些能力。"
@@ -422,7 +422,7 @@ internal fun ProductionGenericObjectDetailScreen(
                                 fontWeight = FontWeight.SemiBold,
                             )
                             Text(
-                                "本机 Presentation · 不修改号码 Reality",
+                                "本机显示 · 不修改号码记录",
                                 color = PdigV2Colors.TextMuted,
                                 fontSize = 9.sp,
                             )
@@ -454,7 +454,7 @@ internal fun ProductionGenericObjectDetailScreen(
                     ProductionFactCard(
                         title = productionMaintenanceFactLabel(fact.kind),
                         subtitle = productionMaintenanceFactValue(fact.kind, fact.value),
-                        meta = "已确认 Maintenance Reality · " +
+                        meta = "已确认的维护资料 · " +
                             productionIdentityBasisLabel(fact.verificationBasisType),
                     )
                 }
@@ -577,13 +577,13 @@ internal fun ProductionGenericObjectDetailScreen(
             when (detailScreen) {
                 VScreen.NUMBER_DETAIL -> ProductionObjectBoundary(
                     if (item.identityIdentifierValue != null)
-                        "号码值来自独立确认的 identifier Reality；资费/保号只读取 maintenance_profile；运营商、SIM/eSIM、恢复路径仍必须来自各自的受治理事实。"
+                        "号码值来自独立确认的身份记录；资费/保号只读取已确认的维护资料；运营商、SIM/eSIM、恢复路径仍必须来自各自已确认的事实。"
                     else
-                        "当前只确认“这是手机号身份”，具体号码值仍未记录；即使存在维护计划，也不会从名称、地区或 Provider 猜测号码值。"
+                        "当前只确认“这是手机号身份”，具体号码值仍未记录；即使存在维护计划，也不会从名称、地区或服务商猜测号码值。"
                 )
                 VScreen.EMAIL_DETAIL -> ProductionObjectBoundary(
                     if (item.identityIdentifierValue != null)
-                        "邮箱值来自独立确认的 identifier Reality；Provider 与恢复路径仍必须来自各自的受治理事实。"
+                        "邮箱值来自独立确认的身份记录；服务商与恢复路径仍必须来自各自已确认的事实。"
                     else
                         "当前只确认“这是邮箱身份”，具体邮箱值仍未记录；不会从名称或关系猜测。"
                 )
