@@ -27,6 +27,28 @@ class ProductionRecordTraceTest {
     )
 
     @Test
+    fun historicalRecordsExplainWhyTheirGovernedActionCannotBeOpened() {
+        assertEquals(
+            null,
+            productionRecordNavigationNote(
+                planReadable = true, routeSupported = true, actionPresent = true,
+            ),
+        )
+        assertEquals(
+            "当前正式计划无法读取 · 仅保留操作记录",
+            productionRecordNavigationNote(false, false, false),
+        )
+        assertEquals(
+            "当前版本尚未提供此变更类型的步骤页面 · 仅保留操作记录",
+            productionRecordNavigationNote(true, false, true),
+        )
+        assertEquals(
+            "对应步骤已不在当前正式计划中 · 仅保留操作记录",
+            productionRecordNavigationNote(true, true, false),
+        )
+    }
+
+    @Test
     fun unknownOccurrenceTimeIsNeverFabricatedAndEvidenceCountIsGrounded() {
         val item = record("a", state = VNextProductionRecordState.VERIFIED)
         val projected = productionRecordPresentation(item)
