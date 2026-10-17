@@ -11,6 +11,9 @@ public object CanonicalSpec {
     public const val APP_SCHEMA_VERSION: Int = 3
     public const val GRAPH_PAYLOAD_KIND: String = "depmap-logical-graph"
     public const val GRAPH_PAYLOAD_VERSION: Int = 3
+    public val RUNTIME_CREATABLE_NODE_KINDS: Set<String> = setOf("payment_instrument", "account", "service")
+    public val RUNTIME_CREATABLE_IDENTITY_ANCHOR_SUBTYPES: Set<String> = setOf("phone_number", "email_address")
+    public val ISO_3166_ALPHA2_TERRITORY_CODES: Set<String> = setOf("AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW")
 }
 
 public enum class NodeKind(public val wire: String) {
@@ -25,6 +28,132 @@ public enum class NodeKind(public val wire: String) {
 
     public companion object {
         public fun fromWire(value: String): NodeKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class IdentityAnchorSubtype(public val wire: String) {
+    PHONE_NUMBER("phone_number"),
+    EMAIL_ADDRESS("email_address"),
+    OTHER_IDENTITY("other_identity")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): IdentityAnchorSubtype? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class RegionFacet(public val wire: String) {
+    ISSUANCE_JURISDICTION("issuance_jurisdiction"),
+    NUMBERING_TERRITORY("numbering_territory"),
+    PROVIDER_JURISDICTION("provider_jurisdiction"),
+    SERVICE_MARKET("service_market"),
+    PHYSICAL_LOCATION("physical_location"),
+    USER_CONFIRMED_CONTEXT("user_confirmed_context")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): RegionFacet? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class RegionFactState(public val wire: String) {
+    CONFIRMED("confirmed"),
+    RETIRED("retired")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): RegionFactState? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceFactKind(public val wire: String) {
+    CARD_ANNUAL_FEE_AMOUNT("card_annual_fee_amount"),
+    CARD_ANNUAL_FEE_CURRENCY("card_annual_fee_currency"),
+    CARD_BILLING_DAY("card_billing_day"),
+    CARD_PAYMENT_DUE_DAY("card_payment_due_day"),
+    CARD_AUTOPAY_MODE("card_autopay_mode"),
+    NUMBER_BILLING_MODE("number_billing_mode"),
+    NUMBER_PLAN_COST("number_plan_cost"),
+    NUMBER_PLAN_CURRENCY("number_plan_currency"),
+    NUMBER_RENEWAL_METHOD("number_renewal_method")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceFactKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceScheduleKind(public val wire: String) {
+    CARD_ANNUAL_FEE_CHECKPOINT("card_annual_fee_checkpoint"),
+    CARD_BILLING_CHECKPOINT("card_billing_checkpoint"),
+    CARD_PAYMENT_DUE_CHECKPOINT("card_payment_due_checkpoint"),
+    NUMBER_KEEP_ALIVE("number_keep_alive"),
+    NUMBER_PLAN_RENEWAL("number_plan_renewal"),
+    FACT_FRESHNESS_REVIEW("fact_freshness_review"),
+    CUSTOM_MAINTENANCE("custom_maintenance")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceScheduleKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceFactState(public val wire: String) {
+    CONFIRMED("confirmed"),
+    RETIRED("retired")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceFactState? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceScheduleState(public val wire: String) {
+    ACTIVE("active"),
+    PAUSED("paused"),
+    NEEDS_REVIEW("needs_review"),
+    RETIRED("retired")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceScheduleState? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceValueType(public val wire: String) {
+    DECIMAL_STRING("decimal_string"),
+    CURRENCY_CODE("currency_code"),
+    INTEGER("integer"),
+    TEXT("text"),
+    BOOLEAN("boolean")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceValueType? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceCadenceKind(public val wire: String) {
+    ONE_TIME("one_time"),
+    MONTHLY_DAY("monthly_day"),
+    YEARLY_MONTH_DAY("yearly_month_day"),
+    INTERVAL_DAYS("interval_days"),
+    MANUAL_ONLY("manual_only")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceCadenceKind? = entries.firstOrNull { it.wire == value }
+    }
+}
+
+public enum class MaintenanceOverflowPolicy(public val wire: String) {
+    CLAMP_TO_LAST_DAY("clamp_to_last_day"),
+    SKIP_OCCURRENCE("skip_occurrence"),
+    USER_CONFIRM("user_confirm")
+    ;
+
+    public companion object {
+        public fun fromWire(value: String): MaintenanceOverflowPolicy? = entries.firstOrNull { it.wire == value }
     }
 }
 

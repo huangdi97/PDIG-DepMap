@@ -1,0 +1,280 @@
+package com.pdig.uivnext.ui.screens
+
+import com.pdig.uivnext.capability.VNextCapability
+import com.pdig.uivnext.capability.hasProductionAuthority
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.pdig.uivnext.model.MediaBreakpoint
+import com.pdig.uivnext.model.VScreen
+import com.pdig.uivnext.theme.PdigV2Colors
+import com.pdig.uivnext.theme.VRadius
+
+/**
+ * R24 Manual Establish reference.
+ *
+ * This screen freezes the consumer design and intentionally exposes no Save button
+ * in Preview. Production now has a governed manual-node authority/gateway, but
+ * Preview stays isolated and production screen binding is a separate cutover gate.
+ */
+@Composable
+internal fun R24ManualEstablishScreen(
+    app: com.pdig.uivnext.ui.VAppState,
+    breakpoint: MediaBreakpoint,
+) {
+    val productionAuthorityReady = hasProductionAuthority(VNextCapability.MANUAL_CREATE)
+    val maxWidth = when (breakpoint) {
+        MediaBreakpoint.COMPACT -> 640.dp
+        MediaBreakpoint.MEDIUM -> 820.dp
+        MediaBreakpoint.EXPANDED -> 940.dp
+    }
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .widthIn(max = maxWidth)
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = if (breakpoint == MediaBreakpoint.COMPACT) 13.dp else 22.dp,
+                    vertical = if (breakpoint == MediaBreakpoint.COMPACT) 12.dp else 20.dp,
+                )
+                .testTag("pdig.r24.manual-establish"),
+            verticalArrangement = Arrangement.spacedBy(14.dp),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(
+                    "手工记录",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = if (breakpoint == MediaBreakpoint.COMPACT) 22.sp else 27.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    "适合你明确知道、但暂时没有可导入来源的基础设施。",
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 11.sp,
+                )
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth().testTag("pdig.r24.manual.truth-boundary"),
+                color = PdigV2Colors.PrimarySoft.copy(alpha = 0.64f),
+                shape = RoundedCornerShape(VRadius.Xl),
+                border = BorderStroke(1.dp, PdigV2Colors.Primary.copy(alpha = 0.18f)),
+            ) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        "你确认的对象可以成为 Reality；关系仍要单独确认",
+                        color = PdigV2Colors.PrimaryText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        "记录“有这个对象”不等于自动记录它与其他对象的依赖关系；手机号/邮箱的 subtype 与 identifier 也不会自动变成恢复语义。",
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 10.sp,
+                        lineHeight = 16.sp,
+                    )
+                }
+            }
+
+            ManualSectionTitle("当前 Canonical runtime creation set", "设计对齐")
+            ManualTypeCard(
+                "支付工具",
+                "payment_instrument",
+                "可表达卡片/支付工具的基础身份；详细生命周期字段仍按 R19 proposal 治理。",
+                PdigV2Colors.PrimaryBright,
+                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
+            )
+            ManualTypeCard(
+                "账户",
+                "account",
+                "记录一个访问/控制对象；认证与恢复关系必须单独确认。",
+                PdigV2Colors.Positive,
+                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
+            )
+            ManualTypeCard(
+                "服务",
+                "service",
+                "记录订阅、银行网银或其他依赖端点；存在对象不证明当前仍订阅。",
+                PdigV2Colors.Warning,
+                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
+            )
+
+            ManualSectionTitle("受治理身份对象", "R37 subtype + R38 identifier")
+            ManualTypeCard(
+                "手机号 / 邮箱",
+                "identity_anchor + governed profile",
+                "正式生产 authority 已支持把 Node、受治理 subtype 与用户确认的 identifier value 在同一事务中建立；Preview 仍保持只读，不会写入 Reality。",
+                PdigV2Colors.PrimaryBright,
+                if (productionAuthorityReady) "正式 authority 已就绪 · Preview 只读"
+                else "正式 authority 待接 · Preview 只读",
+            )
+
+            ManualSectionTitle("其他已知对象类型", "不要制造 ghost capability")
+            ManualTypeCard(
+                "其他身份",
+                "identity_anchor(other_identity / unknown)",
+                "未确认手机号/邮箱 subtype 与 identifier 的通用身份仍保持通用对象，不会靠名称、格式或关系猜测。",
+                PdigV2Colors.Warning,
+                "HOLD",
+            )
+            ManualTypeCard(
+                "设备",
+                "device",
+                "Canonical 可存储该 kind，但当前 runtime creation set 未把它开放为通用手工创建入口。",
+                PdigV2Colors.TextMuted,
+                "HOLD",
+            )
+            ManualTypeCard(
+                "会员 / 自定义",
+                "membership / custom",
+                "保留为存储语义；正式产品入口需先定义用途、验证与跨端行为。",
+                PdigV2Colors.TextMuted,
+                "HOLD",
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth()
+                    .testTag("pdig.r25.manual-relation.entry")
+                    .clickable { app.navigate(VScreen.MANUAL_RELATION) },
+                color = PdigV2Colors.Surface,
+                shape = RoundedCornerShape(VRadius.Lg),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Row(
+                    Modifier.padding(14.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text("已经有对象？设计一条关系", color = PdigV2Colors.TextPrimary,
+                            fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Text("From → Relation → To；关系确认与对象创建保持分离",
+                            color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                    }
+                    Text("查看 →", color = PdigV2Colors.PrimaryText, fontSize = 10.sp)
+                }
+            }
+
+            Surface(
+                modifier = Modifier.fillMaxWidth().testTag("pdig.r24.manual.preview-disabled"),
+                color = PdigV2Colors.SurfaceRaised,
+                shape = RoundedCornerShape(VRadius.Lg),
+                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+            ) {
+                Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                    Text(
+                        "当前 Preview 不提供“保存”按钮",
+                        color = PdigV2Colors.TextPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        if (productionAuthorityReady)
+                            "正式 authority 已存在，但 Preview 仍保持只读，不能把参考环境当成生产 Reality。"
+                        else
+                            "原因不是 UI 没画完，而是正式 VNext 还没有经过 AppContainer 暴露并测试的手工 Reality mutation authority。" +
+                                "在 authority 落地前，添加一个可点击的“保存”会制造假能力。",
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 10.sp,
+                        lineHeight = 16.sp,
+                    )
+                }
+            }
+
+            ManualSectionTitle("正式版提交语义", "production binding")
+            ManualFlowLine("1", "选择受支持对象类型")
+            ManualFlowLine("2", "填写最小身份字段；手机号/邮箱同时明确确认 subtype 与 identifier value")
+            ManualFlowLine("3", "确认“这个对象存在”以及你明确填写的事实")
+            ManualFlowLine("4", "通过 authoritative Reality transaction 原子创建 Node / governed profile 并 bump graphRevision")
+            ManualFlowLine("5", "任何依赖关系继续走单独确认 / Human Review")
+
+            Spacer(Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun ManualTypeCard(
+    title: String,
+    canonical: String,
+    description: String,
+    tint: Color,
+    state: String,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(title, color = PdigV2Colors.TextPrimary, fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold)
+                Surface(color = tint.copy(alpha = 0.12f), shape = RoundedCornerShape(VRadius.Sm)) {
+                    Text(state, Modifier.padding(horizontal = 7.dp, vertical = 3.dp),
+                        color = tint, fontSize = 8.sp, fontWeight = FontWeight.SemiBold)
+                }
+            }
+            Text(canonical, color = PdigV2Colors.TextMuted, fontSize = 8.sp)
+            Text(description, color = PdigV2Colors.TextSecondary, fontSize = 10.sp, lineHeight = 16.sp)
+        }
+    }
+}
+
+@Composable
+private fun ManualSectionTitle(title: String, trailing: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        Text(title, color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text(trailing, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+    }
+}
+
+@Composable
+private fun ManualFlowLine(number: String, text: String) {
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Surface(color = PdigV2Colors.PrimarySoft, shape = RoundedCornerShape(VRadius.Sm)) {
+            Text(number, Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                color = PdigV2Colors.PrimaryText, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        }
+        Text(text, Modifier.weight(1f), color = PdigV2Colors.TextSecondary,
+            fontSize = 10.sp, lineHeight = 16.sp)
+    }
+}

@@ -1,0 +1,35 @@
+{
+  "id": "region-fact-rg07-same-priority-conflict",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-07 conflicting same-priority confirmed facts require review",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-gb\",\"facet\":\"service_market\",\"territory_code\":\"GB\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"},{\"id\":\"rf-us\",\"facet\":\"service_market\",\"territory_code\":\"US\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-gb",
+        "facet": "service_market",
+        "territoryCode": "GB",
+        "state": "confirmed"
+      },
+      {
+        "id": "rf-us",
+        "facet": "service_market",
+        "territoryCode": "US",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-gb",
+      "rf-us"
+    ],
+    "lens": {
+      "status": "needs_review",
+      "facet": "service_market"
+    }
+  }
+}

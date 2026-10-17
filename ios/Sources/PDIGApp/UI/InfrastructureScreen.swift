@@ -1,4 +1,5 @@
-// 基础设施屏（task #6：按对象 / 按能力）+ 节点详情（task #7：六问卡）。
+// 基础设施屏（按对象 / 按能力）+ 节点详情。
+// 分组文案保持用户语义：身份与恢复 / 访问与认证 / 支付 / 设备 / 关键服务（copy-zh.capabilityXxx）。
 
 import SwiftUI
 import PDIGCore
@@ -23,24 +24,31 @@ struct InfrastructureScreen: View {
                     ? InfrastructureViewModel.byItem(session.snapshot)
                     : InfrastructureViewModel.byCapability(session.snapshot)
                 if groups.isEmpty {
-                    Text(CopyZh.emptyTitle).foregroundStyle(.secondary).padding(.top, 64)
+                    EmptyState(
+                        icon: "building.2",
+                        title: CopyZh.emptyTitle,
+                        message: "还没有可展示的基础设施对象。导入账单或从备份恢复后，这里会列出它们。",
+                        actionTitle: "导入账单"
+                    ) {
+                        session.push(.importFlow)
+                    }
                 } else {
                     VStack(alignment: .leading, spacing: 14) {
                         ForEach(groups) { group in
                             VStack(alignment: .leading, spacing: 6) {
-                                Text(group.title).font(.headline)
+                                SectionHeader(group.title)
                                 ForEach(group.members) { m in
                                     Button {
                                         session.push(.node(m.id))
                                     } label: {
-                                        HStack {
-                                            Text(m.name).font(.body)
-                                            Text(m.kindLabel).font(.caption).foregroundStyle(.tertiary)
-                                            Spacer()
-                                            Text(m.summary).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                        PdigCard {
+                                            HStack {
+                                                Text(m.name).font(.body)
+                                                Text(m.kindLabel).font(.caption).foregroundStyle(.tertiary)
+                                                Spacer()
+                                                Text(m.summary).font(.caption).foregroundStyle(.secondary).lineLimit(1)
+                                            }
                                         }
-                                        .padding(8)
-                                        .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
                                     }
                                     .buttonStyle(.plain)
                                 }
@@ -72,17 +80,17 @@ struct NodeDetailScreen: View {
                         HStack {
                             Text(detail.node.name).font(.title2.bold())
                             Text(detail.kindLabel).font(.caption).padding(4)
-                                .background(Color.gray.opacity(0.15), in: Capsule())
+                                .background(PdigTheme.Color.primarySoft, in: Capsule())
+                                .foregroundStyle(PdigTheme.Color.primary)
                             Spacer()
                         }
                         ForEach(detail.cards) { card in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(card.title).font(.subheadline.weight(.semibold))
-                                Text(card.body).font(.footnote).foregroundStyle(.secondary)
+                            PdigCard {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(card.title).font(.subheadline.weight(.semibold))
+                                    Text(card.body).font(.footnote).foregroundStyle(.secondary)
+                                }
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(10)
-                            .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                         }
                     }
                     .padding()

@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "R9.0",
+  "project": "PDIG / DepMap",
+  "sourceReference": "PDIG数字基础设施产品展示板.png",
+  "sourceReferenceDimensions": [
+    1536,
+    1024
+  ],
+  "kind": "human_approved_visual_direction_not_pixel_goldens",
+  "selection": "LIGHT_FIRST_PHONE",
+  "truth": {
+    "previewSyntheticOnly": true,
+    "presentationIsNotPersonalReality": true,
+    "afterIsPlanProjection": true,
+    "unknownIsNotSafe": true,
+    "canonicalUntouched": true
+  },
+  "breakpoints": {
+    "phoneMaxDp": 599,
+    "mediumMinDp": 600,
+    "expandedMinDp": 840
+  },
+  "rules": [
+    "Capture one exact SHA from installable previewDebug, not Compose @Preview.",
+    "Composables and routes must belong to R9 package for phone Preview.",
+    "Onboarding continues to work, but is not used as visual parity proof.",
+    "Do not train/rebaseline against an unapproved result or a tiny collage thumbnail.",
+    "Real screen screenshots and human visual comparison required before freeze.",
+    "Each visual scene uses current fixture data; no fabricated link or safe-status.",
+    "R9 pixel proof must visit all five infrastructure secondary destinations and see the distinct R9 page text."
+  ],
+  "screens": [
+    {
+      "id": "now",
+      "referencePanel": "1-phone-now",
+      "route": "NOW",
+      "r9File": "R9NowScreen.kt",
+      "designZone": [
+        "TopChrome",
+        "Greeting",
+        "GlobeHero",
+        "RegionIdentityPills",
+        "AssetCounterRail",
+        "AttentionPriority",
+        "BottomNav"
+      ],
+      "visualTarget": {
+        "globeDominant": true,
+        "background": "white/ice/sky",
+        "regions": "chips attached to globe",
+        "attention": "one high priority with summary",
+        "financialIdentity": "counts with semantic colors"
+      },
+      "runtimeGate": [
+        "pdig.r9.screen.now",
+        "pdig.r9.world.stage"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "overview",
+      "referencePanel": "2-phone-infrastructure",
+      "route": "OVERVIEW",
+      "r9File": "R9InfrastructureScreen.kt",
+      "designZone": [
+        "Search",
+        "FourByTwoObjectEntry",
+        "RegionGlobe",
+        "RegionList"
+      ],
+      "runtimeGate": [
+        "pdig.r9.screen.infrastructure",
+        "pdig.r9.infrastructure.categories"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "cards",
+      "referencePanel": "3-phone-cards",
+      "route": "CARDS",
+      "r9File": "R9AssetsScreen.kt",
+      "designZone": [
+        "Filters",
+        "CardIdentityPreview",
+        "IssuerMeta",
+        "RegionCurrency",
+        "ExpiryRisk",
+        "RegionStatusNetworkFilterBar"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING",
+      "runtimeGate": [
+        "pdig.r9.cards.filters.options"
+      ],
+      "behaviorGate": [
+        "select-expiring-status",
+        "only-expiring-card-visible",
+        "clear-status",
+        "all-cards-visible",
+        "region-and-network-sourced-from-current-data"
+      ]
+    },
+    {
+      "id": "card-detail",
+      "referencePanel": "4-phone-card-detail",
+      "route": "CARD_DETAIL",
+      "r9File": "R9CardDetail.kt",
+      "designZone": [
+        "CardFace",
+        "State",
+        "FourWorkingTabs",
+        "ServiceIdentity",
+        "Customization"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "change-phone",
+      "referencePanel": "6-phone-change-step1",
+      "route": "CHANGE_PHONE",
+      "r9File": "R9ContinuityScreens.kt",
+      "referenceFlowState": "impact-analysis-step1",
+      "fixtureFlowState": "verify-new-number-step3",
+      "mustCompareSameStage": true,
+      "designZone": [
+        "ProjectionChoice",
+        "SixStageMini",
+        "CentralOldNumber",
+        "OrbitingServices",
+        "NextNumber",
+        "TaskDetails"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING",
+      "reviewChecklist": "Read-only truth-preserving active verification checklist, shown only on request; does not advance state",
+      "runtimeGate": [
+        "pdig.r9.change.review-checklist",
+        "pdig.r9.change.review-contents"
+      ]
+    },
+    {
+      "id": "tablet-now",
+      "referencePanel": "7-tablet-now",
+      "route": "NOW",
+      "r9File": "R19AdaptiveWorldScene.kt + NowScreen.kt",
+      "designZone": [
+        "FivePrimaryRail",
+        "GpuWorldStage",
+        "CameraProjectedRegionLabels",
+        "Attention",
+        "ActiveChanges",
+        "Upcoming"
+      ],
+      "runtimeGate": [
+        "pdig.r19.adaptive-world-stage",
+        "pdig.nav.me"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "desktop-cards",
+      "referencePanel": "8-desktop-cards",
+      "route": "CARDS",
+      "r9File": "CardsScreen.kt",
+      "designZone": [
+        "FivePrimaryRail",
+        "DenseAssetList",
+        "SelectedCardInspector",
+        "LifecycleFacts",
+        "FocusedDetailEntry"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "desktop-change",
+      "referencePanel": "9-desktop-change",
+      "route": "CHANGE_PHONE",
+      "r9File": "ChangePhoneScreen.kt",
+      "designZone": [
+        "FivePrimaryRail",
+        "ProjectionChoice",
+        "ContinuityRail",
+        "OldServiceNewThreePane",
+        "TruthBoundedImpactSummary"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "numbers",
+      "referencePanel": null,
+      "route": "NUMBERS",
+      "r9File": "R9AssetsScreen.kt",
+      "designZone": [
+        "CommunicationIdentity",
+        "Carrier",
+        "Region",
+        "SIM",
+        "Recovery"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "number-detail",
+      "referencePanel": null,
+      "route": "NUMBER_DETAIL",
+      "r9File": "R9NumberDetail.kt",
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "me",
+      "referencePanel": null,
+      "route": "ME",
+      "r9File": "R10MeScreen.kt",
+      "adaptiveFile": "R19MeWorkspace.kt",
+      "designZone": [
+        "FifthPrimaryDestination",
+        "KeyIdentity",
+        "ContinuitySummary",
+        "Privacy",
+        "GlobalDistribution",
+        "PersonalManagement"
+      ],
+      "runtimeGate": [
+        "pdig.nav.me",
+        "pdig.r10.screen.me",
+        "pdig.r19.me.medium",
+        "pdig.r19.me.workspace"
+      ],
+      "truthRules": [
+        "recovery use is not unique recovery",
+        "summary counts never imply completeness or safety",
+        "Me is a root destination and has no hierarchical Up"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "records",
+      "referencePanel": null,
+      "route": "RECORDS",
+      "r9File": "R9ContinuityScreens.kt",
+      "designZone": [
+        "ActiveChange",
+        "CompactTimeline",
+        "Attention",
+        "Upcoming",
+        "ConnectedVerifiedTimeline"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING",
+      "runtimeGate": [
+        "pdig.r9.records.timeline"
+      ]
+    },
+    {
+      "id": "accounts",
+      "route": "ACCOUNTS",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "emails",
+      "route": "EMAILS",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "devices",
+      "route": "DEVICES",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "services",
+      "route": "SERVICES",
+      "r9File": "R9SecondaryScreen.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ObjectIdentity",
+        "KnownRelations",
+        "RiskOrUnknown",
+        "RegionContext"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "weaknesses",
+      "route": "WEAKNESSES",
+      "r9File": "R9SecondaryScreen.kt",
+      "adaptiveFile": "InfraSecondaryScreens.kt",
+      "referencePanel": null,
+      "designZone": [
+        "ContinuityFindingGrammar",
+        "ConfirmedBasis",
+        "ExplicitUnknowns",
+        "RecommendedNextAction",
+        "MaintenanceAndMigrationReminders",
+        "RegionContext"
+      ],
+      "requiredStates": [
+        "single-point-of-failure",
+        "shared-failure-domain",
+        "recovery-cycle",
+        "unconfirmed-fallback",
+        "stale-recovery-information",
+        "unknown-critical-path",
+        "pending-verification",
+        "honest-empty"
+      ],
+      "forbidden": [
+        "global-health-score",
+        "path-count-as-independent-path-count",
+        "compose-edge-count-as-failure-domain-solver",
+        "unknown-as-safe"
+      ],
+      "status": "R27_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "card-image",
+      "route": "CARD_CUSTOMIZATION",
+      "r9File": "R10CardImageStudio.kt",
+      "adaptiveFile": "R19CardImageStudio.kt",
+      "designZone": [
+        "LiveCardPreview",
+        "SystemGalleryPicker",
+        "BuiltInPictureGrid",
+        "SaveAndReturn"
+      ],
+      "requiredInteractions": [
+        "select-built-in-picture",
+        "pick-local-picture",
+        "re-render-preview",
+        "save-local-presentation",
+        "return-to-card-detail",
+        "reuse-saved-picture-in-list-inspector-detail"
+      ],
+      "forbiddenControls": [
+        "material",
+        "layout",
+        "hex-color",
+        "internal-preset-id"
+      ],
+      "runtimeGate": [
+        "pdig.r19.card-image.workspace",
+        "pdig.customization.preview",
+        "pdig.r10.card-art.choose-photo",
+        "pdig.r10.card-art.choice.ocean",
+        "pdig.r10.card-art.save"
+      ],
+      "status": "R19_SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    },
+    {
+      "id": "number-studio",
+      "route": "NUMBER_CUSTOMIZATION",
+      "r9File": "R9StudioScreen.kt",
+      "requiredInteractions": [
+        "select-theme",
+        "re-render-preview",
+        "save-presentation",
+        "return-to-number-detail"
+      ],
+      "status": "SOURCE_IMPLEMENTED_RUNTIME_PENDING"
+    }
+  ]
+}

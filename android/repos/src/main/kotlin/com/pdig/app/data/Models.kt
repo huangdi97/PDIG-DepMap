@@ -6,7 +6,55 @@ import com.pdig.core.sources.Observation
 // 只读投影行（UI 与 Repository 共用的贫血模型；SQL 语义见各 Repository）
 // ---------------------------------------------------------------------------
 
-data class NodeRow(val id: String, val kind: String, val name: String, val archived: Boolean, val fieldsJson: String)
+data class NodeRow(
+    val id: String,
+    val kind: String,
+    val name: String,
+    val archived: Boolean,
+    val fieldsJson: String,
+    val issuer: String? = null,
+    val last4: String? = null,
+)
+
+data class ManualNodeCreateRequest(
+    val kind: com.pdig.core.generated.NodeKind,
+    val name: String,
+    val issuer: String? = null,
+    val last4: String? = null,
+)
+
+data class ManualNodeCreateResult(
+    val node: NodeRow,
+    val graphRevision: Int,
+)
+
+data class MaintenanceWriteResult(
+    val node: NodeRow,
+    val graphRevision: Int,
+)
+
+data class ManualIdentityAnchorCreateRequest(
+    val subtype: com.pdig.core.generated.IdentityAnchorSubtype,
+    val name: String,
+    val identifierValue: String,
+)
+
+data class ManualDependencyCreateRequest(
+    val fromNodeId: String,
+    val relation: com.pdig.core.generated.Relation,
+    val toNodeId: String,
+    val capability: com.pdig.core.generated.Capability,
+    /** false = keep/default unknown; true = explicit human confirmation of required. */
+    val required: Boolean = false,
+)
+
+data class ManualDependencyCreateResult(
+    val dependency: DependencyRow,
+    val graphRevision: Int,
+    val created: Boolean,
+    val reactivated: Boolean,
+)
+
 data class DependencyRow(
     val id: String,
     val from: String,

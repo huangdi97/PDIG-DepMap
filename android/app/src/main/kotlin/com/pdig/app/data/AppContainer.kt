@@ -128,7 +128,54 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
     ): ImportPreview = sourceRepo.previewImport(observations, errors, adapterId, sourceLabel)
 
     /** 用户确认后提交：一次事务内完成，失败整体回滚。 */
-    fun commitImport(preview: ImportPreview): ImportCommitResult = sourceRepo.commitImport(preview)
+    fun commitImport(
+        preview: ImportPreview,
+        existingSourceId: String? = null,
+    ): ImportCommitResult = sourceRepo.commitImport(preview, existingSourceId)
+
+    // ------------------------------------------------------------------
+    // Manual Establish（显式用户 Reality mutation；Preview 仍不调用）
+    // ------------------------------------------------------------------
+
+    /**
+     * 手工建立一个 Canonical runtime-creatable Node。
+     *
+     * 仅创建对象，不创建任何 Dependency；Repository 在同一事务内 bump graphRevision。
+     */
+    fun createManualNode(request: ManualNodeCreateRequest): ManualNodeCreateResult =
+        graphRepo.createManualNode(request)
+
+    /**
+     * Phone/email establishment is a dedicated authority: Node + governed subtype +
+     * confirmed identifier are committed atomically with one graphRevision bump.
+     */
+    fun createManualIdentityAnchor(
+        request: ManualIdentityAnchorCreateRequest,
+    ): ManualNodeCreateResult = graphRepo.createManualIdentityAnchor(request)
+
+    fun createManualDependency(
+        request: ManualDependencyCreateRequest,
+    ): ManualDependencyCreateResult =
+        graphRepo.createManualDependency(request)
+
+    /** Confirm a governed node maintenance fact in encrypted Personal Reality. */
+    fun confirmMaintenanceFact(
+        nodeId: String,
+        request: com.pdig.core.domain.MaintenanceFactWrite,
+    ): MaintenanceWriteResult = graphRepo.confirmMaintenanceFact(nodeId, request)
+
+    /** Confirm coupled governed facts with one graphRevision mutation. */
+    fun confirmMaintenanceFacts(
+        nodeId: String,
+        requests: List<com.pdig.core.domain.MaintenanceFactWrite>,
+    ): MaintenanceWriteResult = graphRepo.confirmMaintenanceFacts(nodeId, requests)
+
+    /** Confirm a governed node maintenance schedule in encrypted Personal Reality. */
+    fun confirmMaintenanceSchedule(
+        nodeId: String,
+        request: com.pdig.core.domain.MaintenanceScheduleWrite,
+    ): MaintenanceWriteResult = graphRepo.confirmMaintenanceSchedule(nodeId, request)
+
 
     // ------------------------------------------------------------------
     // Impacts（复用 core.impact，UI 不自行推导）

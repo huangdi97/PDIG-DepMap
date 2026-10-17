@@ -1,0 +1,9 @@
+{
+  "assertions": [
+    {"editedThemeId": "glass"},
+    {"reopenedThemeId": "glass"},
+    {"reopenedLayout": "emblem"},
+    {"reopenedBackgroundKind": "imported"},
+    {"canonicalUntouched": "true"}
+  ]
+}

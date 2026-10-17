@@ -1,0 +1,29 @@
+{
+  "id": "region-fact-rg01-confirmed-cn",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-01 confirmed CN territory fact round-trips",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-cn\",\"facet\":\"issuance_jurisdiction\",\"territory_code\":\"CN\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-cn",
+        "facet": "issuance_jurisdiction",
+        "territoryCode": "CN",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-cn"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "CN",
+      "facet": "issuance_jurisdiction"
+    }
+  }
+}

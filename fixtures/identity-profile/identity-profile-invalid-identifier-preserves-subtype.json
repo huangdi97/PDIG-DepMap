@@ -1,0 +1,19 @@
+{
+  "id": "identity-profile-invalid-identifier-preserves-subtype",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R38 governed identity identifier contract",
+  "description": "malformed identifier fails closed while valid confirmed subtype remains active",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"email_address\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\",\"identifier\":{\"value\":\"\",\"verification_basis_type\":\"machine_guess\",\"confirmed_at\":\"\"}}}"
+  },
+  "expected": {
+    "confirmed": true,
+    "subtype": "email_address",
+    "verificationBasisType": "user_confirmed",
+    "confirmedAt": "2026-10-10T00:00:00Z",
+    "evidenceRefs": []
+  }
+}

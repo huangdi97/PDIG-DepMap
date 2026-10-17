@@ -49,7 +49,7 @@ fun TimelineScreen(ui: UiState) {
                                 item.subtitle,
                                 item.scheduledAt?.let { "计划时间：${it.take(19)}" },
                             ).joinToString(" · "),
-                            trailing = { StatusChip(item.bucket, ChipTone.NEUTRAL) },
+                            trailing = { StatusChip(BUCKET_LABELS.firstOrNull { it.first == item.bucket }?.second ?: item.bucket, ChipTone.NEUTRAL) },
                         )
                     }
                 }
