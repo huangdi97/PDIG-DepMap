@@ -72,6 +72,22 @@ internal fun productionRecordPlanMask(
 ): Boolean = !planReadable || targetMasked
 
 /**
+ * A recorded PlanAction can outlive its live plan or be from a scenario this
+ * consumer has no focused detail route for. Such entries are valuable evidence,
+ * but MUST NOT advertise an inert navigation control.
+ */
+internal fun productionRecordNavigationNote(
+    planReadable: Boolean,
+    routeSupported: Boolean,
+    actionPresent: Boolean,
+): String? = when {
+    !planReadable -> "当前正式计划无法读取 · 仅保留操作记录"
+    !routeSupported -> "当前版本尚未提供此变更类型的步骤页面 · 仅保留操作记录"
+    !actionPresent -> "对应步骤已不在当前正式计划中 · 仅保留操作记录"
+    else -> null
+}
+
+/**
  * Read-only verification status lens. These are states of real PlanActions,
  * not a synthetic chronological timeline or risk/health scores.
  */
@@ -145,6 +161,7 @@ internal fun ProductionRecordPlanGroup(
     onOpenPlan: (() -> Unit)? = null,
     onOpenAction: ((String) -> Unit)? = null,
     openableActionIds: Set<String> = emptySet(),
+    unavailableActionExplanation: ((String) -> String?)? = null,
 ) {
     if (items.isEmpty()) return
     val plan = items.first()
@@ -196,6 +213,7 @@ internal fun ProductionRecordPlanGroup(
             ProductionRecordTraceItem(
                 record, privacyMask,
                 if (record.actionId in openableActionIds) onOpenAction else null,
+                unavailableActionExplanation?.invoke(record.actionId),
             )
         }
     }
@@ -206,6 +224,7 @@ private fun ProductionRecordTraceItem(
     item: VNextProductionRecordItem,
     privacyMask: Boolean,
     onOpenAction: ((String) -> Unit)?,
+    unavailableExplanation: String?,
 ) {
     val display = productionRecordPresentation(item)
     val tint: Color = when (item.state) {
@@ -285,6 +304,13 @@ private fun ProductionRecordTraceItem(
                         color = PdigV2Colors.PrimaryText,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
+                    )
+                } else if (unavailableExplanation != null) {
+                    Text(
+                        unavailableExplanation,
+                        modifier = Modifier.testTag("pdig.production-vnext.records.action-unavailable"),
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 12.sp,
                     )
                 }
             }
