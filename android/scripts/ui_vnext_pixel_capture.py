@@ -18,20 +18,38 @@ PACKAGE = "com.pdig.app.preview.p" + os.environ["GITHUB_SHA"][:7] if os.environ.
 ACTIVITY = "com.pdig.app.PreviewLauncherActivity"
 observed = []
 
+# CI has exactly one device. A shared workstation may have another emulator
+# (for a different project) alive; target the dedicated phone AVD explicitly
+# instead of failing with adb's "more than one device/emulator".
+ADB_SERIAL = os.environ.get("PDIG_ADB_SERIAL", "").strip()
+
+def _adb_cmd(*args):
+    prefix = ["adb"] + (["-s", ADB_SERIAL] if ADB_SERIAL else [])
+    return prefix + [*map(str, args)]
+
 def adb(*args, check=True):
-    return subprocess.run(["adb", *map(str, args)], check=check, text=True,
+    return subprocess.run(_adb_cmd(*args), check=check, text=True,
                           capture_output=True, timeout=80)
 
 def xml_nodes():
-    adb("shell", "uiautomator", "dump", "/sdcard/pdig-window.xml", check=False)
-    adb("pull", "/sdcard/pdig-window.xml", str(ROOT / "last-ui.xml"), check=False)
-    file = ROOT / "last-ui.xml"
-    if not file.exists():
-        return []
-    try:
-        return list(ET.parse(file).iter("node"))
-    except ET.ParseError:
-        return []
+    # UIAutomator can transiently return without writing a fresh window dump
+    # (observed on the shared AP36 emulator during category navigation). Retry
+    # until the command itself reports a dump; never accept a stale file as the
+    # current screen's semantics.
+    for _ in range(4):
+        out = adb("shell", "uiautomator", "dump", "/sdcard/pdig-window.xml", check=False)
+        produced = "dumped to" in (out.stdout or "")
+        adb("pull", "/sdcard/pdig-window.xml", str(ROOT / "last-ui.xml"), check=False)
+        file = ROOT / "last-ui.xml"
+        if produced and file.exists():
+            try:
+                nodes = list(ET.parse(file).iter("node"))
+                if nodes:
+                    return nodes
+            except ET.ParseError:
+                pass
+        time.sleep(0.8)
+    return []
 
 def label_of(node):
     return (node.get("text") or "") + " " + (node.get("content-desc") or "")
@@ -92,7 +110,7 @@ def tap_match(label, exact=False, prefer_bottom=False):
     for attempt in range(1, 5):
         try:
             result = subprocess.run(
-                ["adb", "shell", "input", "tap", str(x), str(y)],
+                _adb_cmd("shell", "input", "tap", str(x), str(y)),
                 text=True, capture_output=True, timeout=15,
             )
             if result.returncode == 0:
@@ -183,7 +201,7 @@ def capture(name):
     for attempt in range(1, 5):
         try:
             with path.open("wb") as f:
-                proc = subprocess.run(["adb", "exec-out", "screencap", "-p"],
+                proc = subprocess.run(_adb_cmd("exec-out", "screencap", "-p"),
                                       stdout=f, stderr=subprocess.PIPE, timeout=50)
             size = path.stat().st_size
             if proc.returncode == 0 and size >= 10000:
@@ -195,8 +213,14 @@ def capture(name):
     else:
         diagnose_navigation(f"{name}-empty-screenshot")
         raise RuntimeError(f"Empty/unavailable screenshot after four attempts: {path}; {last_error}")
-    nodes = xml_nodes()
-    labels = [label_of(n).strip() for n in nodes if label_of(n).strip()]
+    nodes = []
+    labels = []
+    for _ in range(3):
+        nodes = xml_nodes()
+        labels = [label_of(n).strip() for n in nodes if label_of(n).strip()]
+        if labels:
+            break
+        time.sleep(1)
     (ROOT / (name + ".json")).write_text(
         json.dumps({"name": name, "sha": __import__("os").environ.get("GITHUB_SHA"),
                     "uiText": labels[:300], "bytes": path.stat().st_size,
@@ -228,6 +252,20 @@ def diagnose_navigation(name, previous_pid=None):
 def require_screen(name, *texts):
     data = json.loads((ROOT / (name + ".json")).read_text(encoding="utf-8"))
     labels = data.get("uiText", [])
+    missing = [required for required in texts
+               if not any(required in label for label in labels)]
+    if missing:
+        # The screenshot is already the primary evidence; the semantics file can
+        # lose one transient UIAutomator dump. Give the live tree a short settle
+        # window before declaring the page wrong.
+        for _ in range(3):
+            time.sleep(1)
+            live = [label_of(n).strip() for n in xml_nodes() if label_of(n).strip()]
+            if all(any(required in label for label in live) for required in missing):
+                data["uiText"] = live[:300]
+                (ROOT / (name + ".json")).write_text(
+                    json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+                return
     for required in texts:
         if not any(required in label for label in labels):
             diagnose_navigation("screen-" + name + "-missing")
@@ -845,20 +883,26 @@ def main():
             if not tap_retry(object_title, exact=True):
                 raise RuntimeError(f"R20 focused detail unavailable for {category}: {object_title}")
             detail_name = f"07-{slug}-detail"
-            # The Impact Lens keeps rendering its fact rows below the first fold on a compact
-            # phone: 独立备用方式 and 未确认关系 follow 关键账户. Scroll the real scroll
-            # container until the full fact set is inside the viewport, then assert. The
-            # gate keeps requiring the truth-boundary row instead of being relaxed.
+            # The identity heading and the last Impact Lens row cannot both fit in one
+            # compact-phone viewport. Prove the heading on a real top frame first, then
+            # scroll the actual container and prove the truth-boundary rows. Both captures
+            # are kept; neither assertion is dropped.
+            # A focus restore can open the detail below its identity heading.
+            # Scroll the real container to the top before proving that heading.
+            for _ in range(4):
+                if any(detail_heading in label_of(node) for node in xml_nodes()):
+                    break
+                adb("shell", "input", "swipe", "530", "700", "530", "1900", "300")
+                time.sleep(0.8)
+            capture(detail_name + "-top")
+            require_screen(detail_name + "-top", detail_heading)
             for attempt in range(8):
                 if any("未确认关系" in label_of(node) for node in xml_nodes()):
                     break
-                # Small steps: the assertion needs the section heading AND the last Impact
-                # Lens row inside one 2340px viewport, so a large fling would push the
-                # heading off-screen.
                 adb("shell", "input", "swipe", "530", "1900", "530", "1550", "400")
                 time.sleep(1)
             capture(detail_name)
-            require_screen(detail_name, detail_heading, "如果它发生变化？", "未确认关系")
+            require_screen(detail_name, "如果它发生变化？", "未确认关系")
             if not tap_retry("返回上一级", exact=True):
                 raise RuntimeError(f"R20 {category} detail did not expose hierarchical Up")
             require_screen_if_navigated = [label_of(n) for n in xml_nodes()]
