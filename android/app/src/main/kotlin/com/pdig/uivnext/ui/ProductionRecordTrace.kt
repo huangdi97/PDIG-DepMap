@@ -172,7 +172,12 @@ internal fun ProductionRecordPlanGroup(
         Row(
             Modifier.fillMaxWidth().padding(top = 6.dp)
                 .defaultMinSize(minHeight = 48.dp)
-                .then(if (onOpenPlan != null) Modifier.clickable(onClick = onOpenPlan) else Modifier)
+                .then(
+                    if (onOpenPlan != null) Modifier.clickable(
+                        role = Role.Button,
+                        onClick = onOpenPlan,
+                    ) else Modifier
+                )
                 .testTag("pdig.production-vnext.records.plan-header"),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
