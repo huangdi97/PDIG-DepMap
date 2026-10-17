@@ -753,15 +753,32 @@ private fun ProductionChange(
                 val targetMasked = detail == null || productionChangeTargetMasked(
                     app, detail.scenario, detail.targetNodeId,
                 )
+                val routeSupported = detail?.scenario?.let(::productionPlanDestination) != null
+                val routeNotice = when {
+                    detail == null -> "计划详情暂不可读取 · 保留计划摘要"
+                    !routeSupported -> "当前版本尚无此类型的计划详情 · 仅展示摘要"
+                    else -> null
+                }
                 ProductionFactCard(
                     title = if (detail == null) "变更计划详情暂不可读取"
-                    else productionVisiblePlanTitle(plan.title, targetMasked),
+                    else productionVisiblePlanTitle(detail.title, targetMasked),
                     subtitle = "${productionScenarioLabel(plan.scenario)} · ${productionWorkflowStateLabel(plan.workflowState)}",
                     meta = listOfNotNull(
                         "图谱修订 ${plan.lastAnalyzedRevision}",
                         plan.effectiveDate,
+                        routeNotice,
                     ).joinToString(" · "),
-                    onClick = { app.openProductionPlan(plan.id, plan.scenario) },
+                    onClick = if (routeSupported) {
+                        {
+                            // Change Center and Records use the same governed
+                            // route policy. An earlier list read cannot authorize
+                            // a later navigation if the plan changed meanwhile.
+                            val latest = session.dataSource.productionPlan(plan.id)
+                            if (latest != null &&
+                                productionPlanDestination(latest.scenario) != null
+                            ) app.openProductionPlan(latest.id, latest.scenario)
+                        }
+                    } else null,
                 )
             }
         }
