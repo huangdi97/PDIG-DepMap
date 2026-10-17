@@ -1,5 +1,33 @@
 # ANDROID_UI_VNEXT_CURRENT_REALITY.md
 
+> **R61 verified update · 2026-10-17** — supersedes the historical R45 status below for the current branch.
+>
+> Branch `feat/android-ui-vnext-translation`; verified remote source HEAD:
+> `5ddd5582626fe1fcaa025ef838e5412910d5de41`.
+>
+> **Exact-head GitHub Actions SUCCESS:** CI `39013549844`, iOS `39013549860`,
+> Preview APK `39013543180`, API36 Phone Pixel `39013543136`,
+> Tablet Pixel `39013543172`, Production Rehearsal `39013543142`.
+> These are specific to this HEAD; any later source modification invalidates
+> the exact-head claim until re-run.
+>
+> **Latest functional closure:** R61 Records no longer offers dead navigation
+> for historical actions absent from the governed current plan, unreadable plans
+> or unsupported scenarios. Supported steps re-read plan/action authority on
+> tap, and unavailable steps provide a clear read-only explanation. The five
+> first-class roots remain `现在 / 基础设施 / 变更 / 记录 / 我`.
+>
+> **Not yet authorized:** `HUMAN_VISUAL_ACCEPTED = PENDING`;
+> `ANDROID_REFERENCE_FREEZE = HOLD`; `PRODUCTION_CUTOVER = HOLD`.
+> Production release defaults to the lock-gated LEGACY shell. The successful
+> Production Rehearsal demonstrates a controlled build-time test route, **not**
+> approval to change shipping defaults. Do not auto-merge PR #1.
+>
+> The R45 and R34 material below is historical source commentary rather than
+> the current gate register. The latest GitHub workflow results and current
+> source always take precedence over old dates, hashes, or PASS labels.
+
+
 > **Current reality · 2026-10-10 · R34 Light UI → R43 governed Production import → R44 object masking → R45 Production Globe / Card Gallery / relation privacy fixes (source only; fresh exact-head gates pending)**
 >
 > Branch: `feat/android-ui-vnext-translation`
