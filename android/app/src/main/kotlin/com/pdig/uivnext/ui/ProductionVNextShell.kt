@@ -850,6 +850,7 @@ private fun ProductionRecords(
                 // Global-only masking would leak a locally masked phone/card
                 // through the plan's cached title and action labels.
                 val detail = session.dataSource.productionPlan(group.first().planId)
+                val supportedRoute = detail?.scenario?.let(::productionPlanDestination) != null
                 val masked = productionRecordPlanMask(
                     planReadable = detail != null,
                     targetMasked = detail?.let {
@@ -861,30 +862,43 @@ private fun ProductionRecords(
                 ProductionRecordPlanGroup(
                     items = group,
                     privacyMask = masked,
-                    onOpenPlan = if (detail != null) {
+                    onOpenPlan = if (supportedRoute) {
                         {
                             // The record is not the source of plan authority:
                             // re-read the real plan before routing to details.
                             val latest = session.dataSource.productionPlan(group.first().planId)
-                            if (latest != null) {
-                                session.appState.openProductionPlan(latest.id, latest.scenario)
-                            } else {
-                                navigationNotice = "该变更计划目前无法读取；记录仍保留，但不能从旧标题进入。"
+                            when {
+                                latest == null ->
+                                    navigationNotice = "该变更计划目前无法读取；记录仍保留，但不能从旧标题进入。"
+                                productionPlanDestination(latest.scenario) == null ->
+                                    navigationNotice = "当前版本暂不支持打开此变更类型；记录仍可核对。"
+                                else -> session.appState.openProductionPlan(latest.id, latest.scenario)
                             }
                         }
                     } else null,
-                    openableActionIds = detail?.actions?.map { it.id }?.toSet() ?: emptySet(),
-                    onOpenAction = if (detail != null) {
+                    openableActionIds = if (supportedRoute) detail?.actions?.map { it.id }?.toSet() ?: emptySet(),
+                    unavailableActionExplanation = { actionId ->
+                        productionRecordNavigationNote(
+                            planReadable = detail != null,
+                            routeSupported = supportedRoute,
+                            actionPresent = detail?.actions?.any { it.id == actionId } == true,
+                        )
+                    },
+                    onOpenAction = if (supportedRoute) {
                         { actionId ->
                             // Re-read both plan and action at tap time: a cached
                             // record may outlive the current governed plan.
                             val latest = session.dataSource.productionPlan(group.first().planId)
-                            if (latest?.actions?.any { it.id == actionId } == true) {
-                                session.appState.openProductionPlan(
+                            when {
+                                latest == null ->
+                                    navigationNotice = "当前正式计划无法读取；记录仍可核对。"
+                                productionPlanDestination(latest.scenario) == null ->
+                                    navigationNotice = "当前版本暂不支持打开此变更类型的步骤。"
+                                latest.actions.none { it.id == actionId } ->
+                                    navigationNotice = "这条记录对应的步骤已变化；请重新核对当前正式计划。"
+                                else -> session.appState.openProductionPlan(
                                     latest.id, latest.scenario, focusActionId = actionId,
                                 )
-                            } else {
-                                navigationNotice = "这条记录对应的步骤已变化或无法读取；请重新核对当前正式计划。"
                             }
                         }
                     } else null,
