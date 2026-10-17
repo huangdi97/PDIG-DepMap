@@ -2,13 +2,15 @@ package com.pdig.uivnext.evidence
 
 import android.content.ContentValues
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -46,7 +48,9 @@ import java.util.Locale
  * 在真实 API36 Phone（AVD main）/ Tablet（AVD pdig_tablet_api36）emulator 上运行时，
  * 捕获 R19 完整 Human Review 集合 + 空态集合（含第五一级「我」）。文件名与任务书一致：
  * 01-now.png … 24-data-sources.png；空态 <phone|tablet>-cards-empty.png 等。
- * 捕获为设备内 Compose 实际像素（captureToImage），非 offscreen / preview / desktop render。
+ * 捕获为设备合成后的真实屏幕像素（UiAutomation.takeScreenshot），非 offscreen / preview /
+ * desktop render。不能使用 Compose `captureToImage`：它不会包含 GLSurfaceView 托管的 GPU
+ * 地球独立 Surface，会产出“地球消失”的假证据。
  *
  * 输出：filesDir/source-complete-shots/（PNG）+ source-complete-raw-manifest.json
  * （经 MediaStore 发布到 Download/ui-shots 供 adb pull）。
@@ -60,6 +64,12 @@ class SourceCompleteScreenshotEvidenceTest {
     private fun ctx() = InstrumentationRegistry.getInstrumentation().targetContext
     private val outDir: File get() = File(ctx().filesDir, "source-complete-shots").apply { mkdirs() }
     private val shots = JSONArray()
+
+    private val GLOBE_SCREENS = setOf(
+        "01-now",
+        "02-overview-global",
+        "03-overview-region-selected",
+    )
 
     private val deviceClass: String by lazy {
         if (ctx().resources.configuration.screenWidthDp >= 600) "tablet" else "phone"
@@ -160,18 +170,24 @@ class SourceCompleteScreenshotEvidenceTest {
                 compose.waitForIdle()
                 post?.invoke()
                 compose.waitForIdle()
-                val candidate = compose.onRoot().captureToImage().asAndroidBitmap()
-                if (candidate.width > 0 && candidate.height > 0) {
+                // SurfaceView/GLSurfaceView content is a separate compositor layer.
+                // Compose captureToImage() omits it, which made the tablet GPU earth
+                // look absent in earlier evidence. UiAutomation.takeScreenshot() is
+                // blank on this SwiftShader emulator, so use the same SurfaceFlinger
+                // `screencap` path that adb uses for phone evidence.
+                val candidate = captureDisplayPng(screen)
+                if (candidate != null && candidate.width > 0 && candidate.height > 0) {
                     bmp = candidate
                     break
                 }
-                candidate.recycle()
+                candidate?.recycle()
             } catch (t: Throwable) {
                 if (attempt == 4) throw IllegalStateException("capture failed for $screen", t)
                 Thread.sleep(2000)
             }
         }
         val bmpResult = bmp ?: error("capture returned empty for $screen")
+        assertGlobePixelsPresent(bmpResult, screen)
 
         val actualState = actual(app)
         assertEquals("stateValidation: expected==actual for $screen", expectedState, actualState)
@@ -216,6 +232,132 @@ class SourceCompleteScreenshotEvidenceTest {
             record.put("actualRegion", app.regionFilter ?: "none")
         }
         shots.put(record)
+    }
+
+    /**
+     * SurfaceFlinger capture through the shell identity. Unlike Compose capture
+     * it includes the GLSurfaceView layer; unlike UiAutomation.takeScreenshot it
+     * is not blank on the SwiftShader API36 emulator.
+     */
+    private fun captureDisplayPng(screen: String): Bitmap {
+        // Compose reaches idle before the platform has presented the first real
+        // frame. On the SwiftShader API36 tablet that first frame measured
+        // ~4.8s after launch, so an immediate screencap captured the blank
+        // starting window. Poll until the display contains actual UI pixels,
+        // and for globe screens until the new GLSurfaceView has drawn too.
+        var last: Bitmap? = null
+        repeat(40) {
+            val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val descriptor: ParcelFileDescriptor = automation.executeShellCommand("screencap -p")
+            val bytes = descriptor.use {
+                ParcelFileDescriptor.AutoCloseInputStream(it).use { stream -> stream.readBytes() }
+            }
+            if (bytes.isNotEmpty()) {
+                val candidate = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                if (candidate != null) {
+                    last?.recycle()
+                    last = candidate
+                    if (hasPresentedUiContent(candidate)) {
+                        if (screen !in GLOBE_SCREENS) return candidate
+                        val bounds = sceneBounds()
+                        if (bounds != null && globeBlueRatio(candidate, bounds) > 0.10) {
+                            return candidate
+                        }
+                    }
+                }
+            }
+            Thread.sleep(500)
+        }
+        last?.let { bmp ->
+            val debug = ByteArrayOutputStream()
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, debug)
+            File(outDir, "debug-timeout-$screen.png").writeBytes(debug.toByteArray())
+            publish("debug-timeout-$screen.png", debug.toByteArray())
+        }
+        error("screencap never produced a presented UI frame for $screen")
+    }
+
+    /** Reject the uniform white starting window / a not-yet-composited frame. */
+    private fun hasPresentedUiContent(bmp: Bitmap): Boolean {
+        if (bmp.width < 32 || bmp.height < 32) return false
+        val bg = bmp.getPixel(2, bmp.height / 2)
+        var different = 0
+        var total = 0
+        var y = bmp.height / 20
+        while (y < bmp.height) {
+            var x = bmp.width / 20
+            while (x < bmp.width) {
+                val c = bmp.getPixel(x, y)
+                val distance = kotlin.math.abs(Color.red(c) - Color.red(bg)) +
+                    kotlin.math.abs(Color.green(c) - Color.green(bg)) +
+                    kotlin.math.abs(Color.blue(c) - Color.blue(bg))
+                if (distance > 40) different++
+                total++
+                x += bmp.width / 20
+            }
+            y += bmp.height / 20
+        }
+        // 1% separates a real light-first screen (measured 2.77% on the sparse
+        // Accounts page) from the uniform 0% starting window.
+        return different.toDouble() / total.coerceAtLeast(1) > 0.01
+    }
+
+    /**
+     * A real GPU earth is textured blue/green; the page background is near-white.
+     * This guards the evidence pipeline itself: if a screenshot silently drops the
+     * GLSurfaceView layer, the centre of the stage stays almost white and the test
+     * fails instead of shipping a convincing but false capture.
+     */
+    private fun sceneBounds(): Rect? = runCatching {
+        compose.onNodeWithTag("pdig.r15.scene", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
+    }.getOrNull()
+
+    private fun globeBlueRatio(bmp: Bitmap, bounds: Rect): Double {
+        val left = bounds.left.toInt().coerceIn(0, bmp.width - 1)
+        val right = bounds.right.toInt().coerceIn(left + 1, bmp.width - 1)
+        val top = bounds.top.toInt().coerceIn(0, bmp.height - 1)
+        val bottom = bounds.bottom.toInt().coerceIn(top + 1, bmp.height - 1)
+        val cx = (left + right) / 2
+        val cy = (top + bottom) / 2
+        val halfW = ((right - left) * 0.35f).toInt().coerceAtLeast(4)
+        val halfH = ((bottom - top) * 0.35f).toInt().coerceAtLeast(4)
+        var blue = 0
+        var total = 0
+        var y = (cy - halfH).coerceAtLeast(0)
+        while (y <= (cy + halfH).coerceAtMost(bmp.height - 1)) {
+            var x = (cx - halfW).coerceAtLeast(0)
+            while (x <= (cx + halfW).coerceAtMost(bmp.width - 1)) {
+                val pixel = bmp.getPixel(x, y)
+                if (Color.blue(pixel) > 90 && Color.blue(pixel) - Color.red(pixel) > 18) blue++
+                total++
+                x += 6
+            }
+            y += 6
+        }
+        return blue.toDouble() / total.coerceAtLeast(1)
+    }
+
+    private fun assertGlobePixelsPresent(bmp: Bitmap, screen: String) {
+        if (screen !in GLOBE_SCREENS) return
+        val bounds = sceneBounds() ?: return
+        val ratio = globeBlueRatio(bmp, bounds)
+        if (ratio <= 0.10) {
+            val cx = ((bounds.left + bounds.right) / 2f).toInt().coerceIn(0, bmp.width - 1)
+            val cy = ((bounds.top + bounds.bottom) / 2f).toInt().coerceIn(0, bmp.height - 1)
+            // Keep the failed frame so a capture-pipeline defect is diagnosable
+            // from the real bytes instead of a bare ratio.
+            val debug = ByteArrayOutputStream()
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, debug)
+            File(outDir, "debug-$screen.png").writeBytes(debug.toByteArray())
+            publish("debug-$screen.png", debug.toByteArray())
+            val center = bmp.getPixel(cx, cy)
+            throw AssertionError(
+                "screenshot must contain rendered GPU earth pixels: screen=$screen " +
+                    "blueRatio=$ratio size=${bmp.width}x${bmp.height} bounds=$bounds " +
+                    "center=#${Integer.toHexString(center)}",
+            )
+        }
     }
 
     @Test
