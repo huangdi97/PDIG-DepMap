@@ -48,7 +48,7 @@ internal fun CompactInfrastructureHub(app: VAppState) {
         ) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                 Text("基础设施", color = PdigV2Colors.TextPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                Text("8 类资产", color = PdigV2Colors.PrimaryText, fontSize = 11.sp)
+                Text("8 个入口", color = PdigV2Colors.PrimaryText, fontSize = 11.sp)
             }
             INFRA_ENTRIES.chunked(4).forEach { rowEntries ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {

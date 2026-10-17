@@ -154,7 +154,7 @@ internal fun R21ChangeCardScreen(
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "这里只列出其他已记录且处于 active 的卡片；它们是可选对象，不代表系统推荐或独立备用路径。",
+                "这里只列出其他已记录且处于使用中的卡片；它们是可选对象，不代表系统推荐或独立备用路径。",
                 color = PdigV2Colors.TextMuted,
                 fontSize = 10.sp,
             )

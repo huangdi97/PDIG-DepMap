@@ -2,9 +2,11 @@ package com.pdig.uivnext.evidence
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
@@ -199,6 +201,27 @@ class SourceCompleteInteractionContractTest {
     }
 
     @Test
+    fun unnamedNumberShowsItsIdentityOnceAndMaskedValueNeverEchoesRawNumber() {
+        val app = createVNextAppState().apply { navigate(VScreen.NUMBERS) }
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+        // No alias: the number is the title, so the same text must not appear on a
+        // second line. This was a real duplicate identity row on phone and tablet.
+        compose.onAllNodesWithText("+86 138****8823", useUnmergedTree = true)
+            .assertCountEquals(1)
+
+        app.privacyMask = true
+        compose.waitForIdle()
+        compose.onAllNodesWithText("+86 138****8823", useUnmergedTree = true)
+            .assertCountEquals(0)
+        assertTrue(
+            "masked number rows must render a masked identity",
+            compose.onAllNodesWithText("号码已遮蔽", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty(),
+        )
+    }
+
+    @Test
     fun regionSelectPropagatesAndClears() {
         val app = createVNextAppState()
         app.selectRegion("CN")
@@ -249,6 +272,9 @@ class SourceCompleteInteractionContractTest {
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r19.impact-lens", useUnmergedTree = true)
             .assertIsDisplayed()
+        // A consumer detail must never print the raw wire enum ("active").
+        compose.onNodeWithText("使用中", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("active", useUnmergedTree = true).assertDoesNotExist()
 
         app.back()
         compose.waitForIdle()

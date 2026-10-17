@@ -91,7 +91,7 @@ internal fun R9InfrastructureScreen(app: VAppState) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("基础设施", fontSize = 15.sp, color = R9.Ink, fontWeight = FontWeight.Bold)
-                    Text("8 类资产", fontSize = 11.sp, color = R9.Blue)
+                    Text("8 个入口", fontSize = 11.sp, color = R9.Blue)
                 }
                 INFRA_ENTRIES.chunked(4).forEach { chunk ->
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {

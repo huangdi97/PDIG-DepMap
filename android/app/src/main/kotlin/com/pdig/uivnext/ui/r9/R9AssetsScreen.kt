@@ -271,15 +271,26 @@ private fun R9NumberRow(number: UiVNextNumber, app: VAppState) {
     ) {
         Row(Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp)) {
-            val display = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
+            val rawDisplay = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
+            val maskSensitive = app.privacyMask ||
+                app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true
+            val visibleNumber = r9VisibleNumber(number.maskedNumber, maskSensitive)
+            // No user alias: the number itself is the identity title. Printing it again on the
+            // next line duplicates the same fact and, under masking, could expose the raw value.
+            val display = if (maskSensitive && rawDisplay == number.maskedNumber) {
+                visibleNumber
+            } else {
+                rawDisplay
+            }
             val lifecycle = com.pdig.uivnext.demo.UiVNextDemoFixture.numberLifecycleFor(number.id)
-            NumberIdentityThumbnail(number.copy(nickname = display),
-                app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true,
+            NumberIdentityThumbnail(number.copy(nickname = display), maskSensitive,
                 Modifier.width(107.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                 Text(display, color = R9.Ink, fontWeight = FontWeight.Bold,
                     fontSize = 12.sp, maxLines = 1)
-                Text(r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true), color = R9.Ink, fontSize = 11.sp, maxLines = 1)
+                if (display != visibleNumber) {
+                    Text(visibleNumber, color = R9.Ink, fontSize = 11.sp, maxLines = 1)
+                }
                 Text("${regionFlag(number.region)} ${number.carrier} · ${number.simKind}",
                     color = R9.Muted, fontSize = 9.sp, maxLines = 1)
                 lifecycle?.let {

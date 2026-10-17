@@ -327,9 +327,13 @@ private fun matchesNumberFilter(number: UiVNextNumber, filter: String): Boolean 
 private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, onClick: () -> Unit) {
     val profile = app.savedPresentationProfile("phoneNumber", number.id)
     val lifecycle = UiVNextDemoFixture.numberLifecycleFor(number.id)
-    val displayName = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
-    val displayNumber = number.copy(nickname = displayName, preset = profile?.themeId ?: number.preset)
+    val rawDisplay = app.numberDisplayNameForScreen(number.id, number.maskedNumber)
     val maskSensitive = app.privacyMask || (profile?.maskSensitive == true)
+    val maskedNumber = if (maskSensitive) "${number.countryCode} •••• ••••" else number.maskedNumber
+    // No user alias: the number itself is the identity title. Do not print the same
+    // number twice, and never keep the raw value in the title while masking is on.
+    val displayName = if (maskSensitive && rawDisplay == number.maskedNumber) maskedNumber else rawDisplay
+    val displayNumber = number.copy(nickname = displayName, preset = profile?.themeId ?: number.preset)
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -356,12 +360,14 @@ private fun NumberRow(number: UiVNextNumber, selected: Boolean, app: VAppState, 
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(displayName, color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                Text(
-                    if (maskSensitive) "${number.countryCode} •••• ••••" else number.maskedNumber,
-                    color = PdigV2Colors.TextSecondary,
-                    fontSize = 12.sp,
-                    fontFamily = FontFamily.Monospace,
-                )
+                if (displayName != maskedNumber) {
+                    Text(
+                        maskedNumber,
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 12.sp,
+                        fontFamily = FontFamily.Monospace,
+                    )
+                }
                 Text(
                     "${if (number.simKind == "eSIM") "eSIM" else "实体 SIM"} · ${if (number.role == "primary") "主号" else if (number.role == "keep") "保号" else "副号"} · ${number.usages.take(2).joinToString(" / ")}",
                     color = PdigV2Colors.TextMuted,

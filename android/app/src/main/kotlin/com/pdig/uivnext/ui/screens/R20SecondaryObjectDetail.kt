@@ -37,6 +37,7 @@ import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.serviceKindLabelZh
 import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
+import com.pdig.uivnext.theme.statusLabelZh
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.components.ObjectImpactLens
 
@@ -111,7 +112,7 @@ private fun AccountDetail(app: VAppState, id: String) {
     DetailSection("账户身份", "登录入口、控制权限与恢复方式") {
         DetailFact("登录标识", if (app.privacyMask) "标识已遮蔽" else account.maskedIdentifier)
         DetailFact("角色", account.roles.joinToString(" / ").ifBlank { "未记录" })
-        DetailFact("状态", account.status)
+        DetailFact("状态", statusLabelZh(account.status))
     }
     DetailSection("验证与恢复", "只展示当前明确记录的信息") {
         DetailFact("验证方式", account.authMethods.joinToString(" / ").ifBlank { "未记录" })
