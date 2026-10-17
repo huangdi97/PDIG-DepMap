@@ -528,7 +528,7 @@ def main():
         capture("01-navigation-blocked")
         raise RuntimeError("Could not navigate to 基础设施 after onboarding")
     capture("02-infrastructure")
-    require_screen("02-infrastructure", "8 类资产", "地区分布", "管理你的全球数字基础设施")
+    require_screen("02-infrastructure", "8 个入口", "地区分布", "管理你的全球数字基础设施")
     if not tap_retry("美国", exact=True):
         raise RuntimeError("Selecting a concrete region from the infrastructure overview failed")
     capture("02a-infrastructure-selected-us")
@@ -622,7 +622,7 @@ def main():
     # fixed y-coordinate that only worked before that content existed.
     #
     # The target must be an *active* recorded card. The screen states that rule in its own
-    # copy ("其他已记录且处于 active 的卡片"), and ANDROID_UI_VNEXT_R21_SOURCE_REPORT.md
+    # copy ("其他已记录且处于使用中的卡片"), and ANDROID_UI_VNEXT_R21_SOURCE_REPORT.md
     # records "The reference UI lists other recorded active cards". 工行信用卡 is
     # `expiring_soon`, so it is correctly NOT offered as a migration target; asserting on it
     # was stale. The business assertion below is unchanged in strength: a real recorded active
