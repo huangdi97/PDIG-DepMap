@@ -11,6 +11,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.production.VNextProductionRecordItem
 import com.pdig.uivnext.production.VNextProductionRecordState
 import com.pdig.uivnext.ui.ProductionRecordPlanGroup
+import com.pdig.uivnext.ui.productionRecordNavigationNote
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -50,6 +51,66 @@ class ProductionRecordNavigationContractTest {
         compose.runOnIdle { assertEquals(1, opened) }
         compose.onNodeWithText("已验证").assertIsDisplayed()
         compose.onNodeWithText("验证证据 1 项", substring = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun supportedLiveActionIsNavigableButUnsupportedAndMissingStepsAreReadOnly() {
+        var opened = 0
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionRecordPlanGroup(
+                    items = listOf(record),
+                    onOpenPlan = { opened++ },
+                    onOpenAction = { opened += 10 },
+                    openableActionIds = setOf("verify-1"),
+                    unavailableActionExplanation = {
+                        productionRecordNavigationNote(true, true, true)
+                    },
+                )
+            }
+        }
+        compose.onNodeWithText("查看对应步骤 →").assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.records.open-action").performClick()
+        compose.runOnIdle { assertEquals(10, opened) }
+    }
+
+    @Test
+    fun unsupportedScenarioShowsTruthfulReadOnlyExplanationInsteadOfGhostCTA() {
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionRecordPlanGroup(
+                    items = listOf(record.copy(scenario = "replace_device")),
+                    unavailableActionExplanation = {
+                        productionRecordNavigationNote(true, false, true)
+                    },
+                )
+            }
+        }
+        compose.onNodeWithText("查看计划 →").assertDoesNotExist()
+        compose.onNodeWithText("查看对应步骤 →").assertDoesNotExist()
+        compose.onNodeWithText(
+            "当前版本尚未提供此变更类型的步骤页面 · 仅保留操作记录",
+        ).assertIsDisplayed()
+        compose.onNodeWithText("已验证").assertIsDisplayed()
+    }
+
+    @Test
+    fun staleActionShowsItIsRetainedAsRecordNotLivePlanStep() {
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionRecordPlanGroup(
+                    items = listOf(record),
+                    onOpenPlan = {},
+                    unavailableActionExplanation = {
+                        productionRecordNavigationNote(true, true, false)
+                    },
+                )
+            }
+        }
+        compose.onNodeWithText("查看对应步骤 →").assertDoesNotExist()
+        compose.onNodeWithText(
+            "对应步骤已不在当前正式计划中 · 仅保留操作记录",
+        ).assertIsDisplayed()
     }
 
     @Test
