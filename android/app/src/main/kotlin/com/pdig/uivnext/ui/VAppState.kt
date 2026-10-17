@@ -21,6 +21,17 @@ import com.pdig.uivnext.model.VScreen
  * 保证「Cards → Detail → Studio → Back → Back → Cards」与「Detail → Studio → Back = Detail」
  * 同时成立；system back 在 stack 清空后才交回系统退出。
  */
+/**
+ * The only consumer routes currently backed by a focused, governed ChangePlan
+ * detail. An unfamiliar scenario is still a valid Reality record; it is not a
+ * valid clickable destination until a dedicated consumer route exists.
+ */
+internal fun productionPlanDestination(scenario: String): VScreen? = when (scenario) {
+    "replace_payment_card" -> VScreen.CHANGE_CARD
+    "replace_phone_number" -> VScreen.CHANGE_PHONE
+    else -> null
+}
+
 class VAppState(
     initialScreen: VScreen = VScreen.NOW,
     initialCamera: GlobeCamera = focusCamera(16f, 107f),
@@ -245,11 +256,8 @@ class VAppState(
         scenario: String,
         focusActionId: String? = null,
     ) {
-        val destination = when (scenario) {
-            "replace_payment_card" -> VScreen.CHANGE_CARD
-            "replace_phone_number" -> VScreen.CHANGE_PHONE
-            else -> return // Unsupported scenario cannot silently masquerade as a plan.
-        }
+        val destination = productionPlanDestination(scenario)
+            ?: return // Unsupported scenario cannot silently masquerade as a plan.
         // Opening a governed plan is real chronological navigation. Merely
         // storing navBackTarget would make system Back jump over Records.
         if (screen != destination) backStack.add(screen)
