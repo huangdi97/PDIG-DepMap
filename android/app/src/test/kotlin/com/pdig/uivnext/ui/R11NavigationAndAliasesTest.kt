@@ -30,6 +30,18 @@ class R11NavigationAndAliasesTest {
         assertEquals(ProductionRecordScope.ALL, app.productionRecordsScope)
     }
 
+    @Test fun recordsOnlyAdvertiseActualSupportedGovernedChangeRoutes() {
+        assertEquals(VScreen.CHANGE_PHONE, productionPlanDestination("replace_phone_number"))
+        assertEquals(VScreen.CHANGE_CARD, productionPlanDestination("replace_payment_card"))
+        assertEquals(null, productionPlanDestination("replace_device"))
+        assertEquals(null, productionPlanDestination(""))
+        val app = VAppState(initialScreen = VScreen.RECORDS)
+        app.openProductionPlan("unsupported", "replace_device", "invisible")
+        assertEquals(VScreen.RECORDS, app.screen)
+        assertEquals(null, app.selectedProductionPlanId)
+        assertEquals(null, app.selectedProductionActionId)
+    }
+
     @Test fun focusedRecordActionReturnsToItsOriginalFilterAndCannotNavigateUnsupportedPlan() {
         val app = VAppState()
         app.openProductionVerificationAttention()
