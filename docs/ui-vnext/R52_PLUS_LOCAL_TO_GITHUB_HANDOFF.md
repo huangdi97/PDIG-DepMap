@@ -188,25 +188,25 @@ At the **round-start** remote HEAD `562d83f4`, all six workflows / nine checks
 were green, including Production Rehearsal run
 [39023996578](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39023996578).
 
-Final source `e202a349` is pushed and **all six workflows / nine checks are
+Final source `fe60a622` is pushed and **all six workflows / nine checks are
 observed success at that SHA**:
 
 | Gate | Run | Result |
 | --- | --- | --- |
-| CI | [39122994614](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39122994614) | SUCCESS |
-| iOS | [39122994624](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39122994624) | SUCCESS |
-| Android UI vNext Preview APK | [39122988447](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39122988447) | SUCCESS |
-| Android UI vNext Phone Pixel Proof | [39122988418](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39122988418) | SUCCESS |
-| Android UI vNext Tablet Pixel Proof | [39122988453](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39122988453) | SUCCESS |
-| Android UI vNext Production Rehearsal | [39122988548](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39122988548) | SUCCESS |
+| CI | [39125656305](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125656305) | SUCCESS |
+| iOS | [39125656303](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125656303) | SUCCESS |
+| Android UI vNext Preview APK | [39125649215](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649215) | SUCCESS |
+| Android UI vNext Phone Pixel Proof | [39125649251](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649251) | SUCCESS |
+| Android UI vNext Tablet Pixel Proof | [39125649099](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649099) | SUCCESS |
+| Android UI vNext Production Rehearsal | [39125649200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649200) | SUCCESS |
 
-Historical: `edc8b2f2`, `32541cc0` and `b85c7a57` were 9/9 green; `226e8468`
-(script-only) had CI/iOS/Preview/Phone green; `302a65d6` had Tablet/Production
-green and a phone failure caused only by the old committed script assertion,
-fixed in `226e8468`.
+Historical: `e202a349`, `edc8b2f2`, `32541cc0` and `b85c7a57` were 9/9 green;
+`226e8468` (script-only) had CI/iOS/Preview/Phone green; `302a65d6` had
+Tablet/Production green and a phone failure caused only by the old committed
+script assertion, fixed in `226e8468`.
 
 A later **docs/evidence-only** commit may not re-trigger path-filtered workflows.
-That does not invalidate the runtime result at `e202a349`: check the actual PR-head
+That does not invalidate the runtime result at `fe60a622`: check the actual PR-head
 check-runs rather than assuming all six re-ran.
 
 ## 8. Guardrails respected
