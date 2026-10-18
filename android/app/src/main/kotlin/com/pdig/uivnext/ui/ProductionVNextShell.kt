@@ -188,7 +188,7 @@ private fun ProductionContent(
     if (snapshot == null || inventory == null) {
         ProductionUnavailable(
             "当前已确认数据暂不可读取",
-            "没有权威数据快照时不会用演示数据替代。",
+            "当前没有可读取的正式数据；不会用演示数据代替。",
             modifier,
         )
         return
@@ -294,7 +294,7 @@ private fun ProductionNow(
         if (findings != null && findings.findings.isNotEmpty()) {
             ProductionFactCard(
                 title = "基础设施薄弱点",
-                subtitle = "${findings.findings.size} 项权威连续性发现值得关注",
+                subtitle = "${findings.findings.size} 项有已确认依据的连续性发现值得关注",
                 meta = "查看证据、未知边界与下一步；不是健康评分",
                 onClick = { app.navigate(VScreen.WEAKNESSES) },
             )
@@ -458,7 +458,7 @@ private fun ProductionInfrastructure(
                 VScreen.NUMBERS,
                 (selectedRegion?.phoneIdentityCount ?: inventory.counts.phoneIdentities) as Int?,
                 if ((selectedRegion?.phoneIdentityCount ?: inventory.counts.phoneIdentities) > 0)
-                    "已确认 subtype" else "暂无已确认 phone subtype",
+                    "已确认号码类型" else "暂无已确认手机号",
             ),
             Triple(
                 VScreen.ACCOUNTS,
@@ -469,7 +469,7 @@ private fun ProductionInfrastructure(
                 VScreen.EMAILS,
                 (selectedRegion?.emailIdentityCount ?: inventory.counts.emailIdentities) as Int?,
                 if ((selectedRegion?.emailIdentityCount ?: inventory.counts.emailIdentities) > 0)
-                    "已确认 subtype" else "暂无已确认 email subtype",
+                    "已确认邮箱类型" else "暂无已确认邮箱",
             ),
             Triple(
                 VScreen.DEVICES,
@@ -566,7 +566,7 @@ private fun ProductionInfrastructure(
                     subtitle = if (app.privacyMask)
                         "通用身份对象 · 标识已按本机偏好遮蔽"
                     else
-                        "通用身份对象 · subtype 未确认或无效",
+                        "通用身份对象 · 身份类型尚未确认",
                     meta = "${identity.confirmedDependencyCount} 条已确认关系",
                 )
             }
@@ -676,7 +676,7 @@ private fun ProductionCardDetail(
 
         ProductionSection("如果它发生变化？")
         if (impact == null) {
-            ProductionEmpty("当前无法获得权威影响分析；不会以关系数量代替连续性判断。")
+            ProductionEmpty("当前没有可用的正式影响分析；不会以关系数量代替连续性判断。")
         } else {
             val grouped = impact.targets.groupingBy { it.status }.eachCount()
             val ordered = listOf(
@@ -797,7 +797,7 @@ private fun ProductionChange(
         )
 
         ProductionBoundaryNote(
-            "执行动作必须走 AppContainer Change authority；打开页面不会本地伪造完成或验证。"
+            "执行动作必须经过正式变更流程；打开页面不会自动记录完成或验证。"
         )
     }
 }
@@ -1204,7 +1204,7 @@ private fun ProductionSources(
         )
         ProductionFactCard(
             title = "建立基础设施",
-            subtitle = "手工记录 / 文件导入 authority 边界",
+            subtitle = "手工记录 / 文件导入 · 需明确确认",
             meta = "对象建立不自动创建依赖关系",
             onClick = { app.navigate(VScreen.IMPORT) },
         )
