@@ -218,7 +218,7 @@ internal fun ProductionPhoneChangeEntry(
                         )
                         app.openProductionPlan(plan.id, plan.scenario)
                     } catch (t: Throwable) {
-                        error = "未能建立或读取手机号更换计划；界面没有在本地伪造 subtype 或计划状态。"
+                        error = "未能建立或读取手机号更换计划；界面不会自行猜测身份类型或计划状态。"
                     }
                 } else Modifier
             )

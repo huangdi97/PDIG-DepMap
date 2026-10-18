@@ -34,6 +34,8 @@ class ProductionConsumerCopySourceContractTest {
             "当前权威步骤",
             "权威计划状态",
             "当前权威覆盖",
+            "伪造 subtype",
+            "权威来源已确认",
         )
         val literalRegex = Regex("\"(?:\\\\.|[^\"\\\\])*\"")
         val leaks = productionFiles.flatMap { file ->
@@ -48,6 +50,29 @@ class ProductionConsumerCopySourceContractTest {
         assertTrue(
             "Production UI leaked engineering copy:\n${leaks.joinToString("\n")}",
             leaks.isEmpty(),
+        )
+    }
+
+    @Test
+    fun unknownWireValuesNeverEchoRawDomainTokens() {
+        val raw = "RAW_PRIVATE_ENUM_42"
+        val labels = listOf(
+            productionObjectKindLabel(raw),
+            productionIdentityBasisLabel(raw),
+            productionRelationLabel(raw),
+            productionCapabilityLabel(raw),
+            productionCriticalityLabel(raw),
+            productionImpactStatusLabel(raw),
+            productionWorkflowStateLabel(raw),
+            productionReadinessLabel(raw),
+            productionActionPhaseLabel(raw),
+            productionScenarioLabel(raw),
+            productionSourceStateLabel(raw),
+        )
+
+        assertTrue(
+            "Unknown wire values must remain unknown without exposing raw domain tokens: $labels",
+            labels.none { raw in it },
         )
     }
 

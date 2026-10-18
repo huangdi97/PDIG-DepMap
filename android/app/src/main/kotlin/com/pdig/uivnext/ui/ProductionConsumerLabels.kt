@@ -36,7 +36,7 @@ internal fun productionObjectKindLabel(kind: String): String = when (kind) {
     "membership" -> "会员 / 资格"
     "device" -> "设备"
     "custom" -> "自定义对象"
-    else -> "未知类型（$kind）"
+    else -> "类型尚未识别"
 }
 
 internal fun productionObjectSurfaceLabel(
@@ -55,9 +55,9 @@ internal fun productionObjectSurfaceLabel(
 
 internal fun productionIdentityBasisLabel(basis: String?): String = when (basis) {
     "user_confirmed" -> "用户已确认"
-    "authoritative_source" -> "权威来源已确认"
+    "authoritative_source" -> "正式来源已确认"
     null -> "确认依据未知"
-    else -> "确认依据未知（$basis）"
+    else -> "确认依据未知"
 }
 
 internal fun productionRelationLabel(relation: String): String = when (relation) {
@@ -68,7 +68,7 @@ internal fun productionRelationLabel(relation: String): String = when (relation)
     "bound_to" -> "绑定"
     "authenticates" -> "认证"
     "controls" -> "控制"
-    else -> "未知关系（$relation）"
+    else -> "关系类型未知"
 }
 
 internal fun productionCapabilityLabel(capability: String): String = when (capability) {
@@ -78,13 +78,13 @@ internal fun productionCapabilityLabel(capability: String): String = when (capab
     "recovery" -> "恢复"
     "communication" -> "通信"
     "identity" -> "身份"
-    else -> "未知能力（$capability）"
+    else -> "能力类型未知"
 }
 
 internal fun productionCriticalityLabel(criticality: String): String = when (criticality) {
     "required" -> "已确认必需"
     "unknown" -> "重要性未知"
-    else -> "重要性未知（$criticality）"
+    else -> "重要性未知"
 }
 
 internal fun productionImpactStatusLabel(status: String): String = when (status) {
@@ -94,7 +94,7 @@ internal fun productionImpactStatusLabel(status: String): String = when (status)
     "backup_path" -> "已确认备用路径"
     "unaffected" -> "当前确认范围未受影响"
     "unknown" -> "未知"
-    else -> "未知状态（$status）"
+    else -> "状态未知"
 }
 
 internal fun productionWorkflowStateLabel(state: String): String = when (state) {
@@ -107,27 +107,27 @@ internal fun productionWorkflowStateLabel(state: String): String = when (state) 
     "completed" -> "已完成"
     "cancelled" -> "已取消"
     "needs_revalidation" -> "需要重新验证"
-    else -> "未知状态（$state）"
+    else -> "计划状态未知"
 }
 
 internal fun productionReadinessLabel(readiness: String): String = when (readiness) {
     "blocked" -> "有阻断项"
     "review_required" -> "需要复核"
     "ready_with_known_scope" -> "已知范围可开始"
-    else -> "未知准备状态（$readiness）"
+    else -> "准备状态未知"
 }
 
 internal fun productionActionPhaseLabel(phase: String): String = when (phase) {
     "prepare" -> "准备"
     "change" -> "变更"
     "verify" -> "验证"
-    else -> "未知阶段（$phase）"
+    else -> "阶段未知"
 }
 
 internal fun productionScenarioLabel(scenario: String): String = when (scenario) {
     "replace_payment_card" -> "更换支付卡"
     "replace_phone_number" -> "更换手机号"
-    else -> "变更场景（$scenario）"
+    else -> "暂不支持的变更场景"
 }
 
 internal fun productionTimelineBucketLabel(bucket: String): String = when (bucket) {
@@ -162,7 +162,7 @@ internal fun productionTimelineStatusLabel(status: String): String = when (statu
 internal fun productionSourceStateLabel(state: String): String = when (state) {
     "active" -> "使用中"
     "retired" -> "已停用"
-    else -> "未知状态（$state）"
+    else -> "来源状态未知"
 }
 
 
