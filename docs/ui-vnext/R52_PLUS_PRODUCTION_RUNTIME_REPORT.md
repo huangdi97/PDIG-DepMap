@@ -192,6 +192,10 @@ a non-production signing identity:
 | Default launch, no extras | LockGate → Production VNext |
 | Legacy control APK | `287afd58…0316`, opens the Legacy shell |
 | Signer | `CN=PDIG NON-PRODUCTION TEST KEY` |
+| GitHub prerelease | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
+
+The prerelease carries both APKs and `SHA256SUMS.txt`; GitHub asset digests match
+the local hashes above. It is tagged `Pre-release`, not a store release.
 
 Evidence: `artifacts/runtime-evidence/2026-10-17-r61-plus/production-cutover/`
 (now/me/change screenshots, FLAG_SECURE Records proof, both lock/home rollback

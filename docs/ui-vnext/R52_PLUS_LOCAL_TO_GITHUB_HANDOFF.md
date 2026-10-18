@@ -111,7 +111,7 @@ Evidence rules used:
 | --- | --- | --- |
 | Human visual acceptance | **ACCEPT (2026-10-18)** | User approved 1 / 2 / 3 in the final gate request. |
 | Android Reference Freeze | **APPROVED (2026-10-18)** | Frozen manifest: `docs/ui-vnext/ANDROID_REFERENCE_FREEZE_2026-10-18.md`. |
-| Production cutover | **APPROVED / CANDIDATE VERIFIED** | Two-key release APK `cd8afab1…` defaults to VNext; legacy control `287afd58…` opens Legacy. |
+| Production cutover | **APPROVED / CANDIDATE VERIFIED** | Two-key release APK `cd8afab1…` defaults to VNext; legacy control `287afd58…` opens Legacy. GitHub prerelease: [cutover candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612). |
 | Store release | `HOLD` | No production signing identity; candidate uses the non-production test key. |
 | Original 1536×1024 reference board | Missing | The in-repo 320×213 JPEG is truncated; no pixel-level diff, accepted as an exception. |
 | Master document `PDIG_v2.3-R1_..._2026-10-07.md` | Missing | Still absent from both local and remote trees. |

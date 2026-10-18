@@ -18,6 +18,7 @@
 | Release APK SHA-256 | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c` |
 | Legacy control SHA-256 | `287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316` |
 | Signer | `CN=PDIG NON-PRODUCTION TEST KEY` |
+| GitHub prerelease | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
 | Evidence root | `artifacts/runtime-evidence/2026-10-17-r61-plus/` |
 | Evidence manifest | `artifacts/runtime-evidence/2026-10-17-r61-plus/MANIFEST.json` |
 | Evidence size at freeze | 344 files / 159 PNGs |
