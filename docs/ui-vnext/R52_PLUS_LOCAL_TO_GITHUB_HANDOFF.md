@@ -146,10 +146,23 @@ At the **round-start** remote HEAD `562d83f4`, all six workflows / nine checks
 were green, including Production Rehearsal run
 [39023996578](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39023996578).
 
-The final local HEAD `fc29138e` and the evidence commit(s) are pushed only after
-the local gates above pass. The observed GitHub conclusions for the final pushed
-HEAD are recorded in the PR #1 body and must be checked again at that exact SHA;
-this handoff does not pre-claim them.
+The final source HEAD `fc29138e` plus the docs/evidence commit are pushed as
+`e15f98b52563398d13d8c7c4bbbebc6ba64c07f0`. **All six workflows / nine checks
+are observed success at that SHA:**
+
+| Gate | Run | Result |
+| --- | --- | --- |
+| CI | [39090474872](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090474872) | SUCCESS |
+| iOS | [39090474832](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090474832) | SUCCESS |
+| Android UI vNext Preview APK | [39090469899](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090469899) | SUCCESS |
+| Android UI vNext Phone Pixel Proof | [39090469901](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090469901) | SUCCESS |
+| Android UI vNext Tablet Pixel Proof | [39090469969](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090469969) | SUCCESS |
+| Android UI vNext Production Rehearsal | [39090469939](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090469939) | SUCCESS |
+
+A later **docs-only** commit may not re-trigger the path-filtered phone, tablet
+or Production workflows. That does not invalidate the runtime result at
+`e15f98b5`: no application source changed after `fc29138e`. Check the GitHub
+check-runs for the actual PR head SHA rather than assuming all six re-ran.
 
 ## 8. Guardrails respected
 

@@ -186,7 +186,7 @@ HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = see R52_PLUS_LOCAL_TO_GITHUB_HANDOFF.md (recorded after push)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at e15f98b5 (9/9 checks; source fc29138e)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

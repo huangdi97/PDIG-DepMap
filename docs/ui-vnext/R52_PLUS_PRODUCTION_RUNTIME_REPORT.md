@@ -188,5 +188,7 @@ PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
 HUMAN_VISUAL_ACCEPTANCE            = PENDING
 ```
 
-No claim is made that the final GitHub CI is green at `fc29138e` until the push
-and workflow result are observed; see `R52_PLUS_LOCAL_TO_GITHUB_HANDOFF.md`.
+GitHub CI at the pushed evidence HEAD `e15f98b5` (source `fc29138e`) is observed
+all-green, including the Production Rehearsal workflow
+([39090469939](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090469939)).
+The Production default remains Legacy and the cutover remains `HOLD`.
