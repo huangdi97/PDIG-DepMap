@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -194,7 +195,7 @@ fun NowScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         ReviewInboxEntry(app, reviewSummary.total, reviewSummary.proposals, reviewSummary.candidates, reviewSummary.drifts)
 
-        if (breakpoint == MediaBreakpoint.EXPANDED) {
+        if (breakpoint == MediaBreakpoint.EXPANDED && LocalDensity.current.fontScale <= 1.15f) {
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
                 Column(
                     Modifier

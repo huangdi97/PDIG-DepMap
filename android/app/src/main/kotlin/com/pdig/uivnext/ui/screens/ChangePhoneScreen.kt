@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +75,7 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         // Compact / Medium 保持单 pane：6 步 mini progress 首屏完整可见；
         // Expanded 才使用完整 ContinuityRail。
-        if (breakpoint != MediaBreakpoint.EXPANDED) {
+        if (breakpoint != MediaBreakpoint.EXPANDED || LocalDensity.current.fontScale > 1.15f) {
             CompactStepper(stages = projectionStages(projection))
         } else {
             Row(
@@ -119,7 +120,7 @@ fun ChangePhoneScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 
         if (breakpoint != MediaBreakpoint.COMPACT) {
             SectionHeader("旧号码 → 关键服务 → 新号码")
-            if (breakpoint == MediaBreakpoint.EXPANDED) {
+            if (breakpoint == MediaBreakpoint.EXPANDED && LocalDensity.current.fontScale <= 1.15f) {
                 ExpandedContinuityScene(old = old, new = new, projection = projection)
             } else {
                 CompactContinuityScene(old = old, new = new, projection = projection)
