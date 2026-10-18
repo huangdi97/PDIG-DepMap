@@ -1,6 +1,6 @@
 {
   "name": "11-search-query",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "搜索与快捷操作",
@@ -19,8 +19,8 @@
     "🇭🇰 · 已记录服务",
     "服务"
   ],
-  "bytes": 238256,
+  "bytes": 235802,
   "textureGate": "NOT_REQUIRED",
   "capturedBy": "manual-adb",
-  "sha256": "5cde85b3d420f947389aac15255e638dd131313de0a44626b175422a82bb220a"
+  "sha256": "77004adf24ea743a5ef42805c8e900a277d69e0c6b2c33a1cf4df08caad42135"
 }

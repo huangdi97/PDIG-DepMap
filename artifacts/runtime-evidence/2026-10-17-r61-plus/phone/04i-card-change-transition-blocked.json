@@ -1,6 +1,6 @@
 {
   "name": "04i-card-change-transition-blocked",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "更换银行卡",
@@ -26,6 +26,6 @@
     "↓",
     "尚未选择替代卡片，迁移阶段保持阻断。\n替代对象是可选计划输入"
   ],
-  "bytes": 556425,
+  "bytes": 553419,
   "textureGate": "NOT_REQUIRED"
 }

@@ -1,6 +1,6 @@
 {
   "name": "08-numbers",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "号码",
@@ -49,6 +49,6 @@
     "我",
     "我"
   ],
-  "bytes": 385319,
+  "bytes": 381703,
   "textureGate": "NOT_REQUIRED"
 }

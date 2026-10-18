@@ -1,6 +1,6 @@
 {
   "name": "10g-human-review",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "待复核",
@@ -36,6 +36,6 @@
     "确认后会发生什么",
     "确认后才创建逻辑对象；忽略候选不会改变现有基础设施。"
   ],
-  "bytes": 358739,
+  "bytes": 355046,
   "textureGate": "NOT_REQUIRED"
 }

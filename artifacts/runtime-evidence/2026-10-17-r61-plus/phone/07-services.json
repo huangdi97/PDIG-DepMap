@@ -1,6 +1,6 @@
 {
   "name": "07-services",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "服务",
@@ -42,6 +42,6 @@
     "我",
     "我"
   ],
-  "bytes": 233153,
+  "bytes": 229597,
   "textureGate": "NOT_REQUIRED"
 }

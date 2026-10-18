@@ -1,6 +1,6 @@
 {
   "name": "04de-card-impact-facts",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -43,6 +43,6 @@
     "分析更换此卡的影响",
     "→"
   ],
-  "bytes": 241964,
+  "bytes": 238969,
   "textureGate": "NOT_REQUIRED"
 }

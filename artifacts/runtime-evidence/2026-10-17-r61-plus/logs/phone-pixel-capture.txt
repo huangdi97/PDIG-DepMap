@@ -1,148 +1,148 @@
 
 
-CAPTURE 00-first-launch 239557
+CAPTURE 00-first-launch 236007
 TAP '跳过' 943 236 '跳过 '
-CAPTURE 01-now 1384867
+CAPTURE 01-now 1381439
 R16_GEO_HERO_GEOMETRY=PASS
-R9_GLOBE_LIGHT_PROBE {'sourceSha': '6b823fb6', 'box': [0.4, 0.34, 0.6, 0.42], 'meanLuma': 211.09, 'darkPixelFraction': 0.0008, 'evidenceKind': 'R9_TEXTURE_GRADE_MECHANICAL_ONLY', 'humanVisualParity': 'NOT_ACCEPTED'}
-CAPTURE 01c-world-orbit 1342254
+R9_GLOBE_LIGHT_PROBE {'sourceSha': '302a65d6', 'box': [0.4, 0.34, 0.6, 0.42], 'meanLuma': 211.09, 'darkPixelFraction': 0.0008, 'evidenceKind': 'R9_TEXTURE_GRADE_MECHANICAL_ONLY', 'humanVisualParity': 'NOT_ACCEPTED'}
+CAPTURE 01c-world-orbit 1347871
 R16_GEO_LABEL_ORBIT=PASS
 TAP '放大地球' 776 605 '+ 放大地球'
-CAPTURE 01d-world-zoom-in 1552702
+CAPTURE 01d-world-zoom-in 1564783
 TAP '缩小地球' 881 605 '− 缩小地球'
 TAP '复位地球' 986 605 '↺ 复位地球'
-CAPTURE 01e-world-reset 1384966
+CAPTURE 01e-world-reset 1381157
 TAP '我' 959 2230 '我 '
-CAPTURE 01a-me-from-primary-nav 275774
+CAPTURE 01a-me-from-primary-nav 272199
 TAP '现在' 120 2230 '现在 '
-CAPTURE 01b-now-returned-from-me 1384750
+CAPTURE 01b-now-returned-from-me 1381478
 TAP '基础设施' 330 2230 '基础设施 '
-CAPTURE 02-infrastructure 622216
+CAPTURE 02-infrastructure 619352
 TAP '美国' 818 1947 '美国 '
-CAPTURE 02a-infrastructure-selected-us 580435
+CAPTURE 02a-infrastructure-selected-us 578068
 TAP '查看全球 →' 928 496 '查看全球 → '
-CAPTURE 02b-infrastructure-global-restored 622216
+CAPTURE 02b-infrastructure-global-restored 619352
 TAP '卡片' 420 896 '卡片 '
-CAPTURE 03-cards 402320
+CAPTURE 03-cards 399212
 TAP '全部状态' 530 735 '全部状态 '
 TAP '即将到期' 540 1183 '即将到期 '
-CAPTURE 03a-card-expiry-filter 228744
+CAPTURE 03a-card-expiry-filter 225104
 TAP '即将到期' 530 735 '即将到期 '
 TAP '全部状态' 540 919 '全部状态 '
-CAPTURE 03b-card-filter-cleared 403167
+CAPTURE 03b-card-filter-cleared 399515
 TAP '招行储蓄卡' 488 889 '招行储蓄卡 '
-CAPTURE 04-card-detail 462102
+CAPTURE 04-card-detail 458580
 TAP '关联服务' 412 1703 '关联服务 '
-CAPTURE 04b-card-services 456749
+CAPTURE 04b-card-services 453124
 TAP '账单' 667 1703 '账单 '
-CAPTURE 04c-card-statements 481880
+CAPTURE 04c-card-statements 478218
 TAP '安全与风险' 922 1703 '安全与风险 '
-CAPTURE 04d-card-risk 481874
-CAPTURE 04dd-card-impact 481916
-CAPTURE 04de-card-impact-facts 241964
+CAPTURE 04d-card-risk 478001
+CAPTURE 04dd-card-impact 478001
+CAPTURE 04de-card-impact-facts 238969
 TAP '分析更换此卡的影响' 229 2238 '分析更换此卡的影响 '
-CAPTURE 04h-card-change-current 549991
+CAPTURE 04h-card-change-current 546870
 TAP '迁移中' 539 623 '迁移中 '
-CAPTURE 04i-card-change-transition-blocked 556425
-TAP '中行数字卡' 132 2268 '中行数字卡 '
-CAPTURE 04j-card-change-transition-target 450819
+CAPTURE 04i-card-change-transition-blocked 553419
+TAP '中行数字卡' 132 2334 '中行数字卡 '
+CAPTURE 04j-card-change-transition-target 448570
 TAP '完成后（计划）' 881 623 '完成后（计划） '
-CAPTURE 04k-card-change-after 395457
+CAPTURE 04k-card-change-after 393761
 TAP '内置卡面' 803 1126 '内置卡面 '
-CAPTURE 04e-card-presets-inline 585870
+CAPTURE 04e-card-presets-inline 580909
 TAP '海洋' 462 1322 '海洋 '
 TAP '概览' 157 1703 '概览 '
-CAPTURE 04f-card-art-applied 501224
+CAPTURE 04f-card-art-applied 499576
 TAP '返回上一级' 94 217 ' 返回上一级'
-CAPTURE 04g-up-to-cards 407073
+CAPTURE 04g-up-to-cards 402971
 TAP '变更' 539 2230 '变更 '
-CAPTURE 05-change-center 314228
+CAPTURE 05-change-center 312373
 TAP '更换手机号（进行中）' 423 610 '更换手机号（进行中） '
-CAPTURE 05-change 382110
+CAPTURE 05-change 379580
 TAP '查看本阶段核验清单 →' 253 2262 '查看本阶段核验清单 → '
-CAPTURE 05a-change-checklist 371752
-CAPTURE 05aa-change-checklist-footer 239057
+CAPTURE 05a-change-checklist 369941
+CAPTURE 05aa-change-checklist-footer 277667
 TAP '完成后（计划）' 511 397 '完成后（计划） '
-CAPTURE 05b-change-plan 372995
-CAPTURE 06-records 339141
+CAPTURE 05b-change-plan 370541
+CAPTURE 06-records 336639
 TAP '基础设施' 330 2230 '基础设施 '
 TAP '账户' 900 896 '账户 '
-CAPTURE 07-accounts 251444
+CAPTURE 07-accounts 249217
 CATEGORY_CONTENT_VERIFIED accounts
 TAP '微信账户' 280 869 '微信账户 '
-CAPTURE 07-accounts-detail-top 264363
-CAPTURE 07-accounts-detail 280956
+CAPTURE 07-accounts-detail-top 262459
+CAPTURE 07-accounts-detail 278679
 TAP '返回上一级' 94 217 ' 返回上一级'
 TAP '基础设施' 330 2230 '基础设施 '
 TAP '邮箱' 180 1218 '邮箱 '
-CAPTURE 07-emails 262179
+CAPTURE 07-emails 259805
 CATEGORY_CONTENT_VERIFIED emails
 TAP '主邮箱' 261 869 '主邮箱 '
-CAPTURE 07-emails-detail-top 245293
-CAPTURE 07-emails-detail 245293
+CAPTURE 07-emails-detail-top 243209
+CAPTURE 07-emails-detail 243209
 TAP '返回上一级' 94 217 ' 返回上一级'
 TAP '基础设施' 330 2230 '基础设施 '
 TAP '设备' 420 1218 '设备 '
-CAPTURE 07-devices 243706
+CAPTURE 07-devices 240448
 CATEGORY_CONTENT_VERIFIED devices
 TAP 'Pixel 8' 265 869 'Pixel 8 '
-CAPTURE 07-devices-detail-top 264867
-CAPTURE 07-devices-detail 284358
+CAPTURE 07-devices-detail-top 261711
+CAPTURE 07-devices-detail 278440
 TAP '返回上一级' 94 217 ' 返回上一级'
 TAP '基础设施' 330 2230 '基础设施 '
 TAP '服务' 660 1218 '服务 '
-CAPTURE 07-services 233153
+CAPTURE 07-services 229597
 CATEGORY_CONTENT_VERIFIED services
 TAP '微信支付' 280 869 '微信支付 '
-CAPTURE 07-services-detail-top 256384
-CAPTURE 07-services-detail 256384
+CAPTURE 07-services-detail-top 253265
+CAPTURE 07-services-detail 253265
 TAP '返回上一级' 94 217 ' 返回上一级'
 TAP '基础设施' 330 2230 '基础设施 '
 TAP '薄弱点' 900 1218 '薄弱点 '
-CAPTURE 07-weaknesses 408382
+CAPTURE 07-weaknesses 404951
 CATEGORY_CONTENT_VERIFIED weaknesses
 TAP '基础设施' 330 2230 '基础设施 '
 TAP '号码' 660 896 '号码 '
-CAPTURE 08-numbers 385319
+CAPTURE 08-numbers 381703
 TAP '+86 138****8823' 527 805 '+86 138****8823 '
-CAPTURE 08b-number-detail 410547
+CAPTURE 08b-number-detail 407438
 TAP '修改名称 →' 953 389 '修改名称 → '
 EDITABLE_VALUE_VERIFIED 08ba-number-alias 'HK-Main'
 TAP '保存名称' 804 1051 '保存名称 '
-CAPTURE 08bb-number-renamed 401987
-TAP '号码外观 →' 953 1966 '号码外观 → '
-CAPTURE 08c-number-studio 410226
+CAPTURE 08bb-number-renamed 398681
+TAP '号码外观 →' 953 1489 '号码外观 → '
+CAPTURE 08c-number-studio 406732
 TAP '城市' 349 1487 '城市 '
-CAPTURE 08d-number-studio-edited 409178
+CAPTURE 08d-number-studio-edited 406103
 TAP '保存外观' 934 404 '保存外观 '
-CAPTURE 08e-number-impact 248568
+CAPTURE 08e-number-impact 244766
 TAP '我' 959 2230 '我 '
-CAPTURE 09-me 270166
+CAPTURE 09-me 266907
 TAP '敏感信息遮蔽' 271 2014 '敏感信息遮蔽 '
-CAPTURE 09a-me-mask-enabled 269314
+CAPTURE 09a-me-mask-enabled 266041
 TAP '敏感信息遮蔽' 271 2014 '敏感信息遮蔽 '
-CAPTURE 09b-me-mask-disabled 270202
+CAPTURE 09b-me-mask-disabled 267114
 TAP '偏好设置' 146 1450 '偏好设置 '
-CAPTURE 09-personalization 250059
+CAPTURE 09-personalization 247063
 TAP '数据源' 123 1886 '数据源 '
-CAPTURE 10-data-sources 281890
+CAPTURE 10-data-sources 277642
 TAP '建立基础设施' 172 2307 '建立基础设施 '
-CAPTURE 10a-establish-import 367442
+CAPTURE 10a-establish-import 364469
 TAP '没有文件？手工记录 →' 540 2004 '没有文件？手工记录 → '
-CAPTURE 10b-manual-establish 331474
-CAPTURE 10bb-manual-establish-boundary 299936
-TAP '已经有对象？设计一条关系' 281 1550 '已经有对象？设计一条关系 '
-CAPTURE 10c-manual-relationship 305434
-CAPTURE 10cc-manual-relationship-boundary 206193
+CAPTURE 10b-manual-establish 322648
+CAPTURE 10bb-manual-establish-boundary 295223
+TAP '已经有对象？设计一条关系' 281 1887 '已经有对象？设计一条关系 '
+CAPTURE 10c-manual-relationship 307723
+CAPTURE 10cc-manual-relationship-boundary 213780
 TAP '返回上一级' 94 217 ' 返回上一级'
-CAPTURE 10d-relation-up-manual 331021
-CAPTURE 10dd-relation-up-boundary 303082
+CAPTURE 10d-relation-up-manual 322388
+CAPTURE 10dd-relation-up-boundary 287476
 TAP '返回上一级' 94 217 ' 返回上一级'
-CAPTURE 10e-manual-up-import 367220
+CAPTURE 10e-manual-up-import 363550
 TAP '返回上一级' 94 217 ' 返回上一级'
-CAPTURE 10f-import-up-sources 281276
-TAP '待复核' 120 2015 '待复核 '
-CAPTURE 10g-human-review 358739
-CAPTURE 10gg-human-review-boundary 377247
+CAPTURE 10f-import-up-sources 277091
+TAP '待复核' 120 2058 '待复核 '
+CAPTURE 10g-human-review 355046
+CAPTURE 10gg-human-review-boundary 382101
 TAP '返回上一级' 94 217 ' 返回上一级'
-CAPTURE 10h-review-up-now 1384304
+CAPTURE 10h-review-up-now 1381588

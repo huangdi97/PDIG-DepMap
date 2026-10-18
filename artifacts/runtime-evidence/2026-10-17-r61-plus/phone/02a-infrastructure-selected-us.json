@@ -1,6 +1,6 @@
 {
   "name": "02a-infrastructure-selected-us",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "基础设施",
     "搜索",
@@ -57,6 +57,6 @@
     "我",
     "我"
   ],
-  "bytes": 580435,
+  "bytes": 578068,
   "textureGate": "NOT_REQUIRED"
 }

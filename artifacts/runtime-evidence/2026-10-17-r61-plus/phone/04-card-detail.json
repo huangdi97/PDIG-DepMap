@@ -1,6 +1,6 @@
 {
   "name": "04-card-detail",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -41,6 +41,6 @@
     "有效期",
     "2028-05"
   ],
-  "bytes": 462102,
+  "bytes": 458580,
   "textureGate": "NOT_REQUIRED"
 }

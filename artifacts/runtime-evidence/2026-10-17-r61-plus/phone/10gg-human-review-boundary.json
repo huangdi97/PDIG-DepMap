@@ -1,6 +1,6 @@
 {
   "name": "10gg-human-review-boundary",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "待复核",
@@ -34,6 +34,6 @@
     "Preview 不执行",
     "正式版已有 Proposal / Candidate / Drift 决策 authority；Preview 仍保持只读，不会因为点击、滚动或高置信度自动修改节点、依赖或 graphRevision。"
   ],
-  "bytes": 377247,
+  "bytes": 382101,
   "textureGate": "NOT_REQUIRED"
 }

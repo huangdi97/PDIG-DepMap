@@ -1,6 +1,6 @@
 {
   "name": "04b-card-services",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -37,6 +37,6 @@
     "腾讯视频",
     "订阅"
   ],
-  "bytes": 456749,
+  "bytes": 453124,
   "textureGate": "NOT_REQUIRED"
 }

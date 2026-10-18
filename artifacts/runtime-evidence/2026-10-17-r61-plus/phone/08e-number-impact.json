@@ -1,6 +1,6 @@
 {
   "name": "08e-number-impact",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "号码详情",
@@ -36,6 +36,6 @@
     "仍可能存在",
     "分析更换号码影响 →"
   ],
-  "bytes": 248568,
+  "bytes": 244766,
   "textureGate": "NOT_REQUIRED"
 }

@@ -1,6 +1,6 @@
 {
   "name": "04h-card-change-current",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "更换银行卡",
@@ -26,6 +26,6 @@
     "↓",
     "尚未选择替代卡片\n替代对象是可选计划输入"
   ],
-  "bytes": 549991,
+  "bytes": 546870,
   "textureGate": "NOT_REQUIRED"
 }

@@ -1,6 +1,6 @@
 {
   "name": "05-change-center",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "变更",
     "搜索",
@@ -40,6 +40,6 @@
     "我",
     "我"
   ],
-  "bytes": 314228,
+  "bytes": 312373,
   "textureGate": "NOT_REQUIRED"
 }

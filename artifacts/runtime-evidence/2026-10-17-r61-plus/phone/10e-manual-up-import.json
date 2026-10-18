@@ -1,6 +1,6 @@
 {
   "name": "10e-manual-up-import",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "建立基础设施",
@@ -12,7 +12,7 @@
     "正式导入先解析为 Observation，再确认要记录的对象并生成待复核关系。Proposal 在人工确认前不会参与 Impact。",
     "1",
     "选择数据来源",
-    "正式 authority 已存在",
+    "正式导入能力可用",
     "使用已有 SourceInstance，或为新的账单/导出文件命名来源。",
     "2",
     "选择文件并在本机解析",
@@ -28,6 +28,6 @@
     "数据与来源 →",
     "待复核 →"
   ],
-  "bytes": 367220,
+  "bytes": 363550,
   "textureGate": "NOT_REQUIRED"
 }

@@ -1,6 +1,6 @@
 {
   "name": "10-data-sources",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "数据源",
@@ -46,6 +46,6 @@
     "建立基础设施",
     "查看 →"
   ],
-  "bytes": 281890,
+  "bytes": 277642,
   "textureGate": "NOT_REQUIRED"
 }

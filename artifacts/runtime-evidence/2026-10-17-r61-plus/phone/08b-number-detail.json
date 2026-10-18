@@ -1,6 +1,6 @@
 {
   "name": "08b-number-detail",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "号码详情",
@@ -44,6 +44,6 @@
     "微信支付",
     "登录验证"
   ],
-  "bytes": 410547,
+  "bytes": 407438,
   "textureGate": "NOT_REQUIRED"
 }

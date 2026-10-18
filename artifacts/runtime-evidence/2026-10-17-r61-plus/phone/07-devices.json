@@ -1,6 +1,6 @@
 {
   "name": "07-devices",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "设备",
@@ -42,6 +42,6 @@
     "我",
     "我"
   ],
-  "bytes": 243706,
+  "bytes": 240448,
   "textureGate": "NOT_REQUIRED"
 }

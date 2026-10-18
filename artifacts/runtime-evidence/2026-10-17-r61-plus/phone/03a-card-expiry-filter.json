@@ -1,6 +1,6 @@
 {
   "name": "03a-card-expiry-filter",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "卡片",
@@ -40,6 +40,6 @@
     "我",
     "我"
   ],
-  "bytes": 228744,
+  "bytes": 225104,
   "textureGate": "NOT_REQUIRED"
 }

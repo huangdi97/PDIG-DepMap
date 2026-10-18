@@ -1,6 +1,6 @@
 {
   "name": "04e-card-presets-inline",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -49,6 +49,6 @@
     "发卡机构",
     "招商银行"
   ],
-  "bytes": 585870,
+  "bytes": 580909,
   "textureGate": "NOT_REQUIRED"
 }

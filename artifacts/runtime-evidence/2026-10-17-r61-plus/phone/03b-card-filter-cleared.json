@@ -1,6 +1,6 @@
 {
   "name": "03b-card-filter-cleared",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "卡片",
@@ -60,6 +60,6 @@
     "我",
     "我"
   ],
-  "bytes": 403167,
+  "bytes": 399515,
   "textureGate": "NOT_REQUIRED"
 }

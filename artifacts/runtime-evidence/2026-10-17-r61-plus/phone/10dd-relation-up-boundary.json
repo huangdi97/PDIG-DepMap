@@ -1,15 +1,17 @@
 {
   "name": "10dd-relation-up-boundary",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "手工记录",
     "搜索",
     "我",
+    "可记录的身份对象",
     "手机号 / 邮箱",
-    "正式 authority 已就绪 · Preview 只读",
-    "identity_anchor + governed profile",
-    "正式生产 authority 已支持把 Node、受治理 subtype 与用户确认的 identifier value 在同一事务中建立；Preview 仍保持只读，不会写入 Reality。",
+    "手机号 / 邮箱",
+    "可正式记录 · Preview 只读",
+    "专用身份页",
+    "正式生产能力已支持在一次确认中建立对象、手机号/邮箱类型与具体标识；Preview 仍保持只读，不会写入正式数据。",
     "其他已知对象类型",
     "不要制造 ghost capability",
     "其他身份",
@@ -27,9 +29,8 @@
     "已经有对象？设计一条关系",
     "From → Relation → To；关系确认与对象创建保持分离",
     "查看 →",
-    "当前 Preview 不提供“保存”按钮",
-    "正式 authority 已存在，但 Preview 仍保持只读，不能把参考环境当成生产 Reality。"
+    "当前 Preview 不提供“保存”按钮"
   ],
-  "bytes": 303082,
+  "bytes": 287476,
   "textureGate": "NOT_REQUIRED"
 }

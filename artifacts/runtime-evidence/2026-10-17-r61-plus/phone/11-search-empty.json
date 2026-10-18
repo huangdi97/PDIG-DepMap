@@ -1,6 +1,6 @@
 {
   "name": "11-search-empty",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "搜索与快捷操作",
@@ -15,8 +15,8 @@
     "更换手机号",
     "记录"
   ],
-  "bytes": 156279,
+  "bytes": 153398,
   "textureGate": "NOT_REQUIRED",
   "capturedBy": "manual-adb",
-  "sha256": "a8477fbaf32767b02e843eb58b47742ceacc38c81d51a9f92fc4f04f2e37a101"
+  "sha256": "b98b1ed9dc9713232bcaeb443e131052540785afe9240a91b028de4720f39c46"
 }

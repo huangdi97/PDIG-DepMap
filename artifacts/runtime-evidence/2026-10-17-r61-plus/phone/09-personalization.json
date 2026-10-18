@@ -1,6 +1,6 @@
 {
   "name": "09-personalization",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "设置",
@@ -34,6 +34,6 @@
     "从相册选择或使用简洁卡面",
     "›"
   ],
-  "bytes": 250059,
+  "bytes": 247063,
   "textureGate": "NOT_REQUIRED"
 }

@@ -1,6 +1,6 @@
 {
   "name": "05a-change-checklist",
-  "sha": "6b823fb6",
+  "sha": "302a65d6",
   "uiText": [
     "返回上一级",
     "更换手机号",
@@ -44,6 +44,6 @@
     "腾讯视频",
     "待验证"
   ],
-  "bytes": 371752,
+  "bytes": 369941,
   "textureGate": "NOT_REQUIRED"
 }
