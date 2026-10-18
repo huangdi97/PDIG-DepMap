@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 2 rail/Me closure)",
+  "round": "R52+ (round 3 advanced Production copy)",
   "dateLocal": "2026-10-18",
-  "finalSourceHead": "a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4",
+  "finalSourceHead": "7993f29d4dafdffe4791c7bf450169dfcba1558e",
   "previewEvidenceSourceHead": "6b823fb6",
-  "previewSourceDelta": "a1ee036f adds the same pdig.nav.<route>.label testTag to the expanded rail branch; no rendered screen changes and no Production behaviour changes.",
+  "previewSourceDelta": "a1ee036f adds a rail-label testTag; 7993f29d changes advanced Production consumer copy. Neither changes the captured phone/tablet/Production lock-Now-Me screens.",
   "previewApkSha256": "a1869d4333c5082b7835fa922a997f18f599fc3b5aa2055ecbfbb3341712320a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
