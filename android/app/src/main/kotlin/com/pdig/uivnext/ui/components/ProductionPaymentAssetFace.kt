@@ -363,7 +363,7 @@ internal fun ProductionCardAppearanceEditor(
             }
         }
         Text(
-            "图片、主题与单独遮蔽只保存在本机 Presentation；不会改变卡片身份、依赖或影响分析。",
+            "图片、主题与单独遮蔽只保存在本机；不会改变卡片身份、依赖或影响分析。",
             color = PdigV2Colors.TextMuted,
             fontSize = 9.sp,
         )

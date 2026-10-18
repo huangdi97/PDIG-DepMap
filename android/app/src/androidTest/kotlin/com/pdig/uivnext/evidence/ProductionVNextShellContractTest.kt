@@ -271,7 +271,7 @@ class ProductionVNextShellContractTest {
         // The fake source supplies exactly one governed Finding report entry.
         // The app must not replace it with an inferred health percentage.
         compose.onNodeWithText("基础设施薄弱点").assertExists()
-        compose.onNodeWithText("1 项权威连续性发现值得关注").assertExists()
+        compose.onNodeWithText("1 项有已确认依据的连续性发现值得关注").assertExists()
         compose.onNodeWithText("100%", substring = true).assertDoesNotExist()
     }
 
@@ -350,7 +350,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("从相册更换卡面").assertExists()
         compose.onNodeWithTag("pdig.production-vnext.card.mask", useUnmergedTree = true)
             .assertExists()
-        compose.onNodeWithText("图片、主题与单独遮蔽只保存在本机 Presentation", substring = true)
+        compose.onNodeWithText("图片、主题与单独遮蔽只保存在本机", substring = true)
             .assertExists()
     }
 
@@ -403,7 +403,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("m***@example.com").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("邮箱身份").assertIsDisplayed()
-        compose.onNodeWithText("权威来源已确认", substring = true).assertExists()
+        compose.onNodeWithText("正式来源已确认", substring = true).assertExists()
     }
 
     @Test
@@ -601,7 +601,7 @@ class ProductionVNextShellContractTest {
                         id = "spof:account-1",
                         type = VNextProductionFindingType.SINGLE_POINT_OF_FAILURE,
                         title = "生产恢复单一路径",
-                        why = "当前已确认 Reality 只有一条恢复来源。",
+                        why = "当前已确认数据只有一条恢复来源。",
                         confirmedBasis = "dep-recovery-1",
                         unknowns = "未记录路径仍可能存在。",
                         recommendedNextAction = "核对并验证备用恢复方式。",

@@ -151,7 +151,7 @@ internal fun ProductionPhoneIdentityFace(
                             maxLines = 1,
                         )
                         Text(
-                            "手机号身份 · 已确认 Reality",
+                            "手机号身份 · 已确认数据",
                             color = PdigV2Colors.AssetTextSecondary,
                             fontSize = 9.sp,
                         )
@@ -337,7 +337,7 @@ internal fun ProductionPhonePresentationEditor(
         }
 
         Text(
-            "这些设置只保存在本机 PresentationProfile / 号码显示名称中；不会修改号码标识、关系、地区、维护计划或影响分析。",
+            "这些设置只保存在本机显示偏好中；不会修改号码标识、关系、地区、维护计划或影响分析。",
             color = PdigV2Colors.TextMuted,
             fontSize = 9.sp,
         )

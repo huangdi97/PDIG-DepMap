@@ -12,9 +12,9 @@ class ProductionConsumerCopySourceContractTest {
     @Test
     fun productionUiStringLiteralsDoNotRegressToEngineeringCopy() {
         val uiDir = locateProductionUiDirectory()
-        val productionFiles = uiDir.listFiles()
-            .orEmpty()
+        val productionFiles = uiDir.walkTopDown()
             .filter { it.isFile && it.extension == "kt" && it.name.startsWith("Production") }
+            .toList()
 
         assertTrue(
             "No Production UI source files found under ${uiDir.absolutePath}",
@@ -37,6 +37,9 @@ class ProductionConsumerCopySourceContractTest {
             "伪造 subtype",
             "权威来源已确认",
             "Preview ",
+            "本机 Presentation",
+            "PresentationProfile /",
+            "已确认 Reality",
         )
         val literalRegex = Regex("\"(?:\\\\.|[^\"\\\\])*\"")
         val leaks = productionFiles.flatMap { file ->
