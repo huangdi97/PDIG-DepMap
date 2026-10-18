@@ -5,10 +5,10 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `b85c7a579939e5466a086fd751eae770fd0a6d0d`  
+> **Final source HEAD of this round:** `32541cc0c98ecf4fd2621594fdbf8608cffa96d8`  
 > **Visual/Production evidence source HEAD:** `302a65d6` (phone 1.0), `b85c7a57`
-> (phone 1.3× dynamic type), `6b823fb6` (tablet), `7993f29d` (Expanded),
-> `c035ce9a` (advanced Production).  
+> (phone 1.3×), `32541cc0` (phone landscape), `6b823fb6` (tablet),
+> `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -71,6 +71,7 @@ re-count them as new features.
 | `302a65d6` | Finish R24/R25 consumer copy (`Reality`, `authoritative transaction`, `graphRevision`, `From/To`, `runtime relation registry`, `Proposal/Candidate`, raw capability enums); align the phone capture script and both manual contract tests. Phone recaptured at this source (70 PNG). |
 | `226e8468` | Capture-script-only: the R25 step assertion now matches the final consumer sentence. No app code or rendered screen changes. |
 | `b85c7a57` | Dynamic-type 1.3× fixes: region chip scales with fontScale; Now asset rail becomes 2×2 above 1.15×; Me identity cards grow and hints wrap. 1.0 layout unchanged. |
+| `32541cc0` | Short landscape rail: below 600dp height the rail scrolls and skips the weighted spacer, so 数据源 / 设置 stay reachable. Tall tablets unchanged. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -197,6 +198,14 @@ Source `b85c7a57`; 6 real PNGs + XML under `font-scale-1.3/`:
   height matches the two identity cards.
 
 At 1.0 these branches are inactive, so the earlier phone/tablet sets remain valid.
+
+### Phone landscape 851×393 dp
+
+Source `32541cc0`; 4 real PNGs + XML under `phone-landscape/`.
+At 851 dp width the layout is EXPANDED by width, but the 393 dp height cannot hold
+the bottom-aligned 数据源 / 设置 rail. The rail now scrolls below 600 dp height;
+tall tablets keep the original bottom alignment. The secondary entries are
+reachable with 48 dp targets.
 
 ## 6. Bugs fixed and their evidence
 

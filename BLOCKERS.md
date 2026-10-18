@@ -477,3 +477,10 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   `font-scale-1.3/` 6 张真实截图 + manifest，证据合计 274 项。
 - 1.0× 布局不变；无已知本地代码/测试/构建问题。
 - 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 8 更新（2026-10-18）
+
+- 手机横屏 851×393dp：Rail 次级入口被裁切已修复（<600dp 高度可滚动），
+  新增 4 张真实横屏截图 + manifest，证据合计 283 项。
+- 1.0 纵屏/平板布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。

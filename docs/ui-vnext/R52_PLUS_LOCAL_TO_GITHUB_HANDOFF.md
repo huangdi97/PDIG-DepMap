@@ -5,10 +5,10 @@
 > Worktree: `E:\AI\号卡管理`  
 > Branch: `feat/android-ui-vnext-translation`  
 > PR #1: https://github.com/huangdi97/PDIG-DepMap/pull/1 (Draft, not merged)  
-> **Final local/source HEAD: `b85c7a579939e5466a086fd751eae770fd0a6d0d`**  
-> **Capture source HEAD:** `302a65d6` for phone 1.0, `b85c7a57` for phone 1.3×
-> dynamic type, `6b823fb6` for tablet/Production, `7993f29d` for Expanded,
-> `c035ce9a` for advanced Production.  
+> **Final local/source HEAD: `32541cc0c98ecf4fd2621594fdbf8608cffa96d8`**  
+> **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
+> `32541cc0` (landscape), `6b823fb6` (tablet/Production), `7993f29d` (Expanded),
+> `c035ce9a` (advanced Production).  
 > Local round-start HEAD: `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > Remote round-start HEAD: `562d83f44733def5c805c64e4ed53f8746ddbce4`
 
@@ -53,6 +53,7 @@ force push, merge `main`, or enable the Production cutover.
 | `302a65d6` | Finish R24/R25 consumer copy and align the phone capture script; phone recaptured at this source |
 | `226e8468` | Capture-script-only: R25 step assertion matches the final consumer sentence |
 | `b85c7a57` | 1.3× dynamic type: region chip scale, Now 2×2 asset rail, Me card heights |
+| `32541cc0` | Short landscape rail scroll: 数据源 / 设置 reachable below 600dp height |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
@@ -71,6 +72,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── production/                       # lock/unlock PNG+XML, 2 rehearsal dirs
 ├── production-advanced/              # 4 real PNGs: Me/hub/manual/review
 ├── font-scale-1.3/                   # 6 real PNGs at 1.3x dynamic type
+├── phone-landscape/                  # 4 real PNGs at 851x393dp
 └── logs/                             # capture, JVM/build, Production logs
 ```
 
@@ -128,6 +130,8 @@ Evidence rules used:
     final consumer copy on advanced Production surfaces.
 14. `font-scale-1.3/01-now.png`, `06-me.png` — 1.3× dynamic type; chip, asset rail
     and identity hints no longer clip.
+15. `phone-landscape/01-now.png`, `02-rail-scrolled.png`,
+    `03-infrastructure.png`, `04-change.png` — short-height landscape rail scroll.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing

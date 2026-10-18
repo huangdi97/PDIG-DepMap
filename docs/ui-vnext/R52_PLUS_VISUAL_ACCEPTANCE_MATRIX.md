@@ -1,9 +1,9 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `b85c7a579939e5466a086fd751eae770fd0a6d0d`  
-> **Capture source HEAD:** `302a65d6` for phone 1.0, `b85c7a57` for phone 1.3×
-> dynamic type, `6b823fb6` for tablet/Production, `7993f29d` for Expanded,
-> `c035ce9a` for advanced Production.  
+> **Final source HEAD:** `32541cc0c98ecf4fd2621594fdbf8608cffa96d8`  
+> **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
+> `32541cc0` (landscape), `6b823fb6` (tablet/Production), `7993f29d` (Expanded),
+> `c035ce9a` (advanced Production).  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -151,6 +151,18 @@ Legacy. The system SAF file picker is excluded because it is not PDIG UI.
 
 `font-scale-1.3/MANIFEST.json` records the device, font scale and fixes. 1.0
 layouts are unchanged by the `fontScale > 1.15` branches.
+
+### 5c. Phone landscape 851×393 dp (4 real PNGs, source `32541cc0`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Now | `phone-landscape/01-now.png` | EXPANDED-by-width rail; content scrolls |
+| Rail scrolled | `02-rail-scrolled.png` | 数据源 / 设置 reachable; 48 dp targets |
+| Infrastructure | `03-infrastructure.png` | secondary chip row scrolls horizontally |
+| Change | `04-change.png` | cards/CTAs readable in 393 dp height |
+
+The rail previously clipped the secondary entries; `BoxWithConstraints` makes it
+scroll below 600 dp height while tall tablets keep the bottom alignment.
 
 ## 6. Deltas fixed in this round (previously visible in captures)
 
