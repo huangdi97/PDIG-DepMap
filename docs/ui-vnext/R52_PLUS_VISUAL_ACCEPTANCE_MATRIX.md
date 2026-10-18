@@ -1,9 +1,9 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `32541cc0c98ecf4fd2621594fdbf8608cffa96d8`  
+> **Final source HEAD:** `edc8b2f2089c04ec95cbae0046bd38ff264ad050`  
 > **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
-> `32541cc0` (landscape), `6b823fb6` (tablet/Production), `7993f29d` (Expanded),
-> `c035ce9a` (advanced Production).  
+> `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (1.5×), `6b823fb6`
+> (tablet/Production), `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -162,6 +162,15 @@ layouts are unchanged by the `fontScale > 1.15` branches.
 | Change Phone | `04-change-phone.png` | MEDIUM single column; tabs/stages fit |
 
 No defect found; this is verification evidence, not a new fix.
+
+### 5b-3. Phone 1.5× accessibility (4 real PNGs, source `edc8b2f2`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Now | `font-scale-1.5/01-now.png` | badge single line; subtitle wraps; bottom labels full |
+| Me | `02-me.png` | identity stacked; email + hints visible |
+| Change | `03-change.png` | cards/CTAs at 1.5× |
+| Cards | `04-cards.png` | collection readable |
 
 ### 5c. Phone landscape 851×393 dp (4 real PNGs, source `32541cc0`)
 

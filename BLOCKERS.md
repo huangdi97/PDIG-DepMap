@@ -491,3 +491,10 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   未发现新缺陷；新增 4 张真实截图 + manifest，证据合计 292 项。
 - 无源码改动；无已知本地代码/测试/构建问题。
 - 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 10 更新（2026-10-18）
+
+- 1.5× 无障碍字号：Now badge/副标题、R9 底部导航、Me 身份卡裁切均已修复；
+  新增 4 张真实截图 + manifest，证据合计 301 项。
+- 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。

@@ -2195,7 +2195,7 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 行为、闸门、Schema、Production 默认未变；JVM tests PASS；38/38 contracts PASS；
   手机 capture 脚本在 302a65d6 重新跑通（EXIT=0）。
 - 新增 `production-advanced/` 4 张真实 PNG + XML + manifest：
-  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **292 项**。
+  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **301 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
 
@@ -2214,7 +2214,7 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
     >1.15× 时 mini 卡 108dp、号码卡 224dp，文本 ellipsis + 2 行。
 - 1.0× 分支不变；JVM tests PASS。
 - 新增 `font-scale-1.3/` 6 张真实 PNG + XML + manifest（Now / Infrastructure /
-  Cards / Card detail / Change / Me），证据合计 **292 项**。
+  Cards / Card detail / Change / Me），证据合计 **301 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
 
@@ -2228,7 +2228,7 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 修复：`NavigationRail` 使用 `BoxWithConstraints`；高度 <600dp 时 Column 可滚动
   并跳过 weight spacer，所有一级/次级入口可达；高平板保持原底部对齐。
 - 新增 `phone-landscape/` 4 张真实 PNG + XML + manifest
-  （Now / rail-scrolled / Infrastructure / Change），证据合计 **292 项**。
+  （Now / rail-scrolled / Infrastructure / Change），证据合计 **301 项**。
 - JVM/编译 PASS；1.0 纵屏与平板布局不变。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
@@ -2243,5 +2243,22 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   - Me：身份卡 hint、六计数网格正常；
   - Change / Change Phone：MEDIUM 单列，Tabs、阶段行、服务列表不裁切。
 - 未发现新的布局缺陷；平板 1.3× 可读。
-- 新增 `tablet-font-scale-1.3/` 4 张真实 PNG + XML + manifest，证据合计 **292 项**。
+- 新增 `tablet-font-scale-1.3/` 4 张真实 PNG + XML + manifest，证据合计 **301 项**。
+- 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
+
+
+---
+
+## R52+ Round 10 — 1.5× 无障碍字号真实运行与修复（2026-10-18）
+
+- 最终源码 HEAD：`edc8b2f2089c04ec95cbae0046bd38ff264ad050`。
+- 在 1080×2340@440、`font_scale=1.5` 下发现并修复：
+  - Now 的 `需要处理 6` badge 竖排三行：greeting Column 加 weight，badge 单行；
+  - 副标题被裁：允许两行；
+  - 预览底部导航文字被 68dp 固定高度裁切：>1.15× 提高到 84dp，并去掉
+    双重 `navigationBarsPadding`；
+  - Me 两列身份卡在 1.5× 下 email/hint 被裁：>1.35× 改为全宽堆叠
+    （号码卡 180dp，email/device 卡 136dp）。
+- 1.0/1.3 分支不变；JVM tests PASS。
+- 新增 `font-scale-1.5/` 4 张真实 PNG + XML + manifest，证据合计 **301 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
