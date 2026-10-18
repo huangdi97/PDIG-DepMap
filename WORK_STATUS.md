@@ -2195,7 +2195,7 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 行为、闸门、Schema、Production 默认未变；JVM tests PASS；38/38 contracts PASS；
   手机 capture 脚本在 302a65d6 重新跑通（EXIT=0）。
 - 新增 `production-advanced/` 4 张真实 PNG + XML + manifest：
-  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **283 项**。
+  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **292 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
 
@@ -2214,7 +2214,7 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
     >1.15× 时 mini 卡 108dp、号码卡 224dp，文本 ellipsis + 2 行。
 - 1.0× 分支不变；JVM tests PASS。
 - 新增 `font-scale-1.3/` 6 张真实 PNG + XML + manifest（Now / Infrastructure /
-  Cards / Card detail / Change / Me），证据合计 **283 项**。
+  Cards / Card detail / Change / Me），证据合计 **292 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
 
@@ -2228,6 +2228,20 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 修复：`NavigationRail` 使用 `BoxWithConstraints`；高度 <600dp 时 Column 可滚动
   并跳过 weight spacer，所有一级/次级入口可达；高平板保持原底部对齐。
 - 新增 `phone-landscape/` 4 张真实 PNG + XML + manifest
-  （Now / rail-scrolled / Infrastructure / Change），证据合计 **283 项**。
+  （Now / rail-scrolled / Infrastructure / Change），证据合计 **292 项**。
 - JVM/编译 PASS；1.0 纵屏与平板布局不变。
+- 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
+
+
+---
+
+## R52+ Round 9 — 平板 MEDIUM 1.3× 真实运行（2026-10-18）
+
+- 源码 HEAD 保持 `32541cc0c98ecf4fd2621594fdbf8608cffa96d8`；本轮为验证，无源码改动。
+- 在 1200×1920@240（800×1280dp MEDIUM）、`font_scale=1.3` 下运行：
+  - Now：五项 Rail 标签、地球、四计数正常；
+  - Me：身份卡 hint、六计数网格正常；
+  - Change / Change Phone：MEDIUM 单列，Tabs、阶段行、服务列表不裁切。
+- 未发现新的布局缺陷；平板 1.3× 可读。
+- 新增 `tablet-font-scale-1.3/` 4 张真实 PNG + XML + manifest，证据合计 **292 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。

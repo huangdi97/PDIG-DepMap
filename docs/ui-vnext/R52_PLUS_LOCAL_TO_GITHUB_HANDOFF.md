@@ -72,6 +72,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── production/                       # lock/unlock PNG+XML, 2 rehearsal dirs
 ├── production-advanced/              # 4 real PNGs: Me/hub/manual/review
 ├── font-scale-1.3/                   # 6 real PNGs at 1.3x dynamic type
+├── tablet-font-scale-1.3/            # 4 real PNGs at tablet MEDIUM 1.3x
 ├── phone-landscape/                  # 4 real PNGs at 851x393dp
 └── logs/                             # capture, JVM/build, Production logs
 ```
@@ -132,6 +133,8 @@ Evidence rules used:
     and identity hints no longer clip.
 15. `phone-landscape/01-now.png`, `02-rail-scrolled.png`,
     `03-infrastructure.png`, `04-change.png` — short-height landscape rail scroll.
+16. `tablet-font-scale-1.3/01-now.png`, `02-me.png`, `03-change.png`,
+    `04-change-phone.png` — tablet MEDIUM at 1.3×; verified readable.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing

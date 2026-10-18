@@ -152,6 +152,17 @@ Legacy. The system SAF file picker is excluded because it is not PDIG UI.
 `font-scale-1.3/MANIFEST.json` records the device, font scale and fixes. 1.0
 layouts are unchanged by the `fontScale > 1.15` branches.
 
+### 5b-2. Tablet MEDIUM 1.3× (4 real PNGs, source `32541cc0`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Now | `tablet-font-scale-1.3/01-now.png` | rail labels + hero readable |
+| Me | `02-me.png` | identity hints and six counters fit |
+| Change | `03-change.png` | cards/CTAs readable |
+| Change Phone | `04-change-phone.png` | MEDIUM single column; tabs/stages fit |
+
+No defect found; this is verification evidence, not a new fix.
+
 ### 5c. Phone landscape 851×393 dp (4 real PNGs, source `32541cc0`)
 
 | State | Capture | Observed |

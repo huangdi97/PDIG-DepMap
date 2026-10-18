@@ -199,6 +199,13 @@ Source `b85c7a57`; 6 real PNGs + XML under `font-scale-1.3/`:
 
 At 1.0 these branches are inactive, so the earlier phone/tablet sets remain valid.
 
+### Tablet MEDIUM 1.3× (800×1280 dp)
+
+Source `32541cc0`; 4 real PNGs + XML under `tablet-font-scale-1.3/`.
+This was a verification pass, not a new fix: Now, Me, Change and Change Phone
+remain readable at 1.3×; rail labels, six-counter grid, tabs and stage rows do
+not clip. No new layout defect was found.
+
 ### Phone landscape 851×393 dp
 
 Source `32541cc0`; 4 real PNGs + XML under `phone-landscape/`.

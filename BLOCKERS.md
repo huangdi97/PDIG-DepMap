@@ -484,3 +484,10 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   新增 4 张真实横屏截图 + manifest，证据合计 283 项。
 - 1.0 纵屏/平板布局不变；无已知本地代码/测试/构建问题。
 - 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 9 更新（2026-10-18）
+
+- 平板 MEDIUM 800×1280dp、1.3× 字号：Now / Me / Change / Change Phone 全部可读，
+  未发现新缺陷；新增 4 张真实截图 + manifest，证据合计 292 项。
+- 无源码改动；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
