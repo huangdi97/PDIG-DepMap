@@ -1,8 +1,9 @@
 # PDIG — R52+ Production runtime and cutover rehearsal report
 
-> Final local source HEAD: `a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4`  
-> Capture/build source for the rehearsals below: `6b823fb6`; `a1ee036f` is a
-> testTag-only rail change and does not alter Production behaviour.  
+> Final local source HEAD: `7993f29d4dafdffe4791c7bf450169dfcba1558e`  
+> Capture/build source for the rehearsals below: `6b823fb6`. Later deltas are a
+> rail-label testTag and advanced Production consumer copy; Production gate
+> behaviour is unchanged and is re-run by CI at the final source.  
 > Branch: `feat/android-ui-vnext-translation` · PR #1 Draft  
 > Device: Google `sdk_gphone64_x86_64`, API 36 (Android 16), 1080×2400 @420 dpi
 > (CI-equivalent Pixel phone viewport)  
@@ -190,7 +191,7 @@ PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
 HUMAN_VISUAL_ACCEPTANCE            = PENDING
 ```
 
-GitHub CI at the round-2 source HEAD `a1ee036f` is observed all-green, including
+GitHub CI at the final source HEAD `7993f29d` is observed all-green, including
 the Production Rehearsal workflow
-([39096047466](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096047466)).
+([39098732990](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098732990)).
 The Production default remains Legacy and the cutover remains `HOLD`.

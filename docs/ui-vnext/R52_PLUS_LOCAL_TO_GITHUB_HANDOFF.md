@@ -5,10 +5,10 @@
 > Worktree: `E:\AI\号卡管理`  
 > Branch: `feat/android-ui-vnext-translation`  
 > PR #1: https://github.com/huangdi97/PDIG-DepMap/pull/1 (Draft, not merged)  
-> **Final local/source HEAD: `a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4`**  
+> **Final local/source HEAD: `7993f29d4dafdffe4791c7bf450169dfcba1558e`**  
 > **Capture source HEAD:** `6b823fb6` — phone, tablet and Production evidence all
-> come from that source; `a1ee036f` only tags the expanded rail label for the
-> tablet contract (no rendered change).  
+> come from that source. Later deltas are a rail-label testTag (`a1ee036f`) and
+> advanced Production consumer copy (`7993f29d`); no captured screen changes.  
 > Local round-start HEAD: `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > Remote round-start HEAD: `562d83f44733def5c805c64e4ed53f8746ddbce4`
 
@@ -47,6 +47,7 @@ force push, merge `main`, or enable the Production cutover.
 | `fc29138e` | Finish Production region copy localization (`RegionFact` / `Region Lens`) |
 | `6b823fb6` | Round 2: visible labels on all five MEDIUM rail entries; Me says 需关注 instead of 待处理 (counts unchanged); tablet contract asserts the labels |
 | `a1ee036f` | TestTag-only: same rail label tag in the expanded branch, so the tablet contract passes in MEDIUM and EXPANDED/rotation |
+| `7993f29d` | Advanced Production consumer copy: ChangePlan / establish / import / maintenance / manual relationship / review; no behaviour change |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/production evidence, SHA manifest) follow `fc29138e` and do not
@@ -86,7 +87,7 @@ Evidence rules used:
 | Original 1536×1024 reference board | Missing | The in-repo 320×213 JPEG is truncated (`broken data stream`); pixel-level diff is impossible. |
 | Master document `PDIG_v2.3-R1_..._2026-10-07.md` | Missing | Still absent from both local and remote trees. |
 | Android Reference Freeze manifest | Not created | Must follow human acceptance. |
-| P2 copy/test items | Open | Advanced Production manual/import copy; 851 dp phone test visibility (passes at CI 914 dp). |
+| P2 copy/test items | Open | 851 dp phone test visibility (passes at CI 914 dp); no remaining known consumer-facing jargon in the reviewed Production flows. |
 
 ## 5. Suggested human review order
 
@@ -148,25 +149,25 @@ At the **round-start** remote HEAD `562d83f4`, all six workflows / nine checks
 were green, including Production Rehearsal run
 [39023996578](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39023996578).
 
-Round 2's source HEAD `a1ee036f` is pushed and **all six workflows / nine checks
-are observed success at that SHA**:
+Final source HEAD `7993f29d` is pushed and **all six workflows / nine checks are
+observed success at that SHA**:
 
 | Gate | Run | Result |
 | --- | --- | --- |
-| CI | [39096051901](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096051901) | SUCCESS |
-| iOS | [39096051904](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096051904) | SUCCESS |
-| Android UI vNext Preview APK | [39096047431](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096047431) | SUCCESS |
-| Android UI vNext Phone Pixel Proof | [39096047430](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096047430) | SUCCESS |
-| Android UI vNext Tablet Pixel Proof | [39096047548](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096047548) | SUCCESS |
-| Android UI vNext Production Rehearsal | [39096047466](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096047466) | SUCCESS |
+| CI | [39098738404](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098738404) | SUCCESS |
+| iOS | [39098738265](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098738265) | SUCCESS |
+| Android UI vNext Preview APK | [39098732991](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098732991) | SUCCESS |
+| Android UI vNext Phone Pixel Proof | [39098732958](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098732958) | SUCCESS |
+| Android UI vNext Tablet Pixel Proof | [39098733014](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098733014) | SUCCESS |
+| Android UI vNext Production Rehearsal | [39098732990](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098732990) | SUCCESS |
 
-Historical: round 1's evidence HEAD `e15f98b5` was also 9/9 green
-(CI 39090474872, iOS 39090474832, phone 39090469901, tablet 39090469969,
-Production 39090469939, Preview 39090469899).
+Historical: round 2's `a1ee036f` was 9/9 green (CI 39096051901, iOS 39096051904,
+phone 39096047430, tablet 39096047548, Production 39096047466, Preview
+39096047431); round 1's `e15f98b5` was also 9/9 green.
 
 A later **docs/evidence-only** commit may not re-trigger the path-filtered phone,
 tablet or Production workflows. That does not invalidate the runtime result at
-`a1ee036f`: no application source changes after it. Check the GitHub check-runs
+`7993f29d`: no application source changes after it. Check the GitHub check-runs
 for the actual PR head SHA rather than assuming all six re-ran.
 
 ## 8. Guardrails respected

@@ -5,10 +5,11 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4`  
-> **Visual/Production evidence source HEAD:** `6b823fb6`. `a1ee036f` only adds the
-> same `pdig.nav.<route>.label` testTag to the expanded rail label (the MEDIUM
-> label was already visible and tagged); it changes no rendered screen.  
+> **Final source HEAD of this round:** `7993f29d4dafdffe4791c7bf450169dfcba1558e`  
+> **Visual/Production evidence source HEAD:** `6b823fb6`. The later source deltas
+> are a rail-label testTag (`a1ee036f`) and advanced Production consumer copy
+> (`7993f29d`); neither changes the captured phone/tablet/Production lock-Now-Me
+> screens.  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -65,6 +66,7 @@ re-count them as new features.
 | `fc29138e` | Final Production region copy: remove `RegionFact` / `Region Lens` from the Now world-context line and update the shell contract assertion. Production-only; no Preview-rendered screen changes. |
 | `6b823fb6` | Round 2: show a 9sp visible label under every primary rail icon at MEDIUM (still 80dp, 48dp touch target; tablet contract asserts all five); label the Me attention metric `需关注` instead of `待处理`, because Now's `需要处理` total also includes review items. Counts are unchanged. |
 | `a1ee036f` | TestTag-only: expose `pdig.nav.<route>.label` in the expanded rail branch too, so the tablet contract is independent of rail mode (MEDIUM vs EXPANDED/rotation). No visual change. |
+| `7993f29d` | Advanced Production copy: ChangePlan completion/version wording, establish/import boundaries, maintenance confirmations, manual relationship type list and unavailable state no longer print `Plan Projection`, `Reality`, `Canonical v3`, `runtime registry`, `graphRevision`, `Proposal` or `authority`. Gates and fail-closed behaviour unchanged. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -170,7 +172,7 @@ the new evidence includes it and the test now fails if the earth layer is absent
 
 | Priority | Item | Status |
 | --- | --- | --- |
-| P2 | Some advanced Production manual/import/establish copy still uses technical words outside the main Now/Me/list/detail pass. | Documented for the next copy pass. |
+| Resolved | Advanced Production manual/import/establish copy | ChangePlan / establish / import / maintenance / manual relationship / review now use consumer Chinese; behavior unchanged. |
 | P2 | The phone production test at 851 dp failed one off-fold assertion; it passes at the CI 914 dp viewport. The test should scroll to lazy nodes. | Pre-existing test fragility; no product change. |
 | External | Original 1536×1024 reference board is absent; the in-repo 320×213 JPEG is truncated (`broken data stream`). | Blocks pixel-level diff, not progression. |
 | Human | Visual acceptance, Android reference freeze and Production cutover. | `PENDING` / `HOLD` / `HOLD`. |
@@ -180,14 +182,14 @@ the new evidence includes it and the test now fails if the earth layer is absent
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
 EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals at 6b823fb6;
-                                  final a1ee036f CI re-run covers the testTag-only delta)
+                                  final 7993f29d CI re-run covers the testTag + copy deltas)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at a1ee036f (9/9 checks; source a1ee036f)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at 7993f29d (9/9 checks; source 7993f29d)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

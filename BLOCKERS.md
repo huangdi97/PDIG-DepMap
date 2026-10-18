@@ -432,7 +432,9 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
 
 ### 仍保留
 
-- 高级 Production 手动/导入/建立流程的技术术语，列入下一轮消费者文案 pass。
+- 高级 Production 手动/导入/建立流程的技术术语 **已在 Round 3 收口**：
+  ChangePlan / Establish / Import / Maintenance / ManualRelationship / Review
+  的消费者文案已替换，行为未变（JVM + 21/21 Production tests PASS）。
 - 851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动；CI 914dp
   全过。属于测试可见性，不是产品失败。
 - 参考板损坏与 1536×1024 原图缺失；Human Visual Acceptance / Reference Freeze /

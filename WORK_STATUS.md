@@ -2121,4 +2121,21 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   `PRODUCTION_CUTOVER = HOLD`。
 - 320×213 参考 JPEG 数据流损坏；1536×1024 原图缺失。
 - 高级 Production 手动/导入/建立文案仍有技术术语；851dp 手机上少数测试需滚动
-  （CI 914dp 全过）。这些不阻塞本轮 rail/Me 收口。
+  （CI 914dp 全过）。这些不阻塞本轮 rail/Me 收口；高级文案已在 Round 3 收口。
+
+---
+
+## R52+ Round 3 — 高级 Production 消费者文案收口（2026-10-18）
+
+- 最终源码 HEAD：`7993f29d4dafdffe4791c7bf450169dfcba1558e`。
+- 覆盖：ProductionChangePlan（完成/版本文案）、Establish、Import、Maintenance、
+  ManualRelationship、Review、ChangeEntry。
+- 去除：`Plan Projection`、`Reality`、`Canonical v3`、`runtime registry`、
+  `graphRevision`、`Proposal`、`authority`、`subtype` 等用户可见工程词；
+  行为、闸门、失败关闭语义未变。
+- 验证：JVM tests PASS；Production 权威测试 21/21 PASS（CI 等价视口）；
+  `ProductionChangeStageSummaryTest` 更新为 `当前数据版本 / 分析基准`。
+- 截图/Production 证据仍来自 `6b823fb6`；后续源码 delta 仅为 rail testTag 与
+  Production 文案，不改变已采集的 Now / Me / lock / cutover 画面。
+- 仍保留：851dp 测试可见性；参考板损坏；Human Acceptance / Freeze / Cutover
+  PENDING / HOLD / HOLD。
