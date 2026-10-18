@@ -4,6 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -63,7 +66,16 @@ internal fun NavigationRail(app: VAppState, breakpoint: MediaBreakpoint) {
             .testTag(VTestIds.NAV_RAIL),
         color = PdigV2Colors.Surface.copy(alpha = 0.86f),
     ) {
-        Column(Modifier.fillMaxSize().padding(vertical = VSpacing.Lg)) {
+        BoxWithConstraints(Modifier.fillMaxSize()) {
+        // Phone landscape (851x393dp) is EXPANDED by width but too short for the
+        // bottom-aligned secondary rail; make the rail scroll instead of clipping
+        // 数据源 / 设置. Tall tablets keep the original bottom alignment.
+        val shortHeight = maxHeight < 600.dp
+        Column(
+            Modifier.fillMaxSize()
+                .then(if (shortHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier)
+                .padding(vertical = VSpacing.Lg),
+        ) {
             Row(Modifier.padding(horizontal = VSpacing.Lg), verticalAlignment = Alignment.CenterVertically) {
                 Surface(Modifier.size(34.dp), color = PdigV2Colors.PrimaryBright, shape = RoundedCornerShape(VRadius.Md)) {
                     Box(contentAlignment = Alignment.Center) {
@@ -80,7 +92,7 @@ internal fun NavigationRail(app: VAppState, breakpoint: MediaBreakpoint) {
             }
             Spacer(Modifier.height(VSpacing.Xxl))
             PRIMARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = expanded) }
-            Spacer(Modifier.weight(1f))
+            if (!shortHeight) Spacer(Modifier.weight(1f))
             SECONDARY_ENTRIES.forEach { entry -> RailButton(entry.screen, entry.icon, app, expanded = expanded) }
             if (canExpand) {
                 Spacer(Modifier.height(VSpacing.Sm))
@@ -107,6 +119,7 @@ internal fun NavigationRail(app: VAppState, breakpoint: MediaBreakpoint) {
                     }
                 }
             }
+        }
         }
     }
 }
