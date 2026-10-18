@@ -2195,8 +2195,24 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 行为、闸门、Schema、Production 默认未变；JVM tests PASS；38/38 contracts PASS；
   手机 capture 脚本在 302a65d6 重新跑通（EXIT=0）。
 - 新增 `production-advanced/` 4 张真实 PNG + XML + manifest：
-  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **260 项**。
+  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **274 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
 
 
+
+
+---
+
+## R52+ Round 7 — 1.3× 动态字号真实运行与修复（2026-10-18）
+
+- 最终源码 HEAD：`b85c7a579939e5466a086fd751eae770fd0a6d0d`。
+- 在真实手机 1080×2340@440、`font_scale=1.3` 下逐屏运行，发现并修复：
+  - 地球地区 chip `中国大陆` 被截断为 `中国…`：chip 尺寸按 fontScale 放大；
+  - Now 四张资产卡在单行溢出/第四张被裁：>1.15× 改为 2×2 资产栏；
+  - Me 身份 mini 卡的 `恢复用途 · 唯一性未知` / `受信任` 被固定 66dp 裁掉：
+    >1.15× 时 mini 卡 108dp、号码卡 224dp，文本 ellipsis + 2 行。
+- 1.0× 分支不变；JVM tests PASS。
+- 新增 `font-scale-1.3/` 6 张真实 PNG + XML + manifest（Now / Infrastructure /
+  Cards / Card detail / Change / Me），证据合计 **274 项**。
+- 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。

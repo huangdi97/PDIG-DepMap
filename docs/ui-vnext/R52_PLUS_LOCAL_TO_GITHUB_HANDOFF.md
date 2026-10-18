@@ -5,9 +5,9 @@
 > Worktree: `E:\AI\号卡管理`  
 > Branch: `feat/android-ui-vnext-translation`  
 > PR #1: https://github.com/huangdi97/PDIG-DepMap/pull/1 (Draft, not merged)  
-> **Final local/source HEAD: `226e8468fa08a517684743e0999ad029a012e915`**  
-> **Capture source HEAD:** `302a65d6` for phone (app code; `226e8468` is
-> capture-script-only), `6b823fb6` for tablet/Production, `7993f29d` for Expanded,
+> **Final local/source HEAD: `b85c7a579939e5466a086fd751eae770fd0a6d0d`**  
+> **Capture source HEAD:** `302a65d6` for phone 1.0, `b85c7a57` for phone 1.3×
+> dynamic type, `6b823fb6` for tablet/Production, `7993f29d` for Expanded,
 > `c035ce9a` for advanced Production.  
 > Local round-start HEAD: `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > Remote round-start HEAD: `562d83f44733def5c805c64e4ed53f8746ddbce4`
@@ -52,6 +52,7 @@ force push, merge `main`, or enable the Production cutover.
 | `c035ce9a` | Real-run copy audit: remove remaining graph/authority/enum jargon; behavior unchanged |
 | `302a65d6` | Finish R24/R25 consumer copy and align the phone capture script; phone recaptured at this source |
 | `226e8468` | Capture-script-only: R25 step assertion matches the final consumer sentence |
+| `b85c7a57` | 1.3× dynamic type: region chip scale, Now 2×2 asset rail, Me card heights |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
@@ -69,6 +70,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── tablet-expanded/                  # 11 real PNGs + manifest (1280x800dp)
 ├── production/                       # lock/unlock PNG+XML, 2 rehearsal dirs
 ├── production-advanced/              # 4 real PNGs: Me/hub/manual/review
+├── font-scale-1.3/                   # 6 real PNGs at 1.3x dynamic type
 └── logs/                             # capture, JVM/build, Production logs
 ```
 
@@ -124,6 +126,8 @@ Evidence rules used:
 13. `production-advanced/11-production-me.png`, `12-production-establish-hub.png`,
     `13-production-manual-relation.png`, `15-production-review-empty.png` —
     final consumer copy on advanced Production surfaces.
+14. `font-scale-1.3/01-now.png`, `06-me.png` — 1.3× dynamic type; chip, asset rail
+    and identity hints no longer clip.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing

@@ -1,9 +1,9 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `226e8468fa08a517684743e0999ad029a012e915`  
-> **Capture source HEAD:** `302a65d6` for phone (app code; `226e8468` script-only),
-> `6b823fb6` for tablet/Production, `7993f29d` for Expanded, `c035ce9a` for
-> advanced Production.  
+> **Final source HEAD:** `b85c7a579939e5466a086fd751eae770fd0a6d0d`  
+> **Capture source HEAD:** `302a65d6` for phone 1.0, `b85c7a57` for phone 1.3×
+> dynamic type, `6b823fb6` for tablet/Production, `7993f29d` for Expanded,
+> `c035ce9a` for advanced Production.  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -138,6 +138,19 @@ breakpoint and per-screen state). This set is evidence, not acceptance.
 
 Launched with the documented `vnext_production` debug extra; release default stays
 Legacy. The system SAF file picker is excluded because it is not PDIG UI.
+
+### 5b. Dynamic type 1.3× (6 real PNGs, source `b85c7a57`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Now | `font-scale-1.3/01-now.png` | full `中国大陆`; asset rail 2×2, no clipped 4th card |
+| Infrastructure | `02-infrastructure.png` | eight entries and filters readable |
+| Cards / detail | `03-cards.png`, `04-card-detail.png` | no label overlap; lifecycle grid fits |
+| Change | `05-change.png` | cards and CTAs wrap |
+| Me | `06-me.png` | identity hints visible; number card height matches |
+
+`font-scale-1.3/MANIFEST.json` records the device, font scale and fixes. 1.0
+layouts are unchanged by the `fontScale > 1.15` branches.
 
 ## 6. Deltas fixed in this round (previously visible in captures)
 

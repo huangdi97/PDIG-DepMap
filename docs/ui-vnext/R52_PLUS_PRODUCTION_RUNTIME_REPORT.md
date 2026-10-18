@@ -1,6 +1,6 @@
 # PDIG — R52+ Production runtime and cutover rehearsal report
 
-> Final local source HEAD: `226e8468fa08a517684743e0999ad029a012e915`  
+> Final local source HEAD: `b85c7a579939e5466a086fd751eae770fd0a6d0d`  
 > Capture/build source for the rehearsals below: `6b823fb6`. Later deltas are a
 > rail-label testTag, advanced Production consumer copy and androidTest-only
 > 851dp robustness; Production gate behaviour is unchanged and is re-run by CI at

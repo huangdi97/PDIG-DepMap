@@ -5,10 +5,10 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `226e8468fa08a517684743e0999ad029a012e915`  
-> **Visual/Production evidence source HEAD:** `302a65d6` (phone; `226e8468` is
-> capture-script-only), `6b823fb6` (tablet), `7993f29d` (Expanded), `c035ce9a`
-> (advanced Production). No captured screen changes after those sources.  
+> **Final source HEAD of this round:** `b85c7a579939e5466a086fd751eae770fd0a6d0d`  
+> **Visual/Production evidence source HEAD:** `302a65d6` (phone 1.0), `b85c7a57`
+> (phone 1.3× dynamic type), `6b823fb6` (tablet), `7993f29d` (Expanded),
+> `c035ce9a` (advanced Production).  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -70,6 +70,7 @@ re-count them as new features.
 | `c035ce9a` | Real-run copy audit: remove remaining `图谱修订`, `wechat_statement`, `PHONE_NUMBER / EMAIL_ADDRESS`, `图谱完整`, `FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine` and Preview R23–R25 `authority` / `Reality` / `subtype`. Behavior unchanged. |
 | `302a65d6` | Finish R24/R25 consumer copy (`Reality`, `authoritative transaction`, `graphRevision`, `From/To`, `runtime relation registry`, `Proposal/Candidate`, raw capability enums); align the phone capture script and both manual contract tests. Phone recaptured at this source (70 PNG). |
 | `226e8468` | Capture-script-only: the R25 step assertion now matches the final consumer sentence. No app code or rendered screen changes. |
+| `b85c7a57` | Dynamic-type 1.3× fixes: region chip scales with fontScale; Now asset rail becomes 2×2 above 1.15×; Me identity cards grow and hints wrap. 1.0 layout unchanged. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -184,6 +185,18 @@ extra (release default remains Legacy). 4 real PNGs + XML under
 
 The system file picker was intentionally excluded: it is not PDIG UI. No Preview
 synthetic data was written into the encrypted Reality.
+
+### Dynamic type 1.3× (393×851 dp, phone)
+
+Source `b85c7a57`; 6 real PNGs + XML under `font-scale-1.3/`:
+
+- Now: full `中国大陆` chip; asset rail becomes 2×2 instead of overflowing;
+- Infrastructure / Cards / Card detail / Change: filters, lifecycle grid and CTAs
+  remain readable;
+- Me: identity hints (`恢复用途 · 唯一性未知`, `受信任`) are visible; the number card
+  height matches the two identity cards.
+
+At 1.0 these branches are inactive, so the earlier phone/tablet sets remain valid.
 
 ## 6. Bugs fixed and their evidence
 

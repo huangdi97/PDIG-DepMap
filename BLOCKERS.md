@@ -470,3 +470,10 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
 - 没有已知的本地代码/测试/构建问题；剩余仅为参考板损坏与人工验收门禁。
 
 
+
+## R52+ Round 7 更新（2026-10-18）
+
+- 1.3× 动态字号：地区 chip 截断、Now 资产栏溢出、Me 身份卡 hint 裁切均已修复；
+  `font-scale-1.3/` 6 张真实截图 + manifest，证据合计 274 项。
+- 1.0× 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
