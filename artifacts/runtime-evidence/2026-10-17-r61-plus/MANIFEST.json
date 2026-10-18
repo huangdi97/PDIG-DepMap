@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 11 tablet 1.5x)",
+  "round": "R52+ (round 12 Expanded 1.5x)",
   "dateLocal": "2026-10-18",
-  "finalSourceHead": "e202a34966f9c04062bd14f0f6473ef9b821518d",
-  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (1.5x); e202a349 (tablet 1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
-  "previewSourceDelta": "e202a349 changes only tablet top-bar large-type branches; 1.0/1.3 and phone captures unchanged.",
+  "finalSourceHead": "fe60a62245db17e5fba4d8dc2bbf399ae26c881f",
+  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (phone 1.5x); e202a349 (tablet 1.5x); fe60a622 (Expanded 1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
+  "previewSourceDelta": "fe60a622 changes only >1.15x Expanded branches; 1.0/1.3 and prior captures unchanged.",
   "previewApkSha256": "0430903aa870d896b609fa00166cb28f2c2c398bc2d3905ad6865deadf6c657a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
@@ -24,9 +24,10 @@
     "tabletDynamicTypePng": 4,
     "dynamicType15Png": 4,
     "tabletDynamicType15Png": 4,
+    "expandedDynamicType15Png": 4,
     "landscapePng": 4,
-    "totalFiles": 310,
-    "totalBytes": 62514889
+    "totalFiles": 319,
+    "totalBytes": 64330211
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -38,6 +39,51 @@
       "path": "BASELINE.md",
       "bytes": 6177,
       "sha256": "7f88cb988308d8566ab3eea38f8aabd5114ddd6382a6fc388e6bf6e2bb29f77d"
+    },
+    {
+      "path": "expanded-1.5/01-now.png",
+      "bytes": 671979,
+      "sha256": "f82a95b9086dd245e97803b9abc14acb673cd420778d5c7dbef1e8b22cb39b08"
+    },
+    {
+      "path": "expanded-1.5/01-now.xml",
+      "bytes": 33342,
+      "sha256": "f78edbc6cd58001ca87f9762426e1f32e07010bc6a9aeab3aa04f025d04e9cd7"
+    },
+    {
+      "path": "expanded-1.5/02-me.png",
+      "bytes": 334214,
+      "sha256": "4bb797d59b1856f4695482b149cd8fb54b240893b7be07d8b72d989eb8fdf772"
+    },
+    {
+      "path": "expanded-1.5/02-me.xml",
+      "bytes": 37331,
+      "sha256": "45f95b1285463236933914db4bf6c6b20f073cf796fa0472164549accfca529a"
+    },
+    {
+      "path": "expanded-1.5/03-change.png",
+      "bytes": 312796,
+      "sha256": "4d8fd88439fdeae7d3cfa17f03ed4d8a3c6ab4f2dd5a46b7765c8daed79dc2e3"
+    },
+    {
+      "path": "expanded-1.5/03-change.xml",
+      "bytes": 26742,
+      "sha256": "221eac54f6af3cac286280489159d3e3eabaaaa7cb543c38137395f33d7a0d8a"
+    },
+    {
+      "path": "expanded-1.5/04-change-phone.png",
+      "bytes": 363297,
+      "sha256": "4e07b314207410d27a84ce36e0f6f7e48d5ed8a6c050f9e7d3529f6576c80a77"
+    },
+    {
+      "path": "expanded-1.5/04-change-phone.xml",
+      "bytes": 34633,
+      "sha256": "8bea6c698889f5c1f10c049c44c6db67b834bcc5adea058c4194d1f092545bef"
+    },
+    {
+      "path": "expanded-1.5/MANIFEST.json",
+      "bytes": 988,
+      "sha256": "57aafe43118ebe68026cc4213fada6f488dcdd1c89485c7e520d44d675a275c7"
     },
     {
       "path": "font-scale-1.3/01-now.png",
