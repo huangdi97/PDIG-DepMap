@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 7 dynamic-type closure)",
+  "round": "R52+ (round 8 landscape + dynamic type)",
   "dateLocal": "2026-10-18",
-  "finalSourceHead": "b85c7a579939e5466a086fd751eae770fd0a6d0d",
-  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (phone 1.3x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
-  "previewSourceDelta": "b85c7a57 changes only large-type branches and the region-chip scale; 1.0 phone/tablet/Expanded/Production screenshots are unchanged.",
+  "finalSourceHead": "32541cc0c98ecf4fd2621594fdbf8608cffa96d8",
+  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
+  "previewSourceDelta": "32541cc0 changes only short-height rail scrolling; 1.0 phone/tablet/Expanded and Production screenshots are unchanged.",
   "previewApkSha256": "0430903aa870d896b609fa00166cb28f2c2c398bc2d3905ad6865deadf6c657a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
@@ -21,8 +21,9 @@
     "productionPng": 4,
     "productionAdvancedPng": 4,
     "dynamicTypePng": 6,
-    "totalFiles": 274,
-    "totalBytes": 55648361
+    "landscapePng": 4,
+    "totalFiles": 283,
+    "totalBytes": 57255294
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -169,6 +170,51 @@
       "path": "logs/tablet-screenshot-suite.txt",
       "bytes": 26734,
       "sha256": "2b6b01225398ce7276ecd3eb8416f93a89b8a96dea5771f8a32779bfb9830df4"
+    },
+    {
+      "path": "phone-landscape/01-now.png",
+      "bytes": 574632,
+      "sha256": "06b54c041cc7e38d7da440b12242ce8e9b535468b98c34703c4776720f448ffb"
+    },
+    {
+      "path": "phone-landscape/01-now.xml",
+      "bytes": 24865,
+      "sha256": "584dbc4218cee2dcbd7161fe167db7b8afba43355ff4bdf97e32ed0aa80fc7d8"
+    },
+    {
+      "path": "phone-landscape/02-rail-scrolled.png",
+      "bytes": 562623,
+      "sha256": "f30d1d5f98d14add6610919febeacbeeff29dec3195ee93c53cbde4baa8bb370"
+    },
+    {
+      "path": "phone-landscape/02-rail-scrolled.xml",
+      "bytes": 24116,
+      "sha256": "90dae5abaf3bef644c0a37a60061a70a52db34d6276d637bd4614c45da2609fe"
+    },
+    {
+      "path": "phone-landscape/03-infrastructure.png",
+      "bytes": 185792,
+      "sha256": "22791985480ccc63f268f28e5990d1c7236ea0552257a1b9eefab4e3e6bf3b9d"
+    },
+    {
+      "path": "phone-landscape/03-infrastructure.xml",
+      "bytes": 30888,
+      "sha256": "95d7a6ff25d9fada76ed29299c31a2549a29b0fc0690afe925fc706bcb7cd8cc"
+    },
+    {
+      "path": "phone-landscape/04-change.png",
+      "bytes": 183328,
+      "sha256": "10886086686d84f38cc2810f6215ed84da24ad42233949b966fa2a9305f9b1d7"
+    },
+    {
+      "path": "phone-landscape/04-change.xml",
+      "bytes": 19589,
+      "sha256": "6a674ef28196313967e977030551d515d4a9b15ab55c80f07af18d95d71ccb3a"
+    },
+    {
+      "path": "phone-landscape/MANIFEST.json",
+      "bytes": 1100,
+      "sha256": "12a6ecd4d8e366edafa38ee7e9a45d6aeef94dd3f41cf0f21003169bbf395e47"
     },
     {
       "path": "phone/00-first-launch.json",
