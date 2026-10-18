@@ -1,9 +1,10 @@
 # PDIG — R52+ Production runtime and cutover rehearsal report
 
-> Final local source HEAD: `7993f29d4dafdffe4791c7bf450169dfcba1558e`  
+> Final local source HEAD: `8fef80307c86b89958f82798f61d3ea3fab386c1`  
 > Capture/build source for the rehearsals below: `6b823fb6`. Later deltas are a
-> rail-label testTag and advanced Production consumer copy; Production gate
-> behaviour is unchanged and is re-run by CI at the final source.  
+> rail-label testTag, advanced Production consumer copy and androidTest-only
+> 851dp robustness; Production gate behaviour is unchanged and is re-run by CI at
+> the final source.  
 > Branch: `feat/android-ui-vnext-translation` · PR #1 Draft  
 > Device: Google `sdk_gphone64_x86_64`, API 36 (Android 16), 1080×2400 @420 dpi
 > (CI-equivalent Pixel phone viewport)  
@@ -157,12 +158,9 @@ Finished 21 tests
 BUILD SUCCESSFUL
 ```
 
-At 1080×2340 @440 (851 dp tall) one pre-existing test,
-`governedPhoneAndEmailAppearInProductionCategoriesAndDetails`, failed because the
-phone change entry was below the fold and the test did not scroll. The same test
-passed at the CI-equivalent 1080×2400 @420 (914 dp) viewport, after which all 21
-tests passed. This is documented as test-visibility fragility, not relabelled as
-a product failure and not “fixed” by weakening an assertion.
+At 1080×2340 @440 (851 dp tall) the suite now also passes **21/21**. `8fef8030`
+scrolls to the tagged lazy change entry before asserting; the earlier failure was
+test visibility, not a product failure, and no assertion was weakened.
 
 ## 6. Runtime truth boundaries
 
@@ -191,7 +189,7 @@ PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
 HUMAN_VISUAL_ACCEPTANCE            = PENDING
 ```
 
-GitHub CI at the final source HEAD `7993f29d` is observed all-green, including
+GitHub CI at the final source HEAD `8fef8030` is observed all-green, including
 the Production Rehearsal workflow
-([39098732990](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39098732990)).
+([39102190095](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102190095)).
 The Production default remains Legacy and the cutover remains `HOLD`.

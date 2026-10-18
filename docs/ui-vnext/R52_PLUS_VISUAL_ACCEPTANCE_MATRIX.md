@@ -1,9 +1,9 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `7993f29d4dafdffe4791c7bf450169dfcba1558e`  
-> **Capture source HEAD:** `6b823fb6` for phone, tablet and Production;
-> `7993f29d` for the Expanded set. Later deltas are a rail-label testTag and
-> advanced Production consumer copy; none changes the captured screens.  
+> **Final source HEAD:** `8fef80307c86b89958f82798f61d3ea3fab386c1`  
+> **Capture source HEAD:** `6b823fb6` for phone/tablet/Production; `7993f29d` for
+> Expanded. Later deltas are a rail-label testTag, advanced Production copy and
+> androidTest-only 851dp robustness; none changes the captured screens.  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -146,7 +146,7 @@ breakpoint and per-screen state). This set is evidence, not acceptance.
 | Resolved | Now `需要处理 6` vs Me `待处理 3` | Me now says `需关注 3` / `3 项需关注`; counts unchanged. |
 | Resolved | MEDIUM tablet rail was icon-only | Each of the five primary roots now has a visible 9sp label; asserted in `TabletAdaptiveContractTest`. |
 | Resolved | Advanced Production manual/import/establish copy | Consumer Chinese now; behavior unchanged. |
-| P2 | 851 dp phone test visibility | One Production test and four interaction tests need scrolling; they pass at the CI 914 dp viewport. |
+| Resolved | 851 dp phone test visibility | `8fef8030`: 38/38 contracts pass at 1080×2340@440; no product assertion removed. |
 | Reference | 320×213 truncated board; 1536×1024 original absent | Pixel-level diff blocked. |
 | Human | Overall visual acceptance, reference freeze, cutover | `PENDING` / `HOLD` / `HOLD`. |
 

@@ -2084,7 +2084,7 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - `docs/ui-vnext/R52_PLUS_VISUAL_ACCEPTANCE_MATRIX.md`
 - `docs/ui-vnext/R52_PLUS_PRODUCTION_RUNTIME_REPORT.md`
 - `docs/ui-vnext/R52_PLUS_LOCAL_TO_GITHUB_HANDOFF.md`
-- `artifacts/runtime-evidence/2026-10-17-r61-plus/`（248 项，MANIFEST.json +
+- `artifacts/runtime-evidence/2026-10-17-r61-plus/`（251 项，MANIFEST.json +
   EVIDENCE_SHA256SUMS.txt；手机 70 PNG / 平板 34 PNG / Expanded 11 PNG /
   Production 4 PNG + 2 个 rehearsal 目录）
 
@@ -2154,7 +2154,25 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   Change Phone Current / Transition / After / Records / Me。
 - 观察到：五项 Rail 标签可见；Cards 有右侧详情预览；Change Phone 是
   Current / Transition / After 三投影；After 明确显示“计划”且未验证服务仍待处理。
-- 主 MANIFEST 更新为 **248 项**（70 phone / 34 tablet / 11 Expanded / 4 Production）。
+- 主 MANIFEST 更新为 **251 项**（70 phone / 34 tablet / 11 Expanded / 4 Production）。
 - 仍保留：851dp 测试可见性；参考板损坏；Human Acceptance / Freeze / Cutover
   PENDING / HOLD / HOLD。
+
+---
+
+## R52+ Round 5 — 851dp 手机测试收口（2026-10-18）
+
+- 最终源码 HEAD：`8fef80307c86b89958f82798f61d3ea3fab386c1`（仅 androidTest）。
+- 在 1080×2340 @440（851dp 高）上：
+  - Production 权威测试 **21/21 PASS**；
+  - `SourceCompleteInteractionContractTest` **17/17 PASS**；
+  - 合计 **38/38 PASS**，此前 851dp 的 4 类失败全部消除。
+- 修复方式：对 LazyColumn 的 change-entry 先 `performScrollToNode`；多节点文本用
+  `onAllNodesWithText(...).onFirst()`；手机宽度改断言 compact orbit +
+  `pdig.change.projection.after`，不再要求只存在于 MEDIUM/EXPANDED 的
+  `pdig.change.new`；Records 的底部说明先 `performScrollTo()`。
+- 没有删除测试、没有降低产品断言；这些测试在 CI 914dp 仍通过。
+- 证据截图仍来自 `7993f29d`；`8fef8030` 只改测试代码，不改变任何渲染页面。
+- 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
+
 

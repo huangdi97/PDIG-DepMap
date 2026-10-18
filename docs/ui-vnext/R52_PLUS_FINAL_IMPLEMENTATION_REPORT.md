@@ -5,11 +5,11 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `7993f29d4dafdffe4791c7bf450169dfcba1558e`  
-> **Visual/Production evidence source HEAD:** `6b823fb6`. The later source deltas
-> are a rail-label testTag (`a1ee036f`) and advanced Production consumer copy
-> (`7993f29d`); neither changes the captured phone/tablet/Production lock-Now-Me
-> screens.  
+> **Final source HEAD of this round:** `8fef80307c86b89958f82798f61d3ea3fab386c1`  
+> **Visual/Production evidence source HEAD:** `6b823fb6` (phone/tablet/Production)
+> and `7993f29d` (Expanded). Later source deltas are a rail-label testTag, advanced
+> Production consumer copy, and `8fef8030` androidTest-only 851dp robustness;
+> none changes the captured screens.  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -67,6 +67,7 @@ re-count them as new features.
 | `6b823fb6` | Round 2: show a 9sp visible label under every primary rail icon at MEDIUM (still 80dp, 48dp touch target; tablet contract asserts all five); label the Me attention metric `需关注` instead of `待处理`, because Now's `需要处理` total also includes review items. Counts are unchanged. |
 | `a1ee036f` | TestTag-only: expose `pdig.nav.<route>.label` in the expanded rail branch too, so the tablet contract is independent of rail mode (MEDIUM vs EXPANDED/rotation). No visual change. |
 | `7993f29d` | Advanced Production copy: ChangePlan completion/version wording, establish/import boundaries, maintenance confirmations, manual relationship type list and unavailable state no longer print `Plan Projection`, `Reality`, `Canonical v3`, `runtime registry`, `graphRevision`, `Proposal` or `authority`. Gates and fail-closed behaviour unchanged. |
+| `8fef8030` | androidTest-only 851dp robustness: scroll to lazy change-entry, multi-node text matchers, compact orbit assertion. 38/38 contracts pass at 1080×2340@440; no rendered change. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -99,23 +100,20 @@ Production default flag or release configuration was changed.
 
 A first run of the 21 Production contracts at 1080×2340@440 had **1 failure**:
 `governedPhoneAndEmailAppearInProductionCategoriesAndDetails` could not see the
-phone change entry because it was below the fold on the shorter viewport. The
-same test passed at the CI-equivalent 1080×2400@420 viewport, and the entire
-21-test set then passed. This is recorded as a pre-existing test-visibility
-fragility, not as a product regression; no product code was changed to make it
-pass.
+phone change entry because it was below the fold on the shorter viewport.
 
-Four unrelated `SourceCompleteInteractionContractTest` cases also fail on the
-shorter 851 dp phone viewport for the same class of reason (text count / off-fold
-nodes). The two assertions added by this round — unnamed-number de-duplication
-and account status localisation — **pass** in that run. They are not part of the
-official CI gate set.
+**Closed in Round 5:** `8fef8030` scrolls to the tagged LazyColumn node before
+asserting, uses `onAllNodesWithText(...).onFirst()` for repeated labels, and
+asserts the compact continuity orbit instead of the MEDIUM/EXPANDED-only
+`pdig.change.new` tag. At 1080×2340 @440, **38/38 contracts pass** (21 Production
++ 17 interaction). No product assertion was removed and no product code was
+changed. The same tests still pass at the CI 914 dp viewport.
 
 ## 5. Screens actually captured
 
 ### Phone (1080×2340 @440 dpi, Pixel 5 AVD, API36)
 
-Capture source: Preview APK built at `6b823fb6` (final source HEAD).
+Capture source: Preview APK built at `6b823fb6`; later deltas are test/copy-only.
 70 real PNGs, including:
 
 - first launch, Now, Me from primary navigation, Now return, orbit / zoom / reset;
@@ -139,7 +137,7 @@ Capture source: Preview APK built at `6b823fb6` (final source HEAD).
 
 ### Tablet (1200×1920 @240 dpi, 800×1280 dp MEDIUM, Pixel Tablet AVD, API36)
 
-Capture source: `6b823fb6` (final source HEAD).
+Capture source: `6b823fb6`; later deltas are test/copy-only.
 34 real PNGs + `source-complete-raw-manifest.json`, including:
 
 - Now with the GPU earth actually visible;
@@ -190,7 +188,7 @@ After remains a plan projection; the After capture shows `旧号码（已停用�
 | Priority | Item | Status |
 | --- | --- | --- |
 | Resolved | Advanced Production manual/import/establish copy | ChangePlan / establish / import / maintenance / manual relationship / review now use consumer Chinese; behavior unchanged. |
-| P2 | The phone production test at 851 dp failed one off-fold assertion; it passes at the CI 914 dp viewport. The test should scroll to lazy nodes. | Pre-existing test fragility; no product change. |
+| Resolved | 851 dp phone test visibility | `8fef8030`; 38/38 contracts pass at 1080×2340@440, no product assertion removed. |
 | External | Original 1536×1024 reference board is absent; the in-repo 320×213 JPEG is truncated (`broken data stream`). | Blocks pixel-level diff, not progression. |
 | Human | Visual acceptance, Android reference freeze and Production cutover. | `PENDING` / `HOLD` / `HOLD`. |
 
@@ -198,15 +196,15 @@ After remains a plan projection; the After capture shows `旧号码（已停用�
 
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
-EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals at 6b823fb6;
-                                  final 7993f29d CI re-run covers the testTag + copy deltas)
+EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals;
+                                  final 8fef8030 CI covers the testTag/copy/test deltas)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at 7993f29d (9/9 checks; source 7993f29d)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at 8fef8030 (9/9 checks; source 8fef8030)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

@@ -449,12 +449,14 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   （Now / Infrastructure / Cards / Card detail / Change / Current / Transition /
   After / Records / Me）。五项 Rail 可见标签、Cards 右侧预览、After 计划投影均
   已在真实运行中确认。
-- 主证据 MANIFEST 更新为 248 项。
+- 主证据 MANIFEST 更新为 251 项。
 
 ### 仍保留
 
-- 851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动；CI 914dp
-  全过。属于测试可见性，不是产品失败。
+- ~~851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动~~ **已在
+  Round 5 收口**：38/38 contracts PASS at 1080×2340 @440（仅测试滚动/多节点
+  matcher 修复，无产品断言删除）。
 - Human Visual Acceptance / Reference Freeze / Production Cutover 仍为
   PENDING / HOLD / HOLD；参考板仍损坏。
+
 
