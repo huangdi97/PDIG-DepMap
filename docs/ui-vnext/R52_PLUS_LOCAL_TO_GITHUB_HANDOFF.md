@@ -5,11 +5,12 @@
 > Worktree: `E:\AI\号卡管理`  
 > Branch: `feat/android-ui-vnext-translation`  
 > PR #1: https://github.com/huangdi97/PDIG-DepMap/pull/1 (Draft, not merged)  
-> **Final local/source HEAD: `fe60a62245db17e5fba4d8dc2bbf399ae26c881f`**  
+> **Final local/source HEAD: `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96`**  
 > **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
 > `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×), `e202a349`
 > (tablet 1.5×), `fe60a622` (Expanded 1.5×), `6b823fb6` (tablet/Production),
-> `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
+> `7993f29d` (Expanded), `c035ce9a` (advanced Production), `7aaa612c`
+> (Production 1.5×).  
 > Local round-start HEAD: `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > Remote round-start HEAD: `562d83f44733def5c805c64e4ed53f8746ddbce4`
 
@@ -58,6 +59,7 @@ force push, merge `main`, or enable the Production cutover.
 | `edc8b2f2` | 1.5× accessibility: greeting badge, R9 bottom bar, stacked Me identity |
 | `e202a349` | Tablet 1.5× top bar: title width + privacy chip |
 | `fe60a622` | Expanded 1.5×: single-column Now + compact Change Phone |
+| `7aaa612c` | Production BottomNav inset at 1.5× |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
@@ -80,6 +82,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── tablet-font-scale-1.3/            # 4 real PNGs at tablet MEDIUM 1.3x
 ├── tablet-font-scale-1.5/            # 4 real PNGs at tablet MEDIUM 1.5x
 ├── expanded-1.5/                     # 4 real PNGs at Expanded 1.5x
+├── production-1.5/                   # 3 PNGs + 1 FLAG_SECURE proof at Production 1.5x
 ├── phone-landscape/                  # 4 real PNGs at 851x393dp
 └── logs/                             # capture, JVM/build, Production logs
 ```
@@ -147,6 +150,8 @@ Evidence rules used:
     tablet 1.5×; title and privacy chip no longer clip.
 19. `expanded-1.5/01-now.png`, `04-change-phone.png` — Expanded 1.5×; sections
     stack and Change Phone uses the compact stepper.
+20. `production-1.5/01-now.png`, `02-me.png`, `03-change.png` — Production 1.5×
+    bottom labels fixed; `04-records.png` is the intentional FLAG_SECURE proof.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing

@@ -1,10 +1,11 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `fe60a62245db17e5fba4d8dc2bbf399ae26c881f`  
+> **Final source HEAD:** `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96`  
 > **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
 > `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×), `e202a349`
 > (tablet 1.5×), `fe60a622` (Expanded 1.5×), `6b823fb6` (tablet/Production),
-> `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
+> `7993f29d` (Expanded), `c035ce9a` (advanced Production), `7aaa612c`
+> (Production 1.5×).  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -15,8 +16,8 @@
 > Production: 1080×2400 @420 dpi, Pixel phone AVD, API36, installed
 > `com.pdig.app` APK.
 >
-> **Summary:** 149 real PNGs across 11 sets (phone 1.0/1.3/1.5, landscape,
-> tablet 1.0/1.3/1.5, Expanded 1.0/1.5, Production lock + advanced); **319
+> **Summary:** 153 PNGs across 12 sets (phone 1.0/1.3/1.5, landscape,
+> tablet 1.0/1.3/1.5, Expanded 1.0/1.5, Production lock/advanced/1.5); **328
 > evidence files** including semantics, manifests, logs and SHA lists.
 
 ## 1. Reference fidelity caveat (blocking pixel diff, not progression)
@@ -176,6 +177,15 @@ No defect found; this is verification evidence, not a new fix.
 | Me | `02-me.png` | identity stacked; email + hints visible |
 | Change | `03-change.png` | cards/CTAs at 1.5× |
 | Cards | `04-cards.png` | collection readable |
+
+### 5b-5. Production 1.5× (4 PNGs, source `7aaa612c`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Now | `production-1.5/01-now.png` | bottom labels fully visible |
+| Me | `02-me.png` | continuity cards readable |
+| Change | `03-change.png` | preparation cards readable |
+| Records | `04-records.png` | **black by `FLAG_SECURE`**; XML proves render |
 
 ### 5b-3b. Expanded 1.5× (4 real PNGs, source `fe60a622`)
 

@@ -5,11 +5,12 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `fe60a62245db17e5fba4d8dc2bbf399ae26c881f`  
+> **Final source HEAD of this round:** `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96`  
 > **Visual/Production evidence source HEAD:** `302a65d6` (phone 1.0), `b85c7a57`
 > (1.3×), `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×),
 > `e202a349` (tablet 1.5×), `fe60a622` (Expanded 1.5×), `6b823fb6` (tablet),
-> `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
+> `7993f29d` (Expanded), `c035ce9a` (advanced Production), `7aaa612c`
+> (Production 1.5×).  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -76,6 +77,7 @@ re-count them as new features.
 | `edc8b2f2` | 1.5× accessibility: greeting column weight + single-line badge; R9 bottom bar 84dp and no double inset; Me identity cards stack full-width above 1.35×. 1.0/1.3 unchanged. |
 | `e202a349` | Tablet 1.5× top bar: hide the PDIG wordmark above 1.15× so the section title isn't ellipsized; privacy chip shortens to 已遮蔽/未遮蔽. 1.0/1.3 unchanged. |
 | `fe60a622` | Expanded 1.5×: Now uses single-column sections; Change Phone uses the compact stepper and compact continuity scene. 1.0/1.3 unchanged. |
+| `7aaa612c` | Production BottomNav at 1.5×: apply `navigationBarsPadding()` before the 80/96dp height so labels sit above the system gesture inset. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -132,10 +134,13 @@ changed. The same tests still pass at the CI 914 dp viewport.
 | Expanded 1.5× | same, 1.5× | `fe60a622` | 4 |
 | Production lock/unlock | 1080×2400 @420 | `fc29138e`/`6b823fb6` | 4 |
 | Production advanced | 1080×2340 @440 | `c035ce9a` | 4 |
-| **Total** | | | **149 PNG** |
+| Production 1.5× | 1080×2400 @420 | `7aaa612c` | 4 |
+| **Total** | | | **153 PNG** |
 
-The evidence root contains **319 files** including XML semantics, JSON
-manifests, logs and SHA lists.
+The evidence root contains **328 files** including XML semantics, JSON
+manifests, logs and SHA lists. `production-1.5/04-records.png` is intentionally
+black: Production Records requires `FLAG_SECURE`; its XML proves the screen is
+rendered and no attempt was made to bypass the flag.
 
 ### Phone (1080×2340 @440 dpi, Pixel 5 AVD, API36)
 
@@ -236,6 +241,14 @@ At 1.5× the greeting badge wrapped to three lines, the subtitle clipped, the R9
 bottom labels were cut by the fixed 68dp bar, and Me identity hints disappeared in
 narrow columns. Fixes: greeting column weight + single-line badge; R9 bar 84dp and
 no double inset; Me identity stacks full-width above 1.35×. 1.0/1.3 are unchanged.
+
+### Production 1.5× (1080×2400 @420)
+
+Source `7aaa612c`; 3 readable PNGs + 1 intentional `FLAG_SECURE` black PNG + XML
+under `production-1.5/`. At 1.5× the shared Production BottomNav labels were cut
+by the gesture inset. Apply `navigationBarsPadding()` *before* the 80/96dp height
+so the inset sits outside the item content. Now/Me/Change are readable; Records is
+black by security policy with its semantics captured in XML.
 
 ### Expanded 1.5× (1280×800 dp)
 

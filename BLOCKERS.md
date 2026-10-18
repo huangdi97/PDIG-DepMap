@@ -512,3 +512,9 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   真实截图 + manifest，证据合计 319 项。
 - 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
 - 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 14 更新（2026-10-18）
+
+- Production VNext 1.5×：底部导航标签裁切已修复；1.0 无回归。Records 的黑色
+  截图是 `FLAG_SECURE` 的预期行为，不是 UI 缺陷。
+- 新增 4 项 Production 1.5× 证据，总计 328 项；无已知本地代码/测试/构建问题。
