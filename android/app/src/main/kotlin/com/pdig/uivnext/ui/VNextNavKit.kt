@@ -140,6 +140,7 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
                     color = if (selected) PdigV2Colors.TextPrimary else PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    modifier = Modifier.testTag("pdig.nav.${screen.route}.label"),
                 )
             }
         } else {
