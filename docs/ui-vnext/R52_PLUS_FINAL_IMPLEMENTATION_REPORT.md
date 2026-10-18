@@ -262,14 +262,14 @@ reachable with 48 dp targets.
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
 EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals;
-                                  final edc8b2f2 re-runs all nine checks)
+                                  final e202a349 re-runs all nine checks)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at edc8b2f2 (9/9 checks; source edc8b2f2)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at e202a349 (9/9 checks; source e202a349)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,
