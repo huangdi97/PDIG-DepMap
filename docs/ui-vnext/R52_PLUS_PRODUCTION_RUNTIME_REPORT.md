@@ -176,17 +176,45 @@ test visibility, not a product failure, and no assertion was weakened.
   (“Legacy WeChat Statement Source”); that is real local test data, not a
   synthetic Preview fixture. The rehearsal never imports or fabricates data.
 
-## 7. Gate statement
+## 7. Approved cutover artifact (2026-10-18)
+
+After the user approved cutover, a **release** APK was built with the two keys and
+a non-production signing identity:
+
+| Item | Value |
+| --- | --- |
+| Code tree | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96` |
+| Artifact `GIT_SHA` | `01d0de3a` |
+| Version | `0.3.1` (2) |
+| BuildConfig | `release`, `DEBUG=false`, generation `vnext`, approval `true` |
+| APK SHA-256 | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c` |
+| Installed base.apk | same hash as the candidate |
+| Default launch, no extras | LockGate → Production VNext |
+| Legacy control APK | `287afd58…0316`, opens the Legacy shell |
+| Signer | `CN=PDIG NON-PRODUCTION TEST KEY` |
+
+Evidence: `artifacts/runtime-evidence/2026-10-17-r61-plus/production-cutover/`
+(now/me/change screenshots, FLAG_SECURE Records proof, both lock/home rollback
+captures, DEX `BuildConfig` dumps, APK identity, build logs, manifest).
+
+Repository Gradle defaults deliberately remain `legacy` / `false`; the approved
+artifact carries the decision. Store release remains **HOLD** because no production
+signing identity is configured.
+
+## 8. Gate statement
 
 ```text
-PRODUCTION_DEFAULT                 = LEGACY (compiled and re-proven)
+PRODUCTION_DEFAULT_REPOSITORY      = LEGACY (intentional, re-proven)
+APPROVED_RELEASE_ARTIFACT          = PRODUCTION_VNEXT
 PRODUCTION_REHEARSAL_LOCAL         = PASS (secure + release-default)
 PRODUCTION_CONTRACTS_LOCAL         = PASS 21/21 at CI viewport
 PRODUCTION_DEFAULT_BUILD           = PASS
-PRODUCTION_CUTOVER_BUILD           = PASS (explicit rehearsal only)
-PRODUCTION_APK_IDENTITY            = MATCH (local == installed for cutover)
-PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
-HUMAN_VISUAL_ACCEPTANCE            = PENDING
+PRODUCTION_CUTOVER_BUILD           = PASS (two-key release APK)
+PRODUCTION_APK_IDENTITY            = MATCH (local == installed)
+PRODUCTION_CUTOVER                 = APPROVED / CANDIDATE_VERIFIED
+HUMAN_VISUAL_ACCEPTANCE            = ACCEPT (2026-10-18)
+ANDROID_REFERENCE_FREEZE           = APPROVED (2026-10-18)
+STORE_RELEASE                      = HOLD (production signing absent)
 ```
 
 Production Rehearsal at the final source `7aaa612c` is green
@@ -195,4 +223,4 @@ the same-code docs head `874e13f0` has CI and iOS green
 ([39129093200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093200),
 [39129093169](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093169)).
 The core jobs at `7aaa612c` were cancelled by branch concurrency, not failed.
-The Production default remains Legacy and the cutover remains `HOLD`.
+The repository default remains Legacy; the approved artifact is VNext.

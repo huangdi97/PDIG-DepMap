@@ -34,7 +34,9 @@ Then read, in this order:
 5. `artifacts/runtime-evidence/2026-10-17-r61-plus/MANIFEST.json`
 
 Do **not** reuse older screenshot directories as current evidence, and do not
-force push, merge `main`, or enable the Production cutover.
+force push or merge `main`. Production cutover for this frozen tree is approved and
+recorded in `ANDROID_REFERENCE_FREEZE_2026-10-18.md`; any further cutover change
+needs a new approval.
 
 ## 2. Exact commits added in this round
 
@@ -83,6 +85,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── tablet-font-scale-1.5/            # 4 real PNGs at tablet MEDIUM 1.5x
 ├── expanded-1.5/                     # 4 real PNGs at Expanded 1.5x
 ├── production-1.5/                   # 3 PNGs + 1 FLAG_SECURE proof at Production 1.5x
+├── production-cutover/               # 6 PNGs, XML, BuildConfig dumps, hashes, build logs
 ├── phone-landscape/                  # 4 real PNGs at 851x393dp
 └── logs/                             # capture, JVM/build, Production logs
 ```
@@ -102,17 +105,21 @@ Evidence rules used:
 - No image in this evidence set is an AI mockup, desktop render or Compose
   preview.
 
-## 4. What is still open (all human/external)
+## 4. Decision record and remaining holds
 
-| Item | State | Why |
+| Item | State | Note |
 | --- | --- | --- |
-| Human visual acceptance | `PENDING` | Only you can sign per-screen ACCEPT / ACCEPT_WITH_NITS / REJECT. |
-| Android Reference Freeze | `HOLD` | Needs human acceptance and a frozen screenshot/SHA manifest. |
-| Production cutover | `HOLD` | Default remains Legacy; no explicit approval was given. |
-| Original 1536×1024 reference board | Missing | The in-repo 320×213 JPEG is truncated (`broken data stream`); pixel-level diff is impossible. |
+| Human visual acceptance | **ACCEPT (2026-10-18)** | User approved 1 / 2 / 3 in the final gate request. |
+| Android Reference Freeze | **APPROVED (2026-10-18)** | Frozen manifest: `docs/ui-vnext/ANDROID_REFERENCE_FREEZE_2026-10-18.md`. |
+| Production cutover | **APPROVED / CANDIDATE VERIFIED** | Two-key release APK `cd8afab1…` defaults to VNext; legacy control `287afd58…` opens Legacy. |
+| Store release | `HOLD` | No production signing identity; candidate uses the non-production test key. |
+| Original 1536×1024 reference board | Missing | The in-repo 320×213 JPEG is truncated; no pixel-level diff, accepted as an exception. |
 | Master document `PDIG_v2.3-R1_..._2026-10-07.md` | Missing | Still absent from both local and remote trees. |
-| Android Reference Freeze manifest | Not created | Must follow human acceptance. |
 | P2 copy/test items | Resolved | 851 dp contracts now 38/38; no remaining known consumer-facing jargon in the reviewed Production flows. |
+
+The guardrail in §2 not to enable Production cutover was the pre-approval rule. It
+is superseded for this artifact by the explicit 2026-10-18 user approval recorded
+above; repository Gradle defaults remain `legacy` / `false` by design.
 
 ## 5. Suggested human review order
 
@@ -152,6 +159,10 @@ Evidence rules used:
     stack and Change Phone uses the compact stepper.
 20. `production-1.5/01-now.png`, `02-me.png`, `03-change.png` — Production 1.5×
     bottom labels fixed; `04-records.png` is the intentional FLAG_SECURE proof.
+21. `production-cutover/01-now.png` … `06-legacy-control-home.png` — approved
+    two-key release candidate defaults to VNext and the Legacy control rolls back.
+    Artifact hashes and `BuildConfig` dumps are in the same directory; freeze record
+    is `ANDROID_REFERENCE_FREEZE_2026-10-18.md`.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing

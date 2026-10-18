@@ -518,3 +518,11 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
 - Production VNext 1.5×：底部导航标签裁切已修复；1.0 无回归。Records 的黑色
   截图是 `FLAG_SECURE` 的预期行为，不是 UI 缺陷。
 - 新增 4 项 Production 1.5× 证据，总计 328 项；无已知本地代码/测试/构建问题。
+
+## R52+ Round 16 更新（2026-10-18）
+
+- 用户已批准视觉验收、Android Reference Freeze、Production Cutover。
+- 双钥 release candidate 已验证无 extra 默认进入 Production VNext；legacy control
+  已验证回滚；BuildConfig 与 APK 哈希均已审计。
+- 唯一剩余发布门禁：生产签名与商店上架，`STORE_RELEASE = HOLD`。
+- 参考板原图 / 最高母版文档仍缺，但已不阻塞 UI/Reference Freeze 决策。

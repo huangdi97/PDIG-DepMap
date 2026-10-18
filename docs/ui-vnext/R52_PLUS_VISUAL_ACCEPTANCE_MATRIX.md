@@ -6,8 +6,8 @@
 > (tablet 1.5×), `fe60a622` (Expanded 1.5×), `6b823fb6` (tablet/Production),
 > `7993f29d` (Expanded), `c035ce9a` (advanced Production), `7aaa612c`
 > (Production 1.5×).  
-> **Human verdict is still empty by design.** This file is a review worksheet, not
-> an acceptance record. `HUMAN_ACCEPTED = PENDING`.
+> **Human verdict:** `ACCEPT` on 2026-10-18 (visual acceptance + Android Reference
+> Freeze + Production Cutover approved). `ANDROID_REFERENCE_FREEZE = APPROVED`.
 >
 > Evidence root: `artifacts/runtime-evidence/2026-10-17-r61-plus/`  
 > Phone: 1080×2340 @440 dpi, Pixel 5 AVD, API36.  
@@ -16,9 +16,9 @@
 > Production: 1080×2400 @420 dpi, Pixel phone AVD, API36, installed
 > `com.pdig.app` APK.
 >
-> **Summary:** 153 PNGs across 12 sets (phone 1.0/1.3/1.5, landscape,
-> tablet 1.0/1.3/1.5, Expanded 1.0/1.5, Production lock/advanced/1.5); **328
-> evidence files** including semantics, manifests, logs and SHA lists.
+> **Summary:** 159 PNGs across 13 sets (phone 1.0/1.3/1.5, landscape,
+> tablet 1.0/1.3/1.5, Expanded 1.0/1.5, Production lock/advanced/1.5/cutover);
+> **344 evidence files** including semantics, manifests, logs and SHA lists.
 
 ## 1. Reference fidelity caveat (blocking pixel diff, not progression)
 
@@ -177,6 +177,21 @@ No defect found; this is verification evidence, not a new fix.
 | Me | `02-me.png` | identity stacked; email + hints visible |
 | Change | `03-change.png` | cards/CTAs at 1.5× |
 | Cards | `04-cards.png` | collection readable |
+
+### 5b-6. Production cutover (6 PNGs, artifact `01d0de3a`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| VNext Now | `production-cutover/01-now.png` | no-extra release launch → VNext after unlock |
+| VNext Me | `02-me.png` | Production VNext |
+| VNext Change | `03-change.png` | Production VNext |
+| VNext Records | `04-records.png` | black by `FLAG_SECURE`; XML proves render |
+| Legacy control lock | `05-legacy-control-lock.png` | rollback APK starts |
+| Legacy control home | `06-legacy-control-home.png` | rollback opens Legacy shell |
+
+BuildConfig dumps: `buildconfig-vnext.txt` (`vnext`/`true`) and
+`buildconfig-legacy.txt` (`legacy`/`false`). APK identity and hashes:
+`APK_IDENTITY.txt`.
 
 ### 5b-5. Production 1.5× (4 PNGs, source `7aaa612c`)
 

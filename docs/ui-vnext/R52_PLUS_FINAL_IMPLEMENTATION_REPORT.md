@@ -135,12 +135,14 @@ changed. The same tests still pass at the CI 914 dp viewport.
 | Production lock/unlock | 1080×2400 @420 | `fc29138e`/`6b823fb6` | 4 |
 | Production advanced | 1080×2340 @440 | `c035ce9a` | 4 |
 | Production 1.5× | 1080×2400 @420 | `7aaa612c` | 4 |
-| **Total** | | | **153 PNG** |
+| Production cutover | 1080×2400 @420 | artifact `01d0de3a` | 6 |
+| **Total** | | | **159 PNG** |
 
-The evidence root contains **328 files** including XML semantics, JSON
-manifests, logs and SHA lists. `production-1.5/04-records.png` is intentionally
-black: Production Records requires `FLAG_SECURE`; its XML proves the screen is
-rendered and no attempt was made to bypass the flag.
+The evidence root contains **344 files** including XML semantics, JSON
+manifests, logs and SHA lists. `production-1.5/04-records.png` and
+`production-cutover/04-records.png` are intentionally black: Production Records
+requires `FLAG_SECURE`; their XML proves the screen is rendered and no attempt was
+made to bypass the flag.
 
 ### Phone (1080×2340 @440 dpi, Pixel 5 AVD, API36)
 
@@ -242,6 +244,19 @@ bottom labels were cut by the fixed 68dp bar, and Me identity hints disappeared 
 narrow columns. Fixes: greeting column weight + single-line badge; R9 bar 84dp and
 no double inset; Me identity stacks full-width above 1.35×. 1.0/1.3 are unchanged.
 
+### Production cutover (2026-10-18)
+
+Source tree `7aaa612c`; release artifact `GIT_SHA=01d0de3a`; 6 PNGs + XML +
+BuildConfig dumps under `production-cutover/`.
+The user approved visual acceptance, Android Reference Freeze and Production
+Cutover. A release APK built with `vnext` + `true` and the non-production test key
+opens Production VNext with no Intent extras; its installed hash matches the
+candidate, its DEX BuildConfig shows `release / DEBUG=false / vnext / true`, the
+Legacy control opens the Legacy shell, and five primary destinations exist.
+Repository Gradle defaults remain `legacy` / `false`; the artifact carries the
+decision. `STORE_RELEASE=HOLD` because no production signing identity exists.
+Freeze record: `ANDROID_REFERENCE_FREEZE_2026-10-18.md`.
+
 ### Production 1.5× (1080×2400 @420)
 
 Source `7aaa612c`; 3 readable PNGs + 1 intentional `FLAG_SECURE` black PNG + XML
@@ -300,8 +315,9 @@ reachable with 48 dp targets.
 
 **No known local code/test/build defect remains.** All viewports/font scales tested
 above have real captures and passing checks; further combinations are exploratory,
-not blocked by a known product defect. The only non-code blocker is the truncated
-reference board, and the only remaining approval is the human gate.
+not blocked by a known product defect. The user approved visual acceptance,
+Android Reference Freeze and Production Cutover on 2026-10-18. Store release is
+still `HOLD` only because no production signing identity is configured.
 
 ## 8. Gate statement
 
@@ -310,11 +326,12 @@ SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
 EXACT_HEAD_TESTED           = YES (local JVM/build; runtime 4/4 at 7aaa612c;
                                   core 5/5 at 874e13f0, whose android/ diff is empty)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
-VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
-HUMAN_ACCEPTED              = PENDING
-ANDROID_REFERENCE_FREEZE    = HOLD
-PRODUCTION_CUTOVER          = HOLD
-PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
+VISUAL_CANDIDATE            = ACCEPTED_BY_USER (2026-10-18)
+HUMAN_ACCEPTED              = ACCEPT (2026-10-18)
+ANDROID_REFERENCE_FREEZE    = APPROVED (2026-10-18)
+PRODUCTION_CUTOVER          = APPROVED / RELEASE_CANDIDATE_VERIFIED
+PRODUCTION_DEFAULT          = REPOSITORY LEGACY; APPROVED ARTIFACT VNEXT
+STORE_RELEASE               = HOLD (production signing identity absent)
 GITHUB_CI_AT_FINAL_HEAD     = PASS (runtime 4/4 at 7aaa612c; core 5/5 at
                               874e13f0 — same android/ tree; core at 7aaa was
                               cancelled by branch concurrency, not failed)
