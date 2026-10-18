@@ -1,6 +1,6 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 14 Production 1.5x)",
+  "round": "R52+ (round 16 cutover approval)",
   "dateLocal": "2026-10-18",
   "finalSourceHead": "7aaa612c6a6dfdd0ef431a8a67879f1caef63f96",
   "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (phone 1.5x); e202a349 (tablet 1.5x); fe60a622 (Expanded 1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced); 7aaa612c (Production 1.5x)",
@@ -21,14 +21,15 @@
     "productionPng": 4,
     "productionAdvancedPng": 4,
     "production15Png": 4,
+    "cutoverPng": 6,
     "dynamicTypePng": 6,
     "tabletDynamicTypePng": 4,
     "dynamicType15Png": 4,
     "tabletDynamicType15Png": 4,
     "expandedDynamicType15Png": 4,
     "landscapePng": 4,
-    "totalFiles": 328,
-    "totalBytes": 65921350
+    "totalFiles": 344,
+    "totalBytes": 67997566
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -1152,6 +1153,86 @@
       "sha256": "89eb9bf4eac740d350adf5195c0ccc2b0378a9112ff746c7f58665bb4f3e80f3"
     },
     {
+      "path": "production-cutover/01-now.png",
+      "bytes": 1031786,
+      "sha256": "b6e8ef5cd2f4d30673e89d9ff7f1999ec3353c29b7d7c765bcd9582c4d0f12a1"
+    },
+    {
+      "path": "production-cutover/01-now.xml",
+      "bytes": 18898,
+      "sha256": "38fde468e90ca7effc4a38417fbe79917891be3fcd2cbb1cdb8d467066203456"
+    },
+    {
+      "path": "production-cutover/02-me.png",
+      "bytes": 200062,
+      "sha256": "c83f952c92ae26a961b48a604e4d6d0934ac7685758dca63a7b2783540404545"
+    },
+    {
+      "path": "production-cutover/02-me.xml",
+      "bytes": 23460,
+      "sha256": "75c984820cc26179e358c88fbe8d61a78f378e651dc778151e9073191dc8a083"
+    },
+    {
+      "path": "production-cutover/03-change.png",
+      "bytes": 264537,
+      "sha256": "62797a099973ac07853ea4cbd9d91e1a9cb211ecde98f928b77f4c11f05452f7"
+    },
+    {
+      "path": "production-cutover/03-change.xml",
+      "bytes": 17455,
+      "sha256": "b67e5a741b4df312c541e2d00b49efba2079887fb9846adf561d9e51c810f5c2"
+    },
+    {
+      "path": "production-cutover/04-records.png",
+      "bytes": 15580,
+      "sha256": "c35bacdb98b522206335afa5b9baffd2e4e3352a40749bb747e469cd403af514"
+    },
+    {
+      "path": "production-cutover/04-records.xml",
+      "bytes": 14976,
+      "sha256": "02db95875526e507001607bf451ff13e0ee15eed4c5ee571ca2a0ad53e6aa9a6"
+    },
+    {
+      "path": "production-cutover/05-legacy-control-lock.png",
+      "bytes": 220351,
+      "sha256": "2e256171c59696f42f145522da67e3e50c19385162c7b0c915b520a86c1d39ef"
+    },
+    {
+      "path": "production-cutover/06-legacy-control-home.png",
+      "bytes": 253081,
+      "sha256": "4b6e29686048f518b812e10f804499d742d1c63a51442dd6ae44d9edc3ab9f86"
+    },
+    {
+      "path": "production-cutover/APK_IDENTITY.txt",
+      "bytes": 580,
+      "sha256": "6c1fbd7adad4f92047d6596348b4163f4d8c395bc410f341753385518450fb61"
+    },
+    {
+      "path": "production-cutover/MANIFEST.json",
+      "bytes": 2696,
+      "sha256": "4c7633932eeb31474e20c61ed08c622eac94b33e872bed545ea5981338a1b569"
+    },
+    {
+      "path": "production-cutover/buildconfig-legacy.txt",
+      "bytes": 1091,
+      "sha256": "d3b52955c0a08b4c86a0b62ed49699e97a779df2cd8038f6243a661ff2b452d2"
+    },
+    {
+      "path": "production-cutover/buildconfig-vnext.txt",
+      "bytes": 1089,
+      "sha256": "55b6b923bb95c888ab066de475b13469652c9a8ec9c6e8c620a3bb1aa22dbcba"
+    },
+    {
+      "path": "production-cutover/cutover-build-legacy.log",
+      "bytes": 6769,
+      "sha256": "690a3bb1e944b701fd3a2e62f8f5da9aecdcbd7e90f03ee41a8d8d5074de2a59"
+    },
+    {
+      "path": "production-cutover/cutover-build-vnext.log",
+      "bytes": 3805,
+      "sha256": "0715fbad6544276e98d6063d3e73b4b99597db7693df0d807a607832de8f8702"
+    },
+    {
       "path": "production/01-cutover-locked.png",
       "bytes": 155137,
       "sha256": "b240d054781b97f4dcfafb0a319bb41687e4134bc3982b7809f540ba05835d91"
@@ -1676,5 +1757,12 @@
       "bytes": 193361,
       "sha256": "02ca4b6be574cd233928b9cf6c6edcf5e3913a2acbb23ccadd02a2fc103e06cb"
     }
-  ]
+  ],
+  "cutoverArtifact": {
+    "gitSha": "01d0de3a",
+    "apkSha256": "cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c",
+    "legacyControlSha256": "287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316",
+    "signer": "CN=PDIG NON-PRODUCTION TEST KEY",
+    "storeRelease": "HOLD"
+  }
 }
