@@ -1,24 +1,26 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 3 advanced Production copy)",
+  "round": "R52+ (round 4 Expanded evidence)",
   "dateLocal": "2026-10-18",
   "finalSourceHead": "7993f29d4dafdffe4791c7bf450169dfcba1558e",
-  "previewEvidenceSourceHead": "6b823fb6",
-  "previewSourceDelta": "a1ee036f adds a rail-label testTag; 7993f29d changes advanced Production consumer copy. Neither changes the captured phone/tablet/Production lock-Now-Me screens.",
+  "previewEvidenceSourceHead": "7993f29d",
+  "previewSourceDelta": "none; Expanded, phone and tablet captures are built from 7993f29d",
   "previewApkSha256": "a1869d4333c5082b7835fa922a997f18f599fc3b5aa2055ecbfbb3341712320a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
   "device": {
     "phone": "Google sdk_gphone64_x86_64 API36 1080x2340@440",
     "tablet": "Google sdk_gphone64_x86_64 API36 1200x1920@240 (800x1280dp)",
+    "expanded": "Google sdk_gphone64_x86_64 API36 2560x1600@320 (1280x800dp)",
     "production": "Google sdk_gphone64_x86_64 API36 1080x2400@420"
   },
   "counts": {
     "phonePng": 70,
     "tabletPng": 34,
+    "expandedPng": 11,
     "productionPng": 4,
-    "totalFiles": 226,
-    "totalBytes": 45133138
+    "totalFiles": 248,
+    "totalBytes": 51787481
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -65,6 +67,16 @@
       "path": "logs/production-secure-rehearsal.txt",
       "bytes": 40,
       "sha256": "898851abb627b86bdd3ad5c6e768167dc9a9824fb2368606ea58b8fcbdb14f6d"
+    },
+    {
+      "path": "logs/tablet-expanded-contract.txt",
+      "bytes": 10933,
+      "sha256": "eb9b3524e96573eb4098fbb1d9c37bba07f40f0568c8413d738374228bc43dae"
+    },
+    {
+      "path": "logs/tablet-expanded-instrumentation.txt",
+      "bytes": 98,
+      "sha256": "d101a8be16318a066c07fa5fe8a23de613fea15e64fa4125669e4c349735a768"
     },
     {
       "path": "logs/tablet-screenshot-suite.txt",
@@ -980,6 +992,106 @@
       "path": "production/production-vnext-release-default/unlock-capability.xml",
       "bytes": 5672,
       "sha256": "0692abb4da3f637e2ae6724af0cda068df9115c7472347a65c4ab06b02708450"
+    },
+    {
+      "path": "tablet-expanded/01-now.png",
+      "bytes": 698615,
+      "sha256": "3e31e071795d49a46229ce4149211ee208a7fa7b2cb588421858e4a3ff66666e"
+    },
+    {
+      "path": "tablet-expanded/01-now.xml",
+      "bytes": 38650,
+      "sha256": "399ecd98df8689d9ca8a48c0cd08a23ff1a17116906f55e23e48f8f9c7c9bc5b"
+    },
+    {
+      "path": "tablet-expanded/02-infrastructure.png",
+      "bytes": 1301470,
+      "sha256": "b6251a6afefeec00aabc37a11e959ba2b8f33dbd9208c76d1eacf3a946da8665"
+    },
+    {
+      "path": "tablet-expanded/02-infrastructure.xml",
+      "bytes": 47874,
+      "sha256": "db379976858566bc1f3ccc98f4a8102bd249be90d39f0ecd252f5c575bc217e5"
+    },
+    {
+      "path": "tablet-expanded/03-cards.png",
+      "bytes": 1041853,
+      "sha256": "3ffe1e2a57ed174ab0b4ade5309f437e7d8e4adf47a42245b3f08bc3da1ed4ad"
+    },
+    {
+      "path": "tablet-expanded/03-cards.xml",
+      "bytes": 66494,
+      "sha256": "66633463b2dfacb692acc7f13960dda00cdb57208701dad5aeb485d0e9d7c055"
+    },
+    {
+      "path": "tablet-expanded/03a-card-selected.png",
+      "bytes": 1041908,
+      "sha256": "062fd61908680cdcf07f4e897a4fa6bb1e11514429d3be2e9ba6315fbc0b736b"
+    },
+    {
+      "path": "tablet-expanded/04-card-detail.png",
+      "bytes": 456076,
+      "sha256": "9f29c45a3bc27dabb8192e62fa614d807bd5c3179635efda943c5da1cac613fc"
+    },
+    {
+      "path": "tablet-expanded/04-card-detail.xml",
+      "bytes": 42496,
+      "sha256": "c6c92ec0fd670c553cacf56acbe0f686fce8b40c95ef8c5d77f1a86d23f44688"
+    },
+    {
+      "path": "tablet-expanded/05-change.png",
+      "bytes": 284068,
+      "sha256": "7c2a14471d81cb4b7465fa6266592a35be43f562a7b00254d243de70ccfa7152"
+    },
+    {
+      "path": "tablet-expanded/05-change.xml",
+      "bytes": 29138,
+      "sha256": "0aad9709eb5b0431b6d869c07f7c85c73fd0849e6ee431999b1b0f063b1f09e2"
+    },
+    {
+      "path": "tablet-expanded/06-change-phone-current.png",
+      "bytes": 279244,
+      "sha256": "4bf95022024870c80e9af523d7bcd7154b0ba166390e92c65cb007995b69ad9a"
+    },
+    {
+      "path": "tablet-expanded/06-change-phone.xml",
+      "bytes": 41040,
+      "sha256": "75ea0ba15ebf081c1e1c4c4282bcbc22e8eef607a5cabc119a0dd4698cfc8104"
+    },
+    {
+      "path": "tablet-expanded/07-change-phone-transition.png",
+      "bytes": 299753,
+      "sha256": "55c651d2b172432fe2529347feb90be4734c655a7d00642442fe6f5c14d37bd6"
+    },
+    {
+      "path": "tablet-expanded/08-change-phone-after.png",
+      "bytes": 313059,
+      "sha256": "877cf8b717fd16606474634283e839053a94d2e4c7c2c0dc9a9305337f5f6b74"
+    },
+    {
+      "path": "tablet-expanded/09-records.png",
+      "bytes": 296116,
+      "sha256": "e139920c0b8710680caba98aa403b1a66324657485ff98fad955193f6cb99f7d"
+    },
+    {
+      "path": "tablet-expanded/09-records.xml",
+      "bytes": 31695,
+      "sha256": "8950bc528ac9c9a7eb7d042c6b2d16b7956d62117d2b4cfe73d13cb373f0c274"
+    },
+    {
+      "path": "tablet-expanded/10-me.png",
+      "bytes": 290056,
+      "sha256": "13c0baa1b73c0744fdedecfe060e7045e773b25d41fda5823f715c62e3cef00b"
+    },
+    {
+      "path": "tablet-expanded/10-me.xml",
+      "bytes": 41441,
+      "sha256": "8886bbafa821b8fb3de71197aef286c276d59a0cb6f45e75d317ce5c198754d4"
+    },
+    {
+      "path": "tablet-expanded/MANIFEST.json",
+      "bytes": 2266,
+      "sha256": "7e632e9fba51c9504422b2423621e6466546b2422699d3fc608b123c0929d48a"
     },
     {
       "path": "tablet/ui-shots/01-now.png",
