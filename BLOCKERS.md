@@ -420,3 +420,20 @@ PRODUCTION_CUTOVER        = HOLD      (needs explicit approval; default stays Le
 IOS_UI_PARITY             = NOT_INFERRED_FROM_CI
 HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
 ```
+
+## R52+ Round 2 更新（2026-10-18）
+
+### 已解除（本轮源码 + 实测）
+
+- **MEDIUM Rail 只有图标**：五个一级入口现在都有可见 9sp 标签，
+  `TabletAdaptiveContractTest` 断言全部存在；80dp 宽度和 48dp 触控目标保持。
+- **Now 6 / Me 3 口径不一致**：Me 改为 `需关注 3` / `3 项需关注`；Now 仍表示
+  “关注 + 待复核”的总数。数值不变，歧义消除。
+
+### 仍保留
+
+- 高级 Production 手动/导入/建立流程的技术术语，列入下一轮消费者文案 pass。
+- 851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动；CI 914dp
+  全过。属于测试可见性，不是产品失败。
+- 参考板损坏与 1536×1024 原图缺失；Human Visual Acceptance / Reference Freeze /
+  Production Cutover 仍为 PENDING / HOLD / HOLD。

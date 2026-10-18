@@ -1,10 +1,9 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `fc29138e92295f98c29c657cd3dedd4d9072b2c8`  
-> **Preview capture source HEAD:** `067388f9` for phone/tablet. The only source
-> delta to `fc29138e` is a Production-only copy string in
-> `ProductionWorldContext.kt` (plus its contract assertion); no Preview screen
-> changes. Production captures are at `fc29138e`.  
+> **Final source HEAD:** `a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4`  
+> **Capture source HEAD:** `6b823fb6` for phone, tablet and Production.
+> `a1ee036f` is a testTag-only rail change (expanded branch); no rendered screen
+> differs.  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -120,8 +119,8 @@ The tablet manifest is
 
 | Priority | Gap | Note |
 | --- | --- | --- |
-| P2 | Now `需要处理 6` vs Me `待处理 3` | Different scopes (attention + review vs attention only). Both truthful; labels need a human wording decision. |
-| P2 | MEDIUM tablet rail is icon-only | Content descriptions exist; expanded labels only at EXPANDED. |
+| Resolved | Now `需要处理 6` vs Me `待处理 3` | Me now says `需关注 3` / `3 项需关注`; counts unchanged. |
+| Resolved | MEDIUM tablet rail was icon-only | Each of the five primary roots now has a visible 9sp label; asserted in `TabletAdaptiveContractTest`. |
 | P2 | Advanced Production manual/import/establish copy still contains technical terms | Outside the main Now/Me/list/detail pass; next copy pass. |
 | P2 | 851 dp phone test visibility | One Production test and four interaction tests need scrolling; they pass at the CI 914 dp viewport. |
 | Reference | 320×213 truncated board; 1536×1024 original absent | Pixel-level diff blocked. |

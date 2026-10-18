@@ -5,11 +5,10 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `fc29138e92295f98c29c657cd3dedd4d9072b2c8`  
-> **Preview visual evidence source HEAD:** `067388f9` (the last commit that changes
-> any Preview-rendered code). `fc29138e` differs only in
-> `ProductionWorldContext.kt` consumer copy and its contract assertion; it does not
-> render in the Preview shell. Production evidence is captured at `fc29138e`.  
+> **Final source HEAD of this round:** `a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4`  
+> **Visual/Production evidence source HEAD:** `6b823fb6`. `a1ee036f` only adds the
+> same `pdig.nav.<route>.label` testTag to the expanded rail label (the MEDIUM
+> label was already visible and tagged); it changes no rendered screen.  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -64,6 +63,8 @@ re-count them as new features.
 | `74fbca89` | Production Now / Me / collection / detail copy no longer prints `RegionFact`, `maintenance_profile`, `identity_anchor_profile`, `Canonical v1`, `Reality`, `Finding`, `Proposal / Candidate / Drift`, or raw bucket names. Truth boundaries are unchanged. |
 | `067388f9` | Phone capture harness: target the dedicated AVD by serial, retry transient UIAutomator dumps, and capture identity-top + impact-bottom frames for long detail pages. |
 | `fc29138e` | Final Production region copy: remove `RegionFact` / `Region Lens` from the Now world-context line and update the shell contract assertion. Production-only; no Preview-rendered screen changes. |
+| `6b823fb6` | Round 2: show a 9sp visible label under every primary rail icon at MEDIUM (still 80dp, 48dp touch target; tablet contract asserts all five); label the Me attention metric `需关注` instead of `待处理`, because Now's `需要处理` total also includes review items. Counts are unchanged. |
+| `a1ee036f` | TestTag-only: expose `pdig.nav.<route>.label` in the expanded rail branch too, so the tablet contract is independent of rail mode (MEDIUM vs EXPANDED/rotation). No visual change. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -76,7 +77,7 @@ Production default flag or release configuration was changed.
 | --- | --- |
 | `:core:test` | PASS (up-to-date after the last core change; no core source changed this round) |
 | `:app:testPreviewDebugUnitTest` | PASS |
-| `:app:testProductionDebugUnitTest` | PASS (216 tests before the final Production-only copy commit; the copy commit was re-run through the Production shell contracts) |
+| `:app:testProductionDebugUnitTest` | PASS (last run after the rail/Me change) |
 | `:app:assemblePreviewDebug` | PASS |
 | `:app:assembleProductionDebug` (default Legacy) | PASS |
 | `:app:assembleProductionDebug` (vnext + cutoverApproved) | PASS |
@@ -111,8 +112,8 @@ official CI gate set.
 
 ### Phone (1080×2340 @440 dpi, Pixel 5 AVD, API36)
 
-Capture source: Preview APK built at `067388f9`; the Preview UI files are
-identical at final HEAD `fc29138e`. 70 real PNGs, including:
+Capture source: Preview APK built at `6b823fb6` (final source HEAD).
+70 real PNGs, including:
 
 - first launch, Now, Me from primary navigation, Now return, orbit / zoom / reset;
 - Infrastructure hub, US region selected, global restored;
@@ -135,7 +136,7 @@ identical at final HEAD `fc29138e`. 70 real PNGs, including:
 
 ### Tablet (1200×1920 @240 dpi, 800×1280 dp MEDIUM, Pixel Tablet AVD, API36)
 
-Capture source: `067388f9`; Preview UI unchanged at `fc29138e`.
+Capture source: `6b823fb6` (final source HEAD).
 34 real PNGs + `source-complete-raw-manifest.json`, including:
 
 - Now with the GPU earth actually visible;
@@ -162,13 +163,13 @@ the new evidence includes it and the test now fails if the earth layer is absent
 | Engineering jargon in findings | `参考 Reality`, `FailureDomain`, `RecoveryCycle` | consumer Chinese with the same why/basis/unknown/next structure | phone 07-weaknesses, tablet 16 |
 | Production jargon | `RegionFact`, `maintenance_profile`, `Finding`, `Reality` | consumer Chinese | Production capture + shell tests |
 | Misleading asset count | `8 类资产` | `8 个入口` | phone 02-infrastructure |
+| MEDIUM rail was icon-only | five primary roots required icon memory | visible 9sp label under each icon; all five asserted | tablet 01-now / 25-me |
+| Me mixed two pending scopes | `待处理 3` beside Now `需要处理 6` | Me says `需关注 3` / `3 项需关注`; counts unchanged | tablet 25-me, phone 09-me |
 
 ## 7. Remaining gaps (not claimed as PASS)
 
 | Priority | Item | Status |
 | --- | --- | --- |
-| P2 | Now says 需要处理 6 (attention + review) while Me says 待处理 3 (attention only). Both are individually truthful; the two labels use different scopes. | Open for human wording decision; counts were not silently changed. |
-| P2 | The MEDIUM tablet rail is icon-only (no visible labels) at 800 dp. Content descriptions exist; expanded labels require the EXPANDED breakpoint. | Open design decision. |
 | P2 | Some advanced Production manual/import/establish copy still uses technical words outside the main Now/Me/list/detail pass. | Documented for the next copy pass. |
 | P2 | The phone production test at 851 dp failed one off-fold assertion; it passes at the CI 914 dp viewport. The test should scroll to lazy nodes. | Pre-existing test fragility; no product change. |
 | External | Original 1536×1024 reference board is absent; the in-repo 320×213 JPEG is truncated (`broken data stream`). | Blocks pixel-level diff, not progression. |
@@ -178,15 +179,15 @@ the new evidence includes it and the test now fails if the earth layer is absent
 
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
-EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals at fc29138e;
-                                  Preview visual evidence at 067388f9, Production-only delta)
+EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals at 6b823fb6;
+                                  final a1ee036f CI re-run covers the testTag-only delta)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at e15f98b5 (9/9 checks; source fc29138e)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at a1ee036f (9/9 checks; source a1ee036f)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

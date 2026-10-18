@@ -2086,3 +2086,39 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - `docs/ui-vnext/R52_PLUS_LOCAL_TO_GITHUB_HANDOFF.md`
 - `artifacts/runtime-evidence/2026-10-17-r61-plus/`（226 项，MANIFEST.json +
   EVIDENCE_SHA256SUMS.txt；手机 70 PNG / 平板 34 PNG / Production 4 PNG + 2 个 rehearsal 目录）
+
+---
+
+## R52+ Round 2 — 五项 Rail 可读性与 Me 口径收口（2026-10-18）
+
+### 改动
+
+- **MEDIUM 平板 Rail**：80dp rail 仍然是 icon-first，但五个一级入口现在都有
+  9sp 可见标签（现在 / 基础设施 / 变更 / 记录 / 我），保持 48dp 触控目标；
+  `TabletAdaptiveContractTest` 断言五个 label 全部存在。此前 MEDIUM 只有图标，
+  用户必须靠图标记忆判断入口。
+- **Me 口径**：`待处理 3` → `需关注 3`，连续性概览 `3 项待处理` →
+  `3 项需关注`。Now 的 `需要处理 6` 仍表示“关注 + 待复核”的总数；Me 只显示关注项。
+  数值未改，只消除两个页面的口径歧义。
+- 无 Production 默认、LockGate、Canonical、安全策略变化。
+
+### exact-source 实测（6b823fb6）
+
+- `:app:testPreviewDebugUnitTest` / `:app:testProductionDebugUnitTest` / Preview
+  build / androidTest build：PASS。
+- 平板 `TabletAdaptiveContractTest` + `SourceCompleteScreenshotEvidenceTest`：
+  PASS（含五 Rail label 断言；34 屏真实截图，GPU 地球存在）。
+- 手机 70 张真实截图（含搜索），Me 显示 `需关注`。
+- Production 权威测试 21/21 PASS（1080×2400@420）。
+- `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`；
+  `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`；
+  默认 APK `e65a6435…`、cutover APK `df576561…`，本地与设备 SHA 一致。
+- 证据重生成：261 个文件，`MANIFEST.json` + `EVIDENCE_SHA256SUMS.txt`。
+
+### 仍未完成
+
+- `HUMAN_ACCEPTED = PENDING`；`ANDROID_REFERENCE_FREEZE = HOLD`；
+  `PRODUCTION_CUTOVER = HOLD`。
+- 320×213 参考 JPEG 数据流损坏；1536×1024 原图缺失。
+- 高级 Production 手动/导入/建立文案仍有技术术语；851dp 手机上少数测试需滚动
+  （CI 914dp 全过）。这些不阻塞本轮 rail/Me 收口。

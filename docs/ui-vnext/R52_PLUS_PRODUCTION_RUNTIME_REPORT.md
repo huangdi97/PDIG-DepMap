@@ -1,6 +1,8 @@
 # PDIG — R52+ Production runtime and cutover rehearsal report
 
-> Final local source HEAD: `fc29138e92295f98c29c657cd3dedd4d9072b2c8`  
+> Final local source HEAD: `a1ee036fab890fd3d7c3ec32183e092d9f7fa1a4`  
+> Capture/build source for the rehearsals below: `6b823fb6`; `a1ee036f` is a
+> testTag-only rail change and does not alter Production behaviour.  
 > Branch: `feat/android-ui-vnext-translation` · PR #1 Draft  
 > Device: Google `sdk_gphone64_x86_64`, API 36 (Android 16), 1080×2400 @420 dpi
 > (CI-equivalent Pixel phone viewport)  
@@ -35,8 +37,8 @@ already green: run
 conclusion `success`. The R51 handoff's "Production Rehearsal CI_RED" statement is
 historical and is **not** carried forward as current state.
 
-The local runs below are independent, exact-source local evidence. The final
-GitHub result for `fc29138e` is recorded after push in the handoff report.
+The local runs below are independent, exact-source local evidence at `6b823fb6`.
+The final GitHub result is recorded after the round-2 push in the handoff report.
 
 ## 3. Default (shipping-path) build
 
@@ -57,8 +59,8 @@ PRODUCTION_VNEXT_CUTOVER_APPROVED = false
 | Item | Value |
 | --- | --- |
 | APK | `C:\Users\Kaiser\pdig-build\app\outputs\apk\production\debug\app-production-debug.apk` |
-| APK SHA-256 | `d1315f6fa1922c2ff2172c09ac715138ab0d3669ac74a97f0d7d760c98d8e662` |
-| Installed `base.apk` SHA-256 | `d1315f6fa1922c2ff2172c09ac715138ab0d3669ac74a97f0d7d760c98d8e662` |
+| APK SHA-256 | `e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195` |
+| Installed `base.apk` SHA-256 | `e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195` |
 | Package / activity | `com.pdig.app` / `com.pdig.app.MainActivity` |
 
 ### Secure rehearsal result
@@ -107,7 +109,7 @@ PRODUCTION_VNEXT_CUTOVER_APPROVED = true
 
 | Item | Value |
 | --- | --- |
-| APK SHA-256 | `897ca38b76fa120f4503f711b3fb862cd2bc0630d9e51af98f8e336e4e66872f` |
+| APK SHA-256 | `df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99` |
 | Installed `base.apk` SHA-256 | matched before interpreting the UI (the rehearsal script also asserts this) |
 | Launch extras | `NONE` for the release-default path |
 | Launch target (logcat proof) | `PRODUCTION_REALITY_RELEASE` · `flavor=production` · `generation=vnext` · `approved=true` · `debug=true` |
@@ -188,7 +190,7 @@ PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
 HUMAN_VISUAL_ACCEPTANCE            = PENDING
 ```
 
-GitHub CI at the pushed evidence HEAD `e15f98b5` (source `fc29138e`) is observed
-all-green, including the Production Rehearsal workflow
-([39090469939](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39090469939)).
+GitHub CI at the round-2 source HEAD `a1ee036f` is observed all-green, including
+the Production Rehearsal workflow
+([39096047466](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39096047466)).
 The Production default remains Legacy and the cutover remains `HOLD`.
