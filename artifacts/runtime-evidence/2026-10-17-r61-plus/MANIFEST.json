@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 6 Production advanced copy + phone recapture)",
+  "round": "R52+ (round 7 dynamic-type closure)",
   "dateLocal": "2026-10-18",
-  "finalSourceHead": "226e8468fa08a517684743e0999ad029a012e915",
-  "previewEvidenceSourceHead": "302a65d6 (phone app); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
-  "previewSourceDelta": "226e8468 is capture-script-only; it does not change any app code or captured screen.",
+  "finalSourceHead": "b85c7a579939e5466a086fd751eae770fd0a6d0d",
+  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (phone 1.3x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
+  "previewSourceDelta": "b85c7a57 changes only large-type branches and the region-chip scale; 1.0 phone/tablet/Expanded/Production screenshots are unchanged.",
   "previewApkSha256": "0430903aa870d896b609fa00166cb28f2c2c398bc2d3905ad6865deadf6c657a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
@@ -20,8 +20,9 @@
     "expandedPng": 11,
     "productionPng": 4,
     "productionAdvancedPng": 4,
-    "totalFiles": 260,
-    "totalBytes": 51978318
+    "dynamicTypePng": 6,
+    "totalFiles": 274,
+    "totalBytes": 55648361
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -33,6 +34,76 @@
       "path": "BASELINE.md",
       "bytes": 6177,
       "sha256": "7f88cb988308d8566ab3eea38f8aabd5114ddd6382a6fc388e6bf6e2bb29f77d"
+    },
+    {
+      "path": "font-scale-1.3/01-now.png",
+      "bytes": 1368213,
+      "sha256": "cd97639faf01d9336e0eb827488f320257eb43aa5cdef42f624c4a9351b4329d"
+    },
+    {
+      "path": "font-scale-1.3/01-now.xml",
+      "bytes": 31037,
+      "sha256": "963323d0d300bf364511a00d368c7f181f8816797c9860052f180b822ce25446"
+    },
+    {
+      "path": "font-scale-1.3/02-infrastructure.png",
+      "bytes": 611382,
+      "sha256": "fab9cf394487f5e34e6008728058a1de3a5c1706600d6d32842db90649a6a860"
+    },
+    {
+      "path": "font-scale-1.3/02-infrastructure.xml",
+      "bytes": 37107,
+      "sha256": "b629c5e956172d3677273f4b37d7f3e9cf0fa658078a9ee51d5b8342524183d2"
+    },
+    {
+      "path": "font-scale-1.3/03-cards.png",
+      "bytes": 402704,
+      "sha256": "412abded37ef1ab74392b4e67db29eb864d6511c637ae8a54e60ebe7c54c5da0"
+    },
+    {
+      "path": "font-scale-1.3/03-cards.xml",
+      "bytes": 33162,
+      "sha256": "f9259ba9d1cbfdbd8bd201faff3671af3f943b933b1163149d05097498b307b0"
+    },
+    {
+      "path": "font-scale-1.3/04-card-detail.png",
+      "bytes": 520873,
+      "sha256": "92a2beb945d258f827cf2a871ef6475ce75463e88de03216bbad2853df9b88bd"
+    },
+    {
+      "path": "font-scale-1.3/04-card-detail.xml",
+      "bytes": 20776,
+      "sha256": "3a298261ada13ea67e68124ff42161307e83c91708c0c649ed84378e5f8eb198"
+    },
+    {
+      "path": "font-scale-1.3/05-change.png",
+      "bytes": 313973,
+      "sha256": "afb14ca0943e8a2da8b4eb5a0200748fe98a5709bd83a3434da5b5f2eec008ca"
+    },
+    {
+      "path": "font-scale-1.3/05-change.xml",
+      "bytes": 21947,
+      "sha256": "a535e9e61063d7e3fd94a708eb68b1aad83fec346b51804bea579a847eac8cca"
+    },
+    {
+      "path": "font-scale-1.3/06-me.png",
+      "bytes": 277754,
+      "sha256": "980a5ab94269fdadbf7eb9d4f8f28bc8dcd8f7f10c0012c6dbccadcaa7168ac2"
+    },
+    {
+      "path": "font-scale-1.3/06-me.xml",
+      "bytes": 29466,
+      "sha256": "df36400ad9356fabce0aa2e2f37ea03396985d3551ef6018a78435f2f7a7edb8"
+    },
+    {
+      "path": "font-scale-1.3/MANIFEST.json",
+      "bytes": 1309,
+      "sha256": "a9eac3aca1510e3d58a676dd5be9ffc5263798dd4140757e5007ae6b2d692002"
+    },
+    {
+      "path": "logs/contracts-851dp-final-r6.txt",
+      "bytes": 340,
+      "sha256": "de2199ebdcc44aa80e5ce0b272a78bd2a7d221249da8451c9b0ae6688c063a9d"
     },
     {
       "path": "logs/contracts-851dp.txt",
