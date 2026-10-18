@@ -178,7 +178,7 @@ internal fun ProductionChangePlanScreen(
         }
         if (requestedActionId != null && focusedIndex == null) {
             item {
-                ChangeBoundaryNote("此前选择的步骤已不在当前正式计划中；请重新核对当前权威步骤。")
+                ChangeBoundaryNote("此前选择的步骤已不在当前正式计划中；请重新核对当前步骤。")
             }
         }
 
@@ -266,7 +266,7 @@ internal fun ProductionChangePlanScreen(
 
         item {
             ChangeBoundaryNote(
-                "每次操作后都会重新读取权威计划状态；界面按钮不会自行把动作标记为已完成或已验证。"
+                "每次操作后都会重新读取正式计划状态；界面按钮不会自行把动作标记为已完成或已验证。"
             )
         }
     }

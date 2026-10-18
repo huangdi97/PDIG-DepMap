@@ -511,7 +511,7 @@ internal fun ProductionGenericObjectDetailScreen(
         if (impact == null) {
             item {
                 ProductionObjectBoundary(
-                    "当前无法读取权威影响分析；不会用关系数量代替连续性判断。"
+                    "当前无法读取正式影响分析；不会用关系数量代替连续性判断。"
                 )
             }
         } else {
@@ -591,7 +591,7 @@ internal fun ProductionGenericObjectDetailScreen(
                     "当前设备详情不会猜测通行密钥、动态验证码、短信验证、恢复因子或秘密位置；这些能力必须来自未来正式的数据语义。"
                 )
                 else -> ProductionObjectBoundary(
-                    "详情只使用正式数据中的对象、已确认关系和权威影响分析；不会混入演示数据。"
+                    "详情只使用正式数据中的对象、已确认关系和正式影响分析；不会混入演示数据。"
                 )
             }
         }
@@ -658,7 +658,7 @@ private fun ProductionWeaknessesScreen(
     val report = session.dataSource.productionFindings()
     if (report == null) {
         ProductionObjectUnavailable(
-            "当前无法读取权威连续性发现；不会回退到 Preview 演示结果。",
+            "当前无法读取已确认的连续性发现；不会用演示结果代替。",
             modifier,
         )
         return
@@ -752,7 +752,7 @@ private fun ProductionWeaknessesScreen(
 
         item {
             Text(
-                "当前权威覆盖",
+                "当前分析范围",
                 color = PdigV2Colors.TextPrimary,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
