@@ -332,7 +332,7 @@ private fun ProductionReviewUnavailable(modifier: Modifier) {
             fontWeight = FontWeight.Bold,
         )
         Text(
-            "不会回退到 Preview 复核数据。",
+            "不会用演示复核数据替代正式记录。",
             color = PdigV2Colors.TextSecondary,
             fontSize = 12.sp,
         )

@@ -613,7 +613,7 @@ internal fun ProductionNumberCustomizationScreen(
         }
     if (item == null) {
         ProductionObjectUnavailable(
-            "没有可定制的已确认手机号身份；不会用 Preview 号码替代。",
+            "没有可定制的已确认手机号身份；不会用演示号码替代。",
             modifier,
         )
         return

@@ -36,6 +36,7 @@ class ProductionConsumerCopySourceContractTest {
             "当前权威覆盖",
             "伪造 subtype",
             "权威来源已确认",
+            "Preview ",
         )
         val literalRegex = Regex("\"(?:\\\\.|[^\"\\\\])*\"")
         val leaks = productionFiles.flatMap { file ->
