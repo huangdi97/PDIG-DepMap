@@ -5,10 +5,11 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `edc8b2f2089c04ec95cbae0046bd38ff264ad050`  
+> **Final source HEAD of this round:** `e202a34966f9c04062bd14f0f6473ef9b821518d`  
 > **Visual/Production evidence source HEAD:** `302a65d6` (phone 1.0), `b85c7a57`
-> (1.3×), `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (1.5×), `6b823fb6`
-> (tablet), `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
+> (1.3×), `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×),
+> `e202a349` (tablet 1.5×), `6b823fb6` (tablet), `7993f29d` (Expanded),
+> `c035ce9a` (advanced Production).  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -73,6 +74,7 @@ re-count them as new features.
 | `b85c7a57` | Dynamic-type 1.3× fixes: region chip scales with fontScale; Now asset rail becomes 2×2 above 1.15×; Me identity cards grow and hints wrap. 1.0 layout unchanged. |
 | `32541cc0` | Short landscape rail: below 600dp height the rail scrolls and skips the weighted spacer, so 数据源 / 设置 stay reachable. Tall tablets unchanged. |
 | `edc8b2f2` | 1.5× accessibility: greeting column weight + single-line badge; R9 bottom bar 84dp and no double inset; Me identity cards stack full-width above 1.35×. 1.0/1.3 unchanged. |
+| `e202a349` | Tablet 1.5× top bar: hide the PDIG wordmark above 1.15× so the section title isn't ellipsized; privacy chip shortens to 已遮蔽/未遮蔽. 1.0/1.3 unchanged. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -214,6 +216,14 @@ At 1.5× the greeting badge wrapped to three lines, the subtitle clipped, the R9
 bottom labels were cut by the fixed 68dp bar, and Me identity hints disappeared in
 narrow columns. Fixes: greeting column weight + single-line badge; R9 bar 84dp and
 no double inset; Me identity stacks full-width above 1.35×. 1.0/1.3 are unchanged.
+
+### Tablet MEDIUM 1.5× (800×1280 dp)
+
+Source `e202a349`; 4 real PNGs + XML under `tablet-font-scale-1.5/`.
+At 1.5× the section title was ellipsized to `现…` because the PDIG wordmark and
+search consumed the top row; the privacy chip wrapped over the lock icon. Hide the
+wordmark above 1.15× (keep the P mark) and shorten the chip to `已遮蔽/未遮蔽`.
+1.0/1.3 are unchanged.
 
 ### Phone landscape 851×393 dp
 

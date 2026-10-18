@@ -498,3 +498,10 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   新增 4 张真实截图 + manifest，证据合计 301 项。
 - 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
 - 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 11 更新（2026-10-18）
+
+- 平板 MEDIUM 1.5×：顶部标题省略与隐私 chip 换行已修复；新增 4 张真实截图 +
+  manifest，证据合计 310 项。
+- 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。

@@ -5,10 +5,11 @@
 > Worktree: `E:\AI\号卡管理`  
 > Branch: `feat/android-ui-vnext-translation`  
 > PR #1: https://github.com/huangdi97/PDIG-DepMap/pull/1 (Draft, not merged)  
-> **Final local/source HEAD: `edc8b2f2089c04ec95cbae0046bd38ff264ad050`**  
+> **Final local/source HEAD: `e202a34966f9c04062bd14f0f6473ef9b821518d`**  
 > **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
-> `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (1.5×), `6b823fb6`
-> (tablet/Production), `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
+> `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×), `e202a349`
+> (tablet 1.5×), `6b823fb6` (tablet/Production), `7993f29d` (Expanded),
+> `c035ce9a` (advanced Production).  
 > Local round-start HEAD: `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > Remote round-start HEAD: `562d83f44733def5c805c64e4ed53f8746ddbce4`
 
@@ -55,6 +56,7 @@ force push, merge `main`, or enable the Production cutover.
 | `b85c7a57` | 1.3× dynamic type: region chip scale, Now 2×2 asset rail, Me card heights |
 | `32541cc0` | Short landscape rail scroll: 数据源 / 设置 reachable below 600dp height |
 | `edc8b2f2` | 1.5× accessibility: greeting badge, R9 bottom bar, stacked Me identity |
+| `e202a349` | Tablet 1.5× top bar: title width + privacy chip |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
@@ -75,6 +77,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── font-scale-1.3/                   # 6 real PNGs at 1.3x dynamic type
 ├── font-scale-1.5/                   # 4 real PNGs at 1.5x accessibility
 ├── tablet-font-scale-1.3/            # 4 real PNGs at tablet MEDIUM 1.3x
+├── tablet-font-scale-1.5/            # 4 real PNGs at tablet MEDIUM 1.5x
 ├── phone-landscape/                  # 4 real PNGs at 851x393dp
 └── logs/                             # capture, JVM/build, Production logs
 ```
@@ -137,8 +140,9 @@ Evidence rules used:
     `03-infrastructure.png`, `04-change.png` — short-height landscape rail scroll.
 16. `tablet-font-scale-1.3/01-now.png`, `02-me.png`, `03-change.png`,
     `04-change-phone.png` — tablet MEDIUM at 1.3×; verified readable.
-17. `font-scale-1.5/01-now.png`, `02-me.png` — 1.5× accessibility; badge, bottom
-    nav and Me identity no longer clip.
+17. `font-scale-1.5/01-now.png`, `02-me.png` — phone 1.5× accessibility.
+18. `tablet-font-scale-1.5/01-now.png`, `02-me.png`, `04-change-phone.png` —
+    tablet 1.5×; title and privacy chip no longer clip.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing
