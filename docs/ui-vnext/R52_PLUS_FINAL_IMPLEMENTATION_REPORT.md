@@ -119,9 +119,28 @@ changed. The same tests still pass at the CI 914 dp viewport.
 
 ## 5. Screens actually captured
 
+| Set | Viewport | Source | Real PNGs |
+| --- | --- | --- | --- |
+| Phone | 1080×2340 @440, Compact 1.0× | `302a65d6` | 70 |
+| Phone dynamic type | same, 1.3× | `b85c7a57` | 6 |
+| Phone accessibility | same, 1.5× | `edc8b2f2` | 4 |
+| Phone landscape | 2340×1080 @440 (851×393dp) | `32541cc0` | 4 |
+| Tablet MEDIUM | 1200×1920 @240 (800×1280dp), 1.0× | `6b823fb6` | 34 |
+| Tablet dynamic type | same, 1.3× | `32541cc0` | 4 |
+| Tablet accessibility | same, 1.5× | `e202a349` | 4 |
+| Tablet EXPANDED | 2560×1600 @320 (1280×800dp), 1.0× | `7993f29d` | 11 |
+| Expanded 1.5× | same, 1.5× | `fe60a622` | 4 |
+| Production lock/unlock | 1080×2400 @420 | `fc29138e`/`6b823fb6` | 4 |
+| Production advanced | 1080×2340 @440 | `c035ce9a` | 4 |
+| **Total** | | | **149 PNG** |
+
+The evidence root contains **319 files** including XML semantics, JSON
+manifests, logs and SHA lists.
+
 ### Phone (1080×2340 @440 dpi, Pixel 5 AVD, API36)
 
-Capture source: Preview APK built at `6b823fb6`; later deltas are test/copy-only.
+Capture source: Preview APK built at `302a65d6` (copy/test fixes later do not
+change the captured screens).
 70 real PNGs, including:
 
 - first launch, Now, Me from primary navigation, Now return, orbit / zoom / reset;
@@ -265,6 +284,11 @@ reachable with 48 dp targets.
 | Resolved | 851 dp phone test visibility | `8fef8030`; 38/38 contracts pass at 1080×2340@440, no product assertion removed. |
 | External | Original 1536×1024 reference board is absent; the in-repo 320×213 JPEG is truncated (`broken data stream`). | Blocks pixel-level diff, not progression. |
 | Human | Visual acceptance, Android reference freeze and Production cutover. | `PENDING` / `HOLD` / `HOLD`. |
+
+**No known local code/test/build defect remains.** All viewports/font scales tested
+above have real captures and passing checks; further combinations are exploratory,
+not blocked by a known product defect. The only non-code blocker is the truncated
+reference board, and the only remaining approval is the human gate.
 
 ## 8. Gate statement
 

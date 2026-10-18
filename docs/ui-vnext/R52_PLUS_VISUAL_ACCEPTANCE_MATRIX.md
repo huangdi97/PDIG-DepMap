@@ -14,6 +14,10 @@
 > Expanded: 2560×1600 @320 dpi (1280×800 dp, landscape), Pixel Tablet AVD, API36.  
 > Production: 1080×2400 @420 dpi, Pixel phone AVD, API36, installed
 > `com.pdig.app` APK.
+>
+> **Summary:** 149 real PNGs across 11 sets (phone 1.0/1.3/1.5, landscape,
+> tablet 1.0/1.3/1.5, Expanded 1.0/1.5, Production lock + advanced); **319
+> evidence files** including semantics, manifests, logs and SHA lists.
 
 ## 1. Reference fidelity caveat (blocking pixel diff, not progression)
 
