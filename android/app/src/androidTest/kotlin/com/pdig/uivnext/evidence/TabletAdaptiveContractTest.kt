@@ -119,6 +119,12 @@ class TabletAdaptiveContractTest {
         compose.onNodeWithTag("pdig.nav.infra.secondary", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("pdig.nav.cards", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("pdig.nav.me", useUnmergedTree = true).assertExists()
+        // MEDIUM keeps the compact 80dp rail, but all five primary roots must
+        // carry a readable visible label rather than relying on icon memory.
+        listOf("now", "infrastructure", "change", "records", "me").forEach { route ->
+            compose.onNodeWithTag("pdig.nav.$route.label", useUnmergedTree = true)
+                .assertExists("primary rail $route must have a visible label")
+        }
     }
 
     @Test

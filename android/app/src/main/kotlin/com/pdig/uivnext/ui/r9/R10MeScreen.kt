@@ -163,7 +163,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                         Modifier.weight(1f).clickable { app.navigate(VScreen.SERVICES) })
                     R9Counter(regions.size, "地区", Color(0xFF437CCD), "◉",
                         Modifier.weight(1f).clickable { app.navigate(VScreen.OVERVIEW) })
-                    R9Counter(attention.size, "待处理", R9.Rose, "!",
+                    R9Counter(attention.size, "需关注", R9.Rose, "!",
                         Modifier.weight(1f).clickable { app.navigate(VScreen.NOW) })
                 }
             }
@@ -231,7 +231,7 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     R9Badge("${changes.size} 项变更", R9.Blue)
                     Spacer(Modifier.width(7.dp))
-                    R9Badge("${attention.size} 项待处理", R9.Rose)
+                    R9Badge("${attention.size} 项需关注", R9.Rose)
                     Spacer(Modifier.width(7.dp))
                     R9Badge("${upcoming.size} 个时间节点", R9.Amber)
                 }

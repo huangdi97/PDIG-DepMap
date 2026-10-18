@@ -256,8 +256,8 @@ internal fun R19AdaptiveMeScreen(
                     ) { app.navigate(VScreen.CHANGE) }
                     MeContinuityRow(
                         value = attention.size.toString(),
-                        label = "待处理",
-                        detail = attention.firstOrNull()?.title ?: "暂无已记录待处理事项",
+                        label = "需关注",
+                        detail = attention.firstOrNull()?.title ?: "暂无已记录关注事项",
                         tint = if (attention.isEmpty()) PdigV2Colors.TextMuted else PdigV2Colors.Critical,
                     ) { app.navigate(VScreen.NOW) }
                     MeContinuityRow(

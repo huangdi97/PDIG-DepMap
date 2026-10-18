@@ -126,20 +126,41 @@ private fun RailButton(screen: VScreen, icon: ImageVector, app: VAppState, expan
         color = bg,
         shape = RoundedCornerShape(VRadius.Md),
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = VSpacing.Md, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(icon, contentDescription = screen.titleZh, tint = fg, modifier = Modifier.size(18.dp))
-            if (expanded) {
+        if (expanded) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = VSpacing.Md, vertical = 9.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(icon, contentDescription = screen.titleZh, tint = fg, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(VSpacing.Lg))
                 Text(
                     screen.titleZh,
                     color = if (selected) PdigV2Colors.TextPrimary else PdigV2Colors.TextSecondary,
                     fontSize = 13.sp,
                     fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                )
+            }
+        } else {
+            // Medium keeps the 80dp ergonomic rail, but the five primary roots
+            // must still be readable without guessing an icon. A 9sp label fits
+            // the rail and preserves the 48dp touch target.
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 6.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Icon(icon, contentDescription = screen.titleZh, tint = fg, modifier = Modifier.size(18.dp))
+                Text(
+                    screen.titleZh,
+                    color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextSecondary,
+                    fontSize = 9.sp,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                    maxLines = 1,
+                    modifier = Modifier.testTag("pdig.nav.${screen.route}.label"),
                 )
             }
         }
