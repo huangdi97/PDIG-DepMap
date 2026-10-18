@@ -307,15 +307,17 @@ reference board, and the only remaining approval is the human gate.
 
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
-EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals;
-                                  final fe60a622 re-runs all nine checks)
+EXACT_HEAD_TESTED           = YES (local JVM/build; runtime 4/4 at 7aaa612c;
+                                  core 5/5 at 874e13f0, whose android/ diff is empty)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at fe60a622 (9/9 checks; source fe60a622)
+GITHUB_CI_AT_FINAL_HEAD     = PASS (runtime 4/4 at 7aaa612c; core 5/5 at
+                              874e13f0 — same android/ tree; core at 7aaa was
+                              cancelled by branch concurrency, not failed)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

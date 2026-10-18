@@ -189,7 +189,10 @@ PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
 HUMAN_VISUAL_ACCEPTANCE            = PENDING
 ```
 
-GitHub CI at the final source `fe60a622` is all-green, including the Production
-Rehearsal workflow
-([39125649200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649200)).
+Production Rehearsal at the final source `7aaa612c` is green
+([39129063954](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063954));
+the same-code docs head `874e13f0` has CI and iOS green
+([39129093200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093200),
+[39129093169](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093169)).
+The core jobs at `7aaa612c` were cancelled by branch concurrency, not failed.
 The Production default remains Legacy and the cutover remains `HOLD`.

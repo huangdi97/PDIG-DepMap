@@ -193,25 +193,32 @@ At the **round-start** remote HEAD `562d83f4`, all six workflows / nine checks
 were green, including Production Rehearsal run
 [39023996578](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39023996578).
 
-Final source `fe60a622` is pushed and **all six workflows / nine checks are
-observed success at that SHA**:
+Final source `7aaa612c` is pushed. Runtime checks all pass at that exact SHA:
 
-| Gate | Run | Result |
+| Runtime gate | Run | Result |
 | --- | --- | --- |
-| CI | [39125656305](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125656305) | SUCCESS |
-| iOS | [39125656303](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125656303) | SUCCESS |
-| Android UI vNext Preview APK | [39125649215](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649215) | SUCCESS |
-| Android UI vNext Phone Pixel Proof | [39125649251](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649251) | SUCCESS |
-| Android UI vNext Tablet Pixel Proof | [39125649099](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649099) | SUCCESS |
-| Android UI vNext Production Rehearsal | [39125649200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39125649200) | SUCCESS |
+| Android UI vNext Preview APK | [39129064097](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129064097) | SUCCESS |
+| Android UI vNext Phone Pixel Proof | [39129063996](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063996) | SUCCESS (first attempt hit a flaky alias-editor focus; rerun passed with no script change) |
+| Android UI vNext Tablet Pixel Proof | [39129064047](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129064047) | SUCCESS |
+| Android UI vNext Production Rehearsal | [39129063954](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063954) | SUCCESS |
 
-Historical: `e202a349`, `edc8b2f2`, `32541cc0` and `b85c7a57` were 9/9 green;
-`226e8468` (script-only) had CI/iOS/Preview/Phone green; `302a65d6` had
-Tablet/Production green and a phone failure caused only by the old committed
+The CI / iOS / Android-core / Harmony jobs at `7aaa612c` were **cancelled**, not
+failed, by GitHub's branch concurrency when the docs/evidence commit was pushed.
+The same Kotlin tree at docs head `874e13f0` (`git diff -- android
+7aaa612c..874e13f0` is empty) has the full core set green:
+
+| Core gate | Run | Result |
+| --- | --- | --- |
+| CI (Canonical / Android core / Android app / Harmony) | [39129093200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093200) | SUCCESS |
+| iOS | [39129093169](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093169) | SUCCESS |
+
+Historical: `fe60a622`, `e202a349`, `edc8b2f2`, `32541cc0` and `b85c7a57` were
+9/9 green; `226e8468` (script-only) had CI/iOS/Preview/Phone green; `302a65d6`
+had Tablet/Production green and a phone failure caused only by the old committed
 script assertion, fixed in `226e8468`.
 
 A later **docs/evidence-only** commit may not re-trigger path-filtered workflows.
-That does not invalidate the runtime result at `fe60a622`: check the actual PR-head
+That does not invalidate the runtime result at `7aaa612c`: check the actual PR-head
 check-runs rather than assuming all six re-ran.
 
 ## 8. Guardrails respected
