@@ -69,9 +69,9 @@ internal fun R9NowScreen(app: VAppState) {
     ) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(r9Greeting(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)), color = R9.Ink, fontSize = 23.sp, fontWeight = FontWeight.Bold)
-                Text("你的数字基础设施 · 连接全球，触手可及", color = R9.Muted, fontSize = 11.sp)
+                Text("你的数字基础设施 · 连接全球，触手可及", color = R9.Muted, fontSize = 11.sp, maxLines = 2)
             }
             if (taskCount > 0) {
                 R9Badge("需要处理 $taskCount", R9.Rose)

@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.VTestIds
 import com.pdig.uivnext.ui.PRIMARY_ENTRIES
+import androidx.compose.ui.platform.LocalDensity
 import com.pdig.uivnext.ui.VAppState
 import com.pdig.uivnext.ui.isEntrySelected
 
@@ -28,7 +29,10 @@ internal fun R9BottomNav(app: VAppState) {
         color = Color.White, shadowElevation = 7.dp,
         border = BorderStroke(1.dp, R9.Line.copy(alpha = .65f)),
     ) {
-        Row(Modifier.fillMaxWidth().height(68.dp).padding(horizontal = 7.dp, vertical = 6.dp),
+        Row(
+            Modifier.fillMaxWidth()
+                .height(if (LocalDensity.current.fontScale > 1.15f) 84.dp else 68.dp)
+                .padding(horizontal = 7.dp, vertical = 6.dp),
             horizontalArrangement = Arrangement.spacedBy(2.dp),
             verticalAlignment = Alignment.CenterVertically) {
             PRIMARY_ENTRIES.forEach { entry ->
@@ -54,7 +58,8 @@ internal fun R9BottomNav(app: VAppState) {
                     Text(entry.screen.titleZh,
                         modifier = Modifier.testTag("pdig.nav.${entry.screen.route}.label"),
                         color = if (active) R9.Blue else R9.Muted,
-                        fontSize = 10.sp, fontWeight = if (active) FontWeight.Bold else FontWeight.Normal)
+                        fontSize = 10.sp, maxLines = 1,
+                        fontWeight = if (active) FontWeight.Bold else FontWeight.Normal)
                 }
             }
         }

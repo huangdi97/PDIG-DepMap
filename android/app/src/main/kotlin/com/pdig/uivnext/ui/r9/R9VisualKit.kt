@@ -105,7 +105,8 @@ internal fun R9Badge(text: String, color: Color, modifier: Modifier = Modifier) 
     Surface(modifier = modifier, color = color.copy(alpha = 0.12f),
         shape = RoundedCornerShape(50.dp), border = BorderStroke(1.dp, color.copy(alpha = 0.20f))) {
         Text(text, Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
-            color = color, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+            color = color, fontSize = 10.sp, fontWeight = FontWeight.SemiBold,
+            maxLines = 1, softWrap = false)
     }
 }
 

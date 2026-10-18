@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.demo.UiVNextDemoFixture
+import com.pdig.uivnext.model.UiVNextNumber
 import com.pdig.uivnext.demo.demoAttention
 import com.pdig.uivnext.demo.demoCards
 import com.pdig.uivnext.demo.demoNumbers
@@ -97,57 +98,54 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
             else UiVNextDemoFixture.devices.firstOrNull { "主设备" in it.roles }
                 ?: UiVNextDemoFixture.devices.firstOrNull()
         R9SectionTitle("我的关键身份", "查看全部 →") { app.navigate(VScreen.INFRASTRUCTURE) }
-        Row(
-            Modifier.fillMaxWidth().testTag("pdig.r16.me.identity-workspace"),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Surface(
-                modifier = Modifier.weight(1.12f)
-                    .height(if (LocalDensity.current.fontScale > 1.15f) 224.dp else 140.dp)
-                    .clickable {
-                        if (leadNumber != null) app.openNumber(leadNumber.id)
-                        else app.navigate(VScreen.NUMBERS)
-                    },
-                color = Color(0xFF16376D),
-                shape = RoundedCornerShape(18.dp),
+        val veryLargeType = LocalDensity.current.fontScale > 1.35f
+        val miniEmail: @Composable (Modifier) -> Unit = { modifier ->
+            R16MeIdentityMini(
+                "恢复邮箱",
+                leadEmail?.maskedAddress ?: "尚未记录",
+                when {
+                    leadEmail?.uniqueRecoveryPath == true -> "唯一恢复 · 需建立替代路径"
+                    leadEmail?.recoveryOnly == true -> "恢复用途 · 唯一性未知"
+                    else -> "查看已记录邮箱"
+                },
+                R9.Amber,
+                modifier = modifier,
+            ) { app.navigate(VScreen.EMAILS) }
+        }
+        val miniDevice: @Composable (Modifier) -> Unit = { modifier ->
+            R16MeIdentityMini(
+                "常用设备", leadDevice?.name ?: "尚未记录",
+                leadDevice?.trust ?: "查看已记录设备",
+                R9.Green,
+                modifier = modifier,
+            ) { app.navigate(VScreen.DEVICES) }
+        }
+        if (veryLargeType) {
+            // At 1.5x the two identity columns are too narrow for an email address
+            // and its hint. Stack the number card and both identity cards full-width.
+            Column(
+                Modifier.fillMaxWidth().testTag("pdig.r16.me.identity-workspace"),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Column(
-                    Modifier.fillMaxSize().padding(13.dp),
-                    verticalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text("▤   我的号码", color = Color(0xFFC7E3FF), fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold)
-                    Text(
-                        if (leadNumber != null)
-                            app.numberDisplayNameForScreen(leadNumber.id, leadNumber.maskedNumber)
-                        else "尚未记录",
-                        color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold,
-                        maxLines = 2,
-                    )
-                    Text(
-                        if (leadNumber != null)
-                            regionFlag(leadNumber.region) + " " + leadNumber.carrier + " · 查看恢复依赖 →"
-                        else "添加或核对你的通信身份 →",
-                        color = Color(0xFFBDDAF7), fontSize = 9.sp, maxLines = 2,
-                    )
-                }
+                R16MeLeadNumber(app, leadNumber, Modifier.fillMaxWidth().height(180.dp))
+                miniEmail(Modifier.fillMaxWidth())
+                miniDevice(Modifier.fillMaxWidth())
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                R16MeIdentityMini(
-                    "恢复邮箱",
-                    leadEmail?.maskedAddress ?: "尚未记录",
-                    when {
-                        leadEmail?.uniqueRecoveryPath == true -> "唯一恢复 · 需建立替代路径"
-                        leadEmail?.recoveryOnly == true -> "恢复用途 · 唯一性未知"
-                        else -> "查看已记录邮箱"
-                    },
-                    R9.Amber,
-                ) { app.navigate(VScreen.EMAILS) }
-                R16MeIdentityMini(
-                    "常用设备", leadDevice?.name ?: "尚未记录",
-                    leadDevice?.trust ?: "查看已记录设备",
-                    R9.Green,
-                ) { app.navigate(VScreen.DEVICES) }
+        } else {
+            Row(
+                Modifier.fillMaxWidth().testTag("pdig.r16.me.identity-workspace"),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                R16MeLeadNumber(
+                    app, leadNumber,
+                    Modifier.weight(1.12f).height(
+                        if (LocalDensity.current.fontScale > 1.15f) 224.dp else 140.dp,
+                    ),
+                )
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    miniEmail(Modifier.fillMaxWidth())
+                    miniDevice(Modifier.fillMaxWidth())
+                }
             }
         }
 
@@ -316,12 +314,60 @@ private fun R10MeAction(title: String, subtitle: String, tag: String, onClick: (
 
 /** Deliberately compact, meaningful digital identity rather than KPI-only rows. */
 @Composable
+private fun R16MeLeadNumber(
+    app: VAppState,
+    leadNumber: UiVNextNumber?,
+    modifier: Modifier,
+) {
+    Surface(
+        modifier = modifier.clickable {
+            if (leadNumber != null) app.openNumber(leadNumber.id)
+            else app.navigate(VScreen.NUMBERS)
+        },
+        color = Color(0xFF16376D),
+        shape = RoundedCornerShape(18.dp),
+    ) {
+        Column(
+            Modifier.fillMaxSize().padding(13.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text("▤   我的号码", color = Color(0xFFC7E3FF), fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold)
+            Text(
+                if (leadNumber != null)
+                    app.numberDisplayNameForScreen(leadNumber.id, leadNumber.maskedNumber)
+                else "尚未记录",
+                color = Color.White, fontSize = 17.sp, fontWeight = FontWeight.Bold,
+                maxLines = 2,
+            )
+            Text(
+                if (leadNumber != null)
+                    regionFlag(leadNumber.region) + " " + leadNumber.carrier + " · 查看恢复依赖 →"
+                else "添加或核对你的通信身份 →",
+                color = Color(0xFFBDDAF7), fontSize = 9.sp, maxLines = 2,
+            )
+        }
+    }
+}
+
+@Composable
 private fun R16MeIdentityMini(
-    title: String, value: String, hint: String, color: Color, action: () -> Unit,
+    title: String, value: String, hint: String, color: Color,
+    modifier: Modifier = Modifier,
+    action: () -> Unit,
 ) {
     val largeType = LocalDensity.current.fontScale > 1.15f
+    val veryLargeType = LocalDensity.current.fontScale > 1.35f
     Surface(
-        modifier = Modifier.fillMaxWidth().height(if (largeType) 108.dp else 66.dp).clickable { action() },
+        modifier = Modifier.fillMaxWidth()
+            .height(
+                when {
+                    veryLargeType -> 136.dp
+                    largeType -> 108.dp
+                    else -> 66.dp
+                },
+            )
+            .clickable { action() },
         color = Color.White, shape = RoundedCornerShape(15.dp),
         border = BorderStroke(1.dp, R9.Line),
     ) {
@@ -332,7 +378,8 @@ private fun R16MeIdentityMini(
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(title, color = R9.Muted, fontSize = 9.sp)
                 Text(value, color = R9.Ink, fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold, maxLines = 1,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = if (veryLargeType) 2 else 1,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
                 Text(hint, color = R9.Muted, fontSize = 8.sp, maxLines = 2,
                     overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
