@@ -54,6 +54,7 @@ internal fun R16ProjectedRegionOverlay(
         modifier = Modifier.fillMaxSize().testTag("pdig.r16.geo-label-layer"),
     ) {
         val density = LocalDensity.current
+        val labelScale = density.fontScale.coerceIn(1f, 1.35f)
         val pxPerDp = with(density) { 1.dp.toPx() }
         // Compose observes mutableStateOf camera and repositions labels during drag.
         val camera = controller.camera
@@ -98,8 +99,8 @@ internal fun R16ProjectedRegionOverlay(
                         IntOffset(tag.left.roundToInt(), tag.top.roundToInt())
                     }
                     .size(
-                        width = with(density) { tag.width.toDp() },
-                        height = with(density) { tag.height.toDp() },
+                        width = with(density) { (tag.width * labelScale).toDp() },
+                        height = with(density) { (tag.height * labelScale).toDp() },
                     )
                     .clickable {
                         if (all.size == 1) onRegionChosen(all.first())

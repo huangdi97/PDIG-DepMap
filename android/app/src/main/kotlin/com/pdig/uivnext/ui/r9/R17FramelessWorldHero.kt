@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -77,14 +78,30 @@ internal fun R17FramelessWorldHero(
                 },
             )
         }
-        Row(Modifier.fillMaxWidth().height(67.dp)
+        val railModifier = Modifier.fillMaxWidth()
             .testTag("pdig.r13.world.asset-rail")
-            .testTag("pdig.r15.hero.asset-rail").testTag("pdig.r17.assets"),
-            horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            R17MiniAsset(cards,"银行卡",R9.Amber,"▣",Modifier.weight(1f)) { app.navigate(VScreen.CARDS) }
-            R17MiniAsset(numbers,"手机号",R9.Green,"▤",Modifier.weight(1f)) { app.navigate(VScreen.NUMBERS) }
-            R17MiniAsset(accounts,"账户",R9.Blue,"◎",Modifier.weight(1f)) { app.navigate(VScreen.ACCOUNTS) }
-            R17MiniAsset(services,"服务",Color(0xFF9877ED),"✧",Modifier.weight(1f)) { app.navigate(VScreen.SERVICES) }
+            .testTag("pdig.r15.hero.asset-rail").testTag("pdig.r17.assets")
+        val fontScale = LocalDensity.current.fontScale
+        if (fontScale > 1.15f) {
+            // At large dynamic type four 93dp cards cannot keep readable labels in
+            // one row on a 393dp phone. Use a 2x2 rail instead of clipping.
+            Column(railModifier, verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                Row(Modifier.fillMaxWidth().height(76.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    R17MiniAsset(cards, "银行卡", R9.Amber, "▣", Modifier.weight(1f)) { app.navigate(VScreen.CARDS) }
+                    R17MiniAsset(numbers, "手机号", R9.Green, "▤", Modifier.weight(1f)) { app.navigate(VScreen.NUMBERS) }
+                }
+                Row(Modifier.fillMaxWidth().height(76.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    R17MiniAsset(accounts, "账户", R9.Blue, "◎", Modifier.weight(1f)) { app.navigate(VScreen.ACCOUNTS) }
+                    R17MiniAsset(services, "服务", Color(0xFF9877ED), "✧", Modifier.weight(1f)) { app.navigate(VScreen.SERVICES) }
+                }
+            }
+        } else {
+            Row(railModifier.height(67.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                R17MiniAsset(cards, "银行卡", R9.Amber, "▣", Modifier.weight(1f)) { app.navigate(VScreen.CARDS) }
+                R17MiniAsset(numbers, "手机号", R9.Green, "▤", Modifier.weight(1f)) { app.navigate(VScreen.NUMBERS) }
+                R17MiniAsset(accounts, "账户", R9.Blue, "◎", Modifier.weight(1f)) { app.navigate(VScreen.ACCOUNTS) }
+                R17MiniAsset(services, "服务", Color(0xFF9877ED), "✧", Modifier.weight(1f)) { app.navigate(VScreen.SERVICES) }
+            }
         }
     }
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,7 +102,8 @@ internal fun R10MeScreen(app: VAppState, onHelp: (() -> Unit)? = null) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Surface(
-                modifier = Modifier.weight(1.12f).height(140.dp)
+                modifier = Modifier.weight(1.12f)
+                    .height(if (LocalDensity.current.fontScale > 1.15f) 224.dp else 140.dp)
                     .clickable {
                         if (leadNumber != null) app.openNumber(leadNumber.id)
                         else app.navigate(VScreen.NUMBERS)
@@ -317,8 +319,9 @@ private fun R10MeAction(title: String, subtitle: String, tag: String, onClick: (
 private fun R16MeIdentityMini(
     title: String, value: String, hint: String, color: Color, action: () -> Unit,
 ) {
+    val largeType = LocalDensity.current.fontScale > 1.15f
     Surface(
-        modifier = Modifier.fillMaxWidth().height(66.dp).clickable { action() },
+        modifier = Modifier.fillMaxWidth().height(if (largeType) 108.dp else 66.dp).clickable { action() },
         color = Color.White, shape = RoundedCornerShape(15.dp),
         border = BorderStroke(1.dp, R9.Line),
     ) {
@@ -329,8 +332,10 @@ private fun R16MeIdentityMini(
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(title, color = R9.Muted, fontSize = 9.sp)
                 Text(value, color = R9.Ink, fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold, maxLines = 1)
-                Text(hint, color = R9.Muted, fontSize = 8.sp, maxLines = 1)
+                    fontWeight = FontWeight.Bold, maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
+                Text(hint, color = R9.Muted, fontSize = 8.sp, maxLines = 2,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis)
             }
         }
     }
