@@ -2010,3 +2010,79 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - `LOCAL_AGENT_HANDOFF.md`
 - `artifacts/runtime-evidence/2026-10-11-r48-r51/`（BASELINE.md + phone/ + tablet/ + production/
   - logs/ + EVIDENCE_SHA256SUMS.txt，264 项哈希）
+
+---
+
+## Android R52+ 收口轮（2026-10-17/18，feat/android-ui-vnext-translation）
+
+### 起点事实（GitHub + 本地双向核验）
+
+- 本地起点 `508ee709108598e56f76670ac472a93b0ccf80ee`；远端起点
+  `562d83f44733def5c805c64e4ed53f8746ddbce4`。本地是严格祖先，0 ahead / 99 behind，
+  已用 `git fetch --prune` + `git merge --ff-only` 同步；未 force push / reset / clean，
+  stash `user-doc-changes-preserved-20261004` 与未跟踪 `IMAGE_METRICS.json` 原样保留。
+- 起点远端 6 个 workflow / 9 个 check 全部 success（含 Production Rehearsal run 39023996578）；
+  R51 handoff 中的 Production CI_RED 是历史状态，不沿用。
+- 本轮最终 source HEAD：`fc29138e92295f98c29c657cd3dedd4d9072b2c8`。
+- Preview 视觉证据来自最后一个改动 Preview UI 的提交 `067388f9`；`fc29138e` 只改
+  ProductionWorldContext 消费者文案与对应断言，不改变任何 Preview 画面。
+
+### 本轮修复（源码 + 证据）
+
+1. 平板截图管线：Compose `captureToImage()` 不包含 GLSurfaceView，旧平板证据的地球是
+   缺失的；改为 shell `screencap` + 等待真实首帧（SwiftShader 首帧实测约 4.8s）+ 地球蓝色
+   像素门禁（中心区域 >10%），并补 `01/02/03` 三个地球页的硬断言。
+2. 号码列表：未命名号码不再同时把号码作为标题和副标题重复显示；隐私遮蔽开启时标题也使用
+   遮蔽值；新增 instrumentation 断言。
+3. 账户详情：状态使用 `statusLabelZh`（`active → 使用中`），不再输出 wire enum。
+4. 卡片更换文案：`active` → `使用中`。
+5. 薄弱点/连续性发现：Preview 与 Production 的消费者文案去除 `Reality` / `FailureDomain` /
+   `RecoveryCycle` / `core RecoveryCycle` / `Proposal` / `ChangePlan` / `done=true`；
+   新增 JVM 测试禁止这些 token；参考卡片 badge 改为 `参考事实`。
+6. 基础设施入口数：`8 类资产` → `8 个入口`（8 个入口里有 2 个不是资产类别）。
+7. Production 主路径文案：Now / Me / 集合 / 详情去除 `RegionFact` / `Region Lens` /
+   `maintenance_profile` / `identity_anchor_profile` / `Canonical v1` / `Finding` /
+   `Proposal / Candidate / Drift` / 原始 bucket 名。
+8. 手机取证脚本：按 serial 定位专用 AVD、UIAutomator dump 瞬时失败重试、详情页 top/bottom
+   两个真实滚动位置取证；未删除或弱化任何业务断言。
+
+### 本机 exact-HEAD 实测
+
+- `:core:test`、`:app:testPreviewDebugUnitTest`、`:app:testProductionDebugUnitTest`：PASS。
+- `:app:assemblePreviewDebug`、默认 `:app:assembleProductionDebug`、双钥
+  `:app:assembleProductionDebug`：PASS。
+- Production 权威测试 21/21 PASS（1080×2400@420，CI 等价视口）：
+  `ProductionVNextShellContractTest` + `ProductionRecordNavigationContractTest` +
+  `ProductionManualRelationshipContractTest`。
+- `SourceCompleteScreenshotEvidenceTest`：PASS，平板 34 屏 + manifest（1200×1920@240）。
+- `ui_vnext_pixel_capture.py`：PASS，手机 68 张 + 手工搜索 2 张 = 70 张（1080×2340@440）。
+- `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`（默认 Legacy 构建：
+  `REALITY_DEBUG_FAIL_CLOSED` / 五入口 / 背景重锁 / resume / 进程重启重锁 /
+  DEFAULT_PRODUCTION_REMAINS_LEGACY）。
+- `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`（双钥 cutover 构建：无 extra 默认
+  锁定 → 解锁 Reality 五入口 → 背景重锁 → resume → 进程重启锁定；launch target
+  `PRODUCTION_REALITY_RELEASE`）。
+- 双钥 APK 本地 SHA `897ca38b76fa120f4503f711b3fb862cd2bc0630d9e51af98f8e336e4e66872f`
+  与设备安装 SHA 一致；默认 APK `d1315f6f...` 与设备一致；设备最终恢复默认 Legacy 安装。
+
+### 已知未满足项（不写成 PASS）
+
+- `HUMAN_ACCEPTED = PENDING`；`ANDROID_REFERENCE_FREEZE = HOLD`；
+  `PRODUCTION_CUTOVER = HOLD`。
+- 参考板 `PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg` 实测 320×213 且数据流损坏
+  （Pillow：`broken data stream`），无法做像素级 diff；1536×1024 原图仍缺失。
+- Now `需要处理 6`（attention + review）与 Me `待处理 3`（attention only）口径不同，
+  两者各自真实但需 Human 决定文案；未静默改数。
+- MEDIUM 平板 rail 仍为纯图标（有 contentDescription；展开标签只在 EXPANDED）。
+- 851dp 高的手机上，1 条 Production 测试与 4 条 interaction 测试需要滚动才能看到目标；
+  在 CI 914dp 视口全部通过。这是测试可见性脆弱，不是产品回归。
+- 高级 Production 手动/导入/建立流程仍有部分技术术语，列入下一轮文案 pass。
+
+### 交付物
+
+- `docs/ui-vnext/R52_PLUS_FINAL_IMPLEMENTATION_REPORT.md`
+- `docs/ui-vnext/R52_PLUS_VISUAL_ACCEPTANCE_MATRIX.md`
+- `docs/ui-vnext/R52_PLUS_PRODUCTION_RUNTIME_REPORT.md`
+- `docs/ui-vnext/R52_PLUS_LOCAL_TO_GITHUB_HANDOFF.md`
+- `artifacts/runtime-evidence/2026-10-17-r61-plus/`（226 项，MANIFEST.json +
+  EVIDENCE_SHA256SUMS.txt；手机 70 PNG / 平板 34 PNG / Production 4 PNG + 2 个 rehearsal 目录）

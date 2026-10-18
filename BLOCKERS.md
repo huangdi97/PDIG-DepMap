@@ -372,3 +372,51 @@
 - `HUMAN_ACCEPTED = PENDING`；`ANDROID_REFERENCE_FREEZE = HOLD`；`PRODUCTION_CUTOVER = HOLD`。
 - 待审阅截图清单见 `docs/ui-vnext/R48_R51_VISUAL_ACCEPTANCE_MATRIX.md` 与
   `LOCAL_AGENT_HANDOFF.md` §5。
+
+---
+
+## Android R52+ 轮更新（2026-10-17/18，feat/android-ui-vnext-translation）
+
+### 1. Production Rehearsal 历史 blocker — **已解除**
+
+- 旧的 `PRODUCTION_REHEARSAL = LOCALLY_PASS / CI_RED` 记录保留为历史，不再代表当前状态。
+- 当前事实：
+  - 起点远端 `562d83f4` 的 GitHub Production Rehearsal run 39023996578 = success；
+  - 本机最终 HEAD `fc29138e` 的默认 Legacy 构建：`PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`；
+  - 本机双钥 cutover 构建：`PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`，
+    launch target `PRODUCTION_REALITY_RELEASE`，本地 APK SHA 与设备 APK SHA 一致；
+  - Production 21/21 权威测试在 1080×2400@420 通过。
+- 结论：`PRODUCTION_REHEARSAL = PASS`（本机 exact-source），
+  `PRODUCTION_DEFAULT = LEGACY`，`PRODUCTION_CUTOVER = HOLD`（未批准）。
+
+### 2. 参考板不仅分辨率不足，而且文件损坏
+
+- `PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg` 实测 320×213，且 Pillow 无法解码：
+  `OSError: broken data stream when reading image file`；图像查看器也判为 malformed。
+- 因此本仓库内**没有任何可用的参考原图**；像素级 diff 无法进行。需要 owner 提供完整
+  1536×1024 原图，或明确接受结构/层级/密度/色彩族的评审方式。
+- 影响：`ANDROID_REFERENCE_FREEZE` 保持 HOLD。
+
+### 3. 需要 Human 决定的产品文案/设计项（非工程 blocker）
+
+- Now `需要处理 6`（attention + review）与 Me `待处理 3`（attention only）口径不同；两者各自
+  真实，但不能自行合并计数。
+- MEDIUM 平板 rail 仍为纯图标（有 contentDescription；展开标签仅 EXPANDED）。
+- `8 个入口` 已修正；如需改成“6 类资产 + 2 个视图”，需要 Human 文案决定。
+- 高级 Production 手动/导入/建立流程仍有技术术语，列入下一轮消费者文案 pass。
+
+### 4. 测试可见性脆弱（不是产品 blocker）
+
+- 851dp 高的手机上，1 条 Production 测试与 4 条 `SourceCompleteInteractionContractTest`
+  需要滚动才能看到目标；在 1080×2400@420（914dp，CI 等价）全部通过。
+- 已记录，未通过放宽断言或删除测试“修复”。
+
+### 5. 保持 PENDING / HOLD 的最终门禁
+
+```text
+HUMAN_VISUAL_ACCEPTANCE   = PENDING   (only the user)
+ANDROID_REFERENCE_FREEZE  = HOLD      (needs human acceptance + original board)
+PRODUCTION_CUTOVER        = HOLD      (needs explicit approval; default stays Legacy)
+IOS_UI_PARITY             = NOT_INFERRED_FROM_CI
+HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
+```
