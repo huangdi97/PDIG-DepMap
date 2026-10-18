@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -187,9 +188,10 @@ internal fun BottomNav(app: VAppState) {
     NavigationBar(
         modifier = Modifier
             .fillMaxWidth()
+            // Padding BEFORE height: the inset sits outside the 80/96dp content,
+            // so 1.5x labels are not clipped by the system navigation bar.
+            .navigationBarsPadding()
             .height(if (LocalDensity.current.fontScale > 1.15f) 96.dp else 80.dp)
-            // NavigationBar already consumes the system navigation inset; adding
-            // navigationBarsPadding() here double-padded and clipped 1.5x labels.
             .testTag(VTestIds.NAV_BOTTOM),
         containerColor = PdigV2Colors.Surface.copy(alpha = 0.96f),
         tonalElevation = 0.dp,
