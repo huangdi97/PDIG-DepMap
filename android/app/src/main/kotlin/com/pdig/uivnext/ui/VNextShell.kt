@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -149,11 +150,13 @@ private fun TopCommandBar(app: VAppState, compact: Boolean, onHelp: (() -> Unit)
                             Text("P", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
-                    Spacer(Modifier.width(VSpacing.Sm))
-                    Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
-                        Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                        if (onHelp != null) {
-                            Text("R9 · ${BuildConfig.GIT_SHA}", color = PdigV2Colors.PrimaryText, fontSize = 9.sp, maxLines = 1)
+                    if (LocalDensity.current.fontScale <= 1.15f) {
+                        Spacer(Modifier.width(VSpacing.Sm))
+                        Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
+                            Text("PDIG", color = PdigV2Colors.TextPrimary, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            if (onHelp != null) {
+                                Text("R9 · ${BuildConfig.GIT_SHA}", color = PdigV2Colors.PrimaryText, fontSize = 9.sp, maxLines = 1)
+                            }
                         }
                     }
                 }

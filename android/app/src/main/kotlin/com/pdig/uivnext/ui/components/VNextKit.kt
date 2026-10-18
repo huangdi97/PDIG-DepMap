@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -189,10 +190,17 @@ fun MaskEnabledIndicator(enabled: Boolean, modifier: Modifier = Modifier) {
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Filled.Lock, contentDescription = null, tint = PdigV2Colors.TextMuted, modifier = Modifier.size(13.dp))
         Spacer(Modifier.width(4.dp))
+        val largeType = LocalDensity.current.fontScale > 1.15f
         Text(
-            if (enabled) "隐私遮蔽已开启" else "隐私遮蔽已关闭",
+            when {
+                largeType && enabled -> "已遮蔽"
+                largeType -> "未遮蔽"
+                enabled -> "隐私遮蔽已开启"
+                else -> "隐私遮蔽已关闭"
+            },
             style = MaterialTheme.typography.labelSmall,
             color = PdigV2Colors.TextSecondary,
+            maxLines = 1,
         )
     }
 }
