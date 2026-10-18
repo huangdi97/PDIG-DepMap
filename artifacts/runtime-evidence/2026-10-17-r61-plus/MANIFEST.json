@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 9 tablet dynamic type)",
+  "round": "R52+ (round 10 1.5x accessibility)",
   "dateLocal": "2026-10-18",
-  "finalSourceHead": "32541cc0c98ecf4fd2621594fdbf8608cffa96d8",
-  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (phone 1.3x); 32541cc0 (landscape); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced); 32541cc0 (tablet 1.3x)",
-  "previewSourceDelta": "No source change in round 9; tablet MEDIUM 1.3x was verified as already readable.",
+  "finalSourceHead": "edc8b2f2089c04ec95cbae0046bd38ff264ad050",
+  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
+  "previewSourceDelta": "edc8b2f2 adds 1.5x branches and greeting/bottom-bar fixes; 1.0/1.3 layouts and captured screens are unchanged.",
   "previewApkSha256": "0430903aa870d896b609fa00166cb28f2c2c398bc2d3905ad6865deadf6c657a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
@@ -22,9 +22,10 @@
     "productionAdvancedPng": 4,
     "dynamicTypePng": 6,
     "tabletDynamicTypePng": 4,
+    "dynamicType15Png": 4,
     "landscapePng": 4,
-    "totalFiles": 292,
-    "totalBytes": 58675443
+    "totalFiles": 301,
+    "totalBytes": 61089177
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -101,6 +102,51 @@
       "path": "font-scale-1.3/MANIFEST.json",
       "bytes": 1309,
       "sha256": "a9eac3aca1510e3d58a676dd5be9ffc5263798dd4140757e5007ae6b2d692002"
+    },
+    {
+      "path": "font-scale-1.5/01-now.png",
+      "bytes": 1366106,
+      "sha256": "e59b808d2670d329f21b8da827a8153c9c5b2c70b5168a288ac03380e7310744"
+    },
+    {
+      "path": "font-scale-1.5/01-now.xml",
+      "bytes": 28120,
+      "sha256": "e7a60fe4d9e534d1111aa85404967f24721ef4632d2eecff06093b2c1a4f2428"
+    },
+    {
+      "path": "font-scale-1.5/02-me.png",
+      "bytes": 245697,
+      "sha256": "bd4fcb9c3817c14bb0f56fbb9049df57dea5152378a0ad04a22d1800e534e3c0"
+    },
+    {
+      "path": "font-scale-1.5/02-me.xml",
+      "bytes": 18898,
+      "sha256": "c214bbc1f05741523cf358cee254650efbeb7d2e207348107b7a7cff3652c0eb"
+    },
+    {
+      "path": "font-scale-1.5/03-change.png",
+      "bytes": 324515,
+      "sha256": "f0f6e437a8fccd1bda3b82cad60b4b6144089915672c979f17a3fc89fe881f4c"
+    },
+    {
+      "path": "font-scale-1.5/03-change.xml",
+      "bytes": 20808,
+      "sha256": "2591d9719ebdef0825ef5ef77e28136e20b249eed07184cf57f9cffa1a877f33"
+    },
+    {
+      "path": "font-scale-1.5/04-cards.png",
+      "bytes": 377956,
+      "sha256": "41c899e9e2de3d9532319fb9c077ccd17c9ca12af86ec6c62f56cb0d647a13cf"
+    },
+    {
+      "path": "font-scale-1.5/04-cards.xml",
+      "bytes": 30584,
+      "sha256": "48ff7ee03ed408b4f8a11df4ad87d8d4c721106a3c7725172a2a5909581b42f7"
+    },
+    {
+      "path": "font-scale-1.5/MANIFEST.json",
+      "bytes": 1050,
+      "sha256": "1f61f4337bc8c212886a03afee0a536b123b7e87d27ee40e9aecdb9407497402"
     },
     {
       "path": "logs/contracts-851dp-final-r6.txt",
