@@ -767,7 +767,7 @@ private fun ProductionWeaknessesScreen(
         if (report.unsupportedTypes.isNotEmpty()) {
             item {
                 Text(
-                    "尚未接入权威输入",
+                    "尚无已确认依据",
                     color = PdigV2Colors.TextPrimary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,

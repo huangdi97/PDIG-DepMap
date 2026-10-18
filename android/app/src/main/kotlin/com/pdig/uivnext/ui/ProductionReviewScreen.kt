@@ -104,7 +104,7 @@ internal fun ProductionReviewScreen(
                     shape = RoundedCornerShape(VRadius.Lg),
                 ) {
                     Text(
-                        "当前没有待复核项。空队列不代表图谱完整，也不代表没有未知关系。",
+                        "当前没有待复核项。空队列不代表已记录关系完整，也不代表没有未知关系。",
                         Modifier.padding(14.dp),
                         color = PdigV2Colors.TextSecondary,
                         fontSize = 12.sp,

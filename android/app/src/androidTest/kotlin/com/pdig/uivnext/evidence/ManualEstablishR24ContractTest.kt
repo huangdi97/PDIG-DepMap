@@ -46,7 +46,7 @@ class ManualEstablishR24ContractTest {
         compose.onNodeWithText("手机号 / 邮箱", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText(
-            "正式 authority 已就绪 · Preview 只读",
+            "可正式记录 · Preview 只读",
             useUnmergedTree = true,
         ).assertIsDisplayed()
         compose.onNodeWithText("其他身份", useUnmergedTree = true)

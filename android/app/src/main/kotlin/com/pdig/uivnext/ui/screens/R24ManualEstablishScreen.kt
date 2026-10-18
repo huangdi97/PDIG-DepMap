@@ -105,33 +105,33 @@ internal fun R24ManualEstablishScreen(
             ManualTypeCard(
                 "支付工具",
                 "payment_instrument",
-                "可表达卡片/支付工具的基础身份；详细生命周期字段仍按 R19 proposal 治理。",
+                "可表达卡片/支付工具的基础身份；详细生命周期字段仍按正式提案流程处理。",
                 PdigV2Colors.PrimaryBright,
-                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
+                if (productionAuthorityReady) "可正式记录" else "正式记录能力待接入",
             )
             ManualTypeCard(
                 "账户",
                 "account",
                 "记录一个访问/控制对象；认证与恢复关系必须单独确认。",
                 PdigV2Colors.Positive,
-                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
+                if (productionAuthorityReady) "可正式记录" else "正式记录能力待接入",
             )
             ManualTypeCard(
                 "服务",
                 "service",
                 "记录订阅、银行网银或其他依赖端点；存在对象不证明当前仍订阅。",
                 PdigV2Colors.Warning,
-                if (productionAuthorityReady) "正式 authority 已就绪" else "生产 authority 尚未接到 VNext",
+                if (productionAuthorityReady) "可正式记录" else "正式记录能力待接入",
             )
 
-            ManualSectionTitle("受治理身份对象", "R37 subtype + R38 identifier")
+            ManualSectionTitle("可记录的身份对象", "手机号 / 邮箱")
             ManualTypeCard(
                 "手机号 / 邮箱",
-                "identity_anchor + governed profile",
-                "正式生产 authority 已支持把 Node、受治理 subtype 与用户确认的 identifier value 在同一事务中建立；Preview 仍保持只读，不会写入 Reality。",
+                "专用身份页",
+                "正式生产能力已支持在一次确认中建立对象、手机号/邮箱类型与具体标识；Preview 仍保持只读，不会写入正式数据。",
                 PdigV2Colors.PrimaryBright,
-                if (productionAuthorityReady) "正式 authority 已就绪 · Preview 只读"
-                else "正式 authority 待接 · Preview 只读",
+                if (productionAuthorityReady) "可正式记录 · Preview 只读"
+                else "正式记录能力待接入 · Preview 只读",
             )
 
             ManualSectionTitle("其他已知对象类型", "不要制造 ghost capability")
@@ -195,10 +195,10 @@ internal fun R24ManualEstablishScreen(
                     )
                     Text(
                         if (productionAuthorityReady)
-                            "正式 authority 已存在，但 Preview 仍保持只读，不能把参考环境当成生产 Reality。"
+                            "正式记录能力已存在，但 Preview 仍保持只读，不能把参考环境当成正式数据。"
                         else
-                            "原因不是 UI 没画完，而是正式 VNext 还没有经过 AppContainer 暴露并测试的手工 Reality mutation authority。" +
-                                "在 authority 落地前，添加一个可点击的“保存”会制造假能力。",
+                            "原因不是界面没画完，而是正式 VNext 还没有经过完整验证的对象建立能力。" +
+                                "在能力落地前，添加一个可点击的“保存”会制造假能力。",
                         color = PdigV2Colors.TextMuted,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,

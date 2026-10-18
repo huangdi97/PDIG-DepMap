@@ -309,7 +309,7 @@ class ProductionVNextShellContractTest {
 
         compose.runOnIdle { session.appState.navigate(VScreen.INFRASTRUCTURE) }
         compose.waitForIdle()
-        compose.onNodeWithText("1 类权威输入", substring = true).assertExists()
+        compose.onNodeWithText("1 类已确认依据", substring = true).assertExists()
         compose.onNodeWithText("等待 Finding projection", substring = true)
             .assertDoesNotExist()
     }
@@ -548,7 +548,7 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithTag("pdig.production-vnext.weaknesses", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText("生产恢复单一路径", substring = true).assertIsDisplayed()
-        compose.onNodeWithText("尚未接入权威输入").assertIsDisplayed()
+        compose.onNodeWithText("尚无已确认依据").assertIsDisplayed()
         compose.onNodeWithText("共享故障域", substring = true).assertIsDisplayed()
     }
 

@@ -484,8 +484,8 @@ private fun ProductionInfrastructure(
             Triple(
                 VScreen.WEAKNESSES,
                 findings?.findings?.size,
-                if (findings == null) "权威连续性发现暂不可用"
-                else "${findings.supportedTypes.size} 类权威输入",
+                if (findings == null) "连续性发现暂不可用"
+                else "${findings.supportedTypes.size} 类已确认依据",
             ),
         ).chunked(2).forEach { row ->
             Row(
@@ -764,7 +764,7 @@ private fun ProductionChange(
                     else productionVisiblePlanTitle(detail.title, targetMasked),
                     subtitle = "${productionScenarioLabel(plan.scenario)} · ${productionWorkflowStateLabel(plan.workflowState)}",
                     meta = listOfNotNull(
-                        "图谱修订 ${plan.lastAnalyzedRevision}",
+                        "数据版本 ${plan.lastAnalyzedRevision}",
                         plan.effectiveDate,
                         routeNotice,
                     ).joinToString(" · "),
@@ -792,7 +792,7 @@ private fun ProductionChange(
         ProductionFactCard(
             title = "更换手机号",
             subtitle = "从“号码”进入已确认手机号身份后分析影响并建立计划",
-            meta = "仅受治理 PHONE_NUMBER subtype 可进入；不会把通用身份对象猜成手机号",
+            meta = "仅已确认的手机号类型可进入；不会把通用身份对象猜成手机号",
             onClick = { app.navigate(VScreen.NUMBERS) },
         )
 
@@ -951,7 +951,7 @@ private fun ProductionMe(
     ProductionPage(modifier, "我", "我的数字生活 · 正式数据工作区") {
         ProductionMetricRow(
             listOf(
-                snapshot.revision to "图谱修订",
+                snapshot.revision to "数据版本",
                 activePlans to "进行中变更",
                 inventory.pendingReviewCount to "待复核",
             ),
@@ -1050,8 +1050,8 @@ private fun ProductionMeContinuityPanel(
                 value = findingCount?.toString() ?: "—",
                 title = "连续性发现",
                 detail = if (findingCount == null)
-                    "权威连续性发现当前不可读取"
-                else "${supportedFindingTypes ?: 0} 类权威输入 · 不产生健康分",
+                    "连续性发现当前不可读取"
+                else "${supportedFindingTypes ?: 0} 类已确认依据 · 不产生健康分",
                 onClick = { app.navigate(VScreen.WEAKNESSES) },
             )
         }
@@ -1089,7 +1089,7 @@ private fun ProductionMeInfrastructurePanel(
             ProductionFactCard(
                 title = "管理基础设施",
                 subtitle = "进入已确认对象、关系与影响分析",
-                meta = "已确认 PHONE_NUMBER / EMAIL_ADDRESS 进入专用身份面；其他仍按通用身份对象处理",
+                meta = "已确认的手机号 / 邮箱进入专用身份页；其他仍按通用身份对象处理",
                 onClick = { app.navigate(VScreen.INFRASTRUCTURE) },
             )
         }
@@ -1126,7 +1126,7 @@ private fun ProductionMeControlPanel(
             ProductionFactCard(
                 title = "建立基础设施",
                 subtitle = "手工记录对象 / 关系或导入文件",
-                meta = "所有写入走正式 authority",
+                meta = "所有写入都经过正式确认",
                 onClick = { app.navigate(VScreen.IMPORT) },
             )
             ProductionFactCard(

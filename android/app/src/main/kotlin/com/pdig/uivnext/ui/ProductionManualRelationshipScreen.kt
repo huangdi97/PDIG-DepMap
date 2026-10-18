@@ -326,7 +326,7 @@ internal fun ProductionManualRelationshipScreen(
 
         item {
             ManualRelationBoundary(
-                "两条关系不等于两条独立路径。FailureDomain / RecoveryCycle / ProviderPolicy 仍由 Continuity engine 判断，手工关系页不会计算安全分或独立路径数。"
+                "两条关系不等于两条独立路径。故障影响、恢复路径与服务商规则仍由连续性分析判断；本页不会计算安全分或独立路径数。"
             )
         }
     }

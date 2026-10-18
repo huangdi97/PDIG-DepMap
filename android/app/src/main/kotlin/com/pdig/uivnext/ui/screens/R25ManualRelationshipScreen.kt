@@ -133,10 +133,10 @@ internal fun R25ManualRelationshipScreen(
                     )
                     Text(
                         if (productionAuthorityReady)
-                            "正式 authority 已存在，但 Preview 仍不会执行关系写入；生产 UI 必须走 authoritative gateway 并回读 Reality。"
+                            "正式记录能力已存在，但 Preview 仍不会执行关系写入；生产界面必须经过正式确认并回读数据。"
                         else
-                            "正式 VNext 仍缺少 AppContainer-facing 的 manual Dependency authority。" +
-                                "在 authority 和 revision/conformance 测试完成之前，本页只冻结交互与文案。",
+                            "正式 VNext 仍缺少经过完整验证的手工关系记录能力。" +
+                                "在能力和一致性测试完成之前，本页只冻结交互与文案。",
                         color = PdigV2Colors.TextMuted,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,

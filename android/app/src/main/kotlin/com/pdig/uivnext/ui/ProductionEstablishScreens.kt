@@ -148,7 +148,7 @@ internal fun ProductionEstablishScreen(
                 supportingText = {
                     Text(
                         if (selectedImportSourceId != null)
-                            "已选择现有来源；解析后的 adapter 必须与该来源一致，否则会要求重新选择。"
+                            "已选择现有来源；解析后的文件类型必须与该来源一致，否则会要求重新选择。"
                         else
                             "用于标识新的记录来源；不会根据文件名自动推断账户、地区或依赖。"
                     )
@@ -581,6 +581,14 @@ private fun EstablishEntry(
     }
 }
 
+private fun productionAdapterLabel(adapter: String): String = when (adapter) {
+    "wechat_statement" -> "微信账单"
+    "alipay_statement" -> "支付宝账单"
+    "generic_csv" -> "通用 CSV"
+    "" -> "已记录来源"
+    else -> "已接入来源"
+}
+
 @Composable
 private fun EstablishSourceChoice(
     label: String,
@@ -610,7 +618,7 @@ private fun EstablishSourceChoice(
                     fontWeight = FontWeight.SemiBold)
                 Text(
                     listOfNotNull(
-                        adapter.takeIf { it.isNotBlank() },
+                        productionAdapterLabel(adapter),
                         lastIngestedAt?.take(10)?.let { "最近导入 $it" },
                     ).joinToString(" · ").ifBlank { "已记录来源" },
                     color = PdigV2Colors.TextMuted,

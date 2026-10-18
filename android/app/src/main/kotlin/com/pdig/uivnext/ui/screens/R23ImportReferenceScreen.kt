@@ -105,7 +105,7 @@ internal fun R23ImportReferenceScreen(
                 number = "1",
                 title = "选择数据来源",
                 detail = "使用已有 SourceInstance，或为新的账单/导出文件命名来源。",
-                state = if (productionImportReady) "正式 authority 已存在" else "正式 authority HOLD",
+                state = if (productionImportReady) "正式导入能力可用" else "正式导入能力待接入",
                 tint = PdigV2Colors.PrimaryBright,
             )
             ImportReferenceStep(
