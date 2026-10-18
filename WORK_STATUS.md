@@ -2084,8 +2084,9 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - `docs/ui-vnext/R52_PLUS_VISUAL_ACCEPTANCE_MATRIX.md`
 - `docs/ui-vnext/R52_PLUS_PRODUCTION_RUNTIME_REPORT.md`
 - `docs/ui-vnext/R52_PLUS_LOCAL_TO_GITHUB_HANDOFF.md`
-- `artifacts/runtime-evidence/2026-10-17-r61-plus/`（226 项，MANIFEST.json +
-  EVIDENCE_SHA256SUMS.txt；手机 70 PNG / 平板 34 PNG / Production 4 PNG + 2 个 rehearsal 目录）
+- `artifacts/runtime-evidence/2026-10-17-r61-plus/`（248 项，MANIFEST.json +
+  EVIDENCE_SHA256SUMS.txt；手机 70 PNG / 平板 34 PNG / Expanded 11 PNG /
+  Production 4 PNG + 2 个 rehearsal 目录）
 
 ---
 
@@ -2139,3 +2140,21 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   Production 文案，不改变已采集的 Now / Me / lock / cutover 画面。
 - 仍保留：851dp 测试可见性；参考板损坏；Human Acceptance / Freeze / Cutover
   PENDING / HOLD / HOLD。
+
+---
+
+## R52+ Round 4 — Expanded（1280×800dp）真实视觉证据（2026-10-18）
+
+- 最终源码 HEAD 保持 `7993f29d`；本轮**没有改源码**，只补 Expanded 断点证据。
+- 在 `pdig_tablet_api36` 上设置 2560×1600 @320（1280×800dp 横屏），
+  `TabletAdaptiveContractTest` **5/5 OK**，包括在 800dp 会被 skip 的两个
+  EXPANDED-only 三栏 Change 投影测试。
+- 新增 `tablet-expanded/` 11 张真实 PNG + `MANIFEST.json`：
+  Now / Infrastructure / Cards / Cards-selected / Card-detail / Change /
+  Change Phone Current / Transition / After / Records / Me。
+- 观察到：五项 Rail 标签可见；Cards 有右侧详情预览；Change Phone 是
+  Current / Transition / After 三投影；After 明确显示“计划”且未验证服务仍待处理。
+- 主 MANIFEST 更新为 **248 项**（70 phone / 34 tablet / 11 Expanded / 4 Production）。
+- 仍保留：851dp 测试可见性；参考板损坏；Human Acceptance / Freeze / Cutover
+  PENDING / HOLD / HOLD。
+

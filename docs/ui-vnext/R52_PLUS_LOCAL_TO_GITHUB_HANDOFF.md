@@ -50,8 +50,8 @@ force push, merge `main`, or enable the Production cutover.
 | `7993f29d` | Advanced Production consumer copy: ChangePlan / establish / import / maintenance / manual relationship / review; no behaviour change |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
-phone/tablet/production evidence, SHA manifest) follow `fc29138e` and do not
-change application source. Check `git log` for their exact SHA.
+phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
+do not change application source. Check `git log` for their exact SHA.
 
 ## 3. Evidence layout
 
@@ -62,6 +62,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── EVIDENCE_SHA256SUMS.txt
 ├── phone/                            # 70 real PNGs + JSON/XML semantics
 ├── tablet/ui-shots/                  # 34 real PNGs + raw manifest
+├── tablet-expanded/                  # 11 real PNGs + manifest (1280x800dp)
 ├── production/                       # lock/unlock PNG+XML, 2 rehearsal dirs
 └── logs/                             # capture, JVM/build, Production logs
 ```
@@ -71,6 +72,8 @@ Evidence rules used:
 - Phone: `adb exec-out screencap` on the installed Preview APK.
 - Tablet: shell `screencap` inside the instrumentation test after the display
   presented a real frame; the test fails if the GPU earth is absent.
+- Expanded: `adb exec-out screencap` at 2560×1600 @320 (1280×800 dp), built from
+  `7993f29d`; `TabletAdaptiveContractTest` is 5/5 at this width.
 - Production: real installed `com.pdig.app` APK, real lock screen, real
   Production shell, real XML semantics; no Preview fixture is presented as
   Production Reality.
@@ -106,7 +109,10 @@ Evidence rules used:
 9. `phone/11-search-empty.png`, `phone/11-search-query.png`.
 10. `tablet/ui-shots/01-now.png`, `02-overview-global.png`,
     `05-cards.png`, `09-numbers.png`, `16-weaknesses.png`, `25-me.png`.
-11. `production/01-cutover-locked.png`, `02-cutover-unlocked.png`,
+11. `tablet-expanded/01-now.png`, `03-cards.png`, `03a-card-selected.png`,
+    `06-change-phone-current.png`, `07-change-phone-transition.png`,
+    `08-change-phone-after.png`, `10-me.png` — Expanded breakpoint.
+12. `production/01-cutover-locked.png`, `02-cutover-unlocked.png`,
     `03-default-legacy-locked.png`, `04-default-legacy-home.png`.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
@@ -119,10 +125,10 @@ is not acceptance.
 # JVM tests + preview APK
 cd E:\AI\号卡管理\android
 .\gradlew.bat :app:testPreviewDebugUnitTest :app:testProductionDebugUnitTest `
-  :app:assemblePreviewDebug -PpdigPreviewBuildSha=fc29138
+  :app:assemblePreviewDebug -PpdigPreviewBuildSha=7993f29
 
 # Tablet 34-screen evidence (one device)
-.\gradlew.bat :app:connectedPreviewDebugAndroidTest -PpdigPreviewBuildSha=fc29138 `
+.\gradlew.bat :app:connectedPreviewDebugAndroidTest -PpdigPreviewBuildSha=7993f29 `
   "-Pandroid.testInstrumentationRunnerArguments.class=com.pdig.uivnext.evidence.SourceCompleteScreenshotEvidenceTest"
 
 # Phone capture (from repo root, one device)

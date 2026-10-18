@@ -91,10 +91,11 @@ Production default flag or release configuration was changed.
 | --- | --- |
 | Phone Preview capture (`ui_vnext_pixel_capture.py`) | PASS, see §5 |
 | Tablet Preview screenshot suite (`SourceCompleteScreenshotEvidenceTest`) | PASS, 34 screens + manifest |
+| Expanded contract + captures (1280×800 dp) | PASS, `TabletAdaptiveContractTest` 5/5, 11 screens + manifest |
 | Production shell / record navigation / manual relationship contracts | PASS, 21/21 at 1080×2400@420 |
 | Production secure rehearsal (Legacy default) | `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS` |
 | Production release-default rehearsal (two keys) | `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS` |
-| APK SHA vs installed APK SHA | equal (`0c754326…`) for the cutover rehearsal |
+| APK SHA vs installed APK SHA | equal (`df576561…`) for the cutover rehearsal |
 
 A first run of the 21 Production contracts at 1080×2340@440 had **1 failure**:
 `governedPhoneAndEmailAppearInProductionCategoriesAndDetails` could not see the
@@ -153,6 +154,22 @@ Capture source: `6b823fb6` (final source HEAD).
 
 The previous tablet artifact omitted the earth because of the capture method;
 the new evidence includes it and the test now fails if the earth layer is absent.
+
+### Expanded (2560×1600 @320 dpi, 1280×800 dp landscape, Pixel Tablet AVD, API36)
+
+Capture source: `7993f29d`, package `com.pdig.app.preview.p7993f29`.
+`TabletAdaptiveContractTest` is **5/5 OK** at this width, including the two
+EXPANDED-only three-pane projection tests skipped at 800 dp.
+11 real PNGs + `tablet-expanded/MANIFEST.json`:
+
+- Now with all five visible rail labels;
+- Infrastructure with the secondary chip row;
+- Cards grid, selected card + right-side preview, full card detail;
+- Change Center; Change Phone Current / Transition / After;
+- Records; Me.
+
+After remains a plan projection; the After capture shows `旧号码（已停用·计划）`,
+`新主号（计划）` and unverified services still `待处理`.
 
 ## 6. Bugs fixed and their evidence
 

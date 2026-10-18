@@ -1,15 +1,16 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
 > **Final source HEAD:** `7993f29d4dafdffe4791c7bf450169dfcba1558e`  
-> **Capture source HEAD:** `6b823fb6` for phone, tablet and Production.
-> Later deltas are a rail-label testTag and advanced Production consumer copy;
-> none changes the captured screens.  
+> **Capture source HEAD:** `6b823fb6` for phone, tablet and Production;
+> `7993f29d` for the Expanded set. Later deltas are a rail-label testTag and
+> advanced Production consumer copy; none changes the captured screens.  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
 > Evidence root: `artifacts/runtime-evidence/2026-10-17-r61-plus/`  
 > Phone: 1080×2340 @440 dpi, Pixel 5 AVD, API36.  
 > Tablet: 1200×1920 @240 dpi (800×1280 dp, MEDIUM), Pixel Tablet AVD, API36.  
+> Expanded: 2560×1600 @320 dpi (1280×800 dp, landscape), Pixel Tablet AVD, API36.  
 > Production: 1080×2400 @420 dpi, Pixel phone AVD, API36, installed
 > `com.pdig.app` APK.
 
@@ -87,6 +88,29 @@ principles; it does **not** fake a per-pixel diff.
 The tablet manifest is
 `tablet/ui-shots/source-complete-raw-manifest.json` (34 entries, viewport
 1200×1920, density 1.5, source head recorded in the manifest).
+
+## 4a. Expanded screens (11 real PNGs + manifest)
+
+Captured at 1280×800 dp, landscape, source `7993f29d`, package
+`com.pdig.app.preview.p7993f29`. `TabletAdaptiveContractTest` is **5/5 OK** at
+this width, including the two EXPANDED-only three-pane projections that are
+skipped at 800 dp.
+
+| # | Screen / state | Capture(s) | Machine-checked / observed | Human verdict |
+| --- | --- | --- | --- | --- |
+| 1 | Now | `tablet-expanded/01-now.png` | five visible rail labels; wider hero; GPU earth | |
+| 2 | Infrastructure | `02-infrastructure.png` | secondary chip row; wider earth; region labels | |
+| 3 | Cards | `03-cards.png`, `03a-card-selected.png` | Expanded grid + right-side preview pane | |
+| 4 | Card detail | `04-card-detail.png` | full detail, no cramped single-column | |
+| 5 | Change Center | `05-change.png` | in-progress + prepare groups | |
+| 6 | Change Phone Current | `06-change-phone-current.png` | Current projection; stage row; impact summary | |
+| 7 | Change Phone Transition | `07-change-phone-transition.png` | Transition; blocked retire with reason | |
+| 8 | Change Phone After | `08-change-phone-after.png` | After is plan projection; unverified services stay 待处理 | |
+| 9 | Records | `09-records.png` | evidence trace; 完成 ≠ 已验证 | |
+| 10 | Me | `10-me.png` | fifth primary; identity + continuity + infrastructure | |
+
+The Expanded manifest is `tablet-expanded/MANIFEST.json` (source head, device,
+breakpoint and per-screen state). This set is evidence, not acceptance.
 
 ## 5. Production screens (real installed `com.pdig.app`)
 

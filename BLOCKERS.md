@@ -439,3 +439,22 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   全过。属于测试可见性，不是产品失败。
 - 参考板损坏与 1536×1024 原图缺失；Human Visual Acceptance / Reference Freeze /
   Production Cutover 仍为 PENDING / HOLD / HOLD。
+
+## R52+ Round 4 更新（2026-10-18）
+
+### 已补证
+
+- **Expanded（1280×800dp）**：`TabletAdaptiveContractTest` 5/5 OK，含两个
+  EXPANDED-only 三栏 Change 投影测试；新增 11 张真实 PNG + manifest
+  （Now / Infrastructure / Cards / Card detail / Change / Current / Transition /
+  After / Records / Me）。五项 Rail 可见标签、Cards 右侧预览、After 计划投影均
+  已在真实运行中确认。
+- 主证据 MANIFEST 更新为 248 项。
+
+### 仍保留
+
+- 851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动；CI 914dp
+  全过。属于测试可见性，不是产品失败。
+- Human Visual Acceptance / Reference Freeze / Production Cutover 仍为
+  PENDING / HOLD / HOLD；参考板仍损坏。
+
