@@ -84,14 +84,14 @@ internal fun R25ManualRelationshipScreen(
             ) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        "关系是 Reality，不是标签",
+                        "关系是已确认事实，不是标签",
                         color = PdigV2Colors.PrimaryText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "确认一条关系后，它会进入依赖图并影响 Impact / Change。" +
-                            "因此方向、关系类型、能力和关键性都必须明确，不允许 UI 自动猜。",
+                        "确认一条关系后，它会进入依赖分析并影响变更判断。" +
+                            "因此方向、关系类型、能力与关键性都必须明确，界面不会自动猜。",
                         color = PdigV2Colors.TextSecondary,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,
@@ -99,22 +99,22 @@ internal fun R25ManualRelationshipScreen(
                 }
             }
 
-            RelationStep("1", "从哪个对象开始？", "From 必须是已确认 Reality 对象；不能选 Proposal/Candidate。")
-            RelationStep("2", "关系是什么？", "只显示当前 runtime relation registry 支持的关系。")
-            RelationStep("3", "指向哪个对象？", "To 必须是已确认 Reality 对象；方向必须与 relation 语义一致。")
-            RelationStep("4", "承担什么能力？", "payment / access / authentication / recovery / communication。")
-            RelationStep("5", "这是必须路径吗？", "默认 unknown；required 只能由用户显式确认，机器不能设置。")
+            RelationStep("1", "从哪个对象开始？", "起点必须是已确认对象；不能选待确认建议或候选对象。")
+            RelationStep("2", "关系是什么？", "只显示当前支持的关系类型。")
+            RelationStep("3", "指向哪个对象？", "终点必须是已确认对象；方向必须与关系含义一致。")
+            RelationStep("4", "承担什么能力？", "支付 / 访问 / 登录验证 / 恢复 / 通信。")
+            RelationStep("5", "这是必须路径吗？", "默认未知；只有你能明确确认“必须”，系统不会自动设置。")
 
             ManualRelationExample()
 
-            ManualRelationSection("当前 runtime relation")
+            ManualRelationSection("当前支持的关系")
             RelationVocabularyRow("付款来源", "funding_source", "payment")
             RelationVocabularyRow("支付绑定", "merchant_agreement", "payment")
             RelationVocabularyRow("恢复", "recovers", "recovery")
             RelationVocabularyRow("登录验证", "authenticates", "authentication")
             RelationVocabularyRow("控制", "controls", "access")
 
-            ManualRelationSection("存储允许但当前 runtime 不开放")
+            ManualRelationSection("已定义但当前不开放")
             RelationVocabularyRow("验证（legacy/future）", "verifies", "HOLD")
             RelationVocabularyRow("绑定（legacy/future）", "bound_to", "HOLD")
 

@@ -87,13 +87,13 @@ internal fun R24ManualEstablishScreen(
             ) {
                 Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     Text(
-                        "你确认的对象可以成为 Reality；关系仍要单独确认",
+                        "你确认的对象会进入正式数据；关系仍要单独确认",
                         color = PdigV2Colors.PrimaryText,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
                     )
                     Text(
-                        "记录“有这个对象”不等于自动记录它与其他对象的依赖关系；手机号/邮箱的 subtype 与 identifier 也不会自动变成恢复语义。",
+                        "记录“有这个对象”不等于自动记录它与其他对象的依赖关系；手机号/邮箱的类型与具体标识也不会自动变成恢复方式。",
                         color = PdigV2Colors.TextSecondary,
                         fontSize = 10.sp,
                         lineHeight = 16.sp,
@@ -101,7 +101,7 @@ internal fun R24ManualEstablishScreen(
                 }
             }
 
-            ManualSectionTitle("当前 Canonical runtime creation set", "设计对齐")
+            ManualSectionTitle("当前可直接记录的对象", "按正式规则")
             ManualTypeCard(
                 "支付工具",
                 "payment_instrument",
@@ -207,11 +207,11 @@ internal fun R24ManualEstablishScreen(
             }
 
             ManualSectionTitle("正式版提交语义", "production binding")
-            ManualFlowLine("1", "选择受支持对象类型")
-            ManualFlowLine("2", "填写最小身份字段；手机号/邮箱同时明确确认 subtype 与 identifier value")
-            ManualFlowLine("3", "确认“这个对象存在”以及你明确填写的事实")
-            ManualFlowLine("4", "通过 authoritative Reality transaction 原子创建 Node / governed profile 并 bump graphRevision")
-            ManualFlowLine("5", "任何依赖关系继续走单独确认 / Human Review")
+            ManualFlowLine("1", "选择对象类型")
+            ManualFlowLine("2", "填写最少信息；手机号/邮箱同时确认类型与具体标识")
+            ManualFlowLine("3", "确认“这个对象存在”以及你明确填写的信息")
+            ManualFlowLine("4", "通过正式数据事务创建对象并更新数据版本")
+            ManualFlowLine("5", "任何依赖关系继续单独确认与复核")
 
             Spacer(Modifier.height(8.dp))
         }

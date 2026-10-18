@@ -27,7 +27,7 @@ class ManualRelationshipR25ContractTest {
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r25.relationship.truth-boundary", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("关系是 Reality，不是标签", useUnmergedTree = true)
+        compose.onNodeWithText("关系是已确认事实，不是标签", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r25.relationship.preview-disabled", useUnmergedTree = true)
             .assertIsDisplayed()

@@ -28,7 +28,7 @@ class ManualEstablishR24ContractTest {
         compose.onNodeWithTag("pdig.r24.manual.truth-boundary", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithText(
-            "你确认的对象可以成为 Reality；关系仍要单独确认",
+            "你确认的对象会进入正式数据；关系仍要单独确认",
             useUnmergedTree = true,
         ).assertIsDisplayed()
         compose.onNodeWithTag("pdig.r24.manual.preview-disabled", useUnmergedTree = true)

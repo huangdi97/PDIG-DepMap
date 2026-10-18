@@ -1052,7 +1052,7 @@ def main():
     require_screen(
         "10b-manual-establish",
         "手工记录",
-        "你确认的对象可以成为 Reality；关系仍要单独确认",
+        "你确认的对象会进入正式数据；关系仍要单独确认",
         "支付工具",
         "账户",
         "服务",
@@ -1064,7 +1064,7 @@ def main():
     for attempt in range(8):
         # Stop only once the explanatory paragraph under the bold title is on screen too, so the
         # real capture carries the card's full authority statement and not just its headline.
-        if any("不能把参考环境当成生产 Reality" in label_of(n) for n in xml_nodes()):
+        if any("不能把参考环境当成正式数据" in label_of(n) for n in xml_nodes()):
             break
         adb("shell", "input", "swipe", "530", "1900", "530", "1350", "400")
         time.sleep(1)
@@ -1084,7 +1084,7 @@ def main():
     require_screen(
         "10c-manual-relationship",
         "手工记录关系",
-        "关系是 Reality，不是标签",
+        "关系是已确认事实，不是标签",
         "默认 unknown；required 只能由用户显式确认，机器不能设置。",
     )
     for attempt in range(8):
@@ -1113,7 +1113,7 @@ def main():
     require_across(
         ("10b-manual-establish", "10bb-manual-establish-boundary"),
         "当前 Preview 不提供“保存”按钮",
-        "不能把参考环境当成生产 Reality",
+        "不能把参考环境当成正式数据",
     )
     require_across(
         ("10c-manual-relationship", "10cc-manual-relationship-boundary"),
