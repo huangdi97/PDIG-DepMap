@@ -95,7 +95,7 @@ internal fun ProductionManualRelationshipScreen(
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    "你确认的是一条 Reality 关系。方向、关系类型和关键性都不会由界面猜测。",
+                    "你确认的是一条已记录关系。方向、关系类型和关键性都不会由界面猜测。",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 12.sp,
                 )
@@ -104,7 +104,7 @@ internal fun ProductionManualRelationshipScreen(
 
         item {
             ManualRelationBoundary(
-                "当前直接写入只覆盖 Canonical v3 已正式注册的 runtime relations：funding_source / merchant_agreement / recovers / authenticates / controls。verifies / bound_to 仍不可创建。"
+                "当前可直接记录的关系类型：支付来源 / 商户协议 / 恢复 / 认证 / 控制；验证与绑定关系仍不可创建。"
             )
         }
 
@@ -129,7 +129,7 @@ internal fun ProductionManualRelationshipScreen(
             if (allowedRelations.isEmpty()) {
                 item {
                     ManualRelationBoundary(
-                        "当前 runtime registry 没有允许从“${productionObjectKindLabel(from.kind)}”出发的关系。"
+                        "当前没有允许从“${productionObjectKindLabel(from.kind)}”出发的关系类型。"
                     )
                 }
             } else {
@@ -272,7 +272,7 @@ internal fun ProductionManualRelationshipScreen(
                                 fontSize = 10.sp,
                             )
                             Text(
-                                "graphRevision = ${saved.graphRevision}",
+                                "数据版本 = ${saved.graphRevision}",
                                 color = PdigV2Colors.TextMuted,
                                 fontSize = 9.sp,
                             )
@@ -302,7 +302,7 @@ internal fun ProductionManualRelationshipScreen(
                                             ),
                                         )
                                     } catch (_: Throwable) {
-                                        error = "关系未写入。输入不符合当前 runtime relation registry，或正式数据写入失败。"
+                                        error = "关系未写入。输入不符合当前支持的关系类型，或正式数据写入失败。"
                                     }
                                 }
                             } else {
@@ -442,7 +442,7 @@ private fun ProductionManualRelationshipUnavailable(modifier: Modifier) {
         modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("手工关系 authority 当前不可用", color = PdigV2Colors.TextPrimary,
+        Text("手工记录关系当前不可用", color = PdigV2Colors.TextPrimary,
             fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Text(
             "不会提供假的确认按钮，也不会直接写 SQL。",

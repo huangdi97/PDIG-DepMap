@@ -348,7 +348,7 @@ internal fun productionChangeStageSummary(plan: VNextProductionPlan): Production
     val verified = plan.actions.count { it.verificationStatus == "verified" }
     val finished = plan.actions.count { it.done }
     return ProductionChangeStageSummary(
-        current = "当前图谱修订 ${plan.currentGraphRevision} · 分析基线 ${plan.lastAnalyzedGraphRevision}",
+        current = "当前数据版本 ${plan.currentGraphRevision} · 分析基准 ${plan.lastAnalyzedGraphRevision}",
         transition = "${finished}/${plan.actions.size} 步已记录完成 · ${verified} 步已验证",
         after = if (plan.unresolvedMustChangeKeys.isNotEmpty())
             "${plan.unresolvedMustChangeKeys.size} 项必须处理事项未解决 · 仅计划预期"
@@ -393,7 +393,7 @@ private fun ProductionChangeChoreography(plan: VNextProductionPlan) {
             }
         }
         Text(
-            "完成后是 Plan Projection，不是 Reality。记录完成 ≠ 验证完成；旧路径仍需按正式计划安全退休。",
+            "完成后只是计划预期，不是已经发生的事实。记录完成不等于验证完成；旧路径仍需按正式计划安全停用。",
             color = PdigV2Colors.TextMuted,
             fontSize = 10.sp,
         )
@@ -486,7 +486,7 @@ private fun ChangePlanAuthorityState(plan: VNextProductionPlan) {
                 fontWeight = FontWeight.Bold,
             )
             Text(
-                "分析时图谱修订 ${plan.lastAnalyzedGraphRevision} · 当前图谱修订 ${plan.currentGraphRevision}",
+                "分析时数据版本 ${plan.lastAnalyzedGraphRevision} · 当前数据版本 ${plan.currentGraphRevision}",
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 10.sp,
             )

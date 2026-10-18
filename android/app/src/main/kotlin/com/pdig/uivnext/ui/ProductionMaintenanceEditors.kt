@@ -164,7 +164,7 @@ internal fun ProductionCardMaintenanceControls(
                                 )
                             }
                             if (result.isSuccess) {
-                                feedback = "已记录到本机 Reality"
+                                feedback = "已记录到本机"
                                 editFacts = false
                                 appState.requestRealityRefresh()
                             } else {
@@ -235,7 +235,7 @@ internal fun ProductionCardMaintenanceControls(
                                 authority.confirmCardAnnualFeeCheckpoint(item.id, month!!, day!!)
                             }
                             if (result.isSuccess) {
-                                feedback = "年费节点已记录到本机 Reality"
+                                feedback = "年费节点已记录到本机"
                                 editAnnual = false
                                 appState.requestRealityRefresh()
                             } else {
@@ -286,7 +286,7 @@ internal fun ProductionPhoneMaintenanceControls(
 
     MaintenanceControlPanel(
         title = "管理号码生命周期",
-        description = "套餐、续费与保号只记录你确认的 Reality；不会根据运营商或号码前缀推断。",
+        description = "套餐、续费与保号只记录你确认的资料；不会根据运营商或号码前缀推断。",
         primaryLabel = "编辑套餐资料",
         secondaryLabel = "设置保号 / 续费",
         onPrimary = { editPlan = true },
@@ -369,7 +369,7 @@ internal fun ProductionPhoneMaintenanceControls(
                                 )
                             }
                             if (result.isSuccess) {
-                                feedback = "套餐资料已记录到本机 Reality"
+                                feedback = "套餐资料已记录到本机"
                                 editPlan = false
                                 appState.requestRealityRefresh()
                             } else {
@@ -456,7 +456,7 @@ internal fun ProductionPhoneMaintenanceControls(
                                     )
                                 }
                                 if (result.isSuccess) {
-                                    feedback = "保号计划已记录到本机 Reality"
+                                    feedback = "保号计划已记录到本机"
                                     appState.requestRealityRefresh()
                                 } else {
                                     error = "保存失败，请检查输入是否符合受治理规则。"
@@ -475,7 +475,7 @@ internal fun ProductionPhoneMaintenanceControls(
                                         authority.confirmPhonePlanRenewalMonthly(item.id, day!!)
                                     }
                                     if (result.isSuccess) {
-                                        feedback = "套餐续费节点已记录到本机 Reality"
+                                        feedback = "套餐续费节点已记录到本机"
                                         appState.requestRealityRefresh()
                                     } else {
                                         error = "续费节点保存失败。"
@@ -559,7 +559,7 @@ private fun MaintenanceControlPanel(
 @Composable
 private fun MaintenanceTruthNote() {
     Text(
-        "你正在记录自己的已确认资料。Provider 常见规则、参考值和时间经过都不会自动成为 Reality。",
+        "你正在记录自己的已确认资料。服务商常见规则、参考值和时间经过都不会自动成为已确认事实。",
         color = PdigV2Colors.TextMuted,
         fontSize = 10.sp,
     )

@@ -218,7 +218,7 @@ internal fun ProductionImportWorkflowScreen(
                     body = if (result.proposalCount > 0)
                         "生成 ${result.proposalCount} 条待确认关系。它们在确认前不会进入已确认依赖。"
                     else
-                        "本次没有生成待确认关系。没有 Proposal 不代表现实中不存在关系。",
+                        "本次没有生成待确认关系。没有待确认建议不代表现实中不存在关系。",
                 )
             }
             item {
@@ -309,7 +309,7 @@ internal fun ProductionImportWorkflowScreen(
             }
             item {
                 ImportTruthBoundary(
-                    "确认导入会写入来源 / 证据 / 对象，并生成待确认关系；Proposal ≠ Reality。"
+                    "确认导入会写入来源、证据与对象，并生成待确认关系；待确认关系不等于已确认事实。"
                 )
             }
             item {

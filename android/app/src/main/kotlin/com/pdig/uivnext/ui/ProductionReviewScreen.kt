@@ -326,7 +326,7 @@ private fun ProductionReviewUnavailable(modifier: Modifier) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            "生产复核 authority 未绑定",
+            "正式复核能力暂不可用",
             color = PdigV2Colors.TextPrimary,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,

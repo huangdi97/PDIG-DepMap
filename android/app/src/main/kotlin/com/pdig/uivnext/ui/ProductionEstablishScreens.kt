@@ -97,7 +97,7 @@ internal fun ProductionEstablishScreen(
         item {
             EstablishEntry(
                 title = "手工记录关系",
-                body = "在两个已确认对象之间明确确认当前 runtime registry 支持的关系；不会自动判断独立路径。",
+                body = "在两个已确认对象之间明确记录当前支持的关系类型；不会自动判断独立路径。",
                 state = if (session.authorities?.manualRelationship != null) "正式关系能力可用" else "正式关系能力待接",
                 enabled = session.authorities?.manualRelationship != null,
             ) {
@@ -186,7 +186,7 @@ internal fun ProductionEstablishScreen(
 
         item {
             EstablishBoundary(
-                "导入完成不等于依赖已确认；对象建立与关系确认仍是两个独立 Reality 动作。"
+                "导入完成不等于依赖已确认；对象建立与关系确认仍是两个独立动作。"
             )
         }
     }
@@ -251,7 +251,7 @@ internal fun ProductionManualEstablishScreen(
 
         item {
             EstablishBoundary(
-                "提交会通过 AppContainer authoritative transaction 创建 Node 并更新 graphRevision；不会写入任何 Dependency。"
+                "提交会通过正式数据事务创建对象并更新数据版本；不会写入任何已确认依赖。"
             )
         }
 
@@ -452,7 +452,7 @@ internal fun ProductionManualEstablishScreen(
                             }
                         }
                         Text(
-                            "graphRevision=${created.graphRevision}",
+                            "数据版本=${created.graphRevision}",
                             color = PdigV2Colors.TextMuted,
                             fontSize = 9.sp,
                         )
@@ -536,8 +536,8 @@ internal fun ProductionManualEstablishScreen(
             item {
                 EstablishEntry(
                     title = "继续记录关系",
-                    body = "对象已建立。关系仍需单独确认，并且只允许当前 Canonical runtime registry 已正式支持的关系。",
-                    state = if (session.authorities?.manualRelationship != null) "可进入正式关系确认" else "关系 authority 待接",
+                    body = "对象已建立。关系仍需单独确认，并且只允许当前正式支持的关系类型。",
+                    state = if (session.authorities?.manualRelationship != null) "可进入正式关系确认" else "关系确认能力待接入",
                     enabled = session.authorities?.manualRelationship != null,
                 ) {
                     app.navigate(VScreen.MANUAL_RELATION)
@@ -547,7 +547,7 @@ internal fun ProductionManualEstablishScreen(
 
         item {
             EstablishBoundary(
-                "手机号/邮箱仅在 subtype 与 identifier 同一次权威事务中被用户确认后开放；其他通用身份、设备、会员与自定义对象仍不会因为界面能显示就擅自开放创建。"
+                "手机号/邮箱仅在类型与具体标识于同一次确认中被记录后才开放；其他通用身份、设备、会员与自定义对象仍不会因为界面能显示就擅自开放创建。"
             )
         }
     }

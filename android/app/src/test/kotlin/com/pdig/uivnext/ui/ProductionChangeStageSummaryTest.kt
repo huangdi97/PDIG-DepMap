@@ -101,8 +101,8 @@ class ProductionChangeStageSummaryTest {
         ))
 
         val summary = productionChangeStageSummary(plan)
-        assertTrue(summary.current.contains("当前图谱修订 9"))
-        assertTrue(summary.current.contains("分析基线 8"))
+        assertTrue(summary.current.contains("当前数据版本 9"))
+        assertTrue(summary.current.contains("分析基准 8"))
         assertTrue(summary.transition.contains("1/2 步已记录完成"))
         assertTrue(summary.transition.contains("1 步已验证"))
         assertTrue(summary.after.contains("1 项必须处理事项未解决"))

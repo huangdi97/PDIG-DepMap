@@ -152,7 +152,7 @@ internal fun ProductionCardChangeEntry(
                     if (targetMasked && existing == null)
                         "敏感信息已遮蔽 · 请关闭遮蔽并核对目标后建立"
                     else
-                        "Change authority 未绑定",
+                        "更换能力暂不可用",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                     modifier = Modifier.testTag("pdig.production-vnext.change.entry.masked"),
@@ -241,7 +241,7 @@ internal fun ProductionPhoneChangeEntry(
                 if (existing != null) {
                     "已有未结束的更换手机号计划；继续使用同一份已记录计划。"
                 } else {
-                    "计划 authority 会再次验证受治理 PHONE_NUMBER subtype；不会因为进入号码页就自动把对象当作手机号。"
+                    "计划能力会再次验证手机号类型；不会因为进入号码页就自动把对象当作手机号。"
                 },
                 color = PdigV2Colors.TextSecondary,
                 fontSize = 10.sp,
@@ -254,7 +254,7 @@ internal fun ProductionPhoneChangeEntry(
                     if (targetMasked && existing == null)
                         "敏感信息已遮蔽 · 请关闭遮蔽并核对目标后建立"
                     else
-                        "Change authority 未绑定",
+                        "更换能力暂不可用",
                     color = PdigV2Colors.TextMuted,
                     fontSize = 11.sp,
                     modifier = Modifier.testTag("pdig.production-vnext.change.entry.masked"),
