@@ -1085,7 +1085,7 @@ def main():
         "10c-manual-relationship",
         "手工记录关系",
         "关系是已确认事实，不是标签",
-        "默认 unknown；required 只能由用户显式确认，机器不能设置。",
+        "默认未知；只有你能明确确认“必须”，系统不会自动设置。",
     )
     for attempt in range(8):
         if any("当前 Preview 不提供" in label_of(n) for n in xml_nodes()):
