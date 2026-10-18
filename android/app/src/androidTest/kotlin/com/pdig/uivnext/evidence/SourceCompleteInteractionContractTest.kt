@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
@@ -350,7 +351,7 @@ class SourceCompleteInteractionContractTest {
 
         compose.onNodeWithTag("pdig.r21.change-card", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("更换银行卡", useUnmergedTree = true).assertIsDisplayed()
+        compose.onAllNodesWithText("更换银行卡", useUnmergedTree = true).onFirst().assertIsDisplayed()
         compose.onNodeWithText("完成后（计划）", useUnmergedTree = true).assertIsDisplayed()
         assertEquals("card-cn-3", app.selectedReplacementCardId)
         assertEquals("after", app.cardChangeProjection)
@@ -364,10 +365,12 @@ class SourceCompleteInteractionContractTest {
 
         compose.onNodeWithTag("pdig.r21.records", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("已记录完成", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("已验证", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("待验证", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithText("完成 ≠ 已验证", useUnmergedTree = true).assertIsDisplayed()
+        compose.onAllNodesWithText("已记录完成", useUnmergedTree = true).onFirst().assertIsDisplayed()
+        compose.onAllNodesWithText("已验证", useUnmergedTree = true).onFirst().assertIsDisplayed()
+        compose.onAllNodesWithText("待验证", useUnmergedTree = true).onFirst().assertIsDisplayed()
+        compose.onNodeWithText("完成 ≠ 已验证", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
@@ -381,9 +384,15 @@ class SourceCompleteInteractionContractTest {
         app.changeProjection = "after"
         assertEquals("after", app.changeProjection)
 
-        // After = Plan Projection（非现实）；渲染不崩溃且 NEW 区域存在
+        // After = Plan Projection（非现实）。At phone width the continuity scene
+        // is the compact orbit, not the three-pane OLD/SERVICES/NEW row; assert
+        // the phone surface plus the selected projection instead of a tag that
+        // only exists at MEDIUM/EXPANDED.
         compose.setContent { VNextApp(app) }
         compose.waitForIdle()
-        compose.onNodeWithTag(VTestIds.CHANGE_NEW, useUnmergedTree = true).fetchSemanticsNode()
+        compose.onNodeWithTag("pdig.change.continuity-orbit", useUnmergedTree = true)
+            .assertExists()
+        compose.onNodeWithTag("pdig.change.projection.after", useUnmergedTree = true)
+            .assertIsDisplayed()
     }
 }

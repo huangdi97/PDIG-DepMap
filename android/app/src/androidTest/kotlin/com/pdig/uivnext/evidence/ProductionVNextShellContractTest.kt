@@ -5,6 +5,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -12,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ProductionVNextSession
@@ -374,8 +376,17 @@ class ProductionVNextShellContractTest {
         // same confirmation label. Assert their distinct proof surfaces.
         compose.onNodeWithText("证据引用 1 项", substring = true).assertExists()
         compose.onNodeWithText("标识证据 1 项", substring = true).assertExists()
+        // On a shorter phone (851dp) the change entry is below the first fold,
+        // so a LazyColumn item is not composed. Scroll to it explicitly rather
+        // than depending on the CI 914dp viewport height.
+        val phoneDetail = compose.onNodeWithTag(
+            "pdig.production-vnext.object-detail",
+            useUnmergedTree = true,
+        )
+        phoneDetail.performScrollToNode(hasTestTag("pdig.production-vnext.phone.change-entry"))
         compose.onNodeWithTag("pdig.production-vnext.phone.change-entry", useUnmergedTree = true)
             .assertExists()
+        phoneDetail.performScrollToNode(hasTestTag("pdig.production-vnext.phone.presentation-entry"))
         compose.onNodeWithTag("pdig.production-vnext.phone.presentation-entry", useUnmergedTree = true)
             .assertExists()
             .performClick()
