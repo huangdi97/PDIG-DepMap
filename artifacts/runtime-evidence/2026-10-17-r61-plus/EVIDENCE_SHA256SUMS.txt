@@ -246,6 +246,15 @@ e139920c0b8710680caba98aa403b1a66324657485ff98fad955193f6cb99f7d  tablet-expande
 13c0baa1b73c0744fdedecfe060e7045e773b25d41fda5823f715c62e3cef00b  tablet-expanded/10-me.png
 8886bbafa821b8fb3de71197aef286c276d59a0cb6f45e75d317ce5c198754d4  tablet-expanded/10-me.xml
 7e632e9fba51c9504422b2423621e6466546b2422699d3fc608b123c0929d48a  tablet-expanded/MANIFEST.json
+6e6b757865a6c4eef045eb2a6e4cedbe4f6400ff50c2da42d2d8d25c49279793  tablet-font-scale-1.3/01-now.png
+922401fe37ad6142ad3f50f44bb4cc0f0f36b0597fd6d86d20462bf57a7af812  tablet-font-scale-1.3/01-now.xml
+2fa4410cadd4394c2c062195a5aeff9c0f605de3bdf625a94c736a083d7720b5  tablet-font-scale-1.3/02-me.png
+1616630c35e100483fa8c367961b6aff2076fae27e0360a4fa4f5e6cce4ad57e  tablet-font-scale-1.3/02-me.xml
+232a1013ddc9ed150ebbffa6a203a223265a7c34b4ac0f2ab7e4d188a46d369a  tablet-font-scale-1.3/03-change.png
+8e23606268e9bfd0b4cb00d0b443b70bbe7215f17658d27b27871ffcc47bb1d1  tablet-font-scale-1.3/03-change.xml
+ac67058ff984976d91f2a4fca1fd72904af7a2438be475d90da7c2a9b9ebb29f  tablet-font-scale-1.3/04-change-phone.png
+72a10669808256bdfb0a2792fef69e050911a095d7175caf8dca7ec3b7457f3b  tablet-font-scale-1.3/04-change-phone.xml
+8a34584a79bd5a5c256856ffeee759ddbec8e63ea063c281a4be9471789aa914  tablet-font-scale-1.3/MANIFEST.json
 cdaddcec014eba5ff3ca4fe3cd93169146bc99e1829beb29aae48a4152d044be  tablet/ui-shots/01-now.png
 87da659ff5ba4e8585bb40c2a30602d622f89786a0e4a59f964b9a0ebd30fdbd  tablet/ui-shots/02-overview-global.png
 68b770e4accda8bedb58e654465958ba2cdfdc10bcc955819a99b5220e6d8e5d  tablet/ui-shots/03-overview-region-selected.png

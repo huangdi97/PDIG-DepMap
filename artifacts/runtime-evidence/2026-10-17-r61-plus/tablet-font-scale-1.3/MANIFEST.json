@@ -1,0 +1,16 @@
+{
+  "capture": "tablet MEDIUM 800x1280dp at font_scale 1.3",
+  "sourceSha": "32541cc0c98ecf4fd2621594fdbf8608cffa96d8",
+  "package": "com.pdig.app.preview.p302a65d",
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "display": {"px": "1200x1920", "densityDpi": 240, "dp": "800x1280", "breakpoint": "MEDIUM", "fontScale": 1.3},
+  "captureMethod": "adb exec-out screencap -p + uiautomator XML",
+  "screens": [
+    {"file": "01-now.png", "state": "Now: rail labels and hero readable at 1.3x"},
+    {"file": "02-me.png", "state": "Me: identity hints and 6-counter grid fit"},
+    {"file": "03-change.png", "state": "Change center readable"),
+    {"file": "04-change-phone.png", "state": "Change Phone MEDIUM single-column; stage rows/Tabs fit"}
+  ],
+  "result": "No new layout defect found; tablet MEDIUM remains readable at 1.3x.",
+  "caveat": "Visual candidate only; not human acceptance."
+}

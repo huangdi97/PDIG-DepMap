@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 8 landscape + dynamic type)",
+  "round": "R52+ (round 9 tablet dynamic type)",
   "dateLocal": "2026-10-18",
   "finalSourceHead": "32541cc0c98ecf4fd2621594fdbf8608cffa96d8",
-  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
-  "previewSourceDelta": "32541cc0 changes only short-height rail scrolling; 1.0 phone/tablet/Expanded and Production screenshots are unchanged.",
+  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (phone 1.3x); 32541cc0 (landscape); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced); 32541cc0 (tablet 1.3x)",
+  "previewSourceDelta": "No source change in round 9; tablet MEDIUM 1.3x was verified as already readable.",
   "previewApkSha256": "0430903aa870d896b609fa00166cb28f2c2c398bc2d3905ad6865deadf6c657a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
@@ -21,9 +21,10 @@
     "productionPng": 4,
     "productionAdvancedPng": 4,
     "dynamicTypePng": 6,
+    "tabletDynamicTypePng": 4,
     "landscapePng": 4,
-    "totalFiles": 283,
-    "totalBytes": 57255294
+    "totalFiles": 292,
+    "totalBytes": 58675443
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -1270,6 +1271,51 @@
       "path": "tablet-expanded/MANIFEST.json",
       "bytes": 2266,
       "sha256": "7e632e9fba51c9504422b2423621e6466546b2422699d3fc608b123c0929d48a"
+    },
+    {
+      "path": "tablet-font-scale-1.3/01-now.png",
+      "bytes": 443215,
+      "sha256": "6e6b757865a6c4eef045eb2a6e4cedbe4f6400ff50c2da42d2d8d25c49279793"
+    },
+    {
+      "path": "tablet-font-scale-1.3/01-now.xml",
+      "bytes": 40136,
+      "sha256": "922401fe37ad6142ad3f50f44bb4cc0f0f36b0597fd6d86d20462bf57a7af812"
+    },
+    {
+      "path": "tablet-font-scale-1.3/02-me.png",
+      "bytes": 268763,
+      "sha256": "2fa4410cadd4394c2c062195a5aeff9c0f605de3bdf625a94c736a083d7720b5"
+    },
+    {
+      "path": "tablet-font-scale-1.3/02-me.xml",
+      "bytes": 46852,
+      "sha256": "1616630c35e100483fa8c367961b6aff2076fae27e0360a4fa4f5e6cce4ad57e"
+    },
+    {
+      "path": "tablet-font-scale-1.3/03-change.png",
+      "bytes": 245697,
+      "sha256": "232a1013ddc9ed150ebbffa6a203a223265a7c34b4ac0f2ab7e4d188a46d369a"
+    },
+    {
+      "path": "tablet-font-scale-1.3/03-change.xml",
+      "bytes": 27973,
+      "sha256": "8e23606268e9bfd0b4cb00d0b443b70bbe7215f17658d27b27871ffcc47bb1d1"
+    },
+    {
+      "path": "tablet-font-scale-1.3/04-change-phone.png",
+      "bytes": 305563,
+      "sha256": "ac67058ff984976d91f2a4fca1fd72904af7a2438be475d90da7c2a9b9ebb29f"
+    },
+    {
+      "path": "tablet-font-scale-1.3/04-change-phone.xml",
+      "bytes": 41047,
+      "sha256": "72a10669808256bdfb0a2792fef69e050911a095d7175caf8dca7ec3b7457f3b"
+    },
+    {
+      "path": "tablet-font-scale-1.3/MANIFEST.json",
+      "bytes": 903,
+      "sha256": "8a34584a79bd5a5c256856ffeee759ddbec8e63ea063c281a4be9471789aa914"
     },
     {
       "path": "tablet/ui-shots/01-now.png",
