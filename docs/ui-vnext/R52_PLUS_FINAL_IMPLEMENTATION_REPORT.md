@@ -227,15 +227,14 @@ At 1.0 these branches are inactive, so the earlier phone/tablet sets remain vali
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
 EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals;
-                                  final 226e8468 is capture-script-only and re-runs the phone proof)
+                                  final b85c7a57 re-runs all nine checks)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at 226e8468 (CI/iOS/Preview/Phone; Tablet + Production
-                              green at app-code 302a65d6; 226e8468 is script-only)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at b85c7a57 (9/9 checks; source b85c7a57)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

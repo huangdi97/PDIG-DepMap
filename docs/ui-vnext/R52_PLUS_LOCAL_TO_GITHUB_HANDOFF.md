@@ -169,31 +169,25 @@ At the **round-start** remote HEAD `562d83f4`, all six workflows / nine checks
 were green, including Production Rehearsal run
 [39023996578](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39023996578).
 
-Final source `226e8468` is a **capture-script-only** change. Its applicable
-workflows are all green:
+Final source `b85c7a57` is pushed and **all six workflows / nine checks are
+observed success at that SHA**:
 
 | Gate | Run | Result |
 | --- | --- | --- |
-| CI | [39110885126](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110885126) | SUCCESS |
-| iOS | [39110885123](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110885123) | SUCCESS |
-| Android UI vNext Preview APK | [39110880283](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110880283) | SUCCESS |
-| Android UI vNext Phone Pixel Proof | [39110880278](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110880278) | SUCCESS |
+| CI | [39114318630](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39114318630) | SUCCESS |
+| iOS | [39114318620](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39114318620) | SUCCESS |
+| Android UI vNext Preview APK | [39114313018](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39114313018) | SUCCESS |
+| Android UI vNext Phone Pixel Proof | [39114313015](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39114313015) | SUCCESS |
+| Android UI vNext Tablet Pixel Proof | [39114313051](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39114313051) | SUCCESS |
+| Android UI vNext Production Rehearsal | [39114313006](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39114313006) | SUCCESS |
 
-Tablet and Production were green at the app-code parent `302a65d6`:
-
-| Gate | Run | Result |
-| --- | --- | --- |
-| Android UI vNext Tablet Pixel Proof | [39109354985](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39109354985) | SUCCESS |
-| Android UI vNext Production Rehearsal | [39109354960](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39109354960) | SUCCESS |
-
-At `302a65d6` the phone job failed only because the committed capture script still
-expected the old R25 sentence; the local app/UI was already correct. `226e8468`
-fixes that script assertion and the Phone job turns green. Historical: `8fef8030`
-and `7993f29d` were 9/9 green.
+Historical: `226e8468` (script-only) had CI/iOS/Preview/Phone green; `302a65d6`
+had Tablet/Production green and a phone failure caused only by the old committed
+script assertion, fixed in `226e8468`. `8fef8030` and `7993f29d` were 9/9 green.
 
 A later **docs/evidence-only** commit may not re-trigger path-filtered workflows.
-That does not invalidate the runtime result at the source SHAs above; check the
-actual PR-head check-runs rather than assuming all six re-ran.
+That does not invalidate the runtime result at `b85c7a57`: check the actual PR-head
+check-runs rather than assuming all six re-ran.
 
 ## 8. Guardrails respected
 
