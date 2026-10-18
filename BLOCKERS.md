@@ -505,3 +505,10 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   manifest，证据合计 310 项。
 - 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
 - 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 12 更新（2026-10-18）
+
+- Expanded 1.5×：Now 三栏标题重叠、Change Phone 阶段标签覆盖已修复；新增 4 张
+  真实截图 + manifest，证据合计 319 项。
+- 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。

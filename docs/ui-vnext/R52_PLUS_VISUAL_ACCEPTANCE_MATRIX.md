@@ -1,10 +1,10 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `e202a34966f9c04062bd14f0f6473ef9b821518d`  
+> **Final source HEAD:** `fe60a62245db17e5fba4d8dc2bbf399ae26c881f`  
 > **Capture source HEAD:** `302a65d6` (phone 1.0), `b85c7a57` (1.3×),
 > `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×), `e202a349`
-> (tablet 1.5×), `6b823fb6` (tablet/Production), `7993f29d` (Expanded),
-> `c035ce9a` (advanced Production).  
+> (tablet 1.5×), `fe60a622` (Expanded 1.5×), `6b823fb6` (tablet/Production),
+> `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -172,6 +172,15 @@ No defect found; this is verification evidence, not a new fix.
 | Me | `02-me.png` | identity stacked; email + hints visible |
 | Change | `03-change.png` | cards/CTAs at 1.5× |
 | Cards | `04-cards.png` | collection readable |
+
+### 5b-3b. Expanded 1.5× (4 real PNGs, source `fe60a622`)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Now | `expanded-1.5/01-now.png` | single-column sections; no heading overlap |
+| Me | `02-me.png` | readable |
+| Change | `03-change.png` | readable |
+| Change Phone | `04-change-phone.png` | compact stepper + single-column scene |
 
 ### 5b-4. Tablet MEDIUM 1.5× (4 real PNGs, source `e202a349`)
 

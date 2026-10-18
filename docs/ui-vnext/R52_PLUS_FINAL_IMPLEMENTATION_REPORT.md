@@ -5,11 +5,11 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `e202a34966f9c04062bd14f0f6473ef9b821518d`  
+> **Final source HEAD of this round:** `fe60a62245db17e5fba4d8dc2bbf399ae26c881f`  
 > **Visual/Production evidence source HEAD:** `302a65d6` (phone 1.0), `b85c7a57`
 > (1.3×), `32541cc0` (landscape/tablet 1.3×), `edc8b2f2` (phone 1.5×),
-> `e202a349` (tablet 1.5×), `6b823fb6` (tablet), `7993f29d` (Expanded),
-> `c035ce9a` (advanced Production).  
+> `e202a349` (tablet 1.5×), `fe60a622` (Expanded 1.5×), `6b823fb6` (tablet),
+> `7993f29d` (Expanded), `c035ce9a` (advanced Production).  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -75,6 +75,7 @@ re-count them as new features.
 | `32541cc0` | Short landscape rail: below 600dp height the rail scrolls and skips the weighted spacer, so 数据源 / 设置 stay reachable. Tall tablets unchanged. |
 | `edc8b2f2` | 1.5× accessibility: greeting column weight + single-line badge; R9 bottom bar 84dp and no double inset; Me identity cards stack full-width above 1.35×. 1.0/1.3 unchanged. |
 | `e202a349` | Tablet 1.5× top bar: hide the PDIG wordmark above 1.15× so the section title isn't ellipsized; privacy chip shortens to 已遮蔽/未遮蔽. 1.0/1.3 unchanged. |
+| `fe60a622` | Expanded 1.5×: Now uses single-column sections; Change Phone uses the compact stepper and compact continuity scene. 1.0/1.3 unchanged. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -216,6 +217,14 @@ At 1.5× the greeting badge wrapped to three lines, the subtitle clipped, the R9
 bottom labels were cut by the fixed 68dp bar, and Me identity hints disappeared in
 narrow columns. Fixes: greeting column weight + single-line badge; R9 bar 84dp and
 no double inset; Me identity stacks full-width above 1.35×. 1.0/1.3 are unchanged.
+
+### Expanded 1.5× (1280×800 dp)
+
+Source `fe60a622`; 4 real PNGs + XML under `expanded-1.5/`.
+At 1.5× the three-column Now dashboard overlapped its section headings and the
+six-stage Change Phone rail wrapped labels into each other. Above 1.15×, Now uses
+the single-column stack and Change Phone uses the compact stepper and compact
+continuity scene. 1.0/1.3 Expanded is unchanged.
 
 ### Tablet MEDIUM 1.5× (800×1280 dp)
 
