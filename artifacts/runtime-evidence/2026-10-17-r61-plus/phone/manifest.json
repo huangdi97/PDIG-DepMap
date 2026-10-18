@@ -1,0 +1,349 @@
+{
+  "sha": "067388f9",
+  "app": "com.pdig.app.preview.p067388f",
+  "activity": "com.pdig.app.PreviewLauncherActivity",
+  "device": "sdk_gphone64_x86_64",
+  "capture": [
+    {
+      "name": "00-first-launch",
+      "size": 239493,
+      "labels": 13
+    },
+    {
+      "name": "01-now",
+      "size": 1384631,
+      "labels": 47
+    },
+    {
+      "name": "01c-world-orbit",
+      "size": 1341233,
+      "labels": 41
+    },
+    {
+      "name": "01d-world-zoom-in",
+      "size": 1551223,
+      "labels": 41
+    },
+    {
+      "name": "01e-world-reset",
+      "size": 1384090,
+      "labels": 47
+    },
+    {
+      "name": "01a-me-from-primary-nav",
+      "size": 276073,
+      "labels": 48
+    },
+    {
+      "name": "01b-now-returned-from-me",
+      "size": 252049,
+      "labels": 47
+    },
+    {
+      "name": "02-infrastructure",
+      "size": 622995,
+      "labels": 53
+    },
+    {
+      "name": "02a-infrastructure-selected-us",
+      "size": 581063,
+      "labels": 54
+    },
+    {
+      "name": "02b-infrastructure-global-restored",
+      "size": 623026,
+      "labels": 53
+    },
+    {
+      "name": "03-cards",
+      "size": 403121,
+      "labels": 57
+    },
+    {
+      "name": "03a-card-expiry-filter",
+      "size": 228722,
+      "labels": 37
+    },
+    {
+      "name": "03b-card-filter-cleared",
+      "size": 403146,
+      "labels": 57
+    },
+    {
+      "name": "04-card-detail",
+      "size": 462101,
+      "labels": 38
+    },
+    {
+      "name": "04b-card-services",
+      "size": 456222,
+      "labels": 34
+    },
+    {
+      "name": "04c-card-statements",
+      "size": 481442,
+      "labels": 35
+    },
+    {
+      "name": "04d-card-risk",
+      "size": 481341,
+      "labels": 33
+    },
+    {
+      "name": "04dd-card-impact",
+      "size": 481341,
+      "labels": 33
+    },
+    {
+      "name": "04de-card-impact-facts",
+      "size": 241692,
+      "labels": 40
+    },
+    {
+      "name": "04h-card-change-current",
+      "size": 548913,
+      "labels": 23
+    },
+    {
+      "name": "04i-card-change-transition-blocked",
+      "size": 555369,
+      "labels": 23
+    },
+    {
+      "name": "04j-card-change-transition-target",
+      "size": 450389,
+      "labels": 36
+    },
+    {
+      "name": "04k-card-change-after",
+      "size": 399169,
+      "labels": 31
+    },
+    {
+      "name": "04e-card-presets-inline",
+      "size": 583287,
+      "labels": 46
+    },
+    {
+      "name": "04f-card-art-applied",
+      "size": 501278,
+      "labels": 37
+    },
+    {
+      "name": "04g-up-to-cards",
+      "size": 406959,
+      "labels": 58
+    },
+    {
+      "name": "05-change-center",
+      "size": 314502,
+      "labels": 37
+    },
+    {
+      "name": "05-change",
+      "size": 382431,
+      "labels": 46
+    },
+    {
+      "name": "05a-change-checklist",
+      "size": 372357,
+      "labels": 41
+    },
+    {
+      "name": "05aa-change-checklist-footer",
+      "size": 302300,
+      "labels": 35
+    },
+    {
+      "name": "05b-change-plan",
+      "size": 373715,
+      "labels": 46
+    },
+    {
+      "name": "06-records",
+      "size": 339255,
+      "labels": 35
+    },
+    {
+      "name": "07-accounts",
+      "size": 251624,
+      "labels": 39
+    },
+    {
+      "name": "07-accounts-detail-top",
+      "size": 264329,
+      "labels": 37
+    },
+    {
+      "name": "07-accounts-detail",
+      "size": 281278,
+      "labels": 36
+    },
+    {
+      "name": "07-emails",
+      "size": 262806,
+      "labels": 39
+    },
+    {
+      "name": "07-emails-detail-top",
+      "size": 245939,
+      "labels": 33
+    },
+    {
+      "name": "07-emails-detail",
+      "size": 245618,
+      "labels": 33
+    },
+    {
+      "name": "07-devices",
+      "size": 244138,
+      "labels": 39
+    },
+    {
+      "name": "07-devices-detail-top",
+      "size": 264819,
+      "labels": 37
+    },
+    {
+      "name": "07-devices-detail",
+      "size": 285048,
+      "labels": 38
+    },
+    {
+      "name": "07-services",
+      "size": 233694,
+      "labels": 39
+    },
+    {
+      "name": "07-services-detail-top",
+      "size": 257111,
+      "labels": 37
+    },
+    {
+      "name": "07-services-detail",
+      "size": 257111,
+      "labels": 37
+    },
+    {
+      "name": "07-weaknesses",
+      "size": 408588,
+      "labels": 37
+    },
+    {
+      "name": "08-numbers",
+      "size": 385124,
+      "labels": 46
+    },
+    {
+      "name": "08b-number-detail",
+      "size": 410428,
+      "labels": 41
+    },
+    {
+      "name": "08bb-number-renamed",
+      "size": 401912,
+      "labels": 41
+    },
+    {
+      "name": "08c-number-studio",
+      "size": 410146,
+      "labels": 40
+    },
+    {
+      "name": "08d-number-studio-edited",
+      "size": 409255,
+      "labels": 40
+    },
+    {
+      "name": "08e-number-impact",
+      "size": 246605,
+      "labels": 35
+    },
+    {
+      "name": "09-me",
+      "size": 270158,
+      "labels": 48
+    },
+    {
+      "name": "09a-me-mask-enabled",
+      "size": 269337,
+      "labels": 48
+    },
+    {
+      "name": "09b-me-mask-disabled",
+      "size": 270189,
+      "labels": 48
+    },
+    {
+      "name": "09-personalization",
+      "size": 249231,
+      "labels": 31
+    },
+    {
+      "name": "10-data-sources",
+      "size": 281067,
+      "labels": 43
+    },
+    {
+      "name": "10a-establish-import",
+      "size": 367012,
+      "labels": 25
+    },
+    {
+      "name": "10b-manual-establish",
+      "size": 330848,
+      "labels": 28
+    },
+    {
+      "name": "10bb-manual-establish-boundary",
+      "size": 303478,
+      "labels": 26
+    },
+    {
+      "name": "10c-manual-relationship",
+      "size": 305309,
+      "labels": 33
+    },
+    {
+      "name": "10cc-manual-relationship-boundary",
+      "size": 217630,
+      "labels": 36
+    },
+    {
+      "name": "10d-relation-up-manual",
+      "size": 330964,
+      "labels": 28
+    },
+    {
+      "name": "10dd-relation-up-boundary",
+      "size": 302548,
+      "labels": 27
+    },
+    {
+      "name": "10e-manual-up-import",
+      "size": 367207,
+      "labels": 25
+    },
+    {
+      "name": "10f-import-up-sources",
+      "size": 281241,
+      "labels": 43
+    },
+    {
+      "name": "10g-human-review",
+      "size": 357938,
+      "labels": 33
+    },
+    {
+      "name": "10gg-human-review-boundary",
+      "size": 372524,
+      "labels": 32
+    },
+    {
+      "name": "10h-review-up-now",
+      "size": 1384065,
+      "labels": 47
+    }
+  ],
+  "assertion": "RUNTIME_PIXELS_CAPTURED_ONLY__NOT_VISUAL_PARITY"
+}

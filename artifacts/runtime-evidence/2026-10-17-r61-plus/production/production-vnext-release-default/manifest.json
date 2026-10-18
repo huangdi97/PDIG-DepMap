@@ -1,0 +1,16 @@
+{
+  "sourceSha": "fc29138e",
+  "buildKeys": {
+    "pdigProductionUiGeneration": "vnext",
+    "pdigProductionVNextCutoverApproved": true
+  },
+  "launchExtras": "NONE",
+  "result": "PASS",
+  "checks": [
+    "DEFAULT_CUTOVER_FAIL_CLOSED",
+    "DEFAULT_CUTOVER_REALITY_FIVE_PRIMARY",
+    "DEFAULT_CUTOVER_BACKGROUND_RELOCK",
+    "DEFAULT_CUTOVER_RESUME_REALITY",
+    "DEFAULT_CUTOVER_PROCESS_RELOCK"
+  ]
+}

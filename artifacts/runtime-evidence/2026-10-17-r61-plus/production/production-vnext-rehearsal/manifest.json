@@ -1,0 +1,14 @@
+{
+  "sourceSha": "fc29138e",
+  "package": "com.pdig.app",
+  "activity": "com.pdig.app.MainActivity",
+  "result": "PASS",
+  "checks": [
+    "REALITY_DEBUG_FAIL_CLOSED",
+    "REALITY_DEBUG_FIVE_PRIMARY",
+    "BACKGROUND_RELOCK",
+    "RESUME_RETURNS_PRODUCTION_VNEXT",
+    "PROCESS_RESTART_RELOCK",
+    "DEFAULT_PRODUCTION_REMAINS_LEGACY"
+  ]
+}
