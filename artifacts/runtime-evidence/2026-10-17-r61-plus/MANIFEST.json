@@ -1,10 +1,10 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 12 Expanded 1.5x)",
+  "round": "R52+ (round 14 Production 1.5x)",
   "dateLocal": "2026-10-18",
-  "finalSourceHead": "fe60a62245db17e5fba4d8dc2bbf399ae26c881f",
-  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (phone 1.5x); e202a349 (tablet 1.5x); fe60a622 (Expanded 1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced)",
-  "previewSourceDelta": "fe60a622 changes only >1.15x Expanded branches; 1.0/1.3 and prior captures unchanged.",
+  "finalSourceHead": "7aaa612c6a6dfdd0ef431a8a67879f1caef63f96",
+  "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (phone 1.5x); e202a349 (tablet 1.5x); fe60a622 (Expanded 1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced); 7aaa612c (Production 1.5x)",
+  "previewSourceDelta": "7aaa612c only moves BottomNav inset padding outside its height; 1.0 layout remains readable and all earlier captures are unchanged.",
   "previewApkSha256": "0430903aa870d896b609fa00166cb28f2c2c398bc2d3905ad6865deadf6c657a",
   "defaultProductionApkSha256": "e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195",
   "cutoverProductionApkSha256": "df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99",
@@ -20,14 +20,15 @@
     "expandedPng": 11,
     "productionPng": 4,
     "productionAdvancedPng": 4,
+    "production15Png": 4,
     "dynamicTypePng": 6,
     "tabletDynamicTypePng": 4,
     "dynamicType15Png": 4,
     "tabletDynamicType15Png": 4,
     "expandedDynamicType15Png": 4,
     "landscapePng": 4,
-    "totalFiles": 319,
-    "totalBytes": 64330211
+    "totalFiles": 328,
+    "totalBytes": 65921350
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -1059,6 +1060,51 @@
       "path": "phone/manifest.json",
       "bytes": 6768,
       "sha256": "846dfdc614b22d66515b0bd0532b1555babafbd9df8d42461532a232b0915ffd"
+    },
+    {
+      "path": "production-1.5/01-now.png",
+      "bytes": 1032033,
+      "sha256": "323c29def39ba5f94037fc7ed57a562eab94d3337cff14a3f1ec03e8ca1ff34f"
+    },
+    {
+      "path": "production-1.5/01-now.xml",
+      "bytes": 18898,
+      "sha256": "0b656a67013f9d3d09519959154df1a2c5ec1bb76ef26eff7e1bb251bb46e0bb"
+    },
+    {
+      "path": "production-1.5/02-me.png",
+      "bytes": 201033,
+      "sha256": "dd17f569d49e5a9c885c130e1618c271a38e3b83a21903c9d1ad349b0e5b4dd8"
+    },
+    {
+      "path": "production-1.5/02-me.xml",
+      "bytes": 23460,
+      "sha256": "75c984820cc26179e358c88fbe8d61a78f378e651dc778151e9073191dc8a083"
+    },
+    {
+      "path": "production-1.5/03-change.png",
+      "bytes": 266536,
+      "sha256": "f38a17fb9f87079a6c0a9238faf71ce116bfdf104e3a2567bb591a2a09629008"
+    },
+    {
+      "path": "production-1.5/03-change.xml",
+      "bytes": 17455,
+      "sha256": "b67e5a741b4df312c541e2d00b49efba2079887fb9846adf561d9e51c810f5c2"
+    },
+    {
+      "path": "production-1.5/04-records.png",
+      "bytes": 15580,
+      "sha256": "c35bacdb98b522206335afa5b9baffd2e4e3352a40749bb747e469cd403af514"
+    },
+    {
+      "path": "production-1.5/04-records.xml",
+      "bytes": 14976,
+      "sha256": "02db95875526e507001607bf451ff13e0ee15eed4c5ee571ca2a0ad53e6aa9a6"
+    },
+    {
+      "path": "production-1.5/MANIFEST.json",
+      "bytes": 1168,
+      "sha256": "35dc57620435a78baf45531018430309cf0554e442a7d9272fff48aee4de72a4"
     },
     {
       "path": "production-advanced/11-production-me.png",
