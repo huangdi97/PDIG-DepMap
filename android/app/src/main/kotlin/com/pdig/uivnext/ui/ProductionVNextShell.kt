@@ -235,7 +235,7 @@ private fun ProductionContent(
         VScreen.MANUAL_RELATION -> ProductionManualRelationshipScreen(session, modifier)
         VScreen.SEARCH -> ProductionSearchScreen(session, modifier)
         else -> ProductionUnavailable(
-            title = "该页面尚未完成生产数据绑定",
+            title = "该页面暂时无法读取已确认数据",
             body = "当前页面不会用演示数据替代正式记录。返回五个一级入口继续查看已接入内容。",
             modifier = modifier,
         )
@@ -584,7 +584,7 @@ private fun ProductionCardDetail(
     val card = inventory.paymentAssets.firstOrNull { it.id == cardId }
     if (card == null) {
         ProductionUnavailable(
-            "未找到该生产支付工具",
+            "未找到该支付工具",
             "对象不存在、已归档或当前正式数据不足；不会用演示卡片替代。",
             modifier,
         )
@@ -819,7 +819,7 @@ private fun ProductionRecords(
         )
         navigationNotice?.let { ProductionBoundaryNote(it) }
         if (records.isEmpty()) {
-            ProductionEmpty("当前没有已完成或待验证的生产记录。没有记录不代表没有历史。")
+            ProductionEmpty("当前没有已完成或待验证的记录。没有记录不代表没有历史。")
         } else {
             ProductionSection("验证状态")
             Row(
@@ -1189,7 +1189,7 @@ private fun ProductionSources(
 ) {
     ProductionPage(modifier, "数据源", "已记录数据来源") {
         if (inventory.sources.isEmpty()) {
-            ProductionEmpty("当前没有已记录生产数据源。")
+            ProductionEmpty("当前没有已记录的数据来源。")
         } else {
             inventory.sources.forEach { source ->
                 ProductionFactCard(
@@ -1399,7 +1399,7 @@ private fun productionBoundaryBadge(screen: VScreen): String = when (screen) {
     VScreen.REVIEW -> "待复核 · 未进入已确认数据"
     VScreen.SETTINGS, VScreen.PERSONALIZATION -> "本机呈现偏好"
     VScreen.IMPORT, VScreen.MANUAL_ADD, VScreen.MANUAL_RELATION -> "建立 · 需明确确认"
-    VScreen.SEARCH -> "生产数据搜索"
+    VScreen.SEARCH -> "搜索已记录数据"
     VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> "变更计划 · 正式状态"
     else -> "已确认数据"
 }

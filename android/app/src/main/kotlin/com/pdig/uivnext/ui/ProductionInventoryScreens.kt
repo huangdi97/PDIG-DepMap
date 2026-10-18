@@ -48,7 +48,7 @@ internal fun ProductionInventoryCategoryScreen(
 ) {
     val snapshot = session.dataSource.productionSnapshot()
     if (snapshot == null) {
-        ProductionObjectUnavailable("生产基础设施快照不可读取", modifier)
+        ProductionObjectUnavailable("当前已确认基础设施数据不可读取", modifier)
         return
     }
 
@@ -296,7 +296,7 @@ internal fun ProductionGenericObjectDetailScreen(
     modifier: Modifier = Modifier,
 ) {
     if (objectId.isNullOrBlank()) {
-        ProductionObjectUnavailable("没有选择生产对象", modifier)
+        ProductionObjectUnavailable("没有选择基础设施对象", modifier)
         return
     }
     val snapshot = session.dataSource.productionSnapshot()
@@ -952,7 +952,7 @@ private fun ProductionObjectUnavailable(text: String, modifier: Modifier) {
         modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text("当前生产绑定不可用", color = PdigV2Colors.TextPrimary,
+        Text("当前内容暂不可用", color = PdigV2Colors.TextPrimary,
             fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.padding(4.dp))
         Text(text, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
