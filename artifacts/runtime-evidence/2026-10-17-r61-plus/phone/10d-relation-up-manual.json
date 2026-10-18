@@ -1,6 +1,6 @@
 {
   "name": "10d-relation-up-manual",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "手工记录",
@@ -31,6 +31,6 @@
     "identity_anchor + governed profile",
     "正式生产 authority 已支持把 Node、受治理 subtype 与用户确认的 identifier value 在同一事务中建立；Preview 仍保持只读，不会写入 Reality。"
   ],
-  "bytes": 330964,
+  "bytes": 331021,
   "textureGate": "NOT_REQUIRED"
 }

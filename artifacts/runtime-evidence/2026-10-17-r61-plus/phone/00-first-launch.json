@@ -1,6 +1,6 @@
 {
   "name": "00-first-launch",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "P",
     "PDIG",
@@ -16,6 +16,6 @@
     "继续 →",
     "无需登录 · 仅演示交互 · 不访问真实数据"
   ],
-  "bytes": 239493,
+  "bytes": 239557,
   "textureGate": "NOT_REQUIRED"
 }

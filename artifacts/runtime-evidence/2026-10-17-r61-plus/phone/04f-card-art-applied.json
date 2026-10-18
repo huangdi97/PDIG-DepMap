@@ -1,6 +1,6 @@
 {
   "name": "04f-card-art-applied",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -40,6 +40,6 @@
     "有效期",
     "2028-05"
   ],
-  "bytes": 501278,
+  "bytes": 501224,
   "textureGate": "NOT_REQUIRED"
 }

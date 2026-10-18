@@ -1,6 +1,6 @@
 {
   "name": "06-records",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "记录",
     "搜索",
@@ -38,6 +38,6 @@
     "我",
     "我"
   ],
-  "bytes": 339255,
+  "bytes": 339141,
   "textureGate": "NOT_REQUIRED"
 }

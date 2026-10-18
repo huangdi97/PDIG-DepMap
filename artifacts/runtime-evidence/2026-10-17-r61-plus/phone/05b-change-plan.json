@@ -1,6 +1,6 @@
 {
   "name": "05b-change-plan",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "更换手机号",
@@ -49,6 +49,6 @@
     "收起本阶段核验清单",
     "⌃"
   ],
-  "bytes": 373715,
+  "bytes": 372995,
   "textureGate": "NOT_REQUIRED"
 }

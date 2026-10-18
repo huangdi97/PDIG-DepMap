@@ -1,6 +1,6 @@
 {
   "name": "04c-card-statements",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -38,6 +38,6 @@
     "年费",
     "免年费"
   ],
-  "bytes": 481442,
+  "bytes": 481880,
   "textureGate": "NOT_REQUIRED"
 }

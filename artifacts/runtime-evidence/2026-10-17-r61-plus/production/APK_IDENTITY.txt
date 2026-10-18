@@ -1,7 +1,7 @@
 PDIG Production rehearsal — APK and device identity
 ====================================================
 
-final_source_head=fc29138e92295f98c29c657cd3dedd4d9072b2c8
+final_source_head=6b823fb6b5d7886e8eed4ad91b597fe48d7c042c
 date_local=2026-10-18 (Asia/Shanghai)
 
 device_model=Google sdk_gphone64_x86_64
@@ -14,8 +14,8 @@ avd=pdig_evi_phone_api36
 default_production_debug
   build_config.PRODUCTION_UI_GENERATION=legacy
   build_config.PRODUCTION_VNEXT_CUTOVER_APPROVED=false
-  apk_sha256=d1315f6fa1922c2ff2172c09ac715138ab0d3669ac74a97f0d7d760c98d8e662
-  installed_base_apk_sha256=d1315f6fa1922c2ff2172c09ac715138ab0d3669ac74a97f0d7d760c98d8e662
+  apk_sha256=e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195
+  installed_base_apk_sha256=e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195
   package=com.pdig.app
   activity=com.pdig.app.MainActivity
 
@@ -23,8 +23,8 @@ cutover_rehearsal_debug
   build_args=-PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true
   build_config.PRODUCTION_UI_GENERATION=vnext
   build_config.PRODUCTION_VNEXT_CUTOVER_APPROVED=true
-  apk_sha256=897ca38b76fa120f4503f711b3fb862cd2bc0630d9e51af98f8e336e4e66872f
-  installed_base_apk_sha256=897ca38b76fa120f4503f711b3fb862cd2bc0630d9e51af98f8e336e4e66872f
+  apk_sha256=df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99
+  installed_base_apk_sha256=df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99
   launch_target=PRODUCTION_REALITY_RELEASE
   launch_extras=NONE
   launch_proof=PASS

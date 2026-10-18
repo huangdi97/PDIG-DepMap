@@ -1,6 +1,6 @@
 {
   "name": "07-accounts-detail-top",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "账户详情",
@@ -40,6 +40,6 @@
     "独立备用方式",
     "未记录"
   ],
-  "bytes": 264329,
+  "bytes": 264363,
   "textureGate": "NOT_REQUIRED"
 }

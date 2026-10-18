@@ -1,6 +1,6 @@
 {
   "name": "07-weaknesses",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "薄弱点",
@@ -40,6 +40,6 @@
     "我",
     "我"
   ],
-  "bytes": 408588,
+  "bytes": 408382,
   "textureGate": "NOT_REQUIRED"
 }

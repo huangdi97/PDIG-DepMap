@@ -1,6 +1,6 @@
 {
   "name": "10e-manual-up-import",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "建立基础设施",
@@ -28,6 +28,6 @@
     "数据与来源 →",
     "待复核 →"
   ],
-  "bytes": 367207,
+  "bytes": 367220,
   "textureGate": "NOT_REQUIRED"
 }

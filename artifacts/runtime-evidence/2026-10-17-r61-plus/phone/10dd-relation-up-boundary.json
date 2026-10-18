@@ -1,6 +1,6 @@
 {
   "name": "10dd-relation-up-boundary",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "手工记录",
@@ -30,6 +30,6 @@
     "当前 Preview 不提供“保存”按钮",
     "正式 authority 已存在，但 Preview 仍保持只读，不能把参考环境当成生产 Reality。"
   ],
-  "bytes": 302548,
+  "bytes": 303082,
   "textureGate": "NOT_REQUIRED"
 }

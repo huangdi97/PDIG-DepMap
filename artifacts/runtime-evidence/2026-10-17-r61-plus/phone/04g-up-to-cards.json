@@ -1,6 +1,6 @@
 {
   "name": "04g-up-to-cards",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "卡片",
@@ -61,6 +61,6 @@
     "我",
     "我"
   ],
-  "bytes": 406959,
+  "bytes": 407073,
   "textureGate": "NOT_REQUIRED"
 }

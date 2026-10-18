@@ -1,13 +1,11 @@
 {
   "name": "10gg-human-review-boundary",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "待复核",
     "搜索",
     "我",
-    "这是关系提案，不是已确认绑定；确认前不会进入依赖图或 Impact。",
-    "依据",
     "演示证据：账单描述与服务名称匹配",
     "确认后会发生什么",
     "确认后才可成为已记录付款关系；拒绝不会删除任何现有关系。",
@@ -33,8 +31,9 @@
     "只有明确选择“已替换”或“两个都在用”后，Reality 才能改变。",
     "正式决策：已替换 / 两个都在用 / 没有变化 / 稍后确认",
     "正式工作区的决策边界",
-    "Preview 不执行"
+    "Preview 不执行",
+    "正式版已有 Proposal / Candidate / Drift 决策 authority；Preview 仍保持只读，不会因为点击、滚动或高置信度自动修改节点、依赖或 graphRevision。"
   ],
-  "bytes": 372524,
+  "bytes": 377247,
   "textureGate": "NOT_REQUIRED"
 }

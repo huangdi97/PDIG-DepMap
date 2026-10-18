@@ -1,6 +1,6 @@
 {
   "name": "10c-manual-relationship",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "手工记录关系",
@@ -36,6 +36,6 @@
     "来源",
     "manual"
   ],
-  "bytes": 305309,
+  "bytes": 305434,
   "textureGate": "NOT_REQUIRED"
 }

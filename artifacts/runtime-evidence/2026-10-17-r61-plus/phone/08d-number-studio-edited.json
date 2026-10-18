@@ -1,6 +1,6 @@
 {
   "name": "08d-number-studio-edited",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "号码面定制",
@@ -43,6 +43,6 @@
     "金",
     "玫红"
   ],
-  "bytes": 409255,
+  "bytes": 409178,
   "textureGate": "NOT_REQUIRED"
 }

@@ -1,6 +1,6 @@
 {
   "name": "04dd-card-impact",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "卡片详情",
@@ -36,6 +36,6 @@
     "如果它发生变化？",
     "只使用已记录关系；未知不会被显示成安全。"
   ],
-  "bytes": 481341,
+  "bytes": 481916,
   "textureGate": "NOT_REQUIRED"
 }

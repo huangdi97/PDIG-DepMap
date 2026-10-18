@@ -1,11 +1,14 @@
 {
   "name": "10cc-manual-relationship-boundary",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "手工记录关系",
     "搜索",
     "我",
+    "支付工具",
+    "支付绑定 →",
+    "服务",
     "能力",
     "payment",
     "关键性",
@@ -36,9 +39,8 @@
     "绑定（legacy/future）",
     "bound_to",
     "HOLD",
-    "当前 Preview 不提供“确认关系”按钮",
-    "正式 authority 已存在，但 Preview 仍不会执行关系写入；生产 UI 必须走 authoritative gateway 并回读 Reality。"
+    "当前 Preview 不提供“确认关系”按钮"
   ],
-  "bytes": 217630,
+  "bytes": 206193,
   "textureGate": "NOT_REQUIRED"
 }

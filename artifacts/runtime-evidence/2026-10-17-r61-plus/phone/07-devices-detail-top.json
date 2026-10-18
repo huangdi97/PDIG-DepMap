@@ -1,6 +1,6 @@
 {
   "name": "07-devices-detail-top",
-  "sha": "067388f9",
+  "sha": "6b823fb6",
   "uiText": [
     "返回上一级",
     "设备详情",
@@ -40,6 +40,6 @@
     "关键账户",
     "未记录"
   ],
-  "bytes": 264819,
+  "bytes": 264867,
   "textureGate": "NOT_REQUIRED"
 }
