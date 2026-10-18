@@ -5,11 +5,10 @@
 > Local worktree: `E:\AI\号卡管理`  
 > **Round-start local HEAD:** `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > **Round-start remote HEAD:** `562d83f44733def5c805c64e4ed53f8746ddbce4`  
-> **Final source HEAD of this round:** `8fef80307c86b89958f82798f61d3ea3fab386c1`  
-> **Visual/Production evidence source HEAD:** `6b823fb6` (phone/tablet/Production)
-> and `7993f29d` (Expanded). Later source deltas are a rail-label testTag, advanced
-> Production consumer copy, and `8fef8030` androidTest-only 851dp robustness;
-> none changes the captured screens.  
+> **Final source HEAD of this round:** `226e8468fa08a517684743e0999ad029a012e915`  
+> **Visual/Production evidence source HEAD:** `302a65d6` (phone; `226e8468` is
+> capture-script-only), `6b823fb6` (tablet), `7993f29d` (Expanded), `c035ce9a`
+> (advanced Production). No captured screen changes after those sources.  
 > Remote relationship at start: local was a strict ancestor, 0 ahead / 99 behind.
 > It was fast-forwarded with `git merge --ff-only`; no force push, reset, clean or
 > `main` merge was used.
@@ -68,6 +67,9 @@ re-count them as new features.
 | `a1ee036f` | TestTag-only: expose `pdig.nav.<route>.label` in the expanded rail branch too, so the tablet contract is independent of rail mode (MEDIUM vs EXPANDED/rotation). No visual change. |
 | `7993f29d` | Advanced Production copy: ChangePlan completion/version wording, establish/import boundaries, maintenance confirmations, manual relationship type list and unavailable state no longer print `Plan Projection`, `Reality`, `Canonical v3`, `runtime registry`, `graphRevision`, `Proposal` or `authority`. Gates and fail-closed behaviour unchanged. |
 | `8fef8030` | androidTest-only 851dp robustness: scroll to lazy change-entry, multi-node text matchers, compact orbit assertion. 38/38 contracts pass at 1080×2340@440; no rendered change. |
+| `c035ce9a` | Real-run copy audit: remove remaining `图谱修订`, `wechat_statement`, `PHONE_NUMBER / EMAIL_ADDRESS`, `图谱完整`, `FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine` and Preview R23–R25 `authority` / `Reality` / `subtype`. Behavior unchanged. |
+| `302a65d6` | Finish R24/R25 consumer copy (`Reality`, `authoritative transaction`, `graphRevision`, `From/To`, `runtime relation registry`, `Proposal/Candidate`, raw capability enums); align the phone capture script and both manual contract tests. Phone recaptured at this source (70 PNG). |
+| `226e8468` | Capture-script-only: the R25 step assertion now matches the final consumer sentence. No app code or rendered screen changes. |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -169,6 +171,20 @@ EXPANDED-only three-pane projection tests skipped at 800 dp.
 After remains a plan projection; the After capture shows `旧号码（已停用·计划）`,
 `新主号（计划）` and unverified services still `待处理`.
 
+### Production advanced surfaces (1080×2340 @440, installed `com.pdig.app`)
+
+Capture source `c035ce9a`, launched with the documented `vnext_production` debug
+extra (release default remains Legacy). 4 real PNGs + XML under
+`production-advanced/`:
+
+- Me at the management section (`数据版本`, `所有写入都经过正式确认`);
+- Establish hub (`微信账单` source kind, manual/import/relationship entries);
+- Manual relationship boundary (consumer `故障影响 / 恢复路径 / 服务商规则`);
+- Review empty queue (`空队列不代表已记录关系完整`).
+
+The system file picker was intentionally excluded: it is not PDIG UI. No Preview
+synthetic data was written into the encrypted Reality.
+
 ## 6. Bugs fixed and their evidence
 
 | Defect | Before | After | Evidence |
@@ -182,6 +198,7 @@ After remains a plan projection; the After capture shows `旧号码（已停用�
 | Misleading asset count | `8 类资产` | `8 个入口` | phone 02-infrastructure |
 | MEDIUM rail was icon-only | five primary roots required icon memory | visible 9sp label under each icon; all five asserted | tablet 01-now / 25-me |
 | Me mixed two pending scopes | `待处理 3` beside Now `需要处理 6` | Me says `需关注 3` / `3 项需关注`; counts unchanged | tablet 25-me, phone 09-me |
+| Remaining graph/authority jargon found by real run | `图谱修订`, `wechat_statement`, `PHONE_NUMBER`, `图谱完整`, `FailureDomain / Continuity engine` | `数据版本`, `微信账单`, `手机号 / 邮箱`, `已记录关系完整`, consumer continuity wording | production-advanced 4 screens |
 
 ## 7. Remaining gaps (not claimed as PASS)
 
@@ -197,14 +214,15 @@ After remains a plan projection; the After capture shows `旧号码（已停用�
 ```text
 SOURCE_IMPLEMENTED          = YES (this round's listed fixes)
 EXACT_HEAD_TESTED           = YES (JVM + instrumentation + Production rehearsals;
-                                  final 8fef8030 CI covers the testTag/copy/test deltas)
+                                  final 226e8468 is capture-script-only and re-runs the phone proof)
 RUNTIME_VERIFIED            = YES (phone Preview / tablet Preview / Production lock & cutover rehearsal)
 VISUAL_CANDIDATE            = READY_FOR_HUMAN_REVIEW
 HUMAN_ACCEPTED              = PENDING
 ANDROID_REFERENCE_FREEZE    = HOLD
 PRODUCTION_CUTOVER          = HOLD
 PRODUCTION_DEFAULT          = LEGACY (unchanged, re-proven)
-GITHUB_CI_AT_FINAL_HEAD     = PASS at 8fef8030 (9/9 checks; source 8fef8030)
+GITHUB_CI_AT_FINAL_HEAD     = PASS at 226e8468 (CI/iOS/Preview/Phone; Tablet + Production
+                              green at app-code 302a65d6; 226e8468 is script-only)
 ```
 
 No screenshot in this round is AI-generated, a desktop render, a Compose preview,

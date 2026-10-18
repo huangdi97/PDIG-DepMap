@@ -5,11 +5,10 @@
 > Worktree: `E:\AI\号卡管理`  
 > Branch: `feat/android-ui-vnext-translation`  
 > PR #1: https://github.com/huangdi97/PDIG-DepMap/pull/1 (Draft, not merged)  
-> **Final local/source HEAD: `8fef80307c86b89958f82798f61d3ea3fab386c1`**  
-> **Capture source HEAD:** `6b823fb6` for phone/tablet/Production, `7993f29d` for
-> Expanded. Later deltas are a rail-label testTag, advanced Production consumer
-> copy and androidTest-only 851dp robustness (`8fef8030`); no captured screen
-> changes.  
+> **Final local/source HEAD: `226e8468fa08a517684743e0999ad029a012e915`**  
+> **Capture source HEAD:** `302a65d6` for phone (app code; `226e8468` is
+> capture-script-only), `6b823fb6` for tablet/Production, `7993f29d` for Expanded,
+> `c035ce9a` for advanced Production.  
 > Local round-start HEAD: `508ee709108598e56f76670ac472a93b0ccf80ee`  
 > Remote round-start HEAD: `562d83f44733def5c805c64e4ed53f8746ddbce4`
 
@@ -50,6 +49,9 @@ force push, merge `main`, or enable the Production cutover.
 | `a1ee036f` | TestTag-only: same rail label tag in the expanded branch, so the tablet contract passes in MEDIUM and EXPANDED/rotation |
 | `7993f29d` | Advanced Production consumer copy: ChangePlan / establish / import / maintenance / manual relationship / review; no behaviour change |
 | `8fef8030` | androidTest-only 851dp robustness; 38/38 contracts pass at 1080×2340@440, no product assertion removed |
+| `c035ce9a` | Real-run copy audit: remove remaining graph/authority/enum jargon; behavior unchanged |
+| `302a65d6` | Finish R24/R25 consumer copy and align the phone capture script; phone recaptured at this source |
+| `226e8468` | Capture-script-only: R25 step assertion matches the final consumer sentence |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
@@ -66,6 +68,7 @@ artifacts/runtime-evidence/2026-10-17-r61-plus/
 ├── tablet/ui-shots/                  # 34 real PNGs + raw manifest
 ├── tablet-expanded/                  # 11 real PNGs + manifest (1280x800dp)
 ├── production/                       # lock/unlock PNG+XML, 2 rehearsal dirs
+├── production-advanced/              # 4 real PNGs: Me/hub/manual/review
 └── logs/                             # capture, JVM/build, Production logs
 ```
 
@@ -76,6 +79,8 @@ Evidence rules used:
   presented a real frame; the test fails if the GPU earth is absent.
 - Expanded: `adb exec-out screencap` at 2560×1600 @320 (1280×800 dp), built from
   `7993f29d`; `TabletAdaptiveContractTest` is 5/5 at this width.
+- Production advanced: real installed `com.pdig.app`, `vnext_production` debug
+  extra, source `c035ce9a`; 4 screens with XML and manifest.
 - Production: real installed `com.pdig.app` APK, real lock screen, real
   Production shell, real XML semantics; no Preview fixture is presented as
   Production Reality.
@@ -116,6 +121,9 @@ Evidence rules used:
     `08-change-phone-after.png`, `10-me.png` — Expanded breakpoint.
 12. `production/01-cutover-locked.png`, `02-cutover-unlocked.png`,
     `03-default-legacy-locked.png`, `04-default-legacy-home.png`.
+13. `production-advanced/11-production-me.png`, `12-production-establish-hub.png`,
+    `13-production-manual-relation.png`, `15-production-review-empty.png` —
+    final consumer copy on advanced Production surfaces.
 
 For each, decide **ACCEPT / ACCEPT_WITH_NITS / REJECT**. A REJECT should name
 the smallest concrete change. Green CI, source approval or a screenshot existing
@@ -157,26 +165,31 @@ At the **round-start** remote HEAD `562d83f4`, all six workflows / nine checks
 were green, including Production Rehearsal run
 [39023996578](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39023996578).
 
-Final source HEAD `8fef8030` is pushed and **all six workflows / nine checks are
-observed success at that SHA**:
+Final source `226e8468` is a **capture-script-only** change. Its applicable
+workflows are all green:
 
 | Gate | Run | Result |
 | --- | --- | --- |
-| CI | [39102196362](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102196362) | SUCCESS |
-| iOS | [39102196414](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102196414) | SUCCESS |
-| Android UI vNext Preview APK | [39102190094](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102190094) | SUCCESS |
-| Android UI vNext Phone Pixel Proof | [39102190149](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102190149) | SUCCESS |
-| Android UI vNext Tablet Pixel Proof | [39102190128](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102190128) | SUCCESS |
-| Android UI vNext Production Rehearsal | [39102190095](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102190095) | SUCCESS |
+| CI | [39110885126](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110885126) | SUCCESS |
+| iOS | [39110885123](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110885123) | SUCCESS |
+| Android UI vNext Preview APK | [39110880283](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110880283) | SUCCESS |
+| Android UI vNext Phone Pixel Proof | [39110880278](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39110880278) | SUCCESS |
 
-Historical: `7993f29d` was 9/9 green (CI 39098738404, iOS 39098738265, phone
-39098732958, tablet 39098733014, Production 39098732990, Preview 39098732991);
-earlier heads were also green.
+Tablet and Production were green at the app-code parent `302a65d6`:
 
-A later **docs/evidence-only** commit may not re-trigger the path-filtered phone,
-tablet or Production workflows. That does not invalidate the runtime result at
-`8fef8030`: no application source changes after it. Check the GitHub check-runs
-for the actual PR head SHA rather than assuming all six re-ran.
+| Gate | Run | Result |
+| --- | --- | --- |
+| Android UI vNext Tablet Pixel Proof | [39109354985](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39109354985) | SUCCESS |
+| Android UI vNext Production Rehearsal | [39109354960](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39109354960) | SUCCESS |
+
+At `302a65d6` the phone job failed only because the committed capture script still
+expected the old R25 sentence; the local app/UI was already correct. `226e8468`
+fixes that script assertion and the Phone job turns green. Historical: `8fef8030`
+and `7993f29d` were 9/9 green.
+
+A later **docs/evidence-only** commit may not re-trigger path-filtered workflows.
+That does not invalidate the runtime result at the source SHAs above; check the
+actual PR-head check-runs rather than assuming all six re-ran.
 
 ## 8. Guardrails respected
 

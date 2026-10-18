@@ -2173,6 +2173,30 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   `pdig.change.new`；Records 的底部说明先 `performScrollTo()`。
 - 没有删除测试、没有降低产品断言；这些测试在 CI 914dp 仍通过。
 - 证据截图仍来自 `7993f29d`；`8fef8030` 只改测试代码，不改变任何渲染页面。
+
+---
+
+## R52+ Round 6 — Production 真实运行文案审计与高级页证据（2026-10-18）
+
+- 最终源码 HEAD：`226e8468fa08a517684743e0999ad029a012e915`（脚本断言收口；`302a65d6` 为 R24/R25 文案 +
+  手机取证脚本对齐；此前 `c035ce9a` 为 Production 主页面文案）。
+- 在真实安装的 Production VNext 上运行并逐屏检查，发现并修复主页面未覆盖的
+  残余工程词：
+  - Me：`图谱修订` → `数据版本`；
+  - Me：`PHONE_NUMBER / EMAIL_ADDRESS` → `手机号 / 邮箱`；
+  - Me：`所有写入走正式 authority` → `所有写入都经过正式确认`；
+  - 建立 Hub：`wechat_statement` → `微信账单`；
+  - 复核空态：`空队列不代表图谱完整` → `不代表已记录关系完整`；
+  - 手工关系：`FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine`
+    → `故障影响 / 恢复路径 / 服务商规则 / 连续性分析`；
+  - Preview R23–R25 的 `authority` / `Reality` / `subtype` / `From/To` /
+    `runtime relation registry` / 原始 capability 枚举同步消费者化；
+  - 对齐 `ui_vnext_pixel_capture.py` 与 R24/R25 测试，重新采集手机 70 屏。
+- 行为、闸门、Schema、Production 默认未变；JVM tests PASS；38/38 contracts PASS；
+  手机 capture 脚本在 302a65d6 重新跑通（EXIT=0）。
+- 新增 `production-advanced/` 4 张真实 PNG + XML + manifest：
+  Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **260 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
+
 
 

@@ -1,6 +1,6 @@
 # PDIG — R52+ Production runtime and cutover rehearsal report
 
-> Final local source HEAD: `8fef80307c86b89958f82798f61d3ea3fab386c1`  
+> Final local source HEAD: `226e8468fa08a517684743e0999ad029a012e915`  
 > Capture/build source for the rehearsals below: `6b823fb6`. Later deltas are a
 > rail-label testTag, advanced Production consumer copy and androidTest-only
 > 851dp robustness; Production gate behaviour is unchanged and is re-run by CI at
@@ -189,7 +189,8 @@ PRODUCTION_CUTOVER                 = HOLD (not approved, not merged)
 HUMAN_VISUAL_ACCEPTANCE            = PENDING
 ```
 
-GitHub CI at the final source HEAD `8fef8030` is observed all-green, including
-the Production Rehearsal workflow
-([39102190095](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39102190095)).
-The Production default remains Legacy and the cutover remains `HOLD`.
+GitHub CI at the app-code source `302a65d6` is all-green, including the Production
+Rehearsal workflow
+([39109354960](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39109354960)).
+`226e8468` is capture-script-only; Production was not retriggered by its path
+filter. The Production default remains Legacy and the cutover remains `HOLD`.

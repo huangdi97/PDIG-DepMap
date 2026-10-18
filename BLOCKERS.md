@@ -459,4 +459,14 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
 - Human Visual Acceptance / Reference Freeze / Production Cutover 仍为
   PENDING / HOLD / HOLD；参考板仍损坏。
 
+## R52+ Round 6 更新（2026-10-18）
+
+- 真实 Production VNext 运行中发现的残余工程词已收口：`图谱修订`、
+  `wechat_statement`、`PHONE_NUMBER / EMAIL_ADDRESS`、`图谱完整`、
+  `FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine`、
+  Preview R23–R25 的 `authority` / `Reality` / `subtype`。
+- 新增 `production-advanced/` 4 张真实 PNG + XML + manifest
+  （Me / 建立 Hub / 手工关系 / 复核空态），证据合计 260 项。
+- 没有已知的本地代码/测试/构建问题；剩余仅为参考板损坏与人工验收门禁。
+
 

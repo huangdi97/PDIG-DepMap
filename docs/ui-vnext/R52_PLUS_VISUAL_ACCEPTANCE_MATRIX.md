@@ -1,9 +1,9 @@
 # PDIG / DepMap — R52+ visual acceptance matrix
 
-> **Final source HEAD:** `8fef80307c86b89958f82798f61d3ea3fab386c1`  
-> **Capture source HEAD:** `6b823fb6` for phone/tablet/Production; `7993f29d` for
-> Expanded. Later deltas are a rail-label testTag, advanced Production copy and
-> androidTest-only 851dp robustness; none changes the captured screens.  
+> **Final source HEAD:** `226e8468fa08a517684743e0999ad029a012e915`  
+> **Capture source HEAD:** `302a65d6` for phone (app code; `226e8468` script-only),
+> `6b823fb6` for tablet/Production, `7993f29d` for Expanded, `c035ce9a` for
+> advanced Production.  
 > **Human verdict is still empty by design.** This file is a review worksheet, not
 > an acceptance record. `HUMAN_ACCEPTED = PENDING`.
 >
@@ -126,6 +126,18 @@ breakpoint and per-screen state). This set is evidence, not acceptance.
 `production/production-vnext-rehearsal/manifest.json` and
 `production/production-vnext-release-default/manifest.json` both record
 `result: PASS` and the final source SHA.
+
+### 5a. Advanced Production surfaces (4 real PNGs, source `c035ce9a`)
+
+| State | Capture / XML | Observed | Verdict |
+| --- | --- | --- | --- |
+| Me / management | `production-advanced/11-production-me.png/.xml` | `数据版本`; `所有写入都经过正式确认`; no authority/PHONE_NUMBER | |
+| Establish hub | `production-advanced/12-production-establish-hub.png/.xml` | `微信账单` source kind; manual / import / relationship entries | |
+| Manual relationship | `production-advanced/13-production-manual-relation.png/.xml` | consumer boundary copy; no FailureDomain/Continuity engine | |
+| Review empty | `production-advanced/15-production-review-empty.png/.xml` | `空队列不代表已记录关系完整` | |
+
+Launched with the documented `vnext_production` debug extra; release default stays
+Legacy. The system SAF file picker is excluded because it is not PDIG UI.
 
 ## 6. Deltas fixed in this round (previously visible in captures)
 
