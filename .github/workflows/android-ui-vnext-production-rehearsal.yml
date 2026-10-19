@@ -13,6 +13,8 @@ on:
       - '.github/workflows/android-ui-vnext-production-rehearsal.yml'
       - 'android/app/src/main/kotlin/com/pdig/app/**'
       - 'android/app/src/main/kotlin/com/pdig/uivnext/**'
+      - 'android/core/**'
+      - 'android/repos/**'
       - 'android/app/src/androidTest/kotlin/com/pdig/app/**'
       - 'android/app/src/androidTest/kotlin/com/pdig/uivnext/**'
       - 'android/scripts/production_vnext_secure_rehearsal.py'
@@ -52,7 +54,7 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          ./gradlew             :app:assembleProductionDebug             :app:assembleProductionDebugAndroidTest             --no-daemon --stacktrace
+          ./gradlew             :repos:test             :app:assembleProductionDebug             :app:assembleProductionDebugAndroidTest             --no-daemon --stacktrace
           sha256sum app/build/outputs/apk/production/debug/app-production-debug.apk
 
       - name: Prove lock-gated real-Reality VNext rehearsal on API36
