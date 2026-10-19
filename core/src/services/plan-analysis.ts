@@ -7,11 +7,12 @@ import {
   type PlanRebaseDiff,
   type PlanRebaseResult,
 } from '../domain/change-plan.ts'
-import { simulateDisable, type ImpactResult } from '../impact/kernel.ts'
+import { simulateScenario, type ImpactResult } from '../impact/kernel.ts'
 import type { ChangePlanRepository } from '../repositories/change-plan-repository.ts'
 import { getGraphRevision } from '../repositories/graph-revision.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { buildImpactGraph, type ImpactGraphRepos } from './graph-view.ts'
+import { scenarioImpactCapabilities } from '../scenarios/impact-scope.ts'
 
 /**
  * Plan 分析与 Rebase（MVP03 §12–§16）。
@@ -112,7 +113,13 @@ export function analyzePlanImpact(
     return { unavailable: [], targets: [], checklistLevels: [] }
   }
   const graph = buildImpactGraph(driver, repos)
-  return computeImpactSnapshot(simulateDisable(graph, plan.targetNodeId, 'payment'))
+  const unavailable = new Set(
+    scenarioImpactCapabilities(plan.scenario).map((capability) => ({
+      nodeId: plan.targetNodeId as string,
+      capability,
+    })),
+  )
+  return computeImpactSnapshot(simulateScenario(graph, unavailable))
 }
 
 /**
