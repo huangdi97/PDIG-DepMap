@@ -199,8 +199,8 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
                     "method" to Json.Str(v.method.wire),
                     "status" to Json.Str(v.status.wire),
                     "evidenceRefs" to Json.Arr(v.evidenceRefs.map { Json.Str(it) }),
-                    "expectedFromNodeId" to (v.expectedFromNodeId?.let(Json::Str) ?: Json.Null),
-                    "expectedToNodeId" to (v.expectedToNodeId?.let(Json::Str) ?: Json.Null),
+                    "expectedFromNodeId" to (v.expectedFromNodeId?.let { Json.Str(it) } ?: Json.Null),
+                    "expectedToNodeId" to (v.expectedToNodeId?.let { Json.Str(it) } ?: Json.Null),
                 ),
             )
         } ?: Json.Null),
