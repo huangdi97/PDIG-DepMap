@@ -267,7 +267,7 @@ class ProductionChangeStageSummaryTest {
         assertFalse(productionPlanExecutable(freshReady.copy(effectiveState = "needs_revalidation")))
         // Readiness alone cannot override a changed authoritative graph revision.
         assertFalse(productionPlanExecutable(plan.copy(readiness = "ready", effectiveState = null)))
-        assertTrue(productionPlanActionGuidance(change, plan, true).contains("重新核对影响范围"))
+        assertTrue(productionPlanActionGuidance(change, plan, true).contains("重新分析当前影响范围"))
         assertTrue(productionPlanActionGuidance(change, freshReady.copy(readiness = "blocked"), true)
             .contains("阻断事项"))
         assertTrue(productionPlanActionGuidance(change, freshReady, false).contains("只有查看权限"))
