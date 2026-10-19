@@ -6,6 +6,7 @@ import com.pdig.core.domain.ActionVerificationStatus
 import com.pdig.core.domain.PlanAction
 import com.pdig.core.generated.PlanActionPhase
 import com.pdig.core.domain.PlanReadinessInput
+import com.pdig.core.generated.Capability
 import com.pdig.core.generated.ChangePlanWorkflowState
 import com.pdig.core.generated.ImpactTargetStatus
 import com.pdig.core.json.Json
@@ -80,6 +81,19 @@ class PlanRepository(
         }
     }
 
+    /**
+     * Impact scope comes only from the executable ScenarioTemplate registry.
+     * Unknown/empty capability declarations fail closed to the legacy payment
+     * scope rather than being inferred from object names or UI state.
+     */
+    private fun scenarioImpactCapabilities(scenarioId: String): List<Capability> =
+        ScenarioRegistry.get(scenarioId)
+            ?.supportedCapabilities
+            ?.mapNotNull(Capability::fromWire)
+            ?.distinct()
+            ?.takeIf { it.isNotEmpty() }
+            ?: listOf(Capability.PAYMENT)
+
     /** 从 scenario 创建真实变更计划：must_change 每条生成一个显式 CHANGE 动作。 */
     fun createPlanForScenario(req: ScenarioPlanRequest): String {
         // planned 模板没有 factory，必须拒绝（ScenarioRegistry 策略 gate）
@@ -88,7 +102,7 @@ class PlanRepository(
         val now = Instant.now().toString()
         val planId = "plan-" + sha256Hex(req.scenarioId + "|" + req.targetNodeId + "|" + now).take(16)
         val revision = graph.graphRevision()
-        val impact = graph.impactFor(req.targetNodeId)
+        val impact = graph.impactFor(req.targetNodeId, scenarioImpactCapabilities(req.scenarioId))
         require(graph.graphRevision() == revision) {
             "graph_changed_during_plan_analysis"
         }
@@ -223,7 +237,7 @@ class PlanRepository(
         require(!ChangePlanMachine.isFrozen(plan.workflowState)) { "plan_frozen" }
         val targetNodeId = plan.targetNodeId ?: throw IllegalStateException("plan_target_missing")
         val analyzedRevision = graph.graphRevision()
-        val impact = graph.impactFor(targetNodeId)
+        val impact = graph.impactFor(targetNodeId, scenarioImpactCapabilities(plan.scenario))
         require(graph.graphRevision() == analyzedRevision) {
             "graph_changed_during_plan_analysis"
         }
