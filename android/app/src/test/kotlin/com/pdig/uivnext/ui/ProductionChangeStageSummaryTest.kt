@@ -2,6 +2,7 @@ package com.pdig.uivnext.ui
 
 import com.pdig.uivnext.production.VNextProductionPlan
 import com.pdig.uivnext.production.VNextProductionPlanAction
+import com.pdig.uivnext.production.VNextProductionPlanImpactItem
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -44,6 +45,70 @@ class ProductionChangeStageSummaryTest {
         assertFalse(productionChangeActionMutationEnabled(authorityAvailable = false, privacyMask = true))
         assertFalse(productionChangeActionMutationEnabled(authorityAvailable = true, privacyMask = true))
         assertTrue(productionChangeActionMutationEnabled(authorityAvailable = true, privacyMask = false))
+    }
+
+    @Test
+    fun impactRowsChangeStateByStageWithoutInventingVerification() {
+        val keyA = "account-a|recovery"
+        val keyB = "service-b|authentication"
+        val plan = VNextProductionPlan(
+            id = "plan-impact",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 4,
+            lastAnalyzedGraphRevision = 5,
+            currentGraphRevision = 5,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "review_required",
+            affectedServiceCount = 2,
+            mustChangeKeys = listOf(keyA),
+            unresolvedMustChangeKeys = emptyList(),
+            actions = listOf(
+                VNextProductionPlanAction(
+                    id = "change-a",
+                    title = "迁移恢复方式",
+                    phase = "change",
+                    done = true,
+                    verificationStatus = "pending",
+                    verificationEvidenceRefs = emptyList(),
+                    prerequisiteActionIds = emptyList(),
+                    resolvesImpactKeys = listOf(keyA),
+                ),
+            ),
+            impactItems = listOf(
+                VNextProductionPlanImpactItem(
+                    key = keyA,
+                    nodeId = "account-a",
+                    nodeName = "主账户",
+                    capability = "recovery",
+                    status = "must_change",
+                ),
+                VNextProductionPlanImpactItem(
+                    key = keyB,
+                    nodeId = "service-b",
+                    nodeName = "登录服务",
+                    capability = "authentication",
+                    status = "needs_review",
+                ),
+            ),
+        )
+
+        val rows = productionChangeImpactRows(plan)
+        val account = rows.first { it.key == keyA }
+        assertEquals("必须处理", account.currentState)
+        assertEquals("处理已记录", account.transitionState)
+        assertEquals("计划已处理", account.afterState)
+        // done does not become verified in the stage projection.
+        assertFalse(account.afterState.contains("已验证"))
+
+        val service = rows.first { it.key == keyB }
+        assertEquals("需要核对", service.currentState)
+        assertEquals("等待核对", service.transitionState)
+        assertEquals("计划仍需核对", service.afterState)
     }
 
     @Test
