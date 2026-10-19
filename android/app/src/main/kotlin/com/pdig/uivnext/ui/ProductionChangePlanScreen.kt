@@ -362,6 +362,9 @@ internal fun productionPlanActionGuidance(
         }
         return "必须先完成：${names.joinToString("、")}。"
     }
+    if (!productionPhoneRetirementVerificationSatisfied(plan, action)) {
+        return "新手机号恢复路径尚未验证；验证完成前不能停用旧手机号。"
+    }
 
     if (plan.readiness == "blocked") {
         val claimedBlockers = action.resolvesImpactKeys
@@ -785,6 +788,15 @@ internal fun productionPlanFreshForMutation(plan: VNextProductionPlan): Boolean 
     plan.effectiveState != "needs_revalidation" &&
         plan.currentGraphRevision == plan.lastAnalyzedGraphRevision
 
+internal fun productionPhoneRetirementVerificationSatisfied(
+    plan: VNextProductionPlan,
+    action: VNextProductionPlanAction,
+): Boolean {
+    if (plan.scenario != "replace_phone_number" || action.id != "rpn-change-2") return true
+    val verification = plan.actions.firstOrNull { it.id == "rpn-verify-1" } ?: return false
+    return verification.done && verification.verificationStatus == "verified"
+}
+
 /**
  * Completion is action-gated rather than globally blocked by plan readiness.
  * A blocked plan exists precisely because must-change work remains: PREPARE and
@@ -800,6 +812,7 @@ internal fun productionPlanCompletionEnabled(
             plan.actions.firstOrNull { it.id == id }?.done != true
         }
     ) return false
+    if (!productionPhoneRetirementVerificationSatisfied(plan, action)) return false
     if (plan.readiness != "blocked") return true
     if (action.phase == "prepare") return true
     return action.phase == "change" &&
