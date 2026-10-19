@@ -191,6 +191,7 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
         "title" to Json.Str(a.title),
         "phase" to Json.Str(a.phase.wire),
         "done" to Json.Bool(a.done),
+        "doneAt" to (a.doneAt?.let { Json.Str(it) } ?: Json.Null),
         "resolvesImpactKeys" to Json.Arr(a.resolvesImpactKeys.map { Json.Str(it) }),
         "prerequisiteActionIds" to Json.Arr(a.prerequisiteActionIds.map { Json.Str(it) }),
         "verification" to (a.verification?.let { v ->
@@ -198,6 +199,7 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
                 listOf(
                     "method" to Json.Str(v.method.wire),
                     "status" to Json.Str(v.status.wire),
+                    "verifiedAt" to (v.verifiedAt?.let { Json.Str(it) } ?: Json.Null),
                     "evidenceRefs" to Json.Arr(v.evidenceRefs.map { Json.Str(it) }),
                     "expectedFromNodeId" to (v.expectedFromNodeId?.let { Json.Str(it) } ?: Json.Null),
                     "expectedToNodeId" to (v.expectedToNodeId?.let { Json.Str(it) } ?: Json.Null),
@@ -218,6 +220,7 @@ internal fun planActionsFromJson(raw: String?): List<PlanAction> {
                         ?: ActionVerificationMethod.MANUAL_CONFIRMATION,
                     status = ActionVerificationStatus.fromWire((vo["status"] as? Json.Str)?.value ?: "")
                         ?: ActionVerificationStatus.PENDING,
+                    verifiedAt = (vo["verifiedAt"] as? Json.Str)?.value,
                     evidenceRefs = ((vo["evidenceRefs"] as? Json.Arr)?.items)
                         ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
                     expectedFromNodeId = (vo["expectedFromNodeId"] as? Json.Str)?.value,
@@ -230,6 +233,7 @@ internal fun planActionsFromJson(raw: String?): List<PlanAction> {
                 phase = PlanActionPhase.fromWire((o["phase"] as? Json.Str)?.value ?: "")
                     ?: PlanActionPhase.CHANGE,
                 done = (o["done"] as? Json.Bool)?.value ?: false,
+                doneAt = (o["doneAt"] as? Json.Str)?.value,
                 resolvesImpactKeys = ((o["resolvesImpactKeys"] as? Json.Arr)?.items)
                     ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
                 prerequisiteActionIds = ((o["prerequisiteActionIds"] as? Json.Arr)?.items)
