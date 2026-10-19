@@ -9,6 +9,7 @@ import com.pdig.app.data.ManualNodeCreateRequest
 import com.pdig.app.data.ScenarioPlanRequest
 import com.pdig.app.platform.AndroidSqliteDriver
 import com.pdig.core.generated.Capability
+import com.pdig.core.generated.ChangePlanWorkflowState
 import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.generated.Relation
@@ -158,6 +159,24 @@ class ProductionPhoneChangeAuthorityContractTest {
                     .verification?.status?.wire,
             )
             assertTrue(afterRetirementGate.actions.first { it.id == "rpn-change-2" }.done)
+            assertEquals(
+                "pending",
+                afterRetirementGate.actions.first { it.id == "rpn-change-1" }
+                    .verification?.status?.wire,
+            )
+            assertEquals(
+                ChangePlanWorkflowState.VERIFYING,
+                afterRetirementGate.workflowState,
+            )
+
+            // Retiring the old path is not enough to complete the plan. The
+            // migration action still has its own independent verification.
+            app.verifyAction(planId, "rpn-change-1")
+            val fullyVerified = requireNotNull(app.planDetail(planId))
+            assertEquals(
+                ChangePlanWorkflowState.COMPLETED,
+                fullyVerified.workflowState,
+            )
         } finally {
             driver.close()
             dbFile.delete()
