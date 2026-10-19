@@ -1,6 +1,9 @@
 package com.pdig.uivnext.ui
 
-/** Consumer wording for production wire values. Unknown values remain explicit. */
+/**
+ * Consumer wording for production wire values. Unknown values remain explicit.
+ * Keep raw domain tokens out of visible Production copy; source contracts enforce this boundary.
+ */
 
 /** Timeline title/description can be user-supplied maintenance and plan text. */
 internal fun productionVisibleTimelineTitle(title: String, privacyMask: Boolean): String = when {
