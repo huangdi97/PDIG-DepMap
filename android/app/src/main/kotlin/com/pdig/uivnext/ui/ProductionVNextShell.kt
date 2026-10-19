@@ -1031,7 +1031,7 @@ private fun ProductionMeContinuityPanel(
             ProductionMeLine(
                 value = activePlans.toString(),
                 title = "进行中的变更",
-                detail = if (activePlans == 0) "当前没有已记录进行中计划" else "查看正式 ChangePlan",
+                detail = if (activePlans == 0) "当前没有已记录进行中计划" else "查看变更计划",
                 onClick = { app.navigate(VScreen.CHANGE) },
             )
             ProductionMeLine(
