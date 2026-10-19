@@ -331,13 +331,27 @@ internal fun productionPlanActionGuidance(
     privacyMask: Boolean = false,
 ): String {
     if (!canMutate) return "当前只有查看权限，操作需要正式变更权限。"
-    if (action.done) return when (action.verificationStatus) {
-        "verified" -> "本步骤已完成并验证；可继续查看后续步骤。"
-        "pending", "evidence_suggested" ->
-            "动作已记录完成，结果尚未验证。请核对实际证据后再确认验证。"
-        "failed" -> "验证未通过；请核对证据与正式计划，不会自动重试或标记通过。"
-        else -> "动作已记录完成；当前不需要额外验证。"
+
+    if (action.done && action.verificationStatus in setOf("verified", "failed", "not_required")) {
+        return when (action.verificationStatus) {
+            "verified" -> "本步骤已完成并验证；可继续查看后续步骤。"
+            "failed" -> "验证未通过；请核对证据与正式计划，不会自动重试或标记通过。"
+            else -> "动作已记录完成；当前不需要额外验证。"
+        }
     }
+
+    if (!productionPlanFreshForMutation(plan)) {
+        return "基础设施已变化；必须重新分析当前影响范围后再继续。"
+    }
+
+    if (action.done) {
+        return when (action.verificationStatus) {
+            "pending", "evidence_suggested" ->
+                "动作已记录完成，结果尚未验证。请核对实际证据后再确认验证。"
+            else -> "动作已记录完成；当前不需要额外验证。"
+        }
+    }
+
     val actionsById = plan.actions.associateBy { it.id }
     val pending = action.prerequisiteActionIds.filter { actionsById[it]?.done != true }
     if (pending.isNotEmpty()) {
@@ -348,11 +362,18 @@ internal fun productionPlanActionGuidance(
         }
         return "必须先完成：${names.joinToString("、")}。"
     }
-    if (plan.effectiveState == "needs_revalidation" ||
-        plan.currentGraphRevision != plan.lastAnalyzedGraphRevision
-    ) return "基础设施已变化；必须重新核对影响范围，不能继续记录完成。"
+
     if (plan.readiness == "blocked") {
-        return "仍有阻断事项，必须先处理并确认计划准备状态。"
+        val claimedBlockers = action.resolvesImpactKeys
+            .count { it in plan.unresolvedMustChangeKeys }
+        return when {
+            action.phase == "prepare" ->
+                "这是解除阻断前的准备步骤；完成它不会自动把影响项标记为已处理或已验证。"
+            action.phase == "change" && claimedBlockers > 0 ->
+                "这一步用于处理 $claimedBlockers 项阻断事项；记录完成不等于结果已验证。"
+            else ->
+                "仍有阻断事项；请先完成用于解除阻断的准备或处理步骤。"
+        }
     }
     return "可记录这一步的完成情况；记录完成不等于结果已验证。"
 }
@@ -760,21 +781,41 @@ internal fun productionChangeActionMutationEnabled(
  * Verification is an authoritative write, not a read-only annotation.
  * Neither an invalidated graph revision nor a blocked plan can advertise it.
  */
-/** A freshly read step must still be executable before recording completion. */
+internal fun productionPlanFreshForMutation(plan: VNextProductionPlan): Boolean =
+    plan.effectiveState != "needs_revalidation" &&
+        plan.currentGraphRevision == plan.lastAnalyzedGraphRevision
+
+/**
+ * Completion is action-gated rather than globally blocked by plan readiness.
+ * A blocked plan exists precisely because must-change work remains: PREPARE and
+ * CHANGE actions that explicitly claim current blockers must remain usable.
+ */
 internal fun productionPlanCompletionEnabled(
     plan: VNextProductionPlan,
     action: VNextProductionPlanAction,
     canMutate: Boolean,
-): Boolean = canMutate && productionPlanExecutable(plan) && !action.done &&
-    action.prerequisiteActionIds.all { id ->
-        plan.actions.firstOrNull { it.id == id }?.done == true
-    }
+): Boolean {
+    if (!canMutate || action.done || !productionPlanFreshForMutation(plan)) return false
+    if (action.prerequisiteActionIds.any { id ->
+            plan.actions.firstOrNull { it.id == id }?.done != true
+        }
+    ) return false
+    if (plan.readiness != "blocked") return true
+    if (action.phase == "prepare") return true
+    return action.phase == "change" &&
+        action.resolvesImpactKeys.any { it in plan.unresolvedMustChangeKeys }
+}
 
+/**
+ * Verification confirms an already recorded action. Other unresolved
+ * must-change work is not a reason to suppress verification of this step;
+ * staleness and authority still fail closed.
+ */
 internal fun productionPlanVerificationEnabled(
     plan: VNextProductionPlan,
     action: VNextProductionPlanAction,
     canMutate: Boolean,
-): Boolean = canMutate && productionPlanExecutable(plan) && action.done &&
+): Boolean = canMutate && productionPlanFreshForMutation(plan) && action.done &&
     action.verificationStatus in setOf("pending", "evidence_suggested")
 
 @Composable
@@ -797,7 +838,6 @@ private fun ProductionActionCard(
         verificationStatus == "evidence_suggested"
     val verificationNotRequired = verificationStatus == null ||
         verificationStatus == "not_required"
-    val planExecutable = productionPlanExecutable(plan)
     val canComplete = productionPlanCompletionEnabled(plan, action, canMutate)
     // Match the authoritative legacy plan UI: only pending/evidence_suggested
     // verification states expose confirmation. Failed/not-required are not
@@ -881,7 +921,10 @@ private fun ProductionActionCard(
 
             Text(
                 guidance,
-                color = if (!action.done && (!prerequisitesMet || !planExecutable)) {
+                color = if (
+                    (!action.done && !canComplete) ||
+                    (action.done && verificationPending && !canVerify)
+                ) {
                     PdigV2Colors.Critical
                 } else {
                     PdigV2Colors.TextSecondary
