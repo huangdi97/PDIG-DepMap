@@ -581,6 +581,8 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("账户控制关系").assertExists()
         compose.onAllNodesWithText("账户 A")[0].assertIsDisplayed()
         compose.onNodeWithText("账户身份", substring = true).assertExists()
+        compose.onNodeWithText("备用 / 降级").assertExists()
+        compose.onNodeWithText("未知").assertDoesNotExist()
         compose.onNodeWithText("已确认关系").assertIsDisplayed()
     }
 
