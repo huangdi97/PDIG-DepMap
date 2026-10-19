@@ -574,6 +574,71 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun productionRecordsUseAuthoritativeEventTimeNewestFirstWithoutInventingMissingTimes() {
+        fun action(
+            id: String,
+            doneAt: String?,
+            verifiedAt: String? = null,
+            verified: Boolean = false,
+        ) = VNextProductionPlanAction(
+            id = id,
+            title = id,
+            phase = "verify",
+            done = true,
+            doneAt = doneAt,
+            verificationStatus = if (verified) "verified" else null,
+            verificationVerifiedAt = verifiedAt,
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
+
+        fun plan(id: String, actions: List<VNextProductionPlanAction>) = VNextProductionPlan(
+            id = id,
+            scenario = "replace_phone_number",
+            title = id,
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 1,
+            lastAnalyzedGraphRevision = 1,
+            currentGraphRevision = 1,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "review_required",
+            affectedServiceCount = 0,
+            mustChangeKeys = emptyList(),
+            unresolvedMustChangeKeys = emptyList(),
+            actions = actions,
+        )
+
+        val records = buildProductionRecordTrace(
+            listOf(
+                plan("plan-a", listOf(
+                    action("older", "2026-10-19T08:00:00Z"),
+                    action(
+                        "verified-newest",
+                        "2026-10-19T09:00:00Z",
+                        verifiedAt = "2026-10-19T11:00:00Z",
+                        verified = true,
+                    ),
+                )),
+                plan("plan-b", listOf(
+                    action("middle", "2026-10-19T10:00:00Z"),
+                    action("unknown-time", null),
+                )),
+            ),
+        )
+
+        assertEquals(
+            listOf("verified-newest", "middle", "older", "unknown-time"),
+            records.map { it.actionId },
+        )
+        assertEquals("2026-10-19T11:00:00Z", records.first().occurredAt)
+        assertEquals(null, records.last().occurredAt)
+    }
+
+    @Test
     fun stalePlanProjectsNeedsRevalidationWithoutRewritingStoredWorkflow() {
         val detail = PlanDetailView(
             id = "plan-stale",
