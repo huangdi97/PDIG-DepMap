@@ -236,6 +236,14 @@ internal data class VNextProductionPlanAction(
     val resolvesImpactKeys: List<String>,
 )
 
+internal data class VNextProductionPlanImpactItem(
+    val key: String,
+    val nodeId: String,
+    val nodeName: String?,
+    val capability: String,
+    val status: String,
+)
+
 internal enum class VNextProductionRecordState {
     RECORDED_COMPLETE,
     VERIFIED,
@@ -277,6 +285,10 @@ internal data class VNextProductionPlan(
     val mustChangeKeys: List<String>,
     val unresolvedMustChangeKeys: List<String>,
     val actions: List<VNextProductionPlanAction>,
+    val needsReviewKeys: List<String> = emptyList(),
+    val backupKeys: List<String> = emptyList(),
+    val targetKeys: List<String> = emptyList(),
+    val impactItems: List<VNextProductionPlanImpactItem> = emptyList(),
 )
 
 /**
@@ -648,6 +660,18 @@ internal fun mapProductionPlan(detail: PlanDetailView): VNextProductionPlan =
         affectedServiceCount = detail.affectedServiceCount,
         mustChangeKeys = detail.mustChangeKeys,
         unresolvedMustChangeKeys = detail.unresolvedMustChangeKeys,
+        needsReviewKeys = detail.needsReviewKeys,
+        backupKeys = detail.backupKeys,
+        targetKeys = detail.targetKeys,
+        impactItems = detail.impactItems.map { item ->
+            VNextProductionPlanImpactItem(
+                key = item.key,
+                nodeId = item.nodeId,
+                nodeName = item.nodeName,
+                capability = item.capability,
+                status = item.status,
+            )
+        },
         actions = detail.actions.map { action ->
             VNextProductionPlanAction(
                 id = action.id,
