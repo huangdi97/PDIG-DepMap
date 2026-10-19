@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -25,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -108,7 +110,7 @@ internal fun ProductionChangePlanScreen(
         }
 
         item {
-            ProductionChangeChoreography(current)
+            ProductionChangeChoreography(current, targetMasked)
         }
 
         item {
@@ -355,11 +357,94 @@ internal fun productionPlanActionGuidance(
     return "可记录这一步的完成情况；记录完成不等于结果已验证。"
 }
 
+internal enum class ProductionChangeStage {
+    CURRENT,
+    TRANSITION,
+    AFTER,
+}
+
+internal data class ProductionChangeImpactRow(
+    val key: String,
+    val nodeName: String?,
+    val capability: String,
+    val currentState: String,
+    val transitionState: String,
+    val afterState: String,
+)
+
+internal fun productionChangeImpactRows(plan: VNextProductionPlan): List<ProductionChangeImpactRow> {
+    val unresolved = plan.unresolvedMustChangeKeys.toSet()
+    val priority = mapOf(
+        "must_change" to 0,
+        "needs_review" to 1,
+        "backup_or_degraded" to 2,
+        "recorded" to 3,
+    )
+    return plan.impactItems
+        .sortedWith(
+            compareBy({ priority[it.status] ?: 9 }, { it.nodeName ?: "" }, { it.key }),
+        )
+        .map { item ->
+            val claimants = plan.actions.filter {
+                it.phase == "change" && item.key in it.resolvesImpactKeys
+            }
+            val current = when (item.status) {
+                "must_change" -> "必须处理"
+                "needs_review" -> "需要核对"
+                "backup_or_degraded" -> "备用 / 降级路径"
+                else -> "已记录影响"
+            }
+            val transition = when (item.status) {
+                "must_change" -> when {
+                    claimants.isEmpty() -> "未绑定处理步骤"
+                    claimants.any { !it.done } -> "待处理"
+                    else -> "处理已记录"
+                }
+                "needs_review" -> "等待核对"
+                "backup_or_degraded" -> "保持现有路径"
+                else -> "随计划观察"
+            }
+            val after = when (item.status) {
+                "must_change" ->
+                    if (item.key in unresolved) "计划仍未解决" else "计划已处理"
+                "needs_review" -> "计划仍需核对"
+                "backup_or_degraded" -> "计划保留该路径"
+                else -> "计划保持记录"
+            }
+            ProductionChangeImpactRow(
+                key = item.key,
+                nodeName = item.nodeName,
+                capability = item.capability,
+                currentState = current,
+                transitionState = transition,
+                afterState = after,
+            )
+        }
+}
+
+internal fun productionChangeImpactState(
+    row: ProductionChangeImpactRow,
+    stage: ProductionChangeStage,
+): String = when (stage) {
+    ProductionChangeStage.CURRENT -> row.currentState
+    ProductionChangeStage.TRANSITION -> row.transitionState
+    ProductionChangeStage.AFTER -> row.afterState
+}
+
 internal fun productionChangeStageSummary(plan: VNextProductionPlan): ProductionChangeStageSummary {
     val verified = plan.actions.count { it.verificationStatus == "verified" }
     val finished = plan.actions.count { it.done }
+    val impactCount = plan.impactItems.size.takeIf { it > 0 } ?: plan.targetKeys.size
+    val currentCoverage = buildList {
+        if (impactCount > 0) add("${impactCount} 项影响")
+        if (plan.mustChangeKeys.isNotEmpty()) add("${plan.mustChangeKeys.size} 项必须处理")
+        if (plan.needsReviewKeys.isNotEmpty()) add("${plan.needsReviewKeys.size} 项需核对")
+    }.joinToString(" · ")
     return ProductionChangeStageSummary(
-        current = "当前数据版本 ${plan.currentGraphRevision} · 分析基准 ${plan.lastAnalyzedGraphRevision}",
+        current = buildString {
+            append("当前数据版本 ${plan.currentGraphRevision} · 分析基准 ${plan.lastAnalyzedGraphRevision}")
+            if (currentCoverage.isNotBlank()) append(" · ").append(currentCoverage)
+        },
         transition = "${finished}/${plan.actions.size} 步已记录完成 · ${verified} 步已验证",
         after = if (plan.unresolvedMustChangeKeys.isNotEmpty())
             "${plan.unresolvedMustChangeKeys.size} 项必须处理事项未解决 · 仅计划预期"
@@ -369,11 +454,15 @@ internal fun productionChangeStageSummary(plan: VNextProductionPlan): Production
 }
 
 @Composable
-private fun ProductionChangeChoreography(plan: VNextProductionPlan) {
+internal fun ProductionChangeChoreography(
+    plan: VNextProductionPlan,
+    privacyMask: Boolean = false,
+) {
     val summary = productionChangeStageSummary(plan)
+    var selectedStage by remember(plan.id) { mutableStateOf(ProductionChangeStage.CURRENT) }
     Column(
         Modifier.fillMaxWidth().testTag("pdig.production-vnext.change.choreography"),
-        verticalArrangement = Arrangement.spacedBy(7.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
             "变更全程",
@@ -382,27 +471,48 @@ private fun ProductionChangeChoreography(plan: VNextProductionPlan) {
             fontWeight = FontWeight.Bold,
         )
         val stages = listOf(
-            "当前" to summary.current,
-            "过渡中" to summary.transition,
-            "完成后（计划）" to summary.after,
+            Triple(ProductionChangeStage.CURRENT, "当前", summary.current),
+            Triple(ProductionChangeStage.TRANSITION, "过渡中", summary.transition),
+            Triple(ProductionChangeStage.AFTER, "完成后（计划）", summary.after),
         )
         BoxWithConstraints(Modifier.fillMaxWidth()) {
             if (maxWidth < 600.dp) {
-                // Reference: phone uses a readable guided journey, not three
-                // tiny 110dp cards with 9sp authority/truth text.
                 Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                    stages.forEachIndexed { index, (title, detail) ->
-                        ProductionChangeStageCard(index, title, detail, Modifier.fillMaxWidth(), true)
+                    stages.forEachIndexed { index, (stage, title, detail) ->
+                        ProductionChangeStageCard(
+                            index = index,
+                            title = title,
+                            description = detail,
+                            modifier = Modifier.fillMaxWidth(),
+                            phone = true,
+                            selected = selectedStage == stage,
+                            onClick = { selectedStage = stage },
+                        )
                     }
                 }
             } else {
                 Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                    stages.forEachIndexed { index, (title, detail) ->
-                        ProductionChangeStageCard(index, title, detail, Modifier.weight(1f), false)
+                    stages.forEachIndexed { index, (stage, title, detail) ->
+                        ProductionChangeStageCard(
+                            index = index,
+                            title = title,
+                            description = detail,
+                            modifier = Modifier.weight(1f),
+                            phone = false,
+                            selected = selectedStage == stage,
+                            onClick = { selectedStage = stage },
+                        )
                     }
                 }
             }
         }
+
+        ProductionChangeImpactStageList(
+            plan = plan,
+            stage = selectedStage,
+            privacyMask = privacyMask,
+        )
+
         Text(
             "完成后只是计划预期，不是已经发生的事实。记录完成不等于验证完成；旧路径仍需按正式计划安全停用。",
             color = PdigV2Colors.TextMuted,
@@ -418,12 +528,19 @@ private fun ProductionChangeStageCard(
     description: String,
     modifier: Modifier,
     phone: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
 ) {
     Surface(
-        modifier = modifier.testTag("pdig.production-vnext.change.stage.$index"),
-        color = if (index == 1) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
+        modifier = modifier
+            .selectable(selected = selected, onClick = onClick, role = Role.Tab)
+            .testTag("pdig.production-vnext.change.stage.$index"),
+        color = if (selected) PdigV2Colors.PrimarySoft else PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
-        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+        border = BorderStroke(
+            if (selected) 2.dp else 1.dp,
+            if (selected) PdigV2Colors.PrimaryBright else PdigV2Colors.BorderSubtle,
+        ),
     ) {
         Row(
             Modifier.padding(if (phone) 12.dp else 9.dp),
@@ -431,16 +548,107 @@ private fun ProductionChangeStageCard(
         ) {
             Text(
                 "${index + 1}",
-                color = if (index == 1) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
+                color = if (selected) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
                 fontSize = if (phone) 14.sp else 11.sp,
                 fontWeight = FontWeight.Bold,
             )
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, color = PdigV2Colors.TextPrimary,
+                Text(
+                    title,
+                    color = PdigV2Colors.TextPrimary,
                     fontWeight = FontWeight.Bold,
-                    fontSize = if (phone) 13.sp else 11.sp)
-                Text(description, color = PdigV2Colors.TextSecondary,
-                    fontSize = if (phone) 11.sp else 10.sp)
+                    fontSize = if (phone) 13.sp else 11.sp,
+                )
+                Text(
+                    description,
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = if (phone) 11.sp else 10.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductionChangeImpactStageList(
+    plan: VNextProductionPlan,
+    stage: ProductionChangeStage,
+    privacyMask: Boolean,
+) {
+    val rows = productionChangeImpactRows(plan)
+    val stageTitle = when (stage) {
+        ProductionChangeStage.CURRENT -> "当前已记录影响"
+        ProductionChangeStage.TRANSITION -> "过渡中的处理状态"
+        ProductionChangeStage.AFTER -> "完成后计划投影"
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.production-vnext.change.impact-stage"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(
+            Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Text(
+                stageTitle,
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            if (rows.isEmpty()) {
+                Text(
+                    "当前计划没有保存逐项影响记录；这不表示没有影响，也不会据此推断安全。",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                )
+            } else {
+                rows.forEachIndexed { index, row ->
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .testTag("pdig.production-vnext.change.impact-row.$index"),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Column(
+                            Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                if (privacyMask) {
+                                    "受影响对象（已遮蔽）"
+                                } else {
+                                    row.nodeName?.takeIf { it.isNotBlank() } ?: "已记录对象"
+                                },
+                                color = PdigV2Colors.TextPrimary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                            Text(
+                                productionCapabilityLabel(row.capability),
+                                color = PdigV2Colors.TextMuted,
+                                fontSize = 10.sp,
+                            )
+                        }
+                        Text(
+                            productionChangeImpactState(row, stage),
+                            color = if (
+                                productionChangeImpactState(row, stage).contains("未解决") ||
+                                productionChangeImpactState(row, stage).contains("必须处理")
+                            ) {
+                                PdigV2Colors.Critical
+                            } else {
+                                PdigV2Colors.TextSecondary
+                            },
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
         }
     }
@@ -474,7 +682,7 @@ private fun ChangePlanTruthStrip(plan: VNextProductionPlan) {
 }
 
 @Composable
-private fun ChangePlanAuthorityState(
+internal fun ChangePlanAuthorityState(
     plan: VNextProductionPlan,
     canReanalyze: Boolean,
     onReanalyze: () -> Unit,
