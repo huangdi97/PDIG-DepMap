@@ -18,8 +18,16 @@ object SchemaVersion {
     /** Production application runtime explicitly supports the v4 physical schema. */
     val latestApplication: Int = LATEST_SCHEMA_VERSION
 
-    /** 支持的 DB 迁移链。 */
-    val migrations: List<Int> = listOf(1, 2, 3, 4)
+    /**
+     * Frozen cross-platform logical migration contract.
+     *
+     * v4 is an Android Production application/physical widening layer; it does
+     * not silently rewrite the portable Logical Schema v3 conformance oracle.
+     */
+    val migrations: List<Int> = listOf(1, 2, 3)
+
+    /** Application/physical migration chain available to the Android runtime. */
+    val applicationMigrations: List<Int> = listOf(1, 2, 3, 4)
 
     /** Graph payload 版本契约。 */
     val payloadKind: String = CanonicalSpec.GRAPH_PAYLOAD_KIND
@@ -42,7 +50,7 @@ object SchemaVersion {
     )
 
     /** 必须被拒绝的 schema 版本（不得猜测兼容）。 */
-    val rejectedSchemaVersions: List<Int> = listOf(0, 5, 99, 100)
+    val rejectedSchemaVersions: List<Int> = listOf(0, 4, 99, 100)
 
     /** 必须被拒绝的 payload 版本。 */
     val rejectedPayloadVersions: List<Int> = listOf(0, 4, 99)
@@ -70,7 +78,10 @@ object SchemaVersion {
      * 未来版本一律拒绝。
      * 注意：这里**不做**"也许能读"的猜测 —— 前向不兼容是产品决策，不是工程便利。
      */
-    fun acceptsSchemaVersion(v: Int): Boolean = v in 1..latestApplication
+    fun acceptsSchemaVersion(v: Int): Boolean = v in 1..current
+
+    /** Runtime-only physical schema acceptance; separate from the logical contract. */
+    fun acceptsApplicationSchemaVersion(v: Int): Boolean = v in 1..latestApplication
 
     fun acceptsPayloadVersion(v: Int): Boolean = v == payloadVersion || v in payloadMigratableFrom
 }
