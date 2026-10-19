@@ -509,8 +509,8 @@ private fun ProductionInfrastructure(
         ProductionSection("支付工具")
         if (visiblePaymentAssets.isEmpty()) {
             ProductionEmpty(
-                if (selectedRegion == null) "没有已确认的 payment_instrument。"
-                else "该地区当前没有已确认的 payment_instrument。"
+                if (selectedRegion == null) "没有已确认的支付工具。"
+                else "该地区当前没有已确认的支付工具。"
             )
         } else {
             visiblePaymentAssets.forEach { card ->
