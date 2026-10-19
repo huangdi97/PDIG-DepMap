@@ -116,7 +116,18 @@ internal fun ProductionChangePlanScreen(
         }
 
         item {
-            ChangePlanAuthorityState(current)
+            ChangePlanAuthorityState(
+                plan = current,
+                canReanalyze = gateway != null,
+                onReanalyze = {
+                    error = null
+                    try {
+                        plan = gateway!!.reanalyzePlan(current.id)
+                    } catch (_: Throwable) {
+                        error = "重新分析未完成；计划仍保持阻断状态。"
+                    }
+                },
+            )
         }
 
         if (current.unresolvedMustChangeKeys.isNotEmpty()) {
@@ -463,7 +474,11 @@ private fun ChangePlanTruthStrip(plan: VNextProductionPlan) {
 }
 
 @Composable
-private fun ChangePlanAuthorityState(plan: VNextProductionPlan) {
+private fun ChangePlanAuthorityState(
+    plan: VNextProductionPlan,
+    canReanalyze: Boolean,
+    onReanalyze: () -> Unit,
+) {
     val stale = plan.effectiveState == "needs_revalidation" ||
         plan.currentGraphRevision != plan.lastAnalyzedGraphRevision
     Surface(
@@ -496,6 +511,28 @@ private fun ChangePlanAuthorityState(plan: VNextProductionPlan) {
                     color = PdigV2Colors.Critical,
                     fontSize = 10.sp,
                 )
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .defaultMinSize(minHeight = 48.dp)
+                        .then(
+                            if (canReanalyze) {
+                                Modifier
+                                    .clickable(onClick = onReanalyze)
+                                    .testTag("pdig.production-vnext.change.reanalyze")
+                            } else Modifier
+                        ),
+                    color = if (canReanalyze) PdigV2Colors.PrimarySoft else PdigV2Colors.SurfaceRaised,
+                    shape = RoundedCornerShape(VRadius.Md),
+                ) {
+                    Text(
+                        if (canReanalyze) "重新分析当前影响" else "当前无法重新分析",
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+                        color = if (canReanalyze) PdigV2Colors.PrimaryText else PdigV2Colors.TextMuted,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
     }
