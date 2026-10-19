@@ -5,6 +5,7 @@ import com.pdig.app.data.DependencyRow
 import com.pdig.app.data.DriftRow
 import com.pdig.app.data.NodeRow
 import com.pdig.app.data.PlanDetailView
+import com.pdig.app.data.PlanImpactItemView
 import com.pdig.app.data.PlanRow
 import com.pdig.app.data.ProposalRow
 import com.pdig.app.data.SourceRow
@@ -602,6 +603,36 @@ class ProductionVNextReadModelTest {
             unresolvedMustChangeKeys = listOf("svc-1|payment"),
             readiness = PlanReadiness.REVIEW_REQUIRED,
             affectedServiceCount = 1,
+            needsReviewKeys = listOf("svc-2|authentication"),
+            backupKeys = listOf("svc-3|recovery"),
+            targetKeys = listOf(
+                "svc-1|payment",
+                "svc-2|authentication",
+                "svc-3|recovery",
+            ),
+            impactItems = listOf(
+                PlanImpactItemView(
+                    key = "svc-1|payment",
+                    nodeId = "svc-1",
+                    nodeName = "支付服务",
+                    capability = "payment",
+                    status = "must_change",
+                ),
+                PlanImpactItemView(
+                    key = "svc-2|authentication",
+                    nodeId = "svc-2",
+                    nodeName = "登录服务",
+                    capability = "authentication",
+                    status = "needs_review",
+                ),
+                PlanImpactItemView(
+                    key = "svc-3|recovery",
+                    nodeId = "svc-3",
+                    nodeName = "备用邮箱",
+                    capability = "recovery",
+                    status = "backup_or_degraded",
+                ),
+            ),
         )
 
         val mapped = mapProductionPlan(detail)
@@ -613,5 +644,10 @@ class ProductionVNextReadModelTest {
         assertEquals("change", action.phase)
         assertEquals("review_required", mapped.readiness)
         assertEquals(listOf("svc-1|payment"), mapped.unresolvedMustChangeKeys)
+        assertEquals(listOf("svc-2|authentication"), mapped.needsReviewKeys)
+        assertEquals(listOf("svc-3|recovery"), mapped.backupKeys)
+        assertEquals(3, mapped.impactItems.size)
+        assertEquals("支付服务", mapped.impactItems.first().nodeName)
+        assertEquals("must_change", mapped.impactItems.first().status)
     }
 }
