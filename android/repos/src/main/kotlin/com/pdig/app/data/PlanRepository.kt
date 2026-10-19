@@ -89,7 +89,7 @@ class PlanRepository(
     private fun scenarioImpactCapabilities(scenarioId: String): List<Capability> =
         ScenarioRegistry.get(scenarioId)
             ?.supportedCapabilities
-            ?.mapNotNull(Capability::fromWire)
+            ?.mapNotNull { wire -> Capability.fromWire(wire) }
             ?.distinct()
             ?.takeIf { it.isNotEmpty() }
             ?: listOf(Capability.PAYMENT)
