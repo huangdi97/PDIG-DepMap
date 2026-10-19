@@ -302,16 +302,31 @@ class PlanRepository(
                     if (!pAction.done) throw IllegalStateException("action_missing_prerequisite")
                 }
             }
+            val snapshot = driver.prepare(
+                "SELECT impact_snapshot_json FROM change_plans WHERE id = ?",
+            ).get(planId)?.str("impact_snapshot_json")
+            val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
+            val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
+            val unresolved = unresolvedMustChangeKeys(actions, mustChangeKeys)
+            val scopeReadiness = computeReadiness(
+                plan.copy(actions = actions),
+                mustChangeKeys,
+                needsReviewKeys,
+                snapshot,
+            )
+            if (!planActionCompletionAllowedByScope(
+                    scopeReadiness,
+                    actions[idx],
+                    unresolved,
+                )
+            ) {
+                throw IllegalStateException("action_scope_blocked")
+            }
             if (!phoneRetirementVerificationSatisfied(plan.scenario, actionId, actions)) {
                 throw IllegalStateException("verification_prerequisite_not_met")
             }
             if (plan.scenario == "replace_phone_number" && actionId == "rpn-change-2") {
-                val snapshot = driver.prepare(
-                    "SELECT impact_snapshot_json FROM change_plans WHERE id = ?",
-                ).get(planId)?.str("impact_snapshot_json")
-                val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
-                val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
-                if (unresolvedMustChangeKeys(actions, mustChangeKeys).isNotEmpty()) {
+                if (unresolved.isNotEmpty()) {
                     throw IllegalStateException("unresolved_must_change")
                 }
                 if (!phoneRetirementScopeReady(plan, mustChangeKeys, needsReviewKeys, snapshot)) {
