@@ -95,7 +95,7 @@ class PlanSupportClaimingTest {
             reconciled.single().resolvesImpactKeys,
         )
         assertEquals(
-            listOf("service-b|authentication"),
+            listOf("account-a|recovery", "service-b|authentication"),
             unresolvedMustChangeKeys(
                 reconciled,
                 listOf("account-a|recovery", "service-b|authentication"),
