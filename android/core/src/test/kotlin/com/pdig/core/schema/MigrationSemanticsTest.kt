@@ -187,6 +187,20 @@ class MigrationSemanticsTest {
     }
 
     @Test
+    fun supportedV4DatabaseRejectsLegacyV3TargetWithoutCallingItFutureSchema() {
+        migrate(
+            driver,
+            "2026-01-01T00:00:00Z",
+            targetVersion = LATEST_SCHEMA_VERSION,
+        )
+        val err = assertFailsWith<IllegalStateException> {
+            migrate(driver, "2026-01-02T00:00:00Z")
+        }
+        assertTrue(err.message!!.contains("newer than target (3)"))
+        assertTrue(!err.message!!.contains("newer than supported"))
+    }
+
+    @Test
     fun v1IntroducesFoundationTables() {
         driver.transaction {
             for (sql in SCHEMA_V1_STATEMENTS) driver.exec(sql)
