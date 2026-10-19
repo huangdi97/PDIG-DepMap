@@ -13,7 +13,6 @@ import com.pdig.core.json.JsonWriter
 import com.pdig.core.plan.computePlanReadiness
 import com.pdig.core.plan.countUnresolvedMustChange
 import com.pdig.core.plan.unresolvedMustChangeKeys
-import com.pdig.core.plan.claimUnassignedMustChangeKeys
 import com.pdig.core.scenario.ScenarioRegistry
 import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.generated.IdentityAnchorSubtype
@@ -273,24 +272,6 @@ class PlanRepository(
         }
         return planDetail(planId) ?: throw IllegalStateException("entity_not_found")
     }
-
-    private fun claimScenarioMustChangeKeys(
-        scenario: String,
-        actions: List<PlanAction>,
-        mustChangeKeys: List<String>,
-    ): List<PlanAction> =
-        claimUnassignedMustChangeKeys(
-            actions = actions,
-            keys = mustChangeKeys,
-            // rpn-change-2 retires the old number. It must never be allowed to
-            // "resolve" newly discovered migration impacts merely because it is
-            // the next empty CHANGE action after rpn-change-1 was completed.
-            eligibleActionIds = if (scenario == "replace_phone_number") {
-                setOf("rpn-change-1")
-            } else {
-                null
-            },
-        )
 
     /** 完成动作：done=true。verification 仍为 pending —— done ≠ verified。 */
     fun completeAction(planId: String, actionId: String) {
