@@ -88,6 +88,9 @@ class PlanRepository(
         val planId = "plan-" + sha256Hex(req.scenarioId + "|" + req.targetNodeId + "|" + now).take(16)
         val revision = graph.graphRevision()
         val impact = graph.impactFor(req.targetNodeId)
+        require(graph.graphRevision() == revision) {
+            "graph_changed_during_plan_analysis"
+        }
         val mustChangeKeys = keysOfStatus(impact, ImpactTargetStatus.MUST_CHANGE)
         val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
         val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
@@ -196,7 +199,11 @@ class PlanRepository(
         val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
         require(!ChangePlanMachine.isFrozen(plan.workflowState)) { "plan_frozen" }
         val targetNodeId = plan.targetNodeId ?: throw IllegalStateException("plan_target_missing")
+        val analyzedRevision = graph.graphRevision()
         val impact = graph.impactFor(targetNodeId)
+        require(graph.graphRevision() == analyzedRevision) {
+            "graph_changed_during_plan_analysis"
+        }
         val mustChangeKeys = keysOfStatus(impact, ImpactTargetStatus.MUST_CHANGE)
         val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
         val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
@@ -227,7 +234,7 @@ class PlanRepository(
                 """.trimIndent(),
             ).run(
                 snapshot,
-                graph.graphRevision(),
+                analyzedRevision,
                 JsonWriter.write(Json.Arr(actions.map { planActionToJson(it) })),
                 now,
                 planId,
