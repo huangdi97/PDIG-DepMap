@@ -176,6 +176,8 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
                     "method" to Json.Str(v.method.wire),
                     "status" to Json.Str(v.status.wire),
                     "evidenceRefs" to Json.Arr(v.evidenceRefs.map { Json.Str(it) }),
+                    "expectedFromNodeId" to (v.expectedFromNodeId?.let(Json::Str) ?: Json.Null),
+                    "expectedToNodeId" to (v.expectedToNodeId?.let(Json::Str) ?: Json.Null),
                 ),
             )
         } ?: Json.Null),
@@ -195,6 +197,8 @@ internal fun planActionsFromJson(raw: String?): List<PlanAction> {
                         ?: ActionVerificationStatus.PENDING,
                     evidenceRefs = ((vo["evidenceRefs"] as? Json.Arr)?.items)
                         ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
+                    expectedFromNodeId = (vo["expectedFromNodeId"] as? Json.Str)?.value,
+                    expectedToNodeId = (vo["expectedToNodeId"] as? Json.Str)?.value,
                 )
             }
             PlanAction(
