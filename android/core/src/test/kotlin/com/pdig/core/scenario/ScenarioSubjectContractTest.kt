@@ -25,5 +25,20 @@ class ScenarioSubjectContractTest {
 
         assertEquals("identity_anchor", template.subjectKind)
         assertEquals("phone_number", template.subjectSubtype)
+        assertEquals(
+            listOf("access", "authentication", "recovery", "communication"),
+            template.supportedCapabilities,
+        )
+    }
+
+    @Test
+    fun paymentScenarioImpactScopeRemainsPaymentOnly() {
+        listOf(
+            "replace_payment_card",
+            "expiring_payment_card",
+            "close_payment_instrument",
+        ).forEach { id ->
+            assertEquals(listOf("payment"), ScenarioRegistry.get(id)?.supportedCapabilities)
+        }
     }
 }
