@@ -205,6 +205,53 @@ class ProductionChangeStageSummaryTest {
     }
 
     @Test
+    fun unboundMustChangeRequiresReplanAndShiftsFocusedActionIndex() {
+        val action = VNextProductionPlanAction(
+            id = "change",
+            title = "迁移服务",
+            phase = "change",
+            done = false,
+            verificationStatus = "pending",
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
+        val plan = VNextProductionPlan(
+            id = "plan-unbound",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 7,
+            lastAnalyzedGraphRevision = 7,
+            currentGraphRevision = 7,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "blocked",
+            affectedServiceCount = 1,
+            mustChangeKeys = listOf("account-b|authentication"),
+            unresolvedMustChangeKeys = listOf("account-b|authentication"),
+            actions = listOf(action),
+        )
+
+        assertEquals(
+            listOf("account-b|authentication"),
+            productionUnboundMustChangeKeys(plan),
+        )
+        // Base 5 + unresolved banner + replan banner.
+        assertEquals(7, productionFocusedActionLazyIndex(plan, "change", false))
+        assertEquals(8, productionFocusedActionLazyIndex(plan, "change", true))
+
+        val claimed = plan.copy(
+            actions = listOf(action.copy(resolvesImpactKeys = listOf("account-b|authentication"))),
+        )
+        assertTrue(productionUnboundMustChangeKeys(claimed).isEmpty())
+        // Replan banner disappears; only unresolved banner remains.
+        assertEquals(6, productionFocusedActionLazyIndex(claimed, "change", false))
+    }
+
+    @Test
     fun currentAndTransitionFollowAuthoritativePlanWhileAfterRemainsOnlyProjection() {
         val plan = VNextProductionPlan(
             id = "plan-1",
