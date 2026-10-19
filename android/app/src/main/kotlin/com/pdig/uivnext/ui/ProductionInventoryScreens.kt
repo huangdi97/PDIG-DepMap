@@ -490,24 +490,39 @@ internal fun ProductionGenericObjectDetailScreen(
         } else {
             val impactMetrics = productionImpactMetrics(impact)
             item {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    impactMetrics.forEach { (count, label) ->
-                        Surface(
-                            modifier = Modifier.weight(1f),
-                            color = PdigV2Colors.Surface,
-                            shape = RoundedCornerShape(VRadius.Md),
-                            border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
-                        ) {
-                            Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                                Text(count.toString(), color = PdigV2Colors.TextPrimary,
-                                    fontSize = 17.sp, fontWeight = FontWeight.Bold)
-                                Text(label, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        impactMetrics.forEach { (count, label) ->
+                            Surface(
+                                modifier = Modifier.weight(1f),
+                                color = PdigV2Colors.Surface,
+                                shape = RoundedCornerShape(VRadius.Md),
+                                border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+                            ) {
+                                Column(
+                                    Modifier.padding(10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp),
+                                ) {
+                                    Text(
+                                        count.toString(),
+                                        color = PdigV2Colors.TextPrimary,
+                                        fontSize = 17.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(label, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                                }
                             }
                         }
                     }
+                    Text(
+                        "只统计当前正式影响分析中已记录的目标；0 不代表已证明没有未确认影响。",
+                        modifier = Modifier.testTag("pdig.production-vnext.impact-zero-boundary"),
+                        color = PdigV2Colors.TextMuted,
+                        fontSize = 9.sp,
+                    )
                 }
             }
 
