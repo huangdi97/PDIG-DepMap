@@ -105,7 +105,11 @@ class PlanRepository(
         // requirements to its first eligible CHANGE step exactly as the
         // reference rebase rule does; this declares scope only and never marks
         // an action complete or verified.
-        val actions = claimUnassignedMustChangeKeys(templateActions, mustChangeKeys)
+        val actions = claimScenarioMustChangeKeys(
+            req.scenarioId,
+            templateActions,
+            mustChangeKeys,
+        )
         val snapshot = JsonWriter.write(
             Json.Obj(
                 listOf(
@@ -243,7 +247,11 @@ class PlanRepository(
                 ),
             ),
         )
-        val actions = claimUnassignedMustChangeKeys(plan.actions, mustChangeKeys)
+        val actions = claimScenarioMustChangeKeys(
+            plan.scenario,
+            plan.actions,
+            mustChangeKeys,
+        )
         val now = Instant.now().toString()
         driver.transaction {
             driver.prepare(
@@ -265,6 +273,24 @@ class PlanRepository(
         }
         return planDetail(planId) ?: throw IllegalStateException("entity_not_found")
     }
+
+    private fun claimScenarioMustChangeKeys(
+        scenario: String,
+        actions: List<PlanAction>,
+        mustChangeKeys: List<String>,
+    ): List<PlanAction> =
+        claimUnassignedMustChangeKeys(
+            actions = actions,
+            keys = mustChangeKeys,
+            // rpn-change-2 retires the old number. It must never be allowed to
+            // "resolve" newly discovered migration impacts merely because it is
+            // the next empty CHANGE action after rpn-change-1 was completed.
+            eligibleActionIds = if (scenario == "replace_phone_number") {
+                setOf("rpn-change-1")
+            } else {
+                null
+            },
+        )
 
     /** 完成动作：done=true。verification 仍为 pending —— done ≠ verified。 */
     fun completeAction(planId: String, actionId: String) {
