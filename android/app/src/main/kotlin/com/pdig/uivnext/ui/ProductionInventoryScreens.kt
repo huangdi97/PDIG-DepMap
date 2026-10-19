@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ProductionVNextSession
 import com.pdig.uivnext.production.VNextProductionDependency
+import com.pdig.uivnext.production.VNextProductionImpact
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
@@ -487,17 +488,13 @@ internal fun ProductionGenericObjectDetailScreen(
                 )
             }
         } else {
-            val statusCounts = impact.targets.groupingBy { it.status }.eachCount()
+            val impactMetrics = productionImpactMetrics(impact)
             item {
                 Row(
                     Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    listOf(
-                        (statusCounts["must_change"] ?: 0) to "必须处理",
-                        (statusCounts["needs_review"] ?: 0) to "需要核对",
-                        (statusCounts["unknown"] ?: 0) to "未知",
-                    ).forEach { (count, label) ->
+                    impactMetrics.forEach { (count, label) ->
                         Surface(
                             modifier = Modifier.weight(1f),
                             color = PdigV2Colors.Surface,
@@ -686,6 +683,17 @@ private fun ProductionSecondaryObjectRoleSummaryCard(
             )
         }
     }
+}
+
+internal fun productionImpactMetrics(
+    impact: VNextProductionImpact,
+): List<Pair<Int, String>> {
+    val statusCounts = impact.targets.groupingBy { it.status }.eachCount()
+    return listOf(
+        (statusCounts["must_change"] ?: 0) to "必须处理",
+        (statusCounts["needs_review"] ?: 0) to "需要核对",
+        ((statusCounts["backup_path"] ?: 0) + (statusCounts["degraded"] ?: 0)) to "备用 / 降级",
+    )
 }
 
 @Composable
