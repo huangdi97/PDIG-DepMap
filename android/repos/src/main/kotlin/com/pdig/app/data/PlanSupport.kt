@@ -46,9 +46,19 @@ internal fun claimScenarioMustChangeKeys(
     scenario: String,
     actions: List<PlanAction>,
     mustChangeKeys: List<String>,
-): List<PlanAction> =
-    claimUnassignedMustChangeKeys(
-        actions = actions,
+): List<PlanAction> {
+    // Claims belong to a specific analyzed impact snapshot. If an impact
+    // disappears, carrying its key forward on a completed action would let a
+    // later reappearance look already resolved. Reconcile first, then claim
+    // genuinely new work from the current snapshot.
+    val currentKeys = mustChangeKeys.toSet()
+    val reconciled = actions.map { action ->
+        action.copy(
+            resolvesImpactKeys = action.resolvesImpactKeys.filter { it in currentKeys },
+        )
+    }
+    return claimUnassignedMustChangeKeys(
+        actions = reconciled,
         keys = mustChangeKeys,
         eligibleActionIds = if (scenario == "replace_phone_number") {
             setOf("rpn-change-1")
@@ -56,6 +66,7 @@ internal fun claimScenarioMustChangeKeys(
             null
         },
     )
+}
 
 internal fun keysOfStatus(
     impact: ImpactResult,
