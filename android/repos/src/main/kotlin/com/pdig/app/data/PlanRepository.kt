@@ -12,6 +12,7 @@ import com.pdig.core.json.Json
 import com.pdig.core.json.JsonWriter
 import com.pdig.core.plan.computePlanReadiness
 import com.pdig.core.plan.countUnresolvedMustChange
+import com.pdig.core.plan.claimUnassignedMustChangeKeys
 import com.pdig.core.scenario.ScenarioRegistry
 import com.pdig.core.domain.confirmedIdentityAnchorProfile
 import com.pdig.core.generated.IdentityAnchorSubtype
@@ -91,11 +92,16 @@ class PlanRepository(
         val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
         val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
             keysOfStatus(impact, ImpactTargetStatus.DEGRADED)
-        val actions = if (req.scenarioId == "replace_phone_number") {
+        val templateActions = if (req.scenarioId == "replace_phone_number") {
             buildReplacePhoneActions()
         } else {
             buildActionsFor(planId, impact, mustChangeKeys)
         }
+        // Phone uses a fixed Make-Before-Break DAG. Bind current must-change
+        // requirements to its first eligible CHANGE step exactly as the
+        // reference rebase rule does; this declares scope only and never marks
+        // an action complete or verified.
+        val actions = claimUnassignedMustChangeKeys(templateActions, mustChangeKeys)
         val snapshot = JsonWriter.write(
             Json.Obj(
                 listOf(
@@ -178,6 +184,56 @@ class PlanRepository(
             readiness = readiness,
             affectedServiceCount = mustChangeKeys.size + needsReviewKeys.size,
         )
+    }
+
+    /**
+     * Re-analyze an existing non-terminal plan against the current authoritative graph.
+     *
+     * This updates only the plan's impact snapshot, analyzed revision and explicit
+     * impact-key claims. It never completes actions, verifies them, or mutates Reality.
+     */
+    fun reanalyzePlan(planId: String): PlanDetailView {
+        val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+        require(!ChangePlanMachine.isFrozen(plan.workflowState)) { "plan_frozen" }
+        val targetNodeId = plan.targetNodeId ?: throw IllegalStateException("plan_target_missing")
+        val impact = graph.impactFor(targetNodeId)
+        val mustChangeKeys = keysOfStatus(impact, ImpactTargetStatus.MUST_CHANGE)
+        val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
+        val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
+            keysOfStatus(impact, ImpactTargetStatus.DEGRADED)
+        val snapshot = JsonWriter.write(
+            Json.Obj(
+                listOf(
+                    "mustChangeKeys" to Json.Arr(mustChangeKeys.map { Json.Str(it) }),
+                    "needsReviewKeys" to Json.Arr(needsReviewKeys.map { Json.Str(it) }),
+                    "backupKeys" to Json.Arr(backupKeys.map { Json.Str(it) }),
+                    "targetKeys" to Json.Arr(
+                        impact.targets.map { Json.Str(keyString(it.nodeId, it.capability.wire)) },
+                    ),
+                ),
+            ),
+        )
+        val actions = claimUnassignedMustChangeKeys(plan.actions, mustChangeKeys)
+        val now = Instant.now().toString()
+        driver.transaction {
+            driver.prepare(
+                """
+                UPDATE change_plans
+                   SET impact_snapshot_json = ?,
+                       last_analyzed_graph_revision = ?,
+                       action_items_json = ?,
+                       updated_at = ?
+                 WHERE id = ?
+                """.trimIndent(),
+            ).run(
+                snapshot,
+                graph.graphRevision(),
+                JsonWriter.write(Json.Arr(actions.map { planActionToJson(it) })),
+                now,
+                planId,
+            )
+        }
+        return planDetail(planId) ?: throw IllegalStateException("entity_not_found")
     }
 
     /** 完成动作：done=true。verification 仍为 pending —— done ≠ verified。 */
