@@ -17,6 +17,9 @@ internal interface VNextChangeActionGateway {
         effectiveDate: String? = null,
     ): VNextProductionPlan
 
+    fun reanalyzePlan(planId: String): VNextProductionPlan =
+        error("Production plan reanalysis unavailable")
+
     fun completeAction(planId: String, actionId: String): VNextProductionPlan
 
     fun verifyAction(planId: String, actionId: String): VNextProductionPlan
@@ -37,6 +40,11 @@ internal class AppContainerVNextChangeActionGateway(
                 effectiveDate = effectiveDate,
             ),
         )
+        return requirePlan(planId)
+    }
+
+    override fun reanalyzePlan(planId: String): VNextProductionPlan {
+        app.reanalyzePlan(planId)
         return requirePlan(planId)
     }
 
