@@ -176,13 +176,18 @@ class ProductionConsumerCopySourceContractTest {
         )
         assertEquals("访问 / 认证", accountSummary.firstLabel)
         assertEquals(1, accountSummary.firstCount)
-        assertEquals("恢复", accountSummary.secondLabel)
+        assertEquals("恢复此账户", accountSummary.secondLabel)
         assertEquals(1, accountSummary.secondCount)
         assertTrue(accountSummary.note.contains("0 不代表不存在未确认关系"))
 
         val emailSummary = productionSecondaryObjectRoleSummary(
             email,
-            listOf(dep("e-recovery", "email-a", "account-a", "recovery")),
+            listOf(
+                dep("e-recovery", "email-a", "account-a", "recovery"),
+                // An inbound recovery edge is not evidence that this email is
+                // itself being used as the recovery factor.
+                dep("e-inbound", "account-a", "email-a", "recovery"),
+            ),
         )
         assertEquals(1, emailSummary.firstCount)
         assertEquals(0, emailSummary.secondCount)
