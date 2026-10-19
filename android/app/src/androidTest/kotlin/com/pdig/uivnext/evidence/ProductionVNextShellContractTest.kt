@@ -144,7 +144,7 @@ class ProductionVNextShellContractTest {
             state = VNextProductionRecordState.VERIFIED,
             evidenceRefs = listOf("ev-timed"),
             occurredAt = "2026-10-19T13:30:00Z",
-            recordedAt = "2026-10-19T13:29:00Z",
+            recordedAt = "2026-10-18T23:59:00Z",
             verifiedAt = "2026-10-19T13:30:00Z",
         )
         val session = session(records = listOf(record))
@@ -157,7 +157,7 @@ class ProductionVNextShellContractTest {
         compose.runOnIdle { session.appState.navigate(VScreen.RECORDS) }
         compose.waitForIdle()
         compose.onNodeWithText(
-            "记录于 2026-10-19 · 验证于 2026-10-19",
+            "记录于 2026-10-18 · 验证于 2026-10-19",
             substring = true,
         ).assertExists()
         compose.onNodeWithText("发生时间未记录").assertDoesNotExist()
