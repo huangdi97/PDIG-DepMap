@@ -37,8 +37,25 @@ internal data class ProductionRecordPresentation(
     val timeLabel: String,
 )
 
-internal fun productionRecordPresentation(item: VNextProductionRecordItem): ProductionRecordPresentation =
-    ProductionRecordPresentation(
+internal fun productionRecordPresentation(item: VNextProductionRecordItem): ProductionRecordPresentation {
+    val recorded = item.recordedAt?.takeIf { it.isNotBlank() }?.take(10)
+    val verified = item.verifiedAt?.takeIf { it.isNotBlank() }?.take(10)
+    val legacyOccurrence = item.occurredAt?.takeIf { it.isNotBlank() }?.take(10)
+    val timeLabel = when (item.state) {
+        VNextProductionRecordState.VERIFIED -> when {
+            recorded != null && verified != null -> "记录于 $recorded · 验证于 $verified"
+            verified != null -> "验证于 $verified"
+            recorded != null -> "记录于 $recorded · 验证时间未记录"
+            legacyOccurrence != null -> legacyOccurrence
+            else -> "发生时间未记录"
+        }
+        else -> when {
+            recorded != null -> "记录于 $recorded"
+            legacyOccurrence != null -> legacyOccurrence
+            else -> "发生时间未记录"
+        }
+    }
+    return ProductionRecordPresentation(
         stateLabel = when (item.state) {
             VNextProductionRecordState.RECORDED_COMPLETE -> "已记录完成"
             VNextProductionRecordState.VERIFIED -> "已验证"
@@ -47,9 +64,9 @@ internal fun productionRecordPresentation(item: VNextProductionRecordItem): Prod
         },
         evidenceLabel = if (item.evidenceRefs.isEmpty()) "无验证证据引用"
             else "验证证据 ${item.evidenceRefs.size} 项",
-        timeLabel = item.occurredAt?.takeIf { it.isNotBlank() }?.take(10)
-            ?: "发生时间未记录",
+        timeLabel = timeLabel,
     )
+}
 
 /** A plan/action title is user-controlled text and may contain card/phone secrets. */
 internal fun productionVisiblePlanTitle(title: String, privacyMask: Boolean): String =
