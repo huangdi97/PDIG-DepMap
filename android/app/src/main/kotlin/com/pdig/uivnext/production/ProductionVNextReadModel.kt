@@ -318,7 +318,10 @@ internal class AppContainerVNextReadModelSource(
     }
 
     override fun impact(targetNodeId: String): VNextProductionImpact =
-        mapProductionImpact(targetNodeId, app.impactFor(targetNodeId))
+        mapProductionImpact(
+            targetNodeId,
+            app.impactForRecordedCapabilities(targetNodeId),
+        )
 
     override fun plan(planId: String): VNextProductionPlan? =
         app.planDetail(planId)?.let(::mapProductionPlan)
