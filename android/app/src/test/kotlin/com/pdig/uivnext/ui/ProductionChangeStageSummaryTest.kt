@@ -100,8 +100,8 @@ class ProductionChangeStageSummaryTest {
         val rows = productionChangeImpactRows(plan)
         val account = rows.first { it.key == keyA }
         assertEquals("必须处理", account.currentState)
-        assertEquals("处理已记录", account.transitionState)
-        assertEquals("计划已处理", account.afterState)
+        assertEquals("处理已记录 · 待验证", account.transitionState)
+        assertEquals("计划仍待验证", account.afterState)
         // done does not become verified in the stage projection.
         assertFalse(account.afterState.contains("已验证"))
 
@@ -109,6 +109,26 @@ class ProductionChangeStageSummaryTest {
         assertEquals("需要核对", service.currentState)
         assertEquals("等待核对", service.transitionState)
         assertEquals("计划仍需核对", service.afterState)
+
+        val failed = productionChangeImpactRows(
+            plan.copy(
+                actions = plan.actions.map {
+                    if (it.id == "change-a") it.copy(verificationStatus = "failed") else it
+                },
+            ),
+        ).first { it.key == keyA }
+        assertEquals("处理已记录 · 验证未通过", failed.transitionState)
+        assertEquals("计划验证未通过", failed.afterState)
+
+        val verified = productionChangeImpactRows(
+            plan.copy(
+                actions = plan.actions.map {
+                    if (it.id == "change-a") it.copy(verificationStatus = "verified") else it
+                },
+            ),
+        ).first { it.key == keyA }
+        assertEquals("处理已记录", verified.transitionState)
+        assertEquals("计划已处理", verified.afterState)
     }
 
     @Test
