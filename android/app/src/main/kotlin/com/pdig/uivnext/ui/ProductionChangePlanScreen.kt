@@ -414,6 +414,13 @@ internal fun productionPlanActionGuidance(
     if (!productionPhoneRetirementVerificationSatisfied(plan, action)) {
         return "新手机号恢复路径尚未验证；验证完成前不能停用旧手机号。"
     }
+    if (
+        plan.scenario == "replace_phone_number" &&
+        action.id == "rpn-change-2" &&
+        plan.retirementScopeReady != true
+    ) {
+        return "当前影响范围仍需处理或核对；达到已知范围可继续的状态前不能停用旧手机号。"
+    }
 
     if (plan.readiness == "blocked") {
         val claimedBlockers = action.resolvesImpactKeys
@@ -874,6 +881,11 @@ internal fun productionPlanCompletionEnabled(
         }
     ) return false
     if (!productionPhoneRetirementVerificationSatisfied(plan, action)) return false
+    if (
+        plan.scenario == "replace_phone_number" &&
+        action.id == "rpn-change-2" &&
+        plan.retirementScopeReady != true
+    ) return false
     if (plan.readiness != "blocked") return true
     if (action.phase == "prepare") return true
     return action.phase == "change" &&
