@@ -599,6 +599,11 @@ fun migrate(
     }
     ensureMetaTable(driver)
     var current = getSchemaVersion(driver)
+    if (current > LATEST_SCHEMA_VERSION) {
+        throw IllegalStateException(
+            "database schema_version ($current) is newer than supported ($LATEST_SCHEMA_VERSION)",
+        )
+    }
     if (current > targetVersion) {
         throw IllegalStateException(
             "database schema_version ($current) is newer than target ($targetVersion)",
