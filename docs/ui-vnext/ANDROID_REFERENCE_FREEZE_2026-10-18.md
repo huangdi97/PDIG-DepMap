@@ -43,6 +43,23 @@
 4. The master document `PDIG_v2.3-R1_..._2026-10-07.md` is absent from both local
    and remote trees.
 
+## Post-freeze branch state (2026-10-19)
+
+Six consumer-copy commits (`5ed50bbe..9b7cafd9`) landed on the remote branch after
+this freeze. A post-freeze candidate was built for review:
+
+| Item | Value |
+| --- | --- |
+| Branch / candidate tree | `2ee6892f5b19be02c63bd177718f404981fdb498` |
+| Post-freeze APK SHA-256 | `ae6ecbcf1828909a98ccf4b942241241ed4de191f913e2ca44acd4173520241b` |
+| Release | [post-freeze candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-postfreeze-candidate-2ee6892) |
+| Status | **PENDING visual re-acceptance** |
+
+This candidate includes the copy cleanup (`执行动作必须经过正式变更流程…`) and is
+not covered by the 2026-10-18 freeze. The approved artifact remains
+`cd8afab1…` on the 7aaa612c tree. Do not treat the branch head as frozen until the
+post-freeze candidate is accepted and a new freeze record is written.
+
 ## Change policy after freeze
 
 Any subsequent UI change to this candidate requires:

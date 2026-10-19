@@ -112,10 +112,11 @@ Evidence rules used:
 | Human visual acceptance | **ACCEPT (2026-10-18)** | User approved 1 / 2 / 3 in the final gate request. |
 | Android Reference Freeze | **APPROVED (2026-10-18)** | Frozen manifest: `docs/ui-vnext/ANDROID_REFERENCE_FREEZE_2026-10-18.md`. |
 | Production cutover | **APPROVED / CANDIDATE VERIFIED** | Two-key release APK `cd8afab1…` defaults to VNext; legacy control `287afd58…` opens Legacy. GitHub prerelease: [cutover candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612). |
+| Post-freeze copy candidate | **PENDING RE-ACCEPTANCE** | Branch `2ee6892f` includes copy cleanup `5ed50bbe..9b7cafd9`; APK `ae6ecbcf…` published as [post-freeze candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-postfreeze-candidate-2ee6892). Not covered by the 2026-10-18 freeze. |
 | Store release | `HOLD` | No production signing identity; candidate uses the non-production test key. |
 | Original 1536×1024 reference board | Missing | The in-repo 320×213 JPEG is truncated; no pixel-level diff, accepted as an exception. |
 | Master document `PDIG_v2.3-R1_..._2026-10-07.md` | Missing | Still absent from both local and remote trees. |
-| P2 copy/test items | Resolved | 851 dp contracts now 38/38; no remaining known consumer-facing jargon in the reviewed Production flows. |
+| P2 copy/test items | Resolved in branch | `9b7cafd9` removes remaining Production environment jargon and adds contract coverage; the resulting post-freeze candidate is pending visual re-acceptance. |
 
 The guardrail in §2 not to enable Production cutover was the pre-approval rule. It
 is superseded for this artifact by the explicit 2026-10-18 user approval recorded
