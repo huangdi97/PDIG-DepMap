@@ -374,8 +374,8 @@ class ProductionVNextShellContractTest {
         // Identity-subtype and identifier have separate confirmed evidence.
         // A generic text matcher is ambiguous when both correctly show the
         // same confirmation label. Assert their distinct proof surfaces.
-        compose.onNodeWithText("证据引用 1 项", substring = true).assertExists()
-        compose.onNodeWithText("标识证据 1 项", substring = true).assertExists()
+        compose.onNodeWithText("身份依据 1 项", substring = true).assertExists()
+        compose.onNodeWithText("标识依据 1 项", substring = true).assertExists()
         // On a shorter phone (851dp) the change entry is below the first fold,
         // so a LazyColumn item is not composed. Scroll to it explicitly rather
         // than depending on the CI 914dp viewport height.
