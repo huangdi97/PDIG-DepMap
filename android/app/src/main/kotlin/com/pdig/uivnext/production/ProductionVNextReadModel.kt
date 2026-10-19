@@ -752,6 +752,12 @@ internal fun buildProductionRecordTrace(
             )
         }
     }.sortedWith(
-        compareBy<VNextProductionRecordItem> { it.planId }
+        compareByDescending<VNextProductionRecordItem> {
+            it.verifiedAt?.takeIf(String::isNotBlank)
+                ?: it.recordedAt?.takeIf(String::isNotBlank)
+                ?: it.occurredAt?.takeIf(String::isNotBlank)
+                ?: ""
+        }
+            .thenBy { it.planId }
             .thenBy { it.actionId },
     )
