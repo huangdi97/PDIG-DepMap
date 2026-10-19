@@ -580,30 +580,37 @@ internal fun productionSecondaryObjectRoleSummary(
     item: VNextProductionObject,
     related: List<VNextProductionDependency>,
 ): ProductionSecondaryObjectRoleSummary {
-    fun capabilityCount(vararg values: String): Int =
-        related.count { it.capability in values.toSet() }
+    fun capabilityCount(
+        vararg values: String,
+        direction: ((VNextProductionDependency) -> Boolean)? = null,
+    ): Int {
+        val accepted = values.toSet()
+        return related.count { dep ->
+            dep.capability in accepted && (direction == null || direction(dep))
+        }
+    }
 
     return when (item.surfaceKind) {
         VNextProductionSurfaceKind.ACCOUNT -> ProductionSecondaryObjectRoleSummary(
             title = "账户控制关系",
             firstLabel = "访问 / 认证",
             firstCount = capabilityCount("access", "authentication"),
-            secondLabel = "恢复",
-            secondCount = capabilityCount("recovery"),
+            secondLabel = "恢复此账户",
+            secondCount = capabilityCount("recovery") { it.toId == item.id },
         )
         VNextProductionSurfaceKind.EMAIL_IDENTITY -> ProductionSecondaryObjectRoleSummary(
             title = "邮箱连续性角色",
             firstLabel = "恢复用途",
-            firstCount = capabilityCount("recovery"),
+            firstCount = capabilityCount("recovery") { it.fromId == item.id },
             secondLabel = "认证用途",
-            secondCount = capabilityCount("authentication"),
+            secondCount = capabilityCount("authentication") { it.fromId == item.id },
         )
         VNextProductionSurfaceKind.DEVICE -> ProductionSecondaryObjectRoleSummary(
             title = "设备访问角色",
-            firstLabel = "认证",
-            firstCount = capabilityCount("authentication"),
-            secondLabel = "访问",
-            secondCount = capabilityCount("access"),
+            firstLabel = "认证用途",
+            firstCount = capabilityCount("authentication") { it.fromId == item.id },
+            secondLabel = "访问用途",
+            secondCount = capabilityCount("access") { it.fromId == item.id },
         )
         VNextProductionSurfaceKind.SERVICE -> ProductionSecondaryObjectRoleSummary(
             title = "服务依赖方向",
