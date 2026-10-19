@@ -191,6 +191,15 @@ sealed interface ExportBackupResult {
      val effectiveDate: String? = null,
  )
  
+ data class PlanImpactItemView(
+     val key: String,
+     val nodeId: String,
+     val nodeName: String?,
+     val capability: String,
+     /** Persisted plan-snapshot status; never recomputed by UI. */
+     val status: String,
+ )
+
  data class PlanDetailView(
      val id: String,
      val scenario: String,
@@ -211,4 +220,5 @@ sealed interface ExportBackupResult {
      val needsReviewKeys: List<String> = emptyList(),
      val backupKeys: List<String> = emptyList(),
      val targetKeys: List<String> = emptyList(),
+     val impactItems: List<PlanImpactItemView> = emptyList(),
  )
