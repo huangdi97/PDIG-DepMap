@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui
 
+import com.pdig.uivnext.production.VNextProductionDependency
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import java.io.File
@@ -70,6 +71,74 @@ class ProductionConsumerCopySourceContractTest {
             "Production UI leaked engineering copy:\n${leaks.joinToString("\n")}",
             leaks.isEmpty(),
         )
+    }
+
+    @Test
+    fun secondaryObjectRoleSummariesUseConfirmedEdgesWithoutTreatingZeroAsAbsence() {
+        val account = VNextProductionObject(
+            id = "account-a",
+            kind = "account",
+            name = "账户 A",
+            surfaceKind = VNextProductionSurfaceKind.ACCOUNT,
+        )
+        val email = VNextProductionObject(
+            id = "email-a",
+            kind = "identity_anchor",
+            name = "邮箱 A",
+            surfaceKind = VNextProductionSurfaceKind.EMAIL_IDENTITY,
+        )
+        val service = VNextProductionObject(
+            id = "service-a",
+            kind = "service",
+            name = "服务 A",
+            surfaceKind = VNextProductionSurfaceKind.SERVICE,
+        )
+        fun dep(
+            id: String,
+            from: String,
+            to: String,
+            capability: String,
+        ) = VNextProductionDependency(
+            id = id,
+            fromId = from,
+            fromName = from,
+            relation = "linked",
+            toId = to,
+            toName = to,
+            capability = capability,
+            criticality = "unknown",
+        )
+
+        val accountSummary = productionSecondaryObjectRoleSummary(
+            account,
+            listOf(
+                dep("a-auth", "account-a", "service-a", "authentication"),
+                dep("a-recovery", "email-a", "account-a", "recovery"),
+            ),
+        )
+        assertEquals("访问 / 认证", accountSummary.firstLabel)
+        assertEquals(1, accountSummary.firstCount)
+        assertEquals("恢复", accountSummary.secondLabel)
+        assertEquals(1, accountSummary.secondCount)
+        assertTrue(accountSummary.note.contains("0 不代表不存在未确认关系"))
+
+        val emailSummary = productionSecondaryObjectRoleSummary(
+            email,
+            listOf(dep("e-recovery", "email-a", "account-a", "recovery")),
+        )
+        assertEquals(1, emailSummary.firstCount)
+        assertEquals(0, emailSummary.secondCount)
+        assertTrue(emailSummary.note.contains("0 不代表不存在"))
+
+        val serviceSummary = productionSecondaryObjectRoleSummary(
+            service,
+            listOf(
+                dep("s-in", "account-a", "service-a", "access"),
+                dep("s-out", "service-a", "email-a", "recovery"),
+            ),
+        )
+        assertEquals(1, serviceSummary.firstCount)
+        assertEquals(1, serviceSummary.secondCount)
     }
 
     @Test
