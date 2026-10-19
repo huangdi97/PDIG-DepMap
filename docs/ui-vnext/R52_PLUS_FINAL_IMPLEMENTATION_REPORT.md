@@ -136,10 +136,13 @@ changed. The same tests still pass at the CI 914 dp viewport.
 | Production advanced | 1080×2340 @440 | `c035ce9a` | 4 |
 | Production 1.5× | 1080×2400 @420 | `7aaa612c` | 4 |
 | Production cutover | 1080×2400 @420 | artifact `01d0de3a` | 6 |
-| **Total** | | | **159 PNG** |
+| Published artifact | 1080×2400 @420 | GitHub pre-release | 2 |
+| **Total** | | | **161 PNG** |
 
-The evidence root contains **344 files** including XML semantics, JSON
-manifests, logs and SHA lists. `production-1.5/04-records.png` and
+The evidence root contains **349 files** including XML semantics, JSON
+manifests, logs and SHA lists. The published pre-release APK was downloaded again,
+its hash matched the asset digest, and a fresh install opened Production VNext with
+no extras (`production-cutover/published/`). `production-1.5/04-records.png` and
 `production-cutover/04-records.png` are intentionally black: Production Records
 requires `FLAG_SECURE`; their XML proves the screen is rendered and no attempt was
 made to bypass the flag.

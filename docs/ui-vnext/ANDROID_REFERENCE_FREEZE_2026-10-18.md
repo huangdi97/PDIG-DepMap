@@ -21,7 +21,7 @@
 | GitHub prerelease | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
 | Evidence root | `artifacts/runtime-evidence/2026-10-17-r61-plus/` |
 | Evidence manifest | `artifacts/runtime-evidence/2026-10-17-r61-plus/MANIFEST.json` |
-| Evidence size at freeze | 344 files / 159 PNGs |
+| Evidence size at freeze | 349 files / 161 PNGs |
 | Acceptance record | `R52_PLUS_VISUAL_ACCEPTANCE_MATRIX.md` |
 
 ## Frozen visual scope

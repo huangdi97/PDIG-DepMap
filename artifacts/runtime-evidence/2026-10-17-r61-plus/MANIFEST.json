@@ -1,6 +1,6 @@
 {
   "project": "PDIG / DepMap",
-  "round": "R52+ (round 16 cutover approval)",
+  "round": "R52+ (post-cutover published artifact verification)",
   "dateLocal": "2026-10-18",
   "finalSourceHead": "7aaa612c6a6dfdd0ef431a8a67879f1caef63f96",
   "previewEvidenceSourceHead": "302a65d6 (phone 1.0); b85c7a57 (1.3x); 32541cc0 (landscape/tablet 1.3x); edc8b2f2 (phone 1.5x); e202a349 (tablet 1.5x); fe60a622 (Expanded 1.5x); 6b823fb6 (tablet); 7993f29d (Expanded); c035ce9a (Production advanced); 7aaa612c (Production 1.5x)",
@@ -21,15 +21,15 @@
     "productionPng": 4,
     "productionAdvancedPng": 4,
     "production15Png": 4,
-    "cutoverPng": 6,
+    "cutoverPng": 8,
     "dynamicTypePng": 6,
     "tabletDynamicTypePng": 4,
     "dynamicType15Png": 4,
     "tabletDynamicType15Png": 4,
     "expandedDynamicType15Png": 4,
     "landscapePng": 4,
-    "totalFiles": 344,
-    "totalBytes": 67997566
+    "totalFiles": 349,
+    "totalBytes": 69184368
   },
   "gates": {
     "HUMAN_ACCEPTED": "PENDING",
@@ -1233,6 +1233,31 @@
       "sha256": "0715fbad6544276e98d6063d3e73b4b99597db7693df0d807a607832de8f8702"
     },
     {
+      "path": "production-cutover/published/01-lock.png",
+      "bytes": 154892,
+      "sha256": "a902a71357cf8d3539e7202fe0f46fdf88c727ef7913e313d78a07f8744956e5"
+    },
+    {
+      "path": "production-cutover/published/02-vnext-now.png",
+      "bytes": 1008005,
+      "sha256": "312d48fb5525b7edf3a20a77e505b7f5fc7f65959f6b07c61c6bddec89f351a4"
+    },
+    {
+      "path": "production-cutover/published/02-vnext-now.xml",
+      "bytes": 22082,
+      "sha256": "1ed4e740fd33baf30c737ddb35c6d4307a3190a9a1041d202cd8b6989fc93628"
+    },
+    {
+      "path": "production-cutover/published/DOWNLOAD_VERIFICATION.txt",
+      "bytes": 529,
+      "sha256": "5d761627528dd9b2b2eb0b2b56fa381a7627d3d415a52563117ae77aa45d77ae"
+    },
+    {
+      "path": "production-cutover/published/MANIFEST.json",
+      "bytes": 1294,
+      "sha256": "3650a54d69a1a1e871a2f210f94c851233affc182726ba09be6d1251768c8734"
+    },
+    {
       "path": "production/01-cutover-locked.png",
       "bytes": 155137,
       "sha256": "b240d054781b97f4dcfafb0a319bb41687e4134bc3982b7809f540ba05835d91"
@@ -1764,5 +1789,6 @@
     "legacyControlSha256": "287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316",
     "signer": "CN=PDIG NON-PRODUCTION TEST KEY",
     "storeRelease": "HOLD"
-  }
+  },
+  "publishedVerification": "production-cutover/published/MANIFEST.json"
 }

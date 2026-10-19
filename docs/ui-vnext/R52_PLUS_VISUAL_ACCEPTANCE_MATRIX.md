@@ -16,9 +16,10 @@
 > Production: 1080×2400 @420 dpi, Pixel phone AVD, API36, installed
 > `com.pdig.app` APK.
 >
-> **Summary:** 159 PNGs across 13 sets (phone 1.0/1.3/1.5, landscape,
+> **Summary:** 161 PNGs across 13 sets (phone 1.0/1.3/1.5, landscape,
 > tablet 1.0/1.3/1.5, Expanded 1.0/1.5, Production lock/advanced/1.5/cutover);
-> **344 evidence files** including semantics, manifests, logs and SHA lists.
+> **349 evidence files** including semantics, manifests, logs and SHA lists. The
+> published pre-release APK was re-downloaded, hash-verified and fresh-installed.
 
 ## 1. Reference fidelity caveat (blocking pixel diff, not progression)
 
@@ -192,6 +193,17 @@ No defect found; this is verification evidence, not a new fix.
 BuildConfig dumps: `buildconfig-vnext.txt` (`vnext`/`true`) and
 `buildconfig-legacy.txt` (`legacy`/`false`). APK identity and hashes:
 `APK_IDENTITY.txt`.
+
+### 5b-7. Published artifact re-download (2 PNGs)
+
+| State | Capture | Observed |
+| --- | --- | --- |
+| Lock | `production-cutover/published/01-lock.png` | downloaded pre-release APK installed |
+| VNext Now | `02-vnext-now.png` | no extras → Production VNext; five destinations |
+
+Downloaded hashes match GitHub asset digests and `SHA256SUMS.txt`; installed
+`base.apk` hash equals the published candidate. Details in
+`production-cutover/published/DOWNLOAD_VERIFICATION.txt`.
 
 ### 5b-5. Production 1.5× (4 PNGs, source `7aaa612c`)
 
