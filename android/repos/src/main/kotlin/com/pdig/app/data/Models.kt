@@ -221,4 +221,6 @@ sealed interface ExportBackupResult {
      val backupKeys: List<String> = emptyList(),
      val targetKeys: List<String> = emptyList(),
      val impactItems: List<PlanImpactItemView> = emptyList(),
+     /** Repository-derived destructive-retirement scope gate; null for non-phone plans. */
+     val retirementScopeReady: Boolean? = null,
  )
