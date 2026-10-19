@@ -299,6 +299,15 @@ class PlanRepository(
             if (!phoneRetirementVerificationSatisfied(plan.scenario, actionId, actions)) {
                 throw IllegalStateException("verification_prerequisite_not_met")
             }
+            if (plan.scenario == "replace_phone_number" && actionId == "rpn-change-2") {
+                val snapshot = driver.prepare(
+                    "SELECT impact_snapshot_json FROM change_plans WHERE id = ?",
+                ).get(planId)?.str("impact_snapshot_json")
+                val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
+                if (unresolvedMustChangeKeys(actions, mustChangeKeys).isNotEmpty()) {
+                    throw IllegalStateException("unresolved_must_change")
+                }
+            }
             actions[idx] = actions[idx].copy(done = true)
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)
