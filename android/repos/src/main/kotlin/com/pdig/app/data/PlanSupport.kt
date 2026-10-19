@@ -6,6 +6,7 @@ import com.pdig.core.domain.PlanAction
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.ImpactTargetStatus
 import com.pdig.core.generated.PlanActionPhase
+import com.pdig.core.generated.PlanReadiness
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
@@ -66,6 +67,17 @@ internal fun claimScenarioMustChangeKeys(
             null
         },
     )
+}
+
+internal fun planActionCompletionAllowedByScope(
+    readiness: PlanReadiness,
+    action: PlanAction,
+    unresolvedMustChangeKeys: List<String>,
+): Boolean {
+    if (readiness != PlanReadiness.BLOCKED) return true
+    if (action.phase == PlanActionPhase.PREPARE) return true
+    return action.phase == PlanActionPhase.CHANGE &&
+        action.resolvesImpactKeys.any { it in unresolvedMustChangeKeys }
 }
 
 internal fun keysOfStatus(
