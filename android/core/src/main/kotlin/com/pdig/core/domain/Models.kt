@@ -116,11 +116,11 @@ fun canonicalGroupKey(
 data class ActionVerification(
     val method: ActionVerificationMethod,
     val status: ActionVerificationStatus,
-    /** Real authority write time; null for legacy/imported states without a timestamp. */
-    val verifiedAt: String? = null,
     val evidenceRefs: List<String> = emptyList(),
     val expectedFromNodeId: String? = null,
     val expectedToNodeId: String? = null,
+    /** Real authority write time; null for legacy/imported states without a timestamp. */
+    val verifiedAt: String? = null,
 )
 
 enum class ActionVerificationMethod(val wire: String) {
@@ -150,12 +150,12 @@ data class PlanAction(
     val title: String = "",
     val phase: PlanActionPhase,
     val done: Boolean = false,
-    /** Real authority write time; null for legacy/imported completions without a timestamp. */
-    val doneAt: String? = null,
     val resolvesImpactKeys: List<String> = emptyList(),
     val verification: ActionVerification? = null,
     /** v0.3.0 (Canonical vNext)：前置动作 id 列表（必须先完成）。 */
     val prerequisiteActionIds: List<String> = emptyList(),
+    /** Real authority write time; null for legacy/imported completions without a timestamp. */
+    val doneAt: String? = null,
 )
 
 data class ChangePlan(
