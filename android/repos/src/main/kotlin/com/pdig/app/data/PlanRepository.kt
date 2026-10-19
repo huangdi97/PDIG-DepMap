@@ -159,6 +159,8 @@ class PlanRepository(
             .get(planId)?.str("impact_snapshot_json")
         val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
         val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
+        val backupKeys = snapshotKeys(snapshot, "backupKeys")
+        val targetKeys = snapshotKeys(snapshot, "targetKeys")
         val current = graph.graphRevision()
         val unresolved = if (mustChangeKeys.isEmpty()) emptyList() else {
             val n = countUnresolvedMustChange(plan.actions, mustChangeKeys)
@@ -186,6 +188,9 @@ class PlanRepository(
             unresolvedMustChangeKeys = unresolved,
             readiness = readiness,
             affectedServiceCount = mustChangeKeys.size + needsReviewKeys.size,
+            needsReviewKeys = needsReviewKeys,
+            backupKeys = backupKeys,
+            targetKeys = targetKeys,
         )
     }
 
