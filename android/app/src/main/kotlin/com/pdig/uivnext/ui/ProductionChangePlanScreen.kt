@@ -256,7 +256,7 @@ internal fun ProductionChangePlanScreen(
                             else -> try {
                                 plan = gateway!!.verifyAction(latest.id, liveStep.id)
                             } catch (t: Throwable) {
-                                error = "验证未完成；done 与 verified 仍保持分离。"
+                                error = "验证未完成；操作完成与独立验证仍保持分离。"
                             }
                         }
                     }
