@@ -585,6 +585,11 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("账户身份", substring = true).assertExists()
         compose.onNodeWithText("备用 / 降级").assertExists()
         compose.onNodeWithText("未知").assertDoesNotExist()
+        compose.onNodeWithTag(
+            "pdig.production-vnext.impact-zero-boundary",
+            useUnmergedTree = true,
+        ).assertExists()
+        compose.onNodeWithText("0 不代表已证明没有未确认影响", substring = true).assertExists()
         compose.onNodeWithText("已确认关系").assertIsDisplayed()
     }
 
