@@ -452,7 +452,7 @@ internal fun ProductionManualEstablishScreen(
                             }
                         }
                         Text(
-                            "数据版本=${created.graphRevision}",
+                            "数据版本 ${created.graphRevision}",
                             color = PdigV2Colors.TextMuted,
                             fontSize = 9.sp,
                         )
