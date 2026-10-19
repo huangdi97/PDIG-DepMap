@@ -14,6 +14,7 @@ import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.generated.Relation
 import com.pdig.core.schema.LATEST_SCHEMA_VERSION
+import com.pdig.core.schema.getSchemaVersion
 import com.pdig.core.schema.migrate
 import com.pdig.uivnext.production.createProductionVNextSession
 import org.junit.Assert.assertEquals
@@ -41,6 +42,10 @@ class ProductionPhoneChangeAuthorityContractTest {
             driver,
             "2026-10-19T00:00:00.000Z",
             targetVersion = LATEST_SCHEMA_VERSION,
+        )
+        assertEquals(
+            LATEST_SCHEMA_VERSION,
+            getSchemaVersion(driver),
         )
         val app = AppContainer.forDriver(driver)
 
