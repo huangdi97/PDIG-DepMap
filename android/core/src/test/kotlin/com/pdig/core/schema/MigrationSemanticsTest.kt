@@ -36,6 +36,126 @@ class MigrationSemanticsTest {
     }
 
     @Test
+    fun defaultMigrationRemainsFrozenAtCanonicalV3() {
+        val version = migrate(driver, "2026-01-01T00:00:00Z")
+        assertEquals(SCHEMA_VERSION, version)
+        assertEquals(3, getSchemaVersion(driver))
+        assertTrue("failure_domains" !in tableNames())
+    }
+
+    @Test
+    fun explicitApplicationMigrationReachesV4AndCreatesVNextTables() {
+        val version = migrate(
+            driver,
+            "2026-01-01T00:00:00Z",
+            targetVersion = LATEST_SCHEMA_VERSION,
+        )
+        assertEquals(4, version)
+        assertEquals(4, getSchemaVersion(driver))
+        assertTrue("failure_domains" in tableNames())
+        assertTrue("provider_policies" in tableNames())
+    }
+
+    @Test
+    fun v4WidensRuntimeRelationAndCapabilityConstraints() {
+        migrate(
+            driver,
+            "2026-01-01T00:00:00Z",
+            targetVersion = LATEST_SCHEMA_VERSION,
+        )
+        val now = "2026-01-01T00:00:00Z"
+        driver.prepare(
+            """
+            INSERT INTO nodes (id, kind, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run("phone", "identity_anchor", "Phone", now, now)
+        driver.prepare(
+            """
+            INSERT INTO nodes (id, kind, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run("service", "service", "Service", now, now)
+        driver.prepare(
+            """
+            INSERT INTO nodes (id, kind, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run("account", "account", "Account", now, now)
+
+        driver.prepare(
+            """
+            INSERT INTO dependencies (
+              id, from_node, relation, to_node, capability, criticality, state, origin,
+              confirmed_at, last_verified_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run(
+            "dep-auth", "phone", "authenticates", "service", "authentication",
+            "required", "active", "manual", now, now, now, now,
+        )
+        driver.prepare(
+            """
+            INSERT INTO dependencies (
+              id, from_node, relation, to_node, capability, criticality, state, origin,
+              confirmed_at, last_verified_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run(
+            "dep-control", "account", "controls", "service", "access",
+            "required", "active", "manual", now, now, now, now,
+        )
+
+        assertEquals(
+            2,
+            driver.count(
+                "SELECT COUNT(*) FROM dependencies WHERE id IN ('dep-auth','dep-control')",
+            ),
+        )
+    }
+
+    @Test
+    fun v3ToV4PreservesExistingDependenciesWhileWideningConstraints() {
+        migrate(driver, "2026-01-01T00:00:00Z")
+        val now = "2026-01-01T00:00:00Z"
+        driver.prepare(
+            """
+            INSERT INTO nodes (id, kind, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run("card", "payment_instrument", "Card", now, now)
+        driver.prepare(
+            """
+            INSERT INTO nodes (id, kind, name, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run("account", "account", "Account", now, now)
+        driver.prepare(
+            """
+            INSERT INTO dependencies (
+              id, from_node, relation, to_node, capability, criticality, state, origin,
+              confirmed_at, last_verified_at, created_at, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """.trimIndent(),
+        ).run(
+            "legacy-dep", "card", "funding_source", "account", "payment",
+            "required", "active", "manual", now, now, now, now,
+        )
+
+        migrate(
+            driver,
+            "2026-01-02T00:00:00Z",
+            targetVersion = LATEST_SCHEMA_VERSION,
+        )
+
+        val row = driver.prepare("SELECT * FROM dependencies WHERE id = 'legacy-dep'").get()
+        assertEquals("card", row?.str("from_node"))
+        assertEquals("funding_source", row?.str("relation"))
+        assertEquals("payment", row?.str("capability"))
+        assertEquals(4, getSchemaVersion(driver))
+    }
+
+    @Test
     fun repeatedMigrationIsStrictlyNoOp() {
         migrate(driver, "2026-01-01T00:00:00Z")
         val afterFirst = driver.count("SELECT COUNT(*) FROM source_instances")
