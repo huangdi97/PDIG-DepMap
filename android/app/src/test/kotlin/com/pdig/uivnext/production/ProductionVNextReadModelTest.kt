@@ -574,6 +574,35 @@ class ProductionVNextReadModelTest {
     }
 
     @Test
+    fun stalePlanProjectsNeedsRevalidationWithoutRewritingStoredWorkflow() {
+        val detail = PlanDetailView(
+            id = "plan-stale",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = ChangePlanWorkflowState.IN_PROGRESS,
+            effectiveState = ChangePlanWorkflowState.REVIEW_REQUIRED,
+            baselineGraphRevision = 4,
+            lastAnalyzedGraphRevision = 5,
+            currentGraphRevision = 6,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            actions = emptyList(),
+            mustChangeKeys = emptyList(),
+            unresolvedMustChangeKeys = emptyList(),
+            readiness = PlanReadiness.REVIEW_REQUIRED,
+            affectedServiceCount = 0,
+        )
+
+        val mapped = mapProductionPlan(detail)
+
+        assertEquals("in_progress", mapped.workflowState)
+        assertEquals("needs_revalidation", mapped.effectiveState)
+        assertEquals(5, mapped.lastAnalyzedGraphRevision)
+        assertEquals(6, mapped.currentGraphRevision)
+    }
+
+    @Test
     fun productionPlanPreservesDoneNotVerified() {
         val detail = PlanDetailView(
             id = "plan-phone",
