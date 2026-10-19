@@ -17,6 +17,8 @@ on:
       - 'android/app/src/preview/**'
       - 'android/app/build.gradle.kts'
       - 'android/app/src/main/kotlin/com/pdig/app/**'
+      - 'android/core/**'
+      - 'android/repos/**'
 
 permissions:
   contents: read
