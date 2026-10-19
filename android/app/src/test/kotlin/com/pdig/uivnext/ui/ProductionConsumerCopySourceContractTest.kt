@@ -1,6 +1,8 @@
 package com.pdig.uivnext.ui
 
 import com.pdig.uivnext.production.VNextProductionDependency
+import com.pdig.uivnext.production.VNextProductionImpact
+import com.pdig.uivnext.production.VNextProductionImpactTarget
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import java.io.File
@@ -71,6 +73,62 @@ class ProductionConsumerCopySourceContractTest {
             "Production UI leaked engineering copy:\n${leaks.joinToString("\n")}",
             leaks.isEmpty(),
         )
+    }
+
+    @Test
+    fun impactMetricsNeverTurnUnknownIntoAZeroCount() {
+        val impact = VNextProductionImpact(
+            targetNodeId = "phone-a",
+            targets = listOf(
+                VNextProductionImpactTarget(
+                    nodeId = "account-a",
+                    nodeName = "账户 A",
+                    capability = "recovery",
+                    status = "must_change",
+                    depth = 1,
+                    reasonCode = "required_edge_no_alternative",
+                    reasonText = "required",
+                ),
+                VNextProductionImpactTarget(
+                    nodeId = "account-b",
+                    nodeName = "账户 B",
+                    capability = "authentication",
+                    status = "needs_review",
+                    depth = 1,
+                    reasonCode = "criticality_unknown",
+                    reasonText = "review",
+                ),
+                VNextProductionImpactTarget(
+                    nodeId = "service-a",
+                    nodeName = "服务 A",
+                    capability = "recovery",
+                    status = "backup_path",
+                    depth = 1,
+                    reasonCode = "confirmed_group_covered",
+                    reasonText = "backup",
+                ),
+                VNextProductionImpactTarget(
+                    nodeId = "service-b",
+                    nodeName = "服务 B",
+                    capability = "authentication",
+                    status = "degraded",
+                    depth = 1,
+                    reasonCode = "upstream_uncertain",
+                    reasonText = "degraded",
+                ),
+            ),
+            checklist = emptyList(),
+        )
+
+        assertEquals(
+            listOf(
+                1 to "必须处理",
+                1 to "需要核对",
+                2 to "备用 / 降级",
+            ),
+            productionImpactMetrics(impact),
+        )
+        assertTrue(productionImpactMetrics(impact).none { it.second == "未知" })
     }
 
     @Test
