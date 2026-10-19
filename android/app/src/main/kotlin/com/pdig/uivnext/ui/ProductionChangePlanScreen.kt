@@ -418,10 +418,18 @@ internal fun productionChangeImpactRows(plan: VNextProductionPlan): List<Product
                 "backup_or_degraded" -> "备用 / 降级路径"
                 else -> "已记录影响"
             }
+            val claimantVerificationFailed = claimants.any {
+                it.done && it.verificationStatus == "failed"
+            }
+            val claimantVerificationPending = claimants.any {
+                it.done && it.verificationStatus in setOf("pending", "evidence_suggested")
+            }
             val transition = when (item.status) {
                 "must_change" -> when {
                     claimants.isEmpty() -> "未绑定处理步骤"
                     claimants.any { !it.done } -> "待处理"
+                    claimantVerificationFailed -> "处理已记录 · 验证未通过"
+                    claimantVerificationPending -> "处理已记录 · 待验证"
                     else -> "处理已记录"
                 }
                 "needs_review" -> "等待核对"
@@ -429,8 +437,12 @@ internal fun productionChangeImpactRows(plan: VNextProductionPlan): List<Product
                 else -> "随计划观察"
             }
             val after = when (item.status) {
-                "must_change" ->
-                    if (item.key in unresolved) "计划仍未解决" else "计划已处理"
+                "must_change" -> when {
+                    item.key in unresolved -> "计划仍未解决"
+                    claimantVerificationFailed -> "计划验证未通过"
+                    claimantVerificationPending -> "计划仍待验证"
+                    else -> "计划已处理"
+                }
                 "needs_review" -> "计划仍需核对"
                 "backup_or_degraded" -> "计划保留该路径"
                 else -> "计划保持记录"
