@@ -314,14 +314,6 @@ class PlanRepository(
                 needsReviewKeys,
                 snapshot,
             )
-            if (!planActionCompletionAllowedByScope(
-                    scopeReadiness,
-                    actions[idx],
-                    unresolved,
-                )
-            ) {
-                throw IllegalStateException("action_scope_blocked")
-            }
             if (!phoneRetirementVerificationSatisfied(plan.scenario, actionId, actions)) {
                 throw IllegalStateException("verification_prerequisite_not_met")
             }
@@ -332,6 +324,17 @@ class PlanRepository(
                 if (!phoneRetirementScopeReady(plan, mustChangeKeys, needsReviewKeys, snapshot)) {
                     throw IllegalStateException("retirement_scope_not_ready")
                 }
+            }
+            // Generic scope policy runs after the destructive retirement-specific
+            // invariants so callers receive the precise fail-closed reason and no
+            // specialized safety gate can be shadowed by a generic blocker.
+            if (!planActionCompletionAllowedByScope(
+                    scopeReadiness,
+                    actions[idx],
+                    unresolved,
+                )
+            ) {
+                throw IllegalStateException("action_scope_blocked")
             }
             actions[idx] = actions[idx].copy(
                 done = true,
