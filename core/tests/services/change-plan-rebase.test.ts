@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   analyzePlanImpact,
+  claimUnassignedImpacts,
   ChangePlanRepository,
   DependencyGroupRepository,
   DependencyProposalRepository,
@@ -284,6 +285,60 @@ describe('ChangePlan Rebase（MVP03 PRB）', () => {
       `${service}|authentication|must_change`,
     ].sort())
     expect(snapshot.targets.some((t) => t.capability === 'payment')).toBe(false)
+  })
+
+  it('PRB-013: phone rebase never binds new migration work to retirement', () => {
+    const actions: PlanAction[] = [
+      {
+        id: 'rpn-change-1',
+        title: '添加新手机号并迁移关键账户',
+        detail: '',
+        phase: 'change',
+        done: true,
+        doneAt: '2026-10-19T00:00:00Z',
+        verification: {
+          method: 'future_observation',
+          status: 'verified',
+          verifiedAt: '2026-10-19T00:00:00Z',
+          evidenceRefs: ['ev-1'],
+        },
+        resolvesImpactKeys: ['account-a|recovery'],
+      },
+      {
+        id: 'rpn-change-2',
+        title: '停用旧手机号',
+        detail: '',
+        phase: 'change',
+        done: false,
+        doneAt: null,
+        verification: null,
+        resolvesImpactKeys: [],
+      },
+    ]
+    const snapshot = {
+      unavailable: [],
+      targets: [
+        {
+          nodeId: 'account-a',
+          capability: 'recovery' as const,
+          status: 'must_change',
+          reasonCode: 'required_path',
+        },
+        {
+          nodeId: 'account-b',
+          capability: 'authentication' as const,
+          status: 'must_change',
+          reasonCode: 'required_path',
+        },
+      ],
+      checklistLevels: [],
+    }
+
+    const projected = claimUnassignedImpacts(actions, snapshot, 'replace_phone_number')
+    expect(projected.find((a) => a.id === 'rpn-change-2')?.resolvesImpactKeys).toEqual([])
+    expect(projected.some((a) => a.resolvesImpactKeys?.includes('account-b|authentication'))).toBe(
+      false,
+    )
   })
 
   it('PRB-011: deterministic diff ordering（多目标差异排序确定，重复 rebase 无差异）', () => {
