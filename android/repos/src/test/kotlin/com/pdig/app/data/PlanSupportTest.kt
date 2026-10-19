@@ -6,6 +6,7 @@ import com.pdig.core.domain.ActionVerificationStatus
 import com.pdig.core.domain.PlanAction
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.PlanActionPhase
+import com.pdig.core.generated.PlanReadiness
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertEquals
@@ -91,6 +92,44 @@ class PlanSupportTest {
             projected.first { it.id == "rpn-change-1" }.resolvesImpactKeys,
         )
         assertTrue(projected.first { it.id == "rpn-change-2" }.resolvesImpactKeys.isEmpty())
+    }
+
+    @Test
+    fun blockedPlanAllowsOnlyPreparationOrChangeThatResolvesCurrentBlocker() {
+        val prepare = PlanAction(
+            id = "prepare",
+            phase = PlanActionPhase.PREPARE,
+        )
+        val resolving = PlanAction(
+            id = "change-resolving",
+            phase = PlanActionPhase.CHANGE,
+            resolvesImpactKeys = listOf("account-a|recovery"),
+        )
+        val unrelated = PlanAction(
+            id = "change-unrelated",
+            phase = PlanActionPhase.CHANGE,
+            resolvesImpactKeys = listOf("service-x|payment"),
+        )
+        val verify = PlanAction(
+            id = "verify",
+            phase = PlanActionPhase.VERIFY,
+        )
+
+        assertTrue(planActionCompletionAllowedByScope(
+            PlanReadiness.BLOCKED, prepare, listOf("account-a|recovery"),
+        ))
+        assertTrue(planActionCompletionAllowedByScope(
+            PlanReadiness.BLOCKED, resolving, listOf("account-a|recovery"),
+        ))
+        assertFalse(planActionCompletionAllowedByScope(
+            PlanReadiness.BLOCKED, unrelated, listOf("account-a|recovery"),
+        ))
+        assertFalse(planActionCompletionAllowedByScope(
+            PlanReadiness.BLOCKED, verify, listOf("account-a|recovery"),
+        ))
+        assertTrue(planActionCompletionAllowedByScope(
+            PlanReadiness.REVIEW_REQUIRED, unrelated, listOf("account-a|recovery"),
+        ))
     }
 
     @Test
