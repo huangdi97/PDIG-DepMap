@@ -112,6 +112,79 @@ class ProductionChangeStageSummaryTest {
     }
 
     @Test
+    fun oldPhoneRetirementRequiresVerifiedNewPathNotMerelyDoneVerificationStep() {
+        fun action(
+            id: String,
+            phase: String,
+            done: Boolean,
+            verification: String? = null,
+            prereqs: List<String> = emptyList(),
+        ) = VNextProductionPlanAction(
+            id = id,
+            title = id,
+            phase = phase,
+            done = done,
+            verificationStatus = verification,
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = prereqs,
+            resolvesImpactKeys = emptyList(),
+        )
+
+        val verifyPending = action(
+            id = "rpn-verify-1",
+            phase = "verify",
+            done = true,
+            verification = "pending",
+            prereqs = listOf("rpn-change-1"),
+        )
+        val retire = action(
+            id = "rpn-change-2",
+            phase = "change",
+            done = false,
+            prereqs = listOf("rpn-verify-1"),
+        )
+        val base = VNextProductionPlan(
+            id = "phone-plan",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 9,
+            lastAnalyzedGraphRevision = 9,
+            currentGraphRevision = 9,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "ready_with_known_scope",
+            affectedServiceCount = 1,
+            mustChangeKeys = emptyList(),
+            unresolvedMustChangeKeys = emptyList(),
+            actions = listOf(
+                action("rpn-prepare-1", "prepare", true),
+                action("rpn-change-1", "change", true, "pending", listOf("rpn-prepare-1")),
+                verifyPending,
+                retire,
+            ),
+        )
+
+        assertFalse(productionPhoneRetirementVerificationSatisfied(base, retire))
+        assertFalse(productionPlanCompletionEnabled(base, retire, true))
+        assertTrue(
+            productionPlanActionGuidance(retire, base, true)
+                .contains("验证完成前不能停用旧手机号"),
+        )
+
+        val verifiedPlan = base.copy(
+            actions = base.actions.map {
+                if (it.id == "rpn-verify-1") it.copy(verificationStatus = "verified") else it
+            },
+        )
+        val verifiedRetire = verifiedPlan.actions.first { it.id == "rpn-change-2" }
+        assertTrue(productionPhoneRetirementVerificationSatisfied(verifiedPlan, verifiedRetire))
+        assertTrue(productionPlanCompletionEnabled(verifiedPlan, verifiedRetire, true))
+    }
+
+    @Test
     fun currentAndTransitionFollowAuthoritativePlanWhileAfterRemainsOnlyProjection() {
         val plan = VNextProductionPlan(
             id = "plan-1",
