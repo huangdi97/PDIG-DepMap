@@ -10,6 +10,57 @@ import org.junit.Test
 
 class ProductionChangeStageSummaryTest {
     @Test
+    fun phoneRetirementRequiresRepositoryProjectedScopeReadiness() {
+        val verify = VNextProductionPlanAction(
+            id = "rpn-verify-1",
+            title = "验证新手机号恢复路径",
+            phase = "verify",
+            done = true,
+            verificationStatus = "verified",
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
+        val retirement = VNextProductionPlanAction(
+            id = "rpn-change-2",
+            title = "停用旧手机号",
+            phase = "change",
+            done = false,
+            verificationStatus = null,
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = listOf("rpn-verify-1"),
+            resolvesImpactKeys = emptyList(),
+        )
+        fun plan(scopeReady: Boolean?) = VNextProductionPlan(
+            id = "plan-retirement",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 9,
+            lastAnalyzedGraphRevision = 9,
+            currentGraphRevision = 9,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "review_required",
+            affectedServiceCount = 0,
+            mustChangeKeys = emptyList(),
+            unresolvedMustChangeKeys = emptyList(),
+            actions = listOf(verify, retirement),
+            retirementScopeReady = scopeReady,
+        )
+
+        assertFalse(productionPlanCompletionEnabled(plan(false), retirement, true))
+        assertFalse(productionPlanCompletionEnabled(plan(null), retirement, true))
+        assertTrue(productionPlanCompletionEnabled(plan(true), retirement, true))
+        assertTrue(
+            productionPlanActionGuidance(retirement, plan(false), true)
+                .contains("影响范围仍需处理或核对"),
+        )
+    }
+
+    @Test
     fun maskedTargetBlocksNewCardOrPhonePlanButCanOpenExistingPlanReadOnly() {
         assertFalse(productionChangeEntryEnabled(false, false, false))
         assertFalse(productionChangeEntryEnabled(false, true, true))
