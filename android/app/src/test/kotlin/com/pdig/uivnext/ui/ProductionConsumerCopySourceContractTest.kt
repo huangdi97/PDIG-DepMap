@@ -1,6 +1,9 @@
 package com.pdig.uivnext.ui
 
+import com.pdig.uivnext.production.VNextProductionObject
+import com.pdig.uivnext.production.VNextProductionSurfaceKind
 import java.io.File
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -67,6 +70,32 @@ class ProductionConsumerCopySourceContractTest {
             "Production UI leaked engineering copy:\n${leaks.joinToString("\n")}",
             leaks.isEmpty(),
         )
+    }
+
+    @Test
+    fun globalPrivacyMasksEveryProductionObjectIdentityLabel() {
+        val cases = listOf(
+            VNextProductionSurfaceKind.PAYMENT_ASSET to "支付工具（已遮蔽）",
+            VNextProductionSurfaceKind.PHONE_IDENTITY to "手机号身份（已遮蔽）",
+            VNextProductionSurfaceKind.EMAIL_IDENTITY to "邮箱身份（已遮蔽）",
+            VNextProductionSurfaceKind.ACCOUNT to "账户（已遮蔽）",
+            VNextProductionSurfaceKind.SERVICE to "服务（已遮蔽）",
+            VNextProductionSurfaceKind.DEVICE to "设备（已遮蔽）",
+            VNextProductionSurfaceKind.MEMBERSHIP to "会员 / 资格（已遮蔽）",
+            VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC to "身份对象（已遮蔽）",
+            VNextProductionSurfaceKind.CUSTOM_GENERIC to "自定义对象（已遮蔽）",
+        )
+
+        cases.forEach { (surface, expected) ->
+            val item = VNextProductionObject(
+                id = surface.name.lowercase(),
+                kind = "custom",
+                name = "敏感自定义名称",
+                surfaceKind = surface,
+            )
+            assertEquals(expected, productionVisibleObjectName(item, privacyMask = true))
+            assertEquals("敏感自定义名称", productionVisibleObjectName(item, privacyMask = false))
+        }
     }
 
     @Test
