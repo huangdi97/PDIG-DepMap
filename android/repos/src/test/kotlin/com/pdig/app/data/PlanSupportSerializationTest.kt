@@ -18,11 +18,13 @@ class PlanSupportSerializationTest {
             title = "等待新恢复路径证据",
             phase = PlanActionPhase.VERIFY,
             done = true,
+            doneAt = "2026-10-19T13:29:00Z",
             resolvesImpactKeys = listOf("account-1|recovery"),
             prerequisiteActionIds = listOf("change-1"),
             verification = ActionVerification(
                 method = ActionVerificationMethod.FUTURE_OBSERVATION,
                 status = ActionVerificationStatus.EVIDENCE_SUGGESTED,
+                verifiedAt = "2026-10-19T13:29:30Z",
                 evidenceRefs = listOf("ev-1", "ev-2"),
                 expectedFromNodeId = "phone-new",
                 expectedToNodeId = "account-1",
@@ -34,10 +36,12 @@ class PlanSupportSerializationTest {
 
         assertEquals(action.id, restored.id)
         assertEquals(action.done, restored.done)
+        assertEquals(action.doneAt, restored.doneAt)
         assertEquals(action.resolvesImpactKeys, restored.resolvesImpactKeys)
         assertEquals(action.prerequisiteActionIds, restored.prerequisiteActionIds)
         assertEquals(action.verification?.method, restored.verification?.method)
         assertEquals(action.verification?.status, restored.verification?.status)
+        assertEquals(action.verification?.verifiedAt, restored.verification?.verifiedAt)
         assertEquals(action.verification?.evidenceRefs, restored.verification?.evidenceRefs)
         assertEquals("phone-new", restored.verification?.expectedFromNodeId)
         assertEquals("account-1", restored.verification?.expectedToNodeId)
