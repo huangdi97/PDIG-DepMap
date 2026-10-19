@@ -192,6 +192,9 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
 
     fun impactFor(nodeId: String): ImpactResult = graphRepo.impactFor(nodeId)
 
+    fun impactForRecordedCapabilities(nodeId: String): ImpactResult =
+        graphRepo.impactForRecordedCapabilities(nodeId)
+
     fun integrity(): OrphanSummary = graphRepo.integrity()
 
     // ------------------------------------------------------------------
