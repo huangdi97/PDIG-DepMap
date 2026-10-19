@@ -205,6 +205,9 @@ private val sourceRepo = SourceRepository(driver, graphRepo, proposalRepo, disco
 
     fun planDetail(planId: String): PlanDetailView? = planRepo.planDetail(planId)
 
+    /** Re-analyze a non-terminal plan against the current authoritative graph. */
+    fun reanalyzePlan(planId: String): PlanDetailView = planRepo.reanalyzePlan(planId)
+
     /** 完成动作：done=true。verification 仍为 pending —— done ≠ verified。 */
     fun completeAction(planId: String, actionId: String) = planRepo.completeAction(planId, actionId)
 
