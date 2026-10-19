@@ -123,9 +123,41 @@ class ProductionPhoneChangeAuthorityContractTest {
             assertEquals(plan.mustChangeKeys.toSet(), refreshed.mustChangeKeys.toSet())
 
             app.completeAction(planId, "rpn-prepare-1")
-            val afterPrepare = requireNotNull(app.planDetail(planId))
-            assertTrue(afterPrepare.actions.first { it.id == "rpn-prepare-1" }.done)
-            assertFalse(afterPrepare.actions.first { it.id == "rpn-change-1" }.done)
+            app.completeAction(planId, "rpn-change-1")
+            app.completeAction(planId, "rpn-verify-1")
+
+            val beforeVerifiedRetirement = requireNotNull(app.planDetail(planId))
+            assertTrue(beforeVerifiedRetirement.actions.first { it.id == "rpn-verify-1" }.done)
+            assertEquals(
+                "pending",
+                beforeVerifiedRetirement.actions.first { it.id == "rpn-verify-1" }
+                    .verification?.status?.wire,
+            )
+
+            var retirementRejected = false
+            try {
+                app.completeAction(planId, "rpn-change-2")
+            } catch (e: IllegalStateException) {
+                assertEquals("verification_prerequisite_not_met", e.message)
+                retirementRejected = true
+            }
+            assertTrue(
+                "old phone retirement must wait for verified new-path evidence",
+                retirementRejected,
+            )
+
+            app.verifyAction(planId, "rpn-verify-1")
+            app.completeAction(planId, "rpn-change-2")
+
+            val afterRetirementGate = requireNotNull(app.planDetail(planId))
+            assertTrue(afterRetirementGate.actions.first { it.id == "rpn-prepare-1" }.done)
+            assertTrue(afterRetirementGate.actions.first { it.id == "rpn-change-1" }.done)
+            assertEquals(
+                "verified",
+                afterRetirementGate.actions.first { it.id == "rpn-verify-1" }
+                    .verification?.status?.wire,
+            )
+            assertTrue(afterRetirementGate.actions.first { it.id == "rpn-change-2" }.done)
         } finally {
             driver.close()
             dbFile.delete()
