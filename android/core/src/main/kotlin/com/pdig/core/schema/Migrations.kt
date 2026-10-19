@@ -16,6 +16,14 @@ import com.pdig.core.db.SqliteDriver
 
 const val SCHEMA_VERSION = 3
 
+/**
+ * Canonical vNext application schema target. Legacy/conformance callers keep
+ * the frozen v3 default; the production application opts into v4 explicitly.
+ * .depmap payload schema remains v3.
+ */
+const val LATEST_SCHEMA_VERSION = 4
+const val PAYLOAD_SCHEMA_VERSION = 3
+
 /** deterministic legacy WeChat SourceInstance（重复 migration 不得创建第二个）。 */
 const val LEGACY_WECHAT_SOURCE_INSTANCE_ID = "legacy-wechat-statement"
 const val LEGACY_WECHAT_ADAPTER_ID = "wechat_statement"
@@ -372,10 +380,177 @@ val SCHEMA_V3_STATEMENTS: List<String> = listOf(
     "CREATE INDEX IF NOT EXISTS idx_reality_drifts_status ON reality_drifts (status)",
 )
 
+private const val CAPABILITY_CHECK_V4 =
+    "capability IN ('payment','access','authentication','recovery','communication','identity')"
+private const val RELATION_CHECK_V4 =
+    "relation IN ('funding_source','merchant_agreement','verifies','recovers','bound_to','authenticates','controls')"
+
+/**
+ * v4 — Canonical vNext physical-schema widening.
+ *
+ * This mirrors core/src/schema/migrations.ts. It does not change the frozen
+ * .depmap payload schema; it widens runtime SQLite constraints and adds vNext
+ * metadata/tables. SQLite cannot ALTER CHECK constraints, so constrained tables
+ * are rebuilt transactionally with all existing rows preserved.
+ */
+val SCHEMA_V4_STATEMENTS: List<String> = listOf(
+    """
+    CREATE TABLE dependencies_v4 (
+      id TEXT PRIMARY KEY,
+      from_node TEXT NOT NULL,
+      relation TEXT NOT NULL CHECK ($RELATION_CHECK_V4),
+      to_node TEXT NOT NULL,
+      capability TEXT NOT NULL CHECK ($CAPABILITY_CHECK_V4),
+      criticality TEXT NOT NULL DEFAULT 'unknown' CHECK (criticality IN ('required','unknown')),
+      group_id TEXT,
+      state TEXT NOT NULL DEFAULT 'active' CHECK (state IN ('active','retired')),
+      origin TEXT NOT NULL CHECK (origin IN ('manual','proposal')),
+      confirmed_at TEXT NOT NULL,
+      last_verified_at TEXT NOT NULL,
+      retired_at TEXT,
+      evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      verification_basis_type TEXT NOT NULL DEFAULT 'user_confirmed',
+      verification_basis_json TEXT,
+      UNIQUE (from_node, relation, to_node, capability)
+    )
+    """.trimIndent(),
+    """
+    INSERT INTO dependencies_v4 (id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at, verification_basis_type, verification_basis_json)
+     SELECT id, from_node, relation, to_node, capability, criticality, group_id, state, origin, confirmed_at, last_verified_at, retired_at, evidence_refs_json, created_at, updated_at, verification_basis_type, verification_basis_json FROM dependencies
+    """.trimIndent(),
+    "DROP TABLE dependencies",
+    "ALTER TABLE dependencies_v4 RENAME TO dependencies",
+    "CREATE INDEX IF NOT EXISTS idx_dep_to ON dependencies(to_node, capability, state)",
+    "CREATE INDEX IF NOT EXISTS idx_dep_from ON dependencies(from_node, capability, state)",
+
+    """
+    CREATE TABLE dependency_groups_v4 (
+      id TEXT PRIMARY KEY,
+      group_key TEXT NOT NULL UNIQUE,
+      target_node_id TEXT NOT NULL,
+      capability TEXT NOT NULL CHECK ($CAPABILITY_CHECK_V4),
+      mode TEXT NOT NULL CHECK (mode IN ('ANY','ALL')),
+      member_edge_ids_json TEXT NOT NULL,
+      state TEXT NOT NULL DEFAULT 'active' CHECK (state IN ('active','retired')),
+      confirmed_at TEXT NOT NULL,
+      last_verified_at TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      verification_basis_type TEXT NOT NULL DEFAULT 'user_confirmed',
+      verification_basis_json TEXT
+    )
+    """.trimIndent(),
+    """
+    INSERT INTO dependency_groups_v4 (id, group_key, target_node_id, capability, mode, member_edge_ids_json, state, confirmed_at, last_verified_at, created_at, updated_at, verification_basis_type, verification_basis_json)
+     SELECT id, group_key, target_node_id, capability, mode, member_edge_ids_json, state, confirmed_at, last_verified_at, created_at, updated_at, verification_basis_type, verification_basis_json FROM dependency_groups
+    """.trimIndent(),
+    "DROP TABLE dependency_groups",
+    "ALTER TABLE dependency_groups_v4 RENAME TO dependency_groups",
+
+    """
+    CREATE TABLE dependency_proposals_v4 (
+      id TEXT PRIMARY KEY,
+      key TEXT NOT NULL UNIQUE,
+      from_node TEXT NOT NULL,
+      relation TEXT NOT NULL CHECK ($RELATION_CHECK_V4),
+      to_node TEXT NOT NULL,
+      capability TEXT NOT NULL CHECK ($CAPABILITY_CHECK_V4),
+      proposal_type TEXT NOT NULL,
+      source TEXT NOT NULL,
+      parser_id TEXT NOT NULL,
+      parser_version INTEGER NOT NULL,
+      confidence_score REAL NOT NULL,
+      path_json TEXT NOT NULL DEFAULT '[]',
+      decision TEXT NOT NULL DEFAULT 'pending' CHECK (decision IN ('pending','accepted','rejected')),
+      decided_at TEXT,
+      criticality_decision TEXT CHECK (criticality_decision IN ('required','unknown')),
+      observation_count INTEGER NOT NULL DEFAULT 0,
+      rejected_at TEXT,
+      rejected_at_stream_counts_json TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+    """.trimIndent(),
+    """
+    INSERT INTO dependency_proposals_v4 (id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, decision, decided_at, criticality_decision, observation_count, rejected_at, rejected_at_stream_counts_json, created_at, updated_at)
+     SELECT id, key, from_node, relation, to_node, capability, proposal_type, source, parser_id, parser_version, confidence_score, path_json, decision, decided_at, criticality_decision, observation_count, rejected_at, rejected_at_stream_counts_json, created_at, updated_at FROM dependency_proposals
+    """.trimIndent(),
+    "DROP TABLE dependency_proposals",
+    "ALTER TABLE dependency_proposals_v4 RENAME TO dependency_proposals",
+
+    """
+    CREATE TABLE reality_drifts_v4 (
+      id TEXT PRIMARY KEY,
+      kind TEXT NOT NULL CHECK (kind IN ('possible_replacement','possible_additional_path','relation_reappeared')),
+      target_node_id TEXT NOT NULL,
+      capability TEXT NOT NULL CHECK ($CAPABILITY_CHECK_V4),
+      candidate_from TEXT,
+      candidate_relation TEXT NOT NULL DEFAULT 'funding_source',
+      related_dependency_ids_json TEXT NOT NULL DEFAULT '[]',
+      evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+      proposal_keys_json TEXT NOT NULL DEFAULT '[]',
+      observation_count INTEGER NOT NULL DEFAULT 0,
+      detected_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      status TEXT NOT NULL CHECK (status IN ('open','confirmed_change','dismissed','superseded'))
+    )
+    """.trimIndent(),
+    """
+    INSERT INTO reality_drifts_v4 (id, kind, target_node_id, capability, candidate_from, candidate_relation, related_dependency_ids_json, evidence_refs_json, proposal_keys_json, observation_count, detected_at, updated_at, status)
+     SELECT id, kind, target_node_id, capability, candidate_from, candidate_relation, related_dependency_ids_json, evidence_refs_json, proposal_keys_json, observation_count, detected_at, updated_at, status FROM reality_drifts
+    """.trimIndent(),
+    "DROP TABLE reality_drifts",
+    "ALTER TABLE reality_drifts_v4 RENAME TO reality_drifts",
+    "CREATE INDEX IF NOT EXISTS idx_reality_drifts_status ON reality_drifts (status)",
+
+    "ALTER TABLE change_plans ADD COLUMN baseline_policy_revision INTEGER",
+    "ALTER TABLE change_plans ADD COLUMN last_analyzed_policy_revision INTEGER",
+    "ALTER TABLE change_plans ADD COLUMN change_primitive TEXT DEFAULT 'REPLACE'",
+    "ALTER TABLE change_plans ADD COLUMN temporal_effective_at TEXT",
+    "ALTER TABLE change_plans ADD COLUMN temporal_verification_not_before TEXT",
+    "ALTER TABLE change_plans ADD COLUMN temporal_verification_due_at TEXT",
+    "ALTER TABLE change_plans ADD COLUMN temporal_retire_old_path_after TEXT",
+
+    """
+    CREATE TABLE IF NOT EXISTS failure_domains (
+      id TEXT PRIMARY KEY,
+      kind TEXT NOT NULL CHECK (kind IN ('DEVICE','PHONE_NUMBER','ACCOUNT','PROVIDER')),
+      subject_ref TEXT NOT NULL,
+      scope TEXT NOT NULL DEFAULT 'ALL_CAPABILITIES',
+      evidence_refs_json TEXT NOT NULL DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT 'needs_review' CHECK (status IN ('confirmed','needs_review')),
+      confirmed_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    )
+    """.trimIndent(),
+
+    """
+    CREATE TABLE IF NOT EXISTS provider_policies (
+      provider TEXT NOT NULL,
+      policy_type TEXT NOT NULL,
+      source_url TEXT NOT NULL,
+      retrieved_at TEXT NOT NULL,
+      last_verified_at TEXT,
+      effective_from TEXT,
+      effective_to TEXT,
+      jurisdiction TEXT,
+      account_type_scope TEXT,
+      parameters_json TEXT NOT NULL DEFAULT '{}',
+      policy_revision INTEGER NOT NULL,
+      state TEXT NOT NULL DEFAULT 'needs_review' CHECK (state IN ('effective','superseded','needs_review')),
+      PRIMARY KEY (provider, policy_type, policy_revision)
+    )
+    """.trimIndent(),
+)
+
 val MIGRATIONS: List<Migration> = listOf(
     Migration(1, SCHEMA_V1_STATEMENTS),
     Migration(2, SCHEMA_V2_STATEMENTS),
     Migration(3, SCHEMA_V3_STATEMENTS),
+    Migration(4, SCHEMA_V4_STATEMENTS),
 )
 
 internal fun ensureMetaTable(driver: SqliteDriver) {
@@ -414,16 +589,24 @@ private fun setSchemaVersion(driver: SqliteDriver, version: Int, nowIso: String)
  * 幂等迁移：当前版本已是最新则 no-op；
  * 每个版本在独立事务内执行，失败回滚，不留下半迁移 DB。
  */
-fun migrate(driver: SqliteDriver, nowIso: String): Int {
+fun migrate(
+    driver: SqliteDriver,
+    nowIso: String,
+    targetVersion: Int = SCHEMA_VERSION,
+): Int {
+    require(targetVersion in 1..LATEST_SCHEMA_VERSION) {
+        "invalid migration target version: $targetVersion"
+    }
     ensureMetaTable(driver)
     var current = getSchemaVersion(driver)
-    if (current > SCHEMA_VERSION) {
+    if (current > targetVersion) {
         throw IllegalStateException(
-            "database schema_version ($current) is newer than supported ($SCHEMA_VERSION)",
+            "database schema_version ($current) is newer than target ($targetVersion)",
         )
     }
     for (m in MIGRATIONS) {
         if (m.version <= current) continue
+        if (m.version > targetVersion) break
         driver.transaction {
             for (sql in m.statements) driver.exec(sql)
             setSchemaVersion(driver, m.version, nowIso)
