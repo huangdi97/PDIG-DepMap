@@ -212,20 +212,28 @@ internal fun productionPaymentCompactTailLabel(
 internal fun productionVisibleObjectName(
     item: com.pdig.uivnext.production.VNextProductionObject,
     privacyMask: Boolean,
-): String = when {
-    privacyMask &&
-        item.surfaceKind == com.pdig.uivnext.production.VNextProductionSurfaceKind.PAYMENT_ASSET ->
-        "支付工具（已遮蔽）"
-    privacyMask && item.surfaceKind in setOf(
-        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY,
-        com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY,
-        com.pdig.uivnext.production.VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC,
-    ) -> when (item.surfaceKind) {
-        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY -> "手机号身份（已遮蔽）"
-        com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY -> "邮箱身份（已遮蔽）"
-        else -> "身份对象（已遮蔽）"
+): String {
+    if (!privacyMask) return item.name
+    return when (item.surfaceKind) {
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PAYMENT_ASSET ->
+            "支付工具（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.PHONE_IDENTITY ->
+            "手机号身份（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.EMAIL_IDENTITY ->
+            "邮箱身份（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.ACCOUNT ->
+            "账户（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.SERVICE ->
+            "服务（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.DEVICE ->
+            "设备（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.MEMBERSHIP ->
+            "会员 / 资格（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC ->
+            "身份对象（已遮蔽）"
+        com.pdig.uivnext.production.VNextProductionSurfaceKind.CUSTOM_GENERIC ->
+            "自定义对象（已遮蔽）"
     }
-    else -> item.name
 }
 
 
