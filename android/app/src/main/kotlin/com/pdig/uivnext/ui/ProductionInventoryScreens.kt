@@ -340,15 +340,7 @@ internal fun ProductionGenericObjectDetailScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            if (detailScreen != VScreen.NUMBER_DETAIL) {
-            item {
-                ProductionSecondaryObjectRoleSummaryCard(
-                    summary = productionSecondaryObjectRoleSummary(item, related),
-                )
-            }
-        }
-
-        if (detailScreen == VScreen.NUMBER_DETAIL) {
+            if (detailScreen == VScreen.NUMBER_DETAIL) {
                 ProductionPhoneDetailHeading(
                     item = item,
                     app = app,
@@ -359,6 +351,14 @@ internal fun ProductionGenericObjectDetailScreen(
                     item = item,
                     privacyMask = effectivePrivacyMask,
                     confirmedRelationCount = related.size,
+                )
+            }
+        }
+
+        if (detailScreen != VScreen.NUMBER_DETAIL) {
+            item {
+                ProductionSecondaryObjectRoleSummaryCard(
+                    summary = productionSecondaryObjectRoleSummary(item, related),
                 )
             }
         }
