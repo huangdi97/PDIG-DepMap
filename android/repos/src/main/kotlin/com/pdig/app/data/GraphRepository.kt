@@ -5,6 +5,7 @@ import com.pdig.core.domain.Dependency
 import com.pdig.core.domain.DependencyGroup
 import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.domain.ImpactProposalInput
+import com.pdig.core.domain.ImpactStateKey
 import com.pdig.core.domain.validateRelationUse
 import com.pdig.core.domain.MaintenanceFactWrite
 import com.pdig.core.domain.MaintenanceScheduleWrite
@@ -26,6 +27,7 @@ import com.pdig.core.json.Json
 import com.pdig.core.json.JsonWriter
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.impact.simulateDisable
+import com.pdig.core.impact.simulateScenario
 import com.pdig.core.serialize.checkGraphIntegrity
 import com.pdig.core.timeline.TimelineItem
 import com.pdig.core.timeline.buildTimeline
@@ -536,7 +538,19 @@ class GraphRepository(
         return ImpactGraph(deps, groups, proposals, nodeNames)
     }
 
+    /** Legacy/default impact query remains payment-scoped for existing payment consumers. */
     fun impactFor(nodeId: String): ImpactResult = simulateDisable(loadImpactGraph(), nodeId)
+
+    /**
+     * Scenario-scoped impact query. Every initial state key is explicit and the
+     * unified kernel keeps capabilities isolated during propagation.
+     */
+    fun impactFor(nodeId: String, capabilities: List<Capability>): ImpactResult {
+        val initial = capabilities
+            .distinct()
+            .map { capability -> ImpactStateKey(nodeId, capability) }
+        return simulateScenario(loadImpactGraph(), initial)
+    }
 
     /**
      * Reality 确认：criticality unknown → required 只能由用户显式完成（机器永不产生 required，spec §12）。
