@@ -122,6 +122,94 @@ class ProductionPhoneChangeAuthorityContractTest {
     }
 
     @Test
+    fun phoneRetirementRejectsReviewRequiredScopeEvenAfterMustChangeIsResolved() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val dbFile = File(context.filesDir, "production-phone-retirement-review.db")
+            .apply { if (exists()) delete() }
+        val driver = AndroidSqliteDriver.open(dbFile, "production-phone-retirement-review")
+        migrate(
+            driver,
+            "2026-10-19T00:00:00.000Z",
+            targetVersion = LATEST_SCHEMA_VERSION,
+        )
+        val app = AppContainer.forDriver(driver)
+
+        try {
+            val phone = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    subtype = IdentityAnchorSubtype.PHONE_NUMBER,
+                    name = "旧主号",
+                    identifierValue = "+852 6000 0002",
+                ),
+            ).node
+            val requiredAccount = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "必须迁移账户"),
+            ).node
+            val reviewAccount = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "待核对账户"),
+            ).node
+            app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = phone.id,
+                    relation = Relation.RECOVERS,
+                    toNodeId = requiredAccount.id,
+                    capability = Capability.RECOVERY,
+                    required = true,
+                ),
+            )
+            app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = phone.id,
+                    relation = Relation.AUTHENTICATES,
+                    toNodeId = reviewAccount.id,
+                    capability = Capability.AUTHENTICATION,
+                    required = false,
+                ),
+            )
+
+            val planId = app.createPlanForScenario(
+                ScenarioPlanRequest(
+                    scenarioId = "replace_phone_number",
+                    targetNodeId = phone.id,
+                ),
+            )
+            val initial = requireNotNull(app.planDetail(planId))
+            assertTrue(initial.mustChangeKeys.isNotEmpty())
+            assertTrue(initial.needsReviewKeys.isNotEmpty())
+
+            app.completeAction(planId, "rpn-prepare-1")
+            app.completeAction(planId, "rpn-change-1")
+            app.completeAction(planId, "rpn-verify-1")
+            app.verifyAction(planId, "rpn-verify-1")
+
+            // must-change work has been recorded done, but the unknown/review
+            // scope remains. Destructive retirement must still fail closed.
+            val beforeRetirement = requireNotNull(app.planDetail(planId))
+            assertTrue(beforeRetirement.unresolvedMustChangeKeys.isEmpty())
+            assertEquals(
+                com.pdig.core.generated.PlanReadiness.REVIEW_REQUIRED,
+                beforeRetirement.readiness,
+            )
+
+            var rejected = false
+            try {
+                app.completeAction(planId, "rpn-change-2")
+            } catch (e: IllegalStateException) {
+                assertEquals("retirement_scope_not_ready", e.message)
+                rejected = true
+            }
+            assertTrue("review-required scope must block destructive retirement", rejected)
+            assertFalse(
+                requireNotNull(app.planDetail(planId))
+                    .actions.first { it.id == "rpn-change-2" }.done,
+            )
+        } finally {
+            driver.close()
+            dbFile.delete()
+        }
+    }
+
+    @Test
     fun phoneImpactPlanAndReanalysisUseRecordedRuntimeCapabilities() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val dbFile = File(context.filesDir, "production-phone-change-authority.db")
