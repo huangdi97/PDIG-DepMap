@@ -91,6 +91,7 @@ class ProductionPhoneChangeAuthorityContractTest {
             )
             val refreshed = app.reanalyzePlan(planId)
             val newKey = "${accountB.id}|authentication"
+            assertFalse(refreshed.retirementScopeReady == true)
             assertTrue(newKey in refreshed.unresolvedMustChangeKeys)
             assertFalse(
                 refreshed.actions.first { it.id == "rpn-change-2" }
@@ -186,6 +187,7 @@ class ProductionPhoneChangeAuthorityContractTest {
             // scope remains. Destructive retirement must still fail closed.
             val beforeRetirement = requireNotNull(app.planDetail(planId))
             assertTrue(beforeRetirement.unresolvedMustChangeKeys.isEmpty())
+            assertFalse(beforeRetirement.retirementScopeReady == true)
             assertEquals(
                 com.pdig.core.generated.PlanReadiness.REVIEW_REQUIRED,
                 beforeRetirement.readiness,
@@ -316,6 +318,7 @@ class ProductionPhoneChangeAuthorityContractTest {
 
             val beforeVerifiedRetirement = requireNotNull(app.planDetail(planId))
             assertTrue(beforeVerifiedRetirement.actions.first { it.id == "rpn-verify-1" }.done)
+            assertTrue(beforeVerifiedRetirement.retirementScopeReady == true)
             assertEquals(
                 "pending",
                 beforeVerifiedRetirement.actions.first { it.id == "rpn-verify-1" }
