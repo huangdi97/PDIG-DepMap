@@ -13,6 +13,8 @@ on:
       - 'android/app/src/**/uivnext/**'
       - 'android/app/src/preview/**'
       - 'android/app/build.gradle.kts'
+      - 'android/core/**'
+      - 'android/repos/**'
 
 permissions:
   contents: read
