@@ -224,9 +224,9 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           cat local.properties
 
-      - name: ":app:testDebugUnitTest + :app:assembleDebug"
+      - name: ":repos:test + :app:testDebugUnitTest + :app:assembleDebug"
         working-directory: android
-        run: ./gradlew --no-daemon --console=plain :app:testDebugUnitTest :app:assembleDebug
+        run: ./gradlew --no-daemon --console=plain :repos:test :app:testDebugUnitTest :app:assembleDebug
 
       - name: Upload app JVM test results
         if: always()
