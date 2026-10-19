@@ -156,6 +156,44 @@ internal fun ProductionChangePlanScreen(
             }
         }
 
+        val unboundMustChangeKeys = productionUnboundMustChangeKeys(current)
+        if (unboundMustChangeKeys.isNotEmpty()) {
+            item {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { session.appState.navigate(VScreen.CHANGE) }
+                        .testTag("pdig.production-vnext.change.replan-required"),
+                    color = PdigV2Colors.Critical.copy(alpha = 0.06f),
+                    shape = RoundedCornerShape(VRadius.Lg),
+                    border = BorderStroke(1.dp, PdigV2Colors.Critical.copy(alpha = 0.22f)),
+                ) {
+                    Column(
+                        Modifier.padding(13.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        Text(
+                            "需要重新规划",
+                            color = PdigV2Colors.Critical,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text(
+                            "当前计划没有步骤覆盖 ${unboundMustChangeKeys.size} 项新发现的必须处理影响。系统不会把停用旧路径当作解决；请返回变更页重新建立覆盖当前影响范围的计划。",
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 10.sp,
+                        )
+                        Text(
+                            "返回变更页 →",
+                            color = PdigV2Colors.PrimaryText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
+            }
+        }
+
         error?.let { message ->
             item {
                 Surface(
@@ -312,6 +350,14 @@ internal data class ProductionChangeStageSummary(
     val transition: String,
     val after: String,
 )
+
+internal fun productionUnboundMustChangeKeys(plan: VNextProductionPlan): List<String> {
+    val claimed = plan.actions
+        .filter { it.phase == "change" }
+        .flatMap { it.resolvesImpactKeys }
+        .toSet()
+    return plan.unresolvedMustChangeKeys.filterNot { it in claimed }.distinct().sorted()
+}
 
 /**
  * Consumer next-step explanation, derived exclusively from the authoritative
