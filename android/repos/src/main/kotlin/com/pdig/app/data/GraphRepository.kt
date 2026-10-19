@@ -553,6 +553,39 @@ class GraphRepository(
     }
 
     /**
+     * Object-level Impact Lens across capabilities that are actually recorded
+     * for this source node. No object-name or provider inference participates.
+     *
+     * Pending proposals may widen the review scope, but the kernel still caps
+     * them at needs_review. If no capability is recorded, preserve the legacy
+     * payment default rather than inventing a new capability.
+     */
+    fun impactForRecordedCapabilities(nodeId: String): ImpactResult {
+        val impactGraph = loadImpactGraph()
+        val capabilities = buildList {
+            addAll(
+                impactGraph.dependencies
+                    .filter { it.state == DependencyState.ACTIVE && it.from == nodeId }
+                    .map { it.capability },
+            )
+            addAll(
+                impactGraph.proposals
+                    .filter { it.from == nodeId }
+                    .map { it.capability },
+            )
+        }.distinct()
+
+        return if (capabilities.isEmpty()) {
+            simulateDisable(impactGraph, nodeId)
+        } else {
+            simulateScenario(
+                impactGraph,
+                capabilities.map { capability -> ImpactStateKey(nodeId, capability) },
+            )
+        }
+    }
+
+    /**
      * Reality 确认：criticality unknown → required 只能由用户显式完成（机器永不产生 required，spec §12）。
      * 这属于 GraphRevisionMachine.bumpsOn 的 dependency_confirm_update，必须 bump graphRevision。
      */
