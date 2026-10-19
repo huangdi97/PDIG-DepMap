@@ -3,11 +3,13 @@ package com.pdig.app.data
 import com.pdig.core.domain.ActionVerificationMethod
 import com.pdig.core.domain.ActionVerificationStatus
 import com.pdig.core.domain.PlanAction
+import com.pdig.core.generated.Capability
 import com.pdig.core.generated.ImpactTargetStatus
 import com.pdig.core.generated.PlanActionPhase
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
+import com.pdig.core.scenario.ScenarioRegistry
 
 // ---------------------------------------------------------------------------
 // ChangePlan 专用文件级辅助（纯函数，仅 PlanRepository 使用）
@@ -17,6 +19,21 @@ import com.pdig.core.json.JsonParser
 const val STALE_CUTOFF_DAYS = 90L
 
 internal fun keyString(nodeId: String, capabilityWire: String): String = "$nodeId|$capabilityWire"
+
+internal fun scenarioImpactCapabilities(scenarioId: String): List<Capability> {
+    val template = requireNotNull(ScenarioRegistry.get(scenarioId)) {
+        "scenario_not_found: $scenarioId"
+    }
+    require(template.supportedCapabilities.isNotEmpty()) {
+        "scenario_capabilities_empty: $scenarioId"
+    }
+    return template.supportedCapabilities.map { wire ->
+        requireNotNull(Capability.fromWire(wire)) {
+            "scenario_capability_unknown: $scenarioId:$wire"
+        }
+    }.distinct()
+}
+
 
 internal fun keysOfStatus(
     impact: ImpactResult,
