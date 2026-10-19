@@ -210,7 +210,7 @@ class ProductionChangeStageSummaryTest {
         assertTrue(productionPlanVerificationEnabled(freshReady, suggested, true))
         assertFalse(productionPlanVerificationEnabled(freshReady, completedPending, false))
         assertFalse(productionPlanVerificationEnabled(plan, completedPending, true))
-        assertFalse(productionPlanVerificationEnabled(freshReady.copy(readiness = "blocked"), completedPending, true))
+        assertTrue(productionPlanVerificationEnabled(freshReady.copy(readiness = "blocked"), completedPending, true))
         assertFalse(productionPlanVerificationEnabled(freshReady.copy(effectiveState = "needs_revalidation"), completedPending, true))
         assertFalse(productionPlanVerificationEnabled(freshReady.copy(currentGraphRevision = 10), completedPending, true))
         assertFalse(productionPlanVerificationEnabled(freshReady, change, true))
@@ -219,9 +219,49 @@ class ProductionChangeStageSummaryTest {
         assertFalse(productionPlanVerificationEnabled(
             freshReady, completedPending.copy(done = false), true,
         ))
-        assertFalse(productionPlanVerificationEnabled(
+        assertTrue(productionPlanVerificationEnabled(
             freshReady.copy(readiness = "blocked"), completedPending, true,
         ))
+
+        val blockerKey = change.resolvesImpactKeys.single()
+        val blockedWithWork = freshReady.copy(
+            readiness = "blocked",
+            unresolvedMustChangeKeys = listOf(blockerKey),
+        )
+        assertTrue(
+            productionPlanCompletionEnabled(blockedWithWork, change, true),
+            "A fresh CHANGE action that explicitly resolves the current blocker must remain executable.",
+        )
+        val prepare = freshReady.actions.first().copy(done = false)
+        assertTrue(
+            productionPlanCompletionEnabled(
+                blockedWithWork.copy(actions = listOf(prepare, change)),
+                prepare,
+                true,
+            ),
+            "PREPARE steps must remain usable while must-change blockers exist.",
+        )
+        val unrelated = change.copy(
+            id = "unrelated",
+            resolvesImpactKeys = emptyList(),
+            prerequisiteActionIds = emptyList(),
+        )
+        assertFalse(
+            productionPlanCompletionEnabled(
+                blockedWithWork.copy(actions = listOf(unrelated)),
+                unrelated,
+                true,
+            ),
+            "Blocked plans must not open unrelated CHANGE actions.",
+        )
+        assertTrue(
+            productionPlanVerificationEnabled(
+                blockedWithWork,
+                completedPending,
+                true,
+            ),
+            "A completed step can be verified while other must-change work remains.",
+        )
 
         assertFalse(productionPlanExecutable(freshReady.copy(readiness = "blocked")))
         assertFalse(productionPlanExecutable(freshReady.copy(effectiveState = "needs_revalidation")))
