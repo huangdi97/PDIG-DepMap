@@ -8,7 +8,7 @@ import com.pdig.core.json.JsonWriter
 import com.pdig.core.schema.LEGACY_WECHAT_ADAPTER_ID
 import com.pdig.core.schema.LEGACY_WECHAT_ADAPTER_VERSION
 import com.pdig.core.schema.LEGACY_WECHAT_SOURCE_INSTANCE_ID
-import com.pdig.core.schema.PAYLOAD_PAYLOAD_SCHEMA_VERSION
+import com.pdig.core.schema.PAYLOAD_SCHEMA_VERSION
 
 /**
  * 逻辑图序列化 —— `.depmap` 备份 payload 层（GOAL MVP02 §15）。
