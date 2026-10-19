@@ -111,6 +111,54 @@ class PlanReadinessTest {
     // ------------------------------------------------------------------
 
     @Test
+    fun unassignedMustChangeKeysAreClaimedByFirstEligibleChangeAction() {
+        val actions = listOf(
+            action("prepare", keys = emptyList(), done = false, phase = PlanActionPhase.PREPARE),
+            action("change-1", keys = emptyList(), done = false),
+            action("change-2", keys = emptyList(), done = false),
+        )
+        val claimed = claimUnassignedMustChangeKeys(
+            actions,
+            listOf("svc-b|recovery", "svc-a|authentication"),
+        )
+
+        assertEquals(
+            listOf("svc-a|authentication", "svc-b|recovery"),
+            claimed.first { it.id == "change-1" }.resolvesImpactKeys,
+        )
+        assertTrue(claimed.first { it.id == "change-2" }.resolvesImpactKeys.isEmpty())
+        assertEquals(2, countUnresolvedMustChange(claimed, listOf(
+            "svc-a|authentication", "svc-b|recovery",
+        )))
+
+        val completed = claimed.map {
+            if (it.id == "change-1") it.copy(done = true) else it
+        }
+        assertEquals(0, countUnresolvedMustChange(completed, listOf(
+            "svc-a|authentication", "svc-b|recovery",
+        )))
+    }
+
+    @Test
+    fun claimingNeverReassignsCompletedOrAlreadyClaimedActions() {
+        val actions = listOf(
+            action("done-empty", keys = emptyList(), done = true),
+            action("claimed", keys = listOf("svc-a|recovery"), done = false),
+            action("eligible", keys = emptyList(), done = false),
+        )
+        val projected = claimUnassignedMustChangeKeys(
+            actions,
+            listOf("svc-a|recovery", "svc-b|authentication"),
+        )
+        assertTrue(projected.first { it.id == "done-empty" }.resolvesImpactKeys.isEmpty())
+        assertEquals(listOf("svc-a|recovery"), projected.first { it.id == "claimed" }.resolvesImpactKeys)
+        assertEquals(
+            listOf("svc-b|authentication"),
+            projected.first { it.id == "eligible" }.resolvesImpactKeys,
+        )
+    }
+
+    @Test
     fun unclaimedMustChangeKeyIsUnresolved() {
         val actions = listOf(action("a1", keys = listOf("other|payment"), done = true))
         assertEquals(1, countUnresolvedMustChange(actions, listOf("svc-a|payment")))
