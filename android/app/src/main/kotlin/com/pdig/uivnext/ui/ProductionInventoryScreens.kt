@@ -1021,33 +1021,93 @@ private fun ProductionObjectRow(
     } else {
         productionVisibleObjectName(item, privacyMask)
     }
+    val confirmedRegions = item.regionFacts
+        .filter { it.state == "confirmed" }
+        .map { TerritoryPresentationCatalog.displayName(it.territoryCode) }
+        .distinct()
+    val glyph = when (item.surfaceKind) {
+        VNextProductionSurfaceKind.PHONE_IDENTITY -> "号"
+        VNextProductionSurfaceKind.EMAIL_IDENTITY -> "@"
+        VNextProductionSurfaceKind.ACCOUNT -> "账"
+        VNextProductionSurfaceKind.DEVICE -> "设"
+        VNextProductionSurfaceKind.SERVICE -> "服"
+        VNextProductionSurfaceKind.MEMBERSHIP -> "会"
+        VNextProductionSurfaceKind.IDENTITY_ANCHOR_GENERIC -> "身"
+        VNextProductionSurfaceKind.CUSTOM_GENERIC -> "自"
+        else -> "·"
+    }
     Surface(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .testTag("pdig.production-vnext.object-row.${item.id}"),
         color = PdigV2Colors.Surface,
         shape = RoundedCornerShape(VRadius.Lg),
         border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
     ) {
         Row(
-            Modifier.padding(13.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            Modifier.padding(horizontal = 13.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(11.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
+            Surface(
+                color = PdigV2Colors.PrimarySoft,
+                shape = RoundedCornerShape(VRadius.Md),
+            ) {
+                Box(
+                    Modifier.defaultMinSize(minWidth = 42.dp, minHeight = 42.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        glyph,
+                        color = PdigV2Colors.PrimaryText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(
                     visibleName,
                     color = PdigV2Colors.TextPrimary,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 productionIdentityIdentifierLabel(item, privacyMask)?.let { identifier ->
-                    Text(identifier, color = PdigV2Colors.TextSecondary, fontSize = 10.sp)
+                    Text(
+                        identifier,
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 11.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                 }
-                Text(productionObjectSurfaceLabel(item), color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+                Text(
+                    listOfNotNull(
+                        productionObjectSurfaceLabel(item),
+                        confirmedRegions.singleOrNull(),
+                        confirmedRegions.takeIf { it.size > 1 }?.let { "${it.size} 个已确认地区" },
+                    ).joinToString(" · "),
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
-            Text(
-                "$dependencyCount 关系",
-                color = PdigV2Colors.TextSecondary,
-                fontSize = 10.sp,
-            )
+            Surface(
+                color = PdigV2Colors.SurfaceRaised,
+                shape = RoundedCornerShape(999.dp),
+            ) {
+                Text(
+                    "$dependencyCount 条关系",
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    color = PdigV2Colors.TextSecondary,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
     }
 }
