@@ -33,6 +33,95 @@ import java.io.File
 @RunWith(AndroidJUnit4::class)
 class ProductionPhoneChangeAuthorityContractTest {
     @Test
+    fun newlyDiscoveredUnboundImpactBlocksOldPhoneRetirementAtAuthorityBoundary() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val dbFile = File(context.filesDir, "production-phone-retirement-unbound.db")
+            .apply { if (exists()) delete() }
+        val driver = AndroidSqliteDriver.open(dbFile, "production-phone-retirement-unbound")
+        migrate(
+            driver,
+            "2026-10-19T00:00:00.000Z",
+            targetVersion = LATEST_SCHEMA_VERSION,
+        )
+        val app = AppContainer.forDriver(driver)
+
+        try {
+            val phone = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    subtype = IdentityAnchorSubtype.PHONE_NUMBER,
+                    name = "旧主号",
+                    identifierValue = "+852 6000 0001",
+                ),
+            ).node
+            val accountA = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "账户 A"),
+            ).node
+            app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = phone.id,
+                    relation = Relation.RECOVERS,
+                    toNodeId = accountA.id,
+                    capability = Capability.RECOVERY,
+                    required = true,
+                ),
+            )
+
+            val planId = app.createPlanForScenario(
+                ScenarioPlanRequest(
+                    scenarioId = "replace_phone_number",
+                    targetNodeId = phone.id,
+                ),
+            )
+            app.completeAction(planId, "rpn-prepare-1")
+            app.completeAction(planId, "rpn-change-1")
+
+            // New Reality appears after the migration step was recorded done.
+            // Reanalysis must keep it unresolved, not bind it to old-path retirement.
+            val accountB = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "账户 B"),
+            ).node
+            app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = phone.id,
+                    relation = Relation.AUTHENTICATES,
+                    toNodeId = accountB.id,
+                    capability = Capability.AUTHENTICATION,
+                    required = true,
+                ),
+            )
+            val refreshed = app.reanalyzePlan(planId)
+            val newKey = "${accountB.id}|authentication"
+            assertTrue(newKey in refreshed.unresolvedMustChangeKeys)
+            assertFalse(
+                refreshed.actions.first { it.id == "rpn-change-2" }
+                    .resolvesImpactKeys.contains(newKey),
+            )
+
+            app.completeAction(planId, "rpn-verify-1")
+            app.verifyAction(planId, "rpn-verify-1")
+
+            var retirementRejected = false
+            try {
+                app.completeAction(planId, "rpn-change-2")
+            } catch (e: IllegalStateException) {
+                assertEquals("unresolved_must_change", e.message)
+                retirementRejected = true
+            }
+            assertTrue(
+                "authority must never retire the old phone while a newly discovered impact is unresolved",
+                retirementRejected,
+            )
+            assertFalse(
+                requireNotNull(app.planDetail(planId))
+                    .actions.first { it.id == "rpn-change-2" }.done,
+            )
+        } finally {
+            driver.close()
+            dbFile.delete()
+        }
+    }
+
+    @Test
     fun phoneImpactPlanAndReanalysisUseRecordedRuntimeCapabilities() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val dbFile = File(context.filesDir, "production-phone-change-authority.db")
