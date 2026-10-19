@@ -8,7 +8,7 @@ import com.pdig.core.json.JsonWriter
 import com.pdig.core.schema.LEGACY_WECHAT_ADAPTER_ID
 import com.pdig.core.schema.LEGACY_WECHAT_ADAPTER_VERSION
 import com.pdig.core.schema.LEGACY_WECHAT_SOURCE_INSTANCE_ID
-import com.pdig.core.schema.SCHEMA_VERSION
+import com.pdig.core.schema.PAYLOAD_PAYLOAD_SCHEMA_VERSION
 
 /**
  * 逻辑图序列化 —— `.depmap` 备份 payload 层（GOAL MVP02 §15）。
@@ -163,7 +163,7 @@ fun exportGraph(driver: SqliteDriver): GraphExportResult {
     val fields = mutableListOf<Pair<String, Json>>(
         "payloadKind" to Json.Str(GRAPH_PAYLOAD_KIND),
         "payloadVersion" to Json.Num(GRAPH_PAYLOAD_VERSION.toString()),
-        "schemaVersion" to Json.Num(SCHEMA_VERSION.toString()),
+        "schemaVersion" to Json.Num(PAYLOAD_SCHEMA_VERSION.toString()),
     )
     val counts = LinkedHashMap<String, Int>()
     for (t in PAYLOAD_TABLES) {
@@ -175,7 +175,7 @@ fun exportGraph(driver: SqliteDriver): GraphExportResult {
                     Json.Obj(
                         listOf(
                             "key" to Json.Str("schema_version"),
-                            "value" to Json.Str(SCHEMA_VERSION.toString()),
+                            "value" to Json.Str(PAYLOAD_SCHEMA_VERSION.toString()),
                         ),
                     )
                 } else {
@@ -330,7 +330,7 @@ fun migratePayloadV2toV3(payloadJson: String): String {
         listOf(
             "payloadKind" to Json.Str(GRAPH_PAYLOAD_KIND),
             "payloadVersion" to Json.Num(GRAPH_PAYLOAD_VERSION.toString()),
-            "schemaVersion" to Json.Num(SCHEMA_VERSION.toString()),
+            "schemaVersion" to Json.Num(PAYLOAD_SCHEMA_VERSION.toString()),
             "meta" to Json.Arr(newMeta),
             "source_instances" to (parsed["source_instances"] ?: Json.Arr(emptyList())),
             "nodes" to (parsed["nodes"] ?: Json.Arr(emptyList())),
@@ -408,8 +408,8 @@ private fun validatePayload(payloadJson: String): Json.Obj {
         ?: throw GraphImportError("schemaVersion must be an integer")
     if (!svRaw.isSafeInteger()) throw GraphImportError("schemaVersion must be an integer")
     val sv = svRaw.asLong().toInt()
-    if (sv > SCHEMA_VERSION) {
-        throw GraphImportError("payload schemaVersion ($sv) newer than supported ($SCHEMA_VERSION)")
+    if (sv > PAYLOAD_SCHEMA_VERSION) {
+        throw GraphImportError("payload schemaVersion ($sv) newer than supported ($PAYLOAD_SCHEMA_VERSION)")
     }
     for (t in PAYLOAD_TABLES) tableRows(payload, t.table, t.columns)
     return payload
