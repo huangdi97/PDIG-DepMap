@@ -235,6 +235,8 @@ internal data class VNextProductionPlanAction(
     val verificationEvidenceRefs: List<String>,
     val prerequisiteActionIds: List<String>,
     val resolvesImpactKeys: List<String>,
+    val doneAt: String? = null,
+    val verificationVerifiedAt: String? = null,
 )
 
 internal data class VNextProductionPlanImpactItem(
@@ -263,8 +265,8 @@ internal data class VNextProductionRecordItem(
     val state: VNextProductionRecordState,
     val evidenceRefs: List<String>,
     /**
-     * Current Android PlanAction model does not expose doneAt / verifiedAt.
-     * Null is intentional: never substitute effectiveDate as an occurrence time.
+     * Real action/verification authority time when available.
+     * Legacy records remain null; effectiveDate is never substituted.
      */
     val occurredAt: String? = null,
 )
@@ -698,6 +700,8 @@ internal fun mapProductionPlan(detail: PlanDetailView): VNextProductionPlan =
                 verificationEvidenceRefs = action.verification?.evidenceRefs ?: emptyList(),
                 prerequisiteActionIds = action.prerequisiteActionIds,
                 resolvesImpactKeys = action.resolvesImpactKeys,
+                doneAt = action.doneAt,
+                verificationVerifiedAt = action.verification?.verifiedAt,
             )
         },
     )
@@ -736,7 +740,11 @@ internal fun buildProductionRecordTrace(
                 phase = action.phase,
                 state = state,
                 evidenceRefs = action.verificationEvidenceRefs,
-                occurredAt = null,
+                occurredAt = when (state) {
+                    VNextProductionRecordState.VERIFIED ->
+                        action.verificationVerifiedAt ?: action.doneAt
+                    else -> action.doneAt
+                },
             )
         }
     }.sortedWith(
