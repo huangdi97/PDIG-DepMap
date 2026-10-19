@@ -4,9 +4,12 @@ import com.pdig.core.domain.ActionVerification
 import com.pdig.core.domain.ActionVerificationMethod
 import com.pdig.core.domain.ActionVerificationStatus
 import com.pdig.core.domain.PlanAction
+import com.pdig.core.generated.Capability
 import com.pdig.core.generated.PlanActionPhase
 import kotlin.test.Test
 import kotlin.test.assertFalse
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class PlanSupportTest {
@@ -23,6 +26,26 @@ class PlanSupportTest {
             status = status,
         ),
     )
+
+    @Test
+    fun scenarioImpactScopeUsesDeclaredCapabilitiesAndRejectsUnknownScenarios() {
+        assertEquals(
+            listOf(
+                Capability.ACCESS,
+                Capability.AUTHENTICATION,
+                Capability.RECOVERY,
+                Capability.COMMUNICATION,
+            ),
+            scenarioImpactCapabilities("replace_phone_number"),
+        )
+        assertEquals(
+            listOf(Capability.PAYMENT),
+            scenarioImpactCapabilities("replace_payment_card"),
+        )
+        assertFailsWith<IllegalArgumentException> {
+            scenarioImpactCapabilities("unknown_future_scenario")
+        }
+    }
 
     @Test
     fun retirementRequiresCompletedAndVerifiedPhonePath() {
