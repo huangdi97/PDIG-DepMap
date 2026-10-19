@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.production.ProductionVNextSession
+import com.pdig.uivnext.production.VNextProductionDependency
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
@@ -338,7 +339,15 @@ internal fun ProductionGenericObjectDetailScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            if (detailScreen == VScreen.NUMBER_DETAIL) {
+            if (detailScreen != VScreen.NUMBER_DETAIL) {
+            item {
+                ProductionSecondaryObjectRoleSummaryCard(
+                    summary = productionSecondaryObjectRoleSummary(item, related),
+                )
+            }
+        }
+
+        if (detailScreen == VScreen.NUMBER_DETAIL) {
                 ProductionPhoneDetailHeading(
                     item = item,
                     app = app,
@@ -557,6 +566,124 @@ internal fun ProductionGenericObjectDetailScreen(
                     "详情只使用正式数据中的对象、已确认关系和正式影响分析；不会混入演示数据。"
                 )
             }
+        }
+    }
+}
+
+internal data class ProductionSecondaryObjectRoleSummary(
+    val title: String,
+    val firstLabel: String,
+    val firstCount: Int,
+    val secondLabel: String,
+    val secondCount: Int,
+    val note: String = "只统计已确认关系；0 不代表不存在未确认关系。",
+)
+
+internal fun productionSecondaryObjectRoleSummary(
+    item: VNextProductionObject,
+    related: List<VNextProductionDependency>,
+): ProductionSecondaryObjectRoleSummary {
+    fun capabilityCount(vararg values: String): Int =
+        related.count { it.capability in values.toSet() }
+
+    return when (item.surfaceKind) {
+        VNextProductionSurfaceKind.ACCOUNT -> ProductionSecondaryObjectRoleSummary(
+            title = "账户控制关系",
+            firstLabel = "访问 / 认证",
+            firstCount = capabilityCount("access", "authentication"),
+            secondLabel = "恢复",
+            secondCount = capabilityCount("recovery"),
+        )
+        VNextProductionSurfaceKind.EMAIL_IDENTITY -> ProductionSecondaryObjectRoleSummary(
+            title = "邮箱连续性角色",
+            firstLabel = "恢复用途",
+            firstCount = capabilityCount("recovery"),
+            secondLabel = "认证用途",
+            secondCount = capabilityCount("authentication"),
+        )
+        VNextProductionSurfaceKind.DEVICE -> ProductionSecondaryObjectRoleSummary(
+            title = "设备访问角色",
+            firstLabel = "认证",
+            firstCount = capabilityCount("authentication"),
+            secondLabel = "访问",
+            secondCount = capabilityCount("access"),
+        )
+        VNextProductionSurfaceKind.SERVICE -> ProductionSecondaryObjectRoleSummary(
+            title = "服务依赖方向",
+            firstLabel = "进入此服务",
+            firstCount = related.count { it.toId == item.id },
+            secondLabel = "由此服务指向",
+            secondCount = related.count { it.fromId == item.id },
+        )
+        else -> ProductionSecondaryObjectRoleSummary(
+            title = "已确认关系",
+            firstLabel = "关系",
+            firstCount = related.size,
+            secondLabel = "其他已确认",
+            secondCount = 0,
+        )
+    }
+}
+
+@Composable
+private fun ProductionSecondaryObjectRoleSummaryCard(
+    summary: ProductionSecondaryObjectRoleSummary,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.production-vnext.secondary-role-summary"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Column(
+            Modifier.padding(13.dp),
+            verticalArrangement = Arrangement.spacedBy(9.dp),
+        ) {
+            Text(
+                summary.title,
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                listOf(
+                    summary.firstCount to summary.firstLabel,
+                    summary.secondCount to summary.secondLabel,
+                ).forEach { (count, label) ->
+                    Surface(
+                        modifier = Modifier.weight(1f),
+                        color = PdigV2Colors.SurfaceRaised,
+                        shape = RoundedCornerShape(VRadius.Md),
+                    ) {
+                        Column(
+                            Modifier.padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Text(
+                                count.toString(),
+                                color = PdigV2Colors.TextPrimary,
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Text(
+                                label,
+                                color = PdigV2Colors.TextMuted,
+                                fontSize = 10.sp,
+                            )
+                        }
+                    }
+                }
+            }
+            Text(
+                summary.note,
+                color = PdigV2Colors.TextMuted,
+                fontSize = 9.sp,
+            )
         }
     }
 }
