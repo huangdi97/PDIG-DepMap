@@ -27,9 +27,9 @@ import com.pdig.uivnext.theme.PdigV2Colors
 import com.pdig.uivnext.theme.VRadius
 
 /**
- * A plan-grouped verification trace, NOT a chronological timeline: current
- * Canonical action records do not expose a reliable occurredAt timestamp.
- * No UI-derived event times, independent verification or fake evidence.
+ * A plan-grouped verification trace ordered upstream by authoritative action
+ * timestamps. Missing times remain explicitly unrecorded and sort behind known
+ * events; the UI never substitutes the device clock or invents chronology.
  */
 internal data class ProductionRecordPresentation(
     val stateLabel: String,
