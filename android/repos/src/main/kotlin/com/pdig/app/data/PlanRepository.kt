@@ -304,8 +304,27 @@ class PlanRepository(
                     "SELECT impact_snapshot_json FROM change_plans WHERE id = ?",
                 ).get(planId)?.str("impact_snapshot_json")
                 val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
+                val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
                 if (unresolvedMustChangeKeys(actions, mustChangeKeys).isNotEmpty()) {
                     throw IllegalStateException("unresolved_must_change")
+                }
+                // Retirement is destructive. Evaluate readiness as if this one
+                // retirement action were completed; this removes only its own
+                // unfinished-change blocker while preserving every unresolved
+                // review/proposal/candidate/staleness blocker.
+                val projectedActions = actions.toMutableList().also {
+                    it[idx] = it[idx].copy(done = true)
+                }
+                val projectedPlan = plan.copy(actions = projectedActions)
+                if (
+                    computeReadiness(
+                        projectedPlan,
+                        mustChangeKeys,
+                        needsReviewKeys,
+                        snapshot,
+                    ) != com.pdig.core.generated.PlanReadiness.READY_WITH_KNOWN_SCOPE
+                ) {
+                    throw IllegalStateException("retirement_scope_not_ready")
                 }
             }
             actions[idx] = actions[idx].copy(done = true)
