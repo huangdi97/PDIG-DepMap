@@ -6,7 +6,6 @@ import com.pdig.core.domain.ActionVerificationStatus
 import com.pdig.core.domain.PlanAction
 import com.pdig.core.generated.PlanActionPhase
 import com.pdig.core.domain.PlanReadinessInput
-import com.pdig.core.generated.Capability
 import com.pdig.core.generated.ChangePlanWorkflowState
 import com.pdig.core.generated.ImpactTargetStatus
 import com.pdig.core.json.Json
@@ -80,19 +79,6 @@ class PlanRepository(
             }
         }
     }
-
-    /**
-     * Impact scope comes only from the executable ScenarioTemplate registry.
-     * Unknown/empty capability declarations fail closed to the legacy payment
-     * scope rather than being inferred from object names or UI state.
-     */
-    private fun scenarioImpactCapabilities(scenarioId: String): List<Capability> =
-        ScenarioRegistry.get(scenarioId)
-            ?.supportedCapabilities
-            ?.mapNotNull { wire -> Capability.fromWire(wire) }
-            ?.distinct()
-            ?.takeIf { it.isNotEmpty() }
-            ?: listOf(Capability.PAYMENT)
 
     /** 从 scenario 创建真实变更计划：must_change 每条生成一个显式 CHANGE 动作。 */
     fun createPlanForScenario(req: ScenarioPlanRequest): String {
