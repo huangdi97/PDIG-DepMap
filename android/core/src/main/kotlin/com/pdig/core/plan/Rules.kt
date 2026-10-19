@@ -74,17 +74,19 @@ fun claimUnassignedMustChangeKeys(
     }
 }
 
-fun countUnresolvedMustChange(actions: List<PlanAction>, keys: List<String>): Int {
-    var unresolved = 0
-    for (key in keys) {
-        val claimants = actions.filter {
-            it.phase == com.pdig.core.generated.PlanActionPhase.CHANGE &&
-                (it.resolvesImpactKeys).contains(key)
-        }
-        if (claimants.isEmpty() || claimants.any { !it.done }) unresolved += 1
+fun unresolvedMustChangeKeys(
+    actions: List<PlanAction>,
+    keys: List<String>,
+): List<String> = keys.distinct().filter { key ->
+    val claimants = actions.filter {
+        it.phase == com.pdig.core.generated.PlanActionPhase.CHANGE &&
+            it.resolvesImpactKeys.contains(key)
     }
-    return unresolved
+    claimants.isEmpty() || claimants.any { !it.done }
 }
+
+fun countUnresolvedMustChange(actions: List<PlanAction>, keys: List<String>): Int =
+    unresolvedMustChangeKeys(actions, keys).size
 
 // ---------------------------------------------------------------------------
 // ScenarioCoverage（信息覆盖描述，不是安全评分）
