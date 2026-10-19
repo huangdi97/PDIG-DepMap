@@ -402,7 +402,11 @@ class ProductionVNextShellContractTest {
         compose.waitForIdle()
         compose.onNodeWithText("m***@example.com").performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("邮箱身份").assertIsDisplayed()
+        compose.onNodeWithTag(
+            "pdig.production-vnext.secondary-identity-hero",
+            useUnmergedTree = true,
+        ).assertIsDisplayed()
+        compose.onNodeWithText("通信身份", substring = true).assertExists()
         compose.onNodeWithText("正式来源已确认", substring = true).assertExists()
     }
 
@@ -530,7 +534,12 @@ class ProductionVNextShellContractTest {
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
             .assertIsDisplayed()
+        compose.onNodeWithTag(
+            "pdig.production-vnext.secondary-identity-hero",
+            useUnmergedTree = true,
+        ).assertIsDisplayed()
         compose.onAllNodesWithText("账户 A")[0].assertIsDisplayed()
+        compose.onNodeWithText("账户身份", substring = true).assertExists()
         compose.onNodeWithText("已确认关系").assertIsDisplayed()
     }
 
