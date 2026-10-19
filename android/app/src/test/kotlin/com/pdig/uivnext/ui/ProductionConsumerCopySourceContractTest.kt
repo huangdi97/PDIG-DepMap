@@ -50,6 +50,7 @@ class ProductionConsumerCopySourceContractTest {
             "生产数据绑定",
             "payment_instrument",
             "done 与 verified",
+            "ChangePlan",
         )
         val literalRegex = Regex("\"(?:\\\\.|[^\"\\\\])*\"")
         val leaks = productionFiles.flatMap { file ->
