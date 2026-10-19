@@ -126,6 +126,22 @@ class ProductionChangeStageInteractionContractTest {
     }
 
     @Test
+    fun stalePlanWithoutChangeAuthorityShowsReadOnlyReanalysisBoundary() {
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ChangePlanAuthorityState(
+                    plan = plan(stale = true),
+                    canReanalyze = false,
+                    onReanalyze = {},
+                )
+            }
+        }
+
+        compose.onNodeWithText("当前无法重新分析").assertIsDisplayed()
+        compose.onNodeWithTag("pdig.production-vnext.change.reanalyze").assertDoesNotExist()
+    }
+
+    @Test
     fun freshPlanDoesNotAdvertiseReanalysis() {
         compose.setContent {
             MaterialTheme(colorScheme = lightColorScheme()) {
