@@ -3,8 +3,10 @@ package com.pdig.uivnext.ui
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,9 +19,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pdig.uivnext.model.VScreen
@@ -334,59 +338,18 @@ internal fun ProductionGenericObjectDetailScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(
-                    if (detailScreen == VScreen.NUMBER_DETAIL) {
-                        // Mask the identity heading as well as the number face:
-                        // user-defined aliases can themselves expose personal data.
-                        if (effectivePrivacyMask) "手机号身份（已遮蔽）"
-                        else app.numberDisplayNameForScreen(item.id, item.name)
-                    } else {
-                        productionVisibleObjectName(item, effectivePrivacyMask)
-                    },
-                    color = PdigV2Colors.TextPrimary,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight.Bold,
+            if (detailScreen == VScreen.NUMBER_DETAIL) {
+                ProductionPhoneDetailHeading(
+                    item = item,
+                    app = app,
+                    privacyMask = effectivePrivacyMask,
                 )
-                Text(
-                    productionObjectSurfaceLabel(item),
-                    color = PdigV2Colors.TextMuted,
-                    fontSize = 10.sp,
+            } else {
+                ProductionSecondaryObjectIdentityHero(
+                    item = item,
+                    privacyMask = effectivePrivacyMask,
+                    confirmedRelationCount = related.size,
                 )
-                if (item.identitySubtype != null) {
-                    Text(
-                        listOfNotNull(
-                            productionIdentityBasisLabel(item.identityVerificationBasisType),
-                            item.identityConfirmedAt?.take(10),
-                            item.identityEvidenceRefs.takeIf { it.isNotEmpty() }
-                                ?.let { "证据引用 ${it.size} 项" },
-                        ).joinToString(" · "),
-                        color = PdigV2Colors.TextMuted,
-                        fontSize = 9.sp,
-                    )
-                    productionIdentityIdentifierLabel(
-                        item,
-                        effectivePrivacyMask,
-                    )?.let { identifier ->
-                        Text(
-                            identifier,
-                            color = PdigV2Colors.TextSecondary,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                        Text(
-                            listOfNotNull(
-                                item.identityIdentifierVerificationBasisType
-                                    ?.let(::productionIdentityBasisLabel),
-                                item.identityIdentifierConfirmedAt?.take(10),
-                                item.identityIdentifierEvidenceRefs.takeIf { it.isNotEmpty() }
-                                    ?.let { "标识证据 ${it.size} 项" },
-                            ).joinToString(" · "),
-                            color = PdigV2Colors.TextMuted,
-                            fontSize = 9.sp,
-                        )
-                    }
-                }
             }
         }
 
@@ -594,6 +557,191 @@ internal fun ProductionGenericObjectDetailScreen(
                     "详情只使用正式数据中的对象、已确认关系和正式影响分析；不会混入演示数据。"
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ProductionPhoneDetailHeading(
+    item: VNextProductionObject,
+    app: VAppState,
+    privacyMask: Boolean,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(
+            if (privacyMask) "手机号身份（已遮蔽）"
+            else app.numberDisplayNameForScreen(item.id, item.name),
+            color = PdigV2Colors.TextPrimary,
+            fontSize = 23.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            productionObjectSurfaceLabel(item),
+            color = PdigV2Colors.TextMuted,
+            fontSize = 10.sp,
+        )
+        ProductionIdentityEvidenceSummary(item, privacyMask)
+    }
+}
+
+/**
+ * Production counterpart of the R20 secondary-object identity hero.
+ *
+ * It deliberately uses only governed Production projection fields. Provider,
+ * device capability, recovery role and service semantics are not inferred from
+ * names or Preview fixtures.
+ */
+@Composable
+private fun ProductionSecondaryObjectIdentityHero(
+    item: VNextProductionObject,
+    privacyMask: Boolean,
+    confirmedRelationCount: Int,
+) {
+    val title = productionVisibleObjectName(item, privacyMask)
+    val confirmedRegions = item.regionFacts
+        .filter { it.state == "confirmed" }
+        .map { TerritoryPresentationCatalog.displayName(it.territoryCode) }
+        .distinct()
+    val regionLabel = when (confirmedRegions.size) {
+        0 -> null
+        1 -> confirmedRegions.first()
+        else -> "${confirmedRegions.size} 个已确认地区"
+    }
+    val identityValue = productionIdentityIdentifierLabel(item, privacyMask)
+    val typeLabel = when (item.surfaceKind) {
+        VNextProductionSurfaceKind.ACCOUNT -> "账户身份"
+        VNextProductionSurfaceKind.EMAIL_IDENTITY -> "通信身份"
+        VNextProductionSurfaceKind.DEVICE -> "设备端点"
+        VNextProductionSurfaceKind.SERVICE -> "服务节点"
+        else -> productionObjectSurfaceLabel(item)
+    }
+    val glyph = when (item.surfaceKind) {
+        VNextProductionSurfaceKind.ACCOUNT -> "账"
+        VNextProductionSurfaceKind.EMAIL_IDENTITY -> "@"
+        VNextProductionSurfaceKind.DEVICE -> "设"
+        VNextProductionSurfaceKind.SERVICE -> "服"
+        else -> "·"
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.production-vnext.secondary-identity-hero"),
+        color = PdigV2Colors.Surface,
+        shape = RoundedCornerShape(VRadius.Xl),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Surface(
+                color = PdigV2Colors.PrimarySoft,
+                shape = RoundedCornerShape(VRadius.Lg),
+            ) {
+                Box(
+                    Modifier.defaultMinSize(minWidth = 50.dp, minHeight = 50.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        glyph,
+                        color = PdigV2Colors.PrimaryText,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+            Column(
+                Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(
+                    title,
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    listOfNotNull(typeLabel, regionLabel).joinToString(" · "),
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 12.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                identityValue?.let {
+                    Text(
+                        it,
+                        color = PdigV2Colors.TextSecondary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Text(
+                    "$confirmedRelationCount 条已确认关系",
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                )
+            }
+            Surface(
+                color = PdigV2Colors.PrimarySoft,
+                shape = RoundedCornerShape(999.dp),
+            ) {
+                Text(
+                    "已记录",
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    color = PdigV2Colors.PrimaryText,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+        }
+    }
+
+    if (item.identitySubtype != null) {
+        ProductionIdentityEvidenceSummary(item, privacyMask)
+    }
+}
+
+@Composable
+private fun ProductionIdentityEvidenceSummary(
+    item: VNextProductionObject,
+    privacyMask: Boolean,
+) {
+    if (item.identitySubtype == null) return
+    val identifier = productionIdentityIdentifierLabel(item, privacyMask)
+    val identityProof = listOfNotNull(
+        productionIdentityBasisLabel(item.identityVerificationBasisType),
+        item.identityConfirmedAt?.take(10),
+        item.identityEvidenceRefs.takeIf { it.isNotEmpty() }
+            ?.let { "身份依据 ${it.size} 项" },
+    ).joinToString(" · ")
+    val identifierProof = listOfNotNull(
+        item.identityIdentifierVerificationBasisType
+            ?.let(::productionIdentityBasisLabel),
+        item.identityIdentifierConfirmedAt?.take(10),
+        item.identityIdentifierEvidenceRefs.takeIf { it.isNotEmpty() }
+            ?.let { "标识依据 ${it.size} 项" },
+    ).joinToString(" · ")
+
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        if (identifier != null && item.surfaceKind == VNextProductionSurfaceKind.PHONE_IDENTITY) {
+            Text(
+                identifier,
+                color = PdigV2Colors.TextSecondary,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+        if (identityProof.isNotBlank()) {
+            Text(identityProof, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
+        }
+        if (identifierProof.isNotBlank()) {
+            Text(identifierProof, color = PdigV2Colors.TextMuted, fontSize = 9.sp)
         }
     }
 }
