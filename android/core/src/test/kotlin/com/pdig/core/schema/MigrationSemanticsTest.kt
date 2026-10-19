@@ -187,6 +187,17 @@ class MigrationSemanticsTest {
     }
 
     @Test
+    fun logicalV3ContractStaysFrozenWhileAndroidRuntimeSupportsPhysicalV4() {
+        assertEquals(3, SchemaVersion.current)
+        assertEquals(listOf(1, 2, 3), SchemaVersion.migrations)
+        assertEquals(4, SchemaVersion.latestApplication)
+        assertEquals(listOf(1, 2, 3, 4), SchemaVersion.applicationMigrations)
+        assertTrue(SchemaVersion.acceptsSchemaVersion(3))
+        assertFalse(SchemaVersion.acceptsSchemaVersion(4))
+        assertTrue(SchemaVersion.acceptsApplicationSchemaVersion(4))
+    }
+
+    @Test
     fun supportedV4DatabaseRejectsLegacyV3TargetWithoutCallingItFutureSchema() {
         migrate(
             driver,
