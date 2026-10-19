@@ -162,6 +162,26 @@ class PlanRepository(
         val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
         val backupKeys = snapshotKeys(snapshot, "backupKeys")
         val targetKeys = snapshotKeys(snapshot, "targetKeys")
+        val nodeNames = graph.nodes(true).associate { it.id to it.name }
+        val mustSet = mustChangeKeys.toSet()
+        val reviewSet = needsReviewKeys.toSet()
+        val backupSet = backupKeys.toSet()
+        val impactItems = targetKeys.distinct().map { key ->
+            val nodeId = key.substringBefore('|')
+            val capability = key.substringAfter('|', "")
+            PlanImpactItemView(
+                key = key,
+                nodeId = nodeId,
+                nodeName = nodeNames[nodeId],
+                capability = capability,
+                status = when (key) {
+                    in mustSet -> "must_change"
+                    in reviewSet -> "needs_review"
+                    in backupSet -> "backup_or_degraded"
+                    else -> "recorded"
+                },
+            )
+        }
         val current = graph.graphRevision()
         val unresolved = unresolvedMustChangeKeys(plan.actions, mustChangeKeys)
         val readiness = computeReadiness(plan, mustChangeKeys, needsReviewKeys, snapshot)
@@ -188,6 +208,7 @@ class PlanRepository(
             needsReviewKeys = needsReviewKeys,
             backupKeys = backupKeys,
             targetKeys = targetKeys,
+            impactItems = impactItems,
         )
     }
 
