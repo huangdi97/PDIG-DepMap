@@ -340,9 +340,12 @@ internal fun productionFocusedActionLazyIndex(
     val position = plan.actions.indexOfFirst { it.id == actionId }
     if (position < 0) return null
     // Title + stage choreography + truth strip + authority banner + action
-    // section. An unresolved-impact banner and a masking note are optional.
-    return 5 + (if (plan.unresolvedMustChangeKeys.isNotEmpty()) 1 else 0) +
-        (if (targetMasked) 1 else 0) + position
+    // section. Unresolved/replan/masking banners are conditional.
+    return 5 +
+        (if (plan.unresolvedMustChangeKeys.isNotEmpty()) 1 else 0) +
+        (if (productionUnboundMustChangeKeys(plan).isNotEmpty()) 1 else 0) +
+        (if (targetMasked) 1 else 0) +
+        position
 }
 
 internal data class ProductionChangeStageSummary(
