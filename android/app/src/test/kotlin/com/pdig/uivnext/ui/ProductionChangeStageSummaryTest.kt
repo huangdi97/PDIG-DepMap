@@ -229,17 +229,17 @@ class ProductionChangeStageSummaryTest {
             unresolvedMustChangeKeys = listOf(blockerKey),
         )
         assertTrue(
-            productionPlanCompletionEnabled(blockedWithWork, change, true),
             "A fresh CHANGE action that explicitly resolves the current blocker must remain executable.",
+            productionPlanCompletionEnabled(blockedWithWork, change, true),
         )
         val prepare = freshReady.actions.first().copy(done = false)
         assertTrue(
+            "PREPARE steps must remain usable while must-change blockers exist.",
             productionPlanCompletionEnabled(
                 blockedWithWork.copy(actions = listOf(prepare, change)),
                 prepare,
                 true,
             ),
-            "PREPARE steps must remain usable while must-change blockers exist.",
         )
         val unrelated = change.copy(
             id = "unrelated",
@@ -247,20 +247,20 @@ class ProductionChangeStageSummaryTest {
             prerequisiteActionIds = emptyList(),
         )
         assertFalse(
+            "Blocked plans must not open unrelated CHANGE actions.",
             productionPlanCompletionEnabled(
                 blockedWithWork.copy(actions = listOf(unrelated)),
                 unrelated,
                 true,
             ),
-            "Blocked plans must not open unrelated CHANGE actions.",
         )
         assertTrue(
+            "A completed step can be verified while other must-change work remains.",
             productionPlanVerificationEnabled(
                 blockedWithWork,
                 completedPending,
                 true,
             ),
-            "A completed step can be verified while other must-change work remains.",
         )
 
         assertFalse(productionPlanExecutable(freshReady.copy(readiness = "blocked")))
