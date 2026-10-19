@@ -12,11 +12,14 @@ import com.pdig.core.generated.CanonicalSpec
  */
 object SchemaVersion {
 
-    /** 应用逻辑 Schema 版本（spec/domain/domain.json: appSchemaVersion）。 */
+    /** 冻结的 Canonical / payload schema version remains v3. */
     val current: Int = CanonicalSpec.APP_SCHEMA_VERSION
 
+    /** Production application runtime explicitly supports the v4 physical schema. */
+    val latestApplication: Int = LATEST_SCHEMA_VERSION
+
     /** 支持的 DB 迁移链。 */
-    val migrations: List<Int> = listOf(1, 2, 3)
+    val migrations: List<Int> = listOf(1, 2, 3, 4)
 
     /** Graph payload 版本契约。 */
     val payloadKind: String = CanonicalSpec.GRAPH_PAYLOAD_KIND
@@ -39,7 +42,7 @@ object SchemaVersion {
     )
 
     /** 必须被拒绝的 schema 版本（不得猜测兼容）。 */
-    val rejectedSchemaVersions: List<Int> = listOf(0, 4, 99, 100)
+    val rejectedSchemaVersions: List<Int> = listOf(0, 5, 99, 100)
 
     /** 必须被拒绝的 payload 版本。 */
     val rejectedPayloadVersions: List<Int> = listOf(0, 4, 99)
@@ -67,7 +70,7 @@ object SchemaVersion {
      * 未来版本一律拒绝。
      * 注意：这里**不做**"也许能读"的猜测 —— 前向不兼容是产品决策，不是工程便利。
      */
-    fun acceptsSchemaVersion(v: Int): Boolean = v in 1..current
+    fun acceptsSchemaVersion(v: Int): Boolean = v in 1..latestApplication
 
     fun acceptsPayloadVersion(v: Int): Boolean = v == payloadVersion || v in payloadMigratableFrom
 }
