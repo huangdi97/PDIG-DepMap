@@ -290,6 +290,7 @@ internal data class VNextProductionPlan(
     val backupKeys: List<String> = emptyList(),
     val targetKeys: List<String> = emptyList(),
     val impactItems: List<VNextProductionPlanImpactItem> = emptyList(),
+    val retirementScopeReady: Boolean? = null,
 )
 
 /**
@@ -686,6 +687,7 @@ internal fun mapProductionPlan(detail: PlanDetailView): VNextProductionPlan =
                 status = item.status,
             )
         },
+        retirementScopeReady = detail.retirementScopeReady,
         actions = detail.actions.map { action ->
             VNextProductionPlanAction(
                 id = action.id,
