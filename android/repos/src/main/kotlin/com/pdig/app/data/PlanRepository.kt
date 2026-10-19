@@ -284,12 +284,14 @@ class PlanRepository(
     fun completeAction(planId: String, actionId: String) {
         val now = Instant.now().toString()
         driver.transaction {
-            val current = rawWorkflowState(planId)
-            if (current != null && ChangePlanMachine.isFrozen(current)) {
+            val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+            if (ChangePlanMachine.isFrozen(plan.workflowState)) {
                 throw IllegalStateException("action_frozen")
             }
-            val actions = planDomain(planId)?.actions?.toMutableList()
-                ?: throw IllegalStateException("entity_not_found")
+            if (com.pdig.core.plan.isPlanStale(plan, graph.graphRevision())) {
+                throw IllegalStateException("plan_stale")
+            }
+            val actions = plan.actions.toMutableList()
             val idx = actions.indexOfFirst { it.id == actionId }
             if (idx < 0) throw IllegalStateException("entity_not_found")
             // v0.3.0 Action DAG gate：前置动作未完成 → 禁止完成
@@ -311,12 +313,14 @@ class PlanRepository(
     fun verifyAction(planId: String, actionId: String) {
         val now = Instant.now().toString()
         driver.transaction {
-            val current = rawWorkflowState(planId)
-            if (current != null && ChangePlanMachine.isFrozen(current)) {
+            val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+            if (ChangePlanMachine.isFrozen(plan.workflowState)) {
                 throw IllegalStateException("action_frozen")
             }
-            val actions = planDomain(planId)?.actions?.toMutableList()
-                ?: throw IllegalStateException("entity_not_found")
+            if (com.pdig.core.plan.isPlanStale(plan, graph.graphRevision())) {
+                throw IllegalStateException("plan_stale")
+            }
+            val actions = plan.actions.toMutableList()
             val idx = actions.indexOfFirst { it.id == actionId }
             if (idx < 0) throw IllegalStateException("entity_not_found")
             val v = actions[idx].verification
