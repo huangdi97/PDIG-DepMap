@@ -303,6 +303,9 @@ class PlanRepository(
                     if (!pAction.done) throw IllegalStateException("action_missing_prerequisite")
                 }
             }
+            if (!phoneRetirementVerificationSatisfied(plan.scenario, actionId, actions)) {
+                throw IllegalStateException("verification_prerequisite_not_met")
+            }
             actions[idx] = actions[idx].copy(done = true)
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)
@@ -405,7 +408,9 @@ class PlanRepository(
                 unresolvedCandidates = candidates,
                 pendingRelevantProposals = relevantProposals,
                 staleRelevantDependencies = staleRelevant,
-                unfinishedChangeActions = plan.actions.count { !it.done },
+                unfinishedChangeActions = plan.actions.count {
+                    it.phase == PlanActionPhase.CHANGE && !it.done
+                },
             ),
         )
     }
