@@ -12,6 +12,7 @@ import com.pdig.core.json.Json
 import com.pdig.core.json.JsonWriter
 import com.pdig.core.plan.computePlanReadiness
 import com.pdig.core.plan.countUnresolvedMustChange
+import com.pdig.core.plan.unresolvedMustChangeKeys
 import com.pdig.core.plan.claimUnassignedMustChangeKeys
 import com.pdig.core.scenario.ScenarioRegistry
 import com.pdig.core.domain.confirmedIdentityAnchorProfile
@@ -162,11 +163,7 @@ class PlanRepository(
         val backupKeys = snapshotKeys(snapshot, "backupKeys")
         val targetKeys = snapshotKeys(snapshot, "targetKeys")
         val current = graph.graphRevision()
-        val unresolved = if (mustChangeKeys.isEmpty()) emptyList() else {
-            val n = countUnresolvedMustChange(plan.actions, mustChangeKeys)
-            // 返回仍未解决的 key：用于 UI 明确指出"哪几条还没处理"
-            mustChangeKeys.filterIndexed { i, _ -> i >= mustChangeKeys.size - n }
-        }
+        val unresolved = unresolvedMustChangeKeys(plan.actions, mustChangeKeys)
         val readiness = computeReadiness(plan, mustChangeKeys, needsReviewKeys, snapshot)
         val targetName = plan.targetNodeId?.let { id -> graph.nodes(true).firstOrNull { it.id == id }?.name } ?: ""
         return PlanDetailView(
