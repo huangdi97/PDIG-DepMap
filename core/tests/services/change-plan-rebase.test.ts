@@ -245,6 +245,47 @@ describe('ChangePlan Rebase（MVP03 PRB）', () => {
     expect(plans.getExisting(id).workflowState).toBe('cancelled')
   })
 
+  it('PRB-012: replace_phone_number analysis follows recovery/authentication scope, not payment', () => {
+    const phone = nodes.create({ kind: 'identity_anchor', name: '旧手机号' }).id
+    const account = nodes.create({ kind: 'account', name: '主账户' }).id
+    const service = nodes.create({ kind: 'service', name: '登录服务' }).id
+    deps.confirm({
+      from: phone,
+      relation: 'recovers',
+      to: account,
+      capability: 'recovery',
+      criticality: 'required',
+    })
+    deps.confirm({
+      from: phone,
+      relation: 'authenticates',
+      to: service,
+      capability: 'authentication',
+      criticality: 'required',
+    })
+
+    const plan = plans.create({
+      scenario: 'replace_phone_number',
+      title: '更换手机号',
+      templateId: 'replace_phone_number',
+      targetNodeId: phone,
+      graphRevision: getGraphRevision(driver),
+    })
+    const snapshot = analyzePlanImpact(
+      driver,
+      { deps, groups: new DependencyGroupRepository(driver), proposals },
+      plan,
+    )
+
+    expect(
+      snapshot.targets.map((t) => `${t.nodeId}|${t.capability}|${t.status}`).sort(),
+    ).toEqual([
+      `${account}|recovery|must_change`,
+      `${service}|authentication|must_change`,
+    ].sort())
+    expect(snapshot.targets.some((t) => t.capability === 'payment')).toBe(false)
+  })
+
   it('PRB-011: deterministic diff ordering（多目标差异排序确定，重复 rebase 无差异）', () => {
     const alipay = nodes.create({ kind: 'account', name: '支付宝' }).id
     // cardA 两条 required 出边 → 基线：wechat/alipay 都 must_change
