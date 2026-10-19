@@ -208,4 +208,7 @@ sealed interface ExportBackupResult {
      val unresolvedMustChangeKeys: List<String>,
      val readiness: com.pdig.core.generated.PlanReadiness,
      val affectedServiceCount: Int,
+     val needsReviewKeys: List<String> = emptyList(),
+     val backupKeys: List<String> = emptyList(),
+     val targetKeys: List<String> = emptyList(),
  )
