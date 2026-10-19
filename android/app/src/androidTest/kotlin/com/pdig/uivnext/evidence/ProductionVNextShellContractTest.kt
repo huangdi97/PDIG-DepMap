@@ -530,6 +530,10 @@ class ProductionVNextShellContractTest {
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.inventory-category", useUnmergedTree = true)
             .assertIsDisplayed()
+        compose.onNodeWithTag(
+            "pdig.production-vnext.object-row.account-1",
+            useUnmergedTree = true,
+        ).assertIsDisplayed()
         compose.onNodeWithText("账户 A").performClick()
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.production-vnext.object-detail", useUnmergedTree = true)
