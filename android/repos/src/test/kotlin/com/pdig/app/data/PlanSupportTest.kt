@@ -48,6 +48,52 @@ class PlanSupportTest {
     }
 
     @Test
+    fun newlyDiscoveredPhoneImpactsNeverBindToRetirementStep() {
+        val actions = buildReplacePhoneActions().map {
+            if (it.id == "rpn-change-1") {
+                it.copy(
+                    done = true,
+                    resolvesImpactKeys = listOf("account-a|recovery"),
+                )
+            } else {
+                it
+            }
+        }
+
+        val projected = claimScenarioMustChangeKeys(
+            scenario = "replace_phone_number",
+            actions = actions,
+            mustChangeKeys = listOf(
+                "account-a|recovery",
+                "account-b|authentication",
+            ),
+        )
+
+        assertTrue(
+            projected.first { it.id == "rpn-change-2" }.resolvesImpactKeys.isEmpty(),
+            "retirement must never claim newly discovered migration work",
+        )
+        assertFalse(
+            projected.any { "account-b|authentication" in it.resolvesImpactKeys },
+            "new impact must remain explicitly unresolved when the migration step is already done",
+        )
+    }
+
+    @Test
+    fun phoneMigrationStepClaimsInitialImpactsButRetirementDoesNot() {
+        val projected = claimScenarioMustChangeKeys(
+            scenario = "replace_phone_number",
+            actions = buildReplacePhoneActions(),
+            mustChangeKeys = listOf("account-a|recovery"),
+        )
+        assertEquals(
+            listOf("account-a|recovery"),
+            projected.first { it.id == "rpn-change-1" }.resolvesImpactKeys,
+        )
+        assertTrue(projected.first { it.id == "rpn-change-2" }.resolvesImpactKeys.isEmpty())
+    }
+
+    @Test
     fun retirementRequiresCompletedAndVerifiedPhonePath() {
         assertFalse(
             phoneRetirementVerificationSatisfied(
