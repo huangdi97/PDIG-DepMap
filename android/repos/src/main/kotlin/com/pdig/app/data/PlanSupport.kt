@@ -9,6 +9,7 @@ import com.pdig.core.generated.PlanActionPhase
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
+import com.pdig.core.plan.claimUnassignedMustChangeKeys
 import com.pdig.core.scenario.ScenarioRegistry
 
 // ---------------------------------------------------------------------------
@@ -34,6 +35,27 @@ internal fun scenarioImpactCapabilities(scenarioId: String): List<Capability> {
     }.distinct()
 }
 
+
+/**
+ * Bind must-change requirements only to scenario actions that are allowed to
+ * resolve them. For phone replacement, the destructive retirement step is
+ * deliberately excluded: newly discovered migration work must never be
+ * satisfied by retiring the old number.
+ */
+internal fun claimScenarioMustChangeKeys(
+    scenario: String,
+    actions: List<PlanAction>,
+    mustChangeKeys: List<String>,
+): List<PlanAction> =
+    claimUnassignedMustChangeKeys(
+        actions = actions,
+        keys = mustChangeKeys,
+        eligibleActionIds = if (scenario == "replace_phone_number") {
+            setOf("rpn-change-1")
+        } else {
+            null
+        },
+    )
 
 internal fun keysOfStatus(
     impact: ImpactResult,
