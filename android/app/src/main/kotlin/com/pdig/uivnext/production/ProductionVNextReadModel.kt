@@ -265,10 +265,12 @@ internal data class VNextProductionRecordItem(
     val state: VNextProductionRecordState,
     val evidenceRefs: List<String>,
     /**
-     * Real action/verification authority time when available.
-     * Legacy records remain null; effectiveDate is never substituted.
+     * Compatibility occurrence lens. New records also expose the underlying
+     * completion and verification timestamps separately.
      */
     val occurredAt: String? = null,
+    val recordedAt: String? = null,
+    val verifiedAt: String? = null,
 )
 
 internal data class VNextProductionPlan(
@@ -745,6 +747,8 @@ internal fun buildProductionRecordTrace(
                         action.verificationVerifiedAt ?: action.doneAt
                     else -> action.doneAt
                 },
+                recordedAt = action.doneAt,
+                verifiedAt = action.verificationVerifiedAt,
             )
         }
     }.sortedWith(
