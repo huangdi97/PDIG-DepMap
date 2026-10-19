@@ -56,6 +56,7 @@ fun computePlanReadiness(input: PlanReadinessInput): PlanReadiness {
 fun claimUnassignedMustChangeKeys(
     actions: List<PlanAction>,
     keys: List<String>,
+    eligibleActionIds: Set<String>? = null,
 ): List<PlanAction> {
     val claimed = actions.flatMap { it.resolvesImpactKeys }.toSet()
     val unassigned = keys.filterNot { it in claimed }.distinct().sorted()
@@ -64,7 +65,8 @@ fun claimUnassignedMustChangeKeys(
     val targetIndex = actions.indexOfFirst {
         it.phase == com.pdig.core.generated.PlanActionPhase.CHANGE &&
             !it.done &&
-            it.resolvesImpactKeys.isEmpty()
+            it.resolvesImpactKeys.isEmpty() &&
+            (eligibleActionIds == null || it.id in eligibleActionIds)
     }
     if (targetIndex < 0) return actions.map { it.copy() }
 
