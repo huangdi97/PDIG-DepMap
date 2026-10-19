@@ -48,7 +48,8 @@ class ProductionConsumerCopySourceContractTest {
             "生产数据源",
             "生产数据搜索",
             "生产数据绑定",
-            "payment_instrument",
+            "没有已确认的 payment_instrument",
+            "当前没有已确认的 payment_instrument",
             "done 与 verified",
             "ChangePlan",
         )
