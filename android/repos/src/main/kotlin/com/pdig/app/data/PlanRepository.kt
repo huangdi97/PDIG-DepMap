@@ -188,6 +188,11 @@ class PlanRepository(
         val current = graph.graphRevision()
         val unresolved = unresolvedMustChangeKeys(plan.actions, mustChangeKeys)
         val readiness = computeReadiness(plan, mustChangeKeys, needsReviewKeys, snapshot)
+        val retirementScopeReady = if (plan.scenario == "replace_phone_number") {
+            phoneRetirementScopeReady(plan, mustChangeKeys, needsReviewKeys, snapshot)
+        } else {
+            null
+        }
         val targetName = plan.targetNodeId?.let { id -> graph.nodes(true).firstOrNull { it.id == id }?.name } ?: ""
         return PlanDetailView(
             id = plan.id,
@@ -212,6 +217,7 @@ class PlanRepository(
             backupKeys = backupKeys,
             targetKeys = targetKeys,
             impactItems = impactItems,
+            retirementScopeReady = retirementScopeReady,
         )
     }
 
@@ -308,22 +314,7 @@ class PlanRepository(
                 if (unresolvedMustChangeKeys(actions, mustChangeKeys).isNotEmpty()) {
                     throw IllegalStateException("unresolved_must_change")
                 }
-                // Retirement is destructive. Evaluate readiness as if this one
-                // retirement action were completed; this removes only its own
-                // unfinished-change blocker while preserving every unresolved
-                // review/proposal/candidate/staleness blocker.
-                val projectedActions = actions.toMutableList().also {
-                    it[idx] = it[idx].copy(done = true)
-                }
-                val projectedPlan = plan.copy(actions = projectedActions)
-                if (
-                    computeReadiness(
-                        projectedPlan,
-                        mustChangeKeys,
-                        needsReviewKeys,
-                        snapshot,
-                    ) != com.pdig.core.generated.PlanReadiness.READY_WITH_KNOWN_SCOPE
-                ) {
+                if (!phoneRetirementScopeReady(plan, mustChangeKeys, needsReviewKeys, snapshot)) {
                     throw IllegalStateException("retirement_scope_not_ready")
                 }
             }
@@ -395,6 +386,28 @@ class PlanRepository(
     private fun writeActions(planId: String, actions: List<com.pdig.core.domain.PlanAction>, now: String) {
         driver.prepare("UPDATE change_plans SET action_items_json = ?, updated_at = ? WHERE id = ?")
             .run(JsonWriter.write(Json.Arr(actions.map { planActionToJson(it) })), now, planId)
+    }
+
+    private fun phoneRetirementScopeReady(
+        plan: com.pdig.core.domain.ChangePlan,
+        mustChangeKeys: List<String>,
+        needsReviewKeys: List<String>,
+        snapshot: String?,
+    ): Boolean {
+        if (plan.scenario != "replace_phone_number") return false
+        if (unresolvedMustChangeKeys(plan.actions, mustChangeKeys).isNotEmpty()) return false
+        val retirementIndex = plan.actions.indexOfFirst { it.id == "rpn-change-2" }
+        if (retirementIndex < 0) return false
+        val projectedActions = plan.actions.toMutableList().also {
+            it[retirementIndex] = it[retirementIndex].copy(done = true)
+        }
+        val projectedPlan = plan.copy(actions = projectedActions)
+        return computeReadiness(
+            projectedPlan,
+            mustChangeKeys,
+            needsReviewKeys,
+            snapshot,
+        ) == com.pdig.core.generated.PlanReadiness.READY_WITH_KNOWN_SCOPE
     }
 
     private fun computeReadiness(
