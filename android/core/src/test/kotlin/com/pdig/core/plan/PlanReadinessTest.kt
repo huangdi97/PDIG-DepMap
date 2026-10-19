@@ -159,6 +159,25 @@ class PlanReadinessTest {
     }
 
     @Test
+    fun unresolvedMustChangeReturnsExactKeysInsteadOfCountBasedTail() {
+        val actions = listOf(
+            action("a1", keys = listOf("svc-b|recovery"), done = true),
+            action("a2", keys = listOf("svc-a|authentication"), done = false),
+        )
+        val keys = listOf(
+            "svc-a|authentication",
+            "svc-b|recovery",
+            "svc-c|communication",
+        )
+
+        assertEquals(
+            listOf("svc-a|authentication", "svc-c|communication"),
+            unresolvedMustChangeKeys(actions, keys),
+        )
+        assertEquals(2, countUnresolvedMustChange(actions, keys))
+    }
+
+    @Test
     fun unclaimedMustChangeKeyIsUnresolved() {
         val actions = listOf(action("a1", keys = listOf("other|payment"), done = true))
         assertEquals(1, countUnresolvedMustChange(actions, listOf("svc-a|payment")))
