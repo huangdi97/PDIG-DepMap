@@ -249,6 +249,7 @@ class ProductionChangeStageSummaryTest {
             actions = base.actions.map {
                 if (it.id == "rpn-verify-1") it.copy(verificationStatus = "verified") else it
             },
+            retirementScopeReady = true,
         )
         val verifiedRetire = verifiedPlan.actions.first { it.id == "rpn-change-2" }
         assertTrue(productionPhoneRetirementVerificationSatisfied(verifiedPlan, verifiedRetire))
