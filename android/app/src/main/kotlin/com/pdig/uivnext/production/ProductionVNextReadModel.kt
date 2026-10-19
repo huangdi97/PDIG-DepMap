@@ -14,6 +14,7 @@ import com.pdig.core.domain.defaultRegionLensSelection
 import com.pdig.core.domain.governedRegionFacts
 import com.pdig.core.domain.governedMaintenanceProfile
 import com.pdig.core.domain.maintenanceOccurrences
+import com.pdig.core.generated.ChangePlanWorkflowState
 import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
@@ -652,7 +653,17 @@ internal fun mapProductionPlan(detail: PlanDetailView): VNextProductionPlan =
         scenario = detail.scenario,
         title = detail.title,
         workflowState = detail.workflowState.wire,
-        effectiveState = detail.effectiveState?.wire,
+        effectiveState = if (
+            detail.currentGraphRevision > detail.lastAnalyzedGraphRevision &&
+            detail.workflowState !in setOf(
+                ChangePlanWorkflowState.COMPLETED,
+                ChangePlanWorkflowState.CANCELLED,
+            )
+        ) {
+            "needs_revalidation"
+        } else {
+            detail.effectiveState?.wire
+        },
         baselineGraphRevision = detail.baselineGraphRevision,
         lastAnalyzedGraphRevision = detail.lastAnalyzedGraphRevision,
         currentGraphRevision = detail.currentGraphRevision,
