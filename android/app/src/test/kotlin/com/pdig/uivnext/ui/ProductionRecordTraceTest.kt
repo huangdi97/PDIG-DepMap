@@ -64,6 +64,29 @@ class ProductionRecordTraceTest {
     }
 
     @Test
+    fun verifiedRecordShowsCompletionAndVerificationTimesSeparately() {
+        val item = VNextProductionRecordItem(
+            id = "timed",
+            planId = "plan-a",
+            planTitle = "更换手机号",
+            scenario = "replace_phone_number",
+            actionId = "verify",
+            actionTitle = "验证新路径",
+            phase = "verify",
+            state = VNextProductionRecordState.VERIFIED,
+            evidenceRefs = listOf("ev-1"),
+            occurredAt = "2026-10-19T13:30:00Z",
+            recordedAt = "2026-10-19T13:29:00Z",
+            verifiedAt = "2026-10-19T13:30:00Z",
+        )
+
+        assertEquals(
+            "记录于 2026-10-19 · 验证于 2026-10-19",
+            productionRecordPresentation(item).timeLabel,
+        )
+    }
+
+    @Test
     fun completePendingAndFailedAreNotReportedAsVerified() {
         val states = listOf(
             VNextProductionRecordState.RECORDED_COMPLETE to "已记录完成",
