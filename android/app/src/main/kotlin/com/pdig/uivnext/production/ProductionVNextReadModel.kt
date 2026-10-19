@@ -692,6 +692,11 @@ internal fun buildProductionRecordTrace(
 ): List<VNextProductionRecordItem> =
     plans.flatMap { plan ->
         plan.actions.mapNotNull { action ->
+            // A template can carry verification=pending before anything has
+            // happened. Records is an event trace, so a future action without
+            // a recorded completion must not appear as "待验证".
+            if (!action.done) return@mapNotNull null
+
             val state = when {
                 action.verificationStatus == "verified" ->
                     VNextProductionRecordState.VERIFIED
