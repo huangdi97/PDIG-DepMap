@@ -8,6 +8,7 @@ import com.pdig.core.domain.ImpactGraph
 import com.pdig.core.generated.ChangePlanWorkflowState
 import com.pdig.core.generated.NodeKind
 import com.pdig.core.impact.ImpactResult
+import com.pdig.core.schema.LATEST_SCHEMA_VERSION
 import com.pdig.core.schema.migrate
 import com.pdig.core.sources.MappingProfile
 import com.pdig.core.sources.Observation
@@ -32,7 +33,11 @@ class AppContainer private constructor(private val driver: SqliteDriver) {
             instance ?: run {
                 val file = File(context.filesDir, "pdig.db")
                 val driver = AndroidSqliteDriver.open(file, DatabaseKeyStore.passphrase(context))
-                migrate(driver, Instant.now().toString())
+                migrate(
+                    driver,
+                    Instant.now().toString(),
+                    targetVersion = LATEST_SCHEMA_VERSION,
+                )
                 AppContainer(driver).also { instance = it }
             }
         }
