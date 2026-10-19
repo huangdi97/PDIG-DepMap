@@ -541,6 +541,7 @@ class ProductionVNextReadModelTest {
                 planAction("pending", done = true, verification = "pending"),
                 planAction("failed", done = true, verification = "failed",
                     evidenceRefs = listOf("ev-failed")),
+                planAction("future-pending", done = false, verification = "pending"),
                 planAction("future", done = false, verification = null),
             ),
         )
@@ -568,6 +569,7 @@ class ProductionVNextReadModelTest {
             records.first { it.actionId == "failed" }.state,
         )
         assertTrue(records.all { it.occurredAt == null })
+        assertFalse(records.any { it.actionId == "future-pending" })
         assertFalse(records.any { it.actionId == "future" })
     }
 
