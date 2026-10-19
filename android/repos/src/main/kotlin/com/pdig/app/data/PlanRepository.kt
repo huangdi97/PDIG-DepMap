@@ -333,7 +333,10 @@ class PlanRepository(
                     throw IllegalStateException("retirement_scope_not_ready")
                 }
             }
-            actions[idx] = actions[idx].copy(done = true)
+            actions[idx] = actions[idx].copy(
+                done = true,
+                doneAt = actions[idx].doneAt ?: now,
+            )
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)
         }
@@ -361,7 +364,10 @@ class PlanRepository(
             if (v.status.wire in terminalWires) throw IllegalStateException("illegal_state_transition")
             require(actions[idx].done) { "not_done" }
             actions[idx] = actions[idx].copy(
-                verification = v.copy(status = ActionVerificationStatus.VERIFIED),
+                verification = v.copy(
+                    status = ActionVerificationStatus.VERIFIED,
+                    verifiedAt = v.verifiedAt ?: now,
+                ),
             )
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)
