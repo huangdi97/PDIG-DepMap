@@ -52,6 +52,25 @@ internal fun buildActionsFor(
  * （先建新路径并验证，才能 retire 旧路径；BREAK_BEFORE_MAKE = FORBIDDEN）。
  * 纯数据构造：DAG 校验与前置门禁在 PlanRepository.completeAction / core ActionDagEngine 里。
  */
+/**
+ * replace_phone_number Make-Before-Break retirement invariant.
+ *
+ * rpn-change-2 is the destructive retirement step. Merely recording the
+ * verification action as done is insufficient: its verification result must be
+ * authoritative VERIFIED before the old path may be retired.
+ */
+internal fun phoneRetirementVerificationSatisfied(
+    scenario: String,
+    actionId: String,
+    actions: List<PlanAction>,
+): Boolean {
+    if (scenario != "replace_phone_number" || actionId != "rpn-change-2") return true
+    val verification = actions.firstOrNull { it.id == "rpn-verify-1" }
+        ?: return false
+    return verification.done &&
+        verification.verification?.status == ActionVerificationStatus.VERIFIED
+}
+
 internal fun buildReplacePhoneActions(): List<PlanAction> {
     val futureObservation = com.pdig.core.domain.ActionVerification(
         method = ActionVerificationMethod.FUTURE_OBSERVATION,
