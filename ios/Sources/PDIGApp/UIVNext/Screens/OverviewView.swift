@@ -145,7 +145,7 @@ struct OverviewView: View {
             quickButton(VCopy.quickWeaknesses, "连续性发现", id: VTestIds.navInfraWeaknesses) {
                 model.navigate(.weaknesses)
             }
-            quickButton(VCopy.quickChangePhone, "前往变更工作区") {
+            quickButton(VCopy.quickChangePhone, "前往变更工作区", id: VTestIds.overviewQuickChange) {
                 model.navigate(.changePhone)
             }
         }
@@ -162,7 +162,7 @@ struct OverviewView: View {
     private func quickButton(
         _ title: String,
         _ hint: String,
-        id: String? = nil,
+        id: String,
         _ action: @escaping () -> Void
     ) -> some View {
         Button(action: action) {
@@ -187,7 +187,7 @@ struct OverviewView: View {
             RoundedRectangle(cornerRadius: VRadius.md, style: .continuous)
                 .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
         )
-        .accessibilityIdentifier(id ?? "")
+        .accessibilityIdentifier(id)
     }
 
     /// Region Drawer：地区资产摘要 + 3 个动作（查看全部/查看卡片/查看号码，带 region filter）。
