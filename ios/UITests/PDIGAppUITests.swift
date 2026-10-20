@@ -70,17 +70,34 @@ final class PDIGAppUITests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        XCTAssertTrue(element.waitForExistence(timeout: 15), "等待元素出现: \(element)", file: file, line: line)
-        if element.exists && !element.isEnabled {
+        // SwiftUI may not materialize controls inside a LazyVGrid until their
+        // enclosing ScrollView approaches the viewport. Searching only after a
+        // 15-second existence wait deadlocks on legitimate below-fold entries.
+        // Give immediately visible controls a short fast path, then scroll the
+        // real product surface until the same query materializes.
+        var attempts = 0
+        if !element.waitForExistence(timeout: 2) {
+            while !element.exists && attempts < 8 {
+                app.swipeUp()
+                attempts += 1
+                _ = element.waitForExistence(timeout: 1)
+            }
+        }
+        XCTAssertTrue(element.exists, "等待元素出现: \(element)", file: file, line: line)
+        guard element.exists else { return }
+
+        if !element.isEnabled {
             let predicate = NSPredicate(format: "isEnabled == true")
             wait(for: [expectation(for: predicate, evaluatedWith: element)], timeout: 10)
         }
-        var attempts = 0
-        while !element.isHittable && attempts < 6 {
+        while !element.isHittable && attempts < 10 {
             app.swipeUp()
             attempts += 1
         }
-        element.tap()
+        XCTAssertTrue(element.isHittable, "元素存在但不可点击: \(element)", file: file, line: line)
+        if element.isHittable {
+            element.tap()
+        }
     }
 
     /// 卡片式按钮（VStack 内标题+副标题两个 Text）的 accessibility label 会被拼接
