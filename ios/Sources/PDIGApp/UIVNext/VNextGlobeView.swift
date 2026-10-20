@@ -64,7 +64,7 @@ struct VNextGlobeView: View {
                 toolbarPanels(in: geo.size)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(PdigV2Colors.canvasDeep.opacity(0.4))
+            .background(PdigV2Colors.globeDeep)
             .contentShape(Rectangle())
             // DRAG：旋转球体（水平=经度，垂直=纬度，纬度 clamp ±60°）；交互期间暂停 idle。
             .gesture(
@@ -215,14 +215,14 @@ struct VNextGlobeView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(region.displayName)
                         .font(VFont.label())
-                        .foregroundColor(PdigV2Colors.textPrimary)
+                        .foregroundColor(PdigV2Colors.globeTextPrimary)
                     Text(VCopy.regionTooltip(region))
                         .font(VFont.meta())
-                        .foregroundColor(PdigV2Colors.textSecondary)
+                        .foregroundColor(PdigV2Colors.globeTextSecondary)
                 }
                 .padding(.horizontal, VSpace.md)
                 .padding(.vertical, VSpace.sm)
-                .background(PdigV2Colors.surfaceRaised.opacity(0.96))
+                .background(PdigV2Colors.globeSurfaceRaised.opacity(0.96))
                 .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
                 .overlay(
                     RoundedRectangle(cornerRadius: VRadius.md, style: .continuous)
