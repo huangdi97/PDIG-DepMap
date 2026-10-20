@@ -81,8 +81,8 @@ enum VCopy {
     static let rolePrimary = "主号" // uiVNext.phone.role.primary
     static let roleSecondary = "副号" // uiVNext.phone.role.secondary
     static let roleKeep = "保号" // uiVNext.phone.role.keep
-    static let recoveryOnly = "唯一恢复路径"
-    static let recoveryOnlyShort = "恢复唯一"
+    static let recoveryOnly = "恢复用途"
+    static let recoveryOnlyShort = "恢复"
     static let selectNumberHint = "选择一个号码查看详情"
     static let numberDetailTitle = "号码详情"
     static let relatedServices = "关联服务"
@@ -106,7 +106,7 @@ enum VCopy {
     static let keyServices = "关联服务与账户" // uiVNext.change.services
     static let stageDetailTitle = "阶段明细"
     static let riskTitle = "风险提示"
-    static let riskBody = "旧号码是 2 个账户的唯一恢复路径：迁移完成前不要停用；验证阶段未完成时「停用旧号码」必须保持禁用。"
+    static let riskBody = "旧号码承担 2 个账户的恢复关系；是否构成唯一恢复路径必须由路径分析确认。迁移与验证完成前不要停用旧号码。"
     static let plan = "计划" // uiVNext.plan
     static let upcomingStage = "后续阶段" // uiVNext.change.upcoming
     static let impactAnalysis = "影响分析" // uiVNext.change.impactAnalysis
