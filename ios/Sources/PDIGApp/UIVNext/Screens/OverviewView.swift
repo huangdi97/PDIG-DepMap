@@ -124,25 +124,25 @@ struct OverviewView: View {
             columns: [GridItem(.flexible()), GridItem(.flexible())],
             spacing: VSpace.gridGap
         ) {
-            quickButton(VCopy.quickCards, "全球 \(VNextDemoFixture.cards.count) 张卡") {
+            quickButton(VCopy.quickCards, "全球 \(VNextDemoFixture.cards.count) 张卡", id: VTestIds.navInfraCards) {
                 model.navigate(.cards)
             }
-            quickButton(VCopy.quickNumbers, "全球 \(VNextDemoFixture.numbers.count) 个号码") {
+            quickButton(VCopy.quickNumbers, "全球 \(VNextDemoFixture.numbers.count) 个号码", id: VTestIds.navInfraNumbers) {
                 model.navigate(.numbers)
             }
-            quickButton(VCopy.navInfraAccounts, "\(VNextDemoFixture.secondaryAssets(for: .account).count) 个已记录") {
+            quickButton(VCopy.navInfraAccounts, "\(VNextDemoFixture.secondaryAssets(for: .account).count) 个已记录", id: VTestIds.navInfraAccounts) {
                 model.navigate(.accounts)
             }
-            quickButton(VCopy.navInfraEmails, "\(VNextDemoFixture.secondaryAssets(for: .email).count) 个已记录") {
+            quickButton(VCopy.navInfraEmails, "\(VNextDemoFixture.secondaryAssets(for: .email).count) 个已记录", id: VTestIds.navInfraEmails) {
                 model.navigate(.emails)
             }
-            quickButton(VCopy.navInfraDevices, "\(VNextDemoFixture.secondaryAssets(for: .device).count) 个已记录") {
+            quickButton(VCopy.navInfraDevices, "\(VNextDemoFixture.secondaryAssets(for: .device).count) 个已记录", id: VTestIds.navInfraDevices) {
                 model.navigate(.devices)
             }
-            quickButton(VCopy.navInfraServices, "\(VNextDemoFixture.secondaryAssets(for: .service).count) 个已记录") {
+            quickButton(VCopy.navInfraServices, "\(VNextDemoFixture.secondaryAssets(for: .service).count) 个已记录", id: VTestIds.navInfraServices) {
                 model.navigate(.services)
             }
-            quickButton(VCopy.quickWeaknesses, "连续性发现") {
+            quickButton(VCopy.quickWeaknesses, "连续性发现", id: VTestIds.navInfraWeaknesses) {
                 model.navigate(.weaknesses)
             }
             quickButton(VCopy.quickChangePhone, "前往变更工作区") {
@@ -159,7 +159,12 @@ struct OverviewView: View {
         )
     }
 
-    private func quickButton(_ title: String, _ hint: String, _ action: @escaping () -> Void) -> some View {
+    private func quickButton(
+        _ title: String,
+        _ hint: String,
+        id: String? = nil,
+        _ action: @escaping () -> Void
+    ) -> some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -182,6 +187,7 @@ struct OverviewView: View {
             RoundedRectangle(cornerRadius: VRadius.md, style: .continuous)
                 .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
         )
+        .accessibilityIdentifier(id ?? "")
     }
 
     /// Region Drawer：地区资产摘要 + 3 个动作（查看全部/查看卡片/查看号码，带 region filter）。
