@@ -29,6 +29,32 @@ final class PDIGAppUITests: XCTestCase {
         return app
     }
 
+    /// 以 vNext synthetic reference 模式启动 App。
+    ///
+    /// This is not a Production Reality bypass: it only opens the explicitly
+    /// synthetic reference shell so iPhone/iPad visual translation can be
+    /// tested on a real iOS Simulator.
+    private func launchVNextReference() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-vnext"]
+        app.launch()
+        return app
+    }
+
+    private func vnextRoot(
+        _ app: XCUIApplication,
+        id: String,
+        fallbackLabel: String
+    ) -> XCUIElement {
+        app.buttons.matching(
+            NSPredicate(
+                format: "identifier == %@ OR label == %@",
+                id,
+                fallbackLabel
+            )
+        ).firstMatch
+    }
+
     /// 把当前模拟器画面附加进 xcresult（IOS_VISUAL 证据，keepAlways）。
     private func attachScreenshot(_ app: XCUIApplication, name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
@@ -134,4 +160,73 @@ final class PDIGAppUITests: XCTestCase {
         XCTAssertTrue(app.buttons["设置"].exists, "底部导航 设置 不可达")
         attachScreenshot(app, name: "00-home-minimal")
     }
+
+    /// vNext reference translation runtime gate.
+    ///
+    /// iPhone exercises the five bottom roots; iPad exercises the five sidebar
+    /// roots. Both must expose the same secondary infrastructure pages.
+    func testVNextReferenceFiveRootsAndSecondaryInfrastructure() throws {
+        let app = launchVNextReference()
+
+        let now = vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在")
+        XCTAssertTrue(now.waitForExistence(timeout: 20), "vNext 现在入口未出现")
+        attachScreenshot(app, name: "vnext-01-now")
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的基础设施"].waitForExistence(timeout: 10),
+            "vNext 基础设施未出现"
+        )
+        attachScreenshot(app, name: "vnext-02-infrastructure")
+
+        // Account must be reachable through normal product navigation, not by
+        // directly constructing a view in the test.
+        let accountEntry = app.buttons["账户"].firstMatch
+        tapWhenReady(accountEntry, in: app)
+        XCTAssertTrue(
+            app.staticTexts["已记录的数字基础设施对象 · 参考数据"]
+                .waitForExistence(timeout: 10),
+            "账户 collection 未出现"
+        )
+        attachScreenshot(app, name: "vnext-03-accounts")
+
+        tapWhenReady(app.buttons["微信账户"].firstMatch, in: app)
+        XCTAssertTrue(
+            app.staticTexts["账户详情"].waitForExistence(timeout: 10),
+            "账户详情未出现"
+        )
+        attachScreenshot(app, name: "vnext-04-account-detail")
+
+        let change = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
+        tapWhenReady(change, in: app)
+        XCTAssertTrue(
+            app.staticTexts["更换手机号"].waitForExistence(timeout: 10),
+            "变更一级工作区未出现"
+        )
+        attachScreenshot(app, name: "vnext-05-change")
+
+        let records = vnextRoot(app, id: "pdig.nav.records", fallbackLabel: "记录")
+        tapWhenReady(records, in: app)
+        XCTAssertTrue(
+            app.staticTexts["已发生、已记录完成与独立验证分开显示"]
+                .waitForExistence(timeout: 10),
+            "记录一级工作区未出现"
+        )
+        attachScreenshot(app, name: "vnext-06-records")
+
+        let me = vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我")
+        tapWhenReady(me, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的数字生活"].waitForExistence(timeout: 10),
+            "我一级工作区未出现"
+        )
+        XCTAssertTrue(app.switches.firstMatch.exists, "隐私遮蔽开关未出现")
+        attachScreenshot(app, name: "vnext-07-me")
+    }
+
 }
