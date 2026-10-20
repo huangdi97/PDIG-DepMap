@@ -284,10 +284,34 @@ final class PDIGAppUITests: XCTestCase {
         let change = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
         tapWhenReady(change, in: app)
         XCTAssertTrue(
-            app.staticTexts["更换手机号"].waitForExistence(timeout: 10),
-            "变更一级工作区未出现"
+            vnextRoute(app, id: "pdig.change.center").waitForExistence(timeout: 10),
+            "变更中心未出现"
         )
-        attachScreenshot(app, name: "vnext-05-change")
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center.phone").exists,
+            "变更中心缺少换号入口"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center.card").exists,
+            "变更中心缺少换卡入口"
+        )
+        attachScreenshot(app, name: "vnext-05-change-center")
+
+        tapWhenReady(vnextRoute(app, id: "pdig.change.center.card"), in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.card").waitForExistence(timeout: 10),
+            "卡片变更 Reference 未出现"
+        )
+        XCTAssertTrue(app.staticTexts["完成后（计划）"].exists, "换卡缺少 After 计划阶段")
+        attachScreenshot(app, name: "vnext-05a-change-card-current")
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.change"), in: app)
+        tapWhenReady(vnextRoute(app, id: "pdig.change.center.phone"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["更换手机号"].waitForExistence(timeout: 10),
+            "换号 focused route 未出现"
+        )
+        attachScreenshot(app, name: "vnext-05b-change-phone")
 
         let records = vnextRoot(app, id: "pdig.nav.records", fallbackLabel: "记录")
         tapWhenReady(records, in: app)
@@ -350,6 +374,12 @@ final class PDIGAppUITests: XCTestCase {
 
         let maskedChange = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
         tapWhenReady(maskedChange, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center").waitForExistence(timeout: 10),
+            "隐私状态下 Change Center 未出现"
+        )
+        XCTAssertFalse(app.staticTexts["工行信用卡"].exists, "Change Center 泄露卡片身份")
+        tapWhenReady(vnextRoute(app, id: "pdig.change.center.phone"), in: app)
         XCTAssertTrue(
             app.staticTexts["号码已遮蔽"].firstMatch.waitForExistence(timeout: 10),
             "Change Phone 未应用全局隐私遮蔽"
