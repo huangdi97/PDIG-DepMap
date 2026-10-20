@@ -59,7 +59,7 @@ final class VNextModel: ObservableObject {
     }
 }
 
-/// vNext 应用入口（深空主题唯一；dark spatial）。
+/// vNext 应用入口（light-first workspace；Globe / asset faces retain local dark material）。
 public struct VNextAppView: View {
     @StateObject private var model = VNextModel()
 
@@ -77,7 +77,7 @@ public struct VNextAppView: View {
             VNextTabShell(model: model)
             #endif
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .tint(PdigV2Colors.primaryBright)
     }
 }
