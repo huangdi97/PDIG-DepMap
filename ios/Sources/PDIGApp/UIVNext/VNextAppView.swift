@@ -97,23 +97,23 @@ struct VNextTabShell: View {
     var body: some View {
         TabView(selection: primarySelection) {
             NavigationStack { NowView(model: model) }
-                .tabItem { Label(VCopy.navNow, systemImage: "house.fill") }
+                .tabItem { Label(VCopy.navNow, systemImage: "house.fill").accessibilityIdentifier(VTestIds.navNow) }
                 .tag(VScreen.now)
                 .accessibilityIdentifier(VTestIds.navNow)
             NavigationStack { VInfrastructureHost(model: model) }
-                .tabItem { Label(VCopy.navInfrastructure, systemImage: "globe.asia.australia.fill") }
+                .tabItem { Label(VCopy.navInfrastructure, systemImage: "globe.asia.australia.fill").accessibilityIdentifier(VTestIds.navInfrastructure) }
                 .tag(VScreen.infrastructure)
                 .accessibilityIdentifier(VTestIds.navInfrastructure)
             NavigationStack { ChangePhoneView(model: model) }
-                .tabItem { Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath") }
+                .tabItem { Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath").accessibilityIdentifier(VTestIds.navChange) }
                 .tag(VScreen.change)
                 .accessibilityIdentifier(VTestIds.navChange)
             NavigationStack { VRecordsView() }
-                .tabItem { Label(VCopy.navRecords, systemImage: "clock") }
+                .tabItem { Label(VCopy.navRecords, systemImage: "clock").accessibilityIdentifier(VTestIds.navRecords) }
                 .tag(VScreen.records)
                 .accessibilityIdentifier(VTestIds.navRecords)
             NavigationStack { VMeHost(model: model) }
-                .tabItem { Label("我", systemImage: "person.crop.circle.fill") }
+                .tabItem { Label("我", systemImage: "person.crop.circle.fill").accessibilityIdentifier(VTestIds.navMe) }
                 .tag(VScreen.me)
                 .accessibilityIdentifier(VTestIds.navMe)
         }
@@ -130,17 +130,25 @@ struct VNextSplitShell: View {
             List {
                 Section(VCopy.navNow) {
                     Button { model.screen = .now } label: { Label(VCopy.navNow, systemImage: "house.fill") }
+                        .accessibilityIdentifier(VTestIds.navNow)
                 }
                 Section(VCopy.navInfrastructure) {
                     Button { model.screen = .overview } label: { Label(VCopy.navInfraOverview, systemImage: "globe.asia.australia.fill") }
+                        .accessibilityIdentifier(VTestIds.navInfrastructure)
                     Button { model.screen = .cards } label: { Label(VCopy.navInfraCards, systemImage: "creditcard.fill") }
                     Button { model.screen = .numbers } label: { Label(VCopy.navInfraNumbers, systemImage: "phone.fill") }
                 }
                 Section(VCopy.navChange) {
                     Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
+                        .accessibilityIdentifier(VTestIds.navChange)
+                }
+                Section(VCopy.navRecords) {
+                    Button { model.screen = .records } label: { Label(VCopy.navRecords, systemImage: "clock") }
+                        .accessibilityIdentifier(VTestIds.navRecords)
                 }
                 Section("我") {
                     Button { model.screen = .me } label: { Label("我的数字生活", systemImage: "person.crop.circle.fill") }
+                        .accessibilityIdentifier(VTestIds.navMe)
                     Button { model.screen = .personalization } label: { Label("个性化", systemImage: "slider.horizontal.3") }
                     Button { model.screen = .sources } label: { Label(VCopy.navSources, systemImage: "tray.full.fill") }
                 }
