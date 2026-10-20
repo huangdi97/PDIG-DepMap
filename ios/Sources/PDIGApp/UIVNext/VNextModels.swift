@@ -31,6 +31,7 @@ enum VScreen: Hashable {
     case numberCustomization(String)
     case personalization
     case changePhone
+    case changeCard
 
     /// 底部导航/一级导航归属（再点当前项回到页面语义，INTERACTION_CONTRACT §6）。
     var primaryTab: VScreen {
@@ -38,7 +39,7 @@ enum VScreen: Hashable {
         case .now: return .now
         case .infrastructure, .overview, .cards, .cardDetail, .numbers, .numberDetail,
              .cardCustomization, .numberCustomization: return .infrastructure
-        case .change, .changePhone: return .change
+        case .change, .changePhone, .changeCard: return .change
         case .records: return .records
         case .me, .sources, .settings, .personalization: return .me
         default: return .infrastructure
@@ -57,6 +58,7 @@ enum VScreen: Hashable {
         case .numberCustomization: return "infrastructure/numbers/{id}/customize"
         case .personalization: return "settings/personalization"
         case .changePhone: return "change/phone"
+        case .changeCard: return "change/card"
         case .change: return "change"
         case .records: return "records"
         case .me: return "me"
@@ -364,6 +366,11 @@ enum VTestIds {
     static let phoneInspector = "pdig.phone.inspector"
     static let phoneRow = "pdig.phone.row"
     static let phoneDetailIdentity = "pdig.phone.detail.identity"
+    static let changeCenter = "pdig.change.center"
+    static let changePhoneEntry = "pdig.change.center.phone"
+    static let changeCardEntry = "pdig.change.center.card"
+    static let changeCard = "pdig.change.card"
+    static let changeCardStage = "pdig.change.card.stage"
     static let changePhoneRail = "pdig.change.phone.rail"
     static let changePhoneGate = "pdig.change.phone.gate"
     static let changePhoneItem = "pdig.change.phone.item"
