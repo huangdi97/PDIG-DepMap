@@ -131,9 +131,10 @@ struct VNextTabShell: View {
 /// iPad 形态：NavigationSplitView（Infrastructure 为 detail；侧栏 = 一级导航 + 设置）。
 struct VNextSplitShell: View {
     @ObservedObject var model: VNextModel
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
     var body: some View {
-        NavigationSplitView {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             List {
                 Section(VCopy.navNow) {
                     Button { model.screen = .now } label: { Label(VCopy.navNow, systemImage: "house.fill") }
@@ -181,6 +182,14 @@ struct VNextSplitShell: View {
         } detail: {
             VNextRootContent(model: model)
                 .vGlobalSearchToolbar(model: model)
+        }
+        // Primary navigation is a first-class control surface, not optional
+        // chrome. Balanced split style plus an explicit .all initial state
+        // prevents iPad scene restoration from reopening vNext detail-only
+        // with all five roots absent from the accessibility tree.
+        .navigationSplitViewStyle(.balanced)
+        .onAppear {
+            columnVisibility = .all
         }
         .accessibilityIdentifier("pdig.ios.vnext.split")
     }
