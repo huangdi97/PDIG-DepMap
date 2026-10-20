@@ -15,6 +15,7 @@ final class VNextModel: ObservableObject {
     @Published var globeDetailShown = false
     @Published var privacyMask = false
     @Published var reduceMotion = false
+    @Published var showUpcoming = true
 
     func navigate(_ next: VScreen) { screen = next }
 
@@ -162,7 +163,11 @@ struct VNextSplitShell: View {
                     Button { model.screen = .me } label: { Label("我的数字生活", systemImage: "person.crop.circle.fill") }
                         .accessibilityIdentifier(VTestIds.navMe)
                     Button { model.screen = .personalization } label: { Label("个性化", systemImage: "slider.horizontal.3") }
+                        .accessibilityIdentifier(VTestIds.mePersonalization)
                     Button { model.screen = .sources } label: { Label(VCopy.navSources, systemImage: "tray.full.fill") }
+                        .accessibilityIdentifier(VTestIds.meSources)
+                    Button { model.screen = .settings } label: { Label(VCopy.navSettings, systemImage: "gearshape.fill") }
+                        .accessibilityIdentifier(VTestIds.meSettings)
                 }
             }
             .listStyle(.sidebar)
@@ -239,9 +244,9 @@ struct VMeHost: View {
             case .personalization:
                 PersonalizationView(model: model)
             case .sources:
-                VPlaceholderScreen(screen: .sources)
+                VReferenceSourcesView(model: model)
             case .settings:
-                VPlaceholderScreen(screen: .settings)
+                VReferenceSettingsView(model: model)
             default:
                 VMeView(model: model)
             }
