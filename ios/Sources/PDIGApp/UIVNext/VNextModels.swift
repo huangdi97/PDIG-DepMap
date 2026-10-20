@@ -296,6 +296,7 @@ enum VTestIds {
     static let nowUpcoming = "pdig.now.upcoming"
     static let overviewActivity = "pdig.overview.activity"
     static let overviewQuick = "pdig.overview.quick"
+    static let overviewQuickChange = "pdig.overview.quick.change-phone"
     static let cardGrid = "pdig.card.grid"
     static let cardList = "pdig.card.list"
     static let cardViewToggle = "pdig.card.viewToggle"
