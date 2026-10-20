@@ -24,6 +24,28 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertTrue(session.navigationStack.isEmpty)
     }
 
+    @MainActor
+    func testVNextFiveRootOwnershipAndPrivacyDefault() {
+        let model = VNextModel()
+        XCTAssertFalse(model.privacyMask, "隐私遮蔽按冻结产品决策默认关闭")
+        XCTAssertEqual(VScreen.now.primaryTab, .now)
+        XCTAssertEqual(VScreen.accounts.primaryTab, .infrastructure)
+        XCTAssertEqual(VScreen.secondaryDetail(.email, "mail-main").primaryTab, .infrastructure)
+        XCTAssertEqual(VScreen.records.primaryTab, .records)
+        XCTAssertEqual(VScreen.personalization.primaryTab, .me)
+        XCTAssertEqual(VScreen.sources.primaryTab, .me)
+        XCTAssertEqual(VScreen.me.primaryTab, .me)
+    }
+
+    func testVNextSecondaryReferenceSurfacesAreNotPlaceholders() {
+        XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .account).isEmpty)
+        XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .email).isEmpty)
+        XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .device).isEmpty)
+        XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .service).isEmpty)
+        XCTAssertFalse(VNextDemoFixture.records.isEmpty)
+        XCTAssertFalse(VNextDemoFixture.findings.isEmpty)
+    }
+
     // MARK: - findings composition（FailureDomainEngine + RecoveryCycleEngine）
 
     func testFindingsDetectSinglePointOfFailureAndSharedDomain() {
