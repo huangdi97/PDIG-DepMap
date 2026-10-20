@@ -258,7 +258,7 @@ struct VPresentationProfile: Hashable {
             backgroundKind: "preset",
             backgroundValue: preset,
             layout: "standard",
-            maskSensitive: true
+            maskSensitive: false
         )
     }
 }
