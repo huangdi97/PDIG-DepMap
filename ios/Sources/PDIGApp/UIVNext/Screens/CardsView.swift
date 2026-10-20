@@ -117,15 +117,15 @@ struct CardsView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 2))
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: VSpace.sm) {
-                                Text(card.nickname)
+                                Text(vVisibleCardNickname(card, privacyMask: model.privacyMask))
                                     .font(VFont.secondary())
                                     .fontWeight(.semibold)
                                     .foregroundColor(PdigV2Colors.textPrimary)
-                                Text(card.masked)
+                                Text(model.privacyMask ? "卡号已遮蔽" : card.masked)
                                     .font(VFont.meta())
                                     .foregroundColor(PdigV2Colors.textMuted)
                             }
-                            Text("\(card.issuer) · \(card.region) · \(card.currency) · \(vCardFormLabel(card.form)) · 到期 \(card.expiry)")
+                            Text("\(vVisibleCardIssuer(card, privacyMask: model.privacyMask)) · \(card.region) · \(card.currency) · \(vCardFormLabel(card.form)) · 到期 \(card.expiry)")
                                 .font(VFont.meta())
                                 .foregroundColor(PdigV2Colors.textSecondary)
                         }
