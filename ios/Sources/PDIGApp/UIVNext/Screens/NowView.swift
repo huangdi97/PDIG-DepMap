@@ -25,8 +25,10 @@ struct NowView: View {
                 // Active Changes（pdig.now.changes）
                 activeChangesSection
 
-                // Upcoming（pdig.now.upcoming）
-                upcomingSection
+                // Upcoming（pdig.now.upcoming）is presentation-only.
+                if model.showUpcoming {
+                    upcomingSection
+                }
 
                 // healthy 表达：检查范围 + 未知范围（不显示 0 问题）
                 healthyNote
