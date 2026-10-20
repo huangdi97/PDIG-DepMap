@@ -137,6 +137,11 @@ struct VNextSplitShell: View {
                         .accessibilityIdentifier(VTestIds.navInfrastructure)
                     Button { model.screen = .cards } label: { Label(VCopy.navInfraCards, systemImage: "creditcard.fill") }
                     Button { model.screen = .numbers } label: { Label(VCopy.navInfraNumbers, systemImage: "phone.fill") }
+                    Button { model.screen = .accounts } label: { Label(VCopy.navInfraAccounts, systemImage: "person.crop.circle") }
+                    Button { model.screen = .emails } label: { Label(VCopy.navInfraEmails, systemImage: "envelope.fill") }
+                    Button { model.screen = .devices } label: { Label(VCopy.navInfraDevices, systemImage: "iphone") }
+                    Button { model.screen = .services } label: { Label(VCopy.navInfraServices, systemImage: "square.grid.2x2.fill") }
+                    Button { model.screen = .weaknesses } label: { Label(VCopy.navInfraWeaknesses, systemImage: "exclamationmark.triangle.fill") }
                 }
                 Section(VCopy.navChange) {
                     Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
