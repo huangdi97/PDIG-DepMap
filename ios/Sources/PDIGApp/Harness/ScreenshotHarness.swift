@@ -78,52 +78,64 @@ public enum ScreenshotHarness {
     private static func vnextScreens() -> [(name: String, view: AnyView)] {
         let model = VNextModel()
         model.reduceMotion = true
-        func stack(_ content: some View) -> AnyView { AnyView(NavigationStack { content }) }
+        // macOS ImageRenderer does not reliably materialize the root content
+        // of NavigationStack when it is rendered off-window. The previous
+        // harness therefore produced background-only PNGs while reporting a
+        // successful screenshot step. Render vNext reference views directly
+        // at the evidence viewport; navigation behavior is covered separately
+        // by tests and real iOS runtime remains an external gate.
+        func snapshot(_ content: some View) -> AnyView {
+            AnyView(
+                content
+                    .frame(width: 420, height: 640, alignment: .topLeading)
+                    .clipped()
+            )
+        }
         var result: [(name: String, view: AnyView)] = [
-            ("VNextNow", stack(NowView(model: model))),
-            ("VNextOverview", stack(OverviewView(model: model))),
-            ("VNextChangePhone", stack(ChangePhoneView(model: model))),
-            ("VNextPersonalization", stack(PersonalizationView(model: model))),
+            ("VNextNow", snapshot(NowView(model: model))),
+            ("VNextOverview", snapshot(OverviewView(model: model))),
+            ("VNextChangePhone", snapshot(ChangePhoneView(model: model))),
+            ("VNextPersonalization", snapshot(PersonalizationView(model: model))),
         ]
         model.screen = .cards
-        result.append(("VNextCards", stack(CardsView(model: model))))
+        result.append(("VNextCards", snapshot(CardsView(model: model))))
         model.screen = .cardDetail("card-cn-2")
-        result.append(("VNextCardDetail", stack(CardDetailView(model: model))))
+        result.append(("VNextCardDetail", snapshot(CardDetailView(model: model))))
         model.screen = .numbers
-        result.append(("VNextNumbers", stack(NumbersView(model: model))))
+        result.append(("VNextNumbers", snapshot(NumbersView(model: model))))
         model.screen = .numberDetail("num-cn-1")
-        result.append(("VNextNumberDetail", stack(NumberDetailView(model: model))))
+        result.append(("VNextNumberDetail", snapshot(NumberDetailView(model: model))))
         model.screen = .cardCustomization("card-cn-1")
-        result.append(("VNextCardCustomization", stack(CardCustomizationView(model: model))))
+        result.append(("VNextCardCustomization", snapshot(CardCustomizationView(model: model))))
         model.screen = .numberCustomization("num-cn-1")
-        result.append(("VNextNumberCustomization", stack(NumberCustomizationView(model: model))))
+        result.append(("VNextNumberCustomization", snapshot(NumberCustomizationView(model: model))))
 
         model.screen = .accounts
-        result.append(("VNextAccounts", stack(VSecondaryCollectionView(model: model, kind: .account))))
+        result.append(("VNextAccounts", snapshot(VSecondaryCollectionView(model: model, kind: .account))))
         model.screen = .secondaryDetail(.account, "acct-wechat")
-        result.append(("VNextAccountDetail", stack(VSecondaryDetailView(model: model, kind: .account, id: "acct-wechat"))))
+        result.append(("VNextAccountDetail", snapshot(VSecondaryDetailView(model: model, kind: .account, id: "acct-wechat"))))
 
         model.screen = .emails
-        result.append(("VNextEmails", stack(VSecondaryCollectionView(model: model, kind: .email))))
+        result.append(("VNextEmails", snapshot(VSecondaryCollectionView(model: model, kind: .email))))
         model.screen = .secondaryDetail(.email, "mail-main")
-        result.append(("VNextEmailDetail", stack(VSecondaryDetailView(model: model, kind: .email, id: "mail-main"))))
+        result.append(("VNextEmailDetail", snapshot(VSecondaryDetailView(model: model, kind: .email, id: "mail-main"))))
 
         model.screen = .devices
-        result.append(("VNextDevices", stack(VSecondaryCollectionView(model: model, kind: .device))))
+        result.append(("VNextDevices", snapshot(VSecondaryCollectionView(model: model, kind: .device))))
         model.screen = .secondaryDetail(.device, "device-pixel")
-        result.append(("VNextDeviceDetail", stack(VSecondaryDetailView(model: model, kind: .device, id: "device-pixel"))))
+        result.append(("VNextDeviceDetail", snapshot(VSecondaryDetailView(model: model, kind: .device, id: "device-pixel"))))
 
         model.screen = .services
-        result.append(("VNextServices", stack(VSecondaryCollectionView(model: model, kind: .service))))
+        result.append(("VNextServices", snapshot(VSecondaryCollectionView(model: model, kind: .service))))
         model.screen = .secondaryDetail(.service, "service-wx")
-        result.append(("VNextServiceDetail", stack(VSecondaryDetailView(model: model, kind: .service, id: "service-wx"))))
+        result.append(("VNextServiceDetail", snapshot(VSecondaryDetailView(model: model, kind: .service, id: "service-wx"))))
 
         model.screen = .weaknesses
-        result.append(("VNextWeaknesses", stack(VWeaknessesView())))
+        result.append(("VNextWeaknesses", snapshot(VWeaknessesView())))
         model.screen = .records
-        result.append(("VNextRecords", stack(VRecordsView())))
+        result.append(("VNextRecords", snapshot(VRecordsView())))
         model.screen = .me
-        result.append(("VNextMe", stack(VMeView(model: model))))
+        result.append(("VNextMe", snapshot(VMeView(model: model))))
 
         return result
     }
