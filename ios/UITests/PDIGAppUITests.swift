@@ -46,13 +46,22 @@ final class PDIGAppUITests: XCTestCase {
         id: String,
         fallbackLabel: String
     ) -> XCUIElement {
-        app.buttons.matching(
+        // SwiftUI TabView exposes phone roots as buttons, while List/sidebar
+        // rows on iPad may surface as cells/other accessibility elements.
+        // The identifier is the cross-form-factor contract; element type is not.
+        app.descendants(matching: .any).matching(
             NSPredicate(
                 format: "identifier == %@ OR label == %@",
                 id,
                 fallbackLabel
             )
         ).firstMatch
+    }
+
+    private func vnextRoute(_ app: XCUIApplication, id: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == %@", id))
+            .firstMatch
     }
 
     /// 把当前模拟器画面附加进 xcresult（IOS_VISUAL 证据，keepAlways）。
@@ -198,7 +207,7 @@ final class PDIGAppUITests: XCTestCase {
         tapWhenReady(infrastructure, in: app)
         XCTAssertTrue(app.staticTexts["我的基础设施"].waitForExistence(timeout: 10))
 
-        tapWhenReady(app.buttons["pdig.nav.infra.cards"], in: app)
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.cards"), in: app)
         XCTAssertTrue(
             app.staticTexts["支付工具（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
             "Cards 未遮蔽卡片身份"
@@ -212,7 +221,7 @@ final class PDIGAppUITests: XCTestCase {
         tapWhenReady(infrastructure, in: app)
         XCTAssertTrue(app.staticTexts["我的基础设施"].waitForExistence(timeout: 10))
 
-        tapWhenReady(app.buttons["pdig.nav.infra.numbers"], in: app)
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.numbers"), in: app)
         XCTAssertTrue(
             app.staticTexts["手机号身份（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
             "Numbers 未遮蔽号码身份"
@@ -243,7 +252,7 @@ final class PDIGAppUITests: XCTestCase {
 
         // Account must be reachable through normal product navigation, not by
         // directly constructing a view in the test.
-        let accountEntry = app.buttons["pdig.nav.infra.accounts"]
+        let accountEntry = vnextRoute(app, id: "pdig.nav.infra.accounts")
         tapWhenReady(accountEntry, in: app)
         XCTAssertTrue(
             app.staticTexts["已记录的数字基础设施对象 · 参考数据"]
