@@ -6,16 +6,22 @@
 
 import SwiftUI
 
+private struct VReferenceSourceMetric: Identifiable {
+    let label: String
+    let value: Int
+    var id: String { label }
+}
+
 struct VReferenceSourcesView: View {
     @ObservedObject var model: VNextModel
 
-    private let metrics: [(String, Int)] = [
-        ("卡片", VNextDemoFixture.cards.count),
-        ("号码", VNextDemoFixture.numbers.count),
-        ("账户", VNextDemoFixture.secondaryAssets(for: .account).count),
-        ("邮箱", VNextDemoFixture.secondaryAssets(for: .email).count),
-        ("设备", VNextDemoFixture.secondaryAssets(for: .device).count),
-        ("服务", VNextDemoFixture.secondaryAssets(for: .service).count),
+    private let metrics: [VReferenceSourceMetric] = [
+        VReferenceSourceMetric(label: "卡片", value: VNextDemoFixture.cards.count),
+        VReferenceSourceMetric(label: "号码", value: VNextDemoFixture.numbers.count),
+        VReferenceSourceMetric(label: "账户", value: VNextDemoFixture.secondaryAssets(for: .account).count),
+        VReferenceSourceMetric(label: "邮箱", value: VNextDemoFixture.secondaryAssets(for: .email).count),
+        VReferenceSourceMetric(label: "设备", value: VNextDemoFixture.secondaryAssets(for: .device).count),
+        VReferenceSourceMetric(label: "服务", value: VNextDemoFixture.secondaryAssets(for: .service).count),
     ]
 
     var body: some View {
@@ -31,8 +37,8 @@ struct VReferenceSourcesView: View {
                     columns: [GridItem(.adaptive(minimum: 96), spacing: VSpace.sm)],
                     spacing: VSpace.sm
                 ) {
-                    ForEach(metrics, id: \.0) { metric in
-                        sourceMetric(metric.1, label: metric.0)
+                    ForEach(metrics) { metric in
+                        sourceMetric(metric.value, label: metric.label)
                     }
                 }
 
