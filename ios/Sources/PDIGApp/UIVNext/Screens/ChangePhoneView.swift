@@ -84,10 +84,10 @@ struct ChangePhoneView: View {
     private func numberPanel(label: String, number: VNumber, highlight: Bool) -> some View {
         VStack(alignment: .leading, spacing: VSpace.sm) {
             VChip(text: label, highlight: highlight)
-            Text(number.maskedNumber)
+            Text(vVisibleChangeNumber(number, privacyMask: model.privacyMask))
                 .font(.system(size: 15, weight: .bold, design: .monospaced))
                 .foregroundColor(PdigV2Colors.textPrimary)
-            Text("\(number.carrier) · \(vRoleLabel(number.role))")
+            Text("\(vVisibleChangeCarrier(number, privacyMask: model.privacyMask)) · \(vRoleLabel(number.role))")
                 .font(VFont.meta())
                 .foregroundColor(PdigV2Colors.textMuted)
         }
@@ -106,7 +106,7 @@ struct ChangePhoneView: View {
             VChip(text: VCopy.keyServices)
             ForEach(migrations, id: \.service) { migration in
                 HStack {
-                    Text(migration.service)
+                    Text(vVisibleMigrationService(migration, privacyMask: model.privacyMask))
                         .font(VFont.secondary())
                         .foregroundColor(PdigV2Colors.textSecondary)
                     Spacer()
@@ -160,7 +160,11 @@ struct ChangePhoneView: View {
                     .font(VFont.secondary())
                     .fontWeight(.medium)
                     .foregroundColor(blocked ? PdigV2Colors.critical : PdigV2Colors.textPrimary)
-                Text(body)
+                Text(
+                    model.privacyMask && !blocked
+                        ? "步骤内容已遮蔽；状态与先后约束保持可见。"
+                        : body
+                )
                     .font(VFont.meta())
                     .foregroundColor(PdigV2Colors.textSecondary)
             }
