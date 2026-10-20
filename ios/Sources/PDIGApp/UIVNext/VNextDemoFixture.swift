@@ -112,7 +112,7 @@ enum VNextDemoFixture {
     static let attentionItems: [VAttentionItem] = [
         VAttentionItem(id: "att-1", severity: "critical", title: "工行信用卡 11 月到期，绑定 2 项自动扣款", target: "card-cn-2"),
         VAttentionItem(id: "att-2", severity: "warning", title: "Revolut 多币种卡 7 月到期，建议更新订阅支付方式", target: "card-gb-2"),
-        VAttentionItem(id: "att-3", severity: "warning", title: "+86 138****8823 是 2 个账户的唯一恢复路径", target: "num-cn-1"),
+        VAttentionItem(id: "att-3", severity: "warning", title: "+86 138****8823 承担 2 个账户的恢复关系 · 唯一性未知", target: "num-cn-1"),
     ]
 
     static let activeChanges: [VActiveChange] = [
