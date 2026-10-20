@@ -44,18 +44,15 @@ final class PDIGAppUITests: XCTestCase {
     private func vnextRoot(
         _ app: XCUIApplication,
         id: String,
-        fallbackLabel: String
+        fallbackLabel _: String
     ) -> XCUIElement {
         // SwiftUI TabView exposes phone roots as buttons, while List/sidebar
         // rows on iPad may surface as cells/other accessibility elements.
-        // The identifier is the cross-form-factor contract; element type is not.
-        app.descendants(matching: .any).matching(
-            NSPredicate(
-                format: "identifier == %@ OR label == %@",
-                id,
-                fallbackLabel
-            )
-        ).firstMatch
+        // Stable identifier is the cross-form-factor contract; visible labels
+        // are asserted separately and never used as a navigation fallback.
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == %@", id))
+            .firstMatch
     }
 
     private func vnextRoute(_ app: XCUIApplication, id: String) -> XCUIElement {
@@ -294,6 +291,33 @@ final class PDIGAppUITests: XCTestCase {
         XCTAssertTrue(app.switches.firstMatch.exists, "隐私遮蔽开关未出现")
         attachScreenshot(app, name: "vnext-07-me")
 
+        // Sources and Settings are real reference surfaces, not placeholders.
+        let sources = vnextRoute(app, id: "pdig.nav.me.sources")
+        tapWhenReady(sources, in: app)
+        XCTAssertTrue(
+            app.staticTexts["Reference fixture 未记录真实来源实例"].waitForExistence(timeout: 10),
+            "数据源 reference surface 未出现"
+        )
+        attachScreenshot(app, name: "vnext-08-sources")
+
+        tapWhenReady(vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我"), in: app)
+        let settings = vnextRoute(app, id: "pdig.nav.me.settings")
+        tapWhenReady(settings, in: app)
+        XCTAssertTrue(
+            app.staticTexts["隐私与偏好"].waitForExistence(timeout: 10),
+            "设置 reference surface 未出现"
+        )
+        let upcoming = vnextRoute(app, id: "pdig.ios.reference.setting.upcoming")
+        tapWhenReady(upcoming, in: app)
+        tapWhenReady(vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在"), in: app)
+        XCTAssertFalse(
+            vnextRoute(app, id: "pdig.now.upcoming").exists,
+            "关闭“显示即将到来”后 Now 仍渲染 Upcoming"
+        )
+        attachScreenshot(app, name: "vnext-09-now-upcoming-hidden")
+
+        tapWhenReady(vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我"), in: app)
+
         // Global privacy is a cross-workspace presentation contract, not a
         // card/number-only switch. Keep state/counts visible while identity-
         // bearing plan/action and old/new number copy is redacted.
@@ -306,7 +330,7 @@ final class PDIGAppUITests: XCTestCase {
             "Records 未应用全局隐私遮蔽"
         )
         XCTAssertFalse(app.staticTexts["影响分析"].exists, "Records 泄露未遮蔽动作标题")
-        attachScreenshot(app, name: "vnext-08-records-masked")
+        attachScreenshot(app, name: "vnext-10-records-masked")
 
         let maskedChange = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
         tapWhenReady(maskedChange, in: app)
@@ -315,7 +339,7 @@ final class PDIGAppUITests: XCTestCase {
             "Change Phone 未应用全局隐私遮蔽"
         )
         XCTAssertFalse(app.staticTexts["+86 138****8823"].exists, "Change Phone 泄露旧号码")
-        attachScreenshot(app, name: "vnext-09-change-masked")
+        attachScreenshot(app, name: "vnext-11-change-masked")
     }
 
 }
