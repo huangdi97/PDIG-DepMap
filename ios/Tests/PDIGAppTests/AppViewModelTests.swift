@@ -76,8 +76,15 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(vVisibleRecordPlanTitle(record, privacyMask: true), "变更计划（已遮蔽）")
         XCTAssertEqual(vVisibleRecordActionTitle(record, privacyMask: true), "操作步骤（已遮蔽）")
         XCTAssertEqual(vVisibleMigrationService(migration, privacyMask: true), "关联服务（已遮蔽）")
-        XCTAssertEqual(vVisibleChangeNumber(number, privacyMask: true), "号码已遮蔽")
-        XCTAssertEqual(vVisibleChangeCarrier(number, privacyMask: true), "运营商信息已遮蔽")
+        let card = VNextDemoFixture.cards[0]
+        let service = VNextDemoFixture.services[0]
+        XCTAssertEqual(vVisibleCardNickname(card, privacyMask: true), "支付工具（已遮蔽）")
+        XCTAssertEqual(vVisibleCardIssuer(card, privacyMask: true), "发行方已遮蔽")
+        XCTAssertEqual(vVisibleCardLast4(card, privacyMask: true), "••••")
+        XCTAssertEqual(vVisibleNumberNickname(number, privacyMask: true), "手机号身份（已遮蔽）")
+        XCTAssertEqual(vVisibleNumberIdentifier(number, privacyMask: true), "号码已遮蔽")
+        XCTAssertEqual(vVisibleNumberCarrier(number, privacyMask: true), "运营商信息已遮蔽")
+        XCTAssertEqual(vVisibleServiceName(service, privacyMask: true), "关联服务（已遮蔽）")
     }
 
     func testVNextRecoveryRoleNeverClaimsUniqueRecoveryPath() {
