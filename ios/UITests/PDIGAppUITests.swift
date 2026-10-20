@@ -244,6 +244,29 @@ final class PDIGAppUITests: XCTestCase {
         )
         XCTAssertTrue(app.switches.firstMatch.exists, "隐私遮蔽开关未出现")
         attachScreenshot(app, name: "vnext-07-me")
+
+        // Global privacy is a cross-workspace presentation contract, not a
+        // card/number-only switch. Keep state/counts visible while identity-
+        // bearing plan/action and old/new number copy is redacted.
+        tapWhenReady(app.switches.firstMatch, in: app)
+
+        let maskedRecords = vnextRoot(app, id: "pdig.nav.records", fallbackLabel: "记录")
+        tapWhenReady(maskedRecords, in: app)
+        XCTAssertTrue(
+            app.staticTexts["操作步骤（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Records 未应用全局隐私遮蔽"
+        )
+        XCTAssertFalse(app.staticTexts["影响分析"].exists, "Records 泄露未遮蔽动作标题")
+        attachScreenshot(app, name: "vnext-08-records-masked")
+
+        let maskedChange = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
+        tapWhenReady(maskedChange, in: app)
+        XCTAssertTrue(
+            app.staticTexts["号码已遮蔽"].firstMatch.waitForExistence(timeout: 10),
+            "Change Phone 未应用全局隐私遮蔽"
+        )
+        XCTAssertFalse(app.staticTexts["+86 138****8823"].exists, "Change Phone 泄露旧号码")
+        attachScreenshot(app, name: "vnext-09-change-masked")
     }
 
 }
