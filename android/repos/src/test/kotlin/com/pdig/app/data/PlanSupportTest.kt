@@ -95,7 +95,7 @@ class PlanSupportTest {
     }
 
     @Test
-    fun blockedPlanAllowsOnlyPreparationOrChangeThatResolvesCurrentBlocker() {
+    fun blockedPlanAllowsPreparationVerificationAndChangeThatResolvesCurrentBlocker() {
         val prepare = PlanAction(
             id = "prepare",
             phase = PlanActionPhase.PREPARE,
@@ -124,7 +124,7 @@ class PlanSupportTest {
         assertFalse(planActionCompletionAllowedByScope(
             PlanReadiness.BLOCKED, unrelated, listOf("account-a|recovery"),
         ))
-        assertFalse(planActionCompletionAllowedByScope(
+        assertTrue(planActionCompletionAllowedByScope(
             PlanReadiness.BLOCKED, verify, listOf("account-a|recovery"),
         ))
         assertTrue(planActionCompletionAllowedByScope(
