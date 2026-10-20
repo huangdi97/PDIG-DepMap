@@ -16,6 +16,7 @@ final class VNextModel: ObservableObject {
     @Published var privacyMask = false
     @Published var reduceMotion = false
     @Published var showUpcoming = true
+    @Published var searchShown = false
 
     func navigate(_ next: VScreen) { screen = next }
 
@@ -80,6 +81,11 @@ public struct VNextAppView: View {
         }
         .preferredColorScheme(.light)
         .tint(PdigV2Colors.primaryBright)
+        .sheet(isPresented: $model.searchShown) {
+            NavigationStack {
+                VReferenceSearchView(model: model)
+            }
+        }
     }
 }
 
@@ -97,23 +103,23 @@ struct VNextTabShell: View {
 
     var body: some View {
         TabView(selection: primarySelection) {
-            NavigationStack { NowView(model: model) }
+            NavigationStack { NowView(model: model).vGlobalSearchToolbar(model: model) }
                 .tabItem { Label(VCopy.navNow, systemImage: "house.fill").accessibilityIdentifier(VTestIds.navNow) }
                 .tag(VScreen.now)
                 .accessibilityIdentifier(VTestIds.navNow)
-            NavigationStack { VInfrastructureHost(model: model) }
+            NavigationStack { VInfrastructureHost(model: model).vGlobalSearchToolbar(model: model) }
                 .tabItem { Label(VCopy.navInfrastructure, systemImage: "globe.asia.australia.fill").accessibilityIdentifier(VTestIds.navInfrastructure) }
                 .tag(VScreen.infrastructure)
                 .accessibilityIdentifier(VTestIds.navInfrastructure)
-            NavigationStack { ChangePhoneView(model: model) }
+            NavigationStack { ChangePhoneView(model: model).vGlobalSearchToolbar(model: model) }
                 .tabItem { Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath").accessibilityIdentifier(VTestIds.navChange) }
                 .tag(VScreen.change)
                 .accessibilityIdentifier(VTestIds.navChange)
-            NavigationStack { VRecordsView(privacyMask: model.privacyMask) }
+            NavigationStack { VRecordsView(privacyMask: model.privacyMask).vGlobalSearchToolbar(model: model) }
                 .tabItem { Label(VCopy.navRecords, systemImage: "clock").accessibilityIdentifier(VTestIds.navRecords) }
                 .tag(VScreen.records)
                 .accessibilityIdentifier(VTestIds.navRecords)
-            NavigationStack { VMeHost(model: model) }
+            NavigationStack { VMeHost(model: model).vGlobalSearchToolbar(model: model) }
                 .tabItem { Label("我", systemImage: "person.crop.circle.fill").accessibilityIdentifier(VTestIds.navMe) }
                 .tag(VScreen.me)
                 .accessibilityIdentifier(VTestIds.navMe)
@@ -174,6 +180,7 @@ struct VNextSplitShell: View {
             .navigationTitle("PDIG vNext")
         } detail: {
             VNextRootContent(model: model)
+                .vGlobalSearchToolbar(model: model)
         }
         .accessibilityIdentifier("pdig.ios.vnext.split")
     }
