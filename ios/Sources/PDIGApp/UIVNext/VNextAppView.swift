@@ -13,7 +13,7 @@ final class VNextModel: ObservableObject {
     @Published var screen: VScreen = .now
     @Published var regionFilter: String? = nil
     @Published var globeDetailShown = false
-    @Published var privacyMask = true
+    @Published var privacyMask = false
     @Published var reduceMotion = false
 
     func navigate(_ next: VScreen) { screen = next }
@@ -22,6 +22,7 @@ final class VNextModel: ObservableObject {
     func openNumber(_ numberId: String) { screen = .numberDetail(numberId) }
     func openCardCustomization(_ cardId: String) { screen = .cardCustomization(cardId) }
     func openNumberCustomization(_ numberId: String) { screen = .numberCustomization(numberId) }
+    func openSecondary(_ kind: VSecondaryKind, _ id: String) { screen = .secondaryDetail(kind, id) }
 
     /// Globe / Region List → REGION_SELECTED（区域过滤 + focus 副作用）。
     func selectRegion(_ code: String) {
@@ -45,7 +46,15 @@ final class VNextModel: ObservableObject {
         switch screen {
         case .cardDetail, .cardCustomization: screen = .cards
         case .numberDetail, .numberCustomization: screen = .numbers
-        default: screen = .now
+        case .secondaryDetail(let kind, _):
+            switch kind {
+            case .account: screen = .accounts
+            case .email: screen = .emails
+            case .device: screen = .devices
+            case .service: screen = .services
+            }
+        case .personalization, .sources, .settings: screen = .me
+        default: screen = screen.primaryTab
         }
     }
 }
@@ -73,12 +82,20 @@ public struct VNextAppView: View {
     }
 }
 
-/// 手机形态：底部 TabView（≤5 项；一级导航 4 项永远可见，IA.md §1/§7）。
+/// 手机形态：底部 5-tab。Focused route 通过 primaryTab 保持一级归属，
+/// 详情页不会把 TabView selection 写成一个不存在的 tag。
 struct VNextTabShell: View {
     @ObservedObject var model: VNextModel
 
+    private var primarySelection: Binding<VScreen> {
+        Binding(
+            get: { model.screen.primaryTab },
+            set: { model.navigate($0) }
+        )
+    }
+
     var body: some View {
-        TabView(selection: $model.screen) {
+        TabView(selection: primarySelection) {
             NavigationStack { NowView(model: model) }
                 .tabItem { Label(VCopy.navNow, systemImage: "house.fill") }
                 .tag(VScreen.now)
@@ -91,10 +108,14 @@ struct VNextTabShell: View {
                 .tabItem { Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath") }
                 .tag(VScreen.change)
                 .accessibilityIdentifier(VTestIds.navChange)
-            NavigationStack { VPlaceholderScreen(screen: .records) }
+            NavigationStack { VRecordsView() }
                 .tabItem { Label(VCopy.navRecords, systemImage: "clock") }
                 .tag(VScreen.records)
                 .accessibilityIdentifier(VTestIds.navRecords)
+            NavigationStack { VMeHost(model: model) }
+                .tabItem { Label("我", systemImage: "person.crop.circle.fill") }
+                .tag(VScreen.me)
+                .accessibilityIdentifier(VTestIds.navMe)
         }
         .accessibilityIdentifier("pdig.nav.tab")
     }
@@ -118,8 +139,10 @@ struct VNextSplitShell: View {
                 Section(VCopy.navChange) {
                     Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
                 }
-                Section(VCopy.navSettings) {
-                    Button { model.screen = .personalization } label: { Label(VCopy.navSettings, systemImage: "gearshape.fill") }
+                Section("我") {
+                    Button { model.screen = .me } label: { Label("我的数字生活", systemImage: "person.crop.circle.fill") }
+                    Button { model.screen = .personalization } label: { Label("个性化", systemImage: "slider.horizontal.3") }
+                    Button { model.screen = .sources } label: { Label(VCopy.navSources, systemImage: "tray.full.fill") }
                 }
             }
             .listStyle(.sidebar)
@@ -127,7 +150,7 @@ struct VNextSplitShell: View {
         } detail: {
             VInfrastructureHost(model: model)
         }
-        .accessibilityIdentifier(VTestIds.navSettings)
+        .accessibilityIdentifier(VTestIds.navMe)
     }
 }
 
@@ -145,15 +168,46 @@ struct VInfrastructureHost: View {
             case .numbers: NumbersView(model: model)
             case .numberDetail: NumberDetailView(model: model)
             case .numberCustomization: NumberCustomizationView(model: model)
-            case .accounts, .emails, .devices, .services, .weaknesses:
-                VPlaceholderScreen(screen: model.screen)
+            case .accounts:
+                VSecondaryCollectionView(model: model, kind: .account)
+            case .emails:
+                VSecondaryCollectionView(model: model, kind: .email)
+            case .devices:
+                VSecondaryCollectionView(model: model, kind: .device)
+            case .services:
+                VSecondaryCollectionView(model: model, kind: .service)
+            case .secondaryDetail(let kind, let id):
+                VSecondaryDetailView(model: model, kind: kind, id: id)
+            case .weaknesses:
+                VWeaknessesView()
             default: OverviewView(model: model)
             }
         }
     }
 }
 
-/// 占位页（accounts/emails/devices/services/weaknesses/records/sources——vNext 范围外）。
+/// 「我」一级工作区宿主。设置/来源仍是 reference focused routes，
+/// 但不再挤占第五一级导航位置。
+struct VMeHost: View {
+    @ObservedObject var model: VNextModel
+
+    var body: some View {
+        Group {
+            switch model.screen {
+            case .personalization:
+                PersonalizationView(model: model)
+            case .sources:
+                VPlaceholderScreen(screen: .sources)
+            case .settings:
+                VPlaceholderScreen(screen: .settings)
+            default:
+                VMeView(model: model)
+            }
+        }
+    }
+}
+
+/// Reference-only focused placeholder for sources/settings.
 struct VPlaceholderScreen: View {
     let screen: VScreen
 
@@ -178,6 +232,7 @@ struct VPlaceholderScreen: View {
     private var title: String {
         switch screen {
         case .records: return VCopy.navRecords
+        case .me: return "我"
         case .sources: return VCopy.navSources
         case .accounts: return VCopy.navInfraAccounts
         case .emails: return VCopy.navInfraEmails
