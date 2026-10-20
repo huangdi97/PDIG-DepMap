@@ -61,6 +61,25 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertFalse(VNextDemoFixture.findings.isEmpty)
     }
 
+    func testVNextGlobalPrivacyRedactsIdentityBearingWorkspaceCopy() {
+        let attention = VNextDemoFixture.attentionItems[0]
+        let change = VNextDemoFixture.activeChanges[0]
+        let upcoming = VNextDemoFixture.upcoming[0]
+        let record = VNextDemoFixture.records[0]
+        let migration = VNextDemoFixture.changeMigrations[0]
+        let number = VNextDemoFixture.numberById(VNextDemoFixture.changeOldNumberId)!
+
+        XCTAssertNotEqual(vVisibleAttentionTitle(attention, privacyMask: false), "需要关注事项（已遮蔽）")
+        XCTAssertEqual(vVisibleAttentionTitle(attention, privacyMask: true), "需要关注事项（已遮蔽）")
+        XCTAssertEqual(vVisibleActiveChangeTitle(change, privacyMask: true), "变更计划（已遮蔽）")
+        XCTAssertEqual(vVisibleUpcomingTitle(upcoming, privacyMask: true), "维护事项（已遮蔽）")
+        XCTAssertEqual(vVisibleRecordPlanTitle(record, privacyMask: true), "变更计划（已遮蔽）")
+        XCTAssertEqual(vVisibleRecordActionTitle(record, privacyMask: true), "操作步骤（已遮蔽）")
+        XCTAssertEqual(vVisibleMigrationService(migration, privacyMask: true), "关联服务（已遮蔽）")
+        XCTAssertEqual(vVisibleChangeNumber(number, privacyMask: true), "号码已遮蔽")
+        XCTAssertEqual(vVisibleChangeCarrier(number, privacyMask: true), "运营商信息已遮蔽")
+    }
+
     func testVNextRecoveryRoleNeverClaimsUniqueRecoveryPath() {
         XCTAssertEqual(VCopy.recoveryOnly, "恢复用途")
         XCTAssertEqual(VCopy.recoveryOnlyShort, "恢复")
