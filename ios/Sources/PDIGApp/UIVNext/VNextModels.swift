@@ -13,6 +13,7 @@ enum VScreen: Hashable {
     case infrastructure
     case change
     case records
+    case me
     case sources
     case settings
     case overview
@@ -23,6 +24,7 @@ enum VScreen: Hashable {
     case devices
     case services
     case weaknesses
+    case secondaryDetail(VSecondaryKind, String)
     case cardDetail(String)
     case numberDetail(String)
     case cardCustomization(String)
@@ -38,7 +40,8 @@ enum VScreen: Hashable {
              .cardCustomization, .numberCustomization: return .infrastructure
         case .change, .changePhone: return .change
         case .records: return .records
-        default: return .settings // sources / settings / personalization 归属设置入口
+        case .me, .sources, .settings, .personalization: return .me
+        default: return .infrastructure
         }
     }
 
@@ -56,6 +59,7 @@ enum VScreen: Hashable {
         case .changePhone: return "change/phone"
         case .change: return "change"
         case .records: return "records"
+        case .me: return "me"
         case .sources: return "sources"
         case .settings: return "settings"
         case .accounts: return "infrastructure/accounts"
@@ -63,6 +67,7 @@ enum VScreen: Hashable {
         case .devices: return "infrastructure/devices"
         case .services: return "infrastructure/services"
         case .weaknesses: return "infrastructure/weaknesses"
+        case .secondaryDetail(let kind, _): return "infrastructure/\(kind.route)/{id}"
         }
     }
 }
@@ -121,11 +126,74 @@ struct VNumber: Identifiable, Hashable {
     let attention: Bool
 }
 
+enum VSecondaryKind: String, Hashable, CaseIterable {
+    case account
+    case email
+    case device
+    case service
+
+    var route: String {
+        switch self {
+        case .account: return "accounts"
+        case .email: return "emails"
+        case .device: return "devices"
+        case .service: return "services"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .account: return "账户"
+        case .email: return "邮箱"
+        case .device: return "设备"
+        case .service: return "服务"
+        }
+    }
+
+    var glyph: String {
+        switch self {
+        case .account: return "person.crop.circle"
+        case .email: return "envelope.fill"
+        case .device: return "iphone"
+        case .service: return "square.grid.2x2.fill"
+        }
+    }
+}
+
+struct VSecondaryAsset: Identifiable, Hashable {
+    let id: String
+    let kind: VSecondaryKind
+    let name: String
+    let subtitle: String
+    let region: String
+    let relationCount: Int
+    let attention: Bool
+    let roles: [String]
+}
+
 struct VService: Identifiable, Hashable {
     let id: String
     let name: String
     let region: String
     let kind: String
+}
+
+struct VRecord: Identifiable, Hashable {
+    let id: String
+    let planTitle: String
+    let actionTitle: String
+    let state: String
+    let recordedAt: String
+    let verifiedAt: String?
+    let evidenceCount: Int
+}
+
+struct VFinding: Identifiable, Hashable {
+    let id: String
+    let title: String
+    let explanation: String
+    let evidenceCount: Int
+    let status: String
 }
 
 struct VRelation: Hashable {
@@ -205,6 +273,7 @@ enum VTestIds {
     static let navInfrastructure = "pdig.nav.infrastructure"
     static let navChange = "pdig.nav.change"
     static let navRecords = "pdig.nav.records"
+    static let navMe = "pdig.nav.me"
     static let navSources = "pdig.nav.sources"
     static let navSettings = "pdig.nav.settings"
     static let navInfraOverview = "pdig.nav.infra.overview"
