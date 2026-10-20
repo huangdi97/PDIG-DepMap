@@ -90,6 +90,57 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(vVisibleServiceName(service, privacyMask: true), "关联服务（已遮蔽）")
     }
 
+    func testVNextReferenceSearchMatchesRawFieldsWithoutPrivacyEcho() {
+        let cardResults = vReferenceSearchResults(query: "招商", privacyMask: true)
+        let card = cardResults.first { $0.id == "card:card-cn-1" }
+        XCTAssertNotNil(card, "隐私遮蔽不能让已记录对象变得不可搜索")
+        XCTAssertEqual(card?.title, "支付工具（已遮蔽）")
+        XCTAssertFalse(card?.subtitle.contains("招商银行") == true)
+        XCTAssertFalse(card?.subtitle.contains("4417") == true)
+
+        let phoneResults = vReferenceSearchResults(query: "中国移动", privacyMask: true)
+        let phone = phoneResults.first { $0.id == "number:num-cn-1" }
+        XCTAssertNotNil(phone)
+        XCTAssertEqual(phone?.title, "手机号身份（已遮蔽）")
+        XCTAssertFalse(phone?.subtitle.contains("中国移动") == true)
+        XCTAssertFalse(phone?.subtitle.contains("8823") == true)
+    }
+
+    func testVNextReferenceSearchAdvertisesOnlyImplementedRoutes() {
+        let quick = vReferenceSearchResults(query: "", privacyMask: false)
+        XCTAssertTrue(quick.contains { $0.destination == .screen(.sources) })
+        XCTAssertTrue(quick.contains { $0.destination == .screen(.settings) })
+        XCTAssertTrue(quick.contains { $0.destination == .screen(.personalization) })
+        XCTAssertFalse(quick.contains { $0.title.contains("待复核") })
+        XCTAssertFalse(quick.contains { $0.title.contains("导入") })
+        XCTAssertFalse(quick.contains { $0.title.contains("手工") })
+    }
+
+    @MainActor
+    func testVNextReferenceSearchOpensRealDestinations() {
+        let model = VNextModel()
+        model.searchShown = true
+        let account = vReferenceSearchResults(query: "微信账户", privacyMask: false)
+            .first { $0.id == "secondary:account:acct-wechat" }
+        XCTAssertNotNil(account)
+        if let account {
+            vReferenceOpenSearchResult(account, model: model)
+        }
+        XCTAssertEqual(model.screen, .secondaryDetail(.account, "acct-wechat"))
+        XCTAssertFalse(model.searchShown)
+
+        model.searchShown = true
+        let region = vReferenceSearchResults(query: "香港", privacyMask: false)
+            .first { $0.id == "region:HK" }
+        XCTAssertNotNil(region)
+        if let region {
+            vReferenceOpenSearchResult(region, model: model)
+        }
+        XCTAssertEqual(model.regionFilter, "HK")
+        XCTAssertEqual(model.screen, .overview)
+        XCTAssertFalse(model.searchShown)
+    }
+
     func testVNextRecoveryRoleNeverClaimsUniqueRecoveryPath() {
         XCTAssertEqual(VCopy.recoveryOnly, "恢复用途")
         XCTAssertEqual(VCopy.recoveryOnlyShort, "恢复")
