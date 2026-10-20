@@ -203,7 +203,7 @@ final class PDIGAppUITests: XCTestCase {
 
         // Account must be reachable through normal product navigation, not by
         // directly constructing a view in the test.
-        let accountEntry = buttonLabelStarts(app, "账户")
+        let accountEntry = app.buttons["pdig.nav.infra.accounts"]
         tapWhenReady(accountEntry, in: app)
         XCTAssertTrue(
             app.staticTexts["已记录的数字基础设施对象 · 参考数据"]
