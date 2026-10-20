@@ -122,7 +122,7 @@ struct CardDetailView: View {
                 ForEach(services) { service in
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(service.name)
+                            Text(vVisibleServiceName(service, privacyMask: model.privacyMask))
                                 .font(VFont.body())
                                 .fontWeight(.medium)
                                 .foregroundColor(PdigV2Colors.textPrimary)
