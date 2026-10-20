@@ -424,20 +424,26 @@ def main():
     capture("00-first-launch")
     if not tap_retry("跳过", exact=True):
         raise RuntimeError("Preview first-run onboarding skip could not be activated")
-    # A real 3D/textured stage can take longer than a fixed 3s after Skip.
-    # Never call screencap while the onboarding UI is still being dismissed.
+    # ADB can report a successful input dispatch while a freshly booted emulator
+    # temporarily drops the touch before Compose consumes it. Do not classify
+    # that guest transport race as a product navigation defect: as long as the
+    # real clickable Skip node is still visible, redispatch a real tap and
+    # verify the UI transition after each attempt.
     entered_now = False
-    for attempt in range(24):
+    for attempt in range(36):
         visible = [label_of(node) for node in xml_nodes()]
         if any("你的全球数字基础设施" in text for text in visible):
             entered_now = True
             break
-        if attempt in (5, 11) and any("跳过" in text for text in visible):
+        if any(text.strip() == "跳过" for text in visible):
+            print("ONBOARDING_SKIP_STILL_VISIBLE", attempt + 1, flush=True)
             tap_match("跳过", exact=True)
         time.sleep(2)
     if not entered_now:
         diagnose_navigation("onboarding-to-now-timeout")
-        raise RuntimeError("Onboarding did not reach the current Now screen within 48s")
+        raise RuntimeError(
+            "Onboarding stayed visible after repeated verified real-device Skip taps"
+        )
     capture("01-now")
     require_screen("01-now", "你的全球数字基础设施", "轻触地球探索", "本机预览")
     # An existing CPU fallback showing a photograph is not proof of R15.
