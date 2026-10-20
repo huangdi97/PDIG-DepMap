@@ -164,7 +164,7 @@ struct NumberDetailView: View {
                     Image(systemName: "exclamationmark.triangle.fill")
                         .foregroundColor(PdigV2Colors.warning)
                         .frame(width: 18)
-                    Text("此号码是 2 个账户的唯一恢复路径：更换/注销前必须先建立新的恢复方式。")
+                    Text("此号码已记录承担恢复用途；是否构成唯一恢复路径尚未由独立路径分析确认。更换/注销前应先建立并验证替代恢复方式。")
                         .font(VFont.secondary())
                         .foregroundColor(PdigV2Colors.textPrimary)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -174,7 +174,7 @@ struct NumberDetailView: View {
                 .background(PdigV2Colors.warning.opacity(0.14))
                 .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
             } else {
-                Text("未发现该号码承担唯一恢复路径。")
+                Text("当前未记录为恢复专用号码；是否存在唯一恢复关系仍需依据已确认路径分析判断。")
                     .font(VFont.secondary())
                     .foregroundColor(PdigV2Colors.textSecondary)
             }
