@@ -399,9 +399,9 @@ struct VMeView: View {
                 .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
 
                 VStack(alignment: .leading, spacing: VSpace.sm) {
-                    meAction("个性化", "slider.horizontal.3") { model.navigate(.personalization) }
-                    meAction("数据源", "tray.full.fill") { model.navigate(.sources) }
-                    meAction("设置", "gearshape.fill") { model.navigate(.settings) }
+                    meAction("个性化", "slider.horizontal.3", id: VTestIds.mePersonalization) { model.navigate(.personalization) }
+                    meAction("数据源", "tray.full.fill", id: VTestIds.meSources) { model.navigate(.sources) }
+                    meAction("设置", "gearshape.fill", id: VTestIds.meSettings) { model.navigate(.settings) }
                 }
             }
             .padding(VSpace.pagePadding)
@@ -410,7 +410,7 @@ struct VMeView: View {
         .accessibilityIdentifier(VTestIds.navMe)
     }
 
-    private func meAction(_ title: String, _ icon: String, action: @escaping () -> Void) -> some View {
+    private func meAction(_ title: String, _ icon: String, id: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack {
                 Image(systemName: icon)
@@ -431,5 +431,6 @@ struct VMeView: View {
         .buttonStyle(.plain)
         .background(PdigV2Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+        .accessibilityIdentifier(id)
     }
 }
