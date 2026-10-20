@@ -186,7 +186,7 @@ struct CardDetailView: View {
             .background(PdigV2Colors.critical.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
         } else {
-            Text("当前未发现必须处理的风险。")
+            Text("当前参考数据未记录必须处理项；未记录不代表不存在，未知范围仍需继续确认。")
                 .font(VFont.secondary())
                 .foregroundColor(PdigV2Colors.textSecondary)
         }
