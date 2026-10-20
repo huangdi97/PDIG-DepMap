@@ -236,6 +236,40 @@ struct VMigration: Hashable {
     let status: String          // migrated | waiting | not_started | blocked
 }
 
+/// Global privacy is presentation-only: state/counts remain visible, while
+/// identity-bearing labels are replaced consistently across workspaces.
+func vVisibleAttentionTitle(_ item: VAttentionItem, privacyMask: Bool) -> String {
+    privacyMask ? "需要关注事项（已遮蔽）" : item.title
+}
+
+func vVisibleActiveChangeTitle(_ item: VActiveChange, privacyMask: Bool) -> String {
+    privacyMask ? "变更计划（已遮蔽）" : item.title
+}
+
+func vVisibleUpcomingTitle(_ item: VUpcomingItem, privacyMask: Bool) -> String {
+    privacyMask ? "维护事项（已遮蔽）" : item.title
+}
+
+func vVisibleRecordPlanTitle(_ item: VRecord, privacyMask: Bool) -> String {
+    privacyMask ? "变更计划（已遮蔽）" : item.planTitle
+}
+
+func vVisibleRecordActionTitle(_ item: VRecord, privacyMask: Bool) -> String {
+    privacyMask ? "操作步骤（已遮蔽）" : item.actionTitle
+}
+
+func vVisibleMigrationService(_ item: VMigration, privacyMask: Bool) -> String {
+    privacyMask ? "关联服务（已遮蔽）" : item.service
+}
+
+func vVisibleChangeNumber(_ number: VNumber, privacyMask: Bool) -> String {
+    privacyMask ? "号码已遮蔽" : number.maskedNumber
+}
+
+func vVisibleChangeCarrier(_ number: VNumber, privacyMask: Bool) -> String {
+    privacyMask ? "运营商信息已遮蔽" : number.carrier
+}
+
 /// PresentationProfile（本地偏好；绝不进 .depmap；spec PRESENTATION_PROFILE_SCHEMA.json）。
 struct VPresentationProfile: Hashable {
     let targetType: String
