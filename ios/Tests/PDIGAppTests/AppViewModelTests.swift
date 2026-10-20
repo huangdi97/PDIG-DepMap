@@ -46,6 +46,14 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertFalse(VNextDemoFixture.findings.isEmpty)
     }
 
+    func testVNextRecoveryRoleNeverClaimsUniqueRecoveryPath() {
+        XCTAssertEqual(VCopy.recoveryOnly, "恢复用途")
+        XCTAssertEqual(VCopy.recoveryOnlyShort, "恢复")
+        XCTAssertFalse(VCopy.recoveryOnly.contains("唯一"))
+        XCTAssertFalse(VCopy.recoveryOnlyShort.contains("唯一"))
+        XCTAssertTrue(VCopy.riskBody.contains("路径分析确认"))
+    }
+
     // MARK: - findings composition（FailureDomainEngine + RecoveryCycleEngine）
 
     func testFindingsDetectSinglePointOfFailureAndSharedDomain() {
