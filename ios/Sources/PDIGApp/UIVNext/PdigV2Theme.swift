@@ -46,30 +46,48 @@ extension Color {
 
 /// 环境 / 数据 / 状态色（semantic 映射同 DESIGN_TOKENS.json；页面不得散落魔数颜色）。
 enum PdigV2Colors {
-    static let canvas = Color.fromToken(GeneratedPdigV2Tokens.colorsCanvas)
-    static let canvasDeep = Color.fromToken(GeneratedPdigV2Tokens.colorsCanvasDeep)
-    static let surface = Color.fromToken(GeneratedPdigV2Tokens.colorsSurface)
-    static let surfaceRaised = Color.fromToken(GeneratedPdigV2Tokens.colorsSurfaceRaised)
-    static let surfaceGlass = Color.fromToken(GeneratedPdigV2Tokens.colorsSurfaceGlass)
-    static let borderSubtle = Color.fromToken(GeneratedPdigV2Tokens.colorsBorderSubtle)
-    static let borderStrong = Color.fromToken(GeneratedPdigV2Tokens.colorsBorderStrong)
-    static let primary = Color.fromToken(GeneratedPdigV2Tokens.colorsPrimary)
-    static let primaryBright = Color.fromToken(GeneratedPdigV2Tokens.colorsPrimaryBright)
-    static let primarySoft = Color.fromToken(GeneratedPdigV2Tokens.colorsPrimarySoft)
-    static let textPrimary = Color.fromToken(GeneratedPdigV2Tokens.colorsTextPrimary)
-    static let textSecondary = Color.fromToken(GeneratedPdigV2Tokens.colorsTextSecondary)
-    static let textMuted = Color.fromToken(GeneratedPdigV2Tokens.colorsTextMuted)
-    static let positive = Color.fromToken(GeneratedPdigV2Tokens.colorsPositive)
-    static let warning = Color.fromToken(GeneratedPdigV2Tokens.colorsWarning)
-    static let critical = Color.fromToken(GeneratedPdigV2Tokens.colorsCritical)
-    static let unknown = Color.fromToken(GeneratedPdigV2Tokens.colorsUnknown)
+    // iOS platform translation of the frozen Android light-first reference.
+    // Generated dark tokens remain the desktop reference and continue to feed
+    // spatial/earth primitives; ordinary consumer surfaces are light-first.
+    static let canvas = Color(hex: "#F5F8FD")
+    static let canvasDeep = Color(hex: "#EAF2FF")
+    static let surface = Color.white
+    static let surfaceRaised = Color(hex: "#F3F7FD")
+    static let surfaceGlass = Color.white.opacity(0.91)
+    static let borderSubtle = Color(hex: "#315178").opacity(0.12)
+    static let borderStrong = Color(hex: "#3977E8").opacity(0.30)
+    static let primary = Color(hex: "#2F6BFF")
+    static let primaryBright = Color(hex: "#1769FF")
+    static let primaryText = Color(hex: "#0F5CDB")
+    static let primarySoft = Color(hex: "#E8F0FF")
+    static let textPrimary = Color(hex: "#10213A")
+    static let textSecondary = Color(hex: "#40536F")
+    static let textMuted = Color(hex: "#5A6E89")
+    static let positive = Color(hex: "#0B7C57")
+    static let warning = Color(hex: "#9A5A00")
+    static let critical = Color(hex: "#C23A47")
+    static let unknown = Color(hex: "#5D6678")
+
+    // Local dark materials. Globe and financial card faces stay spatial/dark
+    // even though the surrounding workspace is light.
+    static let globeDeep = Color(hex: "#06162F")
+    static let globeSurface = Color(hex: "#10141E")
+    static let globeSurfaceRaised = Color(hex: "#1A2231")
+    static let globeTextPrimary = Color(hex: "#F7FAFF")
+    static let globeTextSecondary = Color(hex: "#C9D8F2")
+    static let globeTextMuted = Color(hex: "#A6B7D2")
+    static let assetSurface = Color(hex: "#10141E")
+    static let assetSurfaceRaised = Color(hex: "#1A2231")
+    static let assetTextPrimary = Color(hex: "#F7FAFF")
+    static let assetTextSecondary = Color(hex: "#D4DFF2")
+    static let assetTextMuted = Color(hex: "#A6B7D2")
+
     static let regionNodeHi = Color.fromToken(GeneratedPdigV2Tokens.colorsRegionNodeHi)
     static let regionNodeLo = Color.fromToken(GeneratedPdigV2Tokens.colorsRegionNodeLo)
     static let arcActive = Color.fromToken(GeneratedPdigV2Tokens.colorsArcActive)
     static let arcQuiet = Color.fromToken(GeneratedPdigV2Tokens.colorsArcQuiet)
     static let atmosphereInner = Color.fromToken(GeneratedPdigV2Tokens.colorsAtmosphereInner)
     static let atmosphereOuter = Color.fromToken(GeneratedPdigV2Tokens.colorsAtmosphereOuter)
-    /// semantic.focus = colors.primaryBright（别名；无独立色值）。
     static let focusRing = primaryBright
 }
 
