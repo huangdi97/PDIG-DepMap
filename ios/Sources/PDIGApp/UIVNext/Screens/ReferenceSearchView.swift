@@ -226,7 +226,6 @@ struct VReferenceSearchView: View {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(PdigV2Colors.textMuted)
                     TextField("搜索卡片、号码、地区、服务或页面", text: $query)
-                        .textInputAutocapitalization(.never)
                         .disableAutocorrection(true)
                         .foregroundColor(PdigV2Colors.textPrimary)
                         .accessibilityIdentifier("pdig.search.field")
