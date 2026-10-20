@@ -56,6 +56,40 @@ enum VNextDemoFixture {
         VService(id: "svc-notion", name: "Notion", region: "GB", kind: "subscription"),
     ]
 
+    static let secondaryAssets: [VSecondaryAsset] = [
+        VSecondaryAsset(id: "acct-wechat", kind: .account, name: "微信账户", subtitle: "wxid_••••8823", region: "CN", relationCount: 5, attention: false, roles: ["登录入口", "恢复关系"]),
+        VSecondaryAsset(id: "acct-hsbc", kind: .account, name: "HSBC 网银", subtitle: "主账户", region: "HK", relationCount: 4, attention: true, roles: ["金融服务", "恢复关系"]),
+        VSecondaryAsset(id: "acct-amazon", kind: .account, name: "Amazon UK", subtitle: "英国账户", region: "GB", relationCount: 2, attention: false, roles: ["购物服务"]),
+        VSecondaryAsset(id: "mail-main", kind: .email, name: "主邮箱", subtitle: "h•••@outlook.com", region: "CN", relationCount: 5, attention: true, roles: ["登录", "恢复"]),
+        VSecondaryAsset(id: "mail-overseas", kind: .email, name: "海外邮箱", subtitle: "m•••@gmail.com", region: "US", relationCount: 3, attention: false, roles: ["恢复", "通知"]),
+        VSecondaryAsset(id: "device-pixel", kind: .device, name: "Pixel 8", subtitle: "Android · 手机", region: "CN", relationCount: 4, attention: false, roles: ["受信任设备"]),
+        VSecondaryAsset(id: "device-mac", kind: .device, name: "MacBook Pro", subtitle: "macOS · 电脑", region: "US", relationCount: 3, attention: false, roles: ["受信任设备"]),
+        VSecondaryAsset(id: "device-yubi", kind: .device, name: "YubiKey 5C NFC", subtitle: "Hardware Key", region: "US", relationCount: 2, attention: false, roles: ["安全密钥"]),
+        VSecondaryAsset(id: "service-wx", kind: .service, name: "微信支付", subtitle: "支付 · 中国大陆", region: "CN", relationCount: 2, attention: false, roles: ["支付入口"]),
+        VSecondaryAsset(id: "service-alipay", kind: .service, name: "支付宝", subtitle: "支付 · 中国大陆", region: "CN", relationCount: 1, attention: false, roles: ["支付入口"]),
+        VSecondaryAsset(id: "service-tencent", kind: .service, name: "腾讯视频", subtitle: "订阅 · 中国大陆", region: "CN", relationCount: 2, attention: false, roles: ["订阅服务"]),
+    ]
+
+    static let records: [VRecord] = [
+        VRecord(id: "rec-impact", planTitle: "更换手机号", actionTitle: "影响分析", state: "verified", recordedAt: "2026-10-18 14:20", verifiedAt: "2026-10-18 14:22", evidenceCount: 1),
+        VRecord(id: "rec-new-phone", planTitle: "更换手机号", actionTitle: "建立新号码", state: "verified", recordedAt: "2026-10-18 14:35", verifiedAt: "2026-10-18 14:41", evidenceCount: 2),
+        VRecord(id: "rec-verify", planTitle: "更换手机号", actionTitle: "验证新号码", state: "pending", recordedAt: "2026-10-18 15:05", verifiedAt: nil, evidenceCount: 0),
+    ]
+
+    static let findings: [VFinding] = [
+        VFinding(id: "finding-phone-recovery", title: "主号是一条已确认的恢复路径", explanation: "该号码连接多个账户的恢复关系；独立备用方式仍需继续确认。", evidenceCount: 3, status: "warning"),
+        VFinding(id: "finding-email-recovery", title: "两个恢复关系共享同一邮箱", explanation: "当前记录显示共享恢复入口；这不等于已确认唯一恢复路径。", evidenceCount: 2, status: "warning"),
+        VFinding(id: "finding-unknown", title: "仍有未确认关系", explanation: "来源覆盖之外可能还有关联；未知不等于安全。", evidenceCount: 0, status: "unknown"),
+    ]
+
+    static func secondaryAssets(for kind: VSecondaryKind) -> [VSecondaryAsset] {
+        secondaryAssets.filter { $0.kind == kind }
+    }
+
+    static func secondaryAsset(kind: VSecondaryKind, id: String) -> VSecondaryAsset? {
+        secondaryAssets.first { $0.kind == kind && $0.id == id }
+    }
+
     static let relations: [VRelation] = [
         VRelation(from: "card-cn-1", to: "svc-wxpay", kind: "funding"),
         VRelation(from: "card-cn-1", to: "svc-tencent", kind: "funding"),
