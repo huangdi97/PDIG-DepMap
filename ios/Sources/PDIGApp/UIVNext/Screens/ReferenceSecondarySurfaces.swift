@@ -219,6 +219,8 @@ struct VSecondaryDetailView: View {
 }
 
 struct VRecordsView: View {
+    var privacyMask: Bool = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.sectionGap) {
@@ -237,11 +239,13 @@ struct VRecordsView: View {
                     recordMetric("0", "验证失败")
                 }
 
-                VSectionHeader(title: "更换手机号")
+                if let first = VNextDemoFixture.records.first {
+                    VSectionHeader(title: vVisibleRecordPlanTitle(first, privacyMask: privacyMask))
+                }
                 ForEach(VNextDemoFixture.records) { record in
                     VStack(alignment: .leading, spacing: VSpace.sm) {
                         HStack {
-                            Text(record.actionTitle)
+                            Text(vVisibleRecordActionTitle(record, privacyMask: privacyMask))
                                 .font(VFont.body())
                                 .fontWeight(.semibold)
                                 .foregroundColor(PdigV2Colors.textPrimary)
@@ -289,6 +293,8 @@ struct VRecordsView: View {
 }
 
 struct VWeaknessesView: View {
+    var privacyMask: Bool = false
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.sectionGap) {
@@ -306,13 +312,17 @@ struct VWeaknessesView: View {
                         HStack {
                             Image(systemName: vStatusIcon(finding.status))
                                 .foregroundColor(vStatusColor(finding.status))
-                            Text(finding.title)
+                            Text(privacyMask ? "连续性发现（已遮蔽）" : finding.title)
                                 .font(VFont.body())
                                 .fontWeight(.semibold)
                                 .foregroundColor(PdigV2Colors.textPrimary)
                             Spacer()
                         }
-                        Text(finding.explanation)
+                        Text(
+                            privacyMask
+                                ? "相关对象与说明已遮蔽；发现状态与依据数量保持可见。"
+                                : finding.explanation
+                        )
                             .font(VFont.secondary())
                             .foregroundColor(PdigV2Colors.textSecondary)
                         Text(finding.evidenceCount > 0 ? "依据 \(finding.evidenceCount) 项" : "依据未记录")
