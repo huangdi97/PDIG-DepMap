@@ -1,8 +1,9 @@
 // PdigV2Theme —— PDIG UI vNext 设计令牌层（iOS SwiftUI 移植）。
 //
-// 值唯一来源：ios/Sources/PDIGApp/Generated/GeneratedPdigV2Tokens.swift
-// （由 spec/ui-vnext/DESIGN_TOKENS.json codegen 生成；禁止手写不同颜色）。
-// 页面禁止散落裸色值 / 圆角 / 间距；新视觉一律走这里。
+// 结构 token（间距 / 圆角 / 字号 / motion / globe primitive）继续来自
+// GeneratedPdigV2Tokens.swift。环境色遵循 Android Reference Freeze 后的
+// platform-translation 规则：iOS consumer workspace = light-first；Globe /
+// financial asset face = local dark material。页面仍禁止散落未经语义命名的颜色。
 
 import SwiftUI
 import Foundation
@@ -42,9 +43,9 @@ extension Color {
     }
 }
 
-// MARK: - vNext 颜色令牌（值全部来自 GeneratedPdigV2Tokens）
+// MARK: - vNext semantic palette（platform translation + frozen spatial tokens）
 
-/// 环境 / 数据 / 状态色（semantic 映射同 DESIGN_TOKENS.json；页面不得散落魔数颜色）。
+/// 环境 / 数据 / 状态色。普通页面消费 light semantic palette；空间材质单独命名。
 enum PdigV2Colors {
     // iOS platform translation of the frozen Android light-first reference.
     // Generated dark tokens remain the desktop reference and continue to feed
