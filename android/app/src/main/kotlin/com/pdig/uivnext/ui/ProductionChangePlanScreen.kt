@@ -931,8 +931,9 @@ private fun ProductionActionCard(
     // Match the authoritative legacy plan UI: only pending/evidence_suggested
     // verification states expose confirmation. Failed/not-required are not
     // locally converted into a retry/success state.
-    // Verification is a Reality mutation too: a stale/blocked plan must not
-    // advertise authoritative action buttons merely because a step was done.
+    // Verification is a Reality mutation too: stale plans still fail closed.
+    // A merely BLOCKED plan may verify an already-established path; unresolved
+    // migration work remains blocked independently and retirement stays gated.
     val canVerify = productionPlanVerificationEnabled(plan, action, canMutate)
 
     val guidance = if (privacyMask) {
