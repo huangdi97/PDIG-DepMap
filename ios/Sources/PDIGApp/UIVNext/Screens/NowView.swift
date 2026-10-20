@@ -83,7 +83,14 @@ struct NowView: View {
             VSectionHeader(title: "\(VCopy.needAttention)（\(VNextDemoFixture.attentionItems.count)）")
                 .accessibilityIdentifier(VTestIds.nowAttention)
             ForEach(Array(VNextDemoFixture.attentionItems.enumerated()), id: \.offset) { index, item in
-                VAttentionRow(item: item) {
+                VAttentionRow(
+                    item: VAttentionItem(
+                        id: item.id,
+                        severity: item.severity,
+                        title: vVisibleAttentionTitle(item, privacyMask: model.privacyMask),
+                        target: item.target
+                    )
+                ) {
                     openAttentionTarget(item)
                 }
                 .accessibilityIdentifier("\(VTestIds.nowAttentionItem).\(index)")
@@ -105,7 +112,7 @@ struct NowView: View {
                 } label: {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(change.title)
+                            Text(vVisibleActiveChangeTitle(change, privacyMask: model.privacyMask))
                                 .font(VFont.body())
                                 .fontWeight(.medium)
                                 .foregroundColor(PdigV2Colors.textPrimary)
@@ -139,7 +146,7 @@ struct NowView: View {
             VSectionHeader(title: VCopy.upcoming)
             ForEach(VNextDemoFixture.upcoming) { item in
                 HStack {
-                    Text(item.title)
+                    Text(vVisibleUpcomingTitle(item, privacyMask: model.privacyMask))
                         .font(VFont.secondary())
                         .foregroundColor(PdigV2Colors.textSecondary)
                     Spacer()
