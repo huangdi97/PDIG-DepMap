@@ -262,12 +262,32 @@ func vVisibleMigrationService(_ item: VMigration, privacyMask: Bool) -> String {
     privacyMask ? "关联服务（已遮蔽）" : item.service
 }
 
-func vVisibleChangeNumber(_ number: VNumber, privacyMask: Bool) -> String {
+func vVisibleCardNickname(_ card: VCard, privacyMask: Bool) -> String {
+    privacyMask ? "支付工具（已遮蔽）" : card.nickname
+}
+
+func vVisibleCardIssuer(_ card: VCard, privacyMask: Bool) -> String {
+    privacyMask ? "发行方已遮蔽" : card.issuer
+}
+
+func vVisibleCardLast4(_ card: VCard, privacyMask: Bool) -> String {
+    privacyMask ? "••••" : card.last4
+}
+
+func vVisibleNumberNickname(_ number: VNumber, privacyMask: Bool) -> String {
+    privacyMask ? "手机号身份（已遮蔽）" : number.nickname
+}
+
+func vVisibleNumberIdentifier(_ number: VNumber, privacyMask: Bool) -> String {
     privacyMask ? "号码已遮蔽" : number.maskedNumber
 }
 
-func vVisibleChangeCarrier(_ number: VNumber, privacyMask: Bool) -> String {
+func vVisibleNumberCarrier(_ number: VNumber, privacyMask: Bool) -> String {
     privacyMask ? "运营商信息已遮蔽" : number.carrier
+}
+
+func vVisibleServiceName(_ service: VService, privacyMask: Bool) -> String {
+    privacyMask ? "关联服务（已遮蔽）" : service.name
 }
 
 /// PresentationProfile（本地偏好；绝不进 .depmap；spec PRESENTATION_PROFILE_SCHEMA.json）。
