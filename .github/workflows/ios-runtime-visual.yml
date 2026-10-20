@@ -14,6 +14,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ios-runtime-visual-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ios-runtime-visual:
     name: iOS fresh canonical + XCUITest closure (iPhone+iPad, xcresult)
@@ -126,17 +130,42 @@ jobs:
           echo "IPAD_NAME=$ipadname" >> "$GITHUB_ENV"
           echo "picked iPhone: $iphonename ($iphone) ; iPad: $ipadname ($ipad)"
           mkdir -p conformance/reports
-          if [ -n "$iphone" ]; then
-            xcrun simctl boot "$iphone" 2>/dev/null || true
-            xcrun simctl bootstatus "$iphone" -b || true
-            echo "SIMULATOR_BOOT=PASS:ipad=$ipad" > conformance/reports/ios-simulator-boot.txt
-          else
-            echo "SIMULATOR_BOOT=NO_IPHONE" > conformance/reports/ios-simulator-boot.txt
+
+          wait_boot() {
+            local udid="$1"
+            local label="$2"
+            python3 - "$udid" "$label" <<'PY'
+import subprocess, sys
+udid, label = sys.argv[1], sys.argv[2]
+try:
+    r = subprocess.run(
+        ["xcrun", "simctl", "bootstatus", udid, "-b"],
+        timeout=180,
+        text=True,
+    )
+except subprocess.TimeoutExpired:
+    print(f"SIMULATOR_BOOT_TIMEOUT:{label}:{udid}", file=sys.stderr)
+    raise SystemExit(124)
+if r.returncode != 0:
+    print(f"SIMULATOR_BOOT_FAILED:{label}:{udid}:rc={r.returncode}", file=sys.stderr)
+    raise SystemExit(r.returncode)
+PY
+          }
+
+          if [ -z "$iphone" ] || [ -z "$ipad" ]; then
+            echo "SIMULATOR_BOOT=NO_REQUIRED_DEVICE:iphone=$iphone:ipad=$ipad"               > conformance/reports/ios-simulator-boot.txt
+            exit 1
           fi
-          if [ -n "$ipad" ]; then
-            xcrun simctl boot "$ipad" 2>/dev/null || true
-            xcrun simctl bootstatus "$ipad" -b || true
-          fi
+
+          xcrun simctl shutdown "$iphone" 2>/dev/null || true
+          xcrun simctl boot "$iphone"
+          wait_boot "$iphone" "iphone"
+
+          xcrun simctl shutdown "$ipad" 2>/dev/null || true
+          xcrun simctl boot "$ipad"
+          wait_boot "$ipad" "ipad"
+
+          echo "SIMULATOR_BOOT=PASS:iphone=$iphone:ipad=$ipad"             > conformance/reports/ios-simulator-boot.txt
           xcrun simctl list devices | grep -E "Booted" || true
 
       # Diagnostic: manually launch PDIGApp on the booted iPhone simulator in
