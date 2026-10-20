@@ -37,6 +37,21 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(VScreen.me.primaryTab, .me)
     }
 
+    func testVNextPresentationProfileDoesNotMaskByDefault() {
+        let card = VPresentationProfile.defaultFor(
+            targetType: "card",
+            targetId: "card-1",
+            preset: "minimal"
+        )
+        let number = VPresentationProfile.defaultFor(
+            targetType: "phoneNumber",
+            targetId: "phone-1",
+            preset: "country"
+        )
+        XCTAssertFalse(card.maskSensitive)
+        XCTAssertFalse(number.maskSensitive)
+    }
+
     func testVNextSecondaryReferenceSurfacesAreNotPlaceholders() {
         XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .account).isEmpty)
         XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .email).isEmpty)
