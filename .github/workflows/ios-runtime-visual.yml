@@ -6,6 +6,10 @@ on:
     branches:
       - main
       - test/multiclient-runtime-visual-sweep
+  pull_request:
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios-runtime-visual.yml"
 
 permissions:
   contents: read
