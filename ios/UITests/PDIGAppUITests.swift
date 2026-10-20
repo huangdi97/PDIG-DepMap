@@ -182,6 +182,46 @@ final class PDIGAppUITests: XCTestCase {
     ///
     /// iPhone exercises the five bottom roots; iPad exercises the five sidebar
     /// roots. Both must expose the same secondary infrastructure pages.
+    func testVNextGlobalPrivacyMasksCardAndNumberSurfaces() throws {
+        let app = launchVNextReference()
+
+        let me = vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我")
+        tapWhenReady(me, in: app)
+        XCTAssertTrue(app.switches.firstMatch.waitForExistence(timeout: 10), "隐私遮蔽开关未出现")
+        tapWhenReady(app.switches.firstMatch, in: app)
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(app.staticTexts["我的基础设施"].waitForExistence(timeout: 10))
+
+        tapWhenReady(app.buttons["pdig.nav.infra.cards"], in: app)
+        XCTAssertTrue(
+            app.staticTexts["支付工具（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Cards 未遮蔽卡片身份"
+        )
+        XCTAssertFalse(app.staticTexts["招行储蓄卡"].exists, "Cards 泄露卡片昵称")
+        XCTAssertFalse(app.staticTexts["招商银行"].exists, "Cards 泄露发行方")
+        attachScreenshot(app, name: "vnext-privacy-cards")
+
+        let now = vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在")
+        tapWhenReady(now, in: app)
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(app.staticTexts["我的基础设施"].waitForExistence(timeout: 10))
+
+        tapWhenReady(app.buttons["pdig.nav.infra.numbers"], in: app)
+        XCTAssertTrue(
+            app.staticTexts["手机号身份（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Numbers 未遮蔽号码身份"
+        )
+        XCTAssertFalse(app.staticTexts["主号 中国移动"].exists, "Numbers 泄露号码昵称")
+        XCTAssertFalse(app.staticTexts["+86 138****8823"].exists, "Numbers 泄露号码")
+        attachScreenshot(app, name: "vnext-privacy-numbers")
+    }
+
     func testVNextReferenceFiveRootsAndSecondaryInfrastructure() throws {
         let app = launchVNextReference()
 
