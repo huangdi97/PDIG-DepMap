@@ -136,12 +136,19 @@ struct VNextSplitShell: View {
                     Button { model.screen = .overview } label: { Label(VCopy.navInfraOverview, systemImage: "globe.asia.australia.fill") }
                         .accessibilityIdentifier(VTestIds.navInfrastructure)
                     Button { model.screen = .cards } label: { Label(VCopy.navInfraCards, systemImage: "creditcard.fill") }
+                        .accessibilityIdentifier(VTestIds.navInfraCards)
                     Button { model.screen = .numbers } label: { Label(VCopy.navInfraNumbers, systemImage: "phone.fill") }
+                        .accessibilityIdentifier(VTestIds.navInfraNumbers)
                     Button { model.screen = .accounts } label: { Label(VCopy.navInfraAccounts, systemImage: "person.crop.circle") }
+                        .accessibilityIdentifier(VTestIds.navInfraAccounts)
                     Button { model.screen = .emails } label: { Label(VCopy.navInfraEmails, systemImage: "envelope.fill") }
+                        .accessibilityIdentifier(VTestIds.navInfraEmails)
                     Button { model.screen = .devices } label: { Label(VCopy.navInfraDevices, systemImage: "iphone") }
+                        .accessibilityIdentifier(VTestIds.navInfraDevices)
                     Button { model.screen = .services } label: { Label(VCopy.navInfraServices, systemImage: "square.grid.2x2.fill") }
+                        .accessibilityIdentifier(VTestIds.navInfraServices)
                     Button { model.screen = .weaknesses } label: { Label(VCopy.navInfraWeaknesses, systemImage: "exclamationmark.triangle.fill") }
+                        .accessibilityIdentifier(VTestIds.navInfraWeaknesses)
                 }
                 Section(VCopy.navChange) {
                     Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
