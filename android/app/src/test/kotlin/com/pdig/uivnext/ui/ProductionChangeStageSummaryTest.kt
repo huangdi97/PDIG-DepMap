@@ -183,6 +183,45 @@ class ProductionChangeStageSummaryTest {
     }
 
     @Test
+    fun blockedPlanCanStillCompleteVerificationWithoutUnlockingRetirement() {
+        val verify = VNextProductionPlanAction(
+            id = "rpn-verify-1",
+            title = "验证新手机号恢复路径",
+            phase = "verify",
+            done = false,
+            verificationStatus = "pending",
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
+        val plan = VNextProductionPlan(
+            id = "plan-blocked-verify",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "in_progress",
+            effectiveState = null,
+            baselineGraphRevision = 12,
+            lastAnalyzedGraphRevision = 12,
+            currentGraphRevision = 12,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "blocked",
+            affectedServiceCount = 2,
+            mustChangeKeys = listOf("account-b|authentication"),
+            unresolvedMustChangeKeys = listOf("account-b|authentication"),
+            actions = listOf(verify),
+            retirementScopeReady = false,
+        )
+
+        assertTrue(productionPlanCompletionEnabled(plan, verify, true))
+        assertTrue(
+            productionPlanActionGuidance(verify, plan, true)
+                .contains("可以继续验证已经建立的路径"),
+        )
+    }
+
+    @Test
     fun oldPhoneRetirementRequiresVerifiedNewPathNotMerelyDoneVerificationStep() {
         fun action(
             id: String,
