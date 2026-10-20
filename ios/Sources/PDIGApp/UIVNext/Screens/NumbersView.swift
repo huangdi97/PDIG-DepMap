@@ -95,7 +95,7 @@ struct NumbersView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: VSpace.sm) {
-                                Text(number.nickname)
+                                Text(vVisibleNumberNickname(number, privacyMask: model.privacyMask))
                                     .font(VFont.secondary())
                                     .fontWeight(.semibold)
                                     .foregroundColor(PdigV2Colors.textPrimary)
@@ -103,7 +103,7 @@ struct NumbersView: View {
                                     .font(VFont.meta())
                                     .foregroundColor(PdigV2Colors.textMuted)
                             }
-                            Text("\(number.maskedNumber) · \(number.carrier) · \(vSimLabel(number.simKind)) · \(vRoleLabel(number.role))")
+                            Text("\(vVisibleNumberIdentifier(number, privacyMask: model.privacyMask)) · \(vVisibleNumberCarrier(number, privacyMask: model.privacyMask)) · \(vSimLabel(number.simKind)) · \(vRoleLabel(number.role))")
                                 .font(VFont.meta())
                                 .foregroundColor(PdigV2Colors.textSecondary)
                         }
@@ -141,17 +141,17 @@ struct NumbersView: View {
         VStack(alignment: .leading, spacing: VSpace.md) {
             if let selected = selected {
                 VSectionHeader(title: VCopy.numberDetailTitle)
-                Text(selected.nickname)
+                Text(vVisibleNumberNickname(selected, privacyMask: model.privacyMask))
                     .font(VFont.body())
                     .fontWeight(.bold)
                     .foregroundColor(PdigV2Colors.textPrimary)
-                Text(selected.maskedNumber)
+                Text(vVisibleNumberIdentifier(selected, privacyMask: model.privacyMask))
                     .font(.system(size: 20, weight: .bold, design: .monospaced))
                     .foregroundColor(PdigV2Colors.textPrimary)
                 HStack(spacing: VSpace.sm) {
                     VChip(text: vSimLabel(selected.simKind))
                     VChip(text: vRoleLabel(selected.role))
-                    VChip(text: selected.carrier)
+                    VChip(text: vVisibleNumberCarrier(selected, privacyMask: model.privacyMask))
                     if selected.recoveryOnly { VChip(text: VCopy.recoveryOnly, highlight: true) }
                 }
                 Text("用途：\(selected.usages.joined(separator: " · "))")
@@ -162,7 +162,7 @@ struct NumbersView: View {
                 VSectionHeader(title: "\(VCopy.relatedServices)（\(services.count)）")
                 ForEach(services) { service in
                     HStack {
-                        Text(service.name)
+                        Text(vVisibleServiceName(service, privacyMask: model.privacyMask))
                             .font(VFont.secondary())
                             .foregroundColor(PdigV2Colors.textSecondary)
                         Spacer()
