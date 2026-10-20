@@ -108,7 +108,7 @@ struct VNextTabShell: View {
                 .tabItem { Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath").accessibilityIdentifier(VTestIds.navChange) }
                 .tag(VScreen.change)
                 .accessibilityIdentifier(VTestIds.navChange)
-            NavigationStack { VRecordsView() }
+            NavigationStack { VRecordsView(privacyMask: model.privacyMask) }
                 .tabItem { Label(VCopy.navRecords, systemImage: "clock").accessibilityIdentifier(VTestIds.navRecords) }
                 .tag(VScreen.records)
                 .accessibilityIdentifier(VTestIds.navRecords)
@@ -180,7 +180,7 @@ struct VNextRootContent: View {
         case .change:
             ChangePhoneView(model: model)
         case .records:
-            VRecordsView()
+            VRecordsView(privacyMask: model.privacyMask)
         case .me:
             VMeHost(model: model)
         default:
@@ -214,7 +214,7 @@ struct VInfrastructureHost: View {
             case .secondaryDetail(let kind, let id):
                 VSecondaryDetailView(model: model, kind: kind, id: id)
             case .weaknesses:
-                VWeaknessesView()
+                VWeaknessesView(privacyMask: model.privacyMask)
             default: OverviewView(model: model)
             }
         }
