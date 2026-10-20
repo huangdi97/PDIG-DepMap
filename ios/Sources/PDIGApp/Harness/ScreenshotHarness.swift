@@ -66,7 +66,8 @@ public enum ScreenshotHarness {
             ("IOS_VISUAL", .str("MacOSRender (MACOS_RENDER) — not simulator, not device, no XCUITest")),
             ("IOS_SQLCIPHER_PERSISTENCE", .str("NOT_RUN")),
             ("IOS_DEVICE_RUNTIME", .str("NOT_RUN")),
-            ("IOS_VNEXT_DEMO", .str("MACOS_RENDER — vNext presentation demo, synthetic fixture, reduceMotion on")),
+            ("IOS_VNEXT_DEMO", .str("MACOS_RENDER — legacy label; vNext reference uses synthetic fixture, reduceMotion on")),
+            ("IOS_VNEXT_REFERENCE", .str("MACOS_RENDER — synthetic reference translation only; not Production Reality")),
         ]))))
         writeIndex(JsonWriter.write(.obj(JsonObject(indexFields))), dir: outputDir)
         print("[PDIGApp] screenshots -> \(outputDir)")
@@ -96,6 +97,34 @@ public enum ScreenshotHarness {
         result.append(("VNextCardCustomization", stack(CardCustomizationView(model: model))))
         model.screen = .numberCustomization("num-cn-1")
         result.append(("VNextNumberCustomization", stack(NumberCustomizationView(model: model))))
+
+        model.screen = .accounts
+        result.append(("VNextAccounts", stack(VSecondaryCollectionView(model: model, kind: .account))))
+        model.screen = .secondaryDetail(.account, "acct-wechat")
+        result.append(("VNextAccountDetail", stack(VSecondaryDetailView(model: model, kind: .account, id: "acct-wechat"))))
+
+        model.screen = .emails
+        result.append(("VNextEmails", stack(VSecondaryCollectionView(model: model, kind: .email))))
+        model.screen = .secondaryDetail(.email, "mail-main")
+        result.append(("VNextEmailDetail", stack(VSecondaryDetailView(model: model, kind: .email, id: "mail-main"))))
+
+        model.screen = .devices
+        result.append(("VNextDevices", stack(VSecondaryCollectionView(model: model, kind: .device))))
+        model.screen = .secondaryDetail(.device, "device-pixel")
+        result.append(("VNextDeviceDetail", stack(VSecondaryDetailView(model: model, kind: .device, id: "device-pixel"))))
+
+        model.screen = .services
+        result.append(("VNextServices", stack(VSecondaryCollectionView(model: model, kind: .service))))
+        model.screen = .secondaryDetail(.service, "service-wx")
+        result.append(("VNextServiceDetail", stack(VSecondaryDetailView(model: model, kind: .service, id: "service-wx"))))
+
+        model.screen = .weaknesses
+        result.append(("VNextWeaknesses", stack(VWeaknessesView())))
+        model.screen = .records
+        result.append(("VNextRecords", stack(VRecordsView())))
+        model.screen = .me
+        result.append(("VNextMe", stack(VMeView(model: model))))
+
         return result
     }
 
