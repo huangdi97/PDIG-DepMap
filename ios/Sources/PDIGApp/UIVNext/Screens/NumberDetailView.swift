@@ -4,7 +4,7 @@
 //  - 顶部 number identity surface（昵称/遮罩号码/region/carrier/SIM/role/usage/status）；
 //  - 其后按 关联服务/登录用途/2FA/恢复用途/风险/备用路径/历史；
 //  - 动作：定制 → /infrastructure/numbers/{id}/customize；换号场景 → /change/phone；
-//  - 遮罩默认开（maskPhoneNumbers）；运营商未知不填充；缺失 = 未设置/未知。
+//  - 隐私遮蔽默认关闭；用户开启后身份与关联对象名统一遮蔽；缺失 = 未设置/未知。
 
 import SwiftUI
 
@@ -117,7 +117,7 @@ struct NumberDetailView: View {
             ForEach(services) { service in
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(service.name)
+                        Text(vVisibleServiceName(service, privacyMask: model.privacyMask))
                             .font(VFont.body())
                             .fontWeight(.medium)
                             .foregroundColor(PdigV2Colors.textPrimary)
@@ -144,13 +144,13 @@ struct NumberDetailView: View {
             if !authenticates.isEmpty {
                 VSectionHeader(title: VCopy.loginUsage)
                 ForEach(authenticates) { s in
-                    Text(s.name).font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
+                    Text(vVisibleServiceName(s, privacyMask: model.privacyMask)).font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
                 }
             }
             if !twoFA.isEmpty {
                 VSectionHeader(title: VCopy.twoFA)
                 ForEach(twoFA) { s in
-                    Text(s.name).font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
+                    Text(vVisibleServiceName(s, privacyMask: model.privacyMask)).font(VFont.secondary()).foregroundColor(PdigV2Colors.textSecondary)
                 }
             }
         }
