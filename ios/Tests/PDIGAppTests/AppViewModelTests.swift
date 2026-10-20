@@ -33,6 +33,9 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(VScreen.now.primaryTab, .now)
         XCTAssertEqual(VScreen.accounts.primaryTab, .infrastructure)
         XCTAssertEqual(VScreen.secondaryDetail(.email, "mail-main").primaryTab, .infrastructure)
+        XCTAssertEqual(VScreen.change.primaryTab, .change)
+        XCTAssertEqual(VScreen.changePhone.primaryTab, .change)
+        XCTAssertEqual(VScreen.changeCard.primaryTab, .change)
         XCTAssertEqual(VScreen.records.primaryTab, .records)
         XCTAssertEqual(VScreen.personalization.primaryTab, .me)
         XCTAssertEqual(VScreen.sources.primaryTab, .me)
@@ -106,11 +109,48 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertFalse(phone?.subtitle.contains("8823") == true)
     }
 
+    @MainActor
+    func testVNextFocusedChangeRoutesReturnToChangeCenter() {
+        let model = VNextModel()
+        model.navigate(.changePhone)
+        model.back()
+        XCTAssertEqual(model.screen, .change)
+
+        model.navigate(.changeCard)
+        model.back()
+        XCTAssertEqual(model.screen, .change)
+    }
+
+    func testVNextCardChangeNeverPromotesPlanProjectionToReality() {
+        XCTAssertEqual(
+            vCardChangeServiceStatus(phase: .current, hasReplacement: false),
+            "当前依赖"
+        )
+        XCTAssertEqual(
+            vCardChangeServiceStatus(phase: .transition, hasReplacement: false),
+            "等待选择替代卡"
+        )
+        XCTAssertEqual(
+            vCardChangeServiceStatus(phase: .transition, hasReplacement: true),
+            "计划迁移"
+        )
+        XCTAssertEqual(
+            vCardChangeServiceStatus(phase: .after, hasReplacement: true),
+            "计划迁移"
+        )
+        XCTAssertFalse(
+            vCardChangeServiceStatus(phase: .after, hasReplacement: true).contains("已迁移")
+        )
+    }
+
     func testVNextReferenceSearchAdvertisesOnlyImplementedRoutes() {
         let quick = vReferenceSearchResults(query: "", privacyMask: false)
         XCTAssertTrue(quick.contains { $0.destination == .screen(.sources) })
         XCTAssertTrue(quick.contains { $0.destination == .screen(.settings) })
         XCTAssertTrue(quick.contains { $0.destination == .screen(.personalization) })
+        XCTAssertTrue(quick.contains { $0.destination == .screen(.change) })
+        XCTAssertTrue(quick.contains { $0.destination == .screen(.changePhone) })
+        XCTAssertTrue(quick.contains { $0.destination == .screen(.changeCard) })
         XCTAssertFalse(quick.contains { $0.title.contains("待复核") })
         XCTAssertFalse(quick.contains { $0.title.contains("导入") })
         XCTAssertFalse(quick.contains { $0.title.contains("手工") })
