@@ -84,10 +84,10 @@ struct ChangePhoneView: View {
     private func numberPanel(label: String, number: VNumber, highlight: Bool) -> some View {
         VStack(alignment: .leading, spacing: VSpace.sm) {
             VChip(text: label, highlight: highlight)
-            Text(vVisibleChangeNumber(number, privacyMask: model.privacyMask))
+            Text(vVisibleNumberIdentifier(number, privacyMask: model.privacyMask))
                 .font(.system(size: 15, weight: .bold, design: .monospaced))
                 .foregroundColor(PdigV2Colors.textPrimary)
-            Text("\(vVisibleChangeCarrier(number, privacyMask: model.privacyMask)) · \(vRoleLabel(number.role))")
+            Text("\(vVisibleNumberCarrier(number, privacyMask: model.privacyMask)) · \(vRoleLabel(number.role))")
                 .font(VFont.meta())
                 .foregroundColor(PdigV2Colors.textMuted)
         }
