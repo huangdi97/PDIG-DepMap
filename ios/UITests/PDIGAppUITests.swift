@@ -196,6 +196,22 @@ final class PDIGAppUITests: XCTestCase {
         XCTAssertTrue(app.switches.firstMatch.waitForExistence(timeout: 10), "隐私遮蔽开关未出现")
         tapWhenReady(app.switches.firstMatch, in: app)
 
+        // Global Search keeps raw matching capability while redacting result copy.
+        let searchOpen = vnextRoute(app, id: "pdig.search.open")
+        tapWhenReady(searchOpen, in: app)
+        let searchField = vnextRoute(app, id: "pdig.search.field")
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10), "全局搜索输入框未出现")
+        searchField.tap()
+        searchField.typeText("HSBC")
+        XCTAssertTrue(
+            app.staticTexts["支付工具（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "隐私状态下用原始字段搜索未命中已记录卡片"
+        )
+        XCTAssertFalse(app.staticTexts["HSBC 汇丰"].exists, "Search 泄露卡片发行方")
+        XCTAssertFalse(app.staticTexts["HSBC 网银"].exists, "Search 泄露账户或服务名称")
+        attachScreenshot(app, name: "vnext-privacy-search")
+        tapWhenReady(vnextRoute(app, id: "pdig.search.close"), in: app)
+
         let infrastructure = vnextRoot(
             app,
             id: "pdig.nav.infrastructure",
