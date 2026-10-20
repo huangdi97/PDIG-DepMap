@@ -583,6 +583,16 @@ class ProductionVNextShellContractTest {
         compose.onNodeWithText("0 不代表不存在未确认关系", substring = true).assertExists()
         compose.onAllNodesWithText("账户 A")[0].assertIsDisplayed()
         compose.onNodeWithText("账户身份", substring = true).assertExists()
+        // The new identity + role cards push Impact below the first compact
+        // viewport. Scroll the real LazyColumn to the impact item instead of
+        // treating an uncomposed off-screen node as missing.
+        val accountDetail = compose.onNodeWithTag(
+            "pdig.production-vnext.object-detail",
+            useUnmergedTree = true,
+        )
+        accountDetail.performScrollToNode(
+            hasTestTag("pdig.production-vnext.impact-zero-boundary"),
+        )
         compose.onNodeWithText("备用 / 降级").assertExists()
         compose.onNodeWithText("未知").assertDoesNotExist()
         compose.onNodeWithTag(
