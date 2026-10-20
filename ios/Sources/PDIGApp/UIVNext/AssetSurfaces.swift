@@ -2,7 +2,7 @@
 //
 // 与 desktop AssetSurfaces.kt 语义一致：
 //  - 卡面背景 = bundled procedural 渐变（preset 确定性；禁远程图片）；
-//  - last4 始终遮罩（privacyMask.maskCardLast4 默认 true）；
+//  - 默认展示已记录卡面身份；用户开启 privacyMask 后昵称/发行方/尾号一起遮蔽；
 //  - NumberFace = 号码身份面（昵称/遮罩号码/region/carrier/SIM/role/usages/status）。
 
 import SwiftUI
@@ -59,12 +59,12 @@ struct VAssetCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(card.nickname)
+                        Text(vVisibleCardNickname(card, privacyMask: privacyMask))
                             .font(VFont.secondary())
                             .fontWeight(.semibold)
                             .foregroundColor(PdigV2Colors.assetTextPrimary)
                             .lineLimit(1)
-                        Text(card.issuer)
+                        Text(vVisibleCardIssuer(card, privacyMask: privacyMask))
                             .font(VFont.meta())
                             .foregroundColor(PdigV2Colors.assetTextSecondary)
                             .lineLimit(1)
@@ -76,7 +76,7 @@ struct VAssetCard: View {
                 }
                 Spacer()
                 // last4 蒙版：privacyMask.maskCardLast4 默认 true；全局 Mask 开启时依旧只显示尾号。
-                Text("•••• •••• •••• \(card.last4)")
+                Text("•••• •••• •••• \(vVisibleCardLast4(card, privacyMask: privacyMask))")
                     .font(.system(size: 15, weight: .semibold, design: .monospaced))
                     .foregroundColor(PdigV2Colors.assetTextPrimary)
                 Spacer()
@@ -106,7 +106,11 @@ struct VAssetCard: View {
                 .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(card.nickname)，\(card.issuer)，卡号尾号 \(card.last4)，\(vStatusLabel(card.status))")
+        .accessibilityLabel(
+            privacyMask
+                ? "支付工具，敏感信息已遮蔽，\(vStatusLabel(card.status))"
+                : "\(card.nickname)，\(card.issuer)，卡号尾号 \(card.last4)，\(vStatusLabel(card.status))"
+        )
     }
 }
 
@@ -120,7 +124,7 @@ struct VNumberFace: View {
         Button(action: onClick) {
             VStack(alignment: .leading, spacing: VSpace.md) {
                 HStack {
-                    Text(number.nickname)
+                    Text(vVisibleNumberNickname(number, privacyMask: privacyMask))
                         .font(VFont.secondary())
                         .fontWeight(.semibold)
                         .foregroundColor(PdigV2Colors.textPrimary)
@@ -128,7 +132,7 @@ struct VNumberFace: View {
                     VStatusBadge(status: number.status)
                 }
                 // 遮罩规则：privacyMask.maskPhoneNumbers 默认 true；读屏只朗读遮罩号码。
-                Text(number.maskedNumber)
+                Text(vVisibleNumberIdentifier(number, privacyMask: privacyMask))
                     .font(.system(size: 20, weight: .bold, design: .monospaced))
                     .foregroundColor(PdigV2Colors.textPrimary)
                 HStack(spacing: VSpace.sm) {
@@ -152,6 +156,10 @@ struct VNumberFace: View {
                 .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(number.nickname)，号码已隐藏，\(vRoleLabel(number.role))")
+        .accessibilityLabel(
+            privacyMask
+                ? "手机号身份，敏感信息已遮蔽，\(vRoleLabel(number.role))"
+                : "\(number.nickname)，号码已隐藏，\(vRoleLabel(number.role))"
+        )
     }
 }
