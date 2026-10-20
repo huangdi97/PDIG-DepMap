@@ -186,7 +186,7 @@ final class PDIGAppUITests: XCTestCase {
 
         // Account must be reachable through normal product navigation, not by
         // directly constructing a view in the test.
-        let accountEntry = app.buttons["账户"].firstMatch
+        let accountEntry = buttonLabelStarts(app, "账户")
         tapWhenReady(accountEntry, in: app)
         XCTAssertTrue(
             app.staticTexts["已记录的数字基础设施对象 · 参考数据"]
@@ -195,7 +195,7 @@ final class PDIGAppUITests: XCTestCase {
         )
         attachScreenshot(app, name: "vnext-03-accounts")
 
-        tapWhenReady(app.buttons["微信账户"].firstMatch, in: app)
+        tapWhenReady(buttonLabelStarts(app, "微信账户"), in: app)
         XCTAssertTrue(
             app.staticTexts["账户详情"].waitForExistence(timeout: 10),
             "账户详情未出现"
