@@ -120,18 +120,33 @@ struct OverviewView: View {
 
     /// 底部快速入口（pdig.overview.quick）。
     private var quickEntry: some View {
-        HStack(spacing: VSpace.gridGap) {
+        LazyVGrid(
+            columns: [GridItem(.flexible()), GridItem(.flexible())],
+            spacing: VSpace.gridGap
+        ) {
             quickButton(VCopy.quickCards, "全球 \(VNextDemoFixture.cards.count) 张卡") {
                 model.navigate(.cards)
             }
             quickButton(VCopy.quickNumbers, "全球 \(VNextDemoFixture.numbers.count) 个号码") {
                 model.navigate(.numbers)
             }
-            quickButton(VCopy.quickChangePhone, "旗舰流程") {
-                model.navigate(.changePhone)
+            quickButton(VCopy.navInfraAccounts, "\(VNextDemoFixture.secondaryAssets(for: .account).count) 个已记录") {
+                model.navigate(.accounts)
             }
-            quickButton(VCopy.quickWeaknesses, "待确认风险") {
+            quickButton(VCopy.navInfraEmails, "\(VNextDemoFixture.secondaryAssets(for: .email).count) 个已记录") {
+                model.navigate(.emails)
+            }
+            quickButton(VCopy.navInfraDevices, "\(VNextDemoFixture.secondaryAssets(for: .device).count) 个已记录") {
+                model.navigate(.devices)
+            }
+            quickButton(VCopy.navInfraServices, "\(VNextDemoFixture.secondaryAssets(for: .service).count) 个已记录") {
+                model.navigate(.services)
+            }
+            quickButton(VCopy.quickWeaknesses, "连续性发现") {
                 model.navigate(.weaknesses)
+            }
+            quickButton(VCopy.quickChangePhone, "前往变更工作区") {
+                model.navigate(.changePhone)
             }
         }
         .padding(VSpace.xl)
