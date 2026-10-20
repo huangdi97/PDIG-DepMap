@@ -429,6 +429,8 @@ internal fun productionPlanActionGuidance(
         return when {
             action.phase == "prepare" ->
                 "这是解除阻断前的准备步骤；完成它不会自动把影响项标记为已处理或已验证。"
+            action.phase == "verify" ->
+                "仍有其他影响待处理，但可以继续验证已经建立的路径；验证不会解除未绑定的迁移事项。"
             action.phase == "change" && claimedBlockers > 0 ->
                 "这一步用于处理 $claimedBlockers 项阻断事项；记录完成不等于结果已验证。"
             else ->
@@ -888,7 +890,7 @@ internal fun productionPlanCompletionEnabled(
         plan.retirementScopeReady != true
     ) return false
     if (plan.readiness != "blocked") return true
-    if (action.phase == "prepare") return true
+    if (action.phase == "prepare" || action.phase == "verify") return true
     return action.phase == "change" &&
         action.resolvesImpactKeys.any { it in plan.unresolvedMustChangeKeys }
 }
