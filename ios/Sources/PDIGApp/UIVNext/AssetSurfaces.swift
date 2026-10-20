@@ -12,7 +12,7 @@ func cardFaceGradient(_ preset: String) -> LinearGradient {
     switch preset {
     case "deep-space":
         return LinearGradient(
-            colors: [PdigV2Colors.surfaceRaised, PdigV2Colors.surface, PdigV2Colors.canvasDeep],
+            colors: [PdigV2Colors.assetSurfaceRaised, PdigV2Colors.assetSurface, PdigV2Colors.globeDeep],
             startPoint: .topLeading, endPoint: .bottomTrailing
         )
     case "region":
@@ -27,7 +27,7 @@ func cardFaceGradient(_ preset: String) -> LinearGradient {
         )
     case "glass":
         return LinearGradient(
-            colors: [PdigV2Colors.surfaceGlass, PdigV2Colors.surface.opacity(0.33)],
+            colors: [Color(hex: "#25344D").opacity(0.92), PdigV2Colors.assetSurface.opacity(0.92)],
             startPoint: .topLeading, endPoint: .bottomTrailing
         )
     case "metal":
@@ -37,7 +37,7 @@ func cardFaceGradient(_ preset: String) -> LinearGradient {
         )
     case "abstract":
         return LinearGradient(
-            colors: [PdigV2Colors.primary, Color(hex: "#22316B"), PdigV2Colors.surface],
+            colors: [PdigV2Colors.primary, Color(hex: "#22316B"), PdigV2Colors.assetSurface],
             startPoint: .topLeading, endPoint: .bottomTrailing
         )
     default:
@@ -62,32 +62,32 @@ struct VAssetCard: View {
                         Text(card.nickname)
                             .font(VFont.secondary())
                             .fontWeight(.semibold)
-                            .foregroundColor(PdigV2Colors.textPrimary)
+                            .foregroundColor(PdigV2Colors.assetTextPrimary)
                             .lineLimit(1)
                         Text(card.issuer)
                             .font(VFont.meta())
-                            .foregroundColor(PdigV2Colors.textSecondary)
+                            .foregroundColor(PdigV2Colors.assetTextSecondary)
                             .lineLimit(1)
                     }
                     Spacer()
                     Text(vCardFormLabel(card.form))
                         .font(VFont.meta())
-                        .foregroundColor(PdigV2Colors.textMuted)
+                        .foregroundColor(PdigV2Colors.assetTextMuted)
                 }
                 Spacer()
                 // last4 蒙版：privacyMask.maskCardLast4 默认 true；全局 Mask 开启时依旧只显示尾号。
                 Text("•••• •••• •••• \(card.last4)")
                     .font(.system(size: 15, weight: .semibold, design: .monospaced))
-                    .foregroundColor(PdigV2Colors.textPrimary)
+                    .foregroundColor(PdigV2Colors.assetTextPrimary)
                 Spacer()
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("\(vCardTypeLabel(card.type)) · \(card.network)")
                             .font(VFont.meta())
-                            .foregroundColor(PdigV2Colors.textSecondary)
+                            .foregroundColor(PdigV2Colors.assetTextSecondary)
                         Text("\(card.region) · \(card.currency) · 到期 \(card.expiry)")
                             .font(VFont.meta())
-                            .foregroundColor(PdigV2Colors.textMuted)
+                            .foregroundColor(PdigV2Colors.assetTextMuted)
                     }
                     Spacer()
                     VStatusBadge(status: card.status)
