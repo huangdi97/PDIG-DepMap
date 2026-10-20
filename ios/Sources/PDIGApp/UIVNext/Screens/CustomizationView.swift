@@ -4,7 +4,7 @@
 //  - 编辑对象 = PresentationProfile（本地偏好；绝不写 .depmap；preset visual ≠ semantic role）；
 //  - Desktop 三栏 0.22 / 0.46 / 0.32；Mobile 不复制 Desktop inspector（preview 在上 + 编辑在下）；
 //  - 素材 bundled local / procedural；禁远程 URL；
-//  - 预览始终蒙版（maskLast4 / maskNumber 默认 true）。
+//  - 默认不遮蔽；全局 privacyMask 开启后预览与标题同步遮蔽敏感身份。
 //  testId：pdig.customization.library / .preview / .inspector。
 
 import SwiftUI
@@ -23,7 +23,9 @@ struct CardCustomizationView: View {
     var body: some View {
         if let card = card {
             CustomizationFrame(
-                title: "\(VCopy.customizationCardTitle) · \(card.nickname)",
+                title: model.privacyMask
+                    ? "\(VCopy.customizationCardTitle) · 已遮蔽"
+                    : "\(VCopy.customizationCardTitle) · \(card.nickname)",
                 presets: CARD_THEME_PRESETS,
                 profile: VPresentationProfile.defaultFor(targetType: "card", targetId: card.id, preset: card.preset),
                 onPresetChanged: { profile, preset in
@@ -74,7 +76,9 @@ struct NumberCustomizationView: View {
     var body: some View {
         if let number = number {
             CustomizationFrame(
-                title: "\(VCopy.customizationNumberTitle) · \(number.nickname)",
+                title: model.privacyMask
+                    ? "\(VCopy.customizationNumberTitle) · 已遮蔽"
+                    : "\(VCopy.customizationNumberTitle) · \(number.nickname)",
                 presets: NUMBER_THEME_PRESETS,
                 profile: VPresentationProfile.defaultFor(targetType: "phoneNumber", targetId: number.id, preset: "country"),
                 onPresetChanged: { profile, preset in
