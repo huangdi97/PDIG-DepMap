@@ -54,6 +54,12 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertTrue(VCopy.riskBody.contains("路径分析确认"))
     }
 
+    func testVNextReferenceAttentionNeverInfersUniqueRecoveryPath() {
+        let attentionCopy = VNextDemoFixture.attentionItems.map(\.title).joined(separator: "\n")
+        XCTAssertFalse(attentionCopy.contains("唯一恢复路径"))
+        XCTAssertTrue(attentionCopy.contains("唯一性未知"))
+    }
+
     // MARK: - findings composition（FailureDomainEngine + RecoveryCycleEngine）
 
     func testFindingsDetectSinglePointOfFailureAndSharedDomain() {
