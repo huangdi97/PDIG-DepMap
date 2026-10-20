@@ -28,12 +28,15 @@ final class AppViewModelTests: XCTestCase {
     func testVNextFiveRootOwnershipAndPrivacyDefault() {
         let model = VNextModel()
         XCTAssertFalse(model.privacyMask, "隐私遮蔽按冻结产品决策默认关闭")
+        XCTAssertFalse(model.reduceMotion)
+        XCTAssertTrue(model.showUpcoming, "即将到来默认显示；关闭只影响 Presentation")
         XCTAssertEqual(VScreen.now.primaryTab, .now)
         XCTAssertEqual(VScreen.accounts.primaryTab, .infrastructure)
         XCTAssertEqual(VScreen.secondaryDetail(.email, "mail-main").primaryTab, .infrastructure)
         XCTAssertEqual(VScreen.records.primaryTab, .records)
         XCTAssertEqual(VScreen.personalization.primaryTab, .me)
         XCTAssertEqual(VScreen.sources.primaryTab, .me)
+        XCTAssertEqual(VScreen.settings.primaryTab, .me)
         XCTAssertEqual(VScreen.me.primaryTab, .me)
     }
 
