@@ -156,9 +156,31 @@ struct VNextSplitShell: View {
             .listStyle(.sidebar)
             .navigationTitle("PDIG vNext")
         } detail: {
-            VInfrastructureHost(model: model)
+            VNextRootContent(model: model)
         }
-        .accessibilityIdentifier(VTestIds.navMe)
+        .accessibilityIdentifier("pdig.ios.vnext.split")
+    }
+}
+
+/// iPad detail root: five primary workspaces stay first-class just like phone tabs.
+struct VNextRootContent: View {
+    @ObservedObject var model: VNextModel
+
+    var body: some View {
+        switch model.screen.primaryTab {
+        case .now:
+            NowView(model: model)
+        case .infrastructure:
+            VInfrastructureHost(model: model)
+        case .change:
+            ChangePhoneView(model: model)
+        case .records:
+            VRecordsView()
+        case .me:
+            VMeHost(model: model)
+        default:
+            NowView(model: model)
+        }
     }
 }
 
