@@ -135,21 +135,21 @@ jobs:
             local udid="$1"
             local label="$2"
             python3 - "$udid" "$label" <<'PY'
-import subprocess, sys
-udid, label = sys.argv[1], sys.argv[2]
-try:
-    r = subprocess.run(
-        ["xcrun", "simctl", "bootstatus", udid, "-b"],
-        timeout=180,
-        text=True,
-    )
-except subprocess.TimeoutExpired:
-    print(f"SIMULATOR_BOOT_TIMEOUT:{label}:{udid}", file=sys.stderr)
-    raise SystemExit(124)
-if r.returncode != 0:
-    print(f"SIMULATOR_BOOT_FAILED:{label}:{udid}:rc={r.returncode}", file=sys.stderr)
-    raise SystemExit(r.returncode)
-PY
+          import subprocess, sys
+          udid, label = sys.argv[1], sys.argv[2]
+          try:
+              r = subprocess.run(
+                  ["xcrun", "simctl", "bootstatus", udid, "-b"],
+                  timeout=180,
+                  text=True,
+              )
+          except subprocess.TimeoutExpired:
+              print(f"SIMULATOR_BOOT_TIMEOUT:{label}:{udid}", file=sys.stderr)
+              raise SystemExit(124)
+          if r.returncode != 0:
+              print(f"SIMULATOR_BOOT_FAILED:{label}:{udid}:rc={r.returncode}", file=sys.stderr)
+              raise SystemExit(r.returncode)
+          PY
           }
 
           if [ -z "$iphone" ] || [ -z "$ipad" ]; then
