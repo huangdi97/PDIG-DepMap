@@ -4,7 +4,7 @@
 //  - Desktop 默认 list-table + inspector；Mobile 默认 number-face cards + sections；
 //  - Inspector 只读为主，动作 = 链接去详情页（components/inspector.md）；
 //  - 过滤：国家/区号/SIM eSIM/主副号/用途/状态/恢复用途（与 regionFilter 同步）；
-//  - 号码遮罩默认开（privacyMask.maskPhoneNumbers）；运营商未知不填充。
+//  - 隐私遮蔽默认关闭；只有用户主动开启后才隐藏号码；运营商未知不填充。
 
 import SwiftUI
 
