@@ -75,7 +75,13 @@ internal fun planActionCompletionAllowedByScope(
     unresolvedMustChangeKeys: List<String>,
 ): Boolean {
     if (readiness != PlanReadiness.BLOCKED) return true
-    if (action.phase == PlanActionPhase.PREPARE) return true
+    // PREPARE and VERIFY can gather evidence / validate an already-created
+    // path while the plan still contains unresolved migration work. Neither
+    // can retire the old path; destructive retirement has its own stricter
+    // authority gates in PlanRepository.
+    if (action.phase == PlanActionPhase.PREPARE ||
+        action.phase == PlanActionPhase.VERIFY
+    ) return true
     return action.phase == PlanActionPhase.CHANGE &&
         action.resolvesImpactKeys.any { it in unresolvedMustChangeKeys }
 }
