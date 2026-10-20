@@ -56,6 +56,7 @@ final class VNextModel: ObservableObject {
             case .service: screen = .services
             }
         case .personalization, .sources, .settings: screen = .me
+        case .changePhone, .changeCard: screen = .change
         default: screen = screen.primaryTab
         }
     }
@@ -111,7 +112,7 @@ struct VNextTabShell: View {
                 .tabItem { Label(VCopy.navInfrastructure, systemImage: "globe.asia.australia.fill").accessibilityIdentifier(VTestIds.navInfrastructure) }
                 .tag(VScreen.infrastructure)
                 .accessibilityIdentifier(VTestIds.navInfrastructure)
-            NavigationStack { ChangePhoneView(model: model).vGlobalSearchToolbar(model: model) }
+            NavigationStack { VChangeHost(model: model).vGlobalSearchToolbar(model: model) }
                 .tabItem { Label(VCopy.navChange, systemImage: "arrow.triangle.2.circlepath").accessibilityIdentifier(VTestIds.navChange) }
                 .tag(VScreen.change)
                 .accessibilityIdentifier(VTestIds.navChange)
@@ -159,8 +160,12 @@ struct VNextSplitShell: View {
                         .accessibilityIdentifier(VTestIds.navInfraWeaknesses)
                 }
                 Section(VCopy.navChange) {
-                    Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "arrow.triangle.2.circlepath") }
+                    Button { model.screen = .change } label: { Label("变更中心", systemImage: "arrow.triangle.2.circlepath") }
                         .accessibilityIdentifier(VTestIds.navChange)
+                    Button { model.screen = .changePhone } label: { Label(VCopy.quickChangePhone, systemImage: "phone.arrow.right") }
+                        .accessibilityIdentifier(VTestIds.changePhoneEntry)
+                    Button { model.screen = .changeCard } label: { Label("更换银行卡", systemImage: "creditcard.and.123") }
+                        .accessibilityIdentifier(VTestIds.changeCardEntry)
                 }
                 Section(VCopy.navRecords) {
                     Button { model.screen = .records } label: { Label(VCopy.navRecords, systemImage: "clock") }
@@ -206,7 +211,7 @@ struct VNextRootContent: View {
         case .infrastructure:
             VInfrastructureHost(model: model)
         case .change:
-            ChangePhoneView(model: model)
+            VChangeHost(model: model)
         case .records:
             VRecordsView(privacyMask: model.privacyMask)
         case .me:
@@ -244,6 +249,24 @@ struct VInfrastructureHost: View {
             case .weaknesses:
                 VWeaknessesView(privacyMask: model.privacyMask)
             default: OverviewView(model: model)
+            }
+        }
+    }
+}
+
+/// 「变更」一级工作区宿主。Change Center 是一级落点；具体场景是 focused routes。
+struct VChangeHost: View {
+    @ObservedObject var model: VNextModel
+
+    var body: some View {
+        Group {
+            switch model.screen {
+            case .changePhone:
+                ChangePhoneView(model: model)
+            case .changeCard:
+                VCardChangeView(model: model)
+            default:
+                VChangeCenterView(model: model)
             }
         }
     }
