@@ -157,13 +157,28 @@ internal fun R9SearchScreen(app: VAppState) {
                 ) { openSearchResult(hit, app) }
             }
             filteredCards.forEach { card ->
-                R9SearchResult(card.nickname, "${card.issuer} · ${regionFlag(card.region)} · ${r9VisibleLast4(card.last4, app.privacyMask || app.savedPresentationProfile("card", card.id)?.maskSensitive == true)}",
-                    "卡片") { app.openCard(card.id) }
+                val hidden = app.privacyMask ||
+                    app.savedPresentationProfile("card", card.id)?.maskSensitive == true
+                R9SearchResult(
+                    r9VisibleIdentity(card.nickname, hidden, "支付工具"),
+                    (if (hidden) "发行方已遮蔽" else card.issuer) +
+                        " · ${regionFlag(card.region)} · ${r9VisibleLast4(card.last4, hidden)}",
+                    "卡片",
+                ) { app.openCard(card.id) }
             }
             filteredNumbers.forEach { number ->
-                R9SearchResult(app.numberDisplayNameForScreen(number.id, number.maskedNumber),
-                    "${r9VisibleNumber(number.maskedNumber, app.privacyMask || app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true)} · ${regionFlag(number.region)} · ${number.carrier}",
-                    "号码") { app.openNumber(number.id) }
+                val hidden = app.privacyMask ||
+                    app.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true
+                R9SearchResult(
+                    r9VisibleIdentity(
+                        app.numberDisplayNameForScreen(number.id, number.maskedNumber),
+                        hidden,
+                        "手机号身份",
+                    ),
+                    "${r9VisibleNumber(number.maskedNumber, hidden)} · ${regionFlag(number.region)} · " +
+                        if (hidden) "运营商已遮蔽" else number.carrier,
+                    "号码",
+                ) { app.openNumber(number.id) }
             }
             filteredRegions.forEach { region ->
                 R9SearchResult(region.displayName, "${region.cardCount} 张卡 · ${region.phoneCount} 个号码",
@@ -173,32 +188,43 @@ internal fun R9SearchScreen(app: VAppState) {
                 }
             }
             filteredAccounts.forEach { account ->
-                R9SearchResult(account.name,
-                    "${regionFlag(account.region)} ${account.provider} · ${if (app.privacyMask) "标识已遮蔽" else account.maskedIdentifier}",
-                    "账户") {
+                R9SearchResult(
+                    r9VisibleIdentity(account.name, app.privacyMask, "账户"),
+                    "${regionFlag(account.region)} ${r9VisibleProvider(account.provider, app.privacyMask)} · " +
+                        if (app.privacyMask) "标识已遮蔽" else account.maskedIdentifier,
+                    "账户",
+                ) {
                     app.selectRegion(account.region)
                     app.navigateFromSearch(VScreen.ACCOUNTS)
                 }
             }
             filteredEmails.forEach { mail ->
-                R9SearchResult(mail.name,
-                    "${regionFlag(mail.region)} ${mail.provider} · ${if (app.privacyMask) "邮箱已遮蔽" else mail.maskedAddress}",
-                    "邮箱") {
+                R9SearchResult(
+                    r9VisibleIdentity(mail.name, app.privacyMask, "邮箱身份"),
+                    "${regionFlag(mail.region)} ${r9VisibleProvider(mail.provider, app.privacyMask)} · " +
+                        if (app.privacyMask) "邮箱已遮蔽" else mail.maskedAddress,
+                    "邮箱",
+                ) {
                     app.selectRegion(mail.region)
                     app.navigateFromSearch(VScreen.EMAILS)
                 }
             }
             filteredDevices.forEach { device ->
-                R9SearchResult(device.name,
+                R9SearchResult(
+                    r9VisibleIdentity(device.name, app.privacyMask, "设备"),
                     "${regionFlag(device.region)} ${device.platform} · ${device.kind}",
-                    "设备") {
+                    "设备",
+                ) {
                     app.selectRegion(device.region)
                     app.navigateFromSearch(VScreen.DEVICES)
                 }
             }
             filteredServices.forEach { service ->
-                R9SearchResult(service.name, regionFlag(service.region) + " · 已记录服务",
-                    "服务") {
+                R9SearchResult(
+                    r9VisibleIdentity(service.name, app.privacyMask, "服务"),
+                    regionFlag(service.region) + " · 已记录服务",
+                    "服务",
+                ) {
                     app.selectRegion(service.region)
                     app.navigateFromSearch(VScreen.SERVICES)
                 }
