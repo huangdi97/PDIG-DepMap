@@ -25,7 +25,7 @@ struct VSecondaryCollectionView: View {
 
     private var items: [VSecondaryAsset] {
         vFilteredSecondaryAssets(
-            VNextDemoFixture.secondaryAssets,
+            VNextDemoFixture.allSecondaryAssets,
             kind: kind,
             regionFilter: model.regionFilter
         )
@@ -471,7 +471,7 @@ struct VMeView: View {
 
                 VStack(alignment: .leading, spacing: VSpace.md) {
                     VSectionHeader(title: "我的基础设施")
-                    Text("\(VNextDemoFixture.cards.count) 张卡 · \(VNextDemoFixture.numbers.count) 个号码 · \(VNextDemoFixture.secondaryAssets.count) 个其他对象")
+                    Text("\(VNextDemoFixture.cards.count) 张卡 · \(VNextDemoFixture.numbers.count) 个号码 · \(VNextDemoFixture.allSecondaryAssets.count) 个其他对象")
                         .font(VFont.secondary())
                         .foregroundColor(PdigV2Colors.textSecondary)
                     Text("Reference Preview 使用 synthetic fixture，不代表真实 Personal Reality。")
