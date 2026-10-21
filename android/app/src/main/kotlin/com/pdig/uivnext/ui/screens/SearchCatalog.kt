@@ -225,7 +225,18 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
         }
     }
 
-    return out.distinctBy { "${it.kind}:${it.title}" }
+    return out.distinctBy { result ->
+        when (result) {
+            is SearchResult.NavigationHit -> "route:${result.screen.route}"
+            is SearchResult.CardHit -> "card:${result.id}"
+            is SearchResult.NumberHit -> "number:${result.id}"
+            is SearchResult.ServiceHit -> "service:${result.id}"
+            is SearchResult.RegionHit -> "region:${result.code}"
+            is SearchResult.AccountHit -> "account:${result.id}"
+            is SearchResult.EmailHit -> "email:${result.id}"
+            is SearchResult.DeviceHit -> "device:${result.id}"
+        }
+    }
 }
 
 internal fun openSearchResult(result: SearchResult, app: VAppState) {
