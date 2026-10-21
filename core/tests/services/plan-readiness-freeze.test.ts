@@ -178,12 +178,14 @@ describe('PlanReadiness freeze（FR-READ）', () => {
     expect(
       computePlanReadiness(input(actions, { pendingMustChange: 1, unfinishedChangeActions: 1 })),
     ).toBe('blocked')
-    // 完成动作但 verification pending：must_change resolved，但未完成验证 → 不给 ready（review_required）
+    // 完成动作但 verification pending：must_change resolved，但 required verification
+    // 仍未通过，因此 readiness 输入必须继续携带 pending action，而不是借用
+    // needs_review 信号来掩盖 false-ready。
     expect(
       computePlanReadiness(
         input([changeAction('a1', ['x|payment'], true)], {
           pendingMustChange: 0,
-          pendingNeedsReview: 1,
+          unfinishedChangeActions: 1,
         }),
       ),
     ).toBe('review_required')
