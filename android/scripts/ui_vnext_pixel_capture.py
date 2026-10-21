@@ -174,6 +174,36 @@ def enter_dialog_text_verified(value, evidence_name):
         )
     print("EDITABLE_VALUE_VERIFIED", evidence_name, repr(value), flush=True)
 
+def enter_single_text_field_verified(value, evidence_name):
+    """Type into the only real editable field and prove UI read-back.
+
+    Used by Search evidence. A dispatched ADB key event is not accepted as proof
+    unless the current UI hierarchy reports the exact resulting text.
+    """
+    editor = find_single_alias_editor(xml_nodes())
+    if editor is None:
+        capture(evidence_name + "-editor-unavailable")
+        raise RuntimeError(
+            "Expected exactly one Android EditText with valid bounds for " + evidence_name
+        )
+    _, (x1, y1, x2, y2) = editor
+    adb("shell", "input", "tap", (x1+x2)//2, (y1+y2)//2)
+    time.sleep(0.8)
+    adb("shell", "input", "text", value)
+    time.sleep(1.2)
+    current = [
+        node.get("text", "") for node in xml_nodes()
+        if node.get("class") == "android.widget.EditText"
+    ]
+    if current != [value]:
+        capture(evidence_name + "-text-not-entered")
+        raise RuntimeError(
+            f"Search/editor read-back differs from requested value: "
+            f"expected={value!r} got={current!r}"
+        )
+    print("EDITABLE_VALUE_VERIFIED", evidence_name, repr(value), flush=True)
+
+
 def wait_globe_texture(max_wait=65):
     # A near-black placeholder is NOT accepted as proof of the designed Earth.
     end = time.monotonic() + max_wait
@@ -1186,6 +1216,49 @@ def main():
         raise RuntimeError("R22 Human Review did not expose hierarchical Up")
     capture("10h-review-up-now")
     require_screen("10h-review-up-now", "你的全球数字基础设施")
+
+    # Search is a first-class global workflow and must have real compact-phone
+    # evidence, not only tablet screenshots or source-level tests. Prove the
+    # empty state, a real cross-category query, result navigation and Back
+    # restoration of the same query.
+    if not tap_retry("搜索", exact=True):
+        raise RuntimeError("Global Search action is unreachable from Now")
+    capture("11-search-empty")
+    require_screen(
+        "11-search-empty",
+        "搜索数字基础设施",
+        "快捷前往",
+        "未找到不代表不存在",
+    )
+    enter_single_text_field_verified("8823", "11-search-query")
+    # Wait for the real result projection instead of capturing the keyboard
+    # event before Compose has recomputed the result list.
+    for _ in range(8):
+        labels = [label_of(node) for node in xml_nodes()]
+        if any("搜索结果" in label for label in labels) and any(
+            "招行储蓄卡" in label for label in labels
+        ):
+            break
+        time.sleep(0.6)
+    else:
+        capture("11-search-query-no-results")
+        raise RuntimeError("Search query 8823 did not produce the recorded card result")
+    capture("11-search-query")
+    require_screen("11-search-query", "搜索结果", "招行储蓄卡", "卡片", "号码")
+
+    if not tap_retry("招行储蓄卡", exact=True):
+        raise RuntimeError("Search result card is not actionable")
+    capture("11a-search-result-card")
+    require_screen("11a-search-result-card", "基本信息")
+    adb("shell", "input", "keyevent", "4")
+    time.sleep(2)
+    capture("11b-search-back-query")
+    require_screen("11b-search-back-query", "搜索结果", "招行储蓄卡")
+    search_back_text = json.loads(
+        (ROOT / "11b-search-back-query.json").read_text(encoding="utf-8")
+    )["uiText"]
+    if not any("8823" in row for row in search_back_text):
+        raise RuntimeError("Back from Search result did not preserve the active query")
 
     # Include real runtime frame-time evidence even when device image comparisons
     # have already passed. A static circle with rotating lines is not accepted.
