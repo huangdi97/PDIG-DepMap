@@ -4,9 +4,14 @@ import SwiftUI
 ///
 /// This remains reference/synthetic UI. It intentionally does not claim
 /// Production Reality authority; Production wiring is a separate gate.
+func vSecondaryCollectionColumnCount(isRegularWidth: Bool) -> Int {
+    isRegularWidth ? 2 : 1
+}
+
 struct VSecondaryCollectionView: View {
     @ObservedObject var model: VNextModel
     let kind: VSecondaryKind
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var items: [VSecondaryAsset] {
         VNextDemoFixture.secondaryAssets(for: kind)
@@ -38,12 +43,19 @@ struct VSecondaryCollectionView: View {
                 .background(PdigV2Colors.surface)
                 .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
 
-                VStack(spacing: VSpace.md) {
+                let columnCount = vSecondaryCollectionColumnCount(
+                    isRegularWidth: horizontalSizeClass == .regular
+                )
+                let columns = Array(
+                    repeating: GridItem(.flexible(), spacing: VSpace.md, alignment: .top),
+                    count: columnCount
+                )
+                LazyVGrid(columns: columns, alignment: .leading, spacing: VSpace.md) {
                     ForEach(items) { item in
                         Button {
                             model.navigate(.secondaryDetail(kind, item.id))
                         } label: {
-                            HStack(spacing: VSpace.lg) {
+                            HStack(alignment: .top, spacing: VSpace.lg) {
                                 Image(systemName: kind.glyph)
                                     .font(.system(size: 18, weight: .semibold))
                                     .foregroundColor(PdigV2Colors.primaryBright)
@@ -60,14 +72,15 @@ struct VSecondaryCollectionView: View {
                                     Text(model.privacyMask ? "标识已遮蔽" : item.subtitle)
                                         .font(VFont.meta())
                                         .foregroundColor(PdigV2Colors.textSecondary)
-                                        .lineLimit(1)
+                                        .lineLimit(2)
                                     Text("\(item.relationCount) 条已记录关系")
                                         .font(VFont.meta())
                                         .foregroundColor(PdigV2Colors.textMuted)
                                 }
-                                Spacer()
+                                Spacer(minLength: VSpace.sm)
                                 VStatusBadge(status: item.attention ? "warning" : "active")
                             }
+                            .frame(maxWidth: .infinity, minHeight: 74, alignment: .topLeading)
                             .padding(VSpace.lg)
                             .contentShape(Rectangle())
                         }
@@ -78,8 +91,13 @@ struct VSecondaryCollectionView: View {
                             RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous)
                                 .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
                         )
+                        .accessibilityIdentifier(
+                            "pdig.ios.reference.secondary.item.\(kind.route).\(item.id)"
+                        )
                     }
                 }
+                .accessibilityIdentifier("pdig.ios.reference.secondary.grid.\(kind.route)")
+                .accessibilityValue("\(columnCount) 列")
             }
             .padding(VSpace.pagePadding)
         }
