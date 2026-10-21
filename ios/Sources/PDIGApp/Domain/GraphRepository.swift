@@ -349,7 +349,9 @@ public final class GraphRepository {
     }
 
     private func loadNodes() throws -> [DepNode] {
-        guard let rows = try? driver.prepare("SELECT id, kind, name, issuer, last4, archived FROM nodes").all([]) else { return [] }
+        guard let rows = try? driver.prepare(
+            "SELECT id, kind, name, issuer, last4, fields_json, archived FROM nodes"
+        ).all([]) else { return [] }
         return rows.compactMap { row in
             guard let kind = NodeKind(rawValue: row.str("kind") ?? "") else { return nil }
             return DepNode(
@@ -358,6 +360,7 @@ public final class GraphRepository {
                 name: row.str("name") ?? "",
                 issuer: row.str("issuer"),
                 last4: row.str("last4"),
+                fieldsJson: row.str("fields_json"),
                 archived: row.str("archived") == "1"
             )
         }
