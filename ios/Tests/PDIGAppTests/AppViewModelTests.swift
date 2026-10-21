@@ -1063,6 +1063,174 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(sp.temporal?.validOrder, true)
     }
 
+    func testProductionChangeAuthorityEnforcesPersistedPrerequisites() throws {
+        let plan = ChangePlan(
+            id: "p-authority",
+            scenario: ScenarioFlow.replacePhoneScenarioId,
+            title: "更换手机号",
+            workflowState: .analyzed,
+            baselineGraphRevision: 7,
+            lastAnalyzedGraphRevision: 7,
+            actions: [
+                PlanAction(id: "prepare", phase: .prepare),
+                PlanAction(
+                    id: "change",
+                    phase: .change,
+                    prerequisiteActionIds: ["prepare"],
+                    verification: ActionVerification(
+                        method: .futureObservation,
+                        status: .pending
+                    )
+                ),
+            ]
+        )
+
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.completeAction(
+                plan: plan,
+                currentGraphRevision: 7,
+                actionId: "change"
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? ProductionChangeMutationError,
+                .prerequisiteIncomplete("prepare")
+            )
+        }
+
+        let prepared = try ProductionChangeAuthority.completeAction(
+            plan: plan,
+            currentGraphRevision: 7,
+            actionId: "prepare"
+        )
+        let changed = try ProductionChangeAuthority.completeAction(
+            plan: prepared,
+            currentGraphRevision: 7,
+            actionId: "change"
+        )
+        XCTAssertTrue(changed.actions.first { $0.id == "change" }?.done == true)
+        XCTAssertEqual(
+            changed.actions.first { $0.id == "change" }?.verification?.status,
+            .pending,
+            "记录完成不得自动把 verification 变成 verified"
+        )
+
+        let verified = try ProductionChangeAuthority.verifyAction(
+            plan: changed,
+            currentGraphRevision: 7,
+            actionId: "change"
+        )
+        XCTAssertEqual(
+            verified.actions.first { $0.id == "change" }?.verification?.status,
+            .verified
+        )
+    }
+
+    func testProductionChangeAuthorityFailsClosedForStaleAndTerminalPlans() {
+        let action = PlanAction(id: "a", phase: .change)
+        let stale = ChangePlan(
+            id: "stale",
+            scenario: "replace_payment_card",
+            workflowState: .inProgress,
+            baselineGraphRevision: 1,
+            lastAnalyzedGraphRevision: 1,
+            actions: [action]
+        )
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.completeAction(
+                plan: stale,
+                currentGraphRevision: 2,
+                actionId: "a"
+            )
+        ) { error in
+            XCTAssertEqual(error as? ProductionChangeMutationError, .needsReanalysis)
+        }
+
+        let frozen = ChangePlan(
+            id: "frozen",
+            scenario: "replace_payment_card",
+            workflowState: .completed,
+            baselineGraphRevision: 2,
+            lastAnalyzedGraphRevision: 2,
+            actions: [action]
+        )
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.completeAction(
+                plan: frozen,
+                currentGraphRevision: 2,
+                actionId: "a"
+            )
+        ) { error in
+            XCTAssertEqual(error as? ProductionChangeMutationError, .planFrozen)
+        }
+    }
+
+    func testProductionPhoneRetirementRequiresVerifiedPathAndCleanReviewScope() throws {
+        let verifyPending = PlanAction(
+            id: "phone-verify-new",
+            phase: .verify,
+            done: true,
+            verification: ActionVerification(
+                method: .futureObservation,
+                status: .pending
+            )
+        )
+        let retire = PlanAction(
+            id: "phone-retire-old",
+            phase: .change,
+            prerequisiteActionIds: ["phone-verify-new"]
+        )
+        let plan = ChangePlan(
+            id: "phone-plan",
+            scenario: ScenarioFlow.replacePhoneScenarioId,
+            workflowState: .inProgress,
+            baselineGraphRevision: 4,
+            lastAnalyzedGraphRevision: 4,
+            actions: [verifyPending, retire]
+        )
+
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.completeAction(
+                plan: plan,
+                currentGraphRevision: 4,
+                actionId: "phone-retire-old"
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? ProductionChangeMutationError,
+                .prerequisiteUnverified("phone-verify-new")
+            )
+        }
+
+        let verifiedPlan = try ProductionChangeAuthority.verifyAction(
+            plan: plan,
+            currentGraphRevision: 4,
+            actionId: "phone-verify-new"
+        )
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.completeAction(
+                plan: verifiedPlan,
+                currentGraphRevision: 4,
+                actionId: "phone-retire-old",
+                pendingReviewCount: 1
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? ProductionChangeMutationError,
+                .retirementScopeNeedsReview
+            )
+        }
+
+        let retired = try ProductionChangeAuthority.completeAction(
+            plan: verifiedPlan,
+            currentGraphRevision: 4,
+            actionId: "phone-retire-old"
+        )
+        XCTAssertTrue(
+            retired.actions.first { $0.id == "phone-retire-old" }?.done == true
+        )
+    }
+
     func testReplacePhoneRetireAllowedAfterVerify() throws {
         let snap = DemoData.snapshot()
         let mbb = MakeBeforeBreakEngine.evaluate(MakeBeforeBreakInput(
