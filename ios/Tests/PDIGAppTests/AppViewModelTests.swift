@@ -99,6 +99,21 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertTrue(summary.after.contains("不代表现实"))
     }
 
+    func testProductionChangeAccessibilityIdsInterpolateActionIdentity() {
+        XCTAssertEqual(
+            vIosProductionChangeElementId("complete", actionId: "phone-prepare"),
+            "pdig.ios.production-vnext.change.complete.phone-prepare"
+        )
+        XCTAssertEqual(
+            vIosProductionChangeElementId("verify", actionId: "phone-verify-new"),
+            "pdig.ios.production-vnext.change.verify.phone-verify-new"
+        )
+        XCTAssertEqual(
+            vIosProductionChangeElementId("action", actionId: "phone-retire-old"),
+            "pdig.ios.production-vnext.change.action.phone-retire-old"
+        )
+    }
+
     func testProductionRecordEvidenceCopyNeverInventsEvidence() {
         let none = VIosProductionPlanAction(
             id: "none",
