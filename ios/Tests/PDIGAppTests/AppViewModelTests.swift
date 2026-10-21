@@ -58,6 +58,11 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertFalse(number.maskSensitive)
     }
 
+    func testSecondaryCollectionDensityTranslatesByWidthClass() {
+        XCTAssertEqual(vSecondaryCollectionColumnCount(isRegularWidth: false), 1)
+        XCTAssertEqual(vSecondaryCollectionColumnCount(isRegularWidth: true), 2)
+    }
+
     func testVNextSecondaryReferenceSurfacesAreNotPlaceholders() {
         XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .account).isEmpty)
         XCTAssertFalse(VNextDemoFixture.secondaryAssets(for: .email).isEmpty)
