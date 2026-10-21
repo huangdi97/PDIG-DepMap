@@ -17,6 +17,10 @@ public struct DepNode: Equatable, Sendable {
     public let name: String
     public let issuer: String?
     public let last4: String?
+    /// Canonical governed extension payload. Kept opaque at the base node layer;
+    /// typed readers such as confirmedIdentityAnchorProfile / governedRegionFacts
+    /// are the only authority for interpreting it.
+    public let fieldsJson: String?
     public let archived: Bool
 
     public init(
@@ -25,6 +29,7 @@ public struct DepNode: Equatable, Sendable {
         name: String,
         issuer: String? = nil,
         last4: String? = nil,
+        fieldsJson: String? = nil,
         archived: Bool = false
     ) {
         self.id = id
@@ -32,6 +37,7 @@ public struct DepNode: Equatable, Sendable {
         self.name = name
         self.issuer = issuer
         self.last4 = last4
+        self.fieldsJson = fieldsJson
         self.archived = archived
     }
 }
