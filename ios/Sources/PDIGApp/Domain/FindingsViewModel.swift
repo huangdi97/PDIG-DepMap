@@ -264,7 +264,14 @@ public enum FindingsViewModel {
     private static func domainOfNode(_ n: DepNode) -> (kind: String, subject: String)? {
         switch n.kind {
         case .device: return ("DEVICE", n.id)
-        case .identityAnchor: return ("PHONE_NUMBER", n.id)
+        case .identityAnchor:
+            guard let profile = confirmedIdentityAnchorProfile(
+                kind: n.kind,
+                fieldsJson: n.fieldsJson ?? ""
+            ), profile.subtype == .phoneNumber else {
+                return nil
+            }
+            return ("PHONE_NUMBER", n.id)
         case .account:
             if let issuer = n.issuer, !issuer.isEmpty { return ("PROVIDER", issuer) }
             return nil
@@ -291,7 +298,7 @@ public enum FindingsViewModel {
     }
 
     /// 已确认故障域表：key = `KIND|subject`（与 buildEdgeToDomainIndex 的 subject 键一致），value = 节点 id。
-    /// App 把 identityAnchor / device 的归属视为已确认（节点是用户维护的现实对象）；
+    /// App 只把已确认 phone_number identity / device 的归属视为已确认；
     /// PROVIDER（issuer 归属）属于机器推断 → needs_review（suspected）。
     private static func domainMap(
         for edges: [Dependency],
