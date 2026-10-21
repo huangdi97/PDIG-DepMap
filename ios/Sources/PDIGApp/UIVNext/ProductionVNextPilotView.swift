@@ -197,7 +197,7 @@ struct VIosProductionVNextPilotView: View {
 
     private func confirmedRegionScope(_ snapshot: VIosProductionSnapshot) -> some View {
         let regionCodes = Array(
-            Set(snapshot.objects.flatMap(\.confirmedRegionCodes))
+            Set(snapshot.objects.flatMap { $0.confirmedRegionCodes })
         ).sorted()
 
         return VStack(alignment: .leading, spacing: VSpace.sm) {
@@ -405,7 +405,7 @@ struct VIosProductionVNextPilotView: View {
                                 .font(VFont.body())
                                 .fontWeight(.semibold)
                                 .foregroundColor(PdigV2Colors.textPrimary)
-                            Text("\(dependency.relation) · \(dependency.capability)")
+                            Text("\(productionRelationLabel(dependency.relation)) · \(productionCapabilityLabel(dependency.capability))")
                                 .font(VFont.meta())
                                 .foregroundColor(PdigV2Colors.textMuted)
                         }
@@ -605,6 +605,33 @@ struct VIosProductionVNextPilotView: View {
             return vIosVisibleProductionObjectName(peer, privacyMask: privacyMask)
         }
         return privacyMask ? "关联对象（已遮蔽）" : fallback
+    }
+
+    private func productionRelationLabel(_ wire: String) -> String {
+        switch wire {
+        case "funding_source": return "资金来源"
+        case "merchant_agreement": return "支付协议"
+        case "authenticates": return "登录验证"
+        case "recovers": return "恢复路径"
+        case "controls": return "控制关系"
+        case "registered_with": return "注册关系"
+        case "owns": return "拥有关系"
+        case "uses": return "使用关系"
+        default: return "已确认关系"
+        }
+    }
+
+    private func productionCapabilityLabel(_ wire: String) -> String {
+        switch wire {
+        case "payment": return "支付"
+        case "recovery": return "恢复"
+        case "authentication": return "身份验证"
+        case "access": return "访问"
+        case "communication": return "通信"
+        case "identity": return "身份"
+        case "control": return "控制"
+        default: return "能力未分类"
+        }
     }
 
     private func recordState(_ action: VIosProductionPlanAction) -> String {
