@@ -302,8 +302,27 @@ final class PDIGAppUITests: XCTestCase {
             vnextRoute(app, id: "pdig.change.card").waitForExistence(timeout: 10),
             "卡片变更 Reference 未出现"
         )
-        XCTAssertTrue(app.staticTexts["完成后（计划）"].exists, "换卡缺少 After 计划阶段")
+        let cardAfterStage = vnextRoute(app, id: "pdig.change.card.stage.after")
+        XCTAssertTrue(
+            cardAfterStage.waitForExistence(timeout: 10),
+            "换卡缺少可访问的 After 计划阶段"
+        )
         attachScreenshot(app, name: "vnext-05a-change-card-current")
+
+        // Assert the stage as an interaction, not as a SwiftUI element type.
+        // VFilterChip is exposed as a control, so querying StaticText is brittle
+        // even though the visible label is correct.
+        tapWhenReady(cardAfterStage, in: app)
+        XCTAssertTrue(
+            app.staticTexts["完成后（计划）"].waitForExistence(timeout: 10),
+            "换卡 After 计划内容未出现"
+        )
+        XCTAssertTrue(
+            app.staticTexts["尚未选择替代卡，因此没有可展示的完成后计划。"]
+                .waitForExistence(timeout: 5),
+            "未选择替代卡时 After 必须保持计划边界"
+        )
+        attachScreenshot(app, name: "vnext-05a-change-card-after")
 
         tapWhenReady(vnextRoute(app, id: "pdig.nav.change"), in: app)
         tapWhenReady(vnextRoute(app, id: "pdig.change.center.phone"), in: app)
