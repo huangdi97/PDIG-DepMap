@@ -197,8 +197,9 @@ final class PDIGAppUITests: XCTestCase {
 
     /// Production VNext pilot runtime gate.
     ///
-    /// This path is explicit opt-in and read-only. It must render the session's
-    /// lock-gated Production projection, not VNextDemoFixture reference objects.
+    /// This path is explicit opt-in. It must render the session's lock-gated
+    /// Production projection, not VNextDemoFixture reference objects; guarded
+    /// Change writes are exercised separately below.
     func testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy() throws {
         let app = XCUIApplication()
         app.launchArguments = ["--uitest-production-vnext"]
@@ -390,6 +391,91 @@ final class PDIGAppUITests: XCTestCase {
             "Production 遮蔽后仍泄露账户名称"
         )
         attachScreenshot(app, name: "production-vnext-pilot-account-masked")
+    }
+
+    func testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-production-vnext"]
+        app.launch()
+
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.root")
+                .waitForExistence(timeout: 20)
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.change"),
+            in: app
+        )
+
+        func reveal(_ element: XCUIElement) {
+            var attempts = 0
+            while !element.exists && attempts < 8 {
+                let scroll = app.scrollViews.firstMatch
+                if scroll.exists && scroll.isHittable {
+                    scroll.swipeUp()
+                } else {
+                    app.swipeUp()
+                }
+                attempts += 1
+                _ = element.waitForExistence(timeout: 1)
+            }
+        }
+
+        let prepare = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.change.complete.phone-prepare"
+        )
+        reveal(prepare)
+        XCTAssertTrue(prepare.exists, "Production Change 缺少第一步正式完成入口")
+        XCTAssertTrue(prepare.isEnabled, "无前置步骤的第一步应可记录完成")
+
+        let addNew = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.change.complete.phone-add-new"
+        )
+        reveal(addNew)
+        XCTAssertTrue(addNew.exists, "Production Change 缺少第二步正式完成入口")
+        XCTAssertFalse(
+            addNew.isEnabled,
+            "前置步骤未完成时不得允许添加新路径步骤越权执行"
+        )
+
+        // Return to the first action if scrolling moved it out of view, then
+        // commit through the real AppSession authority.
+        reveal(prepare)
+        if !prepare.isHittable {
+            app.scrollViews.firstMatch.swipeDown()
+        }
+        tapWhenReady(prepare, in: app)
+
+        let unlockedAddNew = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.change.complete.phone-add-new"
+        )
+        reveal(unlockedAddNew)
+        XCTAssertTrue(
+            unlockedAddNew.waitForExistence(timeout: 10),
+            "完成前置步骤后第二步没有重新投影"
+        )
+        XCTAssertTrue(
+            unlockedAddNew.isEnabled,
+            "正式前置完成后下一步应由 authority 解锁"
+        )
+        attachScreenshot(app, name: "production-vnext-change-authority-after-prepare")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
+            in: app
+        )
+        XCTAssertFalse(
+            app.staticTexts["暂无操作记录"].exists,
+            "正式记录完成后 Records 仍然为空"
+        )
+        XCTAssertTrue(
+            app.staticTexts["已记录完成"].firstMatch.waitForExistence(timeout: 10),
+            "Records 没有显示刚刚发生的正式完成事件"
+        )
+        attachScreenshot(app, name: "production-vnext-change-authority-record")
     }
 
     /// vNext reference translation runtime gate.
