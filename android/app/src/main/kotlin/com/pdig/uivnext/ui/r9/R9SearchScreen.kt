@@ -14,6 +14,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -94,6 +95,14 @@ internal fun R9SearchScreen(app: VAppState) {
     val total = navigationHits.size + filteredCards.size + filteredNumbers.size + filteredRegions.size +
         filteredServices.size + filteredAccounts.size + filteredEmails.size + filteredDevices.size
     val listScroll = rememberScrollState(initial = app.screenScrollOffset(VScreen.SEARCH))
+    val searchCriteria = query.trim()
+    var previousSearchCriteria by remember { mutableStateOf(searchCriteria) }
+    LaunchedEffect(searchCriteria) {
+        if (searchCriteria != previousSearchCriteria) {
+            listScroll.scrollTo(0)
+            previousSearchCriteria = searchCriteria
+        }
+    }
     DisposableEffect(listScroll) {
         onDispose { app.rememberScreenScrollOffset(VScreen.SEARCH, listScroll.value) }
     }
