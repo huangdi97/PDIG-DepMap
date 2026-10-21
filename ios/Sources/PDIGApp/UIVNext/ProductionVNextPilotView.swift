@@ -345,6 +345,9 @@ struct VIosProductionVNextPilotView: View {
                         Label("返回", systemImage: "chevron.left")
                     }
                     .buttonStyle(.plain)
+                    .accessibilityIdentifier(
+                        "pdig.ios.production-vnext.collection.back.\(kind.route)"
+                    )
                     Spacer()
                 }
 
