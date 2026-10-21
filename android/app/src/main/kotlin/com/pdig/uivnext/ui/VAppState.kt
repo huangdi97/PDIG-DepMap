@@ -66,12 +66,32 @@ class VAppState(
      * into PersonalReality or Canonical data.
      */
     private val screenScrollOffsets = mutableMapOf<VScreen, Int>()
+    private val screenLazyListPositions = mutableMapOf<VScreen, LazyListViewport>()
 
     fun screenScrollOffset(screen: VScreen): Int =
         screenScrollOffsets[screen]?.coerceAtLeast(0) ?: 0
 
     fun rememberScreenScrollOffset(screen: VScreen, offset: Int) {
         screenScrollOffsets[screen] = offset.coerceAtLeast(0)
+    }
+
+    internal data class LazyListViewport(
+        val firstVisibleItemIndex: Int = 0,
+        val firstVisibleItemScrollOffset: Int = 0,
+    )
+
+    internal fun screenLazyListViewport(screen: VScreen): LazyListViewport =
+        screenLazyListPositions[screen] ?: LazyListViewport()
+
+    internal fun rememberScreenLazyListViewport(
+        screen: VScreen,
+        firstVisibleItemIndex: Int,
+        firstVisibleItemScrollOffset: Int,
+    ) {
+        screenLazyListPositions[screen] = LazyListViewport(
+            firstVisibleItemIndex = firstVisibleItemIndex.coerceAtLeast(0),
+            firstVisibleItemScrollOffset = firstVisibleItemScrollOffset.coerceAtLeast(0),
+        )
     }
 
     /**
