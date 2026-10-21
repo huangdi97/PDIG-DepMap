@@ -120,6 +120,48 @@ func vIosProductionSurfaceKind(
     }
 }
 
+func vIosProductionSurfaceKind(
+    for secondaryKind: VSecondaryKind
+) -> VIosProductionSurfaceKind {
+    switch secondaryKind {
+    case .account: return .account
+    case .email: return .emailIdentity
+    case .device: return .device
+    case .service: return .service
+    }
+}
+
+func vIosProductionSecondaryObjects(
+    snapshot: VIosProductionSnapshot,
+    kind: VSecondaryKind,
+    regionFilter: String?
+) -> [VIosProductionObject] {
+    let expectedSurface = vIosProductionSurfaceKind(for: kind)
+    return snapshot.objects.filter { object in
+        guard object.surfaceKind == expectedSurface else { return false }
+        guard let regionFilter else { return true }
+        return object.confirmedRegionCodes.contains(regionFilter)
+    }
+}
+
+func vIosVisibleProductionObjectName(
+    _ object: VIosProductionObject,
+    privacyMask: Bool
+) -> String {
+    guard privacyMask else { return object.name }
+    switch object.surfaceKind {
+    case .paymentAsset: return "支付工具（已遮蔽）"
+    case .account: return "账户（已遮蔽）"
+    case .service: return "服务（已遮蔽）"
+    case .membership: return "会员 / 资格（已遮蔽）"
+    case .device: return "设备（已遮蔽）"
+    case .phoneIdentity: return "手机号身份（已遮蔽）"
+    case .emailIdentity: return "邮箱身份（已遮蔽）"
+    case .identityAnchorGeneric: return "身份对象（已遮蔽）"
+    case .customGeneric: return "自定义对象（已遮蔽）"
+    }
+}
+
 func buildIosProductionVNextSnapshot(
     snapshot: GraphSnapshot,
     plans: [ChangePlan],
