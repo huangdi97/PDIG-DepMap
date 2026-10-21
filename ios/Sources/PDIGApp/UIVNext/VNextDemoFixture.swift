@@ -65,9 +65,6 @@ enum VNextDemoFixture {
         VSecondaryAsset(id: "device-pixel", kind: .device, name: "Pixel 8", subtitle: "Android · 手机", region: "CN", relationCount: 4, attention: false, roles: ["受信任设备"]),
         VSecondaryAsset(id: "device-mac", kind: .device, name: "MacBook Pro", subtitle: "macOS · 电脑", region: "US", relationCount: 3, attention: false, roles: ["受信任设备"]),
         VSecondaryAsset(id: "device-yubi", kind: .device, name: "YubiKey 5C NFC", subtitle: "Hardware Key", region: "US", relationCount: 2, attention: false, roles: ["安全密钥"]),
-        VSecondaryAsset(id: "service-wx", kind: .service, name: "微信支付", subtitle: "支付 · 中国大陆", region: "CN", relationCount: 2, attention: false, roles: ["支付入口"]),
-        VSecondaryAsset(id: "service-alipay", kind: .service, name: "支付宝", subtitle: "支付 · 中国大陆", region: "CN", relationCount: 1, attention: false, roles: ["支付入口"]),
-        VSecondaryAsset(id: "service-tencent", kind: .service, name: "腾讯视频", subtitle: "订阅 · 中国大陆", region: "CN", relationCount: 2, attention: false, roles: ["订阅服务"]),
     ]
 
     static let records: [VRecord] = [
@@ -82,12 +79,51 @@ enum VNextDemoFixture {
         VFinding(id: "finding-unknown", title: "仍有未确认关系", explanation: "来源覆盖之外可能还有关联；未知不等于安全。", evidenceCount: 0, status: "unknown"),
     ]
 
+    private static func serviceRoleLabel(_ kind: String) -> String {
+        switch kind {
+        case "payment": return "支付入口"
+        case "banking": return "银行服务"
+        case "subscription": return "订阅服务"
+        default: return "数字服务"
+        }
+    }
+
+    private static func regionDisplayName(_ code: String) -> String {
+        regions.first { $0.regionCode == code }?.displayName ?? code
+    }
+
+    private static func projectedServiceAssets() -> [VSecondaryAsset] {
+        services.map { service in
+            let relationCount = relations.filter {
+                $0.from == service.id || $0.to == service.id
+            }.count
+            let role = serviceRoleLabel(service.kind)
+            return VSecondaryAsset(
+                id: service.id,
+                kind: .service,
+                name: service.name,
+                subtitle: "\(role) · \(regionDisplayName(service.region))",
+                region: service.region,
+                relationCount: relationCount,
+                attention: false,
+                roles: [role]
+            )
+        }
+    }
+
     static func secondaryAssets(for kind: VSecondaryKind) -> [VSecondaryAsset] {
-        secondaryAssets.filter { $0.kind == kind }
+        if kind == .service {
+            return projectedServiceAssets()
+        }
+        return secondaryAssets.filter { $0.kind == kind }
+    }
+
+    static var allSecondaryAssets: [VSecondaryAsset] {
+        VSecondaryKind.allCases.flatMap { secondaryAssets(for: $0) }
     }
 
     static func secondaryAsset(kind: VSecondaryKind, id: String) -> VSecondaryAsset? {
-        secondaryAssets.first { $0.kind == kind && $0.id == id }
+        secondaryAssets(for: kind).first { $0.id == id }
     }
 
     static let relations: [VRelation] = [
@@ -145,12 +181,14 @@ enum VNextDemoFixture {
         regions.map { r in
             let cardsHere = cards.filter { $0.region == r.regionCode }.count
             let phonesHere = numbers.filter { $0.region == r.regionCode }.count
-            let servicesHere = services.filter { $0.region == r.regionCode }.count
+            let servicesHere = secondaryAssets(for: .service)
+                .filter { $0.region == r.regionCode }.count
             let attentionHere = attentionItems.filter { item in
                 cards.contains { $0.id == item.target && $0.region == r.regionCode }
                     || numbers.contains { $0.id == item.target && $0.region == r.regionCode }
             }.count
-            let accountsHere = (r.regionCode == "CN" || r.regionCode == "HK" || r.regionCode == "GB") ? 1 : 0
+            let accountsHere = secondaryAssets(for: .account)
+                .filter { $0.region == r.regionCode }.count
             return RegionPresentation(
                 regionCode: r.regionCode,
                 displayName: r.displayName,
