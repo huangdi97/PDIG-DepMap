@@ -184,33 +184,58 @@ class PlanSupportTest {
     }
 
     @Test
-    fun retirementRequiresCompletedAndVerifiedPhonePath() {
+    fun retirementRequiresMigrationAndRecoveryPathsCompletedAndVerified() {
+        fun migration(done: Boolean, status: ActionVerificationStatus) = PlanAction(
+            id = "rpn-change-1",
+            title = "迁移关键账户",
+            phase = PlanActionPhase.CHANGE,
+            done = done,
+            verification = ActionVerification(
+                method = ActionVerificationMethod.FUTURE_OBSERVATION,
+                status = status,
+            ),
+        )
+
+        val recoveryVerified = verificationAction(true, ActionVerificationStatus.VERIFIED)
+
         assertFalse(
             phoneRetirementVerificationSatisfied(
                 "replace_phone_number",
                 "rpn-change-2",
-                listOf(verificationAction(false, ActionVerificationStatus.PENDING)),
+                listOf(
+                    migration(false, ActionVerificationStatus.PENDING),
+                    recoveryVerified,
+                ),
             ),
         )
         assertFalse(
             phoneRetirementVerificationSatisfied(
                 "replace_phone_number",
                 "rpn-change-2",
-                listOf(verificationAction(true, ActionVerificationStatus.PENDING)),
+                listOf(
+                    migration(true, ActionVerificationStatus.PENDING),
+                    recoveryVerified,
+                ),
             ),
         )
         assertFalse(
             phoneRetirementVerificationSatisfied(
                 "replace_phone_number",
                 "rpn-change-2",
-                listOf(verificationAction(true, ActionVerificationStatus.FAILED)),
+                listOf(
+                    migration(true, ActionVerificationStatus.VERIFIED),
+                    verificationAction(true, ActionVerificationStatus.FAILED),
+                ),
             ),
         )
         assertTrue(
             phoneRetirementVerificationSatisfied(
                 "replace_phone_number",
                 "rpn-change-2",
-                listOf(verificationAction(true, ActionVerificationStatus.VERIFIED)),
+                listOf(
+                    migration(true, ActionVerificationStatus.VERIFIED),
+                    recoveryVerified,
+                ),
             ),
         )
     }
