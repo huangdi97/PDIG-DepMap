@@ -596,7 +596,31 @@ final class PDIGAppUITests: XCTestCase {
         )
 
         let chinaRegion = vnextRoute(app, id: "pdig.region.item.CN")
-        tapWhenReady(chinaRegion, in: app)
+        // The first region row sits immediately below the 420pt globe. A full
+        // swipe can jump past it before SwiftUI exposes the off-screen row to
+        // accessibility, so reveal it with short page drags instead of the
+        // generic large-step helper.
+        let overviewScroll = app.scrollViews.firstMatch
+        var regionRevealAttempts = 0
+        while !chinaRegion.exists && regionRevealAttempts < 8 {
+            if overviewScroll.exists && overviewScroll.isHittable {
+                let start = overviewScroll.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.78)
+                )
+                let end = overviewScroll.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.58)
+                )
+                start.press(forDuration: 0.05, thenDragTo: end)
+            } else {
+                app.swipeUp(velocity: .slow)
+            }
+            regionRevealAttempts += 1
+            _ = chinaRegion.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(chinaRegion.exists, "地区列表没有暴露中国大陆入口")
+        if chinaRegion.exists {
+            tapWhenReady(chinaRegion, in: app)
+        }
 
         tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.accounts"), in: app)
         XCTAssertTrue(
