@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,6 +48,43 @@ internal fun pageTitleSize(breakpoint: MediaBreakpoint): TextUnit =
 
 internal fun pageSectionGap(breakpoint: MediaBreakpoint): Dp =
     if (breakpoint == MediaBreakpoint.COMPACT) 16.dp else 20.dp
+
+internal fun infraObjectColumnCount(breakpoint: MediaBreakpoint): Int =
+    if (breakpoint == MediaBreakpoint.COMPACT) 1 else 2
+
+/**
+ * Secondary infrastructure collections stay single-column on phones but use
+ * the available tablet/expanded width as a real object workspace. Rows remain
+ * governed by existing object facts; this helper changes layout only.
+ */
+@Composable
+internal fun AdaptiveObjectGrid(
+    breakpoint: MediaBreakpoint,
+    itemCount: Int,
+    content: @Composable (Int) -> Unit,
+) {
+    val columns = infraObjectColumnCount(breakpoint)
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        var start = 0
+        while (start < itemCount) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.Top,
+            ) {
+                repeat(columns) { offset ->
+                    val index = start + offset
+                    Column(Modifier.weight(1f)) {
+                        if (index < itemCount) {
+                            content(index)
+                        }
+                    }
+                }
+            }
+            start += columns
+        }
+    }
+}
 
 /** Consumer-facing 地区名；内部继续使用稳定 regionCode。 */
 internal fun regionLabel(code: String): String = regionLabelZh(code)
