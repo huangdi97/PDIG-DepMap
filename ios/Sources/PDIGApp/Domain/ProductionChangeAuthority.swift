@@ -11,6 +11,7 @@ enum ProductionChangeMutationError: Error, Equatable {
     case planNotFound
     case planFrozen
     case needsReanalysis
+    case reanalysisScopeChanged
     case actionNotFound
     case actionAlreadyDone
     case missingPrerequisite(String)
@@ -23,6 +24,75 @@ enum ProductionChangeMutationError: Error, Equatable {
 }
 
 enum ProductionChangeAuthority {
+    /// Re-analyze a stale plan without silently rewriting its action history.
+    ///
+    /// The current scenario is recomputed against the latest graph. We advance the
+    /// analyzed revision only when the executable DAG is structurally identical:
+    /// same action ids, phases, prerequisites and explicit impact-key claims.
+    /// Any real scope change fails closed and requires an explicit plan review.
+    static func reanalyze(
+        plan: ChangePlan,
+        graph: GraphSnapshot
+    ) throws -> ChangePlan {
+        if ChangePlanMachine.isFrozen(plan.workflowState) {
+            throw ProductionChangeMutationError.planFrozen
+        }
+        guard let targetNodeId = plan.targetNodeId else {
+            throw ProductionChangeMutationError.reanalysisScopeChanged
+        }
+        guard PlanRules.isPlanStale(
+            plan: plan,
+            currentGraphRevision: graph.graphRevision
+        ) else {
+            return plan
+        }
+
+        let analyzed = try ScenarioFlow.createPlan(
+            scenarioId: plan.scenario,
+            targetNodeId: targetNodeId,
+            graph: graph,
+            effectiveDate: plan.effectiveDate,
+            nowIso: plan.effectiveDate ?? "2030-01-01T00:00:00+00:00"
+        ).plan
+
+        guard actionStructure(analyzed.actions) == actionStructure(plan.actions) else {
+            throw ProductionChangeMutationError.reanalysisScopeChanged
+        }
+
+        return ChangePlan(
+            id: plan.id,
+            templateId: plan.templateId,
+            scenario: plan.scenario,
+            title: plan.title,
+            workflowState: plan.workflowState,
+            baselineGraphRevision: plan.baselineGraphRevision,
+            lastAnalyzedGraphRevision: graph.graphRevision,
+            targetNodeId: plan.targetNodeId,
+            effectiveDate: plan.effectiveDate,
+            actions: plan.actions
+        )
+    }
+
+    private struct ActionStructure: Equatable {
+        let id: String
+        let phase: PlanActionPhase
+        let resolvesImpactKeys: [String]
+        let prerequisiteActionIds: [String]
+        let verificationRequired: Bool
+    }
+
+    private static func actionStructure(_ actions: [PlanAction]) -> [ActionStructure] {
+        actions.map {
+            ActionStructure(
+                id: $0.id,
+                phase: $0.phase,
+                resolvesImpactKeys: $0.resolvesImpactKeys.sorted(),
+                prerequisiteActionIds: $0.prerequisiteActionIds.sorted(),
+                verificationRequired: $0.verification != nil
+            )
+        }
+    }
+
     static func canCompleteAction(
         plan: ChangePlan,
         currentGraphRevision: Int,
