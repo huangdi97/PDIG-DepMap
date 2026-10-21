@@ -686,6 +686,67 @@ final class AppViewModelTests: XCTestCase {
         )
     }
 
+    func testPlanActionJsonWritesCanonicalKeysAndReadsLegacySnakeCase() throws {
+        let action = PlanAction(
+            id: "change-1",
+            title: "迁移关键账户",
+            phase: .change,
+            done: true,
+            resolvesImpactKeys: ["account-1|recovery"],
+            prerequisiteActionIds: ["prepare-1"],
+            verification: ActionVerification(
+                method: .futureObservation,
+                status: .pending,
+                evidenceRefs: ["evidence-1"],
+                expectedFromNodeId: "identity-new",
+                expectedToNodeId: "account-1"
+            )
+        )
+        let encoded = JsonWriter.write(PlanJson.actionJson(action))
+        XCTAssertTrue(encoded.contains("\"resolvesImpactKeys\""))
+        XCTAssertTrue(encoded.contains("\"prerequisiteActionIds\""))
+        XCTAssertTrue(encoded.contains("\"evidenceRefs\""))
+        XCTAssertTrue(encoded.contains("\"expectedFromNodeId\""))
+        XCTAssertFalse(encoded.contains("\"resolves_impact_keys\""))
+        XCTAssertFalse(encoded.contains("\"prerequisite_action_ids\""))
+
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pdig-plan-legacy-json-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let driver = try SqliteProvider.openDatabase(atDirectory: directory)
+        let repository = try GraphRepository(
+            driver: driver,
+            nowIso: "2026-10-21T00:00:00.000Z"
+        )
+        let legacyActions = #"""
+        [{"id":"legacy-change","title":"旧格式步骤","phase":"change","done":true,"resolves_impact_keys":["account-legacy|recovery"],"prerequisite_action_ids":["legacy-prepare"],"verification":{"method":"future_observation","status":"pending","evidence_refs":["legacy-evidence"],"expected_from_node_id":"old-source","expected_to_node_id":"old-target"}}]
+        """#
+        try driver.prepare(
+            """
+            INSERT INTO change_plans (
+                id, template_id, scenario, title, workflow_state,
+                baseline_graph_revision, last_analyzed_graph_revision,
+                target_node_id, effective_date, params_json,
+                impact_snapshot_json, action_items_json, created_at, updated_at
+            ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+            """
+        ).run([
+            .text("legacy-plan"), .text("replace_phone_number"),
+            .text("replace_phone_number"), .text("旧格式计划"), .text("in_progress"),
+            .integer(3), .integer(3), .text("phone-old"), .null,
+            .text("{}"), .null, .text(legacyActions),
+            .text("2026-10-21T00:00:00Z"), .text("2026-10-21T00:00:00Z"),
+        ])
+
+        let loaded = try XCTUnwrap(repository.loadPlans().first { $0.id == "legacy-plan" })
+        let loadedAction = try XCTUnwrap(loaded.actions.first)
+        XCTAssertEqual(loadedAction.resolvesImpactKeys, ["account-legacy|recovery"])
+        XCTAssertEqual(loadedAction.prerequisiteActionIds, ["legacy-prepare"])
+        XCTAssertEqual(loadedAction.verification?.evidenceRefs, ["legacy-evidence"])
+        XCTAssertEqual(loadedAction.verification?.expectedFromNodeId, "old-source")
+        XCTAssertEqual(loadedAction.verification?.expectedToNodeId, "old-target")
+    }
+
     // MARK: - navigation
 
     func testNavigationPushPopRoot() {
