@@ -163,7 +163,7 @@ struct VIosProductionSnapshot: Equatable, Sendable {
     let plans: [VIosProductionPlan]
     let pendingReview: VIosProductionReviewSummary
     let sourceCoverage: VIosProductionSourceCoverage
-    let sources: [VIosProductionSource]
+    let sources: [VIosProductionSource] = []
 }
 
 func vIosProductionSurfaceKind(
