@@ -56,8 +56,8 @@ internal fun AccountsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 @Composable
 private fun AccountRow(account: UiVNextAccount, privacyMask: Boolean, onClick: () -> Unit) {
     LightObjectCard(
-        title = account.name,
-        subtitle = account.provider + " · " +
+        title = previewVisibleObjectName(account.name, privacyMask, "账户"),
+        subtitle = previewVisibleProvider(account.provider, privacyMask) + " · " +
             (if (privacyMask) "标识已遮蔽" else account.maskedIdentifier) +
             " · " + regionLabel(account.region),
         badge = account.provider.take(1).uppercase(),
@@ -113,9 +113,9 @@ internal fun EmailsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 @Composable
 private fun EmailRow(email: UiVNextEmail, privacyMask: Boolean, onClick: () -> Unit) {
     LightObjectCard(
-        title = email.name,
+        title = previewVisibleObjectName(email.name, privacyMask, "邮箱身份"),
         subtitle = (if (privacyMask) "邮箱已遮蔽" else email.maskedAddress) +
-            " · " + email.provider + " · " + regionLabel(email.region),
+            " · " + previewVisibleProvider(email.provider, privacyMask) + " · " + regionLabel(email.region),
         badge = "@",
         accent = when {
             email.uniqueRecoveryPath == true -> PdigV2Colors.Critical
@@ -172,6 +172,7 @@ internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 val device = devices[index]
                 DeviceRow(
                     device = device,
+                    privacyMask = app.privacyMask,
                     onClick = { app.openSecondaryObject(com.pdig.uivnext.model.VScreen.DEVICE_DETAIL, device.id) },
                 )
             }
@@ -181,9 +182,9 @@ internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
 }
 
 @Composable
-private fun DeviceRow(device: UiVNextDevice, onClick: () -> Unit) {
+private fun DeviceRow(device: UiVNextDevice, privacyMask: Boolean, onClick: () -> Unit) {
     LightObjectCard(
-        title = device.name,
+        title = previewVisibleObjectName(device.name, privacyMask, "设备"),
         subtitle = devicePlatformLabel(device) + " · " + regionLabel(device.region),
         badge = device.platform.take(1).uppercase().ifBlank { "D" },
         accent = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.Primary,
