@@ -3,17 +3,18 @@ import PDIGCore
 
 /// Read-only iOS Production VNext projection.
 ///
-/// This is deliberately narrower than Android Production today: iOS
-/// GraphSnapshot does not yet expose governed fields_json identity profiles,
-/// region facts or maintenance profiles. Therefore every identity_anchor stays
-/// generic. Names, issuer text and identifier-like strings never promote an
-/// object to phone/email.
+/// This remains deliberately narrower than Android Production today: maintenance
+/// profiles are not yet projected here. Governed fields_json identity and region
+/// facts are allowed only through their typed Core readers. Names, issuer text,
+/// number prefixes and identifier-like strings never create subtype authority.
 enum VIosProductionSurfaceKind: String, Equatable, Sendable {
     case paymentAsset
     case account
     case service
     case membership
     case device
+    case phoneIdentity
+    case emailIdentity
     case identityAnchorGeneric
     case customGeneric
 }
@@ -25,6 +26,9 @@ struct VIosProductionObject: Equatable, Sendable, Identifiable {
     let surfaceKind: VIosProductionSurfaceKind
     let issuer: String?
     let last4: String?
+    let identitySubtype: String?
+    let identityIdentifierValue: String?
+    let confirmedRegionCodes: [String]
     let confirmedDependencyCount: Int
 }
 
@@ -91,15 +95,28 @@ struct VIosProductionSnapshot: Equatable, Sendable {
     let sourceCoverage: VIosProductionSourceCoverage
 }
 
-func vIosProductionSurfaceKind(_ kind: NodeKind) -> VIosProductionSurfaceKind {
-    switch kind {
+func vIosProductionSurfaceKind(
+    _ node: DepNode
+) -> VIosProductionSurfaceKind {
+    switch node.kind {
     case .paymentInstrument: return .paymentAsset
     case .account: return .account
     case .service: return .service
     case .membership: return .membership
     case .device: return .device
-    case .identityAnchor: return .identityAnchorGeneric
     case .custom: return .customGeneric
+    case .identityAnchor:
+        guard let profile = confirmedIdentityAnchorProfile(
+            kind: node.kind,
+            fieldsJson: node.fieldsJson ?? ""
+        ) else {
+            return .identityAnchorGeneric
+        }
+        switch profile.subtype {
+        case .phoneNumber: return .phoneIdentity
+        case .emailAddress: return .emailIdentity
+        case .otherIdentity: return .identityAnchorGeneric
+        }
     }
 }
 
@@ -138,13 +155,27 @@ func buildIosProductionVNextSnapshot(
     }
 
     let objects = activeNodes.map { node in
-        VIosProductionObject(
+        let identityProfile = node.kind == .identityAnchor
+            ? confirmedIdentityAnchorProfile(
+                kind: node.kind,
+                fieldsJson: node.fieldsJson ?? ""
+            )
+            : nil
+        let confirmedRegions = currentConfirmedRegionFacts(
+            fieldsJson: node.fieldsJson ?? ""
+        )
+        return VIosProductionObject(
             id: node.id,
             kind: node.kind.wire,
             name: node.name,
-            surfaceKind: vIosProductionSurfaceKind(node.kind),
+            surfaceKind: vIosProductionSurfaceKind(node),
             issuer: node.issuer,
             last4: node.last4,
+            identitySubtype: identityProfile?.subtype.wire,
+            identityIdentifierValue: identityProfile?.identifier?.value,
+            confirmedRegionCodes: Array(
+                Set(confirmedRegions.map { $0.territoryCode })
+            ).sorted(),
             confirmedDependencyCount: dependencyCounts[node.id, default: 0]
         )
     }.sorted { $0.id < $1.id }
