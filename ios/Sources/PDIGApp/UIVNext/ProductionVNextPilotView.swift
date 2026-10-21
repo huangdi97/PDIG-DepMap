@@ -17,6 +17,7 @@ struct VIosProductionVNextPilotView: View {
     @State private var regionFilter: String? = nil
     @State private var privacyMask = false
     @State private var changeError: String? = nil
+    @State private var selectedMeUtility: MeUtility? = nil
 
     enum Root: Hashable {
         case now
@@ -24,6 +25,11 @@ struct VIosProductionVNextPilotView: View {
         case change
         case records
         case me
+    }
+
+    enum MeUtility: Hashable {
+        case sources
+        case settings
     }
 
     enum ProductionCoreAssetKind: String, Hashable, CaseIterable {
@@ -1090,33 +1096,193 @@ struct VIosProductionVNextPilotView: View {
 
     @ViewBuilder
     private func productionMe(_ snapshot: VIosProductionSnapshot) -> some View {
+        if selectedMeUtility == .sources {
+            productionSources(snapshot)
+        } else if selectedMeUtility == .settings {
+            productionSettings(snapshot)
+        } else {
+            ScrollView {
+                VStack(alignment: .leading, spacing: VSpace.sectionGap) {
+                    pageHeader(
+                        "我的数字生活",
+                        "隐私、数据来源与展示设置都从这里管理；「我」仍是第五个一级工作区。"
+                    )
+
+                    Toggle("隐私遮蔽", isOn: $privacyMask)
+                        .padding(VSpace.lg)
+                        .background(PdigV2Colors.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                        .accessibilityIdentifier("pdig.ios.production-vnext.privacy")
+
+                    HStack(spacing: VSpace.gridGap) {
+                        metricCard("\(snapshot.sourceCoverage.activeSourceCount)", "使用中的来源")
+                        metricCard("\(snapshot.sourceCoverage.sourceCount)", "全部来源")
+                    }
+
+                    Button {
+                        selectedMeUtility = .sources
+                    } label: {
+                        productionMeUtilityRow(
+                            icon: "tray.full.fill",
+                            title: "数据源",
+                            detail: "\(snapshot.sourceCoverage.activeSourceCount) 个使用中 · \(snapshot.sourceCoverage.sourceCount) 个已记录"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.me.sources")
+
+                    Button {
+                        selectedMeUtility = .settings
+                    } label: {
+                        productionMeUtilityRow(
+                            icon: "gearshape.fill",
+                            title: "设置",
+                            detail: privacyMask ? "隐私遮蔽已开启" : "隐私遮蔽默认关闭"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.me.settings")
+
+                    infoCard(
+                        title: "数据版本 \(snapshot.revision)",
+                        detail: "对象与关系来自当前已解锁数据；待复核内容不会自动进入已确认关系。"
+                    )
+                }
+                .padding(VSpace.pagePadding)
+            }
+            .vPageBackground()
+            .accessibilityIdentifier("pdig.ios.production-vnext.me")
+        }
+    }
+
+    @ViewBuilder
+    private func productionSources(_ snapshot: VIosProductionSnapshot) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: VSpace.sectionGap) {
+                Button("‹ 返回我的数字生活") {
+                    selectedMeUtility = nil
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(PdigV2Colors.primaryText)
+                .accessibilityIdentifier("pdig.ios.production-vnext.me.sources.back")
+
                 pageHeader(
-                    "我的数字生活",
-                    "隐私遮蔽只改变展示，不修改已记录事实。"
+                    "数据源",
+                    "这里只展示正式记录的来源事实；不会把来源标签推断成账户、地区或服务商结论。"
+                )
+
+                if snapshot.sources.isEmpty {
+                    infoCard(
+                        title: "尚未记录数据源",
+                        detail: "空列表只表示当前没有来源记录，不代表基础设施关系完整。"
+                    )
+                } else {
+                    ForEach(snapshot.sources) { source in
+                        VStack(alignment: .leading, spacing: VSpace.sm) {
+                            HStack {
+                                Text(privacyMask ? "数据源（已遮蔽）" : source.label)
+                                    .font(VFont.body())
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(PdigV2Colors.textPrimary)
+                                Spacer(minLength: VSpace.sm)
+                                Text(productionSourceStateLabel(source.state))
+                                    .font(VFont.meta())
+                                    .foregroundColor(PdigV2Colors.textMuted)
+                            }
+                            Text(
+                                source.lastIngestedAt.map {
+                                    "最近导入 · " + String($0.prefix(10))
+                                } ?? "最近导入时间未记录"
+                            )
+                            .font(VFont.meta())
+                            .foregroundColor(PdigV2Colors.textSecondary)
+                        }
+                        .padding(VSpace.lg)
+                        .background(PdigV2Colors.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                        .accessibilityIdentifier("pdig.ios.production-vnext.source.\(source.id)")
+                    }
+                }
+            }
+            .padding(VSpace.pagePadding)
+        }
+        .vPageBackground()
+        .accessibilityIdentifier("pdig.ios.production-vnext.sources")
+    }
+
+    @ViewBuilder
+    private func productionSettings(_ snapshot: VIosProductionSnapshot) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.sectionGap) {
+                Button("‹ 返回我的数字生活") {
+                    selectedMeUtility = nil
+                }
+                .buttonStyle(.plain)
+                .foregroundColor(PdigV2Colors.primaryText)
+                .accessibilityIdentifier("pdig.ios.production-vnext.me.settings.back")
+
+                pageHeader(
+                    "设置",
+                    "这里的选项只改变本机展示，不重写已确认事实。"
                 )
 
                 Toggle("隐私遮蔽", isOn: $privacyMask)
                     .padding(VSpace.lg)
                     .background(PdigV2Colors.surface)
                     .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
-                    .accessibilityIdentifier("pdig.ios.production-vnext.privacy")
-
-                HStack(spacing: VSpace.gridGap) {
-                    metricCard("\(snapshot.sourceCoverage.activeSourceCount)", "使用中的来源")
-                    metricCard("\(snapshot.sourceCoverage.sourceCount)", "全部来源")
-                }
+                    .accessibilityIdentifier("pdig.ios.production-vnext.settings.privacy")
 
                 infoCard(
-                    title: "数据版本 \(snapshot.revision)",
-                    detail: "对象与关系来自当前已解锁数据；待复核内容不会自动进入已确认关系。"
+                    title: "隐私遮蔽默认关闭",
+                    detail: "开启后隐藏对象名称、号码、邮箱、来源标签与其他可能暴露身份的展示文本；关闭后恢复原始已记录展示。"
+                )
+
+                infoCard(
+                    title: "当前数据版本 \(snapshot.revision)",
+                    detail: "设置页不会修改数据版本，也不会绕过复核、变更或验证权限。"
                 )
             }
             .padding(VSpace.pagePadding)
         }
         .vPageBackground()
-        .accessibilityIdentifier("pdig.ios.production-vnext.me")
+        .accessibilityIdentifier("pdig.ios.production-vnext.settings")
+    }
+
+    private func productionMeUtilityRow(
+        icon: String,
+        title: String,
+        detail: String
+    ) -> some View {
+        HStack(spacing: VSpace.md) {
+            Image(systemName: icon)
+                .foregroundColor(PdigV2Colors.primaryText)
+                .frame(width: 28)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(VFont.body())
+                    .fontWeight(.semibold)
+                    .foregroundColor(PdigV2Colors.textPrimary)
+                Text(detail)
+                    .font(VFont.meta())
+                    .foregroundColor(PdigV2Colors.textMuted)
+            }
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundColor(PdigV2Colors.textMuted)
+        }
+        .padding(VSpace.lg)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+    }
+
+    private func productionSourceStateLabel(_ wire: String) -> String {
+        switch wire {
+        case "active": return "使用中"
+        case "retired": return "已停用"
+        default: return "状态未分类"
+        }
     }
 
     private func visibleIdentifier(_ object: VIosProductionObject) -> String? {
