@@ -1241,6 +1241,86 @@ final class AppViewModelTests: XCTestCase {
         }
     }
 
+    func testProductionChangeReanalysisAdvancesOnlyWhenActionScopeIsUnchanged() throws {
+        let oldGraph = GraphSnapshot(
+            nodes: [
+                DepNode(id: "phone-old", kind: .identityAnchor, name: "旧手机号")
+            ],
+            graphRevision: 1
+        )
+        let currentGraph = GraphSnapshot(
+            nodes: [
+                DepNode(id: "phone-old", kind: .identityAnchor, name: "旧手机号")
+            ],
+            graphRevision: 2
+        )
+        let created = try ScenarioFlow.createPlan(
+            scenarioId: ScenarioFlow.replacePhoneScenarioId,
+            targetNodeId: "phone-old",
+            graph: oldGraph,
+            effectiveDate: "2030-01-01T00:00:00+00:00",
+            nowIso: "2030-01-01T00:00:00+00:00"
+        ).plan
+        let progressed = try ProductionChangeAuthority.completeAction(
+            plan: created,
+            currentGraphRevision: 1,
+            actionId: "phone-prepare"
+        )
+
+        let refreshed = try ProductionChangeAuthority.reanalyze(
+            plan: progressed,
+            graph: currentGraph
+        )
+
+        XCTAssertEqual(refreshed.id, progressed.id)
+        XCTAssertEqual(refreshed.baselineGraphRevision, 1)
+        XCTAssertEqual(refreshed.lastAnalyzedGraphRevision, 2)
+        XCTAssertEqual(refreshed.actions, progressed.actions)
+        XCTAssertTrue(refreshed.actions.first { $0.id == "phone-prepare" }?.done == true)
+        XCTAssertFalse(
+            PlanRules.isPlanStale(
+                plan: refreshed,
+                currentGraphRevision: currentGraph.graphRevision
+            )
+        )
+    }
+
+    func testProductionChangeReanalysisFailsClosedWhenPersistedScopeDoesNotMatchCurrentScenario() {
+        let graph = GraphSnapshot(
+            nodes: [
+                DepNode(id: "phone-old", kind: .identityAnchor, name: "旧手机号")
+            ],
+            graphRevision: 2
+        )
+        let staleMalformed = ChangePlan(
+            id: "stale-malformed",
+            templateId: ScenarioFlow.replacePhoneScenarioId,
+            scenario: ScenarioFlow.replacePhoneScenarioId,
+            title: "更换手机号",
+            workflowState: .inProgress,
+            baselineGraphRevision: 1,
+            lastAnalyzedGraphRevision: 1,
+            targetNodeId: "phone-old",
+            effectiveDate: "2030-01-01T00:00:00+00:00",
+            actions: [
+                PlanAction(id: "phone-prepare", phase: .prepare, done: true)
+            ]
+        )
+
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.reanalyze(
+                plan: staleMalformed,
+                graph: graph
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? ProductionChangeMutationError,
+                .reanalysisScopeChanged
+            )
+        }
+        XCTAssertEqual(staleMalformed.lastAnalyzedGraphRevision, 1)
+    }
+
     func testProductionPhoneRetirementRequiresBuiltAndVerifiedPathAndCleanReviewScope() throws {
         func pathAction(_ id: String, done: Bool) -> PlanAction {
             PlanAction(id: id, phase: .change, done: done)
