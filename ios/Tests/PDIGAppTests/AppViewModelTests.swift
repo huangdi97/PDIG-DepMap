@@ -213,6 +213,54 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(session.productionVNextSnapshot()?.objects.map(\.id), ["account-1"])
     }
 
+    func testGraphRepositoryRoundTripsPersistedPlanActions() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pdig-plan-roundtrip-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let driver = try SqliteProvider.openDatabase(atDirectory: directory)
+        let repository = try GraphRepository(
+            driver: driver,
+            nowIso: "2026-10-21T00:00:00.000Z"
+        )
+        let plan = ChangePlan(
+            id: "plan-roundtrip",
+            templateId: "replace_phone_number",
+            scenario: "replace_phone_number",
+            title: "更换手机号",
+            workflowState: .inProgress,
+            baselineGraphRevision: 4,
+            lastAnalyzedGraphRevision: 5,
+            targetNodeId: "identity-old",
+            effectiveDate: "2026-11-01",
+            actions: [
+                PlanAction(
+                    id: "change-1",
+                    title: "迁移关键账户",
+                    phase: .change,
+                    done: true,
+                    resolvesImpactKeys: ["account-1|recovery"],
+                    verification: ActionVerification(
+                        method: .futureObservation,
+                        status: .pending,
+                        evidenceRefs: ["evidence-1"],
+                        expectedFromNodeId: "identity-new",
+                        expectedToNodeId: "account-1"
+                    )
+                ),
+            ]
+        )
+
+        try repository.savePlan(plan)
+        let loaded = try repository.loadPlans()
+
+        XCTAssertEqual(loaded.count, 1)
+        XCTAssertEqual(loaded[0], plan)
+        XCTAssertEqual(loaded[0].actions[0].verification?.status, .pending)
+        XCTAssertEqual(loaded[0].actions[0].verification?.evidenceRefs, ["evidence-1"])
+        XCTAssertEqual(loaded[0].actions[0].resolvesImpactKeys, ["account-1|recovery"])
+    }
+
     // MARK: - navigation
 
     func testNavigationPushPopRoot() {
