@@ -46,6 +46,10 @@ internal fun productionCardCollectionColumns(widthDp: Float): Int = when {
     else -> 4
 }
 
+internal fun productionSecondaryCollectionColumns(widthDp: Float): Int =
+    if (widthDp < 600f) 1 else 2
+
+
 @Composable
 internal fun ProductionInventoryCategoryScreen(
     session: ProductionVNextSession,
@@ -89,6 +93,7 @@ internal fun ProductionInventoryCategoryScreen(
     // Keep the same Reality-driven filters and detail actions at every breakpoint.
     BoxWithConstraints(modifier.fillMaxSize()) {
         val galleryColumns = productionCardCollectionColumns(maxWidth.value)
+        val secondaryColumns = productionSecondaryCollectionColumns(maxWidth.value)
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag("pdig.production-vnext.inventory-category"),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
@@ -252,7 +257,7 @@ internal fun ProductionInventoryCategoryScreen(
                     }
                 }
             }
-        } else {
+        } else if (screen == VScreen.NUMBERS || secondaryColumns == 1) {
             items(objects, key = { it.id }) { item ->
                 ProductionObjectRow(
                     item = item,
@@ -266,6 +271,35 @@ internal fun ProductionInventoryCategoryScreen(
                         VScreen.DEVICES -> session.appState.openSecondaryObject(VScreen.DEVICE_DETAIL, item.id)
                         VScreen.SERVICES -> session.appState.openSecondaryObject(VScreen.SERVICE_DETAIL, item.id)
                         else -> Unit
+                    }
+                }
+            }
+        } else {
+            items(objects.chunked(secondaryColumns), key = { row -> row.first().id }) { row ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalAlignment = Alignment.Top,
+                ) {
+                    row.forEach { item ->
+                        Box(Modifier.weight(1f)) {
+                            ProductionObjectRow(
+                                item = item,
+                                dependencyCount = dependencyCount(snapshot, item.id),
+                                app = session.appState,
+                            ) {
+                                when (screen) {
+                                    VScreen.EMAILS -> session.appState.openSecondaryObject(VScreen.EMAIL_DETAIL, item.id)
+                                    VScreen.ACCOUNTS -> session.appState.openSecondaryObject(VScreen.ACCOUNT_DETAIL, item.id)
+                                    VScreen.DEVICES -> session.appState.openSecondaryObject(VScreen.DEVICE_DETAIL, item.id)
+                                    VScreen.SERVICES -> session.appState.openSecondaryObject(VScreen.SERVICE_DETAIL, item.id)
+                                    else -> Unit
+                                }
+                            }
+                        }
+                    }
+                    repeat(secondaryColumns - row.size) {
+                        Spacer(Modifier.weight(1f))
                     }
                 }
             }
