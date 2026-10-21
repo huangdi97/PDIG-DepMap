@@ -180,19 +180,22 @@ public final class GraphRepository {
         guard let rows = try? driver.prepare("SELECT * FROM change_plans").all([]) else { return [] }
         var plans: [ChangePlan] = []
         for row in rows {
-            guard let json = row.str("action_items_json") else { continue }
-            guard let parsed = try? JsonParser.parse(json) else { continue }
-            guard case .obj(let o) = parsed else { continue }
-            var fields = o.fields
-            fields.append(("id", .str(row.str("id") ?? "")))
-            fields.append(("template_id", row.str("template_id").map { .str($0) } ?? .null))
-            fields.append(("scenario", .str(row.str("scenario") ?? "")))
-            fields.append(("title", .str(row.str("title") ?? "")))
-            fields.append(("workflow_state", .str(row.str("workflow_state") ?? "")))
-            fields.append(("baseline_graph_revision", .num(row.str("baseline_graph_revision") ?? "0")))
-            fields.append(("last_analyzed_graph_revision", .num(row.str("last_analyzed_graph_revision") ?? "0")))
-            fields.append(("target_node_id", row.str("target_node_id").map { .str($0) } ?? .null))
-            fields.append(("effective_date", row.str("effective_date").map { .str($0) } ?? .null))
+            // action_items_json is persisted as a JSON ARRAY string. Do not
+            // parse that array as though it were the enclosing plan object.
+            // Rebuild the PlanJson input from authoritative table columns and
+            // pass the action array through unchanged for parseActions().
+            let fields: [(String, Json)] = [
+                ("id", .str(row.str("id") ?? "")),
+                ("template_id", row.str("template_id").map { .str($0) } ?? .null),
+                ("scenario", .str(row.str("scenario") ?? "")),
+                ("title", .str(row.str("title") ?? "")),
+                ("workflow_state", .str(row.str("workflow_state") ?? "")),
+                ("baseline_graph_revision", .num(row.str("baseline_graph_revision") ?? "0")),
+                ("last_analyzed_graph_revision", .num(row.str("last_analyzed_graph_revision") ?? "0")),
+                ("target_node_id", row.str("target_node_id").map { .str($0) } ?? .null),
+                ("effective_date", row.str("effective_date").map { .str($0) } ?? .null),
+                ("action_items_json", .str(row.str("action_items_json") ?? "[]")),
+            ]
             if let plan = try? PlanJson.parsePlan(JsonObject(fields)) {
                 plans.append(plan)
             }
