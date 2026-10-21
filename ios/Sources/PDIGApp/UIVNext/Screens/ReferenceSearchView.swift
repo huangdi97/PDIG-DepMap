@@ -153,7 +153,7 @@ func vReferenceSearchResults(
         }
     }
 
-    for asset in VNextDemoFixture.secondaryAssets {
+    for asset in VNextDemoFixture.allSecondaryAssets {
         let region = regionName(asset.region)
         if hit([asset.name, asset.subtitle, asset.region, region] + asset.roles) {
             results.append(
