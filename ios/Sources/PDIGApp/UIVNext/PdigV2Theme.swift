@@ -138,44 +138,39 @@ enum VRadius {
 
 /// 字号角色（typography tokens → SwiftUI system font；禁远程字体，offline-first）。
 enum VFont {
+    // vNext uses semantic system styles for product copy so Dynamic Type can
+    // participate in layout. Large numeric / globe display values remain
+    // explicit presentation sizes at their call sites.
     static func pageTitle() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyPageTitleSize),
-                weight: .bold, design: .default)
+        .system(.title2, design: .default, weight: .bold)
     }
 
     static func sectionTitle() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographySectionTitleSize),
-                weight: .semibold, design: .default)
+        .system(.headline, design: .default, weight: .semibold)
     }
 
     static func body() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyBodySize),
-                weight: .regular, design: .default)
+        .system(.body, design: .default, weight: .regular)
     }
 
     static func secondary() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographySecondarySize),
-                weight: .regular, design: .default)
+        .system(.subheadline, design: .default, weight: .regular)
     }
 
     static func meta() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyMetaSize),
-                weight: .regular, design: .default)
+        .system(.caption, design: .default, weight: .regular)
     }
 
     static func label() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyLabelSize),
-                weight: .semibold, design: .default)
+        .system(.caption, design: .default, weight: .semibold)
     }
 
     static func displayGlobe() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyDisplayGlobeSize),
-                weight: .semibold, design: .default)
+        .system(.title3, design: .default, weight: .semibold)
     }
 
     static func mono() -> Font {
-        .system(size: CGFloat(GeneratedPdigV2Tokens.typographyMonoSize),
-                weight: .regular, design: .monospaced)
+        .system(.callout, design: .monospaced, weight: .regular)
     }
 }
 
