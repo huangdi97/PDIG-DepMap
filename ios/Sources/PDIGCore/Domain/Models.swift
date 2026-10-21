@@ -240,6 +240,9 @@ public struct PlanAction: Equatable, Sendable {
     public let phase: PlanActionPhase
     public let done: Bool
     public let resolvesImpactKeys: [String]
+    /// Persisted prerequisite action ids. UI may explain them in plain language,
+    /// but execution authority must enforce them after process restart as well.
+    public let prerequisiteActionIds: [String]
     public let verification: ActionVerification?
 
     public init(
@@ -248,6 +251,7 @@ public struct PlanAction: Equatable, Sendable {
         phase: PlanActionPhase,
         done: Bool = false,
         resolvesImpactKeys: [String] = [],
+        prerequisiteActionIds: [String] = [],
         verification: ActionVerification? = nil
     ) {
         self.id = id
@@ -255,6 +259,7 @@ public struct PlanAction: Equatable, Sendable {
         self.phase = phase
         self.done = done
         self.resolvesImpactKeys = resolvesImpactKeys
+        self.prerequisiteActionIds = prerequisiteActionIds
         self.verification = verification
     }
 }
