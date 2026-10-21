@@ -258,6 +258,64 @@ final class AppViewModelTests: XCTestCase {
         )
     }
 
+    func testProductionVNextCoreAssetFiltersDoNotPromoteGenericIdentity() {
+        let snapshot = VIosProductionSnapshot(
+            revision: 12,
+            objects: [
+                VIosProductionObject(
+                    id: "card-1", kind: "payment_instrument", name: "主卡",
+                    surfaceKind: .paymentAsset, issuer: "银行", last4: "8823",
+                    identitySubtype: nil, identityIdentifierValue: nil,
+                    confirmedRegionCodes: ["CN"], confirmedDependencyCount: 1
+                ),
+                VIosProductionObject(
+                    id: "phone-1", kind: "identity_anchor", name: "主号",
+                    surfaceKind: .phoneIdentity, issuer: nil, last4: nil,
+                    identitySubtype: "phone_number", identityIdentifierValue: "+86 138 0000 8823",
+                    confirmedRegionCodes: ["CN"], confirmedDependencyCount: 2
+                ),
+                VIosProductionObject(
+                    id: "identity-generic", kind: "identity_anchor", name: "+86 139 0000 0000",
+                    surfaceKind: .identityAnchorGeneric, issuer: nil, last4: nil,
+                    identitySubtype: nil, identityIdentifierValue: nil,
+                    confirmedRegionCodes: ["CN"], confirmedDependencyCount: 0
+                ),
+            ],
+            confirmedDependencies: [],
+            plans: [],
+            pendingReview: VIosProductionReviewSummary(
+                proposalCount: 0, candidateCount: 0, driftCount: 0
+            ),
+            sourceCoverage: VIosProductionSourceCoverage(
+                sourceCount: 0, activeSourceCount: 0
+            )
+        )
+
+        XCTAssertEqual(
+            vIosProductionObjects(
+                snapshot: snapshot, surfaceKind: .paymentAsset, regionFilter: nil
+            ).map(\.id),
+            ["card-1"]
+        )
+        XCTAssertEqual(
+            vIosProductionObjects(
+                snapshot: snapshot, surfaceKind: .phoneIdentity, regionFilter: "CN"
+            ).map(\.id),
+            ["phone-1"]
+        )
+        XCTAssertFalse(
+            vIosProductionObjects(
+                snapshot: snapshot, surfaceKind: .phoneIdentity, regionFilter: nil
+            ).contains { $0.id == "identity-generic" },
+            "名字像手机号的 generic identity 不得进入号码 collection"
+        )
+        XCTAssertTrue(
+            vIosProductionObjects(
+                snapshot: snapshot, surfaceKind: .paymentAsset, regionFilter: "HK"
+            ).isEmpty
+        )
+    }
+
     func testProductionVNextSecondaryProjectionUsesOnlyConfirmedRegionFacts() {
         let snapshot = VIosProductionSnapshot(
             revision: 9,
