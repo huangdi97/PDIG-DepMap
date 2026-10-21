@@ -258,6 +258,122 @@ final class AppViewModelTests: XCTestCase {
         )
     }
 
+    func testProductionVNextSecondaryProjectionUsesOnlyConfirmedRegionFacts() {
+        let snapshot = VIosProductionSnapshot(
+            revision: 9,
+            objects: [
+                VIosProductionObject(
+                    id: "account-cn",
+                    kind: "account",
+                    name: "中国账户",
+                    surfaceKind: .account,
+                    issuer: nil,
+                    last4: nil,
+                    identitySubtype: nil,
+                    identityIdentifierValue: nil,
+                    confirmedRegionCodes: ["CN"],
+                    confirmedDependencyCount: 2
+                ),
+                VIosProductionObject(
+                    id: "account-unknown",
+                    kind: "account",
+                    name: "地区未记录账户",
+                    surfaceKind: .account,
+                    issuer: nil,
+                    last4: nil,
+                    identitySubtype: nil,
+                    identityIdentifierValue: nil,
+                    confirmedRegionCodes: [],
+                    confirmedDependencyCount: 0
+                ),
+                VIosProductionObject(
+                    id: "service-cn",
+                    kind: "service",
+                    name: "中国服务",
+                    surfaceKind: .service,
+                    issuer: nil,
+                    last4: nil,
+                    identitySubtype: nil,
+                    identityIdentifierValue: nil,
+                    confirmedRegionCodes: ["CN"],
+                    confirmedDependencyCount: 1
+                ),
+            ],
+            confirmedDependencies: [],
+            plans: [],
+            pendingReview: VIosProductionReviewSummary(
+                proposalCount: 0,
+                candidateCount: 0,
+                driftCount: 0
+            ),
+            sourceCoverage: VIosProductionSourceCoverage(
+                sourceCount: 0,
+                activeSourceCount: 0
+            )
+        )
+
+        XCTAssertEqual(
+            vIosProductionSecondaryObjects(
+                snapshot: snapshot,
+                kind: .account,
+                regionFilter: nil
+            ).map(\.id),
+            ["account-cn", "account-unknown"]
+        )
+        XCTAssertEqual(
+            vIosProductionSecondaryObjects(
+                snapshot: snapshot,
+                kind: .account,
+                regionFilter: "CN"
+            ).map(\.id),
+            ["account-cn"],
+            "地区未记录不等于属于当前地区"
+        )
+        XCTAssertTrue(
+            vIosProductionSecondaryObjects(
+                snapshot: snapshot,
+                kind: .account,
+                regionFilter: "HK"
+            ).isEmpty
+        )
+    }
+
+    func testProductionVNextPrivacyMasksEveryObjectIdentityKind() {
+        let cases: [(VIosProductionSurfaceKind, String)] = [
+            (.paymentAsset, "支付工具（已遮蔽）"),
+            (.account, "账户（已遮蔽）"),
+            (.service, "服务（已遮蔽）"),
+            (.membership, "会员 / 资格（已遮蔽）"),
+            (.device, "设备（已遮蔽）"),
+            (.phoneIdentity, "手机号身份（已遮蔽）"),
+            (.emailIdentity, "邮箱身份（已遮蔽）"),
+            (.identityAnchorGeneric, "身份对象（已遮蔽）"),
+            (.customGeneric, "自定义对象（已遮蔽）"),
+        ]
+        for (index, item) in cases.enumerated() {
+            let object = VIosProductionObject(
+                id: "obj-\(index)",
+                kind: "custom",
+                name: "敏感名称 \(index)",
+                surfaceKind: item.0,
+                issuer: nil,
+                last4: nil,
+                identitySubtype: nil,
+                identityIdentifierValue: nil,
+                confirmedRegionCodes: [],
+                confirmedDependencyCount: 0
+            )
+            XCTAssertEqual(
+                vIosVisibleProductionObjectName(object, privacyMask: true),
+                item.1
+            )
+            XCTAssertEqual(
+                vIosVisibleProductionObjectName(object, privacyMask: false),
+                "敏感名称 \(index)"
+            )
+        }
+    }
+
     func testProductionVNextPreservesDoneVerificationAndStalePlanTruth() {
         let action = PlanAction(
             id: "change-1",
