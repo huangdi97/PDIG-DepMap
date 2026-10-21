@@ -314,6 +314,20 @@ func buildIosProductionVNextSnapshot(
     )
 }
 
+func vIosProductionPendingVerificationActionIds(
+    _ plans: [ChangePlan]
+) -> [String] {
+    plans
+        .flatMap(\.actions)
+        .filter { action in
+            guard action.done, let status = action.verification?.status else {
+                return false
+            }
+            return status == .pending || status == .evidenceSuggested
+        }
+        .map(\.id)
+}
+
 extension AppSession {
     /// Lock-gated read seam for future Production VNext screens.
     ///
@@ -333,13 +347,7 @@ extension AppSession {
     /// No reference fixture or Production mutation authority is involved.
     func productionVNextFindings(nowIso: String? = nil) -> [FindingItem]? {
         guard phase == .ready else { return nil }
-        let pending = plans
-            .flatMap(\.actions)
-            .filter {
-                $0.verification?.status == .pending ||
-                    $0.verification?.status == .evidenceSuggested
-            }
-            .map(\.id)
+        let pending = vIosProductionPendingVerificationActionIds(plans)
         return FindingsViewModel.findings(
             FindingsInput(
                 snapshot: snapshot,
