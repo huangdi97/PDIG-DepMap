@@ -98,6 +98,11 @@ class ProductionPhoneChangeAuthorityContractTest {
                     .resolvesImpactKeys.contains(newKey),
             )
 
+            // Isolate the unbound-impact gate: all previously created
+            // new-path work is independently verified first. The newly
+            // discovered key remains unclaimed because migration was already
+            // recorded done before reanalysis.
+            app.verifyAction(planId, "rpn-change-1")
             app.completeAction(planId, "rpn-verify-1")
             app.verifyAction(planId, "rpn-verify-1")
 
@@ -180,10 +185,12 @@ class ProductionPhoneChangeAuthorityContractTest {
 
             app.completeAction(planId, "rpn-prepare-1")
             app.completeAction(planId, "rpn-change-1")
+            app.verifyAction(planId, "rpn-change-1")
             app.completeAction(planId, "rpn-verify-1")
             app.verifyAction(planId, "rpn-verify-1")
 
-            // must-change work has been recorded done, but the unknown/review
+            // must-change work has been recorded done and every new path has
+            // been independently verified, but the unknown/review
             // scope remains. Destructive retirement must still fail closed.
             val beforeRetirement = requireNotNull(app.planDetail(planId))
             assertTrue(beforeRetirement.unresolvedMustChangeKeys.isEmpty())
