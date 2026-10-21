@@ -791,6 +791,43 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertTrue(findings.contains { $0.kind == .recoveryCycle }, "应发现恢复循环（account ↔ phone 互恢复）")
     }
 
+    func testFindingsNeverTreatGenericIdentityAsConfirmedPhoneFailureDomain() {
+        let snapshot = GraphSnapshot(
+            nodes: [
+                DepNode(
+                    id: "identity-generic",
+                    kind: .identityAnchor,
+                    name: "+86 139 0000 0000"
+                ),
+                DepNode(id: "account-1", kind: .account, name: "账户")
+            ],
+            dependencies: [
+                Dependency(
+                    id: "recovery-1",
+                    from: "identity-generic",
+                    relation: .recovers,
+                    to: "account-1",
+                    capability: .recovery,
+                    criticality: .unknown
+                ),
+                Dependency(
+                    id: "recovery-2",
+                    from: "identity-generic",
+                    relation: .recovers,
+                    to: "account-1",
+                    capability: .recovery,
+                    criticality: .unknown
+                ),
+            ]
+        )
+
+        let findings = FindingsViewModel.findings(FindingsInput(snapshot: snapshot))
+        XCTAssertFalse(
+            findings.contains { $0.kind == .sharedFailureDomain },
+            "generic identity_anchor 不得被推断成已确认 PHONE_NUMBER failure domain"
+        )
+    }
+
     func testFindingsNoFalsePositiveOnEmptyGraph() {
         let findings = FindingsViewModel.findings(FindingsInput(snapshot: GraphSnapshot()))
         XCTAssertTrue(findings.isEmpty, "空图不得凭空产生任何发现")
