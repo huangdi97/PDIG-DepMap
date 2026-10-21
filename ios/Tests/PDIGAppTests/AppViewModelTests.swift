@@ -58,6 +58,29 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertFalse(number.maskSensitive)
     }
 
+    func testSecondaryCollectionsHonorRegionScopeWithoutInventingObjects() {
+        let allAccounts = vFilteredSecondaryAssets(
+            VNextDemoFixture.secondaryAssets,
+            kind: .account,
+            regionFilter: nil
+        )
+        XCTAssertEqual(Set(allAccounts.map(\.id)), Set(["acct-wechat", "acct-hsbc", "acct-amazon"]))
+
+        let chinaAccounts = vFilteredSecondaryAssets(
+            VNextDemoFixture.secondaryAssets,
+            kind: .account,
+            regionFilter: "CN"
+        )
+        XCTAssertEqual(chinaAccounts.map(\.id), ["acct-wechat"])
+
+        let singaporeAccounts = vFilteredSecondaryAssets(
+            VNextDemoFixture.secondaryAssets,
+            kind: .account,
+            regionFilter: "SG"
+        )
+        XCTAssertTrue(singaporeAccounts.isEmpty)
+    }
+
     func testSecondaryCollectionDensityTranslatesByWidthClass() {
         XCTAssertEqual(vSecondaryCollectionColumnCount(isRegularWidth: false), 1)
         XCTAssertEqual(vSecondaryCollectionColumnCount(isRegularWidth: true), 2)
