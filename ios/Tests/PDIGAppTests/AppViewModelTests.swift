@@ -835,6 +835,56 @@ final class AppViewModelTests: XCTestCase {
         )
     }
 
+    func testProductionFindingPolicyExcludesPendingProposalCycles() {
+        let snapshot = GraphSnapshot(
+            nodes: [
+                DepNode(id: "account-a", kind: .account, name: "A"),
+                DepNode(id: "account-b", kind: .account, name: "B"),
+            ],
+            dependencies: [
+                Dependency(
+                    id: "confirmed-a-b",
+                    from: "account-a",
+                    relation: .recovers,
+                    to: "account-b",
+                    capability: .recovery,
+                    criticality: .unknown
+                )
+            ],
+            pendingProposals: [
+                PendingProposal(
+                    id: "proposal-b-a",
+                    key: "proposal-b-a",
+                    from: "account-b",
+                    relation: .recovers,
+                    to: "account-a",
+                    capability: .recovery,
+                    confidenceScore: 0.9,
+                    observationCount: 2,
+                    createdAt: "2026-10-21T00:00:00Z",
+                    updatedAt: "2026-10-21T00:00:00Z"
+                )
+            ]
+        )
+
+        let reviewAware = FindingsViewModel.findings(
+            FindingsInput(snapshot: snapshot, includePendingProposalCycles: true)
+        )
+        XCTAssertTrue(
+            reviewAware.contains {
+                $0.kind == .recoveryCycle && $0.id.hasPrefix("pcycle-")
+            }
+        )
+
+        let production = FindingsViewModel.findings(
+            FindingsInput(snapshot: snapshot, includePendingProposalCycles: false)
+        )
+        XCTAssertFalse(
+            production.contains { $0.id.hasPrefix("pcycle-") },
+            "Production weaknesses 不得把 pending Proposal cycle 混入已确认 Reality finding"
+        )
+    }
+
     func testFindingsNoFalsePositiveOnEmptyGraph() {
         let findings = FindingsViewModel.findings(FindingsInput(snapshot: GraphSnapshot()))
         XCTAssertTrue(findings.isEmpty, "空图不得凭空产生任何发现")
