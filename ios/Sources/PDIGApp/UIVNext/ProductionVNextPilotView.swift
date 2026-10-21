@@ -964,9 +964,25 @@ struct VIosProductionVNextPilotView: View {
                             .foregroundColor(PdigV2Colors.textMuted)
 
                         if plan.needsReanalysis {
-                            Text("基础设施数据版本已变化，需要重新分析当前影响范围。")
-                                .font(VFont.meta())
-                                .foregroundColor(PdigV2Colors.warning)
+                            VStack(alignment: .leading, spacing: VSpace.sm) {
+                                Text("基础设施数据版本已变化，需要重新分析当前影响范围。")
+                                    .font(VFont.meta())
+                                    .foregroundColor(PdigV2Colors.warning)
+
+                                Button("重新分析当前影响") {
+                                    do {
+                                        try session.productionReanalyzePlan(planId: plan.id)
+                                        changeError = nil
+                                    } catch {
+                                        changeError = productionChangeErrorText(error)
+                                    }
+                                }
+                                .buttonStyle(.bordered)
+                                .disabled(privacyMask)
+                                .accessibilityIdentifier(
+                                    "pdig.ios.production-vnext.change.reanalyze.\(plan.id)"
+                                )
+                            }
                         }
 
                         if let authoritativePlan = session.plans.first(where: { $0.id == plan.id }) {
@@ -1272,6 +1288,8 @@ struct VIosProductionVNextPilotView: View {
             return "计划已经结束，不能继续修改步骤。"
         case .needsReanalysis:
             return "基础设施已经变化，请先重新分析当前影响范围。"
+        case .reanalysisScopeChanged:
+            return "影响范围已经变化，当前计划不能自动沿用；请重新核对并建立新的变更计划。"
         case .actionNotFound:
             return "当前步骤已不在正式计划中。"
         case .actionAlreadyDone:
