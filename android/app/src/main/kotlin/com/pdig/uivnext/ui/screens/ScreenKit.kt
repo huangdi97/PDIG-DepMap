@@ -86,6 +86,17 @@ internal fun AdaptiveObjectGrid(
     }
 }
 
+internal fun previewVisibleObjectName(
+    name: String,
+    privacyMask: Boolean,
+    maskedKindLabel: String,
+): String = if (privacyMask) "$maskedKindLabel（已遮蔽）" else name
+
+internal fun previewVisibleProvider(
+    provider: String,
+    privacyMask: Boolean,
+): String = if (privacyMask) "服务方已遮蔽" else provider
+
 /** Consumer-facing 地区名；内部继续使用稳定 regionCode。 */
 internal fun regionLabel(code: String): String = regionLabelZh(code)
 
