@@ -95,9 +95,9 @@ internal fun ProductionSearchScreen(
         return
     }
 
-    var query by remember { mutableStateOf("") }
-    val normalized = query.trim()
     val app = session.appState
+    val query = app.searchQuery
+    val normalized = query.trim()
     val privacyMask = app.privacyMask
     // Number aliases and per-object masks are Compose state. Recompute the small
     // local search projection so edits are reflected immediately without
@@ -146,7 +146,7 @@ internal fun ProductionSearchScreen(
         item {
             OutlinedTextField(
                 value = query,
-                onValueChange = { query = it.take(100) },
+                onValueChange = { app.searchQuery = it.take(100) },
                 label = { Text("名称、别名、发行方、地区、维护日期、变更或数据源") },
                 modifier = Modifier.fillMaxWidth().testTag("pdig.production-vnext.search.input"),
                 singleLine = true,

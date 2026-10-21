@@ -38,7 +38,7 @@ import com.pdig.uivnext.ui.screens.searchResults
 /** Preview-only global lookup of recorded synthetic objects, not a discovery engine. */
 @Composable
 internal fun R9SearchScreen(app: VAppState) {
-    var query by remember { mutableStateOf("") }
+    val query = app.searchQuery
     val q = query.trim()
     val navigationHits = if (q.isEmpty()) {
         emptyList()
@@ -118,7 +118,7 @@ internal fun R9SearchScreen(app: VAppState) {
                         fontSize = 12.sp, color = R9.Muted)
                     BasicTextField(
                         value = query,
-                        onValueChange = { query = it },
+                        onValueChange = { app.searchQuery = it.take(100) },
                         textStyle = TextStyle(color = R9.Ink, fontSize = 13.sp),
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,

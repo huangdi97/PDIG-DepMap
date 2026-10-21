@@ -46,6 +46,15 @@ class VAppState(
     var regionFilter by mutableStateOf<String?>(null)
 
     /**
+     * Session-only global Search query.
+     *
+     * This is Presentation state, not PersonalReality. Keeping it here lets
+     * Search → Detail → Back restore the user's working context without
+     * persisting the query to Canonical data or external storage.
+     */
+    var searchQuery by mutableStateOf("")
+
+    /**
      * Records verification lens is ephemeral consumer navigation state.
      * It never changes the authoritative PlanAction, evidence or timeline.
      */

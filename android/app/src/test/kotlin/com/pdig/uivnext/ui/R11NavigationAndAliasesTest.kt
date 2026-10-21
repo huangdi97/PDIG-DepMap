@@ -63,6 +63,18 @@ class R11NavigationAndAliasesTest {
         assertEquals("governed-plan", app.selectedProductionPlanId)
     }
 
+    @Test fun searchDetailBackRestoresTheWorkingQuery() {
+        val app = VAppState(initialScreen = VScreen.SEARCH)
+        app.searchQuery = "44"
+
+        app.openCard("card-cn-1")
+        assertEquals(VScreen.CARD_DETAIL, app.screen)
+
+        app.back()
+        assertEquals(VScreen.SEARCH, app.screen)
+        assertEquals("44", app.searchQuery)
+    }
+
     @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
             listOf(
