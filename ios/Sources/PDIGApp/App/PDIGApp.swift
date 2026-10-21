@@ -39,7 +39,8 @@ struct PDIGApp: App {
             }
             .onAppear {
                 // XCUITest legacy demo mode: inject the historical N4 demo graph.
-                if CommandLine.arguments.contains("--uitest-demo") {
+                if CommandLine.arguments.contains("--uitest-demo") ||
+                    CommandLine.arguments.contains("--uitest-production-vnext") {
                     session.seedDemo()
                 } else if !CommandLine.arguments.contains("--uitest-vnext"),
                           session.phase == .booting {
@@ -65,7 +66,14 @@ struct RootView: View {
             case .locked:
                 LockView(session: session)
             case .ready:
-                MainRouterView(session: session)
+                if CommandLine.arguments.contains("--production-vnext") ||
+                    CommandLine.arguments.contains("--uitest-production-vnext") {
+                    // Explicit opt-in only. Default Production routing remains
+                    // the existing MainRouterView until iOS VNext reaches parity.
+                    VIosProductionVNextPilotView(session: session)
+                } else {
+                    MainRouterView(session: session)
+                }
             }
         }
         .frame(minWidth: 420, minHeight: 600)
