@@ -38,16 +38,16 @@ public enum PlanJson {
             ("title", .str(a.title)),
             ("phase", .str(a.phase.wire)),
             ("done", .bool(a.done)),
-            ("resolves_impact_keys", .arr(a.resolvesImpactKeys.map { .str($0) })),
-            ("prerequisite_action_ids", .arr(a.prerequisiteActionIds.map { .str($0) })),
+            ("resolvesImpactKeys", .arr(a.resolvesImpactKeys.map { .str($0) })),
+            ("prerequisiteActionIds", .arr(a.prerequisiteActionIds.map { .str($0) })),
         ]
         if let v = a.verification {
             fields.append(("verification", .obj(JsonObject([
                 ("method", .str(v.method.wire)),
                 ("status", .str(v.status.wire)),
-                ("evidence_refs", .arr(v.evidenceRefs.map { .str($0) })),
-                ("expected_from_node_id", v.expectedFromNodeId.map { .str($0) } ?? .null),
-                ("expected_to_node_id", v.expectedToNodeId.map { .str($0) } ?? .null),
+                ("evidenceRefs", .arr(v.evidenceRefs.map { .str($0) })),
+                ("expectedFromNodeId", v.expectedFromNodeId.map { .str($0) } ?? .null),
+                ("expectedToNodeId", v.expectedToNodeId.map { .str($0) } ?? .null),
             ]))))
         }
         return .obj(JsonObject(fields))
@@ -108,9 +108,17 @@ public enum PlanJson {
                 verification = ActionVerification(
                     method: ActionVerificationMethod(rawValue: v["method"]?.stringValue ?? "manual_confirmation") ?? .manualConfirmation,
                     status: ActionVerificationStatus(rawValue: v["status"]?.stringValue ?? "pending") ?? .pending,
-                    evidenceRefs: (v["evidence_refs"]?.arrayValue ?? []).compactMap { $0.stringValue },
-                    expectedFromNodeId: v["expected_from_node_id"]?.stringValue,
-                    expectedToNodeId: v["expected_to_node_id"]?.stringValue
+                    evidenceRefs: (
+                        v["evidenceRefs"]?.arrayValue ??
+                        v["evidence_refs"]?.arrayValue ??
+                        []
+                    ).compactMap { $0.stringValue },
+                    expectedFromNodeId:
+                        v["expectedFromNodeId"]?.stringValue ??
+                        v["expected_from_node_id"]?.stringValue,
+                    expectedToNodeId:
+                        v["expectedToNodeId"]?.stringValue ??
+                        v["expected_to_node_id"]?.stringValue
                 )
             }
             out.append(PlanAction(
@@ -118,9 +126,16 @@ public enum PlanJson {
                 title: o["title"]?.stringValue ?? "",
                 phase: phase,
                 done: booleanValue(o["done"]),
-                resolvesImpactKeys: (o["resolves_impact_keys"]?.arrayValue ?? []).compactMap { $0.stringValue },
-                prerequisiteActionIds: (o["prerequisite_action_ids"]?.arrayValue ?? [])
-                    .compactMap { $0.stringValue },
+                resolvesImpactKeys: (
+                    o["resolvesImpactKeys"]?.arrayValue ??
+                    o["resolves_impact_keys"]?.arrayValue ??
+                    []
+                ).compactMap { $0.stringValue },
+                prerequisiteActionIds: (
+                    o["prerequisiteActionIds"]?.arrayValue ??
+                    o["prerequisite_action_ids"]?.arrayValue ??
+                    []
+                ).compactMap { $0.stringValue },
                 verification: verification
             ))
         }
