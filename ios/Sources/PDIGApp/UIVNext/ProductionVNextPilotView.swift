@@ -1194,7 +1194,7 @@ struct VIosProductionVNextPilotView: View {
             }
 
             if !action.prerequisiteActionIds.isEmpty {
-                Text("需先完成 \\(action.prerequisiteActionIds.count) 个前置步骤")
+                Text("需先完成 \(action.prerequisiteActionIds.count) 个前置步骤")
                     .font(VFont.meta())
                     .foregroundColor(PdigV2Colors.textSecondary)
             }
@@ -1215,7 +1215,7 @@ struct VIosProductionVNextPilotView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(!canComplete)
                     .accessibilityIdentifier(
-                        "pdig.ios.production-vnext.change.complete.\\(action.id)"
+                        "pdig.ios.production-vnext.change.complete.\(action.id)"
                     )
                 }
 
@@ -1236,7 +1236,7 @@ struct VIosProductionVNextPilotView: View {
                     .buttonStyle(.bordered)
                     .disabled(!canVerify)
                     .accessibilityIdentifier(
-                        "pdig.ios.production-vnext.change.verify.\\(action.id)"
+                        "pdig.ios.production-vnext.change.verify.\(action.id)"
                     )
                 }
             }
@@ -1246,7 +1246,7 @@ struct VIosProductionVNextPilotView: View {
         .background(PdigV2Colors.surfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
         .accessibilityIdentifier(
-            "pdig.ios.production-vnext.change.action.\\(action.id)"
+            "pdig.ios.production-vnext.change.action.\(action.id)"
         )
     }
 
