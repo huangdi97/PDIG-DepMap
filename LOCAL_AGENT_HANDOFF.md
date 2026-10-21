@@ -1,5 +1,41 @@
 # LOCAL_AGENT_HANDOFF — PDIG / DepMap Android R48–R51
 
+> **Update 2026-10-21 — Android post-freeze closure (newest state; supersedes the R48–R51 details below)**
+>
+> Round goal: close everything a local agent can close on the current remote Android tree.
+> Start state: local `5668c3f9` was a strict ancestor of remote `a3049c64` (401 behind, 0 ahead);
+> synchronised with `git merge --ff-only` after `git fetch --all --prune` (no force, no reset).
+>
+> What changed:
+> 1. `ProductionChangePlanScreen` now renders a single deterministic primary CTA for the next
+>    executable step (`productionNextStep` → REANALYZE / COMPLETE / VERIFY / NONE), shares one
+>    authoritative `completeAction` / `verifyAction` path with the step cards, and states 未发生
+>    literally on the AFTER stage.
+> 2. New wedge coverage: `ProductionChangeKernelContractTest` (prerequisite, verify-after-done,
+>    terminal-plan frozen), `ProductionNextStepTest` (8 JVM tests) and two Compose CTA contracts.
+> 3. `PostFreezeEvidenceSeedTest` seeds an isolated test Reality into the app's own encrypted DB
+>    (androidTest only, never the Production data path) so the Make-Before-Break journey can be
+>    walked by tapping the real UI: everything from "record done" to "confirm verification" is a
+>    real user action against AppContainer.
+> 4. `postfreeze_closure_capture.py` captures PNG + UIAutomator XML + a manifest row per shot,
+>    bound to sourceHead, androidTreeHead, installed APK sha256, device profile, font scale and
+>    navigation sequence, and fails loudly when an assertion does not hold.
+> 5. `production_vnext_secure_rehearsal.py` / `..._release_default_rehearsal.py` now decode adb
+>    output as UTF-8 (Windows ANSI code page made every label unreadable).
+>
+> Verified here: core 108 / repos 13 / app-preview 240 / app-production 240 JVM tests (0 failures,
+> 0 skipped); Android conformance 161/161 PASS; four APK variants built with preview identity
+> `com.pdig.app.preview.pa3049c6`; `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`; 24/24 Production
+> shell/records/manual-relationship/identity tests; 31 runtime captures (phone, privacy,
+> stale→reanalyzed, tablet expanded + medium).
+>
+> Still open: 28 §27 phone-preview ids recorded `NOT_RUN`; four window-class assertions in
+> `TabletAdaptiveContractTest` / `AndroidAdaptiveShellContractTest` fail on the local tablet AVD;
+> `PIXEL_REFERENCE_LIMITATION` blocks any pixel-diff claim.
+>
+> `HUMAN_VISUAL_ACCEPTANCE = NOT_RUN` · `STORE_RELEASE = NOT_READY`.
+> Details: `docs/ui-vnext/ANDROID_POST_FREEZE_CLOSURE_2026-10-21.md`.
+
 > Written: 2026-10-12 (local, Asia/Shanghai)
 > Repository: `huangdi97/PDIG-DepMap` · worktree `E:\AI\号卡管理`
 > Branch: `feat/android-ui-vnext-translation` → **PR #1 (Draft, not merged)**

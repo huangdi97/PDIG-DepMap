@@ -1,3 +1,17 @@
+> **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
+> —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
+> Change Kernel 三条约序不变量补齐可执行证明（prerequisite / verify-after-done / terminal plan frozen）、
+> Change Workbench 增加唯一「下一步」主 CTA 且 AFTER 明确写「未发生」；Production 全链路 exact-HEAD runtime 取证 31 张
+> （lock → Now → Infrastructure → 账户/邮箱/服务身份 → Change CURRENT/TRANSITION/AFTER → MBB blocked/eligible/retired →
+> Records → stale→reanalyzed → privacy on/off → tablet expanded/medium），每张绑定 sourceHead + 安装 APK sha256 + UIAutomator 断言。
+> JVM/Conformance 全绿：core 108 / repos 13 / app 240 / app 240，Android conformance 161/161 PASS；production rehearsal PASS；
+> Production 契约 24/24 PASS。仍未关闭：§27 phone-preview 28 张记为 NOT_RUN（未改名冒充）、tablet 自适应契约 4 项几何断言失败、
+> 参考图像素级对比受 `PIXEL_REFERENCE_LIMITATION` 限制。
+> 当前唯一正确 Gate：`VISUAL_CANDIDATE = READY_FOR_HUMAN`、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、
+> `PREVIOUS_FREEZE = historical approved candidate`、`CURRENT_POST_FREEZE_CANDIDATE = awaiting human confirmation`、`STORE_RELEASE = NOT_READY`。
+> 详见 `docs/ui-vnext/ANDROID_POST_FREEZE_CLOSURE_2026-10-21.md`、`docs/ui-vnext/ANDROID_POST_FREEZE_VISUAL_MATRIX_2026-10-21.md`、
+> `artifacts/runtime-evidence/2026-10-21-android-postfreeze-closure/`。
+>
 > **（最新）ANDROID UI vNext · Round 5 Human Pixel Acceptance（2026-10-07）**
 > —— Local Agent 已从 exact source `0b305e48...` 完成 Round5：Phone 24 + Tablet 24 + Empty 10、
 > Globe TEXTURE_READY、真实 Region/Search/Studio 路径、PresentationProfile / workspace restart persistence、

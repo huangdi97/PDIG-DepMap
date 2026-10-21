@@ -1,5 +1,19 @@
 # BLOCKERS.md
 
+> **ANDROID POST-FREEZE CLOSURE Gate（2026-10-21）：**
+>
+> - 本轮在 exact source `a3049c64…` 上完成 Production runtime 取证与 Change Make-Before-Break 真实 UI journey；
+>   本机 JVM/Conformance/四类构建/Production rehearsal 全部真实执行并留下日志与 XML。
+> - **仍未关闭（本机可继续，非用户 blocker）**：`TabletAdaptiveContractTest` 与 `AndroidAdaptiveShellContractTest`
+>   在本机 `pdig_tablet_api36`（2560×1600@320）上 4 项失败，均为窗口类假设（两项假设 EXPANDED、两项假设 COMPACT）；
+>   未删除、未 skip、未降低任何断言，保持 FAIL 记录。
+> - **仍未关闭**：§27 phone-preview 28 张截图本轮未重抓，已在 `MANIFEST.json` 记为 `NOT_RUN`（禁止用旧图改名冒充）。
+> - `PIXEL_REFERENCE_LIMITATION`：仓库内 Android 参考图仍为小尺寸历史图（≈320×213），本轮不做像素级 diff 声明。
+> - Device / Membership / Custom 身份本轮无法进入 runtime Reality：Canonical 仅允许
+>   `payment_instrument/account/service` 在运行时创建，故 `设备端点` hero 与后两类遮蔽态只能在源码/契约层确认。
+> - 保持：`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、`ANDROID_REFERENCE_FREEZE = historical candidate only`、
+>   `STORE_RELEASE = NOT_READY`；production signing / Play 发布仍为外部 gate。
+
 > **ANDROID UI vNext Focused Phone Current-Head Gate（2026-10-05）：**
 >
 > - Human-selected 亮色参考已经完成进一步 source translation；最终 pixel-changing Android production-UI checkpoint
