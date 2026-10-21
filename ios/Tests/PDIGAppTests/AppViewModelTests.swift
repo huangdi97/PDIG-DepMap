@@ -16,6 +16,82 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertNil(session.productionVNextFindings())
     }
 
+    func testProductionReadOnlyChangeStagesKeepPlanProjectionBoundary() {
+        let plan = VIosProductionPlan(
+            id: "plan-1",
+            scenario: "replace_phone_number",
+            title: "更换手机号",
+            workflowState: "in_progress",
+            baselineGraphRevision: 7,
+            lastAnalyzedGraphRevision: 8,
+            currentGraphRevision: 9,
+            targetNodeId: "phone-old",
+            targetNodeName: "旧手机号",
+            effectiveDate: nil,
+            actions: [
+                VIosProductionPlanAction(
+                    id: "prepare",
+                    title: "准备",
+                    phase: "prepare",
+                    done: true,
+                    verificationStatus: nil,
+                    verificationEvidenceRefs: [],
+                    resolvesImpactKeys: []
+                ),
+                VIosProductionPlanAction(
+                    id: "verify",
+                    title: "验证",
+                    phase: "verify",
+                    done: true,
+                    verificationStatus: "verified",
+                    verificationEvidenceRefs: ["ev-1"],
+                    resolvesImpactKeys: []
+                ),
+                VIosProductionPlanAction(
+                    id: "future",
+                    title: "未来步骤",
+                    phase: "change",
+                    done: false,
+                    verificationStatus: "pending",
+                    verificationEvidenceRefs: [],
+                    resolvesImpactKeys: []
+                ),
+            ]
+        )
+
+        let summary = vIosProductionChangeStageSummary(plan)
+        XCTAssertTrue(summary.current.contains("当前数据版本 9"))
+        XCTAssertTrue(summary.current.contains("分析基准 8"))
+        XCTAssertTrue(summary.transition.contains("2/3 步已记录完成"))
+        XCTAssertTrue(summary.transition.contains("1 步已验证"))
+        XCTAssertTrue(summary.after.contains("计划"))
+        XCTAssertTrue(summary.after.contains("不代表现实"))
+    }
+
+    func testProductionRecordEvidenceCopyNeverInventsEvidence() {
+        let none = VIosProductionPlanAction(
+            id: "none",
+            title: "无证据",
+            phase: "change",
+            done: true,
+            verificationStatus: "pending",
+            verificationEvidenceRefs: [],
+            resolvesImpactKeys: []
+        )
+        let supported = VIosProductionPlanAction(
+            id: "supported",
+            title: "有证据",
+            phase: "verify",
+            done: true,
+            verificationStatus: "verified",
+            verificationEvidenceRefs: ["ev-1", "ev-2"],
+            resolvesImpactKeys: []
+        )
+
+        XCTAssertEqual(vIosProductionRecordEvidenceText(none), "验证证据未记录")
+        XCTAssertEqual(vIosProductionRecordEvidenceText(supported), "验证证据 2 项")
+    }
+
     func testProductionRecordsDoNotProjectFuturePendingVerificationSteps() {
         let future = VIosProductionPlanAction(
             id: "future",
