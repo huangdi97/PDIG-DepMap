@@ -318,10 +318,15 @@ class ProductionPhoneChangeAuthorityContractTest {
 
             val beforeVerifiedRetirement = requireNotNull(app.planDetail(planId))
             assertTrue(beforeVerifiedRetirement.actions.first { it.id == "rpn-verify-1" }.done)
-            assertTrue(beforeVerifiedRetirement.retirementScopeReady == true)
+            assertFalse(beforeVerifiedRetirement.retirementScopeReady == true)
             assertEquals(
                 "pending",
                 beforeVerifiedRetirement.actions.first { it.id == "rpn-verify-1" }
+                    .verification?.status?.wire,
+            )
+            assertEquals(
+                "pending",
+                beforeVerifiedRetirement.actions.first { it.id == "rpn-change-1" }
                     .verification?.status?.wire,
             )
 
@@ -333,11 +338,32 @@ class ProductionPhoneChangeAuthorityContractTest {
                 retirementRejected = true
             }
             assertTrue(
-                "old phone retirement must wait for verified new-path evidence",
+                "old phone retirement must wait for all new-path evidence to be verified",
                 retirementRejected,
             )
 
+            // The dedicated recovery-path check alone is still insufficient:
+            // migration itself has an independent done != verified boundary.
             app.verifyAction(planId, "rpn-verify-1")
+            val recoveryVerifiedOnly = requireNotNull(app.planDetail(planId))
+            assertFalse(recoveryVerifiedOnly.retirementScopeReady == true)
+
+            var migrationVerificationRejected = false
+            try {
+                app.completeAction(planId, "rpn-change-2")
+            } catch (e: IllegalStateException) {
+                assertEquals("verification_prerequisite_not_met", e.message)
+                migrationVerificationRejected = true
+            }
+            assertTrue(
+                "old phone retirement must also wait for the migration action verification",
+                migrationVerificationRejected,
+            )
+
+            app.verifyAction(planId, "rpn-change-1")
+            val allNewPathsVerified = requireNotNull(app.planDetail(planId))
+            assertTrue(allNewPathsVerified.retirementScopeReady == true)
+
             app.completeAction(planId, "rpn-change-2")
 
             val afterRetirementGate = requireNotNull(app.planDetail(planId))
@@ -345,27 +371,18 @@ class ProductionPhoneChangeAuthorityContractTest {
             assertTrue(afterRetirementGate.actions.first { it.id == "rpn-change-1" }.done)
             assertEquals(
                 "verified",
+                afterRetirementGate.actions.first { it.id == "rpn-change-1" }
+                    .verification?.status?.wire,
+            )
+            assertEquals(
+                "verified",
                 afterRetirementGate.actions.first { it.id == "rpn-verify-1" }
                     .verification?.status?.wire,
             )
             assertTrue(afterRetirementGate.actions.first { it.id == "rpn-change-2" }.done)
             assertEquals(
-                "pending",
-                afterRetirementGate.actions.first { it.id == "rpn-change-1" }
-                    .verification?.status?.wire,
-            )
-            assertEquals(
-                ChangePlanWorkflowState.VERIFYING,
-                afterRetirementGate.workflowState,
-            )
-
-            // Retiring the old path is not enough to complete the plan. The
-            // migration action still has its own independent verification.
-            app.verifyAction(planId, "rpn-change-1")
-            val fullyVerified = requireNotNull(app.planDetail(planId))
-            assertEquals(
                 ChangePlanWorkflowState.COMPLETED,
-                fullyVerified.workflowState,
+                afterRetirementGate.workflowState,
             )
         } finally {
             driver.close()
