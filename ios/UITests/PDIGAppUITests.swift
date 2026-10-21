@@ -277,6 +277,30 @@ final class PDIGAppUITests: XCTestCase {
             in: app
         )
 
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.weaknesses")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施缺少薄弱点入口"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.weaknesses"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.weaknesses")
+                .waitForExistence(timeout: 10),
+            "Production 薄弱点没有通过正常基础设施导航打开"
+        )
+        XCTAssertTrue(
+            app.staticTexts["只显示从当前已确认关系与计划状态推导的连续性发现。"]
+                .waitForExistence(timeout: 10),
+            "Production 薄弱点没有保留 confirmed-Reality 边界"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.weaknesses.back"),
+            in: app
+        )
+
         tapWhenReady(
             vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.accounts"),
             in: app
