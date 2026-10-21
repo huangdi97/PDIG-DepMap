@@ -327,6 +327,28 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "production-vnext-pilot-account")
 
         tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.change"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(
+                app,
+                id: "pdig.ios.production-vnext.change.stages.plan-replace_phone_number-phone-1-3"
+            ).waitForExistence(timeout: 10),
+            "Production Change 没有把真实计划翻译成 Current / Transition / After 三阶段"
+        )
+        XCTAssertTrue(
+            app.staticTexts["完成后（计划）"].waitForExistence(timeout: 10),
+            "Production Change 缺少明确的 After 计划边界"
+        )
+        XCTAssertTrue(
+            app.staticTexts["完成 ≠ 已验证；完成后只是计划投影，不会被当成已经发生的事实。"]
+                .waitForExistence(timeout: 10),
+            "Production Change 丢失 done != verified / plan projection 语义"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-change-stages")
+
+        tapWhenReady(
             vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
             in: app
         )
