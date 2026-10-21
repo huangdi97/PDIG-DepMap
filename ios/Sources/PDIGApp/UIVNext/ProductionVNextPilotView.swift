@@ -9,6 +9,7 @@ struct VIosProductionVNextPilotView: View {
     @ObservedObject var session: AppSession
 
     @State private var selectedRoot: Root = .now
+    @State private var selectedCoreAssetKind: ProductionCoreAssetKind? = nil
     @State private var selectedSecondaryKind: VSecondaryKind? = nil
     @State private var selectedObjectId: String? = nil
     @State private var regionFilter: String? = nil
@@ -20,6 +21,18 @@ struct VIosProductionVNextPilotView: View {
         case change
         case records
         case me
+    }
+
+    enum ProductionCoreAssetKind: String, Hashable, CaseIterable {
+        case card
+        case number
+
+        var route: String { self == .card ? "cards" : "numbers" }
+        var title: String { self == .card ? "卡片" : "号码" }
+        var glyph: String { self == .card ? "creditcard.fill" : "phone.fill" }
+        var surfaceKind: VIosProductionSurfaceKind {
+            self == .card ? .paymentAsset : .phoneIdentity
+        }
     }
 
     private var snapshot: VIosProductionSnapshot? {
@@ -145,7 +158,14 @@ struct VIosProductionVNextPilotView: View {
 
     @ViewBuilder
     private func productionInfrastructure(_ snapshot: VIosProductionSnapshot) -> some View {
-        if let kind = selectedSecondaryKind {
+        if let kind = selectedCoreAssetKind {
+            if let objectId = selectedObjectId,
+               let object = snapshot.objects.first(where: { $0.id == objectId }) {
+                productionCoreAssetDetail(snapshot, kind: kind, object: object)
+            } else {
+                productionCoreAssetCollection(snapshot, kind: kind)
+            }
+        } else if let kind = selectedSecondaryKind {
             if let objectId = selectedObjectId,
                let object = snapshot.objects.first(where: { $0.id == objectId }) {
                 productionSecondaryDetail(snapshot, kind: kind, object: object)
@@ -162,6 +182,52 @@ struct VIosProductionVNextPilotView: View {
 
                     confirmedRegionScope(snapshot)
 
+                    ForEach(ProductionCoreAssetKind.allCases, id: \.self) { kind in
+                        let count = vIosProductionObjects(
+                            snapshot: snapshot,
+                            surfaceKind: kind.surfaceKind,
+                            regionFilter: regionFilter
+                        ).count
+                        Button {
+                            selectedCoreAssetKind = kind
+                            selectedSecondaryKind = nil
+                            selectedObjectId = nil
+                        } label: {
+                            HStack(spacing: VSpace.lg) {
+                                Image(systemName: kind.glyph)
+                                    .font(.system(size: 18, weight: .semibold))
+                                    .foregroundColor(PdigV2Colors.primaryBright)
+                                    .frame(width: 44, height: 44)
+                                    .background(PdigV2Colors.primarySoft)
+                                    .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(kind.title)
+                                        .font(VFont.body())
+                                        .fontWeight(.semibold)
+                                        .foregroundColor(PdigV2Colors.textPrimary)
+                                    Text("\(count) 个已记录对象")
+                                        .font(VFont.meta())
+                                        .foregroundColor(PdigV2Colors.textMuted)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(PdigV2Colors.textMuted)
+                            }
+                            .padding(VSpace.lg)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .background(PdigV2Colors.surface)
+                        .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous)
+                                .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
+                        )
+                        .accessibilityIdentifier(
+                            "pdig.ios.production-vnext.infrastructure.\(kind.route)"
+                        )
+                    }
+
                     ForEach(VSecondaryKind.allCases, id: \.self) { kind in
                         let count = vIosProductionSecondaryObjects(
                             snapshot: snapshot,
@@ -169,6 +235,7 @@ struct VIosProductionVNextPilotView: View {
                             regionFilter: regionFilter
                         ).count
                         Button {
+                            selectedCoreAssetKind = nil
                             selectedSecondaryKind = kind
                             selectedObjectId = nil
                         } label: {
@@ -256,6 +323,235 @@ struct VIosProductionVNextPilotView: View {
         .padding(VSpace.lg)
         .background(PdigV2Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+    }
+
+    private func productionCoreAssetCollection(
+        _ snapshot: VIosProductionSnapshot,
+        kind: ProductionCoreAssetKind
+    ) -> some View {
+        let items = vIosProductionObjects(
+            snapshot: snapshot,
+            surfaceKind: kind.surfaceKind,
+            regionFilter: regionFilter
+        )
+
+        return ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.sectionGap) {
+                HStack {
+                    Button {
+                        selectedCoreAssetKind = nil
+                        selectedObjectId = nil
+                    } label: {
+                        Label("返回", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                }
+
+                pageHeader(
+                    kind.title,
+                    regionFilter.map { "已确认地区 \($0) · \(items.count) 个已记录对象" }
+                        ?? "全球 · \(items.count) 个已记录对象"
+                )
+
+                if items.isEmpty {
+                    infoCard(
+                        title: "当前范围没有\(kind.title)记录",
+                        detail: kind == .number
+                            ? "只有已确认手机号身份才会进入这里；名字或号码格式不会自动升级 subtype。"
+                            : "没有记录不代表不存在，也不代表没有支付或控制关系。"
+                    )
+                }
+
+                ForEach(items) { object in
+                    Button {
+                        selectedObjectId = object.id
+                    } label: {
+                        HStack(spacing: VSpace.lg) {
+                            Image(systemName: kind.glyph)
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(PdigV2Colors.primaryBright)
+                                .frame(width: 44, height: 44)
+                                .background(PdigV2Colors.primarySoft)
+                                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(vIosVisibleProductionObjectName(object, privacyMask: privacyMask))
+                                    .font(VFont.body())
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(PdigV2Colors.textPrimary)
+                                    .lineLimit(1)
+                                if let subtitle = coreAssetSubtitle(object, kind: kind) {
+                                    Text(subtitle)
+                                        .font(VFont.meta())
+                                        .foregroundColor(PdigV2Colors.textSecondary)
+                                        .lineLimit(1)
+                                }
+                                Text("\(object.confirmedDependencyCount) 条已确认关系")
+                                    .font(VFont.meta())
+                                    .foregroundColor(PdigV2Colors.textMuted)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(PdigV2Colors.textMuted)
+                        }
+                        .padding(VSpace.lg)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(PdigV2Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous)
+                            .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
+                    )
+                    .accessibilityIdentifier(
+                        "pdig.ios.production-vnext.object.\(kind.route).\(object.id)"
+                    )
+                }
+            }
+            .padding(VSpace.pagePadding)
+        }
+        .vPageBackground()
+        .accessibilityIdentifier("pdig.ios.production-vnext.collection.\(kind.route)")
+    }
+
+    private func productionCoreAssetDetail(
+        _ snapshot: VIosProductionSnapshot,
+        kind: ProductionCoreAssetKind,
+        object: VIosProductionObject
+    ) -> some View {
+        let relationships = snapshot.confirmedDependencies.filter {
+            $0.fromId == object.id || $0.toId == object.id
+        }
+
+        return ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.sectionGap) {
+                HStack {
+                    Button { selectedObjectId = nil } label: {
+                        Label("返回", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.plain)
+                    Spacer()
+                }
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(vIosVisibleProductionObjectName(object, privacyMask: privacyMask))
+                        .font(VFont.pageTitle())
+                        .foregroundColor(PdigV2Colors.textPrimary)
+                    Text(kind == .card ? "支付工具" : "手机号身份")
+                        .font(VFont.meta())
+                        .foregroundColor(PdigV2Colors.textMuted)
+                    if let subtitle = coreAssetSubtitle(object, kind: kind) {
+                        Text(subtitle)
+                            .font(VFont.secondary())
+                            .foregroundColor(PdigV2Colors.textSecondary)
+                    }
+                    Text(
+                        object.confirmedRegionCodes.isEmpty
+                            ? "地区未记录"
+                            : "已确认地区 " + object.confirmedRegionCodes.joined(separator: " · ")
+                    )
+                    .font(VFont.meta())
+                    .foregroundColor(
+                        object.confirmedRegionCodes.isEmpty
+                            ? PdigV2Colors.unknown
+                            : PdigV2Colors.textMuted
+                    )
+                }
+                .padding(VSpace.xl)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(PdigV2Colors.surface)
+                .clipShape(RoundedRectangle(cornerRadius: VRadius.xl, style: .continuous))
+
+                productionRelationshipSummary(
+                    snapshot: snapshot,
+                    object: object,
+                    relationships: relationships
+                )
+
+                VStack(alignment: .leading, spacing: VSpace.md) {
+                    VSectionHeader(title: "如果它发生变化？")
+                    HStack(spacing: VSpace.gridGap) {
+                        metricCard("\(relationships.count)", "已确认依赖")
+                        metricCard("未知", "独立备用")
+                        metricCard("未知", "唯一恢复")
+                    }
+                    Text("未知不等于安全；关系数量也不等于独立恢复路径数量。")
+                        .font(VFont.meta())
+                        .foregroundColor(PdigV2Colors.unknown)
+                }
+                .padding(VSpace.lg)
+                .background(PdigV2Colors.surface)
+                .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+            }
+            .padding(VSpace.pagePadding)
+        }
+        .vPageBackground()
+        .accessibilityIdentifier("pdig.ios.production-vnext.detail.\(kind.route).\(object.id)")
+    }
+
+    private func productionRelationshipSummary(
+        snapshot: VIosProductionSnapshot,
+        object: VIosProductionObject,
+        relationships: [VIosProductionDependency]
+    ) -> some View {
+        VStack(alignment: .leading, spacing: VSpace.md) {
+            VSectionHeader(title: "已确认关系")
+            if relationships.isEmpty {
+                Text("未记录已确认关系")
+                    .font(VFont.secondary())
+                    .foregroundColor(PdigV2Colors.unknown)
+            }
+            ForEach(relationships) { dependency in
+                let peerId = dependency.fromId == object.id
+                    ? dependency.toId
+                    : dependency.fromId
+                let fallback = dependency.fromId == object.id
+                    ? dependency.toName
+                    : dependency.fromName
+                let peerName = visiblePeerName(
+                    snapshot: snapshot,
+                    peerId: peerId,
+                    fallback: fallback
+                )
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(peerName)
+                        .font(VFont.body())
+                        .fontWeight(.semibold)
+                        .foregroundColor(PdigV2Colors.textPrimary)
+                    Text("\(productionRelationLabel(dependency.relation)) · \(productionCapabilityLabel(dependency.capability))")
+                        .font(VFont.meta())
+                        .foregroundColor(PdigV2Colors.textMuted)
+                }
+                .padding(VSpace.md)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(PdigV2Colors.surfaceRaised)
+                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+            }
+        }
+        .padding(VSpace.lg)
+        .background(PdigV2Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+    }
+
+    private func coreAssetSubtitle(
+        _ object: VIosProductionObject,
+        kind: ProductionCoreAssetKind
+    ) -> String? {
+        if kind == .number {
+            return visibleIdentifier(object) ?? "已确认手机号身份"
+        }
+        if privacyMask {
+            return "发行方与尾号已遮蔽"
+        }
+        let issuer = object.issuer?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let last4 = object.last4?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let parts = [
+            issuer?.isEmpty == false ? issuer : nil,
+            last4?.isEmpty == false ? "•••• \(last4!)" : nil,
+        ].compactMap { $0 }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
     private func productionSecondaryCollection(
