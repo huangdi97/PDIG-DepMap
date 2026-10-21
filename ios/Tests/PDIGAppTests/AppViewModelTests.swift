@@ -142,25 +142,33 @@ final class AppViewModelTests: XCTestCase {
                     name: "主号",
                     fieldsJson: fields
                 ),
+                DepNode(
+                    id: "account-plain",
+                    kind: .account,
+                    name: "普通账户"
+                ),
             ],
             graphRevision: 3
         )
 
         _ = try repository.replaceGraph(original)
         let loaded = try repository.loadSnapshot()
+        let identity = try XCTUnwrap(loaded.nodes.first { $0.id == "identity-1" })
+        let plain = try XCTUnwrap(loaded.nodes.first { $0.id == "account-plain" })
 
-        XCTAssertEqual(loaded.nodes.count, 1)
-        XCTAssertEqual(loaded.nodes[0].fieldsJson, fields)
+        XCTAssertEqual(loaded.nodes.count, 2)
+        XCTAssertEqual(identity.fieldsJson, fields)
+        XCTAssertEqual(plain.fieldsJson, "{}", "无扩展事实的节点必须使用 canonical 空对象而不是 SQL NULL")
         XCTAssertEqual(
             confirmedIdentityAnchorProfile(
-                kind: loaded.nodes[0].kind,
-                fieldsJson: loaded.nodes[0].fieldsJson ?? ""
+                kind: identity.kind,
+                fieldsJson: identity.fieldsJson ?? ""
             )?.subtype,
             .phoneNumber
         )
         XCTAssertEqual(
             currentConfirmedRegionFacts(
-                fieldsJson: loaded.nodes[0].fieldsJson ?? ""
+                fieldsJson: identity.fieldsJson ?? ""
             ).map(\.territoryCode),
             ["CN"]
         )
