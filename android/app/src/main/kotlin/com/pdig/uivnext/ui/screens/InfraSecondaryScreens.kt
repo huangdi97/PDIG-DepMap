@@ -92,7 +92,7 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                 AdaptiveObjectGrid(breakpoint, regionServices.size) { index ->
                     val service = regionServices[index]
                     LightObjectCard(
-                        title = service.name,
+                        title = previewVisibleObjectName(service.name, app.privacyMask, "服务"),
                         subtitle = regionLabel(service.region) + " · 已记录服务",
                         badge = serviceKindLabelZh(service.kind).take(1),
                         trailing = { LabelChip(serviceKindLabelZh(service.kind)) },
@@ -187,7 +187,8 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             SectionHeader("唯一恢复路径（" + numbers.size + "）")
             numbers.forEach { number ->
                 WeaknessRow(
-                    number.maskedNumber + " 是账户的唯一恢复路径",
+                    previewVisibleObjectName(number.maskedNumber, app.privacyMask, "手机号身份") +
+                        " 是账户的唯一恢复路径",
                     "更换或注销前，必须先建立新的恢复方式。",
                     PdigV2Colors.Critical,
                 ) { app.openNumber(number.id) }
@@ -198,7 +199,8 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             SectionHeader("即将到期（" + cards.size + "）")
             cards.forEach { card ->
                 WeaknessRow(
-                    card.nickname + " 将于 " + card.expiry + " 到期",
+                    previewVisibleObjectName(card.nickname, app.privacyMask, "支付工具") +
+                        " 将于 " + card.expiry + " 到期",
                     "绑定服务可能中断，建议提前完成换卡与重新绑定。",
                     PdigV2Colors.Critical,
                 ) { app.openCard(card.id) }
@@ -209,7 +211,8 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             SectionHeader("恢复邮箱（" + emails.size + "）")
             emails.forEach { email ->
                 WeaknessRow(
-                    email.maskedAddress + " 是唯一恢复邮箱",
+                    previewVisibleObjectName(email.maskedAddress, app.privacyMask, "邮箱身份") +
+                        " 是唯一恢复邮箱",
                     "停用或更换前，先建立另一条恢复路径。",
                     PdigV2Colors.Critical,
                 ) { app.openSecondaryObject(VScreen.EMAIL_DETAIL, email.id) }
@@ -220,7 +223,8 @@ private fun WeaknessesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             SectionHeader("设备复核（" + devices.size + "）")
             devices.forEach { device ->
                 WeaknessRow(
-                    device.name + " 需要确认是否仍应保持信任",
+                    previewVisibleObjectName(device.name, app.privacyMask, "设备") +
+                        " 需要确认是否仍应保持信任",
                     "最近记录：" + device.lastSeen + "。未确认前不要把它视为可用恢复设备。",
                     PdigV2Colors.Warning,
                 ) { app.openSecondaryObject(VScreen.DEVICE_DETAIL, device.id) }
