@@ -961,10 +961,10 @@ struct VIosProductionVNextPilotView: View {
     private func productionRecords(_ snapshot: VIosProductionSnapshot) -> some View {
         let records = snapshot.plans.flatMap { plan in
             plan.actions.compactMap { action -> ProductionRecordRow? in
-                if action.done || action.verificationStatus != nil {
-                    return ProductionRecordRow(plan: plan, action: action)
+                guard vIosProductionActionHasRecordedEvent(action) else {
+                    return nil
                 }
-                return nil
+                return ProductionRecordRow(plan: plan, action: action)
             }
         }
 
