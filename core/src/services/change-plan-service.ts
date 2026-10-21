@@ -93,9 +93,12 @@ export class ChangePlanService {
                 now - Date.parse(d.lastVerifiedAt) > thresholdMs,
             ).length
 
-    const unfinishedChangeActions = plan.actions.filter(
-      (a) => a.phase === 'change' && !a.done,
-    ).length
+    const unfinishedChangeActions = plan.actions.filter((a) => {
+      if (a.phase !== 'change') return false
+      if (!a.done) return true
+      const status = a.verification?.status
+      return status !== undefined && status !== 'verified' && status !== 'not_required'
+    }).length
 
     return {
       plan,
