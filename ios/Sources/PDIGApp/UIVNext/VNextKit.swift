@@ -208,6 +208,7 @@ struct VRegionListItem: View {
                 .stroke(selected ? PdigV2Colors.primaryBright : PdigV2Colors.borderSubtle, lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("\(VTestIds.regionItem).\(region.regionCode)")
         .accessibilityLabel(VCopy.regionTooltip(region))
         .accessibilityAddTraits(selected ? .isSelected : [])
     }
