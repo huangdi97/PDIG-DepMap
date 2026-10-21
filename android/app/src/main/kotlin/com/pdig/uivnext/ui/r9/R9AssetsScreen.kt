@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,19 @@ internal fun R9CardsScreen(app: VAppState) {
         }
     }
     val listScroll = rememberScrollState(initial = app.screenScrollOffset(VScreen.CARDS))
+    val cardCriteria = listOf(
+        app.regionFilter.orEmpty(),
+        kind,
+        statusFilter,
+        networkFilter,
+    ).joinToString("|")
+    var previousCardCriteria by remember { mutableStateOf(cardCriteria) }
+    LaunchedEffect(cardCriteria) {
+        if (cardCriteria != previousCardCriteria) {
+            listScroll.scrollTo(0)
+            previousCardCriteria = cardCriteria
+        }
+    }
     DisposableEffect(listScroll) {
         onDispose { app.rememberScreenScrollOffset(VScreen.CARDS, listScroll.value) }
     }
@@ -236,6 +250,14 @@ internal fun R9NumbersScreen(app: VAppState) {
         }
     }
     val listScroll = rememberScrollState(initial = app.screenScrollOffset(VScreen.NUMBERS))
+    val numberCriteria = app.regionFilter.orEmpty() + "|" + selected
+    var previousNumberCriteria by remember { mutableStateOf(numberCriteria) }
+    LaunchedEffect(numberCriteria) {
+        if (numberCriteria != previousNumberCriteria) {
+            listScroll.scrollTo(0)
+            previousNumberCriteria = numberCriteria
+        }
+    }
     DisposableEffect(listScroll) {
         onDispose { app.rememberScreenScrollOffset(VScreen.NUMBERS, listScroll.value) }
     }
