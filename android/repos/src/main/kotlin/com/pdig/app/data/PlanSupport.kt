@@ -69,6 +69,21 @@ internal fun claimScenarioMustChangeKeys(
     )
 }
 
+internal fun pendingReadinessChangeActionCount(
+    actions: List<PlanAction>,
+): Int = actions.count { action ->
+    if (action.phase != PlanActionPhase.CHANGE) {
+        false
+    } else if (!action.done) {
+        true
+    } else {
+        val status = action.verification?.status
+        status != null &&
+            status != ActionVerificationStatus.VERIFIED &&
+            status != ActionVerificationStatus.NOT_REQUIRED
+    }
+}
+
 internal fun planActionCompletionAllowedByScope(
     readiness: PlanReadiness,
     action: PlanAction,
