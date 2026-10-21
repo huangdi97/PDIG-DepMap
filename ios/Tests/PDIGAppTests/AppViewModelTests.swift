@@ -9,6 +9,13 @@ final class AppViewModelTests: XCTestCase {
 
     // MARK: - Production VNext read boundary
 
+    @MainActor
+    func testProductionVNextFindingsRemainLockGated() {
+        let session = AppSession()
+        XCTAssertNil(session.productionVNextSnapshot())
+        XCTAssertNil(session.productionVNextFindings())
+    }
+
     func testProductionVNextProjectionKeepsConfirmedRealitySeparateFromReview() {
         let snapshot = GraphSnapshot(
             nodes: [
