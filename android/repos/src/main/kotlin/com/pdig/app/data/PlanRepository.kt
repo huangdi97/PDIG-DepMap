@@ -466,9 +466,7 @@ class PlanRepository(
                 unresolvedCandidates = candidates,
                 pendingRelevantProposals = relevantProposals,
                 staleRelevantDependencies = staleRelevant,
-                unfinishedChangeActions = plan.actions.count {
-                    it.phase == PlanActionPhase.CHANGE && !it.done
-                },
+                unfinishedChangeActions = pendingReadinessChangeActionCount(plan.actions),
             ),
         )
     }
