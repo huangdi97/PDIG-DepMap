@@ -223,6 +223,52 @@ class SourceCompleteInteractionContractTest {
     }
 
     @Test
+    fun globalPrivacyMasksSecondaryCollectionAndDetailIdentities() {
+        val app = createVNextAppState().apply {
+            privacyMask = true
+            navigate(VScreen.ACCOUNTS)
+        }
+        compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
+        compose.waitForIdle()
+
+        compose.onAllNodesWithText("微信账户", useUnmergedTree = true)
+            .assertCountEquals(0)
+        compose.onAllNodesWithText("腾讯", useUnmergedTree = true)
+            .assertCountEquals(0)
+        assertTrue(
+            "masked account identities must remain visible as typed placeholders",
+            compose.onAllNodesWithText("账户（已遮蔽）", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty(),
+        )
+
+        app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, "acc-cn-1")
+        compose.waitForIdle()
+        compose.onAllNodesWithText("微信账户", useUnmergedTree = true)
+            .assertCountEquals(0)
+        compose.onAllNodesWithText("腾讯", useUnmergedTree = true)
+            .assertCountEquals(0)
+        compose.onAllNodesWithText("账户（已遮蔽）", useUnmergedTree = true)
+            .onFirst().assertIsDisplayed()
+
+        app.navigate(VScreen.SERVICES)
+        compose.waitForIdle()
+        compose.onAllNodesWithText("微信支付", useUnmergedTree = true)
+            .assertCountEquals(0)
+        assertTrue(
+            "masked service identities must remain visible as typed placeholders",
+            compose.onAllNodesWithText("服务（已遮蔽）", useUnmergedTree = true)
+                .fetchSemanticsNodes().isNotEmpty(),
+        )
+
+        app.openSecondaryObject(VScreen.SERVICE_DETAIL, "svc-wxpay")
+        compose.waitForIdle()
+        compose.onAllNodesWithText("微信支付", useUnmergedTree = true)
+            .assertCountEquals(0)
+        compose.onAllNodesWithText("服务（已遮蔽）", useUnmergedTree = true)
+            .onFirst().assertIsDisplayed()
+    }
+
+    @Test
     fun regionSelectPropagatesAndClears() {
         val app = createVNextAppState()
         app.selectRegion("CN")
