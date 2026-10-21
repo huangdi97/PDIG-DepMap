@@ -11,6 +11,7 @@ struct VIosProductionVNextPilotView: View {
     @State private var selectedRoot: Root = .now
     @State private var selectedCoreAssetKind: ProductionCoreAssetKind? = nil
     @State private var selectedSecondaryKind: VSecondaryKind? = nil
+    @State private var weaknessesShown = false
     @State private var selectedObjectId: String? = nil
     @State private var regionFilter: String? = nil
     @State private var privacyMask = false
@@ -158,7 +159,11 @@ struct VIosProductionVNextPilotView: View {
 
     @ViewBuilder
     private func productionInfrastructure(_ snapshot: VIosProductionSnapshot) -> some View {
-        if let kind = selectedCoreAssetKind {
+        if weaknessesShown {
+            productionWeaknesses(
+                session.productionVNextFindings(nowIso: PdigClock.nowIso()) ?? []
+            )
+        } else if let kind = selectedCoreAssetKind {
             if let objectId = selectedObjectId,
                let object = snapshot.objects.first(where: { $0.id == objectId }) {
                 productionCoreAssetDetail(snapshot, kind: kind, object: object)
@@ -189,6 +194,7 @@ struct VIosProductionVNextPilotView: View {
                             regionFilter: regionFilter
                         ).count
                         Button {
+                            weaknessesShown = false
                             selectedCoreAssetKind = kind
                             selectedSecondaryKind = nil
                             selectedObjectId = nil
@@ -235,6 +241,7 @@ struct VIosProductionVNextPilotView: View {
                             regionFilter: regionFilter
                         ).count
                         Button {
+                            weaknessesShown = false
                             selectedCoreAssetKind = nil
                             selectedSecondaryKind = kind
                             selectedObjectId = nil
@@ -274,6 +281,45 @@ struct VIosProductionVNextPilotView: View {
                             "pdig.ios.production-vnext.infrastructure.\(kind.route)"
                         )
                     }
+
+                    let findingCount = session.productionVNextFindings(nowIso: PdigClock.nowIso())?.count ?? 0
+                    Button {
+                        weaknessesShown = true
+                        selectedCoreAssetKind = nil
+                        selectedSecondaryKind = nil
+                        selectedObjectId = nil
+                    } label: {
+                        HStack(spacing: VSpace.lg) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(PdigV2Colors.warning)
+                                .frame(width: 44, height: 44)
+                                .background(PdigV2Colors.warning.opacity(0.12))
+                                .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("薄弱点")
+                                    .font(VFont.body())
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(PdigV2Colors.textPrimary)
+                                Text("\(findingCount) 项连续性发现")
+                                    .font(VFont.meta())
+                                    .foregroundColor(PdigV2Colors.textMuted)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundColor(PdigV2Colors.textMuted)
+                        }
+                        .padding(VSpace.lg)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(PdigV2Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous)
+                            .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
+                    )
+                    .accessibilityIdentifier("pdig.ios.production-vnext.infrastructure.weaknesses")
                 }
                 .padding(VSpace.pagePadding)
             }
@@ -761,6 +807,98 @@ struct VIosProductionVNextPilotView: View {
         }
         .vPageBackground()
         .accessibilityIdentifier("pdig.ios.production-vnext.detail.\(object.id)")
+    }
+
+    private func productionWeaknesses(_ findings: [FindingItem]) -> some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: VSpace.sectionGap) {
+                HStack {
+                    Button {
+                        weaknessesShown = false
+                    } label: {
+                        Label("返回", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.weaknesses.back")
+                    Spacer()
+                }
+
+                pageHeader(
+                    "薄弱点",
+                    "只显示从当前已确认关系与计划状态推导的连续性发现。"
+                )
+
+                if findings.isEmpty {
+                    infoCard(
+                        title: "当前没有可展示的连续性发现",
+                        detail: "这不代表记录完整或基础设施安全；未记录与未知仍然保持未知。"
+                    )
+                }
+
+                ForEach(findings) { finding in
+                    VStack(alignment: .leading, spacing: VSpace.sm) {
+                        HStack {
+                            Text(productionFindingKindLabel(finding.kind))
+                                .font(VFont.meta())
+                                .fontWeight(.semibold)
+                                .foregroundColor(PdigV2Colors.warning)
+                            Spacer()
+                            Text(finding.affectedCapability)
+                                .font(VFont.meta())
+                                .foregroundColor(PdigV2Colors.textMuted)
+                        }
+                        Text(finding.title)
+                            .font(VFont.body())
+                            .fontWeight(.semibold)
+                            .foregroundColor(PdigV2Colors.textPrimary)
+
+                        if privacyMask {
+                            Text("发现说明已遮蔽；状态与发现类型仍可见。")
+                                .font(VFont.secondary())
+                                .foregroundColor(PdigV2Colors.textSecondary)
+                        } else {
+                            Text(finding.what)
+                                .font(VFont.secondary())
+                                .foregroundColor(PdigV2Colors.textSecondary)
+                            Text("依据：\(finding.confirmedBasis)")
+                                .font(VFont.meta())
+                                .foregroundColor(PdigV2Colors.textMuted)
+                            Text("未知：\(finding.unknowns)")
+                                .font(VFont.meta())
+                                .foregroundColor(PdigV2Colors.unknown)
+                            Text("下一步：\(finding.recommendedNextAction)")
+                                .font(VFont.meta())
+                                .foregroundColor(PdigV2Colors.primaryBright)
+                        }
+                    }
+                    .padding(VSpace.lg)
+                    .background(PdigV2Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous)
+                            .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
+                    )
+                    .accessibilityIdentifier(
+                        "pdig.ios.production-vnext.weakness.\(finding.id)"
+                    )
+                }
+            }
+            .padding(VSpace.pagePadding)
+        }
+        .vPageBackground()
+        .accessibilityIdentifier("pdig.ios.production-vnext.weaknesses")
+    }
+
+    private func productionFindingKindLabel(_ kind: FindingItem.Kind) -> String {
+        switch kind {
+        case .singlePointOfFailure: return "单一路径"
+        case .sharedFailureDomain: return "共享故障点"
+        case .recoveryCycle: return "恢复循环"
+        case .unconfirmedFallback: return "备用路径待确认"
+        case .staleRecoveryInformation: return "信息待复核"
+        case .unknownCriticalPath: return "关键性未知"
+        case .pendingVerification: return "待验证"
+        }
     }
 
     @ViewBuilder
