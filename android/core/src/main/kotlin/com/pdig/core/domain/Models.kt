@@ -180,6 +180,7 @@ data class PlanReadinessInput(
     val unresolvedCandidates: Int,
     val pendingRelevantProposals: Int,
     val staleRelevantDependencies: Int,
+    /** CHANGE actions unfinished or done with required verification still unresolved. */
     val unfinishedChangeActions: Int,
 )
 
