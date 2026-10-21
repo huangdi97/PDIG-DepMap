@@ -37,7 +37,7 @@ public enum PlanJson {
             ("id", .str(a.id)),
             ("title", .str(a.title)),
             ("phase", .str(a.phase.wire)),
-            ("done", .num(a.done ? "1" : "0")),
+            ("done", .bool(a.done)),
             ("resolves_impact_keys", .arr(a.resolvesImpactKeys.map { .str($0) })),
         ]
         if let v = a.verification {
@@ -52,21 +52,42 @@ public enum PlanJson {
         return .obj(JsonObject(fields))
     }
 
+    private static func integerValue(_ value: Json?) -> Int {
+        guard let value else { return 0 }
+        switch value {
+        case .num(let raw), .str(let raw):
+            return Int(raw) ?? 0
+        default:
+            return 0
+        }
+    }
+
+    private static func booleanValue(_ value: Json?) -> Bool {
+        guard let value else { return false }
+        switch value {
+        case .bool(let raw):
+            return raw
+        case .num(let raw), .str(let raw):
+            return raw == "1" || raw.lowercased() == "true"
+        default:
+            return false
+        }
+    }
+
     public static func parsePlan(_ o: JsonObject) throws -> ChangePlan {
         let wfRaw = o["workflow_state"]?.stringValue ?? ChangePlanWorkflowState.draft.wire
         guard let wf = ChangePlanWorkflowState(rawValue: wfRaw) else {
             throw GraphRepositoryError("unknown workflow_state \(wfRaw)")
         }
         let actions = parseActions(o["action_items_json"]?.stringValue ?? "[]")
-        let rev = Int(o["last_analyzed_graph_revision"]?.stringValue ?? "0") ?? 0
         return ChangePlan(
             id: o["id"]?.stringValue ?? "",
             templateId: o["template_id"]?.stringValue,
             scenario: o["scenario"]?.stringValue ?? "",
             title: o["title"]?.stringValue ?? "",
             workflowState: wf,
-            baselineGraphRevision: Int(o["baseline_graph_revision"]?.stringValue ?? "0") ?? 0,
-            lastAnalyzedGraphRevision: rev,
+            baselineGraphRevision: integerValue(o["baseline_graph_revision"]),
+            lastAnalyzedGraphRevision: integerValue(o["last_analyzed_graph_revision"]),
             targetNodeId: o["target_node_id"]?.stringValue,
             effectiveDate: o["effective_date"]?.stringValue,
             actions: actions
@@ -95,7 +116,7 @@ public enum PlanJson {
                 id: o["id"]?.stringValue ?? "",
                 title: o["title"]?.stringValue ?? "",
                 phase: phase,
-                done: o["done"]?.stringValue == "1",
+                done: booleanValue(o["done"]),
                 resolvesImpactKeys: (o["resolves_impact_keys"]?.arrayValue ?? []).compactMap { $0.stringValue },
                 verification: verification
             ))
