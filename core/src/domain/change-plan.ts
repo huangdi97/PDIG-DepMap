@@ -162,7 +162,10 @@ export interface PlanReadinessInput {
   unresolvedCandidates: number
   pendingRelevantProposals: number
   staleRelevantDependencies: number
-  /** 未完成的 change 阶段动作数（verify 阶段不阻塞 readiness）。 */
+  /**
+   * 尚未完成，或已完成但其 required verification 尚未通过的 change 动作数。
+   * verify 阶段动作本身不重复计数；done != verified。
+   */
   unfinishedChangeActions: number
 }
 
