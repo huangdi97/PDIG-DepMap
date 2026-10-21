@@ -33,35 +33,50 @@ struct VIosProductionVNextPilotView: View {
                     NavigationStack {
                         productionNow(snapshot)
                     }
-                    .tabItem { Label("现在", systemImage: "house.fill") }
+                    .tabItem {
+                        Label("现在", systemImage: "house.fill")
+                            .accessibilityIdentifier("pdig.ios.production-vnext.nav.now")
+                    }
                     .tag(Root.now)
                     .accessibilityIdentifier("pdig.ios.production-vnext.nav.now")
 
                     NavigationStack {
                         productionInfrastructure(snapshot)
                     }
-                    .tabItem { Label("基础设施", systemImage: "square.grid.2x2.fill") }
+                    .tabItem {
+                        Label("基础设施", systemImage: "square.grid.2x2.fill")
+                            .accessibilityIdentifier("pdig.ios.production-vnext.nav.infrastructure")
+                    }
                     .tag(Root.infrastructure)
                     .accessibilityIdentifier("pdig.ios.production-vnext.nav.infrastructure")
 
                     NavigationStack {
                         productionChange(snapshot)
                     }
-                    .tabItem { Label("变更", systemImage: "arrow.triangle.2.circlepath") }
+                    .tabItem {
+                        Label("变更", systemImage: "arrow.triangle.2.circlepath")
+                            .accessibilityIdentifier("pdig.ios.production-vnext.nav.change")
+                    }
                     .tag(Root.change)
                     .accessibilityIdentifier("pdig.ios.production-vnext.nav.change")
 
                     NavigationStack {
                         productionRecords(snapshot)
                     }
-                    .tabItem { Label("记录", systemImage: "clock") }
+                    .tabItem {
+                        Label("记录", systemImage: "clock")
+                            .accessibilityIdentifier("pdig.ios.production-vnext.nav.records")
+                    }
                     .tag(Root.records)
                     .accessibilityIdentifier("pdig.ios.production-vnext.nav.records")
 
                     NavigationStack {
                         productionMe(snapshot)
                     }
-                    .tabItem { Label("我", systemImage: "person.crop.circle.fill") }
+                    .tabItem {
+                        Label("我", systemImage: "person.crop.circle.fill")
+                            .accessibilityIdentifier("pdig.ios.production-vnext.nav.me")
+                    }
                     .tag(Root.me)
                     .accessibilityIdentifier("pdig.ios.production-vnext.nav.me")
                 }
