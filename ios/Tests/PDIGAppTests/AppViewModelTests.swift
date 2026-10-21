@@ -16,6 +16,30 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertNil(session.productionVNextFindings())
     }
 
+    func testProductionRecordsDoNotProjectFuturePendingVerificationSteps() {
+        let future = VIosProductionPlanAction(
+            id: "future",
+            title: "未来步骤",
+            phase: "verify",
+            done: false,
+            verificationStatus: "pending",
+            verificationEvidenceRefs: [],
+            resolvesImpactKeys: []
+        )
+        let completed = VIosProductionPlanAction(
+            id: "completed",
+            title: "已发生步骤",
+            phase: "change",
+            done: true,
+            verificationStatus: "pending",
+            verificationEvidenceRefs: [],
+            resolvesImpactKeys: []
+        )
+
+        XCTAssertFalse(vIosProductionActionHasRecordedEvent(future))
+        XCTAssertTrue(vIosProductionActionHasRecordedEvent(completed))
+    }
+
     func testProductionVNextProjectionKeepsConfirmedRealitySeparateFromReview() {
         let snapshot = GraphSnapshot(
             nodes: [
