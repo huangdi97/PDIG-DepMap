@@ -52,6 +52,26 @@ struct VIosProductionPlanAction: Equatable, Sendable, Identifiable {
     let verificationEvidenceRefs: [String]
     let prerequisiteActionIds: [String]
     let resolvesImpactKeys: [String]
+
+    init(
+        id: String,
+        title: String,
+        phase: String,
+        done: Bool,
+        verificationStatus: String?,
+        verificationEvidenceRefs: [String],
+        prerequisiteActionIds: [String] = [],
+        resolvesImpactKeys: [String]
+    ) {
+        self.id = id
+        self.title = title
+        self.phase = phase
+        self.done = done
+        self.verificationStatus = verificationStatus
+        self.verificationEvidenceRefs = verificationEvidenceRefs
+        self.prerequisiteActionIds = prerequisiteActionIds
+        self.resolvesImpactKeys = resolvesImpactKeys
+    }
 }
 
 /// Records is an event trace, not a projection of future plan steps.
