@@ -189,7 +189,9 @@ public enum PayloadCodec {
             ("name", .str(n.name)),
             ("issuer", n.issuer.map { .str($0) } ?? .null),
             ("last4", n.last4.map { .str($0) } ?? .null),
-            ("owner", .null),
+            // Canonical schema requires an owner; the current iOS
+            // snapshot model represents the single-user "self" owner.
+            ("owner", .str("self")),
             ("archived", .num(n.archived ? "1" : "0")),
             // Canonical schema declares fields_json TEXT NOT NULL.
             // Empty extension state is an empty object, never SQL NULL.
