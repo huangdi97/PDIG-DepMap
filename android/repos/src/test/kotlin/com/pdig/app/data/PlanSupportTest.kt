@@ -95,6 +95,43 @@ class PlanSupportTest {
     }
 
     @Test
+    fun readinessActionCountKeepsDoneButUnverifiedChangeWorkPending() {
+        val pending = PlanAction(
+            id = "change-pending",
+            title = "迁移恢复方式",
+            phase = PlanActionPhase.CHANGE,
+            done = true,
+            verification = ActionVerification(
+                method = ActionVerificationMethod.FUTURE_OBSERVATION,
+                status = ActionVerificationStatus.PENDING,
+            ),
+        )
+        val failed = pending.copy(
+            id = "change-failed",
+            verification = pending.verification?.copy(
+                status = ActionVerificationStatus.FAILED,
+            ),
+        )
+        val verified = pending.copy(
+            id = "change-verified",
+            verification = pending.verification?.copy(
+                status = ActionVerificationStatus.VERIFIED,
+            ),
+        )
+        val noVerificationRequired = pending.copy(
+            id = "change-no-verification",
+            verification = null,
+        )
+        val unfinished = pending.copy(id = "change-unfinished", done = false)
+
+        assertEquals(1, pendingReadinessChangeActionCount(listOf(pending)))
+        assertEquals(1, pendingReadinessChangeActionCount(listOf(failed)))
+        assertEquals(0, pendingReadinessChangeActionCount(listOf(verified)))
+        assertEquals(0, pendingReadinessChangeActionCount(listOf(noVerificationRequired)))
+        assertEquals(1, pendingReadinessChangeActionCount(listOf(unfinished)))
+    }
+
+    @Test
     fun blockedPlanAllowsPreparationVerificationAndChangeThatResolvesCurrentBlocker() {
         val prepare = PlanAction(
             id = "prepare",
