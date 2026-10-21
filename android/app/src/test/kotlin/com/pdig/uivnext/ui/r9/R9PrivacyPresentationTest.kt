@@ -17,6 +17,14 @@ class R9PrivacyPresentationTest {
     }
 
     @Test
+    fun secondaryIdentityAndProviderAreHiddenWhenPrivacyIsEnabled() {
+        assertEquals("账户（已遮蔽）", r9VisibleIdentity("微信账户", true, "账户"))
+        assertEquals("微信账户", r9VisibleIdentity("微信账户", false, "账户"))
+        assertEquals("服务方已遮蔽", r9VisibleProvider("示例服务方", true))
+        assertEquals("示例服务方", r9VisibleProvider("示例服务方", false))
+    }
+
+    @Test
     fun phoneNumberIsHiddenAcrossPreviewScreens() {
         val original = "+86 138****8823"
         assertEquals("号码已遮蔽", r9VisibleNumber(original, true))
