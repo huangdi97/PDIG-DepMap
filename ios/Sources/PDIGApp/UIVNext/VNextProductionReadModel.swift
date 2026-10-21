@@ -131,6 +131,18 @@ func vIosProductionSurfaceKind(
     }
 }
 
+func vIosProductionObjects(
+    snapshot: VIosProductionSnapshot,
+    surfaceKind: VIosProductionSurfaceKind,
+    regionFilter: String?
+) -> [VIosProductionObject] {
+    snapshot.objects.filter { object in
+        guard object.surfaceKind == surfaceKind else { return false }
+        guard let regionFilter else { return true }
+        return object.confirmedRegionCodes.contains(regionFilter)
+    }
+}
+
 func vIosProductionSecondaryObjects(
     snapshot: VIosProductionSnapshot,
     kind: VSecondaryKind,
