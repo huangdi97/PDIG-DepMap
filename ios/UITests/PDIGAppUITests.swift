@@ -327,6 +327,20 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "production-vnext-pilot-account")
 
         tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
+            in: app
+        )
+        XCTAssertTrue(
+            app.staticTexts["暂无操作记录"].waitForExistence(timeout: 10),
+            "Production Records 把尚未执行的 pending verification 计划步骤提前写成了记录"
+        )
+        XCTAssertFalse(
+            app.staticTexts["添加新手机号并迁移关键账户"].exists,
+            "未来计划步骤不得提前进入 Production Records"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-records-empty")
+
+        tapWhenReady(
             vnextRoute(app, id: "pdig.ios.production-vnext.nav.me"),
             in: app
         )
