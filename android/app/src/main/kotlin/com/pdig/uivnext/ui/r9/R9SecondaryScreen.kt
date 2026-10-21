@@ -56,9 +56,12 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 val items = if(zero) emptyList() else UiVNextDemoFixture.accounts.filter { scoped(it.region) }
                 R9CounterBanner(items.size, "账户", "身份与恢复入口")
                 items.forEach { a ->
-                    R9ObjectRow(a.name, "${a.provider} · ${if (app.privacyMask) "标识已遮蔽" else a.maskedIdentifier}",
+                    R9ObjectRow(
+                        r9VisibleIdentity(a.name, app.privacyMask, "账户"),
+                        "${r9VisibleProvider(a.provider, app.privacyMask)} · ${if (app.privacyMask) "标识已遮蔽" else a.maskedIdentifier}",
                         "验证：${a.authMethods.joinToString(" / ")}",
-                        "恢复：${a.recoveryRoute}", regionFlag(a.region), a.provider.take(1),
+                        "恢复：${a.recoveryRoute}", regionFlag(a.region),
+                        if (app.privacyMask) "账" else a.provider.take(1),
                         if(a.attention) "恢复需关注" else "已记录",
                         if(a.attention) R9.Amber else R9.Green,
                         onClick = { app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, a.id) })
@@ -69,7 +72,9 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 val items = if(zero) emptyList() else UiVNextDemoFixture.emails.filter { scoped(it.region) }
                 R9CounterBanner(items.size, "邮箱", "登录 · 通知 · 恢复")
                 items.forEach { a ->
-                    R9ObjectRow(a.name, "${if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress} · ${a.provider}",
+                    R9ObjectRow(
+                        r9VisibleIdentity(a.name, app.privacyMask, "邮箱身份"),
+                        "${if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress} · ${r9VisibleProvider(a.provider, app.privacyMask)}",
                         "角色：${a.roles.joinToString(" / ")}",
                         "关联：${a.linkedServiceCount} 项", regionFlag(a.region), "@",
                         when {
@@ -87,7 +92,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 val items = if(zero) emptyList() else UiVNextDemoFixture.devices.filter { scoped(it.region) }
                 R9CounterBanner(items.size, "设备", "可信设备与验证器")
                 items.forEach { a ->
-                    R9ObjectRow(a.name, "${a.platform} · ${a.kind}",
+                    R9ObjectRow(r9VisibleIdentity(a.name, app.privacyMask, "设备"), "${a.platform} · ${a.kind}",
                         "角色：${a.roles.joinToString(" / ")}",
                         "最后记录：${a.lastSeen}", regionFlag(a.region), "▤",
                         a.trust, if(a.attention) R9.Amber else R9.Blue,
@@ -100,9 +105,9 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 R9CounterBanner(items.size, "服务", "支付、订阅与账号入口")
                 items.forEach { a ->
                     val linkCount = UiVNextDemoFixture.relations.count { it.to == a.id }
-                    R9ObjectRow(a.name, serviceKindLabelZh(a.kind),
+                    R9ObjectRow(r9VisibleIdentity(a.name, app.privacyMask, "服务"), serviceKindLabelZh(a.kind),
                         "已记录关系：${linkCount} 条",
-                        "未录入关系仍为未知", regionFlag(a.region), a.name.take(1),
+                        "未录入关系仍为未知", regionFlag(a.region), if (app.privacyMask) "服" else a.name.take(1),
                         "已记录", R9.Blue,
                         onClick = { app.openSecondaryObject(VScreen.SERVICE_DETAIL, a.id) })
                 }
@@ -131,7 +136,7 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                 R9CounterBanner(riskyCards.size+recoveryPhones.size+recoveryEmails.size+devices.size,
                     "维护 / 迁移提醒", "与上方连续性薄弱点分开；未知关系不包含在计数内")
                 riskyCards.forEach { a ->
-                    R9ObjectRow(a.nickname, a.issuer, "有效期：${a.expiry}",
+                    R9ObjectRow(r9VisibleIdentity(a.nickname, app.privacyMask, "支付工具"), if (app.privacyMask) "发行方已遮蔽" else a.issuer, "有效期：${a.expiry}",
                         "核对已记录扣款与绑定", regionFlag(a.region), "▣", "临近到期", R9.Amber,
                         onClick = { app.openCard(a.id) })
                 }
@@ -141,12 +146,12 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
                         onClick = { app.openNumber(a.id) })
                 }
                 recoveryEmails.forEach { a ->
-                    R9ObjectRow(a.name, if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress, "恢复路径：邮箱",
+                    R9ObjectRow(r9VisibleIdentity(a.name, app.privacyMask, "邮箱身份"), if (app.privacyMask) "邮箱已遮蔽" else a.maskedAddress, "恢复路径：邮箱",
                         "停用前确认替代路径", regionFlag(a.region), "@", "唯一恢复", R9.Rose,
                         onClick = { app.openSecondaryObject(VScreen.EMAIL_DETAIL, a.id) })
                 }
                 devices.forEach { a ->
-                    R9ObjectRow(a.name, a.platform, "设备状态：${a.trust}",
+                    R9ObjectRow(r9VisibleIdentity(a.name, app.privacyMask, "设备"), a.platform, "设备状态：${a.trust}",
                         "检查恢复权限", regionFlag(a.region), "▤", "待核对", R9.Amber,
                         onClick = { app.openSecondaryObject(VScreen.DEVICE_DETAIL, a.id) })
                 }
