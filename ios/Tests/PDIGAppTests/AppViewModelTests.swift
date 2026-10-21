@@ -264,6 +264,15 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(projected.pendingReview.total, 4)
         XCTAssertEqual(projected.sourceCoverage.sourceCount, 2)
         XCTAssertEqual(projected.sourceCoverage.activeSourceCount, 1)
+        XCTAssertEqual(projected.sources.map(\.id), ["source-active", "source-retired"])
+        XCTAssertEqual(
+            projected.sources.first { $0.id == "source-active" }?.label,
+            "账单"
+        )
+        XCTAssertEqual(
+            projected.sources.first { $0.id == "source-retired" }?.state,
+            SourceInstanceState.retired.wire
+        )
         XCTAssertEqual(
             projected.objects.first { $0.id == "card-1" }?.confirmedDependencyCount,
             1
