@@ -1230,7 +1230,7 @@ def main():
         "快捷前往",
         "未找到不代表不存在",
     )
-    enter_single_text_field_verified("8823", "11-search-query")
+    enter_single_text_field_verified("44", "11-search-query")
     # Wait for the real result projection instead of capturing the keyboard
     # event before Compose has recomputed the result list.
     for _ in range(8):
@@ -1242,7 +1242,7 @@ def main():
         time.sleep(0.6)
     else:
         capture("11-search-query-no-results")
-        raise RuntimeError("Search query 8823 did not produce the recorded card result")
+        raise RuntimeError("Search query 44 did not produce the recorded card result")
     capture("11-search-query")
     require_screen("11-search-query", "搜索结果", "招行储蓄卡", "卡片", "号码")
 
@@ -1257,7 +1257,7 @@ def main():
     search_back_text = json.loads(
         (ROOT / "11b-search-back-query.json").read_text(encoding="utf-8")
     )["uiText"]
-    if not any("8823" in row for row in search_back_text):
+    if not any("44" in row for row in search_back_text):
         raise RuntimeError("Back from Search result did not preserve the active query")
 
     # Include real runtime frame-time evidence even when device image comparisons
