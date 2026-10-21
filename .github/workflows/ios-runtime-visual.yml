@@ -14,6 +14,9 @@ on:
 permissions:
   contents: read
 
+env:
+  SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
 concurrency:
   group: ios-runtime-visual-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -25,6 +28,10 @@ jobs:
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          # pull_request defaults to refs/pull/<n>/merge. Runtime / platform
+          # evidence must instead prove the exact feature-branch source HEAD.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Swift toolchain
         run: swift --version
@@ -300,7 +307,7 @@ jobs:
           set -e
           python3 tools/ios-closure/write_summary.py \
             artifacts/runtime-evidence/2026-09-27-closure-ios \
-            "${GITHUB_RUN_ID}" "${GITHUB_SHA}" "${IPHONE_NAME:-?}" "${IPAD_NAME:-?}" "ios-runtime-visual.yml"
+            "${GITHUB_RUN_ID}" "${SOURCE_SHA}" "${IPHONE_NAME:-?}" "${IPAD_NAME:-?}" "ios-runtime-visual.yml"
           cat artifacts/runtime-evidence/2026-09-27-closure-ios/ios-closure-summary.md
 
       - name: Upload iOS evidence (xcresult + logs + summary)
