@@ -14,7 +14,14 @@ public enum DemoData {
         let nodes = [
             DepNode(id: "card-main", kind: .paymentInstrument, name: "招商银行卡", issuer: "招商银行", last4: "1234"),
             DepNode(id: "card-backup", kind: .paymentInstrument, name: "工商银行卡", issuer: "工商银行", last4: "5678"),
-            DepNode(id: "phone-1", kind: .identityAnchor, name: "138****0001"),
+            DepNode(
+                id: "phone-1",
+                kind: .identityAnchor,
+                name: "138****0001",
+                fieldsJson: #"""
+                {"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2029-12-01T00:00:00Z","identifier":{"value":"+86 138 0000 0001","verification_basis_type":"user_confirmed","confirmed_at":"2029-12-01T00:00:00Z"}},"region_facts":{"version":1,"items":[{"id":"number","facet":"numbering_territory","territory_code":"CN","state":"confirmed","verification_basis_type":"user_confirmed","confirmed_at":"2029-12-01T00:00:00Z"}]}}
+                """#
+            ),
             DepNode(id: "device-1", kind: .device, name: "iPhone"),
             DepNode(id: "acct-bank", kind: .account, name: "招商银行账户", issuer: "招商银行"),
             DepNode(id: "svc-video", kind: .service, name: "视频会员"),
