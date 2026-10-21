@@ -121,6 +121,105 @@ final class AppViewModelTests: XCTestCase {
         )
     }
 
+    func testGraphRepositoryPreservesGovernedNodeFieldsAcrossSQLiteRoundTrip() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent("pdig-fields-roundtrip-\(UUID().uuidString)", isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        let driver = try SqliteProvider.openDatabase(atDirectory: directory)
+        let repository = try GraphRepository(
+            driver: driver,
+            nowIso: "2026-10-21T00:00:00.000Z"
+        )
+        let fields = #"""
+        {"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-21T00:00:00Z","identifier":{"value":"+86 138 0000 8823","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-21T00:01:00Z"}},"region_facts":{"version":1,"items":[{"id":"number","facet":"numbering_territory","territory_code":"CN","state":"confirmed","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-21T00:00:00Z"}]}}
+        """#
+        let original = GraphSnapshot(
+            nodes: [
+                DepNode(
+                    id: "identity-1",
+                    kind: .identityAnchor,
+                    name: "主号",
+                    fieldsJson: fields
+                ),
+            ],
+            graphRevision: 3
+        )
+
+        _ = try repository.replaceGraph(original)
+        let loaded = try repository.loadSnapshot()
+
+        XCTAssertEqual(loaded.nodes.count, 1)
+        XCTAssertEqual(loaded.nodes[0].fieldsJson, fields)
+        XCTAssertEqual(
+            confirmedIdentityAnchorProfile(
+                kind: loaded.nodes[0].kind,
+                fieldsJson: loaded.nodes[0].fieldsJson ?? ""
+            )?.subtype,
+            .phoneNumber
+        )
+        XCTAssertEqual(
+            currentConfirmedRegionFacts(
+                fieldsJson: loaded.nodes[0].fieldsJson ?? ""
+            ).map(\.territoryCode),
+            ["CN"]
+        )
+    }
+
+    func testProductionVNextPromotesOnlyGovernedIdentityProfiles() {
+        let phoneFields = #"""
+        {"identity_anchor_profile":{"version":1,"subtype":"phone_number","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-21T00:00:00Z","identifier":{"value":"+86 138 0000 8823","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-21T00:01:00Z"}},"region_facts":{"version":1,"items":[{"id":"number","facet":"numbering_territory","territory_code":"CN","state":"confirmed","verification_basis_type":"user_confirmed","confirmed_at":"2026-10-21T00:00:00Z"}]}}
+        """#
+        let emailFields = #"""
+        {"identity_anchor_profile":{"version":1,"subtype":"email_address","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-21T00:00:00Z","identifier":{"value":"user@example.com","verification_basis_type":"authoritative_source","confirmed_at":"2026-10-21T00:01:00Z"}}}
+        """#
+        let snapshot = GraphSnapshot(
+            nodes: [
+                DepNode(
+                    id: "phone-confirmed",
+                    kind: .identityAnchor,
+                    name: "主号",
+                    fieldsJson: phoneFields
+                ),
+                DepNode(
+                    id: "email-confirmed",
+                    kind: .identityAnchor,
+                    name: "恢复邮箱",
+                    fieldsJson: emailFields
+                ),
+                DepNode(
+                    id: "phone-unconfirmed",
+                    kind: .identityAnchor,
+                    name: "+86 139 0000 0000",
+                    fieldsJson: #"{"subtype":"phone_number"}"#
+                ),
+            ]
+        )
+
+        let projected = buildIosProductionVNextSnapshot(
+            snapshot: snapshot,
+            plans: [],
+            pendingCandidateCount: 0,
+            openDriftCount: 0
+        )
+
+        let phone = projected.objects.first { $0.id == "phone-confirmed" }
+        XCTAssertEqual(phone?.surfaceKind, .phoneIdentity)
+        XCTAssertEqual(phone?.identitySubtype, IdentityAnchorSubtype.phoneNumber.wire)
+        XCTAssertEqual(phone?.identityIdentifierValue, "+86 138 0000 8823")
+        XCTAssertEqual(phone?.confirmedRegionCodes, ["CN"])
+
+        let email = projected.objects.first { $0.id == "email-confirmed" }
+        XCTAssertEqual(email?.surfaceKind, .emailIdentity)
+        XCTAssertEqual(email?.identitySubtype, IdentityAnchorSubtype.emailAddress.wire)
+        XCTAssertEqual(email?.identityIdentifierValue, "user@example.com")
+
+        XCTAssertEqual(
+            projected.objects.first { $0.id == "phone-unconfirmed" }?.surfaceKind,
+            .identityAnchorGeneric
+        )
+    }
+
     func testProductionVNextNeverInfersPhoneOrEmailSubtypeFromIdentityName() {
         let snapshot = GraphSnapshot(
             nodes: [
