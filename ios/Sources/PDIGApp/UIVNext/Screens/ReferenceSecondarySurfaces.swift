@@ -8,13 +8,33 @@ func vSecondaryCollectionColumnCount(isRegularWidth: Bool) -> Int {
     isRegularWidth ? 2 : 1
 }
 
+func vFilteredSecondaryAssets(
+    _ assets: [VSecondaryAsset],
+    kind: VSecondaryKind,
+    regionFilter: String?
+) -> [VSecondaryAsset] {
+    assets.filter { item in
+        item.kind == kind && (regionFilter == nil || item.region == regionFilter)
+    }
+}
+
 struct VSecondaryCollectionView: View {
     @ObservedObject var model: VNextModel
     let kind: VSecondaryKind
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var items: [VSecondaryAsset] {
-        VNextDemoFixture.secondaryAssets(for: kind)
+        vFilteredSecondaryAssets(
+            VNextDemoFixture.secondaryAssets,
+            kind: kind,
+            regionFilter: model.regionFilter
+        )
+    }
+
+    private var scopeName: String {
+        guard let code = model.regionFilter else { return "全球" }
+        return VNextDemoFixture.regionSummaries()
+            .first { $0.regionCode == code }?.displayName ?? code
     }
 
     var body: some View {
@@ -24,7 +44,7 @@ struct VSecondaryCollectionView: View {
                     Text(kind.title)
                         .font(VFont.pageTitle())
                         .foregroundColor(PdigV2Colors.textPrimary)
-                    Text("已记录的数字基础设施对象 · 参考数据")
+                    Text("\(scopeName) · 已记录的数字基础设施对象 · 参考数据")
                         .font(VFont.meta())
                         .foregroundColor(PdigV2Colors.textMuted)
                 }
@@ -37,20 +57,65 @@ struct VSecondaryCollectionView: View {
                         .font(VFont.secondary())
                         .foregroundColor(PdigV2Colors.textSecondary)
                     Spacer()
-                    VChip(text: "全部", highlight: true)
+                    if model.regionFilter != nil {
+                        Button {
+                            model.regionFilter = nil
+                        } label: {
+                            Text("查看全球")
+                                .font(VFont.meta())
+                                .fontWeight(.semibold)
+                                .foregroundColor(PdigV2Colors.primaryBright)
+                                .padding(.horizontal, VSpace.md)
+                                .padding(.vertical, VSpace.sm)
+                                .background(PdigV2Colors.primarySoft)
+                                .clipShape(Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityIdentifier(
+                            "pdig.ios.reference.secondary.scope.global.\(kind.route)"
+                        )
+                    } else {
+                        VChip(text: "全球", highlight: true)
+                    }
                 }
                 .padding(VSpace.lg)
                 .background(PdigV2Colors.surface)
                 .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
 
+                if items.isEmpty {
+                    VStack(alignment: .leading, spacing: VSpace.md) {
+                        Text("当前地区没有\(kind.title)记录")
+                            .font(VFont.body())
+                            .fontWeight(.semibold)
+                            .foregroundColor(PdigV2Colors.textPrimary)
+                        Text("没有记录不代表不存在，也不代表没有恢复或控制关系。")
+                            .font(VFont.meta())
+                            .foregroundColor(PdigV2Colors.unknown)
+                        if model.regionFilter != nil {
+                            Button("查看全球") {
+                                model.regionFilter = nil
+                            }
+                            .buttonStyle(.bordered)
+                            .accessibilityIdentifier(
+                                "pdig.ios.reference.secondary.empty.global.\(kind.route)"
+                            )
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(VSpace.xl)
+                    .background(PdigV2Colors.surface)
+                    .clipShape(RoundedRectangle(cornerRadius: VRadius.lg, style: .continuous))
+                }
+
                 let columnCount = vSecondaryCollectionColumnCount(
                     isRegularWidth: horizontalSizeClass == .regular
                 )
-                let columns = Array(
-                    repeating: GridItem(.flexible(), spacing: VSpace.md, alignment: .top),
-                    count: columnCount
-                )
-                LazyVGrid(columns: columns, alignment: .leading, spacing: VSpace.md) {
+                if !items.isEmpty {
+                    let columns = Array(
+                        repeating: GridItem(.flexible(), spacing: VSpace.md, alignment: .top),
+                        count: columnCount
+                    )
+                    LazyVGrid(columns: columns, alignment: .leading, spacing: VSpace.md) {
                     ForEach(items) { item in
                         Button {
                             model.navigate(.secondaryDetail(kind, item.id))
@@ -95,9 +160,10 @@ struct VSecondaryCollectionView: View {
                             "pdig.ios.reference.secondary.item.\(kind.route).\(item.id)"
                         )
                     }
+                    }
+                    .accessibilityIdentifier("pdig.ios.reference.secondary.grid.\(kind.route)")
+                    .accessibilityValue("\(columnCount) 列")
                 }
-                .accessibilityIdentifier("pdig.ios.reference.secondary.grid.\(kind.route)")
-                .accessibilityValue("\(columnCount) 列")
             }
             .padding(VSpace.pagePadding)
         }
