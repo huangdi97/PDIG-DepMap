@@ -74,6 +74,19 @@ class SearchCatalogR19Test {
     }
 
     @Test
+    fun maskingNeverCollapsesDistinctObjectsThatShareTheSameVisibleTitle() {
+        val app = VAppState().apply { privacyMask = true }
+        val accounts = searchResults("h••••@mail.com", app)
+            .filterIsInstance<SearchResult.AccountHit>()
+
+        assertEquals(
+            setOf("acc-hk-1", "acc-gb-1"),
+            accounts.map { it.id }.toSet(),
+        )
+        assertTrue(accounts.all { it.title == "账户（已遮蔽）" })
+    }
+
+    @Test
     fun SecondarySearchHitOpensFocusedObjectDetail() {
         val app = VAppState()
         app.navigate(VScreen.SEARCH)
