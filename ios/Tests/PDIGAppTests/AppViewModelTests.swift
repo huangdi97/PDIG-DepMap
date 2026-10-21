@@ -659,6 +659,7 @@ final class AppViewModelTests: XCTestCase {
                     phase: .change,
                     done: true,
                     resolvesImpactKeys: ["account-1|recovery"],
+                    prerequisiteActionIds: ["prepare-1"],
                     verification: ActionVerification(
                         method: .futureObservation,
                         status: .pending,
@@ -678,6 +679,11 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertEqual(loaded[0].actions[0].verification?.status, .pending)
         XCTAssertEqual(loaded[0].actions[0].verification?.evidenceRefs, ["evidence-1"])
         XCTAssertEqual(loaded[0].actions[0].resolvesImpactKeys, ["account-1|recovery"])
+        XCTAssertEqual(
+            loaded[0].actions[0].prerequisiteActionIds,
+            ["prepare-1"],
+            "SQLite reload 必须保留 Action DAG 前置关系"
+        )
     }
 
     // MARK: - navigation
@@ -1042,6 +1048,15 @@ final class AppViewModelTests: XCTestCase {
         // 停用旧路径必须排在验证新路径之后（plain-language：验证后才能移除旧路径）
         let retirePrereq = sp.prerequisiteEdges["phone-retire-old"] ?? []
         XCTAssertEqual(retirePrereq, ["phone-verify-new"])
+        XCTAssertEqual(
+            sp.plan.actions.first { $0.id == "phone-retire-old" }?.prerequisiteActionIds,
+            ["phone-verify-new"],
+            "前置关系必须进入持久化 PlanAction，而不能只存在于临时 UI projection"
+        )
+        XCTAssertEqual(
+            sp.plan.actions.first { $0.id == "phone-verify-new" }?.prerequisiteActionIds,
+            ["phone-migrate"]
+        )
         // 新路径未建立/未验证 → 停用被阻止
         XCTAssertEqual(sp.makeBeforeBreak?.status, MakeBeforeBreakStatus.blocked)
         // 时间窗顺序合法
