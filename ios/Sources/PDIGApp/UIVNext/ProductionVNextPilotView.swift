@@ -918,7 +918,8 @@ struct VIosProductionVNextPilotView: View {
                 }
 
                 ForEach(snapshot.plans) { plan in
-                    VStack(alignment: .leading, spacing: VSpace.sm) {
+                    let stages = vIosProductionChangeStageSummary(plan)
+                    VStack(alignment: .leading, spacing: VSpace.md) {
                         HStack {
                             Text(privacyMask ? "变更计划（已遮蔽）" : plan.title)
                                 .font(VFont.body())
@@ -927,9 +928,35 @@ struct VIosProductionVNextPilotView: View {
                             Spacer()
                             VStatusBadge(status: plan.needsReanalysis ? "warning" : plan.workflowState)
                         }
-                        Text("已记录完成 \(plan.actions.filter { $0.done }.count)/\(plan.actions.count) · 已验证 \(plan.actions.filter { $0.verificationStatus == "verified" }.count)")
+
+                        VStack(spacing: VSpace.sm) {
+                            productionChangeStageRow(
+                                index: 1,
+                                title: "当前",
+                                detail: stages.current,
+                                highlighted: false
+                            )
+                            productionChangeStageRow(
+                                index: 2,
+                                title: "过渡中",
+                                detail: stages.transition,
+                                highlighted: true
+                            )
+                            productionChangeStageRow(
+                                index: 3,
+                                title: "完成后（计划）",
+                                detail: stages.after,
+                                highlighted: false
+                            )
+                        }
+                        .accessibilityIdentifier(
+                            "pdig.ios.production-vnext.change.stages.\(plan.id)"
+                        )
+
+                        Text("完成 ≠ 已验证；完成后只是计划投影，不会被当成已经发生的事实。")
                             .font(VFont.meta())
-                            .foregroundColor(PdigV2Colors.textSecondary)
+                            .foregroundColor(PdigV2Colors.textMuted)
+
                         if plan.needsReanalysis {
                             Text("基础设施数据版本已变化，需要重新分析当前影响范围。")
                                 .font(VFont.meta())
@@ -1004,6 +1031,16 @@ struct VIosProductionVNextPilotView: View {
                                     ? PdigV2Colors.positive
                                     : PdigV2Colors.warning
                             )
+                        Text(vIosProductionRecordEvidenceText(action))
+                            .font(VFont.meta())
+                            .foregroundColor(PdigV2Colors.textMuted)
+                        Text(
+                            action.verificationStatus == "verified"
+                                ? "验证时间未记录"
+                                : "完成时间未记录"
+                        )
+                        .font(VFont.meta())
+                        .foregroundColor(PdigV2Colors.unknown)
                     }
                     .padding(VSpace.lg)
                     .background(PdigV2Colors.surface)
@@ -1093,6 +1130,39 @@ struct VIosProductionVNextPilotView: View {
         case "control": return "控制"
         default: return "能力未分类"
         }
+    }
+
+    private func productionChangeStageRow(
+        index: Int,
+        title: String,
+        detail: String,
+        highlighted: Bool
+    ) -> some View {
+        HStack(alignment: .top, spacing: VSpace.md) {
+            Text("\(index)")
+                .font(VFont.body())
+                .fontWeight(.bold)
+                .foregroundColor(
+                    highlighted ? PdigV2Colors.primaryBright : PdigV2Colors.textMuted
+                )
+                .frame(width: 24)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title)
+                    .font(VFont.body())
+                    .fontWeight(.semibold)
+                    .foregroundColor(PdigV2Colors.textPrimary)
+                Text(detail)
+                    .font(VFont.meta())
+                    .foregroundColor(PdigV2Colors.textSecondary)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(VSpace.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            highlighted ? PdigV2Colors.primarySoft : PdigV2Colors.surfaceRaised
+        )
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
     }
 
     private func recordState(_ action: VIosProductionPlanAction) -> String {
