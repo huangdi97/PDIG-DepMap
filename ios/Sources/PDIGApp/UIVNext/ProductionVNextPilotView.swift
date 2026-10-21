@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Read-only iOS Production VNext pilot.
+/// iOS Production VNext pilot.
 ///
-/// This surface is intentionally opt-in while iOS parity is still being built.
-/// Every value comes from the lock-gated VIosProductionSnapshot. There is no
-/// VNextDemoFixture fallback and no mutation authority in this pilot.
+/// Every rendered value comes from the lock-gated VIosProductionSnapshot. Change
+/// mutations go back through AppSession's guarded Production authority; there is
+/// no VNextDemoFixture fallback and the UI never fabricates completion locally.
 struct VIosProductionVNextPilotView: View {
     @ObservedObject var session: AppSession
 
@@ -15,6 +15,7 @@ struct VIosProductionVNextPilotView: View {
     @State private var selectedObjectId: String? = nil
     @State private var regionFilter: String? = nil
     @State private var privacyMask = false
+    @State private var changeError: String? = nil
 
     enum Root: Hashable {
         case now
@@ -907,8 +908,12 @@ struct VIosProductionVNextPilotView: View {
             VStack(alignment: .leading, spacing: VSpace.sectionGap) {
                 pageHeader(
                     "变更",
-                    "当前为只读接线阶段；计划状态、完成与验证仍保持分离。"
+                    "按正式计划记录完成与独立验证；计划预期不会被当成已经发生的事实。"
                 )
+
+                if let changeError {
+                    infoCard(title: "这一步暂时不能执行", detail: changeError)
+                }
 
                 if snapshot.plans.isEmpty {
                     infoCard(
@@ -961,6 +966,19 @@ struct VIosProductionVNextPilotView: View {
                             Text("基础设施数据版本已变化，需要重新分析当前影响范围。")
                                 .font(VFont.meta())
                                 .foregroundColor(PdigV2Colors.warning)
+                        }
+
+                        if let authoritativePlan = session.plans.first(where: { $0.id == plan.id }) {
+                            VStack(spacing: VSpace.sm) {
+                                ForEach(plan.actions) { action in
+                                    productionChangeActionRow(
+                                        snapshot: snapshot,
+                                        plan: plan,
+                                        authoritativePlan: authoritativePlan,
+                                        action: action
+                                    )
+                                }
+                            }
                         }
                     }
                     .padding(VSpace.lg)
@@ -1129,6 +1147,148 @@ struct VIosProductionVNextPilotView: View {
         case "identity": return "身份"
         case "control": return "控制"
         default: return "能力未分类"
+        }
+    }
+
+    @ViewBuilder
+    private func productionChangeActionRow(
+        snapshot: VIosProductionSnapshot,
+        plan: VIosProductionPlan,
+        authoritativePlan: ChangePlan,
+        action: VIosProductionPlanAction
+    ) -> some View {
+        let canComplete = !privacyMask && ProductionChangeAuthority.canCompleteAction(
+            plan: authoritativePlan,
+            currentGraphRevision: snapshot.revision,
+            actionId: action.id,
+            pendingReviewCount: snapshot.pendingReview.proposalCount,
+            pendingCandidateCount: snapshot.pendingReview.candidateCount,
+            openDriftCount: snapshot.pendingReview.driftCount
+        )
+        let canVerify = !privacyMask && ProductionChangeAuthority.canVerifyAction(
+            plan: authoritativePlan,
+            currentGraphRevision: snapshot.revision,
+            actionId: action.id
+        )
+
+        VStack(alignment: .leading, spacing: VSpace.sm) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(privacyMask ? "操作步骤（已遮蔽）" : action.title)
+                        .font(VFont.body())
+                        .fontWeight(.semibold)
+                        .foregroundColor(PdigV2Colors.textPrimary)
+                    Text(recordState(action))
+                        .font(VFont.meta())
+                        .foregroundColor(
+                            action.verificationStatus == "verified"
+                                ? PdigV2Colors.success
+                                : PdigV2Colors.textMuted
+                        )
+                }
+                Spacer(minLength: VSpace.sm)
+                Text(productionActionPhaseLabel(action.phase))
+                    .font(VFont.meta())
+                    .foregroundColor(PdigV2Colors.textMuted)
+            }
+
+            if !action.prerequisiteActionIds.isEmpty {
+                Text("需先完成 (action.prerequisiteActionIds.count) 个前置步骤")
+                    .font(VFont.meta())
+                    .foregroundColor(PdigV2Colors.textSecondary)
+            }
+
+            HStack(spacing: VSpace.sm) {
+                if !action.done {
+                    Button("记录完成") {
+                        do {
+                            try session.productionCompleteAction(
+                                planId: plan.id,
+                                actionId: action.id
+                            )
+                            changeError = nil
+                        } catch {
+                            changeError = productionChangeErrorText(error)
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!canComplete)
+                    .accessibilityIdentifier(
+                        "pdig.ios.production-vnext.change.complete.(action.id)"
+                    )
+                }
+
+                if action.done &&
+                    (action.verificationStatus == "pending" ||
+                     action.verificationStatus == "evidence_suggested") {
+                    Button("确认验证") {
+                        do {
+                            try session.productionVerifyAction(
+                                planId: plan.id,
+                                actionId: action.id
+                            )
+                            changeError = nil
+                        } catch {
+                            changeError = productionChangeErrorText(error)
+                        }
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(!canVerify)
+                    .accessibilityIdentifier(
+                        "pdig.ios.production-vnext.change.verify.(action.id)"
+                    )
+                }
+            }
+        }
+        .padding(VSpace.md)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PdigV2Colors.surfaceRaised)
+        .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
+        .accessibilityIdentifier(
+            "pdig.ios.production-vnext.change.action.(action.id)"
+        )
+    }
+
+    private func productionActionPhaseLabel(_ wire: String) -> String {
+        switch wire {
+        case PlanActionPhase.prepare.wire: return "准备"
+        case PlanActionPhase.change.wire: return "变更"
+        case PlanActionPhase.verify.wire: return "验证"
+        default: return "步骤"
+        }
+    }
+
+    private func productionChangeErrorText(_ error: Error) -> String {
+        guard let reason = error as? ProductionChangeMutationError else {
+            return "操作没有写入；请重新检查当前计划。"
+        }
+        switch reason {
+        case .sessionLocked:
+            return "请先解锁后再操作。"
+        case .planNotFound:
+            return "当前计划已发生变化，请重新打开。"
+        case .planFrozen:
+            return "计划已经结束，不能继续修改步骤。"
+        case .needsReanalysis:
+            return "基础设施已经变化，请先重新分析当前影响范围。"
+        case .actionNotFound:
+            return "当前步骤已不在正式计划中。"
+        case .actionAlreadyDone:
+            return "这一步已经记录完成。"
+        case .missingPrerequisite:
+            return "计划的前置步骤信息不完整，暂不执行。"
+        case .prerequisiteIncomplete:
+            return "必须先完成前置步骤。"
+        case .prerequisiteUnverified:
+            return "新路径尚未独立验证，暂不能停用旧路径。"
+        case .retirementScopeNeedsReview:
+            return "仍有待复核内容，暂不能停用旧路径。"
+        case .verificationNotRequired:
+            return "这一步不需要单独验证。"
+        case .actionNotDone:
+            return "请先记录这一步已经完成，再确认验证结果。"
+        case .verificationFrozen:
+            return "当前验证状态不能再次修改。"
         }
     }
 
