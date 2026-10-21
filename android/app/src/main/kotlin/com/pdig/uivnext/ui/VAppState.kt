@@ -54,6 +54,12 @@ class VAppState(
      */
     var searchQuery by mutableStateOf("")
 
+    /** Session-only collection filters; returning from a detail must not reset context. */
+    var cardKindFilter by mutableStateOf("all")
+    var cardStatusFilter by mutableStateOf("all")
+    var cardNetworkFilter by mutableStateOf("all")
+    var numberRoleFilter by mutableStateOf("all")
+
     /**
      * Records verification lens is ephemeral consumer navigation state.
      * It never changes the authoritative PlanAction, evidence or timeline.

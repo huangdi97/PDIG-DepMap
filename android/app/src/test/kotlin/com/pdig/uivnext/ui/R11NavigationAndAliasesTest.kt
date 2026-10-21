@@ -75,6 +75,26 @@ class R11NavigationAndAliasesTest {
         assertEquals("44", app.searchQuery)
     }
 
+    @Test fun assetCollectionFiltersSurviveDetailBackNavigation() {
+        val cards = VAppState(initialScreen = VScreen.CARDS)
+        cards.cardKindFilter = "credit"
+        cards.cardStatusFilter = "expiring_soon"
+        cards.cardNetworkFilter = "银联"
+        cards.openCard("card-cn-2")
+        cards.back()
+        assertEquals(VScreen.CARDS, cards.screen)
+        assertEquals("credit", cards.cardKindFilter)
+        assertEquals("expiring_soon", cards.cardStatusFilter)
+        assertEquals("银联", cards.cardNetworkFilter)
+
+        val numbers = VAppState(initialScreen = VScreen.NUMBERS)
+        numbers.numberRoleFilter = "keep"
+        numbers.openNumber("num-cn-3")
+        numbers.back()
+        assertEquals(VScreen.NUMBERS, numbers.screen)
+        assertEquals("keep", numbers.numberRoleFilter)
+    }
+
     @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
             listOf(

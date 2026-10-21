@@ -38,9 +38,9 @@ import com.pdig.uivnext.demo.demoRegions
 /** R9 financial identity list, structurally separate from R8's management rows. */
 @Composable
 internal fun R9CardsScreen(app: VAppState) {
-    var kind by rememberSaveable { mutableStateOf("all") }
-    var statusFilter by rememberSaveable { mutableStateOf("all") }
-    var networkFilter by rememberSaveable { mutableStateOf("all") }
+    val kind = app.cardKindFilter
+    val statusFilter = app.cardStatusFilter
+    val networkFilter = app.cardNetworkFilter
     var openFilter by remember { mutableStateOf<String?>(null) }
     val scoped = app.demoCards().filter { app.regionFilter == null || it.region == app.regionFilter }
     val filtered = scoped.filter {
@@ -73,7 +73,7 @@ internal fun R9CardsScreen(app: VAppState) {
             listOf("all" to "全部（${scoped.size}）","credit" to "信用卡","debit" to "储蓄卡","virtual" to "虚拟卡")
                 .forEach { (key,label) ->
                     Surface(
-                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { kind = key },
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.cardKindFilter = key },
                         color = if(key == kind) R9.Blue else Color.White,
                         border = BorderStroke(1.dp, if(key == kind) R9.Blue else R9.Line),
                         shape = RoundedCornerShape(11.dp),
@@ -127,8 +127,8 @@ internal fun R9CardsScreen(app: VAppState) {
                                 .clickable {
                                     when(openFilter) {
                                         "region" -> if(id == "all") app.clearRegion() else app.selectRegion(id)
-                                        "status" -> statusFilter = id
-                                        "network" -> networkFilter = id
+                                        "status" -> app.cardStatusFilter = id
+                                        "network" -> app.cardNetworkFilter = id
                                     }
                                     openFilter = null
                                 }.padding(horizontal = 11.dp, vertical = 11.dp)
@@ -219,7 +219,7 @@ private fun R9CardRow(card: UiVNextCard, app: VAppState) {
 /** Numbers have their own communication identity; no fake bank-card surfaces. */
 @Composable
 internal fun R9NumbersScreen(app: VAppState) {
-    var selected by remember { mutableStateOf("all") }
+    val selected = app.numberRoleFilter
     val scoped = app.demoNumbers().filter { app.regionFilter == null || it.region == app.regionFilter }
     val filtered = scoped.filter {
         when(selected) {
@@ -244,7 +244,7 @@ internal fun R9NumbersScreen(app: VAppState) {
             listOf("all" to "全部","primary" to "主号码","keep" to "保号","recovery" to "恢复路径","esim" to "eSIM")
                 .forEach { (key,label) ->
                     Surface(
-                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { selected = key },
+                        modifier = Modifier.defaultMinSize(minHeight = 48.dp).clickable { app.numberRoleFilter = key },
                         color = if(key == selected) R9.Blue else Color.White,
                         shape = RoundedCornerShape(12.dp),
                         border = BorderStroke(1.dp, if(key == selected) R9.Blue else R9.Line),
