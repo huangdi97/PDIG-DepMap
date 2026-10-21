@@ -29,7 +29,7 @@ struct VStatusBadge: View {
                 .stroke(PdigV2Colors.borderSubtle, lineWidth: 1)
         )
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(vStatusLabel(status))（\(status)）")
+        .accessibilityLabel(vStatusLabel(status))
     }
 }
 
