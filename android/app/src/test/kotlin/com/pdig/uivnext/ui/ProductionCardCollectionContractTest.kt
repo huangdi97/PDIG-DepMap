@@ -18,6 +18,16 @@ class ProductionCardCollectionContractTest {
     }
 
     @Test
+    fun secondaryProductionCollectionsStaySingleColumnOnPhoneAndUseTwoColumnsOnLargerSurfaces() {
+        assertEquals(1, productionSecondaryCollectionColumns(360f))
+        assertEquals(1, productionSecondaryCollectionColumns(599f))
+        assertEquals(2, productionSecondaryCollectionColumns(600f))
+        assertEquals(2, productionSecondaryCollectionColumns(839f))
+        assertEquals(2, productionSecondaryCollectionColumns(840f))
+        assertEquals(2, productionSecondaryCollectionColumns(1280f))
+    }
+
+    @Test
     fun issuerMaskingCannotTurnUnrecordedDataIntoKnownHiddenData() {
         assertEquals("发行方未记录", productionVisibleCardIssuer(null, false))
         assertEquals("发行方未记录", productionVisibleCardIssuer(null, true))
