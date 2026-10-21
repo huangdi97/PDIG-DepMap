@@ -5,6 +5,7 @@ import com.pdig.uivnext.production.VNextProductionMaintenanceFact
 import com.pdig.uivnext.production.VNextProductionMaintenanceSchedule
 import com.pdig.uivnext.production.VNextProductionObject
 import com.pdig.uivnext.production.VNextProductionPlanSummary
+import com.pdig.uivnext.production.VNextProductionRegionFact
 import com.pdig.uivnext.production.VNextProductionSnapshot
 import com.pdig.uivnext.production.VNextProductionSourceItem
 import com.pdig.uivnext.production.VNextProductionSurfaceKind
@@ -24,6 +25,28 @@ class ProductionSearchProjectionTest {
                 surfaceKind = VNextProductionSurfaceKind.PAYMENT_ASSET,
                 issuer = "示例银行",
                 last4 = "8823",
+                regionFacts = listOf(
+                    VNextProductionRegionFact(
+                        id = "region-hk",
+                        facet = "usage",
+                        territoryCode = "HK",
+                        subdivisionCode = null,
+                        state = "confirmed",
+                        verificationBasisType = "user_confirmed",
+                        confirmedAt = "2026-10-10T00:00:00Z",
+                        evidenceRefs = emptyList(),
+                    ),
+                    VNextProductionRegionFact(
+                        id = "region-us-pending",
+                        facet = "usage",
+                        territoryCode = "US",
+                        subdivisionCode = null,
+                        state = "pending_review",
+                        verificationBasisType = "user_confirmed",
+                        confirmedAt = "2026-10-10T00:00:00Z",
+                        evidenceRefs = emptyList(),
+                    ),
+                ),
                 maintenanceFacts = listOf(
                     VNextProductionMaintenanceFact(
                         id = "fee",
@@ -143,6 +166,17 @@ class ProductionSearchProjectionTest {
         val planCost = productionSearchHits(snapshot(), "68")
             .filterIsInstance<ProductionSearchHit.ObjectHit>()
         assertTrue(planCost.any { it.item.id == "phone-1" })
+    }
+
+    @Test
+    fun confirmedRegionsAreSearchableWithoutIndexingPendingRegionClaims() {
+        val hongKong = productionSearchHits(snapshot(), "香港")
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+        assertTrue(hongKong.any { it.item.id == "card-1" })
+
+        val pendingUs = productionSearchHits(snapshot(), "美国")
+            .filterIsInstance<ProductionSearchHit.ObjectHit>()
+        assertTrue(pendingUs.none { it.item.id == "card-1" })
     }
 
     @Test
