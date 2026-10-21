@@ -113,7 +113,6 @@ struct OverviewView: View {
                         }
                     }
                 )
-                .accessibilityIdentifier("\(VTestIds.regionItem).\(region.regionCode)")
             }
         }
     }
