@@ -147,7 +147,7 @@ internal fun ProductionSearchScreen(
             OutlinedTextField(
                 value = query,
                 onValueChange = { query = it.take(100) },
-                label = { Text("名称、发行方、尾号、类型、变更或数据源") },
+                label = { Text("名称、别名、发行方、地区、维护日期、变更或数据源") },
                 modifier = Modifier.fillMaxWidth().testTag("pdig.production-vnext.search.input"),
                 singleLine = true,
             )
@@ -196,6 +196,15 @@ internal fun productionSearchHits(
             VNextProductionSurfaceKind.PAYMENT_ASSET -> cardMaskLookup(item.id)
             else -> false
         }
+        val regionTerms = item.regionFacts
+            .filter { it.state == "confirmed" }
+            .flatMap { fact ->
+                listOf(
+                    fact.territoryCode,
+                    fact.subdivisionCode,
+                    TerritoryPresentationCatalog.displayName(fact.territoryCode),
+                )
+            }
         val maintenanceTerms = buildList<String?> {
             item.maintenanceFacts.forEach { fact ->
                 add(fact.kind)
@@ -222,6 +231,7 @@ internal fun productionSearchHits(
                 item.identityVerificationBasisType,
                 item.identityIdentifierValue,
                 item.identityIdentifierVerificationBasisType,
+                *regionTerms.toTypedArray(),
                 *maintenanceTerms.toTypedArray(),
             )
         ) return@mapNotNull null
