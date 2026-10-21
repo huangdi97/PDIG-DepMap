@@ -21,6 +21,36 @@ enum ProductionChangeMutationError: Error, Equatable {
 }
 
 enum ProductionChangeAuthority {
+    static func canCompleteAction(
+        plan: ChangePlan,
+        currentGraphRevision: Int,
+        actionId: String,
+        pendingReviewCount: Int = 0,
+        pendingCandidateCount: Int = 0,
+        openDriftCount: Int = 0
+    ) -> Bool {
+        (try? completeAction(
+            plan: plan,
+            currentGraphRevision: currentGraphRevision,
+            actionId: actionId,
+            pendingReviewCount: pendingReviewCount,
+            pendingCandidateCount: pendingCandidateCount,
+            openDriftCount: openDriftCount
+        )) != nil
+    }
+
+    static func canVerifyAction(
+        plan: ChangePlan,
+        currentGraphRevision: Int,
+        actionId: String
+    ) -> Bool {
+        (try? verifyAction(
+            plan: plan,
+            currentGraphRevision: currentGraphRevision,
+            actionId: actionId
+        )) != nil
+    }
+
     static func completeAction(
         plan: ChangePlan,
         currentGraphRevision: Int,
