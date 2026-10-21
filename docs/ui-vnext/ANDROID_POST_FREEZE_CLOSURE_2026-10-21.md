@@ -151,11 +151,41 @@ Filled in after the push:
 
 ### 8.1 Commits
 
-(appended at push time)
+Pushed fast-forward (`a3049c64..b7dcbc89`, no force):
+
+| Commit | Purpose |
+| --- | --- |
+| `eca4cae3` | fix(android): give the change workbench one authoritative next-step action |
+| `3affbd1b` | test(change): pin prerequisite, verification order and frozen-plan invariants |
+| `5a5e347c` | test(android): seed isolated evidence reality for post-freeze capture |
+| `7d59942e` | fix(android-scripts): decode adb output as utf-8 in production rehearsals |
+| `abc0988a` | feat(android-scripts): capture post-freeze closure runtime evidence |
+| `74bf714c` | evidence(android): record 2026-10-21 post-freeze closure runtime evidence |
+| `b7dcbc89` | docs(android): record post-freeze closure gate, matrix and handoff |
+
+`ANDROID_TREE_FINAL` = `b7dcbc89` (the final head itself touches `android/`).
+`LOCAL_HEAD` = `PUSHED_HEAD` = `FINAL_REMOTE_HEAD` = `b7dcbc89668481145f2df0b807e6ef693f4739f2`.
 
 ### 8.2 Remote CI observed for the final Android tree
 
-(appended at push time)
+| Workflow | Conclusion at `b7dcbc89` |
+| --- | --- |
+| CI | success |
+| Android UI vNext Preview APK | success |
+| Android UI vNext Tablet Pixel Proof | success |
+| Android UI vNext Production Rehearsal | success |
+| Android UI vNext Phone Pixel Proof | **failure — infrastructure, not source** |
+| iOS | success (parallel iOS line) |
+| iOS Runtime Visual | failure (pre-existing, parallel iOS line) |
+
+The Phone Pixel Proof job never reached the APK: the runner failed while unpacking
+the Android Emulator SDK package (`Error on ZipFile unknown archive`) and then
+`could not connect to TCP port 5554: Connection refused`. The sibling tablet job on
+the same commit booted its emulator and passed, and the same phone journey passed
+locally on the API36 phone AVD (13 captures, all assertions green). It has to be
+re-run on a clean runner before this Android tree can claim `PHONE_RUNTIME_PASS`
+remotely.
+
 
 ## 9. What remains for a human
 
