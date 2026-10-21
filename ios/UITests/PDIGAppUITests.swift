@@ -296,6 +296,13 @@ final class PDIGAppUITests: XCTestCase {
                 .waitForExistence(timeout: 10),
             "Production 薄弱点没有保留 confirmed-Reality 边界"
         )
+        XCTAssertFalse(
+            vnextRoute(
+                app,
+                id: "pdig.ios.production-vnext.weakness.pending-verification"
+            ).exists,
+            "尚未执行的 verification=pending 模板步骤不得制造“已完成但待验证”发现"
+        )
         tapWhenReady(
             vnextRoute(app, id: "pdig.ios.production-vnext.weaknesses.back"),
             in: app
