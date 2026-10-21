@@ -309,7 +309,8 @@ extension AppSession {
             FindingsInput(
                 snapshot: snapshot,
                 pendingVerifications: pending,
-                nowIso: nowIso
+                nowIso: nowIso,
+                includePendingProposalCycles: false
             )
         )
     }
