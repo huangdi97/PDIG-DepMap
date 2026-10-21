@@ -272,9 +272,27 @@ final class PDIGAppUITests: XCTestCase {
                 .waitForExistence(timeout: 10),
             "账户 collection 未出现"
         )
+        let accountGrid = vnextRoute(
+            app,
+            id: "pdig.ios.reference.secondary.grid.account"
+        )
+        XCTAssertTrue(accountGrid.waitForExistence(timeout: 10), "账户 collection 缺少稳定 grid 语义")
+        let expectedColumns = UIDevice.current.userInterfaceIdiom == .pad ? "2 列" : "1 列"
+        XCTAssertEqual(
+            accountGrid.value as? String,
+            expectedColumns,
+            "二级资产 collection 未按 iPhone/iPad 宽度翻译布局"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.account.acct-wechat").exists,
+            "账户 collection 缺少稳定对象入口"
+        )
         attachScreenshot(app, name: "vnext-03-accounts")
 
-        tapWhenReady(buttonLabelStarts(app, "微信账户"), in: app)
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.account.acct-wechat"),
+            in: app
+        )
         XCTAssertTrue(
             app.staticTexts["账户详情"].waitForExistence(timeout: 10),
             "账户详情未出现"
