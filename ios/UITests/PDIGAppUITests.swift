@@ -374,6 +374,58 @@ final class PDIGAppUITests: XCTestCase {
             vnextRoute(app, id: "pdig.ios.production-vnext.nav.me"),
             in: app
         )
+        let sourcesEntry = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.me.sources"
+        )
+        XCTAssertTrue(
+            sourcesEntry.waitForExistence(timeout: 10),
+            "Production「我」缺少数据源管理入口"
+        )
+        tapWhenReady(sourcesEntry, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.sources")
+                .waitForExistence(timeout: 10),
+            "Production 数据源页未打开"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.source.src-wechat-1")
+                .waitForExistence(timeout: 10),
+            "正式 source projection 没有进入 Production 数据源页"
+        )
+        XCTAssertTrue(
+            app.staticTexts["微信账单 2024.csv"].exists,
+            "Production 数据源页没有显示正式来源标签"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.me.sources.back"),
+            in: app
+        )
+
+        let settingsEntry = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.me.settings"
+        )
+        XCTAssertTrue(
+            settingsEntry.waitForExistence(timeout: 10),
+            "Production「我」缺少设置入口"
+        )
+        tapWhenReady(settingsEntry, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.settings")
+                .waitForExistence(timeout: 10),
+            "Production 设置页未打开"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.settings.privacy")
+                .waitForExistence(timeout: 10),
+            "Production 设置页缺少隐私展示控制"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.me.settings.back"),
+            in: app
+        )
+
         let privacy = vnextRoute(app, id: "pdig.ios.production-vnext.privacy")
         XCTAssertTrue(privacy.waitForExistence(timeout: 10), "Production 隐私开关未出现")
         tapWhenReady(privacy, in: app)
