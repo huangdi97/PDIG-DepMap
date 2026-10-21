@@ -149,6 +149,13 @@ struct VIosProductionSourceCoverage: Equatable, Sendable {
     let activeSourceCount: Int
 }
 
+struct VIosProductionSource: Equatable, Sendable, Identifiable {
+    let id: String
+    let label: String
+    let state: String
+    let lastIngestedAt: String?
+}
+
 struct VIosProductionSnapshot: Equatable, Sendable {
     let revision: Int
     let objects: [VIosProductionObject]
@@ -156,6 +163,7 @@ struct VIosProductionSnapshot: Equatable, Sendable {
     let plans: [VIosProductionPlan]
     let pendingReview: VIosProductionReviewSummary
     let sourceCoverage: VIosProductionSourceCoverage
+    let sources: [VIosProductionSource]
 }
 
 func vIosProductionSurfaceKind(
@@ -339,7 +347,15 @@ func buildIosProductionVNextSnapshot(
             activeSourceCount: snapshot.sources.filter {
                 $0.state == SourceInstanceState.active.wire
             }.count
-        )
+        ),
+        sources: snapshot.sources.map {
+            VIosProductionSource(
+                id: $0.id,
+                label: $0.label,
+                state: $0.state,
+                lastIngestedAt: $0.lastIngestedAt
+            )
+        }.sorted { $0.id < $1.id }
     )
 }
 
