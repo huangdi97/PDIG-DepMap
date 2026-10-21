@@ -425,11 +425,12 @@ class ProductionChangeStageSummaryTest {
         assertTrue(summary.transition.contains("1 步已验证"))
         assertTrue(summary.after.contains("1 项必须处理事项未解决"))
         assertTrue(summary.after.contains("仅计划预期"))
+        assertTrue(summary.after.contains("未发生"))
 
         val readyProjection = productionChangeStageSummary(
             plan.copy(unresolvedMustChangeKeys = emptyList()),
         )
-        assertEquals("计划预期 · 完成并验证前不代表现实", readyProjection.after)
+        assertEquals("计划预期 · 未发生 · 完成并验证前不代表现实", readyProjection.after)
 
         val change = plan.actions.last()
         val freshReady = plan.copy(

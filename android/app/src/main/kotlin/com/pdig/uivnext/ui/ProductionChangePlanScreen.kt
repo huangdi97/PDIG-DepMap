@@ -88,6 +88,76 @@ internal fun ProductionChangePlanScreen(
         if (focusedIndex != null) listState.scrollToItem(focusedIndex)
     }
 
+    // Single authoritative execution path for both the per-step cards and the
+    // "next step" primary CTA. Every command re-reads the live plan first, so a
+    // CTA drawn from an older composition can never become an execution permit.
+    val completeAction: (String) -> Unit = { actionId ->
+        error = null
+        if (targetMasked) {
+            error = "敏感信息遮蔽已开启，请核对步骤内容后再记录完成。"
+        } else {
+            val latest = session.dataSource.productionPlan(current.id)
+            val liveStep = latest?.actions?.firstOrNull { it.id == actionId }
+            when {
+                latest == null -> error = "正式计划暂不可读取；不会记录完成。"
+                productionChangeTargetMasked(
+                    session.appState, latest.scenario, latest.targetNodeId,
+                ) -> {
+                    plan = latest
+                    error = "目标对象已被遮蔽；请先核对最新对象身份。"
+                }
+                liveStep == null -> {
+                    plan = latest
+                    error = "步骤已发生变化，请核对最新计划后再操作。"
+                }
+                !productionPlanCompletionEnabled(
+                    latest, liveStep, gateway != null,
+                ) -> {
+                    plan = latest
+                    error = "计划状态或前置步骤已变化，暂不能记录完成。"
+                }
+                else -> try {
+                    plan = gateway!!.completeAction(latest.id, liveStep.id)
+                } catch (_: Throwable) {
+                    error = "动作未能记录完成；界面没有本地伪造状态。"
+                }
+            }
+        }
+    }
+    val verifyAction: (String) -> Unit = { actionId ->
+        error = null
+        if (targetMasked) {
+            error = "敏感信息遮蔽已开启，请查看并确认实际验证证据。"
+        } else {
+            val latest = session.dataSource.productionPlan(current.id)
+            val liveStep = latest?.actions?.firstOrNull { it.id == actionId }
+            when {
+                latest == null -> error = "正式计划暂不可读取；不会确认验证。"
+                productionChangeTargetMasked(
+                    session.appState, latest.scenario, latest.targetNodeId,
+                ) -> {
+                    plan = latest
+                    error = "目标对象已被遮蔽；请先核对最新对象身份。"
+                }
+                liveStep == null -> {
+                    plan = latest
+                    error = "步骤已发生变化，请核对最新计划后再验证。"
+                }
+                !productionPlanVerificationEnabled(
+                    latest, liveStep, gateway != null,
+                ) -> {
+                    plan = latest
+                    error = "计划或验证资格已变化，请核对最新状态后再确认。"
+                }
+                else -> try {
+                    plan = gateway!!.verifyAction(latest.id, liveStep.id)
+                } catch (_: Throwable) {
+                    error = "验证未完成；操作完成与独立验证仍保持分离。"
+                }
+            }
+        }
+    }
+
     LazyColumn(
         state = listState,
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.change-plan"),
@@ -130,6 +200,19 @@ internal fun ProductionChangePlanScreen(
                         error = "重新分析未完成；计划仍保持阻断状态。"
                     }
                 },
+            )
+        }
+
+        item {
+            ProductionNextStepCard(
+                plan = current,
+                canMutate = productionChangeActionMutationEnabled(
+                    authorityAvailable = gateway != null,
+                    privacyMask = targetMasked,
+                ),
+                privacyMask = targetMasked,
+                onComplete = { completeAction(it) },
+                onVerify = { verifyAction(it) },
             )
         }
 
@@ -244,75 +327,8 @@ internal fun ProductionChangePlanScreen(
                 ),
                 privacyMask = targetMasked,
                 focusedFromRecords = requestedActionId == action.id,
-                onComplete = {
-                    error = null
-                    if (targetMasked) {
-                        error = "敏感信息遮蔽已开启，请核对步骤内容后再记录完成。"
-                    } else {
-                        // The plan may have changed since this Composable drew its
-                        // button. Re-read authoritative Reality immediately before
-                        // committing. A stale click is never an execution permit.
-                        val latest = session.dataSource.productionPlan(current.id)
-                        val liveStep = latest?.actions?.firstOrNull { it.id == action.id }
-                        when {
-                            latest == null -> error = "正式计划暂不可读取；不会记录完成。"
-                            productionChangeTargetMasked(
-                                session.appState, latest.scenario, latest.targetNodeId,
-                            ) -> {
-                                plan = latest
-                                error = "目标对象已被遮蔽；请先核对最新对象身份。"
-                            }
-                            liveStep == null -> {
-                                plan = latest
-                                error = "步骤已发生变化，请核对最新计划后再操作。"
-                            }
-                            !productionPlanCompletionEnabled(
-                                latest, liveStep, gateway != null,
-                            ) -> {
-                                plan = latest
-                                error = "计划状态或前置步骤已变化，暂不能记录完成。"
-                            }
-                            else -> try {
-                                plan = gateway!!.completeAction(latest.id, liveStep.id)
-                            } catch (t: Throwable) {
-                                error = "动作未能记录完成；界面没有本地伪造状态。"
-                            }
-                        }
-                    }
-                },
-                onVerify = {
-                    error = null
-                    if (targetMasked) {
-                        error = "敏感信息遮蔽已开启，请查看并确认实际验证证据。"
-                    } else {
-                        val latest = session.dataSource.productionPlan(current.id)
-                        val liveStep = latest?.actions?.firstOrNull { it.id == action.id }
-                        when {
-                            latest == null -> error = "正式计划暂不可读取；不会确认验证。"
-                            productionChangeTargetMasked(
-                                session.appState, latest.scenario, latest.targetNodeId,
-                            ) -> {
-                                plan = latest
-                                error = "目标对象已被遮蔽；请先核对最新对象身份。"
-                            }
-                            liveStep == null -> {
-                                plan = latest
-                                error = "步骤已发生变化，请核对最新计划后再验证。"
-                            }
-                            !productionPlanVerificationEnabled(
-                                latest, liveStep, gateway != null,
-                            ) -> {
-                                plan = latest
-                                error = "计划或验证资格已变化，请核对最新状态后再确认。"
-                            }
-                            else -> try {
-                                plan = gateway!!.verifyAction(latest.id, liveStep.id)
-                            } catch (t: Throwable) {
-                                error = "验证未完成；操作完成与独立验证仍保持分离。"
-                            }
-                        }
-                    }
-                },
+                onComplete = { completeAction(action.id) },
+                onVerify = { verifyAction(action.id) },
             )
         }
 
@@ -542,9 +558,9 @@ internal fun productionChangeStageSummary(plan: VNextProductionPlan): Production
         },
         transition = "${finished}/${plan.actions.size} 步已记录完成 · ${verified} 步已验证",
         after = if (plan.unresolvedMustChangeKeys.isNotEmpty())
-            "${plan.unresolvedMustChangeKeys.size} 项必须处理事项未解决 · 仅计划预期"
+            "${plan.unresolvedMustChangeKeys.size} 项必须处理事项未解决 · 仅计划预期 · 未发生"
         else
-            "计划预期 · 完成并验证前不代表现实",
+            "计划预期 · 未发生 · 完成并验证前不代表现实",
     )
 }
 
@@ -609,7 +625,7 @@ internal fun ProductionChangeChoreography(
         )
 
         Text(
-            "完成后只是计划预期，不是已经发生的事实。记录完成不等于验证完成；旧路径仍需按正式计划安全停用。",
+            "完成后只是计划预期，尚未发生。记录完成不等于验证完成；旧路径仍需按正式计划安全停用。",
             color = PdigV2Colors.TextMuted,
             fontSize = 10.sp,
         )
@@ -1094,5 +1110,218 @@ private fun ChangePlanUnavailable(
             fontWeight = FontWeight.Bold)
         Spacer(Modifier.padding(4.dp))
         Text(body, color = PdigV2Colors.TextSecondary, fontSize = 12.sp)
+    }
+}
+
+/**
+ * The next step a user can actually execute right now.
+ *
+ * This is a presentation projection over the authoritative plan only. It never
+ * decides that work is allowed; it reports the same eligibility the per-step
+ * buttons use, so the primary call to action can never advertise an action the
+ * AppContainer would reject.
+ */
+internal enum class ProductionNextStepMode {
+    REANALYZE,
+    COMPLETE,
+    VERIFY,
+    NONE,
+}
+
+internal data class ProductionNextStep(
+    val mode: ProductionNextStepMode,
+    val actionId: String?,
+    val title: String,
+    val reason: String,
+    val prerequisites: String,
+    val verificationNote: String,
+)
+
+internal fun productionNextStep(
+    plan: VNextProductionPlan,
+    canMutate: Boolean,
+    privacyMask: Boolean = false,
+): ProductionNextStep {
+    val stale = plan.effectiveState == "needs_revalidation" ||
+        plan.currentGraphRevision != plan.lastAnalyzedGraphRevision
+    if (stale) {
+        return ProductionNextStep(
+            mode = ProductionNextStepMode.REANALYZE,
+            actionId = null,
+            title = "重新分析当前影响",
+            reason = "基础设施已变化（分析基准 ${plan.lastAnalyzedGraphRevision} · 当前数据版本 " +
+                "${plan.currentGraphRevision}）；重新分析并确认当前影响范围前，不会继续记录新的执行完成。",
+            prerequisites = "使用上方的「重新分析当前影响」；界面不会用旧快照继续写入。",
+            verificationNote = "重新分析只更新影响快照与分析基准，不会把任何步骤标记为已完成或已验证。",
+        )
+    }
+    if (privacyMask) {
+        return ProductionNextStep(
+            mode = ProductionNextStepMode.NONE,
+            actionId = null,
+            title = "遮蔽开启，暂不能执行",
+            reason = "步骤身份与前置对象无法核对，因此不会记录完成或确认验证。",
+            prerequisites = "先到「我」关闭敏感信息遮蔽，并核对实际证据。",
+            verificationNote = "关闭遮蔽不会修改任何正式记录。",
+        )
+    }
+    if (!canMutate) {
+        return ProductionNextStep(
+            mode = ProductionNextStepMode.NONE,
+            actionId = null,
+            title = "当前只有查看权限",
+            reason = "正式变更权限不可用；界面不会代替正式权限写入。",
+            prerequisites = "需要在可写入的正式变更上下文中操作。",
+            verificationNote = "查看不会改变任何正式状态。",
+        )
+    }
+    val actionsById = plan.actions.associateBy { it.id }
+    val next = plan.actions.firstOrNull { action ->
+        productionPlanCompletionEnabled(plan, action, canMutate) ||
+            productionPlanVerificationEnabled(plan, action, canMutate)
+    }
+    if (next == null) {
+        val unfinished = plan.actions.filter { !it.done }.map { it.title }
+        return ProductionNextStep(
+            mode = ProductionNextStepMode.NONE,
+            actionId = null,
+            title = "当前没有可执行的下一步",
+            reason = if (plan.unresolvedMustChangeKeys.isNotEmpty()) {
+                "还有 ${plan.unresolvedMustChangeKeys.size} 项必须处理影响没有绑定可执行的正式步骤；" +
+                    "请返回变更页重新建立覆盖当前影响的计划。"
+            } else {
+                "所有可执行步骤都已记录完成；待验证步骤需要独立证据，界面不会自动确认。"
+            },
+            prerequisites = if (unfinished.isEmpty()) {
+                "没有未完成步骤。"
+            } else {
+                "仍未完成：${unfinished.joinToString("、")}。"
+            },
+            verificationNote = "界面不会据此把计划显示为已安全完成。",
+        )
+    }
+    val mode = if (productionPlanCompletionEnabled(plan, next, canMutate)) {
+        ProductionNextStepMode.COMPLETE
+    } else {
+        ProductionNextStepMode.VERIFY
+    }
+    val prerequisiteNames = next.prerequisiteActionIds.map { id -> actionsById[id]?.title ?: id }
+    val unmetNames = next.prerequisiteActionIds
+        .filter { id -> actionsById[id]?.done != true }
+        .map { id -> actionsById[id]?.title ?: id }
+    val pendingVerification = next.verificationStatus == "pending" ||
+        next.verificationStatus == "evidence_suggested"
+    return ProductionNextStep(
+        mode = mode,
+        actionId = next.id,
+        title = next.title,
+        reason = productionPlanActionGuidance(next, plan, canMutate, privacyMask),
+        prerequisites = when {
+            prerequisiteNames.isEmpty() -> "没有前置步骤。"
+            unmetNames.isEmpty() -> "前置步骤已完成：${prerequisiteNames.joinToString("、")}。"
+            else -> "必须先完成：${unmetNames.joinToString("、")}。"
+        },
+        verificationNote = when (mode) {
+            ProductionNextStepMode.VERIFY ->
+                "确认验证会写入正式记录；它不会自动解决其他未确认事项。"
+            else -> if (pendingVerification) {
+                "记录完成后仍需独立验证；完成 ≠ 已验证。"
+            } else {
+                "该步骤完成后不需要额外验证。"
+            }
+        },
+    )
+}
+
+@Composable
+internal fun ProductionNextStepCard(
+    plan: VNextProductionPlan,
+    canMutate: Boolean,
+    privacyMask: Boolean,
+    onComplete: (String) -> Unit,
+    onVerify: (String) -> Unit,
+) {
+    val step = productionNextStep(plan, canMutate, privacyMask)
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.production-vnext.change.next-step"),
+        color = when (step.mode) {
+            ProductionNextStepMode.COMPLETE, ProductionNextStepMode.VERIFY ->
+                PdigV2Colors.PrimarySoft
+            else -> PdigV2Colors.SurfaceRaised
+        },
+        shape = RoundedCornerShape(VRadius.Lg),
+    ) {
+        Column(
+            Modifier.padding(13.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                "下一步",
+                color = PdigV2Colors.TextMuted,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                step.title,
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                step.reason,
+                color = PdigV2Colors.TextSecondary,
+                fontSize = 10.sp,
+            )
+            Text(
+                step.prerequisites,
+                color = PdigV2Colors.TextMuted,
+                fontSize = 10.sp,
+            )
+            Text(
+                step.verificationNote,
+                color = PdigV2Colors.TextMuted,
+                fontSize = 10.sp,
+            )
+            when (step.mode) {
+                ProductionNextStepMode.COMPLETE -> ProductionNextStepPrimaryAction(
+                    label = "记录完成这一步",
+                    onClick = { step.actionId?.let(onComplete) },
+                )
+                ProductionNextStepMode.VERIFY -> ProductionNextStepPrimaryAction(
+                    label = "确认验证这一步",
+                    onClick = { step.actionId?.let(onVerify) },
+                )
+                // Reanalysis keeps its single authoritative button in the
+                // authority banner above; duplicating it here would create two
+                // competing primary actions.
+                ProductionNextStepMode.REANALYZE, ProductionNextStepMode.NONE -> Unit
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProductionNextStepPrimaryAction(
+    label: String,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp)
+            .clickable(onClick = onClick)
+            .testTag("pdig.production-vnext.change.next-step.primary"),
+        color = PdigV2Colors.PrimarySoft,
+        shape = RoundedCornerShape(VRadius.Md),
+    ) {
+        Text(
+            label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 11.dp),
+            color = PdigV2Colors.PrimaryText,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
     }
 }
