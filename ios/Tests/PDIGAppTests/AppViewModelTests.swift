@@ -7,6 +7,212 @@ import PDIGCore
 
 final class AppViewModelTests: XCTestCase {
 
+    // MARK: - Production VNext read boundary
+
+    func testProductionVNextProjectionKeepsConfirmedRealitySeparateFromReview() {
+        let snapshot = GraphSnapshot(
+            nodes: [
+                DepNode(
+                    id: "card-1",
+                    kind: .paymentInstrument,
+                    name: "主卡",
+                    issuer: "示例银行",
+                    last4: "8823"
+                ),
+                DepNode(id: "account-1", kind: .account, name: "账户 A"),
+                DepNode(
+                    id: "identity-phone-looking",
+                    kind: .identityAnchor,
+                    name: "+86 138 0000 8823"
+                ),
+                DepNode(
+                    id: "identity-email-looking",
+                    kind: .identityAnchor,
+                    name: "user@example.com"
+                ),
+                DepNode(
+                    id: "archived-service",
+                    kind: .service,
+                    name: "已归档服务",
+                    archived: true
+                ),
+            ],
+            dependencies: [
+                Dependency(
+                    id: "dep-active",
+                    from: "card-1",
+                    relation: .fundingSource,
+                    to: "account-1",
+                    capability: .payment,
+                    criticality: .required,
+                    state: .active
+                ),
+                Dependency(
+                    id: "dep-retired",
+                    from: "identity-phone-looking",
+                    relation: .authenticates,
+                    to: "account-1",
+                    capability: .authentication,
+                    criticality: .unknown,
+                    state: .retired
+                ),
+            ],
+            pendingProposals: [
+                PendingProposal(
+                    id: "proposal-1",
+                    key: "proposal-key",
+                    from: "identity-phone-looking",
+                    relation: .authenticates,
+                    to: "account-1",
+                    capability: .authentication,
+                    confidenceScore: 0.99,
+                    observationCount: 3,
+                    createdAt: "2026-10-21T00:00:00Z",
+                    updatedAt: "2026-10-21T00:00:00Z"
+                ),
+            ],
+            sources: [
+                SourceInstanceRow(
+                    id: "source-active",
+                    adapterId: "statement",
+                    adapterVersion: 1,
+                    sourceKind: SourceKind.statementFile.wire,
+                    label: "账单",
+                    state: SourceInstanceState.active.wire
+                ),
+                SourceInstanceRow(
+                    id: "source-retired",
+                    adapterId: "statement",
+                    adapterVersion: 1,
+                    sourceKind: SourceKind.statementFile.wire,
+                    label: "旧账单",
+                    state: SourceInstanceState.retired.wire
+                ),
+            ],
+            graphRevision: 7
+        )
+
+        let projected = buildIosProductionVNextSnapshot(
+            snapshot: snapshot,
+            plans: [],
+            pendingCandidateCount: 2,
+            openDriftCount: 1
+        )
+
+        XCTAssertEqual(projected.revision, 7)
+        XCTAssertEqual(Set(projected.objects.map(\.id)), Set([
+            "card-1", "account-1", "identity-phone-looking", "identity-email-looking",
+        ]))
+        XCTAssertEqual(projected.confirmedDependencies.map(\.id), ["dep-active"])
+        XCTAssertFalse(projected.confirmedDependencies.contains { $0.id == "dep-retired" })
+        XCTAssertEqual(projected.pendingReview.proposalCount, 1)
+        XCTAssertEqual(projected.pendingReview.candidateCount, 2)
+        XCTAssertEqual(projected.pendingReview.driftCount, 1)
+        XCTAssertEqual(projected.pendingReview.total, 4)
+        XCTAssertEqual(projected.sourceCoverage.sourceCount, 2)
+        XCTAssertEqual(projected.sourceCoverage.activeSourceCount, 1)
+        XCTAssertEqual(
+            projected.objects.first { $0.id == "card-1" }?.confirmedDependencyCount,
+            1
+        )
+        XCTAssertEqual(
+            projected.objects.first { $0.id == "account-1" }?.confirmedDependencyCount,
+            1
+        )
+    }
+
+    func testProductionVNextNeverInfersPhoneOrEmailSubtypeFromIdentityName() {
+        let snapshot = GraphSnapshot(
+            nodes: [
+                DepNode(id: "phone-looking", kind: .identityAnchor, name: "+44 7911 123456"),
+                DepNode(id: "email-looking", kind: .identityAnchor, name: "me@example.com"),
+                DepNode(id: "real-account", kind: .account, name: "me@example.com"),
+            ]
+        )
+
+        let projected = buildIosProductionVNextSnapshot(
+            snapshot: snapshot,
+            plans: [],
+            pendingCandidateCount: 0,
+            openDriftCount: 0
+        )
+
+        XCTAssertEqual(
+            projected.objects.first { $0.id == "phone-looking" }?.surfaceKind,
+            .identityAnchorGeneric
+        )
+        XCTAssertEqual(
+            projected.objects.first { $0.id == "email-looking" }?.surfaceKind,
+            .identityAnchorGeneric
+        )
+        XCTAssertEqual(
+            projected.objects.first { $0.id == "real-account" }?.surfaceKind,
+            .account
+        )
+    }
+
+    func testProductionVNextPreservesDoneVerificationAndStalePlanTruth() {
+        let action = PlanAction(
+            id: "change-1",
+            title: "迁移关键账户",
+            phase: .change,
+            done: true,
+            resolvesImpactKeys: ["account-1|recovery"],
+            verification: ActionVerification(
+                method: .manualConfirmation,
+                status: .pending,
+                evidenceRefs: ["evidence-1"]
+            )
+        )
+        let plan = ChangePlan(
+            id: "plan-1",
+            scenario: "replace_phone_number",
+            title: "更换手机号",
+            workflowState: .inProgress,
+            baselineGraphRevision: 4,
+            lastAnalyzedGraphRevision: 6,
+            targetNodeId: "identity-1",
+            actions: [action]
+        )
+        let snapshot = GraphSnapshot(
+            nodes: [
+                DepNode(id: "identity-1", kind: .identityAnchor, name: "旧身份")
+            ],
+            graphRevision: 7
+        )
+
+        let projected = buildIosProductionVNextSnapshot(
+            snapshot: snapshot,
+            plans: [plan],
+            pendingCandidateCount: 0,
+            openDriftCount: 0
+        )
+        let output = projected.plans[0]
+        let outputAction = output.actions[0]
+
+        XCTAssertTrue(output.needsReanalysis)
+        XCTAssertEqual(output.currentGraphRevision, 7)
+        XCTAssertEqual(output.lastAnalyzedGraphRevision, 6)
+        XCTAssertTrue(outputAction.done)
+        XCTAssertEqual(outputAction.verificationStatus, ActionVerificationStatus.pending.wire)
+        XCTAssertEqual(outputAction.verificationEvidenceRefs, ["evidence-1"])
+        XCTAssertEqual(outputAction.resolvesImpactKeys, ["account-1|recovery"])
+    }
+
+    @MainActor
+    func testProductionVNextProjectionCannotBypassSessionLockGate() {
+        let session = AppSession()
+        session.snapshot = GraphSnapshot(
+            nodes: [DepNode(id: "account-1", kind: .account, name: "账户 A")]
+        )
+
+        session.phase = .locked
+        XCTAssertNil(session.productionVNextSnapshot())
+
+        session.phase = .ready
+        XCTAssertEqual(session.productionVNextSnapshot()?.objects.map(\.id), ["account-1"])
+    }
+
     // MARK: - navigation
 
     func testNavigationPushPopRoot() {
