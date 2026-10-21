@@ -16,6 +16,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -106,6 +107,13 @@ internal fun ProductionSearchScreen(
         initialFirstVisibleItemIndex = initialViewport.firstVisibleItemIndex,
         initialFirstVisibleItemScrollOffset = initialViewport.firstVisibleItemScrollOffset,
     )
+    var previousSearchCriteria by remember { mutableStateOf(normalized) }
+    LaunchedEffect(normalized) {
+        if (normalized != previousSearchCriteria) {
+            listState.scrollToItem(0)
+            previousSearchCriteria = normalized
+        }
+    }
     DisposableEffect(listState) {
         onDispose {
             app.rememberScreenLazyListViewport(
