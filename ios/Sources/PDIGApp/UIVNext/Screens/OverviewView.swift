@@ -26,9 +26,11 @@ struct OverviewView: View {
                     globeStage
                         .accessibilityIdentifier(VTestIds.globeStage)
 
-                    // Region List（非视觉替代）
+                    // Region List（非视觉替代）.
+                    // Keep identifiers on the interactive rows themselves.
+                    // A container accessibilityIdentifier can propagate to
+                    // descendants in SwiftUI and shadow pdig.region.item.*.
                     regionList
-                        .accessibilityIdentifier(VTestIds.regionList)
 
                     // 快速入口
                     quickEntry
