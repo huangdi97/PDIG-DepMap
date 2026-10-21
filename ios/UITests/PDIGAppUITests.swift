@@ -244,6 +244,51 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "vnext-privacy-numbers")
     }
 
+    func testVNextSecondaryCollectionsHonorRegionScope() throws {
+        let app = launchVNextReference()
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的基础设施"].waitForExistence(timeout: 10),
+            "基础设施总览未出现"
+        )
+
+        let chinaRegion = vnextRoute(app, id: "pdig.region.item.CN")
+        tapWhenReady(chinaRegion, in: app)
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.accounts"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["中国大陆 · 已记录的数字基础设施对象 · 参考数据"]
+                .waitForExistence(timeout: 10),
+            "账户页没有继承地区筛选"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-wechat")
+                .waitForExistence(timeout: 10),
+            "中国地区账户未出现"
+        )
+        XCTAssertFalse(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-hsbc").exists,
+            "地区筛选错误泄露了香港账户"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.scope.global.accounts"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-hsbc")
+                .waitForExistence(timeout: 10),
+            "查看全球后香港账户没有恢复"
+        )
+        attachScreenshot(app, name: "vnext-secondary-region-scope")
+    }
+
     func testVNextReferenceFiveRootsAndSecondaryInfrastructure() throws {
         let app = launchVNextReference()
 
