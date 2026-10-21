@@ -113,3 +113,7 @@ internal fun R9Badge(text: String, color: Color, modifier: Modifier = Modifier) 
 /** Display-only privacy protection; never mutates PersonalReality or the stored value. */
 internal fun r9VisibleLast4(last4: String, hidden: Boolean): String = if (hidden) "••••" else last4
 internal fun r9VisibleNumber(number: String, hidden: Boolean): String = if (hidden) "号码已遮蔽" else number
+internal fun r9VisibleIdentity(name: String, hidden: Boolean, kindLabel: String): String =
+    if (hidden) "$kindLabel（已遮蔽）" else name
+internal fun r9VisibleProvider(provider: String, hidden: Boolean): String =
+    if (hidden) "服务方已遮蔽" else provider
