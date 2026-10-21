@@ -11,6 +11,16 @@ import org.junit.Test
 class ProductionChangeStageSummaryTest {
     @Test
     fun phoneRetirementRequiresRepositoryProjectedScopeReadiness() {
+        val migration = VNextProductionPlanAction(
+            id = "rpn-change-1",
+            title = "迁移关键账户",
+            phase = "change",
+            done = true,
+            verificationStatus = "verified",
+            verificationEvidenceRefs = emptyList(),
+            prerequisiteActionIds = emptyList(),
+            resolvesImpactKeys = emptyList(),
+        )
         val verify = VNextProductionPlanAction(
             id = "rpn-verify-1",
             title = "验证新手机号恢复路径",
@@ -47,7 +57,7 @@ class ProductionChangeStageSummaryTest {
             affectedServiceCount = 0,
             mustChangeKeys = emptyList(),
             unresolvedMustChangeKeys = emptyList(),
-            actions = listOf(verify, retirement),
+            actions = listOf(migration, verify, retirement),
             retirementScopeReady = scopeReady,
         )
 
