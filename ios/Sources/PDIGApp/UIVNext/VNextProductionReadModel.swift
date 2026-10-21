@@ -62,6 +62,32 @@ func vIosProductionActionHasRecordedEvent(
     action.done
 }
 
+struct VIosProductionChangeStageSummary: Equatable, Sendable {
+    let current: String
+    let transition: String
+    let after: String
+}
+
+func vIosProductionChangeStageSummary(
+    _ plan: VIosProductionPlan
+) -> VIosProductionChangeStageSummary {
+    let completed = plan.actions.filter(\.done).count
+    let verified = plan.actions.filter { $0.verificationStatus == "verified" }.count
+    return VIosProductionChangeStageSummary(
+        current: "当前数据版本 \(plan.currentGraphRevision) · 分析基准 \(plan.lastAnalyzedGraphRevision)",
+        transition: "\(completed)/\(plan.actions.count) 步已记录完成 · \(verified) 步已验证",
+        after: "完成后（计划）· 未执行与未验证内容仍不代表现实"
+    )
+}
+
+func vIosProductionRecordEvidenceText(
+    _ action: VIosProductionPlanAction
+) -> String {
+    action.verificationEvidenceRefs.isEmpty
+        ? "验证证据未记录"
+        : "验证证据 \(action.verificationEvidenceRefs.count) 项"
+}
+
 struct VIosProductionPlan: Equatable, Sendable, Identifiable {
     let id: String
     let scenario: String
