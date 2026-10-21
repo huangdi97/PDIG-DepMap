@@ -148,10 +148,16 @@ internal fun phoneRetirementVerificationSatisfied(
     actions: List<PlanAction>,
 ): Boolean {
     if (scenario != "replace_phone_number" || actionId != "rpn-change-2") return true
-    val verification = actions.firstOrNull { it.id == "rpn-verify-1" }
-        ?: return false
-    return verification.done &&
-        verification.verification?.status == ActionVerificationStatus.VERIFIED
+
+    // Make-Before-Break: both the actual migration step and the dedicated
+    // recovery-path verification must have authoritative verified outcomes
+    // before the old number can be retired. Merely recording either step done
+    // is insufficient.
+    val requiredVerifiedSteps = listOf("rpn-change-1", "rpn-verify-1")
+    return requiredVerifiedSteps.all { id ->
+        val step = actions.firstOrNull { it.id == id } ?: return@all false
+        step.done && step.verification?.status == ActionVerificationStatus.VERIFIED
+    }
 }
 
 internal fun buildReplacePhoneActions(): List<PlanAction> {
