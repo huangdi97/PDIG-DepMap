@@ -220,6 +220,63 @@ final class PDIGAppUITests: XCTestCase {
             "Production 基础设施工作区未出现"
         )
 
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.cards")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施缺少卡片入口"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.numbers")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施缺少号码入口"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.cards"),
+            in: app
+        )
+        let productionCard = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.object.cards.card-main"
+        )
+        XCTAssertTrue(
+            productionCard.waitForExistence(timeout: 10),
+            "真实 session projection 的支付工具没有进入 Production Cards"
+        )
+        XCTAssertTrue(app.staticTexts["招商银行卡"].exists)
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.collection.back.cards"),
+            in: app
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.numbers"),
+            in: app
+        )
+        let productionPhone = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.object.numbers.phone-1"
+        )
+        XCTAssertTrue(
+            productionPhone.waitForExistence(timeout: 10),
+            "已确认 phone_number profile 没有进入 Production Numbers"
+        )
+        XCTAssertTrue(
+            app.staticTexts["+86 138 0000 0001"].exists,
+            "Production Numbers 没有使用 governed identifier"
+        )
+        XCTAssertFalse(
+            vnextRoute(
+                app,
+                id: "pdig.ios.production-vnext.object.numbers.identity-phone-looking"
+            ).exists,
+            "未确认 subtype 的 identity 不得被提升为手机号"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.collection.back.numbers"),
+            in: app
+        )
+
         tapWhenReady(
             vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.accounts"),
             in: app
