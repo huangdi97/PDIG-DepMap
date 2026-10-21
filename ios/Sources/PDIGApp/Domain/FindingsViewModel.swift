@@ -64,17 +64,21 @@ public struct FindingsInput: Equatable, Sendable {
     /// 判定"最近确认"的时间口径（ISO-8601）。nil 则不做新鲜度告警。
     public let nowIso: String?
     public let freshnessThresholdDays: Int
+    /// Whether pending Proposal edges may contribute potential (not confirmed) cycles.
+    public let includePendingProposalCycles: Bool
 
     public init(
         snapshot: GraphSnapshot,
         pendingVerifications: [String] = [],
         nowIso: String? = nil,
-        freshnessThresholdDays: Int = 90
+        freshnessThresholdDays: Int = 90,
+        includePendingProposalCycles: Bool = true
     ) {
         self.snapshot = snapshot
         self.pendingVerifications = pendingVerifications
         self.nowIso = nowIso
         self.freshnessThresholdDays = freshnessThresholdDays
+        self.includePendingProposalCycles = includePendingProposalCycles
     }
 }
 
@@ -201,9 +205,11 @@ public enum FindingsViewModel {
             let input2 = RecoveryCycleInput(
                 capability: capability,
                 dependencies: snapshot.activeDependencies,
-                hintedEdges: snapshot.pendingProposals
-                    .filter { $0.capability == capability }
-                    .map { RecoveryHintedEdge(from: $0.from, to: $0.to) }
+                hintedEdges: input.includePendingProposalCycles
+                    ? snapshot.pendingProposals
+                        .filter { $0.capability == capability }
+                        .map { RecoveryHintedEdge(from: $0.from, to: $0.to) }
+                    : []
             )
             let cycleResult = RecoveryCycleEngine.detectRecoveryCycles(input2)
             for cycle in cycleResult.confirmedCycles {
