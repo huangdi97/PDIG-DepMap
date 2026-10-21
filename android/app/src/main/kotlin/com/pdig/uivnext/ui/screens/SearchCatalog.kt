@@ -110,8 +110,16 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
                     card.network, card.currency) + lifecycleTerms,
             )
         ) {
-            out.add(SearchResult.CardHit(card.id, card.nickname,
-                "${card.issuer} · $region · ${card.masked}"))
+            val hidden = app?.privacyMask == true ||
+                app?.savedPresentationProfile("card", card.id)?.maskSensitive == true
+            out.add(
+                SearchResult.CardHit(
+                    card.id,
+                    previewVisibleObjectName(card.nickname, hidden, "支付工具"),
+                    if (hidden) "发行方已遮蔽 · $region · 尾号 ••••"
+                    else "${card.issuer} · $region · ${card.masked}",
+                ),
+            )
         }
     }
 
@@ -139,11 +147,14 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
                     number.countryCode, number.maskedNumber, roleLabel) + lifecycleTerms,
             )
         ) {
+            val hidden = app?.privacyMask == true ||
+                app?.savedPresentationProfile("phoneNumber", number.id)?.maskSensitive == true
             out.add(
                 SearchResult.NumberHit(
                     number.id,
-                    displayName,
-                    "${number.countryCode} · ${number.carrier} · ${number.maskedNumber}",
+                    previewVisibleObjectName(displayName, hidden, "手机号身份"),
+                    if (hidden) "$region · 运营商已遮蔽 · 号码已遮蔽"
+                    else "${number.countryCode} · ${number.carrier} · ${number.maskedNumber}",
                 ),
             )
         }
@@ -153,7 +164,13 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
         val region = regionLabel(service.region)
         val role = serviceKindLabelZh(service.kind)
         if (hit(listOf(service.name, service.region, region, service.kind, role))) {
-            out.add(SearchResult.ServiceHit(service.id, service.name, "$region · $role"))
+            out.add(
+                SearchResult.ServiceHit(
+                    service.id,
+                    previewVisibleObjectName(service.name, app?.privacyMask == true, "服务"),
+                    "$region · $role",
+                ),
+            )
         }
     }
 
@@ -162,8 +179,9 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
             out.add(
                 SearchResult.AccountHit(
                     account.id,
-                    account.name,
-                    account.provider + " · " + regionLabel(account.region) + " · " +
+                    previewVisibleObjectName(account.name, app?.privacyMask == true, "账户"),
+                    previewVisibleProvider(account.provider, app?.privacyMask == true) +
+                        " · " + regionLabel(account.region) + " · " +
                         if (app?.privacyMask == true) "标识已遮蔽" else account.maskedIdentifier,
                 ),
             )
@@ -175,9 +193,9 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
             out.add(
                 SearchResult.EmailHit(
                     email.id,
-                    email.name,
+                    previewVisibleObjectName(email.name, app?.privacyMask == true, "邮箱身份"),
                     (if (app?.privacyMask == true) "邮箱已遮蔽" else email.maskedAddress) +
-                        " · " + email.provider,
+                        " · " + previewVisibleProvider(email.provider, app?.privacyMask == true),
                 ),
             )
         }
@@ -188,7 +206,7 @@ internal fun searchResults(q: String, app: VAppState? = null): List<SearchResult
             out.add(
                 SearchResult.DeviceHit(
                     device.id,
-                    device.name,
+                    previewVisibleObjectName(device.name, app?.privacyMask == true, "设备"),
                     device.platform + " · " + device.trust + " · " + device.lastSeen,
                 ),
             )
