@@ -39,6 +39,7 @@ public enum PlanJson {
             ("phase", .str(a.phase.wire)),
             ("done", .bool(a.done)),
             ("resolves_impact_keys", .arr(a.resolvesImpactKeys.map { .str($0) })),
+            ("prerequisite_action_ids", .arr(a.prerequisiteActionIds.map { .str($0) })),
         ]
         if let v = a.verification {
             fields.append(("verification", .obj(JsonObject([
@@ -118,6 +119,8 @@ public enum PlanJson {
                 phase: phase,
                 done: booleanValue(o["done"]),
                 resolvesImpactKeys: (o["resolves_impact_keys"]?.arrayValue ?? []).compactMap { $0.stringValue },
+                prerequisiteActionIds: (o["prerequisite_action_ids"]?.arrayValue ?? [])
+                    .compactMap { $0.stringValue },
                 verification: verification
             ))
         }
