@@ -40,7 +40,8 @@ internal fun AccountsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ScopedInfrastructureEmpty(app, "当前地区没有账户记录", "没有记录的账户与恢复关系仍保持未知。")
         } else {
             SectionHeader("已记录（" + accounts.size + "）")
-            accounts.forEach { account ->
+            AdaptiveObjectGrid(breakpoint, accounts.size) { index ->
+                val account = accounts[index]
                 AccountRow(
                     account = account,
                     privacyMask = app.privacyMask,
@@ -96,7 +97,8 @@ internal fun EmailsScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ScopedInfrastructureEmpty(app, "当前地区没有邮箱记录", "没有记录的邮箱与恢复关系仍保持未知。")
         } else {
             SectionHeader("已记录（" + emails.size + "）")
-            emails.forEach { email ->
+            AdaptiveObjectGrid(breakpoint, emails.size) { index ->
+                val email = emails[index]
                 EmailRow(
                     email = email,
                     privacyMask = app.privacyMask,
@@ -166,7 +168,8 @@ internal fun DevicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
             ScopedInfrastructureEmpty(app, "当前地区没有设备记录", "设备未出现于当前列表，不代表它没有登录或恢复权限。")
         } else {
             SectionHeader("已记录（" + devices.size + "）")
-            devices.forEach { device ->
+            AdaptiveObjectGrid(breakpoint, devices.size) { index ->
+                val device = devices[index]
                 DeviceRow(
                     device = device,
                     onClick = { app.openSecondaryObject(com.pdig.uivnext.model.VScreen.DEVICE_DETAIL, device.id) },
