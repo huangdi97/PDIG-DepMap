@@ -34,9 +34,11 @@ final class PDIGAppUITests: XCTestCase {
     /// This is not a Production Reality bypass: it only opens the explicitly
     /// synthetic reference shell so iPhone/iPad visual translation can be
     /// tested on a real iOS Simulator.
-    private func launchVNextReference() -> XCUIApplication {
+    private func launchVNextReference(
+        extraArguments: [String] = []
+    ) -> XCUIApplication {
         let app = XCUIApplication()
-        app.launchArguments = ["--uitest-vnext"]
+        app.launchArguments = ["--uitest-vnext"] + extraArguments
         app.launch()
         return app
     }
@@ -188,6 +190,49 @@ final class PDIGAppUITests: XCTestCase {
     ///
     /// iPhone exercises the five bottom roots; iPad exercises the five sidebar
     /// roots. Both must expose the same secondary infrastructure pages.
+    func testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable() throws {
+        let app = launchVNextReference(
+            extraArguments: [
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryAccessibilityLarge"
+            ]
+        )
+
+        let now = vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在")
+        XCTAssertTrue(now.waitForExistence(timeout: 20), "Accessibility Large 下 Now 不可达")
+
+        let me = vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我")
+        tapWhenReady(me, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的数字生活"].waitForExistence(timeout: 10),
+            "Accessibility Large 下 Me 内容未出现"
+        )
+        attachScreenshot(app, name: "vnext-dynamic-type-accessibility-large-me")
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的基础设施"].waitForExistence(timeout: 10),
+            "Accessibility Large 下基础设施不可达"
+        )
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.accounts"), in: app)
+        let account = vnextRoute(
+            app,
+            id: "pdig.ios.reference.secondary.item.accounts.acct-wechat"
+        )
+        tapWhenReady(account, in: app)
+        XCTAssertTrue(
+            app.staticTexts["账户详情"].waitForExistence(timeout: 10),
+            "Accessibility Large 下账户详情不可达"
+        )
+        attachScreenshot(app, name: "vnext-dynamic-type-accessibility-large-account-detail")
+    }
+
     func testVNextGlobalPrivacyMasksCardAndNumberSurfaces() throws {
         let app = launchVNextReference()
 
