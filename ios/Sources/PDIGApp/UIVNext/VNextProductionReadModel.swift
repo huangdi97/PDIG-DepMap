@@ -101,6 +101,13 @@ func vIosProductionChangeStageSummary(
     )
 }
 
+func vIosProductionChangeElementId(
+    _ role: String,
+    actionId: String
+) -> String {
+    "pdig.ios.production-vnext.change.\(role).\(actionId)"
+}
+
 func vIosProductionRecordEvidenceText(
     _ action: VIosProductionPlanAction
 ) -> String {
