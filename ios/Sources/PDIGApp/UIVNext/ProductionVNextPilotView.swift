@@ -35,30 +35,35 @@ struct VIosProductionVNextPilotView: View {
                     }
                     .tabItem { Label("现在", systemImage: "house.fill") }
                     .tag(Root.now)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.nav.now")
 
                     NavigationStack {
                         productionInfrastructure(snapshot)
                     }
                     .tabItem { Label("基础设施", systemImage: "square.grid.2x2.fill") }
                     .tag(Root.infrastructure)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.nav.infrastructure")
 
                     NavigationStack {
                         productionChange(snapshot)
                     }
                     .tabItem { Label("变更", systemImage: "arrow.triangle.2.circlepath") }
                     .tag(Root.change)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.nav.change")
 
                     NavigationStack {
                         productionRecords(snapshot)
                     }
                     .tabItem { Label("记录", systemImage: "clock") }
                     .tag(Root.records)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.nav.records")
 
                     NavigationStack {
                         productionMe(snapshot)
                     }
                     .tabItem { Label("我", systemImage: "person.crop.circle.fill") }
                     .tag(Root.me)
+                    .accessibilityIdentifier("pdig.ios.production-vnext.nav.me")
                 }
                 .accessibilityIdentifier("pdig.ios.production-vnext.root")
             } else {
