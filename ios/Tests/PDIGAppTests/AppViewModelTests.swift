@@ -60,25 +60,43 @@ final class AppViewModelTests: XCTestCase {
 
     func testSecondaryCollectionsHonorRegionScopeWithoutInventingObjects() {
         let allAccounts = vFilteredSecondaryAssets(
-            VNextDemoFixture.secondaryAssets,
+            VNextDemoFixture.allSecondaryAssets,
             kind: .account,
             regionFilter: nil
         )
         XCTAssertEqual(Set(allAccounts.map(\.id)), Set(["acct-wechat", "acct-hsbc", "acct-amazon"]))
 
         let chinaAccounts = vFilteredSecondaryAssets(
-            VNextDemoFixture.secondaryAssets,
+            VNextDemoFixture.allSecondaryAssets,
             kind: .account,
             regionFilter: "CN"
         )
         XCTAssertEqual(chinaAccounts.map(\.id), ["acct-wechat"])
 
         let singaporeAccounts = vFilteredSecondaryAssets(
-            VNextDemoFixture.secondaryAssets,
+            VNextDemoFixture.allSecondaryAssets,
             kind: .account,
             regionFilter: "SG"
         )
         XCTAssertTrue(singaporeAccounts.isEmpty)
+    }
+
+    func testServiceCollectionAndRegionSummaryShareOneReferenceProjection() {
+        let projected = VNextDemoFixture.secondaryAssets(for: .service)
+        XCTAssertEqual(Set(projected.map(\.id)), Set(VNextDemoFixture.services.map(\.id)))
+        XCTAssertEqual(
+            projected.first { $0.id == "svc-wxpay" }?.relationCount,
+            VNextDemoFixture.relations.filter { $0.to == "svc-wxpay" || $0.from == "svc-wxpay" }.count
+        )
+
+        for region in VNextDemoFixture.regionSummaries() {
+            let collectionCount = projected.filter { $0.region == region.regionCode }.count
+            XCTAssertEqual(
+                region.serviceCount,
+                collectionCount,
+                "地区总览与 Services collection 必须使用同一服务投影: \(region.regionCode)"
+            )
+        }
     }
 
     func testSecondaryCollectionDensityTranslatesByWidthClass() {
