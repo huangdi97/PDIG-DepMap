@@ -186,6 +186,83 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "00-home-minimal")
     }
 
+    /// Production VNext pilot runtime gate.
+    ///
+    /// This path is explicit opt-in and read-only. It must render the session's
+    /// lock-gated Production projection, not VNextDemoFixture reference objects.
+    func testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-production-vnext"]
+        app.launch()
+
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.root")
+                .waitForExistence(timeout: 20),
+            "Production VNext pilot root 未出现"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施工作区未出现"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.accounts"),
+            in: app
+        )
+        let account = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.object.accounts.acct-bank"
+        )
+        XCTAssertTrue(
+            account.waitForExistence(timeout: 10),
+            "真实 session projection 的账户没有进入 Production collection"
+        )
+        XCTAssertTrue(
+            app.staticTexts["招商银行账户"].exists,
+            "Production collection 没有显示 session 中的真实投影对象"
+        )
+        XCTAssertFalse(
+            vnextRoute(
+                app,
+                id: "pdig.ios.reference.secondary.item.accounts.acct-wechat"
+            ).exists,
+            "Production pilot 不得回退到 synthetic reference fixture"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-account")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.me"),
+            in: app
+        )
+        let privacy = vnextRoute(app, id: "pdig.ios.production-vnext.privacy")
+        XCTAssertTrue(privacy.waitForExistence(timeout: 10), "Production 隐私开关未出现")
+        tapWhenReady(privacy, in: app)
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
+            in: app
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.accounts"),
+            in: app
+        )
+        XCTAssertTrue(
+            app.staticTexts["账户（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Production 全局遮蔽没有覆盖账户身份"
+        )
+        XCTAssertFalse(
+            app.staticTexts["招商银行账户"].exists,
+            "Production 遮蔽后仍泄露账户名称"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-account-masked")
+    }
+
     /// vNext reference translation runtime gate.
     ///
     /// iPhone exercises the five bottom roots; iPad exercises the five sidebar
