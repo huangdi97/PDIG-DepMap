@@ -174,6 +174,23 @@ public final class AppSession: ObservableObject {
         plans = try repo.loadPlans()
     }
 
+    /// Re-analyze a stale Production plan against the current graph.
+    /// Scope-changing plans fail closed inside ProductionChangeAuthority.
+    func productionReanalyzePlan(planId: String) throws {
+        guard phase == .ready, let repo = repository else {
+            throw ProductionChangeMutationError.sessionLocked
+        }
+        guard let plan = plans.first(where: { $0.id == planId }) else {
+            throw ProductionChangeMutationError.planNotFound
+        }
+        let next = try ProductionChangeAuthority.reanalyze(
+            plan: plan,
+            graph: snapshot
+        )
+        try repo.savePlan(next)
+        plans = try repo.loadPlans()
+    }
+
     /// Production VNext completion authority. The caller cannot supply a
     /// locally-mutated plan; current session state is re-read and validated.
     func productionCompleteAction(planId: String, actionId: String) throws {
