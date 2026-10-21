@@ -413,7 +413,7 @@ internal fun productionPlanActionGuidance(
         return "必须先完成：${names.joinToString("、")}。"
     }
     if (!productionPhoneRetirementVerificationSatisfied(plan, action)) {
-        return "新手机号恢复路径尚未验证；验证完成前不能停用旧手机号。"
+        return "新手机号迁移与恢复路径尚未全部验证；全部验证完成前不能停用旧手机号。"
     }
     if (
         plan.scenario == "replace_phone_number" &&
@@ -864,8 +864,10 @@ internal fun productionPhoneRetirementVerificationSatisfied(
     action: VNextProductionPlanAction,
 ): Boolean {
     if (plan.scenario != "replace_phone_number" || action.id != "rpn-change-2") return true
-    val verification = plan.actions.firstOrNull { it.id == "rpn-verify-1" } ?: return false
-    return verification.done && verification.verificationStatus == "verified"
+    return listOf("rpn-change-1", "rpn-verify-1").all { id ->
+        val step = plan.actions.firstOrNull { it.id == id } ?: return@all false
+        step.done && step.verificationStatus == "verified"
+    }
 }
 
 /**
