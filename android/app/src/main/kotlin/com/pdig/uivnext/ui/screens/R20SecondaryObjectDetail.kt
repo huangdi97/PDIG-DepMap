@@ -104,8 +104,8 @@ private fun AccountDetail(app: VAppState, id: String) {
     }
     DetailHero(
         glyph = "人",
-        title = account.name,
-        subtitle = "${account.provider} · ${detailRegionFlag(account.region)}",
+        title = previewVisibleObjectName(account.name, app.privacyMask, "账户"),
+        subtitle = "${previewVisibleProvider(account.provider, app.privacyMask)} · ${detailRegionFlag(account.region)}",
         status = if (account.attention) "需要核对" else "已记录",
         statusColor = if (account.attention) PdigV2Colors.Warning else PdigV2Colors.PrimaryBright,
     )
@@ -133,8 +133,8 @@ private fun EmailDetail(app: VAppState, id: String) {
     }
     DetailHero(
         glyph = "@",
-        title = email.name,
-        subtitle = "${email.provider} · ${detailRegionFlag(email.region)}",
+        title = previewVisibleObjectName(email.name, app.privacyMask, "邮箱身份"),
+        subtitle = "${previewVisibleProvider(email.provider, app.privacyMask)} · ${detailRegionFlag(email.region)}",
         status = when {
             email.uniqueRecoveryPath == true -> "唯一恢复"
             email.recoveryOnly -> "恢复用途"
@@ -172,7 +172,7 @@ private fun DeviceDetail(app: VAppState, id: String) {
     }
     DetailHero(
         glyph = "▤",
-        title = device.name,
+        title = previewVisibleObjectName(device.name, app.privacyMask, "设备"),
         subtitle = "${device.platform} · ${device.kind} · ${detailRegionFlag(device.region)}",
         status = if (device.attention) "待检查" else device.trust,
         statusColor = if (device.attention) PdigV2Colors.Warning else PdigV2Colors.PrimaryBright,
@@ -202,8 +202,8 @@ private fun ServiceDetail(app: VAppState, id: String) {
     }
     val incoming = UiVNextDemoFixture.relations.filter { it.to == id }
     DetailHero(
-        glyph = service.name.take(1),
-        title = service.name,
+        glyph = if (app.privacyMask) "服" else service.name.take(1),
+        title = previewVisibleObjectName(service.name, app.privacyMask, "服务"),
         subtitle = "${serviceKindLabelZh(service.kind)} · ${detailRegionFlag(service.region)}",
         status = "已记录",
         statusColor = PdigV2Colors.PrimaryBright,
