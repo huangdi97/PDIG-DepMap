@@ -1215,7 +1215,7 @@ struct VIosProductionVNextPilotView: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(!canComplete)
                     .accessibilityIdentifier(
-                        "pdig.ios.production-vnext.change.complete.\(action.id)"
+                        vIosProductionChangeElementId("complete", actionId: action.id)
                     )
                 }
 
@@ -1236,7 +1236,7 @@ struct VIosProductionVNextPilotView: View {
                     .buttonStyle(.bordered)
                     .disabled(!canVerify)
                     .accessibilityIdentifier(
-                        "pdig.ios.production-vnext.change.verify.\(action.id)"
+                        vIosProductionChangeElementId("verify", actionId: action.id)
                     )
                 }
             }
@@ -1246,7 +1246,7 @@ struct VIosProductionVNextPilotView: View {
         .background(PdigV2Colors.surfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
         .accessibilityIdentifier(
-            "pdig.ios.production-vnext.change.action.\(action.id)"
+            vIosProductionChangeElementId("action", actionId: action.id)
         )
     }
 
