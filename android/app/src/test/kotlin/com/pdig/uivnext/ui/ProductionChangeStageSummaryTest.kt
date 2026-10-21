@@ -281,12 +281,24 @@ class ProductionChangeStageSummaryTest {
         assertFalse(productionPlanCompletionEnabled(base, retire, true))
         assertTrue(
             productionPlanActionGuidance(retire, base, true)
-                .contains("验证完成前不能停用旧手机号"),
+                .contains("全部验证完成前不能停用旧手机号"),
         )
 
-        val verifiedPlan = base.copy(
+        val recoveryOnlyVerified = base.copy(
             actions = base.actions.map {
                 if (it.id == "rpn-verify-1") it.copy(verificationStatus = "verified") else it
+            },
+            retirementScopeReady = false,
+        )
+        val recoveryOnlyRetire = recoveryOnlyVerified.actions.first { it.id == "rpn-change-2" }
+        assertFalse(
+            productionPhoneRetirementVerificationSatisfied(recoveryOnlyVerified, recoveryOnlyRetire),
+        )
+        assertFalse(productionPlanCompletionEnabled(recoveryOnlyVerified, recoveryOnlyRetire, true))
+
+        val verifiedPlan = recoveryOnlyVerified.copy(
+            actions = recoveryOnlyVerified.actions.map {
+                if (it.id == "rpn-change-1") it.copy(verificationStatus = "verified") else it
             },
             retirementScopeReady = true,
         )
