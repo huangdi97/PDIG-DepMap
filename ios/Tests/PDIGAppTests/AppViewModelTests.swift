@@ -1226,7 +1226,10 @@ final class AppViewModelTests: XCTestCase {
         }
     }
 
-    func testProductionPhoneRetirementRequiresVerifiedPathAndCleanReviewScope() throws {
+    func testProductionPhoneRetirementRequiresBuiltAndVerifiedPathAndCleanReviewScope() throws {
+        func pathAction(_ id: String, done: Bool) -> PlanAction {
+            PlanAction(id: id, phase: .change, done: done)
+        }
         let verifyPending = PlanAction(
             id: "phone-verify-new",
             phase: .verify,
@@ -1241,18 +1244,44 @@ final class AppViewModelTests: XCTestCase {
             phase: .change,
             prerequisiteActionIds: ["phone-verify-new"]
         )
-        let plan = ChangePlan(
-            id: "phone-plan",
+
+        let malformedMissingPath = ChangePlan(
+            id: "phone-plan-missing-path",
             scenario: ScenarioFlow.replacePhoneScenarioId,
             workflowState: .inProgress,
             baselineGraphRevision: 4,
             lastAnalyzedGraphRevision: 4,
             actions: [verifyPending, retire]
         )
-
         XCTAssertThrowsError(
             try ProductionChangeAuthority.completeAction(
-                plan: plan,
+                plan: malformedMissingPath,
+                currentGraphRevision: 4,
+                actionId: "phone-retire-old"
+            )
+        ) { error in
+            XCTAssertEqual(
+                error as? ProductionChangeMutationError,
+                .missingPrerequisite("phone-add-new")
+            )
+        }
+
+        let builtPathPendingVerification = ChangePlan(
+            id: "phone-plan",
+            scenario: ScenarioFlow.replacePhoneScenarioId,
+            workflowState: .inProgress,
+            baselineGraphRevision: 4,
+            lastAnalyzedGraphRevision: 4,
+            actions: [
+                pathAction("phone-add-new", done: true),
+                pathAction("phone-migrate", done: true),
+                verifyPending,
+                retire,
+            ]
+        )
+        XCTAssertThrowsError(
+            try ProductionChangeAuthority.completeAction(
+                plan: builtPathPendingVerification,
                 currentGraphRevision: 4,
                 actionId: "phone-retire-old"
             )
@@ -1264,7 +1293,7 @@ final class AppViewModelTests: XCTestCase {
         }
 
         let verifiedPlan = try ProductionChangeAuthority.verifyAction(
-            plan: plan,
+            plan: builtPathPendingVerification,
             currentGraphRevision: 4,
             actionId: "phone-verify-new"
         )
