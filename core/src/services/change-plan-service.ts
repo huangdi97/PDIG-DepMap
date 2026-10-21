@@ -34,6 +34,17 @@ const ALLOWED_TRANSITIONS: Record<ChangePlanWorkflowState, ChangePlanWorkflowSta
   cancelled: [],
 }
 
+export function pendingReadinessChangeActionCount(
+  actions: readonly PlanAction[],
+): number {
+  return actions.filter((a) => {
+    if (a.phase !== 'change') return false
+    if (!a.done) return true
+    const status = a.verification?.status
+    return status !== undefined && status !== 'verified' && status !== 'not_required'
+  }).length
+}
+
 export class ChangePlanService {
   private readonly driver: SqliteDriver
   readonly plans: ChangePlanRepository
@@ -93,12 +104,7 @@ export class ChangePlanService {
                 now - Date.parse(d.lastVerifiedAt) > thresholdMs,
             ).length
 
-    const unfinishedChangeActions = plan.actions.filter((a) => {
-      if (a.phase !== 'change') return false
-      if (!a.done) return true
-      const status = a.verification?.status
-      return status !== undefined && status !== 'verified' && status !== 'not_required'
-    }).length
+    const unfinishedChangeActions = pendingReadinessChangeActionCount(plan.actions)
 
     return {
       plan,
