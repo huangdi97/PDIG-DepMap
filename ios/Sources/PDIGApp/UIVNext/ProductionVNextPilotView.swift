@@ -545,7 +545,7 @@ struct VIosProductionVNextPilotView: View {
                             .font(VFont.meta())
                             .foregroundColor(
                                 action.verificationStatus == "verified"
-                                    ? PdigV2Colors.success
+                                    ? PdigV2Colors.positive
                                     : PdigV2Colors.warning
                             )
                     }
