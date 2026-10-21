@@ -106,10 +106,22 @@ class PlanSupportTest {
                 status = ActionVerificationStatus.PENDING,
             ),
         )
+        val suggested = pending.copy(
+            id = "change-suggested",
+            verification = pending.verification?.copy(
+                status = ActionVerificationStatus.EVIDENCE_SUGGESTED,
+            ),
+        )
         val failed = pending.copy(
             id = "change-failed",
             verification = pending.verification?.copy(
                 status = ActionVerificationStatus.FAILED,
+            ),
+        )
+        val notRequired = pending.copy(
+            id = "change-not-required",
+            verification = pending.verification?.copy(
+                status = ActionVerificationStatus.NOT_REQUIRED,
             ),
         )
         val verified = pending.copy(
@@ -125,7 +137,9 @@ class PlanSupportTest {
         val unfinished = pending.copy(id = "change-unfinished", done = false)
 
         assertEquals(1, pendingReadinessChangeActionCount(listOf(pending)))
+        assertEquals(1, pendingReadinessChangeActionCount(listOf(suggested)))
         assertEquals(1, pendingReadinessChangeActionCount(listOf(failed)))
+        assertEquals(0, pendingReadinessChangeActionCount(listOf(notRequired)))
         assertEquals(0, pendingReadinessChangeActionCount(listOf(verified)))
         assertEquals(0, pendingReadinessChangeActionCount(listOf(noVerificationRequired)))
         assertEquals(1, pendingReadinessChangeActionCount(listOf(unfinished)))
