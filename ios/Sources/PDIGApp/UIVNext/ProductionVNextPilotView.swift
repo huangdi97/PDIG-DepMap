@@ -466,7 +466,7 @@ struct VIosProductionVNextPilotView: View {
                             Spacer()
                             VStatusBadge(status: plan.needsReanalysis ? "warning" : plan.workflowState)
                         }
-                        Text("已记录完成 \(plan.actions.filter(\.done).count)/\(plan.actions.count) · 已验证 \(plan.actions.filter { $0.verificationStatus == "verified" }.count)")
+                        Text("已记录完成 \(plan.actions.filter { $0.done }.count)/\(plan.actions.count) · 已验证 \(plan.actions.filter { $0.verificationStatus == "verified" }.count)")
                             .font(VFont.meta())
                             .foregroundColor(PdigV2Colors.textSecondary)
                         if plan.needsReanalysis {
@@ -490,12 +490,18 @@ struct VIosProductionVNextPilotView: View {
         .accessibilityIdentifier("pdig.ios.production-vnext.change")
     }
 
+    private struct ProductionRecordRow: Identifiable {
+        let plan: VIosProductionPlan
+        let action: VIosProductionPlanAction
+        var id: String { "\(plan.id):\(action.id)" }
+    }
+
     @ViewBuilder
     private func productionRecords(_ snapshot: VIosProductionSnapshot) -> some View {
         let records = snapshot.plans.flatMap { plan in
-            plan.actions.compactMap { action -> (VIosProductionPlan, VIosProductionPlanAction)? in
+            plan.actions.compactMap { action -> ProductionRecordRow? in
                 if action.done || action.verificationStatus != nil {
-                    return (plan, action)
+                    return ProductionRecordRow(plan: plan, action: action)
                 }
                 return nil
             }
@@ -515,9 +521,9 @@ struct VIosProductionVNextPilotView: View {
                     )
                 }
 
-                ForEach(Array(records.enumerated()), id: \.offset) { _, item in
-                    let plan = item.0
-                    let action = item.1
+                ForEach(records) { item in
+                    let plan = item.plan
+                    let action = item.action
                     VStack(alignment: .leading, spacing: VSpace.sm) {
                         Text(privacyMask ? "操作步骤（已遮蔽）" : action.title)
                             .font(VFont.body())
