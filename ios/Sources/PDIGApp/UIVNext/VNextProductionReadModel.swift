@@ -293,4 +293,24 @@ extension AppSession {
             openDriftCount: openDrifts().count
         )
     }
+
+    /// Deterministic, read-only continuity findings over the same unlocked Reality.
+    /// No reference fixture or Production mutation authority is involved.
+    func productionVNextFindings(nowIso: String? = nil) -> [FindingItem]? {
+        guard phase == .ready else { return nil }
+        let pending = plans
+            .flatMap(\.actions)
+            .filter {
+                $0.verification?.status == .pending ||
+                    $0.verification?.status == .evidenceSuggested
+            }
+            .map(\.id)
+        return FindingsViewModel.findings(
+            FindingsInput(
+                snapshot: snapshot,
+                pendingVerifications: pending,
+                nowIso: nowIso
+            )
+        )
+    }
 }
