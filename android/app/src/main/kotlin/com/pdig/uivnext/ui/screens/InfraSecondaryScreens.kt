@@ -89,7 +89,8 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                 )
-                regionServices.forEach { service ->
+                AdaptiveObjectGrid(breakpoint, regionServices.size) { index ->
+                    val service = regionServices[index]
                     LightObjectCard(
                         title = service.name,
                         subtitle = regionLabel(service.region) + " · 已记录服务",
@@ -97,8 +98,15 @@ private fun ServicesScreen(app: VAppState, breakpoint: MediaBreakpoint) {
                         trailing = { LabelChip(serviceKindLabelZh(service.kind)) },
                         onClick = { app.openSecondaryObject(VScreen.SERVICE_DETAIL, service.id) },
                     ) {
+                        val linkCount = UiVNextDemoFixture.relations.count { it.to == service.id }
                         Text(
-                            "此处只展示已记录关系；未记录的登录、恢复或支付依赖仍保持未知。",
+                            "已确认关系 · " + linkCount + " 条",
+                            color = PdigV2Colors.TextSecondary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            "未记录的登录、恢复或支付依赖仍保持未知。",
                             color = PdigV2Colors.TextMuted,
                             fontSize = 11.sp,
                         )
