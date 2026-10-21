@@ -191,7 +191,7 @@ public enum PayloadCodec {
             ("last4", n.last4.map { .str($0) } ?? .null),
             ("owner", .null),
             ("archived", .num(n.archived ? "1" : "0")),
-            ("fields_json", .null),
+            ("fields_json", n.fieldsJson.map { .str($0) } ?? .null),
             ("vault_ref", .null),
             ("wallet_ref", .null),
             ("created_at", .str("1970-01-01T00:00:00.000Z")),
