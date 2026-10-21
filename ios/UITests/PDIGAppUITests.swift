@@ -248,10 +248,6 @@ final class PDIGAppUITests: XCTestCase {
             vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
             in: app
         )
-        tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.accounts"),
-            in: app
-        )
         XCTAssertTrue(
             app.staticTexts["账户（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
             "Production 全局遮蔽没有覆盖账户身份"
