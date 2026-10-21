@@ -548,11 +548,15 @@ struct VIosProductionVNextPilotView: View {
         if privacyMask {
             return "发行方与尾号已遮蔽"
         }
-        let issuer = object.issuer?.trimmingCharacters(in: .whitespacesAndNewlines)
-        let last4 = object.last4?.trimmingCharacters(in: .whitespacesAndNewlines)
+        let issuer = object.issuer?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .nonEmpty
+        let last4 = object.last4?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .nonEmpty
         let parts = [
-            issuer?.isEmpty == false ? issuer : nil,
-            last4?.isEmpty == false ? "•••• \(last4!)" : nil,
+            issuer,
+            last4.map { "•••• \($0)" },
         ].compactMap { $0 }
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
@@ -1010,3 +1014,7 @@ struct VIosProductionVNextPilotView: View {
         )
     }
 }
+private extension String {
+    var nonEmpty: String? { isEmpty ? nil : self }
+}
+
