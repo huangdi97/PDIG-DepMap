@@ -74,22 +74,33 @@ enum ProductionChangeAuthority {
 
         if plan.scenario == ScenarioFlow.replacePhoneScenarioId &&
             action.id == "phone-retire-old" {
-            // Retirement is intentionally stricter than ordinary completion:
-            // known review/candidate/drift scope must be cleared and the
-            // verification prerequisite must be independently verified.
+            // iOS keeps add + migrate as separate path-construction actions and
+            // uses phone-verify-new as the independent verification of that
+            // resulting path. Make-Before-Break therefore requires the whole
+            // persisted chain to be internally consistent before retirement.
             guard pendingReviewCount == 0,
                   pendingCandidateCount == 0,
                   openDriftCount == 0 else {
                 throw ProductionChangeMutationError.retirementScopeNeedsReview
             }
-            for prerequisiteId in action.prerequisiteActionIds {
-                guard let prerequisite = plan.actions.first(where: { $0.id == prerequisiteId }) else {
-                    throw ProductionChangeMutationError.missingPrerequisite(prerequisiteId)
+
+            for requiredPathActionId in ["phone-add-new", "phone-migrate"] {
+                guard let pathAction = plan.actions.first(where: { $0.id == requiredPathActionId }) else {
+                    throw ProductionChangeMutationError.missingPrerequisite(requiredPathActionId)
                 }
-                if prerequisite.phase == .verify,
-                   prerequisite.verification?.status != .verified {
-                    throw ProductionChangeMutationError.prerequisiteUnverified(prerequisiteId)
+                guard pathAction.done else {
+                    throw ProductionChangeMutationError.prerequisiteIncomplete(requiredPathActionId)
                 }
+            }
+
+            guard let verification = plan.actions.first(where: { $0.id == "phone-verify-new" }) else {
+                throw ProductionChangeMutationError.missingPrerequisite("phone-verify-new")
+            }
+            guard verification.done else {
+                throw ProductionChangeMutationError.prerequisiteIncomplete("phone-verify-new")
+            }
+            guard verification.verification?.status == .verified else {
+                throw ProductionChangeMutationError.prerequisiteUnverified("phone-verify-new")
             }
         }
 
