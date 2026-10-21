@@ -53,6 +53,15 @@ struct VIosProductionPlanAction: Equatable, Sendable, Identifiable {
     let resolvesImpactKeys: [String]
 }
 
+/// Records is an event trace, not a projection of future plan steps.
+/// Verification templates are initialized as pending before execution; they
+/// become recordable only after the action itself has an authoritative done event.
+func vIosProductionActionHasRecordedEvent(
+    _ action: VIosProductionPlanAction
+) -> Bool {
+    action.done
+}
+
 struct VIosProductionPlan: Equatable, Sendable, Identifiable {
     let id: String
     let scenario: String
