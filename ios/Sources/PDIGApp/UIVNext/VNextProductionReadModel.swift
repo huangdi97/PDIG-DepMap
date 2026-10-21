@@ -50,6 +50,7 @@ struct VIosProductionPlanAction: Equatable, Sendable, Identifiable {
     let done: Bool
     let verificationStatus: String?
     let verificationEvidenceRefs: [String]
+    let prerequisiteActionIds: [String]
     let resolvesImpactKeys: [String]
 }
 
@@ -289,6 +290,7 @@ func buildIosProductionVNextSnapshot(
                     done: action.done,
                     verificationStatus: action.verification?.status.wire,
                     verificationEvidenceRefs: action.verification?.evidenceRefs ?? [],
+                    prerequisiteActionIds: action.prerequisiteActionIds,
                     resolvesImpactKeys: action.resolvesImpactKeys
                 )
             }
