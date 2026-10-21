@@ -79,14 +79,23 @@ final class PDIGAppUITests: XCTestCase {
         line: UInt = #line
     ) {
         // SwiftUI may not materialize controls inside a LazyVGrid until their
-        // enclosing ScrollView approaches the viewport. Searching only after a
-        // 15-second existence wait deadlocks on legitimate below-fold entries.
-        // Give immediately visible controls a short fast path, then scroll the
-        // real product surface until the same query materializes.
+        // enclosing ScrollView approaches the viewport. Swipe the real scroll
+        // surface rather than the whole app: Overview contains an interactive
+        // globe, and app.swipeUp() can be consumed by globe gestures without
+        // moving the page at all.
+        func scrollForward() {
+            let scrollView = app.scrollViews.firstMatch
+            if scrollView.exists && scrollView.isHittable {
+                scrollView.swipeUp()
+            } else {
+                app.swipeUp()
+            }
+        }
+
         var attempts = 0
         if !element.waitForExistence(timeout: 2) {
             while !element.exists && attempts < 8 {
-                app.swipeUp()
+                scrollForward()
                 attempts += 1
                 _ = element.waitForExistence(timeout: 1)
             }
@@ -99,7 +108,7 @@ final class PDIGAppUITests: XCTestCase {
             wait(for: [expectation(for: predicate, evaluatedWith: element)], timeout: 10)
         }
         while !element.isHittable && attempts < 10 {
-            app.swipeUp()
+            scrollForward()
             attempts += 1
         }
         XCTAssertTrue(element.isHittable, "元素存在但不可点击: \(element)", file: file, line: line)
@@ -453,7 +462,7 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "vnext-03-accounts")
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.reference.secondary.item.account.acct-wechat"),
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-wechat"),
             in: app
         )
         XCTAssertTrue(
