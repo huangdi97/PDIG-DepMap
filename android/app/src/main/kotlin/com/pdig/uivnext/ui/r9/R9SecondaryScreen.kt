@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,8 +32,12 @@ internal fun R9SecondaryScreen(app: VAppState, screen: VScreen) {
     val zero = app.emptyDemo
     val selectedRegion = app.regionFilter
     fun scoped(code: String) = selectedRegion == null || selectedRegion == code
+    val listScroll = rememberScrollState(initial = app.screenScrollOffset(screen))
+    DisposableEffect(listScroll, screen) {
+        onDispose { app.rememberScreenScrollOffset(screen, listScroll.value) }
+    }
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize().verticalScroll(listScroll)
             .padding(horizontal = 13.dp, vertical = 12.dp)
             .testTag("pdig.r9.screen.${screen.route}"),
         verticalArrangement = Arrangement.spacedBy(12.dp),

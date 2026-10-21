@@ -61,6 +61,20 @@ class VAppState(
     var numberRoleFilter by mutableStateOf("all")
 
     /**
+     * Session-only viewport memory for collection/search workspaces.
+     * Pixel offsets are presentation context only; they are never serialized
+     * into PersonalReality or Canonical data.
+     */
+    private val screenScrollOffsets = mutableMapOf<VScreen, Int>()
+
+    fun screenScrollOffset(screen: VScreen): Int =
+        screenScrollOffsets[screen]?.coerceAtLeast(0) ?: 0
+
+    fun rememberScreenScrollOffset(screen: VScreen, offset: Int) {
+        screenScrollOffsets[screen] = offset.coerceAtLeast(0)
+    }
+
+    /**
      * Records verification lens is ephemeral consumer navigation state.
      * It never changes the authoritative PlanAction, evidence or timeline.
      */

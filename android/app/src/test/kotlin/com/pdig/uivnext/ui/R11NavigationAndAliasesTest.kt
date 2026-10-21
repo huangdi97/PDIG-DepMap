@@ -95,6 +95,19 @@ class R11NavigationAndAliasesTest {
         assertEquals("keep", numbers.numberRoleFilter)
     }
 
+    @Test fun collectionViewportMemoryIsSessionOnlyNavigationContext() {
+        val app = VAppState(initialScreen = VScreen.CARDS)
+        assertEquals(0, app.screenScrollOffset(VScreen.CARDS))
+        app.rememberScreenScrollOffset(VScreen.CARDS, 720)
+        app.openCard("card-cn-2")
+        app.back()
+        assertEquals(VScreen.CARDS, app.screen)
+        assertEquals(720, app.screenScrollOffset(VScreen.CARDS))
+
+        app.rememberScreenScrollOffset(VScreen.SEARCH, -8)
+        assertEquals(0, app.screenScrollOffset(VScreen.SEARCH))
+    }
+
     @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
             listOf(

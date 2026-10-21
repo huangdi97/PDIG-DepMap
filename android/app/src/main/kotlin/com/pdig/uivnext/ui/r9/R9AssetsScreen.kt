@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,8 +55,12 @@ internal fun R9CardsScreen(app: VAppState) {
             else -> true
         }
     }
+    val listScroll = rememberScrollState(initial = app.screenScrollOffset(VScreen.CARDS))
+    DisposableEffect(listScroll) {
+        onDispose { app.rememberScreenScrollOffset(VScreen.CARDS, listScroll.value) }
+    }
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        Modifier.fillMaxSize().verticalScroll(listScroll)
             .padding(horizontal = 13.dp, vertical = 12.dp)
             .testTag("pdig.r9.screen.cards"),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -230,8 +235,12 @@ internal fun R9NumbersScreen(app: VAppState) {
             else -> true
         }
     }
+    val listScroll = rememberScrollState(initial = app.screenScrollOffset(VScreen.NUMBERS))
+    DisposableEffect(listScroll) {
+        onDispose { app.rememberScreenScrollOffset(VScreen.NUMBERS, listScroll.value) }
+    }
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        Modifier.fillMaxSize().verticalScroll(listScroll)
             .padding(horizontal = 13.dp, vertical = 12.dp)
             .testTag("pdig.r9.screen.numbers"),
         verticalArrangement = Arrangement.spacedBy(12.dp),
