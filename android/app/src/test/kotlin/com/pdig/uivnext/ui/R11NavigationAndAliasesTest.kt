@@ -108,6 +108,34 @@ class R11NavigationAndAliasesTest {
         assertEquals(0, app.screenScrollOffset(VScreen.SEARCH))
     }
 
+    @Test fun productionLazyListViewportKeepsIndexAndOffsetSeparately() {
+        val app = VAppState(initialScreen = VScreen.ACCOUNTS)
+        assertEquals(
+            VAppState.LazyListViewport(),
+            app.screenLazyListViewport(VScreen.ACCOUNTS),
+        )
+
+        app.rememberScreenLazyListViewport(
+            screen = VScreen.ACCOUNTS,
+            firstVisibleItemIndex = 14,
+            firstVisibleItemScrollOffset = 37,
+        )
+        app.openSecondaryObject(VScreen.ACCOUNT_DETAIL, "account-14")
+        app.back()
+
+        assertEquals(VScreen.ACCOUNTS, app.screen)
+        assertEquals(
+            VAppState.LazyListViewport(14, 37),
+            app.screenLazyListViewport(VScreen.ACCOUNTS),
+        )
+
+        app.rememberScreenLazyListViewport(VScreen.SEARCH, -4, -90)
+        assertEquals(
+            VAppState.LazyListViewport(),
+            app.screenLazyListViewport(VScreen.SEARCH),
+        )
+    }
+
     @Test fun primaryNavigationKeepsUserRequestedFiveDestinations() {
         assertEquals(
             listOf(
