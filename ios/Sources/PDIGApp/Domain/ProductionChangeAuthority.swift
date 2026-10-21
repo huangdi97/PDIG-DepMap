@@ -7,6 +7,8 @@ import PDIGCore
 /// prerequisite graph, graph freshness, terminal state and verification state
 /// before producing the next immutable plan value for repository persistence.
 enum ProductionChangeMutationError: Error, Equatable {
+    case sessionLocked
+    case planNotFound
     case planFrozen
     case needsReanalysis
     case actionNotFound
