@@ -16,6 +16,37 @@ final class AppViewModelTests: XCTestCase {
         XCTAssertNil(session.productionVNextFindings())
     }
 
+    func testProductionFindingsIgnoreFuturePendingVerificationTemplates() {
+        func action(_ id: String, done: Bool, status: ActionVerificationStatus) -> PlanAction {
+            PlanAction(
+                id: id,
+                title: id,
+                phase: .verify,
+                done: done,
+                verification: ActionVerification(
+                    method: .futureObservation,
+                    status: status
+                )
+            )
+        }
+        let plan = ChangePlan(
+            id: "plan-verification",
+            scenario: "replace_phone_number",
+            actions: [
+                action("future-pending", done: false, status: .pending),
+                action("future-suggested", done: false, status: .evidenceSuggested),
+                action("done-pending", done: true, status: .pending),
+                action("done-suggested", done: true, status: .evidenceSuggested),
+                action("done-verified", done: true, status: .verified),
+            ]
+        )
+
+        XCTAssertEqual(
+            Set(vIosProductionPendingVerificationActionIds([plan])),
+            Set(["done-pending", "done-suggested"])
+        )
+    }
+
     func testProductionReadOnlyChangeStagesKeepPlanProjectionBoundary() {
         let plan = VIosProductionPlan(
             id: "plan-1",
