@@ -21,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -101,6 +102,16 @@ internal fun ProductionInventoryCategoryScreen(
             initialFirstVisibleItemIndex = initialViewport.firstVisibleItemIndex,
             initialFirstVisibleItemScrollOffset = initialViewport.firstVisibleItemScrollOffset,
         )
+        val regionCriteria = selectedRegion.orEmpty()
+        var previousRegionCriteria by androidx.compose.runtime.remember {
+            androidx.compose.runtime.mutableStateOf(regionCriteria)
+        }
+        LaunchedEffect(regionCriteria) {
+            if (regionCriteria != previousRegionCriteria) {
+                listState.scrollToItem(0)
+                previousRegionCriteria = regionCriteria
+            }
+        }
         DisposableEffect(listState, screen) {
             onDispose {
                 session.appState.rememberScreenLazyListViewport(
