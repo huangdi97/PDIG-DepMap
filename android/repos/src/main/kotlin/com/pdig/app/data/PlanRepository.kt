@@ -135,6 +135,13 @@ class PlanRepository(
         val readiness = computeReadiness(plan, mustChangeKeys, needsReviewKeys, snapshot)
 
         driver.transaction {
+            // Match reanalysis race safety at creation time as well. The impact
+            // snapshot, explicit must-change claims and analyzed revision must
+            // all describe the same authoritative Reality revision at the
+            // instant the plan becomes durable.
+            require(graph.graphRevision() == revision) {
+                "graph_changed_during_plan_analysis"
+            }
             driver.prepare(
                 """
                 INSERT INTO change_plans
