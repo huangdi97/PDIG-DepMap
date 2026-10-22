@@ -33,27 +33,23 @@ import com.pdig.uivnext.theme.VRadius
  */
 internal data class ProductionRecordPresentation(
     val stateLabel: String,
+    val sourceLabel: String,
     val evidenceLabel: String,
     val timeLabel: String,
 )
 
 internal fun productionRecordPresentation(item: VNextProductionRecordItem): ProductionRecordPresentation {
+    val occurred = item.occurredAt?.takeIf { it.isNotBlank() }?.take(10)
     val recorded = item.recordedAt?.takeIf { it.isNotBlank() }?.take(10)
     val verified = item.verifiedAt?.takeIf { it.isNotBlank() }?.take(10)
-    val legacyOccurrence = item.occurredAt?.takeIf { it.isNotBlank() }?.take(10)
+    val occurrenceLabel = occurred?.let { "发生于 $it" } ?: "发生时间未记录"
+    val recordedLabel = recorded?.let { "记录于 $it" } ?: "记录时间未记录"
+    val verificationLabel = verified?.let { "验证于 $it" } ?: "验证时间未记录"
     val timeLabel = when (item.state) {
-        VNextProductionRecordState.VERIFIED -> when {
-            recorded != null && verified != null -> "记录于 $recorded · 验证于 $verified"
-            verified != null -> "验证于 $verified"
-            recorded != null -> "记录于 $recorded · 验证时间未记录"
-            legacyOccurrence != null -> legacyOccurrence
-            else -> "发生时间未记录"
-        }
-        else -> when {
-            recorded != null -> "记录于 $recorded"
-            legacyOccurrence != null -> legacyOccurrence
-            else -> "发生时间未记录"
-        }
+        VNextProductionRecordState.VERIFIED,
+        VNextProductionRecordState.VERIFICATION_FAILED ->
+            "$occurrenceLabel · $recordedLabel · $verificationLabel"
+        else -> "$occurrenceLabel · $recordedLabel"
     }
     return ProductionRecordPresentation(
         stateLabel = when (item.state) {
@@ -62,7 +58,8 @@ internal fun productionRecordPresentation(item: VNextProductionRecordItem): Prod
             VNextProductionRecordState.PENDING_VERIFICATION -> "待验证"
             VNextProductionRecordState.VERIFICATION_FAILED -> "验证失败"
         },
-        evidenceLabel = if (item.evidenceRefs.isEmpty()) "无验证证据引用"
+        sourceLabel = "来源：正式变更计划",
+        evidenceLabel = if (item.evidenceRefs.isEmpty()) "验证证据未记录"
             else "验证证据 ${item.evidenceRefs.size} 项",
         timeLabel = timeLabel,
     )
@@ -316,9 +313,14 @@ private fun ProductionRecordTraceItem(
                     )
                 }
                 Text(
-                    display.evidenceLabel + " · " + display.timeLabel,
+                    display.sourceLabel + " · " + display.evidenceLabel,
                     color = PdigV2Colors.TextSecondary,
                     fontSize = 12.sp,
+                )
+                Text(
+                    display.timeLabel,
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 11.sp,
                 )
                 if (onOpenAction != null) {
                     Text(

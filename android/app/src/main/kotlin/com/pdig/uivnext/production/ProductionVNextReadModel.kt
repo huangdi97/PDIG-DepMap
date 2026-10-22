@@ -742,11 +742,11 @@ internal fun buildProductionRecordTrace(
                 phase = action.phase,
                 state = state,
                 evidenceRefs = action.verificationEvidenceRefs,
-                occurredAt = when (state) {
-                    VNextProductionRecordState.VERIFIED ->
-                        action.verificationVerifiedAt ?: action.doneAt
-                    else -> action.doneAt
-                },
+                // PlanAction records when completion was recorded (doneAt)
+                // and, separately, when verification was confirmed. It does not
+                // carry an authoritative external "actually happened at" time,
+                // so occurrence remains unknown instead of borrowing either clock.
+                occurredAt = null,
                 recordedAt = action.doneAt,
                 verifiedAt = action.verificationVerifiedAt,
             )

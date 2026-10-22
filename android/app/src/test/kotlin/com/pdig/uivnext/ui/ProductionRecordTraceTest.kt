@@ -53,14 +53,15 @@ class ProductionRecordTraceTest {
         val item = record("a", state = VNextProductionRecordState.VERIFIED)
         val projected = productionRecordPresentation(item)
         assertEquals("已验证", projected.stateLabel)
-        assertEquals("无验证证据引用", projected.evidenceLabel)
-        assertEquals("发生时间未记录", projected.timeLabel)
+        assertEquals("来源：正式变更计划", projected.sourceLabel)
+        assertEquals("验证证据未记录", projected.evidenceLabel)
+        assertEquals("发生时间未记录 · 记录时间未记录 · 验证时间未记录", projected.timeLabel)
 
         val withEvidence = productionRecordPresentation(
             item.copy(evidenceRefs = listOf("e1", "e2"), occurredAt = "2026-10-11T09:00"),
         )
         assertEquals("验证证据 2 项", withEvidence.evidenceLabel)
-        assertEquals("2026-10-11", withEvidence.timeLabel)
+        assertEquals("发生于 2026-10-11 · 记录时间未记录 · 验证时间未记录", withEvidence.timeLabel)
     }
 
     @Test
@@ -81,7 +82,7 @@ class ProductionRecordTraceTest {
         )
 
         assertEquals(
-            "记录于 2026-10-19 · 验证于 2026-10-19",
+            "发生于 2026-10-19 · 记录于 2026-10-19 · 验证于 2026-10-19",
             productionRecordPresentation(item).timeLabel,
         )
     }
@@ -109,7 +110,7 @@ class ProductionRecordTraceTest {
         assertEquals("数据源（已遮蔽）", productionVisibleSourceTitle("个人工资导入", true))
         val record = record("secret", state = VNextProductionRecordState.VERIFIED)
         assertEquals("已验证", productionRecordPresentation(record).stateLabel)
-        assertEquals("发生时间未记录", productionRecordPresentation(record).timeLabel)
+        assertEquals("发生时间未记录 · 记录时间未记录 · 验证时间未记录", productionRecordPresentation(record).timeLabel)
         assertTrue(productionRecordsByPlan(listOf(record)).single().single() === record)
     }
 

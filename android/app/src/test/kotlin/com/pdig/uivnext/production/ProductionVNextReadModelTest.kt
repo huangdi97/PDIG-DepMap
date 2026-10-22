@@ -634,8 +634,12 @@ class ProductionVNextReadModelTest {
             listOf("verified-newest", "middle", "older", "unknown-time"),
             records.map { it.actionId },
         )
-        assertEquals("2026-10-19T11:00:00Z", records.first().occurredAt)
-        assertEquals(null, records.last().occurredAt)
+        // Completion and verification clocks are record metadata, not proof
+        // of when the external real-world change actually happened.
+        assertTrue(records.all { it.occurredAt == null })
+        assertEquals("2026-10-19T11:00:00Z", records.first().verifiedAt)
+        assertEquals("2026-10-19T09:00:00Z", records.first().recordedAt)
+        assertEquals(null, records.last().recordedAt)
     }
 
     @Test
