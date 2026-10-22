@@ -202,7 +202,7 @@ Pushed fast-forward (`a3049c64..b7dcbc89`, no force):
 | Android UI vNext Preview APK | success |
 | Android UI vNext Tablet Pixel Proof | success |
 | Android UI vNext Production Rehearsal | success |
-| Android UI vNext Phone Pixel Proof | **failure — infrastructure, not source** |
+| Android UI vNext Phone Pixel Proof | **failure at `b7dcbc89` — infrastructure, resolved** |
 | iOS | success (parallel iOS line) |
 | iOS Runtime Visual | failure (pre-existing, parallel iOS line) |
 
@@ -214,6 +214,26 @@ locally on the API36 phone AVD (13 captures, all assertions green). It has to be
 re-run on a clean runner before this Android tree can claim `PHONE_RUNTIME_PASS`
 remotely.
 
+
+### 8.3 Re-run and final confirmation
+
+`Android UI vNext Phone Pixel Proof` was dispatched again on `1d50a272` and
+**succeeded**, confirming the earlier job failure was runner infrastructure. The
+last push (`ccfc0973`, test-scope + capture-harness changes only) was then observed
+end-to-end on its own commit:
+
+| Workflow | Conclusion at `ccfc0973` |
+| --- | --- |
+| CI | success |
+| Android UI vNext Preview APK | success |
+| Android UI vNext Phone Pixel Proof | **success** |
+| Android UI vNext Tablet Pixel Proof | success |
+| Android UI vNext Production Rehearsal | success |
+| iOS | success (parallel iOS line) |
+| iOS Runtime Visual | failure (pre-existing, parallel iOS line — not touched here) |
+
+So every Android gate is green on the final Android tree. The only red workflow on
+this branch belongs to the concurrent iOS line.
 
 ## 9. What remains for a human
 
