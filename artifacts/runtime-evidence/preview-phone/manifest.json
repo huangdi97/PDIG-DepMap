@@ -1,0 +1,369 @@
+{
+  "sha": "cd355b5bc562bf59a40b18b2fb1f540183c229ce",
+  "app": "com.pdig.app.preview.pcd355b5",
+  "activity": "com.pdig.app.PreviewLauncherActivity",
+  "device": "sdk_gphone64_x86_64",
+  "capture": [
+    {
+      "name": "00-first-launch",
+      "size": 238415,
+      "labels": 13
+    },
+    {
+      "name": "01-now",
+      "size": 1382843,
+      "labels": 47
+    },
+    {
+      "name": "01c-world-orbit",
+      "size": 1343068,
+      "labels": 41
+    },
+    {
+      "name": "01d-world-zoom-in",
+      "size": 1556370,
+      "labels": 41
+    },
+    {
+      "name": "01e-world-reset",
+      "size": 1381324,
+      "labels": 47
+    },
+    {
+      "name": "01a-me-from-primary-nav",
+      "size": 273024,
+      "labels": 48
+    },
+    {
+      "name": "01b-now-returned-from-me",
+      "size": 1381060,
+      "labels": 47
+    },
+    {
+      "name": "02-infrastructure",
+      "size": 619558,
+      "labels": 53
+    },
+    {
+      "name": "02a-infrastructure-selected-us",
+      "size": 578259,
+      "labels": 54
+    },
+    {
+      "name": "02b-infrastructure-global-restored",
+      "size": 619074,
+      "labels": 53
+    },
+    {
+      "name": "03-cards",
+      "size": 398796,
+      "labels": 57
+    },
+    {
+      "name": "03a-card-expiry-filter",
+      "size": 224894,
+      "labels": 37
+    },
+    {
+      "name": "03b-card-filter-cleared",
+      "size": 399017,
+      "labels": 57
+    },
+    {
+      "name": "04-card-detail",
+      "size": 458234,
+      "labels": 38
+    },
+    {
+      "name": "04b-card-services",
+      "size": 452829,
+      "labels": 34
+    },
+    {
+      "name": "04c-card-statements",
+      "size": 478752,
+      "labels": 35
+    },
+    {
+      "name": "04d-card-risk",
+      "size": 478539,
+      "labels": 33
+    },
+    {
+      "name": "04dd-card-impact",
+      "size": 478539,
+      "labels": 33
+    },
+    {
+      "name": "04de-card-impact-facts",
+      "size": 239336,
+      "labels": 40
+    },
+    {
+      "name": "04h-card-change-current",
+      "size": 547173,
+      "labels": 23
+    },
+    {
+      "name": "04i-card-change-transition-blocked",
+      "size": 553587,
+      "labels": 23
+    },
+    {
+      "name": "04j-card-change-transition-target",
+      "size": 456485,
+      "labels": 37
+    },
+    {
+      "name": "04k-card-change-after",
+      "size": 394116,
+      "labels": 29
+    },
+    {
+      "name": "04e-card-presets-inline",
+      "size": 581283,
+      "labels": 46
+    },
+    {
+      "name": "04f-card-art-applied",
+      "size": 499739,
+      "labels": 37
+    },
+    {
+      "name": "04g-up-to-cards",
+      "size": 403240,
+      "labels": 58
+    },
+    {
+      "name": "05-change-center",
+      "size": 312215,
+      "labels": 37
+    },
+    {
+      "name": "05-change",
+      "size": 379330,
+      "labels": 46
+    },
+    {
+      "name": "05a-change-checklist",
+      "size": 368562,
+      "labels": 38
+    },
+    {
+      "name": "05aa-change-checklist-footer",
+      "size": 246473,
+      "labels": 36
+    },
+    {
+      "name": "05b-change-plan",
+      "size": 370710,
+      "labels": 46
+    },
+    {
+      "name": "06-records",
+      "size": 336881,
+      "labels": 35
+    },
+    {
+      "name": "07-accounts",
+      "size": 249256,
+      "labels": 39
+    },
+    {
+      "name": "07-accounts-detail-top",
+      "size": 262899,
+      "labels": 37
+    },
+    {
+      "name": "07-accounts-detail",
+      "size": 275558,
+      "labels": 36
+    },
+    {
+      "name": "07-emails",
+      "size": 260456,
+      "labels": 39
+    },
+    {
+      "name": "07-emails-detail-top",
+      "size": 243823,
+      "labels": 33
+    },
+    {
+      "name": "07-emails-detail",
+      "size": 243823,
+      "labels": 33
+    },
+    {
+      "name": "07-devices",
+      "size": 241866,
+      "labels": 39
+    },
+    {
+      "name": "07-devices-detail-top",
+      "size": 263144,
+      "labels": 37
+    },
+    {
+      "name": "07-devices-detail",
+      "size": 282733,
+      "labels": 38
+    },
+    {
+      "name": "07-services",
+      "size": 231521,
+      "labels": 39
+    },
+    {
+      "name": "07-services-detail-top",
+      "size": 254267,
+      "labels": 37
+    },
+    {
+      "name": "07-services-detail",
+      "size": 254288,
+      "labels": 37
+    },
+    {
+      "name": "07-weaknesses",
+      "size": 406006,
+      "labels": 37
+    },
+    {
+      "name": "08-numbers",
+      "size": 382901,
+      "labels": 46
+    },
+    {
+      "name": "08b-number-detail",
+      "size": 408463,
+      "labels": 41
+    },
+    {
+      "name": "08bb-number-renamed",
+      "size": 399631,
+      "labels": 41
+    },
+    {
+      "name": "08c-number-studio",
+      "size": 407805,
+      "labels": 40
+    },
+    {
+      "name": "08d-number-studio-edited",
+      "size": 407327,
+      "labels": 40
+    },
+    {
+      "name": "08e-number-impact",
+      "size": 229106,
+      "labels": 32
+    },
+    {
+      "name": "09-me",
+      "size": 267768,
+      "labels": 48
+    },
+    {
+      "name": "09a-me-mask-enabled",
+      "size": 266903,
+      "labels": 48
+    },
+    {
+      "name": "09b-me-mask-disabled",
+      "size": 267792,
+      "labels": 48
+    },
+    {
+      "name": "09-personalization",
+      "size": 247705,
+      "labels": 31
+    },
+    {
+      "name": "10-data-sources",
+      "size": 278270,
+      "labels": 43
+    },
+    {
+      "name": "10a-establish-import",
+      "size": 365006,
+      "labels": 25
+    },
+    {
+      "name": "10b-manual-establish",
+      "size": 323144,
+      "labels": 28
+    },
+    {
+      "name": "10bb-manual-establish-boundary",
+      "size": 304335,
+      "labels": 28
+    },
+    {
+      "name": "10c-manual-relationship",
+      "size": 308745,
+      "labels": 33
+    },
+    {
+      "name": "10cc-manual-relationship-boundary",
+      "size": 197635,
+      "labels": 38
+    },
+    {
+      "name": "10d-relation-up-manual",
+      "size": 322945,
+      "labels": 28
+    },
+    {
+      "name": "10dd-relation-up-boundary",
+      "size": 297641,
+      "labels": 27
+    },
+    {
+      "name": "10e-manual-up-import",
+      "size": 365206,
+      "labels": 25
+    },
+    {
+      "name": "10f-import-up-sources",
+      "size": 278779,
+      "labels": 43
+    },
+    {
+      "name": "10g-human-review",
+      "size": 356612,
+      "labels": 33
+    },
+    {
+      "name": "10gg-human-review-boundary",
+      "size": 362090,
+      "labels": 31
+    },
+    {
+      "name": "10h-review-up-now",
+      "size": 1381217,
+      "labels": 47
+    },
+    {
+      "name": "11-search-empty",
+      "size": 153660,
+      "labels": 12
+    },
+    {
+      "name": "11-search-query",
+      "size": 214961,
+      "labels": 13
+    },
+    {
+      "name": "11a-search-result-card",
+      "size": 499918,
+      "labels": 37
+    },
+    {
+      "name": "11b-search-back-query",
+      "size": 158938,
+      "labels": 13
+    }
+  ],
+  "assertion": "RUNTIME_PIXELS_CAPTURED_ONLY__NOT_VISUAL_PARITY"
+}

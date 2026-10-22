@@ -1,6 +1,6 @@
 # Evidence index — 2026-10-21 android post-freeze closure
 
-Generated: 2026-10-22T05:47:01+00:00
+Generated: 2026-10-22T08:22:20+00:00
 sourceHead: `1d50a272991342778556964ec84f1dafb7075463`
 androidTreeHead: `abc0988a`
 installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94`
@@ -40,22 +40,22 @@ installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7
 | land-tablet-me | phone-landscape | identity summary | CAPTURED / 1 |
 | land-tablet-now | phone-landscape | unlocked | CAPTURED / 6 |
 | land-tablet-records | phone-landscape | history | CAPTURED / 1 |
-| 01-now | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 02-infrastructure | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 03-cards | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 04-card-detail | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 05-numbers | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 06-number-detail | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 07-accounts | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 08-account-detail | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 09-emails | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 10-email-detail | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 11-devices | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 12-device-detail | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 13-services | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 14-service-detail | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 15-weaknesses | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 16-change-center | phone-preview | NOT_RUN | NOT_RUN / 0 |
+| 01-now | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 02-infrastructure | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 03-cards | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 04-card-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 05-numbers | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 06-number-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 07-accounts | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 08-account-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 09-emails | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 10-email-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 11-devices | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 12-device-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 13-services | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 14-service-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 15-weaknesses | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 16-change-center | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
 | 17-change-phone-current | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 18-change-phone-transition | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 19-change-phone-before-retirement-blocked | phone-preview | NOT_RUN | NOT_RUN / 0 |
@@ -63,11 +63,11 @@ installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7
 | 21-change-phone-all-required-paths-verified | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 22-change-phone-retirement-eligible | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 23-change-phone-after-plan | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 24-records | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 25-me | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 26-privacy-on | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 27-privacy-off | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 28-search | phone-preview | NOT_RUN | NOT_RUN / 0 |
+| 24-records | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 25-me | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 26-privacy-on | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 27-privacy-off | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
+| 28-search | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
 | production-me | privacy | identity summary | CAPTURED / 1 |
 | production-privacy-default-off | privacy | masking default off | CAPTURED / 3 |
 | production-privacy-off-restored | privacy | masking off | CAPTURED / 1 |

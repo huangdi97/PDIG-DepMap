@@ -22,7 +22,7 @@
 | `PHONE_MBB_FULL_JOURNEY_PASS` | YES — blocked → eligible → retired, captured | `phone/production-change-*` |
 | `STALE_PLAN_REANALYSIS_PASS` | YES — stale blocked, reanalysis advanced the analyzed revision | `stale-reanalysis/` |
 | `PRIVACY_ALL_OBJECTS_PASS` | PARTIAL — phone/account/email/service identity + inventory + Me verified with device-measured font scale; membership/custom cannot be created at runtime (canonical scope) | `privacy/` |
-| `CURRENT_HEAD_SCREENSHOTS_COMPLETE` | NO — 51 captured, 28 §27 phone-preview ids recorded `NOT_RUN` | `MANIFEST.json` |
+| `CURRENT_HEAD_SCREENSHOTS_COMPLETE` | PARTIAL — 72 captured, 7 §27 ids recorded `NOT_RUN` (the phone-change state series, proven on Production instead) | `MANIFEST.json`, `phone-preview/` |
 | `REFERENCE_COMPARISON_COMPLETE` | NO — see `PIXEL_REFERENCE_LIMITATION` | §6 |
 | `APK_CANDIDATE_READY` | YES (debug-signed review candidate only) | `apk/` |
 

@@ -68,16 +68,42 @@ script refuses to continue without.
 | `f15-tablet-now` … `f15-tablet-me` | phone, **font 1.5** | same assertions |
 | `font15-tablet-now` … `font15-tablet-me` | tablet expanded, **font 1.5** | same assertions |
 
-## F. Not captured this round (honest gaps)
+## F. Adopted preview catalogue and the remaining gaps
 
-The 28 ids of the §27 phone **preview** catalogue (`01-now` … `28-search`) are
-present in `MANIFEST.json` with `status: NOT_RUN` and a reason each. No older
-screenshot was renamed to fill them; the Production surfaces and the full Change
-journey were captured instead.
+The official harness `android/scripts/ui_vnext_pixel_capture.py` was re-run against
+a preview APK built at the current head (`GIT_SHA cd355b5b`, package
+`com.pdig.app.preview.pcd355b5`) and produced **72 screenshot + UI-dump pairs**.
+21 of them are adopted here under their §27 names in `phone-preview/`:
 
-**Attempted, and why it stopped:** the official harness
-`android/scripts/ui_vnext_pixel_capture.py` was run against the preview APK on the
-phone AVD. It aborted at its own provenance gate:
+`01-now`, `02-infrastructure`, `03-cards`, `04-card-detail`, `05-numbers`,
+`06-number-detail`, `07-accounts`, `08-account-detail`, `09-emails`,
+`10-email-detail`, `11-devices`, `12-device-detail`, `13-services`,
+`14-service-detail`, `15-weaknesses`, `16-change-center`, `24-records`, `25-me`,
+`26-privacy-on`, `27-privacy-off`, `28-search`.
+
+A static check confirmed the harness's assertions still match current source copy
+(80 of 82 expected strings present; the two "missing" are a runtime-interpolated
+region label and a value the harness itself types). Each adopted row keeps
+`humanReview = NOT_RUN`, records the preview package and APK hash, and states that
+the assertions are the harness's own `require_screen` gates rather than mine.
+
+**Still `NOT_RUN` (7):** `17-change-phone-current`, `18-change-phone-transition`,
+`19-…-before-retirement-blocked`, `20-…-verification-pending`,
+`21-…-all-required-paths-verified`, `22-…-retirement-eligible`,
+`23-…-after-plan`. The preview harness captures the **card**-change projections, not
+the phone-change state machine; every one of those states is instead proven on the
+Production surface (`production-change-current`,
+`production-change-pending-verification`, `production-change-retirement-blocked`,
+`production-change-retirement-eligible`, `production-change-after-plan`). They stay
+`NOT_RUN` rather than being substituted by a differently-sourced image.
+
+Also not captured: Device detail hero (`设备端点`) on the Production surface — the
+canonical spec allows runtime creation only for `payment_instrument`, `account` and
+`service`. The preview device detail (`12-device-detail`) is synthetic and is
+labelled as such.
+
+**First attempt, and how it was unblocked:** the harness initially aborted at its own
+provenance gate:
 
 ```
 RuntimeError: Displayed preview source SHA a3049c6 missing from 01-now UI XML

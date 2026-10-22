@@ -5,7 +5,9 @@
 > （lock → Now → Infrastructure → 账户/邮箱/服务身份 → Change CURRENT/TRANSITION/AFTER → MBB blocked/eligible/retired →
 > Records → stale→reanalyzed → privacy on/off → tablet expanded/medium），每张绑定 sourceHead + 安装 APK sha256 + UIAutomator 断言。
 > JVM/Conformance 全绿：core 108 / repos 13 / app 240 / app 240，Android conformance 161/161 PASS；production rehearsal PASS；
-> Production 契约 24/24 PASS。仍未关闭：§27 phone-preview 28 张记为 NOT_RUN（未改名冒充）、
+> Production 契约 24/24 PASS。仍未关闭：§27 phone-preview 目录已用官方 harness 重跑并采纳 21 张
+> （`phone-preview/`，preview 包 `com.pdig.app.preview.pcd355b5`），余 7 张 phone-change 状态序列记 `NOT_RUN`
+> （其等价状态在 Production 面已取证，未用异源截图顶替）；
 > tablet 自适应契约已修根因（AVD 遗留 font_scale=1.5 + 两条 compact 契约缺窗口前提）并转绿（15 run / 0 failed / 2 skipped）；
 > 证据已扩到 **51 张真实捕获 / 28 NOT_RUN / 120 文件入册**，手机与平板全部改读设备真实字号
 > （1.0 / 1.3 / 1.5，`fontScaleSource = device`），并补手机横向 + 三档字号 + 平板 font-1.5 大字号组；
