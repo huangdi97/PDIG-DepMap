@@ -164,6 +164,42 @@ class ProductionChangeKernelContractTest {
     }
 
     @Test
+    fun currentPlanReanalysisIsATrueNoOp() {
+        val harness = openContainer("production-change-kernel-current-reanalysis")
+        val app = harness.app
+        try {
+            val phone = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    subtype = IdentityAnchorSubtype.PHONE_NUMBER,
+                    name = "当前主号",
+                    identifierValue = "+852 6000 0103",
+                ),
+            ).node
+            val planId = app.createPlanForScenario(
+                ScenarioPlanRequest(scenarioId = "replace_phone_number", targetNodeId = phone.id),
+            )
+            val before = requireNotNull(app.planDetail(planId))
+            val sentinelUpdatedAt = "2000-01-01T00:00:00.000Z"
+            harness.driver.prepare(
+                "UPDATE change_plans SET updated_at = ? WHERE id = ?",
+            ).run(sentinelUpdatedAt, planId)
+
+            val after = app.reanalyzePlan(planId)
+
+            assertEquals(before.lastAnalyzedGraphRevision, after.lastAnalyzedGraphRevision)
+            assertEquals(before.actions, after.actions)
+            assertEquals(
+                sentinelUpdatedAt,
+                harness.driver.prepare(
+                    "SELECT updated_at FROM change_plans WHERE id = ?",
+                ).get(planId)?.str("updated_at"),
+            )
+        } finally {
+            harness.close()
+        }
+    }
+
+    @Test
     fun terminalPlanIsHistoryAndRejectsReanalysisAndMutation() {
         val harness = openContainer("production-change-kernel-terminal")
         val app = harness.app
