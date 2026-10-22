@@ -75,6 +75,34 @@ present in `MANIFEST.json` with `status: NOT_RUN` and a reason each. No older
 screenshot was renamed to fill them; the Production surfaces and the full Change
 journey were captured instead.
 
+**Attempted, and why it stopped:** the official harness
+`android/scripts/ui_vnext_pixel_capture.py` was run against the preview APK on the
+phone AVD. It aborted at its own provenance gate:
+
+```
+RuntimeError: Displayed preview source SHA a3049c6 missing from 01-now UI XML
+```
+
+That gate is correct and must not be relaxed. The cause is local, not a product
+defect, and it is a genuine build/provenance mismatch rather than a copy drift:
+
+- `pdigPreviewBuildSha` only sets the **applicationId suffix**
+  (`com.pdig.app.preview.pa3049c6`);
+- `BuildConfig.GIT_SHA` is generated from `git rev-parse --short HEAD` **at build
+  time** — the APK on the device was built at `1d50a272`;
+- the harness asserts the displayed SHA equals `GITHUB_SHA[:7]`, which I had set to
+  `a3049c6`.
+
+So the script refused to label a `1d50a272` build as `a3049c6`, which is exactly
+what a provenance gate should do. Re-running needs either
+`GITHUB_SHA=<the sha the APK was actually built at>` or a rebuild at the target
+commit; **this is not a blocker for the codebase, only for that local run.**
+
+Expect one further step once the gate passes: several expectations in that script
+are already stale against the current source (Records, for example, no longer says
+「发生过什么」 but 「已记录的操作与验证证据 · 按计划分组」) and must be re-aligned to
+the real copy, not loosened, before the catalogue can be claimed.
+
 Also not captured: Device detail hero (`设备端点`) — the canonical spec allows
 runtime creation only for `payment_instrument`, `account` and `service`, so no
 governed runtime path can put a device into Reality in this build. Membership and
