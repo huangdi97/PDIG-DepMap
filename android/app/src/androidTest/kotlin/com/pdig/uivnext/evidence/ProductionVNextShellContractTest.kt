@@ -157,7 +157,7 @@ class ProductionVNextShellContractTest {
         compose.runOnIdle { session.appState.navigate(VScreen.RECORDS) }
         compose.waitForIdle()
         compose.onNodeWithText(
-            "记录于 2026-10-18 · 验证于 2026-10-19",
+            "发生于 2026-10-19 · 记录于 2026-10-18 · 验证于 2026-10-19",
             substring = true,
         ).assertExists()
         compose.onNodeWithText("发生时间未记录").assertDoesNotExist()
