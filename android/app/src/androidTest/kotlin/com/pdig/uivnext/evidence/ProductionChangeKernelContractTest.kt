@@ -200,6 +200,64 @@ class ProductionChangeKernelContractTest {
     }
 
     @Test
+    fun staleReanalysisPreservesRecordedAndVerifiedActionHistory() {
+        val harness = openContainer("production-change-kernel-reanalysis-history")
+        val app = harness.app
+        try {
+            val phone = app.createManualIdentityAnchor(
+                ManualIdentityAnchorCreateRequest(
+                    subtype = IdentityAnchorSubtype.PHONE_NUMBER,
+                    name = "历史主号",
+                    identifierValue = "+852 6000 0104",
+                ),
+            ).node
+            val account = app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "历史账户"),
+            ).node
+            app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = phone.id,
+                    relation = Relation.RECOVERS,
+                    toNodeId = account.id,
+                    capability = Capability.RECOVERY,
+                    required = true,
+                ),
+            )
+            val planId = app.createPlanForScenario(
+                ScenarioPlanRequest(scenarioId = "replace_phone_number", targetNodeId = phone.id),
+            )
+            app.completeAction(planId, "rpn-prepare-1")
+            app.completeAction(planId, "rpn-change-1")
+            app.verifyAction(planId, "rpn-change-1")
+
+            val before = requireNotNull(app.planDetail(planId))
+            val beforeMigration = before.actions.first { it.id == "rpn-change-1" }
+            assertTrue(beforeMigration.done)
+            assertEquals("verified", beforeMigration.verification?.status?.wire)
+            val verifiedAt = beforeMigration.verification?.verifiedAt
+
+            // Any governed Reality mutation makes the plan stale. Reanalysis
+            // may update impact scope, but it must not erase already-recorded
+            // completion or independent verification history.
+            app.createManualNode(
+                ManualNodeCreateRequest(NodeKind.ACCOUNT, "后来新增但无关的账户"),
+            )
+            val stale = requireNotNull(app.planDetail(planId))
+            assertTrue(stale.currentGraphRevision > stale.lastAnalyzedGraphRevision)
+
+            val after = app.reanalyzePlan(planId)
+            val afterMigration = after.actions.first { it.id == "rpn-change-1" }
+            assertTrue(afterMigration.done)
+            assertEquals("verified", afterMigration.verification?.status?.wire)
+            assertEquals(verifiedAt, afterMigration.verification?.verifiedAt)
+            assertFalse(after.actions.first { it.id == "rpn-verify-1" }.done)
+            assertEquals(after.currentGraphRevision, after.lastAnalyzedGraphRevision)
+        } finally {
+            harness.close()
+        }
+    }
+
+    @Test
     fun terminalPlanIsHistoryAndRejectsReanalysisAndMutation() {
         val harness = openContainer("production-change-kernel-terminal")
         val app = harness.app

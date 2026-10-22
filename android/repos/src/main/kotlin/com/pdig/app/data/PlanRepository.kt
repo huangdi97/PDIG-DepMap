@@ -258,12 +258,6 @@ class PlanRepository(
                 ),
             ),
         )
-        val actions = claimScenarioMustChangeKeys(
-            plan.scenario,
-            plan.actions,
-            mustChangeKeys,
-        )
-        val now = Instant.now().toString()
         driver.transaction {
             // Close the analysis -> write race window as far as this repository
             // boundary can: do not stamp an older snapshot with the analyzed
@@ -272,6 +266,35 @@ class PlanRepository(
             require(graph.graphRevision() == analyzedRevision) {
                 "graph_changed_during_plan_analysis"
             }
+
+            // Re-read the plan inside the write transaction before touching
+            // action_items_json. Completion / verification is historical truth:
+            // a reanalysis that started from an older action snapshot must never
+            // overwrite a newer done / verified write. The write transaction
+            // serializes the live read with the update on the Android driver.
+            val livePlan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+            require(!ChangePlanMachine.isFrozen(livePlan.workflowState)) { "plan_frozen" }
+
+            // Another reanalysis may have already advanced this plan to the same
+            // (or a newer) revision while impact analysis was running. Preserve
+            // true no-op parity instead of rewriting metadata or action history.
+            if (!com.pdig.core.plan.isPlanStale(livePlan, analyzedRevision)) {
+                return@transaction
+            }
+
+            val actions = claimScenarioMustChangeKeys(
+                livePlan.scenario,
+                livePlan.actions,
+                mustChangeKeys,
+            )
+
+            // Keep the graph-revision guard adjacent to the authoritative write
+            // as well: no action merge can turn an old impact snapshot into a
+            // current one if Reality moved in the meantime.
+            require(graph.graphRevision() == analyzedRevision) {
+                "graph_changed_during_plan_analysis"
+            }
+            val now = Instant.now().toString()
             driver.prepare(
                 """
                 UPDATE change_plans
