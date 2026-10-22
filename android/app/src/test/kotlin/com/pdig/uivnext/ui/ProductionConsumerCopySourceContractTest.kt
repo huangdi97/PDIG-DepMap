@@ -205,6 +205,22 @@ class ProductionConsumerCopySourceContractTest {
     }
 
     @Test
+    fun secondaryObjectChangeEntryNeverInventsUnsupportedScenarioAuthority() {
+        val cases = listOf(
+            VNextProductionSurfaceKind.ACCOUNT to "账户变更尚未开放正式可执行模板",
+            VNextProductionSurfaceKind.EMAIL_IDENTITY to "邮箱更换尚未开放正式可执行模板",
+            VNextProductionSurfaceKind.DEVICE to "设备更换尚未开放正式可执行模板",
+            VNextProductionSurfaceKind.SERVICE to "服务迁移尚未开放正式可执行模板",
+        )
+        cases.forEach { (surface, expectedPrefix) ->
+            val text = productionSecondaryObjectChangeUnavailableText(surface)
+            assertTrue(text.startsWith(expectedPrefix))
+            assertTrue("Unsupported change copy must remain fail-closed: $text",
+                "不会" in text || "尚未" in text)
+        }
+    }
+
+    @Test
     fun globalPrivacyMasksEveryProductionObjectIdentityLabel() {
         val cases = listOf(
             VNextProductionSurfaceKind.PAYMENT_ASSET to "支付工具（已遮蔽）",

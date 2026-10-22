@@ -619,6 +619,21 @@ internal fun ProductionGenericObjectDetailScreen(
                     plans = snapshot.plans,
                 )
             }
+        } else {
+            item {
+                Text(
+                    "变更",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+            item {
+                ProductionSecondaryObjectChangeEntry(
+                    surfaceKind = item.surfaceKind,
+                    onOpenChangeCenter = { app.navigate(VScreen.CHANGE) },
+                )
+            }
         }
 
         item {
@@ -642,6 +657,66 @@ internal fun ProductionGenericObjectDetailScreen(
                     "详情只使用正式数据中的对象、已确认关系和正式影响分析；不会混入演示数据。"
                 )
             }
+        }
+    }
+}
+
+internal fun productionSecondaryObjectChangeUnavailableText(
+    surfaceKind: VNextProductionSurfaceKind,
+): String = when (surfaceKind) {
+    VNextProductionSurfaceKind.ACCOUNT ->
+        "账户变更尚未开放正式可执行模板；不会用通用步骤替代真实变更语义。"
+    VNextProductionSurfaceKind.EMAIL_IDENTITY ->
+        "邮箱更换尚未开放正式可执行模板；恢复与认证影响不会由界面自行猜测。"
+    VNextProductionSurfaceKind.DEVICE ->
+        "设备更换尚未开放正式可执行模板；不会从设备名称推断迁移或认证能力。"
+    VNextProductionSurfaceKind.SERVICE ->
+        "服务迁移尚未开放正式可执行模板；不会把关系数量当作迁移计划。"
+    else ->
+        "当前对象类型尚未开放正式可执行变更模板。"
+}
+
+@Composable
+private fun ProductionSecondaryObjectChangeEntry(
+    surfaceKind: VNextProductionSurfaceKind,
+    onOpenChangeCenter: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onOpenChangeCenter)
+            .testTag("pdig.production-vnext.secondary-change-entry"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.72f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.BorderSubtle),
+    ) {
+        Row(
+            Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp),
+            ) {
+                Text(
+                    "此对象暂不能直接创建变更计划",
+                    color = PdigV2Colors.TextPrimary,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    productionSecondaryObjectChangeUnavailableText(surfaceKind),
+                    color = PdigV2Colors.TextMuted,
+                    fontSize = 10.sp,
+                )
+            }
+            Text(
+                "查看变更中心 →",
+                color = PdigV2Colors.PrimaryText,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
         }
     }
 }
