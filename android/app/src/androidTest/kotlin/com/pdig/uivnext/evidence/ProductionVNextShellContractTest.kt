@@ -347,6 +347,45 @@ class ProductionVNextShellContractTest {
     }
 
     @Test
+    fun secondaryObjectDetailExposesOnlyHonestChangeAvailability() {
+        val session = session()
+        compose.setContent {
+            MaterialTheme(colorScheme = lightColorScheme()) {
+                ProductionVNextShell(session, forcedViewportWidthDp = 390)
+            }
+        }
+
+        compose.runOnIdle {
+            session.appState.openSecondaryObject(VScreen.ACCOUNT_DETAIL, "account-1")
+        }
+        compose.waitForIdle()
+        val detail = compose.onNodeWithTag(
+            "pdig.production-vnext.object-detail",
+            useUnmergedTree = true,
+        )
+        detail.performScrollToNode(
+            hasTestTag("pdig.production-vnext.secondary-change-entry"),
+        )
+        compose.onNodeWithTag(
+            "pdig.production-vnext.secondary-change-entry",
+            useUnmergedTree = true,
+        ).assertExists()
+        compose.onNodeWithText("此对象暂不能直接创建变更计划").assertExists()
+        compose.onNodeWithText(
+            "账户变更尚未开放正式可执行模板；不会用通用步骤替代真实变更语义。",
+        ).assertExists()
+
+        compose.onNodeWithTag(
+            "pdig.production-vnext.secondary-change-entry",
+            useUnmergedTree = true,
+        ).performClick()
+        compose.waitForIdle()
+        compose.onNodeWithTag("pdig.nav.change", useUnmergedTree = true)
+            .assertIsSelected()
+        compose.onNodeWithText("已记录变更计划").assertExists()
+    }
+
+    @Test
     fun cardCollectionDoesNotAdvertiseCreationWithoutProductionAuthority() {
         val session = session() // Source-only fixture, no manual-establish authority.
         compose.setContent {
