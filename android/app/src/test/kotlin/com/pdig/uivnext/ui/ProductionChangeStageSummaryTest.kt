@@ -109,6 +109,93 @@ class ProductionChangeStageSummaryTest {
     }
 
     @Test
+    fun reanalysisDeltaReportsOnlyAuthorityProjectionChanges() {
+        fun plan(
+            analyzedRevision: Int,
+            currentRevision: Int,
+            impacts: List<VNextProductionPlanImpactItem>,
+        ) = VNextProductionPlan(
+            id = "plan-reanalysis-delta",
+            scenario = "replace_phone_number",
+            title = "更换手机号",
+            workflowState = "review_required",
+            effectiveState = null,
+            baselineGraphRevision = 10,
+            lastAnalyzedGraphRevision = analyzedRevision,
+            currentGraphRevision = currentRevision,
+            targetNodeId = "phone-old",
+            targetNodeName = "旧手机号",
+            effectiveDate = null,
+            readiness = "review_required",
+            affectedServiceCount = impacts.size,
+            mustChangeKeys = impacts.filter { it.status == "must_change" }.map { it.key },
+            unresolvedMustChangeKeys = emptyList(),
+            actions = emptyList(),
+            impactItems = impacts,
+        )
+
+        val before = plan(
+            analyzedRevision = 10,
+            currentRevision = 12,
+            impacts = listOf(
+                VNextProductionPlanImpactItem(
+                    key = "account-a|recovery",
+                    nodeId = "account-a",
+                    nodeName = "账户 A",
+                    capability = "recovery",
+                    status = "must_change",
+                ),
+                VNextProductionPlanImpactItem(
+                    key = "service-b|authentication",
+                    nodeId = "service-b",
+                    nodeName = "服务 B",
+                    capability = "authentication",
+                    status = "needs_review",
+                ),
+            ),
+        )
+        val after = plan(
+            analyzedRevision = 12,
+            currentRevision = 12,
+            impacts = listOf(
+                VNextProductionPlanImpactItem(
+                    key = "account-a|recovery",
+                    nodeId = "account-a",
+                    nodeName = "账户 A",
+                    capability = "recovery",
+                    status = "needs_review",
+                ),
+                VNextProductionPlanImpactItem(
+                    key = "service-c|authentication",
+                    nodeId = "service-c",
+                    nodeName = "服务 C",
+                    capability = "authentication",
+                    status = "must_change",
+                ),
+            ),
+        )
+
+        assertEquals(
+            ProductionReanalysisDelta(
+                fromRevision = 10,
+                toRevision = 12,
+                addedImpacts = 1,
+                removedImpacts = 1,
+                changedImpacts = 1,
+            ),
+            productionReanalysisDelta(before, after),
+        )
+
+        val unchanged = productionReanalysisDelta(
+            before.copy(lastAnalyzedGraphRevision = 11),
+            before.copy(lastAnalyzedGraphRevision = 12, currentGraphRevision = 12),
+        )
+        assertEquals(0, unchanged.impactChanges)
+        assertEquals(11, unchanged.fromRevision)
+        assertEquals(12, unchanged.toRevision)
+    }
+
+    @Test
     fun impactRowsChangeStateByStageWithoutInventingVerification() {
         val keyA = "account-a|recovery"
         val keyB = "service-b|authentication"

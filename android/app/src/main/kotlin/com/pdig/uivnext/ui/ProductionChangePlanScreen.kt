@@ -64,6 +64,9 @@ internal fun ProductionChangePlanScreen(
         mutableStateOf(session.dataSource.productionPlan(planId))
     }
     var error by remember(session, planId) { mutableStateOf<String?>(null) }
+    var reanalysisDelta by remember(session, planId) {
+        mutableStateOf<ProductionReanalysisDelta?>(null)
+    }
 
     val current = plan
     if (current == null) {
@@ -195,12 +198,24 @@ internal fun ProductionChangePlanScreen(
                 onReanalyze = {
                     error = null
                     try {
-                        plan = gateway!!.reanalyzePlan(current.id)
+                        // Compare two authority-backed projections only. This is
+                        // presentation feedback about the reanalysis result, not
+                        // a second impact engine in Compose.
+                        val before = session.dataSource.productionPlan(current.id) ?: current
+                        val updated = gateway!!.reanalyzePlan(current.id)
+                        reanalysisDelta = productionReanalysisDelta(before, updated)
+                        plan = updated
                     } catch (_: Throwable) {
                         error = "重新分析未完成；计划仍保持阻断状态。"
                     }
                 },
             )
+        }
+
+        reanalysisDelta?.let { delta ->
+            item {
+                ProductionReanalysisDeltaNotice(delta)
+            }
         }
 
         item {
@@ -454,6 +469,88 @@ internal fun productionPlanActionGuidance(
         }
     }
     return "可记录这一步的完成情况；记录完成不等于结果已验证。"
+}
+
+internal data class ProductionReanalysisDelta(
+    val fromRevision: Int,
+    val toRevision: Int,
+    val addedImpacts: Int,
+    val removedImpacts: Int,
+    val changedImpacts: Int,
+) {
+    val impactChanges: Int
+        get() = addedImpacts + removedImpacts + changedImpacts
+}
+
+/**
+ * User-visible reanalysis feedback derived only from two authoritative plan
+ * projections: the last readable plan immediately before the command and the
+ * plan returned by the AppContainer-backed authority. This does not simulate
+ * impact, claim actions, or mutate Reality.
+ */
+internal fun productionReanalysisDelta(
+    before: VNextProductionPlan,
+    after: VNextProductionPlan,
+): ProductionReanalysisDelta {
+    val beforeByKey = before.impactItems.associateBy { it.key }
+    val afterByKey = after.impactItems.associateBy { it.key }
+    val added = afterByKey.keys.count { it !in beforeByKey }
+    val removed = beforeByKey.keys.count { it !in afterByKey }
+    val changed = afterByKey.keys.count { key ->
+        val previous = beforeByKey[key]
+        previous != null && previous.status != afterByKey.getValue(key).status
+    }
+    return ProductionReanalysisDelta(
+        fromRevision = before.lastAnalyzedGraphRevision,
+        toRevision = after.lastAnalyzedGraphRevision,
+        addedImpacts = added,
+        removedImpacts = removed,
+        changedImpacts = changed,
+    )
+}
+
+@Composable
+private fun ProductionReanalysisDeltaNotice(delta: ProductionReanalysisDelta) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("pdig.production-vnext.change.reanalysis-result"),
+        color = PdigV2Colors.PrimarySoft.copy(alpha = 0.65f),
+        shape = RoundedCornerShape(VRadius.Lg),
+        border = BorderStroke(1.dp, PdigV2Colors.PrimaryBright.copy(alpha = 0.20f)),
+    ) {
+        Column(
+            Modifier.padding(13.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(
+                "重新分析完成",
+                color = PdigV2Colors.PrimaryText,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                "分析基准 ${delta.fromRevision} → ${delta.toRevision}",
+                color = PdigV2Colors.TextSecondary,
+                fontSize = 10.sp,
+            )
+            Text(
+                if (delta.impactChanges == 0) {
+                    "当前已记录影响范围没有变化。"
+                } else {
+                    "新增 ${delta.addedImpacts} · 已不在当前影响 ${delta.removedImpacts} · 状态变化 ${delta.changedImpacts}"
+                },
+                color = PdigV2Colors.TextPrimary,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Text(
+                "这里只比较重新分析前后的正式影响投影；不会自动把任何步骤标记为已完成或已验证。",
+                color = PdigV2Colors.TextMuted,
+                fontSize = 10.sp,
+            )
+        }
+    }
 }
 
 internal enum class ProductionChangeStage {
