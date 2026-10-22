@@ -232,6 +232,12 @@ class PlanRepository(
         require(!ChangePlanMachine.isFrozen(plan.workflowState)) { "plan_frozen" }
         val targetNodeId = plan.targetNodeId ?: throw IllegalStateException("plan_target_missing")
         val analyzedRevision = graph.graphRevision()
+        // Reference rebase parity (PRB-001): a current non-terminal plan is
+        // already analyzed against this exact Reality revision. Reanalysis is a
+        // true no-op rather than a metadata rewrite.
+        if (!com.pdig.core.plan.isPlanStale(plan, analyzedRevision)) {
+            return planDetail(planId) ?: throw IllegalStateException("entity_not_found")
+        }
         val impact = graph.impactFor(targetNodeId, scenarioImpactCapabilities(plan.scenario))
         require(graph.graphRevision() == analyzedRevision) {
             "graph_changed_during_plan_analysis"
@@ -259,6 +265,13 @@ class PlanRepository(
         )
         val now = Instant.now().toString()
         driver.transaction {
+            // Close the analysis -> write race window as far as this repository
+            // boundary can: do not stamp an older snapshot with the analyzed
+            // revision if Reality changed after impact analysis but before the
+            // authoritative write.
+            require(graph.graphRevision() == analyzedRevision) {
+                "graph_changed_during_plan_analysis"
+            }
             driver.prepare(
                 """
                 UPDATE change_plans
