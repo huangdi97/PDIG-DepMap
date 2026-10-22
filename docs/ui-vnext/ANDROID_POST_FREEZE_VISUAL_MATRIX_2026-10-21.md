@@ -87,15 +87,19 @@ region label and a value the harness itself types). Each adopted row keeps
 `humanReview = NOT_RUN`, records the preview package and APK hash, and states that
 the assertions are the harness's own `require_screen` gates rather than mine.
 
-**Still `NOT_RUN` (7):** `17-change-phone-current`, `18-change-phone-transition`,
-`19-…-before-retirement-blocked`, `20-…-verification-pending`,
-`21-…-all-required-paths-verified`, `22-…-retirement-eligible`,
-`23-…-after-plan`. The preview harness captures the **card**-change projections, not
-the phone-change state machine; every one of those states is instead proven on the
-Production surface (`production-change-current`,
-`production-change-pending-verification`, `production-change-retirement-blocked`,
-`production-change-retirement-eligible`, `production-change-after-plan`). They stay
-`NOT_RUN` rather than being substituted by a differently-sourced image.
+**Adopted since:** `17-change-phone-current` (captured by tapping the preview's 当前
+projection tab), `18-change-phone-transition` (harness `05-change`, 「第 3/6 步 · 验证新号码」)
+and `23-change-phone-after-plan` (harness `05b-change-plan`, explicitly labelled
+「完成后 · 预期状态（未执行）」). That makes 24 of the 28 ids real preview captures.
+
+**Still `NOT_RUN` (4):** `19-change-phone-before-retirement-blocked`,
+`20-change-phone-verification-pending`, `21-change-phone-all-required-paths-verified`,
+`22-change-phone-retirement-eligible`. These are **authority** states: the preview
+build has no Change authority at all, so rendering them there would make a synthetic
+fixture look like a real retirement decision — the exact thing this project forbids.
+Each row carries `coveredBy` pointing at the Production shot that proves the same
+state (`production-change-retirement-blocked`,
+`production-change-pending-verification`, `production-change-retirement-eligible`).
 
 Also not captured: Device detail hero (`设备端点`) on the Production surface — the
 canonical spec allows runtime creation only for `payment_instrument`, `account` and

@@ -1540,47 +1540,60 @@
   },
   {
     "shot_id": "17-change-phone-current",
-    "screen": "phone preview catalogue (§27)",
-    "state": "NOT_RUN",
+    "screen": "Change phone",
+    "state": "preview CURRENT projection",
     "label": "phone-preview",
-    "mode": "not-run",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
-    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
-    "package": "com.pdig.app.preview.pa3049c6",
-    "dataMode": "synthetic-preview",
-    "device": "not-run",
+    "mode": "preview-current",
+    "sourceHead": "a08c1d393eca9bb67a25159d3ef4f0925344dfb0",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "01630f88287504b6ab032dd005d63288454fdb69f77438f443396abada3088d6",
+    "package": "com.pdig.app.preview.pcd355b5",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
     "api": 36,
-    "resolution": "n/a",
-    "density": "n/a",
+    "resolution": "1080x2340",
+    "density": "440",
     "fontScale": 1.0,
-    "navigationSequence": [],
-    "assertions": [],
-    "status": "NOT_RUN",
-    "reason": "preview harness captures card-change projections only; the phone-change state series is proven on the Production surface instead",
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "变更",
+      "更换手机号",
+      "当前"
+    ],
+    "assertions": [
+      "更换手机号",
+      "当前",
+      "迁移中",
+      "完成后（计划）"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T09:48:27+00:00",
     "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "18-change-phone-transition",
-    "screen": "phone preview catalogue (§27)",
-    "state": "NOT_RUN",
+    "screen": "change-phone-transition",
+    "state": "preview (synthetic) projection",
     "label": "phone-preview",
-    "mode": "not-run",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
+    "mode": "preview-harness",
+    "sourceHead": "cd355b5bc562bf59a40b18b2fb1f540183c229ce",
     "androidTreeHead": "9bad55cb",
-    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
-    "package": "com.pdig.app.preview.pa3049c6",
+    "apkSha256": "01630f88287504b6ab032dd005d63288454fdb69f77438f443396abada3088d6",
+    "package": "com.pdig.app.preview.pcd355b5",
     "dataMode": "synthetic-preview",
-    "device": "not-run",
+    "device": "sdk_gphone64_x86_64",
     "api": 36,
-    "resolution": "n/a",
-    "density": "n/a",
+    "resolution": "1080x2400",
+    "density": "420",
     "fontScale": 1.0,
     "navigationSequence": [],
     "assertions": [],
-    "status": "NOT_RUN",
-    "reason": "same as 17",
-    "humanReview": "NOT_RUN"
+    "status": "CAPTURED",
+    "humanReview": "NOT_RUN",
+    "fontScaleSource": "set-by-runbook",
+    "assertionMode": "preview-harness-require_screen",
+    "evidenceKind": "png + uiautomator json dump",
+    "note": "AFTER projection is explicitly labelled 「完成后 · 预期状态（未执行）」 on screen"
   },
   {
     "shot_id": "19-change-phone-before-retirement-blocked",
@@ -1601,8 +1614,11 @@
     "navigationSequence": [],
     "assertions": [],
     "status": "NOT_RUN",
-    "reason": "proven on Production (production-change-retirement-blocked), not in the preview catalogue",
-    "humanReview": "NOT_RUN"
+    "reason": "preview has no Change authority: it can only project presentation states, and fabricating a retirement gate here would make a synthetic fixture look like a real authority decision. Proven instead on the Production surface (see coveredBy).",
+    "humanReview": "NOT_RUN",
+    "coveredBy": [
+      "production-change-retirement-blocked"
+    ]
   },
   {
     "shot_id": "20-change-phone-verification-pending",
@@ -1623,8 +1639,11 @@
     "navigationSequence": [],
     "assertions": [],
     "status": "NOT_RUN",
-    "reason": "proven on Production (production-change-pending-verification), not in the preview catalogue",
-    "humanReview": "NOT_RUN"
+    "reason": "preview has no Change authority: it can only project presentation states, and fabricating a retirement gate here would make a synthetic fixture look like a real authority decision. Proven instead on the Production surface (see coveredBy).",
+    "humanReview": "NOT_RUN",
+    "coveredBy": [
+      "production-change-pending-verification"
+    ]
   },
   {
     "shot_id": "21-change-phone-all-required-paths-verified",
@@ -1645,8 +1664,11 @@
     "navigationSequence": [],
     "assertions": [],
     "status": "NOT_RUN",
-    "reason": "proven on Production (production-change-retirement-eligible), not in the preview catalogue",
-    "humanReview": "NOT_RUN"
+    "reason": "preview has no Change authority: it can only project presentation states, and fabricating a retirement gate here would make a synthetic fixture look like a real authority decision. Proven instead on the Production surface (see coveredBy).",
+    "humanReview": "NOT_RUN",
+    "coveredBy": [
+      "production-change-retirement-eligible"
+    ]
   },
   {
     "shot_id": "22-change-phone-retirement-eligible",
@@ -1667,30 +1689,36 @@
     "navigationSequence": [],
     "assertions": [],
     "status": "NOT_RUN",
-    "reason": "proven on Production (production-change-retirement-eligible), not in the preview catalogue",
-    "humanReview": "NOT_RUN"
+    "reason": "preview has no Change authority: it can only project presentation states, and fabricating a retirement gate here would make a synthetic fixture look like a real authority decision. Proven instead on the Production surface (see coveredBy).",
+    "humanReview": "NOT_RUN",
+    "coveredBy": [
+      "production-change-retirement-eligible"
+    ]
   },
   {
     "shot_id": "23-change-phone-after-plan",
-    "screen": "phone preview catalogue (§27)",
-    "state": "NOT_RUN",
+    "screen": "change-phone-after-plan",
+    "state": "preview (synthetic) projection",
     "label": "phone-preview",
-    "mode": "not-run",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
+    "mode": "preview-harness",
+    "sourceHead": "cd355b5bc562bf59a40b18b2fb1f540183c229ce",
     "androidTreeHead": "9bad55cb",
-    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
-    "package": "com.pdig.app.preview.pa3049c6",
+    "apkSha256": "01630f88287504b6ab032dd005d63288454fdb69f77438f443396abada3088d6",
+    "package": "com.pdig.app.preview.pcd355b5",
     "dataMode": "synthetic-preview",
-    "device": "not-run",
+    "device": "sdk_gphone64_x86_64",
     "api": 36,
-    "resolution": "n/a",
-    "density": "n/a",
+    "resolution": "1080x2400",
+    "density": "420",
     "fontScale": 1.0,
     "navigationSequence": [],
     "assertions": [],
-    "status": "NOT_RUN",
-    "reason": "proven on Production (production-change-after-plan), not in the preview catalogue",
-    "humanReview": "NOT_RUN"
+    "status": "CAPTURED",
+    "humanReview": "NOT_RUN",
+    "fontScaleSource": "set-by-runbook",
+    "assertionMode": "preview-harness-require_screen",
+    "evidenceKind": "png + uiautomator json dump",
+    "note": "AFTER projection is explicitly labelled 「完成后 · 预期状态（未执行）」 on screen"
   },
   {
     "shot_id": "24-records",

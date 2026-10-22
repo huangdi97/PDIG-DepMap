@@ -1,6 +1,6 @@
 # Evidence index — 2026-10-21 android post-freeze closure
 
-Generated: 2026-10-22T08:22:20+00:00
+Generated: 2026-10-22T09:57:18+00:00
 sourceHead: `1d50a272991342778556964ec84f1dafb7075463`
 androidTreeHead: `abc0988a`
 installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94`
@@ -56,13 +56,13 @@ installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7
 | 14-service-detail | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
 | 15-weaknesses | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
 | 16-change-center | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
-| 17-change-phone-current | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 18-change-phone-transition | phone-preview | NOT_RUN | NOT_RUN / 0 |
+| 17-change-phone-current | phone-preview | preview CURRENT projection | CAPTURED / 4 |
+| 18-change-phone-transition | phone-preview | preview (synthetic) projection | CAPTURED / 0 |
 | 19-change-phone-before-retirement-blocked | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 20-change-phone-verification-pending | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 21-change-phone-all-required-paths-verified | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 22-change-phone-retirement-eligible | phone-preview | NOT_RUN | NOT_RUN / 0 |
-| 23-change-phone-after-plan | phone-preview | NOT_RUN | NOT_RUN / 0 |
+| 23-change-phone-after-plan | phone-preview | preview (synthetic) projection | CAPTURED / 0 |
 | 24-records | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
 | 25-me | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
 | 26-privacy-on | phone-preview | preview (synthetic) capture | CAPTURED / 0 |
