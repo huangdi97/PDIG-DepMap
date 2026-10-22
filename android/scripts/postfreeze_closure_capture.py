@@ -47,10 +47,26 @@ FORBIDDEN_INFERENCE = (
 
 
 class Capture:
-    def __init__(self, out_root: Path, mode: str, font_scale: float, label: str) -> None:
+    def __init__(
+        self,
+        out_root: Path,
+        mode: str,
+        font_scale: float,
+        label: str,
+        prefix: str = "",
+    ) -> None:
         self.out_root = out_root
         self.mode = mode
-        self.font_scale = font_scale
+        # Evidence must describe the device, not the flag we hoped for. The
+        # measured system font scale wins whenever it is readable.
+        measured = shell_out("settings", "get", "system", "font_scale").strip()
+        self.font_scale_source = "device"
+        try:
+            self.font_scale = float(measured)
+        except ValueError:
+            self.font_scale = font_scale
+            self.font_scale_source = "flag-fallback"
+        self.prefix = prefix
         self.label = label
         self.entries: list[dict] = []
         self.navigation: list[str] = []
@@ -69,15 +85,16 @@ class Capture:
         xml_dir = self.out_root / "xml" / self.label
         png_dir.mkdir(parents=True, exist_ok=True)
         xml_dir.mkdir(parents=True, exist_ok=True)
-        png = png_dir / f"{shot_id}.png"
+        file_id = f"{self.prefix}{shot_id}"
+        png = png_dir / f"{file_id}.png"
         raw = adb_out("exec-out", "screencap", "-p")
         png.write_bytes(raw)
         nodes = self.dump()
-        (xml_dir / f"{shot_id}.xml").write_text(self.last_raw_xml, encoding="utf-8")
+        (xml_dir / f"{file_id}.xml").write_text(self.last_raw_xml, encoding="utf-8")
         labels = [label_of(n) for n in nodes]
         missing = [a for a in assertions if not any(a in x for x in labels)]
         entry = {
-            "shot_id": shot_id,
+            "shot_id": file_id,
             "screen": screen,
             "state": state,
             "label": self.label,
@@ -92,6 +109,7 @@ class Capture:
             "resolution": self.profile["resolution"],
             "density": self.profile["density"],
             "fontScale": self.font_scale,
+            "fontScaleSource": self.font_scale_source,
             "navigationSequence": list(self.navigation),
             "assertions": assertions,
             "assertionsMissing": missing,
@@ -694,11 +712,12 @@ def main() -> None:
     parser.add_argument("--out", required=True)
     parser.add_argument("--label", default="production")
     parser.add_argument("--font-scale", type=float, default=1.0)
+    parser.add_argument("--prefix", default="")
     args = parser.parse_args()
 
     out_root = Path(args.out)
     out_root.mkdir(parents=True, exist_ok=True)
-    cap = Capture(out_root, args.mode, args.font_scale, args.label)
+    cap = Capture(out_root, args.mode, args.font_scale, args.label, args.prefix)
 
     if args.mode == "prod-journey":
         flow_production_journey(cap)

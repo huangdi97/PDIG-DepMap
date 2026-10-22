@@ -100,6 +100,14 @@ class AndroidAdaptiveShellContractTest {
 
     @Test
     fun compactInfrastructure_usesHubInsteadOfPersistentSecondaryStrip() {
+        // The forced content viewport pins what the *content* renders, but the
+        // adaptive shell still derives its navigation chrome from the real
+        // window. This contract is therefore about compact windows only.
+        assumeTrue(
+            "compact-window-only contract (window width must be < 600dp)",
+            InstrumentationRegistry.getInstrumentation().targetContext
+                .resources.configuration.screenWidthDp < 600,
+        )
         val app = createVNextAppState(screen = VScreen.OVERVIEW)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
@@ -111,6 +119,13 @@ class AndroidAdaptiveShellContractTest {
 
     @Test
     fun compactChildFlow_hidesRootNavigationAndGlobalUtilities() {
+        // Same window-class scope as compactInfrastructure_*: the bottom bar is
+        // chosen from the real window, not from the forced content width.
+        assumeTrue(
+            "compact-window-only contract (window width must be < 600dp)",
+            InstrumentationRegistry.getInstrumentation().targetContext
+                .resources.configuration.screenWidthDp < 600,
+        )
         val app = createVNextAppState().apply { openCard("card-cn-2") }
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
