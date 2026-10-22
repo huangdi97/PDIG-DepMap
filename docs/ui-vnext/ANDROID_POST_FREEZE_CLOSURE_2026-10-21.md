@@ -16,13 +16,13 @@
 | `CONFORMANCE_PASS` | YES — Android 161/161 PASS, 0 fail, 0 notImplemented | `conformance/reports/android.json` |
 | `EXACT_HEAD_BUILD_PASS` | YES — 4 variants + 2 androidTest APKs | evidence `apk/` |
 | `PREVIEW_APK_IDENTITY` | PASS — `com.pdig.app.preview.pa3049c6`, label `PDIG Preview a3049c6`, launcher `com.pdig.app.PreviewLauncherActivity`, no `MainActivity` launchable | `aapt dump badging` |
-| `PHONE_RUNTIME_PASS` | PARTIAL — 13 Production screens + full Change journey captured | `phone/`, `stale-reanalysis/`, `privacy/` |
+| `PHONE_RUNTIME_PASS` | YES — 13 Production screens incl. the full Change journey, plus landscape and font 1.3 / 1.5 sets, all with device-measured font scale | `phone/`, `phone-landscape/`, `phone-font13/`, `phone-font15/`, `stale-reanalysis/`, `privacy/` |
 | `TABLET_RUNTIME_PASS` | YES — 5 expanded + 5 medium + 5 font-1.5 captures; `TabletAdaptiveContractTest` 5/5 PASS at font scale 1.0 (see §5) | `expanded/`, `tablet-medium/`, `tablet-font15/` |
 | `PRODUCTION_REHEARSAL_PASS` | YES — `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS` | `production/` |
 | `PHONE_MBB_FULL_JOURNEY_PASS` | YES — blocked → eligible → retired, captured | `phone/production-change-*` |
 | `STALE_PLAN_REANALYSIS_PASS` | YES — stale blocked, reanalysis advanced the analyzed revision | `stale-reanalysis/` |
-| `PRIVACY_ALL_OBJECTS_PASS` | PARTIAL — phone/account/email/service identity + inventory + Me verified; membership/custom not present in seeded Reality | `privacy/` |
-| `CURRENT_HEAD_SCREENSHOTS_COMPLETE` | NO — 31 captured, 28 §27 phone-preview ids recorded `NOT_RUN` | `MANIFEST.json` |
+| `PRIVACY_ALL_OBJECTS_PASS` | PARTIAL — phone/account/email/service identity + inventory + Me verified with device-measured font scale; membership/custom cannot be created at runtime (canonical scope) | `privacy/` |
+| `CURRENT_HEAD_SCREENSHOTS_COMPLETE` | NO — 51 captured, 28 §27 phone-preview ids recorded `NOT_RUN` | `MANIFEST.json` |
 | `REFERENCE_COMPARISON_COMPLETE` | NO — see `PIXEL_REFERENCE_LIMITATION` | §6 |
 | `APK_CANDIDATE_READY` | YES (debug-signed review candidate only) | `apk/` |
 

@@ -1,6 +1,6 @@
 # Evidence index — 2026-10-21 android post-freeze closure
 
-Generated: 2026-10-22T03:39:35+00:00
+Generated: 2026-10-22T05:47:01+00:00
 sourceHead: `1d50a272991342778556964ec84f1dafb7075463`
 androidTreeHead: `abc0988a`
 installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94`
@@ -25,6 +25,21 @@ installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7
 | production-now | phone | unlocked | CAPTURED / 6 |
 | production-records | phone | recorded history | CAPTURED / 3 |
 | production-service-detail | phone | governed identity hero | CAPTURED / 2 |
+| f13-tablet-change | phone-font13 | plan list | CAPTURED / 2 |
+| f13-tablet-infrastructure | phone-font13 | hub | CAPTURED / 1 |
+| f13-tablet-me | phone-font13 | identity summary | CAPTURED / 1 |
+| f13-tablet-now | phone-font13 | unlocked | CAPTURED / 6 |
+| f13-tablet-records | phone-font13 | history | CAPTURED / 1 |
+| f15-tablet-change | phone-font15 | plan list | CAPTURED / 2 |
+| f15-tablet-infrastructure | phone-font15 | hub | CAPTURED / 1 |
+| f15-tablet-me | phone-font15 | identity summary | CAPTURED / 1 |
+| f15-tablet-now | phone-font15 | unlocked | CAPTURED / 6 |
+| f15-tablet-records | phone-font15 | history | CAPTURED / 1 |
+| land-tablet-change | phone-landscape | plan list | CAPTURED / 2 |
+| land-tablet-infrastructure | phone-landscape | hub | CAPTURED / 1 |
+| land-tablet-me | phone-landscape | identity summary | CAPTURED / 1 |
+| land-tablet-now | phone-landscape | unlocked | CAPTURED / 6 |
+| land-tablet-records | phone-landscape | history | CAPTURED / 1 |
 | 01-now | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 02-infrastructure | phone-preview | NOT_RUN | NOT_RUN / 0 |
 | 03-cards | phone-preview | NOT_RUN | NOT_RUN / 0 |

@@ -156,8 +156,8 @@
     "state": "governed identity hero",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -166,6 +166,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -178,9 +179,8 @@
       "主账户"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:42:02+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:32:24+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-after-plan",
@@ -188,8 +188,8 @@
     "state": "after = plan projection",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -198,6 +198,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -230,9 +231,8 @@
       "未发生"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:45:42+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:36:04+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-center",
@@ -240,8 +240,8 @@
     "state": "plan list",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -250,6 +250,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -276,9 +277,8 @@
       "更换手机号"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:43:20+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:33:42+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-current",
@@ -286,8 +286,8 @@
     "state": "current",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -296,6 +296,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -325,9 +326,8 @@
       "下一步"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:43:28+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:33:49+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-pending-verification",
@@ -335,8 +335,8 @@
     "state": "done but not verified",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -345,6 +345,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -374,9 +375,8 @@
       "确认验证会写入正式记录"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:43:48+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:34:10+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-retirement-blocked",
@@ -384,8 +384,8 @@
     "state": "retirement blocked",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -394,6 +394,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -422,9 +423,8 @@
       "等待前置步骤"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:44:02+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:34:24+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-retirement-eligible",
@@ -432,8 +432,8 @@
     "state": "retirement eligible",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -442,6 +442,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -473,9 +474,8 @@
       "停用旧手机号（新路径全部验证后）"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:44:57+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:35:19+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-email-detail",
@@ -483,8 +483,8 @@
     "state": "governed identity hero",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -493,6 +493,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -510,9 +511,8 @@
       "主邮箱"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:42:33+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:32:55+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-infrastructure",
@@ -520,8 +520,8 @@
     "state": "hub",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -530,6 +530,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施"
@@ -542,9 +543,8 @@
       "服务"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:41:38+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:32:00+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-lock",
@@ -552,8 +552,8 @@
     "state": "locked",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -562,15 +562,15 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [],
     "assertions": [
       "PDIG 已锁定",
       "已知悉风险，本次进入"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:41:18+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:31:39+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-now",
@@ -578,8 +578,8 @@
     "state": "unlocked",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -588,6 +588,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入"
     ],
@@ -600,9 +601,8 @@
       "我"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:41:30+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:31:52+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-records",
@@ -610,8 +610,8 @@
     "state": "recorded history",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -620,6 +620,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -655,9 +656,8 @@
       "已验证"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:45:55+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:36:17+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-service-detail",
@@ -665,8 +665,8 @@
     "state": "governed identity hero",
     "label": "phone",
     "mode": "prod-journey",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -675,6 +675,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "基础设施",
@@ -697,9 +698,461 @@
       "登录服务"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:43:04+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:33:25+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f13-tablet-change",
+    "screen": "Change",
+    "state": "plan list",
+    "label": "phone-font13",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.3,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更"
+    ],
+    "assertions": [
+      "变更",
+      "已记录变更计划"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:45:02+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f13-tablet-infrastructure",
+    "screen": "Infrastructure",
+    "state": "hub",
+    "label": "phone-font13",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.3,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施"
+    ],
+    "assertions": [
+      "基础设施"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:44:52+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f13-tablet-me",
+    "screen": "Me",
+    "state": "identity summary",
+    "label": "phone-font13",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.3,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更",
+      "记录",
+      "我"
+    ],
+    "assertions": [
+      "我的数字生活"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:45:22+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f13-tablet-now",
+    "screen": "Now",
+    "state": "unlocked",
+    "label": "phone-font13",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.3,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入"
+    ],
+    "assertions": [
+      "你的数字基础设施 · 已记录的全球上下文",
+      "现在",
+      "基础设施",
+      "变更",
+      "记录",
+      "我"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:44:42+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f13-tablet-records",
+    "screen": "Records",
+    "state": "history",
+    "label": "phone-font13",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.3,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更",
+      "记录"
+    ],
+    "assertions": [
+      "已记录的操作与验证证据 · 按计划分组"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:45:12+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f15-tablet-change",
+    "screen": "Change",
+    "state": "plan list",
+    "label": "phone-font15",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.5,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更"
+    ],
+    "assertions": [
+      "变更",
+      "已记录变更计划"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:46:05+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f15-tablet-infrastructure",
+    "screen": "Infrastructure",
+    "state": "hub",
+    "label": "phone-font15",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.5,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施"
+    ],
+    "assertions": [
+      "基础设施"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:45:55+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f15-tablet-me",
+    "screen": "Me",
+    "state": "identity summary",
+    "label": "phone-font15",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.5,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更",
+      "记录",
+      "我"
+    ],
+    "assertions": [
+      "我的数字生活"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:46:25+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f15-tablet-now",
+    "screen": "Now",
+    "state": "unlocked",
+    "label": "phone-font15",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.5,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入"
+    ],
+    "assertions": [
+      "你的数字基础设施 · 已记录的全球上下文",
+      "现在",
+      "基础设施",
+      "变更",
+      "记录",
+      "我"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:45:45+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "f15-tablet-records",
+    "screen": "Records",
+    "state": "history",
+    "label": "phone-font15",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.5,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更",
+      "记录"
+    ],
+    "assertions": [
+      "已记录的操作与验证证据 · 按计划分组"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:46:15+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "land-tablet-change",
+    "screen": "Change",
+    "state": "plan list",
+    "label": "phone-landscape",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.0,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更"
+    ],
+    "assertions": [
+      "变更",
+      "已记录变更计划"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:43:57+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "land-tablet-infrastructure",
+    "screen": "Infrastructure",
+    "state": "hub",
+    "label": "phone-landscape",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.0,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施"
+    ],
+    "assertions": [
+      "基础设施"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:43:47+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "land-tablet-me",
+    "screen": "Me",
+    "state": "identity summary",
+    "label": "phone-landscape",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.0,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更",
+      "记录",
+      "我"
+    ],
+    "assertions": [
+      "我的数字生活"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:44:18+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "land-tablet-now",
+    "screen": "Now",
+    "state": "unlocked",
+    "label": "phone-landscape",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.0,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入"
+    ],
+    "assertions": [
+      "你的数字基础设施 · 已记录的全球上下文",
+      "现在",
+      "基础设施",
+      "变更",
+      "记录",
+      "我"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:43:37+00:00",
+    "humanReview": "NOT_RUN"
+  },
+  {
+    "shot_id": "land-tablet-records",
+    "screen": "Records",
+    "state": "history",
+    "label": "phone-landscape",
+    "mode": "prod-tablet",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
+    "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
+    "package": "com.pdig.app",
+    "dataMode": "isolated-test-reality",
+    "device": "sdk_gphone64_x86_64",
+    "api": 36,
+    "resolution": "1080x2400",
+    "density": "420",
+    "fontScale": 1.0,
+    "fontScaleSource": "device",
+    "navigationSequence": [
+      "已知悉风险，本次进入",
+      "基础设施",
+      "变更",
+      "记录"
+    ],
+    "assertions": [
+      "已记录的操作与验证证据 · 按计划分组"
+    ],
+    "assertionsMissing": [],
+    "capturedAtUtc": "2026-10-22T05:44:07+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "01-now",
@@ -1323,8 +1776,8 @@
     "state": "identity summary",
     "label": "privacy",
     "mode": "prod-privacy",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1333,6 +1786,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "我"
@@ -1341,9 +1795,8 @@
       "我的数字生活"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T21:11:29+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:36:41+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-privacy-default-off",
@@ -1351,8 +1804,8 @@
     "state": "masking default off",
     "label": "privacy",
     "mode": "prod-privacy",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1361,6 +1814,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "我"
@@ -1371,9 +1825,8 @@
       "本机显示偏好，不修改已确认记录"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T21:11:43+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:36:55+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-privacy-off-restored",
@@ -1381,8 +1834,8 @@
     "state": "masking off",
     "label": "privacy",
     "mode": "prod-privacy",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1391,6 +1844,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "我",
@@ -1407,9 +1861,8 @@
       "敏感信息遮蔽：已关闭"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T21:12:55+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:38:08+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-privacy-off-restored-infrastructure",
@@ -1417,8 +1870,8 @@
     "state": "masking off restores real values",
     "label": "privacy",
     "mode": "prod-privacy",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1427,6 +1880,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "我",
@@ -1445,9 +1899,8 @@
       "旧主号"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T21:13:12+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:38:25+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-privacy-on",
@@ -1455,8 +1908,8 @@
     "state": "masking on",
     "label": "privacy",
     "mode": "prod-privacy",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1465,6 +1918,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "我",
@@ -1477,9 +1931,8 @@
       "隐藏号码、卡号等敏感呈现；不会改写对象身份。"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T21:11:58+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:37:10+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-privacy-on-infrastructure",
@@ -1487,8 +1940,8 @@
     "state": "masking on",
     "label": "privacy",
     "mode": "prod-privacy",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1497,6 +1950,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "我",
@@ -1510,9 +1964,8 @@
       "身份对象"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T21:12:18+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:37:31+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-reanalyzed",
@@ -1520,8 +1973,8 @@
     "state": "reanalyzed",
     "label": "stale-reanalysis",
     "mode": "prod-stale",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1530,6 +1983,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "变更",
@@ -1541,9 +1995,8 @@
       "分析时数据版本 7 · 当前数据版本 7"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:57:02+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:43:14+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "production-change-stale",
@@ -1551,8 +2004,8 @@
     "state": "stale",
     "label": "stale-reanalysis",
     "mode": "prod-stale",
-    "sourceHead": "a3049c6480a6121f5ffbd7df79364c1328bedc04",
-    "androidTreeHead": "9bad55cb",
+    "sourceHead": "2aa4eb59b6af7195c3e5609a4451dc0187f3d254",
+    "androidTreeHead": "bc6a92e5",
     "apkSha256": "6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94",
     "package": "com.pdig.app",
     "dataMode": "isolated-test-reality",
@@ -1561,6 +2014,7 @@
     "resolution": "1080x2400",
     "density": "420",
     "fontScale": 1.0,
+    "fontScaleSource": "device",
     "navigationSequence": [
       "已知悉风险，本次进入",
       "变更",
@@ -1572,9 +2026,8 @@
       "使用上方的「重新分析当前影响」；界面不会用旧快照继续写入。"
     ],
     "assertionsMissing": [],
-    "capturedAtUtc": "2026-10-21T20:56:48+00:00",
-    "humanReview": "NOT_RUN",
-    "fontScaleSource": "flag-default-unverified"
+    "capturedAtUtc": "2026-10-22T05:42:59+00:00",
+    "humanReview": "NOT_RUN"
   },
   {
     "shot_id": "font15-tablet-change",

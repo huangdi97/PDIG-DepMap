@@ -8,7 +8,11 @@ script refuses to continue without.
 
 `humanReview` for every row: **NOT_RUN**. Nothing here is a visual acceptance.
 
-## A. Production — lock, shell, identity (API36 phone, 393×851 dp)
+## A. Production — lock, shell, identity (API36 phone, 411×914 dp)
+
+> Device resolution `1080×2400 @420` (the shared phone AVD carries a size override on top of
+> its 1080×2340 panel), font scale read from the device (`fontScaleSource = device`).
+> Landscape and font-scale 1.3 / 1.5 sets are in section E.
 
 | Shot | Screen / state | Asserted on screen |
 | --- | --- | --- |
@@ -59,6 +63,10 @@ script refuses to continue without.
 | `tablet-records` | expanded | 已记录的操作与验证证据 · 按计划分组 |
 | `tablet-me` | expanded | 我的数字生活 |
 | `medium-tablet-now` … `medium-tablet-me` | medium | same assertions, portrait |
+| `land-tablet-now` … `land-tablet-me` | phone 914×411 dp | same assertions, landscape |
+| `f13-tablet-now` … `f13-tablet-me` | phone, **font 1.3** | same assertions |
+| `f15-tablet-now` … `f15-tablet-me` | phone, **font 1.5** | same assertions |
+| `font15-tablet-now` … `font15-tablet-me` | tablet expanded, **font 1.5** | same assertions |
 
 ## F. Not captured this round (honest gaps)
 
