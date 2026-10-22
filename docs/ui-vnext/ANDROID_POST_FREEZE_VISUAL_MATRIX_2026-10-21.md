@@ -81,4 +81,4 @@ be exercised at runtime in this round.
 | `ProductionChangeStageInteractionContractTest` | 7/7 PASS (stage tabs, masked projection, stale reanalysis, next-step CTA) |
 | `ProductionPhoneChangeAuthorityContractTest` | PASS (MBB authority chain) |
 | `ProductionVNextShellContractTest` + `ProductionRecordNavigationContractTest` + `ProductionManualRelationshipContractTest` + `ProductionManualIdentityEstablishContractTest` | 24/24 PASS |
-| `TabletAdaptiveContractTest` + `AndroidAdaptiveShellContractTest` | **4 failures** on this tablet AVD — window-class assumptions; see closure doc §5 |
+| `TabletAdaptiveContractTest` + `AndroidAdaptiveShellContractTest` | **15 run, 0 failed, 2 skipped** at font scale 1.0 — the two skips are the compact-window contracts, explicitly scoped; see closure doc §5 |

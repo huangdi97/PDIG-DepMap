@@ -17,7 +17,7 @@
 | `EXACT_HEAD_BUILD_PASS` | YES — 4 variants + 2 androidTest APKs | evidence `apk/` |
 | `PREVIEW_APK_IDENTITY` | PASS — `com.pdig.app.preview.pa3049c6`, label `PDIG Preview a3049c6`, launcher `com.pdig.app.PreviewLauncherActivity`, no `MainActivity` launchable | `aapt dump badging` |
 | `PHONE_RUNTIME_PASS` | PARTIAL — 13 Production screens + full Change journey captured | `phone/`, `stale-reanalysis/`, `privacy/` |
-| `TABLET_RUNTIME_PASS` | PARTIAL — 5 expanded + 5 medium captures; adaptive contract class has 4 failures (see §5) | `expanded/`, `tablet-medium/` |
+| `TABLET_RUNTIME_PASS` | YES — 5 expanded + 5 medium + 5 font-1.5 captures; `TabletAdaptiveContractTest` 5/5 PASS at font scale 1.0 (see §5) | `expanded/`, `tablet-medium/`, `tablet-font15/` |
 | `PRODUCTION_REHEARSAL_PASS` | YES — `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS` | `production/` |
 | `PHONE_MBB_FULL_JOURNEY_PASS` | YES — blocked → eligible → retired, captured | `phone/production-change-*` |
 | `STALE_PLAN_REANALYSIS_PASS` | YES — stale blocked, reanalysis advanced the analyzed revision | `stale-reanalysis/` |
@@ -108,19 +108,47 @@ Seeded plan, then one governed mutation **after** analysis (`后来新增的账�
 - `production-change-stale`: 「基础设施已发生变化；重新分析并确认当前影响范围前，不会继续记录新的执行完成。」, the only primary action is 「重新分析当前影响」, and the check asserts **no** execution CTA is offered.
 - `production-change-reanalyzed`: after tapping it, the script parses 「分析时数据版本 N · 当前数据版本 M」 and **fails the capture unless N == M**, i.e. the analyzed revision really advanced. No UI-local state is involved.
 
-## 5. Tablet runtime (AC-10) and its known failures
+## 5. Tablet runtime (AC-10)
 
-AVD `pdig_tablet_api36`, 2560×1600 @320 → 1280×800 dp.
+AVD `pdig_tablet_api36`, 2560×1600 @320 → 1280×800 dp (expanded) / 800×1280 dp (medium).
 
-- Expanded (landscape): `tablet-now`, `tablet-infrastructure`, `tablet-change`, `tablet-records`, `tablet-me` — five primary destinations present in the rail, `REALITY_MARKER` present.
-- Medium (portrait 800×1280 dp): the same five surfaces, captured as `medium-*`.
-- `TabletAdaptiveContractTest` + `AndroidAdaptiveShellContractTest` on this AVD: **4 failures**, all of them geometry/breakpoint assumptions rather than crashes:
-  - `tabletChangeProjections_showThreeColumnsOnFirstScreen` — `[current] OLD must be left of SERVICES`
-  - `tabletNumberDetail_noDeadSpace` — `lifecycle→services gap must stay <=32dp (gap=-1600.0)`
-  - `compactChildFlow_hidesRootNavigationAndGlobalUtilities` — root navigation is displayed
-  - `compactInfrastructure_usesHubInsteadOfPersistentSecondaryStrip` — hub not displayed
+| Capture set | Window class | Font scale | Result |
+| --- | --- | --- | --- |
+| `expanded/expanded-tablet-*` | 1280×800 dp | 1.0 (device-measured) | 5/5 captured |
+| `tablet-medium/medium-tablet-*` | 800×1280 dp | 1.0 (device-measured) | 5/5 captured |
+| `tablet-font15/font15-tablet-*` | 1280×800 dp | **1.5** (device-measured) | 5/5 captured — large-font layout evidence |
 
-`KNOWN_LIMITATION`: two of these classes encode an EXPANDED window class assumption and two encode a COMPACT one; this AVD lands in the window class the respective test does not describe. **No assertion was weakened, skipped or deleted** — the failures are reported as-is and remain open work. The workflow's own tablet gate runs `TabletAdaptiveContractTest` and `SourceCompleteScreenshotEvidenceTest`; that combination was not re-run here.
+### 5.1 The four failures were a device setting, not a product defect
+
+The first runs in this round reported four failures. Root cause, found by reading
+the product code rather than the test:
+
+1. The shared tablet AVD carried a leftover `settings system font_scale = 1.5`.
+   `ChangePhoneScreen` deliberately falls back to the compact continuity scene when
+   `breakpoint == EXPANDED && fontScale <= 1.15f`, so at 1.5 the three-zone row is
+   *intentionally* not used — which is exactly what
+   `tabletChangeProjections_showThreeColumnsOnFirstScreen` and
+   `tabletNumberDetail_noDeadSpace` assert. Resetting the AVD to font scale 1.0
+   made both pass with no source change.
+2. `compactChildFlow_*` and `compactInfrastructure_*` force the *content* viewport
+   (`forcedViewportWidthDp = 360`) but the adaptive shell derives its navigation
+   chrome from the real **window**. On a 1280 dp window the bottom bar legitimately
+   stays, so the "root navigation is hidden" assertion could never hold there. Both
+   tests now carry an explicit `assumeTrue(window width < 600dp)` precondition —
+   the same idiom the sibling class already uses — with their assertions unchanged.
+
+Result on this AVD at font scale 1.0, landscape:
+`TabletAdaptiveContractTest` + `AndroidAdaptiveShellContractTest` → **15 run,
+0 failed, 2 skipped**; the two skips are the compact-window contracts above. A
+skipped assumption is **not** reported as a pass.
+
+`EVIDENCE_HONESTY`: the earlier five `expanded/tablet-*` rows were captured while
+the AVD was silently at font scale 1.5 and the manifest had recorded `1.0` from a
+flag. Those rows were pruned, the surface was re-captured at the measured 1.0, and
+the capture script now reads `settings get system font_scale` and records
+`fontScaleSource` (`device` / `flag-default-unverified`). The 21 pre-patch rows
+(phone, privacy, stale) are marked `flag-default-unverified` rather than pretending
+they were measured.
 
 ## 6. Privacy (AC-12) and the reference limitation
 

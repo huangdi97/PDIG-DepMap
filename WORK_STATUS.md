@@ -5,7 +5,9 @@
 > （lock → Now → Infrastructure → 账户/邮箱/服务身份 → Change CURRENT/TRANSITION/AFTER → MBB blocked/eligible/retired →
 > Records → stale→reanalyzed → privacy on/off → tablet expanded/medium），每张绑定 sourceHead + 安装 APK sha256 + UIAutomator 断言。
 > JVM/Conformance 全绿：core 108 / repos 13 / app 240 / app 240，Android conformance 161/161 PASS；production rehearsal PASS；
-> Production 契约 24/24 PASS。仍未关闭：§27 phone-preview 28 张记为 NOT_RUN（未改名冒充）、tablet 自适应契约 4 项几何断言失败、
+> Production 契约 24/24 PASS。仍未关闭：§27 phone-preview 28 张记为 NOT_RUN（未改名冒充）、
+> tablet 自适应契约已修根因（AVD 遗留 font_scale=1.5 + 两条 compact 契约缺窗口前提）并转绿（15 run / 0 failed / 2 skipped），
+> 另补 tablet font-1.5 大字号证据 5 张；
 > 参考图像素级对比受 `PIXEL_REFERENCE_LIMITATION` 限制。
 > 当前唯一正确 Gate：`VISUAL_CANDIDATE = READY_FOR_HUMAN`、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、
 > `PREVIOUS_FREEZE = historical approved candidate`、`CURRENT_POST_FREEZE_CANDIDATE = awaiting human confirmation`、`STORE_RELEASE = NOT_READY`。

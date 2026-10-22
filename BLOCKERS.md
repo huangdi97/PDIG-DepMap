@@ -4,9 +4,10 @@
 >
 > - 本轮在 exact source `a3049c64…` 上完成 Production runtime 取证与 Change Make-Before-Break 真实 UI journey；
 >   本机 JVM/Conformance/四类构建/Production rehearsal 全部真实执行并留下日志与 XML。
-> - **仍未关闭（本机可继续，非用户 blocker）**：`TabletAdaptiveContractTest` 与 `AndroidAdaptiveShellContractTest`
->   在本机 `pdig_tablet_api36`（2560×1600@320）上 4 项失败，均为窗口类假设（两项假设 EXPANDED、两项假设 COMPACT）；
->   未删除、未 skip、未降低任何断言，保持 FAIL 记录。
+> - **已关闭（2026-10-22 补充）**：`TabletAdaptiveContractTest` / `AndroidAdaptiveShellContractTest` 在本机 tablet AVD
+>   的失败已定位并修复根因——该 AVD 遗留 `font_scale = 1.5`，而产品在 `fontScale > 1.15` 时**有意**回退紧凑连续场景；
+>   另两条 `compact*` 契约把「强制内容视口 360dp」当成窗口类，实际导航外框取真实窗口。重置字号为 1.0 并为两条
+>   compact 契约加上 `< 600dp` 窗口前提后：**15 run / 0 failed / 2 skipped**（skip 属显式窗口类假定，不是 PASS）。
 > - **仍未关闭**：§27 phone-preview 28 张截图本轮未重抓，已在 `MANIFEST.json` 记为 `NOT_RUN`（禁止用旧图改名冒充）。
 > - `PIXEL_REFERENCE_LIMITATION`：仓库内 Android 参考图仍为小尺寸历史图（≈320×213），本轮不做像素级 diff 声明。
 > - Device / Membership / Custom 身份本轮无法进入 runtime Reality：Canonical 仅允许

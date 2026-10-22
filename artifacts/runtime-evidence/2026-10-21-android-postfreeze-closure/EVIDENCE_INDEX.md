@@ -1,17 +1,17 @@
 # Evidence index — 2026-10-21 android post-freeze closure
 
-Generated: 2026-10-21T21:51:46+00:00
-sourceHead: `a3049c6480a6121f5ffbd7df79364c1328bedc04`
-androidTreeHead: `9bad55cb`
+Generated: 2026-10-22T03:39:35+00:00
+sourceHead: `1d50a272991342778556964ec84f1dafb7075463`
+androidTreeHead: `abc0988a`
 installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94`
 
 | shot_id | label | state | assertions |
 | --- | --- | --- | --- |
-| tablet-change | expanded | plan list · expanded 1280x800 dp | CAPTURED / 2 |
-| tablet-infrastructure | expanded | hub · expanded 1280x800 dp | CAPTURED / 1 |
-| tablet-me | expanded | identity summary · expanded 1280x800 dp | CAPTURED / 1 |
-| tablet-now | expanded | unlocked · expanded 1280x800 dp | CAPTURED / 6 |
-| tablet-records | expanded | history · expanded 1280x800 dp | CAPTURED / 1 |
+| expanded-tablet-change | expanded | plan list | CAPTURED / 2 |
+| expanded-tablet-infrastructure | expanded | hub | CAPTURED / 1 |
+| expanded-tablet-me | expanded | identity summary | CAPTURED / 1 |
+| expanded-tablet-now | expanded | unlocked | CAPTURED / 6 |
+| expanded-tablet-records | expanded | history | CAPTURED / 1 |
 | production-account-detail | phone | governed identity hero | CAPTURED / 2 |
 | production-change-after-plan | phone | after = plan projection | CAPTURED / 2 |
 | production-change-center | phone | plan list | CAPTURED / 3 |
@@ -61,6 +61,11 @@ installed apk sha256 (as recorded per shot): `6512acb58cb9067d22c86b2a4fcb117cb7
 | production-privacy-on-infrastructure | privacy | masking on | CAPTURED / 2 |
 | production-change-reanalyzed | stale-reanalysis | reanalyzed | CAPTURED / 2 |
 | production-change-stale | stale-reanalysis | stale | CAPTURED / 3 |
+| font15-tablet-change | tablet-font15 | plan list | CAPTURED / 2 |
+| font15-tablet-infrastructure | tablet-font15 | hub | CAPTURED / 1 |
+| font15-tablet-me | tablet-font15 | identity summary | CAPTURED / 1 |
+| font15-tablet-now | tablet-font15 | unlocked | CAPTURED / 6 |
+| font15-tablet-records | tablet-font15 | history | CAPTURED / 1 |
 | medium-tablet-change | tablet-medium | plan list | CAPTURED / 2 |
 | medium-tablet-infrastructure | tablet-medium | hub | CAPTURED / 1 |
 | medium-tablet-me | tablet-medium | identity summary | CAPTURED / 1 |
