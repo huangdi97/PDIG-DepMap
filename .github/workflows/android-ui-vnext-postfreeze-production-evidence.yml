@@ -28,6 +28,9 @@ on:
 permissions:
   contents: read
 
+env:
+  PDIG_EVIDENCE_SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+
 concurrency:
   group: android-vnext-postfreeze-production-evidence-${{ github.ref }}
   cancel-in-progress: true
@@ -38,6 +41,8 @@ jobs:
     timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PDIG_EVIDENCE_SOURCE_HEAD }}
 
       - uses: actions/setup-java@v4
         with:
@@ -102,7 +107,8 @@ jobs:
             ROOT="$PWD"
             APK="$ROOT/android/app/build/outputs/apk/production/debug/app-production-debug.apk"
             TEST_APK=$(find "$ROOT/android/app/build/outputs/apk/androidTest" -name '*production*debug*androidTest*.apk' -print -quit)
-            OUT="$ROOT/artifacts/runtime-evidence/postfreeze-production-${GITHUB_SHA}"
+            SOURCE_HEAD="$PDIG_EVIDENCE_SOURCE_HEAD"
+            OUT="$ROOT/artifacts/runtime-evidence/postfreeze-production-${SOURCE_HEAD}"
             mkdir -p "$OUT/seed-logs"
 
             adb uninstall com.pdig.app >/dev/null 2>&1 || true
@@ -127,7 +133,7 @@ jobs:
               }
             }
 
-            export PDIG_SOURCE_HEAD="$GITHUB_SHA"
+            export PDIG_SOURCE_HEAD="$SOURCE_HEAD"
             export PDIG_ANDROID_TREE_HEAD="$(git log -1 --format=%h -- android/)"
             export PDIG_PACKAGE=com.pdig.app
             export PDIG_APK_SHA256="$(sha256sum "$APK" | awk '{print $1}')"
@@ -150,7 +156,7 @@ jobs:
             import os
             from pathlib import Path
 
-            root = Path('artifacts/runtime-evidence') / f"postfreeze-production-{os.environ['GITHUB_SHA']}"
+            root = Path('artifacts/runtime-evidence') / f"postfreeze-production-{os.environ['PDIG_SOURCE_HEAD']}"
             manifest = root / 'MANIFEST.json'
             entries = json.loads(manifest.read_text(encoding='utf-8'))
             by_id = {entry['shot_id']: entry for entry in entries}
@@ -166,7 +172,7 @@ jobs:
             if missing:
                 raise SystemExit(f'missing expected post-freeze evidence entries: {missing}')
 
-            head = os.environ['GITHUB_SHA']
+            head = os.environ['PDIG_SOURCE_HEAD']
             for shot_id in sorted(expected):
                 entry = by_id[shot_id]
                 if entry.get('sourceHead') != head:
@@ -191,7 +197,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-postfreeze-production-evidence-${{ github.sha }}
-          path: artifacts/runtime-evidence/postfreeze-production-${{ github.sha }}/
+          name: android-postfreeze-production-evidence-${{ env.PDIG_EVIDENCE_SOURCE_HEAD }}
+          path: artifacts/runtime-evidence/postfreeze-production-${{ env.PDIG_EVIDENCE_SOURCE_HEAD }}/
           if-no-files-found: warn
           retention-days: 21
