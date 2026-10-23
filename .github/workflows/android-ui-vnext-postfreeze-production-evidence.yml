@@ -60,7 +60,9 @@ jobs:
           ls -l /dev/kvm || true
 
       - name: Validate capture harness syntax
-        run: python3 -m py_compile android/scripts/postfreeze_closure_capture.py
+        run: |
+          python3 -m py_compile android/scripts/postfreeze_closure_capture.py
+          bash -n android/scripts/ci_postfreeze_production_evidence.sh
 
       - name: Build exact two-key Production VNext + instrumentation APK
         working-directory: android
