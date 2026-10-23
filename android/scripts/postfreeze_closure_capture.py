@@ -113,6 +113,7 @@ class Capture:
             "navigationSequence": list(self.navigation),
             "assertions": assertions,
             "assertionsMissing": missing,
+            "secureWindowExpected": self.mode.startswith("prod") and screen == "Records",
             "capturedAtUtc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "humanReview": "NOT_RUN",
         }
@@ -448,15 +449,40 @@ def flow_production_journey(cap: Capture) -> None:
     # Device detail is intentionally absent: the canonical spec does not allow
     # runtime creation of device nodes, so there is no governed way to put one in
     # Reality in this build. Its real empty state is captured instead.
-    for category, object_name, hero, shot_id, surface in (
-        ("账户", "主账户", "账户身份", "production-account-detail", "Account"),
-        ("邮箱", "主邮箱", "通信身份", "production-email-detail", "Email"),
-        ("服务", "登录服务", "服务节点", "production-service-detail", "Service"),
+    for category, object_name, hero, shot_id, surface, change_boundary in (
+        (
+            "账户", "主账户", "账户身份", "production-account-detail", "Account",
+            "账户变更尚未开放正式可执行模板；不会用通用步骤替代真实变更语义。",
+        ),
+        (
+            "邮箱", "主邮箱", "通信身份", "production-email-detail", "Email",
+            "邮箱更换尚未开放正式可执行模板；恢复与认证影响不会由界面自行猜测。",
+        ),
+        (
+            "服务", "登录服务", "服务节点", "production-service-detail", "Service",
+            "服务迁移尚未开放正式可执行模板；不会把关系数量当作迁移计划。",
+        ),
     ):
         production_inventory_category(cap, category, object_name)
         cap.wait_text(hero, timeout=20)
         cap.shot(shot_id, f"{surface} detail", "governed identity hero", [hero, object_name])
         cap.require_absent(shot_id, *FORBIDDEN_INFERENCE)
+
+        # Post-freeze R62/R63 evidence: the lower detail surface must expose an
+        # honest Change boundary instead of fabricating an executable template.
+        cap.ensure_visible("此对象暂不能直接创建变更计划")
+        boundary_id = f"{shot_id}-change-boundary"
+        cap.shot(
+            boundary_id,
+            f"{surface} detail",
+            "formal Change unavailable; routed to Change Center",
+            [
+                "此对象暂不能直接创建变更计划",
+                change_boundary,
+                "查看变更中心 →",
+            ],
+        )
+        cap.require_absent(boundary_id, *FORBIDDEN_INFERENCE)
         cap.back()
 
     # 5. Change Center and the seeded phone change plan.
@@ -543,8 +569,16 @@ def flow_production_journey(cap: Capture) -> None:
     cap.shot(
         "production-records",
         "Records",
-        "recorded history",
-        ["已记录的操作与验证证据 · 按计划分组", "已记录完成", "已验证"],
+        "recorded history / three-clock truth",
+        [
+            "已记录的操作与验证证据 · 按计划分组",
+            "已记录完成",
+            "已验证",
+            "来源：正式变更计划",
+            "发生时间未记录",
+            "记录于 ",
+            "验证于 ",
+        ],
     )
 
 
@@ -592,11 +626,36 @@ def flow_production_stale(cap: Capture) -> None:
         raise SystemExit(
             f"reanalysis did not advance the analyzed revision: {analyzed} != {current}"
         )
+    cap.ensure_visible("重新分析完成")
+    labels = cap.labels()
+    delta_revisions = [
+        m.groups()
+        for m in (re.search(r"分析基准 (\d+) → (\d+)", x) for x in labels)
+        if m
+    ]
+    if not delta_revisions:
+        raise SystemExit("reanalyzed plan did not expose the authoritative before/after delta")
+    delta_from, delta_to = delta_revisions[0]
+    if delta_from == delta_to:
+        raise SystemExit(
+            f"reanalysis delta did not preserve the stale-before/current-after boundary: "
+            f"{delta_from} == {delta_to}"
+        )
+    if delta_to != current:
+        raise SystemExit(
+            f"reanalysis delta target revision {delta_to} != current plan revision {current}"
+        )
     cap.shot(
         "production-change-reanalyzed",
         "Change phone",
-        "reanalyzed",
-        ["准备状态：", f"分析时数据版本 {analyzed} · 当前数据版本 {current}"],
+        "reanalyzed / authoritative delta",
+        [
+            "重新分析完成",
+            f"分析基准 {delta_from} → {delta_to}",
+            "这里只比较重新分析前后的正式影响投影；不会自动把任何步骤标记为已完成或已验证。",
+            "准备状态：",
+            f"分析时数据版本 {analyzed} · 当前数据版本 {current}",
+        ],
     )
 
 
