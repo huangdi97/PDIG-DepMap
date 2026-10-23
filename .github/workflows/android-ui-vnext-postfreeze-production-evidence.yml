@@ -103,7 +103,10 @@ jobs:
             printf 'Vulkan = off\nGLDirectMem = on\n' > "$HOME/.android/advancedFeatures.ini"
           disable-animations: true
           script: |
-            set -euo pipefail
+            # android-emulator-runner invokes this block with /bin/sh (dash on
+            # ubuntu-latest), where pipefail is not supported. Every material
+            # pipeline below has an explicit post-condition, so -eu is sufficient.
+            set -eu
             ROOT="$PWD"
             APK="$ROOT/android/app/build/outputs/apk/production/debug/app-production-debug.apk"
             TEST_APK=$(find "$ROOT/android/app/build/outputs/apk/androidTest" -name '*production*debug*androidTest*.apk' -print -quit)
