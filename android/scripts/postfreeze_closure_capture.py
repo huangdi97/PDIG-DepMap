@@ -384,7 +384,11 @@ def launch_production(cap: Capture, vnext: bool = True) -> None:
     adb("shell", "am", "force-stop", PRODUCTION_PACKAGE)
     time.sleep(0.8)
     args = ["shell", "am", "start", "-W", "-n", f"{PRODUCTION_PACKAGE}/{PRODUCTION_ACTIVITY}"]
-    if vnext:
+    # Current-head CI compiles the explicit two-key Production VNext candidate;
+    # for that path, prove the default launcher with NO Intent routing override.
+    # Local/debug evidence may still opt into the historical rehearsal extra.
+    use_default_cutover = os.environ.get("PDIG_PRODUCTION_DEFAULT", "false").lower() == "true"
+    if vnext and not use_default_cutover:
         args += ["--ez", "vnext_production", "true"]
     adb(*args)
     time.sleep(1.6)
@@ -669,6 +673,12 @@ def flow_production_stale(cap: Capture) -> None:
         raise SystemExit(
             f"reanalysis delta target revision {delta_to} != current plan revision {current}"
         )
+    expected_delta = "新增 1 · 已不在当前影响 0 · 状态变化 0"
+    if not any(expected_delta in x for x in labels):
+        raise SystemExit(
+            "reanalysis did not expose the expected governed impact delta: "
+            + repr(labels[:80])
+        )
     cap.shot(
         "production-change-reanalyzed",
         "Change phone",
@@ -676,6 +686,7 @@ def flow_production_stale(cap: Capture) -> None:
         [
             "重新分析完成",
             f"分析基准 {delta_from} → {delta_to}",
+            expected_delta,
             "这里只比较重新分析前后的正式影响投影；不会自动把任何步骤标记为已完成或已验证。",
             "准备状态：",
             f"分析时数据版本 {analyzed} · 当前数据版本 {current}",

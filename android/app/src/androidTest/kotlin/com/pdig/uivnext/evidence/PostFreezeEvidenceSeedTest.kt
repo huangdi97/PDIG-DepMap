@@ -138,9 +138,10 @@ class PostFreezeEvidenceSeedTest {
     }
 
     /**
-     * Same Reality as the journey seed, then one governed mutation AFTER the
-     * plan was analyzed. That bump is what makes the plan stale, so the UI must
-     * offer authoritative reanalysis instead of accepting new completions.
+     * Same Reality as the journey seed, then one governed required dependency
+     * AFTER the plan was analyzed. This both makes the plan stale and adds one
+     * authoritative must-change impact, so evidence proves the delta renderer
+     * rather than only a graph-revision bump.
      */
     @Test
     fun seedStalePhoneChange() {
@@ -150,8 +151,17 @@ class PostFreezeEvidenceSeedTest {
             val planId = harness.app.createPlanForScenario(
                 ScenarioPlanRequest(scenarioId = "replace_phone_number", targetNodeId = phoneId),
             )
-            harness.app.createManualNode(
+            val laterAccount = harness.app.createManualNode(
                 ManualNodeCreateRequest(NodeKind.ACCOUNT, "后来新增的账户"),
+            ).node
+            harness.app.createManualDependency(
+                ManualDependencyCreateRequest(
+                    fromNodeId = phoneId,
+                    relation = Relation.AUTHENTICATES,
+                    toNodeId = laterAccount.id,
+                    capability = Capability.AUTHENTICATION,
+                    required = true,
+                ),
             )
             val detail = requireNotNull(harness.app.planDetail(planId))
             assertTrue(detail.currentGraphRevision > detail.lastAnalyzedGraphRevision)

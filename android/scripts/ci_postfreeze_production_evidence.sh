@@ -52,6 +52,10 @@ export PDIG_ANDROID_TREE_HEAD="$(git log -1 --format=%h -- android/)"
 export PDIG_PACKAGE=com.pdig.app
 export PDIG_APK_SHA256="$(sha256sum "$APK" | awk '{print $1}')"
 export PDIG_DATA_MODE=isolated-postfreeze-evidence-reality
+# This workflow builds productionDebug with BOTH explicit VNext cutover keys.
+# Capture through the no-extra default launcher so Human Review sees the same
+# route topology as a cutover candidate, not the debug-only rehearsal override.
+export PDIG_PRODUCTION_DEFAULT=true
 
 # Preserve the exact two-key Production VNext APK used by this evidence run as
 # a downloadable human-review candidate. This is debug/non-production signed,
