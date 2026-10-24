@@ -53,6 +53,27 @@ export PDIG_PACKAGE=com.pdig.app
 export PDIG_APK_SHA256="$(sha256sum "$APK" | awk '{print $1}')"
 export PDIG_DATA_MODE=isolated-postfreeze-evidence-reality
 
+# Preserve the exact two-key Production VNext APK used by this evidence run as
+# a downloadable human-review candidate. This is debug/non-production signed,
+# never a Store Release artifact, and does not change release routing.
+mkdir -p "$OUT/apk"
+REVIEW_APK="$OUT/apk/pdig-production-vnext-human-review.apk"
+cp "$APK" "$REVIEW_APK"
+(
+  cd "$OUT/apk"
+  sha256sum pdig-production-vnext-human-review.apk > SHA256SUMS.txt
+)
+{
+  echo "source_head=$SOURCE_HEAD"
+  echo "package=com.pdig.app"
+  echo "variant=productionDebug"
+  echo "ui_generation=vnext"
+  echo "cutover_approved=true"
+  echo "signing=debug/non-production"
+  echo "human_review=NOT_RUN"
+  echo "store_release=HOLD"
+} > "$OUT/apk/REVIEW_CANDIDATE.txt"
+
 run_seed seedPhoneMakeBeforeBreakJourney
 python3 android/scripts/postfreeze_closure_capture.py \
   --mode prod-journey \
