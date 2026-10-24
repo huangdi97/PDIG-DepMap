@@ -512,12 +512,7 @@ def flow_production_journey(cap: Capture) -> None:
     )
     cap.tap("更换手机号", exact=True)
     cap.wait_text("变更全程", timeout=20)
-    cap.shot(
-        "production-change-current",
-        "Change phone",
-        "current",
-        ["变更全程", "当前", "过渡中", "完成后（计划）", "下一步"],
-    )
+    # "下一步" is intentionally not a top-of-screen assertion. Authority and\n    # reanalysis content can push that card below the fold; later tap_cta()\n    # proves the real next-step control remains reachable before any mutation.\n    cap.shot(\n        "production-change-current",\n        "Change phone",\n        "current",\n        ["变更全程", "当前", "过渡中", "完成后（计划）"],\n    )
 
     # 6. Make-Before-Break: prepare -> migrate -> (pending verification) -> blocked retirement.
     cap.tap_cta("记录完成这一步")
