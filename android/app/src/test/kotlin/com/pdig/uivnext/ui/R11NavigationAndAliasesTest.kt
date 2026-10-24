@@ -1,5 +1,6 @@
 package com.pdig.uivnext.ui
 
+import com.pdig.uivnext.model.MediaBreakpoint
 import com.pdig.uivnext.model.VScreen
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -7,6 +8,52 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class R11NavigationAndAliasesTest {
+    @Test fun productionContentOwnsBottomInsetWhenNoCompactBottomNavExists() {
+        val primaryRoots = listOf(
+            VScreen.NOW,
+            VScreen.INFRASTRUCTURE,
+            VScreen.CHANGE,
+            VScreen.RECORDS,
+            VScreen.ME,
+        )
+        primaryRoots.forEach { screen ->
+            assertFalse(
+                productionContentOwnsNavigationBarInset(MediaBreakpoint.COMPACT, screen),
+            )
+        }
+
+        assertTrue(
+            productionContentOwnsNavigationBarInset(
+                MediaBreakpoint.COMPACT,
+                VScreen.ACCOUNT_DETAIL,
+            ),
+        )
+        assertTrue(
+            productionContentOwnsNavigationBarInset(
+                MediaBreakpoint.COMPACT,
+                VScreen.CHANGE_PHONE,
+            ),
+        )
+        assertTrue(
+            productionContentOwnsNavigationBarInset(
+                MediaBreakpoint.COMPACT,
+                VScreen.SEARCH,
+            ),
+        )
+        assertTrue(
+            productionContentOwnsNavigationBarInset(
+                MediaBreakpoint.MEDIUM,
+                VScreen.NOW,
+            ),
+        )
+        assertTrue(
+            productionContentOwnsNavigationBarInset(
+                MediaBreakpoint.EXPANDED,
+                VScreen.SERVICE_DETAIL,
+            ),
+        )
+    }
+
     @Test fun recordAttentionEntryIsFocusedWhileNormalRootBrowsingRemainsComplete() {
         val app = VAppState()
         app.openProductionVerificationAttention()

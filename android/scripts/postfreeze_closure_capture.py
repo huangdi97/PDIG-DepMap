@@ -273,36 +273,6 @@ class Capture:
             time.sleep(0.9)
         raise SystemExit(f"could not bring {text!r} on screen")
 
-    def center_visible(
-        self,
-        text: str,
-        min_y: int = 650,
-        max_y: int = 1650,
-        attempts: int = 12,
-    ) -> None:
-        """Bring a semantic node into a stable evidence framing band.
-
-        ensure_visible is sufficient for interaction, but evidence capture must
-        not accept a node that is merely peeking out at the screen edge.
-        """
-        for _ in range(attempts):
-            matches = [
-                n for n in self.dump()
-                if text in label_of(n) and n.get("bounds")
-            ]
-            if matches:
-                _, y = bounds_center(matches[0]["bounds"])
-                if min_y <= y <= max_y:
-                    return
-                if y > max_y:
-                    adb("shell", "input", "swipe", "540", "1900", "540", "1250", "320")
-                else:
-                    adb("shell", "input", "swipe", "540", "1250", "540", "1900", "320")
-            else:
-                adb("shell", "input", "swipe", "540", "1900", "540", "1250", "320")
-            time.sleep(0.9)
-        raise SystemExit(f"could not frame {text!r} inside evidence band")
-
     def tap_cta(self, label: str) -> None:
         self.ensure_visible(label)
         self.tap(label, exact=True)
@@ -513,7 +483,7 @@ def flow_production_journey(cap: Capture) -> None:
 
         # Post-freeze R62/R63 evidence: the lower detail surface must expose an
         # honest Change boundary instead of fabricating an executable template.
-        cap.center_visible("此对象暂不能直接创建变更计划", min_y=700, max_y=1450)
+        cap.ensure_visible("此对象暂不能直接创建变更计划")
         boundary_id = f"{shot_id}-change-boundary"
         cap.shot(
             boundary_id,
@@ -674,7 +644,7 @@ def flow_production_stale(cap: Capture) -> None:
         raise SystemExit(
             f"reanalysis did not advance the analyzed revision: {analyzed} != {current}"
         )
-    cap.center_visible("重新分析完成", min_y=700, max_y=1300)
+    cap.ensure_visible("重新分析完成")
     labels = cap.labels()
     delta_revisions = [
         m.groups()

@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -88,13 +89,29 @@ internal fun ProductionVNextShell(
                     if (isInfraRootScreen(app.screen)) {
                         InfraChipRow(app)
                     }
-                    ProductionContent(session, breakpoint, Modifier.weight(1f))
+                    ProductionContent(
+                        session,
+                        breakpoint,
+                        Modifier.weight(1f).then(
+                            if (productionContentOwnsNavigationBarInset(breakpoint, app.screen))
+                                Modifier.navigationBarsPadding()
+                            else Modifier
+                        ),
+                    )
                 }
             }
         } else {
             Column(Modifier.fillMaxSize()) {
                 ProductionTopBar(app)
-                ProductionContent(session, breakpoint, Modifier.weight(1f))
+                ProductionContent(
+                    session,
+                    breakpoint,
+                    Modifier.weight(1f).then(
+                        if (productionContentOwnsNavigationBarInset(breakpoint, app.screen))
+                            Modifier.navigationBarsPadding()
+                        else Modifier
+                    ),
+                )
                 if (isProductionRoot(app.screen)) BottomNav(app)
             }
         }
@@ -1403,6 +1420,17 @@ private fun productionBoundaryBadge(screen: VScreen): String = when (screen) {
     VScreen.CHANGE_PHONE, VScreen.CHANGE_CARD -> "变更计划 · 正式状态"
     else -> "已确认数据"
 }
+
+/**
+ * Bottom system-inset ownership:
+ * - compact primary roots delegate it to BottomNav;
+ * - compact child/detail screens have no BottomNav, so content owns it;
+ * - medium/expanded use the rail instead of BottomNav, so content owns it.
+ */
+internal fun productionContentOwnsNavigationBarInset(
+    breakpoint: MediaBreakpoint,
+    screen: VScreen,
+): Boolean = breakpoint != MediaBreakpoint.COMPACT || !isProductionRoot(screen)
 
 private fun isProductionRoot(screen: VScreen): Boolean =
     screen in setOf(
