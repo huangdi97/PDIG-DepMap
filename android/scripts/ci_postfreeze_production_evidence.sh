@@ -106,11 +106,73 @@ for shot_id in sorted(expected):
             f"{shot_id}: missing assertions {entry['assertionsMissing']}"
         )
 
-records = by_id["production-records"]
-if records.get("secureWindowExpected") is not True:
-    raise SystemExit("Production Records evidence must retain FLAG_SECURE expectation")
+secure_expected = {
+    "production-account-detail-change-boundary",
+    "production-email-detail-change-boundary",
+    "production-service-detail-change-boundary",
+    "production-records",
+    "production-change-stale",
+    "production-change-reanalyzed",
+}
+for shot_id in sorted(secure_expected):
+    if by_id[shot_id].get("secureWindowExpected") is not True:
+        raise SystemExit(f"{shot_id}: FLAG_SECURE expectation missing from manifest")
+
+for shot_id in ("production-lock", "production-now", "production-change-center"):
+    if by_id[shot_id].get("secureWindowExpected") is not False:
+        raise SystemExit(f"{shot_id}: non-sensitive root unexpectedly marked secure")
+
+# XML is the semantic/layout proof for FLAG_SECURE surfaces. Require the newly
+# changed controls to sit fully inside the physical screen rather than merely
+# touching the bottom edge.
+import re
+import xml.etree.ElementTree as ET
+
+layout_targets = {
+    "production-account-detail-change-boundary": (
+        "此对象暂不能直接创建变更计划",
+        "查看变更中心 →",
+    ),
+    "production-email-detail-change-boundary": (
+        "此对象暂不能直接创建变更计划",
+        "查看变更中心 →",
+    ),
+    "production-service-detail-change-boundary": (
+        "此对象暂不能直接创建变更计划",
+        "查看变更中心 →",
+    ),
+    "production-change-reanalyzed": (
+        "重新分析完成",
+        "这里只比较重新分析前后的正式影响投影",
+    ),
+}
+
+def node_label(node):
+    return (node.attrib.get("text") or node.attrib.get("content-desc") or "").strip()
+
+for shot_id, targets in layout_targets.items():
+    entry = by_id[shot_id]
+    width, height = map(int, entry["resolution"].lower().split("x"))
+    xml_path = root / "xml" / entry["label"] / f"{shot_id}.xml"
+    tree = ET.parse(xml_path)
+    nodes = list(tree.getroot().iter("node"))
+    for target in targets:
+        matches = [n for n in nodes if target in node_label(n)]
+        if not matches:
+            raise SystemExit(f"{shot_id}: XML missing layout target {target!r}")
+        raw = matches[0].attrib.get("bounds", "")
+        match = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", raw)
+        if not match:
+            raise SystemExit(f"{shot_id}: invalid bounds for {target!r}: {raw!r}")
+        x1, y1, x2, y2 = map(int, match.groups())
+        if not (0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height - 24):
+            raise SystemExit(
+                f"{shot_id}: {target!r} is not safely framed: "
+                f"{raw} within {width}x{height}"
+            )
 
 print(f"POSTFREEZE_EVIDENCE_MANIFEST=PASS entries={len(entries)}")
+print("POSTFREEZE_LAYOUT_BOUNDS=PASS")
 print(f"POSTFREEZE_EVIDENCE_HEAD={head}")
 print(f"POSTFREEZE_EVIDENCE_APK_SHA256={apk_sha}")
 PY
