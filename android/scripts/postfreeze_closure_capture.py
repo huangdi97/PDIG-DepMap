@@ -483,7 +483,10 @@ def flow_production_journey(cap: Capture) -> None:
 
         # Post-freeze R62/R63 evidence: the lower detail surface must expose an
         # honest Change boundary instead of fabricating an executable template.
-        cap.ensure_visible("此对象暂不能直接创建变更计划")
+        # Frame the whole boundary card, not merely its title. The CTA sits
+        # on the lower edge of the row and is the reliable proof that body + action
+        # are both inside the viewport before the secure semantic snapshot.
+        cap.ensure_visible("查看变更中心 →")
         boundary_id = f"{shot_id}-change-boundary"
         cap.shot(
             boundary_id,
