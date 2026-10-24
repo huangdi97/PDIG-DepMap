@@ -64,17 +64,21 @@ public struct FindingsInput: Equatable, Sendable {
     /// 判定"最近确认"的时间口径（ISO-8601）。nil 则不做新鲜度告警。
     public let nowIso: String?
     public let freshnessThresholdDays: Int
+    /// Whether pending Proposal edges may contribute potential (not confirmed) cycles.
+    public let includePendingProposalCycles: Bool
 
     public init(
         snapshot: GraphSnapshot,
         pendingVerifications: [String] = [],
         nowIso: String? = nil,
-        freshnessThresholdDays: Int = 90
+        freshnessThresholdDays: Int = 90,
+        includePendingProposalCycles: Bool = true
     ) {
         self.snapshot = snapshot
         self.pendingVerifications = pendingVerifications
         self.nowIso = nowIso
         self.freshnessThresholdDays = freshnessThresholdDays
+        self.includePendingProposalCycles = includePendingProposalCycles
     }
 }
 
@@ -201,9 +205,11 @@ public enum FindingsViewModel {
             let input2 = RecoveryCycleInput(
                 capability: capability,
                 dependencies: snapshot.activeDependencies,
-                hintedEdges: snapshot.pendingProposals
-                    .filter { $0.capability == capability }
-                    .map { RecoveryHintedEdge(from: $0.from, to: $0.to) }
+                hintedEdges: input.includePendingProposalCycles
+                    ? snapshot.pendingProposals
+                        .filter { $0.capability == capability }
+                        .map { RecoveryHintedEdge(from: $0.from, to: $0.to) }
+                    : []
             )
             let cycleResult = RecoveryCycleEngine.detectRecoveryCycles(input2)
             for cycle in cycleResult.confirmedCycles {
@@ -264,7 +270,14 @@ public enum FindingsViewModel {
     private static func domainOfNode(_ n: DepNode) -> (kind: String, subject: String)? {
         switch n.kind {
         case .device: return ("DEVICE", n.id)
-        case .identityAnchor: return ("PHONE_NUMBER", n.id)
+        case .identityAnchor:
+            guard let profile = confirmedIdentityAnchorProfile(
+                kind: n.kind,
+                fieldsJson: n.fieldsJson ?? ""
+            ), profile.subtype == .phoneNumber else {
+                return nil
+            }
+            return ("PHONE_NUMBER", n.id)
         case .account:
             if let issuer = n.issuer, !issuer.isEmpty { return ("PROVIDER", issuer) }
             return nil
@@ -291,7 +304,7 @@ public enum FindingsViewModel {
     }
 
     /// 已确认故障域表：key = `KIND|subject`（与 buildEdgeToDomainIndex 的 subject 键一致），value = 节点 id。
-    /// App 把 identityAnchor / device 的归属视为已确认（节点是用户维护的现实对象）；
+    /// App 只把已确认 phone_number identity / device 的归属视为已确认；
     /// PROVIDER（issuer 归属）属于机器推断 → needs_review（suspected）。
     private static func domainMap(
         for edges: [Dependency],

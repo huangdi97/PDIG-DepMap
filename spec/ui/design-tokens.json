@@ -1,13 +1,28 @@
 {
-  "$comment": "PDIG Design Tokens — brand truth shared by all three platforms. Extracted from app/theme/tokens.uts @ 7bc0ed3. UI code is NOT generated from this file; only the token values and copy keys are shared. Each platform maps these to its native design system (Material 3 / ArkUI / SwiftUI) and MUST keep brand, content, domain semantics, key CTAs and user flow identical.",
-  "specVersion": "1.0.0",
+  "$comment": "PDIG Design Tokens — brand truth shared by all four platforms. Extracted from app/theme/tokens.uts @ 7bc0ed3 and evolved in v0.3.1 UI/UX refinement (2026-09-28). UI code is NOT generated from this file; only token values and copy keys are shared. Each platform maps these to its native design system (Material 3 / ArkUI / SwiftUI / Compose Desktop) and MUST keep brand, content, domain semantics, key CTAs and user flow identical. specVersion 1.1.0 keeps 1.0.0 keys unchanged and adds primitive/semantic/component layers.",
+  "specVersion": "1.1.0",
 
   "policy": {
     "noRemoteFonts": true,
     "noRemoteIconCdn": true,
     "cjkFont": "system",
     "colorRule": "pages MUST NOT hardcode color literals; only palette values and status role colours are allowed",
-    "statusNotColorOnly": true
+    "statusNotColorOnly": true,
+    "cardPolicy": "NOT everything is a card — sections, lists, rows and dividers come first; cards only for independently operable objects",
+    "continuityRail": "Signature motif: current state -> prerequisite -> transition -> verification checkpoint -> completion. Semantic visualization, never decorative."
+  },
+
+  "layers": {
+    "$comment": "v1.1 layering. primitive = raw values; semantic = what they mean; component = fixed component recipes. Consumers map these onto native design systems.",
+    "primitive": [
+      "colors", "spacing", "radius", "typographyRoles", "elevation", "focusRingWidth"
+    ],
+    "semantic": [
+      "semanticColors", "statusRoles", "statusIcons", "typographyScale", "surfaceLayers"
+    ],
+    "component": [
+      "componentTokens"
+    ]
   },
 
   "colors": {
@@ -18,6 +33,7 @@
       "background": "#F5F6FA",
       "surface": "#FFFFFF",
       "surfaceElevated": "#FFFFFF",
+      "surfaceLow": "#EDEFF6",
       "textPrimary": "#1B1D29",
       "textSecondary": "#5A5F73",
       "textTertiary": "#8A90A6",
@@ -26,7 +42,8 @@
       "warning": "#D98E04",
       "danger": "#D54941",
       "info": "#3B6FD8",
-      "disabled": "#B9BDCC"
+      "disabled": "#B9BDCC",
+      "focusRing": "#4C4FD8"
     },
     "dark": {
       "primary": "#8B8EF5",
@@ -35,6 +52,7 @@
       "background": "#12131A",
       "surface": "#1C1E28",
       "surfaceElevated": "#232633",
+      "surfaceLow": "#232633",
       "textPrimary": "#F2F3F7",
       "textSecondary": "#B4B9C9",
       "textTertiary": "#828799",
@@ -43,18 +61,52 @@
       "warning": "#E0A63A",
       "danger": "#E4695F",
       "info": "#5B8CE8",
-      "disabled": "#4A4E5E"
+      "disabled": "#4A4E5E",
+      "focusRing": "#A5A7F8"
+    }
+  },
+
+  "semanticColors": {
+    "$comment": "Semantic aliases over colors so platforms map meaningful roles, not raw palette names.",
+    "light": {
+      "accent": "primary",
+      "accentPressed": "primaryActive",
+      "accentSoft": "primarySoft",
+      "canvas": "background",
+      "panel": "surface",
+      "panelRaised": "surfaceElevated",
+      "panelQuiet": "surfaceLow",
+      "inkStrong": "textPrimary",
+      "ink": "textSecondary",
+      "inkQuiet": "textTertiary",
+      "rule": "border",
+      "focusRing": "focusRing"
+    },
+    "dark": {
+      "accent": "primary",
+      "accentPressed": "primaryActive",
+      "accentSoft": "primarySoft",
+      "canvas": "background",
+      "panel": "surface",
+      "panelRaised": "surfaceElevated",
+      "panelQuiet": "surfaceLow",
+      "inkStrong": "textPrimary",
+      "ink": "textSecondary",
+      "inkQuiet": "textTertiary",
+      "rule": "border",
+      "focusRing": "focusRing"
     }
   },
 
   "statusRoles": {
-    "$comment": "Semantic status -> foreground colour. Both light and dark MUST define these; a status MUST NOT be communicated by colour alone.",
+    "$comment": "Semantic status -> foreground colour. Both light and dark MUST define these; a status MUST NOT be communicated by colour alone (add icon + label).",
     "map": {
       "blocked": "danger",
       "review_required": "warning",
       "needs_revalidation": "warning",
       "ready_with_known_scope": "success",
       "verifying": "info",
+      "verified": "success",
       "completed": "textSecondary",
       "cancelled": "textTertiary",
       "limited": "warning",
@@ -68,6 +120,7 @@
       "needs_revalidation": "#FCF4E3",
       "ready_with_known_scope": "#E8F6F0",
       "verifying": "#EAF1FC",
+      "verified": "#E8F6F0",
       "completed": "#F0F1F5",
       "cancelled": "#F0F1F5",
       "limited": "#FCF4E3",
@@ -76,6 +129,25 @@
       "default": "#F0F1F5"
     },
     "note": "Soft backgrounds are enumerated explicitly; do NOT synthesise them by appending alpha to a 6-digit hex, since 8-digit hex is not guaranteed on every native platform."
+  },
+
+  "statusIcons": {
+    "$comment": "Icon/shape intent per status; platforms map to native icons. statusNotColorOnly requires icon + label + colour.",
+    "map": {
+      "blocked": "error_circle",
+      "review_required": "warning_triangle",
+      "needs_revalidation": "warning_triangle",
+      "ready_with_known_scope": "check_circle",
+      "verifying": "clock",
+      "verified": "check_circle_double",
+      "completed": "check_single",
+      "cancelled": "minus",
+      "limited": "warning_triangle",
+      "partial": "clock",
+      "well_evidenced": "check_circle",
+      "unknown": "question",
+      "default": "circle_quiet"
+    }
   },
 
   "spacing": {
@@ -90,8 +162,8 @@
 
   "radius": {
     "sm": 6,
-    "md": 10,
-    "lg": 14,
+    "md": 8,
+    "lg": 12,
     "pill": 999
   },
 
@@ -106,15 +178,98 @@
     "button": 15
   },
 
+  "typographyScale": {
+    "$comment": "v1.1: platform-neutral roles used to pick native type styles. Weights guide hierarchy.",
+    "pageTitle": { "size": 24, "weight": 600 },
+    "sectionTitle": { "size": 15, "weight": 600 },
+    "body": { "size": 14, "weight": 400 },
+    "secondary": { "size": 12.5, "weight": 400 },
+    "meta": { "size": 12, "weight": 400 },
+    "label": { "size": 12, "weight": 500 },
+    "button": { "size": 14, "weight": 500 }
+  },
+
+  "surfaceLayers": {
+    "$comment": "Layering recipe: canvas -> panel; separation by border/rule, not by filling every surface with a tint.",
+    "canvasBackground": "background",
+    "panel": "surface",
+    "panelBorderWidth": 1,
+    "panelBorderColorLight": "#E6E8F0",
+    "panelBorderColorDark": "#2C2F3D",
+    "panelRadius": 8,
+    "elevationNone": 0,
+    "elevationFloating": 8
+  },
+
+  "elevation": {
+    "none": 0,
+    "floating": 8
+  },
+
+  "focusRingWidth": 2,
+
+  "componentTokens": {
+    "$comment": "v1.1 component-level recipes (sizes in dp/pt/vp).",
+    "buttonHeight": 40,
+    "buttonRadius": 8,
+    "inputHeight": 40,
+    "inputRadius": 8,
+    "listRowHeightDesktop": 40,
+    "listRowHeightMobile": 48,
+    "sidebarWidth": 220,
+    "contentMaxWidth": 1240,
+    "infraMasterWidth": 300,
+    "iconSizeDesktop": 16,
+    "iconSizeMobile": 20,
+    "statusBadgeIcon": 14,
+    "statusBadgeLabelSize": 12,
+    "continuityStepIcon": 16,
+    "emptyStateIcon": 24
+  },
+
+  "motion": {
+    "$comment": "All motion MUST respect the platform reduced-motion setting; durations in ms.",
+    "railStateChange": 180,
+    "verificationComplete": 220,
+    "expandCollapse": 150,
+    "navigation": 200,
+    "curve": "ease"
+  },
+
+  "layout": {
+    "desktopContentMaxWidth": 1240,
+    "mobileBasePadding": 16,
+    "desktopBasePadding": 20,
+    "sectionGapDesktop": 24,
+    "sectionGapMobile": 20
+  },
+
+  "density": {
+    "desktopListRow": 40,
+    "mobileListRow": 48,
+    "desktopRowMinHeight": 40,
+    "touchGapMin": 8
+  },
+
+  "focus": {
+    "ringWidth": 2,
+    "ringColorLight": "#4C4FD8",
+    "ringColorDark": "#A5A7F8",
+    "ringRadius": 8
+  },
+
   "accessibility": {
     "touchTargetMinDp": 44,
     "touchTargetMinPt": 44,
     "touchTargetMinVp": 44,
+    "androidTouchTargetRecommended": 48,
     "requirements": [
-      "status is never conveyed by colour alone - always pair with text",
+      "status is never conveyed by colour alone - always pair with icon and text",
       "screen reader labels on every interactive element",
       "large text must not clip critical content",
-      "contrast: body text >= 4.5:1, large text >= 3:1"
+      "contrast: body text >= 4.5:1, large text >= 3:1",
+      "keyboard navigable with visible focus (desktop)",
+      "reduced motion respected"
     ]
   },
 

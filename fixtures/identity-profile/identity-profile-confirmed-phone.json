@@ -1,0 +1,21 @@
+{
+  "id": "identity-profile-confirmed-phone",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R37 governed identity-anchor-profile contract",
+  "description": "confirmed phone subtype requires governed profile + user confirmation provenance",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"phone_number\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\",\"evidence_refs\":[\"ev-1\"]}}"
+  },
+  "expected": {
+    "confirmed": true,
+    "subtype": "phone_number",
+    "verificationBasisType": "user_confirmed",
+    "confirmedAt": "2026-10-10T00:00:00Z",
+    "evidenceRefs": [
+      "ev-1"
+    ]
+  }
+}

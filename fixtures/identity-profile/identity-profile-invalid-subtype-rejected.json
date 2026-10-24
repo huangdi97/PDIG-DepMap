@@ -1,0 +1,15 @@
+{
+  "id": "identity-profile-invalid-subtype-rejected",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R37 governed identity-anchor-profile contract",
+  "description": "unknown subtype fails closed to generic identity",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"sms\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}}"
+  },
+  "expected": {
+    "confirmed": false
+  }
+}

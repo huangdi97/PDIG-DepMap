@@ -3,11 +3,15 @@ package com.pdig.app.data
 import com.pdig.core.domain.ActionVerificationMethod
 import com.pdig.core.domain.ActionVerificationStatus
 import com.pdig.core.domain.PlanAction
+import com.pdig.core.generated.Capability
 import com.pdig.core.generated.ImpactTargetStatus
 import com.pdig.core.generated.PlanActionPhase
+import com.pdig.core.generated.PlanReadiness
 import com.pdig.core.impact.ImpactResult
 import com.pdig.core.json.Json
 import com.pdig.core.json.JsonParser
+import com.pdig.core.plan.claimUnassignedMustChangeKeys
+import com.pdig.core.scenario.ScenarioRegistry
 
 // ---------------------------------------------------------------------------
 // ChangePlan 专用文件级辅助（纯函数，仅 PlanRepository 使用）
@@ -17,6 +21,85 @@ import com.pdig.core.json.JsonParser
 const val STALE_CUTOFF_DAYS = 90L
 
 internal fun keyString(nodeId: String, capabilityWire: String): String = "$nodeId|$capabilityWire"
+
+internal fun scenarioImpactCapabilities(scenarioId: String): List<Capability> {
+    val template = requireNotNull(ScenarioRegistry.get(scenarioId)) {
+        "scenario_not_found: $scenarioId"
+    }
+    require(template.supportedCapabilities.isNotEmpty()) {
+        "scenario_capabilities_empty: $scenarioId"
+    }
+    return template.supportedCapabilities.map { wire ->
+        requireNotNull(Capability.fromWire(wire)) {
+            "scenario_capability_unknown: $scenarioId:$wire"
+        }
+    }.distinct()
+}
+
+
+/**
+ * Bind must-change requirements only to scenario actions that are allowed to
+ * resolve them. For phone replacement, the destructive retirement step is
+ * deliberately excluded: newly discovered migration work must never be
+ * satisfied by retiring the old number.
+ */
+internal fun claimScenarioMustChangeKeys(
+    scenario: String,
+    actions: List<PlanAction>,
+    mustChangeKeys: List<String>,
+): List<PlanAction> {
+    // Claims belong to a specific analyzed impact snapshot. If an impact
+    // disappears, carrying its key forward on a completed action would let a
+    // later reappearance look already resolved. Reconcile first, then claim
+    // genuinely new work from the current snapshot.
+    val currentKeys = mustChangeKeys.toSet()
+    val reconciled = actions.map { action ->
+        action.copy(
+            resolvesImpactKeys = action.resolvesImpactKeys.filter { it in currentKeys },
+        )
+    }
+    return claimUnassignedMustChangeKeys(
+        actions = reconciled,
+        keys = mustChangeKeys,
+        eligibleActionIds = if (scenario == "replace_phone_number") {
+            setOf("rpn-change-1")
+        } else {
+            null
+        },
+    )
+}
+
+internal fun pendingReadinessChangeActionCount(
+    actions: List<PlanAction>,
+): Int = actions.count { action ->
+    if (action.phase != PlanActionPhase.CHANGE) {
+        false
+    } else if (!action.done) {
+        true
+    } else {
+        val status = action.verification?.status
+        status != null &&
+            status != ActionVerificationStatus.VERIFIED &&
+            status != ActionVerificationStatus.NOT_REQUIRED
+    }
+}
+
+internal fun planActionCompletionAllowedByScope(
+    readiness: PlanReadiness,
+    action: PlanAction,
+    unresolvedMustChangeKeys: List<String>,
+): Boolean {
+    if (readiness != PlanReadiness.BLOCKED) return true
+    // PREPARE and VERIFY can gather evidence / validate an already-created
+    // path while the plan still contains unresolved migration work. Neither
+    // can retire the old path; destructive retirement has its own stricter
+    // authority gates in PlanRepository.
+    if (action.phase == PlanActionPhase.PREPARE ||
+        action.phase == PlanActionPhase.VERIFY
+    ) return true
+    return action.phase == PlanActionPhase.CHANGE &&
+        action.resolvesImpactKeys.any { it in unresolvedMustChangeKeys }
+}
 
 internal fun keysOfStatus(
     impact: ImpactResult,
@@ -52,6 +135,31 @@ internal fun buildActionsFor(
  * （先建新路径并验证，才能 retire 旧路径；BREAK_BEFORE_MAKE = FORBIDDEN）。
  * 纯数据构造：DAG 校验与前置门禁在 PlanRepository.completeAction / core ActionDagEngine 里。
  */
+/**
+ * replace_phone_number Make-Before-Break retirement invariant.
+ *
+ * rpn-change-2 is the destructive retirement step. Merely recording the
+ * verification action as done is insufficient: its verification result must be
+ * authoritative VERIFIED before the old path may be retired.
+ */
+internal fun phoneRetirementVerificationSatisfied(
+    scenario: String,
+    actionId: String,
+    actions: List<PlanAction>,
+): Boolean {
+    if (scenario != "replace_phone_number" || actionId != "rpn-change-2") return true
+
+    // Make-Before-Break: both the actual migration step and the dedicated
+    // recovery-path verification must have authoritative verified outcomes
+    // before the old number can be retired. Merely recording either step done
+    // is insufficient.
+    val requiredVerifiedSteps = listOf("rpn-change-1", "rpn-verify-1")
+    return requiredVerifiedSteps.all { id ->
+        val step = actions.firstOrNull { it.id == id } ?: return@all false
+        step.done && step.verification?.status == ActionVerificationStatus.VERIFIED
+    }
+}
+
 internal fun buildReplacePhoneActions(): List<PlanAction> {
     val futureObservation = com.pdig.core.domain.ActionVerification(
         method = ActionVerificationMethod.FUTURE_OBSERVATION,
@@ -110,6 +218,7 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
         "title" to Json.Str(a.title),
         "phase" to Json.Str(a.phase.wire),
         "done" to Json.Bool(a.done),
+        "doneAt" to (a.doneAt?.let { Json.Str(it) } ?: Json.Null),
         "resolvesImpactKeys" to Json.Arr(a.resolvesImpactKeys.map { Json.Str(it) }),
         "prerequisiteActionIds" to Json.Arr(a.prerequisiteActionIds.map { Json.Str(it) }),
         "verification" to (a.verification?.let { v ->
@@ -117,7 +226,10 @@ internal fun planActionToJson(a: PlanAction): Json = Json.Obj(
                 listOf(
                     "method" to Json.Str(v.method.wire),
                     "status" to Json.Str(v.status.wire),
+                    "verifiedAt" to (v.verifiedAt?.let { Json.Str(it) } ?: Json.Null),
                     "evidenceRefs" to Json.Arr(v.evidenceRefs.map { Json.Str(it) }),
+                    "expectedFromNodeId" to (v.expectedFromNodeId?.let { Json.Str(it) } ?: Json.Null),
+                    "expectedToNodeId" to (v.expectedToNodeId?.let { Json.Str(it) } ?: Json.Null),
                 ),
             )
         } ?: Json.Null),
@@ -135,8 +247,11 @@ internal fun planActionsFromJson(raw: String?): List<PlanAction> {
                         ?: ActionVerificationMethod.MANUAL_CONFIRMATION,
                     status = ActionVerificationStatus.fromWire((vo["status"] as? Json.Str)?.value ?: "")
                         ?: ActionVerificationStatus.PENDING,
+                    verifiedAt = (vo["verifiedAt"] as? Json.Str)?.value,
                     evidenceRefs = ((vo["evidenceRefs"] as? Json.Arr)?.items)
                         ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
+                    expectedFromNodeId = (vo["expectedFromNodeId"] as? Json.Str)?.value,
+                    expectedToNodeId = (vo["expectedToNodeId"] as? Json.Str)?.value,
                 )
             }
             PlanAction(
@@ -145,6 +260,7 @@ internal fun planActionsFromJson(raw: String?): List<PlanAction> {
                 phase = PlanActionPhase.fromWire((o["phase"] as? Json.Str)?.value ?: "")
                     ?: PlanActionPhase.CHANGE,
                 done = (o["done"] as? Json.Bool)?.value ?: false,
+                doneAt = (o["doneAt"] as? Json.Str)?.value,
                 resolvesImpactKeys = ((o["resolvesImpactKeys"] as? Json.Arr)?.items)
                     ?.mapNotNull { (it as? Json.Str)?.value } ?: emptyList(),
                 prerequisiteActionIds = ((o["prerequisiteActionIds"] as? Json.Arr)?.items)

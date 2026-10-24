@@ -1,0 +1,15 @@
+{
+  "id": "identity-profile-bare-subtype-rejected",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R37 governed identity-anchor-profile contract",
+  "description": "legacy/free-form fields_json.subtype is never confirmation authority",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"subtype\":\"phone_number\"}"
+  },
+  "expected": {
+    "confirmed": false
+  }
+}

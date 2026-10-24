@@ -1,0 +1,13 @@
+{
+  "id": "maintenance-mp04-email-number-fact-rejected",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-04 email identity cannot receive number lifecycle",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"email_address\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},\"maintenance_profile\":{\"version\":1,\"facts\":[{\"id\":\"cost\",\"kind\":\"number_plan_cost\",\"value_type\":\"decimal_string\",\"value\":\"5\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"}]}}"
+  },
+  "expected": {"facts": [], "currentFactIds": [], "schedules": [], "currentScheduleIds": []}
+}

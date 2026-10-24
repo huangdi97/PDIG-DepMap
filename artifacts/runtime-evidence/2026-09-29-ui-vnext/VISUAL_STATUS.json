@@ -1,0 +1,7 @@
+{
+  "visualStatus": "REJECTED_ENGINEERING_PROTOTYPE",
+  "reviewedAt": "2026-09-30",
+  "verdict": "Human Visual Review: VISUAL_DIRECTION = FAIL; VISUAL_CONTRACT_IMPLEMENTATION = NOT_ACCEPTED (2026-09-30)",
+  "note": "These screenshots are the BEFORE / REJECTED baseline. Keep for comparison; do not delete. New Desktop reference implementation targets: Global Digital Infrastructure Spatial Product (vector-Earth globe with bundled simplified coastlines + night city lights + atmosphere rim + sunlight terminator; edge-to-edge globe stage; primary-rail-only navigation with context subnav; enlarged typography 32-44 page title / 18-22 section / 15-17 body; distinct card asset identities; PresentationProfile-driven customization studios; Change Phone flagship scene). Domain / Canonical / data / tests / navigation capabilities are retained unchanged.",
+  "humanApprovedReferences": "spec/ui-vnext/references/ (4 images, REFERENCE_MANIFEST.json humanApproved=true)"
+}

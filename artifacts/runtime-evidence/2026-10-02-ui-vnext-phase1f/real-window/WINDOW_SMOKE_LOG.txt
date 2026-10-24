@@ -1,0 +1,18 @@
+WINSTEP 01-now.png: launch -> Now (real window) (screen=now) capture=true
+WINSTEP 02-overview.png: open Overview (screen=overview) capture=true
+WINSTEP 03-overview-hk.png: select HK region (screen=overview) capture=true
+WINSTEP 04-cards.png: open Cards (screen=cards) capture=true
+WINSTEP 05-card-detail.png: open card detail (screen=card-detail) capture=true
+WINSTEP 06-card-studio.png: open card studio (screen=card-customization) capture=true
+WINSTEP 07-studio-saved.png: save profile (screen=card-customization) capture=true
+WINSTEP 08-reopened.png: close/reopen -> profile retained (screen=card-customization) capture=true
+WINSTEP 09-numbers.png: open Numbers (screen=numbers) capture=true
+WINSTEP 10-number-detail.png: open number detail (dial-code identity) (screen=number-detail) capture=true
+WINSTEP 11-number-studio.png: open number studio (screen=number-customization) capture=true
+WINSTEP 12-change-current.png: projection=current (screen=change-phone) capture=true
+WINSTEP 13-change-transition.png: projection=transition (screen=change-phone) capture=true
+WINSTEP 14-change-after.png: projection=after (screen=change-phone) capture=true
+WINSTEP 15-command-palette.png: Ctrl+K opens palette (real keyboard) (screen=change-phone) capture=false
+WINSTEP 16-palette-query-card.png: palette query 'card' (real keys) (screen=change-phone) capture=false
+REAL_WINDOW_KEYBOARD_HUMAN_GATE: OS 级输入聚焦在本会话无法可靠授予窗口，Ctrl+K 未到达应用；键盘功能已由 in-process journey + 契约测试覆盖，建议 Human 在真实窗口复核
+IME_RUNTIME_HUMAN_GATE: 真实窗口中文 IME 组合输入（银行卡/手机号/更换手机号）需 Human 验证

@@ -160,18 +160,3 @@ internal fun buildFindings(container: AppContainer): FindingsModel {
     }
     return FindingsModel(spof, shared, cycles)
 }
-
-/** 首页「我的基础设施」区入口卡片：展示薄弱点计数并跳转 Findings。 */
-@Composable
-internal fun HomeFindingsCard(nav: androidx.navigation.NavController, findings: FindingsModel) {
-    PdigCard(onClick = { nav.navigate(com.pdig.app.ui.Route.FINDINGS) }) {
-        Column {
-            Text("基础设施薄弱点", style = com.pdig.app.ui.theme.PdigTokens.BodyStrong)
-            Text(
-                "唯一恢复来源 ${findings.spof.size} · 共享故障点 ${findings.shared.size} · 恢复循环 ${findings.cycles.size}",
-                style = com.pdig.app.ui.theme.PdigTokens.Caption,
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}

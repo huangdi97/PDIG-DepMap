@@ -6,22 +6,23 @@ import com.pdig.core.domain.ImpactProposalInput
 import com.pdig.core.domain.ImpactStateKey
 import com.pdig.core.domain.dependencyLogicalKey
 import com.pdig.core.generated.Capability
+import com.pdig.core.generated.DependencyState
+import com.pdig.core.generated.GroupState
+import com.pdig.core.generated.ImpactLevel
 import com.pdig.core.generated.ImpactReasonCode
 import com.pdig.core.generated.ImpactTargetStatus
 
 /**
- * PDIG Impact Kernel —— MVP payment domain。
+ * PDIG Impact Kernel — unified (nodeId, capability) propagation.
  *
- * 这是 core/src/impact/kernel.ts 的**忠实移植**，不是重新设计。
- * 任何行为差异都必须先改 spec/ 再改三端，不得在 Kotlin 侧自行"修正"。
- *
- * 铁律：
- *  - 状态键是 (nodeId, capability)，不是 nodeId（禁止 visited: Set<nodeId>）
- *  - 图允许有环：wave-BFS，每 key 最多处理一次
- *  - Proposal 任何 confidence 都不参与确定性失效传播（最多 needs_review）
- *  - must_change 必须可追溯到 confirmed reality
+ * Canonical v0.3.0 rules:
+ * - state identity is (nodeId, capability), never nodeId alone;
+ * - each capability propagates independently through confirmed active edges/groups;
+ * - Proposal confidence never upgrades an uncertain relationship to must_change;
+ * - payment output stays compatible with the frozen payment fixtures;
+ * - access/authentication/recovery/communication share the same kernel, not
+ *   capability-specific side engines.
  */
-
 data class ImpactTargetResult(
     val nodeId: String,
     val nodeName: String,
@@ -38,7 +39,7 @@ data class ImpactTargetResult(
 )
 
 data class ImpactChecklistItem(
-    val level: com.pdig.core.generated.ImpactLevel,
+    val level: ImpactLevel,
     val nodeId: String?,
     val capability: Capability?,
     val title: String,
@@ -53,118 +54,250 @@ data class ImpactResult(
     val processedKeys: List<String>,
 )
 
+internal data class CapabilityTerms(
+    val noun: String,
+    val capabilityLabel: String,
+    val sourceLabel: String,
+    val relationLabel: String,
+    val pathLabel: String,
+    val operationVerb: String,
+)
+
 private val PAYMENT = Capability.PAYMENT
+
+private val CAPABILITY_ORDER = listOf(
+    Capability.PAYMENT,
+    Capability.ACCESS,
+    Capability.AUTHENTICATION,
+    Capability.RECOVERY,
+    Capability.COMMUNICATION,
+    Capability.IDENTITY,
+)
+
+private val TERMS: Map<Capability, CapabilityTerms> = mapOf(
+    Capability.PAYMENT to CapabilityTerms(
+        noun = "支付",
+        capabilityLabel = "支付能力",
+        sourceLabel = "支付来源",
+        relationLabel = "支付关系",
+        pathLabel = "支付路径",
+        operationVerb = "注销/停用",
+    ),
+    Capability.ACCESS to CapabilityTerms(
+        noun = "访问",
+        capabilityLabel = "访问能力",
+        sourceLabel = "访问来源",
+        relationLabel = "访问关系",
+        pathLabel = "访问路径",
+        operationVerb = "停用",
+    ),
+    Capability.AUTHENTICATION to CapabilityTerms(
+        noun = "认证",
+        capabilityLabel = "认证能力",
+        sourceLabel = "认证方式",
+        relationLabel = "认证关系",
+        pathLabel = "认证路径",
+        operationVerb = "停用",
+    ),
+    Capability.RECOVERY to CapabilityTerms(
+        noun = "恢复",
+        capabilityLabel = "恢复能力",
+        sourceLabel = "恢复方式",
+        relationLabel = "恢复关系",
+        pathLabel = "恢复路径",
+        operationVerb = "停用",
+    ),
+    Capability.COMMUNICATION to CapabilityTerms(
+        noun = "通讯",
+        capabilityLabel = "通讯能力",
+        sourceLabel = "通讯方式",
+        relationLabel = "通讯关系",
+        pathLabel = "通讯路径",
+        operationVerb = "停用",
+    ),
+    Capability.IDENTITY to CapabilityTerms(
+        noun = "身份",
+        capabilityLabel = "身份信息",
+        sourceLabel = "身份来源",
+        relationLabel = "身份关系",
+        pathLabel = "身份路径",
+        operationVerb = "停用",
+    ),
+)
 
 private fun sortKeys(keys: List<ImpactStateKey>): List<ImpactStateKey> =
     keys.sortedWith(compareBy({ it.nodeId }, { it.capability.wire }))
 
-fun simulateDisable(graph: ImpactGraph, nodeId: String): ImpactResult =
-    simulateScenario(graph, listOf(ImpactStateKey(nodeId, PAYMENT)))
+fun simulateDisable(
+    graph: ImpactGraph,
+    nodeId: String,
+    capability: Capability = PAYMENT,
+): ImpactResult =
+    simulateScenario(graph, listOf(ImpactStateKey(nodeId, capability)))
 
-fun simulateScenario(graph: ImpactGraph, unavailable: List<ImpactStateKey>): ImpactResult {
-    // 非 payment 初始键被忽略；按 keyString 值级去重（processedKeys 唯一不变量）
+fun simulateScenario(
+    graph: ImpactGraph,
+    unavailable: List<ImpactStateKey>,
+): ImpactResult {
     val initialSeen = mutableSetOf<String>()
     val initial = sortKeys(
-        unavailable.filter { k ->
-            if (k.capability != PAYMENT) return@filter false
-            if (initialSeen.contains(k.keyString())) return@filter false
-            initialSeen.add(k.keyString())
-            true
+        unavailable.filter { key ->
+            initialSeen.add(key.keyString())
         },
     )
 
-    val activePaymentDeps: List<Dependency> = graph.dependencies
-        .filter { it.state == com.pdig.core.generated.DependencyState.ACTIVE && it.capability == PAYMENT }
+    val byCapability = initial.groupBy { it.capability }
+    val orderedCapabilities = byCapability.keys.sortedBy { capability ->
+        CAPABILITY_ORDER.indexOf(capability).let { if (it < 0) Int.MAX_VALUE else it }
+    }
+
+    val allTargets = mutableListOf<ImpactTargetResult>()
+    val lostKeys = mutableListOf<ImpactStateKey>()
+    val processedKeys = mutableListOf<String>()
+    val checklist = mutableListOf<ImpactChecklistItem>()
+
+    for (capability in orderedCapabilities) {
+        val keys = byCapability[capability].orEmpty()
+        if (keys.isEmpty()) continue
+        val result = propagateCapability(
+            graph = graph,
+            initial = keys,
+            capability = capability,
+            terms = TERMS.getValue(capability),
+        )
+        allTargets += result.targets
+        lostKeys += result.lostKeys
+        processedKeys += result.processedKeys
+        checklist += result.checklist
+    }
+
+    val targets = allTargets.sortedWith(
+        compareBy({ it.depth }, { it.nodeId }, { it.capability.wire }),
+    )
+
+    return ImpactResult(
+        unavailable = initial,
+        lostKeys = lostKeys,
+        targets = targets,
+        checklist = checklist,
+        processedKeys = processedKeys,
+    )
+}
+
+private fun propagateCapability(
+    graph: ImpactGraph,
+    initial: List<ImpactStateKey>,
+    capability: Capability,
+    terms: CapabilityTerms,
+): ImpactResult {
+    val activeDeps: List<Dependency> = graph.dependencies
+        .filter { it.state == DependencyState.ACTIVE && it.capability == capability }
         .sortedBy { it.id }
-    val activePaymentGroups = graph.groups
-        .filter { it.state == com.pdig.core.generated.GroupState.ACTIVE && it.capability == PAYMENT }
+    val activeGroups = graph.groups
+        .filter { it.state == GroupState.ACTIVE && it.capability == capability }
         .sortedBy { it.id }
-    val paymentProposals: List<ImpactProposalInput> = graph.proposals.filter { it.capability == PAYMENT }
+    val proposals: List<ImpactProposalInput> = graph.proposals
+        .filter { it.capability == capability }
 
     fun nodeName(id: String): String = graph.nodeNames[id] ?: id
-    fun keyOf(node: String): String = "$node|${PAYMENT.wire}"
+    fun keyOf(node: String): String = "$node|${capability.wire}"
+    fun edgeKeysOf(deps: List<Dependency>): List<String> =
+        deps.map { dependencyLogicalKey(it.from, it.relation, it.to, it.capability) }
 
     val unavailableSet = initial.map { it.keyString() }.toMutableSet()
     val lostKeys = initial.toMutableList()
     val processedKeys = initial.map { it.keyString() }.toMutableList()
     val processedSeen = processedKeys.toMutableSet()
     val results = LinkedHashMap<String, ImpactTargetResult>()
-
-    fun edgeKeysOf(deps: List<Dependency>): List<String> =
-        deps.map { dependencyLogicalKey(it.from, it.relation, it.to, it.capability) }
-
-    // 不确定性集合：needs_review 向下游传播"不确定"，但永不升级为 must_change
     val uncertainSet = mutableSetOf<String>()
 
-    // wave-BFS：unavailableSet / uncertainSet 只增长 → 天然防环终止
     val initialNodeIds = initial.map { it.nodeId }.toSet()
     var frontier: List<String> = initial.map { it.nodeId }
     var depth = 0
     var guard = 0
-    val maxGuard = activePaymentDeps.size * 2 + initial.size + 8
+    val maxGuard = activeDeps.size * 2 + initial.size + 8
 
     while (frontier.isNotEmpty() && guard <= maxGuard) {
         guard += 1
         depth += 1
         val pending = LinkedHashSet<String>()
-        for (n in frontier) {
-            for (d in activePaymentDeps) {
-                if (d.from == n && !unavailableSet.contains(keyOf(d.to))) pending.add(d.to)
+
+        for (node in frontier) {
+            for (dependency in activeDeps) {
+                if (
+                    dependency.from == node &&
+                    !unavailableSet.contains(keyOf(dependency.to))
+                ) {
+                    pending.add(dependency.to)
+                }
             }
-            if (initialNodeIds.contains(n)) {
-                for (p in paymentProposals) {
-                    if (p.from == n && !unavailableSet.contains(keyOf(p.to))) pending.add(p.to)
+            if (node in initialNodeIds) {
+                for (proposal in proposals) {
+                    if (
+                        proposal.from == node &&
+                        !unavailableSet.contains(keyOf(proposal.to))
+                    ) {
+                        pending.add(proposal.to)
+                    }
                 }
             }
         }
-        val orderedPending = pending.sorted()
+
         val nextFrontier = mutableListOf<String>()
         var grew = false
 
-        for (t in orderedPending) {
-            val k = keyOf(t)
-            if (unavailableSet.contains(k)) continue
+        for (targetNode in pending.sorted()) {
+            val key = keyOf(targetNode)
+            if (key in unavailableSet) continue
+
             val result = evaluateTarget(
-                t,
-                depth,
-                activePaymentDeps,
-                activePaymentGroups,
-                paymentProposals,
-                ::nodeName,
-                ::keyOf,
-                unavailableSet,
-                uncertainSet,
-                ::edgeKeysOf,
+                t = targetNode,
+                depth = depth,
+                capability = capability,
+                terms = terms,
+                activeDeps = activeDeps,
+                activeGroups = activeGroups,
+                proposals = proposals,
+                nodeName = ::nodeName,
+                keyOf = ::keyOf,
+                unavailableSet = unavailableSet,
+                uncertainSet = uncertainSet,
+                edgeKeysOf = ::edgeKeysOf,
             )
-            val prev = results[k]
-            if (prev == null) {
-                results[k] = result
+
+            val previous = results[key]
+            if (previous == null) {
+                results[key] = result
             } else {
-                val current = severity(result.status)
-                val old = severity(prev.status)
-                if (current > old) {
-                    results[k] = result
-                } else if (current == old) {
-                    results[k] = prev.copy(
-                        edgeKeys = (prev.edgeKeys + result.edgeKeys).distinct().sorted(),
-                        groupKeys = (prev.groupKeys + result.groupKeys).distinct().sorted(),
-                        proposalKeys = (prev.proposalKeys + result.proposalKeys).distinct().sorted(),
+                val currentSeverity = severity(result.status)
+                val oldSeverity = severity(previous.status)
+                if (currentSeverity > oldSeverity) {
+                    results[key] = result
+                } else if (currentSeverity == oldSeverity) {
+                    results[key] = previous.copy(
+                        edgeKeys = (previous.edgeKeys + result.edgeKeys).distinct().sorted(),
+                        groupKeys = (previous.groupKeys + result.groupKeys).distinct().sorted(),
+                        proposalKeys =
+                            (previous.proposalKeys + result.proposalKeys).distinct().sorted(),
                     )
                 }
             }
+
             when {
-                result.status == ImpactTargetStatus.MUST_CHANGE && !unavailableSet.contains(k) -> {
-                    unavailableSet.add(k)
-                    lostKeys.add(ImpactStateKey(t, PAYMENT))
-                    if (!processedSeen.contains(k)) { processedKeys.add(k); processedSeen.add(k) }
-                    uncertainSet.remove(t)
-                    nextFrontier.add(t)
+                result.status == ImpactTargetStatus.MUST_CHANGE && key !in unavailableSet -> {
+                    unavailableSet.add(key)
+                    lostKeys.add(ImpactStateKey(targetNode, capability))
+                    if (processedSeen.add(key)) processedKeys.add(key)
+                    uncertainSet.remove(targetNode)
+                    nextFrontier.add(targetNode)
                     grew = true
                 }
-                result.status == ImpactTargetStatus.NEEDS_REVIEW && !uncertainSet.contains(t) -> {
-                    uncertainSet.add(t)
-                    if (!processedSeen.contains(k)) { processedKeys.add(k); processedSeen.add(k) }
-                    nextFrontier.add(t)
+
+                result.status == ImpactTargetStatus.NEEDS_REVIEW &&
+                    targetNode !in uncertainSet -> {
+                    uncertainSet.add(targetNode)
+                    if (processedSeen.add(key)) processedKeys.add(key)
+                    nextFrontier.add(targetNode)
                     grew = true
                 }
             }
@@ -179,46 +312,50 @@ fun simulateScenario(graph: ImpactGraph, unavailable: List<ImpactStateKey>): Imp
     )
 
     val checklist = mutableListOf<ImpactChecklistItem>()
-    for (t in targets) {
-        when (t.status) {
+    for (target in targets) {
+        when (target.status) {
             ImpactTargetStatus.UNAFFECTED -> Unit
             ImpactTargetStatus.MUST_CHANGE -> checklist.add(
                 ImpactChecklistItem(
-                    level = com.pdig.core.generated.ImpactLevel.MUST_CHANGE,
-                    nodeId = t.nodeId,
-                    capability = t.capability,
-                    title = "必须处理：${t.nodeName} 的支付能力将失效",
-                    detail = t.reasonText,
+                    level = ImpactLevel.MUST_CHANGE,
+                    nodeId = target.nodeId,
+                    capability = target.capability,
+                    title =
+                        "必须处理：${target.nodeName} 的${terms.capabilityLabel}将失效",
+                    detail = target.reasonText,
                 ),
             )
+
             ImpactTargetStatus.BACKUP_PATH -> checklist.add(
                 ImpactChecklistItem(
-                    level = com.pdig.core.generated.ImpactLevel.BACKUP_PATH,
-                    nodeId = t.nodeId,
-                    capability = t.capability,
-                    title = "有备用路径：${t.nodeName} 可切换（能力降级）",
-                    detail = t.reasonText,
+                    level = ImpactLevel.BACKUP_PATH,
+                    nodeId = target.nodeId,
+                    capability = target.capability,
+                    title = "有备用路径：${target.nodeName} 可切换（能力降级）",
+                    detail = target.reasonText,
                 ),
             )
+
             else -> checklist.add(
                 ImpactChecklistItem(
-                    level = com.pdig.core.generated.ImpactLevel.NEEDS_REVIEW,
-                    nodeId = t.nodeId,
-                    capability = t.capability,
-                    title = "建议检查：${t.nodeName}",
-                    detail = t.reasonText,
+                    level = ImpactLevel.NEEDS_REVIEW,
+                    nodeId = target.nodeId,
+                    capability = target.capability,
+                    title = "建议检查：${target.nodeName}",
+                    detail = target.reasonText,
                 ),
             )
         }
     }
-    // 原始注销/停用动作强制最后（IMP-09）
-    for (k in initial) {
+
+    for (key in initial) {
         checklist.add(
             ImpactChecklistItem(
-                level = com.pdig.core.generated.ImpactLevel.TARGET_OPERATION,
-                nodeId = k.nodeId,
-                capability = k.capability,
-                title = "最后一步：注销/停用 ${nodeName(k.nodeId)}（原始操作）",
+                level = ImpactLevel.TARGET_OPERATION,
+                nodeId = key.nodeId,
+                capability = key.capability,
+                title =
+                    "最后一步：${terms.operationVerb} ${nodeName(key.nodeId)}（原始操作）",
                 detail = "以上事项处理完成后再执行原始操作。",
             ),
         )
@@ -233,7 +370,7 @@ fun simulateScenario(graph: ImpactGraph, unavailable: List<ImpactStateKey>): Imp
     )
 }
 
-private fun severity(s: ImpactTargetStatus): Int = when (s) {
+private fun severity(status: ImpactTargetStatus): Int = when (status) {
     ImpactTargetStatus.MUST_CHANGE -> 3
     ImpactTargetStatus.BACKUP_PATH, ImpactTargetStatus.DEGRADED -> 2
     ImpactTargetStatus.NEEDS_REVIEW -> 1

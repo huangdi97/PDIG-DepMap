@@ -1,0 +1,13 @@
+{
+  "screen": "number-detail",
+  "deviceClass": "phone",
+  "api": 36,
+  "viewport": "1080x2400",
+  "density": 2.625,
+  "orientation": "portrait",
+  "pxDensity": 2.625,
+  "heroBottom_to_servicesHeaderTop_dp": 106.28571319580078,
+  "servicesHeaderBottom_to_firstServiceTop_dp": 16,
+  "service1Bottom_to_service2Top_dp": 16,
+  "service2Bottom_to_riskHeaderTop_dp": 16
+}

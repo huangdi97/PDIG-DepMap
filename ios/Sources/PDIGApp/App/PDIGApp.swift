@@ -26,17 +26,27 @@ struct PDIGApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(session: session)
-                .onAppear {
-                    // XCUITest 演示模式：注入演示图并直入 ready（模拟器无法
-                    // 通过 LocalAuthentication 解锁）。必须用已安装的 session
-                    // 实例执行（@StateObject 在 init 中访问会创建一次性实例）。
-                    if CommandLine.arguments.contains("--uitest-demo") {
-                        session.seedDemo()
-                    } else if session.phase == .booting {
-                        session.boot(dataDirectory: FileStore.dataDirectory())
-                    }
+            Group {
+                if CommandLine.arguments.contains("--uitest-vnext") {
+                    // Simulator-only Reference Preview. This deliberately does
+                    // not claim Production Reality authority or bypass the
+                    // product LockGate for a production session.
+                    VNextAppView()
+                        .accessibilityIdentifier("pdig.ios.vnext.root")
+                } else {
+                    RootView(session: session)
                 }
+            }
+            .onAppear {
+                // XCUITest legacy demo mode: inject the historical N4 demo graph.
+                if CommandLine.arguments.contains("--uitest-demo") ||
+                    CommandLine.arguments.contains("--uitest-production-vnext") {
+                    session.seedDemo()
+                } else if !CommandLine.arguments.contains("--uitest-vnext"),
+                          session.phase == .booting {
+                    session.boot(dataDirectory: FileStore.dataDirectory())
+                }
+            }
         }
     }
 }
@@ -56,7 +66,14 @@ struct RootView: View {
             case .locked:
                 LockView(session: session)
             case .ready:
-                MainRouterView(session: session)
+                if CommandLine.arguments.contains("--production-vnext") ||
+                    CommandLine.arguments.contains("--uitest-production-vnext") {
+                    // Explicit opt-in only. Default Production routing remains
+                    // the existing MainRouterView until iOS VNext reaches parity.
+                    VIosProductionVNextPilotView(session: session)
+                } else {
+                    MainRouterView(session: session)
+                }
             }
         }
         .frame(minWidth: 420, minHeight: 600)

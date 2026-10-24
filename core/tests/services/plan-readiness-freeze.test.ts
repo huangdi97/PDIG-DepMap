@@ -15,6 +15,7 @@ import {
   NodeRepository,
   NodeSqliteDriver,
   rebasePlan,
+  pendingReadinessChangeActionCount,
   type PlanAction,
   type PlanReadinessInput,
 } from '../../src/index.ts'
@@ -70,6 +71,28 @@ const changeAction = (id: string, keys: string[], done = false): PlanAction => (
   doneAt: done ? '2026-01-02T00:00:00Z' : null,
   verification: null,
   resolvesImpactKeys: keys,
+})
+
+describe('PlanReadiness action verification accounting', () => {
+  it('done but pending/failed verification stays pending; verified/not-required clears', () => {
+    const base = changeAction('a', ['x|payment'], true)
+    const withStatus = (status: 'pending' | 'evidence_suggested' | 'verified' | 'failed' | 'not_required') => ({
+      ...base,
+      verification: {
+        method: 'future_observation' as const,
+        status,
+        verifiedAt: status === 'verified' ? '2026-01-03T00:00:00Z' : null,
+        evidenceRefs: [],
+      },
+    })
+    expect(pendingReadinessChangeActionCount([withStatus('pending')])).toBe(1)
+    expect(pendingReadinessChangeActionCount([withStatus('evidence_suggested')])).toBe(1)
+    expect(pendingReadinessChangeActionCount([withStatus('failed')])).toBe(1)
+    expect(pendingReadinessChangeActionCount([withStatus('verified')])).toBe(0)
+    expect(pendingReadinessChangeActionCount([withStatus('not_required')])).toBe(0)
+    expect(pendingReadinessChangeActionCount([base])).toBe(0)
+    expect(pendingReadinessChangeActionCount([changeAction('b', [], false)])).toBe(1)
+  })
 })
 
 describe('PlanReadiness freeze（FR-READ）', () => {
@@ -178,12 +201,14 @@ describe('PlanReadiness freeze（FR-READ）', () => {
     expect(
       computePlanReadiness(input(actions, { pendingMustChange: 1, unfinishedChangeActions: 1 })),
     ).toBe('blocked')
-    // 完成动作但 verification pending：must_change resolved，但未完成验证 → 不给 ready（review_required）
+    // 完成动作但 verification pending：must_change resolved，但 required verification
+    // 仍未通过，因此 readiness 输入必须继续携带 pending action，而不是借用
+    // needs_review 信号来掩盖 false-ready。
     expect(
       computePlanReadiness(
         input([changeAction('a1', ['x|payment'], true)], {
           pendingMustChange: 0,
-          pendingNeedsReview: 1,
+          unfinishedChangeActions: 1,
         }),
       ),
     ).toBe('review_required')

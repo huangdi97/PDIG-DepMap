@@ -125,7 +125,8 @@ public enum ScenarioFlow {
                 id: "\(key.nodeId)-migrate-\(key.capability.wire)",
                 title: "为 \(target) 添加新的\(CopyZh.capability(key.capability.wire))来源",
                 phase: .change,
-                resolvesImpactKeys: [key.keyString()]
+                resolvesImpactKeys: [key.keyString()],
+                prerequisiteActionIds: ["\(targetNodeId)-prepare"]
             ))
         }
         // verify：每条迁移对应一条验证动作
@@ -134,6 +135,7 @@ public enum ScenarioFlow {
                 id: "\(key.nodeId)-verify-\(key.capability.wire)",
                 title: "验证 \(graph.name(of: key.nodeId)) 的新\(CopyZh.capability(key.capability.wire))路径",
                 phase: .verify,
+                prerequisiteActionIds: ["\(key.nodeId)-migrate-\(key.capability.wire)"],
                 verification: ActionVerification(
                     method: .futureObservation,
                     status: .pending,
@@ -146,7 +148,10 @@ public enum ScenarioFlow {
         actions.append(PlanAction(
             id: "\(targetNodeId)-final",
             title: CopyZh.impactTargetOperation + "：\(graph.name(of: targetNodeId))",
-            phase: .verify
+            phase: .verify,
+            prerequisiteActionIds: impact.lostKeys.isEmpty
+                ? ["\(targetNodeId)-prepare"]
+                : impact.lostKeys.map { "\($0.nodeId)-verify-\($0.capability.wire)" }
         ))
 
         // 前置边：迁移 → 验证；prepare → 迁移；final 在所有验证之后
@@ -215,17 +220,20 @@ public enum ScenarioFlow {
                 id: "phone-add-new",
                 title: CopyZh.addNewPhone,
                 phase: .change,
-                resolvesImpactKeys: [ImpactStateKey(targetNodeId, .recovery).keyString()]
+                resolvesImpactKeys: [ImpactStateKey(targetNodeId, .recovery).keyString()],
+                prerequisiteActionIds: ["phone-prepare"]
             ),
             PlanAction(
                 id: "phone-migrate",
                 title: CopyZh.migrateAccounts,
-                phase: .change
+                phase: .change,
+                prerequisiteActionIds: ["phone-add-new"]
             ),
             PlanAction(
                 id: "phone-verify-new",
                 title: CopyZh.verifyNewPhone,
                 phase: .verify,
+                prerequisiteActionIds: ["phone-migrate"],
                 verification: ActionVerification(
                     method: .futureObservation,
                     status: .pending,
@@ -236,7 +244,8 @@ public enum ScenarioFlow {
             PlanAction(
                 id: "phone-retire-old",
                 title: CopyZh.retireOldPhone,
-                phase: .change
+                phase: .change,
+                prerequisiteActionIds: ["phone-verify-new"]
             ),
         ]
 

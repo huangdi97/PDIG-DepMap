@@ -37,19 +37,42 @@ public enum PlanJson {
             ("id", .str(a.id)),
             ("title", .str(a.title)),
             ("phase", .str(a.phase.wire)),
-            ("done", .num(a.done ? "1" : "0")),
-            ("resolves_impact_keys", .arr(a.resolvesImpactKeys.map { .str($0) })),
+            ("done", .bool(a.done)),
+            ("resolvesImpactKeys", .arr(a.resolvesImpactKeys.map { .str($0) })),
+            ("prerequisiteActionIds", .arr(a.prerequisiteActionIds.map { .str($0) })),
         ]
         if let v = a.verification {
             fields.append(("verification", .obj(JsonObject([
                 ("method", .str(v.method.wire)),
                 ("status", .str(v.status.wire)),
-                ("evidence_refs", .arr(v.evidenceRefs.map { .str($0) })),
-                ("expected_from_node_id", v.expectedFromNodeId.map { .str($0) } ?? .null),
-                ("expected_to_node_id", v.expectedToNodeId.map { .str($0) } ?? .null),
+                ("evidenceRefs", .arr(v.evidenceRefs.map { .str($0) })),
+                ("expectedFromNodeId", v.expectedFromNodeId.map { .str($0) } ?? .null),
+                ("expectedToNodeId", v.expectedToNodeId.map { .str($0) } ?? .null),
             ]))))
         }
         return .obj(JsonObject(fields))
+    }
+
+    private static func integerValue(_ value: Json?) -> Int {
+        guard let value else { return 0 }
+        switch value {
+        case .num(let raw), .str(let raw):
+            return Int(raw) ?? 0
+        default:
+            return 0
+        }
+    }
+
+    private static func booleanValue(_ value: Json?) -> Bool {
+        guard let value else { return false }
+        switch value {
+        case .bool(let raw):
+            return raw
+        case .num(let raw), .str(let raw):
+            return raw == "1" || raw.lowercased() == "true"
+        default:
+            return false
+        }
     }
 
     public static func parsePlan(_ o: JsonObject) throws -> ChangePlan {
@@ -58,15 +81,14 @@ public enum PlanJson {
             throw GraphRepositoryError("unknown workflow_state \(wfRaw)")
         }
         let actions = parseActions(o["action_items_json"]?.stringValue ?? "[]")
-        let rev = Int(o["last_analyzed_graph_revision"]?.stringValue ?? "0") ?? 0
         return ChangePlan(
             id: o["id"]?.stringValue ?? "",
             templateId: o["template_id"]?.stringValue,
             scenario: o["scenario"]?.stringValue ?? "",
             title: o["title"]?.stringValue ?? "",
             workflowState: wf,
-            baselineGraphRevision: Int(o["baseline_graph_revision"]?.stringValue ?? "0") ?? 0,
-            lastAnalyzedGraphRevision: rev,
+            baselineGraphRevision: integerValue(o["baseline_graph_revision"]),
+            lastAnalyzedGraphRevision: integerValue(o["last_analyzed_graph_revision"]),
             targetNodeId: o["target_node_id"]?.stringValue,
             effectiveDate: o["effective_date"]?.stringValue,
             actions: actions
@@ -86,17 +108,34 @@ public enum PlanJson {
                 verification = ActionVerification(
                     method: ActionVerificationMethod(rawValue: v["method"]?.stringValue ?? "manual_confirmation") ?? .manualConfirmation,
                     status: ActionVerificationStatus(rawValue: v["status"]?.stringValue ?? "pending") ?? .pending,
-                    evidenceRefs: (v["evidence_refs"]?.arrayValue ?? []).compactMap { $0.stringValue },
-                    expectedFromNodeId: v["expected_from_node_id"]?.stringValue,
-                    expectedToNodeId: v["expected_to_node_id"]?.stringValue
+                    evidenceRefs: (
+                        v["evidenceRefs"]?.arrayValue ??
+                        v["evidence_refs"]?.arrayValue ??
+                        []
+                    ).compactMap { $0.stringValue },
+                    expectedFromNodeId:
+                        v["expectedFromNodeId"]?.stringValue ??
+                        v["expected_from_node_id"]?.stringValue,
+                    expectedToNodeId:
+                        v["expectedToNodeId"]?.stringValue ??
+                        v["expected_to_node_id"]?.stringValue
                 )
             }
             out.append(PlanAction(
                 id: o["id"]?.stringValue ?? "",
                 title: o["title"]?.stringValue ?? "",
                 phase: phase,
-                done: o["done"]?.stringValue == "1",
-                resolvesImpactKeys: (o["resolves_impact_keys"]?.arrayValue ?? []).compactMap { $0.stringValue },
+                done: booleanValue(o["done"]),
+                resolvesImpactKeys: (
+                    o["resolvesImpactKeys"]?.arrayValue ??
+                    o["resolves_impact_keys"]?.arrayValue ??
+                    []
+                ).compactMap { $0.stringValue },
+                prerequisiteActionIds: (
+                    o["prerequisiteActionIds"]?.arrayValue ??
+                    o["prerequisite_action_ids"]?.arrayValue ??
+                    []
+                ).compactMap { $0.stringValue },
                 verification: verification
             ))
         }
@@ -180,19 +219,22 @@ public final class GraphRepository {
         guard let rows = try? driver.prepare("SELECT * FROM change_plans").all([]) else { return [] }
         var plans: [ChangePlan] = []
         for row in rows {
-            guard let json = row.str("action_items_json") else { continue }
-            guard let parsed = try? JsonParser.parse(json) else { continue }
-            guard case .obj(let o) = parsed else { continue }
-            var fields = o.fields
-            fields.append(("id", .str(row.str("id") ?? "")))
-            fields.append(("template_id", row.str("template_id").map { .str($0) } ?? .null))
-            fields.append(("scenario", .str(row.str("scenario") ?? "")))
-            fields.append(("title", .str(row.str("title") ?? "")))
-            fields.append(("workflow_state", .str(row.str("workflow_state") ?? "")))
-            fields.append(("baseline_graph_revision", .num(row.str("baseline_graph_revision") ?? "0")))
-            fields.append(("last_analyzed_graph_revision", .num(row.str("last_analyzed_graph_revision") ?? "0")))
-            fields.append(("target_node_id", row.str("target_node_id").map { .str($0) } ?? .null))
-            fields.append(("effective_date", row.str("effective_date").map { .str($0) } ?? .null))
+            // action_items_json is persisted as a JSON ARRAY string. Do not
+            // parse that array as though it were the enclosing plan object.
+            // Rebuild the PlanJson input from authoritative table columns and
+            // pass the action array through unchanged for parseActions().
+            let fields: [(String, Json)] = [
+                ("id", .str(row.str("id") ?? "")),
+                ("template_id", row.str("template_id").map { .str($0) } ?? .null),
+                ("scenario", .str(row.str("scenario") ?? "")),
+                ("title", .str(row.str("title") ?? "")),
+                ("workflow_state", .str(row.str("workflow_state") ?? "")),
+                ("baseline_graph_revision", .num(row.str("baseline_graph_revision") ?? "0")),
+                ("last_analyzed_graph_revision", .num(row.str("last_analyzed_graph_revision") ?? "0")),
+                ("target_node_id", row.str("target_node_id").map { .str($0) } ?? .null),
+                ("effective_date", row.str("effective_date").map { .str($0) } ?? .null),
+                ("action_items_json", .str(row.str("action_items_json") ?? "[]")),
+            ]
             if let plan = try? PlanJson.parsePlan(JsonObject(fields)) {
                 plans.append(plan)
             }
@@ -346,7 +388,9 @@ public final class GraphRepository {
     }
 
     private func loadNodes() throws -> [DepNode] {
-        guard let rows = try? driver.prepare("SELECT id, kind, name, issuer, last4, archived FROM nodes").all([]) else { return [] }
+        guard let rows = try? driver.prepare(
+            "SELECT id, kind, name, issuer, last4, fields_json, archived FROM nodes"
+        ).all([]) else { return [] }
         return rows.compactMap { row in
             guard let kind = NodeKind(rawValue: row.str("kind") ?? "") else { return nil }
             return DepNode(
@@ -355,6 +399,7 @@ public final class GraphRepository {
                 name: row.str("name") ?? "",
                 issuer: row.str("issuer"),
                 last4: row.str("last4"),
+                fieldsJson: row.str("fields_json"),
                 archived: row.str("archived") == "1"
             )
         }

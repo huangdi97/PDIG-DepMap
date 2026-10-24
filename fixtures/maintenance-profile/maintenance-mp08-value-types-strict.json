@@ -1,0 +1,18 @@
+{
+  "id": "maintenance-mp08-value-types-strict",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-08 value type and canonical value syntax are kind-specific",
+  "input": {
+    "kind": "payment_instrument",
+    "fieldsJson": "{\"maintenance_profile\":{\"version\":1,\"facts\":[{\"id\":\"fee-text\",\"kind\":\"card_annual_fee_amount\",\"value_type\":\"text\",\"value\":\"100\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},{\"id\":\"currency-lower\",\"kind\":\"card_annual_fee_currency\",\"value_type\":\"currency_code\",\"value\":\"usd\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},{\"id\":\"day-zero\",\"kind\":\"card_billing_day\",\"value_type\":\"integer\",\"value\":\"08\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},{\"id\":\"free\",\"kind\":\"card_annual_fee_amount\",\"value_type\":\"decimal_string\",\"value\":\"0\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"}]}}"
+  },
+  "expected": {
+    "facts": [{"id": "free", "kind": "card_annual_fee_amount", "valueType": "decimal_string", "value": "0", "state": "confirmed"}],
+    "currentFactIds": ["free"],
+    "schedules": [],
+    "currentScheduleIds": []
+  }
+}

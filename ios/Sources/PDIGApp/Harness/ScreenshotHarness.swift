@@ -6,6 +6,7 @@
 //
 // 诚实口径：这些是 **macOS 上渲染的 SwiftUI 捕获**（MACOS_RENDER），
 // 不是模拟器/真机截图；没有跑 XCUITest。证据索引里逐项标注 IOS_VISUAL。
+// vNext 演示屏（Presentation Layer）额外标注 IOS_VNEXT_DEMO；reduceMotion 冻结相机状态。
 
 import SwiftUI
 import PDIGCore
@@ -27,6 +28,7 @@ public enum ScreenshotHarness {
         guard let i = args.firstIndex(of: flag), i + 1 < args.count else { return nil }
         return args[i + 1]
     }
+
     @MainActor
     private static func renderAll(runId: String, outputDir: String) {
         let session = demoSession()
@@ -40,7 +42,7 @@ public enum ScreenshotHarness {
             ("Backup", AnyView(BackupScreen(session: session))),
             ("Import", AnyView(ImportScreen(session: session))),
             ("Timeline", AnyView(TimelineScreen(session: session))),
-        ]
+        ] + vnextScreens()
 
         var indexFields: [(String, Json)] = [
             ("runId", .str(runId)),
@@ -64,9 +66,78 @@ public enum ScreenshotHarness {
             ("IOS_VISUAL", .str("MacOSRender (MACOS_RENDER) — not simulator, not device, no XCUITest")),
             ("IOS_SQLCIPHER_PERSISTENCE", .str("NOT_RUN")),
             ("IOS_DEVICE_RUNTIME", .str("NOT_RUN")),
+            ("IOS_VNEXT_DEMO", .str("MACOS_RENDER — legacy label; vNext reference uses synthetic fixture, reduceMotion on")),
+            ("IOS_VNEXT_REFERENCE", .str("MACOS_RENDER — synthetic reference translation only; not Production Reality")),
         ]))))
         writeIndex(JsonWriter.write(.obj(JsonObject(indexFields))), dir: outputDir)
         print("[PDIGApp] screenshots -> \(outputDir)")
+    }
+
+    /// vNext 演示屏（Presentation Layer；reduceMotion 冻结相机状态；全 synthetic fixture）。
+    @MainActor
+    private static func vnextScreens() -> [(name: String, view: AnyView)] {
+        let model = VNextModel()
+        model.reduceMotion = true
+        // macOS ImageRenderer does not reliably materialize the root content
+        // of NavigationStack when it is rendered off-window. The previous
+        // harness therefore produced background-only PNGs while reporting a
+        // successful screenshot step. Render vNext reference views directly
+        // at the evidence viewport; navigation behavior is covered separately
+        // by tests and real iOS runtime remains an external gate.
+        func snapshot(_ content: some View) -> AnyView {
+            AnyView(
+                content
+                    .frame(width: 420, height: 640, alignment: .topLeading)
+                    .clipped()
+            )
+        }
+        var result: [(name: String, view: AnyView)] = [
+            ("VNextNow", snapshot(NowView(model: model))),
+            ("VNextOverview", snapshot(OverviewView(model: model))),
+            ("VNextChangePhone", snapshot(ChangePhoneView(model: model))),
+            ("VNextPersonalization", snapshot(PersonalizationView(model: model))),
+        ]
+        model.screen = .cards
+        result.append(("VNextCards", snapshot(CardsView(model: model))))
+        model.screen = .cardDetail("card-cn-2")
+        result.append(("VNextCardDetail", snapshot(CardDetailView(model: model))))
+        model.screen = .numbers
+        result.append(("VNextNumbers", snapshot(NumbersView(model: model))))
+        model.screen = .numberDetail("num-cn-1")
+        result.append(("VNextNumberDetail", snapshot(NumberDetailView(model: model))))
+        model.screen = .cardCustomization("card-cn-1")
+        result.append(("VNextCardCustomization", snapshot(CardCustomizationView(model: model))))
+        model.screen = .numberCustomization("num-cn-1")
+        result.append(("VNextNumberCustomization", snapshot(NumberCustomizationView(model: model))))
+
+        model.screen = .accounts
+        result.append(("VNextAccounts", snapshot(VSecondaryCollectionView(model: model, kind: .account))))
+        model.screen = .secondaryDetail(.account, "acct-wechat")
+        result.append(("VNextAccountDetail", snapshot(VSecondaryDetailView(model: model, kind: .account, id: "acct-wechat"))))
+
+        model.screen = .emails
+        result.append(("VNextEmails", snapshot(VSecondaryCollectionView(model: model, kind: .email))))
+        model.screen = .secondaryDetail(.email, "mail-main")
+        result.append(("VNextEmailDetail", snapshot(VSecondaryDetailView(model: model, kind: .email, id: "mail-main"))))
+
+        model.screen = .devices
+        result.append(("VNextDevices", snapshot(VSecondaryCollectionView(model: model, kind: .device))))
+        model.screen = .secondaryDetail(.device, "device-pixel")
+        result.append(("VNextDeviceDetail", snapshot(VSecondaryDetailView(model: model, kind: .device, id: "device-pixel"))))
+
+        model.screen = .services
+        result.append(("VNextServices", snapshot(VSecondaryCollectionView(model: model, kind: .service))))
+        model.screen = .secondaryDetail(.service, "service-wx")
+        result.append(("VNextServiceDetail", snapshot(VSecondaryDetailView(model: model, kind: .service, id: "service-wx"))))
+
+        model.screen = .weaknesses
+        result.append(("VNextWeaknesses", snapshot(VWeaknessesView())))
+        model.screen = .records
+        result.append(("VNextRecords", snapshot(VRecordsView())))
+        model.screen = .me
+        result.append(("VNextMe", snapshot(VMeView(model: model))))
+
+        return result
     }
 
     private static func demoSession() -> AppSession {
@@ -85,12 +156,7 @@ public enum ScreenshotHarness {
                 .frame(width: 420, height: 640)
         )
         renderer.scale = 2
-        #if os(macOS)
         return renderer.cgImage
-        #else
-        // iOS 上 ImageRenderer 的 cgImage 也可用（本包只在 macOS 上运行 harness）。
-        return renderer.cgImage
-        #endif
     }
 
     private static func writePNG(_ image: CGImage, name: String, dir: String) -> String {

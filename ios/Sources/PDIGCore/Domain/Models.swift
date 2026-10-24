@@ -17,6 +17,10 @@ public struct DepNode: Equatable, Sendable {
     public let name: String
     public let issuer: String?
     public let last4: String?
+    /// Canonical governed extension payload. Kept opaque at the base node layer;
+    /// typed readers such as confirmedIdentityAnchorProfile / governedRegionFacts
+    /// are the only authority for interpreting it.
+    public let fieldsJson: String?
     public let archived: Bool
 
     public init(
@@ -25,6 +29,7 @@ public struct DepNode: Equatable, Sendable {
         name: String,
         issuer: String? = nil,
         last4: String? = nil,
+        fieldsJson: String? = nil,
         archived: Bool = false
     ) {
         self.id = id
@@ -32,6 +37,7 @@ public struct DepNode: Equatable, Sendable {
         self.name = name
         self.issuer = issuer
         self.last4 = last4
+        self.fieldsJson = fieldsJson
         self.archived = archived
     }
 }
@@ -234,6 +240,9 @@ public struct PlanAction: Equatable, Sendable {
     public let phase: PlanActionPhase
     public let done: Bool
     public let resolvesImpactKeys: [String]
+    /// Persisted prerequisite action ids. UI may explain them in plain language,
+    /// but execution authority must enforce them after process restart as well.
+    public let prerequisiteActionIds: [String]
     public let verification: ActionVerification?
 
     public init(
@@ -242,6 +251,7 @@ public struct PlanAction: Equatable, Sendable {
         phase: PlanActionPhase,
         done: Bool = false,
         resolvesImpactKeys: [String] = [],
+        prerequisiteActionIds: [String] = [],
         verification: ActionVerification? = nil
     ) {
         self.id = id
@@ -249,6 +259,7 @@ public struct PlanAction: Equatable, Sendable {
         self.phase = phase
         self.done = done
         self.resolvesImpactKeys = resolvesImpactKeys
+        self.prerequisiteActionIds = prerequisiteActionIds
         self.verification = verification
     }
 }

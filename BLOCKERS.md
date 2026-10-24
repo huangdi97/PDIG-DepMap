@@ -1,5 +1,209 @@
 # BLOCKERS.md
 
+> **ANDROID POST-FREEZE CLOSURE Gate（2026-10-21）：**
+>
+> - 本轮在 exact source `a3049c64…` 上完成 Production runtime 取证与 Change Make-Before-Break 真实 UI journey；
+>   本机 JVM/Conformance/四类构建/Production rehearsal 全部真实执行并留下日志与 XML。
+> - **已关闭（2026-10-22 补充）**：`TabletAdaptiveContractTest` / `AndroidAdaptiveShellContractTest` 在本机 tablet AVD
+>   的失败已定位并修复根因——该 AVD 遗留 `font_scale = 1.5`，而产品在 `fontScale > 1.15` 时**有意**回退紧凑连续场景；
+>   另两条 `compact*` 契约把「强制内容视口 360dp」当成窗口类，实际导航外框取真实窗口。重置字号为 1.0 并为两条
+>   compact 契约加上 `< 600dp` 窗口前提后：**15 run / 0 failed / 2 skipped**（skip 属显式窗口类假定，不是 PASS）。
+> - **仍未关闭**：§27 phone-preview 28 张截图本轮未重抓，已在 `MANIFEST.json` 记为 `NOT_RUN`（禁止用旧图改名冒充）。
+> - `PIXEL_REFERENCE_LIMITATION`：仓库内 Android 参考图仍为小尺寸历史图（≈320×213），本轮不做像素级 diff 声明。
+> - Device / Membership / Custom 身份本轮无法进入 runtime Reality：Canonical 仅允许
+>   `payment_instrument/account/service` 在运行时创建，故 `设备端点` hero 与后两类遮蔽态只能在源码/契约层确认。
+> - 保持：`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、`ANDROID_REFERENCE_FREEZE = historical candidate only`、
+>   `STORE_RELEASE = NOT_READY`；production signing / Play 发布仍为外部 gate。
+
+> **ANDROID UI vNext Focused Phone Current-Head Gate（2026-10-05）：**
+>
+> - Human-selected 亮色参考已经完成进一步 source translation；最终 pixel-changing Android production-UI checkpoint
+>   = `a03bc11c8bac601f95bf2e070c5f666e2b22d271`；其后为结构契约测试与文档同步。
+> - 当前没有已知必须继续靠 source 猜测的 P0/P1 UI 设计缺口；Phone/Tablet 的下一判定必须来自
+>   exact-current-head runtime pixels。
+> - 本轮新增 Phone Infrastructure 8 类 Hub、Now/Infrastructure Globe 职责分离、compact contextual
+>   top title、compact duplicate-title cleanup、wide-only Infrastructure sibling nav，以及 visually compact
+>   filters / Change projection / Studio controls；相关 instrumentation contracts 已同步。
+> - 这些生产 UI 变化尚未在 API36 Phone + Tablet exact current HEAD 上重跑，因此不得宣称 Build /
+>   Instrumentation / Runtime / Visual ACCEPTED。
+> - 旧 `4e43511...` evidence 只作为历史证据；Local Agent 仅负责 build/run/test/capture/evidence，
+>   不得重新设计 UI。
+> - 保持：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+>
+> **ANDROID UI vNext Selected Light Reference Current-Head Gate（2026-10-05）：**
+>
+> - Human-selected 亮色视觉参考已经入仓并完成 source-level translation；最新 Android production-UI
+>   checkpoint = `94b9445a73c40c11e592ed9fa08d2c55646c3880`。
+> - 当前没有已知需要继续凭 source 猜测的 UI 设计缺口；**唯一正确的下一 Gate 是 exact-current-head
+>   runtime evidence freshness + Human pixel review**。
+> - 旧 `4e43511...` Phone/Tablet runtime pack 与当前 light source 不同源，只能作为历史证据。
+> - 本轮新增的 Records/Search/Data Sources/Personalization/Card Detail/Number Detail light hierarchy
+>   以及既有 Cards/Numbers/Change/Studio source contracts 均尚未由 API36 Phone+Tablet 当前 HEAD
+>   runtime 重新验证；因此不得写 Android Runtime PASS / Visual ACCEPTED / Freeze PASS。
+> - 保留：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+>
+> **ANDROID UI vNext Light Reference Current-Head Gate（2026-10-05）：**
+>
+> - Human-selected light visual direction 已进入 Android Compose production UI；当前 source-design
+>   不存在已知待实现的主视觉页面缺口。
+> - 当前唯一 Android UI Freeze 阻塞是 **fresh runtime evidence + Human pixel acceptance**：
+>   最新 production-UI checkpoint = `feb110663f19fcca74c0ddc7e3e619fc501474e6`，旧 evidence
+>   source = `4e43511...`。
+> - 本轮新增/改变了主题、Now、Cards、Numbers、Change Phone、Studio、secondary infrastructure、
+>   shell/navigation，因此旧截图不可用于 Final Freeze。
+> - 不得把 source completeness 写成 build/runtime PASS；Local Agent 必须对 exact remote HEAD
+>   重新 build、instrument、Phone/Tablet 取证。
+> - 保持：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+
+> **ANDROID UI vNext Current-Head Evidence Gate（2026-10-05）：**
+>
+> - 当前不是代码设计 blocker，而是**证据新鲜度 gate**。Human Review 后 Android production UI
+>   checkpoint 已到 `77c7b3692c9b3327331f52af522a2bc65ecf165e`；2026-10-04 的 Phone/Tablet
+>   runtime pack 来自 `4e43511...`，不能用于 Final Freeze。
+> - 旧报告中的 2 条 a11y 文案期望漂移与 forced-wide Phone geometry probe 已在后续 source/test
+>   中裁决修正，不再作为当前 blocker。
+> - 新的 navigation hierarchy / compact Studio craft 已加 instrumentation contracts，但尚未在
+>   exact current HEAD 的 API36 Phone + Tablet 上重新执行，因此不得写 Runtime PASS。
+> - 保留状态：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、
+>   `ANDROID_REFERENCE_FREEZE = HOLD`、`IOS_UI_VNEXT = HOLD`、`HARMONY_UI_VNEXT = HOLD`。
+> - Local Agent 仍只负责 build/runtime/evidence；UI discrepancy 必须回到 ChatGPT source 修改。
+>
+> **ANDROID UI vNext Source-Complete Runtime Validation（2026-10-04）：**
+>
+> - 无新外部 blocker。已如实记录：本轮运行主体全部 PASS，但 **2 条既有
+>   `VNextAccessibilityEvidenceTest` 契约测试在最新 source 上 FAIL**（期望串与新 consumer copy
+>   漂移：`搜索 / 命令` vs 实际 `搜索与快捷操作`；`地区（Region List）` vs 实际 `地区`）。
+>   判定为测试期望过期（无障碍能力未丢失，tag/click/contentDescription 均在），待 ChatGPT
+>   决定更新测试或文案口径 —— 在收口前 `ANDROID_UI_VNEXT_RUNTIME_VALIDATION = BLOCKED`。
+> - `UiScreenshotEvidenceTest`：phone 窗口下 wide-shell stage probe 几何不可满足（pre-existing
+>   test-bed 约束，GLOBE_STAGE tag 存在；tablet 2/2 PASS）—— 非本轮回归。
+> - 运行环境波动记录（非 blocker）：本机 emulator 在会话隔离下需单次调用内完成
+>   boot→install→instrument→pull；本轮已按此执行并全部完成。
+> - `REMOTE_CI`：push 后实际查询 GitHub Actions 记录（见报告 §15/§16），不把本地全绿冒充 CI PASS。
+> - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （禁止 Agent 自写 ACCEPTED / CRAFT PASS / REFERENCE_FREEZE PASS）。
+> - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动；
+>   ios/ 与 harmony/ 未动。
+
+> **ANDROID UI vNext Human Fix（2026-10-03）：**
+>
+> - 无新外部 blocker。如实记录环境波动（非 blocker）：本机 emulator 在会话隔离下
+>   （每次工具调用结束会回收后台进程）偶发离线/崩溃，已用「单次调用内完成
+>   boot→install→instrument→pull」规避并全部通过；表观证据类失败一次（globe
+>   LeftCompositionCancellationException 误判 ERROR）已在代码层修复
+>   （CancellationException rethrow，非渲染错误），重跑稳定通过。
+> - `REMOTE_CI = NOT_TRIGGERED`：`.github/workflows/ci.yml` 显式列举触发分支
+>   （main、feat/mvp03-living-graph），不覆盖 `feat/android-ui-vnext-translation`；
+>   本地全绿不等于 GitHub CI PASS（如实记录，未冒充）。
+> - push 状态见本轮报告 §1/§10（push 前 fetch 核验远端 ref = 本地 HEAD）。
+> - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （禁止 Agent 自写 ACCEPTED / CRAFT PASS / REFERENCE_FREEZE PASS；
+>   Human 判定 ACCEPTED 或 TARGETED_SCREEN_FIX_REQUIRED）。
+> - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动。
+> - 既有 `UiScreenshotEvidenceTest`：**tablet viewport 2/2 PASS**；手机窗口下其 wide-shell
+>   stage probe 几何不可满足（pre-existing test-bed 约束，已用 starting-HEAD committed 版本
+>   复测同样 FAIL 证伪回归；详见 `ANDROID_UI_VNEXT_HUMAN_FIX_REPORT.md` §5.1）。
+>   **ANDROID_UI_VNEXT_TRANSLATION（2026-10-02）：**
+>
+> - 无新外部 blocker。AVD 环境风险（如实记录，非 blocker）：本机 `main` AVD 在长负载
+>   （>4 分钟 instrument）下偶发崩溃/离线，已通过单次证据运行（~77s）规避并全部通过；
+>   production 21 屏×2 主题 sweep 未在本轮重跑（历史证据存在；本轮无 production 屏改动）。
+> - **push blocker 已解决（resolved）**：初版推送被 GitHub HTTPS 大 pack 阻塞
+>   （HTTP 408 curl 22，4 次重试 + postBuffer/lowSpeed 调整均失败；SSH 端口亦超时）。
+>   **解决方式**：`git -c http.version=HTTP/1.1 push origin feat/android-ui-vnext-translation`
+>   一次成功（强制 HTTP/1.1 规避 HTTP/2 大 pack 408）。远端 ref =
+>   `b95bdb3c1072a2f9d97470741e97e0cfba7dadfa` 与本地 HEAD 一致。当前无未决 push blocker。
+> - 保留待人工验收：`ANDROID_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （禁止 Agent 自行写 ACCEPTED；Human 判定 ACCEPTED 或 TARGETED_SCREEN_FIX_REQUIRED）。
+> - 保留环境 Gate：`REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE` 等既往人工 Gate 不变。
+> - 零漂移核验：Desktop 冻结 12 SHA（Freeze Guard 12/12 PASS）；Domain/Canonical 未动；
+>   PresentationProfile 不进 .depmap。
+>
+> **UI vNext Desktop Reference Freeze（2026-10-02，Human/Vision 正式裁决）：**
+>
+> - Human/Vision Final Review 已正式写入 `DESKTOP_VISUAL_REFERENCE = ACCEPTED`、
+>   `VISUAL_CRAFT = ACCEPTED_FOR_DESKTOP_REFERENCE`、`DESKTOP_REFERENCE_FREEZE = PASS`
+>   （仅 Desktop Dark Reference；不自动代表 Light / Android / iOS / Harmony parity 与
+>   runtime multi-frame acceptance）。
+> - **无新 blocker**。既有真实环境/人工 Gate 保持不变，不得反向取消 Freeze：
+>   `REAL_WINDOW_MULTI_FRAME_RUNTIME_ACCEPTANCE = ENVIRONMENT_GATE`（本机合成器
+>   不向 GDI 暴露实时帧 / 前台遮挡时 harness 如实 capture=false）、
+>   `REAL_WINDOW_KEYBOARD_HUMAN_GATE = OPEN`、`IME_RUNTIME_HUMAN_GATE = OPEN`。
+> - 本轮为纯 Freeze/Spec：`DESKTOP_REFERENCE_FREEZE_MANIFEST.json`（FROZEN，12 截图 SHA256）、
+>   `spec/ui-vnext/DESKTOP_REFERENCE_FREEZE.md`、`PLATFORM_TRANSLATION_CONTRACT.md`、
+>   `docs/ui-vnext/DESKTOP_VISUAL_GOLDEN_BASELINE.md`；不实现移动端 UI。
+> - 下一阶段（本轮不启动）：Android → iOS → Harmony Platform Translation；
+>   `ANDROID_UI_VNEXT = READY_FOR_TRANSLATION`，iOS/Harmony HOLD 至 Android reference
+>   translation。
+>   **UI vNext Desktop Reference Freeze Closure（2026-10-02，证据/状态/溯源收口）：**
+>
+> - **P0 关闭**：Card Studio glass/city 截图同帧无效（Human 已核验：GitHub blob SHA 相同
+>   `b399f884…`、469151 bytes）。Root cause = 证据 harness 用 `defaultProfileStore()`（用户主目录
+>   `~/.pdig/presentation-profiles.json` 已有 `card:card-cn-2` 持久化偏好），持久化偏好先于 evidence
+>   `customTheme` → 两帧渲染同一 profile。Fix = 证据 harness 注入隔离确定性 profile store +
+>   `resolveStudioProfile` 共享解析 + expected/actual 截图前门禁（不一致 FAIL 不写 PNG）+ composition
+>   回写 `evidenceThemeId`。新证据 `2026-10-02-ui-vnext-phase1f-hf2-final`：shot5/6 SHA/字节/像素
+>   （12.9% 采样差异）均不同，`FINAL_SCREENSHOT_MANIFEST.json` 12 条 `stateValidation=true`。
+> - 本轮新增 `VisualVariantEvidenceContractTest`（5 项，渲染级语义 + SHA256 truth，全 PASS）。
+> - **无新外部 blocker**；既有环境 Gate 如实保持：
+>   `REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE`（本轮无新工具重跑一次：本会话前台遮挡 →
+>   捕获区亮度 ≈0.99，harness 全部如实拒绝 capture=false，0/16；既有 `01-now.png` 首帧证据保留）、
+>   `REAL_WINDOW_KEYBOARD_HUMAN_GATE`、`IME_RUNTIME_HUMAN_GATE`。
+> - 状态：`DESKTOP_REFERENCE_FREEZE_CANDIDATE = READY`、
+>   `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`（禁止 Agent 自行写 ACCEPTED）；
+>   Android/iOS/Harmony 保持 HOLD；不创建 PHASE 1G、不 merge main、不 tag、不进 v0.4。
+> - 文档：`DESKTOP_REFERENCE_FREEZE_CANDIDATE.md`、`PROVENANCE_VALIDATION.txt`、
+>   `PHASE_1F_HF_IMPLEMENTATION_REPORT.md`（provenance 已按真实 history 修正，旧的
+>   `caef922e…` 为不存在 SHA，已排除）。
+>   **UI vNext PHASE 1F-HF（2026-10-02，Human Final Acceptance Fix）：**
+>
+> - 本轮仅关闭 Human Review 暴露的真实 blocker：① real-window 证据完整性（P0）已修复 ——
+>   harness 现在绑定 PDIG 窗口（PID/title/HWND/bounds/screen/method 逐条记录）+ 暗色像素校验 +
+>   stale 帧防线；PHASE 1F 时期「截到 Chrome/Google 却写 capture=true」的错误 target 缺陷已闭环，
+>   任何非 PDIG 或陈旧帧都会被如实 capture=false（不写证据）。② Studio theme thumbnail artwork
+>   overflow（Card/Number）已修复（clip + 本地 bounds + 渲染级契约测试）。③ §5–§9 视觉收口完成。
+> - 新增真实环境 Gate（非伪造）：**`REAL_WINDOW_MULTI_FRAME_ENVIRONMENT_GATE`** —— 本机桌面会话
+>   的 GDI BitBlt 只返回窗口首帧且 Skiko 窗口不响应 WM_PRINT，自动流程只能取得真实首帧
+>   （`01-now.png` 已验证）；02–14 需在暴露实时合成像素的环境（本地交互桌面/直连显示器）重跑
+>   同一 harness。既有 `REAL_WINDOW_KEYBOARD_HUMAN_GATE`、`IME_RUNTIME_HUMAN_GATE` 保留。
+> - 状态：`PHASE_1F_HF_IMPLEMENTATION = PASS`、`DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`、
+>   `DESKTOP_VISUAL_REFERENCE = NEEDS_HUMAN_FINAL_ACCEPTANCE`、`VISUAL_CRAFT = NEEDS_HUMAN_FINAL_ACCEPTANCE`
+>   （永不自行 PASS）；Android/iOS/Harmony 保持 HOLD；不创建 PHASE 1G、不 merge main、不 tag、不进 v0.4。
+> - 证据：`artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf/`（12 张主集 + mechanical +
+>   IMAGE_METRICS + UI_LAYOUT_PROBE + REAL_WINDOW_TARGET_VALIDATION）；报告
+>   `PHASE_1F_HF_IMPLEMENTATION_REPORT.md`。
+
+> **UI vNext PHASE 1D —— Desktop Reference Convergence 已完成（2026-10-01），等待 Human/Vision Review：**
+>
+> - PHASE 1D 交付：P0 Number Detail 布局回归修复（UI_LAYOUT_PROBE passed=true）、REAL_EARTH_ASSET_PIPELINE
+>   （NASA Visible Earth public-domain 纹理，ASSET_MANIFEST.json v1.1.0 全记录，runtime 零网络）、
+>   Card Detail Hero、Studio 产品化（对象缩略图/主题大 tile/材质 visual tile）、Number Identity 全球通信身份、
+>   Change Phone ContinuityScene（Compose Canvas + 三态投影 + PLAN PROJECTION 标注）；
+>   **10 帧证据**（2026-10-01-ui-vnext-phase1d，IMAGE_METRICS 0 error/0 empty/0 near-black）+ SCREENSHOTS_PHASE1D.md + PHASE_1D_IMPLEMENTATION_REPORT.md。
+> - `REFERENCE_CONVERGENCE_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`（永不自行 PASS）。
+>
+> - PHASE 1C 交付：OFFLINE_TEXTURE_EARTH（bundled albedo/night/cloud 纹理 + ASSET_MANIFEST.json）、renderer 拆分 7 文件、CardVisualRenderer、LocalLightSource 分页光源、导航单行 chrome 56px、Now 双栏、CardDetail Hero、Studio 20/55/25、ChangePhone 三态投影（After=Plan Projection）；**9 帧关键证据**（2026-10-03-ui-vnext-phase1c，IMAGE_METRICS 0 error/0 empty/0 near-black、meanLum 0.102）+ SCREENSHOTS_PHASE1C.md（0 missing）。
+> - `PHASE_1C_IMPLEMENTED = PASS`、`VISUAL_CRAFT/REFERENCE_PARITY = NEEDS_HUMAN_REVIEW`（Review §33，永不自行 PASS）。
+> - PHASE 1B 交付：DESIGN_TOKENS v2.2（近黑基底 + 地球材质 token）+ Globe v2（海洋材质/镜面高光/大陆纹理/云层/大气 rim/方向光）+ Overview 浮动空间检查器 + 底部紧凑动作坞 + rail subtle glow + 顶部 segmented context rail + CardFace 8 预设 3 布局 + Studio 用户语言编辑器/视觉缩略图/spotlight 舞台 + Change Phone 空间迁移图；**15 张关键帧**（artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1b/，IMAGE_METRICS：0 error / 0 empty / 0 near-black、meanLum 0.126）+ SCREENSHOTS_PHASE1B.md（0 missing）+ REFERENCE_VISUAL_CONTRACT ×4。
+> - `VISUAL_FIDELITY_ITERATION_2 = COMPLETE`、`NEEDS_HUMAN_REVIEW = TRUE`；`VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW`（Review §23，永不自行改 PASS）。
+> - `GOLDEN_APPROVAL_GATE`：像素基线必须 human-approved 后才建立；参考图 ≠ pixel golden。
+> - 平台传播冻结：Android/iOS/Harmony 视觉等待 Desktop 批准（PHASE 3–5 HOLD）；既有证据保留：Android compile PASS + 设备 5 帧（2026-09-29-ui-vnext-android）、iOS CI run 36665451395 / 36667427702 PASS（artifact 需登录）、Harmony HAP build PASS（3,758,625 B，sha256 E37A5A03…）。
+> - 环境注记（非 blocker）：Android AVD `main` 不稳定（qemu 进程消失 → instrumentation `Process crashed` → 完整 connected run 尾段 NOT_RUN 如实）；Harmony runtime 无设备（EXTERNAL_GATE）；iOS 截图仅 CI artifact（需登录）。
+
+---
+
+> **UI/UX Refinement（2026-09-28，feature branch `feat/pdig-uiux-refinement`）新增/确认的真实外部 Gate（不阻塞本轮，不影响 product-v0.3.1）：**
+>
+> - `IOS_RUNTIME_EXTERNAL_GATE`：本机 Windows 无 Swift/Xcode；iOS 构建+截图+XCUITest 走既有 macOS CI（ios.yml / ios-runtime-visual.yml）。
+> - `HARMONY_RUNTIME_EXTERNAL_GATE`：无 DevEco 模拟器镜像/真机（华为账号）；HAP 构建已 PASS，runtime 视觉需设备。
+> - `VISUAL_CRAFT = NEEDS_HUMAN_VISUAL_REVIEW`（spec §99 诚实门）：BEFORE/AFTER 证据齐备（Desktop 80 帧 + Android 42 帧 + 浏览器画廊），审美 PASS 由用户查看截图后判定。
+> - 环境注记（非 blocker）：Android AVD 在长会话高负载下偶发不稳定（截图取证采用同会话原子流程）；Desktop `--keys` Robot 注入受会话窗口焦点限制（代码面 focusable + 导航顺序已兜底）。
+
+---
+
 > **product-v0.3.1（corrective closure，2026-09-28）**：
 >
 > - Windows 已发布二进制图标默认问题 —— **本轮已解决（§7）**：setup.exe / PDIG.exe 均嵌入
@@ -12,7 +216,8 @@
 >   perf large-synthetic 阈值（<10s）在并行负载下偶发超时；隔离复跑 6951/7017/3851ms 均 PASS，
 >   stability 3×green 回退既有证据；desktop --keys 本会话窗口无法获焦（11 项 FAIL），
 >   production tree 零行为变化，回退既有证据 + provenance。
->> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**：
+>
+> > **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**：
 >
 > - E-6 `PRIVACY_URL` / `SUPPORT_URL` —— **已解决**（`website/` 已建成并公开部署；
 >   `https://huangdi97.github.io/PDIG-DepMap/privacy/` 与 `/support/` 及自定义域
@@ -119,3 +324,220 @@
 - **Windows 安装包签名**：EXTERNAL_GATE（无 Authenticode 证书）。
 - **真实账单 / 真机**：EXTERNAL_GATE（合成 fixture 全绿；真实数据与真机验证需用户提供）。
 - 最终停止条件：内部 Gate 全部 PASS + GitHub `product-v0.3.0` PUBLISHED；剩余全部为真实外部 Gate（无工程/测试缺口）。
+
+---
+
+## 2026-10-05 UI vNext PHASE 1E（Desktop 收口，feat/pdig-ui-vnext）
+
+- 本轮无新增代码级 blocker。
+- 外部/需要 Human 的事项：
+  - **V1（识别为 NEEDS_HUMAN_FINAL_REVIEW）**：DESKTOP_VISUAL_REFERENCE / VISUAL_CRAFT 最终判定必须由 Human 给出（No-Vision 纪律 §56）；本 agent 不得自判 ACCEPTED。
+  - **V2**：Light theme full parity = 暂不宣称（DARK_REFERENCE = PRIMARY；LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER）。
+  - **V3**：PHASE 1E 结束后 ANDROID/IOS/HARMONY UI vNext = HOLD，需 Human 明确 DESKTOP_VISUAL_REFERENCE = ACCEPTED 后才允许跨平台传播。
+  - 既有外部 Gate 保持不变（真实设备、签名、商店、真机 macOS 等，见上文历史记录）。
+
+## 2026-10-02 UI vNext PHASE 1F（Desktop Final Craft, Reference Freeze；feat/pdig-ui-vnext）
+
+- 本轮无新增代码级 blocker（desktop :app:test 51/51 PASS；core `npm run check` 全绿；质量 gate 无新违规）。
+- 需要 Human 的事项：
+  - **F1（NEEDS_HUMAN_FINAL_ACCEPTANCE）**：DESKTOP_VISUAL_REFERENCE / VISUAL_CRAFT 最终判定必须由 Human 给出（No-Vision 纪律 §53）；本 agent 只声明 `PHASE_1F_IMPLEMENTATION = PASS` 与 `DESKTOP_REFERENCE_CANDIDATE_FINAL = READY`，绝不自判视觉 PASS。
+  - **F2（REAL_WINDOW_KEYBOARD_HUMAN_GATE）**：本会话无法把 OS 输入焦点可靠授予真实窗口，Robot Ctrl+K 未能在真实窗口自动验证（14/16 真实窗口步骤 capture=true；键盘功能已由 in-process journey + 契约测试覆盖）；建议 Human 在真实窗口复核键盘/聚焦。
+  - **F3（IME_RUNTIME_HUMAN_GATE）**：中文 IME 组合输入（银行卡/手机号/更换手机号）无法在本会话可靠自动化；需 Human 在真实窗口验证（IME_LOG.txt 如实记录，不伪造 PASS）。
+  - **F4**：Light theme full parity = 暂不宣称（DARK_REFERENCE = PRIMARY；LIGHT = FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER）。
+  - **F5**：PHASE 1F 结束后 ANDROID/IOS/HARMONY UI vNext = HOLD，需 Human 明确 DESKTOP_VISUAL_REFERENCE = ACCEPTED 后才允许跨平台翻译；且不得自动创建 PHASE 1G（brief §61）。
+
+---
+
+## Android R48–R51 轮新增/更新（2026-10-12）
+
+> 本轮把轮次起点三条非绿 CI 中的两条变为绿（Phone Pixel Proof、Tablet Pixel Proof），并把
+> Production Rehearsal 收窄到**最后一个子步骤**。以下每条都附实测证据，不把 NOT_RUN 写成 PASS。
+
+### 1. Production Rehearsal 仍非绿（CI-only，本机 PASS）— 需要继续定位
+
+- 状态：`PRODUCTION_REHEARSAL = LOCALLY_PASS / CI_RED`
+- 证据：CI run `38262734593`（SHA `86c482e4`）日志显示
+  `local_apk_sha256 == device_apk_sha256 == 688adf74…`（安装的确是 vnext + cutoverApproved 构建），
+  `ProductionVNextShellContractTest` 11/11、`ProductionManualRelationshipContractTest` 1/1、
+  `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS` 全部通过；仅
+  `production_vnext_release_default_rehearsal.py` 仍观测到 legacy 外壳（labels 含
+  `我的基础设施` / `需要处理` / `共 0 个对象`）。
+- 反证：同一 SHA 在**本机**该脚本 PASS，且已排除“残留安装/空库/无设备凭据”三项差异
+  （uninstall → install，空 Reality 库；本机 `locksettings get-disabled` = `true`，与 CI 同等）。
+- 归属：这是产品默认路由选择逻辑的潜在缺口，**不是** Windows 环境问题，也不属于外部阻塞。
+- 建议下一步：审读 `MainActivity` / `PdigApp` 的默认路由外壳选择，确认是否存在
+  `BuildConfig.PRODUCTION_UI_GENERATION` / `PRODUCTION_VNEXT_CUTOVER_APPROVED` 之外的输入；
+  并用本机新建的干净 AVD（`pdig_evi_phone_api36`）与 CI 新模拟器做对照。
+
+### 2. 亮色参考板分辨率不足（Human Review 输入缺口）
+
+- 仓库内 `spec/ui-vnext/references/android/PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg`
+  实测 **320×213**（自述原图 1536×1024 未入库），无法支撑逐屏像素级 diff。
+- 需要 owner 提供原始 1536×1024 板，或明确接受“按结构/层级/密度/色彩族对照”的评审方式。
+- 影响：`ANDROID_REFERENCE_FREEZE` 保持 HOLD。
+
+### 3. 任务书母版文档缺失（输入缺口）
+
+- `PDIG_v2.3-R1_个人数字基础设施图谱与连续性系统_ProductArchitectureVNext_统一全量母版_2026-10-07.md`
+  在本机与远端 `86c482e4` 树中**均不存在**。本轮以仓库内既有冻结规范替代，并已在
+  `BASELINE.md` §6 与 `LOCAL_AGENT_HANDOFF.md` §5 记录。
+
+### 4. 人为视觉验收（保持 PENDING）
+
+- `HUMAN_ACCEPTED = PENDING`；`ANDROID_REFERENCE_FREEZE = HOLD`；`PRODUCTION_CUTOVER = HOLD`。
+- 待审阅截图清单见 `docs/ui-vnext/R48_R51_VISUAL_ACCEPTANCE_MATRIX.md` 与
+  `LOCAL_AGENT_HANDOFF.md` §5。
+
+---
+
+## Android R52+ 轮更新（2026-10-17/18，feat/android-ui-vnext-translation）
+
+### 1. Production Rehearsal 历史 blocker — **已解除**
+
+- 旧的 `PRODUCTION_REHEARSAL = LOCALLY_PASS / CI_RED` 记录保留为历史，不再代表当前状态。
+- 当前事实：
+  - 起点远端 `562d83f4` 的 GitHub Production Rehearsal run 39023996578 = success；
+  - 本机最终 HEAD `fc29138e` 的默认 Legacy 构建：`PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`；
+  - 本机双钥 cutover 构建：`PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`，
+    launch target `PRODUCTION_REALITY_RELEASE`，本地 APK SHA 与设备 APK SHA 一致；
+  - Production 21/21 权威测试在 1080×2400@420 通过。
+- 结论：`PRODUCTION_REHEARSAL = PASS`（本机 exact-source），
+  `PRODUCTION_DEFAULT = LEGACY`，`PRODUCTION_CUTOVER = HOLD`（未批准）。
+
+### 2. 参考板不仅分辨率不足，而且文件损坏
+
+- `PDIG_ANDROID_LIGHT_VISUAL_REFERENCE_2026-10-05.jpg` 实测 320×213，且 Pillow 无法解码：
+  `OSError: broken data stream when reading image file`；图像查看器也判为 malformed。
+- 因此本仓库内**没有任何可用的参考原图**；像素级 diff 无法进行。需要 owner 提供完整
+  1536×1024 原图，或明确接受结构/层级/密度/色彩族的评审方式。
+- 影响：`ANDROID_REFERENCE_FREEZE` 保持 HOLD。
+
+### 3. 需要 Human 决定的产品文案/设计项（非工程 blocker）
+
+- Now `需要处理 6`（attention + review）与 Me `待处理 3`（attention only）口径不同；两者各自
+  真实，但不能自行合并计数。
+- MEDIUM 平板 rail 仍为纯图标（有 contentDescription；展开标签仅 EXPANDED）。
+- `8 个入口` 已修正；如需改成“6 类资产 + 2 个视图”，需要 Human 文案决定。
+- 高级 Production 手动/导入/建立流程仍有技术术语，列入下一轮消费者文案 pass。
+
+### 4. 测试可见性脆弱（不是产品 blocker）
+
+- 851dp 高的手机上，1 条 Production 测试与 4 条 `SourceCompleteInteractionContractTest`
+  需要滚动才能看到目标；在 1080×2400@420（914dp，CI 等价）全部通过。
+- 已记录，未通过放宽断言或删除测试“修复”。
+
+### 5. 保持 PENDING / HOLD 的最终门禁
+
+```text
+HUMAN_VISUAL_ACCEPTANCE   = PENDING   (only the user)
+ANDROID_REFERENCE_FREEZE  = HOLD      (needs human acceptance + original board)
+PRODUCTION_CUTOVER        = HOLD      (needs explicit approval; default stays Legacy)
+IOS_UI_PARITY             = NOT_INFERRED_FROM_CI
+HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
+```
+
+## R52+ Round 2 更新（2026-10-18）
+
+### 已解除（本轮源码 + 实测）
+
+- **MEDIUM Rail 只有图标**：五个一级入口现在都有可见 9sp 标签，
+  `TabletAdaptiveContractTest` 断言全部存在；80dp 宽度和 48dp 触控目标保持。
+- **Now 6 / Me 3 口径不一致**：Me 改为 `需关注 3` / `3 项需关注`；Now 仍表示
+  “关注 + 待复核”的总数。数值不变，歧义消除。
+
+### 仍保留
+
+- 高级 Production 手动/导入/建立流程的技术术语 **已在 Round 3 收口**：
+  ChangePlan / Establish / Import / Maintenance / ManualRelationship / Review
+  的消费者文案已替换，行为未变（JVM + 21/21 Production tests PASS）。
+- 851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动；CI 914dp
+  全过。属于测试可见性，不是产品失败。
+- 参考板损坏与 1536×1024 原图缺失；Human Visual Acceptance / Reference Freeze /
+  Production Cutover 仍为 PENDING / HOLD / HOLD。
+
+## R52+ Round 4 更新（2026-10-18）
+
+### 已补证
+
+- **Expanded（1280×800dp）**：`TabletAdaptiveContractTest` 5/5 OK，含两个
+  EXPANDED-only 三栏 Change 投影测试；新增 11 张真实 PNG + manifest
+  （Now / Infrastructure / Cards / Card detail / Change / Current / Transition /
+  After / Records / Me）。五项 Rail 可见标签、Cards 右侧预览、After 计划投影均
+  已在真实运行中确认。
+- 主证据 MANIFEST 更新为 251 项。
+
+### 仍保留
+
+- ~~851dp 手机上 1 条 Production 测试与少数 interaction 测试需要滚动~~ **已在
+  Round 5 收口**：38/38 contracts PASS at 1080×2340 @440（仅测试滚动/多节点
+  matcher 修复，无产品断言删除）。
+- Human Visual Acceptance / Reference Freeze / Production Cutover 仍为
+  PENDING / HOLD / HOLD；参考板仍损坏。
+
+## R52+ Round 6 更新（2026-10-18）
+
+- 真实 Production VNext 运行中发现的残余工程词已收口：`图谱修订`、
+  `wechat_statement`、`PHONE_NUMBER / EMAIL_ADDRESS`、`图谱完整`、
+  `FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine`、
+  Preview R23–R25 的 `authority` / `Reality` / `subtype`。
+- 新增 `production-advanced/` 4 张真实 PNG + XML + manifest
+  （Me / 建立 Hub / 手工关系 / 复核空态），证据合计 260 项。
+- 没有已知的本地代码/测试/构建问题；剩余仅为参考板损坏与人工验收门禁。
+
+
+
+## R52+ Round 7 更新（2026-10-18）
+
+- 1.3× 动态字号：地区 chip 截断、Now 资产栏溢出、Me 身份卡 hint 裁切均已修复；
+  `font-scale-1.3/` 6 张真实截图 + manifest，证据合计 274 项。
+- 1.0× 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 8 更新（2026-10-18）
+
+- 手机横屏 851×393dp：Rail 次级入口被裁切已修复（<600dp 高度可滚动），
+  新增 4 张真实横屏截图 + manifest，证据合计 283 项。
+- 1.0 纵屏/平板布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 9 更新（2026-10-18）
+
+- 平板 MEDIUM 800×1280dp、1.3× 字号：Now / Me / Change / Change Phone 全部可读，
+  未发现新缺陷；新增 4 张真实截图 + manifest，证据合计 292 项。
+- 无源码改动；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 10 更新（2026-10-18）
+
+- 1.5× 无障碍字号：Now badge/副标题、R9 底部导航、Me 身份卡裁切均已修复；
+  新增 4 张真实截图 + manifest，证据合计 301 项。
+- 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 11 更新（2026-10-18）
+
+- 平板 MEDIUM 1.5×：顶部标题省略与隐私 chip 换行已修复；新增 4 张真实截图 +
+  manifest，证据合计 310 项。
+- 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 12 更新（2026-10-18）
+
+- Expanded 1.5×：Now 三栏标题重叠、Change Phone 阶段标签覆盖已修复；新增 4 张
+  真实截图 + manifest，证据合计 319 项。
+- 1.0/1.3 布局不变；无已知本地代码/测试/构建问题。
+- 剩余仅为参考板损坏与人工验收/Freeze/Cutover 门禁。
+
+## R52+ Round 14 更新（2026-10-18）
+
+- Production VNext 1.5×：底部导航标签裁切已修复；1.0 无回归。Records 的黑色
+  截图是 `FLAG_SECURE` 的预期行为，不是 UI 缺陷。
+- 新增 4 项 Production 1.5× 证据，总计 328 项；无已知本地代码/测试/构建问题。
+
+## R52+ Round 16 更新（2026-10-18）
+
+- 用户已批准视觉验收、Android Reference Freeze、Production Cutover。
+- 双钥 release candidate 已验证无 extra 默认进入 Production VNext；legacy control
+  已验证回滚；BuildConfig 与 APK 哈希均已审计。
+- 唯一剩余发布门禁：生产签名与商店上架，`STORE_RELEASE = HOLD`。
+- 参考板原图 / 最高母版文档仍缺，但已不阻塞 UI/Reference Freeze 决策。

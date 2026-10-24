@@ -1,0 +1,18 @@
+{
+  "id": "region-fact-rg10-phone-lookalike-no-region",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-10 phone-looking identity data does not infer RegionFact",
+  "input": {
+    "fieldsJson": "{\"name\":\"+852 5555 0000\",\"subtype\":\"phone_number\"}"
+  },
+  "expected": {
+    "facts": [],
+    "currentIds": [],
+    "lens": {
+      "status": "unknown"
+    }
+  }
+}

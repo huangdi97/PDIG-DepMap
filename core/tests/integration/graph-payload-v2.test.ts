@@ -7,6 +7,7 @@ import { NodeSqliteDriver } from '../../src/db/node-driver.ts'
 import {
   migrate,
   LEGACY_WECHAT_SOURCE_INSTANCE_ID,
+  LATEST_SCHEMA_VERSION,
   SCHEMA_VERSION,
 } from '../../src/schema/migrations.ts'
 import { NodeRepository } from '../../src/repositories/node-repository.ts'
@@ -188,6 +189,29 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     expect(p['schemaVersion']).toBe(3)
     // 容器 formatVersion 与 payload schemaVersion 是两套独立版本号
     expect(GRAPH_PAYLOAD_VERSION).toBe(3)
+  })
+
+  it('J0a: v4 application DB exports v3 payload metadata and restore preserves local v4', () => {
+    const d4 = new NodeSqliteDriver(join(dir, 'v4-boundary.db'))
+    d4.open()
+    migrate(d4, '2026-10-19T00:00:00.000Z', LATEST_SCHEMA_VERSION)
+    try {
+      expect(LATEST_SCHEMA_VERSION).toBe(4)
+      const out = exportGraph(d4)
+      const payload = JSON.parse(out.payloadJson) as Record<string, unknown>
+      expect(payload['schemaVersion']).toBe(3)
+      const meta = payload['meta'] as Array<Record<string, unknown>>
+      expect(meta.find((row) => row['key'] === 'schema_version')?.['value']).toBe('3')
+
+      importGraph(d4, out.payloadJson)
+      const localVersion = d4
+        .prepare(`SELECT value FROM meta WHERE key = 'schema_version'`)
+        .get()?.['value']
+      expect(localVersion).toBe('4')
+      expect(migrate(d4, '2026-10-19T01:00:00.000Z', LATEST_SCHEMA_VERSION)).toBe(4)
+    } finally {
+      d4.close()
+    }
   })
 
   it('J0b: payload 包含全部 v2 表集合（含 source_instances / proposal_evidence_refs）', () => {

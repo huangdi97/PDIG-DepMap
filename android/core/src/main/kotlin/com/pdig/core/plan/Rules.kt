@@ -46,17 +46,49 @@ fun computePlanReadiness(input: PlanReadinessInput): PlanReadiness {
  * - 被声明但存在未完成的声明动作 → unresolved
  * - 声明它的全部 change 动作都 done → resolved
  */
-fun countUnresolvedMustChange(actions: List<PlanAction>, keys: List<String>): Int {
-    var unresolved = 0
-    for (key in keys) {
-        val claimants = actions.filter {
-            it.phase == com.pdig.core.generated.PlanActionPhase.CHANGE &&
-                (it.resolvesImpactKeys).contains(key)
-        }
-        if (claimants.isEmpty() || claimants.any { !it.done }) unresolved += 1
+/**
+ * Deterministically bind previously unclaimed must-change requirements to the
+ * first unfinished CHANGE action that has not already claimed any requirements.
+ *
+ * This mirrors the reference ChangePlan rebase rule: it creates an explicit
+ * mapping only; it never marks an action done or verified.
+ */
+fun claimUnassignedMustChangeKeys(
+    actions: List<PlanAction>,
+    keys: List<String>,
+    eligibleActionIds: Set<String>? = null,
+): List<PlanAction> {
+    val claimed = actions.flatMap { it.resolvesImpactKeys }.toSet()
+    val unassigned = keys.filterNot { it in claimed }.distinct().sorted()
+    if (unassigned.isEmpty()) return actions.map { it.copy() }
+
+    val targetIndex = actions.indexOfFirst {
+        it.phase == com.pdig.core.generated.PlanActionPhase.CHANGE &&
+            !it.done &&
+            it.resolvesImpactKeys.isEmpty() &&
+            (eligibleActionIds == null || it.id in eligibleActionIds)
     }
-    return unresolved
+    if (targetIndex < 0) return actions.map { it.copy() }
+
+    return actions.mapIndexed { index, action ->
+        if (index == targetIndex) action.copy(resolvesImpactKeys = unassigned)
+        else action.copy()
+    }
 }
+
+fun unresolvedMustChangeKeys(
+    actions: List<PlanAction>,
+    keys: List<String>,
+): List<String> = keys.distinct().filter { key ->
+    val claimants = actions.filter {
+        it.phase == com.pdig.core.generated.PlanActionPhase.CHANGE &&
+            it.resolvesImpactKeys.contains(key)
+    }
+    claimants.isEmpty() || claimants.any { !it.done }
+}
+
+fun countUnresolvedMustChange(actions: List<PlanAction>, keys: List<String>): Int =
+    unresolvedMustChangeKeys(actions, keys).size
 
 // ---------------------------------------------------------------------------
 // ScenarioCoverage（信息覆盖描述，不是安全评分）

@@ -7,11 +7,12 @@ import {
   type PlanRebaseDiff,
   type PlanRebaseResult,
 } from '../domain/change-plan.ts'
-import { simulateDisable, type ImpactResult } from '../impact/kernel.ts'
+import { simulateScenario, type ImpactResult } from '../impact/kernel.ts'
 import type { ChangePlanRepository } from '../repositories/change-plan-repository.ts'
 import { getGraphRevision } from '../repositories/graph-revision.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { buildImpactGraph, type ImpactGraphRepos } from './graph-view.ts'
+import { scenarioImpactCapabilities } from '../scenarios/impact-scope.ts'
 
 /**
  * Plan 分析与 Rebase（MVP03 §12–§16）。
@@ -112,7 +113,13 @@ export function analyzePlanImpact(
     return { unavailable: [], targets: [], checklistLevels: [] }
   }
   const graph = buildImpactGraph(driver, repos)
-  return computeImpactSnapshot(simulateDisable(graph, plan.targetNodeId, 'payment'))
+  const unavailable = new Set(
+    scenarioImpactCapabilities(plan.scenario).map((capability) => ({
+      nodeId: plan.targetNodeId as string,
+      capability,
+    })),
+  )
+  return computeImpactSnapshot(simulateScenario(graph, unavailable))
 }
 
 /**
@@ -148,7 +155,11 @@ export function rebasePlan(
   // addedActions 恒为空（新增动作由模板/用户显式添加），removedActions 恒为空。
   // Freeze §7：对未被任何 change 动作声明的 must_change key，确定性分配给第一个
   // 尚未声明任何 key 的 change 动作（显式映射声明，不是完成动作）。
-  const preservedActions: PlanAction[] = claimUnassignedImpacts(plan.actions, newSnapshot)
+  const preservedActions: PlanAction[] = claimUnassignedImpacts(
+    plan.actions,
+    newSnapshot,
+    plan.scenario,
+  )
 
   const updated = repos.plans.updateAnalysis(
     plan.id,
@@ -185,6 +196,7 @@ function emptyDiff(): PlanRebaseDiff {
 export function claimUnassignedImpacts(
   actions: readonly PlanAction[],
   snapshot: ImpactSnapshot,
+  scenario?: string,
 ): PlanAction[] {
   const mustChangeKeys = snapshot.targets
     .filter((t) => t.status === 'must_change')
@@ -196,8 +208,14 @@ export function claimUnassignedImpacts(
   const unassigned = mustChangeKeys.filter((k) => !claimed.has(k))
   if (unassigned.length === 0) return actions.map((a) => ({ ...a }))
   const out = actions.map((a) => ({ ...a }))
+  const eligibleActionIds =
+    scenario === 'replace_phone_number' ? new Set(['rpn-change-1']) : null
   const target = out.find(
-    (a) => a.phase === 'change' && !a.done && (a.resolvesImpactKeys ?? []).length === 0,
+    (a) =>
+      a.phase === 'change' &&
+      !a.done &&
+      (a.resolvesImpactKeys ?? []).length === 0 &&
+      (eligibleActionIds === null || eligibleActionIds.has(a.id)),
   )
   if (target) {
     target.resolvesImpactKeys = [...unassigned].sort()
