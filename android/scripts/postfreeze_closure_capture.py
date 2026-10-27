@@ -53,6 +53,7 @@ SECURE_CAPTURE_SCREENS = {
     "Account detail",
     "Email detail",
     "Device detail",
+    "Device collection",
     "Service detail",
     "Change phone",
     "Records",
@@ -458,9 +459,25 @@ def flow_production_journey(cap: Capture) -> None:
     cap.shot(
         "production-infrastructure",
         "Infrastructure",
-        "hub",
-        ["基础设施", "账户", "邮箱", "设备", "服务"],
+        "hub / first viewport",
+        ["基础设施"],
     )
+
+    # The management categories are scrollable content. At large font scales it
+    # is incorrect to require every category to coexist in the first viewport.
+    # Prove Device is actually reachable, and preserve its honest governed empty
+    # state instead of fabricating a device object only to satisfy visual proof.
+    cap.scroll_until("管理分类")
+    cap.tap_below("管理分类", "设备")
+    device_empty = "当前没有该类型的已确认对象。空列表不代表外部不存在，只表示这里尚未记录。"
+    cap.wait_text(device_empty, timeout=20)
+    cap.shot(
+        "production-device-empty",
+        "Device collection",
+        "governed empty state",
+        ["设备", device_empty],
+    )
+    cap.back()
 
     # 4. Secondary identity details: governed facts only, explicit type identity.
     # Device detail is intentionally absent: the canonical spec does not allow
