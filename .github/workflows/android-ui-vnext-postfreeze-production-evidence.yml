@@ -40,6 +40,17 @@ jobs:
   phone-production-evidence:
     runs-on: ubuntu-latest
     timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: phone
+            font_scale: "1.0"
+          - label: phone-font15
+            font_scale: "1.5"
+    env:
+      PDIG_EVIDENCE_LABEL: ${{ matrix.label }}
+      PDIG_EVIDENCE_FONT_SCALE: ${{ matrix.font_scale }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -111,7 +122,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-postfreeze-production-evidence-${{ env.PDIG_EVIDENCE_SOURCE_HEAD }}
+          name: android-postfreeze-production-evidence-${{ env.PDIG_EVIDENCE_SOURCE_HEAD }}-${{ matrix.label }}
           path: artifacts/runtime-evidence/postfreeze-production-${{ env.PDIG_EVIDENCE_SOURCE_HEAD }}/
           if-no-files-found: warn
           retention-days: 21
