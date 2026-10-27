@@ -648,18 +648,29 @@ def flow_production_stale(cap: Capture) -> None:
     cap.shot(
         "production-change-stale",
         "Change phone",
-        "stale",
+        "stale / blocked authority state",
         [
             "基础设施已发生变化",
             "重新分析当前影响",
-            "使用上方的「重新分析当前影响」；界面不会用旧快照继续写入。",
         ],
     )
-    # The stale plan must not accept a new completion: the only primary action
-    # is reanalysis, and no execution CTA is offered.
+    # The explanatory boundary can sit below the CTA at larger text sizes.
+    # Capture it separately rather than pretending both regions must fit in one
+    # viewport. Both assertions remain mandatory.
+    cap.ensure_visible("使用上方的「重新分析当前影响」；界面不会用旧快照继续写入。")
+    cap.shot(
+        "production-change-stale-boundary",
+        "Change phone",
+        "stale / fail-closed explanation",
+        ["使用上方的「重新分析当前影响」；界面不会用旧快照继续写入。"],
+    )
+    # The stale plan must not accept a new completion: the visible authority
+    # surface never offers execution while stale. Then scroll back to the real
+    # reanalysis CTA before invoking it.
     labels = cap.labels()
     if "记录完成这一步" in labels or "确认验证这一步" in labels:
         raise SystemExit("stale plan still advertised an execution CTA")
+    cap.ensure_visible("重新分析当前影响")
     cap.tap("重新分析当前影响", exact=True)
     deadline = time.time() + 25
     while time.time() < deadline:
