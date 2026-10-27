@@ -11,6 +11,8 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$ROOT"
 
 SOURCE_HEAD="${PDIG_EVIDENCE_SOURCE_HEAD:?PDIG_EVIDENCE_SOURCE_HEAD is required}"
+EVIDENCE_LABEL="${PDIG_EVIDENCE_LABEL:-phone}"
+FONT_SCALE="${PDIG_EVIDENCE_FONT_SCALE:-1.0}"
 APK="$ROOT/android/app/build/outputs/apk/production/debug/app-production-debug.apk"
 TEST_APK="$(find "$ROOT/android/app/build/outputs/apk/androidTest" -type f -name '*production*debug*androidTest*.apk' -print -quit)"
 OUT="$ROOT/artifacts/runtime-evidence/postfreeze-production-${SOURCE_HEAD}"
@@ -23,6 +25,14 @@ test -f "$TEST_APK"
 adb uninstall com.pdig.app >/dev/null 2>&1 || true
 adb install "$APK"
 adb install "$TEST_APK"
+
+# Capture the same authoritative Production surfaces under the requested
+# system font scale. A fresh app launch after this setting observes the new
+# configuration; the capture harness records the measured device value.
+adb shell settings put system font_scale "$FONT_SCALE"
+MEASURED_FONT_SCALE="$(adb shell settings get system font_scale | tr -d '\r')"
+echo "requested_font_scale=$FONT_SCALE"
+echo "measured_font_scale=$MEASURED_FONT_SCALE"
 
 INSTRUMENTATION="$(adb shell pm list instrumentation | tr -d '\r' | awk '/target=com.pdig.app/ {sub(/^instrumentation:/,"",$1); print $1; exit}')"
 if [[ -z "$INSTRUMENTATION" ]]; then
@@ -74,6 +84,8 @@ cp "$APK" "$REVIEW_APK"
   echo "ui_generation=vnext"
   echo "cutover_approved=true"
   echo "signing=debug/non-production"
+  echo "evidence_label=$EVIDENCE_LABEL"
+  echo "font_scale=$FONT_SCALE"
   echo "human_review=NOT_RUN"
   echo "store_release=HOLD"
 } > "$OUT/apk/REVIEW_CANDIDATE.txt"
@@ -82,13 +94,15 @@ run_seed seedPhoneMakeBeforeBreakJourney
 python3 android/scripts/postfreeze_closure_capture.py \
   --mode prod-journey \
   --out "$OUT" \
-  --label phone
+  --label "$EVIDENCE_LABEL" \
+  --font-scale "$FONT_SCALE"
 
 run_seed seedStalePhoneChange
 python3 android/scripts/postfreeze_closure_capture.py \
   --mode prod-stale \
   --out "$OUT" \
-  --label stale-reanalysis
+  --label "${EVIDENCE_LABEL}-stale-reanalysis" \
+  --font-scale "$FONT_SCALE"
 
 python3 - <<'PY'
 import json
@@ -114,6 +128,7 @@ if missing:
     raise SystemExit(f"missing expected post-freeze evidence entries: {missing}")
 
 apk_sha = os.environ["PDIG_APK_SHA256"]
+expected_font_scale = float(os.environ.get("PDIG_EVIDENCE_FONT_SCALE", "1.0"))
 for shot_id in sorted(expected):
     entry = by_id[shot_id]
     if entry.get("sourceHead") != head:
@@ -122,6 +137,11 @@ for shot_id in sorted(expected):
         )
     if entry.get("apkSha256") != apk_sha:
         raise SystemExit(f"{shot_id}: APK hash mismatch")
+    if abs(float(entry.get("fontScale", -1.0)) - expected_font_scale) > 0.01:
+        raise SystemExit(
+            f"{shot_id}: font scale mismatch "
+            f"{entry.get('fontScale')} != {expected_font_scale}"
+        )
     if entry.get("humanReview") != "NOT_RUN":
         raise SystemExit(
             f"{shot_id}: evidence harness must not self-approve human review"
@@ -200,4 +220,5 @@ print(f"POSTFREEZE_EVIDENCE_MANIFEST=PASS entries={len(entries)}")
 print("POSTFREEZE_LAYOUT_BOUNDS=PASS")
 print(f"POSTFREEZE_EVIDENCE_HEAD={head}")
 print(f"POSTFREEZE_EVIDENCE_APK_SHA256={apk_sha}")
+print(f"POSTFREEZE_EVIDENCE_FONT_SCALE={expected_font_scale}")
 PY
