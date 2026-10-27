@@ -616,17 +616,24 @@ def flow_production_journey(cap: Capture) -> None:
     # 10. Records: what happened, and done != verified.
     goto_primary(cap, "记录")
     cap.wait_text("已记录的操作与验证证据 · 按计划分组", timeout=20)
-    # FLAG_SECURE can black out the PNG, but the accessibility tree must still
-    # prove the new epistemic three-clock labels on the real Production surface.
+    # FLAG_SECURE can black out the PNG, so capture both the Records workspace
+    # identity and the lower trace semantics via XML. At 1.5x text these regions
+    # cannot reliably occupy one viewport without clipping or scrolling the
+    # workspace heading off-screen.
+    cap.shot(
+        "production-records",
+        "Records",
+        "records workspace / secure semantic proof",
+        ["已记录的操作与验证证据 · 按计划分组"],
+    )
     cap.ensure_visible("来源：正式变更计划")
     cap.ensure_visible("发生时间未记录")
     cap.ensure_visible("验证于 ")
     cap.shot(
-        "production-records",
+        "production-records-trace",
         "Records",
         "recorded history / three-clock truth",
         [
-            "已记录的操作与验证证据 · 按计划分组",
             "已记录完成",
             "已验证",
             "来源：正式变更计划",
