@@ -116,6 +116,7 @@ entries = json.loads(manifest.read_text(encoding="utf-8"))
 by_id = {entry["shot_id"]: entry for entry in entries}
 
 expected = {
+    "production-device-empty",
     "production-account-detail-change-boundary",
     "production-email-detail-change-boundary",
     "production-service-detail-change-boundary",
@@ -152,6 +153,7 @@ for shot_id in sorted(expected):
         )
 
 secure_expected = {
+    "production-device-empty",
     "production-account-detail-change-boundary",
     "production-email-detail-change-boundary",
     "production-service-detail-change-boundary",
