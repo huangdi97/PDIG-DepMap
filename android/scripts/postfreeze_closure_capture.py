@@ -583,17 +583,27 @@ def flow_production_journey(cap: Capture) -> None:
     cap.tap_cta("确认验证这一步")
 
     # 8. Every required new path is verified -> retirement becomes the next step.
-    # The primary CTA itself now names the destructive retirement step, which is
-    # only reachable after both new-path verifications are authoritative.
+    # At large font scales the primary CTA and the retirement action card cannot
+    # always fit in the same viewport. Prove both facts separately instead of
+    # weakening either assertion or assuming off-screen semantics.
     cap.ensure_visible("记录完成这一步")
+    cap.shot(
+        "production-change-retirement-eligible-cta",
+        "Change phone",
+        "retirement eligible / next action",
+        ["记录完成这一步"],
+    )
+    cap.ensure_visible("停用旧手机号（新路径全部验证后）")
     cap.shot(
         "production-change-retirement-eligible",
         "Change phone",
-        "retirement eligible",
-        ["记录完成这一步", "停用旧手机号（新路径全部验证后）"],
+        "retirement eligible / destructive step identity",
+        ["停用旧手机号（新路径全部验证后）"],
     )
 
     # 9. Retire the old path, then prove AFTER is still only a projection.
+    # The CTA may now be off-screen because the previous evidence frame scrolled
+    # to the action card, so use the scroll-aware helper again.
     cap.tap_cta("记录完成这一步")
     cap.ensure_visible("计划预期")
     cap.shot(
