@@ -15,9 +15,11 @@
 | --- | --- |
 | REMOTE_HEAD_AT_START | `e68948d54a21ca5c894a54e2435396fcd327daed` |
 | LOCAL_HEAD_AT_START | `cbe99d5c8862f90b25a463585cfd7ad146e4fb82`（当时在 `main`，工作区 clean） |
-| REMOTE_HEAD_AT_END | 见 §7 收尾记录（push 前后各核验一次） |
-| LOCAL_HEAD_AT_END | 见 §7 收尾记录 |
-| WORKTREE_CLEAN | 见 §7 收尾记录 |
+| REMOTE_HEAD_AT_END | `245d7d9e019ea7af3902e4c8287b53472c21f50e`（push 后重新 fetch：`git rev-parse origin/feat/android-ui-vnext-translation`） |
+| LOCAL_HEAD_AT_END | `245d7d9e019ea7af3902e4c8287b53472c21f50e`（`rev-list --left-right --count` = `0 0`） |
+| WORKTREE_CLEAN | `YES`（`git status --short` 为空） |
+| Android 树 HEAD | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致） |
+| 本轮提交 | `245d7d9e docs(android): record local post-freeze acceptance evidence`（仅 `LOCAL_FINAL_REPORT.md` + `WORK_STATUS.md`，非 force push，快进合并） |
 | PR | #1，open，未合并（`PR_MERGED = NO`） |
 
 开工时远端 `feat/android-ui-vnext-translation` 已重新核验，与任务书给出的 `e68948d5…` 一致；
@@ -25,10 +27,13 @@
 （开工时 `git status --short` 为空）。
 
 远端该 HEAD 的既有自动证据：workflow run `40640200788`（`Android UI vNext Post-Freeze Production Evidence`，
-`completed/success`），两个 matrix 均成功。
+`completed/success`），phone 1.0 / 1.5 两个 matrix 均成功。
+
+> 工时顺序说明：运行时证据绑定的是 `e68948d5`（该提交即当时的 exact HEAD，也是 `android/` 树的 HEAD）。
+> 本轮唯一的提交 `245d7d9e` 只改两个根目录文档、**未触碰 `android/`**，因此
+> `manifest.androidTreeHead == e68948d5 == git log -1 --format=%h -- android/` 仍成立。
 
 ---
-
 ## 2. Build
 
 工具链（全部安装到 `C:\Users\30441\pdig-toolchain`，**用户目录**，未做系统级改动，无需管理员）：
@@ -237,7 +242,7 @@ JVM 侧同语义回归（264 个用例内、0 失败）：`ProductionChangeStage
 | 需处理 | 72.0×49.9dp | 96.0×62.1dp |
 | 待验证 | 72.0×49.9dp | 96.0×62.1dp |
 | 已记录完成 | 96.4×49.9dp | 105.1×62.1dp |
-| 已验证 | 67.8×49.9dp | 见 1.5 XML（行可横向滚动） |
+| 已验证 | 67.8×49.9dp | 在滚动视口外（第 4 项已在右边缘截断，行需横滑） |
 
 即选择状态不是只靠颜色（`selected` 语义存在），且 ≥48dp。
 
@@ -248,6 +253,9 @@ JVM 侧同语义回归（264 个用例内、0 失败）：`ProductionChangeStage
 **未在本轮运行时验证**覆盖 Card/Phone/Email/Account/Service/Device/Membership/relation peer/plan title/
 action title/Records/Search，也未做 accessibility label / contentDescription / Recents 的旁路检查。
 因此 `PRIVACY_MASKING = NOT_RUN`，不做任何 PASS 声明。
+
+> 1.5 实测：筛选行是 `HorizontalScrollView bounds=[42,993][1038,1156]`，可见 4 项，
+> 第 5 项（已验证）位于视口右侧之外 —— UIAutomator 只报告已渲染节点，因此不是缺少控件。
 
 ---
 
