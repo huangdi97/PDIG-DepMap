@@ -274,6 +274,43 @@ class Capture:
             time.sleep(0.9)
         raise SystemExit(f"could not bring {text!r} on screen")
 
+    def ensure_framed(
+        self,
+        text: str,
+        min_center_y: int = 420,
+        max_center_y: int = 1880,
+        attempts: int = 10,
+    ) -> None:
+        """Keep a semantic target away from viewport edges for review evidence.
+
+        Presence alone is insufficient for a human-review frame: UIAutomator can
+        expose the full text of a node even when its rendered bounds are clipped
+        by the scroll viewport. This helper moves an already reachable target
+        into a stable vertical reading band without tapping it.
+        """
+        for _ in range(attempts):
+            nodes = self.dump()
+            match = next(
+                (
+                    n for n in nodes
+                    if text in label_of(n) and n.get("bounds")
+                ),
+                None,
+            )
+            if match is not None:
+                _, center_y = bounds_center(match["bounds"])
+                if min_center_y <= center_y <= max_center_y:
+                    return
+                if center_y > max_center_y:
+                    adb("shell", "input", "swipe", "540", "1900", "540", "1450", "320")
+                else:
+                    adb("shell", "input", "swipe", "540", "1250", "540", "1750", "320")
+                time.sleep(0.9)
+                continue
+            adb("shell", "input", "swipe", "540", "1900", "540", "1300", "320")
+            time.sleep(0.9)
+        raise SystemExit(f"could not safely frame {text!r}")
+
     def tap_cta(self, label: str) -> None:
         self.ensure_visible(label)
         self.tap(label, exact=True)
@@ -507,7 +544,7 @@ def flow_production_journey(cap: Capture) -> None:
         # Frame the whole boundary card, not merely its title. The CTA sits
         # on the lower edge of the row and is the reliable proof that body + action
         # are both inside the viewport before the secure semantic snapshot.
-        cap.ensure_visible("查看变更中心 →")
+        cap.ensure_framed("查看变更中心 →")
         boundary_id = f"{shot_id}-change-boundary"
         cap.shot(
             boundary_id,

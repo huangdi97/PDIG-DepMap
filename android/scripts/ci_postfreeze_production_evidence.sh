@@ -121,6 +121,7 @@ expected = {
     "production-email-detail-change-boundary",
     "production-service-detail-change-boundary",
     "production-records",
+    "production-records-trace",
     "production-change-stale",
     "production-change-reanalyzed",
 }
@@ -158,6 +159,7 @@ secure_expected = {
     "production-email-detail-change-boundary",
     "production-service-detail-change-boundary",
     "production-records",
+    "production-records-trace",
     "production-change-stale",
     "production-change-reanalyzed",
 }
@@ -178,14 +180,17 @@ import xml.etree.ElementTree as ET
 layout_targets = {
     "production-account-detail-change-boundary": (
         "此对象暂不能直接创建变更计划",
+        "账户变更尚未开放正式可执行模板；不会用通用步骤替代真实变更语义。",
         "查看变更中心 →",
     ),
     "production-email-detail-change-boundary": (
         "此对象暂不能直接创建变更计划",
+        "邮箱更换尚未开放正式可执行模板；恢复与认证影响不会由界面自行猜测。",
         "查看变更中心 →",
     ),
     "production-service-detail-change-boundary": (
         "此对象暂不能直接创建变更计划",
+        "服务迁移尚未开放正式可执行模板；不会把关系数量当作迁移计划。",
         "查看变更中心 →",
     ),
     "production-change-reanalyzed": (
@@ -212,10 +217,16 @@ for shot_id, targets in layout_targets.items():
         if not match:
             raise SystemExit(f"{shot_id}: invalid bounds for {target!r}: {raw!r}")
         x1, y1, x2, y2 = map(int, match.groups())
-        if not (0 <= x1 < x2 <= width and 0 <= y1 < y2 <= height - 24):
+        safe_top = 120
+        safe_bottom = height - 120
+        if not (
+            0 <= x1 < x2 <= width and
+            safe_top <= y1 < y2 <= safe_bottom
+        ):
             raise SystemExit(
                 f"{shot_id}: {target!r} is not safely framed: "
-                f"{raw} within {width}x{height}"
+                f"{raw} within {width}x{height} "
+                f"(safe vertical band {safe_top}..{safe_bottom})"
             )
 
 print(f"POSTFREEZE_EVIDENCE_MANIFEST=PASS entries={len(entries)}")
