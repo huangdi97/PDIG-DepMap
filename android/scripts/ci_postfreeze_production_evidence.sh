@@ -218,7 +218,7 @@ for shot_id, targets in layout_targets.items():
             raise SystemExit(f"{shot_id}: invalid bounds for {target!r}: {raw!r}")
         x1, y1, x2, y2 = map(int, match.groups())
         safe_top = 120
-        safe_bottom = height - 120
+        safe_bottom = height - 80
         if not (
             0 <= x1 < x2 <= width and
             safe_top <= y1 < y2 <= safe_bottom

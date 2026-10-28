@@ -278,7 +278,7 @@ class Capture:
         self,
         text: str,
         min_center_y: int = 420,
-        max_center_y: int = 1880,
+        max_center_y: int = 2050,
         attempts: int = 10,
     ) -> None:
         """Keep a semantic target away from viewport edges for review evidence.
