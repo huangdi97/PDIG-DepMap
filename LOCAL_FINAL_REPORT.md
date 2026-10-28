@@ -15,8 +15,8 @@
 | --- | --- |
 | REMOTE_HEAD_AT_START | `e68948d54a21ca5c894a54e2435396fcd327daed` |
 | LOCAL_HEAD_AT_START | `cbe99d5c8862f90b25a463585cfd7ad146e4fb82`（当时在 `main`，工作区 clean） |
-| REMOTE_HEAD_AT_END | `32d9293ff27e671c7f356d34fc3d9ac8107e8448`（parent = `a3d08e63`；因 git 传输层被阻断，经 GitHub Contents API 生成，见下方说明） |
-| LOCAL_HEAD_AT_END | `= git rev-parse HEAD`（与远端**内容完全相同**的本地提交；`LOCAL_FINAL_REPORT.md` 的 blob 两侧均为 `aef6c960…`） |
+| REMOTE_HEAD_AT_END | **承载本报告的远端提交**（其父为 `1478c20f`，再父为 `32d9293f`；均为 Contents API 生成的 docs-only 提交）。`git fetch` 恢复后用 `git rev-parse origin/feat/android-ui-vnext-translation` 复核 |
+| LOCAL_HEAD_AT_END | **本机承载本报告的提交**（内容与远端逐字节相同：`LOCAL_FINAL_REPORT.md` blob 两侧一致） |
 | GIT_TRANSPORT | `BLOCKED`：`git push/fetch` 全程 `schannel: failed to receive handshake` / `openssl: unexpected eof while reading`，而同一时刻 `curl https://github.com` = 200；已改用 Contents API 完成远端写入（未 force push、未改写历史） |
 | WORKTREE_CLEAN | `YES`（`git status --short` 为空） |
 | Android 树 HEAD | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致） |
