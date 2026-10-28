@@ -15,8 +15,9 @@
 | --- | --- |
 | REMOTE_HEAD_AT_START | `e68948d54a21ca5c894a54e2435396fcd327daed` |
 | LOCAL_HEAD_AT_START | `cbe99d5c8862f90b25a463585cfd7ad146e4fb82`（当时在 `main`，工作区 clean） |
-| REMOTE_HEAD_AT_END | `= git rev-parse origin/feat/android-ui-vnext-translation`（push 后重新 fetch 复核；与 `git rev-parse HEAD` 相同） |
-| LOCAL_HEAD_AT_END | `= git rev-parse HEAD`（`rev-list --left-right --count` = `0 0`），即**承载本报告的提交** |
+| REMOTE_HEAD_AT_END | `32d9293ff27e671c7f356d34fc3d9ac8107e8448`（parent = `a3d08e63`；因 git 传输层被阻断，经 GitHub Contents API 生成，见下方说明） |
+| LOCAL_HEAD_AT_END | `= git rev-parse HEAD`（与远端**内容完全相同**的本地提交；`LOCAL_FINAL_REPORT.md` 的 blob 两侧均为 `aef6c960…`） |
+| GIT_TRANSPORT | `BLOCKED`：`git push/fetch` 全程 `schannel: failed to receive handshake` / `openssl: unexpected eof while reading`，而同一时刻 `curl https://github.com` = 200；已改用 Contents API 完成远端写入（未 force push、未改写历史） |
 | WORKTREE_CLEAN | `YES`（`git status --short` 为空） |
 | Android 树 HEAD | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致） |
 | 本轮提交 | `245d7d9e` docs: record local post-freeze acceptance evidence；`ce23b6d3` docs: pin final HEADs and correct 1.5 Records filter note；`a3d08e63` docs: make final HEAD reference self-verifying（**该提交即运行时证据的绑定 HEAD**，run `40686250651`）；最后再次更新本报告引用的 docs 提交（`git log -1 --format=%H -- LOCAL_FINAL_REPORT.md`）。全部快进 push、非 force push，只改根目录文档 |
@@ -35,6 +36,18 @@
 > 本报告 §3.2 与 Gate Matrix 以这份 **新证据** 为准（`manifest.sourceHead == a3d08e63…`，
 > `androidTreeHead == a3d08e6`）；更早的 `40640200788`（`e68948d5`）仅作历史对照。
 > 2026-10-28 20:24–20:33（本地）实测：`status=in_progress → completed/success`。
+
+> **传输事件（如实记录）**：把本报告写入远端时，本机 git 的 HTTPS 传输层开始稳定失败
+> （`schannel: failed to receive handshake, SSL/TLS connection failed`，改用 `openssl` 后端则是
+> `error:0A000126:unexpected eof while reading`；`http.proxy=` 直连同样失败），而同一时刻
+> `curl.exe https://github.com` 返回 200、`Invoke-RestMethod` 亦失败 —— 即**只有 git 的 TLS 通道被阻断**，
+> 不是仓库或认证问题。
+> 因此远端更新改走 GitHub Contents API（`PUT /repos/…/contents/LOCAL_FINAL_REPORT.md`），
+> 生成提交 `32d9293f…`（`parent = a3d08e63`）。本地对应提交内容与远端**逐字节相同**
+> （blob `aef6c960…` 两侧一致），但对象身份不同，因此本机 `rev-list --left-right` 会显示 1/1。
+> 网络恢复后只需 `git fetch origin && git reset --hard origin/feat/android-ui-vnext-translation`
+> 即可完成对齐 —— 该操作不丢任何内容（两侧树相同）。
+> 全程**没有 force push**，也没有改写既有历史。
 
 ---
 ## 2. Build
