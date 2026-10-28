@@ -2346,3 +2346,28 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   2 build logs + manifest，证据合计 **344 项**；Freeze 记录：
   `docs/ui-vnext/ANDROID_REFERENCE_FREEZE_2026-10-18.md`。
 - 新增承认事项：参考板仍缺原图；master 文档仍缺。
+
+---
+
+## Android Production VNext — 本地最终运行验收（2026-10-28，exact HEAD `e68948d5`）
+
+本轮只做验收与取证，未新增业务能力，**未发现 P0/P1 缺陷，产品源码 0 变更**。
+
+- 远端基线：`e68948d54a21ca5c894a54e2435396fcd327daed`（`origin/feat/android-ui-vnext-translation`，开工时重新核验，与任务书一致）。
+- 本地构建（用户目录工具链 JDK21 / Gradle 8.9 / SDK platform-36 / build-tools 36.0.0）：
+  `:repos:test :app:testProductionDebugUnitTest :app:assembleProductionDebug :app:assembleProductionDebugAndroidTest`
+  → `BUILD SUCCESSFUL in 14m 2s`；JVM 用例 **264 / 0 失败 / 0 跳过**。
+- BuildConfig 实测：`PRODUCTION_UI_GENERATION="vnext"`、`PRODUCTION_VNEXT_CUTOVER_APPROVED=true`、`GIT_SHA=e68948d5`。
+- 本地 APK：`com.pdig.app` 0.3.1(2)，SHA-256 `942358fdbc571ae24fd7eaa86b718898e20c1af451bed585ddb4207e72d234a7`，debug 证书（非上架件）。
+- 运行时：本地 API36 模拟器在无 WHPX/Hyper-V 宿主上两次崩溃（`-accel-check`=6，qemu 0xC0000005），
+  按已批准 fallback 使用 exact-HEAD CI 证据（run `40640200788`，phone 1.0 / 1.5 各 22 entries，
+  `assertionsMissing=[]`、`humanReview=NOT_RUN`）。
+- 语义验收 PASS：三条 Change boundary、Device truthful empty、Make-Before-Break 七状态、
+  stale fail-closed（stale 页无 `记录完成这一步`/`确认验证这一步`）、reanalysis delta（6→8，新增 1）、
+  Records 三时钟（`发生时间未记录 · 记录于 …`、`验证证据未记录`）、FLAG_SECURE、五项一级入口含"我"、
+  System Back 真实历史、Header Up 父级映射（静态）。
+- 未验收（如实标注）：`PRODUCTION_ANDROID_TEST_RUN`、Medium/Expanded、真机、隐私遮罩运行时、像素级视觉
+  （本会话无图像读取能力 + FLAG_SECURE）。
+- 状态：`HUMAN_VISUAL_CANDIDATE = READY`、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、
+  `ANDROID_REFERENCE_FREEZE = HOLD`、`STORE_RELEASE = HOLD`、`PR_MERGED = NO`。
+- 详细报告：`LOCAL_FINAL_REPORT.md`；证据（本机，不入库）：`artifacts/runtime-evidence/local-final-e68948d/`。
