@@ -15,11 +15,11 @@
 | --- | --- |
 | REMOTE_HEAD_AT_START | `e68948d54a21ca5c894a54e2435396fcd327daed` |
 | LOCAL_HEAD_AT_START | `cbe99d5c8862f90b25a463585cfd7ad146e4fb82`（当时在 `main`，工作区 clean） |
-| REMOTE_HEAD_AT_END | `245d7d9e019ea7af3902e4c8287b53472c21f50e`（push 后重新 fetch：`git rev-parse origin/feat/android-ui-vnext-translation`） |
-| LOCAL_HEAD_AT_END | `245d7d9e019ea7af3902e4c8287b53472c21f50e`（`rev-list --left-right --count` = `0 0`） |
+| REMOTE_HEAD_AT_END | `= git rev-parse origin/feat/android-ui-vnext-translation`（push 后重新 fetch 复核；与 `git rev-parse HEAD` 相同） |
+| LOCAL_HEAD_AT_END | `= git rev-parse HEAD`（`rev-list --left-right --count` = `0 0`），即**承载本报告的提交** |
 | WORKTREE_CLEAN | `YES`（`git status --short` 为空） |
 | Android 树 HEAD | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致） |
-| 本轮提交 | `245d7d9e docs(android): record local post-freeze acceptance evidence`（仅 `LOCAL_FINAL_REPORT.md` + `WORK_STATUS.md`，非 force push，快进合并） |
+| 本轮提交 | `245d7d9e` docs(android): record local post-freeze acceptance evidence；`ce23b6d3` docs(android): pin final HEADs and correct 1.5 Records filter note；之后一次等价于本报告内容的 docs 提交（`git log -1 --format=%H -- LOCAL_FINAL_REPORT.md`）。全部为快进 push，非 force push，且只改根目录文档 |
 | PR | #1，open，未合并（`PR_MERGED = NO`） |
 
 开工时远端 `feat/android-ui-vnext-translation` 已重新核验，与任务书给出的 `e68948d5…` 一致；
