@@ -19,7 +19,7 @@
 | LOCAL_HEAD_AT_END | `= git rev-parse HEAD`（`rev-list --left-right --count` = `0 0`），即**承载本报告的提交** |
 | WORKTREE_CLEAN | `YES`（`git status --short` 为空） |
 | Android 树 HEAD | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致） |
-| 本轮提交 | `245d7d9e` docs(android): record local post-freeze acceptance evidence；`ce23b6d3` docs(android): pin final HEADs and correct 1.5 Records filter note；之后一次等价于本报告内容的 docs 提交（`git log -1 --format=%H -- LOCAL_FINAL_REPORT.md`）。全部为快进 push，非 force push，且只改根目录文档 |
+| 本轮提交 | `245d7d9e` docs: record local post-freeze acceptance evidence；`ce23b6d3` docs: pin final HEADs and correct 1.5 Records filter note；`a3d08e63` docs: make final HEAD reference self-verifying（**该提交即运行时证据的绑定 HEAD**，run `40686250651`）；最后再次更新本报告引用的 docs 提交（`git log -1 --format=%H -- LOCAL_FINAL_REPORT.md`）。全部快进 push、非 force push，只改根目录文档 |
 | PR | #1，open，未合并（`PR_MERGED = NO`） |
 
 开工时远端 `feat/android-ui-vnext-translation` 已重新核验，与任务书给出的 `e68948d5…` 一致；
@@ -29,9 +29,12 @@
 远端该 HEAD 的既有自动证据：workflow run `40640200788`（`Android UI vNext Post-Freeze Production Evidence`，
 `completed/success`），phone 1.0 / 1.5 两个 matrix 均成功。
 
-> 工时顺序说明：运行时证据绑定的是 `e68948d5`（该提交即当时的 exact HEAD，也是 `android/` 树的 HEAD）。
-> 本轮唯一的提交 `245d7d9e` 只改两个根目录文档、**未触碰 `android/`**，因此
-> `manifest.androidTreeHead == e68948d5 == git log -1 --format=%h -- android/` 仍成立。
+> **证据绑定（重要）**：本轮把 docs 提交推上去后，仓库的 `pull_request → main` 触发器在同一分支上自动重跑了
+> Post-Freeze 取证，因此拿到了一份**与最终内容 HEAD 完全一致**的证据：run `40686250651`，
+> `head_sha = a3d08e63307230e0de4fc5400464471c5094007d`，`conclusion = success`。
+> 本报告 §3.2 与 Gate Matrix 以这份 **新证据** 为准（`manifest.sourceHead == a3d08e63…`，
+> `androidTreeHead == a3d08e6`）；更早的 `40640200788`（`e68948d5`）仅作历史对照。
+> 2026-10-28 20:24–20:33（本地）实测：`status=in_progress → completed/success`。
 
 ---
 ## 2. Build
@@ -93,8 +96,8 @@ gradle.bat :repos:test :app:testProductionDebugUnitTest :app:assembleProductionD
 | signer | `C=US, O=Android, CN=Android Debug`，SHA-256 `6edd40038055b629b34c1299a6da01a0e9081de5afed57fe91287593390cc5b1` |
 | installed APK SHA-256 | **NOT_RUN**（无可启动模拟器，见 §3） |
 
-CI 侧同 HEAD 的 APK（不同构建机，不要求与本地字节一致）：`phone` = `003fa168…0b44`，
-`phone-font15` = `bc422d85…ef9b1`。本地 APK 与 CI APK 的 SHA 不同属于正常现象，真正绑定的是
+CI 侧同内容 HEAD 的 APK（不同构建机，不要求与本地字节一致，run `40686250651`）：`phone` = `ebb476b8…9172`，
+`phone-font15` = `dbef57e2…fae0`。本地 APK 与 CI APK 的 SHA 不同属于正常现象，真正绑定的是
 `source HEAD + BuildConfig + 本机 APK SHA + package`。
 
 ---
@@ -118,8 +121,8 @@ CI 侧同 HEAD 的 APK（不同构建机，不要求与本地字节一致）：`
 
 | 矩阵 | run | entries | sourceHead | apkSha256 | fontScale | assertionsMissing | humanReview |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| phone 1.0 | 40640200788 | 22 | `e68948d5…` | `003fa168…` | 1.0（device） | `[]` | `NOT_RUN` |
-| phone 1.5 | 40640200788 | 22 | `e68948d5…` | `bc422d85…` | 1.5（device） | `[]` | `NOT_RUN` |
+| phone 1.0 | **40686250651** | 22 | `a3d08e63…` | `ebb476b8…` | 1.0（device） | `[]` | `NOT_RUN` |
+| phone 1.5 | **40686250651** | 22 | `a3d08e63…` | `dbef57e2…` | 1.5（device） | `[]` | `NOT_RUN` |
 
 设备画像：`sdk_gphone64_x86_64`，API 36，1080×2400，density 420，`dataMode=isolated-postfreeze-evidence-reality`。
 共 58 条断言/矩阵，0 缺失。两个矩阵的 PNG（22）+ UIAutomator XML（22）齐全。
@@ -308,8 +311,8 @@ action title/Records/Search，也未做 accessibility label / contentDescription
 | JVM_TESTS | **PASS** | 264 用例 / 0 失败 / 0 跳过（`:repos:test` 13、`:app:testProductionDebugUnitTest` 251） |
 | PRODUCTION_ANDROID_TEST | **PASS（仅组装）** | `:app:assembleProductionDebugAndroidTest` 成功，产出 `app-production-debug-androidTest.apk` |
 | PRODUCTION_ANDROID_TEST_RUN | **NOT_RUN** | 无可启动模拟器/真机，instrumentation 未执行 |
-| PHONE_1_0_RUNTIME | **PASS** | CI_EXACT_HEAD run 40640200788，22 entries，assertionsMissing=[] |
-| PHONE_1_5_RUNTIME | **PASS** | 同上，fontScale=1.5 |
+| PHONE_1_0_RUNTIME | **PASS** | CI_EXACT_HEAD run 40686250651 @ `a3d08e63`，22 entries，assertionsMissing=[] |
+| PHONE_1_5_RUNTIME | **PASS** | 同上，fontScale=1.5，22 entries，assertionsMissing=[] |
 | MEDIUM_RUNTIME | **NOT_RUN** | 无本地设备；该 HEAD 无 Production medium CI 证据 |
 | EXPANDED_RUNTIME | **NOT_RUN** | 同上 |
 | REAL_DEVICE_RUNTIME | **NOT_RUN** | 无真机连接 |
