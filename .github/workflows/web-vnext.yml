@@ -51,6 +51,8 @@ jobs:
       - name: Capture real Chrome review pixels
         run: |
           set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
           mkdir -p artifacts/web-vnext
           python3 -m http.server 4173 --directory website >/tmp/pdig-web-capture.log 2>&1 &
           SERVER_PID=$!
