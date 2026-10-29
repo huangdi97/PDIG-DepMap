@@ -361,6 +361,10 @@ action title/Records/Search，也未做 accessibility label / contentDescription
 
 ## 8. Human Visual Candidate（建议优先看的 12 页）
 
+>
+> **在线版（GitHub Pages，免安装）**：https://haoleilab.com/PDIG-DepMap/human-visual-candidate/
+> 　**可安装候选**：https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-human-review-a3d08e63
+> 　（prerelease；两份 APK = 1.0 / 1.5 证据矩阵各自的构建产物，debug 证书，非上架件）
 > **可点开的查看页（已入库）**：`docs/ui-vnext/gallery-human-visual-candidate/index.html`
 > —— 44 张卡片（22 页 × 字级 1.0/1.5），6 张真实像素 + 38 张按 UIAutomator bounds 几何重构；
 > 支持按字级 / 真实像素 / 安全页过滤。图片以相对路径引用已入库证据，不重复存二进制。
