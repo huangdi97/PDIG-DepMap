@@ -226,13 +226,78 @@ class ImpactKernelTest {
     }
 
     @Test
-    fun nonPaymentCapabilityKeysAreIgnored() {
-        val g = graph(listOf(edge("e1", "pay-card", "svc-a")))
-        val result = simulateScenario(g, listOf(ImpactStateKey("pay-card", Capability.ACCESS)))
+    fun recoveryCapabilityPropagatesWithCapabilitySpecificTruth() {
+        val recoveryEdge = Dependency(
+            id = "r1",
+            from = "phone-old",
+            relation = Relation.RECOVERS,
+            to = "account-a",
+            capability = Capability.RECOVERY,
+            criticality = Criticality.REQUIRED,
+        )
+        val result = simulateDisable(
+            graph(
+                dependencies = listOf(recoveryEdge),
+                names = mapOf("phone-old" to "旧手机号", "account-a" to "主账户"),
+            ),
+            "phone-old",
+            Capability.RECOVERY,
+        )
 
-        assertTrue(
-            result.targets.isEmpty(),
-            "MVP payment domain 只传播 payment capability；access 初始键必须被忽略",
+        val target = targetOf(result, "account-a")
+        assertEquals(Capability.RECOVERY, target.capability)
+        assertEquals(ImpactTargetStatus.MUST_CHANGE, target.status)
+        assertEquals(ImpactReasonCode.REQUIRED_EDGE_NO_ALTERNATIVE, target.reasonCode)
+        assertTrue(target.reasonText.contains("恢复能力"))
+        assertTrue(result.checklist.last().title.contains("停用 旧手机号"))
+    }
+
+    @Test
+    fun multiCapabilityScenarioPropagatesEachCapabilityWithoutCrossContamination() {
+        val recovery = Dependency(
+            id = "r1",
+            from = "phone-old",
+            relation = Relation.RECOVERS,
+            to = "account-a",
+            capability = Capability.RECOVERY,
+            criticality = Criticality.REQUIRED,
+        )
+        val authentication = Dependency(
+            id = "a1",
+            from = "phone-old",
+            relation = Relation.AUTHENTICATES,
+            to = "service-b",
+            capability = Capability.AUTHENTICATION,
+            criticality = Criticality.REQUIRED,
+        )
+        val access = Dependency(
+            id = "c1",
+            from = "phone-old",
+            relation = Relation.CONTROLS,
+            to = "service-c",
+            capability = Capability.ACCESS,
+            criticality = Criticality.REQUIRED,
+        )
+        val result = simulateScenario(
+            graph(listOf(recovery, authentication, access)),
+            listOf(
+                ImpactStateKey("phone-old", Capability.RECOVERY),
+                ImpactStateKey("phone-old", Capability.AUTHENTICATION),
+            ),
+        )
+
+        assertEquals(
+            setOf(
+                "account-a|recovery",
+                "service-b|authentication",
+            ),
+            result.targets.map { "${it.nodeId}|${it.capability.wire}" }.toSet(),
+        )
+        assertTrue(result.targets.none { it.nodeId == "service-c" })
+        assertEquals(
+            result.processedKeys.size,
+            result.processedKeys.distinct().size,
+            "multi-capability processed keys remain unique",
         )
     }
 

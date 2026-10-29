@@ -1,0 +1,97 @@
+{
+  "spec": "ANDROID_UI_VNEXT_INTERACTION_VALIDATION (ROUND3, source af25f50)",
+  "sourceHead": "af25f50b43e50fc35444a6139ee915e4a83ded30",
+  "apkSha256": "584cfb36aae48a380eff81caa7a8f34d5ea78bf48d91446b900fe8a6eddc21c9",
+  "generatedAt": "2026-10-06T21:45:00+08:00",
+  "count": 8,
+  "items": [
+    {
+      "evidence": [
+        "logs/phone-prefs-mid.xml",
+        "phone/card-restart-theme.png",
+        "tablet/tablet-card-restart-detail.png",
+        "logs/tablet-prefs-final.xml"
+      ],
+      "id": "card_profile_restart_persistence",
+      "result": "PASS (phone)",
+      "steps": "Phone real UI: Card Detail -> studio -> theme 极简 -> 保存 -> XML card-cn-2 minimal -> force-stop -> relaunch -> 当前主题：极简 (True). Tablet: expanded inspector exposes no studio entry (blocker recorded); XML num travel persisted."
+    },
+    {
+      "evidence": [
+        "logs/phone-prefs-final.xml",
+        "logs/tablet-prefs-final.xml",
+        "phone/number-restart-detail.png",
+        "tablet/11-number-studio-travel.png"
+      ],
+      "id": "number_profile_restart_persistence",
+      "result": "PASS",
+      "steps": "numberProfileSavePersistsAcrossRecreationAndRenders OK(1) both devices -> XML num-cn-1 travel -> force-stop -> relaunch -> XML persists (phone+tablet)"
+    },
+    {
+      "evidence": [
+        "logs/phone-workspace-mid.xml",
+        "logs/phone-workspace-after.xml",
+        "logs/tablet-workspace-mid.xml",
+        "logs/tablet-workspace-after.xml",
+        "phone/personalization-restart.png",
+        "tablet/tablet-personalization-restart.png"
+      ],
+      "id": "workspace_preferences",
+      "result": "PASS",
+      "steps": "Real UI both devices: 设置 -> 即将到来 toggle -> XML show_upcoming=true -> force-stop -> relaunch -> XML true"
+    },
+    {
+      "evidence": [
+        "tablet/tablet-search-back.png",
+        "logs/tablet-suite-interaction.log"
+      ],
+      "id": "search_result_back",
+      "result": "PASS",
+      "steps": "searchResultNavigationAndBackToSearch PASS (connected + tablet batch); tablet real UI search -> Back -> now (True)"
+    },
+    {
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-suite-interaction.log",
+        "tablet/tablet-region-numbers.png",
+        "tablet/tablet-region-reset.png"
+      ],
+      "id": "region_select_detail_back_global",
+      "result": "PASS (state machine) / PARTIAL (real-UI drawer)",
+      "steps": "regionSelectPropagatesAndClears + regionDrawerBackClosesDetail PASS (interaction 11/11 both devices); tablet real UI: 中国 -> Numbers banner 当前地区 (True) -> 查看全球 reset (True); 04 region-drawer real-UI tap cannot open drawer (official suite blocked)"
+    },
+    {
+      "evidence": [
+        "phone/back-cards.png",
+        "phone/back-numbers.png",
+        "logs/tablet-suite-backstate.log"
+      ],
+      "id": "system_back",
+      "result": "PASS",
+      "steps": "Phone real UI: card detail Back->cards (True); number detail Back->numbers (True); backstate suite phone OK / tablet 1 flake (touch inject)"
+    },
+    {
+      "evidence": [
+        "phone/17-change-current.png",
+        "phone/18-change-transition.png",
+        "phone/19-change-after.png",
+        "tablet/17-change-current.png",
+        "tablet/18-change-transition.png",
+        "tablet/19-change-after.png"
+      ],
+      "id": "change_projection_truth",
+      "result": "PASS",
+      "steps": "17 vs 18 vs 19 distinct both devices (phone 313142/327559/347052; tablet 293686/310887/325546); 18 semantic banner 第 3/6 步·验证新号码; 19 完成后（计划）= plan projection"
+    },
+    {
+      "evidence": [
+        "probes/NUMBER_DETAIL_LAYOUT_PROBE_phone.json",
+        "probes/NUMBER_DETAIL_LAYOUT_PROBE_tablet.json",
+        "logs/tablet-suite-probe.log"
+      ],
+      "id": "number_detail_probe",
+      "result": "PASS",
+      "steps": "NumberDetailLayoutProbeTest OK(1) phone+tablet; probe JSON hero->services 106dp, others 16dp; no 0x0/negative/inversion"
+    }
+  ]
+}

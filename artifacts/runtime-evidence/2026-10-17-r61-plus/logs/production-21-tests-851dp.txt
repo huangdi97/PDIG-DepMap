@@ -1,0 +1,10 @@
+
+com.pdig.uivnext.evidence.ProductionVNextShellContractTest:...............
+com.pdig.uivnext.evidence.ProductionRecordNavigationContractTest:.....
+com.pdig.uivnext.evidence.ProductionManualRelationshipContractTest:.
+
+Time: 49.642
+
+OK (21 tests)
+
+

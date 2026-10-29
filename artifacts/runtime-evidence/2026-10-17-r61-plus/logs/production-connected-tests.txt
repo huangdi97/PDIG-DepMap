@@ -1,0 +1,109 @@
+
+> Configure project :app
+WARNING: The option setting 'android.overridePathCheck=true' is experimental.
+The current default is 'false'.
+
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :repos:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :repos:processResources NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preProductionDebugBuild UP-TO-DATE
+> Task :app:generateProductionDebugBuildConfig UP-TO-DATE
+> Task :core:compileKotlin UP-TO-DATE
+> Task :core:compileJava NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :app:checkProductionDebugAarMetadata UP-TO-DATE
+> Task :app:generateProductionDebugResValues UP-TO-DATE
+> Task :app:mapProductionDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateProductionDebugResources UP-TO-DATE
+> Task :repos:compileKotlin UP-TO-DATE
+> Task :repos:compileJava NO-SOURCE
+> Task :repos:classes UP-TO-DATE
+> Task :app:mergeProductionDebugResources UP-TO-DATE
+> Task :repos:jar UP-TO-DATE
+> Task :app:packageProductionDebugResources UP-TO-DATE
+> Task :app:parseProductionDebugLocalResources UP-TO-DATE
+> Task :app:createProductionDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksProductionDebug UP-TO-DATE
+> Task :app:processProductionDebugMainManifest UP-TO-DATE
+> Task :app:processProductionDebugManifest UP-TO-DATE
+> Task :app:processProductionDebugManifestForPackage UP-TO-DATE
+> Task :app:processProductionDebugResources UP-TO-DATE
+> Task :app:compileProductionDebugKotlin UP-TO-DATE
+> Task :app:javaPreCompileProductionDebug UP-TO-DATE
+> Task :app:compileProductionDebugJavaWithJavac UP-TO-DATE
+> Task :app:bundleProductionDebugClassesToCompileJar UP-TO-DATE
+> Task :app:preProductionDebugAndroidTestBuild SKIPPED
+> Task :app:processProductionDebugAndroidTestManifest UP-TO-DATE
+> Task :app:generateProductionDebugAndroidTestBuildConfig UP-TO-DATE
+> Task :app:checkProductionDebugAndroidTestAarMetadata UP-TO-DATE
+> Task :app:generateProductionDebugAndroidTestResValues UP-TO-DATE
+> Task :app:mapProductionDebugAndroidTestSourceSetPaths UP-TO-DATE
+> Task :app:generateProductionDebugAndroidTestResources UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestResources UP-TO-DATE
+> Task :app:processProductionDebugAndroidTestResources UP-TO-DATE
+> Task :app:compileProductionDebugAndroidTestKotlin UP-TO-DATE
+> Task :app:javaPreCompileProductionDebugAndroidTest UP-TO-DATE
+> Task :app:compileProductionDebugAndroidTestJavaWithJavac UP-TO-DATE
+> Task :app:mergeProductionDebugShaders UP-TO-DATE
+> Task :app:compileProductionDebugShaders NO-SOURCE
+> Task :app:generateProductionDebugAssets UP-TO-DATE
+> Task :app:mergeProductionDebugAssets UP-TO-DATE
+> Task :app:compressProductionDebugAssets UP-TO-DATE
+> Task :app:checkProductionDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarProductionDebugFileDependencies UP-TO-DATE
+> Task :app:mergeProductionDebugStartupProfile UP-TO-DATE
+> Task :app:mergeExtDexProductionDebug UP-TO-DATE
+> Task :app:mergeLibDexProductionDebug UP-TO-DATE
+> Task :app:dexBuilderProductionDebug UP-TO-DATE
+> Task :app:mergeProductionDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processProductionDebugJavaRes UP-TO-DATE
+> Task :app:mergeProductionDebugJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexProductionDebug UP-TO-DATE
+> Task :app:mergeProductionDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeProductionDebugNativeLibs UP-TO-DATE
+> Task :app:stripProductionDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningProductionDebug UP-TO-DATE
+> Task :app:writeProductionDebugAppMetadata UP-TO-DATE
+> Task :app:writeProductionDebugSigningConfigVersions UP-TO-DATE
+> Task :app:packageProductionDebug UP-TO-DATE
+> Task :app:createProductionDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestShaders UP-TO-DATE
+> Task :app:compileProductionDebugAndroidTestShaders NO-SOURCE
+> Task :app:generateProductionDebugAndroidTestAssets UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestAssets UP-TO-DATE
+> Task :app:compressProductionDebugAndroidTestAssets UP-TO-DATE
+> Task :app:checkProductionDebugAndroidTestDuplicateClasses UP-TO-DATE
+> Task :app:desugarProductionDebugAndroidTestFileDependencies UP-TO-DATE
+> Task :app:mergeExtDexProductionDebugAndroidTest UP-TO-DATE
+> Task :app:mergeLibDexProductionDebugAndroidTest UP-TO-DATE
+> Task :app:dexBuilderProductionDebugAndroidTest UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestGlobalSynthetics UP-TO-DATE
+> Task :app:processProductionDebugAndroidTestJavaRes UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexProductionDebugAndroidTest UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestJniLibFolders UP-TO-DATE
+> Task :app:mergeProductionDebugAndroidTestNativeLibs NO-SOURCE
+> Task :app:stripProductionDebugAndroidTestDebugSymbols NO-SOURCE
+> Task :app:validateSigningProductionDebugAndroidTest UP-TO-DATE
+> Task :app:writeProductionDebugAndroidTestSigningConfigVersions UP-TO-DATE
+> Task :app:packageProductionDebugAndroidTest UP-TO-DATE
+> Task :app:createProductionDebugAndroidTestApkListingFileRedirect UP-TO-DATE
+
+> Task :app:connectedProductionDebugAndroidTest
+Starting 21 tests on pdig_evi_phone_api36(AVD) - 16
+
+pdig_evi_phone_api36(AVD) - 16 Tests 1/21 completed. (0 skipped) (0 failed)
+pdig_evi_phone_api36(AVD) - 16 Tests 5/21 completed. (0 skipped) (0 failed)
+pdig_evi_phone_api36(AVD) - 16 Tests 7/21 completed. (0 skipped) (0 failed)
+pdig_evi_phone_api36(AVD) - 16 Tests 11/21 completed. (0 skipped) (0 failed)
+pdig_evi_phone_api36(AVD) - 16 Tests 13/21 completed. (0 skipped) (0 failed)
+pdig_evi_phone_api36(AVD) - 16 Tests 16/21 completed. (0 skipped) (0 failed)
+pdig_evi_phone_api36(AVD) - 16 Tests 20/21 completed. (0 skipped) (0 failed)
+Finished 21 tests on pdig_evi_phone_api36(AVD) - 16
+
+BUILD SUCCESSFUL in 1m 31s
+72 actionable tasks: 1 executed, 71 up-to-date

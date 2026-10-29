@@ -34,6 +34,17 @@ const ALLOWED_TRANSITIONS: Record<ChangePlanWorkflowState, ChangePlanWorkflowSta
   cancelled: [],
 }
 
+export function pendingReadinessChangeActionCount(
+  actions: readonly PlanAction[],
+): number {
+  return actions.filter((a) => {
+    if (a.phase !== 'change') return false
+    if (!a.done) return true
+    const status = a.verification?.status
+    return status !== undefined && status !== 'verified' && status !== 'not_required'
+  }).length
+}
+
 export class ChangePlanService {
   private readonly driver: SqliteDriver
   readonly plans: ChangePlanRepository
@@ -93,9 +104,7 @@ export class ChangePlanService {
                 now - Date.parse(d.lastVerifiedAt) > thresholdMs,
             ).length
 
-    const unfinishedChangeActions = plan.actions.filter(
-      (a) => a.phase === 'change' && !a.done,
-    ).length
+    const unfinishedChangeActions = pendingReadinessChangeActionCount(plan.actions)
 
     return {
       plan,
@@ -136,34 +145,60 @@ export class ChangePlanService {
     if (plan.workflowState === 'completed' || plan.workflowState === 'cancelled') {
       throw new Error(`plan ${planId} is ${plan.workflowState}; actions are frozen`)
     }
-    const actions = plan.actions.map((a) =>
-      a.id === actionId ? { ...a, done: true, doneAt: nowIso() } : a,
-    )
-    if (!actions.some((a) => a.id === actionId)) {
+    const target = plan.actions.find((a) => a.id === actionId)
+    if (!target) {
       throw new Error(`action not found: ${actionId} (plan ${planId})`)
     }
+    for (const prereqId of target.prerequisiteActionIds ?? []) {
+      const prereq = plan.actions.find((a) => a.id === prereqId)
+      if (!prereq || !prereq.done) {
+        throw new Error(`action prerequisite not complete: ${prereqId} -> ${actionId}`)
+      }
+    }
+    const actions = plan.actions.map((a) =>
+      a.id === actionId ? { ...a, done: true, doneAt: a.doneAt ?? nowIso() } : a,
+    )
     return this.plans.updateActions(planId, actions)
   }
 
-  /** 手动验证（user_confirmed）：verification.status → verified。 */
+  /** 用户确认验证：done 必须已成立，且保留原 verification method / evidence。 */
   verifyActionManually(planId: string, actionId: string): ChangePlan {
     const plan = this.plans.getExisting(planId)
+    if (plan.workflowState === 'completed' || plan.workflowState === 'cancelled') {
+      throw new Error(`plan ${planId} is ${plan.workflowState}; actions are frozen`)
+    }
+    const target = plan.actions.find((a) => a.id === actionId)
+    if (!target) {
+      throw new Error(`action not found: ${actionId} (plan ${planId})`)
+    }
+    if (!target.done) {
+      throw new Error(`action not complete: ${actionId} (plan ${planId})`)
+    }
+    const verification = target.verification
+    if (!verification) {
+      throw new Error(`verification not required: ${actionId} (plan ${planId})`)
+    }
+    if (
+      verification.status === 'verified' ||
+      verification.status === 'failed' ||
+      verification.status === 'not_required'
+    ) {
+      throw new Error(
+        `illegal verification transition: ${verification.status} -> verified (action ${actionId})`,
+      )
+    }
     const actions = plan.actions.map((a) =>
       a.id === actionId
         ? {
             ...a,
             verification: {
-              method: 'manual_confirmation' as const,
+              ...verification,
               status: 'verified' as const,
-              verifiedAt: nowIso(),
-              evidenceRefs: a.verification?.evidenceRefs ?? [],
+              verifiedAt: verification.verifiedAt ?? nowIso(),
             },
           }
         : a,
     )
-    if (!actions.some((a) => a.id === actionId)) {
-      throw new Error(`action not found: ${actionId} (plan ${planId})`)
-    }
     return this.plans.updateActions(planId, actions)
   }
 

@@ -1,0 +1,38 @@
+{
+  "capture": "Production cutover approved release-candidate verification",
+  "decision": "User approved visual acceptance (1), Android Reference Freeze (2) and Production Cutover (3) on 2026-10-18.",
+  "codeTreeSha": "7aaa612c6a6dfdd0ef431a8a67879f1caef63f96",
+  "artifactGitSha": "01d0de3a",
+  "package": "com.pdig.app",
+  "versionName": "0.3.1",
+  "versionCode": 2,
+  "buildType": "release",
+  "debug": false,
+  "twoKeys": {"PRODUCTION_UI_GENERATION": "vnext", "PRODUCTION_VNEXT_CUTOVER_APPROVED": true},
+  "vnextCandidateApkSha256": "cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c",
+  "legacyControlApkSha256": "287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316",
+  "installedApkSha256": "cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c",
+  "installedMatchesCandidate": true,
+  "signer": "CN=PDIG NON-PRODUCTION TEST KEY",
+  "signerSha256": "953dc774fcefcdf11423594748aecfa894c8754dc232d6047c39e25373b13ad4",
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "display": {"px": "1080x2400", "densityDpi": 420, "fontScale": 1.5},
+  "command": "gradlew :app:assembleProductionRelease -PpdigNonProdSigning=true -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true -x lintVitalProductionRelease -x lintVitalAnalyzeProductionRelease -x lintVitalReportProductionRelease",
+  "screens": [
+    {"file": "01-now.png", "state": "No-extra release launch → lock → Production VNext Now, five destinations"},
+    {"file": "02-me.png", "state": "Production VNext Me"},
+    {"file": "03-change.png", "state": "Production VNext Change"},
+    {"file": "04-records.png", "state": "FLAG_SECURE black capture; XML proves Records rendered"},
+    {"file": "05-legacy-control-lock.png", "state": "Legacy-default control release lock screen"},
+    {"file": "06-legacy-control-home.png", "state": "Legacy-default control release opens Legacy shell (rollback works)"}
+  ],
+  "verification": [
+    "DEX BuildConfig: release/debug=false/generation=vnext/approval=true",
+    "Installed base.apk hash equals candidate hash",
+    "No-extra launch on release opens Production VNext after unlock",
+    "Legacy/false control release opens Legacy shell after unlock",
+    "Five primary destinations exist in the release candidate"
+  ],
+  "hold": "Production/store signing is NOT configured. The candidate is signed with the repository's non-production test key; STORE_READY remains HOLD. Repository Gradle defaults intentionally remain legacy/false; the release artifact carries the two keys.",
+  "testDataNote": "Swapping between debug and release signatures required uninstalling com.pdig.app; only local rehearsal data was removed."
+}

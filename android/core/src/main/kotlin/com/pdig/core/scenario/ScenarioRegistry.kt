@@ -27,6 +27,10 @@ data class ScenarioTemplate(
     val optionalInputs: List<ScenarioTemplateInputSpec>,
     val recommendedLeadTimeDays: Int?,
     val availability: String,
+    /** Canonical target kind gate for executable plan creation. */
+    val subjectKind: String? = null,
+    /** Optional governed subtype gate; null means the Node kind alone is sufficient. */
+    val subjectSubtype: String? = null,
 )
 
 private fun paymentInputs() = Pair(
@@ -70,6 +74,7 @@ object ScenarioRegistry {
             optionalInputs = optional,
             recommendedLeadTimeDays = leadTimeDays,
             availability = "active",
+            subjectKind = "payment_instrument",
         )
     }
 
@@ -120,6 +125,8 @@ object ScenarioRegistry {
             ),
             recommendedLeadTimeDays = 30,
             availability = "active",
+            subjectKind = "identity_anchor",
+            subjectSubtype = "phone_number",
         ),
     )
 

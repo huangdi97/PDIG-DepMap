@@ -1,0 +1,169 @@
+{
+  "spec": "ANDROID_UI_VNEXT_INTERACTION_VALIDATION (2026-10-04; instrumented runtime on API36 phone+tablet)",
+  "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64",
+  "apkSha256": "76df2dda5791886736a7ff88c8ad05a9cb5ae586e9d812763a3b54274851fded",
+  "count": 15,
+  "items": [
+    {
+      "id": "card_profile_save",
+      "result": "PASS",
+      "steps": "save card PresentationProfile(city/frosted/mask) via production savePresentationProfile → real PresentationProfileStore; new VNextShellViewModel restores from store; Card Detail renders with saved theme",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-instrumentation.log",
+        "phone/06-card-detail.png",
+        "tablet/06-card-detail.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "card_profile_restart_persistence",
+      "result": "PASS",
+      "steps": "profile persisted on disk (shared_prefs XML dumped after force-stop); force-stop → relaunch no FATAL; new ViewModel loads profile; Detail renders identity with saved theme",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/restart-launch.png",
+        "tablet/restart-launch.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "number_profile_save",
+      "result": "PASS",
+      "steps": "save number PresentationProfile(travel/paper/mask) via production handler → store; new ViewModel restores; Number Detail renders hero with saved theme",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-instrumentation.log",
+        "phone/10-number-detail.png",
+        "tablet/10-number-detail.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "workspace_preference_restart",
+      "result": "PASS",
+      "steps": "reduce_motion=true written via production WorkspacePreferenceStore; disk XML (after force-stop) contains reduce_motion=true; new ViewModel loads it; WorkspacePreferenceDiskPersistenceTest OK(1)",
+      "evidence": [
+        "logs/phone-workspace-persist.log"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "search_result_navigation",
+      "result": "PASS",
+      "steps": "navigate(SEARCH) → navigateFromSearch(CARDS) → screen==CARDS",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-instrumentation.log"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "search_back_to_search",
+      "result": "PASS",
+      "steps": "back() from result → screen==SEARCH (searchResultNavigationAndBackToSearch)",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-instrumentation.log"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "search_query_results",
+      "result": "PASS",
+      "steps": "query 招商 typed into real TextField → pdig.search.result nodes rendered (searchQueryShowsCardResult); screenshot 22-search-query",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/22-search-query.png",
+        "tablet/22-search-query.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "region_select",
+      "result": "PASS",
+      "steps": "selectRegion(CN) → regionFilter==CN, globe REGION_SELECTED",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/03-overview-region-selected.png",
+        "tablet/03-overview-region-selected.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "region_filter_propagation",
+      "result": "PASS",
+      "steps": "filter persists into CARDS and NUMBERS screens (regionSelectPropagatesAndClears)",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/05-cards.png",
+        "phone/09-numbers.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "region_clear",
+      "result": "PASS",
+      "steps": "clearRegion() → regionFilter==null, globe back to GLOBAL",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/02-overview-global.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "region_drawer",
+      "result": "PASS",
+      "steps": "openRegionDetail → REGION_DETAIL; System Back → closes drawer to GLOBAL (regionDrawerBackClosesDetail); screenshot 04-region-drawer",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/04-region-drawer.png",
+        "tablet/04-region-drawer.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "card_detail_back_stack",
+      "result": "PASS",
+      "steps": "Cards → Card Detail → Card Studio → back → Detail → back → Cards (cardDetailBackStackFlow)",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-instrumentation.log"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "number_detail_back_stack",
+      "result": "PASS",
+      "steps": "Numbers → Number Detail → Number Studio → back → Detail → back → Numbers (numberDetailBackStackFlow)",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "logs/tablet-instrumentation.log"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "studio_ui_save_flow",
+      "result": "PASS",
+      "steps": "Card Studio rendered (theme tiles) → 保存 button clicked → profile persisted in real store (studioUISaveFlowPersistsThroughSaveButton)",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/07-card-studio-glass.png",
+        "phone/08-card-studio-city.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    },
+    {
+      "id": "change_projection",
+      "result": "PASS",
+      "steps": "current/transition/after projections distinct + After renders NEW region without crash (changeProjectionStatesAreDistinctAndRender)",
+      "evidence": [
+        "logs/phone-instrumentation.log",
+        "phone/17-change-current.png",
+        "phone/18-change-transition.png",
+        "phone/19-change-after.png"
+      ],
+      "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64"
+    }
+  ]
+}

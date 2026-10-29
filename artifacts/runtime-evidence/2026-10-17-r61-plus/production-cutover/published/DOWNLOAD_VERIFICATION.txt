@@ -1,0 +1,9 @@
+publishedAsset=vnext-default.apk
+publishedSha256=cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c
+installedSha256=cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c
+installedMatchesPublished=True
+defaultNoExtraLaunch=PRODUCTION_VNEXT
+primaryDestinations=现在/基础设施/变更/记录/我
+syntheticMarker=absent
+legacyControlPublishedSha256=287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316
+note=legacy control is byte-identical to the locally install-tested rollback APK

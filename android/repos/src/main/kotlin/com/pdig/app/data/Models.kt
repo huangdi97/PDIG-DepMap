@@ -6,7 +6,55 @@ import com.pdig.core.sources.Observation
 // 只读投影行（UI 与 Repository 共用的贫血模型；SQL 语义见各 Repository）
 // ---------------------------------------------------------------------------
 
-data class NodeRow(val id: String, val kind: String, val name: String, val archived: Boolean, val fieldsJson: String)
+data class NodeRow(
+    val id: String,
+    val kind: String,
+    val name: String,
+    val archived: Boolean,
+    val fieldsJson: String,
+    val issuer: String? = null,
+    val last4: String? = null,
+)
+
+data class ManualNodeCreateRequest(
+    val kind: com.pdig.core.generated.NodeKind,
+    val name: String,
+    val issuer: String? = null,
+    val last4: String? = null,
+)
+
+data class ManualNodeCreateResult(
+    val node: NodeRow,
+    val graphRevision: Int,
+)
+
+data class MaintenanceWriteResult(
+    val node: NodeRow,
+    val graphRevision: Int,
+)
+
+data class ManualIdentityAnchorCreateRequest(
+    val subtype: com.pdig.core.generated.IdentityAnchorSubtype,
+    val name: String,
+    val identifierValue: String,
+)
+
+data class ManualDependencyCreateRequest(
+    val fromNodeId: String,
+    val relation: com.pdig.core.generated.Relation,
+    val toNodeId: String,
+    val capability: com.pdig.core.generated.Capability,
+    /** false = keep/default unknown; true = explicit human confirmation of required. */
+    val required: Boolean = false,
+)
+
+data class ManualDependencyCreateResult(
+    val dependency: DependencyRow,
+    val graphRevision: Int,
+    val created: Boolean,
+    val reactivated: Boolean,
+)
+
 data class DependencyRow(
     val id: String,
     val from: String,
@@ -143,6 +191,15 @@ sealed interface ExportBackupResult {
      val effectiveDate: String? = null,
  )
  
+ data class PlanImpactItemView(
+     val key: String,
+     val nodeId: String,
+     val nodeName: String?,
+     val capability: String,
+     /** Persisted plan-snapshot status; never recomputed by UI. */
+     val status: String,
+ )
+
  data class PlanDetailView(
      val id: String,
      val scenario: String,
@@ -160,4 +217,10 @@ sealed interface ExportBackupResult {
      val unresolvedMustChangeKeys: List<String>,
      val readiness: com.pdig.core.generated.PlanReadiness,
      val affectedServiceCount: Int,
+     val needsReviewKeys: List<String> = emptyList(),
+     val backupKeys: List<String> = emptyList(),
+     val targetKeys: List<String> = emptyList(),
+     val impactItems: List<PlanImpactItemView> = emptyList(),
+     /** Repository-derived destructive-retirement scope gate; null for non-phone plans. */
+     val retirementScopeReady: Boolean? = null,
  )

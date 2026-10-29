@@ -1,0 +1,2 @@
+506da22b8027aa6f8183b771d35cefc6d0d71fb60b12422ee9c191edc0cb575b  PDIG-Android-vNext-Preview-a3049c6.apk
+6512acb58cb9067d22c86b2a4fcb117cb7d4140b7cfe6dcc363344b9b310ee94  app-production-debug.apk

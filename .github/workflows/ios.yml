@@ -18,6 +18,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ios-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 # ---------------------------------------------------------------------------
 # 诚实范围声明（不要删除）
 # ---------------------------------------------------------------------------
@@ -52,6 +56,10 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+        with:
+          # pull_request defaults to refs/pull/<n>/merge. Runtime / platform
+          # evidence must instead prove the exact feature-branch source HEAD.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       # 记录工具链版本：跨 runner 镜像升级时，编译行为差异要有据可查。
       - name: Swift toolchain

@@ -72,7 +72,7 @@ object ProfileDriver {
                     width = width,
                     height = height,
                     density = Density(density),
-                    content = { PDIGAppShell(ui) },
+                    content = { com.pdig.desktop.ui.theme.PDIGTheme { PDIGAppShell(ui) } },
                 )
                 try {
                     for (page in PAGES) {

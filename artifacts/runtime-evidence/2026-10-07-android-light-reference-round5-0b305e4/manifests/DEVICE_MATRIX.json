@@ -1,0 +1,33 @@
+{
+  "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+  "devices": [
+    {
+      "avd": "main",
+      "class": "phone",
+      "manufacturer": "Google",
+      "model": "sdk_gphone64_x86_64 (pixel_7 hw profile)",
+      "api": 36,
+      "physicalPx": "1080x2400",
+      "screenWidthDp": 411,
+      "screenHeightDp": 914,
+      "densityDpi": 420,
+      "orientation": "portrait",
+      "wmSize": "Physical size: 1080x2400",
+      "wmDensity": "Physical density: 420"
+    },
+    {
+      "avd": "pdig_tablet_api36",
+      "class": "tablet",
+      "manufacturer": "Google",
+      "model": "sdk_gphone64_x86_64 (pixel_tablet hw profile)",
+      "api": 36,
+      "physicalPx": "2560x1600",
+      "screenWidthDp": 1280,
+      "screenHeightDp": 800,
+      "densityDpi": 320,
+      "orientation": "landscape",
+      "wmSize": "Physical size: 2560x1600",
+      "wmDensity": "Physical density: 320"
+    }
+  ]
+}

@@ -10,6 +10,7 @@ import com.pdig.desktop.security.DeviceUnlockStore
 import com.pdig.desktop.security.WindowsDpapiSecurityPort
 import com.pdig.desktop.ui.PDIGAppShell
 import com.pdig.desktop.ui.UiState
+import com.pdig.desktop.ui.theme.PDIGTheme
 import java.io.File
 
 private const val VERSION = "0.3.1"
@@ -33,12 +34,125 @@ fun main(args: Array<String>) {
         return
     }
 
-    // --profiles / --keys：v0.3.0 closure 的桌面分辨率/缩放/键盘取证（见 ProfileDriver.kt / KeyboardDriver.kt）
+    // --vnext：UI vNext 演示壳（Presentation Layer，fixture 驱动）
+    if (args.contains("--vnext")) {
+        val camera = args.firstOrNull { it.startsWith("--vnext-camera=") }?.substringAfter("=")
+        val app = com.pdig.uivnext.createVNextAppState(cameraPreset = camera)
+        application {
+            Window(
+                onCloseRequest = ::exitApplication,
+                title = "PDIG Preview",
+                state = rememberWindowState(width = 1920.dp, height = 1080.dp),
+            ) {
+                com.pdig.uivnext.VNextApp(app)
+            }
+        }
+        return
+    }
+    // --vnext-shots：vNext 离屏确定性截图（无窗口依赖）+ UI_LAYOUT_PROBE.json
+    if (args.contains("--vnext-shots")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextShotDriver.runAll(outRoot))
+        return
+    }
+    // --vnext-shots-1b：PHASE 1B 关键帧（Review §22，15 张 1920×1080 最小证据集）
+    if (args.contains("--vnext-shots-1b")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1b")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence.runPhase1B(outRoot))
+        return
+    }
+    // --vnext-shots-1c：PHASE 1C 关键帧（Review §31，8 张 1920×1080 最小证据集）
+    if (args.contains("--vnext-shots-1c")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-03-ui-vnext-phase1c")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence.runPhase1C(outRoot))
+        return
+    }
+
+    // --vnext-shots-1d：PHASE 1D 关键帧（brief §36，10 张 1920×1080 + Number Detail geometry probe）
+    if (args.contains("--vnext-shots-1d")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-01-ui-vnext-phase1d")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence.runPhase1D(outRoot))
+        return
+    }
+    // --vnext-shots-1e：PHASE 1E 关键帧（brief §71：16 张主图 + mechanical profiles + probe）
+    if (args.contains("--vnext-shots-1e")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence1E.run(outRoot))
+        return
+    }
+    // --vnext-journey-1e：PHASE 1E 交互 journey（AC3，15 步 in-process；含键盘日志 + profile 持久化证据）
+    if (args.contains("--vnext-journey-1e")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-05-ui-vnext-phase1e")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextJourney1E.run(outRoot))
+        return
+    }
+    // --vnext-shots-1f：PHASE 1F 关键帧（brief §50：12 张主图 + mechanical + probe + empty-state 帧）
+    if (args.contains("--vnext-shots-1f")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence1F.run(outRoot))
+        return
+    }
+    // --vnext-journey-1f：PHASE 1F 交互 journey（§49 in-process 语义旅程 + §42 IME 尝试记录）
+    if (args.contains("--vnext-journey-1f")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextJourney1F.run(outRoot))
+        return
+    }
+    // --vnext-window-smoke-1f：PHASE 1F §49 真实窗口运行时 smoke（Robot 窗口级截图）
+    if (args.contains("--vnext-window-smoke-1f")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextWindowSmoke1F.run(outRoot))
+        return
+    }
+    // --vnext-shots-1f-hf：PHASE 1F-HF 关键帧（Human Final Review 收口：12 张主集 + mechanical + probe §4/§8/§11）
+    // 证据目录自 1f-hf2-final 起切换（隔离 profile store + FINAL_SCREENSHOT_MANIFEST.json + expected/actual 门禁），
+    // 旧 1f-hf 目录保留为历史证据（glass/city 同帧无效，Human 已核验）。
+    if (args.contains("--vnext-shots-1f-hf")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf2-final")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextPhaseEvidence1FHF.run(outRoot))
+        return
+    }
+    // --vnext-window-smoke-1f-hf：PHASE 1F-HF §3 真实窗口运行时 smoke（target-bound 截图 + target validation）
+    if (args.contains("--vnext-window-smoke-1f-hf")) {
+        val repo = findRepoRoot(File(".").absoluteFile) ?: File(".")
+        val outRoot = File(repo, "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf")
+        outRoot.mkdirs()
+        kotlin.system.exitProcess(com.pdig.uivnext.evidence.VNextWindowSmoke1FHF.run(outRoot))
+        return
+    }
     if (args.contains("--profiles") || args.contains("--keys")) {
         val repo = findRepoRoot(File(".").absoluteFile)
             ?: error("desktop closure 需要在仓库内运行以读取 fixtures/")
-        val outRoot = File(repo, "artifacts/runtime-evidence/2026-09-27-closure-desktop").apply { mkdirs() }
-        val exit = if (args.contains("--profiles")) ProfileDriver.run(repo, outRoot) else KeyboardDriver.run(repo, outRoot)
+        // UIUX 精修轮：允许用环境变量把取证输出重定向到新的证据目录，
+        // 默认行为不变（既有调用方照旧写回历史 closure 目录）。
+        val overrideRoot = System.getenv("PDIG_UIUX_EVIDENCE_ROOT")?.takeIf { it.isNotBlank() }
+        val outRoot =
+            if (overrideRoot != null) File(overrideRoot)
+            else File(repo, "artifacts/runtime-evidence/2026-09-27-closure-desktop")
+        outRoot.mkdirs()
+        val exit =
+            if (args.contains("--profiles")) ProfileDriver.run(repo, outRoot)
+            else KeyboardDriver.run(repo, outRoot)
         kotlin.system.exitProcess(exit)
         return
     }
@@ -49,7 +163,9 @@ fun main(args: Array<String>) {
             state = rememberWindowState(width = 1100.dp, height = 720.dp),
         ) {
             val ui = rememberUiState()
-            PDIGAppShell(ui)
+            PDIGTheme {
+                PDIGAppShell(ui)
+            }
         }
     }
 }

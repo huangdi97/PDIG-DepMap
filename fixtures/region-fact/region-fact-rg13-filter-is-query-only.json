@@ -1,0 +1,29 @@
+{
+  "id": "region-fact-rg13-filter-is-query-only",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-13 UI Region filter metadata does not mutate governed RegionFact",
+  "input": {
+    "fieldsJson": "{\"selectedRegionFilter\":\"US\",\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-cn\",\"facet\":\"service_market\",\"territory_code\":\"CN\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-cn",
+        "facet": "service_market",
+        "territoryCode": "CN",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-cn"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "CN",
+      "facet": "service_market"
+    }
+  }
+}
