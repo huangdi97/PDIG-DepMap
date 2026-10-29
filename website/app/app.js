@@ -78,10 +78,16 @@ const state = {
 function loadState() {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
-    if (!stored || typeof stored !== 'object') return;
-    if (typeof stored.privacy === 'boolean') state.privacy = stored.privacy;
-    if (stored.data?.assets && stored.data?.plan && stored.data?.records) state.data = stored.data;
+    if (stored && typeof stored === 'object') {
+      if (typeof stored.privacy === 'boolean') state.privacy = stored.privacy;
+      if (stored.data?.assets && stored.data?.plan && stored.data?.records) state.data = stored.data;
+    }
   } catch (_) {}
+
+  const params = new URLSearchParams(location.search);
+  const requestedView = params.get('view');
+  if (['now','infra','change','records','me'].includes(requestedView)) state.view = requestedView;
+  if (params.get('privacy') === '1') state.privacy = true;
 }
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify({privacy:state.privacy,data:state.data})); }
 function esc(v) { return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
