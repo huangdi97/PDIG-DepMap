@@ -1,0 +1,9 @@
+package=com.pdig.app
+versionCode=2
+versionName=0.3.1
+compileSdk=36
+local_apk_sha256=942358fdbc571ae24fd7eaa86b718898e20c1af451bed585ddb4207e72d234a7
+test_apk_sha256=33192a2c442175ac81b520dc23598783ff15db1e1cc0c3d705c0449b25dfe7e7
+signer=C=US, O=Android, CN=Android Debug
+signer_sha256=6edd40038055b629b34c1299a6da01a0e9081de5afed57fe91287593390cc5b1
+installed_apk_sha256=NOT_RUN (no bootable emulator; see logs/emulator-run2.out.txt)
