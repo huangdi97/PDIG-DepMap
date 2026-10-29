@@ -47,3 +47,31 @@ jobs:
           curl --fail --silent http://127.0.0.1:4173/app/ | grep -F 'PDIG / DepMap — Web VNext'
           curl --fail --silent http://127.0.0.1:4173/app/app.css | grep -F '.app-shell'
           curl --fail --silent http://127.0.0.1:4173/app/app.js | grep -F 'done ≠ verified'
+
+      - name: Capture real Chrome review pixels
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/web-vnext
+          python3 -m http.server 4173 --directory website >/tmp/pdig-web-capture.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 1
+          google-chrome --version
+          google-chrome --headless=new --no-sandbox --disable-gpu \
+            --window-size=1440,1000 \
+            --screenshot="$PWD/artifacts/web-vnext/now-desktop-1440.png" \
+            http://127.0.0.1:4173/app/
+          google-chrome --headless=new --no-sandbox --disable-gpu \
+            --window-size=390,844 \
+            --screenshot="$PWD/artifacts/web-vnext/now-mobile-390.png" \
+            http://127.0.0.1:4173/app/
+          test -s artifacts/web-vnext/now-desktop-1440.png
+          test -s artifacts/web-vnext/now-mobile-390.png
+
+      - name: Upload Web VNext review pixels
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-vnext-review-pixels-${{ github.sha }}
+          path: artifacts/web-vnext/
+          if-no-files-found: error
+          retention-days: 21
