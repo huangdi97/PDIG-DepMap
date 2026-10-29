@@ -62,13 +62,32 @@ jobs:
           google-chrome --headless=new --no-sandbox --disable-gpu \
             --window-size=1440,1000 \
             --screenshot="$PWD/artifacts/web-vnext/now-desktop-1440.png" \
-            http://127.0.0.1:4173/app/
+            "http://127.0.0.1:4173/app/?view=now"
+          google-chrome --headless=new --no-sandbox --disable-gpu \
+            --window-size=1440,1000 \
+            --screenshot="$PWD/artifacts/web-vnext/infrastructure-desktop-1440.png" \
+            "http://127.0.0.1:4173/app/?view=infra"
+          google-chrome --headless=new --no-sandbox --disable-gpu \
+            --window-size=1440,1000 \
+            --screenshot="$PWD/artifacts/web-vnext/change-desktop-1440.png" \
+            "http://127.0.0.1:4173/app/?view=change"
+          google-chrome --headless=new --no-sandbox --disable-gpu \
+            --window-size=1440,1000 \
+            --screenshot="$PWD/artifacts/web-vnext/records-desktop-1440.png" \
+            "http://127.0.0.1:4173/app/?view=records"
           google-chrome --headless=new --no-sandbox --disable-gpu \
             --window-size=390,844 \
             --screenshot="$PWD/artifacts/web-vnext/now-mobile-390.png" \
-            http://127.0.0.1:4173/app/
-          test -s artifacts/web-vnext/now-desktop-1440.png
-          test -s artifacts/web-vnext/now-mobile-390.png
+            "http://127.0.0.1:4173/app/?view=now"
+          for shot in \
+            now-desktop-1440.png \
+            infrastructure-desktop-1440.png \
+            change-desktop-1440.png \
+            records-desktop-1440.png \
+            now-mobile-390.png
+          do
+            test -s "artifacts/web-vnext/$shot"
+          done
 
       - name: Upload Web VNext review pixels
         uses: actions/upload-artifact@v4
