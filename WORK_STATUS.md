@@ -2370,4 +2370,5 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   （本会话无图像读取能力 + FLAG_SECURE）。
 - 状态：`HUMAN_VISUAL_CANDIDATE = READY`、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、
   `ANDROID_REFERENCE_FREEZE = HOLD`、`STORE_RELEASE = HOLD`、`PR_MERGED = NO`。
-- 详细报告：`LOCAL_FINAL_REPORT.md`；证据（本机，不入库）：`artifacts/runtime-evidence/local-final-e68948d/`。
+- 详细报告：`LOCAL_FINAL_REPORT.md`；证据实体已入库（`8bf7431d`，103 文件 / 4.02 MB / 44 PNG / 44 XML，无 APK 二进制）：
+  `artifacts/runtime-evidence/local-final-e68948d/`（含 `EVIDENCE.md` 与 `analysis/xml-bounds.csv`）。
