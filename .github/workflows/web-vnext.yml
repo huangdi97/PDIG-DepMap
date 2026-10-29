@@ -1,0 +1,49 @@
+name: Web VNext
+
+on:
+  push:
+    branches:
+      - feat/web-vnext-product
+    paths:
+      - 'website/app/**'
+      - 'website/index.html'
+      - 'website/product/pdig/index.html'
+      - '.github/workflows/web-vnext.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'website/app/**'
+      - 'website/index.html'
+      - 'website/product/pdig/index.html'
+      - '.github/workflows/web-vnext.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  web-vnext:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: JavaScript syntax
+        run: node --check website/app/app.js
+
+      - name: Truth/local-only smoke
+        run: node website/app/smoke.mjs
+
+      - name: Static serving smoke
+        run: |
+          python3 -m http.server 4173 --directory website >/tmp/pdig-web.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID || true' EXIT
+          sleep 1
+          curl --fail --silent http://127.0.0.1:4173/app/ | grep -F 'PDIG / DepMap — Web VNext'
+          curl --fail --silent http://127.0.0.1:4173/app/app.css | grep -F '.app-shell'
+          curl --fail --silent http://127.0.0.1:4173/app/app.js | grep -F 'done ≠ verified'
