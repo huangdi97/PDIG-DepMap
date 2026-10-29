@@ -245,6 +245,13 @@ a { color: inherit; }
   cursor: pointer;
 }
 
+.search-trigger > span:not(.icon) {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .search-trigger kbd {
   margin-left: auto;
   padding: 2px 6px;
@@ -1370,7 +1377,14 @@ a { color: inherit; }
   .sidebar { display:none; }
   .topbar { padding:0 14px; }
   .breadcrumb { display:none; }
-  .search-trigger { flex:1; width:auto; }
+  .search-trigger {
+    width:42px;
+    min-width:42px;
+    flex:0 0 42px;
+    padding:0;
+    justify-content:center;
+  }
+  .search-trigger > span:not(.icon),
   .search-trigger kbd { display:none; }
   .top-action.primary .top-action-label { display:none; }
   .workspace { padding:15px 14px 30px; }
