@@ -64,7 +64,21 @@ jobs:
       - run: npm ci --no-audit --no-fund
       - name: format / typecheck / lint-free build
         run: npm run format:check
-      - run: npm run typecheck
+      - name: typecheck
+        run: |
+          if npm run typecheck > typecheck.log 2>&1; then
+            cat typecheck.log
+          else
+            cat typecheck.log
+            {
+              echo "### typecheck failures"
+              echo '```'
+              head -n 40 typecheck.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error title=typecheck::$(head -n 3 typecheck.log | tr '\n' ' ' | cut -c1-900)"
+            exit 1
+          fi
       - name: unit + crypto golden
         run: npm run test
       - name: boundary gate (UI never computes Truth)
