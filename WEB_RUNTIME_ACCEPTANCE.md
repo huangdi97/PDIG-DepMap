@@ -16,17 +16,17 @@ React UI  ──typed RPC──▶  Domain Worker
 
 ## 2. 证据（本地实跑）
 
-| 项目 | 命令 | 结果 |
-| --- | --- | --- |
-| 类型 | `npx tsc --noEmit -p web/tsconfig.json` | 0 errors |
-| 构建 | `npm run build:web`（web/） | 9 files / 1847 KiB → `website/app/` + `sw-manifest.json` + `BUILD_SHA256SUMS.txt` |
-| 单测 | `npx vitest run`（web/） | 20 passed / 3 files |
-| 边界 | `node scripts/check-boundary.mjs` | PASS |
-| 远程依赖 | `node scripts/check-remote-assets.mjs` | PASS（8 built files，0 remote runtime deps） |
-| E2E（Chromium） | `npx playwright test --project=chromium` | 16 passed |
-| 布局审计 | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | 6 passed（6 视口 × 6 路由） |
-| 视觉矩阵 | `npx playwright test --project=visual-chromium` | 2 passed（含 6 断点无横向溢出） |
-| Core 门禁 | `cd core && npm run check` | 492 passed / 0 circular / 0 network / 0 secret |
+| 项目            | 命令                                                                    | 结果                                                                              |
+| --------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| 类型            | `npx tsc --noEmit -p web/tsconfig.json`                                 | 0 errors                                                                          |
+| 构建            | `npm run build:web`（web/）                                             | 9 files / 1847 KiB → `website/app/` + `sw-manifest.json` + `BUILD_SHA256SUMS.txt` |
+| 单测            | `npx vitest run`（web/）                                                | 20 passed / 3 files                                                               |
+| 边界            | `node scripts/check-boundary.mjs`                                       | PASS                                                                              |
+| 远程依赖        | `node scripts/check-remote-assets.mjs`                                  | PASS（8 built files，0 remote runtime deps）                                      |
+| E2E（Chromium） | `npx playwright test --project=chromium`                                | 16 passed                                                                         |
+| 布局审计        | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | 6 passed（6 视口 × 6 路由）                                                       |
+| 视觉矩阵        | `npx playwright test --project=visual-chromium`                         | 2 passed（含 6 断点无横向溢出）                                                   |
+| Core 门禁       | `cd core && npm run check`                                              | 492 passed / 0 circular / 0 network / 0 secret                                    |
 
 E2E 覆盖（Chromium 实测）：
 
@@ -48,13 +48,13 @@ E2E 覆盖（Chromium 实测）：
 
 ## 3. 未跑 / 未验证（不得写成 PASS）
 
-| 项目 | 状态 | 原因 |
-| --- | --- | --- |
-| Firefox | NOT_RUN | Playwright 浏览器 CDN 下载在本机停滞（0 字节挂起 >10 min），仅有 Chromium 已缓存 |
-| WebKit | NOT_RUN | 同上 |
-| ESLint | NOT_RUN（未采用） | Web 采用 TypeScript strict + Prettier + 边界静态门禁；未引入 ESLint 规则集 |
-| `check:web-generated` | 待提交后验证 | 该门禁用 `git diff -- website/app` 判定，必须先把构建产物提交后才可能为 PASS |
-| 视觉回归基线 | NOT_RUN | 基线只能在 Ubuntu CI + 固定 Chromium + Noto CJK 下生成；本地只产出候选证据 |
+| 项目                  | 状态              | 原因                                                                             |
+| --------------------- | ----------------- | -------------------------------------------------------------------------------- |
+| Firefox               | NOT_RUN           | Playwright 浏览器 CDN 下载在本机停滞（0 字节挂起 >10 min），仅有 Chromium 已缓存 |
+| WebKit                | NOT_RUN           | 同上                                                                             |
+| ESLint                | NOT_RUN（未采用） | Web 采用 TypeScript strict + Prettier + 边界静态门禁；未引入 ESLint 规则集       |
+| `check:web-generated` | 待提交后验证      | 该门禁用 `git diff -- website/app` 判定，必须先把构建产物提交后才可能为 PASS     |
+| 视觉回归基线          | NOT_RUN           | 基线只能在 Ubuntu CI + 固定 Chromium + Noto CJK 下生成；本地只产出候选证据       |
 
 ## 4. 运行时已知边界
 

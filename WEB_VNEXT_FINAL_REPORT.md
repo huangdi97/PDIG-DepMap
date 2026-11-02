@@ -16,11 +16,11 @@
 
 ### 1.2 修掉的三个真实 Core 缺陷（不是 UI 便利）
 
-| 缺陷 | 影响 | 修法 |
-| --- | --- | --- |
-| `Relation` 联合类型缺少 v4 已冻结的 `authenticates` / `controls` | v4 关系在 TS 层被拒绝，手机号变更（认证/恢复）无法建模 | 按 `spec/domain/domain.json` + Schema V4 CHECK 补齐 |
-| `replace_phone_number` 模板构建 4 个动作但**未持久化**（`create()` 时 actions=[]，返回内存合并对象） | `Action DAG` / `Make-Before-Break` / `claimUnassignedImpacts` 全部失效 | 改为 `plans.updateActions()` 落库后再返回 |
-| 三处测试与 v4 语义不一致（PRB-012 用 v3 schema 跑 v4 关系；payload 逐字节等价忽略“本地库 schema 元数据”；INV-16 未走验证门） | Core 门禁红 | 显式 helper + 更强断言（新增 `core/tests/helpers/payload-equivalence.ts`） |
+| 缺陷                                                                                                                         | 影响                                                                   | 修法                                                                       |
+| ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `Relation` 联合类型缺少 v4 已冻结的 `authenticates` / `controls`                                                             | v4 关系在 TS 层被拒绝，手机号变更（认证/恢复）无法建模                 | 按 `spec/domain/domain.json` + Schema V4 CHECK 补齐                        |
+| `replace_phone_number` 模板构建 4 个动作但**未持久化**（`create()` 时 actions=[]，返回内存合并对象）                         | `Action DAG` / `Make-Before-Break` / `claimUnassignedImpacts` 全部失效 | 改为 `plans.updateActions()` 落库后再返回                                  |
+| 三处测试与 v4 语义不一致（PRB-012 用 v3 schema 跑 v4 关系；payload 逐字节等价忽略“本地库 schema 元数据”；INV-16 未走验证门） | Core 门禁红                                                            | 显式 helper + 更强断言（新增 `core/tests/helpers/payload-equivalence.ts`） |
 
 ### 1.3 Web 从单文件 Preview 升级为 Product Candidate
 
@@ -35,27 +35,27 @@
 
 ## 2. 证据（本地实跑）
 
-| 门禁 | 命令 | 结果 |
-| --- | --- | --- |
-| codegen | `node tools/codegen/generate.mjs --check` | PASS |
-| conformance | `node tools/conformance/run.mjs` | PASS（128 cases；platform reports 如实 NOT_RUN） |
-| Core | `cd core && npm run check` | PASS（492 tests / 0 circular / 0 network / 0 secrets / UI gate） |
-| Web 类型 | `npx tsc --noEmit -p web/tsconfig.json` | PASS |
-| Web 单测 | `npx vitest run`（web/） | 20 PASS（含 DEPMAP golden vector / shim / lease） |
-| Web 构建 | `npm run build:web` | PASS（9 files / 1847 KiB） |
-| E2E Chromium | `npx playwright test --project=chromium` | 16 PASS |
-| 布局审计 | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | 6 PASS |
-| 视觉矩阵 | `npx playwright test --project=visual-chromium` | 2 PASS（21 张截图） |
-| 边界 | `node scripts/check-boundary.mjs` | PASS |
-| 远程依赖 | `node scripts/check-remote-assets.mjs` | PASS |
+| 门禁         | 命令                                                                    | 结果                                                             |
+| ------------ | ----------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| codegen      | `node tools/codegen/generate.mjs --check`                               | PASS                                                             |
+| conformance  | `node tools/conformance/run.mjs`                                        | PASS（128 cases；platform reports 如实 NOT_RUN）                 |
+| Core         | `cd core && npm run check`                                              | PASS（492 tests / 0 circular / 0 network / 0 secrets / UI gate） |
+| Web 类型     | `npx tsc --noEmit -p web/tsconfig.json`                                 | PASS                                                             |
+| Web 单测     | `npx vitest run`（web/）                                                | 20 PASS（含 DEPMAP golden vector / shim / lease）                |
+| Web 构建     | `npm run build:web`                                                     | PASS（9 files / 1847 KiB）                                       |
+| E2E Chromium | `npx playwright test --project=chromium`                                | 16 PASS                                                          |
+| 布局审计     | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | 6 PASS                                                           |
+| 视觉矩阵     | `npx playwright test --project=visual-chromium`                         | 2 PASS（21 张截图）                                              |
+| 边界         | `node scripts/check-boundary.mjs`                                       | PASS                                                             |
+| 远程依赖     | `node scripts/check-remote-assets.mjs`                                  | PASS                                                             |
 
 ## 3. 浏览器矩阵
 
-| 浏览器 | 功能 E2E | 说明 |
-| --- | --- | --- |
-| Chromium (build 1243 / Chrome for Testing 153) | **PASS ×16** | 唯一实际运行的浏览器 |
-| Firefox | **NOT_RUN** | Playwright CDN 下载在本机停滞（0 字节挂起 >10 min） |
-| WebKit | **NOT_RUN** | 同上 |
+| 浏览器                                         | 功能 E2E     | 说明                                                |
+| ---------------------------------------------- | ------------ | --------------------------------------------------- |
+| Chromium (build 1243 / Chrome for Testing 153) | **PASS ×16** | 唯一实际运行的浏览器                                |
+| Firefox                                        | **NOT_RUN**  | Playwright CDN 下载在本机停滞（0 字节挂起 >10 min） |
+| WebKit                                         | **NOT_RUN**  | 同上                                                |
 
 为匹配本机已缓存的 Chromium（1243），`@playwright/test` 锁定为 `1.63.0`（原 1.64.1 需要 1248，无法下载）。
 

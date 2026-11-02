@@ -4,11 +4,11 @@
 
 ## 1. 机器可判定的部分（已 PASS）
 
-| 检查 | 命令 | 结果 |
-| --- | --- | --- |
-| 截图矩阵 | `npx playwright test --project=visual-chromium tests/e2e/visual.spec.ts` | PASS，21 张截图 |
-| 断点无横向溢出 | 同上（第二支测试） | PASS ×6 视口（1440/1280/1024/768/390/360） |
-| 布局审计 | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | PASS ×6 视口 × 6 路由 |
+| 检查           | 命令                                                                     | 结果                                       |
+| -------------- | ------------------------------------------------------------------------ | ------------------------------------------ |
+| 截图矩阵       | `npx playwright test --project=visual-chromium tests/e2e/visual.spec.ts` | PASS，21 张截图                            |
+| 断点无横向溢出 | 同上（第二支测试）                                                       | PASS ×6 视口（1440/1280/1024/768/390/360） |
+| 布局审计       | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts`  | PASS ×6 视口 × 6 路由                      |
 
 布局审计实际发现并修掉的问题（不是“看起来还行”，是可判定的缺陷）：
 

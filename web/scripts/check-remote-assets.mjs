@@ -55,4 +55,6 @@ if (failures.length > 0) {
   for (const failure of failures.slice(0, 20)) console.error(`  - ${failure}`)
   process.exit(1)
 }
-console.log(`REMOTE ASSET GATE: PASS (${files.length} built files scanned, 0 remote runtime dependencies)`)
+console.log(
+  `REMOTE ASSET GATE: PASS (${files.length} built files scanned, 0 remote runtime dependencies)`,
+)
