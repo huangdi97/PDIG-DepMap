@@ -39,6 +39,13 @@ export function App(): ReactNode {
         <p className="boot-hint">
           请使用最新版 Chromium / Firefox / Safari，并确认未处于隐私浏览限制模式。
         </p>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => window.location.reload()}
+        >
+          重新加载
+        </button>
       </div>
     )
   }

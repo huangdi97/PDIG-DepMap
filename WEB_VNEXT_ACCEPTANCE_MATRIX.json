@@ -16,8 +16,8 @@
   "coreCheck": "PASS (492 tests, 0 circular deps, 0 network primitives, 0 secrets)",
 
   "chromium": "PASS (16 functional e2e)",
-  "firefox": "NOT_RUN",
-  "webkit": "NOT_RUN",
+  "firefox": "PASS (22 tests incl. layout audit)",
+  "webkit": "PASS (20 tests; offline UNSUPPORTED in WebKit)",
   "layoutAudit": "PASS (6 viewports x 6 routes)",
 
   "inventory": "PASS",
@@ -43,7 +43,7 @@
   "depmapGolden": "PASS",
   "privacyMask": "PASS",
   "multitabSingleWriter": "PASS",
-  "offline": "PASS",
+  "offline": "PASS (Chromium/Firefox); UNSUPPORTED on WebKit (browser/harness boundary)",
   "pwa": "PARTIAL (manifest + service worker + offline shell verified; install prompt not verified)",
 
   "desktopResponsive": "PASS",

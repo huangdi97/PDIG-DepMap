@@ -48,13 +48,13 @@ E2E 覆盖（Chromium 实测）：
 
 ## 3. 未跑 / 未验证（不得写成 PASS）
 
-| 项目                  | 状态              | 原因                                                                             |
-| --------------------- | ----------------- | -------------------------------------------------------------------------------- |
-| Firefox               | NOT_RUN           | Playwright 浏览器 CDN 下载在本机停滞（0 字节挂起 >10 min），仅有 Chromium 已缓存 |
-| WebKit                | NOT_RUN           | 同上                                                                             |
-| ESLint                | NOT_RUN（未采用） | Web 采用 TypeScript strict + Prettier + 边界静态门禁；未引入 ESLint 规则集       |
-| `check:web-generated` | 待提交后验证      | 该门禁用 `git diff -- website/app` 判定，必须先把构建产物提交后才可能为 PASS     |
-| 视觉回归基线          | NOT_RUN           | 基线只能在 Ubuntu CI + 固定 Chromium + Noto CJK 下生成；本地只产出候选证据       |
+| 项目                  | 状态                         | 原因                                                                                                                                            |
+| --------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Firefox               | **PASS ×22**                 | 功能 E2E + 布局审计全部通过（firefox-1543）                                                                                                     |
+| WebKit                | **PASS ×20 / 2 UNSUPPORTED** | 离线两个用例在 WebKit 下不成立：断网 reload 触发 WebKit internal error；SW 接管后二次加载本地引擎不就绪（已加 20 s 启动超时与「重新加载」兜底） |
+| ESLint                | NOT_RUN（未采用）            | Web 采用 TypeScript strict + Prettier + 边界静态门禁；未引入 ESLint 规则集                                                                      |
+| `check:web-generated` | 待提交后验证                 | 该门禁用 `git diff -- website/app` 判定，必须先把构建产物提交后才可能为 PASS                                                                    |
+| 视觉回归基线          | NOT_RUN                      | 基线只能在 Ubuntu CI + 固定 Chromium + Noto CJK 下生成；本地只产出候选证据                                                                      |
 
 ## 4. 运行时已知边界
 

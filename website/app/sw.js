@@ -40,6 +40,24 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
 
+  // WebKit 在“由 Service Worker 返回的 module worker 脚本”上会启动失败。
+  // 因此 worker 脚本优先走网络（浏览器缓存），仅在网络失败（离线）时回退到 SW 缓存。
+  if (request.destination === 'worker' || request.destination === 'sharedworker') {
+    event.respondWith(
+      (async () => {
+        try {
+          return await fetch(request)
+        } catch {
+          const cache = await caches.open(CACHE)
+          const cached = await cache.match(request, { ignoreSearch: true })
+          if (cached) return cached
+          throw new Error('offline and worker script not cached')
+        }
+      })(),
+    )
+    return
+  }
+
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE)

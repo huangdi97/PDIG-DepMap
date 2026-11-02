@@ -134,7 +134,26 @@ export function RuntimeProvider({ children }: { children: ReactNode }): ReactNod
     lease.onChange((next) => setLeaseState(next))
     const claimed = await lease.claim()
     setLeaseState(claimed)
-    const started = await clientRef.current.start()
+    const started = await Promise.race([
+      clientRef.current.start(),
+      new Promise<{
+        status: null
+        error: { code: 'UNKNOWN'; message: string; recoverable: boolean }
+      }>((resolve) =>
+        setTimeout(
+          () =>
+            resolve({
+              status: null,
+              error: {
+                code: 'UNKNOWN',
+                message: '本地引擎启动超时（Worker 未就绪）',
+                recoverable: true,
+              },
+            }),
+          20_000,
+        ),
+      ),
+    ])
     if (started.error) {
       setDataError(userMessageFor(started.error))
       setStatus(null)

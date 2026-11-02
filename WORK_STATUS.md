@@ -6,8 +6,9 @@
 > - Shared Truth 收敛：`feat/android-ui-vnext-translation` 的 v4 Canonical/Core/fixtures/conformance/codegen 增量已并入（不含 Android UI/Compose/测试工地）。
 > - 修掉 3 个真实 Core 缺陷：`Relation` 缺 `authenticates`/`controls`；`replace_phone_number` 动作未持久化；三处与 v4 语义不一致的测试断言。
 > - 门禁（本地实跑）：codegen PASS；conformance PASS（128）；`cd core && npm run check` PASS（492 tests / 0 circular / 0 network / 0 secrets）；web typecheck PASS；web unit 20/20；`build:web` 9 files/1847 KiB；Chromium 功能 E2E 16/16；布局审计 6/6；视觉矩阵 2/2（21 shots）；boundary PASS；remote-assets PASS。
-> - **NOT_RUN（不得写成 PASS）**：Firefox、WebKit、视觉回归基线（需 Ubuntu CI）、人眼视觉验收、Import/Candidates/Proposals/Drift 的 E2E、Findings 的 E2E、ESLint（未采用）。
-> - 外部阻塞：Playwright 浏览器 CDN 下载在本机停滞（仅 Chromium 已缓存，故 `@playwright/test` 锁定 1.63.0 匹配 chromium-1243）；GitHub 写凭据未知。
+> - 浏览器矩阵（本地实跑）：Chromium 16/16；Firefox 22/22；WebKit 20/22（离线两例为浏览器边界，标 UNSUPPORTED）。`check:web-generated`、`check-boundary`、`check-remote-assets` 均 PASS。
+> - **NOT_RUN（不得写成 PASS）**：视觉回归基线（需 Ubuntu CI）、人眼视觉验收、Import/Candidates/Proposals/Drift 的 E2E、Findings 的 E2E、ESLint（未采用）。
+> - 环境说明：`@playwright/test` 锁定 1.63.0（匹配本机已缓存 chromium-1243）；GitHub Actions 详情只能网页抓取核对（无 `gh` CLI / 未认证 API 403）。
 > - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
 
 > **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
