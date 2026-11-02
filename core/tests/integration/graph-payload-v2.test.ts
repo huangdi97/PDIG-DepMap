@@ -7,6 +7,7 @@ import { NodeSqliteDriver } from '../../src/db/node-driver.ts'
 import {
   migrate,
   LEGACY_WECHAT_SOURCE_INSTANCE_ID,
+  LATEST_SCHEMA_VERSION,
   SCHEMA_VERSION,
 } from '../../src/schema/migrations.ts'
 import { NodeRepository } from '../../src/repositories/node-repository.ts'
@@ -24,6 +25,7 @@ import {
   GRAPH_PAYLOAD_VERSION,
   migratePayloadV2toV3,
 } from '../../src/services/graph-serialize.ts'
+import { localMetaDifferences, normalizeLocalSchemaMeta } from '../helpers/payload-equivalence.ts'
 
 /**
  * MVP02 J 段 —— `.depmap` payload v2 export/import + v1 payload in-memory migrate。
@@ -190,6 +192,29 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     expect(GRAPH_PAYLOAD_VERSION).toBe(3)
   })
 
+  it('J0a: v4 application DB exports v3 payload metadata and restore preserves local v4', () => {
+    const d4 = new NodeSqliteDriver(join(dir, 'v4-boundary.db'))
+    d4.open()
+    migrate(d4, '2026-10-19T00:00:00.000Z', LATEST_SCHEMA_VERSION)
+    try {
+      expect(LATEST_SCHEMA_VERSION).toBe(4)
+      const out = exportGraph(d4)
+      const payload = JSON.parse(out.payloadJson) as Record<string, unknown>
+      expect(payload['schemaVersion']).toBe(3)
+      const meta = payload['meta'] as Array<Record<string, unknown>>
+      expect(meta.find((row) => row['key'] === 'schema_version')?.['value']).toBe('3')
+
+      importGraph(d4, out.payloadJson)
+      const localVersion = d4
+        .prepare(`SELECT value FROM meta WHERE key = 'schema_version'`)
+        .get()?.['value']
+      expect(localVersion).toBe('4')
+      expect(migrate(d4, '2026-10-19T01:00:00.000Z', LATEST_SCHEMA_VERSION)).toBe(4)
+    } finally {
+      d4.close()
+    }
+  })
+
   it('J0b: payload 包含全部 v2 表集合（含 source_instances / proposal_evidence_refs）', () => {
     const out = exportGraph(driver)
     const p = JSON.parse(out.payloadJson) as Record<string, unknown>
@@ -225,7 +250,13 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     try {
       importGraph(d2, e1.payloadJson)
       const e2 = exportGraph(d2)
-      expect(e2.payloadJson).toBe(e1.payloadJson)
+      // 逻辑图逐字节等价；唯一允许差异是两个独立库各自的本地 schema 元数据时间戳。
+      expect(localMetaDifferences(e1.payloadJson, e2.payloadJson)).toEqual([
+        'meta.schema_version_updated_at',
+      ])
+      expect(normalizeLocalSchemaMeta(e2.payloadJson)).toBe(
+        normalizeLocalSchemaMeta(e1.payloadJson),
+      )
       expect(e2.counts).toEqual(e1.counts)
     } finally {
       d2.close()
@@ -245,8 +276,11 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
       // 第二次导入同一 payload 到已导入的库
       importGraph(d2, e1.payloadJson)
       const e3 = exportGraph(d2)
+      // 同一库内的重复导入必须逐字节幂等（本地 meta 不变）。
       expect(e3.payloadJson).toBe(e2.payloadJson)
-      expect(e3.payloadJson).toBe(e1.payloadJson)
+      expect(normalizeLocalSchemaMeta(e3.payloadJson)).toBe(
+        normalizeLocalSchemaMeta(e1.payloadJson),
+      )
     } finally {
       d2.close()
     }

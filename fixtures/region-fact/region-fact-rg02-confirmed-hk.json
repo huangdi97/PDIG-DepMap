@@ -1,0 +1,29 @@
+{
+  "id": "region-fact-rg02-confirmed-hk",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-02 confirmed HK territory fact round-trips",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-hk\",\"facet\":\"service_market\",\"territory_code\":\"HK\",\"state\":\"confirmed\",\"verification_basis_type\":\"authoritative_source\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-hk",
+        "facet": "service_market",
+        "territoryCode": "HK",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-hk"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "HK",
+      "facet": "service_market"
+    }
+  }
+}

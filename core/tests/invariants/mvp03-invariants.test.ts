@@ -94,10 +94,16 @@ describe('MVP03 Living Graph invariants（INV-15..21）', () => {
     rebasePlan(driver, graphRepos(), plan.id)
     // must_change 未处理（change 动作未完成）→ blocked
     expect(service.getReadiness(plan.id)).toBe('blocked')
-    // 完成 change 动作 → must_change 全部处理 → ready_with_known_scope
+    // 完成 change 动作 → must_change 全部处理
     const updated = service.plans.getExisting(plan.id)
     for (const action of updated.actions.filter((a) => a.phase === 'change')) {
       service.completeAction(plan.id, action.id)
+      // done ≠ verified：必须独立验证后才允许进入 ready_with_known_scope
+      if (
+        service.plans.getExisting(plan.id).actions.find((a) => a.id === action.id)?.verification
+      ) {
+        service.verifyActionManually(plan.id, action.id)
+      }
     }
     expect(service.getReadiness(plan.id)).toBe('ready_with_known_scope')
   })

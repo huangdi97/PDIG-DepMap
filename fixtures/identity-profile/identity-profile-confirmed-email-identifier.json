@@ -1,0 +1,27 @@
+{
+  "id": "identity-profile-confirmed-email-identifier",
+  "category": "identity-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R38 governed identity identifier contract",
+  "description": "confirmed email subtype + independently confirmed identifier value",
+  "input": {
+    "kind": "identity_anchor",
+    "fieldsJson": "{\"identity_anchor_profile\":{\"version\":1,\"subtype\":\"email_address\",\"verification_basis_type\":\"authoritative_source\",\"confirmed_at\":\"2026-10-10T01:00:00Z\",\"evidence_refs\":[],\"identifier\":{\"value\":\"user@example.com\",\"verification_basis_type\":\"authoritative_source\",\"confirmed_at\":\"2026-10-10T02:30:00Z\",\"evidence_refs\":[\"ev-email\"]}}}"
+  },
+  "expected": {
+    "confirmed": true,
+    "subtype": "email_address",
+    "verificationBasisType": "authoritative_source",
+    "confirmedAt": "2026-10-10T01:00:00Z",
+    "evidenceRefs": [],
+    "identifier": {
+      "value": "user@example.com",
+      "verificationBasisType": "authoritative_source",
+      "confirmedAt": "2026-10-10T02:30:00Z",
+      "evidenceRefs": [
+        "ev-email"
+      ]
+    }
+  }
+}

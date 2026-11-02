@@ -1,0 +1,18 @@
+{
+  "id": "maintenance-mp05-invalid-sibling-fail-closed",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-05 malformed/proposal items fail closed while valid siblings survive",
+  "input": {
+    "kind": "payment_instrument",
+    "fieldsJson": "{\"maintenance_profile\":{\"version\":1,\"facts\":[{\"id\":\"bad\",\"kind\":\"card_billing_day\",\"value_type\":\"integer\",\"value\":\"32\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},{\"id\":\"good\",\"kind\":\"card_payment_due_day\",\"value_type\":\"integer\",\"value\":\"26\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},{\"id\":\"proposal\",\"kind\":\"card_autopay_mode\",\"value_type\":\"text\",\"value\":\"full\",\"state\":\"proposal\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"}],\"schedules\":[{\"id\":\"bad-s\",\"kind\":\"card_billing_checkpoint\",\"state\":\"active\",\"cadence\":{\"kind\":\"interval_days\",\"interval_days\":30,\"anchor_date\":\"2026-01-01\"},\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"},{\"id\":\"good-s\",\"kind\":\"card_billing_checkpoint\",\"state\":\"needs_review\",\"cadence\":{\"kind\":\"monthly_day\",\"day_of_month\":31,\"overflow_policy\":\"user_confirm\"},\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"}]}}"
+  },
+  "expected": {
+    "facts": [{"id": "good", "kind": "card_payment_due_day", "valueType": "integer", "value": "26", "state": "confirmed"}],
+    "currentFactIds": ["good"],
+    "schedules": [{"id": "good-s", "kind": "card_billing_checkpoint", "state": "needs_review", "cadenceKind": "monthly_day"}],
+    "currentScheduleIds": ["good-s"]
+  }
+}

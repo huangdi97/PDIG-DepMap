@@ -1,0 +1,29 @@
+{
+  "id": "region-fact-rg16-future-facet-fails-closed",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-16 unknown future facet fails closed while valid sibling survives",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-future\",\"facet\":\"planetary_market\",\"territory_code\":\"US\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"},{\"id\":\"rf-valid\",\"facet\":\"provider_jurisdiction\",\"territory_code\":\"SG\",\"state\":\"confirmed\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [
+      {
+        "id": "rf-valid",
+        "facet": "provider_jurisdiction",
+        "territoryCode": "SG",
+        "state": "confirmed"
+      }
+    ],
+    "currentIds": [
+      "rf-valid"
+    ],
+    "lens": {
+      "status": "selected",
+      "territoryCode": "SG",
+      "facet": "provider_jurisdiction"
+    }
+  }
+}

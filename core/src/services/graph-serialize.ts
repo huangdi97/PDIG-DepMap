@@ -229,7 +229,14 @@ export function exportGraph(driver: SqliteDriver): GraphExportResult {
   for (const t of PAYLOAD_TABLES) {
     const rows = driver.prepare(`SELECT * FROM ${t.table}`).all()
     counts[t.table] = rows.length
-    payload[t.table] = rows
+    payload[t.table] =
+      t.table === 'meta'
+        ? rows.map((row) =>
+            row['key'] === 'schema_version'
+              ? { ...row, value: String(PAYLOAD_SCHEMA_VERSION) }
+              : row,
+          )
+        : rows
   }
   return { payloadJson: JSON.stringify(payload), counts }
 }
@@ -455,6 +462,17 @@ export function importGraph(driver: SqliteDriver, payloadJson: string): GraphImp
   // v1 payload → in-memory migrate 到 v2（容器 V1 解密不变，仅 payload 层升级）
   const normalized = migrateIfNeeded(payloadJson)
   const { payload } = validatePayload(normalized)
+
+  // Physical schema metadata belongs to the local database, not to the portable
+  // logical graph. Preserve it so restoring a v3 payload into a v4 application
+  // database never relabels v4 tables as v3.
+  const localSchemaVersion = driver
+    .prepare(`SELECT value FROM meta WHERE key = 'schema_version'`)
+    .get()?.['value']
+  const localSchemaUpdatedAt = driver
+    .prepare(`SELECT value FROM meta WHERE key = 'schema_version_updated_at'`)
+    .get()?.['value']
+
   return driver.transaction(() => {
     const imported: Record<string, number> = {}
     for (const table of DELETE_ORDER) {
@@ -475,6 +493,22 @@ export function importGraph(driver: SqliteDriver, payloadJson: string): GraphImp
         stmt.run(...cols.map((c) => toSqlValue(row[c])))
       }
       imported[t.table] = rows.length
+    }
+    if (localSchemaVersion !== undefined && localSchemaVersion !== null) {
+      driver
+        .prepare(
+          `INSERT INTO meta (key, value) VALUES ('schema_version', ?)
+           ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+        )
+        .run(String(localSchemaVersion))
+    }
+    if (localSchemaUpdatedAt !== undefined && localSchemaUpdatedAt !== null) {
+      driver
+        .prepare(
+          `INSERT INTO meta (key, value) VALUES ('schema_version_updated_at', ?)
+           ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+        )
+        .run(String(localSchemaUpdatedAt))
     }
     return { imported }
   })

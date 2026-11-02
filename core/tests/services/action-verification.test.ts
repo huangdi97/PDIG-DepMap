@@ -78,6 +78,20 @@ describe('Action Verification（MVP03 VF）', () => {
     rmSync(dir, { recursive: true, force: true })
   })
 
+  it('VF-DAG: prerequisite 未完成时不得跳过顺序记录完成', () => {
+    const base = service.plans.getExisting(planId)
+    service.plans.updateActions(planId, [
+      base.actions[0]!,
+      {
+        ...base.actions[1]!,
+        prerequisiteActionIds: ['act-move'],
+      },
+    ])
+    expect(() => service.completeAction(planId, 'act-destroy')).toThrow(/prerequisite/)
+    service.completeAction(planId, 'act-move')
+    expect(() => service.completeAction(planId, 'act-destroy')).not.toThrow()
+  })
+
   it('VF-001: Action done ≠ verified', () => {
     service.completeAction(planId, 'act-move')
     const action = service.plans.getExisting(planId).actions.find((a) => a.id === 'act-move')!
@@ -86,12 +100,15 @@ describe('Action Verification（MVP03 VF）', () => {
     expect(action.verification?.verifiedAt).toBeNull()
   })
 
-  it('VF-002: manual confirm → verified', () => {
-    service.verifyActionManually(planId, 'act-destroy')
-    const action = service.plans.getExisting(planId).actions.find((a) => a.id === 'act-destroy')!
+  it('VF-002: manual confirm requires done and preserves verification provenance', () => {
+    expect(() => service.verifyActionManually(planId, 'act-move')).toThrow(/not complete/)
+    service.completeAction(planId, 'act-move')
+    service.verifyActionManually(planId, 'act-move')
+    const action = service.plans.getExisting(planId).actions.find((a) => a.id === 'act-move')!
     expect(action.verification?.status).toBe('verified')
-    expect(action.verification?.method).toBe('manual_confirmation')
+    expect(action.verification?.method).toBe('future_observation')
     expect(action.verification?.verifiedAt).not.toBeNull()
+    expect(() => service.verifyActionManually(planId, 'act-destroy')).toThrow(/not complete/)
   })
 
   it('VF-003: future evidence 命中 → evidence_suggested（不自动 verified）', () => {
@@ -145,6 +162,7 @@ describe('Action Verification（MVP03 VF）', () => {
   })
 
   it('VF-007: verified 状态 restart 后稳定', () => {
+    service.completeAction(planId, 'act-move')
     service.verifyActionManually(planId, 'act-move')
     driver.close()
     driver = new NodeSqliteDriver(join(dir, 'test.db'))
@@ -215,9 +233,8 @@ describe('Action Verification（MVP03 VF）', () => {
       toNodeId: spotify,
       evidenceRef: 'i#1',
     })
-    // 模拟 UI：用户看到「新数据表明这项变更可能已经生效，请确认」后确认
-    const plan = service.plans.getExisting(planId)
-    void plan
+    // 模拟 UI：动作先记录完成；用户看到建议证据后再确认验证。
+    service.completeAction(planId, 'act-move')
     service.verifyActionManually(planId, 'act-move')
     const action = service.plans.getExisting(planId).actions.find((a) => a.id === 'act-move')!
     expect(action.verification?.status).toBe('verified')

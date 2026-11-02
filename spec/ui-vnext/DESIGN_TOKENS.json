@@ -1,0 +1,216 @@
+{
+  "$comment": "PDIG UI vNext Design Tokens V2 — single source of truth for the vNext visual system (Global Digital Infrastructure: dark spatial · deep navy · subtle glass · premium · calm). Authority: spec/ui-vnext goal §18 baseline + Human Visual Review 2026-09-30. Change log 2026-09-30 (Human Visual Review acceptance criteria): (1) typography scale enlarged per review F (pageTitle 32-44px, section 18-22, body 15-17, secondary 13-15, <=12 only rare metadata); (2) added Earth/ocean/land/night-city-light/atmosphere-rim/star tokens for a real-Earth spatial globe (review B/E) — the plain dark sphere is demoted to LOW_POWER_FALLBACK, default renderer = bundled simplified coastlines + procedural night lights + atmosphere rim + sunlight terminator (offline, no remote tiles); (3) overview globe stage ratio tightened to 52-64% width / 64-78% height (review C); (4) glass policy: navigation/floating controls/region node/transient overlays only, data surfaces solid (review P). Any token change: reason first, spec first, then codegen. This file is presentation-only; MUST NOT alter Domain Truth; never written into .depmap frozen payload. v0.3.1 tokens in spec/ui/design-tokens.json remain frozen and untouched.",
+  "specVersion": "2.2.0",
+  "scope": "ui-vnext-feature-branch",
+  "policy": {
+    "noRemoteFonts": true,
+    "noRemoteIconCdn": true,
+    "noRemoteImages": true,
+    "cjkFont": "system",
+    "offlineFirst": true,
+    "colorRule": "Data surfaces MUST use semantic tokens; environment layers (L0-L2) may use glass; glass MUST NOT reduce data readability (L3-L5)",
+    "glassRule": "glass only for navigation / floating controls / region node / transient inspector / overlay; key data areas stay solid and high contrast",
+    "statusNotColorOnly": true,
+    "privacyRule": "PresentationProfile is a local app preference; NEVER written into .depmap frozen payload",
+    "selfApproval": "FORBIDDEN",
+    "tokenChange": "reason first, spec first, then codegen",
+    "visualStatus": "VISUAL_CONTRACT_IMPLEMENTATION re-issued under Human Visual Review 2026-09-30; VISUAL_CRAFT = NEEDS_HUMAN_OR_VISION_REVIEW"
+  },
+  "colors": {
+    "canvas": "#04060D",
+    "canvasDeep": "#020308",
+    "surface": "#10141E",
+    "surfaceRaised": "#1A2231",
+    "surfaceGlass": "rgba(22, 30, 46, 0.66)",
+    "borderSubtle": "rgba(140, 170, 220, 0.12)",
+    "borderStrong": "rgba(130, 170, 255, 0.30)",
+    "primary": "#4D74FF",
+    "primaryBright": "#67A7FF",
+    "primarySoft": "#14203C",
+    "textPrimary": "#F4F7FF",
+    "textSecondary": "#A9B8D5",
+    "textMuted": "#7383A3",
+    "positive": "#3BD49B",
+    "warning": "#F4B64B",
+    "critical": "#FA626B",
+    "unknown": "#8C9AB5",
+    "regionNodeHi": "#67A7FF",
+    "regionNodeLo": "rgba(103, 167, 255, 0.35)",
+    "arcActive": "rgba(103, 167, 255, 0.55)",
+    "arcQuiet": "rgba(115, 131, 163, 0.28)",
+    "atmosphereInner": "rgba(77, 116, 255, 0.18)",
+    "atmosphereOuter": "rgba(6, 18, 37, 0.0)",
+    "oceanBase": "#0B2447",
+    "oceanDeep": "#071833",
+    "landBase": "#1E3A5F",
+    "landHighlight": "#2C5380",
+    "nightCityLight": "#FFD98A",
+    "nightCityGlow": "rgba(255, 217, 138, 0.35)",
+    "star": "#C9D8FF",
+    "atmosphereRim": "rgba(103, 167, 255, 0.38)",
+    "terminatorLight": "#67A7FF",
+    "oceanSpecular": "#5E87C8",
+    "landTextureHi": "#3A628F",
+    "landTextureLo": "#142C48",
+    "cloud": "#E8F1FF",
+    "localIllum": "#2C4A7E"
+  },
+  "semantic": {
+    "$comment": "Semantic aliases; platform code maps these roles, not raw palette names.",
+    "env": {
+      "background": "colors.canvas",
+      "backgroundDeep": "colors.canvasDeep",
+      "glass": "colors.surfaceGlass"
+    },
+    "data": {
+      "panel": "colors.surface",
+      "panelRaised": "colors.surfaceRaised",
+      "divider": "colors.borderSubtle",
+      "dividerStrong": "colors.borderStrong"
+    },
+    "ink": {
+      "strong": "colors.textPrimary",
+      "regular": "colors.textSecondary",
+      "muted": "colors.textMuted"
+    },
+    "status": {
+      "ok": "colors.positive",
+      "warning": "colors.warning",
+      "critical": "colors.critical",
+      "unknown": "colors.unknown"
+    },
+    "focus": "colors.primaryBright",
+    "earth": {
+      "ocean": "colors.oceanBase",
+      "oceanDeep": "colors.oceanDeep",
+      "land": "colors.landBase",
+      "landHighlight": "colors.landHighlight",
+      "cityLight": "colors.nightCityLight",
+      "star": "colors.star",
+      "rim": "colors.atmosphereRim"
+    }
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 20,
+    "xxl": 24,
+    "xxxl": 32,
+    "xxxxl": 40,
+    "pagePadding": 24,
+    "pagePaddingNarrow": 16,
+    "sectionGap": 24,
+    "sectionGapWide": 32,
+    "gridGap": 16,
+    "gridGapWide": 20
+  },
+  "radius": {
+    "sm": 6,
+    "md": 10,
+    "lg": 14,
+    "xl": 18,
+    "xl2": 24,
+    "pill": 999
+  },
+  "typography": {
+    "$comment": "Desktop 1920 base scale per Human Visual Review F: pageTitle 32-44, major numeric 24-36, section 18-22, body 15-17, secondary 13-15, <=12 only rare metadata.",
+    "pageTitle": { "size": 36, "weight": 700, "lineHeight": 1.2 },
+    "majorNumber": { "size": 30, "weight": 700, "lineHeight": 1.15 },
+    "sectionTitle": { "size": 20, "weight": 600, "lineHeight": 1.35 },
+    "body": { "size": 16, "weight": 400, "lineHeight": 1.6 },
+    "secondary": { "size": 14, "weight": 400, "lineHeight": 1.55 },
+    "meta": { "size": 12, "weight": 400, "lineHeight": 1.4 },
+    "label": { "size": 13, "weight": 600, "lineHeight": 1.3 },
+    "statusLabel": { "size": 13, "weight": 600, "lineHeight": 1.3 },
+    "displayGlobe": { "size": 18, "weight": 600, "lineHeight": 1.3 },
+    "mono": { "size": 14, "weight": 400, "lineHeight": 1.5 }
+  },
+  "motion": {
+    "fast": 140,
+    "normal": 200,
+    "slow": 260,
+    "globeFocus": 620,
+    "idleRotationPeriodMs": 90000,
+    "easing": "easeInOutCubic",
+    "reduceMotion": {
+      "idleRotation": "off",
+      "cameraAnimation": "simplified",
+      "arcAnimation": "static"
+    }
+  },
+  "globe": {
+    "$comment": "Default renderer = bundled simplified coastlines + procedural night city lights + atmosphere rim + sunlight terminator; plain shaded sphere is LOW_POWER_FALLBACK only (never default). Offline, no remote tiles.",
+    "preferredSphereDiameterMin": 560,
+    "idleRotationDegPerSec": 0.6,
+    "maxZoom": 1.9,
+    "minZoom": 0.7,
+    "regionAnchorDiameter": 14,
+    "regionAnchorActiveDiameter": 24,
+    "arcCountPolicy": "only real cross-region relations or region infrastructure summary; never decorative",
+    "cameraPresets": ["global", "cn", "hk", "gb", "us"],
+    "bundledData": {
+      "coastlines": "bundled simplified world coastlines (lat/lon polygons)",
+      "cityLights": "bundled major city coordinates for procedural night lights",
+      "landShading": "depth + terminator shading on land",
+      "ocean": "oceanBase/oceanDeep radial shading"
+    }
+  },
+  "components": {
+    "nav": {
+      "railCollapsedWidth": 68,
+      "railExpandedWidth": 188,
+      "railExpandedMax": 188,
+      "topCommandHeight": 48,
+      "railWidthRange": { "min": 64, "max": 188 },
+      "primaryOnly": "primary destinations = 现在/基础设施/变更/记录/我; 数据源/设置 are low-frequency Me child utilities; infrastructure secondary = content-level sibling navigation, never permanent equal primary items"
+    },
+    "page": {
+      "padding": 24,
+      "paddingNarrow": 16,
+      "maxWidth": 1400
+    },
+    "overview": {
+      "globeStageWidthRatio": { "min": 0.52, "max": 0.64 },
+      "globeStageHeightRatio": { "min": 0.64, "max": 0.78 },
+      "spatialInspectorWidth": 320,
+      "spatialInspectorMargin": 28,
+      "quickEntryHeight": { "min": 64, "max": 88 }
+    },
+    "cardsGrid": {
+      "columns1920": 3,
+      "columns1280": 3,
+      "columnsSmall": 2,
+      "cardAspectRatio": 1.586,
+      "gap": { "min": 16, "max": 20 }
+    },
+    "cardDetail": {
+      "identityColumnRatio": { "min": 0.3, "max": 0.36 },
+      "infoColumnRatio": { "min": 0.64, "max": 0.7 }
+    },
+    "customization": {
+      "libraryColumnRatio": 0.22,
+      "previewColumnRatio": 0.46,
+      "inspectorColumnRatio": 0.32,
+      "inspectorGroups": ["cardFaceDesign", "contentInfo", "style", "advanced"]
+    },
+    "touchTarget": {
+      "android": 48,
+      "ios": 44
+    }
+  },
+  "contrast": {
+    "bodyTextMin": "4.5:1",
+    "largeTextMin": "3:1"
+  },
+  "privacyMask": {
+    "maskCardLast4": true,
+    "maskPhoneNumbers": true,
+    "maskAccountNames": true
+  },
+  "testIds": {
+    "prefixes": ["pdig.nav.", "pdig.globe.", "pdig.region.", "pdig.card.", "pdig.phone.", "pdig.change.", "pdig.customization."],
+    "rule": "same semantic id on all four platforms"
+  }
+}

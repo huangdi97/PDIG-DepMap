@@ -2,6 +2,7 @@ import type { ChangePlan, PlanAction } from '../domain/change-plan.ts'
 import type { SqliteDriver } from '../db/driver.ts'
 import { getGraphRevision } from '../repositories/graph-revision.ts'
 import { ChangePlanService } from '../services/change-plan-service.ts'
+import { REPLACE_PHONE_IMPACT_CAPABILITIES } from './impact-scope.ts'
 
 /**
  * ScenarioTemplateRegistry（MVP03 §35–§41）。
@@ -173,7 +174,7 @@ function makeReplacePhoneTemplate(): ScenarioTemplate {
     title: '更换手机号',
     description:
       '更换手机号前检查该手机号承担的认证、恢复与通讯能力，以及所有关联账户与共享故障点。',
-    supportedCapabilities: ['access', 'authentication', 'recovery', 'communication'],
+    supportedCapabilities: [...REPLACE_PHONE_IMPACT_CAPABILITIES],
     requiredInputs: [
       { key: 'targetPhoneAnchorId', required: true, description: '旧手机号锚点节点 id' },
     ],
@@ -260,10 +261,10 @@ function makeReplacePhoneTemplate(): ScenarioTemplate {
           prerequisiteActionIds: ['rpn-verify-1'],
         },
       ]
-      return {
-        ...plan,
-        actions,
-      }
+      // Canonical v0.3.0：动作必须先持久化再返回。
+      // 否则 plans.getExisting() 读到的是 create() 时的空动作列表，
+      // Action DAG / Make-Before-Break / must_change claiming 全部失效。
+      return service.plans.updateActions(plan.id, actions)
     },
   }
 }

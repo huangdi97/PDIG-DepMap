@@ -1,0 +1,18 @@
+{
+  "id": "region-fact-rg04-proposal-excluded",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-04 proposal is not confirmed Node Reality and is rejected by RegionFact decoder",
+  "input": {
+    "fieldsJson": "{\"region_facts\":{\"version\":1,\"items\":[{\"id\":\"rf-proposal\",\"facet\":\"service_market\",\"territory_code\":\"GB\",\"state\":\"proposal\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"2026-10-10T00:00:00Z\"}]}}"
+  },
+  "expected": {
+    "facts": [],
+    "currentIds": [],
+    "lens": {
+      "status": "unknown"
+    }
+  }
+}
