@@ -16,53 +16,53 @@
 
 ## Canonical / Schema（零改动）
 
-| 项               | 值                                                                                 |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| Canonical Spec   | 未改动（v0.3.0 additive vNext 保持）                                                |
+| 项               | 值                                                                                         |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| Canonical Spec   | 未改动（v0.3.0 additive vNext 保持）                                                       |
 | Schema           | `logical-schema-v4.json` 冻结不变；`.depmap` payload v3 冻结（`DEPMAP_CONTAINER_V1` 不变） |
-| Fixtures         | 128 条保持（旧 91 逐字节未动）                                                       |
-| Oracle selfcheck | 128/128 PASS（conformance `:conformance:run`）                                      |
+| Fixtures         | 128 条保持（旧 91 逐字节未动）                                                             |
+| Oracle selfcheck | 128/128 PASS（conformance `:conformance:run`）                                             |
 
 ## Windows Desktop（本轮 §7 品牌链闭合）
 
-| 项              | 值                                                                                                   |
-| --------------- | ---------------------------------------------------------------------------------------------------- |
-| platform / arch | Windows x64                                                                                          |
-| 版本            | 0.3.1（Main.kt VERSION + gradle packageVersion + 根 build version）                                  |
-| 打包链路        | jlink runtime + 手工 app-image + NSIS 安装器 + 便携版 `PDIG.exe` 启动器（csc attributes + /win32icon） |
+| 项              | 值                                                                                                                                                         |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| platform / arch | Windows x64                                                                                                                                                |
+| 版本            | 0.3.1（Main.kt VERSION + gradle packageVersion + 根 build version）                                                                                        |
+| 打包链路        | jlink runtime + 手工 app-image + NSIS 安装器 + 便携版 `PDIG.exe` 启动器（csc attributes + /win32icon）                                                     |
 | 品牌            | setup.exe / PDIG.exe 均嵌入 pdig.ico 图标 + VERSIONINFO（FileVersion 0.3.1.0 / ProductName PDIG / FileDescription "PDIG 0.3.1"）；post-build 品牌校验 PASS |
-| 启动验证        | `--smoke` 17/17 PASS（含 replace_phone_number + backup/restore/reopen/delete）；PDIG.exe 便携启动冒烟 PASS（javaw 子进程） |
-| 分辨率取证      | `--profiles` 5×16 = 80 帧 PASS（1280×720 / 1920×1080 / 2560×1440 / 125% / 150%）                     |
-| artifact        | `PDIG-0.3.1-windows-x64-setup.exe`；`PDIG-0.3.1-windows-x64-portable.zip`（内含 PDIG.exe + pdig.ico + PDIG.cmd 回退） |
-| 签名            | 未签名（SmartScreen 提示如实披露）                                                                    |
+| 启动验证        | `--smoke` 17/17 PASS（含 replace_phone_number + backup/restore/reopen/delete）；PDIG.exe 便携启动冒烟 PASS（javaw 子进程）                                 |
+| 分辨率取证      | `--profiles` 5×16 = 80 帧 PASS（1280×720 / 1920×1080 / 2560×1440 / 125% / 150%）                                                                           |
+| artifact        | `PDIG-0.3.1-windows-x64-setup.exe`；`PDIG-0.3.1-windows-x64-portable.zip`（内含 PDIG.exe + pdig.ico + PDIG.cmd 回退）                                      |
+| 签名            | 未签名（SmartScreen 提示如实披露）                                                                                                                         |
 
 ## Android（版本对齐）
 
-| 项                     | 值                                                                                               |
-| ---------------------- | ------------------------------------------------------------------------------------------------- |
-| package                | production `com.pdig.app`；preview `com.pdig.app.preview`                                          |
+| 项                     | 值                                                                                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| package                | production `com.pdig.app`；preview `com.pdig.app.preview`                                                                                    |
 | 版本                   | production versionCode **2** / versionName **0.3.1**（Play 正式上传码待用户 R-3 决策，占位如实披露）；preview versionCode **200005** / 0.3.1 |
-| compileSdk / targetSdk | 36（Android 16）                                                                                  |
-| 签名                   | NON-PROD 测试签名（`-PpdigNonProdSigning=true`，apksigner v2 Verified，CN=PDIG NON-PRODUCTION TEST KEY）|
-| artifact               | `PDIG-0.3.1-android-production.apk` / `.aab`；`PDIG-0.3.1-android-preview.apk` / `.aab`            |
-| 测试                   | JVM unit PASS；conformance 128/128 PASS；codegen drift check PASS；assembleRelease/bundleRelease SUCCESSFUL |
-| 运行时证据             | 既有 42 屏 light/dark + provenance（本会话 emulator 不稳定，按契约回退既有证据）                    |
+| compileSdk / targetSdk | 36（Android 16）                                                                                                                             |
+| 签名                   | NON-PROD 测试签名（`-PpdigNonProdSigning=true`，apksigner v2 Verified，CN=PDIG NON-PRODUCTION TEST KEY）                                     |
+| artifact               | `PDIG-0.3.1-android-production.apk` / `.aab`；`PDIG-0.3.1-android-preview.apk` / `.aab`                                                      |
+| 测试                   | JVM unit PASS；conformance 128/128 PASS；codegen drift check PASS；assembleRelease/bundleRelease SUCCESSFUL                                  |
+| 运行时证据             | 既有 42 屏 light/dark + provenance（本会话 emulator 不稳定，按契约回退既有证据）                                                             |
 
 ## HarmonyOS（版本对齐）
 
-| 项                     | 值                                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------------- |
-| 版本                   | versionCode 1000001 / versionName 0.3.1                                                      |
-| conformance host       | **181/181 PASS**（run=181 pass=181 fail=0）；canonical 126/128 executed，2 条 DEVICE-BLOCKED（Argon2id 原生 / ArkData）= 真实 NAPI EXTERNAL_GATE（不伪造） |
-| 构建                   | hvigor clean assembleHap BUILD SUCCESSFUL → `PDIG-0.3.1-harmony-default-unsigned.hap`         |
+| 项               | 值                                                                                                                                                         |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 版本             | versionCode 1000001 / versionName 0.3.1                                                                                                                    |
+| conformance host | **181/181 PASS**（run=181 pass=181 fail=0）；canonical 126/128 executed，2 条 DEVICE-BLOCKED（Argon2id 原生 / ArkData）= 真实 NAPI EXTERNAL_GATE（不伪造） |
+| 构建             | hvigor clean assembleHap BUILD SUCCESSFUL → `PDIG-0.3.1-harmony-default-unsigned.hap`                                                                      |
 
 ## iOS（版本对齐 + CI at RC SHA）
 
-| 项               | 值                                                                        |
-| ---------------- | ------------------------------------------------------------------------- |
-| 版本             | MARKETING_VERSION 0.3.1 / CURRENT_PROJECT_VERSION 2                        |
-| CI（RC SHA）     | `ios-runtime-visual.yml` workflow_dispatch at tag `product-v0.3.1`（= RC SHA `8805486`）run 36341248203 18 步全绿：canonical 128 + PDIGAppTests + XCUITest iPhone/iPad + N4 app-target audit + screenshots |
-| 前置（branch）   | 同 workflow at `release/product-v0.3.1` run 36339136775 全绿（xctestrun app-path 补丁确定性修复） |
+| 项             | 值                                                                                                                                                                                                         |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 版本           | MARKETING_VERSION 0.3.1 / CURRENT_PROJECT_VERSION 2                                                                                                                                                        |
+| CI（RC SHA）   | `ios-runtime-visual.yml` workflow_dispatch at tag `product-v0.3.1`（= RC SHA `8805486`）run 36341248203 18 步全绿：canonical 128 + PDIGAppTests + XCUITest iPhone/iPad + N4 app-target audit + screenshots |
+| 前置（branch） | 同 workflow at `release/product-v0.3.1` run 36339136775 全绿（xctestrun app-path 补丁确定性修复）                                                                                                          |
 
 ## 制品与哈希
 

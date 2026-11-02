@@ -5,14 +5,14 @@
 
 ## 目标达成
 
-| 目标键                           | 状态       | 证据                                                                                     |
-| -------------------------------- | ---------- | ---------------------------------------------------------------------------------------- |
-| `PDIG_V0_3_LINE_PRODUCT_COMPLETE` | **PASS**   | v0.3.0 capability set 完整保持；本轮 corrective 仅收敛版本/品牌/证据，无功能删减          |
-| `PRODUCT_V0_3_1_RELEASE_READY`    | **PASS**   | 全部内部工程门禁于 RC SHA（8805486）绿；详见 §矩阵                                        |
+| 目标键                            | 状态          | 证据                                                                                                                                           |
+| --------------------------------- | ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PDIG_V0_3_LINE_PRODUCT_COMPLETE` | **PASS**      | v0.3.0 capability set 完整保持；本轮 corrective 仅收敛版本/品牌/证据，无功能删减                                                               |
+| `PRODUCT_V0_3_1_RELEASE_READY`    | **PASS**      | 全部内部工程门禁于 RC SHA（8805486）绿；详见 §矩阵                                                                                             |
 | `GITHUB_PRODUCT_V0_3_1`           | **PUBLISHED** | GitHub Release `PDIG 0.3.1`（Pre-release，isDraft=false），13 个资产，URL https://github.com/huangdi97/PDIG-DepMap/releases/tag/product-v0.3.1 |
-| `ENGINEERING_GAP`                 | **0**      | 无未闭合工程项；外部项全部归类 EXTERNAL/DEFERRED（见 BLOCKERS.md）                        |
-| `TEST_EVIDENCE_GAP`               | **0**      | 见 §矩阵（环境受限项回退既有证据 + provenance，无行为影响变化）                           |
-| `RELEASE_EVIDENCE_GAP`            | **0**      | 下载 smoke + SHA256 链核验完成；旧 tag 不可变核验完成                                     |
+| `ENGINEERING_GAP`                 | **0**         | 无未闭合工程项；外部项全部归类 EXTERNAL/DEFERRED（见 BLOCKERS.md）                                                                             |
+| `TEST_EVIDENCE_GAP`               | **0**         | 见 §矩阵（环境受限项回退既有证据 + provenance，无行为影响变化）                                                                                |
+| `RELEASE_EVIDENCE_GAP`            | **0**         | 下载 smoke + SHA256 链核验完成；旧 tag 不可变核验完成                                                                                          |
 
 ## SHA 链
 
@@ -31,26 +31,26 @@ WORK_STATUS / BLOCKERS），不移动 tag，不改写历史（git 无 force / re
 
 ## 矩阵
 
-| 门禁 | 结果 | 证据 |
-| ---- | ---- | ---- |
-| `npm run check`（工作区） | PASS | format + format:docs + lint + typecheck + 45 files / 487 tests + architecture（circular=0）+ network + secrets + UI |
-| `npm run check`（fresh clone RC） | PASS | 45 files / 487 tests 全绿（perf large-synthetic 7017ms < 10s） |
-| `test:perf`（隔离复跑） | PASS | 3 files / 16 tests；large synthetic 6951ms（另一次 3851ms）< 10s |
-| conformance（Android） | 128/128 | `:conformance:run` pass=128 fail=0 |
-| schema-v4 persistence | 11/11 | `schema-v4-persistence.test.ts` |
-| Desktop smoke | 17/17 | `:app:run --args="--smoke"` VERDICT PASS |
-| Desktop profiles | 5×16 PASS | 80 帧（1280×720 / 1920×1080 / 2560×1440 / 125% / 150%） |
-| Desktop --keys | 环境受限 | 本会话窗口无法获焦（11 项 FAIL 如实记录）；回退既有证据 + provenance（KeyboardDriver.kt 零改动） |
-| Windows branding | PASS | setup.exe / PDIG.exe 图标（ExtractIconEx=2）+ FileVersion 0.3.1.0 / ProductName PDIG / FileDescription "PDIG 0.3.1"；PDIG.exe 便携启动冒烟 PASS |
-| Android unit | PASS | `:core:test` + `:app:testDebugUnitTest` |
-| Android build | PASS | assembleRelease + bundleRelease SUCCESSFUL（production + preview）；apksigner V2 NON-PROD KEY 验证 |
-| Android versionCode | PASS | production 2/0.3.1、preview 200005/0.3.1（aapt2 badging 核验） |
-| codegen drift | PASS | `tools/codegen/generate.mjs --check` 三端产物零漂移 |
-| Harmony host conformance | 181/181 | run=181 pass=181 fail=0；canonical 126/128 executed + 2 DEVICE-BLOCKED（真实 NAPI EXTERNAL_GATE） |
-| Harmony HAP | PASS | hvigor clean assembleHap BUILD SUCCESSFUL（entry-default-unsigned.hap 3,708,437 B） |
-| iOS CI at RC SHA | PASS | run 36341248203（tag ref product-v0.3.1）18 步全绿：canonical 128 + PDIGAppTests + XCUITest iPhone/iPad + N4 audit + screenshots |
-| iOS CI（branch 预验证） | PASS | run 36339136775 16 步全绿 |
-| 网站 | 200 | Pages 三页 + haoleilab 自定义域（product/privacy/support） |
+| 门禁                              | 结果      | 证据                                                                                                                                            |
+| --------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`（工作区）         | PASS      | format + format:docs + lint + typecheck + 45 files / 487 tests + architecture（circular=0）+ network + secrets + UI                             |
+| `npm run check`（fresh clone RC） | PASS      | 45 files / 487 tests 全绿（perf large-synthetic 7017ms < 10s）                                                                                  |
+| `test:perf`（隔离复跑）           | PASS      | 3 files / 16 tests；large synthetic 6951ms（另一次 3851ms）< 10s                                                                                |
+| conformance（Android）            | 128/128   | `:conformance:run` pass=128 fail=0                                                                                                              |
+| schema-v4 persistence             | 11/11     | `schema-v4-persistence.test.ts`                                                                                                                 |
+| Desktop smoke                     | 17/17     | `:app:run --args="--smoke"` VERDICT PASS                                                                                                        |
+| Desktop profiles                  | 5×16 PASS | 80 帧（1280×720 / 1920×1080 / 2560×1440 / 125% / 150%）                                                                                         |
+| Desktop --keys                    | 环境受限  | 本会话窗口无法获焦（11 项 FAIL 如实记录）；回退既有证据 + provenance（KeyboardDriver.kt 零改动）                                                |
+| Windows branding                  | PASS      | setup.exe / PDIG.exe 图标（ExtractIconEx=2）+ FileVersion 0.3.1.0 / ProductName PDIG / FileDescription "PDIG 0.3.1"；PDIG.exe 便携启动冒烟 PASS |
+| Android unit                      | PASS      | `:core:test` + `:app:testDebugUnitTest`                                                                                                         |
+| Android build                     | PASS      | assembleRelease + bundleRelease SUCCESSFUL（production + preview）；apksigner V2 NON-PROD KEY 验证                                              |
+| Android versionCode               | PASS      | production 2/0.3.1、preview 200005/0.3.1（aapt2 badging 核验）                                                                                  |
+| codegen drift                     | PASS      | `tools/codegen/generate.mjs --check` 三端产物零漂移                                                                                             |
+| Harmony host conformance          | 181/181   | run=181 pass=181 fail=0；canonical 126/128 executed + 2 DEVICE-BLOCKED（真实 NAPI EXTERNAL_GATE）                                               |
+| Harmony HAP                       | PASS      | hvigor clean assembleHap BUILD SUCCESSFUL（entry-default-unsigned.hap 3,708,437 B）                                                             |
+| iOS CI at RC SHA                  | PASS      | run 36341248203（tag ref product-v0.3.1）18 步全绿：canonical 128 + PDIGAppTests + XCUITest iPhone/iPad + N4 audit + screenshots                |
+| iOS CI（branch 预验证）           | PASS      | run 36339136775 16 步全绿                                                                                                                       |
+| 网站                              | 200       | Pages 三页 + haoleilab 自定义域（product/privacy/support）                                                                                      |
 
 ## 制品（GitHub Release assets，13 项）
 
