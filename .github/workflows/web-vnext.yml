@@ -1,98 +1,147 @@
-name: Web VNext
+name: web-vnext
+
+# Web-first CI（§92）：Web 变更必须 web gate 全绿；shared Core/Canonical 变更必须同时跑 core gate。
+# 纯 web/**、website/** 变更不触发 Android/iOS 工作流（在那些工作流里用 paths-ignore 限制）。
 
 on:
+  pull_request:
+    paths:
+      - 'web/**'
+      - 'website/**'
+      - 'core/**'
+      - 'spec/**'
+      - 'fixtures/**'
+      - 'conformance/**'
+      - 'tools/**'
+      - '.github/workflows/web-vnext.yml'
   push:
     branches:
-      - feat/web-vnext
-    paths:
-      - 'website/app/**'
-      - 'website/index.html'
-      - 'website/product/pdig/index.html'
-      - '.github/workflows/web-vnext.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'website/app/**'
-      - 'website/index.html'
-      - 'website/product/pdig/index.html'
-      - '.github/workflows/web-vnext.yml'
+      - 'feat/web-vnext'
+  workflow_dispatch:
 
-permissions:
-  contents: read
+concurrency:
+  group: web-vnext-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: web
 
 jobs:
-  web-vnext:
+  core-gate:
+    name: Shared Core / Canonical gate
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '22.23.4'
+      - name: codegen check
+        working-directory: .
+        run: node tools/codegen/generate.mjs --check
+      - name: install core deps
+        working-directory: core
+        run: npm ci --no-audit --no-fund
+      - name: conformance
+        working-directory: .
+        run: node tools/conformance/run.mjs
+      - name: core check
+        working-directory: core
+        run: npm run check
 
-      - name: JavaScript syntax
-        run: node --check website/app/app.js
-
-      - name: Truth/local-only smoke
-        run: node website/app/smoke.mjs
-
-      - name: Static serving smoke
-        run: |
-          python3 -m http.server 4173 --directory website >/tmp/pdig-web.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID || true' EXIT
-          sleep 1
-          curl --fail --silent http://127.0.0.1:4173/app/ | grep -F 'PDIG / DepMap — Web VNext'
-          curl --fail --silent http://127.0.0.1:4173/app/app.css | grep -F '.app-shell'
-          curl --fail --silent http://127.0.0.1:4173/app/app.js | grep -F 'done ≠ verified'
-
-      - name: Capture real Chrome review pixels
-        run: |
-          set -euo pipefail
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends fonts-noto-cjk
-          mkdir -p artifacts/web-vnext
-          python3 -m http.server 4173 --directory website >/tmp/pdig-web-capture.log 2>&1 &
-          SERVER_PID=$!
-          trap 'kill $SERVER_PID || true' EXIT
-          sleep 1
-          google-chrome --version
-          google-chrome --headless=new --no-sandbox --disable-gpu \
-            --window-size=1440,1000 \
-            --screenshot="$PWD/artifacts/web-vnext/now-desktop-1440.png" \
-            "http://127.0.0.1:4173/app/?view=now"
-          google-chrome --headless=new --no-sandbox --disable-gpu \
-            --window-size=1440,1000 \
-            --screenshot="$PWD/artifacts/web-vnext/infrastructure-desktop-1440.png" \
-            "http://127.0.0.1:4173/app/?view=infra"
-          google-chrome --headless=new --no-sandbox --disable-gpu \
-            --window-size=1440,1000 \
-            --screenshot="$PWD/artifacts/web-vnext/change-desktop-1440.png" \
-            "http://127.0.0.1:4173/app/?view=change"
-          google-chrome --headless=new --no-sandbox --disable-gpu \
-            --window-size=1440,1000 \
-            --screenshot="$PWD/artifacts/web-vnext/records-desktop-1440.png" \
-            "http://127.0.0.1:4173/app/?view=records"
-          google-chrome --headless=new --no-sandbox --disable-gpu \
-            --window-size=390,844 \
-            --screenshot="$PWD/artifacts/web-vnext/now-mobile-390.png" \
-            "http://127.0.0.1:4173/app/?view=now"
-          for shot in \
-            now-desktop-1440.png \
-            infrastructure-desktop-1440.png \
-            change-desktop-1440.png \
-            records-desktop-1440.png \
-            now-mobile-390.png
-          do
-            test -s "artifacts/web-vnext/$shot"
-          done
-
-      - name: Upload Web VNext review pixels
+  web-gate:
+    name: Web source gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: format / typecheck / lint-free build
+        run: npm run format:check
+      - run: npm run typecheck
+      - name: unit + crypto golden
+        run: npm run test
+      - name: boundary gate (UI never computes Truth)
+        run: npm run check:boundary
+      - name: build (produces website/app)
+        run: npm run build:web
+      - name: remote asset gate
+        run: npm run check:remote-assets
+      - name: generated artifact in sync
+        working-directory: .
+        run: git diff --exit-code -- website/app
+      - name: upload web build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: web-vnext-review-pixels-${{ github.sha }}
-          path: artifacts/web-vnext/
-          if-no-files-found: error
-          retention-days: 21
+          name: web-dist-${{ github.sha }}
+          path: |
+            website/app/**
+            web/artifacts/**
+          retention-days: 14
+
+  e2e:
+    name: Playwright ${{ matrix.browser }}
+    needs: web-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: install fonts (CJK)
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+      - run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: build
+        run: npm run build:web
+      - name: e2e (${{ matrix.browser }})
+        run: npx playwright test --project=${{ matrix.browser }}
+      - name: upload evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-e2e-${{ matrix.browser }}-${{ github.sha }}
+          path: |
+            web/artifacts/**
+          retention-days: 14
+
+  visual:
+    name: Visual matrix (Chromium, Ubuntu, Noto CJK)
+    needs: web-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.4'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: install fonts (CJK)
+        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk
+      - run: npx playwright install --with-deps chromium
+      - name: build
+        run: npm run build:web
+      - name: visual matrix
+        run: node node_modules/@playwright/test/cli.js test --project=visual-chromium tests/e2e/visual.spec.ts
+      - name: manifest
+        run: node scripts/collect-evidence.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-visual-evidence-${{ github.sha }}
+          path: web/artifacts/visual/**
+          retention-days: 30
