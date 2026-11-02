@@ -91,3 +91,9 @@ Persistent = IndexedDB 里的 DEPMAP_CONTAINER_V1 密文；Runtime = Worker 内�
 ## 7. 明确没做的事
 
 未 merge PR #2 / 未 merge `main` / 未 force-push / 未发布 / 未加 backend / 未加云同步 / 未改 `DEPMAP_CONTAINER_V1` / 未上传真实个人数据 / 未把 `NOT_RUN` 写成 `PASS`。
+
+## 8. CI 事实（补充）
+
+exact HEAD `b5d1f760`：`Shared Core / Canonical gate` = **PASS**；`Web source gates` = **FAIL**，失败步骤是 `npm run typecheck`（ubuntu-latest），而同一命令在 Windows 上通过；Playwright 三个浏览器的 CI job 与 Visual matrix 因 web-gate 失败被 **skipped（NOT_RUN）**。
+
+job log 需要 GitHub 鉴权，本轮无法读取具体 TS 报错；已推送 commit `5749f4d`，让 CI 把 tsc 输出写入 job summary 并发 `::error` annotation，便于下一次运行定位。

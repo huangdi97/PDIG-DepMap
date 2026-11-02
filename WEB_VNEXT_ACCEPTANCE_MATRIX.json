@@ -14,6 +14,9 @@
   "coreConformance": "PASS",
   "coreCodegen": "PASS",
   "coreCheck": "PASS (492 tests, 0 circular deps, 0 network primitives, 0 secrets)",
+  "ciCoreGate": "PASS (exact HEAD b5d1f760, check run: Shared Core / Canonical gate)",
+  "ciWebGate": "FAIL (npm run typecheck on ubuntu-latest; passes on Windows; job log requires auth so stack not yet retrieved)",
+  "ciPlaywright": "NOT_RUN (jobs skipped because web-gate failed)",
 
   "chromium": "PASS (16 functional e2e)",
   "firefox": "PASS (22 tests incl. layout audit)",

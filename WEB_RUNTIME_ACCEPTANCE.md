@@ -61,3 +61,14 @@ E2E 覆盖（Chromium 实测）：
 - 浏览器可能在存储压力下清理 IndexedDB；`navigator.storage.persisted()` 为 false 时 UI 明确提示。
 - JS 无法保证内存擦除；锁定只能保证「不再持有可用状态」。
 - 多标签页 lease TTL 6 s + 心跳 2 s；reload 时依靠 `pagehide` 立即过期 + 争夺窗口重试，避免假「另一标签页」提示。
+
+## 5. CI（exact HEAD 事实）
+
+| 项目                                   | 结果                                                                                                                         |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `Shared Core / Canonical gate`         | **PASS**（run 对应 `b5d1f760`）                                                                                              |
+| `Web source gates`                     | **FAIL**：`npm run typecheck` 在 `ubuntu-latest` 失败；同一命令在 Windows 上通过；job log 需要鉴权，本轮无法读取具体 TS 报错 |
+| `Playwright {chromium,firefox,webkit}` | **NOT_RUN**（web-gate 失败导致 skipped）                                                                                     |
+| `Visual matrix (Ubuntu)`               | **NOT_RUN**（同上）                                                                                                          |
+
+已推送的缓解措施（commit `5749f4d`）：CI 的 typecheck 步骤会把错误写入 job summary 并发出 `::error` annotation，下一次运行即可在公开页面/API 读到具体报错。
