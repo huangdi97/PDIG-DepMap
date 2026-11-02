@@ -1,0 +1,60 @@
+{
+  "sourceHead": "bc24f6689a44bd7c125eadeb980064b54ceaa237",
+  "sourceState": "working-tree (uncommitted at capture time)",
+  "branch": "feat/web-vnext",
+  "pr": 2,
+
+  "sourceComplete": true,
+
+  "build": "PASS",
+  "typecheck": "PASS",
+  "lint": "NOT_RUN (no ESLint; TypeScript strict + Prettier + boundary gate used instead)",
+  "unit": "PASS (20 tests)",
+
+  "coreConformance": "PASS",
+  "coreCodegen": "PASS",
+  "coreCheck": "PASS (492 tests, 0 circular deps, 0 network primitives, 0 secrets)",
+
+  "chromium": "PASS (16 functional e2e)",
+  "firefox": "NOT_RUN",
+  "webkit": "NOT_RUN",
+  "layoutAudit": "PASS (6 viewports x 6 routes)",
+
+  "inventory": "PASS",
+  "dependencies": "PASS",
+  "findings": "NOT_RUN (UI implemented, no browser assertion yet)",
+
+  "changePlan": "PASS",
+  "staleFailClosed": "PASS",
+  "reanalysis": "PASS",
+  "doneNotVerified": "PASS",
+  "makeBeforeBreak": "PASS",
+
+  "recordsThreeClocks": "PASS",
+
+  "import": "NOT_RUN",
+  "proposals": "NOT_RUN",
+  "drift": "NOT_RUN",
+
+  "backup": "PASS",
+  "restore": "PASS",
+
+  "vaultEncryption": "PASS",
+  "depmapGolden": "PASS",
+  "privacyMask": "PASS",
+  "multitabSingleWriter": "PASS",
+  "offline": "PASS",
+  "pwa": "PARTIAL (manifest + service worker + offline shell verified; install prompt not verified)",
+
+  "desktopResponsive": "PASS",
+  "mobileCompact": "PASS",
+
+  "visualMatrix": "PASS (21 local candidate screenshots)",
+  "visualRegression": "NOT_RUN (baseline must be generated on Ubuntu CI)",
+
+  "humanVisualCandidate": "READY",
+  "humanVisualAccepted": "NOT_RUN",
+
+  "mainMerged": false,
+  "productionReleased": false
+}

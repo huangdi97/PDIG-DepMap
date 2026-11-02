@@ -1,0 +1,93 @@
+# WEB_VNEXT_FINAL_REPORT
+
+**分支**：`feat/web-vnext`（PR #2） · **起始 HEAD**：`bc24f6689a44bd7c125eadeb980064b54ceaa237`
+**日期**：2026-10-30 · **执行环境**：Windows + 本地 Node v22.23.4（未入 PATH）
+
+> 本报告只写**实际跑过**的东西。没有跑的一律写 `NOT_RUN`，包括 Firefox / WebKit / 视觉回归基线 / 人眼验收。
+
+## 1. 本轮改变了什么
+
+### 1.1 Shared Truth 收敛（android 分支 → web 分支）
+
+`feat/android-ui-vnext-translation` 相对 `main` 在 `core/ spec/ fixtures/ conformance/ tools/` 上有 140 文件增量（Canonical v4：identity-profile、maintenance-profile、region-fact、impact-scope、plan-analysis/rebase、action-verification 等）。本轮把这些**平台中立 Truth** 并入 web 分支（不搬 Android UI / Compose / 测试工地 / APK）：
+
+- `core/`、`fixtures/`、`conformance/`、`spec/{domain,schema,proposals,errors,migration,security,roadmap}`、`tools/codegen/`
+- codegen 重新生成 8 个平台 Generated 文件（`node tools/codegen/generate.mjs`），随后 `--check` 通过
+
+### 1.2 修掉的三个真实 Core 缺陷（不是 UI 便利）
+
+| 缺陷 | 影响 | 修法 |
+| --- | --- | --- |
+| `Relation` 联合类型缺少 v4 已冻结的 `authenticates` / `controls` | v4 关系在 TS 层被拒绝，手机号变更（认证/恢复）无法建模 | 按 `spec/domain/domain.json` + Schema V4 CHECK 补齐 |
+| `replace_phone_number` 模板构建 4 个动作但**未持久化**（`create()` 时 actions=[]，返回内存合并对象） | `Action DAG` / `Make-Before-Break` / `claimUnassignedImpacts` 全部失效 | 改为 `plans.updateActions()` 落库后再返回 |
+| 三处测试与 v4 语义不一致（PRB-012 用 v3 schema 跑 v4 关系；payload 逐字节等价忽略“本地库 schema 元数据”；INV-16 未走验证门） | Core 门禁红 | 显式 helper + 更强断言（新增 `core/tests/helpers/payload-equivalence.ts`） |
+
+### 1.3 Web 从单文件 Preview 升级为 Product Candidate
+
+- `web/` 成为源码真源（Vite + TypeScript strict + React），`website/app/` 降为构建产物（`npm run build:web`，含 `sw-manifest.json` + `BUILD_SHA256SUMS.txt`）。
+- Domain Worker = 唯一 Truth 权威：`BrowserSqliteDriver`（`@sqlite.org/sqlite-wasm`，`:memory:`，同步 API）+ Core Repository/Service/Kernel。UI 只发 typed RPC。
+- 加密：`web/src/crypto/depmap-web.ts`（hash-wasm Argon2id v19 + WebCrypto AES-256-GCM + RFC8785 JCS AAD），**冻结 Golden Vector 逐字节匹配**。
+- 持久化：IndexedDB 只存 DEPMAP_CONTAINER_V1 容器密文；persist-before-ack；锁定即 terminate worker。
+- 多标签页单写者 lease（IDB 事务 + BroadcastChannel 心跳 + pagehide 立即过期 + 争夺重试）。
+- PWA：manifest + service worker（只缓存 shell）+ 离线可用。
+- 完整页面：Onboarding / Lock / Now / Infrastructure / Node 详情 / Dependency + Group / Findings / Change Center / Plan（Current·Transition·After）/ Records（三时钟）/ Import / 我 / 全局搜索 / 隐私遮蔽。
+- 静态门禁：`check-boundary`（UI 0 Core import、0 SQL）、`check-remote-assets`（0 远程运行时依赖）、`check-web-generated`（产物与源码同步）。
+
+## 2. 证据（本地实跑）
+
+| 门禁 | 命令 | 结果 |
+| --- | --- | --- |
+| codegen | `node tools/codegen/generate.mjs --check` | PASS |
+| conformance | `node tools/conformance/run.mjs` | PASS（128 cases；platform reports 如实 NOT_RUN） |
+| Core | `cd core && npm run check` | PASS（492 tests / 0 circular / 0 network / 0 secrets / UI gate） |
+| Web 类型 | `npx tsc --noEmit -p web/tsconfig.json` | PASS |
+| Web 单测 | `npx vitest run`（web/） | 20 PASS（含 DEPMAP golden vector / shim / lease） |
+| Web 构建 | `npm run build:web` | PASS（9 files / 1847 KiB） |
+| E2E Chromium | `npx playwright test --project=chromium` | 16 PASS |
+| 布局审计 | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | 6 PASS |
+| 视觉矩阵 | `npx playwright test --project=visual-chromium` | 2 PASS（21 张截图） |
+| 边界 | `node scripts/check-boundary.mjs` | PASS |
+| 远程依赖 | `node scripts/check-remote-assets.mjs` | PASS |
+
+## 3. 浏览器矩阵
+
+| 浏览器 | 功能 E2E | 说明 |
+| --- | --- | --- |
+| Chromium (build 1243 / Chrome for Testing 153) | **PASS ×16** | 唯一实际运行的浏览器 |
+| Firefox | **NOT_RUN** | Playwright CDN 下载在本机停滞（0 字节挂起 >10 min） |
+| WebKit | **NOT_RUN** | 同上 |
+
+为匹配本机已缓存的 Chromium（1243），`@playwright/test` 锁定为 `1.63.0`（原 1.64.1 需要 1248，无法下载）。
+
+## 4. 架构 / 权威 / 存储 / 加密
+
+见 `WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`。
+
+一句话版本：
+
+```
+UI(React, 只读 projection) --typed RPC--> Domain Worker
+     └ VaultRuntime(加密快照/生命周期) + CoreAuthority(Core) + BrowserSqliteDriver(SQLite WASM, :memory:)
+Persistent = IndexedDB 里的 DEPMAP_CONTAINER_V1 密文；Runtime = Worker 内存里的明文图
+```
+
+## 5. 已知限制
+
+- Web 没有 `FLAG_SECURE` 等价能力：只有隐私遮蔽 + 锁定清屏 + print 遮蔽；文案不写“防截图”。
+- 浏览器可能清理 IndexedDB；`persisted()` 为 false 时 UI 明确提示并建议备份。
+- JS 无法保证内存擦除；锁定只保证“不再持有可用状态”。
+- Import / Candidates / Proposals / Drift 的 UI 已接线，但**没有浏览器自动化证据**（`NOT_RUN`）。
+- Findings 页面没有独立 E2E（`NOT_RUN`）；其数据来自 Core `generateInfrastructureFindings`。
+- `sqlite-wasm` 包仍会构建出未使用的 `sqlite3-worker1.js` chunk（第三方包结构）。
+- `check:web-generated` 依赖提交后的 `website/app`；提交前必然显示差异。
+
+## 6. 外部阻塞
+
+1. **Firefox / WebKit 浏览器二进制无法下载**（本机 CDN 下载停滞）。需要可用网络或离线浏览器包后才能跑三浏览器矩阵。
+2. **GitHub 写凭据未知**：本机 `credential.helper=manager` 但未发现 GCM 可执行文件；push 可能需要授权。
+3. **视觉回归基线**只能在 Ubuntu CI 生成（固定 Chromium + Noto CJK），本机不能混比。
+4. **人眼视觉验收**只能由你完成（`HUMAN_VISUAL_ACCEPTED = NOT_RUN`）。
+
+## 7. 明确没做的事
+
+未 merge PR #2 / 未 merge `main` / 未 force-push / 未发布 / 未加 backend / 未加云同步 / 未改 `DEPMAP_CONTAINER_V1` / 未上传真实个人数据 / 未把 `NOT_RUN` 写成 `PASS`。

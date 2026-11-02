@@ -165,3 +165,6 @@ __pycache__/
 /elf-*.txt
 /x86h.txt
 
+
+# Web runtime evidence (CI artifacts, not source)
+web/artifacts/
