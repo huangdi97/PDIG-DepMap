@@ -19,6 +19,9 @@ export default defineConfig({
   base: './',
   plugins: [react()],
   resolve: {
+    // Core 源码里 import 'hash-wasm'；CI 只安装 web/node_modules。
+    // dedupe 让 Vite 从 web 根解析该裸包，而不是从 importing 文件所在目录（core/src）向上找。
+    dedupe: ['hash-wasm'],
     alias: [
       { find: '@core/', replacement: `${coreSrc}/` },
       { find: 'node:crypto', replacement: resolve(here, 'src/shims/node-crypto.ts') },

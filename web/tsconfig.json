@@ -23,6 +23,7 @@
     "baseUrl": ".",
     "paths": {
       "@core/*": ["../core/src/*"],
+      "hash-wasm": ["./node_modules/hash-wasm"],
       "node:crypto": ["./src/shims/node-crypto.ts"]
     }
   },
