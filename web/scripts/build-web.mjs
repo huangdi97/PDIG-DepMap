@@ -39,6 +39,18 @@ const files = walk(OUT)
   .filter((file) => file !== 'sw-manifest.json' && file !== 'sw.js')
   .sort()
 
+const TEXT_EXT = /\.(html|svg|webmanifest|json|js|css|txt)$/
+
+// 跨平台确定性：把文本产物统一为 LF。
+// 否则 Windows 工作区（autocrlf）会写出 CRLF，而 CI（Linux）是 LF，
+// BUILD_SHA256SUMS 就会因 EOL 不同而不同，导致“产物与源码同步”门禁假红/假绿。
+for (const file of files) {
+  if (!TEXT_EXT.test(file)) continue
+  const target = join(OUT, file)
+  const raw = readFileSync(target, 'utf8')
+  if (raw.includes('\r\n')) writeFileSync(target, raw.replace(/\r\n/g, '\n'), 'utf8')
+}
+
 const manifest = files.map((file) => `./${file}`)
 writeFileSync(join(OUT, 'sw-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
