@@ -23,7 +23,7 @@ React UI  ──typed RPC──▶  Domain Worker
 | 单测            | `npx vitest run`（web/）                                                | 20 passed / 3 files                                                               |
 | 边界            | `node scripts/check-boundary.mjs`                                       | PASS                                                                              |
 | 远程依赖        | `node scripts/check-remote-assets.mjs`                                  | PASS（8 built files，0 remote runtime deps）                                      |
-| E2E（Chromium） | `npx playwright test --project=chromium`                                | 25 passed（16 功能 + 6 布局 + 3 导入/发现）                                       |
+| E2E（Chromium） | `npx playwright test --project=chromium`                                | 28 passed（16 功能 + 6 布局 + 6 导入/发现/漂移）                                  |
 | 布局审计        | `npx playwright test --project=chromium tests/e2e/layout-audit.spec.ts` | 6 passed（6 视口 × 6 路由）                                                       |
 | 视觉矩阵        | `npx playwright test --project=visual-chromium`                         | 2 passed（含 6 断点无横向溢出）                                                   |
 | Core 门禁       | `cd core && npm run check`                                              | 492 passed / 0 circular / 0 network / 0 secret                                    |
@@ -47,14 +47,17 @@ E2E 覆盖（Chromium 实测）：
 - E2E-15 / 15b 离线 reload → 解锁 → CRUD / 锁定后再解锁
 - E2E-16 Findings：`SINGLE_POINT_OF_FAILURE`（唯一 required 来源）与 `PENDING_VERIFICATION`（done 未验证）均来自 Core 规则
 - E2E-17 Import：通用 CSV + 显式字段映射 + **账单归属账户** → 商户解析 → Proposal → 接受后才成为现实依赖（criticality: unknown）
-- E2E-18 Drift：证据只产生“可能变化”，`dismiss` 不改写 Reality（对象仍无该关系）
+- E2E-18 Drift：证据只产生「可能变化」，`dismiss` 不改写 Reality（对象仍无该关系）
+- E2E-19 Drift「确认为额外路径」：新边加入且旧边保持 active
+- E2E-20 Drift「确认为替代」：新边加入且旧边被 retire（`已终止关系 1 条`）
+- E2E-21 Import（OFX/QFX）：无需字段映射，解析后同样只产生提案
 
 ## 3. 未跑 / 未验证（不得写成 PASS）
 
 | 项目                  | 状态                         | 原因                                                                                                                                            |
 | --------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| Firefox               | **PASS ×25**                 | 功能 E2E + 布局审计 + 导入/发现全部通过（firefox-1543）                                                                                         |
-| WebKit                | **PASS ×23 / 2 UNSUPPORTED** | 离线两个用例在 WebKit 下不成立：断网 reload 触发 WebKit internal error；SW 接管后二次加载本地引擎不就绪（已加 20 s 启动超时与「重新加载」兜底） |
+| Firefox               | **PASS ×28**                 | 功能 E2E + 布局审计 + 导入/发现/漂移全部通过（firefox-1543）                                                                                    |
+| WebKit                | **PASS ×26 / 2 UNSUPPORTED** | 离线两个用例在 WebKit 下不成立：断网 reload 触发 WebKit internal error；SW 接管后二次加载本地引擎不就绪（已加 20 s 启动超时与「重新加载」兜底） |
 | ESLint                | NOT_RUN（未采用）            | Web 采用 TypeScript strict + Prettier + 边界静态门禁；未引入 ESLint 规则集                                                                      |
 | `check:web-generated` | PASS                         | 本地与 CI 均通过（`build:web` 幂等，文本产物统一 LF）                                                                                           |
 | 视觉回归基线          | NOT_RUN                      | 基线只能在 Ubuntu CI + 固定 Chromium + Noto CJK 下生成；本地只产出候选证据                                                                      |

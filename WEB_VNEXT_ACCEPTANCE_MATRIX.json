@@ -19,9 +19,9 @@
   "ciPlaywright": "PASS (chromium / firefox / webkit on ubuntu-latest, exact HEAD d822cf2c)",
   "ciVisualMatrix": "PASS (ubuntu-latest + Noto CJK, exact HEAD d822cf2c; evidence artifact web-visual-evidence)",
 
-  "chromium": "PASS (25 functional e2e)",
-  "firefox": "PASS (25 tests incl. layout audit)",
-  "webkit": "PASS (23 tests; 2 offline UNSUPPORTED in WebKit)",
+  "chromium": "PASS (28 functional e2e)",
+  "firefox": "PASS (28 tests incl. layout audit)",
+  "webkit": "PASS (26 tests; 2 offline UNSUPPORTED in WebKit)",
   "layoutAudit": "PASS (6 viewports x 6 routes)",
 
   "inventory": "PASS",
@@ -36,9 +36,9 @@
 
   "recordsThreeClocks": "PASS",
 
-  "import": "PASS (generic CSV + explicit mapping + account binding)",
+  "import": "PASS (generic CSV + explicit mapping + account binding; OFX/QFX adapter also covered)",
   "proposals": "PASS (accept proposal -> reality dependency, criticality unknown)",
-  "drift": "PASS (evidence-derived drift; dismiss does not mutate reality)",
+  "drift": "PASS (evidence-derived; dismiss does not mutate reality; confirm-additional keeps old edge; confirm-replacement retires old edge)",
 
   "backup": "PASS",
   "restore": "PASS",

@@ -53,9 +53,9 @@
 
 | 浏览器                                         | 功能 E2E                     | 说明                                                                                                                                                                                                             |
 | ---------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Chromium (build 1243 / Chrome for Testing 153) | **PASS ×25**                 | 16 功能 + 6 布局审计 + 3 导入/发现；另有视觉矩阵 2/2                                                                                                                                                             |
-| Firefox (1543)                                 | **PASS ×25**                 | 同上全部通过                                                                                                                                                                                                     |
-| WebKit (2359)                                  | **PASS ×23 / 2 UNSUPPORTED** | 离线两个用例在 WebKit 下不成立：断网 reload 触发 WebKit internal error；SW 接管后二次加载本地引擎不就绪（已加 20 s 启动超时 + 「重新加载」兜底）。其余功能（含导入/发现/备份恢复、多标签页、隐私、篡改）全部通过 |
+| Chromium (build 1243 / Chrome for Testing 153) | **PASS ×28**                 | 16 功能 + 6 布局审计 + 6 导入/发现/漂移；另有视觉矩阵 2/2                                                                                                                                                        |
+| Firefox (1543)                                 | **PASS ×28**                 | 同上全部通过                                                                                                                                                                                                     |
+| WebKit (2359)                                  | **PASS ×26 / 2 UNSUPPORTED** | 离线两个用例在 WebKit 下不成立：断网 reload 触发 WebKit internal error；SW 接管后二次加载本地引擎不就绪（已加 20 s 启动超时 + 「重新加载」兜底）。其余功能（含导入/发现/备份恢复、多标签页、隐私、篡改）全部通过 |
 
 为匹配本机已缓存的 Chromium（1243），`@playwright/test` 锁定为 `1.63.0`（原 1.64.1 需要 1248，无法下载）。
 
@@ -76,7 +76,7 @@ Persistent = IndexedDB 里的 DEPMAP_CONTAINER_V1 密文；Runtime = Worker 内�
 - Web 没有 `FLAG_SECURE` 等价能力：只有隐私遮蔽 + 锁定清屏 + print 遮蔽；文案不写“防截图”。
 - 浏览器可能清理 IndexedDB；`persisted()` 为 false 时 UI 明确提示并建议备份。
 - JS 无法保证内存擦除；锁定只保证“不再持有可用状态”。
-- Import / Proposal / Drift 现已由 E2E-17/18 覆盖；**WeChat 账单 / OFX 适配器仍未跑浏览器 E2E**（仅通用 CSV 有证据）。
+- Import / Proposal / Drift（含「额外路径」「替代」两个确认分支）已由 E2E-17..21 覆盖（通用 CSV + OFX）；**仅 WeChat 账单适配器尚未跑浏览器 E2E**。
 - 视觉回归基线比较仍未做（CI 只生成证据，未提交基线图）。
 - `sqlite-wasm` 包仍会构建出未使用的 `sqlite3-worker1.js` chunk（第三方包结构）。
 - `check:web-generated` 依赖提交后的 `website/app`；提交前必然显示差异。
