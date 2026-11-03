@@ -92,8 +92,22 @@ Persistent = IndexedDB 里的 DEPMAP_CONTAINER_V1 密文；Runtime = Worker 内�
 
 未 merge PR #2 / 未 merge `main` / 未 force-push / 未发布 / 未加 backend / 未加云同步 / 未改 `DEPMAP_CONTAINER_V1` / 未上传真实个人数据 / 未把 `NOT_RUN` 写成 `PASS`。
 
-## 8. CI 事实（补充）
+## 8. CI 事实（exact HEAD）
 
-exact HEAD `b5d1f760`：`Shared Core / Canonical gate` = **PASS**；`Web source gates` = **FAIL**，失败步骤是 `npm run typecheck`（ubuntu-latest），而同一命令在 Windows 上通过；Playwright 三个浏览器的 CI job 与 Visual matrix 因 web-gate 失败被 **skipped（NOT_RUN）**。
+最终运行 `https://github.com/huangdi97/PDIG-DepMap/actions/runs/41579667219`（HEAD `d4bce380`）：
 
-job log 需要 GitHub 鉴权，本轮无法读取具体 TS 报错；已推送 commit `5749f4d`，让 CI 把 tsc 输出写入 job summary 并发 `::error` annotation，便于下一次运行定位。
+| job                                 | 结果                                            |
+| ----------------------------------- | ----------------------------------------------- |
+| `Shared Core / Canonical gate`      | PASS（58s）                                     |
+| `Web source gates`                  | PASS（28s）                                     |
+| `Playwright chromium`               | PASS（2m33s）                                   |
+| `Playwright firefox`                | PASS（2m14s）                                   |
+| `Playwright webkit`                 | PASS（3m02s；离线两例按设计 skip）              |
+| `Visual matrix (Ubuntu + Noto CJK)` | PASS（2m11s，上传 `web-visual-evidence-<sha>`） |
+
+CI-only 缺陷（本地 Windows 不会复现，已修）：
+
+1. `core/src/crypto/depmap.ts → Cannot find module 'hash-wasm'`：CI 只装 `web/node_modules`。修法：tsconfig `paths["hash-wasm"]` + vite `resolve.dedupe`。
+2. `generated artifact in sync` 因 CRLF/LF 差异假红。修法：`build:web` 规范化文本产物为 LF，使 `BUILD_SHA256SUMS.txt` 跨平台一致。
+
+仍然 `NOT_RUN`：视觉回归基线比较（CI 只生成证据，未提交基线图）、人眼验收。

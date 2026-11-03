@@ -64,11 +64,18 @@ E2E 覆盖（Chromium 实测）：
 
 ## 5. CI（exact HEAD 事实）
 
-| 项目                                   | 结果                                                                                                                         |
-| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `Shared Core / Canonical gate`         | **PASS**（run 对应 `b5d1f760`）                                                                                              |
-| `Web source gates`                     | **FAIL**：`npm run typecheck` 在 `ubuntu-latest` 失败；同一命令在 Windows 上通过；job log 需要鉴权，本轮无法读取具体 TS 报错 |
-| `Playwright {chromium,firefox,webkit}` | **NOT_RUN**（web-gate 失败导致 skipped）                                                                                     |
-| `Visual matrix (Ubuntu)`               | **NOT_RUN**（同上）                                                                                                          |
+| 项目                                | 结果                                                |
+| ----------------------------------- | --------------------------------------------------- |
+| `Shared Core / Canonical gate`      | **PASS**                                            |
+| `Web source gates`                  | **PASS**                                            |
+| `Playwright chromium`               | **PASS**（2m33s）                                   |
+| `Playwright firefox`                | **PASS**（2m14s）                                   |
+| `Playwright webkit`                 | **PASS**（3m02s；离线两例按设计 skip，见 §3）       |
+| `Visual matrix (Ubuntu + Noto CJK)` | **PASS**（2m11s，上传 `web-visual-evidence-<sha>`） |
 
-已推送的缓解措施（commit `5749f4d`）：CI 的 typecheck 步骤会把错误写入 job summary 并发出 `::error` annotation，下一次运行即可在公开页面/API 读到具体报错。
+最终 CI 运行：`https://github.com/huangdi97/PDIG-DepMap/actions/runs/41579667219`（HEAD `d4bce380`，6 个 job 全绿）。
+
+期间定位并修掉的两个 CI-only 缺陷（值得记录，因为它们不会被 Windows 本地跑出来）：
+
+1. `../core/src/crypto/depmap.ts: Cannot find module 'hash-wasm'` —— TS/Vite 从 importing 文件所在目录解析裸包名，CI 只安装 `web/node_modules`，`core/node_modules` 不存在。修法：`web/tsconfig.json` 加 `paths["hash-wasm"]`、`vite.config.ts` 加 `resolve.dedupe: ['hash-wasm']`。
+2. `generated artifact in sync` 假红 —— Windows 工作区（autocrlf）产出 CRLF 文本，Linux CI 产出 LF，导致 `BUILD_SHA256SUMS.txt` 哈希不同。修法：`build:web` 把文本产物统一规范为 LF，使产物跨平台字节确定。
