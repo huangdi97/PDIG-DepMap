@@ -19,14 +19,14 @@
   "ciPlaywright": "PASS (chromium / firefox / webkit on ubuntu-latest, exact HEAD d4bce380)",
   "ciVisualMatrix": "PASS (ubuntu-latest + Noto CJK, exact HEAD d4bce380; evidence artifact web-visual-evidence)",
 
-  "chromium": "PASS (16 functional e2e)",
-  "firefox": "PASS (22 tests incl. layout audit)",
-  "webkit": "PASS (20 tests; offline UNSUPPORTED in WebKit)",
+  "chromium": "PASS (25 functional e2e)",
+  "firefox": "PASS (25 tests incl. layout audit)",
+  "webkit": "PASS (23 tests; 2 offline UNSUPPORTED in WebKit)",
   "layoutAudit": "PASS (6 viewports x 6 routes)",
 
   "inventory": "PASS",
   "dependencies": "PASS",
-  "findings": "NOT_RUN (UI implemented, no browser assertion yet)",
+  "findings": "PASS (SOF + PENDING_VERIFICATION derived from Core rules)",
 
   "changePlan": "PASS",
   "staleFailClosed": "PASS",
@@ -36,9 +36,9 @@
 
   "recordsThreeClocks": "PASS",
 
-  "import": "NOT_RUN",
-  "proposals": "NOT_RUN",
-  "drift": "NOT_RUN",
+  "import": "PASS (generic CSV + explicit mapping + account binding)",
+  "proposals": "PASS (accept proposal -> reality dependency, criticality unknown)",
+  "drift": "PASS (evidence-derived drift; dismiss does not mutate reality)",
 
   "backup": "PASS",
   "restore": "PASS",

@@ -370,6 +370,24 @@ export class CoreAuthority {
           proposalCount: outcome.proposalKeys.length,
           errorCount: outcome.errorCount,
         }
+        // 正向证据 → 漂移信号（Core RealityDriftService）。
+        // 只产生「可能发生了变化」的候选，**不改写 Reality**；由用户在 Import 页显式确认。
+        for (const key of outcome.proposalKeys) {
+          const proposal = this.proposals.getByKey(key)
+          if (!proposal) continue
+          this.driftService.detectFromEvidence({
+            targetNodeId: proposal.to,
+            capability: proposal.capability,
+            signals: [
+              {
+                fromNodeId: proposal.from,
+                observations: proposal.observationCount,
+                evidenceRef: proposal.evidenceRefs[0] ?? proposal.key,
+                proposalKey: proposal.key,
+              },
+            ],
+          })
+        }
         await this.commit()
         return {
           sessionId: outcome.session.id,
@@ -540,17 +558,36 @@ export class CoreAuthority {
     throw new AuthorityError('VALIDATION', `不支持的数据来源: ${adapterId}`)
   }
 
-  private ensureSourceInstance(adapter: EvidenceSourceAdapter): string {
+  private ensureSourceInstance(adapter: EvidenceSourceAdapter, accountNodeId?: string): string {
     const existing = this.sources
       .listByAdapter(adapter.id)
       .filter((source) => source.state === 'active')
     const found = existing[0]
-    if (found) return found.id
+    if (found) {
+      // 账单归属账户是 Core 路由建议（merchant_agreement from accountNodeId）的前提。
+      // 未绑定时显式绑定；已绑定到不同账户则视为另一个来源实例。
+      if (accountNodeId !== undefined) {
+        if (found.accountNodeId === undefined || found.accountNodeId === null) {
+          return this.sources.bindAccountNode(found.id, accountNodeId).id
+        }
+        if (found.accountNodeId !== accountNodeId) {
+          return this.sources.create({
+            adapterId: adapter.id,
+            adapterVersion: adapter.version,
+            sourceKind: adapter.sourceKind,
+            label: `${adapter.id} · ${accountNodeId.slice(0, 8)}`,
+            accountNodeId,
+          }).id
+        }
+      }
+      return found.id
+    }
     const created = this.sources.create({
       adapterId: adapter.id,
       adapterVersion: adapter.version,
       sourceKind: adapter.sourceKind,
       label: adapter.id,
+      ...(accountNodeId === undefined ? {} : { accountNodeId }),
     })
     return created.id
   }
@@ -573,7 +610,7 @@ export class CoreAuthority {
     if (data.length > 32 * 1024 * 1024) {
       throw new AuthorityError('FILE_TOO_LARGE', '导入文件超过 32 MiB 上限')
     }
-    const sourceInstanceId = this.ensureSourceInstance(adapter)
+    const sourceInstanceId = this.ensureSourceInstance(adapter, command.accountNodeId)
     const coordinator = new ImportCoordinator(this.driver)
     const input =
       command.mapping === undefined

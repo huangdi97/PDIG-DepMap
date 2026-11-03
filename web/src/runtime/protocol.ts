@@ -377,6 +377,8 @@ export type WebCommand =
       fileName: string
       dataBase64: string
       adapterId: string
+      /** 这份账单属于哪个账户（Core 的路由建议依赖 SourceInstance.accountNodeId）。 */
+      accountNodeId?: string
       /** Generic CSV 必须由用户显式给出字段映射（禁止自动猜测）。 */
       mapping?: MappingProfile
     }

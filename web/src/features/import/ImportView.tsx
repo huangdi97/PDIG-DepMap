@@ -28,7 +28,8 @@ export function ImportView(): ReactNode {
   const [merchants, setMerchants] = useState<MerchantRow[]>([])
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-  const [nodes, setNodes] = useState<Array<{ id: string; name: string }>>([])
+  const [nodes, setNodes] = useState<Array<{ id: string; name: string; kind: string }>>([])
+  const [accountNodeId, setAccountNodeId] = useState('')
   const [columns, setColumns] = useState<string[]>([])
   const [mapping, setMapping] = useState({
     dateTime: '',
@@ -60,7 +61,7 @@ export function ImportView(): ReactNode {
       setNodes(
         result.nodes
           .filter((node) => !node.archived)
-          .map((node) => ({ id: node.id, name: node.name })),
+          .map((node) => ({ id: node.id, name: node.name, kind: node.kind })),
       )
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -80,6 +81,10 @@ export function ImportView(): ReactNode {
   const start = async (): Promise<void> => {
     if (fileText === '') {
       notify('请选择要导入的文件', 'error')
+      return
+    }
+    if (accountNodeId === '') {
+      notify('请选择这份账单归属的账户（Core 的支付路径建议依赖账户归属）', 'error')
       return
     }
     setBusy(true)
@@ -111,6 +116,7 @@ export function ImportView(): ReactNode {
       fileName,
       dataBase64,
       adapterId,
+      ...(accountNodeId === '' ? {} : { accountNodeId }),
       ...(mappingPayload ? { mapping: mappingPayload as never } : {}),
     })
     setBusy(false)
@@ -178,6 +184,18 @@ export function ImportView(): ReactNode {
             value={adapterId}
             onChange={setAdapterId}
             options={state.adapters.map((adapter) => ({ value: adapter.id, label: adapter.label }))}
+          />
+          <Select
+            label="账单归属账户"
+            value={accountNodeId}
+            onChange={setAccountNodeId}
+            options={[
+              { value: '', label: '选择账户' },
+              ...nodes
+                .filter((node) => node.kind === 'account')
+                .map((node) => ({ value: node.id, label: node.name })),
+            ]}
+            hint="账单必须归属于某个账户；没有账户归属时不会生成支付路径提案。"
           />
           <label className="field">
             <span className="field-label">文件</span>
