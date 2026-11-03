@@ -53,8 +53,134 @@ public enum Evaluators {
         case "temporal-change": return .value(try temporalChange(input))
         case "provider-policy": return .value(try providerPolicy(input))
         case "identity-relations": return .value(try relations(input))
+        case "identity-profile": return .value(identityProfile(input))
+        case "region-fact": return .value(regionFact(input))
+        case "maintenance-profile": return .value(maintenanceProfile(input))
         default: return .notImplemented
         }
+    }
+
+
+    // ------------------------------------------------------ maintenance-profile
+
+    private static func maintenanceProfile(_ input: JsonObject) -> Json {
+        guard
+            let kindRaw = input["kind"]?.stringValue,
+            let kind = NodeKind(rawValue: kindRaw)
+        else {
+            return .obj(JsonObject([
+                ("facts", .arr([])),
+                ("currentFactIds", .arr([])),
+                ("schedules", .arr([])),
+                ("currentScheduleIds", .arr([])),
+            ]))
+        }
+        let fieldsJson = input["fieldsJson"]?.stringValue ?? "{}"
+        let profile = governedMaintenanceProfile(kind: kind, fieldsJson: fieldsJson)
+        let currentFacts = currentMaintenanceFacts(kind: kind, fieldsJson: fieldsJson)
+        let currentSchedules = currentMaintenanceSchedules(kind: kind, fieldsJson: fieldsJson)
+
+        return .obj(JsonObject([
+            (
+                "facts",
+                .arr(profile.facts.map { fact in
+                    .obj(JsonObject([
+                        ("id", .str(fact.id)),
+                        ("kind", .str(fact.kind.rawValue)),
+                        ("valueType", .str(fact.valueType.rawValue)),
+                        ("value", .str(fact.value)),
+                        ("state", .str(fact.state.rawValue)),
+                    ]))
+                })
+            ),
+            ("currentFactIds", .arr(currentFacts.map { .str($0.id) })),
+            (
+                "schedules",
+                .arr(profile.schedules.map { schedule in
+                    .obj(JsonObject([
+                        ("id", .str(schedule.id)),
+                        ("kind", .str(schedule.kind.rawValue)),
+                        ("state", .str(schedule.state.rawValue)),
+                        ("cadenceKind", .str(schedule.cadence.kind.rawValue)),
+                    ]))
+                })
+            ),
+            ("currentScheduleIds", .arr(currentSchedules.map { .str($0.id) })),
+        ]))
+    }
+
+    // ------------------------------------------------------------ region-fact
+
+    private static func regionFact(_ input: JsonObject) -> Json {
+        let fieldsJson = input["fieldsJson"]?.stringValue ?? "{}"
+        let facts = governedRegionFacts(fieldsJson: fieldsJson)
+        let current = currentConfirmedRegionFacts(fieldsJson: fieldsJson)
+        let lens = defaultRegionLensSelection(fieldsJson: fieldsJson)
+
+        var lensFields: [(String, Json)] = [
+            ("status", .str(lens.status.rawValue)),
+        ]
+        if let territory = lens.territoryCode {
+            lensFields.append(("territoryCode", .str(territory)))
+        }
+        if let facet = lens.facet {
+            lensFields.append(("facet", .str(facet.rawValue)))
+        }
+
+        return .obj(JsonObject([
+            (
+                "facts",
+                .arr(facts.map { fact in
+                    var fields: [(String, Json)] = [
+                        ("id", .str(fact.id)),
+                        ("facet", .str(fact.facet.rawValue)),
+                        ("territoryCode", .str(fact.territoryCode)),
+                    ]
+                    if let subdivision = fact.subdivisionCode {
+                        fields.append(("subdivisionCode", .str(subdivision)))
+                    }
+                    fields.append(("state", .str(fact.state.rawValue)))
+                    return .obj(JsonObject(fields))
+                })
+            ),
+            ("currentIds", .arr(current.map { .str($0.id) })),
+            ("lens", .obj(JsonObject(lensFields))),
+        ]))
+    }
+
+    // -------------------------------------------------------- identity-profile
+
+    private static func identityProfile(_ input: JsonObject) -> Json {
+        guard
+            let kindRaw = input["kind"]?.stringValue,
+            let kind = NodeKind(rawValue: kindRaw),
+            let fieldsJson = input["fieldsJson"]?.stringValue,
+            let profile = confirmedIdentityAnchorProfile(kind: kind, fieldsJson: fieldsJson)
+        else {
+            return .obj(JsonObject([
+                ("confirmed", .bool(false)),
+            ]))
+        }
+
+        var fields: [(String, Json)] = [
+            ("confirmed", .bool(true)),
+            ("subtype", .str(profile.subtype.wire)),
+            ("verificationBasisType", .str(profile.verificationBasisType.wire)),
+            ("confirmedAt", .str(profile.confirmedAt)),
+            ("evidenceRefs", .arr(profile.evidenceRefs.map { .str($0) })),
+        ]
+        if let identifier = profile.identifier {
+            fields.append((
+                "identifier",
+                .obj(JsonObject([
+                    ("value", .str(identifier.value)),
+                    ("verificationBasisType", .str(identifier.verificationBasisType.wire)),
+                    ("confirmedAt", .str(identifier.confirmedAt)),
+                    ("evidenceRefs", .arr(identifier.evidenceRefs.map { .str($0) })),
+                ]))
+            ))
+        }
+        return .obj(JsonObject(fields))
     }
 
     // ---------------------------------------------------------------- relations
