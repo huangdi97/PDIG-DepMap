@@ -12,6 +12,11 @@ async function shot(page: import('@playwright/test').Page, name: string): Promis
   const size = page.viewportSize() ?? { width: 1440, height: 1000 }
   const file = `${name}-${size.width}x${size.height}.png`
   await page.screenshot({ path: resolve(OUT, file), fullPage: false })
+  // 只有显式开启回归模式才比对基线（见 playwright.config 的 snapshotPathTemplate）：
+  // 基线是 CI（Ubuntu + Noto CJK）渲染的产物，本地字体不同会造成假红。
+  if (process.env['VISUAL_REGRESSION'] === '1') {
+    await expect(page).toHaveScreenshot(file, { fullPage: false })
+  }
   shots.push({ name, file, viewport: `${size.width}x${size.height}` })
 }
 

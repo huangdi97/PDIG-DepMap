@@ -150,7 +150,11 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: build
         run: npm run build:web
-      - name: visual matrix
+      - name: visual matrix + regression
+        # 基线（tests/e2e/visual.spec.ts-snapshots/*.png）由 Ubuntu + Noto CJK 渲染生成并入库；
+        # 只有在这个环境里才做像素比较，本地渲染不参与，避免假红。
+        env:
+          VISUAL_REGRESSION: '1'
         run: node node_modules/@playwright/test/cli.js test --project=visual-chromium tests/e2e/visual.spec.ts
       - name: manifest
         run: node scripts/collect-evidence.mjs

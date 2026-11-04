@@ -14,7 +14,13 @@ const HERE = dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 120_000,
-  expect: { timeout: 15_000 },
+  expect: {
+    timeout: 15_000,
+    // 视觉回归只与「同环境」基线比较：基线由 CI（Ubuntu + Noto CJK）生成并入库，
+    // 本地渲染（不同字体）不参与像素比较，避免假红。
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02, animations: 'disabled' },
+  },
+  snapshotPathTemplate: '{testDir}/{testFileDir}/{testFileName}-snapshots/{arg}{ext}',
   fullyParallel: false,
   workers: 1,
   retries: 0,
