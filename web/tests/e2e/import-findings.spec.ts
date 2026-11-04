@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 import { addNode, addRelation, createVault, openNav, openNode } from './helpers.ts'
-import { csvRows, ofxText, runImport } from './import-helpers.ts'
+import { csvRows, ofxText, runImport, wechatBill } from './import-helpers.ts'
 
 test.describe.configure({ mode: 'serial' })
 
@@ -195,4 +195,63 @@ test('E2E-21 Import（OFX）：无需映射，解析后同样只产生提案', a
 
   await openNode(page, 'O 服务')
   await expect(page.getByTestId('node-detail')).toContainText('merchant_agreement')
+})
+
+test('E2E-22 Import（微信账单）：商户关系 + 支付方式推断 funding_source', async ({ page }) => {
+  await createVault(page)
+  await openNav(page, '基础设施')
+  await addNode(page, { kind: 'account', name: 'W 微信账户' })
+  await addNode(page, {
+    kind: 'payment_instrument',
+    name: 'W 银行卡',
+    issuer: '招商银行',
+    last4: '4417',
+  })
+  await addNode(page, { kind: 'service', name: '腾讯视频' })
+
+  await page.goto('/#/import')
+  await expect(page.getByTestId('import-view')).toBeVisible()
+  await page.getByLabel('数据来源', { exact: true }).selectOption('wechat_statement')
+  await page.getByLabel('账单归属账户', { exact: true }).selectOption({ label: 'W 微信账户' })
+  // 微信账单是真实导出格式（UTF-8/GB18030 + 表头说明行），不需要任何字段映射。
+  await page.setInputFiles('input[type=file]', {
+    name: 'wechat-bill.csv',
+    mimeType: 'text/csv',
+    buffer: Buffer.from(wechatBill('腾讯视频'), 'utf8'),
+  })
+
+  await page.getByRole('button', { name: '开始解析' }).click()
+  const merchantRow = page.locator('.merchant-row', { hasText: '腾讯视频' }).first()
+  await expect(merchantRow).toBeVisible({ timeout: 30_000 })
+  await merchantRow.getByLabel('对应对象', { exact: true }).selectOption({ label: '腾讯视频' })
+
+  await page.getByRole('button', { name: '确认并生成提案' }).click()
+  await expect(page.getByText('提案（未进入 Reality）')).toBeVisible({ timeout: 30_000 })
+
+  // ① 商户关系：微信账户 → 腾讯视频（同一服务只 1 条提案，不按观测条数膨胀）
+  const merchantProposal = page
+    .locator('.proposal-row', { hasText: 'merchant_agreement' })
+    .filter({ hasText: '腾讯视频' })
+    .first()
+  await expect(merchantProposal).toBeVisible()
+  await expect(merchantProposal).toContainText('W 微信账户')
+  await expect(merchantProposal).toContainText('pending')
+
+  // ② 支付方式推断：招商银行信用卡(4417) 命中 W 银行卡 → funding_source（仍只是提案）
+  const fundingProposal = page
+    .locator('.proposal-row', { hasText: 'funding_source' })
+    .filter({ hasText: 'W 银行卡' })
+    .first()
+  await expect(fundingProposal).toBeVisible()
+  await expect(fundingProposal).toContainText('W 微信账户')
+
+  // 接受后才进入 Reality，且 criticality 仍是 unknown
+  await merchantProposal.getByRole('button', { name: '接受（criticality: unknown）' }).click()
+  await expect(
+    page.locator('.proposal-row', { hasText: 'merchant_agreement' }).first(),
+  ).toContainText('accepted')
+
+  await openNode(page, '腾讯视频')
+  await expect(page.getByTestId('node-detail')).toContainText('merchant_agreement')
+  await expect(page.getByTestId('node-detail')).toContainText('criticality: unknown')
 })
