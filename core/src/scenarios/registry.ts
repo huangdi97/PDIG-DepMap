@@ -261,10 +261,10 @@ function makeReplacePhoneTemplate(): ScenarioTemplate {
           prerequisiteActionIds: ['rpn-verify-1'],
         },
       ]
-      return {
-        ...plan,
-        actions,
-      }
+      // Canonical v0.3.0：动作必须先持久化再返回。
+      // 否则 plans.getExisting() 读到的是 create() 时的空动作列表，
+      // Action DAG / Make-Before-Break / must_change claiming 全部失效。
+      return service.plans.updateActions(plan.id, actions)
     },
   }
 }

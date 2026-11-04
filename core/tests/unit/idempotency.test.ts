@@ -12,6 +12,7 @@ import { DependencyProposalRepository } from '../../src/repositories/proposal-re
 import { ImportFlow } from '../../src/services/import-pipeline.ts'
 import { ConfirmationService } from '../../src/services/confirmation-service.ts'
 import { exportGraph, importGraph } from '../../src/services/graph-serialize.ts'
+import { localMetaDifferences, normalizeLocalSchemaMeta } from '../helpers/payload-equivalence.ts'
 
 /**
  * PHASE I — Idempotency / Replay。
@@ -176,7 +177,13 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
     try {
       importGraph(driver2, export1.payloadJson)
       const export2 = exportGraph(driver2)
-      expect(export2.payloadJson).toBe(export1.payloadJson)
+      // 逻辑图必须完全等价；唯一允许的差异是两个独立库各自的本地 schema 元数据时间戳。
+      expect(localMetaDifferences(export1.payloadJson, export2.payloadJson)).toEqual([
+        'meta.schema_version_updated_at',
+      ])
+      expect(normalizeLocalSchemaMeta(export2.payloadJson)).toBe(
+        normalizeLocalSchemaMeta(export1.payloadJson),
+      )
 
       // 等价性：关键实体计数一致
       expect(export2.counts['dependencies']).toBe(export1.counts['dependencies'])
@@ -187,7 +194,9 @@ describe('Idempotency / Replay (RC PHASE I)', () => {
       migrate(driver3)
       try {
         importGraph(driver3, export2.payloadJson)
-        expect(exportGraph(driver3).payloadJson).toBe(export1.payloadJson)
+        expect(normalizeLocalSchemaMeta(exportGraph(driver3).payloadJson)).toBe(
+          normalizeLocalSchemaMeta(export1.payloadJson),
+        )
       } finally {
         driver3.close()
       }

@@ -208,8 +208,7 @@ export function claimUnassignedImpacts(
   const unassigned = mustChangeKeys.filter((k) => !claimed.has(k))
   if (unassigned.length === 0) return actions.map((a) => ({ ...a }))
   const out = actions.map((a) => ({ ...a }))
-  const eligibleActionIds =
-    scenario === 'replace_phone_number' ? new Set(['rpn-change-1']) : null
+  const eligibleActionIds = scenario === 'replace_phone_number' ? new Set(['rpn-change-1']) : null
   const target = out.find(
     (a) =>
       a.phase === 'change' &&

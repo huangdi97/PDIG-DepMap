@@ -34,9 +34,7 @@ const ALLOWED_TRANSITIONS: Record<ChangePlanWorkflowState, ChangePlanWorkflowSta
   cancelled: [],
 }
 
-export function pendingReadinessChangeActionCount(
-  actions: readonly PlanAction[],
-): number {
+export function pendingReadinessChangeActionCount(actions: readonly PlanAction[]): number {
   return actions.filter((a) => {
     if (a.phase !== 'change') return false
     if (!a.done) return true

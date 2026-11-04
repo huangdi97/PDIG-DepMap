@@ -1,0 +1,126 @@
+{
+  "sourceHead": "bc24f6689a44bd7c125eadeb980064b54ceaa237",
+  "sourceState": "working-tree (uncommitted at capture time)",
+  "branch": "feat/web-vnext",
+  "capturedAt": "2026-11-02T06:28:21.061Z",
+  "nodeVersion": "v22.23.4",
+  "playwrightVersion": "1.63.0",
+  "browser": {
+    "name": "chromium",
+    "build": "chromium-1243",
+    "product": "Chrome for Testing 153.0.8010.12"
+  },
+  "buildSha256": "3234145cd47b529826a938935da90aff785683dd876ab9ad8fbe3218ac0d54ea",
+  "dataMode": "demo (?demo=1 synthetic sample reality)",
+  "testMode": "local (Windows); not CI Ubuntu baseline",
+  "fonts": "system CJK (Windows: Microsoft YaHei / PingFang fallback)",
+  "visualRegression": "NOT_RUN",
+  "humanVisualReview": "NOT_RUN",
+  "shots": [
+    {
+      "name": "onboarding",
+      "file": "onboarding-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "locked",
+      "file": "locked-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "now-desktop",
+      "file": "now-desktop-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "now-desktop-1280",
+      "file": "now-desktop-1280-1280x900.png",
+      "viewport": "1280x900"
+    },
+    {
+      "name": "now-1024",
+      "file": "now-1024-1024x768.png",
+      "viewport": "1024x768"
+    },
+    {
+      "name": "now-tablet",
+      "file": "now-tablet-768x1024.png",
+      "viewport": "768x1024"
+    },
+    {
+      "name": "now-mobile",
+      "file": "now-mobile-390x844.png",
+      "viewport": "390x844"
+    },
+    {
+      "name": "now-mobile-360",
+      "file": "now-mobile-360-360x800.png",
+      "viewport": "360x800"
+    },
+    {
+      "name": "infrastructure",
+      "file": "infrastructure-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "node-detail-phone",
+      "file": "node-detail-phone-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "node-detail-account",
+      "file": "node-detail-account-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "change",
+      "file": "change-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "change-plan",
+      "file": "change-plan-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "change-pending-verification",
+      "file": "change-pending-verification-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "change-stale",
+      "file": "change-stale-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "change-reanalyzed",
+      "file": "change-reanalyzed-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "records",
+      "file": "records-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "privacy-on",
+      "file": "privacy-on-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "me",
+      "file": "me-1440x1000.png",
+      "viewport": "1440x1000"
+    },
+    {
+      "name": "change-mobile",
+      "file": "change-mobile-390x844.png",
+      "viewport": "390x844"
+    },
+    {
+      "name": "records-mobile",
+      "file": "records-mobile-390x844.png",
+      "viewport": "390x844"
+    }
+  ]
+}

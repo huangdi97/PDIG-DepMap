@@ -10,6 +10,7 @@ import {
   DependencyProposalRepository,
   DependencyRepository,
   getGraphRevision,
+  LATEST_SCHEMA_VERSION,
   migrate,
   NodeRepository,
   NodeSqliteDriver,
@@ -45,7 +46,8 @@ describe('ChangePlan Rebase（MVP03 PRB）', () => {
     dir = mkdtempSync(join(tmpdir(), 'depmap-prb-'))
     driver = new NodeSqliteDriver(join(dir, 'test.db'))
     driver.open()
-    migrate(driver)
+    // PRB-012 覆盖 Canonical v4 的 recovery/authentication 关系，因此必须迁移到最新 schema。
+    migrate(driver, undefined, LATEST_SCHEMA_VERSION)
     nodes = new NodeRepository(driver)
     deps = new DependencyRepository(driver)
     proposals = new DependencyProposalRepository(driver)
@@ -278,12 +280,9 @@ describe('ChangePlan Rebase（MVP03 PRB）', () => {
       plan,
     )
 
-    expect(
-      snapshot.targets.map((t) => `${t.nodeId}|${t.capability}|${t.status}`).sort(),
-    ).toEqual([
-      `${account}|recovery|must_change`,
-      `${service}|authentication|must_change`,
-    ].sort())
+    expect(snapshot.targets.map((t) => `${t.nodeId}|${t.capability}|${t.status}`).sort()).toEqual(
+      [`${account}|recovery|must_change`, `${service}|authentication|must_change`].sort(),
+    )
     expect(snapshot.targets.some((t) => t.capability === 'payment')).toBe(false)
   })
 

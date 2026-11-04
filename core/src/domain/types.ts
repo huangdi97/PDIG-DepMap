@@ -44,7 +44,14 @@ export interface DepNode {
 // ---------------------------------------------------------------------------
 
 export type Relation =
-  'funding_source' | 'merchant_agreement' | 'verifies' | 'recovers' | 'bound_to'
+  | 'funding_source'
+  | 'merchant_agreement'
+  | 'verifies'
+  | 'recovers'
+  | 'bound_to'
+  // Canonical v4（spec/domain/domain.json → relations；Schema V4 CHECK 已包含）
+  | 'authenticates'
+  | 'controls'
 
 /** MVP Impact domain 只支持 payment；其他 capability 仅允许存边、不参与传播。 */
 export type Capability =

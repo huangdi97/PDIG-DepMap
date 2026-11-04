@@ -76,7 +76,9 @@ const changeAction = (id: string, keys: string[], done = false): PlanAction => (
 describe('PlanReadiness action verification accounting', () => {
   it('done but pending/failed verification stays pending; verified/not-required clears', () => {
     const base = changeAction('a', ['x|payment'], true)
-    const withStatus = (status: 'pending' | 'evidence_suggested' | 'verified' | 'failed' | 'not_required') => ({
+    const withStatus = (
+      status: 'pending' | 'evidence_suggested' | 'verified' | 'failed' | 'not_required',
+    ) => ({
       ...base,
       verification: {
         method: 'future_observation' as const,

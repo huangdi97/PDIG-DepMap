@@ -1,0 +1,14 @@
+{
+  "name": "PDIG / DepMap",
+  "short_name": "PDIG",
+  "description": "个人数字依赖图：本地优先、可审计的变更前影响检查。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f7f9",
+  "theme_color": "#f5f7f9",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

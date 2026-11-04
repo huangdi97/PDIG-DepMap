@@ -25,6 +25,7 @@ import {
   GRAPH_PAYLOAD_VERSION,
   migratePayloadV2toV3,
 } from '../../src/services/graph-serialize.ts'
+import { localMetaDifferences, normalizeLocalSchemaMeta } from '../helpers/payload-equivalence.ts'
 
 /**
  * MVP02 J 段 —— `.depmap` payload v2 export/import + v1 payload in-memory migrate。
@@ -249,7 +250,13 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
     try {
       importGraph(d2, e1.payloadJson)
       const e2 = exportGraph(d2)
-      expect(e2.payloadJson).toBe(e1.payloadJson)
+      // 逻辑图逐字节等价；唯一允许差异是两个独立库各自的本地 schema 元数据时间戳。
+      expect(localMetaDifferences(e1.payloadJson, e2.payloadJson)).toEqual([
+        'meta.schema_version_updated_at',
+      ])
+      expect(normalizeLocalSchemaMeta(e2.payloadJson)).toBe(
+        normalizeLocalSchemaMeta(e1.payloadJson),
+      )
       expect(e2.counts).toEqual(e1.counts)
     } finally {
       d2.close()
@@ -269,8 +276,11 @@ describe('graph payload v2 / v1 migration (MVP02 J)', () => {
       // 第二次导入同一 payload 到已导入的库
       importGraph(d2, e1.payloadJson)
       const e3 = exportGraph(d2)
+      // 同一库内的重复导入必须逐字节幂等（本地 meta 不变）。
       expect(e3.payloadJson).toBe(e2.payloadJson)
-      expect(e3.payloadJson).toBe(e1.payloadJson)
+      expect(normalizeLocalSchemaMeta(e3.payloadJson)).toBe(
+        normalizeLocalSchemaMeta(e1.payloadJson),
+      )
     } finally {
       d2.close()
     }
