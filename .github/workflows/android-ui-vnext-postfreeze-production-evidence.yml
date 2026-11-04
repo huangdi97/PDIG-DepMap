@@ -46,11 +46,21 @@ jobs:
         include:
           - label: phone
             font_scale: "1.0"
+            profile: pixel_7
           - label: phone-font15
             font_scale: "1.5"
+            profile: pixel_7
+          # §Reference Freeze 等待的那一次 targeted exact-head TabletAdaptive 重跑。
+          - label: tablet
+            font_scale: "1.0"
+            profile: pixel_tablet
+          - label: tablet-font15
+            font_scale: "1.5"
+            profile: pixel_tablet
     env:
       PDIG_EVIDENCE_LABEL: ${{ matrix.label }}
       PDIG_EVIDENCE_FONT_SCALE: ${{ matrix.font_scale }}
+      PDIG_EVIDENCE_DEVICE_PROFILE: ${{ matrix.profile }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -106,7 +116,7 @@ jobs:
         with:
           api-level: 36
           arch: x86_64
-          profile: pixel_7
+          profile: ${{ matrix.profile }}
           target: google_apis
           ram-size: 3072M
           heap-size: 512M
