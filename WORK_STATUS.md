@@ -15,6 +15,10 @@
 > - 分支同步：已把 main 合并进 `feat/android-ui-vnext-translation`（**用 merge 而非 rebase**，分支领先 2077 提交），产出 PR #3（`merge/main-into-android`，`f40a0828`）。合并中保留了 main 的两处 Core 修复（`authenticates`/`controls`、`plans.updateActions` 持久化）。
 > - **当前产品范围（2026-11-04 确认）：Android + Web**。iOS / HarmonyOS 的 UI vNext 维持 `HOLD`，不作为当前迭代任务；Core/Canonical 三端共享真值照常维持。
 > - **PR #3 阻塞（真实缺陷，非本轮引入）**：`ios-runtime-visual.yml` 的 `PDIGAppUITests.testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite()` 失败；证据：该用例在合并前的 `a53bc633` / `a412fd9c` / `2a07c4e4`（2026-10-29）三次运行中同样失败。PR #3 其余 13 个 check 全 PASS。**在修好该 iOS UI 用例前不合并 PR #3**，否则会把红灯带入 main。诊断与完成定义见 issue #4（https://github.com/huangdi97/PDIG-DepMap/issues/4）。
+> - 工程门禁（2026-11-04）：4 个 spec 契约校验器已接入 CI `Canonical` job（`cd4fddaf`）：`IDENTITY_ANCHOR_PROFILE_CONTRACT` / `MAINTENANCE_PROFILE_CONTRACT` / `REGION_FACT_CONTRACT` / `CANONICAL_V4_EXPANSION_PLAN`，CI 日志逐个 PASS，spec 漂移会直接红。
+> - Web 导入覆盖补齐（`f844c0cd`）：E2E-22 覆盖 `wechat_statement`（真实导出格式 + 3 笔月付）→ `merchant_agreement` 与支付方式推断的 `funding_source` 两条提案。三浏览器：Chromium 29 / Firefox 29 / WebKit 27（+2 skip）。
+> - **视觉像素回归：实测否决**（`febb98c6`）。数据：同一运行内两张截图 0 差异；跨运行 `privacy-on` 3%、`change-mobile` 8% 差异，两图平均亮度差 <1（CJK 抗锯齿噪声，非布局变化）。阈值压到 2%/5% 都会随机红，提到 8% 则抓不到真实回归。故不入库像素基线、不启用 `toHaveScreenshot`；结构不变量继续由 layout-audit 保障。保留改进：visual job 的 manifest 与 artifact 上传改为 `if: always()`，并把 `test-results/**`（actual/diff PNG）一并上传。
+> - Android 分支再次同步 main（`64bf16a3`）：与 main 的 `core/src`、`tools/conformance`、`fixtures`、`conformance`、`spec` **零差异**；PR #3 仍为 Draft，待 issue #4 解决后再转正（main 继续前进时它会周期性变成 DIRTY，属预期）。
 > - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
 
 > **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
