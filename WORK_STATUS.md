@@ -2,13 +2,15 @@
 
 > **（当前）Web VNext Product Candidate，2026-10-30** —— 产品面切换为 **Web-first**：`web/` 是源码真源，`website/app/` 是构建产物；Android / iOS / HarmonyOS 保持既有 baseline，本轮未推进。
 >
-> - 分支 `feat/web-vnext`（PR #2），起始 HEAD `bc24f668`；未 merge main、未 force-push、未发布。
+> - 分支 `feat/web-vnext`（PR #2）已于 2026-11-04 **合并进 main**，merge commit `28e8fb0f`；未 force-push。
 > - Shared Truth 收敛：`feat/android-ui-vnext-translation` 的 v4 Canonical/Core/fixtures/conformance/codegen 增量已并入（不含 Android UI/Compose/测试工地）。
 > - 修掉 3 个真实 Core 缺陷：`Relation` 缺 `authenticates`/`controls`；`replace_phone_number` 动作未持久化；三处与 v4 语义不一致的测试断言。
 > - 门禁（本地实跑）：codegen PASS；conformance PASS（128）；`cd core && npm run check` PASS（492 tests / 0 circular / 0 network / 0 secrets）；web typecheck PASS；web unit 20/20；`build:web` 9 files/1847 KiB；Chromium 功能 E2E 16/16；布局审计 6/6；视觉矩阵 2/2（21 shots）；boundary PASS；remote-assets PASS。
 > - 浏览器矩阵（本地实跑）：Chromium 28/28；Firefox 28/28；WebKit 26/28（离线两例为浏览器边界，标 UNSUPPORTED）。`check:web-generated`、`check-boundary`、`check-remote-assets` 均 PASS。
 > - **NOT_RUN（不得写成 PASS）**：视觉回归基线（需 Ubuntu CI）、人眼视觉验收、WeChat 账单适配器的浏览器 E2E、ESLint（未采用）。
-> - CI（exact HEAD d4bce380）：core gate / web source gates / Chromium / Firefox / WebKit / Visual matrix 六个 job 全 PASS（run 41579667219）。
+> - CI（exact HEAD `41a1f306`）：web-vnext 六 job + `ci.yml` 五 job（Canonical / Android core / Android app / Harmony static / iOS core）全 PASS；合并后 main `28e8fb0f` 的 CI / iOS / iOS Runtime Visual 亦全 PASS。
+> - **部署（2026-11-04）**：GitHub Pages 发布源是 `gh-pages` 分支（非 main/website）；已发布 `gh-pages` `b389245c`：`/app` = main `28e8fb0f` 的 `website/app` 构建产物，根 `index.html` 指向 `./app/`，并加 `.nojekyll`。
+> - 线上地址 `https://haoleilab.com/PDIG-DepMap/app/`（`https://huangdi97.github.io/PDIG-DepMap/app/` 同源可达）；线上冒烟：建库 → 建对象 → reload → 解锁 → 数据留存 → 对象详情 **全 PASS，0 console/page error**。Pages `https_enforced=false`（需人工在 Settings → Pages 开启）。
 > - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
 
 > **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。

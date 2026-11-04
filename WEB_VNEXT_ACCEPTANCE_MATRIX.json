@@ -59,6 +59,11 @@
   "humanVisualCandidate": "READY",
   "humanVisualAccepted": "NOT_RUN",
 
-  "mainMerged": false,
-  "productionReleased": false
+  "mainMerged": true,
+  "mainMergeCommit": "28e8fb0f",
+  "productionReleased": true,
+  "deployment": "gh-pages b389245c (app = website/app from main 28e8fb0f)",
+  "liveUrl": "https://haoleilab.com/PDIG-DepMap/app/",
+  "liveSmoke": "PASS (create vault -> add node -> reload -> unlock -> data persists -> node detail; 0 console/page errors)",
+  "pagesHttpsEnforced": false
 }
