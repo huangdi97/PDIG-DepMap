@@ -1,0 +1,49 @@
+{
+  "name": "@pdig/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "PDIG Web VNext — local-first web product surface over the shared PDIG Core",
+  "engines": {
+    "node": ">=22.5.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b --noEmit && vite build",
+    "build:web": "node scripts/build-web.mjs",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"tests/**/*.ts\" \"scripts/*.mjs\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:boundary": "node scripts/check-boundary.mjs",
+    "check:remote-assets": "node scripts/check-remote-assets.mjs",
+    "check:web-generated": "node scripts/check-web-generated.mjs",
+    "check": "npm run format:check && npm run typecheck && npm run test && npm run check:boundary && npm run check:remote-assets",
+    "e2e": "playwright test",
+    "e2e:chromium": "playwright test --project=chromium",
+    "e2e:firefox": "playwright test --project=firefox",
+    "e2e:webkit": "playwright test --project=webkit",
+    "visual": "playwright test --project=visual-chromium",
+    "evidence": "node scripts/collect-evidence.mjs"
+  },
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "3.54.1-build1",
+    "hash-wasm": "4.12.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^22.15.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "5.2.0",
+    "fake-indexeddb": "6.2.7",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "vite": "7.3.7",
+    "vitest": "3.2.7"
+  }
+}

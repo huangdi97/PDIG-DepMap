@@ -1,0 +1,18 @@
+{
+  "id": "region-fact-rg09-provider-name-no-inference",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-09 provider/issuer name does not infer region",
+  "input": {
+    "fieldsJson": "{\"issuer\":\"HSBC Hong Kong\",\"provider\":\"UK Service\"}"
+  },
+  "expected": {
+    "facts": [],
+    "currentIds": [],
+    "lens": {
+      "status": "unknown"
+    }
+  }
+}

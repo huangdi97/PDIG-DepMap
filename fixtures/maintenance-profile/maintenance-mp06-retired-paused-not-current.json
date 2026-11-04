@@ -1,0 +1,18 @@
+{
+  "id": "maintenance-mp06-retired-paused-not-current",
+  "category": "maintenance-profile",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R40 governed maintenance-profile contract",
+  "description": "MP-06 retired and paused stay historical but leave current projection",
+  "input": {
+    "kind": "payment_instrument",
+    "fieldsJson": "{\"maintenance_profile\":{\"version\":1,\"facts\":[{\"id\":\"old\",\"kind\":\"card_autopay_mode\",\"value_type\":\"text\",\"value\":\"legacy\",\"state\":\"retired\",\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\",\"retired_at\":\"t2\"}],\"schedules\":[{\"id\":\"paused\",\"kind\":\"custom_maintenance\",\"state\":\"paused\",\"cadence\":{\"kind\":\"manual_only\"},\"verification_basis_type\":\"user_confirmed\",\"confirmed_at\":\"t\"}]}}"
+  },
+  "expected": {
+    "facts": [{"id": "old", "kind": "card_autopay_mode", "valueType": "text", "value": "legacy", "state": "retired"}],
+    "currentFactIds": [],
+    "schedules": [{"id": "paused", "kind": "custom_maintenance", "state": "paused", "cadenceKind": "manual_only"}],
+    "currentScheduleIds": []
+  }
+}

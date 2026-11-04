@@ -4,11 +4,13 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import {
   analyzePlanImpact,
+  claimUnassignedImpacts,
   ChangePlanRepository,
   DependencyGroupRepository,
   DependencyProposalRepository,
   DependencyRepository,
   getGraphRevision,
+  LATEST_SCHEMA_VERSION,
   migrate,
   NodeRepository,
   NodeSqliteDriver,
@@ -44,7 +46,8 @@ describe('ChangePlan Rebase（MVP03 PRB）', () => {
     dir = mkdtempSync(join(tmpdir(), 'depmap-prb-'))
     driver = new NodeSqliteDriver(join(dir, 'test.db'))
     driver.open()
-    migrate(driver)
+    // PRB-012 覆盖 Canonical v4 的 recovery/authentication 关系，因此必须迁移到最新 schema。
+    migrate(driver, undefined, LATEST_SCHEMA_VERSION)
     nodes = new NodeRepository(driver)
     deps = new DependencyRepository(driver)
     proposals = new DependencyProposalRepository(driver)
@@ -243,6 +246,98 @@ describe('ChangePlan Rebase（MVP03 PRB）', () => {
     const result = rebasePlan(driver, repos(driver), id)
     expect(result.revisionChanged).toBe(false)
     expect(plans.getExisting(id).workflowState).toBe('cancelled')
+  })
+
+  it('PRB-012: replace_phone_number analysis follows recovery/authentication scope, not payment', () => {
+    const phone = nodes.create({ kind: 'identity_anchor', name: '旧手机号' }).id
+    const account = nodes.create({ kind: 'account', name: '主账户' }).id
+    const service = nodes.create({ kind: 'service', name: '登录服务' }).id
+    deps.confirm({
+      from: phone,
+      relation: 'recovers',
+      to: account,
+      capability: 'recovery',
+      criticality: 'required',
+    })
+    deps.confirm({
+      from: phone,
+      relation: 'authenticates',
+      to: service,
+      capability: 'authentication',
+      criticality: 'required',
+    })
+
+    const plan = plans.create({
+      scenario: 'replace_phone_number',
+      title: '更换手机号',
+      templateId: 'replace_phone_number',
+      targetNodeId: phone,
+      graphRevision: getGraphRevision(driver),
+    })
+    const snapshot = analyzePlanImpact(
+      driver,
+      { deps, groups: new DependencyGroupRepository(driver), proposals },
+      plan,
+    )
+
+    expect(snapshot.targets.map((t) => `${t.nodeId}|${t.capability}|${t.status}`).sort()).toEqual(
+      [`${account}|recovery|must_change`, `${service}|authentication|must_change`].sort(),
+    )
+    expect(snapshot.targets.some((t) => t.capability === 'payment')).toBe(false)
+  })
+
+  it('PRB-013: phone rebase never binds new migration work to retirement', () => {
+    const actions: PlanAction[] = [
+      {
+        id: 'rpn-change-1',
+        title: '添加新手机号并迁移关键账户',
+        detail: '',
+        phase: 'change',
+        done: true,
+        doneAt: '2026-10-19T00:00:00Z',
+        verification: {
+          method: 'future_observation',
+          status: 'verified',
+          verifiedAt: '2026-10-19T00:00:00Z',
+          evidenceRefs: ['ev-1'],
+        },
+        resolvesImpactKeys: ['account-a|recovery'],
+      },
+      {
+        id: 'rpn-change-2',
+        title: '停用旧手机号',
+        detail: '',
+        phase: 'change',
+        done: false,
+        doneAt: null,
+        verification: null,
+        resolvesImpactKeys: [],
+      },
+    ]
+    const snapshot = {
+      unavailable: [],
+      targets: [
+        {
+          nodeId: 'account-a',
+          capability: 'recovery' as const,
+          status: 'must_change',
+          reasonCode: 'required_path',
+        },
+        {
+          nodeId: 'account-b',
+          capability: 'authentication' as const,
+          status: 'must_change',
+          reasonCode: 'required_path',
+        },
+      ],
+      checklistLevels: [],
+    }
+
+    const projected = claimUnassignedImpacts(actions, snapshot, 'replace_phone_number')
+    expect(projected.find((a) => a.id === 'rpn-change-2')?.resolvesImpactKeys).toEqual([])
+    expect(projected.some((a) => a.resolvesImpactKeys?.includes('account-b|authentication'))).toBe(
+      false,
+    )
   })
 
   it('PRB-011: deterministic diff ordering（多目标差异排序确定，重复 rebase 无差异）', () => {

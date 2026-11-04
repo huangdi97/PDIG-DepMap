@@ -1,5 +1,16 @@
 # WORK_STATUS.md
 
+> **（当前）Web VNext Product Candidate，2026-10-30** —— 产品面切换为 **Web-first**：`web/` 是源码真源，`website/app/` 是构建产物；Android / iOS / HarmonyOS 保持既有 baseline，本轮未推进。
+>
+> - 分支 `feat/web-vnext`（PR #2），起始 HEAD `bc24f668`；未 merge main、未 force-push、未发布。
+> - Shared Truth 收敛：`feat/android-ui-vnext-translation` 的 v4 Canonical/Core/fixtures/conformance/codegen 增量已并入（不含 Android UI/Compose/测试工地）。
+> - 修掉 3 个真实 Core 缺陷：`Relation` 缺 `authenticates`/`controls`；`replace_phone_number` 动作未持久化；三处与 v4 语义不一致的测试断言。
+> - 门禁（本地实跑）：codegen PASS；conformance PASS（128）；`cd core && npm run check` PASS（492 tests / 0 circular / 0 network / 0 secrets）；web typecheck PASS；web unit 20/20；`build:web` 9 files/1847 KiB；Chromium 功能 E2E 16/16；布局审计 6/6；视觉矩阵 2/2（21 shots）；boundary PASS；remote-assets PASS。
+> - 浏览器矩阵（本地实跑）：Chromium 28/28；Firefox 28/28；WebKit 26/28（离线两例为浏览器边界，标 UNSUPPORTED）。`check:web-generated`、`check-boundary`、`check-remote-assets` 均 PASS。
+> - **NOT_RUN（不得写成 PASS）**：视觉回归基线（需 Ubuntu CI）、人眼视觉验收、WeChat 账单适配器的浏览器 E2E、ESLint（未采用）。
+> - CI（exact HEAD d4bce380）：core gate / web source gates / Chromium / Firefox / WebKit / Visual matrix 六个 job 全 PASS（run 41579667219）。
+> - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
+
 > **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
 >
 > - 基线：`5781ce6`（= 进入本轮的 HEAD/main/origin/main）；release 分支 `release/product-v0.3.1`。
@@ -10,7 +21,7 @@
 > - **desktop --keys 本轮受环境限制**（本会话窗口无法获焦，Robot 注入无效 → 11 项 FAIL）：production tree 零行为变化（本轮 desktop 仅版本常量 0.3.0→0.3.1），回退既有证据 `desktop__keys__focus-visible.png` + provenance（v0.3.0 closure）。**stability 3×green 复跑受本机高负载（两个遗留 qemu 模拟器占用 CPU 68–100%）影响**：perf large-synthetic 隔离复跑 6951/7017/3851ms 均 < 10s 阈值，判定为环境性而非回归；既有 stability 3×green 证据留档。
 > - 网站：product/support 页更新为 0.3.1 + corrective 说明；gh-pages 已推送（38f7aab）；Pages + haoleilab 自定义域 200 复验。
 > - 完成（2026-09-28）：RC SHA 8805486 冻结 → ff-only 合回 main → annotated tag product-v0.3.1（582edb9）→ push → RC SHA 重生成制品（Windows/APK/AAB/HAP/SHA256SUMS/SBOM/THIRD-PARTY-NOTICES）→ GitHub Release 发布（13 assets，isDraft=false / isPrerelease=true）→ 下载 smoke PASS（SHA256 MATCH + 品牌核验 + 便携启动）→ PRODUCT_V0_3_1_RELEASE_MANIFEST.md / FINAL_V0_3_1_RELEASE_CLOSURE.md 已提交（post-tag docs，tag 未动）。
-> **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
+>   **v0.3.0 Final Contract & Evidence Closure（2026-09-27）**—— 本轮不做新功能，只收口证据。
 >
 > - P0 三版本语义 RESOLVED：DEPMAP_CONTAINER_VERSION=1 / 逻辑 Schema v4（DB 级）/ PAYLOAD_SCHEMA_VERSION=3
 >   （spec payloadNote 明示元数据表不导出；.depmap 图载荷 11 表字节兼容 + 容器 V1 冻结）。

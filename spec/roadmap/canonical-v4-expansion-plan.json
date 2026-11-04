@@ -1,0 +1,498 @@
+{
+  "planVersion": "1.0.0",
+  "date": "2026-10-10",
+  "status": "DESIGN_FROZEN_MACHINE_READABLE_EXECUTION_GRAPH",
+  "currentBaseline": {
+    "appSchemaVersion": 3,
+    "graphPayloadVersion": 3,
+    "runtimeChangePrimitives": [
+      "REPLACE"
+    ],
+    "primaryNavigation": [
+      "NOW",
+      "INFRASTRUCTURE",
+      "CHANGE",
+      "RECORDS",
+      "ME"
+    ]
+  },
+  "permanentInvariants": [
+    "proposal != Reality",
+    "unknown != safe",
+    "done != verified",
+    "provider policy != personal Reality",
+    "path count != independent path count",
+    "recovery use != unique recovery",
+    "identity subtype must not be inferred from display strings",
+    "new capability != new primary tab",
+    "no Android-only Canonical side channel"
+  ],
+  "activationStages": [
+    {
+      "stage": 0,
+      "id": "V3_BASELINE",
+      "meaning": "Existing Canonical v3/v0.3 typed graph, evidence boundary, continuity primitives and REPLACE change authority."
+    },
+    {
+      "stage": 1,
+      "id": "V4_FOUNDATION_PARALLEL",
+      "meaning": "Independent semantic foundations that may be specified/implemented in parallel without creating derived product capabilities."
+    },
+    {
+      "stage": 2,
+      "id": "V4_FACTOR_AND_CONTEXT",
+      "meaning": "Authentication/recovery substrate and governed grouping after the object/context foundations exist."
+    },
+    {
+      "stage": 3,
+      "id": "V4_MAINTAIN_AND_DEVICE",
+      "meaning": "Maintenance activation and device continuity vertical slice."
+    },
+    {
+      "stage": 4,
+      "id": "V4_RECOVERY",
+      "meaning": "Failure-domain-aware recovery preparedness and incident recovery."
+    },
+    {
+      "stage": 5,
+      "id": "V4_DIGITAL_RESOURCE",
+      "meaning": "Digital resource continuity and additional typed control/change semantics."
+    },
+    {
+      "stage": 6,
+      "id": "V4_TRUSTED_HANDOFF",
+      "meaning": "Scoped continuity handoff after the substrate it references is governed."
+    }
+  ],
+  "packages": [
+    {
+      "id": "typed_control_graph",
+      "stage": 0,
+      "state": "IMPLEMENTED_BASELINE",
+      "proposal": "spec/proposals/typed-control-graph-v1.md",
+      "hardDependsOn": [],
+      "optionalDependsOn": [],
+      "canonicalArtifacts": [
+        "spec/domain/domain.json",
+        "spec/schema/logical-schema.json"
+      ],
+      "unlocks": [
+        "authoritative typed dependency queries",
+        "capability-aware impact"
+      ],
+      "uiPolicy": "contextual_only",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "generic_change_kernel",
+      "stage": 0,
+      "state": "PARTIAL_RUNTIME_REPLACE_ONLY",
+      "proposal": "spec/proposals/generic-change-kernel-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [],
+      "canonicalArtifacts": [
+        "spec/domain/domain.json",
+        "spec/state-machines/change-plan.json"
+      ],
+      "unlocks": [
+        "replace_payment_card",
+        "replace_phone_number"
+      ],
+      "uiPolicy": "change_primary_context",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "identity_anchor_subtype",
+      "stage": 1,
+      "state": "PROPOSED_CANONICAL",
+      "proposal": "spec/proposals/identity-anchor-subtype-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "region_fact"
+      ],
+      "canonicalArtifacts": [
+        "domain enum/field",
+        "logical schema",
+        "migration",
+        "golden fixtures",
+        "negative fixtures",
+        "codegen"
+      ],
+      "unlocks": [
+        "production Number identity surface",
+        "production Email identity surface",
+        "subjectSubtype enforcement for replace_phone_number"
+      ],
+      "uiPolicy": "hidden_until_canonical",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "region_fact",
+      "stage": 1,
+      "state": "PROPOSED_CANONICAL",
+      "proposal": "spec/proposals/region-facts-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "identity_context"
+      ],
+      "canonicalArtifacts": [
+        "RegionFact entity",
+        "region kind enum",
+        "logical schema",
+        "migration",
+        "fixtures",
+        "cross-platform conformance"
+      ],
+      "unlocks": [
+        "production region labels",
+        "governed Globe asset geography",
+        "region-scoped queries"
+      ],
+      "uiPolicy": "reference_visible_production_truth_empty_until_canonical",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "asset_lifecycle_maintenance",
+      "stage": 1,
+      "state": "PROPOSED_CANONICAL",
+      "proposal": "spec/proposals/asset-lifecycle-maintenance-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "region_fact"
+      ],
+      "canonicalArtifacts": [
+        "MaintenanceFact",
+        "MaintenanceSchedule",
+        "completion event semantics",
+        "logical schema",
+        "migration",
+        "fixtures",
+        "timeline integration"
+      ],
+      "unlocks": [
+        "production annual-fee/billing checkpoints",
+        "production number keep-alive",
+        "freshness-driven Maintain"
+      ],
+      "uiPolicy": "reference_visible_persistence_hidden_until_canonical",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "secret_locator",
+      "stage": 1,
+      "state": "PROPOSED_CANONICAL",
+      "proposal": "spec/proposals/secret-locator-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [],
+      "canonicalArtifacts": [
+        "SecretLocator entity",
+        "locator kind/state enums",
+        "schema",
+        "migration",
+        "fixtures",
+        "masking/export rules"
+      ],
+      "unlocks": [
+        "metadata-only secret location continuity",
+        "recovery preparedness secret-location checks"
+      ],
+      "uiPolicy": "hidden_until_canonical",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "identity_context",
+      "stage": 2,
+      "state": "PROPOSED_CANONICAL",
+      "proposal": "spec/proposals/identity-context-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "identity_anchor_subtype",
+        "region_fact"
+      ],
+      "canonicalArtifacts": [
+        "IdentityContext",
+        "IdentityContextMembership",
+        "membership state/source",
+        "schema",
+        "migration",
+        "fixtures",
+        "query API"
+      ],
+      "unlocks": [
+        "Identity Lens",
+        "context-scoped Search/Infrastructure",
+        "Region x Identity intersection when RegionFact also exists"
+      ],
+      "uiPolicy": "hidden_until_canonical",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "access_recovery_factor",
+      "stage": 2,
+      "state": "PROPOSED_CANONICAL",
+      "proposal": "spec/proposals/access-recovery-factor-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph",
+        "identity_anchor_subtype"
+      ],
+      "optionalDependsOn": [
+        "secret_locator",
+        "region_fact"
+      ],
+      "canonicalArtifacts": [
+        "Factor",
+        "FactorPurpose",
+        "FactorBinding",
+        "portability",
+        "enrollment state",
+        "schema",
+        "migration",
+        "fixtures",
+        "conformance"
+      ],
+      "unlocks": [
+        "factor-aware recovery analysis",
+        "device continuity substrate",
+        "recovery preparedness substrate"
+      ],
+      "uiPolicy": "contextual_hidden_until_canonical",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "maintenance_runtime",
+      "stage": 3,
+      "state": "BLOCKED_ON_CANONICAL",
+      "proposal": "spec/proposals/asset-lifecycle-maintenance-v1.md",
+      "hardDependsOn": [
+        "asset_lifecycle_maintenance"
+      ],
+      "optionalDependsOn": [
+        "access_recovery_factor"
+      ],
+      "canonicalArtifacts": [
+        "repositories",
+        "timeline occurrence projection",
+        "review/edit flow",
+        "cross-platform runtime"
+      ],
+      "unlocks": [
+        "Maintain mode with authoritative lifecycle",
+        "freshness findings based on governed facts"
+      ],
+      "uiPolicy": "now_records_object_detail",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "device_continuity",
+      "stage": 3,
+      "state": "DESIGN_COMPLETE_RUNTIME_GATED",
+      "proposal": "spec/proposals/device-continuity-v1.md",
+      "hardDependsOn": [
+        "generic_change_kernel",
+        "access_recovery_factor"
+      ],
+      "optionalDependsOn": [
+        "secret_locator",
+        "asset_lifecycle_maintenance"
+      ],
+      "canonicalArtifacts": [
+        "device subtype decision",
+        "factor/device bindings",
+        "replace_device scenario template",
+        "fixtures",
+        "conformance",
+        "runtime"
+      ],
+      "unlocks": [
+        "replace_device",
+        "passkey/TOTP/eSIM migration choreography"
+      ],
+      "uiPolicy": "contextual_change_scenario",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "recovery_preparedness",
+      "stage": 4,
+      "state": "DESIGN_COMPLETE_RUNTIME_GATED",
+      "proposal": "spec/ui-vnext/RECOVERY_PREPAREDNESS_UX_CONTRACT.md",
+      "hardDependsOn": [
+        "access_recovery_factor",
+        "secret_locator",
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "maintenance_runtime",
+        "identity_context"
+      ],
+      "canonicalArtifacts": [
+        "preparedness query contract",
+        "factor freshness projection",
+        "failure-domain-aware findings",
+        "runtime evidence"
+      ],
+      "unlocks": [
+        "Me > 恢复准备",
+        "object-level independent-backup maintenance"
+      ],
+      "uiPolicy": "me_child_contextual",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "recovery_incident",
+      "stage": 4,
+      "state": "DESIGN_COMPLETE_SOLVER_GATED",
+      "proposal": "spec/proposals/recovery-incident-mode-v1.md",
+      "hardDependsOn": [
+        "access_recovery_factor",
+        "generic_change_kernel",
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "device_continuity",
+        "identity_context",
+        "region_fact"
+      ],
+      "canonicalArtifacts": [
+        "incident authority",
+        "availability layer",
+        "surviving-root solver",
+        "failure-domain removal",
+        "recovery action plan",
+        "fixtures",
+        "conformance",
+        "runtime"
+      ],
+      "unlocks": [
+        "Recovery Lens",
+        "LOSE/COMPROMISE incident entry after primitive activation"
+      ],
+      "uiPolicy": "incident_contextual_hidden_until_solver",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "advanced_continuity_analysis",
+      "stage": 4,
+      "state": "DESIGN_COMPLETE_RUNTIME_GATED",
+      "proposal": "spec/proposals/continuity-analysis-modes-v1.md",
+      "hardDependsOn": [
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "access_recovery_factor",
+        "region_fact",
+        "maintenance_runtime"
+      ],
+      "canonicalArtifacts": [
+        "generic blast-radius removal",
+        "bounded minimal cut set",
+        "shared-failure-domain finding inputs",
+        "freshness finding inputs",
+        "unknown-critical-path inputs"
+      ],
+      "unlocks": [
+        "authoritative advanced Findings",
+        "Recovery solver inputs",
+        "failure-domain-aware preparedness"
+      ],
+      "uiPolicy": "findings_and_impact_only",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "digital_resource_continuity",
+      "stage": 5,
+      "state": "DESIGN_COMPLETE_CANONICAL_GATED",
+      "proposal": "spec/proposals/digital-resource-continuity-v1.md",
+      "hardDependsOn": [
+        "generic_change_kernel",
+        "typed_control_graph",
+        "access_recovery_factor",
+        "secret_locator"
+      ],
+      "optionalDependsOn": [
+        "region_fact",
+        "identity_context",
+        "advanced_continuity_analysis"
+      ],
+      "canonicalArtifacts": [
+        "digital resource subtype decision",
+        "future capability/relation registry",
+        "provider policies",
+        "scenario templates",
+        "fixtures",
+        "conformance"
+      ],
+      "unlocks": [
+        "domain/DNS/repository/cloud continuity",
+        "MIGRATE/PORT resource scenarios after primitive activation"
+      ],
+      "uiPolicy": "infrastructure_and_change_contextual",
+      "newPrimaryDestination": false
+    },
+    {
+      "id": "trusted_handoff",
+      "stage": 6,
+      "state": "DESIGN_COMPLETE_FUTURE",
+      "proposal": "spec/proposals/trusted-handoff-v1.md",
+      "hardDependsOn": [
+        "secret_locator",
+        "typed_control_graph"
+      ],
+      "optionalDependsOn": [
+        "identity_context",
+        "digital_resource_continuity",
+        "access_recovery_factor",
+        "maintenance_runtime"
+      ],
+      "canonicalArtifacts": [
+        "TrustedParty",
+        "ProviderHandoffArrangement",
+        "TrustedHandoffPlan",
+        "review/revocation semantics",
+        "export package security design",
+        "fixtures",
+        "conformance"
+      ],
+      "unlocks": [
+        "Me > continuity handoff",
+        "scoped metadata-only handoff package"
+      ],
+      "uiPolicy": "me_child_future",
+      "newPrimaryDestination": false
+    }
+  ],
+  "activationRules": {
+    "requiredForAnyCanonicalPackage": [
+      "spec update",
+      "schema/version decision",
+      "migration",
+      "golden fixtures",
+      "negative fixtures",
+      "codegen when enums/constants change",
+      "cross-platform conformance",
+      "platform runtime",
+      "consumer UI only after authority exists"
+    ],
+    "forbidden": [
+      "infer identity subtype from name/prefix/provider",
+      "persist lifecycle through PresentationProfile",
+      "persist RegionFact through Android-only fields_json convention",
+      "show Identity Lens before governed context membership",
+      "show Recovery Lens before authoritative solver",
+      "activate future ChangePrimitive from UI only",
+      "create a sixth primary destination",
+      "store plaintext secrets"
+    ]
+  }
+}

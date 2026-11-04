@@ -11,6 +11,9 @@ public enum CanonicalSpec {
     public static let appSchemaVersion = 3
     public static let graphPayloadKind = "depmap-logical-graph"
     public static let graphPayloadVersion = 3
+    public static let runtimeCreatableNodeKinds: Set<String> = ["payment_instrument", "account", "service"]
+    public static let runtimeCreatableIdentityAnchorSubtypes: Set<String> = ["phone_number", "email_address"]
+    public static let iso3166Alpha2TerritoryCodes: Set<String> = ["AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ", "AR", "AS", "AT", "AU", "AW", "AX", "AZ", "BA", "BB", "BD", "BE", "BF", "BG", "BH", "BI", "BJ", "BL", "BM", "BN", "BO", "BQ", "BR", "BS", "BT", "BV", "BW", "BY", "BZ", "CA", "CC", "CD", "CF", "CG", "CH", "CI", "CK", "CL", "CM", "CN", "CO", "CR", "CU", "CV", "CW", "CX", "CY", "CZ", "DE", "DJ", "DK", "DM", "DO", "DZ", "EC", "EE", "EG", "EH", "ER", "ES", "ET", "FI", "FJ", "FK", "FM", "FO", "FR", "GA", "GB", "GD", "GE", "GF", "GG", "GH", "GI", "GL", "GM", "GN", "GP", "GQ", "GR", "GS", "GT", "GU", "GW", "GY", "HK", "HM", "HN", "HR", "HT", "HU", "ID", "IE", "IL", "IM", "IN", "IO", "IQ", "IR", "IS", "IT", "JE", "JM", "JO", "JP", "KE", "KG", "KH", "KI", "KM", "KN", "KP", "KR", "KW", "KY", "KZ", "LA", "LB", "LC", "LI", "LK", "LR", "LS", "LT", "LU", "LV", "LY", "MA", "MC", "MD", "ME", "MF", "MG", "MH", "MK", "ML", "MM", "MN", "MO", "MP", "MQ", "MR", "MS", "MT", "MU", "MV", "MW", "MX", "MY", "MZ", "NA", "NC", "NE", "NF", "NG", "NI", "NL", "NO", "NP", "NR", "NU", "NZ", "OM", "PA", "PE", "PF", "PG", "PH", "PK", "PL", "PM", "PN", "PR", "PS", "PT", "PW", "PY", "QA", "RE", "RO", "RS", "RU", "RW", "SA", "SB", "SC", "SD", "SE", "SG", "SH", "SI", "SJ", "SK", "SL", "SM", "SN", "SO", "SR", "SS", "ST", "SV", "SX", "SY", "SZ", "TC", "TD", "TF", "TG", "TH", "TJ", "TK", "TL", "TM", "TN", "TO", "TR", "TT", "TV", "TW", "TZ", "UA", "UG", "UM", "US", "UY", "UZ", "VA", "VC", "VE", "VG", "VI", "VN", "VU", "WF", "WS", "YE", "YT", "ZA", "ZM", "ZW"]
 }
 
 public enum NodeKind: String, CaseIterable, Sendable, Equatable {
@@ -21,6 +24,102 @@ public enum NodeKind: String, CaseIterable, Sendable, Equatable {
     case membership = "membership"
     case device = "device"
     case custom = "custom"
+
+    public var wire: String { rawValue }
+}
+
+public enum IdentityAnchorSubtype: String, CaseIterable, Sendable, Equatable {
+    case phoneNumber = "phone_number"
+    case emailAddress = "email_address"
+    case otherIdentity = "other_identity"
+
+    public var wire: String { rawValue }
+}
+
+public enum RegionFacet: String, CaseIterable, Sendable, Equatable {
+    case issuanceJurisdiction = "issuance_jurisdiction"
+    case numberingTerritory = "numbering_territory"
+    case providerJurisdiction = "provider_jurisdiction"
+    case serviceMarket = "service_market"
+    case physicalLocation = "physical_location"
+    case userConfirmedContext = "user_confirmed_context"
+
+    public var wire: String { rawValue }
+}
+
+public enum RegionFactState: String, CaseIterable, Sendable, Equatable {
+    case confirmed = "confirmed"
+    case retired = "retired"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceFactKind: String, CaseIterable, Sendable, Equatable {
+    case cardAnnualFeeAmount = "card_annual_fee_amount"
+    case cardAnnualFeeCurrency = "card_annual_fee_currency"
+    case cardBillingDay = "card_billing_day"
+    case cardPaymentDueDay = "card_payment_due_day"
+    case cardAutopayMode = "card_autopay_mode"
+    case numberBillingMode = "number_billing_mode"
+    case numberPlanCost = "number_plan_cost"
+    case numberPlanCurrency = "number_plan_currency"
+    case numberRenewalMethod = "number_renewal_method"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceScheduleKind: String, CaseIterable, Sendable, Equatable {
+    case cardAnnualFeeCheckpoint = "card_annual_fee_checkpoint"
+    case cardBillingCheckpoint = "card_billing_checkpoint"
+    case cardPaymentDueCheckpoint = "card_payment_due_checkpoint"
+    case numberKeepAlive = "number_keep_alive"
+    case numberPlanRenewal = "number_plan_renewal"
+    case factFreshnessReview = "fact_freshness_review"
+    case customMaintenance = "custom_maintenance"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceFactState: String, CaseIterable, Sendable, Equatable {
+    case confirmed = "confirmed"
+    case retired = "retired"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceScheduleState: String, CaseIterable, Sendable, Equatable {
+    case active = "active"
+    case paused = "paused"
+    case needsReview = "needs_review"
+    case retired = "retired"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceValueType: String, CaseIterable, Sendable, Equatable {
+    case decimalString = "decimal_string"
+    case currencyCode = "currency_code"
+    case integer = "integer"
+    case text = "text"
+    case boolean = "boolean"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceCadenceKind: String, CaseIterable, Sendable, Equatable {
+    case oneTime = "one_time"
+    case monthlyDay = "monthly_day"
+    case yearlyMonthDay = "yearly_month_day"
+    case intervalDays = "interval_days"
+    case manualOnly = "manual_only"
+
+    public var wire: String { rawValue }
+}
+
+public enum MaintenanceOverflowPolicy: String, CaseIterable, Sendable, Equatable {
+    case clampToLastDay = "clamp_to_last_day"
+    case skipOccurrence = "skip_occurrence"
+    case userConfirm = "user_confirm"
 
     public var wire: String { rawValue }
 }

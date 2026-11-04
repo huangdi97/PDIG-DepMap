@@ -11,6 +11,7 @@ import { parseWechatBill } from '../../src/parser/wechat/parser.ts'
 import { assignFingerprints } from '../../src/fingerprint/fingerprint.ts'
 import { createDepmapContainer, openDepmapContainer, DepmapError } from '../../src/crypto/depmap.ts'
 import { parseWechatBill as parseBill } from '../../src/parser/wechat/parser.ts'
+import { normalizeLocalSchemaMeta } from '../helpers/payload-equivalence.ts'
 
 /**
  * PHASE K — Property/Fuzz-style Smoke（deterministic pseudo-random，不引入重量框架）。
@@ -335,7 +336,10 @@ describe('Property/Fuzz Smoke (RC PHASE K)', () => {
       migrate(driver2)
       try {
         importGraph(driver2, e1.payloadJson)
-        expect(exportGraph(driver2).payloadJson).toBe(e1.payloadJson)
+        // 局部 schema 元数据（迁移时间戳）随库而异，逻辑图其余部分必须逐字节等价。
+        expect(normalizeLocalSchemaMeta(exportGraph(driver2).payloadJson)).toBe(
+          normalizeLocalSchemaMeta(e1.payloadJson),
+        )
       } finally {
         driver2.close()
       }

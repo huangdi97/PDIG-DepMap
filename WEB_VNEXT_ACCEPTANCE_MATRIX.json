@@ -1,0 +1,64 @@
+{
+  "sourceHead": "bc24f6689a44bd7c125eadeb980064b54ceaa237",
+  "sourceState": "working-tree (uncommitted at capture time)",
+  "branch": "feat/web-vnext",
+  "pr": 2,
+
+  "sourceComplete": true,
+
+  "build": "PASS",
+  "typecheck": "PASS",
+  "lint": "NOT_RUN (no ESLint; TypeScript strict + Prettier + boundary gate used instead)",
+  "unit": "PASS (20 tests)",
+
+  "coreConformance": "PASS",
+  "coreCodegen": "PASS",
+  "coreCheck": "PASS (492 tests, 0 circular deps, 0 network primitives, 0 secrets)",
+  "ciCoreGate": "PASS (exact HEAD d822cf2c)",
+  "ciWebGate": "PASS (exact HEAD d822cf2c)",
+  "ciPlaywright": "PASS (chromium / firefox / webkit on ubuntu-latest, exact HEAD d822cf2c)",
+  "ciVisualMatrix": "PASS (ubuntu-latest + Noto CJK, exact HEAD d822cf2c; evidence artifact web-visual-evidence)",
+
+  "chromium": "PASS (28 functional e2e)",
+  "firefox": "PASS (28 tests incl. layout audit)",
+  "webkit": "PASS (26 tests; 2 offline UNSUPPORTED in WebKit)",
+  "layoutAudit": "PASS (6 viewports x 6 routes)",
+
+  "inventory": "PASS",
+  "dependencies": "PASS",
+  "findings": "PASS (SOF + PENDING_VERIFICATION derived from Core rules)",
+
+  "changePlan": "PASS",
+  "staleFailClosed": "PASS",
+  "reanalysis": "PASS",
+  "doneNotVerified": "PASS",
+  "makeBeforeBreak": "PASS",
+
+  "recordsThreeClocks": "PASS",
+
+  "import": "PASS (generic CSV + explicit mapping + account binding; OFX/QFX adapter also covered)",
+  "proposals": "PASS (accept proposal -> reality dependency, criticality unknown)",
+  "drift": "PASS (evidence-derived; dismiss does not mutate reality; confirm-additional keeps old edge; confirm-replacement retires old edge)",
+
+  "backup": "PASS",
+  "restore": "PASS",
+
+  "vaultEncryption": "PASS",
+  "depmapGolden": "PASS",
+  "privacyMask": "PASS",
+  "multitabSingleWriter": "PASS",
+  "offline": "PASS (Chromium/Firefox); UNSUPPORTED on WebKit (browser/harness boundary)",
+  "pwa": "PARTIAL (manifest + service worker + offline shell verified; install prompt not verified)",
+
+  "desktopResponsive": "PASS",
+  "mobileCompact": "PASS",
+
+  "visualMatrix": "PASS (21 local candidate screenshots)",
+  "visualRegression": "NOT_RUN (baseline must be generated on Ubuntu CI)",
+
+  "humanVisualCandidate": "READY",
+  "humanVisualAccepted": "NOT_RUN",
+
+  "mainMerged": false,
+  "productionReleased": false
+}

@@ -1,0 +1,18 @@
+{
+  "id": "region-fact-rg08-currency-no-inference",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-08 currency metadata does not infer region",
+  "input": {
+    "fieldsJson": "{\"currency\":\"GBP\"}"
+  },
+  "expected": {
+    "facts": [],
+    "currentIds": [],
+    "lens": {
+      "status": "unknown"
+    }
+  }
+}

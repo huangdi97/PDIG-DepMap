@@ -25,6 +25,79 @@
       "note": "Runtime MVP creation set is narrower than this enum; see runtimeCreatableNodeKinds in constants."
     },
 
+    "IdentityAnchorSubtype": {
+      "values": ["phone_number", "email_address", "other_identity"],
+      "note": "Governed subtype vocabulary for Node.kind=identity_anchor. Authoritative storage is inside the governed Node.fields.identity_anchor_profile structure, not a bare free-form fields_json.subtype key. Presence in the enum registry does not by itself authorize inference or production Number/Email projection; confirmed Reality authority is required."
+    },
+
+    "RegionFacet": {
+      "values": [
+        "issuance_jurisdiction",
+        "numbering_territory",
+        "provider_jurisdiction",
+        "service_market",
+        "physical_location",
+        "user_confirmed_context"
+      ],
+      "note": "R39 governed geographic facet vocabulary. Region facts are explicit Reality facts; facet-free region strings and UI display labels are never Canonical authority."
+    },
+
+    "RegionFactState": {
+      "values": ["confirmed", "retired"],
+      "note": "Only confirmed/retired Reality facts live in Node.fields.region_facts. Region proposals stay outside confirmed Node Reality until human/authoritative review."
+    },
+
+    "MaintenanceFactKind": {
+      "values": [
+        "card_annual_fee_amount",
+        "card_annual_fee_currency",
+        "card_billing_day",
+        "card_payment_due_day",
+        "card_autopay_mode",
+        "number_billing_mode",
+        "number_plan_cost",
+        "number_plan_currency",
+        "number_renewal_method"
+      ],
+      "note": "R40 governed node-attached maintenance fact vocabulary. CARD_INSTALLMENT_SUMMARY is intentionally excluded from Canonical v1."
+    },
+
+    "MaintenanceScheduleKind": {
+      "values": [
+        "card_annual_fee_checkpoint",
+        "card_billing_checkpoint",
+        "card_payment_due_checkpoint",
+        "number_keep_alive",
+        "number_plan_renewal",
+        "fact_freshness_review",
+        "custom_maintenance"
+      ],
+      "note": "R40 governed maintenance schedule vocabulary. Card expiry remains owned by Node.expiryDate rather than duplicated here."
+    },
+
+    "MaintenanceFactState": {
+      "values": ["confirmed", "retired"],
+      "note": "Proposal is deliberately absent; proposals stay outside confirmed Node Reality until review."
+    },
+
+    "MaintenanceScheduleState": {
+      "values": ["active", "paused", "needs_review", "retired"],
+      "note": "Elapsed time never mutates durable schedule state automatically."
+    },
+
+    "MaintenanceValueType": {
+      "values": ["decimal_string", "currency_code", "integer", "text", "boolean"]
+    },
+
+    "MaintenanceCadenceKind": {
+      "values": ["one_time", "monthly_day", "yearly_month_day", "interval_days", "manual_only"],
+      "note": "Provider-specific cadence is not a Reality cadence kind; provider policy may only propose a governed schedule."
+    },
+
+    "MaintenanceOverflowPolicy": {
+      "values": ["clamp_to_last_day", "skip_occurrence", "user_confirm"]
+    },
+
     "Relation": {
       "values": [
         "funding_source",
@@ -308,6 +381,139 @@
         "walletRef": "string|null",
         "createdAt": "timestamp",
         "updatedAt": "timestamp"
+      },
+      "structuredFieldContracts": {
+        "identity_anchor": {
+          "identity_anchor_profile": {
+            "type": "IdentityAnchorProfileV1|null",
+            "logicalPath": "Node.fields.identity_anchor_profile",
+            "physicalStorage": "nodes.fields_json.identity_anchor_profile",
+            "default": null,
+            "authority": "confirmed_reality",
+            "requiredConfirmedFields": ["version", "subtype", "verification_basis_type", "confirmed_at"],
+            "profileVersion": 1,
+            "subtypeType": "IdentityAnchorSubtype",
+            "verificationBasisType": "VerificationBasisType",
+            "optionalIdentifier": {
+              "storagePath": "identity_anchor_profile.identifier",
+              "appliesToSubtypes": ["phone_number", "email_address"],
+              "requiredConfirmedFields": ["value", "verification_basis_type", "confirmed_at"],
+              "verificationBasisType": "VerificationBasisType",
+              "valueSemantics": "exact_user_or_authoritative_confirmed_identifier_value_no_implicit_normalization",
+              "invalidBehavior": "ignore_identifier_value_but_preserve_valid_confirmed_subtype",
+              "comparisonPolicy": "no_silent_merge_or_provider_specific_normalization"
+            },
+            "unknownBehavior": "absent_invalid_or_unconfirmed_profile_stays_generic_identity",
+            "legacyBareSubtypePolicy": "fields_json.subtype is never confirmation authority and may at most become a review candidate",
+            "forbiddenInference": [
+              "name_regex",
+              "phone_prefix_or_country_code",
+              "provider_or_carrier_label",
+              "email_shaped_string",
+              "legacy_bare_fields_json_subtype",
+              "dependency_relation",
+              "scenario_entry",
+              "presentation_theme",
+              "locale_or_region"
+            ],
+            "note": "Canonical governed structured profile carried inside the existing cross-platform Node.fields object. It is not an Android-only free-form convention; subtype confirmation provenance is mandatory. R38 additionally allows an independently confirmed nested identifier value for phone/email; subtype-only remains valid when that nested value is absent or invalid."
+          }
+        },
+        "all_nodes": {
+          "region_facts": {
+            "type": "RegionFactsV1|null",
+            "logicalPath": "Node.fields.region_facts",
+            "physicalStorage": "nodes.fields_json.region_facts",
+            "default": null,
+            "authority": "confirmed_reality",
+            "containerVersion": 1,
+            "itemType": "RegionFactV1",
+            "facetType": "RegionFacet",
+            "stateType": "RegionFactState",
+            "verificationBasisType": "VerificationBasisType",
+            "territoryCodeSet": "constants.iso3166Alpha2TerritoryCodes",
+            "requiredItemFields": ["id", "facet", "territory_code", "state", "verification_basis_type", "confirmed_at"],
+            "optionalItemFields": ["subdivision_code", "evidence_refs", "valid_from", "valid_until", "retired_at"],
+            "currentLensStates": ["confirmed"],
+            "proposalPolicy": "unconfirmed/proposed geographic claims MUST NOT be stored in region_facts; proposals remain outside confirmed Node Reality until review",
+            "subdivisionPolicy": "when present, subdivision_code must be an uppercase ISO-3166-2-shaped code prefixed by territory_code; no UI-only region grouping is accepted",
+            "invalidItemBehavior": "drop_invalid_item_fail_closed_preserve_other_valid_items",
+            "temporalPolicy": "validity metadata never auto-confirms, auto-retires, or auto-completes a fact; authoritative state mutation remains explicit",
+            "forbiddenInference": [
+              "currency",
+              "phone_prefix_without_governed_rule",
+              "provider_or_issuer_name",
+              "object_display_name",
+              "app_locale",
+              "device_locale",
+              "timezone",
+              "ip_geolocation",
+              "vpn_endpoint",
+              "current_device_location",
+              "presentation_centroid",
+              "ui_theme"
+            ],
+            "note": "R39 first-class RegionFact semantics are carried in the existing cross-platform Node.fields envelope, so graph payload v3 can preserve them without an Android-only table. Node identity supplies nodeId. Proposal state is deliberately not stored inside confirmed Node Reality."
+          },
+          "maintenance_profile": {
+            "type": "MaintenanceProfileV1|null",
+            "logicalPath": "Node.fields.maintenance_profile",
+            "physicalStorage": "nodes.fields_json.maintenance_profile",
+            "default": null,
+            "authority": "confirmed_reality",
+            "containerVersion": 1,
+            "factKindType": "MaintenanceFactKind",
+            "scheduleKindType": "MaintenanceScheduleKind",
+            "factStateType": "MaintenanceFactState",
+            "scheduleStateType": "MaintenanceScheduleState",
+            "valueType": "MaintenanceValueType",
+            "cadenceKindType": "MaintenanceCadenceKind",
+            "overflowPolicyType": "MaintenanceOverflowPolicy",
+            "verificationBasisType": "VerificationBasisType",
+            "cardExpiryOwner": "Node.expiryDate",
+            "installmentPolicy": "CARD_INSTALLMENT_SUMMARY is presentation/reference-only and not Canonical v1",
+            "facts": {
+              "requiredFields": ["id", "kind", "value_type", "value", "state", "verification_basis_type", "confirmed_at"],
+              "optionalFields": ["evidence_refs", "valid_from", "valid_until", "retired_at"],
+              "proposalPolicy": "proposal/unconfirmed maintenance claims MUST NOT be stored as confirmed maintenance facts",
+              "invalidItemBehavior": "drop_invalid_item_fail_closed_preserve_other_valid_items"
+            },
+            "schedules": {
+              "requiredFields": ["id", "kind", "state", "cadence", "verification_basis_type", "confirmed_at"],
+              "optionalFields": ["evidence_refs", "last_completed_at", "retired_at"],
+              "proposalPolicy": "provider policy or extracted schedule candidates MUST remain Proposal until reviewed/confirmed",
+              "invalidItemBehavior": "drop_invalid_item_fail_closed_preserve_other_valid_items"
+            },
+            "cadence": {
+              "one_time": ["due_at"],
+              "monthly_day": ["day_of_month", "overflow_policy"],
+              "yearly_month_day": ["month", "day", "overflow_policy"],
+              "interval_days": ["interval_days", "anchor_date"],
+              "manual_only": []
+            },
+            "applicability": {
+              "cardFacts": ["card_annual_fee_amount", "card_annual_fee_currency", "card_billing_day", "card_payment_due_day", "card_autopay_mode"],
+              "cardSchedules": ["card_annual_fee_checkpoint", "card_billing_checkpoint", "card_payment_due_checkpoint"],
+              "numberFacts": ["number_billing_mode", "number_plan_cost", "number_plan_currency", "number_renewal_method"],
+              "numberSchedules": ["number_keep_alive", "number_plan_renewal"],
+              "numberAuthority": "Node.kind=identity_anchor AND confirmed identity_anchor_profile.subtype=phone_number",
+              "sharedSchedules": ["fact_freshness_review", "custom_maintenance"]
+            },
+            "temporalPolicy": "time passage may derive occurrence state but MUST NOT auto-complete, auto-retire, or rewrite confirmed Reality",
+            "forbiddenInference": [
+              "provider_policy_without_review",
+              "statement_date_pattern_without_review",
+              "transaction_pattern",
+              "card_product_name",
+              "phone_carrier_label",
+              "elapsed_time_as_completion",
+              "notification_delivery_as_completion",
+              "ui_presentation_value",
+              "reference_fixture_value"
+            ],
+            "note": "R40 governed lifecycle/maintenance semantics use the existing cross-platform Node.fields envelope. Old runtimes may preserve the structured JSON but must not infer its semantics."
+          }
+        }
       },
       "realityClass": "confirmed_reality",
       "bumpsGraphRevisionOn": ["create", "update", "archive"]
@@ -763,6 +969,8 @@
       "later": [91, null]
     },
     "runtimeCreatableNodeKinds": ["payment_instrument", "account", "service"],
+    "runtimeCreatableIdentityAnchorSubtypes": ["phone_number", "email_address"],
+    "iso3166Alpha2TerritoryCodes": ["AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX","AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ","BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK","CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM","DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR","GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS","GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN","IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN","KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV","LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ","MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI","NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM","PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC","SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV","SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR","TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI","VN","VU","WF","WS","YE","YT","ZA","ZM","ZW"],
     "impactPropagationCapability": "payment",
     "impactPropagationCapabilitiesV030": [
       "payment",

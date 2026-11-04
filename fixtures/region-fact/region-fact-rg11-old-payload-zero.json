@@ -1,0 +1,18 @@
+{
+  "id": "region-fact-rg11-old-payload-zero",
+  "category": "region-fact",
+  "specVersion": "1.0.0",
+  "appSchemaVersion": 3,
+  "oracle": "R39 governed RegionFact contract",
+  "description": "RG-11 old payload migrates semantically to zero confirmed RegionFacts",
+  "input": {
+    "fieldsJson": "{}"
+  },
+  "expected": {
+    "facts": [],
+    "currentIds": [],
+    "lens": {
+      "status": "unknown"
+    }
+  }
+}

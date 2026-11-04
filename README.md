@@ -14,6 +14,19 @@ PDIG（Personal Digital Infrastructure Graph，内部代号 **DepMap**）是一�
 
 ---
 
+## 产品面状态（2026-10-30）
+
+- **Web = 当前主产品迭代面**：`web/` 是源码真源，`website/app/` 是构建产物（`npm run build:web`）。
+  详见 `WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、
+  `WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`、`WEB_VNEXT_FINAL_REPORT.md`。
+- **Android / iOS / HarmonyOS = 既有平台实现 / baseline**，本轮未推进，也未删除。
+- **Canonical（`spec/`）仍是三端共享真相**：Web 直接以 `@core/*` 引用同一份 Core 源码，不做 fork。
+
+本轮 Web 的实测结果（只列真实跑过的）：Chromium 功能 E2E 16/16、布局审计 6/6、单测 20/20、
+Core 门禁 492/492；**Firefox / WebKit / 视觉回归基线 / 人眼验收 = `NOT_RUN`**。
+
+---
+
 ## 目录
 
 - [核心原则](#核心原则)
