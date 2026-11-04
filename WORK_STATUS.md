@@ -180,7 +180,11 @@
 > - **NOT_RUN（不得写成 PASS）**：视觉回归基线（需 Ubuntu CI）、人眼视觉验收、WeChat 账单适配器的浏览器 E2E、ESLint（未采用）。
 > - CI（exact HEAD `41a1f306`）：web-vnext 六 job + `ci.yml` 五 job 全 PASS；main `b7367f9d` 的 CI / iOS / iOS Runtime Visual / Publish Web 全 PASS；main `702e51e7` 并入 `spec/ui-vnext` + 校验器（4 个校验器本地实跑 PASS）。
 > - **部署（2026-11-04）**：GitHub Pages 发布源是 `gh-pages` 分支（非 main/website）；已发布 `gh-pages` `b389245c`：`/app` = main `28e8fb0f` 的 `website/app` 构建产物，根 `index.html` 指向 `./app/`，并加 `.nojekyll`。
-> - 线上地址 `https://haoleilab.com/PDIG-DepMap/app/`（`https://huangdi97.github.io/PDIG-DepMap/app/` 同源可达）；线上冒烟：建库 → 建对象 → reload → 解锁 → 数据留存 → 对象详情 **全 PASS，0 console/page error**。Pages `https_enforced=true`（2026-11-04 已开启，http 301 → https）。
+> - 线上地址 `https://haoleilab.com/PDIG-DepMap/app/`（`https://huangdi97.github.io/PDIG-DepMap/app/` 同源可达）；线上冒烟：建库 → 建对象 → reload → 解锁 → 数据留存 → 对象详情 **全 PASS，0 console/page error**。Pages `https_enforced=false`（需人工在 Settings → Pages 开启）。
+> - `spec/ui-vnext/`（63 篇 UI 契约）与 4 个 contract 校验器已并入 main（`702e51e7`）：`validate-identity-anchor-profile-contract` / `validate-maintenance-profile-contract` / `validate-region-fact-contract` / `validate-canonical-v4-expansion-plan` 本地实跑全部 PASS。
+> - 分支同步：已把 main 合并进 `feat/android-ui-vnext-translation`（**用 merge 而非 rebase**，分支领先 2077 提交），产出 PR #3（`merge/main-into-android`，`f40a0828`）。合并中保留了 main 的两处 Core 修复（`authenticates`/`controls`、`plans.updateActions` 持久化）。
+> - **当前产品范围（2026-11-04 确认）：Android + Web**。iOS / HarmonyOS 的 UI vNext 维持 `HOLD`，不作为当前迭代任务；Core/Canonical 三端共享真值照常维持。
+> - **PR #3 阻塞（真实缺陷，非本轮引入）**：`ios-runtime-visual.yml` 的 `PDIGAppUITests.testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite()` 失败；证据：该用例在合并前的 `a53bc633` / `a412fd9c` / `2a07c4e4`（2026-10-29）三次运行中同样失败。PR #3 其余 13 个 check 全 PASS。**在修好该 iOS UI 用例前不合并 PR #3**，否则会把红灯带入 main。诊断与完成定义见 issue #4（https://github.com/huangdi97/PDIG-DepMap/issues/4）。
 > - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
 > - 自动发布：`.github/workflows/publish-web.yml` 已在 main 上；`website/app/**` 变更即发布到 `gh-pages/app`，其它页面不动，无变化时自动跳过。
 
