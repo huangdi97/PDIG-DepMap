@@ -13,7 +13,8 @@
 > - 线上地址 `https://haoleilab.com/PDIG-DepMap/app/`（`https://huangdi97.github.io/PDIG-DepMap/app/` 同源可达）；线上冒烟：建库 → 建对象 → reload → 解锁 → 数据留存 → 对象详情 **全 PASS，0 console/page error**。Pages `https_enforced=false`（需人工在 Settings → Pages 开启）。
 > - `spec/ui-vnext/`（63 篇 UI 契约）与 4 个 contract 校验器已并入 main（`702e51e7`）：`validate-identity-anchor-profile-contract` / `validate-maintenance-profile-contract` / `validate-region-fact-contract` / `validate-canonical-v4-expansion-plan` 本地实跑全部 PASS。
 > - 分支同步：已把 main 合并进 `feat/android-ui-vnext-translation`（**用 merge 而非 rebase**，分支领先 2077 提交），产出 PR #3（`merge/main-into-android`，`f40a0828`）。合并中保留了 main 的两处 Core 修复（`authenticates`/`controls`、`plans.updateActions` 持久化）。
-> - **PR #3 阻塞（真实缺陷，非本轮引入）**：`ios-runtime-visual.yml` 的 `PDIGAppUITests.testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite()` 失败；证据：该用例在合并前的 `a53bc633` / `a412fd9c` / `2a07c4e4`（2026-10-29）三次运行中同样失败。PR #3 其余 13 个 check 全 PASS。**在修好该 iOS UI 用例前不合并 PR #3**，否则会把红灯带入 main。
+> - **当前产品范围（2026-11-04 确认）：Android + Web**。iOS / HarmonyOS 的 UI vNext 维持 `HOLD`，不作为当前迭代任务；Core/Canonical 三端共享真值照常维持。
+> - **PR #3 阻塞（真实缺陷，非本轮引入）**：`ios-runtime-visual.yml` 的 `PDIGAppUITests.testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite()` 失败；证据：该用例在合并前的 `a53bc633` / `a412fd9c` / `2a07c4e4`（2026-10-29）三次运行中同样失败。PR #3 其余 13 个 check 全 PASS。**在修好该 iOS UI 用例前不合并 PR #3**，否则会把红灯带入 main。诊断与完成定义见 issue #4（https://github.com/huangdi97/PDIG-DepMap/issues/4）。
 > - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
 
 > **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
