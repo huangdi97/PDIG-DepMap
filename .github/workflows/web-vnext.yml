@@ -157,9 +157,14 @@ jobs:
           VISUAL_REGRESSION: '1'
         run: node node_modules/@playwright/test/cli.js test --project=visual-chromium tests/e2e/visual.spec.ts
       - name: manifest
+        if: always()
         run: node scripts/collect-evidence.mjs
       - uses: actions/upload-artifact@v4
+        # 失败也要留证据：视觉回归红的时候，diff/actual PNG 比结论更重要。
+        if: always()
         with:
           name: web-visual-evidence-${{ github.sha }}
-          path: web/artifacts/visual/**
+          path: |
+            web/artifacts/visual/**
+            web/artifacts/test-results/**
           retention-days: 30
