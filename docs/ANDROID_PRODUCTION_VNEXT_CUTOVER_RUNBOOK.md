@@ -35,17 +35,17 @@ artifact, per §8; the two keys are never inferred at runtime.
 
 ### Approved artifact record
 
-| Item | Value |
-| --- | --- |
-| Code tree | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96` |
-| Artifact `GIT_SHA` | `01d0de3a` |
-| Version | `0.3.1` (2) |
-| APK SHA-256 | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c` |
-| Legacy control SHA-256 | `287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316` |
-| Signer | `CN=PDIG NON-PRODUCTION TEST KEY` (`953dc774…b13ad4`) |
-| Default no-extra launch | Production VNext after unlock |
-| Legacy control launch | Legacy shell after unlock |
-| Store release | `HOLD` — no production signing identity |
+| Item                    | Value                                                              |
+| ----------------------- | ------------------------------------------------------------------ |
+| Code tree               | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96`                         |
+| Artifact `GIT_SHA`      | `01d0de3a`                                                         |
+| Version                 | `0.3.1` (2)                                                        |
+| APK SHA-256             | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c` |
+| Legacy control SHA-256  | `287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316` |
+| Signer                  | `CN=PDIG NON-PRODUCTION TEST KEY` (`953dc774…b13ad4`)              |
+| Default no-extra launch | Production VNext after unlock                                      |
+| Legacy control launch   | Legacy shell after unlock                                          |
+| Store release           | `HOLD` — no production signing identity                            |
 
 Full evidence: `artifacts/runtime-evidence/2026-10-17-r61-plus/production-cutover/`.
 

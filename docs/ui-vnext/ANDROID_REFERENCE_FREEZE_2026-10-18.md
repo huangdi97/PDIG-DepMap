@@ -9,20 +9,20 @@
 
 ## Frozen identity
 
-| Item | Value |
-| --- | --- |
-| Frozen code tree | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96` |
-| Release artifact `GIT_SHA` | `01d0de3a` |
-| Package | `com.pdig.app` |
-| Version | `0.3.1` (2) |
-| Release APK SHA-256 | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c` |
-| Legacy control SHA-256 | `287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316` |
-| Signer | `CN=PDIG NON-PRODUCTION TEST KEY` |
-| GitHub prerelease | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
-| Evidence root | `artifacts/runtime-evidence/2026-10-17-r61-plus/` |
-| Evidence manifest | `artifacts/runtime-evidence/2026-10-17-r61-plus/MANIFEST.json` |
-| Evidence size at freeze | 349 files / 161 PNGs |
-| Acceptance record | `R52_PLUS_VISUAL_ACCEPTANCE_MATRIX.md` |
+| Item                       | Value                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frozen code tree           | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96`                                                                                                     |
+| Release artifact `GIT_SHA` | `01d0de3a`                                                                                                                                     |
+| Package                    | `com.pdig.app`                                                                                                                                 |
+| Version                    | `0.3.1` (2)                                                                                                                                    |
+| Release APK SHA-256        | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c`                                                                             |
+| Legacy control SHA-256     | `287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316`                                                                             |
+| Signer                     | `CN=PDIG NON-PRODUCTION TEST KEY`                                                                                                              |
+| GitHub prerelease          | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
+| Evidence root              | `artifacts/runtime-evidence/2026-10-17-r61-plus/`                                                                                              |
+| Evidence manifest          | `artifacts/runtime-evidence/2026-10-17-r61-plus/MANIFEST.json`                                                                                 |
+| Evidence size at freeze    | 349 files / 161 PNGs                                                                                                                           |
+| Acceptance record          | `R52_PLUS_VISUAL_ACCEPTANCE_MATRIX.md`                                                                                                         |
 
 ## Frozen visual scope
 
@@ -48,12 +48,12 @@
 Six consumer-copy commits (`5ed50bbe..9b7cafd9`) landed on the remote branch after
 this freeze. A post-freeze candidate was built for review:
 
-| Item | Value |
-| --- | --- |
-| Branch / candidate tree | `2ee6892f5b19be02c63bd177718f404981fdb498` |
-| Post-freeze APK SHA-256 | `ae6ecbcf1828909a98ccf4b942241241ed4de191f913e2ca44acd4173520241b` |
-| Release | [post-freeze candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-postfreeze-candidate-2ee6892) |
-| Status | **PENDING visual re-acceptance** |
+| Item                    | Value                                                                                                                        |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Branch / candidate tree | `2ee6892f5b19be02c63bd177718f404981fdb498`                                                                                   |
+| Post-freeze APK SHA-256 | `ae6ecbcf1828909a98ccf4b942241241ed4de191f913e2ca44acd4173520241b`                                                           |
+| Release                 | [post-freeze candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-postfreeze-candidate-2ee6892) |
+| Status                  | **PENDING visual re-acceptance**                                                                                             |
 
 This candidate includes the copy cleanup (`执行动作必须经过正式变更流程…`) and is
 not covered by the 2026-10-18 freeze. The approved artifact remains

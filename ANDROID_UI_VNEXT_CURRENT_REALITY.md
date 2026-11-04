@@ -27,7 +27,6 @@
 > the current gate register. The latest GitHub workflow results and current
 > source always take precedence over old dates, hashes, or PASS labels.
 
-
 > **Current reality · 2026-10-10 · R34 Light UI → R43 governed Production import → R44 object masking → R45 Production Globe / Card Gallery / relation privacy fixes (source only; fresh exact-head gates pending)**
 >
 > Branch: `feat/android-ui-vnext-translation`

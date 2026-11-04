@@ -7,6 +7,7 @@
 > synchronised with `git merge --ff-only` after `git fetch --all --prune` (no force, no reset).
 >
 > What changed:
+>
 > 1. `ProductionChangePlanScreen` now renders a single deterministic primary CTA for the next
 >    executable step (`productionNextStep` → REANALYZE / COMPLETE / VERIFY / NONE), shares one
 >    authoritative `completeAction` / `verifyAction` path with the step cards, and states 未发生

@@ -11,17 +11,17 @@
 
 ## 1. Repository
 
-| 项 | 值 |
-| --- | --- |
-| REMOTE_HEAD_AT_START | `e68948d54a21ca5c894a54e2435396fcd327daed` |
-| LOCAL_HEAD_AT_START | `cbe99d5c8862f90b25a463585cfd7ad146e4fb82`（当时在 `main`，工作区 clean） |
-| REMOTE_HEAD_AT_END | `= git rev-parse origin/feat/android-ui-vnext-translation`（= **本报告所在提交**；其父 `8bf7431d` 为证据提交，`0 0` 且两侧 tree 相同） |
-| LOCAL_HEAD_AT_END | `= git rev-parse HEAD`（与远端同一个对象，`rev-list --left-right --count` = `0 0`） |
-| GIT_TRANSPORT | 曾 `BLOCKED`（`schannel` handshake 失败 / `openssl` unexpected eof），已**恢复**；最终对齐走普通 `git push`，见下方传输事件记录 |
-| WORKTREE_CLEAN | `YES`（`git status --short` 为空） |
-| Android 树 HEAD | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致） |
-| 本轮提交 | `245d7d9e` docs: acceptance evidence；`ce23b6d3` docs: pin final HEADs；`a3d08e63` docs: self-verifying HEAD（**运行时证据绑定 HEAD**，run `40686250651`）；`32d9293f` / `1478c20f` / `521490c8` docs（git TLS 阻断期经 Contents API 写入）；`8bf7431d` test(android): 证据实体入库（103 文件 / 44 PNG / 44 XML / 4.02 MB，无 APK）；其后一次 docs 更新（`git log -1 --format=%H -- LOCAL_FINAL_REPORT.md`）。全部快进、无 force push |
-| PR | #1，open，未合并（`PR_MERGED = NO`） |
+| 项                   | 值                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| REMOTE_HEAD_AT_START | `e68948d54a21ca5c894a54e2435396fcd327daed`                                                                                                                                                                                                                                                                                                                                                                                            |
+| LOCAL_HEAD_AT_START  | `cbe99d5c8862f90b25a463585cfd7ad146e4fb82`（当时在 `main`，工作区 clean）                                                                                                                                                                                                                                                                                                                                                             |
+| REMOTE_HEAD_AT_END   | `= git rev-parse origin/feat/android-ui-vnext-translation`（= **本报告所在提交**；其父 `8bf7431d` 为证据提交，`0 0` 且两侧 tree 相同）                                                                                                                                                                                                                                                                                                |
+| LOCAL_HEAD_AT_END    | `= git rev-parse HEAD`（与远端同一个对象，`rev-list --left-right --count` = `0 0`）                                                                                                                                                                                                                                                                                                                                                   |
+| GIT_TRANSPORT        | 曾 `BLOCKED`（`schannel` handshake 失败 / `openssl` unexpected eof），已**恢复**；最终对齐走普通 `git push`，见下方传输事件记录                                                                                                                                                                                                                                                                                                       |
+| WORKTREE_CLEAN       | `YES`（`git status --short` 为空）                                                                                                                                                                                                                                                                                                                                                                                                    |
+| Android 树 HEAD      | `e68948d5`（`git log -1 --format=%h -- android/`，与证据 manifest 的 `androidTreeHead` 一致）                                                                                                                                                                                                                                                                                                                                         |
+| 本轮提交             | `245d7d9e` docs: acceptance evidence；`ce23b6d3` docs: pin final HEADs；`a3d08e63` docs: self-verifying HEAD（**运行时证据绑定 HEAD**，run `40686250651`）；`32d9293f` / `1478c20f` / `521490c8` docs（git TLS 阻断期经 Contents API 写入）；`8bf7431d` test(android): 证据实体入库（103 文件 / 44 PNG / 44 XML / 4.02 MB，无 APK）；其后一次 docs 更新（`git log -1 --format=%H -- LOCAL_FINAL_REPORT.md`）。全部快进、无 force push |
+| PR                   | #1，open，未合并（`PR_MERGED = NO`）                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 开工时远端 `feat/android-ui-vnext-translation` 已重新核验，与任务书给出的 `e68948d5…` 一致；
 本地并未停留在该分支（在 `main`，落后 2066 个提交），已安全 `checkout -B` 到远端同名分支，未丢弃任何本地改动
@@ -53,16 +53,17 @@
 > 注：`backup/local-pre-sync-1029-1213` 保留了对齐前的本地提交，可用 `git log backup/…` 复查。
 
 ---
+
 ## 2. Build
 
 工具链（全部安装到 `C:\Users\30441\pdig-toolchain`，**用户目录**，未做系统级改动，无需管理员）：
 
-| 组件 | 版本 | 说明 |
-| --- | --- | --- |
-| JDK | Temurin 21.0.12.1+1 | 仓库根 `build.gradle.kts` 强制要求 JDK 21 |
-| Gradle | 8.9 | wrapper 声明的版本；wrapper 自身下载在 `services.gradle.org` 上长期 0 进度，改用同版本发行包 |
-| Android SDK | platform-tools 37.0.1 / platforms;android-36 / build-tools 36.0.0 / emulator 37.2.12 | `sdkmanager --list_installed` 实测 |
-| Node / Python | v22.23.4 / 3.12.10 | 备用（core/ 与 harness 依赖） |
+| 组件          | 版本                                                                                 | 说明                                                                                         |
+| ------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| JDK           | Temurin 21.0.12.1+1                                                                  | 仓库根 `build.gradle.kts` 强制要求 JDK 21                                                    |
+| Gradle        | 8.9                                                                                  | wrapper 声明的版本；wrapper 自身下载在 `services.gradle.org` 上长期 0 进度，改用同版本发行包 |
+| Android SDK   | platform-tools 37.0.1 / platforms;android-36 / build-tools 36.0.0 / emulator 37.2.12 | `sdkmanager --list_installed` 实测                                                           |
+| Node / Python | v22.23.4 / 3.12.10                                                                   | 备用（core/ 与 harness 依赖）                                                                |
 
 构建命令（实际执行，日志 `artifacts/runtime-evidence/local-final-e68948d/logs/gradle.txt`）：
 
@@ -79,11 +80,11 @@ gradle.bat :repos:test :app:testProductionDebugUnitTest :app:assembleProductionD
 
 ### 测试（真实执行，未删除、未跳过、未放宽）
 
-| 模块 | 测试类 | 用例 | 失败 | 错误 | 跳过 |
-| --- | --- | --- | --- | --- | --- |
-| `:repos:test` | 3 | 13 | 0 | 0 | 0 |
-| `:app:testProductionDebugUnitTest` | 47 | 251 | 0 | 0 | 0 |
-| **合计** | **50** | **264** | **0** | **0** | **0** |
+| 模块                               | 测试类 | 用例    | 失败  | 错误  | 跳过  |
+| ---------------------------------- | ------ | ------- | ----- | ----- | ----- |
+| `:repos:test`                      | 3      | 13      | 0     | 0     | 0     |
+| `:app:testProductionDebugUnitTest` | 47     | 251     | 0     | 0     | 0     |
+| **合计**                           | **50** | **264** | **0** | **0** | **0** |
 
 ### BuildConfig 两把钥匙（直接读取生成文件，不是从命令推断）
 
@@ -103,14 +104,14 @@ gradle.bat :repos:test :app:testProductionDebugUnitTest :app:assembleProductionD
 
 ### APK 身份
 
-| 项 | 值 |
-| --- | --- |
-| local APK SHA-256 | `942358fdbc571ae24fd7eaa86b718898e20c1af451bed585ddb4207e72d234a7` |
-| androidTest APK SHA-256 | `33192a2c442175ac81b520dc23598783ff15db1e1cc0c3d705c0449b25dfe7e7` |
-| package / versionCode / versionName | `com.pdig.app` / `2` / `0.3.1` |
-| compileSdk（badging） | 36 |
-| signer | `C=US, O=Android, CN=Android Debug`，SHA-256 `6edd40038055b629b34c1299a6da01a0e9081de5afed57fe91287593390cc5b1` |
-| installed APK SHA-256 | **NOT_RUN**（无可启动模拟器，见 §3） |
+| 项                                  | 值                                                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| local APK SHA-256                   | `942358fdbc571ae24fd7eaa86b718898e20c1af451bed585ddb4207e72d234a7`                                              |
+| androidTest APK SHA-256             | `33192a2c442175ac81b520dc23598783ff15db1e1cc0c3d705c0449b25dfe7e7`                                              |
+| package / versionCode / versionName | `com.pdig.app` / `2` / `0.3.1`                                                                                  |
+| compileSdk（badging）               | 36                                                                                                              |
+| signer                              | `C=US, O=Android, CN=Android Debug`，SHA-256 `6edd40038055b629b34c1299a6da01a0e9081de5afed57fe91287593390cc5b1` |
+| installed APK SHA-256               | **NOT_RUN**（无可启动模拟器，见 §3）                                                                            |
 
 CI 侧同内容 HEAD 的 APK（不同构建机，不要求与本地字节一致，run `40686250651`）：`phone` = `ebb476b8…9172`，
 `phone-font15` = `dbef57e2…fae0`。本地 APK 与 CI APK 的 SHA 不同属于正常现象，真正绑定的是
@@ -122,10 +123,10 @@ CI 侧同内容 HEAD 的 APK（不同构建机，不要求与本地字节一致�
 
 ### 3.1 本地模拟器（真实尝试，失败）
 
-| 尝试 | 参数 | 结果 |
-| --- | --- | --- |
-| #1 | `-avd pdig_api36 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel off` | qemu 进程以 `-1073741819`（0xC0000005 access violation）退出，adb 无设备（`logs/emulator.txt`、`logs/emulator-run.out.txt`） |
-| #2 | 同上但 `-gpu off` | 曾出现 `emulator-5554 offline`，约 2 分钟后进程消失，`sys.boot_completed` 始终为空（`logs/emulator-run2.out.txt`） |
+| 尝试 | 参数                                                                                                   | 结果                                                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| #1   | `-avd pdig_api36 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect -accel off` | qemu 进程以 `-1073741819`（0xC0000005 access violation）退出，adb 无设备（`logs/emulator.txt`、`logs/emulator-run.out.txt`） |
+| #2   | 同上但 `-gpu off`                                                                                      | 曾出现 `emulator-5554 offline`，约 2 分钟后进程消失，`sys.boot_completed` 始终为空（`logs/emulator-run2.out.txt`）           |
 
 根因（可复核）：`emulator -accel-check` → `accel: 6 / Android Emulator hypervisor driver is not installed on this machine`，
 且宿主 `HypervisorPresent=False`（无 WHPX/Hyper-V）。x86_64 API36 镜像在纯 TCG 软件模拟下无法稳定启动。
@@ -135,24 +136,24 @@ CI 侧同内容 HEAD 的 APK（不同构建机，不要求与本地字节一致�
 
 ### 3.2 Exact-HEAD CI 证据（fallback，provenance = CI_EXACT_HEAD）
 
-| 矩阵 | run | entries | sourceHead | apkSha256 | fontScale | assertionsMissing | humanReview |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| phone 1.0 | **40686250651** | 22 | `a3d08e63…` | `ebb476b8…` | 1.0（device） | `[]` | `NOT_RUN` |
-| phone 1.5 | **40686250651** | 22 | `a3d08e63…` | `dbef57e2…` | 1.5（device） | `[]` | `NOT_RUN` |
+| 矩阵      | run             | entries | sourceHead  | apkSha256   | fontScale     | assertionsMissing | humanReview |
+| --------- | --------------- | ------- | ----------- | ----------- | ------------- | ----------------- | ----------- |
+| phone 1.0 | **40686250651** | 22      | `a3d08e63…` | `ebb476b8…` | 1.0（device） | `[]`              | `NOT_RUN`   |
+| phone 1.5 | **40686250651** | 22      | `a3d08e63…` | `dbef57e2…` | 1.5（device） | `[]`              | `NOT_RUN`   |
 
 设备画像：`sdk_gphone64_x86_64`，API 36，1080×2400，density 420，`dataMode=isolated-postfreeze-evidence-reality`。
 共 58 条断言/矩阵，0 缺失。两个矩阵的 PNG（22）+ UIAutomator XML（22）齐全。
 
 ### 3.3 设备矩阵
 
-| 矩阵 | 状态 | Provenance |
-| --- | --- | --- |
-| Phone 1.0 | PASS | CI_EXACT_HEAD |
-| Phone 1.5 | PASS | CI_EXACT_HEAD |
-| Medium（1200×1920@240） | NOT_RUN | 无本地可启动模拟器；该 HEAD 无 Production medium CI 证据（`tablet-pixels` 工作流走 `previewDebug`，且该 HEAD 无运行记录） |
-| Expanded（2560×1600@320） | NOT_RUN | 同上 |
-| 真机 | NOT_RUN | 无连接的 Android 真机 |
-| 本地模拟器 | FAIL | 两次尝试崩溃，见 §3.1 |
+| 矩阵                      | 状态    | Provenance                                                                                                                |
+| ------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Phone 1.0                 | PASS    | CI_EXACT_HEAD                                                                                                             |
+| Phone 1.5                 | PASS    | CI_EXACT_HEAD                                                                                                             |
+| Medium（1200×1920@240）   | NOT_RUN | 无本地可启动模拟器；该 HEAD 无 Production medium CI 证据（`tablet-pixels` 工作流走 `previewDebug`，且该 HEAD 无运行记录） |
+| Expanded（2560×1600@320） | NOT_RUN | 同上                                                                                                                      |
+| 真机                      | NOT_RUN | 无连接的 Android 真机                                                                                                     |
+| 本地模拟器                | FAIL    | 两次尝试崩溃，见 §3.1                                                                                                     |
 
 ### 3.4 语义/布局证据（我自己对 XML 做的独立分析）
 
@@ -192,14 +193,14 @@ seed 侧注释亦记录：该构建中 Device 节点无法经任何 governed run
 
 ### 4.3 Make-Before-Break — PASS
 
-| 状态 | 证据断言 |
-| --- | --- |
-| Current | `变更全程` / `当前` / `过渡中` / `完成后（计划）` |
-| 准备 | `记录完成这一步`（真实改变 authority，随后出现待验证态） |
-| 迁移完成未验证 | `动作已记录完成，结果尚未验证` + `确认验证这一步` + `确认验证会写入正式记录` |
-| 旧号码停用 blocked | `停用旧手机号（新路径全部验证后）` + `等待前置步骤` + `新手机号迁移与恢复路径尚未全部验证；全部验证完成前不能停用旧手机号。` |
-| 验证完成 → eligible | `production-change-retirement-eligible` / `-cta` 断言命中 |
-| After | `计划预期 · 未发生 · 完成并验证前不代表现实` |
+| 状态                | 证据断言                                                                                                                     |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Current             | `变更全程` / `当前` / `过渡中` / `完成后（计划）`                                                                            |
+| 准备                | `记录完成这一步`（真实改变 authority，随后出现待验证态）                                                                     |
+| 迁移完成未验证      | `动作已记录完成，结果尚未验证` + `确认验证这一步` + `确认验证会写入正式记录`                                                 |
+| 旧号码停用 blocked  | `停用旧手机号（新路径全部验证后）` + `等待前置步骤` + `新手机号迁移与恢复路径尚未全部验证；全部验证完成前不能停用旧手机号。` |
+| 验证完成 → eligible | `production-change-retirement-eligible` / `-cta` 断言命中                                                                    |
+| After               | `计划预期 · 未发生 · 完成并验证前不代表现实`                                                                                 |
 
 JVM 侧同语义回归（264 个用例内、0 失败）：`ProductionChangeStageSummaryTest` 断言
 `全部验证完成前不能停用旧手机号`、`计划预期 · 未发生 · 完成并验证前不代表现实`；
@@ -255,13 +256,13 @@ JVM 侧同语义回归（264 个用例内、0 失败）：`ProductionChangeStage
 `production-records.xml` 五个筛选（全部/需处理/待验证/已记录完成/已验证）的父亲节点均
 `focusable=true`，当前项 `selected=true`，尺寸（density 420）：
 
-| 筛选 | 1.0 尺寸 | 1.5 尺寸 |
-| --- | --- | --- |
-| 全部（selected） | 59.8×49.9dp | 77.7×62.1dp |
-| 需处理 | 72.0×49.9dp | 96.0×62.1dp |
-| 待验证 | 72.0×49.9dp | 96.0×62.1dp |
-| 已记录完成 | 96.4×49.9dp | 105.1×62.1dp |
-| 已验证 | 67.8×49.9dp | 在滚动视口外（第 4 项已在右边缘截断，行需横滑） |
+| 筛选             | 1.0 尺寸    | 1.5 尺寸                                        |
+| ---------------- | ----------- | ----------------------------------------------- |
+| 全部（selected） | 59.8×49.9dp | 77.7×62.1dp                                     |
+| 需处理           | 72.0×49.9dp | 96.0×62.1dp                                     |
+| 待验证           | 72.0×49.9dp | 96.0×62.1dp                                     |
+| 已记录完成       | 96.4×49.9dp | 105.1×62.1dp                                    |
+| 已验证           | 67.8×49.9dp | 在滚动视口外（第 4 项已在右边缘截断，行需横滑） |
 
 即选择状态不是只靠颜色（`selected` 语义存在），且 ≥48dp。
 
@@ -286,11 +287,11 @@ action title/Records/Search，也未做 accessibility label / contentDescription
 
 排查过程中确认过、但经证据核实**不是**缺陷的三项（记录以说明判断依据）：
 
-| 疑似点 | 判断 | 依据 |
-| --- | --- | --- |
+| 疑似点                                                    | 判断   | 依据                                                                                                                       |
+| --------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------- |
 | Records 筛选 chip 自身 `clickable=false / selected=false` | 非缺陷 | `selected` 语义在其父 `View` 节点（`selected=true, focusable=true`），尺寸 ≥48dp；这是 Compose `selectable` 的标准语义落点 |
-| 1.5 字级下 Records 只出现 4 个筛选 | 非缺陷 | 筛选行是 `HorizontalScrollView`，第 5 项在可视区外；行可横向滚动 |
-| 底部导航距屏幕底 63px | 非缺陷 | 63px = 24dp，正是手势导航条高度；未与系统区重叠 |
+| 1.5 字级下 Records 只出现 4 个筛选                        | 非缺陷 | 筛选行是 `HorizontalScrollView`，第 5 项在可视区外；行可横向滚动                                                           |
+| 底部导航距屏幕底 63px                                     | 非缺陷 | 63px = 24dp，正是手势导航条高度；未与系统区重叠                                                                            |
 
 未测试适配：本轮没有为了让任何检查变绿而修改 harness 断言、放宽 stale gate、绕过 FLAG_SECURE
 或注入 synthetic Production 状态。
@@ -320,48 +321,47 @@ action title/Records/Search，也未做 accessibility label / contentDescription
 
 ## 7. Gate Matrix
 
-| Gate | 结果 | Provenance / 依据 |
-| --- | --- | --- |
-| REMOTE_HEAD_LOCKED | **PASS** | `git fetch` + `rev-parse origin/…` = `e68948d5…`，与任务书一致 |
-| SOURCE_BUILD | **PASS** | `BUILD SUCCESSFUL in 14m 2s`（`logs/gradle.txt`） |
-| JVM_TESTS | **PASS** | 264 用例 / 0 失败 / 0 跳过（`:repos:test` 13、`:app:testProductionDebugUnitTest` 251） |
-| PRODUCTION_ANDROID_TEST | **PASS（仅组装）** | `:app:assembleProductionDebugAndroidTest` 成功，产出 `app-production-debug-androidTest.apk` |
-| PRODUCTION_ANDROID_TEST_RUN | **NOT_RUN** | 无可启动模拟器/真机，instrumentation 未执行 |
-| PHONE_1_0_RUNTIME | **PASS** | CI_EXACT_HEAD run 40686250651 @ `a3d08e63`，22 entries，assertionsMissing=[] |
-| PHONE_1_5_RUNTIME | **PASS** | 同上，fontScale=1.5，22 entries，assertionsMissing=[] |
-| MEDIUM_RUNTIME | **NOT_RUN** | 无本地设备；该 HEAD 无 Production medium CI 证据 |
-| EXPANDED_RUNTIME | **NOT_RUN** | 同上 |
-| REAL_DEVICE_RUNTIME | **NOT_RUN** | 无真机连接 |
-| ACCOUNT_CHANGE_BOUNDARY | **PASS** | XML + manifest 断言（§4.1） |
-| EMAIL_CHANGE_BOUNDARY | **PASS** | XML + manifest 断言；禁止词全 0（§4.1） |
-| SERVICE_CHANGE_BOUNDARY | **PASS** | XML + manifest 断言（§4.1） |
-| DEVICE_TRUTHFUL_EMPTY | **PASS** | 空状态文案 + seed 无 Device 路径（§4.2） |
-| MAKE_BEFORE_BREAK | **PASS** | 七状态断言链（§4.3） |
-| DONE_NOT_VERIFIED | **PASS** | `动作已记录完成，结果尚未验证` + `确认验证这一步`（§4.3） |
-| RETIREMENT_GATE | **PASS** | `等待前置步骤` + 停用门槛文案 + JVM 回归（§4.3） |
-| AFTER_PLAN_PROJECTION | **PASS** | `计划预期 · 未发生 · 完成并验证前不代表现实`（§4.3） |
-| STALE_FAIL_CLOSED | **PASS** | stale XML 中 `记录完成这一步`=0、`确认验证这一步`=0（§4.4） |
-| REANALYSIS_AUTHORITY | **PASS** | 重新分析后投影取自 authority：`分析时数据版本 8 · 当前数据版本 8`（§4.4） |
-| REANALYSIS_DELTA | **PASS** | `分析基准 6 → 8`、`新增 1 · 已不在当前影响 0 · 状态变化 0`（§4.4） |
-| RECORDS_THREE_CLOCKS | **PASS** | `发生时间未记录 · 记录于 …`、`验证证据未记录`（§4.5） |
-| RECORDS_FLAG_SECURE | **PASS（语义）** | manifest `secureWindowExpected=true`；单一实现无旁路；像素不可见（§4.6） |
-| PRIVACY_MASKING | **NOT_RUN** | 本轮无隐私开启态证据（§4.9） |
-| SYSTEM_BACK_HISTORY | **PASS** | `back()` 弹真实栈 + CI 运行时 BACK 遍历（§4.7） |
-| HEADER_UP_PARENT | **PASS（STATIC）** | `ACCOUNT_DETAIL → ACCOUNTS`（`VAppState.kt:405`）；运行时点击 NOT_RUN |
-| FIVE_PRIMARY_DESTINATIONS | **PASS** | 源码 `NavigationModel.kt:24-30` + XML 五入口含 `我`（§4.7） |
-| POSTFREEZE_MANIFEST | **PASS** | 22/22 entries，sourceHead 匹配，assertionsMissing=[]，humanReview=NOT_RUN |
-| POSTFREEZE_LAYOUT_BOUNDS | **PASS** | CI gate + 我的独立 XML 分析：0 越界 / 0 过小触控 / 0 文本重叠 |
-| HUMAN_VISUAL_CANDIDATE | **READY** | 见 §8 |
-| HUMAN_VISUAL_ACCEPTANCE | **NOT_RUN** | 只能由用户看过候选后决定 |
-| ANDROID_REFERENCE_FREEZE_CURRENT | **NO** | 未冻结（HOLD） |
-| STORE_RELEASE | **HOLD** | 无生产 keystore；debug 证书候选非上架件 |
-| PR_MERGED | **NO** | PR #1 未合并 |
+| Gate                             | 结果               | Provenance / 依据                                                                           |
+| -------------------------------- | ------------------ | ------------------------------------------------------------------------------------------- |
+| REMOTE_HEAD_LOCKED               | **PASS**           | `git fetch` + `rev-parse origin/…` = `e68948d5…`，与任务书一致                              |
+| SOURCE_BUILD                     | **PASS**           | `BUILD SUCCESSFUL in 14m 2s`（`logs/gradle.txt`）                                           |
+| JVM_TESTS                        | **PASS**           | 264 用例 / 0 失败 / 0 跳过（`:repos:test` 13、`:app:testProductionDebugUnitTest` 251）      |
+| PRODUCTION_ANDROID_TEST          | **PASS（仅组装）** | `:app:assembleProductionDebugAndroidTest` 成功，产出 `app-production-debug-androidTest.apk` |
+| PRODUCTION_ANDROID_TEST_RUN      | **NOT_RUN**        | 无可启动模拟器/真机，instrumentation 未执行                                                 |
+| PHONE_1_0_RUNTIME                | **PASS**           | CI_EXACT_HEAD run 40686250651 @ `a3d08e63`，22 entries，assertionsMissing=[]                |
+| PHONE_1_5_RUNTIME                | **PASS**           | 同上，fontScale=1.5，22 entries，assertionsMissing=[]                                       |
+| MEDIUM_RUNTIME                   | **NOT_RUN**        | 无本地设备；该 HEAD 无 Production medium CI 证据                                            |
+| EXPANDED_RUNTIME                 | **NOT_RUN**        | 同上                                                                                        |
+| REAL_DEVICE_RUNTIME              | **NOT_RUN**        | 无真机连接                                                                                  |
+| ACCOUNT_CHANGE_BOUNDARY          | **PASS**           | XML + manifest 断言（§4.1）                                                                 |
+| EMAIL_CHANGE_BOUNDARY            | **PASS**           | XML + manifest 断言；禁止词全 0（§4.1）                                                     |
+| SERVICE_CHANGE_BOUNDARY          | **PASS**           | XML + manifest 断言（§4.1）                                                                 |
+| DEVICE_TRUTHFUL_EMPTY            | **PASS**           | 空状态文案 + seed 无 Device 路径（§4.2）                                                    |
+| MAKE_BEFORE_BREAK                | **PASS**           | 七状态断言链（§4.3）                                                                        |
+| DONE_NOT_VERIFIED                | **PASS**           | `动作已记录完成，结果尚未验证` + `确认验证这一步`（§4.3）                                   |
+| RETIREMENT_GATE                  | **PASS**           | `等待前置步骤` + 停用门槛文案 + JVM 回归（§4.3）                                            |
+| AFTER_PLAN_PROJECTION            | **PASS**           | `计划预期 · 未发生 · 完成并验证前不代表现实`（§4.3）                                        |
+| STALE_FAIL_CLOSED                | **PASS**           | stale XML 中 `记录完成这一步`=0、`确认验证这一步`=0（§4.4）                                 |
+| REANALYSIS_AUTHORITY             | **PASS**           | 重新分析后投影取自 authority：`分析时数据版本 8 · 当前数据版本 8`（§4.4）                   |
+| REANALYSIS_DELTA                 | **PASS**           | `分析基准 6 → 8`、`新增 1 · 已不在当前影响 0 · 状态变化 0`（§4.4）                          |
+| RECORDS_THREE_CLOCKS             | **PASS**           | `发生时间未记录 · 记录于 …`、`验证证据未记录`（§4.5）                                       |
+| RECORDS_FLAG_SECURE              | **PASS（语义）**   | manifest `secureWindowExpected=true`；单一实现无旁路；像素不可见（§4.6）                    |
+| PRIVACY_MASKING                  | **NOT_RUN**        | 本轮无隐私开启态证据（§4.9）                                                                |
+| SYSTEM_BACK_HISTORY              | **PASS**           | `back()` 弹真实栈 + CI 运行时 BACK 遍历（§4.7）                                             |
+| HEADER_UP_PARENT                 | **PASS（STATIC）** | `ACCOUNT_DETAIL → ACCOUNTS`（`VAppState.kt:405`）；运行时点击 NOT_RUN                       |
+| FIVE_PRIMARY_DESTINATIONS        | **PASS**           | 源码 `NavigationModel.kt:24-30` + XML 五入口含 `我`（§4.7）                                 |
+| POSTFREEZE_MANIFEST              | **PASS**           | 22/22 entries，sourceHead 匹配，assertionsMissing=[]，humanReview=NOT_RUN                   |
+| POSTFREEZE_LAYOUT_BOUNDS         | **PASS**           | CI gate + 我的独立 XML 分析：0 越界 / 0 过小触控 / 0 文本重叠                               |
+| HUMAN_VISUAL_CANDIDATE           | **READY**          | 见 §8                                                                                       |
+| HUMAN_VISUAL_ACCEPTANCE          | **NOT_RUN**        | 只能由用户看过候选后决定                                                                    |
+| ANDROID_REFERENCE_FREEZE_CURRENT | **NO**             | 未冻结（HOLD）                                                                              |
+| STORE_RELEASE                    | **HOLD**           | 无生产 keystore；debug 证书候选非上架件                                                     |
+| PR_MERGED                        | **NO**             | PR #1 未合并                                                                                |
 
 ---
 
 ## 8. Human Visual Candidate（建议优先看的 12 页）
 
->
 > **在线版（GitHub Pages，免安装）**：https://haoleilab.com/PDIG-DepMap/human-visual-candidate/
 > 　**可安装候选**：https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-human-review-a3d08e63
 > 　（prerelease；两份 APK = 1.0 / 1.5 证据矩阵各自的构建产物，debug 证书，非上架件）
@@ -372,20 +372,20 @@ action title/Records/Search，也未做 accessibility label / contentDescription
 证据根：`artifacts/runtime-evidence/local-final-e68948d/`，每页同名 `.png` 与 `xml/<label>/<shot>.xml`；
 1.0 与 1.5 各有全套（`phone-1.0/`、`phone-1.5/`）。
 
-| # | shot | 看什么 |
-| --- | --- | --- |
-| 1 | `production-change-current` | 当前 / 过渡中 / 完成后（计划）是否形成连续过程，而非 checklist |
-| 2 | `production-change-pending-verification` | `动作已记录完成，结果尚未验证` 是否一眼可懂（done ≠ verified） |
-| 3 | `production-change-retirement-blocked` | 停用旧号码的阻塞是否给出原因与下一步，而不是灰按钮 |
-| 4 | `production-change-after-plan` | After 是否明确是计划投影（`计划预期 · 未发生`） |
-| 5 | `production-change-stale` | `基础设施已发生变化` 是否是"停"而不是"错"，且没有执行入口 |
-| 6 | `production-change-reanalyzed` | delta 是否像产品说明而非 diff 日志（6→8、新增 1） |
-| 7 | `production-account-detail-change-boundary` | Change 区域是否退居次要层级、不像报错框 |
-| 8 | `production-email-detail-change-boundary` | 同上，且无认证/恢复能力猜测 |
-| 9 | `production-service-detail-change-boundary` | 关系数量是否被克制表述 |
-| 10 | `production-device-empty` | 空状态是否像产品设计而非 debug 空页 |
-| 11 | `production-now` | 五项一级入口与信息密度（首屏是否先给对象与当前事实） |
-| 12 | `production-change-center` | 变更中心的入口层级与计划列表密度 |
+| #   | shot                                        | 看什么                                                         |
+| --- | ------------------------------------------- | -------------------------------------------------------------- |
+| 1   | `production-change-current`                 | 当前 / 过渡中 / 完成后（计划）是否形成连续过程，而非 checklist |
+| 2   | `production-change-pending-verification`    | `动作已记录完成，结果尚未验证` 是否一眼可懂（done ≠ verified） |
+| 3   | `production-change-retirement-blocked`      | 停用旧号码的阻塞是否给出原因与下一步，而不是灰按钮             |
+| 4   | `production-change-after-plan`              | After 是否明确是计划投影（`计划预期 · 未发生`）                |
+| 5   | `production-change-stale`                   | `基础设施已发生变化` 是否是"停"而不是"错"，且没有执行入口      |
+| 6   | `production-change-reanalyzed`              | delta 是否像产品说明而非 diff 日志（6→8、新增 1）              |
+| 7   | `production-account-detail-change-boundary` | Change 区域是否退居次要层级、不像报错框                        |
+| 8   | `production-email-detail-change-boundary`   | 同上，且无认证/恢复能力猜测                                    |
+| 9   | `production-service-detail-change-boundary` | 关系数量是否被克制表述                                         |
+| 10  | `production-device-empty`                   | 空状态是否像产品设计而非 debug 空页                            |
+| 11  | `production-now`                            | 五项一级入口与信息密度（首屏是否先给对象与当前事实）           |
+| 12  | `production-change-center`                  | 变更中心的入口层级与计划列表密度                               |
 
 ---
 

@@ -2233,10 +2233,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   Me / 建立 Hub / 手工关系 / 复核空态。证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
-
-
-
-
 ---
 
 ## R52+ Round 7 — 1.3× 动态字号真实运行与修复（2026-10-18）
@@ -2246,12 +2242,11 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   - 地球地区 chip `中国大陆` 被截断为 `中国…`：chip 尺寸按 fontScale 放大；
   - Now 四张资产卡在单行溢出/第四张被裁：>1.15× 改为 2×2 资产栏；
   - Me 身份 mini 卡的 `恢复用途 · 唯一性未知` / `受信任` 被固定 66dp 裁掉：
-    >1.15× 时 mini 卡 108dp、号码卡 224dp，文本 ellipsis + 2 行。
+    > 1.15× 时 mini 卡 108dp、号码卡 224dp，文本 ellipsis + 2 行。
 - 1.0× 分支不变；JVM tests PASS。
 - 新增 `font-scale-1.3/` 6 张真实 PNG + XML + manifest（Now / Infrastructure /
   Cards / Card detail / Change / Me），证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
-
 
 ---
 
@@ -2267,7 +2262,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - JVM/编译 PASS；1.0 纵屏与平板布局不变。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
-
 ---
 
 ## R52+ Round 9 — 平板 MEDIUM 1.3× 真实运行（2026-10-18）
@@ -2280,7 +2274,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 未发现新的布局缺陷；平板 1.3× 可读。
 - 新增 `tablet-font-scale-1.3/` 4 张真实 PNG + XML + manifest，证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
-
 
 ---
 
@@ -2298,7 +2291,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 新增 `font-scale-1.5/` 4 张真实 PNG + XML + manifest，证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
-
 ---
 
 ## R52+ Round 11 — 平板 MEDIUM 1.5× 真实运行与修复（2026-10-18）
@@ -2312,7 +2304,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 新增 `tablet-font-scale-1.5/` 4 张真实 PNG + XML + manifest，证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
 
-
 ---
 
 ## R52+ Round 12 — Expanded 1.5× 真实运行与修复（2026-10-18）
@@ -2325,7 +2316,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
   CompactContinuityScene，即使宽屏也不强行三栏。1.0/1.3 不变。
 - 新增 `expanded-1.5/` 4 张真实 PNG + XML + manifest，证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
-
 
 ---
 
@@ -2341,7 +2331,6 @@ PRODUCTION_CUTOVER          = HOLD（未执行；Production 默认入口保持 l
 - 新增 `production-1.5/` 3 张可读 PNG + 1 张安全黑屏证明 + XML + manifest，
   证据合计 **344 项**。
 - 仍保留：参考板损坏；Human Acceptance / Freeze / Cutover PENDING / HOLD / HOLD。
-
 
 ---
 

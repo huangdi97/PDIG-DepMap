@@ -9,14 +9,14 @@
 
 All six workflow runs below were **success** at `ef7d7bcb28a036ba2ae8fa863d870150266338cd`:
 
-| Gate | Run | Result |
-| --- | --- | --- |
+| Gate                                              | Run                                                                              | Result  |
+| ------------------------------------------------- | -------------------------------------------------------------------------------- | ------- |
 | CI (Android App, Core, Canonical, Harmony Static) | [38535679790](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535679790) | SUCCESS |
-| iOS | [38535679875](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535679875) | SUCCESS |
-| Phone Pixel Proof | [38535667380](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667380) | SUCCESS |
-| Tablet Pixel Proof | [38535667248](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667248) | SUCCESS |
-| Production Rehearsal | [38535667328](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667328) | SUCCESS |
-| Preview APK | [38535667181](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667181) | SUCCESS |
+| iOS                                               | [38535679875](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535679875) | SUCCESS |
+| Phone Pixel Proof                                 | [38535667380](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667380) | SUCCESS |
+| Tablet Pixel Proof                                | [38535667248](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667248) | SUCCESS |
+| Production Rehearsal                              | [38535667328](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667328) | SUCCESS |
+| Preview APK                                       | [38535667181](https://github.com/huangdi97/PDIG-DepMap/actions/runs/38535667181) | SUCCESS |
 
 These are independently observed GitHub status conclusions; they are **not** a human pixel-quality verdict or permission to merge PR #1.
 
@@ -35,16 +35,16 @@ Detailed product semantics and original regression requirements: `spec/ui-vnext/
 
 Machine-readable and screenshot existence are insufficient for visual acceptance. Compare real phone **and** tablet captures from each successful exact-source run to the user's original high-resolution light board, not the compressed 320×213 thumbnail:
 
-| Priority | Human visual decision | Binding acceptance criterion |
-| --- | --- | --- |
-| P0 | Records → exact action → Back | Focal action is actually visible after scroll; highlight unambiguous; Back returns to the original Records filter and correct list; 48dp touch targets |
-| P0 | Production vs Preview | Lock and Reality boundaries visible and truthful; synthetic placeholder never appears in formal Production |
-| P1 | Change Phone / Card | Current, Transition, After (plan) are visually distinct and legible; blockers appear near the action, `done != verified` |
-| P1 | Card / Number detail | Asset identity, lifecycle, dependencies and Impact Lens have intelligible hierarchy; no persistent undersized 9sp copy for core information |
-| P1 | Infrastructure and long-tail object details | Readable account/email/device/service surfaces with their own identity and empty/unknown truth; no category-as-KPI-wall regression |
-| P1 | Records / Weaknesses | Evidence, status and next step are scannable; distinct visual semantics for unknown, pending and verified, with no invented security score |
-| P1 | Me | Fifth root appears in BottomNavigation and wide Rail; privacy/data-sources/continuity workspaces aren't generic Settings |
-| P2 | Accessibility/responsiveness | Large-font, focus order, TalkBack, rotation and split-screen must be separately tested or marked open |
+| Priority | Human visual decision                       | Binding acceptance criterion                                                                                                                           |
+| -------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| P0       | Records → exact action → Back               | Focal action is actually visible after scroll; highlight unambiguous; Back returns to the original Records filter and correct list; 48dp touch targets |
+| P0       | Production vs Preview                       | Lock and Reality boundaries visible and truthful; synthetic placeholder never appears in formal Production                                             |
+| P1       | Change Phone / Card                         | Current, Transition, After (plan) are visually distinct and legible; blockers appear near the action, `done != verified`                               |
+| P1       | Card / Number detail                        | Asset identity, lifecycle, dependencies and Impact Lens have intelligible hierarchy; no persistent undersized 9sp copy for core information            |
+| P1       | Infrastructure and long-tail object details | Readable account/email/device/service surfaces with their own identity and empty/unknown truth; no category-as-KPI-wall regression                     |
+| P1       | Records / Weaknesses                        | Evidence, status and next step are scannable; distinct visual semantics for unknown, pending and verified, with no invented security score             |
+| P1       | Me                                          | Fifth root appears in BottomNavigation and wide Rail; privacy/data-sources/continuity workspaces aren't generic Settings                               |
+| P2       | Accessibility/responsiveness                | Large-font, focus order, TalkBack, rotation and split-screen must be separately tested or marked open                                                  |
 
 The review needs a signed/explicit **ACCEPT / ACCEPT_WITH_NITS / REJECT** per screen, with actual exact-source screenshot path and concrete delta for any REJECT. Source approval or green CI does not substitute for this.
 

@@ -58,12 +58,12 @@ PRODUCTION_UI_GENERATION = "legacy"
 PRODUCTION_VNEXT_CUTOVER_APPROVED = false
 ```
 
-| Item | Value |
-| --- | --- |
-| APK | `C:\Users\Kaiser\pdig-build\app\outputs\apk\production\debug\app-production-debug.apk` |
-| APK SHA-256 | `e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195` |
-| Installed `base.apk` SHA-256 | `e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195` |
-| Package / activity | `com.pdig.app` / `com.pdig.app.MainActivity` |
+| Item                         | Value                                                                                  |
+| ---------------------------- | -------------------------------------------------------------------------------------- |
+| APK                          | `C:\Users\Kaiser\pdig-build\app\outputs\apk\production\debug\app-production-debug.apk` |
+| APK SHA-256                  | `e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195`                     |
+| Installed `base.apk` SHA-256 | `e65a6435dbabf822cb9aabfcb4c8db0372e670f9ead67ea0429264eba228e195`                     |
+| Package / activity           | `com.pdig.app` / `com.pdig.app.MainActivity`                                           |
 
 ### Secure rehearsal result
 
@@ -109,13 +109,13 @@ PRODUCTION_UI_GENERATION = "vnext"
 PRODUCTION_VNEXT_CUTOVER_APPROVED = true
 ```
 
-| Item | Value |
-| --- | --- |
-| APK SHA-256 | `df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99` |
-| Installed `base.apk` SHA-256 | matched before interpreting the UI (the rehearsal script also asserts this) |
-| Launch extras | `NONE` for the release-default path |
+| Item                         | Value                                                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------- |
+| APK SHA-256                  | `df576561f5ff862c9693d32ad14007f852b7fe7e50e3d3ef4e01a1ff2f494e99`                                       |
+| Installed `base.apk` SHA-256 | matched before interpreting the UI (the rehearsal script also asserts this)                              |
+| Launch extras                | `NONE` for the release-default path                                                                      |
 | Launch target (logcat proof) | `PRODUCTION_REALITY_RELEASE` · `flavor=production` · `generation=vnext` · `approved=true` · `debug=true` |
-| Rehearsal result | `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS` |
+| Rehearsal result             | `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`                                                        |
 
 Checks:
 
@@ -181,18 +181,18 @@ test visibility, not a product failure, and no assertion was weakened.
 After the user approved cutover, a **release** APK was built with the two keys and
 a non-production signing identity:
 
-| Item | Value |
-| --- | --- |
-| Code tree | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96` |
-| Artifact `GIT_SHA` | `01d0de3a` |
-| Version | `0.3.1` (2) |
-| BuildConfig | `release`, `DEBUG=false`, generation `vnext`, approval `true` |
-| APK SHA-256 | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c` |
-| Installed base.apk | same hash as the candidate |
-| Default launch, no extras | LockGate → Production VNext |
-| Legacy control APK | `287afd58…0316`, opens the Legacy shell |
-| Signer | `CN=PDIG NON-PRODUCTION TEST KEY` |
-| GitHub prerelease | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
+| Item                      | Value                                                                                                                                          |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code tree                 | `7aaa612c6a6dfdd0ef431a8a67879f1caef63f96`                                                                                                     |
+| Artifact `GIT_SHA`        | `01d0de3a`                                                                                                                                     |
+| Version                   | `0.3.1` (2)                                                                                                                                    |
+| BuildConfig               | `release`, `DEBUG=false`, generation `vnext`, approval `true`                                                                                  |
+| APK SHA-256               | `cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c`                                                                             |
+| Installed base.apk        | same hash as the candidate                                                                                                                     |
+| Default launch, no extras | LockGate → Production VNext                                                                                                                    |
+| Legacy control APK        | `287afd58…0316`, opens the Legacy shell                                                                                                        |
+| Signer                    | `CN=PDIG NON-PRODUCTION TEST KEY`                                                                                                              |
+| GitHub prerelease         | [android-ui-vnext-cutover-candidate-7aaa612](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612) |
 
 The prerelease carries both APKs and `SHA256SUMS.txt`; GitHub asset digests match
 the local hashes above. It is tagged `Pre-release`, not a store release. The

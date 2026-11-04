@@ -56,28 +56,28 @@ re-count them as new features.
 
 ## 3. Source changes in this round
 
-| Commit | Change |
-| --- | --- |
+| Commit     | Change                                                                                                                                                                                                                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `e1572f61` | Evidence pipeline: use the SurfaceFlinger `screencap` path, wait for a presented frame (the first SwiftShader frame measured ~4.8 s), and require real blue earth pixels for `01-now`, `02-overview-global`, `03-overview-region-selected`. Compose `captureToImage()` omits `GLSurfaceView`; `UiAutomation.takeScreenshot()` is blank on this emulator. |
-| `ab2d21f5` | Unnamed number identity appears once (title), with masking applied to the title when the privacy mask is on; account status uses `statusLabelZh`; card-change copy says 使用中; the eight-entry hub says 8 个入口. |
-| `fa48f634` | Continuity weakness copy is consumer Chinese; `参考事实` replaces `已确认事实` on the synthetic reference cards; JVM tests forbid engineering tokens. |
-| `58a1b3f7` | The phone pixel script asserts the corrected 8 个入口 copy (the eight-entry count and region assertions remain). |
-| `74fbca89` | Production Now / Me / collection / detail copy no longer prints `RegionFact`, `maintenance_profile`, `identity_anchor_profile`, `Canonical v1`, `Reality`, `Finding`, `Proposal / Candidate / Drift`, or raw bucket names. Truth boundaries are unchanged. |
-| `067388f9` | Phone capture harness: target the dedicated AVD by serial, retry transient UIAutomator dumps, and capture identity-top + impact-bottom frames for long detail pages. |
-| `fc29138e` | Final Production region copy: remove `RegionFact` / `Region Lens` from the Now world-context line and update the shell contract assertion. Production-only; no Preview-rendered screen changes. |
-| `6b823fb6` | Round 2: show a 9sp visible label under every primary rail icon at MEDIUM (still 80dp, 48dp touch target; tablet contract asserts all five); label the Me attention metric `需关注` instead of `待处理`, because Now's `需要处理` total also includes review items. Counts are unchanged. |
-| `a1ee036f` | TestTag-only: expose `pdig.nav.<route>.label` in the expanded rail branch too, so the tablet contract is independent of rail mode (MEDIUM vs EXPANDED/rotation). No visual change. |
-| `7993f29d` | Advanced Production copy: ChangePlan completion/version wording, establish/import boundaries, maintenance confirmations, manual relationship type list and unavailable state no longer print `Plan Projection`, `Reality`, `Canonical v3`, `runtime registry`, `graphRevision`, `Proposal` or `authority`. Gates and fail-closed behaviour unchanged. |
-| `8fef8030` | androidTest-only 851dp robustness: scroll to lazy change-entry, multi-node text matchers, compact orbit assertion. 38/38 contracts pass at 1080×2340@440; no rendered change. |
-| `c035ce9a` | Real-run copy audit: remove remaining `图谱修订`, `wechat_statement`, `PHONE_NUMBER / EMAIL_ADDRESS`, `图谱完整`, `FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine` and Preview R23–R25 `authority` / `Reality` / `subtype`. Behavior unchanged. |
-| `302a65d6` | Finish R24/R25 consumer copy (`Reality`, `authoritative transaction`, `graphRevision`, `From/To`, `runtime relation registry`, `Proposal/Candidate`, raw capability enums); align the phone capture script and both manual contract tests. Phone recaptured at this source (70 PNG). |
-| `226e8468` | Capture-script-only: the R25 step assertion now matches the final consumer sentence. No app code or rendered screen changes. |
-| `b85c7a57` | Dynamic-type 1.3× fixes: region chip scales with fontScale; Now asset rail becomes 2×2 above 1.15×; Me identity cards grow and hints wrap. 1.0 layout unchanged. |
-| `32541cc0` | Short landscape rail: below 600dp height the rail scrolls and skips the weighted spacer, so 数据源 / 设置 stay reachable. Tall tablets unchanged. |
-| `edc8b2f2` | 1.5× accessibility: greeting column weight + single-line badge; R9 bottom bar 84dp and no double inset; Me identity cards stack full-width above 1.35×. 1.0/1.3 unchanged. |
-| `e202a349` | Tablet 1.5× top bar: hide the PDIG wordmark above 1.15× so the section title isn't ellipsized; privacy chip shortens to 已遮蔽/未遮蔽. 1.0/1.3 unchanged. |
-| `fe60a622` | Expanded 1.5×: Now uses single-column sections; Change Phone uses the compact stepper and compact continuity scene. 1.0/1.3 unchanged. |
-| `7aaa612c` | Production BottomNav at 1.5×: apply `navigationBarsPadding()` before the 80/96dp height so labels sit above the system gesture inset. |
+| `ab2d21f5` | Unnamed number identity appears once (title), with masking applied to the title when the privacy mask is on; account status uses `statusLabelZh`; card-change copy says 使用中; the eight-entry hub says 8 个入口.                                                                                                                                       |
+| `fa48f634` | Continuity weakness copy is consumer Chinese; `参考事实` replaces `已确认事实` on the synthetic reference cards; JVM tests forbid engineering tokens.                                                                                                                                                                                                    |
+| `58a1b3f7` | The phone pixel script asserts the corrected 8 个入口 copy (the eight-entry count and region assertions remain).                                                                                                                                                                                                                                         |
+| `74fbca89` | Production Now / Me / collection / detail copy no longer prints `RegionFact`, `maintenance_profile`, `identity_anchor_profile`, `Canonical v1`, `Reality`, `Finding`, `Proposal / Candidate / Drift`, or raw bucket names. Truth boundaries are unchanged.                                                                                               |
+| `067388f9` | Phone capture harness: target the dedicated AVD by serial, retry transient UIAutomator dumps, and capture identity-top + impact-bottom frames for long detail pages.                                                                                                                                                                                     |
+| `fc29138e` | Final Production region copy: remove `RegionFact` / `Region Lens` from the Now world-context line and update the shell contract assertion. Production-only; no Preview-rendered screen changes.                                                                                                                                                          |
+| `6b823fb6` | Round 2: show a 9sp visible label under every primary rail icon at MEDIUM (still 80dp, 48dp touch target; tablet contract asserts all five); label the Me attention metric `需关注` instead of `待处理`, because Now's `需要处理` total also includes review items. Counts are unchanged.                                                                |
+| `a1ee036f` | TestTag-only: expose `pdig.nav.<route>.label` in the expanded rail branch too, so the tablet contract is independent of rail mode (MEDIUM vs EXPANDED/rotation). No visual change.                                                                                                                                                                       |
+| `7993f29d` | Advanced Production copy: ChangePlan completion/version wording, establish/import boundaries, maintenance confirmations, manual relationship type list and unavailable state no longer print `Plan Projection`, `Reality`, `Canonical v3`, `runtime registry`, `graphRevision`, `Proposal` or `authority`. Gates and fail-closed behaviour unchanged.    |
+| `8fef8030` | androidTest-only 851dp robustness: scroll to lazy change-entry, multi-node text matchers, compact orbit assertion. 38/38 contracts pass at 1080×2340@440; no rendered change.                                                                                                                                                                            |
+| `c035ce9a` | Real-run copy audit: remove remaining `图谱修订`, `wechat_statement`, `PHONE_NUMBER / EMAIL_ADDRESS`, `图谱完整`, `FailureDomain / RecoveryCycle / ProviderPolicy / Continuity engine` and Preview R23–R25 `authority` / `Reality` / `subtype`. Behavior unchanged.                                                                                      |
+| `302a65d6` | Finish R24/R25 consumer copy (`Reality`, `authoritative transaction`, `graphRevision`, `From/To`, `runtime relation registry`, `Proposal/Candidate`, raw capability enums); align the phone capture script and both manual contract tests. Phone recaptured at this source (70 PNG).                                                                     |
+| `226e8468` | Capture-script-only: the R25 step assertion now matches the final consumer sentence. No app code or rendered screen changes.                                                                                                                                                                                                                             |
+| `b85c7a57` | Dynamic-type 1.3× fixes: region chip scales with fontScale; Now asset rail becomes 2×2 above 1.15×; Me identity cards grow and hints wrap. 1.0 layout unchanged.                                                                                                                                                                                         |
+| `32541cc0` | Short landscape rail: below 600dp height the rail scrolls and skips the weighted spacer, so 数据源 / 设置 stay reachable. Tall tablets unchanged.                                                                                                                                                                                                        |
+| `edc8b2f2` | 1.5× accessibility: greeting column weight + single-line badge; R9 bottom bar 84dp and no double inset; Me identity cards stack full-width above 1.35×. 1.0/1.3 unchanged.                                                                                                                                                                               |
+| `e202a349` | Tablet 1.5× top bar: hide the PDIG wordmark above 1.15× so the section title isn't ellipsized; privacy chip shortens to 已遮蔽/未遮蔽. 1.0/1.3 unchanged.                                                                                                                                                                                                |
+| `fe60a622` | Expanded 1.5×: Now uses single-column sections; Change Phone uses the compact stepper and compact continuity scene. 1.0/1.3 unchanged.                                                                                                                                                                                                                   |
+| `7aaa612c` | Production BottomNav at 1.5×: apply `navigationBarsPadding()` before the 80/96dp height so labels sit above the system gesture inset.                                                                                                                                                                                                                    |
 
 No Canonical schema, `.depmap`, cryptographic parameter, LockGate policy,
 Production default flag or release configuration was changed.
@@ -86,27 +86,27 @@ Production default flag or release configuration was changed.
 
 ### 4.1 JVM / build
 
-| Gate | Result |
-| --- | --- |
-| `:core:test` | PASS (up-to-date after the last core change; no core source changed this round) |
-| `:app:testPreviewDebugUnitTest` | PASS |
-| `:app:testProductionDebugUnitTest` | PASS (last run after the rail/Me change) |
-| `:app:assemblePreviewDebug` | PASS |
-| `:app:assembleProductionDebug` (default Legacy) | PASS |
-| `:app:assembleProductionDebug` (vnext + cutoverApproved) | PASS |
-| APK identity | recorded in `R52_PLUS_PRODUCTION_RUNTIME_REPORT.md` |
+| Gate                                                     | Result                                                                          |
+| -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `:core:test`                                             | PASS (up-to-date after the last core change; no core source changed this round) |
+| `:app:testPreviewDebugUnitTest`                          | PASS                                                                            |
+| `:app:testProductionDebugUnitTest`                       | PASS (last run after the rail/Me change)                                        |
+| `:app:assemblePreviewDebug`                              | PASS                                                                            |
+| `:app:assembleProductionDebug` (default Legacy)          | PASS                                                                            |
+| `:app:assembleProductionDebug` (vnext + cutoverApproved) | PASS                                                                            |
+| APK identity                                             | recorded in `R52_PLUS_PRODUCTION_RUNTIME_REPORT.md`                             |
 
 ### 4.2 Real device runtime
 
-| Gate | Result |
-| --- | --- |
-| Phone Preview capture (`ui_vnext_pixel_capture.py`) | PASS, see §5 |
-| Tablet Preview screenshot suite (`SourceCompleteScreenshotEvidenceTest`) | PASS, 34 screens + manifest |
-| Expanded contract + captures (1280×800 dp) | PASS, `TabletAdaptiveContractTest` 5/5, 11 screens + manifest |
-| Production shell / record navigation / manual relationship contracts | PASS, 21/21 at 1080×2400@420 |
-| Production secure rehearsal (Legacy default) | `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS` |
-| Production release-default rehearsal (two keys) | `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS` |
-| APK SHA vs installed APK SHA | equal (`df576561…`) for the cutover rehearsal |
+| Gate                                                                     | Result                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------- |
+| Phone Preview capture (`ui_vnext_pixel_capture.py`)                      | PASS, see §5                                                  |
+| Tablet Preview screenshot suite (`SourceCompleteScreenshotEvidenceTest`) | PASS, 34 screens + manifest                                   |
+| Expanded contract + captures (1280×800 dp)                               | PASS, `TabletAdaptiveContractTest` 5/5, 11 screens + manifest |
+| Production shell / record navigation / manual relationship contracts     | PASS, 21/21 at 1080×2400@420                                  |
+| Production secure rehearsal (Legacy default)                             | `PRODUCTION_VNEXT_SECURE_REHEARSAL=PASS`                      |
+| Production release-default rehearsal (two keys)                          | `PRODUCTION_VNEXT_RELEASE_DEFAULT_REHEARSAL=PASS`             |
+| APK SHA vs installed APK SHA                                             | equal (`df576561…`) for the cutover rehearsal                 |
 
 A first run of the 21 Production contracts at 1080×2340@440 had **1 failure**:
 `governedPhoneAndEmailAppearInProductionCategoriesAndDetails` could not see the
@@ -116,28 +116,29 @@ phone change entry because it was below the fold on the shorter viewport.
 asserting, uses `onAllNodesWithText(...).onFirst()` for repeated labels, and
 asserts the compact continuity orbit instead of the MEDIUM/EXPANDED-only
 `pdig.change.new` tag. At 1080×2340 @440, **38/38 contracts pass** (21 Production
-+ 17 interaction). No product assertion was removed and no product code was
-changed. The same tests still pass at the CI 914 dp viewport.
+
+- 17 interaction). No product assertion was removed and no product code was
+  changed. The same tests still pass at the CI 914 dp viewport.
 
 ## 5. Screens actually captured
 
-| Set | Viewport | Source | Real PNGs |
-| --- | --- | --- | --- |
-| Phone | 1080×2340 @440, Compact 1.0× | `302a65d6` | 70 |
-| Phone dynamic type | same, 1.3× | `b85c7a57` | 6 |
-| Phone accessibility | same, 1.5× | `edc8b2f2` | 4 |
-| Phone landscape | 2340×1080 @440 (851×393dp) | `32541cc0` | 4 |
-| Tablet MEDIUM | 1200×1920 @240 (800×1280dp), 1.0× | `6b823fb6` | 34 |
-| Tablet dynamic type | same, 1.3× | `32541cc0` | 4 |
-| Tablet accessibility | same, 1.5× | `e202a349` | 4 |
-| Tablet EXPANDED | 2560×1600 @320 (1280×800dp), 1.0× | `7993f29d` | 11 |
-| Expanded 1.5× | same, 1.5× | `fe60a622` | 4 |
-| Production lock/unlock | 1080×2400 @420 | `fc29138e`/`6b823fb6` | 4 |
-| Production advanced | 1080×2340 @440 | `c035ce9a` | 4 |
-| Production 1.5× | 1080×2400 @420 | `7aaa612c` | 4 |
-| Production cutover | 1080×2400 @420 | artifact `01d0de3a` | 6 |
-| Published artifact | 1080×2400 @420 | GitHub pre-release | 2 |
-| **Total** | | | **161 PNG** |
+| Set                    | Viewport                          | Source                | Real PNGs   |
+| ---------------------- | --------------------------------- | --------------------- | ----------- |
+| Phone                  | 1080×2340 @440, Compact 1.0×      | `302a65d6`            | 70          |
+| Phone dynamic type     | same, 1.3×                        | `b85c7a57`            | 6           |
+| Phone accessibility    | same, 1.5×                        | `edc8b2f2`            | 4           |
+| Phone landscape        | 2340×1080 @440 (851×393dp)        | `32541cc0`            | 4           |
+| Tablet MEDIUM          | 1200×1920 @240 (800×1280dp), 1.0× | `6b823fb6`            | 34          |
+| Tablet dynamic type    | same, 1.3×                        | `32541cc0`            | 4           |
+| Tablet accessibility   | same, 1.5×                        | `e202a349`            | 4           |
+| Tablet EXPANDED        | 2560×1600 @320 (1280×800dp), 1.0× | `7993f29d`            | 11          |
+| Expanded 1.5×          | same, 1.5×                        | `fe60a622`            | 4           |
+| Production lock/unlock | 1080×2400 @420                    | `fc29138e`/`6b823fb6` | 4           |
+| Production advanced    | 1080×2340 @440                    | `c035ce9a`            | 4           |
+| Production 1.5×        | 1080×2400 @420                    | `7aaa612c`            | 4           |
+| Production cutover     | 1080×2400 @420                    | artifact `01d0de3a`   | 6           |
+| Published artifact     | 1080×2400 @420                    | GitHub pre-release    | 2           |
+| **Total**              |                                   |                       | **161 PNG** |
 
 The evidence root contains **349 files** including XML semantics, JSON
 manifests, logs and SHA lists. The published pre-release APK was downloaded again,
@@ -264,7 +265,7 @@ Freeze record: `ANDROID_REFERENCE_FREEZE_2026-10-18.md`.
 
 Source `7aaa612c`; 3 readable PNGs + 1 intentional `FLAG_SECURE` black PNG + XML
 under `production-1.5/`. At 1.5× the shared Production BottomNav labels were cut
-by the gesture inset. Apply `navigationBarsPadding()` *before* the 80/96dp height
+by the gesture inset. Apply `navigationBarsPadding()` _before_ the 80/96dp height
 so the inset sits outside the item content. Now/Me/Change are readable; Records is
 black by security policy with its semantics captured in XML.
 
@@ -294,27 +295,27 @@ reachable with 48 dp targets.
 
 ## 6. Bugs fixed and their evidence
 
-| Defect | Before | After | Evidence |
-| --- | --- | --- | --- |
-| Tablet globe missing from evidence | `01-now` blank hero | real earth in `01-now`, `02-overview-global`, `03-overview-region-selected` | tablet 01/02/03 + pixel gate |
-| Duplicate number identity | number printed twice per row | one title; secondary number only when a distinct alias exists | phone 08-numbers, tablet 09-numbers |
-| Raw status enum | `状态 active` | `状态 使用中` | phone 07-accounts-detail |
-| Raw `active` in card-change copy | `处于 active 的卡片` | `处于使用中的卡片` | phone 04i / tablet 28 |
-| Engineering jargon in findings | `参考 Reality`, `FailureDomain`, `RecoveryCycle` | consumer Chinese with the same why/basis/unknown/next structure | phone 07-weaknesses, tablet 16 |
-| Production jargon | `RegionFact`, `maintenance_profile`, `Finding`, `Reality` | consumer Chinese | Production capture + shell tests |
-| Misleading asset count | `8 类资产` | `8 个入口` | phone 02-infrastructure |
-| MEDIUM rail was icon-only | five primary roots required icon memory | visible 9sp label under each icon; all five asserted | tablet 01-now / 25-me |
-| Me mixed two pending scopes | `待处理 3` beside Now `需要处理 6` | Me says `需关注 3` / `3 项需关注`; counts unchanged | tablet 25-me, phone 09-me |
-| Remaining graph/authority jargon found by real run | `图谱修订`, `wechat_statement`, `PHONE_NUMBER`, `图谱完整`, `FailureDomain / Continuity engine` | `数据版本`, `微信账单`, `手机号 / 邮箱`, `已记录关系完整`, consumer continuity wording | production-advanced 4 screens |
+| Defect                                             | Before                                                                                          | After                                                                                  | Evidence                            |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------- |
+| Tablet globe missing from evidence                 | `01-now` blank hero                                                                             | real earth in `01-now`, `02-overview-global`, `03-overview-region-selected`            | tablet 01/02/03 + pixel gate        |
+| Duplicate number identity                          | number printed twice per row                                                                    | one title; secondary number only when a distinct alias exists                          | phone 08-numbers, tablet 09-numbers |
+| Raw status enum                                    | `状态 active`                                                                                   | `状态 使用中`                                                                          | phone 07-accounts-detail            |
+| Raw `active` in card-change copy                   | `处于 active 的卡片`                                                                            | `处于使用中的卡片`                                                                     | phone 04i / tablet 28               |
+| Engineering jargon in findings                     | `参考 Reality`, `FailureDomain`, `RecoveryCycle`                                                | consumer Chinese with the same why/basis/unknown/next structure                        | phone 07-weaknesses, tablet 16      |
+| Production jargon                                  | `RegionFact`, `maintenance_profile`, `Finding`, `Reality`                                       | consumer Chinese                                                                       | Production capture + shell tests    |
+| Misleading asset count                             | `8 类资产`                                                                                      | `8 个入口`                                                                             | phone 02-infrastructure             |
+| MEDIUM rail was icon-only                          | five primary roots required icon memory                                                         | visible 9sp label under each icon; all five asserted                                   | tablet 01-now / 25-me               |
+| Me mixed two pending scopes                        | `待处理 3` beside Now `需要处理 6`                                                              | Me says `需关注 3` / `3 项需关注`; counts unchanged                                    | tablet 25-me, phone 09-me           |
+| Remaining graph/authority jargon found by real run | `图谱修订`, `wechat_statement`, `PHONE_NUMBER`, `图谱完整`, `FailureDomain / Continuity engine` | `数据版本`, `微信账单`, `手机号 / 邮箱`, `已记录关系完整`, consumer continuity wording | production-advanced 4 screens       |
 
 ## 7. Remaining gaps (not claimed as PASS)
 
-| Priority | Item | Status |
-| --- | --- | --- |
-| Resolved | Advanced Production manual/import/establish copy | ChangePlan / establish / import / maintenance / manual relationship / review now use consumer Chinese; behavior unchanged. |
-| Resolved | 851 dp phone test visibility | `8fef8030`; 38/38 contracts pass at 1080×2340@440, no product assertion removed. |
-| External | Original 1536×1024 reference board is absent; the in-repo 320×213 JPEG is truncated (`broken data stream`). | Blocks pixel-level diff, not progression. |
-| Human | Visual acceptance, Android reference freeze and Production cutover. | `PENDING` / `HOLD` / `HOLD`. |
+| Priority | Item                                                                                                        | Status                                                                                                                     |
+| -------- | ----------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Resolved | Advanced Production manual/import/establish copy                                                            | ChangePlan / establish / import / maintenance / manual relationship / review now use consumer Chinese; behavior unchanged. |
+| Resolved | 851 dp phone test visibility                                                                                | `8fef8030`; 38/38 contracts pass at 1080×2340@440, no product assertion removed.                                           |
+| External | Original 1536×1024 reference board is absent; the in-repo 320×213 JPEG is truncated (`broken data stream`). | Blocks pixel-level diff, not progression.                                                                                  |
+| Human    | Visual acceptance, Android reference freeze and Production cutover.                                         | `PENDING` / `HOLD` / `HOLD`.                                                                                               |
 
 **No known local code/test/build defect remains.** All viewports/font scales tested
 above have real captures and passing checks; further combinations are exploratory,

@@ -484,8 +484,6 @@ HARMONY_UI_PARITY         = NOT_INFERRED_FROM_STATIC_CI
   （Me / 建立 Hub / 手工关系 / 复核空态），证据合计 260 项。
 - 没有已知的本地代码/测试/构建问题；剩余仅为参考板损坏与人工验收门禁。
 
-
-
 ## R52+ Round 7 更新（2026-10-18）
 
 - 1.3× 动态字号：地区 chip 截断、Now 资产栏溢出、Me 身份卡 hint 裁切均已修复；

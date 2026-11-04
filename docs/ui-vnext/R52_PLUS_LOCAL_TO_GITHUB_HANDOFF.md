@@ -40,28 +40,28 @@ needs a new approval.
 
 ## 2. Exact commits added in this round
 
-| Commit | Purpose |
-| --- | --- |
-| `e1572f61` | Capture presented tablet GPU earth in screenshots (evidence integrity) |
-| `ab2d21f5` | Remove duplicate number identity / raw status enums / misleading entry count |
-| `fa48f634` | Consumer copy for continuity findings + JVM copy guards |
-| `58a1b3f7` | Align phone pixel script with `8 个入口` |
-| `74fbca89` | Remove Production data-model jargon from consumer copy |
-| `067388f9` | Harden phone capture (serial targeting, UIAutomator retry, detail top/bottom frames) |
-| `fc29138e` | Finish Production region copy localization (`RegionFact` / `Region Lens`) |
+| Commit     | Purpose                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `e1572f61` | Capture presented tablet GPU earth in screenshots (evidence integrity)                                                                           |
+| `ab2d21f5` | Remove duplicate number identity / raw status enums / misleading entry count                                                                     |
+| `fa48f634` | Consumer copy for continuity findings + JVM copy guards                                                                                          |
+| `58a1b3f7` | Align phone pixel script with `8 个入口`                                                                                                         |
+| `74fbca89` | Remove Production data-model jargon from consumer copy                                                                                           |
+| `067388f9` | Harden phone capture (serial targeting, UIAutomator retry, detail top/bottom frames)                                                             |
+| `fc29138e` | Finish Production region copy localization (`RegionFact` / `Region Lens`)                                                                        |
 | `6b823fb6` | Round 2: visible labels on all five MEDIUM rail entries; Me says 需关注 instead of 待处理 (counts unchanged); tablet contract asserts the labels |
-| `a1ee036f` | TestTag-only: same rail label tag in the expanded branch, so the tablet contract passes in MEDIUM and EXPANDED/rotation |
-| `7993f29d` | Advanced Production consumer copy: ChangePlan / establish / import / maintenance / manual relationship / review; no behaviour change |
-| `8fef8030` | androidTest-only 851dp robustness; 38/38 contracts pass at 1080×2340@440, no product assertion removed |
-| `c035ce9a` | Real-run copy audit: remove remaining graph/authority/enum jargon; behavior unchanged |
-| `302a65d6` | Finish R24/R25 consumer copy and align the phone capture script; phone recaptured at this source |
-| `226e8468` | Capture-script-only: R25 step assertion matches the final consumer sentence |
-| `b85c7a57` | 1.3× dynamic type: region chip scale, Now 2×2 asset rail, Me card heights |
-| `32541cc0` | Short landscape rail scroll: 数据源 / 设置 reachable below 600dp height |
-| `edc8b2f2` | 1.5× accessibility: greeting badge, R9 bottom bar, stacked Me identity |
-| `e202a349` | Tablet 1.5× top bar: title width + privacy chip |
-| `fe60a622` | Expanded 1.5×: single-column Now + compact Change Phone |
-| `7aaa612c` | Production BottomNav inset at 1.5× |
+| `a1ee036f` | TestTag-only: same rail label tag in the expanded branch, so the tablet contract passes in MEDIUM and EXPANDED/rotation                          |
+| `7993f29d` | Advanced Production consumer copy: ChangePlan / establish / import / maintenance / manual relationship / review; no behaviour change             |
+| `8fef8030` | androidTest-only 851dp robustness; 38/38 contracts pass at 1080×2340@440, no product assertion removed                                           |
+| `c035ce9a` | Real-run copy audit: remove remaining graph/authority/enum jargon; behavior unchanged                                                            |
+| `302a65d6` | Finish R24/R25 consumer copy and align the phone capture script; phone recaptured at this source                                                 |
+| `226e8468` | Capture-script-only: R25 step assertion matches the final consumer sentence                                                                      |
+| `b85c7a57` | 1.3× dynamic type: region chip scale, Now 2×2 asset rail, Me card heights                                                                        |
+| `32541cc0` | Short landscape rail scroll: 数据源 / 设置 reachable below 600dp height                                                                          |
+| `edc8b2f2` | 1.5× accessibility: greeting badge, R9 bottom bar, stacked Me identity                                                                           |
+| `e202a349` | Tablet 1.5× top bar: title width + privacy chip                                                                                                  |
+| `fe60a622` | Expanded 1.5×: single-column Now + compact Change Phone                                                                                          |
+| `7aaa612c` | Production BottomNav inset at 1.5×                                                                                                               |
 
 The evidence commits (reports, `WORK_STATUS.md`, `BLOCKERS.md`, this handoff,
 phone/tablet/Expanded/production evidence, SHA manifest) follow `7993f29d` and
@@ -107,16 +107,16 @@ Evidence rules used:
 
 ## 4. Decision record and remaining holds
 
-| Item | State | Note |
-| --- | --- | --- |
-| Human visual acceptance | **ACCEPT (2026-10-18)** | User approved 1 / 2 / 3 in the final gate request. |
-| Android Reference Freeze | **APPROVED (2026-10-18)** | Frozen manifest: `docs/ui-vnext/ANDROID_REFERENCE_FREEZE_2026-10-18.md`. |
-| Production cutover | **APPROVED / CANDIDATE VERIFIED** | Two-key release APK `cd8afab1…` defaults to VNext; legacy control `287afd58…` opens Legacy. GitHub prerelease: [cutover candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612). |
-| Post-freeze copy candidate | **PENDING RE-ACCEPTANCE** | Branch `2ee6892f` includes copy cleanup `5ed50bbe..9b7cafd9`; APK `ae6ecbcf…` published as [post-freeze candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-postfreeze-candidate-2ee6892). Not covered by the 2026-10-18 freeze. |
-| Store release | `HOLD` | No production signing identity; candidate uses the non-production test key. |
-| Original 1536×1024 reference board | Missing | The in-repo 320×213 JPEG is truncated; no pixel-level diff, accepted as an exception. |
-| Master document `PDIG_v2.3-R1_..._2026-10-07.md` | Missing | Still absent from both local and remote trees. |
-| P2 copy/test items | Resolved in branch | `9b7cafd9` removes remaining Production environment jargon and adds contract coverage; the resulting post-freeze candidate is pending visual re-acceptance. |
+| Item                                             | State                             | Note                                                                                                                                                                                                                                                           |
+| ------------------------------------------------ | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human visual acceptance                          | **ACCEPT (2026-10-18)**           | User approved 1 / 2 / 3 in the final gate request.                                                                                                                                                                                                             |
+| Android Reference Freeze                         | **APPROVED (2026-10-18)**         | Frozen manifest: `docs/ui-vnext/ANDROID_REFERENCE_FREEZE_2026-10-18.md`.                                                                                                                                                                                       |
+| Production cutover                               | **APPROVED / CANDIDATE VERIFIED** | Two-key release APK `cd8afab1…` defaults to VNext; legacy control `287afd58…` opens Legacy. GitHub prerelease: [cutover candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612).                          |
+| Post-freeze copy candidate                       | **PENDING RE-ACCEPTANCE**         | Branch `2ee6892f` includes copy cleanup `5ed50bbe..9b7cafd9`; APK `ae6ecbcf…` published as [post-freeze candidate](https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-postfreeze-candidate-2ee6892). Not covered by the 2026-10-18 freeze. |
+| Store release                                    | `HOLD`                            | No production signing identity; candidate uses the non-production test key.                                                                                                                                                                                    |
+| Original 1536×1024 reference board               | Missing                           | The in-repo 320×213 JPEG is truncated; no pixel-level diff, accepted as an exception.                                                                                                                                                                          |
+| Master document `PDIG_v2.3-R1_..._2026-10-07.md` | Missing                           | Still absent from both local and remote trees.                                                                                                                                                                                                                 |
+| P2 copy/test items                               | Resolved in branch                | `9b7cafd9` removes remaining Production environment jargon and adds contract coverage; the resulting post-freeze candidate is pending visual re-acceptance.                                                                                                    |
 
 The guardrail in §2 not to enable Production cutover was the pre-approval rule. It
 is superseded for this artifact by the explicit 2026-10-18 user approval recorded
@@ -207,22 +207,22 @@ were green, including Production Rehearsal run
 
 Final source `7aaa612c` is pushed. Runtime checks all pass at that exact SHA:
 
-| Runtime gate | Run | Result |
-| --- | --- | --- |
-| Android UI vNext Preview APK | [39129064097](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129064097) | SUCCESS |
-| Android UI vNext Phone Pixel Proof | [39129063996](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063996) | SUCCESS (first attempt hit a flaky alias-editor focus; rerun passed with no script change) |
-| Android UI vNext Tablet Pixel Proof | [39129064047](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129064047) | SUCCESS |
-| Android UI vNext Production Rehearsal | [39129063954](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063954) | SUCCESS |
+| Runtime gate                          | Run                                                                              | Result                                                                                     |
+| ------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Android UI vNext Preview APK          | [39129064097](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129064097) | SUCCESS                                                                                    |
+| Android UI vNext Phone Pixel Proof    | [39129063996](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063996) | SUCCESS (first attempt hit a flaky alias-editor focus; rerun passed with no script change) |
+| Android UI vNext Tablet Pixel Proof   | [39129064047](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129064047) | SUCCESS                                                                                    |
+| Android UI vNext Production Rehearsal | [39129063954](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129063954) | SUCCESS                                                                                    |
 
 The CI / iOS / Android-core / Harmony jobs at `7aaa612c` were **cancelled**, not
 failed, by GitHub's branch concurrency when the docs/evidence commit was pushed.
 The same Kotlin tree at docs head `874e13f0` (`git diff -- android
 7aaa612c..874e13f0` is empty) has the full core set green:
 
-| Core gate | Run | Result |
-| --- | --- | --- |
+| Core gate                                             | Run                                                                              | Result  |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------- | ------- |
 | CI (Canonical / Android core / Android app / Harmony) | [39129093200](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093200) | SUCCESS |
-| iOS | [39129093169](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093169) | SUCCESS |
+| iOS                                                   | [39129093169](https://github.com/huangdi97/PDIG-DepMap/actions/runs/39129093169) | SUCCESS |
 
 Historical: `fe60a622`, `e202a349`, `edc8b2f2`, `32541cc0` and `b85c7a57` were
 9/9 green; `226e8468` (script-only) had CI/iOS/Preview/Phone green; `302a65d6`

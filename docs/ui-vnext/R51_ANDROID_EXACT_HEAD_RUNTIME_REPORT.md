@@ -187,14 +187,14 @@ The three workflows that were red when this round started are all **green** on t
 head `51b546cc8556e56c8a8f4521c703a7cc0c9ef4f8` (which contains this round's commits plus a concurrent
 agent's follow-up commits):
 
-| Workflow | Round start `5a09185` | `bc39a2f2` | Current head `51b546cc` |
-| --- | --- | --- | --- |
-| CI | success | success | **success** |
-| iOS | success | success | **success** |
-| Android UI vNext Preview APK | success | success | **success** |
-| Android UI vNext Phone Pixel Proof | failure | **success** | **success** |
-| Android UI vNext Tablet Pixel Proof | failure | **success** | **success** |
-| Android UI vNext Production Rehearsal | failure | failure | **success** |
+| Workflow                              | Round start `5a09185` | `bc39a2f2`  | Current head `51b546cc` |
+| ------------------------------------- | --------------------- | ----------- | ----------------------- |
+| CI                                    | success               | success     | **success**             |
+| iOS                                   | success               | success     | **success**             |
+| Android UI vNext Preview APK          | success               | success     | **success**             |
+| Android UI vNext Phone Pixel Proof    | failure               | **success** | **success**             |
+| Android UI vNext Tablet Pixel Proof   | failure               | **success** | **success**             |
+| Android UI vNext Production Rehearsal | failure               | failure     | **success**             |
 
 Two clarifications so this is not misread:
 
