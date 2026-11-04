@@ -1,0 +1,61 @@
+name: Publish Web to GitHub Pages
+
+# 只在部署产物真的变化时发布；gh-pages 上其它页面（product/privacy/support 等）保持不动。
+on:
+  push:
+    branches: [main]
+    paths:
+      - website/app/**
+      - .github/pages/**
+      - .github/workflows/publish-web.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish-web-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish website/app -> gh-pages/app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 防止把被手改过或半成品产物发上线：逐个文件比对 BUILD_SHA256SUMS。
+      - name: Verify artifact integrity
+        working-directory: website/app
+        run: |
+          test -f index.html || { echo "website/app/index.html 缺失"; exit 1; }
+          sha256sum -c BUILD_SHA256SUMS.txt
+
+      - name: Publish to gh-pages
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          git config user.name  "pdig-deploy-bot"
+          git config user.email "pdig-deploy-bot@users.noreply.github.com"
+
+          git fetch --no-tags origin gh-pages:refs/remotes/origin/gh-pages
+          WORK="$RUNNER_TEMP/pages"
+          rm -rf "$WORK"
+          git worktree add --detach "$WORK" origin/gh-pages
+
+          rm -rf "$WORK/app"
+          cp -R website/app "$WORK/app"
+          cp .github/pages/index.html "$WORK/index.html"
+          touch "$WORK/.nojekyll"
+
+          cd "$WORK"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "gh-pages 无变化，跳过提交"
+            exit 0
+          fi
+          git commit -m "deploy(web): publish website/app from ${GITHUB_SHA:0:7}"
+          git push origin HEAD:gh-pages
