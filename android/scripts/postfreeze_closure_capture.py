@@ -197,23 +197,11 @@ class Capture:
             time.sleep(0.6)
         raise SystemExit(f"could not tap {text!r}")
 
-    def scroll_until(self, text: str, attempts: int = 6, dy: int | None = None) -> None:
-        width, height = device_size()
-        step = dy if dy is not None else -int(height * 0.26)
-        start_y = int(height * 0.78)
+    def scroll_until(self, text: str, attempts: int = 6, dy: int = -620) -> None:
         for _ in range(attempts):
             if any(text in label_of(n) for n in self.dump()):
                 return
-            adb(
-                "shell",
-                "input",
-                "swipe",
-                str(width // 2),
-                str(start_y),
-                str(width // 2),
-                str(start_y + step),
-                "320",
-            )
+            adb("shell", "input", "swipe", "540", "1900", "540", str(1900 + dy), "320")
             time.sleep(0.9)
         raise SystemExit(f"scroll target {text!r} unreachable")
 
@@ -240,17 +228,7 @@ class Capture:
                         self.navigation.append(text)
                         time.sleep(1.0)
                         return
-            width, height = device_size()
-            adb(
-                "shell",
-                "input",
-                "swipe",
-                str(width // 2),
-                str(int(height * 0.78)),
-                str(width // 2),
-                str(int(height * 0.54)),
-                "320",
-            )
+            adb("shell", "input", "swipe", "540", "1900", "540", "1300", "320")
             time.sleep(0.9)
         raise SystemExit(f"could not scrolled-tap {text!r}")
 
@@ -372,23 +350,6 @@ def git(*args: str) -> str:
         ).stdout.strip()
     except Exception:
         return ""
-
-
-_DEVICE_SIZE: tuple[int, int] | None = None
-
-
-def device_size() -> tuple[int, int]:
-    """当前设备分辨率（px）。
-
-    滑动/点击坐标必须由它推导：手机硬编码的 y=1900 在平板（1600px 高）上越界，
-    swipe 会退化成空操作，表现为「目标永远不可达」。
-    """
-    global _DEVICE_SIZE
-    if _DEVICE_SIZE is None:
-        raw = adb_out("shell", "wm", "size").decode("utf-8", "replace")
-        match = re.search(r"(\d+)x(\d+)", raw)
-        _DEVICE_SIZE = (int(match.group(1)), int(match.group(2))) if match else (1080, 2400)
-    return _DEVICE_SIZE
 
 
 def adb(*args: str) -> None:
