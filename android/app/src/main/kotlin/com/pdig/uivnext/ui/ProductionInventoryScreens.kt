@@ -684,6 +684,9 @@ private fun ProductionSecondaryObjectChangeEntry(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
+            // 1.5 字号 + 平板宽度下，卡片末行说明贴到取证安全带（实测底部 1523 > 1520）；
+            // 尾巴留 12dp 呼吸空间，让滚动能把整段文案抬进安全区，而不是靠放宽阈值。
+            .padding(bottom = 12.dp)
             .clickable(onClick = onOpenChangeCenter)
             .testTag("pdig.production-vnext.secondary-change-entry"),
         color = PdigV2Colors.PrimarySoft.copy(alpha = 0.72f),
