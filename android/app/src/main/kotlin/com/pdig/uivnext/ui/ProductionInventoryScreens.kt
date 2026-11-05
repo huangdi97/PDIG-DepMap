@@ -400,16 +400,7 @@ internal fun ProductionGenericObjectDetailScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxSize().testTag("pdig.production-vnext.object-detail"),
-        // 详情页末段含「暂不能直接创建变更计划」卡片；1.5 字号 + 平板宽度下其末行
-        // 贴到取证安全带（实测底部 1523 > 1520）。给滚动内容留尾部空间，让整段文案
-        // 能被滚进安全区；不在卡片内部加内边距（实测那样会让失败提前，已回滚）。
-        contentPadding =
-            androidx.compose.foundation.layout.PaddingValues(
-                start = 16.dp,
-                top = 16.dp,
-                end = 16.dp,
-                bottom = 32.dp,
-            ),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item {
