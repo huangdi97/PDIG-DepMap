@@ -19,6 +19,7 @@
 > - Web 导入覆盖补齐（`f844c0cd`）：E2E-22 覆盖 `wechat_statement`（真实导出格式 + 3 笔月付）→ `merchant_agreement` 与支付方式推断的 `funding_source` 两条提案。三浏览器：Chromium 29 / Firefox 29 / WebKit 27（+2 skip）。
 > - **视觉像素回归：实测否决**（`febb98c6`）。数据：同一运行内两张截图 0 差异；跨运行 `privacy-on` 3%、`change-mobile` 8% 差异，两图平均亮度差 <1（CJK 抗锯齿噪声，非布局变化）。阈值压到 2%/5% 都会随机红，提到 8% 则抓不到真实回归。故不入库像素基线、不启用 `toHaveScreenshot`；结构不变量继续由 layout-audit 保障。保留改进：visual job 的 manifest 与 artifact 上传改为 `if: always()`，并把 `test-results/**`（actual/diff PNG）一并上传。
 > - Android 分支再次同步 main（`64bf16a3`）：与 main 的 `core/src`、`tools/conformance`、`fixtures`、`conformance`、`spec` **零差异**；PR #3 仍为 Draft，待 issue #4 解决后再转正（main 继续前进时它会周期性变成 DIRTY，属预期）。
+> - **Android 取证（2026-11-05）**：`phone 1.0`、`phone 1.5`、**`tablet 1.0`** 三个 job PASS（tablet 首次通过：布局按宽度 dp 判定、平板直接点顶部分类选项卡、滑动坐标按设备高度等比缩放，手机数值保持不变）。**`tablet-font15` 仍 FAIL**：22 张抓完后收尾判定差 3px（`[436,1451][1444,1523]` vs 安全带 `120..1520`），已登记 issue #9（https://github.com/huangdi97/PDIG-DepMap/issues/9），三条候选修法均实测导致其它 job 回归并已 revert。因此 `ANDROID_REFERENCE_FREEZE = HOLD`，唯一等待项为 #9；不得把 tablet 1.5 写成 PASS。
 > - 验收矩阵：`WEB_VNEXT_ACCEPTANCE_MATRIX.json`；报告：`WEB_VNEXT_FINAL_REPORT.md`；架构/安全/运行时/产品/视觉：`WEB_ARCHITECTURE.md`、`WEB_SECURITY_MODEL.md`、`WEB_RUNTIME_ACCEPTANCE.md`、`WEB_PRODUCT_ACCEPTANCE.md`、`WEB_VISUAL_ACCEPTANCE.md`。
 
 > **（当前）product-v0.3.1 RC（corrective closure），2026-09-28** —— v0.3.0 capability set + post-release corrective closure，禁止 v0.4.0 / 新功能 / 新 Scenario / 新 Capability / Domain 扩展；旧 tag（product-v0.2.0、product-v0.3.0）immutable，无历史改写。
