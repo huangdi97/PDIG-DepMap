@@ -218,7 +218,20 @@ for shot_id, targets in layout_targets.items():
             raise SystemExit(f"{shot_id}: invalid bounds for {target!r}: {raw!r}")
         x1, y1, x2, y2 = map(int, match.groups())
         safe_top = 120
-        safe_bottom = height - 80
+        # 安全带下界取**应用内容窗口**的真实边界，而不是 height-80：
+        # 后者隐含"系统栏固定 80px"，平板（2560x1600 @320dpi）系统栏更矮，
+        # 会把合法文案误判为越界（实测 1.5 字号末行 1523 vs 1520）。证据驱动的
+        # 做法是直接读窗口内容区，而不是放宽阈值凑过。
+        safe_bottom = height
+        for candidate in nodes:
+            if candidate.attrib.get("resource-id") == "android:id/content":
+                content_bounds = candidate.attrib.get("bounds", "")
+                content_match = re.fullmatch(
+                    r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", content_bounds
+                )
+                if content_match:
+                    safe_bottom = int(content_match.group(4))
+                break
         if not (
             0 <= x1 < x2 <= width and
             safe_top <= y1 < y2 <= safe_bottom
