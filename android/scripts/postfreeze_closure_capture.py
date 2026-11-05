@@ -213,7 +213,9 @@ class Capture:
         判定依据是屏幕宽度 dp（确定性），不是当前页面文本。
         """
         if is_expanded_layout(*device_metrics()):
-            self.tap_scrolled(category, exact=True)
+            # 平板：分类是顶部选项卡，y 常在 300px 以上，不能用 tap_scrolled 的
+            # 点击带；直接点第一个可见的精确匹配（选项卡在计数卡之上，文档序在前）。
+            self.tap(category, exact=True)
             return
         self.scroll_until("管理分类")
         self.tap_below("管理分类", category)
