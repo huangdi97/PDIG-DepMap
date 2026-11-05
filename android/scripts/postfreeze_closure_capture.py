@@ -205,6 +205,19 @@ class Capture:
             time.sleep(0.9)
         raise SystemExit(f"scroll target {text!r} unreachable")
 
+    def open_category(self, category: str) -> None:
+        """打开 Infrastructure 的分类集合。
+
+        COMPACT（手机）：分类瓦片挂在「管理分类」标题下方，先滚到标题再点其下方瓦片。
+        EXPANDED（平板）：分类本身是一组选项卡，没有该标题，直接点分类。
+        判定依据是屏幕宽度 dp（确定性），不是当前页面文本。
+        """
+        if is_expanded_layout(*device_metrics()):
+            self.tap_scrolled(category, exact=True)
+            return
+        self.scroll_until("管理分类")
+        self.tap_below("管理分类", category)
+
     def require_absent(self, shot_id: str, *forbidden: str) -> None:
         labels = self.labels()
         hits = [f for f in forbidden if any(f in x for x in labels)]
@@ -352,6 +365,32 @@ def git(*args: str) -> str:
         return ""
 
 
+_DEVICE_METRICS: tuple[int, int] | None = None
+
+
+def device_metrics() -> tuple[int, int]:
+    """返回 (物理宽度 px, density dpi)，用于判定布局档位。"""
+    global _DEVICE_METRICS
+    if _DEVICE_METRICS is None:
+        size = adb_out("shell", "wm", "size").decode("utf-8", "replace")
+        density = adb_out("shell", "wm", "density").decode("utf-8", "replace")
+        width_match = re.search(r"(\d+)x(\d+)", size)
+        dpi_match = re.search(r"(\d+)", density.rsplit(":", 1)[-1])
+        width = int(width_match.group(1)) if width_match else 1080
+        dpi = int(dpi_match.group(1)) if dpi_match else 420
+        _DEVICE_METRICS = (width, dpi)
+    return _DEVICE_METRICS
+
+
+def is_expanded_layout(width_px: int, density_dpi: int) -> bool:
+    """Material 窗口宽度档位：>=600dp 视为 EXPANDED（平板/大屏）。
+
+    纯函数，便于本地验证；不依赖当前 UI 文本（曾因用「管理分类」文本判定布局
+    而在手机上也误走平板分支，导致 phone 一起失败）。
+    """
+    return (width_px * 160 / density_dpi) >= 600
+
+
 def adb(*args: str) -> None:
     cmd = ["adb", "-s", SERIAL, *map(str, args)]
     res = subprocess.run(
@@ -464,8 +503,7 @@ def production_inventory_category(cap: Capture, category: str, object_name: str)
     # The Infrastructure hub renders a read-only count grid above the real
     # "管理分类" tiles, so scroll to the management section before tapping a
     # category and pick the tile that actually navigates.
-    cap.scroll_until("管理分类")
-    cap.tap_below("管理分类", category)
+    cap.open_category(category)
     cap.scroll_until(object_name)
     cap.tap(object_name, exact=True)
 
@@ -504,8 +542,7 @@ def flow_production_journey(cap: Capture) -> None:
     # is incorrect to require every category to coexist in the first viewport.
     # Prove Device is actually reachable, and preserve its honest governed empty
     # state instead of fabricating a device object only to satisfy visual proof.
-    cap.scroll_until("管理分类")
-    cap.tap_below("管理分类", "设备")
+    cap.open_category("设备")
     device_empty = "当前没有该类型的已确认对象。空列表不代表外部不存在，只表示这里尚未记录。"
     cap.wait_text(device_empty, timeout=20)
     cap.shot(
