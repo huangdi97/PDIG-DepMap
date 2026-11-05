@@ -201,7 +201,7 @@ class Capture:
         for _ in range(attempts):
             if any(text in label_of(n) for n in self.dump()):
                 return
-            adb("shell", "input", "swipe", "540", "1900", "540", str(1900 + dy), "320")
+            swipe_v(1900, 1900 + dy)
             time.sleep(0.9)
         raise SystemExit(f"scroll target {text!r} unreachable")
 
@@ -243,7 +243,7 @@ class Capture:
                         self.navigation.append(text)
                         time.sleep(1.0)
                         return
-            adb("shell", "input", "swipe", "540", "1900", "540", "1300", "320")
+            swipe_v(1900, 1300)
             time.sleep(0.9)
         raise SystemExit(f"could not scrolled-tap {text!r}")
 
@@ -271,7 +271,7 @@ class Capture:
                             self.navigation.append(text)
                             time.sleep(1.2)
                             return
-            adb("shell", "input", "swipe", "540", "1900", "540", "1300", "320")
+            swipe_v(1900, 1300)
             time.sleep(0.9)
         raise SystemExit(f"could not tap {text!r} below {anchor!r}")
 
@@ -280,12 +280,12 @@ class Capture:
         for _ in range(max_down):
             if any(text in label_of(n) for n in self.dump()):
                 return
-            adb("shell", "input", "swipe", "540", "1900", "540", "1250", "320")
+            swipe_v(1900, 1250)
             time.sleep(0.9)
         for _ in range(max_up):
             if any(text in label_of(n) for n in self.dump()):
                 return
-            adb("shell", "input", "swipe", "540", "1250", "540", "1900", "320")
+            swipe_v(1250, 1900)
             time.sleep(0.9)
         raise SystemExit(f"could not bring {text!r} on screen")
 
@@ -317,12 +317,12 @@ class Capture:
                 if min_center_y <= center_y <= max_center_y:
                     return
                 if center_y > max_center_y:
-                    adb("shell", "input", "swipe", "540", "1900", "540", "1450", "320")
+                    swipe_v(1900, 1450)
                 else:
-                    adb("shell", "input", "swipe", "540", "1250", "540", "1750", "320")
+                    swipe_v(1250, 1750)
                 time.sleep(0.9)
                 continue
-            adb("shell", "input", "swipe", "540", "1900", "540", "1300", "320")
+            swipe_v(1900, 1300)
             time.sleep(0.9)
         raise SystemExit(f"could not safely frame {text!r}")
 
@@ -391,6 +391,39 @@ def is_expanded_layout(width_px: int, density_dpi: int) -> bool:
     而在手机上也误走平板分支，导致 phone 一起失败）。
     """
     return (width_px * 160 / density_dpi) >= 600
+
+
+_DEVICE_SIZE_WH: tuple[int, int] | None = None
+
+
+def device_size_wh() -> tuple[int, int]:
+    """物理分辨率 (宽, 高) px。"""
+    global _DEVICE_SIZE_WH
+    if _DEVICE_SIZE_WH is None:
+        raw = adb_out("shell", "wm", "size").decode("utf-8", "replace")
+        match = re.search(r"(\d+)x(\d+)", raw)
+        _DEVICE_SIZE_WH = (int(match.group(1)), int(match.group(2))) if match else (1080, 2400)
+    return _DEVICE_SIZE_WH
+
+
+def swipe_v(start_px: int, end_px: int) -> None:
+    """垂直滑动，坐标以手机参考高度 2400px 表示。
+
+    手机（2400px）缩放因子为 1，数值与历史取证完全一致；平板（1600px）
+    等比缩放，避免 y 越界导致 swipe 变成空操作。
+    """
+    width, height = device_size_wh()
+    scale = height / 2400.0
+    adb(
+        "shell",
+        "input",
+        "swipe",
+        str(width // 2),
+        str(int(start_px * scale)),
+        str(width // 2),
+        str(int(end_px * scale)),
+        "320",
+    )
 
 
 def adb(*args: str) -> None:
