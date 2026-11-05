@@ -217,19 +217,6 @@ class Capture:
             time.sleep(0.9)
         raise SystemExit(f"scroll target {text!r} unreachable")
 
-    def open_category(self, category: str) -> None:
-        """打开 Infrastructure 的分类集合。
-
-        COMPACT（手机）：分类瓦片挂在「管理分类」标题下方，需先滚到标题再点其下方瓦片。
-        EXPANDED（平板）：分类本身就是一组选项卡（卡片/号码/账户/邮箱/设备/服务/薄弱点），
-        没有「管理分类」标题；此时直接点分类，不做滚动。
-        """
-        if any("管理分类" in label_of(n) for n in self.dump()):
-            self.scroll_until("管理分类")
-            self.tap_below("管理分类", category)
-            return
-        self.tap_scrolled(category, exact=True)
-
     def require_absent(self, shot_id: str, *forbidden: str) -> None:
         labels = self.labels()
         hits = [f for f in forbidden if any(f in x for x in labels)]
@@ -514,9 +501,10 @@ def goto_primary(cap: Capture, name: str) -> None:
 def production_inventory_category(cap: Capture, category: str, object_name: str) -> None:
     goto_primary(cap, "基础设施")
     # The Infrastructure hub renders a read-only count grid above the real
-    # "管理分类" tiles on phone; on tablet the categories are plain tabs with no
-    # such header. open_category() picks the right path per layout.
-    cap.open_category(category)
+    # "管理分类" tiles, so scroll to the management section before tapping a
+    # category and pick the tile that actually navigates.
+    cap.scroll_until("管理分类")
+    cap.tap_below("管理分类", category)
     cap.scroll_until(object_name)
     cap.tap(object_name, exact=True)
 
@@ -555,7 +543,8 @@ def flow_production_journey(cap: Capture) -> None:
     # is incorrect to require every category to coexist in the first viewport.
     # Prove Device is actually reachable, and preserve its honest governed empty
     # state instead of fabricating a device object only to satisfy visual proof.
-    cap.open_category("设备")
+    cap.scroll_until("管理分类")
+    cap.tap_below("管理分类", "设备")
     device_empty = "当前没有该类型的已确认对象。空列表不代表外部不存在，只表示这里尚未记录。"
     cap.wait_text(device_empty, timeout=20)
     cap.shot(
