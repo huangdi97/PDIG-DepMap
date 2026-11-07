@@ -1,5 +1,6 @@
-// 变更计划屏（task #9：Understand→Prepare→Change→Verify + CTA 映射）
-// + 验证屏（task #10：pending / evidence_suggested / verified / failed）。
+// 变更计划屏 + 验证屏（Quiet Infrastructure）。
+// 语义铁律：verified（双勾 success 强）≠ completed（单勾 secondary 弱）≠ done。
+// 阶段过滤用 CopyZh.planPhaseXxx 常量，不再出现 "准备/变更/验证" 中文 magic string。
 
 import SwiftUI
 import PDIGCore
@@ -14,7 +15,7 @@ struct ChangePlanScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            AppTopBar(title: "变更计划") { session.pop() }
+            AppTopBar(title: CopyZh.planChangePlan) { session.pop() }
             if let plan = plan {
                 let view = ChangePlanViewModel.view(input: PlanInput(
                     plan: plan,
@@ -25,21 +26,20 @@ struct ChangePlanScreen: View {
                 ))
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(plan.title).font(.title2.bold())
+                        Text(plan.title).font(PdigTheme.Font.pageTitle)
                         HStack {
                             Text("状态：\(view.workflowText)").font(.body)
                             Spacer()
                         }
-                        Text(view.readinessText)
-                            .font(.body)
-                            .foregroundStyle(.secondary)
-                            .padding(10)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+                        PdigCard {
+                            Text(view.readinessText)
+                                .font(.body)
+                                .foregroundStyle(.secondary)
+                        }
 
-                        phaseSection("准备", view.actions.filter { $0.phaseText == "准备" })
-                        phaseSection("变更", view.actions.filter { $0.phaseText == "变更" })
-                        phaseSection("验证", view.actions.filter { $0.phaseText == "验证" })
+                        phaseSection(CopyZh.planPhasePrepare, view.actions.filter { $0.phaseText == CopyZh.planPhasePrepare })
+                        phaseSection(CopyZh.planPhaseChange, view.actions.filter { $0.phaseText == CopyZh.planPhaseChange })
+                        phaseSection(CopyZh.planPhaseVerify, view.actions.filter { $0.phaseText == CopyZh.planPhaseVerify })
 
                         Button {
                             session.push(.verification)
@@ -60,23 +60,37 @@ struct ChangePlanScreen: View {
     private func phaseSection(_ title: String, _ actions: [PlanActionView]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if !actions.isEmpty {
-                Text(title).font(.headline)
+                SectionHeader(title)
                 ForEach(actions) { a in
-                    HStack(alignment: .top) {
-                        Image(systemName: a.done ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(a.done ? .green : .secondary)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(a.title).font(.body)
-                            Text(a.prerequisiteText).font(.caption).foregroundStyle(.orange)
-                            Text(a.verificationStatusText).font(.caption).foregroundStyle(.secondary)
+                    PdigCard {
+                        HStack(alignment: .top) {
+                            if let badge = statusBadge(for: a) {
+                                badge
+                            } else {
+                                Image(systemName: "circle")
+                                    .foregroundStyle(PdigTheme.Color.textTertiary)
+                            }
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(a.title).font(.body)
+                                Text(a.prerequisiteText).font(.caption).foregroundStyle(PdigTheme.Color.warning)
+                                Text(a.verificationStatusText).font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
                         }
-                        Spacer()
                     }
-                    .padding(10)
-                    .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
         }
+    }
+
+    /// verified（双勾 success 强）> completed（单勾 secondary 弱）；其余按验证状态。
+    private func statusBadge(for a: PlanActionView) -> StatusBadge? {
+        if a.verificationStatusText == CopyZh.verificationVerified { return StatusBadge(.verified) }
+        if a.verificationStatusText == CopyZh.verificationFailed { return StatusBadge(.blocked) }
+        if a.verificationStatusText == CopyZh.verificationPending { return StatusBadge(.verifying) }
+        if a.verificationStatusText == CopyZh.verificationEvidenceSuggested { return StatusBadge(.review) }
+        if a.done && a.verificationStatusText == CopyZh.verificationNotRequired { return StatusBadge(.completed) }
+        return nil
     }
 }
 
@@ -89,20 +103,15 @@ struct VerificationScreen: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            AppTopBar(title: "验证") { session.pop() }
+            AppTopBar(title: CopyZh.planPhaseVerify) { session.pop() }
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(view.newPathIsNotVerifiedNotice)
-                        .font(.footnote)
-                        .foregroundStyle(.orange)
-                        .padding(10)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+                    NoticeBanner(icon: "clock.fill", text: view.newPathIsNotVerifiedNotice, color: PdigTheme.Color.warning)
 
-                    section("待验证", view.pending, color: .orange)
-                    section("发现可能是变更后的证据", view.evidenceSuggested, color: .yellow)
-                    section("已验证", view.verified, color: .green)
-                    section("验证未通过", view.failed, color: .red)
+                    section(CopyZh.verificationPending, view.pending)
+                    section(CopyZh.verificationEvidenceSuggested, view.evidenceSuggested)
+                    section(CopyZh.verificationVerified, view.verified)
+                    section(CopyZh.verificationFailed, view.failed)
 
                     if view.pending.isEmpty && view.evidenceSuggested.isEmpty && view.failed.isEmpty {
                         Text("没有需要验证的变更。").foregroundStyle(.secondary).padding(.top, 24)
@@ -114,23 +123,33 @@ struct VerificationScreen: View {
         .frame(minWidth: 420, minHeight: 600)
     }
 
-    private func section(_ title: String, _ rows: [VerificationRow], color: Color) -> some View {
+    private func section(_ title: String, _ rows: [VerificationRow]) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if !rows.isEmpty {
-                Text(title).font(.headline).foregroundStyle(color)
+                SectionHeader(title)
                 ForEach(rows) { r in
-                    HStack {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(r.title).font(.body)
-                            Text(r.planTitle).font(.caption).foregroundStyle(.secondary)
+                    PdigCard {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(r.title).font(.body)
+                                Text(r.planTitle).font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            StatusBadge(badgeKind(for: r))
                         }
-                        Spacer()
-                        Text(r.statusText).font(.caption).foregroundStyle(color)
                     }
-                    .padding(10)
-                    .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
+        }
+    }
+
+    private func badgeKind(for r: VerificationRow) -> StatusKind {
+        switch r.status {
+        case .verified: return .verified
+        case .failed: return .blocked
+        case .pending: return .verifying
+        case .evidenceSuggested: return .review
+        case .notRequired: return .completed
         }
     }
 }

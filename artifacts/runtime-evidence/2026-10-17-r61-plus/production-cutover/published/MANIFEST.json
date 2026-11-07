@@ -1,0 +1,25 @@
+{
+  "capture": "GitHub published cutover asset verification",
+  "release": "https://github.com/huangdi97/PDIG-DepMap/releases/tag/android-ui-vnext-cutover-candidate-7aaa612",
+  "sourceSha": "7aaa612c6a6dfdd0ef431a8a67879f1caef63f96",
+  "artifactGitSha": "01d0de3a",
+  "publishedAsset": "pdig-0.3.1-vnext-default.apk",
+  "publishedSha256": "cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c",
+  "installedSha256": "cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c",
+  "installedMatchesPublished": true,
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "display": {"px": "1080x2400", "densityDpi": 420, "fontScale": 1.0},
+  "verification": [
+    "Downloaded release assets; local hashes match GitHub asset digests and SHA256SUMS.txt",
+    "Fresh install of the downloaded APK",
+    "No Intent extras -> lock screen -> Production VNext",
+    "Five primary destinations exist",
+    "No Preview/SYNTHETIC marker",
+    "Legacy control asset is byte-identical to the locally install-tested rollback APK"
+  ],
+  "screens": [
+    {"file": "01-lock.png", "state": "Downloaded release APK lock screen"},
+    {"file": "02-vnext-now.png", "state": "Unlocked default Production VNext"}
+  ],
+  "caveat": "Non-production signed pre-release; not a store release."
+}

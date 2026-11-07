@@ -1,7 +1,6 @@
 package com.pdig.app.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -25,17 +24,20 @@ import com.pdig.app.data.PlanDetailView
 import com.pdig.app.ui.Route
 import com.pdig.app.ui.components.EmptyState
 import com.pdig.app.ui.components.LoadingState
-import com.pdig.app.ui.components.PdigCard
 import com.pdig.app.ui.components.PdigScrollingPage
 import com.pdig.app.ui.components.PdigTopBar
 import com.pdig.app.ui.components.SectionHeader
 import com.pdig.app.ui.components.StatusChip
 import com.pdig.app.ui.theme.PdigTokens
-import com.pdig.core.domain.ActionVerificationStatus
-import com.pdig.core.domain.PlanAction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+/**
+ * 变更计划页：动作列表以「步骤轨道」（Continuity Rail）呈现。
+ * 每步状态：已验证 > 已完成 > 进行中 > 等待前置 > 即将到来；状态 = 形状 + 文字 + 颜色三通道。
+ * Make-Before-Break 闸门：未验证的「停用旧路径」动作显示明文原因，禁止只 disabled。
+ */
 @Composable
 fun ChangePlanScreen(nav: NavController, planId: String) {
     val context = LocalContext.current
@@ -93,62 +95,25 @@ fun ChangePlanScreen(nav: NavController, planId: String) {
                 if (d.actions.isEmpty()) {
                     EmptyState("计划里没有需要执行的步骤。")
                 } else {
-                    d.actions.forEach { a ->
-                        val prereqTitles = a.prerequisiteActionIds.mapNotNull { pid ->
-                            d.actions.firstOrNull { it.id == pid }?.title
-                        }
-                        val dependsTitles = d.actions.filter { a.id in it.prerequisiteActionIds }.map { it.title }
-                        val preconditionLines = buildPreconditionLines(a, prereqTitles, dependsTitles)
-                        val v = a.verification
-                        PdigCard {
-                            Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
-                                Text(a.title, style = PdigTokens.BodyStrong)
-                                if (preconditionLines.isNotEmpty()) {
-                                    Text(
-                                        preconditionLines.joinToString("\n"),
-                                        style = PdigTokens.Caption,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
+                    d.actions.forEachIndexed { i, a ->
+                        StepRailRow(
+                            state = stepStateOf(a, d.actions),
+                            isLast = i == d.actions.lastIndex,
+                            action = a,
+                            allActions = d.actions,
+                            onComplete = {
+                                scope.launch {
+                                    withContext(Dispatchers.IO) { container.completeAction(planId, a.id) }
+                                    reload()
                                 }
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm),
-                                ) {
-                                    Text(
-                                        if (a.done) "已完成" else "未完成",
-                                        style = PdigTokens.Label,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        "验证：${verificationLabel(v?.status)}",
-                                        style = PdigTokens.Label,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
+                            },
+                            onVerify = {
+                                scope.launch {
+                                    withContext(Dispatchers.IO) { container.verifyAction(planId, a.id) }
+                                    reload()
                                 }
-                                Row(horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm)) {
-                                    if (!a.done) {
-                                        Button(onClick = {
-                                            scope.launch {
-                                                withContext(Dispatchers.IO) {
-                                                    container.completeAction(planId, a.id)
-                                                }
-                                                reload()
-                                            }
-                                        }) { Text("标记完成") }
-                                    }
-                                    if (a.done && v != null && v.status != ActionVerificationStatus.VERIFIED) {
-                                        Button(onClick = {
-                                            scope.launch {
-                                                withContext(Dispatchers.IO) {
-                                                    container.verifyAction(planId, a.id)
-                                                }
-                                                reload()
-                                            }
-                                        }) { Text("确认验证") }
-                                    }
-                                }
-                            }
-                        }
+                            },
+                        )
                     }
                 }
 
@@ -162,38 +127,5 @@ fun ChangePlanScreen(nav: NavController, planId: String) {
                 }
             }
         }
-    }
-}
-
-/** 验证状态人话标签。done ≠ verified —— 这两个状态在 UI 上必须同时可见。 */
-internal fun verificationLabel(status: ActionVerificationStatus?): String = when (status) {
-    null -> "无需验证"
-    ActionVerificationStatus.NOT_REQUIRED -> "无需验证"
-    ActionVerificationStatus.PENDING -> "待验证"
-    ActionVerificationStatus.EVIDENCE_SUGGESTED -> "发现新的依据，请确认"
-    ActionVerificationStatus.VERIFIED -> "已验证"
-    ActionVerificationStatus.FAILED -> "验证失败"
-}
-/** 前置关系人话：每条一句话，正面给出用户可以理解的动作依赖（对齐 Desktop PlanScreen）。 */
-internal fun buildPreconditionLines(
-    action: PlanAction,
-    prereqTitles: List<String>,
-    dependsTitles: List<String>,
-): List<String> = buildList {
-    if (prereqTitles.isNotEmpty()) {
-        add("必须先完成：${prereqTitles.joinToString("、")}")
-    }
-    if (dependsTitles.isNotEmpty()) {
-        add("完成后才能继续：${dependsTitles.joinToString("、")}")
-    }
-    val v = action.verification
-    if (action.done && v != null && v.status == ActionVerificationStatus.PENDING) {
-        add("等待验证")
-    }
-    if (action.title.contains("停用旧") && prereqTitles.isNotEmpty()) {
-        add("验证后才能移除旧路径")
-    }
-    if (isEmpty()) {
-        add("可以并行处理")
     }
 }

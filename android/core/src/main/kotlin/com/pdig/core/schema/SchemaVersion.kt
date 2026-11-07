@@ -12,11 +12,22 @@ import com.pdig.core.generated.CanonicalSpec
  */
 object SchemaVersion {
 
-    /** 应用逻辑 Schema 版本（spec/domain/domain.json: appSchemaVersion）。 */
+    /** 冻结的 Canonical / payload schema version remains v3. */
     val current: Int = CanonicalSpec.APP_SCHEMA_VERSION
 
-    /** 支持的 DB 迁移链。 */
+    /** Production application runtime explicitly supports the v4 physical schema. */
+    val latestApplication: Int = LATEST_SCHEMA_VERSION
+
+    /**
+     * Frozen cross-platform logical migration contract.
+     *
+     * v4 is an Android Production application/physical widening layer; it does
+     * not silently rewrite the portable Logical Schema v3 conformance oracle.
+     */
     val migrations: List<Int> = listOf(1, 2, 3)
+
+    /** Application/physical migration chain available to the Android runtime. */
+    val applicationMigrations: List<Int> = listOf(1, 2, 3, 4)
 
     /** Graph payload 版本契约。 */
     val payloadKind: String = CanonicalSpec.GRAPH_PAYLOAD_KIND
@@ -68,6 +79,9 @@ object SchemaVersion {
      * 注意：这里**不做**"也许能读"的猜测 —— 前向不兼容是产品决策，不是工程便利。
      */
     fun acceptsSchemaVersion(v: Int): Boolean = v in 1..current
+
+    /** Runtime-only physical schema acceptance; separate from the logical contract. */
+    fun acceptsApplicationSchemaVersion(v: Int): Boolean = v in 1..latestApplication
 
     fun acceptsPayloadVersion(v: Int): Boolean = v == payloadVersion || v in payloadMigratableFrom
 }

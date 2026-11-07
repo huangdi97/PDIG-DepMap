@@ -39,13 +39,39 @@ import kotlinx.coroutines.withContext
  * head / bytes 是页面内存态：页面被锁定重建后它们已释放（spec §151），此时隐藏本步骤，
  * 预览与已选映射仍保留在 Activity 作用域的工作流里 —— 用户重新选择文件即可再次调整。
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CsvMappingStep(
     head: String?,
     initialMapping: MappingProfile?,
     bytes: ByteArray?,
     container: AppContainer,
+    onReparsed: (outcome: ParseOutcome, mapping: MappingProfile) -> Unit,
+    onReparseFailed: () -> Unit,
+) {
+    CsvMappingStepWithParser(
+        head = head,
+        initialMapping = initialMapping,
+        bytes = bytes,
+        parser = { data, mapping -> container.parseFile(data, "generic_csv", mapping) },
+        onReparsed = onReparsed,
+        onReparseFailed = onReparseFailed,
+    )
+}
+
+/**
+ * Same human-confirmed CSV mapping UI, but with an injected parser authority.
+ *
+ * Production VNext uses this overload so the screen can stay behind its
+ * AppContainerVNextImportAuthority seam instead of reaching around the session
+ * into a second AppContainer instance.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun CsvMappingStepWithParser(
+    head: String?,
+    initialMapping: MappingProfile?,
+    bytes: ByteArray?,
+    parser: suspend (ByteArray, MappingProfile) -> ParseOutcome,
     onReparsed: (outcome: ParseOutcome, mapping: MappingProfile) -> Unit,
     onReparseFailed: () -> Unit,
 ) {
@@ -73,7 +99,7 @@ internal fun CsvMappingStep(
         }
         scope.launch {
             val outcome = runCatching {
-                withContext(Dispatchers.IO) { container.parseFile(data, "generic_csv", mapping) }
+                withContext(Dispatchers.IO) { parser(data, mapping) }
             }.getOrNull()
             if (outcome == null) onReparseFailed() else onReparsed(outcome, mapping)
         }

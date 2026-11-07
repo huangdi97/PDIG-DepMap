@@ -1,0 +1,19 @@
+{
+  "capture": "Production VNext advanced surfaces, real installed app",
+  "sourceSha": "c035ce9a477d67635b02452454a576931f94b56b",
+  "package": "com.pdig.app",
+  "activity": "com.pdig.app.MainActivity",
+  "launch": "am start ... --ez vnext_production true (debug rehearsal extra; release default remains legacy)",
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "display": {"px": "1080x2340", "densityDpi": 440, "dp": "393x851", "breakpoint": "COMPACT"},
+  "captureMethod": "adb exec-out screencap -p (real display) + uiautomator XML",
+  "screens": [
+    {"file": "11-production-me.png", "semantics": "11-production-me.xml", "state": "Me / management, final consumer copy: 数据版本, 所有写入都经过正式确认"},
+    {"file": "12-production-establish-hub.png", "semantics": "12-production-establish-hub.xml", "state": "Establish hub: 微信账单 source kind, manual/import entries"},
+    {"file": "13-production-manual-relation.png", "semantics": "13-production-manual-relation.xml", "state": "Manual relationship boundary: consumer copy, no FailureDomain/Continuity engine"},
+    {"file": "15-production-review-empty.png", "semantics": "15-production-review-empty.xml", "state": "Review empty queue: 空队列不代表已记录关系完整"}
+  ],
+  "excluded": ["14-production-import.png is the system SAF file picker, not PDIG UI"],
+  "caveat": "Production VNext was launched with the documented debug rehearsal extra. No synthetic Preview data entered the encrypted Reality; the local DB contains only the pre-existing Legacy WeChat source.",
+  "gates": {"HUMAN_ACCEPTED": "PENDING", "PRODUCTION_CUTOVER": "HOLD"}
+}

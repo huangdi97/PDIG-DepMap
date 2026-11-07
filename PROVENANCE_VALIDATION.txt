@@ -1,0 +1,30 @@
+﻿PROVENANCE_VALIDATION.txt — PDIG UI vNext Desktop Reference Freeze Closure
+
+all_reported_commits_exist = true
+
+method: git cat-file -e <sha>^{commit}
+verified: 2026-10-02
+
+EXISTS  e9fdaf48a53cb1fe15a862982420feb7b694a1fe
+EXISTS  9d828e003c3361d380a9b71a12211771ce6b53cc
+EXISTS  185c96c2a702afcd69993afa8d3abb6dad6035c8
+EXISTS  df981352477003474b177004a23931c97453a460
+EXISTS  21de0bfe8e48ec4dba25c7053fdb9a54e92c3a56
+EXISTS  cbe99d5c8862f90b25a463585cfd7ad146e4fb82
+
+notes:
+- caef922e6d36ead8e28bf496aa6a648b960e3b0c (old PHASE 1F-HF report claim) does NOT exist on GitHub — excluded from Final Freeze docs.
+- merge-base(feat/pdig-ui-vnext, origin/main) = cbe99d5c8862f90b25a463585cfd7ad146e4fb82 (main is ancestor).
+- starting remote HEAD (this closure round): 21de0bfe8e48ec4dba25c7053fdb9a54e92c3a56.
+
+result: all_reported_commits_exist = true
+
+closure-round commits (2026-10-02 Desktop Reference Freeze Closure, branch feat/pdig-ui-vnext):
+EXISTS  858ef648a8db3930613045a91f03c296e0f02a3a
+EXISTS  4862cb42715d45a4325aef6c4d237f8b9182226b
+EXISTS  4163340e3d606bde40ebbef54074ed0b03663057
+EXISTS  18db132fda0847dc71761ca78c0027846db28dce
+
+ending remote HEAD = docs commit（本文件所在 commit；push 后以 git rev-parse origin/feat/pdig-ui-vnext 核对一致）；
+上述全部 SHA 亦通过 git cat-file -e <sha>^{commit}。all_reported_commits_exist = true
+

@@ -1,0 +1,26 @@
+{
+  "name": "11-search-query",
+  "sha": "302a65d6",
+  "uiText": [
+    "返回上一级",
+    "搜索与快捷操作",
+    "我",
+    "搜索数字基础设施",
+    "查找已记录的卡片、号码、账户、邮箱、设备、地区和服务；未找到不代表不存在。",
+    "HSBC",
+    "搜索结果（3）",
+    "汇丰卓越理財",
+    "HSBC 汇丰 · 🇭🇰 · 7351",
+    "卡片",
+    "HSBC 网银",
+    "🇭🇰 HSBC · h••••@mail.com",
+    "账户",
+    "HSBC 网银",
+    "🇭🇰 · 已记录服务",
+    "服务"
+  ],
+  "bytes": 235802,
+  "textureGate": "NOT_REQUIRED",
+  "capturedBy": "manual-adb",
+  "sha256": "77004adf24ea743a5ef42805c8e900a277d69e0c6b2c33a1cf4df08caad42135"
+}

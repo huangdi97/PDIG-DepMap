@@ -1,0 +1,2 @@
+942358fdbc571ae24fd7eaa86b718898e20c1af451bed585ddb4207e72d234a7  app-production-debug.apk
+33192a2c442175ac81b520dc23598783ff15db1e1cc0c3d705c0449b25dfe7e7  app-production-debug-androidTest.apk

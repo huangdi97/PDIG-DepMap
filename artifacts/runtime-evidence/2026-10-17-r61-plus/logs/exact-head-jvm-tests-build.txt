@@ -1,0 +1,313 @@
+
+> Configure project :app
+WARNING: The option setting 'android.overridePathCheck=true' is experimental.
+The current default is 'false'.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:preBuild UP-TO-DATE
+> Task :app:prePreviewDebugBuild UP-TO-DATE
+> Task :repos:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :repos:processResources NO-SOURCE
+> Task :app:generatePreviewDebugBuildConfig
+> Task :core:compileKotlin UP-TO-DATE
+> Task :core:compileJava NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :repos:compileKotlin UP-TO-DATE
+> Task :repos:compileJava NO-SOURCE
+> Task :repos:classes UP-TO-DATE
+> Task :repos:jar UP-TO-DATE
+> Task :core:compileTestKotlin UP-TO-DATE
+> Task :core:compileTestJava NO-SOURCE
+> Task :core:processTestResources NO-SOURCE
+> Task :core:testClasses UP-TO-DATE
+> Task :core:test UP-TO-DATE
+> Task :app:checkPreviewDebugAarMetadata UP-TO-DATE
+> Task :app:generatePreviewDebugResValues
+> Task :app:mapPreviewDebugSourceSetPaths UP-TO-DATE
+> Task :app:generatePreviewDebugResources UP-TO-DATE
+> Task :app:packagePreviewDebugResources
+> Task :app:createPreviewDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksPreviewDebug UP-TO-DATE
+> Task :app:parsePreviewDebugLocalResources
+> Task :app:processPreviewDebugMainManifest
+> Task :app:processPreviewDebugManifest
+> Task :app:javaPreCompilePreviewDebug UP-TO-DATE
+> Task :app:prePreviewDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompilePreviewDebugUnitTest UP-TO-DATE
+> Task :app:preProductionDebugBuild UP-TO-DATE
+> Task :app:generateProductionDebugBuildConfig
+> Task :app:checkProductionDebugAarMetadata UP-TO-DATE
+> Task :app:generateProductionDebugResValues UP-TO-DATE
+> Task :app:mapProductionDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateProductionDebugResources UP-TO-DATE
+> Task :app:mergeProductionDebugResources UP-TO-DATE
+> Task :app:packageProductionDebugResources UP-TO-DATE
+> Task :app:parseProductionDebugLocalResources UP-TO-DATE
+> Task :app:createProductionDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksProductionDebug UP-TO-DATE
+> Task :app:processProductionDebugMainManifest UP-TO-DATE
+> Task :app:processProductionDebugManifest UP-TO-DATE
+> Task :app:processProductionDebugManifestForPackage UP-TO-DATE
+> Task :app:processProductionDebugResources UP-TO-DATE
+> Task :app:javaPreCompileProductionDebug UP-TO-DATE
+> Task :app:preProductionDebugUnitTestBuild UP-TO-DATE
+> Task :app:javaPreCompileProductionDebugUnitTest UP-TO-DATE
+> Task :app:mergePreviewDebugNativeDebugMetadata NO-SOURCE
+> Task :app:mergePreviewDebugShaders UP-TO-DATE
+> Task :app:compilePreviewDebugShaders NO-SOURCE
+> Task :app:generatePreviewDebugAssets UP-TO-DATE
+> Task :app:mergePreviewDebugAssets UP-TO-DATE
+> Task :app:compressPreviewDebugAssets UP-TO-DATE
+> Task :app:checkPreviewDebugDuplicateClasses UP-TO-DATE
+> Task :app:desugarPreviewDebugFileDependencies UP-TO-DATE
+> Task :app:mergePreviewDebugStartupProfile UP-TO-DATE
+> Task :app:mergeExtDexPreviewDebug UP-TO-DATE
+> Task :app:mergeLibDexPreviewDebug UP-TO-DATE
+> Task :app:mergePreviewDebugJniLibFolders UP-TO-DATE
+> Task :app:mergePreviewDebugNativeLibs UP-TO-DATE
+> Task :app:stripPreviewDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningPreviewDebug UP-TO-DATE
+> Task :app:writePreviewDebugAppMetadata UP-TO-DATE
+> Task :app:writePreviewDebugSigningConfigVersions UP-TO-DATE
+> Task :app:processPreviewDebugManifestForPackage
+> Task :app:mergePreviewDebugResources
+
+> Task :app:compileProductionDebugKotlin
+[KOTLIN] [IC] Incremental compilation was attempted but failed:
+    Failed to compute files to recompile: java.lang.IllegalArgumentException: this and base files have different roots: C:\Users\Kaiser\pdig-build\app\generated\source\buildConfig\production\debug\com\pdig\app\BuildConfig.java and E:\AI\号卡管理\android.
+	at kotlin.io.FilesKt__UtilsKt.toRelativeString(Utils.kt:117)
+	at kotlin.io.FilesKt__UtilsKt.relativeTo(Utils.kt:128)
+	at org.jetbrains.kotlin.incremental.storage.RelocatableFileToPathConverter.toPath(RelocatableFileToPathConverter.kt:24)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:50)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:30)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.HashUtil.hash(HashUtil.java:24)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.LinkedHashMap.remove(LinkedHashMap.java:149)
+	at org.jetbrains.kotlin.com.intellij.util.containers.SLRUMap.remove(SLRUMap.java:116)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.flushAppendCache(PersistentMapImpl.java:924)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.doContainsMapping(PersistentMapImpl.java:651)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.containsKey(PersistentMapImpl.java:643)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentHashMap.containsMapping(PersistentHashMap.java:183)
+	at org.jetbrains.kotlin.incremental.storage.LazyStorage.contains(LazyStorage.kt:70)
+	at org.jetbrains.kotlin.incremental.storage.InMemoryStorage.contains(InMemoryStorage.kt:58)
+	at org.jetbrains.kotlin.incremental.storage.AppendableSetBasicMap.contains(BasicMap.kt:130)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCache.isTrackedFile(IncrementalJvmCache.kt:85)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.processChangedJava(IncrementalJvmCompilerRunner.kt:299)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompileImpl(IncrementalJvmCompilerRunner.kt:254)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:132)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:62)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:225)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:676)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1661)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:721)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:720)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+    Falling back to non-incremental compilation (reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE)
+    To help us fix this issue, please file a bug at https://youtrack.jetbrains.com/issues/KT with the above stack trace.
+    (Be sure to search for the above exception in existing issues first to avoid filing duplicated bugs.)             
+
+> Task :app:processPreviewDebugResources
+
+> Task :app:compilePreviewDebugKotlin
+[KOTLIN] [IC] Incremental compilation was attempted but failed:
+    Failed to compute files to recompile: java.lang.IllegalArgumentException: this and base files have different roots: C:\Users\Kaiser\pdig-build\app\generated\source\buildConfig\preview\debug\com\pdig\app\BuildConfig.java and E:\AI\号卡管理\android.
+	at kotlin.io.FilesKt__UtilsKt.toRelativeString(Utils.kt:117)
+	at kotlin.io.FilesKt__UtilsKt.relativeTo(Utils.kt:128)
+	at org.jetbrains.kotlin.incremental.storage.RelocatableFileToPathConverter.toPath(RelocatableFileToPathConverter.kt:24)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:50)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:30)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.HashUtil.hash(HashUtil.java:24)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.LinkedHashMap.remove(LinkedHashMap.java:149)
+	at org.jetbrains.kotlin.com.intellij.util.containers.SLRUMap.remove(SLRUMap.java:116)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.flushAppendCache(PersistentMapImpl.java:924)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.doContainsMapping(PersistentMapImpl.java:651)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.containsKey(PersistentMapImpl.java:643)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentHashMap.containsMapping(PersistentHashMap.java:183)
+	at org.jetbrains.kotlin.incremental.storage.LazyStorage.contains(LazyStorage.kt:70)
+	at org.jetbrains.kotlin.incremental.storage.InMemoryStorage.contains(InMemoryStorage.kt:58)
+	at org.jetbrains.kotlin.incremental.storage.AppendableSetBasicMap.contains(BasicMap.kt:130)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCache.isTrackedFile(IncrementalJvmCache.kt:85)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.processChangedJava(IncrementalJvmCompilerRunner.kt:299)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompileImpl(IncrementalJvmCompilerRunner.kt:254)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:132)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:62)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:225)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:676)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1661)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:721)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:720)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+    Falling back to non-incremental compilation (reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE)
+    To help us fix this issue, please file a bug at https://youtrack.jetbrains.com/issues/KT with the above stack trace.
+    (Be sure to search for the above exception in existing issues first to avoid filing duplicated bugs.)             
+e: Incremental compilation failed: this and base files have different roots: C:\Users\Kaiser\pdig-build\app\generated\source\buildConfig\preview\debug\com\pdig\app\BuildConfig.java and E:\AI\号卡管理\android.
+java.lang.IllegalArgumentException: this and base files have different roots: C:\Users\Kaiser\pdig-build\app\generated\source\buildConfig\preview\debug\com\pdig\app\BuildConfig.java and E:\AI\号卡管理\android.
+	at kotlin.io.FilesKt__UtilsKt.toRelativeString(Utils.kt:117)
+	at kotlin.io.FilesKt__UtilsKt.relativeTo(Utils.kt:128)
+	at org.jetbrains.kotlin.incremental.storage.RelocatableFileToPathConverter.toPath(RelocatableFileToPathConverter.kt:24)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:50)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:30)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.HashUtil.hash(HashUtil.java:24)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.LinkedHashMap.remove(LinkedHashMap.java:149)
+	at org.jetbrains.kotlin.com.intellij.util.containers.SLRUMap.remove(SLRUMap.java:116)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.flushAppendCache(PersistentMapImpl.java:924)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.doContainsMapping(PersistentMapImpl.java:651)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.containsKey(PersistentMapImpl.java:643)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentHashMap.containsMapping(PersistentHashMap.java:183)
+	at org.jetbrains.kotlin.incremental.storage.LazyStorage.contains(LazyStorage.kt:70)
+	at org.jetbrains.kotlin.incremental.storage.InMemoryStorage.contains(InMemoryStorage.kt:58)
+	at org.jetbrains.kotlin.incremental.storage.AppendableSetBasicMap.contains(BasicMap.kt:130)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCache.isTrackedFile(IncrementalJvmCache.kt:85)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.processChangedJava(IncrementalJvmCompilerRunner.kt:299)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompileImpl(IncrementalJvmCompilerRunner.kt:254)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:132)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:62)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:225)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:676)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1661)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:721)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:720)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/NavigationModel.kt:35:44 '@property:Deprecated(...) val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/ProductionVNextShell.kt:132:42 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/ProductionVNextShell.kt:654:35 Condition is always 'true'.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextNavKit.kt:102:56 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextNavKit.kt:102:92 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextShell.kt:123:42 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/components/VNextKit.kt:130:31 '@property:Deprecated(...) val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R10MeScreen.kt:310:27 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R10TopBar.kt:47:43 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R19MeWorkspace.kt:347:50 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R19MeWorkspace.kt:544:30 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+
+> Task :app:compileProductionDebugKotlin
+e: Incremental compilation failed: this and base files have different roots: C:\Users\Kaiser\pdig-build\app\generated\source\buildConfig\production\debug\com\pdig\app\BuildConfig.java and E:\AI\号卡管理\android.
+java.lang.IllegalArgumentException: this and base files have different roots: C:\Users\Kaiser\pdig-build\app\generated\source\buildConfig\production\debug\com\pdig\app\BuildConfig.java and E:\AI\号卡管理\android.
+	at kotlin.io.FilesKt__UtilsKt.toRelativeString(Utils.kt:117)
+	at kotlin.io.FilesKt__UtilsKt.relativeTo(Utils.kt:128)
+	at org.jetbrains.kotlin.incremental.storage.RelocatableFileToPathConverter.toPath(RelocatableFileToPathConverter.kt:24)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:50)
+	at org.jetbrains.kotlin.incremental.storage.FileDescriptor.getHashCode(FileToPathConverter.kt:30)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.HashUtil.hash(HashUtil.java:24)
+	at org.jetbrains.kotlin.com.intellij.util.containers.hash.LinkedHashMap.remove(LinkedHashMap.java:149)
+	at org.jetbrains.kotlin.com.intellij.util.containers.SLRUMap.remove(SLRUMap.java:116)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.flushAppendCache(PersistentMapImpl.java:924)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.doContainsMapping(PersistentMapImpl.java:651)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentMapImpl.containsKey(PersistentMapImpl.java:643)
+	at org.jetbrains.kotlin.com.intellij.util.io.PersistentHashMap.containsMapping(PersistentHashMap.java:183)
+	at org.jetbrains.kotlin.incremental.storage.LazyStorage.contains(LazyStorage.kt:70)
+	at org.jetbrains.kotlin.incremental.storage.InMemoryStorage.contains(InMemoryStorage.kt:58)
+	at org.jetbrains.kotlin.incremental.storage.AppendableSetBasicMap.contains(BasicMap.kt:130)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCache.isTrackedFile(IncrementalJvmCache.kt:85)
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/NavigationModel.kt:35:44 '@property:Deprecated(...) val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.processChangedJava(IncrementalJvmCompilerRunner.kt:299)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompileImpl(IncrementalJvmCompilerRunner.kt:254)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:132)
+	at org.jetbrains.kotlin.incremental.IncrementalJvmCompilerRunner.calculateSourcesToCompile(IncrementalJvmCompilerRunner.kt:62)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally$lambda$9$compile(IncrementalCompilerRunner.kt:225)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.tryCompileIncrementally(IncrementalCompilerRunner.kt:267)
+	at org.jetbrains.kotlin.incremental.IncrementalCompilerRunner.compile(IncrementalCompilerRunner.kt:120)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.execIncrementalCompiler(CompileServiceImpl.kt:676)
+	at org.jetbrains.kotlin.daemon.CompileServiceImplBase.access$execIncrementalCompiler(CompileServiceImpl.kt:92)
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/ProductionVNextShell.kt:132:42 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+	at org.jetbrains.kotlin.daemon.CompileServiceImpl.compile(CompileServiceImpl.kt:1661)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.rmi/sun.rmi.server.UnicastServerRef.dispatch(UnicastServerRef.java:360)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:200)
+	at java.rmi/sun.rmi.transport.Transport$1.run(Transport.java:197)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:714)
+	at java.rmi/sun.rmi.transport.Transport.serviceCall(Transport.java:196)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport.handleMessages(TCPTransport.java:598)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run0(TCPTransport.java:844)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.lambda$run$0(TCPTransport.java:721)
+	at java.base/java.security.AccessController.doPrivileged(AccessController.java:400)
+	at java.rmi/sun.rmi.transport.tcp.TCPTransport$ConnectionHandler.run(TCPTransport.java:720)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/ProductionVNextShell.kt:654:35 Condition is always 'true'.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextNavKit.kt:102:56 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextNavKit.kt:102:92 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextShell.kt:123:42 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/components/VNextKit.kt:130:31 '@property:Deprecated(...) val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R10MeScreen.kt:310:27 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R10TopBar.kt:47:43 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R19MeWorkspace.kt:347:50 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R19MeWorkspace.kt:544:30 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+
+> Task :app:compileProductionDebugJavaWithJavac
+> Task :app:compilePreviewDebugJavaWithJavac
+> Task :app:processPreviewDebugJavaRes UP-TO-DATE
+> Task :app:processProductionDebugJavaRes UP-TO-DATE
+> Task :app:bundlePreviewDebugClassesToRuntimeJar
+> Task :app:bundleProductionDebugClassesToRuntimeJar
+> Task :app:bundlePreviewDebugClassesToCompileJar
+> Task :app:bundleProductionDebugClassesToCompileJar
+> Task :app:dexBuilderPreviewDebug
+> Task :app:compilePreviewDebugUnitTestKotlin
+> Task :app:compilePreviewDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processPreviewDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:compileProductionDebugUnitTestKotlin
+> Task :app:testPreviewDebugUnitTest
+> Task :app:compileProductionDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :app:processProductionDebugUnitTestJavaRes UP-TO-DATE
+> Task :app:testProductionDebugUnitTest
+> Task :app:mergePreviewDebugGlobalSynthetics UP-TO-DATE
+> Task :app:mergePreviewDebugJavaResource UP-TO-DATE
+> Task :app:mergeProjectDexPreviewDebug
+> Task :app:packagePreviewDebug
+> Task :app:createPreviewDebugApkListingFileRedirect
+> Task :app:assemblePreviewDebug
+
+BUILD SUCCESSFUL in 46s
+74 actionable tasks: 27 executed, 47 up-to-date

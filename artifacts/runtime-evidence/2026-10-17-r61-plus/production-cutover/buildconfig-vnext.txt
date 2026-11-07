@@ -1,0 +1,32 @@
+name          : 'BUILD_TYPE'
+type          : 'Ljava/lang/String;'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : "release"
+name          : 'DEBUG'
+type          : 'Z'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : false
+name          : 'FLAVOR'
+type          : 'Ljava/lang/String;'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : "production"
+name          : 'GIT_SHA'
+type          : 'Ljava/lang/String;'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : "01d0de3a"
+name          : 'PRODUCTION_UI_GENERATION'
+type          : 'Ljava/lang/String;'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : "vnext"
+name          : 'PRODUCTION_VNEXT_CUTOVER_APPROVED'
+type          : 'Z'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : true
+name          : 'VERSION_CODE'
+type          : 'I'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : 2
+name          : 'VERSION_NAME'
+type          : 'Ljava/lang/String;'
+access        : 0x0019 (PUBLIC STATIC FINAL)
+value         : "0.3.1"

@@ -1,0 +1,29 @@
+{
+  "sourceSha": "5a0918546461273efcf99684cf0c1302bc0b89b8",
+  "beforeYaw": 17,
+  "afterYaw": -78,
+  "before": {
+    "地球地区组：中国大陆等3个地区，点击选择": [
+      399,
+      877,
+      718,
+      1009
+    ],
+    "地球地区：新加坡，已记录 4 项基础设施": [
+      433,
+      1146,
+      697,
+      1278
+    ]
+  },
+  "after": {
+    "地球地区：英国，已记录 6 项基础设施": [
+      473,
+      749,
+      737,
+      881
+    ]
+  },
+  "result": "CAMERA_LINKED_LABEL_MOVEMENT",
+  "humanVisualParity": "PENDING"
+}

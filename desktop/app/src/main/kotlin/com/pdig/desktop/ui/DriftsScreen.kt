@@ -1,16 +1,18 @@
 package com.pdig.desktop.ui
 
-import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.pdig.desktop.ui.components.EmptyState
 import com.pdig.desktop.ui.components.PdigCard
 import com.pdig.desktop.ui.components.PdigPage
-import com.pdig.desktop.ui.components.SectionDivider
+import com.pdig.desktop.ui.components.SectionHeader
 
 /** 现实变化（Drift）：观察到的支付路径可能已变化，需用户选择如何修正 Reality。 */
 @Composable
@@ -24,14 +26,15 @@ fun DriftsScreen(ui: UiState) {
         onDismissNotice = { ui.notice = null },
         onDismissError = { ui.error = null },
     ) {
-        Column {
+        Column(Modifier.fillMaxWidth()) {
             if (drifts.isEmpty()) {
                 EmptyState("没有待处理的现实变化。")
             } else {
-                SectionDivider("待处理（${drifts.size}）")
+                SectionHeader("待处理（${drifts.size}）")
                 drifts.forEach { d ->
+                    val targetName = ui.session.graph.nodes().firstOrNull { it.id == d.targetNodeId }?.name ?: "（未知对象）"
                     PdigCard(
-                        title = "${d.candidateFrom ?: "（未知来源）"} → ${d.targetNodeId}",
+                        title = "${d.candidateFrom ?: "（未知来源）"} → $targetName",
                         subtitle = "类型：${driftKindLabel(d.kind)} · 能力：${capabilityLabel(d.capability)} · 观察 ${d.observationCount} 次" +
                             " · 关联依赖 ${d.relatedDependencyIds.size} 条 · 发现于 ${d.detectedAt.take(19)}",
                         trailing = {

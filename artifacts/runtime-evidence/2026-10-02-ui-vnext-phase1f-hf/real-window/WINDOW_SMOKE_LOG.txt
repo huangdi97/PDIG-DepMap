@@ -1,0 +1,17 @@
+WINSTEP 01-now.png: launch -> Now (real window) (screen=now) capture=true title=PDIG Preview — PHASE 1F-HF real-window smoke bounds=48,48,800,600
+WINSTEP 02-overview.png: open Overview (screen=overview) capture=false reason=stale-capture-surface
+WINSTEP 03-overview-hk.png: select HK region (screen=overview) capture=false reason=stale-capture-surface
+WINSTEP 04-cards.png: open Cards (screen=cards) capture=false reason=stale-capture-surface
+WINSTEP 05-card-detail.png: open card detail (screen=card-detail) capture=false reason=stale-capture-surface
+WINSTEP 06-card-studio.png: open card studio (screen=card-customization) capture=false reason=stale-capture-surface
+WINSTEP 07-studio-saved.png: save profile (screen=card-customization) capture=false reason=stale-capture-surface
+WINSTEP 08-reopened.png: close/reopen -> profile retained (screen=card-customization) capture=false reason=stale-capture-surface
+WINSTEP 09-numbers.png: open Numbers (screen=numbers) capture=false reason=stale-capture-surface
+WINSTEP 10-number-detail.png: open number detail (dial-code identity) (screen=number-detail) capture=false reason=stale-capture-surface
+WINSTEP 11-number-studio.png: open number studio (screen=number-customization) capture=false reason=stale-capture-surface
+WINSTEP 12-change-current.png: projection=current (screen=change-phone) capture=false reason=stale-capture-surface
+WINSTEP 13-change-transition.png: projection=transition (screen=change-phone) capture=false reason=stale-capture-surface
+WINSTEP 14-change-after.png: projection=after (screen=change-phone) capture=false reason=stale-capture-surface
+WINSTEP 15-command-palette.png: Ctrl+K opens palette (real keyboard) (screen=change-phone) capture=false reason=REAL_WINDOW_KEYBOARD_HUMAN_GATE
+WINSTEP 16-palette-query-card.png: palette query 'card' (real keys) (screen=change-phone) capture=false reason=REAL_WINDOW_KEYBOARD_HUMAN_GATE
+IME_RUNTIME_HUMAN_GATE: 真实窗口中文 IME 组合输入（银行卡/手机号/更换手机号）需 Human 验证

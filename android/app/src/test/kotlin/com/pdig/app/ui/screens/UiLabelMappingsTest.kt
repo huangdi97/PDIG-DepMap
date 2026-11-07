@@ -13,14 +13,14 @@ class UiLabelMappingsTest {
 
     @Test
     fun verificationLabelMapsEvidenceSuggestedToUserPrompt() {
-        assertEquals("发现新的依据，请确认", verificationLabel(ActionVerificationStatus.EVIDENCE_SUGGESTED))
+        assertEquals("发现可能是变更后的证据", verificationLabel(ActionVerificationStatus.EVIDENCE_SUGGESTED))
     }
 
     @Test
     fun verificationLabelKeepsOtherStatuses() {
         assertEquals("待验证", verificationLabel(ActionVerificationStatus.PENDING))
         assertEquals("已验证", verificationLabel(ActionVerificationStatus.VERIFIED))
-        assertEquals("验证失败", verificationLabel(ActionVerificationStatus.FAILED))
+        assertEquals("验证未通过", verificationLabel(ActionVerificationStatus.FAILED))
         assertEquals("无需验证", verificationLabel(ActionVerificationStatus.NOT_REQUIRED))
         assertEquals("无需验证", verificationLabel(null))
     }

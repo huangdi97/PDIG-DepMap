@@ -1,0 +1,9 @@
+model=sdk_gphone64_x86_64
+manufacturer=Google
+avd=pdig_evi_phone_api36
+android_api=36
+android_release=16
+wm_size=1080x2400
+wm_density=420
+orientation=portrait
+capture_source=adb exec-out screencap (PNG), uiautomator dump (XML)

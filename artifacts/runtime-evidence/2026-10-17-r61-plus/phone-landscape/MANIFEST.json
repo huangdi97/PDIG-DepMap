@@ -1,0 +1,16 @@
+{
+  "capture": "phone landscape 851x393dp, real Preview",
+  "sourceSha": "32541cc0c98ecf4fd2621594fdbf8608cffa96d8",
+  "package": "com.pdig.app.preview.p302a65d",
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "display": {"px": "2340x1080", "densityDpi": 440, "dp": "851x393", "breakpoint": "EXPANDED (by width)", "fontScale": 1.0},
+  "captureMethod": "adb exec-out screencap -p + uiautomator XML",
+  "screens": [
+    {"file": "01-now.png", "state": "Now landscape, rail top; content scrolls"},
+    {"file": "02-rail-scrolled.png", "state": "rail scrolled: 数据源 and 设置 reachable, 48dp targets"},
+    {"file": "03-infrastructure.png", "state": "Infrastructure landscape; secondary chip row scrolls horizontally"},
+    {"file": "04-change.png", "state": "Change center landscape"}
+  ],
+  "fix": "BoxWithConstraints in NavigationRail: below 600dp height, the rail scrolls and skips the weighted spacer; tall tablets keep the bottom-aligned secondary entries.",
+  "caveat": "Landscape content is vertically scrollable by design; this set proves the rail is no longer clipped."
+}
