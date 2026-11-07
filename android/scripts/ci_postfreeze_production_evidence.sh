@@ -218,24 +218,7 @@ for shot_id, targets in layout_targets.items():
             raise SystemExit(f"{shot_id}: invalid bounds for {target!r}: {raw!r}")
         x1, y1, x2, y2 = map(int, match.groups())
         safe_top = 120
-        # 顶部安全带固定 120；底部安全带只在**真的存在底部导航**时才扣 80px。
-        # 平板（2560x1600）的主导航是左侧 rail（实测 y 315..861），屏幕底没有遮挡，
-        # 沿用 height-80 会凭空多扣，把合法文案判成越界（实测 1.5 字号末行 1523 vs 1520）。
-        # 手机保持原公式（行为零变化）。
-        primary_labels = {"现在", "基础设施", "变更", "记录", "我"}
-        has_bottom_nav = False
-        for candidate in nodes:
-            if node_label(candidate) in primary_labels:
-                nav_match = re.fullmatch(
-                    r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
-                    candidate.attrib.get("bounds", ""),
-                )
-                if nav_match:
-                    _, nav_y1, _, nav_y2 = map(int, nav_match.groups())
-                    if nav_y1 + nav_y2 > height * 8 // 5:
-                        has_bottom_nav = True
-                        break
-        safe_bottom = height - 80 if has_bottom_nav else height
+        safe_bottom = height - 80
         if not (
             0 <= x1 < x2 <= width and
             safe_top <= y1 < y2 <= safe_bottom
