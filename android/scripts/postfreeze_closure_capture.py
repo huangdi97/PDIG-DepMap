@@ -137,18 +137,43 @@ class Capture:
             raise SystemExit(f"assertion failed for {shot_id}: {missing}")
         print(f"SHOT {shot_id} ok ({len(assertions)} assertions)", flush=True)
 
-    def dump(self) -> list[dict[str, str]]:
-        for _ in range(4):
-            adb("shell", "uiautomator", "dump", "/sdcard/pdig-window.xml")
-            raw = shell_out("cat", "/sdcard/pdig-window.xml")
-            if raw.strip().startswith("<?xml"):
-                break
-            time.sleep(0.6)
-        else:
-            raise SystemExit("uiautomator dump never produced XML")
-        self.last_raw_xml = raw
-        root = ET.fromstring(raw)
-        return [dict(n.attrib) for n in root.iter("node")]
+    def dump(self, stable: bool = True) -> list[dict[str, str]]:
+        """读取当前层级。
+
+        stable=True 时要求**连续两次 dump 完全一致**才返回：取证 job 曾出现同一份代码
+        结果反转（tablet 1.0 / tablet-font15 互相 PASS-FAIL），根因是抓到滚动/布局未静止的
+        瞬间。稳定性由 dump 自身保证，而不是靠外部 sleep 猜。
+        """
+        if not hasattr(self, "dump_retries"):
+            self.dump_retries = 0
+            self.dump_stable = False
+        previous: tuple[tuple[str, str], ...] | None = None
+        nodes: list[dict[str, str]] = []
+        for attempt in range(8):
+            for _ in range(4):
+                adb("shell", "uiautomator", "dump", "/sdcard/pdig-window.xml")
+                raw = shell_out("cat", "/sdcard/pdig-window.xml")
+                if raw.strip().startswith("<?xml"):
+                    break
+                time.sleep(0.6)
+            else:
+                raise SystemExit("uiautomator dump never produced XML")
+            self.last_raw_xml = raw
+            root = ET.fromstring(raw)
+            nodes = [dict(n.attrib) for n in root.iter("node")]
+            key = tuple(
+                ((n.get("text") or "") + "|" + (n.get("content-desc") or ""), n.get("bounds") or "")
+                for n in nodes
+            )
+            if not stable or previous == key:
+                self.dump_stable = True
+                self.dump_retries += attempt
+                return nodes
+            previous = key
+            self.dump_stable = False
+            self.dump_retries += 1
+            time.sleep(0.5)
+        return nodes
 
     # ---------------- interrogation ----------------
     def labels(self) -> list[str]:
