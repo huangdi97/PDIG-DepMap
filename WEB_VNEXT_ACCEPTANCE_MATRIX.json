@@ -19,9 +19,9 @@
   "ciPlaywright": "PASS (chromium / firefox / webkit on ubuntu-latest, exact HEAD d822cf2c)",
   "ciVisualMatrix": "PASS (ubuntu-latest + Noto CJK, exact HEAD d822cf2c; evidence artifact web-visual-evidence)",
 
-  "chromium": "PASS (28 functional e2e)",
-  "firefox": "PASS (28 tests incl. layout audit)",
-  "webkit": "PASS (26 tests; 2 offline UNSUPPORTED in WebKit)",
+  "chromium": "PASS (29 functional e2e; rerun 2026-11-10)",
+  "firefox": "PASS (29 tests incl. layout audit; rerun 2026-11-10)",
+  "webkit": "PASS (27 tests; 2 offline UNSUPPORTED in WebKit; rerun 2026-11-10)",
   "layoutAudit": "PASS (6 viewports x 6 routes)",
 
   "inventory": "PASS",

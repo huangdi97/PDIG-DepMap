@@ -6,7 +6,7 @@
 > - Shared Truth 收敛：`feat/android-ui-vnext-translation` 的 v4 Canonical/Core/fixtures/conformance/codegen 增量已并入（不含 Android UI/Compose/测试工地）。
 > - 修掉 3 个真实 Core 缺陷：`Relation` 缺 `authenticates`/`controls`；`replace_phone_number` 动作未持久化；三处与 v4 语义不一致的测试断言。
 > - 门禁（本地实跑）：codegen PASS；conformance PASS（128）；`cd core && npm run check` PASS（492 tests / 0 circular / 0 network / 0 secrets）；web typecheck PASS；web unit 20/20；`build:web` 9 files/1847 KiB；Chromium 功能 E2E 16/16；布局审计 6/6；视觉矩阵 2/2（21 shots）；boundary PASS；remote-assets PASS。
-> - 浏览器矩阵（本地实跑）：Chromium 28/28；Firefox 28/28；WebKit 26/28（离线两例为浏览器边界，标 UNSUPPORTED）。`check:web-generated`、`check-boundary`、`check-remote-assets` 均 PASS。
+> - 浏览器矩阵（本地实跑）：Chromium 29/29；Firefox 29/29；WebKit 27/29（离线两例为浏览器边界，标 UNSUPPORTED）——三浏览器于 2026-11-10 全量重跑；同日 tsc / boundary / remote-assets / unit 20 亦全绿。`check:web-generated`、`check-boundary`、`check-remote-assets` 均 PASS。
 > - **NOT_RUN（不得写成 PASS）**：视觉回归基线（需 Ubuntu CI）、人眼视觉验收、WeChat 账单适配器的浏览器 E2E、ESLint（未采用）。
 > - CI（exact HEAD `41a1f306`）：web-vnext 六 job + `ci.yml` 五 job（Canonical / Android core / Android app / Harmony static / iOS core）全 PASS；合并后 main `28e8fb0f` 的 CI / iOS / iOS Runtime Visual 亦全 PASS。
 > - **部署（2026-11-04）**：GitHub Pages 发布源是 `gh-pages` 分支（非 main/website）；已发布 `gh-pages` `b389245c`：`/app` = main `28e8fb0f` 的 `website/app` 构建产物，根 `index.html` 指向 `./app/`，并加 `.nojekyll`。
