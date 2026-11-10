@@ -57,7 +57,7 @@
   "visualRegression": "NOT_RUN (baseline must be generated on Ubuntu CI)",
 
   "humanVisualCandidate": "READY",
-  "humanVisualAccepted": "NOT_RUN",
+  "humanVisualAccepted": "ACCEPTED (2026-11-10, owner confirmed; viewports 1440x1000 / 1024x768 / 768x1024 / 390x844; routes onboarding / now / infrastructure+detail / change+plan / records / import / findings / me+privacy)",
 
   "mainMerged": true,
   "mainMergeCommit": "28e8fb0f",
