@@ -276,6 +276,12 @@ class Capture:
         raise SystemExit(f"could not tap {text!r} below {anchor!r}")
 
     def ensure_visible(self, text: str, max_down: int = 8, max_up: int = 8) -> None:
+        # 安全带按设备高度推导，而不是手机常量（平板 1600 高时 2050 越界，且 300 会把
+        # 靠上的卡片判成"不安全"，导致 ensure_visible 永远等不到可点位置）。
+        _w, _h = device_size_wh()
+        min_center_y = 120
+        max_center_y = device_size_wh()[1] - 80
+
         """Scroll a long surface until ``text`` is on screen (either direction)."""
         for _ in range(max_down):
             if any(text in label_of(n) for n in self.dump()):
@@ -287,6 +293,8 @@ class Capture:
                 return
             swipe_v(1250, 1900)
             time.sleep(0.9)
+        import traceback
+        traceback.print_stack()
         raise SystemExit(f"could not bring {text!r} on screen")
 
     def ensure_framed(
@@ -374,7 +382,12 @@ def device_metrics() -> tuple[int, int]:
     """返回 (物理宽度 px, density dpi)，用于判定布局档位。"""
     global _DEVICE_METRICS
     if _DEVICE_METRICS is None:
-        size = adb_out("shell", "wm", "size").decode("utf-8", "replace")
+        size_raw = adb_out("shell", "wm", "size").decode("utf-8", "replace")
+        # 优先取 Override size：adb 在覆盖分辨率时会同时打印 Physical 与 Override，
+        # 只读第一个会拿到物理尺寸（例如平板 AVD 用 wm size 覆盖成 2560x1600 后，
+        # 物理仍是 1080x2400），导致 EXPANDED 被误判成 COMPACT。
+        override = re.search(r"Override size:\s*(\d+)x(\d+)", size_raw)
+        size = f"{override.group(1)}x{override.group(2)}" if override else size_raw
         density = adb_out("shell", "wm", "density").decode("utf-8", "replace")
         width_match = re.search(r"(\d+)x(\d+)", size)
         dpi_match = re.search(r"(\d+)", density.rsplit(":", 1)[-1])
@@ -401,8 +414,15 @@ def device_size_wh() -> tuple[int, int]:
     global _DEVICE_SIZE_WH
     if _DEVICE_SIZE_WH is None:
         raw = adb_out("shell", "wm", "size").decode("utf-8", "replace")
+        # 与 device_metrics 一致：优先 Override size，否则平板上 wm size 覆盖会被忽略。
+        override = re.search(r"Override size:\s*(\d+)x(\d+)", raw)
         match = re.search(r"(\d+)x(\d+)", raw)
-        _DEVICE_SIZE_WH = (int(match.group(1)), int(match.group(2))) if match else (1080, 2400)
+        if override:
+            _DEVICE_SIZE_WH = (int(override.group(1)), int(override.group(2)))
+        elif match:
+            _DEVICE_SIZE_WH = (int(match.group(1)), int(match.group(2)))
+        else:
+            _DEVICE_SIZE_WH = (1080, 2400)
     return _DEVICE_SIZE_WH
 
 
@@ -495,7 +515,7 @@ def installed_apk_sha256(package: str) -> str:
 def launch_production(cap: Capture, vnext: bool = True) -> None:
     adb("shell", "am", "force-stop", PRODUCTION_PACKAGE)
     time.sleep(0.8)
-    args = ["shell", "am", "start", "-W", "-n", f"{PRODUCTION_PACKAGE}/{PRODUCTION_ACTIVITY}"]
+    args = ["shell", "am", "start", "-n", f"{PRODUCTION_PACKAGE}/{PRODUCTION_ACTIVITY}"]
     # Current-head CI compiles the explicit two-key Production VNext candidate;
     # for that path, prove the default launcher with NO Intent routing override.
     # Local/debug evidence may still opt into the historical rehearsal extra.

@@ -218,7 +218,21 @@ for shot_id, targets in layout_targets.items():
             raise SystemExit(f"{shot_id}: invalid bounds for {target!r}: {raw!r}")
         x1, y1, x2, y2 = map(int, match.groups())
         safe_top = 120
-        safe_bottom = height - 80
+        # 安全带下界取**内容窗口的真实底部**，而不是 height-80：
+        # height-80 假设系统栏固定 80px，平板（2560x1600）实测内容区底部为 1536，
+        # 多扣 16px 会把合法文案判成越界（实测 1523 vs 1520，差 3px，属误判）。
+        # 依据：production-account-detail-change-boundary.xml 的 scrollable 容器
+        # bounds=[376,187][2560,1536]，文案 bounds=[436,1451][1444,1523] 落在其内。
+        safe_bottom = height
+        for container in nodes:
+            if container.attrib.get("scrollable") == "true":
+                cb = re.fullmatch(
+                    r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",
+                    container.attrib.get("bounds", ""),
+                )
+                if cb:
+                    safe_bottom = int(cb.group(4))
+                    break
         if not (
             0 <= x1 < x2 <= width and
             safe_top <= y1 < y2 <= safe_bottom
