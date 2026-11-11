@@ -297,21 +297,43 @@ class Capture:
         traceback.print_stack()
         raise SystemExit(f"could not bring {text!r} on screen")
 
+    def content_window(self) -> tuple[int, int]:
+        """当前屏上滚动内容容器的真实上下沿（不是 height-80 之类的估算）。
+
+        取自 UIAutomator 里 `scrollable = true` 且面积最大的节点；取不到时退回
+        设备高度。安全边界必须跟着真实内容窗口走：贴在系统栏上方、只剩 3px 残条
+        的卡片一旦被当成"已取景"，其正文会被无障碍裁剪掉，断言就变成假红。
+        """
+        best: tuple[int, int] | None = None
+        best_area = -1
+        for n in self.dump():
+            if n.get("scrollable") != "true" or not n.get("bounds"):
+                continue
+            _x1, y1, x2, y2 = parse_bounds(n["bounds"])
+            area = (x2 - _x1) * (y2 - y1)
+            if area > best_area:
+                best_area = area
+                best = (y1, y2)
+        if best is None or best[1] <= best[0]:
+            return 0, device_size_wh()[1]
+        return best
+
     def ensure_framed(
         self,
         text: str,
-        min_center_y: int = 420,
-        max_center_y: int = 2050,
-        attempts: int = 10,
+        margin_px: int = 24,
+        attempts: int = 12,
     ) -> None:
-        """Keep a semantic target away from viewport edges for review evidence.
+        """Keep a semantic target fully inside the real content window.
 
         Presence alone is insufficient for a human-review frame: UIAutomator can
-        expose the full text of a node even when its rendered bounds are clipped
-        by the scroll viewport. This helper moves an already reachable target
-        into a stable vertical reading band without tapping it.
+        expose a node whose rendered bounds are clipped by the scroll viewport,
+        and it drops the surrounding copy entirely once the card is cut off. The
+        target therefore has to sit wholly between the scroll container's真实上下沿,
+        so no copy above it can have been clipped out of the frame.
         """
         for _ in range(attempts):
+            top, bottom = self.content_window()
             nodes = self.dump()
             match = next(
                 (
@@ -321,10 +343,10 @@ class Capture:
                 None,
             )
             if match is not None:
-                _, center_y = bounds_center(match["bounds"])
-                if min_center_y <= center_y <= max_center_y:
+                _x1, y1, _x2, y2 = parse_bounds(match["bounds"])
+                if y1 >= top + margin_px and y2 <= bottom - margin_px:
                     return
-                if center_y > max_center_y:
+                if y2 > bottom - margin_px:
                     swipe_v(1900, 1450)
                 else:
                     swipe_v(1250, 1750)
@@ -479,11 +501,16 @@ def label_of(node: dict[str, str]) -> str:
     return (node.get("text") or node.get("content-desc") or "").strip()
 
 
-def bounds_center(raw: str) -> tuple[int, int]:
+def parse_bounds(raw: str) -> tuple[int, int, int, int]:
     m = re.fullmatch(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]", raw)
     if not m:
         raise SystemExit(f"bad bounds {raw!r}")
     x1, y1, x2, y2 = map(int, m.groups())
+    return x1, y1, x2, y2
+
+
+def bounds_center(raw: str) -> tuple[int, int]:
+    x1, y1, x2, y2 = parse_bounds(raw)
     return (x1 + x2) // 2, (y1 + y2) // 2
 
 

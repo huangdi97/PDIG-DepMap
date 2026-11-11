@@ -12,6 +12,7 @@ import com.pdig.app.security.DatabaseKeyStore
 import com.pdig.core.generated.Capability
 import com.pdig.core.generated.IdentityAnchorSubtype
 import com.pdig.core.generated.NodeKind
+import com.pdig.core.generated.PlanActionPhase
 import com.pdig.core.generated.Relation
 import com.pdig.core.schema.LATEST_SCHEMA_VERSION
 import com.pdig.core.schema.migrate
@@ -131,7 +132,28 @@ class PostFreezeEvidenceSeedTest {
             // No action is completed or verified here: the whole Make-Before-Break
             // chain is executed later through the real UI.
             assertTrue(detail.actions.none { it.done })
+            // 计划创建时必须把当前 must-change 影响认领到一个可执行的 CHANGE 步骤。
+            // 未认领会让计划停在阻断态，App 只渲染「仍有必须处理项」，不渲染
+            // 「记录完成这一步」，采集流程随之停在第 12 张之后。unresolved 只表示
+            // 「还有未完成的认领动作」，未认领则由下面的显式声明检查来判定。
+            assertTrue(
+                "must-change 影响没有 CHANGE 动作声明: ${detail.mustChangeKeys}",
+                detail.mustChangeKeys.all { key ->
+                    detail.actions.any { action ->
+                        action.phase == PlanActionPhase.CHANGE &&
+                            key in action.resolvesImpactKeys
+                    }
+                },
+            )
             println("SEEDED_PLAN=$planId")
+            println("SEEDED_PLAN_READINESS=${detail.readiness.wire}")
+            println("SEEDED_PLAN_MUST_CHANGE=${detail.mustChangeKeys}")
+            println(
+                "SEEDED_PLAN_ACTIONS=" + detail.actions.joinToString(",") { action ->
+                    "${action.id}:${action.phase.wire}:done=${action.done}" +
+                        ":claims=${action.resolvesImpactKeys.joinToString("/")}"
+                },
+            )
         } finally {
             harness.close()
         }
