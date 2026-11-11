@@ -7,9 +7,10 @@
 > —— 第 12 张真正的卡点：`ensure_framed` 用写死的中心带 `420..2050` 判"已取景"，在 2560x1600/320 上会把贴在内容容器底沿、
 > 只剩 3px 的「查看变更中心 →」判成已取景，其上方卡片正文随即被无障碍裁剪，`production-*-detail-change-boundary` 断言假红。
 > 已改为 `content_window()` 取屏上 `scrollable=true` 最大节点的真实上下沿，目标必须整体落在内容窗口内（24px 边距）才算取景。
-> —— 本地 exact-tree 实跑（JDK21 + AVD `pdig_tablet_api36`:5554，`wm size 2560x1600` / `density 320`，每次 `pm clear` + 重新 seed）：
-> `prod-journey` **tablet font-1.5 = PASS（19/19 张，exit 0）**、**tablet font-1.0 = PASS（19/19 张，exit 0）**，
-> 安装 APK sha256 `4d8c92b8…`，`fontScaleSource = device`。
+> —— 本地 exact-tree 实跑（JDK21；tablet = AVD `pdig_tablet_api36`:5554 + `wm size 2560x1600` / `density 320`；
+> phone = AVD `pdig_api36`:5554 + 物理 1080x2400 / 420；每次 `pm clear` + 重新 seed）：
+> `prod-journey` **tablet font-1.5 = PASS（19/19 张，exit 0）**、**tablet font-1.0 = PASS（19/19 张，exit 0）**、
+> **phone font-1.0 = PASS（19/19 张，exit 0）**；三个 job 同一安装 APK sha256 `4d8c92b8…`，`fontScaleSource = device`。
 > —— 口径：以上为 **LOCAL_RUNTIME** 证据（MANIFEST + UIAutomator XML，本地 scratch 捕获，未入 Git）；CI `tablet-font15`
 > 必须在同一 tree 重跑后才可改写为 PASS；`ANDROID_REFERENCE_FREEZE` 保持 HOLD，`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`。
 >
