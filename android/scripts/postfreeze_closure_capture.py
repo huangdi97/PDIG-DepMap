@@ -243,7 +243,7 @@ class Capture:
                         self.navigation.append(text)
                         time.sleep(1.0)
                         return
-            swipe_v(1900, 1300)
+            swipe_v(2100, 800)
             time.sleep(0.9)
         raise SystemExit(f"could not scrolled-tap {text!r}")
 
@@ -271,7 +271,7 @@ class Capture:
                             self.navigation.append(text)
                             time.sleep(1.2)
                             return
-            swipe_v(1900, 1300)
+            swipe_v(2100, 800)
             time.sleep(0.9)
         raise SystemExit(f"could not tap {text!r} below {anchor!r}")
 
@@ -330,7 +330,7 @@ class Capture:
                     swipe_v(1250, 1750)
                 time.sleep(0.9)
                 continue
-            swipe_v(1900, 1300)
+            swipe_v(2100, 800)
             time.sleep(0.9)
         raise SystemExit(f"could not safely frame {text!r}")
 
@@ -673,6 +673,22 @@ def flow_production_journey(cap: Capture) -> None:
     )
 
     # 6. Make-Before-Break: prepare -> migrate -> (pending verification) -> blocked retirement.
+    # seed 之后计划可能 stale（分析基准 6 vs 当前数据版本 8）：App 会显示
+    # "准备状态：有阻断项" 并禁用执行类 CTA。重新分析是真实用户路径，先补这一步。
+    # 干净 seed 后：分析基准 6 vs 当前数据版本 8 → 计划 stale，执行类 CTA 被禁用，
+    # 界面提供「重新分析当前影响」。条件必须按"按钮存在"判定：两种计划状态下都会显示
+    # 「准备状态：有阻断项」，用它判定会误点不存在的按钮（前两次失败的根因）。
+    if any("重新分析当前影响" in x for x in cap.labels()):
+        cap.tap_cta("重新分析当前影响")
+        # 分析完成后页面不显示「下一步」（那是仪表页元素）；等真正的执行类 CTA。
+        time.sleep(3)
+        print("AFTER_REANALYZE=" + " | ".join(cap.labels()), flush=True)
+        for _ in range(6):
+            if any("记录完成这一步" in x for x in cap.labels()):
+                break
+            goto_primary(cap, "变更")
+            time.sleep(1.5)
+
     cap.tap_cta("记录完成这一步")
     cap.ensure_visible("添加新手机号并迁移关键账户")
     cap.tap_cta("记录完成这一步")
