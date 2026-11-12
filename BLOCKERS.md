@@ -1,22 +1,26 @@
 # BLOCKERS.md
 
-> **iOS CI runner 配置（2026-11-12，外部资源配置，不是产品缺陷）：**
+> **iOS CI（2026-11-12）：runner 已修好，语义门真绿；运行时/视觉被托管 Intel VM 阻断**
 >
-> - 现象：合并 `3c60fc6c` 之后每一次 push，`iOS` 与 `iOS Runtime Visual` 都在 ~1–3 秒内 `cancelled`，
->   job 有 `startedAt` 但 0 个步骤执行；与本仓库代码无关。
-> - 根因（check-run annotation 原文）：`The configuration 'macos-14-arm64-us-default' is not supported`。
->   即 `runs-on: macos-14` 在本仓库（public repo / Free 计划）解析到不受支持的 arm64 配置。
-> - 处理过程（两步，均留痕）：
->   ① `4f20a682` 改 `runs-on: macos-13` → run 转入 `queued` 但**永不分配**；
->   ② 核查后确认 **`macos-13` 已于 2025-12-04 退役**（GitHub changelog 2025-09-19；且 `macos-14`
->   也在 2026-11-02 退役）。GitHub 目前给 **x86_64 标准 runner** 的标签是 `macos-15-intel`
->   （可用至 2027-08），`macos-15` / `macos-26` / `macos-latest` 是 arm64。
-> - 现行做法：两条 workflow 改为 `runs-on: macos-15-intel`。工程本身用动态 Xcode/simulator 探测
->   （`xcodebuild -version` 不硬编码）、Swift 5.9、`IPHONEOS_DEPLOYMENT_TARGET=16.0`，与该镜像匹配。
-> - 状态口径：在 `macos-15-intel` 上有一次真实 run 结论之前，**iOS 运行时仍是 `NOT_VERIFIED`**
->   （本机无 macOS，无法本地补证；不得用"理论支持"写成 PASS）。
-> - 若 `macos-15-intel` 也不可用：需 owner 决策（升级计划用 arm64 镜像 / 自托管 macOS runner /
->   接受 iOS 保持 NOT_VERIFIED）。这属于外部资源 blocker，不是代码问题。
+> - 阶段一（已解决）**runner 配置**：合并后每次 push，两条 iOS workflow 都在 1–3 秒内 `cancelled`
+>   （annotation：`The configuration 'macos-14-arm64-us-default' is not supported`）。
+>   `macos-13` 已于 **2025-12-04 退役**（改用后只排队不分配），`macos-14` 也于 **2026-11-02 退役**。
+>   现用 **`macos-15-intel`**（x64 标准标签，可用至 2027-08），run 真的分配到了机器。
+> - 阶段二（**已取得真实结果**）**iOS canonical conformance = 161/161 PASS**
+>   （`summary: {pass:161, fail:0, notImplemented:0, envBlocked:0}`；证据
+>   `artifacts/runtime-evidence/2026-11-12-ios-conformance/ios.json`，来自 run `43276187468` 的
+>   `ios-conformance-report` artifact）。Swift build、`PDIGAppTests`、XCUITest bundle 构建同样通过。
+> - 阶段三（**仍阻断，环境原因**）：iOS **运行时**证据两项拿不到 ——
+>   ① `iOS core` 的「Generate screenshots (macOS SwiftUI render)」：Metal 在托管 Intel VM 上不可用，
+>   实测 `+[MTLLoader sliceIDForDevice:legacyDriverVersion:airntDriverVersion:]:685: failed assertion
+'Target device architecture is nil'` → SIGABRT（exit 134）。
+>   ② `iOS Runtime Visual` 的模拟器启动：`simctl boot` 在 3 核 Intel VM 上 wedge
+>   （实测 >17 分钟无进展；串行 + 420s `bootstatus` 预算仍超时，并发更会直接卡死），已给该步
+>   `timeout-minutes: 25` 封顶以免空烧 90 分钟 runner 分钟数。
+> - 口径：`IOS_RUNTIME = NOT_VERIFIED`、`IOS_VISUAL = NOT_RUN`（**不得**用"canonical 过了"代替运行时通过）；
+>   `IOS_CONFORMANCE = PASS`（161/161，有 artifact 证据）。本机无 macOS，无法本地补证。
+> - 需要 owner 决策才能推进：升级到 arm64 macOS runner（`macos-15` / `macos-15-large`，属付费档）/
+>   自托管 macOS runner / 接受 iOS 运行时保持 NOT_VERIFIED。**这是外部资源 blocker，不是代码缺陷。**
 >
 > **ANDROID REFERENCE FREEZE 关闭记录（2026-11-12，owner 批准）：**
 >

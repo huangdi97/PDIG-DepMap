@@ -83,6 +83,9 @@ jobs:
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-app-build.log | tail -n 5
 
       - name: Select and boot iPhone + iPad simulators
+        # 托管 Intel VM 上 `simctl boot` 会 wedge（实测 >17 分钟无进展），给这一步封顶，
+        # 免得每次 push 白烧 90 分钟的 macOS 分钟数；失败原因仍会如实以 exit 124 记录。
+        timeout-minutes: 25
         run: |
           set -e
           # runtime 版本**动态取自本机可用 runtime**（新→旧），不再写死 iOS 17.x：
