@@ -13,6 +13,11 @@
 > tablet font-1.5 `19/19 PASS ×3`（`assertionsMissing = 0`，其中一轮在整包重装后重跑）、tablet font-1.0 `19/19 PASS`、
 > phone font-1.0 `19/19 PASS`。AVD 核实：`pdig_tablet_api36.ini` 的 `path.rel` 指向 `avd\pdig_api36.avd`，
 > 平板/手机在本机只差 `wm size` + `wm density` 覆盖，无法并行启动（同一 AVD）。
+> **CI 口径复跑（`tablet-font15`，HEAD `c892135e`）**：按 evidence workflow 的两把 key 做 clean 构建
+> （BuildConfig `vnext` + `cutover=true`，APK sha256 `c2a91fee…`），以 `PDIG_PRODUCTION_DEFAULT=true` 默认路由跑
+> `prod-journey`(19 张) + `prod-stale`(3 张)，再用 CI 脚本自带校验器本地复核：
+> `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`、`POSTFREEZE_LAYOUT_BOUNDS=PASS`（safe_bottom = 内容容器真实底部）。
+> 该 workflow 的 push 触发只认 `feat/android-ui-vnext-translation`，`fix/*` 不会触发；真正触发需 `pull_request → main`。
 > `ANDROID_REFERENCE_FREEZE = HOLD`（待 CI 同树 tablet-font15 重跑）、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；HARMONY/IOS 不变。
 >
 > 2026-10-05 — ANDROID_UI_VNEXT_FOCUSED_PHONE_LIGHT_REFERENCE_CLOSURE（presentation-only）：

@@ -1,4 +1,4 @@
-> **（最新）ANDROID TABLET FONT-1.5 采集闭环（2026-11-12 · 分支 `fix/tablet-capture-swipe` · HEAD `5caa9e16`）**
+> **（最新）ANDROID TABLET FONT-1.5 采集闭环（2026-11-12 · 分支 `fix/tablet-capture-swipe` · HEAD `c892135e`）**
 > —— 因果更正：`PostFreezeEvidenceSeedTest.seedPhoneMakeBeforeBreakJourney` 建计划时**已经**认领 must-change
 > （诊断行 `SEEDED_PLAN_ACTIONS=…rpn-change-1:change:done=false:claims=<account>|authentication/<service>|recovery`，
 > `SEEDED_PLAN_MUST_CHANGE=[<service>|authentication, <account>|recovery]`）。因此 `readiness=blocked` 是
@@ -15,6 +15,16 @@
 > `prod-journey` **tablet font-1.5 = PASS ×3（各 19/19 张，exit 0，`assertionsMissing = 0`）**、
 > **tablet font-1.0 = PASS（19/19 张）**、**phone font-1.0 = PASS（19/19 张）**；
 > 五个 job 同一安装 APK sha256 `1a49c16f…`（构建产物 = 设备包，`sha256sum` 已比对）；其中 t15 第 3 轮在整包重装后重跑。
+> —— **CI 口径本地复跑（`tablet-font15`，2026-11-12）**：按 `.github/workflows/android-ui-vnext-postfreeze-production-evidence.yml`
+> 的两把 key 做 `:app:clean` 构建（BuildConfig 实测 `PRODUCTION_UI_GENERATION="vnext"` /
+> `PRODUCTION_VNEXT_CUTOVER_APPROVED=true`，APK sha256 `c2a91fee…`），并以 **`PDIG_PRODUCTION_DEFAULT=true`（无 extra 的默认路由）**
+> 跑完 `prod-journey`（`tablet-font15`，19 张）+ 第二个 seed `seedStalePhoneChange` 后的 `prod-stale`
+> （`tablet-font15-stale-reanalysis`，3 张）。随后用 CI 脚本内自带的同一个校验器（`ci_postfreeze_production_evidence.sh`
+> 的 python heredoc，`safe_bottom` 取 `scrollable=true` 容器真实底部）本地复核：
+> `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`、`POSTFREEZE_LAYOUT_BOUNDS=PASS`，
+> `sourceHead`/`apkSha256`/`fontScale(=1.5)`/`humanReview=NOT_RUN` 全部一致。
+> 注意口径差别：上面那五个 job 用的是 legacy 默认构建 + `--ez vnext_production true` 的演练入口，
+> 只证明同一套 VNext 界面；**cutover 默认路由**的闭环证据是这一组（两把 key + 无 extra）。
 > —— 口径：以上为 **LOCAL_RUNTIME** 证据（MANIFEST + UIAutomator XML，本地 scratch 捕获，未入 Git）；CI `tablet-font15`
 > 必须在同一 tree 重跑后才可改写为 PASS；`ANDROID_REFERENCE_FREEZE` 保持 HOLD，`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`。
 >
