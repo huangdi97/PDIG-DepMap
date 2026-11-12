@@ -85,10 +85,13 @@ jobs:
       - name: Select and boot iPhone + iPad simulators
         run: |
           set -e
-          # Prefer the newest iOS 17.x runtime (17.5 first, matching the 17.5
-          # SDK), and prefer 430pt-wide iPhones (Pro Max / Plus) so the
-          # right-side bottom tab is not clipped on the 420pt min-width root
-          # view. The iPad preference also starts on 17.5.
+          # runtime 版本**动态取自本机可用 runtime**（新→旧），不再写死 iOS 17.x：
+          # GitHub 的 `macos-15-intel` 只带 iOS 18.x，写死 17.5/17.4/17.2/17.0
+          # 会一个都选不到（实测 `picked iPhone: ? () ; iPad: ? ()` → exit 1）。
+          # 机型仍优先 430pt 宽的 iPhone（Pro Max / Plus），避免右侧底栏在 420pt
+          # 根视图最小宽度下被裁切。
+          runtimes=$(xcrun simctl list runtimes | awk '/^iOS / && $0 !~ /unavailable/ {print $2}' | sort -rV | tr '\n' ' ')
+          echo "available iOS runtimes: $runtimes"
           devlist=$(xcrun simctl list devices available)
           pick_device() {
             local model="$1"
@@ -108,22 +111,25 @@ jobs:
             done
             return 1
           }
-          iphone=$(pick_device "iPhone 15 Pro Max" 17.5 17.4 17.2 17.0 || true)
+          iphone=$(pick_device "iPhone 15 Pro Max" $runtimes || true)
           if [ -z "$iphone" ]; then
-            iphone=$(pick_device "iPhone 15 Plus" 17.5 17.4 17.2 17.0 || true)
+            iphone=$(pick_device "iPhone 16 Pro Max" $runtimes || true)
           fi
           if [ -z "$iphone" ]; then
-            iphone=$(pick_device "iPhone 14 Pro Max" 17.5 17.4 17.2 17.0 || true)
+            iphone=$(pick_device "iPhone 15 Plus" $runtimes || true)
           fi
           if [ -z "$iphone" ]; then
-            iphone=$(pick_device "iPhone" 17.5 17.4 17.2 17.0 || true)
+            iphone=$(pick_device "iPhone 14 Pro Max" $runtimes || true)
           fi
-          ipad=$(pick_device "iPad Pro 11-inch (M4)" 17.5 17.4 17.2 17.0 || true)
+          if [ -z "$iphone" ]; then
+            iphone=$(pick_device "iPhone" $runtimes || true)
+          fi
+          ipad=$(pick_device "iPad Pro 11-inch (M4)" $runtimes || true)
           if [ -z "$ipad" ]; then
-            ipad=$(pick_device "iPad Pro (11-inch) (4th generation)" 17.5 17.4 17.2 17.0 || true)
+            ipad=$(pick_device "iPad Pro (11-inch) (4th generation)" $runtimes || true)
           fi
           if [ -z "$ipad" ]; then
-            ipad=$(pick_device "iPad" 17.5 17.4 17.2 17.0 || true)
+            ipad=$(pick_device "iPad" $runtimes || true)
           fi
           iphonename="?"
           ipadname="?"
