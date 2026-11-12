@@ -17,8 +17,13 @@
 > （BuildConfig `vnext` + `cutover=true`，APK sha256 `c2a91fee…`），以 `PDIG_PRODUCTION_DEFAULT=true` 默认路由跑
 > `prod-journey`(19 张) + `prod-stale`(3 张)，再用 CI 脚本自带校验器本地复核：
 > `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`、`POSTFREEZE_LAYOUT_BOUNDS=PASS`（safe_bottom = 内容容器真实底部）。
-> 该 workflow 的 push 触发只认 `feat/android-ui-vnext-translation`，`fix/*` 不会触发；真正触发需 `pull_request → main`。
-> `ANDROID_REFERENCE_FREEZE = HOLD`（待 CI 同树 tablet-font15 重跑）、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；HARMONY/IOS 不变。
+> 该 workflow 的 push 触发只认 `feat/android-ui-vnext-translation`，`fix/*` 不会触发；本轮用 `workflow_dispatch` 从本分支触发。
+> **CI 实跑（HEAD `84c6211c`，同一 commit 连跑两次）**：run `43156203647`、run `43158389698` 均 **4/4 job success**；
+> 两次 `tablet-font15` 均 `measured_font_scale=1.5` + 两个 seed `OK (1 test)` + `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`
+> + `POSTFREEZE_LAYOUT_BOUNDS=PASS`（APK `5b99073f…` / `232988cc…`）。基线对照：`42818507855` 仅 tablet-font15 失败、
+> `42970170715` 仅 phone-font15 失败。issue #9 的"同 commit 两次全绿"条件已满足，`tablet-font15` 不再是 NOT_RUN。
+> `ANDROID_REFERENCE_FREEZE` 的 HOLD 唯一等待项已具备关闭条件（是否改写 PASS 由 owner 决策）、
+> `HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；HARMONY/IOS 不变。
 >
 > 2026-10-05 — ANDROID_UI_VNEXT_FOCUSED_PHONE_LIGHT_REFERENCE_CLOSURE（presentation-only）：
 > Human-selected Android 亮色参考已入仓并完成进一步原生 Compose translation。最终像素/交互呈现
