@@ -32,9 +32,10 @@
 > （APK 分别 `5b99073f…` / `232988cc…`，各自与当轮构建产物一致）。
 > 对照基线：run `42818507855` = 仅 tablet-font15 失败；run `42970170715` = 仅 phone-font15 失败（交替 flaky）。
 > 因此 issue #9 要求的"同一 commit 连跑两次全绿"已满足，`tablet-font15` 不再是 NOT_RUN。
-> —— 口径：`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN` 不变；本轮只覆盖 Production post-freeze 证据面（22 条/腿），
-> 不等于全部参考像素验收。`ANDROID_REFERENCE_FREEZE` 的 HOLD 唯一等待项（#9）已具备关闭条件，
-> 是否把它改写为 PASS 由 owner 决定，不由本 Agent 自行宣告。
+> —— Gate 更新（owner 2026-11-12 批准）：**`ANDROID_REFERENCE_FREEZE = PASS`**，范围 = Production post-freeze
+> evidence 面（每腿 22 条）；issue #9 关闭。**不**包含 `HUMAN_VISUAL_ACCEPTANCE`（仍 `NOT_RUN`，只能由 owner 判定）、
+> `PIXEL_REFERENCE_LIMITATION`（仓库参考图仍 ≈320×213）、`PRODUCTION_CUTOVER`（取证用的两把 key 构建
+> 不等于批准 cutover 上线，仍 HOLD）、`STORE_RELEASE = NOT_READY`。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：

@@ -1,5 +1,22 @@
 # BLOCKERS.md
 
+> **ANDROID REFERENCE FREEZE 关闭记录（2026-11-12，owner 批准）：**
+>
+> - **issue #9 关闭**：tablet-font15 的判定 flaky 已收敛。依据是同一 commit `84c6211c` 上
+>   CI run `43156203647` 与 `43158389698` 均 **4/4 job success**（phone / phone-font15 / tablet / tablet-font15），
+>   两轮 `tablet-font15` 都 `measured_font_scale=1.5` + 两个 seed `OK (1 test)` +
+>   `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22` + `POSTFREEZE_LAYOUT_BOUNDS=PASS`。
+>   基线对照：`42818507855` 只有 tablet-font15 失败、`42970170715` 只有 phone-font15 失败（交替 flaky）。
+> - 根因（两条，均已修）：① `ensure_framed` 用写死的 `420..2050` 中心带，在 2560x1600/320 上把贴在
+>   内容容器底沿只剩 3px 的「查看变更中心 →」判成已取景，其上方正文被无障碍裁剪 → 断言假红；已改为
+>   `content_window()` 取 `scrollable=true` 容器真实上下沿、目标须整体落在窗口内。
+>   ② seed 计划的 must-change 认领本就是生产行为（创建时绑到 `rpn-change-1`），`readiness=blocked` 只是
+>   "认领动作未完成"，此前"未认领导致 App 不渲染 CTA"的因果不成立；现由 seed 断言固化。
+> - 由此 **`ANDROID_REFERENCE_FREEZE = PASS`**（技术取证门禁，范围 = Production post-freeze evidence 面，每腿 22 条）。
+> - 仍保持：`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`（只能由 owner 判定）、`PIXEL_REFERENCE_LIMITATION`
+>   （仓库参考图仍 ≈320×213，不做像素级 diff 声明）、`PRODUCTION_CUTOVER = HOLD`（取证用的两把 key 构建
+>   不等于批准 cutover 上线）、`STORE_RELEASE = NOT_READY`。
+>
 > **ANDROID POST-FREEZE CLOSURE Gate（2026-10-21）：**
 >
 > - 本轮在 exact source `a3049c64…` 上完成 Production runtime 取证与 Change Make-Before-Break 真实 UI journey；

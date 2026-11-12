@@ -22,8 +22,9 @@
 > 两次 `tablet-font15` 均 `measured_font_scale=1.5` + 两个 seed `OK (1 test)` + `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`
 > + `POSTFREEZE_LAYOUT_BOUNDS=PASS`（APK `5b99073f…` / `232988cc…`）。基线对照：`42818507855` 仅 tablet-font15 失败、
 > `42970170715` 仅 phone-font15 失败。issue #9 的"同 commit 两次全绿"条件已满足，`tablet-font15` 不再是 NOT_RUN。
-> `ANDROID_REFERENCE_FREEZE` 的 HOLD 唯一等待项已具备关闭条件（是否改写 PASS 由 owner 决策）、
-> `HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；HARMONY/IOS 不变。
+> **Gate 更新（owner 2026-11-12 批准）：`ANDROID_REFERENCE_FREEZE = PASS`**（技术取证门禁，范围 = Production
+> post-freeze evidence 面，每腿 22 条；issue #9 关闭）。不包含 `HUMAN_VISUAL_ACCEPTANCE`（仍 `NOT_RUN`）、
+> `PIXEL_REFERENCE_LIMITATION`、`PRODUCTION_CUTOVER`（仍 HOLD）、`STORE_RELEASE = NOT_READY`；HARMONY/IOS 不变。
 >
 > 2026-10-05 — ANDROID_UI_VNEXT_FOCUSED_PHONE_LIGHT_REFERENCE_CLOSURE（presentation-only）：
 > Human-selected Android 亮色参考已入仓并完成进一步原生 Compose translation。最终像素/交互呈现
