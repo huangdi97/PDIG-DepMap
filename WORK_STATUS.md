@@ -1,4 +1,4 @@
-> **（最新）ANDROID TABLET FONT-1.5 采集闭环（2026-11-11 · 分支 `fix/tablet-capture-swipe` · HEAD `e1414d3c`）**
+> **（最新）ANDROID TABLET FONT-1.5 采集闭环（2026-11-12 · 分支 `fix/tablet-capture-swipe` · HEAD `5caa9e16`）**
 > —— 因果更正：`PostFreezeEvidenceSeedTest.seedPhoneMakeBeforeBreakJourney` 建计划时**已经**认领 must-change
 > （诊断行 `SEEDED_PLAN_ACTIONS=…rpn-change-1:change:done=false:claims=<account>|authentication/<service>|recovery`，
 > `SEEDED_PLAN_MUST_CHANGE=[<service>|authentication, <account>|recovery]`）。因此 `readiness=blocked` 是
@@ -7,11 +7,14 @@
 > —— 第 12 张真正的卡点：`ensure_framed` 用写死的中心带 `420..2050` 判"已取景"，在 2560x1600/320 上会把贴在内容容器底沿、
 > 只剩 3px 的「查看变更中心 →」判成已取景，其上方卡片正文随即被无障碍裁剪，`production-*-detail-change-boundary` 断言假红。
 > 已改为 `content_window()` 取屏上 `scrollable=true` 最大节点的真实上下沿，目标必须整体落在内容窗口内（24px 边距）才算取景。
-> —— 本地 HEAD 实跑（JDK21；tablet = AVD `pdig_tablet_api36`:5554 + `wm size 2560x1600` / `density 320`；
-> phone = AVD `pdig_api36`:5554 + 物理 1080x2400 / 420；**每个 job 都先 `pm clear` 再重新 seed**）：
-> `prod-journey` **tablet font-1.5 = PASS ×2 连跑（各 19/19 张，exit 0，`assertionsMissing = 0`）**、
-> **tablet font-1.0 = PASS（19/19 张，exit 0）**、**phone font-1.0 = PASS（19/19 张，exit 0）**；
-> tablet 三个 job 同一安装 APK sha256 `1a49c16f…`（构建产物 = 设备包，已比对），`sourceHead = e1414d3c`，`fontScaleSource = device`。
+> —— AVD 身份核实：`pdig_tablet_api36.ini` 的 `path.rel` 指向 `avd\pdig_api36.avd`，即"平板 AVD"只是同一台设备配置的别名；
+> tablet / phone 在本机只差 `wm size` + `wm density` 覆盖（`pdig_tablet_api36` 单独启动会以
+> "Running multiple emulators with the same AVD" 失败，与其并行更不可能）。因此 tablet 证据的口径就是"同设备 + 覆盖几何"。
+> —— 本地 HEAD 实跑（JDK21；tablet = `wm size 2560x1600` / `density 320`；phone = 物理 1080x2400 / 420；
+> **每个 job 都先 `pm clear` 再重新 seed**，`fontScaleSource = device`）：
+> `prod-journey` **tablet font-1.5 = PASS ×3（各 19/19 张，exit 0，`assertionsMissing = 0`）**、
+> **tablet font-1.0 = PASS（19/19 张）**、**phone font-1.0 = PASS（19/19 张）**；
+> 五个 job 同一安装 APK sha256 `1a49c16f…`（构建产物 = 设备包，`sha256sum` 已比对）；其中 t15 第 3 轮在整包重装后重跑。
 > —— 口径：以上为 **LOCAL_RUNTIME** 证据（MANIFEST + UIAutomator XML，本地 scratch 捕获，未入 Git）；CI `tablet-font15`
 > 必须在同一 tree 重跑后才可改写为 PASS；`ANDROID_REFERENCE_FREEZE` 保持 HOLD，`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`。
 >

@@ -9,9 +9,10 @@
 > `readiness = blocked` 属「认领动作未完成」的正常态，此前"未认领导致 App 不渲染 CTA"的因果不成立。
 > `postfreeze_closure_capture.ensure_framed` 由写死 `420..2050` 改为取屏上 `scrollable=true` 最大节点的真实上下沿
 > （`content_window()`），目标须整体落在内容窗口内（24px 边距）才算取景，消除贴底 3px 残条造成的假红。
-> LOCAL_RUNTIME（HEAD `e1414d3c`，安装 APK sha256 `1a49c16f…`，每 job 均 `pm clear` + 重新 seed）：
-> tablet font-1.5 `19/19 PASS ×2 连跑`（`assertionsMissing = 0`）、tablet font-1.0 `19/19 PASS`、
-> phone font-1.0 `19/19 PASS`（`fontScaleSource = device`）。
+> LOCAL_RUNTIME（HEAD `5caa9e16`，安装 APK sha256 `1a49c16f…`，每 job 均 `pm clear` + 重新 seed，`fontScaleSource = device`）：
+> tablet font-1.5 `19/19 PASS ×3`（`assertionsMissing = 0`，其中一轮在整包重装后重跑）、tablet font-1.0 `19/19 PASS`、
+> phone font-1.0 `19/19 PASS`。AVD 核实：`pdig_tablet_api36.ini` 的 `path.rel` 指向 `avd\pdig_api36.avd`，
+> 平板/手机在本机只差 `wm size` + `wm density` 覆盖，无法并行启动（同一 AVD）。
 > `ANDROID_REFERENCE_FREEZE = HOLD`（待 CI 同树 tablet-font15 重跑）、`HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；HARMONY/IOS 不变。
 >
 > 2026-10-05 — ANDROID_UI_VNEXT_FOCUSED_PHONE_LIGHT_REFERENCE_CLOSURE（presentation-only）：
