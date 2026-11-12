@@ -36,6 +36,14 @@
 > evidence 面（每腿 22 条）；issue #9 关闭。**不**包含 `HUMAN_VISUAL_ACCEPTANCE`（仍 `NOT_RUN`，只能由 owner 判定）、
 > `PIXEL_REFERENCE_LIMITATION`（仓库参考图仍 ≈320×213）、`PRODUCTION_CUTOVER`（取证用的两把 key 构建
 > 不等于批准 cutover 上线，仍 HOLD）、`STORE_RELEASE = NOT_READY`。
+> —— **并入 main（2026-11-12）**：`fix/tablet-capture-swipe` 已 merge 进 main（merge commit `3c60fc6c`；唯一冲突
+> `WORK_STATUS.md` 的 2026-10-30 Web 段已按 main 的 11-10 重跑口径解决并留注），随后 `c07e5a85`（文档 prettier 门修复）、
+> `33a53359`（证据语义子集入库）。合并后 main 的验证：
+> CI（push `33a53359`）**4/4 success**（Android core JVM+conformance / Android app JVM tests + assembleDebug / Canonical / Harmony static）；
+> web-vnext（`c07e5a85`）**success**（Web source gates / Core·Canonical / Playwright chromium·firefox·webkit / 视觉矩阵）；
+> Post-Freeze Evidence（`3c60fc6c`）**4/4 success**，语义子集 `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/`
+> （88 XML + 4 MANIFEST + seed 日志，无 PNG/APK）；本地 `cd core && npm run check` = EXIT 0。
+> iOS 两条 run 每个 push 后 ~3 秒内被 cancelled（job `startedAt` 有值但无步骤执行），本机无 macOS，iOS 仍 **NOT_VERIFIED**。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
