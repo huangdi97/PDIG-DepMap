@@ -43,7 +43,11 @@
 > web-vnext（`c07e5a85`）**success**（Web source gates / Core·Canonical / Playwright chromium·firefox·webkit / 视觉矩阵）；
 > Post-Freeze Evidence（`3c60fc6c`）**4/4 success**，语义子集 `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/`
 > （88 XML + 4 MANIFEST + seed 日志，无 PNG/APK）；本地 `cd core && npm run check` = EXIT 0。
-> iOS 两条 run 每个 push 后 ~3 秒内被 cancelled（job `startedAt` 有值但无步骤执行），本机无 macOS，iOS 仍 **NOT_VERIFIED**。
+> iOS 两条 run 每个 push 后 ~3 秒内被 cancelled —— **已定位为 runner 配置问题**（check-run annotation：
+> `The configuration 'macos-14-arm64-us-default' is not supported`，job 空跑 1 秒），与本仓库代码无关。
+> `4f20a682` 已把两条 workflow 的 `runs-on` 从 `macos-14` 改为 x64 标准镜像 `macos-13`（工程本身是动态
+> Xcode/simulator 探测 + Swift 5.9 + iOS 16 部署目标）；改后 run `43222656614` / `43222656826` 进入 **queued**
+> （不再秒取消），但截至本轮记录仍未分配 runner。本机无 macOS，iOS 仍 **NOT_VERIFIED**。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：

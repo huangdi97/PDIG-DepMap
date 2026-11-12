@@ -1,5 +1,18 @@
 # BLOCKERS.md
 
+> **iOS CI runner 配置（2026-11-12，外部资源配置，不是产品缺陷）：**
+>
+> - 现象：合并 `3c60fc6c` 之后每一次 push，`iOS` 与 `iOS Runtime Visual` 都在 ~1–3 秒内 `cancelled`，
+>   job 有 `startedAt` 但 0 个步骤执行；与本仓库代码无关。
+> - 根因（check-run annotation 原文）：`The configuration 'macos-14-arm64-us-default' is not supported`。
+>   即 `runs-on: macos-14` 在本仓库（public repo / Free 计划）解析到不受支持的 arm64 配置。
+> - 已做（`4f20a682`）：两条 workflow 改 `runs-on: macos-13`（x64 标准镜像）。工程用动态 Xcode/simulator
+>   探测（`xcodebuild -version` 不硬编码）、Swift 5.9、`IPHONEOS_DEPLOYMENT_TARGET=16.0`，与该镜像匹配。
+> - 现状：改后 run `43222656614`（iOS）与 `43222656826`（iOS Runtime Visual）转入 `queued`，不再秒取消；
+>   但 macOS runner 未分配，**iOS 运行时仍 `NOT_VERIFIED`**（本机无 macOS，无法本地补证）。
+> - 若长期 queue 不到 macos-13：需 owner 决策（升级计划用 arm64 镜像 / 自托管 macOS runner /
+>   接受 iOS 保持 NOT_VERIFIED）。这属于外部资源 blocker，不是代码问题。
+>
 > **ANDROID REFERENCE FREEZE 关闭记录（2026-11-12，owner 批准）：**
 >
 > - **issue #9 关闭**：tablet-font15 的判定 flaky 已收敛。依据是同一 commit `84c6211c` 上
