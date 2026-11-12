@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - website/app/**
+      - website/human-review/**
       - .github/pages/**
       - .github/workflows/publish-web.yml
   workflow_dispatch:
@@ -19,7 +20,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish website/app -> gh-pages/app
+    name: Publish website/app + website/human-review -> gh-pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -48,6 +49,11 @@ jobs:
 
           rm -rf "$WORK/app"
           cp -R website/app "$WORK/app"
+          # 人眼验收只读页（Android post-freeze 证据）；gh-pages 上其它页面仍保持不动。
+          if [ -d website/human-review ]; then
+            rm -rf "$WORK/human-review"
+            cp -R website/human-review "$WORK/human-review"
+          fi
           cp .github/pages/index.html "$WORK/index.html"
           touch "$WORK/.nojekyll"
 
