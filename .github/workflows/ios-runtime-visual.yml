@@ -155,7 +155,9 @@ jobs:
           try:
               r = subprocess.run(
                   ["xcrun", "simctl", "bootstatus", udid, "-b"],
-                  timeout=180,
+                  # 托管 Intel macOS 上首次启动模拟器很慢（实测 iPad 超过 180s），
+                  # 超时放宽到 420s 并让两台并行启动。
+                  timeout=420,
                   text=True,
               )
           except subprocess.TimeoutExpired:
@@ -173,11 +175,11 @@ jobs:
           fi
 
           xcrun simctl shutdown "$iphone" 2>/dev/null || true
-          xcrun simctl boot "$iphone"
-          wait_boot "$iphone" "iphone"
-
           xcrun simctl shutdown "$ipad" 2>/dev/null || true
+          # 两台并行启动：冷启动受 CPU 竞争影响，串行会翻倍等待。
+          xcrun simctl boot "$iphone"
           xcrun simctl boot "$ipad"
+          wait_boot "$iphone" "iphone"
           wait_boot "$ipad" "ipad"
 
           echo "SIMULATOR_BOOT=PASS:iphone=$iphone:ipad=$ipad"             > conformance/reports/ios-simulator-boot.txt
