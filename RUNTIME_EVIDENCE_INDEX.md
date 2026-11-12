@@ -41,3 +41,20 @@
 - 截图总数（仓库内 curated）：**88**（Desktop 50 + Android 38）；哈希行 88；`screenshots.json` 88 条。
 - 失败/缺陷：Desktop 修复 2（布局/重复行）；Android 修复 1（测试 flake）+ 1 方案级解决（A1 取回）；iOS workflow harness bug×1（已修复）。
 - 剩余 Blocker：A2（emulator 稳定性，环境）、E-9（Harmony 镜像，外部）、E-1/E-2/AGC/Apple（外部）、N4_APP（iOS 范围）。
+
+## 2026-11-12 Android post-freeze（CI，合并后 main）
+
+CI run [43181985619](https://github.com/huangdi97/PDIG-DepMap/actions/runs/43181985619)，
+sourceHead `3c60fc6cd4af3e313e5f531f8895bdf5e01a86dd`，**4/4 job success**。
+每腿 22 帧（`prod-journey` 19 + `prod-stale` 3），校验器输出 `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`
+与 `POSTFREEZE_LAYOUT_BOUNDS=PASS`。语义子集（MANIFEST + XML + seed 日志，无 PNG/APK）已入库。
+
+| 腿            | 证据目录                                                                           | 设备 / 字号        | Result |
+| ------------- | ---------------------------------------------------------------------------------- | ------------------ | ------ |
+| phone         | `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/phone/`         | pixel_7 / 1.0      | PASS   |
+| phone-font15  | `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/phone-font15/`  | pixel_7 / 1.5      | PASS   |
+| tablet        | `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/tablet/`        | pixel_tablet / 1.0 | PASS   |
+| tablet-font15 | `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/tablet-font15/` | pixel_tablet / 1.5 | PASS   |
+
+- PNG 与候选 APK 只在 CI artifact 内（保留 21 天）：`gh run download 43181985619 -D <dir>`。
+- `humanReview = NOT_RUN`：本索引不代表人眼验收；`HUMAN_VISUAL_ACCEPTANCE` 仍待 owner 判定。

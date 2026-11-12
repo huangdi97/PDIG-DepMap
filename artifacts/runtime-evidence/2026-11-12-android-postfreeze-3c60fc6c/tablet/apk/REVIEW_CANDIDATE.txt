@@ -1,0 +1,10 @@
+source_head=3c60fc6cd4af3e313e5f531f8895bdf5e01a86dd
+package=com.pdig.app
+variant=productionDebug
+ui_generation=vnext
+cutover_approved=true
+signing=debug/non-production
+evidence_label=tablet
+font_scale=1.0
+human_review=NOT_RUN
+store_release=HOLD
