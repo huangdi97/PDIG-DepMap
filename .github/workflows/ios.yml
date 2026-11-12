@@ -53,11 +53,12 @@ concurrency:
 jobs:
   ios-core:
     name: iOS core (Swift build + canonical conformance + N4 app)
-    # GitHub Free 计划下 `macos-14` 会被解析成 `macos-14-arm64-us-default`，该配置对本仓库
-    # 不可用（check-run annotation: "The configuration 'macos-14-arm64-us-default' is not
-    # supported"，job 空跑 1 秒即 cancelled）。本 job 用动态 Xcode/simulator 探测、Swift 5.9、
-    # iOS 16 部署目标，因此改用 x64 的标准镜像 `macos-13`。
-    runs-on: macos-13
+    # 镜像选择（2026-11 实证）：`macos-14` 在本仓库解析成不受支持的 arm64 配置（annotation:
+    # "The configuration 'macos-14-arm64-us-default' is not supported"），`macos-13` 已于
+    # 2025-12-04 退役（排队永不分配）。GitHub 目前给 x86_64 标准 runner 的标签是
+    # `macos-15-intel`（可用至 2027-08）。本 job 用动态 Xcode/simulator 探测、Swift 5.9、
+    # iOS 16 部署目标，与该镜像匹配。
+    runs-on: macos-15-intel
     steps:
       - uses: actions/checkout@v4
         with:

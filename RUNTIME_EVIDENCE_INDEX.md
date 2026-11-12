@@ -58,3 +58,5 @@ sourceHead `3c60fc6cd4af3e313e5f531f8895bdf5e01a86dd`，**4/4 job success**。
 
 - PNG 与候选 APK 只在 CI artifact 内（保留 21 天）：`gh run download 43181985619 -D <dir>`。
 - `humanReview = NOT_RUN`：本索引不代表人眼验收；`HUMAN_VISUAL_ACCEPTANCE` 仍待 owner 判定。
+- 线上只读浏览页（人眼验收用）：<https://haoleilab.com/PDIG-DepMap/human-review/>（镜像 <https://huangdi97.github.io/PDIG-DepMap/human-review/>）。
+  页面只摆证据不下结论；12 张非安全帧随页发布，FLAG_SECURE 帧按设计以占位块 + 语义判据呈现。

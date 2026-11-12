@@ -6,11 +6,16 @@
 >   job 有 `startedAt` 但 0 个步骤执行；与本仓库代码无关。
 > - 根因（check-run annotation 原文）：`The configuration 'macos-14-arm64-us-default' is not supported`。
 >   即 `runs-on: macos-14` 在本仓库（public repo / Free 计划）解析到不受支持的 arm64 配置。
-> - 已做（`4f20a682`）：两条 workflow 改 `runs-on: macos-13`（x64 标准镜像）。工程用动态 Xcode/simulator
->   探测（`xcodebuild -version` 不硬编码）、Swift 5.9、`IPHONEOS_DEPLOYMENT_TARGET=16.0`，与该镜像匹配。
-> - 现状：改后 run `43222656614`（iOS）与 `43222656826`（iOS Runtime Visual）转入 `queued`，不再秒取消；
->   但 macOS runner 未分配，**iOS 运行时仍 `NOT_VERIFIED`**（本机无 macOS，无法本地补证）。
-> - 若长期 queue 不到 macos-13：需 owner 决策（升级计划用 arm64 镜像 / 自托管 macOS runner /
+> - 处理过程（两步，均留痕）：
+>   ① `4f20a682` 改 `runs-on: macos-13` → run 转入 `queued` 但**永不分配**；
+>   ② 核查后确认 **`macos-13` 已于 2025-12-04 退役**（GitHub changelog 2025-09-19；且 `macos-14`
+>   也在 2026-11-02 退役）。GitHub 目前给 **x86_64 标准 runner** 的标签是 `macos-15-intel`
+>   （可用至 2027-08），`macos-15` / `macos-26` / `macos-latest` 是 arm64。
+> - 现行做法：两条 workflow 改为 `runs-on: macos-15-intel`。工程本身用动态 Xcode/simulator 探测
+>   （`xcodebuild -version` 不硬编码）、Swift 5.9、`IPHONEOS_DEPLOYMENT_TARGET=16.0`，与该镜像匹配。
+> - 状态口径：在 `macos-15-intel` 上有一次真实 run 结论之前，**iOS 运行时仍是 `NOT_VERIFIED`**
+>   （本机无 macOS，无法本地补证；不得用"理论支持"写成 PASS）。
+> - 若 `macos-15-intel` 也不可用：需 owner 决策（升级计划用 arm64 镜像 / 自托管 macOS runner /
 >   接受 iOS 保持 NOT_VERIFIED）。这属于外部资源 blocker，不是代码问题。
 >
 > **ANDROID REFERENCE FREEZE 关闭记录（2026-11-12，owner 批准）：**
