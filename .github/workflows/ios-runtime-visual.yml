@@ -174,12 +174,13 @@ jobs:
             exit 1
           fi
 
+          # 串行启动：在 3 核托管 Intel VM 上并发 boot 会把 CoreSimulator 拖住
+          # （实测并发那轮卡在 `simctl boot` >40 分钟，只能取消）；bootstatus 预算 420s。
           xcrun simctl shutdown "$iphone" 2>/dev/null || true
-          xcrun simctl shutdown "$ipad" 2>/dev/null || true
-          # 两台并行启动：冷启动受 CPU 竞争影响，串行会翻倍等待。
           xcrun simctl boot "$iphone"
-          xcrun simctl boot "$ipad"
           wait_boot "$iphone" "iphone"
+          xcrun simctl shutdown "$ipad" 2>/dev/null || true
+          xcrun simctl boot "$ipad"
           wait_boot "$ipad" "ipad"
 
           echo "SIMULATOR_BOOT=PASS:iphone=$iphone:ipad=$ipad"             > conformance/reports/ios-simulator-boot.txt
