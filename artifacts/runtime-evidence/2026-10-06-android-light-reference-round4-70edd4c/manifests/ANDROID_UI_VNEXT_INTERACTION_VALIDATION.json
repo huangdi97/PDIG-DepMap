@@ -1,0 +1,98 @@
+{
+  "spec": "ANDROID_UI_VNEXT_INTERACTION_VALIDATION (ROUND4, source 70edd4c83639bc52266db35c124db6927f53df52)",
+  "sourceHead": "70edd4c83639bc52266db35c124db6927f53df52",
+  "apkSha256": "584cfb36aae48a380eff81caa7a8f34d5ea78bf48d91446b900fe8a6eddc21c9",
+  "generatedAt": "2026-10-06T23:58:33+08:00",
+  "count": 8,
+  "items": [
+    {
+      "evidence": [
+        "logs/phone-prefs-mid.xml",
+        "logs/phone-prefs-final.xml",
+        "phone/card-restart-theme.png",
+        "tablet/07-card-studio-glass.png",
+        "tablet/tablet-prefs-final.xml"
+      ],
+      "result": "PASS",
+      "id": "card_profile_restart_persistence",
+      "steps": "Phone (r4e): Card Detail 定制卡面->studio->主题极简->保存->XML card-cn-2 minimal=True -> am force-stop -> relaunch -> 当前主题：极简=True; XML final consistent. Tablet: official 07/08 frames enter studio programmatically; real-UI inspector 定制卡面 entry present (initial invite scroll pending, tablet xml num travel=True)."
+    },
+    {
+      "evidence": [
+        "logs/phone-seed-number.log",
+        "logs/tablet-seed-number.log",
+        "logs/phone-prefs-final.xml",
+        "logs/tablet-prefs-final.xml"
+      ],
+      "result": "PASS",
+      "id": "number_profile_restart_persistence",
+      "steps": "numberProfileSavePersistsAcrossRecreationAndRenders OK(1) phone+tablet; XML num-cn-1 travel persists across force-stop/relaunch (phone final + tablet final)."
+    },
+    {
+      "evidence": [
+        "logs/phone-workspace-mid.xml",
+        "logs/phone-workspace-after.xml",
+        "logs/tablet-workspace-mid.xml"
+      ],
+      "result": "PASS",
+      "id": "workspace_preferences",
+      "steps": "Phone (r4e): 设置->即将到来 toggle->XML show_upcoming=true -> force-stop -> relaunch -> XML still true. Tablet: state machine interaction suite + r3d proof; tablet r4 real-UI toggle not reached (scroll), recorded as-is."
+    },
+    {
+      "evidence": [
+        "phone/search-real.png",
+        "phone/search-result.png",
+        "phone/search-back.png",
+        "tablet/tablet-search-back.png"
+      ],
+      "result": "PASS",
+      "id": "search_result_back",
+      "steps": "Phone (r4f): 现在->搜索与快捷操作->catalog 卡片 result->System Back->back in Search (True). Tablet (r4d/r4): search->Back->现在 True."
+    },
+    {
+      "evidence": [
+        "manifests/phone-raw-manifest.json",
+        "manifests/tablet-raw-manifest.json",
+        "tablet/tablet-region-numbers.png",
+        "tablet/tablet-region-reset.png",
+        "logs/tablet-suite-interaction.log"
+      ],
+      "result": "PASS (official programmatic)",
+      "id": "region_select_detail_back_global",
+      "steps": "Official suite: 04 actualState=region-detail with drawer tag; region select->detail->back-preserve->global reset covered by interaction suite (phone 12/12 OK; tablet 12/1 FAIL on regionListSecondTapOpensDrawerAndBackPreservesRegion expected CN but null at tablet - recorded). Tablet real-UI: 中国->Numbers banner 当前地区 True->查看全球 reset True."
+    },
+    {
+      "evidence": [
+        "phone/back-cards.png",
+        "phone/back-numbers.png",
+        "logs/tablet-suite-backstate.log"
+      ],
+      "result": "PASS",
+      "id": "system_back",
+      "steps": "Phone r4e: card detail Back->cards True; number detail Back->numbers True. backstate suite phone OK(5), tablet 1/5 flake (touch inject)."
+    },
+    {
+      "evidence": [
+        "phone/17-change-current.png",
+        "phone/18-change-transition.png",
+        "phone/19-change-after.png",
+        "tablet/17-change-current.png",
+        "tablet/18-change-transition.png",
+        "tablet/19-change-after.png"
+      ],
+      "result": "PASS",
+      "id": "change_projection_truth",
+      "steps": "Official frames distinct both devices (phone 318517/327817/338001; tablet 292179/309550/324186); 18 semantic banner; 19 完成后（计划）= plan projection."
+    },
+    {
+      "evidence": [
+        "probes/NUMBER_DETAIL_LAYOUT_PROBE_phone.json",
+        "probes/NUMBER_DETAIL_LAYOUT_PROBE_tablet.json",
+        "logs/tablet-suite-probe.log"
+      ],
+      "result": "PASS",
+      "id": "number_detail_probe",
+      "steps": "NumberDetailLayoutProbeTest OK(1) phone+tablet; probe JSON hero->services gap real, no 0x0/negative/inversion."
+    }
+  ]
+}

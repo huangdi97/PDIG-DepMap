@@ -1,0 +1,13 @@
+vnextCandidateApkSha256=cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c
+legacyControlApkSha256=287afd586aba3e5ba72ae311c738ef5cf1d550c1b3c6b4809e991a59a2120316
+installedApkSha256=cd8afab1e5981ac844c55a648c75c921016d84fcd5a221efc997a91e0be99d9c
+installedMatchesVnext=True
+package=com.pdig.app
+versionName=0.3.1
+versionCode=2
+signer=CN=PDIG NON-PRODUCTION TEST KEY
+signerSha256=953dc774fcefcdf11423594748aecfa894c8754dc232d6047c39e25373b13ad4
+buildType=release
+debug=false
+defaultNoExtraLaunch=PRODUCTION_VNEXT
+rollbackControlDefault=LEGACY_PRODUCTION

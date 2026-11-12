@@ -1,0 +1,62 @@
+{
+  "spec": "DESKTOP_REFERENCE_FREEZE_MANIFEST.json (v1) — immutable identity = manifest + accepted commit SHA (no tag; repo policy prefers manifest+SHA). Human/Vision Final Review accepted the Desktop Dark Reference on 2026-10-02.",
+  "status": "FROZEN",
+  "version": "desktop-ui-vnext-reference-v1",
+  "acceptedAt": "2026-10-02",
+  "acceptanceSource": "Human/Vision Final Review (huangdi97/PDIG-DepMap, branch feat/pdig-ui-vnext)",
+  "branch": "feat/pdig-ui-vnext",
+  "acceptedSourceHead": "da0937b9ded6930301ae0920985faed4c5893230",
+  "referencePack": "artifacts/runtime-evidence/2026-10-02-ui-vnext-phase1f-hf2-final",
+  "viewportProfile": "1920x1080@1.0, deterministic offscreen Compose render, Privacy Mask ON",
+  "screenshots": [
+    { "screen": "Now", "file": "profiles/1920x1080@1.0/vnext__now__1920x1080@1.0.png", "sha256": "e389821e05fcb46bb6d79b497831c992f202f912113eb0f0d1d8bbb552a7561e" },
+    { "screen": "Infrastructure Overview", "file": "profiles/1920x1080@1.0/vnext__overview-global__1920x1080@1.0.png", "sha256": "074cc11cd7772e8f4bb035ed3bcc716f256b8e97426eb46155e6bab9b13ac47d" },
+    { "screen": "Cards", "file": "profiles/1920x1080@1.0/vnext__cards__1920x1080@1.0.png", "sha256": "2bdb7b35a8a2c3e61d445d2341262f2e085af47aafab529cd18846305a0f0687" },
+    { "screen": "Card Detail", "file": "profiles/1920x1080@1.0/vnext__card-detail__1920x1080@1.0.png", "sha256": "cd635041a169a6c7411e5b9937867cc8fe2fa08989ae7ef02e5fde9d852b9c77" },
+    { "screen": "Card Studio Glass", "file": "profiles/1920x1080@1.0/vnext__card-studio-glass__1920x1080@1.0.png", "sha256": "ae378d810e2e627b8ba5ed66f4ccae84aec33d60cc4d36bc3bbf8c8660bb174b" },
+    { "screen": "Card Studio City", "file": "profiles/1920x1080@1.0/vnext__card-studio-city__1920x1080@1.0.png", "sha256": "17cde3fb8610396005953c052e4b484a870bf3b313d003161c58da3a7652786c" },
+    { "screen": "Numbers", "file": "profiles/1920x1080@1.0/vnext__numbers__1920x1080@1.0.png", "sha256": "8729597ee29e1508df8e7396c7f1057efd30bcdbe4c2e4ce06b5e4c18f235c00" },
+    { "screen": "Number Detail", "file": "profiles/1920x1080@1.0/vnext__number-detail__1920x1080@1.0.png", "sha256": "9c9126848008baec4f42e38c031bd392455af1162f69db065cfd44d0edc7453e" },
+    { "screen": "Number Studio Travel", "file": "profiles/1920x1080@1.0/vnext__number-studio-travel__1920x1080@1.0.png", "sha256": "b5b644b49cf31833501782303d6851362ae691f4112a0005be658280cf9b9a3f" },
+    { "screen": "Change Phone Transition", "file": "profiles/1920x1080@1.0/vnext__change-transition__1920x1080@1.0.png", "sha256": "9b737f39cbf5b3f52bf1b6c9cf97c8923690ea8c2071b1185da1d3176f6dc416" },
+    { "screen": "Change Phone After", "file": "profiles/1920x1080@1.0/vnext__change-after__1920x1080@1.0.png", "sha256": "b878606200012a51d9a9af0559a2f3077a6b5b21b447d0ed6e5d309301f9bc28" },
+    { "screen": "Cards Empty", "file": "profiles/1920x1080@1.0/vnext__cards-empty__1920x1080@1.0.png", "sha256": "24d97aeb3c93e0c10bb4f313b73eced2cf1f1de13544f203962dc337af03e56a" }
+  ],
+  "designSystem": {
+    "DARK_REFERENCE": "FROZEN",
+    "LIGHT": "FUNCTIONAL_SUPPORTED / VISUAL_REFINEMENT_LATER",
+    "productIA": "Primary Nav: 现在 / 基础设施 / 变更 / 记录; Infrastructure Secondary: 总览 / 卡片 / 号码 / 账户 / 邮箱 / 设备 / 服务 / 薄弱点",
+    "globe": "Global Infrastructure Navigator (deterministic render; real-earth assets)",
+    "cards": "asset identity language (CardIdentitySystem, dual-scale grid/detail)",
+    "numbers": "communication identity language (signal bar + dial arc)",
+    "cardStudio": "consumer PresentationProfile editor (three-pane studio)",
+    "numberStudio": "communication PresentationProfile editor",
+    "continuity": "Current / Transition / After; After = Plan Projection (NOT reality)",
+    "emptyState": "honest unknown semantics (compact 480-600px composition)",
+    "commandPalette": "desktop interaction primitive",
+    "presentationBoundary": "PresentationProfile != PersonalReality != Canonical; platforms may translate presentation, may NOT fork domain truth / Canonical / change semantics / recovery semantics"
+  },
+  "runtimeGates": {
+    "DESKTOP_VISUAL_REFERENCE": "ACCEPTED",
+    "VISUAL_CRAFT": "ACCEPTED_FOR_DESKTOP_REFERENCE",
+    "DESKTOP_REFERENCE_FREEZE": "PASS",
+    "DESKTOP_DARK_GOLDEN_BASELINE": "ESTABLISHED",
+    "PLATFORM_TRANSLATION_CONTRACT": "READY",
+    "REAL_WINDOW_MULTI_FRAME_RUNTIME_ACCEPTANCE": "ENVIRONMENT_GATE",
+    "REAL_WINDOW_KEYBOARD_HUMAN_GATE": "OPEN",
+    "IME_RUNTIME_HUMAN_GATE": "OPEN",
+    "ANDROID_UI_VNEXT": "READY_FOR_TRANSLATION",
+    "IOS_UI_VNEXT": "HOLD_UNTIL_ANDROID_REFERENCE_TRANSLATION",
+    "HARMONY_UI_VNEXT": "HOLD_UNTIL_ANDROID_REFERENCE_TRANSLATION"
+  },
+  "goldenBaseline": {
+    "scope": "deterministic Desktop dark reference only (frozen viewport/profile 1920x1080@1.0)",
+    "excludes": "real-window unstable captures (stale-capture-surface / occlusion) are NOT pixel-golden material",
+    "regressionGate": "unexpected screenshot drift -> FAIL; expected intentional change -> requires explicit reference revision",
+    "location": "docs/ui-vnext/DESKTOP_VISUAL_GOLDEN_BASELINE.md"
+  },
+  "platformTranslationAllowed": true,
+  "platformPriority": ["android", "ios", "harmony"],
+  "translationPrinciple": "Desktop Reference -> Platform Translation (NOT Desktop Pixel Copy -> Mobile)",
+  "immutableIdentity": "manifest + acceptedSourceHead commit SHA (no tag created; repo policy prefers manifest+SHA)"
+}

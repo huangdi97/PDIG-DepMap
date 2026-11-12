@@ -1,0 +1,55 @@
+
+com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest:.
+Error in recordsIsEvidenceTraceRatherThanSecondAttentionFeed(com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest):
+java.lang.AssertionError: Failed to perform checkIsDisplayed check: Expected at most 1 node but found 3 nodes that satisfy (Text + EditableText contains '已记录完成' (ignoreCase: false))
+	at androidx.compose.ui.test.AndroidAssertions_androidKt.checkIsDisplayed(AndroidAssertions.android.kt:35)
+	at androidx.compose.ui.test.AssertionsKt.isDisplayed(Assertions.kt:359)
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:33)
+	at com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest.recordsIsEvidenceTraceRatherThanSecondAttentionFeed(SourceCompleteInteractionContractTest.kt:367)
+....
+Error in changeProjectionStatesAreDistinctAndRender(com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest):
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'pdig.change.new')
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode$default(SemanticsNodeInteraction.kt:83)
+	at com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest.changeProjectionStatesAreDistinctAndRender(SourceCompleteInteractionContractTest.kt:387)
+
+Error in cardChangeFlowUsesSupportedScenarioShapeWithoutPretendingExecution(com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest):
+java.lang.AssertionError: Failed to perform checkIsDisplayed check: Expected at most 1 node but found 2 nodes that satisfy (Text + EditableText contains '更换银行卡' (ignoreCase: false))
+	at androidx.compose.ui.test.AndroidAssertions_androidKt.checkIsDisplayed(AndroidAssertions.android.kt:35)
+	at androidx.compose.ui.test.AssertionsKt.isDisplayed(Assertions.kt:359)
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:33)
+	at com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest.cardChangeFlowUsesSupportedScenarioShapeWithoutPretendingExecution(SourceCompleteInteractionContractTest.kt:353)
+.........
+
+Time: 22.747
+There were 3 failures:
+1) recordsIsEvidenceTraceRatherThanSecondAttentionFeed(com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest)
+java.lang.AssertionError: Failed to perform checkIsDisplayed check: Expected at most 1 node but found 3 nodes that satisfy (Text + EditableText contains '已记录完成' (ignoreCase: false))
+	at androidx.compose.ui.test.AndroidAssertions_androidKt.checkIsDisplayed(AndroidAssertions.android.kt:35)
+	at androidx.compose.ui.test.AssertionsKt.isDisplayed(Assertions.kt:359)
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:33)
+	at com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest.recordsIsEvidenceTraceRatherThanSecondAttentionFeed(SourceCompleteInteractionContractTest.kt:367)
+2) changeProjectionStatesAreDistinctAndRender(com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest)
+java.lang.AssertionError: Failed: assertExists.
+Reason: Expected exactly '1' node but could not find any node that satisfies: (TestTag = 'pdig.change.new')
+
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow(SemanticsNodeInteraction.kt:178)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchOneOrThrow$default(SemanticsNodeInteraction.kt:150)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode(SemanticsNodeInteraction.kt:84)
+	at androidx.compose.ui.test.SemanticsNodeInteraction.fetchSemanticsNode$default(SemanticsNodeInteraction.kt:83)
+	at com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest.changeProjectionStatesAreDistinctAndRender(SourceCompleteInteractionContractTest.kt:387)
+3) cardChangeFlowUsesSupportedScenarioShapeWithoutPretendingExecution(com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest)
+java.lang.AssertionError: Failed to perform checkIsDisplayed check: Expected at most 1 node but found 2 nodes that satisfy (Text + EditableText contains '更换银行卡' (ignoreCase: false))
+	at androidx.compose.ui.test.AndroidAssertions_androidKt.checkIsDisplayed(AndroidAssertions.android.kt:35)
+	at androidx.compose.ui.test.AssertionsKt.isDisplayed(Assertions.kt:359)
+	at androidx.compose.ui.test.AssertionsKt.assertIsDisplayed(Assertions.kt:33)
+	at com.pdig.uivnext.evidence.SourceCompleteInteractionContractTest.cardChangeFlowUsesSupportedScenarioShapeWithoutPretendingExecution(SourceCompleteInteractionContractTest.kt:353)
+
+FAILURES!!!
+Tests run: 17,  Failures: 3
+
+

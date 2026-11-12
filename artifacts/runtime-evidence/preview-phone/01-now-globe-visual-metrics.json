@@ -1,0 +1,13 @@
+{
+  "sourceSha": "cd355b5bc562bf59a40b18b2fb1f540183c229ce",
+  "box": [
+    0.4,
+    0.34,
+    0.6,
+    0.42
+  ],
+  "meanLuma": 211.09,
+  "darkPixelFraction": 0.0008,
+  "evidenceKind": "R9_TEXTURE_GRADE_MECHANICAL_ONLY",
+  "humanVisualParity": "NOT_ACCEPTED"
+}

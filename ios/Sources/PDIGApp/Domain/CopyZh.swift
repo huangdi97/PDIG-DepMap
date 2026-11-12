@@ -229,6 +229,19 @@ public enum CopyZh {
     public static let securityBiometric = "面容 / 触控 ID 解锁"
     public static let securityDeviceCredential = "设备密码解锁"
 
+    // MARK: - quiet infrastructure（v0.3.1 设计系统）
+
+    public static let homeHealthyNow = "当前没有需要立即处理的事项。"
+    public static let homeHealthyUnknown = "仍有一部分信息还不清楚，确认后会在这里更新。"
+    public static let gateRetireBeforeVerified = "新手机号验证通过后才能停用旧手机号"
+    public static let planPhasePrepare = "准备"
+    public static let planPhaseChange = "变更"
+    public static let planPhaseVerify = "验证"
+    public static let planChangePlan = "变更计划"
+    public static let planExecute = "执行变更"
+    public static let exportFailed = "导出失败，请重试。"
+    public static let importFailed = "导入失败，请重试。"
+    public static let actionFailed = "操作没有完成，请重试。"
     // MARK: - helper 映射
 
     /// 按 Capability wire 转中文（UI 渲染专用，不暴露 wire）。

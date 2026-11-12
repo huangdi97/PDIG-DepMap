@@ -1,0 +1,9 @@
+{
+  "assertions": [
+    {"editedThemeId": "abstract"},
+    {"reopenedThemeId": "abstract"},
+    {"reopenedMaterial": "metal"},
+    {"reopenedLayout": "emblem"},
+    {"canonicalUntouched": "true"}
+  ]
+}

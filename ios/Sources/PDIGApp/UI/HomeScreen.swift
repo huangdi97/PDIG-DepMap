@@ -1,5 +1,5 @@
-// Home 屏（task #3）：需要你处理 / 可能发生了变化 / 即将到来 /
-// 常用场景 / 我的基础设施 / 基础设施薄弱点 + 底部主导航。
+// Home 屏（Quiet Infrastructure）：需要你处理 → 薄弱点 → 可能变化 → 即将到来 →
+// 常用场景 → 我的基础设施（顺序冻结于 PDIG_UIUX_DIRECTION_FREEZE.md §4）。
 
 import SwiftUI
 import PDIGCore
@@ -27,13 +27,32 @@ struct AppTabBar: View {
                 Text(title).font(.caption2)
             }
             .frame(maxWidth: .infinity)
+            .frame(minHeight: 44)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(title)
     }
 }
 
 struct HomeScreen: View {
     @ObservedObject var session: AppSession
+
+    /// 冻结信息顺序（仅展示层排序，不改 HomeViewModel 语义）。
+    private var orderedSections: [HomeSection] {
+        let order = [
+            CopyZh.homeNeedsAction,
+            CopyZh.homeInfrastructureWeakness,
+            CopyZh.homePossibleChange,
+            CopyZh.homeUpcoming,
+            CopyZh.homeCommonScenarios,
+            CopyZh.homeMyInfrastructure,
+        ]
+        return sections.sorted { a, b in
+            let ai = order.firstIndex(of: a.title) ?? order.count
+            let bi = order.firstIndex(of: b.title) ?? order.count
+            return ai < bi
+        }
+    }
 
     private var sections: [HomeSection] {
         HomeViewModel.sections(HomeInput(
@@ -42,6 +61,10 @@ struct HomeScreen: View {
             openDrifts: openDrifts(),
             findings: findings()
         ))
+    }
+
+    private var hasNothingToDo: Bool {
+        !sections.contains { $0.title == CopyZh.homeNeedsAction }
     }
 
     var body: some View {
@@ -53,7 +76,9 @@ struct HomeScreen: View {
                     session.lockNow()
                 } label: {
                     Image(systemName: "lock")
+                        .frame(width: 44, height: 44)
                 }
+                .accessibilityLabel(CopyZh.lockTitle)
             }
             .padding(.horizontal)
             .padding(.top, 8)
@@ -62,9 +87,13 @@ struct HomeScreen: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if session.snapshot.nodes.isEmpty && session.plans.isEmpty {
                         emptyState
-                    }
-                    ForEach(sections, id: \.title) { section in
-                        HomeSectionView(session: session, section: section)
+                    } else {
+                        if hasNothingToDo {
+                            healthySummary
+                        }
+                        ForEach(orderedSections, id: \.title) { section in
+                            HomeSectionView(session: session, section: section)
+                        }
                     }
                 }
                 .padding()
@@ -74,24 +103,32 @@ struct HomeScreen: View {
         .frame(minWidth: 420, minHeight: 600)
     }
 
-    private var emptyState: some View {
-        VStack(spacing: 12) {
-            Text(CopyZh.emptyTitle).font(.headline)
-            Text("导入一份账单，或从备份恢复，开始构建你的依赖图。")
-                .foregroundStyle(.secondary)
-            Button {
-                session.push(.importFlow)
-            } label: {
-                Label("导入账单", systemImage: "tray.and.arrow.down")
+    /// healthy：不显示 0 问题/分数；讲清"当前没有立即事项 + 仍然未知的范围"。
+    private var healthySummary: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(CopyZh.homeHealthyNow).font(PdigTheme.Font.section)
+            if !session.snapshot.pendingProposals.isEmpty {
+                Text(CopyZh.homeHealthyUnknown)
+                    .font(PdigTheme.Font.secondary)
+                    .foregroundStyle(PdigTheme.Color.textSecondary)
             }
-            .buttonStyle(.borderedProminent)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 32)
+        .padding(.vertical, 4)
+    }
+
+    private var emptyState: some View {
+        EmptyState(
+            icon: "tray.and.arrow.down",
+            title: CopyZh.emptyTitle,
+            message: "导入一份账单，或从备份恢复，开始构建你的依赖图。",
+            actionTitle: "导入账单"
+        ) {
+            session.push(.importFlow)
+        }
     }
 
     private func timelineItems() -> [Timeline.Item] {
-        TimelineViewModel.sections(snapshot: session.snapshot, plans: session.plans, drifts: openDrifts(), nowIso: "2030-01-15T00:00:00+00:00")
+        TimelineViewModel.sections(snapshot: session.snapshot, plans: session.plans, drifts: openDrifts(), nowIso: PdigClock.nowIso())
             .flatMap { $0.items }
     }
 
@@ -103,7 +140,7 @@ struct HomeScreen: View {
         FindingsViewModel.findings(FindingsInput(
             snapshot: session.snapshot,
             pendingVerifications: pendingVerifications(),
-            nowIso: "2030-01-15T00:00:00+00:00"
+            nowIso: PdigClock.nowIso()
         ))
     }
 
@@ -127,23 +164,23 @@ struct HomeSectionView: View {
                 Button {
                     route(to: item)
                 } label: {
-                HStack(spacing: 10) {
-                        Image(systemName: severityIcon(item.severity))
-                            .foregroundStyle(severityColor(item.severity))
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(item.title).font(.body.weight(item.severity >= 2 ? .semibold : .regular))
-                            if !item.subtitle.isEmpty {
-                                Text(item.subtitle)
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(2)
+                    PdigCard {
+                        HStack(spacing: 10) {
+                            Image(systemName: severityIcon(item.severity))
+                                .foregroundStyle(severityColor(item.severity))
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.title).font(.body.weight(item.severity >= 2 ? .semibold : .regular))
+                                if !item.subtitle.isEmpty {
+                                    Text(item.subtitle)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(2)
+                                }
                             }
+                            Spacer()
+                            Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
                         }
-                        Spacer()
-                        Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
                     }
-                    .padding(10)
-                    .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                 }
                 .buttonStyle(.plain)
             }
@@ -180,11 +217,12 @@ struct HomeSectionView: View {
         }
     }
 
+    /// 严重度 → 语义色令牌（不再散用系统红/橙）。
     private func severityColor(_ s: Int) -> Color {
         switch s {
-        case 2: return .red
-        case 1: return .orange
-        default: return .secondary
+        case 2: return PdigTheme.Color.danger
+        case 1: return PdigTheme.Color.warning
+        default: return PdigTheme.Color.textSecondary
         }
     }
 }

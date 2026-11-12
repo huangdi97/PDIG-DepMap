@@ -1,0 +1,37 @@
+{
+  "capture": "Expanded (1280x800dp) real emulator screenshots",
+  "sourceSha": "7993f29d4dafdffe4791c7bf450169dfcba1558e",
+  "sourceShort": "7993f29",
+  "package": "com.pdig.app.preview.p7993f29",
+  "activity": "com.pdig.app.PreviewLauncherActivity",
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "avd": "pdig_tablet_api36",
+  "display": {
+    "physicalPx": "2560x1600",
+    "densityDpi": 320,
+    "dp": "1280x800",
+    "breakpoint": "EXPANDED",
+    "orientation": "landscape"
+  },
+  "captureMethod": "adb exec-out screencap -p (real display)",
+  "contractResult": "TabletAdaptiveContractTest 5/5 OK at 1280dp, including the two EXPANDED-only three-pane tests that are skipped at 800dp",
+  "caveat": "The app package was built from 7993f29d; later repository changes are docs/evidence only. No AI image, preview render or desktop mockup is used.",
+  "screens": [
+    {"file": "01-now.png", "semantics": "01-now.xml", "state": "Now, five primary rail with visible labels"},
+    {"file": "02-infrastructure.png", "semantics": "02-infrastructure.xml", "state": "Infrastructure overview, GPU earth, secondary chip row"},
+    {"file": "03-cards.png", "semantics": "03-cards.xml", "state": "Cards collection grid at Expanded"},
+    {"file": "03a-card-selected.png", "semantics": "03-cards.xml", "state": "Card selected, right-side detail preview"},
+    {"file": "04-card-detail.png", "semantics": "04-card-detail.xml", "state": "Full card detail"},
+    {"file": "05-change.png", "semantics": "05-change.xml", "state": "Change center"},
+    {"file": "06-change-phone-current.png", "semantics": "06-change-phone.xml", "state": "Change phone / Current projection"},
+    {"file": "07-change-phone-transition.png", "semantics": "06-change-phone.xml", "state": "Change phone / Transition projection"},
+    {"file": "08-change-phone-after.png", "semantics": "06-change-phone.xml", "state": "Change phone / After (plan projection)"},
+    {"file": "09-records.png", "semantics": "09-records.xml", "state": "Records timeline"},
+    {"file": "10-me.png", "semantics": "10-me.xml", "state": "Me workspace at Expanded"}
+  ],
+  "gates": {
+    "VISUAL_CANDIDATE": "READY_FOR_HUMAN_REVIEW",
+    "HUMAN_ACCEPTED": "PENDING",
+    "ANDROID_REFERENCE_FREEZE": "HOLD"
+  }
+}

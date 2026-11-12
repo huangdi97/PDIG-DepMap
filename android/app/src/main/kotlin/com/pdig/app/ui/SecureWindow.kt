@@ -56,10 +56,20 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
 /** 按当前路由设置 / 清除 FLAG_SECURE。仅在路由变化时执行，不是每帧执行。 */
 @Composable
 fun SecureWindow(route: String?) {
+    SecureWindow(sensitive = isSensitiveRoute(route))
+}
+
+/**
+ * 供非 legacy NavGraph 宿主复用的同一窗口保护。
+ *
+ * Production VNext 没有 legacy Route 字符串，因此必须把“页面是否敏感”的
+ * 判定留在它自己的路由模型里，但最终仍调用同一个 FLAG_SECURE 实现。
+ */
+@Composable
+fun SecureWindow(sensitive: Boolean) {
     val context = LocalContext.current
     val activity = remember(context) { context.findActivity() }
-    val sensitive = isSensitiveRoute(route)
-    DisposableEffect(route, activity) {
+    DisposableEffect(sensitive, activity) {
         val window = activity?.window
         val flag = WindowManager.LayoutParams.FLAG_SECURE
         if (window != null) {

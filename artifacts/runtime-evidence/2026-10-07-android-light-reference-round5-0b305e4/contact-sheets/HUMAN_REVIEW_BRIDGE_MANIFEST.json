@@ -1,0 +1,194 @@
+{
+  "sheets": [
+    {
+      "sheetName": "phone-01-04.png",
+      "screens": [
+        "01-now",
+        "02-overview-global",
+        "03-overview-region-selected",
+        "04-region-drawer"
+      ],
+      "pngBytes": 535272,
+      "b64Chars": 713696,
+      "pngSha256": "b043b8fc138a30322da10663dfb52c43279c2f3d876b7212d1a4503e8fe1411d",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "phone-01-04.png.b64.txt"
+    },
+    {
+      "sheetName": "phone-05-08.png",
+      "screens": [
+        "05-cards",
+        "06-card-detail",
+        "07-card-studio-glass",
+        "08-card-studio-city"
+      ],
+      "pngBytes": 537319,
+      "b64Chars": 716428,
+      "pngSha256": "416142cce037708bdbce91bd3be09842a11b66ff6478c14593a1ffadab19eae4",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "phone-05-08.png.b64.txt"
+    },
+    {
+      "sheetName": "phone-09-12.png",
+      "screens": [
+        "09-numbers",
+        "10-number-detail",
+        "11-number-studio-travel",
+        "12-accounts"
+      ],
+      "pngBytes": 551064,
+      "b64Chars": 734752,
+      "pngSha256": "6009784b60f7de846616e3d770de72653b8750d57f32fc8fc33367f86a4d56ba",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "phone-09-12.png.b64.txt"
+    },
+    {
+      "sheetName": "phone-13-16.png",
+      "screens": [
+        "13-emails",
+        "14-devices",
+        "15-services",
+        "16-weaknesses"
+      ],
+      "pngBytes": 522159,
+      "b64Chars": 696212,
+      "pngSha256": "a01b0ed1bb321a89fc9213f287e5b1c0965b8cb1b272e1da22b0ad40309b689d",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "phone-13-16.png.b64.txt"
+    },
+    {
+      "sheetName": "phone-17-20.png",
+      "screens": [
+        "17-change-current",
+        "18-change-transition",
+        "19-change-after",
+        "20-records"
+      ],
+      "pngBytes": 475851,
+      "b64Chars": 634468,
+      "pngSha256": "01840eb0e833eacd98f17f35f2370a902cc0dfaa7db86fa57c41501813c1a42a",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "phone-17-20.png.b64.txt"
+    },
+    {
+      "sheetName": "phone-21-24.png",
+      "screens": [
+        "21-search-empty",
+        "22-search-query",
+        "23-personalization",
+        "24-data-sources"
+      ],
+      "pngBytes": 363505,
+      "b64Chars": 484676,
+      "pngSha256": "3bcf6baf2dacec3d0e0f6d533b8566752279619d8d875ab924f8c4988278a912",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "phone-21-24.png.b64.txt"
+    },
+    {
+      "sheetName": "tablet-01-04.png",
+      "screens": [
+        "01-now",
+        "02-overview-global",
+        "03-overview-region-selected",
+        "04-region-drawer"
+      ],
+      "pngBytes": 312780,
+      "b64Chars": 417040,
+      "pngSha256": "ecb962fa11459155a331f0d722dcd24c3563db7a809afcc8cea667431359d7c8",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "tablet-01-04.png.b64.txt"
+    },
+    {
+      "sheetName": "tablet-05-08.png",
+      "screens": [
+        "05-cards",
+        "06-card-detail",
+        "07-card-studio-glass",
+        "08-card-studio-city"
+      ],
+      "pngBytes": 314547,
+      "b64Chars": 419396,
+      "pngSha256": "3dcd6663a4606aff0fa28681d70854c22f1349585f0f36de684517e299363f02",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "tablet-05-08.png.b64.txt"
+    },
+    {
+      "sheetName": "tablet-09-12.png",
+      "screens": [
+        "09-numbers",
+        "10-number-detail",
+        "11-number-studio-travel",
+        "12-accounts"
+      ],
+      "pngBytes": 254253,
+      "b64Chars": 339004,
+      "pngSha256": "1e91b81abdd2d4d43b18a6b169d70c273f991288c6ab6fd62320da30c0aa5631",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "tablet-09-12.png.b64.txt"
+    },
+    {
+      "sheetName": "tablet-13-16.png",
+      "screens": [
+        "13-emails",
+        "14-devices",
+        "15-services",
+        "16-weaknesses"
+      ],
+      "pngBytes": 192757,
+      "b64Chars": 257012,
+      "pngSha256": "b5718b8c13ba734ec048f3a9d572f2fafa162f88d0e4bcab6ef29659e0e26cb1",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "tablet-13-16.png.b64.txt"
+    },
+    {
+      "sheetName": "tablet-17-20.png",
+      "screens": [
+        "17-change-current",
+        "18-change-transition",
+        "19-change-after",
+        "20-records"
+      ],
+      "pngBytes": 207410,
+      "b64Chars": 276548,
+      "pngSha256": "0f1b680233d52d0b67944d1f40d1a376121cc42ae0a61dc413921fdde3cb9946",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "tablet-17-20.png.b64.txt"
+    },
+    {
+      "sheetName": "tablet-21-24.png",
+      "screens": [
+        "21-search-empty",
+        "22-search-query",
+        "23-personalization",
+        "24-data-sources"
+      ],
+      "pngBytes": 136985,
+      "b64Chars": 182648,
+      "pngSha256": "f027d4be7f8ba69257a35a7f61c15e139ba39d1689efd9df4bf91409ec9a311e",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "tablet-21-24.png.b64.txt"
+    },
+    {
+      "sheetName": "empty-10.png",
+      "screens": [
+        "phone-cards-empty.png",
+        "phone-numbers-empty.png",
+        "phone-no-attention.png",
+        "phone-no-active-change.png",
+        "phone-no-known-dependencies.png",
+        "tablet-cards-empty.png",
+        "tablet-numbers-empty.png",
+        "tablet-no-attention.png",
+        "tablet-no-active-change.png",
+        "tablet-no-known-dependencies.png"
+      ],
+      "pngBytes": 568652,
+      "b64Chars": 758204,
+      "pngSha256": "f845cb3023ac60614948e671e6dbe2aa4755e6af19298b4f53c86a009d2835d3",
+      "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8",
+      "b64File": "empty-10.png.b64.txt"
+    }
+  ],
+  "assertion": "b64Chars < 900000 for every sheet",
+  "sourceHead": "0b305e48bf4868b1aca2bd39dac720e19f3df7f8"
+}

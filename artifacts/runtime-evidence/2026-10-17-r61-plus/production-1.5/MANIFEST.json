@@ -1,0 +1,20 @@
+{
+  "capture": "Production VNext 1.5x accessibility, 1080x2400@420",
+  "sourceSha": "7aaa612c6a6dfdd0ef431a8a67879f1caef63f96",
+  "package": "com.pdig.app",
+  "versionName": "0.3.1",
+  "versionCode": 2,
+  "apk": "app-production-debug.apk",
+  "apkSha256": "956639e772f869c9c0372ffdae7c3855230aa9a367ab56689b506e6549851e08",
+  "device": "Google sdk_gphone64_x86_64 API36 (Android 16)",
+  "display": {"px": "1080x2400", "densityDpi": 420, "fontScale": 1.5},
+  "launch": "am start -n com.pdig.app/com.pdig.app.MainActivity --ez vnext_production true",
+  "screens": [
+    {"file": "01-now.png", "state": "Now: bottom labels fully visible above the gesture inset"},
+    {"file": "02-me.png", "state": "Me: continuity work cards readable"},
+    {"file": "03-change.png", "state": "Change: preparation cards readable"},
+    {"file": "04-records.png", "state": "Records: FLAG_SECURE black capture; XML proves the screen is rendered. Not a UI defect."}
+  ],
+  "security": "productionVNextRequiresSecureWindow(records)=true; screenshot is intentionally black. No attempt was made to bypass FLAG_SECURE.",
+  "caveat": "Visual candidate only; Production default remains Legacy."
+}

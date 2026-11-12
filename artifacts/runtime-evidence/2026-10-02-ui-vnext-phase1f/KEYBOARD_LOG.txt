@@ -1,0 +1,6 @@
+KEY ctrl+k -> OPEN_PALETTE (paletteOpen=true query='')
+KEY 更 -> NONE (paletteOpen=true query='更')
+KEY 换 -> NONE (paletteOpen=true query='更换')
+KEY enter -> EXECUTE (paletteOpen=false query='更换')
+KEY ctrl+k -> OPEN_PALETTE (paletteOpen=true query='')
+KEY escape -> CLOSE_PALETTE (paletteOpen=false query='')

@@ -12,7 +12,11 @@ import com.pdig.core.json.Json
 import com.pdig.core.json.JsonWriter
 import com.pdig.core.plan.computePlanReadiness
 import com.pdig.core.plan.countUnresolvedMustChange
+import com.pdig.core.plan.unresolvedMustChangeKeys
 import com.pdig.core.scenario.ScenarioRegistry
+import com.pdig.core.domain.confirmedIdentityAnchorProfile
+import com.pdig.core.generated.IdentityAnchorSubtype
+import com.pdig.core.generated.NodeKind
 import com.pdig.core.statemachine.ChangePlanMachine
 import com.pdig.core.statemachine.VerificationMachine
 import java.time.Instant
@@ -44,23 +48,67 @@ class PlanRepository(
         )
     }
 
+    /**
+     * Fail closed before plan creation. Scenario intent must never coerce a generic
+     * identity anchor into a phone number (or a non-payment node into a card).
+     */
+    private fun validateScenarioTarget(req: ScenarioPlanRequest) {
+        val template = ScenarioRegistry.get(req.scenarioId)
+            ?: error("scenario_not_found: ${req.scenarioId}")
+        val target = graph.nodes(includeArchived = true).firstOrNull { it.id == req.targetNodeId }
+            ?: error("scenario_target_not_found: ${req.targetNodeId}")
+
+        require(!target.archived) { "scenario_target_archived: ${req.targetNodeId}" }
+
+        template.subjectKind?.let { requiredKind ->
+            require(target.kind == requiredKind) {
+                "scenario_target_kind_mismatch: expected=$requiredKind actual=${target.kind}"
+            }
+        }
+
+        template.subjectSubtype?.let { requiredSubtype ->
+            val nodeKind = NodeKind.fromWire(target.kind)
+                ?: error("scenario_target_kind_unknown: ${target.kind}")
+            val profile = confirmedIdentityAnchorProfile(nodeKind, target.fieldsJson)
+                ?: error("scenario_target_subtype_unconfirmed: ${target.id}")
+            require(
+                profile.subtype == IdentityAnchorSubtype.fromWire(requiredSubtype),
+            ) {
+                "scenario_target_subtype_mismatch: expected=$requiredSubtype actual=${profile.subtype.wire}"
+            }
+        }
+    }
+
     /** 从 scenario 创建真实变更计划：must_change 每条生成一个显式 CHANGE 动作。 */
     fun createPlanForScenario(req: ScenarioPlanRequest): String {
         // planned 模板没有 factory，必须拒绝（ScenarioRegistry 策略 gate）
         require(ScenarioRegistry.isExecutable(req.scenarioId)) { "scenario_not_executable: ${req.scenarioId}" }
+        validateScenarioTarget(req)
         val now = Instant.now().toString()
         val planId = "plan-" + sha256Hex(req.scenarioId + "|" + req.targetNodeId + "|" + now).take(16)
         val revision = graph.graphRevision()
-        val impact = graph.impactFor(req.targetNodeId)
+        val impact = graph.impactFor(req.targetNodeId, scenarioImpactCapabilities(req.scenarioId))
+        require(graph.graphRevision() == revision) {
+            "graph_changed_during_plan_analysis"
+        }
         val mustChangeKeys = keysOfStatus(impact, ImpactTargetStatus.MUST_CHANGE)
         val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
         val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
             keysOfStatus(impact, ImpactTargetStatus.DEGRADED)
-        val actions = if (req.scenarioId == "replace_phone_number") {
+        val templateActions = if (req.scenarioId == "replace_phone_number") {
             buildReplacePhoneActions()
         } else {
             buildActionsFor(planId, impact, mustChangeKeys)
         }
+        // Phone uses a fixed Make-Before-Break DAG. Bind current must-change
+        // requirements to its first eligible CHANGE step exactly as the
+        // reference rebase rule does; this declares scope only and never marks
+        // an action complete or verified.
+        val actions = claimScenarioMustChangeKeys(
+            req.scenarioId,
+            templateActions,
+            mustChangeKeys,
+        )
         val snapshot = JsonWriter.write(
             Json.Obj(
                 listOf(
@@ -87,6 +135,13 @@ class PlanRepository(
         val readiness = computeReadiness(plan, mustChangeKeys, needsReviewKeys, snapshot)
 
         driver.transaction {
+            // Match reanalysis race safety at creation time as well. The impact
+            // snapshot, explicit must-change claims and analyzed revision must
+            // all describe the same authoritative Reality revision at the
+            // instant the plan becomes durable.
+            require(graph.graphRevision() == revision) {
+                "graph_changed_during_plan_analysis"
+            }
             driver.prepare(
                 """
                 INSERT INTO change_plans
@@ -115,13 +170,36 @@ class PlanRepository(
             .get(planId)?.str("impact_snapshot_json")
         val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
         val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
-        val current = graph.graphRevision()
-        val unresolved = if (mustChangeKeys.isEmpty()) emptyList() else {
-            val n = countUnresolvedMustChange(plan.actions, mustChangeKeys)
-            // 返回仍未解决的 key：用于 UI 明确指出"哪几条还没处理"
-            mustChangeKeys.filterIndexed { i, _ -> i >= mustChangeKeys.size - n }
+        val backupKeys = snapshotKeys(snapshot, "backupKeys")
+        val targetKeys = snapshotKeys(snapshot, "targetKeys")
+        val nodeNames = graph.nodes(true).associate { it.id to it.name }
+        val mustSet = mustChangeKeys.toSet()
+        val reviewSet = needsReviewKeys.toSet()
+        val backupSet = backupKeys.toSet()
+        val impactItems = targetKeys.distinct().map { key ->
+            val nodeId = key.substringBefore('|')
+            val capability = key.substringAfter('|', "")
+            PlanImpactItemView(
+                key = key,
+                nodeId = nodeId,
+                nodeName = nodeNames[nodeId],
+                capability = capability,
+                status = when (key) {
+                    in mustSet -> "must_change"
+                    in reviewSet -> "needs_review"
+                    in backupSet -> "backup_or_degraded"
+                    else -> "recorded"
+                },
+            )
         }
+        val current = graph.graphRevision()
+        val unresolved = unresolvedMustChangeKeys(plan.actions, mustChangeKeys)
         val readiness = computeReadiness(plan, mustChangeKeys, needsReviewKeys, snapshot)
+        val retirementScopeReady = if (plan.scenario == "replace_phone_number") {
+            phoneRetirementScopeReady(plan, mustChangeKeys, needsReviewKeys, snapshot)
+        } else {
+            null
+        }
         val targetName = plan.targetNodeId?.let { id -> graph.nodes(true).firstOrNull { it.id == id }?.name } ?: ""
         return PlanDetailView(
             id = plan.id,
@@ -142,19 +220,120 @@ class PlanRepository(
             unresolvedMustChangeKeys = unresolved,
             readiness = readiness,
             affectedServiceCount = mustChangeKeys.size + needsReviewKeys.size,
+            needsReviewKeys = needsReviewKeys,
+            backupKeys = backupKeys,
+            targetKeys = targetKeys,
+            impactItems = impactItems,
+            retirementScopeReady = retirementScopeReady,
         )
+    }
+
+    /**
+     * Re-analyze an existing non-terminal plan against the current authoritative graph.
+     *
+     * This updates only the plan's impact snapshot, analyzed revision and explicit
+     * impact-key claims. It never completes actions, verifies them, or mutates Reality.
+     */
+    fun reanalyzePlan(planId: String): PlanDetailView {
+        val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+        require(!ChangePlanMachine.isFrozen(plan.workflowState)) { "plan_frozen" }
+        val targetNodeId = plan.targetNodeId ?: throw IllegalStateException("plan_target_missing")
+        val analyzedRevision = graph.graphRevision()
+        // Reference rebase parity (PRB-001): a current non-terminal plan is
+        // already analyzed against this exact Reality revision. Reanalysis is a
+        // true no-op rather than a metadata rewrite.
+        if (!com.pdig.core.plan.isPlanStale(plan, analyzedRevision)) {
+            return planDetail(planId) ?: throw IllegalStateException("entity_not_found")
+        }
+        val impact = graph.impactFor(targetNodeId, scenarioImpactCapabilities(plan.scenario))
+        require(graph.graphRevision() == analyzedRevision) {
+            "graph_changed_during_plan_analysis"
+        }
+        val mustChangeKeys = keysOfStatus(impact, ImpactTargetStatus.MUST_CHANGE)
+        val needsReviewKeys = keysOfStatus(impact, ImpactTargetStatus.NEEDS_REVIEW)
+        val backupKeys = keysOfStatus(impact, ImpactTargetStatus.BACKUP_PATH) +
+            keysOfStatus(impact, ImpactTargetStatus.DEGRADED)
+        val snapshot = JsonWriter.write(
+            Json.Obj(
+                listOf(
+                    "mustChangeKeys" to Json.Arr(mustChangeKeys.map { Json.Str(it) }),
+                    "needsReviewKeys" to Json.Arr(needsReviewKeys.map { Json.Str(it) }),
+                    "backupKeys" to Json.Arr(backupKeys.map { Json.Str(it) }),
+                    "targetKeys" to Json.Arr(
+                        impact.targets.map { Json.Str(keyString(it.nodeId, it.capability.wire)) },
+                    ),
+                ),
+            ),
+        )
+        driver.transaction {
+            // Close the analysis -> write race window as far as this repository
+            // boundary can: do not stamp an older snapshot with the analyzed
+            // revision if Reality changed after impact analysis but before the
+            // authoritative write.
+            require(graph.graphRevision() == analyzedRevision) {
+                "graph_changed_during_plan_analysis"
+            }
+
+            // Re-read the plan inside the write transaction before touching
+            // action_items_json. Completion / verification is historical truth:
+            // a reanalysis that started from an older action snapshot must never
+            // overwrite a newer done / verified write. The write transaction
+            // serializes the live read with the update on the Android driver.
+            val livePlan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+            require(!ChangePlanMachine.isFrozen(livePlan.workflowState)) { "plan_frozen" }
+
+            // Another reanalysis may have already advanced this plan to the same
+            // (or a newer) revision while impact analysis was running. Preserve
+            // true no-op parity instead of rewriting metadata or action history.
+            if (!com.pdig.core.plan.isPlanStale(livePlan, analyzedRevision)) {
+                return@transaction
+            }
+
+            val actions = claimScenarioMustChangeKeys(
+                livePlan.scenario,
+                livePlan.actions,
+                mustChangeKeys,
+            )
+
+            // Keep the graph-revision guard adjacent to the authoritative write
+            // as well: no action merge can turn an old impact snapshot into a
+            // current one if Reality moved in the meantime.
+            require(graph.graphRevision() == analyzedRevision) {
+                "graph_changed_during_plan_analysis"
+            }
+            val now = Instant.now().toString()
+            driver.prepare(
+                """
+                UPDATE change_plans
+                   SET impact_snapshot_json = ?,
+                       last_analyzed_graph_revision = ?,
+                       action_items_json = ?,
+                       updated_at = ?
+                 WHERE id = ?
+                """.trimIndent(),
+            ).run(
+                snapshot,
+                analyzedRevision,
+                JsonWriter.write(Json.Arr(actions.map { planActionToJson(it) })),
+                now,
+                planId,
+            )
+        }
+        return planDetail(planId) ?: throw IllegalStateException("entity_not_found")
     }
 
     /** 完成动作：done=true。verification 仍为 pending —— done ≠ verified。 */
     fun completeAction(planId: String, actionId: String) {
         val now = Instant.now().toString()
         driver.transaction {
-            val current = rawWorkflowState(planId)
-            if (current != null && ChangePlanMachine.isFrozen(current)) {
+            val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+            if (ChangePlanMachine.isFrozen(plan.workflowState)) {
                 throw IllegalStateException("action_frozen")
             }
-            val actions = planDomain(planId)?.actions?.toMutableList()
-                ?: throw IllegalStateException("entity_not_found")
+            if (com.pdig.core.plan.isPlanStale(plan, graph.graphRevision())) {
+                throw IllegalStateException("plan_stale")
+            }
+            val actions = plan.actions.toMutableList()
             val idx = actions.indexOfFirst { it.id == actionId }
             if (idx < 0) throw IllegalStateException("entity_not_found")
             // v0.3.0 Action DAG gate：前置动作未完成 → 禁止完成
@@ -166,7 +345,44 @@ class PlanRepository(
                     if (!pAction.done) throw IllegalStateException("action_missing_prerequisite")
                 }
             }
-            actions[idx] = actions[idx].copy(done = true)
+            val snapshot = driver.prepare(
+                "SELECT impact_snapshot_json FROM change_plans WHERE id = ?",
+            ).get(planId)?.str("impact_snapshot_json")
+            val mustChangeKeys = snapshotKeys(snapshot, "mustChangeKeys")
+            val needsReviewKeys = snapshotKeys(snapshot, "needsReviewKeys")
+            val unresolved = unresolvedMustChangeKeys(actions, mustChangeKeys)
+            val scopeReadiness = computeReadiness(
+                plan.copy(actions = actions),
+                mustChangeKeys,
+                needsReviewKeys,
+                snapshot,
+            )
+            if (!phoneRetirementVerificationSatisfied(plan.scenario, actionId, actions)) {
+                throw IllegalStateException("verification_prerequisite_not_met")
+            }
+            if (plan.scenario == "replace_phone_number" && actionId == "rpn-change-2") {
+                if (unresolved.isNotEmpty()) {
+                    throw IllegalStateException("unresolved_must_change")
+                }
+                if (!phoneRetirementScopeReady(plan, mustChangeKeys, needsReviewKeys, snapshot)) {
+                    throw IllegalStateException("retirement_scope_not_ready")
+                }
+            }
+            // Generic scope policy runs after the destructive retirement-specific
+            // invariants so callers receive the precise fail-closed reason and no
+            // specialized safety gate can be shadowed by a generic blocker.
+            if (!planActionCompletionAllowedByScope(
+                    scopeReadiness,
+                    actions[idx],
+                    unresolved,
+                )
+            ) {
+                throw IllegalStateException("action_scope_blocked")
+            }
+            actions[idx] = actions[idx].copy(
+                done = true,
+                doneAt = actions[idx].doneAt ?: now,
+            )
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)
         }
@@ -176,12 +392,14 @@ class PlanRepository(
     fun verifyAction(planId: String, actionId: String) {
         val now = Instant.now().toString()
         driver.transaction {
-            val current = rawWorkflowState(planId)
-            if (current != null && ChangePlanMachine.isFrozen(current)) {
+            val plan = planDomain(planId) ?: throw IllegalStateException("entity_not_found")
+            if (ChangePlanMachine.isFrozen(plan.workflowState)) {
                 throw IllegalStateException("action_frozen")
             }
-            val actions = planDomain(planId)?.actions?.toMutableList()
-                ?: throw IllegalStateException("entity_not_found")
+            if (com.pdig.core.plan.isPlanStale(plan, graph.graphRevision())) {
+                throw IllegalStateException("plan_stale")
+            }
+            val actions = plan.actions.toMutableList()
             val idx = actions.indexOfFirst { it.id == actionId }
             if (idx < 0) throw IllegalStateException("entity_not_found")
             val v = actions[idx].verification
@@ -192,7 +410,10 @@ class PlanRepository(
             if (v.status.wire in terminalWires) throw IllegalStateException("illegal_state_transition")
             require(actions[idx].done) { "not_done" }
             actions[idx] = actions[idx].copy(
-                verification = v.copy(status = ActionVerificationStatus.VERIFIED),
+                verification = v.copy(
+                    status = ActionVerificationStatus.VERIFIED,
+                    verifiedAt = v.verifiedAt ?: now,
+                ),
             )
             writeActions(planId, actions, now)
             syncPlanProgress(planId, actions, now)
@@ -234,6 +455,28 @@ class PlanRepository(
             .run(JsonWriter.write(Json.Arr(actions.map { planActionToJson(it) })), now, planId)
     }
 
+    private fun phoneRetirementScopeReady(
+        plan: com.pdig.core.domain.ChangePlan,
+        mustChangeKeys: List<String>,
+        needsReviewKeys: List<String>,
+        snapshot: String?,
+    ): Boolean {
+        if (plan.scenario != "replace_phone_number") return false
+        if (unresolvedMustChangeKeys(plan.actions, mustChangeKeys).isNotEmpty()) return false
+        val retirementIndex = plan.actions.indexOfFirst { it.id == "rpn-change-2" }
+        if (retirementIndex < 0) return false
+        val projectedActions = plan.actions.toMutableList().also {
+            it[retirementIndex] = it[retirementIndex].copy(done = true)
+        }
+        val projectedPlan = plan.copy(actions = projectedActions)
+        return computeReadiness(
+            projectedPlan,
+            mustChangeKeys,
+            needsReviewKeys,
+            snapshot,
+        ) == com.pdig.core.generated.PlanReadiness.READY_WITH_KNOWN_SCOPE
+    }
+
     private fun computeReadiness(
         plan: com.pdig.core.domain.ChangePlan,
         mustChangeKeys: List<String>,
@@ -266,7 +509,7 @@ class PlanRepository(
                 unresolvedCandidates = candidates,
                 pendingRelevantProposals = relevantProposals,
                 staleRelevantDependencies = staleRelevant,
-                unfinishedChangeActions = plan.actions.count { !it.done },
+                unfinishedChangeActions = pendingReadinessChangeActionCount(plan.actions),
             ),
         )
     }

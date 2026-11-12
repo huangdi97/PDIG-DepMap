@@ -4,6 +4,7 @@ import persistenceHostTest from './PersistenceHost.test';
 import repositoryHostTest from './RepositoryHost.test';
 import importPipelineHostTest from './ImportPipelineHost.test';
 import coreJourneyHostTest from './CoreJourneyHost.test';
+import identityAnchorProfileHostTest from './IdentityAnchorProfileHost.test';
 export default function testsuite() {
   conformanceHostTest();
   domainHostTest();
@@ -11,4 +12,5 @@ export default function testsuite() {
   repositoryHostTest();
   importPipelineHostTest();
   coreJourneyHostTest();
+  identityAnchorProfileHostTest();
 }

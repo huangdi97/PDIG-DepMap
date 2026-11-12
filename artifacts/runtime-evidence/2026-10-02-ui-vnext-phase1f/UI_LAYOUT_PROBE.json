@@ -1,0 +1,33 @@
+{
+  "spec": "UI_LAYOUT_PROBE.json (v1) — offscreen deterministic render; geometry per LAYOUT_CONTRACT",
+  "entries": [
+    { "testId": "pdig.card.detail.identity", "x": "24", "y": "96", "width": "600", "height": "400", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.card.detail.twoColumns", "check": "下区为左右两栏（绑定服务/备用支付 | 影响与风险/变更历史）", "passed": "true" },
+    { "testId": "pdig.customization.preview.width", "check": "Studio preview 660-740px @1920", "measured": "668.44806", "minRequired": "660.0", "maxAllowed": "740.0", "passed": "true" },
+    { "testId": "pdig.customization.inspector", "x": "0", "y": "0", "width": "0", "height": "0", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.customization.inspector.defaultOpen", "check": "inspector 默认展开「材质」分组（非全折叠）", "passed": "true" },
+    { "testId": "pdig.customization.preview.width", "check": "Studio preview 660-740px @1920", "measured": "668.44806", "minRequired": "660.0", "maxAllowed": "740.0", "passed": "true" },
+    { "testId": "pdig.customization.inspector", "x": "0", "y": "0", "width": "0", "height": "0", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.customization.inspector.defaultOpen", "check": "inspector 默认展开「材质」分组（非全折叠）", "passed": "true" },
+    { "testId": "pdig.number.detail.dialCode", "check": "区号 +86 为最强视觉元素（36sp MajorNumber）", "passed": "true" },
+    { "testId": "pdig.number.detail.surfaceAspect", "check": "身份面非 1.586 银行卡比例（开放身份面板）", "passed": "true" },
+    { "testId": "pdig.change.scene", "x": "24", "y": "320", "width": "1656", "height": "430", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.change.scene.height", "check": "scene height 420-480px @1920", "measured": "430.0", "minRequired": "420.0", "maxAllowed": "480.0", "passed": "true" },
+    { "testId": "pdig.change.oldNew.width", "check": "OLD/NEW identity 250-300px @1920", "measured": "252.6", "minRequired": "250.0", "maxAllowed": "300.0", "passed": "true" },
+    { "testId": "pdig.change.node.width", "check": "service node 130-170px @1920", "measured": "143.14", "minRequired": "130.0", "maxAllowed": "170.0", "passed": "true" },
+    { "testId": "pdig.change.path.primary", "check": "path primary 2.5px", "measured": "2.5", "minRequired": "2.5", "maxAllowed": "2.5", "passed": "true" },
+    { "testId": "pdig.change.path.secondary", "check": "path secondary 2.0px", "measured": "2.0", "minRequired": "2.0", "maxAllowed": "2.0", "passed": "true" },
+    { "testId": "pdig.change.path.ghost", "check": "path ghost 1.5px", "measured": "1.5", "minRequired": "1.5", "maxAllowed": "1.5", "passed": "true" },
+    { "testId": "pdig.change.scene", "x": "24", "y": "320", "width": "1656", "height": "430", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.change.scene.height", "check": "scene height 420-480px @1920", "measured": "430.0", "minRequired": "420.0", "maxAllowed": "480.0", "passed": "true" },
+    { "testId": "pdig.change.oldNew.width", "check": "OLD/NEW identity 250-300px @1920", "measured": "252.6", "minRequired": "250.0", "maxAllowed": "300.0", "passed": "true" },
+    { "testId": "pdig.change.node.width", "check": "service node 130-170px @1920", "measured": "143.14", "minRequired": "130.0", "maxAllowed": "170.0", "passed": "true" },
+    { "testId": "pdig.change.path.primary", "check": "path primary 2.5px", "measured": "2.5", "minRequired": "2.5", "maxAllowed": "2.5", "passed": "true" },
+    { "testId": "pdig.change.path.secondary", "check": "path secondary 2.0px", "measured": "2.0", "minRequired": "2.0", "maxAllowed": "2.0", "passed": "true" },
+    { "testId": "pdig.change.path.ghost", "check": "path ghost 1.5px", "measured": "1.5", "minRequired": "1.5", "maxAllowed": "1.5", "passed": "true" },
+    { "testId": "pdig.empty.numbers-empty", "check": "紧凑空态（max 600px 组合，非 1600px 边框面板）", "copyTitle": "还没有记录手机号", "passed": "true" },
+    { "testId": "pdig.empty.now-empty", "check": "紧凑空态（max 600px 组合，非 1600px 边框面板）", "copyTitle": "目前没有需要立即处理的已确认事项", "passed": "true" },
+    { "testId": "pdig.empty.region-empty", "check": "紧凑空态（max 600px 组合，非 1600px 边框面板）", "copyTitle": "该地区暂无已确认的卡片或号码", "passed": "true" },
+    { "testId": "pdig.empty.card-detail-empty", "check": "紧凑空态（max 600px 组合，非 1600px 边框面板）", "copyTitle": "尚未确认绑定服务", "passed": "true" }
+  ]
+}

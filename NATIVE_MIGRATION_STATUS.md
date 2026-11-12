@@ -2,6 +2,70 @@
 
 > 持续更新。格式：PHASE / ANDROID / HARMONY / IOS / CONFORMANCE / BLOCKERS / NEXT。
 > 状态枚举：`PASS` `FAIL` `BLOCKED` `NOT_RUN` `PARTIAL_WITH_REPORT`
+>
+> 2026-11-11 — ANDROID_TABLET_FONT15_EVIDENCE_LOOP（evidence + collector only，无 UI/domain 变更）：
+> `PostFreezeEvidenceSeedTest.seedPhoneMakeBeforeBreakJourney` 现在断言并打印「每条 must-change 必须被某个 CHANGE 步骤显式声明」；
+> 实测 seed 计划在创建时就已认领（`rpn-change-1.claims = <account>|authentication/<service>|recovery`），
+> `readiness = blocked` 属「认领动作未完成」的正常态，此前"未认领导致 App 不渲染 CTA"的因果不成立。
+> `postfreeze_closure_capture.ensure_framed` 由写死 `420..2050` 改为取屏上 `scrollable=true` 最大节点的真实上下沿
+> （`content_window()`），目标须整体落在内容窗口内（24px 边距）才算取景，消除贴底 3px 残条造成的假红。
+> LOCAL_RUNTIME（HEAD `5caa9e16`，安装 APK sha256 `1a49c16f…`，每 job 均 `pm clear` + 重新 seed，`fontScaleSource = device`）：
+> tablet font-1.5 `19/19 PASS ×3`（`assertionsMissing = 0`，其中一轮在整包重装后重跑）、tablet font-1.0 `19/19 PASS`、
+> phone font-1.0 `19/19 PASS`。AVD 核实：`pdig_tablet_api36.ini` 的 `path.rel` 指向 `avd\pdig_api36.avd`，
+> 平板/手机在本机只差 `wm size` + `wm density` 覆盖，无法并行启动（同一 AVD）。
+> **CI 口径复跑（`tablet-font15`，HEAD `c892135e`）**：按 evidence workflow 的两把 key 做 clean 构建
+> （BuildConfig `vnext` + `cutover=true`，APK sha256 `c2a91fee…`），以 `PDIG_PRODUCTION_DEFAULT=true` 默认路由跑
+> `prod-journey`(19 张) + `prod-stale`(3 张)，再用 CI 脚本自带校验器本地复核：
+> `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`、`POSTFREEZE_LAYOUT_BOUNDS=PASS`（safe_bottom = 内容容器真实底部）。
+> 该 workflow 的 push 触发只认 `feat/android-ui-vnext-translation`，`fix/*` 不会触发；本轮用 `workflow_dispatch` 从本分支触发。
+> **CI 实跑（HEAD `84c6211c`，同一 commit 连跑两次）**：run `43156203647`、run `43158389698` 均 **4/4 job success**；
+> 两次 `tablet-font15` 均 `measured_font_scale=1.5` + 两个 seed `OK (1 test)` + `POSTFREEZE_EVIDENCE_MANIFEST=PASS entries=22`
+> + `POSTFREEZE_LAYOUT_BOUNDS=PASS`（APK `5b99073f…` / `232988cc…`）。基线对照：`42818507855` 仅 tablet-font15 失败、
+> `42970170715` 仅 phone-font15 失败。issue #9 的"同 commit 两次全绿"条件已满足，`tablet-font15` 不再是 NOT_RUN。
+> **Gate 更新（owner 2026-11-12 批准）：`ANDROID_REFERENCE_FREEZE = PASS`**（技术取证门禁，范围 = Production
+> post-freeze evidence 面，每腿 22 条；issue #9 关闭）。不包含 `HUMAN_VISUAL_ACCEPTANCE`（仍 `NOT_RUN`）、
+> `PIXEL_REFERENCE_LIMITATION`、`PRODUCTION_CUTOVER`（仍 HOLD）、`STORE_RELEASE = NOT_READY`；HARMONY/IOS 不变。
+>
+> 2026-10-05 — ANDROID_UI_VNEXT_FOCUSED_PHONE_LIGHT_REFERENCE_CLOSURE（presentation-only）：
+> Human-selected Android 亮色参考已入仓并完成进一步原生 Compose translation。最终像素/交互呈现
+> production-UI checkpoint = `47f6b9c6f592b21bd941092e7855433459a2723f`；后续仅注释/文档。
+> Phone Now 保留大 Globe 世界观入口；Infrastructure 改为 8 类管理 Hub + 小型地区 Globe；
+> compact child screens 不再常驻 Infrastructure sibling strip；Phone 顶栏改为 Now 品牌 / 其他页面
+> 上下文标题；Cards/Numbers/Change/Studio 的 visual controls 与 48dp hit target 解耦；Medium/Expanded
+> 自适应层级保持。新增/更新 Android presentation contracts 防回退。
+> **Domain / Canonical / fixtures / conformance / `.depmap` / Native parity 均未改变。**
+> 当前 `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`，
+> `ANDROID_REFERENCE_FREEZE = HOLD`，iOS/Harmony UI vNext 继续 HOLD。
+
+> 2026-10-05 — ANDROID_UI_VNEXT_HUMAN_REVIEW_ADAPTIVE_CRAFT_CLOSURE（presentation-only）：
+> Human 已直接审查 source-complete Phone/Tablet runtime pixels；旧 pack source 为 `4e43511...`。
+> Android presentation source 后续收口至 `77c7b3692c9b3327331f52af522a2bc65ecf165e`，包含
+> Region/back、Globe evidence readiness、Change truth copy、wide Overview、primary-vs-secondary
+> navigation hierarchy、compact top chrome 与 compact Studio visual gallery。新增 adaptive
+> instrumentation contracts。**Production Domain/Canonical/Conformance/三端 Native Migration
+> parity 均未改。** 当前 `ANDROID_RUNTIME_EVIDENCE_FOR_CURRENT_HEAD = REQUIRED`；
+> `ANDROID_REFERENCE_FREEZE = HOLD`，iOS/Harmony UI vNext 继续 HOLD。
+
+> 2026-10-04 — ANDROID_UI_VNEXT_SOURCE_COMPLETE_RUNTIME_VALIDATION（presentation 层演示壳，
+> 非生产数据绑定）：本地执行/验证 Agent 在 `4e43511` 完成 source-complete 运行时验证与证据
+> 收口（BUILD/RUN/TEST/CAPTURE/EVIDENCE ONLY）。Production 三端原生迁移状态不受影响、不做
+> Parity 变更；Domain/Canonical 零改动（core/spec/fixtures/conformance 未动）；`npm run check`
+> 全绿（487 tests）；Android JVM unit 98/98；真实 API36 phone+tablet runtime 证据 READY
+> （48 屏 + 10 空态 + probes + manifests）。已知待收口：2 条既有 a11y 契约期望串漂移
+> （`ANDROID_UI_VNEXT_RUNTIME_VALIDATION = BLOCKED`）。三端 Native Migration 表格保持原值。
+>
+> 2026-10-03 — ANDROID_UI_VNEXT_HUMAN_FIX（presentation 层演示壳定向修复轮，非生产数据绑定）：
+> 本轮为 Human Review 发现缺口的 Android 表现层修复 + 真实 API36 phone/tablet runtime
+> evidence 重生成（phone 14 + tablet 14，commit 0a3a4b6）。Production 三端原生迁移状态
+> 不受影响、不做 Parity 变更；Domain/Canonical 零改动（core/spec/fixtures/conformance
+> 未动）；`npm run check` 全绿（487 tests）；Android instrumentation phone+tablet 26/26
+> PASS。三端 Native Migration 相关表格保持原值。
+>
+> 2026-10-02 — ANDROID_UI_VNEXT_TRANSLATION（presentation 层演示壳，非生产数据绑定）：
+> 本轮为冻结 Desktop Reference 的 Android 原生翻译（`com.pdig.uivnext.*` 演示壳，
+> Reference Fixture Mode）。Production 三端原生迁移状态不受影响、不做 Parity 变更：
+> Android 侧仅新增 `pdig_tablet_api36` AVD（本机 android-36 系统镜像）用于证据；
+> Domain/Canonical 零改动；`npm run check` 全绿。三端 Native Migration 相关表格保持原值。
 
 > 更新：2026-10-04（**iOS N4 —— PDIGApp SwiftUI 产品 App（v0.3.0）落地**）
 >

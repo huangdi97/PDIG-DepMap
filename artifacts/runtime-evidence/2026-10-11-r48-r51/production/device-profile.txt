@@ -1,0 +1,6 @@
+source_sha=
+36
+Physical size: 2560x1600
+Override size: 1080x2400
+Physical density: 320
+Override density: 420

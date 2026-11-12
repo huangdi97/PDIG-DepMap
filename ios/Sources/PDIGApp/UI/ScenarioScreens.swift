@@ -1,7 +1,7 @@
-// 场景流程（task #8）。步骤：场景设置 → 查看影响 → 查看恢复路径 →
+// 场景流程（Quiet Infrastructure）。步骤：场景设置 → 查看影响 → 查看恢复路径 →
 // 查看共享故障点 → 变更计划 → 执行变更 → 验证 → 完成。
-// replace_phone_number 显示 make-before-break 语言（必须先完成/完成后才能继续/
-// 等待验证/可以并行处理/验证后才能移除旧路径）。
+// 顶部为 Continuity Rail 步骤轨道：已完成 ✓ / 当前 / 待验证 / 受阻（明文原因）/ 未来。
+// make-before-break 语言保留（必须先完成/完成后才能继续/等待验证/可以并行处理/验证后才能移除旧路径）。
 
 import SwiftUI
 import PDIGCore
@@ -51,17 +51,62 @@ struct ScenarioFlowScreen: View {
         ScenarioFlow.catalog().first { $0.id == scenarioId }?.title ?? "场景"
     }
 
+    // MARK: - Continuity Rail
+
+    private var stepTitles: [String] {
+        [
+            CopyZh.scenarioSetup,
+            CopyZh.reviewImpact,
+            CopyZh.reviewRecoveryPaths,
+            CopyZh.reviewFailureDomains,
+            CopyZh.planChangePlan,
+            CopyZh.planExecute,
+            CopyZh.planPhaseVerify,
+            CopyZh.scenarioComplete,
+        ]
+    }
+
+    /// 轨道状态：已完成 ✓（success）/ 当前（primary）/ 待验证（info）/
+    /// 受阻（danger，含明文原因）/ 未来（secondary 灰）。
+    private var railStates: [RailStepState] {
+        let result = currentPlan.flatMap { scenarioResult(for: $0) }
+        let gateBlocked = result?.makeBeforeBreak?.status == .blocked
+        return (0..<8).map { i in
+            if i < step { return .done }
+            if i == step { return .current(index: i) }
+            if i == 5 && gateBlocked { return .blocked }
+            if i == 6 { return .verifying }
+            return .future
+        }
+    }
+
+    /// 闸门明文原因：新路径未验证 → 停用旧手机号被禁用并说明原因（绝不只禁用）。
+    private var gateReason: String? {
+        guard isIdentity, let plan = currentPlan,
+              scenarioResult(for: plan)?.makeBeforeBreak?.status == .blocked else { return nil }
+        return CopyZh.gateRetireBeforeVerified
+    }
+
     private var stepIndicator: some View {
-        HStack(spacing: 4) {
-            ForEach(0..<8, id: \.self) { i in
-                Capsule()
-                    .fill(i <= step ? Color.accentColor : Color.gray.opacity(0.3))
-                    .frame(height: 4)
+        VStack(alignment: .leading, spacing: 6) {
+            StepRail(steps: railStates)
+            HStack(spacing: 6) {
+                Text("\(step + 1) / 8")
+                    .font(PdigTheme.Font.label)
+                    .foregroundStyle(PdigTheme.Color.textTertiary)
+                Text(stepTitles[step])
+                    .font(PdigTheme.Font.secondary)
+                    .foregroundStyle(PdigTheme.Color.textSecondary)
+            }
+            if let reason = gateReason {
+                NoticeBanner(icon: "exclamationmark.triangle.fill", text: reason, color: PdigTheme.Color.danger)
             }
         }
         .padding(.horizontal)
         .padding(.bottom, 6)
     }
+
+    // MARK: - steps
 
     private var setupStep: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -73,21 +118,21 @@ struct ScenarioFlowScreen: View {
                     Button {
                         targetNodeId = n.id
                     } label: {
-                        HStack {
-                            Text(n.name)
-                            Spacer()
-                            if targetNodeId == n.id {
-                                Image(systemName: "checkmark.circle.fill").foregroundStyle(.tint)
+                        PdigCard {
+                            HStack {
+                                Text(n.name)
+                                Spacer()
+                                if targetNodeId == n.id {
+                                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.tint)
+                                }
                             }
                         }
-                        .padding(10)
-                        .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                     }
                     .buttonStyle(.plain)
                 }
             }
             if let errorText = errorText {
-                Text(errorText).font(.footnote).foregroundStyle(.red)
+                NoticeBanner(icon: "exclamationmark.triangle.fill", text: errorText, color: PdigTheme.Color.danger)
             }
             Button {
                 startPlan()
@@ -106,8 +151,11 @@ struct ScenarioFlowScreen: View {
             planId = plan.id
             session.refresh()
             step = 1
-        } catch let e {
-            errorText = "\(e)"
+        } catch ScenarioFlowError.noExecutableTarget {
+            errorText = CopyZh.actionFailed
+        } catch {
+            // 原始 Swift Error 禁止直接上屏：统一人话 + 重试入口。
+            errorText = CopyZh.actionFailed
         }
     }
 
@@ -139,15 +187,14 @@ struct ScenarioFlowScreen: View {
                     Text("没有已确认的恢复/验证路径。").foregroundStyle(.secondary)
                 } else {
                     ForEach(paths, id: \.id) { p in
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("\(session.snapshot.name(of: p.from)) → \(session.snapshot.name(of: p.to))")
-                                .font(.body)
-                            Text("\(CopyZh.relation(p.relation.wire)) · \(CopyZh.capability(p.capability.wire))")
-                                .font(.caption).foregroundStyle(.secondary)
+                        PdigCard {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("\(session.snapshot.name(of: p.from)) → \(session.snapshot.name(of: p.to))")
+                                    .font(.body)
+                                Text("\(CopyZh.relation(p.relation.wire)) · \(CopyZh.capability(p.capability.wire))")
+                                    .font(.caption).foregroundStyle(.secondary)
+                            }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(10)
-                        .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                     }
                 }
                 if isIdentity {
@@ -169,7 +216,8 @@ struct ScenarioFlowScreen: View {
             row(CopyZh.retireOldPhone + "，" + CopyZh.verifyBeforeRemove)
         }
         .padding(10)
-        .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PdigTheme.Color.warning.opacity(0.08), in: RoundedRectangle(cornerRadius: PdigTheme.Radius.md, style: .continuous))
     }
 
     private func row(_ text: String) -> some View {
@@ -201,14 +249,17 @@ struct ScenarioFlowScreen: View {
 
     private var changePlanStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("变更计划").font(.headline)
+            Text(CopyZh.planChangePlan).font(.headline)
             if let plan = currentPlan {
                 let view = planView(for: plan)
                 Text("状态：\(view.workflowText)").font(.body)
                 Text(view.readinessText).font(.body).foregroundStyle(.secondary)
                 if let result = scenarioResult(for: plan), let mbb = result.makeBeforeBreak {
-                    Text(mbb.status == .blocked ? CopyZh.waitingVerification : CopyZh.newPathVerified)
-                        .font(.footnote).foregroundStyle(mbb.status == .blocked ? .orange : .green)
+                    NoticeBanner(
+                        icon: mbb.status == .blocked ? "exclamationmark.triangle.fill" : "checkmark.circle.fill",
+                        text: mbb.status == .blocked ? CopyZh.waitingVerification : CopyZh.newPathVerified,
+                        color: mbb.status == .blocked ? PdigTheme.Color.warning : PdigTheme.Color.success
+                    )
                 }
             }
             Button { step = 5 } label: { Text(CopyZh.next).frame(maxWidth: .infinity).padding(.vertical, 8) }
@@ -218,22 +269,22 @@ struct ScenarioFlowScreen: View {
 
     private var actionStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("执行变更").font(.headline)
+            Text(CopyZh.planExecute).font(.headline)
             if let plan = currentPlan {
                 let view = planView(for: plan)
                 ForEach(view.actions) { a in
-                    HStack(alignment: .top) {
-                        Image(systemName: a.done ? "checkmark.circle.fill" : "circle")
-                            .foregroundStyle(a.done ? .green : .secondary)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(a.title).font(.body)
-                            Text(a.prerequisiteText).font(.caption).foregroundStyle(.orange)
-                            Text(a.verificationStatusText).font(.caption).foregroundStyle(.secondary)
+                    PdigCard {
+                        HStack(alignment: .top) {
+                            Image(systemName: a.done ? "checkmark.circle.fill" : "circle")
+                                .foregroundStyle(a.done ? PdigTheme.Color.success : PdigTheme.Color.textSecondary)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(a.title).font(.body)
+                                Text(a.prerequisiteText).font(.caption).foregroundStyle(PdigTheme.Color.warning)
+                                Text(a.verificationStatusText).font(.caption).foregroundStyle(.secondary)
+                            }
+                            Spacer()
                         }
-                        Spacer()
                     }
-                    .padding(10)
-                    .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                 }
             }
             Button { step = 6 } label: { Text(CopyZh.next).frame(maxWidth: .infinity).padding(.vertical, 8) }
@@ -243,18 +294,18 @@ struct ScenarioFlowScreen: View {
 
     private var verificationStep: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("验证").font(.headline)
-            Text(CopyZh.verificationNewPathIsNotVerified).font(.footnote).foregroundStyle(.orange)
+            Text(CopyZh.planPhaseVerify).font(.headline)
+            NoticeBanner(icon: "clock.fill", text: CopyZh.verificationNewPathIsNotVerified, color: PdigTheme.Color.warning)
             if let plan = currentPlan {
                 let view = planView(for: plan)
                 ForEach(view.actions.filter { $0.verificationStatusText != CopyZh.verificationNotRequired }) { a in
-                    HStack {
-                        Text(a.title).font(.body)
-                        Spacer()
-                        Text(a.verificationStatusText).font(.caption).foregroundStyle(.secondary)
+                    PdigCard {
+                        HStack {
+                            Text(a.title).font(.body)
+                            Spacer()
+                            Text(a.verificationStatusText).font(.caption).foregroundStyle(.secondary)
+                        }
                     }
-                    .padding(8)
-                    .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
                 }
             }
             Button { step = 7 } label: { Text(CopyZh.next).frame(maxWidth: .infinity).padding(.vertical, 8) }
@@ -264,7 +315,7 @@ struct ScenarioFlowScreen: View {
 
     private var completionStep: some View {
         VStack(spacing: 16) {
-            Image(systemName: "checkmark.seal.fill").font(.system(size: 48)).foregroundStyle(.green)
+            Image(systemName: "checkmark.seal.fill").font(.system(size: 48)).foregroundStyle(PdigTheme.Color.success)
             Text(CopyZh.scenarioComplete).font(.title2.bold())
             Text("回到首页查看" + CopyZh.homeNeedsAction + "。").foregroundStyle(.secondary)
             Button {
@@ -308,15 +359,16 @@ struct ScenarioFlowScreen: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("顺序闸门").font(.subheadline.weight(.semibold))
             if let reason = result.temporal?.retireBlockedReason {
-                Text(reason).font(.footnote).foregroundStyle(.orange)
+                Text(reason).font(.footnote).foregroundStyle(PdigTheme.Color.warning)
             }
             if let mbb = result.makeBeforeBreak {
                 Text(mbb.status == .blocked ? CopyZh.verifyBeforeRemove : CopyZh.oldPathRetired)
                     .font(.footnote)
-                    .foregroundStyle(mbb.status == .blocked ? .orange : .green)
+                    .foregroundStyle(mbb.status == .blocked ? PdigTheme.Color.warning : PdigTheme.Color.success)
             }
         }
         .padding(10)
-        .background(Color.orange.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(PdigTheme.Color.warning.opacity(0.08), in: RoundedRectangle(cornerRadius: PdigTheme.Radius.md, style: .continuous))
     }
 }

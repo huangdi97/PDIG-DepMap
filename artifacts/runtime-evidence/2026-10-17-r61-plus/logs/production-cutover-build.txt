@@ -1,0 +1,78 @@
+
+> Configure project :app
+WARNING: The option setting 'android.overridePathCheck=true' is experimental.
+The current default is 'false'.
+
+> Task :repos:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :repos:processResources NO-SOURCE
+> Task :core:compileKotlin UP-TO-DATE
+> Task :core:compileJava NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :repos:compileKotlin UP-TO-DATE
+> Task :repos:compileJava NO-SOURCE
+> Task :repos:classes UP-TO-DATE
+> Task :repos:jar UP-TO-DATE
+> Task :app:clean
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preProductionDebugBuild UP-TO-DATE
+> Task :app:mergeProductionDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateProductionDebugBuildConfig
+> Task :app:generateProductionDebugResValues FROM-CACHE
+> Task :app:mapProductionDebugSourceSetPaths
+> Task :app:generateProductionDebugResources FROM-CACHE
+> Task :app:checkProductionDebugAarMetadata
+> Task :app:mergeProductionDebugResources FROM-CACHE
+> Task :app:packageProductionDebugResources FROM-CACHE
+> Task :app:parseProductionDebugLocalResources FROM-CACHE
+> Task :app:createProductionDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksProductionDebug FROM-CACHE
+> Task :app:processProductionDebugMainManifest FROM-CACHE
+> Task :app:processProductionDebugManifest FROM-CACHE
+> Task :app:processProductionDebugManifestForPackage FROM-CACHE
+> Task :app:processProductionDebugResources FROM-CACHE
+> Task :app:javaPreCompileProductionDebug FROM-CACHE
+> Task :app:mergeProductionDebugShaders
+> Task :app:compileProductionDebugShaders NO-SOURCE
+> Task :app:generateProductionDebugAssets UP-TO-DATE
+> Task :app:mergeProductionDebugAssets
+> Task :app:compressProductionDebugAssets FROM-CACHE
+> Task :app:desugarProductionDebugFileDependencies FROM-CACHE
+> Task :app:mergeProductionDebugStartupProfile UP-TO-DATE
+> Task :app:mergeProductionDebugJniLibFolders
+> Task :app:validateSigningProductionDebug
+> Task :app:checkProductionDebugDuplicateClasses
+> Task :app:writeProductionDebugAppMetadata
+> Task :app:mergeProductionDebugNativeLibs
+> Task :app:mergeExtDexProductionDebug FROM-CACHE
+> Task :app:mergeLibDexProductionDebug FROM-CACHE
+> Task :app:writeProductionDebugSigningConfigVersions
+> Task :app:stripProductionDebugDebugSymbols
+> Task :app:compileProductionDebugKotlin
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/NavigationModel.kt:35:44 '@property:Deprecated(...) val Icons.Filled.List: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.List.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/ProductionVNextShell.kt:132:42 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/ProductionVNextShell.kt:654:35 Condition is always 'true'.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextNavKit.kt:102:56 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextNavKit.kt:102:92 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/VNextShell.kt:123:42 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowLeft: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowLeft.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/components/VNextKit.kt:130:31 '@property:Deprecated(...) val Icons.Filled.ArrowForward: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowForward.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R10MeScreen.kt:310:27 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/r9/R10TopBar.kt:47:43 '@property:Deprecated(...) val Icons.Filled.ArrowBack: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.ArrowBack.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R19MeWorkspace.kt:347:50 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+w: file:///E:/AI/号卡管理/android/app/src/main/kotlin/com/pdig/uivnext/ui/screens/R19MeWorkspace.kt:544:30 '@property:Deprecated(...) val Icons.Filled.KeyboardArrowRight: ImageVector' is deprecated. Use the AutoMirrored version at Icons.AutoMirrored.Filled.KeyboardArrowRight.
+
+> Task :app:compileProductionDebugJavaWithJavac
+> Task :app:dexBuilderProductionDebug
+> Task :app:mergeProductionDebugGlobalSynthetics FROM-CACHE
+> Task :app:processProductionDebugJavaRes
+> Task :app:mergeProjectDexProductionDebug
+> Task :app:mergeProductionDebugJavaResource
+> Task :app:packageProductionDebug
+> Task :app:createProductionDebugApkListingFileRedirect
+> Task :app:assembleProductionDebug
+
+BUILD SUCCESSFUL in 1m
+43 actionable tasks: 22 executed, 16 from cache, 5 up-to-date

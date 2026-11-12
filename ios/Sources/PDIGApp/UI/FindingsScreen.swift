@@ -1,5 +1,7 @@
-// Findings 屏（task #4）：薄弱点列表 + 六问详情。
-// 六问：发现了什么 / 为什么 / 基于什么确认 / 还不知道什么 / 可能影响什么 / 下一步建议。
+// Findings 屏（薄弱点）+ 六问详情。
+// 每条 finding：标题（what）+ 一句人话 + StatusBadge（icon+label+color 三通道）；
+// 展开（详情屏）：是什么 / 为什么 / 基于什么确认 / 还不知道什么 / 可能影响什么 / 下一步建议。
+// 语义：unknown ≠ required；不得把"不确定"渲染成"必须处理"。
 
 import SwiftUI
 import PDIGCore
@@ -11,7 +13,7 @@ struct FindingsScreen: View {
         FindingsViewModel.findings(FindingsInput(
             snapshot: session.snapshot,
             pendingVerifications: pendingVerifications(),
-            nowIso: "2030-01-15T00:00:00+00:00"
+            nowIso: PdigClock.nowIso()
         ))
     }
 
@@ -20,25 +22,28 @@ struct FindingsScreen: View {
             AppTopBar(title: CopyZh.findingsTitle) { session.pop() }
             ScrollView {
                 if findings.isEmpty {
-                    Text(CopyZh.emptyTitle).foregroundStyle(.secondary).padding(.top, 64)
+                    EmptyState(
+                        icon: "checkmark.shield",
+                        title: "没有发现薄弱点",
+                        message: "当前基础设施没有检测到需要处理的薄弱点。发现新问题时会出现在这里。"
+                    )
                 } else {
                     VStack(alignment: .leading, spacing: 12) {
                         ForEach(findings) { f in
                             Button {
                                 session.push(.finding(f.id))
                             } label: {
-                                HStack {
-                                    Image(systemName: icon(for: f.kind))
-                                        .foregroundStyle(color(for: f.kind))
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(f.title).font(.body.weight(.semibold))
-                                        Text(f.what).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                PdigCard {
+                                    HStack(alignment: .top, spacing: 10) {
+                                        StatusBadge(badgeKind(for: f.kind))
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(f.title).font(.body.weight(.semibold))
+                                            Text(f.what).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+                                        }
+                                        Spacer()
+                                        Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
                                     }
-                                    Spacer()
-                                    Image(systemName: "chevron.right").font(.caption).foregroundStyle(.tertiary)
                                 }
-                                .padding(10)
-                                .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                             }
                             .buttonStyle(.plain)
                         }
@@ -57,24 +62,12 @@ struct FindingsScreen: View {
             .map { $0.id }
     }
 
-    private func icon(for kind: FindingItem.Kind) -> String {
+    private func badgeKind(for kind: FindingItem.Kind) -> StatusKind {
         switch kind {
-        case .singlePointOfFailure: return "1.circle"
-        case .sharedFailureDomain: return "square.stack"
-        case .recoveryCycle: return "arrow.triangle.2.circlepath"
-        case .unconfirmedFallback: return "questionmark.circle"
-        case .staleRecoveryInformation: return "clock.badge.exclamationmark"
-        case .unknownCriticalPath: return "exclamationmark.triangle"
-        case .pendingVerification: return "checkmark.circle.badge.questionmark"
-        }
-    }
-
-    private func color(for kind: FindingItem.Kind) -> Color {
-        switch kind {
-        case .singlePointOfFailure, .recoveryCycle: return .red
-        case .sharedFailureDomain: return .orange
-        case .pendingVerification: return .yellow
-        default: return .secondary
+        case .singlePointOfFailure, .recoveryCycle: return .blocked
+        case .sharedFailureDomain, .staleRecoveryInformation: return .review
+        case .unconfirmedFallback, .unknownCriticalPath: return .unknown
+        case .pendingVerification: return .verifying
         }
     }
 }
@@ -87,7 +80,7 @@ struct FindingDetailScreen: View {
         FindingsViewModel.findings(FindingsInput(
             snapshot: session.snapshot,
             pendingVerifications: [],
-            nowIso: "2030-01-15T00:00:00+00:00"
+            nowIso: PdigClock.nowIso()
         )).first { $0.id == findingId }
     }
 
@@ -97,7 +90,7 @@ struct FindingDetailScreen: View {
             if let f = finding {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text(f.title).font(.title2.bold())
+                        Text(f.title).font(PdigTheme.Font.pageTitle)
                         detailRow(CopyZh.findingWhat, f.what)
                         detailRow(CopyZh.findingWhy, f.why)
                         detailRow(CopyZh.findingConfirmedBasis, f.confirmedBasis)
@@ -123,12 +116,11 @@ struct FindingDetailScreen: View {
     }
 
     private func detailRow(_ title: String, _ body: String) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.subheadline.weight(.semibold))
-            Text(body).font(.body).foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 6) {
+            SectionHeader(title)
+            PdigCard {
+                Text(body).font(.body).foregroundStyle(.secondary)
+            }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(10)
-        .background(Color.gray.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
     }
 }

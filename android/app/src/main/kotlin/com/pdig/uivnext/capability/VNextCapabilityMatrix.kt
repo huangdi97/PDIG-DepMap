@@ -1,0 +1,162 @@
+package com.pdig.uivnext.capability
+
+/**
+ * UI vNext capability / authority matrix.
+ *
+ * Product design, reference visibility and production mutation authority are
+ * intentionally different axes. A screen may be valid as a read-only reference
+ * while execution remains forbidden.
+ */
+internal enum class VNextCapability {
+    FILE_IMPORT,
+    MANUAL_CREATE,
+    MANUAL_RELATIONSHIP,
+    HUMAN_REVIEW,
+    CHANGE_PHONE,
+    CHANGE_PAYMENT_CARD,
+    DEVICE_CONTINUITY,
+    DIGITAL_RESOURCE_CONTINUITY,
+    TRUSTED_HANDOFF,
+    LIFECYCLE_PERSISTENCE,
+    REGION_FACT,
+    IDENTITY_SUBTYPE,
+    IDENTITY_IDENTIFIER,
+    IDENTITY_CONTEXT,
+    RECOVERY_PREPAREDNESS,
+    RECOVERY_INCIDENT,
+}
+
+internal enum class VNextCapabilityVisibility {
+    VISIBLE_REFERENCE,
+    HIDDEN_UNTIL_CANONICAL,
+    HIDDEN_UNTIL_SOLVER,
+}
+
+internal enum class VNextProductionAuthority {
+    AVAILABLE,
+    NOT_EXPOSED,
+    REQUIRES_NATIVE_SCHEMA,
+    REQUIRES_CANONICAL,
+    REQUIRES_SOLVER,
+}
+
+internal data class VNextCapabilityGate(
+    val capability: VNextCapability,
+    val visibility: VNextCapabilityVisibility,
+    val productionAuthority: VNextProductionAuthority,
+    val requiresNewPrimaryDestination: Boolean = false,
+    val reason: String,
+)
+
+internal val V_NEXT_CAPABILITY_MATRIX: List<VNextCapabilityGate> = listOf(
+    VNextCapabilityGate(
+        capability = VNextCapability.FILE_IMPORT,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R43 binds Production VNext to the Activity-owned FileWorkflowCoordinator + AppContainer authority across lock/re-auth, preview, mapping review and explicit commit; Preview stays isolated/read-only.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.MANUAL_CREATE,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "AppContainer now exposes a governed runtime-creatable Node mutation; Preview remains read-only and production UI binding is still separate.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.MANUAL_RELATIONSHIP,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "Current Canonical v3 already governs five runtime relations and the existing Dependency table can persist them. Production VNext now delegates manual confirmation to AppContainer/GraphRepository; storage-only verifies/bound_to remain unavailable.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.HUMAN_REVIEW,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "Proposal/Candidate/Drift production actions exist; Preview deliberately does not execute them.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.CHANGE_PHONE,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "replace_phone_number is an active production scenario and must execute only through the authoritative change gateway.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.CHANGE_PAYMENT_CARD,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "replace_payment_card is an active production scenario and must execute only through the authoritative change gateway.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.DEVICE_CONTINUITY,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Planned replace_device design requires governed factor/device-subtype semantics and a production scenario before UI exposure.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.DIGITAL_RESOURCE_CONTINUITY,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Future digital-resource continuity design is frozen but its resource types/capabilities/relations are not current Canonical.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.TRUSTED_HANDOFF,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Trusted Handoff design is future-only; provider arrangements, trusted-party authority and export semantics are not Canonical.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.LIFECYCLE_PERSISTENCE,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R40 governs cross-platform maintenance_profile read/write authority; R41 binds Production Card/Number editors and derived occurrences. Unsupported lifecycle concepts such as installment summary remain unavailable.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.REGION_FACT,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R39 governs RegionFact cross-platform and Production VNext consumes it fail-closed; currency/provider/identifier/locale never infer geography.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.IDENTITY_SUBTYPE,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R37 governed identity_anchor_profile subtype is Canonical, cross-platform decoded/conformance-gated, and Production VNext consumes it fail-closed.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.IDENTITY_IDENTIFIER,
+        visibility = VNextCapabilityVisibility.VISIBLE_REFERENCE,
+        productionAuthority = VNextProductionAuthority.AVAILABLE,
+        reason = "R38 governs an independently confirmed phone/email identifier inside identity_anchor_profile and binds atomic Android production establishment; missing/invalid identifier remains unknown without destroying subtype.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.IDENTITY_CONTEXT,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Identity Context proposal is design-complete but membership has no Canonical authority yet.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.RECOVERY_PREPAREDNESS,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_CANONICAL,
+        productionAuthority = VNextProductionAuthority.REQUIRES_CANONICAL,
+        reason = "Recovery Preparedness UX is frozen but requires governed Factor/SecretLocator projections before the route may appear.",
+    ),
+    VNextCapabilityGate(
+        capability = VNextCapability.RECOVERY_INCIDENT,
+        visibility = VNextCapabilityVisibility.HIDDEN_UNTIL_SOLVER,
+        productionAuthority = VNextProductionAuthority.REQUIRES_SOLVER,
+        reason = "Recovery Incident design is complete but the failure-domain-aware solver/runtime does not exist yet.",
+    ),
+)
+
+internal fun capabilityGate(capability: VNextCapability): VNextCapabilityGate =
+    V_NEXT_CAPABILITY_MATRIX.first { it.capability == capability }
+
+internal fun canShowReference(capability: VNextCapability): Boolean =
+    capabilityGate(capability).visibility == VNextCapabilityVisibility.VISIBLE_REFERENCE
+
+internal fun hasProductionAuthority(capability: VNextCapability): Boolean =
+    capabilityGate(capability).productionAuthority == VNextProductionAuthority.AVAILABLE
+
+internal fun visibleReferenceCapabilities(): Set<VNextCapability> =
+    V_NEXT_CAPABILITY_MATRIX
+        .filter { it.visibility == VNextCapabilityVisibility.VISIBLE_REFERENCE }
+        .mapTo(linkedSetOf()) { it.capability }

@@ -3,15 +3,8 @@ package com.pdig.app.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -23,13 +16,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.pdig.app.ui.Route
 import com.pdig.app.data.AppContainer
 import com.pdig.app.data.PlanRow
+import com.pdig.app.ui.Route
 import com.pdig.app.ui.components.EmptyState
 import com.pdig.app.ui.components.LoadingState
 import com.pdig.app.ui.components.PdigCard
@@ -40,10 +32,11 @@ import com.pdig.app.ui.components.StatusChip
 import com.pdig.app.ui.theme.PdigTokens
 import com.pdig.core.timeline.TimelineItem
 
-
 /**
- * 首页：Answer-oriented（spec §64/§186）。
- * 顺序固定：需要你处理 → 可能发生了变化 → 即将到来 → 常用场景 → 我的基础设施。
+ * 首页：Personal Infrastructure Briefing（spec §64/§186 + UIUX_FREEZE §4）。
+ * 顺序固定：需要你处理 → 基础设施薄弱点 → 可能发生了变化 → 即将到来 → 常用场景 → 我的基础设施。
+ * healthy 态不显示 "0 条问题" / 健康分，改为「当前没有需要立即处理的事项 + 最近检查范围 +
+ * 仍然未知的范围 + 可以主动准备的场景」。
  */
 @Composable
 fun HomeScreen(nav: NavController) {
@@ -52,6 +45,7 @@ fun HomeScreen(nav: NavController) {
     var items by remember { mutableStateOf<List<TimelineItem>?>(null) }
     var plans by remember { mutableStateOf<List<PlanRow>>(emptyList()) }
     var nodeCount by remember { mutableStateOf(0) }
+    var depCount by remember { mutableStateOf(0) }
     var pendingProposalCount by remember { mutableStateOf<Int?>(null) }
     var candidateCount by remember { mutableStateOf<Int?>(null) }
     var driftCount by remember { mutableStateOf<Int?>(null) }
@@ -66,6 +60,7 @@ fun HomeScreen(nav: NavController) {
                 timeline = container.timeline(),
                 plans = container.plans(),
                 nodeCount = container.nodes().size,
+                dependencies = container.dependencies().size,
                 proposals = container.pendingProposals().size,
                 candidates = container.pendingCandidates().size,
                 drifts = container.openDrifts().size,
@@ -74,6 +69,7 @@ fun HomeScreen(nav: NavController) {
         items = loaded.timeline
         plans = loaded.plans
         nodeCount = loaded.nodeCount
+        depCount = loaded.dependencies
         pendingProposalCount = loaded.proposals
         candidateCount = loaded.candidates
         driftCount = loaded.drifts
@@ -91,31 +87,29 @@ fun HomeScreen(nav: NavController) {
             } else {
                 val attention = (items ?: emptyList()).filter { it.bucket == "attention" }
                 val upcoming = (items ?: emptyList()).filter { it.bucket != "attention" }
-
-                SectionHeader("需要你处理")
                 val hasPendingReview = (pendingProposalCount ?: 0) > 0
                 val hasCandidates = (candidateCount ?: 0) > 0
                 val planNeedsHandling = plansNeedingHandling(plans)
-                // 计划也进入"需要你处理"聚合：review_required / verifying 等状态
-                // 表示计划本身还等着用户操作（goal §16/§17）。
-                if (planNeedsHandling > 0) {
-                    PdigCard(onClick = { nav.navigate(Route.TIMELINE) }) {
-                        Text("有 $planNeedsHandling 个计划需要处理", style = PdigTokens.BodyStrong)
+                val hasAttention = attention.isNotEmpty() || hasPendingReview || hasCandidates || planNeedsHandling > 0
+
+                // 1. 需要你处理
+                SectionHeader("需要你处理")
+                if (hasAttention) {
+                    if (planNeedsHandling > 0) {
+                        PdigCard(onClick = { nav.navigate(Route.TIMELINE) }) {
+                            Text("有 $planNeedsHandling 个计划需要处理", style = PdigTokens.BodyStrong)
+                        }
                     }
-                }
-                if (hasPendingReview) {
-                    PdigCard(onClick = { nav.navigate(Route.REVIEW) }) {
-                        Text("有待确认的关系：$pendingProposalCount 条", style = PdigTokens.BodyStrong)
+                    if (hasPendingReview) {
+                        PdigCard(onClick = { nav.navigate(Route.REVIEW) }) {
+                            Text("有待确认的关系：$pendingProposalCount 条", style = PdigTokens.BodyStrong)
+                        }
                     }
-                }
-                if (hasCandidates) {
-                    PdigCard(onClick = { nav.navigate(Route.CANDIDATES) }) {
-                        Text("有待确认的服务：$candidateCount 个", style = PdigTokens.BodyStrong)
+                    if (hasCandidates) {
+                        PdigCard(onClick = { nav.navigate(Route.CANDIDATES) }) {
+                            Text("有待确认的服务：$candidateCount 个", style = PdigTokens.BodyStrong)
+                        }
                     }
-                }
-                if (attention.isEmpty() && !hasPendingReview && !hasCandidates && planNeedsHandling == 0) {
-                    EmptyState("现在没有需要你处理的事项。")
-                } else {
                     attention.take(5).forEach { item ->
                         PdigCard(onClick = { nav.navigate(Route.TIMELINE) }) {
                             Column {
@@ -128,9 +122,20 @@ fun HomeScreen(nav: NavController) {
                             }
                         }
                     }
+                } else {
+                    HealthyBriefing(
+                        nodeCount = nodeCount,
+                        depCount = depCount,
+                        findings = findings,
+                        onScenarios = { nav.navigate(Route.SCENARIOS) },
+                    )
                 }
 
+                // 2. 基础设施薄弱点（findings 摘要行，不显示空卡片）
+                SectionHeader("基础设施薄弱点")
+                FindingsSummary(findings, onOpen = { nav.navigate(Route.FINDINGS) })
 
+                // 3. 可能发生了变化
                 SectionHeader("可能发生了变化")
                 PdigCard(onClick = { nav.navigate(Route.DRIFT) }) {
                     Text(
@@ -139,6 +144,7 @@ fun HomeScreen(nav: NavController) {
                     )
                 }
 
+                // 4. 即将到来
                 SectionHeader("即将到来")
                 if (upcoming.isEmpty()) {
                     EmptyState("未来 90 天内没有已计划的变更。")
@@ -162,18 +168,19 @@ fun HomeScreen(nav: NavController) {
                     }
                 }
 
+                // 5. 常用场景（2 列 action row）
                 SectionHeader("常用场景")
-                PdigCard(onClick = { nav.navigate(Route.SCENARIOS) }) { Text("更换银行卡 / 银行卡即将到期 / 注销银行卡") }
+                ScenarioEntryGrid(onScenario = { templateId ->
+                    nav.navigate(Route.SCENARIO_SETUP.replace("{templateId}", templateId))
+                })
 
+                // 6. 我的基础设施
                 SectionHeader("我的基础设施")
-                findings?.let { f -> HomeFindingsCard(nav, f) }
                 PdigCard(onClick = { nav.navigate(Route.INFRASTRUCTURE) }) {
                     Text("共 $nodeCount 个对象", style = PdigTokens.BodyStrong)
                 }
 
-
-                // 导入 / 备份恢复此前从首页不可达，核心行程根本走不通。
-                // 这里补上最小入口（不改信息架构，只是让已存在的页面可达）。
+                // 导入 / 备份恢复与设置入口（保持可达；不改变信息架构）
                 SectionHeader("数据与设置")
                 PdigCard(onClick = { nav.navigate(Route.SOURCES) }) {
                     Text("数据来源与导入", style = PdigTokens.BodyStrong)
@@ -186,106 +193,3 @@ fun HomeScreen(nav: NavController) {
     }
 }
 
-/** 场景中心：当前只 Active 三个场景（spec §67/§187）。 */
-@Composable
-fun ScenarioCenterScreen(nav: NavController) {
-    // 场景清单唯一来源是 ScenarioRegistry —— 硬编码 id 曾被写错成
-    // `card_expiring` / `close_bank_card`，与实际模板不符，点进去会被运行时注册中心拒绝。
-    val scenarios = com.pdig.core.scenario.ScenarioRegistry.active
-
-    Scaffold(topBar = { PdigTopBar("场景", onBack = { nav.popBackStack() }) }) { pad ->
-        Column(
-            modifier = Modifier
-                .padding(pad)
-                .padding(PdigTokens.SpaceLg)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceMd),
-        ) {
-            scenarios.forEach { t ->
-                PdigCard(onClick = { nav.navigate(Route.SCENARIO_SETUP.replace("{templateId}", t.id)) }) {
-                    Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
-                        Text(t.title, style = PdigTokens.BodyStrong)
-                        Text(
-                            t.description,
-                            style = PdigTokens.Caption,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun TimelineScreen(nav: NavController) {
-    val context = LocalContext.current
-    val container = remember { AppContainer.get(context) }
-    var items by remember { mutableStateOf<List<TimelineItem>?>(null) }
-    LaunchedEffect(Unit) { items = withContext(Dispatchers.IO) { container.timeline() } }
-
-    Scaffold(topBar = { PdigTopBar("即将到来", onBack = { nav.popBackStack() }) }) { pad ->
-        Column(
-            modifier = Modifier
-                .padding(pad)
-                .padding(PdigTokens.SpaceLg)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            when {
-                items == null -> LoadingState()
-                items?.isEmpty() == true -> EmptyState("还没有需要跟踪的事项。")
-                else -> items?.forEach { item ->
-                    PdigCard(onClick = { nav.navigate(Route.PLAN.replace("{planId}", item.sourceId)) }) {
-                        Column(verticalArrangement = Arrangement.spacedBy(PdigTokens.SpaceXs)) {
-                            Text(item.title, style = PdigTokens.BodyStrong)
-                            Text(item.subtitle, style = PdigTokens.Caption, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Row(horizontalArrangement = Arrangement.spacedBy(PdigTokens.SpaceSm)) {
-                                StatusChip(item.status)
-                                Text(
-                                    when (item.bucket) {
-                                        "attention" -> "需要关注"
-                                        "overdue" -> "已过期"
-                                        "today" -> "今天"
-                                        "7d" -> "7 天内"
-                                        "30d" -> "30 天内"
-                                        "90d" -> "90 天内"
-                                        else -> "以后"
-                                    },
-                                    style = PdigTokens.Label,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-/** Home 页一次 IO 取回的聚合数据（E-10：Attention 聚合）。 */
-private data class HomeCounts(
-    val timeline: List<TimelineItem>,
-    val plans: List<PlanRow>,
-    val nodeCount: Int,
-    val proposals: Int,
-    val candidates: Int,
-    val drifts: Int,
-)
-/**
- * 需要用户处理的计划状态（PlanRow.workflowState 的 wire 值）。
- *
- * 实际写入该列的枚举是 ChangePlanWorkflowState（review_required / verifying 会真实出现）；
- * blocked / needs_revalidation 保留在集合里，覆盖未来迁移表可能写入的值（见 core.statemachine）。
- * 语义：这些状态都表示计划还等着用户去操作，不能放进"全部完成"。
- */
-internal val PLAN_NEEDS_HANDLING_STATES: Set<String> = setOf(
-    "blocked",
-    "review_required",
-    "needs_revalidation",
-    "verifying",
-)
-
-/** Home "需要你处理" 聚合里的计划计数（goal §16/§17）。 */
-internal fun plansNeedingHandling(plans: List<PlanRow>): Int =
-    plans.count { it.workflowState in PLAN_NEEDS_HANDLING_STATES }

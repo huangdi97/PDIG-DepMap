@@ -8,7 +8,7 @@ import com.pdig.core.json.JsonWriter
 import com.pdig.core.schema.LEGACY_WECHAT_ADAPTER_ID
 import com.pdig.core.schema.LEGACY_WECHAT_ADAPTER_VERSION
 import com.pdig.core.schema.LEGACY_WECHAT_SOURCE_INSTANCE_ID
-import com.pdig.core.schema.SCHEMA_VERSION
+import com.pdig.core.schema.PAYLOAD_SCHEMA_VERSION
 
 /**
  * 逻辑图序列化 —— `.depmap` 备份 payload 层（GOAL MVP02 §15）。
@@ -163,13 +163,29 @@ fun exportGraph(driver: SqliteDriver): GraphExportResult {
     val fields = mutableListOf<Pair<String, Json>>(
         "payloadKind" to Json.Str(GRAPH_PAYLOAD_KIND),
         "payloadVersion" to Json.Num(GRAPH_PAYLOAD_VERSION.toString()),
-        "schemaVersion" to Json.Num(SCHEMA_VERSION.toString()),
+        "schemaVersion" to Json.Num(PAYLOAD_SCHEMA_VERSION.toString()),
     )
     val counts = LinkedHashMap<String, Int>()
     for (t in PAYLOAD_TABLES) {
         val rows = driver.prepare("SELECT * FROM ${t.table}").all()
         counts[t.table] = rows.size
-        fields.add(t.table to Json.Arr(rows.map { row -> rowToJson(row) }))
+        val jsonRows = if (t.table == "meta") {
+            rows.map { row ->
+                if (row.str("key") == "schema_version") {
+                    Json.Obj(
+                        listOf(
+                            "key" to Json.Str("schema_version"),
+                            "value" to Json.Str(PAYLOAD_SCHEMA_VERSION.toString()),
+                        ),
+                    )
+                } else {
+                    rowToJson(row)
+                }
+            }
+        } else {
+            rows.map { row -> rowToJson(row) }
+        }
+        fields.add(t.table to Json.Arr(jsonRows))
     }
     return GraphExportResult(JsonWriter.write(Json.Obj(fields)), counts)
 }
@@ -314,7 +330,7 @@ fun migratePayloadV2toV3(payloadJson: String): String {
         listOf(
             "payloadKind" to Json.Str(GRAPH_PAYLOAD_KIND),
             "payloadVersion" to Json.Num(GRAPH_PAYLOAD_VERSION.toString()),
-            "schemaVersion" to Json.Num(SCHEMA_VERSION.toString()),
+            "schemaVersion" to Json.Num(PAYLOAD_SCHEMA_VERSION.toString()),
             "meta" to Json.Arr(newMeta),
             "source_instances" to (parsed["source_instances"] ?: Json.Arr(emptyList())),
             "nodes" to (parsed["nodes"] ?: Json.Arr(emptyList())),
@@ -392,8 +408,8 @@ private fun validatePayload(payloadJson: String): Json.Obj {
         ?: throw GraphImportError("schemaVersion must be an integer")
     if (!svRaw.isSafeInteger()) throw GraphImportError("schemaVersion must be an integer")
     val sv = svRaw.asLong().toInt()
-    if (sv > SCHEMA_VERSION) {
-        throw GraphImportError("payload schemaVersion ($sv) newer than supported ($SCHEMA_VERSION)")
+    if (sv > PAYLOAD_SCHEMA_VERSION) {
+        throw GraphImportError("payload schemaVersion ($sv) newer than supported ($PAYLOAD_SCHEMA_VERSION)")
     }
     for (t in PAYLOAD_TABLES) tableRows(payload, t.table, t.columns)
     return payload
@@ -403,6 +419,17 @@ private fun validatePayload(payloadJson: String): Json.Obj {
 fun importGraph(driver: SqliteDriver, payloadJson: String): Map<String, Int> {
     val normalized = migrateIfNeeded(payloadJson)
     val payload = validatePayload(normalized)
+
+    // schema_version describes the local physical database, not the portable
+    // logical graph payload. Preserve it across a graph restore so a v4
+    // application database cannot be mislabeled v3 and re-run widening DDL.
+    val localSchemaVersion = driver.prepare(
+        "SELECT value FROM meta WHERE key = 'schema_version'",
+    ).get()?.str("value")
+    val localSchemaUpdatedAt = driver.prepare(
+        "SELECT value FROM meta WHERE key = 'schema_version_updated_at'",
+    ).get()?.str("value")
+
     return driver.transaction {
         val imported = LinkedHashMap<String, Int>()
         for (table in DELETE_ORDER) driver.exec("DELETE FROM $table")
@@ -420,6 +447,22 @@ fun importGraph(driver: SqliteDriver, payloadJson: String): Map<String, Int> {
                 stmt.run(*t.columns.map { jsonToSqlValue(row.require(it)) }.toTypedArray())
             }
             imported[t.table] = rows.size
+        }
+        localSchemaVersion?.let { version ->
+            driver.prepare(
+                """
+                INSERT INTO meta (key, value) VALUES ('schema_version', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """.trimIndent(),
+            ).run(version)
+        }
+        localSchemaUpdatedAt?.let { updatedAt ->
+            driver.prepare(
+                """
+                INSERT INTO meta (key, value) VALUES ('schema_version_updated_at', ?)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value
+                """.trimIndent(),
+            ).run(updatedAt)
         }
         imported
     }

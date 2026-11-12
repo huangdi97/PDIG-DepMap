@@ -1,0 +1,36 @@
+{
+  "spec": "DEVICE_MATRIX (2026-10-04 source-complete runtime validation)",
+  "sourceHead": "4e43511ae9754413ffedeaca9ad21a71b330aa64",
+  "phone": {
+    "avd": "main",
+    "device": "pixel_7 profile",
+    "api": 36,
+    "image": "system-images/android-36/google_apis/x86_64",
+    "resolution": "1080x2400",
+    "densityDpi": 420,
+    "densityScale": 2.625,
+    "orientation": "portrait"
+  },
+  "tablet": {
+    "avd": "pdig_tablet_api36",
+    "device": "pixel_tablet profile",
+    "api": 36,
+    "image": "system-images/android-36/google_apis/x86_64",
+    "resolution": "2560x1600",
+    "densityDpi": 320,
+    "densityScale": 2,
+    "orientation": "landscape (rotated at runtime)"
+  },
+  "host": {
+    "os": "Windows 11 (NT 10.0.26200)",
+    "adb": "37.0.0 (1.0.41)",
+    "emulator": "36.5.11.0 (build_id 15261927)",
+    "jdk": "Temurin 21.0.12.1 LTS",
+    "gradle": "8.9 (android/gradlew.bat)",
+    "agp": "8.5.2",
+    "kotlin": "2.0.0",
+    "composeBom": "2024.09.02",
+    "sdk": "D:\\Code\\Android\\SDK (platforms 34/35/36/36.1/37.0)",
+    "node": "v22.15.0"
+  }
+}

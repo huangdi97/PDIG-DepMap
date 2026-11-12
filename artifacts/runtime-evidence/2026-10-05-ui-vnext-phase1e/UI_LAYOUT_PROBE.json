@@ -1,0 +1,19 @@
+{
+  "spec": "UI_LAYOUT_PROBE.json (v1) — offscreen deterministic render; geometry per LAYOUT_CONTRACT",
+  "entries": [
+    { "testId": "pdig.customization.preview.width", "check": "Studio center preview 620-720px @1920 (center pane >= 70%)", "measured": "696", "minRequired": "620", "passed": "true" },
+    { "testId": "pdig.customization.inspector", "x": "0", "y": "0", "width": "0", "height": "0", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.customization.preview.width", "check": "Studio center preview 620-720px @1920 (center pane >= 70%)", "measured": "696", "minRequired": "620", "passed": "true" },
+    { "testId": "pdig.customization.inspector", "x": "0", "y": "0", "width": "0", "height": "0", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.number.detail.layout", "check": "identity 36% / summary 32% / recovery 32% 保持", "ratioNote": "见 VNextPhaseEvidence.collectProbe1D", "passed": "true" },
+    { "testId": "pdig.change.scene", "x": "24", "y": "320", "width": "1656", "height": "430", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.change.scene.height", "check": "Continuity Scene height 420-500px @1920", "measured": "430", "minRequired": "420", "maxAllowed": "500", "passed": "true" },
+    { "testId": "pdig.change.projection.change-current", "check": "projection selector bound", "projection": "current", "passed": "true" },
+    { "testId": "pdig.change.scene", "x": "24", "y": "320", "width": "1656", "height": "430", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.change.scene.height", "check": "Continuity Scene height 420-500px @1920", "measured": "430", "minRequired": "420", "maxAllowed": "500", "passed": "true" },
+    { "testId": "pdig.change.projection.change-transition", "check": "projection selector bound", "projection": "transition", "passed": "true" },
+    { "testId": "pdig.change.scene", "x": "24", "y": "320", "width": "1656", "height": "430", "visible": "true", "enabled": "true" },
+    { "testId": "pdig.change.scene.height", "check": "Continuity Scene height 420-500px @1920", "measured": "430", "minRequired": "420", "maxAllowed": "500", "passed": "true" },
+    { "testId": "pdig.change.projection.change-after", "check": "projection selector bound", "projection": "after", "passed": "true" }
+  ]
+}

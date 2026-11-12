@@ -167,10 +167,66 @@ public final class AppSession: ObservableObject {
         return scenarioPlan.plan
     }
 
-    /// 持久化计划更新（动作完成/验证状态）。
+    /// 持久化计划更新（Legacy surface compatibility）。
     public func updatePlan(_ plan: ChangePlan) throws {
         guard let repo = repository else { return }
         try repo.savePlan(plan)
+        plans = try repo.loadPlans()
+    }
+
+    /// Re-analyze a stale Production plan against the current graph.
+    /// Scope-changing plans fail closed inside ProductionChangeAuthority.
+    func productionReanalyzePlan(planId: String) throws {
+        guard phase == .ready, let repo = repository else {
+            throw ProductionChangeMutationError.sessionLocked
+        }
+        guard let plan = plans.first(where: { $0.id == planId }) else {
+            throw ProductionChangeMutationError.planNotFound
+        }
+        let next = try ProductionChangeAuthority.reanalyze(
+            plan: plan,
+            graph: snapshot
+        )
+        try repo.savePlan(next)
+        plans = try repo.loadPlans()
+    }
+
+    /// Production VNext completion authority. The caller cannot supply a
+    /// locally-mutated plan; current session state is re-read and validated.
+    func productionCompleteAction(planId: String, actionId: String) throws {
+        guard phase == .ready, let repo = repository else {
+            throw ProductionChangeMutationError.sessionLocked
+        }
+        guard let plan = plans.first(where: { $0.id == planId }) else {
+            throw ProductionChangeMutationError.planNotFound
+        }
+        let next = try ProductionChangeAuthority.completeAction(
+            plan: plan,
+            currentGraphRevision: snapshot.graphRevision,
+            actionId: actionId,
+            pendingReviewCount: snapshot.pendingProposals.filter { $0.decision == .pending }.count,
+            pendingCandidateCount: pendingCandidatesCount(),
+            openDriftCount: openDrifts().count
+        )
+        try repo.savePlan(next)
+        plans = try repo.loadPlans()
+    }
+
+    /// Independent manual verification authority. Completion and verification
+    /// remain separate writes and stale plans fail closed.
+    func productionVerifyAction(planId: String, actionId: String) throws {
+        guard phase == .ready, let repo = repository else {
+            throw ProductionChangeMutationError.sessionLocked
+        }
+        guard let plan = plans.first(where: { $0.id == planId }) else {
+            throw ProductionChangeMutationError.planNotFound
+        }
+        let next = try ProductionChangeAuthority.verifyAction(
+            plan: plan,
+            currentGraphRevision: snapshot.graphRevision,
+            actionId: actionId
+        )
+        try repo.savePlan(next)
         plans = try repo.loadPlans()
     }
 

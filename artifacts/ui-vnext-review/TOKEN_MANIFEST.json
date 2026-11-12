@@ -1,0 +1,50 @@
+{
+  "$comment": "PDIG UI vNext Token Manifest. Single source of truth: spec/ui-vnext/DESIGN_TOKENS.json (specVersion 2.0.0). Generated artifacts MUST NOT be hand-edited; any token change: reason first, spec first, then `node tools/codegen/generate.mjs` (regenerate) / `--check` (verify).",
+  "singleSourceOfTruth": "spec/ui-vnext/DESIGN_TOKENS.json",
+  "codegen": {
+    "tool": "tools/codegen/generate.mjs",
+    "check": "PASS",
+    "note": "CODEGEN GATE PASS — 四端 GeneratedPdigV2Tokens 与单源零漂移；既有 canonical 产物零漂移（2026-09-29 本机实测）"
+  },
+  "generatedArtifacts": {
+    "desktop": "desktop/app/src/main/kotlin/com/pdig/uivnext/generated/GeneratedPdigV2Tokens.kt",
+    "android": "android/app/src/main/kotlin/com/pdig/uivnext/generated/GeneratedPdigV2Tokens.kt",
+    "ios": "ios/Sources/PDIGApp/Generated/GeneratedPdigV2Tokens.swift",
+    "harmony": "harmony/entry/src/main/ets/generated/GeneratedPdigV2Tokens.ets"
+  },
+  "keyBrandValues": {
+    "primary": "#4D74FF",
+    "primaryBright": "#67A7FF",
+    "primarySoft": "#1C2E55",
+    "canvas": "#061225",
+    "canvasDeep": "#030A18",
+    "surface": "#0B1A33",
+    "surfaceRaised": "#102340",
+    "surfaceGlass": "rgba(28, 56, 96, 0.54)",
+    "textPrimary": "#F4F7FF",
+    "textSecondary": "#A9B8D5",
+    "textMuted": "#7383A3",
+    "positive": "#3BD49B",
+    "warning": "#F4B64B",
+    "critical": "#FA626B",
+    "unknown": "#8C9AB5",
+    "regionNodeHi": "#67A7FF",
+    "regionNodeLo": "rgba(103, 167, 255, 0.35)",
+    "arcActive": "rgba(103, 167, 255, 0.55)",
+    "arcQuiet": "rgba(115, 131, 163, 0.28)",
+    "borderSubtle": "rgba(148, 180, 234, 0.13)",
+    "borderStrong": "rgba(116, 161, 255, 0.34)",
+    "atmosphereInner": "rgba(77, 116, 255, 0.18)",
+    "atmosphereOuter": "rgba(6, 18, 37, 0.0)"
+  },
+  "policy": {
+    "noRemoteFonts": true,
+    "noRemoteIconCdn": true,
+    "noRemoteImages": true,
+    "offlineFirst": true,
+    "colorRule": "Data surfaces MUST use semantic tokens; environment layers (L0-L2) may use glass; glass MUST NOT reduce data readability (L3-L5)",
+    "statusNotColorOnly": true,
+    "privacyRule": "PresentationProfile is a local app preference; NEVER written into .depmap frozen payload",
+    "selfApproval": "FORBIDDEN"
+  }
+}

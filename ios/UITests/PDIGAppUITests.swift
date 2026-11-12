@@ -29,6 +29,40 @@ final class PDIGAppUITests: XCTestCase {
         return app
     }
 
+    /// 以 vNext synthetic reference 模式启动 App。
+    ///
+    /// This is not a Production Reality bypass: it only opens the explicitly
+    /// synthetic reference shell so iPhone/iPad visual translation can be
+    /// tested on a real iOS Simulator.
+    private func launchVNextReference(
+        extraArguments: [String] = []
+    ) -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-vnext"] + extraArguments
+        app.launch()
+        return app
+    }
+
+    private func vnextRoot(
+        _ app: XCUIApplication,
+        id: String,
+        fallbackLabel _: String
+    ) -> XCUIElement {
+        // SwiftUI TabView exposes phone roots as buttons, while List/sidebar
+        // rows on iPad may surface as cells/other accessibility elements.
+        // Stable identifier is the cross-form-factor contract; visible labels
+        // are asserted separately and never used as a navigation fallback.
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == %@", id))
+            .firstMatch
+    }
+
+    private func vnextRoute(_ app: XCUIApplication, id: String) -> XCUIElement {
+        app.descendants(matching: .any)
+            .matching(NSPredicate(format: "identifier == %@", id))
+            .firstMatch
+    }
+
     /// 把当前模拟器画面附加进 xcresult（IOS_VISUAL 证据，keepAlways）。
     private func attachScreenshot(_ app: XCUIApplication, name: String) {
         let attachment = XCTAttachment(screenshot: app.screenshot())
@@ -44,17 +78,43 @@ final class PDIGAppUITests: XCTestCase {
         file: StaticString = #filePath,
         line: UInt = #line
     ) {
-        XCTAssertTrue(element.waitForExistence(timeout: 15), "等待元素出现: \(element)", file: file, line: line)
-        if element.exists && !element.isEnabled {
+        // SwiftUI may not materialize controls inside a LazyVGrid until their
+        // enclosing ScrollView approaches the viewport. Swipe the real scroll
+        // surface rather than the whole app: Overview contains an interactive
+        // globe, and app.swipeUp() can be consumed by globe gestures without
+        // moving the page at all.
+        func scrollForward() {
+            let scrollView = app.scrollViews.firstMatch
+            if scrollView.exists && scrollView.isHittable {
+                scrollView.swipeUp()
+            } else {
+                app.swipeUp()
+            }
+        }
+
+        var attempts = 0
+        if !element.waitForExistence(timeout: 2) {
+            while !element.exists && attempts < 8 {
+                scrollForward()
+                attempts += 1
+                _ = element.waitForExistence(timeout: 1)
+            }
+        }
+        XCTAssertTrue(element.exists, "等待元素出现: \(element)", file: file, line: line)
+        guard element.exists else { return }
+
+        if !element.isEnabled {
             let predicate = NSPredicate(format: "isEnabled == true")
             wait(for: [expectation(for: predicate, evaluatedWith: element)], timeout: 10)
         }
-        var attempts = 0
-        while !element.isHittable && attempts < 6 {
-            app.swipeUp()
+        while !element.isHittable && attempts < 10 {
+            scrollForward()
             attempts += 1
         }
-        element.tap()
+        XCTAssertTrue(element.isHittable, "元素存在但不可点击: \(element)", file: file, line: line)
+        if element.isHittable {
+            element.tap()
+        }
     }
 
     /// 卡片式按钮（VStack 内标题+副标题两个 Text）的 accessibility label 会被拼接
@@ -134,4 +194,693 @@ final class PDIGAppUITests: XCTestCase {
         XCTAssertTrue(app.buttons["设置"].exists, "底部导航 设置 不可达")
         attachScreenshot(app, name: "00-home-minimal")
     }
+
+    /// Production VNext pilot runtime gate.
+    ///
+    /// This path is explicit opt-in. It must render the session's lock-gated
+    /// Production projection, not VNextDemoFixture reference objects; guarded
+    /// Change writes are exercised separately below.
+    func testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-production-vnext"]
+        app.launch()
+
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.root")
+                .waitForExistence(timeout: 20),
+            "Production VNext pilot root 未出现"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施工作区未出现"
+        )
+
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.cards")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施缺少卡片入口"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.numbers")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施缺少号码入口"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.cards"),
+            in: app
+        )
+        let productionCard = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.object.cards.card-main"
+        )
+        XCTAssertTrue(
+            productionCard.waitForExistence(timeout: 10),
+            "真实 session projection 的支付工具没有进入 Production Cards"
+        )
+        XCTAssertTrue(app.staticTexts["招商银行卡"].exists)
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.collection.back.cards"),
+            in: app
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.numbers"),
+            in: app
+        )
+        let productionPhone = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.object.numbers.phone-1"
+        )
+        XCTAssertTrue(
+            productionPhone.waitForExistence(timeout: 10),
+            "已确认 phone_number profile 没有进入 Production Numbers"
+        )
+        XCTAssertTrue(
+            app.staticTexts["+86 138 0000 0001"].exists,
+            "Production Numbers 没有使用 governed identifier"
+        )
+        XCTAssertFalse(
+            vnextRoute(
+                app,
+                id: "pdig.ios.production-vnext.object.numbers.identity-phone-looking"
+            ).exists,
+            "未确认 subtype 的 identity 不得被提升为手机号"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.collection.back.numbers"),
+            in: app
+        )
+
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.weaknesses")
+                .waitForExistence(timeout: 10),
+            "Production 基础设施缺少薄弱点入口"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.weaknesses"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.weaknesses")
+                .waitForExistence(timeout: 10),
+            "Production 薄弱点没有通过正常基础设施导航打开"
+        )
+        XCTAssertTrue(
+            app.staticTexts["只显示从当前已确认关系与计划状态推导的连续性发现。"]
+                .waitForExistence(timeout: 10),
+            "Production 薄弱点没有保留 confirmed-Reality 边界"
+        )
+        XCTAssertFalse(
+            vnextRoute(
+                app,
+                id: "pdig.ios.production-vnext.weakness.pending-verification"
+            ).exists,
+            "尚未执行的 verification=pending 模板步骤不得制造“已完成但待验证”发现"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.weaknesses.back"),
+            in: app
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.infrastructure.accounts"),
+            in: app
+        )
+        let account = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.object.accounts.acct-bank"
+        )
+        XCTAssertTrue(
+            account.waitForExistence(timeout: 10),
+            "真实 session projection 的账户没有进入 Production collection"
+        )
+        XCTAssertTrue(
+            app.staticTexts["招商银行账户"].exists,
+            "Production collection 没有显示 session 中的真实投影对象"
+        )
+        XCTAssertFalse(
+            vnextRoute(
+                app,
+                id: "pdig.ios.reference.secondary.item.accounts.acct-wechat"
+            ).exists,
+            "Production pilot 不得回退到 synthetic reference fixture"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-account")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.change"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(
+                app,
+                id: "pdig.ios.production-vnext.change.stages.plan-replace_phone_number-phone-1-3"
+            ).waitForExistence(timeout: 10),
+            "Production Change 没有把真实计划翻译成 Current / Transition / After 三阶段"
+        )
+        XCTAssertTrue(
+            app.staticTexts["完成后（计划）"].waitForExistence(timeout: 10),
+            "Production Change 缺少明确的 After 计划边界"
+        )
+        XCTAssertTrue(
+            app.staticTexts["完成 ≠ 已验证；完成后只是计划投影，不会被当成已经发生的事实。"]
+                .waitForExistence(timeout: 10),
+            "Production Change 丢失 done != verified / plan projection 语义"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-change-stages")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
+            in: app
+        )
+        XCTAssertTrue(
+            app.staticTexts["暂无操作记录"].waitForExistence(timeout: 10),
+            "Production Records 把尚未执行的 pending verification 计划步骤提前写成了记录"
+        )
+        XCTAssertFalse(
+            app.staticTexts["添加新手机号并迁移关键账户"].exists,
+            "未来计划步骤不得提前进入 Production Records"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-records-empty")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.me"),
+            in: app
+        )
+        let sourcesEntry = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.me.sources"
+        )
+        XCTAssertTrue(
+            sourcesEntry.waitForExistence(timeout: 10),
+            "Production「我」缺少数据源管理入口"
+        )
+        tapWhenReady(sourcesEntry, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.sources")
+                .waitForExistence(timeout: 10),
+            "Production 数据源页未打开"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.source.src-wechat-1")
+                .waitForExistence(timeout: 10),
+            "正式 source projection 没有进入 Production 数据源页"
+        )
+        XCTAssertTrue(
+            app.staticTexts["微信账单 2024.csv"].exists,
+            "Production 数据源页没有显示正式来源标签"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.me.sources.back"),
+            in: app
+        )
+
+        let settingsEntry = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.me.settings"
+        )
+        XCTAssertTrue(
+            settingsEntry.waitForExistence(timeout: 10),
+            "Production「我」缺少设置入口"
+        )
+        tapWhenReady(settingsEntry, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.settings")
+                .waitForExistence(timeout: 10),
+            "Production 设置页未打开"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.settings.privacy")
+                .waitForExistence(timeout: 10),
+            "Production 设置页缺少隐私展示控制"
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.me.settings.back"),
+            in: app
+        )
+
+        let privacy = vnextRoute(app, id: "pdig.ios.production-vnext.privacy")
+        XCTAssertTrue(privacy.waitForExistence(timeout: 10), "Production 隐私开关未出现")
+        tapWhenReady(privacy, in: app)
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
+            in: app
+        )
+        XCTAssertTrue(
+            app.staticTexts["账户（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Production 全局遮蔽没有覆盖账户身份"
+        )
+        XCTAssertFalse(
+            app.staticTexts["招商银行账户"].exists,
+            "Production 遮蔽后仍泄露账户名称"
+        )
+        attachScreenshot(app, name: "production-vnext-pilot-account-masked")
+    }
+
+    func testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--uitest-production-vnext"]
+        app.launch()
+
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.production-vnext.root")
+                .waitForExistence(timeout: 20)
+        )
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.change"),
+            in: app
+        )
+
+        func reveal(_ element: XCUIElement) {
+            var attempts = 0
+            while !element.exists && attempts < 8 {
+                let scroll = app.scrollViews.firstMatch
+                if scroll.exists && scroll.isHittable {
+                    scroll.swipeUp()
+                } else {
+                    app.swipeUp()
+                }
+                attempts += 1
+                _ = element.waitForExistence(timeout: 1)
+            }
+        }
+
+        let prepare = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.change.complete.phone-prepare"
+        )
+        reveal(prepare)
+        XCTAssertTrue(prepare.exists, "Production Change 缺少第一步正式完成入口")
+        XCTAssertTrue(prepare.isEnabled, "无前置步骤的第一步应可记录完成")
+
+        let addNew = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.change.complete.phone-add-new"
+        )
+        reveal(addNew)
+        XCTAssertTrue(addNew.exists, "Production Change 缺少第二步正式完成入口")
+        XCTAssertFalse(
+            addNew.isEnabled,
+            "前置步骤未完成时不得允许添加新路径步骤越权执行"
+        )
+
+        // Return to the first action if scrolling moved it out of view, then
+        // commit through the real AppSession authority.
+        reveal(prepare)
+        if !prepare.isHittable {
+            app.scrollViews.firstMatch.swipeDown()
+        }
+        tapWhenReady(prepare, in: app)
+
+        let unlockedAddNew = vnextRoute(
+            app,
+            id: "pdig.ios.production-vnext.change.complete.phone-add-new"
+        )
+        reveal(unlockedAddNew)
+        XCTAssertTrue(
+            unlockedAddNew.waitForExistence(timeout: 10),
+            "完成前置步骤后第二步没有重新投影"
+        )
+        XCTAssertTrue(
+            unlockedAddNew.isEnabled,
+            "正式前置完成后下一步应由 authority 解锁"
+        )
+        attachScreenshot(app, name: "production-vnext-change-authority-after-prepare")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
+            in: app
+        )
+        XCTAssertFalse(
+            app.staticTexts["暂无操作记录"].exists,
+            "正式记录完成后 Records 仍然为空"
+        )
+        XCTAssertTrue(
+            app.staticTexts["已记录完成"].firstMatch.waitForExistence(timeout: 10),
+            "Records 没有显示刚刚发生的正式完成事件"
+        )
+        attachScreenshot(app, name: "production-vnext-change-authority-record")
+    }
+
+    /// vNext reference translation runtime gate.
+    ///
+    /// iPhone exercises the five bottom roots; iPad exercises the five sidebar
+    /// roots. Both must expose the same secondary infrastructure pages.
+    func testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable() throws {
+        let app = launchVNextReference(
+            extraArguments: [
+                "-UIPreferredContentSizeCategoryName",
+                "UICTContentSizeCategoryAccessibilityLarge"
+            ]
+        )
+
+        let now = vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在")
+        XCTAssertTrue(now.waitForExistence(timeout: 20), "Accessibility Large 下 Now 不可达")
+
+        let me = vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我")
+        tapWhenReady(me, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的数字生活"].waitForExistence(timeout: 10),
+            "Accessibility Large 下 Me 内容未出现"
+        )
+        attachScreenshot(app, name: "vnext-dynamic-type-accessibility-large-me")
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的基础设施"].waitForExistence(timeout: 10),
+            "Accessibility Large 下基础设施不可达"
+        )
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.accounts"), in: app)
+        let account = vnextRoute(
+            app,
+            id: "pdig.ios.reference.secondary.item.accounts.acct-wechat"
+        )
+        tapWhenReady(account, in: app)
+        XCTAssertTrue(
+            app.staticTexts["账户详情"].waitForExistence(timeout: 10),
+            "Accessibility Large 下账户详情不可达"
+        )
+        attachScreenshot(app, name: "vnext-dynamic-type-accessibility-large-account-detail")
+    }
+
+    func testVNextGlobalPrivacyMasksCardAndNumberSurfaces() throws {
+        let app = launchVNextReference()
+
+        let me = vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我")
+        tapWhenReady(me, in: app)
+        XCTAssertTrue(app.switches.firstMatch.waitForExistence(timeout: 10), "隐私遮蔽开关未出现")
+        tapWhenReady(app.switches.firstMatch, in: app)
+
+        // Global Search keeps raw matching capability while redacting result copy.
+        let searchOpen = vnextRoute(app, id: "pdig.search.open")
+        tapWhenReady(searchOpen, in: app)
+        let searchField = vnextRoute(app, id: "pdig.search.field")
+        XCTAssertTrue(searchField.waitForExistence(timeout: 10), "全局搜索输入框未出现")
+        searchField.tap()
+        searchField.typeText("HSBC")
+        XCTAssertTrue(
+            app.staticTexts["支付工具（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "隐私状态下用原始字段搜索未命中已记录卡片"
+        )
+        XCTAssertFalse(app.staticTexts["HSBC 汇丰"].exists, "Search 泄露卡片发行方")
+        XCTAssertFalse(app.staticTexts["HSBC 网银"].exists, "Search 泄露账户或服务名称")
+        attachScreenshot(app, name: "vnext-privacy-search")
+        tapWhenReady(vnextRoute(app, id: "pdig.search.close"), in: app)
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(app.staticTexts["我的基础设施"].waitForExistence(timeout: 10))
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.cards"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["支付工具（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Cards 未遮蔽卡片身份"
+        )
+        XCTAssertFalse(app.staticTexts["招行储蓄卡"].exists, "Cards 泄露卡片昵称")
+        XCTAssertFalse(app.staticTexts["招商银行"].exists, "Cards 泄露发行方")
+        attachScreenshot(app, name: "vnext-privacy-cards")
+
+        let now = vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在")
+        tapWhenReady(now, in: app)
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(app.staticTexts["我的基础设施"].waitForExistence(timeout: 10))
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.numbers"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["手机号身份（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Numbers 未遮蔽号码身份"
+        )
+        XCTAssertFalse(app.staticTexts["主号 中国移动"].exists, "Numbers 泄露号码昵称")
+        XCTAssertFalse(app.staticTexts["+86 138****8823"].exists, "Numbers 泄露号码")
+        attachScreenshot(app, name: "vnext-privacy-numbers")
+    }
+
+    func testVNextSecondaryCollectionsHonorRegionScope() throws {
+        let app = launchVNextReference()
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的基础设施"].waitForExistence(timeout: 10),
+            "基础设施总览未出现"
+        )
+
+        let chinaRegion = vnextRoute(app, id: "pdig.region.item.CN")
+        // The first region row sits immediately below the 420pt globe. A full
+        // swipe can jump past it before SwiftUI exposes the off-screen row to
+        // accessibility, so reveal it with short page drags instead of the
+        // generic large-step helper.
+        let overviewScroll = app.scrollViews.firstMatch
+        var regionRevealAttempts = 0
+        while !chinaRegion.exists && regionRevealAttempts < 8 {
+            if overviewScroll.exists && overviewScroll.isHittable {
+                let start = overviewScroll.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.78)
+                )
+                let end = overviewScroll.coordinate(
+                    withNormalizedOffset: CGVector(dx: 0.5, dy: 0.58)
+                )
+                start.press(forDuration: 0.05, thenDragTo: end)
+            } else {
+                app.swipeUp(velocity: .slow)
+            }
+            regionRevealAttempts += 1
+            _ = chinaRegion.waitForExistence(timeout: 1)
+        }
+        XCTAssertTrue(chinaRegion.exists, "地区列表没有暴露中国大陆入口")
+        if chinaRegion.exists {
+            tapWhenReady(chinaRegion, in: app)
+        }
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.infra.accounts"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["中国大陆 · 已记录的数字基础设施对象 · 参考数据"]
+                .waitForExistence(timeout: 10),
+            "账户页没有继承地区筛选"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-wechat")
+                .waitForExistence(timeout: 10),
+            "中国地区账户未出现"
+        )
+        XCTAssertFalse(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-hsbc").exists,
+            "地区筛选错误泄露了香港账户"
+        )
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.scope.global.accounts"),
+            in: app
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-hsbc")
+                .waitForExistence(timeout: 10),
+            "查看全球后香港账户没有恢复"
+        )
+        attachScreenshot(app, name: "vnext-secondary-region-scope")
+    }
+
+    func testVNextReferenceFiveRootsAndSecondaryInfrastructure() throws {
+        let app = launchVNextReference()
+
+        let now = vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在")
+        XCTAssertTrue(now.waitForExistence(timeout: 20), "vNext 现在入口未出现")
+        attachScreenshot(app, name: "vnext-01-now")
+
+        let infrastructure = vnextRoot(
+            app,
+            id: "pdig.nav.infrastructure",
+            fallbackLabel: "基础设施"
+        )
+        tapWhenReady(infrastructure, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的基础设施"].waitForExistence(timeout: 10),
+            "vNext 基础设施未出现"
+        )
+        attachScreenshot(app, name: "vnext-02-infrastructure")
+
+        // Account must be reachable through normal product navigation, not by
+        // directly constructing a view in the test.
+        let accountEntry = vnextRoute(app, id: "pdig.nav.infra.accounts")
+        tapWhenReady(accountEntry, in: app)
+        XCTAssertTrue(
+            app.staticTexts["全球 · 已记录的数字基础设施对象 · 参考数据"]
+                .waitForExistence(timeout: 10),
+            "账户 collection 未出现"
+        )
+        let accountGrid = vnextRoute(
+            app,
+            id: "pdig.ios.reference.secondary.grid.accounts"
+        )
+        XCTAssertTrue(accountGrid.waitForExistence(timeout: 10), "账户 collection 缺少稳定 grid 语义")
+        let expectedColumns = UIDevice.current.userInterfaceIdiom == .pad ? "2 列" : "1 列"
+        XCTAssertEqual(
+            accountGrid.value as? String,
+            expectedColumns,
+            "二级资产 collection 未按 iPhone/iPad 宽度翻译布局"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-wechat").exists,
+            "账户 collection 缺少稳定对象入口"
+        )
+        attachScreenshot(app, name: "vnext-03-accounts")
+
+        tapWhenReady(
+            vnextRoute(app, id: "pdig.ios.reference.secondary.item.accounts.acct-wechat"),
+            in: app
+        )
+        XCTAssertTrue(
+            app.staticTexts["账户详情"].waitForExistence(timeout: 10),
+            "账户详情未出现"
+        )
+        attachScreenshot(app, name: "vnext-04-account-detail")
+
+        let change = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
+        tapWhenReady(change, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center").waitForExistence(timeout: 10),
+            "变更中心未出现"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center.phone").exists,
+            "变更中心缺少换号入口"
+        )
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center.card").exists,
+            "变更中心缺少换卡入口"
+        )
+        attachScreenshot(app, name: "vnext-05-change-center")
+
+        tapWhenReady(vnextRoute(app, id: "pdig.change.center.card"), in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.card").waitForExistence(timeout: 10),
+            "卡片变更 Reference 未出现"
+        )
+        let cardAfterStage = vnextRoute(app, id: "pdig.change.card.stage.after")
+        XCTAssertTrue(
+            cardAfterStage.waitForExistence(timeout: 10),
+            "换卡缺少可访问的 After 计划阶段"
+        )
+        attachScreenshot(app, name: "vnext-05a-change-card-current")
+
+        // Assert the stage as an interaction, not as a SwiftUI element type.
+        // VFilterChip is exposed as a control, so querying StaticText is brittle
+        // even though the visible label is correct.
+        tapWhenReady(cardAfterStage, in: app)
+        XCTAssertTrue(
+            app.staticTexts["完成后（计划）"].waitForExistence(timeout: 10),
+            "换卡 After 计划内容未出现"
+        )
+        XCTAssertTrue(
+            app.staticTexts["尚未选择替代卡，因此没有可展示的完成后计划。"]
+                .waitForExistence(timeout: 5),
+            "未选择替代卡时 After 必须保持计划边界"
+        )
+        attachScreenshot(app, name: "vnext-05a-change-card-after")
+
+        tapWhenReady(vnextRoute(app, id: "pdig.nav.change"), in: app)
+        tapWhenReady(vnextRoute(app, id: "pdig.change.center.phone"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["更换手机号"].waitForExistence(timeout: 10),
+            "换号 focused route 未出现"
+        )
+        attachScreenshot(app, name: "vnext-05b-change-phone")
+
+        let records = vnextRoot(app, id: "pdig.nav.records", fallbackLabel: "记录")
+        tapWhenReady(records, in: app)
+        XCTAssertTrue(
+            app.staticTexts["已发生、已记录完成与独立验证分开显示"]
+                .waitForExistence(timeout: 10),
+            "记录一级工作区未出现"
+        )
+        attachScreenshot(app, name: "vnext-06-records")
+
+        let me = vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我")
+        tapWhenReady(me, in: app)
+        XCTAssertTrue(
+            app.staticTexts["我的数字生活"].waitForExistence(timeout: 10),
+            "我一级工作区未出现"
+        )
+        XCTAssertTrue(app.switches.firstMatch.exists, "隐私遮蔽开关未出现")
+        attachScreenshot(app, name: "vnext-07-me")
+
+        // Sources and Settings are real reference surfaces, not placeholders.
+        let sources = vnextRoute(app, id: "pdig.nav.me.sources")
+        tapWhenReady(sources, in: app)
+        XCTAssertTrue(
+            app.staticTexts["Reference fixture 未记录真实来源实例"].waitForExistence(timeout: 10),
+            "数据源 reference surface 未出现"
+        )
+        attachScreenshot(app, name: "vnext-08-sources")
+
+        tapWhenReady(vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我"), in: app)
+        let settings = vnextRoute(app, id: "pdig.nav.me.settings")
+        tapWhenReady(settings, in: app)
+        XCTAssertTrue(
+            app.staticTexts["隐私与偏好"].waitForExistence(timeout: 10),
+            "设置 reference surface 未出现"
+        )
+        let upcoming = vnextRoute(app, id: "pdig.ios.reference.setting.upcoming")
+        tapWhenReady(upcoming, in: app)
+        tapWhenReady(vnextRoot(app, id: "pdig.nav.now", fallbackLabel: "现在"), in: app)
+        XCTAssertFalse(
+            vnextRoute(app, id: "pdig.now.upcoming").exists,
+            "关闭“显示即将到来”后 Now 仍渲染 Upcoming"
+        )
+        attachScreenshot(app, name: "vnext-09-now-upcoming-hidden")
+
+        tapWhenReady(vnextRoot(app, id: "pdig.nav.me", fallbackLabel: "我"), in: app)
+
+        // Global privacy is a cross-workspace presentation contract, not a
+        // card/number-only switch. Keep state/counts visible while identity-
+        // bearing plan/action and old/new number copy is redacted.
+        tapWhenReady(app.switches.firstMatch, in: app)
+
+        let maskedRecords = vnextRoot(app, id: "pdig.nav.records", fallbackLabel: "记录")
+        tapWhenReady(maskedRecords, in: app)
+        XCTAssertTrue(
+            app.staticTexts["操作步骤（已遮蔽）"].firstMatch.waitForExistence(timeout: 10),
+            "Records 未应用全局隐私遮蔽"
+        )
+        XCTAssertFalse(app.staticTexts["影响分析"].exists, "Records 泄露未遮蔽动作标题")
+        attachScreenshot(app, name: "vnext-10-records-masked")
+
+        let maskedChange = vnextRoot(app, id: "pdig.nav.change", fallbackLabel: "变更")
+        tapWhenReady(maskedChange, in: app)
+        XCTAssertTrue(
+            vnextRoute(app, id: "pdig.change.center").waitForExistence(timeout: 10),
+            "隐私状态下 Change Center 未出现"
+        )
+        XCTAssertFalse(app.staticTexts["工行信用卡"].exists, "Change Center 泄露卡片身份")
+        tapWhenReady(vnextRoute(app, id: "pdig.change.center.phone"), in: app)
+        XCTAssertTrue(
+            app.staticTexts["号码已遮蔽"].firstMatch.waitForExistence(timeout: 10),
+            "Change Phone 未应用全局隐私遮蔽"
+        )
+        XCTAssertFalse(app.staticTexts["+86 138****8823"].exists, "Change Phone 泄露旧号码")
+        attachScreenshot(app, name: "vnext-11-change-masked")
+    }
+
 }
