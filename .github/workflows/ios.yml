@@ -53,7 +53,11 @@ concurrency:
 jobs:
   ios-core:
     name: iOS core (Swift build + canonical conformance + N4 app)
-    runs-on: macos-14
+    # GitHub Free 计划下 `macos-14` 会被解析成 `macos-14-arm64-us-default`，该配置对本仓库
+    # 不可用（check-run annotation: "The configuration 'macos-14-arm64-us-default' is not
+    # supported"，job 空跑 1 秒即 cancelled）。本 job 用动态 Xcode/simulator 探测、Swift 5.9、
+    # iOS 16 部署目标，因此改用 x64 的标准镜像 `macos-13`。
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v4
         with:
