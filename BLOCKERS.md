@@ -22,7 +22,7 @@
 > - **阶段四（新证据，2026-11-13）XCUITest 具体失败**：run `43368461167` 的 xcresult 摘要已进日志 ——
 >   **8 例：passed 2 / failed 6**。失败项：
 >   `testHomeReachableOnAnyFormFactor`（`Failed to get background assertion for target app ... Timed out
->   while acquiring background assertion`）+ 5 条 `XCTAssertTrue failed - 等待元素出现: Any (First Match)`
+while acquiring background assertion`）+ 5 条 `XCTAssertTrue failed - 等待元素出现: Any (First Match)`
 >   （`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite` L457、
 >   `testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable` L567、
 >   `testVNextGlobalPrivacyMasksCardAndNumberSurfaces` L612、
@@ -30,9 +30,9 @@
 >   `testVNextReferenceFiveRootsAndSecondaryInfrastructure` L727）。
 >   性质：元素等待超时 + 宿主后台断言超时，属**用例/宿主层**问题（同轮 App 手动启动成功），
 >   不是渲染或启动失败；`IOS_XCUITEST = FAIL` 保持，逐用例定位是下一步。
-'Target device architecture is nil'` → SIGABRT（exit 134）。
->   ② 「Select and boot」在 3 核 Intel VM 上 `simctl boot` wedge（>17 分钟无进展）。
->   这两步与 XCUITest 目前状态：`IOS_VISUAL = NOT_RUN`、`IOS_RUNTIME = NOT_VERIFIED`，
+>   'Target device architecture is nil'`→ SIGABRT（exit 134）。
+② 「Select and boot」在 3 核 Intel VM 上`simctl boot` wedge（>17 分钟无进展）。
+这两步与 XCUITest 目前状态：`IOS_VISUAL = NOT_RUN`、`IOS_RUNTIME = NOT_VERIFIED`，
 >   **在 arm64 run 给出结论前不得改写**。
 > - 已保留的兜底：`Select and boot` 步骤 `timeout-minutes: 25`，避免任何镜像异常时空烧 90 分钟。
 > - **不需要 owner 付费升级**：arm64 标准镜像对本仓库可用；若 arm64 上仍拿不到视觉证据，才需要
