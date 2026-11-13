@@ -22,10 +22,20 @@ final class PDIGAppUITests: XCTestCase {
     }
 
     /// 以演示模式启动 App。
+    ///
+    /// XCUITest 的 `app.launch()` 偶发 `Failed to get background assertion for
+    /// target app ... Timed out while acquiring background assertion`（宿主层
+    /// 超时，不是产品崩溃）。这里显式等待进入前台，并最多重试一次，避免单个
+    /// 启动 flake 直接判失败。
     private func launchApp() -> XCUIApplication {
         let app = XCUIApplication()
         app.launchArguments = ["--uitest-demo"]
         app.launch()
+        if !app.wait(for: .runningForeground, timeout: 20) {
+            app.terminate()
+            app.launch()
+            _ = app.wait(for: .runningForeground, timeout: 30)
+        }
         return app
     }
 

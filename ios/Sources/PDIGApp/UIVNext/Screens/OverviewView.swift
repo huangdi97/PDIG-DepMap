@@ -33,8 +33,11 @@ struct OverviewView: View {
                     regionList
 
                     // 快速入口
+                    // 注意：**不要**在 quickEntry 容器上挂 accessibilityIdentifier。
+                    // 容器 id 会穿透到子元素并遮蔽 pdig.nav.infra.*（与上面 regionList
+                    // 的注释同一个 SwiftUI 行为），实测导致 XCUITest 找不到
+                    // accounts/cards/numbers 等入口。id 只挂在 quickButton 自身。
                     quickEntry
-                        .accessibilityIdentifier(VTestIds.overviewQuick)
 
                     Spacer(minLength: 16)
                 }
