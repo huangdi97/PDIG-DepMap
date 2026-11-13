@@ -273,10 +273,41 @@ jobs:
           R=../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
           echo "XCRESULT=$R"
           if [ ! -d "$R" ]; then echo "NO_XCRESULT"; exit 0; fi
-          echo "--- test-results summary ---"
-          xcrun xcresulttool get test-results summary --path "$R" 2>&1 | head -60
-          echo "--- test-results tests (failures first) ---"
-          xcrun xcresulttool get test-results tests --path "$R" 2>&1 | head -160
+          echo "--- test-results summary (counts + failureText) ---"
+          xcrun xcresulttool get test-results summary --path "$R" --compact 2>/dev/null > /tmp/summary.json || true
+          python3 - <<'PY' || true
+          import json
+          d = json.load(open('/tmp/summary.json'))
+          print("result=%s passed=%s failed=%s skipped=%s" % (
+              d.get("result"), d.get("passedTests"), d.get("failedTests"), d.get("skippedTests")))
+          for f in d.get("testFailures") or []:
+              print("FAIL %s :: %s" % (f.get("testIdentifierString"), f.get("failureText")))
+          PY
+          echo "--- every failing node (complete, no truncation) ---"
+          xcrun xcresulttool get test-results tests --path "$R" --compact 2>/dev/null > /tmp/tests.json || true
+          python3 - <<'PY' || true
+          import json
+          try:
+              data = json.load(open('/tmp/tests.json'))
+          except Exception as exc:
+              print("TESTS_JSON_UNAVAILABLE %s" % exc)
+              raise SystemExit(0)
+          seen = set()
+          def walk(node):
+              if isinstance(node, dict):
+                  if str(node.get("result", "")).lower() == "failed":
+                      key = node.get("nodeIdentifier") or node.get("name") or "?"
+                      if key not in seen:
+                          seen.add(key)
+                          print("FAILED_NODE %s" % key)
+                  for value in node.values():
+                      walk(value)
+              elif isinstance(node, list):
+                  for value in node:
+                      walk(value)
+          walk(data)
+          print("failing_nodes=%d" % len(seen))
+          PY
           echo "--- tail of xcuitest-iphone.log ---"
           tail -n 40 ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log 2>/dev/null
       - name: XCUITest on iPad simulator (xcresult)
