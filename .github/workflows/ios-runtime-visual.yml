@@ -270,6 +270,11 @@ jobs:
         working-directory: ios
         run: |
           set +e
+          # 摘要同时写进一个几 KB 的小文件，随独立 artifact 上传：
+          # job log 会被截断，xcresult 包有 100MB+，都不适合当唯一出口。
+          OUT=../conformance/reports/ios-xcuitest-summary.txt
+          mkdir -p ../conformance/reports
+          exec > >(tee "$OUT") 2>&1
           R=../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
           echo "XCRESULT=$R"
           if [ ! -d "$R" ]; then echo "NO_XCRESULT"; exit 0; fi
@@ -310,6 +315,14 @@ jobs:
           PY
           echo "--- tail of xcuitest-iphone.log ---"
           tail -n 40 ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log 2>/dev/null
+      - name: Upload XCUITest summary (small artifact)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcuitest-summary
+          path: conformance/reports/ios-xcuitest-summary.txt
+          if-no-files-found: warn
+          retention-days: 21
       - name: XCUITest on iPad simulator (xcresult)
         working-directory: ios
         run: |
