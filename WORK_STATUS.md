@@ -43,14 +43,17 @@
 > web-vnext（`c07e5a85`）**success**（Web source gates / Core·Canonical / Playwright chromium·firefox·webkit / 视觉矩阵）；
 > Post-Freeze Evidence（`3c60fc6c`）**4/4 success**，语义子集 `artifacts/runtime-evidence/2026-11-12-android-postfreeze-3c60fc6c/`
 > （88 XML + 4 MANIFEST + seed 日志，无 PNG/APK）；本地 `cd core && npm run check` = EXIT 0。
-> iOS：runner 配置已修（`macos-14` 在本仓库解析成不受支持的 arm64 配置；`macos-13` 已于 2025-12-04 退役），
-> 现用 **`macos-15-intel`** 并真的分配到了机器。取得的结果分三层：
-> **① `IOS_CONFORMANCE = PASS`（161/161，pass=161 fail=0 notImplemented=0 envBlocked=0）**，证据
-> `artifacts/runtime-evidence/2026-11-12-ios-conformance/ios.json`（Swift build / `PDIGAppTests` / XCUITest
-> bundle 构建同样通过）；**② `IOS_VISUAL = NOT_RUN`**（Metal 在托管 Intel VM 不可用：
-> `MTLLoader ... 'Target device architecture is nil'` → SIGABRT）；**③ `IOS_RUNTIME = NOT_VERIFIED`**
-> （`simctl boot` 在 3 核 Intel VM 上 wedge，>17 分钟无进展，已给该步 `timeout-minutes: 25` 封顶）。
-> 推进需 owner 决定：arm64 macOS runner（付费档）/ 自托管 Mac / 接受 iOS 运行时 NOT_VERIFIED。详见 `BLOCKERS.md`。
+> iOS：runner 谜团解开 —— "`configuration 'macos-14-arm64-us-default' is not supported`" 的真实原因是
+> **该镜像 2026-11-02 已退役**（`macos-13` 2025-12-04 退役），**不是 arm64 不可用**。一次性探针
+> （分支 `probe/runner-labels`，run `43342828034`，分支已删）实测：`macos-14` = cancelled，
+> `macos-15`(arm64, Xcode 16.4, metal 工具链在位) / `macos-26` / `macos-15-intel` 均 success，
+> arm64 单台模拟器启动 83s。据此两条 iOS workflow 改为 `runs-on: macos-15`。arm64 上的结果：
+> **① `IOS_CONFORMANCE = PASS`（161/161）**；**② `IOS_RENDER = PASS`** —— macOS SwiftUI 真实渲染
+> 60 张（30 屏×light/dark）已入库 `artifacts/runtime-evidence/ios-n4-20261113015244/`，
+> `iOS` run `43347855211` 全步骤 success（Intel VM 上的 Metal SIGABRT 已消失）；**③ `IOS_XCUITEST = FAIL`**
+> —— 同镜像 run `43347855293` 里模拟器 boot ✅、App 手动启动 ✅，但 XCUITest 阶段 `xcodebuild` exit 65
+> （细节在 206MB xcresult artifact，待提取）；iPad 那条被 skip。`IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`。
+> 结论：iOS 的**环境型阻塞已清零**，剩下的是 XCUITest 用例/工程问题。详见 `BLOCKERS.md`。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
