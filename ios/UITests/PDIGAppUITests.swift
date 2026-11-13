@@ -243,7 +243,7 @@ final class PDIGAppUITests: XCTestCase {
         )
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.infrastructure", fallbackLabel: "基础设施"),
             in: app
         )
         XCTAssertTrue(
@@ -366,7 +366,7 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "production-vnext-pilot-account")
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.change"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.change", fallbackLabel: "变更"),
             in: app
         )
         XCTAssertTrue(
@@ -388,7 +388,7 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "production-vnext-pilot-change-stages")
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.records", fallbackLabel: "记录"),
             in: app
         )
         XCTAssertTrue(
@@ -402,7 +402,7 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "production-vnext-pilot-records-empty")
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.me"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.me", fallbackLabel: "我"),
             in: app
         )
         let sourcesEntry = vnextRoute(
@@ -462,7 +462,7 @@ final class PDIGAppUITests: XCTestCase {
         tapWhenReady(privacy, in: app)
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.infrastructure"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.infrastructure", fallbackLabel: "基础设施"),
             in: app
         )
         XCTAssertTrue(
@@ -486,7 +486,7 @@ final class PDIGAppUITests: XCTestCase {
                 .waitForExistence(timeout: 20)
         )
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.change"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.change", fallbackLabel: "变更"),
             in: app
         )
 
@@ -547,7 +547,7 @@ final class PDIGAppUITests: XCTestCase {
         attachScreenshot(app, name: "production-vnext-change-authority-after-prepare")
 
         tapWhenReady(
-            vnextRoute(app, id: "pdig.ios.production-vnext.nav.records"),
+            vnextRoot(app, id: "pdig.ios.production-vnext.nav.records", fallbackLabel: "记录"),
             in: app
         )
         XCTAssertFalse(
