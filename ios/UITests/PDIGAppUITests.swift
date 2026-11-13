@@ -56,15 +56,21 @@ final class PDIGAppUITests: XCTestCase {
     private func vnextRoot(
         _ app: XCUIApplication,
         id: String,
-        fallbackLabel _: String
+        fallbackLabel: String
     ) -> XCUIElement {
-        // SwiftUI TabView exposes phone roots as buttons, while List/sidebar
-        // rows on iPad may surface as cells/other accessibility elements.
-        // Stable identifier is the cross-form-factor contract; visible labels
-        // are asserted separately and never used as a navigation fallback.
-        app.descendants(matching: .any)
+        // 实证（iOS 26 / iPhone 16 Pro Max，AX dump 已进 CI 日志）：
+        // `TabView` + `.tabItem` 上挂的 accessibilityIdentifier **不会**出现在
+        // tab bar 按钮上 —— 树里是 `Button label: '基础设施'`，没有 identifier。
+        // 因此一级导航必须允许按 tab bar 按钮的可见文案回退；非根路由
+        // （vnextRoute）仍只认 identifier，文案不参与二级导航。
+        let byIdentifier = app.descendants(matching: .any)
             .matching(NSPredicate(format: "identifier == %@", id))
             .firstMatch
+        if byIdentifier.exists { return byIdentifier }
+        let byLabel = app.tabBars.buttons
+            .matching(NSPredicate(format: "label == %@", fallbackLabel))
+            .firstMatch
+        return byLabel.exists ? byLabel : byIdentifier
     }
 
     private func vnextRoute(_ app: XCUIApplication, id: String) -> XCUIElement {
