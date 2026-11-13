@@ -263,6 +263,22 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
 
+      # xcodebuild 的失败细节只落在 xcresult 里，而整个 evidence artifact 有 200MB+，
+      # 取回成本高。这里无论成败都把测试摘要打进日志，便于直接定位失败用例。
+      - name: XCUITest summary (iPhone, always)
+        if: always()
+        working-directory: ios
+        run: |
+          set +e
+          R=../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult
+          echo "XCRESULT=$R"
+          if [ ! -d "$R" ]; then echo "NO_XCRESULT"; exit 0; fi
+          echo "--- test-results summary ---"
+          xcrun xcresulttool get test-results summary --path "$R" 2>&1 | head -60
+          echo "--- test-results tests (failures first) ---"
+          xcrun xcresulttool get test-results tests --path "$R" 2>&1 | head -160
+          echo "--- tail of xcuitest-iphone.log ---"
+          tail -n 40 ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log 2>/dev/null
       - name: XCUITest on iPad simulator (xcresult)
         working-directory: ios
         run: |
