@@ -19,6 +19,17 @@
 > - **阶段三（此前在 Intel VM 上失败的两步，原因已记录，待 arm64 复测）**：
 >   ① 「Generate screenshots (macOS SwiftUI render)」在 Intel VM 上 Metal 不可用：
 >   `+[MTLLoader sliceIDForDevice:legacyDriverVersion:airntDriverVersion:]:685: failed assertion
+> - **阶段四（新证据，2026-11-13）XCUITest 具体失败**：run `43368461167` 的 xcresult 摘要已进日志 ——
+>   **8 例：passed 2 / failed 6**。失败项：
+>   `testHomeReachableOnAnyFormFactor`（`Failed to get background assertion for target app ... Timed out
+>   while acquiring background assertion`）+ 5 条 `XCTAssertTrue failed - 等待元素出现: Any (First Match)`
+>   （`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite` L457、
+>   `testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable` L567、
+>   `testVNextGlobalPrivacyMasksCardAndNumberSurfaces` L612、
+>   `testVNextSecondaryCollectionsHonorRegionScope` L677、
+>   `testVNextReferenceFiveRootsAndSecondaryInfrastructure` L727）。
+>   性质：元素等待超时 + 宿主后台断言超时，属**用例/宿主层**问题（同轮 App 手动启动成功），
+>   不是渲染或启动失败；`IOS_XCUITEST = FAIL` 保持，逐用例定位是下一步。
 'Target device architecture is nil'` → SIGABRT（exit 134）。
 >   ② 「Select and boot」在 3 核 Intel VM 上 `simctl boot` wedge（>17 分钟无进展）。
 >   这两步与 XCUITest 目前状态：`IOS_VISUAL = NOT_RUN`、`IOS_RUNTIME = NOT_VERIFIED`，
