@@ -51,9 +51,18 @@
 > **① `IOS_CONFORMANCE = PASS`（161/161）**；**② `IOS_RENDER = PASS`** —— macOS SwiftUI 真实渲染
 > 60 张（30 屏×light/dark）已入库 `artifacts/runtime-evidence/ios-n4-20261113015244/`，
 > `iOS` run `43347855211` 全步骤 success（Intel VM 上的 Metal SIGABRT 已消失）；**③ `IOS_XCUITEST = FAIL`**
-> —— 同镜像 run `43347855293` 里模拟器 boot ✅、App 手动启动 ✅，但 XCUITest 阶段 `xcodebuild` exit 65
-> （细节在 206MB xcresult artifact，待提取）；iPad 那条被 skip。`IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`。
-> 结论：iOS 的**环境型阻塞已清零**，剩下的是 XCUITest 用例/工程问题。详见 `BLOCKERS.md`。
+> —— 同镜像 run `43347855293` 里模拟器 boot ✅、App 手动启动 ✅，但 XCUITest 阶段 `xcodebuild` exit 65，
+> iPad 那条被 skip。已把 xcresult 摘要打进日志（run `43368461167`）：**8 例 → passed 2 / failed 6**，
+> 失败项 = `testHomeReachableOnAnyFormFactor`（`Failed to get background assertion ... Timed out`）
+>
+> - 5 条 `等待元素出现: Any (First Match)`（`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite` L457、
+>   `testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable` L567、
+>   `testVNextGlobalPrivacyMasksCardAndNumberSurfaces` L612、
+>   `testVNextSecondaryCollectionsHonorRegionScope` L677、
+>   `testVNextReferenceFiveRootsAndSecondaryInfrastructure` L727）。
+>   这些是**用例/宿主层信号**（元素等不到 + 后台断言超时），不是渲染或启动失败；下一步按用例逐条定位。
+>   `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`。
+>   结论：iOS 的**环境型阻塞已清零**，剩下的是 XCUITest 用例/工程问题。详见 `BLOCKERS.md`。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
