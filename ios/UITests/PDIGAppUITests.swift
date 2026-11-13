@@ -97,16 +97,17 @@ final class PDIGAppUITests: XCTestCase {
         // SwiftUI may not materialize controls inside a LazyVGrid until their
         // enclosing ScrollView approaches the viewport.
         //
-        // 实证（iOS 26 / iPhone 16 Pro Max）：在 Overview 上 `app.scrollViews.firstMatch`
-        // 会被 Globe 自己的可滚动区域命中，`app.swipeUp()` 也可能被 Globe 手势吞掉，
-        // 结果页面根本没动 —— 快捷入口一直不存在。优先在**页面内可见正文**上滑动，
-        // 由 SwiftUI 把手势交给最近的滚动容器；都没有时才回退到 scrollView / app。
+        // 实证（run 43429335760 的 AX 树）：进了基础设施页后 Globe 占 190–611pt，
+        // 快捷入口在地区列表下方、尚未渲染；而 `app.scrollViews.firstMatch` 的
+        // `isHittable` 为 false，旧实现直接跳过滑动、页面一直停在顶部。
+        // 改为从下半屏（地区列表区域，避开 Globe）向上拖拽，再退回 scrollView。
         func scrollForward() {
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.80))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+            start.press(forDuration: 0.05, thenDragTo: end)
             let scrollView = app.scrollViews.firstMatch
-            if scrollView.exists && scrollView.isHittable {
+            if scrollView.exists {
                 scrollView.swipeUp()
-            } else {
-                app.swipeUp()
             }
         }
 
