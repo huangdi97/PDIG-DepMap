@@ -89,11 +89,20 @@ final class PDIGAppUITests: XCTestCase {
         line: UInt = #line
     ) {
         // SwiftUI may not materialize controls inside a LazyVGrid until their
-        // enclosing ScrollView approaches the viewport. Swipe the real scroll
-        // surface rather than the whole app: Overview contains an interactive
-        // globe, and app.swipeUp() can be consumed by globe gestures without
-        // moving the page at all.
+        // enclosing ScrollView approaches the viewport.
+        //
+        // 实证（iOS 26 / iPhone 16 Pro Max）：在 Overview 上 `app.scrollViews.firstMatch`
+        // 会被 Globe 自己的可滚动区域命中，`app.swipeUp()` 也可能被 Globe 手势吞掉，
+        // 结果页面根本没动 —— 快捷入口一直不存在。优先在**页面内可见正文**上滑动，
+        // 由 SwiftUI 把手势交给最近的滚动容器；都没有时才回退到 scrollView / app。
         func scrollForward() {
+            for title in ["我的基础设施", "基础设施", "区域清单"] {
+                let anchor = app.staticTexts[title]
+                if anchor.exists && anchor.isHittable {
+                    anchor.swipeUp()
+                    return
+                }
+            }
             let scrollView = app.scrollViews.firstMatch
             if scrollView.exists && scrollView.isHittable {
                 scrollView.swipeUp()
@@ -104,13 +113,20 @@ final class PDIGAppUITests: XCTestCase {
 
         var attempts = 0
         if !element.waitForExistence(timeout: 2) {
-            while !element.exists && attempts < 8 {
+            while !element.exists && attempts < 12 {
                 scrollForward()
                 attempts += 1
                 _ = element.waitForExistence(timeout: 1)
             }
         }
-        XCTAssertTrue(element.exists, "等待元素出现: \(element)", file: file, line: line)
+        // 失败时把当前无障碍树打进日志：id 缺失 / 未渲染 / 被容器遮蔽 三种情况
+        // 在日志里可以直接区分，不需要再下载 200MB 的 xcresult。
+        XCTAssertTrue(
+            element.exists,
+            "等待元素出现: \(element)\n---- AX tree ----\n\(app.debugDescription)",
+            file: file,
+            line: line
+        )
         guard element.exists else { return }
 
         if !element.isEnabled {
