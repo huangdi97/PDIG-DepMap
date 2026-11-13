@@ -261,7 +261,7 @@ jobs:
             -resultBundlePath ../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-iphone.xcresult \
             -only-testing:PDIGAppUITests \
             CODE_SIGNING_ALLOWED=NO \
-            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 8
+            2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-iphone.log | tail -n 200
 
       # xcodebuild 的失败细节只落在 xcresult 里，而整个 evidence artifact 有 200MB+，
       # 取回成本高。这里无论成败都把测试摘要打进日志，便于直接定位失败用例。

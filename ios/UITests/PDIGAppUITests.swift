@@ -96,13 +96,6 @@ final class PDIGAppUITests: XCTestCase {
         // 结果页面根本没动 —— 快捷入口一直不存在。优先在**页面内可见正文**上滑动，
         // 由 SwiftUI 把手势交给最近的滚动容器；都没有时才回退到 scrollView / app。
         func scrollForward() {
-            for title in ["我的基础设施", "基础设施", "区域清单"] {
-                let anchor = app.staticTexts[title]
-                if anchor.exists && anchor.isHittable {
-                    anchor.swipeUp()
-                    return
-                }
-            }
             let scrollView = app.scrollViews.firstMatch
             if scrollView.exists && scrollView.isHittable {
                 scrollView.swipeUp()
@@ -119,14 +112,14 @@ final class PDIGAppUITests: XCTestCase {
                 _ = element.waitForExistence(timeout: 1)
             }
         }
-        // 失败时把当前无障碍树打进日志：id 缺失 / 未渲染 / 被容器遮蔽 三种情况
-        // 在日志里可以直接区分，不需要再下载 200MB 的 xcresult。
-        XCTAssertTrue(
-            element.exists,
-            "等待元素出现: \(element)\n---- AX tree ----\n\(app.debugDescription)",
-            file: file,
-            line: line
-        )
+        // 失败时把当前无障碍树打进标准输出（workflow tee 到 xcuitest-iphone.log）：
+        // id 缺失 / 未渲染 / 被容器遮蔽 三种情况在日志里可直接区分。
+        if !element.exists {
+            print("---- AX tree (missing element: \(element)) ----")
+            print(app.debugDescription)
+            print("---- end AX tree ----")
+        }
+        XCTAssertTrue(element.exists, "等待元素出现: \(element)", file: file, line: line)
         guard element.exists else { return }
 
         if !element.isEnabled {
@@ -136,6 +129,11 @@ final class PDIGAppUITests: XCTestCase {
         while !element.isHittable && attempts < 10 {
             scrollForward()
             attempts += 1
+        }
+        if !element.isHittable {
+            print("---- AX tree (not hittable: \(element)) ----")
+            print(app.debugDescription)
+            print("---- end AX tree ----")
         }
         XCTAssertTrue(element.isHittable, "元素存在但不可点击: \(element)", file: file, line: line)
         if element.isHittable {
