@@ -19,20 +19,19 @@
 > - **阶段三（此前在 Intel VM 上失败的两步，原因已记录，待 arm64 复测）**：
 >   ① 「Generate screenshots (macOS SwiftUI render)」在 Intel VM 上 Metal 不可用：
 >   `+[MTLLoader sliceIDForDevice:legacyDriverVersion:airntDriverVersion:]:685: failed assertion
-> - **阶段四（新证据，2026-11-13）XCUITest 具体失败**：run `43368461167` 的 xcresult 摘要已进日志 ——
->   **8 例：passed 2 / failed 6**。失败项：
->   `testHomeReachableOnAnyFormFactor`（`Failed to get background assertion for target app ... Timed out
-while acquiring background assertion`）+ 5 条 `XCTAssertTrue failed - 等待元素出现: Any (First Match)`
->   （`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite` L457、
->   `testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable` L567、
->   `testVNextGlobalPrivacyMasksCardAndNumberSurfaces` L612、
->   `testVNextSecondaryCollectionsHonorRegionScope` L677、
->   `testVNextReferenceFiveRootsAndSecondaryInfrastructure` L727）。
->   性质：元素等待超时 + 宿主后台断言超时，属**用例/宿主层**问题（同轮 App 手动启动成功），
->   不是渲染或启动失败；`IOS_XCUITEST = FAIL` 保持，逐用例定位是下一步。
->   'Target device architecture is nil'`→ SIGABRT（exit 134）。
-② 「Select and boot」在 3 核 Intel VM 上`simctl boot` wedge（>17 分钟无进展）。
-这两步与 XCUITest 目前状态：`IOS_VISUAL = NOT_RUN`、`IOS_RUNTIME = NOT_VERIFIED`，
+> - **阶段四（2026-11-13）XCUITest 定位与修复**：起点 run `43368461167` 为 **passed 2 / failed 6**，
+>   经 4 处修复后 run `43469972082` 为 **passed 7 / failed 1**（摘要见独立小 artifact `ios-xcuitest-summary`）。
+>   三个根因均由 CI 的 AX 树/摘要证实，不是猜：
+>   ① `app.launch()` 偶发 `Failed to get background assertion … Timed out` → 前台等待 + 重试一次；
+>   ② iOS 26 的 `TabView` 不把 `.tabItem` 的 identifier 暴露到 tab bar 按钮（树里只有 `label: '基础设施'`）
+>   → 一级导航 identifier 优先、可见文案回退（含 production pilot 的 7 处）；
+>   ③ 基础设施页 `app.scrollViews.firstMatch.isHittable == false` 导致从未滚动、快捷入口永不渲染
+>   → 改为窗口 80%→35% 坐标拖拽。
+> - **仍红 1 条（产品缺口，不是测试问题）**：`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite`
+>   L512 —— `Production Change 缺少第一步正式完成入口`。iOS 的 Production vNext 变更页没有「第一步正式完成」
+>   入口，需要在 UI 层补（且必须保持 `done ≠ verified`、未验证不解锁停用）。`IOS_XCUITEST = FAIL` 保持。
+> - `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；`IOS_CONFORMANCE = PASS`、`IOS_RENDER = PASS` 不变。
+> - iPad 腿在 iPhone 腿失败时会被 skip，因此 iPad 的 XCUITest 尚未独立取证。
 >   **在 arm64 run 给出结论前不得改写**。
 > - 已保留的兜底：`Select and boot` 步骤 `timeout-minutes: 25`，避免任何镜像异常时空烧 90 分钟。
 > - **不需要 owner 付费升级**：arm64 标准镜像对本仓库可用；若 arm64 上仍拿不到视觉证据，才需要
