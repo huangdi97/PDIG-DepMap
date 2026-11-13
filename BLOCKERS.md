@@ -1,26 +1,31 @@
 # BLOCKERS.md
 
-> **iOS CI（2026-11-12）：runner 已修好，语义门真绿；运行时/视觉被托管 Intel VM 阻断**
+> **iOS CI（2026-11-13）：runner 谜团解开；canonical 161/161 真绿；视觉/模拟器改跑 arm64 待复测**
 >
-> - 阶段一（已解决）**runner 配置**：合并后每次 push，两条 iOS workflow 都在 1–3 秒内 `cancelled`
->   （annotation：`The configuration 'macos-14-arm64-us-default' is not supported`）。
->   `macos-13` 已于 **2025-12-04 退役**（改用后只排队不分配），`macos-14` 也于 **2026-11-02 退役**。
->   现用 **`macos-15-intel`**（x64 标准标签，可用至 2027-08），run 真的分配到了机器。
-> - 阶段二（**已取得真实结果**）**iOS canonical conformance = 161/161 PASS**
->   （`summary: {pass:161, fail:0, notImplemented:0, envBlocked:0}`；证据
->   `artifacts/runtime-evidence/2026-11-12-ios-conformance/ios.json`，来自 run `43276187468` 的
->   `ios-conformance-report` artifact）。Swift build、`PDIGAppTests`、XCUITest bundle 构建同样通过。
-> - 阶段三（**仍阻断，环境原因**）：iOS **运行时**证据两项拿不到 ——
->   ① `iOS core` 的「Generate screenshots (macOS SwiftUI render)」：Metal 在托管 Intel VM 上不可用，
->   实测 `+[MTLLoader sliceIDForDevice:legacyDriverVersion:airntDriverVersion:]:685: failed assertion
+> - **阶段一 runner（已定位，且我先前的一个判断被推翻）**：合并后每次 push 两条 iOS workflow 都在 1–3 秒内
+>   `cancelled`，annotation 是 `The configuration 'macos-14-arm64-us-default' is not supported`。
+>   真实原因**不是 arm64 不可用**，而是 `macos-14` 镜像已于 **2026-11-02 退役**（`macos-13` 更早，
+>   2025-12-04）。证据：一次性探针 workflow（分支 `probe/runner-labels`，run `43342828034`）实测四个标签 ——
+>   `macos-14` = cancelled；`macos-15` / `macos-26` / `macos-15-intel` = **success（真的分配到机器）**。
+> - **探针实测**：`macos-15` = **arm64**，Xcode 16.4，metal 工具链在位（`Apple metal version 32023.620`），
+>   runtime 为 iOS 26.0/26.1/26.2，单台模拟器 **boot OK（83s）**；`macos-15-intel` = x86_64，
+>   `Apple Paravirtualized Graphics Device`，boot OK（140s）。
+> - **据此把两条 iOS workflow 改为 `runs-on: macos-15`（arm64，模拟器原生运行、不走 Rosetta）**；
+>   视觉与 XCUITest 的真实结论以本轮 arm64 run 为准。
+> - **阶段二（已取得真实结果）`IOS_CONFORMANCE = PASS`（161/161）**：
+>   `summary: {pass:161, fail:0, notImplemented:0, envBlocked:0}`，证据
+>   `artifacts/runtime-evidence/2026-11-12-ios-conformance/ios.json`（run `43276187468` 的
+>   `ios-conformance-report` artifact）。Swift build / `PDIGAppTests` / XCUITest bundle 构建同样通过。
+> - **阶段三（此前在 Intel VM 上失败的两步，原因已记录，待 arm64 复测）**：
+>   ① 「Generate screenshots (macOS SwiftUI render)」在 Intel VM 上 Metal 不可用：
+>   `+[MTLLoader sliceIDForDevice:legacyDriverVersion:airntDriverVersion:]:685: failed assertion
 'Target device architecture is nil'` → SIGABRT（exit 134）。
->   ② `iOS Runtime Visual` 的模拟器启动：`simctl boot` 在 3 核 Intel VM 上 wedge
->   （实测 >17 分钟无进展；串行 + 420s `bootstatus` 预算仍超时，并发更会直接卡死），已给该步
->   `timeout-minutes: 25` 封顶以免空烧 90 分钟 runner 分钟数。
-> - 口径：`IOS_RUNTIME = NOT_VERIFIED`、`IOS_VISUAL = NOT_RUN`（**不得**用"canonical 过了"代替运行时通过）；
->   `IOS_CONFORMANCE = PASS`（161/161，有 artifact 证据）。本机无 macOS，无法本地补证。
-> - 需要 owner 决策才能推进：升级到 arm64 macOS runner（`macos-15` / `macos-15-large`，属付费档）/
->   自托管 macOS runner / 接受 iOS 运行时保持 NOT_VERIFIED。**这是外部资源 blocker，不是代码缺陷。**
+>   ② 「Select and boot」在 3 核 Intel VM 上 `simctl boot` wedge（>17 分钟无进展）。
+>   这两步与 XCUITest 目前状态：`IOS_VISUAL = NOT_RUN`、`IOS_RUNTIME = NOT_VERIFIED`，
+>   **在 arm64 run 给出结论前不得改写**。
+> - 已保留的兜底：`Select and boot` 步骤 `timeout-minutes: 25`，避免任何镜像异常时空烧 90 分钟。
+> - **不需要 owner 付费升级**：arm64 标准镜像对本仓库可用；若 arm64 上仍拿不到视觉证据，才需要
+>   自托管 Mac 或接受 `NOT_VERIFIED`。
 >
 > **ANDROID REFERENCE FREEZE 关闭记录（2026-11-12，owner 批准）：**
 >

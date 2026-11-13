@@ -53,12 +53,13 @@ concurrency:
 jobs:
   ios-core:
     name: iOS core (Swift build + canonical conformance + N4 app)
-    # 镜像选择（2026-11 实证）：`macos-14` 在本仓库解析成不受支持的 arm64 配置（annotation:
-    # "The configuration 'macos-14-arm64-us-default' is not supported"），`macos-13` 已于
-    # 2025-12-04 退役（排队永不分配）。GitHub 目前给 x86_64 标准 runner 的标签是
-    # `macos-15-intel`（可用至 2027-08）。本 job 用动态 Xcode/simulator 探测、Swift 5.9、
-    # iOS 16 部署目标，与该镜像匹配。
-    runs-on: macos-15-intel
+    # 镜像选择（2026-11-13 探针实测，见 BLOCKERS）：`macos-14` 报 "configuration
+    # 'macos-14-arm64-us-default' is not supported" 的真实原因是**该镜像已退役**
+    # （2026-11-02），不是 arm64 不可用；`macos-13` 也于 2025-12-04 退役。
+    # 探针结果：`macos-15`(arm64, Xcode 16.4, Metal 工具链在位, 模拟器 83s 启动) 与
+    # `macos-15-intel`(x86_64, 140s 启动) 均可分配。iOS 视觉/模拟器在 arm64 上原生运行，
+    # 因此选 `macos-15`。
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
         with:

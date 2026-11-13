@@ -24,9 +24,9 @@ concurrency:
 jobs:
   ios-runtime-visual:
     name: iOS fresh canonical + XCUITest closure (iPhone+iPad, xcresult)
-    # 同上：`macos-14` 解析成不受支持的 arm64 配置，`macos-13` 已于 2025-12-04 退役；
-    # x86_64 标准标签改用 `macos-15-intel`（可用至 2027-08）。
-    runs-on: macos-15-intel
+    # 同上（2026-11-13 探针）：`macos-14` 退役才导致 "configuration not supported"，
+    # arm64 本身可用；`macos-15`(arm64) 上模拟器 83s 启动，故用它跑 XCUITest。
+    runs-on: macos-15
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
