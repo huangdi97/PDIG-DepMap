@@ -51,16 +51,16 @@
 > **① `IOS_CONFORMANCE = PASS`（161/161）**；**② `IOS_RENDER = PASS`** —— macOS SwiftUI 真实渲染
 > 60 张（30 屏×light/dark）已入库 `artifacts/runtime-evidence/ios-n4-20261113015244/`，
 > `iOS` run `43347855211` 全步骤 success（Intel VM 上的 Metal SIGABRT 已消失）；**③ `IOS_XCUITEST`** 经 5 轮定位后
-> **8 例：最初 passed 2 / failed 6 → 现 passed 7 / failed 1**（run `43469972082`，摘要见独立小 artifact
-> `ios-xcuitest-summary`）。三个根因都由 CI 里的 AX 树/摘要直接证实，不是猜：
-> ① `app.launch()` 偶发 `Failed to get background assertion ... Timed out` → 前台等待 + 重试一次（该用例转绿）；
-> ② iOS 26 的 `TabView` **不把 `.tabItem` 的 identifier 暴露到 tab bar 按钮**（树里只有 `label: '基础设施'`，
-> 无 identifier）→ 一级导航改为 identifier 优先、按可见文案回退（否则根 tab 永远点不到）；
-> ③ 基础设施页因 Globe 占 190–611pt 且 `app.scrollViews.firstMatch.isHittable == false`（旧实现直接跳过滑动），
-> 页面从未滚动 → 快捷入口永不渲染；改为从窗口 80%→35% 拖拽（4 条 `testVNext*` **全部转绿**）。
-> 仍红 2 条，均在 **Production vNext pilot** 面：`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite`
-> （L512「Production Change 缺少第一步正式完成入口」）与
-> `testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy`（L245 等元素）。
+> **8 例：最初 passed 2 / failed 6 → 最终 `result=Passed passed=8 failed=0`**（run `43572807640`，
+> 整条 job `completed/success`；摘要见小 artifact `ios-xcuitest-summary`）。四个根因都由 CI 的 AX 树/摘要证实：
+> ① `app.launch()` 偶发 `Failed to get background assertion ... Timed out` → 前台等待 + 重试一次；
+> ② iOS 26 的 `TabView` **不把 `.tabItem` 的 identifier 暴露到 tab bar 按钮** → 一级导航 identifier 优先、
+> 按可见文案回退（reference 与 production pilot 共 14 处调用点）；
+> ③ 页面因 `app.scrollViews.firstMatch.isHittable == false` 从未滚动 → 改为窗口 80%→35% 坐标拖拽
+> （`tapWhenReady` 与 production-change 的局部 `reveal()` 都改）；
+> ④ **产品侧**：变更行容器挂了 `change.action.<id>`，穿透覆盖了按钮自己的
+> `change.complete.<id>` / `change.verify.<id>` → 去掉容器 id，CTA 恢复契约 id（`ProductionVNextPilotView`）。
+> 结果：**`IOS_XCUITEST = PASS`**（iPhone 8/8；iPad 腿本轮连同 N4 审计与上传一起 success）。
 > `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；`IOS_CONFORMANCE = PASS`、`IOS_RENDER = PASS` 不变。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**

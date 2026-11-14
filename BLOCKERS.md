@@ -19,20 +19,20 @@
 > - **阶段三（此前在 Intel VM 上失败的两步，原因已记录，待 arm64 复测）**：
 >   ① 「Generate screenshots (macOS SwiftUI render)」在 Intel VM 上 Metal 不可用：
 >   `+[MTLLoader sliceIDForDevice:legacyDriverVersion:airntDriverVersion:]:685: failed assertion
-> - **阶段四（2026-11-13）XCUITest 定位与修复**：起点 run `43368461167` 为 **passed 2 / failed 6**，
->   经 4 处修复后 run `43469972082` 为 **passed 7 / failed 1**（摘要见独立小 artifact `ios-xcuitest-summary`）。
->   三个根因均由 CI 的 AX 树/摘要证实，不是猜：
+> - **阶段四（2026-11-13）XCUITest 已闭环**：起点 run `43368461167` 为 **passed 2 / failed 6** →
+>   run `43572807640` 为 **`result=Passed passed=8 failed=0`**，整条 job `completed/success`
+>   （iPhone XCUITest、iPad XCUITest、N4 审计与证据上传全部 success）。
+>   四个根因均由 CI 的 AX 树/摘要证实，不是猜：
 >   ① `app.launch()` 偶发 `Failed to get background assertion … Timed out` → 前台等待 + 重试一次；
 >   ② iOS 26 的 `TabView` 不把 `.tabItem` 的 identifier 暴露到 tab bar 按钮（树里只有 `label: '基础设施'`）
->   → 一级导航 identifier 优先、可见文案回退（含 production pilot 的 7 处）；
->   ③ 基础设施页 `app.scrollViews.firstMatch.isHittable == false` 导致从未滚动、快捷入口永不渲染
->   → 改为窗口 80%→35% 坐标拖拽。
-> - **仍红 1 条（产品缺口，不是测试问题）**：`testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite`
->   L512 —— `Production Change 缺少第一步正式完成入口`。iOS 的 Production vNext 变更页没有「第一步正式完成」
->   入口，需要在 UI 层补（且必须保持 `done ≠ verified`、未验证不解锁停用）。`IOS_XCUITEST = FAIL` 保持。
-> - `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；`IOS_CONFORMANCE = PASS`、`IOS_RENDER = PASS` 不变。
-> - iPad 腿在 iPhone 腿失败时会被 skip，因此 iPad 的 XCUITest 尚未独立取证。
->   **在 arm64 run 给出结论前不得改写**。
+>   → 一级导航 identifier 优先、可见文案回退（reference + production pilot 共 14 处调用点）；
+>   ③ `app.scrollViews.firstMatch.isHittable == false` 时旧实现直接跳过滑动，页面从未滚动、懒加载内容不渲染
+>   → 改为窗口 80%→35% 坐标拖拽（`tapWhenReady` 与 production-change 的 `reveal()`）；
+>   ④ **产品侧真实缺陷**：变更行容器挂了 `change.action.<id>`，穿透覆盖了 CTA 的
+>   `change.complete.<id>` / `change.verify.<id>`（AX 树里按钮 label 是「记录完成」，identifier 却是容器 id）
+>   → 去掉容器 id（与 `regionList` / `quickEntry` 同一个 SwiftUI 行为）。
+> - 结论：**`IOS_XCUITEST = PASS`**（iPhone 8/8 + iPad）；`IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；
+>   `IOS_CONFORMANCE = PASS`、`IOS_RENDER = PASS` 不变。
 > - 已保留的兜底：`Select and boot` 步骤 `timeout-minutes: 25`，避免任何镜像异常时空烧 90 分钟。
 > - **不需要 owner 付费升级**：arm64 标准镜像对本仓库可用；若 arm64 上仍拿不到视觉证据，才需要
 >   自托管 Mac 或接受 `NOT_VERIFIED`。
