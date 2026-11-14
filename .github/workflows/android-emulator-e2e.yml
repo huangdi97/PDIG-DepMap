@@ -69,6 +69,24 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
+      # ubuntu-latest 镜像自带 SDK，但 cmdline-tools 不在 PATH
+      # （run 43633280886：line 3: sdkmanager: command not found，exit 127）。
+      - name: Locate Android SDK tooling
+        run: |
+          set -euo pipefail
+          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          if [ ! -x "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            echo "::error::cmdline-tools not found under $SDK_ROOT"
+            ls -la "$SDK_ROOT" || true
+            exit 1
+          fi
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/emulator" >> "$GITHUB_PATH"
+          echo "sdkmanager at $SDK_ROOT/cmdline-tools/latest/bin"
+
       - name: Configure Android SDK location
         working-directory: android
         run: |
