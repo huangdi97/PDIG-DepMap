@@ -121,10 +121,10 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
-          # 实测（run 43638300650）：这个 script 的每一行都被独立 `sh -c` 执行，
-          # 所以 `cd android` / `ARGS=` 不会带到下一行（报 exit 127）。
-          # 必须写成**一行**自包含命令，并用 -p 指定工程目录。
-          script: ./gradlew --no-daemon --console=plain -p android :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}
+          # 实测（run 43638300650 / 43640805702）：每一行被独立 `sh -c` 在**仓库根**执行，
+          # 所以 cwd 不是 android/、`./gradlew` 也找不到（exit 127）。
+          # 写成一行自包含命令，用 android/gradlew + -p android。
+          script: android/gradlew --no-daemon --console=plain -p android :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}
 
       - name: Summarise instrumented results
         if: always()
