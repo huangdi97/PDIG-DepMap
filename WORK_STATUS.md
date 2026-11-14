@@ -60,10 +60,17 @@
 > （`tapWhenReady` 与 production-change 的局部 `reveal()` 都改）；
 > ④ **产品侧**：变更行容器挂了 `change.action.<id>`，穿透覆盖了按钮自己的
 > `change.complete.<id>` / `change.verify.<id>` → 去掉容器 id，CTA 恢复契约 id（`ProductionVNextPilotView`）。
-> 结果：**`IOS_XCUITEST = PASS`**（iPhone 8/8；iPad 腿本轮连同 N4 审计与上传一起 success）。
-> `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；`IOS_CONFORMANCE = PASS`、`IOS_RENDER = PASS` 不变。
-> 验收材料：只读证据页 `website/ios-review/`（30 屏 × light/dark = 60 张，逐文件 `MACOS_RENDER` 来源），
-> 已随 `publish-web` 发到 gh-pages `/ios-review/`；逐项判定只归 owner，页面本身不写入任何结论。
+> 结果：**`IOS_XCUITEST = PASS`**，两次独立整条 success：run `43572807640`、`43606405863`
+> （后者仍是 `result=Passed passed=8 failed=0`，iPad 腿连同 N4 审计一起 success）。
+> 期间出现过一次 flake（run `43601199495`：`元素存在但不可点击: pdig.nav.infrastructure`），
+> 属动画/滚动收尾期 `isHittable` 短暂为 false；`tapWhenReady` 改为先轮询可点击（5s）→ 有限滚动 →
+> 最后按元素中心坐标点击兜底，**没有放宽任何断言**（是否真的点到，仍由各用例屏幕断言判定）。
+> 模拟器运行期证据已可取出：workflow 新增 `Export XCUITest screenshot attachments` 步骤，
+> 用 `xcresulttool export attachments` 导出 **35 帧 × 2 腿**，落到独立小 artifact
+> `ios-xcuitest-screenshots`，不再被 100MB+ 的 xcresult 锁住。
+> 验收材料：只读证据页 `website/ios-review/`（60 张 macOS 渲染 + 70 帧模拟器运行期，页面副本
+> 按 660px 缩放、原图留在 artifact），已随 `publish-web` 发到 gh-pages `/ios-review/`；
+> `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、`IOS_DEVICE_RUNTIME = NOT_RUN`（模拟器 ≠ 真机）。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
