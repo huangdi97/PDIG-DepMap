@@ -7,6 +7,7 @@ on:
     paths:
       - website/app/**
       - website/human-review/**
+      - website/ios-review/**
       - .github/pages/**
       - .github/workflows/publish-web.yml
   workflow_dispatch:
@@ -20,7 +21,7 @@ concurrency:
 
 jobs:
   publish:
-    name: Publish website/app + website/human-review -> gh-pages
+    name: Publish website/app + website/human-review + website/ios-review -> gh-pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -53,6 +54,11 @@ jobs:
           if [ -d website/human-review ]; then
             rm -rf "$WORK/human-review"
             cp -R website/human-review "$WORK/human-review"
+          fi
+          # iOS 运行时渲染人眼验收只读页（30 屏 × light/dark = 60 张）。
+          if [ -d website/ios-review ]; then
+            rm -rf "$WORK/ios-review"
+            cp -R website/ios-review "$WORK/ios-review"
           fi
           cp .github/pages/index.html "$WORK/index.html"
           touch "$WORK/.nojekyll"
