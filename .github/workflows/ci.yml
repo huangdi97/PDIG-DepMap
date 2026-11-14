@@ -55,9 +55,12 @@ permissions:
 #     也**不产生** Harmony conformance 读数 —— job 内不产出 harmony.json，
 #     故 orchestrator 对 harmony 平台仍如实报 NOT_RUN。
 #
-#   IOS_CI = NOT_ESTABLISHED
-#     macOS runner 可建立，但 iOS N4 尚未开工（BLOCKED_BY_MACOS 之外的工程缺口未开始），
-#     因此本轮不建空跑 job。
+#   IOS_CI = ESTABLISHED（2026-11-14 更正：本节原写 NOT_ESTABLISHED 且理由已不成立）
+#     `ios.yml` + `ios-runtime-visual.yml` 均在 macos-15 上真实执行：Swift build、
+#     canonical 91+37、macOS SwiftUI 渲染 60 张（IOS_RENDER）、iPhone + iPad XCUITest 8/8
+#     （IOS_XCUITEST，两次独立整条 success）。仍未建立的只有真机运行：
+#     IOS_DEVICE_RUNTIME = NOT_RUN（缺签名与真机，属外部 blocker）。
+#     证据能力对照见 docs/EVIDENCE_CAPABILITY_MATRIX.md。
 #
 #   ANDROID_EMULATOR_E2E = NOT_RUN
 #     GitHub-hosted Linux runner 无 KVM 授权的硬件加速，

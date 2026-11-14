@@ -71,6 +71,8 @@
 > 验收材料：只读证据页 `website/ios-review/`（60 张 macOS 渲染 + 70 帧模拟器运行期，页面副本
 > 按 660px 缩放、原图留在 artifact），已随 `publish-web` 发到 gh-pages `/ios-review/`；
 > `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`、`IOS_DEVICE_RUNTIME = NOT_RUN`（模拟器 ≠ 真机）。
+> 三端证据能力盘点（T0 源码 → T7 商店，逐格写「现在有什么证据 / 升一格缺什么 / 是不是代码能解」）：
+> `docs/EVIDENCE_CAPABILITY_MATRIX.md`。同时更正了 `ci.yml` 里已过时的 `IOS_CI = NOT_ESTABLISHED`。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
