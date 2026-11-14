@@ -49,18 +49,25 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      # macos-15-arm64 镜像不自带 cmdline-tools，`sdkmanager` 不在 PATH
-      # （run 43620912775：line 3: sdkmanager: command not found，exit 127）。
-      - name: Set up Android command line tools
-        uses: android-actions/setup-android@v3
-
-      - name: Confirm SDK tooling
+      # macos-15-arm64 镜像**自带** cmdline-tools，但不在 PATH
+      # （run 43620912775：sdkmanager: command not found，exit 127）。
+      # android-actions/setup-android 会额外执行 `sdkmanager tools`，该包已废弃、exit 1
+      # （run 43624027496），因此这里不引入它，直接把镜像内的 SDK 工具挂到 PATH 上。
+      - name: Locate Android SDK tooling
         run: |
           set -euo pipefail
-          echo "ANDROID_HOME=${ANDROID_HOME:-<unset>}"
-          echo "ANDROID_SDK_ROOT=${ANDROID_SDK_ROOT:-<unset>}"
-          which sdkmanager
-          sdkmanager --version
+          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
+          if [ ! -x "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
+            echo "::error::cmdline-tools not found under $SDK_ROOT"
+            ls -la "$SDK_ROOT" || true
+            exit 1
+          fi
+          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
+          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
+          echo "$SDK_ROOT/emulator" >> "$GITHUB_PATH"
+          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --version
 
       - name: Configure Android SDK location
         working-directory: android
