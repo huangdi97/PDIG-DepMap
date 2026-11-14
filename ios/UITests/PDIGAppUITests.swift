@@ -490,14 +490,18 @@ final class PDIGAppUITests: XCTestCase {
             in: app
         )
 
+        // 与 tapWhenReady 同一个坑（见该函数注释）：托管模拟器上
+        // `scrollViews.firstMatch.isHittable` 常为 false，而 `app.swipeUp()`
+        // 会被页面里的交互画布吞掉。这里同样用「下半屏 → 上」的坐标拖拽。
         func reveal(_ element: XCUIElement) {
             var attempts = 0
-            while !element.exists && attempts < 8 {
+            while !element.exists && attempts < 10 {
+                let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.80))
+                let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.35))
+                start.press(forDuration: 0.05, thenDragTo: end)
                 let scroll = app.scrollViews.firstMatch
-                if scroll.exists && scroll.isHittable {
+                if scroll.exists {
                     scroll.swipeUp()
-                } else {
-                    app.swipeUp()
                 }
                 attempts += 1
                 _ = element.waitForExistence(timeout: 1)
