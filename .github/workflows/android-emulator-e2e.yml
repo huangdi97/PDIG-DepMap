@@ -90,7 +90,9 @@ jobs:
       # 先把两个 APK 编出来，避免把编译时间算进 emulator 会话里。
       - name: Build app + androidTest APKs
         working-directory: android
-        run: ./gradlew --no-daemon --console=plain :app:assembleDebug :app:assembleDebugAndroidTest
+        # flavor 维度是 tier（production / preview），因此 androidTest 任务必须带 flavor：
+        # run 43627021585 证明 `assembleDebugAndroidTest` 在 :app 上是 ambiguous。
+        run: ./gradlew --no-daemon --console=plain :app:assembleProductionDebug :app:assembleProductionDebugAndroidTest
 
       - name: Run instrumented tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -109,7 +111,7 @@ jobs:
               ARGS="-Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}"
             fi
             echo "instrumented classes: ${TEST_CLASSES:-<all>}"
-            ./gradlew --no-daemon --console=plain :app:connectedDebugAndroidTest $ARGS
+            ./gradlew --no-daemon --console=plain :app:connectedProductionDebugAndroidTest $ARGS
 
       - name: Summarise instrumented results
         if: always()
