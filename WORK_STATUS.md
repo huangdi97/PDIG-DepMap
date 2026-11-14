@@ -62,6 +62,8 @@
 > `change.complete.<id>` / `change.verify.<id>` → 去掉容器 id，CTA 恢复契约 id（`ProductionVNextPilotView`）。
 > 结果：**`IOS_XCUITEST = PASS`**（iPhone 8/8；iPad 腿本轮连同 N4 审计与上传一起 success）。
 > `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`；`IOS_CONFORMANCE = PASS`、`IOS_RENDER = PASS` 不变。
+> 验收材料：只读证据页 `website/ios-review/`（30 屏 × light/dark = 60 张，逐文件 `MACOS_RENDER` 来源），
+> 已随 `publish-web` 发到 gh-pages `/ios-review/`；逐项判定只归 owner，页面本身不写入任何结论。
 >
 > **（最新）ANDROID POST-FREEZE CLOSURE（2026-10-21）**
 > —— Local Agent 已从 exact source `a3049c64…`（本机原 `5668c3f9` 落后 401，fast-forward 同步）完成本轮收口：
