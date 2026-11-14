@@ -62,9 +62,13 @@ permissions:
 #     IOS_DEVICE_RUNTIME = NOT_RUN（缺签名与真机，属外部 blocker）。
 #     证据能力对照见 docs/EVIDENCE_CAPABILITY_MATRIX.md。
 #
-#   ANDROID_EMULATOR_E2E = NOT_RUN
-#     GitHub-hosted Linux runner 无 KVM 授权的硬件加速，
-#     不建立 emulator job —— 不声明「Android Emulator E2E = PASS」。
+#   ANDROID_EMULATOR_E2E = PASS（**子集**，在独立 workflow 里）
+#     本 workflow **不**建 emulator job；真实设备运行在
+#     `.github/workflows/android-emulator-e2e.yml`：ubuntu-latest + `/dev/kvm` + x86_64 镜像，
+#     run 43643302870 = **14 tests / 0 failures**（3 个设备内证据类）。
+#     52 个 androidTest 类只覆盖了这 3 个 → **全量仍为 NOT_RUN**，不得写成「Android E2E 全量 PASS」。
+#     另：macos-15 上 emulator 起不来（`HVF error: HV_UNSUPPORTED`，无嵌套虚拟化），
+#     所以不要把它挪回 macOS runner。详见 docs/EVIDENCE_CAPABILITY_MATRIX.md。
 #
 #   :app:testDebugUnitTest + :app:assembleDebug = 已纳入 CI（2026-09-20，O-51）
 #     job android-app 在 hosted runner 上用自带 Android SDK 真实执行（见下方 job 定义）。
