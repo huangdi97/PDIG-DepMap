@@ -365,6 +365,34 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             2>&1 | tee ../artifacts/runtime-evidence/2026-09-27-closure-ios/xcuitest-ipad.log | tail -n 8
 
+
+      # XCUITest 里的 attachScreenshot 帧一直锁在 100MB+ 的 xcresult 里，取不出来。
+      # 导出成小 artifact（几 MB PNG），作为**模拟器运行期**证据（不等于真机）。
+      - name: Export XCUITest screenshot attachments (iPhone + iPad)
+        if: always()
+        working-directory: ios
+        run: |
+          set +e
+          OUT=../artifacts/runtime-evidence/2026-09-27-closure-ios/attachments
+          rm -rf "$OUT"
+          for leg in iphone ipad; do
+            R=../artifacts/runtime-evidence/2026-09-27-closure-ios/ios-xcresult-$leg.xcresult
+            mkdir -p "$OUT/$leg"
+            if [ ! -d "$R" ]; then echo "$leg: NO_XCRESULT"; continue; fi
+            xcrun xcresulttool export attachments --path "$R" --output-path "$OUT/$leg" >/dev/null 2>&1
+            echo "$leg: $(find "$OUT/$leg" -name '*.png' | wc -l | tr -d ' ') png (manifest: $(test -f "$OUT/$leg/manifest.json" && echo yes || echo no))"
+          done
+          find "$OUT" -type f ! -name '*.png' ! -name 'manifest.json' -delete
+          du -sh "$OUT" 2>/dev/null || true
+
+      - name: Upload XCUITest screenshots (simulator frames)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcuitest-screenshots
+          path: artifacts/runtime-evidence/2026-09-27-closure-ios/attachments
+          if-no-files-found: warn
+          retention-days: 21
       - name: N4 app-target audit + screenshots
         run: |
           mkdir -p conformance/reports artifacts/runtime-evidence
