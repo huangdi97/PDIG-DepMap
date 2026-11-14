@@ -122,12 +122,12 @@ jobs:
           disable-animations: true
           emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
           script: |
-            set -euo pipefail
+            # 注意：这个 script 是被 sh 逐行执行的（run 43635844246 里多行 if 直接报
+            # `Syntax error: end of file unexpected (expecting "fi")`），
+            # 所以只能写单行语句，不能写多行控制结构。
             cd android
             ARGS=""
-            if [ -n "${TEST_CLASSES}" ]; then
-              ARGS="-Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}"
-            fi
+            [ -n "${TEST_CLASSES}" ] && ARGS="-Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}" || true
             echo "instrumented classes: ${TEST_CLASSES:-<all>}"
             ./gradlew --no-daemon --console=plain :app:connectedProductionDebugAndroidTest $ARGS
 
