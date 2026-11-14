@@ -513,6 +513,11 @@ final class PDIGAppUITests: XCTestCase {
             id: "pdig.ios.production-vnext.change.complete.phone-prepare"
         )
         reveal(prepare)
+        if !prepare.exists {
+            print("---- AX tree (missing: \(prepare)) ----")
+            print(app.debugDescription)
+            print("---- end AX tree ----")
+        }
         XCTAssertTrue(prepare.exists, "Production Change 缺少第一步正式完成入口")
         XCTAssertTrue(prepare.isEnabled, "无前置步骤的第一步应可记录完成")
 
