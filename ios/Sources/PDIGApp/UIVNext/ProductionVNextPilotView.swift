@@ -1427,9 +1427,11 @@ struct VIosProductionVNextPilotView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(PdigV2Colors.surfaceRaised)
         .clipShape(RoundedRectangle(cornerRadius: VRadius.md, style: .continuous))
-        .accessibilityIdentifier(
-            vIosProductionChangeElementId("action", actionId: action.id)
-        )
+        // 注意：**不要**在这一行容器上挂 accessibilityIdentifier。
+        // 实测（run 43566117100 的 AX 树）：容器 id `change.action.<id>` 会穿透并
+        // 覆盖按钮自己的 `change.complete.<id>` / `change.verify.<id>`，
+        // 表现为「行和按钮都在，但 CTA 按契约 id 找不到」。
+        // 与 OverviewView.quickEntry / regionList 是同一个 SwiftUI 行为。
     }
 
     private func productionActionPhaseLabel(_ wire: String) -> String {
