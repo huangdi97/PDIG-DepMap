@@ -1,0 +1,567 @@
+{
+ "source": "iOS Runtime Visual, XCUITest attachments (xcresulttool export attachments)",
+ "reviewWidth": 660,
+ "note": "缩放到评审宽度；原始 1320x2868 PNG 在 CI artifact 与 xcresult 内",
+ "frames": [
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testHomeReachableOnAnyFormFactor",
+   "label": "00-home-minimal_0_52B922B4-314C-4FC6-B3E2-B38C11772AA4.png",
+   "file": "iphone/01-00-home-minimal_0_52B922B4-314C-4FC6-B3E2-B38C11772AA4.png.png",
+   "ordered": 1
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite",
+   "label": "production-vnext-change-authority-record_0_6044C94D-94A4-4149-9E10-675734E6EAAB.png",
+   "file": "iphone/02-production-vnext-change-authority-record_0_6044C94D-94A4-4149-9E10-675734E6EAAB.png.png",
+   "ordered": 2
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite",
+   "label": "production-vnext-change-authority-after-prepare_0_61126573-D8C3-4E91-A6F1-691FEB2B0C17.png",
+   "file": "iphone/03-production-vnext-change-authority-after-prepare_0_61126573-D8C3-4E91-A6F1-691FEB2B0C17.png.png",
+   "ordered": 3
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-account-masked_0_5615E097-50C6-4A40-995D-0817A8B02541.png",
+   "file": "iphone/04-production-vnext-pilot-account-masked_0_5615E097-50C6-4A40-995D-0817A8B02541.png.png",
+   "ordered": 4
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-records-empty_0_1C681F57-160B-45C0-BB2C-CB623EFCE2E8.png",
+   "file": "iphone/05-production-vnext-pilot-records-empty_0_1C681F57-160B-45C0-BB2C-CB623EFCE2E8.png.png",
+   "ordered": 5
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-change-stages_0_F651ED31-5D50-4D7A-84B9-0DF8F8A8C5D2.png",
+   "file": "iphone/06-production-vnext-pilot-change-stages_0_F651ED31-5D50-4D7A-84B9-0DF8F8A8C5D2.png.png",
+   "ordered": 6
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-account_0_F6B1F145-6912-450F-87AF-2781C7BFB9BC.png",
+   "file": "iphone/07-production-vnext-pilot-account_0_F6B1F145-6912-450F-87AF-2781C7BFB9BC.png.png",
+   "ordered": 7
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "08-delete-all-data-dialog_0_4E44AD2E-A116-4E7C-ABEC-B7BA41C15DEF.png",
+   "file": "iphone/08-08-delete-all-data-dialog_0_4E44AD2E-A116-4E7C-ABEC-B7BA41C15DEF.png.png",
+   "ordered": 8
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "07-backup_0_59E131BA-C02A-43B4-BAD1-6B64E3575881.png",
+   "file": "iphone/09-07-backup_0_59E131BA-C02A-43B4-BAD1-6B64E3575881.png.png",
+   "ordered": 9
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "06-settings_0_2C6C011D-48F1-43D7-BE40-AAEA3E6C7867.png",
+   "file": "iphone/10-06-settings_0_2C6C011D-48F1-43D7-BE40-AAEA3E6C7867.png.png",
+   "ordered": 10
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "05-change-plan_0_AD37161E-524E-481C-BFA0-EEF797D16604.png",
+   "file": "iphone/11-05-change-plan_0_AD37161E-524E-481C-BFA0-EEF797D16604.png.png",
+   "ordered": 11
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "04-impact_0_0D3144F5-37A3-4E9D-8F04-51A9FBDDD87E.png",
+   "file": "iphone/12-04-impact_0_0D3144F5-37A3-4E9D-8F04-51A9FBDDD87E.png.png",
+   "ordered": 12
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "03-phone-setup_0_1716CFBC-1E8C-47F4-873C-C50B6FEE69FB.png",
+   "file": "iphone/13-03-phone-setup_0_1716CFBC-1E8C-47F4-873C-C50B6FEE69FB.png.png",
+   "ordered": 13
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "02-scenario-center_0_B7F52B77-FE40-45BE-BBF4-1762F5B17725.png",
+   "file": "iphone/14-02-scenario-center_0_B7F52B77-FE40-45BE-BBF4-1762F5B17725.png.png",
+   "ordered": 14
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "01-home_0_C1CA6EB1-8BC6-45B5-99CE-DCBC63798487.png",
+   "file": "iphone/15-01-home_0_C1CA6EB1-8BC6-45B5-99CE-DCBC63798487.png.png",
+   "ordered": 15
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable",
+   "label": "vnext-dynamic-type-accessibility-large-account-detail_0_52D1C681-D30A-47C4-B212-4CB128DCA2FF.png",
+   "file": "iphone/16-vnext-dynamic-type-accessibility-large-account-detail_0_52D1C681-D30A-47C4-B212-4CB128DCA2FF.png.png",
+   "ordered": 16
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable",
+   "label": "vnext-dynamic-type-accessibility-large-me_0_77719700-D9B9-47E2-B1A7-F724B8F17581.png",
+   "file": "iphone/17-vnext-dynamic-type-accessibility-large-me_0_77719700-D9B9-47E2-B1A7-F724B8F17581.png.png",
+   "ordered": 17
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextGlobalPrivacyMasksCardAndNumberSurfaces",
+   "label": "vnext-privacy-numbers_0_55595862-3796-41E4-841E-1C38B3F9D57C.png",
+   "file": "iphone/18-vnext-privacy-numbers_0_55595862-3796-41E4-841E-1C38B3F9D57C.png.png",
+   "ordered": 18
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextGlobalPrivacyMasksCardAndNumberSurfaces",
+   "label": "vnext-privacy-cards_0_202D50C3-773D-4792-88C9-0A9D54F36548.png",
+   "file": "iphone/19-vnext-privacy-cards_0_202D50C3-773D-4792-88C9-0A9D54F36548.png.png",
+   "ordered": 19
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextGlobalPrivacyMasksCardAndNumberSurfaces",
+   "label": "vnext-privacy-search_0_4FF8B77E-25CC-4809-A313-B626166E24A2.png",
+   "file": "iphone/20-vnext-privacy-search_0_4FF8B77E-25CC-4809-A313-B626166E24A2.png.png",
+   "ordered": 20
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-11-change-masked_0_548B6945-B4DE-4F12-8239-3992F96936E0.png",
+   "file": "iphone/21-vnext-11-change-masked_0_548B6945-B4DE-4F12-8239-3992F96936E0.png.png",
+   "ordered": 21
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-10-records-masked_0_072C3291-4A01-4272-9278-6F5D3B67EB1D.png",
+   "file": "iphone/22-vnext-10-records-masked_0_072C3291-4A01-4272-9278-6F5D3B67EB1D.png.png",
+   "ordered": 22
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-09-now-upcoming-hidden_0_3269694E-C9C7-4744-8C7F-38B204F02F9D.png",
+   "file": "iphone/23-vnext-09-now-upcoming-hidden_0_3269694E-C9C7-4744-8C7F-38B204F02F9D.png.png",
+   "ordered": 23
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-08-sources_0_6CD074F5-17BB-4B0E-8B85-4E0C486B17EC.png",
+   "file": "iphone/24-vnext-08-sources_0_6CD074F5-17BB-4B0E-8B85-4E0C486B17EC.png.png",
+   "ordered": 24
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-07-me_0_033A9F00-73A3-4124-BEAA-86FE911145AC.png",
+   "file": "iphone/25-vnext-07-me_0_033A9F00-73A3-4124-BEAA-86FE911145AC.png.png",
+   "ordered": 25
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-06-records_0_C6428078-F9EE-457D-9F2C-8256E9C78FF6.png",
+   "file": "iphone/26-vnext-06-records_0_C6428078-F9EE-457D-9F2C-8256E9C78FF6.png.png",
+   "ordered": 26
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05b-change-phone_0_3629409D-82F5-4B26-B7B8-F22F3A0D5C71.png",
+   "file": "iphone/27-vnext-05b-change-phone_0_3629409D-82F5-4B26-B7B8-F22F3A0D5C71.png.png",
+   "ordered": 27
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05a-change-card-after_0_42B37CB8-E4BC-41C6-A91F-3530E8261685.png",
+   "file": "iphone/28-vnext-05a-change-card-after_0_42B37CB8-E4BC-41C6-A91F-3530E8261685.png.png",
+   "ordered": 28
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05a-change-card-current_0_AC89062D-4A2D-483D-B20F-DB1480F8823B.png",
+   "file": "iphone/29-vnext-05a-change-card-current_0_AC89062D-4A2D-483D-B20F-DB1480F8823B.png.png",
+   "ordered": 29
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05-change-center_0_8F39CEEA-5318-4D38-8A93-22D7CC4AFEFD.png",
+   "file": "iphone/30-vnext-05-change-center_0_8F39CEEA-5318-4D38-8A93-22D7CC4AFEFD.png.png",
+   "ordered": 30
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-04-account-detail_0_04FE840C-A085-47B0-BE0B-6DA80205A91B.png",
+   "file": "iphone/31-vnext-04-account-detail_0_04FE840C-A085-47B0-BE0B-6DA80205A91B.png.png",
+   "ordered": 31
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-03-accounts_0_00DA42EA-6DEE-4DF8-B68B-BF5D63F5ACFF.png",
+   "file": "iphone/32-vnext-03-accounts_0_00DA42EA-6DEE-4DF8-B68B-BF5D63F5ACFF.png.png",
+   "ordered": 32
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-02-infrastructure_0_2B62D216-5B8A-40BB-A330-5D3E059A758C.png",
+   "file": "iphone/33-vnext-02-infrastructure_0_2B62D216-5B8A-40BB-A330-5D3E059A758C.png.png",
+   "ordered": 33
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-01-now_0_2117CB69-FCAE-4B7B-98CA-6DA6B369C796.png",
+   "file": "iphone/34-vnext-01-now_0_2117CB69-FCAE-4B7B-98CA-6DA6B369C796.png.png",
+   "ordered": 34
+  },
+  {
+   "leg": "iphone",
+   "device": "iPhone 16 Pro Max",
+   "test": "testVNextSecondaryCollectionsHonorRegionScope",
+   "label": "vnext-secondary-region-scope_0_83AC7D1E-BA1C-424F-B63B-FDFD3745C303.png",
+   "file": "iphone/35-vnext-secondary-region-scope_0_83AC7D1E-BA1C-424F-B63B-FDFD3745C303.png.png",
+   "ordered": 35
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testHomeReachableOnAnyFormFactor",
+   "label": "00-home-minimal_0_BAA3789C-FEC4-4198-9C49-B2EBABC481DC.png",
+   "file": "ipad/01-00-home-minimal_0_BAA3789C-FEC4-4198-9C49-B2EBABC481DC.png.png",
+   "ordered": 1
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite",
+   "label": "production-vnext-change-authority-record_0_022A8496-A673-4316-A721-8D127D2183D2.png",
+   "file": "ipad/02-production-vnext-change-authority-record_0_022A8496-A673-4316-A721-8D127D2183D2.png.png",
+   "ordered": 2
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testProductionVNextChangeAuthorityUnlocksOnlyAfterPrerequisite",
+   "label": "production-vnext-change-authority-after-prepare_0_2B41FD48-086C-4722-831C-32E3BE5223F4.png",
+   "file": "ipad/03-production-vnext-change-authority-after-prepare_0_2B41FD48-086C-4722-831C-32E3BE5223F4.png.png",
+   "ordered": 3
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-account-masked_0_D9DEDA89-53C6-4615-82D6-DDFF45B8C81B.png",
+   "file": "ipad/04-production-vnext-pilot-account-masked_0_D9DEDA89-53C6-4615-82D6-DDFF45B8C81B.png.png",
+   "ordered": 4
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-records-empty_0_880625A6-9502-4FB9-8DB1-A6BCD01CFE35.png",
+   "file": "ipad/05-production-vnext-pilot-records-empty_0_880625A6-9502-4FB9-8DB1-A6BCD01CFE35.png.png",
+   "ordered": 5
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-change-stages_0_014F09B0-3A04-48C8-A59C-91B2E85A77DE.png",
+   "file": "ipad/06-production-vnext-pilot-change-stages_0_014F09B0-3A04-48C8-A59C-91B2E85A77DE.png.png",
+   "ordered": 6
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testProductionVNextPilotReadsSessionProjectionAndHonorsPrivacy",
+   "label": "production-vnext-pilot-account_0_8F6BE03C-68DE-4A41-88F9-9B7D02F945F3.png",
+   "file": "ipad/07-production-vnext-pilot-account_0_8F6BE03C-68DE-4A41-88F9-9B7D02F945F3.png.png",
+   "ordered": 7
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "08-delete-all-data-dialog_0_AFB91321-4ADC-469D-9A86-336B83A2F558.png",
+   "file": "ipad/08-08-delete-all-data-dialog_0_AFB91321-4ADC-469D-9A86-336B83A2F558.png.png",
+   "ordered": 8
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "07-backup_0_8CDFF4C5-C702-47A6-9CA2-D8569AD5E0B3.png",
+   "file": "ipad/09-07-backup_0_8CDFF4C5-C702-47A6-9CA2-D8569AD5E0B3.png.png",
+   "ordered": 9
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "06-settings_0_D5C69815-8108-4060-A26F-165C34A676E3.png",
+   "file": "ipad/10-06-settings_0_D5C69815-8108-4060-A26F-165C34A676E3.png.png",
+   "ordered": 10
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "05-change-plan_0_7097EB5C-82F3-470D-B805-C541460D674B.png",
+   "file": "ipad/11-05-change-plan_0_7097EB5C-82F3-470D-B805-C541460D674B.png.png",
+   "ordered": 11
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "04-impact_0_AE0A8A07-6A72-4D79-A8C9-64CB62C8D400.png",
+   "file": "ipad/12-04-impact_0_AE0A8A07-6A72-4D79-A8C9-64CB62C8D400.png.png",
+   "ordered": 12
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "03-phone-setup_0_380D7EC8-EE54-467A-8056-A5880C2A5D3A.png",
+   "file": "ipad/13-03-phone-setup_0_380D7EC8-EE54-467A-8056-A5880C2A5D3A.png.png",
+   "ordered": 13
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "02-scenario-center_0_354597E4-9586-4766-A05A-2A5B2882CB16.png",
+   "file": "ipad/14-02-scenario-center_0_354597E4-9586-4766-A05A-2A5B2882CB16.png.png",
+   "ordered": 14
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testSmokeFlowHomeScenarioPhonePlanBackupSettings",
+   "label": "01-home_0_BF52E0AE-D0B8-4D0A-BAC2-42BA53FF017F.png",
+   "file": "ipad/15-01-home_0_BF52E0AE-D0B8-4D0A-BAC2-42BA53FF017F.png.png",
+   "ordered": 15
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable",
+   "label": "vnext-dynamic-type-accessibility-large-account-detail_0_3B22F933-E15B-42E1-9210-326FD56014CD.png",
+   "file": "ipad/16-vnext-dynamic-type-accessibility-large-account-detail_0_3B22F933-E15B-42E1-9210-326FD56014CD.png.png",
+   "ordered": 16
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextAccessibilityLargeKeepsCoreNavigationAndSecondaryDetailUsable",
+   "label": "vnext-dynamic-type-accessibility-large-me_0_D3F1ACD4-83ED-4EDA-8CA9-BC68545C4C27.png",
+   "file": "ipad/17-vnext-dynamic-type-accessibility-large-me_0_D3F1ACD4-83ED-4EDA-8CA9-BC68545C4C27.png.png",
+   "ordered": 17
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextGlobalPrivacyMasksCardAndNumberSurfaces",
+   "label": "vnext-privacy-numbers_0_E6FA8E25-5A73-4C1A-814F-9A5B78F299EA.png",
+   "file": "ipad/18-vnext-privacy-numbers_0_E6FA8E25-5A73-4C1A-814F-9A5B78F299EA.png.png",
+   "ordered": 18
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextGlobalPrivacyMasksCardAndNumberSurfaces",
+   "label": "vnext-privacy-cards_0_77909826-4634-47A7-867A-76639540AE30.png",
+   "file": "ipad/19-vnext-privacy-cards_0_77909826-4634-47A7-867A-76639540AE30.png.png",
+   "ordered": 19
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextGlobalPrivacyMasksCardAndNumberSurfaces",
+   "label": "vnext-privacy-search_0_45F3E4F0-E3D7-4B57-89CD-3C61C89B1D05.png",
+   "file": "ipad/20-vnext-privacy-search_0_45F3E4F0-E3D7-4B57-89CD-3C61C89B1D05.png.png",
+   "ordered": 20
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-11-change-masked_0_7B148A12-65B4-4B66-9749-EA3F701CE52E.png",
+   "file": "ipad/21-vnext-11-change-masked_0_7B148A12-65B4-4B66-9749-EA3F701CE52E.png.png",
+   "ordered": 21
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-10-records-masked_0_DF921C73-A494-4990-A75D-C32E14CB9F91.png",
+   "file": "ipad/22-vnext-10-records-masked_0_DF921C73-A494-4990-A75D-C32E14CB9F91.png.png",
+   "ordered": 22
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-09-now-upcoming-hidden_0_F2C362D1-7B44-47EE-A233-1FD6E698A656.png",
+   "file": "ipad/23-vnext-09-now-upcoming-hidden_0_F2C362D1-7B44-47EE-A233-1FD6E698A656.png.png",
+   "ordered": 23
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-08-sources_0_5140ACB2-8E19-4773-9A54-B51DECB2686E.png",
+   "file": "ipad/24-vnext-08-sources_0_5140ACB2-8E19-4773-9A54-B51DECB2686E.png.png",
+   "ordered": 24
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-07-me_0_06884DC8-4DF5-46FE-AB9D-630706315F0F.png",
+   "file": "ipad/25-vnext-07-me_0_06884DC8-4DF5-46FE-AB9D-630706315F0F.png.png",
+   "ordered": 25
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-06-records_0_DAB3AD0A-BDD4-4D43-92A5-EA9792C98D90.png",
+   "file": "ipad/26-vnext-06-records_0_DAB3AD0A-BDD4-4D43-92A5-EA9792C98D90.png.png",
+   "ordered": 26
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05b-change-phone_0_4E627378-C453-43F0-B736-873B58655E33.png",
+   "file": "ipad/27-vnext-05b-change-phone_0_4E627378-C453-43F0-B736-873B58655E33.png.png",
+   "ordered": 27
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05a-change-card-after_0_65F2849D-88C1-40E7-9BD9-14A6C94C7472.png",
+   "file": "ipad/28-vnext-05a-change-card-after_0_65F2849D-88C1-40E7-9BD9-14A6C94C7472.png.png",
+   "ordered": 28
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05a-change-card-current_0_F19C2134-9047-4694-B48E-AB0D0A95315B.png",
+   "file": "ipad/29-vnext-05a-change-card-current_0_F19C2134-9047-4694-B48E-AB0D0A95315B.png.png",
+   "ordered": 29
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-05-change-center_0_750CE81B-2036-4574-84D1-751BCD67C428.png",
+   "file": "ipad/30-vnext-05-change-center_0_750CE81B-2036-4574-84D1-751BCD67C428.png.png",
+   "ordered": 30
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-04-account-detail_0_C8750E17-4686-42B5-AFEB-9CD043AF8F87.png",
+   "file": "ipad/31-vnext-04-account-detail_0_C8750E17-4686-42B5-AFEB-9CD043AF8F87.png.png",
+   "ordered": 31
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-03-accounts_0_C4B852AA-7056-44B8-BFEB-D9D76022D1ED.png",
+   "file": "ipad/32-vnext-03-accounts_0_C4B852AA-7056-44B8-BFEB-D9D76022D1ED.png.png",
+   "ordered": 32
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-02-infrastructure_0_14B2CE65-4A59-40E0-B812-8573E1131E9D.png",
+   "file": "ipad/33-vnext-02-infrastructure_0_14B2CE65-4A59-40E0-B812-8573E1131E9D.png.png",
+   "ordered": 33
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextReferenceFiveRootsAndSecondaryInfrastructure",
+   "label": "vnext-01-now_0_BC91375F-290C-4A67-AF2A-13D549052388.png",
+   "file": "ipad/34-vnext-01-now_0_BC91375F-290C-4A67-AF2A-13D549052388.png.png",
+   "ordered": 34
+  },
+  {
+   "leg": "ipad",
+   "device": "iPad Pro 11-inch (M4)",
+   "test": "testVNextSecondaryCollectionsHonorRegionScope",
+   "label": "vnext-secondary-region-scope_0_E77B2D84-2AF2-4E64-9137-4F7B314DF4E9.png",
+   "file": "ipad/35-vnext-secondary-region-scope_0_E77B2D84-2AF2-4E64-9137-4F7B314DF4E9.png.png",
+   "ordered": 35
+  }
+ ]
+}
