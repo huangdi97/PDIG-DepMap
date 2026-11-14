@@ -2,13 +2,16 @@ name: Android emulator E2E (device instrumentation)
 
 # 诚实边界（不要删）：
 #   本 workflow 只为把 ANDROID_EMULATOR_E2E 从「仅本机 AVD」推向「CI 可复现」。
-#   它真实启动 arm64 emulator（macos-15 runner 有硬件加速），安装 debug APK 并跑
-#   instrumented 测试；默认只跑一个**子集**（设备内 SQLCipher / Keystore / 屏幕保护
-#   这三个不需要 UI 机器人的证据类）。
+#   它真实启动 emulator、安装 debug APK 并跑 instrumented 测试；默认只跑一个**子集**
+#   （设备内 SQLCipher / Keystore / 屏幕保护这三个不需要 UI 机器人的证据类）。
 #   在 52 个 androidTest 类全部稳定之前，不得把结论写成「Android E2E 全量 PASS」。
 #
-# 为什么是 macos-15：ubuntu-latest 没有 KVM，模拟器只能软件模拟（慢到不可用）；
-#   macOS arm64 runner 走 Hypervisor.framework，属于官方支持的加速路径。
+# 为什么不是 macos-15（已实测）：
+#   run 43630295255 的 emulator 日志是 `HVF error: HV_UNSUPPORTED` /
+#   `failed to initialize HVF: Invalid argument` —— GitHub 托管的 macOS runner 不提供
+#   嵌套虚拟化，arm64 系统镜像因此起不来（Timeout waiting for emulator to boot）。
+#   所以这里走 GitHub 官方支持的 Linux 路径：ubuntu-latest + x86_64 镜像 + /dev/kvm。
+#   开工前会先断言 /dev/kvm 存在，避免"其实是软件模拟"被误当成硬件加速证据。
 
 on:
   workflow_dispatch:
@@ -34,8 +37,8 @@ concurrency:
 
 jobs:
   emulator:
-    name: Instrumented tests (arm64 emulator)
-    runs-on: macos-15
+    name: Instrumented tests (x86_64 emulator)
+    runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
       API_LEVEL: ${{ github.event.inputs.api_level || '34' }}
@@ -49,25 +52,22 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
-      # macos-15-arm64 镜像**自带** cmdline-tools，但不在 PATH
-      # （run 43620912775：sdkmanager: command not found，exit 127）。
-      # android-actions/setup-android 会额外执行 `sdkmanager tools`，该包已废弃、exit 1
-      # （run 43624027496），因此这里不引入它，直接把镜像内的 SDK 工具挂到 PATH 上。
-      - name: Locate Android SDK tooling
+      # 硬件加速是这条 job 的全部意义所在：没有 KVM 就只是慢速软件模拟，
+      # 那样的结论不能写成「CI 上真实运行过设备证据」。
+      - name: Assert KVM availability
         run: |
           set -euo pipefail
-          SDK_ROOT="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-$HOME/Library/Android/sdk}}"
-          if [ ! -x "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
-            echo "::error::cmdline-tools not found under $SDK_ROOT"
-            ls -la "$SDK_ROOT" || true
-            exit 1
-          fi
-          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
-          echo "ANDROID_SDK_ROOT=$SDK_ROOT" >> "$GITHUB_ENV"
-          echo "$SDK_ROOT/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
-          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
-          echo "$SDK_ROOT/emulator" >> "$GITHUB_PATH"
-          "$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --version
+          ls -l /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+          grep -c -E 'vmx|svm' /proc/cpuinfo
+
+      - name: Enable KVM group perms
+        run: |
+          set -euo pipefail
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
+            | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
 
       - name: Configure Android SDK location
         working-directory: android
@@ -75,13 +75,13 @@ jobs:
           echo "sdk.dir=$ANDROID_HOME" > local.properties
           cat local.properties
 
-      - name: Install SDK platform + arm64 system image
+      - name: Install SDK platform + x86_64 system image
         run: |
           set -euo pipefail
           yes | sdkmanager --licenses >/dev/null 2>&1 || true
           sdkmanager "platform-tools" "platforms;android-36" "build-tools;36.0.0" \
-            "emulator" "system-images;android-${API_LEVEL};google_apis;arm64-v8a" >/dev/null
-          sdkmanager --list_installed | sed -n '1,40p'
+            "emulator" "system-images;android-${API_LEVEL};google_apis;x86_64" >/dev/null
+          sdkmanager --list_installed | sed -n '1,30p'
 
       - name: Gradle wrapper permissions
         working-directory: android
@@ -99,7 +99,7 @@ jobs:
         with:
           api-level: ${{ env.API_LEVEL }}
           target: google_apis
-          arch: arm64-v8a
+          arch: x86_64
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
