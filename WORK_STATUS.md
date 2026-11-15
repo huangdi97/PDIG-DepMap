@@ -75,19 +75,19 @@
 > `docs/EVIDENCE_CAPABILITY_MATRIX.md`。同时更正了 `ci.yml` 里已过时的 `IOS_CI = NOT_ESTABLISHED`。
 >
 > **ANDROID EMULATOR E2E 进 CI（2026-11-14）**：新增 `.github/workflows/android-emulator-e2e.yml`，
-> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，**两个 job，整条 run success**（`43701953597`）：
-> ① 非 UI 18 类 = **62 tests / 0 failures**（`43679686872`，88s，BUILD SUCCESSFUL 2m27s；首批 3 类是
-> `43643302870` 的 14/14）；② UI 契约绿色子集 = **5 tests / 0 failures**
+> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，**两个 job，整条 run success**（`43727795818`）：
+> ① 非 UI 18 类 = **62 tests / 0 failures**（`43679686872`）；② UI 契约 4 类 = **8 tests / 0 failures**
 > （`PhoneChangeLayoutContractTest` · `ContinuityFindingsR27ContractTest` ×3 ·
-> `EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar`）。
-> 修掉的测试侧 bug：`onNodeWithText` 的唯一性假设把重复标签当缺失 → `onAllNodesWithText(...).onFirst()`，
-> 语义不变；失败数 6 → 4（`43699246475`）。**试过但走不通**：想用 `performScrollTo()` 把节点滚进视口，
-> 实测 `Semantic Node has no parent layout with a Scroll SemanticsAction`（`43712828944`）——
-> 这几屏没有可滚动容器，超出 411×914dp 窗口的内容被裁掉；`ManualRelationshipR25` 中宽布局那句文案
-> 甚至不存在。这更像**产品侧布局问题**（用户也无法滚动到达），已回滚那次改动，没有把
-> `assertIsDisplayed` 降成 `assertExists`。仍隔离：`ManualRelationshipR25` ×2、`EstablishImportR23…#compact…`、
-> `AndroidGlobeGesture`（GLES/手势）。因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（20/52 类，67 例）**，
-> 全量仍 `NOT_RUN`。
+> `EstablishImportR23ContractTest` ×2 · `ManualRelationshipR25ContractTest` ×2）。
+> 修掉的三类测试侧问题（都没降级断言）：① `onNodeWithText` 的唯一性假设 →
+> `onAllNodesWithText(...).onFirst()`；② `assertIsDisplayed` 依赖窗口高度 → 对**内容节点**先
+> `performScrollTo()` 再断言 displayed（踩坑：`pdig.r25.manual-relationship` /
+> `pdig.r23.import-reference` 本身就是滚动容器，对容器 scrollTo 会报
+> `Semantic Node has no parent layout with a Scroll SemanticsAction`）；③ 两条断言写的是源码里
+> 已不存在的文案/元素（R25 旧句已改成实际渲染的「unknown 表示尚未确认它是不是必须路径…」；
+> `pdig.r10.top.back` 只在 preview flavor 渲染）。
+> 仍隔离只剩 `AndroidGlobeGestureContractTest`（`pdig.globe.canvas` 需 GLES + 软渲染手势注入）。
+> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（22/52 类，70 例）**，全量仍 `NOT_RUN`。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >

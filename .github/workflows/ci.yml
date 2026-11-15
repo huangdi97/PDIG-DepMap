@@ -66,7 +66,7 @@ permissions:
 #     本 workflow **不**建 emulator job；真实设备运行在
 #     `.github/workflows/android-emulator-e2e.yml`：ubuntu-latest + `/dev/kvm` + x86_64 镜像，
 #     **两个 job**：非 UI 18 类 = 62 tests / 0 failures（run 43679686872）；
-#     UI 契约绿色子集 = 5 tests / 0 failures（run 43701953597）。
+#     UI 契约 4 类 = 8 tests / 0 failures（run 43727795818）。
 #     52 个 androidTest 类里还有 4 条被隔离（测试窗口高度 / GLES 依赖）→ **全量仍为 NOT_RUN**，
 #     不得写成「Android E2E 全量 PASS」。
 #     另：macos-15 上 emulator 起不来（`HVF error: HV_UNSUPPORTED`，无嵌套虚拟化），
