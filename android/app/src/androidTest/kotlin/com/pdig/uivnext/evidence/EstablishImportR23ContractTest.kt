@@ -2,6 +2,8 @@ package com.pdig.uivnext.evidence
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,7 +47,10 @@ class EstablishImportR23ContractTest {
             .assertIsDisplayed()
         compose.onNodeWithText("当前是隔离预览", useUnmergedTree = true)
             .assertIsDisplayed()
-        compose.onNodeWithText("建立基础设施", useUnmergedTree = true)
+        // 中宽布局会把「建立基础设施」同时渲染成事实边界标题与主 CTA（>1 个节点）。
+        // 契约本意是「这句话在场」，不是「只出现一次」，所以按集合取首个断言存在。
+        compose.onAllNodesWithText("建立基础设施", useUnmergedTree = true)
+            .onFirst()
             .assertExists()
     }
 }
