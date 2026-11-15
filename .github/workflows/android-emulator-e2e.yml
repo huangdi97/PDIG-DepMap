@@ -161,6 +161,14 @@ jobs:
   # 这批对 AVD 更敏感，独立成 job —— 它红了也不会污染上面 18 个非 UI 类的证据。
   ui-contracts:
     name: UI contract tests (Compose, subset)
+    # 探索性 job：**不作为 main 门禁**。
+    # run 43691524000（含 vNext cutover 构建）证明这 5 个类在 hosted KVM + swiftshader 上
+    # 有 6 条稳定失败，根因都在测试侧假设，不是产品缺陷：
+    #   ① `onNodeWithText` 的唯一性假设（found '2' nodes '建立基础设施' / '7' nodes '为什么'）
+    #   ② 软渲染下 `Failed to inject touch input`
+    #   ③ globe canvas 依赖 GLES（`TestTag = 'pdig.globe.canvas'` 不存在）
+    # 因此只在 workflow_dispatch 时运行。要复活成门禁，先把测试改成不依赖唯一性与硬件渲染。
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:

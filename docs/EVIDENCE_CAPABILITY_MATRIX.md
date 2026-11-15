@@ -70,9 +70,18 @@ macOS 渲染不能当"App 跑起来了"。
 - 踩过的坑（已写进 workflow 注释，免得重来）：`sdkmanager` 不在 PATH（两平台都是）；
   `assembleDebugAndroidTest` 因 flavor 维度（`production` / `preview`）而 ambiguous；
   `android-emulator-runner` 的 `script` **逐行**用 `sh -c` 在仓库根执行，所以必须写一行
-  自包含命令（`android/gradlew -p android …`）。
-- 下一步：把 52 个类按"是否需要 UI 机器人"分批纳入，先扩到无 UI 的那批，再谈全量。
-- 结论：**代码可解且已解一半**，剩下的只是覆盖面，不是外部 blocker。
+  自包含命令（`android/gradlew -p android …`）；`/dev/kvm` 初始是 `root:kvm 660`，
+  必须先跑 udev 授权、再断言可读写。
+- **UI 契约（34 个 `ComposeTestRule` 类）仍是探索性，不进 main 门禁**：取 5 个最短的类试水，
+  host KVM + swiftshader 上稳定 6 条失败（run `43691524000`；加上
+  `pdigProductionUiGeneration=vnext` + `pdigProductionVNextCutoverApproved=true` 重建后结果不变）。
+  根因都在**测试侧假设**，不是产品缺陷：
+  ① `onNodeWithText` 的唯一性假设（`found '2' nodes '建立基础设施'`、`found '7' nodes '为什么'`）；
+  ② 软渲染下 `Failed to inject touch input`；
+  ③ globe canvas 依赖 GLES（`TestTag = 'pdig.globe.canvas'` 不存在）。
+  因此 `ui-contracts` job 只允许 `workflow_dispatch` 触发；要变成门禁先改测试，而不是调 AVD。
+- 结论：**非 UI 那半已经进 CI 并稳定（18 类 / 62 例，多次 success）**；UI 那半的阻塞在测试写法，
+  属可解但不该硬塞进门禁。
 
 ### iOS：T6 只差一个签名账号
 

@@ -79,6 +79,10 @@
 > run `43679686872` = **62 tests / 0 failures**（`tests=62 failures=0 errors=0 skipped=0`，88s，
 > BUILD SUCCESSFUL 2m27s）；首批 3 类是 run `43643302870` 的 14/14。`androidTest` 共 52 个类，
 > 剩 34 个依赖 `ComposeTestRule`，所以 `ANDROID_EMULATOR_E2E` 仍只能记**子集 PASS**，全量 `NOT_RUN`。
+> UI 契约（34 个 `ComposeTestRule` 类）试水后仍不进 main 门禁：5 个类在 host KVM + swiftshader 上
+> 稳定 6 条失败（run `43691524000`，加 vNext cutover 构建键后结果不变），根因是测试侧假设
+> （`onNodeWithText` 唯一性 / 软渲染下手势注入失败 / globe canvas 需 GLES），不是产品缺陷。
+> 因此 `ui-contracts` job 仅 `workflow_dispatch` 可触发；要变门禁须先改测试。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >
