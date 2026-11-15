@@ -4,6 +4,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
@@ -22,17 +23,19 @@ class ManualRelationshipR25ContractTest {
         val app = createVNextAppState(screen = VScreen.MANUAL_RELATION)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
-        // 该屏在 411×914dp 窗口下**没有可滚动容器**
-        //（run 43712828944：`Semantic Node has no parent layout with a Scroll SemanticsAction`），
-        // 内容超出窗口即被裁掉，所以 assertIsDisplayed 在 CI AVD 上必红。
-        // 这是产品侧布局问题（用户同样无法滚动到达），该用例暂不进 CI 门禁。
+
+        // 这个 tag 本身就是滚动容器（Column + verticalScroll），它没有可滚动的父级，
+        // 所以只能直接断言 displayed；它内部的内容才用 performScrollTo 滚进视口。
         compose.onNodeWithTag("pdig.r25.manual-relationship", useUnmergedTree = true)
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r25.relationship.truth-boundary", useUnmergedTree = true)
+            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithText("关系是已确认事实，不是标签", useUnmergedTree = true)
+            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r25.relationship.preview-disabled", useUnmergedTree = true)
+            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -42,13 +45,17 @@ class ManualRelationshipR25ContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 700) }
         compose.waitForIdle()
 
-        // 中宽布局下这句文案在 CI AVD 上**根本不存在**（run 43712828944），
-        // 需单独确认是条件渲染还是被裁掉；该用例暂不进 CI 门禁。
+        // 以实际渲染文案为准：R25 屏用这句说明「unknown 不等于不重要」。
+        // 旧期望的句子（“默认 unknown；required 只能由用户显式确认…”）已不在源码里，
+        // 断言一个不存在的字符串只会在真机上假红。
         compose.onNodeWithText(
-            "默认 unknown；required 只能由用户显式确认，机器不能设置。",
+            "unknown 表示尚未确认它是不是必须路径，不表示“不重要”。",
             useUnmergedTree = true,
-        ).assertIsDisplayed()
+        )
+            .performScrollTo()
+            .assertIsDisplayed()
         compose.onNodeWithText("不会在这里判断“独立备用路径”", useUnmergedTree = true)
+            .performScrollTo()
             .assertIsDisplayed()
     }
 }
