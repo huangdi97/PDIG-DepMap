@@ -218,9 +218,13 @@ jobs:
         working-directory: android
         run: chmod +x ./gradlew
 
-      - name: Build app + androidTest APKs
+      # 这两把 key 是关键：production flavor 默认 `pdigProductionUiGeneration=legacy`、
+      # `pdigProductionVNextCutoverApproved=false`，而此时渲染的是 legacy 界面，
+      # `com.pdig.uivnext.evidence.*` 的契约测试根本找不到自己的节点
+      # （run 43688475225：6/9 失败，含 `TestTag = 'pdig.globe.canvas'` 不存在）。
+      - name: Build app + androidTest APKs (vNext cutover)
         working-directory: android
-        run: ./gradlew --no-daemon --console=plain :app:assembleProductionDebug :app:assembleProductionDebugAndroidTest
+        run: ./gradlew --no-daemon --console=plain -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:assembleProductionDebug :app:assembleProductionDebugAndroidTest
 
       - name: Run UI contract tests on emulator
         uses: reactivecircus/android-emulator-runner@v2
@@ -232,7 +236,7 @@ jobs:
           disable-animations: true
           emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
           # 与上面同一约束：script 被逐行 sh -c 执行，必须一行自包含。
-          script: android/gradlew --no-daemon --console=plain -p android :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}
+          script: android/gradlew --no-daemon --console=plain -p android -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}
 
       - name: Upload UI contract results
         if: always()
