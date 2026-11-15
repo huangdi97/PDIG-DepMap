@@ -160,20 +160,23 @@ jobs:
   # UI 契约（ComposeTestRule）试水：先放 5 个最短的类。
   # 这批对 AVD 更敏感，独立成 job —— 它红了也不会污染上面 18 个非 UI 类的证据。
   ui-contracts:
-    name: UI contract tests (Compose, subset)
-    # 探索性 job：**不作为 main 门禁**。
-    # run 43691524000（含 vNext cutover 构建）证明这 5 个类在 hosted KVM + swiftshader 上
-    # 有 6 条稳定失败，根因都在测试侧假设，不是产品缺陷：
-    #   ① `onNodeWithText` 的唯一性假设（found '2' nodes '建立基础设施' / '7' nodes '为什么'）
-    #   ② 软渲染下 `Failed to inject touch input`
-    #   ③ globe canvas 依赖 GLES（`TestTag = 'pdig.globe.canvas'` 不存在）
-    # 因此只在 workflow_dispatch 时运行。要复活成门禁，先把测试改成不依赖唯一性与硬件渲染。
-    if: github.event_name == 'workflow_dispatch'
+    name: UI contract tests (green subset)
+    # UI 契约子集，**进 main 门禁**，但只放已经稳定绿的条目（run 43699246475 验证）。
+    # 已修的测试侧 bug：`onNodeWithText` 的唯一性假设（重复标签被当成缺失）
+    #   → `onAllNodesWithText(...).onFirst()`，语义不变（仍是「这些文案在场」）。
+    # 仍被隔离、不进 CI 的 4 条（原因写进 docs/EVIDENCE_CAPABILITY_MATRIX.md）：
+    #   ① ManualRelationshipR25ContractTest ×2：中宽/紧凑布局下 `assertIsDisplayed` 失败
+    #      （`Assert failed: The component is not displayed!`），取决于测试窗口高度；
+    #   ② EstablishImportR23ContractTest#compactImportReferenceExplainsLocalFirstAndProposalBoundary：
+    #      同一原因（360dp 紧凑布局）；
+    #   ③ AndroidGlobeGestureContractTest：`TestTag = 'pdig.globe.canvas'` 不存在，
+    #      且软渲染下 `Failed to inject touch input`——需要 GLES/硬件渲染。
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
       API_LEVEL: ${{ github.event.inputs.api_level || '34' }}
-      TEST_CLASSES: "com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ManualRelationshipR25ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.AndroidGlobeGestureContractTest"
+      # Class#method 精确到方法：把整类里唯一被环境阻塞的那条排除在外。
+      TEST_CLASSES: "com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar"
     steps:
       - uses: actions/checkout@v4
 
