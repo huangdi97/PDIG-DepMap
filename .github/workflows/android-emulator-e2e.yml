@@ -56,11 +56,13 @@ jobs:
 
       # 硬件加速是这条 job 的全部意义所在：没有 KVM 就只是慢速软件模拟，
       # 那样的结论不能写成「CI 上真实运行过设备证据」。
+      # 顺序很重要：hosted runner 的 /dev/kvm 初始是 root:kvm 660，普通用户**不可写**
+      # （run 43684506845 的 UI job 就在这里 exit 1）。所以先断言「存在 + CPU 有虚拟化位」，
+      # 权限修正之后才断言可读写。
       - name: Assert KVM availability
         run: |
           set -euo pipefail
           ls -l /dev/kvm
-          test -r /dev/kvm && test -w /dev/kvm
           grep -c -E 'vmx|svm' /proc/cpuinfo
 
       - name: Enable KVM group perms
@@ -70,6 +72,9 @@ jobs:
             | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+          echo "kvm is writable"
 
       # ubuntu-latest 镜像自带 SDK，但 cmdline-tools 不在 PATH
       # （run 43633280886：line 3: sdkmanager: command not found，exit 127）。
@@ -170,18 +175,23 @@ jobs:
           distribution: "temurin"
           java-version: "21"
 
+      # 与上面同一约束：先修权限，再断言可读写（初始是 root:kvm 660）。
       - name: Assert KVM availability
         run: |
           set -euo pipefail
           ls -l /dev/kvm
-          test -r /dev/kvm && test -w /dev/kvm
+          grep -c -E 'vmx|svm' /proc/cpuinfo
 
       - name: Enable KVM group perms
         run: |
+          set -euo pipefail
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' \
             | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          ls -l /dev/kvm
+          test -r /dev/kvm && test -w /dev/kvm
+          echo "kvm is writable"
 
       - name: Locate Android SDK tooling
         run: |
