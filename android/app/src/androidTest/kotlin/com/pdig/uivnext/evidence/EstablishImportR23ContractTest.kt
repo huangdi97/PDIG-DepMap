@@ -26,9 +26,11 @@ class EstablishImportR23ContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        // 顶栏按钮先断言可见（此时仍在首屏）。
-        compose.onNodeWithTag("pdig.r10.top.back", useUnmergedTree = true)
-            .assertIsDisplayed()
+        // 注意：`pdig.r10.top.back` 只在 preview flavor 渲染
+        //（VNextShell.kt: `if (BuildConfig.FLAVOR == "preview") R10TopBar(app)`），
+        // 而本 job 构建 production flavor，所以这里不再断言顶栏返回键（属过时假设）。
+        // 内容断言保留「滚进视口后仍必须 visible」的口径，不降级成 assertExists。
+        //
         // `pdig.r23.import-reference` 是滚动容器本身（Column + verticalScroll），
         // 它没有可滚动的父级，只能直接断言 displayed；正文节点才用 performScrollTo。
         compose.onNodeWithTag("pdig.r23.import-reference", useUnmergedTree = true)
