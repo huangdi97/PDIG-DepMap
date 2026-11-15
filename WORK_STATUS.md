@@ -75,10 +75,10 @@
 > `docs/EVIDENCE_CAPABILITY_MATRIX.md`。同时更正了 `ci.yml` 里已过时的 `IOS_CI = NOT_ESTABLISHED`。
 >
 > **ANDROID EMULATOR E2E 进 CI（2026-11-14）**：新增 `.github/workflows/android-emulator-e2e.yml`，
-> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，run `43643302870` = **14 tests / 0 failures**
-> （3 个设备内证据类：SQLCipher 持久化 / Keystore / 屏幕保护），`BUILD SUCCESSFUL` 48s，
-> 损耗口径 `tests=14 failures=0 errors=0 skipped=0`。`androidTest` 现有 52 个类，所以
-> `ANDROID_EMULATOR_E2E` 只能记**子集 PASS**，全量仍 `NOT_RUN`。
+> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，已扩到 **18 个非 UI 证据/契约类**：
+> run `43679686872` = **62 tests / 0 failures**（`tests=62 failures=0 errors=0 skipped=0`，88s，
+> BUILD SUCCESSFUL 2m27s）；首批 3 类是 run `43643302870` 的 14/14。`androidTest` 共 52 个类，
+> 剩 34 个依赖 `ComposeTestRule`，所以 `ANDROID_EMULATOR_E2E` 仍只能记**子集 PASS**，全量 `NOT_RUN`。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >
