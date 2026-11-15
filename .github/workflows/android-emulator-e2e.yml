@@ -21,7 +21,9 @@ on:
         default: "34"
       test_classes:
         description: "逗号分隔的 instrumented 测试类（留空 = 全部）"
-        default: "com.pdig.app.evidence.PersistenceEvidenceTest,com.pdig.app.evidence.RepositoryKeystoreEvidenceTest,com.pdig.app.evidence.ScreenProtectionEvidenceTest"
+        # 18 个「不依赖 Compose UI 机器人」的设备内证据/契约类（全量 52 个里的这一批）。
+        # 依赖 ComposeTestRule 的那批要另立 job，别混进来。
+        default: "com.pdig.app.evidence.PersistenceEvidenceTest,com.pdig.app.evidence.RepositoryKeystoreEvidenceTest,com.pdig.app.evidence.ScreenProtectionEvidenceTest,com.pdig.app.evidence.BackupExportRegressionTest,com.pdig.app.evidence.CandidateDriftEvidenceTest,com.pdig.app.evidence.DeleteAllDataEvidenceTest,com.pdig.app.evidence.DepmapRuntimeEvidenceTest,com.pdig.app.evidence.FileWorkflowD16Test,com.pdig.app.evidence.ManualRealityAuthorityEvidenceTest,com.pdig.app.evidence.PerfSmokeEvidenceTest,com.pdig.uivnext.evidence.AndroidCardIdentityContractTest,com.pdig.uivnext.evidence.AndroidLightAccessibilityPaletteContractTest,com.pdig.uivnext.evidence.WorkspacePreferenceDiskPersistenceTest,com.pdig.uivnext.evidence.ProductionChangeKernelContractTest,com.pdig.uivnext.evidence.ProductionPhoneChangeAuthorityContractTest,com.pdig.uivnext.evidence.ProductionPresentationPersistenceContractTest,com.pdig.uivnext.evidence.PostFreezeEvidenceSeedTest,com.pdig.uivnext.globe.TextureEarthBodySilhouetteContractTest"
   push:
     branches: [main]
     paths:
@@ -42,7 +44,7 @@ jobs:
     timeout-minutes: 75
     env:
       API_LEVEL: ${{ github.event.inputs.api_level || '34' }}
-      TEST_CLASSES: ${{ github.event.inputs.test_classes || 'com.pdig.app.evidence.PersistenceEvidenceTest,com.pdig.app.evidence.RepositoryKeystoreEvidenceTest,com.pdig.app.evidence.ScreenProtectionEvidenceTest' }}
+      TEST_CLASSES: ${{ github.event.inputs.test_classes || 'com.pdig.app.evidence.PersistenceEvidenceTest,com.pdig.app.evidence.RepositoryKeystoreEvidenceTest,com.pdig.app.evidence.ScreenProtectionEvidenceTest,com.pdig.app.evidence.BackupExportRegressionTest,com.pdig.app.evidence.CandidateDriftEvidenceTest,com.pdig.app.evidence.DeleteAllDataEvidenceTest,com.pdig.app.evidence.DepmapRuntimeEvidenceTest,com.pdig.app.evidence.FileWorkflowD16Test,com.pdig.app.evidence.ManualRealityAuthorityEvidenceTest,com.pdig.app.evidence.PerfSmokeEvidenceTest,com.pdig.uivnext.evidence.AndroidCardIdentityContractTest,com.pdig.uivnext.evidence.AndroidLightAccessibilityPaletteContractTest,com.pdig.uivnext.evidence.WorkspacePreferenceDiskPersistenceTest,com.pdig.uivnext.evidence.ProductionChangeKernelContractTest,com.pdig.uivnext.evidence.ProductionPhoneChangeAuthorityContractTest,com.pdig.uivnext.evidence.ProductionPresentationPersistenceContractTest,com.pdig.uivnext.evidence.PostFreezeEvidenceSeedTest,com.pdig.uivnext.globe.TextureEarthBodySilhouetteContractTest' }}
     steps:
       - uses: actions/checkout@v4
 
