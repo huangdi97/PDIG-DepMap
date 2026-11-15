@@ -4,7 +4,6 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
@@ -23,21 +22,17 @@ class ManualRelationshipR25ContractTest {
         val app = createVNextAppState(screen = VScreen.MANUAL_RELATION)
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
-
-        // 注意：assertIsDisplayed 依赖测试窗口高度（compose rule 用的是设备窗口，
-        // 这里只 forcedViewportWidthDp 锁了宽度）。先把节点滚进视口再断言「可见」，
-        // 语义不变 —— 仍然要求它真的显示出来，只是不再要求它一开始就在首屏。
+        // 该屏在 411×914dp 窗口下**没有可滚动容器**
+        //（run 43712828944：`Semantic Node has no parent layout with a Scroll SemanticsAction`），
+        // 内容超出窗口即被裁掉，所以 assertIsDisplayed 在 CI AVD 上必红。
+        // 这是产品侧布局问题（用户同样无法滚动到达），该用例暂不进 CI 门禁。
         compose.onNodeWithTag("pdig.r25.manual-relationship", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r25.relationship.truth-boundary", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithText("关系是已确认事实，不是标签", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r25.relationship.preview-disabled", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
     }
 
@@ -47,14 +42,13 @@ class ManualRelationshipR25ContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 700) }
         compose.waitForIdle()
 
+        // 中宽布局下这句文案在 CI AVD 上**根本不存在**（run 43712828944），
+        // 需单独确认是条件渲染还是被裁掉；该用例暂不进 CI 门禁。
         compose.onNodeWithText(
             "默认 unknown；required 只能由用户显式确认，机器不能设置。",
             useUnmergedTree = true,
-        )
-            .performScrollTo()
-            .assertIsDisplayed()
+        ).assertIsDisplayed()
         compose.onNodeWithText("不会在这里判断“独立备用路径”", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
     }
 }

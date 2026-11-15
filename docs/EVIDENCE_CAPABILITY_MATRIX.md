@@ -72,16 +72,21 @@ macOS 渲染不能当"App 跑起来了"。
   `android-emulator-runner` 的 `script` **逐行**用 `sh -c` 在仓库根执行，所以必须写一行
   自包含命令（`android/gradlew -p android …`）；`/dev/kvm` 初始是 `root:kvm 660`，
   必须先跑 udev 授权、再断言可读写。
-- **UI 契约（34 个 `ComposeTestRule` 类）：已修两条测试 bug，3 类 5 例进 main 门禁**：
-  先修掉 `onNodeWithText` 的唯一性假设（重复标签被当成缺失）→ `onAllNodesWithText(...).onFirst()`，
-  语义不变（仍是「这些文案在场」）；失败数随之 6 → 4（run `43699246475`）。
-  进门的 5 例在 run `43701953597` 全绿：`PhoneChangeLayoutContractTest` ·
-  `ContinuityFindingsR27ContractTest` ×3 · `EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar`。
-  仍隔离 4 条，理由写在 workflow 注释里：`ManualRelationshipR25` ×2 的中宽布局 `assertIsDisplayed`
-  失败、`EstablishImportR23` 紧凑布局那条、`AndroidGlobeGesture`（GLES + 软渲染手势注入）。
-  它们取决于**测试窗口高度与硬件渲染**，不是产品缺陷，也不该靠弱化断言混过门禁。
+- **UI 契约（34 个 `ComposeTestRule` 类）：修掉一个测试 bug，5 例进 main 门禁，2 类 + 1 例被隔离**：
+  · 修掉 `onNodeWithText` 的唯一性假设（重复标签被当成缺失）→ `onAllNodesWithText(...).onFirst()`，
+  语义不变；失败数 6 → 4（run `43699246475`）；
+  · 进门的 5 例在 run `43701953597` 全绿：`PhoneChangeLayoutContractTest` ·
+  `ContinuityFindingsR27ContractTest` ×3 ·
+  `EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar`。
+- **试过但走不通的修法（记录以免重来）**：本想用 `performScrollTo()` 把节点滚进视口再断言 displayed，
+  实测报 **`Semantic Node has no parent layout with a Scroll SemanticsAction`**（run `43712828944`）
+  —— 这几屏**没有可滚动容器**，内容超出 411×914dp 窗口后就是被裁掉的；`ManualRelationshipR25`
+  的中宽布局里那句文案甚至**根本不存在**。这更像**产品侧布局问题**（用户同样无法滚动到达），
+  已回滚那次改动，没有把 `assertIsDisplayed` 降成 `assertExists` 混过门禁。
+- 仍隔离：`ManualRelationshipR25ContractTest` ×2、`EstablishImportR23…#compact…`（布局裁剪）、
+  `AndroidGlobeGestureContractTest`（GLES + 软渲染手势注入）。
 - 结论：**Android 设备证据已进 CI：20 个类 / 67 例（非 UI 62 + UI 5），多次 success**；
-  剩余 UI 覆盖靠继续修测试写法推进，不是外部 blocker。
+  UI 剩余阻塞一半在产品布局、一半在 runner 的 GLES 能力，均已记录在案。
 
 ### iOS：T6 只差一个签名账号
 

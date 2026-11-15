@@ -81,9 +81,13 @@
 > （`PhoneChangeLayoutContractTest` · `ContinuityFindingsR27ContractTest` ×3 ·
 > `EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar`）。
 > 修掉的测试侧 bug：`onNodeWithText` 的唯一性假设把重复标签当缺失 → `onAllNodesWithText(...).onFirst()`，
-> 语义不变；失败数 6 → 4（`43699246475`）。仍隔离 4 条（中宽布局 `assertIsDisplayed` 失败 ×3、
-> globe GLES/手势 ×1），取决于测试窗口高度与硬件渲染，不是产品缺陷。
-> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（20/52 类，67 例）**，全量仍 `NOT_RUN`。
+> 语义不变；失败数 6 → 4（`43699246475`）。**试过但走不通**：想用 `performScrollTo()` 把节点滚进视口，
+> 实测 `Semantic Node has no parent layout with a Scroll SemanticsAction`（`43712828944`）——
+> 这几屏没有可滚动容器，超出 411×914dp 窗口的内容被裁掉；`ManualRelationshipR25` 中宽布局那句文案
+> 甚至不存在。这更像**产品侧布局问题**（用户也无法滚动到达），已回滚那次改动，没有把
+> `assertIsDisplayed` 降成 `assertExists`。仍隔离：`ManualRelationshipR25` ×2、`EstablishImportR23…#compact…`、
+> `AndroidGlobeGesture`（GLES/手势）。因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（20/52 类，67 例）**，
+> 全量仍 `NOT_RUN`。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >

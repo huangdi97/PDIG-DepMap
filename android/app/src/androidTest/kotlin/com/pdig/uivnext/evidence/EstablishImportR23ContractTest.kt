@@ -6,7 +6,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performScrollTo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
@@ -26,21 +25,16 @@ class EstablishImportR23ContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        // 顶栏按钮先断言可见（此时仍在首屏），保持原来的 displayed 口径不降级。
-        compose.onNodeWithTag("pdig.r10.top.back", useUnmergedTree = true)
-            .assertIsDisplayed()
-        // assertIsDisplayed 依赖测试窗口高度；先把正文节点滚进视口再断言「可见」，语义不变。
         compose.onNodeWithTag("pdig.r23.import-reference", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r23.import.truth-boundary", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithText("文件留在本机 · 发现不等于依赖", useUnmergedTree = true)
-            .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithTag("pdig.r23.import.preview-disabled", useUnmergedTree = true)
             .assertExists()
+        compose.onNodeWithTag("pdig.r10.top.back", useUnmergedTree = true)
+            .assertIsDisplayed()
     }
 
     @Test

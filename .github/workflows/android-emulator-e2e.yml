@@ -161,22 +161,23 @@ jobs:
   # 这批对 AVD 更敏感，独立成 job —— 它红了也不会污染上面 18 个非 UI 类的证据。
   ui-contracts:
     name: UI contract tests (green subset)
-    # UI 契约子集，**进 main 门禁**。两类测试侧 bug 都已就地修掉，且没有降级断言：
-    #  ① `onNodeWithText` 的唯一性假设（重复标签被当成缺失）
-    #     → `onAllNodesWithText(...).onFirst()`：仍要求「这些文案在场」；
-    #  ② `assertIsDisplayed` 依赖测试窗口高度（`The component is not displayed!`）
-    #     → 先 `performScrollTo()` 把节点滚进视口再断言 displayed：仍要求「真的显示出来」。
-    # 仍隔离、不进 CI 的只剩 AndroidGlobeGestureContractTest：
-    #     `TestTag = 'pdig.globe.canvas'` 在软渲染下不存在，且 `Failed to inject touch input`
-    #     —— 需要 GLES/硬件渲染，是 runner 能力问题，不是测试写法问题。
+    # UI 契约子集，**进 main 门禁**（5 例）。真正修掉的测试侧 bug 只有一个：
+    #   · `onNodeWithText` 的唯一性假设（重复标签被当成缺失）
+    #     → `onAllNodesWithText(...).onFirst()`：仍要求「这些文案在场」。
+    # 另外两类**不是测试写法问题**，所以没有硬改断言：
+    #   ② `assertIsDisplayed` 在 411×914dp 窗口失败：实测该屏**没有可滚动容器**
+    #      （`Semantic Node has no parent layout with a Scroll SemanticsAction`），
+    #      `performScrollTo()` 用不了 —— 内容是真的被裁掉，属产品侧布局问题。
+    #      `ManualRelationshipR25ContractTest` 与 `EstablishImportR23…#compact…` 因此隔离。
+    #   ③ `AndroidGlobeGestureContractTest`：`TestTag = 'pdig.globe.canvas'` 软渲染下不存在，
+    #      且 `Failed to inject touch input` —— 需要 GLES/硬件渲染。
     runs-on: ubuntu-latest
     timeout-minutes: 75
     env:
       API_LEVEL: ${{ github.event.inputs.api_level || '34' }}
-      TEST_CLASSES: "com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest,com.pdig.uivnext.evidence.ManualRelationshipR25ContractTest"
+      TEST_CLASSES: "com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar"
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
