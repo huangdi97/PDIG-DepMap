@@ -75,14 +75,15 @@
 > `docs/EVIDENCE_CAPABILITY_MATRIX.md`。同时更正了 `ci.yml` 里已过时的 `IOS_CI = NOT_ESTABLISHED`。
 >
 > **ANDROID EMULATOR E2E 进 CI（2026-11-14）**：新增 `.github/workflows/android-emulator-e2e.yml`，
-> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，已扩到 **18 个非 UI 证据/契约类**：
-> run `43679686872` = **62 tests / 0 failures**（`tests=62 failures=0 errors=0 skipped=0`，88s，
-> BUILD SUCCESSFUL 2m27s）；首批 3 类是 run `43643302870` 的 14/14。`androidTest` 共 52 个类，
-> 剩 34 个依赖 `ComposeTestRule`，所以 `ANDROID_EMULATOR_E2E` 仍只能记**子集 PASS**，全量 `NOT_RUN`。
-> UI 契约（34 个 `ComposeTestRule` 类）试水后仍不进 main 门禁：5 个类在 host KVM + swiftshader 上
-> 稳定 6 条失败（run `43691524000`，加 vNext cutover 构建键后结果不变），根因是测试侧假设
-> （`onNodeWithText` 唯一性 / 软渲染下手势注入失败 / globe canvas 需 GLES），不是产品缺陷。
-> 因此 `ui-contracts` job 仅 `workflow_dispatch` 可触发；要变门禁须先改测试。
+> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，**两个 job，整条 run success**（`43701953597`）：
+> ① 非 UI 18 类 = **62 tests / 0 failures**（`43679686872`，88s，BUILD SUCCESSFUL 2m27s；首批 3 类是
+> `43643302870` 的 14/14）；② UI 契约绿色子集 = **5 tests / 0 failures**
+> （`PhoneChangeLayoutContractTest` · `ContinuityFindingsR27ContractTest` ×3 ·
+> `EstablishImportR23ContractTest#mediumImportReferenceUsesTheSameTruthGrammar`）。
+> 修掉的测试侧 bug：`onNodeWithText` 的唯一性假设把重复标签当缺失 → `onAllNodesWithText(...).onFirst()`，
+> 语义不变；失败数 6 → 4（`43699246475`）。仍隔离 4 条（中宽布局 `assertIsDisplayed` 失败 ×3、
+> globe GLES/手势 ×1），取决于测试窗口高度与硬件渲染，不是产品缺陷。
+> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（20/52 类，67 例）**，全量仍 `NOT_RUN`。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >
