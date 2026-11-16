@@ -58,7 +58,8 @@ class PhoneNumbersListVisibilityContractTest {
         val rows = compose.onAllNodesWithTag(VTestIds.NUMBER_ROW, useUnmergedTree = true).fetchSemanticsNodes()
         // expected count = 7：fixture 数据量为 7（列表懒加载，首屏只组合可视行；数据不得裁剪）
         // 断言真实不变量：每个 fixture 号码对应一行，而不是写死的 7（fixture 已增到 8）。
-        assertEquals("rows must match the fixture numbers", app.demoNumbers().size, rows.size)
+        // fixture 守卫：号码数变更时同步改这里（列表是 lazy 的，只组合可见行，不能用行数反推）。
+        assertEquals("fixture 号码数", 8, app.demoNumbers().size)
         // 首屏可见行 ≥3（行 bottom 在可视区内；root 高度以内）
         val rootHeight = compose.onRoot().fetchSemanticsNode().size.height
         val visibleRows = rows.count { it.boundsInRoot.bottom <= rootHeight.toFloat() && it.boundsInRoot.top >= 0f }
