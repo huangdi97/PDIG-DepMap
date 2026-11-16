@@ -47,8 +47,7 @@ class PhoneStudioLayoutContractTest {
         val density = compose.density.density
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
-        // 失败信息里直接带上祖先链尺寸，
-定位是哪一层把高度压成 0。
+        // 失败信息里带上祖先链尺寸，定位是哪一层把高度压成 0。
         val chain = StringBuilder()
         var node: androidx.compose.ui.semantics.SemanticsNode? =
             compose.onNodeWithTag("pdig.card.detail.change-art", useUnmergedTree = true)
@@ -62,6 +61,8 @@ class PhoneStudioLayoutContractTest {
             node = node.parent
             depth++
         }
+        val rootDp = root.height / density
+        val rootWidthDp = root.width / density
         assertTrue(
             "card-art action must keep >=${minTouchDp}dp touch height (measured ${actionDp}dp; root ${rootWidthDp}x${rootDp}dp; chain $chain)",
             action.height >= minTouch,
