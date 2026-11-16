@@ -90,8 +90,9 @@
 > 仍隔离只剩 `AndroidGlobeGestureContractTest`（`pdig.globe.canvas` 需 GLES + 软渲染手势注入）。
 > 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（22/52 类，79 例）**，全量仍 `NOT_RUN`。
 > 仍隔离 3 条：`AndroidGlobeGestureContractTest`（GLES/软渲染手势）、
-> `PhoneStudioLayout#compactCardDetail`（**疑似产品缺陷**：`pdig.card.detail.change-art` 触控高度未达 48dp，
-> 断言消息已改为打印实测 dp 待确认）、`NumberDetailLayoutProbe`（测量探针，非契约，需设备矩阵单跑）。
+> `PhoneStudioLayout#compactCardDetail`（**实测确认的产品缺陷**：`pdig.card.detail.change-art` 高度 0.0dp，
+> 根节点 411.4×841.5dp 正常 ⇒ 该控件没被布局、不可点击，违反 48dp 触控最小尺寸；run `43837708457`）、
+> `NumberDetailLayoutProbe`（测量探针，非契约，411dp 上「service1 在风险标题之上」不成立，需设备矩阵单跑）。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >

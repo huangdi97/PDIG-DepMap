@@ -90,8 +90,12 @@ macOS 渲染不能当"App 跑起来了"。
   顺带记住：**不能拿 `rows.size` 反推**，列表是 lazy 的、只组合可见行（实测 6/8）。
 - 仍隔离（每条都有实测理由）：
   · `AndroidGlobeGestureContractTest` —— `pdig.globe.canvas` 需 GLES，软渲染下不存在 + 手势注入失败；
-  · `PhoneStudioLayout#compactCardDetail` —— **疑似产品缺陷**：`pdig.card.detail.change-art` 触控高度
-  未达 48dp（源码是 `defaultMinSize(minHeight = 48.dp)`，需实测值确认；断言消息已改为打印实测 dp）；
+  · `PhoneStudioLayout#compactCardDetail` —— **实测确认的产品缺陷**（run `43837708457`）：
+  `pdig.card.detail.change-art` 在卡片详情页里 **高度 0.0dp**，而根节点是 411.4×841.5dp
+  —— 屏幕布局正常，是**该控件自己没被布局**（存在但零尺寸 ⇒ 不可点击，违反 48dp 触控最小尺寸）。
+  源码两处标签都挂了 `defaultMinSize(minHeight = 48.dp)`，说明最小尺寸没生效（待查父容器约束/分支）。
+  断言未降级；修复后可直接重新进门禁。取数方式：`workflow_dispatch` + `ui_test_classes`
+  `=com.pdig.uivnext.evidence.PhoneStudioLayoutContractTest#compactCardDetail_keepsArtworkAsSecondaryMicroAction`。
   · `NumberDetailLayoutProbe` —— 测量探针（非契约），411dp 上「service1 在风险标题之上」不成立，
   需按 phone/tablet 设备矩阵单独跑。
 - 结论：**Android 设备证据已进 CI：22 个类 / 79 例（非 UI 62 + UI 17），多次 success**；
