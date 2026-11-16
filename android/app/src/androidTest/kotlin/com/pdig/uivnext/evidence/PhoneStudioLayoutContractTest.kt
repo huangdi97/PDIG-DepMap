@@ -42,7 +42,14 @@ class PhoneStudioLayoutContractTest {
             .fetchSemanticsNode().boundsInRoot
         val minTouch = with(compose.density) { 48.dp.toPx() }
 
-        assertTrue("card-art action must keep >=48dp touch height", action.height >= minTouch)
+        // 实测 dp 写进消息，下次红时直接能看到差多少。
+        val density = compose.density.density
+        val actionDp = action.height / density
+        val minTouchDp = minTouch / density
+        assertTrue(
+            "card-art action must keep >=${minTouchDp}dp touch height (measured ${actionDp}dp)",
+            action.height >= minTouch,
+        )
         assertTrue(
             "card-art action must remain a minor action, not a full-width hero",
             action.width < root.width * 0.72f,

@@ -46,7 +46,7 @@ class NumberDetailLayoutProbeTest {
         val servicesHeader = bounds(VTestIds.NUMBER_DETAIL_SERVICES)
         val service0 = bounds("pdig.number.detail.service.0")
         val service1 = bounds("pdig.number.detail.service.1")
-        val riskHeader = compose.onNodeWithText("风险", useUnmergedTree = true)
+        val riskHeader = compose.onNodeWithText("风险与恢复", useUnmergedTree = true)
             .fetchSemanticsNode().boundsInRoot
         val gapHeroToServices = servicesHeader.top - hero.bottom
         val gapServicesToFirst = service0.top - servicesHeader.bottom

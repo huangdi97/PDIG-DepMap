@@ -1,6 +1,8 @@
 package com.pdig.uivnext.evidence
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -51,7 +53,10 @@ class ManualEstablishR24ContractTest {
         // 顶栏返回键（`pdig.r10.top.back`）只在 preview flavor 渲染
         //（VNextShell.kt: `if (BuildConfig.FLAVOR == "preview") R10TopBar(app)`），
         // production 构建里不存在，因此这里不再断言它。
-        compose.onNodeWithText("手机号 / 邮箱", useUnmergedTree = true)
+        // 中宽布局会把「手机号 / 邮箱」既当分组标题又当选项文案（实测 2 个节点），
+        // 契约本意是「这句话在场」，不是唯一性。
+        compose.onAllNodesWithText("手机号 / 邮箱", useUnmergedTree = true)
+            .onFirst()
             .performScrollTo()
             .assertIsDisplayed()
         compose.onNodeWithText(

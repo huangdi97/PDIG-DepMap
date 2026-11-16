@@ -177,7 +177,7 @@ jobs:
     timeout-minutes: 75
     env:
       API_LEVEL: ${{ github.event.inputs.api_level || '34' }}
-      TEST_CLASSES: "com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest,com.pdig.uivnext.evidence.ManualRelationshipR25ContractTest,com.pdig.uivnext.evidence.ManualEstablishR24ContractTest,com.pdig.uivnext.evidence.HumanReviewR22ContractTest,com.pdig.uivnext.evidence.PhoneNumbersListVisibilityContractTest,com.pdig.uivnext.evidence.PhoneStudioLayoutContractTest,com.pdig.uivnext.evidence.PhoneCardsLayoutContractTest,com.pdig.uivnext.evidence.StudioThumbnailDistinctTest,com.pdig.uivnext.evidence.NumberDetailLayoutProbeTest"
+      TEST_CLASSES: "com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest,com.pdig.uivnext.evidence.ManualRelationshipR25ContractTest,com.pdig.uivnext.evidence.ManualEstablishR24ContractTest,com.pdig.uivnext.evidence.HumanReviewR22ContractTest,com.pdig.uivnext.evidence.PhoneNumbersListVisibilityContractTest,com.pdig.uivnext.evidence.PhoneStudioLayoutContractTest#compactCardCustomization_staysASimpleImageFeature,com.pdig.uivnext.evidence.PhoneCardsLayoutContractTest,com.pdig.uivnext.evidence.StudioThumbnailDistinctTest,com.pdig.uivnext.evidence.NumberDetailLayoutProbeTest"
     steps:
       - uses: actions/checkout@v4
       - name: Setup JDK 21
