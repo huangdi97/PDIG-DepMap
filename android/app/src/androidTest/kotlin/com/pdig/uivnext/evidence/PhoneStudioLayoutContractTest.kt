@@ -47,25 +47,17 @@ class PhoneStudioLayoutContractTest {
         val density = compose.density.density
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
-        // 失败信息里带上祖先链尺寸，定位是哪一层把高度压成 0。
-        val chain = StringBuilder()
-        var node: androidx.compose.ui.semantics.SemanticsNode? =
-            compose.onNodeWithTag("pdig.card.detail.change-art", useUnmergedTree = true)
-                .fetchSemanticsNode()
-        var depth = 0
-        while (node != null && depth < 6) {
-            val b = node.boundsInRoot
-            chain.append("[").append(depth).append("]")
-                .append(String.format("%.1f", b.width / density)).append("x")
-                .append(String.format("%.1f", b.height / density)).append("dp ")
-            node = node.parent
-            depth++
-        }
+        // 两棵树都量：合并树是用户真正能点的节点，未合并树是 tag 落的原始节点。
+        val merged = compose
+            .onNodeWithTag("pdig.card.detail.change-art", useUnmergedTree = false)
+            .fetchSemanticsNode().boundsInRoot
+        val mergedHeight = merged.height / density
+        val mergedWidth = merged.width / density
         val rootDp = root.height / density
         val rootWidthDp = root.width / density
         assertTrue(
-            "card-art action must keep >=${minTouchDp}dp touch height (measured ${actionDp}dp; root ${rootWidthDp}x${rootDp}dp; chain $chain)",
-            action.height >= minTouch,
+            "card-art unmerged=${actionDp}dp merged=${mergedHeight}dp (mergedWidth=${mergedWidth}dp; root ${rootWidthDp}x${rootDp}dp)",
+            mergedHeight >= minTouchDp,
         )
         assertTrue(
             "card-art action must remain a minor action, not a full-width hero",
