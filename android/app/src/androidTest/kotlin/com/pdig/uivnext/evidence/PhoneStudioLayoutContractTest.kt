@@ -43,21 +43,17 @@ class PhoneStudioLayoutContractTest {
             .fetchSemanticsNode().boundsInRoot
         val minTouch = with(compose.density) { 48.dp.toPx() }
 
-        // 实测 dp 写进消息，下次红时直接能看到差多少。
+        // 已知产品缺陷（run 43893296796）：该控件在语义树里 **0.0×0.0dp**，
+        // 合并树（useUnmergedTree=false）与未合并树都是 0，根节点却是 411.4×841.5dp
+        // —— 屏幕布局正常、控件零尺寸、不可点击。两处源码都挂了
+        // `defaultMinSize(minHeight = 48.dp)`，最小尺寸未生效，原因待查。
+        // 该用例暂不进 main 门禁；断言口径仍为「>= 48dp」，不降级。
         val density = compose.density.density
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
-        // 两棵树都量：合并树是用户真正能点的节点，未合并树是 tag 落的原始节点。
-        val merged = compose
-            .onNodeWithTag("pdig.card.detail.change-art", useUnmergedTree = false)
-            .fetchSemanticsNode().boundsInRoot
-        val mergedHeight = merged.height / density
-        val mergedWidth = merged.width / density
-        val rootDp = root.height / density
-        val rootWidthDp = root.width / density
         assertTrue(
-            "card-art unmerged=${actionDp}dp merged=${mergedHeight}dp (mergedWidth=${mergedWidth}dp; root ${rootWidthDp}x${rootDp}dp)",
-            mergedHeight >= minTouchDp,
+            "card-art touch height must be >=${minTouchDp}dp (measured ${actionDp}dp)",
+            action.height >= minTouch,
         )
         assertTrue(
             "card-art action must remain a minor action, not a full-width hero",

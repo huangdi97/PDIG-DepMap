@@ -91,9 +91,10 @@ macOS 渲染不能当"App 跑起来了"。
 - 仍隔离（每条都有实测理由）：
   · `AndroidGlobeGestureContractTest` —— `pdig.globe.canvas` 需 GLES，软渲染下不存在 + 手势注入失败；
   · `PhoneStudioLayout#compactCardDetail` —— **实测确认的产品缺陷**（run `43837708457`）：
-  `pdig.card.detail.change-art` 在卡片详情页里 **高度 0.0dp**，而根节点是 411.4×841.5dp
-  —— 屏幕布局正常，是**该控件自己没被布局**（存在但零尺寸 ⇒ 不可点击，违反 48dp 触控最小尺寸）。
-  源码两处标签都挂了 `defaultMinSize(minHeight = 48.dp)`，说明最小尺寸没生效（待查父容器约束/分支）。
+  `pdig.card.detail.change-art` 在卡片详情页里是 **0.0×0.0dp** —— **合并树（`useUnmergedTree=false`）
+  与未合并树都是 0**（run `43893296796`），而根节点是 411.4×841.5dp。所以不是「测试选错树」，
+  是**该控件自己零尺寸**（存在但不可点击，违反 48dp 触控最小尺寸）。祖先链显示父节点 411.4×793.5dp
+  正常，只有它自己是 0。源码两处标签都挂了 `defaultMinSize(minHeight = 48.dp)`，最小尺寸未生效。
   断言未降级；修复后可直接重新进门禁。取数方式：`workflow_dispatch` + `ui_test_classes`
   `=com.pdig.uivnext.evidence.PhoneStudioLayoutContractTest#compactCardDetail_keepsArtworkAsSecondaryMicroAction`。
   · `NumberDetailLayoutProbe` —— 测量探针（非契约），411dp 上「service1 在风险标题之上」不成立，
