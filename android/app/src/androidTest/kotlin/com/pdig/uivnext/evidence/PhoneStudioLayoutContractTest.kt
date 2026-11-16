@@ -1,5 +1,6 @@
 package com.pdig.uivnext.evidence
 
+import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -46,6 +47,14 @@ class PhoneStudioLayoutContractTest {
         val density = compose.density.density
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
+        // 实测 0.0dp 时靠谱证据：根节点尺寸 + 语义树。
+        // 根度也是 0 → 是测试窗口问题；只有这个节点0 → 是真的不可点。
+        if (action.height <= 0f) {
+            val rootDp = root.height / density
+            val rootWidthDp = root.width / density
+            println("PROBE root=${rootWidthDp}x${rootDp}dp action=${actionDp}dp")
+            compose.onRoot(useUnmergedTree = true).printToLog("PROBE_TREE")
+        }
         assertTrue(
             "card-art action must keep >=${minTouchDp}dp touch height (measured ${actionDp}dp)",
             action.height >= minTouch,
