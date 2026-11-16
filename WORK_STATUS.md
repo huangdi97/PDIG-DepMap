@@ -75,10 +75,11 @@
 > `docs/EVIDENCE_CAPABILITY_MATRIX.md`。同时更正了 `ci.yml` 里已过时的 `IOS_CI = NOT_ESTABLISHED`。
 >
 > **ANDROID EMULATOR E2E 进 CI（2026-11-14）**：新增 `.github/workflows/android-emulator-e2e.yml`，
-> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，**两个 job，整条 run success**（`43727795818`）：
-> ① 非 UI 18 类 = **62 tests / 0 failures**（`43679686872`）；② UI 契约 4 类 = **8 tests / 0 failures**
-> （`PhoneChangeLayoutContractTest` · `ContinuityFindingsR27ContractTest` ×3 ·
-> `EstablishImportR23ContractTest` ×2 · `ManualRelationshipR25ContractTest` ×2）。
+> `ubuntu-latest` + `/dev/kvm` + x86_64 API 34 镜像，**两个 job，整条 run success**（`43813068619`）：
+> ① 非 UI 18 类 = **62 tests / 0 failures**（`43679686872`）；② UI 契约 10 类 = **17 tests / 0 failures**
+> （`PhoneChangeLayout` · `ContinuityFindingsR27` ×3 · `EstablishImportR23` ×2 ·
+> `ManualRelationshipR25` ×2 · `ManualEstablishR24` ×2 · `HumanReviewR22` ×3 ·
+> `PhoneNumbersListVisibility` · `PhoneStudioLayout`（1 例）· `PhoneCardsLayout` · `StudioThumbnailDistinct`）。
 > 修掉的三类测试侧问题（都没降级断言）：① `onNodeWithText` 的唯一性假设 →
 > `onAllNodesWithText(...).onFirst()`；② `assertIsDisplayed` 依赖窗口高度 → 对**内容节点**先
 > `performScrollTo()` 再断言 displayed（踩坑：`pdig.r25.manual-relationship` /
@@ -87,7 +88,10 @@
 > 已不存在的文案/元素（R25 旧句已改成实际渲染的「unknown 表示尚未确认它是不是必须路径…」；
 > `pdig.r10.top.back` 只在 preview flavor 渲染）。
 > 仍隔离只剩 `AndroidGlobeGestureContractTest`（`pdig.globe.canvas` 需 GLES + 软渲染手势注入）。
-> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（22/52 类，70 例）**，全量仍 `NOT_RUN`。
+> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（22/52 类，79 例）**，全量仍 `NOT_RUN`。
+> 仍隔离 3 条：`AndroidGlobeGestureContractTest`（GLES/软渲染手势）、
+> `PhoneStudioLayout#compactCardDetail`（**疑似产品缺陷**：`pdig.card.detail.change-art` 触控高度未达 48dp，
+> 断言消息已改为打印实测 dp 待确认）、`NumberDetailLayoutProbe`（测量探针，非契约，需设备矩阵单跑）。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
 > `Timeout waiting for emulator to boot`，不要再挪回去。
 >

@@ -40,7 +40,7 @@ macOS 渲染不能当"App 跑起来了"。
 | T2 `TESTED`            | ✅ CI：`:core:test` + `:app:testDebugUnitTest`                                                                                                                                                                                                                                                                                                                                   | ✅ CI：canonical 91+37、core smoke、`PDIGAppTests`                                                                                                                      | ⚠️ **仅本机**：`HARMONY_HOST_CONFORMANCE_LOCAL = PASS 89/89`（canonical 85/91 + 3 元测试 + 1 域自检）                                                                                     |
 | T3 `CONFORMANCE`       | ✅ CI 产出 `android.json`，由 `canonical` job 下载后逐用例 diff（`needs` 串行，避免恒为 NOT_RUN）                                                                                                                                                                                                                                                                                | ✅ **161/161**，报告已入库 `artifacts/runtime-evidence/2026-11-12-ios-conformance/ios.json`                                                                             | ❌ `NOT_RUN`：不产出 `harmony.json`，orchestrator 如实报 NOT_RUN                                                                                                                          |
 | T4 `STATIC_RENDER`     | ⚠️ 只有**本机 AVD 真截图**，不是静态渲染器；`FLAG_SECURE` 帧按设计全黑                                                                                                                                                                                                                                                                                                           | ✅ 60 张（30 屏 × light/dark），macOS SwiftUI `ImageRenderer`，逐文件 `MACOS_RENDER`                                                                                    | — 无渲染通道                                                                                                                                                                              |
-| T5 `SIMULATOR_RUNTIME` | ✅ **CI 已跑通（22/52 类，70 例）**：ubuntu-latest + `/dev/kvm` + x86_64 API 34，两个 job —— 非 UI 18 类 = **62 tests / 0 failures**（run `43679686872`）、UI 契约 4 类 = **8 tests / 0 failures**（run `43727795818`），整条 run success。隔离只剩 `AndroidGlobeGestureContractTest`（GLES）。**本机 AVD** 另有 post-freeze 取证（19/19 × 多种 fontScale、88 帧 + 12 张真截图） | ✅ **8/8**，`run 43572807640` / `43606405863` 两次独立整条 success；iPhone 16 Pro Max + iPad 两条腿；35 帧/腿已由 `xcresulttool export attachments` 导出为独立 artifact | ❌ `NOT_RUN`                                                                                                                                                                              |
+| T5 `SIMULATOR_RUNTIME` | ✅ **CI 已跑通（22/52 类，79 例）**：ubuntu-latest + `/dev/kvm` + x86_64 API 34，两个 job —— 非 UI 18 类 = **62 tests / 0 failures**（run `43679686872`）、UI 契约 4 类 = **8 tests / 0 failures**（run `43727795818`），整条 run success。隔离只剩 `AndroidGlobeGestureContractTest`（GLES）。**本机 AVD** 另有 post-freeze 取证（19/19 × 多种 fontScale、88 帧 + 12 张真截图） | ✅ **8/8**，`run 43572807640` / `43606405863` 两次独立整条 success；iPhone 16 Pro Max + iPad 两条腿；35 帧/腿已由 `xcresulttool export attachments` 导出为独立 artifact | ❌ `NOT_RUN`                                                                                                                                                                              |
 | T6 `DEVICE_RUNTIME`    | ❌ `NOT_RUN`（无真机证据）                                                                                                                                                                                                                                                                                                                                                       | ❌ `NOT_RUN`（无签名、无真机）                                                                                                                                          | ❌ `HARMONY_DEVICE_RUNTIME = NOT_RUN`                                                                                                                                                     |
 | T7 `STORE_READY`       | ❌ 外部 blocker（签名/素材）                                                                                                                                                                                                                                                                                                                                                     | ❌ 外部 blocker（Apple Developer）                                                                                                                                      | ❌ 外部 blocker（Huawei 身份/签名）                                                                                                                                                       |
 | 人眼验收               | `HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`                                                                                                                                                                                                                                                                                                                                              | `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`                                                                                                                                 | 无材料                                                                                                                                                                                    |
@@ -72,22 +72,30 @@ macOS 渲染不能当"App 跑起来了"。
   `android-emulator-runner` 的 `script` **逐行**用 `sh -c` 在仓库根执行，所以必须写一行
   自包含命令（`android/gradlew -p android …`）；`/dev/kvm` 初始是 `root:kvm 660`，
   必须先跑 udev 授权、再断言可读写。
-- **UI 契约（34 个 `ComposeTestRule` 类）：4 类 / 8 例进 main 门禁**（run `43727795818` 全绿）：
-  `PhoneChangeLayoutContractTest` · `ContinuityFindingsR27ContractTest` ×3 ·
-  `EstablishImportR23ContractTest` ×2 · `ManualRelationshipR25ContractTest` ×2。
-  修掉的三类测试侧问题（**均未降级断言**）：
+- **UI 契约：10 个类 / 17 例进 main 门禁**（run `43813068619` 全绿）：`PhoneChangeLayout` ·
+  `ContinuityFindingsR27` ×3 · `EstablishImportR23` ×2 · `ManualRelationshipR25` ×2 ·
+  `ManualEstablishR24` ×2 · `HumanReviewR22` ×3 · `PhoneNumbersListVisibility` ·
+  `PhoneStudioLayout`（1 例）· `PhoneCardsLayout` · `StudioThumbnailDistinct`。
+  这一轮修掉的测试侧问题（**均未降级断言**）：
   ① `onNodeWithText` 的唯一性假设（重复标签被当成缺失）→ `onAllNodesWithText(...).onFirst()`；
   ② `assertIsDisplayed` 依赖窗口高度 → 对**内容节点**先 `performScrollTo()` 再断言 displayed。
-  ⚠️ 踩坑记录：`pdig.r25.manual-relationship` / `pdig.r23.import-reference` **本身就是滚动容器**
-  （`Column + verticalScroll`），对容器调用 `performScrollTo()` 会报
-  `Semantic Node has no parent layout with a Scroll SemanticsAction` —— 容器只 assertIsDisplayed；
-  ③ 两条断言写的是**源码里已不存在的文案/元素**：R25 的旧句改为实际渲染的
-  「unknown 表示尚未确认它是不是必须路径，不表示“不重要”。」；`pdig.r10.top.back` 只在
-  **preview flavor** 渲染（`VNextShell.kt`），production 构建里没有，已移除该断言。
-- 仍隔离：**只剩** `AndroidGlobeGestureContractTest` —— `pdig.globe.canvas` 在软渲染下不存在，
-  且 `Failed to inject touch input`，需要 GLES/硬件渲染（runner 能力问题，不是测试写法）。
-- 结论：**Android 设备证据已进 CI：22 个类 / 70 例（非 UI 62 + UI 8），多次 success**；
-  剩余 30 个 UI 类可按同一套方法逐步纳入。
+  ⚠️ 踩坑：`pdig.r25.manual-relationship` / `pdig.r23.import-reference` /
+  `pdig.r22.review-inbox` / `pdig.r24.manual-establish` **本身就是滚动容器**
+  （`Column + verticalScroll`），对容器 scrollTo 会报
+  `Semantic Node has no parent layout with a Scroll SemanticsAction`——容器只 assertIsDisplayed；
+  ③ 断言指向**源码里已不存在的文案/元素**：R25 旧句 → 实际渲染的
+  「unknown 表示尚未确认它是不是必须路径，不表示“不重要”。」；`风险` → `风险与恢复`；
+  `pdig.r10.top.back` 只在 **preview flavor** 渲染，production 里没有；
+  ④ `PhoneNumbersListVisibility` 把「fixture 号码数守卫」写死成 7（fixture 已到 8）；
+  顺带记住：**不能拿 `rows.size` 反推**，列表是 lazy 的、只组合可见行（实测 6/8）。
+- 仍隔离（每条都有实测理由）：
+  · `AndroidGlobeGestureContractTest` —— `pdig.globe.canvas` 需 GLES，软渲染下不存在 + 手势注入失败；
+  · `PhoneStudioLayout#compactCardDetail` —— **疑似产品缺陷**：`pdig.card.detail.change-art` 触控高度
+  未达 48dp（源码是 `defaultMinSize(minHeight = 48.dp)`，需实测值确认；断言消息已改为打印实测 dp）；
+  · `NumberDetailLayoutProbe` —— 测量探针（非契约），411dp 上「service1 在风险标题之上」不成立，
+  需按 phone/tablet 设备矩阵单独跑。
+- 结论：**Android 设备证据已进 CI：22 个类 / 79 例（非 UI 62 + UI 17），多次 success**；
+  剩余 UI 类可用同一套「唯一性 / 滚动 / 过时断言 / lazy 列表」四查逐步纳入。
 
 ### iOS：T6 只差一个签名账号
 
