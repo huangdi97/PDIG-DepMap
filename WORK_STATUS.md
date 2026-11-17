@@ -88,12 +88,12 @@
 > 已不存在的文案/元素（R25 旧句已改成实际渲染的「unknown 表示尚未确认它是不是必须路径…」；
 > `pdig.r10.top.back` 只在 preview flavor 渲染）。
 > 仍隔离只剩 `AndroidGlobeGestureContractTest`（`pdig.globe.canvas` 需 GLES + 软渲染手势注入）。
-> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（22/52 类，80 例）**，全量仍 `NOT_RUN`。
+> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（31/52 类，92 例）**，全量仍 `NOT_RUN`。
 > **一条被推翻的结论**：`PhoneStudioLayout#compactCardDetail` 曾记为「产品缺陷」（`pdig.card.detail.change-art`
 > 量出 0.0×0.0dp）。logcat 完整树（run `44023339937`）证明它真实存在且正确：
 > `Node #148 (l=762,t=3927,r=1041,b=4053)px, Actions=[OnClick]` → 279×126px @2.625 = **106.3×48.0dp**；
 > 只是位于视口下方，而 `boundsInRoot` 会把越界节点裁剪成 0×0。加 `performScrollTo()` 后通过
-> （run `44027630529`，该用例已进 main 门禁，UI 契约 10 类 / **18 例**）。
+> （run `44027630529`，该用例已进 main 门禁，UI 契约 13 类 / **30 例**）。
 > 仍隔离 2 条：`AndroidGlobeGestureContractTest`（GLES/软渲染手势）、`NumberDetailLayoutProbe`
 > （测量探针，非契约，需设备矩阵单跑）。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
