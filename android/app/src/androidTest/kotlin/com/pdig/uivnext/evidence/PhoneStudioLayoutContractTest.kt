@@ -66,15 +66,10 @@ class PhoneStudioLayoutContractTest {
             node.children.forEach { walk(it, depth + 1) }
         }
         walk(rootNode, 0)
-        // 断言消息会被日志截断，改落文件：workflow 里 adb pull 回读后再 cat 进日志。
-        runCatching {
-            val outDir = ctx.getExternalFilesDir(null)
-            if (outDir != null) {
-                outDir.mkdirs()
-                java.io.File(outDir, "cardart-tree.txt").writeText(dump.toString())
-            }
-        }
-
+        // 断言消息会被日志截断；写到 app 内部目录，workflow 用
+        // `adb exec-out run-as <pkg> cat files/cardart-tree.txt` 回读。
+        // 不用 runCatching：写失败要立刻暴露，而不是静默吞掉。
+        java.io.File(ctx.filesDir, "cardart-tree.txt").writeText(dump.toString())
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
         assertTrue(

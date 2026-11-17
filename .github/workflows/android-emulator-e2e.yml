@@ -253,7 +253,8 @@ jobs:
           emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
           # 与上面同一约束：script 被逐行 sh -c 执行，必须一行自包含。
           # 探针文件要在这个 action 内回读：action 结束后模拟器会被销毁。
-          script: android/gradlew --no-daemon --console=plain -p android -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES} ; adb pull /sdcard/Android/data/com.pdig.depmap.app/files/cardart-tree.txt /tmp/cardart-tree.txt ; echo "---- cardart tree ----" ; cat /tmp/cardart-tree.txt
+          # debug 包可 run-as，因此读内部目录不需要外置存储。
+          script: android/gradlew --no-daemon --console=plain -p android -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES} ; echo "---- cardart tree ----" ; adb exec-out run-as com.pdig.depmap.app cat files/cardart-tree.txt
 
       - name: Upload UI contract results
         if: always()
