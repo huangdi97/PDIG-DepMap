@@ -66,6 +66,14 @@ class PhoneStudioLayoutContractTest {
             node.children.forEach { walk(it, depth + 1) }
         }
         walk(rootNode, 0)
+        // 断言消息会被日志截断，改落文件：workflow 里 adb pull 回读后再 cat 进日志。
+        runCatching {
+            val outDir = ctx.getExternalFilesDir(null)
+            if (outDir != null) {
+                outDir.mkdirs()
+                java.io.File(outDir, "cardart-tree.txt").writeText(dump.toString())
+            }
+        }
 
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
