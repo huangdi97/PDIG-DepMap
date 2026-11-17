@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.printToLog
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -66,6 +67,8 @@ class PhoneStudioLayoutContractTest {
             node.children.forEach { walk(it, depth + 1) }
         }
         walk(rootNode, 0)
+        // 完整树走 logcat（断言消息会被截断；logcat 在应用被卸载后仍可读）。
+        compose.onRoot(useUnmergedTree = true).printToLog("PROBE_TREE")
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
         // 树只放进失败消息（日志会截断，但至少给出前若干层）。
