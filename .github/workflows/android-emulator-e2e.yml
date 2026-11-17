@@ -182,7 +182,7 @@ jobs:
       API_LEVEL: ${{ github.event.inputs.api_level || '34' }}
       # 默认是已验证的绿色子集；dispatch 时可用 `ui_test_classes` 覆盖，
       # 用来单独取某条隔离用例的实测数据，而不会把 main 门禁改红。
-      TEST_CLASSES: ${{ github.event.inputs.ui_test_classes || 'com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest,com.pdig.uivnext.evidence.ManualRelationshipR25ContractTest,com.pdig.uivnext.evidence.ManualEstablishR24ContractTest,com.pdig.uivnext.evidence.HumanReviewR22ContractTest,com.pdig.uivnext.evidence.PhoneNumbersListVisibilityContractTest,com.pdig.uivnext.evidence.PhoneStudioLayoutContractTest#compactCardCustomization_staysASimpleImageFeature,com.pdig.uivnext.evidence.PhoneCardsLayoutContractTest,com.pdig.uivnext.evidence.StudioThumbnailDistinctTest' }}
+      TEST_CLASSES: ${{ github.event.inputs.ui_test_classes || 'com.pdig.uivnext.evidence.PhoneChangeLayoutContractTest,com.pdig.uivnext.evidence.ContinuityFindingsR27ContractTest,com.pdig.uivnext.evidence.EstablishImportR23ContractTest,com.pdig.uivnext.evidence.ManualRelationshipR25ContractTest,com.pdig.uivnext.evidence.ManualEstablishR24ContractTest,com.pdig.uivnext.evidence.HumanReviewR22ContractTest,com.pdig.uivnext.evidence.PhoneNumbersListVisibilityContractTest,com.pdig.uivnext.evidence.PhoneStudioLayoutContractTest,com.pdig.uivnext.evidence.PhoneCardsLayoutContractTest,com.pdig.uivnext.evidence.StudioThumbnailDistinctTest' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup JDK 21
@@ -253,8 +253,7 @@ jobs:
           emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
           # 与上面同一约束：script 被逐行 sh -c 执行，必须一行自包含。
           # 探针树在 logcat 里，必须在 action 内回读（应用会被卸载，run-as 不可用）。
-          script: android/gradlew --no-daemon --console=plain -p android -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES} ; echo "---- PROBE_TREE ----" ; adb logcat -d -s PROBE_TREE:V | tail -n 80
-
+          script: android/gradlew --no-daemon --console=plain -p android -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}
       - name: Upload UI contract results
         if: always()
         uses: actions/upload-artifact@v4
