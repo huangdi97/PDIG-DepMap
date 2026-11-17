@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,7 +62,7 @@ class VNextAccessibilityEvidenceTest {
 
         // Region List 非视觉替代（screen reader / 键盘 / 触屏均可操作）
         compose.onNode(hasText("地区", substring = false)).assertExists()
-        compose.onNode(hasText("中国大陆")).assertExists()
+        compose.onAllNodes(hasText("中国大陆")).onFirst().assertExists()
         compose.onNode(hasText("香港")).assertExists()
     }
 
