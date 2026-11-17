@@ -1,6 +1,8 @@
 package com.pdig.uivnext.evidence
 
-import androidx.compose.ui.test.printToLog
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -38,21 +40,38 @@ class PhoneStudioLayoutContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        val root = compose.onRoot().fetchSemanticsNode().boundsInRoot
+        val density = compose.density.density
+        val rootNode = compose.onRoot(useUnmergedTree = true).fetchSemanticsNode()
+        val root = rootNode.boundsInRoot
         val action = compose.onNodeWithTag("pdig.card.detail.change-art", useUnmergedTree = true)
             .fetchSemanticsNode().boundsInRoot
         val minTouch = with(compose.density) { 48.dp.toPx() }
 
-        // 已知产品缺陷（run 43893296796）：该控件在语义树里 **0.0×0.0dp**，
-        // 合并树（useUnmergedTree=false）与未合并树都是 0，根节点却是 411.4×841.5dp
-        // —— 屏幕布局正常、控件零尺寸、不可点击。两处源码都挂了
-        // `defaultMinSize(minHeight = 48.dp)`，最小尺寸未生效，原因待查。
-        // 该用例暂不进 main 门禁；断言口径仍为「>= 48dp」，不降级。
-        val density = compose.density.density
+        // 已知产品缺陷（run 43893296796）：该控件在语义树里 0.0x0.0dp，合并树/未合并树一致，
+        // 根节点 411.4x841.5dp 正常。这里再把带 tag 的节点及其子节点转储出来，
+        // 判断它到底是「空壳」还是「有内容但被压成 0」。
+        val dump = StringBuilder()
+        fun walk(node: SemanticsNode, depth: Int) {
+            if (dump.length > 2400 || depth > 4) return
+            val b = node.boundsInRoot
+            val tag = node.config.getOrNull(SemanticsProperties.TestTag)
+            val texts = node.config.getOrNull(SemanticsProperties.Text)
+            val label = texts?.joinToString("|") { it.text } ?: ""
+            val w = b.width / density
+            val h = b.height / density
+            dump.append("  ".repeat(depth))
+            if (tag != null) dump.append("#").append(tag).append(" ")
+            if (label.isNotEmpty()) dump.append("T[").append(label.take(18)).append("] ")
+            dump.append(String.format("%.1fx%.1f", w, h)).append("\n")
+            node.children.forEach { walk(it, depth + 1) }
+        }
+        walk(rootNode, 0)
+
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
         assertTrue(
-            "card-art touch height must be >=${minTouchDp}dp (measured ${actionDp}dp)",
+            "card-art touch height must be >=${minTouchDp}dp (measured ${actionDp}dp)" +
+                " root ${root.width / density}x${root.height / density}dp tree=[$dump]",
             action.height >= minTouch,
         )
         assertTrue(
