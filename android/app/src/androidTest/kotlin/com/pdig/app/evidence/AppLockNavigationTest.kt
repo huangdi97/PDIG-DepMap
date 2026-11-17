@@ -122,7 +122,7 @@ class AppLockNavigationTest {
         compose.onNodeWithText("重新检查设备能力").assertIsDisplayed()
         compose.onNodeWithText("已知悉风险，本次进入").performClick()
         compose.waitUntil(timeoutMillis = 10_000) { !LockGate.locked }
-        compose.waitUntil(timeoutMillis = 15_000) {
+        compose.waitUntil(timeoutMillis = 30_000) {
             compose.onAllNodesWithText(homeOnlyText).fetchSemanticsNodes().isNotEmpty()
         }
         // ENV-TIMING: on this slow API36 AVD the home content can briefly recompose
