@@ -61,9 +61,9 @@ class VNextAccessibilityEvidenceTest {
         ).assertExists()
 
         // Region List 非视觉替代（screen reader / 键盘 / 触屏均可操作）
-        compose.onNode(hasText("地区", substring = false)).assertExists()
+        compose.onAllNodes(hasText("地区", substring = false)).onFirst().assertExists()
         compose.onAllNodes(hasText("中国大陆")).onFirst().assertExists()
-        compose.onNode(hasText("香港")).assertExists()
+        compose.onAllNodes(hasText("香港")).onFirst().assertExists()
     }
 
     @Test
