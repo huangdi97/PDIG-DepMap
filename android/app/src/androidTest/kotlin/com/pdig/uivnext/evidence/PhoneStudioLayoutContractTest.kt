@@ -66,12 +66,11 @@ class PhoneStudioLayoutContractTest {
             node.children.forEach { walk(it, depth + 1) }
         }
         walk(rootNode, 0)
-        // 断言消息会被日志截断；写到 app 内部目录，workflow 用
-        // `adb exec-out run-as <pkg> cat files/cardart-tree.txt` 回读。
-        // 不用 runCatching：写失败要立刻暴露，而不是静默吞掉。
-        java.io.File(ctx.filesDir, "cardart-tree.txt").writeText(dump.toString())
         val actionDp = action.height / density
         val minTouchDp = minTouch / density
+        // 树只放进失败消息（日志会截断，但至少给出前若干层）。
+        // 想拿完整树：用 `onRoot().printToLog("PROBE_TREE")` + 同一 action 内
+        // `adb logcat -d -s PROBE_TREE`（logcat 在应用卸载后仍在，run-as 不行）。
         assertTrue(
             "card-art touch height must be >=${minTouchDp}dp (measured ${actionDp}dp)" +
                 " root ${root.width / density}x${root.height / density}dp tree=[$dump]",
