@@ -87,13 +87,13 @@
 > `Semantic Node has no parent layout with a Scroll SemanticsAction`）；③ 两条断言写的是源码里
 > 已不存在的文案/元素（R25 旧句已改成实际渲染的「unknown 表示尚未确认它是不是必须路径…」；
 > `pdig.r10.top.back` 只在 preview flavor 渲染）。
-> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（46/52 类，186 例）**，全量仍 `NOT_RUN`。
+> 因此 `ANDROID_EMULATOR_E2E` 记**子集 PASS（47/52 类，195 例）**，全量仍 `NOT_RUN`。
 > **一条被推翻的结论**：`PhoneStudioLayout#compactCardDetail` 曾记为「产品缺陷」（`pdig.card.detail.change-art`
 > 量出 0.0×0.0dp）。logcat 完整树（run `44023339937`）证明它真实存在且正确：
 > `Node #148 (l=762,t=3927,r=1041,b=4053)px, Actions=[OnClick]` → 279×126px @2.625 = **106.3×48.0dp**；
 > 只是位于视口下方，而 `boundsInRoot` 会把越界节点裁剪成 0×0。加 `performScrollTo()` 后通过
-> （run `44027630529`，该用例已进 main 门禁，UI 契约 28 类 / **124 例**）。
-> 仍隔离 8 项：`AndroidGlobeGestureContractTest` + `AndroidGlobeEvidenceContractTest`（都需 GLES 的
+> （run `44027630529`，该用例已进 main 门禁，UI 契约 29 类 / **133 例**）。
+> 仍隔离 5 项：`AndroidGlobeGestureContractTest` + `AndroidGlobeEvidenceContractTest`（都需 GLES 的
 > `pdig.globe.canvas`，软渲染下不存在）、`NumberDetailVerticalFlowContractTest`（`修改名称 →` 已不存在 +
 > gap 量到 869dp 属 bounds 坐标失真）、`NumberDetailLayoutProbe`（测量探针，需设备矩阵单跑）。
 > macos-15 路线已实测排除：`HVF error: HV_UNSUPPORTED`（托管 macOS runner 无嵌套虚拟化）→
