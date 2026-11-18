@@ -97,7 +97,11 @@ macOS 渲染不能当"App 跑起来了"。
   → 教训：**用 `boundsInRoot` 判断尺寸前必须先滚进视口**；0×0 优先怀疑裁剪，而不是产品。
 - 仍隔离（每条都有实测理由，均来自 run `44034066201` / `44039471671`）：
   · `AndroidGlobeGestureContractTest` 与 `AndroidGlobeEvidenceContractTest` —— 都需要
-  `TestTag = 'pdig.globe.canvas'`，软渲染（swiftshader）下该节点不存在，且手势注入失败 ⇒ runner 的 GLES 能力问题；
+  `TestTag = 'pdig.globe.canvas'`。已试 **两种 GPU 模式**：`swiftshader_indirect` 与 `-gpu guest`
+  （run `44247199095`）都不行。根因在 `R15WorldScene.kt` 的能力探针：
+  `supportsR15GpuEarth()` 要求 `deviceConfigurationInfo.reqGlEsVersion >= 0x20000`，且 `R15GpuEarthView`
+  （GLSurfaceView）能真正初始化；托管模拟器两条都不满足 ⇒ App **按设计降级**到 fallback，地球画布从未被组合。
+  结论：这是**需要真机（GLES 2.0+）才能验的契约**，不是测试写法或产品缺陷。
   · `NumberDetailVerticalFlowContractTest` —— 两条：`修改名称 →` 文案在源码里已不存在（过时断言），
   以及 `summary→services gap` 量到 **869dp**（阈值 84dp）——同样是 `boundsInRoot` 对越界节点的坐标失真，
   属测量探针而非契约；
