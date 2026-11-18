@@ -89,7 +89,11 @@ class NumberDetailVerticalFlowContractTest {
         compose.waitForIdle()
         assertEquals(VScreen.NUMBER_CUSTOMIZATION, app.screen)
 
-        // 2) 状态面：本地别名只改「展示名」，不改规范记录号码
+        // 2) 回到详情页再做「展示名」断言：上一步已经离开详情页
+        app.openNumber("num-cn-1")
+        compose.waitForIdle()
+
+        // 3) 状态面：本地别名只改「展示名」，不改规范记录号码
         app.renameNumber("num-cn-1", "HK-Main")
         assertEquals("HK-Main", app.numberAlias("num-cn-1"))
         assertEquals("HK-Main", app.numberDisplayNameForScreen("num-cn-1", "+86 138****8823"))
