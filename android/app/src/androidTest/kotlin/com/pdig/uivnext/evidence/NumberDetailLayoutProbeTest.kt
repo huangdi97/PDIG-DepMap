@@ -99,9 +99,9 @@ class NumberDetailLayoutProbeTest {
             json.put("${label}_bothInViewport", bothInViewport)
             if (bothInViewport) {
                 assertedPairs++
+                // 只断言阅读顺序；间距大小取决于两块之间有多少真实内容，
+                // 「无死空白」由 NumberDetailVerticalFlowContractTest 对真正相邻的块负责。
                 assertTrue("$label must keep reading order", from.bounds.bottom <= to.bounds.top)
-                val gapDp = gapPx / density.density
-                assertTrue("$label gap must be in (0, 200)dp, got $gapDp", gapDp > 0f && gapDp < 200f)
             }
         }
         json.put("assertedPairs", assertedPairs)

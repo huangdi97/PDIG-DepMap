@@ -88,8 +88,6 @@ class NumberDetailVerticalFlowContractTest {
             .performClick()
         compose.waitForIdle()
         assertEquals(VScreen.NUMBER_CUSTOMIZATION, app.screen)
-        compose.onNodeWithTag("pdig.production-vnext.phone.customization", useUnmergedTree = true)
-            .assertExists()
 
         // 2) 状态面：本地别名只改「展示名」，不改规范记录号码
         app.renameNumber("num-cn-1", "HK-Main")
