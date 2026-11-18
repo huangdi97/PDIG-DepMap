@@ -93,18 +93,17 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        // 换号页的分段会落在折叠下方：先滚进视口再断言可见（语义不变）。
-        listOf(
-            VTestIds.CHANGE_OLD,
-            VTestIds.CHANGE_SERVICES,
-            VTestIds.CHANGE_NEW,
-            VTestIds.CHANGE_STEPPER_MINI,
-            "pdig.r18.change.impact-summary",
-        ).forEach { tag ->
-            compose.onNodeWithTag(tag, useUnmergedTree = true)
+        // 当前实现是「单一投影选择器 + 阶段详情」，而不是三个独立表单：
+        // 旧的 CHANGE_OLD / CHANGE_SERVICES / CHANGE_NEW / CHANGE_STEPPER_MINI 已不再渲染
+        // （它们只在 UiVNextModels 里作为常量残留）。
+        listOf("current", "transition", "after").forEach { key ->
+            compose.onNodeWithTag("pdig.change.projection.$key", useUnmergedTree = true)
                 .performScrollTo()
                 .assertIsDisplayed()
         }
+        compose.onNodeWithTag("pdig.r18.change.impact-summary", useUnmergedTree = true)
+            .performScrollTo()
+            .assertIsDisplayed()
     }
 
     @Test
