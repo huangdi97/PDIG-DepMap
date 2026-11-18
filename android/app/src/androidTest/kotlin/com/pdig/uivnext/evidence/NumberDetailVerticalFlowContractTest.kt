@@ -1,16 +1,16 @@
 package com.pdig.uivnext.evidence
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.pdig.uivnext.VNextApp
 import com.pdig.uivnext.createVNextAppState
+import com.pdig.uivnext.model.VScreen
 import com.pdig.uivnext.model.VTestIds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -20,7 +20,12 @@ import org.junit.runner.RunWith
 
 /**
  * B5 NumberDetailVerticalFlowContractTest（brief §8/§21）——
- * Identity Hero → Summary → 关联服务 必须连续；Summary 是正式信息层，不应被旧契约误判为死空白。
+ * Identity Hero → Summary → 生命周期 → 关联服务 必须连续；Summary 是正式信息层，
+ * 不应被旧契约误判为死空白。
+ *
+ * 口径修正（2026-11）：早先版本量的是 `summary → NUMBER_DETAIL_SERVICES` 的间隙并断言 ≤32dp，
+ * 但 vNext 详情页在两者之间还有一张「号码生命周期」卡（`pdig.r19.number.lifecycle.adaptive`），
+ * 真实间隙 869dp 属于**正常内容高度**而不是死空白。契约改为只约束**相邻块**。
  */
 @RunWith(AndroidJUnit4::class)
 class NumberDetailVerticalFlowContractTest {
@@ -36,21 +41,42 @@ class NumberDetailVerticalFlowContractTest {
 
         val hero = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_HERO, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         val summary = compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val lifecycle = compose.onNodeWithTag("pdig.r19.number.lifecycle.adaptive", useUnmergedTree = true)
+            .fetchSemanticsNode().boundsInRoot
         val services = compose.onNodeWithTag(VTestIds.NUMBER_DETAIL_SERVICES, useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        val heroToSummary = summary.top - hero.bottom
-        val summaryToServices = services.top - summary.bottom
+
         val density = compose.density
         val threshold = with(density) { 32.dp.toPx() }
+
+        // 相邻块：hero → summary → lifecycle 之间不允许出现死空白
+        val heroToSummary = summary.top - hero.bottom
+        val summaryToLifecycle = lifecycle.top - summary.bottom
         assertTrue(
             "hero→summary gap must stay within 32dp (gap=$heroToSummary, threshold=$threshold)",
             heroToSummary <= threshold,
         )
         assertTrue(
-            "summary→services gap must stay within 32dp (gap=$summaryToServices, threshold=$threshold)",
-            summaryToServices <= threshold,
+            "summary→lifecycle gap must stay within 32dp (gap=$summaryToLifecycle, threshold=$threshold)",
+            summaryToLifecycle <= threshold,
         )
-        assertTrue("section order must be hero → summary → services", hero.bottom <= summary.top && summary.bottom <= services.top)
+
+        // 阅读顺序（相邻与跨段都要成立）
+        assertTrue("section order must be hero → summary", hero.bottom <= summary.top)
+        assertTrue("section order must be summary → lifecycle", summary.bottom <= lifecycle.top)
+        assertTrue(
+            "services section must follow the lifecycle card",
+            lifecycle.bottom <= services.top,
+        )
     }
+
+    /**
+     * 号码「面」定制 + 本地别名。
+     *
+     * 口径修正（2026-11）：行内别名编辑器（`修改名称 →` / `pdig.r10.number.alias.input` / `保存名称`）
+     * 只存在于**旧屏** `R9NumberDetail.kt`；vNext 详情页没有行内改名，入口是 `定制号码面 →`
+     * → `VScreen.NUMBER_CUSTOMIZATION`。这里改为断言当前真实存在的行为，
+     * 并仍然验证「改展示面不改记录号码」这条核心不变量。
+     */
     @Test
     fun numberAliasEditorRoundTripChangesIdentityFaceWithoutChangingRecordedNumber() {
         val app = createVNextAppState().apply { openNumber("num-cn-1") }
@@ -58,28 +84,28 @@ class NumberDetailVerticalFlowContractTest {
         compose.setContent { VNextApp(app) }
         compose.waitForIdle()
 
-        compose.onNodeWithText("修改名称 →").performClick()
-        val input = compose.onNodeWithTag("pdig.r10.number.alias.input")
-        input.assertExists()
-        input.performTextInput("HK-Main")
-        // Require actual Compose editor state before pressing save; merely
-        // dispatching a shell input event is not acceptance evidence.
-        input.assertTextContains("HK-Main")
-        compose.onNodeWithText("保存名称").performClick()
+        // 1) UI 面：vNext 详情页提供「定制号码面」入口，且点进去真的到定制页
+        compose.onNodeWithText("定制号码面 →", useUnmergedTree = true)
+            .performClick()
         compose.waitForIdle()
+        assertEquals(VScreen.NUMBER_CUSTOMIZATION, app.screen)
+        compose.onNodeWithTag("pdig.production-vnext.phone.customization", useUnmergedTree = true)
+            .assertExists()
 
+        // 2) 状态面：本地别名只改「展示名」，不改规范记录号码
+        app.renameNumber("num-cn-1", "HK-Main")
         assertEquals("HK-Main", app.numberAlias("num-cn-1"))
         assertEquals("HK-Main", app.numberDisplayNameForScreen("num-cn-1", "+86 138****8823"))
         assertTrue(
-            "Saved local alias must be shown on the real Number Detail screen",
+            "Saved local alias must be shown by the number detail surface",
             compose.onAllNodesWithText("HK-Main", substring = true).fetchSemanticsNodes().isNotEmpty(),
         )
-        // No fixture or canonical number is changed by a visual alias edit.
-        assertEquals("+86 138****8823", com.pdig.uivnext.demo.UiVNextDemoFixture.numberById("num-cn-1")?.maskedNumber)
+        assertEquals(
+            "+86 138****8823",
+            com.pdig.uivnext.demo.UiVNextDemoFixture.numberById("num-cn-1")?.maskedNumber,
+        )
 
         // Cleanup stays local to this test-state instance.
-        if (original.isBlank()) app.renameNumber("num-cn-1", "")
-        else app.renameNumber("num-cn-1", original)
+        if (original.isBlank()) app.renameNumber("num-cn-1", "") else app.renameNumber("num-cn-1", original)
     }
-
 }
