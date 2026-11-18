@@ -27,6 +27,9 @@ on:
       ui_test_classes:
         description: "UI 契约 job 的类列表（留空 = 用默认绿色子集；用于单独取数，不影响 main 门禁）"
         default: ""
+      gpu_mode:
+        description: "emulator -gpu 模式（留空 = swiftshader_indirect；guest 会报告 GLES 2.0）"
+        default: ""
   push:
     branches: [main]
     paths:
@@ -250,7 +253,7 @@ jobs:
           arch: x86_64
           profile: pixel_6
           disable-animations: true
-          emulator-options: -no-snapshot -no-window -no-boot-anim -gpu swiftshader_indirect
+          emulator-options: -no-snapshot -no-window -no-boot-anim -gpu ${{ github.event.inputs.gpu_mode || 'swiftshader_indirect' }}
           # 与上面同一约束：script 被逐行 sh -c 执行，必须一行自包含。
           # 探针树在 logcat 里，必须在 action 内回读（应用会被卸载，run-as 不可用）。
           script: android/gradlew --no-daemon --console=plain -p android -PpdigProductionUiGeneration=vnext -PpdigProductionVNextCutoverApproved=true :app:connectedProductionDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${TEST_CLASSES}
