@@ -114,6 +114,12 @@ class UiScreenshotEvidenceTest {
             "VALUES ('$dev','device','备用设备',0,'{}','self','$now','$now')")
         drv.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
             "VALUES ('$acct','account','主账户',0,'{}','self','$now','$now')")
+        // `replace_payment_card` 的 target 必须是 payment_instrument；
+        // 之前用 `app.nodes().firstOrNull()`（实际拿到 account）会被
+        // PlanRepository.validateScenarioTarget 正确拒绝。
+        val card = "shot-card-1"
+        drv.exec("INSERT INTO nodes (id, kind, name, archived, fields_json, owner, created_at, updated_at) " +
+            "VALUES ('$card','payment_instrument','示例信用卡',0,'{}','self','$now','$now')")
         fun depEdge(id: String, from: String, to: String) {
             drv.exec(
                 "INSERT INTO dependencies (id, from_node, relation, to_node, capability, criticality, state, origin, confirmed_at, last_verified_at, created_at, updated_at) " +
@@ -125,7 +131,7 @@ class UiScreenshotEvidenceTest {
         depEdge("shot-dep-3", phone2, acct)
         depEdge("shot-dep-4", acct, phone2)
         // change plan
-        val target = app.nodes().firstOrNull() ?: return
+        val target = app.nodes().firstOrNull { it.id == card } ?: return
         val planId = app.createPlanForScenario(
             ScenarioPlanRequest("replace_payment_card", targetNodeId = target.id, effectiveDate = null),
         )

@@ -93,12 +93,18 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
 
-        compose.onNodeWithTag(VTestIds.CHANGE_OLD, useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag(VTestIds.CHANGE_SERVICES, useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag(VTestIds.CHANGE_NEW, useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag(VTestIds.CHANGE_STEPPER_MINI, useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.r18.change.impact-summary", useUnmergedTree = true)
-            .assertIsDisplayed()
+        // 换号页的分段会落在折叠下方：先滚进视口再断言可见（语义不变）。
+        listOf(
+            VTestIds.CHANGE_OLD,
+            VTestIds.CHANGE_SERVICES,
+            VTestIds.CHANGE_NEW,
+            VTestIds.CHANGE_STEPPER_MINI,
+            "pdig.r18.change.impact-summary",
+        ).forEach { tag ->
+            compose.onNodeWithTag(tag, useUnmergedTree = true)
+                .performScrollTo()
+                .assertIsDisplayed()
+        }
     }
 
     @Test
@@ -119,7 +125,7 @@ class AndroidLightVisualSourceContractTest {
         compose.setContent { VNextApp(app, forcedViewportWidthDp = 360) }
         compose.waitForIdle()
         compose.onNodeWithTag("pdig.number.detail.summary", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("pdig.r18.number.lifecycle", useUnmergedTree = true)
+        compose.onNodeWithTag("pdig.r19.number.lifecycle.adaptive", useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
         assertTrue(
@@ -133,7 +139,7 @@ class AndroidLightVisualSourceContractTest {
         compose.onNodeWithTag("pdig.card.detail.summary", useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
-        compose.onNodeWithTag("pdig.r18.card.lifecycle", useUnmergedTree = true)
+        compose.onNodeWithTag("pdig.r19.card.lifecycle.adaptive", useUnmergedTree = true)
             .performScrollTo()
             .assertIsDisplayed()
         assertTrue(
