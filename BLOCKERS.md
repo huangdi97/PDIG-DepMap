@@ -62,7 +62,11 @@
 >   的失败已定位并修复根因——该 AVD 遗留 `font_scale = 1.5`，而产品在 `fontScale > 1.15` 时**有意**回退紧凑连续场景；
 >   另两条 `compact*` 契约把「强制内容视口 360dp」当成窗口类，实际导航外框取真实窗口。重置字号为 1.0 并为两条
 >   compact 契约加上 `< 600dp` 窗口前提后：**15 run / 0 failed / 2 skipped**（skip 属显式窗口类假定，不是 PASS）。
-> - **仍未关闭**：§27 phone-preview 28 张截图本轮未重抓，已在 `MANIFEST.json` 记为 `NOT_RUN`（禁止用旧图改名冒充）。
+> - **已关闭（2026-11 补抓）**：§27 phone-preview 截图已按当前 main 重抓——run `44377764666`，
+>   `sha = 32377d34`，**72 张**（`artifacts/runtime-evidence/preview-phone/`），`manifest.json` 自报
+>   `assertion = RUNTIME_PIXELS_CAPTURED_ONLY__NOT_VISUAL_PARITY`：只证明「真机像素被真实截取」，
+>   不冒充视觉 1:1。首次尝试因 Maven Central `429` 失败（基础设施，非代码），重跑后 success；
+>   原记录的 `NOT_RUN` 不再成立。
 > - `PIXEL_REFERENCE_LIMITATION`：仓库内 Android 参考图仍为小尺寸历史图（≈320×213），本轮不做像素级 diff 声明。
 > - Device / Membership / Custom 身份本轮无法进入 runtime Reality：Canonical 仅允许
 >   `payment_instrument/account/service` 在运行时创建，故 `设备端点` hero 与后两类遮蔽态只能在源码/契约层确认。
