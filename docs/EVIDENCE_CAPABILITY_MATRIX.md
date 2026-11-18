@@ -40,7 +40,7 @@ macOS 渲染不能当"App 跑起来了"。
 | T2 `TESTED`            | ✅ CI：`:core:test` + `:app:testDebugUnitTest`                                                                                                                                                                                                                                                                                                                                      | ✅ CI：canonical 91+37、core smoke、`PDIGAppTests`                                                                                                                      | ⚠️ **仅本机**：`HARMONY_HOST_CONFORMANCE_LOCAL = PASS 89/89`（canonical 85/91 + 3 元测试 + 1 域自检）                                                                                     |
 | T3 `CONFORMANCE`       | ✅ CI 产出 `android.json`，由 `canonical` job 下载后逐用例 diff（`needs` 串行，避免恒为 NOT_RUN）                                                                                                                                                                                                                                                                                   | ✅ **161/161**，报告已入库 `artifacts/runtime-evidence/2026-11-12-ios-conformance/ios.json`                                                                             | ❌ `NOT_RUN`：不产出 `harmony.json`，orchestrator 如实报 NOT_RUN                                                                                                                          |
 | T4 `STATIC_RENDER`     | ⚠️ 只有**本机 AVD 真截图**，不是静态渲染器；`FLAG_SECURE` 帧按设计全黑                                                                                                                                                                                                                                                                                                              | ✅ 60 张（30 屏 × light/dark），macOS SwiftUI `ImageRenderer`，逐文件 `MACOS_RENDER`                                                                                    | — 无渲染通道                                                                                                                                                                              |
-| T5 `SIMULATOR_RUNTIME` | ✅ **CI 已跑通（47/52 类，195 例）**：ubuntu-latest + `/dev/kvm` + x86_64 API 34，两个 job —— 非 UI 18 类 = **62 tests / 0 failures**（run `43679686872`）、UI 契约 4 类 = **133 tests / 0 failures**（run `44307745031`），整条 run success。隔离只剩 `AndroidGlobeGestureContractTest`（GLES）。**本机 AVD** 另有 post-freeze 取证（19/19 × 多种 fontScale、88 帧 + 12 张真截图） | ✅ **8/8**，`run 43572807640` / `43606405863` 两次独立整条 success；iPhone 16 Pro Max + iPad 两条腿；35 帧/腿已由 `xcresulttool export attachments` 导出为独立 artifact | ❌ `NOT_RUN`                                                                                                                                                                              |
+| T5 `SIMULATOR_RUNTIME` | ✅ **CI 已跑通（49/52 类，198 例）**：ubuntu-latest + `/dev/kvm` + x86_64 API 34，两个 job —— 非 UI 18 类 = **62 tests / 0 failures**（run `43679686872`）、UI 契约 4 类 = **136 tests / 0 failures**（run `44362509080`），整条 run success。隔离只剩 `AndroidGlobeGestureContractTest`（GLES）。**本机 AVD** 另有 post-freeze 取证（19/19 × 多种 fontScale、88 帧 + 12 张真截图） | ✅ **8/8**，`run 43572807640` / `43606405863` 两次独立整条 success；iPhone 16 Pro Max + iPad 两条腿；35 帧/腿已由 `xcresulttool export attachments` 导出为独立 artifact | ❌ `NOT_RUN`                                                                                                                                                                              |
 | T6 `DEVICE_RUNTIME`    | ❌ `NOT_RUN`（无真机证据）                                                                                                                                                                                                                                                                                                                                                          | ❌ `NOT_RUN`（无签名、无真机）                                                                                                                                          | ❌ `HARMONY_DEVICE_RUNTIME = NOT_RUN`                                                                                                                                                     |
 | T7 `STORE_READY`       | ❌ 外部 blocker（签名/素材）                                                                                                                                                                                                                                                                                                                                                        | ❌ 外部 blocker（Apple Developer）                                                                                                                                      | ❌ 外部 blocker（Huawei 身份/签名）                                                                                                                                                       |
 | 人眼验收               | `HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`                                                                                                                                                                                                                                                                                                                                                 | `IOS_HUMAN_VISUAL_ACCEPTANCE = NOT_RUN`                                                                                                                                 | 无材料                                                                                                                                                                                    |
@@ -102,17 +102,25 @@ macOS 渲染不能当"App 跑起来了"。
   `supportsR15GpuEarth()` 要求 `deviceConfigurationInfo.reqGlEsVersion >= 0x20000`，且 `R15GpuEarthView`
   （GLSurfaceView）能真正初始化；托管模拟器两条都不满足 ⇒ App **按设计降级**到 fallback，地球画布从未被组合。
   结论：这是**需要真机（GLES 2.0+）才能验的契约**，不是测试写法或产品缺陷。
-  · `NumberDetailVerticalFlowContractTest` —— 两条：`修改名称 →` 文案在源码里已不存在（过时断言），
-  以及 `summary→services gap` 量到 **869dp**（阈值 84dp）——同样是 `boundsInRoot` 对越界节点的坐标失真，
-  属测量探针而非契约；
-  · `NumberDetailLayoutProbe` —— 测量探针，411dp 上「service1 在风险标题之上」不成立，需设备矩阵单跑。
   · `SourceCompleteScreenshotEvidenceTest` —— 该用例要求地球达到 `GlobeRenderState.TEXTURE_READY`
   并对 globe 区域做蓝色像素比断言（`GLOBE_SCREENS`），与上面两条是同一条 GLES 门槛；
   run `44219241218` 报 `capture failed for 02-overview-global`。
 - 仍隔离（补充）：`AppLockNavigationTest#explicitAcknowledgmentUnlocksOnADeviceWithoutAnyCredential` ——
   无凭据的 headless AVD 上点完「已知悉风险，本次进入」后，主页内容 15s/30s 仍未出现
   （`ComposeTimeoutException`，run `44112044806` / `44120688332`）；同类其余 6 个方法已在门禁内并通过。
-- **两项已从隔离转为门禁成员**（run `44307745031`）：
+- **四项已从隔离转为门禁成员**（run `44362509080`）：
+  · `NumberDetailLayoutProbeTest` —— 原版对「同一父 Column 里但不在同一屏」的四个端点做顺序断言，
+  必然失败。改为**视口感知**：只在两端同时落在视口内时断言阅读顺序，其余把真实 dp 与
+  `bothInViewport=false` 写进 JSON（探针必须至少量到一对，不允许「零证据」通过）；
+  · `NumberDetailVerticalFlowContractTest` —— `summary→services` 869dp 不是死空白，中间还有
+  「号码生命周期」卡（`pdig.r19.number.lifecycle.adaptive`）；契约改为只约束**相邻块**；
+  别名那条原是旧屏 `R9NumberDetail.kt` 的行内编辑器，vNext 入口是 `定制号码面 →`；
+  · `AndroidLightVisualSourceContractTest` —— 旧 tag `pdig.r18.number|card.lifecycle` 换成 `pdig.r19.*.adaptive`；
+  · `UiScreenshotEvidenceTest#capturesAllProductionPages_lightAndDark` —— 造数补 `payment_instrument` 节点。
+- 新发现（产品现状，非缺陷）：**vNext 号码详情页不渲染本地别名**——hero 用 fixture 的 `NumberFace`，
+  别名只参与 `numberDisplayNameForScreen`。旧屏有行内改名，新屏没有；已在该用例里注明，
+  是否要补 UI 由产品决定，测试不再把「不存在的 UI」当回归。
+- **更早一轮的两项**（run `44307745031`，明细如下）：
   · `AndroidLightVisualSourceContractTest` —— 旧 tag `pdig.r18.number|card.lifecycle` 换成屏幕上真实存在的
   `pdig.r19.number|card.lifecycle.adaptive`；换号屏断言改为真实的投影选择器
   `pdig.change.projection.{current,transition,after}`（旧的 `CHANGE_OLD/SERVICES/NEW/STEPPER_MINI`
@@ -120,7 +128,7 @@ macOS 渲染不能当"App 跑起来了"。
   · `UiScreenshotEvidenceTest#capturesAllProductionPages_lightAndDark` —— 造数改为先插入
   `payment_instrument` 节点、再作为 `replace_payment_card` 的 target（原实现取 `nodes().firstOrNull()`
   拿到 account，被 `validateScenarioTarget` 正确拒绝）。
-- 结论：**Android 设备证据已进 CI：47 个类 / 195 例（非 UI 18 类 62 例 + UI 29 类 133 例），多次 success**；
+- 结论：**Android 设备证据已进 CI：49 个类 / 198 例（非 UI 18 类 62 例 + UI 31 类 136 例），多次 success**；
   剩余 UI 类可用同一套「唯一性 / 滚动 / 过时断言 / lazy 列表 / bounds 裁剪」五查逐步纳入。
 
 ### iOS：T6 只差一个签名账号
